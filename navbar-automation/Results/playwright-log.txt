@@ -1,0 +1,61 @@
+{"level":30,"time":"2025-09-15T06:08:49.885Z","pid":18184,"hostname":"CONNCHAUL01","msg":"Listening on 127.0.0.1:54680"}
+(node:18184) DeprecationWarning: Calling start() is no longer necessary. It can be safely omitted.
+(Use `node --trace-deprecation ...` to show where the warning was created)
+{"level":30,"time":"2025-09-15T06:08:50.457Z","pid":18184,"hostname":"CONNCHAUL01","msg":"Start of node method newBrowser"}
+{"level":30,"time":"2025-09-15T06:08:54.392Z","pid":18184,"hostname":"CONNCHAUL01","msg":"Adding browser to stack: chromium, version: 138.0.7204.23"}
+{"level":30,"time":"2025-09-15T06:08:54.393Z","pid":18184,"hostname":"CONNCHAUL01","msg":"End of node method newBrowser"}
+{"level":30,"time":"2025-09-15T06:08:54.393Z","pid":18184,"hostname":"CONNCHAUL01","msg":"Adding 0 contexts to browser"}
+{"level":30,"time":"2025-09-15T06:08:54.403Z","pid":18184,"hostname":"CONNCHAUL01","msg":"Start of node method newContext"}
+{"level":30,"time":"2025-09-15T06:08:54.403Z","pid":18184,"hostname":"CONNCHAUL01","msg":"Creating new context with options: {\"acceptDownloads\":true,\"bypassCSP\":false,\"forcedColors\":\"none\",\"ignoreHTTPSErrors\":false,\"javaScriptEnabled\":true,\"offline\":false,\"reducedMotion\":\"no-preference\",\"serviceWorkers\":\"allow\",\"viewport\":null}"}
+{"level":30,"time":"2025-09-15T06:08:54.404Z","pid":18184,"hostname":"CONNCHAUL01","msg":"currentBrowser: [object Object]"}
+{"level":30,"time":"2025-09-15T06:08:54.404Z","pid":18184,"hostname":"CONNCHAUL01","msg":"Trace file: "}
+{"level":30,"time":"2025-09-15T06:08:54.451Z","pid":18184,"hostname":"CONNCHAUL01","msg":"Changed active context"}
+{"level":30,"time":"2025-09-15T06:08:54.451Z","pid":18184,"hostname":"CONNCHAUL01","msg":"End of node method newContext"}
+{"level":30,"time":"2025-09-15T06:08:54.458Z","pid":18184,"hostname":"CONNCHAUL01","msg":"Start of node method newPage"}
+{"level":30,"time":"2025-09-15T06:08:54.459Z","pid":18184,"hostname":"CONNCHAUL01","msg":"currentBrowser: [object Object]"}
+{"level":30,"time":"2025-09-15T06:08:54.690Z","pid":18184,"hostname":"CONNCHAUL01","msg":"Video path: undefined"}
+{"level":30,"time":"2025-09-15T06:08:54.690Z","pid":18184,"hostname":"CONNCHAUL01","msg":"Changed active page"}
+{"level":30,"time":"2025-09-15T06:08:54.701Z","pid":18184,"hostname":"CONNCHAUL01","msg":"End of node method newPage"}
+{"level":30,"time":"2025-09-15T06:08:54.707Z","pid":18184,"hostname":"CONNCHAUL01","msg":"Start of node method getBrowserCatalog"}
+{"level":30,"time":"2025-09-15T06:08:54.718Z","pid":18184,"hostname":"CONNCHAUL01","msg":"End of node method getBrowserCatalog"}
+{"level":30,"time":"2025-09-15T06:08:54.723Z","pid":18184,"hostname":"CONNCHAUL01","msg":"Start of node method goTo"}
+{"level":30,"time":"2025-09-15T06:09:00.890Z","pid":18184,"hostname":"CONNCHAUL01","msg":"End of node method goTo"}
+{"level":30,"time":"2025-09-15T06:09:00.899Z","pid":18184,"hostname":"CONNCHAUL01","msg":"Start of node method scrollToElement"}
+{"level":30,"time":"2025-09-15T06:09:00.899Z","pid":18184,"hostname":"CONNCHAUL01","msg":"Strict mode is enabled, find Locator with button#accept-recommended-btn-handler in page."}
+{"level":30,"time":"2025-09-15T06:09:00.991Z","pid":18184,"hostname":"CONNCHAUL01","msg":"End of node method scrollToElement"}
+{"level":30,"time":"2025-09-15T06:09:00.995Z","pid":18184,"hostname":"CONNCHAUL01","msg":"Start of node method click"}
+{"level":30,"time":"2025-09-15T06:09:00.996Z","pid":18184,"hostname":"CONNCHAUL01","msg":"Strict mode is enabled, find Locator with button#accept-recommended-btn-handler in page."}
+{"level":30,"time":"2025-09-15T06:09:01.081Z","pid":18184,"hostname":"CONNCHAUL01","msg":"End of node method click"}
+{"level":30,"time":"2025-09-15T06:09:01.085Z","pid":18184,"hostname":"CONNCHAUL01","msg":"Start of node method fillText"}
+{"level":30,"time":"2025-09-15T06:09:01.086Z","pid":18184,"hostname":"CONNCHAUL01","msg":"Strict mode is enabled, find Locator with input#okta-signin-username in page."}
+{"level":30,"time":"2025-09-15T06:09:01.105Z","pid":18184,"hostname":"CONNCHAUL01","msg":"End of node method fillText"}
+{"level":30,"time":"2025-09-15T06:09:01.111Z","pid":18184,"hostname":"CONNCHAUL01","msg":"Start of node method fillText"}
+{"level":30,"time":"2025-09-15T06:09:01.111Z","pid":18184,"hostname":"CONNCHAUL01","msg":"Strict mode is enabled, find Locator with input#okta-signin-password in page."}
+{"level":30,"time":"2025-09-15T06:09:01.129Z","pid":18184,"hostname":"CONNCHAUL01","msg":"End of node method fillText"}
+{"level":30,"time":"2025-09-15T06:09:01.132Z","pid":18184,"hostname":"CONNCHAUL01","msg":"Start of node method click"}
+{"level":30,"time":"2025-09-15T06:09:01.133Z","pid":18184,"hostname":"CONNCHAUL01","msg":"Strict mode is enabled, find Locator with input#okta-signin-submit in page."}
+{"level":30,"time":"2025-09-15T06:09:01.661Z","pid":18184,"hostname":"CONNCHAUL01","msg":"End of node method click"}
+{"level":30,"time":"2025-09-15T06:09:01.664Z","pid":18184,"hostname":"CONNCHAUL01","msg":"Start of node method waitForElementState"}
+{"level":30,"time":"2025-09-15T06:09:01.664Z","pid":18184,"hostname":"CONNCHAUL01","msg":"Strict mode is enabled, find Locator with h1.pageHeader in page."}
+{"level":30,"time":"2025-09-15T06:09:10.874Z","pid":18184,"hostname":"CONNCHAUL01","msg":"End of node method waitForElementState"}
+{"level":30,"time":"2025-09-15T06:09:10.881Z","pid":18184,"hostname":"CONNCHAUL01","msg":"Start of node method takeScreenshot"}
+{"level":30,"time":"2025-09-15T06:09:10.881Z","pid":18184,"hostname":"CONNCHAUL01","Take screenshot with options: ":{"path":"C:\\Users\\REDACTED\\PycharmProjects\\eWM_NavBar_Playwright\\Results\\browser\\screenshot\\embed=True.png","fileType":"png","fullPage":false,"timeout":10000,"omitBackground":false}}
+{"level":30,"time":"2025-09-15T06:09:10.971Z","pid":18184,"hostname":"CONNCHAUL01","msg":"End of node method takeScreenshot"}
+{"level":30,"time":"2025-09-15T06:09:10.978Z","pid":18184,"hostname":"CONNCHAUL01","msg":"Start of node method getBrowserCatalog"}
+{"level":30,"time":"2025-09-15T06:09:10.979Z","pid":18184,"hostname":"CONNCHAUL01","msg":"End of node method getBrowserCatalog"}
+{"level":30,"time":"2025-09-15T06:09:10.986Z","pid":18184,"hostname":"CONNCHAUL01","msg":"Start of node method getBrowserCatalog"}
+{"level":30,"time":"2025-09-15T06:09:10.989Z","pid":18184,"hostname":"CONNCHAUL01","msg":"End of node method getBrowserCatalog"}
+{"level":30,"time":"2025-09-15T06:09:10.991Z","pid":18184,"hostname":"CONNCHAUL01","msg":"Start of node method getBrowserCatalog"}
+{"level":30,"time":"2025-09-15T06:09:10.993Z","pid":18184,"hostname":"CONNCHAUL01","msg":"End of node method getBrowserCatalog"}
+{"level":30,"time":"2025-09-15T06:09:10.995Z","pid":18184,"hostname":"CONNCHAUL01","msg":"Start of node method getBrowserCatalog"}
+{"level":30,"time":"2025-09-15T06:09:10.996Z","pid":18184,"hostname":"CONNCHAUL01","msg":"End of node method getBrowserCatalog"}
+{"level":30,"time":"2025-09-15T06:09:11.000Z","pid":18184,"hostname":"CONNCHAUL01","msg":"Start of node method getBrowserCatalog"}
+{"level":30,"time":"2025-09-15T06:09:11.001Z","pid":18184,"hostname":"CONNCHAUL01","msg":"End of node method getBrowserCatalog"}
+{"level":30,"time":"2025-09-15T06:09:11.004Z","pid":18184,"hostname":"CONNCHAUL01","msg":"Changed active context"}
+{"level":30,"time":"2025-09-15T06:09:11.004Z","pid":18184,"hostname":"CONNCHAUL01","msg":"Changing current active page: page=acd189e7-2d7c-4d8e-80a2-9e8dc9c86175"}
+{"level":30,"time":"2025-09-15T06:09:11.004Z","pid":18184,"hostname":"CONNCHAUL01","msg":"Changed active page"}
+{"level":30,"time":"2025-09-15T06:09:11.008Z","pid":18184,"hostname":"CONNCHAUL01","msg":"Start of node method closeContext"}
+{"level":30,"time":"2025-09-15T06:09:11.016Z","pid":18184,"hostname":"CONNCHAUL01","msg":"Removed page=770cb816-c25a-493a-93c5-1918da5534d6 from context=b38ffabd-4b63-452a-ab3d-bcda9e4249a7 page stack"}
+{"level":30,"time":"2025-09-15T06:09:11.021Z","pid":18184,"hostname":"CONNCHAUL01","msg":"End of node method closeContext"}
+{"level":30,"time":"2025-09-15T06:09:11.086Z","pid":18184,"hostname":"CONNCHAUL01","msg":"Start of node method closeAllBrowsers"}
+{"level":30,"time":"2025-09-15T06:09:11.140Z","pid":18184,"hostname":"CONNCHAUL01","msg":"End of node method closeAllBrowsers"}
