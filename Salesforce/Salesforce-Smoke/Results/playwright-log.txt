@@ -1,0 +1,280 @@
+{"level":30,"time":"2025-10-01T02:28:43.119Z","pid":24308,"hostname":"CONNCHAUL01","msg":"Listening on 127.0.0.1:57455"}
+(node:24308) DeprecationWarning: Calling start() is no longer necessary. It can be safely omitted.
+(Use `node --trace-deprecation ...` to show where the warning was created)
+{"level":30,"time":"2025-10-01T02:28:43.300Z","pid":24308,"hostname":"CONNCHAUL01","msg":"Start of node method newBrowser"}
+{"level":30,"time":"2025-10-01T02:28:44.150Z","pid":24308,"hostname":"CONNCHAUL01","msg":"Adding browser to stack: chromium, version: 138.0.7204.23"}
+{"level":30,"time":"2025-10-01T02:28:44.151Z","pid":24308,"hostname":"CONNCHAUL01","msg":"End of node method newBrowser"}
+{"level":30,"time":"2025-10-01T02:28:44.151Z","pid":24308,"hostname":"CONNCHAUL01","msg":"Adding 0 contexts to browser"}
+{"level":30,"time":"2025-10-01T02:28:44.165Z","pid":24308,"hostname":"CONNCHAUL01","msg":"Start of node method newContext"}
+{"level":30,"time":"2025-10-01T02:28:44.165Z","pid":24308,"hostname":"CONNCHAUL01","msg":"Creating new context with options: {\"acceptDownloads\":true,\"bypassCSP\":false,\"forcedColors\":\"none\",\"ignoreHTTPSErrors\":true,\"javaScriptEnabled\":true,\"offline\":false,\"reducedMotion\":\"no-preference\",\"serviceWorkers\":\"allow\",\"viewport\":null}"}
+{"level":30,"time":"2025-10-01T02:28:44.165Z","pid":24308,"hostname":"CONNCHAUL01","msg":"currentBrowser: [object Object]"}
+{"level":30,"time":"2025-10-01T02:28:44.165Z","pid":24308,"hostname":"CONNCHAUL01","msg":"Trace file: "}
+{"level":30,"time":"2025-10-01T02:28:44.206Z","pid":24308,"hostname":"CONNCHAUL01","msg":"Changed active context"}
+{"level":30,"time":"2025-10-01T02:28:44.206Z","pid":24308,"hostname":"CONNCHAUL01","msg":"End of node method newContext"}
+{"level":30,"time":"2025-10-01T02:28:44.214Z","pid":24308,"hostname":"CONNCHAUL01","msg":"Start of node method newPage"}
+{"level":30,"time":"2025-10-01T02:28:44.214Z","pid":24308,"hostname":"CONNCHAUL01","msg":"currentBrowser: [object Object]"}
+{"level":30,"time":"2025-10-01T02:28:44.706Z","pid":24308,"hostname":"CONNCHAUL01","msg":"Video path: undefined"}
+{"level":30,"time":"2025-10-01T02:28:44.707Z","pid":24308,"hostname":"CONNCHAUL01","msg":"Changed active page"}
+{"level":30,"time":"2025-10-01T02:28:44.762Z","pid":24308,"hostname":"CONNCHAUL01","msg":"End of node method newPage"}
+{"level":30,"time":"2025-10-01T02:28:44.774Z","pid":24308,"hostname":"CONNCHAUL01","msg":"Start of node method getBrowserCatalog"}
+{"level":30,"time":"2025-10-01T02:28:44.789Z","pid":24308,"hostname":"CONNCHAUL01","msg":"End of node method getBrowserCatalog"}
+{"level":30,"time":"2025-10-01T02:28:44.802Z","pid":24308,"hostname":"CONNCHAUL01","msg":"Start of node method goTo"}
+{"level":30,"time":"2025-10-01T02:28:45.830Z","pid":24308,"hostname":"CONNCHAUL01","msg":"End of node method goTo"}
+{"level":30,"time":"2025-10-01T02:28:45.835Z","pid":24308,"hostname":"CONNCHAUL01","msg":"Start of node method waitForElementState"}
+{"level":30,"time":"2025-10-01T02:28:45.836Z","pid":24308,"hostname":"CONNCHAUL01","msg":"Strict mode is enabled, find Locator with input#username in page."}
+{"level":30,"time":"2025-10-01T02:28:45.873Z","pid":24308,"hostname":"CONNCHAUL01","msg":"End of node method waitForElementState"}
+{"level":30,"time":"2025-10-01T02:28:45.878Z","pid":24308,"hostname":"CONNCHAUL01","msg":"Start of node method fillText"}
+{"level":30,"time":"2025-10-01T02:28:45.878Z","pid":24308,"hostname":"CONNCHAUL01","msg":"Strict mode is enabled, find Locator with input#username in page."}
+{"level":30,"time":"2025-10-01T02:28:45.892Z","pid":24308,"hostname":"CONNCHAUL01","msg":"End of node method fillText"}
+{"level":30,"time":"2025-10-01T02:28:45.895Z","pid":24308,"hostname":"CONNCHAUL01","msg":"Start of node method fillText"}
+{"level":30,"time":"2025-10-01T02:28:45.896Z","pid":24308,"hostname":"CONNCHAUL01","msg":"Strict mode is enabled, find Locator with input#password in page."}
+{"level":30,"time":"2025-10-01T02:28:45.907Z","pid":24308,"hostname":"CONNCHAUL01","msg":"End of node method fillText"}
+{"level":30,"time":"2025-10-01T02:28:45.912Z","pid":24308,"hostname":"CONNCHAUL01","msg":"Start of node method click"}
+{"level":30,"time":"2025-10-01T02:28:45.912Z","pid":24308,"hostname":"CONNCHAUL01","msg":"Strict mode is enabled, find Locator with input#Login in page."}
+{"level":30,"time":"2025-10-01T02:28:46.943Z","pid":24308,"hostname":"CONNCHAUL01","msg":"End of node method click"}
+{"level":30,"time":"2025-10-01T02:28:46.951Z","pid":24308,"hostname":"CONNCHAUL01","msg":"Start of node method waitForElementState"}
+{"level":30,"time":"2025-10-01T02:28:46.951Z","pid":24308,"hostname":"CONNCHAUL01","msg":"Strict mode is enabled, find Locator with *[icon-name='utility:setup'] in page."}
+{"level":30,"time":"2025-10-01T02:28:50.633Z","pid":24308,"hostname":"CONNCHAUL01","msg":"End of node method waitForElementState"}
+{"level":30,"time":"2025-10-01T02:28:50.639Z","pid":24308,"hostname":"CONNCHAUL01","msg":"Start of node method waitForElementState"}
+{"level":30,"time":"2025-10-01T02:28:50.639Z","pid":24308,"hostname":"CONNCHAUL01","msg":"Strict mode is enabled, find Locator with *[icon-name='utility:setup'] in page."}
+{"level":30,"time":"2025-10-01T02:28:50.643Z","pid":24308,"hostname":"CONNCHAUL01","msg":"End of node method waitForElementState"}
+{"level":30,"time":"2025-10-01T02:28:50.646Z","pid":24308,"hostname":"CONNCHAUL01","msg":"Start of node method click"}
+{"level":30,"time":"2025-10-01T02:28:50.646Z","pid":24308,"hostname":"CONNCHAUL01","msg":"Strict mode is enabled, find Locator with *[icon-name='utility:setup'] in page."}
+{"level":30,"time":"2025-10-01T02:28:50.800Z","pid":24308,"hostname":"CONNCHAUL01","msg":"End of node method click"}
+{"level":30,"time":"2025-10-01T02:28:50.804Z","pid":24308,"hostname":"CONNCHAUL01","msg":"Start of node method waitForElementState"}
+{"level":30,"time":"2025-10-01T02:28:50.804Z","pid":24308,"hostname":"CONNCHAUL01","msg":"Strict mode is enabled, find Locator with a[title='Setup'] in page."}
+{"level":30,"time":"2025-10-01T02:28:50.809Z","pid":24308,"hostname":"CONNCHAUL01","msg":"End of node method waitForElementState"}
+{"level":30,"time":"2025-10-01T02:28:50.813Z","pid":24308,"hostname":"CONNCHAUL01","msg":"Start of node method click"}
+{"level":30,"time":"2025-10-01T02:28:50.813Z","pid":24308,"hostname":"CONNCHAUL01","msg":"Strict mode is enabled, find Locator with a[title='Setup'] in page."}
+{"level":30,"time":"2025-10-01T02:28:50.852Z","pid":24308,"hostname":"CONNCHAUL01","msg":"End of node method click"}
+{"level":30,"time":"2025-10-01T02:28:53.858Z","pid":24308,"hostname":"CONNCHAUL01","msg":"Start of node method getBrowserCatalog"}
+{"level":30,"time":"2025-10-01T02:28:54.192Z","pid":24308,"hostname":"CONNCHAUL01","msg":"End of node method getBrowserCatalog"}
+{"level":30,"time":"2025-10-01T02:28:54.197Z","pid":24308,"hostname":"CONNCHAUL01","msg":"Start of node method getBrowserCatalog"}
+{"level":30,"time":"2025-10-01T02:28:54.351Z","pid":24308,"hostname":"CONNCHAUL01","msg":"End of node method getBrowserCatalog"}
+{"level":30,"time":"2025-10-01T02:28:54.359Z","pid":24308,"hostname":"CONNCHAUL01","msg":"Changing current active page: page=c1342bc3-bdcc-4b43-9fb3-56bb9632184b"}
+{"level":30,"time":"2025-10-01T02:28:54.359Z","pid":24308,"hostname":"CONNCHAUL01","msg":"Changed active page"}
+{"level":30,"time":"2025-10-01T02:28:54.410Z","pid":24308,"hostname":"CONNCHAUL01","msg":"Start of node method getBrowserCatalog"}
+{"level":30,"time":"2025-10-01T02:28:54.604Z","pid":24308,"hostname":"CONNCHAUL01","msg":"End of node method getBrowserCatalog"}
+{"level":30,"time":"2025-10-01T02:28:54.609Z","pid":24308,"hostname":"CONNCHAUL01","msg":"Changing current active page: page=afc83692-38ba-43da-b486-a5e51d60ea9c"}
+{"level":30,"time":"2025-10-01T02:28:54.609Z","pid":24308,"hostname":"CONNCHAUL01","msg":"Changed active page"}
+{"level":30,"time":"2025-10-01T02:28:54.644Z","pid":24308,"hostname":"CONNCHAUL01","msg":"Reload page with options: {\"waitUntil\": \"load\"}"}
+{"level":30,"time":"2025-10-01T02:28:55.805Z","pid":24308,"hostname":"CONNCHAUL01","msg":"Start of node method waitForElementState"}
+{"level":30,"time":"2025-10-01T02:28:55.805Z","pid":24308,"hostname":"CONNCHAUL01","msg":"Strict mode is enabled, find Locator with input[title='Search Setup'] in page."}
+{"level":30,"time":"2025-10-01T02:28:56.926Z","pid":24308,"hostname":"CONNCHAUL01","msg":"End of node method waitForElementState"}
+{"level":30,"time":"2025-10-01T02:28:56.932Z","pid":24308,"hostname":"CONNCHAUL01","msg":"Start of node method waitForElementState"}
+{"level":30,"time":"2025-10-01T02:28:56.932Z","pid":24308,"hostname":"CONNCHAUL01","msg":"Strict mode is enabled, find Locator with input[title='Search Setup'] in page."}
+{"level":30,"time":"2025-10-01T02:28:56.938Z","pid":24308,"hostname":"CONNCHAUL01","msg":"End of node method waitForElementState"}
+{"level":30,"time":"2025-10-01T02:28:56.941Z","pid":24308,"hostname":"CONNCHAUL01","msg":"Start of node method fillText"}
+{"level":30,"time":"2025-10-01T02:28:56.941Z","pid":24308,"hostname":"CONNCHAUL01","msg":"Strict mode is enabled, find Locator with input[title='Search Setup'] in page."}
+{"level":30,"time":"2025-10-01T02:28:56.977Z","pid":24308,"hostname":"CONNCHAUL01","msg":"End of node method fillText"}
+{"level":30,"time":"2025-10-01T02:28:56.983Z","pid":24308,"hostname":"CONNCHAUL01","msg":"Start of node method press"}
+{"level":30,"time":"2025-10-01T02:28:56.984Z","pid":24308,"hostname":"CONNCHAUL01","msg":"Strict mode is enabled, find Locator with input[title='Search Setup'] in page."}
+{"level":30,"time":"2025-10-01T02:28:57.169Z","pid":24308,"hostname":"CONNCHAUL01","msg":"End of node method press"}
+{"level":30,"time":"2025-10-01T02:28:57.172Z","pid":24308,"hostname":"CONNCHAUL01","msg":"Start of node method waitForElementState"}
+{"level":30,"time":"2025-10-01T02:28:57.173Z","pid":24308,"hostname":"CONNCHAUL01","msg":"Strict mode is enabled, find Locator with tbody>tr:nth-child(1)>td:nth-child(1)>a.setupLink  in page."}
+{"level":30,"time":"2025-10-01T02:28:58.576Z","pid":24308,"hostname":"CONNCHAUL01","msg":"End of node method waitForElementState"}
+{"level":30,"time":"2025-10-01T02:28:58.579Z","pid":24308,"hostname":"CONNCHAUL01","msg":"Start of node method click"}
+{"level":30,"time":"2025-10-01T02:28:58.579Z","pid":24308,"hostname":"CONNCHAUL01","msg":"Strict mode is enabled, find Locator with tbody>tr:nth-child(1)>td:nth-child(1)>a.setupLink  in page."}
+{"level":30,"time":"2025-10-01T02:28:58.641Z","pid":24308,"hostname":"CONNCHAUL01","msg":"End of node method click"}
+{"level":30,"time":"2025-10-01T02:28:58.644Z","pid":24308,"hostname":"CONNCHAUL01","msg":"Start of node method waitForElementState"}
+{"level":30,"time":"2025-10-01T02:28:58.644Z","pid":24308,"hostname":"CONNCHAUL01","msg":"Strict mode is enabled, find Locator with h1 > span in page."}
+{"level":30,"time":"2025-10-01T02:29:00.648Z","pid":24308,"hostname":"CONNCHAUL01","msg":"End of node method waitForElementState"}
+{"level":30,"time":"2025-10-01T02:29:00.657Z","pid":24308,"hostname":"CONNCHAUL01","msg":"Start of node method waitForElementState"}
+{"level":30,"time":"2025-10-01T02:29:00.657Z","pid":24308,"hostname":"CONNCHAUL01","msg":"Strict mode is enabled, find Locator with div.content > iframe >> internal:control=enter-frame >> td#topButtonRow > input:nth-child(4) in page."}
+{"level":30,"time":"2025-10-01T02:29:02.335Z","pid":24308,"hostname":"CONNCHAUL01","msg":"End of node method waitForElementState"}
+{"level":30,"time":"2025-10-01T02:29:02.339Z","pid":24308,"hostname":"CONNCHAUL01","msg":"Start of node method click"}
+{"level":30,"time":"2025-10-01T02:29:02.339Z","pid":24308,"hostname":"CONNCHAUL01","msg":"Strict mode is enabled, find Locator with div.content > iframe >> internal:control=enter-frame >> td#topButtonRow > input:nth-child(4) in page."}
+{"level":30,"time":"2025-10-01T02:29:02.913Z","pid":24308,"hostname":"CONNCHAUL01","msg":"End of node method click"}
+{"level":30,"time":"2025-10-01T02:29:02.922Z","pid":24308,"hostname":"CONNCHAUL01","msg":"Start of node method waitForElementState"}
+{"level":30,"time":"2025-10-01T02:29:02.922Z","pid":24308,"hostname":"CONNCHAUL01","msg":"Strict mode is enabled, find Locator with button[title='Show Navigation Menu'] in page."}
+{"level":30,"time":"2025-10-01T02:29:05.933Z","pid":24308,"hostname":"CONNCHAUL01","msg":"End of node method waitForElementState"}
+{"level":30,"time":"2025-10-01T02:29:05.939Z","pid":24308,"hostname":"CONNCHAUL01","msg":"Start of node method click"}
+{"level":30,"time":"2025-10-01T02:29:05.939Z","pid":24308,"hostname":"CONNCHAUL01","msg":"Strict mode is enabled, find Locator with button[title='Show Navigation Menu'] in page."}
+{"level":30,"time":"2025-10-01T02:29:06.364Z","pid":24308,"hostname":"CONNCHAUL01","msg":"End of node method click"}
+{"level":30,"time":"2025-10-01T02:29:06.372Z","pid":24308,"hostname":"CONNCHAUL01","msg":"Start of node method waitForElementState"}
+{"level":30,"time":"2025-10-01T02:29:06.372Z","pid":24308,"hostname":"CONNCHAUL01","msg":"Strict mode is enabled, find Locator with a[data-label='Leads'] in page."}
+{"level":30,"time":"2025-10-01T02:29:06.491Z","pid":24308,"hostname":"CONNCHAUL01","msg":"End of node method waitForElementState"}
+{"level":30,"time":"2025-10-01T02:29:06.500Z","pid":24308,"hostname":"CONNCHAUL01","msg":"Start of node method click"}
+{"level":30,"time":"2025-10-01T02:29:06.500Z","pid":24308,"hostname":"CONNCHAUL01","msg":"Strict mode is enabled, find Locator with a[data-label='Leads'] in page."}
+{"level":30,"time":"2025-10-01T02:29:07.011Z","pid":24308,"hostname":"CONNCHAUL01","msg":"End of node method click"}
+{"level":30,"time":"2025-10-01T02:29:07.016Z","pid":24308,"hostname":"CONNCHAUL01","msg":"Start of node method waitForElementState"}
+{"level":30,"time":"2025-10-01T02:29:07.016Z","pid":24308,"hostname":"CONNCHAUL01","msg":"Strict mode is enabled, find Locator with h1.slds-var-p-right_x-small in page."}
+{"level":30,"time":"2025-10-01T02:29:08.275Z","pid":24308,"hostname":"CONNCHAUL01","msg":"End of node method waitForElementState"}
+{"level":30,"time":"2025-10-01T02:29:08.281Z","pid":24308,"hostname":"CONNCHAUL01","msg":"Start of node method getText"}
+{"level":30,"time":"2025-10-01T02:29:08.281Z","pid":24308,"hostname":"CONNCHAUL01","msg":"Strict mode is enabled, find Locator with h1.slds-var-p-right_x-small in page."}
+{"level":30,"time":"2025-10-01T02:29:08.349Z","pid":24308,"hostname":"CONNCHAUL01","msg":"Retrieved text for element h1.slds-var-p-right_x-small containing Leads"}
+{"level":30,"time":"2025-10-01T02:29:08.349Z","pid":24308,"hostname":"CONNCHAUL01","msg":"End of node method getText"}
+{"level":30,"time":"2025-10-01T02:29:08.360Z","pid":24308,"hostname":"CONNCHAUL01","msg":"Start of node method click"}
+{"level":30,"time":"2025-10-01T02:29:08.360Z","pid":24308,"hostname":"CONNCHAUL01","msg":"Strict mode is enabled, find Locator with a>div[title='New'] in page."}
+{"level":30,"time":"2025-10-01T02:29:08.490Z","pid":24308,"hostname":"CONNCHAUL01","msg":"End of node method click"}
+{"level":30,"time":"2025-10-01T02:29:08.497Z","pid":24308,"hostname":"CONNCHAUL01","msg":"Start of node method waitForElementState"}
+{"level":30,"time":"2025-10-01T02:29:08.497Z","pid":24308,"hostname":"CONNCHAUL01","msg":"Strict mode is enabled, find Locator with div.slds-modal__header>h2 in page."}
+{"level":30,"time":"2025-10-01T02:29:12.254Z","pid":24308,"hostname":"CONNCHAUL01","msg":"End of node method waitForElementState"}
+{"level":30,"time":"2025-10-01T02:29:12.262Z","pid":24308,"hostname":"CONNCHAUL01","msg":"Start of node method getText"}
+{"level":30,"time":"2025-10-01T02:29:12.262Z","pid":24308,"hostname":"CONNCHAUL01","msg":"Strict mode is enabled, find Locator with div.slds-modal__header>h2 in page."}
+{"level":30,"time":"2025-10-01T02:29:12.297Z","pid":24308,"hostname":"CONNCHAUL01","msg":"Retrieved text for element div.slds-modal__header>h2 containing New Lead: Investment Professional"}
+{"level":30,"time":"2025-10-01T02:29:12.297Z","pid":24308,"hostname":"CONNCHAUL01","msg":"End of node method getText"}
+{"level":30,"time":"2025-10-01T02:29:12.310Z","pid":24308,"hostname":"CONNCHAUL01","msg":"Start of node method fillText"}
+{"level":30,"time":"2025-10-01T02:29:12.310Z","pid":24308,"hostname":"CONNCHAUL01","msg":"Strict mode is enabled, find Locator with input[name='firstName'] in page."}
+{"level":30,"time":"2025-10-01T02:29:12.402Z","pid":24308,"hostname":"CONNCHAUL01","msg":"End of node method fillText"}
+{"level":30,"time":"2025-10-01T02:29:12.406Z","pid":24308,"hostname":"CONNCHAUL01","msg":"Start of node method fillText"}
+{"level":30,"time":"2025-10-01T02:29:12.407Z","pid":24308,"hostname":"CONNCHAUL01","msg":"Strict mode is enabled, find Locator with input[name='lastName'] in page."}
+{"level":30,"time":"2025-10-01T02:29:12.586Z","pid":24308,"hostname":"CONNCHAUL01","msg":"End of node method fillText"}
+{"level":30,"time":"2025-10-01T02:29:12.591Z","pid":24308,"hostname":"CONNCHAUL01","msg":"Start of node method fillText"}
+{"level":30,"time":"2025-10-01T02:29:12.591Z","pid":24308,"hostname":"CONNCHAUL01","msg":"Strict mode is enabled, find Locator with input[name='Phone'] in page."}
+{"level":30,"time":"2025-10-01T02:29:13.207Z","pid":24308,"hostname":"CONNCHAUL01","msg":"End of node method fillText"}
+{"level":30,"time":"2025-10-01T02:29:13.212Z","pid":24308,"hostname":"CONNCHAUL01","msg":"Start of node method fillText"}
+{"level":30,"time":"2025-10-01T02:29:13.212Z","pid":24308,"hostname":"CONNCHAUL01","msg":"Strict mode is enabled, find Locator with input[name='Data_Link2__DDL_RepID__c'] in page."}
+{"level":30,"time":"2025-10-01T02:29:13.330Z","pid":24308,"hostname":"CONNCHAUL01","msg":"End of node method fillText"}
+{"level":30,"time":"2025-10-01T02:29:13.335Z","pid":24308,"hostname":"CONNCHAUL01","msg":"Start of node method fillText"}
+{"level":30,"time":"2025-10-01T02:29:13.335Z","pid":24308,"hostname":"CONNCHAUL01","msg":"Strict mode is enabled, find Locator with input[name='Email'] in page."}
+{"level":30,"time":"2025-10-01T02:29:13.493Z","pid":24308,"hostname":"CONNCHAUL01","msg":"End of node method fillText"}
+{"level":30,"time":"2025-10-01T02:29:13.498Z","pid":24308,"hostname":"CONNCHAUL01","msg":"Start of node method fillText"}
+{"level":30,"time":"2025-10-01T02:29:13.498Z","pid":24308,"hostname":"CONNCHAUL01","msg":"Strict mode is enabled, find Locator with [field-label='Address'] textarea[name='street'] in page."}
+{"level":30,"time":"2025-10-01T02:29:13.608Z","pid":24308,"hostname":"CONNCHAUL01","msg":"End of node method fillText"}
+{"level":30,"time":"2025-10-01T02:29:13.612Z","pid":24308,"hostname":"CONNCHAUL01","msg":"Start of node method fillText"}
+{"level":30,"time":"2025-10-01T02:29:13.612Z","pid":24308,"hostname":"CONNCHAUL01","msg":"Strict mode is enabled, find Locator with [field-label='Address'] input[name='city'] in page."}
+{"level":30,"time":"2025-10-01T02:29:13.681Z","pid":24308,"hostname":"CONNCHAUL01","msg":"End of node method fillText"}
+{"level":30,"time":"2025-10-01T02:29:13.684Z","pid":24308,"hostname":"CONNCHAUL01","msg":"Start of node method fillText"}
+{"level":30,"time":"2025-10-01T02:29:13.684Z","pid":24308,"hostname":"CONNCHAUL01","msg":"Strict mode is enabled, find Locator with [field-label='Address'] input[name='province'] in page."}
+{"level":30,"time":"2025-10-01T02:29:13.767Z","pid":24308,"hostname":"CONNCHAUL01","msg":"End of node method fillText"}
+{"level":30,"time":"2025-10-01T02:29:13.770Z","pid":24308,"hostname":"CONNCHAUL01","msg":"Start of node method fillText"}
+{"level":30,"time":"2025-10-01T02:29:13.770Z","pid":24308,"hostname":"CONNCHAUL01","msg":"Strict mode is enabled, find Locator with [field-label='Address'] input[name='postalCode'] in page."}
+{"level":30,"time":"2025-10-01T02:29:13.832Z","pid":24308,"hostname":"CONNCHAUL01","msg":"End of node method fillText"}
+{"level":30,"time":"2025-10-01T02:29:13.836Z","pid":24308,"hostname":"CONNCHAUL01","msg":"Start of node method fillText"}
+{"level":30,"time":"2025-10-01T02:29:13.836Z","pid":24308,"hostname":"CONNCHAUL01","msg":"Strict mode is enabled, find Locator with [field-label='Address'] input[name='country'] in page."}
+{"level":30,"time":"2025-10-01T02:29:13.901Z","pid":24308,"hostname":"CONNCHAUL01","msg":"End of node method fillText"}
+{"level":30,"time":"2025-10-01T02:29:13.904Z","pid":24308,"hostname":"CONNCHAUL01","msg":"Start of node method scrollToElement"}
+{"level":30,"time":"2025-10-01T02:29:13.905Z","pid":24308,"hostname":"CONNCHAUL01","msg":"Strict mode is enabled, find Locator with input[name='Company'] in page."}
+{"level":30,"time":"2025-10-01T02:29:13.969Z","pid":24308,"hostname":"CONNCHAUL01","msg":"End of node method scrollToElement"}
+{"level":30,"time":"2025-10-01T02:29:13.977Z","pid":24308,"hostname":"CONNCHAUL01","msg":"Start of node method fillText"}
+{"level":30,"time":"2025-10-01T02:29:13.977Z","pid":24308,"hostname":"CONNCHAUL01","msg":"Strict mode is enabled, find Locator with input[name='Company'] in page."}
+{"level":30,"time":"2025-10-01T02:29:14.095Z","pid":24308,"hostname":"CONNCHAUL01","msg":"End of node method fillText"}
+{"level":30,"time":"2025-10-01T02:29:14.101Z","pid":24308,"hostname":"CONNCHAUL01","msg":"Start of node method click"}
+{"level":30,"time":"2025-10-01T02:29:14.101Z","pid":24308,"hostname":"CONNCHAUL01","msg":"Strict mode is enabled, find Locator with [name='SaveEdit'] in page."}
+{"level":30,"time":"2025-10-01T02:29:14.354Z","pid":24308,"hostname":"CONNCHAUL01","msg":"End of node method click"}
+{"level":30,"time":"2025-10-01T02:29:14.359Z","pid":24308,"hostname":"CONNCHAUL01","msg":"Start of node method waitForElementState"}
+{"level":30,"time":"2025-10-01T02:29:14.359Z","pid":24308,"hostname":"CONNCHAUL01","msg":"Strict mode is enabled, find Locator with [field-label='Lead Source'] div[role='status']>div in page."}
+{"level":30,"time":"2025-10-01T02:29:14.405Z","pid":24308,"hostname":"CONNCHAUL01","msg":"End of node method waitForElementState"}
+{"level":30,"time":"2025-10-01T02:29:14.411Z","pid":24308,"hostname":"CONNCHAUL01","msg":"Start of node method getText"}
+{"level":30,"time":"2025-10-01T02:29:14.411Z","pid":24308,"hostname":"CONNCHAUL01","msg":"Strict mode is enabled, find Locator with [field-label='Lead Source'] div[role='status']>div in page."}
+{"level":30,"time":"2025-10-01T02:29:14.445Z","pid":24308,"hostname":"CONNCHAUL01","msg":"Retrieved text for element [field-label='Lead Source'] div[role='status']>div containing Lead Source\nComplete this field."}
+{"level":30,"time":"2025-10-01T02:29:14.445Z","pid":24308,"hostname":"CONNCHAUL01","msg":"End of node method getText"}
+{"level":30,"time":"2025-10-01T02:29:16.462Z","pid":24308,"hostname":"CONNCHAUL01","msg":"Start of node method takeScreenshot"}
+{"level":30,"time":"2025-10-01T02:29:16.463Z","pid":24308,"hostname":"CONNCHAUL01","Take screenshot with options: ":{"path":"C:\\Users\\Nilesh.Chaudhari\\Robot Framework Automation\\qaautomation\\Salesforce\\Salesforce-Smoke\\Results\\browser\\screenshot\\embed=True.png","fileType":"png","fullPage":false,"timeout":10000,"omitBackground":false}}
+{"level":30,"time":"2025-10-01T02:29:16.810Z","pid":24308,"hostname":"CONNCHAUL01","msg":"End of node method takeScreenshot"}
+{"level":30,"time":"2025-10-01T02:29:16.816Z","pid":24308,"hostname":"CONNCHAUL01","msg":"Start of node method click"}
+{"level":30,"time":"2025-10-01T02:29:16.816Z","pid":24308,"hostname":"CONNCHAUL01","msg":"Strict mode is enabled, find Locator with lightning-icon[title='Error'] in page."}
+{"level":30,"time":"2025-10-01T02:29:16.907Z","pid":24308,"hostname":"CONNCHAUL01","msg":"End of node method click"}
+{"level":30,"time":"2025-10-01T02:29:16.912Z","pid":24308,"hostname":"CONNCHAUL01","msg":"Start of node method click"}
+{"level":30,"time":"2025-10-01T02:29:16.912Z","pid":24308,"hostname":"CONNCHAUL01","msg":"Strict mode is enabled, find Locator with button[aria-label='Lead Source'] in page."}
+{"level":30,"time":"2025-10-01T02:29:17.052Z","pid":24308,"hostname":"CONNCHAUL01","msg":"End of node method click"}
+{"level":30,"time":"2025-10-01T02:29:20.062Z","pid":24308,"hostname":"CONNCHAUL01","msg":"Start of node method press"}
+{"level":30,"time":"2025-10-01T02:29:20.062Z","pid":24308,"hostname":"CONNCHAUL01","msg":"Strict mode is enabled, find Locator with button[aria-label='Lead Source'] in page."}
+{"level":30,"time":"2025-10-01T02:29:20.158Z","pid":24308,"hostname":"CONNCHAUL01","msg":"End of node method press"}
+{"level":30,"time":"2025-10-01T02:29:23.167Z","pid":24308,"hostname":"CONNCHAUL01","msg":"Start of node method press"}
+{"level":30,"time":"2025-10-01T02:29:23.167Z","pid":24308,"hostname":"CONNCHAUL01","msg":"Strict mode is enabled, find Locator with button[aria-label='Lead Source'] in page."}
+{"level":30,"time":"2025-10-01T02:29:23.220Z","pid":24308,"hostname":"CONNCHAUL01","msg":"End of node method press"}
+{"level":30,"time":"2025-10-01T02:29:23.225Z","pid":24308,"hostname":"CONNCHAUL01","msg":"Start of node method fillText"}
+{"level":30,"time":"2025-10-01T02:29:23.225Z","pid":24308,"hostname":"CONNCHAUL01","msg":"Strict mode is enabled, find Locator with input[name='Company'] in page."}
+{"level":30,"time":"2025-10-01T02:29:23.287Z","pid":24308,"hostname":"CONNCHAUL01","msg":"End of node method fillText"}
+{"level":30,"time":"2025-10-01T02:29:23.291Z","pid":24308,"hostname":"CONNCHAUL01","msg":"Start of node method click"}
+{"level":30,"time":"2025-10-01T02:29:23.291Z","pid":24308,"hostname":"CONNCHAUL01","msg":"Strict mode is enabled, find Locator with [name='SaveEdit'] in page."}
+{"level":30,"time":"2025-10-01T02:29:23.445Z","pid":24308,"hostname":"CONNCHAUL01","msg":"End of node method click"}
+{"level":30,"time":"2025-10-01T02:29:23.451Z","pid":24308,"hostname":"CONNCHAUL01","msg":"Start of node method waitForElementState"}
+{"level":30,"time":"2025-10-01T02:29:23.451Z","pid":24308,"hostname":"CONNCHAUL01","msg":"Strict mode is enabled, find Locator with [data-name='Company'] in page."}
+{"level":30,"time":"2025-10-01T02:29:23.459Z","pid":24308,"hostname":"CONNCHAUL01","msg":"End of node method waitForElementState"}
+{"level":30,"time":"2025-10-01T02:29:23.463Z","pid":24308,"hostname":"CONNCHAUL01","msg":"Start of node method getText"}
+{"level":30,"time":"2025-10-01T02:29:23.463Z","pid":24308,"hostname":"CONNCHAUL01","msg":"Strict mode is enabled, find Locator with [data-name='Company'] in page."}
+{"level":30,"time":"2025-10-01T02:29:23.501Z","pid":24308,"hostname":"CONNCHAUL01","msg":"Retrieved text for element [data-name='Company'] containing Company\nComplete this field."}
+{"level":30,"time":"2025-10-01T02:29:23.501Z","pid":24308,"hostname":"CONNCHAUL01","msg":"End of node method getText"}
+{"level":30,"time":"2025-10-01T02:29:25.528Z","pid":24308,"hostname":"CONNCHAUL01","msg":"Start of node method takeScreenshot"}
+{"level":30,"time":"2025-10-01T02:29:25.528Z","pid":24308,"hostname":"CONNCHAUL01","Take screenshot with options: ":{"path":"C:\\Users\\Nilesh.Chaudhari\\Robot Framework Automation\\qaautomation\\Salesforce\\Salesforce-Smoke\\Results\\browser\\screenshot\\embed=True.png","fileType":"png","fullPage":false,"timeout":10000,"omitBackground":false}}
+{"level":30,"time":"2025-10-01T02:29:25.796Z","pid":24308,"hostname":"CONNCHAUL01","msg":"End of node method takeScreenshot"}
+{"level":30,"time":"2025-10-01T02:29:25.802Z","pid":24308,"hostname":"CONNCHAUL01","msg":"Start of node method fillText"}
+{"level":30,"time":"2025-10-01T02:29:25.802Z","pid":24308,"hostname":"CONNCHAUL01","msg":"Strict mode is enabled, find Locator with input[name='Company'] in page."}
+{"level":30,"time":"2025-10-01T02:29:25.831Z","pid":24308,"hostname":"CONNCHAUL01","msg":"End of node method fillText"}
+{"level":30,"time":"2025-10-01T02:29:25.834Z","pid":24308,"hostname":"CONNCHAUL01","msg":"Start of node method fillText"}
+{"level":30,"time":"2025-10-01T02:29:25.835Z","pid":24308,"hostname":"CONNCHAUL01","msg":"Strict mode is enabled, find Locator with input[name='lastName'] in page."}
+{"level":30,"time":"2025-10-01T02:29:25.930Z","pid":24308,"hostname":"CONNCHAUL01","msg":"End of node method fillText"}
+{"level":30,"time":"2025-10-01T02:29:25.934Z","pid":24308,"hostname":"CONNCHAUL01","msg":"Start of node method click"}
+{"level":30,"time":"2025-10-01T02:29:25.934Z","pid":24308,"hostname":"CONNCHAUL01","msg":"Strict mode is enabled, find Locator with [name='SaveEdit'] in page."}
+{"level":30,"time":"2025-10-01T02:29:26.173Z","pid":24308,"hostname":"CONNCHAUL01","msg":"End of node method click"}
+{"level":30,"time":"2025-10-01T02:29:26.180Z","pid":24308,"hostname":"CONNCHAUL01","msg":"Start of node method waitForElementState"}
+{"level":30,"time":"2025-10-01T02:29:26.180Z","pid":24308,"hostname":"CONNCHAUL01","msg":"Strict mode is enabled, find Locator with [data-name='lastName'] in page."}
+{"level":30,"time":"2025-10-01T02:29:26.195Z","pid":24308,"hostname":"CONNCHAUL01","msg":"End of node method waitForElementState"}
+{"level":30,"time":"2025-10-01T02:29:26.201Z","pid":24308,"hostname":"CONNCHAUL01","msg":"Start of node method getText"}
+{"level":30,"time":"2025-10-01T02:29:26.201Z","pid":24308,"hostname":"CONNCHAUL01","msg":"Strict mode is enabled, find Locator with [data-name='lastName'] in page."}
+{"level":30,"time":"2025-10-01T02:29:26.258Z","pid":24308,"hostname":"CONNCHAUL01","msg":"Retrieved text for element [data-name='lastName'] containing Last Name\nComplete this field."}
+{"level":30,"time":"2025-10-01T02:29:26.258Z","pid":24308,"hostname":"CONNCHAUL01","msg":"End of node method getText"}
+{"level":30,"time":"2025-10-01T02:29:28.280Z","pid":24308,"hostname":"CONNCHAUL01","msg":"Start of node method takeScreenshot"}
+{"level":30,"time":"2025-10-01T02:29:28.280Z","pid":24308,"hostname":"CONNCHAUL01","Take screenshot with options: ":{"path":"C:\\Users\\Nilesh.Chaudhari\\Robot Framework Automation\\qaautomation\\Salesforce\\Salesforce-Smoke\\Results\\browser\\screenshot\\embed=True.png","fileType":"png","fullPage":false,"timeout":10000,"omitBackground":false}}
+{"level":30,"time":"2025-10-01T02:29:28.552Z","pid":24308,"hostname":"CONNCHAUL01","msg":"End of node method takeScreenshot"}
+{"level":30,"time":"2025-10-01T02:29:28.559Z","pid":24308,"hostname":"CONNCHAUL01","msg":"Start of node method fillText"}
+{"level":30,"time":"2025-10-01T02:29:28.559Z","pid":24308,"hostname":"CONNCHAUL01","msg":"Strict mode is enabled, find Locator with input[name='lastName'] in page."}
+{"level":30,"time":"2025-10-01T02:29:28.617Z","pid":24308,"hostname":"CONNCHAUL01","msg":"End of node method fillText"}
+{"level":30,"time":"2025-10-01T02:29:28.620Z","pid":24308,"hostname":"CONNCHAUL01","msg":"Start of node method fillText"}
+{"level":30,"time":"2025-10-01T02:29:28.620Z","pid":24308,"hostname":"CONNCHAUL01","msg":"Strict mode is enabled, find Locator with input[name='Data_Link2__DDL_RepID__c'] in page."}
+{"level":30,"time":"2025-10-01T02:29:28.712Z","pid":24308,"hostname":"CONNCHAUL01","msg":"End of node method fillText"}
+{"level":30,"time":"2025-10-01T02:29:28.716Z","pid":24308,"hostname":"CONNCHAUL01","msg":"Start of node method click"}
+{"level":30,"time":"2025-10-01T02:29:28.716Z","pid":24308,"hostname":"CONNCHAUL01","msg":"Strict mode is enabled, find Locator with [name='SaveEdit'] in page."}
+{"level":30,"time":"2025-10-01T02:29:28.898Z","pid":24308,"hostname":"CONNCHAUL01","msg":"End of node method click"}
+{"level":30,"time":"2025-10-01T02:29:28.904Z","pid":24308,"hostname":"CONNCHAUL01","msg":"Start of node method waitForElementState"}
+{"level":30,"time":"2025-10-01T02:29:28.904Z","pid":24308,"hostname":"CONNCHAUL01","msg":"Strict mode is enabled, find Locator with [data-name='Data_Link2__DDL_RepID__c'] in page."}
+{"level":30,"time":"2025-10-01T02:29:28.917Z","pid":24308,"hostname":"CONNCHAUL01","msg":"End of node method waitForElementState"}
+{"level":30,"time":"2025-10-01T02:29:28.921Z","pid":24308,"hostname":"CONNCHAUL01","msg":"Start of node method getText"}
+{"level":30,"time":"2025-10-01T02:29:28.921Z","pid":24308,"hostname":"CONNCHAUL01","msg":"Strict mode is enabled, find Locator with [data-name='Data_Link2__DDL_RepID__c'] in page."}
+{"level":30,"time":"2025-10-01T02:29:28.954Z","pid":24308,"hostname":"CONNCHAUL01","msg":"Retrieved text for element [data-name='Data_Link2__DDL_RepID__c'] containing Discovery Data Rep CRD\nComplete this field."}
+{"level":30,"time":"2025-10-01T02:29:28.954Z","pid":24308,"hostname":"CONNCHAUL01","msg":"End of node method getText"}
+{"level":30,"time":"2025-10-01T02:29:30.973Z","pid":24308,"hostname":"CONNCHAUL01","msg":"Start of node method takeScreenshot"}
+{"level":30,"time":"2025-10-01T02:29:30.973Z","pid":24308,"hostname":"CONNCHAUL01","Take screenshot with options: ":{"path":"C:\\Users\\Nilesh.Chaudhari\\Robot Framework Automation\\qaautomation\\Salesforce\\Salesforce-Smoke\\Results\\browser\\screenshot\\embed=True.png","fileType":"png","fullPage":false,"timeout":10000,"omitBackground":false}}
+{"level":30,"time":"2025-10-01T02:29:31.242Z","pid":24308,"hostname":"CONNCHAUL01","msg":"End of node method takeScreenshot"}
+{"level":30,"time":"2025-10-01T02:29:31.245Z","pid":24308,"hostname":"CONNCHAUL01","msg":"Start of node method fillText"}
+{"level":30,"time":"2025-10-01T02:29:31.245Z","pid":24308,"hostname":"CONNCHAUL01","msg":"Strict mode is enabled, find Locator with input[name='Data_Link2__DDL_RepID__c'] in page."}
+{"level":30,"time":"2025-10-01T02:29:31.282Z","pid":24308,"hostname":"CONNCHAUL01","msg":"End of node method fillText"}
+{"level":30,"time":"2025-10-01T02:29:31.285Z","pid":24308,"hostname":"CONNCHAUL01","msg":"Start of node method click"}
+{"level":30,"time":"2025-10-01T02:29:31.285Z","pid":24308,"hostname":"CONNCHAUL01","msg":"Strict mode is enabled, find Locator with [name='SaveEdit'] in page."}
+{"level":30,"time":"2025-10-01T02:29:31.466Z","pid":24308,"hostname":"CONNCHAUL01","msg":"End of node method click"}
+{"level":30,"time":"2025-10-01T02:30:17.319Z","pid":24308,"hostname":"CONNCHAUL01","msg":"Start of node method takeScreenshot"}
+{"level":30,"time":"2025-10-01T02:30:17.319Z","pid":24308,"hostname":"CONNCHAUL01","Take screenshot with options: ":{"path":"C:\\Users\\Nilesh.Chaudhari\\Robot Framework Automation\\qaautomation\\Salesforce\\Salesforce-Smoke\\Results\\browser\\screenshot\\embed=True.png","fileType":"png","fullPage":true,"timeout":10000,"omitBackground":false}}
+{"level":30,"time":"2025-10-01T02:30:17.950Z","pid":24308,"hostname":"CONNCHAUL01","msg":"End of node method takeScreenshot"}
+{"level":30,"time":"2025-10-01T02:30:17.955Z","pid":24308,"hostname":"CONNCHAUL01","msg":"Start of node method getBrowserCatalog"}
+{"level":30,"time":"2025-10-01T02:30:17.957Z","pid":24308,"hostname":"CONNCHAUL01","msg":"End of node method getBrowserCatalog"}
+{"level":30,"time":"2025-10-01T02:30:17.959Z","pid":24308,"hostname":"CONNCHAUL01","msg":"Start of node method getBrowserCatalog"}
+{"level":30,"time":"2025-10-01T02:30:17.961Z","pid":24308,"hostname":"CONNCHAUL01","msg":"End of node method getBrowserCatalog"}
+{"level":30,"time":"2025-10-01T02:30:17.963Z","pid":24308,"hostname":"CONNCHAUL01","msg":"Start of node method switchBrowser"}
+{"level":30,"time":"2025-10-01T02:30:17.964Z","pid":24308,"hostname":"CONNCHAUL01","msg":"End of node method switchBrowser"}
+{"level":30,"time":"2025-10-01T02:30:17.968Z","pid":24308,"hostname":"CONNCHAUL01","msg":"Start of node method switchBrowser"}
+{"level":30,"time":"2025-10-01T02:30:17.969Z","pid":24308,"hostname":"CONNCHAUL01","msg":"End of node method switchBrowser"}
+{"level":30,"time":"2025-10-01T02:30:17.973Z","pid":24308,"hostname":"CONNCHAUL01","msg":"Start of node method getBrowserCatalog"}
+{"level":30,"time":"2025-10-01T02:30:17.982Z","pid":24308,"hostname":"CONNCHAUL01","msg":"End of node method getBrowserCatalog"}
+{"level":30,"time":"2025-10-01T02:30:17.986Z","pid":24308,"hostname":"CONNCHAUL01","msg":"Changed active context"}
+{"level":30,"time":"2025-10-01T02:30:17.987Z","pid":24308,"hostname":"CONNCHAUL01","msg":"Changing current active page: page=afc83692-38ba-43da-b486-a5e51d60ea9c"}
+{"level":30,"time":"2025-10-01T02:30:17.987Z","pid":24308,"hostname":"CONNCHAUL01","msg":"Changed active page"}
+{"level":30,"time":"2025-10-01T02:30:17.990Z","pid":24308,"hostname":"CONNCHAUL01","msg":"Start of node method getBrowserCatalog"}
+{"level":30,"time":"2025-10-01T02:30:17.995Z","pid":24308,"hostname":"CONNCHAUL01","msg":"End of node method getBrowserCatalog"}
+{"level":30,"time":"2025-10-01T02:30:17.998Z","pid":24308,"hostname":"CONNCHAUL01","msg":"Changing current active page: page=afc83692-38ba-43da-b486-a5e51d60ea9c"}
+{"level":30,"time":"2025-10-01T02:30:17.998Z","pid":24308,"hostname":"CONNCHAUL01","msg":"Changed active page"}
+{"level":30,"time":"2025-10-01T02:30:18.000Z","pid":24308,"hostname":"CONNCHAUL01","msg":"Start of node method closePage"}
+{"level":30,"time":"2025-10-01T02:30:18.001Z","pid":24308,"hostname":"CONNCHAUL01","msg":"Closing page with runBeforeUnload false"}
+{"level":30,"time":"2025-10-01T02:30:18.063Z","pid":24308,"hostname":"CONNCHAUL01","msg":"End of node method closePage"}
+{"level":30,"time":"2025-10-01T02:30:18.071Z","pid":24308,"hostname":"CONNCHAUL01","msg":"Start of node method closeBrowser"}
+{"level":30,"time":"2025-10-01T02:30:18.209Z","pid":24308,"hostname":"CONNCHAUL01","msg":"Removed page=8afaf4a5-aebb-4f75-a9d5-56c557e159cb from context=3d7010fa-2625-42be-b776-aef5925e276d page stack"}
+{"level":30,"time":"2025-10-01T02:30:18.670Z","pid":24308,"hostname":"CONNCHAUL01","msg":"End of node method closeBrowser"}
+================= Original suppressed error =================
+Error: Browser has been closed.
+    at PlaywrightState.getActiveBrowser (C:\Users\Nilesh.Chaudhari\AppData\Roaming\Python\Python312\site-packages\Browser\wrapper\index.js:12226:15)
+    at PlaywrightServer.getActiveBrowser (C:\Users\Nilesh.Chaudhari\AppData\Roaming\Python\Python312\site-packages\Browser\wrapper\index.js:13122:59)
+    at PlaywrightServer.setTimeout (C:\Users\Nilesh.Chaudhari\AppData\Roaming\Python\Python312\site-packages\Browser\wrapper\index.js:13370:57)
+    at Object.onReceiveHalfClose (C:\Users\Nilesh.Chaudhari\AppData\Roaming\Python\Python312\site-packages\Browser\wrapper\node_modules\@grpc\grpc-js\build\src\server.js:1461:25)
+    at BaseServerInterceptingCall.maybePushNextMessage (C:\Users\Nilesh.Chaudhari\AppData\Roaming\Python\Python312\site-packages\Browser\wrapper\node_modules\@grpc\grpc-js\build\src\server-interceptors.js:575:31)
+    at BaseServerInterceptingCall.handleEndEvent (C:\Users\Nilesh.Chaudhari\AppData\Roaming\Python\Python312\site-packages\Browser\wrapper\node_modules\@grpc\grpc-js\build\src\server-interceptors.js:615:14)
+    at ServerHttp2Stream.<anonymous> (C:\Users\Nilesh.Chaudhari\AppData\Roaming\Python\Python312\site-packages\Browser\wrapper\node_modules\@grpc\grpc-js\build\src\server-interceptors.js:382:18)
+    at ServerHttp2Stream.emit (node:events:530:35)
+    at endReadableNT (node:internal/streams/readable:1698:12)
+    at process.processTicksAndRejections (node:internal/process/task_queues:90:21)
+=============================================================
+{"level":30,"time":"2025-10-01T02:30:18.692Z","pid":24308,"hostname":"CONNCHAUL01","msg":"Start of node method getBrowserCatalog"}
+{"level":30,"time":"2025-10-01T02:30:18.692Z","pid":24308,"hostname":"CONNCHAUL01","msg":"End of node method getBrowserCatalog"}
+{"level":30,"time":"2025-10-01T02:30:18.786Z","pid":24308,"hostname":"CONNCHAUL01","msg":"Start of node method closeAllBrowsers"}
+{"level":30,"time":"2025-10-01T02:30:18.786Z","pid":24308,"hostname":"CONNCHAUL01","msg":"End of node method closeAllBrowsers"}
