@@ -1,0 +1,495 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<robot generator="Robot 6.1.1 (Python 3.12.0 on win32)" generated="20250912 08:28:10.701" rpa="false" schemaversion="4">
+<suite id="s1" name="MyClients" source="C:\Users\Nilesh.Chaudhari\PycharmProjects\navbar-automation\Tests\2__MyClients.robot">
+<kw name="Start eWM Test" library="CommonWeb" type="SETUP">
+<kw name="Open Browser" library="SeleniumLibrary">
+<arg>about:blank</arg>
+<arg>${BROWSER}</arg>
+<doc>Opens a new browser instance to the optional ``url``.</doc>
+<msg timestamp="20250912 08:28:11.145" level="INFO">Opening browser 'chrome' to base url 'about:blank'.</msg>
+<status status="PASS" starttime="20250912 08:28:11.145" endtime="20250912 08:28:16.849"/>
+</kw>
+<kw name="Maximize Browser Window" library="SeleniumLibrary">
+<doc>Maximizes current browser window.</doc>
+<status status="PASS" starttime="20250912 08:28:16.849" endtime="20250912 08:28:16.953"/>
+</kw>
+<status status="PASS" starttime="20250912 08:28:11.144" endtime="20250912 08:28:16.953"/>
+</kw>
+<test id="s1-t1" name="TC#01: Verify user is landed on Client List page after clicking on 'My Clients' link" line="9">
+<kw name="Access test environment and land on Homepage" library="eWMApp">
+<kw name="Login to Test Environment" library="eWMApp">
+<kw name="Access Test Environment URL" library="CommonWeb">
+<kw name="Go To" library="SeleniumLibrary">
+<arg>${URL}</arg>
+<doc>Navigates the current browser window to the provided ``url``.</doc>
+<msg timestamp="20250912 08:28:16.988" level="INFO">Opening url 'https://dev13.ewealthmanager.com/ewmLogin/account/login'</msg>
+<status status="PASS" starttime="20250912 08:28:16.988" endtime="20250912 08:28:26.238"/>
+</kw>
+<kw name="Click Button" library="SeleniumLibrary">
+<arg>Allow All</arg>
+<doc>Clicks the button identified by ``locator``.</doc>
+<msg timestamp="20250912 08:28:26.239" level="INFO">Clicking button 'Allow All'.</msg>
+<status status="PASS" starttime="20250912 08:28:26.238" endtime="20250912 08:28:26.419"/>
+</kw>
+<status status="PASS" starttime="20250912 08:28:16.988" endtime="20250912 08:28:26.419"/>
+</kw>
+<kw name="Login to Test Environment" library="CommonWeb">
+<kw name="Input Text" library="SeleniumLibrary">
+<arg>${UserName_TextBox}</arg>
+<arg>${USERNAME}</arg>
+<doc>Types the given ``text`` into the text field identified by ``locator``.</doc>
+<msg timestamp="20250912 08:28:26.420" level="INFO">Typing text 'ssoabralc' into text field 'xpath://input[@name='username']'.</msg>
+<status status="PASS" starttime="20250912 08:28:26.419" endtime="20250912 08:28:26.899"/>
+</kw>
+<kw name="Input Text" library="SeleniumLibrary">
+<arg>${Password_TextBox}</arg>
+<arg>${PASSWORD}</arg>
+<doc>Types the given ``text`` into the text field identified by ``locator``.</doc>
+<msg timestamp="20250912 08:28:26.900" level="INFO">Typing text 'QAAdminUser_33a' into text field 'xpath://input[@name='password']'.</msg>
+<status status="PASS" starttime="20250912 08:28:26.899" endtime="20250912 08:28:27.061"/>
+</kw>
+<kw name="Click Element" library="SeleniumLibrary">
+<arg>${Sign_Button}</arg>
+<doc>Click the element identified by ``locator``.</doc>
+<msg timestamp="20250912 08:28:27.062" level="INFO">Clicking element 'xpath://input[@value='SIGN IN']'.</msg>
+<status status="PASS" starttime="20250912 08:28:27.061" endtime="20250912 08:28:27.220"/>
+</kw>
+<status status="PASS" starttime="20250912 08:28:26.419" endtime="20250912 08:28:27.221"/>
+</kw>
+<status status="PASS" starttime="20250912 08:28:16.987" endtime="20250912 08:28:27.221"/>
+</kw>
+<kw name="Change User" library="eWMApp">
+<kw name="Switch User" library="CommonWeb">
+<arg>${USER}</arg>
+<kw name="Wait Until Page Contains" library="SeleniumLibrary">
+<arg>Switch ID</arg>
+<arg>20s</arg>
+<doc>Waits until ``text`` appears on the current page.</doc>
+<status status="PASS" starttime="20250912 08:28:27.221" endtime="20250912 08:28:40.844"/>
+</kw>
+<kw name="Click Link" library="SeleniumLibrary">
+<arg>Switch ID</arg>
+<doc>Clicks a link identified by ``locator``.</doc>
+<msg timestamp="20250912 08:28:40.844" level="INFO">Clicking link 'Switch ID'.</msg>
+<status status="PASS" starttime="20250912 08:28:40.844" endtime="20250912 08:28:45.906"/>
+</kw>
+<kw name="Wait Until Page Contains Element" library="SeleniumLibrary">
+<arg>${Search_User_Inputbox}</arg>
+<arg>20s</arg>
+<doc>Waits until the element ``locator`` appears on the current page.</doc>
+<status status="PASS" starttime="20250912 08:28:45.906" endtime="20250912 08:28:45.931"/>
+</kw>
+<kw name="Click Element" library="SeleniumLibrary">
+<arg>${Search_User_Inputbox}</arg>
+<doc>Click the element identified by ``locator``.</doc>
+<msg timestamp="20250912 08:28:45.932" level="INFO">Clicking element 'xpath://span[text()='LookUp UserID']//following::input[1]'.</msg>
+<status status="PASS" starttime="20250912 08:28:45.931" endtime="20250912 08:28:46.086"/>
+</kw>
+<kw name="Input Text" library="SeleniumLibrary">
+<arg>${Search_User_Inputbox}</arg>
+<arg>${user}</arg>
+<doc>Types the given ``text`` into the text field identified by ``locator``.</doc>
+<msg timestamp="20250912 08:28:46.086" level="INFO">Typing text 'AG1634' into text field 'xpath://span[text()='LookUp UserID']//following::input[1]'.</msg>
+<status status="PASS" starttime="20250912 08:28:46.086" endtime="20250912 08:28:46.155"/>
+</kw>
+<kw name="Click Element" library="SeleniumLibrary">
+<arg>${Find_Button}</arg>
+<doc>Click the element identified by ``locator``.</doc>
+<msg timestamp="20250912 08:28:46.155" level="INFO">Clicking element 'xpath://input[@value='Find']'.</msg>
+<status status="PASS" starttime="20250912 08:28:46.155" endtime="20250912 08:28:50.305"/>
+</kw>
+<kw name="Wait Until Page Contains Element" library="SeleniumLibrary">
+<arg>${SSO_Link}</arg>
+<arg>20s</arg>
+<doc>Waits until the element ``locator`` appears on the current page.</doc>
+<status status="PASS" starttime="20250912 08:28:50.306" endtime="20250912 08:28:50.326"/>
+</kw>
+<kw name="Click Element" library="SeleniumLibrary">
+<arg>${SSO_Link}</arg>
+<doc>Click the element identified by ``locator``.</doc>
+<msg timestamp="20250912 08:28:50.327" level="INFO">Clicking element 'xpath://td/a[contains(text(),'sampleagentlogin')]'.</msg>
+<status status="PASS" starttime="20250912 08:28:50.326" endtime="20250912 08:28:54.647"/>
+</kw>
+<kw name="Sleep" library="BuiltIn">
+<arg>1s</arg>
+<doc>Pauses the test executed for the given time.</doc>
+<msg timestamp="20250912 08:28:55.648" level="INFO">Slept 1 second</msg>
+<status status="PASS" starttime="20250912 08:28:54.647" endtime="20250912 08:28:55.648"/>
+</kw>
+<kw name="Capture Page Screenshot" library="SeleniumLibrary">
+<doc>Takes a screenshot of the current page and embeds it into a log file.</doc>
+<msg timestamp="20250912 08:28:55.856" level="INFO" html="true">&lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td colspan="3"&gt;&lt;a href="selenium-screenshot-5.png"&gt;&lt;img src="selenium-screenshot-5.png" width="800px"&gt;&lt;/a&gt;</msg>
+<status status="PASS" starttime="20250912 08:28:55.648" endtime="20250912 08:28:55.856"/>
+</kw>
+<status status="PASS" starttime="20250912 08:28:27.221" endtime="20250912 08:28:55.856"/>
+</kw>
+<status status="PASS" starttime="20250912 08:28:27.221" endtime="20250912 08:28:55.856"/>
+</kw>
+<kw name="Login to Nav URL" library="eWMApp">
+<kw name="Login to Nav URL" library="CommonWeb">
+<kw name="Go To" library="SeleniumLibrary">
+<arg>${URL1}</arg>
+<doc>Navigates the current browser window to the provided ``url``.</doc>
+<msg timestamp="20250912 08:28:55.857" level="INFO">Opening url 'https://dev13.ewealthmanager.com/NavPageDemo/'</msg>
+<status status="PASS" starttime="20250912 08:28:55.857" endtime="20250912 08:28:57.731"/>
+</kw>
+<kw name="Wait Until Element Is Enabled" library="SeleniumLibrary">
+<arg>${Iframe}</arg>
+<arg>20s</arg>
+<doc>Waits until the element ``locator`` is enabled.</doc>
+<msg timestamp="20250912 08:29:18.081" level="INFO" html="true">&lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td colspan="3"&gt;&lt;a href="selenium-screenshot-6.png"&gt;&lt;img src="selenium-screenshot-6.png" width="800px"&gt;&lt;/a&gt;</msg>
+<msg timestamp="20250912 08:29:18.081" level="FAIL">Element with locator 'xpath://iframe[@title='Home Content']' not found.</msg>
+<status status="FAIL" starttime="20250912 08:28:57.731" endtime="20250912 08:29:18.084"/>
+</kw>
+<kw name="Select Frame" library="SeleniumLibrary">
+<arg>${Iframe}</arg>
+<doc>Sets frame identified by ``locator`` as the current frame.</doc>
+<status status="NOT RUN" starttime="20250912 08:29:18.084" endtime="20250912 08:29:18.084"/>
+</kw>
+<status status="FAIL" starttime="20250912 08:28:55.857" endtime="20250912 08:29:18.084"/>
+</kw>
+<status status="FAIL" starttime="20250912 08:28:55.857" endtime="20250912 08:29:18.085"/>
+</kw>
+<kw name="Verify user is landed on Homepage" library="eWMApp">
+<status status="NOT RUN" starttime="20250912 08:29:18.085" endtime="20250912 08:29:18.085"/>
+</kw>
+<status status="FAIL" starttime="20250912 08:28:16.984" endtime="20250912 08:29:18.085"/>
+</kw>
+<kw name="Verify user is landed on Client List page" library="eWMApp">
+<status status="NOT RUN" starttime="20250912 08:29:18.085" endtime="20250912 08:29:18.086"/>
+</kw>
+<doc>This test case verifies whethger user is landed on clients page</doc>
+<tag>Regression</tag>
+<status status="FAIL" starttime="20250912 08:28:16.954" endtime="20250912 08:29:18.086">Element with locator 'xpath://iframe[@title='Home Content']' not found.</status>
+</test>
+<test id="s1-t2" name="TC#02: Verify 'My Clients' option on LHN pane is highlighted" line="15">
+<kw name="Verify 'My Clients' option on LHN is highlighted" library="eWMApp">
+<kw name="Verify 'My Clients' option is highlighted" library="MyClients">
+<kw name="Unselect Frame" library="SeleniumLibrary">
+<doc>Sets the main frame as the current frame.</doc>
+<status status="PASS" starttime="20250912 08:29:18.089" endtime="20250912 08:29:18.092"/>
+</kw>
+<kw name="Wait Until Element Is Enabled" library="SeleniumLibrary">
+<arg>${My_Clients_NavOption}</arg>
+<arg>20s</arg>
+<doc>Waits until the element ``locator`` is enabled.</doc>
+<msg timestamp="20250912 08:29:38.504" level="INFO" html="true">&lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td colspan="3"&gt;&lt;a href="selenium-screenshot-7.png"&gt;&lt;img src="selenium-screenshot-7.png" width="800px"&gt;&lt;/a&gt;</msg>
+<msg timestamp="20250912 08:29:38.504" level="FAIL">Element with locator 'xpath://span[contains(text(),'My Clients')]//parent::a' not found.</msg>
+<status status="FAIL" starttime="20250912 08:29:18.092" endtime="20250912 08:29:38.505"/>
+</kw>
+<kw name="Element Attribute Value Should Be" library="SeleniumLibrary">
+<arg>${My_Clients_NavOption}</arg>
+<arg>style</arg>
+<arg>background-color: rgb(11, 100, 180); font-weight: 500; width: 208px; height: 40px; display: flex; align-items: center; padding: 22px 24px; border-radius: 8px;</arg>
+<doc>Verifies element identified by ``locator`` contains expected attribute value.</doc>
+<status status="NOT RUN" starttime="20250912 08:29:38.505" endtime="20250912 08:29:38.505"/>
+</kw>
+<kw name="Capture Page Screenshot" library="SeleniumLibrary">
+<doc>Takes a screenshot of the current page and embeds it into a log file.</doc>
+<status status="NOT RUN" starttime="20250912 08:29:38.505" endtime="20250912 08:29:38.505"/>
+</kw>
+<status status="FAIL" starttime="20250912 08:29:18.088" endtime="20250912 08:29:38.505"/>
+</kw>
+<status status="FAIL" starttime="20250912 08:29:18.088" endtime="20250912 08:29:38.505"/>
+</kw>
+<tag>Regression</tag>
+<status status="FAIL" starttime="20250912 08:29:18.087" endtime="20250912 08:29:38.506">Element with locator 'xpath://span[contains(text(),'My Clients')]//parent::a' not found.</status>
+</test>
+<test id="s1-t3" name="TC#03: Verify the footer is available on 'My Clients' page" line="19">
+<kw name="Verify whether the Footer is available on the page" library="eWMApp">
+<kw name="Verify whether the Footer is available on the page" library="CommonWeb">
+<kw name="Scroll Element Into View" library="SeleniumLibrary">
+<arg>${Footer}</arg>
+<doc>Scrolls the element identified by ``locator`` into view.</doc>
+<msg timestamp="20250912 08:29:38.677" level="INFO" html="true">&lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td colspan="3"&gt;&lt;a href="selenium-screenshot-8.png"&gt;&lt;img src="selenium-screenshot-8.png" width="800px"&gt;&lt;/a&gt;</msg>
+<msg timestamp="20250912 08:29:38.678" level="FAIL">Element with locator 'xpath://div[@class='footer']' not found.</msg>
+<status status="FAIL" starttime="20250912 08:29:38.508" endtime="20250912 08:29:38.684"/>
+</kw>
+<kw name="Page Should Contain Element" library="SeleniumLibrary">
+<arg>${Footer}</arg>
+<doc>Verifies that element ``locator`` is found on the current page.</doc>
+<status status="NOT RUN" starttime="20250912 08:29:38.684" endtime="20250912 08:29:38.684"/>
+</kw>
+<kw name="Capture Page Screenshot" library="SeleniumLibrary">
+<doc>Takes a screenshot of the current page and embeds it into a log file.</doc>
+<status status="NOT RUN" starttime="20250912 08:29:38.684" endtime="20250912 08:29:38.684"/>
+</kw>
+<status status="FAIL" starttime="20250912 08:29:38.508" endtime="20250912 08:29:38.684"/>
+</kw>
+<status status="FAIL" starttime="20250912 08:29:38.508" endtime="20250912 08:29:38.684"/>
+</kw>
+<tag>Regression</tag>
+<status status="FAIL" starttime="20250912 08:29:38.507" endtime="20250912 08:29:38.685">Element with locator 'xpath://div[@class='footer']' not found.</status>
+</test>
+<test id="s1-t4" name="TC#04: Verify the links under 'Holdings' tab" line="23">
+<kw name="Access 'Holdings-All Holdings' page" library="eWMApp">
+<kw name="Access 'Holdings-All Holdings' page" library="MyClients">
+<kw name="Select Frame" library="SeleniumLibrary">
+<arg>${Iframe_MyClients}</arg>
+<doc>Sets frame identified by ``locator`` as the current frame.</doc>
+<msg timestamp="20250912 08:29:38.688" level="INFO">Selecting frame 'xpath://iframe[@title='My Tracking Items Content']'.</msg>
+<msg timestamp="20250912 08:29:38.901" level="INFO" html="true">&lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td colspan="3"&gt;&lt;a href="selenium-screenshot-9.png"&gt;&lt;img src="selenium-screenshot-9.png" width="800px"&gt;&lt;/a&gt;</msg>
+<msg timestamp="20250912 08:29:38.901" level="FAIL">Element with locator 'xpath://iframe[@title='My Tracking Items Content']' not found.</msg>
+<status status="FAIL" starttime="20250912 08:29:38.687" endtime="20250912 08:29:38.904"/>
+</kw>
+<kw name="Wait Until Page Contains Element" library="SeleniumLibrary">
+<arg>${Client_expand_arrow}</arg>
+<arg>20s</arg>
+<doc>Waits until the element ``locator`` appears on the current page.</doc>
+<status status="NOT RUN" starttime="20250912 08:29:38.904" endtime="20250912 08:29:38.904"/>
+</kw>
+<kw name="Click Element" library="SeleniumLibrary">
+<arg>${Client_expand_arrow}</arg>
+<doc>Click the element identified by ``locator``.</doc>
+<status status="NOT RUN" starttime="20250912 08:29:38.904" endtime="20250912 08:29:38.904"/>
+</kw>
+<kw name="Wait Until Page Contains Element" library="SeleniumLibrary">
+<arg>${Client_Acct_Regis}</arg>
+<arg>20s</arg>
+<doc>Waits until the element ``locator`` appears on the current page.</doc>
+<status status="NOT RUN" starttime="20250912 08:29:38.904" endtime="20250912 08:29:38.904"/>
+</kw>
+<kw name="Click Element" library="SeleniumLibrary">
+<arg>${Client_Acct_Regis}</arg>
+<doc>Click the element identified by ``locator``.</doc>
+<status status="NOT RUN" starttime="20250912 08:29:38.904" endtime="20250912 08:29:38.904"/>
+</kw>
+<kw name="Page Should Contain" library="SeleniumLibrary">
+<arg>ASSET CLASS</arg>
+<doc>Verifies that current page contains ``text``.</doc>
+<status status="NOT RUN" starttime="20250912 08:29:38.904" endtime="20250912 08:29:38.904"/>
+</kw>
+<status status="FAIL" starttime="20250912 08:29:38.687" endtime="20250912 08:29:38.904"/>
+</kw>
+<status status="FAIL" starttime="20250912 08:29:38.687" endtime="20250912 08:29:38.905"/>
+</kw>
+<kw name="Access Holdings by Asset Class" library="eWMApp">
+<status status="NOT RUN" starttime="20250912 08:29:38.905" endtime="20250912 08:29:38.905"/>
+</kw>
+<kw name="Verify 'Holdings' tab is highlighted" library="eWMApp">
+<status status="NOT RUN" starttime="20250912 08:29:38.905" endtime="20250912 08:29:38.906"/>
+</kw>
+<tag>Smoke</tag>
+<status status="FAIL" starttime="20250912 08:29:38.686" endtime="20250912 08:29:38.906">Element with locator 'xpath://iframe[@title='My Tracking Items Content']' not found.</status>
+</test>
+<test id="s1-t5" name="TC#05: Verify the links under 'Activity' tab" line="29">
+<kw name="Access 'Activity' page" library="eWMApp">
+<kw name="Access 'Activity' page" library="MyClients">
+<kw name="Click Link" library="SeleniumLibrary">
+<arg>Activity</arg>
+<doc>Clicks a link identified by ``locator``.</doc>
+<msg timestamp="20250912 08:29:38.909" level="INFO">Clicking link 'Activity'.</msg>
+<msg timestamp="20250912 08:29:39.112" level="INFO" html="true">&lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td colspan="3"&gt;&lt;a href="selenium-screenshot-10.png"&gt;&lt;img src="selenium-screenshot-10.png" width="800px"&gt;&lt;/a&gt;</msg>
+<msg timestamp="20250912 08:29:39.112" level="FAIL">Link with locator 'Activity' not found.</msg>
+<status status="FAIL" starttime="20250912 08:29:38.908" endtime="20250912 08:29:39.113"/>
+</kw>
+<kw name="Page Should Contain" library="SeleniumLibrary">
+<arg>Total Items:</arg>
+<doc>Verifies that current page contains ``text``.</doc>
+<status status="NOT RUN" starttime="20250912 08:29:39.114" endtime="20250912 08:29:39.114"/>
+</kw>
+<status status="FAIL" starttime="20250912 08:29:38.908" endtime="20250912 08:29:39.114"/>
+</kw>
+<status status="FAIL" starttime="20250912 08:29:38.908" endtime="20250912 08:29:39.114"/>
+</kw>
+<kw name="Verify 'Activity' tab is highlighted" library="eWMApp">
+<status status="NOT RUN" starttime="20250912 08:29:39.115" endtime="20250912 08:29:39.115"/>
+</kw>
+<tag>Smoke</tag>
+<status status="FAIL" starttime="20250912 08:29:38.907" endtime="20250912 08:29:39.115">Link with locator 'Activity' not found.</status>
+</test>
+<test id="s1-t6" name="TC#06: Verify the links under 'Performance' tab" line="34">
+<kw name="Access 'Performance-Account Performance' page" library="eWMApp">
+<kw name="Access 'Performance-Account Performance' page" library="MyClients">
+<kw name="Click Link" library="SeleniumLibrary">
+<arg>Performance</arg>
+<doc>Clicks a link identified by ``locator``.</doc>
+<msg timestamp="20250912 08:29:39.119" level="INFO">Clicking link 'Performance'.</msg>
+<msg timestamp="20250912 08:29:39.293" level="INFO" html="true">&lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td colspan="3"&gt;&lt;a href="selenium-screenshot-11.png"&gt;&lt;img src="selenium-screenshot-11.png" width="800px"&gt;&lt;/a&gt;</msg>
+<msg timestamp="20250912 08:29:39.293" level="FAIL">Link with locator 'Performance' not found.</msg>
+<status status="FAIL" starttime="20250912 08:29:39.118" endtime="20250912 08:29:39.294"/>
+</kw>
+<kw name="Page Should Contain" library="SeleniumLibrary">
+<arg>Select a date range to see performance</arg>
+<doc>Verifies that current page contains ``text``.</doc>
+<status status="NOT RUN" starttime="20250912 08:29:39.294" endtime="20250912 08:29:39.294"/>
+</kw>
+<status status="FAIL" starttime="20250912 08:29:39.118" endtime="20250912 08:29:39.294"/>
+</kw>
+<status status="FAIL" starttime="20250912 08:29:39.118" endtime="20250912 08:29:39.294"/>
+</kw>
+<kw name="Access 'Performance-Display Options' page" library="eWMApp">
+<status status="NOT RUN" starttime="20250912 08:29:39.295" endtime="20250912 08:29:39.295"/>
+</kw>
+<kw name="Verify 'Performance' tab is highlighted" library="eWMApp">
+<status status="NOT RUN" starttime="20250912 08:29:39.295" endtime="20250912 08:29:39.295"/>
+</kw>
+<tag>Smoke</tag>
+<status status="FAIL" starttime="20250912 08:29:39.117" endtime="20250912 08:29:39.295">Link with locator 'Performance' not found.</status>
+</test>
+<test id="s1-t7" name="TC#07: Verify the links under 'Gain/Loss' tab" line="40">
+<kw name="Access 'Gain/Loss-Realized Gain/Loss' page" library="eWMApp">
+<kw name="Access 'Gain/Loss-Realized Gain/Loss' page" library="MyClients">
+<kw name="Sleep" library="BuiltIn">
+<arg>5s</arg>
+<doc>Pauses the test executed for the given time.</doc>
+<msg timestamp="20250912 08:29:44.299" level="INFO">Slept 5 seconds</msg>
+<status status="PASS" starttime="20250912 08:29:39.297" endtime="20250912 08:29:44.299"/>
+</kw>
+<kw name="Click Link" library="SeleniumLibrary">
+<arg>Gain/Loss</arg>
+<doc>Clicks a link identified by ``locator``.</doc>
+<msg timestamp="20250912 08:29:44.299" level="INFO">Clicking link 'Gain/Loss'.</msg>
+<msg timestamp="20250912 08:29:44.481" level="INFO" html="true">&lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td colspan="3"&gt;&lt;a href="selenium-screenshot-12.png"&gt;&lt;img src="selenium-screenshot-12.png" width="800px"&gt;&lt;/a&gt;</msg>
+<msg timestamp="20250912 08:29:44.482" level="FAIL">Link with locator 'Gain/Loss' not found.</msg>
+<status status="FAIL" starttime="20250912 08:29:44.299" endtime="20250912 08:29:44.483"/>
+</kw>
+<kw name="Page Should Contain" library="SeleniumLibrary">
+<arg>Accounting Method</arg>
+<doc>Verifies that current page contains ``text``.</doc>
+<status status="NOT RUN" starttime="20250912 08:29:44.483" endtime="20250912 08:29:44.483"/>
+</kw>
+<status status="FAIL" starttime="20250912 08:29:39.297" endtime="20250912 08:29:44.483"/>
+</kw>
+<status status="FAIL" starttime="20250912 08:29:39.297" endtime="20250912 08:29:44.483"/>
+</kw>
+<kw name="Access 'Gain/Loss-Unrealized Gain/Loss' page" library="eWMApp">
+<status status="NOT RUN" starttime="20250912 08:29:44.484" endtime="20250912 08:29:44.484"/>
+</kw>
+<kw name="Verify 'Gain/Loss' tab is highlighted" library="eWMApp">
+<status status="NOT RUN" starttime="20250912 08:29:44.484" endtime="20250912 08:29:44.484"/>
+</kw>
+<tag>Smoke</tag>
+<status status="FAIL" starttime="20250912 08:29:39.297" endtime="20250912 08:29:44.484">Link with locator 'Gain/Loss' not found.</status>
+</test>
+<test id="s1-t8" name="TC#08: Verify the links under 'Investment History' tab" line="46">
+<kw name="Access 'Investment History-Investment Change History' page" library="eWMApp">
+<kw name="Access 'Investment History-Investment Change History' page" library="MyClients">
+<kw name="Click Link" library="SeleniumLibrary">
+<arg>Investment History</arg>
+<doc>Clicks a link identified by ``locator``.</doc>
+<msg timestamp="20250912 08:29:44.486" level="INFO">Clicking link 'Investment History'.</msg>
+<msg timestamp="20250912 08:29:44.732" level="INFO" html="true">&lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td colspan="3"&gt;&lt;a href="selenium-screenshot-13.png"&gt;&lt;img src="selenium-screenshot-13.png" width="800px"&gt;&lt;/a&gt;</msg>
+<msg timestamp="20250912 08:29:44.732" level="FAIL">Link with locator 'Investment History' not found.</msg>
+<status status="FAIL" starttime="20250912 08:29:44.486" endtime="20250912 08:29:44.734"/>
+</kw>
+<kw name="Page Should Contain" library="SeleniumLibrary">
+<arg>Market Value Summary</arg>
+<doc>Verifies that current page contains ``text``.</doc>
+<status status="NOT RUN" starttime="20250912 08:29:44.734" endtime="20250912 08:29:44.734"/>
+</kw>
+<status status="FAIL" starttime="20250912 08:29:44.486" endtime="20250912 08:29:44.735"/>
+</kw>
+<status status="FAIL" starttime="20250912 08:29:44.486" endtime="20250912 08:29:44.735"/>
+</kw>
+<kw name="Access 'Investment History-Historical Market Values' page" library="eWMApp">
+<status status="NOT RUN" starttime="20250912 08:29:44.735" endtime="20250912 08:29:44.735"/>
+</kw>
+<kw name="Verify 'Investment History' tab is highlighted" library="eWMApp">
+<status status="NOT RUN" starttime="20250912 08:29:44.736" endtime="20250912 08:29:44.736"/>
+</kw>
+<tag>Smoke</tag>
+<status status="FAIL" starttime="20250912 08:29:44.485" endtime="20250912 08:29:44.736">Link with locator 'Investment History' not found.</status>
+</test>
+<test id="s1-t9" name="TC#09: Verify the links under 'Account Information' tab" line="52">
+<kw name="Access 'Account Information' page" library="eWMApp">
+<kw name="Access 'Account Information' page" library="MyClients">
+<kw name="Click Link" library="SeleniumLibrary">
+<arg>Account Information</arg>
+<doc>Clicks a link identified by ``locator``.</doc>
+<msg timestamp="20250912 08:29:44.740" level="INFO">Clicking link 'Account Information'.</msg>
+<msg timestamp="20250912 08:29:44.929" level="INFO" html="true">&lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td colspan="3"&gt;&lt;a href="selenium-screenshot-14.png"&gt;&lt;img src="selenium-screenshot-14.png" width="800px"&gt;&lt;/a&gt;</msg>
+<msg timestamp="20250912 08:29:44.929" level="FAIL">Link with locator 'Account Information' not found.</msg>
+<status status="FAIL" starttime="20250912 08:29:44.739" endtime="20250912 08:29:44.930"/>
+</kw>
+<kw name="Page Should Contain" library="SeleniumLibrary">
+<arg>ACCOUNT DETAILS</arg>
+<doc>Verifies that current page contains ``text``.</doc>
+<status status="NOT RUN" starttime="20250912 08:29:44.931" endtime="20250912 08:29:44.931"/>
+</kw>
+<status status="FAIL" starttime="20250912 08:29:44.739" endtime="20250912 08:29:44.931"/>
+</kw>
+<status status="FAIL" starttime="20250912 08:29:44.738" endtime="20250912 08:29:44.931"/>
+</kw>
+<kw name="Verify 'Account Information' tab is highlighted" library="eWMApp">
+<status status="NOT RUN" starttime="20250912 08:29:44.931" endtime="20250912 08:29:44.931"/>
+</kw>
+<tag>Smoke</tag>
+<status status="FAIL" starttime="20250912 08:29:44.738" endtime="20250912 08:29:44.932">Link with locator 'Account Information' not found.</status>
+</test>
+<test id="s1-t10" name="TC#10: Verify the links under 'On-Demand Report' tab" line="57">
+<kw name="Access 'On-Demand Report' page" library="eWMApp">
+<kw name="Access 'On-Demand Report' page" library="MyClients">
+<kw name="Click Link" library="SeleniumLibrary">
+<arg>On-Demand Report</arg>
+<doc>Clicks a link identified by ``locator``.</doc>
+<msg timestamp="20250912 08:29:44.934" level="INFO">Clicking link 'On-Demand Report'.</msg>
+<msg timestamp="20250912 08:29:45.107" level="INFO" html="true">&lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td colspan="3"&gt;&lt;a href="selenium-screenshot-15.png"&gt;&lt;img src="selenium-screenshot-15.png" width="800px"&gt;&lt;/a&gt;</msg>
+<msg timestamp="20250912 08:29:45.107" level="FAIL">Link with locator 'On-Demand Report' not found.</msg>
+<status status="FAIL" starttime="20250912 08:29:44.933" endtime="20250912 08:29:45.109"/>
+</kw>
+<kw name="Page Should Contain" library="SeleniumLibrary">
+<arg>Customize Your On-Demand Report</arg>
+<doc>Verifies that current page contains ``text``.</doc>
+<status status="NOT RUN" starttime="20250912 08:29:45.109" endtime="20250912 08:29:45.109"/>
+</kw>
+<status status="FAIL" starttime="20250912 08:29:44.933" endtime="20250912 08:29:45.109"/>
+</kw>
+<status status="FAIL" starttime="20250912 08:29:44.933" endtime="20250912 08:29:45.109"/>
+</kw>
+<kw name="Verify 'On-Demand Report' tab is highlighted" library="eWMApp">
+<status status="NOT RUN" starttime="20250912 08:29:45.110" endtime="20250912 08:29:45.110"/>
+</kw>
+<tag>Smoke</tag>
+<status status="FAIL" starttime="20250912 08:29:44.933" endtime="20250912 08:29:45.110">Link with locator 'On-Demand Report' not found.</status>
+</test>
+<test id="s1-t11" name="TC#11: Verify the links under 'Fees' tab" line="62">
+<kw name="Access 'Fees-Fee Schedules' page" library="eWMApp">
+<kw name="Access 'Fees-Fee Schedules' page" library="MyClients">
+<kw name="Click Link" library="SeleniumLibrary">
+<arg>Fees</arg>
+<doc>Clicks a link identified by ``locator``.</doc>
+<msg timestamp="20250912 08:29:45.113" level="INFO">Clicking link 'Fees'.</msg>
+<msg timestamp="20250912 08:29:45.293" level="INFO" html="true">&lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td colspan="3"&gt;&lt;a href="selenium-screenshot-16.png"&gt;&lt;img src="selenium-screenshot-16.png" width="800px"&gt;&lt;/a&gt;</msg>
+<msg timestamp="20250912 08:29:45.293" level="FAIL">Link with locator 'Fees' not found.</msg>
+<status status="FAIL" starttime="20250912 08:29:45.113" endtime="20250912 08:29:45.294"/>
+</kw>
+<kw name="Page Should Contain" library="SeleniumLibrary">
+<arg>Current Market Value</arg>
+<doc>Verifies that current page contains ``text``.</doc>
+<status status="NOT RUN" starttime="20250912 08:29:45.294" endtime="20250912 08:29:45.294"/>
+</kw>
+<status status="FAIL" starttime="20250912 08:29:45.113" endtime="20250912 08:29:45.294"/>
+</kw>
+<status status="FAIL" starttime="20250912 08:29:45.112" endtime="20250912 08:29:45.294"/>
+</kw>
+<kw name="Access 'Fees-Change Your Financial Advisor Fee' page" library="eWMApp">
+<status status="NOT RUN" starttime="20250912 08:29:45.294" endtime="20250912 08:29:45.294"/>
+</kw>
+<kw name="Access 'Fees-Fee Transactions' page" library="eWMApp">
+<status status="NOT RUN" starttime="20250912 08:29:45.295" endtime="20250912 08:29:45.295"/>
+</kw>
+<kw name="Verify 'Fees' tab is highlighted" library="eWMApp">
+<status status="NOT RUN" starttime="20250912 08:29:45.295" endtime="20250912 08:29:45.295"/>
+</kw>
+<tag>Smoke</tag>
+<status status="FAIL" starttime="20250912 08:29:45.112" endtime="20250912 08:29:45.295">Link with locator 'Fees' not found.</status>
+</test>
+<doc>This suite tests the links available on 'My Clients' page on Chrome browser</doc>
+<status status="FAIL" starttime="20250912 08:28:10.707" endtime="20250912 08:29:45.296"/>
+</suite>
+<statistics>
+<total>
+<stat pass="0" fail="11" skip="0">All Tests</stat>
+</total>
+<tag>
+<stat pass="0" fail="3" skip="0">Regression</stat>
+<stat pass="0" fail="8" skip="0">Smoke</stat>
+</tag>
+<suite>
+<stat pass="0" fail="11" skip="0" id="s1" name="MyClients">MyClients</stat>
+</suite>
+</statistics>
+<errors>
+</errors>
+</robot>
