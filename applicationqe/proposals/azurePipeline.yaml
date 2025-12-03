@@ -101,8 +101,8 @@ jobs:
         displayName: "Build Playwright Command"
         continueOnError: false
 
-      #- script: cd applicationqe/proposals
-      #  displayName: "Change Directory to Proposals"
+      - script: cd applicationqe/proposals
+        displayName: "Change Directory to Proposals"
 
       - task: NodeTool@0
         inputs:
