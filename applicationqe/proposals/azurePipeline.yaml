@@ -286,7 +286,7 @@ jobs:
           export INFLUXDB_TOKEN="${INFLUXDB_TOKEN}"
           export INFLUXDB_ORG="${INFLUXDB_ORG}"
           export INFLUXDB_BUCKET="${INFLUXDB_BUCKET}"
-          export ALLURE_RESULTS_DIR="$(buildPath)/target/allure-results"
+          export ALLURE_RESULTS_DIR="$(allureResultsDir)"
           export ENVIRONMENT="$(environment)"
           export BUILD_ID="$(Build.BuildId)"
           export BUILD_REASON="$(Build.Reason)"
