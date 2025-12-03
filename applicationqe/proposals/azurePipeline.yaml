@@ -94,12 +94,12 @@ jobs:
 
       - script: |
           echo "Building Playwright test command..."
-          TEST_CMD="cd applicationqe/proposals; npx playwright test --reporter=allure-playwright,html,junit"
+          TEST_CMD="npx playwright test --reporter=allure-playwright,html,junit"
 
           echo "Final command: $TEST_CMD"
           echo "##vso[task.setvariable variable=TEST_CMD]$TEST_CMD"
         displayName: "Build Playwright Command"
-        workingDirectory: applicationqe/proposals
+        workingDirectory: $(Build.SourcesDirectory)/applicationqe/proposals
         continueOnError: false
 
       - task: NodeTool@0
@@ -108,11 +108,11 @@ jobs:
         displayName: "Install Node.js"
 
       - script: npm ci --ignore-scripts
-        workingDirectory: applicationqe/proposals
+        workingDirectory: $(Build.SourcesDirectory)/applicationqe/proposals
         displayName: "Install Dependencies"
 
       - script: npx playwright install chromium
-        workingDirectory: applicationqe/proposals
+        workingDirectory: $(Build.SourcesDirectory)/applicationqe/proposals
         displayName: "Install Playwright Browsers"
         continueOnError: false
 
@@ -248,7 +248,7 @@ jobs:
           echo "Generating comprehensive JUnit XML report from test execution..."
           mkdir -p $(buildPath)/test-results
 
-          python3 scripts/generate_junit_report.py \
+          python3 $(Build.SourcesDirectory)/applicationqe/proposals/scripts/generate_junit_report.py \
             "$(buildPath)/target/allure-results" \
             "$(buildPath)/test-results/junit-report.xml"
 
@@ -265,7 +265,7 @@ jobs:
 
       - script: |
           echo "Installing InfluxDB client..."
-          pip install -r requirements.txt
+          pip install -r $(Build.SourcesDirectory)/applicationqe/proposals/requirements.txt
         displayName: "Install Python Dependencies"
         continueOnError: false
 
@@ -283,7 +283,7 @@ jobs:
           export SYSTEM_TEAMPROJECT="$(System.TeamProject)"
           export BUILD_BUILDID="$(Build.BuildId)"
 
-          python3 framework/reporter/influx_reporter.py
+          python3 $(Build.SourcesDirectory)/applicationqe/proposals/framework/reporter/influx_reporter.py
         displayName: "Push Metrics to InfluxDB"
         condition: always()
         continueOnError: true
