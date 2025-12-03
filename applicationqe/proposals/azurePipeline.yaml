@@ -105,7 +105,6 @@ jobs:
       - task: NodeTool@0
         inputs:
           versionSpec: "22.x"
-        workingDirectory: applicationqe/proposals
         displayName: "Install Node.js"
 
       - script: npm ci --ignore-scripts
