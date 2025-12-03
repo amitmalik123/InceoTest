@@ -94,7 +94,7 @@ jobs:
 
       - script: |
           echo "Building Playwright test command..."
-          TEST_CMD="npx playwright test --reporter=allure-playwright,html,junit"
+          TEST_CMD="cd applicationqe/proposals; npx playwright test --reporter=allure-playwright,html,junit"
 
           echo "Final command: $TEST_CMD"
           echo "##vso[task.setvariable variable=TEST_CMD]$TEST_CMD"
