@@ -141,20 +141,19 @@ jobs:
         displayName: "Install and Verify Allure CLI"
 
       - script: |
-          mkdir -p "$(buildPath)/target/allure-results"
+          mkdir -p "$(proposalsPath)/target/allure-results"
           echo "========================================"
           echo "PLAYWRIGHT TEST EXECUTION START"
           echo "========================================"
           echo "Test Command: $(TEST_CMD)"
-          echo "Test Project: $(testProject)"
-          echo "Test Filter: $(testFilter)"
           echo "Environment: $(environment)"
           echo "Build Path: $(buildPath)"
+          echo "Proposals Path: $(proposalsPath)"
           echo "Allure Results Dir: $(allureResultsDir)"
           echo "========================================"
           echo ""
           echo "Setting up environment variables..."
-          export ALLURE_RESULTS_DIR="$(buildPath)/target/allure-results"
+          export ALLURE_RESULTS_DIR="$(allureResultsDir)"
           export CI=true
           echo "✓ ALLURE_RESULTS_DIR=$ALLURE_RESULTS_DIR"
           echo "✓ CI=$CI"
@@ -181,7 +180,7 @@ jobs:
           ls -la $(allureResultsDir) 2>/dev/null || echo "Allure results directory not found"
           echo ""
           echo "Listing Playwright reports:"
-          ls -la $(buildPath)/playwright-report 2>/dev/null || echo "Playwright report directory not found"
+          ls -la $(proposalsPath)/playwright-report 2>/dev/null || echo "Playwright report directory not found"
         displayName: "Run Playwright Tests with Allure"
         workingDirectory: $(Build.SourcesDirectory)/applicationqe/proposals
         continueOnError: true
