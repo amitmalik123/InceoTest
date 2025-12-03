@@ -8,7 +8,7 @@ trigger: none
 # Scheduled triggers
 # -----------------------------
 schedules:
-  - cron: "0 21 * * *" # 1:00 PM PST → Test11
+  - cron: "30 20 * * *" # 12:00 PM PST → Test11
     displayName: "Schedule for Test11"
     branches:
       include:
@@ -101,9 +101,8 @@ jobs:
         displayName: "Build Playwright Command"
         continueOnError: false
 
-      -task: Move to correct folder
-        script: cd applicationqe/proposals
-        displayName: "Change Directory to Proposals"
+      #- script: cd applicationqe/proposals
+      #  displayName: "Change Directory to Proposals"
 
       - task: NodeTool@0
         inputs:
