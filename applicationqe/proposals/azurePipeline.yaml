@@ -104,6 +104,9 @@ jobs:
       - script: cd applicationqe/proposals
         displayName: "Change Directory to Proposals"
 
+      - script: ls
+        displayName: "Show directory"
+
       - task: NodeTool@0
         inputs:
           versionSpec: "22.x"
