@@ -8,7 +8,7 @@ trigger: none
 # Scheduled triggers
 # -----------------------------
 schedules:
-  - cron: "0 21 * * *" # 1:00 PM PST → Test11
+  - cron: "30 20 * * *" # 12:30 PM PST → Test11
     displayName: "Schedule for Test11"
     branches:
       include:

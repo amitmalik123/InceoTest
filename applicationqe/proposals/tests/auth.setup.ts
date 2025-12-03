@@ -3,7 +3,7 @@ import { LoginPage } from '@pages/LoginPageObjectModel';
 import { SwitchIDPage } from '@pages/SwitchIDPageObjectModel';
 
 setup('Login to Environment', async ({ page }) => {
-    const role1AuthFile= 'applicationqe/proposals/authfiles/role1.json';
+    const role1AuthFile= './authfiles/role1.json';
     const loginPage = new LoginPage(page);
     const switchIDPage = new SwitchIDPage(page);
     //login

@@ -7,7 +7,7 @@ import {test as teardown, expect} from '@playwright/test';
 teardown.describe.configure({ mode: 'default' });
 
 teardown.describe('Delete Portfolio', () => {
-    teardown.use({ storageState: 'applicationqe/proposals/authfiles/createdportfolio.json' });
+    teardown.use({ storageState: './authfiles/createdportfolio.json' });
 /*Move to teardown to ensure cleanup happens even if a test fails*/
     teardown('Cleanup - Delete created portfolio', async ({ page }) => {        
         await navigateToHomePage(page);
@@ -24,7 +24,7 @@ teardown.describe('Delete Portfolio', () => {
 
 teardown.describe('Logout', () => {
     //apply storage state of role from auth file created in setup
-    teardown.use({ storageState: 'applicationqe/proposals/authfiles/role1.json' });
+    teardown.use({ storageState: './authfiles/role1.json' });
     teardown('Logout', async ({ page }) => {
         //logout
         await navigateToHomePage(page);

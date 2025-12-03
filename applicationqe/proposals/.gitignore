@@ -7,5 +7,6 @@ node_modules/
 /playwright/.auth/
 /authfiles/
 #/playwright.config.ts
-/allure-results
-/allure-report/
+allure-results
+allure-report/
+azurePipeline.yaml

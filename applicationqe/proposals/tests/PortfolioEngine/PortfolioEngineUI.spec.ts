@@ -17,7 +17,7 @@ test.describe.configure({ mode: 'serial' }); //Have to add strategies, then crea
 test.describe('Portfolio Engine Happy Path Tests', () => {
 
     //apply storage state of role from auth file created in setup
-    test.use({ storageState: 'applicationqe/proposals/authfiles/role1.json' });
+    test.use({ storageState: './authfiles/role1.json' });
     //Start each test from Portfolio Engine home page
     test.beforeEach('Navigate to Portfolio Engine Home Page', async ({ page }) => {
         await navigateToHomePage(page);
@@ -59,7 +59,7 @@ test.describe('Portfolio Engine Happy Path Tests', () => {
         await expect(portfolioEnginePage.getAllocationTextbox(4)).toHaveValue('20');
     
         //save state so we can delete file portfolio in teardown
-        await portfolioEnginePage.page.context().storageState({ path: 'applicationqe/proposals/authfiles/createdportfolio.json'});
+        await portfolioEnginePage.page.context().storageState({ path: './authfiles/createdportfolio.json'});
     });
 
         test('Portfolio Engine Widgets Load', async ({ page }) => {
@@ -170,7 +170,7 @@ test.describe('Portfolio Engine Happy Path Tests', () => {
 
 test.describe('Check proposal doc', () => {
         //apply storage state of role from auth file created in setup
-    test.use({ storageState: 'applicationqe/proposals/authfiles/role1.json' });
+    test.use({ storageState: './authfiles/role1.json' });
     //Start each test from home page
     test.beforeEach('Navigate to eWm Home Page', async ({ page }) => {
         await navigateToHomePage(page);
