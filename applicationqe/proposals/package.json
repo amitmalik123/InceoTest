@@ -1,0 +1,21 @@
+{
+  "name": "proposalautomation",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "test": "npx playwright test",
+    "test:report": "npx playwright test && npx playwright show-report",
+    "test:ui": "npx playwright test --ui",
+    "test:debug": "npx playwright test auth.spec.ts:4 --debug"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "devDependencies": {
+    "@playwright/test": "^1.56.1",
+    "@types/node": "^24.9.1",
+    "allure-playwright": "^3.4.2",
+    "dotenv": "^17.2.3"
+  }
+}
