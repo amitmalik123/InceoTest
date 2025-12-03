@@ -94,25 +94,26 @@ jobs:
 
       - script: |
           echo "Building Playwright test command..."
-          TEST_CMD="cd applicationqe/proposals; npx playwright test --reporter=allure-playwright,html,junit"
+          TEST_CMD="npx playwright test --reporter=allure-playwright,html,junit"
 
           echo "Final command: $TEST_CMD"
           echo "##vso[task.setvariable variable=TEST_CMD]$TEST_CMD"
         displayName: "Build Playwright Command"
+        workingDirectory: applicationqe/proposals
         continueOnError: false
-
-      - script: cd applicationqe/proposals; ls
-        displayName: "Change Directory to Proposals"
 
       - task: NodeTool@0
         inputs:
           versionSpec: "22.x"
+        workingDirectory: applicationqe/proposals
         displayName: "Install Node.js"
 
-      - script: cd applicationqe/proposals; npm ci --ignore-scripts
+      - script: npm ci --ignore-scripts
+        workingDirectory: applicationqe/proposals
         displayName: "Install Dependencies"
 
-      - script: cd applicationqe/proposals; npx playwright install chromium
+      - script: npx playwright install chromium
+        workingDirectory: applicationqe/proposals
         displayName: "Install Playwright Browsers"
         continueOnError: false
 
