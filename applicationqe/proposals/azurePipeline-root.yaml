@@ -185,10 +185,10 @@ jobs:
 
       - script: |
           echo "Debugging ALLURE_RESULTS_DIR after test execution..."
-          echo "ALLURE_RESULTS_DIR: $(ALLURE_RESULTS_DIR)"
-          if [ -d "$(ALLURE_RESULTS_DIR)" ]; then
+          echo "ALLURE_RESULTS_DIR: $(allureResultsDir)"
+          if [ -d "$(allureResultsDir)" ]; then
             echo "Contents of ALLURE_RESULTS_DIR:"
-            ls -la $(ALLURE_RESULTS_DIR)
+            ls -la $(allureResultsDir)
           else
             echo "ALLURE_RESULTS_DIR does not exist."
           fi
