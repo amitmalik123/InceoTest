@@ -43,6 +43,11 @@ parameters:
     type: string
     default: "applicationqe/proposals"
 
+  - name: allureResultsPath
+    displayName: "Path to Allure results directory (relative to repo root)"
+    type: string
+    default: "applicationqe/proposals/target/allure-results"
+
 # -----------------------------
 # Job Section
 # -----------------------------
@@ -55,8 +60,8 @@ jobs:
       buildPath: "$(Build.SourcesDirectory)"
       scriptsPath: "$(Build.SourcesDirectory)/${{ parameters.scriptsPath }}"
       environment: ${{ parameters.environment }}
-      allureResultsDir: "$(scriptsPath)/target/allure-results"
-      allureReportDir: "$(scriptsPath)/target/allure-report"
+      allureResultsDir: "$(Build.SourcesDirectory)/${{ parameters.allureResultsPath }}"
+      allureReportDir: "$(Build.SourcesDirectory)/${{ parameters.allureResultsPath }}/../allure-report"
       allureToolsDir: "$(Build.ArtifactStagingDirectory)/allure-tools"
       INFLUXDB_URL: "http://azncc03perf.corp.local:8086"
       INFLUXDB_ORG: "MF"
