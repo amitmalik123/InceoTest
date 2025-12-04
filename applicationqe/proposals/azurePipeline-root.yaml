@@ -231,38 +231,18 @@ jobs:
         condition: always()
 
       - script: |
-          mkdir -p "$(buildPath)/target/allure-report"
-          echo "Allure Report Directory created: $(buildPath)/target/allure-report"
+          mkdir -p "$(allureReportDir)"
+          echo "Allure Report Directory created: $(allureReportDir)"
         displayName: "Create Allure Report Directory"
 
       - script: |
           echo "Checking for Allure results..."
-          # Check both scripts path and root for allure-results
-          SCRIPTS_SRC_DIR="$(scriptsPath)/target/allure-results"
-          ROOT_SRC_DIR="$(buildPath)/target/allure-results"
-          ALT_DIR="$(buildPath)/allure-results"
-          REPORT_DIR="$(buildPath)/target/allure-report"
-
-          # Try to copy from scripts path if not already in root
-          if [ -d "$SCRIPTS_SRC_DIR" ] && [ -n "$(ls -A "$SCRIPTS_SRC_DIR" 2>/dev/null)" ]; then
-            echo "Copying results from scripts path..."
-            mkdir -p "$ROOT_SRC_DIR"
-            cp -r "$SCRIPTS_SRC_DIR"/* "$ROOT_SRC_DIR/" || true
-            echo "Copied results from: $SCRIPTS_SRC_DIR"
-          fi
-
-          SRC_DIR="$ROOT_SRC_DIR"
+          SRC_DIR="$(allureResultsDir)"
+          REPORT_DIR="$(allureReportDir)"
 
           if [ ! -d "$SRC_DIR" ] || [ -z "$(ls -A "$SRC_DIR" 2>/dev/null)" ]; then
-            if [ -d "$ALT_DIR" ] && [ -n "$(ls -A "$ALT_DIR" 2>/dev/null)" ]; then
-              echo "Using alternate Allure results directory: $ALT_DIR"
-              mkdir -p "$SRC_DIR"
-              cp -r "$ALT_DIR"/* "$SRC_DIR/" || true
-              echo "Copied alternate results into staging: $SRC_DIR"
-            else
-              echo "##vso[task.logissue type=warning]No Allure results found in $SRC_DIR or $ALT_DIR. Report generation skipped."
-              exit 0
-            fi
+            echo "##vso[task.logissue type=warning]No Allure results found in $SRC_DIR. Report generation skipped."
+            exit 0
           fi
 
           echo "Generating Allure report from: $SRC_DIR"
