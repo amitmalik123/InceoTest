@@ -28,11 +28,6 @@ parameters:
       - test10
       - silo
 
-  - name: tag
-    displayName: "Cucumber Tag to Run"
-    type: string
-    default: "@smokeTest"
-
   - name: threadCount
     displayName: "Number of Threads"
     type: string
@@ -76,12 +71,10 @@ jobs:
           echo "Determining environment and test settings dynamically..."
           if [ "$(Build.Reason)" = "Manual" ]; then
             echo "##vso[task.setvariable variable=environment]${{ parameters.environment }}"
-            echo "##vso[task.setvariable variable=tag]${{ parameters.tag }}"
             echo "##vso[task.setvariable variable=threadCount]${{ parameters.threadCount }}"
             echo "##vso[task.setvariable variable=runnerFile]${{ parameters.runnerFile }}"
           else
             echo "##vso[task.setvariable variable=environment]test11"
-            echo "##vso[task.setvariable variable=tag]@smokeTest"
             echo "##vso[task.setvariable variable=threadCount]2"
             echo "##vso[task.setvariable variable=runnerFile]*"
           fi
