@@ -1,134 +1,129 @@
 pool:
   name: "ubuntu2204-qa"
   timeoutInMinutes: 10
-trigger:
-  enabled: false
+
+trigger: none
+
+# -----------------------------
+# Scheduled triggers
+# -----------------------------
 schedules:
-- cron: "30 20 * * *" # 12:30 PST -> Test 11
-  displayName: "Schedule for Test11"
-  branches:
-    include:
-    - playwrightaaron
-  always: true
+  - cron: "30 20 * * *" # 12:30 PM PST → Test11
+    displayName: "Schedule for Test11"
+    branches:
+      include:
+        - playwrightaaron
+    always: true
+
+# -----------------------------
+# Parameters for Manual Runs
+# -----------------------------
 parameters:
-- name: environment
-  displayName: "Target Environment (manual run)"
-  type: string
-  default: "test11"
-  values:
-  - test11
-  - test10
-  - silo
-- name: tag
-  displayName: "Cucumber Tag to Run"
-  type: string
-  default: "@smokeTest"
-- name: threadCount
-  displayName: "Number of Threads"
-  type: string
-  default: "2"
-- name: runnerFile
-  displayName: "Runner File"
-  type: string
-  default: "*"
-stages:
-- stage: __default
-  jobs:
+  - name: environment
+    displayName: "Target Environment (manual run)"
+    type: string
+    default: "test11"
+    values:
+      - test11
+      - test10
+      - silo
+
+  - name: tag
+    displayName: "Cucumber Tag to Run"
+    type: string
+    default: "@smokeTest"
+
+  - name: threadCount
+    displayName: "Number of Threads"
+    type: string
+    default: "2"
+
+  - name: runnerFile
+    displayName: "Runner File"
+    type: string
+    default: "*"
+
+# -----------------------------
+# Job Section
+# -----------------------------
+jobs:
   - job: RunPlaywrightTests
     displayName: "Run Playwright Tests"
     timeoutInMinutes: 30
-    variables:
-    - name: buildPath
-      value: "$(Build.SourcesDirectory)"
-    - name: proposalsPath
-      value: "$(Build.SourcesDirectory)/applicationqe/proposals"
-    - name: environment
-      value: test11
-    - name: allureResultsDir
-      value: "$(Build.SourcesDirectory)/applicationqe/proposals/target/allure-results"
-    - name: allureReportDir
-      value: "$(Build.SourcesDirectory)/applicationqe/proposals/target/allure-report"
-    - name: allureToolsDir
-      value: "$(Build.ArtifactStagingDirectory)/allure-tools"
-    - name: INFLUXDB_URL
-      value: "http://azncc03perf.corp.local:8086"
-    - name: INFLUXDB_ORG
-      value: "MF"
-    - name: INFLUXDB_BUCKET
-      value: "AutomationData"
-    - name: INFLUXDB_TOKEN
-      value: "$(InfluxDBToken)"
-    steps:
-    - task: 6d15af64-176c-496d-b583-fd2ae21d4df4@1
-      inputs:
-        repository: self
-        clean: true
-    - task: CmdLine@2
-      displayName: "Set Environment Variables Dynamically"
-      inputs:
-        script: >
-          echo "Determining environment and test settings dynamically..."
 
+    variables:
+      buildPath: "$(Build.SourcesDirectory)"
+      proposalsPath: "$(Build.SourcesDirectory)/applicationqe/proposals"
+      environment: ${{ parameters.environment }}
+      allureResultsDir: "$(Build.SourcesDirectory)/applicationqe/proposals/target/allure-results"
+      allureReportDir: "$(Build.SourcesDirectory)/applicationqe/proposals/target/allure-report"
+      allureToolsDir: "$(Build.ArtifactStagingDirectory)/allure-tools"
+      INFLUXDB_URL: "http://azncc03perf.corp.local:8086"
+      INFLUXDB_ORG: "MF"
+      INFLUXDB_BUCKET: "AutomationData"
+      INFLUXDB_TOKEN: "$(InfluxDBToken)"
+
+    steps:
+      - checkout: self
+        clean: true
+
+      - script: |
+          echo "Determining environment and test settings dynamically..."
           if [ "$(Build.Reason)" = "Manual" ]; then
-            echo "##vso[task.setvariable variable=environment]test11"
-            echo "##vso[task.setvariable variable=tag]@smokeTest"
-            echo "##vso[task.setvariable variable=threadCount]2"
-            echo "##vso[task.setvariable variable=runnerFile]*"
+            echo "##vso[task.setvariable variable=environment]${{ parameters.environment }}"
+            echo "##vso[task.setvariable variable=tag]${{ parameters.tag }}"
+            echo "##vso[task.setvariable variable=threadCount]${{ parameters.threadCount }}"
+            echo "##vso[task.setvariable variable=runnerFile]${{ parameters.runnerFile }}"
           else
             echo "##vso[task.setvariable variable=environment]test11"
             echo "##vso[task.setvariable variable=tag]@smokeTest"
             echo "##vso[task.setvariable variable=threadCount]2"
             echo "##vso[task.setvariable variable=runnerFile]*"
           fi
-    - task: CmdLine@2
-      displayName: "Set Playwright Environment Variables"
-      inputs:
-        script: |
+
+        displayName: "Set Environment Variables Dynamically"
+
+      - script: |
           echo "##vso[task.setvariable variable=ENVIRONMENT]$(environment)"
-    - task: CmdLine@2
-      displayName: "Print Parameters"
-      inputs:
-        script: |
+        displayName: "Set Playwright Environment Variables"
+
+      - script: |
           echo "Print Parameters"
           echo "Environment: $(environment)"
           echo "ThreadCount: $(threadCount)"
-    - task: CmdLine@2
-      displayName: "Build Playwright Command"
-      continueOnError: false
-      inputs:
-        script: |
+        displayName: "Print Parameters"
+
+      - script: |
           echo "Building Playwright test command..."
           TEST_CMD="npx playwright test --reporter=allure-playwright,html,junit"
 
           echo "Final command: $TEST_CMD"
           echo "##vso[task.setvariable variable=TEST_CMD]$TEST_CMD"
+        displayName: "Build Playwright Command"
         workingDirectory: $(Build.SourcesDirectory)/applicationqe/proposals
-    - task: NodeTool@0
-      inputs:
-        versionSpec: "22.x"
-      displayName: "Install Node.js"
-    - task: CmdLine@2
-      displayName: "Install Dependencies"
-      inputs:
-        script: npm ci --ignore-scripts
+        continueOnError: false
+
+      - task: NodeTool@0
+        inputs:
+          versionSpec: "22.x"
+        displayName: "Install Node.js"
+
+      - script: npm ci --ignore-scripts
         workingDirectory: $(Build.SourcesDirectory)/applicationqe/proposals
-    - task: CmdLine@2
-      displayName: "Install Playwright Browsers"
-      continueOnError: false
-      inputs:
-        script: npx playwright install chromium
+        displayName: "Install Dependencies"
+
+      - script: npx playwright install chromium
         workingDirectory: $(Build.SourcesDirectory)/applicationqe/proposals
-    - task: CmdLine@2
-      displayName: "Verify Browser Dependencies"
-      continueOnError: true
-      inputs:
-        script: |
+        displayName: "Install Playwright Browsers"
+        continueOnError: false
+
+      - script: |
           echo "Checking for required system libraries..."
           ldd /home/amkbuild/myagent3/_work/31/s/node_modules/playwright/.cache/chromium-*/chrome-linux/chrome 2>/dev/null | grep "not found" | head -5 || echo "Browser appears ready"
-    - task: CmdLine@2
-      displayName: "Install and Verify Allure CLI"
-      inputs:
-        script: |
+        displayName: "Verify Browser Dependencies"
+        continueOnError: true
+
+      - script: |
           echo "Installing Allure CLI into tools folder..."
           mkdir -p $(allureToolsDir)
           npm install allure-commandline --prefix $(allureToolsDir)
@@ -143,11 +138,9 @@ stages:
             ls -la "$(allureToolsDir)/node_modules/.bin" || true
           fi
           allure --version
-    - task: CmdLine@2
-      displayName: "Run Playwright Tests with Allure"
-      continueOnError: true
-      inputs:
-        script: |
+        displayName: "Install and Verify Allure CLI"
+
+      - script: |
           mkdir -p "$(proposalsPath)/target/allure-results"
           echo "========================================"
           echo "PLAYWRIGHT TEST EXECUTION START"
@@ -188,13 +181,11 @@ stages:
           echo ""
           echo "Listing Playwright reports:"
           ls -la $(proposalsPath)/playwright-report 2>/dev/null || echo "Playwright report directory not found"
+        displayName: "Run Playwright Tests with Allure"
         workingDirectory: $(Build.SourcesDirectory)/applicationqe/proposals
-    - task: CmdLine@2
-      displayName: "Debug Test Results Location"
-      condition: always()
-      continueOnError: true
-      inputs:
-        script: |
+        continueOnError: true
+
+      - script: |
           echo "Checking for JUnit test results..."
           echo "Looking in: $(buildPath)/applicationqe/proposals"
           find $(buildPath)/applicationqe/proposals -type f -name "*.xml" | grep -E "(junit|test)" | head -20 || echo "No XML files found"
@@ -209,25 +200,23 @@ stages:
           mkdir -p $(buildPath)/test-results
           cp -r $(buildPath)/applicationqe/proposals/test-results/* $(buildPath)/test-results 2>/dev/null || echo "No test-results to copy"
           cp -r $(buildPath)/applicationqe/proposals/playwright-report $(buildPath)/playwright-report 2>/dev/null || echo "No playwright-report to copy"
-    - task: CmdLine@2
-      displayName: "Debug Allure Results Directory"
-      condition: always()
-      inputs:
-        script: |
+        displayName: "Debug Test Results Location"
+        condition: always()
+        continueOnError: true
+
+      - script: |
           echo "Checking Allure Results Directory..."
           echo "Results Dir: $(allureResultsDir)"
           ls -la $(allureResultsDir) 2>/dev/null || echo "Results dir not found"
-    - task: CmdLine@2
-      displayName: "Create Allure Report Directory"
-      inputs:
-        script: |
+        displayName: "Debug Allure Results Directory"
+        condition: always()
+
+      - script: |
           mkdir -p "$(proposalsPath)/target/allure-report"
           echo "Allure Report Directory created: $(proposalsPath)/target/allure-report"
-    - task: CmdLine@2
-      displayName: "Generate Allure Report"
-      condition: always()
-      inputs:
-        script: |
+        displayName: "Create Allure Report Directory"
+
+      - script: |
           echo "Checking for Allure results..."
           # Check proposals allure-results folder
           SRC_DIR="$(proposalsPath)/target/allure-results"
@@ -250,22 +239,19 @@ stages:
           allure generate "$SRC_DIR" --clean -o "$REPORT_DIR" --single-file
           echo "Report generated at: $REPORT_DIR"
           ls -la "$REPORT_DIR" 2>/dev/null || echo "Report dir not found"
-    - task: CmdLine@2
-      displayName: "Verify Report Paths"
-      condition: always()
-      inputs:
-        script: |
+        displayName: "Generate Allure Report"
+        condition: always()
+
+      - script: |
           echo "Verifying report directories before publish..."
           echo "Results Dir: $(allureResultsDir)"
           echo "Report Dir: $(allureReportDir)"
           ls -la $(allureResultsDir) 2>/dev/null || echo "Results dir not found"
           ls -la $(allureReportDir) 2>/dev/null || echo "Report dir not found"
-    - task: CmdLine@2
-      displayName: "Generate JUnit XML Report"
-      condition: always()
-      continueOnError: true
-      inputs:
-        script: |
+        displayName: "Verify Report Paths"
+        condition: always()
+
+      - script: |
           echo "Generating comprehensive JUnit XML report from test execution..."
           mkdir -p $(proposalsPath)/test-results
 
@@ -275,32 +261,26 @@ stages:
 
           echo "---Report Preview---"
           head -30 $(proposalsPath)/test-results/junit-report.xml || echo "Report not found"
-
+          
           echo "Copying test results to build root..."
           mkdir -p $(buildPath)/test-results
           cp -r $(proposalsPath)/test-results/* $(buildPath)/test-results 2>/dev/null || true
-    - task: UsePythonVersion@0
-      inputs:
-        versionSpec: "3.x"
-      displayName: "Setup Python for InfluxDB Reporter"
-    - task: CmdLine@2
-      displayName: "Install Python Dependencies"
-      continueOnError: false
-      inputs:
-        script: |
+        displayName: "Generate JUnit XML Report"
+        condition: always()
+        continueOnError: true
+
+      - task: UsePythonVersion@0
+        inputs:
+          versionSpec: "3.x"
+        displayName: "Setup Python for InfluxDB Reporter"
+
+      - script: |
           echo "Installing InfluxDB client..."
           pip install -r $(Build.SourcesDirectory)/applicationqe/proposals/requirements.txt
-    - task: CmdLine@2
-      displayName: "Push Metrics to InfluxDB"
-      condition: always()
-      continueOnError: true
-      env:
-        INFLUXDB_URL: $(INFLUXDB_URL)
-        INFLUXDB_TOKEN: $(INFLUXDB_TOKEN)
-        INFLUXDB_ORG: $(INFLUXDB_ORG)
-        INFLUXDB_BUCKET: $(INFLUXDB_BUCKET)
-      inputs:
-        script: |
+        displayName: "Install Python Dependencies"
+        continueOnError: false
+
+      - script: |
           echo "Pushing test metrics to InfluxDB..."
           export INFLUXDB_URL="${INFLUXDB_URL}"
           export INFLUXDB_TOKEN="${INFLUXDB_TOKEN}"
@@ -315,50 +295,60 @@ stages:
           export BUILD_BUILDID="$(Build.BuildId)"
 
           python3 $(Build.SourcesDirectory)/applicationqe/proposals/framework/reporter/influx_reporter.py
-    - task: PublishBuildArtifacts@1
-      displayName: "Publish Test Results Directory"
-      inputs:
-        PathtoPublish: "$(buildPath)/test-results"
-        ArtifactName: "TestResults"
-        publishLocation: "Container"
-      condition: always()
-      continueOnError: true
-    - task: PublishTestResults@2
-      displayName: "Publish JUnit Test Results to Azure Pipelines"
-      inputs:
-        testResultsFormat: "JUnit"
-        testResultsFiles: "$(buildPath)/test-results/junit-report.xml"
-        mergeTestResults: true
-        failTaskOnFailedTests: false
-        publishRunAttachments: true
-      condition: always()
-      continueOnError: true
-    - task: PublishBuildArtifacts@1
-      displayName: "Publish Playwright HTML Report"
-      inputs:
-        PathtoPublish: "$(proposalsPath)/playwright-report"
-        ArtifactName: "PlaywrightReport"
-        publishLocation: "Container"
-      condition: always()
-    - task: PublishBuildArtifacts@1
-      displayName: "Publish Allure Report"
-      inputs:
-        PathtoPublish: "$(allureReportDir)"
-        ArtifactName: "AllureReport"
-        publishLocation: "Container"
-      condition: always()
-    - task: PublishBuildArtifacts@1
-      displayName: "Publish Allure Results Data"
-      inputs:
-        PathtoPublish: "$(allureResultsDir)"
-        ArtifactName: "AllureResults"
-        publishLocation: "Container"
-      condition: always()
-    - task: CmdLine@2
-      displayName: "Print Test Report Summary"
-      condition: always()
-      inputs:
-        script: |
+        displayName: "Push Metrics to InfluxDB"
+        condition: always()
+        continueOnError: true
+        env:
+          INFLUXDB_URL: $(INFLUXDB_URL)
+          INFLUXDB_TOKEN: $(INFLUXDB_TOKEN)
+          INFLUXDB_ORG: $(INFLUXDB_ORG)
+          INFLUXDB_BUCKET: $(INFLUXDB_BUCKET)
+
+      - task: PublishBuildArtifacts@1
+        displayName: "Publish Test Results Directory"
+        inputs:
+          PathtoPublish: "$(buildPath)/test-results"
+          ArtifactName: "TestResults"
+          publishLocation: "Container"
+        condition: always()
+        continueOnError: true
+
+      - task: PublishTestResults@2
+        displayName: "Publish JUnit Test Results to Azure Pipelines"
+        inputs:
+          testResultsFormat: "JUnit"
+          testResultsFiles: "$(buildPath)/test-results/junit-report.xml"
+          mergeTestResults: true
+          failTaskOnFailedTests: false
+          publishRunAttachments: true
+        condition: always()
+        continueOnError: true
+
+      - task: PublishBuildArtifacts@1
+        displayName: "Publish Playwright HTML Report"
+        inputs:
+          PathtoPublish: "$(proposalsPath)/playwright-report"
+          ArtifactName: "PlaywrightReport"
+          publishLocation: "Container"
+        condition: always()
+
+      - task: PublishBuildArtifacts@1
+        displayName: "Publish Allure Report"
+        inputs:
+          PathtoPublish: "$(allureReportDir)"
+          ArtifactName: "AllureReport"
+          publishLocation: "Container"
+        condition: always()
+
+      - task: PublishBuildArtifacts@1
+        displayName: "Publish Allure Results Data"
+        inputs:
+          PathtoPublish: "$(allureResultsDir)"
+          ArtifactName: "AllureResults"
+          publishLocation: "Container"
+        condition: always()
+
+      - script: |
           echo "✓ Test Execution Complete"
           echo "Reports are available in the build artifacts:"
           echo "  - Playwright HTML Report: PlaywrightReport"
@@ -366,3 +356,5 @@ stages:
           echo "  - Allure Results Data: AllureResults"
           echo "  - Test Results Directory: TestResults"
           echo "  - Test Results: Available in the Tests tab of this pipeline"
+        displayName: "Print Test Report Summary"
+        condition: always()
