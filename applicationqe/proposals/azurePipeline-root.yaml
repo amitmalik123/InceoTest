@@ -200,6 +200,12 @@ jobs:
           echo "---"
           echo "Current directory contents:"
           ls -la $(buildPath) 2>/dev/null | grep -E "(junit|test-results|xml|playwright)" || echo "No matching files found"
+          echo "---"
+          echo "Copying results from scripts path to build root..."
+          mkdir -p $(buildPath)/target/allure-results
+          cp -r $(scriptsPath)/target/allure-results/* $(buildPath)/target/allure-results 2>/dev/null || echo "No allure-results to copy"
+          cp -r $(scriptsPath)/playwright-report $(buildPath)/playwright-report 2>/dev/null || echo "No playwright-report to copy"
+          echo "Copy completed"
         displayName: "Debug Test Results Location"
         condition: always()
         continueOnError: true
@@ -218,10 +224,21 @@ jobs:
 
       - script: |
           echo "Checking for Allure results..."
-          # Check root allure-results folder
-          SRC_DIR="$(buildPath)/target/allure-results"
+          # Check both scripts path and root for allure-results
+          SCRIPTS_SRC_DIR="$(scriptsPath)/target/allure-results"
+          ROOT_SRC_DIR="$(buildPath)/target/allure-results"
           ALT_DIR="$(buildPath)/allure-results"
           REPORT_DIR="$(buildPath)/target/allure-report"
+
+          # Try to copy from scripts path if not already in root
+          if [ -d "$SCRIPTS_SRC_DIR" ] && [ -n "$(ls -A "$SCRIPTS_SRC_DIR" 2>/dev/null)" ]; then
+            echo "Copying results from scripts path..."
+            mkdir -p "$ROOT_SRC_DIR"
+            cp -r "$SCRIPTS_SRC_DIR"/* "$ROOT_SRC_DIR/" || true
+            echo "Copied results from: $SCRIPTS_SRC_DIR"
+          fi
+
+          SRC_DIR="$ROOT_SRC_DIR"
 
           if [ ! -d "$SRC_DIR" ] || [ -z "$(ls -A "$SRC_DIR" 2>/dev/null)" ]; then
             if [ -d "$ALT_DIR" ] && [ -n "$(ls -A "$ALT_DIR" 2>/dev/null)" ]; then
