@@ -145,7 +145,9 @@ jobs:
 
       - script: |
           echo "Setting up environment variables..."
+          export ALLURE_RESULTS_DIR="$(scriptsPath)/target/allure-results"
           export CI=true
+          echo "✓ ALLURE_RESULTS_DIR=$ALLURE_RESULTS_DIR"
           echo "✓ CI=$CI"
           echo ""
           echo "Current working directory: $(pwd)"
