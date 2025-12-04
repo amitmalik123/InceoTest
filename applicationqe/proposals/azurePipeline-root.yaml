@@ -144,20 +144,32 @@ jobs:
         displayName: "Install and Verify Allure CLI"
 
       - script: |
+          echo "========================================"
+          echo "PLAYWRIGHT TEST EXECUTION START"
+          echo "========================================"
+          echo "Test Command: npx playwright test"
+          echo "Environment: $(environment)"
+          echo "Build Path: $(buildPath)"
+          echo "Scripts Path: $(scriptsPath)"
+          echo "Allure Results Dir: $(allureResultsDir)"
+          echo "========================================"
+          echo ""
           echo "Setting up environment variables..."
           export ALLURE_RESULTS_DIR="$(scriptsPath)/target/allure-results"
           export CI=true
+          export ENVIRONMENT=$(environment)
           echo "✓ ALLURE_RESULTS_DIR=$ALLURE_RESULTS_DIR"
           echo "✓ CI=$CI"
+          echo "✓ ENVIRONMENT=$ENVIRONMENT"
           echo ""
           echo "Current working directory: $(pwd)"
           echo "Node version: $(node --version)"
           echo "NPM version: $(npm --version)"
           echo ""
-          echo "Executing: $(TEST_CMD)"
+          echo "Executing: npx playwright test"
           echo "========================================"
           echo ""
-          eval "$(TEST_CMD)" 2>&1 || TEST_EXIT_CODE=$? || true
+          npx playwright test 2>&1 || TEST_EXIT_CODE=$? || true
           echo ""
           echo "========================================"
           echo "Test Execution Exit Code: ${TEST_EXIT_CODE:-0}"
