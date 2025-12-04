@@ -191,6 +191,19 @@ jobs:
         continueOnError: true
 
       - script: |
+          echo "Debugging ALLURE_RESULTS_DIR after test execution..."
+          echo "ALLURE_RESULTS_DIR: $(ALLURE_RESULTS_DIR)"
+          if [ -d "$(ALLURE_RESULTS_DIR)" ]; then
+            echo "Contents of ALLURE_RESULTS_DIR:"
+            ls -la $(ALLURE_RESULTS_DIR)
+          else
+            echo "ALLURE_RESULTS_DIR does not exist."
+          fi
+        displayName: "Debug ALLURE_RESULTS_DIR After Tests"
+        condition: always()
+        continueOnError: true
+
+      - script: |
           echo "Verifying ALLURE_RESULTS_DIR before Playwright test execution..."
           echo "ALLURE_RESULTS_DIR: $(ALLURE_RESULTS_DIR)"
           if [ -d "$(ALLURE_RESULTS_DIR)" ]; then
