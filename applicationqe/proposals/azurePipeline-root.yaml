@@ -191,6 +191,19 @@ jobs:
         continueOnError: true
 
       - script: |
+          echo "Verifying ALLURE_RESULTS_DIR before Playwright test execution..."
+          echo "ALLURE_RESULTS_DIR: $(ALLURE_RESULTS_DIR)"
+          if [ -d "$(ALLURE_RESULTS_DIR)" ]; then
+            echo "ALLURE_RESULTS_DIR exists and contains the following files:"
+            ls -la $(ALLURE_RESULTS_DIR)
+          else
+            echo "ALLURE_RESULTS_DIR does not exist or is empty."
+          fi
+        displayName: "Verify ALLURE_RESULTS_DIR"
+        condition: always()
+        continueOnError: true
+
+      - script: |
           echo "Checking for JUnit test results..."
           echo "Looking in: $(buildPath)"
           find $(buildPath) -type f -name "*.xml" | grep -E "(junit|test)" | head -20 || echo "No XML files found"
