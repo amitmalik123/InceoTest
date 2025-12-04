@@ -155,7 +155,7 @@ jobs:
           echo "========================================"
           echo ""
           echo "Setting up environment variables..."
-          export ALLURE_RESULTS_DIR="$(scriptsPath)/target/allure-results"
+          export ALLURE_RESULTS_DIR="$(allureResultsDir)"
           export CI=true
           export ENVIRONMENT=$(environment)
           echo "✓ ALLURE_RESULTS_DIR=$ALLURE_RESULTS_DIR"
