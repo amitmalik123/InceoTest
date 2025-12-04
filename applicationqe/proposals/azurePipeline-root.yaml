@@ -144,17 +144,6 @@ jobs:
         displayName: "Install and Verify Allure CLI"
 
       - script: |
-          mkdir -p "$(Build.SourcesDirectory)/applicationqe/proposals/target/allure-results"
-          echo "========================================"
-          echo "PLAYWRIGHT TEST EXECUTION START"
-          echo "========================================"
-          echo "Test Command: $(TEST_CMD)"
-          echo "Environment: $(environment)"
-          echo "Build Path: $(buildPath)"
-          echo "Scripts Path: $(scriptsPath)"
-          echo "Allure Results Dir: $(allureResultsDir)"
-          echo "========================================"
-          echo ""
           echo "Setting up environment variables..."
           export ALLURE_RESULTS_DIR="$(allureResultsDir)"
           export CI=true
