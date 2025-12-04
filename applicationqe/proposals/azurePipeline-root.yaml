@@ -144,7 +144,7 @@ jobs:
         displayName: "Install and Verify Allure CLI"
 
       - script: |
-          mkdir -p "$(buildPath)/target/allure-results"
+          mkdir -p "$(allureResultsDir)"
           echo "========================================"
           echo "PLAYWRIGHT TEST EXECUTION START"
           echo "========================================"
