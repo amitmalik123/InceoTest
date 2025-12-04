@@ -371,3 +371,22 @@ jobs:
         displayName: "Print Test Report Summary"
         condition: always()
 
+      - script: |
+          echo "Debugging Allure results in scriptsPath before copying..."
+          echo "Scripts Path: $(scriptsPath)/target/allure-results"
+          ls -la $(scriptsPath)/target/allure-results 2>/dev/null || echo "No Allure results found in scriptsPath"
+
+          echo "Debugging Allure results in buildPath before copying..."
+          echo "Build Path: $(buildPath)/target/allure-results"
+          ls -la $(buildPath)/target/allure-results 2>/dev/null || echo "No Allure results found in buildPath"
+
+          echo "Copying Allure results from scriptsPath to buildPath..."
+          mkdir -p $(buildPath)/target/allure-results
+          cp -r $(scriptsPath)/target/allure-results/* $(buildPath)/target/allure-results 2>/dev/null || echo "No Allure results to copy from scriptsPath"
+
+          echo "Debugging Allure results in buildPath after copying..."
+          ls -la $(buildPath)/target/allure-results 2>/dev/null || echo "No Allure results found in buildPath after copying"
+        displayName: "Debug and Copy Allure Results"
+        condition: always()
+        continueOnError: true
+
