@@ -28,11 +28,6 @@ parameters:
       - test10
       - silo
 
-  - name: tag
-    displayName: "Cucumber Tag to Run"
-    type: string
-    default: "@smokeTest"
-
   - name: threadCount
     displayName: "Number of Threads"
     type: string
@@ -42,6 +37,16 @@ parameters:
     displayName: "Runner File"
     type: string
     default: "*"
+
+  - name: scriptsPath
+    displayName: "Path to scripts folder (relative to repo root)"
+    type: string
+    default: "applicationqe/proposals"
+
+  - name: allureResultsPath
+    displayName: "Path to Allure results directory (relative to repo root)"
+    type: string
+    default: "applicationqe/proposals/target/allure-results"
 
 # -----------------------------
 # Job Section
@@ -53,9 +58,10 @@ jobs:
 
     variables:
       buildPath: "$(Build.SourcesDirectory)"
+      scriptsPath: "$(Build.SourcesDirectory)/${{ parameters.scriptsPath }}"
       environment: ${{ parameters.environment }}
-      allureResultsDir: "$(Build.SourcesDirectory)/target/allure-results"
-      allureReportDir: "$(Build.SourcesDirectory)/target/allure-report"
+      allureResultsDir: "$(Build.SourcesDirectory)/${{ parameters.allureResultsPath }}"
+      allureReportDir: "$(Build.SourcesDirectory)/${{ parameters.allureResultsPath }}/../allure-report"
       allureToolsDir: "$(Build.ArtifactStagingDirectory)/allure-tools"
       INFLUXDB_URL: "http://azncc03perf.corp.local:8086"
       INFLUXDB_ORG: "MF"
@@ -70,12 +76,10 @@ jobs:
           echo "Determining environment and test settings dynamically..."
           if [ "$(Build.Reason)" = "Manual" ]; then
             echo "##vso[task.setvariable variable=environment]${{ parameters.environment }}"
-            echo "##vso[task.setvariable variable=tag]${{ parameters.tag }}"
             echo "##vso[task.setvariable variable=threadCount]${{ parameters.threadCount }}"
             echo "##vso[task.setvariable variable=runnerFile]${{ parameters.runnerFile }}"
           else
             echo "##vso[task.setvariable variable=environment]test11"
-            echo "##vso[task.setvariable variable=tag]@smokeTest"
             echo "##vso[task.setvariable variable=threadCount]2"
             echo "##vso[task.setvariable variable=runnerFile]*"
           fi
@@ -94,12 +98,12 @@ jobs:
 
       - script: |
           echo "Building Playwright test command..."
-          TEST_CMD="cd applicationqe/proposals; npx playwright test --reporter=allure-playwright,html,junit"
+          TEST_CMD="npx playwright test --reporter=allure-playwright,html,junit"
 
           echo "Final command: $TEST_CMD"
           echo "##vso[task.setvariable variable=TEST_CMD]$TEST_CMD"
         displayName: "Build Playwright Command"
-        workingDirectory: applicationqe/proposals
+        workingDirectory: $(scriptsPath)
         continueOnError: false
 
       - task: NodeTool@0
@@ -108,11 +112,11 @@ jobs:
         displayName: "Install Node.js"
 
       - script: npm ci --ignore-scripts
-        workingDirectory: applicationqe/proposals
+        workingDirectory: $(scriptsPath)
         displayName: "Install Dependencies"
 
       - script: npx playwright install chromium
-        workingDirectory: applicationqe/proposals
+        workingDirectory: $(scriptsPath)
         displayName: "Install Playwright Browsers"
         continueOnError: false
 
@@ -140,20 +144,8 @@ jobs:
         displayName: "Install and Verify Allure CLI"
 
       - script: |
-          mkdir -p "$(buildPath)/target/allure-results"
-          echo "========================================"
-          echo "PLAYWRIGHT TEST EXECUTION START"
-          echo "========================================"
-          echo "Test Command: $(TEST_CMD)"
-          echo "Test Project: $(testProject)"
-          echo "Test Filter: $(testFilter)"
-          echo "Environment: $(environment)"
-          echo "Build Path: $(buildPath)"
-          echo "Allure Results Dir: $(allureResultsDir)"
-          echo "========================================"
-          echo ""
           echo "Setting up environment variables..."
-          export ALLURE_RESULTS_DIR="$(buildPath)/target/allure-results"
+          export ALLURE_RESULTS_DIR="$(allureResultsDir)"
           export CI=true
           echo "✓ ALLURE_RESULTS_DIR=$ALLURE_RESULTS_DIR"
           echo "✓ CI=$CI"
@@ -180,22 +172,56 @@ jobs:
           ls -la $(allureResultsDir) 2>/dev/null || echo "Allure results directory not found"
           echo ""
           echo "Listing Playwright reports:"
-          ls -la $(buildPath)/playwright-report 2>/dev/null || echo "Playwright report directory not found"
+          ls -la $(scriptsPath)/playwright-report 2>/dev/null || echo "Playwright report directory not found"
         displayName: "Run Playwright Tests with Allure"
+        workingDirectory: $(scriptsPath)
+        continueOnError: true
+
+      - script: |
+          echo "Debugging ALLURE_RESULTS_DIR after test execution..."
+          echo "ALLURE_RESULTS_DIR: $(allureResultsDir)"
+          if [ -d "$(allureResultsDir)" ]; then
+            echo "Contents of ALLURE_RESULTS_DIR:"
+            ls -la $(allureResultsDir)
+          else
+            echo "ALLURE_RESULTS_DIR does not exist."
+          fi
+        displayName: "Debug ALLURE_RESULTS_DIR After Tests"
+        condition: always()
+        continueOnError: true
+
+      - script: |
+          echo "Verifying ALLURE_RESULTS_DIR before Playwright test execution..."
+          echo "ALLURE_RESULTS_DIR: $(ALLURE_RESULTS_DIR)"
+          if [ -d "$(ALLURE_RESULTS_DIR)" ]; then
+            echo "ALLURE_RESULTS_DIR exists and contains the following files:"
+            ls -la $(ALLURE_RESULTS_DIR)
+          else
+            echo "ALLURE_RESULTS_DIR does not exist or is empty."
+          fi
+        displayName: "Verify ALLURE_RESULTS_DIR"
+        condition: always()
         continueOnError: true
 
       - script: |
           echo "Checking for JUnit test results..."
           echo "Looking in: $(buildPath)"
-          find $(buildPath) -type f -name "*.xml" | grep -E "(junit|test)" | head -20
+          find $(buildPath) -type f -name "*.xml" | grep -E "(junit|test)" | head -20 || echo "No XML files found"
           echo "---"
           echo "test-results contents:"
           ls -la $(buildPath)/test-results 2>/dev/null || echo "test-results directory not found"
           echo "---"
           echo "Current directory contents:"
-          ls -la 2>/dev/null | grep -E "(junit|test-results|xml)"
+          ls -la $(buildPath) 2>/dev/null | grep -E "(junit|test-results|xml|playwright)" || echo "No matching files found"
+          echo "---"
+          echo "Copying results from scripts path to build root..."
+          mkdir -p $(buildPath)/target/allure-results
+          cp -r $(scriptsPath)/target/allure-results/* $(buildPath)/target/allure-results 2>/dev/null || echo "No allure-results to copy"
+          cp -r $(scriptsPath)/playwright-report $(buildPath)/playwright-report 2>/dev/null || echo "No playwright-report to copy"
+          echo "Copy completed"
         displayName: "Debug Test Results Location"
         condition: always()
+        continueOnError: true
 
       - script: |
           echo "Checking Allure Results Directory..."
@@ -211,10 +237,21 @@ jobs:
 
       - script: |
           echo "Checking for Allure results..."
-          # Prefer repo `target/allure-results` folder. If not present, fall back to repo-root `allure-results` and copy into target.
-          SRC_DIR="$(buildPath)/target/allure-results"
+          # Check both scripts path and root for allure-results
+          SCRIPTS_SRC_DIR="$(scriptsPath)/target/allure-results"
+          ROOT_SRC_DIR="$(buildPath)/target/allure-results"
           ALT_DIR="$(buildPath)/allure-results"
           REPORT_DIR="$(buildPath)/target/allure-report"
+
+          # Try to copy from scripts path if not already in root
+          if [ -d "$SCRIPTS_SRC_DIR" ] && [ -n "$(ls -A "$SCRIPTS_SRC_DIR" 2>/dev/null)" ]; then
+            echo "Copying results from scripts path..."
+            mkdir -p "$ROOT_SRC_DIR"
+            cp -r "$SCRIPTS_SRC_DIR"/* "$ROOT_SRC_DIR/" || true
+            echo "Copied results from: $SCRIPTS_SRC_DIR"
+          fi
+
+          SRC_DIR="$ROOT_SRC_DIR"
 
           if [ ! -d "$SRC_DIR" ] || [ -z "$(ls -A "$SRC_DIR" 2>/dev/null)" ]; then
             if [ -d "$ALT_DIR" ] && [ -n "$(ls -A "$ALT_DIR" 2>/dev/null)" ]; then
@@ -248,8 +285,8 @@ jobs:
           echo "Generating comprehensive JUnit XML report from test execution..."
           mkdir -p $(buildPath)/test-results
 
-          python3 scripts/generate_junit_report.py \
-            "$(buildPath)/target/allure-results" \
+          python3 $(scriptsPath)/scripts/generate_junit_report.py \
+            "$(allureResultsDir)" \
             "$(buildPath)/test-results/junit-report.xml"
 
           echo "---Report Preview---"
@@ -265,7 +302,7 @@ jobs:
 
       - script: |
           echo "Installing InfluxDB client..."
-          pip install -r requirements.txt
+          pip install -r $(scriptsPath)/requirements.txt
         displayName: "Install Python Dependencies"
         continueOnError: false
 
@@ -275,7 +312,7 @@ jobs:
           export INFLUXDB_TOKEN="${INFLUXDB_TOKEN}"
           export INFLUXDB_ORG="${INFLUXDB_ORG}"
           export INFLUXDB_BUCKET="${INFLUXDB_BUCKET}"
-          export ALLURE_RESULTS_DIR="$(buildPath)/target/allure-results"
+          export ALLURE_RESULTS_DIR="$(allureResultsDir)"
           export ENVIRONMENT="$(environment)"
           export BUILD_ID="$(Build.BuildId)"
           export BUILD_REASON="$(Build.Reason)"
@@ -283,7 +320,7 @@ jobs:
           export SYSTEM_TEAMPROJECT="$(System.TeamProject)"
           export BUILD_BUILDID="$(Build.BuildId)"
 
-          python3 framework/reporter/influx_reporter.py
+          python3 $(scriptsPath)/framework/reporter/influx_reporter.py
         displayName: "Push Metrics to InfluxDB"
         condition: always()
         continueOnError: true
@@ -312,11 +349,10 @@ jobs:
           publishRunAttachments: true
         condition: always()
         continueOnError: true
-
       - task: PublishBuildArtifacts@1
         displayName: "Publish Playwright HTML Report"
         inputs:
-          PathtoPublish: "$(buildPath)/playwright-report"
+          PathtoPublish: "$(scriptsPath)/playwright-report"
           ArtifactName: "PlaywrightReport"
           publishLocation: "Container"
         condition: always()
@@ -324,7 +360,7 @@ jobs:
       - task: PublishBuildArtifacts@1
         displayName: "Publish Allure Report"
         inputs:
-          PathtoPublish: "$(buildPath)/target/allure-report"
+          PathtoPublish: "$(allureReportDir)"
           ArtifactName: "AllureReport"
           publishLocation: "Container"
         condition: always()
@@ -332,7 +368,7 @@ jobs:
       - task: PublishBuildArtifacts@1
         displayName: "Publish Allure Results Data"
         inputs:
-          PathtoPublish: "$(buildPath)/target/allure-results"
+          PathtoPublish: "$(allureResultsDir)"
           ArtifactName: "AllureResults"
           publishLocation: "Container"
         condition: always()
@@ -347,3 +383,23 @@ jobs:
           echo "  - Test Results: Available in the Tests tab of this pipeline"
         displayName: "Print Test Report Summary"
         condition: always()
+
+      - script: |
+          echo "Debugging Allure results in scriptsPath before copying..."
+          echo "Scripts Path: $(scriptsPath)/target/allure-results"
+          ls -la $(scriptsPath)/target/allure-results 2>/dev/null || echo "No Allure results found in scriptsPath"
+
+          echo "Debugging Allure results in buildPath before copying..."
+          echo "Build Path: $(buildPath)/target/allure-results"
+          ls -la $(buildPath)/target/allure-results 2>/dev/null || echo "No Allure results found in buildPath"
+
+          echo "Copying Allure results from scriptsPath to buildPath..."
+          mkdir -p $(buildPath)/target/allure-results
+          cp -r $(scriptsPath)/target/allure-results/* $(buildPath)/target/allure-results 2>/dev/null || echo "No Allure results to copy from scriptsPath"
+
+          echo "Debugging Allure results in buildPath after copying..."
+          ls -la $(buildPath)/target/allure-results 2>/dev/null || echo "No Allure results found in buildPath after copying"
+        displayName: "Debug and Copy Allure Results"
+        condition: always()
+        continueOnError: true
+
