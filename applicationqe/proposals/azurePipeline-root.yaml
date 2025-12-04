@@ -55,8 +55,8 @@ jobs:
       buildPath: "$(Build.SourcesDirectory)"
       scriptsPath: "$(Build.SourcesDirectory)/${{ parameters.scriptsPath }}"
       environment: ${{ parameters.environment }}
-      allureResultsDir: "$(Build.SourcesDirectory)/target/allure-results"
-      allureReportDir: "$(Build.SourcesDirectory)/target/allure-report"
+      allureResultsDir: "$(scriptsPath)/target/allure-results"
+      allureReportDir: "$(scriptsPath)/target/allure-report"
       allureToolsDir: "$(Build.ArtifactStagingDirectory)/allure-tools"
       INFLUXDB_URL: "http://azncc03perf.corp.local:8086"
       INFLUXDB_ORG: "MF"
