@@ -325,7 +325,6 @@ jobs:
           PathtoPublish: "$(scriptsPath)/playwright-report"
           ArtifactName: "PlaywrightReport"
           publishLocation: "Container"
-        condition: always()"Container"
         condition: always()
 
       - task: PublishBuildArtifacts@1
