@@ -12,7 +12,6 @@ export async function navigateToPortfolioEngine(mainPage: Page): Promise<Page> {
     const page1Promise = mainPage.waitForEvent('popup');
     await mainPage.getByRole('img', { name: 'Launch Portfolio Engine' }).first().click();
     const portfolioEnginePage = await page1Promise;
-    await mainPage.waitForLoadState('domcontentloaded');
-    await mainPage.waitForLoadState('networkidle');
+    await mainPage.waitForLoadState();
     return portfolioEnginePage;
 }

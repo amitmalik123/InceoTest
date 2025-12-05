@@ -6,7 +6,7 @@ import { defineConfig, devices } from '@playwright/test';
  */
 import * as dotenv from 'dotenv';
 import * as path from 'path';
-dotenv.config({ 
+dotenv.config({
   path: path.resolve(__dirname, `./env/.env.${process.env.ENVIRONMENT}`),
   override: true,
 });
@@ -38,7 +38,7 @@ export default defineConfig({
   /* Shared settings for all the projects below. See https://playwright.dev/docs/api/class-testoptions. */
   use: {
     /* Base URL to use in actions like `await page.goto('')`. */
-     baseURL: process.env.base_URL + '/en.aspx',
+    baseURL: process.env.base_URL + '/en.aspx',
 
     /* Ignore HTTPS errors for untrusted certificates */
     ignoreHTTPSErrors: true,
@@ -55,18 +55,19 @@ export default defineConfig({
     {
       name: 'setup',
       testMatch: /.*\.setup\.ts/,
-      teardown:'teardown',
+      teardown: 'teardown',
     },
 
     {
       name: 'teardown',
       testMatch: /.*\.teardown\.ts/,
     },
-    
+
     {
       name: 'chromium',
       dependencies: ['setup'],
-      use: { ...devices['Desktop Chrome'],
+      use: {
+        ...devices['Desktop Chrome'],
         contextOptions: {
           ignoreHTTPSErrors: true
         },

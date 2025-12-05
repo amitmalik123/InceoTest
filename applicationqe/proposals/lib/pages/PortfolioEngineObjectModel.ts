@@ -595,10 +595,10 @@ export class PortfolioEnginePage {
             const isChecked = await widget.evaluate((el) => {
                 // Check if the parent li has a class indicating checked state
                 const listItem = el.closest('li');
-                return listItem?.classList.contains('selected') || 
-                       listItem?.classList.contains('checked') ||
-                       el.getAttribute('aria-checked') === 'true' ||
-                       window.getComputedStyle(el).opacity === '1';
+                return listItem?.classList.contains('selected') ||
+                    listItem?.classList.contains('checked') ||
+                    el.getAttribute('aria-checked') === 'true' ||
+                    window.getComputedStyle(el).opacity === '1';
             });
 
             if (!isChecked) {
@@ -626,13 +626,13 @@ export class PortfolioEnginePage {
 
         for (let i = 0; i < graphLocators.length; i++) {
             const chartElement = graphLocators[i];
-            
+
             // Verify the chart has been rendered with data (non-zero dimensions) and assert that container is not empty
             const hasContent = await chartElement.evaluate((el) => {
                 const rect = el.getBoundingClientRect();
                 return rect.width > 0 && rect.height > 0;
             });
-            
+
             if (!hasContent) {
                 throw new Error(`Graph ${i + 1} does not have rendered content`);
             } else if (hasContent) {
