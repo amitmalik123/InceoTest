@@ -57,6 +57,7 @@ export class PortfolioEnginePage {
     readonly previewProposalButton: Locator;
     readonly saveProposalButton: Locator;
     readonly viewDocumentsButton: Locator;
+    readonly quitProposalButton: Locator;
 
     // Portfolio Creation Elements
     readonly assetMarkPlatformStrategiesText: Locator;
@@ -291,6 +292,7 @@ export class PortfolioEnginePage {
         this.previewProposalButton = page.getByRole('button', { name: 'Preview Proposal' });
         this.saveProposalButton = page.getByRole('button', { name: 'save proposal' });
         this.viewDocumentsButton = page.getByRole('button', { name: 'View Documents' });
+        this.quitProposalButton = page.getByRole('img').nth(1);
 
         // Portfolio Creation Elements
         this.assetMarkPlatformStrategiesText = page.getByText('AssetMark Platform Strategies', { exact: true });

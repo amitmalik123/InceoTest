@@ -101,7 +101,7 @@ test.describe('Portfolio Engine Happy Path Tests', () => {
     test('Create proposal with new portfolio and new client', async ({ page }) => {
         //Create proposal using newly created portfolio
         await portfolioEnginePage.createProposalButton.click();
-        await portfolioEnginePage.page.getByRole('img').nth(1).click();
+        await portfolioEnginePage.quitProposalButton.click();
         await portfolioEnginePage.createProposalButton.click(); //opening twice because the page does not always load the first time
         await page.waitForLoadState();
 
