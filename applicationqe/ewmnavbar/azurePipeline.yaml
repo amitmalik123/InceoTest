@@ -113,7 +113,9 @@ jobs:
 
   - script: |
       echo "Building Playwright test command..."
-      TEST_CMD="npx playwright test --reporter=allure-playwright,html,junit"
+      # DON'T override reporters on command line - let playwright.config.ts handle all reporters
+      # This ensures junit, allure-playwright, and html reporters all get proper options from config
+      TEST_CMD="npx playwright test"
       
       # Add project filter if not "all"
       if [ "$(testProject)" != "all" ]; then
@@ -238,6 +240,9 @@ jobs:
       echo "---"
       echo "Current directory contents:"
       ls -la $(buildPath)/applicationqe/ewmnavbar 2>/dev/null | grep -E "(junit|test-results|xml|playwright)" || echo "No matching files found"
+      echo "---"
+      echo "ALL files in ewmnavbar directory:"
+      ls -lR $(buildPath)/applicationqe/ewmnavbar 2>/dev/null | head -100 || echo "Directory not found"
       echo "---"
       echo "Copying test results to expected location..."
       mkdir -p $(buildPath)/test-results
