@@ -229,16 +229,19 @@ jobs:
 
   - script: |
       echo "Checking for JUnit test results..."
-      echo "Looking in: $(buildPath)"
-      find $(buildPath) -type f -name "*.xml" | grep -E "(junit|test)" | head -20
+      echo "Looking in: $(workingDir)"
+      find $(workingDir) -type f -name "*.xml" | grep -E "(junit|test)" | head -20 || echo "No XML files found"
       echo "---"
       echo "test-results contents:"
-      ls -la $(buildPath)/test-results 2>/dev/null || echo "test-results directory not found"
+      ls -la $(workingDir)/test-results 2>/dev/null || echo "test-results directory not found"
       echo "---"
-      echo "Current directory contents:"
-      ls -la 2>/dev/null | grep -E "(junit|test-results|xml)"
+      echo "Copying test results to build root..."
+      mkdir -p $(buildPath)/test-results
+      cp -r $(workingDir)/test-results/* $(buildPath)/test-results 2>/dev/null || echo "No test-results to copy"
+      cp -r $(workingDir)/playwright-report $(buildPath)/playwright-report 2>/dev/null || echo "No playwright-report to copy"
     displayName: "Debug Test Results Location"
     condition: always()
+    continueOnError: true
 
   - script: |
       echo "Checking Allure Results Directory..."
