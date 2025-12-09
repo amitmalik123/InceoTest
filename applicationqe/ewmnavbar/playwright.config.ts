@@ -44,7 +44,11 @@ export default defineConfig({
   forbidOnly: isCI,
   retries: isCI ? 2 : 0,
   workers: 1,
-  reporter: "html",
+  reporter: [
+    ['allure-playwright', { outputFolder: 'target/allure-results' }],
+    ['html'],
+    ['junit', { outputFile: 'test-results/junit-report.xml' }],
+  ],
 
   use: {
     ...commonUse,
