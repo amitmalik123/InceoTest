@@ -243,6 +243,10 @@ jobs:
       mkdir -p $(buildPath)/test-results
       cp -r $(buildPath)/applicationqe/ewmnavbar/test-results/* $(buildPath)/test-results 2>/dev/null || echo "No test-results to copy"
       cp -r $(buildPath)/applicationqe/ewmnavbar/playwright-report $(buildPath)/playwright-report 2>/dev/null || echo "No playwright-report to copy"
+      
+      echo ""
+      echo "✓ Verifying test-results were copied to build root..."
+      ls -la $(buildPath)/test-results 2>/dev/null || echo "Build root test-results not found"
     displayName: "Debug Test Results Location"
     condition: always()
     continueOnError: true
@@ -291,6 +295,17 @@ jobs:
       echo "Report Dir: $(allureReportDir)"
       ls -la $(allureResultsDir) 2>/dev/null || echo "Results dir not found"
       ls -la $(allureReportDir) 2>/dev/null || echo "Report dir not found"
+      
+      echo ""
+      echo "Verifying JUnit file exists before publishing..."
+      if [ -f "$(buildPath)/test-results/junit-report.xml" ]; then
+        echo "✓ JUnit report found at: $(buildPath)/test-results/junit-report.xml"
+        ls -lh $(buildPath)/test-results/junit-report.xml
+      else
+        echo "✗ JUnit report NOT found at: $(buildPath)/test-results/junit-report.xml"
+        echo "Contents of $(buildPath)/test-results:"
+        ls -la $(buildPath)/test-results 2>/dev/null || echo "Directory not found"
+      fi
     displayName: "Verify Report Paths"
     condition: always()
 
@@ -305,9 +320,27 @@ jobs:
       echo "---Report Preview---"
       head -30 $(ewmnavbarPath)/test-results/junit-report.xml || echo "Report not found"
       
+      echo ""
+      echo "Checking generated report..."
+      if [ -f "$(ewmnavbarPath)/test-results/junit-report.xml" ]; then
+        echo "✓ JUnit report found at: $(ewmnavbarPath)/test-results/junit-report.xml"
+        ls -lh $(ewmnavbarPath)/test-results/junit-report.xml
+      else
+        echo "✗ JUnit report NOT found at: $(ewmnavbarPath)/test-results/junit-report.xml"
+      fi
+      
+      echo ""
       echo "Copying test results to build root..."
       mkdir -p $(buildPath)/test-results
-      cp -r $(ewmnavbarPath)/test-results/* $(buildPath)/test-results 2>/dev/null || true
+      cp $(ewmnavbarPath)/test-results/junit-report.xml $(buildPath)/test-results/junit-report.xml
+      
+      echo "✓ Verifying copy to build root..."
+      if [ -f "$(buildPath)/test-results/junit-report.xml" ]; then
+        echo "✓ JUnit report successfully copied to: $(buildPath)/test-results/junit-report.xml"
+        ls -lh $(buildPath)/test-results/junit-report.xml
+      else
+        echo "✗ Copy failed! JUnit report NOT found at: $(buildPath)/test-results/junit-report.xml"
+      fi
     displayName: "Generate JUnit XML Report"
     condition: always()
     continueOnError: true
