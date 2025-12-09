@@ -1,0 +1,222 @@
+{
+  "DASHBOARD_OVERVIEW": {
+    "menuSubMenu": "Dashboard > Overview",
+    "title": "Dashboard",
+    "path": "/dashboard"
+  },
+  "DASHBOARD_INSIGHTS": {
+    "menuSubMenu": "Dashboard > Insights",
+    "title": "Dashboard | Insights",
+    "path": "/dashboard/insights"
+  },
+  "DASHBOARD_ADVISOR_BENEFITS": {
+    "menuSubMenu": "Dashboard > Advisor Benefits",
+    "title": "Dashboard | Advisor Benefits",
+    "path": "/dashboard/advisor-benefits"
+  },
+  "DASHBOARD_STATEMENTS_REPORTS": {
+    "menuSubMenu": "Dashboard | Statements & Reports",
+    "title": "Dashboard | Statements & Reports",
+    "path": "/dashboard/statements-reports"
+  },
+  "CLIENTS_ALL": {
+    "menuSubMenu": "Clients > All Clients",
+    "title": "Clients",
+    "path": "/clients"
+  },
+  "CLIENTS_ACCOUNTS": {
+    "menuSubMenu": "Clients > Accounts",
+    "title": "Clients | Accounts",
+    "path": "/clients/accounts"
+  },
+  "CLIENTS_STRATEGISTS": {
+    "menuSubMenu": "Clients > Strategists",
+    "title": "Clients | Strategists",
+    "path": "/clients/strategists"
+  },
+  "ACTION_ITEMS_NEEDS_ACTION": {
+    "menuSubMenu": "Action Items > Needs Action",
+    "title": "Action Items | Needs Action",
+    "path": "/action-items"
+  },
+  "ACTION_ITEMS_OPEN_ITEMS": {
+    "menuSubMenu": "Action Items | Open Items",
+    "title": "Action Items | Open Items",
+    "path": "/action-items/open-items"
+  },
+  "ACTION_ITEMS_CLOSED": {
+    "menuSubMenu": "Action Items | Closed",
+    "title": "Action Items | Closed",
+    "path": "/action-items/closed"
+  },
+  "INVESTMENTS_MODELS": {
+    "menuSubMenu": "Investments > Models",
+    "title": "Models",
+    "path": "/models"
+  },
+  "INVESTMENTS_RESEARCH": {
+    "menuSubMenu": "Investments | Research",
+    "title": "Investments | Research",
+    "path": "/investments/research"
+  },
+  "INVESTMENTS_NEWS": {
+    "menuSubMenu": "Investments | News",
+    "title": "Investments | News",
+    "path": "/investments/news"
+  },
+  "INVESTMENTS_CASH": {
+    "menuSubMenu": "Investments | Cash",
+    "title": "Investments | Cash",
+    "path": "/investments/cash"
+  },
+  "INVESTMENTS_SMA": {
+    "menuSubMenu": "Investments | SMA",
+    "title": "Investments | SMA",
+    "path": "/investments/sma"
+  },
+  "INVESTMENTS_GUIDED_PORTFOLIOS": {
+    "menuSubMenu": "Investments | Guided Portfolios",
+    "title": "Investments | Guided Portfolios",
+    "path": "/investments/guided-portfolios"
+  },
+  "INVESTMENTS_DAF": {
+    "menuSubMenu": "Investments | DAF",
+    "title": "Investments | DAF",
+    "path": "/investments/daf"
+  },
+  "INVESTMENTS_SAVOS": {
+    "menuSubMenu": "Investments | Savos",
+    "title": "Investments | Savos",
+    "path": "/investments/savos"
+  },
+  "INVESTMENTS_TMS": {
+    "menuSubMenu": "Investments | TMS",
+    "title": "Investments | TMS",
+    "path": "/investments/tms"
+  },
+  "INVESTMENTS_DIRECT_INDEXING": {
+    "menuSubMenu": "Investments | Direct Indexing",
+    "title": "Investments | Direct Indexing",
+    "path": "/investments/direct-indexing"
+  },
+  "INVESTMENTS_MORNINGSTAR": {
+    "menuSubMenu": "Investments | Morningstar",
+    "title": "Investments | Morningstar",
+    "path": "/investments/morningstar"
+  },
+  "PRODUCTS_SERVICES_BUSINESS_CONSULTING": {
+    "menuSubMenu": "Products & Services > Business Consulting",
+    "title": "Products & Services",
+    "path": "/products-and-services"
+  },
+  "PRODUCTS_SERVICES_LENDING": {
+    "menuSubMenu": "Products & Services | Lending",
+    "title": "Products & Services | Lending",
+    "path": "/products-and-services/lending"
+  },
+  "PRODUCTS_SERVICES_FINANCIAL_PLANNING": {
+    "menuSubMenu": "Products & Services | Financial Planning",
+    "title": "Products & Services | Financial Planning",
+    "path": "/products-and-services/financial-planning"
+  },
+  "PRODUCTS_SERVICES_RETIREMENT_SERVICES": {
+    "menuSubMenu": "Products & Services | Retirement Services",
+    "title": "Products & Services | Retirement Services",
+    "path": "/products-and-services/retirement-services"
+  },
+  "HELP_SUPPORT_KNOWLEDGE_BASE": {
+    "menuSubMenu": "Help & Support > Knowledge Base",
+    "title": "Help & Support",
+    "path": "/help-and-support"
+  },
+  "HELP_SUPPORT_CONTACT_US": {
+    "menuSubMenu": "Help & Support | Contact Us",
+    "title": "Help & Support | Contact Us",
+    "path": "/help-and-support/contact-us"
+  },
+  "HELP_SUPPORT_TAX_RESOURCES": {
+    "menuSubMenu": "Help & Support | Tax Resources",
+    "title": "Help & Support | Tax Resources",
+    "path": "/help-and-support/tax-resources"
+  },
+  "HELP_SUPPORT_FEES": {
+    "menuSubMenu": "Help & Support | Fees",
+    "title": "Help & Support | Fees",
+    "path": "/help-and-support/fees"
+  },
+  "HELP_SUPPORT_GLOSSARY": {
+    "menuSubMenu": "Help & Support | Glossary",
+    "title": "Help & Support | Glossary",
+    "path": "/help-and-support/glossary"
+  },
+  "HELP_SUPPORT_CUSTODIAL_SERVICES": {
+    "menuSubMenu": "Help & Support | Custodial Services",
+    "title": "Help & Support | Custodial Services",
+    "path": "/help-and-support/custodial-services"
+  },
+  "HELP_SUPPORT_COMPLIANCE_RESOURCES": {
+    "menuSubMenu": "Help & Support | Compliance Resources",
+    "title": "Help & Support | Compliance Resources",
+    "path": "/help-and-support/compliance-services"
+  },
+  "HELP_SUPPORT_MARKETING_RESOURCES": {
+    "menuSubMenu": "Help & Support | Marketing Resources",
+    "title": "Help & Support | Marketing Resources",
+    "path": "/help-and-support/marketing-services"
+  },
+  "HELP_SUPPORT_EVENTS": {
+    "menuSubMenu": "Help & Support | Events",
+    "title": "Help & Support | Events",
+    "path": "/help-and-support/events"
+  },
+  "HELP_SUPPORT_RMD_RESOURCES": {
+    "menuSubMenu": "Help & Support | RMD Resources",
+    "title": "Help & Support | RMD Resources",
+    "path": "/help-and-support/rmd-resources"
+  },
+  "MY_ACCOUNT": {
+    "menuSubMenu": "My Account",
+    "title": "My Account",
+    "path": "/my-account"
+  },
+  "DASHBOARD_MANAGE_ACCOUNTS": {
+    "menuSubMenu": "Dashboard > Manage Accounts",
+    "title": "Dashboard | Manage Accounts",
+    "path": "/dashboard/manage-accounts"
+  },
+  "CLIENTS_MANAGE_INVESTOR_PORTAL": {
+    "menuSubMenu": "Clients > Manage Investor Portal",
+    "title": "Clients | Manage Investor Portal",
+    "path": "/clients/investor-portal"
+  },
+  "CLIENTS_MANAGE_ACCOUNTS": {
+    "menuSubMenu": "Clients > Manage Accounts",
+    "title": "Clients | Manage Accounts",
+    "path": "/clients/manage-accounts"
+  },
+  "CLIENTS_ADD_A_CLIENT": {
+    "menuSubMenu": "Clients > Add a Client",
+    "title": "Clients | Add a Client",
+    "path": "/clients/add-a-client"
+  },
+  "INVESTMENTS_INVESTMENT_CHANGE": {
+    "menuSubMenu": "Investments | Investment Change",
+    "title": "Investments | Investment Change",
+    "path": "/investments/investment-change"
+  },
+  "INVESTMENTS_CREATE_PROPOSAL": {
+    "menuSubMenu": "Investments | Create Proposal",
+    "title": "Investments | Create Proposal",
+    "path": "/investments/create-proposal"
+  },
+  "PRODUCTS_SERVICES_CONTACT_US": {
+    "menuSubMenu": "Products & Services | Contact Us",
+    "title": "Products & Services | Contact Us",
+    "path": "/products-and-services/"
+  },
+  "HELP_SUPPORT_CHAT_WITH_US": {
+    "menuSubMenu": "Help & Support | Chat with Us",
+    "title": "Help & Support | Chat with Us",
+    "path": "/help-and-support/"
+  }
+}

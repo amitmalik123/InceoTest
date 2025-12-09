@@ -1,0 +1,98 @@
+{
+  "ADVISOR_BROPHY_JAMES": {
+    "ssoguid": "2203D3AD-8E87-4722-B3BE-3620804C770A",
+    "agentAPLId": "AGBCOF",
+    "role": "Advisor",
+    "userId": "AG_AGBCOF_T11",
+    "lastName": "Brophy",
+    "firstName": "James"
+  },
+  "ADVISOR_CHIU_MARTY": {
+    "ssoguid": "334D9C25-5C81-43F8-9DF3-6D6E1E0D49BA",
+    "agentAPLId": "AG8959",
+    "role": "Advisor",
+    "userId": "T11_AG8959_Perf",
+    "lastName": "Chiu",
+    "firstName": "Marty"
+  },
+  "AGENT_BOIKE_DAVID": {
+    "ssoguid": "14F03472-C6C2-44B0-B13E-9C7D33FECA6B",
+    "agentAPLId": "AGAVHP",
+    "role": "Agent",
+    "userId": "T11_AGAVHP_Perf",
+    "lastName": "Boike",
+    "firstName": "David M."
+  },
+  "AGENT_CASSIDY_WILLIAM": {
+    "ssoguid": "9A01F49B-F324-4B6B-9BF2-4C4B4CA17D14",
+    "agentAPLId": "AGA391",
+    "role": "Agent",
+    "userId": "T11_AGA391_Perf",
+    "lastName": "Cassidy",
+    "firstName": "William"
+  },
+  "AGENT_GIROUARD": {
+    "ssoguid": "375D2D7C-B009-492B-97FC-0109D3DB1913",
+    "agentAPLId": "AG8860",
+    "role": "Agent",
+    "userId": "T11_AG8860_Perf",
+    "lastName": "John E. CFP-CAPIAI",
+    "firstName": "Girouard"
+  },
+  "AGENT_LIFESPAN_INC": {
+    "ssoguid": "80F7C568-C8F3-4B69-9337-A853009D8F66",
+    "agentAPLId": "AG4539",
+    "role": "Agent",
+    "userId": "T11_AG4539_Perf",
+    "lastName": "Lifespan Financial Strategies",
+    "firstName": "Inc."
+  },
+  "AGENT_SCORDATO_MARK": {
+    "ssoguid": "DF2D1CB5-CCAB-4CFA-883D-D98F5B536C98",
+    "agentAPLId": "AGAYHL",
+    "role": "Agent",
+    "userId": "T11_AGAYHL_Perf",
+    "lastName": "Scordato",
+    "firstName": "Mark_"
+  },
+  "AGENT_TORNICELLI_VAL": {
+    "ssoguid": "6643C68D-BD1A-4E34-B129-5A7FA78DB622",
+    "agentAPLId": "AG4960",
+    "role": "Agent",
+    "userId": "T11_AG4960_Perf",
+    "lastName": "Tornicelli",
+    "firstName": "Val J."
+  },
+  "OFFICE_ADMIN_THOMSON": {
+    "ssoguid": "2AC81348-8B7B-4B62-8A8B-FD68661E7D73",
+    "agentAPLId": "AG4539",
+    "role": "Office Admin",
+    "userId": "OAA_AG4539_01",
+    "lastName": "Thomson",
+    "firstName": "John"
+  },
+  "SHARED_USER_AG4539": {
+    "ssoguid": "9CFD2833-A375-4363-AD60-71287C20E43B",
+    "agentAPLId": "AG4539",
+    "role": "Shared Access User",
+    "userId": "SAU_AG4539_03",
+    "lastName": "Shared",
+    "firstName": "user03"
+  },
+  "SHARED_USER_SSSASSAFAS": {
+    "ssoguid": "1C10B525-6221-4E1D-B9C5-FEC416F3F2B3",
+    "agentAPLId": "AG8959",
+    "role": "Shared access user",
+    "userId": "SAU_AG8958_T11",
+    "lastName": "Sssassafas",
+    "firstName": "Henryttt"
+  },
+  "SHARED_USER_VINITHA": {
+    "ssoguid": "1C4B439B-8029-4DA0-B5C9-1174F7B1F4DA",
+    "agentAPLId": "AG8860",
+    "role": "Shared Access User",
+    "userId": "SAU_AG8860_01",
+    "lastName": "G",
+    "firstName": "Vinitha"
+  }
+}
