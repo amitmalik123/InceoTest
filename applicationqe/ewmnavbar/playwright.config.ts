@@ -30,6 +30,7 @@ const commonUse = {
   colorScheme: "dark" as const,
   geolocation: { longitude: 12.492507, latitude: 41.889938 },
   permissions: ["geolocation"] as const,
+  ignoreHTTPSErrors: true, // Ignore SSL certificate validation for test environments
 };
 
 export default defineConfig({
