@@ -343,16 +343,7 @@ jobs:
         echo "Creating fallback JUnit report..."
         mkdir -p $(buildPath)/test-results
         
-        cat > $(buildPath)/test-results/junit-report.xml << 'EOF'
-<?xml version="1.0" encoding="UTF-8"?>
-<testsuites name="Playwright Test Results" tests="0" failures="0" skipped="0" time="0.000">
-  <testsuite name="Playwright Tests" tests="0" failures="0" skipped="0" time="0.000">
-    <properties>
-      <property name="note" value="No test results available"/>
-    </properties>
-  </testsuite>
-</testsuites>
-EOF
+        printf '<?xml version="1.0" encoding="UTF-8"?>\n<testsuites name="Playwright Test Results" tests="0" failures="0" skipped="0" time="0.000">\n  <testsuite name="Playwright Tests" tests="0" failures="0" skipped="0" time="0.000">\n    <properties>\n      <property name="note" value="No test results available"/>\n    </properties>\n  </testsuite>\n</testsuites>\n' > $(buildPath)/test-results/junit-report.xml
         echo "✓ Fallback report created"
       fi
     displayName: "Prepare JUnit Report for Publishing"
