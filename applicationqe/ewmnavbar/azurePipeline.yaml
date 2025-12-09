@@ -71,14 +71,10 @@ jobs:
 
   variables:
     buildPath: '$(Build.SourcesDirectory)'
-    workingDir: '$(Build.SourcesDirectory)/applicationqe/ewmnavbar'
+    ewmnavbarPath: '$(Build.SourcesDirectory)/applicationqe/ewmnavbar'
     environment: ${{ parameters.environment }}
-    projectName: 'ewmnavbar'
     allureResultsDir: '$(Build.SourcesDirectory)/applicationqe/ewmnavbar/target/allure-results'
-    allureReportDir: '$(Build.SourcesDirectory)/allure-reports/$(projectName)'
-    allureResultsRootDir: '$(Build.SourcesDirectory)/allure-results/$(projectName)'
-    testResultsRootDir: '$(Build.SourcesDirectory)/test-results/$(projectName)'
-    playwrightReportRootDir: '$(Build.SourcesDirectory)/playwright-reports/$(projectName)'
+    allureReportDir: '$(Build.SourcesDirectory)/applicationqe/ewmnavbar/target/allure-report'
     allureToolsDir: '$(Build.ArtifactStagingDirectory)/allure-tools'
     INFLUXDB_URL: 'http://azncc03perf.corp.local:8086'
     INFLUXDB_ORG: 'MF'
@@ -144,6 +140,7 @@ jobs:
       echo "Final command: $TEST_CMD"
       echo "##vso[task.setvariable variable=TEST_CMD]$TEST_CMD"
     displayName: "Build Playwright Command"
+    workingDirectory: $(Build.SourcesDirectory)/applicationqe/ewmnavbar
     continueOnError: false
 
   - task: NodeTool@0
@@ -152,11 +149,11 @@ jobs:
     displayName: "Install Node.js"
 
   - script: npm ci --ignore-scripts
-    workingDirectory: $(workingDir)
+    workingDirectory: $(Build.SourcesDirectory)/applicationqe/ewmnavbar
     displayName: "Install Dependencies"
 
   - script: npx playwright install chromium
-    workingDirectory: $(workingDir)
+    workingDirectory: $(Build.SourcesDirectory)/applicationqe/ewmnavbar
     displayName: "Install Playwright Browsers"
     continueOnError: false
 
@@ -184,7 +181,7 @@ jobs:
     displayName: "Install and Verify Allure CLI"
 
   - script: |
-      mkdir -p "$(allureResultsDir)"
+      mkdir -p "$(ewmnavbarPath)/target/allure-results"
       echo "========================================"
       echo "PLAYWRIGHT TEST EXECUTION START"
       echo "========================================"
@@ -193,7 +190,7 @@ jobs:
       echo "Test Filter: $(testFilter)"
       echo "Environment: $(environment)"
       echo "Build Path: $(buildPath)"
-      echo "Working Dir: $(workingDir)"
+      echo "EWMNavbar Path: $(ewmnavbarPath)"
       echo "Allure Results Dir: $(allureResultsDir)"
       echo "========================================"
       echo ""
@@ -226,54 +223,59 @@ jobs:
       ls -la $(allureResultsDir) 2>/dev/null || echo "Allure results directory not found"
       echo ""
       echo "Listing Playwright reports:"
-      ls -la $(workingDir)/playwright-report 2>/dev/null || echo "Playwright report directory not found"
+      ls -la $(ewmnavbarPath)/playwright-report 2>/dev/null || echo "Playwright report directory not found"
     displayName: "Run Playwright Tests with Allure"
-    workingDirectory: $(workingDir)
+    workingDirectory: $(Build.SourcesDirectory)/applicationqe/ewmnavbar
     continueOnError: true
 
   - script: |
       echo "Checking for JUnit test results..."
-      echo "Looking in: $(workingDir)"
-      find $(workingDir) -type f -name "*.xml" | grep -E "(junit|test)" | head -20 || echo "No XML files found"
+      echo "Looking in: $(buildPath)/applicationqe/ewmnavbar"
+      find $(buildPath)/applicationqe/ewmnavbar -type f -name "*.xml" | grep -E "(junit|test)" | head -20 || echo "No XML files found"
       echo "---"
       echo "test-results contents:"
-      ls -la $(workingDir)/test-results 2>/dev/null || echo "test-results directory not found"
+      ls -la $(buildPath)/applicationqe/ewmnavbar/test-results 2>/dev/null || echo "test-results directory not found"
       echo "---"
-      echo "Copying test results to project root directory..."
-      mkdir -p $(testResultsRootDir)
-      cp -r $(workingDir)/test-results/* $(testResultsRootDir) 2>/dev/null || echo "No test-results to copy"
-      cp -r $(workingDir)/playwright-report $(playwrightReportRootDir) 2>/dev/null || echo "No playwright-report to copy"
+      echo "Current directory contents:"
+      ls -la $(buildPath)/applicationqe/ewmnavbar 2>/dev/null | grep -E "(junit|test-results|xml|playwright)" || echo "No matching files found"
       echo "---"
-      echo "Copying Allure results to project root directory..."
-      mkdir -p $(allureResultsRootDir)
-      cp -r $(allureResultsDir)/* $(allureResultsRootDir) 2>/dev/null || echo "No allure-results to copy"
+      echo "Copying test results to expected location..."
+      mkdir -p $(buildPath)/test-results
+      cp -r $(buildPath)/applicationqe/ewmnavbar/test-results/* $(buildPath)/test-results 2>/dev/null || echo "No test-results to copy"
+      cp -r $(buildPath)/applicationqe/ewmnavbar/playwright-report $(buildPath)/playwright-report 2>/dev/null || echo "No playwright-report to copy"
     displayName: "Debug Test Results Location"
     condition: always()
     continueOnError: true
 
   - script: |
       echo "Checking Allure Results Directory..."
-      echo "Results Dir (ewmnavbar): $(allureResultsDir)"
+      echo "Results Dir: $(allureResultsDir)"
       ls -la $(allureResultsDir) 2>/dev/null || echo "Results dir not found"
-      echo "---"
-      echo "Results Dir (root/$(projectName)): $(allureResultsRootDir)"
-      ls -la $(allureResultsRootDir) 2>/dev/null || echo "Project root results dir not found"
     displayName: "Debug Allure Results Directory"
     condition: always()
 
   - script: |
-      mkdir -p "$(allureReportDir)"
-      echo "Allure Report Directory created: $(allureReportDir)"
+      mkdir -p "$(ewmnavbarPath)/target/allure-report"
+      echo "Allure Report Directory created: $(ewmnavbarPath)/target/allure-report"
     displayName: "Create Allure Report Directory"
 
   - script: |
       echo "Checking for Allure results..."
-      SRC_DIR="$(allureResultsRootDir)"
+      # Check ewmnavbar allure-results folder
+      SRC_DIR="$(allureResultsDir)"
+      ALT_DIR="$(ewmnavbarPath)/allure-results"
       REPORT_DIR="$(allureReportDir)"
 
       if [ ! -d "$SRC_DIR" ] || [ -z "$(ls -A "$SRC_DIR" 2>/dev/null)" ]; then
-        echo "##vso[task.logissue type=warning]No Allure results found in $SRC_DIR. Report generation skipped."
-        exit 0
+        if [ -d "$ALT_DIR" ] && [ -n "$(ls -A "$ALT_DIR" 2>/dev/null)" ]; then
+          echo "Using alternate Allure results directory: $ALT_DIR"
+          mkdir -p "$SRC_DIR"
+          cp -r "$ALT_DIR"/* "$SRC_DIR/" || true
+          echo "Copied alternate results into staging: $SRC_DIR"
+        else
+          echo "##vso[task.logissue type=warning]No Allure results found in $SRC_DIR or $ALT_DIR. Report generation skipped."
+          exit 0
+        fi
       fi
 
       echo "Generating Allure report from: $SRC_DIR"
@@ -285,25 +287,27 @@ jobs:
 
   - script: |
       echo "Verifying report directories before publish..."
-      echo "Results Dir (ewmnavbar): $(allureResultsDir)"
-      echo "Results Dir (root/$(projectName)): $(allureResultsRootDir)"
-      echo "Report Dir (root/$(projectName)): $(allureReportDir)"
-      ls -la $(allureResultsDir) 2>/dev/null || echo "ewmnavbar results dir not found"
-      ls -la $(allureResultsRootDir) 2>/dev/null || echo "Project root results dir not found"
-      ls -la $(allureReportDir) 2>/dev/null || echo "Project report dir not found"
+      echo "Results Dir: $(allureResultsDir)"
+      echo "Report Dir: $(allureReportDir)"
+      ls -la $(allureResultsDir) 2>/dev/null || echo "Results dir not found"
+      ls -la $(allureReportDir) 2>/dev/null || echo "Report dir not found"
     displayName: "Verify Report Paths"
     condition: always()
 
   - script: |
       echo "Generating comprehensive JUnit XML report from test execution..."
-      mkdir -p $(testResultsRootDir)
-      
-      python3 $(workingDir)/framework/reporter/generate_junit_report.py \
-        "$(allureResultsRootDir)" \
-        "$(testResultsRootDir)/junit-report.xml"
-      
+      mkdir -p $(ewmnavbarPath)/test-results
+
+      python3 $(Build.SourcesDirectory)/applicationqe/ewmnavbar/framework/reporter/generate_junit_report.py \
+        "$(allureResultsDir)" \
+        "$(ewmnavbarPath)/test-results/junit-report.xml"
+
       echo "---Report Preview---"
-      head -30 $(testResultsRootDir)/junit-report.xml || echo "Report not found"
+      head -30 $(ewmnavbarPath)/test-results/junit-report.xml || echo "Report not found"
+      
+      echo "Copying test results to build root..."
+      mkdir -p $(buildPath)/test-results
+      cp -r $(ewmnavbarPath)/test-results/* $(buildPath)/test-results 2>/dev/null || true
     displayName: "Generate JUnit XML Report"
     condition: always()
     continueOnError: true
@@ -315,7 +319,7 @@ jobs:
 
   - script: |
       echo "Installing InfluxDB client..."
-      pip install -r $(workingDir)/framework/reporter/requirements.txt
+      pip install -r $(Build.SourcesDirectory)/applicationqe/ewmnavbar/framework/reporter/requirements.txt
     displayName: "Install Python Dependencies"
     continueOnError: false
 
@@ -325,15 +329,15 @@ jobs:
       export INFLUXDB_TOKEN="${INFLUXDB_TOKEN}"
       export INFLUXDB_ORG="${INFLUXDB_ORG}"
       export INFLUXDB_BUCKET="${INFLUXDB_BUCKET}"
-      export ALLURE_RESULTS_DIR="$(allureResultsRootDir)"
+      export ALLURE_RESULTS_DIR="$(allureResultsDir)"
       export ENVIRONMENT="$(environment)"
       export BUILD_ID="$(Build.BuildId)"
       export BUILD_REASON="$(Build.Reason)"
       export SYSTEM_TEAMFOUNDATIONCOLLECTIONURI="$(System.TeamFoundationCollectionUri)"
       export SYSTEM_TEAMPROJECT="$(System.TeamProject)"
       export BUILD_BUILDID="$(Build.BuildId)"
-      
-      python3 $(workingDir)/framework/reporter/influx_reporter.py
+
+      python3 $(Build.SourcesDirectory)/applicationqe/ewmnavbar/framework/reporter/influx_reporter.py
     displayName: "Push Metrics to InfluxDB"
     condition: always()
     continueOnError: true
@@ -346,8 +350,8 @@ jobs:
   - task: PublishBuildArtifacts@1
     displayName: "Publish Test Results Directory"
     inputs:
-      PathtoPublish: '$(testResultsRootDir)'
-      ArtifactName: 'TestResults-$(projectName)'
+      PathtoPublish: '$(buildPath)/test-results'
+      ArtifactName: 'TestResults'
       publishLocation: 'Container'
     condition: always()
     continueOnError: true
@@ -356,7 +360,7 @@ jobs:
     displayName: "Publish JUnit Test Results to Azure Pipelines"
     inputs:
       testResultsFormat: 'JUnit'
-      testResultsFiles: '$(testResultsRootDir)/junit-report.xml'
+      testResultsFiles: '$(buildPath)/test-results/junit-report.xml'
       mergeTestResults: true
       failTaskOnFailedTests: false
       publishRunAttachments: true
@@ -366,8 +370,8 @@ jobs:
   - task: PublishBuildArtifacts@1
     displayName: "Publish Playwright HTML Report"
     inputs:
-      PathtoPublish: '$(playwrightReportRootDir)'
-      ArtifactName: 'PlaywrightReport-$(projectName)'
+      PathtoPublish: '$(ewmnavbarPath)/playwright-report'
+      ArtifactName: 'PlaywrightReport'
       publishLocation: 'Container'
     condition: always()
 
@@ -375,15 +379,15 @@ jobs:
     displayName: "Publish Allure Report"
     inputs:
       PathtoPublish: '$(allureReportDir)'
-      ArtifactName: 'AllureReport-$(projectName)'
+      ArtifactName: 'AllureReport'
       publishLocation: 'Container'
     condition: always()
 
   - task: PublishBuildArtifacts@1
     displayName: "Publish Allure Results Data"
     inputs:
-      PathtoPublish: '$(allureResultsRootDir)'
-      ArtifactName: 'AllureResults-$(projectName)'
+      PathtoPublish: '$(allureResultsDir)'
+      ArtifactName: 'AllureResults'
       publishLocation: 'Container'
     condition: always()
 
