@@ -331,27 +331,118 @@ jobs:
     condition: always()
 
   - script: |
-      echo "Verifying JUnit report for publishing..."
+      echo "Generating JUnit report from test results..."
+      echo ""
       
-      if [ -f "$(buildPath)/test-results/junit-report.xml" ]; then
-        echo "✓ JUnit report found at: $(buildPath)/test-results/junit-report.xml"
-        ls -lh $(buildPath)/test-results/junit-report.xml
+      # Define paths
+      SRC_TEST_RESULTS="$(ewmnavbarPath)/test-results"
+      SRC_JUNIT="$(ewmnavbarPath)/test-results/junit-report.xml"
+      DEST_DIR="$(buildPath)/test-results"
+      DEST_JUNIT="$(buildPath)/test-results/junit-report.xml"
+      
+      echo "Source junit: $SRC_JUNIT"
+      echo "Destination junit: $DEST_JUNIT"
+      echo ""
+      
+      # Step 1: Check if Playwright generated the junit report
+      if [ -f "$SRC_JUNIT" ]; then
+        echo "✓ Found junit-report.xml from Playwright"
+        echo "Copying to build root..."
+        mkdir -p "$DEST_DIR"
+        cp "$SRC_JUNIT" "$DEST_JUNIT"
+        echo "✓ JUnit report copied to: $DEST_JUNIT"
         echo ""
-        echo "Report preview:"
-        head -20 $(buildPath)/test-results/junit-report.xml
+        echo "Report details:"
+        ls -lh "$DEST_JUNIT"
+        echo ""
+        echo "Report content (first 30 lines):"
+        head -30 "$DEST_JUNIT"
       else
-        echo "⚠ junit-report.xml not found"
+        echo "⚠ junit-report.xml not found from Playwright at $SRC_JUNIT"
         echo ""
-        echo "Checking for alternative JUnit files..."
-        find $(buildPath)/test-results -name "*.xml" 2>/dev/null || echo "No XML files found"
+        echo "Checking what files exist in ewmnavbar..."
+        ls -la "$(ewmnavbarPath)" 2>/dev/null | grep -E "(test|junit|xml)" || echo "No test-related files found"
         echo ""
-        echo "Creating fallback JUnit report..."
-        mkdir -p $(buildPath)/test-results
+        echo "Searching for any junit/xml files in ewmnavbar..."
+        find "$(ewmnavbarPath)" -name "*.xml" -type f 2>/dev/null | head -20 || echo "No XML files found"
+        echo ""
         
-        printf '<?xml version="1.0" encoding="UTF-8"?>\n<testsuites name="Playwright Test Results" tests="0" failures="0" skipped="0" time="0.000">\n  <testsuite name="Playwright Tests" tests="0" failures="0" skipped="0" time="0.000">\n    <properties>\n      <property name="note" value="No test results available"/>\n    </properties>\n  </testsuite>\n</testsuites>\n' > $(buildPath)/test-results/junit-report.xml
-        echo "✓ Fallback report created"
+        # Step 2: If Playwright didn't generate it, create from Allure results if available
+        echo "Attempting to extract test count from Allure results..."
+        ALLURE_RESULTS_DIR="$(allureResultsDir)"
+        
+        if [ -d "$ALLURE_RESULTS_DIR" ] && [ ! -z "$(ls -A "$ALLURE_RESULTS_DIR" 2>/dev/null)" ]; then
+          echo "✓ Found Allure results, extracting test statistics..."
+          
+          # Count test results from Allure JSON files
+          TEST_COUNT=$(find "$ALLURE_RESULTS_DIR" -name "*-result.json" -type f 2>/dev/null | wc -l)
+          FAILED_COUNT=$(find "$ALLURE_RESULTS_DIR" -name "*-result.json" -exec grep -l '"status":"failed"' {} \; 2>/dev/null | wc -l)
+          PASSED_COUNT=$((TEST_COUNT - FAILED_COUNT))
+          SKIPPED_COUNT=$(find "$ALLURE_RESULTS_DIR" -name "*-result.json" -exec grep -l '"status":"skipped"' {} \; 2>/dev/null | wc -l)
+          
+          echo "  Tests: $TEST_COUNT"
+          echo "  Passed: $PASSED_COUNT"
+          echo "  Failed: $FAILED_COUNT"
+          echo "  Skipped: $SKIPPED_COUNT"
+          echo ""
+          echo "Creating JUnit report from Allure results..."
+          
+          mkdir -p "$DEST_DIR"
+          
+          # Generate JUnit XML from Allure results
+          printf '<?xml version="1.0" encoding="UTF-8"?>\n' > "$DEST_JUNIT"
+          printf '<testsuites name="Playwright Test Results" tests="%d" failures="%d" skipped="%d" time="0.000">\n' "$TEST_COUNT" "$FAILED_COUNT" "$SKIPPED_COUNT" >> "$DEST_JUNIT"
+          printf '  <testsuite name="Playwright Tests" tests="%d" failures="%d" skipped="%d" time="0.000">\n' "$TEST_COUNT" "$FAILED_COUNT" "$SKIPPED_COUNT" >> "$DEST_JUNIT"
+          
+          # Parse Allure results and add test cases
+          find "$ALLURE_RESULTS_DIR" -name "*-result.json" -type f 2>/dev/null | while read -r result_file; do
+            TEST_NAME=$(grep -o '"name":"[^"]*' "$result_file" | head -1 | cut -d'"' -f4 || echo "Unknown Test")
+            STATUS=$(grep -o '"status":"[^"]*' "$result_file" | head -1 | cut -d'"' -f4 || echo "unknown")
+            
+            if [ "$STATUS" = "passed" ]; then
+              printf '    <testcase classname="Playwright" name="%s" time="0.000"></testcase>\n' "$TEST_NAME" >> "$DEST_JUNIT"
+            elif [ "$STATUS" = "failed" ]; then
+              printf '    <testcase classname="Playwright" name="%s" time="0.000">\n' "$TEST_NAME" >> "$DEST_JUNIT"
+              printf '      <failure message="Test failed"></failure>\n' >> "$DEST_JUNIT"
+              printf '    </testcase>\n' >> "$DEST_JUNIT"
+            elif [ "$STATUS" = "skipped" ]; then
+              printf '    <testcase classname="Playwright" name="%s" time="0.000">\n' "$TEST_NAME" >> "$DEST_JUNIT"
+              printf '      <skipped></skipped>\n' >> "$DEST_JUNIT"
+              printf '    </testcase>\n' >> "$DEST_JUNIT"
+            fi
+          done
+          
+          printf '    <properties>\n' >> "$DEST_JUNIT"
+          printf '      <property name="source" value="Playwright Allure Results"/>\n' >> "$DEST_JUNIT"
+          printf '    </properties>\n' >> "$DEST_JUNIT"
+          printf '  </testsuite>\n' >> "$DEST_JUNIT"
+          printf '</testsuites>\n' >> "$DEST_JUNIT"
+          
+          echo "✓ JUnit report created from Allure results"
+          echo ""
+          echo "Report details:"
+          ls -lh "$DEST_JUNIT"
+        else
+          echo "✗ No Allure results found, creating empty JUnit report..."
+          mkdir -p "$DEST_DIR"
+          
+          printf '<?xml version="1.0" encoding="UTF-8"?>\n' > "$DEST_JUNIT"
+          printf '<testsuites name="Playwright Test Results" tests="0" failures="0" skipped="0" time="0.000">\n' >> "$DEST_JUNIT"
+          printf '  <testsuite name="Playwright Tests" tests="0" failures="0" skipped="0" time="0.000">\n' >> "$DEST_JUNIT"
+          printf '    <properties>\n' >> "$DEST_JUNIT"
+          printf '      <property name="note" value="No test results available - Check Allure report for details"/>\n' >> "$DEST_JUNIT"
+          printf '    </properties>\n' >> "$DEST_JUNIT"
+          printf '  </testsuite>\n' >> "$DEST_JUNIT"
+          printf '</testsuites>\n' >> "$DEST_JUNIT"
+          
+          echo "✓ Empty JUnit report created (Check Allure report for test details)"
+        fi
       fi
-    displayName: "Prepare JUnit Report for Publishing"
+      
+      echo ""
+      echo "Final JUnit report location: $DEST_JUNIT"
+      echo "File exists: $([ -f "$DEST_JUNIT" ] && echo 'YES' || echo 'NO')"
+    displayName: "Generate JUnit Report for Publishing"
     condition: always()
     continueOnError: true
 
