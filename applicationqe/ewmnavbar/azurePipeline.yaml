@@ -207,6 +207,9 @@ jobs:
       echo "Node version: $(node --version)"
       echo "NPM version: $(npm --version)"
       echo ""
+      echo "Checking playwright.config.ts for reporter configuration..."
+      grep -A 5 "reporter:" playwright.config.ts || echo "Could not find reporter config"
+      echo ""
       echo "Executing: $(TEST_CMD)"
       echo "========================================"
       echo ""
@@ -218,14 +221,34 @@ jobs:
       echo "##vso[task.setvariable variable=TEST_EXIT_CODE]${TEST_EXIT_CODE:-0}"
       echo ""
       echo "Checking for generated reports..."
-      echo "Looking for JUnit XML files:"
-      find . -name "junit*.xml" -type f 2>/dev/null | head -10 || echo "No JUnit files found"
       echo ""
-      echo "Listing Allure results:"
-      ls -la $(allureResultsDir) 2>/dev/null || echo "Allure results directory not found"
+      echo "===== JUNIT FILES ====="
+      find . -name "junit*.xml" -type f 2>/dev/null | head -10 || echo "No JUnit files found in current directory"
       echo ""
-      echo "Listing Playwright reports:"
-      ls -la $(ewmnavbarPath)/playwright-report 2>/dev/null || echo "Playwright report directory not found"
+      echo "===== TEST-RESULTS DIRECTORY ====="
+      if [ -d "./test-results" ]; then
+        echo "✓ test-results directory exists"
+        ls -lah ./test-results
+      else
+        echo "✗ test-results directory does NOT exist"
+      fi
+      echo ""
+      echo "===== ALLURE RESULTS ====="
+      ls -la $(allureResultsDir) 2>/dev/null | head -20 || echo "Allure results directory not found"
+      echo ""
+      echo "===== PLAYWRIGHT REPORTS ====="
+      if [ -d "./playwright-report" ]; then
+        echo "✓ playwright-report directory exists"
+        ls -la ./playwright-report
+      else
+        echo "✗ playwright-report directory does NOT exist"
+      fi
+      echo ""
+      echo "===== ALL FILES IN WORKING DIRECTORY ====="
+      ls -lah . | grep -E "(test|allure|playwright|junit)" || echo "No matching directories/files found"
+      echo ""
+      echo "===== RECURSIVE SEARCH FOR XML FILES ====="
+      find . -name "*.xml" -type f 2>/dev/null | head -30 || echo "No XML files found"
     displayName: "Run Playwright Tests with Allure"
     workingDirectory: $(Build.SourcesDirectory)/applicationqe/ewmnavbar
     continueOnError: true

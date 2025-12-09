@@ -46,8 +46,8 @@ export default defineConfig({
   workers: 1,
   reporter: [
     ['allure-playwright', { outputFolder: join(__dirname, 'target/allure-results') }],
-    ['html'],
-    ['junit', { outputFile: 'test-results/junit-report.xml' }],
+    ['html', { outputFolder: join(__dirname, 'playwright-report') }],
+    ['junit', { outputFile: join(__dirname, 'test-results/junit-report.xml') }],
   ],
 
   use: {
