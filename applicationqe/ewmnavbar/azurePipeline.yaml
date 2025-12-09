@@ -74,7 +74,7 @@ jobs:
     workingDir: '$(Build.SourcesDirectory)/applicationqe/ewmnavbar'
     environment: ${{ parameters.environment }}
     allureResultsDir: '$(Build.SourcesDirectory)/applicationqe/ewmnavbar/target/allure-results'
-    allureReportDir: '$(Build.SourcesDirectory)/applicationqe/ewmnavbar/target/allure-report'
+    allureReportDir: '$(Build.SourcesDirectory)/allure-report'
     allureToolsDir: '$(Build.ArtifactStagingDirectory)/allure-tools'
     INFLUXDB_URL: 'http://azncc03perf.corp.local:8086'
     INFLUXDB_ORG: 'MF'
@@ -239,14 +239,21 @@ jobs:
       mkdir -p $(buildPath)/test-results
       cp -r $(workingDir)/test-results/* $(buildPath)/test-results 2>/dev/null || echo "No test-results to copy"
       cp -r $(workingDir)/playwright-report $(buildPath)/playwright-report 2>/dev/null || echo "No playwright-report to copy"
+      echo "---"
+      echo "Copying Allure results to build root..."
+      mkdir -p $(buildPath)/allure-results
+      cp -r $(allureResultsDir)/* $(buildPath)/allure-results 2>/dev/null || echo "No allure-results to copy"
     displayName: "Debug Test Results Location"
     condition: always()
     continueOnError: true
 
   - script: |
       echo "Checking Allure Results Directory..."
-      echo "Results Dir: $(allureResultsDir)"
+      echo "Results Dir (ewmnavbar): $(allureResultsDir)"
       ls -la $(allureResultsDir) 2>/dev/null || echo "Results dir not found"
+      echo "---"
+      echo "Results Dir (build root): $(buildPath)/allure-results"
+      ls -la $(buildPath)/allure-results 2>/dev/null || echo "Build root results dir not found"
     displayName: "Debug Allure Results Directory"
     condition: always()
 
@@ -257,7 +264,7 @@ jobs:
 
   - script: |
       echo "Checking for Allure results..."
-      SRC_DIR="$(allureResultsDir)"
+      SRC_DIR="$(buildPath)/allure-results"
       REPORT_DIR="$(allureReportDir)"
 
       if [ ! -d "$SRC_DIR" ] || [ -z "$(ls -A "$SRC_DIR" 2>/dev/null)" ]; then
@@ -274,9 +281,11 @@ jobs:
 
   - script: |
       echo "Verifying report directories before publish..."
-      echo "Results Dir: $(allureResultsDir)"
-      echo "Report Dir: $(allureReportDir)"
-      ls -la $(allureResultsDir) 2>/dev/null || echo "Results dir not found"
+      echo "Results Dir (ewmnavbar): $(allureResultsDir)"
+      echo "Results Dir (build root): $(buildPath)/allure-results"
+      echo "Report Dir (build root): $(allureReportDir)"
+      ls -la $(allureResultsDir) 2>/dev/null || echo "ewmnavbar results dir not found"
+      ls -la $(buildPath)/allure-results 2>/dev/null || echo "Build root results dir not found"
       ls -la $(allureReportDir) 2>/dev/null || echo "Report dir not found"
     displayName: "Verify Report Paths"
     condition: always()
@@ -286,7 +295,7 @@ jobs:
       mkdir -p $(buildPath)/test-results
       
       python3 $(workingDir)/framework/reporter/generate_junit_report.py \
-        "$(allureResultsDir)" \
+        "$(buildPath)/allure-results" \
         "$(buildPath)/test-results/junit-report.xml"
       
       echo "---Report Preview---"
@@ -312,7 +321,7 @@ jobs:
       export INFLUXDB_TOKEN="${INFLUXDB_TOKEN}"
       export INFLUXDB_ORG="${INFLUXDB_ORG}"
       export INFLUXDB_BUCKET="${INFLUXDB_BUCKET}"
-      export ALLURE_RESULTS_DIR="$(allureResultsDir)"
+      export ALLURE_RESULTS_DIR="$(buildPath)/allure-results"
       export ENVIRONMENT="$(environment)"
       export BUILD_ID="$(Build.BuildId)"
       export BUILD_REASON="$(Build.Reason)"
@@ -369,7 +378,7 @@ jobs:
   - task: PublishBuildArtifacts@1
     displayName: "Publish Allure Results Data"
     inputs:
-      PathtoPublish: '$(allureResultsDir)'
+      PathtoPublish: '$(buildPath)/allure-results'
       ArtifactName: 'AllureResults'
       publishLocation: 'Container'
     condition: always()

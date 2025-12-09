@@ -45,7 +45,7 @@ export default defineConfig({
   retries: isCI ? 2 : 0,
   workers: 1,
   reporter: [
-    ['allure-playwright', { outputFolder: 'target/allure-results' }],
+    ['allure-playwright', { outputFolder: join(__dirname, 'target/allure-results') }],
     ['html'],
     ['junit', { outputFile: 'test-results/junit-report.xml' }],
   ],
