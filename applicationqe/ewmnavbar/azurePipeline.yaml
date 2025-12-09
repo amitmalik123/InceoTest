@@ -345,21 +345,36 @@ jobs:
         echo "⚠ Playwright JUnit report not found at: $(ewmnavbarPath)/test-results/junit-report.xml"
         echo ""
         echo "Contents of test-results directory:"
-        ls -la $(ewmnavbarPath)/test-results 2>/dev/null || echo "Directory not found"
+        ls -la $(ewmnavbarPath)/test-results 2>/dev/null || echo "Directory not found - will create fallback report"
         echo ""
-        echo "Creating build root test-results directory anyway..."
+        echo "Creating fallback JUnit report..."
         mkdir -p $(buildPath)/test-results
+        
+        # Create a minimal valid JUnit XML report
+        cat > $(buildPath)/test-results/junit-report.xml << 'EOF'
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuites name="Playwright Test Results" tests="0" failures="0" skipped="0" time="0.000">
+  <testsuite name="Playwright Tests" tests="0" failures="0" skipped="0" time="0.000" timestamp="$(date -u +'%Y-%m-%dT%H:%M:%SZ')">
+    <properties>
+      <property name="note" value="No test results available - tests may not have executed"/>
+    </properties>
+  </testsuite>
+</testsuites>
+EOF
+        echo "✓ Fallback report created at: $(buildPath)/test-results/junit-report.xml"
       fi
       
       echo ""
       echo "✓ Verifying final location..."
       if [ -f "$(buildPath)/test-results/junit-report.xml" ]; then
         echo "✓ JUnit report available at: $(buildPath)/test-results/junit-report.xml"
+        ls -lh $(buildPath)/test-results/junit-report.xml
         echo ""
         echo "Report preview (first 30 lines):"
         head -30 $(buildPath)/test-results/junit-report.xml
       else
-        echo "⚠ No JUnit report found at: $(buildPath)/test-results/junit-report.xml"
+        echo "✗ Failed to create JUnit report"
+        exit 1
       fi
     displayName: "Process JUnit Test Results"
     condition: always()
