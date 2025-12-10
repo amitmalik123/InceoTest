@@ -118,6 +118,11 @@ class AllureToInfluxDB:
         all_tests = results.get('tests', [])
         test_names = results.get('test_names', [])
         
+        print(f"\n🔍 DEBUG: calculate_metrics called")
+        print(f"  all_tests count: {len(all_tests)}")
+        print(f"  test_names count: {len(test_names)}")
+        print(f"  test_names list: {test_names}")
+        
         metrics = {
             'total': len(test_names),  # Total UNIQUE tests
             'passed': 0,
@@ -147,6 +152,9 @@ class AllureToInfluxDB:
                     if new_stop > current_stop:
                         latest_results_by_name[test_name] = test
         
+        print(f"  latest_results_by_name count: {len(latest_results_by_name)}")
+        print(f"  latest_results_by_name keys: {list(latest_results_by_name.keys())}")
+        
         durations = []
         test_details = []
         
@@ -154,11 +162,14 @@ class AllureToInfluxDB:
         for test_name in test_names:
             test = latest_results_by_name.get(test_name)
             if not test:
+                print(f"  ⚠️  WARNING: test_name '{test_name}' not found in latest_results_by_name")
                 continue
                 
             status = test.get('status', 'unknown')
             status_details = test.get('statusDetails', {})
             is_flaky = status_details.get('flaky', False)
+            
+            print(f"  Processing {test_name}: {status}")
             
             # Count based on final status (UNIQUE tests only, no duplicates)
             if status == 'passed':
