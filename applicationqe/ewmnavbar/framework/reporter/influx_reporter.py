@@ -49,17 +49,28 @@ class AllureToInfluxDB:
         return urls
         
     def read_allure_results(self) -> Dict[str, Any]:
-        """Read Allure results from JSON files - Read ALL, track test names for metrics deduplication"""
+        """Read Allure results from JSON files - use Allure's native summary for accurate counts"""
         results = {
             'tests': [],
             'containers': [],
             'groups': [],
-            'test_names': []  # Track all unique test names for deduplication in metrics
+            'test_names': [],
+            'allure_summary': {}  # Store Allure's own summary
         }
         
         if not os.path.exists(self.allure_results_dir):
             print(f"⚠️  Allure results directory not found: {self.allure_results_dir}")
             return results
+        
+        # First, try to read Allure's summary-results.json if it exists
+        summary_file = os.path.join(self.allure_results_dir, 'summary-results.json')
+        if os.path.exists(summary_file):
+            try:
+                with open(summary_file, 'r') as f:
+                    results['allure_summary'] = json.load(f)
+                    print(f"📊 Found Allure summary: {results['allure_summary']}")
+            except Exception as e:
+                print(f"Error reading summary: {e}")
         
         # Read ALL test result files (including retries)
         json_files = glob.glob(os.path.join(self.allure_results_dir, '*-result.json'))
@@ -75,16 +86,43 @@ class AllureToInfluxDB:
                     test_uuid = test_data.get('uuid', '')
                     status = test_data.get('status', 'unknown')
                     
-                    print(f"  📄 {os.path.basename(json_file)}: name='{test_name}', uuid='{test_uuid[:8] if test_uuid else 'N/A'}', status={status}")
+                    # Get labels to extract spec file and package info
+                    labels = test_data.get('labels', [])
+                    spec_file = ''
+                    package_name = ''
+                    
+                    for label in labels:
+                        label_name = label.get('name', '')
+                        label_value = label.get('value', '')
+                        if label_name == 'package':
+                            package_name = label_value
+                        elif label_name == 'suite':
+                            spec_file = label_value
+                    
+                    # Create unique identifier: package/spec_file::test_name
+                    if package_name and spec_file:
+                        unique_id = f"{package_name}/{spec_file}::{test_name}"
+                    elif spec_file:
+                        unique_id = f"{spec_file}::{test_name}"
+                    else:
+                        unique_id = test_name
+                    
+                    print(f"  📄 {os.path.basename(json_file)}")
+                    print(f"      test_name='{test_name}'")
+                    print(f"      package='{package_name}'")
+                    print(f"      spec_file='{spec_file}'")
+                    print(f"      unique_id='{unique_id}'")
+                    print(f"      status={status}")
                     
                     if test_name:
                         results['tests'].append(test_data)
-                        # Track unique test names
-                        if test_name not in test_names_seen:
-                            test_names_seen[test_name] = True
-                            results['test_names'].append(test_name)
+                        # Track unique test identifiers per spec file
+                        if unique_id not in test_names_seen:
+                            test_names_seen[unique_id] = True
+                            results['test_names'].append(unique_id)
+                        print(f"      ✓ Added with unique_id: {unique_id}")
                     else:
-                        print(f"    ⚠️  WARNING: No 'name' field found in test data!")
+                        print(f"      ⚠️  WARNING: No 'name' field found in test data!")
             except Exception as e:
                 print(f"Error reading {json_file}: {e}")
         
@@ -106,7 +144,9 @@ class AllureToInfluxDB:
         for json_file in glob.glob(os.path.join(self.allure_results_dir, '*-container.json')):
             try:
                 with open(json_file, 'r') as f:
-                    results['containers'].append(json.load(f))
+                    container_data = json.load(f)
+                    results['containers'].append(container_data)
+                    print(f"  📦 Container: {container_data.get('name', 'unknown')}")
             except Exception as e:
                 print(f"Error reading {json_file}: {e}")
         
@@ -121,11 +161,51 @@ class AllureToInfluxDB:
         return results
     
     def calculate_metrics(self, results: Dict[str, Any]) -> Dict[str, Any]:
-        """Calculate test metrics from Allure results - Deduplicate by test name, keep LATEST status"""
+        """Calculate test metrics from Allure results - Use Allure's summary if available"""
+        allure_summary = results.get('allure_summary', {})
         all_tests = results.get('tests', [])
         test_names = results.get('test_names', [])
         
-        print(f"\n🔍 DEBUG: calculate_metrics called")
+        # Check if we have Allure's official summary
+        if allure_summary:
+            print(f"\n✓ Using Allure's official summary statistics")
+            metrics = {
+                'total': allure_summary.get('total', 0),
+                'passed': allure_summary.get('passed', 0),
+                'failed': allure_summary.get('failed', 0),
+                'skipped': allure_summary.get('skipped', 0),
+                'broken': allure_summary.get('broken', 0),
+                'flaky': 0,
+                'retried': 0,
+                'total_duration': allure_summary.get('duration', 0),
+                'avg_duration': 0,
+                'max_duration': 0,
+                'min_duration': 0,
+                'pass_rate': 0
+            }
+            
+            # Calculate pass rate
+            testable_total = metrics['total'] - metrics['skipped']
+            if testable_total > 0:
+                metrics['pass_rate'] = (metrics['passed'] / testable_total) * 100
+            
+            # Calculate average duration
+            if metrics['total'] > 0 and metrics['total_duration'] > 0:
+                metrics['avg_duration'] = int(metrics['total_duration'] / metrics['total'])
+            
+            print(f"📊 Metrics from Allure Summary:")
+            print(f"  Total tests: {metrics['total']}")
+            print(f"  Passed: {metrics['passed']}")
+            print(f"  Failed: {metrics['failed']}")
+            print(f"  Skipped: {metrics['skipped']}")
+            print(f"  Broken: {metrics['broken']}")
+            print(f"  Duration: {metrics['total_duration']}ms")
+            print(f"  Pass rate: {metrics['pass_rate']:.1f}%")
+            
+            return metrics
+        
+        # Fallback to manual calculation if no Allure summary
+        print(f"\n⚠️  No Allure summary found, using manual calculation")
         print(f"  all_tests count: {len(all_tests)}")
         print(f"  test_names count: {len(test_names)}")
         print(f"  test_names list: {test_names}")
@@ -145,38 +225,61 @@ class AllureToInfluxDB:
             'pass_rate': 0
         }
         
-        # Build a dictionary of LATEST result for each unique test name
-        latest_results_by_name = {}
+        # Build a dictionary of LATEST result for each unique test identifier
+        latest_results_by_id = {}
         for test in all_tests:
+            # Extract package and spec file from labels (same logic as read_allure_results)
+            labels = test.get('labels', [])
+            spec_file = ''
+            package_name = ''
+            
+            for label in labels:
+                label_name = label.get('name', '')
+                label_value = label.get('value', '')
+                if label_name == 'package':
+                    package_name = label_value
+                elif label_name == 'suite':
+                    spec_file = label_value
+            
             test_name = test.get('name', '')
-            if test_name:
-                if test_name not in latest_results_by_name:
-                    latest_results_by_name[test_name] = test
+            
+            # Create unique identifier: package/spec_file::test_name
+            if package_name and spec_file:
+                unique_id = f"{package_name}/{spec_file}::{test_name}"
+            elif spec_file:
+                unique_id = f"{spec_file}::{test_name}"
+            else:
+                unique_id = test_name
+            
+            if unique_id:
+                if unique_id not in latest_results_by_id:
+                    latest_results_by_id[unique_id] = test
                 else:
                     # Keep the result with the later stop time (latest execution)
-                    current_stop = latest_results_by_name[test_name].get('stop', 0)
+                    current_stop = latest_results_by_id[unique_id].get('stop', 0)
                     new_stop = test.get('stop', 0)
                     if new_stop > current_stop:
-                        latest_results_by_name[test_name] = test
+                        latest_results_by_id[unique_id] = test
         
-        print(f"  latest_results_by_name count: {len(latest_results_by_name)}")
-        print(f"  latest_results_by_name keys: {list(latest_results_by_name.keys())}")
+        print(f"  latest_results_by_id count: {len(latest_results_by_id)}")
+        print(f"  latest_results_by_id keys: {list(latest_results_by_id.keys())}")
         
         durations = []
         test_details = []
         
         # Process UNIQUE tests only (latest status of each)
-        for test_name in test_names:
-            test = latest_results_by_name.get(test_name)
+        for unique_id in test_names:
+            test = latest_results_by_id.get(unique_id)
             if not test:
-                print(f"  ⚠️  WARNING: test_name '{test_name}' not found in latest_results_by_name")
+                print(f"  ⚠️  WARNING: test_id '{unique_id}' not found in latest_results_by_id")
                 continue
                 
             status = test.get('status', 'unknown')
             status_details = test.get('statusDetails', {})
             is_flaky = status_details.get('flaky', False)
+            test_name = test.get('name', unique_id)
             
-            print(f"  Processing {test_name}: {status}")
+            print(f"  Processing {unique_id}: {status}")
             
             # Count based on final status (UNIQUE tests only, no duplicates)
             if status == 'passed':
