@@ -49,42 +49,62 @@ class AllureToInfluxDB:
         return urls
         
     def read_allure_results(self) -> Dict[str, Any]:
-        """Read Allure results from JSON files"""
+        """Read Allure results from JSON files - DEDUPLICATED by test name (unique tests only)"""
         results = {
             'tests': [],
             'containers': [],
-            'groups': []
+            'groups': [],
+            'all_test_executions': 0,  # Track total executions for retry count
+            'unique_tests': 0  # Track unique test names
         }
         
         if not os.path.exists(self.allure_results_dir):
             print(f"⚠️  Allure results directory not found: {self.allure_results_dir}")
             return results
         
-        # Read test results - include ALL test results (no deduplication)
+        # Read test results - DEDUPLICATE by test name (keep only LATEST result per test)
         json_files = glob.glob(os.path.join(self.allure_results_dir, '*-result.json'))
         print(f"📂 Found {len(json_files)} total test result files")
+        
+        # Dictionary to store LATEST result for each unique test name
+        latest_results = {}
         
         for json_file in json_files:
             try:
                 with open(json_file, 'r') as f:
                     test_data = json.load(f)
                     test_name = test_data.get('name', '')
-                    test_uuid = test_data.get('uuid', '')
                     
                     if test_name:
-                        # Add ALL test results (including retries)
-                        results['tests'].append(test_data)
+                        # Keep only the LATEST result per test name
+                        if test_name not in latest_results:
+                            latest_results[test_name] = test_data
+                        else:
+                            # Keep the result with the later stop time (latest execution)
+                            current_stop = latest_results[test_name].get('stop', 0)
+                            new_stop = test_data.get('stop', 0)
+                            if new_stop > current_stop:
+                                latest_results[test_name] = test_data
             except Exception as e:
                 print(f"Error reading {json_file}: {e}")
         
-        # Print all tests including retries
-        print(f"✓ Processing {len(results['tests'])} test result(s) (including retries)")
-        for i, test_data in enumerate(results['tests'], 1):
+        # Store deduplicated results (unique tests only)
+        results['tests'] = list(latest_results.values())
+        results['all_test_executions'] = len(json_files)
+        results['unique_tests'] = len(results['tests'])
+        
+        # Print deduplicated results
+        print(f"\n📊 Test Execution Summary:")
+        print(f"  Total test executions (including retries): {results['all_test_executions']}")
+        print(f"  Unique tests (after deduplication): {results['unique_tests']}")
+        if results['all_test_executions'] > results['unique_tests']:
+            print(f"  Tests that were retried: {results['all_test_executions'] - results['unique_tests']}")
+        
+        print(f"\n📋 Final Test Results (unique tests only, LATEST outcome):")
+        for test_data in results['tests']:
             test_name = test_data.get('name', 'unknown')
             status = test_data.get('status', 'unknown')
-            test_uuid = test_data.get('uuid', '')
-            print(f"  [{i}] {status.upper()}: {test_name} (uuid: {test_uuid[:8]}...)")
-        
+            print(f"  - {status.upper()}: {test_name}")
         
         # Read containers
         for json_file in glob.glob(os.path.join(self.allure_results_dir, '*-container.json')):
@@ -105,17 +125,19 @@ class AllureToInfluxDB:
         return results
     
     def calculate_metrics(self, results: Dict[str, Any]) -> Dict[str, Any]:
-        """Calculate test metrics from Allure results"""
+        """Calculate test metrics from Allure results - UNIQUE TESTS ONLY"""
         tests = results.get('tests', [])
+        all_test_executions = results.get('all_test_executions', len(tests))
+        unique_tests = results.get('unique_tests', len(tests))
         
         metrics = {
-            'total': len(tests),
+            'total': unique_tests,  # Total UNIQUE tests (deduplicated)
             'passed': 0,
             'failed': 0,
             'skipped': 0,
             'broken': 0,
             'flaky': 0,
-            'retried': 0,
+            'retried': all_test_executions - unique_tests,  # Count of tests that were retried
             'total_duration': 0,
             'avg_duration': 0,
             'max_duration': 0,
@@ -126,7 +148,6 @@ class AllureToInfluxDB:
         durations = []
         status_counts = {}
         test_details = []
-        test_names_seen = {}  # Track unique test names for retry detection
         
         for test in tests:
             status = test.get('status', 'unknown')
@@ -136,15 +157,10 @@ class AllureToInfluxDB:
             # Track raw statuses for debugging
             status_counts[status] = status_counts.get(status, 0) + 1
             
-            # Track if we've seen this test name before (indicates retry)
-            if test_name in test_names_seen:
-                metrics['retried'] += 1
-            test_names_seen[test_name] = True
-            
             # Check if test is flaky
             is_flaky = status_details.get('flaky', False)
             
-            # Count based on final status
+            # Count based on final status (UNIQUE tests only, no duplicates)
             if status == 'passed':
                 metrics['passed'] += 1
                 if is_flaky:
@@ -185,10 +201,15 @@ class AllureToInfluxDB:
         
         # Debug: Show status distribution
         print(f"\n🔍 Raw Status Distribution: {status_counts}")
-        print(f"📊 Total Test Executions: {metrics['total']} (including retries)")
-        print(f"🔄 Unique Tests: {len(test_names_seen)}")
-        print(f"🔁 Retried Tests: {metrics['retried']}")
-        print(f"\n📋 Test Details:")
+        print(f"📊 Metrics Summary for InfluxDB:")
+        print(f"  Total unique tests: {metrics['total']}")
+        print(f"  Tests passed: {metrics['passed']}")
+        print(f"  Tests failed: {metrics['failed']}")
+        print(f"  Tests skipped: {metrics['skipped']}")
+        print(f"  Tests broken: {metrics['broken']}")
+        print(f"  Tests retried: {metrics['retried']}")
+        print(f"  Pass rate: {metrics['pass_rate']:.1f}%")
+        print(f"\n📋 Test Details (Unique Tests - LATEST outcome):")
         for detail in test_details:
             print(detail)
         
