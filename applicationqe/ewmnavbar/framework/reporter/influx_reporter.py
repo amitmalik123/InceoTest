@@ -72,6 +72,10 @@ class AllureToInfluxDB:
                 with open(json_file, 'r') as f:
                     test_data = json.load(f)
                     test_name = test_data.get('name', '')
+                    test_uuid = test_data.get('uuid', '')
+                    status = test_data.get('status', 'unknown')
+                    
+                    print(f"  📄 {os.path.basename(json_file)}: name='{test_name}', uuid='{test_uuid[:8] if test_uuid else 'N/A'}', status={status}")
                     
                     if test_name:
                         results['tests'].append(test_data)
@@ -79,6 +83,8 @@ class AllureToInfluxDB:
                         if test_name not in test_names_seen:
                             test_names_seen[test_name] = True
                             results['test_names'].append(test_name)
+                    else:
+                        print(f"    ⚠️  WARNING: No 'name' field found in test data!")
             except Exception as e:
                 print(f"Error reading {json_file}: {e}")
         
@@ -86,6 +92,7 @@ class AllureToInfluxDB:
         print(f"\n📊 Test Execution Summary:")
         print(f"  Total test executions (including retries): {len(results['tests'])}")
         print(f"  Unique test names: {len(results['test_names'])}")
+        print(f"  Unique test names list: {results['test_names']}")
         if len(results['tests']) > len(results['test_names']):
             print(f"  Tests that were retried: {len(results['tests']) - len(results['test_names'])}")
         
