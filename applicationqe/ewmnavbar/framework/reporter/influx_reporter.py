@@ -23,7 +23,7 @@ class AllureToInfluxDB:
         self.influx_token = os.getenv('INFLUXDB_TOKEN', '')
         self.influx_org = os.getenv('INFLUXDB_ORG', 'default')
         self.influx_bucket = os.getenv('INFLUXDB_BUCKET', 'test-results')
-        self.allure_results_dir = os.getenv('ALLURE_RESULTS_DIR', './target/allure-results')
+        self.allure_results_dir = os.getenv('ALLURE_RESULTS_DIR', './allure-results')
         self.build_id = os.getenv('BUILD_ID', 'local')
         self.build_reason = os.getenv('BUILD_REASON', 'Manual')
         self.environment = os.getenv('ENVIRONMENT', 'test11')
@@ -66,7 +66,7 @@ class AllureToInfluxDB:
         summary_file = os.path.join(self.allure_results_dir, 'summary-results.json')
         if os.path.exists(summary_file):
             try:
-                with open(summary_file, 'r') as f:
+                with open(summary_file, 'r', encoding='utf-8') as f:
                     results['allure_summary'] = json.load(f)
                     print(f"📊 Found Allure summary: {results['allure_summary']}")
             except Exception as e:
@@ -80,7 +80,7 @@ class AllureToInfluxDB:
         test_names_seen = {}
         for json_file in json_files:
             try:
-                with open(json_file, 'r') as f:
+                with open(json_file, 'r', encoding='utf-8') as f:
                     test_data = json.load(f)
                     test_name = test_data.get('name', '')
                     test_uuid = test_data.get('uuid', '')
