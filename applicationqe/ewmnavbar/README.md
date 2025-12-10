@@ -4,9 +4,10 @@ For complete setup, execution, and details regarding the EWM-NavBar Automation S
 
 ### 🔗  [EWMNavBar Automation ReadMe](https://assetmark.atlassian.net/wiki/spaces/PE/pages/1761017888/eWMNavBar+Automation+ReadMe)
 
----
+### 🔗  [ProdEng Repo](https://dev.azure.com/AssetmarkInc/ProdEng/_git/qeautomation?version=GBplaywrightsrilu&path=%2Fapplicationqe%2Fewmnavbar)
 
-## 📂 Project Structure Note
+### 🔗  [ProdEng PipeLine](https://dev.azure.com/AssetmarkInc/ProdEng/_build?definitionId=1484&_a=summary)
+---
 
 > 💡 **Tip:** Keeping a clean folder structure makes it easier to maintain tests, locate files, and onboard new contributors quickly.
 >
