@@ -30,6 +30,7 @@ const commonUse = {
   colorScheme: "dark" as const,
   geolocation: { longitude: 12.492507, latitude: 41.889938 },
   permissions: ["geolocation"] as const,
+  ignoreHTTPSErrors: true, // Ignore SSL certificate validation for test environments
 };
 
 export default defineConfig({
@@ -43,7 +44,11 @@ export default defineConfig({
   forbidOnly: isCI,
   retries: isCI ? 2 : 0,
   workers: 1,
-  reporter: "html",
+  reporter: [
+    ['allure-playwright', { outputFolder: join(__dirname, 'target/allure-results') }],
+    ['html', { outputFolder: join(__dirname, 'playwright-report') }],
+    ['junit', { outputFile: join(__dirname, 'test-results/junit-report.xml') }],
+  ],
 
   use: {
     ...commonUse,

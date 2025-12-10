@@ -1,3 +1,20 @@
+# =============================================================================
+# PLAYWRIGHT QA AUTOMATION PIPELINE
+# =============================================================================
+# TEST FILTER REFERENCE:
+# =====================
+# Authenticated Tests: sub-menus, Accounts, Clients, Strategists, Overview,
+#   Insights, Advisor Benefits, Statements & Reports, Strategies, Research,
+#   News, Cash, SMA, Guided Portfolios, DAF, Savos, TMS, Business Consulting,
+#   Lending, Financial Planning, Retirement Services, Knowledge Base,
+#   Contact Us, Tax Resources, Fees, Glossary, Custodial Services,
+#   Compliance Resources, Marketing Resources, Events, RMD Resources,
+#   Closed, Needs Action, Open Items
+# 
+# Unauthenticated Tests: Similar filters available
+# Unit Tests: Search by test name keywords
+# =============================================================================
+
 pool:
   name: 'ubuntu2204-qa'
   timeoutInMinutes: 10
@@ -22,11 +39,10 @@ parameters:
   - name: environment
     displayName: "Target Environment (manual run)"
     type: string    
-    default: "test11"
+    default: "test"
     values:
-      - test11
-      - test10
-      - silo
+      - test
+      - dev
 
   - name: testProject
     displayName: "Test Project to Run"
@@ -41,24 +57,9 @@ parameters:
       - setup
 
   - name: testFilter
-    displayName: "Test File/Name Filter (e.g., Menus, SubMenus, or leave empty for all)"
+    displayName: "Test Filter (e.g., 'sub-menus', 'Accounts', 'Clients', 'Strategists', 'Overview', 'Insights', 'Strategies', 'Research', 'Investments', 'Lending', 'Financial Planning', 'Knowledge Base', 'Contact Us', or leave blank for all)"
     type: string
-    default: ""
-
-  - name: tag
-    displayName: "Cucumber Tag to Run"
-    type: string
-    default: "@smokeTest"
- 
-  - name: threadCount
-    displayName: "Number of Threads"
-    type: string
-    default: "2"
- 
-  - name: runnerFile
-    displayName: "Runner File"
-    type: string
-    default: "*"
+    default: "all"
 
 # -----------------------------
 # Job Section
@@ -66,14 +67,19 @@ parameters:
 jobs:
 - job: RunPlaywrightTests
   displayName: "Run Playwright Tests"
-  timeoutInMinutes: 30
+  timeoutInMinutes: 60
 
   variables:
     buildPath: '$(Build.SourcesDirectory)'
+    ewmnavbarPath: '$(Build.SourcesDirectory)/applicationqe/ewmnavbar'
     environment: ${{ parameters.environment }}
-    allureResultsDir: '$(Build.SourcesDirectory)/target/allure-results'
-    allureReportDir: '$(Build.SourcesDirectory)/target/allure-report'
+    allureResultsDir: '$(Build.SourcesDirectory)/applicationqe/ewmnavbar/target/allure-results'
+    allureReportDir: '$(Build.SourcesDirectory)/applicationqe/ewmnavbar/target/allure-report'
     allureToolsDir: '$(Build.ArtifactStagingDirectory)/allure-tools'
+    INFLUXDB_URL: 'http://azncc03perf.corp.local:8086'
+    INFLUXDB_ORG: 'MF'
+    INFLUXDB_BUCKET: 'AutomationData'
+    INFLUXDB_TOKEN: '$(InfluxDBToken)'
 
   steps:
   - checkout: self
@@ -85,22 +91,17 @@ jobs:
         echo "##vso[task.setvariable variable=environment]${{ parameters.environment }}"
         echo "##vso[task.setvariable variable=testProject]${{ parameters.testProject }}"
         echo "##vso[task.setvariable variable=testFilter]${{ parameters.testFilter }}"
-        echo "##vso[task.setvariable variable=tag]${{ parameters.tag }}"
-        echo "##vso[task.setvariable variable=threadCount]${{ parameters.threadCount }}"
-        echo "##vso[task.setvariable variable=runnerFile]${{ parameters.runnerFile }}"
       else
-        echo "##vso[task.setvariable variable=environment]test11"
+        echo "##vso[task.setvariable variable=environment]test"
         echo "##vso[task.setvariable variable=testProject]all"
         echo "##vso[task.setvariable variable=testFilter]"
-        echo "##vso[task.setvariable variable=tag]@smokeTest"
-        echo "##vso[task.setvariable variable=threadCount]2"
-        echo "##vso[task.setvariable variable=runnerFile]*"
       fi
  
     displayName: "Set Environment Variables Dynamically"
 
   - script: |
       echo "##vso[task.setvariable variable=ENVIRONMENT]$(environment)"
+      echo "##vso[task.setvariable variable=ENV]$(environment)"
     displayName: "Set Playwright Environment Variables"
 
   - script: |
@@ -108,30 +109,40 @@ jobs:
       echo "Environment: $(environment)"
       echo "Test Project: $(testProject)"
       echo "Test Filter: $(testFilter)"
-      echo "ThreadCount: $(threadCount)"
     displayName: "Print Parameters"
 
   - script: |
       echo "Building Playwright test command..."
-      TEST_CMD="npx playwright test --reporter=allure-playwright,html,junit"
+      # DON'T override reporters on command line - let playwright.config.ts handle all reporters
+      # This ensures junit, allure-playwright, and html reporters all get proper options from config
+      TEST_CMD="npx playwright test"
       
       # Add project filter if not "all"
       if [ "$(testProject)" != "all" ]; then
-        TEST_CMD="$TEST_CMD --project=$(testProject)"
-        echo "Running project: $(testProject)"
+        # Authenticated tests require setup to run first (dependency)
+        if [ "$(testProject)" = "authenticated" ]; then
+          TEST_CMD="$TEST_CMD --project=setup --project=authenticated"
+          echo "Running setup + authenticated projects (authenticated depends on setup)"
+        else
+          TEST_CMD="$TEST_CMD --project=$(testProject)"
+          echo "Running project: $(testProject)"
+        fi
       else
-        echo "Running all projects"
+        echo "Running all projects (all projects will run with their dependencies)"
       fi
       
-      # Add test name filter if provided
-      if [ ! -z "$(testFilter)" ]; then
-        TEST_CMD="$TEST_CMD $(testFilter)"
-        echo "Filtering tests: $(testFilter)"
+      # Add test name filter if provided and not "all"
+      if [ "$(testFilter)" != "all" ] && [ ! -z "$(testFilter)" ]; then
+        TEST_CMD="$TEST_CMD --grep $(testFilter)"
+        echo "Filtering tests by pattern: $(testFilter)"
+      else
+        echo "Running all tests (no filter applied)"
       fi
       
       echo "Final command: $TEST_CMD"
       echo "##vso[task.setvariable variable=TEST_CMD]$TEST_CMD"
     displayName: "Build Playwright Command"
+    workingDirectory: $(Build.SourcesDirectory)/applicationqe/ewmnavbar
     continueOnError: false
 
   - task: NodeTool@0
@@ -140,9 +151,11 @@ jobs:
     displayName: "Install Node.js"
 
   - script: npm ci --ignore-scripts
+    workingDirectory: $(Build.SourcesDirectory)/applicationqe/ewmnavbar
     displayName: "Install Dependencies"
 
   - script: npx playwright install chromium
+    workingDirectory: $(Build.SourcesDirectory)/applicationqe/ewmnavbar
     displayName: "Install Playwright Browsers"
     continueOnError: false
 
@@ -170,7 +183,7 @@ jobs:
     displayName: "Install and Verify Allure CLI"
 
   - script: |
-      mkdir -p "$(buildPath)/target/allure-results"
+      mkdir -p "$(ewmnavbarPath)/target/allure-results"
       echo "========================================"
       echo "PLAYWRIGHT TEST EXECUTION START"
       echo "========================================"
@@ -179,18 +192,23 @@ jobs:
       echo "Test Filter: $(testFilter)"
       echo "Environment: $(environment)"
       echo "Build Path: $(buildPath)"
+      echo "EWMNavbar Path: $(ewmnavbarPath)"
       echo "Allure Results Dir: $(allureResultsDir)"
       echo "========================================"
       echo ""
       echo "Setting up environment variables..."
-      export ALLURE_RESULTS_DIR="$(buildPath)/target/allure-results"
+      export ALLURE_RESULTS_DIR="$(allureResultsDir)"
       export CI=true
+      export ENV="$(environment)"
       echo "✓ ALLURE_RESULTS_DIR=$ALLURE_RESULTS_DIR"
       echo "✓ CI=$CI"
-      echo ""
+      echo "✓ ENV=$ENV"
       echo "Current working directory: $(pwd)"
       echo "Node version: $(node --version)"
       echo "NPM version: $(npm --version)"
+      echo ""
+      echo "Checking playwright.config.ts for reporter configuration..."
+      grep -A 5 "reporter:" playwright.config.ts || echo "Could not find reporter config"
       echo ""
       echo "Executing: $(TEST_CMD)"
       echo "========================================"
@@ -203,48 +221,87 @@ jobs:
       echo "##vso[task.setvariable variable=TEST_EXIT_CODE]${TEST_EXIT_CODE:-0}"
       echo ""
       echo "Checking for generated reports..."
-      echo "Looking for JUnit XML files:"
-      find . -name "junit*.xml" -type f 2>/dev/null | head -10 || echo "No JUnit files found"
       echo ""
-      echo "Listing Allure results:"
-      ls -la $(allureResultsDir) 2>/dev/null || echo "Allure results directory not found"
+      echo "===== JUNIT FILES ====="
+      find . -name "junit*.xml" -type f 2>/dev/null | head -10 || echo "No JUnit files found in current directory"
       echo ""
-      echo "Listing Playwright reports:"
-      ls -la $(buildPath)/playwright-report 2>/dev/null || echo "Playwright report directory not found"
+      echo "===== TEST-RESULTS DIRECTORY ====="
+      if [ -d "./test-results" ]; then
+        echo "✓ test-results directory exists"
+        ls -lah ./test-results
+      else
+        echo "✗ test-results directory does NOT exist"
+      fi
+      echo ""
+      echo "===== ALLURE RESULTS ====="
+      ls -la $(allureResultsDir) 2>/dev/null | head -20 || echo "Allure results directory not found"
+      echo ""
+      echo "===== PLAYWRIGHT REPORTS ====="
+      if [ -d "./playwright-report" ]; then
+        echo "✓ playwright-report directory exists"
+        ls -la ./playwright-report
+      else
+        echo "✗ playwright-report directory does NOT exist"
+      fi
+      echo ""
+      echo "===== ALL FILES IN WORKING DIRECTORY ====="
+      ls -lah . | grep -E "(test|allure|playwright|junit)" || echo "No matching directories/files found"
+      echo ""
+      echo "===== RECURSIVE SEARCH FOR XML FILES ====="
+      find . -name "*.xml" -type f 2>/dev/null | head -30 || echo "No XML files found"
     displayName: "Run Playwright Tests with Allure"
+    workingDirectory: $(Build.SourcesDirectory)/applicationqe/ewmnavbar
     continueOnError: true
 
   - script: |
       echo "Checking for JUnit test results..."
-      echo "Looking in: $(buildPath)"
-      find $(buildPath) -type f -name "*.xml" | grep -E "(junit|test)" | head -20
+      echo "Looking in: $(buildPath)/applicationqe/ewmnavbar"
+      find $(buildPath)/applicationqe/ewmnavbar -type f -name "*.xml" | grep -E "(junit|test)" | head -20 || echo "No XML files found"
       echo "---"
       echo "test-results contents:"
-      ls -la $(buildPath)/test-results 2>/dev/null || echo "test-results directory not found"
+      ls -la $(buildPath)/applicationqe/ewmnavbar/test-results 2>/dev/null || echo "test-results directory not found"
       echo "---"
       echo "Current directory contents:"
-      ls -la 2>/dev/null | grep -E "(junit|test-results|xml)"
+      ls -la $(buildPath)/applicationqe/ewmnavbar 2>/dev/null | grep -E "(junit|test-results|xml|playwright)" || echo "No matching files found"
+      echo "---"
+      echo "ALL files in ewmnavbar directory:"
+      ls -lR $(buildPath)/applicationqe/ewmnavbar 2>/dev/null | head -100 || echo "Directory not found"
+      echo "---"
+      echo "Copying test results to expected location..."
+      mkdir -p $(buildPath)/test-results
+      cp -r $(buildPath)/applicationqe/ewmnavbar/test-results/* $(buildPath)/test-results 2>/dev/null || echo "No test-results to copy"
+      cp -r $(buildPath)/applicationqe/ewmnavbar/playwright-report $(buildPath)/playwright-report 2>/dev/null || echo "No playwright-report to copy"
     displayName: "Debug Test Results Location"
     condition: always()
+    continueOnError: true
 
   - script: |
       echo "Checking Allure Results Directory..."
       echo "Results Dir: $(allureResultsDir)"
-      ls -la $(allureResultsDir) 2>/dev/null || echo "Results dir not found"
+      if [ -d "$(allureResultsDir)" ]; then
+        echo "✓ Directory exists"
+        echo "Contents:"
+        ls -la $(allureResultsDir) 2>/dev/null | head -20
+        echo ""
+        echo "Total files in Allure results:"
+        find $(allureResultsDir) -type f 2>/dev/null | wc -l
+      else
+        echo "✗ Directory does NOT exist - will be created during Allure report generation"
+      fi
     displayName: "Debug Allure Results Directory"
     condition: always()
 
   - script: |
-      mkdir -p "$(buildPath)/target/allure-report"
-      echo "Allure Report Directory created: $(buildPath)/target/allure-report"
+      mkdir -p "$(ewmnavbarPath)/target/allure-report"
+      echo "Allure Report Directory created: $(ewmnavbarPath)/target/allure-report"
     displayName: "Create Allure Report Directory"
 
   - script: |
       echo "Checking for Allure results..."
-      # Prefer repo `target/allure-results` folder. If not present, fall back to repo-root `allure-results` and copy into target.
-      SRC_DIR="$(buildPath)/target/allure-results"
-      ALT_DIR="$(buildPath)/allure-results"
-      REPORT_DIR="$(buildPath)/target/allure-report"
+      # Check ewmnavbar allure-results folder
+      SRC_DIR="$(allureResultsDir)"
+      ALT_DIR="$(ewmnavbarPath)/allure-results"
+      REPORT_DIR="$(allureReportDir)"
 
       if [ ! -d "$SRC_DIR" ] || [ -z "$(ls -A "$SRC_DIR" 2>/dev/null)" ]; then
         if [ -d "$ALT_DIR" ] && [ -n "$(ls -A "$ALT_DIR" 2>/dev/null)" ]; then
@@ -267,26 +324,185 @@ jobs:
 
   - script: |
       echo "Verifying report directories before publish..."
-      echo "Results Dir: $(allureResultsDir)"
-      echo "Report Dir: $(allureReportDir)"
-      ls -la $(allureResultsDir) 2>/dev/null || echo "Results dir not found"
-      ls -la $(allureReportDir) 2>/dev/null || echo "Report dir not found"
+      echo ""
+      echo "Test Results (Build Root):"
+      if [ -f "$(buildPath)/test-results/junit-report.xml" ]; then
+        echo "✓ JUnit Report: $(buildPath)/test-results/junit-report.xml"
+        ls -lh $(buildPath)/test-results/junit-report.xml
+      else
+        echo "⚠ JUnit Report: NOT FOUND"
+      fi
+      
+      echo ""
+      echo "Allure Report:"
+      if [ -d "$(allureReportDir)" ]; then
+        echo "✓ Report Dir: $(allureReportDir)"
+        ls -la $(allureReportDir) 2>/dev/null | head -5
+      else
+        echo "⚠ Report Dir: NOT FOUND"
+      fi
+      
+      echo ""
+      echo "Allure Results:"
+      if [ -d "$(allureResultsDir)" ]; then
+        echo "✓ Results Dir: $(allureResultsDir)"
+        echo "  Files: $(find $(allureResultsDir) -type f 2>/dev/null | wc -l)"
+      else
+        echo "⚠ Results Dir: NOT FOUND"
+      fi
     displayName: "Verify Report Paths"
     condition: always()
 
   - script: |
-      echo "Generating comprehensive JUnit XML report from test execution..."
-      mkdir -p $(buildPath)/test-results
+      echo "Generating JUnit report from test results..."
+      echo ""
       
-      python3 scripts/generate_junit_report.py \
-        "$(buildPath)/target/allure-results" \
-        "$(buildPath)/test-results/junit-report.xml"
+      # Define paths
+      SRC_TEST_RESULTS="$(ewmnavbarPath)/test-results"
+      SRC_JUNIT="$(ewmnavbarPath)/test-results/junit-report.xml"
+      DEST_DIR="$(buildPath)/test-results"
+      DEST_JUNIT="$(buildPath)/test-results/junit-report.xml"
       
-      echo "---Report Preview---"
-      head -30 $(buildPath)/test-results/junit-report.xml || echo "Report not found"
-    displayName: "Generate JUnit XML Report"
+      echo "Source junit: $SRC_JUNIT"
+      echo "Destination junit: $DEST_JUNIT"
+      echo ""
+      
+      # Step 1: Check if Playwright generated the junit report
+      if [ -f "$SRC_JUNIT" ]; then
+        echo "✓ Found junit-report.xml from Playwright"
+        echo "Copying to build root..."
+        mkdir -p "$DEST_DIR"
+        cp "$SRC_JUNIT" "$DEST_JUNIT"
+        echo "✓ JUnit report copied to: $DEST_JUNIT"
+        echo ""
+        echo "Report details:"
+        ls -lh "$DEST_JUNIT"
+        echo ""
+        echo "Report content (first 30 lines):"
+        head -30 "$DEST_JUNIT"
+      else
+        echo "⚠ junit-report.xml not found from Playwright at $SRC_JUNIT"
+        echo ""
+        echo "Checking what files exist in ewmnavbar..."
+        ls -la "$(ewmnavbarPath)" 2>/dev/null | grep -E "(test|junit|xml)" || echo "No test-related files found"
+        echo ""
+        echo "Searching for any junit/xml files in ewmnavbar..."
+        find "$(ewmnavbarPath)" -name "*.xml" -type f 2>/dev/null | head -20 || echo "No XML files found"
+        echo ""
+        
+        # Step 2: If Playwright didn't generate it, create from Allure results if available
+        echo "Attempting to extract test count from Allure results..."
+        ALLURE_RESULTS_DIR="$(allureResultsDir)"
+        
+        if [ -d "$ALLURE_RESULTS_DIR" ] && [ ! -z "$(ls -A "$ALLURE_RESULTS_DIR" 2>/dev/null)" ]; then
+          echo "✓ Found Allure results, extracting test statistics..."
+          
+          # Count test results from Allure JSON files
+          TEST_COUNT=$(find "$ALLURE_RESULTS_DIR" -name "*-result.json" -type f 2>/dev/null | wc -l)
+          FAILED_COUNT=$(find "$ALLURE_RESULTS_DIR" -name "*-result.json" -exec grep -l '"status":"failed"' {} \; 2>/dev/null | wc -l)
+          PASSED_COUNT=$((TEST_COUNT - FAILED_COUNT))
+          SKIPPED_COUNT=$(find "$ALLURE_RESULTS_DIR" -name "*-result.json" -exec grep -l '"status":"skipped"' {} \; 2>/dev/null | wc -l)
+          
+          echo "  Tests: $TEST_COUNT"
+          echo "  Passed: $PASSED_COUNT"
+          echo "  Failed: $FAILED_COUNT"
+          echo "  Skipped: $SKIPPED_COUNT"
+          echo ""
+          echo "Creating JUnit report from Allure results..."
+          
+          mkdir -p "$DEST_DIR"
+          
+          # Generate JUnit XML from Allure results
+          printf '<?xml version="1.0" encoding="UTF-8"?>\n' > "$DEST_JUNIT"
+          printf '<testsuites name="Playwright Test Results" tests="%d" failures="%d" skipped="%d" time="0.000">\n' "$TEST_COUNT" "$FAILED_COUNT" "$SKIPPED_COUNT" >> "$DEST_JUNIT"
+          printf '  <testsuite name="Playwright Tests" tests="%d" failures="%d" skipped="%d" time="0.000">\n' "$TEST_COUNT" "$FAILED_COUNT" "$SKIPPED_COUNT" >> "$DEST_JUNIT"
+          
+          # Parse Allure results and add test cases
+          find "$ALLURE_RESULTS_DIR" -name "*-result.json" -type f 2>/dev/null | while read -r result_file; do
+            TEST_NAME=$(grep -o '"name":"[^"]*' "$result_file" | head -1 | cut -d'"' -f4 || echo "Unknown Test")
+            STATUS=$(grep -o '"status":"[^"]*' "$result_file" | head -1 | cut -d'"' -f4 || echo "unknown")
+            
+            if [ "$STATUS" = "passed" ]; then
+              printf '    <testcase classname="Playwright" name="%s" time="0.000"></testcase>\n' "$TEST_NAME" >> "$DEST_JUNIT"
+            elif [ "$STATUS" = "failed" ]; then
+              printf '    <testcase classname="Playwright" name="%s" time="0.000">\n' "$TEST_NAME" >> "$DEST_JUNIT"
+              printf '      <failure message="Test failed"></failure>\n' >> "$DEST_JUNIT"
+              printf '    </testcase>\n' >> "$DEST_JUNIT"
+            elif [ "$STATUS" = "skipped" ]; then
+              printf '    <testcase classname="Playwright" name="%s" time="0.000">\n' "$TEST_NAME" >> "$DEST_JUNIT"
+              printf '      <skipped></skipped>\n' >> "$DEST_JUNIT"
+              printf '    </testcase>\n' >> "$DEST_JUNIT"
+            fi
+          done
+          
+          printf '    <properties>\n' >> "$DEST_JUNIT"
+          printf '      <property name="source" value="Playwright Allure Results"/>\n' >> "$DEST_JUNIT"
+          printf '    </properties>\n' >> "$DEST_JUNIT"
+          printf '  </testsuite>\n' >> "$DEST_JUNIT"
+          printf '</testsuites>\n' >> "$DEST_JUNIT"
+          
+          echo "✓ JUnit report created from Allure results"
+          echo ""
+          echo "Report details:"
+          ls -lh "$DEST_JUNIT"
+        else
+          echo "✗ No Allure results found, creating empty JUnit report..."
+          mkdir -p "$DEST_DIR"
+          
+          printf '<?xml version="1.0" encoding="UTF-8"?>\n' > "$DEST_JUNIT"
+          printf '<testsuites name="Playwright Test Results" tests="0" failures="0" skipped="0" time="0.000">\n' >> "$DEST_JUNIT"
+          printf '  <testsuite name="Playwright Tests" tests="0" failures="0" skipped="0" time="0.000">\n' >> "$DEST_JUNIT"
+          printf '    <properties>\n' >> "$DEST_JUNIT"
+          printf '      <property name="note" value="No test results available - Check Allure report for details"/>\n' >> "$DEST_JUNIT"
+          printf '    </properties>\n' >> "$DEST_JUNIT"
+          printf '  </testsuite>\n' >> "$DEST_JUNIT"
+          printf '</testsuites>\n' >> "$DEST_JUNIT"
+          
+          echo "✓ Empty JUnit report created (Check Allure report for test details)"
+        fi
+      fi
+      
+      echo ""
+      echo "Final JUnit report location: $DEST_JUNIT"
+      echo "File exists: $([ -f "$DEST_JUNIT" ] && echo 'YES' || echo 'NO')"
+    displayName: "Generate JUnit Report for Publishing"
     condition: always()
     continueOnError: true
+
+  - task: UsePythonVersion@0
+    inputs:
+      versionSpec: '3.x'
+    displayName: "Setup Python for InfluxDB Reporter"
+
+  - script: |
+      echo "Installing InfluxDB client..."
+      pip install -r $(Build.SourcesDirectory)/applicationqe/ewmnavbar/framework/reporter/requirements.txt
+    displayName: "Install Python Dependencies"
+    continueOnError: false
+
+  - script: |
+      echo "Pushing test metrics to InfluxDB..."
+      export INFLUXDB_URL="${INFLUXDB_URL}"
+      export INFLUXDB_TOKEN="${INFLUXDB_TOKEN}"
+      export INFLUXDB_ORG="${INFLUXDB_ORG}"
+      export INFLUXDB_BUCKET="${INFLUXDB_BUCKET}"
+      export ALLURE_RESULTS_DIR="$(allureResultsDir)"
+      export ENVIRONMENT="$(environment)"
+      export BUILD_ID="$(Build.BuildId)"
+      export BUILD_REASON="$(Build.Reason)"
+      export SYSTEM_TEAMFOUNDATIONCOLLECTIONURI="$(System.TeamFoundationCollectionUri)"
+      export SYSTEM_TEAMPROJECT="$(System.TeamProject)"
+      export BUILD_BUILDID="$(Build.BuildId)"
+
+      python3 $(Build.SourcesDirectory)/applicationqe/ewmnavbar/framework/reporter/influx_reporter.py
+    displayName: "Push Metrics to InfluxDB"
+    condition: always()
+    continueOnError: true
+    env:
+      INFLUXDB_URL: $(INFLUXDB_URL)
+      INFLUXDB_TOKEN: $(INFLUXDB_TOKEN)
+      INFLUXDB_ORG: $(INFLUXDB_ORG)
+      INFLUXDB_BUCKET: $(INFLUXDB_BUCKET)
 
   - task: PublishBuildArtifacts@1
     displayName: "Publish Test Results Directory"
@@ -311,7 +527,7 @@ jobs:
   - task: PublishBuildArtifacts@1
     displayName: "Publish Playwright HTML Report"
     inputs:
-      PathtoPublish: '$(buildPath)/playwright-report'
+      PathtoPublish: '$(ewmnavbarPath)/playwright-report'
       ArtifactName: 'PlaywrightReport'
       publishLocation: 'Container'
     condition: always()
@@ -319,7 +535,7 @@ jobs:
   - task: PublishBuildArtifacts@1
     displayName: "Publish Allure Report"
     inputs:
-      PathtoPublish: '$(buildPath)/target/allure-report'
+      PathtoPublish: '$(allureReportDir)'
       ArtifactName: 'AllureReport'
       publishLocation: 'Container'
     condition: always()
@@ -327,7 +543,7 @@ jobs:
   - task: PublishBuildArtifacts@1
     displayName: "Publish Allure Results Data"
     inputs:
-      PathtoPublish: '$(buildPath)/target/allure-results'
+      PathtoPublish: '$(allureResultsDir)'
       ArtifactName: 'AllureResults'
       publishLocation: 'Container'
     condition: always()
