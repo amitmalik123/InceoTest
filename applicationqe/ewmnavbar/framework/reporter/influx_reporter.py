@@ -165,6 +165,8 @@ class AllureToInfluxDB:
         all_tests = results.get('tests', [])
         behaviors = {}
         
+        print(f"\n[BEHAVIOR ANALYSIS] Processing {len(all_tests)} tests for behavior grouping...")
+        
         # Build a dictionary of LATEST result for each unique test
         latest_results_by_id = {}
         for test in all_tests:
@@ -208,6 +210,9 @@ class AllureToInfluxDB:
             behavior_name = ''
             auth_type = 'unknown'
             
+            print(f"  Processing test: {test_name}")
+            print(f"    Labels: {[(l.get('name'), l.get('value')) for l in labels]}")
+            
             for label in labels:
                 label_name = label.get('name', '')
                 label_value = label.get('value', '')
@@ -222,6 +227,8 @@ class AllureToInfluxDB:
             # If no behavior found from labels, try to extract from test name
             if not behavior_name:
                 behavior_name = test_name
+            
+            print(f"    Behavior: {behavior_name}, Auth: {auth_type}")
             
             # Create behavior key: behavior_name::auth_type
             behavior_key = f"{behavior_name}::{auth_type}"
@@ -279,6 +286,10 @@ class AllureToInfluxDB:
             
             # Remove durations list (not needed for InfluxDB)
             del data['durations']
+        
+        print(f"\n[BEHAVIOR SUMMARY] Found {len(behaviors)} unique behaviors:")
+        for behavior_key, data in behaviors.items():
+            print(f"  - {data['behavior_name']} ({data['auth_type']}): {data['count']} tests")
         
         return behaviors
     
