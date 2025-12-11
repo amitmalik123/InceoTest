@@ -1,0 +1,21 @@
+{
+  "name": "sub-menus - All Clients (authenticated)",
+  "status": "passed",
+  "start": 3000,
+  "stop": 20000,
+  "uuid": "test-uuid-3",
+  "labels": [
+    {
+      "name": "parentSuite",
+      "value": "authenticated"
+    },
+    {
+      "name": "package",
+      "value": "proposals"
+    },
+    {
+      "name": "suite",
+      "value": "NewAccountWizard"
+    }
+  ]
+}

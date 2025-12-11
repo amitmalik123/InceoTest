@@ -178,6 +178,145 @@ def generate_junit_xml(results, output_file):
     testsuites.set('time', f'{total_duration:.6f}')  # More precision like Playwright
     testsuites.set('timestamp', datetime.now().isoformat())
     
+    # Add comprehensive summary properties to testsuites
+    summary_props = ET.SubElement(testsuites, 'properties')
+    
+    # Test execution summary
+    summary_props_data = [
+        ('total_tests', str(total_tests)),
+        ('passed_tests', str(passed)),
+        ('failed_tests', str(failed)),
+        ('skipped_tests', str(skipped)),
+        ('pass_rate', f'{(passed/total_tests*100):.2f}%' if total_tests > 0 else '0%'),
+        ('total_duration_seconds', f'{total_duration:.6f}'),
+        ('average_duration_seconds', f'{(total_duration/total_tests):.6f}' if total_tests > 0 else '0'),
+    ]
+    
+    # Test names list
+    test_names = [r.get('name', 'Unknown') for r in results]
+    summary_props_data.append(('test_names', '|'.join(test_names)))
+    
+    # Unique test names (excluding retries)
+    unique_test_names = list(set(test_names))
+    summary_props_data.append(('unique_test_names', '|'.join(unique_test_names)))
+    summary_props_data.append(('unique_test_count', str(len(unique_test_names))))
+    
+    # Retry information
+    retried_tests = sum(1 for r in results if r.get('_is_retry', False))
+    summary_props_data.append(('retried_tests', str(retried_tests)))
+    summary_props_data.append(('retry_rate', f'{(retried_tests/total_tests*100):.2f}%' if total_tests > 0 else '0%'))
+    
+    # Project and environment details
+    project_name = os.getenv('PROJECT_NAME', 'QE Automation')
+    project_version = os.getenv('PROJECT_VERSION', os.getenv('BUILD_BUILDNUMBER', '1.0.0'))
+    environment = os.getenv('ENVIRONMENT', 'test11')
+    branch = os.getenv('BUILD_SOURCEBRANCHNAME', os.getenv('BRANCH', 'main'))
+    
+    summary_props_data.extend([
+        ('project_name', project_name),
+        ('project_version', project_version),
+        ('environment', environment),
+        ('branch', branch),
+    ])
+    
+    # Build and CI details
+    build_id = os.getenv('BUILD_ID', os.getenv('BUILD_BUILDID', ''))
+    build_reason = os.getenv('BUILD_REASON', os.getenv('BUILD_REASON', 'Manual'))
+    ci_system = os.getenv('CI', os.getenv('TF_BUILD', 'false'))
+    agent_name = os.getenv('AGENT_NAME', os.getenv('COMPUTERNAME', 'localhost'))
+    
+    summary_props_data.extend([
+        ('build_id', build_id),
+        ('build_reason', build_reason),
+        ('ci_system', 'true' if ci_system else 'false'),
+        ('agent_name', agent_name),
+    ])
+    
+    # Test categorization summary
+    packages = set()
+    unique_suites = set()
+    parent_suites = set()
+    epics = set()
+    features = set()
+    severities = set()
+    
+    for result in results:
+        labels = result.get('labels', [])
+        for label in labels:
+            label_name = label.get('name', '')
+            label_value = label.get('value', '')
+            if label_name == 'package':
+                packages.add(label_value)
+            elif label_name == 'suite':
+                unique_suites.add(label_value)
+            elif label_name == 'parentSuite':
+                parent_suites.add(label_value)
+            elif label_name == 'epic':
+                epics.add(label_value)
+            elif label_name == 'feature':
+                features.add(label_value)
+            elif label_name == 'severity':
+                severities.add(label_value)
+    
+    summary_props_data.extend([
+        ('packages', '|'.join(sorted(packages))),
+        ('suites', '|'.join(sorted(unique_suites))),
+        ('parent_suites', '|'.join(sorted(parent_suites))),
+        ('epics', '|'.join(sorted(epics))),
+        ('features', '|'.join(sorted(features))),
+        ('severities', '|'.join(sorted(severities))),
+    ])
+    
+    # Performance metrics
+    durations = [calculate_duration(r) for r in results]
+    if durations:
+        min_duration = min(durations)
+        max_duration = max(durations)
+        avg_duration = sum(durations) / len(durations)
+        median_duration = sorted(durations)[len(durations)//2]
+        
+        summary_props_data.extend([
+            ('min_duration_seconds', f'{min_duration:.6f}'),
+            ('max_duration_seconds', f'{max_duration:.6f}'),
+            ('avg_duration_seconds', f'{avg_duration:.6f}'),
+            ('median_duration_seconds', f'{median_duration:.6f}'),
+        ])
+    
+    # Execution timing
+    if results:
+        start_times = [r.get('start', 0) for r in results if r.get('start')]
+        stop_times = [r.get('stop', 0) for r in results if r.get('stop')]
+        
+        if start_times and stop_times:
+            execution_start = min(start_times)
+            execution_end = max(stop_times)
+            execution_duration = (execution_end - execution_start) / 1000.0
+            
+            summary_props_data.extend([
+                ('execution_start_timestamp', str(execution_start)),
+                ('execution_end_timestamp', str(execution_end)),
+                ('execution_duration_seconds', f'{execution_duration:.6f}'),
+                ('execution_start_iso', datetime.fromtimestamp(execution_start / 1000).isoformat() if execution_start else ''),
+                ('execution_end_iso', datetime.fromtimestamp(execution_end / 1000).isoformat() if execution_end else ''),
+            ])
+    
+    # Test framework and technology details
+    summary_props_data.extend([
+        ('test_framework', 'Playwright'),
+        ('test_language', 'TypeScript'),
+        ('test_runner', 'playwright/test'),
+        ('reporting_tool', 'Allure'),
+        ('junit_generator', 'Custom Enhanced Generator'),
+        ('generated_at', datetime.now().isoformat()),
+    ])
+    
+    # Add all summary properties
+    for prop_name, prop_value in summary_props_data:
+        if prop_value:  # Only add non-empty properties
+            prop = ET.SubElement(summary_props, 'property')
+            prop.set('name', prop_name)
+            prop.set('value', str(prop_value))
+    
     # Create testsuite for each file
     for suite_name, suite_results in suites.items():
         suite_passed = sum(1 for r in suite_results if r.get('status') == 'passed')
@@ -194,6 +333,66 @@ def generate_junit_xml(results, output_file):
         testsuite.set('time', f'{suite_duration:.6f}')  # More precision
         testsuite.set('timestamp', datetime.now().isoformat())
         testsuite.set('hostname', os.getenv('COMPUTERNAME', os.getenv('HOSTNAME', 'localhost')))
+        
+        # Add testsuite-level summary properties
+        suite_props = ET.SubElement(testsuite, 'properties')
+        
+        # Suite-specific metrics
+        suite_props_data = [
+            ('suite_tests', str(len(suite_results))),
+            ('suite_passed', str(suite_passed)),
+            ('suite_failed', str(suite_failed)),
+            ('suite_skipped', str(suite_skipped)),
+            ('suite_duration_seconds', f'{suite_duration:.6f}'),
+            ('suite_pass_rate', f'{(suite_passed/len(suite_results)*100):.2f}%' if suite_results else '0%'),
+        ]
+        
+        # Suite test names
+        suite_test_names = [r.get('name', 'Unknown') for r in suite_results]
+        suite_props_data.append(('suite_test_names', '|'.join(suite_test_names)))
+        
+        # Suite categorization
+        suite_packages = set()
+        suite_suites = set()
+        suite_parent_suites = set()
+        
+        for result in suite_results:
+            labels = result.get('labels', [])
+            for label in labels:
+                label_name = label.get('name', '')
+                label_value = label.get('value', '')
+                if label_name == 'package':
+                    suite_packages.add(label_value)
+                elif label_name == 'suite':
+                    suite_suites.add(label_value)
+                elif label_name == 'parentSuite':
+                    suite_parent_suites.add(label_value)
+        
+        suite_props_data.extend([
+            ('suite_packages', '|'.join(sorted(suite_packages))),
+            ('suite_suites', '|'.join(sorted(suite_suites))),
+            ('suite_parent_suites', '|'.join(sorted(suite_parent_suites))),
+        ])
+        
+        # Suite performance metrics
+        suite_durations = [calculate_duration(r) for r in suite_results]
+        if suite_durations:
+            suite_min_duration = min(suite_durations)
+            suite_max_duration = max(suite_durations)
+            suite_avg_duration = sum(suite_durations) / len(suite_durations)
+            
+            suite_props_data.extend([
+                ('suite_min_duration', f'{suite_min_duration:.6f}'),
+                ('suite_max_duration', f'{suite_max_duration:.6f}'),
+                ('suite_avg_duration', f'{suite_avg_duration:.6f}'),
+            ])
+        
+        # Add suite properties
+        for prop_name, prop_value in suite_props_data:
+            if prop_value:
+                prop = ET.SubElement(suite_props, 'property')
+                prop.set('name', prop_name)
+                prop.set('value', str(prop_value))
         
         # Add individual test cases
         for result in suite_results:
@@ -439,6 +638,30 @@ def generate_junit_xml(results, output_file):
     print(f"  - Failed: {failed}")
     print(f"  - Skipped: {skipped}")
     print(f"  - Duration: {total_duration:.2f}s")
+
+    print("\nSummary of Test Execution Metrics:")
+    print(f"  - Total Tests: {total_tests}")
+    print(f"  - Passed Tests: {passed}")
+    print(f"  - Failed Tests: {failed}")
+    print(f"  - Skipped Tests: {skipped}")
+    print(f"  - Pass Rate: {(passed / total_tests * 100):.2f}%" if total_tests > 0 else "  - Pass Rate: 0.00%")
+    print(f"  - Total Duration (seconds): {total_duration:.6f}")
+    print(f"  - Average Duration (seconds): {(total_duration / total_tests):.6f}" if total_tests > 0 else "  - Average Duration (seconds): 0.000000")
+
+    print("\nTest Names:")
+    print(f"  - All Test Names: {' | '.join(test_names)}")
+    print(f"  - Unique Test Names: {' | '.join(unique_test_names)}")
+    print(f"  - Unique Test Count: {len(unique_test_names)}")
+
+    print("\nRetry Information:")
+    print(f"  - Retried Tests: {retried_tests}")
+    print(f"  - Retry Rate: {(retried_tests / total_tests * 100):.2f}%" if total_tests > 0 else "  - Retry Rate: 0.00%")
+
+    print("\nProject Details:")
+    print(f"  - Project Name: {project_name}")
+    print(f"  - Project Version: {project_version}")
+    print(f"  - Environment: {environment}")
+    print(f"  - Branch: {branch}")
 
 
 def main():
