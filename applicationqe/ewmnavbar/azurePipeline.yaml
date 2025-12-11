@@ -558,3 +558,16 @@ jobs:
       echo "  - Test Results: Available in the Tests tab of this pipeline"
     displayName: "Print Test Report Summary"
     condition: always()
+
+  - task: UseDotNet@2
+    inputs:
+      packageType: 'sdk'
+      version: '7.x' # Replace with the required version
+    displayName: 'Install .NET SDK'
+
+  - script: |
+      echo "Cleaning up existing error-context.md..."
+      if [ -f error-context.md ]; then
+        rm error-context.md
+      fi
+    displayName: 'Clean up error-context.md'
