@@ -464,7 +464,8 @@ class AllureToInfluxDB:
         """Create InfluxDB line protocol points from metrics"""
         timestamp = int(datetime.now().timestamp() * 1e9)  # nanoseconds
         
-        tags = f'build_id="{self.build_id}",environment="{self.environment}",build_reason="{self.build_reason}"'
+        # Tags should NOT be quoted in InfluxDB line protocol
+        tags = f'build_id={self.build_id},environment={self.environment},build_reason={self.build_reason}'
         
         # Main test execution metrics
         points = [
@@ -515,8 +516,12 @@ class AllureToInfluxDB:
                 behavior_name = data['behavior_name']
                 auth_type = data['auth_type']
                 
-                # In InfluxDB line protocol, tag values with special chars should be quoted
-                behavior_tags = f'{tags},behavior_name="{behavior_name}",auth_type="{auth_type}"'
+                # Escape special characters in tag values (spaces, commas, equals)
+                behavior_name_escaped = behavior_name.replace(' ', '\\ ').replace(',', '\\,').replace('=', '\\=')
+                auth_type_escaped = auth_type.replace(' ', '\\ ').replace(',', '\\,').replace('=', '\\=')
+                
+                # Build tag line - tags must NOT be quoted
+                behavior_tags = f'{tags},behavior_name={behavior_name_escaped},auth_type={auth_type_escaped}'
                 
                 point = (
                     f'test_behaviors,{behavior_tags} '
