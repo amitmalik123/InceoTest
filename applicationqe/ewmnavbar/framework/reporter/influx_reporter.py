@@ -22,7 +22,7 @@ class AllureToInfluxDB:
         self.influx_url = os.getenv('INFLUXDB_URL', 'http://localhost:8086')
         self.influx_token = os.getenv('INFLUXDB_TOKEN', '')
         self.influx_org = os.getenv('INFLUXDB_ORG', 'default')
-        self.influx_bucket = os.getenv('INFLUXDB_BUCKET', 'test-results')
+        self.influx_bucket = os.getenv('INFLUXDB_BUCKET', 'AutomationData')
         self.allure_results_dir = os.getenv('ALLURE_RESULTS_DIR', './allure-results')
         self.build_id = os.getenv('BUILD_ID', 'local')
         self.build_reason = os.getenv('BUILD_REASON', 'Manual')
