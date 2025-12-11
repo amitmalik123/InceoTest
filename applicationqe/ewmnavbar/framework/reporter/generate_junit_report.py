@@ -169,11 +169,13 @@ def generate_junit_xml(results, output_file):
     
     # Create root testsuites element
     testsuites = ET.Element('testsuites')
+    testsuites.set('id', '')
     testsuites.set('name', 'Playwright Test Results')
     testsuites.set('tests', str(total_tests))
     testsuites.set('failures', str(failed))
     testsuites.set('skipped', str(skipped))
-    testsuites.set('time', f'{total_duration:.3f}')
+    testsuites.set('errors', '0')  # JUnit standard
+    testsuites.set('time', f'{total_duration:.6f}')  # More precision like Playwright
     testsuites.set('timestamp', datetime.now().isoformat())
     
     # Create testsuite for each file
@@ -188,8 +190,10 @@ def generate_junit_xml(results, output_file):
         testsuite.set('tests', str(len(suite_results)))
         testsuite.set('failures', str(suite_failed))
         testsuite.set('skipped', str(suite_skipped))
-        testsuite.set('time', f'{suite_duration:.3f}')
+        testsuite.set('errors', '0')  # JUnit standard
+        testsuite.set('time', f'{suite_duration:.6f}')  # More precision
         testsuite.set('timestamp', datetime.now().isoformat())
+        testsuite.set('hostname', os.getenv('COMPUTERNAME', os.getenv('HOSTNAME', 'localhost')))
         
         # Add individual test cases
         for result in suite_results:
@@ -198,7 +202,7 @@ def generate_junit_xml(results, output_file):
             testcase = ET.SubElement(testsuite, 'testcase')
             testcase.set('name', details['name'])
             testcase.set('classname', suite_name)
-            testcase.set('time', f'{details["duration"]:.3f}')
+            testcase.set('time', f'{details["duration"]:.6f}')  # Match Playwright precision
             
             # Add additional attributes for better pipeline integration
             if details.get('uuid'):
@@ -422,7 +426,9 @@ def generate_junit_xml(results, output_file):
                 system_err.text = details['error_trace']
     
     # Write XML to file
-    os.makedirs(os.path.dirname(output_file), exist_ok=True)
+    output_dir = os.path.dirname(output_file)
+    if output_dir:
+        os.makedirs(output_dir, exist_ok=True)
     tree = ET.ElementTree(testsuites)
     ET.indent(tree, space='  ')  # Pretty print (Python 3.9+)
     tree.write(output_file, encoding='utf-8', xml_declaration=True)
