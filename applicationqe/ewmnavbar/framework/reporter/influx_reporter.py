@@ -160,6 +160,128 @@ class AllureToInfluxDB:
         
         return results
     
+    def analyze_behaviors(self, results: Dict[str, Any]) -> Dict[str, Dict[str, Any]]:
+        """Analyze tests grouped by behavior name and authentication type"""
+        all_tests = results.get('tests', [])
+        behaviors = {}
+        
+        # Build a dictionary of LATEST result for each unique test
+        latest_results_by_id = {}
+        for test in all_tests:
+            labels = test.get('labels', [])
+            spec_file = ''
+            package_name = ''
+            
+            for label in labels:
+                label_name = label.get('name', '')
+                label_value = label.get('value', '')
+                if label_name == 'package':
+                    package_name = label_value
+                elif label_name == 'suite':
+                    spec_file = label_value
+            
+            test_name = test.get('name', '')
+            if package_name and spec_file:
+                unique_id = f"{package_name}/{spec_file}::{test_name}"
+            elif spec_file:
+                unique_id = f"{spec_file}::{test_name}"
+            else:
+                unique_id = test_name
+            
+            if unique_id:
+                if unique_id not in latest_results_by_id:
+                    latest_results_by_id[unique_id] = test
+                else:
+                    current_stop = latest_results_by_id[unique_id].get('stop', 0)
+                    new_stop = test.get('stop', 0)
+                    if new_stop > current_stop:
+                        latest_results_by_id[unique_id] = test
+        
+        # Group by behavior and auth type
+        for unique_id, test in latest_results_by_id.items():
+            test_name = test.get('name', '')
+            status = test.get('status', 'unknown')
+            duration = test.get('stop', 0) - test.get('start', 0)
+            
+            # Extract behavior name and auth type from labels
+            labels = test.get('labels', [])
+            behavior_name = ''
+            auth_type = 'unknown'
+            
+            for label in labels:
+                label_name = label.get('name', '')
+                label_value = label.get('value', '')
+                if label_name == 'feature':
+                    behavior_name = label_value
+                elif label_name == 'tag':
+                    if 'authenticated' in label_value:
+                        auth_type = 'authenticated'
+                    elif 'setup' in label_value:
+                        auth_type = 'setup'
+            
+            # If no behavior found from labels, try to extract from test name
+            if not behavior_name:
+                behavior_name = test_name
+            
+            # Create behavior key: behavior_name::auth_type
+            behavior_key = f"{behavior_name}::{auth_type}"
+            
+            if behavior_key not in behaviors:
+                behaviors[behavior_key] = {
+                    'behavior_name': behavior_name,
+                    'auth_type': auth_type,
+                    'count': 0,
+                    'passed': 0,
+                    'failed': 0,
+                    'broken': 0,
+                    'skipped': 0,
+                    'total_duration': 0,
+                    'durations': [],
+                    'tests': []
+                }
+            
+            behaviors[behavior_key]['count'] += 1
+            if status == 'passed':
+                behaviors[behavior_key]['passed'] += 1
+            elif status == 'failed':
+                behaviors[behavior_key]['failed'] += 1
+            elif status == 'broken':
+                behaviors[behavior_key]['broken'] += 1
+            elif status == 'skipped':
+                behaviors[behavior_key]['skipped'] += 1
+            
+            if duration > 0:
+                behaviors[behavior_key]['total_duration'] += duration
+                behaviors[behavior_key]['durations'].append(duration)
+            
+            behaviors[behavior_key]['tests'].append({
+                'name': test_name,
+                'status': status,
+                'duration': duration
+            })
+        
+        # Calculate pass rates and average durations
+        for behavior_key, data in behaviors.items():
+            testable = data['count'] - data['skipped']
+            if testable > 0:
+                data['pass_rate'] = (data['passed'] / testable) * 100
+            else:
+                data['pass_rate'] = 0
+            
+            if data['durations']:
+                data['avg_duration'] = int(data['total_duration'] / len(data['durations']))
+                data['max_duration'] = max(data['durations'])
+                data['min_duration'] = min(data['durations'])
+            else:
+                data['avg_duration'] = 0
+                data['max_duration'] = 0
+                data['min_duration'] = 0
+            
+            # Remove durations list (not needed for InfluxDB)
+            del data['durations']
+        
+        return behaviors
+    
     def calculate_metrics(self, results: Dict[str, Any]) -> Dict[str, Any]:
         """Calculate test metrics from Allure results - Use Allure's summary if available"""
         allure_summary = results.get('allure_summary', {})
@@ -335,7 +457,7 @@ class AllureToInfluxDB:
         
         return metrics
     
-    def create_influx_points(self, metrics: Dict[str, Any], artifact_urls: Dict[str, str]) -> List[str]:
+    def create_influx_points(self, metrics: Dict[str, Any], artifact_urls: Dict[str, str], behaviors: Dict[str, Dict[str, Any]] = None) -> List[str]:
         """Create InfluxDB line protocol points from metrics"""
         timestamp = int(datetime.now().timestamp() * 1e9)  # nanoseconds
         
@@ -382,6 +504,29 @@ class AllureToInfluxDB:
                 f'{artifact_data} '
                 f'{timestamp}'
             )
+        
+        # Behavior metrics - one point per behavior
+        if behaviors:
+            for behavior_key, data in behaviors.items():
+                behavior_name = data['behavior_name'].replace('"', '\\"').replace(' ', '\\ ')
+                auth_type = data['auth_type']
+                
+                behavior_tags = f'{tags},behavior_name="{behavior_name}",auth_type="{auth_type}"'
+                
+                points.append(
+                    f'test_behaviors,{behavior_tags} '
+                    f'count={data["count"]}i,'
+                    f'passed={data["passed"]}i,'
+                    f'failed={data["failed"]}i,'
+                    f'broken={data["broken"]}i,'
+                    f'skipped={data["skipped"]}i,'
+                    f'pass_rate={data["pass_rate"]:.2f},'
+                    f'total_duration={data["total_duration"]}i,'
+                    f'avg_duration={data["avg_duration"]}i,'
+                    f'max_duration={data["max_duration"]}i,'
+                    f'min_duration={data["min_duration"]}i '
+                    f'{timestamp}'
+                )
         
         return points
     
@@ -455,6 +600,15 @@ class AllureToInfluxDB:
             print(f"  Retried Tests: {metrics['retried']}")
             print(f"  Retry Rate: {retry_rate:.2f}%")
         
+        # Analyze behaviors
+        behaviors = self.analyze_behaviors(results)
+        if behaviors:
+            print(f"\n[BEHAVIORS] - {len(behaviors)} unique behavior(s)")
+            for behavior_key, data in behaviors.items():
+                print(f"  #{len(behaviors)} - {data['behavior_name']}")
+                print(f"      {data['auth_type']}")
+                print(f"      {data['total_duration']}ms")
+        
         # Get artifact URLs
         artifact_urls = self.get_artifact_urls()
         if artifact_urls:
@@ -464,7 +618,7 @@ class AllureToInfluxDB:
         print()
         
         # Create and push points
-        points = self.create_influx_points(metrics, artifact_urls)
+        points = self.create_influx_points(metrics, artifact_urls, behaviors)
         self.push_to_influxdb(points)
         print("=" * 70)
 
