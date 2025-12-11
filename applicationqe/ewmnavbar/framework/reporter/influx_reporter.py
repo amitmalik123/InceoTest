@@ -207,7 +207,7 @@ class AllureToInfluxDB:
             
             # Extract behavior name and auth type from labels
             labels = test.get('labels', [])
-            behavior_name = ''
+            behavior_name = test_name  # Use test name as behavior name by default
             auth_type = 'unknown'
             
             print(f"  Processing test: {test_name}")
@@ -216,17 +216,9 @@ class AllureToInfluxDB:
             for label in labels:
                 label_name = label.get('name', '')
                 label_value = label.get('value', '')
-                if label_name == 'feature':
-                    behavior_name = label_value
-                elif label_name == 'tag':
-                    if 'authenticated' in label_value:
-                        auth_type = 'authenticated'
-                    elif 'setup' in label_value:
-                        auth_type = 'setup'
-            
-            # If no behavior found from labels, try to extract from test name
-            if not behavior_name:
-                behavior_name = test_name
+                # Extract auth type from parentSuite label
+                if label_name == 'parentSuite':
+                    auth_type = label_value
             
             print(f"    Behavior: {behavior_name}, Auth: {auth_type}")
             
