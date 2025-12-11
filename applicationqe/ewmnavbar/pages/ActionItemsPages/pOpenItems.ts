@@ -1,4 +1,5 @@
 import { expect, type Locator, type Page } from "@playwright/test";
+import { elemVisible, elemHasAttribute } from '../../functions/fElementHelper';
 type Logger = (msg: string) => Promise<void>;
 
 export class OpenItemsPage {
@@ -31,13 +32,19 @@ export class OpenItemsPage {
     }
 
     async LoadsPage() {
-        await this.logger((await this.secOpenItems.getAttribute('src')).toString());
+        const src = await this.secOpenItems.getAttribute('src');
+        this.logger && await this.logger(src ? src.toString() : 'src attribute not found');
 
-        await expect(this.secOpenItems).toHaveAttribute(
+        await elemHasAttribute(
+            this.secOpenItems,
+            'Open Items iframe',
             'src',
-            /AccountsAnalysis\/TrackingCenter\/TrackingCenter?status=open$/
+            /.*\/AccountsAnalysis\/TrackingCenter\/TrackingCenter\?status=open$/,
+            this.logger
         );
-        await expect(this.smOpenItemsHL).toBeVisible();
-        await this.logger('Page loaded for Clients > Open Items');
+
+
+        await elemVisible(this.smOpenItemsHL, 'Open Items Highlight', this.logger);
+        this.logger && await this.logger('Page loaded for Clients > Open Items');
     }
 }

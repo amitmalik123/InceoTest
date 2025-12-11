@@ -1,5 +1,6 @@
 import { expect, type Page, Locator } from "@playwright/test";
 import { ModalCookiesPage } from "../pages/HomePages/pModalCookies";
+import { getImage } from '../helper/getImage';
 
 // Define the type for the elements we are tracking
 export type ElementCounts = {
@@ -9,7 +10,7 @@ export type ElementCounts = {
     span: number;
     label: number;
     input: number;
-    [key: string]: number; 
+    [key: string]: number;
 };
 
 type Logger = (msg: string) => Promise<void>;
@@ -17,13 +18,14 @@ type Logger = (msg: string) => Promise<void>;
 export class ComparePageFunction {
     private readonly page: Page;
     private readonly logger: Logger;
+    private readonly testInfo: any;
 
-    // Define the list of elements to track centrally
     private readonly trackedElements: Array<keyof ElementCounts> = ['img', 'a', 'p', 'span', 'label', 'input'];
 
-    constructor(page: Page, logger: Logger) {
+    constructor(page: Page, logger: Logger, testInfo: any) {
         this.page = page;
         this.logger = logger;
+        this.testInfo = testInfo;
     }
 
     // ------------------------------------------------------------------
@@ -65,7 +67,6 @@ export class ComparePageFunction {
         return counts as ElementCounts;
     }
 
-
     // ------------------------------------------------------------------
     // 1. High-Level Helper Method 
     // ------------------------------------------------------------------
@@ -84,6 +85,7 @@ export class ComparePageFunction {
             return {
                 ...defaultCounts, // Return all counts as 0
                 mismatch: true,
+                legacyUrl: null,
             };
         }
 
@@ -111,10 +113,11 @@ export class ComparePageFunction {
 
         return {
             ...navCounts,
-            ...legacyCounts, 
+            ...legacyCounts,
             navCounts,
             legacyCounts,
             mismatch,
+            legacyUrl: iFrameUrl,
         };
     }
 
@@ -151,6 +154,10 @@ export class ComparePageFunction {
         const newPage = await context.newPage();
         await newPage.goto(iFrameUrl, { waitUntil: 'domcontentloaded' });
         await this.logger(`🆕 Opened Legacy page link: ${iFrameUrl}`);
+
+        // --- Capture screenshot of the legacy app ---
+        const imgHelper = new getImage(newPage, this.testInfo);
+        await imgHelper.wholePage('LegacyAppScreenshot');
 
         // --- 3. Dynamic Modal Handling (on Legacy/Audit page) & Stabilization FIX ---
         const legacyPageModal = new ModalCookiesPage(newPage, this.logger);

@@ -1,4 +1,5 @@
 import { expect, type Locator, type Page } from "@playwright/test";
+import { elemVisible, elemHasAttribute } from '../../functions/fElementHelper';
 type Logger = (msg: string) => Promise<void>;
 
 export class ClosedPage {
@@ -31,13 +32,18 @@ export class ClosedPage {
     }
 
     async LoadsPage() {
-        await this.logger((await this.secClosed.getAttribute('src')).toString());
+        const src = await this.secClosed.getAttribute('src');
+        this.logger && await this.logger(src ? src.toString() : 'src attribute not found');
 
-        await expect(this.secClosed).toHaveAttribute(
+        await elemHasAttribute(
+            this.secClosed,
+            'Closed iframe',
             'src',
-            /AccountsAnalysis\/TrackingCenter\/TrackingCenter?status=closed$/
+            /.*\/AccountsAnalysis\/TrackingCenter\/TrackingCenter\?status=closed$/,
+            this.logger
         );
-        await expect(this.smClosedHL).toBeVisible();
-        await this.logger('Page loaded for Clients > Closed');
+
+        await elemVisible(this.smClosedHL, 'Closed Highlight', this.logger);
+        this.logger && await this.logger('Page loaded for Clients > Closed');
     }
 }

@@ -1,4 +1,6 @@
 import { expect, type Locator, type Page } from "@playwright/test";
+import { getImage } from '../../helper/getImage';
+import { elemVisible, clickButton, typeinField, textExists, elemHasAttribute } from '../../functions/fElementHelper';
 type Logger = (msg: string) => Promise<void>;
 
 export class NeedsActionPage {
@@ -37,20 +39,26 @@ export class NeedsActionPage {
     }
 
     async LoadsPage() {
-        await this.logger((await this.secNeedsAction.getAttribute('src')).toString());
+        const src = await this.secNeedsAction.getAttribute('src');
+        this.logger && await this.logger(src ? src.toString() : 'src attribute not found');
 
-        await expect(this.secNeedsAction).toHaveAttribute(
+        await elemHasAttribute(
+            this.secNeedsAction,
+            'Needs Action iframe',
             'src',
-            /AccountsAnalysis\/TrackingCenter\/TrackingCenter?status=open-Advisor$/
+            /.*\/AccountsAnalysis\/TrackingCenter\/TrackingCenter\?status=open-Advisor$/,
+            this.logger
         );
-        await expect(this.smNeedsActionHL).toBeVisible();
-        await this.logger('Page loaded for Clients > Needs Action');
+        
+        await elemVisible(this.smNeedsActionHL, 'Needs Action Highlight', this.logger);
+        this.logger && await this.logger('Page loaded for Clients > Needs Action');
     }
 
     async getItemsCount() {
-        await this.tblTable.first().waitFor({ state: 'visible' });
+        await elemVisible(this.tblTable.first(), 'Needs Action Table', this.logger);
         const rowCount = await this.tblRows.count();
         if (rowCount === 0) {
+            this.logger && await this.logger('❌ Table row count is 0. Check page navigation and selector stability.');
             throw new Error("Table row count is 0. Check page navigation and selector stability.");
         }
         return rowCount;

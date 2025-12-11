@@ -3,16 +3,13 @@ import { expect, type Locator, type Page, type TestInfo } from "@playwright/test
 export class getImage {
 
     readonly page: Page;
-    // 💡 Add the testInfo property here
     readonly testInfo: TestInfo; 
 
-    // 💡 Update the constructor to accept the TestInfo argument
     constructor(page: Page, testInfo: TestInfo) { 
         this.page = page;
-        this.testInfo = testInfo; // 💡 Store the TestInfo object
+        this.testInfo = testInfo; 
     }
-
-    // Now, your methods can use this.testInfo without it being passed as an argument.
+    
 
     async wholePage(fileName: string){
         const screenshotPath = `test-results/${fileName}.png`;
@@ -20,11 +17,13 @@ export class getImage {
         // 1. Save the screenshot
         await this.page.screenshot({path: screenshotPath, fullPage: true});
 
-        // 2. Attach the saved image using the stored this.testInfo
-        await this.testInfo.attach(fileName + ' (Full Page)', {
-            path: screenshotPath,
-            contentType: 'image/png',
-        });
+        // 2. Attach the saved image using the stored this.testInfo, if available
+        if (this.testInfo && typeof this.testInfo.attach === 'function') {
+            await this.testInfo.attach(fileName + ' (Full Page)', {
+                path: screenshotPath,
+                contentType: 'image/png',
+            });
+        }
     }
 
     async element(locator: string, fileName: string){

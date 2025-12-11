@@ -13,3 +13,7 @@ node_modules/
 .auth/*
 /e2e/local/*
 .husky/*
+/allure-results/*
+.vscode/*
+/reports/*
+/reports/**/*   
