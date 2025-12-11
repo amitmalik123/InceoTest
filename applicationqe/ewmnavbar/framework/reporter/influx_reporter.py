@@ -510,13 +510,15 @@ class AllureToInfluxDB:
         
         # Behavior metrics - one point per behavior
         if behaviors:
+            print(f"\n[DEBUG] Creating behavior points for {len(behaviors)} behaviors")
             for behavior_key, data in behaviors.items():
-                behavior_name = data['behavior_name'].replace('"', '\\"').replace(' ', '\\ ')
+                behavior_name = data['behavior_name']
                 auth_type = data['auth_type']
                 
+                # In InfluxDB line protocol, tag values with special chars should be quoted
                 behavior_tags = f'{tags},behavior_name="{behavior_name}",auth_type="{auth_type}"'
                 
-                points.append(
+                point = (
                     f'test_behaviors,{behavior_tags} '
                     f'count={data["count"]}i,'
                     f'passed={data["passed"]}i,'
@@ -530,6 +532,8 @@ class AllureToInfluxDB:
                     f'min_duration={data["min_duration"]}i '
                     f'{timestamp}'
                 )
+                print(f"  [BEHAVIOR] {behavior_name}: {point[:100]}...")
+                points.append(point)
         
         return points
     
@@ -548,9 +552,21 @@ class AllureToInfluxDB:
             
             write_api = client.write_api(write_options=SYNCHRONOUS)
             
-            print(f"📊 Pushing {len(points)} metric(s) to InfluxDB ({self.influx_url})...")
+            # Count measurement types
+            behavior_count = sum(1 for p in points if 'test_behaviors,' in p)
+            execution_count = sum(1 for p in points if 'test_execution2,' in p)
+            quality_count = sum(1 for p in points if 'test_quality2,' in p)
+            artifacts_count = sum(1 for p in points if 'test_artifacts2,' in p)
+            
+            print(f"\n[MEASUREMENTS]")
+            print(f"  test_execution2: {execution_count} point(s)")
+            print(f"  test_quality2: {quality_count} point(s)")
+            print(f"  test_behaviors: {behavior_count} point(s)")
+            print(f"  test_artifacts2: {artifacts_count} point(s)")
+            print(f"  Total: {len(points)} point(s)")
+            print(f"\n📊 Pushing to InfluxDB ({self.influx_url}/{self.influx_bucket})...")
+            
             for point in points:
-                print(f"  - {point[:80]}...")
                 write_api.write(bucket=self.influx_bucket, record=point)
             
             client.close()
