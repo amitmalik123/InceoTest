@@ -523,8 +523,8 @@ class AllureToInfluxDB:
                 # Build tag line - tags must NOT be quoted
                 behavior_tags = f'{tags},behavior_name={behavior_name_escaped},auth_type={auth_type_escaped}'
                 
-                point = (
-                    f'test_behaviors,{behavior_tags} '
+                # Build field data
+                field_data = (
                     f'count={data["count"]}i,'
                     f'passed={data["passed"]}i,'
                     f'failed={data["failed"]}i,'
@@ -534,7 +534,17 @@ class AllureToInfluxDB:
                     f'total_duration={data["total_duration"]}i,'
                     f'avg_duration={data["avg_duration"]}i,'
                     f'max_duration={data["max_duration"]}i,'
-                    f'min_duration={data["min_duration"]}i '
+                    f'min_duration={data["min_duration"]}i'
+                )
+                
+                # Add artifact URLs as fields if available
+                if artifact_urls:
+                    artifact_fields = ','.join([f'{name}="{url}"' for name, url in artifact_urls.items()])
+                    field_data = f'{field_data},{artifact_fields}'
+                
+                point = (
+                    f'test_behaviors,{behavior_tags} '
+                    f'{field_data} '
                     f'{timestamp}'
                 )
                 print(f"  [BEHAVIOR] {behavior_name}: {point[:100]}...")
