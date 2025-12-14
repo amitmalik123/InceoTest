@@ -1,0 +1,118 @@
+[
+    {
+        "test_id": "TC001",
+        "service_name": "work_item_notification",
+        "workflow_mode": "parallel",
+        "test_name": "GET /api/workitemnotification/v1/{aplid} [positive] (TC024)",
+        "protocol": "REST",
+        "test_type": [
+            "Functional", "Performance"
+        ],
+        "mainURL": "{{base_url}}",
+        "endpoint": "/api/workitemnotification/v1/{{aplid}}",
+        "method": "GET",
+        "rpc_method": "",
+        "graphql_query": "",
+        "graphql_variables": "",
+        "soap_action": "",
+        "soap_envelope": "",
+        "headers_additional": {
+            "Content-Type": "application/json"
+        },
+        "payload": null,
+        "expected_status": "200",
+        "expected_response_schema": "WorkItemnotification\\schemas\\Schema_aplid_success.json",
+        "expected_response": "WorkItemnotification\\payloads\\Payload_aplid_response.json",
+        "extract_values": [
+        ],
+        "validate": {
+            "performance": {
+                "max_response_time_ms": 500
+            },
+            "security": {
+                "checks": [
+                    "sql_injection",
+                    "xss"
+                ]
+            },
+            "data_comparison": {
+                "source": "api_response",
+                "target": "db_result",
+                "format": "table",
+                "key_field": [
+                    "",
+                    ""
+                ],
+                "fields_to_compare": [
+                    {
+                        "source": "",
+                        "target": ""
+                    }
+                ],
+                "log_differences": true
+            }
+        },
+        "test_data_file": "WorkItemNotification/data_driven/Data_aplid.csv",
+        "db_query": "",
+        "db_type": "",
+        "test_summary": "Test TC024: GET /api/workitemnotification/v1/{aplid} [positive] (TC024)"
+    },
+    {
+        "test_id": "TC002",
+        "service_name": "work_item_notification",
+        "workflow_mode": "parallel",
+        "test_name": "GET /api/workitemnotification/v1/{aplid} [negative: ] (TC025)",
+        "protocol": "REST",
+        "test_type": [
+            "Negative", "Functional"
+        ],
+        "mainURL": "{{base_url}}",
+        "endpoint": "/api/workitemnotification/v1/KKKERR",
+        "method": "GET",
+        "rpc_method": "",
+        "graphql_query": "",
+        "graphql_variables": "",
+        "soap_action": "",
+        "soap_envelope": "",
+        "headers_additional": {
+            "Content-Type": "application/json"
+        },
+        "payload": null,
+        "expected_status": "404",
+        "expected_response_schema": "Workitemnotification\\schemas\\Schema_aplid_error.json",
+        "expected_response": "Workitemnotification\\payloads\\Payload_aplid_response_error.json",
+        "extract_values": [
+        ],
+        "validate": {
+            "performance": {
+                "max_response_time_ms": 500
+            },
+            "security": {
+                "checks": [
+                    "sql_injection",
+                    "xss"
+                ]
+            },
+            "data_comparison": {
+                "source": "api_response",
+                "target": "db_result",
+                "format": "table",
+                "key_field": [
+                    "",
+                    ""
+                ],
+                "fields_to_compare": [
+                    {
+                        "source": "",
+                        "target": ""
+                    }
+                ],
+                "log_differences": true
+            }
+        },
+        "test_data_file": "",
+        "db_query": "",
+        "db_type": "",
+        "test_summary": "Test TC025: GET /api/workitemnotification/v1/{aplid} [negative: missing aplid] (TC025)"
+    }
+]

@@ -1,0 +1,47 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "SecuritiesResponse",
+  "type": "object",
+  "properties": {
+    "securities": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "securities_id": { "type": "integer" },
+          "cusip": { "type": "string" },
+          "ticker": { "type": "string" },
+          "name": { "type": "string" },
+          "subAssetType_id": { "type": "integer" },
+          "assetClass": { "type": "string" },
+          "assetType": { "type": "string" },
+          "subAssetType": { "type": "string" },
+          "createdBy": { "type": ["string", "null"] },
+          "createdDate": { "type": "string", "format": "date-time" }
+        },
+        "required": [
+          "securities_id",
+          "cusip",
+          "ticker",
+          "name",
+          "subAssetType_id",
+          "assetClass",
+          "assetType",
+          "subAssetType",
+          "createdDate"
+        ]
+      }
+    },
+    "pagination": {
+      "type": "object",
+      "properties": {
+        "totalCount": { "type": "integer" },
+        "page": { "type": "integer" },
+        "pageSize": { "type": "integer" },
+        "totalPages": { "type": "integer" }
+      },
+      "required": ["totalCount", "page", "pageSize", "totalPages"]
+    }
+  },
+  "required": ["securities", "pagination"]
+}

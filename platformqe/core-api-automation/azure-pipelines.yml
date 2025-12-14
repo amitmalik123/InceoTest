@@ -1,0 +1,131 @@
+trigger: none
+
+parameters:
+- name: apiTestArgs
+  displayName: 'API Test Arguments'
+  type: string
+  default: '--service-name work_item_notification --env T12'
+- name: performanceTestArgs
+  displayName: 'Performance Test Arguments'
+  type: string
+  default: '--file testdata/WorkItemNotification/testcases/TestCase_api_workitemnotification_v1_aplid_GET.json --test_type Performance --env T12 --headless -u 5 -r 1 -t 10s'
+- name: runLocust
+  displayName: 'Run Locust Performance Tests'
+  type: boolean
+  default: false
+
+variables:
+- name: buildPath
+  value: '$(Build.SourcesDirectory)/core-api-automation'
+stages:
+- stage: __default
+  jobs:
+  - job: Job
+    pool:
+      name: 'ubuntu2204-qa'
+    steps:
+    - task: UsePythonVersion@0
+      displayName: 'Set up Python 3.10'
+      inputs:
+        addToPath: true
+        versionSpec: '3.10'
+    - task: CmdLine@2
+      displayName: 'Install Python dependencies'
+      inputs:
+        script: |
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt
+        workingDirectory: $(buildPath)
+    - task: Bash@3
+      displayName: 'Run API Tests'
+      env:
+        WORK_ITEM_AUTH_TOKEN: $(WORK_ITEM_AUTH_TOKEN)
+        PARTIES_AUTH_TOKEN: $(PARTIES_AUTH_TOKEN)
+      inputs:
+        targetType: inline
+        script: |
+          echo "=========================================="
+          echo "Running Tests"
+          echo "=========================================="
+          echo "Command: ${{ parameters.apiTestArgs }}"
+          echo "=========================================="
+
+          pytest -sv tests/test_api_generic.py ${{ parameters.apiTestArgs }}
+          TEST_EXIT_CODE=$?
+          echo "##vso[task.setvariable variable=TEST_EXIT_CODE]$TEST_EXIT_CODE"
+          exit 0
+        workingDirectory: $(buildPath)
+    - task: Bash@3
+      displayName: 'Locate reports folder'
+      condition: succeededOrFailed()
+      inputs:
+        targetType: inline
+        script: |
+          latest=$(ls -td reports/[0-9]*/ 2>/dev/null | head -1 || echo "reports/")
+          echo "##vso[task.setvariable variable=REPORTS_PATH]$latest"
+          echo "Reports location: $latest"
+        workingDirectory: $(buildPath)
+    - task: Bash@3
+      displayName: 'Run Locust Performance Tests'
+      env:
+        WORK_ITEM_AUTH_TOKEN: $(WORK_ITEM_AUTH_TOKEN)
+        PARTIES_AUTH_TOKEN: $(PARTIES_AUTH_TOKEN)
+      condition: succeededOrFailed()
+      inputs:
+        targetType: inline
+        script: "if [ \"${{ parameters.runLocust }}\" = \"True\" ]; then\n  echo \"==========================================\"\n  echo \"Running Locust Performance Tests\"\n  echo \"==========================================\"\n  \n  # Get the latest reports folder timestamp\n  latest=$(ls -td reports/[0-9]*/ 2>/dev/null | head -1)\n  if [ -n \"$latest\" ]; then\n    report_dir=\"${latest%/}\"\n    echo \"Using existing report directory: $report_dir\"\n  else\n    timestamp=$(date +%Y%m%d_%H%M%S)\n    report_dir=\"reports/${timestamp}\"\n    mkdir -p \"$report_dir\"\n    echo \"Created new report directory: $report_dir\"\n  fi\n  \n  echo \"Locust Command: ${{ parameters.performanceTestArgs }}\"\n  echo \"Report Directory: $report_dir\"\n  echo \"\"\n  \n  # Run Locust with reports to same timestamp directory\n  locust -f locustfile.py ${{ parameters.performanceTestArgs }} \\\n    --html=\"${report_dir}/performance_report.html\" \\\n    --csv=\"${report_dir}/performance_report\"\n  \n  LOCUST_EXIT_CODE=$?\n  echo \"##vso[task.setvariable variable=LOCUST_EXIT_CODE]$LOCUST_EXIT_CODE\"\n  \n  echo \"Locust reports saved to: $report_dir\"\n  exit 0\nelse\n  echo \"Locust tests skipped (runLocust=${{ parameters.runLocust }})\"\nfi\n"
+        workingDirectory: $(buildPath)
+    - task: PublishTestResults@2
+      condition: succeededOrFailed()
+      inputs:
+        testResultsFormat: 'JUnit'
+        testResultsFiles: '**/junit_report*.xml'
+        searchFolder: '$(buildPath)/$(REPORTS_PATH)'
+        mergeTestResults: true
+        failTaskOnFailedTests: false
+        testRunTitle: 'API Test Results - $(Build.BuildNumber)'
+    - task: PublishBuildArtifacts@1
+      condition: succeededOrFailed()
+      inputs:
+        PathtoPublish: '$(buildPath)/reports'
+        ArtifactName: 'test-reports-$(Build.BuildNumber)'
+        publishLocation: 'Container'
+      displayName: 'Publish Test Reports'
+    - task: PublishBuildArtifacts@1
+      condition: succeededOrFailed()
+      inputs:
+        PathtoPublish: '$(buildPath)/framework/logs'
+        ArtifactName: 'framework-logs-$(Build.BuildNumber)'
+        publishLocation: 'Container'
+      displayName: 'Publish Framework Logs'
+    - task: Bash@3
+      displayName: 'Fail build if tests failed'
+      condition: always()
+      inputs:
+        targetType: inline
+        script: |
+          echo "=========================================="
+          echo "Final Test Result Check"
+          echo "=========================================="
+          failed=false
+
+          if [ "$(TEST_EXIT_CODE)" != "0" ]; then
+            echo "❌ API Tests failed with exit code: $(TEST_EXIT_CODE)"
+            failed=true
+          else
+            echo "✅ API Tests passed"
+          fi
+
+          if [ "${{ parameters.runLocust }}" = "True" ] && [ "$(LOCUST_EXIT_CODE)" != "0" ]; then
+            echo "❌ Locust Performance Tests failed with exit code: $(LOCUST_EXIT_CODE)"
+            failed=true
+          elif [ "${{ parameters.runLocust }}" = "True" ]; then
+            echo "✅ Locust Performance Tests passed"
+          fi
+
+          if [ "$failed" = "true" ]; then
+            echo "##vso[task.complete result=Failed;]One or more test suites failed"
+            exit 1
+          else
+            echo "✅ All tests passed successfully"
+          fi

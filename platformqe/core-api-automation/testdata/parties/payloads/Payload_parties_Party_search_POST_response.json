@@ -1,0 +1,65 @@
+{
+  "pagedParties": {
+    "items": [
+      {
+        "partyId": "f4a9991d-84c9-4e1c-92a8-f09f17a2ea88",
+        "partyType": "Trust",
+        "status": "Pending",
+        "core": {
+          "individual": {
+            "firstName": "abc",
+            "middleName": "mn",
+            "lastName": "xxz",
+            "suffix": "tt",
+            "dateOfBirth": "2025-11-10T00:00:00",
+            "taxId": null,
+            "citizenship": "BirthRight",
+            "maritalStatus": "Married",
+            "isDeceased": false,
+            "dateOfDeath": null
+          },
+          "entity": {
+            "type": null,
+            "subType": null,
+            "title": null,
+            "taxId": "",
+            "taxidentifier": "SSN",
+            "createdDate": null
+          }
+        },
+        "addresses": [
+          {
+            "addressType": "Business",
+            "line1": "test",
+            "line2": null,
+            "city": "City1",
+            "state": "AL",
+            "zip": "strin",
+            "country": "AD",
+            "priorityType": "Primary"
+          }
+        ],
+        "contacts": [
+          {
+            "contactType": "Phone",
+            "usageType": "Personal",
+            "value": "111-222-3232",
+            "priorityType": "Primary"
+          }
+        ],
+        "identifiers": [
+          {
+            "type": "APL",
+            "value": "testData"
+          }
+        ]
+      }
+    ],
+    "totalCount": 158,
+    "page": 1,
+    "pageSize": 1,
+    "totalPages": 0,
+    "hasPreviousPage": false,
+    "hasNextPage": false
+  }
+}

@@ -1,0 +1,36 @@
+{
+  "type": "object",
+  "properties": {
+    "id": { "type": "integer" },
+    "aplId": { "type": "string" },
+    "itemsRequiringAttention": { "type": "string" },
+    "receivedCompletedPrimary": { "type": "string" },
+    "receivedCompletedSecondary": { "type": "string" },
+    "workItemVisibilityPreferences": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "type": { "type": "string" },
+          "description": { "type": "string" },
+          "visiblity": { "type": "boolean" }
+        },
+        "required": ["type", "description", "visiblity"]
+      }
+    },
+    "selectedRecipients": { "type": "array" },
+    "allRecipients": { "type": ["array", "null"] },
+    "isPageVisited": { "type": "boolean" },
+    "createdBy": { "type": "string" },
+    "createdDate": { "type": "string", "format": "date-time" },
+    "modifiedBy": { "type": "string" },
+    "modifiedDate": { "type": "string", "format": "date-time" },
+    "approvalNotification": { "type": "string" }
+  },
+  "required": [
+    "id", "aplId", "itemsRequiringAttention", "receivedCompletedPrimary",
+    "receivedCompletedSecondary", "workItemVisibilityPreferences",
+    "selectedRecipients", "allRecipients", "isPageVisited",
+    "createdBy", "createdDate", "modifiedBy", "modifiedDate", "approvalNotification"
+  ]
+}

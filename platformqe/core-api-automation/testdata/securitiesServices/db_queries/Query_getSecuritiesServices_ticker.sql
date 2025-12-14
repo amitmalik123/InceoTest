@@ -1,0 +1,1 @@
+SELECT ticker as db_ticker FROM public."Securities" where ticker='{{request_ticker}}'

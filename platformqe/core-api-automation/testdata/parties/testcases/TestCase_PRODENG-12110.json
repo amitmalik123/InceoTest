@@ -1,0 +1,269 @@
+[
+  {
+    "test_id": "TC001",
+    "service_name": "parties",
+    "workflow_mode": "parallel",
+    "test_name": "GET /parties/{id} - verify DOB, DOD, EntityCreatedDate are date-only and match DB",
+    "protocol": "REST",
+    "test_type": ["Functional", "Regression", "Smoke"],
+    "mainURL": "{{base_url}}",
+    "endpoint": "/parties/{{id}}",
+    "method": "GET",
+    "rpc_method": "",
+    "graphql_query": "",
+    "graphql_variables": "",
+    "soap_action": "",
+    "soap_envelope": "",
+    "headers_additional": {
+      "Content-Type": "application/json"
+    },
+    "payload": null,
+    "expected_status": "200",
+    "expected_response_schema": "",
+    "expected_response": null,
+    "ignore_fields": [
+      "parties.0.partyId",
+      "parties.0.createdDate",
+      "parties.0.updatedDate"
+    ],
+    "extract_values": [
+      {
+        "from": "api_response",
+        "key": "parties.0.core.individual.dateOfBirth",
+        "assign_to": "api_individual_dob"
+      },
+      {
+        "from": "api_response",
+        "key": "parties.0.core.individual.dateOfDeath",
+        "assign_to": "api_date_of_death"
+      },
+      {
+        "from": "api_response",
+        "key": "parties.0.core.entity.createdDate",
+        "assign_to": "api_entity_created_date"
+      },
+      {
+        "from": "db_result",
+        "query": "SELECT CONVERT(varchar(10), IndividualDateOfBirth, 23) as db_individual_dob,\n       CONVERT(varchar(10), DateOfDeath, 23)              as db_date_of_death,\n       CONVERT(varchar(10), EntityCreatedDate, 23)        as db_entity_created_date\nFROM [dbo].[Party]\nWHERE Id = '{{id}}';",
+        "assign": [
+          {
+            "key": "0.db_individual_dob",
+            "assign_to": "db_individual_dob"
+          },
+          {
+            "key": "0.db_date_of_death",
+            "assign_to": "db_date_of_death"
+          },
+          {
+            "key": "0.db_entity_created_date",
+            "assign_to": "db_entity_created_date"
+          }
+        ]
+      }
+    ],
+    "validate": {
+      "performance": {
+        "max_response_time_ms": 500
+      },
+      "security": {
+        "checks": ["sql_injection", "xss"]
+      },
+      "data_comparison": {
+        "source": "api_response",
+        "target": "db_result",
+        "format": "table",
+        "key_field": ["", ""],
+        "fields_to_compare": [
+          {
+            "source": "parties.0.core.individual.dateOfBirth",
+            "target": "db_individual_dob"
+          },
+          {
+            "source": "parties.0.core.individual.dateOfDeath",
+            "target": "db_date_of_death"
+          },
+          {
+            "source": "parties.0.core.entity.createdDate",
+            "target": "db_entity_created_date"
+          }
+        ],
+        "log_differences": true
+      },
+      "format_validation": {
+        "date_only_fields": [
+          "api_individual_dob",
+          "api_date_of_death",
+          "api_entity_created_date"
+        ],
+        "date_only_pattern": "^\\d{4}-\\d{2}-\\d{2}$"
+      }
+    },
+    "test_data_file": "parties/data_driven/Data_parties_GET.csv",
+    "db_query": "",
+    "db_type": "mssql",
+    "db_connection_name": "parties",
+    "test_summary": "Verify GET /parties/{id} returns DOB, DOD, EntityCreatedDate as YYYY-MM-DD and aligned with Party table."
+  },
+  {
+    "test_id": "TC002",
+    "service_name": "parties",
+    "workflow_mode": "parallel",
+    "test_name": "GET /parties/{id} - ensure DOB, DOD, EntityCreatedDate have no time or timezone",
+    "protocol": "REST",
+    "test_type": ["Functional"],
+    "mainURL": "{{base_url}}",
+    "endpoint": "/parties/{{id}}",
+    "method": "GET",
+    "rpc_method": "",
+    "graphql_query": "",
+    "graphql_variables": "",
+    "soap_action": "",
+    "soap_envelope": "",
+    "headers_additional": {
+      "Content-Type": "application/json"
+    },
+    "payload": null,
+    "expected_status": "200",
+    "expected_response_schema": "",
+    "expected_response": null,
+    "ignore_fields": [
+      "parties.0.partyId",
+      "parties.0.createdDate",
+      "parties.0.updatedDate"
+    ],
+    "extract_values": [
+      {
+        "from": "response",
+        "key": "parties.0.core.individual.dateOfBirth",
+        "assign_to": "api_individual_dob"
+      },
+      {
+        "from": "response",
+        "key": "parties.0.core.individual.dateOfDeath",
+        "assign_to": "api_date_of_death"
+      },
+      {
+        "from": "response",
+        "key": "parties.0.core.entity.createdDate",
+        "assign_to": "api_entity_created_date"
+      }
+    ],
+    "validate": {
+      "performance": {
+        "max_response_time_ms": 500
+      },
+      "security": {
+        "checks": ["sql_injection", "xss"]
+      },
+      "data_comparison": {
+        "source": "api_response",
+        "target": "api_response",
+        "format": "table",
+        "key_field": ["", ""],
+        "fields_to_compare": [],
+        "log_differences": true
+      },
+      "format_validation": {
+        "date_only_fields": [
+          "api_individual_dob",
+          "api_date_of_death",
+          "api_entity_created_date"
+        ],
+        "date_only_pattern": "^\\d{4}-\\d{2}-\\d{2}$",
+        "forbid_time_component": true,
+        "forbid_timezone_component": true
+      }
+    },
+    "test_data_file": "parties/data_driven/Data_parties_GET.csv",
+    "db_query": "",
+    "db_type": "",
+    "db_connection_name": "",
+    "test_summary": "Validate dateOnly fields on GET /parties/{id} do not include time-of-day or timezone information."
+  },
+  {
+    "test_id": "TC003",
+    "service_name": "parties",
+    "workflow_mode": "parallel",
+    "test_name": "GET /parties/{id} - ensure CreatedDate & UpdatedDate remain timestamps",
+    "protocol": "REST",
+    "test_type": ["Functional", "Regression"],
+    "mainURL": "{{base_url}}",
+    "endpoint": "/parties/{{id}}",
+    "method": "GET",
+    "rpc_method": "",
+    "graphql_query": "",
+    "graphql_variables": "",
+    "soap_action": "",
+    "soap_envelope": "",
+    "headers_additional": {
+      "Content-Type": "application/json"
+    },
+    "payload": null,
+    "expected_status": "200",
+    "expected_response_schema": "",
+    "expected_response": null,
+    "ignore_fields": ["parties.0.partyId"],
+    "extract_values": [
+      {
+        "from": "response",
+        "key": "parties.0.createdDate",
+        "assign_to": "api_created_datetime"
+      },
+      {
+        "from": "response",
+        "key": "parties.0.updatedDate",
+        "assign_to": "api_updated_datetime"
+      },
+      {
+        "from": "db_result",
+        "query": "SELECT CONVERT(varchar(30), CreatedDate, 126) as db_created_datetime,\n       CONVERT(varchar(30), UpdatedDate, 126) as db_updated_datetime\nFROM [dbo].[Party]\nWHERE Id = '{{id}}';",
+        "assign": [
+          {
+            "key": "0.db_created_datetime",
+            "assign_to": "db_created_datetime"
+          },
+          {
+            "key": "0.db_updated_datetime",
+            "assign_to": "db_updated_datetime"
+          }
+        ]
+      }
+    ],
+    "validate": {
+      "performance": {
+        "max_response_time_ms": 500
+      },
+      "security": {
+        "checks": ["sql_injection", "xss"]
+      },
+      "data_comparison": {
+        "source": "api_response",
+        "target": "db_result",
+        "format": "table",
+        "key_field": ["", ""],
+        "fields_to_compare": [
+          {
+            "source": "parties.0.createdDate",
+            "target": "db_created_datetime"
+          },
+          {
+            "source": "parties.0.updatedDate",
+            "target": "db_updated_datetime"
+          }
+        ],
+        "log_differences": true
+      },
+      "format_validation": {
+        "timestamp_fields": ["api_created_datetime", "api_updated_datetime"],
+        "timestamp_pattern": "^\\d{4}-\\d{2}-\\d{2}T\\d{2}:\\d{2}:\\d{2}",
+        "must_contain_time_component": true,
+        "allow_timezone_component": true
+      }
+    },
+    "test_data_file": "parties/data_driven/Data_parties_GET.csv",
+    "db_query": "",
+    "db_type": "mssql",
+    "db_connection_name": "parties",
+    "test_summary": "Confirm CreatedDate and UpdatedDate on GET /parties/{id} are timestamps and still aligned with DB."
+  }
+]

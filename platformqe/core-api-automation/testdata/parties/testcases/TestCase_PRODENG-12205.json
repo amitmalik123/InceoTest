@@ -1,0 +1,294 @@
+[
+  {
+    "test_id": "TC000",
+    "service_name": "parties",
+    "workflow_mode": "sequential",
+    "test_name": "QUERY and Extract DB Values",
+    "protocol": "DB_ONLY",
+    "test_type": [
+      "Functional",
+      "Smoke"
+    ],
+    "mainURL": "",
+    "endpoint": "",
+    "method": "",
+    "rpc_method": "",
+    "graphql_query": "",
+    "graphql_variables": "",
+    "soap_action": "",
+    "soap_envelope": "",
+    "headers_additional": {
+      "Content-Type": "application/json"
+    },
+    "payload": null,
+    "expected_status": "",
+    "expected_response_schema": "",
+    "expected_response": "",
+    "extract_values": [],
+    "validate": {
+      "performance": {
+        "max_response_time_ms": 500
+      },
+      "security": {
+        "checks": [
+          "sql_injection",
+          "xss"
+        ]
+      },
+      "data_comparison": {
+        "source": "db_result",
+        "target": null,
+        "format": "table",
+        "key_field": [
+          "TABLE_NAME"
+        ],
+        "fields_to_compare": [
+          {
+            "source_field": "row_count",
+            "comparison": "greater_than",
+            "expected_value": 0
+          },
+          {
+            "source_field": "TABLE_NAME",
+            "comparison": "equals",
+            "expected_value": "Party"
+          },
+          {
+            "source_field": "TABLE_SCHEMA",
+            "comparison": "equals",
+            "expected_value": "dbo"
+          }
+        ],
+        "log_differences": true
+      }
+    },
+    "test_data_file": "",
+    "db_type": "mssql",
+    "db_connection_name": "parties",
+    "db_query": "SELECT * FROM INFORMATION_SCHEMA.TABLES WHERE TABLE_NAME = 'Party';",
+    "test_summary": "Test TC000: Extract DB [positive] - Verify that the Party table exists in Azure SQL (TC000)"
+  },
+  {
+    "test_id": "TC001",
+    "service_name": "parties",
+    "workflow_mode": "sequential",
+    "test_name": "QUERY and Extract DB Values",
+    "protocol": "DB_ONLY",
+    "test_type": [
+      "Functional",
+      "Smoke"
+    ],
+    "mainURL": "",
+    "endpoint": "",
+    "method": "",
+    "rpc_method": "",
+    "graphql_query": "",
+    "graphql_variables": "",
+    "soap_action": "",
+    "soap_envelope": "",
+    "headers_additional": {
+      "Content-Type": "application/json"
+    },
+    "payload": null,
+    "expected_status": "",
+    "expected_response_schema": "",
+    "expected_response": "",
+    "extract_values": [],
+    "validate": {
+      "performance": {
+        "max_response_time_ms": 500
+      },
+      "security": {
+        "checks": [
+          "sql_injection",
+          "xss"
+        ]
+      },
+      "data_comparison": {
+        "source": "db_result",
+        "target": null,
+        "format": "table",
+        "key_field": [
+          "COLUMN_NAME"
+        ],
+        "fields_to_compare": [
+          {
+            "source_field": "row_count",
+            "comparison": "greater_or_equal",
+            "expected_value": 10
+          },
+          {
+            "source_field": "COLUMN_NAME",
+            "comparison": "contains_all",
+            "expected_value": [
+              "Id",
+              "Version",
+              "Status",
+              "PartyType",
+              "CreatedDate",
+              "UpdatedDate"
+            ]
+          },
+          {
+            "source_field": "COLUMN_NAME=Id.DATA_TYPE",
+            "comparison": "equals",
+            "expected_value": "uniqueidentifier"
+          },
+          {
+            "source_field": "COLUMN_NAME=Version.DATA_TYPE",
+            "comparison": "equals",
+            "expected_value": "int"
+          },
+          {
+            "source_field": "COLUMN_NAME=Version.IS_NULLABLE",
+            "comparison": "equals",
+            "expected_value": "NO"
+          }
+        ],
+        "log_differences": true
+      }
+    },
+    "test_data_file": "",
+    "db_type": "mssql",
+    "db_connection_name": "parties",
+    "db_query": "SELECT COLUMN_NAME, DATA_TYPE, IS_NULLABLE FROM INFORMATION_SCHEMA.COLUMNS WHERE TABLE_NAME = 'Party';",
+    "test_summary": "Test TC001: Extract DB [positive] - Validate schema of columns and data types for Party table (TC001)"
+  },
+  {
+    "test_id": "TC002",
+    "service_name": "parties",
+    "workflow_mode": "sequential",
+    "test_name": "QUERY and Extract DB Values",
+    "protocol": "DB_ONLY",
+    "test_type": [
+      "Functional",
+      "Smoke"
+    ],
+    "mainURL": "",
+    "endpoint": "",
+    "method": "",
+    "rpc_method": "",
+    "graphql_query": "",
+    "graphql_variables": "",
+    "soap_action": "",
+    "soap_envelope": "",
+    "headers_additional": {
+      "Content-Type": "application/json"
+    },
+    "payload": null,
+    "expected_status": "",
+    "expected_response_schema": "",
+    "expected_response": "",
+    "extract_values": [],
+    "validate": {
+      "performance": {
+        "max_response_time_ms": 500
+      },
+      "security": {
+        "checks": [
+          "sql_injection",
+          "xss"
+        ]
+      },
+      "data_comparison": {
+        "source": "db_result",
+        "target": null,
+        "format": "table",
+        "key_field": [
+          "CONSTRAINT_NAME"
+        ],
+        "fields_to_compare": [
+          {
+            "source_field": "row_count",
+            "comparison": "greater_than",
+            "expected_value": 0
+          },
+          {
+            "source_field": "CONSTRAINT_TYPE",
+            "comparison": "equals",
+            "expected_value": "PRIMARY KEY"
+          },
+          {
+            "source_field": "TABLE_NAME",
+            "comparison": "equals",
+            "expected_value": "Party"
+          }
+        ],
+        "log_differences": true
+      }
+    },
+    "test_data_file": "",
+    "db_type": "mssql",
+    "db_connection_name": "parties",
+    "db_query": "SELECT * FROM INFORMATION_SCHEMA.TABLE_CONSTRAINTS WHERE TABLE_NAME = 'Party' AND CONSTRAINT_TYPE = 'PRIMARY KEY';",
+    "test_summary": "Test TC002: Extract DB [positive] - Validate primary key constraint exists on Party (TC002)"
+  },
+  {
+    "test_id": "TC003",
+    "service_name": "parties",
+    "workflow_mode": "sequential",
+    "test_name": "QUERY and Extract DB Values",
+    "protocol": "DB_ONLY",
+    "test_type": [
+      "Functional",
+      "Smoke"
+    ],
+    "mainURL": "",
+    "endpoint": "",
+    "method": "",
+    "rpc_method": "",
+    "graphql_query": "",
+    "graphql_variables": "",
+    "soap_action": "",
+    "soap_envelope": "",
+    "headers_additional": {
+      "Content-Type": "application/json"
+    },
+    "payload": null,
+    "expected_status": "",
+    "expected_response_schema": "",
+    "expected_response": "",
+    "extract_values": [],
+    "validate": {
+      "performance": {
+        "max_response_time_ms": 500
+      },
+      "security": {
+        "checks": [
+          "sql_injection",
+          "xss"
+        ]
+      },
+      "data_comparison": {
+        "source": "db_result",
+        "target": null,
+        "format": "table",
+        "key_field": [
+          "CONSTRAINT_NAME",
+          "COLUMN_NAME"
+        ],
+        "fields_to_compare": [
+          {
+            "source_field": "row_count",
+            "comparison": "equals",
+            "expected_value": 2
+          },
+          {
+            "source_field": "COLUMN_NAME",
+            "comparison": "equals_set",
+            "expected_value": [
+              "Id",
+              "Version"
+            ]
+          }
+        ],
+        "log_differences": true
+      }
+    },
+    "test_data_file": "",
+    "db_type": "mssql",
+    "db_connection_name": "parties",
+    "db_query": "SELECT * FROM INFORMATION_SCHEMA.KEY_COLUMN_USAGE WHERE TABLE_NAME = 'Party' AND CONSTRAINT_NAME = 'PK_Party';",
+    "test_summary": "Test TC003: Extract DB [positive] - Validate composite primary key constraint on Id and Version (TC003)"
+  }
+]

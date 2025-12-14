@@ -1,0 +1,666 @@
+[
+    {
+        "test_id": "TC001",
+        "service_name": "MoveMoneyAPI",
+        "workflow_mode": "parallel",
+        "test_name": "POST /moneymovement/requests [positive] (TC001)",
+        "protocol": "REST",
+        "test_type": [
+            "Functional"
+        ],
+        "mainURL": "{{base_url}}",
+        "endpoint": "/moneymovement/requests",
+        "method": "POST",
+        "rpc_method": "",
+        "graphql_query": "",
+        "graphql_variables": "",
+        "soap_action": "",
+        "soap_envelope": "",
+        "headers_additional": {
+            "Content-Type": "application/json"
+        },
+        "payload": {
+  "instructionId": "CC324F1F-D5CC-418C-9D86-0A52316E9293",
+  "accountId": "123e4567-e89b-12d3-a456-426614174000",
+  "railType": "ACH",
+  "amount": 5000.00,
+  "requestType": "Withdrawal",
+  "status": "Draft",
+  "scheduleType": "OneTime",
+  "paymentDate": "2025-12-15"
+},
+        "expected_status": "200",
+        "expected_response_schema": "",
+        "expected_response": null,
+        "ignore_fields": [
+            "id"
+        ],
+        "extract_values": [
+            {
+                "from": "response",
+                "key": "id",
+                "assign_to": ""
+            },
+            {
+                "from": "db_result",
+                "query": "",
+                "assign": [
+                    {
+                        "key": "",
+                        "assign_to": ""
+                    }
+                ]
+            }
+        ],
+        "validate": {
+            "performance": {
+                "max_response_time_ms": 500
+            },
+            "security": {
+                "checks": [
+                    "sql_injection",
+                    "xss"
+                ]
+            },
+            "data_comparison": {
+                "source": "api_response",
+                "target": "db_result",
+                "format": "table",
+                "key_field": [
+                    "",
+                    ""
+                ],
+                "fields_to_compare": [],
+                "log_differences": true
+            }
+        },
+        "test_data_file": "",
+        "db_query": "",
+        "db_type": "",
+        "db_connection_name": "",
+        "test_summary": "Test TC001: POST /moneymovement/requests [positive] (TC001) - Test 200 Response for One-Time Deposit via Wire.",
+        "test_scenario": "Test POST request to /moneymovement/requests for functional scenario validation."
+    },
+    {
+        "test_id": "TC002",
+        "service_name": "MoveMoneyAPI",
+        "workflow_mode": "parallel",
+        "test_name": "POST /moneymovement/requests [negative: extra param] (TC002)",
+        "protocol": "REST",
+        "test_type": [
+            "Negative"
+        ],
+        "mainURL": "{{base_url}}",
+        "endpoint": "/moneymovement/requests",
+        "method": "POST",
+        "rpc_method": "",
+        "graphql_query": "",
+        "graphql_variables": "",
+        "soap_action": "",
+        "soap_envelope": "",
+        "headers_additional": {
+            "Content-Type": "application/json"
+        },
+        "payload": {
+  "instructionId": "CC324F1F-D5CC-418C-9D86-0A52316E9293",
+  "accountId": "123e4567-e89b-12d3-a456-426614174000",
+  "railType": "Journal",
+  "amount": 5000.00,
+  "requestType": "Deposit",
+  "status": "Draft",
+  "scheduleType": "OneTime",
+  "paymentDate": "2025-12-15"
+},
+        "expected_status": "200",
+        "expected_response_schema": "",
+        "expected_response": null,
+        "ignore_fields": [
+            "id"
+        ],
+        "extract_values": [
+            {
+                "from": "response",
+                "key": "id",
+                "assign_to": ""
+            },
+            {
+                "from": "db_result",
+                "query": "",
+                "assign": [
+                    {
+                        "key": "",
+                        "assign_to": ""
+                    }
+                ]
+            }
+        ],
+        "validate": {
+            "performance": {
+                "max_response_time_ms": 500
+            },
+            "security": {
+                "checks": [
+                    "sql_injection",
+                    "xss"
+                ]
+            },
+            "data_comparison": {
+                "source": "api_response",
+                "target": "db_result",
+                "format": "table",
+                "key_field": [
+                    "",
+                    ""
+                ],
+                "fields_to_compare": [],
+                "log_differences": true
+            }
+        },
+        "test_data_file": "",
+        "db_query": "",
+        "db_type": "",
+        "db_connection_name": "",
+        "test_summary": "Test TC002: POST /moneymovement/requests [Positive] (TC002) - Test 200 Response for Roth IRA Conversion.",
+        "test_scenario": "Test POST request to /moneymovement/requests for negative scenario validation."
+    },
+    {
+        "test_id": "TC003",
+        "service_name": "MoveMoneyAPI",
+        "workflow_mode": "parallel",
+        "test_name": "POST /moneymovement/requests [negative] (TC003)",
+        "protocol": "REST",
+        "test_type": [
+            "Negative"
+        ],
+        "mainURL": "{{base_url}}",
+        "endpoint": "/moneymovement/requests",
+        "method": "POST",
+        "rpc_method": "",
+        "graphql_query": "",
+        "graphql_variables": "",
+        "soap_action": "",
+        "soap_envelope": "",
+        "headers_additional": {
+            "Content-Type": "application/json"
+        },
+        "payload": {
+  "instructionId": "CC324F1F-D5CC-418C-9D86-0A52316E9293",
+  "accountId": "123e4567-e89b-12d3-a456-426614174000",
+  "railType": "Journal",
+  "amount": 0.00,
+  "requestType": "Deposit",
+  "status": "Draft",
+  "scheduleType": "OneTime",
+  "paymentDate": "2025-12-15"
+},
+        "expected_status": "400",
+        "expected_response_schema": "",
+        "expected_response": {
+  "status": 400,
+  "error": "The field Amount must be between 0.01 and 999999999.99.",
+  "fields": "amount"
+},
+        "ignore_fields": [
+            "id"
+        ],
+        "extract_values": [
+            {
+                "from": "response",
+                "key": "id",
+                "assign_to": ""
+            },
+            {
+                "from": "db_result",
+                "query": "",
+                "assign": [
+                    {
+                        "key": "",
+                        "assign_to": ""
+                    }
+                ]
+            }
+        ],
+        "validate": {
+            "performance": {
+                "max_response_time_ms": 500
+            },
+            "security": {
+                "checks": [
+                    "sql_injection",
+                    "xss"
+                ]
+            },
+            "data_comparison": {
+                "source": "api_response",
+                "target": "db_result",
+                "format": "table",
+                "key_field": [
+                    "",
+                    ""
+                ],
+                "fields_to_compare": [],
+                "log_differences": true
+            }
+        },
+        "test_data_file": "",
+        "db_query": "",
+        "db_type": "",
+        "db_connection_name": "",
+        "test_summary": "Test TC003: POST /moneymovement/requests [negative] (TC003) - Verify that the API returns a 400 Bad Request error when the field Amount must be between 0.01 - 999999999.99.",
+        "test_scenario": "Verify that the API returns a 400 Bad Request error when invalid data is provided in the POST request to /moneymovement/requests."
+    },
+    {
+        "test_id": "TC004",
+        "service_name": "MoveMoneyAPI",
+        "workflow_mode": "parallel",
+        "test_name": "POST /moneymovement/requests [negative] (TC004)",
+        "protocol": "REST",
+        "test_type": [
+            "Negative"
+        ],
+        "mainURL": "{{base_url}}",
+        "endpoint": "/moneymovement/requests",
+        "method": "POST",
+        "rpc_method": "",
+        "graphql_query": "",
+        "graphql_variables": "",
+        "soap_action": "",
+        "soap_envelope": "",
+        "headers_additional": {
+            "Content-Type": "application/json"
+        },
+        "payload": {
+  "instructionId": "CC324F1F-D5CC-418C-9D86-0A52316E9293",
+  "accountId": "123e4567-e89b-12d3-a456-426614174000",
+  "railType": "Journal",
+  "amount": 1000.121,
+  "requestType": "Deposit",
+  "status": "Draft",
+  "scheduleType": "OneTime",
+  "paymentDate": "2025-12-15"
+},
+        "expected_status": "400",
+        "expected_response_schema": "",
+        "expected_response": {
+  "status": 400,
+  "error": "Amount must have at most 2 decimal places",
+  "fields": "amount"
+},
+        "ignore_fields": [
+            "id"
+        ],
+        "extract_values": [
+            {
+                "from": "response",
+                "key": "id",
+                "assign_to": ""
+            },
+            {
+                "from": "db_result",
+                "query": "",
+                "assign": [
+                    {
+                        "key": "",
+                        "assign_to": ""
+                    }
+                ]
+            }
+        ],
+        "validate": {
+            "performance": {
+                "max_response_time_ms": 500
+            },
+            "security": {
+                "checks": [
+                    "sql_injection",
+                    "xss"
+                ]
+            },
+            "data_comparison": {
+                "source": "api_response",
+                "target": "db_result",
+                "format": "table",
+                "key_field": [
+                    "",
+                    ""
+                ],
+                "fields_to_compare": [],
+                "log_differences": true
+            }
+        },
+        "test_data_file": "",
+        "db_query": "",
+        "db_type": "",
+        "db_connection_name": "",
+        "test_summary": "Test TC004: POST /moneymovement/requests [negative] (TC004) - Verify that the API returns a 400 Bad Request error when Amount must have at most 2 decimal places.",
+        "test_scenario": "Verify that the API returns a 400 Bad Request error when invalid data is provided in the POST request to /moneymovement/requests."
+    },
+    {
+        "test_id": "TC005",
+        "service_name": "MoveMoneyAPI",
+        "workflow_mode": "parallel",
+        "test_name": "POST /moneymovement/requests [negative] (TC005)",
+        "protocol": "REST",
+        "test_type": [
+            "Negative"
+        ],
+        "mainURL": "{{base_url}}",
+        "endpoint": "/moneymovement/requests",
+        "method": "POST",
+        "rpc_method": "",
+        "graphql_query": "",
+        "graphql_variables": "",
+        "soap_action": "",
+        "soap_envelope": "",
+        "headers_additional": {
+            "Content-Type": "application/json"
+        },
+        "payload": {
+  "instructionId": "CC324F1F-D5CC-418C-9D86-0A52316E9293",
+  "accountId": "123e4567-e89b-12d3-a456-426614174000",
+  "railType": "Journal",
+  "amount": 1000.11,
+  "requestType": "Deposit",
+  "status": "Dr!@@#aft",
+  "scheduleType": "OneTime",
+  "paymentDate": "2025-12-15"
+},
+        "expected_status": "400",
+        "expected_response_schema": "",
+        "expected_response": {
+  "status": 400,
+  "error": "Invalid value for 'status'. Must be one of: Draft, Pending, Confirmed, Deleted",
+  "fields": "status"
+},
+        "ignore_fields": [
+            "id"
+        ],
+        "extract_values": [
+            {
+                "from": "response",
+                "key": "id",
+                "assign_to": ""
+            },
+            {
+                "from": "db_result",
+                "query": "",
+                "assign": [
+                    {
+                        "key": "",
+                        "assign_to": ""
+                    }
+                ]
+            }
+        ],
+        "validate": {
+            "performance": {
+                "max_response_time_ms": 500
+            },
+            "security": {
+                "checks": [
+                    "sql_injection",
+                    "xss"
+                ]
+            },
+            "data_comparison": {
+                "source": "api_response",
+                "target": "db_result",
+                "format": "table",
+                "key_field": [
+                    "",
+                    ""
+                ],
+                "fields_to_compare": [],
+                "log_differences": true
+            }
+        },
+        "test_data_file": "",
+        "db_query": "",
+        "db_type": "",
+        "db_connection_name": "",
+        "test_summary": "Test TC005: POST /moneymovement/requests [negative] (TC005) - Verify that the API returns a 400 Bad Request error when Invalid value for 'status'.",
+        "test_scenario": "Verify that the API returns a 400 Bad Request error when invalid data is provided in the POST request to /moneymovement/requests."
+    },
+    {
+        "test_id": "TC006",
+        "service_name": "MoveMoneyAPI",
+        "workflow_mode": "parallel",
+        "test_name": "POST /moneymovement/requests [negative] (TC006)",
+        "protocol": "REST",
+        "test_type": [
+            "Negative"
+        ],
+        "mainURL": "{{base_url}}",
+        "endpoint": "/moneymovement/requests",
+        "method": "POST",
+        "rpc_method": "",
+        "graphql_query": "",
+        "graphql_variables": "",
+        "soap_action": "",
+        "soap_envelope": "",
+        "headers_additional": {
+            "Content-Type": "application/json"
+        },
+        "payload": {
+  "instructionId": "CC324F1F-D5CC-418C-9D86-0A52316E9293",
+  "accountId": "123e4@@567-e89b-12d3-a456-4266141@@@74000",
+  "railType": "Journal",
+  "amount": 1000.11,
+  "requestType": "Deposit",
+  "status": "Draft",
+  "scheduleType": "OneTime",
+  "paymentDate": "2025-12-15"
+},
+        "expected_status": "400",
+        "expected_response_schema": "",
+        "expected_response": {
+  "status": 400,
+  "error": "Invalid GUID format for 'accountId'.",
+  "fields": "accountId"
+},
+        "ignore_fields": [
+            "id"
+        ],
+        "extract_values": [
+            {
+                "from": "response",
+                "key": "id",
+                "assign_to": ""
+            },
+            {
+                "from": "db_result",
+                "query": "",
+                "assign": [
+                    {
+                        "key": "",
+                        "assign_to": ""
+                    }
+                ]
+            }
+        ],
+        "validate": {
+            "performance": {
+                "max_response_time_ms": 500
+            },
+            "security": {
+                "checks": [
+                    "sql_injection",
+                    "xss"
+                ]
+            },
+            "data_comparison": {
+                "source": "api_response",
+                "target": "db_result",
+                "format": "table",
+                "key_field": [
+                    "",
+                    ""
+                ],
+                "fields_to_compare": [],
+                "log_differences": true
+            }
+        },
+        "test_data_file": "",
+        "db_query": "",
+        "db_type": "",
+        "db_connection_name": "",
+        "test_summary": "Test TC006: POST /moneymovement/requests [negative] (TC006) - Verify that the API returns a 400 Bad Request error when Invalid GUID format for 'accountId'",
+        "test_scenario": "Verify that the API returns a 400 Bad Request error when invalid data is provided in the POST request to /moneymovement/requests."
+    },
+    {
+        "test_id": "TC007",
+        "service_name": "MoveMoneyAPI",
+        "workflow_mode": "parallel",
+        "test_name": "POST /moneymovement/requests [negative] (TC007)",
+        "protocol": "REST",
+        "test_type": [
+            "Negative"
+        ],
+        "mainURL": "{{base_url}}",
+        "endpoint": "/moneymovement/requests",
+        "method": "POST",
+        "rpc_method": "",
+        "graphql_query": "",
+        "graphql_variables": "",
+        "soap_action": "",
+        "soap_envelope": "",
+        "headers_additional": {
+            "Content-Type": "application/json"
+        },
+        "payload": {
+  "instructionId": "CC32@@4F1F-D5CC-418C-9D86-0A523@@16E9293",
+  "accountId": "123e4567-e89b-12d3-a456-426614174000",
+  "railType": "Journal",
+  "amount": 1000.11,
+  "requestType": "Deposit",
+  "status": "Draft",
+  "scheduleType": "OneTime",
+  "paymentDate": "2025-12-15"
+},
+        "expected_status": "400",
+        "expected_response_schema": "",
+        "expected_response": null,
+        "ignore_fields": [
+            "id"
+        ],
+        "extract_values": [
+            {
+                "from": "response",
+                "key": "id",
+                "assign_to": ""
+            },
+            {
+                "from": "db_result",
+                "query": "",
+                "assign": [
+                    {
+                        "key": "",
+                        "assign_to": ""
+                    }
+                ]
+            }
+        ],
+        "validate": {
+            "performance": {
+                "max_response_time_ms": 500
+            },
+            "security": {
+                "checks": [
+                    "sql_injection",
+                    "xss"
+                ]
+            },
+            "data_comparison": {
+                "source": "api_response",
+                "target": "db_result",
+                "format": "table",
+                "key_field": [
+                    "",
+                    ""
+                ],
+                "fields_to_compare": [],
+                "log_differences": true
+            }
+        },
+        "test_data_file": "",
+        "db_query": "",
+        "db_type": "",
+        "db_connection_name": "",
+        "test_summary": "Test TC006: POST /moneymovement/requests [negative] (TC007) - Verify that the API returns a 400 Bad Request error when Invalid GUID format for 'InstructionId'",
+        "test_scenario": "Verify that the API returns a 400 Bad Request error when invalid data is provided in the POST request to /moneymovement/requests."
+    },
+    {
+        "test_id": "TC008",
+        "service_name": "MoveMoneyAPI",
+        "workflow_mode": "parallel",
+        "test_name": "POST /moneymovement/requests [negative: error 500] (TC008)",
+        "protocol": "REST",
+        "test_type": [
+            "Negative"
+        ],
+        "mainURL": "{{base_url}}",
+        "endpoint": "/moneymovement/requests",
+        "method": "POST",
+        "rpc_method": "",
+        "graphql_query": "",
+        "graphql_variables": "",
+        "soap_action": "",
+        "soap_envelope": "",
+        "headers_additional": {
+            "Content-Type": "application/json"
+        },
+        "payload": null,
+        "expected_status": "500",
+        "expected_response_schema": "",
+        "expected_response": null,
+        "ignore_fields": [
+            "id"
+        ],
+        "extract_values": [
+            {
+                "from": "response",
+                "key": "id",
+                "assign_to": ""
+            },
+            {
+                "from": "db_result",
+                "query": "",
+                "assign": [
+                    {
+                        "key": "",
+                        "assign_to": ""
+                    }
+                ]
+            }
+        ],
+        "validate": {
+            "performance": {
+                "max_response_time_ms": 500
+            },
+            "security": {
+                "checks": [
+                    "sql_injection",
+                    "xss"
+                ]
+            },
+            "data_comparison": {
+                "source": "api_response",
+                "target": "db_result",
+                "format": "table",
+                "key_field": [
+                    "",
+                    ""
+                ],
+                "fields_to_compare": [],
+                "log_differences": true
+            }
+        },
+        "test_data_file": "",
+        "db_query": "",
+        "db_type": "",
+        "db_connection_name": "",
+        "test_summary": "Test TC008: POST /moneymovement/requests [negative: error 500] (TC008) - Test POST request to /moneymovement/requests for negative scenario validation.",
+        "error_case": "500",
+        "test_scenario": "Test POST request to /moneymovement/requests for negative scenario validation."
+    }
+]

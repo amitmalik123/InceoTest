@@ -1,0 +1,256 @@
+"""
+Test Context Manager
+
+Manages test execution context, variable extraction, and global state.
+Centralizes all context-related operations and eliminates duplicate extraction logic.
+"""
+
+from typing import Dict, List, Any, Optional
+from framework.common.logger import get_logger
+from framework.common.template_utils import render_template, render_hybrid
+from framework.common.common_functions import extract_value
+
+logger = get_logger(__name__)
+
+
+class TestContextManager:
+    """
+    Centralized context and variable management for test execution.
+    Handles context creation, variable extraction, and global state management.
+    Singleton pattern ensures consistent state across test cases.
+    """
+    
+    _instance = None
+    
+    def __new__(cls):
+        """Singleton pattern - only one instance exists"""
+        if cls._instance is None:
+            cls._instance = super(TestContextManager, cls).__new__(cls)
+            cls._instance._initialized = False
+        return cls._instance
+    
+    def __init__(self):
+        """Initialize context manager (only once due to singleton)"""
+        if self._initialized:
+            return
+        
+        self._global_variables: Dict[str, Any] = {}  # Replaces extracted_globals
+        self._initialized = True
+        logger.debug("TestContextManager initialized")
+    
+    def create_context(
+        self, 
+        case: Dict, 
+        test_data: Any, 
+        api_defs: Dict
+    ) -> Dict:
+        """
+        Build test execution context from case, test_data, and extracted globals.
+        
+        Args:
+            case: Test case configuration dictionary
+            test_data: Test data (dict, list, or None)
+            api_defs: API definitions dictionary
+        
+        Returns:
+            Complete context dictionary for template rendering
+        """
+        context = {}
+        
+        # Add extracted values from previous test cases (chaining)
+        context.update(self._global_variables)
+        
+        # Add test data to context
+        if test_data:
+            if isinstance(test_data, list) and test_data:
+                # Use first row if list (parameterization handles multiple rows)
+                context.update(test_data[0])
+            elif isinstance(test_data, dict):
+                context.update(test_data)
+        
+        # Add current test case data (overrides test_data if conflicts)
+        context.update(case)
+        
+        logger.debug(f"Created context for test_id: {case.get('test_id')} with "
+                    f"{len(context)} variables (including {len(self._global_variables)} global)")
+        
+        return context
+    
+    def extract_value_single(
+        self, 
+        source_type: str, 
+        source_data: Any, 
+        key: str, 
+        assign_to: str
+    ) -> Optional[Any]:
+        """
+        Extract single value from response or db_result and store in global state.
+        
+        Args:
+            source_type: Source type ('response' or 'db_result')
+            source_data: Source data to extract from
+            key: Key path to extract (supports dot notation)
+            assign_to: Variable name to assign extracted value to
+        
+        Returns:
+            Extracted value or None if extraction failed
+        """
+        try:
+            value = extract_value(source_data, key)
+            
+            # Store in global variables for use in subsequent test cases
+            self._global_variables[assign_to] = value
+            
+            logger.debug(f"Extracted variable '{assign_to}' from '{source_type}.{key}': {value}")
+            return value
+            
+        except Exception as e:
+            logger.warning(f"Failed to extract '{key}' from {source_type}: {e}")
+            return None
+    
+    def extract_values_batch(
+        self, 
+        extract_config: List[Dict], 
+        response: Any = None,
+        db_result: Any = None
+    ) -> Dict[str, Any]:
+        """
+        Process extract_values array from test case configuration.
+        Supports both old and new format:
+        - Old: {"from": "response", "key": "id", "assign_to": "user_id"}
+        - New: {"from": "response", "assign": [{"key": "id", "assign_to": "user_id"}]}
+        
+        Args:
+            extract_config: List of extraction configurations
+            response: Response object (optional)
+            db_result: Database result (optional)
+        
+        Returns:
+            Dictionary of extracted variables
+        """
+        extracted = {}
+        
+        if not extract_config:
+            return extracted
+        
+        for extract in extract_config:
+            source_type = extract.get('from')
+            
+            # Get source data based on type
+            source_data = None
+            if source_type == 'response' and response:
+                try:
+                    source_data = response.json() if hasattr(response, 'json') else response
+                except:
+                    logger.warning("Failed to parse response as JSON for extraction")
+                    continue
+            elif source_type == 'db_result' and db_result:
+                source_data = db_result
+            else:
+                logger.debug(f"Skipping extraction from '{source_type}' - source not available")
+                continue
+            
+            # Check if this uses the new nested 'assign' array structure
+            if 'assign' in extract and isinstance(extract['assign'], list):
+                # New format: {"from": "response", "assign": [{"key": "id", "assign_to": "user_id"}]}
+                for assign_item in extract['assign']:
+                    key = assign_item.get('key')
+                    assign_to = assign_item.get('assign_to')
+                    
+                    if key and assign_to:
+                        value = self.extract_value_single(source_type, source_data, key, assign_to)
+                        if value is not None:
+                            extracted[assign_to] = value
+            else:
+                # Old format: {"from": "response", "key": "id", "assign_to": "user_id"}
+                key = extract.get('key')
+                assign_to = extract.get('assign_to')
+                
+                if key and assign_to:
+                    value = self.extract_value_single(source_type, source_data, key, assign_to)
+                    if value is not None:
+                        extracted[assign_to] = value
+        
+        logger.info(f"Extracted {len(extracted)} variables from batch extraction")
+        return extracted
+    
+    def get_variable(self, var_name: str, default: Any = None) -> Any:
+        """
+        Get extracted variable from global state.
+        
+        Args:
+            var_name: Variable name to retrieve
+            default: Default value if variable not found
+        
+        Returns:
+            Variable value or default
+        """
+        return self._global_variables.get(var_name, default)
+    
+    def set_variable(self, var_name: str, value: Any):
+        """
+        Set variable in global state.
+        
+        Args:
+            var_name: Variable name to set
+            value: Value to store
+        """
+        self._global_variables[var_name] = value
+        logger.debug(f"Set global variable '{var_name}' = {value}")
+    
+    def get_all_variables(self) -> Dict[str, Any]:
+        """
+        Get all extracted global variables.
+        
+        Returns:
+            Dictionary of all global variables
+        """
+        return self._global_variables.copy()
+    
+    def clear_variables(self):
+        """
+        Clear all extracted global variables.
+        Useful for test isolation.
+        """
+        count = len(self._global_variables)
+        self._global_variables.clear()
+        logger.info(f"Cleared {count} global variables")
+    
+    def render_with_context(self, template: Any, context: Dict) -> Any:
+        """
+        Render template with context variables.
+        Delegates to template_utils for actual rendering.
+        
+        Args:
+            template: Template to render (str, dict, list, or primitive)
+            context: Context dictionary with variables
+        
+        Returns:
+            Rendered value with variables substituted
+        """
+        try:
+            return render_hybrid(template, context)
+        except Exception as e:
+            logger.error(f"Failed to render template: {e}")
+            return template
+
+
+# Singleton accessor function
+_context_manager_instance = None
+
+def get_context_manager() -> TestContextManager:
+    """
+    Get the singleton TestContextManager instance.
+    
+    Returns:
+        TestContextManager singleton instance
+    
+    Example:
+        >>> context_mgr = get_context_manager()
+        >>> context = context_mgr.create_context(case, test_data, api_defs)
+        >>> context_mgr.extract_values_batch(extract_config, response, db_result)
+    """
+    global _context_manager_instance
+    if _context_manager_instance is None:
+        _context_manager_instance = TestContextManager()
+    return _context_manager_instance

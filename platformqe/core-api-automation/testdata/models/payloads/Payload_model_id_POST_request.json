@@ -1,0 +1,46 @@
+{
+        "name": "string",
+        "ownerId": "3fa85f64-5717-4562-b3fc-2c963f66afa6",
+        "modelAttributes": {
+            "solutionType": "string",
+            "custodian": [
+            "string"
+            ],
+            "investmentMin": {
+            "additionalProp1": 1,
+            "additionalProp2": 2,
+            "additionalProp3": 3
+            },
+            "modelType": "string",
+            "riskProfile": "string",
+            "metadata": {
+            "additionalProp1": "string",
+            "additionalProp2": "string",
+            "additionalProp3": "string"
+            }
+        },
+        
+        "allocationDetail": [
+            {
+            "entityType": "Model",
+            "allocationName": "string",
+            "modelId": "string",
+            "cusip": "string",
+            "ticker": "string",
+            "weight": 0.5,
+            "allocations": [
+                {
+                "name": "string",
+                "entityType": "Security",
+                "assetType": "string",
+                "assetClass": "string",
+                "assetSubClass": "string",
+                "weight": 0.5
+                }
+            ]
+            }
+        ],
+        "investmentApproachName": "string",
+        "benchmarkName": "string",
+        "benchmarkIsPrimary": true
+    }        

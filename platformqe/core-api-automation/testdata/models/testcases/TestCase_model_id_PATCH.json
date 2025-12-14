@@ -1,0 +1,1479 @@
+[
+    {
+        "test_id": "TC001",
+        "service_name": "models",
+        "workflow_mode": "parallel",
+        "test_name": "POST /model [positive] (TC001)",
+        "protocol": "REST",
+        "test_type": [
+            "Functional"
+        ],
+        "mainURL": "{{base_url}}",
+        "endpoint": "/model",
+        "method": "POST",
+        "rpc_method": "",
+        "graphql_query": "",
+        "graphql_variables": "",
+        "soap_action": "",
+        "soap_envelope": "",
+        "headers_additional": {
+            "Content-Type": "application/json"
+        },
+        "payload": "models\\payloads\\Payload_model_id_POST_request.json",
+        "expected_status": "201",
+        "expected_response_schema": "models\\schemas\\Schema_post_response copy.json",
+        "expected_response": null,
+        "ignore_fields": [
+            "id"
+        ],
+        "extract_values": [
+            {
+                "from": "response",
+                "key": "modelId",
+                "assign_to": "response_model_id"
+            }
+        ],
+        "validate": {
+            "performance": {
+                "max_response_time_ms": 500
+            },
+            "security": {
+                "checks": [
+                    "sql_injection",
+                    "xss"
+                ]
+            }
+        },
+        "test_data_file": "",
+        "db_query": "",
+        "db_type": "",
+        "db_connection_name": "",
+        "test_summary": "Test TC001: POST /model [positive] (TC001) - Test POST request to /model for functional scenario validation.",
+        "test_scenario": "Test POST request to /model for functional scenario validation."
+    },
+    {
+        "test_id": "TC002",
+        "service_name": "models",
+        "workflow_mode": "parallel",
+        "test_name": "PATCH /model/{id} - Partial Update with Replace, Remove, Add [positive] (TC002)",
+        "protocol": "REST",
+        "test_type": [
+            "Functional"
+        ],
+        "mainURL": "{{base_url}}",
+        "endpoint": "/model/{{response_model_id}}",
+        "method": "PATCH",
+        "rpc_method": "",
+        "graphql_query": "",
+        "graphql_variables": "",
+        "soap_action": "",
+        "soap_envelope": "",
+        "headers_additional": {
+            "Content-Type": "application/json-patch+json"
+        },
+        "payload": [
+            {
+                "op": "replace",
+                "path": "/name",
+                "value": "Model-Test"
+            },
+            {
+                "op": "remove",
+                "path": "/modelType"
+            },
+            {
+                "op": "add",
+                "path": "/solutionType",
+                "value": "New-Solution-Type"
+            }
+        ],
+        "expected_status": "200",
+        "expected_response_schema": "",
+        "expected_response": null,
+        "ignore_fields": [],
+        "extract_values": [
+            {
+                "from": "response",
+                "key": "message",
+                "assign_to": "patch_message"
+            },
+            {
+                "from": "response",
+                "key": "status",
+                "assign_to": "patch_status"
+            }
+        ],
+        "validate": {
+            "performance": {
+                "max_response_time_ms": 500
+            },
+            "security": {
+                "checks": [
+                    "sql_injection",
+                    "xss"
+                ]
+            },
+            "assertions": [
+                {
+                    "actual": "{{patch_status}}",
+                    "operator": "==",
+                    "expected": 200,
+                    "message": "Expected status to be '200'"
+                },
+                {
+                    "actual": "{{patch_message}}",
+                    "operator": "==",
+                    "expected": "Model partially updated successfully.",
+                    "message": "Expected success message for partial update"
+                }
+            ]
+        },
+        "test_data_file": "",
+        "db_query": "",
+        "db_type": "",
+        "db_connection_name": "",
+        "test_summary": "Verify PATCH /model/{id} partially updates model with replace, remove, and add operations",
+        "test_scenario": "AC1: Endpoint PATCH /model/{id} accepts valid model ID. AC2: Only provided fields are modified. AC3: Verify name replaced, modelType removed, solutionType added. AC4: Fields not in request remain unchanged."
+    },
+    {
+        "test_id": "TC003",
+        "service_name": "models",
+        "workflow_mode": "parallel",
+        "test_name": "PATCH /model/{id} - Update Single Field [positive] (TC003)",
+        "protocol": "REST",
+        "test_type": [
+            "Functional"
+        ],
+        "mainURL": "{{base_url}}",
+        "endpoint": "/model/{{response_model_id}}",
+        "method": "PATCH",
+        "rpc_method": "",
+        "graphql_query": "",
+        "graphql_variables": "",
+        "soap_action": "",
+        "soap_envelope": "",
+        "headers_additional": {
+            "Content-Type": "application/json-patch+json"
+        },
+        "payload": [
+            {
+                "op": "replace",
+                "path": "/custodian",
+                "value": [
+                    "Fidelity"
+                ]
+            }
+        ],
+        "expected_status": "200",
+        "expected_response_schema": "",
+        "expected_response": null,
+        "ignore_fields": [],
+        "extract_values": [
+            {
+                "from": "response",
+                "key": "message",
+                "assign_to": "patch_message"
+            }
+        ],
+        "validate": {
+            "performance": {
+                "max_response_time_ms": 500
+            },
+            "security": {
+                "checks": [
+                    "sql_injection",
+                    "xss"
+                ]
+            },
+            "assertions": [
+                {
+                    "actual": "{{patch_message}}",
+                    "operator": "==",
+                    "expected": "Model partially updated successfully.",
+                    "message": "Expected success message for single field update"
+                }
+            ]
+        },
+        "test_data_file": "",
+        "db_query": "",
+        "db_type": "",
+        "db_connection_name": "",
+        "test_summary": "Verify PATCH /model/{id} updates only the custodian field",
+        "test_scenario": "AC2: Request body is optional. AC3: Only custodian field is updated, all other fields remain unchanged."
+    },
+    {
+        "test_id": "TC004",
+        "service_name": "models",
+        "workflow_mode": "parallel",
+        "test_name": "PATCH /model/{id} - Invalid Model ID [negative] (TC004)",
+        "protocol": "REST",
+        "test_type": [
+            "Functional",
+            "Negative"
+        ],
+        "mainURL": "{{base_url}}",
+        "endpoint": "/model/00000000-0000-0000-0000-000000000000",
+        "method": "PATCH",
+        "rpc_method": "",
+        "graphql_query": "",
+        "graphql_variables": "",
+        "soap_action": "",
+        "soap_envelope": "",
+        "headers_additional": {
+            "Content-Type": "application/json-patch+json"
+        },
+        "payload": [
+            {
+                "op": "replace",
+                "path": "/name",
+                "value": "Test"
+            }
+        ],
+        "expected_status": "400",
+        "expected_response_schema": "",
+        "expected_response": null,
+        "ignore_fields": [],
+        "extract_values": [],
+        "validate": {
+            "performance": {
+                "max_response_time_ms": 500
+            },
+            "security": {
+                "checks": []
+            },
+            "assertions": []
+        },
+        "test_data_file": "",
+        "db_query": "",
+        "db_type": "",
+        "db_connection_name": "",
+        "test_summary": "Verify PATCH /model/{id} returns 404 for non-existent model ID",
+        "test_scenario": "AC1: System must accept valid model ID. Verify proper error handling for invalid ID."
+    },
+    {
+        "test_id": "TC005",
+        "service_name": "models",
+        "workflow_mode": "parallel",
+        "test_name": "PATCH /model/{id} - Invalid Data Type [negative] (TC005)",
+        "protocol": "REST",
+        "test_type": [
+            "Functional",
+            "Negative"
+        ],
+        "mainURL": "{{base_url}}",
+        "endpoint": "/model/{{response_model_id}}",
+        "method": "PATCH",
+        "rpc_method": "",
+        "graphql_query": "",
+        "graphql_variables": "",
+        "soap_action": "",
+        "soap_envelope": "",
+        "headers_additional": {
+            "Content-Type": "application/json-patch+json"
+        },
+        "payload": [
+            {
+                "op": "replace",
+                "path": "/name",
+                "value": ""
+            }
+        ],
+        "expected_status": "400",
+        "expected_response_schema": "",
+        "expected_response": null,
+        "ignore_fields": [],
+        "extract_values": [],
+        "validate": {
+            "performance": {
+                "max_response_time_ms": 500
+            },
+            "security": {
+                "checks": []
+            },
+            "assertions": []
+        },
+        "test_data_file": "",
+        "db_query": "",
+        "db_type": "",
+        "db_connection_name": "",
+        "test_summary": "Verify PATCH /model/{id} rejects invalid data type (number instead of string)",
+        "test_scenario": "AC4: System must validate data types and reject fields with invalid format/type."
+    },
+    {
+        "test_id": "TC006",
+        "service_name": "models",
+        "workflow_mode": "parallel",
+        "test_name": "PATCH /model/{id} - Malformed GUID [negative] (TC006)",
+        "protocol": "REST",
+        "test_type": [
+            "Functional",
+            "Negative"
+        ],
+        "mainURL": "{{base_url}}",
+        "endpoint": "/model/6eae4597-a268-437f-a059-b1c1c8ddad41",
+        "method": "PATCH",
+        "rpc_method": "",
+        "graphql_query": "",
+        "graphql_variables": "",
+        "soap_action": "",
+        "soap_envelope": "",
+        "headers_additional": {
+            "Content-Type": "application/json-patch+json"
+        },
+        "payload": [
+            {
+                "op": "replace",
+                "path": "/name",
+                "value": "Test"
+            }
+        ],
+        "expected_status": "404",
+        "expected_response_schema": "",
+        "expected_response": null,
+        "ignore_fields": [],
+        "extract_values": [],
+        "validate": {
+            "performance": {
+                "max_response_time_ms": 500
+            },
+            "security": {
+                "checks": []
+            },
+            "assertions": []
+        },
+        "test_data_file": "",
+        "db_query": "",
+        "db_type": "",
+        "db_connection_name": "",
+        "test_summary": "Verify PATCH /model/{id} rejects malformed GUID format",
+        "test_scenario": "AC1: System must validate model ID format and reject invalid GUID."
+    },
+    {
+        "test_id": "TC007",
+        "service_name": "models",
+        "workflow_mode": "parallel",
+        "test_name": "PATCH /model/{id} - Empty Payload [negative] (TC007)",
+        "protocol": "REST",
+        "test_type": [
+            "Functional"
+        ],
+        "mainURL": "{{base_url}}",
+        "endpoint": "/model/{{response_model_id}}",
+        "method": "PATCH",
+        "rpc_method": "",
+        "graphql_query": "",
+        "graphql_variables": "",
+        "soap_action": "",
+        "soap_envelope": "",
+        "headers_additional": {
+            "Content-Type": "application/json-patch+json"
+        },
+        "payload": null,
+        "expected_status": "500",
+        "expected_response_schema": "",
+        "expected_response": null,
+        "ignore_fields": [],
+        "extract_values": [
+            {
+                "from": "response",
+                "key": "message",
+                "assign_to": "patch_message"
+            }
+        ],
+        "validate": {
+            "performance": {
+                "max_response_time_ms": 500
+            },
+            "security": {
+                "checks": []
+            }
+        },
+        "test_data_file": "",
+        "db_query": "",
+        "db_type": "",
+        "db_connection_name": "",
+        "test_summary": "Verify PATCH /model/{id} handles empty payload (no changes)",
+        "test_scenario": "AC2: Request body is optional. AC3: No fields should be modified when payload is empty."
+    },
+    {
+        "test_id": "TC008",
+        "service_name": "models",
+        "workflow_mode": "parallel",
+        "test_name": "PATCH /model/{id} - Multiple Field Updates [positive] (TC008)",
+        "protocol": "REST",
+        "test_type": [
+            "Functional"
+        ],
+        "mainURL": "{{base_url}}",
+        "endpoint": "/model/{{response_model_id}}",
+        "method": "PATCH",
+        "rpc_method": "",
+        "graphql_query": "",
+        "graphql_variables": "",
+        "soap_action": "",
+        "soap_envelope": "",
+        "headers_additional": {
+            "Content-Type": "application/json-patch+json"
+        },
+        "payload": [
+            {
+                "op": "replace",
+                "path": "/investmentApproach",
+                "value": {
+                    "name": "string",
+                    "id": 0
+                }
+            },
+            {
+                "op": "add",
+                "path": "/solutionType",
+                "value": "S&P 500"
+            }
+        ],
+        "expected_status": "200",
+        "expected_response_schema": "",
+        "expected_response": null,
+        "ignore_fields": [],
+        "extract_values": [
+            {
+                "from": "response",
+                "key": "message",
+                "assign_to": "patch_message"
+            }
+        ],
+        "validate": {
+            "performance": {
+                "max_response_time_ms": 500
+            },
+            "security": {
+                "checks": [
+                    "sql_injection",
+                    "xss"
+                ]
+            },
+            "assertions": [
+                {
+                    "actual": "{{patch_message}}",
+                    "operator": "==",
+                    "expected": "Model partially updated successfully.",
+                    "message": "Expected success message for multiple field update"
+                }
+            ]
+        },
+        "test_data_file": "",
+        "db_query": "",
+        "db_type": "",
+        "db_connection_name": "",
+        "test_summary": "Verify PATCH /model/{id} updates multiple fields correctly",
+        "test_scenario": "AC2: Only provided fields modified. AC3: Verify investmentApproach and benchmark updated, other fields unchanged."
+    },
+    {
+        "test_id": "TC009",
+        "service_name": "models",
+        "workflow_mode": "parallel",
+        "test_name": "PATCH /model/{id} - Update Name and ModelType [positive] (TC009)",
+        "protocol": "REST",
+        "test_type": [
+            "Functional"
+        ],
+        "mainURL": "{{base_url}}",
+        "endpoint": "/model/{{response_model_id}}",
+        "method": "PATCH",
+        "rpc_method": "",
+        "graphql_query": "",
+        "graphql_variables": "",
+        "soap_action": "",
+        "soap_envelope": "",
+        "headers_additional": {
+            "Content-Type": "application/json-patch+json"
+        },
+        "payload": [
+            {
+                "op": "replace",
+                "path": "/name",
+                "value": "Conservative Growth Model"
+            },
+            {
+                "op": "replace",
+                "path": "/modelType",
+                "value": "Conservative"
+            }
+        ],
+        "expected_status": "200",
+        "expected_response_schema": "",
+        "expected_response": null,
+        "ignore_fields": [],
+        "extract_values": [
+            {
+                "from": "response",
+                "key": "message",
+                "assign_to": "patch_message"
+            }
+        ],
+        "validate": {
+            "performance": {
+                "max_response_time_ms": 500
+            },
+            "security": {
+                "checks": [
+                    "sql_injection",
+                    "xss"
+                ]
+            },
+            "assertions": [
+                {
+                    "actual": "{{patch_message}}",
+                    "operator": "==",
+                    "expected": "Model partially updated successfully.",
+                    "message": "Expected success message"
+                }
+            ]
+        },
+        "test_data_file": "",
+        "db_query": "",
+        "db_type": "",
+        "db_connection_name": "",
+        "test_summary": "Verify PATCH updates name and modelType together",
+        "test_scenario": "AC2: Verify updating name and modelType fields, other fields remain unchanged."
+    },
+    {
+        "test_id": "TC010",
+        "service_name": "models",
+        "workflow_mode": "parallel",
+        "test_name": "PATCH /model/{id} - Update SolutionType and Custodian [positive] (TC010)",
+        "protocol": "REST",
+        "test_type": [
+            "Functional"
+        ],
+        "mainURL": "{{base_url}}",
+        "endpoint": "/model/{{response_model_id}}",
+        "method": "PATCH",
+        "rpc_method": "",
+        "graphql_query": "",
+        "graphql_variables": "",
+        "soap_action": "",
+        "soap_envelope": "",
+        "headers_additional": {
+            "Content-Type": "application/json-patch+json"
+        },
+        "payload": [
+            {
+                "op": "replace",
+                "path": "/solutionType",
+                "value": "Fixed Income"
+            },
+            {
+                "op": "replace",
+                "path": "/custodian",
+                "value": [
+                    "Schwab",
+                    "TD Ameritrade"
+                ]
+            }
+        ],
+        "expected_status": "200",
+        "expected_response_schema": "",
+        "expected_response": null,
+        "ignore_fields": [],
+        "extract_values": [
+            {
+                "from": "response",
+                "key": "message",
+                "assign_to": "patch_message"
+            }
+        ],
+        "validate": {
+            "performance": {
+                "max_response_time_ms": 500
+            },
+            "security": {
+                "checks": [
+                    "sql_injection",
+                    "xss"
+                ]
+            },
+            "assertions": [
+                {
+                    "actual": "{{patch_message}}",
+                    "operator": "==",
+                    "expected": "Model partially updated successfully.",
+                    "message": "Expected success message"
+                }
+            ]
+        },
+        "test_data_file": "",
+        "db_query": "",
+        "db_type": "",
+        "db_connection_name": "",
+        "test_summary": "Verify PATCH updates solutionType and custodian array",
+        "test_scenario": "AC2: Verify updating solutionType and custodian, other fields remain unchanged."
+    },
+    {
+        "test_id": "TC011",
+        "service_name": "models",
+        "workflow_mode": "parallel",
+        "test_name": "PATCH /model/{id} - Update All Core Fields [positive] (TC011)",
+        "protocol": "REST",
+        "test_type": [
+            "Functional"
+        ],
+        "mainURL": "{{base_url}}",
+        "endpoint": "/model/{{response_model_id}}",
+        "method": "PATCH",
+        "rpc_method": "",
+        "graphql_query": "",
+        "graphql_variables": "",
+        "soap_action": "",
+        "soap_envelope": "",
+        "headers_additional": {
+            "Content-Type": "application/json-patch+json"
+        },
+        "payload": [
+            {
+                "op": "replace",
+                "path": "/name",
+                "value": "Balanced Portfolio 2024"
+            },
+            {
+                "op": "replace",
+                "path": "/modelType",
+                "value": "Balanced"
+            },
+            {
+                "op": "replace",
+                "path": "/solutionType",
+                "value": "Diversified"
+            },
+            {
+                "op": "replace",
+                "path": "/custodian",
+                "value": [
+                    "Fidelity",
+                    "Vanguard"
+                ]
+            },
+            {
+                "op": "replace",
+                "path": "/investmentApproach",
+                "value": {
+                    "name": "string",
+                    "id": 0
+                }
+            }
+        ],
+        "expected_status": "200",
+        "expected_response_schema": "",
+        "expected_response": null,
+        "ignore_fields": [],
+        "extract_values": [
+            {
+                "from": "response",
+                "key": "message",
+                "assign_to": "patch_message"
+            }
+        ],
+        "validate": {
+            "performance": {
+                "max_response_time_ms": 500
+            },
+            "security": {
+                "checks": [
+                    "sql_injection",
+                    "xss"
+                ]
+            },
+            "assertions": [
+                {
+                    "actual": "{{patch_message}}",
+                    "operator": "==",
+                    "expected": "Model partially updated successfully.",
+                    "message": "Expected success message"
+                }
+            ]
+        },
+        "test_data_file": "",
+        "db_query": "",
+        "db_type": "",
+        "db_connection_name": "",
+        "test_summary": "Verify PATCH updates all core fields simultaneously",
+        "test_scenario": "AC2: Verify updating all core fields (name, modelType, solutionType, custodian, investmentApproach) in single request."
+    },
+    {
+        "test_id": "TC012",
+        "service_name": "models",
+        "workflow_mode": "parallel",
+        "test_name": "PATCH /model/{id} - Remove ModelType, Add InvestmentApproach [positive] (TC012)",
+        "protocol": "REST",
+        "test_type": [
+            "Functional"
+        ],
+        "mainURL": "{{base_url}}",
+        "endpoint": "/model/{{response_model_id}}",
+        "method": "PATCH",
+        "rpc_method": "",
+        "graphql_query": "",
+        "graphql_variables": "",
+        "soap_action": "",
+        "soap_envelope": "",
+        "headers_additional": {
+            "Content-Type": "application/json-patch+json"
+        },
+        "payload": [
+            {
+                "op": "remove",
+                "path": "/modelType"
+            },
+            {
+                "op": "add",
+                "path": "/investmentApproach",
+                "value": {
+                    "name": "string",
+                    "id": 0
+                }
+            }
+        ],
+        "expected_status": "200",
+        "expected_response_schema": "",
+        "expected_response": null,
+        "ignore_fields": [],
+        "extract_values": [
+            {
+                "from": "response",
+                "key": "message",
+                "assign_to": "patch_message"
+            }
+        ],
+        "validate": {
+            "performance": {
+                "max_response_time_ms": 500
+            },
+            "security": {
+                "checks": [
+                    "sql_injection",
+                    "xss"
+                ]
+            },
+            "assertions": [
+                {
+                    "actual": "{{patch_message}}",
+                    "operator": "==",
+                    "expected": "Model partially updated successfully.",
+                    "message": "Expected success message"
+                }
+            ]
+        },
+        "test_data_file": "",
+        "db_query": "",
+        "db_type": "",
+        "db_connection_name": "",
+        "test_summary": "Verify PATCH removes modelType and adds investmentApproach",
+        "test_scenario": "AC3: Verify remove operation on modelType and add operation on investmentApproach."
+    },
+    {
+        "test_id": "TC013",
+        "service_name": "models",
+        "workflow_mode": "parallel",
+        "test_name": "PATCH /model/{id} - Update Name with Special Characters [positive] (TC013)",
+        "protocol": "REST",
+        "test_type": [
+            "Functional"
+        ],
+        "mainURL": "{{base_url}}",
+        "endpoint": "/model/{{response_model_id}}",
+        "method": "PATCH",
+        "rpc_method": "",
+        "graphql_query": "",
+        "graphql_variables": "",
+        "soap_action": "",
+        "soap_envelope": "",
+        "headers_additional": {
+            "Content-Type": "application/json-patch+json"
+        },
+        "payload": [
+            {
+                "op": "replace",
+                "path": "/name",
+                "value": "Model-2024 (Growth & Income) - v2.0"
+            }
+        ],
+        "expected_status": "200",
+        "expected_response_schema": "",
+        "expected_response": null,
+        "ignore_fields": [],
+        "extract_values": [
+            {
+                "from": "response",
+                "key": "message",
+                "assign_to": "patch_message"
+            }
+        ],
+        "validate": {
+            "performance": {
+                "max_response_time_ms": 500
+            },
+            "security": {
+                "checks": [
+                    "sql_injection",
+                    "xss"
+                ]
+            },
+            "assertions": [
+                {
+                    "actual": "{{patch_message}}",
+                    "operator": "==",
+                    "expected": "Model partially updated successfully.",
+                    "message": "Expected success message"
+                }
+            ]
+        },
+        "test_data_file": "",
+        "db_query": "",
+        "db_type": "",
+        "db_connection_name": "",
+        "test_summary": "Verify PATCH handles name with special characters",
+        "test_scenario": "AC4: Verify name field accepts special characters (parentheses, ampersand, hyphen, period)."
+    },
+    {
+        "test_id": "TC014",
+        "service_name": "models",
+        "workflow_mode": "parallel",
+        "test_name": "PATCH /model/{id} - Replace Multiple Custodians [positive] (TC014)",
+        "protocol": "REST",
+        "test_type": [
+            "Functional"
+        ],
+        "mainURL": "{{base_url}}",
+        "endpoint": "/model/{{response_model_id}}",
+        "method": "PATCH",
+        "rpc_method": "",
+        "graphql_query": "",
+        "graphql_variables": "",
+        "soap_action": "",
+        "soap_envelope": "",
+        "headers_additional": {
+            "Content-Type": "application/json-patch+json"
+        },
+        "payload": [
+            {
+                "op": "replace",
+                "path": "/custodian",
+                "value": [
+                    "Fidelity",
+                    "Schwab",
+                    "TD Ameritrade",
+                    "E*TRADE"
+                ]
+            }
+        ],
+        "expected_status": "200",
+        "expected_response_schema": "",
+        "expected_response": null,
+        "ignore_fields": [],
+        "extract_values": [
+            {
+                "from": "response",
+                "key": "message",
+                "assign_to": "patch_message"
+            }
+        ],
+        "validate": {
+            "performance": {
+                "max_response_time_ms": 500
+            },
+            "security": {
+                "checks": [
+                    "sql_injection",
+                    "xss"
+                ]
+            },
+            "assertions": [
+                {
+                    "actual": "{{patch_message}}",
+                    "operator": "==",
+                    "expected": "Model partially updated successfully.",
+                    "message": "Expected success message"
+                }
+            ]
+        },
+        "test_data_file": "",
+        "db_query": "",
+        "db_type": "",
+        "db_connection_name": "",
+        "test_summary": "Verify PATCH replaces custodian array with multiple values",
+        "test_scenario": "AC2: Verify custodian array can be updated with multiple values."
+    },
+    {
+        "test_id": "TC015",
+        "service_name": "models",
+        "workflow_mode": "parallel",
+        "test_name": "PATCH /model/{id} - Sequential Operations (Replace, Remove, Add) [positive] (TC015)",
+        "protocol": "REST",
+        "test_type": [
+            "Functional"
+        ],
+        "mainURL": "{{base_url}}",
+        "endpoint": "/model/{{response_model_id}}",
+        "method": "PATCH",
+        "rpc_method": "",
+        "graphql_query": "",
+        "graphql_variables": "",
+        "soap_action": "",
+        "soap_envelope": "",
+        "headers_additional": {
+            "Content-Type": "application/json-patch+json"
+        },
+        "payload": [
+            {
+                "op": "replace",
+                "path": "/name",
+                "value": "Updated Model Name"
+            },
+            {
+                "op": "remove",
+                "path": "/investmentApproach"
+            },
+            {
+                "op": "add",
+                "path": "/modelType",
+                "value": "Aggressive Growth"
+            },
+            {
+                "op": "replace",
+                "path": "/custodian",
+                "value": [
+                    "Interactive Brokers"
+                ]
+            }
+        ],
+        "expected_status": "200",
+        "expected_response_schema": "",
+        "expected_response": null,
+        "ignore_fields": [],
+        "extract_values": [
+            {
+                "from": "response",
+                "key": "message",
+                "assign_to": "patch_message"
+            }
+        ],
+        "validate": {
+            "performance": {
+                "max_response_time_ms": 500
+            },
+            "security": {
+                "checks": [
+                    "sql_injection",
+                    "xss"
+                ]
+            },
+            "assertions": [
+                {
+                    "actual": "{{patch_message}}",
+                    "operator": "==",
+                    "expected": "Model partially updated successfully.",
+                    "message": "Expected success message"
+                }
+            ]
+        },
+        "test_data_file": "",
+        "db_query": "",
+        "db_type": "",
+        "db_connection_name": "",
+        "test_summary": "Verify PATCH handles complex sequence of replace, remove, and add operations",
+        "test_scenario": "AC3: Verify sequential operations: replace name, remove investmentApproach, add modelType, replace custodian."
+    },
+    {
+        "test_id": "TC016",
+        "service_name": "models",
+        "workflow_mode": "parallel",
+        "test_name": "PATCH /model/{id} - Update All Fields [positive] (TC016)",
+        "protocol": "REST",
+        "test_type": [
+            "Functional"
+        ],
+        "mainURL": "{{base_url}}",
+        "endpoint": "/model/{{response_model_id}}",
+        "method": "PATCH",
+        "rpc_method": "",
+        "graphql_query": "",
+        "graphql_variables": "",
+        "soap_action": "",
+        "soap_envelope": "",
+        "headers_additional": {
+            "Content-Type": "application/json-patch+json"
+        },
+        "payload": [
+            {
+                "op": "replace",
+                "path": "/name",
+                "value": "Complete Model Update 2024"
+            },
+            {
+                "op": "replace",
+                "path": "/modelType",
+                "value": "Aggressive Growth"
+            },
+            {
+                "op": "replace",
+                "path": "/solutionType",
+                "value": "Equity Focused"
+            },
+            {
+                "op": "replace",
+                "path": "/custodian",
+                "value": [
+                    "Fidelity",
+                    "Schwab",
+                    "Vanguard"
+                ]
+            },
+            {
+                "op": "replace",
+                "path": "/investmentApproach",
+                "value": {
+                    "name": "Growth & Value Blend",
+                    "id": 0
+                }
+            },
+            {
+                "op": "replace",
+                "path": "/benchmarks",
+                "value": [
+                    {
+                        "name": "S&P 500",
+                        "isPrimary": false,
+                        "id": 0
+                    },
+                    {
+                        "name": "Russell 2000",
+                        "isPrimary": false,
+                        "id": 0
+                    }
+                ]
+            },
+            {
+                "op": "replace",
+                "path": "/investmentMin",
+                "value": {
+                    "standard": 25000,
+                    "premium": 100000,
+                    "institutional": 500000
+                }
+            },
+            {
+                "op": "replace",
+                "path": "/riskProfile",
+                "value": "High Risk - High Return"
+            },
+            {
+                "op": "replace",
+                "path": "/metadata",
+                "value": {
+                    "targetRebalanceFrequency": "Quarterly"
+                }
+            }
+        ],
+        "expected_status": "200",
+        "expected_response_schema": "",
+        "expected_response": null,
+        "ignore_fields": [],
+        "extract_values": [
+            {
+                "from": "response",
+                "key": "message",
+                "assign_to": "patch_message"
+            }
+        ],
+        "validate": {
+            "performance": {
+                "max_response_time_ms": 1000
+            },
+            "security": {
+                "checks": [
+                    "sql_injection",
+                    "xss"
+                ]
+            },
+            "data_comparison": {
+                "source": "db_result",
+                "target": "expected_values",
+                "format": "table",
+                "key_field": [
+                    "model_id"
+                ],
+                "fields_to_compare": [
+                    "name",
+                    "model_type",
+                    "solution_type",
+                    "custodian",
+                    "investment_approach",
+                    "benchmark",
+                    "investment_min",
+                    "risk_profile",
+                    "metadata"
+                ],
+                "log_differences": true,
+                "expected_values": {
+                    "name": "Complete Model Update 2024",
+                    "model_type": "Aggressive Growth",
+                    "solution_type": "Equity Focused",
+                    "custodian": [
+                        "Fidelity",
+                        "Schwab",
+                        "Vanguard"
+                    ],
+                    "investment_approach": {
+                        "name": "Growth & Value Blend"
+                    },
+                    "benchmarks": [
+                        {
+                            "name": "S&P 500"
+                        },
+                        {
+                            "name": "Russell 2000"
+                        }
+                    ],
+                    "investment_min": {
+                        "standard": 25000,
+                        "premium": 100000,
+                        "institutional": 500000
+                    },
+                    "risk_profile": "High Risk - High Return",
+                    "metadata": {
+                        "targetRebalanceFrequency": "Quarterly"
+                    }
+                }
+            },
+            "assertions": [
+                {
+                    "actual": "{{patch_message}}",
+                    "operator": "==",
+                    "expected": "Model partially updated successfully.",
+                    "message": "Expected success message for complete model update"
+                }
+            ]
+        },
+        "test_data_file": "",
+        "db_query": "models\\db_queries\\Query_POST_Data.txt",
+        "db_type": "postgresql",
+        "db_connection_name": "models",
+        "test_summary": "Verify PATCH updates all model fields including complex nested objects and arrays",
+        "test_scenario": "AC2: Comprehensive update of all model fields with DB validation - name, modelType, solutionType, custodian, investmentApproach, benchmarks (with isPrimary=false), investmentMin, riskProfile, and metadata. Validates support for complex nested structures and array updates."
+    },
+    {
+        "test_id": "TC017",
+        "service_name": "models",
+        "workflow_mode": "parallel",
+        "test_name": "PATCH /model/{id} - Add All Fields [positive] (TC017)",
+        "protocol": "REST",
+        "test_type": [
+            "Functional"
+        ],
+        "mainURL": "{{base_url}}",
+        "endpoint": "/model/{{response_model_id}}",
+        "method": "PATCH",
+        "rpc_method": "",
+        "graphql_query": "",
+        "graphql_variables": "",
+        "soap_action": "",
+        "soap_envelope": "",
+        "headers_additional": {
+            "Content-Type": "application/json-patch+json"
+        },
+        "payload": [
+            {
+                "op": "add",
+                "path": "/name",
+                "value": "New Portfolio Strategy 2025"
+            },
+            {
+                "op": "add",
+                "path": "/modelType",
+                "value": "Moderate Growth"
+            },
+            {
+                "op": "add",
+                "path": "/solutionType",
+                "value": "Balanced Allocation"
+            },
+            {
+                "op": "add",
+                "path": "/custodian",
+                "value": [
+                    "E*TRADE",
+                    "Interactive Brokers",
+                    "TD Ameritrade"
+                ]
+            },
+            {
+                "op": "add",
+                "path": "/investmentApproach",
+                "value": {
+                    "name": "Core-Satellite Strategy",
+                    "id": 0
+                }
+            },
+            {
+                "op": "add",
+                "path": "/benchmarks",
+                "value": [
+                    {
+                        "name": "MSCI World Index",
+                        "isPrimary": false,
+                        "id": 0
+                    },
+                    {
+                        "name": "Bloomberg Barclays Aggregate",
+                        "isPrimary": false,
+                        "id": 0
+                    },
+                    {
+                        "name": "FTSE Global All Cap",
+                        "isPrimary": false,
+                        "id": 0
+                    }
+                ]
+            },
+            {
+                "op": "add",
+                "path": "/investmentMin",
+                "value": {
+                    "retail": 10000,
+                    "standard": 50000,
+                    "premium": 250000,
+                    "institutional": 1000000
+                }
+            },
+            {
+                "op": "add",
+                "path": "/riskProfile",
+                "value": "Moderate Risk - Balanced Return"
+            },
+            {
+                "op": "add",
+                "path": "/metadata",
+                "value": {
+                    "targetRebalanceFrequency": "Quarterly"
+                }
+            }
+        ],
+        "expected_status": "200",
+        "expected_response_schema": "",
+        "expected_response": null,
+        "ignore_fields": [],
+        "extract_values": [
+            {
+                "from": "response",
+                "key": "message",
+                "assign_to": "patch_message"
+            }
+        ],
+        "validate": {
+            "performance": {
+                "max_response_time_ms": 1000
+            },
+            "security": {
+                "checks": [
+                    "sql_injection",
+                    "xss"
+                ]
+            },
+            "data_comparison": {
+                "source": "db_result",
+                "target": "expected_values",
+                "format": "table",
+                "key_field": [
+                    "model_id"
+                ],
+                "fields_to_compare": [
+                    "name",
+                    "model_type",
+                    "solution_type",
+                    "custodian",
+                    "investment_approach",
+                    "benchmark",
+                    "investment_min",
+                    "risk_profile",
+                    "metadata"
+                ],
+                "log_differences": true,
+                "expected_values": {
+                    "name": "New Portfolio Strategy 2025",
+                    "model_type": "Moderate Growth",
+                    "solution_type": "Balanced Allocation",
+                    "custodian": [
+                        "E*TRADE",
+                        "Interactive Brokers",
+                        "TD Ameritrade"
+                    ],
+                    "investment_approach": {
+                        "name": "Core-Satellite Strategy"
+                    },
+                    "benchmarks": [
+                        {
+                            "name": "MSCI World Index"
+                        },
+                        {
+                            "name": "Bloomberg Barclays Aggregate"
+                        },
+                        {
+                            "name": "FTSE Global All Cap"
+                        }
+                    ],
+                    "investment_min": {
+                        "retail": 10000,
+                        "standard": 50000,
+                        "premium": 250000,
+                        "institutional": 1000000
+                    },
+                    "risk_profile": "Moderate Risk - Balanced Return",
+                    "metadata": {
+                        "targetRebalanceFrequency": "Quarterly"
+                    }
+                }
+            },
+            "assertions": [
+                {
+                    "actual": "{{patch_message}}",
+                    "operator": "==",
+                    "expected": "Model partially updated successfully.",
+                    "message": "Expected success message for add all fields operation"
+                }
+            ]
+        },
+        "test_data_file": "",
+        "db_query": "models\\db_queries\\Query_POST_Data.txt",
+        "db_type": "postgresql",
+        "db_connection_name": "models",
+        "test_summary": "Verify PATCH adds all model fields using add operation with DB validation",
+        "test_scenario": "AC3: Comprehensive add operation test with DB validation - adds name, modelType, solutionType, custodian (3 values), investmentApproach, benchmarks (3 benchmarks with isPrimary=false), investmentMin (4 tiers), riskProfile, and metadata (12 custom fields). Validates support for add operation on complex nested structures and arrays."
+    },
+    {
+        "test_id": "TC018",
+        "service_name": "models",
+        "workflow_mode": "parallel",
+        "test_name": "PATCH /model/{id} - Set Fields to Null [positive] (TC018)",
+        "protocol": "REST",
+        "test_type": [
+            "Functional"
+        ],
+        "mainURL": "{{base_url}}",
+        "endpoint": "/model/{{response_model_id}}",
+        "method": "PATCH",
+        "rpc_method": "",
+        "graphql_query": "",
+        "graphql_variables": "",
+        "soap_action": "",
+        "soap_envelope": "",
+        "headers_additional": {
+            "Content-Type": "application/json-patch+json"
+        },
+        "payload": [
+            {
+                "op": "replace",
+                "path": "/modelType",
+                "value": null
+            },
+            {
+                "op": "replace",
+                "path": "/solutionType",
+                "value": null
+            },
+            {
+                "op": "replace",
+                "path": "/custodian",
+                "value": null
+            },
+            {
+                "op": "replace",
+                "path": "/investmentApproach",
+                "value": null
+            },
+            {
+                "op": "replace",
+                "path": "/benchmarks",
+                "value": null
+            },
+            {
+                "op": "replace",
+                "path": "/investmentMin",
+                "value": null
+            },
+            {
+                "op": "replace",
+                "path": "/riskProfile",
+                "value": null
+            },
+            {
+                "op": "replace",
+                "path": "/metadata",
+                "value": null
+            }
+        ],
+        "expected_status": "200",
+        "expected_response_schema": "",
+        "expected_response": null,
+        "ignore_fields": [],
+        "extract_values": [
+            {
+                "from": "response",
+                "key": "message",
+                "assign_to": "patch_message"
+            }
+        ],
+        "validate": {
+            "performance": {
+                "max_response_time_ms": 1000
+            },
+            "security": {
+                "checks": [
+                    "sql_injection",
+                    "xss"
+                ]
+            },
+            "data_comparison": {
+                "source": "db_result",
+                "target": "expected_values",
+                "format": "table",
+                "key_field": [
+                    "model_id"
+                ],
+                "fields_to_compare": [
+                    "model_type",
+                    "solution_type",
+                    "custodian",
+                    "investment_approach",
+                    "benchmarks",
+                    "investment_min",
+                    "risk_profile",
+                    "metadata"
+                ],
+                "log_differences": true,
+                "expected_values": {
+                    "model_type": null,
+                    "solution_type": null,
+                    "custodian": [],
+                    "investment_approach": null,
+                    "benchmarks": null,
+                    "investment_min": {},
+                    "risk_profile": null,
+                    "metadata": {}
+                }
+            },
+            "assertions": [
+                {
+                    "actual": "{{patch_message}}",
+                    "operator": "==",
+                    "expected": "Model partially updated successfully.",
+                    "message": "Expected success message for setting fields to null"
+                }
+            ]
+        },
+        "test_data_file": "",
+        "db_query": "models\\db_queries\\Query_POST_Data.txt",
+        "db_type": "postgresql",
+        "db_connection_name": "models",
+        "test_summary": "Verify PATCH can set multiple fields to null with DB validation",
+        "test_scenario": "AC2: Verify ability to clear optional fields by setting them to null with DB validation - modelType, solutionType, custodian, investmentApproach, benchmarks, investmentMin, riskProfile, and metadata. Validates null handling for both simple fields and complex nested objects/arrays."
+    }
+]

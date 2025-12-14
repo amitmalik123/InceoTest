@@ -1,0 +1,1 @@
+SELECT cusip as db_cusip FROM public."Securities" where cusip='{{request_cusip}}'
