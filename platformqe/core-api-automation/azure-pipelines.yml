@@ -16,7 +16,7 @@ parameters:
 
 variables:
 - name: buildPath
-  value: '$(Build.SourcesDirectory)/core-api-automation'
+  value: '$(Build.SourcesDirectory)/platformqe/core-api-automation'
 stages:
 - stage: __default
   jobs:
