@@ -16,7 +16,7 @@
 # =============================================================================
 
 pool:
-  name: 'ubuntu2204-qa'
+  name: 'ewm20-docker-build-agent-inc-dev'
   timeoutInMinutes: 10
   
 trigger: none
