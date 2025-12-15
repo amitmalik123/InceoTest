@@ -355,10 +355,6 @@ class AllureToInfluxDB:
         
         return behaviors
     
-<<<<<<< HEAD
->>>>>>> 4963614e0c34808153767577e6275689eaaebfee
-=======
->>>>>>> 4963614e0c34808153767577e6275689eaaebfee
     def calculate_metrics(self, results: Dict[str, Any]) -> Dict[str, Any]:
         """Calculate test metrics from Allure results - Use Allure's summary if available"""
         allure_summary = results.get('allure_summary', {})
@@ -587,21 +583,8 @@ class AllureToInfluxDB:
         """Create InfluxDB line protocol points from metrics"""
         timestamp = int(datetime.now().timestamp() * 1e9)  # nanoseconds
         
-<<<<<<< HEAD
-<<<<<<< HEAD
-        # Build host and suite tags
-        host_str = metrics['hosts_list'][0] if metrics['hosts_list'] else 'unknown'
-        suite_str = metrics['suites_list'][0] if metrics['suites_list'] else 'all'
-        
-        tags = f'build_id="{self.build_id}",environment="{self.environment}",build_reason="{self.build_reason}",host="{host_str}",suite="{suite_str}"'
-=======
         # Tags should NOT be quoted in InfluxDB line protocol
         tags = f'build_id={self.build_id},environment={self.environment},build_reason={self.build_reason}'
->>>>>>> 4963614e0c34808153767577e6275689eaaebfee
-=======
-        # Tags should NOT be quoted in InfluxDB line protocol
-        tags = f'build_id={self.build_id},environment={self.environment},build_reason={self.build_reason}'
->>>>>>> 4963614e0c34808153767577e6275689eaaebfee
         
         # Main test execution metrics
         points = [
