@@ -161,6 +161,7 @@ class AllureToInfluxDB:
         return results
     
 <<<<<<< HEAD
+<<<<<<< HEAD
     def analyze_test_steps(self, test_data: Dict[str, Any]) -> Dict[str, Any]:
         """Extract step-level metrics from a single test"""
         steps = test_data.get('steps', [])
@@ -230,6 +231,8 @@ class AllureToInfluxDB:
         return metadata
 
 =======
+=======
+>>>>>>> 4963614e0c34808153767577e6275689eaaebfee
     def analyze_behaviors(self, results: Dict[str, Any]) -> Dict[str, Dict[str, Any]]:
         """Analyze tests grouped by behavior name and authentication type"""
         all_tests = results.get('tests', [])
@@ -355,6 +358,9 @@ class AllureToInfluxDB:
         
         return behaviors
     
+<<<<<<< HEAD
+>>>>>>> 4963614e0c34808153767577e6275689eaaebfee
+=======
 >>>>>>> 4963614e0c34808153767577e6275689eaaebfee
     def calculate_metrics(self, results: Dict[str, Any]) -> Dict[str, Any]:
         """Calculate test metrics from Allure results - Use Allure's summary if available"""
@@ -585,11 +591,16 @@ class AllureToInfluxDB:
         timestamp = int(datetime.now().timestamp() * 1e9)  # nanoseconds
         
 <<<<<<< HEAD
+<<<<<<< HEAD
         # Build host and suite tags
         host_str = metrics['hosts_list'][0] if metrics['hosts_list'] else 'unknown'
         suite_str = metrics['suites_list'][0] if metrics['suites_list'] else 'all'
         
         tags = f'build_id="{self.build_id}",environment="{self.environment}",build_reason="{self.build_reason}",host="{host_str}",suite="{suite_str}"'
+=======
+        # Tags should NOT be quoted in InfluxDB line protocol
+        tags = f'build_id={self.build_id},environment={self.environment},build_reason={self.build_reason}'
+>>>>>>> 4963614e0c34808153767577e6275689eaaebfee
 =======
         # Tags should NOT be quoted in InfluxDB line protocol
         tags = f'build_id={self.build_id},environment={self.environment},build_reason={self.build_reason}'
