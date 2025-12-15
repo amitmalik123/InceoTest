@@ -1,0 +1,169 @@
+version: '3.8'
+
+services:
+  # Main test runner container for EWM-NavBar Playwright tests
+  ewm-navbar-tests:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: ewm-navbar-tests
+    
+    # Environment configuration aligned with playwright.config.ts
+    environment:
+      # Playwright/Test Environment
+      ENV: ${ENV:-test}
+      CI: ${CI:-true}
+      
+      # Browser and Execution Settings
+      BROWSER: chromium
+      HEADLESS: "true"
+      SLOW_MO: ${SLOW_MO:-0}
+      
+      # Test Configuration (from playwright.config.ts)
+      URL: ${URL:-http://assetmark-test.com}
+      TIMEOUT: ${TIMEOUT:-180000}
+      WORKERS: ${WORKERS:-1}
+      RETRIES: ${RETRIES:-2}
+      
+      # Report Output Directories
+      ALLURE_RESULTS_DIR: /app/target/allure-results
+      HTML_REPORT_DIR: /app/playwright-report
+      JUNIT_REPORT_FILE: /app/test-results/junit-report.xml
+      
+      # Authentication
+      AUTH_DIR: /app/.auth
+      AUTH_FILE: /app/.auth/user.json
+      
+      # InfluxDB Metrics Configuration (from influx_reporter.py)
+      INFLUXDB_URL: ${INFLUXDB_URL:-http://influxdb:8086}
+      INFLUXDB_ORG: ${INFLUXDB_ORG:-default}
+      INFLUXDB_BUCKET: ${INFLUXDB_BUCKET:-AutomationData}
+      INFLUXDB_TOKEN: ${INFLUXDB_TOKEN:-}
+      
+      # Reporter Configuration (from influx_reporter.py)
+      BUILD_ID: ${BUILD_ID:-docker-local}
+      BUILD_REASON: ${BUILD_REASON:-Manual}
+      ENVIRONMENT: ${ENVIRONMENT:-test}
+      ALLURE_RESULTS_DIR: ${ALLURE_RESULTS_DIR:-/app/target/allure-results}
+      
+      # Azure Pipelines Integration (optional - for artifact links in reporter)
+      SYSTEM_TEAMFOUNDATIONCOLLECTIONURI: ${SYSTEM_TEAMFOUNDATIONCOLLECTIONURI:-}
+      SYSTEM_TEAMPROJECT: ${SYSTEM_TEAMPROJECT:-ProdEng}
+      BUILD_BUILDID: ${BUILD_BUILDID:-docker-local}
+      
+      # Debug Configuration
+      DEBUG: ${DEBUG:-false}
+      PLAYWRIGHT_DEBUG: ${PLAYWRIGHT_DEBUG:-false}
+      
+      # Python Reporter Configuration
+      PYTHONUNBUFFERED: "1"
+    
+    volumes:
+      # Mount project source code
+      - .:/app
+      
+      # Separate volume for authentication files (persists between runs)
+      - auth-storage:/app/.auth
+      
+      # Report output directories (host-accessible)
+      - ./target/allure-results:/app/target/allure-results
+      - ./test-results:/app/test-results
+      - ./playwright-report:/app/playwright-report
+    
+    networks:
+      - ewm-network
+    
+    # Default command - runs all tests (authenticated + unauthenticated projects)
+    command: npm run test:e2e
+    
+    # Service dependencies
+    depends_on:
+      influxdb:
+        condition: service_healthy
+    
+    # Retry policy
+    restart: no
+    
+    # Resource limits (adjust based on your system)
+    deploy:
+      resources:
+        limits:
+          cpus: '2'
+          memory: 2G
+        reservations:
+          cpus: '1'
+          memory: 1G
+
+  # InfluxDB container for storing test metrics and results
+  influxdb:
+    image: influxdb:2.7-alpine
+    container_name: ewm-navbar-influxdb
+    
+    environment:
+      # InfluxDB v2 Configuration (matching influx_reporter.py defaults)
+      INFLUXDB_ADMIN_USER: ${INFLUX_ADMIN_USER:-admin}
+      INFLUXDB_ADMIN_PASSWORD: ${INFLUX_ADMIN_PASSWORD:-password123}
+      INFLUXDB_ADMIN_USER_TOKEN: ${INFLUXDB_TOKEN:-test-token-12345}
+      INFLUXDB_DB: ${INFLUXDB_BUCKET:-AutomationData}
+      INFLUXDB_ORG: ${INFLUXDB_ORG:-default}
+      INFLUXDB_INITIAL_BUCKET: ${INFLUXDB_BUCKET:-AutomationData}
+      INFLUXDB_RETENTION: ${INFLUX_RETENTION:-30d}
+    
+    ports:
+      - "${INFLUX_PORT:-8086}:8086"
+    
+    volumes:
+      # Persistent storage for InfluxDB data
+      - influxdb_data:/var/lib/influxdb2
+      # Optional: Configuration directory
+      - influxdb_config:/etc/influxdb2
+    
+    networks:
+      - ewm-network
+    
+    # Health check configuration
+    healthcheck:
+      test: ["CMD", "curl", "-f", "-H", "Authorization: Token ${INFLUXDB_TOKEN:-test-token-12345}", "http://localhost:8086/api/v2/ready"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 10s
+    
+    restart: unless-stopped
+    
+    # Resource limits
+    deploy:
+      resources:
+        limits:
+          cpus: '1'
+          memory: 1G
+        reservations:
+          cpus: '0.5'
+          memory: 512M
+
+# Named volumes for persistent storage
+volumes:
+  influxdb_data:
+    driver: local
+    driver_opts:
+      type: none
+      o: bind
+      device: ${INFLUX_DATA_PATH:-./influxdb-data}
+  
+  influxdb_config:
+    driver: local
+  
+  auth-storage:
+    driver: local
+    driver_opts:
+      type: none
+      o: bind
+      device: ${AUTH_STORAGE_PATH:-./auth-storage}
+
+# Networks
+networks:
+  ewm-network:
+    driver: bridge
+    ipam:
+      config:
+        - subnet: 172.28.0.0/16
