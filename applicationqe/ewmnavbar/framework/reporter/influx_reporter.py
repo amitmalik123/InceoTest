@@ -230,9 +230,6 @@ class AllureToInfluxDB:
         
         return metadata
 
-=======
-=======
->>>>>>> 4963614e0c34808153767577e6275689eaaebfee
     def analyze_behaviors(self, results: Dict[str, Any]) -> Dict[str, Dict[str, Any]]:
         """Analyze tests grouped by behavior name and authentication type"""
         all_tests = results.get('tests', [])
