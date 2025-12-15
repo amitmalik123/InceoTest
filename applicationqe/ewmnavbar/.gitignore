@@ -1,28 +1,30 @@
+# Ignore other repos/subprojects
+/qeautomation/.auth/*
+/qeautomation/allure-results/*
+/qeautomation/eWM NavBar/*
+/qeautomation/platformqe/*
+/qeautomation/Salesforce/*
+/qeautomation/test-results/*
 
-# Playwright
+# Node and Playwright
 node_modules/
-/test-results/
-/playwright-report/
-/blob-report/
-/playwright/.cache/
-/playwright/.auth/
-node_modules/
-/test-results/*
-.auth/
+test-results/
+playwright-report/
+blob-report/
+playwright/.cache/
+playwright/.auth/
+
+# VSCode and GitHub
+.vscode/
 .github/
-.auth/*
-/e2e/local/*
-.husky/*
-/allure-results/*
-.vscode/*
-/reports/*
-/reports/**/*   
-allure-report/*
-allure-report/**/*
-allure-results/**/*
-framework/screenshots/*
-framework/reporter/*
-framework/reporter/**/*
-applicationqe/proposals/**/*
-allure-results/*
+.husky/
 
+# Allure and custom reports
+allure-results/
+allure-report/
+reports/
+framework/screenshots/
+framework/reporter/
+
+# Ignore everything in e2e/local
+e2e/local/
