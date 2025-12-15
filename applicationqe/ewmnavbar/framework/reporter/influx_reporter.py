@@ -22,7 +22,7 @@ class AllureToInfluxDB:
         self.influx_url = os.getenv('INFLUXDB_URL', 'http://localhost:8086')
         self.influx_token = os.getenv('INFLUXDB_TOKEN', '')
         self.influx_org = os.getenv('INFLUXDB_ORG', 'default')
-        self.influx_bucket = os.getenv('INFLUXDB_BUCKET', 'test-results')
+        self.influx_bucket = os.getenv('INFLUXDB_BUCKET', 'AutomationData')
         self.allure_results_dir = os.getenv('ALLURE_RESULTS_DIR', './allure-results')
         self.build_id = os.getenv('BUILD_ID', 'local')
         self.build_reason = os.getenv('BUILD_REASON', 'Manual')
@@ -160,6 +160,7 @@ class AllureToInfluxDB:
         
         return results
     
+<<<<<<< HEAD
     def analyze_test_steps(self, test_data: Dict[str, Any]) -> Dict[str, Any]:
         """Extract step-level metrics from a single test"""
         steps = test_data.get('steps', [])
@@ -228,6 +229,133 @@ class AllureToInfluxDB:
         
         return metadata
 
+=======
+    def analyze_behaviors(self, results: Dict[str, Any]) -> Dict[str, Dict[str, Any]]:
+        """Analyze tests grouped by behavior name and authentication type"""
+        all_tests = results.get('tests', [])
+        behaviors = {}
+        
+        print(f"\n[BEHAVIOR ANALYSIS] Processing {len(all_tests)} tests for behavior grouping...")
+        
+        # Build a dictionary of LATEST result for each unique test
+        latest_results_by_id = {}
+        for test in all_tests:
+            labels = test.get('labels', [])
+            spec_file = ''
+            package_name = ''
+            
+            for label in labels:
+                label_name = label.get('name', '')
+                label_value = label.get('value', '')
+                if label_name == 'package':
+                    package_name = label_value
+                elif label_name == 'suite':
+                    spec_file = label_value
+            
+            test_name = test.get('name', '')
+            if package_name and spec_file:
+                unique_id = f"{package_name}/{spec_file}::{test_name}"
+            elif spec_file:
+                unique_id = f"{spec_file}::{test_name}"
+            else:
+                unique_id = test_name
+            
+            if unique_id:
+                if unique_id not in latest_results_by_id:
+                    latest_results_by_id[unique_id] = test
+                else:
+                    current_stop = latest_results_by_id[unique_id].get('stop', 0)
+                    new_stop = test.get('stop', 0)
+                    if new_stop > current_stop:
+                        latest_results_by_id[unique_id] = test
+        
+        # Group by behavior and auth type
+        for unique_id, test in latest_results_by_id.items():
+            test_name = test.get('name', '')
+            status = test.get('status', 'unknown')
+            duration = test.get('stop', 0) - test.get('start', 0)
+            
+            # Extract behavior name and auth type from labels
+            labels = test.get('labels', [])
+            behavior_name = test_name  # Use test name as behavior name by default
+            auth_type = 'unknown'
+            
+            print(f"  Processing test: {test_name}")
+            print(f"    Labels: {[(l.get('name'), l.get('value')) for l in labels]}")
+            
+            for label in labels:
+                label_name = label.get('name', '')
+                label_value = label.get('value', '')
+                # Extract auth type from parentSuite label
+                if label_name == 'parentSuite':
+                    auth_type = label_value
+            
+            print(f"    Behavior: {behavior_name}, Auth: {auth_type}")
+            
+            # Create behavior key: behavior_name::auth_type
+            behavior_key = f"{behavior_name}::{auth_type}"
+            
+            if behavior_key not in behaviors:
+                behaviors[behavior_key] = {
+                    'behavior_name': behavior_name,
+                    'auth_type': auth_type,
+                    'count': 0,
+                    'passed': 0,
+                    'failed': 0,
+                    'broken': 0,
+                    'skipped': 0,
+                    'total_duration': 0,
+                    'durations': [],
+                    'tests': []
+                }
+            
+            behaviors[behavior_key]['count'] += 1
+            if status == 'passed':
+                behaviors[behavior_key]['passed'] += 1
+            elif status == 'failed':
+                behaviors[behavior_key]['failed'] += 1
+            elif status == 'broken':
+                behaviors[behavior_key]['broken'] += 1
+            elif status == 'skipped':
+                behaviors[behavior_key]['skipped'] += 1
+            
+            if duration > 0:
+                behaviors[behavior_key]['total_duration'] += duration
+                behaviors[behavior_key]['durations'].append(duration)
+            
+            behaviors[behavior_key]['tests'].append({
+                'name': test_name,
+                'status': status,
+                'duration': duration
+            })
+        
+        # Calculate pass rates and average durations
+        for behavior_key, data in behaviors.items():
+            testable = data['count'] - data['skipped']
+            if testable > 0:
+                data['pass_rate'] = (data['passed'] / testable) * 100
+            else:
+                data['pass_rate'] = 0
+            
+            if data['durations']:
+                data['avg_duration'] = int(data['total_duration'] / len(data['durations']))
+                data['max_duration'] = max(data['durations'])
+                data['min_duration'] = min(data['durations'])
+            else:
+                data['avg_duration'] = 0
+                data['max_duration'] = 0
+                data['min_duration'] = 0
+            
+            # Remove durations list (not needed for InfluxDB)
+            del data['durations']
+        
+        print(f"\n[BEHAVIOR SUMMARY] Found {len(behaviors)} unique behaviors:")
+        for behavior_key, data in behaviors.items():
+            print(f"  - {data['behavior_name']} ({data['auth_type']}): {data['count']} tests")
+        
+        return behaviors
+    
+>>>>>>> 4963614e0c34808153767577e6275689eaaebfee
     def calculate_metrics(self, results: Dict[str, Any]) -> Dict[str, Any]:
         """Calculate test metrics from Allure results - Use Allure's summary if available"""
         allure_summary = results.get('allure_summary', {})
@@ -452,15 +580,20 @@ class AllureToInfluxDB:
         
         return metrics
     
-    def create_influx_points(self, metrics: Dict[str, Any], artifact_urls: Dict[str, str]) -> List[str]:
+    def create_influx_points(self, metrics: Dict[str, Any], artifact_urls: Dict[str, str], behaviors: Dict[str, Dict[str, Any]] = None) -> List[str]:
         """Create InfluxDB line protocol points from metrics"""
         timestamp = int(datetime.now().timestamp() * 1e9)  # nanoseconds
         
+<<<<<<< HEAD
         # Build host and suite tags
         host_str = metrics['hosts_list'][0] if metrics['hosts_list'] else 'unknown'
         suite_str = metrics['suites_list'][0] if metrics['suites_list'] else 'all'
         
         tags = f'build_id="{self.build_id}",environment="{self.environment}",build_reason="{self.build_reason}",host="{host_str}",suite="{suite_str}"'
+=======
+        # Tags should NOT be quoted in InfluxDB line protocol
+        tags = f'build_id={self.build_id},environment={self.environment},build_reason={self.build_reason}'
+>>>>>>> 4963614e0c34808153767577e6275689eaaebfee
         
         # Main test execution metrics
         points = [
@@ -517,6 +650,47 @@ class AllureToInfluxDB:
                 f'{timestamp}'
             )
         
+        # Behavior metrics - one point per behavior
+        if behaviors:
+            print(f"\n[DEBUG] Creating behavior points for {len(behaviors)} behaviors")
+            for behavior_key, data in behaviors.items():
+                behavior_name = data['behavior_name']
+                auth_type = data['auth_type']
+                
+                # Escape special characters in tag values (spaces, commas, equals)
+                behavior_name_escaped = behavior_name.replace(' ', '\\ ').replace(',', '\\,').replace('=', '\\=')
+                auth_type_escaped = auth_type.replace(' ', '\\ ').replace(',', '\\,').replace('=', '\\=')
+                
+                # Build tag line - tags must NOT be quoted
+                behavior_tags = f'{tags},behavior_name={behavior_name_escaped},auth_type={auth_type_escaped}'
+                
+                # Build field data
+                field_data = (
+                    f'count={data["count"]}i,'
+                    f'passed={data["passed"]}i,'
+                    f'failed={data["failed"]}i,'
+                    f'broken={data["broken"]}i,'
+                    f'skipped={data["skipped"]}i,'
+                    f'pass_rate={data["pass_rate"]:.2f},'
+                    f'total_duration={data["total_duration"]}i,'
+                    f'avg_duration={data["avg_duration"]}i,'
+                    f'max_duration={data["max_duration"]}i,'
+                    f'min_duration={data["min_duration"]}i'
+                )
+                
+                # Add artifact URLs as fields if available
+                if artifact_urls:
+                    artifact_fields = ','.join([f'{name}="{url}"' for name, url in artifact_urls.items()])
+                    field_data = f'{field_data},{artifact_fields}'
+                
+                point = (
+                    f'test_behaviors,{behavior_tags} '
+                    f'{field_data} '
+                    f'{timestamp}'
+                )
+                print(f"  [BEHAVIOR] {behavior_name}: {point[:100]}...")
+                points.append(point)
+        
         return points
     
     def push_to_influxdb(self, points: List[str]) -> bool:
@@ -534,9 +708,21 @@ class AllureToInfluxDB:
             
             write_api = client.write_api(write_options=SYNCHRONOUS)
             
-            print(f"📊 Pushing {len(points)} metric(s) to InfluxDB ({self.influx_url})...")
+            # Count measurement types
+            behavior_count = sum(1 for p in points if 'test_behaviors,' in p)
+            execution_count = sum(1 for p in points if 'test_execution2,' in p)
+            quality_count = sum(1 for p in points if 'test_quality2,' in p)
+            artifacts_count = sum(1 for p in points if 'test_artifacts2,' in p)
+            
+            print(f"\n[MEASUREMENTS]")
+            print(f"  test_execution2: {execution_count} point(s)")
+            print(f"  test_quality2: {quality_count} point(s)")
+            print(f"  test_behaviors: {behavior_count} point(s)")
+            print(f"  test_artifacts2: {artifacts_count} point(s)")
+            print(f"  Total: {len(points)} point(s)")
+            print(f"\n📊 Pushing to InfluxDB ({self.influx_url}/{self.influx_bucket})...")
+            
             for point in points:
-                print(f"  - {point[:80]}...")
                 write_api.write(bucket=self.influx_bucket, record=point)
             
             client.close()
@@ -602,6 +788,15 @@ class AllureToInfluxDB:
             print(f"  Retried Tests: {metrics['retried']}")
             print(f"  Retry Rate: {retry_rate:.2f}%")
         
+        # Analyze behaviors
+        behaviors = self.analyze_behaviors(results)
+        if behaviors:
+            print(f"\n[BEHAVIORS] - {len(behaviors)} unique behavior(s)")
+            for behavior_key, data in behaviors.items():
+                print(f"  #{len(behaviors)} - {data['behavior_name']}")
+                print(f"      {data['auth_type']}")
+                print(f"      {data['total_duration']}ms")
+        
         # Get artifact URLs
         artifact_urls = self.get_artifact_urls()
         if artifact_urls:
@@ -611,7 +806,7 @@ class AllureToInfluxDB:
         print()
         
         # Create and push points
-        points = self.create_influx_points(metrics, artifact_urls)
+        points = self.create_influx_points(metrics, artifact_urls, behaviors)
         self.push_to_influxdb(points)
         print("=" * 70)
 

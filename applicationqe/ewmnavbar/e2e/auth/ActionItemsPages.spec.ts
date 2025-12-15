@@ -11,7 +11,7 @@ test.describe('Action Items Pages', () => {
         await log('📈 page Action Items');
     });
 
-    test('Needs Action is the Default Page', async ({ p, f, log, testInfo}) => {
+    test('Needs Action is the Default Page', async ({ p, f, log, testInfo }) => {
         await p.ActionItems.goToPage();
         await p.NeedsAction.LoadsPage();
         const results = await f.ComparePages.compareNavBarwithLegacy(
@@ -25,24 +25,33 @@ test.describe('Action Items Pages', () => {
             await legacyPage.goto(results.legacyUrl, { waitUntil: 'domcontentloaded' });
             try {
                 await legacyPage.waitForSelector('#main, .main-content, .content, body', { state: 'visible', timeout: 15000 });
-            } catch {}
+            } catch { }
             await legacyPage.waitForTimeout(1500);
             const screenshot = await legacyPage.screenshot({ fullPage: true });
             await testInfo.attach('LegacyAppScreenshot', { body: screenshot, contentType: 'image/png' });
             await legacyPage.close();
         }
-    
-        const BubbleCount = await p.ActionItems.getItemsCount();
-        const TableCount = await p.NeedsAction.getItemsCount();
-        await log('Bubble Count = ' + BubbleCount);
-        await log('Table Count = ' + TableCount);
-         expect(BubbleCount, 'Bubble count matches Row count').toEqual(TableCount);
-        await p.img.wholePage('Needs Action');
+
+        await p.img.wholePage('NeedsAction');
         await log('📊 page ActionItems > Needs Action');
         expect(results.mismatch, 'Content counts mismatched. View logger messages to know where it failed.').toBe(false);
     });
 
-    test('Open Items', async ({ p, f, log , testInfo}) => {
+    test('Needs Action - Bubble Count vs Table Count matches', async ({ p, f, log, testInfo }) => {
+        await p.ActionItems.goToPage();
+        await p.NeedsAction.LoadsPage();
+
+        const BubbleCount = await p.ActionItems.getItemsCount();
+        const TableCount = await p.NeedsAction.getItemsCount();
+        await log('Bubble Count = ' + BubbleCount);
+        await log('Table Count = ' + TableCount);
+        expect(BubbleCount, 'Bubble count matches Row count').toEqual(TableCount);
+        await p.img.wholePage('NeedsAction_Bubble');
+        await log('📊 page ActionItems > Needs Action > Bubble count matches the row count');
+        // expect(results.mismatch, 'Content counts mismatched. View logger messages to know where it failed.').toBe(false);
+    });
+
+    test('Open Items', async ({ p, f, log, testInfo }) => {
         await p.ActionItems.goToPage();
         await p.ActionItems.smOpenItems.click();
         await p.OpenItems.LoadsPage();
@@ -57,7 +66,7 @@ test.describe('Action Items Pages', () => {
             await legacyPage.goto(results.legacyUrl, { waitUntil: 'domcontentloaded' });
             try {
                 await legacyPage.waitForSelector('#main, .main-content, .content, body', { state: 'visible', timeout: 15000 });
-            } catch {}
+            } catch { }
             await legacyPage.waitForTimeout(1500);
             const screenshot = await legacyPage.screenshot({ fullPage: true });
             await testInfo.attach('LegacyAppScreenshot', { body: screenshot, contentType: 'image/png' });
@@ -68,7 +77,7 @@ test.describe('Action Items Pages', () => {
         // expect(results.mismatch, 'Content counts mismatched. View logger messages to know where it failed.').toBe(false);
     });
 
-   test('Closed', async ({ p, f, log, testInfo }) => {
+    test('Closed', async ({ p, f, log, testInfo }) => {
         await p.ActionItems.goToPage();
         await p.ActionItems.smClosed.click();
         await p.Closed.LoadsPage();
@@ -83,7 +92,7 @@ test.describe('Action Items Pages', () => {
             await legacyPage.goto(results.legacyUrl, { waitUntil: 'domcontentloaded' });
             try {
                 await legacyPage.waitForSelector('#main, .main-content, .content, body', { state: 'visible', timeout: 15000 });
-            } catch {}
+            } catch { }
             await legacyPage.waitForTimeout(1500);
             const screenshot = await legacyPage.screenshot({ fullPage: true });
             await testInfo.attach('LegacyAppScreenshot', { body: screenshot, contentType: 'image/png' });
