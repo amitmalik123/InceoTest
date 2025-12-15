@@ -160,76 +160,6 @@ class AllureToInfluxDB:
         
         return results
     
-<<<<<<< HEAD
-<<<<<<< HEAD
-    def analyze_test_steps(self, test_data: Dict[str, Any]) -> Dict[str, Any]:
-        """Extract step-level metrics from a single test"""
-        steps = test_data.get('steps', [])
-        step_count = 0
-        passed_steps = 0
-        failed_steps = 0
-        fixture_setup_time = 0
-        fixture_teardown_time = 0
-        
-        for step in steps:
-            # Count main steps (not nested)
-            if step.get('name', '').startswith('Before Hooks'):
-                fixture_setup_time = step.get('stop', 0) - step.get('start', 0)
-            elif step.get('name', '').startswith('After Hooks'):
-                fixture_teardown_time = step.get('stop', 0) - step.get('start', 0)
-            else:
-                step_count += 1
-                if step.get('status') == 'passed':
-                    passed_steps += 1
-                elif step.get('status') == 'failed':
-                    failed_steps += 1
-        
-        # Count attachments
-        attachments = test_data.get('attachments', [])
-        screenshot_count = sum(1 for a in attachments if 'image' in a.get('type', ''))
-        log_count = sum(1 for a in attachments if 'text' in a.get('type', ''))
-        
-        return {
-            'step_count': step_count,
-            'passed_steps': passed_steps,
-            'failed_steps': failed_steps,
-            'fixture_setup_time': fixture_setup_time,
-            'fixture_teardown_time': fixture_teardown_time,
-            'screenshot_count': screenshot_count,
-            'log_count': log_count,
-            'total_attachments': len(attachments)
-        }
-    
-    def extract_test_metadata(self, test_data: Dict[str, Any]) -> Dict[str, str]:
-        """Extract test metadata from labels"""
-        labels = test_data.get('labels', [])
-        metadata = {
-            'host': '',
-            'suite': '',
-            'sub_suite': '',
-            'package': '',
-            'thread': '',
-            'parent_suite': ''
-        }
-        
-        for label in labels:
-            name = label.get('name', '')
-            value = label.get('value', '')
-            if name == 'host':
-                metadata['host'] = value
-            elif name == 'suite':
-                metadata['suite'] = value
-            elif name == 'subSuite':
-                metadata['sub_suite'] = value
-            elif name == 'package':
-                metadata['package'] = value
-            elif name == 'thread':
-                metadata['thread'] = value
-            elif name == 'parentSuite':
-                metadata['parent_suite'] = value
-        
-        return metadata
-
     def analyze_behaviors(self, results: Dict[str, Any]) -> Dict[str, Dict[str, Any]]:
         """Analyze tests grouped by behavior name and authentication type"""
         all_tests = results.get('tests', [])
@@ -417,15 +347,7 @@ class AllureToInfluxDB:
             'avg_duration': 0,
             'max_duration': 0,
             'min_duration': 0,
-            'pass_rate': 0,
-            'total_steps': 0,
-            'avg_steps_per_test': 0,
-            'total_screenshots': 0,
-            'total_logs': 0,
-            'avg_fixture_setup': 0,
-            'hosts': set(),
-            'suites': set(),
-            'test_details': {}  # Detailed per-test metrics
+            'pass_rate': 0
         }
         
         # Build a dictionary of LATEST result for each unique test identifier
@@ -468,7 +390,6 @@ class AllureToInfluxDB:
         print(f"  latest_results_by_id keys: {list(latest_results_by_id.keys())}")
         
         durations = []
-        fixture_setup_times = []
         test_details = []
         
         # Process UNIQUE tests only (latest status of each)
@@ -482,16 +403,6 @@ class AllureToInfluxDB:
             status_details = test.get('statusDetails', {})
             is_flaky = status_details.get('flaky', False)
             test_name = test.get('name', unique_id)
-            
-            # Analyze test steps and attachments
-            step_metrics = self.analyze_test_steps(test)
-            test_metadata = self.extract_test_metadata(test)
-            
-            # Track metadata
-            if test_metadata['host']:
-                metrics['hosts'].add(test_metadata['host'])
-            if test_metadata['suite']:
-                metrics['suites'].add(test_metadata['suite'])
             
             print(f"  Processing {unique_id}: {status}")
             
@@ -522,42 +433,12 @@ class AllureToInfluxDB:
             metrics['total_duration'] += duration
             if duration > 0:
                 durations.append(duration)
-            
-            # Accumulate step and attachment metrics
-            metrics['total_steps'] += step_metrics['step_count']
-            metrics['total_screenshots'] += step_metrics['screenshot_count']
-            metrics['total_logs'] += step_metrics['log_count']
-            if step_metrics['fixture_setup_time'] > 0:
-                fixture_setup_times.append(step_metrics['fixture_setup_time'])
-            
-            # Store per-test details
-            metrics['test_details'][unique_id] = {
-                'status': status,
-                'duration': duration,
-                'steps': step_metrics['step_count'],
-                'screenshots': step_metrics['screenshot_count'],
-                'logs': step_metrics['log_count']
-            }
         
         # Calculate duration statistics
         if durations:
             metrics['avg_duration'] = int(metrics['total_duration'] / len(durations))
             metrics['max_duration'] = max(durations)
             metrics['min_duration'] = min(durations)
-        
-        # Calculate step averages
-        if metrics['total'] > 0:
-            metrics['avg_steps_per_test'] = int(metrics['total_steps'] / metrics['total'])
-        
-        # Calculate fixture setup average
-        if fixture_setup_times:
-            metrics['avg_fixture_setup'] = int(sum(fixture_setup_times) / len(fixture_setup_times))
-        
-        # Convert sets to lists for JSON serialization
-        metrics['hosts_list'] = list(metrics['hosts'])
-        metrics['suites_list'] = list(metrics['suites'])
-        metrics['host_count'] = len(metrics['hosts'])
-        metrics['suite_count'] = len(metrics['suites'])
         
         # Calculate pass rate (excluding skipped tests from calculation)
         testable_total = metrics['total'] - metrics['skipped']
@@ -603,19 +484,6 @@ class AllureToInfluxDB:
             f'min_duration={metrics["min_duration"]}i '
             f'{timestamp}'
         ]
-        
-        # Test execution details measurement (steps, attachments, fixtures)
-        points.append(
-            f'test_execution_details2,{tags} '
-            f'total_steps={metrics["total_steps"]}i,'
-            f'avg_steps_per_test={metrics["avg_steps_per_test"]}i,'
-            f'total_screenshots={metrics["total_screenshots"]}i,'
-            f'total_logs={metrics["total_logs"]}i,'
-            f'avg_fixture_setup={metrics["avg_fixture_setup"]}i,'
-            f'host_count={metrics["host_count"]}i,'
-            f'suite_count={metrics["suite_count"]}i '
-            f'{timestamp}'
-        )
         
         # Flaky test quality metric
         if metrics['total'] > 0:
@@ -727,7 +595,7 @@ class AllureToInfluxDB:
     def run(self):
         """Main execution"""
         print("=" * 70)
-        print(">>> Allure to InfluxDB Reporter")
+        print("🚀 Allure to InfluxDB Reporter")
         print("=" * 70)
         print(f"InfluxDB URL: {self.influx_url}")
         print(f"Allure Results Dir: {self.allure_results_dir}")
@@ -738,14 +606,14 @@ class AllureToInfluxDB:
         # Read Allure results
         results = self.read_allure_results()
         if not results['tests']:
-            print("[WARNING] No test results found. Skipping InfluxDB push.")
+            print("⚠️  No test results found. Skipping InfluxDB push.")
             return
         
-        print(f"[INFO] Found {len(results['tests'])} test result(s)")
+        print(f"📂 Found {len(results['tests'])} test result(s)")
         
         # Calculate metrics
         metrics = self.calculate_metrics(results)
-        print(f"\n[METRICS] Test Execution Metrics:")
+        print(f"\n📈 Test Execution Metrics:")
         print(f"  Total Tests: {metrics['total']}")
         print(f"  Passed: {metrics['passed']}")
         print(f"  Failed: {metrics['failed']}")
@@ -758,20 +626,7 @@ class AllureToInfluxDB:
         print(f"  Max Duration: {metrics['max_duration']}ms")
         print(f"  Min Duration: {metrics['min_duration']}ms")
         
-        print(f"\n[DETAILS] Test Execution Details:")
-        print(f"  Total Steps: {metrics['total_steps']}")
-        print(f"  Avg Steps Per Test: {metrics['avg_steps_per_test']}")
-        print(f"  Total Screenshots: {metrics['total_screenshots']}")
-        print(f"  Total Logs: {metrics['total_logs']}")
-        print(f"  Avg Fixture Setup Time: {metrics['avg_fixture_setup']}ms")
-        print(f"  Host Count: {metrics['host_count']}")
-        print(f"  Suite Count: {metrics['suite_count']}")
-        if metrics['hosts_list']:
-            print(f"  Hosts: {', '.join(metrics['hosts_list'])}")
-        if metrics['suites_list']:
-            print(f"  Suites: {', '.join(metrics['suites_list'][:3])}{'...' if len(metrics['suites_list']) > 3 else ''}")
-        
-        print(f"\n[QUALITY] Test Quality Metrics:")
+        print(f"\n⚠️  Test Quality Metrics:")
         if metrics['total'] > 0:
             flaky_rate = (metrics['flaky'] / metrics['total']) * 100
             print(f"  Flaky Rate: {flaky_rate:.2f}%")
