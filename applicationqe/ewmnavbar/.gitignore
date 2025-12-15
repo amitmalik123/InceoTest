@@ -5,6 +5,7 @@
 /qeautomation/platformqe/*
 /qeautomation/Salesforce/*
 /qeautomation/test-results/*
+/qeautomation/applicationqe/proposalas/*
 
 # Node and Playwright
 node_modules/
