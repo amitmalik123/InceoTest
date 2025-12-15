@@ -20,6 +20,7 @@ node_modules/
 allure-report/*
 allure-report/**/*
 allure-results/**/*
-/allure-results/*
-/framework/*
-/applicationqe/proposals/*
+allure-results/*
+framework/*
+applicationqe/proposals/**/*
+
