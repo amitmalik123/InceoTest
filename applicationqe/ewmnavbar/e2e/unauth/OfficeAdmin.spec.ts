@@ -5,7 +5,6 @@ test.describe('Office Admin', () => {
     test('Can see all the menus and Sub menus', async ({ page, p, f, log }) => {
         await page.goto(process.env.URL);
         await p.Login.Login(process.env.OFFICE_ADMIN_THOMSON_ID, process.env.PASSWORD)
-        await p.Login.ReLogin(process.env.USR_Global, process.env.PASS_Global)
 
         await p.Dashboard.LoadsPage();
         await p.Home.MenusExist();
