@@ -21,8 +21,12 @@ test.describe('Dashboard Pages', () => {
 
     test('Insights', async ({ page, p, log }) => {
         await p.Dashboard.goToPage();
+        await p.Dashboard.LoadsPage();
+        await p.Overview.ElementsExist();
         await p.Dashboard.smInsights.click();
         await p.Insights.LoadsPage();
+                await p.img.wholePage('Insights');
+
         await p.Insights.ElementsExist();
         await p.img.wholePage('Insights');
         await log('📊 page Dashbard > Insights');
@@ -53,8 +57,8 @@ test.describe('Dashboard Pages', () => {
             p.StatementsReports.secLegacySiteCore,
             p.StatementsReports.secSiteCore,
         );
-        await p.img.wholePage('Advisor Benefits');
-        await log('📊 page Dashbard > Advisor Benefits');
+        await p.img.wholePage('StatementsReports');
+        await log('📊 page Dashbard > Statements & Reports');
     });
 
 });

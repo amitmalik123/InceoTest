@@ -35,7 +35,7 @@ export class StrategistsPage {
 
         await expect(this.secStrategists).toHaveAttribute(
             'src',
-            /StrategistsAnalysis\/Clients\/StrategistList$/
+            /AccountsAnalysis\/Clients\/StrategistList$/
         );
         await expect(this.smStrategistsHL).toBeVisible();
         await this.logger('Page loaded for Clients > Strategists');

@@ -1,0 +1,290 @@
+{
+  "cookies": [
+    {
+      "name": "_cls_cfgver",
+      "value": "f1111249",
+      "domain": "report.assetmark.gbqofs.io",
+      "path": "/tjcoc2ah/reporting/d514cfe6-961e-6b0a-cfd6-bf96fc153333",
+      "expires": -1,
+      "httpOnly": true,
+      "secure": true,
+      "sameSite": "None"
+    },
+    {
+      "name": "_cls_s",
+      "value": "e233c417-984e-4f6c-8ef0-7f444a57b3c3:0",
+      "domain": "report.assetmark.gbqofs.io",
+      "path": "/tjcoc2ah/reporting/d514cfe6-961e-6b0a-cfd6-bf96fc153333",
+      "expires": -1,
+      "httpOnly": true,
+      "secure": true,
+      "sameSite": "None"
+    },
+    {
+      "name": "_cls_v",
+      "value": "6c75829f-5a58-46cb-bca9-2da8de038bf8",
+      "domain": "report.assetmark.gbqofs.io",
+      "path": "/tjcoc2ah/reporting/d514cfe6-961e-6b0a-cfd6-bf96fc153333",
+      "expires": -1,
+      "httpOnly": true,
+      "secure": true,
+      "sameSite": "None"
+    },
+    {
+      "name": "rto",
+      "value": "c0",
+      "domain": "report.assetmark.gbqofs.io",
+      "path": "/tjcoc2ah/reporting/d514cfe6-961e-6b0a-cfd6-bf96fc153333",
+      "expires": -1,
+      "httpOnly": true,
+      "secure": true,
+      "sameSite": "None"
+    },
+    {
+      "name": "_cls_v",
+      "value": "6c75829f-5a58-46cb-bca9-2da8de038bf8",
+      "domain": ".assetmark.com",
+      "path": "/",
+      "expires": 1800465998.506402,
+      "httpOnly": false,
+      "secure": true,
+      "sameSite": "None"
+    },
+    {
+      "name": "_cls_s",
+      "value": "e233c417-984e-4f6c-8ef0-7f444a57b3c3:0",
+      "domain": ".assetmark.com",
+      "path": "/",
+      "expires": -1,
+      "httpOnly": false,
+      "secure": true,
+      "sameSite": "None"
+    },
+    {
+      "name": "DT",
+      "value": "DI1sYXRoRhpTouQvpDjJd632w",
+      "domain": "test-login.assetmark.com",
+      "path": "/",
+      "expires": 1800465985.268375,
+      "httpOnly": true,
+      "secure": true,
+      "sameSite": "None"
+    },
+    {
+      "name": "oktaStateToken",
+      "value": "00msJuVVwvnDJX5GNGefrc3jgo5RtoKQ_jKD04NfG_",
+      "domain": "test-login.assetmark.com",
+      "path": "/",
+      "expires": 1765906297,
+      "httpOnly": false,
+      "secure": true,
+      "sameSite": "None"
+    },
+    {
+      "name": "xids",
+      "value": "102geehjFFXQdKKy6wKK8xuNQ",
+      "domain": "test-login.assetmark.com",
+      "path": "/",
+      "expires": -1,
+      "httpOnly": true,
+      "secure": true,
+      "sameSite": "None"
+    },
+    {
+      "name": "sid",
+      "value": "1023cTac6ocS_m3g0OijZnB_w",
+      "domain": "test-login.assetmark.com",
+      "path": "/",
+      "expires": -1,
+      "httpOnly": true,
+      "secure": true,
+      "sameSite": "None"
+    },
+    {
+      "name": "LastMRH_Session",
+      "value": "e368d760",
+      "domain": "ewm.test01.assetmark.com",
+      "path": "/",
+      "expires": -1,
+      "httpOnly": false,
+      "secure": true,
+      "sameSite": "None"
+    },
+    {
+      "name": "MRHSession",
+      "value": "e69413b7de2ea2fe820a506ee368d760",
+      "domain": "ewm.test01.assetmark.com",
+      "path": "/",
+      "expires": -1,
+      "httpOnly": false,
+      "secure": true,
+      "sameSite": "None"
+    },
+    {
+      "name": "F5_ST",
+      "value": "1z1z1z1765905999z604800",
+      "domain": "ewm.test01.assetmark.com",
+      "path": "/",
+      "expires": -1,
+      "httpOnly": false,
+      "secure": true,
+      "sameSite": "None"
+    },
+    {
+      "name": "JSESSIONID",
+      "value": "CB995F5CC4FFA379A261B90C4795DF42",
+      "domain": "test-login.assetmark.com",
+      "path": "/",
+      "expires": -1,
+      "httpOnly": true,
+      "secure": true,
+      "sameSite": "Lax"
+    },
+    {
+      "name": "TargetURL",
+      "value": "L2VuLmFzcHg=",
+      "domain": ".ewm.test01.assetmark.com",
+      "path": "/",
+      "expires": -1,
+      "httpOnly": true,
+      "secure": true,
+      "sameSite": "Lax"
+    },
+    {
+      "name": "ASP.NET_SessionId",
+      "value": "4olhb30bsn2taswkrt4b1txk",
+      "domain": "ewm.test01.assetmark.com",
+      "path": "/",
+      "expires": -1,
+      "httpOnly": true,
+      "secure": false,
+      "sameSite": "Lax"
+    },
+    {
+      "name": "GFWMSessionId",
+      "value": "3bfafbfb-cae5-4511-8d3e-4e6e15213b40",
+      "domain": "ewm.test01.assetmark.com",
+      "path": "/",
+      "expires": -1,
+      "httpOnly": true,
+      "secure": false,
+      "sameSite": "Lax"
+    },
+    {
+      "name": "website#lang",
+      "value": "en",
+      "domain": "ewm.test01.assetmark.com",
+      "path": "/",
+      "expires": -1,
+      "httpOnly": false,
+      "secure": false,
+      "sameSite": "Lax"
+    },
+    {
+      "name": "_ga_1NJ8KL66HN",
+      "value": "GS2.1.s1765906002$o1$g0$t1765906002$j60$l0$h0",
+      "domain": ".assetmark.com",
+      "path": "/",
+      "expires": 1800466002.296359,
+      "httpOnly": false,
+      "secure": false,
+      "sameSite": "Lax"
+    },
+    {
+      "name": "_ga",
+      "value": "GA1.2.1969343298.1765906002",
+      "domain": ".assetmark.com",
+      "path": "/",
+      "expires": 1800466002.329812,
+      "httpOnly": false,
+      "secure": false,
+      "sameSite": "Lax"
+    },
+    {
+      "name": "_gid",
+      "value": "GA1.2.2136795612.1765906002",
+      "domain": ".assetmark.com",
+      "path": "/",
+      "expires": 1765992402,
+      "httpOnly": false,
+      "secure": false,
+      "sameSite": "Lax"
+    },
+    {
+      "name": "_gat_gtag_UA_179298786_1",
+      "value": "1",
+      "domain": ".assetmark.com",
+      "path": "/",
+      "expires": 1765906062,
+      "httpOnly": false,
+      "secure": false,
+      "sameSite": "Lax"
+    },
+    {
+      "name": "_gat_UA-179298786-1",
+      "value": "1",
+      "domain": ".assetmark.com",
+      "path": "/",
+      "expires": 1765906062,
+      "httpOnly": false,
+      "secure": false,
+      "sameSite": "Lax"
+    }
+  ],
+  "origins": [
+    {
+      "origin": "https://app.test01.assetmark.com",
+      "localStorage": [
+        {
+          "name": "gb.performanceRecord.bychance.prev_th",
+          "value": "0.05"
+        },
+        {
+          "name": "gb.performanceRecord.bychance.enabled",
+          "value": "false"
+        },
+        {
+          "name": "gb.cors_ready",
+          "value": "true"
+        },
+        {
+          "name": "gb.dom.bychance.enabled",
+          "value": "true"
+        },
+        {
+          "name": "gb_unbound.cls_v_expr",
+          "value": "1825"
+        },
+        {
+          "name": "gb_unbound.res.pending",
+          "value": "WyJodHRwczovL2FwcC50ZXN0MDEuYXNzZXRtYXJrLmNvbS9hc3NldHMvaW5kZXgtQ2VNMVA3N1cuY3NzIl0="
+        },
+        {
+          "name": "oidc.b1d1924e142044208a954b016b6c7218",
+          "value": "{\"id\":\"b1d1924e142044208a954b016b6c7218\",\"data\":{\"href\":\"https://app.test01.assetmark.com/\"},\"created\":1765905985,\"request_type\":\"si:s\",\"code_verifier\":\"bb5ef0356ac54d3f952b4ecb4d6d18eba98fa453cf6f41cfb4b1938715e9db49e8b73b6b6cb2428bb913192f7add4d13\",\"authority\":\"https://test-login.assetmark.com/oauth2/aus2hquqyah83Ixsm0h8\",\"client_id\":\"0oa2irtmkqvNMQQfi0h8\",\"redirect_uri\":\"https://app.test01.assetmark.com/silent-signin-redirect.html\",\"scope\":\"openid profile email amk\",\"extraTokenParams\":{},\"response_mode\":\"query\"}"
+        },
+        {
+          "name": "gb.sid",
+          "value": "e233c417-984e-4f6c-8ef0-7f444a57b3c3:0"
+        },
+        {
+          "name": "gb.dom.bychance.prev_th",
+          "value": "1"
+        }
+      ]
+    },
+    {
+      "origin": "https://ewm.test01.assetmark.com",
+      "localStorage": [
+        {
+          "name": "AWSTilesData",
+          "value": "[{\"identifier\":\"ddl_Advisor_Managed_Portfolio\",\"name\":\"Advisor Managed Portfolios\",\"url\":\"/ssoidp?sp=vm\",\"unavailabilityMessage\":\"\\r\\n\\r\\n    \\r\\n\\r\\n\\r\\n\\r\\n\"},{\"identifier\":\"ddl_Benefits_Dashboard\",\"name\":\"Benefits Dashboard\",\"url\":\"/advisorbenefits/dashboard\",\"unavailabilityMessage\":null},{\"identifier\":\"ddl_Client_Management\",\"name\":\"Client Management\",\"url\":\"/advisorworkstation/funded\",\"unavailabilityMessage\":null},{\"identifier\":\"ddl_PortfolioEngine\",\"name\":\"Portfolio Engine\",\"url\":\"/portfolioengine/\",\"unavailabilityMessage\":null}]"
+        },
+        {
+          "name": "HomePreference",
+          "value": "{\"HoverAllowed\":true,\"UserPreference\":\"D20\",\"EWM30URL\":\"https://test.tenant1.auth.ewm3.assetmark.net/realms/eWM/protocol/openid-connect/auth?client_id=eWMAuth&redirect_uri=https%3A%2F%2Ftest.tenant1.ewm3.assetmark.net&response_type=code&kc_idp_hint=keycloak-oidc&response_mode=fragment\"}"
+        }
+      ]
+    }
+  ]
+}

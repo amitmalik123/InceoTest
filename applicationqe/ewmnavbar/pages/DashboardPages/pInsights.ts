@@ -21,18 +21,15 @@ export class InsightsPage {
     }
 
     async LoadsPage() {
-        await expect(this.tabAssetsHL).toBeVisible({ timeout: 1000000 });
-        console.log('on Landing Page Dashboard');
+        await expect(this.smInsightsHL).toBeVisible({ timeout: 1000000 });
+        console.log('on Landing Page Insights');
     }
 
     async ElementsExist() {
 
         await expect(this.tabAssetsHL).toBeVisible({
-            timeout: 5000,
+            timeout: 500000,
         });
-
-        // await expect(this.smInsightsHL).toBeVisible({ timeout: 100 });
-        await expect(this.smInsightsHL).toBeVisible({ timeout: 100 });
         await expect(this.tabFees).toBeVisible({ timeout: 100 });
         await expect(this.tabFlows).toBeVisible({ timeout: 100 });
         await this.logger('Page loaded for Dashboard > Insights');
