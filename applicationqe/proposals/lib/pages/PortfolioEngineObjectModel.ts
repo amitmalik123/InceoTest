@@ -344,9 +344,9 @@ export class PortfolioEnginePage {
         this.multipleStrategyAccountParagraph = page.getByRole('paragraph').filter({ hasText: 'Multiple Strategy Account, Profile ' });
         this.enterPercentageTextbox = page.getByRole('textbox', { name: 'Enter %' });
         this.portfolioValueText = page.getByText('Portfolio Value$');
-        this.financialAdvisorText = page.getByText('Financial Advisor1');
+        this.financialAdvisorText = page.getByText('Financial Advisor0');
         this.platformText = page.getByText('Platform0');
-        this.totalText = page.getByText('Total1');
+        this.totalText = page.getByText('Total0');
         this.continueButton = page.getByRole('button', { name: 'Continue' });
         this.fundedAccountsDiv = page.locator('div').filter({ hasText: /^Funded Accounts\(0\) \$0$/ }).first();
         this.oneCombinedDocumentText = page.getByText('One Combined Document');

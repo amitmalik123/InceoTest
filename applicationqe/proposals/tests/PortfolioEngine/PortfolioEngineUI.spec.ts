@@ -27,7 +27,7 @@ test.describe('Portfolio Engine Prep', () => {
     });
 
     test('Add strategies to portfolio', async ({ page }) => {
-        await expect(portfolioEnginePage.getStartedButton.or(portfolioEnginePage.managePortfoliosButton)).toBeVisible({ timeout: 60_000 });
+        await expect(portfolioEnginePage.getStartedButton.or(portfolioEnginePage.managePortfoliosButton)).toBeVisible({ timeout: 15_000 });
         if (await portfolioEnginePage.getStartedButton.isVisible()) {
             await portfolioEnginePage.getStartedButton.click();
         } else if (await portfolioEnginePage.managePortfoliosButton.isVisible()) {
@@ -59,8 +59,6 @@ test.describe('Portfolio Engine Prep', () => {
         await expect(portfolioEnginePage.getAllocationTextbox(3)).toHaveValue('20');
         await expect(portfolioEnginePage.getAllocationTextbox(4)).toHaveValue('20');
 
-        //save state so we can delete file portfolio in teardown
-        await portfolioEnginePage.page.context().storageState({ path: './authfiles/createdportfolio.json' });
     });
 });
 
@@ -69,7 +67,7 @@ test.describe('Portfolio Engine Prep', () => {
 test.describe('Portfolio Engine Happy Path Tests', () => {
 
     //apply storage state of role from auth file created in setup
-    test.use({ storageState: './authfiles/createdportfolio.json' });
+    test.use({ storageState: './authfiles/role1.json' });
     //Start each test from Portfolio Engine home page
     test.beforeEach('Navigate to Portfolio Engine Home Page', async ({ page }) => {
         await navigateToHomePage(page);
@@ -84,7 +82,7 @@ test.describe('Portfolio Engine Happy Path Tests', () => {
         await portfolioEnginePage.selectAllWidgetsIfNeeded();
         await portfolioEnginePage.page.waitForLoadState('domcontentloaded');
         //Verify all widget headers are loaded
-        await expect(portfolioEnginePage.upsideDownsideCaptureHeader).toBeVisible();
+        await expect(portfolioEnginePage.upsideDownsideCaptureHeader).toBeVisible({ timeout: 15_000 });
         await expect(portfolioEnginePage.investmentApproachHeader).toBeVisible();
         await expect(portfolioEnginePage.returnByStrategyHeader).toBeVisible();
         await expect(portfolioEnginePage.stressTestHeader).toBeVisible();
@@ -106,7 +104,7 @@ test.describe('Portfolio Engine Happy Path Tests', () => {
         await page.waitForLoadState();
 
         //Verify portfolios & percentages are correct on left dropdown
-        await expect(portfolioEnginePage.assetMarkIncomeBuilderText).toBeVisible();
+        await expect(portfolioEnginePage.assetMarkIncomeBuilderText).toBeVisible({ timeout: 15_000 });
         await expect(portfolioEnginePage.blackRockEquityDividendText).toBeVisible();
         await expect(portfolioEnginePage.savosUSRiskText).toBeVisible();
         await expect(portfolioEnginePage.alphaSimplexText).toBeVisible();
@@ -117,9 +115,7 @@ test.describe('Portfolio Engine Happy Path Tests', () => {
         await expect(portfolioEnginePage.newClientText).toBeVisible();
         await expect(portfolioEnginePage.existingClientRadio).toBeEditable();
         await expect(portfolioEnginePage.existingClientText).toBeVisible();
-        //await expect(portfolioEnginePage.discretionaryRadio).toBeEditable();
         await expect(portfolioEnginePage.discretionaryText).toBeVisible();
-        //await expect(portfolioEnginePage.nonDiscretionaryRadio).toBeEditable();
         await expect(portfolioEnginePage.nonDiscretionaryText).toBeVisible();
 
         //Fill new client information
@@ -160,11 +156,11 @@ test.describe('Portfolio Engine Happy Path Tests', () => {
         await expect(portfolioEnginePage.multipleStrategyAccountParagraph).toBeVisible();
 
         //Check fee values
-        await portfolioEnginePage.enterPercentageTextbox.fill('1');
+        await portfolioEnginePage.enterPercentageTextbox.fill('.5');
         await page.waitForLoadState();
         await portfolioEnginePage.nextButton.click();
-        await expect(portfolioEnginePage.portfolioValueText).toContainText('500,000');
-        await expect(portfolioEnginePage.financialAdvisorText).toContainText('1.00%');
+        await expect(portfolioEnginePage.portfolioValueText).toContainText('500,000', { timeout: 15_000 });
+        await expect(portfolioEnginePage.financialAdvisorText).toContainText('0.50%');
         await expect(portfolioEnginePage.platformText).not.toContainText('0.00%'); //ensure fee service is calculated
         await expect(portfolioEnginePage.totalText).not.toContainText('0.00%'); //ensure total annual fee is calculated
         await page.waitForLoadState();
@@ -187,13 +183,13 @@ test.describe('Portfolio Engine Happy Path Tests', () => {
         await portfolioEnginePage.page.waitForLoadState();
 
         //Verify we made it back to document list
-        await expect(portfolioEnginePage.oneCombinedDocumentText).toBeVisible();
+        await expect(portfolioEnginePage.oneCombinedDocumentText).toBeVisible({ timeout: 15_000 });
     });
 });
 
 test.describe('Check proposal doc', () => {
     //apply storage state of role from auth file created in setup
-    test.use({ storageState: './authfiles/createdportfolio.json' });
+    test.use({ storageState: './authfiles/role1.json' });
     //Start each test from home page
     test.beforeEach('Navigate to eWm Home Page', async ({ page }) => {
         await navigateToHomePage(page);
@@ -231,7 +227,6 @@ test.describe('Check proposal doc', () => {
 
         //check pursue your goals
         await expect(proposalDocPage.pursuingYourGoalsCheckbox.first()).toBeChecked();
-
 
         //check investing is personal
         await expect(proposalDocPage.investingIsPersonalCheckbox).toBeChecked();

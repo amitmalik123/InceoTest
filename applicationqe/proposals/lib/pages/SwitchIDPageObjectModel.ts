@@ -7,6 +7,7 @@ export class SwitchIDPage {
     readonly userIDLink: Locator;
     readonly roleRadioButton: Locator;
     readonly continueButton: Locator;
+    readonly switchIDLink: Locator;
 
     constructor(page: Page) {
         this.page = page;
@@ -14,11 +15,12 @@ export class SwitchIDPage {
         this.userIDLink = page.getByRole('link', { name: process.env.advisorID });
         this.roleRadioButton = page.locator('#radAgents');
         this.continueButton = page.getByRole('button', { name: 'Continue' });
+        this.switchIDLink = page.getByRole('link', { name: 'Switch ID' });
     }
 
     //Switch role from eWm pages
     async gotoSwitchIDPage() {
-        await this.page.getByRole('link', { name: 'Switch ID' }).click();
+        await this.switchIDLink.click();
         await this.page.waitForLoadState('networkidle');
     }
 
