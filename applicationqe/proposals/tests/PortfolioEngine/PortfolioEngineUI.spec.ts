@@ -162,7 +162,8 @@ test.describe('Portfolio Engine Happy Path Tests', () => {
         await expect(portfolioEnginePage.portfolioValueText).toContainText('500,000', { timeout: 15_000 });
         await expect(portfolioEnginePage.financialAdvisorText).toContainText('0.50%');
         await expect(portfolioEnginePage.platformText).not.toContainText('0.00%'); //ensure fee service is calculated
-        await expect(portfolioEnginePage.totalText).not.toContainText('0.00%'); //ensure total annual fee is calculated
+        await expect(portfolioEnginePage.totalText.or(portfolioEnginePage.totalText1)).not.toContainText('0.00%'); //total could start with 0 or 1 depending on platform fee
+
         await page.waitForLoadState();
 
         //Assert left boxes are correct

@@ -112,6 +112,7 @@ export class PortfolioEnginePage {
     readonly financialAdvisorText: Locator;
     readonly platformText: Locator;
     readonly totalText: Locator;
+    readonly totalText1: Locator;
     readonly continueButton: Locator;
     readonly fundedAccountsDiv: Locator;
     readonly oneCombinedDocumentText: Locator;
@@ -347,6 +348,7 @@ export class PortfolioEnginePage {
         this.financialAdvisorText = page.getByText('Financial Advisor0');
         this.platformText = page.getByText('Platform0');
         this.totalText = page.getByText('Total0');
+        this.totalText1 = page.getByText('Total1');
         this.continueButton = page.getByRole('button', { name: 'Continue' });
         this.fundedAccountsDiv = page.locator('div').filter({ hasText: /^Funded Accounts\(0\) \$0$/ }).first();
         this.oneCombinedDocumentText = page.getByText('One Combined Document');
