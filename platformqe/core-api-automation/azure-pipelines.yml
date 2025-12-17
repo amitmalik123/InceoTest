@@ -20,9 +20,9 @@ variables:
   - name: buildPath
     value: '$(Build.SourcesDirectory)/platformqe/core-api-automation'
   - name: subscription
-    value: 'subscription_dev'
+    value: $[variables['subscription_dev']]
   - name: key_vault_name
-    value: 'amkkvqapipeline-devncus'
+    value: $[variables['key_vault_name_dev']]
 
 stages:
   - stage: __default
