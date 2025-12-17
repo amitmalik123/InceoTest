@@ -14,64 +14,82 @@ parameters:
   type: boolean
   default: false
 
-variables:
-- name: buildPath
-  value: '$(Build.SourcesDirectory)/platformqe/core-api-automation'
-stages:
-- stage: __default
-  jobs:
-  - job: Job
-    pool:
-      name: 'ubuntu2204-qa'
-    steps:
-    - task: UsePythonVersion@0
-      displayName: 'Set up Python 3.10'
-      inputs:
-        addToPath: true
-        versionSpec: '3.10'
-    - task: CmdLine@2
-      displayName: 'Install Python dependencies'
-      inputs:
-        script: |
-          python -m pip install --upgrade pip
-          pip install -r requirements.txt
-        workingDirectory: $(buildPath)
-    - task: Bash@3
-      displayName: 'Run API Tests'
-      env:
-        WORK_ITEM_AUTH_TOKEN: $(WORK_ITEM_AUTH_TOKEN)
-        PARTIES_AUTH_TOKEN: $(PARTIES_AUTH_TOKEN)
-      inputs:
-        targetType: inline
-        script: |
-          echo "=========================================="
-          echo "Running Tests"
-          echo "=========================================="
-          echo "Command: ${{ parameters.apiTestArgs }}"
-          echo "=========================================="
 
-          pytest -sv tests/test_api_generic.py ${{ parameters.apiTestArgs }}
-          TEST_EXIT_CODE=$?
-          echo "##vso[task.setvariable variable=TEST_EXIT_CODE]$TEST_EXIT_CODE"
-          exit 0
-        workingDirectory: $(buildPath)
-    - task: Bash@3
-      displayName: 'Locate reports folder'
-      condition: succeededOrFailed()
-      inputs:
-        targetType: inline
-        script: |
-          latest=$(ls -td reports/[0-9]*/ 2>/dev/null | head -1 || echo "reports/")
-          echo "##vso[task.setvariable variable=REPORTS_PATH]$latest"
-          echo "Reports location: $latest"
-        workingDirectory: $(buildPath)
-    - task: Bash@3
-      displayName: 'Run Locust Performance Tests'
-      env:
-        WORK_ITEM_AUTH_TOKEN: $(WORK_ITEM_AUTH_TOKEN)
-        PARTIES_AUTH_TOKEN: $(PARTIES_AUTH_TOKEN)
-      condition: succeededOrFailed()
-      inputs:
+variables:
+  - name: buildPath
+    value: '$(Build.SourcesDirectory)/platformqe/core-api-automation'
+  # Link to variable library group(s) for URLs and non-secret config
+  - group: 'qa-pipelines-variable-group-dev'  # Only for URLs and non-secret config
+
+stages:
+  - stage: __default
+    jobs:
+    - job: Job
+      pool:
+        name: 'ubuntu2204-qa'
+      steps:
+      # Fetch parties connection string from Azure Key Vault
+      - task: AzureKeyVault@2
+        displayName: 'Fetch parties connection string from Azure Key Vault'
+        inputs:
+          azureSubscription: 'DEV Foundation'  # Update with your Azure service connection
+          KeyVaultName: 'amkkvqapipeline-devncus'  # Update with your Key Vault name
+          SecretsFilter: 'parties-sqldb-connection-string'
+          RunAsPreJob: true
+      - task: UsePythonVersion@0
+        displayName: 'Set up Python 3.10'
+        inputs:
+          addToPath: true
+          versionSpec: '3.10'
+      - task: CmdLine@2
+        displayName: 'Install Python dependencies'
+        inputs:
+          script: |
+            python -m pip install --upgrade pip
+            pip install -r requirements.txt
+          workingDirectory: $(buildPath)
+      - task: Bash@3
+        displayName: 'Run API Tests'
+        env:
+          WORK_ITEM_AUTH_TOKEN: $(WORK_ITEM_AUTH_TOKEN)
+          PARTIES_AUTH_TOKEN: $(PARTIES_AUTH_TOKEN)
+          PARTIES_SQLDB: $(PARTIES_SQLDB_CONNECTION_STRING)  # Connection string from Key Vault (hyphens to underscores, uppercase)
+          AZURE_SQL_PASSWORD: $(AZURE_SQL_PASSWORD)
+          POSTGRES_DB_PASSWORD: $(POSTGRES_DB_PASSWORD)
+        inputs:
+          targetType: inline
+          script: |
+            echo "=========================================="
+            echo "Running Tests"
+            echo "=========================================="
+            echo "Command: ${{ parameters.apiTestArgs }}"
+            echo "=========================================="
+
+            pytest -sv tests/test_api_generic.py ${{ parameters.apiTestArgs }}
+            TEST_EXIT_CODE=$?
+            echo "##vso[task.setvariable variable=TEST_EXIT_CODE]$TEST_EXIT_CODE"
+            exit 0
+          workingDirectory: $(buildPath)
+      - task: Bash@3
+        displayName: 'Locate reports folder'
+        condition: succeededOrFailed()
+        inputs:
+          targetType: inline
+          script: |
+            latest=$(ls -td reports/[0-9]*/ 2>/dev/null | head -1 || echo "reports/")
+            echo "##vso[task.setvariable variable=REPORTS_PATH]$latest"
+            echo "Reports location: $latest"
+          workingDirectory: $(buildPath)
+      - task: Bash@3
+        displayName: 'Run Locust Performance Tests'
+        env:
+          WORK_ITEM_AUTH_TOKEN: $(WORK_ITEM_AUTH_TOKEN)
+          PARTIES_AUTH_TOKEN: $(PARTIES_AUTH_TOKEN)
+          PARTIES_SQLDB: $(PARTIES_SQLDB_CONNECTION_STRING)  # Connection string from Key Vault
+          AZURE_SQL_PASSWORD: $(AZURE_SQL_PASSWORD)
+          POSTGRES_DB_PASSWORD: $(POSTGRES_DB_PASSWORD)
+        condition: succeededOrFailed()
+        inputs:
         targetType: inline
         script: "if [ \"${{ parameters.runLocust }}\" = \"True\" ]; then\n  echo \"==========================================\"\n  echo \"Running Locust Performance Tests\"\n  echo \"==========================================\"\n  \n  # Get the latest reports folder timestamp\n  latest=$(ls -td reports/[0-9]*/ 2>/dev/null | head -1)\n  if [ -n \"$latest\" ]; then\n    report_dir=\"${latest%/}\"\n    echo \"Using existing report directory: $report_dir\"\n  else\n    timestamp=$(date +%Y%m%d_%H%M%S)\n    report_dir=\"reports/${timestamp}\"\n    mkdir -p \"$report_dir\"\n    echo \"Created new report directory: $report_dir\"\n  fi\n  \n  echo \"Locust Command: ${{ parameters.performanceTestArgs }}\"\n  echo \"Report Directory: $report_dir\"\n  echo \"\"\n  \n  # Run Locust with reports to same timestamp directory\n  locust -f locustfile.py ${{ parameters.performanceTestArgs }} \\\n    --html=\"${report_dir}/performance_report.html\" \\\n    --csv=\"${report_dir}/performance_report\"\n  \n  LOCUST_EXIT_CODE=$?\n  echo \"##vso[task.setvariable variable=LOCUST_EXIT_CODE]$LOCUST_EXIT_CODE\"\n  \n  echo \"Locust reports saved to: $report_dir\"\n  exit 0\nelse\n  echo \"Locust tests skipped (runLocust=${{ parameters.runLocust }})\"\nfi\n"
         workingDirectory: $(buildPath)

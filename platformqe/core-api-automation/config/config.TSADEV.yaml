@@ -36,16 +36,7 @@ db_connections:
       trust_server_certificate: false
 
     parties:
-      driver: "ODBC Driver 17 for SQL Server"
-      server: "sqlcustodialdataopsdev.database.windows.net,1433"
-      database: "Parties"
-      # Credentials should not be committed to source control.
-      # Use environment variables, CI secrets, or Azure Key Vault references instead.
-      user: "your-email@domain.com"
-      password: "${AZURE_SQL_PASSWORD}"
-      trusted_connection: false
-      encrypt: true
-      trust_server_certificate: false
+      connection_string: "${PARTIES_SQLDB}"
 
   # PostgreSQL Connections - Multiple servers and databases
   postgresql:
