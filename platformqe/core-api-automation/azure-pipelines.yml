@@ -22,7 +22,7 @@ variables:
   - name: subscription
     value: $[variables['subscription_dev']]
   - name: key_vault_name
-    value: $[variables['key_vault_name_dev']]
+    value: 'amkkvqapipeline-devncus'
 
 stages:
   - stage: __default
