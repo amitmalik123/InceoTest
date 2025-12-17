@@ -16,10 +16,13 @@ parameters:
 
 
 variables:
+  - group: 'qa-pipelines-variable-group-dev'  # Only for URLs and non-secret config
   - name: buildPath
     value: '$(Build.SourcesDirectory)/platformqe/core-api-automation'
-  # Link to variable library group(s) for URLs and non-secret config
-  - group: 'qa-pipelines-variable-group-dev'  # Only for URLs and non-secret config
+  - name: subscription
+    value: $[variables['subscription_dev']]
+  - name: key_vault_name
+    value: $[variables['key_vault_name_dev']]
 
 stages:
   - stage: __default
@@ -32,8 +35,8 @@ stages:
       - task: AzureKeyVault@2
         displayName: 'Fetch parties connection string from Azure Key Vault'
         inputs:
-          azureSubscription: 'DEV Foundation'  # Update with your Azure service connection
-          KeyVaultName: 'amkkvqapipeline-devncus'  # Update with your Key Vault name
+          azureSubscription: $(subscription)
+          KeyVaultName: $(key_vault_name)
           SecretsFilter: 'parties-sqldb-connection-string'
           RunAsPreJob: true
       - task: UsePythonVersion@0
@@ -127,57 +130,57 @@ stages:
               echo "Locust tests skipped (runLocust=${{ parameters.runLocust }})"
             fi
           workingDirectory: $(buildPath)
-    - task: PublishTestResults@2
-      condition: succeededOrFailed()
-      inputs:
-        testResultsFormat: 'JUnit'
-        testResultsFiles: '**/junit_report*.xml'
-        searchFolder: '$(buildPath)/$(REPORTS_PATH)'
-        mergeTestResults: true
-        failTaskOnFailedTests: false
-        testRunTitle: 'API Test Results - $(Build.BuildNumber)'
-    - task: PublishBuildArtifacts@1
-      condition: succeededOrFailed()
-      inputs:
-        PathtoPublish: '$(buildPath)/reports'
-        ArtifactName: 'test-reports-$(Build.BuildNumber)'
-        publishLocation: 'Container'
-      displayName: 'Publish Test Reports'
-    - task: PublishBuildArtifacts@1
-      condition: succeededOrFailed()
-      inputs:
-        PathtoPublish: '$(buildPath)/framework/logs'
-        ArtifactName: 'framework-logs-$(Build.BuildNumber)'
-        publishLocation: 'Container'
-      displayName: 'Publish Framework Logs'
-    - task: Bash@3
-      displayName: 'Fail build if tests failed'
-      condition: always()
-      inputs:
-        targetType: inline
-        script: |
-          echo "=========================================="
-          echo "Final Test Result Check"
-          echo "=========================================="
-          failed=false
+      - task: PublishTestResults@2
+        condition: succeededOrFailed()
+        inputs:
+          testResultsFormat: 'JUnit'
+          testResultsFiles: '**/junit_report*.xml'
+          searchFolder: '$(buildPath)/$(REPORTS_PATH)'
+          mergeTestResults: true
+          failTaskOnFailedTests: false
+          testRunTitle: 'API Test Results - $(Build.BuildNumber)'
+      - task: PublishBuildArtifacts@1
+        condition: succeededOrFailed()
+        inputs:
+          PathtoPublish: '$(buildPath)/reports'
+          ArtifactName: 'test-reports-$(Build.BuildNumber)'
+          publishLocation: 'Container'
+        displayName: 'Publish Test Reports'
+      - task: PublishBuildArtifacts@1
+        condition: succeededOrFailed()
+        inputs:
+          PathtoPublish: '$(buildPath)/framework/logs'
+          ArtifactName: 'framework-logs-$(Build.BuildNumber)'
+          publishLocation: 'Container'
+        displayName: 'Publish Framework Logs'
+      - task: Bash@3
+        displayName: 'Fail build if tests failed'
+        condition: always()
+        inputs:
+          targetType: inline
+          script: |
+            echo "=========================================="
+            echo "Final Test Result Check"
+            echo "=========================================="
+            failed=false
 
-          if [ "$(TEST_EXIT_CODE)" != "0" ]; then
-            echo "❌ API Tests failed with exit code: $(TEST_EXIT_CODE)"
-            failed=true
-          else
-            echo "✅ API Tests passed"
-          fi
+            if [ "$(TEST_EXIT_CODE)" != "0" ]; then
+              echo "❌ API Tests failed with exit code: $(TEST_EXIT_CODE)"
+              failed=true
+            else
+              echo "✅ API Tests passed"
+            fi
 
-          if [ "${{ parameters.runLocust }}" = "True" ] && [ "$(LOCUST_EXIT_CODE)" != "0" ]; then
-            echo "❌ Locust Performance Tests failed with exit code: $(LOCUST_EXIT_CODE)"
-            failed=true
-          elif [ "${{ parameters.runLocust }}" = "True" ]; then
-            echo "✅ Locust Performance Tests passed"
-          fi
+            if [ "${{ parameters.runLocust }}" = "True" ] && [ "$(LOCUST_EXIT_CODE)" != "0" ]; then
+              echo "❌ Locust Performance Tests failed with exit code: $(LOCUST_EXIT_CODE)"
+              failed=true
+            elif [ "${{ parameters.runLocust }}" = "True" ]; then
+              echo "✅ Locust Performance Tests passed"
+            fi
 
-          if [ "$failed" = "true" ]; then
-            echo "##vso[task.complete result=Failed;]One or more test suites failed"
-            exit 1
-          else
-            echo "✅ All tests passed successfully"
-          fi
+            if [ "$failed" = "true" ]; then
+              echo "##vso[task.complete result=Failed;]One or more test suites failed"
+              exit 1
+            else
+              echo "✅ All tests passed successfully"
+            fi
