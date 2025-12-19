@@ -75,67 +75,6 @@ def test_data(request):
     # Fallback: load all testdata
     return TestDataLoader().load()
 
-def _resolve_template(value, context):
-    """
-    Resolve simple {{var}} templates using context.
-    Leaves non-template values as-is.
-    """
-    if isinstance(value, (int, float, bool)) or value is None:
-        return value
-    if isinstance(value, str) and value.startswith("{{") and value.endswith("}}"):
-        var_name = value[2:-2]
-        return context.get(var_name)
-    return value
-
-
-def _apply_custom_assertions(case, context):
-    """
-    Execute custom assertions defined in case['validate']['assertions'].
-    Each assertion supports:
-      - actual: value or {{var}}
-      - expected: value or {{var}}
-      - operator: ==, !=, >, <
-      - message: failure message
-    """
-    validate_cfg = case.get("validate", {}) or {}
-    assertions = validate_cfg.get("assertions", []) or []
-
-    for a in assertions:
-        actual_raw = a.get("actual")
-        expected_raw = a.get("expected")
-        operator = a.get("operator", "==")
-        message = a.get("message", "Custom assertion failed")
-
-        actual = _resolve_template(actual_raw, context)
-        expected = _resolve_template(expected_raw, context)
-
-        # Try to coerce numbers if they look numeric
-        def to_number_if_possible(v):
-            if isinstance(v, (int, float)):
-                return v
-            if isinstance(v, str):
-                try:
-                    # handle ints and floats
-                    if "." in v:
-                        return float(v)
-                    return int(v)
-                except Exception:
-                    return v
-            return v
-
-        actual_val = to_number_if_possible(actual)
-        expected_val = to_number_if_possible(expected)
-
-        if operator == "==":
-            assert actual_val == expected_val, f"{message}: actual={actual_val}, expected={expected_val}"
-        elif operator == "!=":
-            assert actual_val != expected_val, f"{message}: actual={actual_val}, expected (different)={expected_val}"
-        elif operator == ">":
-            assert float(actual_val) > float(expected_val), f"{message}: actual={actual_val} <= expected={expected_val}"
-        elif operator == "<":
-            assert float(actual_val) < float(expected_val), f"{message}: actual={actual_val} >= expected={expected_val}"
-        else:
-            raise AssertionError(f"Unsupported operator '{operator}' in custom assertion")
 
 def pytest_generate_tests(metafunc):
     """
@@ -184,48 +123,21 @@ def _handle_testdata_error(case: dict, config: dict):
     pytest.fail(result_entry["summary"])
 
 
-def _log_request_info(case, method, endpoint, payload, json_module):
+def _log_request_info(case, method, endpoint, payload, base_url, json_module):
     """Log request information to console for visibility."""
-    print(f"\n{'='*80}\nTest: {case.get('test_name', case.get('test_id'))}\nMethod: {method}\nEndpoint: {endpoint}")
+    print(f"\n{'='*80}\nTest: {case.get('test_name', case.get('test_id'))}\nMethod: {method}\nBase URL: {base_url}\nEndpoint: {endpoint}")
     print(f"Payload: {json_module.dumps(payload, indent=2) if isinstance(payload, dict) and payload else 'None (GET request - no body)'}")
     print(f"{'='*80}\n")
 
 
 def _log_response_info(response, json_module, logger):
-    """Log response information to console and debug log."""
-    if logger.level == 10:
-        try:
-            logger.debug(f"Response JSON: {json_module.dumps(response.json(), indent=2)}")
-        except:
-            logger.debug(f"Response text: {response.text[:200] if hasattr(response, 'text') else 'N/A'}")
-    else:
-        print(f"\nResponse Status: {response.status_code}")
-        try:
-            print(f"Response Body: {json_module.dumps(response.json(), indent=2)}")
-        except:
-            print(f"Response Body: {response.text[:200] if hasattr(response, 'text') else 'N/A'}...")
-
-
-def _log_request_info(case, method, endpoint, payload, json_module):
-    """Log request information to console for visibility."""
-    print(f"\n{'='*80}\nTest: {case.get('test_name', case.get('test_id'))}\nMethod: {method}\nEndpoint: {endpoint}")
-    print(f"Payload: {json_module.dumps(payload, indent=2) if isinstance(payload, dict) and payload else 'None (GET request - no body)'}")
-    print(f"{'='*80}\n")
-
-
-def _log_response_info(response, json_module, logger):
-    """Log response information to console and debug log."""
-    if logger.level == 10:
-        try:
-            logger.debug(f"Response JSON: {json_module.dumps(response.json(), indent=2)}")
-        except:
-            logger.debug(f"Response text: {response.text[:200] if hasattr(response, 'text') else 'N/A'}")
-    else:
-        print(f"\nResponse Status: {response.status_code}")
-        try:
-            print(f"Response Body: {json_module.dumps(response.json(), indent=2)}")
-        except:
-            print(f"Response Body: {response.text[:200] if hasattr(response, 'text') else 'N/A'}...")
+    """Log response information to console only (detailed logging is in api_client/soap_client)."""
+    # Only print to console for user visibility, detailed logging happens in client layer
+    print(f"\nResponse Status: {response.status_code}")
+    try:
+        print(f"Response Body: {json_module.dumps(response.json(), indent=2)}")
+    except:
+        print(f"Response Body: {response.text[:200] if hasattr(response, 'text') else 'N/A'}...")
 
 
 def test_api_case(case, request):
@@ -337,26 +249,48 @@ def test_api_case(case, request):
         result_collector.add_result(result_entry)
         pytest.fail(str(e))
     
-    # Log payload
-    payload_str = json_module.dumps(payload, indent=2) if isinstance(payload, dict) else str(payload) if payload else f"None (method: {method})"
-    (logger.debug if logger.level == 10 else logger.info)(f"Request payload: {payload_str}")
+    # Store api_request in context for data comparison
+    # For GET/DELETE requests with no payload, store the data-driven variables from context as api_request
+    if payload is None and method.upper() in ['GET', 'DELETE']:
+        # Extract data-driven variables (those loaded from test_data_file CSV)
+        # These are the variables that were used in the request (endpoint, query params, etc.)
+        data_driven_vars = {k: v for k, v in context.items() 
+                           if k not in ['test_id', 'service_name', 'workflow_mode', 'test_name', 'protocol', 
+                                       'test_type', 'mainURL', 'endpoint', 'method', 'rpc_method', 'graphql_query',
+                                       'graphql_variables', 'soap_action', 'soap_envelope', 'headers_additional',
+                                       'payload', 'expected_status', 'expected_response_schema', 'expected_response',
+                                       'extract_values', 'validate', 'test_data_file', 'db_query', 'db_type',
+                                       'db_connection_name', 'test_summary', 'resolved_base_url', 'api_request',
+                                       'api_response', 'db_result', 'db_results']}
+        context['api_request'] = data_driven_vars
+    else:
+        context['api_request'] = payload
     
     # Console output for visibility
-    _log_request_info(case, method, endpoint, payload, json_module)
+    _log_request_info(case, method, endpoint, payload, case.get('resolved_base_url', ''), json_module)
     
     # ========== PHASE 3: DATABASE QUERY (BEFORE API) ==========
     db_result = None
+    db_results = {}
     if db_manager.should_execute_before(case, protocol):
-        logger.info("Executing DB query BEFORE API call")
-        db_result = db_manager.execute_query(case, context)
-        if db_result is not None:
-            context['db_result'] = db_result
-            # Extract values from db_result if extract_values configured
+        logger.info("Executing DB query/queries BEFORE API call")
+        db_results = db_manager.execute_queries(case, context)
+        
+        if db_results:
+            # Store results in context
+            context['db_results'] = db_results
+            logger.debug(f"DB queries executed. Available queries: {list(db_results.keys())}")
+            # For backward compatibility, also set db_result to 'default' query result
+            db_result = db_results.get('default')
+            if db_result is not None:
+                context['db_result'] = db_result
+            
+            # Extract values from db_result(s) if extract_values configured
             extract_config = case.get('extract_values', [])
             if extract_config and isinstance(extract_config, list):
-                context_manager.extract_values_batch(extract_config, response=None, db_result=db_result)
+                context_manager.extract_values_batch(extract_config, response=None, db_result=db_result, context=context)
         else:
-            # DB query was configured but failed to execute
+            # DB query was configured but all queries failed
             error_msg = f"Database query failed for {case.get('db_type', 'unknown')} ({case.get('db_connection_name', 'default')})"
             logger.error(error_msg)
             result_collector.update_status(result_entry, "FAIL", error_msg)
@@ -377,37 +311,49 @@ def test_api_case(case, request):
     # ========== PHASE 5: VALUE EXTRACTION (AFTER API) ==========
     extract_config = case.get('extract_values', [])
     if extract_config and isinstance(extract_config, list):
-        extracted_vars = context_manager.extract_values_batch(extract_config, response=response, db_result=db_result)
+        extracted_vars = context_manager.extract_values_batch(extract_config, response=response, db_result=db_result, context=context)
         # Update context with newly extracted variables for use in DB queries
         context.update(extracted_vars)
         # Also update from global variables to ensure all extracted values are available
         context.update(context_manager._global_variables)
-
-     # ========== CUSTOM ASSERTIONS (BASED ON EXTRACTED VALUES) ==========
-    # This will use values like models_count, response_filter_id, response_model_id
-    _apply_custom_assertions(case, context)
     
     # ========== PHASE 6: DATABASE QUERY (AFTER API) ==========
     if db_manager.should_execute_after(case, protocol):
-        logger.info("Executing DB query AFTER API call and value extraction")
-        db_result = db_manager.execute_query(case, context)
-        if db_result is not None:
-            context['db_result'] = db_result
-            # Perform DB comparison validation if configured
+        logger.info("Executing DB query/queries AFTER API call and value extraction")
+        db_results = db_manager.execute_queries(case, context)
+        
+        if db_results:
+            # Store results in context
+            context['db_results'] = db_results
+            logger.info(f"DB queries executed. Available queries: {list(db_results.keys())}")
+            # For backward compatibility, also set db_result to 'default' query result
+            db_result = db_results.get('default')
+            if db_result is not None:
+                context['db_result'] = db_result
+            
+            # Extract values from DB result
+            if extract_config and isinstance(extract_config, list):
+                db_extracted_vars = context_manager.extract_values_batch(extract_config, response=None, db_result=db_result, context=context)
+                context.update(db_extracted_vars)
+                context.update(context_manager._global_variables)
+                logger.info(f"Extracted {len(db_extracted_vars)} variables from DB result")
+            
+            # Perform data comparison validation if configured
             validate_cfg = case.get('validate', {})
-            data_cmp_cfg = validate_cfg.get('data_comparison', {})
+            data_cmp_cfg = validate_cfg.get('data_comparison')
             if data_cmp_cfg:
-                # Pass the data_cmp_cfg directly (already extracted from validate_cfg)
+                # New approach: pass validate_cfg to support both array and single format
+                # The db_manager will handle backward compatibility
                 is_valid, errors = db_manager.perform_comparison_validation(response, db_result, validate_cfg, context)
                 if not is_valid:
-                    result_collector.update_status(result_entry, "FAIL", f"DB comparison validation failed: {errors}")
-                    result_collector.update_validation(result_entry, "FAIL", "PASS", "FAIL")
+                    result_collector.update_status(result_entry, "FAIL", f"Data comparison validation failed: {errors}")
+                    result_collector.update_validation(result_entry, None, None, None, "FAIL")
                     result_collector.add_result(result_entry)
-                    pytest.fail(f"DB comparison validation failed: {errors}")
+                    pytest.fail(f"Data comparison validation failed: {errors}")
                 else:
-                    result_collector.update_validation(result_entry, None, None, "PASS")
+                    result_collector.update_validation(result_entry, None, None, None, "PASS")
         else:
-            # DB query was configured but failed to execute
+            # DB query was configured but all queries failed
             error_msg = f"Database query failed for {case.get('db_type', 'unknown')} ({case.get('db_connection_name', 'default')})"
             logger.error(error_msg)
             result_collector.update_status(result_entry, "FAIL", error_msg)
@@ -426,6 +372,23 @@ def test_api_case(case, request):
             result_collector.add_result(result_entry)
             raise
     result_entry["status"] = "PASS"
+    
+    # Performance validation
+    try:
+        validation_manager.validate_performance(result_entry["response_time"], case)
+    except AssertionError as e:
+        result_collector.update_status(result_entry, "FAIL", str(e))
+        result_collector.add_result(result_entry)
+        raise
+    
+    # Security validation
+    try:
+        validation_manager.validate_security(response, payload, case)
+    except AssertionError as e:
+        result_collector.update_status(result_entry, "FAIL", str(e))
+        result_collector.update_validation(result_entry, None, "FAIL", None)
+        result_collector.add_result(result_entry)
+        raise
     
     # Prepare expected config for validation
     expected = validation_manager.prepare_expected(case, context)
@@ -450,15 +413,42 @@ def test_api_case(case, request):
             result_collector.add_result(result_entry)
             raise
     
-    # Schema validation
+    # Schema validation (SOAP uses XSD validation internally in SOAP client)
     expected_response_schema = case.get('expected_response_schema')
-    if expected_response_schema:
+    if expected_response_schema and protocol != 'SOAP' and case.get('method', '').upper() != 'SOAP':
         try:
             validation_manager.validate_schema(response, expected_response_schema)
         except (FileNotFoundError, AssertionError) as e:
             result_collector.update_status(result_entry, "FAIL", str(e))
             result_collector.add_result(result_entry)
             raise
+    
+    # Note: SOAP validation happens automatically inside SoapClient.call() method
+    # No additional validation needed here - follows same pattern as REST/GraphQL/gRPC clients
+    
+    # Data comparison validation (for non-DB comparisons like api_request vs api_response)
+    # This handles comparisons that don't require DB queries
+    validate_cfg = case.get('validate', {})
+    data_cmp_cfg = validate_cfg.get('data_comparison')
+    if data_cmp_cfg and not db_manager.should_execute_after(case, protocol):
+        # Only execute here if DB query was not executed after API
+        # (to avoid duplicate execution)
+        is_valid, errors = db_manager.perform_comparison_validation(response, db_result, validate_cfg, context)
+        if not is_valid:
+            result_collector.update_status(result_entry, "FAIL", f"Data comparison validation failed: {errors}")
+            result_collector.update_validation(result_entry, None, None, None, "FAIL")
+            result_collector.add_result(result_entry)
+            pytest.fail(f"Data comparison validation failed: {errors}")
+        else:
+            result_collector.update_validation(result_entry, None, None, None, "PASS")
+    
+    # Custom assertions validation
+    try:
+        validation_manager.validate_assertions(case, context)
+    except AssertionError as e:
+        result_collector.update_status(result_entry, "FAIL", f"Custom assertion failed: {str(e)}")
+        result_collector.add_result(result_entry)
+        raise
     
     # ========== PHASE 8: COLLECT RESULTS ==========
     if result_entry["status"] == "PASS":

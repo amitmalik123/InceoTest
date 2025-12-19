@@ -53,7 +53,15 @@ class PayloadManager:
             return self._load_from_file(payload_file_path, context)
         
         # Check if constructing from CSV test_data_file
+        # Skip CSV construction for SOAP tests that use soap_envelope
+        protocol = case.get('protocol', '').upper()
+        has_soap_envelope = case.get('soap_envelope') and case.get('soap_envelope') != "<Envelope>...</Envelope>"
+        
         if not case.get('payload') and case.get('test_data_file') and method.upper() in ['POST', 'PUT', 'PATCH']:
+            # Skip CSV payload construction for SOAP tests with soap_envelope
+            if protocol == 'SOAP' and has_soap_envelope:
+                logger.debug("Skipping CSV payload construction for SOAP test with soap_envelope")
+                return None
             # Construct from CSV row
             return self._construct_from_csv(case, context)
         
@@ -93,25 +101,25 @@ class PayloadManager:
         
         payload_field = case['payload']
         
-        if isinstance(payload_field, str) and payload_field.strip().endswith('.json'):
+        if isinstance(payload_field, str) and payload_field.strip().endswith(('.json', '.xml')):
             return payload_field.strip()
         
         return None
     
-    def _load_from_file(self, file_path: str, context: Dict) -> Dict:
+    def _load_from_file(self, file_path: str, context: Dict):
         """
-        Load and render payload from JSON file.
+        Load and render payload from JSON or XML file.
         
         Args:
-            file_path: Path to payload JSON file (relative or absolute)
+            file_path: Path to payload file (relative or absolute)
             context: Context dictionary for rendering variables
         
         Returns:
-            Rendered payload dictionary
+            Rendered payload (dict for JSON, str for XML)
         
         Raises:
             FileNotFoundError: If payload file doesn't exist
-            ValueError: If payload file is invalid JSON
+            ValueError: If payload file is invalid
         """
         # Normalize path separators for cross-platform compatibility
         file_path = normalize_path(file_path)
@@ -126,16 +134,31 @@ class PayloadManager:
             raise FileNotFoundError(error_msg)
         
         try:
-            with open(file_path, 'r', encoding='utf-8') as f:
-                raw_payload = json.load(f)
+            # Handle XML files
+            if file_path.endswith('.xml'):
+                with open(file_path, 'r', encoding='utf-8') as f:
+                    raw_xml = f.read()
+                
+                # Render XML with context variables
+                rendered_xml = render_template(raw_xml, context)
+                
+                logger.info(f"Loaded XML payload from file: {file_path}")
+                logger.debug(f"Rendered XML payload: {rendered_xml[:200]}...")
+                
+                return rendered_xml
             
-            # Always render the loaded payload with context
-            payload = render_hybrid(raw_payload, context)
-            
-            logger.info(f"Loaded payload from file: {file_path}")
-            logger.debug(f"Rendered payload: {payload}")
-            
-            return payload
+            # Handle JSON files
+            else:
+                with open(file_path, 'r', encoding='utf-8') as f:
+                    raw_payload = json.load(f)
+                
+                # Always render the loaded payload with context
+                payload = render_hybrid(raw_payload, context)
+                
+                logger.info(f"Loaded JSON payload from file: {file_path}")
+                logger.debug(f"Rendered payload: {payload}")
+                
+                return payload
             
         except json.JSONDecodeError as e:
             error_msg = f"Invalid JSON in payload file {file_path}: {e}"

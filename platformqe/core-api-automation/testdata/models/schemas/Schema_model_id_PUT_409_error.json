@@ -1,0 +1,27 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "Conflict Error Response",
+  "type": "object",
+  "properties": {
+    "type": {
+      "type": "string",
+      "enum": ["StateConflict"],
+      "description": "Error type identifier"
+    },
+    "title": {
+      "type": "string",
+      "description": "Short error code or title"
+    },
+    "status": {
+      "type": "integer",
+      "enum": [409],
+      "description": "HTTP status code for conflict"
+    },
+    "detail": {
+      "type": "string",
+      "description": "Detailed error message"
+    }
+  },
+  "required": ["type", "title", "status", "detail"],
+  "additionalProperties": false
+}

@@ -105,6 +105,18 @@ class TestDataLoader:
                                 value = ''
                             elif isinstance(v, str):
                                 value = v.strip()
+                                # Auto-parse JSON arrays/objects in CSV cells
+                                if value and (value.startswith('[') or value.startswith('{')):
+                                    try:
+                                        value = json.loads(value)
+                                        logger.debug(f"Parsed JSON in CSV cell for key '{key}': {value}")
+                                    except json.JSONDecodeError:
+                                        # Not valid JSON, keep as string
+                                        pass
+                                # Auto-split pipe-delimited strings into arrays
+                                elif value and '|' in value:
+                                    value = [item.strip() for item in value.split('|')]
+                                    logger.debug(f"Split pipe-delimited value for key '{key}': {value}")
                             else:
                                 value = v
                             clean_row[key] = value

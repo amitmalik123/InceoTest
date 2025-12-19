@@ -1,0 +1,21 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "Server Error Response",
+  "type": "object",
+  "properties": {
+    "title": {
+      "type": "string",
+      "description": "Short description of the error"
+    },
+    "status": {
+      "type": "integer",
+      "description": "HTTP status code"
+    },
+    "detail": {
+      "type": "string",
+      "description": "Detailed error message"
+    }
+  },
+  "required": ["title", "status", "detail"],
+  "additionalProperties": false
+}

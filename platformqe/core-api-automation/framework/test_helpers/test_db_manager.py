@@ -47,7 +47,8 @@ class TestDatabaseManager:
             return True
         
         db_query_timing = case.get('db_query_timing', 'after_api')
-        return db_query_timing == 'before_api' and case.get('db_query')
+        has_query = case.get('db_query') or case.get('db_queries')
+        return db_query_timing == 'before_api' and has_query
     
     def should_execute_after(self, case: Dict, protocol: str) -> bool:
         """
@@ -64,7 +65,8 @@ class TestDatabaseManager:
             return False
         
         db_query_timing = case.get('db_query_timing', 'after_api')
-        return db_query_timing == 'after_api' and case.get('db_query')
+        has_query = case.get('db_query') or case.get('db_queries')
+        return db_query_timing == 'after_api' and has_query
     
     def execute_query(self, case: Dict, context: Dict) -> Optional[List[Dict]]:
         """
@@ -116,6 +118,70 @@ class TestDatabaseManager:
             logger.error(f"DB query failed on {db_type} ({db_connection_name or 'default'}): {e}")
             return None
     
+    def execute_queries(self, case: Dict, context: Dict) -> Dict[str, List[Dict]]:
+        """
+        Execute multiple DB queries if db_queries dict is present, otherwise execute single db_query.
+        Supports both new multiple query format and backward compatible single query format.
+        
+        Args:
+            case: Test case configuration with db_query or db_queries
+            context: Context dictionary for query rendering
+        
+        Returns:
+            Dictionary mapping query names to their results
+            For single query: {'default': result}
+            For multiple queries: {'query_name_1': result1, 'query_name_2': result2, ...}
+        """
+        self._lazy_load_factory()
+        
+        results = {}
+        
+        # Check for new multiple queries format
+        db_queries = case.get('db_queries')
+        if db_queries and isinstance(db_queries, dict):
+            # Execute multiple named queries
+            db_type = case.get('db_type', 'mssql')
+            db_connection_name = case.get('db_connection_name')
+            
+            logger.info(f"Executing multiple DB queries: {list(db_queries.keys())}")
+            
+            for query_name, query_content in db_queries.items():
+                try:
+                    # Get database client
+                    db_client = self.db_client_factory.get_client(db_type, db_connection_name)
+                    
+                    # Load query from file if path provided
+                    query_str = self.load_query_from_file(query_content, context)
+                    
+                    # Render the query with context variables
+                    rendered_query = render_template(query_str, context)
+                    
+                    # Execute query based on database type
+                    if db_type.lower() in ['mongodb', 'cosmosdb']:
+                        query_dict = json.loads(rendered_query) if isinstance(rendered_query, str) else rendered_query
+                        db_result = db_client.query(query_dict)
+                    else:
+                        db_result = db_client.query(rendered_query)
+                    
+                    results[query_name] = db_result
+                    logger.info(f"DB query '{query_name}' executed successfully, stored as '{query_name}'")
+                    logger.debug(f"Query '{query_name}' result: {db_result}")
+                    
+                except Exception as e:
+                    logger.error(f"DB query '{query_name}' failed: {e}")
+                    results[query_name] = None
+            
+            logger.info(f"Returning db_results with queries: {list(results.keys())}")
+        
+        else:
+            # Backward compatibility: execute single db_query
+            result = self.execute_query(case, context)
+            if result is not None:
+                results['default'] = result
+                logger.info(f"Single db_query executed, returning as 'default'")
+        
+        return results if results else None
+    
     def load_query_from_file(self, query: str, context: Dict) -> str:
         """
         Load SQL from file if path provided, otherwise return query as-is.
@@ -151,43 +217,84 @@ class TestDatabaseManager:
         context: Dict
     ) -> Tuple[bool, List[str]]:
         """
-        Perform DB comparison validation.
-        Delegates to validators.perform_db_comparison_validation.
+        Perform data comparison validation.
+        Supports both old single comparison format and new array format.
+        Delegates to validators.perform_data_comparison_array for new format,
+        and validators.perform_db_comparison_validation for backward compatibility.
         
         Args:
             response: API response object
-            db_result: Database query result
+            db_result: Database query result (for backward compatibility)
             validate_config: Validation configuration from test case
-            context: Context dictionary
+            context: Context dictionary with all data sources
         
         Returns:
             Tuple of (is_valid, errors)
         """
-        data_cmp_cfg = validate_config.get('data_comparison', {})
+        data_cmp_cfg = validate_config.get('data_comparison')
         
-        if not data_cmp_cfg or not db_result:
-            logger.debug("No data_comparison config or db_result, skipping validation")
+        if not data_cmp_cfg:
+            logger.debug("No data_comparison config, skipping validation")
             return True, []
         
         try:
-            from framework.validators.validators import perform_db_comparison_validation
-            
-            is_valid, errors = perform_db_comparison_validation(
-                response, 
-                db_result, 
-                data_cmp_cfg, 
-                context
-            )
+            # Check if new array format or old single dict format
+            if isinstance(data_cmp_cfg, list):
+                # New array format - supports multiple comparisons with any combination
+                from framework.validators.validators import perform_data_comparison_array
+                
+                is_valid, errors = perform_data_comparison_array(
+                    response,
+                    context,
+                    data_cmp_cfg
+                )
+                
+            else:
+                # Old single dict format - backward compatibility
+                # Check if db_result is required for this comparison
+                target = data_cmp_cfg.get('target', 'db_result')
+                
+                if target == 'db_result':
+                    # For db_result target, check for named query first
+                    target_query = data_cmp_cfg.get('target_query', 'default')
+                    db_results = context.get('db_results', {})
+                    
+                    # Try to get the specific query result
+                    if target_query != 'default' and target_query in db_results:
+                        db_result = db_results[target_query]
+                    elif target_query == 'default' and 'default' in db_results:
+                        db_result = db_results['default']
+                    # else db_result remains as is (could be None or legacy single query result)
+                    
+                    # Validate that required query exists
+                    if not db_result:
+                        available_queries = list(db_results.keys()) if db_results else []
+                        if available_queries and target_query != 'default':
+                            return False, [f"Query '{target_query}' not found in db_results. Available queries: {available_queries}"]
+                        elif available_queries and target_query == 'default':
+                            return False, [f"Query 'default' not found in db_results. Available queries: {available_queries}. Please specify one using 'target_query'."]
+                        else:
+                            logger.debug("No db_result available for comparison, skipping validation")
+                            return True, []
+                
+                from framework.validators.validators import perform_db_comparison_validation
+                
+                is_valid, errors = perform_db_comparison_validation(
+                    response, 
+                    db_result, 
+                    data_cmp_cfg, 
+                    context
+                )
             
             if is_valid:
-                logger.info("DB comparison validation PASSED")
+                logger.info("Data comparison validation PASSED")
             else:
-                logger.error(f"DB comparison validation FAILED: {errors}")
+                logger.error(f"Data comparison validation FAILED: {errors}")
             
             return is_valid, errors
             
         except Exception as e:
-            logger.error(f"DB comparison validation error: {e}")
+            logger.error(f"Data comparison validation error: {e}")
             return False, [str(e)]
 
 

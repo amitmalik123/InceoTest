@@ -26,11 +26,36 @@ def merge_headers(headers: Dict[str, str], headers_additional: Optional[Dict[str
     return merged
 
 @register_function('extract_value')
-def extract_value(response: Any, key: str) -> Any:
+def extract_value(response: Any, key: str, record_count: bool = False, array_path: str = None) -> Any:
     """
     Extracts a value from the response for workflow chaining.
     Supports dot notation and list indexing (e.g., 'users.0.name').
+    Supports record counting for arrays in both JSON (REST) and XML (SOAP) responses.
+    
+    Args:
+        response: Response data (dict, list, or XML string/object)
+        key: Key path to extract (supports dot notation)
+        record_count: If True, returns the count of items in the array at array_path
+        array_path: Path to the array whose count should be returned (supports dot notation and Jinja-like paths)
+    
+    Returns:
+        Extracted value, record count, or None if extraction fails
     """
+    # Handle record_count mode
+    if record_count:
+        if array_path:
+            return _extract_record_count(response, array_path)
+        else:
+            # Empty array_path means count the root level array
+            if isinstance(response, list):
+                count = len(response)
+                logger.debug(f"Root level array has {count} items")
+                return count
+            else:
+                logger.warning(f"record_count requested with empty array_path, but response is not a list: {type(response)}")
+                return 0
+    
+    # Regular value extraction
     value = response
     for k in key.split('.'):
         if isinstance(value, dict):
@@ -43,6 +68,150 @@ def extract_value(response: Any, key: str) -> Any:
             return None
     logger.debug(f"Extracted value for '{key}': {value}")
     return value
+
+
+def _extract_record_count(response: Any, array_path: str) -> int:
+    """
+    Extracts record count from an array in the response.
+    Works for both JSON (REST) and XML (SOAP) responses.
+    
+    Args:
+        response: Response data (dict, list, XML string, or XML object)
+        array_path: Path to the array (supports dot notation, e.g., 'users', 'data.items', 'Body.Response.Users')
+    
+    Returns:
+        Count of items in the array, or 0 if array not found
+    """
+    try:
+        # Check if response is SOAP/XML (string or XML object)
+        if isinstance(response, str) and response.strip().startswith('<'):
+            return _count_xml_elements(response, array_path)
+        elif hasattr(response, 'tag'):  # lxml Element
+            return _count_xml_elements_from_element(response, array_path)
+        
+        # Check if response is a dict with xml_response (SOAP client format)
+        if isinstance(response, dict) and 'xml_response' in response:
+            return _count_xml_elements(response['xml_response'], array_path)
+        
+        # Handle JSON/dict response (REST)
+        return _count_json_array(response, array_path)
+        
+    except Exception as e:
+        logger.warning(f"Failed to extract record count from '{array_path}': {e}")
+        return 0
+
+
+def _count_json_array(response: Any, array_path: str) -> int:
+    """
+    Count items in a JSON array using dot notation path.
+    
+    Args:
+        response: JSON response (dict or list)
+        array_path: Path to array (e.g., 'users', 'data.items', 'response.data.users')
+    
+    Returns:
+        Count of items in array
+    """
+    value = response
+    path_parts = array_path.split('.')
+    
+    for part in path_parts:
+        if isinstance(value, dict):
+            value = value.get(part)
+        elif isinstance(value, list) and part.isdigit():
+            index = int(part)
+            value = value[index] if index < len(value) else None
+        else:
+            logger.warning(f"Failed to navigate to '{array_path}' in JSON response")
+            return 0
+        
+        if value is None:
+            logger.warning(f"Path '{array_path}' not found in JSON response")
+            return 0
+    
+    # Count the array
+    if isinstance(value, list):
+        count = len(value)
+        logger.debug(f"JSON array at '{array_path}' has {count} items")
+        return count
+    else:
+        logger.warning(f"Path '{array_path}' does not point to an array in JSON response")
+        return 0
+
+
+def _count_xml_elements(xml_content: str, array_path: str) -> int:
+    """
+    Count XML elements in SOAP/XML response using path.
+    
+    Args:
+        xml_content: XML content as string
+        array_path: Path to array elements (e.g., 'Body.Response.Users.User', '//User')
+    
+    Returns:
+        Count of matching XML elements
+    """
+    try:
+        from lxml import etree
+        
+        # Parse XML
+        root = etree.fromstring(xml_content.encode('utf-8') if isinstance(xml_content, str) else xml_content)
+        return _count_xml_elements_from_element(root, array_path)
+        
+    except Exception as e:
+        logger.error(f"Failed to parse XML for record count: {e}")
+        return 0
+
+
+def _count_xml_elements_from_element(root, array_path: str) -> int:
+    """
+    Count XML elements from an lxml Element using path.
+    
+    Args:
+        root: lxml Element root
+        array_path: Path to array elements (supports XPath or dot notation)
+    
+    Returns:
+        Count of matching XML elements
+    """
+    try:
+        # If array_path starts with '//', treat as XPath
+        if array_path.startswith('//') or array_path.startswith('/'):
+            elements = root.xpath(array_path)
+            count = len(elements)
+            logger.debug(f"XML XPath '{array_path}' matched {count} elements")
+            return count
+        
+        # Otherwise, use dot notation (navigate through elements)
+        path_parts = array_path.split('.')
+        current = root
+        
+        for part in path_parts:
+            # Find child elements with this tag name (ignoring namespaces)
+            children = current.findall(f".//*[local-name()='{part}']")
+            
+            if not children:
+                # Try direct child
+                children = [child for child in current if child.tag.endswith(part) or child.tag.split('}')[-1] == part]
+            
+            if not children:
+                logger.warning(f"XML path part '{part}' not found in path '{array_path}'")
+                return 0
+            
+            # If this is the last part, count all matching elements
+            if part == path_parts[-1]:
+                count = len(children)
+                logger.debug(f"XML array at '{array_path}' has {count} items")
+                return count
+            else:
+                # Move to first matching child for next iteration
+                current = children[0]
+        
+        return 0
+        
+    except Exception as e:
+        logger.error(f"Failed to count XML elements at '{array_path}': {e}")
+        return 0
+
 
 @register_function('validate_user_role')
 def validate_user_role(role: str, allowed_roles: Optional[List[str]] = None) -> bool:

@@ -26,6 +26,9 @@ reports/
 *.log
 *.xml
 
+# Framework logs
+framework/logs/
+
 # Test outputs
 *.pytest_cache/
 

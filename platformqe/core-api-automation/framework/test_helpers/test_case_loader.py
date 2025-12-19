@@ -12,6 +12,7 @@ from typing import List, Dict
 from framework.common.logger import get_logger
 from framework.common.utils import normalize_path
 from framework.loaders.testdata_loader import TestDataLoader
+from framework.loaders.testcase_loader import TestCaseLoader as BasicTestCaseLoader
 
 logger = get_logger(__name__)
 
@@ -79,7 +80,7 @@ class TestCaseLoader:
     
     def _load_from_file(self, testcase_file: str) -> List[Dict]:
         """
-        Load testcases from specified file.
+        Load testcases from specified file using BasicTestCaseLoader.
         
         Args:
             testcase_file: Path to testcase JSON file
@@ -92,18 +93,12 @@ class TestCaseLoader:
             return []
         
         try:
-            with open(testcase_file, 'r', encoding='utf-8') as f:
-                cases = json.load(f)
+            # Use BasicTestCaseLoader for file I/O
+            basic_loader = BasicTestCaseLoader(testcase_file)
+            all_cases = basic_loader.load()
             
-            all_cases = []
-            if isinstance(cases, list):
-                all_cases = [c for c in cases if isinstance(c, dict) and 'test_type' in c]
-            elif isinstance(cases, dict):
-                # Handle dict with 'testcases' key or dict of testcases
-                if 'testcases' in cases:
-                    all_cases = [c for c in cases['testcases'] if isinstance(c, dict) and 'test_type' in c]
-                else:
-                    all_cases = [c for c in cases.values() if isinstance(c, dict) and 'test_type' in c]
+            # Filter for test cases with test_type (pytest requirement)
+            all_cases = [c for c in all_cases if isinstance(c, dict) and 'test_type' in c]
             
             logger.info(f"Loaded {len(all_cases)} test cases from {testcase_file}")
             return all_cases
@@ -115,6 +110,7 @@ class TestCaseLoader:
     def _auto_discover_testcases(self) -> List[Dict]:
         """
         Auto-discover testcase files in testdata directory.
+        Uses BasicTestCaseLoader for each file.
         
         Returns:
             List of test case dictionaries from all discovered files
@@ -129,20 +125,20 @@ class TestCaseLoader:
         
         logger.info(f'Auto-discovered {len(testcase_files)} testcase file(s)')
         
-        # Load all discovered testcase files
+        # Load all discovered testcase files using BasicTestCaseLoader
         all_cases = []
         for tc_file in testcase_files:
             if os.path.exists(tc_file):
                 try:
-                    with open(tc_file, 'r', encoding='utf-8') as f:
-                        file_cases = json.load(f)
+                    # Use BasicTestCaseLoader for file I/O
+                    basic_loader = BasicTestCaseLoader(tc_file)
+                    file_cases = basic_loader.load()
                     
-                    if isinstance(file_cases, list):
-                        all_cases.extend([c for c in file_cases if isinstance(c, dict) and 'test_type' in c])
-                    elif isinstance(file_cases, dict):
-                        all_cases.extend([c for c in file_cases.values() if isinstance(c, dict) and 'test_type' in c])
+                    # Filter for test cases with test_type (pytest requirement)
+                    file_cases = [c for c in file_cases if isinstance(c, dict) and 'test_type' in c]
+                    all_cases.extend(file_cases)
                     
-                    logger.debug(f"Loaded test cases from {tc_file}")
+                    logger.debug(f"Loaded {len(file_cases)} test cases from {tc_file}")
                 except Exception as e:
                     logger.error(f"Failed to load {tc_file}: {e}")
         
@@ -164,6 +160,7 @@ class TestCaseLoader:
         test_type_filter = self.config.getoption("--test-type")
         service_name_filter = self.config.getoption("--service-name")
         test_id_filter = self.config.getoption("--test-id")
+        exclude_test_id_filter = self.config.getoption("--exclude-test-id")
         
         # Apply test_type filter
         if test_type_filter:
@@ -179,10 +176,19 @@ class TestCaseLoader:
             filtered_cases = [c for c in filtered_cases if c.get('service_name') == service_name_filter]
             logger.debug(f"After service_name filter: {len(filtered_cases)} cases")
         
-        # Apply test_id filter
+        # Apply test_id filter (supports comma-separated values)
         if test_id_filter:
-            filtered_cases = [c for c in filtered_cases if c.get('test_id') == test_id_filter]
-            logger.debug(f"After test_id filter: {len(filtered_cases)} cases")
+            # Split by comma and strip whitespace
+            test_ids = [tid.strip() for tid in test_id_filter.split(',')]
+            filtered_cases = [c for c in filtered_cases if c.get('test_id') in test_ids]
+            logger.debug(f"After test_id filter ({test_ids}): {len(filtered_cases)} cases")
+        
+        # Apply exclude_test_id filter (supports comma-separated values)
+        if exclude_test_id_filter:
+            # Split by comma and strip whitespace
+            exclude_test_ids = [tid.strip() for tid in exclude_test_id_filter.split(',')]
+            filtered_cases = [c for c in filtered_cases if c.get('test_id') not in exclude_test_ids]
+            logger.debug(f"After exclude_test_id filter (excluded {exclude_test_ids}): {len(filtered_cases)} cases")
         
         return filtered_cases
     

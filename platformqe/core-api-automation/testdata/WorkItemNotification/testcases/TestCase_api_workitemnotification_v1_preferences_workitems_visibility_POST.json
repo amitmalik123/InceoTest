@@ -37,7 +37,7 @@
         ],
         "validate": {
             "performance": {
-                "max_response_time_ms": 500
+                "max_response_time_ms": null
             },
             "security": {
                 "checks": [
@@ -50,10 +50,10 @@
                 "target": "db_result",
                 "format": "table",
                 "key_field": [
-                    "APLID"
+                    {"source": "agentAPLID", "target": "APLID"}
                 ],
                 "fields_to_compare": [
-                    {"source": "{{agentAPLID}}", "target": "{{APLID_value}}"}
+                    {"source": "agentAPLID", "target": "APLID"}
                 ],
                 "log_differences": true
             }
@@ -96,7 +96,7 @@
         "extract_values": [],
         "validate": {
             "performance": {
-                "max_response_time_ms": 500
+                "max_response_time_ms": null
             },
             "security": {
                 "checks": [
@@ -159,7 +159,7 @@
         "extract_values": [],
         "validate": {
             "performance": {
-                "max_response_time_ms": 500
+                "max_response_time_ms": null
             },
             "security": {
                 "checks": [

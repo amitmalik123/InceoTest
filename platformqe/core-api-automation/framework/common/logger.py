@@ -1,9 +1,15 @@
 
+
 import logging
 import os
-from logging.handlers import RotatingFileHandler
 from typing import Optional
 from dotenv import load_dotenv
+try:
+    from concurrent_log_handler import ConcurrentRotatingFileHandler
+    _use_concurrent = True
+except ImportError:
+    from logging.handlers import RotatingFileHandler
+    _use_concurrent = False
 
 load_dotenv()
 LOG_LEVEL = getattr(logging, os.getenv("LOG_LEVEL", "INFO").upper(), logging.INFO)
@@ -49,12 +55,20 @@ def get_logger(name: Optional[str] = None, level: Optional[int] = None, log_dir:
     log_file_path = os.path.join(resolved_log_dir, 'framework.log')
 
     try:
-        file_handler = RotatingFileHandler(
-            log_file_path,
-            maxBytes=5_000_000,  # 5 MB
-            backupCount=3,       # Keep 3 backups
-            delay=True           # Delay opening the file until first write
-        )
+        if _use_concurrent:
+            file_handler = ConcurrentRotatingFileHandler(
+                log_file_path,
+                maxBytes=5_000_000,  # 5 MB
+                backupCount=3,       # Keep 3 backups
+                delay=True           # Delay opening the file until first write
+            )
+        else:
+            file_handler = RotatingFileHandler(
+                log_file_path,
+                maxBytes=5_000_000,  # 5 MB
+                backupCount=3,       # Keep 3 backups
+                delay=True           # Delay opening the file until first write
+            )
         file_handler.setFormatter(formatter)
         file_handler.setLevel(effective_level)
         logger.addHandler(file_handler)

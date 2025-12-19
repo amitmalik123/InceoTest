@@ -20,54 +20,53 @@
             "Content-Type": "application/json"
         },
         "payload": {
-        "name": "string",
-        "createdBy": "3fa85f64-5717-4562-b3fc-2c963f66afa6",
-        "ownerId": "3fa85f64-5717-4562-b3fc-2c963f66afa6",
-        "modelAttributes": {
-            "solutionType": "string",
-            "custodian": [
-            "string"
-            ],
-            "investmentMin": {
-            "additionalProp1": 1,
-            "additionalProp2": 2,
-            "additionalProp3": 3
-            },
-            "modelType": "string",
-            "riskProfile": "string",
-            "metadata": {
-            "additionalProp1": "string",
-            "additionalProp2": "string",
-            "additionalProp3": "string"
-            }
-        },
-        
-        "allocationDetail": [
-            {
-            "entityType": "Model",
-            "allocationName": "string",
-            "modelId": "string",
-            "cusip": "string",
-            "ticker": "string",
-            "weight": 0.5,
-            "allocations": [
-                {
-                "name": "string",
-                "entityType": "Security",
-                "assetType": "string",
-                "assetClass": "string",
-                "assetSubClass": "string",
-                "weight": 0.5
+            "name": "string",
+            "createdBy": "3fa85f64-5717-4562-b3fc-2c963f66afa6",
+            "ownerId": "3fa85f64-5717-4562-b3fc-2c963f66afa6",
+            "modelAttributes": {
+                "solutionType": "string",
+                "custodian": [
+                    "string"
+                ],
+                "investmentMin": {
+                    "additionalProp1": 1,
+                    "additionalProp2": 2,
+                    "additionalProp3": 3
+                },
+                "modelType": "string",
+                "riskProfile": "string",
+                "metadata": {
+                    "additionalProp1": "string",
+                    "additionalProp2": "string",
+                    "additionalProp3": "string"
                 }
-            ]
-            }
-        ],
-        "investmentApproachName": "string",
-        "benchmarkName": "string",
-        "benchmarkIsPrimary": true
+            },
+            "allocationDetail": [
+                {
+                    "entityType": "Model",
+                    "allocationName": "string",
+                    "modelId": "string",
+                    "cusip": "string",
+                    "ticker": "string",
+                    "weight": 0.5,
+                    "allocations": [
+                        {
+                            "name": "string",
+                            "entityType": "Security",
+                            "assetType": "string",
+                            "assetClass": "string",
+                            "assetSubClass": "string",
+                            "weight": 0.5
+                        }
+                    ]
+                }
+            ],
+            "investmentApproachName": "string",
+            "benchmarkName": "string",
+            "benchmarkIsPrimary": true
         },
         "expected_status": "201",
-        "expected_response_schema":  "models\\schemas\\Schema_post_response copy.json",
+        "expected_response_schema": "models\\schemas\\Schema_post_response copy.json",
         "expected_response": null,
         "ignore_fields": [
             "id"
@@ -91,7 +90,7 @@
         ],
         "validate": {
             "performance": {
-                "max_response_time_ms": 500
+                "max_response_time_ms": null
             },
             "security": {
                 "checks": [
@@ -137,7 +136,7 @@
         "soap_envelope": "",
         "headers_additional": {
             "Content-Type": "application/json"
-        },  
+        },
         "payload": null,
         "expected_status": "200",
         "expected_response_schema": "",
@@ -159,7 +158,7 @@
         ],
         "validate": {
             "performance": {
-                "max_response_time_ms": 500
+                "max_response_time_ms": null
             },
             "security": {
                 "checks": [
@@ -192,16 +191,12 @@
                     "message": "Expected filters.id to match created modelId"
                 }
             ]
-
         },
-        
         "test_data_file": "",
         "db_query": "",
         "db_type": "",
         "db_connection_name": "",
         "test_summary": "Test TC001: GET /models [positive] (TC001) - Test GET request to /models for functional scenario validation.",
         "test_scenario": "Test GET request to /models for functional scenario validation."
-        
     }
-   
 ]

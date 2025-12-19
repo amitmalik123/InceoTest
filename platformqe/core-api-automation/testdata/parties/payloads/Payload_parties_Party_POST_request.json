@@ -1,39 +1,8 @@
 {
-  "request": {
-    "status": "{{req_status}}",
+  "partyRequest": {
     "partyType": "{{req_partyType}}",
+    "status": "{{req_status}}",
     "taxidentifier": "SSN",
-
-    "addresses": [
-      {
-        "addressId": "{{req_addressId}}",
-        "addressType": "{{req_addressType}}",
-        "line1": "{{req_addressline1}}",
-        "line2": "{{req_addressline2}}",
-        "city": "{{req_city}}",
-        "state": "{{req_state}}",
-        "zip": "{{req_zip}}",
-        "country": "{{req_country}}",
-        "priorityType": "{{req_priorityType}}"
-      }
-    ],
-
-    "contacts": [
-      {
-        "contactType": "{{req_contactType}}",
-        "usageType": "{{req_usageType}}",
-        "value": "{{req_value}}",
-        "priorityType": "{{req_priorityType}}"
-      }
-    ],
-
-    "identifiers": [
-      {
-        "type": "{{req_identifierType}}",
-        "value": "{{req_identifierValue}}"
-      }
-    ],
-
     "core": {
       "individual": {
         "firstName": "{{req_firstName}}",
@@ -47,6 +16,33 @@
         "isDeceased": false,
         "dateOfDeath": null
       }
-    }
+    },
+    "addresses": [
+      {
+        "addressId": "{{req_addressId}}",
+        "addressType": "{{req_addressType}}",
+        "line1": "{{req_addressline1}}",
+        "line2": "{{req_addressline2}}",
+        "city": "{{req_city}}",
+        "state": "{{req_state}}",
+        "zip": "{{req_zip}}",
+        "country": "{{req_country}}",
+        "priorityType": "{{req_priorityType}}"
+      }
+    ],
+    "contacts": [
+      {
+        "contactType": "{{req_contactType}}",
+        "usageType": "{{req_usageType}}",
+        "value": "{{req_value}}",
+        "priorityType": "{{req_priorityType}}"
+      }
+    ],
+    "identifiers": [
+      {
+        "type": "{{req_identifierType}}",
+        "value": "{{req_identifierValue}}"
+      }
+    ]
   }
 }

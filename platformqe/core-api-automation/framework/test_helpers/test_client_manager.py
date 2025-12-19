@@ -19,7 +19,9 @@ class TestClientManager:
     """
     
     def __init__(self):
-        """Initialize client manager"""
+        """
+        Initialize client manager.
+        """
         self.api_client_factory = None
         self.soap_client_class = None
         logger.debug("TestClientManager initialized")
@@ -70,12 +72,34 @@ class TestClientManager:
             if self.soap_client_class is None:
                 raise ImportError("SoapClient not available. Install required SOAP dependencies.")
             
-            wsdl_url = case.get('wsdl_url') or case.get('endpoint')
+            # Get WSDL URL - either explicit wsdl_url or construct from mainURL + endpoint
+            wsdl_url = case.get('wsdl_url')
             if not wsdl_url:
-                raise ValueError("SOAP protocol requires 'wsdl_url' or 'endpoint' in test case")
+                main_url = case.get('mainURL', '')
+                endpoint = case.get('endpoint', '')
+                if not endpoint:
+                    raise ValueError("SOAP protocol requires 'wsdl_url' or 'endpoint' in test case")
+                
+                # Get base_url from config based on service_name
+                service_name = case.get('service_name')
+                base_url = ''
+                if service_name:
+                    api_endpoints = config.get('api_endpoints', {})
+                    if service_name in api_endpoints:
+                        base_url = api_endpoints[service_name].get('base_url', '')
+                
+                # Resolve template variables in mainURL (e.g., {{base_url}})
+                from framework.common.template_utils import render_template
+                template_context = {'base_url': base_url}
+                main_url = render_template(main_url, template_context)
+                
+                # Construct full WSDL URL: mainURL + endpoint + ?wsdl
+                wsdl_url = f"{main_url.rstrip('/')}{endpoint}"
+                if '?wsdl' not in wsdl_url.lower():
+                    wsdl_url += '?wsdl'
             
             logger.info(f"Creating SOAP client for WSDL: {wsdl_url}")
-            return self.soap_client_class(wsdl_url)
+            return self.soap_client_class(wsdl_url, enable_validation=True)
         
         # For REST/HTTP, get API client based on service_name
         service_name = case.get('service_name')
@@ -137,37 +161,34 @@ class TestClientManager:
             response_time_ms = 0
             
         elif protocol == 'SOAP':
-            # For SOAP, use SoapClient.call and create a wrapper response
+            # For SOAP, use SoapClient.call with support for both params and raw XML
             operation = case.get('wsdl_operation') or case.get('operation') or method
             params = payload if payload else {}
+            soap_envelope_raw = case.get('soap_envelope')
+            soap_action = case.get('soap_action')
             
-            logger.info(f"Executing SOAP request to operation: {operation}")
-            logger.debug(f"SOAP params: {params}")
+            # Process soap_envelope: support inline XML, file path, or template variables
+            soap_envelope = self._load_soap_envelope(soap_envelope_raw, case)
             
-            response_json = client.call(operation, params)
-            response = self._create_soap_response(response_json)
+            logger.info(f"Executing SOAP operation: {operation}")
+            
+            response_json = client.call(operation, params, soap_envelope, soap_action, validate_request=True)
+            response = self._create_soap_response(response_json, case)
             response_time_ms = (time.time() - start_time) * 1000
-            
-            logger.debug(f"SOAP response: {response_json}")
             
         else:
             # For REST/HTTP, use ApiClient.request
-            logger.info(f"Executing {method} request to {endpoint}")
-            
             # Extract headers_additional from case if available
             # Note: headers should already be rendered by test_api_generic.py before calling execute_request
             headers = case.get('headers_additional', {}) if case else {}
             
             if payload:
-                logger.debug(f"Request payload: {payload}")
                 if headers:
-                    logger.debug(f"Additional headers: {headers}")
                     response = client.request(method, endpoint, json=payload, headers=headers)
                 else:
                     response = client.request(method, endpoint, json=payload)
             else:
                 if headers:
-                    logger.debug(f"Additional headers: {headers}")
                     response = client.request(method, endpoint, headers=headers)
                 else:
                     response = client.request(method, endpoint)
@@ -177,12 +198,6 @@ class TestClientManager:
                 if hasattr(response, 'elapsed') 
                 else (time.time() - start_time) * 1000
             )
-            
-            logger.info(f"Response status: {response.status_code}")
-            try:
-                logger.debug(f"Response body: {response.json()}")
-            except:
-                logger.debug(f"Response body (non-JSON): {response.text[:200]}")
         
         return response, response_time_ms
     
@@ -204,12 +219,13 @@ class TestClientManager:
         
         return MockResponse()
     
-    def _create_soap_response(self, response_json: Dict) -> Any:
+    def _create_soap_response(self, response_json: Dict, case: Dict = None) -> Any:
         """
         Create SOAP response wrapper.
         
         Args:
             response_json: SOAP response dictionary
+            case: Test case (optional, for extracting XML response)
         
         Returns:
             Response object with standard interface
@@ -217,15 +233,75 @@ class TestClientManager:
         class SOAPResponse:
             def __init__(self, json_data):
                 self._json_data = json_data
-                self.status_code = 200
+                self.status_code = json_data.get('status_code', 200) if isinstance(json_data, dict) else 200
                 self.headers = {}
-                self.text = str(json_data)
+                # Store XML response if available
+                self.xml_response = json_data.get('xml_response', '') if isinstance(json_data, dict) else ''
+                self.text = self.xml_response or str(json_data)
             
             def json(self):
                 return self._json_data
         
         return SOAPResponse(response_json)
+    
+    def _load_soap_envelope(self, soap_envelope_raw: str, case: Dict) -> str:
+        """
+        Load SOAP envelope from inline XML, file path, or render template variables.
 
+        Args:
+            soap_envelope_raw: Raw soap_envelope value from test case
+            case: Test case dictionary for context
+
+        Returns:
+            Processed SOAP envelope string or None
+        """
+        if not soap_envelope_raw or soap_envelope_raw == "<Envelope>...</Envelope>":
+            return None
+
+        # Check if it's a file path (doesn't start with < and ends with .xml)
+        soap_envelope_trimmed = soap_envelope_raw.strip()
+        if not soap_envelope_trimmed.startswith('<') and soap_envelope_trimmed.endswith('.xml'):
+            # Load from file
+            import os
+            from framework.common.utils import normalize_path
+
+            file_path = normalize_path(soap_envelope_trimmed)
+
+            # Resolve path relative to testdata/ if not absolute
+            if not os.path.isabs(file_path):
+                file_path = os.path.join('testdata', file_path)
+
+            if not os.path.exists(file_path):
+                logger.warning(f"SOAP envelope file not found: {file_path}, using raw value")
+                return soap_envelope_raw
+
+            try:
+                with open(file_path, 'r', encoding='utf-8') as f:
+                    soap_envelope_content = f.read()
+                logger.info(f"Loaded SOAP envelope from file: {file_path}")
+            except Exception as e:
+                logger.error(f"Failed to load SOAP envelope file {file_path}: {e}")
+                return soap_envelope_raw
+        else:
+            # Use inline XML
+            soap_envelope_content = soap_envelope_raw
+        
+        # Render template variables {{var}} from case context
+        if '{{' in soap_envelope_content and '}}' in soap_envelope_content:
+            from framework.common.template_utils import render_template
+            from framework.test_helpers.test_context_manager import get_context_manager
+            
+            # Get context manager to access global variables
+            context_mgr = get_context_manager()
+            
+            # Build context from case and global variables
+            context = dict(case)
+            context.update(context_mgr._global_variables)
+            
+            soap_envelope_content = render_template(soap_envelope_content, context)
+            logger.debug(f"Rendered SOAP envelope with template variables")
+        
+        return soap_envelope_content
 
 # Singleton accessor function
 _client_manager_instance = None

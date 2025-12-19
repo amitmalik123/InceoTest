@@ -1,0 +1,31 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "Validation Error Response",
+  "type": "object",
+  "properties": {
+    "type": {
+      "type": "string",
+      "format": "uri",
+      "description": "Reference URI for the error type"
+    },
+    "title": {
+      "type": "string",
+      "description": "Short description of the error"
+    },
+    "status": {
+      "type": "integer",
+      "enum": [422],
+      "description": "HTTP status code for Unprocessable Entity"
+    },
+    "errors": {
+      "type": "object",
+      "description": "Dictionary of validation errors keyed by field name",
+      "additionalProperties": {
+        "type": "array",
+        "items": { "type": "string" }
+      }
+    }
+  },
+  "required": ["type", "title", "status", "errors"],
+  "additionalProperties": false
+}

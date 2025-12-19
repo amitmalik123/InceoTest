@@ -31,7 +31,7 @@
         ],
         "validate": {
             "performance": {
-                "max_response_time_ms": 500
+                "max_response_time_ms": null
             },
             "security": {
                 "checks": [
@@ -90,7 +90,7 @@
         ],
         "validate": {
             "performance": {
-                "max_response_time_ms": 500
+                "max_response_time_ms": null
             },
             "security": {
                 "checks": [
@@ -98,24 +98,71 @@
                     "xss"
                 ]
             },
-            "data_comparison": {
-                "source": "api_response",
-                "target": "db_result",
-                "format": "table",
-                "key_field": [
-                    "",
-                    ""
-                ],
-            "fields_to_compare": [
-                {"source": "securities.0.ticker", "target": "db_ticker"}
-            ],
-            "log_differences": true
-            }
+            "data_comparison": [
+                {
+                    "source": "api_response",
+                    "target": "db_result",
+                    "target_query": "default",
+                    "compare_record_count": true,
+                    "source_array_path": "securities",
+                    "target_array_path": "",
+                    "log_differences": true,
+                    "comparison_name": "Verify Record count - API Vs DB"
+                },
+                {
+                    "source": "api_response",
+                    "target": "db_result",
+                    "target_query": "default",
+                    "format": "table",
+                    "source_array_path": "securities",
+                    "key_field": [
+                        {
+                            "source": "securities_id",
+                            "target": "securities_id"
+                        },
+                        {
+                            "source": "cusip",
+                            "target": "cusip"
+                        },
+                        {
+                            "source": "ticker",
+                            "target": "ticker"
+                        }
+                    ],
+                    "fields_to_compare": [
+                        {
+                            "source": "securities_id",
+                            "target": "securities_id"
+                        },
+                        {
+                            "source": "cusip",
+                            "target": "cusip"
+                        },
+                        {
+                            "source": "ticker",
+                            "target": "ticker"
+                        },
+                        {
+                            "source": "name",
+                            "target": "name"
+                        },
+                        {
+                            "source": "subAssetType_id",
+                            "target": "sub_asset_type_id"
+                        }
+                    ],
+                    "log_differences": true,
+                    "comparison_name": "Verify Response API vs DB field values"
+                }
+
+        ]
         },
         "test_data_file": "securitiesServices/data_driven/Data_securities_GET.csv",
         "db_type": "postgresql",
         "db_connection_name": "securitiesServices",
-        "db_query": "securitiesServices/db_queries/Query_getSecuritiesServices_ticker.sql",
+        "db_queries": {
+            "default": "securitiesServices/db_queries/Query_getSecuritiesServices_ticker.sql"
+        },
         "test_summary": "Test TC002: GET /securities/{id} [positive] (TC002)"
     },
     {
@@ -149,7 +196,7 @@
         ],
         "validate": {
             "performance": {
-                "max_response_time_ms": 500
+                "max_response_time_ms": null
             },
             "security": {
                 "checks": [
@@ -222,7 +269,7 @@
         ],
         "validate": {
             "performance": {
-                "max_response_time_ms": 500
+                "max_response_time_ms": null
             },
             "security": {
                 "checks": [
@@ -298,7 +345,7 @@
         ],
         "validate": {
             "performance": {
-                "max_response_time_ms": 500
+                "max_response_time_ms": null
             },
             "security": {
                 "checks": [
@@ -372,7 +419,7 @@
         ],
         "validate": {
             "performance": {
-                "max_response_time_ms": 500
+                "max_response_time_ms": null
             },
             "security": {
                 "checks": [

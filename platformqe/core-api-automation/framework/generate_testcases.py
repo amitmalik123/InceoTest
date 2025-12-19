@@ -106,7 +106,18 @@ class TestCaseGenerator:
                 for op in operations:
                     # Extract soap_action
                     soap_action = getattr(op, 'soapaction', '')
-                    # Generate a sample soap_envelope
+                    
+                    # Extract parameter names from WSDL operation input
+                    param_names = []
+                    try:
+                        elements = getattr(op.input.body.type, 'elements', [])
+                        param_names = [name for name, element in elements]
+                        if len(param_names) > 0:
+                            logger.info(f"Operation {op.name}: Extracted {len(param_names)} parameters: {param_names}")
+                    except Exception as e:
+                        logger.warning(f"Failed to extract parameters for {op.name}: {e}")
+                    
+                    # Generate a sample soap_envelope with actual parameter names
                     soap_envelope = ''
                     try:
                         # Use Zeep's create_message to generate a sample envelope
@@ -120,21 +131,30 @@ class TestCaseGenerator:
                         soap_envelope = etree.tostring(envelope, pretty_print=True, encoding='unicode')
                     except Exception as e:
                         soap_envelope = '<Envelope>...</Envelope>'
+                    
+                    # Extract path from endpoint_address URL
+                    from urllib.parse import urlparse
+                    parsed_url = urlparse(endpoint_address)
+                    endpoint_path = parsed_url.path if parsed_url.path else ""
+                    
                     case = {
                         'test_id': f"TC{id_counter:03d}",
                         'service_name': service_name,
                         'port_name': port.name,
-                        'operation': op.name,
                         'test_name': f"{op.name} [WSDL] (TC{id_counter:03d})",
                         'test_summary': f"Test TC{id_counter:03d}: {op.name} operation on {service.name}/{port.name}",
-                        'endpoint': endpoint_address,
-                        'method': 'SOAP',
+                        'protocol': 'SOAP',
+                        'endpoint': endpoint_path,
+                        'method': 'POST',
                         'wsdl_operation': op.name,
-                        'input': self._get_wsdl_input_example(op),
                         'soap_action': soap_action,
                         'soap_envelope': soap_envelope,
+                        'headers_additional': {
+                            'Content-Type': 'text/xml; charset=utf-8'
+                        },
                         'expected_status': '200',
-                        'test_type': ['Functional']
+                        'test_type': ['Functional'],
+                        '_wsdl_params': param_names  # Internal use only for CSV/payload generation
                     }
                     cases.append(case)
                     id_counter += 1
@@ -432,14 +452,20 @@ class TestCaseGenerator:
                     'service_name': service_name
                 })
 
-    def fill_template(self, cases: List[Dict], testcase_output_path: str):
+    def fill_template(self, cases: List[Dict], testcase_output_path: str, mode: str = 'openapi'):
         import re
         from pathlib import Path
         from framework.loaders.path_loader import get_project_root
         testcases = []
         for i, case in enumerate(cases, 1):
             tc = self.testcase_template.copy()
+            
             tc.update(case)
+            
+            # Remove internal fields that shouldn't be in final test case
+            if '_wsdl_params' in tc:
+                del tc['_wsdl_params']
+            
             tc['test_id'] = f'TC{i:03d}'
             # Replace any embedded TCxxx in test_name and test_summary with the new test_id
             for field in ['test_name', 'test_summary']:
@@ -504,16 +530,67 @@ class TestCaseGenerator:
     
     def _generate_schema_file(self, case: Dict, schemas_dir: pathlib.Path, endpoint_key: str) -> Optional[str]:
         """
-        Generate JSON schema file for test case response validation.
+        Generate schema file for test case response validation.
+        For SOAP: Generate XSD files
+        For REST: Generate JSON schema files
         Returns the relative path to the schema file.
         """
         try:
             # Extract service name and create schema filename
             service_name = case.get('service_name', 'api')
             method = case.get('method', 'GET').upper()
+            protocol = case.get('protocol', '').upper()
             test_type = case.get('test_type', ['Positive'])
             test_type_str = test_type[0] if isinstance(test_type, list) else test_type
             
+            # For SOAP, generate XSD schema files
+            if protocol == 'SOAP':
+                schema_filename = f"Schema_{endpoint_key}.xsd"
+                schema_path = schemas_dir / schema_filename
+                
+                # Skip if already generated
+                if schema_path.exists():
+                    relative_path = os.path.join(service_name, 'schemas', schema_filename)
+                    return relative_path
+                
+                # Generate basic XSD schema template for SOAP response
+                operation = case.get('wsdl_operation', 'Operation')
+                xsd_content = f'''<?xml version="1.0" encoding="UTF-8"?>
+<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema"
+           xmlns:tns="http://tempuri.org/"
+           targetNamespace="http://tempuri.org/"
+           elementFormDefault="qualified">
+  
+  <!-- Response element for {operation} operation -->
+  <xs:element name="{operation}Response">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element name="{operation}Result" type="xs:string" minOccurs="0"/>
+        <!-- Add additional response elements here -->
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
+  
+  <!-- Common types -->
+  <xs:complexType name="ResponseType">
+    <xs:sequence>
+      <xs:element name="Status" type="xs:string"/>
+      <xs:element name="Message" type="xs:string" minOccurs="0"/>
+    </xs:sequence>
+  </xs:complexType>
+  
+</xs:schema>'''
+                
+                # Write XSD schema file
+                with open(schema_path, 'w', encoding='utf-8') as f:
+                    f.write(xsd_content)
+                
+                # Return relative path
+                relative_path = os.path.join(service_name, 'schemas', schema_filename)
+                logger.debug(f"Generated SOAP XSD schema: {relative_path}")
+                return relative_path
+            
+            # For REST APIs, generate JSON schema files
             # Generate schema filename - one per endpoint/method combo
             schema_filename = f"Schema_{endpoint_key}.json"
             schema_path = schemas_dir / schema_filename
@@ -583,7 +660,9 @@ class TestCaseGenerator:
     
     def _generate_payload_file(self, case: Dict, payloads_dir: pathlib.Path, endpoint_key: str) -> Optional[str]:
         """
-        Generate payload JSON file for test case request body.
+        Generate payload file for test case request body.
+        For SOAP: Generate .xml files with SOAP envelope templates
+        For REST: Generate .json files
         Returns the relative path to the payload file.
         """
         try:
@@ -593,10 +672,98 @@ class TestCaseGenerator:
                 return None
             
             service_name = case.get('service_name', 'api')
+            protocol = case.get('protocol', '').upper()
             test_type = case.get('test_type', ['Positive'])
             test_type_str = test_type[0] if isinstance(test_type, list) else test_type
             
-            # Generate payload filename - separate for positive/negative
+            # For SOAP, generate XML envelope files
+            if protocol == 'SOAP':
+                payload_filename = f"Payload_{endpoint_key}_envelope.xml"
+                payload_path = payloads_dir / payload_filename
+                
+                # Skip if already generated
+                if payload_path.exists():
+                    relative_path = os.path.join(service_name, 'payloads', payload_filename)
+                    return relative_path
+                
+                # Extract soap_envelope from case (generated by Zeep from WSDL)
+                soap_envelope = case.get('soap_envelope', '')
+                
+                # Get actual parameter names from WSDL
+                wsdl_params = case.get('_wsdl_params', [])
+                operation = case.get('wsdl_operation', 'Operation')
+                
+                # Generate SOAP envelope with actual parameter names as template variables
+                from lxml import etree
+                
+                if wsdl_params:
+                    # Build envelope with actual parameter names
+                    param_elements = '\n'.join([f"      <tem:{param}>{{{{{param}}}}}</tem:{param}>" for param in wsdl_params])
+                    payload_content = f'''<soapenv:Envelope xmlns:soapenv="http://schemas.xmlsoap.org/soap/envelope/" xmlns:tem="http://tempuri.org/">
+  <soapenv:Header/>
+  <soapenv:Body>
+    <tem:{operation}>
+{param_elements}
+    </tem:{operation}>
+  </soapenv:Body>
+</soapenv:Envelope>'''
+                else:
+                    # Fallback: try to parse the soap_envelope and extract parameter names
+                    soap_envelope = case.get('soap_envelope', '')
+                    if soap_envelope and soap_envelope != '<Envelope>...</Envelope>':
+                        try:
+                            # Parse the SOAP envelope
+                            root = etree.fromstring(soap_envelope.encode('utf-8'))
+                            
+                            # Find all elements in the Body and replace text content with template variables
+                            namespaces = {'soapenv': 'http://schemas.xmlsoap.org/soap/envelope/'}
+                            body = root.find('.//soapenv:Body', namespaces)
+                            
+                            if body is not None:
+                                # Find all leaf elements (elements with text content)
+                                for elem in body.iter():
+                                    if elem.text and elem.text.strip() and len(list(elem)) == 0:
+                                        # Extract parameter name from tag (remove namespace)
+                                        tag_name = elem.tag.split('}')[-1] if '}' in elem.tag else elem.tag
+                                        # Replace value with template variable
+                                        elem.text = f"{{{{{tag_name}}}}}"
+                            
+                            # Convert back to string
+                            payload_content = etree.tostring(root, pretty_print=True, encoding='unicode')
+                        except Exception as e:
+                            logger.warning(f"Failed to parse SOAP envelope for {endpoint_key}: {e}")
+                            # Final fallback to generic template
+                            payload_content = f'''<soapenv:Envelope xmlns:soapenv="http://schemas.xmlsoap.org/soap/envelope/" xmlns:tem="http://tempuri.org/">
+  <soapenv:Header/>
+  <soapenv:Body>
+    <tem:{operation}>
+      <tem:parameter1>{{{{parameter1}}}}</tem:parameter1>
+      <tem:parameter2>{{{{parameter2}}}}</tem:parameter2>
+    </tem:{operation}>
+  </soapenv:Body>
+</soapenv:Envelope>'''
+                    else:
+                        # Generate basic SOAP template if no envelope provided
+                        payload_content = f'''<soapenv:Envelope xmlns:soapenv="http://schemas.xmlsoap.org/soap/envelope/" xmlns:tem="http://tempuri.org/">
+  <soapenv:Header/>
+  <soapenv:Body>
+    <tem:{operation}>
+      <tem:parameter1>{{{{parameter1}}}}</tem:parameter1>
+      <tem:parameter2>{{{{parameter2}}}}</tem:parameter2>
+    </tem:{operation}>
+  </soapenv:Body>
+</soapenv:Envelope>'''
+                
+                # Write XML payload file
+                with open(payload_path, 'w', encoding='utf-8') as f:
+                    f.write(payload_content)
+                
+                # Return relative path
+                relative_path = os.path.join(service_name, 'payloads', payload_filename)
+                logger.debug(f"Generated SOAP XML payload: {relative_path}")
+                return relative_path
+            
+            # For REST APIs, generate JSON payloads
             payload_filename = f"Payload_{endpoint_key}_{test_type_str.lower()}.json"
             payload_path = payloads_dir / payload_filename
             
@@ -672,8 +839,106 @@ class TestCaseGenerator:
     def _generate_sample_csv_files(self, data_driven_dir: pathlib.Path, service_name: str, cases: List[Dict]):
         """
         Generate sample CSV files for data-driven testing in data_driven folder.
+        For SOAP operations, creates CSV files with operation-specific parameters.
+        Returns a dict mapping CSV filenames to list of operations.
         """
+        csv_param_map = {}
         try:
+            # Create sample CSV for SOAP operations (check protocol field, not method)
+            soap_cases = [c for c in cases if c.get('protocol', '').upper() == 'SOAP']
+            logger.info(f"Found {len(soap_cases)} SOAP test cases for CSV generation")
+            if soap_cases:
+                # Group operations with similar parameters to reduce CSV files
+                param_groups = {}
+                for case in soap_cases:
+                    # PRIORITY 1: Get parameters from _wsdl_params (extracted from WSDL)
+                    param_names = case.get('_wsdl_params', [])
+                    operation_name = case.get('wsdl_operation', 'Unknown')
+                    logger.info(f"Processing operation {operation_name}: _wsdl_params = {param_names}")
+                    
+                    # PRIORITY 2: If _wsdl_params not available, try extracting from soap_envelope (already normalized path)
+                    if not param_names:
+                        soap_envelope = case.get('soap_envelope', '')
+                        if soap_envelope:
+                            # soap_envelope is now a relative path like "platform_service7\\payloads\\Payload_xxx.xml"
+                            # We need to construct full path from data_driven_dir parent
+                            import re
+                            if soap_envelope.endswith('.xml'):
+                                # It's a file path, read the file
+                                try:
+                                    # data_driven_dir is base_output_dir/data_driven
+                                    # We need base_output_dir (parent)
+                                    xml_path = data_driven_dir.parent / soap_envelope
+                                    if xml_path.exists():
+                                        with open(xml_path, 'r', encoding='utf-8') as f:
+                                            xml_content = f.read()
+                                        template_vars = re.findall(r'\{\{(\w+)\}\}', xml_content)
+                                        param_names = [v for v in template_vars if v not in ['environment', 'test_id']]
+                                        logger.debug(f"Extracted {len(param_names)} params from XML: {param_names}")
+                                    else:
+                                        logger.debug(f"XML file not found (will be created): {xml_path}")
+                                except Exception as e:
+                                    logger.warning(f"Failed to read XML file {soap_envelope}: {e}")
+                            elif not soap_envelope.startswith('<'):
+                                # Not XML content and doesn't end with .xml, skip
+                                logger.debug(f"Unexpected soap_envelope format: {soap_envelope}")
+                            else:
+                                # It's inline XML content, extract template variables
+                                template_vars = re.findall(r'\{\{(\w+)\}\}', soap_envelope)
+                                param_names = [v for v in template_vars if v not in ['environment', 'test_id']]
+                    
+                    # Create grouping key from parameter names
+                    param_key = tuple(sorted(param_names)) if param_names else tuple()
+                    
+                    # Group operations - even if param_key is empty, we still want to generate a CSV
+                    if param_key not in param_groups:
+                        param_groups[param_key] = []
+                    param_groups[param_key].append(case.get('wsdl_operation', case.get('operation', 'Unknown')))
+                
+                # Generate CSV for each parameter group (including operations with no parameters)
+                for idx, (params, operations) in enumerate(param_groups.items(), 1):
+                    # Create meaningful filename from operation names
+                    # Use first operation name, or combine if only 2 operations, else use first + count
+                    if len(operations) == 1:
+                        operation_part = operations[0]
+                    elif len(operations) == 2:
+                        operation_part = '_'.join(operations)
+                    else:
+                        operation_part = f"{operations[0]}_and_{len(operations)-1}_others"
+                    
+                    # Sanitize operation name for filename (remove special chars, limit length)
+                    import re
+                    operation_part = re.sub(r'[^\w\s-]', '', operation_part)
+                    operation_part = re.sub(r'[-\s]+', '_', operation_part)
+                    # Limit total filename length to avoid Windows MAX_PATH issues
+                    max_operation_length = 80 - len(f"Data_{service_name}_.csv")
+                    if len(operation_part) > max_operation_length:
+                        operation_part = operation_part[:max_operation_length]
+                    
+                    csv_filename = f"Data_{service_name}_{operation_part}.csv"
+                    csv_path = data_driven_dir / csv_filename
+                    with open(csv_path, 'w', encoding='utf-8', newline='') as f:
+                        if params:
+                            # Header: environment, test_id, then operation-specific params, expected_status
+                            headers = ['environment', 'test_id'] + list(params) + ['expected_status']
+                            f.write(','.join(headers) + '\n')
+                            
+                            # Sample data rows
+                            f.write('TSADEV,TC001,' + ','.join(['sample_value'] * len(params)) + ',200\n')
+                            f.write('TSADEV,TC002,' + ','.join(['sample_value_2'] * len(params)) + ',200\n')
+                            f.write('TSADEV,TC003,' + ','.join(['invalid_value'] * len(params)) + ',500\n')
+                        else:
+                            # Operations with no parameters - create minimal CSV
+                            headers = ['environment', 'test_id', 'expected_status']
+                            f.write(','.join(headers) + '\n')
+                            f.write('TSADEV,TC001,200\n')
+                            f.write('TSADEV,TC002,200\n')
+                            f.write('TSADEV,TC003,500\n')
+                    
+                    logger.info(f"Generated SOAP CSV for {len(operations)} operations ({', '.join(operations[:3])}{'...' if len(operations) > 3 else ''}): {csv_path}")
+                    # Store mapping of CSV file to operations
+                    csv_param_map[csv_filename] = operations
+            
             # Create a sample CSV for POST/PUT endpoints
             post_put_cases = [c for c in cases if c.get('method', '').upper() in ['POST', 'PUT', 'PATCH']]
             if post_put_cases:
@@ -698,12 +963,38 @@ class TestCaseGenerator:
                 
         except Exception as e:
             logger.warning(f"Failed to generate sample CSV files: {e}")
+        
+        return csv_param_map
     
     def _generate_sample_db_queries(self, db_queries_dir: pathlib.Path, service_name: str, cases: List[Dict]):
         """
         Generate sample SQL query files in db_queries folder.
+        Creates placeholder queries for SOAP and REST operations.
         """
         try:
+            # Create SQL queries for SOAP operations
+            soap_cases = [c for c in cases if c.get('method', '').upper() == 'SOAP']
+            if soap_cases:
+                for case in soap_cases[:5]:  # Limit to first 5 operations to avoid too many files
+                    operation = case.get('wsdl_operation', case.get('operation', 'Unknown'))
+                    sql_path = db_queries_dir / f"Query_{operation}_validate.sql"
+                    if sql_path.exists():
+                        continue
+                    with open(sql_path, 'w', encoding='utf-8') as f:
+                        f.write(f"-- Validation query for SOAP operation: {operation}\n")
+                        f.write(f"-- Service: {service_name}\n")
+                        f.write(f"-- Usage: Verify SOAP operation result against database\n\n")
+                        f.write(f"SELECT \n")
+                        f.write(f"    id,\n")
+                        f.write(f"    name,\n")
+                        f.write(f"    status,\n")
+                        f.write(f"    last_modified_date\n")
+                        f.write(f"FROM {service_name}_table\n")
+                        f.write(f"WHERE id = '{{{{record_id}}}}'\n")
+                        f.write(f"    AND status = 'active'\n")
+                        f.write(f"ORDER BY last_modified_date DESC;\n")
+                    logger.debug(f"Generated SOAP SQL query: {sql_path}")
+            
             # Create sample SELECT query
             select_query_path = db_queries_dir / f"Query_{service_name}_select.sql"
             with open(select_query_path, 'w', encoding='utf-8') as f:
@@ -792,45 +1083,65 @@ class TestCaseGenerator:
         for case in cases:
             endpoint = str(case.get('endpoint', '')).strip('/').replace('/', '_').replace('{', '').replace('}', '')
             method = str(case.get('method', '')).upper()
-            key = f"{endpoint}_{method}"
+            protocol = str(case.get('protocol', '')).upper()
+            
+            # For SOAP/WSDL, use operation name instead of full endpoint URL
+            if protocol == 'SOAP' and 'wsdl_operation' in case:
+                key = f"{case['wsdl_operation']}_{method}"
+            else:
+                key = f"{endpoint}_{method}"
+            
             # Sanitize key for Windows filenames
             key = re.sub(r'[:\\/*?"<>|]', '_', key)
             
             # Generate schema and payload files
             schema_path = self._generate_schema_file(case, schemas_dir, key)
             if schema_path:
-                # Normalize path for cross-platform compatibility
+                # Normalize path for cross-platform compatibility (works for both .xsd and .json)
                 case['expected_response_schema'] = normalize_path(schema_path)
             
             payload_path = self._generate_payload_file(case, payloads_dir, key)
-            if payload_path and case.get('method', 'GET').upper() in ['POST', 'PUT', 'PATCH']:
-                # Store payload file reference instead of inline payload (normalize for cross-platform)
-                case['payload_file'] = normalize_path(payload_path)
-            
-            # Generate test scenario
-            case['test_scenario'] = self._generate_test_scenario(case)
-            
-            # Enhance test_summary with more details
-            case['test_summary'] = f"Test {case.get('test_id')}: {case.get('test_name')} - {case['test_scenario']}"
+            if payload_path:
+                method = case.get('method', 'GET').upper()
+                protocol = case.get('protocol', '').upper()
+                if method in ['POST', 'PUT', 'PATCH'] and protocol != 'SOAP':
+                    # Store payload file reference instead of inline payload (normalize for cross-platform)
+                    case['payload_file'] = normalize_path(payload_path)
+                elif protocol == 'SOAP':
+                    # Store XML file path in soap_envelope
+                    case['soap_envelope'] = normalize_path(payload_path)
             
             endpoint_groups[key].append(case)
+
+        # Generate sample CSV files for data-driven testing AFTER payload files are created
+        # This ensures XML envelope files exist for parameter extraction
+        data_driven_dir = base_output_dir / 'data_driven'
+        csv_param_map = self._generate_sample_csv_files(data_driven_dir, service_name, cases)
+        
+        # Map CSV files to SOAP test cases based on parameters
+        if mode == 'wsdl' and csv_param_map:
+            for case in cases:
+                if case.get('method', '').upper() == 'SOAP':
+                    wsdl_op = case.get('wsdl_operation', '')
+                    # Find matching CSV file based on operation
+                    for csv_file, operations in csv_param_map.items():
+                        if wsdl_op in operations:
+                            # Set test_data_file with relative path
+                            case['test_data_file'] = normalize_path(f"{service_name}/data_driven/{csv_file}")
+                            break
 
         # Write each group to a separate file in testcases folder
         for key, group_cases in endpoint_groups.items():
             output_path = str(testcases_dir / f"TestCase_{key}.json")
-            self.fill_template(group_cases, output_path)
-        
-        # Generate sample CSV files for data-driven testing
-        data_driven_dir = base_output_dir / 'data_driven'
-        self._generate_sample_csv_files(data_driven_dir, service_name, cases)
+            self.fill_template(group_cases, output_path, mode=mode)
         
         # Generate sample DB query files
         db_queries_dir = base_output_dir / 'db_queries'
         self._generate_sample_db_queries(db_queries_dir, service_name, cases)
         
         # Count generated files
-        schema_count = len(list(schemas_dir.glob('*.json')))
-        payload_count = len(list(payloads_dir.glob('*.json')))
+        schema_count = len(list(schemas_dir.glob('*.json'))) + len(list(schemas_dir.glob('*.xsd')))
+        payload_count = len(list(payloads_dir.glob('*.json'))) + len(list(payloads_dir.glob('*.xml')))
         csv_count = len(list(data_driven_dir.glob('*.csv')))
         sql_count = len(list(db_queries_dir.glob('*.sql')))
         total_test_cases = len(cases)

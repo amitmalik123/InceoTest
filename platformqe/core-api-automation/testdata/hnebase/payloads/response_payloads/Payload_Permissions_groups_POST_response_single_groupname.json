@@ -1,0 +1,13 @@
+{
+  "permissionGroups": [
+    {
+      "groupName": "New Navigation",
+      "permissions": [
+        {
+          "permissionKey": "New_Navigation_View",
+          "permissionEffect": "allow"
+        }
+      ]
+    }
+  ]
+}

@@ -65,16 +65,38 @@ class ApiClient:
         # Set timeout
         kwargs.setdefault('timeout', self.timeout)
         
-        logger.info(f"Request: {method} {url}")
+        logger.info(f"REST Request: {method} {url}")
+        logger.debug(f"REST Request Headers: {headers}")
+        
+        # Pretty print request payload
         if 'json' in kwargs:
-            logger.debug(f"Request payload: {kwargs['json']}")
+            try:
+                import json
+                pretty_payload = json.dumps(kwargs['json'], indent=2)
+                logger.debug(f"REST Request Body:\n{pretty_payload}")
+            except:
+                logger.debug(f"REST Request Body: {kwargs['json']}")
+        elif 'data' in kwargs:
+            logger.debug(f"REST Request Body: {kwargs['data']}")
         
         # Retry logic
         last_exception = None
         for attempt in range(self.retry_count):
             try:
                 response = requests.request(method, url, headers=headers, verify=self.verify, **kwargs)
-                logger.info(f"Response: {response.status_code}")
+                logger.info(f"REST Response Status: {response.status_code}")
+                
+                # Pretty print response body
+                try:
+                    import json
+                    response_json = response.json()
+                    pretty_response = json.dumps(response_json, indent=2)
+                    logger.debug(f"REST Response Body:\n{pretty_response}")
+                except:
+                    # Not JSON or empty response
+                    if response.text:
+                        logger.debug(f"REST Response Body: {response.text[:500]}")
+                
                 if response.status_code >= 200 and response.status_code < 300:
                     return response
                 elif attempt < self.retry_count - 1:

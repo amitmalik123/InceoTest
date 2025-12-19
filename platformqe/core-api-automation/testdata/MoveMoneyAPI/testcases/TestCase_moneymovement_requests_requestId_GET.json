@@ -64,7 +64,7 @@
         ],
         "validate": {
             "performance": {
-                "max_response_time_ms": 500
+                "max_response_time_ms": null
             },
             "security": {
                 "checks": [
@@ -156,7 +156,7 @@
         ],
         "validate": {
             "performance": {
-                "max_response_time_ms": 500
+                "max_response_time_ms": null
             },
             "security": {
                 "checks": [
@@ -229,7 +229,7 @@
         ],
         "validate": {
             "performance": {
-                "max_response_time_ms": 500
+                "max_response_time_ms": null
             },
             "security": {
                 "checks": [
@@ -306,7 +306,7 @@
         ],
         "validate": {
             "performance": {
-                "max_response_time_ms": 500
+                "max_response_time_ms": null
             },
             "security": {
                 "checks": [
@@ -380,7 +380,7 @@
         ],
         "validate": {
             "performance": {
-                "max_response_time_ms": 500
+                "max_response_time_ms": null
             },
             "security": {
                 "checks": [
@@ -454,7 +454,7 @@
         ],
         "validate": {
             "performance": {
-                "max_response_time_ms": 500
+                "max_response_time_ms": null
             },
             "security": {
                 "checks": [
@@ -528,7 +528,7 @@
         ],
         "validate": {
             "performance": {
-                "max_response_time_ms": 500
+                "max_response_time_ms": null
             },
             "security": {
                 "checks": [

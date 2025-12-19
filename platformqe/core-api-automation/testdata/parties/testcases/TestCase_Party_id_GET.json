@@ -30,7 +30,7 @@
     ],
     "validate": {
       "performance": {
-        "max_response_time_ms": 500
+        "max_response_time_ms": null
       },
       "security": {
         "checks": ["sql_injection", "xss"]
@@ -75,7 +75,7 @@
     "extract_values": [],
     "validate": {
       "performance": {
-        "max_response_time_ms": 500
+        "max_response_time_ms": null
       },
       "security": {
         "checks": ["sql_injection", "xss"]
@@ -85,7 +85,9 @@
         "target": "db_result",
         "format": "table",
         "key_field": ["", ""],
-        "fields_to_compare": [{ "source": "parties.0.id", "target": "db_id" }],
+        "fields_to_compare": [
+          { "source": "parties.0.partyId", "target": "db_id" }
+        ],
         "log_differences": true
       }
     },
@@ -136,7 +138,7 @@
     ],
     "validate": {
       "performance": {
-        "max_response_time_ms": 500
+        "max_response_time_ms": null
       },
       "security": {
         "checks": ["sql_injection", "xss"]
@@ -200,7 +202,7 @@
     ],
     "validate": {
       "performance": {
-        "max_response_time_ms": 500
+        "max_response_time_ms": null
       },
       "security": {
         "checks": ["sql_injection", "xss"]

@@ -25,7 +25,13 @@
         "extract_values": [
             {
                 "from": "response",
-                "key": "id",
+                "key": "",
+                "assign_to": ""
+            },
+            {
+                "from": "response",
+                "record_count": false,
+                "array_path": "",
                 "assign_to": ""
             },
             {
@@ -49,17 +55,64 @@
                     "xss"
                 ]
             },
-            "data_comparison": {
-                "source": "api_response",
-                "target": "db_result",
-                "format": "table",
-                "key_field": ["", ""],
-                "fields_to_compare": [],                
-                "log_differences": true
-            }
+            "data_comparison": [
+                {
+                    "source": "api_response",
+                    "target": "db_result",
+                    "target_query": "audit_query",
+                    "format": "table",
+                    "key_field": [{"source": "", "target": ""}],
+                    "fields_to_compare": [{"source": "", "target": ""}],
+                    "log_differences": true,
+                    "comparison_name": "Response vs DB comparison"
+                },
+                {
+                    "source": "api_response",
+                    "target": "db_result",
+                    "target_query": "default",
+                    "compare_record_count": false,
+                    "source_array_path": "",
+                    "target_array_path": "",
+                    "log_differences": true,
+                    "comparison_name": "Record count comparison"
+                },
+                {
+                    "source": "api_request",
+                    "target": "api_response",
+                    "format": "table",
+                    "key_field": [{"source": "", "target": ""}],
+                    "fields_to_compare": [{"source": "", "target": ""}],
+                    "log_differences": true,
+                    "comparison_name": "Request vs Response comparison"
+                },
+                {
+                    "source": "api_request",
+                    "target": "db_result",
+                    "target_query": "audit_query",                    
+                    "format": "table",
+                    "key_field": [{"source": "", "target": ""}],
+                    "fields_to_compare": [{"source": "", "target": ""}],
+                    "log_differences": true,
+                    "comparison_name": "Request vs DB comparison"
+                },
+                {
+                    "source": "variable_name1",
+                    "target": "variable_name2",
+                    "format": "table",
+                    "key_field": [{"source": "", "target": ""}],
+                    "fields_to_compare": [{"source": "", "target": ""}],
+                    "log_differences": true,
+                    "comparison_name": "Variable to Variable comparison"
+                }
+
+            ]
         },
     "test_data_file": "",
-    "db_query": "",
+    "db_query_timing": "after_api",
+    "db_queries": {
+        "default": "",
+        "audit_query": ""
+    },
     "db_type": "",
     "db_connection_name": "",
     "test_summary": ""

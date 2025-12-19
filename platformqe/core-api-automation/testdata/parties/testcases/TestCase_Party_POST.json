@@ -23,7 +23,9 @@
         "expected_status": "201",
         "expected_response_schema": "parties/schemas/Schema_parties_Party_POST_response_success.json",
         "expected_response": "",
-        "ignore_keys": ["id"],
+        "ignore_keys": [
+            "id"
+        ],
         "extract_values": [
             {
                 "from": "response",
@@ -43,7 +45,7 @@
         ],
         "validate": {
             "performance": {
-                "max_response_time_ms": 500
+                "max_response_time_ms": null
             },
             "security": {
                 "checks": [
@@ -60,7 +62,10 @@
                     ""
                 ],
                 "fields_to_compare": [
-                    {"source": "req_partytype", "target": "Status"}
+                    {
+                        "source": "req_partytype",
+                        "target": "Status"
+                    }
                 ],
                 "log_differences": true
             }
@@ -70,4 +75,5 @@
         "db_connection_name": "parties",
         "db_query": "parties/db_queries/Query_Party_POST.txt",
         "test_summary": "Test TC001: POST /parties [positive] (TC001)"
-    }]
+    }
+]

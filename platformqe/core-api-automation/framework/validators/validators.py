@@ -1,7 +1,7 @@
 import re
 import json
 import os
-from typing import List, Dict, Any, Optional
+from typing import List, Dict, Any, Optional, Tuple
 from framework.loaders.api_definitions_loader import ApiDefinitionsLoader
 from framework.common.logger import get_logger
 
@@ -50,19 +50,93 @@ def validate_db_comparison(api_response, db_result, key_fields, fields_to_compar
     normalized_fields = []
     if isinstance(fields_to_compare, list):
         if all(isinstance(f, dict) for f in fields_to_compare):
-            normalized_fields = fields_to_compare
+            # Resolve template variables in source/target field names
+            normalized_fields = []
+            for f in fields_to_compare:
+                # Skip entries with empty source or target
+                if not f.get("source") or not f.get("target"):
+                    continue
+                source_field = resolve_var(f["source"]) if isinstance(f.get("source"), str) else f["source"]
+                target_field = resolve_var(f["target"]) if isinstance(f.get("target"), str) else f["target"]
+                normalized_fields.append({"source": source_field, "target": target_field})
         elif all(isinstance(f, str) for f in fields_to_compare):
-            normalized_fields = [{"source": f, "target": f} for f in fields_to_compare]
+            # Filter out empty strings
+            normalized_fields = [
+                {"source": f, "target": f} for f in fields_to_compare 
+                if f and f.strip()
+            ]
     elif isinstance(fields_to_compare, str):
-        normalized_fields = [{"source": fields_to_compare, "target": fields_to_compare}]
+        if fields_to_compare and fields_to_compare.strip():
+            normalized_fields = [{"source": fields_to_compare, "target": fields_to_compare}]
+        else:
+            normalized_fields = []
     else:
         logger.warning(f"Unsupported fields_to_compare format: {fields_to_compare}")
         return [f"Unsupported fields_to_compare format: {fields_to_compare}"]
 
+    # Normalize key_fields format to support both simple list and dict mapping
+    # Formats: ["userId"] or [{"source": "userId", "target": "USER_ID"}]
+    normalized_key_fields = []
+    if key_fields:
+        if all(isinstance(k, dict) for k in key_fields):
+            # Dict format: [{"source": "userId", "target": "USER_ID"}]
+            # Filter out entries with empty source or target
+            normalized_key_fields = [
+                k for k in key_fields 
+                if k.get("source") and k.get("target")
+            ]
+        elif all(isinstance(k, str) for k in key_fields):
+            # Simple format: ["userId"] - same field name in both source and target
+            # Filter out empty strings
+            normalized_key_fields = [
+                {"source": k, "target": k} for k in key_fields 
+                if k and k.strip()
+            ]
+    
+    # If no key_fields specified or key_fields empty, compare without row matching
+    if not normalized_key_fields:
+        # Direct comparison without key matching (assumes single row or direct value comparison)
+        if len(api_response) != len(db_result):
+            msg = f"Row count mismatch: API has {len(api_response)} rows, DB has {len(db_result)} rows"
+            logger.warning(msg)
+            errors.append(msg)
+            return errors
+        
+        for idx, api_row in enumerate(api_response):
+            db_row = db_result[idx] if idx < len(db_result) else {}
+            for mapping in normalized_fields:
+                api_field = mapping["source"]
+                db_field = mapping["target"]
+                api_value = resolve_nested_key(api_row, api_field)
+                db_value = db_row.get(db_field)
+                logger.debug(f"Comparing field '{api_field}' (API) to '{db_field}' (DB): API={api_value}, DB={db_value}")
+                # Case-insensitive comparison for string values (e.g., GUIDs)
+                if isinstance(api_value, str) and isinstance(db_value, str):
+                    values_match = api_value.lower() == db_value.lower()
+                else:
+                    values_match = api_value == db_value
+            
+                if not values_match:
+                    msg = f"Mismatch for {db_field}: API={api_value}, DB={db_value}"
+                    logger.error(msg)
+                    errors.append(msg)
+                else:
+                    logger.debug(f"Match for {db_field}: {api_value}")
+        return errors
+
+    # Key-based row matching with support for different field names in source and target
     for api_row in api_response:
-        # Build key tuple for matching, resolve variables if needed
-        api_key = tuple(resolve_var(api_row.get(k.strip('{}'))) for k in key_fields)
-        db_row = next((row for row in db_result if tuple(row.get(k) for k in key_fields) == api_key), None)
+        # Build key tuple from source fields
+        api_key = tuple(resolve_var(api_row.get(k["source"].strip('{}'))) for k in normalized_key_fields)
+        
+        # Find matching DB row using target field names
+        db_row = None
+        for row in db_result:
+            db_key = tuple(row.get(k["target"]) for k in normalized_key_fields)
+            if api_key == db_key:
+                db_row = row
+                break
+        
         if not db_row:
             msg = f"No DB row found for key {api_key}"
             logger.warning(msg)
@@ -78,16 +152,25 @@ def validate_db_comparison(api_response, db_result, key_fields, fields_to_compar
             if api_value is None and api_field.startswith("{{"):
                 api_value = resolve_var(api_row.get(api_field.strip("{}")))
             db_value = db_row.get(db_field)
-            logger.debug(
-                f"Comparing field '{api_field}' (API) to '{db_field}' (DB): API={api_value}, DB={db_value}"
-            )
-            # Case-insensitive comparison for string values (e.g., GUIDs)
-            if isinstance(api_value, str) and isinstance(db_value, str):
-                values_match = api_value.lower() == db_value.lower()
-            else:
-                values_match = api_value == db_value
-           
-            if not values_match:
+            
+            # Deep normalize empty values: None, [], {} are considered equivalent
+            def normalize_empty(val):
+                """Recursively treat None, empty list, and empty dict as equivalent"""
+                if val is None or val == [] or val == {}:
+                    return None
+                # Recursively normalize lists
+                if isinstance(val, list):
+                    return [normalize_empty(item) for item in val]
+                # Recursively normalize dicts
+                if isinstance(val, dict):
+                    return {k: normalize_empty(v) for k, v in val.items()}
+                return val
+            
+            api_normalized = normalize_empty(api_value)
+            db_normalized = normalize_empty(db_value)
+            
+            logger.debug(f"Comparing field '{api_field}' (API) to '{db_field}' (DB): API={api_value}, DB={db_value}")
+            if api_normalized != db_normalized:
                 msg = f"Mismatch for {db_field}: API={api_value}, DB={db_value}"
                 logger.error(msg)
                 errors.append(msg)
@@ -117,6 +200,7 @@ def perform_db_comparison_validation(response, db_result, validation_config, con
     key_fields = validation_config.get('key_field', [])
     fields_to_compare = validation_config.get('fields_to_compare', [])
     source_type = validation_config.get('source', 'api_response')
+    source_array_path = validation_config.get('source_array_path', '')
     target_type = validation_config.get('target', 'db_result')
     
     # Handle db_result to expected_values comparison
@@ -161,6 +245,14 @@ def perform_db_comparison_validation(response, db_result, validation_config, con
     
     if not fields_to_compare or not source_data:
         return True, []
+    
+    # Apply source_array_path if specified to extract the array from the response
+    if source_array_path and isinstance(source_data, dict):
+        from framework.common.common_functions import extract_value
+        source_data = extract_value(source_data, key=source_array_path)
+        if source_data is None:
+            logger.error(f"Failed to extract array from source using path '{source_array_path}'")
+            return False, [f"Failed to extract array from source using path '{source_array_path}'"]
     
     # Ensure source_data is a list for row-wise comparison
     if isinstance(source_data, dict):
@@ -213,6 +305,130 @@ class Validators:
             logger.error(msg)
             return msg
         logger.info(f"Status code {actual} matched expected {expected}")
+        return None
+    
+    def validate_json_schema(self, response, schema: Dict[str, Any]) -> Optional[str]:
+        """
+        Validate response against JSON schema.
+        
+        Args:
+            response: Response object
+            schema: JSON schema dictionary
+        
+        Returns:
+            Error message if validation fails, None if passes
+        """
+        try:
+            import jsonschema
+        except ImportError:
+            msg = "jsonschema library not installed. Install with: pip install jsonschema"
+            logger.error(msg)
+            return msg
+        
+        try:
+            actual_json = response.json()
+        except Exception as e:
+            msg = f"Response is not valid JSON: {e}"
+            logger.error(msg)
+            return msg
+        
+        try:
+            jsonschema.validate(instance=actual_json, schema=schema)
+            logger.info("JSON schema validation PASSED")
+            return None
+        except jsonschema.ValidationError as ve:
+            msg = f"Response JSON does not match schema: {ve}"
+            logger.error(msg)
+            return msg
+    
+    def validate_performance(self, response_time_ms: int, max_time_ms: int) -> Optional[str]:
+        """
+        Validate response time against threshold.
+        
+        Args:
+            response_time_ms: Actual response time in milliseconds
+            max_time_ms: Maximum allowed response time in milliseconds
+        
+        Returns:
+            Error message if validation fails, None if passes
+        """
+        if response_time_ms > max_time_ms:
+            msg = f"Response time {response_time_ms}ms exceeds maximum allowed {max_time_ms}ms"
+            logger.error(f"Performance validation FAILED: {msg}")
+            return msg
+        
+        logger.info(f"Performance validation PASSED: {response_time_ms}ms <= {max_time_ms}ms")
+        return None
+    
+    def validate_security(self, response: Any, payload: Any, checks: List[str]) -> Optional[str]:
+        """
+        Validate security checks (SQL injection, XSS patterns).
+        
+        Args:
+            response: Response object
+            payload: Request payload
+            checks: List of security checks to perform ('sql_injection', 'xss')
+        
+        Returns:
+            Error message if validation fails, None if passes
+        """
+        if not checks:
+            logger.debug("No security checks configured")
+            return None
+        
+        errors = []
+        
+        # SQL Injection pattern detection
+        if 'sql_injection' in checks:
+            sql_patterns = [
+                r"'\s*OR\s*'1'\s*=\s*'1",
+                r"'\s*OR\s*1\s*=\s*1",
+                r"--\s*$",
+                r";\s*DROP\s+TABLE",
+                r"UNION\s+SELECT",
+                r"'\s*;\s*--"
+            ]
+            
+            payload_str = str(payload) if payload else ""
+            for pattern in sql_patterns:
+                if re.search(pattern, payload_str, re.IGNORECASE):
+                    try:
+                        if response.status_code >= 400:
+                            logger.info(f"SQL injection pattern detected and properly rejected with status {response.status_code}")
+                        else:
+                            errors.append(f"SQL injection pattern detected but request succeeded (status {response.status_code})")
+                    except:
+                        pass
+                    break
+        
+        # XSS pattern detection
+        if 'xss' in checks:
+            xss_patterns = [
+                r"<script[^>]*>.*?</script>",
+                r"javascript:\s*",
+                r"onerror\s*=",
+                r"onload\s*=",
+                r"<iframe[^>]*>"
+            ]
+            
+            payload_str = str(payload) if payload else ""
+            for pattern in xss_patterns:
+                if re.search(pattern, payload_str, re.IGNORECASE):
+                    try:
+                        if response.status_code >= 400:
+                            logger.info(f"XSS pattern detected and properly rejected with status {response.status_code}")
+                        else:
+                            errors.append(f"XSS pattern detected but request succeeded (status {response.status_code})")
+                    except:
+                        pass
+                    break
+        
+        if errors:
+            msg = "; ".join(errors)
+            logger.error(f"Security validation FAILED: {msg}")
+            return msg
+        
+        logger.info(f"Security validation PASSED for checks: {checks}")
         return None
 
     def validate_json_keys(self, response, expected_keys: List[str]) -> List[str]:
@@ -451,13 +667,17 @@ class Validators:
                     errors.append(msg)
         return errors
 
-    def _remove_ignored_fields(self, data: Any, ignore_fields: List[str]) -> Any:
+    def _remove_ignored_fields(self, data: Any, ignore_fields: List[str], current_path: str = "") -> Any:
         """
         Recursively remove ignored fields from data structure (dict/list).
+        Supports both global field names and JSON path notation.
         
         Args:
             data: Data structure to clean (dict, list, or primitive)
-            ignore_fields: List of field names to remove
+            ignore_fields: List of field names or paths to remove
+                - Simple names (e.g., 'id') remove all fields with that name globally
+                - Paths (e.g., 'parties.0.partyId') remove only specific field at that path
+            current_path: Current path in the data structure (internal use)
         
         Returns:
             Cleaned data structure with ignored fields removed
@@ -466,18 +686,48 @@ class Validators:
             >>> data = {'id': 123, 'name': 'test', 'nested': {'id': 456}}
             >>> self._remove_ignored_fields(data, ['id'])
             {'name': 'test', 'nested': {}}
+            
+            >>> data = {'parties': [{'partyId': '123', 'name': 'John'}]}
+            >>> self._remove_ignored_fields(data, ['parties.0.partyId'])
+            {'parties': [{'name': 'John'}]}
         """
         if not ignore_fields:
             return data
         
+        # Separate global field names from path-based ignores
+        global_ignores = [f for f in ignore_fields if '.' not in f]
+        path_ignores = [f for f in ignore_fields if '.' in f]
+        
         if isinstance(data, dict):
-            return {
-                k: self._remove_ignored_fields(v, ignore_fields)
-                for k, v in data.items()
-                if k not in ignore_fields
-            }
+            result = {}
+            for k, v in data.items():
+                # Build the full path for this key
+                full_path = f"{current_path}.{k}" if current_path else k
+                
+                # Check if this field should be ignored globally
+                if k in global_ignores:
+                    continue
+                
+                # Check if this exact path should be ignored
+                if full_path in path_ignores:
+                    continue
+                
+                # Recursively process the value
+                result[k] = self._remove_ignored_fields(v, ignore_fields, full_path)
+            
+            return result
+            
         elif isinstance(data, list):
-            return [self._remove_ignored_fields(item, ignore_fields) for item in data]
+            result = []
+            for index, item in enumerate(data):
+                # Build the full path for this array index
+                full_path = f"{current_path}.{index}" if current_path else str(index)
+                
+                # Recursively process each item
+                result.append(self._remove_ignored_fields(item, ignore_fields, full_path))
+            
+            return result
+            
         else:
             return data
 
@@ -639,3 +889,324 @@ def compare_data(source, target, fields, key_field, log_differences=True):
     # if log_differences and differences:
     #     print(tabulate(differences, headers=["Key", "Field", "Source", "Target"], tablefmt="grid"))
     assert not differences, f"Data comparison failed: {differences}"
+
+
+def perform_generic_data_comparison(
+    source_data: Any,
+    target_data: Any,
+    comparison_config: Dict,
+    context: Dict
+) -> Tuple[bool, List[str]]:
+    """
+    Generic data comparison that supports all combinations:
+    - api_response vs api_request
+    - api_response vs db_result
+    - api_response vs api_response (e.g., from different queries)
+    - api_request vs api_request (e.g., from different steps)
+    - api_request vs db_result
+    - db_result vs db_result (e.g., from different queries)
+    
+    Also supports record count comparison with compare_record_count flag.
+    
+    Args:
+        source_data: Source data for comparison (already resolved)
+        target_data: Target data for comparison (already resolved)
+        comparison_config (dict): Configuration with key_field, fields_to_compare, etc.
+        context (dict): Test execution context for variable resolution
+    
+    Returns:
+        tuple: (is_valid: bool, errors: list of str)
+    """
+    logger.debug(f"Performing generic data comparison with config: {comparison_config}")
+    
+    # Parse configuration
+    comparison_name = comparison_config.get('comparison_name', 'Data comparison')
+    log_differences = comparison_config.get('log_differences', True)
+    compare_record_count = comparison_config.get('compare_record_count', False)
+    
+    # Handle record count comparison mode
+    if compare_record_count:
+        return _perform_record_count_comparison(
+            source_data, 
+            target_data, 
+            comparison_config,
+            comparison_name,
+            log_differences
+        )
+    
+    # Regular field-level comparison
+    key_fields = comparison_config.get('key_field', [])
+    fields_to_compare = comparison_config.get('fields_to_compare', [])
+    
+    # Handle direct value comparison (no fields_to_compare specified)
+    # This is used for simple value-to-literal comparisons
+    if not fields_to_compare:
+        logger.debug(f"{comparison_name}: No fields_to_compare specified, performing direct value comparison")
+        
+        # Compare source_data and target_data directly
+        if source_data == target_data:
+            logger.info(f"{comparison_name} PASSED: Values match ('{source_data}' == '{target_data}')")
+            return True, []
+        else:
+            error_msg = f"Value mismatch: expected '{target_data}', got '{source_data}'"
+            logger.error(f"{comparison_name} FAILED: {error_msg}")
+            return False, [error_msg]
+    
+    if source_data is None or target_data is None:
+        error_msg = f"{comparison_name}: Source or target data is None"
+        logger.warning(error_msg)
+        return False, [error_msg]
+    
+    # Ensure source and target data are lists for row-wise comparison
+    if isinstance(source_data, dict):
+        source_data = [source_data]
+    if isinstance(target_data, dict):
+        target_data = [target_data]
+    
+    if not isinstance(source_data, list) or not isinstance(target_data, list):
+        error_msg = f"{comparison_name}: Source or target data is not list/dict format"
+        logger.error(error_msg)
+        return False, [error_msg]
+    
+    # Perform comparison using the existing validate_db_comparison logic
+    try:
+        errors = validate_db_comparison(
+            source_data, 
+            target_data, 
+            key_fields, 
+            fields_to_compare, 
+            context
+        )
+        
+        if errors:
+            logger.error(f"{comparison_name} FAILED: {errors}")
+            return False, errors
+        else:
+            logger.info(f"{comparison_name} PASSED")
+            return True, []
+            
+    except Exception as e:
+        error_msg = f"{comparison_name}: Exception occurred - {str(e)}"
+        logger.error(error_msg)
+        return False, [error_msg]
+
+
+def _perform_record_count_comparison(
+    source_data: Any,
+    target_data: Any,
+    comparison_config: Dict,
+    comparison_name: str,
+    log_differences: bool
+) -> Tuple[bool, List[str]]:
+    """
+    Compare record counts between source and target data.
+    
+    Args:
+        source_data: Source data (response, request, or db_result)
+        target_data: Target data (response, request, or db_result)
+        comparison_config: Configuration with array paths
+        comparison_name: Name of the comparison for logging
+        log_differences: Whether to log differences
+    
+    Returns:
+        tuple: (is_valid: bool, errors: list of str)
+    """
+    from framework.common.common_functions import extract_value
+    
+    try:
+        # Debug logging
+        logger.debug(f"Record count comparison - source_data type: {type(source_data)}, target_data type: {type(target_data)}")
+        logger.debug(f"source_data value: {source_data if not isinstance(source_data, list) or len(str(source_data)) < 200 else f'[list with {len(source_data)} items]'}")
+        logger.debug(f"target_data value: {target_data if not isinstance(target_data, list) or len(str(target_data)) < 200 else f'[list with {len(target_data)} items]'}")
+        
+        # Extract record counts
+        # Note: source_data and target_data have already been extracted by _resolve_data_source
+        # so we don't need to apply array_path again
+        source_count = extract_value(source_data, key="", record_count=True, array_path="")
+        target_count = extract_value(target_data, key="", record_count=True, array_path="")
+        
+        # Compare counts
+        if source_count == target_count:
+            logger.info(f"{comparison_name} PASSED: Source count ({source_count}) == Target count ({target_count})")
+            return True, []
+        else:
+            error_msg = f"Record count mismatch: Source has {source_count} records, Target has {target_count} records"
+            if log_differences:
+                logger.error(f"{comparison_name} FAILED: {error_msg}")
+            return False, [error_msg]
+            
+    except Exception as e:
+        error_msg = f"Record count comparison failed: {str(e)}"
+        logger.error(f"{comparison_name}: {error_msg}")
+        return False, [error_msg]
+
+
+def perform_data_comparison_array(
+    response: Any,
+    context: Dict,
+    data_comparison_configs: List[Dict]
+) -> Tuple[bool, List[str]]:
+    """
+    Execute multiple data comparisons as specified in data_comparison array.
+    Supports any combination of data sources: api_response, api_request, db_result.
+    
+    Args:
+        response: API response object
+        context: Test execution context containing:
+            - api_request: The request payload/data
+            - db_result: Default DB query result
+            - db_results: Dict of named DB query results
+            - Any other extracted variables
+        data_comparison_configs: List of data_comparison configuration dicts
+    
+    Returns:
+        tuple: (is_valid: bool, all_errors: list of str)
+    """
+    if not data_comparison_configs:
+        return True, []
+    
+    # Support both array and single dict format for backward compatibility
+    if isinstance(data_comparison_configs, dict):
+        data_comparison_configs = [data_comparison_configs]
+    
+    all_errors = []
+    all_valid = True
+    
+    for idx, comparison_config in enumerate(data_comparison_configs):
+        comparison_name = comparison_config.get('comparison_name', f'Comparison #{idx+1}')
+        logger.info(f"Executing {comparison_name}")
+        
+        # Resolve source data
+        source_type = comparison_config.get('source', 'api_response')
+        source_data = _resolve_data_source(source_type, comparison_config, response, context)
+        
+        # Resolve target data
+        target_type = comparison_config.get('target', 'db_result')
+        target_data = _resolve_data_source(target_type, comparison_config, response, context)
+        
+        # Perform comparison
+        is_valid, errors = perform_generic_data_comparison(
+            source_data,
+            target_data,
+            comparison_config,
+            context
+        )
+        
+        if not is_valid:
+            all_valid = False
+            all_errors.extend([f"{comparison_name}: {err}" for err in errors])
+    
+    return all_valid, all_errors
+
+
+def _resolve_data_source(
+    data_source_type: str,
+    comparison_config: Dict,
+    response: Any,
+    context: Dict
+) -> Any:
+    """
+    Resolve data source based on type and optional query name.
+    
+    Supported data source types:
+    - 'api_response': API response data
+    - 'api_request': API request payload
+    - 'db_result': Database query result (with optional query name)
+    - 'variable': Direct variable from context (variable name specified in source_variable/target_variable)
+    - 'literal': Direct literal value (string, integer, float, boolean, null) from source_literal/target_literal
+    - 'context.var_name': Context variable with explicit prefix
+    - Any other string: Treated as variable name from context
+    
+    Args:
+        data_source_type: Type of data source (api_response, api_request, db_result, variable, literal, etc.)
+        comparison_config: Comparison configuration dict
+        response: API response object
+        context: Test execution context
+    
+    Returns:
+        Resolved data or None if not found
+    """
+    from framework.common.common_functions import extract_value
+    
+    # Determine if this is source or target to get the correct keys
+    is_source = 'source' in comparison_config and comparison_config['source'] == data_source_type
+
+    # Handle literal values first as they don't need extraction
+    if data_source_type == 'literal':
+        literal_key = 'source_literal' if is_source else 'target_literal'
+        if literal_key in comparison_config:
+            literal_value = comparison_config[literal_key]
+            logger.debug(f"Using literal value for {'source' if is_source else 'target'}: {literal_value}")
+            return literal_value
+        else:
+            logger.warning(f"'literal' type specified but no '{literal_key}' provided")
+            return None
+
+    data = None
+    query_key = comparison_config.get('source_query', 'default') if is_source else comparison_config.get('target_query', 'default')
+
+    if data_source_type == 'api_response':
+        # Handle empty responses gracefully to avoid JSON parsing errors
+        if not getattr(response, 'text', True) or getattr(response, 'status_code', 200) == 204:
+            logger.debug("API response is empty (e.g., 204 No Content), returning empty dict.")
+            data = {}
+        else:
+            try:
+                data = response.json() if hasattr(response, 'json') else response
+            except Exception as ex:
+                logger.warning(f"Failed to parse response as JSON, using raw text instead: {ex}")
+                data = response.text
+    
+    elif data_source_type == 'api_request':
+        data = context.get('api_request')
+    
+    elif data_source_type == 'db_result':
+        db_results = context.get('db_results', {})
+        if query_key and query_key in db_results:
+            data = db_results.get(query_key)
+        elif query_key == 'default' and context.get('db_result') is not None:
+            logger.warning("Using legacy 'db_result' fallback. Consider using db_queries with 'default' key.")
+            data = context.get('db_result')
+        else:
+            available_queries = list(db_results.keys()) if db_results else []
+            raise ValueError(
+                f"Query '{query_key}' not found in db_results. "
+                f"Available queries: {available_queries}. "
+                f"Please specify one of these using 'source_query' or 'target_query'."
+            )
+            
+    elif data_source_type == 'variable':
+        var_key = 'source_variable' if is_source else 'target_variable'
+        var_name = comparison_config.get(var_key)
+        if var_name:
+            data = context.get(var_name)
+            if data is None:
+                logger.warning(f"Variable '{var_name}' not found in context")
+        else:
+            logger.warning(f"'variable' type specified but no '{var_key}' provided")
+    
+    elif data_source_type.startswith('context.'):
+        var_name = data_source_type.replace('context.', '')
+        data = context.get(var_name)
+        if data is None:
+            logger.debug(f"Data source '{data_source_type}' not found in context, treating as None")
+
+    else:
+        # Fallback: Treat as a direct variable name from context
+        data = context.get(data_source_type)
+        if data is None:
+            logger.debug(f"Data source '{data_source_type}' not found in context, treating as None")
+
+    # --- Unified Extraction Logic ---
+    # Apply array_path extraction to the resolved data, regardless of its source
+    array_path_key = 'source_array_path' if is_source else 'target_array_path'
+    array_path = comparison_config.get(array_path_key, '')
+    
+    if array_path and data is not None:
+        logger.debug(f"Extracting value from {data_source_type} using path: {array_path}")
+        extracted_data = extract_value(data, key=array_path)
+        if extracted_data is None:
+            logger.error(f"Failed to extract value from {data_source_type} using path '{array_path}'")
+        data = extracted_data
+        
+    return data

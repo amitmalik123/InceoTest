@@ -1,11 +1,28 @@
 import json
 import xml.etree.ElementTree as ET
 import os
+import base64
 from datetime import datetime
 from typing import List, Dict, Union
 from framework.common.logger import get_logger
 
 logger = get_logger(__name__)
+
+
+def _encode_banner_image():
+    """Encode the API Test Banner image as base64 for embedding in HTML reports"""
+    try:
+        banner_path = os.path.join(os.path.dirname(os.path.dirname(__file__)), 'resources', 'APITestBanner.png')
+        if os.path.exists(banner_path):
+            with open(banner_path, 'rb') as img_file:
+                encoded = base64.b64encode(img_file.read()).decode('utf-8')
+                return f'data:image/png;base64,{encoded}'
+        else:
+            logger.warning(f"Banner image not found at: {banner_path}")
+            return None
+    except Exception as e:
+        logger.warning(f"Failed to encode banner image: {e}")
+        return None
 
 def _safe_log(log_func, *args, **kwargs):
     logger_obj = log_func.__self__ if hasattr(log_func, '__self__') else None
@@ -92,6 +109,7 @@ class Reporter:
                 'contract_check': result.get('contract_check', 'FAIL'),
                 'security_checks': result.get('security_checks', 'PASS'),
                 'custom_validations': result.get('custom_validations', 'PASS'),
+                'data_comparison': result.get('data_comparison', 'N/A'),
                 'summary': summary,
             })
         # Fallback: if merged is empty, add a minimal row
@@ -108,6 +126,7 @@ class Reporter:
                 'contract_check': '',
                 'security_checks': '',
                 'custom_validations': '',
+                'data_comparison': '',
                 'summary': 'No test results available.'
             })
         total = len(merged)
@@ -122,7 +141,7 @@ class Reporter:
             html.append('<html lang="en">')
             html.append('<head>')
             html.append('<meta charset="UTF-8">')
-            html.append('<title>API Test Results Report</title>')
+            # html.append('<title>API Test Results Report</title>')
             html.append('<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css">')
             html.append('<style>')
             html.append('body { background: #f8f9fa; }')
@@ -144,11 +163,21 @@ class Reporter:
             html.append('td, th { word-break: break-word; white-space: pre-wrap; max-width: 350px; }')
             html.append('.container { max-width: 100vw; }')
             html.append('.summary-box { background: #fff; border-radius: 8px; box-shadow: 0 2px 8px rgba(0,0,0,0.05); padding: 1em 2em; margin-bottom: 1.5em; }')
+            html.append('.banner-container { width: 100%; margin: -20px 0 2em 0; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); padding: 0; box-shadow: 0 4px 15px rgba(0,0,0,0.15); }')
+            html.append('.banner-container img { width: 100%; height: auto; display: block; }')
             html.append('</style>')
             html.append('</head>')
             html.append('<body>')
             html.append('<div class="container mt-5">')
-            html.append('<h2 class="mb-4">API Test Results Report</h2>')
+            
+            # Add banner image if available
+            banner_data = _encode_banner_image()
+            if banner_data:
+                html.append('<div class="banner-container">')
+                html.append(f'<img src="{banner_data}" alt="API Test Automation Banner"/>')
+                html.append('</div>')
+            
+            # html.append('<h2 class="mb-4">API Test Results Report</h2>')
             html.append('<div class="summary-box">')
             html.append('<h4>Test Summary</h4>')
             html.append('<ul class="list-group list-group-horizontal">')
@@ -163,7 +192,7 @@ class Reporter:
             html.append('<div class="mb-3"><strong>Legend:</strong> <span class="table-success px-2">PASS</span> <span class="table-danger px-2">FAIL</span> <span class="table-warning px-2">SKIPPED</span></div>')
             html.append('<table class="table table-bordered table-hover">')
             html.append('<thead class="table-dark"><tr>')
-            columns = ["Iteration", "Test Name", "Service Name", "Endpoint", "Method", "Main URL", "Status", "Response Time (ms)", "Contract Check", "Security Checks", "Custom Validations", "Summary"]
+            columns = ["Iteration", "Test Name", "Service Name", "Endpoint", "Method", "Main URL", "Status", "Response Time (ms)", "Contract Check", "Security Checks", "Custom Validations", "Comparison", "Summary"]
             for col in columns:
                 html.append(f'<th>{col}</th>')
             html.append('</tr></thead><tbody>')
@@ -202,6 +231,7 @@ class Reporter:
                 html.append(f'<td>{entry.get("contract_check", "")}</td>')
                 html.append(f'<td>{entry.get("security_checks", "")}</td>')
                 html.append(f'<td>{entry.get("custom_validations", "")}</td>')
+                html.append(f'<td>{entry.get("data_comparison", "N/A")}</td>')
                 html.append(f'<td class="summary">{entry.get("summary", "")}</td>')
                 html.append('</tr>')
             html.append('</tbody></table>')
@@ -245,6 +275,7 @@ class Reporter:
         if filename is None or not filename:
             filename = f"junit_report_{self._current_run_marker}.xml"
         path = self._resolve_path(filename, True)
+        os.makedirs(os.path.dirname(path), exist_ok=True)
         testsuite = ET.Element('testsuite')
         # Enhance: add summary statistics as attributes
         total = len(results)
@@ -290,6 +321,7 @@ class Reporter:
             logger.error("tabulate library is required for pretty custom reports. Please install it.")
             return
         path = self._resolve_path(filename, True)
+        os.makedirs(os.path.dirname(path), exist_ok=True)
         headers = [
             "Test Case",
             "Outcome",
@@ -450,6 +482,7 @@ class Reporter:
         base, ext = os.path.splitext(filename)
         filename = f"{base}_{self._current_run_marker}{ext}"
         path = self._resolve_path(filename, True)
+        os.makedirs(os.path.dirname(path), exist_ok=True)
         # Enhance: add summary statistics like custom_report.txt
         try:
             report = {}

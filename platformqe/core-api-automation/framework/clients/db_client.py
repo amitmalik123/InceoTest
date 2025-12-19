@@ -104,6 +104,12 @@ class MSSQLClient(DatabaseClient):
         if not self.config:
             return None
         
+        # Check if connection_string is directly provided in config
+        if 'connection_string' in self.config:
+            conn_str = substitute_env_vars(self.config['connection_string'])
+            logger.info(f"Using direct connection string from config for {self.connection_name}")
+            return conn_str
+        
         driver = self.config.get('driver', 'ODBC Driver 17 for SQL Server')
         server = self.config.get('server')
         database = self.config.get('database')
@@ -216,9 +222,15 @@ class PostgreSQLClient(DatabaseClient):
             self.connection_string = self._build_connection_string()
     
     def _build_connection_string(self) -> str:
-        """Build PostgreSQL connection string from config"""
+        """Build PostgreSQL connection string from config with Azure AD support"""
         if not self.config:
             return None
+        
+        # Check if connection_string is directly provided in config
+        if 'connection_string' in self.config:
+            conn_str = substitute_env_vars(self.config['connection_string'])
+            logger.info(f"Using direct connection string from config for {self.connection_name}")
+            return conn_str
         
         host = self.config.get('host')
         port = self.config.get('port', 5432)

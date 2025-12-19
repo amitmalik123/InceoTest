@@ -66,6 +66,7 @@ class TestResultCollector:
             "contract_check": "FAIL",  # Default to FAIL until validation passes
             "security_checks": "PASS",  # Default to PASS
             "custom_validations": "PASS",  # Default to PASS
+            "data_comparison": "N/A",  # Default to N/A (not applicable if no comparison configured)
             "summary": ""
         }
         
@@ -92,16 +93,18 @@ class TestResultCollector:
         result: Dict, 
         contract: Optional[str] = None,
         custom: Optional[str] = None,
-        security: Optional[str] = None
+        security: Optional[str] = None,
+        data_comparison: Optional[str] = None
     ):
         """
-        Update validation results (contract, custom, security).
+        Update validation results (contract, custom, security, data_comparison).
         
         Args:
             result: Result entry dictionary to update
             contract: Contract check result (PASS/FAIL)
             custom: Custom validation result (PASS/FAIL)
             security: Security check result (PASS/FAIL)
+            data_comparison: Data comparison validation result (PASS/FAIL)
         """
         if contract is not None:
             result["contract_check"] = contract
@@ -109,9 +112,11 @@ class TestResultCollector:
             result["custom_validations"] = custom
         if security is not None:
             result["security_checks"] = security
+        if data_comparison is not None:
+            result["data_comparison"] = data_comparison
         
         logger.debug(f"Updated validations for {result.get('test_id')}: "
-                    f"contract={contract}, custom={custom}, security={security}")
+                    f"contract={contract}, custom={custom}, security={security}, data_comparison={data_comparison}")
     
     def update_response_time(self, result: Dict, response_time_ms: int):
         """

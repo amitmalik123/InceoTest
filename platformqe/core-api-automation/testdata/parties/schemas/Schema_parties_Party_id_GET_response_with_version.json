@@ -1,0 +1,223 @@
+{
+  "$schema": "http://json-schema.org/draft-04/schema#",
+  "type": "object",
+  "properties": {
+    "parties": {
+      "type": "array",
+      "items": [
+        {
+          "type": "object",
+          "properties": {
+            "partyId": {
+              "type": "string"
+            },
+            "status": {
+              "type": "string"
+            },
+            "version": {
+              "type": ["integer"]
+            },
+            "partyType": {
+              "type": "string"
+            },
+            "core": {
+              "type": "object",
+              "properties": {
+                "individual": {
+                  "type": "object",
+                  "properties": {
+                    "firstName": {
+                      "type": "string"
+                    },
+                    "middleName": {
+                      "type": "string"
+                    },
+                    "lastName": {
+                      "type": "string"
+                    },
+                    "suffix": {
+                      "type": "string"
+                    },
+                    "dateOfBirth": {
+                      "type": ["string", "null"]
+                    },
+                    "taxId": {
+                      "type": "string"
+                    },
+                    "citizenship": {
+                      "type": "string"
+                    },
+                    "maritalStatus": {
+                      "type": "string"
+                    },
+                    "isDeceased": {
+                      "type": "boolean"
+                    },
+                    "dateOfDeath": {
+                      "type": ["string", "null"]
+                    }
+                  },
+                  "required": [
+                    "firstName",
+                    "middleName",
+                    "lastName",
+                    "suffix",
+                    "dateOfBirth",
+                    "taxId",
+                    "citizenship",
+                    "maritalStatus",
+                    "isDeceased",
+                    "dateOfDeath"
+                  ]
+                },
+                "entity": {
+                  "type": "object",
+                  "properties": {
+                    "type": {
+                      "type": "string"
+                    },
+                    "subType": {
+                      "type": "string"
+                    },
+                    "title": {
+                      "type": "string"
+                    },
+                    "taxId": {
+                      "type": ["null"]
+                    },
+                    "taxidentifier": {
+                      "type": "string"
+                    },
+                    "createdDate": {
+                      "type": ["string", "null"]
+                    }
+                  },
+                  "required": [
+                    "type",
+                    "subType",
+                    "title",
+                    "taxId",
+                    "taxidentifier",
+                    "createdDate"
+                  ]
+                }
+              },
+              "required": ["individual", "entity"]
+            },
+            "addresses": {
+              "type": "array",
+              "items": [
+                {
+                  "type": "object",
+                  "properties": {
+                    "addressId": {
+                      "type": "string"
+                    },
+                    "addressType": {
+                      "type": "string"
+                    },
+                    "line1": {
+                      "type": "string"
+                    },
+                    "line2": {
+                      "type": "string"
+                    },
+                    "city": {
+                      "type": "string"
+                    },
+                    "state": {
+                      "type": "string"
+                    },
+                    "zip": {
+                      "type": "string"
+                    },
+                    "country": {
+                      "type": "string"
+                    },
+                    "priorityType": {
+                      "type": "string"
+                    }
+                  },
+                  "required": [
+                    "addressId",
+                    "addressType",
+                    "line1",
+                    "line2",
+                    "city",
+                    "state",
+                    "zip",
+                    "country",
+                    "priorityType"
+                  ]
+                }
+              ]
+            },
+            "contacts": {
+              "type": "array",
+              "items": [
+                {
+                  "type": "object",
+                  "properties": {
+                    "contactId": {
+                      "type": "string"
+                    },
+                    "contactType": {
+                      "type": "string"
+                    },
+                    "usageType": {
+                      "type": "string"
+                    },
+                    "value": {
+                      "type": "string"
+                    },
+                    "priorityType": {
+                      "type": "string"
+                    }
+                  },
+                  "required": [
+                    "contactId",
+                    "contactType",
+                    "usageType",
+                    "value",
+                    "priorityType"
+                  ]
+                }
+              ]
+            },
+            "identifiers": {
+              "type": "array",
+              "items": [
+                {
+                  "type": "object",
+                  "properties": {
+                    "identifierId": {
+                      "type": "string"
+                    },
+                    "type": {
+                      "type": "string"
+                    },
+                    "value": {
+                      "type": "string"
+                    }
+                  },
+                  "required": ["identifierId", "type", "value"]
+                }
+              ]
+            }
+          },
+          "required": [
+            "partyId",
+            "status",
+            "version",
+            "partyType",
+            "core",
+            "addresses",
+            "contacts",
+            "identifiers"
+          ]
+        }
+      ]
+    }
+  },
+  "required": ["parties"]
+}

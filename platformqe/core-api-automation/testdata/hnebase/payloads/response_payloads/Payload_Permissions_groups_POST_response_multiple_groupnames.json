@@ -1,0 +1,21 @@
+{
+  "permissionGroups": [
+    {
+      "groupName": "Advisor Wrapper Model",
+      "permissions": [
+        {
+          "permissionKey": "Advisor_Wrapper_Model_Create",
+          "permissionEffect": "allow"
+        },
+        {
+          "permissionKey": "Advisor_Wrapper_Model_Edit",
+          "permissionEffect": "allow"
+        },
+        {
+          "permissionKey": "Advisor_Wrapper_Model_View",
+          "permissionEffect": "allow"
+        }
+      ]
+    }
+  ]
+}

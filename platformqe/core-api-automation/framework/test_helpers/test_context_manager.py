@@ -80,8 +80,10 @@ class TestContextManager:
         self, 
         source_type: str, 
         source_data: Any, 
-        key: str, 
-        assign_to: str
+        key: str = None, 
+        assign_to: str = None,
+        record_count: bool = False,
+        array_path: str = None
     ) -> Optional[Any]:
         """
         Extract single value from response or db_result and store in global state.
@@ -89,64 +91,100 @@ class TestContextManager:
         Args:
             source_type: Source type ('response' or 'db_result')
             source_data: Source data to extract from
-            key: Key path to extract (supports dot notation)
+            key: Key path to extract (supports dot notation) - optional if record_count is True
             assign_to: Variable name to assign extracted value to
+            record_count: If True, extract count of array items at array_path
+            array_path: Path to array for counting (used with record_count)
         
         Returns:
             Extracted value or None if extraction failed
         """
         try:
-            value = extract_value(source_data, key)
+            # Handle record count extraction
+            if record_count and array_path:
+                value = extract_value(source_data, key="", record_count=True, array_path=array_path)
+            # Handle regular value extraction
+            elif key:
+                value = extract_value(source_data, key)
+            else:
+                logger.warning(f"No key or array_path provided for extraction from {source_type}")
+                return None
             
             # Store in global variables for use in subsequent test cases
-            self._global_variables[assign_to] = value
+            if assign_to:
+                self._global_variables[assign_to] = value
+                logger.debug(f"Extracted variable '{assign_to}' from '{source_type}': {value}")
             
-            logger.debug(f"Extracted variable '{assign_to}' from '{source_type}.{key}': {value}")
             return value
             
         except Exception as e:
-            logger.warning(f"Failed to extract '{key}' from {source_type}: {e}")
+            logger.warning(f"Failed to extract from {source_type}: {e}")
             return None
     
     def extract_values_batch(
         self, 
         extract_config: List[Dict], 
         response: Any = None,
-        db_result: Any = None
+        db_result: Any = None,
+        context: Dict = None
     ) -> Dict[str, Any]:
         """
         Process extract_values array from test case configuration.
         Supports both old and new format:
-        - Old: {"from": "response", "key": "id", "assign_to": "user_id"}
-        - New: {"from": "response", "assign": [{"key": "id", "assign_to": "user_id"}]}
+        - Old: {"from": "api_response", "key": "id", "assign_to": "user_id"}
+        - New: {"from": "api_response", "assign": [{"key": "id", "assign_to": "user_id"}]}
+        
+        Supported source types (backward compatible with legacy names):
+        - 'api_response' (or 'response'): API response data
+        - 'api_request' (or 'request'): API request payload
+        - 'db_result': Database query result
+        - 'variable': Previously extracted global variables
+        - 'context': Test context variables
+        - Direct variable name: Extract from context by name
         
         Args:
             extract_config: List of extraction configurations
             response: Response object (optional)
             db_result: Database result (optional)
+            context: Test context dictionary (optional)
         
         Returns:
             Dictionary of extracted variables
         """
+        from framework.validators.validators import _resolve_data_source
+        
         extracted = {}
         
         if not extract_config:
             return extracted
         
+        # Build temporary context for data source resolution
+        temp_context = context.copy() if context else {}
+        # Add global variables to context for variable extraction
+        temp_context.update(self._global_variables)
+        
         for extract in extract_config:
             source_type = extract.get('from')
             
-            # Get source data based on type
-            source_data = None
-            if source_type == 'response' and response:
-                try:
-                    source_data = response.json() if hasattr(response, 'json') else response
-                except:
-                    logger.warning("Failed to parse response as JSON for extraction")
-                    continue
-            elif source_type == 'db_result' and db_result:
-                source_data = db_result
-            else:
+            # Normalize legacy naming: 'response' -> 'api_response', 'request' -> 'api_request'
+            if source_type == 'response':
+                source_type = 'api_response'
+            elif source_type == 'request':
+                source_type = 'api_request'
+            
+            # Use validators' _resolve_data_source for consistent logic
+            try:
+                source_data = _resolve_data_source(
+                    data_source_type=source_type,
+                    comparison_config={'source': source_type},  # Minimal config for resolution
+                    response=response,
+                    context=temp_context
+                )
+            except Exception as e:
+                logger.warning(f"Failed to resolve source '{source_type}': {e}")
+                source_data = None
+            
+            if source_data is None:
                 logger.debug(f"Skipping extraction from '{source_type}' - source not available")
                 continue
             
@@ -156,18 +194,49 @@ class TestContextManager:
                 for assign_item in extract['assign']:
                     key = assign_item.get('key')
                     assign_to = assign_item.get('assign_to')
+                    record_count = assign_item.get('record_count', False)
+                    array_path = assign_item.get('array_path')
                     
-                    if key and assign_to:
-                        value = self.extract_value_single(source_type, source_data, key, assign_to)
+                    if assign_to:
+                        if record_count and array_path:
+                            # Extract record count
+                            value = self.extract_value_single(
+                                source_type, source_data, 
+                                key=None, assign_to=assign_to, 
+                                record_count=record_count, array_path=array_path
+                            )
+                        elif key:
+                            # Extract regular value
+                            value = self.extract_value_single(source_type, source_data, key, assign_to)
+                        else:
+                            logger.warning(f"Missing 'key' or 'array_path' in extraction config: {assign_item}")
+                            continue
+                        
                         if value is not None:
                             extracted[assign_to] = value
             else:
                 # Old format: {"from": "response", "key": "id", "assign_to": "user_id"}
+                # Also supports: {"from": "response", "record_count": true, "array_path": "users", "assign_to": "userCount"}
                 key = extract.get('key')
                 assign_to = extract.get('assign_to')
+                record_count = extract.get('record_count', False)
+                array_path = extract.get('array_path')
                 
-                if key and assign_to:
-                    value = self.extract_value_single(source_type, source_data, key, assign_to)
+                if assign_to:
+                    if record_count and array_path:
+                        # Extract record count
+                        value = self.extract_value_single(
+                            source_type, source_data, 
+                            key=None, assign_to=assign_to, 
+                            record_count=record_count, array_path=array_path
+                        )
+                    elif key:
+                        # Extract regular value
+                        value = self.extract_value_single(source_type, source_data, key, assign_to)
+                    else:
+                        logger.warning(f"Missing 'key' or 'array_path' in extraction config: {extract}")
+                        continue
+                    
                     if value is not None:
                         extracted[assign_to] = value
         

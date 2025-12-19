@@ -1,0 +1,352 @@
+[
+    {
+        "test_id": "TC001",
+        "service_name": "hnebase",
+        "workflow_mode": "parallel",
+        "test_name": "POST /Permissions/groups [positive] (TC001) valid single groupname",
+        "protocol": "REST",
+        "test_type": [
+            "Functional"
+        ],
+    "mainURL": "{{base_url}}",
+        "endpoint": "/Permissions/groups",
+        "method": "POST",
+        "rpc_method": "",
+        "graphql_query": "",
+        "graphql_variables": "",
+        "soap_action": "",
+        "soap_envelope": "",
+        "headers_additional": {
+            "Content-Type": "application/json"
+        },
+        "payload": "hnebase/payloads/request_payloads/Payload_Permissions_groups_POST_request.json",
+        "expected_status": "200",
+        "expected_response_schema": "hnebase/schemas/Schema_Permissions_groups_POST.json",
+        "expected_response": "hnebase/payloads/response_payloads/Payload_Permissions_groups_POST_response_single_groupname.json",
+        "ignore_fields": [
+            "id"
+        ],
+        "extract_values": [
+
+        ],
+        "validate": {
+            "performance": {
+                "max_response_time_ms": null
+            },
+            "security": {
+                "checks": [
+                    "sql_injection",
+                    "xss"
+                ]
+            },
+            "data_comparison": {
+                "source": "api_response",
+                "target": "db_result",
+                "format": "table",
+                "key_field": ["", ""],
+                "fields_to_compare": [
+                    {"source": "permissionGroups.0.permissions.0.permissionEffect", "target": "db_permission_effect"},
+                    {"source": "permissionGroups.0.permissions.0.permissionKey", "target": "db_permission_key"}
+                ],
+                "log_differences": true
+            }
+        },
+        "test_data_file": "hnebase/data_driven/Data_hnebase_POST.csv",
+        "db_query": "hnebase/db_queries/Query_hnebase_select _permission.sql",
+        "db_type": "postgresql",
+        "db_connection_name": "hneServices",
+        "test_summary": "Test TC001: POST /Permissions/groups [positive] (TC001) - valid single ssoguid and groupname. https://assetmark.atlassian.net/browse/PRODENG-12005",
+        "payload_file": "hnebase/payloads/Payload_Permissions_groups_POST.json",
+        "test_scenario": "Test POST request to /Permissions/groups for functional scenario validation."
+    },
+    {
+        "test_id": "TC002",
+        "service_name": "hnebase",
+        "workflow_mode": "parallel",
+        "test_name": "POST /Permissions/groups [negative] (TC002) valid groupname missing ssoguid",
+        "protocol": "REST",
+        "test_type": [
+            "Functional Negative"
+        ],
+    "mainURL": "{{base_url}}",
+        "endpoint": "/Permissions/groups",
+        "method": "POST",
+        "rpc_method": "",
+        "graphql_query": "",
+        "graphql_variables": "",
+        "soap_action": "",
+        "soap_envelope": "",
+        "headers_additional": {
+            "Content-Type": "application/json"
+        },
+        "payload": "hnebase/payloads/request_payloads/Payload_Permissions_groups_POST_request.json",
+        "expected_status": "400",
+        "expected_response_schema": "hnebase/schemas/Schema_Permissions_groups_POST_error.json",
+        "expected_response": "hnebase/payloads/response_payloads/Payload_Permissions_groups_POST_response_no_ssoguid_valid_groupname.json",
+        "ignore_fields": [
+            "instance"
+        ],
+        "extract_values": [
+
+        ],
+        "validate": {
+            "performance": {
+                "max_response_time_ms": null
+            },
+            "security": {
+                "checks": [
+                    "sql_injection",
+                    "xss"
+                ]
+            },
+            "data_comparison": {
+                "source": "api_response",
+                "target": "db_result",
+                "format": "table",
+                "key_field": ["", ""],
+                "fields_to_compare": [
+                    ],
+                "log_differences": true
+            }
+        },
+        "test_data_file": "hnebase/data_driven/Data_hnebase_POST_no_ssoguid.csv",
+        "db_query": null,
+        "db_type": null,
+        "db_connection_name": null,
+        "test_summary": "Test TC002: POST /Permissions/groups [negative] (TC002) - missing ssoguid in the request. https://assetmark.atlassian.net/browse/PRODENG-12001",
+        "payload_file": "hnebase/payloads/Payload_Permissions_groups_POST.json",
+        "test_scenario": "Test POST request to /Permissions/groups for missing ssoguid and valid groupname."
+    },
+    {
+        "test_id": "TC003",
+        "service_name": "hnebase",
+        "workflow_mode": "parallel",
+        "test_name": "POST /Permissions/groups [negative] (TC003) valid groupname and invalid ssoguid format",
+        "protocol": "REST",
+        "test_type": [
+            "Functional Negative"
+        ],
+    "mainURL": "{{base_url}}",
+        "endpoint": "/Permissions/groups",
+        "method": "POST",
+        "rpc_method": "",
+        "graphql_query": "",
+        "graphql_variables": "",
+        "soap_action": "",
+        "soap_envelope": "",
+        "headers_additional": {
+            "Content-Type": "application/json"
+        },
+        "payload": "hnebase/payloads/request_payloads/Payload_Permissions_groups_POST_request.json",
+        "expected_status": "400",
+        "expected_response_schema": "hnebase/schemas/Schema_Permissions_groups_POST_error.json",
+        "expected_response": "hnebase/payloads/response_payloads/Payload_Permissions_groups_POST_response_invalid_ssoguid_format_valid_groupname.json",
+        "ignore_fields": [
+            "instance"
+        ],
+        "extract_values": [
+
+        ],
+        "validate": {
+            "performance": {
+                "max_response_time_ms": null
+            },
+            "security": {
+                "checks": [
+                    "sql_injection",
+                    "xss"
+                ]
+            },
+            "data_comparison": {
+                "source": "api_response",
+                "target": "db_result",
+                "format": "table",
+                "key_field": ["", ""],
+                "fields_to_compare": [
+                    ],
+                "log_differences": true
+            }
+        },
+        "test_data_file": "hnebase/data_driven/Data_hnebase_POST_no_ssoguid.csv",
+        "db_query": null,
+        "db_type": null,
+        "db_connection_name": null,
+        "test_summary": "Test TC003: POST /Permissions/groups [negative] (TC003) - invalid ssoguid format in the request. https://assetmark.atlassian.net/browse/PRODENG-12004",
+        "payload_file": "hnebase/payloads/Payload_Permissions_groups_POST.json",
+        "test_scenario": "Test POST request to /Permissions/groups for invalid ssoguid format and valid groupname."
+    },
+    {
+        "test_id": "TC004",
+        "service_name": "hnebase",
+        "workflow_mode": "parallel",
+        "test_name": "POST /Permissions/groups [positive] (TC004) empty groupname and valid ssoguid",
+        "protocol": "REST",
+        "test_type": [
+            "Functional Positive"
+        ],
+    "mainURL": "{{base_url}}",
+        "endpoint": "/Permissions/groups",
+        "method": "POST",
+        "rpc_method": "",
+        "graphql_query": "",
+        "graphql_variables": "",
+        "soap_action": "",
+        "soap_envelope": "",
+        "headers_additional": {
+            "Content-Type": "application/json"
+        },
+        "payload": "hnebase/payloads/request_payloads/Payload_Permissions_groups_POST_request_empty_groupname.json",
+        "expected_status": "200",
+        "expected_response_schema": "hnebase/schemas/Schema_Permissions_groups_POST.json",
+        "expected_response": "hnebase/payloads/response_payloads/Payload_Permissions_groups_POST_response_empty_groupname_valid_ssoguid.json",
+        "ignore_fields": [
+            "instance"
+        ],
+        "extract_values": [
+
+        ],
+        "validate": {
+            "performance": {
+                "max_response_time_ms": null
+            },
+            "security": {
+                "checks": [
+                    "sql_injection",
+                    "xss"
+                ]
+            },
+            "data_comparison": {
+                "source": "api_response",
+                "target": "db_result",
+                "format": "table",
+                "key_field": ["", ""],
+                "fields_to_compare": [
+                    ],
+                "log_differences": true
+            }
+        },
+        "test_data_file": "hnebase/data_driven/Data_hnebase_post.csv",
+        "db_query": null,
+        "db_type": null,
+        "db_connection_name": null,
+        "test_summary": "Test TC004: POST /Permissions/groups [positive] (TC004) - empty groupname and valid ssoguid. https://assetmark.atlassian.net/browse/PRODENG-12006",
+        "payload_file": "hnebase/payloads/Payload_Permissions_groups_POST.json",
+        "test_scenario": "Test POST request to /Permissions/groups for empty groupname and valid ssoguid."
+    },
+    {
+        "test_id": "TC005",
+        "service_name": "hnebase",
+        "workflow_mode": "parallel",
+        "test_name": "POST /Permissions/groups [positive] (TC005) missing groupname and valid ssoguid",
+        "protocol": "REST",
+        "test_type": [
+            "Functional Negative"
+        ],
+    "mainURL": "{{base_url}}",
+        "endpoint": "/Permissions/groups",
+        "method": "POST",
+        "rpc_method": "",
+        "graphql_query": "",
+        "graphql_variables": "",
+        "soap_action": "",
+        "soap_envelope": "",
+        "headers_additional": {
+            "Content-Type": "application/json"
+        },
+        "payload": "hnebase/payloads/request_payloads/Payload_Permissions_groups_POST_request_missing_groupname.json",
+        "expected_status": "400",
+        "expected_response_schema": "hnebase/schemas/Schema_Permissions_groups_POST_error_missing_groupname.json",
+        "expected_response": "hnebase/payloads/response_payloads/Payload_Permissions_groups_POST_response_missing_groupname_valid_ssoguid.json",
+        "ignore_fields": [
+            "traceId", "type"
+        ],
+        "extract_values": [
+
+        ],
+        "validate": {
+            "performance": {
+                "max_response_time_ms": null
+            },
+            "security": {
+                "checks": [
+                    "sql_injection",
+                    "xss"
+                ]
+            },
+            "data_comparison": {
+                "source": "api_response",
+                "target": "db_result",
+                "format": "table",
+                "key_field": ["", ""],
+                "fields_to_compare": [
+                    ],
+                "log_differences": true
+            }
+        },
+        "test_data_file": "hnebase/data_driven/Data_hnebase_post_missing_groupname.csv",
+        "db_query": null,
+        "db_type": null,
+        "db_connection_name": null,
+        "test_summary": "Test TC005: POST /Permissions/groups [negative] (TC005) - missing groupname and valid ssoguid. https://assetmark.atlassian.net/browse/PRODENG-12007",
+        "payload_file": "hnebase/payloads/request_payloads/Payload_Permissions_groups_POST_request_missing_groupname.json",
+        "test_scenario": "Test POST request to /Permissions/groups for missing groupname and valid ssoguid."
+    },
+    {
+        "test_id": "TC006",
+        "service_name": "hnebase",
+        "workflow_mode": "parallel",
+        "test_name": "POST /Permissions/groups [positive] (TC006) no matching ssoguid",
+        "protocol": "REST",
+        "test_type": [
+            "Functional Positive"
+        ],
+    "mainURL": "{{base_url}}",
+        "endpoint": "/Permissions/groups",
+        "method": "POST",
+        "rpc_method": "",
+        "graphql_query": "",
+        "graphql_variables": "",
+        "soap_action": "",
+        "soap_envelope": "",
+        "headers_additional": {
+            "Content-Type": "application/json"
+        },
+        "payload": "hnebase/payloads/request_payloads/Payload_Permissions_groups_POST_request.json",
+        "expected_status": "200",
+        "expected_response_schema": "hnebase/schemas/Schema_Permissions_groups_POST.json",
+        "expected_response": "hnebase/payloads/response_payloads/Payload_Permissions_groups_POST_response_empty_groupname_valid_ssoguid.json",
+        "ignore_fields": [
+            "traceId", "type"
+        ],
+        "extract_values": [
+
+        ],
+        "validate": {
+            "performance": {
+                "max_response_time_ms": null
+            },
+            "security": {
+                "checks": [
+                    "sql_injection",
+                    "xss"
+                ]
+            },
+            "data_comparison": {
+                "source": "api_response",
+                "target": "db_result",
+                "format": "table",
+                "key_field": ["", ""],
+                "fields_to_compare": [
+                    ],
+                "log_differences": true
+            }
+        },
+        "test_data_file": "hnebase/data_driven/Data_hnebase_post_no_mtach_ssoguid.csv",
+        "db_query": null,
+        "db_type": null,
+        "db_connection_name": null,
+        "test_summary": "Test TC006: POST /Permissions/groups [positive] (TC006) - no matching ssoguid. https://assetmark.atlassian.net/browse/PRODENG-12014",
+        "payload_file": "hnebase/payloads/request_payloads/Payload_Permissions_groups_POST_request.json",
+        "test_scenario": "Test POST request to /Permissions/groups for no matching ssoguid."
+    }
+]

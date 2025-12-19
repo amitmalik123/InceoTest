@@ -3,11 +3,12 @@ Test Validation Manager
 
 Orchestrates all validation operations including status code, response fields,
 response matching, and JSON schema validation.
+Note: SOAP validation is handled automatically by SoapClient (framework/clients/soap_client.py).
 """
 
 import os
 import json
-from typing import Dict, List, Any, Optional
+from typing import Dict, List, Any, Optional, Tuple
 from framework.common.logger import get_logger
 from framework.common.template_utils import render_hybrid, render_template
 from framework.common.utils import normalize_path
@@ -20,6 +21,7 @@ class TestValidationManager:
     """
     Manages all validation types for test execution.
     Coordinates status code, field, response, and schema validation.
+    Note: SOAP validation is not handled here - it's automatic in SoapClient.
     """
     
     def __init__(self):
@@ -35,6 +37,7 @@ class TestValidationManager:
     ):
         """
         Validate HTTP status code (skip for DB_ONLY).
+        Delegates to Validators.validate_status_code().
         
         Args:
             response: Response object
@@ -48,13 +51,151 @@ class TestValidationManager:
             logger.debug("Skipping status code validation for DB_ONLY protocol")
             return
         
-        actual_status = response.status_code
-        if actual_status != expected_status:
-            error_msg = f"Expected status {expected_status}, got {actual_status}"
-            logger.error(error_msg)
-            raise AssertionError(error_msg)
+        # Delegate to validators
+        error = self.validators.validate_status_code(response, expected_status)
+        if error:
+            raise AssertionError(error)
         
-        logger.info(f"Status code validation PASSED: {actual_status}")
+        logger.info(f"Status code validation PASSED: {response.status_code}")
+    
+    def validate_performance(
+        self,
+        response_time_ms: int,
+        case: Dict
+    ):
+        """
+        Validate response time against max_response_time_ms threshold.
+        Delegates to Validators.validate_performance().
+        
+        Args:
+            response_time_ms: Actual response time in milliseconds
+            case: Test case configuration
+        
+        Raises:
+            AssertionError: If response time exceeds threshold
+        """
+        validate_cfg = case.get('validate', {})
+        performance_cfg = validate_cfg.get('performance', {})
+        max_time = performance_cfg.get('max_response_time_ms')
+        
+        if max_time is None:
+            logger.debug("No max_response_time_ms configured, skipping performance validation")
+            return
+        
+        error = self.validators.validate_performance(response_time_ms, int(max_time))
+        if error:
+            raise AssertionError(error)
+    
+    def validate_security(
+        self,
+        response: Any,
+        payload: Any,
+        case: Dict
+    ):
+        """
+        Validate security checks (SQL injection, XSS patterns).
+        Delegates to Validators.validate_security().
+        
+        Args:
+            response: Response object
+            payload: Request payload
+            case: Test case configuration
+        
+        Raises:
+            AssertionError: If security checks fail
+        """
+        validate_cfg = case.get('validate', {})
+        security_cfg = validate_cfg.get('security', {})
+        checks = security_cfg.get('checks', [])
+        
+        if not checks:
+            logger.debug("No security checks configured, skipping security validation")
+            return
+        
+        error = self.validators.validate_security(response, payload, checks)
+        if error:
+            raise AssertionError(error)
+    
+    def validate_assertions(
+        self,
+        case: Dict,
+        context: Dict
+    ):
+        """
+        Execute custom assertions defined in case['validate']['assertions'].
+        Each assertion supports:
+          - actual: value or {{var}}
+          - expected: value or {{var}}
+          - operator: ==, !=, >, <
+          - message: failure message
+        
+        Args:
+            case: Test case configuration
+            context: Context dictionary for variable resolution
+        
+        Raises:
+            AssertionError: If any assertion fails
+        """
+        validate_cfg = case.get("validate", {}) or {}
+        assertions = validate_cfg.get("assertions", []) or []
+        
+        if not assertions:
+            logger.debug("No custom assertions configured, skipping assertions validation")
+            return
+        
+        def resolve_template(value):
+            """Resolve simple {{var}} templates using context."""
+            if isinstance(value, (int, float, bool)) or value is None:
+                return value
+            if isinstance(value, str) and value.startswith("{{") and value.endswith("}}"):
+                var_name = value[2:-2]
+                return context.get(var_name)
+            return value
+        
+        def to_number_if_possible(v):
+            """Try to coerce value to number if it looks numeric."""
+            if isinstance(v, (int, float)):
+                return v
+            if isinstance(v, str):
+                try:
+                    if "." in v:
+                        return float(v)
+                    return int(v)
+                except Exception:
+                    return v
+            return v
+        
+        for idx, assertion in enumerate(assertions, 1):
+            actual_raw = assertion.get("actual")
+            expected_raw = assertion.get("expected")
+            operator = assertion.get("operator", "==")
+            message = assertion.get("message", "Custom assertion failed")
+            
+            actual = resolve_template(actual_raw)
+            expected = resolve_template(expected_raw)
+            
+            actual_val = to_number_if_possible(actual)
+            expected_val = to_number_if_possible(expected)
+            
+            try:
+                if operator == "==":
+                    assert actual_val == expected_val, f"{message}: actual={actual_val}, expected={expected_val}"
+                elif operator == "!=":
+                    assert actual_val != expected_val, f"{message}: actual={actual_val}, expected (different)={expected_val}"
+                elif operator == ">":
+                    assert float(actual_val) > float(expected_val), f"{message}: actual={actual_val} <= expected={expected_val}"
+                elif operator == "<":
+                    assert float(actual_val) < float(expected_val), f"{message}: actual={actual_val} >= expected={expected_val}"
+                else:
+                    raise AssertionError(f"Unsupported operator '{operator}' in custom assertion")
+                
+                logger.debug(f"Assertion {idx} PASSED: {actual_val} {operator} {expected_val}")
+            
+            except AssertionError as e:
+                logger.error(f"Assertion {idx} FAILED: {str(e)}")
+                raise
+        
+        logger.info(f"Custom assertions validation PASSED: {len(assertions)} assertion(s)")
     
     def prepare_expected(self, case: Dict, context: Dict) -> Dict:
         """
@@ -293,6 +434,7 @@ class TestValidationManager:
     def validate_schema(self, response: Any, schema_file: str):
         """
         Validate response against JSON schema.
+        Loads schema file and delegates to Validators.validate_json_schema().
         
         Args:
             response: Response object
@@ -301,8 +443,6 @@ class TestValidationManager:
         Raises:
             AssertionError: If validation fails
         """
-        import jsonschema
-        
         # Normalize path separators for cross-platform compatibility
         schema_file = normalize_path(schema_file)
         schema_path = os.path.join('testdata', schema_file)
@@ -315,20 +455,14 @@ class TestValidationManager:
         with open(schema_path, 'r', encoding='utf-8') as f:
             schema = json.load(f)
         
-        try:
-            actual_json = response.json()
-        except Exception as e:
-            error_msg = f"Response is not valid JSON: {e}"
+        # Delegate to validators
+        error = self.validators.validate_json_schema(response, schema)
+        if error:
+            error_msg = f"Schema validation failed for {schema_file}: {error}"
             logger.error(f"[CONTRACT CHECK FAIL] {error_msg}")
             raise AssertionError(error_msg)
         
-        try:
-            jsonschema.validate(instance=actual_json, schema=schema)
-            logger.info(f"Schema validation PASSED for {schema_file}")
-        except jsonschema.ValidationError as ve:
-            error_msg = f"Response JSON does not match schema {schema_file}: {ve}"
-            logger.error(f"[CONTRACT CHECK FAIL] {error_msg}")
-            raise AssertionError(error_msg)
+        logger.info(f"Schema validation PASSED for {schema_file}")
 
 
 # Singleton accessor function

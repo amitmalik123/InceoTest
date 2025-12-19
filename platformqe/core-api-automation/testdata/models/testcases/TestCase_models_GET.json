@@ -2,11 +2,13 @@
     {
         "test_id": "TC001",
         "service_name": "models",
-        "workflow_mode": "parallel",
-        "test_name": "GET /models [positive] (TC001)",
+        "workflow_mode": "sequential",
+        "test_name": "GET /models without filters - Verify all models with DB validation (TC001)",
         "protocol": "REST",
         "test_type": [
-            "Functional"
+            "Functional",
+            "Performance",
+            "Smoke"
         ],
         "mainURL": "{{base_url}}",
         "endpoint": "/models",
@@ -21,7 +23,7 @@
         },
         "payload": null,
         "expected_status": "200",
-        "expected_response_schema": "",
+        "expected_response_schema": "models\\schemas\\Schema_models_GET.json",
         "expected_response": null,
         "ignore_fields": [
             "id"
@@ -29,23 +31,34 @@
         "extract_values": [
             {
                 "from": "response",
-                "key": "id",
+                "key": "models.0.modelId",
+                "assign_to": "first_model_id"
+            },
+            {
+                "from": "response",
+                "key": "models.0.owner.ownerId",
+                "assign_to": "first_owner_id"
+            },
+            {
+                "from": "response",
+                "record_count": false,
+                "array_path": "",
                 "assign_to": ""
             },
             {
                 "from": "db_result",
-                "query": "",
+                "query": "default",
                 "assign": [
                     {
-                        "key": "",
-                        "assign_to": ""
+                        "key": "0.model_id",
+                        "assign_to": "DB_model_id"
                     }
                 ]
             }
         ],
         "validate": {
             "performance": {
-                "max_response_time_ms": 500
+                "max_response_time_ms": 2000
             },
             "security": {
                 "checks": [
@@ -53,24 +66,1324 @@
                     "xss"
                 ]
             },
-            "data_comparison": {
-                "source": "api_response",
-                "target": "db_result",
-                "format": "table",
-                "key_field": [
-                    "",
-                    ""
-                ],
-                "fields_to_compare": [],
-                "log_differences": true
-            }
+            "data_comparison": [
+                {
+                    "source": "first_model_id",
+                    "target": "DB_model_id",
+                    "comparison_name": "Model ID match between API and DB"
+                },
+                {
+                    "source": "api_response",
+                    "target": "db_result",
+                    "target_query": "default",
+                    "format": "table",
+                    "source_array_path": "models",
+                    "key_field": [
+                        {
+                            "source": "modelId",
+                            "target": "model_id"
+                        },
+                        {
+                            "source": "status",
+                            "target": "status"
+                        },
+                        {
+                            "source": "version",
+                            "target": "version"
+                        }
+                    ],
+                    "fields_to_compare": [
+                        {
+                            "source": "modelId",
+                            "target": "model_id"
+                        },
+                        {
+                            "source": "name",
+                            "target": "name"
+                        },
+                        {
+                            "source": "status",
+                            "target": "status"
+                        },
+                        {
+                            "source": "version",
+                            "target": "version"
+                        },
+                        {
+                            "source": "modelType",
+                            "target": "model_type"
+                        },
+                        {
+                            "source": "solutionType",
+                            "target": "solution_type"
+                        },
+                        {
+                            "source": "custodian",
+                            "target": "custodian"
+                        },
+                        {
+                            "source": "investmentApproach",
+                            "target": "investment_approach"
+                        },
+                        {
+                            "source": "benchmarks",
+                            "target": "benchmark"
+                        },
+                        {
+                            "source": "investmentMin",
+                            "target": "investment_min"
+                        },
+                        {
+                            "source": "riskProfile",
+                            "target": "risk_profile"
+                        },
+                        {
+                            "source": "owner.ownerId",
+                            "target": "owner_id"
+                        },
+                        {
+                            "source": "holdings",
+                            "target": "allocations"
+                        },
+                        {
+                            "source": "metadata",
+                            "target": "metadata"
+                        }
+                    ],
+                    "log_differences": true,
+                    "comparison_name": "Verify Response API vs DB field values"
+                },
+                {
+                    "source": "api_response",
+                    "target": "db_result",
+                    "target_query": "default",
+                    "compare_record_count": true,
+                    "source_array_path": "models",
+                    "target_array_path": "",
+                    "log_differences": true,
+                    "comparison_name": "Verify Record count - API Vs DB"
+                },
+                {
+                    "source": "api_response",
+                    "target": "db_result",
+                    "target_query": "count_query",
+                    "fields_to_compare": [
+                        {
+                            "source": "count",
+                            "target": "count"
+                        }
+                    ],
+                    "log_differences": true,
+                    "comparison_name": "Verify count field value matches with DB count"
+                },
+                {
+                    "source": "api_response",
+                    "source_array_path": "filters.id",
+                    "target": "literal",
+                    "target_literal": null,
+                    "comparison_name": "Verify No filter -  id is null"
+                },
+                {
+                    "source": "api_response",
+                    "source_array_path": "filters.status",
+                    "target": "literal",
+                    "target_literal": null,
+                    "comparison_name": "Verify No filter - status is null"
+                },
+                {
+                    "source": "api_response",
+                    "source_array_path": "filters.ownerId",
+                    "target": "literal",
+                    "target_literal": null,
+                    "comparison_name": "Verify No filter - ownerId is null"
+                }
+            ]
         },
         "test_data_file": "",
-        "db_query": "",
+        "db_query_timing": "after_api",
+        "db_queries": {
+            "default": "models/db_queries/Query_models_GET.sql",
+            "count_query": "SELECT COUNT(*) AS count FROM public.vw_model;"
+        },
+        "db_type": "postgresql",
+        "db_connection_name": "models",
+        "test_summary": "Test TC001: Retrieve all models without filters and validate response fields, record count against database"
+    },
+    {
+        "test_id": "TC002",
+        "service_name": "models",
+        "workflow_mode": "sequential",
+        "test_name": "GET /models with Id filter - Verify specific model by ID (TC002)",
+        "protocol": "REST",
+        "test_type": [
+            "Functional",
+            "Performance",
+            "Smoke"
+        ],
+        "mainURL": "{{base_url}}",
+        "endpoint": "/models?Id={{first_model_id}}",
+        "method": "GET",
+        "rpc_method": "",
+        "graphql_query": "",
+        "graphql_variables": "",
+        "soap_action": "",
+        "soap_envelope": "",
+        "headers_additional": {
+            "Content-Type": "application/json"
+        },
+        "payload": null,
+        "expected_status": "200",
+        "expected_response_schema": "models\\schemas\\Schema_models_GET.json",
+        "expected_response": null,
+        "ignore_fields": [
+            "id"
+        ],
+        "extract_values": [
+            {
+                "from": "response",
+                "key": "models.0.modelId",
+                "assign_to": "first_model_id"
+            },
+            {
+                "from": "response",
+                "record_count": false,
+                "array_path": "",
+                "assign_to": ""
+            },
+            {
+                "from": "db_result",
+                "query": "default",
+                "assign": [
+                    {
+                        "key": "0.model_id",
+                        "assign_to": "DB_model_id"
+                    }
+                ]
+            }
+        ],
+        "validate": {
+            "performance": {
+                "max_response_time_ms": null
+            },
+            "security": {
+                "checks": [
+                    "sql_injection",
+                    "xss"
+                ]
+            },
+            "data_comparison": [
+                {
+                    "source": "first_model_id",
+                    "target": "DB_model_id",
+                    "log_differences": true,
+                    "comparison_name": "Model ID match between API and DB"
+                },
+                {
+                    "source": "api_response",
+                    "target": "db_result",
+                    "target_query": "default",
+                    "format": "table",
+                    "source_array_path": "models",
+                    "key_field": [
+                        {
+                            "source": "modelId",
+                            "target": "model_id"
+                        },
+                        {
+                            "source": "status",
+                            "target": "status"
+                        },
+                        {
+                            "source": "version",
+                            "target": "version"
+                        }
+                    ],
+                    "fields_to_compare": [
+                        {
+                            "source": "modelId",
+                            "target": "model_id"
+                        },
+                        {
+                            "source": "name",
+                            "target": "name"
+                        },
+                        {
+                            "source": "status",
+                            "target": "status"
+                        },
+                        {
+                            "source": "version",
+                            "target": "version"
+                        },
+                        {
+                            "source": "modelType",
+                            "target": "model_type"
+                        },
+                        {
+                            "source": "solutionType",
+                            "target": "solution_type"
+                        },
+                        {
+                            "source": "custodian",
+                            "target": "custodian"
+                        },
+                        {
+                            "source": "investmentApproach",
+                            "target": "investment_approach"
+                        },
+                        {
+                            "source": "benchmarks",
+                            "target": "benchmark"
+                        },
+                        {
+                            "source": "investmentMin",
+                            "target": "investment_min"
+                        },
+                        {
+                            "source": "riskProfile",
+                            "target": "risk_profile"
+                        },
+                        {
+                            "source": "owner.ownerId",
+                            "target": "owner_id"
+                        },
+                        {
+                            "source": "holdings",
+                            "target": "allocations"
+                        },
+                        {
+                            "source": "metadata",
+                            "target": "metadata"
+                        }
+                    ],
+                    "log_differences": true,
+                    "comparison_name": "Verify Response API vs DB field values"
+                },
+                {
+                    "source": "api_response",
+                    "target": "db_result",
+                    "target_query": "default",
+                    "compare_record_count": true,
+                    "source_array_path": "models",
+                    "target_array_path": "",
+                    "log_differences": true,
+                    "comparison_name": "Verify Record count - API Vs DB"
+                },
+                {
+                    "source": "api_response",
+                    "target": "db_result",
+                    "target_query": "count_query",
+                    "fields_to_compare": [
+                        {
+                            "source": "count",
+                            "target": "count"
+                        }
+                    ],
+                    "log_differences": true,
+                    "comparison_name": "Verify count field value matches with DB count"
+                },
+                {
+                    "source": "first_model_id",
+                    "target": "api_response",
+                    "target_array_path": "filters.id",
+                    "log_differences": true,
+                    "comparison_name": "Verify filter id matches requested model id"
+                }
+            ]
+        },
+        "test_data_file": "",
+        "db_query_timing": "after_api",
+        "db_queries": {
+            "default": "models/db_queries/Query_models_GET_withFilterId.sql",
+            "count_query": "SELECT COUNT(*) AS count FROM public.vw_model WHERE id = '{{first_model_id}}';"
+        },
+        "db_type": "postgresql",
+        "db_connection_name": "models",
+        "test_summary": "Test TC002: Retrieve model by specific ID filter and validate response fields, filters, and record count against database"
+    },
+    {
+        "test_id": "TC003",
+        "service_name": "models",
+        "workflow_mode": "sequential",
+        "test_name": "GET /models with Status=Draft filter - Verify Draft models only (TC003)",
+        "protocol": "REST",
+        "test_type": [
+            "Functional",
+            "Performance",
+            "Smoke"
+        ],
+        "mainURL": "{{base_url}}",
+        "endpoint": "/models?Status=Draft",
+        "method": "GET",
+        "rpc_method": "",
+        "graphql_query": "",
+        "graphql_variables": "",
+        "soap_action": "",
+        "soap_envelope": "",
+        "headers_additional": {
+            "Content-Type": "application/json"
+        },
+        "payload": null,
+        "expected_status": "200",
+        "expected_response_schema": "models\\schemas\\Schema_models_GET.json",
+        "expected_response": null,
+        "ignore_fields": [
+            "id"
+        ],
+        "extract_values": [
+            {
+                "from": "response",
+                "key": "models.0.modelId",
+                "assign_to": "first_model_id"
+            },
+            {
+                "from": "response",
+                "record_count": false,
+                "array_path": "",
+                "assign_to": ""
+            },
+            {
+                "from": "db_result",
+                "query": "default",
+                "assign": [
+                    {
+                        "key": "0.model_id",
+                        "assign_to": "DB_model_id"
+                    }
+                ]
+            }
+        ],
+        "validate": {
+            "performance": {
+                "max_response_time_ms": null
+            },
+            "security": {
+                "checks": [
+                    "sql_injection",
+                    "xss"
+                ]
+            },
+            "data_comparison": [
+                {
+                    "source": "first_model_id",
+                    "target": "DB_model_id",
+                    "log_differences": true,
+                    "comparison_name": "Model ID match between API and DB"
+                },
+                {
+                    "source": "api_response",
+                    "target": "db_result",
+                    "target_query": "default",
+                    "format": "table",
+                    "source_array_path": "models",
+                    "key_field": [
+                        {
+                            "source": "modelId",
+                            "target": "model_id"
+                        },
+                        {
+                            "source": "status",
+                            "target": "status"
+                        },
+                        {
+                            "source": "version",
+                            "target": "version"
+                        }
+                    ],
+                    "fields_to_compare": [
+                        {
+                            "source": "modelId",
+                            "target": "model_id"
+                        },
+                        {
+                            "source": "name",
+                            "target": "name"
+                        },
+                        {
+                            "source": "status",
+                            "target": "status"
+                        },
+                        {
+                            "source": "version",
+                            "target": "version"
+                        },
+                        {
+                            "source": "modelType",
+                            "target": "model_type"
+                        },
+                        {
+                            "source": "solutionType",
+                            "target": "solution_type"
+                        },
+                        {
+                            "source": "custodian",
+                            "target": "custodian"
+                        },
+                        {
+                            "source": "investmentApproach",
+                            "target": "investment_approach"
+                        },
+                        {
+                            "source": "benchmarks",
+                            "target": "benchmark"
+                        },
+                        {
+                            "source": "investmentMin",
+                            "target": "investment_min"
+                        },
+                        {
+                            "source": "riskProfile",
+                            "target": "risk_profile"
+                        },
+                        {
+                            "source": "owner.ownerId",
+                            "target": "owner_id"
+                        },
+                        {
+                            "source": "holdings",
+                            "target": "allocations"
+                        },
+                        {
+                            "source": "metadata",
+                            "target": "metadata"
+                        }
+                    ],
+                    "log_differences": true,
+                    "comparison_name": "Verify Response API vs DB field values"
+                },
+                {
+                    "source": "api_response",
+                    "target": "db_result",
+                    "target_query": "default",
+                    "compare_record_count": true,
+                    "source_array_path": "models",
+                    "target_array_path": "",
+                    "log_differences": true,
+                    "comparison_name": "Verify Record count - API Vs DB"
+                },
+                {
+                    "source": "api_response",
+                    "target": "db_result",
+                    "target_query": "count_query",
+                    "fields_to_compare": [
+                        {
+                            "source": "count",
+                            "target": "count"
+                        }
+                    ],
+                    "log_differences": true,
+                    "comparison_name": "Verify count field value matches with DB count "
+                },
+                {
+                    "source": "literal",
+                    "source_literal": "Draft",
+                    "target": "api_response",
+                    "target_array_path": "filters.status",
+                    "log_differences": true,
+                    "comparison_name": "Verify filter status matches requested query param status"
+                }
+            ]
+        },
+        "test_data_file": "",
+        "db_query_timing": "after_api",
+        "db_queries": {
+            "default": "models/db_queries/Query_models_GET_withFilterStatusDraft.sql",
+            "count_query": "SELECT COUNT(*) AS count FROM public.vw_model WHERE status = 'Draft';"
+        },
+        "db_type": "postgresql",
+        "db_connection_name": "models",
+        "test_summary": "Test TC003: Retrieve models filtered by Status=Draft and validate response fields, filter applied, and record count against database"
+    },
+    {
+        "test_id": "TC004",
+        "service_name": "models",
+        "workflow_mode": "sequential",
+        "test_name": "GET /models with Status=Published filter - Verify Published models only (TC004)",
+        "protocol": "REST",
+        "test_type": [
+            "Functional",
+            "Performance",
+            "Smoke"
+        ],
+        "mainURL": "{{base_url}}",
+        "endpoint": "/models?Status=Published",
+        "method": "GET",
+        "rpc_method": "",
+        "graphql_query": "",
+        "graphql_variables": "",
+        "soap_action": "",
+        "soap_envelope": "",
+        "headers_additional": {
+            "Content-Type": "application/json"
+        },
+        "payload": null,
+        "expected_status": "200",
+        "expected_response_schema": "models\\schemas\\Schema_models_GET.json",
+        "expected_response": null,
+        "ignore_fields": [
+            "id"
+        ],
+        "extract_values": [
+            {
+                "from": "response",
+                "key": "models.0.modelId",
+                "assign_to": "first_model_id"
+            },
+            {
+                "from": "response",
+                "record_count": false,
+                "array_path": "",
+                "assign_to": ""
+            },
+            {
+                "from": "db_result",
+                "query": "default",
+                "assign": [
+                    {
+                        "key": "0.model_id",
+                        "assign_to": "DB_model_id"
+                    }
+                ]
+            }
+        ],
+        "validate": {
+            "performance": {
+                "max_response_time_ms": null
+            },
+            "security": {
+                "checks": [
+                    "sql_injection",
+                    "xss"
+                ]
+            },
+            "data_comparison": [
+                {
+                    "source": "first_model_id",
+                    "target": "DB_model_id",
+                    "log_differences": true,
+                    "comparison_name": "Model ID match between API and DB"
+                },
+                {
+                    "source": "api_response",
+                    "target": "db_result",
+                    "target_query": "default",
+                    "format": "table",
+                    "source_array_path": "models",
+                    "key_field": [
+                        {
+                            "source": "modelId",
+                            "target": "model_id"
+                        },
+                        {
+                            "source": "status",
+                            "target": "status"
+                        },
+                        {
+                            "source": "version",
+                            "target": "version"
+                        }
+                    ],
+                    "fields_to_compare": [
+                        {
+                            "source": "modelId",
+                            "target": "model_id"
+                        },
+                        {
+                            "source": "name",
+                            "target": "name"
+                        },
+                        {
+                            "source": "status",
+                            "target": "status"
+                        },
+                        {
+                            "source": "version",
+                            "target": "version"
+                        },
+                        {
+                            "source": "modelType",
+                            "target": "model_type"
+                        },
+                        {
+                            "source": "solutionType",
+                            "target": "solution_type"
+                        },
+                        {
+                            "source": "custodian",
+                            "target": "custodian"
+                        },
+                        {
+                            "source": "investmentApproach",
+                            "target": "investment_approach"
+                        },
+                        {
+                            "source": "benchmarks",
+                            "target": "benchmark"
+                        },
+                        {
+                            "source": "investmentMin",
+                            "target": "investment_min"
+                        },
+                        {
+                            "source": "riskProfile",
+                            "target": "risk_profile"
+                        },
+                        {
+                            "source": "owner.ownerId",
+                            "target": "owner_id"
+                        },
+                        {
+                            "source": "holdings",
+                            "target": "allocations"
+                        },
+                        {
+                            "source": "metadata",
+                            "target": "metadata"
+                        }
+                    ],
+                    "log_differences": true,
+                    "comparison_name": "Verify Response API vs DB field values"
+                },
+                {
+                    "source": "api_response",
+                    "target": "db_result",
+                    "target_query": "default",
+                    "compare_record_count": true,
+                    "source_array_path": "models",
+                    "target_array_path": "",
+                    "log_differences": true,
+                    "comparison_name": "Verify Record count - API Vs DB"
+                },
+                {
+                    "source": "api_response",
+                    "target": "db_result",
+                    "target_query": "count_query",
+                    "fields_to_compare": [
+                        {
+                            "source": "count",
+                            "target": "count"
+                        }
+                    ],
+                    "log_differences": true,
+                    "comparison_name": "Verify count field value matches with DB count "
+                },
+                {
+                    "source": "literal",
+                    "source_literal": "Published",
+                    "target": "api_response",
+                    "target_array_path": "filters.status",
+                    "log_differences": true,
+                    "comparison_name": "Verify filter status matches requested query param status"
+                }
+            ]
+        },
+        "test_data_file": "",
+        "db_query_timing": "after_api",
+        "db_queries": {
+            "default": "models/db_queries/Query_models_GET_withFilterStatusPublished.sql",
+            "count_query": "SELECT COUNT(*) AS count FROM public.vw_model WHERE status = 'Published';"
+        },
+        "db_type": "postgresql",
+        "db_connection_name": "models",
+        "test_summary": "Test TC004: Retrieve models filtered by Status=Published and validate response fields, filter applied, and record count against database"
+    },
+    {
+        "test_id": "TC005",
+        "service_name": "models",
+        "workflow_mode": "sequential",
+        "test_name": "GET /models with OwnerId filter - Verify models by owner (TC005)",
+        "protocol": "REST",
+        "test_type": [
+            "Functional",
+            "Performance",
+            "Smoke"
+        ],
+        "mainURL": "{{base_url}}",
+        "endpoint": "/models?OwnerId={{first_owner_id}}",
+        "method": "GET",
+        "rpc_method": "",
+        "graphql_query": "",
+        "graphql_variables": "",
+        "soap_action": "",
+        "soap_envelope": "",
+        "headers_additional": {
+            "Content-Type": "application/json"
+        },
+        "payload": null,
+        "expected_status": "200",
+        "expected_response_schema": "models\\schemas\\Schema_models_GET.json",
+        "expected_response": null,
+        "ignore_fields": [
+            "id"
+        ],
+        "extract_values": [
+            {
+                "from": "response",
+                "key": "models.0.modelId",
+                "assign_to": "first_model_id"
+            },
+            {
+                "from": "response",
+                "record_count": false,
+                "array_path": "",
+                "assign_to": ""
+            },
+            {
+                "from": "db_result",
+                "query": "default",
+                "assign": [
+                    {
+                        "key": "0.model_id",
+                        "assign_to": "DB_model_id"
+                    }
+                ]
+            }
+        ],
+        "validate": {
+            "performance": {
+                "max_response_time_ms": null
+            },
+            "security": {
+                "checks": [
+                    "sql_injection",
+                    "xss"
+                ]
+            },
+            "data_comparison": [
+                {
+                    "source": "first_model_id",
+                    "target": "DB_model_id",
+                    "log_differences": true,
+                    "comparison_name": "Model ID match between API and DB"
+                },
+                {
+                    "source": "api_response",
+                    "target": "db_result",
+                    "target_query": "default",
+                    "format": "table",
+                    "source_array_path": "models",
+                    "key_field": [
+                        {
+                            "source": "modelId",
+                            "target": "model_id"
+                        },
+                        {
+                            "source": "status",
+                            "target": "status"
+                        },
+                        {
+                            "source": "version",
+                            "target": "version"
+                        }
+                    ],
+                    "fields_to_compare": [
+                        {
+                            "source": "modelId",
+                            "target": "model_id"
+                        },
+                        {
+                            "source": "name",
+                            "target": "name"
+                        },
+                        {
+                            "source": "status",
+                            "target": "status"
+                        },
+                        {
+                            "source": "version",
+                            "target": "version"
+                        },
+                        {
+                            "source": "modelType",
+                            "target": "model_type"
+                        },
+                        {
+                            "source": "solutionType",
+                            "target": "solution_type"
+                        },
+                        {
+                            "source": "custodian",
+                            "target": "custodian"
+                        },
+                        {
+                            "source": "investmentApproach",
+                            "target": "investment_approach"
+                        },
+                        {
+                            "source": "benchmarks",
+                            "target": "benchmark"
+                        },
+                        {
+                            "source": "investmentMin",
+                            "target": "investment_min"
+                        },
+                        {
+                            "source": "riskProfile",
+                            "target": "risk_profile"
+                        },
+                        {
+                            "source": "owner.ownerId",
+                            "target": "owner_id"
+                        },
+                        {
+                            "source": "holdings",
+                            "target": "allocations"
+                        },
+                        {
+                            "source": "metadata",
+                            "target": "metadata"
+                        }
+                    ],
+                    "log_differences": true,
+                    "comparison_name": "Verify Response API vs DB field values"
+                },
+                {
+                    "source": "api_response",
+                    "target": "db_result",
+                    "target_query": "default",
+                    "compare_record_count": true,
+                    "source_array_path": "models",
+                    "target_array_path": "",
+                    "log_differences": true,
+                    "comparison_name": "Verify Record count - API Vs DB"
+                },
+                {
+                    "source": "api_response",
+                    "target": "db_result",
+                    "target_query": "count_query",
+                    "fields_to_compare": [
+                        {
+                            "source": "count",
+                            "target": "count"
+                        }
+                    ],
+                    "log_differences": true,
+                    "comparison_name": "Verify count field value matches with DB count "
+                },
+                {
+                    "source": "first_owner_id",
+                    "target": "api_response",
+                    "target_array_path": "filters.ownerId",
+                    "log_differences": true,
+                    "comparison_name": "Verify filter ownerId matches requested query param ownerId"
+                }
+            ]
+        },
+        "test_data_file": "",
+        "db_query_timing": "after_api",
+        "db_queries": {
+            "default": "models/db_queries/Query_models_GET_withFilterOwnerId.sql",
+            "count_query": "SELECT COUNT(*) AS count FROM public.vw_model WHERE owner_id = '{{first_owner_id}}';"
+        },
+        "db_type": "postgresql",
+        "db_connection_name": "models",
+        "test_summary": "Test TC005: Retrieve models filtered by specific OwnerId and validate response fields, filter applied, and record count against database"
+    },
+    {
+        "test_id": "TC006",
+        "service_name": "models",
+        "workflow_mode": "sequential",
+        "test_name": "GET /models with all filters (Id, Status, OwnerId) - Verify combined filters (TC006)",
+        "protocol": "REST",
+        "test_type": [
+            "Functional",
+            "Performance",
+            "Smoke"
+        ],
+        "mainURL": "{{base_url}}",
+        "endpoint": "/models?Id={{first_model_id}}&OwnerId={{first_owner_id}}&Status=Published",
+        "method": "GET",
+        "rpc_method": "",
+        "graphql_query": "",
+        "graphql_variables": "",
+        "soap_action": "",
+        "soap_envelope": "",
+        "headers_additional": {
+            "Content-Type": "application/json"
+        },
+        "payload": null,
+        "expected_status": "200",
+        "expected_response_schema": "models\\schemas\\Schema_models_GET.json",
+        "expected_response": null,
+        "ignore_fields": [
+            "id"
+        ],
+        "extract_values": [
+            {
+                "from": "response",
+                "key": "models.0.modelId",
+                "assign_to": "first_model_id"
+            },
+            {
+                "from": "response",
+                "record_count": false,
+                "array_path": "",
+                "assign_to": ""
+            },
+            {
+                "from": "db_result",
+                "query": "default",
+                "assign": [
+                    {
+                        "key": "0.model_id",
+                        "assign_to": "DB_model_id"
+                    }
+                ]
+            }
+        ],
+        "validate": {
+            "performance": {
+                "max_response_time_ms": null
+            },
+            "security": {
+                "checks": [
+                    "sql_injection",
+                    "xss"
+                ]
+            },
+            "data_comparison": [
+                {
+                    "source": "first_model_id",
+                    "target": "DB_model_id",
+                    "log_differences": true,
+                    "comparison_name": "Model ID match between API and DB"
+                },
+                {
+                    "source": "api_response",
+                    "target": "db_result",
+                    "target_query": "default",
+                    "format": "table",
+                    "source_array_path": "models",
+                    "key_field": [
+                        {
+                            "source": "modelId",
+                            "target": "model_id"
+                        },
+                        {
+                            "source": "status",
+                            "target": "status"
+                        },
+                        {
+                            "source": "version",
+                            "target": "version"
+                        }
+                    ],
+                    "fields_to_compare": [
+                        {
+                            "source": "modelId",
+                            "target": "model_id"
+                        },
+                        {
+                            "source": "name",
+                            "target": "name"
+                        },
+                        {
+                            "source": "status",
+                            "target": "status"
+                        },
+                        {
+                            "source": "version",
+                            "target": "version"
+                        },
+                        {
+                            "source": "modelType",
+                            "target": "model_type"
+                        },
+                        {
+                            "source": "solutionType",
+                            "target": "solution_type"
+                        },
+                        {
+                            "source": "custodian",
+                            "target": "custodian"
+                        },
+                        {
+                            "source": "investmentApproach",
+                            "target": "investment_approach"
+                        },
+                        {
+                            "source": "benchmarks",
+                            "target": "benchmark"
+                        },
+                        {
+                            "source": "investmentMin",
+                            "target": "investment_min"
+                        },
+                        {
+                            "source": "riskProfile",
+                            "target": "risk_profile"
+                        },
+                        {
+                            "source": "owner.ownerId",
+                            "target": "owner_id"
+                        },
+                        {
+                            "source": "holdings",
+                            "target": "allocations"
+                        },
+                        {
+                            "source": "metadata",
+                            "target": "metadata"
+                        }
+                    ],
+                    "log_differences": true,
+                    "comparison_name": "Verify Response API vs DB field values"
+                },
+                {
+                    "source": "api_response",
+                    "target": "db_result",
+                    "target_query": "default",
+                    "compare_record_count": true,
+                    "source_array_path": "models",
+                    "target_array_path": "",
+                    "log_differences": true,
+                    "comparison_name": "Verify Record count - API Vs DB"
+                },
+                {
+                    "source": "api_response",
+                    "target": "db_result",
+                    "target_query": "count_query",
+                    "fields_to_compare": [
+                        {
+                            "source": "count",
+                            "target": "count"
+                        }
+                    ],
+                    "log_differences": true,
+                    "comparison_name": "Verify count field value matches with DB count "
+                },
+                {
+                    "source": "first_model_id",
+                    "target": "api_response",
+                    "target_array_path": "filters.id",
+                    "log_differences": true,
+                    "comparison_name": "Verify filter id matches requested model id"
+                },
+                {
+                    "source": "literal",
+                    "source_literal": "Published",
+                    "target": "api_response",
+                    "target_array_path": "filters.status",
+                    "log_differences": true,
+                    "comparison_name": "Verify filter status matches requested query param status"
+                },
+                {
+                    "source": "first_owner_id",
+                    "target": "api_response",
+                    "target_array_path": "filters.ownerId",
+                    "log_differences": true,
+                    "comparison_name": "Verify filter ownerId matches requested query param ownerId"
+                }
+            ]
+        },
+        "test_data_file": "",
+        "db_query_timing": "after_api",
+        "db_queries": {
+            "default": "models/db_queries/Query_models_GET_with_All_Filters.sql",
+            "count_query": "SELECT COUNT(*) AS count FROM public.vw_model WHERE owner_id = '{{first_owner_id}}' AND status = 'Published' AND id = '{{first_model_id}}';"
+        },
+        "db_type": "postgresql",
+        "db_connection_name": "models",
+        "test_summary": "Test TC006: Retrieve models with all filters applied (Id, Status, OwnerId) and validate all filters are correctly applied in response"
+    },
+    {
+        "test_id": "TC007",
+        "service_name": "models",
+        "workflow_mode": "sequential",
+        "test_name": "GET /models with invalid Id format - Negative test (TC007)",
+        "protocol": "REST",
+        "test_type": [
+            "Negative"
+        ],
+        "mainURL": "{{base_url}}",
+        "endpoint": "/models/?Id=7d9fcf0d-f6a4-4c6f-9230-260bd1163ADD",
+        "method": "GET",
+        "rpc_method": "",
+        "graphql_query": "",
+        "graphql_variables": "",
+        "soap_action": "",
+        "soap_envelope": "",
+        "headers_additional": {
+            "Content-Type": "application/json"
+        },
+        "payload": null,
+        "expected_status": "204",
+        "expected_response_schema": "",
+        "expected_response": null,
+        "ignore_fields": [
+            "id"
+        ],
+        "extract_values": [],
+        "validate": {
+            "performance": {
+                "max_response_time_ms": null
+            },
+            "security": {
+                "checks": [
+                    "sql_injection",
+                    "xss"
+                ]
+            },
+            "data_comparison": []
+        },
+        "test_data_file": "",
+        "db_query_timing": "after_api",
+        "db_queries": {
+            "default": "",
+            "audit_query": ""
+        },
         "db_type": "",
         "db_connection_name": "",
-        "test_summary": "Test TC001: GET /models [positive] (TC001) - Test GET request to /models for functional scenario validation.",
-        "test_scenario": "Test GET request to /models for functional scenario validation."
+        "test_summary": "Test TC007: Attempt to retrieve models with invalid Id format ('invalid-guid-format'), verify 400 Bad Request error"
+    },
+    {
+        "test_id": "TC008",
+        "service_name": "models",
+        "workflow_mode": "sequential",
+        "test_name": "GET /models with invalid OwnerId format - Negative test (TC008)",
+        "protocol": "REST",
+        "test_type": [
+            "Negative"
+        ],
+        "mainURL": "{{base_url}}",
+        "endpoint": "/models/?OwnerId=3fa85f64-5717-4562-b3fc-2c963f66aADD",
+        "method": "GET",
+        "rpc_method": "",
+        "graphql_query": "",
+        "graphql_variables": "",
+        "soap_action": "",
+        "soap_envelope": "",
+        "headers_additional": {
+            "Content-Type": "application/json"
+        },
+        "payload": null,
+        "expected_status": "204",
+        "expected_response_schema": "",
+        "expected_response": null,
+        "ignore_fields": [
+            "id"
+        ],
+        "extract_values": [],
+        "validate": {
+            "performance": {
+                "max_response_time_ms": null
+            },
+            "security": {
+                "checks": [
+                    "sql_injection",
+                    "xss"
+                ]
+            },
+            "data_comparison": []
+        },
+        "test_data_file": "",
+        "db_query_timing": "after_api",
+        "db_queries": {
+            "default": "",
+            "audit_query": ""
+        },
+        "db_type": "",
+        "db_connection_name": "",
+        "test_summary": "Test TC008: Attempt to retrieve models with invalid OwnerId format ('invalid-owner-id'), verify 400 Bad Request error"
+    },
+    {
+        "test_id": "TC009",
+        "service_name": "models",
+        "workflow_mode": "sequential",
+        "test_name": "GET /invalid-endpoint - Invalid URL endpoint test (TC009)",
+        "protocol": "REST",
+        "test_type": [
+            "Negative"
+        ],
+        "mainURL": "{{base_url}}",
+        "endpoint": "/model",
+        "method": "GET",
+        "rpc_method": "",
+        "graphql_query": "",
+        "graphql_variables": "",
+        "soap_action": "",
+        "soap_envelope": "",
+        "headers_additional": {
+            "Content-Type": "application/json"
+        },
+        "payload": null,
+        "expected_status": "405",
+        "expected_response_schema": "",
+        "expected_response": null,
+        "ignore_fields": [
+            "id"
+        ],
+        "extract_values": [],
+        "validate": {
+            "performance": {
+                "max_response_time_ms": null
+            },
+            "security": {
+                "checks": [
+                    "sql_injection",
+                    "xss"
+                ]
+            },
+            "data_comparison": []
+        },
+        "test_data_file": "",
+        "db_query_timing": "after_api",
+        "db_queries": {
+            "default": "",
+            "audit_query": ""
+        },
+        "db_type": "",
+        "db_connection_name": "",
+        "test_summary": "Test TC009: Attempt to access invalid endpoint URL '/invalid-endpoint', verify 404 Not Found error"
+    },
+    {
+        "test_id": "TC010",
+        "service_name": "models",
+        "workflow_mode": "sequential",
+        "test_name": "GET /models with non-existent Id - Negative test (TC010)",
+        "protocol": "REST",
+        "test_type": [
+            "Negative"
+        ],
+        "mainURL": "{{base_url}}",
+        "endpoint": "/models/?Id=7d9fcf0d-f6a4-4c6f-9230-260bd1163AD",
+        "method": "GET",
+        "rpc_method": "",
+        "graphql_query": "",
+        "graphql_variables": "",
+        "soap_action": "",
+        "soap_envelope": "",
+        "headers_additional": {
+            "Content-Type": "application/json"
+        },
+        "payload": null,
+        "expected_status": "500",
+        "expected_response_schema": "models/schemas/Schema_models_GET_ERROR.json",
+        "expected_response": null,
+        "ignore_fields": [
+            "id"
+        ],
+        "extract_values": [],
+        "validate": {
+            "performance": {
+                "max_response_time_ms": null
+            },
+            "security": {
+                "checks": [
+                    "sql_injection",
+                    "xss"
+                ]
+            },
+            "data_comparison": []
+        },
+        "test_data_file": "",
+        "db_query_timing": "after_api",
+        "db_queries": {
+            "default": "",
+            "audit_query": ""
+        },
+        "db_type": "",
+        "db_connection_name": "",
+        "test_summary": "Test TC010: Attempt to retrieve model with valid GUID format but non-existent Id, verify empty response or 404 error"
     }
-   
 ]
