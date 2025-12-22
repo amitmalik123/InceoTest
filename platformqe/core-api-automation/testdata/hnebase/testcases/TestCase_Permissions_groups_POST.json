@@ -140,7 +140,7 @@
         "payload": "hnebase/payloads/request_payloads/Payload_Permissions_groups_POST_request.json",
         "expected_status": "400",
         "expected_response_schema": "hnebase/schemas/Schema_Permissions_groups_POST_error.json",
-        "expected_response": "hnebase/payloads/response_payloads/Payload_Permissions_groups_POST_response_invalid_ssoguid_format_valid_groupname.json",
+        "expected_response": "hnebase/payloads/response_payloads/Payload_PermissionsGrp_POST_resp_invalid_ssoguid_valid_group.json",
         "ignore_fields": [
             "instance"
         ],

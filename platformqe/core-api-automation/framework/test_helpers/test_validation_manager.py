@@ -120,18 +120,21 @@ class TestValidationManager:
         self,
         case: Dict,
         context: Dict
-    ):
+    ) -> Dict:
         """
         Execute custom assertions defined in case['validate']['assertions'].
         Each assertion supports:
           - actual: value or {{var}}
           - expected: value or {{var}}
-          - operator: ==, !=, >, <
+          - operator: ==, !=, >, <, >=, <=, contains, not_contains, starts_with, ends_with, in, not_in
           - message: failure message
         
         Args:
             case: Test case configuration
             context: Context dictionary for variable resolution
+        
+        Returns:
+            Dict with stats: {"total": int, "passed": int, "failed": int}
         
         Raises:
             AssertionError: If any assertion fails
@@ -141,7 +144,7 @@ class TestValidationManager:
         
         if not assertions:
             logger.debug("No custom assertions configured, skipping assertions validation")
-            return
+            return {"total": 0, "passed": 0, "failed": 0}
         
         def resolve_template(value):
             """Resolve simple {{var}} templates using context."""
@@ -174,10 +177,16 @@ class TestValidationManager:
             actual = resolve_template(actual_raw)
             expected = resolve_template(expected_raw)
             
-            actual_val = to_number_if_possible(actual)
-            expected_val = to_number_if_possible(expected)
+            # For numeric operators, try to convert to numbers
+            if operator in [">", "<", ">=", "<="]:
+                actual_val = to_number_if_possible(actual)
+                expected_val = to_number_if_possible(expected)
+            else:
+                actual_val = actual
+                expected_val = expected
             
             try:
+                # Comparison operators
                 if operator == "==":
                     assert actual_val == expected_val, f"{message}: actual={actual_val}, expected={expected_val}"
                 elif operator == "!=":
@@ -186,16 +195,53 @@ class TestValidationManager:
                     assert float(actual_val) > float(expected_val), f"{message}: actual={actual_val} <= expected={expected_val}"
                 elif operator == "<":
                     assert float(actual_val) < float(expected_val), f"{message}: actual={actual_val} >= expected={expected_val}"
-                else:
-                    raise AssertionError(f"Unsupported operator '{operator}' in custom assertion")
+                elif operator == ">=":
+                    assert float(actual_val) >= float(expected_val), f"{message}: actual={actual_val} < expected={expected_val}"
+                elif operator == "<=":
+                    assert float(actual_val) <= float(expected_val), f"{message}: actual={actual_val} > expected={expected_val}"
                 
-                logger.debug(f"Assertion {idx} PASSED: {actual_val} {operator} {expected_val}")
+                # String operators
+                elif operator == "contains":
+                    assert str(expected_val) in str(actual_val), f"{message}: '{expected_val}' not in '{actual_val}'"
+                elif operator == "not_contains":
+                    assert str(expected_val) not in str(actual_val), f"{message}: '{expected_val}' found in '{actual_val}'"
+                elif operator == "starts_with":
+                    assert str(actual_val).startswith(str(expected_val)), f"{message}: '{actual_val}' does not start with '{expected_val}'"
+                elif operator == "ends_with":
+                    assert str(actual_val).endswith(str(expected_val)), f"{message}: '{actual_val}' does not end with '{expected_val}'"
+                
+                # List/Collection operators
+                elif operator == "in":
+                    # actual_val should be in expected_val (expected_val is a list/collection)
+                    assert actual_val in expected_val, f"{message}: '{actual_val}' not in {expected_val}"
+                elif operator == "not_in":
+                    # actual_val should not be in expected_val (expected_val is a list/collection)
+                    assert actual_val not in expected_val, f"{message}: '{actual_val}' found in {expected_val}"
+                
+                else:
+                    raise AssertionError(f"Unsupported operator '{operator}' in custom assertion. Supported: ==, !=, >, <, >=, <=, contains, not_contains, starts_with, ends_with, in, not_in")
+                
+                # Log detailed success message
+                logger.info(f"✓ Assertion {idx} PASSED: {actual_val} {operator} {expected_val}")
             
             except AssertionError as e:
-                logger.error(f"Assertion {idx} FAILED: {str(e)}")
+                logger.error(f"✗ Assertion {idx} FAILED: {str(e)}")
                 raise
         
         logger.info(f"Custom assertions validation PASSED: {len(assertions)} assertion(s)")
+        
+        # Build details array for UI display
+        details = []
+        for assertion in assertions:
+            message = assertion.get("message", "Custom assertion")
+            details.append({"message": message, "status": "PASS"})
+        
+        return {
+            "total": len(assertions), 
+            "passed": len(assertions), 
+            "failed": 0,
+            "details": details
+        }
     
     def prepare_expected(self, case: Dict, context: Dict) -> Dict:
         """

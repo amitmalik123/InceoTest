@@ -47,7 +47,6 @@ def _encode_banner_image():
         get_logger(__name__).warning(f"Failed to encode banner image: {e}")
         return None
 
-
 # ============================================================================
 # COMMAND-LINE OPTIONS
 # ============================================================================
@@ -157,6 +156,7 @@ def pytest_html_results_summary(prefix, summary, postfix, session):
     """Add custom leadership dashboard-style summary with accurate test counts"""
     from html import escape
     from datetime import datetime
+    from framework.test_helpers.test_result_collector import TestResultCollector
     
     # Get accurate test counts from pytest session stats
     terminalreporter = session.config.pluginmanager.get_plugin('terminalreporter')
@@ -170,6 +170,129 @@ def pytest_html_results_summary(prefix, summary, postfix, session):
     xpassed = len(terminalreporter.stats.get('xpassed', []))
     
     total = passed + failed + skipped + errors + xfailed + xpassed
+    
+    # Collect consolidated validation statistics from all test results
+    result_collector = TestResultCollector()
+    all_results = result_collector.get_results()
+    
+    # Initialize consolidated validation counters
+    consolidated_validations = {
+        'status_code': {'total': 0, 'passed': 0, 'failed': 0},
+        'contract': {'total': 0, 'passed': 0, 'failed': 0},
+        'security': {'total': 0, 'passed': 0, 'failed': 0},
+        'performance': {'total': 0, 'passed': 0, 'failed': 0},
+        'data_comparison': {'total': 0, 'passed': 0, 'failed': 0},
+        'assertions': {'total': 0, 'passed': 0, 'failed': 0}
+    }
+    
+    # Aggregate validation stats from all results
+    for result in all_results:
+        # Status code validation (use actual status_code_checks stats if available)
+        validation_stats = result.get('validation_stats', {})
+        status_code_stats = validation_stats.get('status_code_checks', {})
+        
+        if status_code_stats.get('total', 0) > 0:
+            # Use actual status code validation stats
+            consolidated_validations['status_code']['total'] += status_code_stats['total']
+            consolidated_validations['status_code']['passed'] += status_code_stats['passed']
+            consolidated_validations['status_code']['failed'] += status_code_stats['failed']
+        elif result.get('status_code'):
+            # Fallback: if status_code exists but no stats, assume it was validated
+            consolidated_validations['status_code']['total'] += 1
+            # Check if test passed overall as a best guess (only if no other validation failed)
+            if result.get('status') == 'PASS':
+                consolidated_validations['status_code']['passed'] += 1
+            else:
+                # Only count as failed if no specific validation stats indicate otherwise
+                consolidated_validations['status_code']['failed'] += 1
+        
+        # Contract checks
+        contract_stats = validation_stats.get('contract_checks', {})
+        if contract_stats.get('total', 0) > 0:
+            consolidated_validations['contract']['total'] += contract_stats['total']
+            consolidated_validations['contract']['passed'] += contract_stats['passed']
+            consolidated_validations['contract']['failed'] += contract_stats['failed']
+        
+        # Security checks
+        security_stats = validation_stats.get('security_checks', {})
+        if security_stats.get('total', 0) > 0:
+            consolidated_validations['security']['total'] += security_stats['total']
+            consolidated_validations['security']['passed'] += security_stats['passed']
+            consolidated_validations['security']['failed'] += security_stats['failed']
+        
+        # Performance checks (use actual performance_checks stats if available)
+        performance_stats = validation_stats.get('performance_checks', {})
+        if performance_stats.get('total', 0) > 0:
+            consolidated_validations['performance']['total'] += performance_stats['total']
+            consolidated_validations['performance']['passed'] += performance_stats['passed']
+            consolidated_validations['performance']['failed'] += performance_stats['failed']
+        
+        # Data comparisons
+        comparison_stats = validation_stats.get('data_comparisons', {})
+        if comparison_stats.get('total', 0) > 0:
+            consolidated_validations['data_comparison']['total'] += comparison_stats['total']
+            consolidated_validations['data_comparison']['passed'] += comparison_stats['passed']
+            consolidated_validations['data_comparison']['failed'] += comparison_stats['failed']
+        
+        # Assertions
+        assertion_stats = validation_stats.get('assertions', {})
+        if assertion_stats.get('total', 0) > 0:
+            consolidated_validations['assertions']['total'] += assertion_stats['total']
+            consolidated_validations['assertions']['passed'] += assertion_stats['passed']
+            consolidated_validations['assertions']['failed'] += assertion_stats['failed']
+    
+    # Calculate totals for all validations
+    total_validations = sum(v['total'] for v in consolidated_validations.values())
+    total_validations_passed = sum(v['passed'] for v in consolidated_validations.values())
+    total_validations_failed = sum(v['failed'] for v in consolidated_validations.values())
+    total_validations_skipped = 0  # Currently no skipped validations
+    
+    # Build service and endpoint level statistics
+    service_stats = {}
+    for result in all_results:
+        service_name = result.get('service_name', 'Unknown')
+        endpoint = result.get('endpoint', 'Unknown')
+        method = result.get('method', 'GET')
+        endpoint_key = f"{method} {endpoint}"
+        
+        # Initialize service if not exists
+        if service_name not in service_stats:
+            service_stats[service_name] = {
+                'total': 0,
+                'passed': 0,
+                'failed': 0,
+                'endpoints': {}
+            }
+        
+        # Initialize endpoint if not exists
+        if endpoint_key not in service_stats[service_name]['endpoints']:
+            service_stats[service_name]['endpoints'][endpoint_key] = {
+                'total': 0,
+                'passed': 0,
+                'failed': 0,
+                'tests': []
+            }
+        
+        # Update service stats
+        service_stats[service_name]['total'] += 1
+        if result.get('status') == 'PASS':
+            service_stats[service_name]['passed'] += 1
+        else:
+            service_stats[service_name]['failed'] += 1
+        
+        # Update endpoint stats
+        service_stats[service_name]['endpoints'][endpoint_key]['total'] += 1
+        if result.get('status') == 'PASS':
+            service_stats[service_name]['endpoints'][endpoint_key]['passed'] += 1
+        else:
+            service_stats[service_name]['endpoints'][endpoint_key]['failed'] += 1
+        
+        # Store test info
+        service_stats[service_name]['endpoints'][endpoint_key]['tests'].append({
+            'test_id': result.get('test_id', 'N/A'),
+            'status': result.get('status', 'N/A'),
+            'response_time_ms': result.get('response_time_ms', 0)
+        })
     
     if total > 0:
         pass_percent = (passed / total) * 100
@@ -206,16 +329,17 @@ def pytest_html_results_summary(prefix, summary, postfix, session):
     
     # Create professional leadership dashboard-style summary
     custom_summary = f'''
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
     {banner_html}
-    <div style="margin: 25px 0; padding: 0; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); border-radius: 12px; box-shadow: 0 10px 40px rgba(0,0,0,0.1); overflow: hidden;">
+    <div style="margin: 15px 0; padding: 0; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); border-radius: 8px; box-shadow: 0 6px 25px rgba(0,0,0,0.1); overflow: hidden;">
         <!-- Header Section -->
-        <div style="background: rgba(255,255,255,0.95); padding: 20px 30px; border-bottom: 3px solid {border_color};">
+        <div style="background: rgba(255,255,255,0.95); padding: 12px 20px; border-bottom: 2px solid {border_color};">
             <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap;">
                 <div>
-                    <h2 style="margin: 0 0 5px 0; color: #1f2937; font-size: 1.8em; font-weight: 700;">
+                    <h2 style="margin: 0 0 3px 0; color: #1f2937; font-size: 1.4em; font-weight: 700;">
                         📊 Test Execution Dashboard
                     </h2>
-                    <p style="margin: 0; color: #6b7280; font-size: 0.95em;">
+                    <p style="margin: 0; color: #6b7280; font-size: 0.85em;">
                         <strong>Environment:</strong> {env_name} | <strong>Executed:</strong> {current_time}
                     </p>
                 </div>
@@ -225,51 +349,341 @@ def pytest_html_results_summary(prefix, summary, postfix, session):
             </div>
         </div>
         
-        <!-- KPI Cards Section -->
-        <div style="background: rgba(255,255,255,0.98); padding: 25px 30px;">
-            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 20px; margin-bottom: 20px;">
+        <!-- Main Content Section -->
+        <div style="background: rgba(255,255,255,0.98); padding: 15px 20px;">
+            
+            <!-- Main Dashboard Grid: Service Stats on Left, Summary Widgets on Right -->
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-bottom: 15px;">
                 
-                <!-- Total Tests Card -->
-                <div style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); padding: 20px; border-radius: 10px; box-shadow: 0 4px 15px rgba(102,126,234,0.3); text-align: center;">
-                    <div style="color: rgba(255,255,255,0.9); font-size: 0.85em; font-weight: 600; text-transform: uppercase; letter-spacing: 1px;">Total Tests</div>
-                    <div style="color: white; font-size: 2.5em; font-weight: 800; margin: 10px 0;">{total}</div>
-                    <div style="color: rgba(255,255,255,0.8); font-size: 0.9em;">Test Cases</div>
+                <!-- LEFT COLUMN: Service & Endpoint Statistics (Moved Up) -->
+                <div style="background: white; padding: 15px; border-radius: 8px; box-shadow: 0 2px 10px rgba(0,0,0,0.06); border: 1px solid #e5e7eb;">
+                    <h3 style="margin: 0 0 12px 0; color: #312e81; font-size: 1em; font-weight: 700; display: flex; align-items: center; padding-bottom: 8px; border-bottom: 2px solid #e5e7eb;">
+                        <span style="margin-right: 8px; font-size: 0.9em;">🔧</span> Service & Endpoint Statistics
+                    </h3>
+                    <div style="max-height: 600px; overflow-y: auto; overflow-x: hidden;">
+                        {{SERVICE_ENDPOINT_STATS_PLACEHOLDER}}
+                    </div>
                 </div>
                 
-                <!-- Passed Tests Card -->
-                <div style="background: linear-gradient(135deg, #10b981 0%, #059669 100%); padding: 20px; border-radius: 10px; box-shadow: 0 4px 15px rgba(16,185,129,0.3); text-align: center;">
-                    <div style="color: rgba(255,255,255,0.9); font-size: 0.85em; font-weight: 600; text-transform: uppercase; letter-spacing: 1px;">✓ Passed</div>
-                    <div style="color: white; font-size: 2.5em; font-weight: 800; margin: 10px 0;">{passed}</div>
-                    <div style="color: rgba(255,255,255,0.8); font-size: 0.9em;">{pass_percent:.1f}% Success Rate</div>
-                </div>
-                
-                <!-- Failed Tests Card -->
-                <div style="background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%); padding: 20px; border-radius: 10px; box-shadow: 0 4px 15px rgba(239,68,68,0.3); text-align: center;">
-                    <div style="color: rgba(255,255,255,0.9); font-size: 0.85em; font-weight: 600; text-transform: uppercase; letter-spacing: 1px;">✗ Failed</div>
-                    <div style="color: white; font-size: 2.5em; font-weight: 800; margin: 10px 0;">{failed}</div>
-                    <div style="color: rgba(255,255,255,0.8); font-size: 0.9em;">{fail_percent:.1f}% Failure Rate</div>
-                </div>
-                
-                <!-- Skipped Tests Card -->
-                <div style="background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%); padding: 20px; border-radius: 10px; box-shadow: 0 4px 15px rgba(245,158,11,0.3); text-align: center;">
-                    <div style="color: rgba(255,255,255,0.9); font-size: 0.85em; font-weight: 600; text-transform: uppercase; letter-spacing: 1px;">⊘ Skipped</div>
-                    <div style="color: white; font-size: 2.5em; font-weight: 800; margin: 10px 0;">{skipped}</div>
-                    <div style="color: rgba(255,255,255,0.8); font-size: 0.9em;">{skip_percent:.1f}% Skip Rate</div>
+                <!-- RIGHT COLUMN: Summary Widgets -->
+                <div style="display: flex; flex-direction: column; gap: 15px;">
+                    
+                    <!-- TOP WIDGET: Test Execution Summary + Pie Chart -->
+                    <div style="background: white; padding: 12px; border-radius: 8px; box-shadow: 0 2px 10px rgba(0,0,0,0.06); border: 1px solid #e5e7eb;">
+                        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px;">
+                            
+                                    <!-- Test Execution Summary Table -->
+                            <div>
+                        <h3 style="margin: 0 0 12px 0; color: #312e81; font-size: 1em; font-weight: 700; display: flex; align-items: center; border-bottom: 2px solid #6366f1; padding-bottom: 8px;">
+                            <span style="margin-right: 8px; font-size: 0.9em;">📈</span> Test Execution Summary
+                        </h3>
+                        <table style="width: 100%; border-collapse: collapse; background: white; border-radius: 8px; overflow: hidden;">
+                            <thead>
+                                <tr style="background: linear-gradient(135deg, #6366f1 0%, #4f46e5 100%); color: white;">
+                                    <th style="padding: 8px 10px; text-align: left; font-weight: 600; text-transform: uppercase; font-size: 0.7em; letter-spacing: 0.3px;">Status</th>
+                                    <th style="padding: 8px 10px; text-align: center; font-weight: 600; text-transform: uppercase; font-size: 0.7em; letter-spacing: 0.3px;">Count</th>
+                                    <th style="padding: 8px 10px; text-align: center; font-weight: 600; text-transform: uppercase; font-size: 0.7em; letter-spacing: 0.3px;">%</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr style="border-bottom: 2px solid #e5e7eb; background: linear-gradient(90deg, #f8fafc 0%, #f1f5f9 100%);">
+                                    <td style="padding: 8px 10px; font-weight: 700; color: #1f2937; font-size: 0.85em;">📊 Total</td>
+                                    <td style="padding: 8px 10px; text-align: center; font-weight: 800; color: #6366f1; font-size: 1em;">{total}</td>
+                                    <td style="padding: 8px 10px; text-align: center; font-weight: 700; color: #475569; background: #e0e7ff; border-radius: 4px; font-size: 0.85em;">100%</td>
+                                </tr>
+                                <tr style="border-bottom: 1px solid #d1fae5; background: #f0fdf4; transition: all 0.3s;">
+                                    <td style="padding: 8px 10px; font-weight: 600; color: #166534; font-size: 0.85em;">✓ Passed</td>
+                                    <td style="padding: 8px 10px; text-align: center; font-weight: 800; color: #10b981; font-size: 1em;">{passed}</td>
+                                    <td style="padding: 8px 10px; text-align: center; font-weight: 700; color: #059669; background: #d1fae5; border-radius: 4px; font-size: 0.85em;">{pass_percent:.1f}%</td>
+                                </tr>
+                                <tr style="border-bottom: 1px solid #fecaca; background: #fef2f2; transition: all 0.3s;">
+                                    <td style="padding: 8px 10px; font-weight: 600; color: #991b1b; font-size: 0.85em;">✗ Failed</td>
+                                    <td style="padding: 8px 10px; text-align: center; font-weight: 800; color: #ef4444; font-size: 1em;">{failed}</td>
+                                    <td style="padding: 8px 10px; text-align: center; font-weight: 700; color: #dc2626; background: #fecaca; border-radius: 4px; font-size: 0.85em;">{fail_percent:.1f}%</td>
+                                </tr>
+                                <tr style="background: #fffbeb; transition: all 0.3s;">
+                                    <td style="padding: 8px 10px; font-weight: 600; color: #92400e; font-size: 0.85em;">⊘ Skipped</td>
+                                    <td style="padding: 8px 10px; text-align: center; font-weight: 800; color: #f59e0b; font-size: 1em;">{skipped}</td>
+                                    <td style="padding: 8px 10px; text-align: center; font-weight: 700; color: #d97706; background: #fde68a; border-radius: 4px; font-size: 0.85em;">{skip_percent:.1f}%</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                            </div>
+                            
+                            <!-- Pie Chart - Test Distribution -->
+                            <div>
+                        <h4 style="margin: 0 0 12px 0; color: #312e81; font-size: 1em; font-weight: 700; text-align: center; border-bottom: 2px solid #6366f1; padding-bottom: 8px;">
+                            <span style="font-size: 0.9em;">📊</span> Test Distribution
+                        </h4>
+                        <div style="width: 100%; max-width: 200px; margin: auto;">
+                            <canvas id="testPieChart"></canvas>
+                        </div>
+                            </div>
+                            
+                        </div>
+                    </div>
+                    
+                    <!-- BOTTOM WIDGET: Validation Scenarios Summary + Bar Chart -->
+                    <div style="background: white; padding: 12px; border-radius: 8px; box-shadow: 0 2px 10px rgba(0,0,0,0.06); border: 1px solid #e5e7eb;">
+                        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px;">
+                            
+                            <!-- Validation Scenarios Summary Table -->
+                            <div>
+                        <h3 style="margin: 0 0 12px 0; color: #312e81; font-size: 1em; font-weight: 700; display: flex; align-items: center; border-bottom: 2px solid #f59e0b; padding-bottom: 8px;">
+                            <span style="margin-right: 8px; font-size: 0.9em;">🔍</span> Validation Scenarios Summary
+                        </h3>
+                        
+                        <table style="width: 100%; border-collapse: collapse; background: white; border-radius: 8px; overflow: hidden;">
+                            <thead>
+                                <tr style="background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%); color: white;">
+                                    <th style="padding: 8px 10px; text-align: left; font-weight: 600; text-transform: uppercase; font-size: 0.7em; letter-spacing: 0.3px;">Type</th>
+                                    <th style="padding: 8px 8px; text-align: center; font-weight: 600; text-transform: uppercase; font-size: 0.7em; letter-spacing: 0.3px;">Total</th>
+                                    <th style="padding: 8px 8px; text-align: center; font-weight: 600; text-transform: uppercase; font-size: 0.7em; letter-spacing: 0.3px;">Pass</th>
+                                    <th style="padding: 8px 8px; text-align: center; font-weight: 600; text-transform: uppercase; font-size: 0.7em; letter-spacing: 0.3px;">Fail</th>
+                                    <th style="padding: 8px 8px; text-align: center; font-weight: 600; text-transform: uppercase; font-size: 0.7em; letter-spacing: 0.3px;">%</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <!-- Status Code Row -->
+                                <tr style="border-bottom: 1px solid #e5e7eb; transition: all 0.3s;" onmouseover="this.style.background='#f9fafb'" onmouseout="this.style.background='white'">
+                                    <td style="padding: 8px 10px; font-weight: 600; color: #1f2937; font-size: 0.85em;">🔢 Status</td>
+                                    <td style="padding: 8px; text-align: center; font-weight: 700; color: #6366f1; font-size: 0.9em;">{consolidated_validations['status_code']['total']}</td>
+                                    <td style="padding: 8px; text-align: center; font-weight: 700; color: #10b981; font-size: 0.9em;">{consolidated_validations['status_code']['passed']}</td>
+                                    <td style="padding: 8px; text-align: center; font-weight: 700; color: #ef4444; font-size: 0.9em;">{consolidated_validations['status_code']['failed']}</td>
+                                    <td style="padding: 8px; text-align: center; font-weight: 700; color: {'#10b981' if consolidated_validations['status_code']['total'] > 0 and consolidated_validations['status_code']['failed'] == 0 else '#ef4444'}; font-size: 0.85em; background: {'#d1fae5' if consolidated_validations['status_code']['total'] > 0 and consolidated_validations['status_code']['failed'] == 0 else '#fecaca'}; border-radius: 4px;">
+                                        {(consolidated_validations['status_code']['passed'] / consolidated_validations['status_code']['total'] * 100) if consolidated_validations['status_code']['total'] > 0 else 0:.0f}%
+                                    </td>
+                                </tr>
+                                
+                                <!-- Contract Row -->
+                                <tr style="border-bottom: 1px solid #e5e7eb; transition: all 0.3s;" onmouseover="this.style.background='#f9fafb'" onmouseout="this.style.background='white'">
+                                    <td style="padding: 8px 10px; font-weight: 600; color: #1f2937; font-size: 0.85em;">📋 Contract</td>
+                                    <td style="padding: 8px; text-align: center; font-weight: 700; color: #6366f1; font-size: 0.9em;">{consolidated_validations['contract']['total']}</td>
+                                    <td style="padding: 8px; text-align: center; font-weight: 700; color: #10b981; font-size: 0.9em;">{consolidated_validations['contract']['passed']}</td>
+                                    <td style="padding: 8px; text-align: center; font-weight: 700; color: #ef4444; font-size: 0.9em;">{consolidated_validations['contract']['failed']}</td>
+                                    <td style="padding: 8px; text-align: center; font-weight: 700; color: {'#10b981' if consolidated_validations['contract']['total'] > 0 and consolidated_validations['contract']['failed'] == 0 else '#ef4444'}; font-size: 0.85em; background: {'#d1fae5' if consolidated_validations['contract']['total'] > 0 and consolidated_validations['contract']['failed'] == 0 else '#fecaca'}; border-radius: 4px;">
+                                        {(consolidated_validations['contract']['passed'] / consolidated_validations['contract']['total'] * 100) if consolidated_validations['contract']['total'] > 0 else 0:.0f}%
+                                    </td>
+                                </tr>
+                                
+                                <!-- Security Row -->
+                                <tr style="border-bottom: 1px solid #e5e7eb; transition: all 0.3s;" onmouseover="this.style.background='#f9fafb'" onmouseout="this.style.background='white'">
+                                    <td style="padding: 8px 10px; font-weight: 600; color: #1f2937; font-size: 0.85em;">🔒 Security</td>
+                                    <td style="padding: 8px; text-align: center; font-weight: 700; color: #6366f1; font-size: 0.9em;">{consolidated_validations['security']['total']}</td>
+                                    <td style="padding: 8px; text-align: center; font-weight: 700; color: #10b981; font-size: 0.9em;">{consolidated_validations['security']['passed']}</td>
+                                    <td style="padding: 8px; text-align: center; font-weight: 700; color: #ef4444; font-size: 0.9em;">{consolidated_validations['security']['failed']}</td>
+                                    <td style="padding: 8px; text-align: center; font-weight: 700; color: {'#10b981' if consolidated_validations['security']['total'] > 0 and consolidated_validations['security']['failed'] == 0 else '#ef4444'}; font-size: 0.85em; background: {'#d1fae5' if consolidated_validations['security']['total'] > 0 and consolidated_validations['security']['failed'] == 0 else '#fecaca'}; border-radius: 4px;">
+                                        {(consolidated_validations['security']['passed'] / consolidated_validations['security']['total'] * 100) if consolidated_validations['security']['total'] > 0 else 0:.0f}%
+                                    </td>
+                                </tr>
+                                
+                                <!-- Performance Row -->
+                                <tr style="border-bottom: 1px solid #e5e7eb; transition: all 0.3s;" onmouseover="this.style.background='#f9fafb'" onmouseout="this.style.background='white'">
+                                    <td style="padding: 8px 10px; font-weight: 600; color: #1f2937; font-size: 0.85em;">⚡ Perf</td>
+                                    <td style="padding: 8px; text-align: center; font-weight: 700; color: #6366f1; font-size: 0.9em;">{consolidated_validations['performance']['total']}</td>
+                                    <td style="padding: 8px; text-align: center; font-weight: 700; color: #10b981; font-size: 0.9em;">{consolidated_validations['performance']['passed']}</td>
+                                    <td style="padding: 8px; text-align: center; font-weight: 700; color: #ef4444; font-size: 0.9em;">{consolidated_validations['performance']['failed']}</td>
+                                    <td style="padding: 8px; text-align: center; font-weight: 700; color: {'#10b981' if consolidated_validations['performance']['total'] > 0 and consolidated_validations['performance']['failed'] == 0 else '#ef4444'}; font-size: 0.85em; background: {'#d1fae5' if consolidated_validations['performance']['total'] > 0 and consolidated_validations['performance']['failed'] == 0 else '#fecaca'}; border-radius: 4px;">
+                                        {(consolidated_validations['performance']['passed'] / consolidated_validations['performance']['total'] * 100) if consolidated_validations['performance']['total'] > 0 else 0:.0f}%
+                                    </td>
+                                </tr>
+                                
+                                <!-- Data Comparison Row -->
+                                <tr style="border-bottom: 1px solid #e5e7eb; transition: all 0.3s;" onmouseover="this.style.background='#f9fafb'" onmouseout="this.style.background='white'">
+                                    <td style="padding: 8px 10px; font-weight: 600; color: #1f2937; font-size: 0.85em;">🔄 Data Asserts</td>
+                                    <td style="padding: 8px; text-align: center; font-weight: 700; color: #6366f1; font-size: 0.9em;">{consolidated_validations['data_comparison']['total']}</td>
+                                    <td style="padding: 8px; text-align: center; font-weight: 700; color: #10b981; font-size: 0.9em;">{consolidated_validations['data_comparison']['passed']}</td>
+                                    <td style="padding: 8px; text-align: center; font-weight: 700; color: #ef4444; font-size: 0.9em;">{consolidated_validations['data_comparison']['failed']}</td>
+                                    <td style="padding: 8px; text-align: center; font-weight: 700; color: {'#10b981' if consolidated_validations['data_comparison']['total'] > 0 and consolidated_validations['data_comparison']['failed'] == 0 else '#ef4444'}; font-size: 0.85em; background: {'#d1fae5' if consolidated_validations['data_comparison']['total'] > 0 and consolidated_validations['data_comparison']['failed'] == 0 else '#fecaca'}; border-radius: 4px;">
+                                        {(consolidated_validations['data_comparison']['passed'] / consolidated_validations['data_comparison']['total'] * 100) if consolidated_validations['data_comparison']['total'] > 0 else 0:.0f}%
+                                    </td>
+                                </tr>
+                                
+                                <!-- Assertions Row -->
+                                <tr style="border-bottom: 2px solid #d1d5db; transition: all 0.3s;" onmouseover="this.style.background='#f9fafb'" onmouseout="this.style.background='white'">
+                                    <td style="padding: 8px 10px; font-weight: 600; color: #1f2937; font-size: 0.85em;">✓ Other Asserts</td>
+                                    <td style="padding: 8px; text-align: center; font-weight: 700; color: #6366f1; font-size: 0.9em;">{consolidated_validations['assertions']['total']}</td>
+                                    <td style="padding: 8px; text-align: center; font-weight: 700; color: #10b981; font-size: 0.9em;">{consolidated_validations['assertions']['passed']}</td>
+                                    <td style="padding: 8px; text-align: center; font-weight: 700; color: #ef4444; font-size: 0.9em;">{consolidated_validations['assertions']['failed']}</td>
+                                    <td style="padding: 8px; text-align: center; font-weight: 700; color: {'#10b981' if consolidated_validations['assertions']['total'] > 0 and consolidated_validations['assertions']['failed'] == 0 else '#ef4444'}; font-size: 0.85em; background: {'#d1fae5' if consolidated_validations['assertions']['total'] > 0 and consolidated_validations['assertions']['failed'] == 0 else '#fecaca'}; border-radius: 4px;">
+                                        {(consolidated_validations['assertions']['passed'] / consolidated_validations['assertions']['total'] * 100) if consolidated_validations['assertions']['total'] > 0 else 0:.0f}%
+                                    </td>
+                                </tr>
+                                
+                                <!-- TOTAL Row -->
+                                <tr style="background: linear-gradient(135deg, #f3f4f6 0%, #e5e7eb 100%); font-weight: 800; border-top: 3px solid #6366f1;">
+                                    <td style="padding: 10px; color: #1f2937; font-size: 0.9em; font-weight: 700;">📊 TOTAL</td>
+                                    <td style="padding: 10px 8px; text-align: center; color: #6366f1; font-size: 1.05em; font-weight: 900;">{total_validations}</td>
+                                    <td style="padding: 10px 8px; text-align: center; color: #10b981; font-size: 1.05em; font-weight: 900;">{total_validations_passed}</td>
+                                    <td style="padding: 10px 8px; text-align: center; color: #ef4444; font-size: 1.05em; font-weight: 900;">{total_validations_failed}</td>
+                                    <td style="padding: 10px 8px; text-align: center; font-weight: 900; color: {'#10b981' if total_validations > 0 and total_validations_failed == 0 else '#ef4444'}; font-size: 0.95em; background: {'#d1fae5' if total_validations > 0 and total_validations_failed == 0 else '#fecaca'}; border-radius: 4px;">
+                                        {(total_validations_passed / total_validations * 100) if total_validations > 0 else 0:.0f}%
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                            </div>
+                            
+                            <!-- Bar Chart - Validation Results -->
+                            <div>
+                        <h4 style="margin: 0 0 12px 0; color: #312e81; font-size: 1em; font-weight: 700; text-align: center; border-bottom: 2px solid #f59e0b; padding-bottom: 8px;">
+                            <span style="font-size: 0.9em;">📊</span> Validation Distribution
+                        </h4>
+                        <div style="width: 100%; margin: auto;">
+                            <canvas id="validationBarChart"></canvas>
+                        </div>
+                            </div>
+                            
+                        </div>
+                    </div>
+                    
                 </div>
                 
             </div>
             
-            <!-- Success Rate Bar -->
-            <div style="margin-top: 20px; padding: 15px; background: #f9fafb; border-radius: 8px; border-left: 4px solid {border_color};">
-                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;">
-                    <span style="font-weight: 700; color: #1f2937; font-size: 1.1em;">Overall Success Rate</span>
-                    <span style="font-weight: 800; color: {border_color}; font-size: 1.3em;">{pass_percent:.2f}%</span>
-                </div>
-                <div style="background: #e5e7eb; border-radius: 10px; height: 20px; overflow: hidden; position: relative;">
-                    <div style="background: linear-gradient(90deg, #10b981 0%, #059669 100%); height: 100%; width: {pass_percent}%; border-radius: 10px; transition: width 0.3s ease;"></div>
-                    {f'<div style="background: linear-gradient(90deg, #ef4444 0%, #dc2626 100%); height: 100%; width: {fail_percent}%; position: absolute; left: {pass_percent}%; border-radius: 10px;"></div>' if failed > 0 else ''}
-                </div>
-            </div>
+            <script>
+                // Pie Chart for Test Execution Status
+                const ctx = document.getElementById('testPieChart').getContext('2d');
+                new Chart(ctx, {{
+                    type: 'pie',
+                    data: {{
+                        labels: ['Passed', 'Failed', 'Skipped'],
+                        datasets: [{{
+                            data: [{passed}, {failed}, {skipped}],
+                            backgroundColor: [
+                                'rgba(16, 185, 129, 0.8)',
+                                'rgba(239, 68, 68, 0.8)',
+                                'rgba(245, 158, 11, 0.8)'
+                            ],
+                            borderColor: [
+                                'rgba(16, 185, 129, 1)',
+                                'rgba(239, 68, 68, 1)',
+                                'rgba(245, 158, 11, 1)'
+                            ],
+                            borderWidth: 2
+                        }}]
+                    }},
+                    options: {{
+                        responsive: true,
+                        maintainAspectRatio: true,
+                        plugins: {{
+                            legend: {{
+                                position: 'bottom',
+                                labels: {{
+                                    padding: 15,
+                                    font: {{
+                                        size: 11,
+                                        weight: 'bold'
+                                    }}
+                                }}
+                            }},
+                            tooltip: {{
+                                callbacks: {{
+                                    label: function(context) {{
+                                        const label = context.label || '';
+                                        const value = context.parsed || 0;
+                                        const total = context.dataset.data.reduce((a, b) => a + b, 0);
+                                        const percentage = total > 0 ? ((value / total) * 100).toFixed(2) : 0;
+                                        return label + ': ' + value + ' (' + percentage + '%)';
+                                    }}
+                                }}
+                            }}
+                        }}
+                    }}
+                }});
+                
+                // Bar Chart for Validation Scenarios
+                const ctxBar = document.getElementById('validationBarChart').getContext('2d');
+                new Chart(ctxBar, {{
+                    type: 'bar',
+                    data: {{
+                        labels: ['Status Code', 'Contract', 'Security', 'Performance', 'Data Compare', 'Assertions'],
+                        datasets: [
+                            {{
+                                label: 'Passed',
+                                data: [
+                                    {consolidated_validations['status_code']['passed']},
+                                    {consolidated_validations['contract']['passed']},
+                                    {consolidated_validations['security']['passed']},
+                                    {consolidated_validations['performance']['passed']},
+                                    {consolidated_validations['data_comparison']['passed']},
+                                    {consolidated_validations['assertions']['passed']}
+                                ],
+                                backgroundColor: 'rgba(16, 185, 129, 0.8)',
+                                borderColor: 'rgba(16, 185, 129, 1)',
+                                borderWidth: 2
+                            }},
+                            {{
+                                label: 'Failed',
+                                data: [
+                                    {consolidated_validations['status_code']['failed']},
+                                    {consolidated_validations['contract']['failed']},
+                                    {consolidated_validations['security']['failed']},
+                                    {consolidated_validations['performance']['failed']},
+                                    {consolidated_validations['data_comparison']['failed']},
+                                    {consolidated_validations['assertions']['failed']}
+                                ],
+                                backgroundColor: 'rgba(239, 68, 68, 0.8)',
+                                borderColor: 'rgba(239, 68, 68, 1)',
+                                borderWidth: 2
+                            }}
+                        ]
+                    }},
+                    options: {{
+                        responsive: true,
+                        maintainAspectRatio: true,
+                        scales: {{
+                            x: {{
+                                stacked: false,
+                                grid: {{
+                                    display: false
+                                }},
+                                ticks: {{
+                                    font: {{
+                                        size: 10,
+                                        weight: 'bold'
+                                    }}
+                                }}
+                            }},
+                            y: {{
+                                stacked: false,
+                                beginAtZero: true,
+                                ticks: {{
+                                    stepSize: 1,
+                                    font: {{
+                                        size: 10,
+                                        weight: 'bold'
+                                    }}
+                                }},
+                                grid: {{
+                                    color: 'rgba(0, 0, 0, 0.05)'
+                                }}
+                            }}
+                        }},
+                        plugins: {{
+                            legend: {{
+                                position: 'bottom',
+                                labels: {{
+                                    padding: 10,
+                                    font: {{
+                                        size: 11,
+                                        weight: 'bold'
+                                    }},
+                                    usePointStyle: true,
+                                    pointStyle: 'rect'
+                                }}
+                            }},
+                            tooltip: {{
+                                callbacks: {{
+                                    label: function(context) {{
+                                        return context.dataset.label + ': ' + context.parsed.y;
+                                    }}
+                                }}
+                            }}
+                        }}
+                    }}
+                }});
+            </script>
             
         </div>
     </div>
@@ -281,9 +695,124 @@ def pytest_html_results_summary(prefix, summary, postfix, session):
         }}
         .summary__data > h2 {{
             display: none !important;
+        }}
+        
+        /* Make all table rows fixed height with scrollable cells - use more specific selector */
+        #results-table-head {{
+            display: table-header-group !important;
+        }}
+        
+        #results-table tbody tr {{
+            height: 30px !important;
+            max-height: 30px !important;
+        }}
+        
+        #results-table tbody tr td {{
+            height: 30px !important;
+            max-height: 30px !important;
+            vertical-align: middle !important;
+            overflow-y: auto !important;
+            overflow-x: hidden !important;
+        }}
+        
+        /* Fallback for tables without specific ID */
+        table tbody tr td {{
+            vertical-align: middle !important;
         }}        
     </style>
     '''
+    
+    # Helper function to build service/endpoint stats HTML
+    def _build_service_endpoint_stats_html(service_stats):
+        if not service_stats:
+            return '<p style="color: #6b7280; font-style: italic;">No service data available</p>'
+        
+        html_parts = []
+        service_index = 0
+        for service_name, service_data in sorted(service_stats.items()):
+            service_pass_rate = (service_data['passed'] / service_data['total'] * 100) if service_data['total'] > 0 else 0
+            service_color = '#10b981' if service_data['failed'] == 0 else '#ef4444'
+            service_id = f"service_{service_index}"
+            
+            # Service header (clickable to expand/collapse)
+            html_parts.append(f'''
+                <div style="margin-bottom: 20px; background: white; border-radius: 8px; box-shadow: 0 2px 8px rgba(0,0,0,0.1); overflow: hidden;">
+                    <!-- Service Header (Clickable) -->
+                    <div onclick="var el = document.getElementById('{service_id}'); var icon = document.getElementById('{service_id}_icon'); if(el.style.display === 'none') {{ el.style.display = 'block'; icon.textContent = '▼'; }} else {{ el.style.display = 'none'; icon.textContent = '▶'; }}" 
+                         style="background: linear-gradient(135deg, #6366f1 0%, #4f46e5 100%); padding: 12px 15px; display: flex; justify-content: space-between; align-items: center; cursor: pointer; user-select: none;">
+                        <div style="display: flex; align-items: center; gap: 10px;">
+                            <span id="{service_id}_icon" style="color: white; font-size: 0.8em;">▼</span>
+                            <div style="color: white; font-size: 1.1em; font-weight: 700;">
+                                📦 {service_name}
+                            </div>
+                        </div>
+                        <div style="display: flex; gap: 15px; align-items: center;">
+                            <span style="color: rgba(255,255,255,0.9); font-size: 0.9em;">
+                                Total: <strong>{service_data['total']}</strong>
+                            </span>
+                            <span style="color: rgba(255,255,255,0.9); font-size: 0.9em;">
+                                ✓ <strong>{service_data['passed']}</strong>
+                            </span>
+                            <span style="color: rgba(255,255,255,0.9); font-size: 0.9em;">
+                                ✗ <strong>{service_data['failed']}</strong>
+                            </span>
+                            <span style="background: white; color: {service_color}; padding: 4px 12px; border-radius: 12px; font-weight: 700; font-size: 0.85em;">
+                                {service_pass_rate:.1f}%
+                            </span>
+                        </div>
+                    </div>
+                    
+                    <!-- Endpoints (Collapsible) -->
+                    <div id="{service_id}" style="padding: 15px; display: block;">
+            ''')
+            
+            # Endpoint details
+            for endpoint_key, endpoint_data in sorted(service_data['endpoints'].items()):
+                endpoint_pass_rate = (endpoint_data['passed'] / endpoint_data['total'] * 100) if endpoint_data['total'] > 0 else 0
+                endpoint_color = '#10b981' if endpoint_data['failed'] == 0 else '#ef4444'
+                
+                # Calculate average response time
+                avg_response_time = sum(t['response_time_ms'] for t in endpoint_data['tests']) / len(endpoint_data['tests']) if endpoint_data['tests'] else 0
+                
+                html_parts.append(f'''
+                    <div style="margin-bottom: 12px; padding: 10px; background: #f9fafb; border-radius: 6px; border-left: 3px solid {endpoint_color};">
+                        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
+                            <div style="font-weight: 600; color: #1f2937; font-size: 0.95em;">
+                                {endpoint_key}
+                            </div>
+                            <div style="display: flex; gap: 10px; align-items: center;">
+                                <span style="color: #6b7280; font-size: 0.85em;">
+                                    Tests: <strong>{endpoint_data['total']}</strong>
+                                </span>
+                                <span style="color: #10b981; font-size: 0.85em;">
+                                    ✓ <strong>{endpoint_data['passed']}</strong>
+                                </span>
+                                <span style="color: #ef4444; font-size: 0.85em;">
+                                    ✗ <strong>{endpoint_data['failed']}</strong>
+                                </span>
+                                <span style="color: #6b7280; font-size: 0.85em;">
+                                    ⏱ <strong>{avg_response_time:.0f}ms</strong>
+                                </span>
+                                <span style="background: {endpoint_color}; color: white; padding: 2px 8px; border-radius: 10px; font-weight: 700; font-size: 0.75em;">
+                                    {endpoint_pass_rate:.1f}%
+                                </span>
+                            </div>
+                        </div>
+                        
+                        <!-- Test IDs -->
+                        <div style="color: #6b7280; font-size: 0.8em; padding-left: 10px;">
+                            {''.join([f"<span style='display: inline-block; margin-right: 8px; padding: 2px 6px; background: {'#d1fae5' if t['status'] == 'PASS' else '#fee2e2'}; color: {'#065f46' if t['status'] == 'PASS' else '#991b1b'}; border-radius: 4px; font-size: 0.85em;'>{t['test_id']}</span>" for t in endpoint_data['tests']])}
+                        </div>
+                    </div>
+                ''')
+            
+            html_parts.append('</div></div>')
+            service_index += 1
+        
+        return ''.join(html_parts)
+    
+    # Replace the placeholder in custom_summary with actual service stats
+    custom_summary = custom_summary.replace('{SERVICE_ENDPOINT_STATS_PLACEHOLDER}', _build_service_endpoint_stats_html(service_stats))
     
     # Replace the default summary with custom dashboard
     prefix.clear()
@@ -328,7 +857,22 @@ def pytest_html_results_table_row(report, cells):
         # Get base URL - prefer resolved_base_url (set during test execution)
         base_url = test_case.get('resolved_base_url', test_case.get('base_url', test_case.get('mainURL', 'N/A')))
         
+        # Get test summary and append failure reason if test failed
         test_summary = test_case.get('test_summary', 'N/A')
+        
+        # If test failed, append the failure reason/error to the summary
+        if report.when == "call" and report.outcome == "failed":
+            from framework.test_helpers.test_result_collector import TestResultCollector
+            result_collector = TestResultCollector()
+            
+            # Find matching result entry for this test
+            for result in result_collector.get_results():
+                if result.get('test_id') == test_id:
+                    error_msg = result.get('error') or result.get('reason')
+                    if error_msg:
+                        # Add error message to summary with visual separation
+                        test_summary = f"{test_summary}<br><br><div style='background:#fee; border-left:3px solid #f00; padding:8px; margin-top:8px;'><b style='color:#c00;'>❌ Failure:</b><br>{error_msg}</div>"
+                    break
         
         # Format validations from validate field
         validate = test_case.get('validate', {})
@@ -372,6 +916,138 @@ def pytest_html_results_table_row(report, cells):
         
         validations_html += '</ul>'
         
+        # Add validation statistics (for both passed and failed tests)
+        if report.when == "call":
+            from framework.test_helpers.test_result_collector import TestResultCollector
+            result_collector = TestResultCollector()
+            
+            # Find matching result entry
+            validation_stats = None
+            for result in result_collector.get_results():
+                if result.get('test_id') == test_id:
+                    validation_stats = result.get('validation_stats', {})
+                    break
+            
+            if validation_stats:
+                # Add stats summary with clearer labels
+                contract_stats = validation_stats.get('contract_checks', {'total': 0, 'passed': 0, 'failed': 0})
+                security_stats = validation_stats.get('security_checks', {'total': 0, 'passed': 0, 'failed': 0})
+                performance_stats = validation_stats.get('performance_checks', {'total': 0, 'passed': 0, 'failed': 0})
+                assertion_stats = validation_stats.get('assertions', {'total': 0, 'passed': 0, 'failed': 0})
+                comparison_stats = validation_stats.get('data_comparisons', {'total': 0, 'passed': 0, 'failed': 0})
+                
+                # Get detailed validation results
+                validation_details = None
+                for result in result_collector.get_results():
+                    if result.get('test_id') == test_id:
+                        validation_details = result.get('validation_details', {})
+                        break
+                
+                # Build stats HTML with detailed table for each validator type
+                stats_items = []
+                
+                # Helper function to create status icon
+                def get_status_icon(status):
+                    icons = {'PASS': '✅', 'FAIL': '❌', 'SKIP': '⚠️', 'NA': '➖'}
+                    return icons.get(status, '❓')
+                
+                # Contract checks with details
+                if contract_stats['total'] > 0:
+                    status_icon = '✅' if contract_stats['failed'] == 0 else '❌'
+                    stats_items.append(f"<li><b>Contract Results:</b> {status_icon} {contract_stats['passed']}/{contract_stats['total']}")
+                    
+                    if validation_details and validation_details.get('contract_checks'):
+                        # Show table directly (expanded by default for visibility)
+                        stats_items.append(f"<table style='margin-left:20px; margin-top:5px; border-collapse:collapse; font-size:0.85em; width:95%;'>")
+                        stats_items.append("<tr style='background-color:#f0f0f0;'><th style='padding:3px 8px; text-align:left;'>Check</th><th style='padding:3px 8px;'>Status</th></tr>")
+                        for detail in validation_details['contract_checks']:
+                            check_name = detail.get('check_name', 'Unknown')
+                            check_status = detail.get('status', 'NA')
+                            icon = get_status_icon(check_status)
+                            stats_items.append(f"<tr><td style='padding:3px 8px;'>{check_name}</td><td style='padding:3px 8px; text-align:center;'>{icon}</td></tr>")
+                        stats_items.append("</table>")
+                    
+                    stats_items.append("</li>")
+                    validation_count += 1
+                
+                # Security checks with details
+                if security_stats['total'] > 0:
+                    status_icon = '✅' if security_stats['failed'] == 0 else '❌'
+                    stats_items.append(f"<li><b>Security Results:</b> {status_icon} {security_stats['passed']}/{security_stats['total']}")
+                    
+                    if validation_details and validation_details.get('security_checks'):
+                        stats_items.append(f"<table style='margin-left:20px; margin-top:5px; border-collapse:collapse; font-size:0.85em; width:95%;'>")
+                        stats_items.append("<tr style='background-color:#f0f0f0;'><th style='padding:3px 8px; text-align:left;'>Check</th><th style='padding:3px 8px;'>Status</th></tr>")
+                        for detail in validation_details['security_checks']:
+                            check_name = detail.get('check_name', 'Unknown')
+                            check_status = detail.get('status', 'NA')
+                            icon = get_status_icon(check_status)
+                            stats_items.append(f"<tr><td style='padding:3px 8px;'>{check_name}</td><td style='padding:3px 8px; text-align:center;'>{icon}</td></tr>")
+                        stats_items.append("</table>")
+                    
+                    stats_items.append("</li>")
+                    validation_count += 1
+                
+                # Performance checks with details
+                if performance_stats['total'] > 0:
+                    status_icon = '✅' if performance_stats['failed'] == 0 else '❌'
+                    stats_items.append(f"<li><b>Performance Results:</b> {status_icon} {performance_stats['passed']}/{performance_stats['total']}")
+                    
+                    if validation_details and validation_details.get('performance_checks'):
+                        stats_items.append(f"<table style='margin-left:20px; margin-top:5px; border-collapse:collapse; font-size:0.85em; width:95%;'>")
+                        stats_items.append("<tr style='background-color:#f0f0f0;'><th style='padding:3px 8px; text-align:left;'>Check</th><th style='padding:3px 8px;'>Status</th></tr>")
+                        for detail in validation_details['performance_checks']:
+                            check_name = detail.get('check_name', 'Unknown')
+                            check_status = detail.get('status', 'NA')
+                            icon = get_status_icon(check_status)
+                            stats_items.append(f"<tr><td style='padding:3px 8px;'>{check_name}</td><td style='padding:3px 8px; text-align:center;'>{icon}</td></tr>")
+                        stats_items.append("</table>")
+                    
+                    stats_items.append("</li>")
+                    validation_count += 1
+                
+                # Assertions with details
+                if assertion_stats['total'] > 0:
+                    status_icon = '✅' if assertion_stats['failed'] == 0 else '❌'
+                    stats_items.append(f"<li><b>Assertions Results:</b> {status_icon} {assertion_stats['passed']}/{assertion_stats['total']}")
+                    
+                    if validation_details and validation_details.get('assertions'):
+                        stats_items.append(f"<table style='margin-left:20px; margin-top:5px; border-collapse:collapse; font-size:0.85em; width:95%;'>")
+                        stats_items.append("<tr style='background-color:#f0f0f0;'><th style='padding:3px 8px; text-align:left;'>Assertion</th><th style='padding:3px 8px;'>Status</th></tr>")
+                        for detail in validation_details['assertions']:
+                            message = detail.get('message', 'Unknown assertion')
+                            assertion_status = detail.get('status', 'NA')
+                            icon = get_status_icon(assertion_status)
+                            # Truncate long messages for display
+                            display_message = message if len(message) <= 60 else message[:57] + '...'
+                            stats_items.append(f"<tr><td style='padding:3px 8px;'>{display_message}</td><td style='padding:3px 8px; text-align:center;'>{icon}</td></tr>")
+                        stats_items.append("</table>")
+                    
+                    stats_items.append("</li>")
+                    validation_count += 1
+                
+                # Data comparisons with details
+                if comparison_stats['total'] > 0:
+                    status_icon = '✅' if comparison_stats['failed'] == 0 else '❌'
+                    stats_items.append(f"<li><b>Data Compare Results:</b> {status_icon} {comparison_stats['passed']}/{comparison_stats['total']}")
+                    
+                    if validation_details and validation_details.get('data_comparisons'):
+                        stats_items.append(f"<table style='margin-left:20px; margin-top:5px; border-collapse:collapse; font-size:0.85em; width:95%;'>")
+                        stats_items.append("<tr style='background-color:#f0f0f0;'><th style='padding:3px 8px; text-align:left;'>Comparison</th><th style='padding:3px 8px;'>Status</th></tr>")
+                        for detail in validation_details['data_comparisons']:
+                            comparison_name = detail.get('comparison_name', 'Unknown comparison')
+                            comparison_status = detail.get('status', 'NA')
+                            icon = get_status_icon(comparison_status)
+                            stats_items.append(f"<tr><td style='padding:3px 8px;'>{comparison_name}</td><td style='padding:3px 8px; text-align:center;'>{icon}</td></tr>")
+                        stats_items.append("</table>")
+                    
+                    stats_items.append("</li>")
+                    validation_count += 1
+                
+                # Insert stats before closing </ul>
+                if stats_items:
+                    validations_html = validations_html.replace('</ul>', ''.join(stats_items) + '</ul>')
+        
         if validation_count == 0:
             validations_html = 'N/A'
         
@@ -382,10 +1058,10 @@ def pytest_html_results_table_row(report, cells):
         cells.insert(4, f'<td>{test_type}</td>')
         cells.insert(5, f'<td>{iteration}</td>')
         cells.insert(6, f'<td><b>{method}</b></td>')
-        cells.insert(7, f'<td style="font-size:0.85em;">{base_url}</td>')
-        cells.insert(8, f'<td style="font-family:monospace; font-size:0.9em;">{endpoint}</td>')
-        cells.insert(9, f'<td style="max-width:300px; overflow:auto;">{validations_html}</td>')
-        cells.insert(10, f'<td class="col-summary">{test_summary}</td>')
+        cells.insert(7, f'<td style="height: 30px !important; max-height: 30px !important; overflow-y: auto !important; overflow-x: hidden !important; word-wrap: break-word; padding: 8px;">{base_url}</td>')
+        cells.insert(8, f'<td style="height: 30px !important; max-height: 30px !important; overflow-y: auto !important; overflow-x: hidden !important; word-wrap: break-word; padding: 8px;">{endpoint}</td>')
+        cells.insert(9, f'<td style="width: 300px; height: 30px !important; max-height: 30px !important; overflow-y: auto !important; overflow-x: hidden !important; padding: 10px; background: linear-gradient(to bottom, #ffffff 0%, #f8f9fa 100%); box-shadow: inset 0 1px 3px rgba(0,0,0,0.05); word-wrap: break-word; white-space: normal;">{validations_html}</td>')
+        cells.insert(10, f'<td class="col-summary" style="width: 400px; max-width: 400px; height: 30px !important; max-height: 30px !important; overflow-y: auto !important; word-wrap: break-word; white-space: normal; padding: 10px;">{test_summary}</td>')
     except Exception as e:
         # Fallback if metadata not available
         import os

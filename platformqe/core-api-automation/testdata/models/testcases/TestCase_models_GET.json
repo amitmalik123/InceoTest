@@ -41,6 +41,11 @@
             },
             {
                 "from": "response",
+                "key": "models.0.status",
+                "assign_to": "first_model_status"
+            },
+            {
+                "from": "response",
                 "key": "models.0.modifiedDate",
                 "assign_to": "first_model_modified_date"
             },
@@ -1015,7 +1020,7 @@
             "Smoke"
         ],
         "mainURL": "{{base_url}}",
-        "endpoint": "/models?Id={{first_model_id}}&OwnerId={{first_owner_id}}&Status=Published",
+        "endpoint": "/models?Id={{first_model_id}}&OwnerId={{first_owner_id}}&Status={{first_model_status}}",
         "method": "GET",
         "rpc_method": "",
         "graphql_query": "",
@@ -1184,8 +1189,8 @@
                     "comparison_name": "Verify filter id matches requested model id"
                 },
                 {
-                    "source": "literal",
-                    "source_literal": "Published",
+                    "source": "variable",
+                    "source_variable": "first_model_status",
                     "target": "api_response",
                     "target_array_path": "filters.status",
                     "log_differences": true,
@@ -1204,7 +1209,7 @@
         "db_query_timing": "after_api",
         "db_queries": {
             "default": "models/db_queries/Query_models_GET_with_All_Filters.sql",
-            "count_query": "SELECT COUNT(*) AS count FROM public.vw_model WHERE owner_id = '{{first_owner_id}}' AND status = 'Published' AND id = '{{first_model_id}}';"
+            "count_query": "SELECT COUNT(*) AS count FROM public.vw_model WHERE owner_id = '{{first_owner_id}}' AND status = '{{first_model_status}}' AND id = '{{first_model_id}}';"
         },
         "db_type": "postgresql",
         "db_connection_name": "models",

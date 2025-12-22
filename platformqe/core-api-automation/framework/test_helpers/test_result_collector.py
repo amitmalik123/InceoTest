@@ -67,7 +67,24 @@ class TestResultCollector:
             "security_checks": "PASS",  # Default to PASS
             "custom_validations": "PASS",  # Default to PASS
             "data_comparison": "N/A",  # Default to N/A (not applicable if no comparison configured)
-            "summary": ""
+            "summary": "",
+            # Detailed validation statistics
+            "validation_stats": {
+                "status_code_checks": {"total": 0, "passed": 0, "failed": 0},
+                "assertions": {"total": 0, "passed": 0, "failed": 0},
+                "data_comparisons": {"total": 0, "passed": 0, "failed": 0},
+                "contract_checks": {"total": 0, "passed": 0, "failed": 0},
+                "security_checks": {"total": 0, "passed": 0, "failed": 0},
+                "performance_checks": {"total": 0, "passed": 0, "failed": 0}
+            },
+            # Individual validation details for UI display
+            "validation_details": {
+                "assertions": [],  # List of {"message": str, "status": "PASS"|"FAIL"|"SKIP"|"NA"}
+                "data_comparisons": [],  # List of {"comparison_name": str, "status": "PASS"|"FAIL"|"SKIP"|"NA"}
+                "contract_checks": [],  # List of {"check_name": str, "status": "PASS"|"FAIL"|"SKIP"|"NA"}
+                "security_checks": [],  # List of {"check_name": str, "status": "PASS"|"FAIL"|"SKIP"|"NA"}
+                "performance_checks": []  # List of {"check_name": str, "status": "PASS"|"FAIL"|"SKIP"|"NA"}
+            }
         }
         
         logger.debug(f"Created result entry for test_id: {result['test_id']}")
@@ -117,6 +134,75 @@ class TestResultCollector:
         
         logger.debug(f"Updated validations for {result.get('test_id')}: "
                     f"contract={contract}, custom={custom}, security={security}, data_comparison={data_comparison}")
+    
+    def update_validation_stats(
+        self,
+        result: Dict,
+        validator_type: str,
+        total: int = 0,
+        passed: int = 0,
+        failed: int = 0
+    ):
+        """Update detailed validation statistics for a specific validator type.
+        
+        Args:
+            result: Result entry dictionary to update
+            validator_type: Type of validator ('assertions', 'data_comparisons', 'contract_checks', 'security_checks')
+            total: Total number of validations
+            passed: Number of passed validations
+            failed: Number of failed validations
+        """
+        if "validation_stats" not in result:
+            result["validation_stats"] = {
+                "assertions": {"total": 0, "passed": 0, "failed": 0},
+                "data_comparisons": {"total": 0, "passed": 0, "failed": 0},
+                "contract_checks": {"total": 0, "passed": 0, "failed": 0},
+                "security_checks": {"total": 0, "passed": 0, "failed": 0}
+            }
+        
+        if validator_type in result["validation_stats"]:
+            result["validation_stats"][validator_type] = {
+                "total": total,
+                "passed": passed,
+                "failed": failed
+            }
+            logger.debug(f"Updated {validator_type} stats for {result.get('test_id')}: "
+                        f"total={total}, passed={passed}, failed={failed}")
+    
+    def add_validation_detail(
+        self,
+        result: Dict,
+        validator_type: str,
+        validation_name: str,
+        status: str
+    ):
+        """Add individual validation detail for UI display.
+        
+        Args:
+            result: Result entry dictionary to update
+            validator_type: Type of validator ('assertions', 'data_comparisons', 'contract_checks', 'security_checks')
+            validation_name: Name/message of the validation (e.g., assertion message or comparison_name)
+            status: Status of the validation ('PASS', 'FAIL', 'SKIP', 'NA')
+        """
+        if "validation_details" not in result:
+            result["validation_details"] = {
+                "assertions": [],
+                "data_comparisons": [],
+                "contract_checks": [],
+                "security_checks": []
+            }
+        
+        if validator_type in result["validation_details"]:
+            # Determine the key name based on validator type
+            if validator_type == "assertions":
+                detail = {"message": validation_name, "status": status}
+            elif validator_type == "data_comparisons":
+                detail = {"comparison_name": validation_name, "status": status}
+            else:  # contract_checks, security_checks
+                detail = {"check_name": validation_name, "status": status}
+            
+            result["validation_details"][validator_type].append(detail)
+            logger.debug(f"Added {validator_type} detail for {result.get('test_id')}: {validation_name} - {status}")
     
     def update_response_time(self, result: Dict, response_time_ms: int):
         """

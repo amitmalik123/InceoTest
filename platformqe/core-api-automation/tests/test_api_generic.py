@@ -342,16 +342,46 @@ def test_api_case(case, request):
             validate_cfg = case.get('validate', {})
             data_cmp_cfg = validate_cfg.get('data_comparison')
             if data_cmp_cfg:
+                # Get comparison names for details
+                comparison_names = []
+                if isinstance(data_cmp_cfg, list):
+                    # Array format - get comparison_name from each
+                    for cmp in data_cmp_cfg:
+                        comparison_names.append(cmp.get('comparison_name', 'Data comparison'))
+                else:
+                    # Single dict format
+                    comparison_names.append(data_cmp_cfg.get('comparison_name', 'Data comparison'))
+                
                 # New approach: pass validate_cfg to support both array and single format
                 # The db_manager will handle backward compatibility
                 is_valid, errors = db_manager.perform_comparison_validation(response, db_result, validate_cfg, context)
                 if not is_valid:
+                    result_collector.update_validation_stats(result_entry, "data_comparisons", total=len(comparison_names), passed=0, failed=len(comparison_names))
+                    # Add individual comparison details as FAIL
+                    for comp_name in comparison_names:
+                        result_collector.add_validation_detail(
+                            result_entry,
+                            "data_comparisons",
+                            comp_name,
+                            "FAIL"
+                        )
                     result_collector.update_status(result_entry, "FAIL", f"Data comparison validation failed: {errors}")
                     result_collector.update_validation(result_entry, None, None, None, "FAIL")
                     result_collector.add_result(result_entry)
+                    logger.error(f"❌ Data Comparisons: FAIL (0/{len(comparison_names)})")
                     pytest.fail(f"Data comparison validation failed: {errors}")
                 else:
+                    result_collector.update_validation_stats(result_entry, "data_comparisons", total=len(comparison_names), passed=len(comparison_names), failed=0)
+                    # Add individual comparison details as PASS
+                    for comp_name in comparison_names:
+                        result_collector.add_validation_detail(
+                            result_entry,
+                            "data_comparisons",
+                            comp_name,
+                            "PASS"
+                        )
                     result_collector.update_validation(result_entry, None, None, None, "PASS")
+                    logger.info(f"✅ Data Comparisons: PASS ({len(comparison_names)}/{len(comparison_names)})")
         else:
             # DB query was configured but all queries failed
             error_msg = f"Database query failed for {case.get('db_type', 'unknown')} ({case.get('db_connection_name', 'default')})"
@@ -367,27 +397,86 @@ def test_api_case(case, request):
         expected_status = int(case.get('expected_status', 200))
         try:
             validation_manager.validate_status_code(response, expected_status)
+            # Track successful status code validation
+            result_collector.update_validation_stats(result_entry, "status_code_checks", total=1, passed=1, failed=0)
+            result_entry["status_code"] = expected_status  # Track for dashboard
+            logger.info(f"✅ Status Code Validation: PASS (Expected: {expected_status}, Got: {response.status_code})")
         except AssertionError as e:
+            # Track failed status code validation
+            result_collector.update_validation_stats(result_entry, "status_code_checks", total=1, passed=0, failed=1)
+            result_entry["status_code"] = expected_status  # Track for dashboard
             result_collector.update_status(result_entry, "FAIL", str(e))
             result_collector.add_result(result_entry)
+            logger.error(f"❌ Status Code Validation: FAIL (Expected: {expected_status}, Got: {response.status_code})")
             raise
     result_entry["status"] = "PASS"
     
     # Performance validation
     try:
         validation_manager.validate_performance(result_entry["response_time"], case)
+        # Track successful performance validation
+        validate_cfg = case.get('validate', {})
+        performance_cfg = validate_cfg.get('performance', {})
+        if performance_cfg.get('max_response_time_ms'):
+            result_collector.update_validation_stats(result_entry, "performance_checks", total=1, passed=1, failed=0)
+            result_collector.add_validation_detail(
+                result_entry,
+                "performance_checks",
+                f"Response time <= {performance_cfg.get('max_response_time_ms')}ms",
+                "PASS"
+            )
     except AssertionError as e:
+        # Track failed performance validation
+        validate_cfg = case.get('validate', {})
+        performance_cfg = validate_cfg.get('performance', {})
+        result_collector.update_validation_stats(result_entry, "performance_checks", total=1, passed=0, failed=1)
+        result_collector.add_validation_detail(
+            result_entry,
+            "performance_checks",
+            f"Response time <= {performance_cfg.get('max_response_time_ms', 'N/A')}ms",
+            "FAIL"
+        )
         result_collector.update_status(result_entry, "FAIL", str(e))
         result_collector.add_result(result_entry)
+        logger.error(f"❌ Performance Validation: FAIL - {str(e)}")
         raise
     
     # Security validation
+    security_check_count = 0
     try:
+        # Count security checks in config
+        validate_cfg = case.get('validate', {})
+        security_cfg = validate_cfg.get('security', {})
+        security_checks = security_cfg.get('checks', [])
+        security_check_count = len(security_checks) if security_checks else 0
+        
         validation_manager.validate_security(response, payload, case)
+        
+        if security_check_count > 0:
+            result_collector.update_validation_stats(result_entry, "security_checks", total=security_check_count, passed=security_check_count, failed=0)
+            # Add individual security check details
+            for check in security_checks:
+                result_collector.add_validation_detail(
+                    result_entry,
+                    "security_checks",
+                    check,
+                    "PASS"
+                )
+            logger.info(f"✅ Security Checks: PASS ({security_check_count}/{security_check_count})")
     except AssertionError as e:
+        result_collector.update_validation_stats(result_entry, "security_checks", total=security_check_count, passed=0, failed=security_check_count)
+        # Add individual security check details as FAIL
+        for check in security_checks:
+            result_collector.add_validation_detail(
+                result_entry,
+                "security_checks",
+                check,
+                "FAIL"
+            )
         result_collector.update_status(result_entry, "FAIL", str(e))
         result_collector.update_validation(result_entry, None, "FAIL", None)
         result_collector.add_result(result_entry)
+        logger.error(f"❌ Security Checks: FAIL (0/{security_check_count})")
         raise
     
     # Prepare expected config for validation
@@ -396,11 +485,28 @@ def test_api_case(case, request):
     # Field validation using Validators
     validation_errors = validation_manager.validate_response_fields(response, expected, case)
     if validation_errors:
+        result_collector.update_validation_stats(result_entry, "contract_checks", total=1, passed=0, failed=1)
+        result_collector.add_validation_detail(
+            result_entry,
+            "contract_checks",
+            "Response field validation",
+            "FAIL"
+        )
         result_collector.update_status(result_entry, "FAIL", f"Field validation errors: {validation_errors}")
         result_collector.update_validation(result_entry, "FAIL", None, None)
         result_collector.add_result(result_entry)
+        logger.error(f"❌ Contract Check: FAIL (0/1)")
         assert False, f"Field validation errors: {validation_errors}"
+    
+    result_collector.update_validation_stats(result_entry, "contract_checks", total=1, passed=1, failed=0)
+    result_collector.add_validation_detail(
+        result_entry,
+        "contract_checks",
+        "Response field validation",
+        "PASS"
+    )
     result_collector.update_validation(result_entry, "PASS", None, None)
+    logger.info(f"✅ Contract Check: PASS (1/1)")
     
     # Response match validation
     expected_response = case.get('expected_response')
@@ -435,24 +541,98 @@ def test_api_case(case, request):
         # (to avoid duplicate execution)
         is_valid, errors = db_manager.perform_comparison_validation(response, db_result, validate_cfg, context)
         if not is_valid:
+            result_collector.update_validation_stats(result_entry, "data_comparisons", total=1, passed=0, failed=1)
             result_collector.update_status(result_entry, "FAIL", f"Data comparison validation failed: {errors}")
             result_collector.update_validation(result_entry, None, None, None, "FAIL")
             result_collector.add_result(result_entry)
+            logger.error(f"❌ Data Comparisons: FAIL (0/1)")
             pytest.fail(f"Data comparison validation failed: {errors}")
         else:
+            result_collector.update_validation_stats(result_entry, "data_comparisons", total=1, passed=1, failed=0)
             result_collector.update_validation(result_entry, None, None, None, "PASS")
+            logger.info(f"✅ Data Comparisons: PASS (1/1)")
     
     # Custom assertions validation
+    assertion_stats = {"total": 0, "passed": 0, "failed": 0, "details": []}
     try:
-        validation_manager.validate_assertions(case, context)
+        assertion_stats = validation_manager.validate_assertions(case, context)
+        # Update detailed stats in result collector
+        result_collector.update_validation_stats(
+            result_entry, 
+            "assertions",
+            total=assertion_stats["total"],
+            passed=assertion_stats["passed"],
+            failed=assertion_stats["failed"]
+        )
+        
+        # Store individual assertion details for UI display
+        if "details" in assertion_stats:
+            for detail in assertion_stats["details"]:
+                result_collector.add_validation_detail(
+                    result_entry,
+                    "assertions",
+                    detail["message"],
+                    detail["status"]
+                )
+        
+        # If assertions exist and pass, update the custom_validations status
+        validate_cfg = case.get("validate", {})
+        assertions = validate_cfg.get("assertions", [])
+        if assertions:
+            result_collector.update_validation(result_entry, custom="PASS")
+            logger.info(f"✅ Assertions: PASS ({assertion_stats['passed']}/{assertion_stats['total']})")
     except AssertionError as e:
+        assertion_stats["failed"] = assertion_stats.get("total", 1)
+        assertion_stats["passed"] = 0
+        result_collector.update_validation_stats(
+            result_entry,
+            "assertions",
+            total=assertion_stats["total"],
+            passed=assertion_stats["passed"],
+            failed=assertion_stats["failed"]
+        )
         result_collector.update_status(result_entry, "FAIL", f"Custom assertion failed: {str(e)}")
+        result_collector.update_validation(result_entry, custom="FAIL")
         result_collector.add_result(result_entry)
+        logger.error(f"❌ Assertions: FAIL ({assertion_stats['failed']}/{assertion_stats['total']})")
         raise
     
     # ========== PHASE 8: COLLECT RESULTS ==========
     if result_entry["status"] == "PASS":
         result_entry["summary"] = result_entry.get("summary") or "All checks passed."
+        
+        # Log comprehensive validation statistics
+        stats = result_entry.get("validation_stats", {})
+        logger.info("\n" + "="*80)
+        logger.info("VALIDATION SUMMARY:")
+        logger.info("="*80)
+        
+        # Contract Checks
+        contract_stats = stats.get("contract_checks", {"total": 0, "passed": 0, "failed": 0})
+        contract_status = result_entry.get("contract_check", "N/A")
+        if contract_stats["total"] > 0 or contract_status != "N/A":
+            logger.info(f"  Contract Check: {contract_status} ({contract_stats['passed']}/{contract_stats['total']})")
+        
+        # Security Checks
+        security_stats = stats.get("security_checks", {"total": 0, "passed": 0, "failed": 0})
+        security_status = result_entry.get("security_checks", "N/A")
+        if security_stats["total"] > 0 or security_status != "N/A":
+            logger.info(f"  Security Checks: {security_status} ({security_stats['passed']}/{security_stats['total']})")
+        
+        # Custom Assertions
+        assertion_stats_final = stats.get("assertions", {"total": 0, "passed": 0, "failed": 0})
+        assertion_status = result_entry.get("custom_validations", "N/A")
+        if assertion_stats_final["total"] > 0:
+            logger.info(f"  Custom Assertions: {assertion_status} ({assertion_stats_final['passed']}/{assertion_stats_final['total']})")
+        
+        # Data Comparisons
+        comparison_stats = stats.get("data_comparisons", {"total": 0, "passed": 0, "failed": 0})
+        comparison_status = result_entry.get("data_comparison", "N/A")
+        if comparison_stats["total"] > 0 or comparison_status != "N/A":
+            logger.info(f"  Data Comparisons: {comparison_status} ({comparison_stats['passed']}/{comparison_stats['total']})")
+        
+        logger.info("="*80 + "\n")
+        
         result_collector.add_result(result_entry)
 
 
