@@ -79,5 +79,5 @@ SELECT id AS model_id,
         ) AS model_active_modified_date
 FROM public.vw_model
 WHERE owner_id = '{{first_owner_id}}'
-AND status = 'Published'
+AND status = '{{first_model_status}}'
 AND id = '{{first_model_id}}';
