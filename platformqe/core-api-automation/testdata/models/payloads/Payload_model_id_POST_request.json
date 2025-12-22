@@ -22,22 +22,12 @@
         
         "allocationDetail": [
             {
-            "entityType": "Model",
+            "entityType": "Security",
             "allocationName": "string",
             "modelId": "string",
             "cusip": "string",
             "ticker": "string",
-            "weight": 0.5,
-            "allocations": [
-                {
-                "name": "string",
-                "entityType": "Security",
-                "assetType": "string",
-                "assetClass": "string",
-                "assetSubClass": "string",
-                "weight": 0.5
-                }
-            ]
+            "weight": 0.5
             }
         ],
         "investmentApproachName": "string",

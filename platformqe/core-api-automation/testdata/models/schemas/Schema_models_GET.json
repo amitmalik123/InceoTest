@@ -103,9 +103,9 @@
             }
           },
           "publishedDate": { "type": ["string", "null"], "format": "date-time" },
-          "modifiedDate": { "type": "string", "format": "date-time" },
-          "modifiedBy": { "type": "string", "format": "uuid" },
-          "createdBy": { "type": "string", "format": "uuid" }
+          "modifiedDate": { "type": ["string", "null"], "format": "date-time" },
+          "modifiedBy": { "type": ["string", "null"], "format": "uuid" },
+          "createdBy": { "type": ["string", "null"], "format": "uuid" }
         },
         "required": [
           "modelId",

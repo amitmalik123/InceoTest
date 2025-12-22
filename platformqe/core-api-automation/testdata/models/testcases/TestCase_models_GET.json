@@ -41,6 +41,16 @@
             },
             {
                 "from": "response",
+                "key": "models.0.modifiedDate",
+                "assign_to": "first_model_modified_date"
+            },
+            {
+                "from": "response",
+                "key": "models.0.createdBy",
+                "assign_to": "first_model_created_by"
+            },
+            {
+                "from": "response",
                 "record_count": false,
                 "array_path": "",
                 "assign_to": ""
@@ -66,6 +76,20 @@
                     "xss"
                 ]
             },
+            "assertions": [
+                {
+                    "actual": "{{first_model_modified_date}}",
+                    "operator": "!=",
+                    "expected": null,
+                    "message": "Verify modifiedDate field exists and is not null"
+                },
+                {
+                    "actual": "{{first_model_created_by}}",
+                    "operator": "!=",
+                    "expected": null,
+                    "message": "Verify createdBy field exists and is not null"
+                }
+            ],
             "data_comparison": [
                 {
                     "source": "first_model_id",
@@ -1385,5 +1409,73 @@
         "db_type": "",
         "db_connection_name": "",
         "test_summary": "Test TC010: Attempt to retrieve model with valid GUID format but non-existent Id, verify empty response or 404 error"
+    },
+    {
+        "test_id": "TC011",
+        "service_name": "models",
+        "workflow_mode": "sequential",
+        "test_name": "GET /models - Verify modifiedDate and createdBy fields exist and format validation (TC011)",
+        "protocol": "REST",
+        "test_type": [
+            "Functional",
+            "Field Validation"
+        ],
+        "mainURL": "{{base_url}}",
+        "endpoint": "/models",
+        "method": "GET",
+        "rpc_method": "",
+        "graphql_query": "",
+        "graphql_variables": "",
+        "soap_action": "",
+        "soap_envelope": "",
+        "headers_additional": {
+            "Content-Type": "application/json"
+        },
+        "payload": null,
+        "expected_status": "200",
+        "expected_response_schema": "models\\schemas\\Schema_models_GET.json",
+        "expected_response": null,
+        "ignore_fields": [],
+        "extract_values": [
+            {
+                "from": "response",
+                "key": "models.0.modifiedDate",
+                "assign_to": "model_modified_date"
+            },
+            {
+                "from": "response",
+                "key": "models.0.createdBy",
+                "assign_to": "model_created_by"
+            }
+        ],
+        "validate": {
+            "performance": {
+                "max_response_time_ms": null
+            },
+            "security": {
+                "checks": []
+            },
+            "assertions": [
+                {
+                    "actual": "{{model_modified_date}}",
+                    "operator": "!=",
+                    "expected": null,
+                    "message": "Verify modifiedDate field exists and is not null"
+                },
+                {
+                    "actual": "{{model_created_by}}",
+                    "operator": "!=",
+                    "expected": null,
+                    "message": "Verify createdBy field exists and is not null"
+                }
+            ],
+            "data_comparison": []
+        },
+        "test_data_file": "",
+        "db_query_timing": "",
+        "db_queries": {},
+        "db_type": "",
+        "db_connection_name": "",
+        "test_summary": "Test TC011: Verify modifiedDate (ISO 8601 format) and createdBy (UUID format) fields - Schema validates format and null handling per Q1 story AC"
     }
 ]

@@ -72,20 +72,10 @@
                 {
                     "entityType": "Model",
                     "allocationName": "Version 2 Allocation",
-                    "modelId": "modelIdTest",
                     "cusip": "string",
                     "ticker": "AAPL",
                     "weight": 3,
-                    "allocations": [
-                        {
-                            "name": "Apple Inc",
-                            "entityType": "Security",
-                            "assetType": "Equity",
-                            "assetClass": "US Stocks",
-                            "assetSubClass": "Large Cap",
-                            "weight": 4
-                        }
-                    ]
+                    "modelId": "string"
                 }
             ]
         },
@@ -132,21 +122,11 @@
             "allocationDetail": [
                 {
                     "entityType": "Model",
-                    "allocationName": "Version 3 Allocation",
-                    "modelId": "modelIdTest",
+                    "allocationName": "Version 2 Allocation",
                     "cusip": "string",
-                    "ticker": "MSFT",
-                    "weight": 5,
-                    "allocations": [
-                        {
-                            "name": "Microsoft Corp",
-                            "entityType": "Security",
-                            "assetType": "Equity",
-                            "assetClass": "US Stocks",
-                            "assetSubClass": "Large Cap Tech",
-                            "weight": 6
-                        }
-                    ]
+                    "ticker": "AAPL",
+                    "weight": 3,
+                    "modelId": "string"
                 }
             ]
         },
@@ -192,22 +172,12 @@
         "payload": {
             "allocationDetail": [
                 {
-                    "entityType": "Model",
-                    "allocationName": "Version 4 Allocation",
-                    "modelId": "midelIdTest",
+                    "entityType": "Security",
+                    "allocationName": "Version 2 Allocation",
                     "cusip": "string",
-                    "ticker": "TSLA",
-                    "weight": 7,
-                    "allocations": [
-                        {
-                            "name": "Tesla Inc",
-                            "entityType": "Security",
-                            "assetType": "Equity",
-                            "assetClass": "US Stocks",
-                            "assetSubClass": "Growth",
-                            "weight": 8
-                        }
-                    ]
+                    "ticker": "AAPL",
+                    "weight": 3,
+                    "modelId": "string"
                 }
             ]
         },
