@@ -1,0 +1,58 @@
+{
+  "name": "Multi-Model Strategy - Strategic Allocation",
+  "modelType": "Aggressive",
+  "solutionType": "Model-of-Models",
+  "custodian": [
+    "Interactive Brokers",
+    "TD Ameritrade",
+    "Vanguard"
+  ],
+  "investmentApproach": {
+    "name": "Updated-Strategic-Model-IA-{{RANDOM_STRING_10}}",
+    "id": "{{tc004_investment_approach_id}}"
+  },
+  "benchmark": [
+    {
+      "name": "MSCI World Index",
+      "isPrimary": false,
+      "id": 0
+    }
+  ],
+  "investmentMin": {
+    "standard": 100000,
+    "premium": 500000,
+    "institutional": 2000000
+  },
+  "riskProfile": "High Risk - Maximum Growth",
+  "allocationDetail": [
+    {
+      "entityType": "Model",
+      "allocationName": "Equity Model Alpha",
+      "modelId": "equity-alpha-model",
+      "cusip": "string",
+      "ticker": "EQ-ALPHA",
+      "weight": 0.4
+    },
+    {
+      "entityType": "Model",
+      "allocationName": "Global Model Beta",
+      "modelId": "global-beta-model",
+      "cusip": "string",
+      "ticker": "GLB-BETA",
+      "weight": 0.35
+    },
+    {
+      "entityType": "Model",
+      "allocationName": "Alternative Model Gamma",
+      "modelId": "alt-gamma-model",
+      "cusip": "string",
+      "ticker": "ALT-GAMMA",
+      "weight": 0.25
+    }
+  ],
+  "metadata": {
+    "targetRebalanceFrequency": "Monthly",
+    "category": "Aggressive Growth",
+    "riskLevel": "9"
+  }
+}
