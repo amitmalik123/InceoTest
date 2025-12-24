@@ -43,7 +43,6 @@ stages:
         displayName: 'Set up Python 3.10'
         inputs:
           versionSpec: '3.10'
-          disableDownloadFromRegistry: true
           addToPath: true
       - task: CmdLine@2
         displayName: 'Install Python dependencies'
