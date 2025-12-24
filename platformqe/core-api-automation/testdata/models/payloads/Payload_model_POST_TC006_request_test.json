@@ -1,0 +1,39 @@
+{
+    "name": "Test Model Invalid Weight",
+    "ownerId": "3fa85f64-5717-4562-b3fc-2c963f66afa6",
+    "modelAttributes": {
+        "solutionType": "Managed",
+        "custodian": [
+            "Fidelity"
+        ],
+        "investmentMin": {
+            "additionalProp1": 10000
+        },
+        "modelType": "Strategic",
+        "riskProfile": "Moderate",
+        "metadata": {
+            "additionalProp1": "value1"
+        }
+    },
+    "allocationDetail": [
+        {
+            "entityType": "Security",
+            "allocationName": "Apple Inc",
+            "modelId": "",
+            "cusip": "",
+            "ticker": "AAPL",
+            "weight": 0.6
+        },
+        {
+            "entityType": "Security",
+            "allocationName": "Microsoft",
+            "modelId": "",
+            "cusip": "",
+            "ticker": "MSFT",
+            "weight": 0.6
+        }
+    ],
+    "investmentApproachName": "Test Approach",
+    "benchmarkName": "S&P 500",
+    "benchmarkIsPrimary": true
+}

@@ -1696,7 +1696,7 @@
         "workflow_mode": "sequential",
         "test_name": "PUT /model/{id} - Invalid Allocation Weight (exceeds 1.0) [negative] (TC009 Step 2)",
         "protocol": "REST",
-        "test_type": [  
+        "test_type": [
             "Functional",
             "Negative"
         ],
