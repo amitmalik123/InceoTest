@@ -4,40 +4,9 @@ Supports multiple database types, servers, and connection pooling
 Supports: MSSQL, PostgreSQL, CosmosDB, MongoDB, SQLite
 """
 
-import platform
+import pyodbc
 import psycopg2
 import sqlite3
-
-# Platform-aware driver selection: prefer pymssql on Linux, pyodbc on Windows
-PYODBC_AVAILABLE = False
-PYMSSQL_AVAILABLE = False
-
-if platform.system() == 'Windows':
-    # On Windows, prefer pyodbc (better Windows Auth support)
-    try:
-        import pyodbc
-        PYODBC_AVAILABLE = True
-        logger_msg = "Using pyodbc for MSSQL connections (Windows)"
-    except ImportError:
-        try:
-            import pymssql
-            PYMSSQL_AVAILABLE = True
-            logger_msg = "Using pymssql for MSSQL connections (pyodbc not available)"
-        except ImportError:
-            logger_msg = "No MSSQL driver available"
-else:
-    # On Linux/Unix, prefer pymssql (no ODBC system dependencies)
-    try:
-        import pymssql
-        PYMSSQL_AVAILABLE = True
-        logger_msg = "Using pymssql for MSSQL connections (Linux/Unix)"
-    except ImportError:
-        try:
-            import pyodbc
-            PYODBC_AVAILABLE = True
-            logger_msg = "Using pyodbc for MSSQL connections (pymssql not available)"
-        except ImportError:
-            logger_msg = "No MSSQL driver available"
 import os
 from pathlib import Path
 from abc import ABC, abstractmethod
@@ -47,14 +16,6 @@ from framework.common.logger import get_logger
 from framework.loaders.config_loader import get_config, substitute_env_vars
 
 logger = get_logger(__name__)
-
-# Log which MSSQL driver is available
-if PYODBC_AVAILABLE:
-    logger.info("MSSQL driver: pyodbc (ODBC-based, typically used on Windows)")
-elif PYMSSQL_AVAILABLE:
-    logger.info("MSSQL driver: pymssql (pure Python, no ODBC required)")
-else:
-    logger.warning("No MSSQL driver available. Install either pyodbc or pymssql.")
 
 # Import Azure authentication utilities
 try:
@@ -138,8 +99,8 @@ class MSSQLClient(DatabaseClient):
         if not self.connection_string:
             self.connection_string = self._build_connection_string()
     
-    def _build_connection_string(self):
-        """Build MSSQL connection string/params - supports both pyodbc and pymssql"""
+    def _build_connection_string(self) -> str:
+        """Build MSSQL connection string from config with Azure AD support"""
         if not self.config:
             return None
         
@@ -147,129 +108,57 @@ class MSSQLClient(DatabaseClient):
         if 'connection_string' in self.config:
             conn_str = substitute_env_vars(self.config['connection_string'])
             logger.info(f"Using direct connection string from config for {self.connection_name}")
-            logger.debug(f"Raw connection string (first 50 chars): {conn_str[:50]}...")
             return conn_str
         
+        driver = self.config.get('driver', 'ODBC Driver 17 for SQL Server')
         server = self.config.get('server')
         database = self.config.get('database')
+        trusted_connection = self.config.get('trusted_connection', False)
         user = self.config.get('user')
         password = substitute_env_vars(self.config.get('password', ''))
-        port = self.config.get('port', 1433)
-        driver = self.config.get('driver', 'ODBC Driver 17 for SQL Server')
-        trusted_connection = self.config.get('trusted_connection', False)
+        authentication = self.config.get('authentication')  # ActiveDirectoryPassword, ActiveDirectoryInteractive, etc.
         encrypt = self.config.get('encrypt', False)
         trust_server_certificate = self.config.get('trust_server_certificate', False)
         
-        if PYODBC_AVAILABLE:
-            # Build ODBC connection string
-            conn_str = f"DRIVER={{{driver}}};SERVER={server};DATABASE={database};"
-            
-            if trusted_connection:
-                conn_str += "Trusted_Connection=yes;"
-            else:
-                if user:
-                    conn_str += f"UID={user};"
-                if password:
-                    conn_str += f"PWD={password};"
-            
-            if encrypt:
-                conn_str += "Encrypt=yes;"
-            if trust_server_certificate:
-                conn_str += "TrustServerCertificate=yes;"
-            
-            logger.info(f"Built ODBC connection string for {self.connection_name}")
-            return conn_str
-        elif PYMSSQL_AVAILABLE:
-            # Build pymssql connection params (dict)
-            conn_params = {
-                'server': server,
-                'database': database,
-                'port': port
-            }
+        # Start building connection string
+        conn_str = f"DRIVER={{{driver}}};SERVER={server};DATABASE={database};"
+        
+        # Handle different authentication methods
+        if trusted_connection:
+            conn_str += "Trusted_Connection=yes;"
+        elif authentication:
+            # Azure AD Authentication methods
+            conn_str += f"Authentication={authentication};"
             if user:
-                conn_params['user'] = user
-            if password:
-                conn_params['password'] = password
-            
-            logger.info(f"Built pymssql connection params for {self.connection_name}")
-            return conn_params
+                conn_str += f"UID={user};"
+            if password and authentication == "ActiveDirectoryPassword":
+                conn_str += f"PWD={password};"
+            logger.info(f"Using Azure AD authentication method: {authentication}")
         else:
-            raise ImportError("No MSSQL driver available. Install either pyodbc or pymssql.")
+            # Standard SQL Server authentication
+            if user:
+                conn_str += f"UID={user};"
+            if password:
+                conn_str += f"PWD={password};"
+        
+        # Add encryption settings (required for Azure SQL)
+        if encrypt:
+            conn_str += "Encrypt=yes;"
+        
+        if trust_server_certificate:
+            conn_str += "TrustServerCertificate=yes;"
+        
+        return conn_str
     
     def connect(self):
-        """Establish MSSQL connection using available driver (pyodbc or pymssql)"""
+        """Establish MSSQL connection"""
         try:
-            if PYODBC_AVAILABLE:
-                # Use pyodbc (ODBC driver)
-                if isinstance(self.connection_string, str):
-                    self.conn = pyodbc.connect(self.connection_string)
-                else:
-                    raise ValueError("pyodbc requires connection string format")
-                logger.info(f"Connected to MSSQL via pyodbc: {self.connection_name or 'default'}")
-            elif PYMSSQL_AVAILABLE:
-                # Use pymssql (pure Python)
-                if isinstance(self.connection_string, dict):
-                    logger.debug(f"Connecting with dict params (server masked)")
-                    self.conn = pymssql.connect(**self.connection_string)
-                elif isinstance(self.connection_string, str):
-                    logger.debug(f"Parsing connection string for pymssql (length: {len(self.connection_string)})")
-                    params = self._parse_connection_string(self.connection_string)
-                    logger.debug(f"Parsed params - server: {params.get('server', 'MISSING')}, database: {params.get('database', 'MISSING')}")
-                    self.conn = pymssql.connect(**params)
-                else:
-                    raise ValueError("Invalid connection configuration")
-                logger.info(f"Connected to MSSQL via pymssql: {self.connection_name or 'default'}")
-            else:
-                raise ImportError("No MSSQL driver available. Install either pyodbc or pymssql.")
-            
+            self.conn = pyodbc.connect(self.connection_string)
             self._is_connected = True
+            logger.info(f"Connected to MSSQL database: {self.connection_name or 'default'}")
         except Exception as e:
             logger.error(f"Failed to connect to MSSQL: {e}")
             raise
-    
-    def _parse_connection_string(self, conn_str: str) -> dict:
-        """Parse ODBC-style connection string to pymssql parameters"""
-        params = {}
-        for part in conn_str.split(';'):
-            if '=' in part:
-                key, value = part.split('=', 1)
-                key = key.strip().upper()
-                value = value.strip()
-                
-                if key in ['SERVER', 'HOST', 'DATA SOURCE']:
-                    # Handle Azure SQL format: "Server=tcp:servername.database.windows.net,1433"
-                    server_value = value
-                    
-                    # Remove 'tcp:' prefix if present
-                    if server_value.lower().startswith('tcp:'):
-                        server_value = server_value[4:]
-                    
-                    # Check if port is included in server string (e.g., "server,1433")
-                    if ',' in server_value:
-                        server_parts = server_value.split(',')
-                        params['server'] = server_parts[0].strip()
-                        if len(server_parts) > 1 and server_parts[1].strip().isdigit():
-                            params['port'] = int(server_parts[1].strip())
-                    else:
-                        params['server'] = server_value
-                        
-                elif key in ['DATABASE', 'DB', 'INITIAL CATALOG']:
-                    params['database'] = value
-                elif key in ['UID', 'USER', 'USERNAME', 'USER ID']:
-                    params['user'] = value
-                elif key in ['PWD', 'PASSWORD']:
-                    params['password'] = value
-                elif key == 'PORT':
-                    params['port'] = int(value)
-        
-        # Set defaults
-        params.setdefault('port', 1433)
-        
-        # Log parsed parameters (without password)
-        safe_params = {k: v for k, v in params.items() if k != 'password'}
-        logger.debug(f"Parsed connection params: {safe_params}")
-        
-        return params
     
     def query(self, sql: str, params: tuple = None) -> List[Dict]:
         """Execute SELECT query and return results"""
