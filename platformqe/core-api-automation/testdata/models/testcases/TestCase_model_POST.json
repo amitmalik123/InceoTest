@@ -21,7 +21,6 @@
         },
         "payload": {
             "name": "string",
-            "createdBy": "3fa85f64-5717-4562-b3fc-2c963f66afa6",
             "ownerId": "3fa85f64-5717-4562-b3fc-2c963f66afa6",
             "modelAttributes": {
                 "solutionType": "string",
@@ -48,17 +47,7 @@
                     "modelId": "string",
                     "cusip": "string",
                     "ticker": "string",
-                    "weight": 0.5,
-                    "allocations": [
-                        {
-                            "name": "string",
-                            "entityType": "Security",
-                            "assetType": "string",
-                            "assetClass": "string",
-                            "assetSubClass": "string",
-                            "weight": 0.5
-                        }
-                    ]
+                    "weight": 0.5
                 }
             ],
             "investmentApproachName": "string",
@@ -198,5 +187,291 @@
         "db_connection_name": "",
         "test_summary": "Test TC001: GET /models [positive] (TC001) - Test GET request to /models for functional scenario validation.",
         "test_scenario": "Test GET request to /models for functional scenario validation."
+    },
+    {
+        "test_id": "TC003",
+        "service_name": "models",
+        "workflow_mode": "parallel",
+        "test_name": "POST /model with entityType='Model' - Empty modelId [negative] (TC003)",
+        "protocol": "REST",
+        "test_type": [
+            "Functional",
+            "Negative"
+        ],
+        "mainURL": "{{base_url}}",
+        "endpoint": "/model",
+        "method": "POST",
+        "rpc_method": "",
+        "graphql_query": "",
+        "graphql_variables": "",
+        "soap_action": "",
+        "soap_envelope": "",
+        "headers_additional": {
+            "Content-Type": "application/json"
+        },
+        "payload": "models\\payloads\\Payload_model_POST_TC003_request.json",
+        "expected_status": "422",
+        "expected_response_schema": "",
+        "expected_response": null,
+        "ignore_fields": [],
+        "extract_values": [
+            {
+                "from": "response",
+                "key": "type",
+                "assign_to": "error_type"
+            },
+            {
+                "from": "response",
+                "key": "title",
+                "assign_to": "error_title"
+            },
+            {
+                "from": "response",
+                "key": "status",
+                "assign_to": "error_status"
+            }
+        ],
+        "validate": {
+            "performance": {
+                "max_response_time_ms": null
+            },
+            "security": {
+                "checks": []
+            },
+            "data_comparison": {
+                "source": "api_response",
+                "target": "db_result",
+                "format": "table",
+                "key_field": [],
+                "fields_to_compare": [],
+                "log_differences": false
+            },
+            "assertions": [
+                {
+                    "actual": "{{error_type}}",
+                    "operator": "!=",
+                    "expected": "",
+                    "message": "Expected type to be a string (should be: https://tools.ietf.org/html/rfc4918#section-11.2)"
+                },
+                {
+                    "actual": "{{error_title}}",
+                    "operator": "==",
+                    "expected": "One or more validation errors occurred.",
+                    "message": "Expected title to be 'One or more validation errors occurred.'"
+                },
+                {
+                    "actual": "{{error_status}}",
+                    "operator": "==",
+                    "expected": 422,
+                    "message": "Expected status to be 422"
+                }
+            ]
+        },
+        "test_data_file": "",
+        "db_query": "",
+        "db_type": "",
+        "db_connection_name": "",
+        "test_summary": "Test TC003: POST /model with entityType='Model' [negative] - Verify 422 error when Model entityType has empty modelIds. API returns: {type: 'https://tools.ietf.org/html/rfc4918#section-11.2', title: 'One or more validation errors occurred.', status: 422, errors: {'allocationDetail[0].ModelId': [\"'Model Id' must not be empty.\"], 'allocationDetail[1].ModelId': [\"'Model Id' must not be empty.\"]}}. Note: Response body validation done via status code check (422) and visible in test logs.",
+        "test_scenario": "Attempt to create a model with Model entityType but empty modelIds and verify 422 Unprocessable Entity error with validation: 'Model Id' must not be empty for both allocation details"
+    },
+    {
+        "test_id": "TC004",
+        "service_name": "models",
+        "workflow_mode": "parallel",
+        "test_name": "POST /model with entityType='Security' [positive] (TC004)",
+        "protocol": "REST",
+        "test_type": [
+            "Functional"
+        ],
+        "mainURL": "{{base_url}}",
+        "endpoint": "/model",
+        "method": "POST",
+        "rpc_method": "",
+        "graphql_query": "",
+        "graphql_variables": "",
+        "soap_action": "",
+        "soap_envelope": "",
+        "headers_additional": {
+            "Content-Type": "application/json"
+        },
+        "payload": "models\\payloads\\Payload_model_POST_TC004_request.json",
+        "expected_status": "201",
+        "expected_response_schema": "models\\schemas\\Schema_post_response copy.json",
+        "expected_response": null,
+        "ignore_fields": [
+            "id",
+            "modelId"
+        ],
+        "extract_values": [
+            {
+                "from": "response",
+                "key": "modelId",
+                "assign_to": "tc004_model_id"
+            }
+        ],
+        "validate": {
+            "performance": {
+                "max_response_time_ms": null
+            },
+            "security": {
+                "checks": [
+                    "sql_injection",
+                    "xss"
+                ]
+            },
+            "data_comparison": {
+                "source": "api_response",
+                "target": "db_result",
+                "format": "table",
+                "key_field": [
+                    "",
+                    ""
+                ],
+                "fields_to_compare": [],
+                "log_differences": true
+            },
+            "assertions": [
+                {
+                    "actual": "{{tc004_model_id}}",
+                    "operator": "!=",
+                    "expected": "",
+                    "message": "Expected modelId to be generated"
+                }
+            ]
+        },
+        "test_data_file": "",
+        "db_query": "",
+        "db_type": "",
+        "db_connection_name": "",
+        "test_summary": "Test TC004: POST /model with entityType='Security' [positive] - Create a new model with Security entityType in allocationDetail",
+        "test_scenario": "Verify successful model creation with entityType='Security' in allocationDetail"
+    },
+    {
+        "test_id": "TC005",
+        "service_name": "models",
+        "workflow_mode": "parallel",
+        "test_name": "POST /model - Missing Required Field 'name' [negative] (TC005)",
+        "protocol": "REST",
+        "test_type": [
+            "Functional",
+            "Negative"
+        ],
+        "mainURL": "{{base_url}}",
+        "endpoint": "/model",
+        "method": "POST",
+        "rpc_method": "",
+        "graphql_query": "",
+        "graphql_variables": "",
+        "soap_action": "",
+        "soap_envelope": "",
+        "headers_additional": {
+            "Content-Type": "application/json"
+        },
+        "payload": "models\\payloads\\Payload_model_POST_TC005_request.json",
+        "expected_status": "400",
+        "expected_response_schema": "",
+        "expected_response": null,
+        "ignore_fields": [],
+        "extract_values": [],
+        "validate": {
+            "performance": {
+                "max_response_time_ms": null
+            },
+            "security": {
+                "checks": []
+            },
+            "data_comparison": {
+                "source": "api_response",
+                "target": "db_result",
+                "format": "table",
+                "key_field": [],
+                "fields_to_compare": [],
+                "log_differences": false
+            },
+            "assertions": [
+                {
+                    "actual": "{{response.type}}",
+                    "operator": "!=",
+                    "expected": "",
+                    "message": "Expected error type to be present"
+                },
+                {
+                    "actual": "{{response.title}}",
+                    "operator": "!=",
+                    "expected": "",
+                    "message": "Expected error title to be present"
+                }
+            ]
+        },
+        "test_data_file": "",
+        "db_query": "",
+        "db_type": "",
+        "db_connection_name": "",
+        "test_summary": "Test TC005: POST /model - Missing Required Field [negative] - Verify 400 error when 'name' field is missing",
+        "test_scenario": "Attempt to create a model without the required 'name' field and verify 400 Bad Request error"
+    },
+    {
+        "test_id": "TC006",
+        "service_name": "models",
+        "workflow_mode": "parallel",
+        "test_name": "POST /model - Invalid Weight Value [negative] (TC006)",
+        "protocol": "REST",
+        "test_type": [
+            "Functional",
+            "Negative"
+        ],
+        "mainURL": "{{base_url}}",
+        "endpoint": "/model",
+        "method": "POST",
+        "rpc_method": "",
+        "graphql_query": "",
+        "graphql_variables": "",
+        "soap_action": "",
+        "soap_envelope": "",
+        "headers_additional": {
+            "Content-Type": "application/json"
+        },
+        "payload": "models\\payloads\\Payload_model_POST_TC006_request.json",
+        "expected_status": "422",
+        "expected_response_schema": "",
+        "expected_response": null,
+        "ignore_fields": [],
+        "extract_values": [],
+        "validate": {
+            "performance": {
+                "max_response_time_ms": null
+            },
+            "security": {
+                "checks": []
+            },
+            "data_comparison": {
+                "source": "api_response",
+                "target": "db_result",
+                "format": "table",
+                "key_field": [],
+                "fields_to_compare": [],
+                "log_differences": false
+            },
+            "assertions": [
+                {
+                    "actual": "{{response.type}}",
+                    "operator": "!=",
+                    "expected": "",
+                    "message": "Expected error type to be present"
+                },
+                {
+                    "actual": "{{response.title}}",
+                    "operator": "!=",
+                    "expected": "",
+                    "message": "Expected error title to be present"
+                }
+            ]
+        },
+        "test_data_file": "",
+        "db_query": "",
+        "db_type": "",
+        "db_connection_name": "",
+        "test_summary": "Test TC006: POST /model - Invalid Weight Value [negative] - Verify 422 error when weight is 0",
+        "test_scenario": "Attempt to create a model with weight 0 and verify 422 Unprocessable Entity error"
     }
 ]

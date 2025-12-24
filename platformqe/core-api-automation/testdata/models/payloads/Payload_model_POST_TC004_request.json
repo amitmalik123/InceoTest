@@ -1,0 +1,52 @@
+{
+    "name": "Test Model with Security EntityType",
+    "ownerId": "3fa85f64-5717-4562-b3fc-2c963f66afa6",
+    "modelAttributes": {
+        "solutionType": "Direct Investment",
+        "custodian": [
+            "TD Ameritrade",
+            "Charles Schwab"
+        ],
+        "investmentMin": {
+            "additionalProp1": 5000,
+            "additionalProp2": 15000,
+            "additionalProp3": 30000
+        },
+        "modelType": "Tactical",
+        "riskProfile": "Aggressive",
+        "metadata": {
+            "additionalProp1": "security_value1",
+            "additionalProp2": "security_value2",
+            "additionalProp3": "security_value3"
+        }
+    },
+    "allocationDetail": [
+        {
+            "entityType": "Security",
+            "allocationName": "Apple Inc Stock",
+            "modelId": "",
+            "cusip": "",
+            "ticker": "AAPL",
+            "weight": 0.35
+        },
+        {
+            "entityType": "Security",
+            "allocationName": "Microsoft Corp Stock",
+            "modelId": "",
+            "cusip": "",
+            "ticker": "MSFT",
+            "weight": 0.40
+        },
+        {
+            "entityType": "Security",
+            "allocationName": "Amazon.com Inc Stock",
+            "modelId": "",
+            "cusip": "",
+            "ticker": "AMZN",
+            "weight": 0.25
+        }
+    ],
+    "investmentApproachName": "Tech Growth Strategy",
+    "benchmarkName": "NASDAQ Composite",
+    "benchmarkIsPrimary": true
+}

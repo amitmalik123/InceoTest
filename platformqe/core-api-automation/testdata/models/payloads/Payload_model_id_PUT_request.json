@@ -1,0 +1,49 @@
+{
+  "name": "Updated Model via PUT",
+  "modelType": "Aggressive Growth",
+  "solutionType": "Equity Focused",
+  "custodian": [
+    "Fidelity",
+    "Schwab"
+  ],
+  "investmentApproach": {
+    "name": "Updated-IA-{{RANDOM_STRING_10}}",
+    "id": "{{tc001_investment_approach_id}}"
+  },
+  "benchmark": [
+    {
+      "name": "S&P 500",
+      "isPrimary": false,
+      "id": 0
+    }
+  ],
+  "investmentMin": {
+    "standard": 50000,
+    "premium": 250000,
+    "institutional": 1000000
+  },
+  "riskProfile": "High Risk - High Return",
+  "allocationDetail": [
+    {
+      "entityType": "Security",
+      "allocationName": "Large Cap Equity",
+      "modelId": "string",
+      "cusip": "string",
+      "ticker": "SPY",
+      "weight": 0.6
+    },
+    {
+      "entityType": "Security",
+      "allocationName": "Small Cap Equity",
+      "modelId": "string",
+      "cusip": "string",
+      "ticker": "IWM",
+      "weight": 0.4
+    }
+  ],
+  "metadata": {
+    "targetRebalanceFrequency": "Quarterly",
+    "category": "Growth",
+    "riskLevel": "8"
+  }
+}
