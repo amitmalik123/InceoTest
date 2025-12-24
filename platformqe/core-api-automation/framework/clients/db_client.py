@@ -4,24 +4,40 @@ Supports multiple database types, servers, and connection pooling
 Supports: MSSQL, PostgreSQL, CosmosDB, MongoDB, SQLite
 """
 
-# Try importing pyodbc first (for Windows/local), fall back to pymssql (for Linux/Azure Pipeline)
-try:
-    import pyodbc
-    PYODBC_AVAILABLE = True
-    PYMSSQL_AVAILABLE = False
-    logger_msg = "Using pyodbc for MSSQL connections"
-except ImportError:
-    PYODBC_AVAILABLE = False
+import platform
+import psycopg2
+import sqlite3
+
+# Platform-aware driver selection: prefer pymssql on Linux, pyodbc on Windows
+PYODBC_AVAILABLE = False
+PYMSSQL_AVAILABLE = False
+
+if platform.system() == 'Windows':
+    # On Windows, prefer pyodbc (better Windows Auth support)
+    try:
+        import pyodbc
+        PYODBC_AVAILABLE = True
+        logger_msg = "Using pyodbc for MSSQL connections (Windows)"
+    except ImportError:
+        try:
+            import pymssql
+            PYMSSQL_AVAILABLE = True
+            logger_msg = "Using pymssql for MSSQL connections (pyodbc not available)"
+        except ImportError:
+            logger_msg = "No MSSQL driver available"
+else:
+    # On Linux/Unix, prefer pymssql (no ODBC system dependencies)
     try:
         import pymssql
         PYMSSQL_AVAILABLE = True
-        logger_msg = "Using pymssql for MSSQL connections (pyodbc not available)"
+        logger_msg = "Using pymssql for MSSQL connections (Linux/Unix)"
     except ImportError:
-        PYMSSQL_AVAILABLE = False
-        logger_msg = "No MSSQL driver available (neither pyodbc nor pymssql installed)"
-
-import psycopg2
-import sqlite3
+        try:
+            import pyodbc
+            PYODBC_AVAILABLE = True
+            logger_msg = "Using pyodbc for MSSQL connections (pymssql not available)"
+        except ImportError:
+            logger_msg = "No MSSQL driver available"
 import os
 from pathlib import Path
 from abc import ABC, abstractmethod
