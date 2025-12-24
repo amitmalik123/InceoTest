@@ -45,7 +45,6 @@ stages:
           versionSpec: '3.10'
           disableDownloadFromRegistry: true
           addToPath: true
-          architecture: 'x64'
       - task: CmdLine@2
         displayName: 'Install Python dependencies'
         inputs:
