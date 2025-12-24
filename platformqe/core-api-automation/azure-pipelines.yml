@@ -44,31 +44,6 @@ stages:
         inputs:
           addToPath: true
           versionSpec: '3.10'
-      - task: Bash@3
-        displayName: 'Install MSSQL ODBC Driver'
-        inputs:
-          targetType: inline
-          script: |
-            echo "Installing Microsoft ODBC Driver 17 for SQL Server..."
-            
-            # Add Microsoft's repository
-            curl https://packages.microsoft.com/keys/microsoft.asc | sudo tee /etc/apt/trusted.gpg.d/microsoft.asc
-            
-            # Add repository for Ubuntu 22.04
-            curl https://packages.microsoft.com/config/ubuntu/22.04/prod.list | sudo tee /etc/apt/sources.list.d/mssql-release.list
-            
-            # Update package list
-            sudo apt-get update
-            
-            # Install ODBC Driver 17 for SQL Server
-            sudo ACCEPT_EULA=Y apt-get install -y msodbcsql17
-            
-            # Install unixODBC development headers (optional, for pyodbc compilation)
-            sudo apt-get install -y unixodbc-dev
-            
-            # Verify installation
-            echo "Installed ODBC drivers:"
-            odbcinst -q -d
       - task: CmdLine@2
         displayName: 'Install Python dependencies'
         inputs:
