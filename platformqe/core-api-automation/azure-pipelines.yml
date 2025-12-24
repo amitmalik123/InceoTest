@@ -29,7 +29,7 @@ stages:
     jobs:
     - job: Job
       pool:
-        name: 'ubuntu2204-qa'
+        name: ewm20-docker-build-agent-inc-dev
       steps:
       # Fetch parties connection string from Azure Key Vault
       - task: AzureKeyVault@2
