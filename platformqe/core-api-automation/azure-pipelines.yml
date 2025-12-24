@@ -42,8 +42,10 @@ stages:
       - task: UsePythonVersion@0
         displayName: 'Set up Python 3.10'
         inputs:
-          addToPath: true
           versionSpec: '3.10'
+          disableDownloadFromRegistry: true
+          addToPath: true
+          architecture: 'x64'
       - task: CmdLine@2
         displayName: 'Install Python dependencies'
         inputs:
