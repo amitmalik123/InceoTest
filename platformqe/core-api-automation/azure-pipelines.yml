@@ -48,6 +48,10 @@ stages:
         displayName: 'Install Python dependencies'
         inputs:
           script: |
+            # Clear Python cache files to ensure fresh code execution
+            find . -type d -name "__pycache__" -exec rm -rf {} + 2>/dev/null || true
+            find . -type f -name "*.pyc" -delete 2>/dev/null || true
+            
             python -m pip install --upgrade pip
             pip install -r requirements.txt
           workingDirectory: $(buildPath)
