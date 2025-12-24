@@ -29,7 +29,7 @@ stages:
     jobs:
     - job: Job
       pool:
-        name: 'ubuntu2204-qa'
+        name: ewm20-docker-build-agent-inc-dev
       steps:
       # Fetch parties connection string from Azure Key Vault
       - task: AzureKeyVault@2
@@ -39,11 +39,15 @@ stages:
           KeyVaultName: $(key_vault_name)
           SecretsFilter: 'parties-sqldb-connection-string'
           RunAsPreJob: true
-      - task: UsePythonVersion@0
-        displayName: 'Set up Python 3.10'
-        inputs:
-          addToPath: true
-          versionSpec: '3.10'
+      # - task: UsePythonVersion@0
+      #   displayName: 'Set up Python 3.10'
+      #   inputs:
+      #     versionSpec: '3.10'
+      #     addToPath: true
+      - script: |
+          python3 --version
+        displayName: 'Check Python 3 Version'
+
       - task: CmdLine@2
         displayName: 'Install Python dependencies'
         inputs:
