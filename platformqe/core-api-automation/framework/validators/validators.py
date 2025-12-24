@@ -110,11 +110,36 @@ def validate_db_comparison(api_response, db_result, key_fields, fields_to_compar
                 api_value = resolve_nested_key(api_row, api_field)
                 db_value = db_row.get(db_field)
                 logger.debug(f"Comparing field '{api_field}' (API) to '{db_field}' (DB): API={api_value}, DB={db_value}")
-                # Case-insensitive comparison for string values (e.g., GUIDs)
-                if isinstance(api_value, str) and isinstance(db_value, str):
-                    values_match = api_value.lower() == db_value.lower()
-                else:
-                    values_match = api_value == db_value
+                
+                # Normalize values for comparison
+                def normalize_for_comparison(val1, val2):
+                    """Normalize values to handle type mismatches (e.g., int vs string)"""
+                    # Case-insensitive string comparison for string values (e.g., GUIDs)
+                    if isinstance(val1, str) and isinstance(val2, str):
+                        return val1.lower() == val2.lower()
+                    
+                    # Handle numeric comparisons with type coercion
+                    # Convert string numbers to numeric types for comparison
+                    def try_numeric(val):
+                        if isinstance(val, (int, float)):
+                            return val
+                        if isinstance(val, str):
+                            try:
+                                # Try integer conversion first
+                                if '.' not in val:
+                                    return int(val)
+                                else:
+                                    return float(val)
+                            except (ValueError, TypeError):
+                                pass
+                        return val
+                    
+                    norm_val1 = try_numeric(val1)
+                    norm_val2 = try_numeric(val2)
+                    
+                    return norm_val1 == norm_val2
+                
+                values_match = normalize_for_comparison(api_value, db_value)
             
                 if not values_match:
                     msg = f"Mismatch for {db_field}: API={api_value}, DB={db_value}"
@@ -166,11 +191,40 @@ def validate_db_comparison(api_response, db_result, key_fields, fields_to_compar
                     return {k: normalize_empty(v) for k, v in val.items()}
                 return val
             
-            api_normalized = normalize_empty(api_value)
-            db_normalized = normalize_empty(db_value)
+            # Normalize values for comparison
+            def normalize_for_comparison(val1, val2):
+                """Normalize values to handle type mismatches and empty values"""
+                # First normalize empty values
+                norm1 = normalize_empty(val1)
+                norm2 = normalize_empty(val2)
+                
+                # Case-insensitive string comparison for string values (e.g., GUIDs)
+                if isinstance(norm1, str) and isinstance(norm2, str):
+                    return norm1.lower() == norm2.lower()
+                
+                # Handle numeric comparisons with type coercion
+                # Convert string numbers to numeric types for comparison
+                def try_numeric(val):
+                    if isinstance(val, (int, float)):
+                        return val
+                    if isinstance(val, str):
+                        try:
+                            # Try integer conversion first
+                            if '.' not in val:
+                                return int(val)
+                            else:
+                                return float(val)
+                        except (ValueError, TypeError):
+                            pass
+                    return val
+                
+                typed_val1 = try_numeric(norm1)
+                typed_val2 = try_numeric(norm2)
+                
+                return typed_val1 == typed_val2
             
             logger.debug(f"Comparing field '{api_field}' (API) to '{db_field}' (DB): API={api_value}, DB={db_value}")
-            if api_normalized != db_normalized:
+            if not normalize_for_comparison(api_value, db_value):
                 msg = f"Mismatch for {db_field}: API={api_value}, DB={db_value}"
                 logger.error(msg)
                 errors.append(msg)

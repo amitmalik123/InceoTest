@@ -1,12 +1,73 @@
 [
     {
+        "test_id": "TC000",
+        "service_name": "securitiesServices",
+        "workflow_mode": "sequential",
+        "test_name": "QUERY and Extract DB Values",
+        "protocol": "DB_ONLY",
+        "test_type": [
+            "Functional",
+            "Smoke"
+        ],
+        "mainURL": "",
+        "endpoint": "",
+        "method": "",
+        "rpc_method": "",
+        "graphql_query": "",
+        "graphql_variables": "",
+        "soap_action": "",
+        "soap_envelope": "",
+        "headers_additional": {
+            "Content-Type": "application/json"
+        },
+        "payload": null,
+        "expected_status": "",
+        "expected_response_schema": "",
+        "expected_response": "",
+        "extract_values": [
+            {
+                "from": "db_result",
+                "key": "0.db_id",
+                "assign_to": "db_party_id"
+            }
+        ],
+        "validate": {
+            "performance": {
+                "max_response_time_ms": 500
+            },
+            "security": {
+                "checks": [
+                    "sql_injection",
+                    "xss"
+                ]
+            },
+            "data_comparison": {
+                "source": "api_response",
+                "target": "db_result",
+                "format": "table",
+                "key_field": [
+                    "",
+                    ""
+                ],
+                "fields_to_compare": [],
+                "log_differences": true
+            }
+        },
+        "test_data_file": "securitiesServices/data_driven/Data_securities_GET.csv",
+        "db_type": "postgresql",
+        "db_connection_name": "securitiesServices",
+        "db_query": "securitiesServices/db_queries/Query_getSecuritiesServices_cusip.sql",
+        "test_summary": "Test TC000: Extract DB [positive] (TC000)"
+    },
+    {
         "test_id": "TC001",
         "service_name": "securitiesServices",
-        "workflow_mode": "parallel",
+        "workflow_mode": "sequential",
         "test_name": "GET /securities/{id} [positive] (TC001)",
         "protocol": "REST",
         "test_type": [
-            "Functional", "Smoke"
+            "Functional",
+            "Smoke"
         ],
         "mainURL": "{{base_url}}",
         "endpoint": "/securities/?cusip={{request_cusip}}",
@@ -22,13 +83,8 @@
         "payload": null,
         "expected_status": "200",
         "expected_response_schema": "securitiesServices\\schemas\\Schema_securities_GET.json",
-
-        "ignore_fields": [
-            
-        ],
-        "extract_values": [
-            
-        ],
+        "ignore_fields": [],
+        "extract_values": [],
         "validate": {
             "performance": {
                 "max_response_time_ms": null
@@ -47,10 +103,13 @@
                     "",
                     ""
                 ],
-            "fields_to_compare": [
-                {"source": "securities.0.cusip", "target": "db_cusip"}
-            ],
-            "log_differences": true
+                "fields_to_compare": [
+                    {
+                        "source": "securities.0.cusip",
+                        "target": "db_cusip"
+                    }
+                ],
+                "log_differences": true
             }
         },
         "test_data_file": "securitiesServices/data_driven/Data_securities_GET.csv",
@@ -66,7 +125,8 @@
         "test_name": "GET /securities/{id} [positive] (TC002)",
         "protocol": "REST",
         "test_type": [
-            "Functional", "Smoke"
+            "Functional",
+            "Smoke"
         ],
         "mainURL": "{{base_url}}",
         "endpoint": "/securities/?ticker={{request_ticker}}",
@@ -82,12 +142,8 @@
         "payload": null,
         "expected_status": "200",
         "expected_response_schema": "securitiesServices\\schemas\\Schema_securities_GET.json",
-        "ignore_fields": [
-        
-        ],
-        "extract_values": [
-             
-        ],
+        "ignore_fields": [],
+        "extract_values": [],
         "validate": {
             "performance": {
                 "max_response_time_ms": null
@@ -154,8 +210,7 @@
                     "log_differences": true,
                     "comparison_name": "Verify Response API vs DB field values"
                 }
-
-        ]
+            ]
         },
         "test_data_file": "securitiesServices/data_driven/Data_securities_GET.csv",
         "db_type": "postgresql",
@@ -172,7 +227,8 @@
         "test_name": "GET /securities/{id} [positive] (TC003)",
         "protocol": "REST",
         "test_type": [
-            "Functional", "Smoke"
+            "Functional",
+            "Smoke"
         ],
         "mainURL": "{{base_url}}",
         "endpoint": "/securities/?cusip={{request_cusip}}&ticker={{request_ticker}}",
@@ -188,12 +244,8 @@
         "payload": null,
         "expected_status": "200",
         "expected_response_schema": "securitiesServices\\schemas\\Schema_securities_GET.json",
-        "ignore_fields": [
-           
-        ],
-        "extract_values": [
-             
-        ],
+        "ignore_fields": [],
+        "extract_values": [],
         "validate": {
             "performance": {
                 "max_response_time_ms": null
@@ -212,11 +264,17 @@
                     "",
                     ""
                 ],
-            "fields_to_compare": [
-                {"source": "securities.0.cusip", "target": "db_cusip"},
-                {"source": "securities.0.ticker", "target": "db_ticker"}
-            ],
-            "log_differences": true
+                "fields_to_compare": [
+                    {
+                        "source": "securities.0.cusip",
+                        "target": "db_cusip"
+                    },
+                    {
+                        "source": "securities.0.ticker",
+                        "target": "db_ticker"
+                    }
+                ],
+                "log_differences": true
             }
         },
         "test_data_file": "securitiesServices/data_driven/Data_securities_GET.csv",
@@ -232,7 +290,8 @@
         "test_name": "Get a Securities with paging [positive] (TC004)",
         "protocol": "REST",
         "test_type": [
-            "Functional", "Smoke"
+            "Functional",
+            "Smoke"
         ],
         "mainURL": "{{base_url}}",
         "endpoint": "/securities",
@@ -249,7 +308,6 @@
         "expected_status": "200",
         "expected_response_schema": "securitiesServices\\schemas\\Schema_securities_GET.json",
         "expected_response": null,
-        
         "extract_values": [
             {
                 "from": "response",
@@ -277,24 +335,43 @@
                     "xss"
                 ]
             },
-            "data_comparison": {
-                "source": "api_response",
-                "target": "db_result",
-                "format": "table",
-                "key_field": [
-                    "",
-                    ""
-                ],
-                "fields_to_compare": [
-                    {"source": "pagination.totalCount", "target": "db_count"},
-                    {"source": "pagination.page", "target": "request_default_page"},
-                    {"source": "pagination.pageSize", "target": "request_default_pageSize"}
-
-                ],
-                "log_differences": true
-            }
+            "data_comparison": [
+                {
+                    "source": "api_response",
+                    "target": "db_result",
+                    "format": "table",
+                    "key_field": [
+                        "",
+                        ""
+                    ],
+                    "fields_to_compare": [
+                        {
+                            "source": "pagination.totalCount",
+                            "target": "db_count"
+                        }
+                    ],
+                    "log_differences": true
+                },
+                {
+                    "source": "api_response",
+                    "target": "api_request",
+                    "format": "table",
+                    "key_field": [],
+                    "fields_to_compare": [
+                        {
+                            "source": "pagination.page",
+                            "target": "request_default_page"
+                        },
+                        {
+                            "source": "pagination.pageSize",
+                            "target": "request_default_pageSize"
+                        }
+                    ],
+                    "log_differences": true
+                }
+            ]
         },
-        "test_data_file": "",
+        "test_data_file": "securitiesServices/data_driven/Data_securities_GET.csv",
         "db_query": "securitiesServices/db_queries/Query_getSecuritiesServices_total_count.sql",
         "db_type": "postgresql",
         "db_connection_name": "securitiesServices",
@@ -324,8 +401,7 @@
         "payload": null,
         "expected_status": "204",
         "expected_response": null,
-        "ignore_fields": [
-        ],
+        "ignore_fields": [],
         "extract_values": [
             {
                 "from": "response",
@@ -382,7 +458,8 @@
         "test_name": "Get a Securities with paging [positive] (TC006)",
         "protocol": "REST",
         "test_type": [
-            "Functional", "Smoke"
+            "Functional",
+            "Smoke"
         ],
         "mainURL": "{{base_url}}",
         "endpoint": "/securities?pageSize={{request_pageSize}}&page={{request_page}}",
@@ -399,7 +476,6 @@
         "expected_status": "200",
         "expected_response_schema": "securitiesServices\\schemas\\Schema_securities_GET.json",
         "expected_response": null,
-        
         "extract_values": [
             {
                 "from": "response",
@@ -436,8 +512,14 @@
                     ""
                 ],
                 "fields_to_compare": [
-                    {"source": "pagination.pageSize", "target": "request_pageSize"},
-                    {"source": "pagination.page", "target": "request_page"}
+                    {
+                        "source": "pagination.pageSize",
+                        "target": "request_pageSize"
+                    },
+                    {
+                        "source": "pagination.page",
+                        "target": "request_page"
+                    }
                 ],
                 "log_differences": true
             }
@@ -448,5 +530,5 @@
         "db_connection_name": "securitiesServices",
         "test_summary": "Test TC006: Get a Securities with paging [positive] (TC006) - Test GET request to /securities for functional scenario validation.",
         "test_scenario": "Test GET request to /securities for functional scenario validation."
-    }   
+    }
 ]

@@ -1,0 +1,278 @@
+[
+    {
+        "test_id": "TC000",
+        "service_name": "securitiesServices",
+        "workflow_mode": "sequential",
+        "test_name": "Check if security exists in DB [prerequisite] (TC000)",
+        "protocol": "DB_ONLY",
+        "test_type": [
+            "Prerequisite"
+        ],
+        "mainURL": "",
+        "endpoint": "",
+        "method": "",
+        "rpc_method": "",
+        "graphql_query": "",
+        "graphql_variables": "",
+        "soap_action": "",
+        "soap_envelope": "",
+        "headers_additional": {},
+        "payload": null,
+        "expected_status": "",
+        "expected_response_schema": "",
+        "expected_response": null,
+        "ignore_fields": [],
+        "extract_values": [],
+        "validate": {
+            "performance": {
+                "max_response_time_ms": null
+            },
+            "security": {
+                "checks": []
+            }
+        },
+        "test_data_file": "securitiesServices\\data_driven\\Data_security_POST.csv",
+        "db_type": "postgresql",
+        "db_connection_name": "securitiesServices",
+        "db_query": "securitiesServices/db_queries/Query_security_DELETE_cleanup.sql",
+        "test_summary": "Test TC000: Check if security exists in DB. If found, TC001 may fail with 409 conflict.",
+        "test_scenario": "Database check to verify if test CUSIP already exists before attempting to create it."
+    },
+    {
+        "test_id": "TC001",
+        "service_name": "securitiesServices",
+        "workflow_mode": "parallel",
+        "test_name": "Create a single security with unique cusip [positive] (TC001)",
+        "protocol": "REST",
+        "test_type": [
+            "Functional"
+        ],
+        "mainURL": "{{base_url}}",
+        "endpoint": "/security/?subAssetTypeId={{payload_subAssetTypeId}}&cusip={{payload_unique_cusip}}&name={{payload_name}}",
+        "method": "POST",
+        "rpc_method": "",
+        "graphql_query": "",
+        "graphql_variables": "",
+        "soap_action": "",
+        "soap_envelope": "",
+        "headers_additional": {
+            "Content-Type": "application/json"
+        },
+        "payload": null,
+        "expected_status": "200",
+        "expected_response_schema": "",
+        "expected_response": null,
+        "ignore_fields": [
+            "id"
+        ],
+        "extract_values": [
+            {
+                "from": "response",
+                "key": "id",
+                "assign_to": ""
+            },
+            {
+                "from": "db_result",
+                "query": "",
+                "assign": [
+                    {
+                        "key": "",
+                        "assign_to": ""
+                    }
+                ]
+            }
+        ],
+        "validate": {
+            "performance": {
+                "max_response_time_ms": 500
+            },
+            "security": {
+                "checks": [
+                    "sql_injection",
+                    "xss"
+                ]
+            },
+            "data_comparison": {
+                "source": "api_response",
+                "target": "db_result",
+                "format": "table",
+                "key_field": [
+                    "",
+                    ""
+                ],
+                "fields_to_compare": [
+                    {
+                        "source": "cusip",
+                        "target": "cusip"
+                    },
+                    {
+                        "source": "securityId",
+                        "target": "securities_id"
+                    },
+                    {
+                        "source": "ticker",
+                        "target": "ticker"
+                    },
+                    {
+                        "source": "name",
+                        "target": "name"
+                    }
+                ],
+                "log_differences": true
+            }
+        },
+        "test_data_file": "securitiesServices\\data_driven\\Data_security_POST.csv",
+        "db_type": "postgresql",
+        "db_connection_name": "securitiesServices",
+        "db_query": "securitiesServices/db_queries/Query_security_POST.sql",
+        "test_summary": "Test TC001: Create a single security. [positive] (TC001) - Test POST request to /security for functional scenario validation.",
+        "payload_file": "securitiesServices\\payloads\\request_payloads\\Payload_security_POST_functional.json",
+        "test_scenario": "Test POST request to /security for functional scenario validation."
+    },
+    {
+        "test_id": "TC002",
+        "service_name": "securitiesServices",
+        "workflow_mode": "parallel",
+        "test_name": "Create a single security with duplicate cusip [negative] (TC002)",
+        "protocol": "REST",
+        "test_type": [
+            "Negative"
+        ],
+        "mainURL": "{{base_url}}",
+        "endpoint": "/security/?subAssetTypeId={{payload_subAssetTypeId}}&cusip={{payload_duplicate_cusip}}&name={{payload_name}}",
+        "method": "POST",
+        "rpc_method": "",
+        "graphql_query": "",
+        "graphql_variables": "",
+        "soap_action": "",
+        "soap_envelope": "",
+        "headers_additional": {
+            "Content-Type": "application/json"
+        },
+        "payload": null,
+        "expected_status": "409",
+        "expected_response": null,
+        "ignore_fields": [
+            "detail"
+        ],
+        "extract_values": [
+            {
+                "from": "response",
+                "key": "id",
+                "assign_to": ""
+            },
+            {
+                "from": "db_result",
+                "query": "",
+                "assign": [
+                    {
+                        "key": "",
+                        "assign_to": ""
+                    }
+                ]
+            }
+        ],
+        "validate": {
+            "performance": {
+                "max_response_time_ms": 500
+            },
+            "security": {
+                "checks": [
+                    "sql_injection",
+                    "xss"
+                ]
+            },
+            "data_comparison": {
+                "source": "api_response",
+                "target": "db_result",
+                "format": "table",
+                "key_field": [
+                    "",
+                    ""
+                ],
+                "fields_to_compare": [],
+                "log_differences": true
+            }
+        },
+        "test_data_file": "securitiesServices\\data_driven\\Data_security_POST.csv",
+        "db_type": "postgresql",
+        "db_connection_name": "securitiesServices",
+        "db_query": "securitiesServices/db_queries/Query_security_duplicate_cusip.sql",
+        "test_summary": "Test TC002: Create a single security. [negative: duplicate cusip] (TC002) - Test POST request to /security for Negative scenario validation.",
+        "payload_file": "",
+        "test_scenario": "Test POST request to /security for Negative scenario validation."
+    },
+    {
+        "test_id": "TC003",
+        "service_name": "securitiesServices",
+        "workflow_mode": "parallel",
+        "test_name": "Create a single security with invalid cusip [negative] (TC003)",
+        "protocol": "REST",
+        "test_type": [
+            "Negative"
+        ],
+        "mainURL": "{{base_url}}",
+        "endpoint": "/security/?subAssetTypeId={{payload_subAssetTypeId}}&cusip={{payload_invalid_cusip}}&name={{payload_name}}",
+        "method": "POST",
+        "rpc_method": "",
+        "graphql_query": "",
+        "graphql_variables": "",
+        "soap_action": "",
+        "soap_envelope": "",
+        "headers_additional": {
+            "Content-Type": "application/json"
+        },
+        "payload": null,
+        "expected_status": "422",
+        "expected_response": null,
+        "ignore_fields": [
+            ""
+        ],
+        "extract_values": [
+            {
+                "from": "response",
+                "key": "id",
+                "assign_to": ""
+            },
+            {
+                "from": "db_result",
+                "query": "",
+                "assign": [
+                    {
+                        "key": "",
+                        "assign_to": ""
+                    }
+                ]
+            }
+        ],
+        "validate": {
+            "performance": {
+                "max_response_time_ms": 500
+            },
+            "security": {
+                "checks": [
+                    "sql_injection",
+                    "xss"
+                ]
+            },
+            "data_comparison": {
+                "source": "api_response",
+                "target": "db_result",
+                "format": "table",
+                "key_field": [
+                    "",
+                    ""
+                ],
+                "fields_to_compare": [],
+                "log_differences": true
+            }
+        },
+        "test_data_file": "securitiesServices\\data_driven\\Data_security_POST.csv",
+        "db_type": "postgresql",
+        "db_connection_name": "securitiesServices",
+        "db_query": "",
+        "test_summary": "Test TC003: Create a single security. [negative: invalid cusip] (TC003) - Test POST request to /security for Negative scenario validation.",
+        "payload_file": "",
+        "test_scenario": "Test POST request to /security for Negative scenario validation."
+    }
+]
