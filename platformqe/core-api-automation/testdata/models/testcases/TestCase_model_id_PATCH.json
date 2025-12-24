@@ -1475,5 +1475,372 @@
         "db_connection_name": "models",
         "test_summary": "Verify PATCH can set multiple fields to null with DB validation",
         "test_scenario": "AC2: Verify ability to clear optional fields by setting them to null with DB validation - modelType, solutionType, custodian, investmentApproach, benchmarks, investmentMin, riskProfile, and metadata. Validates null handling for both simple fields and complex nested objects/arrays."
+    },
+    {
+        "test_id": "TC019",
+        "service_name": "models",
+        "workflow_mode": "sequential",
+        "test_name": "PATCH /model/{id} - Update InvestmentApproach Name via Multi-Step Workflow [positive] (TC019)",
+        "protocol": "REST",
+        "test_type": [
+            "Functional",
+            "Integration"
+        ],
+        "mainURL": "{{base_url}}",
+        "endpoint": "/model",
+        "method": "POST",
+        "rpc_method": "",
+        "graphql_query": "",
+        "graphql_variables": "",
+        "soap_action": "",
+        "soap_envelope": "",
+        "headers_additional": {
+            "Content-Type": "application/json"
+        },
+        "payload": "models\\payloads\\Payload_model_id_POST_request.json",
+        "expected_status": "201",
+        "expected_response_schema": "",
+        "expected_response": null,
+        "ignore_fields": [],
+        "extract_values": [
+            {
+                "from": "response",
+                "key": "modelId",
+                "assign_to": "tc019_model_id"
+            }
+        ],
+        "validate": {
+            "performance": {
+                "max_response_time_ms": null
+            },
+            "security": {
+                "checks": []
+            },
+            "assertions": []
+        },
+        "test_data_file": "",
+        "db_query": "",
+        "db_type": "",
+        "db_connection_name": "",
+        "test_summary": "Step 1: POST /model - Create new model and extract modelId",
+        "test_scenario": "Multi-step workflow: Create model, retrieve it, extract investmentApproach.id, update investmentApproach name via PATCH, verify update"
+    },
+    {
+        "test_id": "TC019_GET_1",
+        "service_name": "models",
+        "workflow_mode": "sequential",
+        "test_name": "GET /models?Id={modelId} - Retrieve model and extract investmentApproach.id (TC019 Step 2)",
+        "protocol": "REST",
+        "test_type": [
+            "Functional",
+            "Integration"
+        ],
+        "mainURL": "{{base_url}}",
+        "endpoint": "/models?Id={{tc019_model_id}}",
+        "method": "GET",
+        "rpc_method": "",
+        "graphql_query": "",
+        "graphql_variables": "",
+        "soap_action": "",
+        "soap_envelope": "",
+        "headers_additional": {
+            "Content-Type": "application/json"
+        },
+        "payload": null,
+        "expected_status": "200",
+        "expected_response_schema": "",
+        "expected_response": null,
+        "ignore_fields": [],
+        "extract_values": [
+            {
+                "from": "response",
+                "key": "models.0.investmentApproach.id",
+                "assign_to": "tc019_investment_approach_id"
+            },
+            {
+                "from": "response",
+                "key": "models.0.investmentApproach.name",
+                "assign_to": "tc019_original_ia_name"
+            }
+        ],
+        "validate": {
+            "performance": {
+                "max_response_time_ms": null
+            },
+            "security": {
+                "checks": []
+            },
+            "assertions": [
+                {
+                    "actual": "{{tc019_investment_approach_id}}",
+                    "operator": "!=",
+                    "expected": null,
+                    "message": "Verify investmentApproach.id exists in response"
+                }
+            ]
+        },
+        "test_data_file": "",
+        "db_query": "",
+        "db_type": "",
+        "db_connection_name": "",
+        "test_summary": "Step 2: GET /models - Retrieve created model and extract investmentApproach.id",
+        "test_scenario": "Retrieve model by Id query parameter and extract investmentApproach.id for use in PATCH operation"
+    },
+    {
+        "test_id": "TC019_PATCH",
+        "service_name": "models",
+        "workflow_mode": "sequential",
+        "test_name": "PATCH /model/{id} - Update investmentApproach name with random value (TC019 Step 3)",
+        "protocol": "REST",
+        "test_type": [
+            "Functional",
+            "Integration"
+        ],
+        "mainURL": "{{base_url}}",
+        "endpoint": "/model/{{tc019_model_id}}",
+        "method": "PATCH",
+        "rpc_method": "",
+        "graphql_query": "",
+        "graphql_variables": "",
+        "soap_action": "",
+        "soap_envelope": "",
+        "headers_additional": {
+            "Content-Type": "application/json-patch+json"
+        },
+        "payload": [
+            {
+                "op": "replace",
+                "path": "/investmentApproach",
+                "value": {
+                    "name": "Updated-IA-{{RANDOM_STRING_10}}",
+                    "id": "{{tc019_investment_approach_id}}"
+                }
+            }
+        ],
+        "expected_status": "200",
+        "expected_response_schema": "",
+        "expected_response": null,
+        "ignore_fields": [],
+        "extract_values": [
+            {
+                "from": "response",
+                "key": "message",
+                "assign_to": "tc019_patch_message"
+            },
+            {
+                "from": "response",
+                "key": "status",
+                "assign_to": "tc019_patch_status"
+            },
+            {
+                "from": "request",
+                "key": "0.value.name",
+                "assign_to": "tc019_expected_ia_name"
+            }
+        ],
+        "validate": {
+            "performance": {
+                "max_response_time_ms": null
+            },
+            "security": {
+                "checks": []
+            },
+            "assertions": [
+                {
+                    "actual": "{{tc019_patch_status}}",
+                    "operator": "==",
+                    "expected": 200,
+                    "message": "Verify PATCH returns status 200"
+                },
+                {
+                    "actual": "{{tc019_patch_message}}",
+                    "operator": "==",
+                    "expected": "Model partially updated successfully.",
+                    "message": "Verify PATCH returns success message"
+                }
+            ]
+        },
+        "test_data_file": "",
+        "db_query": "",
+        "db_type": "",
+        "db_connection_name": "",
+        "test_summary": "Step 3: PATCH /model - Update investmentApproach name with random generated value",
+        "test_scenario": "Update investmentApproach object with same id but new random name, verify success response, extract sent name for final validation"
+    },
+    {
+        "test_id": "TC019_GET_2",
+        "service_name": "models",
+        "workflow_mode": "sequential",
+        "test_name": "GET /models?Id={modelId} - Verify investmentApproach name was updated (TC019 Step 4)",
+        "protocol": "REST",
+        "test_type": [
+            "Functional",
+            "Integration"
+        ],
+        "mainURL": "{{base_url}}",
+        "endpoint": "/models?Id={{tc019_model_id}}",
+        "method": "GET",
+        "rpc_method": "",
+        "graphql_query": "",
+        "graphql_variables": "",
+        "soap_action": "",
+        "soap_envelope": "",
+        "headers_additional": {
+            "Content-Type": "application/json"
+        },
+        "payload": null,
+        "expected_status": "200",
+        "expected_response_schema": "",
+        "expected_response": null,
+        "ignore_fields": [],
+        "extract_values": [
+            {
+                "from": "response",
+                "key": "models.0.investmentApproach.id",
+                "assign_to": "tc019_updated_ia_id"
+            },
+            {
+                "from": "response",
+                "key": "models.0.investmentApproach.name",
+                "assign_to": "tc019_updated_ia_name"
+            }
+        ],
+        "validate": {
+            "performance": {
+                "max_response_time_ms": null
+            },
+            "security": {
+                "checks": []
+            },
+            "assertions": [
+                {
+                    "actual": "{{tc019_updated_ia_id}}",
+                    "operator": "==",
+                    "expected": "{{tc019_investment_approach_id}}",
+                    "message": "Verify investmentApproach.id remains unchanged after PATCH"
+                },
+                {
+                    "actual": "{{tc019_updated_ia_name}}",
+                    "operator": "!=",
+                    "expected": "{{tc019_original_ia_name}}",
+                    "message": "Verify investmentApproach.name was updated and differs from original"
+                },
+                {
+                    "actual": "{{tc019_updated_ia_name}}",
+                    "operator": "==",
+                    "expected": "{{tc019_expected_ia_name}}",
+                    "message": "Verify investmentApproach.name matches the exact value sent in PATCH request"
+                }
+            ]
+        },
+        "test_data_file": "",
+        "db_query": "",
+        "db_type": "",
+        "db_connection_name": "",
+        "test_summary": "Step 4: GET /models - Verify investmentApproach name was successfully updated via PATCH",
+        "test_scenario": "Final verification: Retrieve model again and confirm investmentApproach.name matches exact PATCH value and id remained same"
+    },
+    {
+        "test_id": "TC020",
+        "service_name": "models",
+        "workflow_mode": "parallel",
+        "test_name": "PATCH /model/{id} - InvestmentApproach with Null Id [negative] (TC020)",
+        "protocol": "REST",
+        "test_type": [
+            "Functional",
+            "Negative"
+        ],
+        "mainURL": "{{base_url}}",
+        "endpoint": "/model/{{response_model_id}}",
+        "method": "PATCH",
+        "rpc_method": "",
+        "graphql_query": "",
+        "graphql_variables": "",
+        "soap_action": "",
+        "soap_envelope": "",
+        "headers_additional": {
+            "Content-Type": "application/json-patch+json"
+        },
+        "payload": [
+            {
+                "op": "replace",
+                "path": "/name",
+                "value": "My Updated Model Name"
+            },
+            {
+                "op": "replace",
+                "path": "/investmentApproach",
+                "value": {
+                    "id": null,
+                    "name": "Core Markets - Updated"
+                }
+            }
+        ],
+        "expected_status": "422",
+        "expected_response_schema": "",
+        "expected_response": null,
+        "ignore_fields": [],
+        "extract_values": [
+            {
+                "from": "response",
+                "key": "status",
+                "assign_to": "tc020_status"
+            },
+            {
+                "from": "response",
+                "key": "title",
+                "assign_to": "tc020_title"
+            },
+            {
+                "from": "response",
+                "key": "type",
+                "assign_to": "tc020_type"
+            },
+            {
+                "from": "response",
+                "key": "errors",
+                "assign_to": "tc020_errors"
+            }
+        ],
+        "validate": {
+            "performance": {
+                "max_response_time_ms": null
+            },
+            "security": {
+                "checks": []
+            },
+            "assertions": [
+                {
+                    "actual": "{{tc020_status}}",
+                    "operator": "==",
+                    "expected": 422,
+                    "message": "Verify response status is 422 Unprocessable Entity"
+                },
+                {
+                    "actual": "{{tc020_title}}",
+                    "operator": "==",
+                    "expected": "One or more validation errors occurred.",
+                    "message": "Verify error title indicates validation error"
+                },
+                {
+                    "actual": "{{tc020_type}}",
+                    "operator": "!=",
+                    "expected": null,
+                    "message": "Verify error type field exists and is not null (string type)"
+                },
+                {
+                    "actual": "{{tc020_errors}}",
+                    "operator": "!=",
+                    "expected": null,
+                    "message": "Verify errors object exists and contains validation errors"
+                }
+            ]
+        },
+        "test_data_file": "",
+        "db_query": "",
+        "db_type": "",
+        "db_connection_name": "",
+        "test_summary": "Verify PATCH /model/{id} returns 422 validation error when investmentApproach.id is null",
+        "test_scenario": "AC: System must reject PATCH requests that attempt to modify investmentApproach with null id. Verify proper 422 error response with detailed validation error message."
     }
 ]
