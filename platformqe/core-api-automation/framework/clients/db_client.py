@@ -147,6 +147,7 @@ class MSSQLClient(DatabaseClient):
         if 'connection_string' in self.config:
             conn_str = substitute_env_vars(self.config['connection_string'])
             logger.info(f"Using direct connection string from config for {self.connection_name}")
+            logger.debug(f"Raw connection string (first 50 chars): {conn_str[:50]}...")
             return conn_str
         
         server = self.config.get('server')
@@ -208,9 +209,12 @@ class MSSQLClient(DatabaseClient):
             elif PYMSSQL_AVAILABLE:
                 # Use pymssql (pure Python)
                 if isinstance(self.connection_string, dict):
+                    logger.debug(f"Connecting with dict params (server masked)")
                     self.conn = pymssql.connect(**self.connection_string)
                 elif isinstance(self.connection_string, str):
+                    logger.debug(f"Parsing connection string for pymssql (length: {len(self.connection_string)})")
                     params = self._parse_connection_string(self.connection_string)
+                    logger.debug(f"Parsed params - server: {params.get('server', 'MISSING')}, database: {params.get('database', 'MISSING')}")
                     self.conn = pymssql.connect(**params)
                 else:
                     raise ValueError("Invalid connection configuration")
