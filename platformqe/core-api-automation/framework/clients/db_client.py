@@ -232,11 +232,26 @@ class MSSQLClient(DatabaseClient):
                 key = key.strip().upper()
                 value = value.strip()
                 
-                if key in ['SERVER', 'HOST']:
-                    params['server'] = value
-                elif key in ['DATABASE', 'DB']:
+                if key in ['SERVER', 'HOST', 'DATA SOURCE']:
+                    # Handle Azure SQL format: "Server=tcp:servername.database.windows.net,1433"
+                    server_value = value
+                    
+                    # Remove 'tcp:' prefix if present
+                    if server_value.lower().startswith('tcp:'):
+                        server_value = server_value[4:]
+                    
+                    # Check if port is included in server string (e.g., "server,1433")
+                    if ',' in server_value:
+                        server_parts = server_value.split(',')
+                        params['server'] = server_parts[0].strip()
+                        if len(server_parts) > 1 and server_parts[1].strip().isdigit():
+                            params['port'] = int(server_parts[1].strip())
+                    else:
+                        params['server'] = server_value
+                        
+                elif key in ['DATABASE', 'DB', 'INITIAL CATALOG']:
                     params['database'] = value
-                elif key in ['UID', 'USER', 'USERNAME']:
+                elif key in ['UID', 'USER', 'USERNAME', 'USER ID']:
                     params['user'] = value
                 elif key in ['PWD', 'PASSWORD']:
                     params['password'] = value
@@ -245,6 +260,11 @@ class MSSQLClient(DatabaseClient):
         
         # Set defaults
         params.setdefault('port', 1433)
+        
+        # Log parsed parameters (without password)
+        safe_params = {k: v for k, v in params.items() if k != 'password'}
+        logger.debug(f"Parsed connection params: {safe_params}")
+        
         return params
     
     def query(self, sql: str, params: tuple = None) -> List[Dict]:
