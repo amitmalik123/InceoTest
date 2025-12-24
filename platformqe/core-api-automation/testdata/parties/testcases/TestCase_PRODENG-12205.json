@@ -5,10 +5,7 @@
     "workflow_mode": "sequential",
     "test_name": "QUERY and Extract DB Values",
     "protocol": "DB_ONLY",
-    "test_type": [
-      "Functional",
-      "Smoke"
-    ],
+    "test_type": ["Functional", "Smoke"],
     "mainURL": "",
     "endpoint": "",
     "method": "",
@@ -30,18 +27,13 @@
         "max_response_time_ms": null
       },
       "security": {
-        "checks": [
-          "sql_injection",
-          "xss"
-        ]
+        "checks": ["sql_injection", "xss"]
       },
       "data_comparison": {
         "source": "db_result",
         "target": null,
         "format": "table",
-        "key_field": [
-          "TABLE_NAME"
-        ],
+        "key_field": ["TABLE_NAME"],
         "fields_to_compare": [
           {
             "source_field": "row_count",
@@ -74,10 +66,7 @@
     "workflow_mode": "sequential",
     "test_name": "QUERY and Extract DB Values",
     "protocol": "DB_ONLY",
-    "test_type": [
-      "Functional",
-      "Smoke"
-    ],
+    "test_type": ["Functional", "Smoke"],
     "mainURL": "",
     "endpoint": "",
     "method": "",
@@ -99,18 +88,13 @@
         "max_response_time_ms": null
       },
       "security": {
-        "checks": [
-          "sql_injection",
-          "xss"
-        ]
+        "checks": ["sql_injection", "xss"]
       },
       "data_comparison": {
         "source": "db_result",
         "target": null,
         "format": "table",
-        "key_field": [
-          "COLUMN_NAME"
-        ],
+        "key_field": ["COLUMN_NAME"],
         "fields_to_compare": [
           {
             "source_field": "row_count",
@@ -160,10 +144,7 @@
     "workflow_mode": "sequential",
     "test_name": "QUERY and Extract DB Values",
     "protocol": "DB_ONLY",
-    "test_type": [
-      "Functional",
-      "Smoke"
-    ],
+    "test_type": ["Functional", "Smoke"],
     "mainURL": "",
     "endpoint": "",
     "method": "",
@@ -185,18 +166,13 @@
         "max_response_time_ms": null
       },
       "security": {
-        "checks": [
-          "sql_injection",
-          "xss"
-        ]
+        "checks": ["sql_injection", "xss"]
       },
       "data_comparison": {
         "source": "db_result",
         "target": null,
         "format": "table",
-        "key_field": [
-          "CONSTRAINT_NAME"
-        ],
+        "key_field": ["CONSTRAINT_NAME"],
         "fields_to_compare": [
           {
             "source_field": "row_count",
@@ -229,10 +205,7 @@
     "workflow_mode": "sequential",
     "test_name": "QUERY and Extract DB Values",
     "protocol": "DB_ONLY",
-    "test_type": [
-      "Functional",
-      "Smoke"
-    ],
+    "test_type": ["Functional", "Smoke"],
     "mainURL": "",
     "endpoint": "",
     "method": "",
@@ -254,19 +227,13 @@
         "max_response_time_ms": null
       },
       "security": {
-        "checks": [
-          "sql_injection",
-          "xss"
-        ]
+        "checks": ["sql_injection", "xss"]
       },
       "data_comparison": {
         "source": "db_result",
         "target": null,
         "format": "table",
-        "key_field": [
-          "CONSTRAINT_NAME",
-          "COLUMN_NAME"
-        ],
+        "key_field": ["CONSTRAINT_NAME", "COLUMN_NAME"],
         "fields_to_compare": [
           {
             "source_field": "row_count",
@@ -276,10 +243,7 @@
           {
             "source_field": "COLUMN_NAME",
             "comparison": "equals_set",
-            "expected_value": [
-              "Id",
-              "Version"
-            ]
+            "expected_value": ["Id", "Version"]
           }
         ],
         "log_differences": true

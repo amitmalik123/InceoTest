@@ -63,7 +63,7 @@
     ],
     "validate": {
       "performance": {
-        "max_response_time_ms": null
+        "max_response_time_ms": 500
       },
       "security": {
         "checks": ["sql_injection", "xss"]
@@ -150,7 +150,7 @@
     ],
     "validate": {
       "performance": {
-        "max_response_time_ms": null
+        "max_response_time_ms": 500
       },
       "security": {
         "checks": ["sql_injection", "xss"]
@@ -231,7 +231,7 @@
     ],
     "validate": {
       "performance": {
-        "max_response_time_ms": null
+        "max_response_time_ms": 500
       },
       "security": {
         "checks": ["sql_injection", "xss"]
