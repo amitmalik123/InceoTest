@@ -108,6 +108,12 @@ class MSSQLClient(DatabaseClient):
         if 'connection_string' in self.config:
             conn_str = substitute_env_vars(self.config['connection_string'])
             logger.info(f"Using direct connection string from config for {self.connection_name}")
+            
+            # Convert ADO.NET connection string to ODBC format if DRIVER is missing
+            if 'DRIVER=' not in conn_str.upper():
+                conn_str = self._convert_adonet_to_odbc(conn_str)
+                logger.info(f"Converted ADO.NET connection string to ODBC format for {self.connection_name}")
+            
             return conn_str
         
         driver = self.config.get('driver', 'ODBC Driver 17 for SQL Server')
@@ -149,6 +155,71 @@ class MSSQLClient(DatabaseClient):
             conn_str += "TrustServerCertificate=yes;"
         
         return conn_str
+    
+    def _convert_adonet_to_odbc(self, adonet_conn_str: str) -> str:
+        """
+        Convert ADO.NET format connection string to ODBC format.
+        
+        ADO.NET format example:
+        Server=tcp:server.database.windows.net,1433;Initial Catalog=db;User ID=user;Password=pwd;Encrypt=True;
+        
+        ODBC format:
+        DRIVER={ODBC Driver 18 for SQL Server};SERVER=server.database.windows.net,1433;DATABASE=db;UID=user;PWD=pwd;Encrypt=yes;
+        """
+        # Parse ADO.NET connection string into key-value pairs
+        params = {}
+        for pair in adonet_conn_str.split(';'):
+            if '=' in pair:
+                key, value = pair.split('=', 1)
+                params[key.strip()] = value.strip()
+        
+        # Build ODBC connection string
+        odbc_parts = []
+        
+        # Add driver (required for ODBC)
+        driver = self.config.get('driver', 'ODBC Driver 18 for SQL Server')
+        odbc_parts.append(f"DRIVER={{{driver}}}")
+        
+        # Map ADO.NET parameters to ODBC parameters
+        if 'Server' in params:
+            # Remove 'tcp:' prefix if present
+            server = params['Server'].replace('tcp:', '')
+            odbc_parts.append(f"SERVER={server}")
+        
+        if 'Initial Catalog' in params or 'Database' in params:
+            database = params.get('Initial Catalog', params.get('Database'))
+            odbc_parts.append(f"DATABASE={database}")
+        
+        if 'User ID' in params or 'UID' in params:
+            user = params.get('User ID', params.get('UID'))
+            odbc_parts.append(f"UID={user}")
+        
+        if 'Password' in params or 'PWD' in params:
+            password = params.get('Password', params.get('PWD'))
+            odbc_parts.append(f"PWD={password}")
+        
+        # Handle encryption (ADO.NET uses True/False, ODBC uses yes/no)
+        if 'Encrypt' in params:
+            encrypt_value = 'yes' if params['Encrypt'].lower() in ['true', 'yes'] else 'no'
+            odbc_parts.append(f"Encrypt={encrypt_value}")
+        
+        if 'TrustServerCertificate' in params:
+            trust_value = 'yes' if params['TrustServerCertificate'].lower() in ['true', 'yes'] else 'no'
+            odbc_parts.append(f"TrustServerCertificate={trust_value}")
+        
+        # Handle Column Encryption Setting
+        if 'Column Encryption Setting' in params:
+            odbc_parts.append(f"ColumnEncryption={params['Column Encryption Setting']}")
+        
+        # Handle MultipleActiveResultSets (MARS)
+        if 'MultipleActiveResultSets' in params:
+            mars_value = 'yes' if params['MultipleActiveResultSets'].lower() in ['true', 'yes'] else 'no'
+            odbc_parts.append(f"MARS_Connection={mars_value}")
+        
+        odbc_conn_str = ';'.join(odbc_parts) + ';'
+        logger.debug(f"Converted connection string: {odbc_conn_str.replace(params.get('Password', 'N/A'), '***')}")
+        
+        return odbc_conn_str
     
     def connect(self):
         """Establish MSSQL connection"""
