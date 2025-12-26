@@ -64,7 +64,7 @@ stages:
         env:
           WORK_ITEM_AUTH_TOKEN: $(WORK_ITEM_AUTH_TOKEN)
           PARTIES_AUTH_TOKEN: $(PARTIES_AUTH_TOKEN)
-          PARTIES_SQLDB: $(PARTIES_SQLDB_CONNECTION_STRING)  # Connection string from Key Vault (hyphens to underscores, uppercase)
+          PARTIES_SQLDB: $(parties-sqldb-connection-string)  # Key Vault secret name
           AZURE_SQL_PASSWORD: $(AZURE_SQL_PASSWORD)
           POSTGRES_DB_PASSWORD: $(POSTGRES_DB_PASSWORD)
         inputs:
@@ -73,6 +73,14 @@ stages:
             echo "=========================================="
             echo "Running Tests"
             echo "=========================================="
+            
+            # Debug: Check if connection string is loaded
+            if [ -z "$PARTIES_SQLDB" ]; then
+              echo "❌ ERROR: PARTIES_SQLDB environment variable is empty!"
+            else
+              echo "✅ PARTIES_SQLDB is set (${#PARTIES_SQLDB} chars)"
+            fi
+            
             echo "Command: ${{ parameters.apiTestArgs }}"
             echo "=========================================="
 
