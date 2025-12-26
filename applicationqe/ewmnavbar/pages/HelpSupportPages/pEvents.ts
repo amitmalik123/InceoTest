@@ -35,7 +35,7 @@ export class EventsPage {
 
         await expect(this.secEvents).toHaveAttribute(
             'src',
-            /events$/
+            /help-and-support\/events$/
         );
         await expect(this.smEventsHL).toBeVisible();
         await this.logger('Page loaded for Help & Support > Events');
