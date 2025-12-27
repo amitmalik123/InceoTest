@@ -21,7 +21,7 @@
         },
         "payload": "WorkItemNotification\\payloads\\Payload_preferences_workitems_visibility_request.json",
         "expected_status": "200",
-        "expected_response_schema": "workitemnotification\\schemas\\Schema_preferences_workitems_visibility_success.json",
+        "expected_response_schema": "WorkItemNotification\\schemas\\Schema_preferences_workitems_visibility_success.json",
         "expected_response": "WorkItemNotification\\payloads\\Payload_preferences_workitems_visibility_response.json",
         "extract_values": [
             {
@@ -91,7 +91,7 @@
             "createdBy": "string"
         },
         "expected_status": "400",
-        "expected_response_schema": "Workitemnotification\\schemas\\Schema_preferences_workitems_visibility_error.json",
+        "expected_response_schema": "WorkItemNotification\\schemas\\Schema_preferences_workitems_visibility_error.json",
         "expected_response": "WorkItemNotification\\payloads\\Payload_preferences_workitems_visibility_response_error.json",
         "extract_values": [],
         "validate": {
@@ -154,7 +154,7 @@
             "createdBy": "string"
         },
         "expected_status": "400",
-        "expected_response_schema": "Workitemnotification\\schemas\\Schema_preferences_workitems_visibility_error.json",
+        "expected_response_schema": "WorkItemNotification\\schemas\\Schema_preferences_workitems_visibility_error.json",
         "expected_response": "WorkItemNotification\\payloads\\Payload_preferences_workitems_visibility_response_error.json",
         "extract_values": [],
         "validate": {
