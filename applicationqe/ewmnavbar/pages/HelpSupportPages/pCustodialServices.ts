@@ -1,4 +1,6 @@
+
 import { expect, type Locator, type Page } from "@playwright/test";
+import { elemVisible } from '../../functions/fElementHelper';
 type Logger = (msg: string) => Promise<void>;
 
 export class CustodialServicesPage {
@@ -37,7 +39,7 @@ export class CustodialServicesPage {
             'src',
             /Administration\/Custodial-Services\/Custodial-Services\.aspx$/
         );
-        await expect(this.smCustodialServicesHL).toBeVisible();
+        await elemVisible(this.smCustodialServicesHL, 'submenu Custodial Services is Highlighted', this.logger);
         await this.logger('Page loaded for Help & Support > CustodialServices');
     }
 }

@@ -1,4 +1,6 @@
+
 import { type Page, type Locator, expect, type FrameLocator } from "@playwright/test";
+import { elemVisible } from '../../functions/fElementHelper';
 type Logger = (msg: string) => Promise<void>;
 
 
@@ -27,7 +29,7 @@ export class ModalCookiesPage {
 
     async closeModal() {
         try {
-            await expect(this.modalCookies).toBeVisible({ timeout: 10000 });
+            await elemVisible(this.modalCookies, 'Cookie Modal', this.logger, 10000);
 
             console.log('🍪 One Trust modal found. Click button Allow All.');
             await this.btnAllowAll.scrollIntoViewIfNeeded();
@@ -35,7 +37,6 @@ export class ModalCookiesPage {
             await expect(this.ovlFilter).toBeHidden();
             await (this.context as Page).waitForTimeout(1000);
             await this.logger('⏳ Waiting 1 secs after modal closure...');
-
 
         } catch (e) {
             await this.logger('Cookie modal not visible within 5 seconds. Proceeding.');

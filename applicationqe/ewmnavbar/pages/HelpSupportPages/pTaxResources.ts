@@ -1,4 +1,6 @@
+
 import { expect, type Locator, type Page } from "@playwright/test";
+import { elemVisible } from '../../functions/fElementHelper';
 type Logger = (msg: string) => Promise<void>;
 
 export class TaxResourcesPage {
@@ -37,7 +39,7 @@ export class TaxResourcesPage {
             'src',
             /Administration\/Tax-Resources\/tax_center\.aspx$/
         );
-        await expect(this.smTaxResourcesHL).toBeVisible();
+        await elemVisible(this.smTaxResourcesHL, 'submenu Tax Resources is Highlighted', this.logger);
         await this.logger('Page loaded for Help & Support > Tax Resources');
     }
 }

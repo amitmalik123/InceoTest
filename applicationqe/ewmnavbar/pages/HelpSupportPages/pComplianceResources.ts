@@ -1,4 +1,6 @@
+
 import { expect, type Locator, type Page } from "@playwright/test";
+import { elemVisible } from '../../functions/fElementHelper';
 type Logger = (msg: string) => Promise<void>;
 
 export class ComplianceResourcesPage {
@@ -37,7 +39,7 @@ export class ComplianceResourcesPage {
             'src',
             /Administration\/compliance-resources\/compliance-resources\.aspx$/
         );
-        await expect(this.smComplianceResourcesHL).toBeVisible();
+        await elemVisible(this.smComplianceResourcesHL, 'submenu Compliance Resources is Highlighted', this.logger);
         await this.logger('Page loaded for Help & Support > ComplianceResources');
     }
 }

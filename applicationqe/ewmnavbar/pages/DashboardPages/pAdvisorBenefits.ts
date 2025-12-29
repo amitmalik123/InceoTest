@@ -1,4 +1,6 @@
+
 import { expect, type Locator, type Page } from "@playwright/test";
+import { elemVisible } from '../../functions/fElementHelper';
 type Logger = (msg: string) => Promise<void>;
 
 export class AdvisorBenefitsPage {
@@ -40,8 +42,9 @@ export class AdvisorBenefitsPage {
         this.cardYourStatus = iFrame.locator('div[data-test-id="mainStatus"]:has-text("Your Status")');
     }
 
+
     async LoadsPage() {
-        await expect(this.smAdvisorBenefitsHL).toBeVisible({ timeout: 20000 });
+        await elemVisible(this.smAdvisorBenefitsHL, 'Advisor Benefits Highlight', this.logger, 20000);
         await expect(this.secAdvisorBenefits).toHaveAttribute(
             'src',
             /advisorbenefits\/dashboard$/
@@ -50,18 +53,16 @@ export class AdvisorBenefitsPage {
     }
 
     async ElementsExist() {
-
         await expect(this.secAdvisorBenefits).toHaveAttribute(
             'src',
             /advisorbenefits\/dashboard$/
         );
 
-        await expect(this.cardEvents).toBeVisible();
-        await expect(this.cardYourBenefits).toBeVisible();
-        await expect(this.cardYourBenefitsDashboard).toBeVisible();
-        await expect(this.cardYourProgress).toBeVisible();
-        await expect(this.cardYourStatus).toBeVisible();
-        await expect(this.smAdvisorBenefitsHL).toBeVisible();
-
+        await elemVisible(this.cardEvents, 'card Events', this.logger);
+        await elemVisible(this.cardYourBenefits, 'card Your Benefits', this.logger);
+        await elemVisible(this.cardYourBenefitsDashboard, 'card Your Benefits Dashboard', this.logger);
+        await elemVisible(this.cardYourProgress, 'card Your Progress', this.logger);
+        await elemVisible(this.cardYourStatus, 'card Your Status', this.logger);
+        await elemVisible(this.smAdvisorBenefitsHL, 'submenu Advisor Benefits is Highlighted', this.logger);
     }
 }

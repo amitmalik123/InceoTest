@@ -6,10 +6,26 @@ export async function elemVisible(element: Locator, name: string, logger?: Logge
         await expect(element).toBeVisible({ timeout });
         logger && await logger(`✅ ${name} is visible`);
     } catch (error) {
-        logger && await logger(`❌ ${name} is NOT visible`);
-        throw new Error(`❌ ${name} is NOT visible`);
+        const stack = (new Error()).stack;
+        const message = `❌ ${name} is NOT visible\nStack: ${stack}`;
+        logger && await logger(message);
+        throw new Error(message);
     }
 }
+
+
+export async function waitForElem(element: Locator, name: string, logger?: Logger) {
+    try {
+        await element.waitFor({ state: 'visible' });
+        logger && await logger(`✅ ${name} appeared on Page`);
+    } catch (error) {
+        const stack = (new Error()).stack;
+        const message = `❌ ${name} did NOT appear in DOM\nPage: ${stack}`;
+        logger && await logger(message);
+        throw new Error(message);
+    }
+}
+
 
 export async function clickButton(element: Locator, name: string, logger?: Logger, timeout = 5000) {
     try {

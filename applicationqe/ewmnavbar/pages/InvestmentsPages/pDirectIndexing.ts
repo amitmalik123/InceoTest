@@ -1,4 +1,6 @@
+
 import { expect, type Locator, type Page } from "@playwright/test";
+import { elemVisible } from '../../functions/fElementHelper';
 type Logger = (msg: string) => Promise<void>;
 
 export class DirectIndexingPage {
@@ -28,9 +30,8 @@ export class DirectIndexingPage {
             'src',
             /Investments\/Direct_Indexing\.aspx$/
         );
-        await expect(this.smDirectIndexing).toBeVisible();
+        await elemVisible(this.smDirectIndexing, 'submenu Direct Indexing is Highlighted', this.logger);
         await this.logger((await this.secDirectIndexing.getAttribute('src')).toString());
-        await this.logger('Page loaded for Investment > Cash');
-
+        await this.logger('Page loaded for Investment > Direct Indexing');
     }
 }

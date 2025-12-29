@@ -1,4 +1,6 @@
+
 import { expect, type Locator, type Page } from "@playwright/test";
+import { elemVisible } from '../../functions/fElementHelper';
 type Logger = (msg: string) => Promise<void>;
 
 export class SavosPage {
@@ -37,7 +39,7 @@ export class SavosPage {
             /Investments\/Savos\.aspx$/
         );
         await this.logger((await this.secSavos.getAttribute('src')).toString());
-        await expect(this.smSavosHL).toBeVisible();
+        await elemVisible(this.smSavosHL, 'submenu Savos is Highlighted', this.logger);
         await this.logger('Page loaded for Investments > Savos');
     }
 }

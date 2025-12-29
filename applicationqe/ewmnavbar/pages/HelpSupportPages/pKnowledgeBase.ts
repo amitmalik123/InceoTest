@@ -1,4 +1,6 @@
+
 import { expect, type Locator, type Page } from "@playwright/test";
+import { elemVisible } from '../../functions/fElementHelper';
 type Logger = (msg: string) => Promise<void>;
 
 export class KnowledgeBasePage {
@@ -37,7 +39,7 @@ export class KnowledgeBasePage {
             /Administration\/Overview\.aspx$/
         );
         await this.logger((await this.secKnowledgeBase.getAttribute('src')).toString());
-        await expect(this.smKnowledgeBaseHL).toBeVisible();
+        await elemVisible(this.smKnowledgeBaseHL, 'submenu Knowledge Base is Highlighted', this.logger);
         await this.logger('Page loaded for Help & Support > Knowledge Base');
     }
 }

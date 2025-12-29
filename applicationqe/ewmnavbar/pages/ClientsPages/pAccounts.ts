@@ -1,4 +1,5 @@
 import { expect, type Locator, type Page } from "@playwright/test";
+import { elemVisible } from '../../functions/fElementHelper';
 type Logger = (msg: string) => Promise<void>;
 
 export class AccountsPage {
@@ -37,7 +38,7 @@ export class AccountsPage {
             'src',
             /AccountsAnalysis\/Clients\/AccountList$/
         );
-        await expect(this.smAccountsHL).toBeVisible();
+        await elemVisible(this.smAccountsHL, 'submenu Accounts is Highlighted', this.logger);
         await this.logger('Page loaded for Clients > Accounts');
     }
 }

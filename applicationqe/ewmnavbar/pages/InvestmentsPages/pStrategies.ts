@@ -1,4 +1,6 @@
+
 import { expect, type Locator, type Page } from "@playwright/test";
+import { elemVisible } from '../../functions/fElementHelper';
 type Logger = (msg: string) => Promise<void>;
 
 export class StrategiesPage {
@@ -38,7 +40,7 @@ export class StrategiesPage {
             /Investments\/Strategies\.aspx$/
         );
         await this.logger((await this.secStrategies.getAttribute('src')).toString());
-        await expect(this.smStrategiesHL).toBeVisible();
+        await elemVisible(this.smStrategiesHL, 'submenu Strategies is Highlighted', this.logger);
         await this.logger('Page loaded for Investments > Strategies');
     }
 

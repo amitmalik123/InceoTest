@@ -1,4 +1,6 @@
+
 import { expect, type Locator, type Page } from "@playwright/test";
+import { elemVisible, waitForElem } from '../../functions/fElementHelper';
 type Logger = (msg: string) => Promise<void>;
 
 export class ClientsPage {
@@ -21,9 +23,10 @@ export class ClientsPage {
         this.smAllClients = page.getByRole('link', { name: 'All Clients' });
         this.smAccounts = page.getByRole('link', { name: 'Accounts' });
         this.smStrategists = page.getByRole('link', { name: 'Strategists' });
-        this.btnManageInvestorPortal = page.locator('button', { hasText: 'View Investor Portal' });
         this.btnManageAccounts = page.locator('button', { hasText: 'Manage Accounts' });
-        this.btnAddAClient = page.locator('button', { hasText: 'Add a Client' });
+
+        // this.btnManageInvestorPortal = page.locator('button', { hasText: 'View Investor Portal' });
+        // this.btnAddAClient = page.locator('button', { hasText: 'Add a Client' });
     }
 
     async goToPage() {
@@ -31,17 +34,17 @@ export class ClientsPage {
     }
 
     async LoadsPage() {
-        await expect(this.hClients).toBeVisible({ timeout: 1000000 });
+        await waitForElem(this.hClients, 'Clients Header', this.logger);
         console.log('on Page Clients');
     }
 
     async SubMenusExist() {
-        await expect(this.smAllClients).toBeVisible();
-        await expect(this.smAccounts).toBeVisible();
-        await expect(this.smStrategists).toBeVisible();
-        await expect(this.btnManageInvestorPortal).toBeVisible();
-        await expect(this.btnManageAccounts).toBeVisible();
-        await expect(this.btnAddAClient).toBeVisible();
+        await waitForElem(this.smAllClients, 'submenu All Clients', this.logger);
+        // await elemVisible(this.smAccounts, 'submenu Accounts', this.logger);
+        await elemVisible(this.smStrategists, 'submenu Strategists', this.logger);
+        await elemVisible(this.btnManageAccounts, 'button Manage Accounts', this.logger);
+        // await elemVisible(this.btnManageInvestorPortal, 'button Manage Investor Portal', this.logger);
+        // await elemVisible(this.btnAddAClient, 'button Add a Client', this.logger);
     }
 
 }

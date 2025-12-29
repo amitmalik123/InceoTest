@@ -5,9 +5,9 @@
   "description": "Playwright with Typescript",
   "main": "index.js",
   "scripts": {
-    "test:e2e": "playwright test --project unauthenticated --project authenticated",
-    "test:auth": "playwright test --project authenticated",
-    "test:unauth": "playwright test --project unauthenticated",
+    "test:e2e": "playwright test --project userRoles --project compareiFrame",
+    "test:compare": "playwright test --project compareiFrame",
+    "test:users": "playwright test --project userRoles",
     "test:local": "playwright test --project local",
     "test:exp": "playwright test --project exp",
     "postinstall": "playwright install",

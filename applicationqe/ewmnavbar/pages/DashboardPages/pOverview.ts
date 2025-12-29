@@ -1,4 +1,6 @@
+
 import { expect, type Locator, type Page } from "@playwright/test";
+import { elemVisible } from '../../functions/fElementHelper';
 type Logger = (msg: string) => Promise<void>;
 
 export class OverviewPage {
@@ -22,13 +24,8 @@ export class OverviewPage {
     }
 
     async ElementsExist() {
-        await expect(this.secRotator).toBeVisible({
-            timeout: 30000,
-        });
-        
-
-        await expect(this.secDashboardPage).toBeVisible();
+        await elemVisible(this.secRotator, 'Rotator Section', this.logger, 30000);
+        await elemVisible(this.secDashboardPage, 'Dashboard Page Section', this.logger);
         await this.logger('Page loaded for Dashboard > Overview');
-
     }
 }

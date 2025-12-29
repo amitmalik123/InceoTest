@@ -1,4 +1,6 @@
+
 import { expect, type Locator, type Page } from "@playwright/test";
+import { elemVisible } from '../../functions/fElementHelper';
 type Logger = (msg: string) => Promise<void>;
 
 export class ModelsPage {
@@ -27,15 +29,13 @@ export class ModelsPage {
     }
 
     async LoadsPage() {
-        await expect(this.hModels).toBeVisible({ timeout: 1000000 });
-
+        await elemVisible(this.hModels, 'Models Header', this.logger, 1000000);
         console.log('on Page Models');
     }
 
     async ElementsExist() {
-        await expect(this.hModels).toBeVisible();
-        await expect(this.btnCreateModel).toBeVisible();
-
+        await elemVisible(this.hModels, 'heading Models', this.logger);
+        await elemVisible(this.btnCreateModel, 'button Create Model', this.logger);
     }
 
 }

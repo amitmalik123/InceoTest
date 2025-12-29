@@ -1,4 +1,6 @@
+
 import { expect, type Locator, type Page } from "@playwright/test";
+import { elemVisible } from '../../functions/fElementHelper';
 type Logger = (msg: string) => Promise<void>;
 
 export class StatementsReportsPage {
@@ -41,8 +43,9 @@ export class StatementsReportsPage {
 
     }
 
+
     async LoadsPage() {
-        await expect(this.smStatementsReportsHL).toBeVisible({ timeout: 10000 });
+        await elemVisible(this.smStatementsReportsHL, 'submenu Statements & Reports is Highlighted', this.logger, 10000);
         await expect(this.secStatementsReports).toHaveAttribute(
             'src',
             /Administration\/statements-and-correspondence\.aspx$/
@@ -51,16 +54,11 @@ export class StatementsReportsPage {
     }
 
     async ElementsExist() {
-
-        await expect(this.ddlType).toBeVisible({
-            timeout: 1000,
-        });
-
-        await expect(this.smStatementsReportsHL).toBeVisible({ timeout: 100 });
-        await expect(this.ddlDocument).toBeVisible({ timeout: 100 });
-        await expect(this.ddlQuarter).toBeVisible({ timeout: 100 });
-        await expect(this.btnFind).toBeVisible({ timeout: 100 });
+        await elemVisible(this.ddlType, 'Type Dropdown', this.logger, 1000);
+        await elemVisible(this.smStatementsReportsHL, 'Statements & Reports', this.logger, 100);
+        await elemVisible(this.ddlDocument, 'Document Dropdown', this.logger, 100);
+        await elemVisible(this.ddlQuarter, 'Quarter Dropdown', this.logger, 100);
+        await elemVisible(this.btnFind, 'Find Button', this.logger, 100);
         await this.logger('Page loaded for Dashboard > Statements & Reports');
-
     }
 }

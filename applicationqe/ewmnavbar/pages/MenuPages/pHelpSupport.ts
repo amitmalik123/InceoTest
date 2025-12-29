@@ -1,4 +1,6 @@
+
 import { expect, type Locator, type Page } from "@playwright/test";
+import { elemVisible } from '../../functions/fElementHelper';
 
 export class HelpSupportPage {
     readonly page: Page;
@@ -34,8 +36,7 @@ export class HelpSupportPage {
     }
 
     async LoadsPage() {
-        await expect(this.hHelpSupport).toBeVisible({ timeout: 1000000 });
-
+        await elemVisible(this.hHelpSupport, 'Help & Support Header', undefined, 1000000);
         console.log('on Page Help and Support');
     }
 
@@ -44,16 +45,16 @@ export class HelpSupportPage {
     }
 
     async SubMenusExist() {
-        await expect(this.smKnowledgeBase).toBeVisible();
-        await expect(this.smContactUs).toBeVisible();
-        await expect(this.smTaxResources).toBeVisible();
-        await expect(this.smFees).toBeVisible();
-        await expect(this.smGlossary).toBeVisible();
-        await expect(this.smCustodialServices).toBeVisible();
-        await expect(this.smComplianceResources).toBeVisible();
-        await expect(this.smMarketingResources).toBeVisible();
-        await expect(this.smEvents).toBeVisible();
-        await expect(this.smRMDResources).toBeVisible();
+        await elemVisible(this.smKnowledgeBase, 'submenu Knowledge Base');
+        await elemVisible(this.smContactUs, 'submenu Contact Us');
+        await elemVisible(this.smTaxResources, 'submenu Tax Resources');
+        await elemVisible(this.smFees, 'submenu Fees');
+        await elemVisible(this.smGlossary, 'submenu Glossary');
+        await elemVisible(this.smCustodialServices, 'submenu Custodial Services');
+        await elemVisible(this.smComplianceResources, 'submenu Compliance Resources');
+        await elemVisible(this.smMarketingResources, 'submenu Marketing Resources');
+        await elemVisible(this.smEvents, 'submenu Events');
+        await elemVisible(this.smRMDResources, 'submenu RMD Resources');
     }
 
 }

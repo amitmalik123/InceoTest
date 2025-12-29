@@ -1,4 +1,6 @@
+
 import { expect, type Locator, type Page } from "@playwright/test";
+import { elemVisible } from '../../functions/fElementHelper';
 type Logger = (msg: string) => Promise<void>;
 
 export class TMSPage {
@@ -41,7 +43,7 @@ export class TMSPage {
             /Investments\/TMS\.aspx$/
         );
         await this.logger((await this.secTMS.getAttribute('src')).toString());
-        await expect(this.smTMSHL).toBeVisible();
+        await elemVisible(this.smTMSHL, 'submenu TMS is Highlighted', this.logger);
         await this.logger('Page loaded for Investments > TMS');
     }
 }

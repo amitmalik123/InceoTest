@@ -1,4 +1,6 @@
+
 import { expect, type Locator, type Page } from "@playwright/test";
+import { elemVisible, typeinField, waitForElem } from '../../functions/fElementHelper';
 type Logger = (msg: string) => Promise<void>;
 
 
@@ -35,35 +37,34 @@ export class LoginPage {
   }
 
   async Login(user: string, pass: string) {
-    await this.fUserName.fill(user);
-    await this.fPassword.fill(pass);
+    await waitForElem(this.fUserName, 'field Username', this.logger);
+    await typeinField(this.fUserName, 'field Username', user, this.logger);
+    await typeinField(this.fPassword, 'field Password', pass, this.logger);
     await Promise.all([
       this.page.waitForNavigation({ waitUntil: 'networkidle' }),
       this.btnLogin.click(),
-
     ]);
-
   }
 
   async ReLogin(user: string, pass: string) {
     const isLoginFieldVisible = await this.fUserName.isVisible({ timeout: 50000 });
 
     if (isLoginFieldVisible) {
-        console.log('Login form came up again. Proceeding with ReLogin.');
-        
-        await this.fUserName.fill(user);
-        await this.fPassword.fill(pass);
+      console.log('Page came up for Login again. Proceeding with ReLogin.');
 
-        await Promise.all([
-            this.page.waitForNavigation({ waitUntil: 'networkidle' }),
-            this.btnLogin.click(),
-        ]);
-        
+      await this.fUserName.fill(user);
+      await this.fPassword.fill(pass);
+
+      await Promise.all([
+        this.page.waitForNavigation({ waitUntil: 'networkidle' }),
+        this.btnLogin.click(),
+      ]);
+
     } else {
-        console.log('User name field is NOT visible. Skipping ReLogin steps.');
-        
+      console.log('User name field is NOT visible. Skipping ReLogin steps.');
+
     }
-}
+  }
 
   async oktaLogin(user: string, pass: string) {
 
@@ -78,7 +79,7 @@ export class LoginPage {
   }
 
   async wrongUser(expectedError: string) {
-    await expect(this.errLogin2).toBeVisible();
+    await elemVisible(this.errLogin2, 'Login Error Message', this.logger);
     const actual = await this.errLogin2.textContent();
     expect(actual?.trim()).toBe(expectedError);
     await this.logger('Message Actual = ' + actual);

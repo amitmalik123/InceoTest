@@ -55,7 +55,7 @@ export default defineConfig({
   },
 
   projects: [
-    // 1) Setup project — logs in and saves authFile
+    // Setup project — logs in and saves authFile
     {
       name: "setup",
       testDir: "./helper",
@@ -66,11 +66,11 @@ export default defineConfig({
       },
     },
 
-    // 2) Authenticated tests — reuse saved storage state
+    // Compare iFrame Project with stored authFile
     {
-      name: "authenticated",
+      name: "compareiFrame",
       testDir: "./e2e",
-      testMatch: "/auth/**/*.spec.ts",
+      testMatch: "/compareiFrame/**/*.spec.ts",
       testIgnore: ['./unit-tests/**', './helper/globalSetup.ts'],
       dependencies: ["setup"],
       use: {
@@ -80,11 +80,11 @@ export default defineConfig({
       },
     },
 
-    // 3) Unauthenticated tests
+    // User Roles
     {
-      name: "unauthenticated",
+      name: "userRoles",
       testDir: "./e2e",
-      testMatch: "/unauth/**/*.spec.ts",
+      testMatch: "/userRoles/**/*.spec.ts",
       testIgnore: ['./unit-tests/**', './helper/globalSetup.ts'],
       use: {
         ...commonUse,
@@ -92,7 +92,7 @@ export default defineConfig({
       },
     },
 
-    // 4) Local While working
+    // Local While working
     {
       name: "local",
       testDir: "./e2e",
@@ -103,7 +103,7 @@ export default defineConfig({
         ...devices["Desktop Chrome"], 
       },
     },
-    // 5) Experimental one file at a time
+    // Experimental one file at a time
     {
       name: "exp",
       testDir: "./e2e",

@@ -1,4 +1,6 @@
+
 import { expect, type Locator, type Page } from "@playwright/test";
+import { elemVisible } from '../../functions/fElementHelper';
 type Logger = (msg: string) => Promise<void>;
 
 export class MorningstarPage {
@@ -28,9 +30,8 @@ export class MorningstarPage {
             'src',
             /Investments\/MorningstarLimitedOffering\.aspx$/
         );
-        await expect(this.smMorningstar).toBeVisible();
+        await elemVisible(this.smMorningstar, 'submenu Morningstar is Highlighted', this.logger);
         await this.logger((await this.secMorningstar.getAttribute('src')).toString());
         await this.logger('Page loaded for Investment > Morningstar');
-
     }
 }

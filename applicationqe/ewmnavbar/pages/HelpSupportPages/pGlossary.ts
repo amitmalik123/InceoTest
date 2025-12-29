@@ -1,4 +1,6 @@
+
 import { expect, type Locator, type Page } from "@playwright/test";
+import { elemVisible } from '../../functions/fElementHelper';
 type Logger = (msg: string) => Promise<void>;
 
 export class GlossaryPage {
@@ -37,7 +39,7 @@ export class GlossaryPage {
             'src',
             /help\/glossary\.aspx$/
         );
-        await expect(this.smGlossaryHL).toBeVisible();
+        await elemVisible(this.smGlossaryHL, 'submenu Glossary is Highlighted', this.logger);
         await this.logger('Page loaded for Help & Support > Glossary');
     }
 }

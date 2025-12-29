@@ -1,4 +1,6 @@
+
 import { expect, type Locator, type Page } from "@playwright/test";
+import { elemVisible, waitForElem } from '../../functions/fElementHelper';
 type Logger = (msg: string) => Promise<void>;
 
 export class HomePage {
@@ -27,6 +29,7 @@ export class HomePage {
         this.logger = logger;
         this.navLeftBar = page.locator('.css-r80wwa');
         this.mDashboard = page.getByRole('link', { name: 'Dashboard' });
+        // this.mDashboard = page.getByRole('link', { name: /Dashboard/i });
         this.mClients = page.getByRole('link', { name: 'Clients' });
         this.mActionItems = page.getByRole('link', { name: 'Action Items' });
         this.mModels = page.getByRole('link', { name: 'Models' });
@@ -58,22 +61,18 @@ export class HomePage {
     }
 
     async MenusExist() {
-        await expect(this.mDashboard).toBeVisible();
-        await expect(this.mClients).toBeVisible();
-        await expect(this.mActionItems).toBeVisible();
-        await expect(this.mModels).toBeVisible();
-        await expect(this.mInvestments).toBeVisible();
-        await expect(this.mProductsServices).toBeVisible();
-        await expect(this.mHelpSupport).toBeVisible();
-        await expect(this.btnProfile).toBeVisible();
+        // await waitForElem(this.mDashboard, 'Menu Dashboard', this.logger);
+        await elemVisible(this.mClients, 'menu Clients', this.logger);
+        await elemVisible(this.mActionItems, 'menu Action Items', this.logger);
+        await elemVisible(this.mModels, 'menu Models', this.logger);
+        await elemVisible(this.mInvestments, 'menu Investments', this.logger);
+        await elemVisible(this.mProductsServices, 'menu Products & Services', this.logger);
+        await elemVisible(this.mHelpSupport, 'menu Help & Support', this.logger);
+        await elemVisible(this.btnProfile, 'button Profile', this.logger);
     }
 
     async SectionSiteCoreExists() {
-        await expect(this.secSiteCore).toBeVisible({
-            timeout: 10000,
-        });
-        await expect(this.secFooter).toBeVisible();
-
-
+        await elemVisible(this.secSiteCore, 'section Sitecore', this.logger, 10000);
+        await elemVisible(this.secFooter, 'section Footer', this.logger);
     }
 }

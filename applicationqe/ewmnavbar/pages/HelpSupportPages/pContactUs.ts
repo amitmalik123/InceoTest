@@ -1,4 +1,6 @@
+
 import { expect, type Locator, type Page } from "@playwright/test";
+import { elemVisible } from '../../functions/fElementHelper';
 type Logger = (msg: string) => Promise<void>;
 
 export class ContactUsPage {
@@ -35,7 +37,7 @@ export class ContactUsPage {
             'src',
             /ContactUs$/
         );
-        await expect(this.smContactUsHL).toBeVisible();
+        await elemVisible(this.smContactUsHL, 'submenu Contact Us is Highlighted', this.logger);
         await this.logger((await this.secContactUs.getAttribute('src')).toString());
         await this.logger('Page loaded for Help & Support > Contact Us');
     }

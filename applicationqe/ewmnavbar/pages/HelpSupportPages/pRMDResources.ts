@@ -1,4 +1,6 @@
+
 import { expect, type Locator, type Page } from "@playwright/test";
+import { elemVisible } from '../../functions/fElementHelper';
 type Logger = (msg: string) => Promise<void>;
 
 export class RMDResourcesPage {
@@ -37,7 +39,7 @@ export class RMDResourcesPage {
             'src',
             /Administration\/Tax-Resources\/rmd_center\.aspx$/
         );
-        await expect(this.smRMDResourcesHL).toBeVisible();
+        await elemVisible(this.smRMDResourcesHL, 'submenu RMD Resources is Highlighted', this.logger);
         await this.logger('Page loaded for Help & Support > RMD Resources');
     }
 }

@@ -1,4 +1,6 @@
+
 import { expect, type Locator, type Page } from "@playwright/test";
+import { elemVisible } from '../../functions/fElementHelper';
 type Logger = (msg: string) => Promise<void>;
 
 export class EventsPage {
@@ -37,7 +39,7 @@ export class EventsPage {
             'src',
             /help-and-support\/events$/
         );
-        await expect(this.smEventsHL).toBeVisible();
+        await elemVisible(this.smEventsHL, 'submenu Events is Highlighted', this.logger);
         await this.logger('Page loaded for Help & Support > Events');
     }
 }

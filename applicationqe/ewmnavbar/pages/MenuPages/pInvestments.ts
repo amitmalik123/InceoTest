@@ -1,4 +1,6 @@
+
 import { expect, type Locator, type Page } from "@playwright/test";
+import { elemVisible } from '../../functions/fElementHelper';
 
 export class InvestmentsPage {
     readonly page: Page;
@@ -42,24 +44,24 @@ export class InvestmentsPage {
     }
 
     async LoadsPage() {
-        await expect(this.hInvestments).toBeVisible({ timeout: 1000000 });
+        await elemVisible(this.hInvestments, 'Investments Header', undefined, 1000000);
         console.log('Page loaded for Investments > Strategies');
     }
 
     async SubMenusExist() {
-        await expect(this.smStrategies).toBeVisible();
-        await expect(this.smResearch).toBeVisible();
-        await expect(this.smNews).toBeVisible();
-        await expect(this.smCash).toBeVisible();
-        await expect(this.smSMA).toBeVisible();
-        await expect(this.smGuidedPortfolios).toBeVisible();
-        await expect(this.smDAF).toBeVisible();
-        await expect(this.smSavos).toBeVisible();
-        await expect(this.smTMS).toBeVisible();
-        // await expect(this.smDirectIndexing).toBeVisible();
-        // await expect(this.smMorningstar).toBeVisible();
-        await expect(this.btnInvestmentChange).toBeVisible();
-        await expect(this.btnCreateProposal).toBeVisible();
+        await elemVisible(this.smStrategies, 'submenu Strategies');
+        await elemVisible(this.smResearch, 'submenu Research');
+        await elemVisible(this.smNews, 'submenu News');
+        await elemVisible(this.smCash, 'submenu Cash');
+        await elemVisible(this.smSMA, 'submenu SMA');
+        await elemVisible(this.smGuidedPortfolios, 'submenu Guided Portfolio');
+        await elemVisible(this.smDAF, 'submenu DAF');
+        await elemVisible(this.smSavos, 'submenu Savos');
+        await elemVisible(this.smTMS, 'submenu TMS');
+        // await elemVisible(this.smDirectIndexing, 'submenu Direct Indexing');
+        // await elemVisible(this.smMorningstar, 'submenu Morningstar');
+        // await elemVisible(this.btnInvestmentChange, 'button Investment Change ');
+        // await elemVisible(this.btnCreateProposal, 'button Create Proposal');
     }
 
 }

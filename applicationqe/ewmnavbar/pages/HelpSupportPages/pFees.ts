@@ -1,4 +1,6 @@
+
 import { expect, type Locator, type Page } from "@playwright/test";
+import { elemVisible } from '../../functions/fElementHelper';
 type Logger = (msg: string) => Promise<void>;
 
 export class FeesPage {
@@ -37,7 +39,7 @@ export class FeesPage {
             'src',
             /Administration\/advisor-fee-payments\.aspx$/
         );
-        await expect(this.smFeesHL).toBeVisible();
+        await elemVisible(this.smFeesHL, 'submenu Fees is Highlighted', this.logger);
         await this.logger('Page loaded for Help & Support > Fees');
     }
 }

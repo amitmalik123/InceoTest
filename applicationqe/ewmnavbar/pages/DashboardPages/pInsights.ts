@@ -1,4 +1,6 @@
+
 import { expect, type Locator, type Page } from "@playwright/test";
+import { elemVisible } from '../../functions/fElementHelper';
 type Logger = (msg: string) => Promise<void>;
 
 export class InsightsPage {
@@ -20,19 +22,16 @@ export class InsightsPage {
 
     }
 
+
     async LoadsPage() {
-        await expect(this.smInsightsHL).toBeVisible({ timeout: 1000000 });
+        await elemVisible(this.smInsightsHL, 'Insights Highlight', this.logger, 1000000);
         console.log('on Landing Page Insights');
     }
 
     async ElementsExist() {
-
-        await expect(this.tabAssetsHL).toBeVisible({
-            timeout: 500000,
-        });
-        await expect(this.tabFees).toBeVisible({ timeout: 100 });
-        await expect(this.tabFlows).toBeVisible({ timeout: 100 });
+        await elemVisible(this.tabAssetsHL, 'Assets Tab', this.logger, 500000);
+        await elemVisible(this.tabFees, 'Fees Tab', this.logger, 100);
+        await elemVisible(this.tabFlows, 'Flows Tab', this.logger, 100);
         await this.logger('Page loaded for Dashboard > Insights');
-
     }
 }

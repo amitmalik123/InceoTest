@@ -1,4 +1,6 @@
+
 import { expect, type Locator, type Page } from "@playwright/test";
+import { elemVisible } from '../../functions/fElementHelper';
 type Logger = (msg: string) => Promise<void>;
 
 export class MarketingResourcesPage {
@@ -37,7 +39,7 @@ export class MarketingResourcesPage {
             'src',
             /Marketing\/Marketing-Resource-Center\.aspx$/
         );
-        await expect(this.smMarketingResourcesHL).toBeVisible();
+        await elemVisible(this.smMarketingResourcesHL, 'submenu Marketing Resources is Highlighted', this.logger);
         await this.logger('Page loaded for Help & Support > Marketing Resources');
     }
 }

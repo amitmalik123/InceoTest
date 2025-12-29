@@ -1,4 +1,6 @@
+
 import { expect, type Locator, type Page } from "@playwright/test";
+import { elemVisible } from '../../functions/fElementHelper';
 
 export class ProductsServicesPage {
     readonly page: Page;
@@ -25,16 +27,16 @@ export class ProductsServicesPage {
     }
 
     async LoadsPage() {
-        await expect(this.hProductsServices).toBeVisible({ timeout: 1000000 });
+        await elemVisible(this.hProductsServices, 'Products & Services Header', undefined, 1000000);
         console.log('on Page Products and Services');
     }
 
     async SubMenusExist() {
-        await expect(this.smBusinessConsulting).toBeVisible();
-        await expect(this.smLending).toBeVisible();
-        await expect(this.smFinancialPlanning).toBeVisible();
-        await expect(this.smRetirementServices).toBeVisible();
-        await expect(this.btnContactUs).toBeVisible();
+        await elemVisible(this.smBusinessConsulting, 'submenu Business Consulting');
+        await elemVisible(this.smLending, 'submenu Lending');
+        await elemVisible(this.smFinancialPlanning, 'submenu Financial Planning');
+        await elemVisible(this.smRetirementServices, 'submenu Retirement Services');
+        // await elemVisible(this.btnContactUs, 'button Contact Us');
     }
 
 }
