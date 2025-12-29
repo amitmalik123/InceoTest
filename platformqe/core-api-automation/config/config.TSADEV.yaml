@@ -121,7 +121,7 @@ api_endpoints:
     verify: false
 
   parties:
-    base_url: "https://platform.dev01.assetmark.com/api/parties/v1"  # Parties API endpoint
+    base_url: "${PARTIES_BASE_URL}"  # Fetched from Azure variable group: qa-pipelines-variable-group-dev
     auth_token: "${PARTIES_AUTH_TOKEN}"
     timeout: 30
     retry_count: 3
