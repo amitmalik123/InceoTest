@@ -9,7 +9,7 @@
     "test:auth": "playwright test --project authenticated",
     "test:unauth": "playwright test --project unauthenticated",
     "test:local": "playwright test --project local",
-    "test:unit": "vitest",
+    "test:exp": "playwright test --project exp",
     "postinstall": "playwright install",
     "prepare": "husky install",
     "precommit:check": "echo 'Run lint and format checks here'"

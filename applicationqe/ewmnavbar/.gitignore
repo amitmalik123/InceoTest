@@ -28,3 +28,4 @@ framework/screenshots/
 
 # Ignore everything in e2e/local
 e2e/local/
+e2e/exp/

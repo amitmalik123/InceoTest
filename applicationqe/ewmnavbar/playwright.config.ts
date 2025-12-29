@@ -55,19 +55,6 @@ export default defineConfig({
   },
 
   projects: [
-    // 0) Unit Tests Project - Defines path/config for unit tests (run via 'npm run test:unit')
-    {
-      name: "unit-tests",
-      testDir: "./unit-tests",
-      testMatch: "/**/*.test.ts",
-      workers: 1,
-      use: {
-        browserName: "chromium",
-        baseURL: undefined,
-        headless: true,
-      },
-    },
-    
     // 1) Setup project — logs in and saves authFile
     {
       name: "setup",
@@ -116,5 +103,20 @@ export default defineConfig({
         ...devices["Desktop Chrome"], 
       },
     },
+    // 5) Experimental one file at a time
+    {
+      name: "exp",
+      testDir: "./e2e",
+      testMatch: "/exp/**/*.spec.ts",
+      testIgnore: ['./unit-tests/**', './helper/globalSetup.ts'],
+      use: {
+        ...commonUse,
+        ...devices["Desktop Chrome"], 
+      },
+    },
   ],
 });
+
+/*
+commands to run tests in package.json
+*/
