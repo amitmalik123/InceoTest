@@ -1,5 +1,5 @@
-import { LoginPage } from '@pages/LoginPageObjectModel';
-import {test as baseTest, expect} from '@playwright/test';
+import { LoginPage } from '../pages/LoginPageObjectModel';
+import { test as baseTest, expect } from '@playwright/test';
 
 type MyPages = {
     loginPage: LoginPage;

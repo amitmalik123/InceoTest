@@ -1,10 +1,23 @@
 {
     "compilerOptions": {
-        "paths":{
-            "@datafactory/*":["./lib/datafactory/*"],
-            "@helperfunctions/*":["./lib/helperfunctions/*"],
-            "@pages/*":["./lib/pages/*"],
-            "@fixtures/*":["./lib/fixtures/*"]
+        "baseUrl": ".",
+        "lib": [
+            "ES2015",
+            "DOM"
+        ],
+        "paths": {
+            "@datafactory/*": [
+                "./datafactory/*"
+            ],
+            "@helperfunctions/*": [
+                "./helperfunctions/*"
+            ],
+            "@pages/*": [
+                "./pages/*"
+            ],
+            "@fixtures/*": [
+                "./fixtures/*"
+            ]
         }
     }
 }

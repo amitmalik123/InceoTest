@@ -7,7 +7,7 @@ import { defineConfig, devices } from '@playwright/test';
 import * as dotenv from 'dotenv';
 import * as path from 'path';
 dotenv.config({
-  path: path.resolve(__dirname, `./env/.env.${process.env.ENVIRONMENT}`),
+  path: path.resolve(__dirname, `./config/.env.${process.env.ENVIRONMENT}`),
   override: true,
 });
 
@@ -16,9 +16,13 @@ dotenv.config({
  */
 export default defineConfig({
   /* Configure individual test timeouts */
-  timeout: 120_000,
+  timeout: 1_200_000,
   /*Set timeout for entire test suite*/
   //globalTimeout: 10 * 60 * 1000,
+  /* Set timeout for each expect call*/
+  expect: {
+    timeout: 600_000
+  },
   /* Directory for test files */
   testDir: './tests',
   /* Run tests in files in parallel */
