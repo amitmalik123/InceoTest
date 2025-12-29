@@ -1,6 +1,6 @@
 pool:
   name: "ubuntu2204-qa"
-  timeoutInMinutes: 10
+  timeoutInMinutes: 60
 
 trigger: none
 
@@ -8,12 +8,27 @@ trigger: none
 # Scheduled triggers
 # -----------------------------
 schedules:
-  - cron: "30 20 * * *" # 12:30 PM PST → Test11
+  - cron: "30 20 * * *" # 3:30 PM EST → Test11
     displayName: "Schedule for Test11"
     branches:
       include:
         - playwrightaaron
     always: true
+
+  - cron: "40 20 * * *"      # 3:40 PM EST → Silo
+    displayName: "Schedule for Silo"
+    branches:
+      include:
+        - playwrightaaron
+    always: true
+
+  - cron: "0 23 * * *"       # 8 PM EST → Test10
+    displayName: "Schedule for Test10"
+    branches:
+      include:
+        - playwrightaaron
+    always: true
+
 
 # -----------------------------
 # Parameters for Manual Runs
