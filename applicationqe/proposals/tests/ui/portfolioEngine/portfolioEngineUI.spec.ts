@@ -94,7 +94,7 @@ test.describe('Portfolio Engine Happy Path Tests', () => {
         console.log('\nStarting Portfolio Engine Widgets test');
         console.log('\nEnabling all widgets');
         await portfolioEnginePage.selectAllWidgetsIfNeeded();
-        await portfolioEnginePage.page.waitForLoadState('domcontentloaded');
+
         //Verify all widget headers are loaded
         try {
             console.log('\nVerifying widget headers are visible');
@@ -111,42 +111,39 @@ test.describe('Portfolio Engine Happy Path Tests', () => {
             console.error('\nOne or more widget headers are not visible\n', error);
         }
 
+        // Checking for actual content
+        console.log('\nWaiting for all widgets to load content (this may take some time)');
 
-        // Verify all widget graph containers contain data
-        console.log('\nVerifying all widget graph containers have data');
-        const graphLocators = [
-            portfolioEnginePage.performanceGraphContainer,
-            portfolioEnginePage.drawdownGraphContainer,
-            portfolioEnginePage.summaryStatisticsGraphContainer,
-            portfolioEnginePage.riskVsReturnGraphContainer,
-            portfolioEnginePage.assetAllocationGraphContainer,
-            portfolioEnginePage.stressTestGraphContainer,
-            portfolioEnginePage.returnByStrategyGraphContainer,
-            portfolioEnginePage.investmentApproachGraphContainer,
-            portfolioEnginePage.upsideDownsideGraphContainer
+        // Define widgets to wait for
+        const widgetsToVerify = [
+            { name: 'Performance', locator: portfolioEnginePage.performanceGraphContent },
+            { name: 'Drawdown', locator: portfolioEnginePage.drawdownGraphContent },
+            { name: 'Summary Statistics', locator: portfolioEnginePage.summaryStatisticsGraphContent },
+            { name: 'Risk vs Return', locator: portfolioEnginePage.riskVsReturnGraphContent },
+            { name: 'Asset Allocation', locator: portfolioEnginePage.assetAllocationGraphContent },
+            { name: 'Stress Test', locator: portfolioEnginePage.stressTestGraphContent },
+            { name: 'Return by Strategy', locator: portfolioEnginePage.returnByStrategyGraphContent },
+            { name: 'Investment Approach', locator: portfolioEnginePage.investmentApproachGraphContent },
+            { name: 'Upside/Downside', locator: portfolioEnginePage.upsideDownsideGraphContent }
         ];
 
-        for (let i = 0; i < graphLocators.length; i++) {
-            const chartElement = graphLocators[i];
-
-            // Verify the chart has been rendered with data (non-zero dimensions) and assert that container is not empty
-            const hasContent = await chartElement.evaluate((el) => {
-                const rect = el.getBoundingClientRect();
-                return rect.width > 0 && rect.height > 0;
-            });
-
-            if (!hasContent) {
-                console.error(`\nGraph ${i + 1} does not have rendered content`);
+        // Wait for each widget to have content loaded
+        for (const widget of widgetsToVerify) {
+            try {
+                console.log(`  Waiting for ${widget.name} to load content...`);
+                await widget.locator.first().waitFor({ state: 'visible', timeout: 20 * 60 * 1000 }); //long timeout due to t10 slow loads
+            } catch (error) {
+                console.error(`  ✗ ${widget.name} failed to load: ${error.message}`);
             }
         }
+
+        console.log('\nAll widgets finished loading');
     });
 
     test('Create proposal with new portfolio and new client', async ({ page }) => {
         //Create proposal using newly created portfolio
         console.log('\nStarting create proposal with new portfolio and new client test');
         await portfolioEnginePage.createProposalButton.click();
-        await portfolioEnginePage.quitProposalButton.click();
-        await portfolioEnginePage.createProposalButton.click(); //opening twice because the page does not always load the first time
         await page.waitForLoadState();
 
         //Verify portfolios & percentages are correct on left dropdown

@@ -45,6 +45,17 @@ export class PortfolioEnginePage {
     readonly investmentApproachGraphContainer: Locator;
     readonly upsideDownsideGraphContainer: Locator;
 
+    // Widget Content Elements (for validation)
+    readonly performanceGraphContent: Locator;
+    readonly drawdownGraphContent: Locator;
+    readonly summaryStatisticsGraphContent: Locator;
+    readonly riskVsReturnGraphContent: Locator;
+    readonly assetAllocationGraphContent: Locator;
+    readonly stressTestGraphContent: Locator;
+    readonly returnByStrategyGraphContent: Locator;
+    readonly investmentApproachGraphContent: Locator;
+    readonly upsideDownsideGraphContent: Locator;
+
     // Portfolio Management Buttons
     readonly managePortfoliosButton: Locator;
     readonly createNewModelPortfolioButton: Locator;
@@ -286,16 +297,27 @@ export class PortfolioEnginePage {
         this.investmentApproachWidgetCheckbox = page.locator('[class*="menu-component__item"]').filter({ hasText: 'Investment Approach' }).locator('span').first();
         this.upsideDownsideWidgetCheckbox = page.locator('[class*="menu-component__item"]').filter({ hasText: 'Upside/Downside Capture' }).locator('span').first();
 
-        // Widget Graph Containers
-        this.performanceGraphContainer = page.locator('article').filter({ hasText: 'Performance' }).first();
-        this.drawdownGraphContainer = page.locator('article').filter({ hasText: 'Drawdown' }).first();
-        this.summaryStatisticsGraphContainer = page.locator('article').filter({ hasText: 'Summary Statistics' }).first();
-        this.riskVsReturnGraphContainer = page.locator('article').filter({ hasText: 'Risk vs Return' }).first();
-        this.assetAllocationGraphContainer = page.locator('article').filter({ hasText: 'Asset Allocation & Holdings' }).first();
-        this.stressTestGraphContainer = page.locator('article').filter({ hasText: 'Stress Test' }).first();
-        this.returnByStrategyGraphContainer = page.locator('article').filter({ hasText: 'Return by Strategy' }).first();
-        this.investmentApproachGraphContainer = page.locator('article').filter({ hasText: 'Investment Approach' }).first();
-        this.upsideDownsideGraphContainer = page.locator('article').filter({ hasText: 'Upside/Downside Capture' }).first();
+        // Widget graph containers - has header and content
+        this.performanceGraphContainer = page.locator('article').filter({ hasText: 'Performance' }).first().locator('div[class*="widget-component__content"]');
+        this.drawdownGraphContainer = page.locator('article').filter({ hasText: 'Drawdown' }).first().locator('div[class*="widget-component__content"]');
+        this.summaryStatisticsGraphContainer = page.locator('article').filter({ hasText: 'Summary Statistics' }).first().locator('div[class*="widget-component__content"]');
+        this.riskVsReturnGraphContainer = page.locator('article').filter({ hasText: 'Risk vs Return' }).first().locator('div[class*="widget-component__content"]');
+        this.assetAllocationGraphContainer = page.locator('article').filter({ hasText: 'Asset Allocation & Holdings' }).first().locator('div[class*="widget-component__content"]');
+        this.stressTestGraphContainer = page.locator('article').filter({ hasText: 'Stress Test' }).first().locator('div[class*="widget-component__content"]');
+        this.returnByStrategyGraphContainer = page.locator('article').filter({ hasText: 'Return by Strategy' }).first().locator('div[class*="widget-component__content"]');
+        this.investmentApproachGraphContainer = page.locator('article').filter({ hasText: 'Investment Approach' }).first().locator('div[class*="widget-component__content"]');
+        this.upsideDownsideGraphContainer = page.locator('article').filter({ hasText: 'Upside/Downside Capture' }).first().locator('div[class*="widget-component__content"]');
+
+        // Widget Content Elements - specific chart/graph elements for validation
+        this.performanceGraphContent = this.performanceGraphContainer.locator('svg text');
+        this.drawdownGraphContent = this.drawdownGraphContainer.locator('tbody tr');
+        this.summaryStatisticsGraphContent = this.summaryStatisticsGraphContainer.locator('tbody tr');
+        this.riskVsReturnGraphContent = this.riskVsReturnGraphContainer.locator('svg circle');
+        this.assetAllocationGraphContent = this.assetAllocationGraphContainer.locator('svg path[class*="recharts-sector"]');
+        this.stressTestGraphContent = this.stressTestGraphContainer.locator('div[class*="tick"]');
+        this.returnByStrategyGraphContent = this.returnByStrategyGraphContainer.locator('svg rect');
+        this.investmentApproachGraphContent = this.investmentApproachGraphContainer.locator('svg path[class*="recharts-sector"]');
+        this.upsideDownsideGraphContent = this.upsideDownsideGraphContainer.locator('svg rect');
 
         // Portfolio Management Buttons
         this.managePortfoliosButton = page.getByRole('button', { name: 'Manage Portfolios' });
