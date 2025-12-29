@@ -1,6 +1,6 @@
 pool:
   name: "ubuntu2204-qa"
-  timeoutInMinutes: 10
+  timeoutInMinutes: 60
 
 trigger: none
 
@@ -8,12 +8,27 @@ trigger: none
 # Scheduled triggers
 # -----------------------------
 schedules:
-  - cron: "30 20 * * *" # 12:30 PM PST → Test11
+  - cron: "30 20 * * *" # 3:30 PM EST → Test11
     displayName: "Schedule for Test11"
     branches:
       include:
         - playwrightaaron
     always: true
+
+  - cron: "58 20 * * *"      # 3:40 PM EST → Silo
+    displayName: "Schedule for Silo"
+    branches:
+      include:
+        - playwrightaaron
+    always: true
+
+  - cron: "0 23 * * *"       # 8 PM EST → Test10
+    displayName: "Schedule for Test10"
+    branches:
+      include:
+        - playwrightaaron
+    always: true
+
 
 # -----------------------------
 # Parameters for Manual Runs
@@ -75,12 +90,33 @@ jobs:
             echo "##vso[task.setvariable variable=threadCount]${{ parameters.threadCount }}"
             echo "##vso[task.setvariable variable=runnerFile]${{ parameters.runnerFile }}"
           else
-            echo "##vso[task.setvariable variable=environment]test11"
-            echo "##vso[task.setvariable variable=tag]@smokeTest"
-            echo "##vso[task.setvariable variable=threadCount]2"
-            echo "##vso[task.setvariable variable=runnerFile]*"
+              echo "Scheduled run detected."
+              HOUR=$(date -u +%H)
+              MINUTE=$(date -u +%M)
+              #Logic based on utc
+              if [ "$HOUR" -eq 20 ] && [ "$MINUTE" -eq 30 ]; then
+                # 3:30 PM EST → Test11
+                echo "##vso[task.setvariable variable=environment]test11"
+                echo "##vso[task.setvariable variable=tag]@smokeTest"
+                echo "##vso[task.setvariable variable=threadCount]2"
+                echo "##vso[task.setvariable variable=runnerFile]*"
+              elif [ "$HOUR" -eq 20 ] && [ "$MINUTE" -eq 58 ]; then
+                # 3:40 PM EST → silo
+                echo "##vso[task.setvariable variable=environment]silo"
+                echo "##vso[task.setvariable variable=tag]@smokeSilo"
+                echo "##vso[task.setvariable variable=threadCount]2"
+                echo "##vso[task.setvariable variable=runnerFile]*"
+              elif [ "$HOUR" -eq 23 ] && [ "$MINUTE" -eq 0 ]; then
+                # 8:00 PM EST → test10
+                echo "##vso[task.setvariable variable=environment]test10"
+                echo "##vso[task.setvariable variable=tag]@smokeTest"
+                echo "##vso[task.setvariable variable=threadCount]2"
+                echo "##vso[task.setvariable variable=runnerFile]*"
+              else
+                echo "No matching schedule found for current time. Exiting..."
+                exit 1
+              fi
           fi
-
         displayName: "Set Environment Variables Dynamically"
 
       - script: |
