@@ -94,7 +94,7 @@ jobs:
               HOUR=$(date -u +%H)
               MINUTE=$(date -u +%M)
               #Logic based on utc
-              if [ "$HOUR" -eq 20 ] && [ "$MINUTE" -eq 30 ]; then; then
+              if [ "$HOUR" -eq 20 ] && [ "$MINUTE" -eq 30 ]; then
                 # 3:30 PM EST → Test11
                 echo "##vso[task.setvariable variable=environment]test11"
                 echo "##vso[task.setvariable variable=tag]@smokeTest"
