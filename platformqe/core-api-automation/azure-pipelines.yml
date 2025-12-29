@@ -44,6 +44,23 @@ stages:
       #   inputs:
       #     versionSpec: '3.10'
       #     addToPath: true
+      
+      - task: Bash@3
+        displayName: 'Debug: Verify Variable Group Loading'
+        inputs:
+          targetType: inline
+          script: |
+            echo "=========================================="
+            echo "Variable Group Debug Information"
+            echo "=========================================="
+            echo "parties_base_url from variable group: $(parties_base_url)"
+            echo "subscription_dev: $(subscription_dev)"
+            echo "key_vault_name: $(key_vault_name)"
+            echo ""
+            echo "All environment variables:"
+            env | sort
+            echo "=========================================="
+      
       - script: |
           python3 --version
         displayName: 'Check Python 3 Version'
@@ -75,14 +92,32 @@ stages:
             echo "Running Tests"
             echo "=========================================="
             
-            # Debug: Check if connection string is loaded
-            if [ -z "$PARTIES_SQLDB" ]; then
-              echo "❌ ERROR: PARTIES_SQLDB environment variable is empty!"
+            # Debug: Check ALL environment variables
+            echo "🔍 Environment Variables Debug:"
+            echo "-------------------------------------------"
+            echo "PARTIES_BASE_URL: ${PARTIES_BASE_URL:-<NOT SET>}"
+            echo "PARTIES_AUTH_TOKEN: ${PARTIES_AUTH_TOKEN:0:10}... (${#PARTIES_AUTH_TOKEN} chars)"
+            echo "PARTIES_SQLDB: ${PARTIES_SQLDB:0:20}... (${#PARTIES_SQLDB} chars)"
+            echo "WORK_ITEM_AUTH_TOKEN: ${WORK_ITEM_AUTH_TOKEN:0:10}... (${#WORK_ITEM_AUTH_TOKEN} chars)"
+            echo "AZURE_SQL_PASSWORD: ${AZURE_SQL_PASSWORD:+<SET>}"
+            echo "POSTGRES_DB_PASSWORD: ${POSTGRES_DB_PASSWORD:+<SET>}"
+            echo "-------------------------------------------"
+            echo ""
+            echo "All environment variables starting with PARTIES:"
+            env | grep PARTIES || echo "No PARTIES variables found"
+            echo "-------------------------------------------"
+            
+            # Validation
+            if [ -z "$PARTIES_BASE_URL" ]; then
+              echo "❌ CRITICAL: PARTIES_BASE_URL is not set!"
+              echo "   Check Azure variable group 'qa-pipelines-variable-group-dev'"
+              echo "   Variable name should be: parties_base_url"
             else
-              echo "✅ PARTIES_SQLDB is set (${#PARTIES_SQLDB} chars)"
+              echo "✅ PARTIES_BASE_URL is set correctly"
             fi
             
-            echo "Command: ${{ parameters.apiTestArgs }}"
+            echo ""
+            echo "Test Command: ${{ parameters.apiTestArgs }}"
             echo "=========================================="
 
             pytest -sv tests/test_api_generic.py ${{ parameters.apiTestArgs }}
