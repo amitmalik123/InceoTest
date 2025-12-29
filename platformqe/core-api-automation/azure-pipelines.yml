@@ -64,6 +64,7 @@ stages:
         env:
           WORK_ITEM_AUTH_TOKEN: $(WORK_ITEM_AUTH_TOKEN)
           PARTIES_AUTH_TOKEN: $(PARTIES_AUTH_TOKEN)
+          PARTIES_BASE_URL: $(parties_base_url)  # From variable group: qa-pipelines-variable-group-dev
           PARTIES_SQLDB: $(parties-sqldb-connection-string)  # Key Vault secret name
           AZURE_SQL_PASSWORD: $(AZURE_SQL_PASSWORD)
           POSTGRES_DB_PASSWORD: $(POSTGRES_DB_PASSWORD)
@@ -104,6 +105,7 @@ stages:
         env:
           WORK_ITEM_AUTH_TOKEN: $(WORK_ITEM_AUTH_TOKEN)
           PARTIES_AUTH_TOKEN: $(PARTIES_AUTH_TOKEN)
+          PARTIES_BASE_URL: $(parties_base_url)  # From variable group: qa-pipelines-variable-group-dev
           PARTIES_SQLDB: $(PARTIES_SQLDB_CONNECTION_STRING)  # Connection string from Key Vault
           AZURE_SQL_PASSWORD: $(AZURE_SQL_PASSWORD)
           POSTGRES_DB_PASSWORD: $(POSTGRES_DB_PASSWORD)
