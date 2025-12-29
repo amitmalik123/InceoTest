@@ -50,10 +50,8 @@ parameters:
     default: "all"
     values:
       - all
-      - authenticated
-      - unauthenticated
-      - local
-      - unit-tests
+      - compareiFrame
+      - userRoles
       - setup
 
   - name: testFilter
