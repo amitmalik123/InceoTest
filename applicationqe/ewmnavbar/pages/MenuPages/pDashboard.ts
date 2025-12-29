@@ -10,6 +10,7 @@ export class DashboardPage {
     readonly btnManageAccounts: Locator;
     readonly txtWelcome: Locator;
     readonly btnTitleManager: Locator;
+    readonly secFees: Locator;
     constructor(page: Page) {
         this.page = page;
 
@@ -21,6 +22,7 @@ export class DashboardPage {
         this.btnManageAccounts = page.locator('button', { hasText: 'Manage Accounts' });
         this.txtWelcome = page.locator("h3:has-text('Your Desired Text')")
         this.btnTitleManager = page.getByTestId('button-actions-edit');
+        this.secFees = page.locator('[class="react-grid-layout min-h-[calc(100vh-230px)] pt-6 pb-4 px-0"]');
 
     }
 

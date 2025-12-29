@@ -25,7 +25,7 @@ test.describe('Dashboard Pages', () => {
         await p.Overview.ElementsExist();
         await p.Dashboard.smInsights.click();
         await p.Insights.LoadsPage();
-                await p.img.wholePage('Insights');
+        await p.img.wholePage('Insights');
 
         await p.Insights.ElementsExist();
         await p.img.wholePage('Insights');
