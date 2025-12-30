@@ -1,6 +1,6 @@
 import { test, expect } from '../../helper/fixtures';
 
-test.describe.only('Shared Access', () => {
+test.describe('Shared Access', () => {
 
     test('Global Menu Verification', async ({ page, p, f, log }) => {
         await log('🚀 Starting Test: Shared Access Global Menu Verification');

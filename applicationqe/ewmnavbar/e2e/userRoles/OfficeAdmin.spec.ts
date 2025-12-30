@@ -1,6 +1,6 @@
 import { test, expect } from '../../helper/fixtures';
 
-test.describe.only('Office Admin', () => {
+test.describe('Office Admin', () => {
 
     test('Global Menu Verification', async ({ page, p, f, log }) => {
         await log('🚀 Starting Test: Office Admin Global Menu Verification');
