@@ -524,7 +524,7 @@ jobs:
   - task: PublishBuildArtifacts@1
     displayName: "Publish Playwright HTML Report"
     inputs:
-      PathtoPublish: '$(ewmnavbarPath)/playwright-report'
+      PathtoPublish: '$(ewmnavbarPath)/target/playwright-report'
       ArtifactName: 'PlaywrightReport'
       publishLocation: 'Container'
     condition: always()
