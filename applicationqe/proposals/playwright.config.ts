@@ -16,12 +16,12 @@ dotenv.config({
  */
 export default defineConfig({
   /* Configure individual test timeouts */
-  timeout: 1_200_000,
+  timeout: 1_800_000,
   /*Set timeout for entire test suite*/
-  //globalTimeout: 10 * 60 * 1000,
+  globalTimeout: 3_600_000,
   /* Set timeout for each expect call*/
   expect: {
-    timeout: 600_000
+    timeout: 300_000
   },
   /* Directory for test files */
   testDir: './tests',
