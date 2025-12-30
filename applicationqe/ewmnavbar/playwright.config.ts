@@ -53,11 +53,11 @@ export default defineConfig({
   retries: isCI ? 2 : 0,
  
   // AZURE PATHS
-  reporter: [
-    ['allure-playwright', { outputFolder: join(__dirname, 'target/allure-results') }],
-    ['html', { outputFolder: join(__dirname, 'playwright-report') }],
-    ['junit', { outputFile: join(__dirname, 'test-results/junit-report.xml') }],
-  ],
+  // reporter: [
+  //   ['allure-playwright', { outputFolder: join(__dirname, 'target/allure-results') }],
+  //   ['html', { outputFolder: join(__dirname, 'playwright-report') }],
+  //   ['junit', { outputFile: join(__dirname, 'test-results/junit-report.xml') }],
+  // ],
 
   use: {
     ...commonUse,
