@@ -27,11 +27,12 @@
                 "custodian": [
                     "string"
                 ],
-                "investmentMin": {
-                    "additionalProp1": 1,
-                    "additionalProp2": 2,
-                    "additionalProp3": 3
-                },
+                "investmentMin": [
+                    {
+                        "type": "System",
+                        "value": 1
+                    }
+                ],
                 "modelType": "string",
                 "riskProfile": "string",
                 "metadata": {
@@ -40,7 +41,7 @@
                     "additionalProp3": "string"
                 }
             },
-            "allocationDetail": [
+            "allocations": [
                 {
                     "entityType": "Model",
                     "allocationName": "string",
@@ -52,7 +53,7 @@
             ],
             "investmentApproachName": "string",
             "benchmarkName": "string",
-            "benchmarkIsPrimary": true
+            "benchmarkIsPrimary": false
         },
         "expected_status": "201",
         "expected_response_schema": "models\\schemas\\Schema_post_response copy.json",

@@ -517,12 +517,12 @@
             },
             {
                 "from": "request",
-                "key": "allocationDetail.0.ticker",
+                "key": "allocations.0.ticker",
                 "assign_to": "tc002_expected_ticker_1"
             },
             {
                 "from": "request",
-                "key": "allocationDetail.0.weight",
+                "key": "allocations.0.weight",
                 "assign_to": "tc002_expected_weight_1"
             },
             {
@@ -644,12 +644,12 @@
             },
             {
                 "from": "response",
-                "key": "models.0.holdings.0.ticker",
+                "key": "models.0.allocations.0.ticker",
                 "assign_to": "tc002_updated_ticker_1"
             },
             {
                 "from": "response",
-                "key": "models.0.holdings.0.weight",
+                "key": "models.0.allocations.0.weight",
                 "assign_to": "tc002_updated_weight_1"
             },
             {
@@ -948,17 +948,17 @@
             },
             {
                 "from": "request",
-                "key": "allocationDetail.0.entityType",
+                "key": "allocations.0.entityType",
                 "assign_to": "tc003_expected_entity_type"
             },
             {
                 "from": "request",
-                "key": "allocationDetail.0.modelId",
+                "key": "allocations.0.modelId",
                 "assign_to": "tc003_expected_model_id_1"
             },
             {
                 "from": "request",
-                "key": "allocationDetail.0.weight",
+                "key": "allocations.0.weight",
                 "assign_to": "tc003_expected_weight_1"
             }
         ],
@@ -1025,17 +1025,17 @@
             },
             {
                 "from": "response",
-                "key": "models.0.holdings.0.entityType",
+                "key": "models.0.allocations.0.entityType",
                 "assign_to": "tc003_updated_entity_type"
             },
             {
                 "from": "response",
-                "key": "models.0.holdings.0.modelId",
+                "key": "models.0.allocations.0.modelId",
                 "assign_to": "tc003_updated_model_id_1"
             },
             {
                 "from": "response",
-                "key": "models.0.holdings.0.weight",
+                "key": "models.0.allocations.0.weight",
                 "assign_to": "tc003_updated_weight_1"
             }
         ],
@@ -1250,27 +1250,27 @@
             },
             {
                 "from": "request",
-                "key": "allocationDetail.0.entityType",
+                "key": "allocations.0.entityType",
                 "assign_to": "tc004_expected_entity_type_1"
             },
             {
                 "from": "request",
-                "key": "allocationDetail.0.modelId",
+                "key": "allocations.0.modelId",
                 "assign_to": "tc004_expected_model_id_1"
             },
             {
                 "from": "request",
-                "key": "allocationDetail.1.modelId",
+                "key": "allocations.1.modelId",
                 "assign_to": "tc004_expected_model_id_2"
             },
             {
                 "from": "request",
-                "key": "allocationDetail.2.modelId",
+                "key": "allocations.2.modelId",
                 "assign_to": "tc004_expected_model_id_3"
             },
             {
                 "from": "request",
-                "key": "allocationDetail.2.weight",
+                "key": "allocations.2.weight",
                 "assign_to": "tc004_expected_weight_3"
             }
         ],
@@ -1342,27 +1342,27 @@
             },
             {
                 "from": "response",
-                "key": "models.0.holdings.0.entityType",
+                "key": "models.0.allocations.0.entityType",
                 "assign_to": "tc004_updated_entity_type_1"
             },
             {
                 "from": "response",
-                "key": "models.0.holdings.0.modelId",
+                "key": "models.0.allocations.0.modelId",
                 "assign_to": "tc004_updated_model_id_1"
             },
             {
                 "from": "response",
-                "key": "models.0.holdings.1.modelId",
+                "key": "models.0.allocations.1.modelId",
                 "assign_to": "tc004_updated_model_id_2"
             },
             {
                 "from": "response",
-                "key": "models.0.holdings.2.modelId",
+                "key": "models.0.allocations.2.modelId",
                 "assign_to": "tc004_updated_model_id_3"
             },
             {
                 "from": "response",
-                "key": "models.0.holdings.2.weight",
+                "key": "models.0.allocations.2.weight",
                 "assign_to": "tc004_updated_weight_3"
             }
         ],

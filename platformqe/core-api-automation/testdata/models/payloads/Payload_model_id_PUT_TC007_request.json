@@ -6,11 +6,12 @@
       "Fidelity",
       "Charles Schwab"
     ],
-    "investmentMin": {
-      "standard": 10000,
-      "premium": 50000,
-      "institutional": 250000
-    },
+    "investmentMin":  [
+    {
+      "type": "System",
+      "value": 4
+    }
+  ],
     "modelType": "Conservative",
     "riskProfile": "Low Risk - Stable Income",
     "metadata": {
@@ -18,7 +19,7 @@
       "taxManaged": "false"
     }
   },
-  "allocationDetail": [
+  "allocations": [
     {
       "entityType": "Security",
       "allocationName": "iShares 20+ Year Treasury Bond ETF",

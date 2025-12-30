@@ -1,6 +1,6 @@
 {
   "name": "Model-Based Portfolio - Diversified Strategy",
-  "modelType": "Moderate",
+  "modelType": "Multi-Model",
   "solutionType": "Multi-Model Approach",
   "custodian": [
     "Fidelity",
@@ -17,13 +17,14 @@
       "id": 0
     }
   ],
-  "investmentMin": {
-    "standard": 50000,
-    "premium": 200000,
-    "institutional": 750000
-  },
+  "investmentMin":  [
+    {
+      "type": "System",
+      "value": 2
+    }
+  ],
   "riskProfile": "Moderate Risk - Balanced Returns",
-  "allocationDetail": [
+  "allocations": [
     {
       "entityType": "Model",
       "allocationName": "Growth Model Portfolio",
