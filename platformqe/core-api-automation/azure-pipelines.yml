@@ -235,6 +235,7 @@ stages:
         inputs:
           targetType: inline
           script: |
+            export PYTHONPATH="${PYTHONPATH}:$(pwd)"
             python3 framework/reporter/email_reporter.py \
               --build-number "$(Build.BuildNumber)" \
               --job-status "$(Agent.JobStatus)" \
