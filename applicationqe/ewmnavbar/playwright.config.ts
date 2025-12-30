@@ -60,6 +60,10 @@ export default defineConfig({
 
   use: {
     ...commonUse,
+    screenshot: 'only-on-failure',
+    // video: 'retain-on-failure',
+    // trace: 'retain-on-failure', 
+    // retries: process.env.CI ? 2 : 1,
   },
 
   projects: [
@@ -78,6 +82,7 @@ export default defineConfig({
       dependencies: ["setup"],
       use: {
         ...commonUse,
+        screenshot: 'only-on-failure',
         storageState: authFile,
         channel: 'chrome', 
       },
@@ -89,6 +94,7 @@ export default defineConfig({
       testDir: "./e2e/userRoles", 
       testMatch: "**/*.spec.ts",
       use: {
+        screenshot: 'only-on-failure',
         ...commonUse,
         channel: 'chrome',
       },
@@ -99,7 +105,9 @@ export default defineConfig({
       name: "local",
       testDir: "./e2e/local", 
       testMatch: "**/*.spec.ts",
-      use: { ...commonUse, channel: 'chrome' },
+      use: { ...commonUse, 
+        screenshot: 'only-on-failure',
+        channel: 'chrome' },
     },
 
     // 5. Experimental
@@ -110,6 +118,7 @@ export default defineConfig({
       dependencies: ["setup"], 
       use: {
         ...commonUse,
+        screenshot: 'only-on-failure',
         storageState: authFile, 
         channel: 'chrome',
       },

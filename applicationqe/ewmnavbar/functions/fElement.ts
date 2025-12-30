@@ -1,4 +1,4 @@
-import { expect, Locator } from "@playwright/test";
+import { expect, Locator, test } from "@playwright/test";
 import { Logger } from "./fBrowser"; 
 
 export class ElementHelper {
@@ -10,7 +10,8 @@ export class ElementHelper {
     private async wrap<T>(
         action: () => Promise<T>,
         successMsg: string,
-        failMsg: string
+        failMsg: string,
+        element?: Locator 
     ): Promise<T> {
         try {
             const result = await action();
@@ -18,7 +19,18 @@ export class ElementHelper {
             return result;
         } catch (error: any) {
             const detailedError = `${failMsg}\nReason: ${error.message}`;
-            if (this.logger) await this.logger(detailedError);
+            
+            // 📸 AUTO-SCREENSHOT ON FAIL
+            const screenshot = await test.info().attach('failure-screenshot', {
+                path: await test.info().outputPath('failure.png'),
+                contentType: 'image/png',
+            }).catch(() => null); 
+
+            if (this.logger) {
+                await this.logger(`📸 Screenshot captured for failure: ${failMsg}`);
+                await this.logger(detailedError);
+            }
+            
             throw new Error(detailedError);
         }
     }

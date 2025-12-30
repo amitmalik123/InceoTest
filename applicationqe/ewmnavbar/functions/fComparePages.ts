@@ -1,4 +1,4 @@
-import { expect, type Page, Locator, test } from "@playwright/test"; // 
+import { expect, type Page, Locator, test } from "@playwright/test";
 import { ModalCookiesPage } from "../pages/HomePages/pModalCookies";
 
 export type ElementCounts = {
@@ -17,7 +17,6 @@ export class ComparePageFunction {
     private readonly page: Page;
     private readonly logger: Logger;
     private readonly testInfo: any;
-
     private readonly trackedElements: Array<keyof ElementCounts> = ['img', 'a', 'p', 'span', 'label', 'input'];
 
     constructor(page: Page, logger: Logger, testInfo: any) {
@@ -35,22 +34,36 @@ export class ComparePageFunction {
         return fullString;
     }
 
+    /**
+     * NEW: Ensures the iFrame and its internal content are actually ready
+     */
+    private async waitForIFrameReady(iframeLocator: Locator, contentLocator: Locator) {
+        await this.logger('⏳ Waiting for iFrame and Content to stabilize...');
+        
+        // 1. Wait for the iFrame element itself to be visible
+        await expect(iframeLocator).toBeVisible({ timeout: 15000 });
+
+        // 2. Ensure the src isn't empty or about:blank
+        await expect(iframeLocator).toHaveAttribute('src', /.+/, { timeout: 10000 });
+
+        // 3. Wait for the actual content container INSIDE the iFrame to be visible
+        await expect(contentLocator).toBeVisible({ timeout: 15000 });
+        
+        // 4. Brief pause for JS rendering
+        await this.page.waitForTimeout(1000); 
+    }
+
     private async countElements(
         parentLocator: Locator,
         contextName: 'NavBar' | 'Legacy'
     ): Promise<ElementCounts> {
         const counts: Partial<ElementCounts> = {}; 
-        
         await this.logger(`--- Counting elements on ${contextName} page context ---`);
 
         for (const tag of this.trackedElements) {
             const count = await parentLocator.locator(tag as string).count();
             counts[tag] = count;
-
-            let icon = '🔹';
-            if (tag === 'img') icon = '🖼️';
-            if (tag === 'a') icon = '🔗';
-            
+            let icon = tag === 'img' ? '🖼️' : tag === 'a' ? '🔗' : '🔹';
             await this.logger(`${icon} ${contextName}: Found ${count} <${tag}> elements`);
         }
 
@@ -62,16 +75,14 @@ export class ComparePageFunction {
         auditContentLocator: Locator,
         originalContentLocator: Locator
     ) {
+        // --- STEP 0: Wait for iFrame to actually LOAD before grabbing URL ---
+        await this.waitForIFrameReady(iframeLocator, originalContentLocator);
+
         const iFrameUrl = await iframeLocator.getAttribute('src');
 
         if (!iFrameUrl) {
             await this.logger('❌ Comparison Skipped: Could not find iFrame URL.');
-            return {
-                mismatch: true,
-                legacyUrl: null,
-                navCounts: null,
-                legacyCounts: null
-            };
+            return { mismatch: true, legacyUrl: null, navCounts: null, legacyCounts: null };
         }
 
         const { navCounts, legacyCounts } = await this.compareContentCounts(
@@ -82,7 +93,6 @@ export class ComparePageFunction {
         );
 
         let mismatch = false;
-
         await this.logger('--- 📊 Comparing Results ---');
         for (const tag of this.trackedElements) {
             const nav = navCounts[tag];
@@ -96,12 +106,7 @@ export class ComparePageFunction {
             }
         }
 
-        return {
-            navCounts,
-            legacyCounts,
-            mismatch,
-            legacyUrl: iFrameUrl,
-        };
+        return { navCounts, legacyCounts, mismatch, legacyUrl: iFrameUrl };
     }
 
     async compareContentCounts(
@@ -110,19 +115,17 @@ export class ComparePageFunction {
         auditContentLocator: Locator,
         originalContentLocator: Locator
     ) {
-        // --- Handle Modal in Current Page ---
         const iFrameSelector = this.extractSelectorString(navBarIFrameLocator);
         const iFrameContext = this.page.frameLocator(iFrameSelector); 
         const navBarModal = new ModalCookiesPage(iFrameContext as any, this.logger);
 
         try {
             await navBarModal.closeModal();
-            await expect(navBarIFrameLocator).toBeVisible({ timeout: 10000 });
+            await expect(originalContentLocator).toBeVisible({ timeout: 5000 });
         } catch (error) {
-            await this.logger(`⚠️ Warning: Modal handling failed inside NavBar iFrame.`);
+            await this.logger(`⚠️ Warning: Modal handling/visibility failed inside NavBar iFrame.`);
         }
 
-        // --- Count Elements on Current Page ---
         const navCounts = await this.countElements(originalContentLocator, 'NavBar');
 
         // --- Open Legacy Page ---
@@ -130,9 +133,9 @@ export class ComparePageFunction {
         const newPage = await context.newPage();
         
         await this.logger(`🆕 Opening Legacy URL: ${iFrameUrl}`);
-        await newPage.goto(iFrameUrl, { waitUntil: 'domcontentloaded' });
+        // Wait for network idle to ensure legacy scripts finish
+        await newPage.goto(iFrameUrl, { waitUntil: 'networkidle' });
 
-        // --- Handle Modal on Legacy Page ---
         const legacyModal = new ModalCookiesPage(newPage, this.logger);
         const legacySelectorString = this.extractSelectorString(auditContentLocator);
         const legacyLocator = newPage.locator(legacySelectorString);
@@ -144,24 +147,17 @@ export class ComparePageFunction {
             await this.logger(`⚠️ Warning: Modal/Wait failed on Legacy page.`);
         }
 
-        // --- 📸 SCREENSHOT  ---
+        // --- 📸 ATTACH SCREENSHOT ---
         try {
-            if (!this.testInfo) {
-                console.error("❌ ERROR: testInfo is undefined! Screenshot cannot be attached.");
-                await this.logger("❌ ERROR: testInfo is undefined. Check your test file arguments.");
-            } else {
-                const screenshot = await newPage.screenshot({ fullPage: true });
-                await this.testInfo.attach('Legacy App Screenshot', { 
-                    body: screenshot, 
-                    contentType: 'image/png' 
-                });
-                await this.logger('📸 Screenshot successfully attached to report.');
-            }
+            const screenshot = await newPage.screenshot({ fullPage: true });
+            await this.testInfo.attach('Legacy App Screenshot', { 
+                body: screenshot, 
+                contentType: 'image/png' 
+            });
         } catch (e) {
             await this.logger(`⚠️ Screenshot Failed: ${e}`);
         }
 
-        // --- Count Elements on Legacy Page ---
         let legacyCounts: ElementCounts = { img: 0, a: 0, p: 0, span: 0, label: 0, input: 0 };
 
         try {
@@ -174,7 +170,6 @@ export class ComparePageFunction {
             await this.logger(`❌ Error counting on legacy page: ${e}`);
         }
 
-        // --- Cleanup ---
         await newPage.close();
         await this.page.bringToFront();
 

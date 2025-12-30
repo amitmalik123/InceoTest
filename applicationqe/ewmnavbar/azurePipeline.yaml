@@ -52,7 +52,6 @@ parameters:
       - all
       - compareiFrame
       - userRoles
-      - setup
 
   - name: testFilter
     displayName: "Test Filter (e.g., 'sub-menus', 'Accounts', 'Clients', 'Strategists', 'Overview', 'Insights', 'Strategies', 'Research', 'Investments', 'Lending', 'Financial Planning', 'Knowledge Base', 'Contact Us', or leave blank for all)"
