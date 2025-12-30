@@ -1,35 +1,31 @@
-# --- Dependencies ---
+# Ignore other repos/subprojects
+/qeautomation/.auth/*
+/qeautomation/allure-results/*
+/qeautomation/eWM NavBar/*
+/qeautomation/platformqe/*
+/qeautomation/Salesforce/*
+/qeautomation/test-results/*
+/qeautomation/applicationqe/proposalas/*
+
+# Node and Playwright
 node_modules/
-.pnp
-.pnp.js
-
-# --- Playwright Artifacts (The Bloat) ---
-# These folders contain the thousands of files (Trace, Video, Screenshots)
-allure-results/
-target/
-playwright-report/
 test-results/
+playwright-report/
 blob-report/
-.auth/
-user.json
+playwright/.cache/
+playwright/.auth/
 
-# --- Environment & Secret Files ---
-.env
-.env.*
-!.env.example
-
-# --- System & IDE ---
-.DS_Store
+# VSCode and GitHub
 .vscode/
-.idea/
-Thumbs.db
+.github/
+.auth/
 
-# --- Local & Experimental (Do not push your scratch work) ---
-# This ensures Azure never tries to run your local drafts
+# Allure and custom reports
+allure-results/
+allure-report/
+reports/
+framework/screenshots/
+
+# Ignore everything in e2e/local
 e2e/local/
 e2e/exp/
-
-# --- Ignore other sub-projects if they live in the same repo ---
-qeautomation/platformqe/
-qeautomation/Salesforce/
-qeautomation/applicationqe/proposalas/
