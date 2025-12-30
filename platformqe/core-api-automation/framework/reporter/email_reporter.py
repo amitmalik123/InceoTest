@@ -27,7 +27,7 @@ def send_email_report(build_number, job_status, reports_path, build_id, team_pro
     # Parse email addresses (comma-separated strings to lists)
     to_list = [addr.strip() for addr in to_addrs.split(',') if addr.strip()]
     cc_list = [addr.strip() for addr in cc_addrs.split(',') if addr.strip()] if cc_addrs else []
-    bcc_list = [addr.strip() for addr in bcc_addrs.split(',') if bcc_addrs else []
+    bcc_list = [addr.strip() for addr in bcc_addrs.split(',') if addr.strip()] if bcc_addrs else []
     
     # Add service-specific recipients if service_name is provided
     if service_name:
@@ -94,10 +94,10 @@ def send_email_report(build_number, job_status, reports_path, build_id, team_pro
                     msg.attach(part)
     
     # Send email
-    try:int(smtp_port)) as server:
+    try:
+        with smtplib.SMTP(smtp_server, int(smtp_port)) as server:
             # Combine all recipients (to, cc, bcc)
-            recipients = to_list + cc_list + bcc_listport) as server:
-            recipients = to_addrs + cc_addrs
+            recipients = to_list + cc_list + bcc_list
             server.sendmail(from_addr, recipients, msg.as_string())
             print(f"✅ Email sent successfully to {', '.join(recipients)}")
             return 0
@@ -141,8 +141,8 @@ if __name__ == '__main__':
         args.to_addrs,
         args.cc_addrs,
         args.bcc_addrs,
-        args.subject_prefix
-        args.collection_uri
+        args.subject_prefix,
+        args.service_name
     )
     
     sys.exit(exit_code)
