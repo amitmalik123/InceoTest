@@ -116,22 +116,22 @@ test.describe('Portfolio Engine Happy Path Tests', () => {
 
         // Define widgets to wait for
         const widgetsToVerify = [
-            { name: 'Performance', locator: portfolioEnginePage.performanceGraphContent },
+            { name: 'Investment Approach', locator: portfolioEnginePage.investmentApproachGraphContent },
+            { name: 'Asset Allocation', locator: portfolioEnginePage.assetAllocationGraphContent },
             { name: 'Drawdown', locator: portfolioEnginePage.drawdownGraphContent },
             { name: 'Summary Statistics', locator: portfolioEnginePage.summaryStatisticsGraphContent },
             { name: 'Risk vs Return', locator: portfolioEnginePage.riskVsReturnGraphContent },
-            { name: 'Asset Allocation', locator: portfolioEnginePage.assetAllocationGraphContent },
             { name: 'Stress Test', locator: portfolioEnginePage.stressTestGraphContent },
-            { name: 'Return by Strategy', locator: portfolioEnginePage.returnByStrategyGraphContent },
-            { name: 'Investment Approach', locator: portfolioEnginePage.investmentApproachGraphContent },
-            { name: 'Upside/Downside', locator: portfolioEnginePage.upsideDownsideGraphContent }
+            { name: 'Upside/Downside', locator: portfolioEnginePage.upsideDownsideGraphContent },
+            { name: 'Performance', locator: portfolioEnginePage.performanceGraphContent },
+            { name: 'Return by Strategy', locator: portfolioEnginePage.returnByStrategyGraphContent }
         ];
 
-        // Wait for each widget to have content loaded
+        //Expect each widget to have content loaded
         for (const widget of widgetsToVerify) {
             try {
                 console.log(`  Waiting for ${widget.name} to load content...`);
-                await widget.locator.first().waitFor({ state: 'visible', timeout: 20 * 60 * 1000 }); //long timeout due to t10 slow loads
+                await expect(widget.locator.first()).toBeVisible({ timeout: 20 * 60 * 1000 }); //long timeout due to t10 slow loads
             } catch (error) {
                 console.error(`  ✗ ${widget.name} failed to load: ${error.message}`);
             }
