@@ -15,14 +15,14 @@ schedules:
         - playwrightaaron
     always: true
 
-  - cron: "40 20 * * *"      # 3:40 PM EST → Silo
+  - cron: "30 14 * * *"      # 3:40 PM EST → Silo
     displayName: "Schedule for Silo"
     branches:
       include:
         - playwrightaaron
     always: true
 
-  - cron: "0 23 * * *"       # 8 PM EST → Test10
+  - cron: "45 14 * * *"       # 8 PM EST → Test10
     displayName: "Schedule for Test10"
     branches:
       include:
@@ -100,13 +100,13 @@ jobs:
                 echo "##vso[task.setvariable variable=tag]@smokeTest"
                 echo "##vso[task.setvariable variable=threadCount]2"
                 echo "##vso[task.setvariable variable=runnerFile]*"
-              elif [ "$HOUR" -eq 20 ] && [ "$MINUTE" -eq 40 ]; then
+              elif [ "$HOUR" -ge 14 ] && [ "$MINUTE" -ge 30 ]; then
                 # 3:40 PM EST → silo
                 echo "##vso[task.setvariable variable=environment]silo"
                 echo "##vso[task.setvariable variable=tag]@smokeSilo"
                 echo "##vso[task.setvariable variable=threadCount]2"
                 echo "##vso[task.setvariable variable=runnerFile]*"
-              elif [ "$HOUR" -eq 23 ] && [ "$MINUTE" -eq 0 ]; then
+              elif [ "$HOUR" -ge 14 ] && [ "$MINUTE" -ge 45 ]; then
                 # 8:00 PM EST → test10
                 echo "##vso[task.setvariable variable=environment]test10"
                 echo "##vso[task.setvariable variable=tag]@smokeTest"
