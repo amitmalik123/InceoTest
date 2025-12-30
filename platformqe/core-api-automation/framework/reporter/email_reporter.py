@@ -13,6 +13,12 @@ from email.mime.multipart import MIMEMultipart
 from email.mime.text import MIMEText
 from email.mime.base import MIMEBase
 from email import encoders
+from framework.test_helpers.test_result_collector import (
+    TestResultCollector, 
+    aggregate_validation_stats, 
+    generate_test_summary_table, 
+    generate_validation_summary_table
+)
 
 
 def send_email_report(build_number, job_status, reports_path, build_id, team_project, collection_uri,
@@ -48,7 +54,7 @@ def send_email_report(build_number, job_status, reports_path, build_id, team_pro
         
         print(f"📧 Service-specific routing for '{service_name}': TO={len(to_list)}, CC={len(cc_list)}, BCC={len(bcc_list)}")
     
-    subject = f'{subject_prefix}{job_status} - API Test Report - Build {build_number}'
+    subject = f'{subject_prefix} - {job_status} - Job# {build_number}'
     if service_name:
         subject += f' - {service_name.upper()}'
     
@@ -60,38 +66,77 @@ def send_email_report(build_number, job_status, reports_path, build_id, team_pro
         msg['Cc'] = ', '.join(cc_list)
     msg['Subject'] = subject
     
-    # Build URL
+    # Build URLs
     build_url = f"{collection_uri}{team_project}/_build/results?buildId={build_id}"
+    artifacts_url = f"{collection_uri}{team_project}/_build/results?buildId={build_id}&view=artifacts&type=publishedArtifacts"
+    
+    # Get statistics from TestResultCollector
+    collector = TestResultCollector()
+    test_summary = collector.get_summary_stats()
+    validation_stats = aggregate_validation_stats(collector)
+    
+    # Log summary
+    print(f"📊 Test Summary: {test_summary['total']} tests ({test_summary['passed']} passed, {test_summary['failed']} failed, {test_summary['skipped']} skipped)")
+    total_val = sum(v['total'] for v in validation_stats.values())
+    total_val_passed = sum(v['passed'] for v in validation_stats.values())
+    print(f"📊 Validation Summary: {total_val} total ({total_val_passed} passed, {total_val - total_val_passed} failed)")
+    
+    # Generate HTML tables using shared utilities
+    test_table = generate_test_summary_table(test_summary, style='simple')
+    validation_table = generate_validation_summary_table(validation_stats, style='simple')
+    stats_tables = f"""
+    <h3>📈 Test Execution Summary</h3>
+    {test_table}
+    
+    <h3>🔍 Validation Scenarios Summary</h3>
+    {validation_table}
+    """
     
     # Email body
     body = f"""
     <html>
+    <head>
+        <style>
+            body {{ font-family: Arial, sans-serif; }}
+            h2 {{ color: #333; }}
+            h3 {{ color: #555; margin-top: 20px; }}
+            table {{ border-collapse: collapse; width: 100%; margin-bottom: 20px; }}
+            th, td {{ border: 1px solid #ddd; padding: 8px; }}
+            th {{ background-color: #f2f2f2; font-weight: bold; }}
+        </style>
+    </head>
     <body>
     <h2>API Test Report</h2>
-    <p><strong>Build Number:</strong> {build_number}</p>
+    <p><strong>Job Number:</strong> {build_number}</p>
     <p><strong>Job Status:</strong> {job_status}</p>
-    <p><strong>Build URL:</strong> <a href="{build_url}">View Build</a></p>
-    <p>Test reports are attached to this email and published as build artifacts.</p>
+    <p><strong>Job URL:</strong> <a href="{build_url}">View Test Execution</a></p>
+    <p><strong>Test Reports:</strong> <a href="{artifacts_url}">View and Download Artifacts</a></p>
+    
+    <hr>
+    
+    {stats_tables}
+    
+    <p style="margin-top: 20px; font-size: 0.9em; color: #666;">Test reports are available as build artifacts in Azure DevOps.</p>
     </body>
     </html>
     """
     msg.attach(MIMEText(body, 'html'))
     
-    # Attach files
-    print(f"Looking for attachments in: {reports_path}")
-    
-    # Find and attach reports
-    for file_pattern in ['junit_report*.xml', 'test_summary.json', 'performance_report.html']:
-        files = glob.glob(os.path.join(reports_path, file_pattern))
-        for filepath in files:
-            if os.path.exists(filepath):
-                print(f"Attaching: {filepath}")
-                with open(filepath, 'rb') as f:
-                    part = MIMEBase('application', 'octet-stream')
-                    part.set_payload(f.read())
-                    encoders.encode_base64(part)
-                    part.add_header('Content-Disposition', f'attachment; filename={os.path.basename(filepath)}')
-                    msg.attach(part)
+    # Attach files (DISABLED - using hyperlink instead)
+    # print(f"Looking for attachments in: {reports_path}")
+    # 
+    # # Find and attach reports
+    # for file_pattern in ['junit_report*.xml', 'test_summary.json', 'performance_report.html']:
+    #     files = glob.glob(os.path.join(reports_path, file_pattern))
+    #     for filepath in files:
+    #         if os.path.exists(filepath):
+    #             print(f"Attaching: {filepath}")
+    #             with open(filepath, 'rb') as f:
+    #                 part = MIMEBase('application', 'octet-stream')
+    #                 part.set_payload(f.read())
+    #                 encoders.encode_base64(part)
+    #                 part.add_header('Content-Disposition', f'attachment; filename={os.path.basename(filepath)}')
+    #                 msg.attach(part)
     
     # Send email
     try:
