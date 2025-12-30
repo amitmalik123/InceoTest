@@ -156,8 +156,7 @@ def pytest_html_results_summary(prefix, summary, postfix, session):
     """Add custom leadership dashboard-style summary with accurate test counts"""
     from html import escape
     from datetime import datetime
-    from framework.test_helpers.test_result_collector import TestResultCollector
-    
+    from framework.test_helpers.test_result_collector import TestResultCollector, aggregate_validation_stats
     # Get accurate test counts from pytest session stats
     terminalreporter = session.config.pluginmanager.get_plugin('terminalreporter')
     
@@ -171,75 +170,9 @@ def pytest_html_results_summary(prefix, summary, postfix, session):
     
     total = passed + failed + skipped + errors + xfailed + xpassed
     
-    # Collect consolidated validation statistics from all test results
+    # Get validation statistics using shared utility
     result_collector = TestResultCollector()
-    all_results = result_collector.get_results()
-    
-    # Initialize consolidated validation counters
-    consolidated_validations = {
-        'status_code': {'total': 0, 'passed': 0, 'failed': 0},
-        'contract': {'total': 0, 'passed': 0, 'failed': 0},
-        'security': {'total': 0, 'passed': 0, 'failed': 0},
-        'performance': {'total': 0, 'passed': 0, 'failed': 0},
-        'data_comparison': {'total': 0, 'passed': 0, 'failed': 0},
-        'assertions': {'total': 0, 'passed': 0, 'failed': 0}
-    }
-    
-    # Aggregate validation stats from all results
-    for result in all_results:
-        # Status code validation (use actual status_code_checks stats if available)
-        validation_stats = result.get('validation_stats', {})
-        status_code_stats = validation_stats.get('status_code_checks', {})
-        
-        if status_code_stats.get('total', 0) > 0:
-            # Use actual status code validation stats
-            consolidated_validations['status_code']['total'] += status_code_stats['total']
-            consolidated_validations['status_code']['passed'] += status_code_stats['passed']
-            consolidated_validations['status_code']['failed'] += status_code_stats['failed']
-        elif result.get('status_code'):
-            # Fallback: if status_code exists but no stats, assume it was validated
-            consolidated_validations['status_code']['total'] += 1
-            # Check if test passed overall as a best guess (only if no other validation failed)
-            if result.get('status') == 'PASS':
-                consolidated_validations['status_code']['passed'] += 1
-            else:
-                # Only count as failed if no specific validation stats indicate otherwise
-                consolidated_validations['status_code']['failed'] += 1
-        
-        # Contract checks
-        contract_stats = validation_stats.get('contract_checks', {})
-        if contract_stats.get('total', 0) > 0:
-            consolidated_validations['contract']['total'] += contract_stats['total']
-            consolidated_validations['contract']['passed'] += contract_stats['passed']
-            consolidated_validations['contract']['failed'] += contract_stats['failed']
-        
-        # Security checks
-        security_stats = validation_stats.get('security_checks', {})
-        if security_stats.get('total', 0) > 0:
-            consolidated_validations['security']['total'] += security_stats['total']
-            consolidated_validations['security']['passed'] += security_stats['passed']
-            consolidated_validations['security']['failed'] += security_stats['failed']
-        
-        # Performance checks (use actual performance_checks stats if available)
-        performance_stats = validation_stats.get('performance_checks', {})
-        if performance_stats.get('total', 0) > 0:
-            consolidated_validations['performance']['total'] += performance_stats['total']
-            consolidated_validations['performance']['passed'] += performance_stats['passed']
-            consolidated_validations['performance']['failed'] += performance_stats['failed']
-        
-        # Data comparisons
-        comparison_stats = validation_stats.get('data_comparisons', {})
-        if comparison_stats.get('total', 0) > 0:
-            consolidated_validations['data_comparison']['total'] += comparison_stats['total']
-            consolidated_validations['data_comparison']['passed'] += comparison_stats['passed']
-            consolidated_validations['data_comparison']['failed'] += comparison_stats['failed']
-        
-        # Assertions
-        assertion_stats = validation_stats.get('assertions', {})
-        if assertion_stats.get('total', 0) > 0:
-            consolidated_validations['assertions']['total'] += assertion_stats['total']
-            consolidated_validations['assertions']['passed'] += assertion_stats['passed']
-            consolidated_validations['assertions']['failed'] += assertion_stats['failed']
+    consolidated_validations = aggregate_validation_stats(result_collector)
     
     # Calculate totals for all validations
     total_validations = sum(v['total'] for v in consolidated_validations.values())
@@ -249,7 +182,7 @@ def pytest_html_results_summary(prefix, summary, postfix, session):
     
     # Build service and endpoint level statistics
     service_stats = {}
-    for result in all_results:
+    for result in result_collector.get_results():
         service_name = result.get('service_name', 'Unknown')
         endpoint = result.get('endpoint', 'Unknown')
         method = result.get('method', 'GET')
