@@ -13,6 +13,6 @@ test("create auth storage", async ({ page }) => {
     await page.waitForURL("**/dashboard", { timeout: 60000 });
 
   await page.context().storageState({ path: '.auth/user.json' });
-  console.log("✅ Auth storage SAVED ");
+  console.log("🔐 Auth storage SAVED ");
 });
 

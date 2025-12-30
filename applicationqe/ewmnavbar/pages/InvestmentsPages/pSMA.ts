@@ -1,11 +1,13 @@
-
 import { expect, type Locator, type Page } from "@playwright/test";
-import { elemVisible } from '../../functions/fElementHelper';
+import { BrowserActions } from '../../functions/fBrowser';
+import { ElementHelper } from '../../functions/fElement';
+
 type Logger = (msg: string) => Promise<void>;
 
 export class SMAPage {
     readonly page: Page;
-    private logger: Logger;
+    private fBrowser: BrowserActions;
+    private fElement: ElementHelper;
 
     readonly smSMAHL: Locator;
     readonly secSMA: Locator;
@@ -15,32 +17,37 @@ export class SMAPage {
     readonly secSiteCore: Locator;
     readonly secLegacySiteCore: Locator;
 
-
     constructor(page: Page, logger: Logger) {
         this.page = page;
-        this.logger = logger;
+        this.fBrowser = new BrowserActions(page, logger);
+        this.fElement = new ElementHelper(logger);
 
-        const iFrame = page.frameLocator('iframe[title="SMA"]');
-        const site = "#sitecore-content"
+        const iFrameSelector = 'iframe[title="SMA"]';
+        const contentSelector = "#sitecore-content";
+        const iFrameContext = page.frameLocator(iFrameSelector);
 
-        this.secIFrameContent = iFrame.locator(site);
-        this.secSiteCore = iFrame.locator(site);
-        this.secLegacySiteCore = page.locator(site);
-
-        this.smSMAHL = page.locator('[class="active"][aria-current="page"]').filter({ hasText: 'SMA' });
+        this.smSMAHL = page.locator('a.active',{ hasText: 'SMA' });
         this.secSMA = page.getByTitle('SMA');
+        // Note: Check if txtManagement is inside the iframe or main page. 
+        // Assuming main page based on original code, but if it fails, switch to iFrameContext.getByText(...)
         this.txtManagement = page.getByText('Clients look to you to help reach their unique financial goals. Now you have access to a curated suite of professionally managed SMAs on the AssetMark platform, designed to help tailor clients');
+
+        this.secIFrameContent = iFrameContext.locator(contentSelector);
+        this.secSiteCore = iFrameContext.locator(contentSelector);
+        this.secLegacySiteCore = page.locator(contentSelector);
     }
 
     async LoadsPage() {
-        await this.logger((await this.secSMA.getAttribute('src')).toString());
+        await this.fElement.waitForElemVisible(this.smSMAHL, 'submenu SMA (Highlighted)');
+
+        const src = await this.secSMA.getAttribute('src');
+        await this.fElement.log(`ℹ️ iFrame Source: ${src}`);
 
         await expect(this.secSMA).toHaveAttribute(
             'src',
             /Investments\/SMA\.aspx$/
         );
-        await this.logger((await this.secSMA.getAttribute('src')).toString());
-        await elemVisible(this.smSMAHL, 'submenu SMA is Highlighted', this.logger);
-        await this.logger('Page loaded for Investments > SMA');
+
+        await this.fElement.log('✅ Landed on Page: Investments > SMA');
     }
 }

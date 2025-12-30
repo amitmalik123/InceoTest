@@ -1,11 +1,13 @@
-
 import { expect, type Locator, type Page } from "@playwright/test";
-import { elemVisible } from '../../functions/fElementHelper';
+import { BrowserActions } from '../../functions/fBrowser';
+import { ElementHelper } from '../../functions/fElement';
+
 type Logger = (msg: string) => Promise<void>;
 
 export class GuidedPortfoliosPage {
     readonly page: Page;
-    private logger: Logger;
+    private fBrowser: BrowserActions;
+    private fElement: ElementHelper;
 
     readonly smGuidedPortfoliosHL: Locator;
     readonly secGuidedPortfolios: Locator;
@@ -17,29 +19,33 @@ export class GuidedPortfoliosPage {
 
     constructor(page: Page, logger: Logger) {
         this.page = page;
-        this.logger = logger;
+        this.fBrowser = new BrowserActions(page, logger);
+        this.fElement = new ElementHelper(logger);
 
-        const iFrame = page.frameLocator('iframe[title="Guided Portfolios"]');
-        const site = "#sitecore-content"
+        const iFrameSelector = 'iframe[title="Guided Portfolios"]';
+        const contentSelector = "#sitecore-content";
+        const iFrameContext = page.frameLocator(iFrameSelector);
 
-        this.secIFrameContent = iFrame.locator(site);
-        this.secSiteCore = iFrame.locator(site);
-        this.secLegacySiteCore = page.locator(site);
-
-        this.smGuidedPortfoliosHL = page.locator('[class="active"][aria-current="page"]').filter({ hasText: 'Guided Portfolios' });
+        this.smGuidedPortfoliosHL = page.locator('a.active',{ hasText: 'Guided Portfolios' });
         this.secGuidedPortfolios = page.getByTitle('Guided Portfolios');
         this.txtGPS = page.getByText('Guided Portfolio Solutions (GPS)');
+
+        this.secIFrameContent = iFrameContext.locator(contentSelector);
+        this.secSiteCore = iFrameContext.locator(contentSelector);
+        this.secLegacySiteCore = page.locator(contentSelector);
     }
 
     async LoadsPage() {
-        await this.logger((await this.secGuidedPortfolios.getAttribute('src')).toString());
+        await this.fElement.waitForElemVisible(this.smGuidedPortfoliosHL, 'submenu Guided Portfolios (Highlighted)');
+
+        const src = await this.secGuidedPortfolios.getAttribute('src');
+        await this.fElement.log(`ℹ️ iFrame Source: ${src}`);
 
         await expect(this.secGuidedPortfolios).toHaveAttribute(
             'src',
             /Investments\/Guided-Portfolios\/About\.aspx$/
         );
-        await this.logger((await this.secGuidedPortfolios.getAttribute('src')).toString());
-        await elemVisible(this.smGuidedPortfoliosHL, 'submenu Guided Portfolios is Highlighted', this.logger);
-        await this.logger('Page loaded for Investments > Guided Portfolios');
+
+        await this.fElement.log('✅ Landed on Page: Investments > Guided Portfolios');
     }
 }

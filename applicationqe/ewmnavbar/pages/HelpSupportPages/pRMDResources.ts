@@ -1,11 +1,13 @@
-
 import { expect, type Locator, type Page } from "@playwright/test";
-import { elemVisible } from '../../functions/fElementHelper';
+import { BrowserActions } from '../../functions/fBrowser';
+import { ElementHelper } from '../../functions/fElement';
+
 type Logger = (msg: string) => Promise<void>;
 
 export class RMDResourcesPage {
     readonly page: Page;
-    private logger: Logger;
+    private fBrowser: BrowserActions;
+    private fElement: ElementHelper;
 
     readonly smRMDResourcesHL: Locator;
     readonly secRMDResources: Locator;
@@ -17,29 +19,33 @@ export class RMDResourcesPage {
 
     constructor(page: Page, logger: Logger) {
         this.page = page;
-        this.logger = logger;
+        this.fBrowser = new BrowserActions(page, logger);
+        this.fElement = new ElementHelper(logger);
 
-        const iFrame = page.frameLocator('iframe[title="RMD Resources"]');
-        const site = "#sitecore-content"
+        const iFrameSelector = 'iframe[title="RMD Resources"]';
+        const contentSelector = "#sitecore-content";
+        const iFrameContext = page.frameLocator(iFrameSelector);
 
-        this.secIFrameContent = iFrame.locator(site);
-        this.secSiteCore = iFrame.locator(site);
-        this.secLegacySiteCore = page.locator(site);
-
-        this.smRMDResourcesHL = page.locator('[class="active"][aria-current="page"]').filter({ hasText: 'RMD Resources' });
+        this.smRMDResourcesHL =page.locator('a.active',{ hasText: 'RMD Resources' });
         this.secRMDResources = page.getByTitle('RMD Resources');
-        this.imgRMDResources = iFrame.getByAltText('RMD Resources');
+        this.imgRMDResources = iFrameContext.getByAltText('RMD Resources');
 
+        this.secIFrameContent = iFrameContext.locator(contentSelector);
+        this.secSiteCore = iFrameContext.locator(contentSelector);
+        this.secLegacySiteCore = page.locator(contentSelector);
     }
 
     async LoadsPage() {
-        await this.logger((await this.secRMDResources.getAttribute('src')).toString());
+        await this.fElement.waitForElemVisible(this.smRMDResourcesHL, 'submenu RMD Resources (Highlighted)');
+
+        const src = await this.secRMDResources.getAttribute('src');
+        await this.fElement.log(`ℹ️ iFrame Source: ${src}`);
 
         await expect(this.secRMDResources).toHaveAttribute(
             'src',
             /Administration\/Tax-Resources\/rmd_center\.aspx$/
         );
-        await elemVisible(this.smRMDResourcesHL, 'submenu RMD Resources is Highlighted', this.logger);
-        await this.logger('Page loaded for Help & Support > RMD Resources');
+        
+        await this.fElement.log('✅ Landed on Page: Help & Support > RMD Resources');
     }
 }

@@ -1,8 +1,6 @@
-import { expect, type Page, Locator } from "@playwright/test";
+import { expect, type Page, Locator, test } from "@playwright/test"; // 
 import { ModalCookiesPage } from "../pages/HomePages/pModalCookies";
-import { getImage } from '../helper/getImage';
 
-// Define the type for the elements we are tracking
 export type ElementCounts = {
     img: number;
     a: number;
@@ -25,74 +23,58 @@ export class ComparePageFunction {
     constructor(page: Page, logger: Logger, testInfo: any) {
         this.page = page;
         this.logger = logger;
-        this.testInfo = testInfo;
+        this.testInfo = testInfo || test.info(); 
     }
 
-    // ------------------------------------------------------------------
-    // Helper Function to strip the 'locator(...)' wrapper
-    // ------------------------------------------------------------------
     private extractSelectorString(locator: Locator): string {
         const fullString = locator.toString();
         const match = fullString.match(/locator\((.*)\)/);
-
         if (match && match[1]) {
             return match[1].replace(/^['"]|['"]$/g, '');
         }
-
         return fullString;
     }
 
-    // ------------------------------------------------------------------
-    // ⭐ NEW: Generic method to count all tracked elements in a locator
-    // ------------------------------------------------------------------
     private async countElements(
         parentLocator: Locator,
         contextName: 'NavBar' | 'Legacy'
     ): Promise<ElementCounts> {
-        const counts: Partial<ElementCounts> = {};
-
+        const counts: Partial<ElementCounts> = {}; 
+        
         await this.logger(`--- Counting elements on ${contextName} page context ---`);
 
         for (const tag of this.trackedElements) {
-            const selector = tag as string;
-            const count = await parentLocator.locator(selector).count();
+            const count = await parentLocator.locator(tag as string).count();
             counts[tag] = count;
-            let logMsg = `${contextName} No. of: <${tag}> elements: ${count}`;
-            if (tag === 'img') logMsg = logMsg.replace(/<\w+>/, '🖼️ Images');
-            if (tag === 'a') logMsg = logMsg.replace(/<\w+>/, '🔗 Links');
 
-            await this.logger(logMsg);
+            let icon = '🔹';
+            if (tag === 'img') icon = '🖼️';
+            if (tag === 'a') icon = '🔗';
+            
+            await this.logger(`${icon} ${contextName}: Found ${count} <${tag}> elements`);
         }
 
         return counts as ElementCounts;
     }
 
-    // ------------------------------------------------------------------
-    // 1. High-Level Helper Method 
-    // ------------------------------------------------------------------
     async compareNavBarwithLegacy(
         iframeLocator: Locator,
         auditContentLocator: Locator,
         originalContentLocator: Locator
     ) {
         const iFrameUrl = await iframeLocator.getAttribute('src');
-        const defaultCounts: ElementCounts = {
-            img: 0, a: 0, p: 0, span: 0, label: 0, input: 0
-        };
 
         if (!iFrameUrl) {
-            await this.logger('❌ Comparission Skipped: Could not find iFrame URL (iFrame src).');
+            await this.logger('❌ Comparison Skipped: Could not find iFrame URL.');
             return {
-                ...defaultCounts, // Return all counts as 0
                 mismatch: true,
                 legacyUrl: null,
+                navCounts: null,
+                legacyCounts: null
             };
         }
 
-        const {
-            navCounts,
-            legacyCounts
-        } = await this.compareContentCounts(
+        const { navCounts, legacyCounts } = await this.compareContentCounts(
             iFrameUrl,
             iframeLocator,
             auditContentLocator,
@@ -101,19 +83,20 @@ export class ComparePageFunction {
 
         let mismatch = false;
 
-        // Compare all tracked element counts
+        await this.logger('--- 📊 Comparing Results ---');
         for (const tag of this.trackedElements) {
-            if (navCounts[tag] !== legacyCounts[tag]) {
+            const nav = navCounts[tag];
+            const leg = legacyCounts[tag];
+
+            if (nav !== leg) {
                 mismatch = true;
-                await this.logger(`⚠️ Mismatch - <${tag}>: NavBar (${navCounts[tag]}) does not match with Legacy (${legacyCounts[tag]})`);
+                await this.logger(`⚠️ Mismatch <${tag}>: NavBar (${nav}) vs Legacy (${leg})`);
             } else {
-                await this.logger(`✅ Match - <${tag}>: NavBar (${navCounts[tag]}) match with Legacy (${legacyCounts[tag]})`);
+                await this.logger(`✅ Match <${tag}>: ${nav}`);
             }
         }
 
         return {
-            ...navCounts,
-            ...legacyCounts,
             navCounts,
             legacyCounts,
             mismatch,
@@ -121,85 +104,80 @@ export class ComparePageFunction {
         };
     }
 
-    // ------------------------------------------------------------------
-    // 2. Core Comparison Method (Fix applied here)
-    // ------------------------------------------------------------------
     async compareContentCounts(
         iFrameUrl: string,
         navBarIFrameLocator: Locator,
         auditContentLocator: Locator,
         originalContentLocator: Locator
     ) {
-        // Initialize counts
-        let navCounts: ElementCounts = { img: 0, a: 0, p: 0, span: 0, label: 0, input: 0 };
-        let legacyCounts: ElementCounts = { img: 0, a: 0, p: 0, span: 0, label: 0, input: 0 };
-
-        // --- Dynamic Modal Handling (inside iFrame) ---
+        // --- Handle Modal in Current Page ---
         const iFrameSelector = this.extractSelectorString(navBarIFrameLocator);
-        const iFrameContext = this.page.frameLocator(iFrameSelector);
-        const navBarIFrameModal = new ModalCookiesPage(iFrameContext, this.logger);
+        const iFrameContext = this.page.frameLocator(iFrameSelector); 
+        const navBarModal = new ModalCookiesPage(iFrameContext as any, this.logger);
 
         try {
-            await navBarIFrameModal.closeModal();
+            await navBarModal.closeModal();
             await expect(navBarIFrameLocator).toBeVisible({ timeout: 10000 });
         } catch (error) {
-            this.logger(`⚠️ Modal handling failed inside NavBar iFrame.`);
+            await this.logger(`⚠️ Warning: Modal handling failed inside NavBar iFrame.`);
         }
 
-        // --- 1. Count on the NavBar Page Context (using NEW helper) ---
-        navCounts = await this.countElements(originalContentLocator, 'NavBar');
+        // --- Count Elements on Current Page ---
+        const navCounts = await this.countElements(originalContentLocator, 'NavBar');
 
-        // --- 2. Open the NEW Page for Audit ---
+        // --- Open Legacy Page ---
         const context = this.page.context();
         const newPage = await context.newPage();
+        
+        await this.logger(`🆕 Opening Legacy URL: ${iFrameUrl}`);
         await newPage.goto(iFrameUrl, { waitUntil: 'domcontentloaded' });
-        await this.logger(`🆕 Opened Legacy page link: ${iFrameUrl}`);
 
-        // --- Capture screenshot of the legacy app ---
-        const imgHelper = new getImage(newPage, this.testInfo);
-        await imgHelper.wholePage('LegacyAppScreenshot');
-
-        // --- 3. Dynamic Modal Handling (on Legacy/Audit page) & Stabilization FIX ---
-        const legacyPageModal = new ModalCookiesPage(newPage, this.logger);
-
-        // --- Get the clean selector string ---
-        const LegacyLocatorString = this.extractSelectorString(auditContentLocator);
-        const LegacyLocator = newPage.locator(LegacyLocatorString);
+        // --- Handle Modal on Legacy Page ---
+        const legacyModal = new ModalCookiesPage(newPage, this.logger);
+        const legacySelectorString = this.extractSelectorString(auditContentLocator);
+        const legacyLocator = newPage.locator(legacySelectorString);
 
         try {
-            await legacyPageModal.closeModal();
-            await expect(LegacyLocator).toBeVisible({ timeout: 10000 });
+            await legacyModal.closeModal();
+            await expect(legacyLocator).toBeVisible({ timeout: 10000 });
         } catch (error) {
-            this.logger(`⚠️ Modal handling or post-modal stabilization failed on audit page.`);
+            await this.logger(`⚠️ Warning: Modal/Wait failed on Legacy page.`);
         }
 
-        // --- 4. Count on the Legacy Page (using NEW helper) ---
-        let locatorFound = false;
+        // --- 📸 SCREENSHOT  ---
+        try {
+            if (!this.testInfo) {
+                console.error("❌ ERROR: testInfo is undefined! Screenshot cannot be attached.");
+                await this.logger("❌ ERROR: testInfo is undefined. Check your test file arguments.");
+            } else {
+                const screenshot = await newPage.screenshot({ fullPage: true });
+                await this.testInfo.attach('Legacy App Screenshot', { 
+                    body: screenshot, 
+                    contentType: 'image/png' 
+                });
+                await this.logger('📸 Screenshot successfully attached to report.');
+            }
+        } catch (e) {
+            await this.logger(`⚠️ Screenshot Failed: ${e}`);
+        }
+
+        // --- Count Elements on Legacy Page ---
+        let legacyCounts: ElementCounts = { img: 0, a: 0, p: 0, span: 0, label: 0, input: 0 };
 
         try {
-            const locatorCount = await LegacyLocator.count();
-
-            if (locatorCount > 0) {
-                locatorFound = true;
-                // Count all elements within the Legacy Locator
-                legacyCounts = await this.countElements(LegacyLocator, 'Legacy');
+            if (await legacyLocator.count() > 0) {
+                legacyCounts = await this.countElements(legacyLocator, 'Legacy');
             } else {
-                await this.logger(`⚠️ Locator ${LegacyLocatorString} count was 0 (Element not found in DOM).`);
+                await this.logger(`⚠️ Legacy container '${legacySelectorString}' not found.`);
             }
-
         } catch (e) {
-            this.logger(`❌ Counting elements failed for '${LegacyLocatorString}'.`);
-            this.logger(`   Full Error: ${e}`);
+            await this.logger(`❌ Error counting on legacy page: ${e}`);
         }
 
-        // --- 5. Cleanup & Comparison ---
+        // --- Cleanup ---
         await newPage.close();
         await this.page.bringToFront();
 
-        // The comparison logic 
-        return {
-            navCounts,
-            legacyCounts
-        };
+        return { navCounts, legacyCounts };
     }
 }

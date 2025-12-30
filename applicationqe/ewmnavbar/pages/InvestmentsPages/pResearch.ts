@@ -1,13 +1,15 @@
-
 import { expect, type Locator, type Page } from "@playwright/test";
-import { elemVisible } from '../../functions/fElementHelper';
+import { BrowserActions } from '../../functions/fBrowser';
+import { ElementHelper } from '../../functions/fElement';
+
 type Logger = (msg: string) => Promise<void>;
 
 export class ResearchPage {
     readonly page: Page;
-    private logger: Logger;
+    private fBrowser: BrowserActions;
+    private fElement: ElementHelper;
 
-    readonly smResearch: Locator;
+    readonly smResearchHL: Locator;
     readonly secResearch: Locator;
     readonly ddlFilter: Locator;
 
@@ -17,26 +19,33 @@ export class ResearchPage {
 
     constructor(page: Page, logger: Logger) {
         this.page = page;
-        this.logger = logger;
-        this.smResearch = page.locator('[class="active"][aria-current="page"]').filter({ hasText: 'Research' });
+        this.fBrowser = new BrowserActions(page, logger);
+        this.fElement = new ElementHelper(logger);
+
+        const iFrameSelector = 'iframe[title="Research"]';
+        const contentSelector = "#sitecore-content";
+        const iFrameContext = page.frameLocator(iFrameSelector);
+
+        this.smResearchHL = page.locator('a.active', { hasText: 'Research' });
         this.secResearch = page.getByTitle('Research');
         this.ddlFilter = page.locator('.filter-search-searchbox');
 
-        const iFrame = page.frameLocator('iframe[title="Research"]');
-        const site = "#sitecore-content"
-
-        this.secIFrameContent = iFrame.locator(site);
-        this.secSiteCore = iFrame.locator(site);
-        this.secLegacySiteCore = page.locator(site);
+        this.secIFrameContent = iFrameContext.locator(contentSelector);
+        this.secSiteCore = iFrameContext.locator(contentSelector);
+        this.secLegacySiteCore = page.locator(contentSelector);
     }
 
     async LoadsPage() {
+        await this.fElement.waitForElemVisible(this.smResearchHL, 'submenu Research (Highlighted)');
+
+        const src = await this.secResearch.getAttribute('src');
+        await this.fElement.log(`ℹ️ iFrame Source: ${src}`);
+
         await expect(this.secResearch).toHaveAttribute(
             'src',
             /Investments\/Research\.aspx$/
         );
-        await this.logger((await this.secResearch.getAttribute('src')).toString());
-        await elemVisible(this.smResearch, 'submenu Research is Highlighted', this.logger);
-        await this.logger('Page loaded for Investments > Research');
+
+        await this.fElement.log('✅ Landed on Page: Investments > Research');
     }
 }

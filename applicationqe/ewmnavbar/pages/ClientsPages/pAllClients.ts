@@ -1,45 +1,62 @@
-
 import { expect, type Locator, type Page } from "@playwright/test";
-import { elemVisible } from '../../functions/fElementHelper';
+import { BrowserActions } from '../../functions/fBrowser';
+import { ElementHelper } from '../../functions/fElement';
+
 type Logger = (msg: string) => Promise<void>;
 
 export class AllClientsPage {
     readonly page: Page;
-    private logger: Logger;
+    private fBrowser: BrowserActions;
+    private fElement: ElementHelper;
 
+    // --- Navigation ---
     readonly smAllClientsHL: Locator;
-    readonly secAllClients: Locator;
-    readonly imgAllClients: Locator;
 
+    // --- iFrame & Content ---
+    readonly secAllClients: Locator; // The actual <iframe> element
+    readonly imgAllClients: Locator; // Image inside the iframe
+
+    // --- Comparison Locators ---
     readonly secIFrameContent: Locator;
-    readonly secSiteCore: Locator;
-    readonly secLegacySiteCore: Locator;
+    readonly secSiteCore: Locator;       // Locator INSIDE the iFrame (New App)
+    readonly secLegacySiteCore: Locator; // Locator ON the page (Legacy App)
 
     constructor(page: Page, logger: Logger) {
         this.page = page;
-        this.logger = logger;
+        this.fBrowser = new BrowserActions(page, logger);
+        this.fElement = new ElementHelper(logger);
 
-        const iFrame = page.frameLocator('iframe[title="All Clients"]');
-        const site = "#ClientList";
+        // Definitions for clarity
+        const iFrameSelector = 'iframe[title="All Clients"]';
+        const contentSelector = "#ClientList";
 
-        this.secIFrameContent = iFrame.locator(site);
-        this.secSiteCore = iFrame.locator(site);
-        this.secLegacySiteCore = page.locator(site);
+        // Contexts
+        const iFrameContext = page.frameLocator(iFrameSelector);
 
-        this.smAllClientsHL = page.locator('[class="active"][aria-current="page"]').filter({ hasText: 'All Clients' });
-        this.secAllClients = page.getByTitle('All Clients');
-        this.imgAllClients = iFrame.getByAltText('All Clients');
+        // Locators
+        this.smAllClientsHL = page.locator('a.active', { hasText: 'All Clients' });
+        
+        this.secAllClients = page.getByTitle('All Clients'); // The <iframe> tag
+        this.imgAllClients = iFrameContext.getByAltText('All Clients');
 
+        this.secIFrameContent = iFrameContext.locator(contentSelector);
+        this.secSiteCore = iFrameContext.locator(contentSelector);
+        this.secLegacySiteCore = page.locator(contentSelector);
     }
 
+    // ==========================================================
+    // 🔍 Validation Checks
+    // ==========================================================
     async LoadsPage() {
-        await this.logger((await this.secAllClients.getAttribute('src')).toString());
+        const src = await this.secAllClients.getAttribute('src');
+        await this.fElement.log(`ℹ️ iFrame Source: ${src}`);
 
         await expect(this.secAllClients).toHaveAttribute(
             'src',
             /AccountsAnalysis\/Clients\/ClientList$/
         );
-        await elemVisible(this.smAllClientsHL, 'submenu All Clients is Highlighted', this.logger);
-        await this.logger('Page loaded for Clients > All Clients');
+
+        await this.fElement.elemVisible(this.smAllClientsHL, 'submenu All Clients (Highlighted)');
+        await this.fElement.log('✅ Landed on Page: Clients > All Clients');
     }
 }

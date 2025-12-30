@@ -1,10 +1,13 @@
-import { expect, type Locator, type Page } from "@playwright/test";
-import { elemVisible, elemHasAttribute } from '../../functions/fElementHelper';
+import { type Locator, type Page } from "@playwright/test";
+import { BrowserActions } from '../../functions/fBrowser';
+import { ElementHelper } from '../../functions/fElement';
+
 type Logger = (msg: string) => Promise<void>;
 
 export class OpenItemsPage {
     readonly page: Page;
-    private logger: Logger;
+    private fBrowser: BrowserActions;
+    private fElement: ElementHelper;
 
     readonly smOpenItemsHL: Locator;
     readonly secOpenItems: Locator;
@@ -16,35 +19,32 @@ export class OpenItemsPage {
 
     constructor(page: Page, logger: Logger) {
         this.page = page;
-        this.logger = logger;
+        this.fBrowser = new BrowserActions(page, logger);
+        this.fElement = new ElementHelper(logger);
 
+        // Frame and Site definitions
         const iFrame = page.frameLocator('iframe[title="Open Items"]');
-        const site = "#TrackingCenter"
+        const siteSelector = "#TrackingCenter";
 
-        this.secIFrameContent = iFrame.locator(site);
-        this.secSiteCore = iFrame.locator(site);
-        this.secLegacySiteCore = page.locator(site);
+        this.secIFrameContent = iFrame.locator(siteSelector);
+        this.secSiteCore = iFrame.locator(siteSelector);
+        this.secLegacySiteCore = page.locator(siteSelector);
 
-        this.smOpenItemsHL = page.locator('[class="active"][aria-current="page"]').filter({ hasText: 'Open Items' });
+        // Page Elements
+        this.smOpenItemsHL = page.locator('a.active', { hasText: 'Open Items' });
         this.secOpenItems = page.getByTitle('Open Items');
         this.imgOpenItems = iFrame.getByAltText('Open Items');
-
     }
 
     async LoadsPage() {
-        const src = await this.secOpenItems.getAttribute('src');
-        this.logger && await this.logger(src ? src.toString() : 'src attribute not found');
-
-        await elemHasAttribute(
+        await this.fElement.elemHasAttribute(
             this.secOpenItems,
             'Open Items iframe',
             'src',
-            /.*\/AccountsAnalysis\/TrackingCenter\/TrackingCenter\?status=open$/,
-            this.logger
+            /.*\/AccountsAnalysis\/TrackingCenter\/TrackingCenter\?status=open$/
         );
 
-
-        await elemVisible(this.smOpenItemsHL, 'Open Items Highlight', this.logger);
-        this.logger && await this.logger('Page loaded for Clients > Open Items');
+        await this.fElement.elemVisible(this.smOpenItemsHL, 'Open Items Highlight');
+        await this.fElement.log('✅ Page loaded for Clients > Open Items');
     }
 }

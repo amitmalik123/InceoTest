@@ -1,15 +1,13 @@
+import { type Page, type Locator, type FrameLocator, expect } from "@playwright/test";
+import { ElementHelper } from '../../functions/fElement';
 
-import { type Page, type Locator, expect, type FrameLocator } from "@playwright/test";
-import { elemVisible } from '../../functions/fElementHelper';
 type Logger = (msg: string) => Promise<void>;
-
 
 export class ModalCookiesPage {
     
     readonly context: Page | FrameLocator; 
-    private logger: Logger;
+    private fElement: ElementHelper;
 
-    readonly ovlBody: Locator;
     readonly modalCookies: Locator;
     readonly btnAllowAll: Locator;
     readonly ovlFilter: Locator;
@@ -17,34 +15,43 @@ export class ModalCookiesPage {
 
     constructor(context: Page | FrameLocator, logger: Logger) {
         this.context = context;
-        this.logger = logger;
+        this.fElement = new ElementHelper(logger);
 
+        // Locators (OneTrust)
         this.modalCookies = context.locator('#onetrust-pc-content').or(context.locator('#onetrust-pc-sdk'));
         this.btnAllowAll = context.locator('#accept-recommended-btn-handler');
         this.ovlFilter = context.locator('.onetrust-pc-dark-filter.ot-fade-in');
+        
+        // Locators (Maintenance / Other Overlays)
         this.maintenanceCloseIcon = context.locator('.AdvisorDashboard_closeNewIcon__3vWMT');
-
     }
 
-
+    // ==========================================================
+    // 🍪 Modal Actions
+    // ==========================================================
     async closeModal() {
-        try {
-            await elemVisible(this.modalCookies, 'Cookie Modal', this.logger, 10000);
+        // Check visibility with a short timeout (5s) to avoid slowing down tests if modal isn't there
+        const isVisible = await this.modalCookies.isVisible({ timeout: 5000 });
 
-            console.log('🍪 One Trust modal found. Click button Allow All.');
-            await this.btnAllowAll.scrollIntoViewIfNeeded();
-            await this.btnAllowAll.click();
+        if (isVisible) {
+            await this.fElement.log('🍪 One Trust modal found. Attempting to close...');
+            
+            await this.fElement.clickElem(this.btnAllowAll, 'button Allow All Cookies');
+            
+            // Ensure the dark overlay filter fades out
             await expect(this.ovlFilter).toBeHidden();
-            await (this.context as Page).waitForTimeout(1000);
-            await this.logger('⏳ Waiting 1 secs after modal closure...');
-
-        } catch (e) {
-            await this.logger('Cookie modal not visible within 5 seconds. Proceeding.');
+            
+            // Small stability wait for the DOM to settle after overlay removal
+            // (Safe way to wait regardless of whether context is Page or Frame)
+            await new Promise(resolve => setTimeout(resolve, 1000));
+            await this.fElement.log('✅ Modal closed and overlay cleared.');
+        
+        } else {
+            await this.fElement.log('ℹ️ Cookie modal not visible. Proceeding.');
         }
     }
 
-    async closeMocalIframe() {
-        
-
+    async closeModalIframe() {
+        // Placeholder for future logic if OneTrust appears inside a frame
     }
 }

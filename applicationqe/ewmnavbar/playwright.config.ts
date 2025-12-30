@@ -4,11 +4,11 @@ import { fileURLToPath } from "url";
 import { dirname, join } from "path";
 import * as fs from "fs"; 
 
-// --- __dirname and __filename ---
+// --- __dirname and __filename Setup ---
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
-// ---------------------------------------------------
 
+// --- Environment Setup ---
 const ENV = process.env.ENV || "test";
 dotenv.config({ path: join(__dirname, `env/.env.${ENV}`) });
 
@@ -16,34 +16,42 @@ const isCI = !!process.env.CI;
 const authDir = join(__dirname, ".auth");
 const authFile = join(authDir, "user.json");
 
-// The .auth directory 
 if (!fs.existsSync(authDir)) {
   fs.mkdirSync(authDir, { recursive: true });
 }
 
+// --- Common Settings ---
 const commonUse = {
-  viewport: null,
   baseURL: process.env.URL,
   headless: isCI,
-  slowMo: isCI ? 0 : 50, // Reduced slowMo 
+  slowMo: isCI ? 0 : 50,
   trace: "on-first-retry" as const,
   colorScheme: "dark" as const,
   geolocation: { longitude: 12.492507, latitude: 41.889938 },
   permissions: ["geolocation"] as const,
-  ignoreHTTPSErrors: true, // Ignore SSL certificate validation for test environments
+  ignoreHTTPSErrors: true,
+  
+  viewport: { width: 1280, height: 720 },
+
+  launchOptions: {
+    logger: {
+      isEnabled: (name, severity) => name === 'api', 
+      log: (name, severity, message, args) => null,
+    },
+  },
 };
 
 export default defineConfig({
-
   timeout: 3 * 60 * 1000,
-  testDir: "./",
-  
+  testDir: "./", 
   testIgnore: ["**/unit-tests/**"],
-
-  fullyParallel: false,
-  forbidOnly: isCI,
-  retries: isCI ? 2 : 0,
+  
+  // Update settings here
+  fullyParallel: false, 
   workers: 1,
+  forbidOnly: isCI,
+  retries: isCI ? 1 : 0,
+ 
   reporter: [
     ['allure-playwright', { outputFolder: join(__dirname, 'target/allure-results') }],
     ['html', { outputFolder: join(__dirname, 'playwright-report') }],
@@ -55,7 +63,7 @@ export default defineConfig({
   },
 
   projects: [
-    // Setup project — logs in and saves authFile
+    // 1. Setup
     {
       name: "setup",
       testDir: "./helper",
@@ -66,57 +74,53 @@ export default defineConfig({
       },
     },
 
-    // Compare iFrame Project with stored authFile
+    // 2. Main Project
     {
       name: "compareiFrame",
       testDir: "./e2e",
-      testMatch: "/compareiFrame/**/*.spec.ts",
+      testMatch: "**/*.spec.ts", 
       testIgnore: ['./unit-tests/**', './helper/globalSetup.ts'],
       dependencies: ["setup"],
       use: {
         ...commonUse,
         storageState: authFile,
-        ...devices["Desktop Chrome"],
+        channel: 'chrome', 
       },
     },
 
-    // User Roles
+    // 3. User Roles
     {
       name: "userRoles",
       testDir: "./e2e",
       testMatch: "/userRoles/**/*.spec.ts",
-      testIgnore: ['./unit-tests/**', './helper/globalSetup.ts'],
       use: {
         ...commonUse,
-        ...devices["Desktop Chrome"], 
+        channel: 'chrome',
       },
     },
 
-    // Local While working
+    // 4. Local Dev Work
     {
       name: "local",
       testDir: "./e2e",
       testMatch: "/local/**/*.spec.ts",
-      testIgnore: ['./unit-tests/**', './helper/globalSetup.ts'],
       use: {
         ...commonUse,
-        ...devices["Desktop Chrome"], 
+        channel: 'chrome',
       },
     },
-    // Experimental one file at a time
+
+    // 5. Experimental - Now with AUTH!
     {
       name: "exp",
       testDir: "./e2e",
       testMatch: "/exp/**/*.spec.ts",
-      testIgnore: ['./unit-tests/**', './helper/globalSetup.ts'],
+      dependencies: ["setup"], 
       use: {
         ...commonUse,
-        ...devices["Desktop Chrome"], 
+        storageState: authFile, 
+        channel: 'chrome',
       },
     },
   ],
 });
-
-/*
-commands to run tests in package.json
-*/

@@ -1,11 +1,13 @@
-
 import { expect, type Locator, type Page } from "@playwright/test";
-import { elemVisible } from '../../functions/fElementHelper';
+import { BrowserActions } from '../../functions/fBrowser';
+import { ElementHelper } from '../../functions/fElement';
+
 type Logger = (msg: string) => Promise<void>;
 
 export class CustodialServicesPage {
     readonly page: Page;
-    private logger: Logger;
+    private fBrowser: BrowserActions;
+    private fElement: ElementHelper;
 
     readonly smCustodialServicesHL: Locator;
     readonly secCustodialServices: Locator;
@@ -17,29 +19,35 @@ export class CustodialServicesPage {
 
     constructor(page: Page, logger: Logger) {
         this.page = page;
-        this.logger = logger;
+        this.fBrowser = new BrowserActions(page, logger);
+        this.fElement = new ElementHelper(logger);
 
-        const iFrame = page.frameLocator('iframe[title="Custodial Services"]');
-        const site = "#sitecore-content"
+        const iFrameSelector = 'iframe[title="Custodial Services"]';
+        const contentSelector = "#sitecore-content";
+        const iFrameContext = page.frameLocator(iFrameSelector);
 
-        this.secIFrameContent = iFrame.locator(site);
-        this.secSiteCore = iFrame.locator(site);
-        this.secLegacySiteCore = page.locator(site);
-
-        this.smCustodialServicesHL = page.locator('[class="active"][aria-current="page"]').filter({ hasText: 'Custodial Services' });
+        this.smCustodialServicesHL = page.locator('a.active',{ hasText: 'Custodial Services' });
+        
         this.secCustodialServices = page.getByTitle('Custodial Services');
-        this.imgCustodialServices = iFrame.getByAltText('Custodial Services');
+        this.imgCustodialServices = iFrameContext.getByAltText('Custodial Services');
 
+        this.secIFrameContent = iFrameContext.locator(contentSelector);
+        this.secSiteCore = iFrameContext.locator(contentSelector);
+        
+        this.secLegacySiteCore = page.locator(contentSelector);
     }
 
     async LoadsPage() {
-        await this.logger((await this.secCustodialServices.getAttribute('src')).toString());
+        await this.fElement.waitForElemVisible(this.smCustodialServicesHL, 'submenu Custodial Services (Highlighted)');
+        
+        const src = await this.secCustodialServices.getAttribute('src');
+        await this.fElement.log(`ℹ️ iFrame Source: ${src}`);
 
         await expect(this.secCustodialServices).toHaveAttribute(
             'src',
             /Administration\/Custodial-Services\/Custodial-Services\.aspx$/
         );
-        await elemVisible(this.smCustodialServicesHL, 'submenu Custodial Services is Highlighted', this.logger);
-        await this.logger('Page loaded for Help & Support > CustodialServices');
+
+        await this.fElement.log('✅ Landed on Page: Help & Support > Custodial Services');
     }
 }

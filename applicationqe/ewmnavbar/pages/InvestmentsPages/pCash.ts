@@ -1,11 +1,13 @@
-
 import { expect, type Locator, type Page } from "@playwright/test";
-import { elemVisible } from '../../functions/fElementHelper';
+import { BrowserActions } from '../../functions/fBrowser';
+import { ElementHelper } from '../../functions/fElement';
+
 type Logger = (msg: string) => Promise<void>;
 
 export class CashPage {
     readonly page: Page;
-    private logger: Logger;
+    private fBrowser: BrowserActions;
+    private fElement: ElementHelper;
 
     readonly smCashHL: Locator;
     readonly secCash: Locator;
@@ -17,30 +19,35 @@ export class CashPage {
 
     constructor(page: Page, logger: Logger) {
         this.page = page;
-        this.logger = logger;
+        this.fBrowser = new BrowserActions(page, logger);
+        this.fElement = new ElementHelper(logger);
 
-        const iFrame = page.frameLocator('iframe[title="Cash"]');
-        const site = "#sitecore-content"
+        const iFrameSelector = 'iframe[title="Cash"]';
+        const contentSelector = "#sitecore-content";
+        const iFrameContext = page.frameLocator(iFrameSelector);
 
-        this.secIFrameContent = iFrame.locator(site);
-        this.secSiteCore = iFrame.locator(site);
-        this.secLegacySiteCore = page.locator(site);
-
-        this.smCashHL = page.locator('[class="active"][aria-current="page"]').filter({ hasText: 'Cash' });
+        this.smCashHL = page.locator('a.active',{ hasText: 'Cash' });
         this.secCash = page.getByTitle('Cash');
+        // Note: txtManagement seems to be on the main page based on usage in your original code.
+        // If it is inside the iframe, change 'page' to 'iFrameContext' below.
         this.txtManagement = page.getByText('At AssetMark, we understand the importance of optimizing cash management for your clients.');
+
+        this.secIFrameContent = iFrameContext.locator(contentSelector);
+        this.secSiteCore = iFrameContext.locator(contentSelector);
+        this.secLegacySiteCore = page.locator(contentSelector);
     }
 
-  
     async LoadsPage() {
-        await this.logger((await this.secCash.getAttribute('src')).toString());
+        await this.fElement.waitForElemVisible(this.smCashHL, 'submenu Cash (Highlighted)');
+
+        const src = await this.secCash.getAttribute('src');
+        await this.fElement.log(`ℹ️ iFrame Source: ${src}`);
 
         await expect(this.secCash).toHaveAttribute(
             'src',
             /Investments\/Cash-Solutions\.aspx$/
         );
-        await this.logger((await this.secCash.getAttribute('src')).toString());
-        await elemVisible(this.smCashHL, 'submenu Cash is Highlighted', this.logger);
-        await this.logger('Page loaded for Investments > Cash');
+        
+        await this.fElement.log('✅ Landed on Page: Investments > Cash');
     }
 }

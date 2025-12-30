@@ -1,11 +1,13 @@
-
 import { expect, type Locator, type Page } from "@playwright/test";
-import { elemVisible } from '../../functions/fElementHelper';
+import { BrowserActions } from '../../functions/fBrowser';
+import { ElementHelper } from '../../functions/fElement';
+
 type Logger = (msg: string) => Promise<void>;
 
 export class MarketingResourcesPage {
     readonly page: Page;
-    private logger: Logger;
+    private fBrowser: BrowserActions;
+    private fElement: ElementHelper;
 
     readonly smMarketingResourcesHL: Locator;
     readonly secMarketingResources: Locator;
@@ -17,29 +19,33 @@ export class MarketingResourcesPage {
 
     constructor(page: Page, logger: Logger) {
         this.page = page;
-        this.logger = logger;
+        this.fBrowser = new BrowserActions(page, logger);
+        this.fElement = new ElementHelper(logger);
 
-        const iFrame = page.frameLocator('iframe[title="Marketing Resources"]');
-        const site = "#sitecore-content"
+        const iFrameSelector = 'iframe[title="Marketing Resources"]';
+        const contentSelector = "#sitecore-content";
+        const iFrameContext = page.frameLocator(iFrameSelector);
 
-        this.secIFrameContent = iFrame.locator(site);
-        this.secSiteCore = iFrame.locator(site);
-        this.secLegacySiteCore = page.locator(site);
-
-        this.smMarketingResourcesHL = page.locator('[class="active"][aria-current="page"]').filter({ hasText: 'Marketing Resources' });
+        this.smMarketingResourcesHL = page.locator('a.active',{ hasText: 'Marketing Resources' });
         this.secMarketingResources = page.getByTitle('Marketing Resources');
-        this.imgMarketingResources = iFrame.getByAltText('Marketing Resources');
+        this.imgMarketingResources = iFrameContext.getByAltText('Marketing Resources');
 
+        this.secIFrameContent = iFrameContext.locator(contentSelector);
+        this.secSiteCore = iFrameContext.locator(contentSelector);
+        this.secLegacySiteCore = page.locator(contentSelector);
     }
 
     async LoadsPage() {
-        await this.logger((await this.secMarketingResources.getAttribute('src')).toString());
+        await this.fElement.waitForElemVisible(this.smMarketingResourcesHL, 'submenu Marketing Resources (Highlighted)');
+
+        const src = await this.secMarketingResources.getAttribute('src');
+        await this.fElement.log(`ℹ️ iFrame Source: ${src}`);
 
         await expect(this.secMarketingResources).toHaveAttribute(
             'src',
             /Marketing\/Marketing-Resource-Center\.aspx$/
         );
-        await elemVisible(this.smMarketingResourcesHL, 'submenu Marketing Resources is Highlighted', this.logger);
-        await this.logger('Page loaded for Help & Support > Marketing Resources');
+
+        await this.fElement.log('✅ Landed on Page: Help & Support > Marketing Resources');
     }
 }

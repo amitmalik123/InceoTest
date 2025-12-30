@@ -1,11 +1,13 @@
-
 import { expect, type Locator, type Page } from "@playwright/test";
-import { elemVisible } from '../../functions/fElementHelper';
+import { BrowserActions } from '../../functions/fBrowser';
+import { ElementHelper } from '../../functions/fElement';
+
 type Logger = (msg: string) => Promise<void>;
 
 export class LendingPage {
     readonly page: Page;
-    private logger: Logger;
+    private fBrowser: BrowserActions;
+    private fElement: ElementHelper;
 
     readonly smLendingHL: Locator;
     readonly secLending: Locator;
@@ -16,28 +18,32 @@ export class LendingPage {
 
     constructor(page: Page, logger: Logger) {
         this.page = page;
-        this.logger = logger;
+        this.fBrowser = new BrowserActions(page, logger);
+        this.fElement = new ElementHelper(logger);
 
-        const iFrame = page.frameLocator('iframe[title="Lending"]');
-        const site = "#sitecore-content"
+        const iFrameSelector = 'iframe[title="Lending"]';
+        const contentSelector = "#sitecore-content";
+        const iFrameContext = page.frameLocator(iFrameSelector);
 
-        this.secIFrameContent = iFrame.locator(site);
-        this.secSiteCore = iFrame.locator(site);
-        this.secLegacySiteCore = page.locator(site);
-
-        this.smLendingHL = page.locator('[class="active"][aria-current="page"]').filter({ hasText: 'Lending' });
+        this.smLendingHL = page.locator('a.active',{ hasText: 'Lending' });
         this.secLending = page.getByTitle('Lending');
+
+        this.secIFrameContent = iFrameContext.locator(contentSelector);
+        this.secSiteCore = iFrameContext.locator(contentSelector);
+        this.secLegacySiteCore = page.locator(contentSelector);
     }
 
     async LoadsPage() {
-        await this.logger((await this.secLending.getAttribute('src')).toString());
+        await this.fElement.waitForElemVisible(this.smLendingHL, 'submenu Lending (Highlighted)');
+
+        const src = await this.secLending.getAttribute('src');
+        await this.fElement.log(`ℹ️ iFrame Source: ${src}`);
 
         await expect(this.secLending).toHaveAttribute(
             'src',
             /Investments\/Lending-Solutions\.aspx$/
         );
-        await this.logger((await this.secLending.getAttribute('src')).toString());
-        await elemVisible(this.smLendingHL, 'submenu Lending is Highlighted', this.logger);
-        await this.logger('Page loaded for Products & Services > Lending');
+
+        await this.fElement.log('✅ Landed on Page: Products & Services > Lending');
     }
 }

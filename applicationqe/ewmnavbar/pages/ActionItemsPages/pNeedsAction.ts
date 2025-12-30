@@ -1,11 +1,13 @@
-import { expect, type Locator, type Page } from "@playwright/test";
-import { getImage } from '../../helper/getImage';
-import { elemVisible, clickButton, typeinField, textExists, elemHasAttribute } from '../../functions/fElementHelper';
+import { type Locator, type Page } from "@playwright/test";
+import { BrowserActions } from '../../functions/fBrowser';
+import { ElementHelper } from '../../functions/fElement';
+
 type Logger = (msg: string) => Promise<void>;
 
 export class NeedsActionPage {
     readonly page: Page;
-    private logger: Logger;
+    private fBrowser: BrowserActions;
+    private fElement: ElementHelper;
 
     readonly smNeedsActionHL: Locator;
     readonly secNeedsAction: Locator;
@@ -14,64 +16,60 @@ export class NeedsActionPage {
     readonly secIFrameContent: Locator;
     readonly secSiteCore: Locator;
     readonly secLegacySiteCore: Locator;
+
     readonly tblTable: Locator;
     readonly tblRows: Locator;
 
     constructor(page: Page, logger: Logger) {
         this.page = page;
-        this.logger = logger;
+        this.fBrowser = new BrowserActions(page, logger);
+        this.fElement = new ElementHelper(logger);
 
+        // Frame and Site definitions
         const iFrame = page.frameLocator('iframe[title="Needs Action"]');
-        const site = "#TrackingCenter"
+        const siteSelector = "#TrackingCenter";
 
-        this.secIFrameContent = iFrame.locator(site);
-        this.secSiteCore = iFrame.locator(site);
-        this.secLegacySiteCore = page.locator(site);
+        this.secIFrameContent = iFrame.locator(siteSelector);
+        this.secSiteCore = iFrame.locator(siteSelector);
+        this.secLegacySiteCore = page.locator(siteSelector);
 
-        this.smNeedsActionHL = page.locator('[class="active"][aria-current="page"]').filter({ hasText: 'Needs Action' });
+        // Header Elements
+        this.smNeedsActionHL = page.locator('a.active', { hasText: 'Needs Action' }); 
         this.secNeedsAction = page.getByTitle('Needs Action');
         this.imgNeedsAction = iFrame.getByAltText('Needs Action');
 
+        // Table Elements
         this.tblTable = iFrame.locator('#TrackingCenterGrid');
         this.tblRows = iFrame.locator('.advisor-response-required');
-        // ui-widget-content jqgrow ui-row-ltr advisor-response-required
-
     }
 
     async LoadsPage() {
-        const src = await this.secNeedsAction.getAttribute('src');
-        this.logger && await this.logger(src ? src.toString() : 'src attribute not found');
-
-        await elemHasAttribute(
+        await this.fElement.waitForElemVisible(this.smNeedsActionHL, 'submenu Needs Action Highlighted');
+        await this.fElement.elemHasAttribute(
             this.secNeedsAction,
             'Needs Action iframe',
             'src',
-            /.*\/AccountsAnalysis\/TrackingCenter\/TrackingCenter\?status=open-Advisor$/,
-            this.logger
+            /.*\/AccountsAnalysis\/TrackingCenter\/TrackingCenter\?status=open-Advisor$/
         );
-        
-        await elemVisible(this.smNeedsActionHL, 'Needs Action Highlight', this.logger);
-        this.logger && await this.logger('Page loaded for Clients > Needs Action');
+
+        await this.fElement.log('✅ Page loaded for Clients > Needs Action');
     }
 
     async getItemsCount() {
-        await elemVisible(this.tblTable.first(), 'Needs Action Table', this.logger);
+        await this.fElement.elemVisible(this.tblTable.first(), 'Needs Action Table');
+
         const rowCount = await this.tblRows.count();
         if (rowCount === 0) {
-            this.logger && await this.logger('❌ Table row count is 0. Check page navigation and selector stability.');
-            throw new Error("Table row count is 0. Check page navigation and selector stability.");
+            const msg = '❌ Table row count is 0. Check page navigation and selector stability.';
+            await this.fElement.log(msg);
+            throw new Error(msg);
         }
+
+        await this.fElement.log(`ℹ️ Found ${rowCount} items in Needs Action table`);
         return rowCount;
     }
 
     async getTableRowCount() {
-        const rowCount = await this.tblRows.count();
-        return rowCount;
-    }
-
-    async getTableRowCountAlternative() {
-        const rowsArray = await this.tblRows.all();
-        const rowCount = rowsArray.length;
-        return rowCount;
+        return await this.tblRows.count();
     }
 }

@@ -1,15 +1,16 @@
-
 import { expect, type Locator, type Page } from "@playwright/test";
-import { elemVisible } from '../../functions/fElementHelper';
+import { BrowserActions } from '../../functions/fBrowser';
+import { ElementHelper } from '../../functions/fElement';
+
 type Logger = (msg: string) => Promise<void>;
 
 export class KnowledgeBasePage {
     readonly page: Page;
-    private logger: Logger;
+    private fBrowser: BrowserActions;
+    private fElement: ElementHelper;
 
     readonly smKnowledgeBaseHL: Locator;
     readonly secKnowledgeBase: Locator;
-    readonly secRotator: Locator;
 
     readonly secIFrameContent: Locator;
     readonly secSiteCore: Locator;
@@ -17,29 +18,32 @@ export class KnowledgeBasePage {
 
     constructor(page: Page, logger: Logger) {
         this.page = page;
-        this.logger = logger;
+        this.fBrowser = new BrowserActions(page, logger);
+        this.fElement = new ElementHelper(logger);
 
-        const iFrame = page.frameLocator('iframe[title="Knowledge Base"]');
-        const site = "#sitecore-content"
+        const iFrameSelector = 'iframe[title="Knowledge Base"]';
+        const contentSelector = "#sitecore-content";
+        const iFrameContext = page.frameLocator(iFrameSelector);
 
-        this.secIFrameContent = iFrame.locator(site);
-        this.secSiteCore = iFrame.locator(site);
-        this.secLegacySiteCore = page.locator(site);
-
-        this.smKnowledgeBaseHL = page.locator('[class="active"][aria-current="page"]').filter({ hasText: 'Knowledge Base' });
+        this.smKnowledgeBaseHL = page.locator('a.active',{ hasText: 'Knowledge Base' });
         this.secKnowledgeBase = page.getByTitle('Knowledge Base');
+
+        this.secIFrameContent = iFrameContext.locator(contentSelector);
+        this.secSiteCore = iFrameContext.locator(contentSelector);
+        this.secLegacySiteCore = page.locator(contentSelector);
     }
 
-
     async LoadsPage() {
-        await this.logger((await this.secKnowledgeBase.getAttribute('src')).toString());
+        await this.fElement.waitForElemVisible(this.smKnowledgeBaseHL, 'submenu Knowledge Base (Highlighted)');
+
+        const src = await this.secKnowledgeBase.getAttribute('src');
+        await this.fElement.log(`ℹ️ iFrame Source: ${src}`);
 
         await expect(this.secKnowledgeBase).toHaveAttribute(
             'src',
             /Administration\/Overview\.aspx$/
         );
-        await this.logger((await this.secKnowledgeBase.getAttribute('src')).toString());
-        await elemVisible(this.smKnowledgeBaseHL, 'submenu Knowledge Base is Highlighted', this.logger);
-        await this.logger('Page loaded for Help & Support > Knowledge Base');
+
+        await this.fElement.log('✅ Landed on Page: Help & Support > Knowledge Base');
     }
 }

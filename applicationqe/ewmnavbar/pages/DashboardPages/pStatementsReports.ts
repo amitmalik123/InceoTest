@@ -1,64 +1,86 @@
-
 import { expect, type Locator, type Page } from "@playwright/test";
-import { elemVisible } from '../../functions/fElementHelper';
+import { BrowserActions } from '../../functions/fBrowser';
+import { ElementHelper } from '../../functions/fElement';
+
 type Logger = (msg: string) => Promise<void>;
 
 export class StatementsReportsPage {
     readonly page: Page;
-    private logger: Logger;
+    private fBrowser: BrowserActions;
+    private fElement: ElementHelper;
 
+    // --- Navigation ---
     readonly smStatementsReportsHL: Locator;
-    readonly secStatementsReports: Locator;
 
+    // --- iFrame & Comparison Locators ---
+    readonly secStatementsReports: Locator; 
+    readonly secIFrameContent: Locator;
+    readonly secSiteCore: Locator;       
+    readonly secLegacySiteCore: Locator; 
+
+    // --- Controls (Inside iFrame) ---
     readonly ddlType: Locator;
     readonly ddlYear: Locator;
     readonly ddlDocument: Locator;
     readonly ddlQuarter: Locator;
     readonly btnFind: Locator;
 
-    readonly secIFrameContent: Locator;
-    readonly secSiteCore: Locator;
-    readonly secLegacySiteCore: Locator;
-
     constructor(page: Page, logger: Logger) {
         this.page = page;
-        this.logger = logger;
+        this.fBrowser = new BrowserActions(page, logger);
+        this.fElement = new ElementHelper(logger);
 
-        const iFrame = page.frameLocator('iframe[title="Documents"]');
-        const site = ".grid-system.g982" 
+        // Definitions
+        const iFrameSelector = 'iframe[title="Documents"]';
+        const contentSelector = ".grid-system.g982";
 
-        this.secIFrameContent = iFrame.locator('#sitecore-content');
-        this.secSiteCore = iFrame.locator(site);
-        this.secLegacySiteCore = page.locator(site);
+        // Contexts
+        const iFrameContext = page.frameLocator(iFrameSelector);
 
-
-        this.smStatementsReportsHL = page.locator('[class="active"][aria-current="page"]').filter({ hasText: 'Statements & Reports' });
+        // Navigation
+        this.smStatementsReportsHL =page.locator('a.active',{ hasText: 'Statements & Reports' });
+        
+        // Main Sections
         this.secStatementsReports = page.getByTitle('Documents');
+        this.secIFrameContent = iFrameContext.locator('#sitecore-content');
+        this.secSiteCore = iFrameContext.locator(contentSelector);
+        
+        // Legacy
+        this.secLegacySiteCore = page.locator(contentSelector);
 
-        this.ddlType = iFrame.locator('#uniform-ddYear');
-        this.ddlYear = iFrame.locator('#uniform-ddYear');
-        this.ddlDocument = iFrame.locator('#uniform-ddDocument');
-        this.ddlQuarter = iFrame.locator('#uniform-ddQtrMonth');
-        this.btnFind = iFrame.locator('#btSearch');
-
+        // Controls
+        this.ddlType = iFrameContext.locator('#uniform-ddYear'); 
+        this.ddlYear = iFrameContext.locator('#uniform-ddYear');
+        this.ddlDocument = iFrameContext.locator('#uniform-ddDocument');
+        this.ddlQuarter = iFrameContext.locator('#uniform-ddQtrMonth');
+        this.btnFind = iFrameContext.locator('#btSearch');
     }
 
-
+    // ==========================================================
+    // 🔍 Validation Checks
+    // ==========================================================
     async LoadsPage() {
-        await elemVisible(this.smStatementsReportsHL, 'submenu Statements & Reports is Highlighted', this.logger, 10000);
+        // Wait for highlight first to confirm navigation
+        await this.fElement.waitForElemVisible(this.smStatementsReportsHL, 'Statements & Reports Highlight');
+
+        const src = await this.secStatementsReports.getAttribute('src');
+        await this.fElement.log(`ℹ️ iFrame Source: ${src}`);
+
         await expect(this.secStatementsReports).toHaveAttribute(
             'src',
             /Administration\/statements-and-correspondence\.aspx$/
         );
-        console.log('Page loaded for Dashboard > Statements & Reports');
+
+        await this.fElement.log('✅ Landed on Page: Dashboard > Statements & Reports');
     }
 
     async ElementsExist() {
-        await elemVisible(this.ddlType, 'Type Dropdown', this.logger, 1000);
-        await elemVisible(this.smStatementsReportsHL, 'Statements & Reports', this.logger, 100);
-        await elemVisible(this.ddlDocument, 'Document Dropdown', this.logger, 100);
-        await elemVisible(this.ddlQuarter, 'Quarter Dropdown', this.logger, 100);
-        await elemVisible(this.btnFind, 'Find Button', this.logger, 100);
-        await this.logger('Page loaded for Dashboard > Statements & Reports');
+        await this.fElement.log('📢 Verifying Statements & Reports Controls...');
+        await this.fElement.elemVisible(this.ddlType, 'Type Dropdown');
+        await this.fElement.elemVisible(this.ddlDocument, 'Document Dropdown');
+        await this.fElement.elemVisible(this.ddlQuarter, 'Quarter Dropdown');
+        await this.fElement.elemVisible(this.btnFind, 'Find Button');
+        
+        await this.fElement.log('✅ All Statements & Reports controls are visible.');
     }
 }
