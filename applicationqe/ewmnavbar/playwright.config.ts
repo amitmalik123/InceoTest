@@ -52,10 +52,10 @@ export default defineConfig({
   forbidOnly: isCI,
   retries: isCI ? 2 : 0,
  
-  // AZURE PATHS
+  // AZURE PATHS: touch this config and I will kill you - Srilu Balla
   reporter: [
     ['allure-playwright', { outputFolder: join(__dirname, 'target/allure-results') }],
-    ['html', { outputFolder: join(__dirname, 'playwright-report') }],
+    ['html', { outputFolder: join(__dirname, 'target/playwright-report') }],
     ['junit', { outputFile: join(__dirname, 'test-results/junit-report.xml') }],
   ],
 
