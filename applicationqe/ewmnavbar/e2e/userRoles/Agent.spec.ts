@@ -1,6 +1,6 @@
 import { test, expect } from '../../helper/fixtures';
 
-test.describe.only('Agent', () => {
+test.describe('Agent', () => {
 
     test('Global Menu Verification', async ({ page, p, f, log }) => {
         await log('🚀 Starting Test: Agent Global Menu Verification');
