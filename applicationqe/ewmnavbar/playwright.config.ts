@@ -63,23 +63,18 @@ export default defineConfig({
   },
 
   projects: [
-    // 1. Setup
+    // 1. Setup (Stays the same)
     {
       name: "setup",
       testDir: "./helper",
       testMatch: ["global.auth.setup.spec.ts"],
-      use: {
-        ...commonUse,
-        ...devices["Desktop Chrome"],
-      },
     },
 
-    // 2. Main Project
+    // 2. Main Project 
     {
       name: "compareiFrame",
-      testDir: "./e2e",
+      testDir: "./e2e/compareiFrame", 
       testMatch: "**/*.spec.ts", 
-      testIgnore: ['./unit-tests/**', './helper/globalSetup.ts'],
       dependencies: ["setup"],
       use: {
         ...commonUse,
@@ -88,11 +83,11 @@ export default defineConfig({
       },
     },
 
-    // 3. User Roles
+    // 3. User Roles 
     {
       name: "userRoles",
-      testDir: "./e2e",
-      testMatch: "/userRoles/**/*.spec.ts",
+      testDir: "./e2e/userRoles", 
+      testMatch: "**/*.spec.ts",
       use: {
         ...commonUse,
         channel: 'chrome',
@@ -102,19 +97,16 @@ export default defineConfig({
     // 4. Local Dev Work
     {
       name: "local",
-      testDir: "./e2e",
-      testMatch: "/local/**/*.spec.ts",
-      use: {
-        ...commonUse,
-        channel: 'chrome',
-      },
+      testDir: "./e2e/local", 
+      testMatch: "**/*.spec.ts",
+      use: { ...commonUse, channel: 'chrome' },
     },
 
-    // 5. Experimental - Now with AUTH!
+    // 5. Experimental
     {
       name: "exp",
-      testDir: "./e2e",
-      testMatch: "/exp/**/*.spec.ts",
+      testDir: "./e2e/exp", 
+      testMatch: "**/*.spec.ts",
       dependencies: ["setup"], 
       use: {
         ...commonUse,
@@ -122,5 +114,5 @@ export default defineConfig({
         channel: 'chrome',
       },
     },
-  ],
+],
 });
