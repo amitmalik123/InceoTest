@@ -114,17 +114,16 @@ def send_email_report(build_number, job_status, reports_path, build_id, team_pro
         </style>
     </head>
     <body>
-    <h2>API Test Report</h2>
+    <h2>API Test Report{f' - {service_name.upper()}' if service_name else ''}</h2>
     <p><strong>Job Number:</strong> {build_number}</p>
     <p><strong>Job Status:</strong> {job_status}</p>
     <p><strong>Job URL:</strong> <a href="{build_url}">View Test Execution</a></p>
-    <p><strong>Test Reports:</strong> <a href="{artifacts_url}">View and Download Artifacts</a></p>
+    <p><strong>Test Results:</strong> <a href="{artifacts_url}">View and Download Artifacts</a></p>
     
     <hr>
     
     {stats_tables}
     
-    <p style="margin-top: 20px; font-size: 0.9em; color: #666;">Test reports are available as build artifacts in Azure DevOps.</p>
     </body>
     </html>
     """
