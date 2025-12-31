@@ -1359,6 +1359,47 @@ def pytest_sessionfinish(session, exitstatus):
         result_collector = get_result_collector()
         test_results = result_collector.get_results()
         
+        # CRITICAL: Save test results to JSON for email reporter
+        # The email reporter runs in a separate Python process and cannot access
+        # the in-memory singleton. We must persist the data to disk.
+        import json
+        from framework.reporter.reporter import Reporter
+        temp_reporter = Reporter()
+        test_summary_path = temp_reporter._resolve_path('test_summary.json')
+        
+        # Prepare data for JSON serialization
+        summary_stats = result_collector.get_summary_stats()
+        test_results_serializable = []
+        
+        for result in test_results:
+            # Create a clean copy for JSON serialization
+            clean_result = {
+                'test_id': result.get('test_id', ''),
+                'test_name': result.get('test_name', ''),
+                'service_name': result.get('service_name', ''),
+                'type': result.get('type', ''),
+                'endpoint': result.get('endpoint', ''),
+                'method': result.get('method', ''),
+                'status': result.get('status', ''),
+                'response_time': result.get('response_time'),
+                'summary': result.get('summary', ''),
+                'validation_stats': result.get('validation_stats', {})
+            }
+            test_results_serializable.append(clean_result)
+        
+        summary_data = {
+            'summary': summary_stats,
+            'results': test_results_serializable,
+            'timestamp': temp_reporter._current_run_marker
+        }
+        
+        with open(test_summary_path, 'w', encoding='utf-8') as f:
+            json.dump(summary_data, f, indent=2)
+        
+        logger = get_logger(__name__)
+        logger.info(f"Test summary with validation stats saved to: {test_summary_path}")
+        print(f"✅ Test summary saved for email reporting: {test_summary_path}")
+        
         # Extract testcases from pytest_results (basic format for HTML report)
         testcases = []
         for result in pytest_results:
@@ -1371,7 +1412,6 @@ def pytest_sessionfinish(session, exitstatus):
         # Write HTML report with collected results
         if test_results:
             reporter_instance.write_html_report(testcases, test_results, timestamped=True)
-            logger = get_logger(__name__)
             logger.info(f"HTML report generated with {len(test_results)} test results")
     except Exception as e:
         logger = get_logger(__name__)
