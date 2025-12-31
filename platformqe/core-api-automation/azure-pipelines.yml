@@ -10,11 +10,11 @@ parameters:
   - non-functional
   - both
 - name: testArgs
-  displayName: 'Test Arguments'
+  displayName: 'Functional Test Arguments'
   type: string
   default: '--service-name work_item_notification --env T12'
 - name: locustArgs
-  displayName: 'Non-Functional Test Arguments (when testType=both)'
+  displayName: 'Non-Functional Test Arguments'
   type: string
   default: '--file testdata/WorkItemNotification/testcases/TestCase_api_workitemnotification_v1_aplid_GET.json --test_type Performance --env T12 --headless -u 5 -r 1 -t 10s'
 
@@ -179,10 +179,11 @@ stages:
               echo "Created new report directory: $report_dir"
             fi
             
-            # Use testArgs when testType=non-functional, otherwise use locustArgs
+            # Use appropriate args based on testType
             if [ "${{ parameters.testType }}" = "non-functional" ]; then
-              ARGS="${{ parameters.testArgs }}"
+              ARGS="${{ parameters.locustArgs }}"
             else
+              # testType is 'both', use separate locustArgs
               ARGS="${{ parameters.locustArgs }}"
             fi
             
@@ -226,7 +227,7 @@ stages:
         displayName: 'Publish Framework Logs'
       - task: Bash@3
         displayName: 'Send Test Report Email'
-        condition: and(succeededOrFailed(), eq(lower(variables['email_feature_enabled']), 'true'))
+        condition: and(succeededOrFailed(), or(eq(variables['email_feature_enabled'], 'true'), eq(variables['email_feature_enabled'], 'True'), eq(variables['email_feature_enabled'], 'TRUE')))
         env:
           SMTP_SERVER: $(smtp_server)
           SMTP_PORT: $(smtp_port)
