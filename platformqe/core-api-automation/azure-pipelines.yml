@@ -227,7 +227,7 @@ stages:
         displayName: 'Publish Framework Logs'
       - task: Bash@3
         displayName: 'Send Test Report Email'
-        condition: and(succeededOrFailed(), eq(lower(variables['email_feature_enabled']), 'true'))
+        condition: and(succeededOrFailed(), or(eq(variables['email_feature_enabled'], 'true'), eq(variables['email_feature_enabled'], 'True'), eq(variables['email_feature_enabled'], 'TRUE')))
         env:
           SMTP_SERVER: $(smtp_server)
           SMTP_PORT: $(smtp_port)
