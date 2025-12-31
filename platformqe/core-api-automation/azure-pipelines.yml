@@ -265,11 +265,14 @@ stages:
             echo "=========================================="
             failed=false
 
-            if [ "$(TEST_EXIT_CODE)" != "0" ]; then
-              echo "❌ API Tests failed with exit code: $(TEST_EXIT_CODE)"
-              failed=true
-            else
-              echo "✅ API Tests passed"
+            # Check functional test results if run
+            if [ "${{ parameters.testType }}" = "functional" ] || [ "${{ parameters.testType }}" = "both" ]; then
+              if [ "$(TEST_EXIT_CODE)" != "0" ]; then
+                echo "❌ Functional Tests failed with exit code: $(TEST_EXIT_CODE)"
+                failed=true
+              else
+                echo "✅ Functional Tests passed"
+              fi
             fi
 
             # Check non-functional test results if run
