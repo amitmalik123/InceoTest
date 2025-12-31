@@ -9,14 +9,17 @@ import os
 import sys
 import argparse
 import glob
+import json
 from email.mime.multipart import MIMEMultipart
 from email.mime.text import MIMEText
 from email.mime.base import MIMEBase
 from email import encoders
-from framework.test_helpers.test_result_collector import (
-    TestResultCollector, 
-    aggregate_validation_stats, 
-    generate_test_summary_table, 
+
+# Import centralized test result loader and HTML utilities
+from framework.loaders.test_result_loader import (
+    load_test_summary_from_json,
+    aggregate_validation_stats,
+    generate_test_summary_table,
     generate_validation_summary_table
 )
 
@@ -70,10 +73,15 @@ def send_email_report(build_number, job_status, reports_path, build_id, team_pro
     build_url = f"{collection_uri}{team_project}/_build/results?buildId={build_id}"
     artifacts_url = f"{collection_uri}{team_project}/_build/results?buildId={build_id}&view=artifacts&type=publishedArtifacts"
     
-    # Get statistics from TestResultCollector
-    collector = TestResultCollector()
-    test_summary = collector.get_summary_stats()
-    validation_stats = aggregate_validation_stats(collector)
+    # Load test results from JSON using CENTRALIZED utility function
+    # This is CRITICAL: email_reporter runs in a separate process, so it cannot access
+    # the in-memory TestResultCollector singleton from the pytest session.
+    # We must read from the persisted JSON files instead.
+    print(f"📂 Loading test results from: {reports_path}")
+    test_results, test_summary = load_test_summary_from_json(reports_path)
+    
+    # Aggregate validation statistics using CENTRALIZED utility function
+    validation_stats = aggregate_validation_stats(test_results)
     
     # Log summary
     print(f"📊 Test Summary: {test_summary['total']} tests ({test_summary['passed']} passed, {test_summary['failed']} failed, {test_summary['skipped']} skipped)")
