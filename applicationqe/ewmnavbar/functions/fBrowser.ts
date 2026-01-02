@@ -166,6 +166,14 @@ export class BrowserActions {
         if (this.logger) await this.logger("🗑️ All cookies deleted");
     }
 
+    async getAllCookies() {
+        return await this.wrap(
+            async () => await this.page.context().cookies(),
+            "🍪 Snapshot: All browser cookies retrieved",
+            "⚠️ Failed to capture cookies"
+        );
+    }
+
     // ==========================================================
     // 🛠️ DEBUGGING & SYSTEM
     // ==========================================================
@@ -209,5 +217,79 @@ export class BrowserActions {
             `📂 Uploaded file: ${filePath}`,
             `❌ Failed to upload file`
         );
+    }
+
+    // ==========================================================
+    // 🧠 Network Call
+    // ==========================================================
+
+    async getNetworkRequest(urlFilter: string | RegExp) {
+        return await this.wrap(
+            async () => {
+                const requests: any[] = [];
+                this.page.on('request', (request) => {
+                    if (request.url().match(urlFilter)) {
+                        requests.push({
+                            url: request.url(),
+                            method: request.method(),
+                            headers: request.headers(),
+                            postData: request.postDataJSON(),
+                        });
+                    }
+                });
+                return requests;
+            },
+            `🔍 Monitoring outgoing requests matching: ${urlFilter}`,
+            `⚠️ Failed to attach request listener`
+        );
+    }
+
+    async getAllNetworkRequests() {
+        const requests: any[] = [];
+        // Attach listener
+        this.page.on('request', (req) => {
+            requests.push({
+                url: req.url(),
+                method: req.method(),
+                headers: req.headers(),
+                payload: req.postData()
+            });
+        });
+        return requests; // This returns a reference to the array that will fill up
+    }
+
+    async getNetworkResponse(urlFilter: string | RegExp) {
+        return await this.wrap(
+            async () => {
+                const responses: any[] = [];
+                this.page.on('response', async (response) => {
+                    if (response.url().match(urlFilter)) {
+                        responses.push({
+                            url: response.url(),
+                            status: response.status(),
+                            headers: response.headers(),
+                            body: await response.json().catch(() => ({})),
+                        });
+                    }
+                });
+                return responses;
+            },
+            `📥 Monitoring incoming responses matching: ${urlFilter}`,
+            `⚠️ Failed to attach response listener`
+        );
+    }
+
+    async getAllNetworkResponses() {
+        const responses: any[] = [];
+        this.page.on('response', async (res) => {
+            responses.push({
+                url: res.url(),
+                status: res.status(),
+                headers: res.headers(),
+                // Body is excluded here to avoid crashes on large binary files (images/fonts)
+                // but can be fetched if needed
+            });
+        });
+        return responses;
     }
 }

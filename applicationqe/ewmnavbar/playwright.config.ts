@@ -90,6 +90,15 @@ export default defineConfig({
       },
     },
     {
+      name: "auth",
+      testDir: "./e2e/auth", 
+      testMatch: "**/*.spec.ts",
+      use: { 
+        ...commonUse, 
+        channel: 'chrome' 
+      },
+    },
+     {
       name: "local",
       testDir: "./e2e/local", 
       testMatch: "**/*.spec.ts",

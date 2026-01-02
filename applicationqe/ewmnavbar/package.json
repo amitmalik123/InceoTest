@@ -9,6 +9,7 @@
     "test:compare": "playwright test --project compareiFrame",
     "test:users": "playwright test --project userRoles",
     "test:local": "playwright test --project local",
+    "test:auth": "playwright test --project auth",
     "test:exp": "playwright test --project exp",
     "postinstall": "playwright install",
     "prepare": "husky install",
