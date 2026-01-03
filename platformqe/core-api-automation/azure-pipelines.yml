@@ -1,6 +1,13 @@
 trigger: none
 
 parameters:
+- name: environment
+  displayName: 'Environment'
+  type: string
+  default: 'DEV'
+  values:
+  - DEV
+  - TEST
 - name: testType
   displayName: 'Test Type'
   type: string
@@ -20,14 +27,25 @@ parameters:
 
 
 variables:
-  - group: 'qa-pipelines-variable-group-dev'  # Only for URLs and non-secret config
-  - group: 'qa-email-notifications'  # Add variable group for email configuration
+  - ${{ if eq(parameters.environment, 'DEV') }}:
+    - group: 'qa-pipelines-config-dev'  # DEV environment variables (URLs, non-secret config)
+  - ${{ if eq(parameters.environment, 'TEST') }}:
+    - group: 'qa-pipelines-config-test'  # TEST environment variables (URLs, non-secret config)
+  - group: 'qa-pipelines-shared-config'  # Shared configuration (email, API settings, etc.)
   - name: buildPath
     value: '$(Build.SourcesDirectory)/platformqe/core-api-automation'
+  - name: environment_name
+    value: '${{ parameters.environment }}'
   - name: subscription
-    value: $[variables['subscription_dev']]
+    ${{ if eq(parameters.environment, 'DEV') }}:
+      value: $[variables['subscription_dev']]
+    ${{ if eq(parameters.environment, 'TEST') }}:
+      value: $[variables['subscription_test']]
   - name: key_vault_name
-    value: 'amkkvqapipeline-devncus'
+    ${{ if eq(parameters.environment, 'DEV') }}:
+      value: 'amkkvqapipeline-devncus'
+    ${{ if eq(parameters.environment, 'TEST') }}:
+      value: 'amkkvqapipeline-testncus'
 
 stages:
   - stage: __default
@@ -35,14 +53,40 @@ stages:
     - job: Job
       pool:
         name: ewm20-docker-build-agent-inc-dev
+      env:
+        WORK_ITEM_AUTH_TOKEN: $(WORK_ITEM_AUTH_TOKEN)
+        PARTIES_AUTH_TOKEN: $(PARTIES_AUTH_TOKEN)
+        PARTIES_SQLDB: $(parties-sqldb-connection-string)  # Key Vault secret
+        MOVEMONEY_SQLDB: $(movemoney-sqldb-connection-string)
+        HNE_DB: $(hne-db-connection-string)
+        SECURITIESHUB_DB: $(securitieshub-db-connection-string)
+        MODELHUB_DB: $(modelhub-db-connection-string)
+        AZURE_SQL_PASSWORD: $(AZURE_SQL_PASSWORD)
+        POSTGRES_DB_PASSWORD: $(POSTGRES_DB_PASSWORD)
+        ADDRESS_BASE_URL: $(address_base_url)  # From variable group: qa-pipelines-config-dev/test
+        ANALYTICS_BASE_URL: $(analytics_base_url)  # From variable group: qa-pipelines-config-dev/test
+        HNE_BASE_URL: $(hne_base_url)  # From variable group: qa-pipelines-config-dev/test
+        MODELS_BASE_URL: $(models_base_url)  # From variable group: qa-pipelines-config-dev/test
+        MOVEMONEY_BASE_URL: $(movemoney_base_url)  # From variable group: qa-pipelines-config-dev/test
+        PARTIES_BASE_URL: $(parties_base_url)  # From variable group: qa-pipelines-config-dev/test
+        SECURITIES_BASE_URL: $(securities_base_url)  # From variable group: qa-pipelines-config-dev/test
+        WORK_ITEM_NOTIFICATION_BASE_URL: $(work_item_notification_base_url)  # From variable group: qa-pipelines-config-dev/test
+        API_TIMEOUT: $(api_timeout)
+        API_RETRY_COUNT: $(api_retry_count)
+        INFLUX_URL: $(influx_url)
+        INFLUX_TOKEN: $(influx_token)
+        INFLUX_ORG: $(influx_org)
+        INFLUX_BUCKET: $(influx_bucket)
+        INFLUX_TIMEOUT: $(influx_timeout)
+        INFLUX_ENABLE: $(influx_enable)
       steps:
-      # Fetch parties connection string from Azure Key Vault
+      # Fetch database connection strings from Azure Key Vault
       - task: AzureKeyVault@2
-        displayName: 'Fetch parties connection string from Azure Key Vault'
+        displayName: 'Fetch database connection strings from Azure Key Vault'
         inputs:
           azureSubscription: $(subscription)
           KeyVaultName: $(key_vault_name)
-          SecretsFilter: 'parties-sqldb-connection-string'
+          SecretsFilter: 'parties-sqldb-connection-string,movemoney-sqldb-connection-string,hne-db-connection-string,securitieshub-db-connection-string,modelhub-db-connection-string'
           RunAsPreJob: true
       # - task: UsePythonVersion@0
       #   displayName: 'Set up Python 3.10'
@@ -58,8 +102,10 @@ stages:
             echo "=========================================="
             echo "Variable Group Debug Information"
             echo "=========================================="
+            echo "Environment: ${{ parameters.environment }}"
+            echo "Variable Group: qa-pipelines-config-${{ lower(parameters.environment) }}"
             echo "parties_base_url from variable group: $(parties_base_url)"
-            echo "subscription_dev: $(subscription_dev)"
+            echo "subscription: $(subscription)"
             echo "key_vault_name: $(key_vault_name)"
             echo ""
             echo "All environment variables:"
@@ -84,13 +130,6 @@ stages:
       - task: Bash@3
         displayName: 'Run Functional Tests'
         condition: or(eq('${{ parameters.testType }}', 'functional'), eq('${{ parameters.testType }}', 'both'))
-        env:
-          WORK_ITEM_AUTH_TOKEN: $(WORK_ITEM_AUTH_TOKEN)
-          PARTIES_AUTH_TOKEN: $(PARTIES_AUTH_TOKEN)
-          PARTIES_BASE_URL: $(parties_base_url)  # From variable group: qa-pipelines-variable-group-dev
-          PARTIES_SQLDB: $(parties-sqldb-connection-string)  # Key Vault secret name
-          AZURE_SQL_PASSWORD: $(AZURE_SQL_PASSWORD)
-          POSTGRES_DB_PASSWORD: $(POSTGRES_DB_PASSWORD)
         inputs:
           targetType: inline
           script: |
@@ -98,29 +137,28 @@ stages:
             echo "Running Functional Tests"
             echo "=========================================="
             
-            # Debug: Check ALL environment variables
-            echo "🔍 Environment Variables Debug:"
+            # Environment Variables Check
+            echo "🔍 Environment Variables Check:"
             echo "-------------------------------------------"
-            echo "PARTIES_BASE_URL: ${PARTIES_BASE_URL:-<NOT SET>}"
-            echo "PARTIES_AUTH_TOKEN: ${PARTIES_AUTH_TOKEN:0:10}... (${#PARTIES_AUTH_TOKEN} chars)"
-            echo "PARTIES_SQLDB: ${PARTIES_SQLDB:0:20}... (${#PARTIES_SQLDB} chars)"
-            echo "WORK_ITEM_AUTH_TOKEN: ${WORK_ITEM_AUTH_TOKEN:0:10}... (${#WORK_ITEM_AUTH_TOKEN} chars)"
+            echo "PARTIES_BASE_URL: ${PARTIES_BASE_URL:+<SET>}"
+            echo "PARTIES_AUTH_TOKEN: ${PARTIES_AUTH_TOKEN:+<SET>}"
+            echo "PARTIES_SQLDB: ${PARTIES_SQLDB:+<SET>}"
+            echo "MOVEMONEY_SQLDB: ${MOVEMONEY_SQLDB:+<SET>}"
+            echo "HNE_DB: ${HNE_DB:+<SET>}"
+            echo "SECURITIESHUB_DB: ${SECURITIESHUB_DB:+<SET>}"
+            echo "MODELHUB_DB: ${MODELHUB_DB:+<SET>}"
+            echo "WORK_ITEM_AUTH_TOKEN: ${WORK_ITEM_AUTH_TOKEN:+<SET>}"
             echo "AZURE_SQL_PASSWORD: ${AZURE_SQL_PASSWORD:+<SET>}"
             echo "POSTGRES_DB_PASSWORD: ${POSTGRES_DB_PASSWORD:+<SET>}"
-            echo "-------------------------------------------"
-            echo ""
-            echo "All environment variables starting with PARTIES:"
-            env | grep PARTIES || echo "No PARTIES variables found"
             echo "-------------------------------------------"
             
             # Validation
             if [ -z "$PARTIES_BASE_URL" ]; then
-              echo "❌ CRITICAL: PARTIES_BASE_URL is not set!"
-              echo "   Check Azure variable group 'qa-pipelines-variable-group-dev'"
-              echo "   Variable name should be: parties_base_url"
-            else
-              echo "✅ PARTIES_BASE_URL is set correctly"
+              echo "❌ CRITICAL: Required environment variables not set!"
+              echo "   Check Azure variable group 'qa-pipelines-config-${{ lower(parameters.environment) }}'"
+              exit 1
             fi
+            echo "✅ Environment variables validated"
             
             echo ""
             echo "Test Command: ${{ parameters.testArgs }}"
@@ -153,13 +191,6 @@ stages:
       - task: Bash@3
         displayName: 'Run Non-Functional Tests'
         condition: and(succeededOrFailed(), or(eq('${{ parameters.testType }}', 'non-functional'), eq('${{ parameters.testType }}', 'both')))
-        env:
-          WORK_ITEM_AUTH_TOKEN: $(WORK_ITEM_AUTH_TOKEN)
-          PARTIES_AUTH_TOKEN: $(PARTIES_AUTH_TOKEN)
-          PARTIES_BASE_URL: $(parties_base_url)  # From variable group: qa-pipelines-variable-group-dev
-          PARTIES_SQLDB: $(PARTIES_SQLDB_CONNECTION_STRING)  # Connection string from Key Vault
-          AZURE_SQL_PASSWORD: $(AZURE_SQL_PASSWORD)
-          POSTGRES_DB_PASSWORD: $(POSTGRES_DB_PASSWORD)
         inputs:
           targetType: inline
           script: |
