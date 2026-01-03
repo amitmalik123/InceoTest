@@ -272,6 +272,9 @@ class MSSQLClient(DatabaseClient):
             return results
         except Exception as e:
             logger.error(f"MSSQL query failed: {e}")
+            if self.conn:
+                self.conn.rollback()
+                logger.info("Transaction rolled back due to query error")
             raise
     
     def execute(self, sql: str, params: tuple = None) -> int:
@@ -446,6 +449,9 @@ class PostgreSQLClient(DatabaseClient):
             return results
         except Exception as e:
             logger.error(f"PostgreSQL query failed: {e}")
+            if self.conn:
+                self.conn.rollback()
+                logger.info("Transaction rolled back due to query error")
             raise
     
     def execute(self, sql: str, params: tuple = None) -> int:
@@ -514,6 +520,9 @@ class SQLiteClient(DatabaseClient):
             return results
         except Exception as e:
             logger.error(f"SQLite query failed: {e}")
+            if self.conn:
+                self.conn.rollback()
+                logger.info("Transaction rolled back due to query error")
             raise
     
     def execute(self, sql: str, params: tuple = None) -> int:
