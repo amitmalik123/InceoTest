@@ -174,8 +174,8 @@ class ApiClientFactory:
                 endpoint_config = api_endpoints[service_name]
                 base_url = substitute_env_vars(endpoint_config.get('base_url'))
                 auth_token = substitute_env_vars(endpoint_config.get('auth_token'))
-                timeout = endpoint_config.get('timeout', 30)
-                retry_count = endpoint_config.get('retry_count', 3)
+                timeout = int(endpoint_config.get('timeout', 30))
+                retry_count = int(endpoint_config.get('retry_count', 3))
                 verify = endpoint_config.get('verify', False)
                 use_azure_auth = endpoint_config.get('use_azure_auth', False)
                 azure_resource = endpoint_config.get('azure_resource', 'https://management.azure.com/')
