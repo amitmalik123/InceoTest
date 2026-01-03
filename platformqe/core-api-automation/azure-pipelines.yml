@@ -53,32 +53,6 @@ stages:
     - job: Job
       pool:
         name: ewm20-docker-build-agent-inc-dev
-      env:
-        WORK_ITEM_AUTH_TOKEN: $(WORK_ITEM_AUTH_TOKEN)
-        PARTIES_AUTH_TOKEN: $(PARTIES_AUTH_TOKEN)
-        PARTIES_SQLDB: $(parties-sqldb-connection-string)  # Key Vault secret
-        MOVEMONEY_SQLDB: $(movemoney-sqldb-connection-string)
-        HNE_DB: $(hne-db-connection-string)
-        SECURITIESHUB_DB: $(securitieshub-db-connection-string)
-        MODELHUB_DB: $(modelhub-db-connection-string)
-        AZURE_SQL_PASSWORD: $(AZURE_SQL_PASSWORD)
-        POSTGRES_DB_PASSWORD: $(POSTGRES_DB_PASSWORD)
-        ADDRESS_BASE_URL: $(address_base_url)  # From variable group: qa-pipelines-config-dev/test
-        ANALYTICS_BASE_URL: $(analytics_base_url)  # From variable group: qa-pipelines-config-dev/test
-        HNE_BASE_URL: $(hne_base_url)  # From variable group: qa-pipelines-config-dev/test
-        MODELS_BASE_URL: $(models_base_url)  # From variable group: qa-pipelines-config-dev/test
-        MOVEMONEY_BASE_URL: $(movemoney_base_url)  # From variable group: qa-pipelines-config-dev/test
-        PARTIES_BASE_URL: $(parties_base_url)  # From variable group: qa-pipelines-config-dev/test
-        SECURITIES_BASE_URL: $(securities_base_url)  # From variable group: qa-pipelines-config-dev/test
-        WORK_ITEM_NOTIFICATION_BASE_URL: $(work_item_notification_base_url)  # From variable group: qa-pipelines-config-dev/test
-        API_TIMEOUT: $(api_timeout)
-        API_RETRY_COUNT: $(api_retry_count)
-        INFLUX_URL: $(influx_url)
-        INFLUX_TOKEN: $(influx_token)
-        INFLUX_ORG: $(influx_org)
-        INFLUX_BUCKET: $(influx_bucket)
-        INFLUX_TIMEOUT: $(influx_timeout)
-        INFLUX_ENABLE: $(influx_enable)
       steps:
       # Fetch database connection strings from Azure Key Vault
       - task: AzureKeyVault@2
@@ -130,6 +104,26 @@ stages:
       - task: Bash@3
         displayName: 'Run Functional Tests'
         condition: or(eq('${{ parameters.testType }}', 'functional'), eq('${{ parameters.testType }}', 'both'))
+        env:
+          WORK_ITEM_AUTH_TOKEN: $(WORK_ITEM_AUTH_TOKEN)
+          PARTIES_AUTH_TOKEN: $(PARTIES_AUTH_TOKEN)
+          PARTIES_BASE_URL: $(parties_base_url)
+          PARTIES_SQLDB: $(parties-sqldb-connection-string)
+          MOVEMONEY_SQLDB: $(movemoney-sqldb-connection-string)
+          HNE_DB: $(hne-db-connection-string)
+          SECURITIESHUB_DB: $(securitieshub-db-connection-string)
+          MODELHUB_DB: $(modelhub-db-connection-string)
+          AZURE_SQL_PASSWORD: $(AZURE_SQL_PASSWORD)
+          POSTGRES_DB_PASSWORD: $(POSTGRES_DB_PASSWORD)
+          ADDRESS_BASE_URL: $(address_base_url)
+          ANALYTICS_BASE_URL: $(analytics_base_url)
+          HNE_BASE_URL: $(hne_base_url)
+          MODELS_BASE_URL: $(models_base_url)
+          MOVEMONEY_BASE_URL: $(movemoney_base_url)
+          SECURITIES_BASE_URL: $(securities_base_url)
+          WORK_ITEM_NOTIFICATION_BASE_URL: $(work_item_notification_base_url)
+          API_TIMEOUT: $(api_timeout)
+          API_RETRY_COUNT: $(api_retry_count)
         inputs:
           targetType: inline
           script: |
@@ -191,6 +185,32 @@ stages:
       - task: Bash@3
         displayName: 'Run Non-Functional Tests'
         condition: and(succeededOrFailed(), or(eq('${{ parameters.testType }}', 'non-functional'), eq('${{ parameters.testType }}', 'both')))
+        env:
+          WORK_ITEM_AUTH_TOKEN: $(WORK_ITEM_AUTH_TOKEN)
+          PARTIES_AUTH_TOKEN: $(PARTIES_AUTH_TOKEN)
+          PARTIES_BASE_URL: $(parties_base_url)
+          PARTIES_SQLDB: $(parties-sqldb-connection-string)
+          MOVEMONEY_SQLDB: $(movemoney-sqldb-connection-string)
+          HNE_DB: $(hne-db-connection-string)
+          SECURITIESHUB_DB: $(securitieshub-db-connection-string)
+          MODELHUB_DB: $(modelhub-db-connection-string)
+          AZURE_SQL_PASSWORD: $(AZURE_SQL_PASSWORD)
+          POSTGRES_DB_PASSWORD: $(POSTGRES_DB_PASSWORD)
+          ADDRESS_BASE_URL: $(address_base_url)
+          ANALYTICS_BASE_URL: $(analytics_base_url)
+          HNE_BASE_URL: $(hne_base_url)
+          MODELS_BASE_URL: $(models_base_url)
+          MOVEMONEY_BASE_URL: $(movemoney_base_url)
+          SECURITIES_BASE_URL: $(securities_base_url)
+          WORK_ITEM_NOTIFICATION_BASE_URL: $(work_item_notification_base_url)
+          API_TIMEOUT: $(api_timeout)
+          API_RETRY_COUNT: $(api_retry_count)
+          INFLUX_URL: $(influx_url)
+          INFLUX_TOKEN: $(influx_token)
+          INFLUX_ORG: $(influx_org)
+          INFLUX_BUCKET: $(influx_bucket)
+          INFLUX_TIMEOUT: $(influx_timeout)
+          INFLUX_ENABLE: $(influx_enable)
         inputs:
           targetType: inline
           script: |
