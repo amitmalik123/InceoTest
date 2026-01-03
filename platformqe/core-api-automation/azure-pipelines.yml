@@ -161,7 +161,7 @@ stages:
             pytest -sv tests/test_api_generic.py ${{ parameters.testArgs }}
             TEST_EXIT_CODE=$?
             echo "##vso[task.setvariable variable=TEST_EXIT_CODE]$TEST_EXIT_CODE"
-            exit 0
+            exit $TEST_EXIT_CODE
           workingDirectory: $(buildPath)
       - task: Bash@3
         displayName: 'Locate reports folder'
@@ -251,7 +251,7 @@ stages:
             echo "##vso[task.setvariable variable=LOCUST_EXIT_CODE]$LOCUST_EXIT_CODE"
             
             echo "Locust reports saved to: $report_dir"
-            exit 0
+            exit $LOCUST_EXIT_CODE
           workingDirectory: $(buildPath)
       - task: PublishTestResults@2
         condition: succeededOrFailed()
