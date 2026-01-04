@@ -7,23 +7,88 @@ The CoreAPI Automation Framework is a modular, extensible Python-based solution 
 
 For technical architecture, design rationale, and extensibility details, see the [ARCHITECTURE.md](./ARCHITECTURE.md) file.
 
+## 📋 Quick Links
+
+- **[Pipeline Matrix Documentation](docs/PIPELINE_MATRIX_USAGE.md)** - Matrix-based CI/CD pipeline guide
+- **[Architecture Documentation](docs/ARCHITECTURE.md)** - Technical architecture and design
+- **[Framework Flow](docs/FRAMEWORK_FLOW.md)** - Detailed execution flow
+- **[Performance Testing](docs/PERFORMANCE.md)** - Load testing guide
+
 ---
 
 ## Features
 
+### Testing Capabilities
 - **Multi-protocol support**: REST, GraphQL, SOAP, gRPC, and more
 - **Database integration**: MSSQL, PostgreSQL, MongoDB, CosmosDB, SQLite, InfluxDB with Azure AD authentication support
 - **Static and dynamic test case management**: OpenAPI/Swagger/Postman imports with auto-generation
 - **Data-driven and hybrid testing**: CSV-based test data with Jinja2 templating
 - **Modular test execution**: Pluggable test_helpers modules for separation of concerns
-- **Centralized configuration**: Environment-specific configs with multiple API endpoints and DB connections
 - **Rich reporting**: Allure, JUnit, JSON, HTML, and custom reports
 - **Performance/load testing**: Built-in Locust integration with framework clients, validators, and automatic report archiving
 - **Real-time monitoring**: InfluxDB integration for time-series metrics with Grafana dashboards
 - **Security scanning**: Bandit and Safety integration for vulnerability detection
+
+### CI/CD Integration
+- **Matrix-based Azure Pipeline**: Dynamic service and environment execution
+- **Flexible triggers**: PR validation, push automation, scheduled runs, manual execution
+- **Parallel execution**: Run multiple service-environment combinations concurrently
+- **Centralized configuration**: Service matrix configuration in YAML
+- **CLI management tool**: Easy service and trigger management via `manage_matrix.py`
+
+### Architecture
 - **Modular, pluggable design**: Easy extension for new protocols, validators, and reporters
+- **Centralized configuration**: Environment-specific configs with multiple API endpoints and DB connections
 - **Azure AD authentication**: Passwordless authentication for PostgreSQL and Azure APIs
 - **Optional AI/LLM integration**: For test generation and validation
+
+---
+
+## CI/CD Pipeline - Matrix-Based Execution
+
+This framework uses a sophisticated matrix-based pipeline that dynamically executes tests based on service configuration. See [docs/PIPELINE_MATRIX_USAGE.md](docs/PIPELINE_MATRIX_USAGE.md) for complete details.
+
+### Quick Start
+
+**View current configuration:**
+```bash
+python scripts/manage_matrix.py list
+python scripts/manage_matrix.py summary
+```
+
+**Enable a service for testing:**
+```bash
+# Enable all flags at once
+python scripts/manage_matrix.py set-all-flags parties true
+
+# Or set specific flags
+python scripts/manage_matrix.py set-all-flags movemoney \
+  --enabled true \
+  --run-on-pr true \
+  --run-on-push true \
+  --run-on-schedule false
+```
+
+**Test configuration locally:**
+```bash
+# Simulate what would run on a PR
+python scripts/manage_matrix.py simulate-pr --env TSADEV
+
+# Validate configuration
+python scripts/manage_matrix.py validate
+```
+
+### Pipeline Features
+
+- ✅ **Automatic PR validation** - Runs critical services on pull requests
+- ✅ **Push-based CI** - Executes on code commits
+- ✅ **Scheduled regression** - Cron-based comprehensive testing
+- ✅ **Manual execution** - On-demand runs with custom parameters
+- ✅ **Multi-environment** - TSADEV, TSATEST, T12, T11, T10
+- ✅ **Parallel jobs** - Up to 5 concurrent service-environment combinations
+- ✅ **Dynamic matrix** - Auto-generated from configuration
+
+See the [Pipeline Matrix Documentation](docs/PIPELINE_MATRIX_USAGE.md) for comprehensive usage guide.
 
 ---
 
