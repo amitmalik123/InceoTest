@@ -519,13 +519,13 @@ class ServiceMatrixManager:
                     }
                     
                     services_to_run.append(service_info)
-                    print(f"✅ {service_name} [{env}]: {reason}")
+                    print(f"[OK] {service_name} [{env}]: {reason}")
         
         # Sort by priority
         services_to_run.sort(key=lambda x: x['priority'])
         
         print(f"\n{'='*60}")
-        print(f"Total Service-Environment Combinations to Run: {len(services_to_run)}")
+        print(f"\nTotal Service-Environment Combinations to Run: {len(services_to_run)}")
         print(f"{'='*60}")
         
         # Output for Azure DevOps
@@ -548,7 +548,7 @@ class ServiceMatrixManager:
             
             return True
         else:
-            print("⚠️ No services to run based on current configuration and trigger")
+            print("[WARNING] No services to run based on current configuration and trigger")
             print(f"##vso[task.setvariable variable=hasServices;isOutput=true]false")
             print(f"##vso[task.setvariable variable=serviceCount;isOutput=true]0")
             return False
