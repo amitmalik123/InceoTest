@@ -69,6 +69,8 @@ parameters:
 # Global Variables
 ###############################################################################
 variables:
+  - group: 'qa-pipelines-config-dev'
+  - group: 'qa-pipelines-config-test'
   - group: 'qa-pipelines-shared-config'
   - name: buildPath
     value: '$(Build.SourcesDirectory)/platformqe/core-api-automation'
@@ -153,23 +155,47 @@ stages:
         strategy:
           maxParallel: 5
           matrix: $[ dependencies.Initialize.outputs['ParseMatrix.DetermineServices.servicesMatrix'] ]
-        
-        variables:
-          # Load all variable groups - runtime conditionals will select correct values
-          - group: 'qa-pipelines-config-dev'
-          - group: 'qa-pipelines-config-test'
-          - group: 'qa-pipelines-shared-config'
-          # Runtime selection of subscription and key vault based on environment
-          - name: subscription
-            value: $[ if(eq(variables['environment'], 'TSADEV'), variables['subscription_dev'], variables['subscription_test']) ]
-          - name: key_vault_name
-            value: $[ if(eq(variables['environment'], 'TSADEV'), variables['key_vault_dev'], variables['key_vault_test']) ]
-        
+                
         steps:
           - checkout: self
           
+          - task: Bash@3
+            displayName: 'Set Subscription and Key Vault'
+            name: SetSubscription
+            inputs:
+              targetType: inline
+              script: |
+                echo "Environment from matrix: $(environment)"
+                
+                # Map environment to subscription and key vault based on DEV vs TEST
+                case "$(environment)" in
+                  TSADEV|T12|T11|T10)
+                    SUBSCRIPTION="$(subscription_dev)"
+                    KEY_VAULT="amkkvqapipeline-devncus"
+                    echo "Using DEV configuration"
+                    ;;
+                  TSATEST)
+                    SUBSCRIPTION="$(subscription_test)"
+                    KEY_VAULT="amkkvqapipeline-testncus"
+                    echo "Using TEST configuration"
+                    ;;
+                  *)
+                    echo "ERROR: Unknown environment: $(environment)"
+                    SUBSCRIPTION="$(subscription_dev)"
+                    KEY_VAULT="amkkvqapipeline-devncus"
+                    ;;
+                esac
+                
+                echo "Subscription: $SUBSCRIPTION"
+                echo "Key Vault: $KEY_VAULT"
+                
+                # Set pipeline variables for use in subsequent tasks
+                echo "##vso[task.setvariable variable=subscription]$SUBSCRIPTION"
+                echo "##vso[task.setvariable variable=key_vault_name]$KEY_VAULT"
+          
+          # Fetch database connection strings from Azure Key Vault
           - task: AzureKeyVault@2
-            displayName: 'Fetch Secrets from Key Vault'
+            displayName: 'Fetch database connection strings from Azure Key Vault'
             inputs:
               azureSubscription: $(subscription)
               KeyVaultName: $(key_vault_name)
