@@ -191,6 +191,18 @@ stages:
                 echo "Test Type: $(testType)"
                 echo "Priority: $(priority)"
                 echo "Reason: $(reason)"
+                echo "Functional Args: $(functionalTestArgs)"
+                echo "Non-Functional Args: $(nonFunctionalTestArgs)"
+                echo "=========================================="
+                echo ""
+                echo "Checking condition for functional tests:"
+                echo "testType value: '$(testType)'"
+                if [ "$(testType)" = "functional" ] || [ "$(testType)" = "both" ]; then
+                  echo "✅ Condition PASSED - Functional tests will run"
+                else
+                  echo "❌ Condition FAILED - Functional tests will be SKIPPED"
+                  echo "   testType is neither 'functional' nor 'both'"
+                fi
                 echo "=========================================="
           
           - task: CmdLine@2
@@ -204,8 +216,32 @@ stages:
               workingDirectory: $(buildPath)
           
           - task: Bash@3
+            displayName: 'Pre-Test Validation'
+            inputs:
+              targetType: inline
+              script: |
+                echo "=========================================="
+                echo "VALIDATING TEST EXECUTION CONDITIONS"
+                echo "=========================================="
+                echo "Service: $(name)"
+                echo "Environment: $(environment)"
+                echo "Test Type Variable: '$(testType)'"
+                echo ""
+                echo "Checking functional test condition..."
+                if [ "$(testType)" = "functional" ]; then
+                  echo "✅ Will run FUNCTIONAL tests only"
+                elif [ "$(testType)" = "both" ]; then
+                  echo "✅ Will run BOTH functional and non-functional tests"
+                elif [ "$(testType)" = "non-functional" ]; then
+                  echo "⚠️ Will run NON-FUNCTIONAL tests only (functional tests skipped)"
+                else
+                  echo "❌ ERROR: testType='$(testType)' is not recognized!"
+                fi
+                echo "=========================================="
+          
+          - task: Bash@3
             displayName: 'Run Functional Tests - $(name)'
-            condition: or(eq(variables['testType'], 'functional'), eq(variables['testType'], 'both'))
+            condition: and(succeeded(), or(eq(variables['testType'], 'functional'), eq(variables['testType'], 'both')))
             env:
               WORK_ITEM_AUTH_TOKEN: $(WORK_ITEM_AUTH_TOKEN)
               PARTIES_AUTH_TOKEN: $(PARTIES_AUTH_TOKEN)
