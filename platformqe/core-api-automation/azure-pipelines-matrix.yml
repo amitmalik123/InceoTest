@@ -122,7 +122,9 @@ stages:
                   --execution-mode "${{ parameters.executionMode }}" \
                   --services "${{ parameters.services }}" \
                   --environments "${{ parameters.environments }}" \
-                  ${{ eq(parameters.overrideEnabled, true) && '--override-enabled' || '' }} \
+                  ${{ if eq(parameters.overrideEnabled, true) }}:
+                  --override-enabled \
+                  ${{ endif }}
                   --test-type "${{ parameters.testType }}" \
                   --trigger-reason "$(Build.Reason)"
                 
