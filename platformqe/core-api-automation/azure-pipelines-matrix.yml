@@ -117,14 +117,18 @@ stages:
                 echo "Using manage_matrix.py to determine services"
                 echo "=========================================="
                 
+                # Set override flag based on parameter
+                OVERRIDE_FLAG=""
+                if [ "${{ parameters.overrideEnabled }}" = "True" ]; then
+                  OVERRIDE_FLAG="--override-enabled"
+                fi
+                
                 # Run the manage_matrix.py script with pipeline parameters
                 python3 scripts/manage_matrix.py generate-pipeline-matrix \
                   --execution-mode "${{ parameters.executionMode }}" \
                   --services "${{ parameters.services }}" \
                   --environments "${{ parameters.environments }}" \
-                  ${{ if eq(parameters.overrideEnabled, true) }}:
-                  --override-enabled \
-                  ${{ endif }}
+                  $OVERRIDE_FLAG \
                   --test-type "${{ parameters.testType }}" \
                   --trigger-reason "$(Build.Reason)"
                 
