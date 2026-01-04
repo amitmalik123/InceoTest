@@ -503,14 +503,18 @@ class ServiceMatrixManager:
                 
                 # Create entries for each environment
                 for env in envs_to_run:
+                    # Substitute environment placeholders in test arguments
+                    functional_args_resolved = functional_args.replace('{environment}', env)
+                    non_functional_args_resolved = non_functional_args.replace('{environment}', env)
+                    
                     service_info = {
                         'name': service_name,
                         'displayName': service_config.get('displayName', service_name),
                         'environment': env,
                         'priority': priority,
                         'testType': actual_test_type,
-                        'functionalTestArgs': functional_args,
-                        'nonFunctionalTestArgs': non_functional_args,
+                        'functionalTestArgs': functional_args_resolved,
+                        'nonFunctionalTestArgs': non_functional_args_resolved,
                         'reason': reason
                     }
                     
