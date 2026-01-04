@@ -1,0 +1,438 @@
+###############################################################################
+# Azure DevOps Pipeline - Services Matrix Based Execution
+###############################################################################
+# This pipeline reads configuration from services-matrix.yaml and executes
+# tests based on service configurations.
+#
+# Features:
+# - Single or multiple service execution
+# - On-demand manual runs
+# - Automated PR triggers
+# - Automated Push triggers
+# - Scheduled runs (cron-based)
+# - Multi-environment support (TSADEV, TSATEST, T12, T11, T10)
+# - Dynamic job generation based on service matrix
+###############################################################################
+
+# PR Trigger - runs when PRs are created/updated
+pr:
+  branches:
+    include:
+      - qe_platform
+
+# Push Trigger - runs when code is pushed to branches
+trigger:
+  branches:
+    include:
+      - qe_platform
+
+# Scheduled Triggers - defined per service in services-matrix.yaml
+# Note: Schedules are defined in the jobs section dynamically
+
+###############################################################################
+# Pipeline Parameters - For Manual Execution
+###############################################################################
+parameters:
+  - name: executionMode
+    displayName: 'Execution Mode'
+    type: string
+    default: 'auto'
+    values:
+      - auto      # Automatic based on trigger (PR/Push/Schedule)
+      - manual    # Manual selection of services
+  
+  - name: services
+    displayName: 'Services to Run (comma-separated, leave empty for all enabled)'
+    type: string
+    default: ''
+  
+  - name: environments
+    displayName: 'Environments (comma-separated, leave empty for service defaults)'
+    type: string
+    default: ''
+  
+  - name: testType
+    displayName: 'Test Type'
+    type: string
+    default: 'functional'
+    values:
+      - functional
+      - non-functional
+      - both
+  
+  - name: overrideEnabled
+    displayName: 'Override Enabled Flag (run disabled services too)'
+    type: boolean
+    default: false
+
+###############################################################################
+# Global Variables
+###############################################################################
+variables:
+  - group: 'qa-pipelines-shared-config'
+  - name: buildPath
+    value: '$(Build.SourcesDirectory)/platformqe/core-api-automation'
+  - name: matrixConfigPath
+    value: 'config/services-matrix.yaml'
+  - name: pythonVersion
+    value: '3.10'
+
+###############################################################################
+# Stages
+###############################################################################
+stages:
+  ###########################################################################
+  # Stage 1: Initialization - Parse Matrix and Determine Services to Run
+  ###########################################################################
+  - stage: Initialize
+    displayName: 'Initialize and Parse Service Matrix'
+    jobs:
+      - job: ParseMatrix
+        displayName: 'Parse Services Matrix'
+        pool:
+          name: ewm20-docker-build-agent-inc-dev
+        steps:
+          - checkout: self
+          
+          - task: UsePythonVersion@0
+            displayName: 'Set up Python $(pythonVersion)'
+            inputs:
+              versionSpec: '$(pythonVersion)'
+              addToPath: true
+          
+          - task: Bash@3
+            displayName: 'Install PyYAML'
+            inputs:
+              targetType: inline
+              script: |
+                pip install pyyaml
+          
+          - task: Bash@3
+            name: DetermineServices
+            displayName: 'Determine Services to Run'
+            inputs:
+              targetType: inline
+              script: |
+                echo "=========================================="
+                echo "Using manage_matrix.py to determine services"
+                echo "=========================================="
+                
+                # Run the manage_matrix.py script with pipeline parameters
+                python3 scripts/manage_matrix.py generate-pipeline-matrix \
+                  --execution-mode "${{ parameters.executionMode }}" \
+                  --services "${{ parameters.services }}" \
+                  --environments "${{ parameters.environments }}" \
+                  ${{ eq(parameters.overrideEnabled, true) && '--override-enabled' || '' }} \
+                  --test-type "${{ parameters.testType }}" \
+                  --trigger-reason "$(Build.Reason)"
+                
+                exit_code=$?
+                echo ""
+                echo "Script completed with exit code: $exit_code"
+                exit $exit_code
+              workingDirectory: $(buildPath)
+
+  ###########################################################################
+  # Stage 2: Execute Tests - Dynamic Jobs Based on Service Matrix
+  ###########################################################################
+  - stage: ExecuteTests
+    displayName: 'Execute Service Tests'
+    dependsOn: Initialize
+    condition: and(succeeded(), eq(dependencies.Initialize.outputs['ParseMatrix.DetermineServices.hasServices'], 'true'))
+    jobs:
+      - job: RunTests
+        displayName: 'Run Tests'
+        pool:
+          name: ewm20-docker-build-agent-inc-dev
+        strategy:
+          maxParallel: 5
+          matrix: $[ dependencies.Initialize.outputs['ParseMatrix.DetermineServices.servicesMatrix'] ]
+        
+        variables:
+          # Load all variable groups - runtime conditionals will select correct values
+          - group: 'qa-pipelines-config-dev'
+          - group: 'qa-pipelines-config-test'
+          - group: 'qa-pipelines-shared-config'
+          # Runtime selection of subscription and key vault based on environment
+          - name: subscription
+            value: $[ if(eq(variables['environment'], 'TSADEV'), variables['subscription_dev'], variables['subscription_test']) ]
+          - name: key_vault_name
+            value: $[ if(eq(variables['environment'], 'TSADEV'), variables['key_vault_dev'], variables['key_vault_test']) ]
+        
+        steps:
+          - checkout: self
+          
+          - task: AzureKeyVault@2
+            displayName: 'Fetch Secrets from Key Vault'
+            inputs:
+              azureSubscription: $(subscription)
+              KeyVaultName: $(key_vault_name)
+              SecretsFilter: 'parties-sqldb-connection-string,movemoney-sqldb-connection-string,hne-db-connection-string,securitieshub-db-connection-string,modelhub-db-connection-string'
+              RunAsPreJob: true
+          
+          - task: UsePythonVersion@0
+            displayName: 'Set up Python $(pythonVersion)'
+            inputs:
+              versionSpec: '$(pythonVersion)'
+              addToPath: true
+          
+          - task: Bash@3
+            displayName: 'Environment Info'
+            inputs:
+              targetType: inline
+              script: |
+                echo "=========================================="
+                echo "Service: $(name)"
+                echo "Display Name: $(displayName)"
+                echo "Environment: $(environment)"
+                echo "Test Type: $(testType)"
+                echo "Priority: $(priority)"
+                echo "Reason: $(reason)"
+                echo "=========================================="
+          
+          - task: CmdLine@2
+            displayName: 'Install Python Dependencies'
+            inputs:
+              script: |
+                find . -type d -name "__pycache__" -exec rm -rf {} + 2>/dev/null || true
+                find . -type f -name "*.pyc" -delete 2>/dev/null || true
+                python -m pip install --upgrade pip
+                pip install -r requirements.txt
+              workingDirectory: $(buildPath)
+          
+          - task: Bash@3
+            displayName: 'Run Functional Tests - $(name)'
+            condition: or(eq(variables['testType'], 'functional'), eq(variables['testType'], 'both'))
+            env:
+              WORK_ITEM_AUTH_TOKEN: $(WORK_ITEM_AUTH_TOKEN)
+              PARTIES_AUTH_TOKEN: $(PARTIES_AUTH_TOKEN)
+              PARTIES_BASE_URL: $(parties_base_url)
+              PARTIES_SQLDB: $(parties-sqldb-connection-string)
+              MOVEMONEY_SQLDB: $(movemoney-sqldb-connection-string)
+              HNE_DB: $(hne-db-connection-string)
+              SECURITIESHUB_DB: $(securitieshub-db-connection-string)
+              MODELHUB_DB: $(modelhub-db-connection-string)
+              AZURE_SQL_PASSWORD: $(AZURE_SQL_PASSWORD)
+              POSTGRES_DB_PASSWORD: $(POSTGRES_DB_PASSWORD)
+              ADDRESS_BASE_URL: $(address_base_url)
+              ANALYTICS_BASE_URL: $(analytics_base_url)
+              HNE_BASE_URL: $(hne_base_url)
+              MODELS_BASE_URL: $(models_base_url)
+              MOVEMONEY_BASE_URL: $(movemoney_base_url)
+              SECURITIES_BASE_URL: $(securities_base_url)
+              WORK_ITEM_NOTIFICATION_BASE_URL: $(work_item_notification_base_url)
+              API_TIMEOUT: $(api_timeout)
+              API_RETRY_COUNT: $(api_retry_count)
+            inputs:
+              targetType: inline
+              script: |
+                echo "=========================================="
+                echo "Running Functional Tests"
+                echo "Service: $(name)"
+                echo "Environment: $(environment)"
+                echo "=========================================="
+                
+                echo "Test Arguments: $(functionalTestArgs)"
+                
+                pytest -sv tests/test_api_generic.py $(functionalTestArgs)
+                TEST_EXIT_CODE=$?
+                echo "##vso[task.setvariable variable=TEST_EXIT_CODE]$TEST_EXIT_CODE"
+                exit $TEST_EXIT_CODE
+              workingDirectory: $(buildPath)
+          
+          - task: Bash@3
+            displayName: 'Locate Reports Folder'
+            condition: succeededOrFailed()
+            inputs:
+              targetType: inline
+              script: |
+                latest=$(ls -td reports/[0-9]*/ 2>/dev/null | head -1 || echo "reports/")
+                echo "##vso[task.setvariable variable=REPORTS_PATH]$latest"
+                echo "Reports location: $latest"
+              workingDirectory: $(buildPath)
+          
+          - task: Bash@3
+            displayName: 'Run Non-Functional Tests - $(name)'
+            condition: and(succeededOrFailed(), or(eq(variables['testType'], 'non-functional'), eq(variables['testType'], 'both')))
+            env:
+              WORK_ITEM_AUTH_TOKEN: $(WORK_ITEM_AUTH_TOKEN)
+              PARTIES_AUTH_TOKEN: $(PARTIES_AUTH_TOKEN)
+              PARTIES_BASE_URL: $(parties_base_url)
+              PARTIES_SQLDB: $(parties-sqldb-connection-string)
+              MOVEMONEY_SQLDB: $(movemoney-sqldb-connection-string)
+              HNE_DB: $(hne-db-connection-string)
+              SECURITIESHUB_DB: $(securitieshub-db-connection-string)
+              MODELHUB_DB: $(modelhub-db-connection-string)
+              AZURE_SQL_PASSWORD: $(AZURE_SQL_PASSWORD)
+              POSTGRES_DB_PASSWORD: $(POSTGRES_DB_PASSWORD)
+              ADDRESS_BASE_URL: $(address_base_url)
+              ANALYTICS_BASE_URL: $(analytics_base_url)
+              HNE_BASE_URL: $(hne_base_url)
+              MODELS_BASE_URL: $(models_base_url)
+              MOVEMONEY_BASE_URL: $(movemoney_base_url)
+              SECURITIES_BASE_URL: $(securities_base_url)
+              WORK_ITEM_NOTIFICATION_BASE_URL: $(work_item_notification_base_url)
+              API_TIMEOUT: $(api_timeout)
+              API_RETRY_COUNT: $(api_retry_count)
+              INFLUX_URL: $(influx_url)
+              INFLUX_TOKEN: $(influx_token)
+              INFLUX_ORG: $(influx_org)
+              INFLUX_BUCKET: $(influx_bucket)
+              INFLUX_TIMEOUT: $(influx_timeout)
+              INFLUX_ENABLE: $(influx_enable)
+            inputs:
+              targetType: inline
+              script: |
+                echo "=========================================="
+                echo "Running Non-Functional Tests"
+                echo "Service: $(name)"
+                echo "Environment: $(environment)"
+                echo "=========================================="
+                
+                # Use existing report directory from functional tests
+                latest=$(ls -td reports/[0-9]*/ 2>/dev/null | head -1)
+                if [ -n "$latest" ]; then
+                  report_dir="${latest%/}"
+                  echo "Using existing report directory: $report_dir"
+                else
+                  timestamp=$(date +%Y%m%d_%H%M%S)
+                  report_dir="reports/${timestamp}"
+                  mkdir -p "$report_dir"
+                  echo "Created new report directory: $report_dir"
+                fi
+                
+                echo "Locust Arguments: $(nonFunctionalTestArgs)"
+                
+                locust -f locustfile.py $(nonFunctionalTestArgs) \
+                  --html="${report_dir}/performance_report.html" \
+                  --csv="${report_dir}/performance_report"
+                
+                LOCUST_EXIT_CODE=$?
+                echo "##vso[task.setvariable variable=LOCUST_EXIT_CODE]$LOCUST_EXIT_CODE"
+                exit $LOCUST_EXIT_CODE
+              workingDirectory: $(buildPath)
+          
+          - task: PublishTestResults@2
+            displayName: 'Publish Test Results - $(name)'
+            condition: succeededOrFailed()
+            inputs:
+              testResultsFormat: 'JUnit'
+              testResultsFiles: '**/junit_report*.xml'
+              searchFolder: '$(buildPath)/$(REPORTS_PATH)'
+              mergeTestResults: true
+              failTaskOnFailedTests: false
+              testRunTitle: '$(displayName) - $(environment) - $(Build.BuildNumber)'
+          
+          - task: PublishBuildArtifacts@1
+            displayName: 'Publish Test Reports - $(name)'
+            condition: succeededOrFailed()
+            inputs:
+              PathtoPublish: '$(buildPath)/reports'
+              ArtifactName: 'test-reports-$(name)-$(environment)-$(Build.BuildNumber)'
+              publishLocation: 'Container'
+          
+          - task: PublishBuildArtifacts@1
+            displayName: 'Publish Framework Logs - $(name)'
+            condition: succeededOrFailed()
+            inputs:
+              PathtoPublish: '$(buildPath)/framework/logs'
+              ArtifactName: 'framework-logs-$(name)-$(environment)-$(Build.BuildNumber)'
+              publishLocation: 'Container'
+          
+          - task: Bash@3
+            displayName: 'Send Email Report - $(name)'
+            condition: and(succeededOrFailed(), or(eq(variables['email_feature_enabled'], 'true'), eq(variables['email_feature_enabled'], 'True')))
+            env:
+              SMTP_SERVER: $(smtp_server)
+              SMTP_PORT: $(smtp_port)
+              EMAIL_FROM: $(email_from)
+              EMAIL_TO: $(email_to)
+              EMAIL_CC: $(email_cc)
+              EMAIL_BCC: $(email_bcc)
+              EMAIL_SUBJECT_PREFIX: $(email_subject_prefix)
+            inputs:
+              targetType: inline
+              script: |
+                export PYTHONPATH="${PYTHONPATH}:$(pwd)"
+                python3 framework/reporter/email_reporter.py \
+                  --build-number "$(Build.BuildNumber)" \
+                  --job-status "$(Agent.JobStatus)" \
+                  --reports-path "$(REPORTS_PATH)" \
+                  --build-id "$(Build.BuildId)" \
+                  --team-project "$(System.TeamProject)" \
+                  --collection-uri "$(System.TeamFoundationCollectionUri)" \
+                  --service-name "$(name)"
+              workingDirectory: $(buildPath)
+          
+          - task: Bash@3
+            displayName: 'Verify Test Results - $(name)'
+            condition: always()
+            inputs:
+              targetType: inline
+              script: |
+                echo "=========================================="
+                echo "Final Test Results - $(name)"
+                echo "=========================================="
+                failed=false
+                
+                # Check functional test results
+                if [ "$(testType)" = "functional" ] || [ "$(testType)" = "both" ]; then
+                  if [ "$(TEST_EXIT_CODE)" != "0" ]; then
+                    echo "❌ Functional Tests Failed (Exit Code: $(TEST_EXIT_CODE))"
+                    failed=true
+                  else
+                    echo "✅ Functional Tests Passed"
+                  fi
+                fi
+                
+                # Check non-functional test results
+                if [ "$(testType)" = "non-functional" ] || [ "$(testType)" = "both" ]; then
+                  if [ "$(LOCUST_EXIT_CODE)" != "0" ]; then
+                    echo "❌ Non-Functional Tests Failed (Exit Code: $(LOCUST_EXIT_CODE))"
+                    failed=true
+                  else
+                    echo "✅ Non-Functional Tests Passed"
+                  fi
+                fi
+                
+                if [ "$failed" = "true" ]; then
+                  echo "##vso[task.complete result=Failed;]Tests failed for $(name)"
+                  exit 1
+                else
+                  echo "✅ All tests passed for $(name)"
+                fi
+
+  ###########################################################################
+  # Stage 3: Summary and Reporting
+  ###########################################################################
+  - stage: Summary
+    displayName: 'Test Execution Summary'
+    dependsOn:
+      - Initialize
+      - ExecuteTests
+    condition: always()
+    jobs:
+      - job: GenerateSummary
+        displayName: 'Generate Execution Summary'
+        pool:
+          name: ewm20-docker-build-agent-inc-dev
+        steps:
+          - checkout: self
+          
+          - task: Bash@3
+            displayName: 'Display Summary'
+            inputs:
+              targetType: inline
+              script: |
+                echo "=========================================="
+                echo "Pipeline Execution Summary"
+                echo "=========================================="
+                echo "Build Number: $(Build.BuildNumber)"
+                echo "Build Reason: $(Build.Reason)"
+                echo "Source Branch: $(Build.SourceBranch)"
+                echo "Trigger: $(Build.Reason)"
+                echo "=========================================="
+                echo ""
+                echo "Check the published test results and artifacts for detailed reports."
+                echo ""
+                echo "✅ Pipeline execution completed"
