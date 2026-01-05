@@ -28,7 +28,7 @@ services:
     runOnSchedule: true
     testType: functional
     schedules:
-    - cron: 15 7 * * *
+    - cron: 30 14 * * *
       displayName: Daily Full Test
       branches:
       - qe_platform
