@@ -17,7 +17,9 @@ The pipeline now uses the `manage_matrix.py` script to dynamically determine whi
    - Runs services based on their flags in `services-matrix.yaml`
    - PR: Only runs services with `runOnPR: true`
    - Push: Only runs services with `runOnPush: true`
-   - Schedule: Only runs services with `runOnSchedule: true`
+   - Schedule: Matches build time (UTC) to cron schedules to determine which service to run
+     - **Important:** Each scheduled service must have a unique cron time
+     - Pipeline uses time-based matching (5-minute tolerance window)
 
 2. **Manual Execution**
    - Select specific services to run
@@ -51,7 +53,25 @@ When code is pushed, the pipeline runs services with `runOnPush: true`.
 **Services that will run:**
 - `parties` (enabled, runOnPush: true)
 
-### 3. Manual - Run Single Service
+### 3. Run on Schedule (Automatic)
+Scheduled runs are triggered at specific times (UTC) defined in the pipeline.
+
+**How it works:**
+1. Schedule triggers at configured time (e.g., `0 19 * * *` for parties)
+2. Pipeline checks the current UTC time when build starts
+3. Matches time against all schedule cron expressions (with 5-minute tolerance)
+4. Determines which service to run based on the match
+5. Only runs services with `runOnSchedule: true` in services-matrix.yaml
+
+**Current Schedules (UTC):**
+- `19:00` → parties
+- `06:00` → work_item_notification  
+- `07:15` → movemoney
+- `07:00` → models
+
+**Important:** Each service must have a unique schedule time to avoid conflicts.
+
+### 4. Manual - Run Single Service
 **Pipeline Parameters:**
 ```yaml
 executionMode: manual
@@ -61,7 +81,7 @@ testType: functional
 
 **Result:** Runs `parties` service in all its configured environments (TSADEV, TSATEST, T12, T11, T10)
 
-### 4. Manual - Run Multiple Services
+### 5. Manual - Run Multiple Services
 **Pipeline Parameters:**
 ```yaml
 executionMode: manual
@@ -71,7 +91,7 @@ testType: both
 
 **Result:** Runs all three services (functional + non-functional tests) in their configured environments
 
-### 5. Manual - Specific Environments
+### 6. Manual - Specific Environments
 **Pipeline Parameters:**
 ```yaml
 executionMode: manual
@@ -82,7 +102,7 @@ testType: functional
 
 **Result:** Runs `parties` only in TSADEV and T12 environments
 
-### 6. Manual - Run Disabled Services
+### 7. Manual - Run Disabled Services
 **Pipeline Parameters:**
 ```yaml
 executionMode: manual
@@ -93,7 +113,7 @@ testType: functional
 
 **Result:** Runs the disabled service
 
-### 7. Manual - Run All Enabled Services
+### 8. Manual - Run All Enabled Services
 **Pipeline Parameters:**
 ```yaml
 executionMode: manual
@@ -103,7 +123,7 @@ testType: functional
 
 **Result:** Runs all enabled services in their configured environments
 
-### 8. Manual - Override Test Arguments
+### 9. Manual - Override Test Arguments
 **Pipeline Parameters:**
 ```yaml
 executionMode: manual
@@ -310,8 +330,14 @@ The pipeline creates a matrix with unique keys for each service-environment comb
 - Good for regression testing
 
 ### 3. **Scheduled Runs**
-- Enable `runOnSchedule: true` for comprehensive testing
-- Configure cron schedules per service
+- Enable `runOnSchedule: true` for services you want to run on a schedule
+- Each service must have a **unique** schedule time in `azure-pipelines-matrix.yml`
+- Schedule times are in UTC
+- Pipeline uses time-matching with 5-minute tolerance window
+- **To add a new schedule:**
+  1. Add schedule block in `azure-pipelines-matrix.yml` with unique time
+  2. Update the time-matching case statement in the pipeline bash script
+  3. Set `runOnSchedule: true` in `services-matrix.yaml` for the service
 
 ### 4. **Priority Settings**
 - Use priority to control execution order
