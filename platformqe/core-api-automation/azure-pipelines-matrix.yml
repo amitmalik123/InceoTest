@@ -142,6 +142,19 @@ stages:
                 exit_code=$?
                 echo ""
                 echo "Script completed with exit code: $exit_code"
+                
+                # Debug: Show what variables were set
+                echo ""
+                echo "=========================================="
+                echo "DEBUG: Checking output variables"
+                echo "=========================================="
+                echo "hasServices: $(DetermineServices.hasServices)"
+                echo "serviceCount: $(DetermineServices.serviceCount)"
+                echo "Matrix preview (first 500 chars):"
+                echo "$(DetermineServices.servicesMatrix)" | head -c 500
+                echo ""
+                echo "=========================================="
+                
                 exit $exit_code
               workingDirectory: $(buildPath)
 
@@ -163,7 +176,33 @@ stages:
                 
         steps:
           - checkout: self
-                    
+          
+          - task: Bash@3
+            displayName: 'Debug Matrix Variables'
+            inputs:
+              targetType: inline
+              script: |
+                echo "=========================================="
+                echo "DEBUG: Matrix Variable Injection Test"
+                echo "=========================================="
+                echo "Raw matrix variables from strategy:"
+                echo "  name = '$(name)'"
+                echo "  displayName = '$(displayName)'"
+                echo "  environment = '$(environment)'"
+                echo "  testType = '$(testType)'"
+                echo "  priority = '$(priority)'"
+                echo "  reason = '$(reason)'"
+                echo "  functionalTestArgs = '$(functionalTestArgs)'"
+                echo ""
+                if [ -z "$(name)" ]; then
+                  echo "❌ ERROR: Matrix variables are EMPTY!"
+                  echo "   This means the matrix from Initialize stage was not passed correctly"
+                  echo "   Check the servicesMatrix output variable format"
+                else
+                  echo "✅ Matrix variables are populated correctly"
+                fi
+                echo "=========================================="
+          
           # Fetch database connection strings from Azure Key Vault
           - task: AzureKeyVault@2
             displayName: 'Fetch database connection strings from Azure Key Vault'
