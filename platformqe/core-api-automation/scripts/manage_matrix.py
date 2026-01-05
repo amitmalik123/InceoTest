@@ -42,8 +42,14 @@ class ServiceMatrixManager:
     
     def _save_config(self):
         """Save the services matrix configuration"""
+        
+        class NoAliasDumper(yaml.SafeDumper):
+            """Custom YAML dumper that disables aliases to avoid &id001 and *id001"""
+            def ignore_aliases(self, data):
+                return True
+        
         with open(self.config_path, 'w') as f:
-            yaml.dump(self.config, f, default_flow_style=False, sort_keys=False)
+            yaml.dump(self.config, f, Dumper=NoAliasDumper, default_flow_style=False, sort_keys=False)
         print(f"[OK] Configuration saved to {self.config_path}")
     
     def list_services(self, filter_enabled: bool = None):
@@ -211,6 +217,34 @@ class ServiceMatrixManager:
         
         status_icon = "+" if value else "-"
         print(f"[{status_icon}] Service '{service_name}': {flag_name} = {value}")
+    
+    def set_environments(self, service_name: str, environments: List[str]):
+        """Set environments for a service or all services"""
+        services = self.config.get('services', {})
+        
+        # Check if 'all' keyword is used to apply to all services
+        if service_name.lower() in ['all', 'all-services']:
+            print(f"\n{'='*80}")
+            print(f"Setting environments for ALL services")
+            print(f"{'='*80}\n")
+            
+            for svc_name in services.keys():
+                # Create a new list copy for each service to avoid YAML anchors/aliases
+                services[svc_name]['environments'] = list(environments)
+                print(f"[OK] {svc_name}: environments = {environments}")
+            
+            self._save_config()
+            print(f"\n[OK] All services updated with environments: {environments}")
+            return
+        
+        if service_name not in services:
+            print(f"❌ Error: Service '{service_name}' not found")
+            print(f"Available services: {', '.join(services.keys())}, all")
+            return
+        
+        services[service_name]['environments'] = list(environments)
+        self._save_config()
+        print(f"[OK] {service_name}: environments = {environments}")
     
     def set_all_flags(self, service_name: str, all_value: bool = None,
                      enabled: bool = None, run_on_pr: bool = None, 
@@ -538,11 +572,14 @@ class ServiceMatrixManager:
                 matrix_key = f"{service['name']}_{service['environment']}"
                 matrix_dict[matrix_key] = service
             
+            # Pretty print for readability
             matrix_json = json.dumps(matrix_dict, indent=2)
             print(f"\nServices Matrix (Azure DevOps format):\n{matrix_json}")
             
             # Set pipeline variables for Azure DevOps
-            print(f"\n##vso[task.setvariable variable=servicesMatrix;isOutput=true]{json.dumps(matrix_dict)}")
+            # IMPORTANT: servicesMatrix must be compact JSON (no newlines) for Azure DevOps to parse it
+            compact_matrix_json = json.dumps(matrix_dict, separators=(',', ':'))
+            print(f"\n##vso[task.setvariable variable=servicesMatrix;isOutput=true]{compact_matrix_json}")
             print(f"##vso[task.setvariable variable=hasServices;isOutput=true]true")
             print(f"##vso[task.setvariable variable=serviceCount;isOutput=true]{len(services_to_run)}")
             
@@ -572,6 +609,9 @@ Examples:
   python manage_matrix.py set-all-flags all true
   python manage_matrix.py set-all-flags all false
   python manage_matrix.py set-all-flags parties --enabled true --run-on-pr true --run-on-push true
+  python manage_matrix.py set-environments parties --environments TSADEV
+  python manage_matrix.py set-environments all --environments TSADEV
+  python manage_matrix.py set-environments movemoney --environments TSADEV,T12,T10
   python manage_matrix.py simulate-pr
   python manage_matrix.py simulate-push --env TEST
   python manage_matrix.py export-services --format json
@@ -583,7 +623,7 @@ Examples:
     
     parser.add_argument('command', 
                        choices=['list', 'validate', 'enable', 'disable', 'set-flag', 'set-all-flags',
-                               'simulate-pr', 'simulate-push', 'simulate-schedule', 'simulate-manual',
+                               'set-environments', 'simulate-pr', 'simulate-push', 'simulate-schedule', 'simulate-manual',
                                'export-services', 'summary', 'generate-pipeline-matrix'],
                        help='Command to execute')
     
@@ -681,6 +721,16 @@ Examples:
             run_on_push=args.run_on_push,
             run_on_schedule=args.run_on_schedule
         )
+    
+    elif args.command == 'set-environments':
+        if not args.service_name or not args.environments:
+            print("❌ Error: set-environments requires service_name and --environments")
+            print("Usage: python manage_matrix.py set-environments <service|all> --environments TSADEV,T12")
+            sys.exit(1)
+        
+        # Parse comma-separated environments
+        env_list = [e.strip() for e in args.environments.split(',') if e.strip()]
+        manager.set_environments(args.service_name, env_list)
     
     elif args.command == 'simulate-pr':
         manager.simulate_run('pr', environment=args.env)
