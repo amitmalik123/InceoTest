@@ -581,16 +581,14 @@ class ServiceMatrixManager:
             # IMPORTANT: servicesMatrix must be compact JSON (no newlines) for Azure DevOps to parse it
             compact_matrix_json = json.dumps(matrix_dict, separators=(',', ':'))
             
-            # Escape special characters for Azure DevOps logging commands
-            # Semicolons, percent signs, carriage returns, and newlines need to be escaped
-            escaped_matrix_json = compact_matrix_json.replace('%', '%AZP25').replace('\r', '%0D').replace('\n', '%0A').replace(';', '%3B')
-            
-            print(f"\n##vso[task.setvariable variable=servicesMatrix;isOutput=true]{escaped_matrix_json}")
+            # DO NOT escape the JSON - Azure DevOps runtime expressions expect raw JSON
+            print(f"\n##vso[task.setvariable variable=servicesMatrix;isOutput=true]{compact_matrix_json}")
             print(f"##vso[task.setvariable variable=hasServices;isOutput=true]true")
             print(f"##vso[task.setvariable variable=serviceCount;isOutput=true]{len(services_to_run)}")
             
-            # Debug: Show first 200 chars of escaped JSON
-            print(f"\nDEBUG: Escaped matrix JSON (first 200 chars): {escaped_matrix_json[:200]}")
+            # Debug: Show length of matrix JSON
+            print(f"\nDEBUG: Matrix JSON length: {len(compact_matrix_json)} characters")
+            print(f"DEBUG: Matrix keys: {list(matrix_dict.keys())}")
             
             return True
         else:
