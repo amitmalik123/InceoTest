@@ -31,7 +31,7 @@ trigger:
 # to determine which service to run. Ensure each service has a unique time.
 # Format: cron times are in UTC
 schedules:
-  - cron: "15 19 * * *"      # 19:00 UTC -> parties
+  - cron: "25 19 * * *"      # 19:00 UTC -> parties
     displayName: 'Parties API - Daily Test'
     branches:
       include:
@@ -176,7 +176,7 @@ stages:
                   # Map cron times to service names (hour:minute -> service)
                   # Format: "HH:MM" where HH is 00-23, MM is 00-59
                   case "${CURRENT_HOUR}:${CURRENT_MINUTE}" in
-                    "19:0"|"19:00")
+                    "19:25")
                       SCHEDULE_SERVICE="parties"
                       ;;
                     "6:0"|"06:00")
@@ -194,8 +194,8 @@ stages:
                       # Allow 5-minute window for schedule matching
                       CURRENT_TIME_MIN=$((10#$CURRENT_HOUR * 60 + 10#$CURRENT_MINUTE))
                       
-                      # parties: 19:00 (1140 min)
-                      if [ $CURRENT_TIME_MIN -ge 1138 ] && [ $CURRENT_TIME_MIN -le 1142 ]; then
+                      # parties: 19:25 (1165 min)
+                      if [ $CURRENT_TIME_MIN -ge 1163 ] && [ $CURRENT_TIME_MIN -le 1167 ]; then
                         SCHEDULE_SERVICE="parties"
                       # work_item_notification: 06:00 (360 min)
                       elif [ $CURRENT_TIME_MIN -ge 358 ] && [ $CURRENT_TIME_MIN -le 362 ]; then
@@ -225,34 +225,36 @@ stages:
                   echo "Using schedule-specified service: $SERVICES_PARAM"
                 fi
                 
-                # Set override flag based on parameter
-                OVERRIDE_FLAG=""
-                if [ "${{ parameters.overrideEnabled }}" = "True" ]; then
-                  OVERRIDE_FLAG="--override-enabled"
-                fi
-                
-                # Set custom test args if provided
-                CUSTOM_FUNCTIONAL_ARGS=""
-                CUSTOM_NONFUNCTIONAL_ARGS=""
-                if [ -n "${{ parameters.customFunctionalArgs }}" ]; then
-                  CUSTOM_FUNCTIONAL_ARGS="--custom-functional-args"
-                  CUSTOM_FUNCTIONAL_ARGS_VALUE="${{ parameters.customFunctionalArgs }}"
-                fi
-                if [ -n "${{ parameters.customNonFunctionalArgs }}" ]; then
-                  CUSTOM_NONFUNCTIONAL_ARGS="--custom-nonfunctional-args"
-                  CUSTOM_NONFUNCTIONAL_ARGS_VALUE="${{ parameters.customNonFunctionalArgs }}"
+                # Set environments parameter (use "all" if empty)
+                ENVIRONMENTS_PARAM="${{ parameters.environments }}"
+                if [ -z "$ENVIRONMENTS_PARAM" ]; then
+                  ENVIRONMENTS_PARAM="all"
                 fi
                 
                 # Run the manage_matrix.py script with pipeline parameters
-                python3 scripts/manage_matrix.py generate-pipeline-matrix \
-                  --execution-mode "${{ parameters.executionMode }}" \
-                  --services "$SERVICES_PARAM" \
-                  --environments "${{ parameters.environments }}" \
-                  $OVERRIDE_FLAG \
-                  --test-type "${{ parameters.testType }}" \
-                  --trigger-reason "$(Build.Reason)" \
-                  $CUSTOM_FUNCTIONAL_ARGS "$CUSTOM_FUNCTIONAL_ARGS_VALUE" \
-                  $CUSTOM_NONFUNCTIONAL_ARGS "$CUSTOM_NONFUNCTIONAL_ARGS_VALUE" > matrix_output.log 2>&1
+                # Build arguments array to avoid eval and handle empty parameters safely
+                set -- "scripts/manage_matrix.py" "generate-pipeline-matrix" \
+                  "--execution-mode" "${{ parameters.executionMode }}" \
+                  "--services" "$SERVICES_PARAM" \
+                  "--environments" "$ENVIRONMENTS_PARAM" \
+                  "--test-type" "${{ parameters.testType }}" \
+                  "--trigger-reason" "$(Build.Reason)"
+                
+                # Add optional arguments only if they have values
+                if [ "${{ parameters.overrideEnabled }}" = "True" ]; then
+                  set -- "$@" "--override-enabled"
+                fi
+                
+                if [ -n "${{ parameters.customFunctionalArgs }}" ]; then
+                  set -- "$@" "--custom-functional-args" "${{ parameters.customFunctionalArgs }}"
+                fi
+                
+                if [ -n "${{ parameters.customNonFunctionalArgs }}" ]; then
+                  set -- "$@" "--custom-nonfunctional-args" "${{ parameters.customNonFunctionalArgs }}"
+                fi
+                
+                # Execute the command
+                python3 "$@" > matrix_output.log 2>&1
                 
                 exit_code=$?
                 
