@@ -541,15 +541,16 @@ class ServiceMatrixManager:
                     functional_args_resolved = functional_args.replace('{environment}', env)
                     non_functional_args_resolved = non_functional_args.replace('{environment}', env)
                     
+                    # Azure DevOps requires all matrix values to be strings
                     service_info = {
-                        'name': service_name,
-                        'displayName': service_config.get('displayName', service_name),
-                        'environment': env,
-                        'priority': priority,
-                        'testType': actual_test_type,
-                        'functionalTestArgs': functional_args_resolved,
-                        'nonFunctionalTestArgs': non_functional_args_resolved,
-                        'reason': reason
+                        'name': str(service_name),
+                        'displayName': str(service_config.get('displayName', service_name)),
+                        'environment': str(env),
+                        'priority': str(priority),
+                        'testType': str(actual_test_type),
+                        'functionalTestArgs': str(functional_args_resolved),
+                        'nonFunctionalTestArgs': str(non_functional_args_resolved),
+                        'reason': str(reason)
                     }
                     
                     services_to_run.append(service_info)

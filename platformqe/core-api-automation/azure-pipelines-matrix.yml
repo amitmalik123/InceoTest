@@ -137,22 +137,41 @@ stages:
                   --environments "${{ parameters.environments }}" \
                   $OVERRIDE_FLAG \
                   --test-type "${{ parameters.testType }}" \
-                  --trigger-reason "$(Build.Reason)"
+                  --trigger-reason "$(Build.Reason)" > matrix_output.log 2>&1
                 
                 exit_code=$?
+                
+                # Display the output
+                cat matrix_output.log
+                
                 echo ""
                 echo "Script completed with exit code: $exit_code"
                 
-                # Debug: Show what variables were set
+                # Verify the output variables were set correctly
                 echo ""
                 echo "=========================================="
-                echo "DEBUG: Checking output variables"
+                echo "Verifying Matrix Output"
                 echo "=========================================="
-                echo "hasServices: $(DetermineServices.hasServices)"
-                echo "serviceCount: $(DetermineServices.serviceCount)"
-                echo "Matrix preview (first 500 chars):"
-                echo "$(DetermineServices.servicesMatrix)" | head -c 500
-                echo ""
+                
+                # Check if the vso commands are present
+                if grep -q "##vso\[task.setvariable variable=servicesMatrix" matrix_output.log; then
+                  echo "✅ servicesMatrix variable command found"
+                  
+                  # Extract just the JSON part for validation
+                  matrix_json=$(grep "##vso\[task.setvariable variable=servicesMatrix" matrix_output.log | sed 's/.*isOutput=true\]//')
+                  
+                  # Check if it's valid JSON (basic check)
+                  if echo "$matrix_json" | python3 -m json.tool > /dev/null 2>&1; then
+                    echo "✅ Matrix JSON is valid"
+                    echo "Matrix keys count: $(echo "$matrix_json" | python3 -c 'import json,sys; print(len(json.load(sys.stdin)))')"
+                  else
+                    echo "❌ ERROR: Matrix JSON is INVALID!"
+                    echo "This will cause Azure DevOps to not parse the matrix"
+                  fi
+                else
+                  echo "❌ ERROR: No servicesMatrix variable command found in output!"
+                fi
+                
                 echo "=========================================="
                 
                 exit $exit_code
@@ -167,7 +186,7 @@ stages:
     condition: and(succeeded(), eq(dependencies.Initialize.outputs['ParseMatrix.DetermineServices.hasServices'], 'true'))
     jobs:
       - job: RunTests
-        displayName: 'Run Tests'
+        displayName: 'Run Tests - $(name)'
         pool:
           name: ewm20-docker-build-agent-inc-dev
         strategy:
