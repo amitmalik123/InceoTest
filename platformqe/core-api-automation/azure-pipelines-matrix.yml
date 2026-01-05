@@ -42,14 +42,14 @@ parameters:
       - manual    # Manual selection of services
   
   - name: services
-    displayName: 'Services to Run (comma-separated, leave empty for all enabled)'
+    displayName: 'Services to Run (comma-separated, or "all" for all enabled)'
     type: string
-    default: ''
+    default: 'all'
   
   - name: environments
-    displayName: 'Environments (comma-separated, leave empty for service defaults)'
+    displayName: 'Environments (comma-separated, or "all" for service defaults)'
     type: string
-    default: ''
+    default: 'all'
   
   - name: testType
     displayName: 'Test Type'
@@ -186,7 +186,7 @@ stages:
     condition: and(succeeded(), eq(dependencies.Initialize.outputs['ParseMatrix.DetermineServices.hasServices'], 'true'))
     jobs:
       - job: RunTests
-        displayName: 'Run Tests - $(name)'
+        displayName: 'Run Tests'
         pool:
           name: ewm20-docker-build-agent-inc-dev
         strategy:

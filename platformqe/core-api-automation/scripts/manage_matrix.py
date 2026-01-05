@@ -466,12 +466,12 @@ class ServiceMatrixManager:
         
         # Parse manual selections
         selected_services = []
-        if manual_services:
+        if manual_services and manual_services.lower() != 'all':
             selected_services = [s.strip() for s in manual_services.split(',') if s.strip()]
             print(f"Selected Services: {selected_services}")
         
         selected_environments = []
-        if manual_environments:
+        if manual_environments and manual_environments.lower() != 'all':
             selected_environments = [e.strip() for e in manual_environments.split(',') if e.strip()]
             print(f"Selected Environments: {selected_environments}")
         
