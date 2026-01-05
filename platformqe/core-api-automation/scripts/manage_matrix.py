@@ -535,8 +535,17 @@ class ServiceMatrixManager:
                     should_run = True
                     reason = "Push trigger"
                 elif is_schedule and run_on_schedule:
-                    should_run = True
-                    reason = "Schedule trigger"
+                    # For schedule triggers, only run the specific service matched by time
+                    if selected_services and service_name in selected_services:
+                        should_run = True
+                        reason = "Schedule trigger (time-matched)"
+                    elif not selected_services:
+                        # Fallback: if no service specified, run all with runOnSchedule=true
+                        should_run = True
+                        reason = "Schedule trigger (all enabled)"
+                    else:
+                        should_run = False
+                        reason = "Schedule trigger (not matched to this time)"
             
             if should_run:
                 # Determine environments to run

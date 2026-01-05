@@ -27,32 +27,33 @@ trigger:
       - qe_platform
 
 # Scheduled Triggers - Each schedule targets a specific service
-# Service name is specified directly in the displayName
-# The pipeline uses the displayName as the service identifier
+# The pipeline matches the build start time (UTC) against these cron schedules
+# to determine which service to run. Ensure each service has a unique time.
+# Format: cron times are in UTC
 schedules:
-  - cron: "0 19 * * *"
-    displayName: 'parties'
+  - cron: "15 19 * * *"      # 19:00 UTC -> parties
+    displayName: 'Parties API - Daily Test'
     branches:
       include:
         - qe_platform
     always: true
   
-  - cron: "0 6 * * *"
-    displayName: 'work_item_notification'
+  - cron: "0 6 * * *"       # 06:00 UTC -> work_item_notification
+    displayName: 'Work Item Notification - Daily Test'
     branches:
       include:
         - qe_platform
     always: true
   
-  - cron: "15 7 * * *"
-    displayName: 'movemoney'
+  - cron: "15 7 * * *"      # 07:15 UTC -> movemoney
+    displayName: 'Move Money API - Daily Test'
     branches:
       include:
         - qe_platform
     always: true
   
-  - cron: "0 7 * * *"
-    displayName: 'models'
+  - cron: "0 7 * * *"       # 07:00 UTC -> models
+    displayName: 'Models API - Daily Test'
     branches:
       include:
         - qe_platform
@@ -163,12 +164,58 @@ stages:
                 echo "Using manage_matrix.py to determine services"
                 echo "=========================================="
                 
-                # Extract service name from schedule trigger
+                # Extract service name from schedule trigger by matching build time to cron schedules
                 SCHEDULE_SERVICE=""
                 if [ "$(Build.Reason)" = "Schedule" ]; then
-                  # Build.DefinitionName contains the schedule displayName (service name)
-                  SCHEDULE_SERVICE="$(Build.DefinitionName)"
-                  echo "Schedule triggered for service: $SCHEDULE_SERVICE"
+                  # Get current UTC time
+                  CURRENT_HOUR=$(date -u +%H)
+                  CURRENT_MINUTE=$(date -u +%M)
+                  
+                  echo "Schedule triggered at UTC: ${CURRENT_HOUR}:${CURRENT_MINUTE}"
+                  
+                  # Map cron times to service names (hour:minute -> service)
+                  # Format: "HH:MM" where HH is 00-23, MM is 00-59
+                  case "${CURRENT_HOUR}:${CURRENT_MINUTE}" in
+                    "19:0"|"19:00")
+                      SCHEDULE_SERVICE="parties"
+                      ;;
+                    "6:0"|"06:00")
+                      SCHEDULE_SERVICE="work_item_notification"
+                      ;;
+                    "7:15")
+                      SCHEDULE_SERVICE="movemoney"
+                      ;;
+                    "7:0"|"07:00")
+                      SCHEDULE_SERVICE="models"
+                      ;;
+                    *)
+                      echo "WARNING: No service found for time ${CURRENT_HOUR}:${CURRENT_MINUTE}"
+                      echo "Checking with minute tolerance (within 5 minutes)..."
+                      # Allow 5-minute window for schedule matching
+                      CURRENT_TIME_MIN=$((10#$CURRENT_HOUR * 60 + 10#$CURRENT_MINUTE))
+                      
+                      # parties: 19:00 (1140 min)
+                      if [ $CURRENT_TIME_MIN -ge 1138 ] && [ $CURRENT_TIME_MIN -le 1142 ]; then
+                        SCHEDULE_SERVICE="parties"
+                      # work_item_notification: 06:00 (360 min)
+                      elif [ $CURRENT_TIME_MIN -ge 358 ] && [ $CURRENT_TIME_MIN -le 362 ]; then
+                        SCHEDULE_SERVICE="work_item_notification"
+                      # movemoney: 07:15 (435 min)
+                      elif [ $CURRENT_TIME_MIN -ge 433 ] && [ $CURRENT_TIME_MIN -le 437 ]; then
+                        SCHEDULE_SERVICE="movemoney"
+                      # models: 07:00 (420 min)
+                      elif [ $CURRENT_TIME_MIN -ge 418 ] && [ $CURRENT_TIME_MIN -le 422 ]; then
+                        SCHEDULE_SERVICE="models"
+                      fi
+                      ;;
+                  esac
+                  
+                  if [ -n "$SCHEDULE_SERVICE" ]; then
+                    echo "Matched schedule to service: $SCHEDULE_SERVICE"
+                  else
+                    echo "ERROR: Could not determine service for scheduled run"
+                    echo "Please check azure-pipelines-matrix.yml schedule times match this script"
+                  fi
                 fi
                 
                 # Override services parameter if schedule triggered
