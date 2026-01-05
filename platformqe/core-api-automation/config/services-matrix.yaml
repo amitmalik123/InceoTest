@@ -6,11 +6,6 @@ services:
     runOnPush: false
     runOnSchedule: false
     testType: functional
-    schedules:
-    - cron: 0 6 * * *
-      displayName: Daily Full Test
-      branches:
-      - qe_platform
     environments:
     - TSADEV
     functionalTestArgs: --service-name work_item_notification --env {environment}
@@ -27,11 +22,6 @@ services:
     runOnPush: true
     runOnSchedule: true
     testType: functional
-    schedules:
-    - cron: 30 14 * * *
-      displayName: Daily Full Test
-      branches:
-      - qe_platform
     environments:
     - TSADEV
     functionalTestArgs: --service-name parties --env {environment}
@@ -48,11 +38,6 @@ services:
     runOnPush: false
     runOnSchedule: false
     testType: functional
-    schedules:
-    - cron: 15 7 * * *
-      displayName: Daily Full Test
-      branches:
-      - qe_platform
     environments:
     - TSADEV
     functionalTestArgs: --service-name movemoney --env {environment}
@@ -69,11 +54,6 @@ services:
     runOnPush: false
     runOnSchedule: false
     testType: functional
-    schedules:
-    - cron: 15 7 * * *
-      displayName: Daily Full Test
-      branches:
-      - qe_platform
     environments:
     - TSADEV
     functionalTestArgs: --service-name securities --env {environment}
@@ -90,11 +70,6 @@ services:
     runOnPush: false
     runOnSchedule: false
     testType: functional
-    schedules:
-    - cron: 15 7 * * *
-      displayName: Daily Full Test
-      branches:
-      - qe_platform
     environments:
     - TSADEV
     functionalTestArgs: --service-name hnebase --env {environment}
@@ -110,11 +85,6 @@ services:
     runOnPush: false
     runOnSchedule: false
     testType: functional
-    schedules:
-    - cron: 0 7 * * *
-      displayName: Daily Test
-      branches:
-      - qe_platform
     environments:
     - TSADEV
     functionalTestArgs: --service-name models --env {environment}
@@ -130,11 +100,6 @@ services:
     runOnPush: false
     runOnSchedule: false
     testType: functional
-    schedules:
-    - cron: 15 7 * * *
-      displayName: Daily Test
-      branches:
-      - qe_platform
     environments:
     - TSADEV
     functionalTestArgs: --service-name addressservice --env {environment}
@@ -150,11 +115,6 @@ services:
     runOnPush: false
     runOnSchedule: false
     testType: functional
-    schedules:
-    - cron: 15 7 * * *
-      displayName: Daily Full Test
-      branches:
-      - qe_platform
     environments:
     - TSADEV
     functionalTestArgs: --service-name analytics --env {environment}
