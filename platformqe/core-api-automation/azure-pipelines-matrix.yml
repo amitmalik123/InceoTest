@@ -183,38 +183,15 @@ stages:
   - stage: ExecuteTests
     displayName: 'Execute Service Tests'
     dependsOn: Initialize
-    condition: and(succeeded(), eq(dependencies.Initialize.outputs['ParseMatrix.DetermineServices.hasServices'], 'true'))
+    condition: and(succeeded(), eq(stageDependencies.Initialize.ParseMatrix.outputs['DetermineServices.hasServices'], 'true'))
     jobs:
-      - job: DebugMatrixPassing
-        displayName: 'Debug: Verify Matrix Variable'
-        pool:
-          name: ewm20-docker-build-agent-inc-dev
-        steps:
-          - task: Bash@3
-            displayName: 'Show Raw Matrix Variable from Initialize Stage'
-            inputs:
-              targetType: inline
-              script: |
-                echo "=========================================="
-                echo "CRITICAL DEBUG: Matrix Variable Value"
-                echo "=========================================="
-                echo "Attempting to access matrix variable from Initialize stage..."
-                echo ""
-                echo "Full variable reference:"
-                echo '$[ dependencies.Initialize.outputs["ParseMatrix.DetermineServices.servicesMatrix"] ]'
-                echo ""
-                echo "This should show the matrix JSON if it was set correctly"
-                echo "If this is empty, the ##vso command in Initialize stage failed"
-                echo "=========================================="
-      
       - job: RunTests
         displayName: 'Run Tests - $(name)'
-        dependsOn: DebugMatrixPassing
         pool:
           name: ewm20-docker-build-agent-inc-dev
         strategy:
           maxParallel: 5
-          matrix: $[ dependencies.Initialize.outputs['ParseMatrix.DetermineServices.servicesMatrix'] ]
+          matrix: $[ stageDependencies.Initialize.ParseMatrix.outputs['DetermineServices.servicesMatrix'] ]
                 
         steps:
           - checkout: self
