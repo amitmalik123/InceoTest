@@ -433,7 +433,9 @@ class ServiceMatrixManager:
                                  manual_environments: str = '',
                                  override_enabled: bool = False,
                                  test_type: str = 'functional',
-                                 trigger_reason: str = 'Manual'):
+                                 trigger_reason: str = 'Manual',
+                                 custom_functional_args: str = '',
+                                 custom_nonfunctional_args: str = ''):
         """
         Generate pipeline matrix for Azure DevOps dynamic job execution
         
@@ -444,6 +446,8 @@ class ServiceMatrixManager:
             override_enabled: Run disabled services too
             test_type: 'functional', 'non-functional', or 'both'
             trigger_reason: Azure DevOps BUILD_REASON value
+            custom_functional_args: Custom functional test arguments (overrides services-matrix)
+            custom_nonfunctional_args: Custom non-functional test arguments (overrides services-matrix)
         """
         services_config = self.config.get('services', {})
         
@@ -461,6 +465,12 @@ class ServiceMatrixManager:
         print(f"Is Manual: {is_manual}")
         print(f"Override Enabled: {override_enabled}")
         print(f"Test Type: {test_type}")
+        
+        # Display custom args if provided
+        if custom_functional_args:
+            print(f"Custom Functional Args: {custom_functional_args}")
+        if custom_nonfunctional_args:
+            print(f"Custom Non-Functional Args: {custom_nonfunctional_args}")
         
         services_to_run = []
         
@@ -535,9 +545,19 @@ class ServiceMatrixManager:
                 if not envs_to_run:
                     envs_to_run = ['TSADEV']  # Default fallback
                 
-                # Get test arguments
-                functional_args = service_config.get('functionalTestArgs', '')
-                non_functional_args = service_config.get('nonFunctionalTestArgs', '')
+                # Get test arguments - use custom args if provided, otherwise use service defaults
+                if custom_functional_args:
+                    functional_args = custom_functional_args
+                    print(f"[OVERRIDE] Using custom functional args for {service_name}")
+                else:
+                    functional_args = service_config.get('functionalTestArgs', '')
+                
+                if custom_nonfunctional_args:
+                    non_functional_args = custom_nonfunctional_args
+                    print(f"[OVERRIDE] Using custom non-functional args for {service_name}")
+                else:
+                    non_functional_args = service_config.get('nonFunctionalTestArgs', '')
+                
                 service_test_type = service_config.get('testType', 'functional')
                 
                 # Determine actual test type to run
@@ -682,6 +702,10 @@ Examples:
                        help='Test type to run (default: functional)')
     parser.add_argument('--trigger-reason', default='Manual',
                        help='Azure DevOps BUILD_REASON (e.g., PullRequest, IndividualCI, Schedule, Manual)')
+    parser.add_argument('--custom-functional-args', default='',
+                       help='Custom functional test arguments (overrides services-matrix)')
+    parser.add_argument('--custom-nonfunctional-args', default='',
+                       help='Custom non-functional test arguments (overrides services-matrix)')
     
     args = parser.parse_args()
     
@@ -777,7 +801,9 @@ Examples:
             manual_environments=args.environments,
             override_enabled=args.override_enabled,
             test_type=args.test_type,
-            trigger_reason=args.trigger_reason
+            trigger_reason=args.trigger_reason,
+            custom_functional_args=args.custom_functional_args,
+            custom_nonfunctional_args=args.custom_nonfunctional_args
         )
         sys.exit(0 if has_services else 0)  # Always exit 0, hasServices variable controls flow
 

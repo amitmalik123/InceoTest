@@ -93,6 +93,16 @@ parameters:
     displayName: 'Override Enabled Flag (run disabled services too)'
     type: boolean
     default: false
+  
+  - name: customFunctionalArgs
+    displayName: 'Custom Functional Test Args (optional - overrides services-matrix)'
+    type: string
+    default: ''
+  
+  - name: customNonFunctionalArgs
+    displayName: 'Custom Non-Functional Test Args (optional - overrides services-matrix)'
+    type: string
+    default: ''
 
 ###############################################################################
 # Global Variables
@@ -174,6 +184,18 @@ stages:
                   OVERRIDE_FLAG="--override-enabled"
                 fi
                 
+                # Set custom test args if provided
+                CUSTOM_FUNCTIONAL_ARGS=""
+                CUSTOM_NONFUNCTIONAL_ARGS=""
+                if [ -n "${{ parameters.customFunctionalArgs }}" ]; then
+                  CUSTOM_FUNCTIONAL_ARGS="--custom-functional-args"
+                  CUSTOM_FUNCTIONAL_ARGS_VALUE="${{ parameters.customFunctionalArgs }}"
+                fi
+                if [ -n "${{ parameters.customNonFunctionalArgs }}" ]; then
+                  CUSTOM_NONFUNCTIONAL_ARGS="--custom-nonfunctional-args"
+                  CUSTOM_NONFUNCTIONAL_ARGS_VALUE="${{ parameters.customNonFunctionalArgs }}"
+                fi
+                
                 # Run the manage_matrix.py script with pipeline parameters
                 python3 scripts/manage_matrix.py generate-pipeline-matrix \
                   --execution-mode "${{ parameters.executionMode }}" \
@@ -181,7 +203,9 @@ stages:
                   --environments "${{ parameters.environments }}" \
                   $OVERRIDE_FLAG \
                   --test-type "${{ parameters.testType }}" \
-                  --trigger-reason "$(Build.Reason)" > matrix_output.log 2>&1
+                  --trigger-reason "$(Build.Reason)" \
+                  $CUSTOM_FUNCTIONAL_ARGS "$CUSTOM_FUNCTIONAL_ARGS_VALUE" \
+                  $CUSTOM_NONFUNCTIONAL_ARGS "$CUSTOM_NONFUNCTIONAL_ARGS_VALUE" > matrix_output.log 2>&1
                 
                 exit_code=$?
                 
