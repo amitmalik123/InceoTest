@@ -30,3 +30,5 @@ framework/screenshots/
 e2e/local/
 e2e/exp/
 e2e/Auth
+data/Archive
+data/captures

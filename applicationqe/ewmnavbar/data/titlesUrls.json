@@ -2,221 +2,223 @@
   "DASHBOARD_OVERVIEW": {
     "menuSubMenu": "Dashboard > Overview",
     "title": "Dashboard",
-    "path": "/dashboard"
+    "path": "/dashboard",
+    "legacypath": "/dashboard"
   },
   "DASHBOARD_INSIGHTS": {
     "menuSubMenu": "Dashboard > Insights",
     "title": "Dashboard | Insights",
-    "path": "/dashboard/insights"
+    "path": "/dashboard/insights",
+    "legacypath": "/dashboard/insights"
   },
   "DASHBOARD_ADVISOR_BENEFITS": {
     "menuSubMenu": "Dashboard > Advisor Benefits",
     "title": "Dashboard | Advisor Benefits",
-    "path": "/dashboard/advisor-benefits"
+    "path": "/dashboard/advisor-benefits",
+    "legacypath": "/dashboard/advisorbenefits"
   },
   "DASHBOARD_STATEMENTS_REPORTS": {
     "menuSubMenu": "Dashboard | Statements & Reports",
     "title": "Dashboard | Statements & Reports",
-    "path": "/dashboard/statements-reports"
+    "path": "/dashboard/statements-reports",
+    "legacypath": "/dashboard/statements"
   },
   "CLIENTS_ALL": {
     "menuSubMenu": "Clients > All Clients",
     "title": "Clients",
-    "path": "/clients"
+    "path": "/clients",
+    "legacypath": "/clients"
   },
   "CLIENTS_ACCOUNTS": {
     "menuSubMenu": "Clients > Accounts",
     "title": "Clients | Accounts",
-    "path": "/clients/accounts"
+    "path": "/clients/accounts",
+    "legacypath": "/clients/accounts"
   },
   "CLIENTS_STRATEGISTS": {
     "menuSubMenu": "Clients > Strategists",
     "title": "Clients | Strategists",
-    "path": "/clients/strategists"
+    "path": "/clients/strategists",
+    "legacypath": "/clients/strategists"
   },
   "ACTION_ITEMS_NEEDS_ACTION": {
     "menuSubMenu": "Action Items > Needs Action",
     "title": "Action Items | Needs Action",
-    "path": "/action-items"
+    "path": "/action-items",
+    "legacypath": "/action-items"
   },
   "ACTION_ITEMS_OPEN_ITEMS": {
-    "menuSubMenu": "Action Items | Open Items",
+    "menuSubMenu": "Action Items > Open Items",
     "title": "Action Items | Open Items",
-    "path": "/action-items/open-items"
+    "path": "/action-items/open-items",
+    "legacypath": "/action-items/openitems"
   },
   "ACTION_ITEMS_CLOSED": {
-    "menuSubMenu": "Action Items | Closed",
+    "menuSubMenu": "Action Items > Closed",
     "title": "Action Items | Closed",
-    "path": "/action-items/closed"
+    "path": "/action-items/closed",
+    "legacypath": "/action-items/closed"
   },
   "INVESTMENTS_MODELS": {
     "menuSubMenu": "Investments > Models",
     "title": "Models",
-    "path": "/models"
+    "path": "/models",
+    "legacypath": "/modelmgmt"
+  },
+  "INVESTMENTS_STRATEGIES": {
+    "menuSubMenu": "Investments",
+    "title": "Investments | Strategies",
+    "path": "/investments",
+    "legacypath": "/investments"
   },
   "INVESTMENTS_RESEARCH": {
-    "menuSubMenu": "Investments | Research",
+    "menuSubMenu": "Investments > Research",
     "title": "Investments | Research",
-    "path": "/investments/research"
+    "path": "/investments/research",
+    "legacypath": "/investments/research"    
   },
   "INVESTMENTS_NEWS": {
-    "menuSubMenu": "Investments | News",
+    "menuSubMenu": "Investments > News",
     "title": "Investments | News",
-    "path": "/investments/news"
+    "path": "/investments/news",
+    "legacypath": "/investments/news"
   },
   "INVESTMENTS_CASH": {
-    "menuSubMenu": "Investments | Cash",
+    "menuSubMenu": "Investments > Cash",
     "title": "Investments | Cash",
-    "path": "/investments/cash"
+    "path": "/investments/cash",
+    "legacypath": "/investments/cash"
   },
   "INVESTMENTS_SMA": {
-    "menuSubMenu": "Investments | SMA",
+    "menuSubMenu": "Investments > SMA",
     "title": "Investments | SMA",
-    "path": "/investments/sma"
+    "path": "/investments/sma",
+    "legacypath": "/investments/sma"
   },
   "INVESTMENTS_GUIDED_PORTFOLIOS": {
-    "menuSubMenu": "Investments | Guided Portfolios",
+    "menuSubMenu": "Investments > Guided Portfolios",
     "title": "Investments | Guided Portfolios",
-    "path": "/investments/guided-portfolios"
+    "path": "/investments/guided-portfolios",
+    "legacypath": "/investments/guidedportfolios"
   },
   "INVESTMENTS_DAF": {
-    "menuSubMenu": "Investments | DAF",
+    "menuSubMenu": "Investments > DAF",
     "title": "Investments | DAF",
-    "path": "/investments/daf"
+    "path": "/investments/daf",
+    "legacypath": "/investments/daf"
   },
   "INVESTMENTS_SAVOS": {
-    "menuSubMenu": "Investments | Savos",
+    "menuSubMenu": "Investments > Savos",
     "title": "Investments | Savos",
-    "path": "/investments/savos"
+    "path": "/investments/savos",
+    "legacypath": "/investments/savos"
   },
   "INVESTMENTS_TMS": {
-    "menuSubMenu": "Investments | TMS",
+    "menuSubMenu": "Investments > TMS",
     "title": "Investments | TMS",
-    "path": "/investments/tms"
+    "path": "/investments/tms",
+    "legacypath": "/investments/tms"
   },
   "INVESTMENTS_DIRECT_INDEXING": {
-    "menuSubMenu": "Investments | Direct Indexing",
+    "menuSubMenu": "Investments > Direct Indexing",
     "title": "Investments | Direct Indexing",
-    "path": "/investments/direct-indexing"
+    "path": "/investments/direct-indexing",
+    "legacypath": "/investments/directindexing"
   },
   "INVESTMENTS_MORNINGSTAR": {
-    "menuSubMenu": "Investments | Morningstar",
+    "menuSubMenu": "Investments > Morningstar",
     "title": "Investments | Morningstar",
-    "path": "/investments/morningstar"
+    "path": "/investments/morningstar",
+    "legacypath": "/investments/morningstar"
   },
   "PRODUCTS_SERVICES_BUSINESS_CONSULTING": {
     "menuSubMenu": "Products & Services > Business Consulting",
     "title": "Products & Services",
-    "path": "/products-and-services"
+    "path": "/products-and-services",
+    "legacypath": "/practice-management"
   },
   "PRODUCTS_SERVICES_LENDING": {
-    "menuSubMenu": "Products & Services | Lending",
+    "menuSubMenu": "Products & Services > Lending",
     "title": "Products & Services | Lending",
-    "path": "/products-and-services/lending"
+    "path": "/products-and-services/lending",
+    "legacypath": "/practice-management/lending"
   },
   "PRODUCTS_SERVICES_FINANCIAL_PLANNING": {
-    "menuSubMenu": "Products & Services | Financial Planning",
+    "menuSubMenu": "Products & Services > Financial Planning",
     "title": "Products & Services | Financial Planning",
-    "path": "/products-and-services/financial-planning"
+    "path": "/products-and-services/financial-planning",
+    "legacypath": "/practice-management/financialplanning"
   },
   "PRODUCTS_SERVICES_RETIREMENT_SERVICES": {
-    "menuSubMenu": "Products & Services | Retirement Services",
+    "menuSubMenu": "Products & Services > Retirement Services",
     "title": "Products & Services | Retirement Services",
-    "path": "/products-and-services/retirement-services"
+    "path": "/products-and-services/retirement-services",
+    "legacypath": "/practice-management/retirementservices"
+  },
+  "HELP_SUPPORT_CONTACT_US": {
+    "menuSubMenu": "Help & Support > Contact Us",
+    "title": "Help & Support | Contact Us",
+    "path": "/help-and-support/contact-us",
+    "legacypath": "/help-and-support"
   },
   "HELP_SUPPORT_KNOWLEDGE_BASE": {
     "menuSubMenu": "Help & Support > Knowledge Base",
     "title": "Help & Support",
-    "path": "/help-and-support"
-  },
-  "HELP_SUPPORT_CONTACT_US": {
-    "menuSubMenu": "Help & Support | Contact Us",
-    "title": "Help & Support | Contact Us",
-    "path": "/help-and-support/contact-us"
+    "path": "/help-and-support/knowledge-base",
+    "legacypath": "/help-and-support/knowledgebase"
   },
   "HELP_SUPPORT_TAX_RESOURCES": {
-    "menuSubMenu": "Help & Support | Tax Resources",
+    "menuSubMenu": "Help & Support > Tax Resources",
     "title": "Help & Support | Tax Resources",
-    "path": "/help-and-support/tax-resources"
+    "path": "/help-and-support/tax-resources",
+    "legacypath": "/help-and-support/taxresources"
   },
   "HELP_SUPPORT_FEES": {
-    "menuSubMenu": "Help & Support | Fees",
+    "menuSubMenu": "Help & Support > Fees",
     "title": "Help & Support | Fees",
-    "path": "/help-and-support/fees"
+    "path": "/help-and-support/fees",
+    "legacypath": "/help-and-support/fees"
   },
   "HELP_SUPPORT_GLOSSARY": {
-    "menuSubMenu": "Help & Support | Glossary",
+    "menuSubMenu": "Help & Support > Glossary",
     "title": "Help & Support | Glossary",
-    "path": "/help-and-support/glossary"
+    "path": "/help-and-support/glossary",
+    "legacypath": "/help-and-support/glossary"
   },
   "HELP_SUPPORT_CUSTODIAL_SERVICES": {
-    "menuSubMenu": "Help & Support | Custodial Services",
+    "menuSubMenu": "Help & Support > Custodial Services",
     "title": "Help & Support | Custodial Services",
-    "path": "/help-and-support/custodial-services"
+    "path": "/help-and-support/custodial-services",
+    "legacypath": "/help-and-support/custodialservices"
   },
   "HELP_SUPPORT_COMPLIANCE_RESOURCES": {
-    "menuSubMenu": "Help & Support | Compliance Resources",
+    "menuSubMenu": "Help & Support > Compliance Resources",
     "title": "Help & Support | Compliance Resources",
-    "path": "/help-and-support/compliance-services"
+    "path": "/help-and-support/compliance-services",
+    "legacypath": "/help-and-support/complianceservices"
   },
   "HELP_SUPPORT_MARKETING_RESOURCES": {
-    "menuSubMenu": "Help & Support | Marketing Resources",
+    "menuSubMenu": "Help & Support > Marketing Resources",
     "title": "Help & Support | Marketing Resources",
-    "path": "/help-and-support/marketing-services"
+    "path": "/help-and-support/marketing-services",
+    "legacypath": "/help-and-support/marketingservices"
   },
   "HELP_SUPPORT_EVENTS": {
-    "menuSubMenu": "Help & Support | Events",
+    "menuSubMenu": "Help & Support > Events",
     "title": "Help & Support | Events",
-    "path": "/help-and-support/events"
+    "path": "/help-and-support/events",
+    "legacypath": "/help-and-support/events"
   },
   "HELP_SUPPORT_RMD_RESOURCES": {
-    "menuSubMenu": "Help & Support | RMD Resources",
+    "menuSubMenu": "Help & Support > RMD Resources",
     "title": "Help & Support | RMD Resources",
-    "path": "/help-and-support/rmd-resources"
+    "path": "/help-and-support/rmd-resources",
+    "legacypath": "/help-and-support/rmdresources"
   },
   "MY_ACCOUNT": {
     "menuSubMenu": "My Account",
     "title": "My Account",
-    "path": "/my-account"
-  },
-  "DASHBOARD_MANAGE_ACCOUNTS": {
-    "menuSubMenu": "Dashboard > Manage Accounts",
-    "title": "Dashboard | Manage Accounts",
-    "path": "/dashboard/manage-accounts"
-  },
-  "CLIENTS_MANAGE_INVESTOR_PORTAL": {
-    "menuSubMenu": "Clients > Manage Investor Portal",
-    "title": "Clients | Manage Investor Portal",
-    "path": "/clients/investor-portal"
-  },
-  "CLIENTS_MANAGE_ACCOUNTS": {
-    "menuSubMenu": "Clients > Manage Accounts",
-    "title": "Clients | Manage Accounts",
-    "path": "/clients/manage-accounts"
-  },
-  "CLIENTS_ADD_A_CLIENT": {
-    "menuSubMenu": "Clients > Add a Client",
-    "title": "Clients | Add a Client",
-    "path": "/clients/add-a-client"
-  },
-  "INVESTMENTS_INVESTMENT_CHANGE": {
-    "menuSubMenu": "Investments | Investment Change",
-    "title": "Investments | Investment Change",
-    "path": "/investments/investment-change"
-  },
-  "INVESTMENTS_CREATE_PROPOSAL": {
-    "menuSubMenu": "Investments | Create Proposal",
-    "title": "Investments | Create Proposal",
-    "path": "/investments/create-proposal"
-  },
-  "PRODUCTS_SERVICES_CONTACT_US": {
-    "menuSubMenu": "Products & Services | Contact Us",
-    "title": "Products & Services | Contact Us",
-    "path": "/products-and-services/"
-  },
-  "HELP_SUPPORT_CHAT_WITH_US": {
-    "menuSubMenu": "Help & Support | Chat with Us",
-    "title": "Help & Support | Chat with Us",
-    "path": "/help-and-support/"
+    "path": "/my-account",
+    "legacypath": "/myaccount"
   }
 }

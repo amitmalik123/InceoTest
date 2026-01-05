@@ -24,8 +24,8 @@ const commonUse = {
   headless: isCI,
   slowMo: isCI ? 0 : 50,
   colorScheme: "dark" as const,
-  geolocation: { longitude: 12.492507, latitude: 41.889938 },
-  permissions: ["geolocation"] as const,
+  // geolocation: { longitude: 12.492507, latitude: 41.889938 },
+  // permissions: ["geolocation"] as const,
   ignoreHTTPSErrors: true,
   viewport: { width: 1280, height: 720 },
 

@@ -246,16 +246,16 @@ export class BrowserActions {
 
     async getAllNetworkRequests() {
         const requests: any[] = [];
-        // Attach listener
         this.page.on('request', (req) => {
             requests.push({
                 url: req.url(),
                 method: req.method(),
                 headers: req.headers(),
                 payload: req.postData()
+
             });
         });
-        return requests; // This returns a reference to the array that will fill up
+        return requests;
     }
 
     async getNetworkResponse(urlFilter: string | RegExp) {
@@ -286,10 +286,38 @@ export class BrowserActions {
                 url: res.url(),
                 status: res.status(),
                 headers: res.headers(),
-                // Body is excluded here to avoid crashes on large binary files (images/fonts)
-                // but can be fetched if needed
+                body: await res.json().catch(() => ({})),
             });
         });
         return responses;
+    }
+
+    // Inside your Auth Class
+    // Inside your Browser/Framework class
+    async collectTrafficDuringAction(action: () => Promise<void>) {
+        const traffic = { requests: [] as any[], responses: [] as any[] };
+
+        // 1. Start Listening
+        const reqListener = (req) => traffic.requests.push({ url: req.url(), method: req.method() });
+        const resListener = async (res) => {
+            const entry = { url: res.url(), status: res.status(), body: {} };
+            // Try to get JSON but don't crash if it's an image/html
+            if (res.headers()['content-type']?.includes('application/json')) {
+                entry.body = await res.json().catch(() => ({}));
+            }
+            traffic.responses.push(entry);
+        };
+
+        this.page.on('request', reqListener);
+        this.page.on('response', resListener);
+
+        // 2. Perform the actual login or navigation
+        await action();
+
+        // 3. Stop Listening (cleanup)
+        this.page.off('request', reqListener);
+        this.page.off('response', resListener);
+
+        return traffic;
     }
 }

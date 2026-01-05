@@ -15,14 +15,15 @@ export class LoginPage {
   readonly btnLogin: Locator;
   readonly btnOktaLogin: Locator;
   readonly errLoginBlank: Locator;
-  readonly errLogin2: Locator;
+  readonly errLoginIncorrect: Locator;
+  readonly errLoginUnableToSignIn: Locator;
 
   constructor(page: Page, logger: Logger) {
     this.page = page;
     this.fBrowser = new BrowserActions(page, logger);
     this.fElement = new ElementHelper(logger);
 
-    this.logoAssetMark = page.getByAltText('logo');
+    this.logoAssetMark = page.getByAltText('AssetMark-TSA logo logo');
     this.fUserName = page.locator('#okta-signin-username');
     this.fPassword = page.locator('#okta-signin-password');
     this.btnLogin = page.locator('#okta-signin-submit');
@@ -32,8 +33,12 @@ export class LoginPage {
       hasText: 'We found some errors. Please review the form and make corrections.',
     });
 
-    this.errLogin2 = page.locator('.icon.error-16', {
+    this.errLoginIncorrect = page.locator('.icon.error-16', {
       hasText: 'The Username and/or password entered do not match our records. Please try again.',
+    });
+
+    this.errLoginUnableToSignIn = page.locator('.icon.error-16', {
+      hasText: 'Unable to sign in',
     });
   }
 
@@ -91,9 +96,9 @@ export class LoginPage {
   // 🔍 Validation Checks
   // ==========================================================
   async wrongUser(expectedError: string) {
-    await this.fElement.waitForElemVisible(this.errLogin2, 'Login Error Message');
+    await this.fElement.waitForElemVisible(this.errLoginIncorrect, 'Login Error Message');
 
-    const actual = await this.errLogin2.textContent();
+    const actual = await this.errLoginIncorrect.textContent();
     const cleanActual = actual?.trim();
 
     expect(cleanActual).toBe(expectedError);

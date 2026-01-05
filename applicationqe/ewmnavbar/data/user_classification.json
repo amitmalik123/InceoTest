@@ -1,0 +1,22 @@
+{
+  "provisioned_NewApp": [
+    "AG_AGBCOF_T11",
+    "T11_AG8959_Perf",
+    "T11_AGAVHP_Perf",
+    "T11_AGA391_Perf",
+    "T11_AG8860_Perf",
+    "T11_AG4539_Perf",
+    "T11_AGAYHL_Perf",
+    "T11_AG4960_Perf",
+    "OAA_AG4539_01",
+    "SAU_AG4539_03",
+    "SAU_AG8958_T11",
+    "SAU_AG8860_01"
+  ],
+  "legacy_2_0": [],
+  "legacy_3_0_App": [],
+  "auth_failed_invalid_creds": [],
+  "auth_failed_unable_to_sign_in": [],
+  "auth_failed_blank_or_format": [],
+  "corrupted": []
+}
