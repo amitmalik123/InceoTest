@@ -469,6 +469,19 @@ class ServiceMatrixManager:
         if manual_services and manual_services.lower() != 'all':
             selected_services = [s.strip() for s in manual_services.split(',') if s.strip()]
             print(f"Selected Services: {selected_services}")
+            
+            # For schedule triggers, validate that selected service exists and has runOnSchedule enabled
+            if is_schedule and selected_services:
+                for service in selected_services:
+                    if service not in services_config:
+                        print(f"[ERROR] Schedule specified service '{service}' not found in services-matrix.yaml")
+                        print(f"##vso[task.setvariable variable=hasServices;isOutput=true]false")
+                        print(f"##vso[task.setvariable variable=serviceCount;isOutput=true]0")
+                        return False
+                    
+                    if not services_config[service].get('runOnSchedule', True):
+                        print(f"[WARNING] Schedule specified service '{service}' has runOnSchedule=false")
+                        print(f"[WARNING] Service will be skipped")
         
         selected_environments = []
         if manual_environments and manual_environments.lower() != 'all':

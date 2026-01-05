@@ -26,8 +26,37 @@ trigger:
     include:
       - qe_platform
 
-# Scheduled Triggers - defined per service in services-matrix.yaml
-# Note: Schedules are defined in the jobs section dynamically
+# Scheduled Triggers - Each schedule targets a specific service
+# Service name is specified directly in the displayName
+# The pipeline uses the displayName as the service identifier
+schedules:
+  - cron: "0 19 * * *"
+    displayName: 'parties'
+    branches:
+      include:
+        - qe_platform
+    always: true
+  
+  - cron: "0 6 * * *"
+    displayName: 'work_item_notification'
+    branches:
+      include:
+        - qe_platform
+    always: true
+  
+  - cron: "15 7 * * *"
+    displayName: 'movemoney'
+    branches:
+      include:
+        - qe_platform
+    always: true
+  
+  - cron: "0 7 * * *"
+    displayName: 'models'
+    branches:
+      include:
+        - qe_platform
+    always: true
 
 ###############################################################################
 # Pipeline Parameters - For Manual Execution
@@ -124,6 +153,21 @@ stages:
                 echo "Using manage_matrix.py to determine services"
                 echo "=========================================="
                 
+                # Extract service name from schedule trigger
+                SCHEDULE_SERVICE=""
+                if [ "$(Build.Reason)" = "Schedule" ]; then
+                  # Build.DefinitionName contains the schedule displayName (service name)
+                  SCHEDULE_SERVICE="$(Build.DefinitionName)"
+                  echo "Schedule triggered for service: $SCHEDULE_SERVICE"
+                fi
+                
+                # Override services parameter if schedule triggered
+                SERVICES_PARAM="${{ parameters.services }}"
+                if [ "$(Build.Reason)" = "Schedule" ] && [ -n "$SCHEDULE_SERVICE" ]; then
+                  SERVICES_PARAM="$SCHEDULE_SERVICE"
+                  echo "Using schedule-specified service: $SERVICES_PARAM"
+                fi
+                
                 # Set override flag based on parameter
                 OVERRIDE_FLAG=""
                 if [ "${{ parameters.overrideEnabled }}" = "True" ]; then
@@ -133,7 +177,7 @@ stages:
                 # Run the manage_matrix.py script with pipeline parameters
                 python3 scripts/manage_matrix.py generate-pipeline-matrix \
                   --execution-mode "${{ parameters.executionMode }}" \
-                  --services "${{ parameters.services }}" \
+                  --services "$SERVICES_PARAM" \
                   --environments "${{ parameters.environments }}" \
                   $OVERRIDE_FLAG \
                   --test-type "${{ parameters.testType }}" \
