@@ -34,6 +34,8 @@ The pipeline now uses the `manage_matrix.py` script to dynamically determine whi
 | `environments` | string | `` | Comma-separated environments (e.g., `TSADEV,T12`) |
 | `testType` | string | `functional` | `functional`, `non-functional`, or `both` |
 | `overrideEnabled` | boolean | `false` | Run disabled services too |
+| `customFunctionalArgs` | string | `` | **NEW:** Override functional test arguments from services-matrix |
+| `customNonFunctionalArgs` | string | `` | **NEW:** Override non-functional test arguments from services-matrix |
 
 ## Usage Examples
 
@@ -101,6 +103,32 @@ testType: functional
 
 **Result:** Runs all enabled services in their configured environments
 
+### 8. Manual - Override Test Arguments
+**Pipeline Parameters:**
+```yaml
+executionMode: manual
+services: parties
+environments: TSADEV
+testType: functional
+customFunctionalArgs: --service-name parties --env TSADEV --custom-flag --verbose
+```
+
+**Result:** Runs `parties` service with custom test arguments instead of the ones defined in `services-matrix.yaml`
+
+**Use Cases:**
+- Testing with different parameters
+- Running specific test files
+- Adjusting performance test load (users, spawn rate, duration)
+- Debug mode with verbose logging
+- Custom feature flags or configurations
+
+**Example - Override Performance Test Parameters:**
+```yaml
+customNonFunctionalArgs: --file testdata/parties/testcases/TestCase_Party_POST.json --test_type Performance --env TSADEV --headless -u 50 -r 5 -t 60s
+```
+
+This overrides the default `-u 10 -r 2 -t 30s` with higher load `-u 50 -r 5 -t 60s`
+
 ## Using manage_matrix.py Script
 
 ### Local Testing and Simulation
@@ -123,6 +151,14 @@ python scripts/manage_matrix.py generate-pipeline-matrix \
 python scripts/manage_matrix.py generate-pipeline-matrix \
   --execution-mode auto \
   --trigger-reason IndividualCI
+
+# Test with custom arguments override
+python scripts/manage_matrix.py generate-pipeline-matrix \
+  --execution-mode manual \
+  --services parties \
+  --environments TSADEV \
+  --test-type functional \
+  --custom-functional-args "--service-name parties --env TSADEV --verbose --debug"
 ```
 
 #### Simulate What Would Run (without pipeline output)
