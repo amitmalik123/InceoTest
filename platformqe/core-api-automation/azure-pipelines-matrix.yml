@@ -183,7 +183,7 @@ stages:
   - stage: ExecuteTests
     displayName: 'Execute Service Tests'
     dependsOn: Initialize
-    condition: and(succeeded(), eq(stageDependencies.Initialize.ParseMatrix.outputs['DetermineServices.hasServices'], 'true'))
+    condition: and(succeeded(), eq(dependencies.Initialize.outputs['ParseMatrix.DetermineServices.hasServices'], 'true'))
     jobs:
       - job: RunTests
         displayName: 'Run Tests - $(name)'
