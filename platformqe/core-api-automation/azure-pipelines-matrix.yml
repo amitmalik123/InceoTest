@@ -661,6 +661,9 @@ stages:
         displayName: 'Generate Execution Summary'
         pool:
           name: ewm20-docker-build-agent-inc-dev
+        variables:
+          initializeResult: $[ stageDependencies.Initialize.ParseMatrix.result ]
+          executeTestsResult: $[ stageDependencies.ExecuteTests.RunTests.result ]
         steps:
           - checkout: self
           
@@ -679,23 +682,23 @@ stages:
                 echo "=========================================="
                 echo ""
                 echo "Stage Results:"
-                echo "  Initialize: ${{ dependencies.Initialize.result }}"
-                echo "  ExecuteTests: ${{ dependencies.ExecuteTests.result }}"
+                echo "  Initialize: $(initializeResult)"
+                echo "  ExecuteTests: $(executeTestsResult)"
                 echo "=========================================="
                 echo ""
                 echo "Check the published test results and artifacts for detailed reports."
                 echo ""
                 
                 # Fail the summary if ExecuteTests failed or was skipped
-                if [ "${{ dependencies.ExecuteTests.result }}" = "Failed" ]; then
+                if [ "$(executeTestsResult)" = "Failed" ]; then
                   echo "❌ Pipeline FAILED - Tests failed"
                   echo "##vso[task.complete result=Failed;]Test execution failed"
                   exit 1
-                elif [ "${{ dependencies.ExecuteTests.result }}" = "Skipped" ]; then
+                elif [ "$(executeTestsResult)" = "Skipped" ]; then
                   echo "⚠️ Pipeline SKIPPED - Tests were not executed"
                   echo "##vso[task.complete result=Failed;]Test execution was skipped"
                   exit 1
-                elif [ "${{ dependencies.ExecuteTests.result }}" = "Canceled" ]; then
+                elif [ "$(executeTestsResult)" = "Canceled" ]; then
                   echo "⚠️ Pipeline CANCELED"
                   echo "##vso[task.complete result=Canceled;]Test execution was canceled"
                   exit 1
