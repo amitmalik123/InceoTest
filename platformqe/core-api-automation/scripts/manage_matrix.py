@@ -466,11 +466,20 @@ class ServiceMatrixManager:
         print(f"Override Enabled: {override_enabled}")
         print(f"Test Type: {test_type}")
         
+        # Display custom args - ALWAYS show what was received (even if empty)
+        print(f"DEBUG: Received custom_functional_args: '{custom_functional_args}' (length: {len(custom_functional_args)})")
+        print(f"DEBUG: Received custom_nonfunctional_args: '{custom_nonfunctional_args}' (length: {len(custom_nonfunctional_args)})")
+        
         # Display custom args if provided
         if custom_functional_args:
             print(f"Custom Functional Args: {custom_functional_args}")
+        else:
+            print(f"No custom functional args provided - will use service defaults")
+        
         if custom_nonfunctional_args:
             print(f"Custom Non-Functional Args: {custom_nonfunctional_args}")
+        else:
+            print(f"No custom non-functional args provided - will use service defaults")
         
         services_to_run = []
         

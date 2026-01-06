@@ -231,6 +231,10 @@ stages:
                   ENVIRONMENTS_PARAM="all"
                 fi
                 
+                # Store custom args in variables to handle quotes and special characters safely
+                CUSTOM_FUNC_ARGS='${{ parameters.customFunctionalArgs }}'
+                CUSTOM_NONFUNC_ARGS='${{ parameters.customNonFunctionalArgs }}'
+                
                 # Run the manage_matrix.py script with pipeline parameters
                 # Build arguments array to avoid eval and handle empty parameters safely
                 set -- "scripts/manage_matrix.py" "generate-pipeline-matrix" \
@@ -245,13 +249,22 @@ stages:
                   set -- "$@" "--override-enabled"
                 fi
                 
-                if [ -n "${{ parameters.customFunctionalArgs }}" ]; then
-                  set -- "$@" "--custom-functional-args" "${{ parameters.customFunctionalArgs }}"
+                # Debug: Show parameter values before adding to command
+                echo "DEBUG: customFunctionalArgs = '$CUSTOM_FUNC_ARGS'"
+                echo "DEBUG: customNonFunctionalArgs = '$CUSTOM_NONFUNC_ARGS'"
+                
+                if [ -n "$CUSTOM_FUNC_ARGS" ]; then
+                  echo "DEBUG: Adding custom functional args to command"
+                  set -- "$@" "--custom-functional-args" "$CUSTOM_FUNC_ARGS"
                 fi
                 
-                if [ -n "${{ parameters.customNonFunctionalArgs }}" ]; then
-                  set -- "$@" "--custom-nonfunctional-args" "${{ parameters.customNonFunctionalArgs }}"
+                if [ -n "$CUSTOM_NONFUNC_ARGS" ]; then
+                  echo "DEBUG: Adding custom non-functional args to command"
+                  set -- "$@" "--custom-nonfunctional-args" "$CUSTOM_NONFUNC_ARGS"
                 fi
+                
+                # Debug: Show complete command that will be executed
+                echo "DEBUG: Full command: python3 $@"
                 
                 # Execute the command
                 python3 "$@" > matrix_output.log 2>&1
