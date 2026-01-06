@@ -616,7 +616,10 @@ stages:
                 
                 # Check functional test results
                 if [ "$(testType)" = "functional" ] || [ "$(testType)" = "both" ]; then
-                  if [ "$(TEST_EXIT_CODE)" != "0" ]; then
+                  if [ -z "$(TEST_EXIT_CODE)" ]; then
+                    echo "⚠️ Functional Tests were SKIPPED or not executed"
+                    failed=true
+                  elif [ "$(TEST_EXIT_CODE)" != "0" ]; then
                     echo "❌ Functional Tests Failed (Exit Code: $(TEST_EXIT_CODE))"
                     failed=true
                   else
@@ -626,7 +629,10 @@ stages:
                 
                 # Check non-functional test results
                 if [ "$(testType)" = "non-functional" ] || [ "$(testType)" = "both" ]; then
-                  if [ "$(LOCUST_EXIT_CODE)" != "0" ]; then
+                  if [ -z "$(LOCUST_EXIT_CODE)" ]; then
+                    echo "⚠️ Non-Functional Tests were SKIPPED or not executed"
+                    failed=true
+                  elif [ "$(LOCUST_EXIT_CODE)" != "0" ]; then
                     echo "❌ Non-Functional Tests Failed (Exit Code: $(LOCUST_EXIT_CODE))"
                     failed=true
                   else
@@ -635,7 +641,7 @@ stages:
                 fi
                 
                 if [ "$failed" = "true" ]; then
-                  echo "##vso[task.complete result=Failed;]Tests failed for $(name)"
+                  echo "##vso[task.complete result=Failed;]Tests failed or were skipped for $(name)"
                   exit 1
                 else
                   echo "✅ All tests passed for $(name)"
@@ -672,6 +678,27 @@ stages:
                 echo "Trigger: $(Build.Reason)"
                 echo "=========================================="
                 echo ""
+                echo "Stage Results:"
+                echo "  Initialize: ${{ dependencies.Initialize.result }}"
+                echo "  ExecuteTests: ${{ dependencies.ExecuteTests.result }}"
+                echo "=========================================="
+                echo ""
                 echo "Check the published test results and artifacts for detailed reports."
                 echo ""
-                echo "✅ Pipeline execution completed"
+                
+                # Fail the summary if ExecuteTests failed or was skipped
+                if [ "${{ dependencies.ExecuteTests.result }}" = "Failed" ]; then
+                  echo "❌ Pipeline FAILED - Tests failed"
+                  echo "##vso[task.complete result=Failed;]Test execution failed"
+                  exit 1
+                elif [ "${{ dependencies.ExecuteTests.result }}" = "Skipped" ]; then
+                  echo "⚠️ Pipeline SKIPPED - Tests were not executed"
+                  echo "##vso[task.complete result=Failed;]Test execution was skipped"
+                  exit 1
+                elif [ "${{ dependencies.ExecuteTests.result }}" = "Canceled" ]; then
+                  echo "⚠️ Pipeline CANCELED"
+                  echo "##vso[task.complete result=Canceled;]Test execution was canceled"
+                  exit 1
+                else
+                  echo "✅ Pipeline execution completed successfully"
+                fi
