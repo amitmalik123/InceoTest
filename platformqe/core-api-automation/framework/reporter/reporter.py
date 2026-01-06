@@ -276,14 +276,18 @@ class Reporter:
             filename = f"junit_report_{self._current_run_marker}.xml"
         path = self._resolve_path(filename, True)
         os.makedirs(os.path.dirname(path), exist_ok=True)
+        
+        # Filter to include only 'call' phase results, excluding setup and teardown
+        call_phase_results = [r for r in results if r.get('phase') == 'call']
+        
         testsuite = ET.Element('testsuite')
         # Enhance: add summary statistics as attributes
-        total = len(results)
-        passed = sum(1 for entry in results if entry.get("outcome", "").upper() == "PASSED")
-        failed = sum(1 for entry in results if entry.get("outcome", "").upper() == "FAILED")
-        skipped = sum(1 for entry in results if entry.get("outcome", "").upper() == "SKIPPED")
-        xfailed = sum(1 for entry in results if entry.get("outcome", "").upper() == "XFAILED")
-        xpassed = sum(1 for entry in results if entry.get("outcome", "").upper() == "XPASSED")
+        total = len(call_phase_results)
+        passed = sum(1 for entry in call_phase_results if entry.get("outcome", "").upper() == "PASSED")
+        failed = sum(1 for entry in call_phase_results if entry.get("outcome", "").upper() == "FAILED")
+        skipped = sum(1 for entry in call_phase_results if entry.get("outcome", "").upper() == "SKIPPED")
+        xfailed = sum(1 for entry in call_phase_results if entry.get("outcome", "").upper() == "XFAILED")
+        xpassed = sum(1 for entry in call_phase_results if entry.get("outcome", "").upper() == "XPASSED")
         testsuite.attrib['total'] = str(total)
         testsuite.attrib['passed'] = str(passed)
         testsuite.attrib['failed'] = str(failed)
@@ -291,7 +295,7 @@ class Reporter:
         testsuite.attrib['xfailed'] = str(xfailed)
         testsuite.attrib['xpassed'] = str(xpassed)
         try:
-            for result in results:
+            for result in call_phase_results:
                 name = result.get('name', result.get('test_id', 'UnnamedTest'))
                 classname = result.get('classname', 'TestClass')
                 time_val = str(result.get('duration', '0'))
@@ -308,7 +312,7 @@ class Reporter:
                     ET.SubElement(testcase, 'xpassed')
             tree = ET.ElementTree(testsuite)
             tree.write(path, encoding='utf-8', xml_declaration=True)
-            logger.info(f"JUnit XML report written to {path}")
+            logger.info(f"JUnit XML report written to {path} (call phase only, {total} tests)")
         except Exception as e:
             logger.error(f"Failed to write JUnit XML report: {e}")
 
