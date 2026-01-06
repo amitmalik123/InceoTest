@@ -98,12 +98,12 @@ parameters:
   - name: customFunctionalArgs
     displayName: 'Custom Functional Test Args (optional - overrides services-matrix)'
     type: string
-    default: ''
+    default: 'N/A'
   
   - name: customNonFunctionalArgs
     displayName: 'Custom Non-Functional Test Args (optional - overrides services-matrix)'
     type: string
-    default: ''
+    default: 'N/A'
 
 ###############################################################################
 # Global Variables
@@ -254,13 +254,25 @@ stages:
                 echo "DEBUG: customNonFunctionalArgs = '$CUSTOM_NONFUNC_ARGS'"
                 
                 if [ -n "$CUSTOM_FUNC_ARGS" ]; then
-                  echo "DEBUG: Adding custom functional args to command"
-                  set -- "$@" "--custom-functional-args" "$CUSTOM_FUNC_ARGS"
+                  if [ "$CUSTOM_FUNC_ARGS" != "N/A" ]; then
+                    echo "DEBUG: Adding custom functional args to command"
+                    set -- "$@" "--custom-functional-args" "$CUSTOM_FUNC_ARGS"
+                  else
+                    echo "DEBUG: Skipping custom functional args (value is N/A)"
+                  fi
+                else
+                  echo "DEBUG: Skipping custom functional args (value is empty)"
                 fi
                 
                 if [ -n "$CUSTOM_NONFUNC_ARGS" ]; then
-                  echo "DEBUG: Adding custom non-functional args to command"
-                  set -- "$@" "--custom-nonfunctional-args" "$CUSTOM_NONFUNC_ARGS"
+                  if [ "$CUSTOM_NONFUNC_ARGS" != "N/A" ]; then
+                    echo "DEBUG: Adding custom non-functional args to command"
+                    set -- "$@" "--custom-nonfunctional-args" "$CUSTOM_NONFUNC_ARGS"
+                  else
+                    echo "DEBUG: Skipping custom non-functional args (value is N/A)"
+                  fi
+                else
+                  echo "DEBUG: Skipping custom non-functional args (value is empty)"
                 fi
                 
                 # Debug: Show complete command that will be executed
