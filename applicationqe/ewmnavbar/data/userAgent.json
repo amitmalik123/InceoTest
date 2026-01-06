@@ -20,16 +20,6 @@
     "Password": "QAAdminUser_33a"
   },
   {
-    "Username": "onefarmer",
-    "Role": 6,
-    "User_Role": "Agent",
-    "FirstName": "Scott",
-    "LastName": "Thomas",
-    "Email": "nonproduction@assetmark.com",
-    "Guid": "B75408ED-B709-2B64-EE64-04B1FDBD50CC",
-    "Password": "QAAdminUser_33a"
-  },
-  {
     "Username": "T11_AGA1G1_Perf",
     "Role": 6,
     "User_Role": "Agent",

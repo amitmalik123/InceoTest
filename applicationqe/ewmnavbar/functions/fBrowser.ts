@@ -62,11 +62,11 @@ export class BrowserActions {
     // ==========================================================
     // 🧠 WAITING & STATE
     // ==========================================================
-    async verifyTitle(title: string) {
+    async compareTitle(title: string) {
         await this.wrap(
             async () => await expect(this.page).toHaveTitle(new RegExp(title), { timeout: 5000 }),
             `✅ Title verified: contains '${title}'`,
-            `❌ Title mismatch. Expected '${title}'`
+            `❌ Title mismatch. Expected '${title}', but actual was '${await this.page.title()}'`
         );
     }
 

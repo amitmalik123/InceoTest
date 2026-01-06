@@ -1,12 +1,12 @@
 [
   {
     "Username": "sampleagentlogin",
+    "Password": "amkF1n@nc23S",
     "Role": 3,
     "User_Role": "ADMIN",
     "FirstName": "sample",
     "LastName": "agent",
     "Email": "nonproduction@assetmark.com",
-    "Guid": "FE0AB65A-2652-DD07-219E-CE997771F98D",
-    "Password": "amkF1n@nc23S"
+    "Guid": "FE0AB65A-2652-DD07-219E-CE997771F98D"
   }
 ]

@@ -90,8 +90,8 @@ export default defineConfig({
       },
     },
     {
-      name: "auth",
-      testDir: "./e2e/auth", 
+      name: "urlsTitles",
+      testDir: "./e2e/urlsTitles", 
       testMatch: "**/*.spec.ts",
       use: { 
         ...commonUse, 

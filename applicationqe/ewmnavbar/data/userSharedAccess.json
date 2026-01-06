@@ -1,15 +1,6 @@
 [
-  {
-    "Username": "thyland",
-    "Role": 6,
-    "User_Role": "Shared Access User",
-    "FirstName": "Timothy M._",
-    "LastName": "Hyland",
-    "Email": "nonproduction@assetmark.com",
-    "Guid": "B48BBD7E-3880-4D28-A272-E477186576A9",
-    "Password": "QAAdminUser_33a"
-  },
-  {
+  
+{
     "Username": "SAU_AG8860_01",
     "Role": 6,
     "User_Role": "Shared Access User",
