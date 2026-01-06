@@ -1,2 +1,2 @@
-environment,payload_subAssetTypeId,payload_unique_cusip,payload_name,payload_duplicate_cusip,payload_invalid_cusip
-TSADEV,41010,BT1230506,OPTIONS,BT3606380,BT360638
+environment,payload_unique_cusip,payload_unique_cusip_with_special_chars,payload_subAssetTypeId,payload_name,payload_duplicate_cusip,payload_invalid_cusip,request_short_cusip,request_long_cusip
+TSADEV,BAKtN636K,BC@$4367L,41010,OPTIONS,BT3606380,BT360638,BA1095@S,VCXT54ABCD123
