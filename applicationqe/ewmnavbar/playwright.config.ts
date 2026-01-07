@@ -99,8 +99,8 @@ export default defineConfig({
       },
     },
      {
-      name: "local",
-      testDir: "./e2e/local", 
+      name: "localUnauth",
+      testDir: "./e2e/localUnauth", 
       testMatch: "**/*.spec.ts",
       use: { 
         ...commonUse, 
@@ -108,8 +108,8 @@ export default defineConfig({
       },
     },
     {
-      name: "exp",
-      testDir: "./e2e/exp", 
+      name: "localAuth",
+      testDir: "./e2e/localAuth", 
       testMatch: "**/*.spec.ts",
       dependencies: ["setup"], 
       use: {

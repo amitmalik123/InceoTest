@@ -8,8 +8,8 @@
   "Add a Client": {
     "button": "Add a Client",
     "title": "Clients | Add a Client",
-    "path": "clients/manage-accounts",
-    "legacypath": "clients/manage-accounts"
+    "path": "clients/add",
+    "legacypath": "clients/add"
   },
   "Create Proposal": {
     "button": "Create Proposal",

@@ -9,9 +9,11 @@
     "test:compare": "playwright test --project compareiFrame",
     "test:users": "playwright test --project userRoles",
     "test:title": "playwright test --project urlsTitles",
-    "test:local": "playwright test --project local",
-    "test:auth": "playwright test --project auth",
+    
+    "test:locunauth": "playwright test --project localUnauth",
+    "test:locauth": "playwright test --project localAuth",
     "test:exp": "playwright test --project exp",
+    
     "postinstall": "playwright install",
     "prepare": "husky install",
     "precommit:check": "echo 'Run lint and format checks here'"

@@ -27,8 +27,9 @@ reports/
 framework/screenshots/
 
 # Ignore everything in e2e/local
-e2e/local/
-e2e/exp/
+e2e/localUnauth/
+e2e/localAuth/
 e2e/Auth
+e2e/visitLater
 data/Archive
 data/captures
