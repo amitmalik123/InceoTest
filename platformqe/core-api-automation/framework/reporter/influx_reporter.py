@@ -13,6 +13,7 @@ from pathlib import Path
 
 from framework.loaders.config_loader import get_config
 from framework.loaders.path_loader import get_project_path, find_files
+from framework.loaders.test_result_loader import load_test_summary_from_json
 from framework.common.logger import get_logger
 from framework.clients.db_client import DatabaseClientFactory
 
@@ -115,19 +116,16 @@ def push_to_infux(report_filename: str = None) -> bool:
         # Load configuration using centralized config loader
         config = get_config()
         
-        # Find the latest report file
-        report_path = get_latest_report_file(report_filename)
-        if not report_path:
-            logger.error(f"Could not find report file: {report_filename}")
+        # Load test results using centralized loader
+        # This uses test_summary.json with full validation statistics
+        test_results, test_summary = load_test_summary_from_json()
+        
+        if not test_results:
+            logger.error("No test results loaded from test_summary.json")
             return False
         
-        logger.info(f"Loading report from: {report_path}")
-        
-        # Load report JSON
-        with open(report_path, 'r', encoding='utf-8') as f:
-            report = json.load(f)
-        
-        logger.debug(f"Report loaded successfully with {len(report.get('results', []))} results")
+        logger.info(f"Loaded {len(test_results)} test results from centralized loader")
+        logger.debug(f"Summary: {test_summary}")
         
         # Connect to InfluxDB using DatabaseClientFactory
         try:
@@ -141,16 +139,16 @@ def push_to_infux(report_filename: str = None) -> bool:
             bucket = influx_client.bucket
             org = influx_client.org
             
-            # Push summary metrics if available
-            summary = report.get('summary', {})
-            if summary:
+            # Push summary metrics using loaded test_summary
+            if test_summary:
                 try:
-                    total = int(summary.get('total', 0))
-                    passed = int(summary.get('passed', 0))
-                    failed = int(summary.get('failed', 0))
-                    skipped = int(summary.get('skipped', 0))
-                    xfailed = int(summary.get('xfailed', 0))
-                    xpassed = int(summary.get('xpassed', 0))
+                    total = int(test_summary.get('total', 0))
+                    passed = int(test_summary.get('passed', 0))
+                    failed = int(test_summary.get('failed', 0))
+                    skipped = int(test_summary.get('skipped', 0))
+                    # Note: xfailed and xpassed might not be in test_summary from centralized loader
+                    xfailed = int(test_summary.get('xfailed', 0))
+                    xpassed = int(test_summary.get('xpassed', 0))
                     
                     summary_point = Point("test_summary") \
                         .tag("environment", env_name) \
@@ -168,9 +166,8 @@ def push_to_infux(report_filename: str = None) -> bool:
                     logger.warning(f"Failed to push summary metrics: {e}")
             
             # Push individual test results - collect all points for batch write
-            results = report.get('results', [])
-            if not results:
-                logger.warning("No test results found in report")
+            if not test_results:
+                logger.warning("No test results available")
                 influx_client.close()
                 return False
             
@@ -178,11 +175,15 @@ def push_to_infux(report_filename: str = None) -> bool:
             points_to_write = []
             failed_count = 0
             
-            for result in results:
+            for result in test_results:
                 try:
                     # Extract test information
                     test_id = result.get('test_id', 'unknown')
                     test_name = result.get('test_name', 'unknown')
+                    
+                    # Map status to outcome for backward compatibility with existing dashboards
+                    status = result.get('status', 'unknown')
+                    outcome = status  # test_summary.json uses 'status', map to 'outcome' for InfluxDB
                     
                     # Create point with test result data
                     point = Point("test_results") \
@@ -190,29 +191,39 @@ def push_to_infux(report_filename: str = None) -> bool:
                         .tag("test_id", str(test_id)) \
                         .tag("test_name", str(test_name)) \
                         .tag("service_name", str(result.get('service_name', 'unknown'))) \
-                        .tag("outcome", str(result.get('outcome', 'unknown'))) \
-                        .tag("status", str(result.get('status', 'unknown')))
+                        .tag("outcome", str(outcome)) \
+                        .tag("status", str(status))
                     
                     logger.debug(f"Creating point for test: {test_id}")
                     
-                    # Add numeric fields - use int for response_time (milliseconds) to match existing schema
-                    point.field("duration", float(result.get('duration', 0.0)))
-                    point.field("response_time", int(result.get('response_time', 0)))
+                    # Add numeric fields - response_time is in milliseconds
+                    response_time = int(result.get('response_time', 0))
+                    point.field("duration", float(response_time / 1000.0))  # Convert ms to seconds for duration
+                    point.field("response_time", response_time)
                     
-                    # Add optional fields
-                    if 'test_summary' in result:
-                        point.field("summary", str(result['test_summary']))
+                    # Add optional fields - test_summary.json uses 'summary' not 'test_summary'
+                    if 'summary' in result:
+                        point.field("summary", str(result['summary']))
                     
                     if 'error' in result and result['error']:
                         point.field("error", str(result['error']))
                     
-                    # Add validation status fields if available
-                    if 'validation_status' in result:
-                        val_status = result['validation_status']
-                        if isinstance(val_status, dict):
-                            point.field("validation_contract", str(val_status.get('contract', 'N/A')))
-                            point.field("validation_custom", str(val_status.get('custom', 'N/A')))
-                            point.field("validation_security", str(val_status.get('security', 'N/A')))
+                    # Add validation statistics if available
+                    # test_summary.json has 'validation_stats' with detailed counts
+                    if 'validation_stats' in result:
+                        vstats = result['validation_stats']
+                        if isinstance(vstats, dict):
+                            # Add aggregated validation counts for each check type
+                            contract = vstats.get('contract_checks', {})
+                            security = vstats.get('security_checks', {})
+                            performance = vstats.get('performance_checks', {})
+                            
+                            point.field("validation_contract_total", int(contract.get('total', 0)))
+                            point.field("validation_contract_passed", int(contract.get('passed', 0)))
+                            point.field("validation_security_total", int(security.get('total', 0)))
+                            point.field("validation_security_passed", int(security.get('passed', 0)))
+                            point.field("validation_performance_total", int(performance.get('total', 0)))
+                            point.field("validation_performance_passed", int(performance.get('passed', 0)))
                     
                     # Set timestamp
                     point.time(datetime.utcnow(), WritePrecision.S)
@@ -237,12 +248,12 @@ def push_to_infux(report_filename: str = None) -> bool:
                 try:
                     logger.info(f"[InfluxDB] Attempting to write {len(points_to_write)} points to bucket '{bucket}'")
                     influx_client.write_points(points_to_write)
-                    logger.info(f"[InfluxDB] Successfully pushed {len(points_to_write)}/{len(results)} test results (failed: {failed_count})")
+                    logger.info(f"[InfluxDB] Successfully pushed {len(points_to_write)}/{len(test_results)} test results (failed: {failed_count})")
                 except Exception as e:
                     logger.error(f"Failed to batch write test results to InfluxDB: {e}", exc_info=True)
                     return False
             else:
-                logger.warning(f"[InfluxDB] No test results were pushed (0/{len(results)}, failed: {failed_count})")
+                logger.warning(f"[InfluxDB] No test results were pushed (0/{len(test_results)}, failed: {failed_count})")
                 return False
             
             # Connection is managed by the factory, but we can close if needed

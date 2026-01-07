@@ -1,6 +1,1 @@
-SELECT
-    securities_id,
-    cusip,
-    ticker,
-    name 
-FROM public."Securities" where cusip='{{payload_unique_cusip}}'
+SELECT securities_id as db_securities_id, cusip as db_cusip, name as db_name FROM public."Securities" where cusip='{{payload_unique_cusip}}'

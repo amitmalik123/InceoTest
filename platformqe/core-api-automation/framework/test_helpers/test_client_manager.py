@@ -8,6 +8,7 @@ Centralizes client creation and request execution logic.
 from typing import Dict, Any, Optional, Tuple
 import time
 from framework.common.logger import get_logger
+from framework.loaders.config_loader import substitute_env_vars
 
 logger = get_logger(__name__)
 
@@ -86,7 +87,7 @@ class TestClientManager:
                 if service_name:
                     api_endpoints = config.get('api_endpoints', {})
                     if service_name in api_endpoints:
-                        base_url = api_endpoints[service_name].get('base_url', '')
+                        base_url = substitute_env_vars(api_endpoints[service_name].get('base_url', ''))
                 
                 # Resolve template variables in mainURL (e.g., {{base_url}})
                 from framework.common.template_utils import render_template

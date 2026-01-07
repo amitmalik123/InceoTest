@@ -309,3 +309,70 @@ def get_result_collector() -> TestResultCollector:
     if _collector_instance is None:
         _collector_instance = TestResultCollector()
     return _collector_instance
+
+
+def aggregate_validation_stats(collector=None):
+    """Aggregate validation statistics from collected test results.
+    
+    DEPRECATED: For in-memory usage during test execution only.
+    For post-execution/reporter usage, use framework.loaders.test_result_loader.aggregate_validation_stats() instead.
+    
+    This utility function processes validation statistics from all collected
+    test results and returns aggregated counts for reporting purposes.
+    
+    Args:
+        collector: TestResultCollector instance (optional, uses singleton if not provided)
+        
+    Returns:
+        Dictionary with aggregated validation statistics containing:
+        - status_code: Status code validation counts
+        - contract: API contract validation counts
+        - security: Security validation counts
+        - performance: Performance validation counts
+        - data_comparison: Data comparison validation counts
+        - assertions: Assertion validation counts
+        
+    Example:
+        >>> stats = aggregate_validation_stats()
+        >>> print(f"Total status checks: {stats['status_code']['total']}")
+    """
+    if collector is None:
+        collector = TestResultCollector()
+    
+    validation_stats = {
+        'status_code': {'total': 0, 'passed': 0, 'failed': 0},
+        'contract': {'total': 0, 'passed': 0, 'failed': 0},
+        'security': {'total': 0, 'passed': 0, 'failed': 0},
+        'performance': {'total': 0, 'passed': 0, 'failed': 0},
+        'data_comparison': {'total': 0, 'passed': 0, 'failed': 0},
+        'assertions': {'total': 0, 'passed': 0, 'failed': 0}
+    }
+    
+    for result in collector.get_results():
+        vstats = result.get('validation_stats', {})
+        
+        # Map from validation_stats keys to output keys
+        key_mappings = [
+            ('status_code_checks', 'status_code'),
+            ('contract_checks', 'contract'),
+            ('security_checks', 'security'),
+            ('performance_checks', 'performance'),
+            ('data_comparisons', 'data_comparison'),
+            ('assertions', 'assertions')
+        ]
+        
+        for source_key, dest_key in key_mappings:
+            if source_key in vstats:
+                stat = vstats[source_key]
+                validation_stats[dest_key]['total'] += stat.get('total', 0)
+                validation_stats[dest_key]['passed'] += stat.get('passed', 0)
+                validation_stats[dest_key]['failed'] += stat.get('failed', 0)
+    
+    return validation_stats
+
+# HTML generation functions moved to framework.loaders.test_result_loader
+# Import from there for centralized usage:
+#   from framework.loaders.test_result_loader import (
+#       generate_test_summary_table,
+#       generate_validation_summary_table
+#   )

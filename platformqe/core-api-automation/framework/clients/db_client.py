@@ -49,6 +49,31 @@ except ImportError:
     logger.warning("influxdb-client not installed. InfluxDB support disabled.")
 
 
+def parse_adonet_connection_string(conn_str: str) -> Dict[str, str]:
+    """
+    Parse ADO.NET format connection string into dictionary of key-value pairs.
+    Common parser for both MSSQL and PostgreSQL connection strings.
+    
+    Args:
+        conn_str: ADO.NET format connection string
+        
+    Returns:
+        Dictionary of parsed parameters
+        
+    Example:
+        Input: "Server=myserver;Database=mydb;User ID=user;Password=pwd;"
+        Output: {"Server": "myserver", "Database": "mydb", "User ID": "user", "Password": "pwd"}
+    """
+    params = {}
+    for pair in conn_str.split(';'):
+        if '=' in pair:
+            key, value = pair.split('=', 1)
+            params[key.strip()] = value.strip()
+    
+    logger.debug(f"Parsed connection string params: {list(params.keys())}")
+    return params
+
+
 class DatabaseClient(ABC):
     """Abstract base class for all database clients"""
     
@@ -167,14 +192,8 @@ class MSSQLClient(DatabaseClient):
         ADO.NET: Server=tcp:server.database.windows.net,1433;Initial Catalog=db;User ID=user;Password=pwd;Encrypt=True;
         ODBC: DRIVER={ODBC Driver 18 for SQL Server};SERVER=server.database.windows.net,1433;DATABASE=db;UID=user;PWD=pwd;Encrypt=yes;
         """
-        # Parse ADO.NET connection string
-        params = {}
-        for pair in adonet_conn_str.split(';'):
-            if '=' in pair:
-                key, value = pair.split('=', 1)
-                params[key.strip()] = value.strip()
-        
-        logger.debug(f"Parsed connection string params: {list(params.keys())}")
+        # Parse ADO.NET connection string using common parser
+        params = parse_adonet_connection_string(adonet_conn_str)
         
         # Build ODBC connection string
         odbc_parts = []
@@ -253,6 +272,9 @@ class MSSQLClient(DatabaseClient):
             return results
         except Exception as e:
             logger.error(f"MSSQL query failed: {e}")
+            if self.conn:
+                self.conn.rollback()
+                logger.info("Transaction rolled back due to query error")
             raise
     
     def execute(self, sql: str, params: tuple = None) -> int:
@@ -295,22 +317,75 @@ class PostgreSQLClient(DatabaseClient):
         if not self.connection_string:
             self.connection_string = self._build_connection_string()
     
+    def _convert_adonet_to_psycopg2(self, adonet_conn_str: str) -> str:
+        """
+        Convert ADO.NET format connection string to psycopg2 format.
+        ADO.NET: User ID=user;Password=pwd;Server=server.postgres.database.azure.com;Database=db;Port=5432;Ssl Mode=Require;
+        psycopg2: host=server.postgres.database.azure.com port=5432 dbname=db user=user password=pwd sslmode=require
+        """
+        # Parse ADO.NET connection string using common parser
+        params = parse_adonet_connection_string(adonet_conn_str)
+        
+        # Build psycopg2 connection string
+        psycopg2_parts = []
+        
+        # Map ADO.NET to psycopg2 parameters
+        if 'Server' in params:
+            psycopg2_parts.append(f"host={params['Server']}")
+        elif 'Host' in params:
+            psycopg2_parts.append(f"host={params['Host']}")
+        
+        if 'Port' in params:
+            psycopg2_parts.append(f"port={params['Port']}")
+        
+        if 'Database' in params:
+            psycopg2_parts.append(f"dbname={params['Database']}")
+        
+        if 'User ID' in params:
+            psycopg2_parts.append(f"user={params['User ID']}")
+        elif 'User' in params:
+            psycopg2_parts.append(f"user={params['User']}")
+        
+        if 'Password' in params:
+            psycopg2_parts.append(f"password={params['Password']}")
+        
+        # Convert SSL Mode to sslmode
+        if 'Ssl Mode' in params or 'SslMode' in params or 'SSL Mode' in params:
+            ssl_val = params.get('Ssl Mode') or params.get('SslMode') or params.get('SSL Mode')
+            psycopg2_parts.append(f"sslmode={ssl_val.lower()}")
+        
+        psycopg2_conn_str = ' '.join(psycopg2_parts)
+        logger.info(f"Converted ADO.NET to psycopg2 format with {len(psycopg2_parts)} parameters")
+        
+        return psycopg2_conn_str
+    
     def _build_connection_string(self) -> str:
         """Build PostgreSQL connection string from config with Azure AD support"""
         if not self.config:
             return None
         
-        # Check if connection_string is directly provided in config
+        # Check if connection_string is directly provided in config (e.g., from Key Vault)
         if 'connection_string' in self.config:
             conn_str = substitute_env_vars(self.config['connection_string'])
             logger.info(f"Using direct connection string from config for {self.connection_name}")
-            return conn_str
+            
+            # Check if connection string is empty
+            if not conn_str or conn_str.strip() == '':
+                logger.warning(f"Connection string is empty for {self.connection_name}. Falling back to individual parameters.")
+                # Fall through to build connection string from individual parameters
+            else:
+                # Convert ADO.NET format to psycopg2 format if needed (detect by presence of '=' separators)
+                if '=' in conn_str and 'host=' not in conn_str.lower():
+                    logger.info(f"Converting ADO.NET connection string to psycopg2 format for {self.connection_name}")
+                    conn_str = self._convert_adonet_to_psycopg2(conn_str)
+                
+                return conn_str
         
         host = self.config.get('host')
         port = self.config.get('port', 5432)
         database = self.config.get('database')
         user = self.config.get('user')
-        password = self.config.get('password')
+        password = substitute_env_vars(self.config.get('password', ''))
         sslmode = self.config.get('sslmode', 'prefer')
         use_azure_auth = self.config.get('use_azure_auth', False)
         
@@ -374,6 +449,9 @@ class PostgreSQLClient(DatabaseClient):
             return results
         except Exception as e:
             logger.error(f"PostgreSQL query failed: {e}")
+            if self.conn:
+                self.conn.rollback()
+                logger.info("Transaction rolled back due to query error")
             raise
     
     def execute(self, sql: str, params: tuple = None) -> int:
@@ -442,6 +520,9 @@ class SQLiteClient(DatabaseClient):
             return results
         except Exception as e:
             logger.error(f"SQLite query failed: {e}")
+            if self.conn:
+                self.conn.rollback()
+                logger.info("Transaction rolled back due to query error")
             raise
     
     def execute(self, sql: str, params: tuple = None) -> int:

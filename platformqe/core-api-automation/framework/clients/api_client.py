@@ -172,10 +172,10 @@ class ApiClientFactory:
             api_endpoints = cls._config.get('api_endpoints', {})
             if service_name in api_endpoints:
                 endpoint_config = api_endpoints[service_name]
-                base_url = endpoint_config.get('base_url')
+                base_url = substitute_env_vars(endpoint_config.get('base_url'))
                 auth_token = substitute_env_vars(endpoint_config.get('auth_token'))
-                timeout = endpoint_config.get('timeout', 30)
-                retry_count = endpoint_config.get('retry_count', 3)
+                timeout = int(substitute_env_vars(str(endpoint_config.get('timeout', 30))))
+                retry_count = int(substitute_env_vars(str(endpoint_config.get('retry_count', 3))))
                 verify = endpoint_config.get('verify', False)
                 use_azure_auth = endpoint_config.get('use_azure_auth', False)
                 azure_resource = endpoint_config.get('azure_resource', 'https://management.azure.com/')
@@ -210,7 +210,7 @@ class ApiClientFactory:
                 raise ValueError(f"API endpoint '{service_name}' not found in configuration")
         else:
             # Legacy: use api_base_url from config
-            base_url = cls._config.get('api_base_url')
+            base_url = substitute_env_vars(cls._config.get('api_base_url'))
             auth_token = substitute_env_vars(cls._config.get('auth_token'))
         
         if not base_url:
