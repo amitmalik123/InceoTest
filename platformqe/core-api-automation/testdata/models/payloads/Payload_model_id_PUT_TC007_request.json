@@ -37,10 +37,7 @@
       "weight": 0.40
     }
   ],
-  "investmentApproach": {
-    "name": "Core Fixed Income",
-    "id": 0
-  },
+  "investmentApproachId": "{{db_investment_approach_id}}",
   "benchmark": [
     {
       "name": "Bloomberg Barclays US Aggregate Bond Index",

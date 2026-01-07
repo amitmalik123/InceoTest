@@ -1,0 +1,143 @@
+[
+    {
+        "test_id": "TC000",
+        "service_name": "models",
+        "workflow_mode": "sequential",
+        "test_name": "DB_ONLY - Fetch investment_approach_id from Database",
+        "protocol": "DB_ONLY",
+        "test_type": [
+            "Functional"
+        ],
+        "mainURL": "",
+        "endpoint": "",
+        "method": "",
+        "rpc_method": "",
+        "graphql_query": "",
+        "graphql_variables": "",
+        "soap_action": "",
+        "soap_envelope": "",
+        "headers_additional": {
+            "Content-Type": "application/json"
+        },
+        "payload": null,
+        "expected_status": "",
+        "expected_response_schema": "",
+        "expected_response": "",
+        "extract_values": [
+            {
+                "from": "db_result",
+                "key": "0.investment_approach_id",
+                "assign_to": "db_investment_approach_id"
+            }
+        ],
+        "validate": {
+            "performance": {
+                "max_response_time_ms": 500
+            },
+            "security": {
+                "checks": []
+            },
+            "data_comparison": {
+                "source": "api_response",
+                "target": "db_result",
+                "format": "table",
+                "key_field": [
+                    "",
+                    ""
+                ],
+                "fields_to_compare": [],
+                "log_differences": true
+            }
+        },
+        "test_data_file": "",
+        "db_type": "postgresql",
+        "db_connection_name": "models",
+        "db_query": "SELECT investment_approach_id FROM public.investment_approach LIMIT 1",
+        "test_summary": "Step 0: Fetch valid investment_approach_id from database to use in model creation payload",
+        "test_scenario": "Retrieve investment approach ID from database for data-driven test"
+    },
+    {
+        "test_id": "TC001",
+        "service_name": "models",
+        "workflow_mode": "sequential",
+        "test_name": "POST /model - Create Model for Version History Test (TC001)",
+        "protocol": "REST",
+        "test_type": [
+            "Functional"
+        ],
+        "mainURL": "{{base_url}}",
+        "endpoint": "/model",
+        "method": "POST",
+        "headers_additional": {
+            "Content-Type": "application/json"
+        },
+        "payload": "models\\payloads\\Payload_model_id_POST_request.json",
+        "expected_status": "201",
+        "expected_response_schema": "models\\schemas\\Schema_post_response copy.json",
+        "extract_values": [
+            {
+                "from": "response",
+                "key": "modelId",
+                "assign_to": "response_model_id"
+            }
+        ],
+        "validate": {
+            "performance": {
+                "max_response_time_ms": null
+            }
+        },
+        "test_summary": "Step 1: Create a new model and extract modelId for version history workflow",
+        "test_scenario": "Create initial model to test version history functionality"
+    },
+    {
+        "test_id": "TC002",
+        "service_name": "models",
+        "workflow_mode": "sequential",
+        "test_name": "POST /model/{id}/publish - First Publish (TC002)",
+        "protocol": "REST",
+        "test_type": [
+            "Functional"
+        ],
+        "mainURL": "{{base_url}}",
+        "endpoint": "/model/{{response_model_id}}/publish",
+        "method": "POST",
+        "headers_additional": {
+            "Content-Type": "application/json"
+        },
+        "payload": null,
+        "expected_status": "200",
+        "test_summary": "Step 2: Publish the model (creates version 1 - Published)",
+        "test_scenario": "First publish creates version 1 with Published status and version number = 1"
+    },
+    {
+        "test_id": "TC003",
+        "service_name": "models",
+        "workflow_mode": "sequential",
+        "test_name": "POST /model/{id}/version - Create Version 2 (TC003)",
+        "protocol": "REST",
+        "test_type": [
+            "Functional"
+        ],
+        "mainURL": "{{base_url}}",
+        "endpoint": "/model/{{response_model_id}}/version",
+        "method": "POST",
+        "headers_additional": {
+            "Content-Type": "application/json"
+        },
+        "payload": {
+            "allocations": [
+                {
+                    "entityType": "Model",
+                    "allocationName": "Version 2 Allocation",
+                    "cusip": "string",
+                    "ticker": "AAPL",
+                    "weight": 3,
+                    "modelId": "string"
+                }
+            ]
+        },
+        "expected_status": "201",
+        "test_summary": "Step 3: Create version 2 (Draft) - version 1 stays Published",
+        "test_scenario": "Create new version 2 as Draft, version 1 remains Published"
+    }
+]

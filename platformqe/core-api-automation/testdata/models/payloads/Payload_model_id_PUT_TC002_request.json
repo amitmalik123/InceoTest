@@ -6,10 +6,7 @@
     "E*TRADE",
     "TD Ameritrade"
   ],
-  "investmentApproach": {
-    "name": "Updated-Conservative-IA-{{RANDOM_STRING_10}}",
-    "id": "{{tc002_investment_approach_id}}"
-  },
+  "investmentApproachId": "{{db_investment_approach_id}}",
   "benchmark": [
     {
       "name": "Bloomberg Barclays Aggregate",

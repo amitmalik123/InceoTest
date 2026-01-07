@@ -5,10 +5,7 @@
   "custodian": [
     "string"
   ],
-  "investmentApproach": {
-    "name": "string",
-    "id": 0
-  },
+  "investmentApproachId": "{{db_investment_approach_id}}",
   "benchmark": [
     {
       "name": "string",

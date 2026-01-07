@@ -30,7 +30,7 @@
             "weight": 0.5
             }
         ],
-        "investmentApproachName": "string",
+        "investmentApproachId": "{{db_investment_approach_id}}",
         "benchmarkName": "string",
         "benchmarkIsPrimary": false
     }

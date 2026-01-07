@@ -47,7 +47,7 @@
             "weight": 0.25
         }
     ],
-    "investmentApproachName": "Tech Growth Strategy",
+    "investmentApproachId": "{{db_investment_approach_id}}",
     "benchmarkName": "NASDAQ Composite",
     "benchmarkIsPrimary": false
 }

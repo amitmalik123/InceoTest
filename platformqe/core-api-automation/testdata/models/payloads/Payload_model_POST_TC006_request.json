@@ -28,7 +28,7 @@
             "weight": 0
         }
     ],
-    "investmentApproachName": "Test Approach",
+    "investmentApproachId": "{{db_investment_approach_id}}",
     "benchmarkName": "S&P 500",
     "benchmarkIsPrimary": false
 }

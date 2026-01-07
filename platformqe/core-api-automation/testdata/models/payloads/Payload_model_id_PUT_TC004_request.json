@@ -7,10 +7,7 @@
     "TD Ameritrade",
     "Vanguard"
   ],
-  "investmentApproach": {
-    "name": "Updated-Strategic-Model-IA-{{RANDOM_STRING_10}}",
-    "id": "{{tc004_investment_approach_id}}"
-  },
+  "investmentApproachId": "{{db_investment_approach_id}}",
   "benchmark": [
     {
       "name": "MSCI World Index",

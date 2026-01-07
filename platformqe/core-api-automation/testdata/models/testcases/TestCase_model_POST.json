@@ -1,5 +1,62 @@
 [
     {
+        "test_id": "TC000",
+        "service_name": "models",
+        "workflow_mode": "sequential",
+        "test_name": "DB_ONLY - Fetch investment_approach_id from Database",
+        "protocol": "DB_ONLY",
+        "test_type": [
+            "Functional"
+        ],
+        "mainURL": "",
+        "endpoint": "",
+        "method": "",
+        "rpc_method": "",
+        "graphql_query": "",
+        "graphql_variables": "",
+        "soap_action": "",
+        "soap_envelope": "",
+        "headers_additional": {
+            "Content-Type": "application/json"
+        },
+        "payload": null,
+        "expected_status": "",
+        "expected_response_schema": "",
+        "expected_response": "",
+        "extract_values": [
+            {
+                "from": "db_result",
+                "key": "0.investment_approach_id",
+                "assign_to": "db_investment_approach_id"
+            }
+        ],
+        "validate": {
+            "performance": {
+                "max_response_time_ms": 500
+            },
+            "security": {
+                "checks": []
+            },
+            "data_comparison": {
+                "source": "api_response",
+                "target": "db_result",
+                "format": "table",
+                "key_field": [
+                    "",
+                    ""
+                ],
+                "fields_to_compare": [],
+                "log_differences": true
+            }
+        },
+        "test_data_file": "",
+        "db_type": "postgresql",
+        "db_connection_name": "models",
+        "db_query": "SELECT investment_approach_id FROM public.investment_approach LIMIT 1",
+        "test_summary": "Step 0: Fetch valid investment_approach_id from database to use in model creation payload",
+        "test_scenario": "Retrieve investment approach ID from database for data-driven test"
+    },
+    {
         "test_id": "TC001",
         "service_name": "models",
         "workflow_mode": "parallel",
@@ -51,7 +108,7 @@
                     "weight": 0.5
                 }
             ],
-            "investmentApproachName": "string",
+            "investmentApproachId": "{{db_investment_approach_id}}",
             "benchmarkName": "string",
             "benchmarkIsPrimary": false
         },
