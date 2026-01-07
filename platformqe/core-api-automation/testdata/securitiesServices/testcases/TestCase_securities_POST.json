@@ -1,60 +1,336 @@
 [
     {
-        "test_id": "TC000",
-        "service_name": "securitiesServices",
-        "workflow_mode": "sequential",
-        "test_name": "Check if security exists in DB [prerequisite] (TC000)",
-        "protocol": "DB_ONLY",
-        "test_type": [
-            "Prerequisite"
-        ],
-        "mainURL": "",
-        "endpoint": "",
-        "method": "",
-        "rpc_method": "",
-        "graphql_query": "",
-        "graphql_variables": "",
-        "soap_action": "",
-        "soap_envelope": "",
-        "headers_additional": {},
-        "payload": null,
-        "expected_status": "",
-        "expected_response_schema": "",
-        "expected_response": null,
-        "ignore_fields": [],
-        "extract_values": [],
-        "validate": {
-            "performance": {
-                "max_response_time_ms": null
-            },
-            "security": {
-                "checks": []
-            }
-        },
-        "test_data_file": "securitiesServices\\data_driven\\Data_security_POST.csv",
-        "db_type": "postgresql",
-        "db_connection_name": "securitiesServices",
-        "db_query": "securitiesServices/db_queries/Query_security_DELETE_cleanup.sql",
-        "test_summary": "Test TC000: Check if security exists in DB. If found, TC001 may fail with 409 conflict.",
-        "test_scenario": "Database check to verify if test CUSIP already exists before attempting to create it."
-    },
-    {
         "test_id": "TC001",
         "service_name": "securitiesServices",
         "workflow_mode": "parallel",
-        "test_name": "Create a single security with unique cusip [positive] (TC001)",
+        "test_name": "POST /security [validation: CUSIP too short] (TC001)",
         "protocol": "REST",
         "test_type": [
-            "Functional"
+            "Negative",
+            "Validation"
         ],
         "mainURL": "{{base_url}}",
-        "endpoint": "/security/?subAssetTypeId={{payload_subAssetTypeId}}&cusip={{payload_unique_cusip}}&name={{payload_name}}",
+        "endpoint": "/security?subAssetTypeId={{payload_subAssetTypeId}}&cusip={{request_short_cusip}}&name={{payload_name}}",
         "method": "POST",
-        "rpc_method": "",
-        "graphql_query": "",
-        "graphql_variables": "",
-        "soap_action": "",
-        "soap_envelope": "",
+        "headers_additional": {
+            "Content-Type": "application/json"
+        },
+        "payload": null,
+        "expected_status": "422",
+        "expected_response_schema": "",
+        "expected_response": null,
+        "ignore_fields": [],
+        "extract_values": [
+            {
+                "from": "response",
+                "key": "type",
+                "assign_to": "error_type"
+            },
+            {
+                "from": "response",
+                "key": "title",
+                "assign_to": "error_title"
+            },
+            {
+                "from": "response",
+                "key": "status",
+                "assign_to": "error_status"
+            },
+            {
+                "from": "response",
+                "key": "detail",
+                "assign_to": "error_detail"
+            },
+            {
+                "from": "response",
+                "key": "instance",
+                "assign_to": "error_instance"
+            },
+            {
+                "from": "response",
+                "key": "errors.cusip.0",
+                "assign_to": "cusip_error_message"
+            }
+        ],
+        "validate": {
+            "performance": {
+                "max_response_time_ms": 650
+            },
+            "security": {
+                "checks": [
+                    "sql_injection",
+                    "xss"
+                ]
+            },
+            "assertions": [
+                {
+                    "actual": "{{error_type}}",
+                    "operator": "==",
+                    "expected": "business-rule-violation",
+                    "message": "Expected error type to be 'business-rule-violation'"
+                },
+                {
+                    "actual": "{{error_title}}",
+                    "operator": "==",
+                    "expected": "Business Rule Violation",
+                    "message": "Expected error title to be 'Business Rule Violation'"
+                },
+                {
+                    "actual": "{{error_status}}",
+                    "operator": "==",
+                    "expected": 422,
+                    "message": "Expected error status to be 422"
+                },
+                {
+                    "actual": "{{error_detail}}",
+                    "operator": "==",
+                    "expected": "The request is invalid and not meeting business rules requirements",
+                    "message": "Expected detail message about business rules"
+                },
+                {
+                    "actual": "{{error_instance}}",
+                    "operator": "==",
+                    "expected": "/api/security/v1/security",
+                    "message": "Expected instance to be '/api/security/v1/security'"
+                },
+                {
+                    "actual": "{{cusip_error_message}}",
+                    "operator": "contains",
+                    "expected": "Cusip must be 9 alphanumeric characters. Provided Cusip",
+                    "message": "Expected CUSIP error message to mention 'too short'"
+                },
+                {
+                    "actual": "{{cusip_error_message}}",
+                    "operator": "contains",
+                    "expected": "{{request_short_cusip}}",
+                    "message": "Expected CUSIP error message to include the invalid CUSIP value"
+                },
+                {
+                    "actual": "{{cusip_error_message}}",
+                    "operator": "contains",
+                    "expected": "is too short.",
+                    "message": "Expected CUSIP error message to include the invalid CUSIP value"
+                }
+            ]
+        },
+        "test_data_file": "securitiesServices/data_driven/Data_security_POST.csv",
+        "db_query": "",
+        "db_type": "",
+        "db_connection_name": "",
+        "test_summary": "Test TC001: Validate CUSIP too short error using assertions",
+        "test_scenario": "Extract error response fields and validate them using assertions. Checks error type, title, status, detail, instance, and CUSIP-specific error message."
+    },
+    {
+        "test_id": "TC002",
+        "service_name": "securitiesServices",
+        "workflow_mode": "parallel",
+        "test_name": "POST /security [validation: CUSIP too long] (TC002)",
+        "protocol": "REST",
+        "test_type": [
+            "Negative",
+            "Validation"
+        ],
+        "mainURL": "{{base_url}}",
+        "endpoint": "/security?subAssetTypeId={{payload_subAssetTypeId}}&cusip={{request_long_cusip}}&name={{payload_name}}",
+        "method": "POST",
+        "headers_additional": {
+            "Content-Type": "application/json"
+        },
+        "payload": null,
+        "expected_status": "422",
+        "expected_response_schema": "",
+        "expected_response": null,
+        "ignore_fields": [],
+        "extract_values": [
+            {
+                "from": "response",
+                "key": "type",
+                "assign_to": "error_type"
+            },
+            {
+                "from": "response",
+                "key": "status",
+                "assign_to": "error_status"
+            },
+            {
+                "from": "response",
+                "key": "errors.cusip.0",
+                "assign_to": "cusip_error_message"
+            }
+        ],
+        "validate": {
+            "performance": {
+                "max_response_time_ms": 500
+            },
+            "security": {
+                "checks": [
+                    "sql_injection",
+                    "xss"
+                ]
+            },
+            "assertions": [
+                {
+                    "actual": "{{error_type}}",
+                    "operator": "==",
+                    "expected": "business-rule-violation",
+                    "message": "Expected error type to be 'business-rule-violation'"
+                },
+                {
+                    "actual": "{{error_status}}",
+                    "operator": "==",
+                    "expected": 422,
+                    "message": "Expected error status to be 422"
+                },
+                {
+                    "actual": "{{cusip_error_message}}",
+                    "operator": "contains",
+                    "expected": "Cusip must be 9 alphanumeric characters. Provided Cusip",
+                    "message": "Expected CUSIP error message to mention 'too long'"
+                },
+                {
+                    "actual": "{{cusip_error_message}}",
+                    "operator": "contains",
+                    "expected": "{{request_long_cusip}}",
+                    "message": "Expected CUSIP error message to include the invalid CUSIP value"
+                },
+                {
+                    "actual": "{{cusip_error_message}}",
+                    "operator": "contains",
+                    "expected": "is too long.",
+                    "message": "Expected CUSIP error message to include the invalid CUSIP value"
+                }
+            ]
+        },
+        "test_data_file": "securitiesServices/data_driven/Data_security_POST.csv",
+        "db_query": "",
+        "db_type": "",
+        "db_connection_name": "",
+        "test_summary": "Test TC002: Validate CUSIP too long error using assertions",
+        "test_scenario": "Validate that CUSIP longer than 9 characters returns appropriate error message."
+    },
+    {
+        "test_id": "TC003",
+        "service_name": "securitiesServices",
+        "workflow_mode": "parallel",
+        "test_name": "POST /security [validation: duplicate CUSIP] (TC003)",
+        "protocol": "REST",
+        "test_type": [
+            "Negative",
+            "Validation"
+        ],
+        "mainURL": "{{base_url}}",
+        "endpoint": "/security?subAssetTypeId={{payload_subAssetTypeId}}&cusip={{payload_duplicate_cusip}}&name={{payload_name}}",
+        "method": "POST",
+        "headers_additional": {
+            "Content-Type": "application/json"
+        },
+        "payload": null,
+        "expected_status": "409",
+        "expected_response_schema": "",
+        "expected_response": null,
+        "ignore_fields": [],
+        "extract_values": [
+            {
+                "from": "response",
+                "key": "type",
+                "assign_to": "error_type"
+            },
+            {
+                "from": "response",
+                "key": "title",
+                "assign_to": "error_title"
+            },
+            {
+                "from": "response",
+                "key": "status",
+                "assign_to": "error_status"
+            },
+            {
+                "from": "response",
+                "key": "detail",
+                "assign_to": "error_detail"
+            },
+            {
+                "from": "response",
+                "key": "instance",
+                "assign_to": "error_instance"
+            }
+        ],
+        "validate": {
+            "performance": {
+                "max_response_time_ms": 500
+            },
+            "security": {
+                "checks": [
+                    "sql_injection",
+                    "xss"
+                ]
+            },
+            "assertions": [
+                {
+                    "actual": "{{error_type}}",
+                    "operator": "==",
+                    "expected": "already-exists",
+                    "message": "Expected error type to be 'already-exists'"
+                },
+                {
+                    "actual": "{{error_title}}",
+                    "operator": "==",
+                    "expected": "Already Exists",
+                    "message": "Expected error title to be 'Already Exists'"
+                },
+                {
+                    "actual": "{{error_status}}",
+                    "operator": "==",
+                    "expected": 409,
+                    "message": "Expected error status to be 409"
+                },
+                {
+                    "actual": "{{error_detail}}",
+                    "operator": "contains",
+                    "expected": "Cusip must be unique. A Security with cusip",
+                    "message": "Expected CUSIP error message to mention 'already exists.'"
+                },
+                {
+                    "actual": "{{error_detail}}",
+                    "operator": "contains",
+                    "expected": "{{payload_duplicate_cusip}}",
+                    "message": "Expected CUSIP error message to include already exists CUSIP value"
+                },
+                {
+                    "actual": "{{error_detail}}",
+                    "operator": "contains",
+                    "expected": "already exists.",
+                    "message": "Expected CUSIP error message to include the already exists CUSIP value"
+                },
+                {
+                    "actual": "{{error_instance}}",
+                    "operator": "==",
+                    "expected": "/api/security/v1/security",
+                    "message": "Expected instance to be '/api/security/v1/security'"
+                }
+            ]
+        },
+        "test_data_file": "securitiesServices/data_driven/Data_security_POST.csv",
+        "db_query": "",
+        "db_type": "",
+        "db_connection_name": "",
+        "test_summary": "Test TC002: Validate CUSIP too long error using assertions",
+        "test_scenario": "Validate that CUSIP longer than 9 characters returns appropriate error message."
+    },
+    {
+        "test_id": "TC004",
+        "service_name": "securitiesServices",
+        "workflow_mode": "parallel",
+        "test_name": "POST /security [validation: valid and unique CUSIP with special chars] (TC004)",
+        "protocol": "REST",
+        "test_type": [
+            "Functional",
+            "Positive"
+        ],
+        "mainURL": "{{base_url}}",
+        "endpoint": "/security?subAssetTypeId={{payload_subAssetTypeId}}&cusip={{payload_unique_cusip_with_special_chars}}&name={{payload_name}}",
+        "method": "POST",
         "headers_additional": {
             "Content-Type": "application/json"
         },
@@ -62,29 +338,11 @@
         "expected_status": "200",
         "expected_response_schema": "",
         "expected_response": null,
-        "ignore_fields": [
-            "id"
-        ],
-        "extract_values": [
-            {
-                "from": "response",
-                "key": "id",
-                "assign_to": ""
-            },
-            {
-                "from": "db_result",
-                "query": "",
-                "assign": [
-                    {
-                        "key": "",
-                        "assign_to": ""
-                    }
-                ]
-            }
-        ],
+        "ignore_fields": [],
+        "extract_values": [],
         "validate": {
             "performance": {
-                "max_response_time_ms": 500
+                "max_response_time_ms": 1000
             },
             "security": {
                 "checks": [
@@ -92,89 +350,70 @@
                     "xss"
                 ]
             },
-            "data_comparison": {
-                "source": "api_response",
-                "target": "db_result",
-                "format": "table",
-                "key_field": [
-                    "",
-                    ""
-                ],
-                "fields_to_compare": [
-                    {
-                        "source": "cusip",
-                        "target": "cusip"
-                    },
-                    {
-                        "source": "securityId",
-                        "target": "securities_id"
-                    },
-                    {
-                        "source": "ticker",
-                        "target": "ticker"
-                    },
-                    {
-                        "source": "name",
-                        "target": "name"
-                    }
-                ],
-                "log_differences": true
-            }
+            "data_comparison": [
+                {
+                    "source": "api_response",
+                    "target": "db_result",
+                    "target_query": "default",
+                    "format": "table",
+                    "source_array_path": "",
+                    "key_field": [],
+                    "fields_to_compare": [
+                        {
+                            "source": "securityId",
+                            "target": "db_securities_id"
+                        },
+                        {
+                            "source": "cusip",
+                            "target": "db_cusip"
+                        },
+                        {
+                            "source": "name",
+                            "target": "db_name"
+                        }
+                    ],
+                    "log_differences": true,
+                    "comparison_name": "Verify Response API vs DB field values"
+                }
+            ],
+            "assertions": []
         },
-        "test_data_file": "securitiesServices\\data_driven\\Data_security_POST.csv",
+        "test_data_file": "securitiesServices/data_driven/Data_security_POST.csv",
+        "db_query": "securitiesServices/db_queries/Query_security_2_POST.sql",
         "db_type": "postgresql",
         "db_connection_name": "securitiesServices",
-        "db_query": "securitiesServices/db_queries/Query_security_POST.sql",
-        "test_summary": "Test TC001: Create a single security. [positive] (TC001) - Test POST request to /security for functional scenario validation.",
-        "payload_file": "securitiesServices\\payloads\\request_payloads\\Payload_security_POST_functional.json",
-        "test_scenario": "Test POST request to /security for functional scenario validation."
+        "test_summary": "Test TC004: Valid alphanumeric with special characters CUSIP acceptance test",
+        "test_scenario": "Validate that CUSIP with special characters is accepted successfully."
     },
     {
-        "test_id": "TC002",
+        "test_id": "TC005",
         "service_name": "securitiesServices",
         "workflow_mode": "parallel",
-        "test_name": "Create a single security with duplicate cusip [negative] (TC002)",
+        "test_name": "POST /security [positive: valid CUSIP] (TC005)",
         "protocol": "REST",
         "test_type": [
-            "Negative"
+            "Functional",
+            "Positive"
         ],
         "mainURL": "{{base_url}}",
-        "endpoint": "/security/?subAssetTypeId={{payload_subAssetTypeId}}&cusip={{payload_duplicate_cusip}}&name={{payload_name}}",
+        "endpoint": "/security?subAssetTypeId={{payload_subAssetTypeId}}&cusip={{payload_unique_cusip}}&name={{payload_name}}",
         "method": "POST",
-        "rpc_method": "",
-        "graphql_query": "",
-        "graphql_variables": "",
-        "soap_action": "",
-        "soap_envelope": "",
         "headers_additional": {
             "Content-Type": "application/json"
         },
         "payload": null,
-        "expected_status": "409",
+        "expected_status": "200",
+        "expected_response_schema": "securitiesServices\\schemas\\Schema_security_POST.json",
         "expected_response": null,
         "ignore_fields": [
-            "detail"
+            "id",
+            "created_at",
+            "updated_at"
         ],
-        "extract_values": [
-            {
-                "from": "response",
-                "key": "id",
-                "assign_to": ""
-            },
-            {
-                "from": "db_result",
-                "query": "",
-                "assign": [
-                    {
-                        "key": "",
-                        "assign_to": ""
-                    }
-                ]
-            }
-        ],
+        "extract_values": [],
         "validate": {
             "performance": {
-                "max_response_time_ms": 500
+                "max_response_time_ms": 1000
             },
             "security": {
                 "checks": [
@@ -182,97 +421,41 @@
                     "xss"
                 ]
             },
-            "data_comparison": {
-                "source": "api_response",
-                "target": "db_result",
-                "format": "table",
-                "key_field": [
-                    "",
-                    ""
-                ],
-                "fields_to_compare": [],
-                "log_differences": true
-            }
+            "data_comparison": [
+                {
+                    "source": "api_response",
+                    "target": "db_result",
+                    "target_query": "default",
+                    "format": "table",
+                    "source_array_path": "",
+                    "key_field": [],
+                    "fields_to_compare": [
+                        {
+                            "source": "securityId",
+                            "target": "db_securities_id"
+                        },
+                        {
+                            "source": "cusip",
+                            "target": "db_cusip"
+                        },
+                        {
+                            "source": "name",
+                            "target": "db_name"
+                        }
+                    ],
+                    "log_differences": true,
+                    "comparison_name": "Verify Response API vs DB field values"
+                }
+            ],
+            "assertions": []
         },
-        "test_data_file": "securitiesServices\\data_driven\\Data_security_POST.csv",
+        "test_data_file": "securitiesServices/data_driven/Data_security_POST.csv",
+        "db_queries": {
+            "default": "securitiesServices/db_queries/Query_security_POST.sql"
+        },
         "db_type": "postgresql",
         "db_connection_name": "securitiesServices",
-        "db_query": "securitiesServices/db_queries/Query_security_duplicate_cusip.sql",
-        "test_summary": "Test TC002: Create a single security. [negative: duplicate cusip] (TC002) - Test POST request to /security for Negative scenario validation.",
-        "payload_file": "",
-        "test_scenario": "Test POST request to /security for Negative scenario validation."
-    },
-    {
-        "test_id": "TC003",
-        "service_name": "securitiesServices",
-        "workflow_mode": "parallel",
-        "test_name": "Create a single security with invalid cusip [negative] (TC003)",
-        "protocol": "REST",
-        "test_type": [
-            "Negative"
-        ],
-        "mainURL": "{{base_url}}",
-        "endpoint": "/security/?subAssetTypeId={{payload_subAssetTypeId}}&cusip={{payload_invalid_cusip}}&name={{payload_name}}",
-        "method": "POST",
-        "rpc_method": "",
-        "graphql_query": "",
-        "graphql_variables": "",
-        "soap_action": "",
-        "soap_envelope": "",
-        "headers_additional": {
-            "Content-Type": "application/json"
-        },
-        "payload": null,
-        "expected_status": "422",
-        "expected_response": null,
-        "ignore_fields": [
-            ""
-        ],
-        "extract_values": [
-            {
-                "from": "response",
-                "key": "id",
-                "assign_to": ""
-            },
-            {
-                "from": "db_result",
-                "query": "",
-                "assign": [
-                    {
-                        "key": "",
-                        "assign_to": ""
-                    }
-                ]
-            }
-        ],
-        "validate": {
-            "performance": {
-                "max_response_time_ms": 500
-            },
-            "security": {
-                "checks": [
-                    "sql_injection",
-                    "xss"
-                ]
-            },
-            "data_comparison": {
-                "source": "api_response",
-                "target": "db_result",
-                "format": "table",
-                "key_field": [
-                    "",
-                    ""
-                ],
-                "fields_to_compare": [],
-                "log_differences": true
-            }
-        },
-        "test_data_file": "securitiesServices\\data_driven\\Data_security_POST.csv",
-        "db_type": "postgresql",
-        "db_connection_name": "securitiesServices",
-        "db_query": "",
-        "test_summary": "Test TC003: Create a single security. [negative: invalid cusip] (TC003) - Test POST request to /security for Negative scenario validation.",
-        "payload_file": "",
-        "test_scenario": "Test POST request to /security for Negative scenario validation."
+        "test_summary": "Test TC005: Valid CUSIP acceptance test",
+        "test_scenario": "Verify that a valid 9-character alphanumeric CUSIP is accepted successfully."
     }
 ]
