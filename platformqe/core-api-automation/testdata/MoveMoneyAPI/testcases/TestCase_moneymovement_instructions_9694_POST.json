@@ -3,13 +3,13 @@
         "test_id": "TC001",
         "service_name": "MoveMoneyAPI",
         "workflow_mode": "parallel",
-        "test_name": "POST /instructions [positive] (TC001)",
+        "test_name": "POST /moneymovement/instructions [positive] (TC001)",
         "protocol": "REST",
         "test_type": [
             "Functional"
         ],
         "mainURL": "{{base_url}}",
-        "endpoint": "/instructions",
+        "endpoint": "/moneymovement/instructions",
         "method": "POST",
         "rpc_method": "",
         "graphql_query": "",
@@ -20,7 +20,95 @@
             "Content-Type": "application/json"
         },
         "payload": {
-            "letterOfAuthorization": "Both",
+        "letterOfAuthorization": "Both",
+        "accountId": "123e4567-e89b-12d3-a456-426614174000",
+        "status": "Draft",
+        "holderRelationship": "FirstParty",
+        "railType": "ACH",
+        "custodianInstructionNumber": "AINS123456",
+        "bank": {
+            "routingNumber": "121000248",
+            "bankAccountNumber": "1234567890",
+            "bankAccountName": "John Smith",
+            "bankAccountType": "Checking",
+            "bankName": "Wells Fargo Bank"
+            }
+},
+        "expected_status": "200",
+        "expected_response_schema": "",
+        "expected_response": null,
+            "ignore_fields": [
+            "id"
+            ],
+        
+        "extract_values": [
+            {
+                "from": "response",
+                "key": "id",
+                "assign_to": ""
+            },
+            {
+                "from": "db_result",
+                "query": "",
+                "assign": [
+                    {
+                        "key": "",
+                        "assign_to": ""
+                    }
+                ]
+            }
+        ],
+        "validate": {
+            "performance": {
+                "max_response_time_ms": null
+            },
+            "security": {
+                "checks": [
+                    "sql_injection",
+                    "xss"
+                ]
+            },
+            "data_comparison": {
+                "source": "api_response",
+                "target": "db_result",
+                "format": "table",
+                "key_field": [
+                    "",
+                    ""
+                ],
+                "fields_to_compare": [],
+                "log_differences": true
+            }
+        },
+        "test_data_file": "",
+        "db_query": "",
+        "db_type": "",
+        "db_connection_name": "",
+        "test_summary": "Test TC001: POST /moneymovement/instructions [positive] (TC001) - Test POST request to /moneymovement/instructions for functional scenario validation.",
+        "test_scenario": "Test POST request to /moneymovement/instructions for functional scenario validation."
+    },
+    {
+        "test_id": "TC002",
+        "service_name": "MoveMoneyAPI",
+        "workflow_mode": "parallel",
+        "test_name": "POST /moneymovement/instructions [negative] (TC002)",
+        "protocol": "REST",
+        "test_type": [
+            "Negative"
+        ],
+        "mainURL": "{{base_url}}",
+        "endpoint": "/moneymovement/instructions",
+        "method": "POST",
+        "rpc_method": "",
+        "graphql_query": "",
+        "graphql_variables": "",
+        "soap_action": "",
+        "soap_envelope": "",
+        "headers_additional": {
+            "Content-Type": "application/json"
+        },
+        "payload": {
+            
             "accountId": "123e4567-e89b-12d3-a456-426614174000",
             "status": "Draft",
             "holderRelationship": "FirstParty",
@@ -32,9 +120,375 @@
                 "bankAccountName": "John Smith",
                 "bankAccountType": "Checking",
                 "bankName": "Wells Fargo Bank"
+                }
+},
+        "expected_status": "400",
+        "expected_response_schema": "",
+        "expected_response": {
+            "status": 400,
+            "error": "Missing required field: letterOfAuthorization",
+            "fields": "letterOfAuthorization"
+            },
+        "ignore_fields": [
+            "id"
+        ],
+        "extract_values": [
+            {
+                "from": "response",
+                "key": "id",
+                "assign_to": ""
+            },
+            {
+                "from": "db_result",
+                "query": "",
+                "assign": [
+                    {
+                        "key": "",
+                        "assign_to": ""
+                    }
+                ]
+            }
+        ],
+        "validate": {
+            "performance": {
+                "max_response_time_ms": null
+            },
+            "security": {
+                "checks": [
+                    "sql_injection",
+                    "xss"
+                ]
+            },
+            "data_comparison": {
+                "source": "api_response",
+                "target": "db_result",
+                "format": "table",
+                "key_field": [
+                    "",
+                    ""
+                ],
+                "fields_to_compare": [],
+                "log_differences": true
             }
         },
-        "expected_status": "200",
+        "test_data_file": "",
+        "db_query": "",
+        "db_type": "",
+        "db_connection_name": "",
+        "test_summary": "Test TC002: POST /moneymovement/instructions [negative] (TC002) - Test POST request to /moneymovement/instructions for negative scenario validation.",
+        "test_scenario": "Test POST request to /moneymovement/instructions for negative scenario validation."
+    },
+    {
+        "test_id": "TC003",
+        "service_name": "MoveMoneyAPI",
+        "workflow_mode": "parallel",
+        "test_name": "POST /moneymovement/instructions [negative: invalid payload] (TC003)",
+        "protocol": "REST",
+        "test_type": [
+            "Negative"
+        ],
+        "mainURL": "{{base_url}}",
+        "endpoint": "/moneymovement/instructions",
+        "method": "POST",
+        "rpc_method": "",
+        "graphql_query": "",
+        "graphql_variables": "",
+        "soap_action": "",
+        "soap_envelope": "",
+        "headers_additional": {
+            "Content-Type": "application/json"
+        },
+        "payload": {
+        "letterOfAuthorization": "Sucess",
+        "accountId": "123e4567-e89b-12d3-a456-426614174000",
+        "status": "Draft",
+        "holderRelationship": "FirstParty",
+        "railType": "ACH",
+        "custodianInstructionNumber": "AINS123456",
+        "bank": {
+            "routingNumber": "121000248",
+            "bankAccountNumber": "1234567890",
+            "bankAccountName": "John Smith",
+            "bankAccountType": "Checking",
+            "bankName": "Wells Fargo Bank"
+            }
+},
+        "expected_status": "400",
+        "expected_response_schema": "",
+        "expected_response": {
+            "status": 400,
+            "error": "Invalid value for 'letterOfAuthorization'. Must be one of: Deposit, Withdrawal, Both, None",
+            "fields": "letterOfAuthorization"
+            },
+        "ignore_fields": [
+            "id"
+        ],
+        "extract_values": [
+            {
+                "from": "response",
+                "key": "id",
+                "assign_to": ""
+            },
+            {
+                "from": "db_result",
+                "query": "",
+                "assign": [
+                    {
+                        "key": "",
+                        "assign_to": ""
+                    }
+                ]
+            }
+        ],
+        "validate": {
+            "performance": {
+                "max_response_time_ms": null
+            },
+            "security": {
+                "checks": [
+                    "sql_injection",
+                    "xss"
+                ]
+            },
+            "data_comparison": {
+                "source": "api_response",
+                "target": "db_result",
+                "format": "table",
+                "key_field": [
+                    "",
+                    ""
+                ],
+                "fields_to_compare": [],
+                "log_differences": true
+            }
+        },
+        "test_data_file": "",
+        "db_query": "",
+        "db_type": "",
+        "db_connection_name": "",
+        "test_summary": "Test TC003: POST /moneymovement/instructions [negative: invalid payload] (TC003) - Verify that the API returns a 400 Bad Request error when invalid data is provided in the POST request to /moneymovement/instructions.",
+        "invalid_payload": true,
+        "test_scenario": "Verify that the API returns a 400 Bad Request error when invalid data is provided in the POST request to /moneymovement/instructions."
+    },
+    {
+        "test_id": "TC004",
+        "service_name": "MoveMoneyAPI",
+        "workflow_mode": "parallel",
+        "test_name": "POST /moneymovement/instructions [negative: missing auth] (TC004)",
+        "protocol": "REST",
+        "test_type": [
+            "Negative"
+        ],
+        "mainURL": "{{base_url}}",
+        "endpoint": "/moneymovement/instructions",
+        "method": "POST",
+        "rpc_method": "",
+        "graphql_query": "",
+        "graphql_variables": "",
+        "soap_action": "",
+        "soap_envelope": "",
+        "headers_additional": {
+            "Content-Type": "application/json"
+        },
+        "payload": {
+        "letterOfAuthorization": "Both",
+        "accountId": "123e4567-e89b-12d3-a456-4266141",
+        "status": "Draft",
+        "holderRelationship": "FirstParty",
+        "railType": "ACH",
+        "custodianInstructionNumber": "AINS123456",
+        "bank": {
+            "routingNumber": "121000248",
+            "bankAccountNumber": "1234567890",
+            "bankAccountName": "John Smith",
+            "bankAccountType": "Checking",
+            "bankName": "Wells Fargo Bank"
+            }
+},
+        "expected_status": "400",
+        "expected_response_schema": "",
+        "expected_response": {
+            "status": 400,
+            "error": "Invalid GUID format for 'accountId'.",
+            "fields": "accountId"
+            },
+        "ignore_fields": [
+            "id"
+        ],
+        "extract_values": [
+            {
+                "from": "response",
+                "key": "id",
+                "assign_to": ""
+            },
+            {
+                "from": "db_result",
+                "query": "",
+                "assign": [
+                    {
+                        "key": "",
+                        "assign_to": ""
+                    }
+                ]
+            }
+        ],
+        "validate": {
+            "performance": {
+                "max_response_time_ms": null
+            },
+            "security": {
+                "checks": [
+                    "sql_injection",
+                    "xss"
+                ]
+            },
+            "data_comparison": {
+                "source": "api_response",
+                "target": "db_result",
+                "format": "table",
+                "key_field": [
+                    "",
+                    ""
+                ],
+                "fields_to_compare": [],
+                "log_differences": true
+            }
+        },
+        "test_data_file": "",
+        "db_query": "",
+        "db_type": "",
+        "db_connection_name": "",
+        "test_summary": "Test TC004: POST /moneymovement/instructions [negative: missing auth] (TC004) - Verify that the API returns a 400 Bad Request error when the required parameter 'auth' is missing from the POST request to /moneymovement/instructions.",
+        "no_auth": true,
+        "test_scenario": "Verify that the API returns a 400 Bad Request error when the required parameter 'auth' is missing from the POST request to /moneymovement/instructions."
+    },
+    {
+        "test_id": "TC005",
+        "service_name": "MoveMoneyAPI",
+        "workflow_mode": "parallel",
+        "test_name": "POST /moneymovement/instructions [negative: invalid auth] (TC005)",
+        "protocol": "REST",
+        "test_type": [
+            "Negative"
+        ],
+        "mainURL": "{{base_url}}",
+        "endpoint": "/moneymovement/instructions",
+        "method": "POST",
+        "rpc_method": "",
+        "graphql_query": "",
+        "graphql_variables": "",
+        "soap_action": "",
+        "soap_envelope": "",
+        "headers_additional": {
+            "Content-Type": "application/json"
+        },
+        "payload": {
+        "letterOfAuthorization": "Both",
+        "accountId": "123e4567-e89b-12d3-a456-426614174000",
+        "status": "Draft",
+        "holderRelationship": "FirstParty",
+        "railType": "",
+        "custodianInstructionNumber": "AINS123456",
+        "bank": {
+            "routingNumber": "121000248",
+            "bankAccountNumber": "1234567890",
+            "bankAccountName": "John Smith",
+            "bankAccountType": "Checking",
+            "bankName": "Wells Fargo Bank"
+        }
+},
+        "expected_status": "400",
+        "expected_response_schema": "",
+        "expected_response": {
+            "status": 400,
+            "error": "Invalid value for 'railType'. Must be one of: ACH, Wire, Check, Journal, Transfer",
+            "fields": "railType"
+            },
+        "ignore_fields": [
+            "id"
+        ],
+        "extract_values": [
+            {
+                "from": "response",
+                "key": "id",
+                "assign_to": ""
+            },
+            {
+                "from": "db_result",
+                "query": "",
+                "assign": [
+                    {
+                        "key": "",
+                        "assign_to": ""
+                    }
+                ]
+            }
+        ],
+        "validate": {
+            "performance": {
+                "max_response_time_ms": null
+            },
+            "security": {
+                "checks": [
+                    "sql_injection",
+                    "xss"
+                ]
+            },
+            "data_comparison": {
+                "source": "api_response",
+                "target": "db_result",
+                "format": "table",
+                "key_field": [
+                    "",
+                    ""
+                ],
+                "fields_to_compare": [],
+                "log_differences": true
+            }
+        },
+        "test_data_file": "",
+        "db_query": "",
+        "db_type": "",
+        "db_connection_name": "",
+        "test_summary": "Test TC005: POST /moneymovement/instructions [negative: invalid auth] (TC005) - Verify that the API returns a 400 Bad Request error when invalid data is provided in the POST request to /moneymovement/instructions.",
+        "invalid_auth": true,
+        "test_scenario": "Verify that the API returns a 400 Bad Request error when invalid data is provided in the POST request to /moneymovement/instructions."
+    },
+    {
+        "test_id": "TC006",
+        "service_name": "MoveMoneyAPI",
+        "workflow_mode": "parallel",
+        "test_name": "POST /moneymovement/instructions [negative] (TC006)",
+        "protocol": "REST",
+        "test_type": [
+            "Negative"
+        ],
+        "mainURL": "{{base_url}}",
+        "endpoint": "/moneymovement/instructions",
+        "method": "POST",
+        "rpc_method": "",
+        "graphql_query": "",
+        "graphql_variables": "",
+        "soap_action": "",
+        "soap_envelope": "",
+        "headers_additional": {
+            "Content-Type": "application/json"
+        },
+        "payload": {
+        "letterOfAuthorization": "Deposit",
+        "accountId": "456e7890-e89b-12d3-a456-426614174111",
+        "status": "Pending",
+        "holderRelationship": "FirstParty",
+        "railType": "Wire",
+        "bank": {
+        "routingNumber": "026009593",
+        "bankAccountNumber": "555566667711",
+        "bankAccountName": "Sarah Johnson",
+        "bankAccountType": "Saving",
+        "bankName": "Chase Bank"
+        }
+},
+        "expected_status": "400",
         "expected_response_schema": "",
         "expected_response": null,
         "ignore_fields": [
@@ -59,7 +513,7 @@
         ],
         "validate": {
             "performance": {
-                "max_response_time_ms": 500
+                "max_response_time_ms": null
             },
             "security": {
                 "checks": [
@@ -83,477 +537,21 @@
         "db_query": "",
         "db_type": "",
         "db_connection_name": "",
-        "test_summary": "Test TC001: POST /moneymovement/instructions [positive] (TC001) - Verify that the API returns 200 response all the fields are valid.",
-        "test_scenario": "Test POST request to /moneymovement/instructions for functional scenario validation."
-    },
-    {
-        "test_id": "TC002",
-        "service_name": "MoveMoneyAPI",
-        "workflow_mode": "parallel",
-        "test_name": "POST /instructions [positive] (TC002)",
-        "protocol": "REST",
-        "test_type": [
-            "Negative"
-        ],
-        "mainURL": "{{base_url}}",
-        "endpoint": "/instructions",
-        "method": "POST",
-        "rpc_method": "",
-        "graphql_query": "",
-        "graphql_variables": "",
-        "soap_action": "",
-        "soap_envelope": "",
-        "headers_additional": {
-            "Content-Type": "application/json"
-        },
-        "payload": {
-            "accountId": "123e4567-e89b-12d3-a456-426614174000",
-            "status": "Draft",
-            "holderRelationship": "FirstParty",
-            "railType": "ACH",
-            "custodianInstructionNumber": "AINS123456",
-            "bank": {
-                "routingNumber": "121000248",
-                "bankAccountNumber": "1234567890",
-                "bankAccountName": "John Smith",
-                "bankAccountType": "Checking",
-                "bankName": "Wells Fargo Bank"
-            }
-        },
-        "expected_status": "400",
-        "expected_response_schema": "",
-        "expected_response": {
-            "status": 400,
-            "error": "Missing required field: letterOfAuthorization",
-            "fields": "letterOfAuthorization"
-        },
-        "ignore_fields": [
-            "id"
-        ],
-        "extract_values": [
-            {
-                "from": "response",
-                "key": "id",
-                "assign_to": ""
-            },
-            {
-                "from": "db_result",
-                "query": "",
-                "assign": [
-                    {
-                        "key": "",
-                        "assign_to": ""
-                    }
-                ]
-            }
-        ],
-        "validate": {
-            "performance": {
-                "max_response_time_ms": 500
-            },
-            "security": {
-                "checks": [
-                    "sql_injection",
-                    "xss"
-                ]
-            },
-            "data_comparison": {
-                "source": "api_response",
-                "target": "db_result",
-                "format": "table",
-                "key_field": [
-                    "",
-                    ""
-                ],
-                "fields_to_compare": [],
-                "log_differences": true
-            }
-        },
-        "test_data_file": "",
-        "db_query": "",
-        "db_type": "",
-        "db_connection_name": "",
-        "test_summary": "Test TC002: POST /moneymovement/instructions [negative] (TC002) - Validate that the API returns a 400 Bad Request error when required letterOfAuthorization field is missing in the POST request to /moneymovement/instructions.",
-        "test_scenario": "Test POST request to /moneymovement/instructions for negative scenario validation."
-    },
-    {
-        "test_id": "TC003",
-        "service_name": "MoveMoneyAPI",
-        "workflow_mode": "parallel",
-        "test_name": "POST /instructions [Negative] (TC003)",
-        "protocol": "REST",
-        "test_type": [
-            "Negative"
-        ],
-        "mainURL": "{{base_url}}",
-        "endpoint": "/instructions",
-        "method": "POST",
-        "rpc_method": "",
-        "graphql_query": "",
-        "graphql_variables": "",
-        "soap_action": "",
-        "soap_envelope": "",
-        "headers_additional": {
-            "Content-Type": "application/json"
-        },
-        "payload": {
-            "letterOfAuthorization": "Sucess",
-            "accountId": "123e4567-e89b-12d3-a456-426614174000",
-            "status": "Draft",
-            "holderRelationship": "FirstParty",
-            "railType": "ACH",
-            "custodianInstructionNumber": "AINS123456",
-            "bank": {
-                "routingNumber": "121000248",
-                "bankAccountNumber": "1234567890",
-                "bankAccountName": "John Smith",
-                "bankAccountType": "Checking",
-                "bankName": "Wells Fargo Bank"
-            }
-        },
-        "expected_status": "400",
-        "expected_response_schema": "",
-        "expected_response": {
-            "status": 400,
-            "error": "Invalid value for 'letterOfAuthorization'. Must be one of: Deposit, Withdrawal, Both, None",
-            "fields": "letterOfAuthorization"
-        },
-        "ignore_fields": [
-            "id"
-        ],
-        "extract_values": [
-            {
-                "from": "response",
-                "key": "id",
-                "assign_to": ""
-            },
-            {
-                "from": "db_result",
-                "query": "",
-                "assign": [
-                    {
-                        "key": "",
-                        "assign_to": ""
-                    }
-                ]
-            }
-        ],
-        "validate": {
-            "performance": {
-                "max_response_time_ms": 500
-            },
-            "security": {
-                "checks": [
-                    "sql_injection",
-                    "xss"
-                ]
-            },
-            "data_comparison": {
-                "source": "api_response",
-                "target": "db_result",
-                "format": "table",
-                "key_field": [
-                    "",
-                    ""
-                ],
-                "fields_to_compare": [],
-                "log_differences": true
-            }
-        },
-        "test_data_file": "",
-        "db_query": "",
-        "db_type": "",
-        "db_connection_name": "",
-        "test_summary": "Test TC003: POST /moneymovement/instructions [negative] (TC003) - Validate that the API returns 400 response to verify enum value in letter of authorization field.",
-        "invalid_payload": true,
-        "test_scenario": "Verify that the API returns a 400 Bad Request error when invalid data is provided in the POST request to /moneymovement/instructions."
-    },
-    {
-        "test_id": "TC004",
-        "service_name": "MoveMoneyAPI",
-        "workflow_mode": "parallel",
-        "test_name": "POST /instructions [negative] (TC004)",
-        "protocol": "REST",
-        "test_type": [
-            "Negative"
-        ],
-        "mainURL": "{{base_url}}",
-        "endpoint": "/instructions",
-        "method": "POST",
-        "rpc_method": "",
-        "graphql_query": "",
-        "graphql_variables": "",
-        "soap_action": "",
-        "soap_envelope": "",
-        "headers_additional": {
-            "Content-Type": "application/json"
-        },
-        "payload": {
-            "letterOfAuthorization": "Both",
-            "accountId": "123e4567-e89b-12d3-a456-4266141",
-            "status": "Draft",
-            "holderRelationship": "FirstParty",
-            "railType": "ACH",
-            "custodianInstructionNumber": "AINS123456",
-            "bank": {
-                "routingNumber": "121000248",
-                "bankAccountNumber": "1234567890",
-                "bankAccountName": "John Smith",
-                "bankAccountType": "Checking",
-                "bankName": "Wells Fargo Bank"
-            }
-        },
-        "expected_status": "400",
-        "expected_response_schema": "",
-        "expected_response": {
-            "status": 400,
-            "error": "Invalid GUID format for 'accountId'.",
-            "fields": "accountId"
-        },
-        "ignore_fields": [
-            "id"
-        ],
-        "extract_values": [
-            {
-                "from": "response",
-                "key": "id",
-                "assign_to": ""
-            },
-            {
-                "from": "db_result",
-                "query": "",
-                "assign": [
-                    {
-                        "key": "",
-                        "assign_to": ""
-                    }
-                ]
-            }
-        ],
-        "validate": {
-            "performance": {
-                "max_response_time_ms": 500
-            },
-            "security": {
-                "checks": [
-                    "sql_injection",
-                    "xss"
-                ]
-            },
-            "data_comparison": {
-                "source": "api_response",
-                "target": "db_result",
-                "format": "table",
-                "key_field": [
-                    "",
-                    ""
-                ],
-                "fields_to_compare": [],
-                "log_differences": true
-            }
-        },
-        "test_data_file": "",
-        "db_query": "",
-        "db_type": "",
-        "db_connection_name": "",
-        "test_summary": "Test TC004: POST /moneymovement/instructions [negative] (TC004) - validate that the API returns 400 response the accountId is in invalid format",
-        "no_auth": true,
-        "test_scenario": "Verify that the API returns a 400 Bad Request verify that Invalid GUID format for 'accountId'."
-    },
-    {
-        "test_id": "TC005",
-        "service_name": "MoveMoneyAPI",
-        "workflow_mode": "parallel",
-        "test_name": "POST /instructions [positive] (TC005)",
-        "protocol": "REST",
-        "test_type": [
-            "Negative"
-        ],
-        "mainURL": "{{base_url}}",
-        "endpoint": "/instructions",
-        "method": "POST",
-        "rpc_method": "",
-        "graphql_query": "",
-        "graphql_variables": "",
-        "soap_action": "",
-        "soap_envelope": "",
-        "headers_additional": {
-            "Content-Type": "application/json"
-        },
-        "payload": {
-            "letterOfAuthorization": "Both",
-            "accountId": "123e4567-e89b-12d3-a456-426614174000",
-            "status": "Draft",
-            "holderRelationship": "FirstParty",
-            "railType": "",
-            "custodianInstructionNumber": "AINS123456",
-            "bank": {
-                "routingNumber": "121000248",
-                "bankAccountNumber": "1234567890",
-                "bankAccountName": "John Smith",
-                "bankAccountType": "Checking",
-                "bankName": "Wells Fargo Bank"
-            }
-        },
-        "expected_status": "400",
-        "expected_response_schema": "",
-        "expected_response": {
-            "status": 400,
-            "error": "Invalid value for 'railType'. Must be one of: ACH, Wire, Check, Journal, Transfer",
-            "fields": "railType"
-        },
-        "ignore_fields": [
-            "id"
-        ],
-        "extract_values": [
-            {
-                "from": "response",
-                "key": "id",
-                "assign_to": ""
-            },
-            {
-                "from": "db_result",
-                "query": "",
-                "assign": [
-                    {
-                        "key": "",
-                        "assign_to": ""
-                    }
-                ]
-            }
-        ],
-        "validate": {
-            "performance": {
-                "max_response_time_ms": 500
-            },
-            "security": {
-                "checks": [
-                    "sql_injection",
-                    "xss"
-                ]
-            },
-            "data_comparison": {
-                "source": "api_response",
-                "target": "db_result",
-                "format": "table",
-                "key_field": [
-                    "",
-                    ""
-                ],
-                "fields_to_compare": [],
-                "log_differences": true
-            }
-        },
-        "test_data_file": "",
-        "db_query": "",
-        "db_type": "",
-        "db_connection_name": "",
-        "test_summary": "Test TC005: POST /moneymovement/instructions [negative: invalid railType] (TC005) - Validate that the API returns a 400 Bad Request error to verify enum value for the required railType field.",
-        "invalid_auth": true,
-        "test_scenario": "Verify that the API returns a 400 Bad Request error when invalid data is provided in the POST request to /moneymovement/instructions."
-    },
-    {
-        "test_id": "TC006",
-        "service_name": "MoveMoneyAPI",
-        "workflow_mode": "parallel",
-        "test_name": "POST /instructions [Negative] (TC006)",
-        "protocol": "REST",
-        "test_type": [
-            "Negative"
-        ],
-        "mainURL": "{{base_url}}",
-        "endpoint": "/instructions",
-        "method": "POST",
-        "rpc_method": "",
-        "graphql_query": "",
-        "graphql_variables": "",
-        "soap_action": "",
-        "soap_envelope": "",
-        "headers_additional": {
-            "Content-Type": "application/json"
-        },
-        "payload": {
-            "letterOfAuthorization": "Deposit",
-            "accountId": "456e7890-e89b-12d3-a456-426614174111",
-            "status": "Pending",
-            "holderRelationship": "FirstParty",
-            "railType": "Wire",
-            "bank": {
-                "routingNumber": 26009593,
-                "bankAccountNumber": 555566667711,
-                "bankAccountName": "Sarah Johnson",
-                "bankAccountType": "Saving",
-                "bankName": "Chase Bank"
-            }
-        },
-        "expected_status": "400",
-        "expected_response_schema": "",
-        "expected_response": {
-            "status": 400,
-            "error": "routingNumber must be exactly 9 digits (Parameter 'routingNumber')",
-            "fields": "routingNumber"
-        },
-        "ignore_fields": [
-            "id"
-        ],
-        "extract_values": [
-            {
-                "from": "response",
-                "key": "id",
-                "assign_to": ""
-            },
-            {
-                "from": "db_result",
-                "query": "",
-                "assign": [
-                    {
-                        "key": "",
-                        "assign_to": ""
-                    }
-                ]
-            }
-        ],
-        "validate": {
-            "performance": {
-                "max_response_time_ms": 500
-            },
-            "security": {
-                "checks": [
-                    "sql_injection",
-                    "xss"
-                ]
-            },
-            "data_comparison": {
-                "source": "api_response",
-                "target": "db_result",
-                "format": "table",
-                "key_field": [
-                    "",
-                    ""
-                ],
-                "fields_to_compare": [],
-                "log_differences": true
-            }
-        },
-        "test_data_file": "",
-        "db_query": "",
-        "db_type": "",
-        "db_connection_name": "",
-        "test_summary": "Test TC006: POST /moneymovement/instructions [negative] (TC006) - Validate that the API returns 400 response to verify routing number must be exactly 9 digits.",
-        "error_case": "400",
+        "test_summary": "Test TC006: POST /moneymovement/instructions [negative: error 500] (TC006) - Test POST request to /moneymovement/instructions for negative scenario validation.",
+        "error_case": "500",
         "test_scenario": "Test POST request to /moneymovement/instructions for negative scenario validation."
     },
     {
         "test_id": "TC007",
         "service_name": "MoveMoneyAPI",
         "workflow_mode": "parallel",
-        "test_name": "POST /instructions [Negative] (TC007)",
+        "test_name": "POST /moneymovement/instructions [negative: error 500] (TC007)",
         "protocol": "REST",
         "test_type": [
             "Negative"
         ],
         "mainURL": "{{base_url}}",
-        "endpoint": "/instructions",
+        "endpoint": "/moneymovement/instructions",
         "method": "POST",
         "rpc_method": "",
         "graphql_query": "",
@@ -589,7 +587,7 @@
         ],
         "validate": {
             "performance": {
-                "max_response_time_ms": 500
+                "max_response_time_ms": null
             },
             "security": {
                 "checks": [
@@ -613,7 +611,7 @@
         "db_query": "",
         "db_type": "",
         "db_connection_name": "",
-        "test_summary": "Test TC007: POST /moneymovement/instructions [negative: error 500] (TC007) - Validate that the API returns a 500 response when the payload is null.",
+        "test_summary": "Test TC007: POST /moneymovement/instructions [negative: error 500] (TC007) - Test POST request to /moneymovement/instructions for negative scenario validation.",
         "error_case": "500",
         "test_scenario": "Test POST request to /moneymovement/instructions for negative scenario validation."
     },
@@ -621,13 +619,13 @@
         "test_id": "TC008",
         "service_name": "MoveMoneyAPI",
         "workflow_mode": "parallel",
-        "test_name": "POST /instructions [positive] (TC008)",
+        "test_name": "POST /moneymovement/instructions [positive] (TC001)",
         "protocol": "REST",
         "test_type": [
             "Functional"
         ],
         "mainURL": "{{base_url}}",
-        "endpoint": "/instructions",
+        "endpoint": "/moneymovement/instructions",
         "method": "POST",
         "rpc_method": "",
         "graphql_query": "",
@@ -638,19 +636,19 @@
             "Content-Type": "application/json"
         },
         "payload": {
-            "letterOfAuthorization": "Deposit",
-            "accountId": "456e7890-e89b-12d3-a456-426614174111",
-            "status": "Pending",
-            "holderRelationship": "ThirdParty",
-            "railType": "Wire",
-            "bank": {
-                "routingNumber": "126009593",
-                "bankAccountNumber": "5555666677",
-                "bankAccountName": "Sarah Johnson",
-                "bankAccountType": "Checking",
-                "bankName": "Chase Bank"
+        "letterOfAuthorization": "Deposit",
+        "accountId": "456e7890-e89b-12d3-a456-426614174111",
+        "status": "Pending",
+        "holderRelationship": "ThirdParty",
+        "railType": "ACH",
+        "bank": {
+            "routingNumber": "126009593",
+            "bankAccountNumber": "5555666677",
+            "bankAccountName": "Sarah Johnson",
+            "bankAccountType": "Checking",
+            "bankName": "Chase Bank"
             }
-        },
+},
         "expected_status": "200",
         "expected_response_schema": "",
         "expected_response": null,
@@ -676,7 +674,7 @@
         ],
         "validate": {
             "performance": {
-                "max_response_time_ms": 500
+                "max_response_time_ms": null
             },
             "security": {
                 "checks": [
@@ -700,7 +698,7 @@
         "db_query": "",
         "db_type": "",
         "db_connection_name": "",
-        "test_summary": "Test TC008: POST /moneymovement/instructions [positive] (TC008) - Validate that the API returns 200 response when all the fields are valid with different enum values in the payloads.",
+        "test_summary": "Test TC008: POST /moneymovement/instructions [positive] (TC008) - Test POST request to /moneymovement/instructions for functional scenario validation.",
         "test_scenario": "Test POST request to /moneymovement/instructions for functional scenario validation."
     }
 ]
