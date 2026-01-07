@@ -3,13 +3,13 @@
         "test_id": "TC001",
         "service_name": "MoveMoneyAPI",
         "workflow_mode": "parallel",
-        "test_name": "GET /moneymovement/instructions [positive] (TC001)",
+        "test_name": "GET /instructions [positive] (TC001)",
         "protocol": "REST",
         "test_type": [
             "Functional"
         ],
         "mainURL": "{{base_url}}",
-        "endpoint": "/moneymovement/instructions?accountId=2FA85F64-5717-4562-B3FC-2C963F66AFA1",
+        "endpoint": "/instructions?accountId=123e4567-e89b-12d3-a456-426614174000",
         "method": "GET",
         "rpc_method": "",
         "graphql_query": "",
@@ -45,7 +45,7 @@
         ],
         "validate": {
             "performance": {
-                "max_response_time_ms": null
+                "max_response_time_ms": 500
             },
             "security": {
                 "checks": [
@@ -69,20 +69,20 @@
         "db_query": "",
         "db_type": "",
         "db_connection_name": "",
-        "test_summary": "Test TC001: GET /moneymovement/instructions [positive] (TC001) -  Validate that the API returns the 200 successful reponse without filters.",
-        "test_scenario": "Test GET request to /moneymovement/instructions for functional scenario validation."
+        "test_summary": "Test TC001: GET /instructions [positive] (TC001) -  Validate that the API returns the 200 successful reponse without filters.",
+        "test_scenario": "Test GET request to /instructions for functional scenario validation."
     },
     {
         "test_id": "TC002",
         "service_name": "MoveMoneyAPI",
         "workflow_mode": "parallel",
-        "test_name": "GET /moneymovement/instructions [positive] (TC002)",
+        "test_name": "GET /instructions [positive] (TC002)",
         "protocol": "REST",
         "test_type": [
             "Positive"
         ],
         "mainURL": "{{base_url}}",
-        "endpoint": "/moneymovement/instructions?accountId=2FA85F64-5717-4562-B3FC-2C963F66AFA1%2C%20123E4567-E89B-12D3-A456-426614174000&railTypes=ACH",
+        "endpoint": "/instructions?accountId=2FA85F64-5717-4562-B3FC-2C963F66AFA1%2C%20123E4567-E89B-12D3-A456-426614174000&railTypes=ACH",
         "method": "GET",
         "rpc_method": "",
         "graphql_query": "",
@@ -118,7 +118,7 @@
         ],
         "validate": {
             "performance": {
-                "max_response_time_ms": null
+                "max_response_time_ms": 500
             },
             "security": {
                 "checks": [
@@ -149,13 +149,13 @@
         "test_id": "TC003",
         "service_name": "MoveMoneyAPI",
         "workflow_mode": "parallel",
-        "test_name": "GET /moneymovement/instructions [positive] (TC003)",
+        "test_name": "GET /instructions [Negative] (TC003)",
         "protocol": "REST",
         "test_type": [
             "Negative"
         ],
         "mainURL": "{{base_url}}",
-        "endpoint": "/moneymovement/instructions?accountId=456E7890-E89B-12D3-A456-426614174111&railTypes=ACH%2C%20Wire",
+        "endpoint": "/instructions?accountId=456E7890-E89B-12D3-A456-426614174111&railTypes=ACH%2C%20Wire",
         "method": "GET",
         "rpc_method": "",
         "graphql_query": "",
@@ -191,7 +191,7 @@
         ],
         "validate": {
             "performance": {
-                "max_response_time_ms": null
+                "max_response_time_ms": 500
             },
             "security": {
                 "checks": [
@@ -222,13 +222,13 @@
         "test_id": "TC004",
         "service_name": "MoveMoneyAPI",
         "workflow_mode": "parallel",
-        "test_name": "GET /moneymovement/instructions [negative] (TC004)",
+        "test_name": "GET /instructions [Negative] (TC004)",
         "protocol": "REST",
         "test_type": [
             "Negative"
         ],
         "mainURL": "{{base_url}}",
-        "endpoint": "/moneymovement/instructions?accountId=123E4567-E89B-12D3-A456-42661417400",
+        "endpoint": "/instructions?accountId=123E4567-E89B-12D3-A456-42661417400",
         "method": "GET",
         "rpc_method": "",
         "graphql_query": "",
@@ -242,9 +242,9 @@
         "expected_status": "400",
         "expected_response_schema": "",
         "expected_response": {
-        "status": 400,
-         "error": "Invalid UUID format for 'AccountId' parameter (Parameter 'AccountId')",
-        "fields": "AccountId"
+            "status": 400,
+            "error": "Invalid UUID format for 'AccountId' parameter (Parameter 'AccountId')",
+            "fields": "AccountId"
         },
         "ignore_fields": [
             "id"
@@ -268,7 +268,7 @@
         ],
         "validate": {
             "performance": {
-                "max_response_time_ms": null
+                "max_response_time_ms": 500
             },
             "security": {
                 "checks": [
@@ -299,13 +299,13 @@
         "test_id": "TC005",
         "service_name": "MoveMoneyAPI",
         "workflow_mode": "parallel",
-        "test_name": "GET /moneymovement/instructions [negative] (TC005)",
+        "test_name": "GET /instructions [Negative] (TC005)",
         "protocol": "REST",
         "test_type": [
             "Negative"
         ],
         "mainURL": "{{base_url}}",
-        "endpoint": "/moneymovement/instructions?accountId=456E7890-E89B-12D3-A456-426614174111%2C%20123E4567-E89B-12D3-A456-426614174000%2C%203FA85F64-5717-4562-B3FC-2C963F66AFA6&status=Confirmed&railTypes=ACH%2C%20Wire",
+        "endpoint": "/instructions?accountId=3fa85f64-5717-4562-b3fc-2c963f66afa6&status=Confirmed&railTypes=ACH",
         "method": "GET",
         "rpc_method": "",
         "graphql_query": "",
@@ -341,7 +341,7 @@
         ],
         "validate": {
             "performance": {
-                "max_response_time_ms": null
+                "max_response_time_ms": 500
             },
             "security": {
                 "checks": [
@@ -372,13 +372,13 @@
         "test_id": "TC006",
         "service_name": "MoveMoneyAPI",
         "workflow_mode": "parallel",
-        "test_name": "GET /moneymovement/instructions [negative] (TC006)",
+        "test_name": "GET /instructions [Negative] (TC006)",
         "protocol": "REST",
         "test_type": [
             "Negative"
         ],
         "mainURL": "{{base_url}}",
-        "endpoint": "/moneymovement/instructions?accountId=123E4567-E89B-12D3-A456-426614174000&status=confirmed&railTypes=sucess",
+        "endpoint": "/instructions?accountId=123e4567-e89b-12d3-a456-426614174000&status=Confirmed&railTypes=AC@#$H",
         "method": "GET",
         "rpc_method": "",
         "graphql_query": "",
@@ -395,7 +395,7 @@
             "status": 400,
             "error": "Invalid railTypes value. Valid values are: ACH, Wire, Check, Journal (Parameter 'RailTypes')",
             "fields": "RailTypes"
-                },
+        },
         "ignore_fields": [
             "id"
         ],
@@ -418,7 +418,7 @@
         ],
         "validate": {
             "performance": {
-                "max_response_time_ms": null
+                "max_response_time_ms": 500
             },
             "security": {
                 "checks": [
@@ -449,13 +449,13 @@
         "test_id": "TC007",
         "service_name": "MoveMoneyAPI",
         "workflow_mode": "parallel",
-        "test_name": "GET /moneymovement/instructions [negative] (TC007)",
+        "test_name": "GET /instructions [Negative] (TC007)",
         "protocol": "REST",
         "test_type": [
             "Negative"
         ],
         "mainURL": "{{base_url}}",
-        "endpoint": "/moneymovement/instructions?accountId=123E4567-E89B-12D3-A456-426614174000&status=sucess&railTypes=ACH",
+        "endpoint": "/instructions?accountId=123E4567-E89B-12D3-A456-426614174000&status=suc@#ess&railTypes=ACH",
         "method": "GET",
         "rpc_method": "",
         "graphql_query": "",
@@ -469,9 +469,9 @@
         "expected_status": "400",
         "expected_response_schema": "",
         "expected_response": {
-        "status": 400,
-        "error": "Invalid status value. Valid values are: Draft, Pending, Confirmed, Deleted (Parameter 'Status')",
-        "fields": "Status"
+            "status": 400,
+            "error": "Invalid status value. Valid values are: Draft, Pending, Confirmed, Deleted (Parameter 'Status')",
+            "fields": "Status"
         },
         "ignore_fields": [
             "id"
@@ -495,7 +495,7 @@
         ],
         "validate": {
             "performance": {
-                "max_response_time_ms": null
+                "max_response_time_ms": 500
             },
             "security": {
                 "checks": [
@@ -568,7 +568,7 @@
         ],
         "validate": {
             "performance": {
-                "max_response_time_ms": null
+                "max_response_time_ms": 500
             },
             "security": {
                 "checks": [
