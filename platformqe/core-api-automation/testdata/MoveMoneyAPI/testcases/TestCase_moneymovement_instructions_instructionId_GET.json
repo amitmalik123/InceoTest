@@ -3,13 +3,13 @@
         "test_id": "TC001",
         "service_name": "MoveMoneyAPI",
         "workflow_mode": "parallel",
-        "test_name": "GET /moneymovement/instructions/{instructionId} [positive] (TC001)",
+        "test_name": "GET /instructions/{instructionId} [positive] (TC001)",
         "protocol": "REST",
         "test_type": [
             "Functional"
         ],
         "mainURL": "{{base_url}}",
-        "endpoint": "/moneymovement/instructions/a40ee301-dfe5-4a19-a145-bc3fa49be203",
+        "endpoint": "/instructions/16EF33F5-42F9-4FD0-89F9-11B88872E695",
         "method": "GET",
         "rpc_method": "",
         "graphql_query": "",
@@ -17,32 +17,32 @@
         "soap_action": "",
         "soap_envelope": "",
         "headers_additional": {
-        "Accept": "application/json"
-    },        
+            "Accept": "application/json"
+        },
         "payload": null,
         "expected_status": "200",
         "expected_response_schema": "",
         "expected_response": {
-  "instructionId": "a40ee301-dfe5-4a19-a145-bc3fa49be203",
-  "accountId": "550e8400-e29b-41d4-a716-446655440000",
-  "version": 1,
-  "status": "Draft",
-  "holderRelation": "FirstParty",
-  "letterOfAuthorization": "Both",
-  "railType": "ACH",
-  "custodianInstructionNumber": null,
-  "bank": {
-    "bankAccountName": "John Doe",
-    "bankAccountType": "Checking",
-    "bankName": "JP Morgan Chase",
-    "routingNumber": "123123123",
-    "bankAccountNumber": "23423434"
-  },
-  "createdDate": "2025-12-01T15:55:22.415",
-  "createdBy": null,
-  "modifiedDate": "2025-12-01T15:55:22.415",
-  "modifiedBy": null
-},
+            "instructionId": "16ef33f5-42f9-4fd0-89f9-11b88872e695",
+            "accountId": "456e7890-e89b-12d3-a456-426614174111",
+            "version": 3,
+            "status": "Pending",
+            "holderRelation": "ThirdParty",
+            "letterOfAuthorization": "Deposit",
+            "railType": "ACH",
+            "custodianInstructionNumber": null,
+            "bank": {
+                "bankAccountName": "Sarah Johnson",
+                "bankAccountType": "Checking",
+                "bankName": "Chase Bank",
+                "routingNumber": "026009593",
+                "bankAccountNumber": "5555666677"
+            },
+            "createdDate": "2025-12-17T12:03:03.956109",
+            "createdBy": "System",
+            "modifiedDate": "2025-12-17T12:06:11.4965005",
+            "modifiedBy": "system"
+        },
         "ignore_fields": [
             "id"
         ],
@@ -65,7 +65,7 @@
         ],
         "validate": {
             "performance": {
-                "max_response_time_ms": null
+                "max_response_time_ms": 500
             },
             "security": {
                 "checks": [
@@ -96,44 +96,46 @@
         "test_id": "TC002",
         "service_name": "MoveMoneyAPI",
         "workflow_mode": "parallel",
-        "test_name": "GET /moneymovement/instructions/{instructionId} [positive] (TC002)",
+        "test_name": "GET /instructions/{instructionId} [positive] (TC002)",
         "protocol": "REST",
         "test_type": [
             "Positive"
         ],
         "mainURL": "{{base_url}}",
-        "endpoint": "/moneymovement/instructions/a9898d16-e6eb-41cc-b28c-7c8041955d83?status=Draft",
-        "method": "GET",    
+        "endpoint": "/instructions/16EF33F5-42F9-4FD0-89F9-11B88872E695?status=Pending",
+        "method": "GET",
         "rpc_method": "",
         "graphql_query": "",
         "graphql_variables": "",
         "soap_action": "",
         "soap_envelope": "",
-        "headers_additional": {"Accept": "application/json"},
+        "headers_additional": {
+            "Accept": "application/json"
+        },
         "payload": null,
         "expected_status": "200",
         "expected_response_schema": "",
         "expected_response": {
-            "instructionId": "a9898d16-e6eb-41cc-b28c-7c8041955d83",
-             "accountId": "123e4567-e89b-12d3-a456-426614174000",
-             "version": 1,
-             "status": "Draft",
-            "holderRelation": "FirstParty",
-            "letterOfAuthorization": "Both",
-             "railType": "ACH",
-            "custodianInstructionNumber": "AINS123456",
-             "bank": {
-                 "bankAccountName": "John Smith",
+            "instructionId": "16ef33f5-42f9-4fd0-89f9-11b88872e695",
+            "accountId": "456e7890-e89b-12d3-a456-426614174111",
+            "version": 3,
+            "status": "Pending",
+            "holderRelation": "ThirdParty",
+            "letterOfAuthorization": "Deposit",
+            "railType": "ACH",
+            "custodianInstructionNumber": null,
+            "bank": {
+                "bankAccountName": "Sarah Johnson",
                 "bankAccountType": "Checking",
-                "bankName": "Wells Fargo Bank",
-                 "routingNumber": "121000248",
-                "bankAccountNumber": "1234567890"
-  },
-  "createdDate": "2025-12-05T12:50:36.517",
-  "createdBy": null,
-  "modifiedDate": "2025-12-05T12:50:36.517",
-  "modifiedBy": null
-},
+                "bankName": "Chase Bank",
+                "routingNumber": "026009593",
+                "bankAccountNumber": "5555666677"
+            },
+            "createdDate": "2025-12-17T12:03:03.956109",
+            "createdBy": "System",
+            "modifiedDate": "2025-12-17T12:06:11.4965005",
+            "modifiedBy": "system"
+        },
         "ignore_fields": [
             "id"
         ],
@@ -156,7 +158,7 @@
         ],
         "validate": {
             "performance": {
-                "max_response_time_ms": null
+                "max_response_time_ms": 500
             },
             "security": {
                 "checks": [
@@ -187,20 +189,22 @@
         "test_id": "TC003",
         "service_name": "MoveMoneyAPI",
         "workflow_mode": "parallel",
-        "test_name": "GET /moneymovement/instructions/{instructionId} [negative: Invalid InstructionId] (TC003)",
+        "test_name": "GET /instructions/{instructionId} [Negative] (TC003)",
         "protocol": "REST",
         "test_type": [
             "Negative"
         ],
         "mainURL": "{{base_url}}",
-        "endpoint": "/moneymovement/instructions/6d12b0df-947f-4b3b-b671-8d8bf19d41b5?status=Pending",
+        "endpoint": "/instructions/6d12b0df-947f-4b3b-b671-8d8bf19d41b5?status=Pending",
         "method": "GET",
         "rpc_method": "",
         "graphql_query": "",
         "graphql_variables": "",
         "soap_action": "",
         "soap_envelope": "",
-        "headers_additional": {"Accept": "application/json"},
+        "headers_additional": {
+            "Accept": "application/json"
+        },
         "payload": null,
         "expected_status": "204",
         "expected_response_schema": "",
@@ -227,7 +231,7 @@
         ],
         "validate": {
             "performance": {
-                "max_response_time_ms": null
+                "max_response_time_ms": 500
             },
             "security": {
                 "checks": [
@@ -258,13 +262,13 @@
         "test_id": "TC004",
         "service_name": "MoveMoneyAPI",
         "workflow_mode": "parallel",
-        "test_name": "GET /moneymovement/instructions/{instructionId} [negative: Invalid status] (TC004)",
+        "test_name": "GET /instructions/{instructionId} [Negative] (TC004)",
         "protocol": "REST",
         "test_type": [
             "Negative"
         ],
         "mainURL": "{{base_url}}",
-        "endpoint": "/moneymovement/instructions/6d12b0df-947f-4b3b-b671-8d8bf19d41b3?status=CHECK",
+        "endpoint": "/instructions/6d12b0df-947f-4b3b-b671-8d8bf19d41b3?status=CHECK",
         "method": "GET",
         "rpc_method": "",
         "graphql_query": "",
@@ -279,7 +283,7 @@
             "status": 400,
             "error": "Invalid value for 'status' parameter. Must be one of: Draft, Pending, Confirmed, Deleted (Parameter 'status')",
             "fields": "status"
-                },
+        },
         "ignore_fields": [
             "id"
         ],
@@ -302,7 +306,7 @@
         ],
         "validate": {
             "performance": {
-                "max_response_time_ms": null
+                "max_response_time_ms": 500
             },
             "security": {
                 "checks": [
@@ -333,13 +337,13 @@
         "test_id": "TC005",
         "service_name": "MoveMoneyAPI",
         "workflow_mode": "parallel",
-        "test_name": "GET /moneymovement/instructions/{instructionId} [negative: invalid auth] (TC005)",
+        "test_name": "GET /instructions/{instructionId} [Negative] (TC003)",
         "protocol": "REST",
         "test_type": [
             "Negative"
         ],
         "mainURL": "{{base_url}}",
-        "endpoint": "/moneymovement/instructions/7aed499c-2143-49e2-8382-3d1e311f18e1",
+        "endpoint": "/instructions/7aed499c-2143-49e2-8382-3d1e311f18e1",
         "method": "GET",
         "rpc_method": "",
         "graphql_query": "",
@@ -373,7 +377,7 @@
         ],
         "validate": {
             "performance": {
-                "max_response_time_ms": null
+                "max_response_time_ms": 500
             },
             "security": {
                 "checks": [
