@@ -96,14 +96,6 @@ api_endpoints:
     use_azure_auth: false  # Set to true to use Azure AD authentication
     azure_resource: "https://management.azure.com/"
   
-  accountdistributions:
-    base_url: "https://app-accountdistributions-test-test10.azurewebsites.net"
-    auth_token: "${PARTIES_AUTH_TOKEN}"
-    timeout: 30
-    retry_count: 3
-    use_azure_auth: false  # Set to true to use Azure AD authentication
-    azure_resource: "https://management.azure.com/"
-  
   work_item_notification:
     base_url: "https://app-workitemnotifsvc-test-test10.azurewebsites.net"
     auth_token: "${WORK_ITEM_AUTH_TOKEN}"
