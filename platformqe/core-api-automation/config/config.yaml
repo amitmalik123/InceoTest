@@ -113,6 +113,15 @@ api_endpoints:
     use_azure_auth: true  # Enable Azure AD authentication
     azure_resource: "https://management.azure.com/"
 
+ # Account Distributions API - New endpoint configuration
+  accountdistributions:
+    base_url: "https://your-accountdistributions-api-url.azurewebsites.net"
+    auth_token: "your-auth-token"
+    timeout: 60
+    retry_count: 3
+    verify: false
+    use_azure_auth: false
+
 # Legacy support for api_base_url variable (used in some testcases)
 api_base_url: "https://your-parties-api-url.azurewebsites.net"  # TODO: Update with actual Parties API URL
 
