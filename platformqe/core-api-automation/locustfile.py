@@ -38,6 +38,7 @@ logger = get_logger(__name__)
 from locust import HttpUser, task, between, events
 import os
 import time
+import psutil
 from datetime import datetime
 from framework.common.template_utils import render_hybrid
 from framework.loaders.path_loader import get_project_path
@@ -54,6 +55,12 @@ try:
 except ImportError:
     INFLUX_AVAILABLE = False
     logger.warning("InfluxDB client not available. Install with: pip install influxdb-client")
+
+# System monitoring globals
+initial_network_io = psutil.net_io_counters()
+initial_memory = psutil.virtual_memory().used
+test_start_time = None
+test_parameters = {}  # Store test parameters for metadata
 
 def get_args():
     import sys
@@ -213,9 +220,23 @@ def load_testcases(folder=None, test_type=None, file=None):
 args = get_args()
 TESTCASES = load_testcases(folder=args.folder, test_type=args.test_type, file=args.file)
 
+# Store test parameters for metadata
+test_parameters = {
+    'folder': args.folder,
+    'test_type': args.test_type,
+    'file': args.file,
+    'env': args.env,
+    'timestamp': datetime.now().strftime('%Y-%m-%d %H:%M:%S')
+}
+
 # Load configuration using ConfigManager (automatically detects ENV_NAME)
+# Force reload to pick up ENV_NAME from --env argument (overrides .env file)
 from framework.loaders.config_loader import get_config
-config = get_config()
+config = get_config(reload=True)
+
+# Log which environment config was loaded
+current_env = os.environ.get('ENV_NAME', 'default')
+logger.info(f"[CONFIG] Using environment: {current_env} (from --env argument or .env file)")
 
 # Determine host URL from testcases - get service_name from first testcase
 api_base_url = None
@@ -313,12 +334,31 @@ class APIPerformanceUser(HttpUser):
         from framework.loaders.testdata_loader import resolve_testcase_path
         
         logger.info(f"Loaded {len(TESTCASES)} testcases.")
+        
+        # Run each test case only once to prevent infinite loop
+        if not hasattr(self, '_tests_executed'):
+            self._tests_executed = True
+        else:
+            return  # Skip if tests already executed
         env_name = os.environ.get('ENV_NAME')
         
         for case in TESTCASES:
             logger.info(f"Running testcase: {case.get('test_name', case.get('endpoint'))}")
             context = dict(os.environ)
             context.update(case)
+            
+            # Add base_url to context based on service_name (with environment variable substitution)
+            service_name = case.get('service_name')
+            if service_name:
+                from framework.loaders.config_loader import ConfigManager
+                api_endpoints = config.get('api_endpoints', {})
+                service_config = api_endpoints.get(service_name, {})
+                service_base_url = service_config.get('base_url')
+                if service_base_url:
+                    # Substitute environment variables in base_url (e.g., ${ANALYTICS_BASE_URL})
+                    service_base_url = ConfigManager.substitute_env_vars(service_base_url)
+                    context['base_url'] = service_base_url
+                    logger.debug(f"Added base_url to context: {service_base_url} for service: {service_name}")
             
             # Load test data using framework's TestDataLoader
             test_data_file = case.get('test_data_file')
@@ -605,3 +645,107 @@ def on_test_stop(environment, **kwargs):
         
     except Exception as e:
         logger.error(f"[InfluxDB] Failed to push test summary: {e}")
+
+
+# Event handlers for memory and network monitoring
+@events.test_start.add_listener
+def on_test_start(environment, **kwargs):
+    """Capture initial system state when test starts"""
+    global test_start_time, initial_network_io, initial_memory
+    test_start_time = time.time()
+    initial_network_io = psutil.net_io_counters()
+    initial_memory = psutil.virtual_memory().used
+    logger.info(f"[MONITOR] Test started - Initial Memory: {initial_memory / (1024**3):.2f} GB, Network I/O captured")
+
+
+@events.test_stop.add_listener
+def on_test_stop(environment, **kwargs):
+    """Calculate and log system resource usage and add to CSV/HTML reports"""
+    global test_start_time, initial_network_io, initial_memory, test_parameters
+    
+    try:
+        # Calculate test duration
+        test_duration = time.time() - test_start_time
+        
+        # Memory usage
+        current_memory = psutil.virtual_memory().used
+        memory_delta = (current_memory - initial_memory) / (1024**3)  # GB
+        
+        # Network usage
+        current_network_io = psutil.net_io_counters()
+        bytes_sent = (current_network_io.bytes_sent - initial_network_io.bytes_sent) / (1024**2)  # MB
+        bytes_recv = (current_network_io.bytes_recv - initial_network_io.bytes_recv) / (1024**2)  # MB
+        
+        # CPU usage average
+        cpu_percent = psutil.cpu_percent(interval=1)
+        
+        monitoring_data = {
+            'test_duration_sec': f'{test_duration:.2f}',
+            'memory_delta_gb': f'{memory_delta:.3f}',
+            'network_sent_mb': f'{bytes_sent:.2f}',
+            'network_recv_mb': f'{bytes_recv:.2f}',
+            'cpu_avg_percent': f'{cpu_percent:.1f}'
+        }
+        
+        logger.info(f"[MONITOR] Test completed - Duration: {test_duration:.2f}s, "
+                   f"Memory Δ: {memory_delta:.3f} GB, "
+                   f"Network Sent: {bytes_sent:.2f} MB, Recv: {bytes_recv:.2f} MB, "
+                   f"CPU Avg: {cpu_percent:.1f}%")
+        
+        # Add monitoring data and test parameters to CSV stats
+        stats = environment.stats
+        stats.monitoring_data = monitoring_data
+        stats.test_parameters = test_parameters
+        
+        # Write enhanced metadata to CSV file if CSV reporting is enabled
+        # Try to determine CSV file path from stats writer or check if CSV flag was passed
+        csv_base = None
+        
+        # Method 1: Check for csv_prefix (Locust 2.x)
+        if hasattr(environment.parsed_options, 'csv_prefix') and environment.parsed_options.csv_prefix:
+            csv_base = environment.parsed_options.csv_prefix
+        
+        # Method 2: Check if stats has CSV writer configured
+        elif hasattr(environment.runner, 'stats') and hasattr(environment.runner.stats, 'csv_writer'):
+            csv_writer = environment.runner.stats.csv_writer
+            if csv_writer and hasattr(csv_writer, 'stats_filename'):
+                # Remove the _stats.csv suffix to get base name
+                csv_base = csv_writer.stats_filename.replace('_stats.csv', '')
+        
+        # Method 3: Check parsed_options for csvfilebase (Locust 2.x)
+        elif hasattr(environment.parsed_options, 'csvfilebase') and environment.parsed_options.csvfilebase:
+            csv_base = environment.parsed_options.csvfilebase
+        
+        # Method 4: Check for csv attribute (older Locust)
+        elif hasattr(environment.parsed_options, 'csv') and environment.parsed_options.csv:
+            csv_base = environment.parsed_options.csv
+        
+        # If we have a CSV base path, write the metadata file
+        if csv_base:
+            metadata_file = f"{csv_base}_metadata.txt"
+            
+            try:
+                with open(metadata_file, 'w') as f:
+                    f.write("# Locust Performance Test Metadata\n\n")
+                    f.write("## Test Parameters\n")
+                    for key, value in test_parameters.items():
+                        f.write(f"{key}: {value}\n")
+                    
+                    f.write("\n## System Monitoring\n")
+                    for key, value in monitoring_data.items():
+                        f.write(f"{key}: {value}\n")
+                    
+                    f.write(f"\n## Command Line Arguments\n")
+                    # Extract user, spawn rate, and run time from parsed options
+                    f.write(f"users (-u): {getattr(environment.parsed_options, 'num_users', 'N/A')}\n")
+                    f.write(f"spawn_rate (-r): {getattr(environment.parsed_options, 'spawn_rate', 'N/A')}\n")
+                    f.write(f"run_time (-t): {getattr(environment.parsed_options, 'run_time', 'N/A')}\n")
+                
+                logger.info(f"[REPORT] Enhanced metadata written to: {metadata_file}")
+            except Exception as write_error:
+                logger.error(f"[REPORT] Failed to write metadata file: {write_error}")
+        else:
+            logger.info("[REPORT] CSV reporting not enabled - metadata file not created")
+    
+    except Exception as e:
+        logger.error(f"[MONITOR] Failed to collect system metrics: {e}")
