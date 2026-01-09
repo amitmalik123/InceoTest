@@ -3,13 +3,13 @@
         "test_id": "TC001",
         "service_name": "MoveMoneyAPI",
         "workflow_mode": "parallel",
-        "test_name": "GET /moneymovement/requests/{requestId} [positive] (TC001)",
+        "test_name": "GET /requests/{requestId} [positive] (TC001)",
         "protocol": "REST",
         "test_type": [
             "Functional"
         ],
         "mainURL": "{{base_url}}",
-        "endpoint": "/moneymovement/requests/24dd50f6-1e53-4365-89dd-6008e2a77da5",
+        "endpoint": "/requests/2DBAD6B9-F23F-4450-9248-671F3F3FC013",
         "method": "GET",
         "rpc_method": "",
         "graphql_query": "",
@@ -23,25 +23,25 @@
         "expected_status": "200",
         "expected_response_schema": "",
         "expected_response": {
-  "requestId": "24dd50f6-1e53-4365-89dd-6008e2a77da5",
-  "instructionId": "cc324f1f-d5cc-418c-9d86-0a52316e9293",
-  "accountId": "123e4567-e89b-12d3-a456-426614174000",
-  "railType": "Journal",
-  "amount": 5000,
-  "requestType": "Deposit",
-  "status": "Draft",
-  "reason": 0,
-  "scheduleType": "OneTime",
-  "paymentDate": "2025-12-15T00:00:00",
-  "frequency": null,
-  "startDate": null,
-  "endDate": null,
-  "nextDate": null,
-  "createdDate": "2025-12-09T13:53:47.015",
-  "modifiedDate": "2025-12-09T13:53:47.015",
-  "createdBy": null,
-  "modifiedBy": null
-},
+            "requestId": "2dbad6b9-f23f-4450-9248-671f3f3fc013",
+            "instructionId": "126d23af-e3c2-46a8-923e-2a8238b6fe32",
+            "accountId": "9fa85f64-5717-4562-b3fc-2c963f66afa6",
+            "railType": "ACH",
+            "amount": 1000.11,
+            "requestType": "Deposit",
+            "status": "Draft",
+            "reason": "IRARothTransfer",
+            "scheduleType": "OneTime",
+            "paymentDate": "2026-12-18T00:00:00",
+            "frequency": null,
+            "startDate": null,
+            "endDate": null,
+            "nextDate": null,
+            "createdDate": "2025-12-19T04:19:28.125",
+            "modifiedDate": "2025-12-19T04:19:28.125",
+            "createdBy": "System",
+            "modifiedBy": "System"
+        },
         "ignore_fields": [
             "id"
         ],
@@ -64,7 +64,7 @@
         ],
         "validate": {
             "performance": {
-                "max_response_time_ms": null
+                "max_response_time_ms": 500
             },
             "security": {
                 "checks": [
@@ -95,105 +95,13 @@
         "test_id": "TC002",
         "service_name": "MoveMoneyAPI",
         "workflow_mode": "parallel",
-        "test_name": "GET /moneymovement/requests/{requestId} [positive] (TC002)",
+        "test_name": "GET /requests/{requestId} [positive] (TC001)",
         "protocol": "REST",
         "test_type": [
             "Functional"
         ],
         "mainURL": "{{base_url}}",
-        "endpoint": "/moneymovement/requests/24dd50f6-1e53-4365-89dd-6008e2a77da5?status=Draft",
-        "method": "GET",
-        "rpc_method": "",
-        "graphql_query": "",
-        "graphql_variables": "",
-        "soap_action": "",
-        "soap_envelope": "",
-        "headers_additional": {
-            "Content-Type": "application/json"
-        },
-        "payload": null,
-        "expected_status": "200",
-        "expected_response_schema": "",
-        "expected_response": {
-  "requestId": "24dd50f6-1e53-4365-89dd-6008e2a77da5",
-  "instructionId": "cc324f1f-d5cc-418c-9d86-0a52316e9293",
-  "accountId": "123e4567-e89b-12d3-a456-426614174000",
-  "railType": "Journal",
-  "amount": 5000,
-  "requestType": "Deposit",
-  "status": "Draft",
-  "reason": 0,
-  "scheduleType": "OneTime",
-  "paymentDate": "2025-12-15T00:00:00",
-  "frequency": null,
-  "startDate": null,
-  "endDate": null,
-  "nextDate": null,
-  "createdDate": "2025-12-09T13:53:47.015",
-  "modifiedDate": "2025-12-09T13:53:47.015",
-  "createdBy": null,
-  "modifiedBy": null
-},
-        "ignore_fields": [
-            "id"
-        ],
-        "extract_values": [
-            {
-                "from": "response",
-                "key": "id",
-                "assign_to": ""
-            },
-            {
-                "from": "db_result",
-                "query": "",
-                "assign": [
-                    {
-                        "key": "",
-                        "assign_to": ""
-                    }
-                ]
-            }
-        ],
-        "validate": {
-            "performance": {
-                "max_response_time_ms": null
-            },
-            "security": {
-                "checks": [
-                    "sql_injection",
-                    "xss"
-                ]
-            },
-            "data_comparison": {
-                "source": "api_response",
-                "target": "db_result",
-                "format": "table",
-                "key_field": [
-                    "",
-                    ""
-                ],
-                "fields_to_compare": [],
-                "log_differences": true
-            }
-        },
-        "test_data_file": "",
-        "db_query": "",
-        "db_type": "",
-        "db_connection_name": "",
-        "test_summary": "Test TC002: GET /moneymovement/requests/{requestId} [positive] (TC002) - Validate that the system returns 200 successful response when the right requestID and Status is provided.",
-        "test_scenario": "Test GET request to /moneymovement/requests/{requestId} for functional scenario validation."
-    },
-    {
-        "test_id": "TC003",
-        "service_name": "MoveMoneyAPI",
-        "workflow_mode": "parallel",
-        "test_name": "GET /moneymovement/requests/{requestId} [positive] (TC003)",
-        "protocol": "REST",
-        "test_type": [
-            "Functional"
-        ],
-        "mainURL": "{{base_url}}",
-        "endpoint": "/moneymovement/requests/770e8400-e29b-41d4-a716-446655440002?status=Draft",
+        "endpoint": "/requests/2DBAD6B9-F23F-4450-9248-671F3F3FC013?status=Draft",
         "method": "GET",
         "rpc_method": "",
         "graphql_query": "",
@@ -229,7 +137,80 @@
         ],
         "validate": {
             "performance": {
-                "max_response_time_ms": null
+                "max_response_time_ms": 500
+            },
+            "security": {
+                "checks": [
+                    "sql_injection",
+                    "xss"
+                ]
+            },
+            "data_comparison": {
+                "source": "api_response",
+                "target": "db_result",
+                "format": "table",
+                "key_field": [
+                    "",
+                    ""
+                ],
+                "fields_to_compare": [],
+                "log_differences": true
+            }
+        },
+        "test_data_file": "",
+        "db_query": "",
+        "db_type": "",
+        "db_connection_name": "",
+        "test_summary": "Test TC002: GET /moneymovement/requests/{requestId} [positive] (TC002) - Validate that the system returns 200 successful response when the right requestID and Status is provided.",
+        "test_scenario": "Test GET request to /moneymovement/requests/{requestId} for functional scenario validation."
+    },
+    {
+        "test_id": "TC003",
+        "service_name": "MoveMoneyAPI",
+        "workflow_mode": "parallel",
+        "test_name": "GET /requests/{requestId} (TC003)",
+        "protocol": "REST",
+        "test_type": [
+            "Functional"
+        ],
+        "mainURL": "{{base_url}}",
+        "endpoint": "/requests/770e8400-e29b-41d4-a716-446655440002?status=Draft",
+        "method": "GET",
+        "rpc_method": "",
+        "graphql_query": "",
+        "graphql_variables": "",
+        "soap_action": "",
+        "soap_envelope": "",
+        "headers_additional": {
+            "Content-Type": "application/json"
+        },
+        "payload": null,
+        "expected_status": "204",
+        "expected_response_schema": "",
+        "expected_response": null,
+        "ignore_fields": [
+            "id"
+        ],
+        "extract_values": [
+            {
+                "from": "response",
+                "key": "id",
+                "assign_to": ""
+            },
+            {
+                "from": "db_result",
+                "query": "",
+                "assign": [
+                    {
+                        "key": "",
+                        "assign_to": ""
+                    }
+                ]
+            }
+        ],
+        "validate": {
+            "performance": {
+                "max_response_time_ms": 500
             },
             "security": {
                 "checks": [
@@ -260,13 +241,13 @@
         "test_id": "TC004",
         "service_name": "MoveMoneyAPI",
         "workflow_mode": "parallel",
-        "test_name": "GET /moneymovement/requests/{requestId} [negative] (TC004)",
+        "test_name": "GET /requests/{requestId} [Negative] (TC004)",
         "protocol": "REST",
         "test_type": [
             "Negative"
         ],
         "mainURL": "{{base_url}}",
-        "endpoint": "/moneymovement/requests/24dd5##0f6-1e53-4365-89dd-6008e@@2a77da5?status=Draft",
+        "endpoint": "/requests/24dd5##0f6-1e53-4365-89dd-6008e@@2a77da5?status=Draft",
         "method": "GET",
         "rpc_method": "",
         "graphql_query": "",
@@ -280,10 +261,10 @@
         "expected_status": "400",
         "expected_response_schema": "",
         "expected_response": {
-  "fields": "requestId",
-  "status": 400,
-  "error": "Invalid UUID format for 'requestId' parameter"
-},
+            "fields": "requestId",
+            "status": 400,
+            "error": "Invalid UUID format for 'requestId' parameter"
+        },
         "ignore_fields": [
             "id"
         ],
@@ -306,7 +287,7 @@
         ],
         "validate": {
             "performance": {
-                "max_response_time_ms": null
+                "max_response_time_ms": 500
             },
             "security": {
                 "checks": [
@@ -331,20 +312,19 @@
         "db_type": "",
         "db_connection_name": "",
         "test_summary": "Test TC004: GET /moneymovement/requests/{requestId} [negative] (TC004) - Validate that the system returns 400 response when there is a Invalid RequestId.",
-        
         "test_scenario": "Test GET request to /moneymovement/requests/{requestId} for negative scenario validation."
-},
+    },
     {
         "test_id": "TC005",
         "service_name": "MoveMoneyAPI",
         "workflow_mode": "parallel",
-        "test_name": "GET /moneymovement/requests/{requestId} [negative] (TC005)",
+        "test_name": "GET /requests/{requestId} [Negative] (TC005)",
         "protocol": "REST",
         "test_type": [
             "Negative"
         ],
         "mainURL": "{{base_url}}",
-        "endpoint": "/moneymovement/requests/?status=Draft",
+        "endpoint": "/requests/?status=Draft",
         "method": "GET",
         "rpc_method": "",
         "graphql_query": "",
@@ -380,7 +360,7 @@
         ],
         "validate": {
             "performance": {
-                "max_response_time_ms": null
+                "max_response_time_ms": 500
             },
             "security": {
                 "checks": [
@@ -404,21 +384,20 @@
         "db_query": "",
         "db_type": "",
         "db_connection_name": "",
-        "test_summary": "Test TC004: GET /moneymovement/requests/{requestId} [negative] (TC004) - Validate that the system returns 400 response when there is No Invalid RequestId.",
-        
+        "test_summary": "Test TC005: GET /moneymovement/requests/{requestId} [negative] (TC004) - Validate that the system returns 400 response when there is No RequestId.",
         "test_scenario": "Test GET request to /moneymovement/requests/{requestId} for negative scenario validation."
-},
+    },
     {
         "test_id": "TC006",
         "service_name": "MoveMoneyAPI",
         "workflow_mode": "parallel",
-        "test_name": "GET /moneymovement/requests/{requestId} [negative] (TC006)",
+        "test_name": "GET /requests/{requestId} [Negative] (TC006)",
         "protocol": "REST",
         "test_type": [
             "Negative"
         ],
         "mainURL": "{{base_url}}",
-        "endpoint": "/moneymovement/requests/24dd50f6-1e53-4365-89dd-6008e2a77da5?status=Draft",
+        "endpoint": "/requests/24dd50f6-1e53-4365-89dd-6008e2a77da5?status=Draft",
         "method": "GET",
         "rpc_method": "",
         "graphql_query": "",
@@ -454,7 +433,7 @@
         ],
         "validate": {
             "performance": {
-                "max_response_time_ms": null
+                "max_response_time_ms": 500
             },
             "security": {
                 "checks": [
@@ -486,13 +465,13 @@
         "test_id": "TC007",
         "service_name": "MoveMoneyAPI",
         "workflow_mode": "parallel",
-        "test_name": "GET /moneymovement/requests/{requestId} [positive] (TC007)",
+        "test_name": "GET /requests/{requestId} [Negative] (TC007)",
         "protocol": "REST",
         "test_type": [
             "Functional"
         ],
         "mainURL": "{{base_url}}",
-        "endpoint": "/moneymovement/requests/770e8400-e29b-41d4-a716-446655440002?status=Processed",
+        "endpoint": "/requests/770e8400-e29b-41d4-a716-446655440002?status=Processed",
         "method": "GET",
         "rpc_method": "",
         "graphql_query": "",
@@ -528,7 +507,7 @@
         ],
         "validate": {
             "performance": {
-                "max_response_time_ms": null
+                "max_response_time_ms": 500
             },
             "security": {
                 "checks": [
