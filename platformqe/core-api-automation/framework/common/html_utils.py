@@ -269,15 +269,15 @@ def generate_validation_summary_table(validation_stats: Dict, style: str = 'simp
 
 def generate_pie_chart_html(test_summary: Dict, width: int = 150) -> str:
     """
-    Generate a pure HTML/CSS pie chart for test results.
-    Works in all email clients without JavaScript.
+    Generate an email-compatible visual representation for test results.
+    Uses table-based stacked bar instead of conic-gradient (not supported in Outlook).
     
     Args:
         test_summary: Dictionary with total, passed, failed, skipped counts
         width: Width of the chart in pixels
         
     Returns:
-        HTML string with CSS-based pie chart
+        HTML string with email-compatible stacked bar chart
     """
     total = test_summary.get('total', 0)
     passed = test_summary.get('passed', 0)
@@ -292,60 +292,67 @@ def generate_pie_chart_html(test_summary: Dict, width: int = 150) -> str:
     fail_pct = (failed / total) * 100
     skip_pct = (skipped / total) * 100
     
-    # Calculate cumulative percentages for conic-gradient
-    pass_end = pass_pct
-    fail_end = pass_end + fail_pct
-    skip_end = fail_end + skip_pct
+    # Calculate widths for stacked bar (email-compatible alternative to pie chart)
+    pass_width = int((pass_pct / 100) * width) if pass_pct > 0 else 0
+    fail_width = int((fail_pct / 100) * width) if fail_pct > 0 else 0
+    skip_width = int((skip_pct / 100) * width) if skip_pct > 0 else 0
+    
+    # Adjust for rounding errors
+    total_width = pass_width + fail_width + skip_width
+    if total_width < width and pass_width > 0:
+        pass_width += (width - total_width)
     
     # Colors
     pass_color = '#10b981'  # Green
     fail_color = '#ef4444'  # Red
     skip_color = '#f59e0b'  # Orange/Yellow
     
+    # Build stacked bar using table (Outlook-compatible)
     return f'''
-    <div style="display: inline-block; text-align: center;">
-        <div style="
-            width: {width}px;
-            height: {width}px;
-            border-radius: 50%;
-            background: conic-gradient(
-                {pass_color} 0% {pass_pct}%,
-                {fail_color} {pass_pct}% {fail_end}%,
-                {skip_color} {fail_end}% {skip_end}%,
-                #e5e7eb {skip_end}% 100%
-            );
-            margin: 10px auto;
-            box-shadow: 0 2px 8px rgba(0,0,0,0.15);
-        "></div>
-        <div style="margin-top: 10px; font-size: 12px;">
-            <span style="display: inline-block; margin: 3px 8px;">
-                <span style="display: inline-block; width: 12px; height: 12px; background: {pass_color}; border-radius: 2px; vertical-align: middle;"></span>
-                Passed: {passed} ({pass_pct:.1f}%)
-            </span>
-            <span style="display: inline-block; margin: 3px 8px;">
-                <span style="display: inline-block; width: 12px; height: 12px; background: {fail_color}; border-radius: 2px; vertical-align: middle;"></span>
-                Failed: {failed} ({fail_pct:.1f}%)
-            </span>
-            <span style="display: inline-block; margin: 3px 8px;">
-                <span style="display: inline-block; width: 12px; height: 12px; background: {skip_color}; border-radius: 2px; vertical-align: middle;"></span>
-                Skipped: {skipped} ({skip_pct:.1f}%)
-            </span>
-        </div>
-    </div>
+    <table cellpadding="0" cellspacing="0" border="0" style="margin: 10px auto;">
+        <tr>
+            <td colspan="3" style="padding-bottom: 8px; text-align: center; font-weight: bold; color: #333;">Test Results</td>
+        </tr>
+        <tr>
+            <td colspan="3">
+                <table cellpadding="0" cellspacing="0" border="0" width="{width}" style="border-collapse: collapse;">
+                    <tr>
+                        {f'<td width="{pass_width}" height="24" bgcolor="{pass_color}" style="font-size: 1px;">&nbsp;</td>' if pass_width > 0 else ''}
+                        {f'<td width="{fail_width}" height="24" bgcolor="{fail_color}" style="font-size: 1px;">&nbsp;</td>' if fail_width > 0 else ''}
+                        {f'<td width="{skip_width}" height="24" bgcolor="{skip_color}" style="font-size: 1px;">&nbsp;</td>' if skip_width > 0 else ''}
+                    </tr>
+                </table>
+            </td>
+        </tr>
+        <tr>
+            <td style="padding-top: 10px;">
+                <table cellpadding="0" cellspacing="0" border="0">
+                    <tr>
+                        <td width="14" height="14" bgcolor="{pass_color}" style="font-size: 1px;">&nbsp;</td>
+                        <td style="padding-left: 5px; padding-right: 15px; font-size: 12px; color: #333;">Passed: {passed} ({pass_pct:.1f}%)</td>
+                        <td width="14" height="14" bgcolor="{fail_color}" style="font-size: 1px;">&nbsp;</td>
+                        <td style="padding-left: 5px; padding-right: 15px; font-size: 12px; color: #333;">Failed: {failed} ({fail_pct:.1f}%)</td>
+                        <td width="14" height="14" bgcolor="{skip_color}" style="font-size: 1px;">&nbsp;</td>
+                        <td style="padding-left: 5px; font-size: 12px; color: #333;">Skipped: {skipped} ({skip_pct:.1f}%)</td>
+                    </tr>
+                </table>
+            </td>
+        </tr>
+    </table>
     '''
 
 
 def generate_horizontal_bar_chart_html(validation_stats: Dict, max_width: int = 300) -> str:
     """
-    Generate pure HTML/CSS horizontal bar chart for validation results.
-    Works in all email clients without JavaScript.
+    Generate email-compatible horizontal bar chart for validation results.
+    Uses tables instead of flexbox (not supported in Outlook).
     
     Args:
         validation_stats: Dictionary with validation counts by type
         max_width: Maximum width of bars in pixels
         
     Returns:
-        HTML string with CSS-based horizontal bar chart
+        HTML string with table-based horizontal bar chart
     """
     # Colors
     pass_color = '#10b981'  # Green
@@ -378,57 +385,57 @@ def generate_horizontal_bar_chart_html(validation_stats: Dict, max_width: int = 
         pass_width = int((passed / max_value) * max_width) if max_value > 0 else 0
         fail_width = int((failed / max_value) * max_width) if max_value > 0 else 0
         
+        # Ensure minimum width of 1 if value > 0
+        if passed > 0 and pass_width == 0:
+            pass_width = 1
+        if failed > 0 and fail_width == 0:
+            fail_width = 1
+        
         bars_html.append(f'''
         <tr>
-            <td style="padding: 6px 10px; text-align: left; font-size: 13px; white-space: nowrap;">{label}</td>
-            <td style="padding: 6px 10px; width: {max_width + 50}px;">
-                <div style="display: flex; align-items: center; gap: 2px;">
-                    <div style="
-                        width: {pass_width}px;
-                        height: 18px;
-                        background: {pass_color};
-                        border-radius: 3px 0 0 3px;
-                        display: inline-block;
-                    "></div>
-                    <div style="
-                        width: {fail_width}px;
-                        height: 18px;
-                        background: {fail_color};
-                        border-radius: 0 3px 3px 0;
-                        display: inline-block;
-                    "></div>
-                    <span style="margin-left: 8px; font-size: 11px; color: #666;">
-                        {passed}/{total}
-                    </span>
-                </div>
+            <td style="padding: 6px 10px; text-align: left; font-size: 13px; white-space: nowrap; color: #333;">{label}</td>
+            <td style="padding: 6px 10px;">
+                <table cellpadding="0" cellspacing="0" border="0" style="border-collapse: collapse;">
+                    <tr>
+                        {f'<td width="{pass_width}" height="18" bgcolor="{pass_color}" style="font-size: 1px;">&nbsp;</td>' if pass_width > 0 else ''}
+                        {f'<td width="{fail_width}" height="18" bgcolor="{fail_color}" style="font-size: 1px;">&nbsp;</td>' if fail_width > 0 else ''}
+                        {f'<td width="1" height="18" bgcolor="#e5e7eb" style="font-size: 1px;">&nbsp;</td>' if pass_width == 0 and fail_width == 0 else ''}
+                        <td style="padding-left: 8px; font-size: 11px; color: #666; white-space: nowrap;">
+                            {passed}/{total}
+                        </td>
+                    </tr>
+                </table>
             </td>
         </tr>
         ''')
     
     return f'''
-    <div style="margin: 15px 0;">
-        <table style="border-collapse: collapse; width: 100%;">
-            <tbody>
-                {''.join(bars_html)}
-            </tbody>
-        </table>
-        <div style="margin-top: 10px; font-size: 12px; text-align: center;">
-            <span style="margin-right: 15px;">
-                <span style="display: inline-block; width: 12px; height: 12px; background: {pass_color}; border-radius: 2px; vertical-align: middle;"></span>
-                Passed
-            </span>
-            <span>
-                <span style="display: inline-block; width: 12px; height: 12px; background: {fail_color}; border-radius: 2px; vertical-align: middle;"></span>
-                Failed
-            </span>
-        </div>
-    </div>
+    <table cellpadding="0" cellspacing="0" border="0" style="border-collapse: collapse; width: 100%; margin: 15px 0;">
+        <tbody>
+            {''.join(bars_html)}
+        </tbody>
+        <tfoot>
+            <tr>
+                <td colspan="2" style="padding-top: 10px;">
+                    <table cellpadding="0" cellspacing="0" border="0">
+                        <tr>
+                            <td width="14" height="14" bgcolor="{pass_color}" style="font-size: 1px;">&nbsp;</td>
+                            <td style="padding-left: 5px; padding-right: 20px; font-size: 12px; color: #333;">Passed</td>
+                            <td width="14" height="14" bgcolor="{fail_color}" style="font-size: 1px;">&nbsp;</td>
+                            <td style="padding-left: 5px; font-size: 12px; color: #333;">Failed</td>
+                        </tr>
+                    </table>
+                </td>
+            </tr>
+        </tfoot>
+    </table>
     '''
 
 
 def generate_progress_bar_html(passed: int, total: int, label: str = '', width: int = 200) -> str:
     """
-    Generate a simple progress bar for pass rate visualization.
+    Generate an email-compatible progress bar for pass rate visualization.
+    Uses tables instead of divs for Outlook compatibility.
     
     Args:
         passed: Number of passed tests/validations
@@ -437,7 +444,7 @@ def generate_progress_bar_html(passed: int, total: int, label: str = '', width: 
         width: Width of the progress bar in pixels
         
     Returns:
-        HTML string with CSS-based progress bar
+        HTML string with table-based progress bar
     """
     if total == 0:
         percentage = 0
@@ -453,31 +460,26 @@ def generate_progress_bar_html(passed: int, total: int, label: str = '', width: 
         color = '#ef4444'  # Red
     
     bar_width = int((percentage / 100) * width)
+    remaining_width = width - bar_width
     
+    # Use table-based layout for Outlook compatibility
     return f'''
-    <div style="margin: 5px 0;">
-        {f'<span style="font-size: 12px; color: #333; margin-right: 10px;">{label}</span>' if label else ''}
-        <div style="
-            display: inline-block;
-            width: {width}px;
-            height: 20px;
-            background: #e5e7eb;
-            border-radius: 10px;
-            overflow: hidden;
-            vertical-align: middle;
-        ">
-            <div style="
-                width: {bar_width}px;
-                height: 100%;
-                background: {color};
-                border-radius: 10px;
-                transition: width 0.3s;
-            "></div>
-        </div>
-        <span style="font-size: 12px; color: #333; margin-left: 10px; font-weight: bold;">
-            {percentage:.1f}% ({passed}/{total})
-        </span>
-    </div>
+    <table cellpadding="0" cellspacing="0" border="0" style="margin: 5px 0;">
+        <tr>
+            {f'<td style="font-size: 12px; color: #333; padding-right: 10px; white-space: nowrap;">{label}</td>' if label else ''}
+            <td>
+                <table cellpadding="0" cellspacing="0" border="0" width="{width}" style="border-collapse: collapse; background: #e5e7eb;">
+                    <tr>
+                        {f'<td width="{bar_width}" height="20" bgcolor="{color}" style="font-size: 1px;">&nbsp;</td>' if bar_width > 0 else ''}
+                        {f'<td width="{remaining_width}" height="20" style="font-size: 1px;">&nbsp;</td>' if remaining_width > 0 else ''}
+                    </tr>
+                </table>
+            </td>
+            <td style="font-size: 12px; color: #333; padding-left: 10px; font-weight: bold; white-space: nowrap;">
+                {percentage:.1f}% ({passed}/{total})
+            </td>
+        </tr>
+    </table>
     '''
 
 
@@ -646,14 +648,20 @@ def generate_email_charts_section(test_summary: Dict, validation_stats: Dict, us
     
     # Fallback to HTML/CSS charts - only pie and bar charts (pass rates shown separately)
     charts_html += f'''
-    <div style="text-align: center; margin-bottom: 15px;">
-        <h4 style="margin: 0 0 10px 0; color: #555;">Test Results Distribution</h4>
-        {generate_pie_chart_html(test_summary, width=120)}
-    </div>
-    <div style="margin-top: 15px;">
-        <h4 style="margin: 0 0 10px 0; color: #555;">Validation Results by Type</h4>
-        {generate_horizontal_bar_chart_html(validation_stats, max_width=180)}
-    </div>
+    <table cellpadding="0" cellspacing="0" border="0" style="width: 100%;">
+        <tr>
+            <td style="text-align: center; padding-bottom: 15px;">
+                <h4 style="margin: 0 0 10px 0; color: #555;">Test Results Distribution</h4>
+                {generate_pie_chart_html(test_summary, width=200)}
+            </td>
+        </tr>
+        <tr>
+            <td style="padding-top: 15px;">
+                <h4 style="margin: 0 0 10px 0; color: #555;">Validation Results by Type</h4>
+                {generate_horizontal_bar_chart_html(validation_stats, max_width=180)}
+            </td>
+        </tr>
+    </table>
     '''
     
     charts_html += '</div>'
@@ -663,7 +671,7 @@ def generate_email_charts_section(test_summary: Dict, validation_stats: Dict, us
 def generate_overall_pass_rates_section(test_summary: Dict, validation_stats: Dict) -> str:
     """
     Generate the Overall Pass Rates section with progress bars.
-    This is displayed separately from the visual charts section.
+    Uses table-based layout for Outlook email client compatibility.
     
     Args:
         test_summary: Dictionary with test counts
@@ -678,9 +686,13 @@ def generate_overall_pass_rates_section(test_summary: Dict, validation_stats: Di
     total_val_passed = sum(v['passed'] for v in validation_stats.values()) if validation_stats else 0
     
     return f'''
-    <div style="margin: 15px 0; padding: 15px; background: linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%); border-radius: 10px; border: 1px solid #e2e8f0;">
-        <h3 style="margin: 0 0 12px 0; color: #333; font-size: 16px;">📊 Overall Pass Rates</h3>
-        {generate_progress_bar_html(passed, total, 'Tests', 280)}
-        {generate_progress_bar_html(total_val_passed, total_val, 'Validations', 280)}
-    </div>
+    <table cellpadding="0" cellspacing="0" border="0" width="100%" style="margin: 15px 0; background-color: #f8fafc; border: 1px solid #e2e8f0;">
+        <tr>
+            <td style="padding: 15px;">
+                <h3 style="margin: 0 0 12px 0; color: #333; font-size: 16px;">📊 Overall Pass Rates</h3>
+                {generate_progress_bar_html(passed, total, 'Tests', 280)}
+                {generate_progress_bar_html(total_val_passed, total_val, 'Validations', 280)}
+            </td>
+        </tr>
+    </table>
     '''
