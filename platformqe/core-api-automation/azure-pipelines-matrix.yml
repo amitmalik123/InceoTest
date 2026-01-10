@@ -443,6 +443,7 @@ stages:
             displayName: 'Run Functional Tests - $(name)'
             condition: and(succeeded(), or(eq(variables['testType'], 'functional'), eq(variables['testType'], 'both')))
             env:
+              LOG_LEVEL: $(log_level)
               WORK_ITEM_AUTH_TOKEN: $(WORK_ITEM_AUTH_TOKEN)
               PARTIES_AUTH_TOKEN: $(PARTIES_AUTH_TOKEN)
               PARTIES_BASE_URL: $(parties_base_url)
@@ -494,6 +495,7 @@ stages:
             displayName: 'Run Non-Functional Tests - $(name)'
             condition: and(succeededOrFailed(), or(eq(variables['testType'], 'non-functional'), eq(variables['testType'], 'both')))
             env:
+              LOG_LEVEL: $(log_level)
               WORK_ITEM_AUTH_TOKEN: $(WORK_ITEM_AUTH_TOKEN)
               PARTIES_AUTH_TOKEN: $(PARTIES_AUTH_TOKEN)
               PARTIES_BASE_URL: $(parties_base_url)

@@ -15,12 +15,18 @@ from email.mime.text import MIMEText
 from email.mime.base import MIMEBase
 from email import encoders
 
-# Import centralized test result loader and HTML utilities
+# Import data loading functions
 from framework.loaders.test_result_loader import (
     load_test_summary_from_json,
-    aggregate_validation_stats,
+    aggregate_validation_stats
+)
+
+# Import HTML generation utilities
+from framework.common.html_utils import (
     generate_test_summary_table,
-    generate_validation_summary_table
+    generate_validation_summary_table,
+    generate_email_charts_section,
+    generate_overall_pass_rates_section
 )
 
 
@@ -92,12 +98,32 @@ def send_email_report(build_number, job_status, reports_path, build_id, team_pro
     # Generate HTML tables using shared utilities
     test_table = generate_test_summary_table(test_summary, style='simple')
     validation_table = generate_validation_summary_table(validation_stats, style='simple')
-    stats_tables = f"""
-    <h3>📈 Test Execution Summary</h3>
-    {test_table}
     
-    <h3>🔍 Validation Scenarios Summary</h3>
-    {validation_table}
+    # Generate charts section (HTML/CSS based, works in all email clients)
+    # Set use_matplotlib=True for higher quality charts if matplotlib is available
+    use_matplotlib = os.getenv('EMAIL_USE_MATPLOTLIB', 'false').lower() == 'true'
+    charts_section = generate_email_charts_section(test_summary, validation_stats, use_matplotlib=use_matplotlib)
+    
+    # Generate overall pass rates section (displayed right after artifacts link)
+    pass_rates_section = generate_overall_pass_rates_section(test_summary, validation_stats)
+    
+    # Build two-column layout: Column 1 = Data Tables, Column 2 = Visual Charts
+    two_column_section = f"""
+    <table style="width: 100%; border-collapse: collapse; margin-top: 15px;">
+        <tr>
+            <td style="vertical-align: top; padding: 10px 15px 10px 0; width: 55%;">
+                <h3 style="color: #333; border-bottom: 2px solid #3b82f6; padding-bottom: 8px; margin-top: 0;">📈 Test Execution Summary</h3>
+                {test_table}
+                
+                <h3 style="color: #333; border-bottom: 2px solid #3b82f6; padding-bottom: 8px; margin-top: 20px;">🔍 Validation Scenarios Summary</h3>
+                {validation_table}
+            </td>
+            <td style="vertical-align: top; padding: 10px 0 10px 15px; width: 45%; border-left: 1px solid #e5e7eb;">
+                <h3 style="color: #333; border-bottom: 2px solid #6366f1; padding-bottom: 8px; margin-top: 0;">📊 Visual Summary</h3>
+                {charts_section}
+            </td>
+        </tr>
+    </table>
     """
     
     # Email body
@@ -108,7 +134,8 @@ def send_email_report(build_number, job_status, reports_path, build_id, team_pro
             body {{ font-family: Arial, sans-serif; }}
             h2 {{ color: #333; }}
             h3 {{ color: #555; margin-top: 20px; }}
-            table {{ border-collapse: collapse; width: 100%; margin-bottom: 20px; }}
+            h4 {{ color: #666; margin-top: 15px; }}
+            table {{ border-collapse: collapse; margin-bottom: 15px; }}
             th, td {{ border: 1px solid #ddd; padding: 8px; }}
             th {{ background-color: #f2f2f2; font-weight: bold; }}
         </style>
@@ -120,31 +147,17 @@ def send_email_report(build_number, job_status, reports_path, build_id, team_pro
     <p><strong>Job URL:</strong> <a href="{build_url}">View Test Execution</a></p>
     <p><strong>Test Results:</strong> <a href="{artifacts_url}">View and Download Artifacts</a></p>
     
-    <hr>
+    {pass_rates_section}
     
-    {stats_tables}
+    <hr style="margin: 20px 0; border: none; border-top: 1px solid #e5e7eb;">
+    
+    {two_column_section}
     
     </body>
     </html>
     """
     msg.attach(MIMEText(body, 'html'))
-    
-    # Attach files (DISABLED - using hyperlink instead)
-    # print(f"Looking for attachments in: {reports_path}")
-    # 
-    # # Find and attach reports
-    # for file_pattern in ['junit_report*.xml', 'test_summary.json', 'performance_report.html']:
-    #     files = glob.glob(os.path.join(reports_path, file_pattern))
-    #     for filepath in files:
-    #         if os.path.exists(filepath):
-    #             print(f"Attaching: {filepath}")
-    #             with open(filepath, 'rb') as f:
-    #                 part = MIMEBase('application', 'octet-stream')
-    #                 part.set_payload(f.read())
-    #                 encoders.encode_base64(part)
-    #                 part.add_header('Content-Disposition', f'attachment; filename={os.path.basename(filepath)}')
-    #                 msg.attach(part)
-    
+        
     # Send email
     try:
         with smtplib.SMTP(smtp_server, int(smtp_port)) as server:
