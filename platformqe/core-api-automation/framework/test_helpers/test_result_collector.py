@@ -68,6 +68,13 @@ class TestResultCollector:
             "custom_validations": "PASS",  # Default to PASS
             "data_comparison": "N/A",  # Default to N/A (not applicable if no comparison configured)
             "summary": "",
+            # Additional fields for test_results_summary.json
+            "workflow_mode": case.get("workflow_mode", ""),
+            "protocol": protocol,
+            "test_summary": case.get("test_summary", ""),
+            "test_scenario": case.get("test_scenario", ""),
+            "start_time": None,  # Will be set when test starts
+            "end_time": None,  # Will be set when test ends
             # Detailed validation statistics
             "validation_stats": {
                 "status_code_checks": {"total": 0, "passed": 0, "failed": 0},
@@ -213,6 +220,7 @@ class TestResultCollector:
             response_time_ms: Response time in milliseconds
         """
         result["response_time"] = int(response_time_ms)
+        result["duration"] = int(response_time_ms)  # Set duration same as response_time
         logger.debug(f"Updated response time for {result.get('test_id')}: {response_time_ms}ms")
     
     def add_result(self, result: Dict):

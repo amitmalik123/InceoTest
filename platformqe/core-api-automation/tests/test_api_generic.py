@@ -202,6 +202,10 @@ def test_api_case(case, request):
     # Create result entry
     result_entry = result_collector.create_result_entry(case, actual_url)
     
+    # Capture test start time
+    from datetime import datetime
+    result_entry['start_time'] = datetime.now().isoformat()
+    
     # ========== PHASE 1: SETUP AND CONTEXT CREATION ==========
     # Create execution context with all variables (includes test_data, api_defs, and global extracted values)
     context = context_manager.create_context(case, test_data, api_defs)
@@ -633,6 +637,8 @@ def test_api_case(case, request):
         
         logger.info("="*80 + "\n")
         
+        # Capture test end time
+        result_entry['end_time'] = datetime.now().isoformat()
         result_collector.add_result(result_entry)
 
 

@@ -116,16 +116,44 @@ def push_to_infux(report_filename: str = None) -> bool:
         # Load configuration using centralized config loader
         config = get_config()
         
-        # Load test results using centralized loader
-        # This uses test_summary.json with full validation statistics
-        test_results, test_summary = load_test_summary_from_json()
+        # Load test_results_summary.json directly to access all new fields
+        reports_dir = get_project_path('reports')
         
-        if not test_results:
-            logger.error("No test results loaded from test_summary.json")
+        # Find latest report folder
+        folders = [
+            f for f in reports_dir.iterdir()
+            if f.is_dir() and f.name != 'archive' and not f.name.startswith('.')
+        ]
+        
+        if not folders:
+            logger.error("No report folders found in reports directory")
             return False
         
-        logger.info(f"Loaded {len(test_results)} test results from centralized loader")
+        latest_folder = max(folders, key=lambda f: f.stat().st_mtime)
+        test_summary_path = latest_folder / 'test_results_summary.json'
+        
+        if not test_summary_path.exists():
+            logger.error(f"test_results_summary.json not found in {latest_folder}")
+            return False
+        
+        # Load JSON directly
+        with open(test_summary_path, 'r', encoding='utf-8') as f:
+            data = json.load(f)
+        
+        test_summary = data.get('summary', {})
+        test_results = data.get('results', [])
+        session_start_time = data.get('start_time')
+        session_end_time = data.get('end_time')
+        session_duration = data.get('duration')
+        timestamp_str = data.get('timestamp', '')
+        
+        if not test_results:
+            logger.error("No test results found in test_results_summary.json")
+            return False
+        
+        logger.info(f"Loaded {len(test_results)} test results from {test_summary_path}")
         logger.debug(f"Summary: {test_summary}")
+        logger.debug(f"Session duration: {session_duration}")
         
         # Connect to InfluxDB using DatabaseClientFactory
         try:
@@ -152,6 +180,7 @@ def push_to_infux(report_filename: str = None) -> bool:
                     
                     summary_point = Point("test_summary") \
                         .tag("environment", env_name) \
+                        .tag("run_id", timestamp_str) \
                         .field("total", total) \
                         .field("passed", passed) \
                         .field("failed", failed) \
@@ -159,6 +188,14 @@ def push_to_infux(report_filename: str = None) -> bool:
                         .field("xfailed", xfailed) \
                         .field("xpassed", xpassed) \
                         .time(datetime.utcnow(), WritePrecision.S)
+                    
+                    # Add session timing fields if available
+                    if session_start_time:
+                        summary_point.field("session_start_time", session_start_time)
+                    if session_end_time:
+                        summary_point.field("session_end_time", session_end_time)
+                    if session_duration:
+                        summary_point.field("session_duration", session_duration)
                     
                     influx_client.write_point(summary_point)
                     logger.info(f"[InfluxDB] Summary metrics pushed | Total: {total} | Passed: {passed} | Failed: {failed} | Skipped: {skipped} | XFailed: {xfailed} | XPassed: {xpassed}")
@@ -183,16 +220,27 @@ def push_to_infux(report_filename: str = None) -> bool:
                     
                     # Map status to outcome for backward compatibility with existing dashboards
                     status = result.get('status', 'unknown')
-                    outcome = status  # test_summary.json uses 'status', map to 'outcome' for InfluxDB
+                    outcome = status  # test_results_summary.json uses 'status', map to 'outcome' for InfluxDB
                     
                     # Create point with test result data
                     point = Point("test_results") \
                         .tag("environment", env_name) \
+                        .tag("run_id", timestamp_str) \
                         .tag("test_id", str(test_id)) \
                         .tag("test_name", str(test_name)) \
                         .tag("service_name", str(result.get('service_name', 'unknown'))) \
                         .tag("outcome", str(outcome)) \
                         .tag("status", str(status))
+                    
+                    # Add new tags from test_results_summary.json
+                    if result.get('workflow_mode'):
+                        point.tag("workflow_mode", str(result.get('workflow_mode')))
+                    if result.get('protocol'):
+                        point.tag("protocol", str(result.get('protocol')))
+                    if result.get('method'):
+                        point.tag("method", str(result.get('method')))
+                    if result.get('endpoint'):
+                        point.tag("endpoint", str(result.get('endpoint')))
                     
                     logger.debug(f"Creating point for test: {test_id}")
                     
@@ -201,15 +249,27 @@ def push_to_infux(report_filename: str = None) -> bool:
                     point.field("duration", float(response_time / 1000.0))  # Convert ms to seconds for duration
                     point.field("response_time", response_time)
                     
-                    # Add optional fields - test_summary.json uses 'summary' not 'test_summary'
+                    # Add optional fields - test_results_summary.json uses 'summary' not 'test_summary'
                     if 'summary' in result:
                         point.field("summary", str(result['summary']))
+                    
+                    # Add new fields from test_results_summary.json
+                    if result.get('mainURL'):
+                        point.field("mainURL", str(result.get('mainURL')))
+                    if result.get('test_summary'):
+                        point.field("test_summary", str(result.get('test_summary')))
+                    if result.get('test_scenario'):
+                        point.field("test_scenario", str(result.get('test_scenario')))
+                    if result.get('start_time'):
+                        point.field("start_time", str(result.get('start_time')))
+                    if result.get('end_time'):
+                        point.field("end_time", str(result.get('end_time')))
                     
                     if 'error' in result and result['error']:
                         point.field("error", str(result['error']))
                     
                     # Add validation statistics if available
-                    # test_summary.json has 'validation_stats' with detailed counts
+                    # test_results_summary.json has 'validation_stats' with detailed counts
                     if 'validation_stats' in result:
                         vstats = result['validation_stats']
                         if isinstance(vstats, dict):
