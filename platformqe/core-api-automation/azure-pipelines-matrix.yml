@@ -109,13 +109,36 @@ parameters:
 # Global Variables
 ###############################################################################
 variables:
-  - group: 'qa-pipelines-config-dev'
-  - group: 'qa-pipelines-config-test'
+  # Always include shared config
   - group: 'qa-pipelines-shared-config'
-  - name: subscription
-    value: $[variables['subscription_dev']]
-  - name: key_vault_name
-    value: 'amkkvqapipeline-devncus'
+  
+  # Conditionally include environment-specific variable groups and settings
+  # Priority: TSATEST > TSASILO > Default (TSADEV)
+  # If 'all' is specified, defaults to TSADEV
+  
+  # TSATEST environment
+  - ${{ if contains(parameters.environments, 'TSATEST') }}:
+    - group: 'qa-pipelines-config-test'
+    - name: subscription
+      value: $[variables['subscription_test']]
+    - name: key_vault_name
+      value: 'amkkvqapipeline-testncus'
+  
+  # TSASILO environment (when TSATEST is not specified)
+  - ${{ if and(contains(parameters.environments, 'TSASILO'), not(contains(parameters.environments, 'TSATEST'))) }}:
+    - group: 'qa-pipelines-config-silo'
+    - name: subscription
+      value: $[variables['subscription_silo']]
+    - name: key_vault_name
+      value: 'amkkvqapipeline-siloncus'
+  
+  # Default to TSADEV for 'all', 'TSADEV', 'T10', 'T11', 'T12', or any other value
+  - ${{ if and(not(contains(parameters.environments, 'TSATEST')), not(contains(parameters.environments, 'TSASILO'))) }}:
+    - group: 'qa-pipelines-config-dev'
+    - name: subscription
+      value: $[variables['subscription_dev']]
+    - name: key_vault_name
+      value: 'amkkvqapipeline-devncus'
 
   - name: buildPath
     value: '$(Build.SourcesDirectory)/platformqe/core-api-automation'
