@@ -109,36 +109,11 @@ parameters:
 # Global Variables
 ###############################################################################
 variables:
-  # Always include shared config
+  # Always include ALL variable groups to support multi-environment matrix runs
   - group: 'qa-pipelines-shared-config'
-  
-  # Conditionally include environment-specific variable groups and settings
-  # Priority: TSATEST > TSASILO > Default (TSADEV)
-  # If 'all' is specified, defaults to TSADEV
-  
-  # TSATEST environment
-  - ${{ if contains(parameters.environments, 'TSATEST') }}:
-    - group: 'qa-pipelines-config-test'
-    - name: subscription
-      value: $[variables['subscription_test']]
-    - name: key_vault_name
-      value: 'amkkvqapipeline-testncus'
-  
-  # TSASILO environment (when TSATEST is not specified)
-  - ${{ if and(contains(parameters.environments, 'TSASILO'), not(contains(parameters.environments, 'TSATEST'))) }}:
-    - group: 'qa-pipelines-config-silo'
-    - name: subscription
-      value: $[variables['subscription_silo']]
-    - name: key_vault_name
-      value: 'amkkvqapipeline-siloncus'
-  
-  # Default to TSADEV for 'all', 'TSADEV', 'T10', 'T11', 'T12', or any other value
-  - ${{ if and(not(contains(parameters.environments, 'TSATEST')), not(contains(parameters.environments, 'TSASILO'))) }}:
-    - group: 'qa-pipelines-config-dev'
-    - name: subscription
-      value: $[variables['subscription_dev']]
-    - name: key_vault_name
-      value: 'amkkvqapipeline-devncus'
+  - group: 'qa-pipelines-config-dev'
+  - group: 'qa-pipelines-config-test'
+  - group: 'qa-pipelines-config-silo'
 
   - name: buildPath
     value: '$(Build.SourcesDirectory)/platformqe/core-api-automation'
@@ -388,13 +363,37 @@ stages:
                 echo "=========================================="
           
           # Fetch database connection strings from Azure Key Vault
+          # Using separate tasks for each environment since azureSubscription requires literal service connection name
+          
+          # TSADEV Environment Key Vault (also runs for 'all' as default)
           - task: AzureKeyVault@2
-            displayName: 'Fetch database connection strings from Azure Key Vault'
+            displayName: 'Fetch secrets from Key Vault (TSADEV)'
+            condition: or(eq(variables['environment'], 'TSADEV'), eq(variables['environment'], 'all'))
             inputs:
-              azureSubscription: $(subscription)
-              KeyVaultName: $(key_vault_name)
+              azureSubscription: $(subscription_dev)
+              KeyVaultName: 'amkkvqapipeline-devncus'
               SecretsFilter: 'parties-sqldb-connection-string,movemoney-sqldb-connection-string,hne-db-connection-string,securitieshub-db-connection-string,modelhub-db-connection-string'
-              RunAsPreJob: true
+              RunAsPreJob: false
+          
+          # TSATEST Environment Key Vault
+          - task: AzureKeyVault@2
+            displayName: 'Fetch secrets from Key Vault (TSATEST)'
+            condition: eq(variables['environment'], 'TSATEST')
+            inputs:
+              azureSubscription: $(subscription_test)
+              KeyVaultName: 'amkkvqapipeline-testncus'
+              SecretsFilter: 'parties-sqldb-connection-string,movemoney-sqldb-connection-string,hne-db-connection-string,securitieshub-db-connection-string,modelhub-db-connection-string'
+              RunAsPreJob: false
+          
+          # TSASILO Environment Key Vault
+          - task: AzureKeyVault@2
+            displayName: 'Fetch secrets from Key Vault (TSASILO)'
+            condition: eq(variables['environment'], 'TSASILO')
+            inputs:
+              azureSubscription: $(subscription_silo)
+              KeyVaultName: 'amkkvqapipeline-siloncus'
+              SecretsFilter: 'parties-sqldb-connection-string,movemoney-sqldb-connection-string,hne-db-connection-string,securitieshub-db-connection-string,modelhub-db-connection-string'
+              RunAsPreJob: false
           
           # - task: UsePythonVersion@0
           #   displayName: 'Set up Python $(pythonVersion)'
