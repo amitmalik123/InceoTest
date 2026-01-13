@@ -12,7 +12,7 @@ This module follows the loader pattern used throughout the framework:
 
 Architecture:
     During test execution, TestResultCollector (in-memory singleton) collects
-    results. At pytest_sessionfinish, results are persisted to test_summary.json.
+    results. At pytest_sessionfinish, results are persisted to test_results_summary.json.
     This loader reads those persisted results for use in reporters and other
     post-execution processes.
 """
@@ -79,8 +79,8 @@ def load_test_summary_from_json(reports_path: Optional[str] = None) -> Tuple[Lis
                 logger.error(f"Reports directory not found: {reports_dir}")
                 return test_results, test_summary
         
-        # Find test_summary.json (primary source with full validation stats)
-        test_summary_pattern = os.path.join(reports_path, 'test_summary.json')
+        # Find test_results_summary.json (primary source with full validation stats)
+        test_summary_pattern = os.path.join(reports_path, 'test_results_summary.json')
         summary_file = None
         
         if os.path.exists(test_summary_pattern):
@@ -102,11 +102,11 @@ def load_test_summary_from_json(reports_path: Optional[str] = None) -> Tuple[Lis
                 test_results = summary_data.get('results', [])
                 test_summary = summary_data.get('summary', test_summary)
                 
-                logger.info(f"Loaded {len(test_results)} test results from test_summary.json")
+                logger.info(f"Loaded {len(test_results)} test results from test_results_summary.json")
                 return test_results, test_summary
         
         # Fallback: Try to load from json_report_*.json
-        logger.warning("test_summary.json not found, falling back to json_report_*.json")
+        logger.warning("test_results_summary.json not found, falling back to json_report_*.json")
         json_pattern = os.path.join(reports_path, 'json_report_*.json')
         json_files = glob.glob(json_pattern)
         
@@ -230,236 +230,34 @@ def aggregate_validation_stats(test_results: List[Dict]) -> Dict[str, Dict[str, 
     return validation_stats
 
 
-def generate_test_summary_table(test_summary, style='simple'):
-    """Generate HTML table for test execution summary.
-    
-    Args:
-        test_summary: Dictionary with test counts (total, passed, failed, skipped)
-        style: 'simple' for email, 'dashboard' for pytest HTML report
-        
-    Returns:
-        HTML string with formatted test execution summary table
-    """
-    total = test_summary['total']
-    passed = test_summary['passed']
-    failed = test_summary['failed']
-    skipped = test_summary['skipped']
-    
-    pass_pct = (passed / total * 100) if total > 0 else 0
-    fail_pct = (failed / total * 100) if total > 0 else 0
-    skip_pct = (skipped / total * 100) if total > 0 else 0
-    
-    if style == 'dashboard':
-        return f"""
-        <table style="width: 100%; border-collapse: collapse; background: white; border-radius: 8px; overflow: hidden;">
-            <thead>
-                <tr style="background: linear-gradient(135deg, #6366f1 0%, #4f46e5 100%); color: white;">
-                    <th style="padding: 8px 10px; text-align: left; font-weight: 600; text-transform: uppercase; font-size: 0.7em; letter-spacing: 0.3px;">Status</th>
-                    <th style="padding: 8px 10px; text-align: center; font-weight: 600; text-transform: uppercase; font-size: 0.7em; letter-spacing: 0.3px;">Count</th>
-                    <th style="padding: 8px 10px; text-align: center; font-weight: 600; text-transform: uppercase; font-size: 0.7em; letter-spacing: 0.3px;">%</th>
-                </tr>
-            </thead>
-            <tbody>
-                <tr style="border-bottom: 2px solid #e5e7eb; background: linear-gradient(90deg, #f8fafc 0%, #f1f5f9 100%);">
-                    <td style="padding: 8px 10px; font-weight: 700; color: #1f2937; font-size: 0.85em;">📊 Total</td>
-                    <td style="padding: 8px 10px; text-align: center; font-weight: 800; color: #6366f1; font-size: 1em;">{total}</td>
-                    <td style="padding: 8px 10px; text-align: center; font-weight: 700; color: #475569; background: #e0e7ff; border-radius: 4px; font-size: 0.85em;">100%</td>
-                </tr>
-                <tr style="border-bottom: 1px solid #d1fae5; background: #f0fdf4; transition: all 0.3s;">
-                    <td style="padding: 8px 10px; font-weight: 600; color: #166534; font-size: 0.85em;">✓ Passed</td>
-                    <td style="padding: 8px 10px; text-align: center; font-weight: 800; color: #10b981; font-size: 1em;">{passed}</td>
-                    <td style="padding: 8px 10px; text-align: center; font-weight: 700; color: #059669; background: #d1fae5; border-radius: 4px; font-size: 0.85em;">{pass_pct:.1f}%</td>
-                </tr>
-                <tr style="border-bottom: 1px solid #fecaca; background: #fef2f2; transition: all 0.3s;">
-                    <td style="padding: 8px 10px; font-weight: 600; color: #991b1b; font-size: 0.85em;">✗ Failed</td>
-                    <td style="padding: 8px 10px; text-align: center; font-weight: 800; color: #ef4444; font-size: 1em;">{failed}</td>
-                    <td style="padding: 8px 10px; text-align: center; font-weight: 700; color: #dc2626; background: #fecaca; border-radius: 4px; font-size: 0.85em;">{fail_pct:.1f}%</td>
-                </tr>
-                <tr style="background: #fffbeb; transition: all 0.3s;">
-                    <td style="padding: 8px 10px; font-weight: 600; color: #92400e; font-size: 0.85em;">⊘ Skipped</td>
-                    <td style="padding: 8px 10px; text-align: center; font-weight: 800; color: #f59e0b; font-size: 1em;">{skipped}</td>
-                    <td style="padding: 8px 10px; text-align: center; font-weight: 700; color: #d97706; background: #fde68a; border-radius: 4px; font-size: 0.85em;">{skip_pct:.1f}%</td>
-                </tr>
-            </tbody>
-        </table>
-        """
-    else:  # simple style for email
-        return f"""
-        <table style="border-collapse: collapse; width: 100%; margin-bottom: 20px;">
-            <thead>
-                <tr style="background-color: #f2f2f2;">
-                    <th style="border: 1px solid #ddd; padding: 8px; text-align: left;">Status</th>
-                    <th style="border: 1px solid #ddd; padding: 8px; text-align: center;">Count</th>
-                    <th style="border: 1px solid #ddd; padding: 8px; text-align: center;">%</th>
-                </tr>
-            </thead>
-            <tbody>
-                <tr>
-                    <td style="border: 1px solid #ddd; padding: 8px;">📊 Total</td>
-                    <td style="border: 1px solid #ddd; padding: 8px; text-align: center;"><strong>{total}</strong></td>
-                    <td style="border: 1px solid #ddd; padding: 8px; text-align: center;">100%</td>
-                </tr>
-                <tr style="background-color: #d4edda;">
-                    <td style="border: 1px solid #ddd; padding: 8px;">✓ Passed</td>
-                    <td style="border: 1px solid #ddd; padding: 8px; text-align: center;"><strong>{passed}</strong></td>
-                    <td style="border: 1px solid #ddd; padding: 8px; text-align: center;">{pass_pct:.1f}%</td>
-                </tr>
-                <tr style="background-color: #f8d7da;">
-                    <td style="border: 1px solid #ddd; padding: 8px;">✗ Failed</td>
-                    <td style="border: 1px solid #ddd; padding: 8px; text-align: center;"><strong>{failed}</strong></td>
-                    <td style="border: 1px solid #ddd; padding: 8px; text-align: center;">{fail_pct:.1f}%</td>
-                </tr>
-                <tr style="background-color: #fff3cd;">
-                    <td style="border: 1px solid #ddd; padding: 8px;">⊘ Skipped</td>
-                    <td style="border: 1px solid #ddd; padding: 8px; text-align: center;"><strong>{skipped}</strong></td>
-                    <td style="border: 1px solid #ddd; padding: 8px; text-align: center;">{skip_pct:.1f}%</td>
-                </tr>
-            </tbody>
-        </table>
-        """
+# ============================================================================
+# BACKWARD COMPATIBILITY IMPORTS
+# ============================================================================
+# HTML generation functions have been moved to framework/common/html_utils.py
+# These imports maintain backward compatibility for existing code
 
+from framework.common.html_utils import (
+    generate_test_summary_table,
+    generate_validation_summary_table,
+    generate_pie_chart_html,
+    generate_horizontal_bar_chart_html,
+    generate_progress_bar_html,
+    generate_matplotlib_charts,
+    generate_email_charts_section,
+    generate_overall_pass_rates_section
+)
 
-def generate_validation_summary_table(validation_stats, style='simple'):
-    """Generate HTML table for validation scenarios summary.
-    
-    Args:
-        validation_stats: Dictionary with validation counts by type
-        style: 'simple' for email, 'dashboard' for pytest HTML report
-        
-    Returns:
-        HTML string with formatted validation summary table
-    """
-    total_validations = sum(v['total'] for v in validation_stats.values())
-    total_val_passed = sum(v['passed'] for v in validation_stats.values())
-    total_val_failed = sum(v['failed'] for v in validation_stats.values())
-    
-    if style == 'dashboard':
-        return f"""
-        <table style="width: 100%; border-collapse: collapse; background: white; border-radius: 8px; overflow: hidden;">
-            <thead>
-                <tr style="background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%); color: white;">
-                    <th style="padding: 8px 10px; text-align: left; font-weight: 600; text-transform: uppercase; font-size: 0.7em; letter-spacing: 0.3px;">Type</th>
-                    <th style="padding: 8px 10px; text-align: center; font-weight: 600; text-transform: uppercase; font-size: 0.7em; letter-spacing: 0.3px;">Total</th>
-                    <th style="padding: 8px 10px; text-align: center; font-weight: 600; text-transform: uppercase; font-size: 0.7em; letter-spacing: 0.3px;">Pass</th>
-                    <th style="padding: 8px 10px; text-align: center; font-weight: 600; text-transform: uppercase; font-size: 0.7em; letter-spacing: 0.3px;">Fail</th>
-                    <th style="padding: 8px 10px; text-align: center; font-weight: 600; text-transform: uppercase; font-size: 0.7em; letter-spacing: 0.3px;">%</th>
-                </tr>
-            </thead>
-            <tbody>
-                <tr style="border-bottom: 1px solid #e5e7eb;">
-                    <td style="padding: 8px 10px; font-weight: 600; font-size: 0.85em; color: #1f2937;">🔢 Status</td>
-                    <td style="padding: 8px 10px; text-align: center; font-weight: 700; font-size: 0.85em;">{validation_stats['status_code']['total']}</td>
-                    <td style="padding: 8px 10px; text-align: center; color: #10b981; font-weight: 700; font-size: 0.85em;">{validation_stats['status_code']['passed']}</td>
-                    <td style="padding: 8px 10px; text-align: center; color: #ef4444; font-weight: 700; font-size: 0.85em;">{validation_stats['status_code']['failed']}</td>
-                    <td style="padding: 8px 10px; text-align: center; font-weight: 700; font-size: 0.85em; background: #fef3c7; border-radius: 4px;">{(validation_stats['status_code']['passed'] / validation_stats['status_code']['total'] * 100) if validation_stats['status_code']['total'] > 0 else 0:.0f}%</td>
-                </tr>
-                <tr style="border-bottom: 1px solid #e5e7eb;">
-                    <td style="padding: 8px 10px; font-weight: 600; font-size: 0.85em; color: #1f2937;">📋 Contract</td>
-                    <td style="padding: 8px 10px; text-align: center; font-weight: 700; font-size: 0.85em;">{validation_stats['contract']['total']}</td>
-                    <td style="padding: 8px 10px; text-align: center; color: #10b981; font-weight: 700; font-size: 0.85em;">{validation_stats['contract']['passed']}</td>
-                    <td style="padding: 8px 10px; text-align: center; color: #ef4444; font-weight: 700; font-size: 0.85em;">{validation_stats['contract']['failed']}</td>
-                    <td style="padding: 8px 10px; text-align: center; font-weight: 700; font-size: 0.85em; background: #fef3c7; border-radius: 4px;">{(validation_stats['contract']['passed'] / validation_stats['contract']['total'] * 100) if validation_stats['contract']['total'] > 0 else 0:.0f}%</td>
-                </tr>
-                <tr style="border-bottom: 1px solid #e5e7eb;">
-                    <td style="padding: 8px 10px; font-weight: 600; font-size: 0.85em; color: #1f2937;">🔒 Security</td>
-                    <td style="padding: 8px 10px; text-align: center; font-weight: 700; font-size: 0.85em;">{validation_stats['security']['total']}</td>
-                    <td style="padding: 8px 10px; text-align: center; color: #10b981; font-weight: 700; font-size: 0.85em;">{validation_stats['security']['passed']}</td>
-                    <td style="padding: 8px 10px; text-align: center; color: #ef4444; font-weight: 700; font-size: 0.85em;">{validation_stats['security']['failed']}</td>
-                    <td style="padding: 8px 10px; text-align: center; font-weight: 700; font-size: 0.85em; background: #fef3c7; border-radius: 4px;">{(validation_stats['security']['passed'] / validation_stats['security']['total'] * 100) if validation_stats['security']['total'] > 0 else 0:.0f}%</td>
-                </tr>
-                <tr style="border-bottom: 1px solid #e5e7eb;">
-                    <td style="padding: 8px 10px; font-weight: 600; font-size: 0.85em; color: #1f2937;">⚡ Perf</td>
-                    <td style="padding: 8px 10px; text-align: center; font-weight: 700; font-size: 0.85em;">{validation_stats['performance']['total']}</td>
-                    <td style="padding: 8px 10px; text-align: center; color: #10b981; font-weight: 700; font-size: 0.85em;">{validation_stats['performance']['passed']}</td>
-                    <td style="padding: 8px 10px; text-align: center; color: #ef4444; font-weight: 700; font-size: 0.85em;">{validation_stats['performance']['failed']}</td>
-                    <td style="padding: 8px 10px; text-align: center; font-weight: 700; font-size: 0.85em; background: #fef3c7; border-radius: 4px;">{(validation_stats['performance']['passed'] / validation_stats['performance']['total'] * 100) if validation_stats['performance']['total'] > 0 else 0:.0f}%</td>
-                </tr>
-                <tr style="border-bottom: 1px solid #e5e7eb;">
-                    <td style="padding: 8px 10px; font-weight: 600; font-size: 0.85em; color: #1f2937;">🔄 Data Asserts</td>
-                    <td style="padding: 8px 10px; text-align: center; font-weight: 700; font-size: 0.85em;">{validation_stats['data_comparison']['total']}</td>
-                    <td style="padding: 8px 10px; text-align: center; color: #10b981; font-weight: 700; font-size: 0.85em;">{validation_stats['data_comparison']['passed']}</td>
-                    <td style="padding: 8px 10px; text-align: center; color: #ef4444; font-weight: 700; font-size: 0.85em;">{validation_stats['data_comparison']['failed']}</td>
-                    <td style="padding: 8px 10px; text-align: center; font-weight: 700; font-size: 0.85em; background: #fef3c7; border-radius: 4px;">{(validation_stats['data_comparison']['passed'] / validation_stats['data_comparison']['total'] * 100) if validation_stats['data_comparison']['total'] > 0 else 0:.0f}%</td>
-                </tr>
-                <tr style="border-bottom: 1px solid #e5e7eb;">
-                    <td style="padding: 8px 10px; font-weight: 600; font-size: 0.85em; color: #1f2937;">✓ Other Asserts</td>
-                    <td style="padding: 8px 10px; text-align: center; font-weight: 700; font-size: 0.85em;">{validation_stats['assertions']['total']}</td>
-                    <td style="padding: 8px 10px; text-align: center; color: #10b981; font-weight: 700; font-size: 0.85em;">{validation_stats['assertions']['passed']}</td>
-                    <td style="padding: 8px 10px; text-align: center; color: #ef4444; font-weight: 700; font-size: 0.85em;">{validation_stats['assertions']['failed']}</td>
-                    <td style="padding: 8px 10px; text-align: center; font-weight: 700; font-size: 0.85em; background: #fef3c7; border-radius: 4px;">{(validation_stats['assertions']['passed'] / validation_stats['assertions']['total'] * 100) if validation_stats['assertions']['total'] > 0 else 0:.0f}%</td>
-                </tr>
-                <tr style="background: linear-gradient(90deg, #f8fafc 0%, #f1f5f9 100%); font-weight: 800;">
-                    <td style="padding: 8px 10px; color: #1f2937; font-size: 0.85em;">📊 TOTAL</td>
-                    <td style="padding: 8px 10px; text-align: center; color: #6366f1; font-size: 0.9em;">{total_validations}</td>
-                    <td style="padding: 8px 10px; text-align: center; color: #10b981; font-size: 0.9em;">{total_val_passed}</td>
-                    <td style="padding: 8px 10px; text-align: center; color: #ef4444; font-size: 0.9em;">{total_val_failed}</td>
-                    <td style="padding: 8px 10px; text-align: center; background: #e0e7ff; border-radius: 4px; font-size: 0.9em;">{(total_val_passed / total_validations * 100) if total_validations > 0 else 0:.0f}%</td>
-                </tr>
-            </tbody>
-        </table>
-        """
-    else:  # simple style for email
-        return f"""
-        <table style="border-collapse: collapse; width: 100%; margin-bottom: 20px;">
-            <thead>
-                <tr style="background-color: #f2f2f2;">
-                    <th style="border: 1px solid #ddd; padding: 8px; text-align: left;">Type</th>
-                    <th style="border: 1px solid #ddd; padding: 8px; text-align: center;">Total</th>
-                    <th style="border: 1px solid #ddd; padding: 8px; text-align: center;">Pass</th>
-                    <th style="border: 1px solid #ddd; padding: 8px; text-align: center;">Fail</th>
-                    <th style="border: 1px solid #ddd; padding: 8px; text-align: center;">%</th>
-                </tr>
-            </thead>
-            <tbody>
-                <tr>
-                    <td style="border: 1px solid #ddd; padding: 8px;">🔢 Status</td>
-                    <td style="border: 1px solid #ddd; padding: 8px; text-align: center;">{validation_stats['status_code']['total']}</td>
-                    <td style="border: 1px solid #ddd; padding: 8px; text-align: center;">{validation_stats['status_code']['passed']}</td>
-                    <td style="border: 1px solid #ddd; padding: 8px; text-align: center;">{validation_stats['status_code']['failed']}</td>
-                    <td style="border: 1px solid #ddd; padding: 8px; text-align: center;">{(validation_stats['status_code']['passed'] / validation_stats['status_code']['total'] * 100) if validation_stats['status_code']['total'] > 0 else 0:.0f}%</td>
-                </tr>
-                <tr>
-                    <td style="border: 1px solid #ddd; padding: 8px;">📋 Contract</td>
-                    <td style="border: 1px solid #ddd; padding: 8px; text-align: center;">{validation_stats['contract']['total']}</td>
-                    <td style="border: 1px solid #ddd; padding: 8px; text-align: center;">{validation_stats['contract']['passed']}</td>
-                    <td style="border: 1px solid #ddd; padding: 8px; text-align: center;">{validation_stats['contract']['failed']}</td>
-                    <td style="border: 1px solid #ddd; padding: 8px; text-align: center;">{(validation_stats['contract']['passed'] / validation_stats['contract']['total'] * 100) if validation_stats['contract']['total'] > 0 else 0:.0f}%</td>
-                </tr>
-                <tr>
-                    <td style="border: 1px solid #ddd; padding: 8px;">🔒 Security</td>
-                    <td style="border: 1px solid #ddd; padding: 8px; text-align: center;">{validation_stats['security']['total']}</td>
-                    <td style="border: 1px solid #ddd; padding: 8px; text-align: center;">{validation_stats['security']['passed']}</td>
-                    <td style="border: 1px solid #ddd; padding: 8px; text-align: center;">{validation_stats['security']['failed']}</td>
-                    <td style="border: 1px solid #ddd; padding: 8px; text-align: center;">{(validation_stats['security']['passed'] / validation_stats['security']['total'] * 100) if validation_stats['security']['total'] > 0 else 0:.0f}%</td>
-                </tr>
-                <tr>
-                    <td style="border: 1px solid #ddd; padding: 8px;">⚡ Perf</td>
-                    <td style="border: 1px solid #ddd; padding: 8px; text-align: center;">{validation_stats['performance']['total']}</td>
-                    <td style="border: 1px solid #ddd; padding: 8px; text-align: center;">{validation_stats['performance']['passed']}</td>
-                    <td style="border: 1px solid #ddd; padding: 8px; text-align: center;">{validation_stats['performance']['failed']}</td>
-                    <td style="border: 1px solid #ddd; padding: 8px; text-align: center;">{(validation_stats['performance']['passed'] / validation_stats['performance']['total'] * 100) if validation_stats['performance']['total'] > 0 else 0:.0f}%</td>
-                </tr>
-                <tr>
-                    <td style="border: 1px solid #ddd; padding: 8px;">🔄 Data Asserts</td>
-                    <td style="border: 1px solid #ddd; padding: 8px; text-align: center;">{validation_stats['data_comparison']['total']}</td>
-                    <td style="border: 1px solid #ddd; padding: 8px; text-align: center;">{validation_stats['data_comparison']['passed']}</td>
-                    <td style="border: 1px solid #ddd; padding: 8px; text-align: center;">{validation_stats['data_comparison']['failed']}</td>
-                    <td style="border: 1px solid #ddd; padding: 8px; text-align: center;">{(validation_stats['data_comparison']['passed'] / validation_stats['data_comparison']['total'] * 100) if validation_stats['data_comparison']['total'] > 0 else 0:.0f}%</td>
-                </tr>
-                <tr>
-                    <td style="border: 1px solid #ddd; padding: 8px;">✓ Other Asserts</td>
-                    <td style="border: 1px solid #ddd; padding: 8px; text-align: center;">{validation_stats['assertions']['total']}</td>
-                    <td style="border: 1px solid #ddd; padding: 8px; text-align: center;">{validation_stats['assertions']['passed']}</td>
-                    <td style="border: 1px solid #ddd; padding: 8px; text-align: center;">{validation_stats['assertions']['failed']}</td>
-                    <td style="border: 1px solid #ddd; padding: 8px; text-align: center;">{(validation_stats['assertions']['passed'] / validation_stats['assertions']['total'] * 100) if validation_stats['assertions']['total'] > 0 else 0:.0f}%</td>
-                </tr>
-                <tr style="background-color: #f2f2f2; font-weight: bold;">
-                    <td style="border: 1px solid #ddd; padding: 8px;">📊 TOTAL</td>
-                    <td style="border: 1px solid #ddd; padding: 8px; text-align: center;">{total_validations}</td>
-                    <td style="border: 1px solid #ddd; padding: 8px; text-align: center;">{total_val_passed}</td>
-                    <td style="border: 1px solid #ddd; padding: 8px; text-align: center;">{total_val_failed}</td>
-                    <td style="border: 1px solid #ddd; padding: 8px; text-align: center;">{(total_val_passed / total_validations * 100) if total_validations > 0 else 0:.0f}%</td>
-                </tr>
-            </tbody>
-        </table>
-        """
+__all__ = [
+    # Data loading functions (primary purpose of this module)
+    'load_test_summary_from_json',
+    'aggregate_validation_stats',
+    # HTML generation (re-exported for backward compatibility)
+    'generate_test_summary_table',
+    'generate_validation_summary_table',
+    'generate_pie_chart_html',
+    'generate_horizontal_bar_chart_html',
+    'generate_progress_bar_html',
+    'generate_matplotlib_charts',
+    'generate_email_charts_section',
+    'generate_overall_pass_rates_section',
+]
