@@ -109,11 +109,18 @@ parameters:
 # Global Variables
 ###############################################################################
 variables:
-  # Always include ALL variable groups to support multi-environment matrix runs
+  # Shared configuration (auth tokens, common settings)
   - group: 'qa-pipelines-shared-config'
-  - group: 'qa-pipelines-config-dev'
-  - group: 'qa-pipelines-config-test'
-  - group: 'qa-pipelines-config-silo'
+  
+  # Single variable group containing ALL environment-prefixed URLs
+  # This eliminates variable overwriting issues when loading multiple groups
+  # 
+  # Required variables in this group:
+  #   TSADEV_parties_base_url, TSATEST_parties_base_url, TSASILO_parties_base_url
+  #   TSADEV_address_base_url, TSATEST_address_base_url, TSASILO_address_base_url
+  #   ... (same pattern for all service URLs)
+  #
+  - group: 'qa-pipelines-config'
 
   - name: buildPath
     value: '$(Build.SourcesDirectory)/platformqe/core-api-automation'
@@ -395,6 +402,102 @@ stages:
               SecretsFilter: 'parties-sqldb-connection-string,movemoney-sqldb-connection-string,hne-db-connection-string,securitieshub-db-connection-string,modelhub-db-connection-string'
               RunAsPreJob: false
           
+          # Resolve environment-specific variables based on matrix environment selection
+          # This handles: single env (TSADEV/TSATEST/TSASILO), 'all' (default to TSADEV), or multiple envs
+          - task: Bash@3
+            name: ResolveEnvVars
+            displayName: 'Resolve Environment Variables'
+            inputs:
+              targetType: inline
+              script: |
+                echo "=========================================="
+                echo "Resolving Environment-Specific Variables"
+                echo "=========================================="
+                echo "Selected Environment: $(environment)"
+                
+                # Determine which environment to use
+                # For 'all', default to TSADEV; otherwise use the specified environment
+                SELECTED_ENV="$(environment)"
+                if [ "$SELECTED_ENV" = "all" ]; then
+                  SELECTED_ENV="TSADEV"
+                  echo "Environment 'all' selected, defaulting to: $SELECTED_ENV"
+                fi
+                
+                echo "Using environment: $SELECTED_ENV"
+                
+                # Map environment-prefixed variables to standard variable names
+                # These should be defined in your variable groups with prefixes:
+                # e.g., TSADEV_parties_base_url, TSATEST_parties_base_url, TSASILO_parties_base_url
+                
+                case "$SELECTED_ENV" in
+                  "TSADEV")
+                    echo "##vso[task.setvariable variable=RESOLVED_PARTIES_BASE_URL]$(TSADEV_parties_base_url)"
+                    echo "##vso[task.setvariable variable=RESOLVED_ADDRESS_BASE_URL]$(TSADEV_address_base_url)"
+                    echo "##vso[task.setvariable variable=RESOLVED_ANALYTICS_BASE_URL]$(TSADEV_analytics_base_url)"
+                    echo "##vso[task.setvariable variable=RESOLVED_HNE_BASE_URL]$(TSADEV_hne_base_url)"
+                    echo "##vso[task.setvariable variable=RESOLVED_MODELS_BASE_URL]$(TSADEV_models_base_url)"
+                    echo "##vso[task.setvariable variable=RESOLVED_MOVEMONEY_BASE_URL]$(TSADEV_movemoney_base_url)"
+                    echo "##vso[task.setvariable variable=RESOLVED_SECURITIES_BASE_URL]$(TSADEV_securities_base_url)"
+                    echo "##vso[task.setvariable variable=RESOLVED_WORK_ITEM_NOTIFICATION_BASE_URL]$(TSADEV_work_item_notification_base_url)"
+                    ;;
+                  "TSATEST")
+                    echo "##vso[task.setvariable variable=RESOLVED_PARTIES_BASE_URL]$(TSATEST_parties_base_url)"
+                    echo "##vso[task.setvariable variable=RESOLVED_ADDRESS_BASE_URL]$(TSATEST_address_base_url)"
+                    echo "##vso[task.setvariable variable=RESOLVED_ANALYTICS_BASE_URL]$(TSATEST_analytics_base_url)"
+                    echo "##vso[task.setvariable variable=RESOLVED_HNE_BASE_URL]$(TSATEST_hne_base_url)"
+                    echo "##vso[task.setvariable variable=RESOLVED_MODELS_BASE_URL]$(TSATEST_models_base_url)"
+                    echo "##vso[task.setvariable variable=RESOLVED_MOVEMONEY_BASE_URL]$(TSATEST_movemoney_base_url)"
+                    echo "##vso[task.setvariable variable=RESOLVED_SECURITIES_BASE_URL]$(TSATEST_securities_base_url)"
+                    echo "##vso[task.setvariable variable=RESOLVED_WORK_ITEM_NOTIFICATION_BASE_URL]$(TSATEST_work_item_notification_base_url)"
+                    ;;
+                  "TSASILO")
+                    echo "##vso[task.setvariable variable=RESOLVED_PARTIES_BASE_URL]$(TSASILO_parties_base_url)"
+                    echo "##vso[task.setvariable variable=RESOLVED_ADDRESS_BASE_URL]$(TSASILO_address_base_url)"
+                    echo "##vso[task.setvariable variable=RESOLVED_ANALYTICS_BASE_URL]$(TSASILO_analytics_base_url)"
+                    echo "##vso[task.setvariable variable=RESOLVED_HNE_BASE_URL]$(TSASILO_hne_base_url)"
+                    echo "##vso[task.setvariable variable=RESOLVED_MODELS_BASE_URL]$(TSASILO_models_base_url)"
+                    echo "##vso[task.setvariable variable=RESOLVED_MOVEMONEY_BASE_URL]$(TSASILO_movemoney_base_url)"
+                    echo "##vso[task.setvariable variable=RESOLVED_SECURITIES_BASE_URL]$(TSASILO_securities_base_url)"
+                    echo "##vso[task.setvariable variable=RESOLVED_WORK_ITEM_NOTIFICATION_BASE_URL]$(TSASILO_work_item_notification_base_url)"
+                    ;;
+                  *)
+                    echo "❌ ERROR: Unknown environment: $SELECTED_ENV"
+                    echo "Defaulting to TSADEV variables"
+                    echo "##vso[task.setvariable variable=RESOLVED_PARTIES_BASE_URL]$(TSADEV_parties_base_url)"
+                    echo "##vso[task.setvariable variable=RESOLVED_ADDRESS_BASE_URL]$(TSADEV_address_base_url)"
+                    echo "##vso[task.setvariable variable=RESOLVED_ANALYTICS_BASE_URL]$(TSADEV_analytics_base_url)"
+                    echo "##vso[task.setvariable variable=RESOLVED_HNE_BASE_URL]$(TSADEV_hne_base_url)"
+                    echo "##vso[task.setvariable variable=RESOLVED_MODELS_BASE_URL]$(TSADEV_models_base_url)"
+                    echo "##vso[task.setvariable variable=RESOLVED_MOVEMONEY_BASE_URL]$(TSADEV_movemoney_base_url)"
+                    echo "##vso[task.setvariable variable=RESOLVED_SECURITIES_BASE_URL]$(TSADEV_securities_base_url)"
+                    echo "##vso[task.setvariable variable=RESOLVED_WORK_ITEM_NOTIFICATION_BASE_URL]$(TSADEV_work_item_notification_base_url)"
+                    ;;
+                esac
+                
+                echo "✅ Environment variables resolved for: $SELECTED_ENV"
+                echo "=========================================="
+          
+          # Debug: Show resolved URLs to verify correct environment selection
+          - task: Bash@3
+            displayName: 'Debug Resolved Environment URLs'
+            inputs:
+              targetType: inline
+              script: |
+                echo "=========================================="
+                echo "Resolved Environment URLs"
+                echo "=========================================="
+                echo "Environment: $(environment)"
+                echo ""
+                echo "RESOLVED_PARTIES_BASE_URL: $(RESOLVED_PARTIES_BASE_URL)"
+                echo "RESOLVED_ADDRESS_BASE_URL: $(RESOLVED_ADDRESS_BASE_URL)"
+                echo "RESOLVED_ANALYTICS_BASE_URL: $(RESOLVED_ANALYTICS_BASE_URL)"
+                echo "RESOLVED_HNE_BASE_URL: $(RESOLVED_HNE_BASE_URL)"
+                echo "RESOLVED_MODELS_BASE_URL: $(RESOLVED_MODELS_BASE_URL)"
+                echo "RESOLVED_MOVEMONEY_BASE_URL: $(RESOLVED_MOVEMONEY_BASE_URL)"
+                echo "RESOLVED_SECURITIES_BASE_URL: $(RESOLVED_SECURITIES_BASE_URL)"
+                echo "RESOLVED_WORK_ITEM_NOTIFICATION_BASE_URL: $(RESOLVED_WORK_ITEM_NOTIFICATION_BASE_URL)"
+                echo "=========================================="
+          
           # - task: UsePythonVersion@0
           #   displayName: 'Set up Python $(pythonVersion)'
           #   inputs:
@@ -468,7 +571,8 @@ stages:
               LOG_LEVEL: $(log_level)
               WORK_ITEM_AUTH_TOKEN: $(WORK_ITEM_AUTH_TOKEN)
               PARTIES_AUTH_TOKEN: $(PARTIES_AUTH_TOKEN)
-              PARTIES_BASE_URL: $(parties_base_url)
+              # Use resolved environment-specific base URLs
+              PARTIES_BASE_URL: $(RESOLVED_PARTIES_BASE_URL)
               PARTIES_SQLDB: $(parties-sqldb-connection-string)
               MOVEMONEY_SQLDB: $(movemoney-sqldb-connection-string)
               HNE_DB: $(hne-db-connection-string)
@@ -476,13 +580,13 @@ stages:
               MODELHUB_DB: $(modelhub-db-connection-string)
               AZURE_SQL_PASSWORD: $(AZURE_SQL_PASSWORD)
               POSTGRES_DB_PASSWORD: $(POSTGRES_DB_PASSWORD)
-              ADDRESS_BASE_URL: $(address_base_url)
-              ANALYTICS_BASE_URL: $(analytics_base_url)
-              HNE_BASE_URL: $(hne_base_url)
-              MODELS_BASE_URL: $(models_base_url)
-              MOVEMONEY_BASE_URL: $(movemoney_base_url)
-              SECURITIES_BASE_URL: $(securities_base_url)
-              WORK_ITEM_NOTIFICATION_BASE_URL: $(work_item_notification_base_url)
+              ADDRESS_BASE_URL: $(RESOLVED_ADDRESS_BASE_URL)
+              ANALYTICS_BASE_URL: $(RESOLVED_ANALYTICS_BASE_URL)
+              HNE_BASE_URL: $(RESOLVED_HNE_BASE_URL)
+              MODELS_BASE_URL: $(RESOLVED_MODELS_BASE_URL)
+              MOVEMONEY_BASE_URL: $(RESOLVED_MOVEMONEY_BASE_URL)
+              SECURITIES_BASE_URL: $(RESOLVED_SECURITIES_BASE_URL)
+              WORK_ITEM_NOTIFICATION_BASE_URL: $(RESOLVED_WORK_ITEM_NOTIFICATION_BASE_URL)
               API_TIMEOUT: $(api_timeout)
               API_RETRY_COUNT: $(api_retry_count)
             inputs:
@@ -520,7 +624,8 @@ stages:
               LOG_LEVEL: $(log_level)
               WORK_ITEM_AUTH_TOKEN: $(WORK_ITEM_AUTH_TOKEN)
               PARTIES_AUTH_TOKEN: $(PARTIES_AUTH_TOKEN)
-              PARTIES_BASE_URL: $(parties_base_url)
+              # Use resolved environment-specific base URLs
+              PARTIES_BASE_URL: $(RESOLVED_PARTIES_BASE_URL)
               PARTIES_SQLDB: $(parties-sqldb-connection-string)
               MOVEMONEY_SQLDB: $(movemoney-sqldb-connection-string)
               HNE_DB: $(hne-db-connection-string)
@@ -528,13 +633,13 @@ stages:
               MODELHUB_DB: $(modelhub-db-connection-string)
               AZURE_SQL_PASSWORD: $(AZURE_SQL_PASSWORD)
               POSTGRES_DB_PASSWORD: $(POSTGRES_DB_PASSWORD)
-              ADDRESS_BASE_URL: $(address_base_url)
-              ANALYTICS_BASE_URL: $(analytics_base_url)
-              HNE_BASE_URL: $(hne_base_url)
-              MODELS_BASE_URL: $(models_base_url)
-              MOVEMONEY_BASE_URL: $(movemoney_base_url)
-              SECURITIES_BASE_URL: $(securities_base_url)
-              WORK_ITEM_NOTIFICATION_BASE_URL: $(work_item_notification_base_url)
+              ADDRESS_BASE_URL: $(RESOLVED_ADDRESS_BASE_URL)
+              ANALYTICS_BASE_URL: $(RESOLVED_ANALYTICS_BASE_URL)
+              HNE_BASE_URL: $(RESOLVED_HNE_BASE_URL)
+              MODELS_BASE_URL: $(RESOLVED_MODELS_BASE_URL)
+              MOVEMONEY_BASE_URL: $(RESOLVED_MOVEMONEY_BASE_URL)
+              SECURITIES_BASE_URL: $(RESOLVED_SECURITIES_BASE_URL)
+              WORK_ITEM_NOTIFICATION_BASE_URL: $(RESOLVED_WORK_ITEM_NOTIFICATION_BASE_URL)
               API_TIMEOUT: $(api_timeout)
               API_RETRY_COUNT: $(api_retry_count)
               INFLUX_URL: $(influx_url)
