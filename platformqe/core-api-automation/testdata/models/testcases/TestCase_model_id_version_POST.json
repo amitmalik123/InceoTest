@@ -139,5 +139,237 @@
         "expected_status": "201",
         "test_summary": "Step 3: Create version 2 (Draft) - version 1 stays Published",
         "test_scenario": "Create new version 2 as Draft, version 1 remains Published"
+    },
+    {
+        "test_id": "TC004",
+        "service_name": "models",
+        "workflow_mode": "independent",
+        "test_name": "POST /model/{id}/version - Invalid Model ID (UUID format but non-existent) [Negative]",
+        "protocol": "REST",
+        "test_type": [
+            "Functional",
+            "Negative",
+            "Smoke"
+        ],
+        "mainURL": "{{base_url}}",
+        "endpoint": "/model/ca3cf9e3-974f-4333-979f-4293fbbbb650/version",
+        "method": "POST",
+        "headers_additional": {
+            "Content-Type": "application/json"
+        },
+        "payload": {
+            "allocations": [
+                {
+                    "entityType": "Model",
+                    "allocationName": "Test Allocation",
+                    "cusip": "string",
+                    "ticker": "AAPL",
+                    "weight": 5,
+                    "modelId": "string"
+                }
+            ]
+        },
+        "expected_status": "404",
+        "expected_response": {
+            "type": "ResourceNotFound",
+            "title": "Model.NotFound",
+            "status": 404,
+            "detail": "Unable to find model"
+        },
+        "validate": {
+            "performance": {
+                "max_response_time_ms": 3000
+            },
+            "security": {
+                "checks": [
+                    "sql_injection",
+                    "xss"
+                ]
+            }
+        },
+        "test_summary": "Verify API returns 404 when creating version for non-existent model ID",
+        "test_scenario": "Attempt to create version for a valid UUID format but non-existent model ID"
+    },
+    {
+        "test_id": "TC005",
+        "service_name": "models",
+        "workflow_mode": "independent",
+        "test_name": "POST /model/{id}/version - Invalid UUID Format [Negative]",
+        "protocol": "REST",
+        "test_type": [
+            "Functional",
+            "Negative",
+            "Validation"
+        ],
+        "mainURL": "{{base_url}}",
+        "endpoint": "/model/invalid-uuid-format/version",
+        "method": "POST",
+        "headers_additional": {
+            "Content-Type": "application/json"
+        },
+        "payload": {
+            "allocations": [
+                {
+                    "entityType": "Model",
+                    "allocationName": "Test Allocation",
+                    "cusip": "string",
+                    "ticker": "AAPL",
+                    "weight": 5,
+                    "modelId": "string"
+                }
+            ]
+        },
+        "expected_status": "404",
+        "validate": {
+            "performance": {
+                "max_response_time_ms": 3000
+            },
+            "security": {
+                "checks": [
+                    "sql_injection",
+                    "xss"
+                ]
+            }
+        },
+        "test_summary": "Verify API returns 400 when model ID is not a valid UUID format",
+        "test_scenario": "Attempt to create version with invalid UUID format in path parameter"
+    },
+    {
+        "test_id": "TC006",
+        "service_name": "models",
+        "workflow_mode": "independent",
+        "test_name": "POST /model/{id}/version - Empty Payload [Negative]",
+        "protocol": "REST",
+        "test_type": [
+            "Functional",
+            "Negative",
+            "Validation"
+        ],
+        "mainURL": "{{base_url}}",
+        "endpoint": "/model/{{response_model_id}}/version",
+        "method": "POST",
+        "headers_additional": {
+            "Content-Type": "application/json"
+        },
+        "payload": {},
+        "expected_status": "500",
+        "validate": {
+            "performance": {
+                "max_response_time_ms": 3000
+            },
+            "security": {
+                "checks": []
+            }
+        },
+        "test_summary": "Verify API returns 400 when payload is empty",
+        "test_scenario": "Attempt to create version with empty JSON payload"
+    },
+    {
+        "test_id": "TC007",
+        "service_name": "models",
+        "workflow_mode": "independent",
+        "test_name": "POST /model/{id}/version - Null Payload [Negative]",
+        "protocol": "REST",
+        "test_type": [
+            "Functional",
+            "Negative",
+            "Validation"
+        ],
+        "mainURL": "{{base_url}}",
+        "endpoint": "/model/{{response_model_id}}/version",
+        "method": "POST",
+        "headers_additional": {
+            "Content-Type": "application/json"
+        },
+        "payload": null,
+        "expected_status": "500",
+        "validate": {
+            "performance": {
+                "max_response_time_ms": 3000
+            },
+            "security": {
+                "checks": []
+            }
+        },
+        "test_summary": "Verify API returns 400 when no payload is provided",
+        "test_scenario": "Attempt to create version without payload body"
+    },
+    {
+        "test_id": "TC008",
+        "service_name": "models",
+        "workflow_mode": "independent",
+        "test_name": "POST /model/{id}/version - Invalid Allocation Structure (Missing Required Fields) [Negative]",
+        "protocol": "REST",
+        "test_type": [
+            "Functional",
+            "Negative",
+            "Validation"
+        ],
+        "mainURL": "{{base_url}}",
+        "endpoint": "/model/{{response_model_id}}/version",
+        "method": "POST",
+        "headers_additional": {
+            "Content-Type": "application/json"
+        },
+        "payload": {
+            "allocations": [
+                {
+                    "entityType": "Model"
+                }
+            ]
+        },
+        "expected_status": "400",
+        "validate": {
+            "performance": {
+                "max_response_time_ms": 3000
+            },
+            "security": {
+                "checks": []
+            }
+        },
+        "test_summary": "Verify API returns 400 when allocation is missing required fields",
+        "test_scenario": "Attempt to create version with incomplete allocation (only entityType provided)"
+    },
+    {
+        "test_id": "TC009",
+        "service_name": "models",
+        "workflow_mode": "independent",
+        "test_name": "POST /model/{id}/version - Invalid Weight Value (Negative Number) [Negative]",
+        "protocol": "REST",
+        "test_type": [
+            "Functional",
+            "Negative",
+            "Validation",
+            "Boundary"
+        ],
+        "mainURL": "{{base_url}}",
+        "endpoint": "/model/{{response_model_id}}/version",
+        "method": "POST",
+        "headers_additional": {
+            "Content-Type": "application/json"
+        },
+        "payload": {
+            "allocations": [
+                {
+                    "entityType": "Model",
+                    "allocationName": "Negative Weight Test",
+                    "cusip": "string",
+                    "ticker": "AAPL",
+                    "weight": -10,
+                    "modelId": "string"
+                }
+            ]
+        },
+        "expected_status": "422",
+        "validate": {
+            "performance": {
+                "max_response_time_ms": 3000
+            },
+            "security": {
+                "checks": []
+            }
+        },
+        "test_summary": "Verify API returns 400 when allocation weight is negative",
+        "test_scenario": "Attempt to create version with negative weight value"
     }
 ]

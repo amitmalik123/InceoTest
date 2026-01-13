@@ -531,5 +531,121 @@
         "db_connection_name": "",
         "test_summary": "Test TC006: POST /model - Invalid Weight Value [negative] - Verify 422 error when weight is 0",
         "test_scenario": "Attempt to create a model with weight 0 and verify 422 Unprocessable Entity error"
+    },
+    {
+        "test_id": "TC007",
+        "service_name": "models",
+        "workflow_mode": "parallel",
+        "test_name": "POST /model [positive] (TC001)",
+        "protocol": "REST",
+        "test_type": [
+            "Functional"
+        ],
+        "mainURL": "{{base_url}}",
+        "endpoint": "/model",
+        "method": "POST",
+        "rpc_method": "",
+        "graphql_query": "",
+        "graphql_variables": "",
+        "soap_action": "",
+        "soap_envelope": "",
+        "headers_additional": {
+            "Content-Type": "application/json"
+        },
+        "payload": {
+            "name": "string",
+            "ownerId": "3fa85f64-5717-4562-b3fc-2c963f66afa6",
+            "modelAttributes": {
+                "solutionType": "string",
+                "custodian": [
+                    "string"
+                ],
+                "investmentMin": [
+                    {
+                        "type": "System",
+                        "value": 1
+                    },
+                    {
+                        "type": "Displayed",
+                        "value": 2
+                    },
+                    {
+                        "type": "Trading",
+                        "value": 3
+                    }
+                ],
+                "modelType": "string",
+                "riskProfile": "string",
+                "metadata": {
+                    "additionalProp1": "string",
+                    "additionalProp2": "string",
+                    "additionalProp3": "string"
+                }
+            },
+            "allocations": [
+                {
+                    "entityType": "Model",
+                    "allocationName": "string",
+                    "modelId": "string",
+                    "cusip": "string",
+                    "ticker": "string",
+                    "weight": 0.5
+                }
+            ],
+            "investmentApproachId": "{{db_investment_approach_id}}",
+            "benchmarkName": "string",
+            "benchmarkIsPrimary": false
+        },
+        "expected_status": "201",
+        "expected_response_schema": "models\\schemas\\Schema_post_response copy.json",
+        "expected_response": null,
+        "ignore_fields": [
+            "id"
+        ],
+        "extract_values": [
+            {
+                "from": "response",
+                "key": "modelId",
+                "assign_to": "response_model_id"
+            },
+            {
+                "from": "db_result",
+                "query": "",
+                "assign": [
+                    {
+                        "key": "",
+                        "assign_to": ""
+                    }
+                ]
+            }
+        ],
+        "validate": {
+            "performance": {
+                "max_response_time_ms": null
+            },
+            "security": {
+                "checks": [
+                    "sql_injection",
+                    "xss"
+                ]
+            },
+            "data_comparison": {
+                "source": "api_response",
+                "target": "db_result",
+                "format": "table",
+                "key_field": [
+                    "",
+                    ""
+                ],
+                "fields_to_compare": [],
+                "log_differences": true
+            }
+        },
+        "test_data_file": "",
+        "db_query": "",
+        "db_type": "",
+        "db_connection_name": "",
+        "test_summary": "Test TC001: POST /model [positive] (TC001) - Test POST request to /model for functional scenario validation.",
+        "test_scenario": "Test POST request to /model for functional scenario validation."
     }
 ]

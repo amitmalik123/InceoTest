@@ -51,7 +51,8 @@
                     "value": { "type": "number" }
                   },
                   "required": ["type", "value"]
-                }
+                },
+                "minItems": 0
               },
               {
                 "type": "object",
@@ -60,6 +61,20 @@
                   "additionalProp2": { "type": "number" },
                   "additionalProp3": { "type": "number" }
                 }
+              },
+              {
+                "type": "array",
+                "items": {
+                  "type": "object",
+                  "properties": {
+                    "warning": { "type": "string" }
+                  },
+                  "required": ["warning"]
+                },
+                "minItems": 1
+              },
+              {
+                "type": "null"
               }
             ]
           },

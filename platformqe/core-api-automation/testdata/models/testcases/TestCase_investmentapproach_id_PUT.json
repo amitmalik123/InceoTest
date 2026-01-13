@@ -120,7 +120,7 @@
                             "target": "owner_id"
                         },
                         {
-                            "source": "holdings",
+                            "source": "allocations",
                             "target": "allocations"
                         },
                         {
@@ -371,7 +371,7 @@
                             "target": "owner_id"
                         },
                         {
-                            "source": "holdings",
+                            "source": "allocations",
                             "target": "allocations"
                         },
                         {

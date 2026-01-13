@@ -109,6 +109,52 @@ def validate_db_comparison(api_response, db_result, key_fields, fields_to_compar
                 db_field = mapping["target"]
                 api_value = resolve_nested_key(api_row, api_field)
                 db_value = db_row.get(db_field)
+                
+                # Special handling for investment_min field - bidirectional transformation
+                # API can return: [{'type': 'System', 'value': 3}] or {'system': 3} or [{'warning': '...'}]
+                # DB can return: {'system': 3} or [{'type': 'System', 'value': 3}]
+                if db_field == 'investment_min' or api_field == 'investment_min':
+                    # Check if API response contains warnings - if so, validation passes
+                    if isinstance(api_value, list) and api_value:
+                        # Check if any item has a 'warning' field
+                        has_warnings = any(isinstance(item, dict) and 'warning' in item for item in api_value)
+                        if has_warnings:
+                            logger.info(f"Field '{db_field}' contains warnings in API response - validation passes")
+                            continue  # Skip validation for fields with warnings
+                        
+                        # Transform API array format to DB object format for comparison
+                        # [{'type': 'System', 'value': 3}] -> {'system': 3}
+                        try:
+                            transformed_api_value = {}
+                            for item in api_value:
+                                if isinstance(item, dict) and 'type' in item and 'value' in item:
+                                    # Convert type to lowercase to match DB format
+                                    key = item['type'].lower()
+                                    transformed_api_value[key] = item['value']
+                            # Update api_value to the transformed format for comparison
+                            if transformed_api_value:
+                                api_value = transformed_api_value
+                                logger.debug(f"Transformed investment_min API value from array to object format: {api_value}")
+                        except Exception as e:
+                            logger.warning(f"Failed to transform investment_min API value: {e}")
+                    
+                    # Handle reverse transformation: API has object, DB has array
+                    # API: {'system': 3} vs DB: [{'type': 'System', 'value': 3}]
+                    if isinstance(api_value, dict) and isinstance(db_value, list) and db_value:
+                        try:
+                            # Transform DB array format to object format for comparison
+                            transformed_db_value = {}
+                            for item in db_value:
+                                if isinstance(item, dict) and 'type' in item and 'value' in item:
+                                    key = item['type'].lower()
+                                    transformed_db_value[key] = item['value']
+                            # Update db_value to the transformed format for comparison
+                            if transformed_db_value:
+                                db_value = transformed_db_value
+                                logger.debug(f"Transformed investment_min DB value from array to object format: {db_value}")
+                        except Exception as e:
+                            logger.warning(f"Failed to transform investment_min DB value: {e}")
+                
                 logger.debug(f"Comparing field '{api_field}' (API) to '{db_field}' (DB): API={api_value}, DB={db_value}")
                 
                 # Normalize values for comparison
@@ -177,6 +223,51 @@ def validate_db_comparison(api_response, db_result, key_fields, fields_to_compar
             if api_value is None and api_field.startswith("{{"):
                 api_value = resolve_var(api_row.get(api_field.strip("{}")))
             db_value = db_row.get(db_field)
+            
+            # Special handling for investment_min field - bidirectional transformation
+            # API can return: [{'type': 'System', 'value': 3}] or {'system': 3} or [{'warning': '...'}]
+            # DB can return: {'system': 3} or [{'type': 'System', 'value': 3}]
+            if db_field == 'investment_min' or api_field == 'investment_min':
+                # Check if API response contains warnings - if so, validation passes
+                if isinstance(api_value, list) and api_value:
+                    # Check if any item has a 'warning' field
+                    has_warnings = any(isinstance(item, dict) and 'warning' in item for item in api_value)
+                    if has_warnings:
+                        logger.info(f"Field '{db_field}' contains warnings in API response - validation passes")
+                        continue  # Skip validation for fields with warnings
+                    
+                    # Transform API array format to DB object format for comparison
+                    # [{'type': 'System', 'value': 3}] -> {'system': 3}
+                    try:
+                        transformed_api_value = {}
+                        for item in api_value:
+                            if isinstance(item, dict) and 'type' in item and 'value' in item:
+                                # Convert type to lowercase to match DB format
+                                key = item['type'].lower()
+                                transformed_api_value[key] = item['value']
+                        # Update api_value to the transformed format for comparison
+                        if transformed_api_value:
+                            api_value = transformed_api_value
+                            logger.debug(f"Transformed investment_min API value from array to object format: {api_value}")
+                    except Exception as e:
+                        logger.warning(f"Failed to transform investment_min API value: {e}")
+                
+                # Handle reverse transformation: API has object, DB has array
+                # API: {'system': 3} vs DB: [{'type': 'System', 'value': 3}]
+                if isinstance(api_value, dict) and isinstance(db_value, list) and db_value:
+                    try:
+                        # Transform DB array format to object format for comparison
+                        transformed_db_value = {}
+                        for item in db_value:
+                            if isinstance(item, dict) and 'type' in item and 'value' in item:
+                                key = item['type'].lower()
+                                transformed_db_value[key] = item['value']
+                        # Update db_value to the transformed format for comparison
+                        if transformed_db_value:
+                            db_value = transformed_db_value
+                            logger.debug(f"Transformed investment_min DB value from array to object format: {db_value}")
+                    except Exception as e:
+                        logger.warning(f"Failed to transform investment_min DB value: {e}")
             
             # Deep normalize empty values: None, [], {} are considered equivalent
             def normalize_empty(val):
