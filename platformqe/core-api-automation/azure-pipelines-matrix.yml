@@ -708,7 +708,32 @@ stages:
               publishLocation: 'Container'
           
           - task: Bash@3
-            displayName: 'Verify Test Results - $(name)'
+            displayName: 'Send Email Report - $(name)_$(environment)'
+            condition: and(succeededOrFailed(), or(eq(variables['email_feature_enabled'], 'true'), eq(variables['email_feature_enabled'], 'True')))
+            env:
+              SMTP_SERVER: $(smtp_server)
+              SMTP_PORT: $(smtp_port)
+              EMAIL_FROM: $(email_from)
+              EMAIL_TO: $(email_to)
+              EMAIL_CC: $(email_cc)
+              EMAIL_BCC: $(email_bcc)
+              EMAIL_SUBJECT_PREFIX: $(email_subject_prefix)
+            inputs:
+              targetType: inline
+              script: |
+                export PYTHONPATH="${PYTHONPATH}:$(pwd)"
+                python3 framework/reporter/email_reporter.py \
+                  --build-number "$(Build.BuildNumber)" \
+                  --job-status "$(Agent.JobStatus)" \
+                  --reports-path "$(REPORTS_PATH)" \
+                  --build-id "$(Build.BuildId)" \
+                  --team-project "$(System.TeamProject)" \
+                  --collection-uri "$(System.TeamFoundationCollectionUri)" \
+                  --service-name "$(name)_$(environment)"
+              workingDirectory: $(buildPath)
+          
+          - task: Bash@3
+            displayName: 'Verify Test Results - $(name)_$(environment)'
             condition: always()
             inputs:
               targetType: inline
@@ -770,31 +795,6 @@ stages:
           executeTestsResult: $[ stageDependencies.ExecuteTests.RunTests.result ]
         steps:
           - checkout: self
-          
-          - task: Bash@3
-            displayName: 'Send Email Report'
-            condition: and(succeededOrFailed(), or(eq(variables['email_feature_enabled'], 'true'), eq(variables['email_feature_enabled'], 'True')))
-            env:
-              SMTP_SERVER: $(smtp_server)
-              SMTP_PORT: $(smtp_port)
-              EMAIL_FROM: $(email_from)
-              EMAIL_TO: $(email_to)
-              EMAIL_CC: $(email_cc)
-              EMAIL_BCC: $(email_bcc)
-              EMAIL_SUBJECT_PREFIX: $(email_subject_prefix)
-            inputs:
-              targetType: inline
-              script: |
-                export PYTHONPATH="${PYTHONPATH}:$(pwd)"
-                python3 framework/reporter/email_reporter.py \
-                  --build-number "$(Build.BuildNumber)" \
-                  --job-status "$(executeTestsResult)" \
-                  --reports-path "reports" \
-                  --build-id "$(Build.BuildId)" \
-                  --team-project "$(System.TeamProject)" \
-                  --collection-uri "$(System.TeamFoundationCollectionUri)" \
-                  --service-name "all"
-              workingDirectory: $(buildPath)
           
           - task: Bash@3
             displayName: 'Display Summary'
