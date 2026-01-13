@@ -1,0 +1,29 @@
+{
+  "vendor": "string",
+  "partyType": "string",
+  "firstName": "string",
+  "lastName": "string",
+  "addressLine1": "string",
+  "city": "string",
+  "state": "string",
+  "zip5": "string",
+  "ssn": "string",
+  "dateOfBirth": {
+    "month": "string",
+    "day": "string",
+    "year": "string"
+  },
+  "entityName": "string",
+  "fein": "string",
+  "phone": "string",
+  "entityAuthorizedParties": [
+    {
+      "firstName": "string",
+      "lastName": "string",
+      "addressLine1": "string",
+      "city": "string",
+      "state": "string",
+      "zip5": "string"
+    }
+  ]
+}
