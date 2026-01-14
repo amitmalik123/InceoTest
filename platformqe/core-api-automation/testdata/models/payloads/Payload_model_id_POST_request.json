@@ -6,11 +6,12 @@
             "custodian": [
             "string"
             ],
-            "investmentMin": {
-            "additionalProp1": 1,
-            "additionalProp2": 2,
-            "additionalProp3": 3
-            },
+            "investmentMin": [
+                {
+                    "type": "System",
+                    "value": 1
+                }
+            ],
             "modelType": "string",
             "riskProfile": "string",
             "metadata": {
@@ -19,8 +20,7 @@
             "additionalProp3": "string"
             }
         },
-        
-        "allocationDetail": [
+        "allocations": [
             {
             "entityType": "Security",
             "allocationName": "string",
@@ -30,7 +30,7 @@
             "weight": 0.5
             }
         ],
-        "investmentApproachName": "string",
+        "investmentApproachId": "{{db_investment_approach_id}}",
         "benchmarkName": "string",
-        "benchmarkIsPrimary": true
-    }        
+        "benchmarkIsPrimary": false
+    }

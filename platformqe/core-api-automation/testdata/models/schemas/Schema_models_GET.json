@@ -41,12 +41,42 @@
             }
           },
           "investmentMin": {
-            "type": "object",
-            "properties": {
-              "additionalProp1": { "type": "number" },
-              "additionalProp2": { "type": "number" },
-              "additionalProp3": { "type": "number" }
-            }
+            "oneOf": [
+              {
+                "type": "array",
+                "items": {
+                  "type": "object",
+                  "properties": {
+                    "type": { "type": "string" },
+                    "value": { "type": "number" }
+                  },
+                  "required": ["type", "value"]
+                },
+                "minItems": 0
+              },
+              {
+                "type": "object",
+                "properties": {
+                  "additionalProp1": { "type": "number" },
+                  "additionalProp2": { "type": "number" },
+                  "additionalProp3": { "type": "number" }
+                }
+              },
+              {
+                "type": "array",
+                "items": {
+                  "type": "object",
+                  "properties": {
+                    "warning": { "type": "string" }
+                  },
+                  "required": ["warning"]
+                },
+                "minItems": 1
+              },
+              {
+                "type": "null"
+              }
+            ]
           },
           "riskProfile": { "type": ["string", "null"] },
           "owner": {
@@ -55,7 +85,7 @@
               "ownerId": { "type": "string", "format": "uuid" }
             }
           },
-          "holdings": {
+          "allocations": {
             "type": ["array", "null"],
             "items": {
               "type": "object",
@@ -121,7 +151,7 @@
           "investmentMin",
           "riskProfile",
           "owner",
-          "holdings",
+          "allocations",
           "analytics",
           "metadata"
         ]

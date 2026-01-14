@@ -1,49 +1,38 @@
 {
-  "name" : "abc",
-  "modelType": "Aggressive Growth",
-  "solutionType": "Equity Focused",
+  "name": "string",
+  "modelType": "string",
+  "solutionType": "string",
   "custodian": [
-    "Fidelity",
-    "Schwab"
+    "string"
   ],
-  "investmentApproach": {
-    "name": "Updated-IA-{{RANDOM_STRING_10}}",
-    "id": null
-  },
+  "investmentApproachId": "{{db_investment_approach_id}}",
   "benchmark": [
     {
-      "name": "S&P 500",
-      "isPrimary": false,
+      "name": "string",
+      "isPrimary": true,
       "id": 0
     }
   ],
-  "investmentMin": {
-    "standard": 50000,
-    "premium": 250000,
-    "institutional": 1000000
-  },
-  "riskProfile": "High Risk - High Return",
-  "allocationDetail": [
+  "investmentMin": [
+    {
+      "type": "System",
+      "value": 2
+    }
+  ],
+  "riskProfile": "string",
+  "allocations": [
     {
       "entityType": "Security",
-      "allocationName": "Large Cap Equity",
+      "allocationName": "string",
       "modelId": "string",
       "cusip": "string",
-      "ticker": "SPY",
-      "weight": 0
-    },
-    {
-      "entityType": "Security",
-      "allocationName": "Small Cap Equity",
-      "modelId": "string",
-      "cusip": "string",
-      "ticker": "IWM",
+      "ticker": "string",
       "weight": 0
     }
   ],
   "metadata": {
-    "targetRebalanceFrequency": "Quarterly",
-    "category": "Growth",
-    "riskLevel": "8"
+    "additionalProp1": "string",
+    "additionalProp2": "string",
+    "additionalProp3": "string"
   }
 }

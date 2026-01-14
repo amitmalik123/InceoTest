@@ -1,16 +1,13 @@
 {
   "name": "Multi-Model Strategy - Strategic Allocation",
-  "modelType": "Aggressive",
+  "modelType": "Model-of-Models",
   "solutionType": "Model-of-Models",
   "custodian": [
     "Interactive Brokers",
     "TD Ameritrade",
     "Vanguard"
   ],
-  "investmentApproach": {
-    "name": "Updated-Strategic-Model-IA-{{RANDOM_STRING_10}}",
-    "id": "{{tc004_investment_approach_id}}"
-  },
+  "investmentApproachId": "{{db_investment_approach_id}}",
   "benchmark": [
     {
       "name": "MSCI World Index",
@@ -18,13 +15,14 @@
       "id": 0
     }
   ],
-  "investmentMin": {
-    "standard": 100000,
-    "premium": 500000,
-    "institutional": 2000000
-  },
+  "investmentMin":  [
+    {
+      "type": "System",
+      "value": 3
+    }
+  ],
   "riskProfile": "High Risk - Maximum Growth",
-  "allocationDetail": [
+  "allocations": [
     {
       "entityType": "Model",
       "allocationName": "Equity Model Alpha",

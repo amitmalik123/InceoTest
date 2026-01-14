@@ -26,5 +26,5 @@
     ],
     "investmentApproachName": "Test Approach",
     "benchmarkName": "S&P 500",
-    "benchmarkIsPrimary": true
+    "benchmarkIsPrimary": false
 }

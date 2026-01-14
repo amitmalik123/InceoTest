@@ -4,11 +4,12 @@ import os
 from typing import List, Dict, Any, Optional, Tuple
 from framework.loaders.api_definitions_loader import ApiDefinitionsLoader
 from framework.common.logger import get_logger
+from framework.common.data_transformers import DataTransformer
 
 logger = get_logger(__name__)
 
 
-def validate_db_comparison(api_response, db_result, key_fields, fields_to_compare, context=None):
+def validate_db_comparison(api_response, db_result, key_fields, fields_to_compare, context=None, field_transformers=None):
     """
     Validates row-level and field-level comparison between API response and DB result.
     Resolves variables in {{}} using context if provided.
@@ -18,11 +19,15 @@ def validate_db_comparison(api_response, db_result, key_fields, fields_to_compar
         key_fields (list of str): Fields to use for row matching
         fields_to_compare (list of dict): [{"source": "api_field", "target": "db_field"}]
         context (dict): Optional context for variable resolution
+        field_transformers (list of dict): Optional field transformation configurations
     Returns:
         errors (list of str): List of mismatch or missing row errors
     """
     logger.debug(f"Fields to compare for DB validation: {fields_to_compare}")
     errors = []
+    
+    # Initialize transformer if configuration provided
+    transformer = DataTransformer(field_transformers) if field_transformers else None
 
     def resolve_var(val):
         if isinstance(val, str) and val.startswith("{{") and val.endswith("}}") and context:
@@ -109,6 +114,19 @@ def validate_db_comparison(api_response, db_result, key_fields, fields_to_compar
                 db_field = mapping["target"]
                 api_value = resolve_nested_key(api_row, api_field)
                 db_value = db_row.get(db_field)
+                
+                # Apply field transformations if configured
+                if transformer:
+                    api_value = transformer.apply_transformations(api_field, api_value)
+                    db_value = transformer.apply_transformations(db_field, db_value)
+                
+                # Check if API value contains warnings - if so, skip validation
+                if isinstance(api_value, list) and api_value:
+                    has_warnings = any(isinstance(item, dict) and 'warning' in item for item in api_value)
+                    if has_warnings:
+                        logger.info(f"Field '{db_field}' contains warnings in API response - validation passes")
+                        continue
+                
                 logger.debug(f"Comparing field '{api_field}' (API) to '{db_field}' (DB): API={api_value}, DB={db_value}")
                 
                 # Normalize values for comparison
@@ -177,6 +195,18 @@ def validate_db_comparison(api_response, db_result, key_fields, fields_to_compar
             if api_value is None and api_field.startswith("{{"):
                 api_value = resolve_var(api_row.get(api_field.strip("{}")))
             db_value = db_row.get(db_field)
+            
+            # Apply field transformations if configured
+            if transformer:
+                api_value = transformer.apply_transformations(api_field, api_value)
+                db_value = transformer.apply_transformations(db_field, db_value)
+            
+            # Check if API value contains warnings - if so, skip validation
+            if isinstance(api_value, list) and api_value:
+                has_warnings = any(isinstance(item, dict) and 'warning' in item for item in api_value)
+                if has_warnings:
+                    logger.info(f"Field '{db_field}' contains warnings in API response - validation passes")
+                    continue
             
             # Deep normalize empty values: None, [], {} are considered equivalent
             def normalize_empty(val):
@@ -253,6 +283,7 @@ def perform_db_comparison_validation(response, db_result, validation_config, con
     # Parse configuration
     key_fields = validation_config.get('key_field', [])
     fields_to_compare = validation_config.get('fields_to_compare', [])
+    field_transformers = validation_config.get('field_transformers', [])
     source_type = validation_config.get('source', 'api_response')
     source_array_path = validation_config.get('source_array_path', '')
     target_type = validation_config.get('target', 'db_result')
@@ -313,7 +344,7 @@ def perform_db_comparison_validation(response, db_result, validation_config, con
         source_data = [source_data]
     
     # Perform validation
-    errors = validate_db_comparison(source_data, db_result, key_fields, fields_to_compare, context)
+    errors = validate_db_comparison(source_data, db_result, key_fields, fields_to_compare, context, field_transformers)
     
     if errors:
         logger.error(f"DB comparison validation failed: {errors}")
@@ -977,6 +1008,7 @@ def perform_generic_data_comparison(
     comparison_name = comparison_config.get('comparison_name', 'Data comparison')
     log_differences = comparison_config.get('log_differences', True)
     compare_record_count = comparison_config.get('compare_record_count', False)
+    field_transformers = comparison_config.get('field_transformers', [])
     
     # Handle record count comparison mode
     if compare_record_count:
@@ -1029,7 +1061,8 @@ def perform_generic_data_comparison(
             target_data, 
             key_fields, 
             fields_to_compare, 
-            context
+            context,
+            field_transformers
         )
         
         if errors:

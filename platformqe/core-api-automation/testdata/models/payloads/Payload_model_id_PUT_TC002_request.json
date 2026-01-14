@@ -1,15 +1,12 @@
 {
   "name": "Comprehensive Update - Conservative Growth Model",
-  "modelType": "Conservative",
+  "modelType": "Aggressive Growth",
   "solutionType": "Balanced Portfolio",
   "custodian": [
     "E*TRADE",
     "TD Ameritrade"
   ],
-  "investmentApproach": {
-    "name": "Updated-Conservative-IA-{{RANDOM_STRING_10}}",
-    "id": "{{tc002_investment_approach_id}}"
-  },
+  "investmentApproachId": "{{db_investment_approach_id}}",
   "benchmark": [
     {
       "name": "Bloomberg Barclays Aggregate",
@@ -17,13 +14,14 @@
       "id": 0
     }
   ],
-  "investmentMin": {
-    "standard": 25000,
-    "premium": 100000,
-    "institutional": 500000
-  },
+  "investmentMin":  [
+    {
+      "type": "System",
+      "value": 1
+    }
+  ],
   "riskProfile": "Low Risk - Stable Returns",
-  "allocationDetail": [
+  "allocations": [
     {
       "entityType": "Security",
       "allocationName": "US Treasuries",
