@@ -6,10 +6,7 @@
     "Fidelity",
     "Schwab"
   ],
-  "investmentApproach": {
-    "name": "Updated-IA-{{RANDOM_STRING_10}}",
-    "id": "{{tc001_investment_approach_id}}"
-  },
+  "investmentApproachId": "{{db_investment_approach_id}}",
   "benchmark": [
     {
       "name": "S&P 500",
@@ -17,13 +14,14 @@
       "id": 0
     }
   ],
-  "investmentMin": {
-    "standard": 50000,
-    "premium": 250000,
-    "institutional": 1000000
-  },
+  "investmentMin": [
+    {
+      "type": "System",
+      "value": 1
+    }
+  ],
   "riskProfile": "High Risk - High Return",
-  "allocationDetail": [
+  "allocations": [
     {
       "entityType": "Security",
       "allocationName": "Large Cap Equity",

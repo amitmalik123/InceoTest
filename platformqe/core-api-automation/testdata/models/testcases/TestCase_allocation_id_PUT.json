@@ -142,7 +142,7 @@
                             "target": "owner_id"
                         },
                         {
-                            "source": "holdings",
+                            "source": "allocations",
                             "target": "allocations"
                         },
                         {
@@ -151,7 +151,27 @@
                         }
                     ],
                     "log_differences": true,
-                    "comparison_name": "Verify Response API vs DB field values"
+                    "comparison_name": "Verify Response API vs DB field values",
+                    "field_transformers": [
+                        {
+                            "field": "investmentMin",
+                            "transform": "array_to_object",
+                            "options": {
+                                "key_field": "type",
+                                "value_field": "value",
+                                "lowercase_keys": true
+                            }
+                        },
+                        {
+                            "field": "investment_min",
+                            "transform": "array_to_object",
+                            "options": {
+                                "key_field": "type",
+                                "value_field": "value",
+                                "lowercase_keys": true
+                            }
+                        }
+                    ]
                 },
                 {
                     "source": "api_response",
@@ -232,7 +252,7 @@
             "Content-Type": "application/json"
         },
         "payload": {
-            "allocationDetail": [
+            "allocations": [
                 {
                     "entityType": "Model",
                     "allocationName": "string",
@@ -310,7 +330,7 @@
             "Content-Type": "application/json"
         },
         "payload": {
-            "allocationDetail": [
+            "allocations": [
                 {
                     "entityType": "Security",
                     "allocationName": "string",
@@ -508,7 +528,7 @@
                             "target": "owner_id"
                         },
                         {
-                            "source": "holdings",
+                            "source": "allocations",
                             "target": "allocations"
                         },
                         {
@@ -517,7 +537,27 @@
                         }
                     ],
                     "log_differences": true,
-                    "comparison_name": "Verify Response API vs DB field values"
+                    "comparison_name": "Verify Response API vs DB field values",
+                    "field_transformers": [
+                        {
+                            "field": "investmentMin",
+                            "transform": "array_to_object",
+                            "options": {
+                                "key_field": "type",
+                                "value_field": "value",
+                                "lowercase_keys": true
+                            }
+                        },
+                        {
+                            "field": "investment_min",
+                            "transform": "array_to_object",
+                            "options": {
+                                "key_field": "type",
+                                "value_field": "value",
+                                "lowercase_keys": true
+                            }
+                        }
+                    ]
                 },
                 {
                     "source": "api_response",
@@ -599,7 +639,7 @@
         },
         "payload": {
             "modifiedBy": "3fa85f64-5717-4562-b3fc-2c963f66afa6",
-            "allocationDetail": [
+            "allocations": [
                 {
                     "entityType": "Model",
                     "allocationName": "string",
@@ -688,7 +728,7 @@
         },
         "payload": {
             "modifiedBy": "3fa85f64-5717-4562-b3fc-2c963f66afa6",
-            "allocationDetail": [
+            "allocations": [
                 {
                     "entityType": "Security",
                     "allocationName": "string",
@@ -767,7 +807,7 @@
         },
         "payload": {
             "modifiedBy": "3fa85f64-5717-4562-b3fc-2c963f66afa6",
-            "allocationDetail": [
+            "allocations": [
                 {
                     "allocationName": "string",
                     "modelId": "string",
@@ -845,7 +885,7 @@
         },
         "payload": {
             "modifiedBy": "3fa85f64-5717-4562-b3fc-2c963f66afa6",
-            "allocationDetail": [
+            "allocations": [
                 {
                     "entityType": "Security",
                     "allocationName": "string",
@@ -934,7 +974,7 @@
         },
         "payload": {
             "modifiedBy": "3fa85f64-5717-4562-b3fc-2c963f66afa6",
-            "allocationDetail": [
+            "allocations": [
                 {
                     "entityType": "Security",
                     "allocationName": "string",
@@ -1007,7 +1047,7 @@
             "Content-Type": "application/json"
         },
         "payload": {
-            "allocationDetail": [
+            "allocations": [
                 {
                     "entityType": "Model",
                     "allocationName": "string",

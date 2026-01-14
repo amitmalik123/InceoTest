@@ -7,11 +7,12 @@
             "Fidelity",
             "Schwab"
         ],
-        "investmentMin": {
-            "additionalProp1": 10000,
-            "additionalProp2": 25000,
-            "additionalProp3": 50000
-        },
+        "investmentMin": [
+            {
+                "type": "System",
+                "value": 10000
+            }
+        ],
         "modelType": "Strategic",
         "riskProfile": "Moderate",
         "metadata": {
@@ -20,7 +21,7 @@
             "additionalProp3": "value3"
         }
     },
-    "allocationDetail": [
+    "allocations": [
         {
             "entityType": "Model",
             "allocationName": "Growth Model Allocation",
@@ -38,7 +39,7 @@
             "weight": 0.4
         }
     ],
-    "investmentApproachName": "Multi-Model Approach",
+    "investmentApproachId": "{{db_investment_approach_id}}",
     "benchmarkName": "S&P 500",
-    "benchmarkIsPrimary": true
+    "benchmarkIsPrimary": false
 }
