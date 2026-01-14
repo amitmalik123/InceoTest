@@ -708,7 +708,7 @@ stages:
               publishLocation: 'Container'
           
           - task: Bash@3
-            displayName: 'Send Email Report - $(name)'
+            displayName: 'Send Email Report - $(name)_$(environment)'
             condition: and(succeededOrFailed(), or(eq(variables['email_feature_enabled'], 'true'), eq(variables['email_feature_enabled'], 'True')))
             env:
               SMTP_SERVER: $(smtp_server)
@@ -729,11 +729,11 @@ stages:
                   --build-id "$(Build.BuildId)" \
                   --team-project "$(System.TeamProject)" \
                   --collection-uri "$(System.TeamFoundationCollectionUri)" \
-                  --service-name "$(name)"
+                  --service-name "$(name)_$(environment)"
               workingDirectory: $(buildPath)
           
           - task: Bash@3
-            displayName: 'Verify Test Results - $(name)'
+            displayName: 'Verify Test Results - $(name)_$(environment)'
             condition: always()
             inputs:
               targetType: inline
