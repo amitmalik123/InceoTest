@@ -1162,7 +1162,27 @@
                     "metadata": {
                         "targetRebalanceFrequency": "Quarterly"
                     }
-                }
+                },
+                "field_transformers": [
+                    {
+                        "field": "investmentMin",
+                        "transform": "array_to_object",
+                        "options": {
+                            "key_field": "type",
+                            "value_field": "value",
+                            "lowercase_keys": true
+                        }
+                    },
+                    {
+                        "field": "investment_min",
+                        "transform": "array_to_object",
+                        "options": {
+                            "key_field": "type",
+                            "value_field": "value",
+                            "lowercase_keys": true
+                        }
+                    }
+                ]
             },
             "assertions": [
                 {
@@ -1335,7 +1355,27 @@
                     "metadata": {
                         "targetRebalanceFrequency": "Quarterly"
                     }
-                }
+                },
+                "field_transformers": [
+                    {
+                        "field": "investmentMin",
+                        "transform": "array_to_object",
+                        "options": {
+                            "key_field": "type",
+                            "value_field": "value",
+                            "lowercase_keys": true
+                        }
+                    },
+                    {
+                        "field": "investment_min",
+                        "transform": "array_to_object",
+                        "options": {
+                            "key_field": "type",
+                            "value_field": "value",
+                            "lowercase_keys": true
+                        }
+                    }
+                ]
             },
             "assertions": [
                 {
@@ -1456,7 +1496,27 @@
                     "investment_min": {},
                     "risk_profile": null,
                     "metadata": {}
-                }
+                },
+                "field_transformers": [
+                    {
+                        "field": "investmentMin",
+                        "transform": "array_to_object",
+                        "options": {
+                            "key_field": "type",
+                            "value_field": "value",
+                            "lowercase_keys": true
+                        }
+                    },
+                    {
+                        "field": "investment_min",
+                        "transform": "array_to_object",
+                        "options": {
+                            "key_field": "type",
+                            "value_field": "value",
+                            "lowercase_keys": true
+                        }
+                    }
+                ]
             },
             "assertions": [
                 {

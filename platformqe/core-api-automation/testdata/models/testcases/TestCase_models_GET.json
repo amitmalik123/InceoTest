@@ -180,7 +180,27 @@
                         }
                     ],
                     "log_differences": true,
-                    "comparison_name": "Verify Response API vs DB field values"
+                    "comparison_name": "Verify Response API vs DB field values",
+                    "field_transformers": [
+                        {
+                            "field": "investmentMin",
+                            "transform": "array_to_object",
+                            "options": {
+                                "key_field": "type",
+                                "value_field": "value",
+                                "lowercase_keys": true
+                            }
+                        },
+                        {
+                            "field": "investment_min",
+                            "transform": "array_to_object",
+                            "options": {
+                                "key_field": "type",
+                                "value_field": "value",
+                                "lowercase_keys": true
+                            }
+                        }
+                    ]
                 },
                 {
                     "source": "api_response",
@@ -386,7 +406,27 @@
                         }
                     ],
                     "log_differences": true,
-                    "comparison_name": "Verify Response API vs DB field values"
+                    "comparison_name": "Verify Response API vs DB field values",
+                    "field_transformers": [
+                        {
+                            "field": "investmentMin",
+                            "transform": "array_to_object",
+                            "options": {
+                                "key_field": "type",
+                                "value_field": "value",
+                                "lowercase_keys": true
+                            }
+                        },
+                        {
+                            "field": "investment_min",
+                            "transform": "array_to_object",
+                            "options": {
+                                "key_field": "type",
+                                "value_field": "value",
+                                "lowercase_keys": true
+                            }
+                        }
+                    ]
                 },
                 {
                     "source": "api_response",
@@ -578,7 +618,27 @@
                         }
                     ],
                     "log_differences": true,
-                    "comparison_name": "Verify Response API vs DB field values"
+                    "comparison_name": "Verify Response API vs DB field values",
+                    "field_transformers": [
+                        {
+                            "field": "investmentMin",
+                            "transform": "array_to_object",
+                            "options": {
+                                "key_field": "type",
+                                "value_field": "value",
+                                "lowercase_keys": true
+                            }
+                        },
+                        {
+                            "field": "investment_min",
+                            "transform": "array_to_object",
+                            "options": {
+                                "key_field": "type",
+                                "value_field": "value",
+                                "lowercase_keys": true
+                            }
+                        }
+                    ]
                 },
                 {
                     "source": "api_response",
@@ -771,7 +831,27 @@
                         }
                     ],
                     "log_differences": true,
-                    "comparison_name": "Verify Response API vs DB field values"
+                    "comparison_name": "Verify Response API vs DB field values",
+                    "field_transformers": [
+                        {
+                            "field": "investmentMin",
+                            "transform": "array_to_object",
+                            "options": {
+                                "key_field": "type",
+                                "value_field": "value",
+                                "lowercase_keys": true
+                            }
+                        },
+                        {
+                            "field": "investment_min",
+                            "transform": "array_to_object",
+                            "options": {
+                                "key_field": "type",
+                                "value_field": "value",
+                                "lowercase_keys": true
+                            }
+                        }
+                    ]
                 },
                 {
                     "source": "api_response",
@@ -964,7 +1044,27 @@
                         }
                     ],
                     "log_differences": true,
-                    "comparison_name": "Verify Response API vs DB field values"
+                    "comparison_name": "Verify Response API vs DB field values",
+                    "field_transformers": [
+                        {
+                            "field": "investmentMin",
+                            "transform": "array_to_object",
+                            "options": {
+                                "key_field": "type",
+                                "value_field": "value",
+                                "lowercase_keys": true
+                            }
+                        },
+                        {
+                            "field": "investment_min",
+                            "transform": "array_to_object",
+                            "options": {
+                                "key_field": "type",
+                                "value_field": "value",
+                                "lowercase_keys": true
+                            }
+                        }
+                    ]
                 },
                 {
                     "source": "api_response",
@@ -1156,7 +1256,27 @@
                         }
                     ],
                     "log_differences": true,
-                    "comparison_name": "Verify Response API vs DB field values"
+                    "comparison_name": "Verify Response API vs DB field values",
+                    "field_transformers": [
+                        {
+                            "field": "investmentMin",
+                            "transform": "array_to_object",
+                            "options": {
+                                "key_field": "type",
+                                "value_field": "value",
+                                "lowercase_keys": true
+                            }
+                        },
+                        {
+                            "field": "investment_min",
+                            "transform": "array_to_object",
+                            "options": {
+                                "key_field": "type",
+                                "value_field": "value",
+                                "lowercase_keys": true
+                            }
+                        }
+                    ]
                 },
                 {
                     "source": "api_response",
