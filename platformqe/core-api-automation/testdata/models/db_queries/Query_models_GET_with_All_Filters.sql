@@ -78,6 +78,6 @@ SELECT id AS model_id,
             'YYYY-MM-DD"T"HH24:MI:SS.FF5"Z"'
         ) AS model_active_modified_date
 FROM public.vw_model
-WHERE owner_id = '{{first_owner_id}}'
-AND status = '{{first_model_status}}'
-AND id = '{{first_model_id}}';
+WHERE owner_id = '{{tc006_owner_id}}'
+AND status = '{{tc006_model_status}}'
+AND id = '{{tc006_model_id}}';
