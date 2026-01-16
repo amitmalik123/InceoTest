@@ -128,6 +128,12 @@ variables:
     value: 'config/services-matrix.yaml'
   - name: pythonVersion
     value: '3.10'
+  # Environments controlled via variable group - override services-matrix.yaml defaults
+  # Set ENABLED_ENVIRONMENTS in 'qa-pipelines-shared-config' variable group
+  # Format: comma-separated list (e.g., "TSADEV,TSATEST,TSASILO")
+  # If not set, falls back to "all" which uses services-matrix.yaml defaults
+  - name: defaultEnvironments
+    value: $[coalesce(variables['ENABLED_ENVIRONMENTS'], 'all')]
 
 ###############################################################################
 # Stages
@@ -230,10 +236,22 @@ stages:
                   echo "Using schedule-specified service: $SERVICES_PARAM"
                 fi
                 
-                # Set environments parameter (use "all" if empty)
+                # Set environments parameter
+                # Priority: 1) Manual parameter, 2) Variable group ENABLED_ENVIRONMENTS, 3) services-matrix.yaml defaults
                 ENVIRONMENTS_PARAM="${{ parameters.environments }}"
-                if [ -z "$ENVIRONMENTS_PARAM" ]; then
-                  ENVIRONMENTS_PARAM="all"
+                VAR_GROUP_ENVS="$(defaultEnvironments)"
+                
+                if [ -z "$ENVIRONMENTS_PARAM" ] || [ "$ENVIRONMENTS_PARAM" = "all" ]; then
+                  # Use variable group value if set, otherwise use "all" for service defaults
+                  if [ -n "$VAR_GROUP_ENVS" ] && [ "$VAR_GROUP_ENVS" != "all" ]; then
+                    ENVIRONMENTS_PARAM="$VAR_GROUP_ENVS"
+                    echo "Using environments from variable group: $ENVIRONMENTS_PARAM"
+                  else
+                    ENVIRONMENTS_PARAM="all"
+                    echo "Using default environments from services-matrix.yaml"
+                  fi
+                else
+                  echo "Using manually specified environments: $ENVIRONMENTS_PARAM"
                 fi
                 
                 # Store custom args in variables to handle quotes and special characters safely
