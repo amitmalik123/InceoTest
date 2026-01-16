@@ -1,14 +1,16 @@
 import { defineConfig, devices } from '@playwright/test';
+import { defineBddConfig } from 'playwright-bdd';
+import { loadEnvironment } from './utils/env-loader';
 
 /**
  * Read environment variables from file.
  * https://github.com/motdotla/dotenv
  */
-import * as dotenv from 'dotenv';
-import * as path from 'path';
-dotenv.config({
-  path: path.resolve(__dirname, `./config/.env.${process.env.ENVIRONMENT}`),
-  override: true,
+loadEnvironment();
+
+const testDir = defineBddConfig({
+  paths: ['tests/bdd/features/**/*.feature'],
+  require: ['fixtures/fixtures.ts', 'tests/bdd/steps/**/*.ts'],
 });
 
 /**
@@ -24,7 +26,7 @@ export default defineConfig({
     timeout: 300_000
   },
   /* Directory for test files */
-  testDir: './tests',
+  testDir,
   /* Run tests in files in parallel */
   fullyParallel: true,
   /* Fail the build on CI if you accidentally left test.only in the source code. */
@@ -35,9 +37,9 @@ export default defineConfig({
   workers: process.env.CI ? 1 : undefined,
   /* Reporter to use. See https://playwright.dev/docs/test-reporters */
   reporter: [
-    ['allure-playwright'],
-    ['html', { outputFolder: 'playwright-report', open: 'never' }],
-    ['junit', { outputFile: 'test-results/junit-report.xml' }],
+    ['allure-playwright', { outputFolder: 'reports/allure-results' }],
+    ['html', { outputFolder: 'reports/playwright-report', open: 'never' }],
+    ['junit', { outputFile: 'reports/test-results/junit-report.xml' }],
   ],
   /* Shared settings for all the projects below. See https://playwright.dev/docs/api/class-testoptions. */
   use: {
@@ -47,8 +49,7 @@ export default defineConfig({
     /* Ignore HTTPS errors for untrusted certificates */
     ignoreHTTPSErrors: true,
 
-    /* Collect trace when retrying the failed test. See https://playwright.dev/docs/trace-viewer */
-    trace: 'on-first-retry',
+    trace: 'retain-on-failure',
     video: "retain-on-failure",
     screenshot: "only-on-failure",
     headless: true
@@ -58,13 +59,14 @@ export default defineConfig({
   projects: [
     {
       name: 'setup',
-      testMatch: /.*\.setup\.ts/,
+      testDir: './tests/bdd',
+      testMatch: /auth\.setup\.ts/,
       teardown: 'teardown',
-    },
-
-    {
-      name: 'teardown',
-      testMatch: /.*\.teardown\.ts/,
+      use: {
+        // Show setup logs in output
+        video: 'off',
+        screenshot: 'off',
+      },
     },
 
     {
@@ -76,7 +78,14 @@ export default defineConfig({
           ignoreHTTPSErrors: true
         },
       },
-    }
+    },
+
+    {
+      name: 'teardown',
+      testDir: './tests/bdd',
+      testMatch: /cleanup\.teardown\.ts/,
+      //dependencies: ['chromium'],
+    },
 
     // {
     //   name: 'firefox',

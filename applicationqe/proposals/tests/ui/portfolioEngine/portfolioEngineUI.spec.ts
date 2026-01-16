@@ -3,7 +3,7 @@ import { expect } from '@fixtures/fixtures';
 import { PortfolioEnginePage } from '@pages/PortfolioEngineObjectModel';
 import { navigateToPortfolioEngine } from '@helperfunctions/navigateToPortfolioEngine';
 import { navigateToHomePage } from '@helperfunctions/navigateToHomePage';
-import { selectCustodian } from '@datafactory/proposalVariations';
+import { selectCustodian } from '@data/proposalVariations';
 
 
 
@@ -52,7 +52,7 @@ test.describe('Portfolio Engine Prep', () => {
         await portfolioEnginePage.addStrategyToPortfolio('alphasimplex, alternative model portfolio, profile 5, growth');
         await portfolioEnginePage.addStrategyToPortfolio('jpmorgan absolute return - profile 1');
 
-        await portfolioEnginePage.modelPortfolioNameTextbox.fill('Test Portfolio');
+        await portfolioEnginePage.modelPortfolioNameTextbox.fill('E2E Test Portfolio');
         await portfolioEnginePage.strategySaveButton.click();
         await portfolioEnginePage.page.waitForLoadState();
 

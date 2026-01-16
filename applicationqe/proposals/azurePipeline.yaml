@@ -44,19 +44,19 @@ parameters:
       - silo
 
   - name: tag
-    displayName: "Cucumber Tag to Run"
+    displayName: "BDD Tag to Run"
     type: string
-    default: "@smokeTest"
+    default: "@regression|@smokeTest|@e2e"
 
   - name: threadCount
     displayName: "Number of Threads"
     type: string
     default: "2"
 
-  - name: runnerFile
-    displayName: "Runner File"
-    type: string
-    default: "*"
+#  - name: runnerFile
+#    displayName: "Runner File"
+#    type: string
+#    default: "*"
 
 # -----------------------------
 # Job Section
@@ -70,8 +70,8 @@ jobs:
       buildPath: "$(Build.SourcesDirectory)"
       proposalsPath: "$(Build.SourcesDirectory)/applicationqe/proposals"
       environment: ${{ parameters.environment }}
-      allureResultsDir: "$(Build.SourcesDirectory)/applicationqe/proposals/target/allure-results"
-      allureReportDir: "$(Build.SourcesDirectory)/applicationqe/proposals/target/allure-report"
+      allureResultsDir: "$(Build.SourcesDirectory)/applicationqe/proposals/reports/allure-results"
+      allureReportDir: "$(Build.SourcesDirectory)/applicationqe/proposals/reports/allure-report"
       allureToolsDir: "$(Build.ArtifactStagingDirectory)/allure-tools"
       INFLUXDB_URL: "http://azncc03perf.corp.local:8086"
       INFLUXDB_ORG: "MF"
@@ -97,19 +97,19 @@ jobs:
               if [ "$HOUR" -ge 21 ] && [ "$MINUTE" -ge 00 ]; then
                 # afet 4:00 PM EST → Test11
                 echo "##vso[task.setvariable variable=environment]test10"
-                echo "##vso[task.setvariable variable=tag]@smokeTest"
+                echo "##vso[task.setvariable variable=tag]@regression|@smokeTest|@e2e"
                 echo "##vso[task.setvariable variable=threadCount]2"
                 echo "##vso[task.setvariable variable=runnerFile]*"
               elif [ "$HOUR" -ge 20 ] && [ "$MINUTE" -ge 45 ]; then
                 # after 3:45 PM EST → test11
                 echo "##vso[task.setvariable variable=environment]test11"
-                echo "##vso[task.setvariable variable=tag]@smokeTest"
+                echo "##vso[task.setvariable variable=tag]@regression|@smokeTest|@e2e"
                 echo "##vso[task.setvariable variable=threadCount]2"
                 echo "##vso[task.setvariable variable=runnerFile]*"
               elif [ "$HOUR" -eq 20 ] && [ "$MINUTE" -eq 30 ]; then
                 # after 3:30 PM EST → silo
                 echo "##vso[task.setvariable variable=environment]silo"
-                echo "##vso[task.setvariable variable=tag]@smokeSilo"
+                echo "##vso[task.setvariable variable=tag]@regression|@smokeSilo|@e2e"
                 echo "##vso[task.setvariable variable=threadCount]2"
                 echo "##vso[task.setvariable variable=runnerFile]*"
               else
@@ -130,12 +130,12 @@ jobs:
         displayName: "Print Parameters"
 
       - script: |
-          echo "Building Playwright test command..."
-          TEST_CMD="npx playwright test --reporter=allure-playwright,html,junit"
+          echo "Building Playwright BDD test command..."
+          TEST_CMD="npx playwright test --grep $(tag) --reporter=allure-playwright,html,junit"
 
           echo "Final command: $TEST_CMD"
           echo "##vso[task.setvariable variable=TEST_CMD]$TEST_CMD"
-        displayName: "Build Playwright Command"
+        displayName: "Build Playwright BDD Command"
         workingDirectory: $(Build.SourcesDirectory)/applicationqe/proposals
         continueOnError: false
 
@@ -151,6 +151,13 @@ jobs:
       - script: npx playwright install chromium
         workingDirectory: $(Build.SourcesDirectory)/applicationqe/proposals
         displayName: "Install Playwright Browsers"
+        continueOnError: false
+
+      - script: |
+          echo "Generating BDD test files from features..."
+          npm run bddgen
+        workingDirectory: $(Build.SourcesDirectory)/applicationqe/proposals
+        displayName: "Generate BDD Tests"
         continueOnError: false
 
       - script: |
@@ -177,7 +184,7 @@ jobs:
         displayName: "Install and Verify Allure CLI"
 
       - script: |
-          mkdir -p "$(proposalsPath)/target/allure-results"
+          mkdir -p "$(proposalsPath)/reports/allure-results"
           echo "========================================"
           echo "PLAYWRIGHT TEST EXECUTION START"
           echo "========================================"
@@ -216,7 +223,7 @@ jobs:
           ls -la $(allureResultsDir) 2>/dev/null || echo "Allure results directory not found"
           echo ""
           echo "Listing Playwright reports:"
-          ls -la $(proposalsPath)/playwright-report 2>/dev/null || echo "Playwright report directory not found"
+          ls -la $(proposalsPath)/reports/playwright-report 2>/dev/null || echo "Playwright report directory not found"
         displayName: "Run Playwright Tests with Allure"
         workingDirectory: $(Build.SourcesDirectory)/applicationqe/proposals
         continueOnError: true
@@ -227,15 +234,15 @@ jobs:
           find $(buildPath)/applicationqe/proposals -type f -name "*.xml" | grep -E "(junit|test)" | head -20 || echo "No XML files found"
           echo "---"
           echo "test-results contents:"
-          ls -la $(buildPath)/applicationqe/proposals/test-results 2>/dev/null || echo "test-results directory not found"
+          ls -la $(buildPath)/applicationqe/proposals/reports/test-results 2>/dev/null || echo "test-results directory not found"
           echo "---"
           echo "Current directory contents:"
           ls -la $(buildPath)/applicationqe/proposals 2>/dev/null | grep -E "(junit|test-results|xml|playwright)" || echo "No matching files found"
           echo "---"
           echo "Copying test results to expected location..."
           mkdir -p $(buildPath)/test-results
-          cp -r $(buildPath)/applicationqe/proposals/test-results/* $(buildPath)/test-results 2>/dev/null || echo "No test-results to copy"
-          cp -r $(buildPath)/applicationqe/proposals/playwright-report $(buildPath)/playwright-report 2>/dev/null || echo "No playwright-report to copy"
+          cp -r $(buildPath)/applicationqe/proposals/reports/test-results/* $(buildPath)/test-results 2>/dev/null || echo "No test-results to copy"
+          cp -r $(buildPath)/applicationqe/proposals/reports/playwright-report $(buildPath)/playwright-report 2>/dev/null || echo "No playwright-report to copy"
         displayName: "Debug Test Results Location"
         condition: always()
         continueOnError: true
@@ -255,9 +262,9 @@ jobs:
       - script: |
           echo "Checking for Allure results..."
           # Check proposals allure-results folder
-          SRC_DIR="$(proposalsPath)/target/allure-results"
+          SRC_DIR="$(proposalsPath)/reports/allure-results"
           ALT_DIR="$(proposalsPath)/allure-results"
-          REPORT_DIR="$(proposalsPath)/target/allure-report"
+          REPORT_DIR="$(proposalsPath)/reports/allure-report"
 
           if [ ! -d "$SRC_DIR" ] || [ -z "$(ls -A "$SRC_DIR" 2>/dev/null)" ]; then
             if [ -d "$ALT_DIR" ] && [ -n "$(ls -A "$ALT_DIR" 2>/dev/null)" ]; then
@@ -289,18 +296,18 @@ jobs:
 
       - script: |
           echo "Generating comprehensive JUnit XML report from test execution..."
-          mkdir -p $(proposalsPath)/test-results
+          mkdir -p $(proposalsPath)/reports/test-results
 
           python3 $(Build.SourcesDirectory)/applicationqe/proposals/scripts/generate_junit_report.py \
             "$(allureResultsDir)" \
-            "$(proposalsPath)/test-results/junit-report.xml"
+            "$(proposalsPath)/reports/test-results/junit-report.xml"
 
           echo "---Report Preview---"
-          head -30 $(proposalsPath)/test-results/junit-report.xml || echo "Report not found"
+          head -30 $(proposalsPath)/reports/test-results/junit-report.xml || echo "Report not found"
           
           echo "Copying test results to build root..."
           mkdir -p $(buildPath)/test-results
-          cp -r $(proposalsPath)/test-results/* $(buildPath)/test-results 2>/dev/null || true
+          cp -r $(proposalsPath)/reports/test-results/* $(buildPath)/test-results 2>/dev/null || true
         displayName: "Generate JUnit XML Report"
         condition: always()
         continueOnError: true
@@ -363,7 +370,7 @@ jobs:
       - task: PublishBuildArtifacts@1
         displayName: "Publish Playwright HTML Report"
         inputs:
-          PathtoPublish: "$(proposalsPath)/playwright-report"
+          PathtoPublish: "$(proposalsPath)/reports/playwright-report"
           ArtifactName: "PlaywrightReport"
           publishLocation: "Container"
         condition: always()

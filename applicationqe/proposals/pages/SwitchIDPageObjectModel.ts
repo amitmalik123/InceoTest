@@ -1,5 +1,5 @@
 import { type Locator, type Page } from '@playwright/test';
-import { selectIfVisible } from '@helperfunctions/selectIfVisible';
+import { selectIfVisible } from '../helperfunctions/selectIfVisible';
 
 export class SwitchIDPage {
     readonly page: Page;

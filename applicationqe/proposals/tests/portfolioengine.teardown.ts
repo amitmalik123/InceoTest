@@ -3,6 +3,8 @@ import { navigateToPortfolioEngine } from '@helperfunctions/navigateToPortfolioE
 import { PortfolioEnginePage } from '../pages/PortfolioEngineObjectModel';
 import { EwmPage } from '../pages/ewmPageObjectModel';
 import { test as teardown, expect } from '@playwright/test';
+import { networkInterfaces } from 'os';
+import { time } from 'console';
 
 teardown.describe.configure({ mode: 'default' });
 
@@ -24,9 +26,26 @@ teardown.describe('Delete Client', () => {
     teardown('Cleanup - Delete created client', async ({ page }) => {
         await navigateToHomePage(page);
         const portfolioEnginePage = new PortfolioEnginePage(page);
-        await portfolioEnginePage.searchForClient('guy dude');
-        await portfolioEnginePage.deleteClient('guy dude')
 
+        let totalItems = 1;
+        let index = 0;
+        while (totalItems > index) {
+            // Increment index to move down the list since deleted clients remain visible in search
+            totalItems = await portfolioEnginePage.searchForClient('guy dude', index);
+            await portfolioEnginePage.deleteClientLink.waitFor({ state: 'visible', timeout: 5000 });
+            await portfolioEnginePage.deleteClient();
+            index++;
+        }
+    });
+});
+
+teardown.describe.skip('Delete All Portfolios', () => {
+    teardown.use({ storageState: './authfiles/role1.json' });
+    teardown('Cleanup - Delete all portfolios regardless of date', async ({ page }) => {
+        await navigateToHomePage(page);
+        const portfolioEnginePage = new PortfolioEnginePage(await navigateToPortfolioEngine(page));
+        await portfolioEnginePage.managePortfoliosButton.click();
+        await portfolioEnginePage.deleteAllPortfolios();
     });
 });
 

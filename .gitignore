@@ -1,3 +1,6 @@
+# Test artifacts at workspace root
 /allure-results/
 /authfiles/
 /test-results/
+
+# Managed in applicationqe/proposals/.gitignore

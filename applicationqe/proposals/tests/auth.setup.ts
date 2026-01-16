@@ -3,12 +3,13 @@ import { LoginPage } from '../pages/LoginPageObjectModel';
 import { SwitchIDPage } from '../pages/SwitchIDPageObjectModel';
 
 setup('Login to Environment', async ({ page }) => {
+    console.log('\n=== Running Setup: Logging in and saving auth state ===');
     const role1AuthFile = './authfiles/role1.json';
     const loginPage = new LoginPage(page);
     const switchIDPage = new SwitchIDPage(page);
     //login
     await loginPage.gotoLoginPage();
-    await loginPage.signIn(process.env.USERNAME, process.env.PASSWORD);
+    await loginPage.signIn(process.env.USER, process.env.PASS);
     //switch to correct id if using admin account
     if (process.env.userID) {
         await switchIDPage.selectID(process.env.userID);

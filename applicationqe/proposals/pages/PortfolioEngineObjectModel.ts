@@ -1,4 +1,5 @@
-import { selectIfVisible } from '@helperfunctions/selectIfVisible';
+import { text } from 'stream/consumers';
+import { selectIfVisible } from '../helperfunctions/selectIfVisible';
 import { type Locator, type Page } from '@playwright/test';
 
 export class PortfolioEnginePage {
@@ -60,6 +61,7 @@ export class PortfolioEnginePage {
     readonly managePortfoliosButton: Locator;
     readonly createNewModelPortfolioButton: Locator;
     readonly strategySaveButton: Locator;
+    readonly portfolioCloseButton: Locator;
     readonly createProposalButton: Locator;
 
     // Portfolio Management - Delete Elements
@@ -286,7 +288,7 @@ export class PortfolioEnginePage {
         this.performanceHeader = page.getByRole('heading', { name: /Performance/i });
 
         // Widget Selection Checkboxes
-        this.widgetSelectionDropdownButton = page.getByRole('button').filter({ has: page.locator('svg path[d*="M10 13.5a3.5"]') });
+        this.widgetSelectionDropdownButton = page.locator('header').getByRole('button').filter({ has: page.locator('svg path[d*="M10 13.5a3.5"]') });
         this.performanceWidgetCheckbox = page.locator('[class*="menu-component__item"]').filter({ hasText: 'Performance' }).locator('span').first();
         this.drawdownWidgetCheckbox = page.locator('[class*="menu-component__item"]').filter({ hasText: 'Drawdown' }).locator('span').first();
         this.summaryStatisticsWidgetCheckbox = page.locator('[class*="menu-component__item"]').filter({ hasText: 'Summary Statistics' }).locator('span').first();
@@ -322,13 +324,11 @@ export class PortfolioEnginePage {
         // Portfolio Management Buttons
         this.managePortfoliosButton = page.getByRole('button', { name: 'Manage Portfolios' });
         this.createNewModelPortfolioButton = page.getByRole('button', { name: 'Create New Model Portfolio' });
-        // this.strategySaveButton = page.getByRole('button', { name: 'Save' });
-        // Line 324 replacement
         this.strategySaveButton = page.locator('[class*="popup-component__footer"], [class*="management-footer"]').getByRole('button', { name: 'Save' });
+        this.portfolioCloseButton = page.locator('[class*="popup-component__footer"], [class*="management-footer"]').getByRole('button', { name: 'Close' });
         this.createProposalButton = page.getByRole('button', { name: 'Create Proposal' });
 
         // Portfolio Management - Delete Elements
-        // Gets the first 3-dot menu button in the portfolio table
         this.portfolioDeleteControlButton = page.locator('[class*="popup-component"]').locator('button[class*="button-icon"]').filter({ has: page.locator('svg[viewBox="0 0 17 17"]') }).first();
         this.portfolioDeleteText = page.locator('[class*="popover-controls-component__action"]').getByText('Delete', { exact: true });
         this.portfolioDeleteConfirmButton = page.getByRole('button', { name: 'Delete' });
@@ -525,7 +525,8 @@ export class PortfolioEnginePage {
         this.loadingImageModal = page.locator('#loadingImageModal');
         this.clientSearchInput = page.getByRole('textbox', { name: 'client_search_input' }).or(page.locator('#client_search_input'));
         this.searchButton = page.getByRole('button', { name: 'search' }).or(page.locator('#searchbutton'));
-        this.clientCollapsedLink = page.locator('#ClientListGrid tbody tr.jqgrow').first().locator('td[aria-describedby="ClientListGrid_subgrid"] a');
+        //this.clientCollapsedLink = page.locator('#ClientListGrid tbody tr.jqgrow').first().locator('td[aria-describedby="ClientListGrid_subgrid"] a');
+        this.clientCollapsedLink = page.locator('td[role="gridcell"][aria-describedby="ClientListGrid_clientName"]');
         this.guyDudeIndividualLink = page.getByRole('link', { name: 'Guy Dude, Individual' });
         this.viewDocumentHistoryLink = page.getByRole('link', { name: 'View Document History' });
         this.portfolioDetailsLink = page.getByRole('link', { name: 'Portfolio Details' });
@@ -550,6 +551,43 @@ export class PortfolioEnginePage {
      */
     getAllocationTextbox(index: number): Locator {
         return this.page.locator('[class*="portfolio-valid-item"]').locator('input[type="text"]').nth(index);
+    }
+
+    /**
+     * Create a new portfolio with default strategies if one doesn't already exist
+     * @param portfolioName - Name for the portfolio (defaults to 'E2E Test Portfolio')
+     */
+    async createPortfolioIfNeeded(portfolioName: string = 'Generic Portfolio'): Promise<void> {
+        if (await this.getStartedButton.isVisible()) {
+            await this.getStartedButton.click();
+        } else if (await this.managePortfoliosButton.isVisible()) {
+            await this.managePortfoliosButton.click();
+
+            // Check for existing portfolio with today's date and portfolio name
+            const existingPortfolio = this.page.locator('tr').filter({ hasText: portfolioName }).filter({ hasText: this.getTodayDate() }).first();
+
+            if (await existingPortfolio.isVisible()) {
+                // Portfolio already exists, select it and close
+                await existingPortfolio.click();
+                await this.portfolioCloseButton.click();
+                return;
+            }
+        }
+
+        // Create new model portfolio
+        await this.createNewModelPortfolioButton.click();
+        await this.assetMarkPlatformStrategiesText.click();
+
+        // Add strategies to the portfolio
+        await this.addStrategyToPortfolio('assetmark income builder, profile 2, conservative');
+        await this.addStrategyToPortfolio('blackrock equity dividend');
+        await this.addStrategyToPortfolio('savos us risk controlled strategy, profile 6');
+        await this.addStrategyToPortfolio('alphasimplex, alternative model portfolio, profile 5, growth');
+        await this.addStrategyToPortfolio('jpmorgan absolute return - profile 1');
+
+        await this.modelPortfolioNameTextbox.fill(portfolioName);
+        await this.strategySaveButton.click();
+        await this.page.waitForLoadState();
     }
 
     /**
@@ -623,15 +661,34 @@ export class PortfolioEnginePage {
      * Search for a client by name
      * @param clientName - Full name of the client
      */
-    async searchForClient(clientName: string): Promise<void> {
+    async searchForClient(clientName: string, index: number = 0): Promise<number> {
         await this.clientsLink.click();
         await this.page.waitForLoadState();
         await selectIfVisible(this.newClientExperienceDecline);
         await this.clientSearchInput.fill(clientName);
         await this.searchButton.click();
-        await this.clientCollapsedLink.click();
-        const clientLink = this.page.getByRole('link').filter({ hasText: clientName }).and(this.page.locator('[href*="ClientID"]'));
-        await clientLink.click();
+
+        // Wait for either results or "no results" message
+        try {
+            await this.page.getByText('$500,000.00').first().waitFor({ timeout: 5000 });
+        } catch {
+            await this.page.getByText('No search results were found.').waitFor({ timeout: 5000 });
+            return 0;
+        }
+
+        let totalItems: number;
+        // Get the total items count
+        const totalElement = this.page.locator('span.viewall span.total').first();
+        if (await totalElement.isVisible()) {
+            const totalText = await totalElement.textContent();
+            totalItems = parseInt(totalText);
+        } else {
+            totalItems = 0;
+        }
+        await this.clientCollapsedLink.nth(index).click();
+        // const clientLink = this.page.getByRole('link').filter({ hasText: clientName }).and(this.page.locator('[href*="ClientID"]'));
+        // await clientLink.click();
+        return totalItems;
     }
 
     /**
@@ -712,7 +769,7 @@ export class PortfolioEnginePage {
      * @param clientName - Full name of the client (e.g., 'Guy Dude, Individual')
      */
     async navigateToClientPortfolioDetails(clientName: string): Promise<void> {
-        await this.viewDocumentHistoryLink.click();
+        await selectIfVisible(this.viewDocumentHistoryLink);
         await this.portfolioDetailsLink.click();
     }
 
@@ -720,7 +777,7 @@ export class PortfolioEnginePage {
      * Navigate to client's portfolio details
      * @param clientName - Full name of the client (e.g., 'Guy Dude, Individual')
      */
-    async deleteClient(clientName: string): Promise<void> {
+    async deleteClient(): Promise<void> {
         this.page.once('dialog', dialog => {
             console.log(`Dialog message: ${dialog.message()}`);
             dialog.accept();
@@ -779,19 +836,103 @@ export class PortfolioEnginePage {
     }
 
     /**
-     * Delete a specific portfolio by date or name. Defaults to today's date if no identifier provided.
+     * Delete all portfolios matching the specified identifier (date or name). Defaults to today's date if no identifier provided.
      * @param identifier - The date (e.g., '12/18/25') or portfolio name to delete. If not provided, uses today's date.
      * @example
-     * await portfolioEnginePage.deletePortfolio(); // Deletes portfolio with today's date
+     * await portfolioEnginePage.deletePortfolio(); // Deletes all portfolios with today's date
      * await portfolioEnginePage.deletePortfolio('12/18/25');
      * await portfolioEnginePage.deletePortfolio('Test Portfolio');
      */
     async deletePortfolio(identifier?: string): Promise<void> {
         const dateToUse = identifier ?? this.getTodayDate();
-        const controlButton = this.getPortfolioControlButton(dateToUse);
-        await controlButton.click();
-        await this.portfolioDeleteText.click();
-        await this.portfolioDeleteConfirmButton.click();
+        let hasMatchingPortfolios = true;
+
+        while (hasMatchingPortfolios) {
+            // Try to find the control button for the matching portfolio
+            const controlButton = this.getPortfolioControlButton(dateToUse);
+            const isVisible = await controlButton.isVisible({ timeout: 2000 }).catch(() => false);
+
+            if (isVisible) {
+                await controlButton.click();
+                await this.portfolioDeleteText.click();
+                await this.portfolioDeleteConfirmButton.click();
+            } else {
+                hasMatchingPortfolios = false;
+            }
+        }
+    }
+
+    /**
+     * Delete all portfolios in the manage portfolios view regardless of date or name
+     * @example
+     * await portfolioEnginePage.managePortfoliosButton.click();
+     * await portfolioEnginePage.deleteAllPortfolios();
+     */
+    async deleteAllPortfolios(): Promise<void> {
+        let hasPortfolios = true;
+
+        while (hasPortfolios) {
+            // Find all control buttons in the portfolio table
+            const controlButtons = this.page.locator('[class*="popup-component"]')
+                .locator('tbody tr')
+                .locator('button[class*="button-icon"]')
+                .filter({ has: this.page.locator('svg[viewBox="0 0 17 17"]') });
+
+            const count = await controlButtons.count();
+
+            if (count > 0) {
+                // Click the first control button
+                await controlButtons.first().click();
+                await this.portfolioDeleteText.click();
+                await this.portfolioDeleteConfirmButton.click();
+            } else {
+                hasPortfolios = false;
+            }
+        }
+    }
+
+    /**
+     * Validate that a canvas element has rendered content
+     * @param canvas - The canvas locator to validate
+     * @returns Promise<boolean> - True if canvas has rendered content, false otherwise
+     */
+    async validateCanvas(canvas: any): Promise<boolean> {
+        const hasRenderedContent = await canvas.evaluate((el: HTMLCanvasElement) => {
+            if (!el) return false;
+            const ctx = el.getContext('2d');
+            if (!ctx) return false;
+
+            // Check dimensions
+            if (el.width === 0 || el.height === 0) return false;
+
+            // Check if canvas has actual pixel data (not blank)
+            const imageData = ctx.getImageData(0, 0, el.width, el.height);
+            const pixelData = imageData.data;
+
+            // Check if any pixel is non-transparent or non-white
+            for (let i = 0; i < pixelData.length; i += 4) {
+                const alpha = pixelData[i + 3];
+                if (alpha > 0) {
+                    // Found a non-transparent pixel, canvas has content
+                    return true;
+                }
+            }
+
+            return false; // Canvas is completely transparent/blank
+        });
+        return hasRenderedContent;
+    }
+
+    /**
+     * Verify a proposal section by clicking the element and validating its content
+     * @param clickElement - The element to click
+     * @param content - The content locator to verify
+     * @returns Promise<boolean> - True if section is verified successfully
+     */
+    async verifyProposalSection(clickElement: any, content: any): Promise<boolean> {
+        await clickElement.click();
+        await content.waitFor({ state: 'visible', timeout: 300000 });
+        return await this.validateCanvas(content);
     }
 
     /**
