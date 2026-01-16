@@ -142,7 +142,7 @@
                             "target": "owner_id"
                         },
                         {
-                            "source": "holdings",
+                            "source": "allocations",
                             "target": "allocations"
                         },
                         {
@@ -151,7 +151,27 @@
                         }
                     ],
                     "log_differences": true,
-                    "comparison_name": "Verify Response API vs DB field values"
+                    "comparison_name": "Verify Response API vs DB field values",
+                    "field_transformers": [
+                        {
+                            "field": "investmentMin",
+                            "transform": "array_to_object",
+                            "options": {
+                                "key_field": "type",
+                                "value_field": "value",
+                                "lowercase_keys": true
+                            }
+                        },
+                        {
+                            "field": "investment_min",
+                            "transform": "array_to_object",
+                            "options": {
+                                "key_field": "type",
+                                "value_field": "value",
+                                "lowercase_keys": true
+                            }
+                        }
+                    ]
                 },
                 {
                     "source": "api_response",
@@ -232,7 +252,7 @@
             "Content-Type": "application/json"
         },
         "payload": {
-            "allocationDetail": [
+            "allocations": [
                 {
                     "entityType": "Model",
                     "allocationName": "string",
@@ -310,7 +330,7 @@
             "Content-Type": "application/json"
         },
         "payload": {
-            "allocationDetail": [
+            "allocations": [
                 {
                     "entityType": "Security",
                     "allocationName": "string",
@@ -508,7 +528,7 @@
                             "target": "owner_id"
                         },
                         {
-                            "source": "holdings",
+                            "source": "allocations",
                             "target": "allocations"
                         },
                         {
@@ -517,7 +537,27 @@
                         }
                     ],
                     "log_differences": true,
-                    "comparison_name": "Verify Response API vs DB field values"
+                    "comparison_name": "Verify Response API vs DB field values",
+                    "field_transformers": [
+                        {
+                            "field": "investmentMin",
+                            "transform": "array_to_object",
+                            "options": {
+                                "key_field": "type",
+                                "value_field": "value",
+                                "lowercase_keys": true
+                            }
+                        },
+                        {
+                            "field": "investment_min",
+                            "transform": "array_to_object",
+                            "options": {
+                                "key_field": "type",
+                                "value_field": "value",
+                                "lowercase_keys": true
+                            }
+                        }
+                    ]
                 },
                 {
                     "source": "api_response",
@@ -599,7 +639,7 @@
         },
         "payload": {
             "modifiedBy": "3fa85f64-5717-4562-b3fc-2c963f66afa6",
-            "allocationDetail": [
+            "allocations": [
                 {
                     "entityType": "Model",
                     "allocationName": "string",
@@ -688,7 +728,7 @@
         },
         "payload": {
             "modifiedBy": "3fa85f64-5717-4562-b3fc-2c963f66afa6",
-            "allocationDetail": [
+            "allocations": [
                 {
                     "entityType": "Security",
                     "allocationName": "string",
@@ -767,7 +807,7 @@
         },
         "payload": {
             "modifiedBy": "3fa85f64-5717-4562-b3fc-2c963f66afa6",
-            "allocationDetail": [
+            "allocations": [
                 {
                     "allocationName": "string",
                     "modelId": "string",
@@ -845,7 +885,7 @@
         },
         "payload": {
             "modifiedBy": "3fa85f64-5717-4562-b3fc-2c963f66afa6",
-            "allocationDetail": [
+            "allocations": [
                 {
                     "entityType": "Security",
                     "allocationName": "string",
@@ -934,7 +974,7 @@
         },
         "payload": {
             "modifiedBy": "3fa85f64-5717-4562-b3fc-2c963f66afa6",
-            "allocationDetail": [
+            "allocations": [
                 {
                     "entityType": "Security",
                     "allocationName": "string",
@@ -1007,7 +1047,7 @@
             "Content-Type": "application/json"
         },
         "payload": {
-            "allocationDetail": [
+            "allocations": [
                 {
                     "entityType": "Model",
                     "allocationName": "string",
@@ -1061,5 +1101,303 @@
         "db_type": "postgresql",
         "db_connection_name": "models",
         "test_summary": "Test TC010: Update allocation with hardcoded invalid/non-existent model ID, verify 409 State Conflict error"
+    },
+    {
+        "test_id": "TC011",
+        "service_name": "models",
+        "workflow_mode": "sequential",
+        "test_name": "PUT /allocation/{modelId} with empty payload - Bad Request error (TC011)",
+        "protocol": "REST",
+        "test_type": [
+            "Functional",
+            "Smoke"
+        ],
+        "mainURL": "{{base_url}}",
+        "endpoint": "/allocation/{{first_model_id}}",
+        "method": "PUT",
+        "rpc_method": "",
+        "graphql_query": "",
+        "graphql_variables": "",
+        "soap_action": "",
+        "soap_envelope": "",
+        "headers_additional": {
+            "Content-Type": "application/json"
+        },
+        "payload": "test",
+        "expected_status": "400",
+        "expected_response_schema": "models\\schemas\\Schema_model_id_PUT_400_error.json",
+        "expected_response": null,
+        "ignore_fields": [
+            "id"
+        ],
+        "extract_values": [],
+        "validate": {
+            "performance": {
+                "max_response_time_ms": null
+            },
+            "security": {
+                "checks": [
+                    "sql_injection",
+                    "xss"
+                ]
+            },
+            "data_comparison": [
+                {
+                    "source": "api_response",
+                    "source_array_path": "status",
+                    "target": "literal",
+                    "target_literal": 400,
+                    "comparison_name": "Verify status is 400"
+                },
+                {
+                    "source": "api_response",
+                    "source_array_path": "title",
+                    "target": "literal",
+                    "target_literal": "Invalid JSON",
+                    "comparison_name": "Verify error title is 'Invalid JSON'"
+                }
+            ]
+        },
+        "test_data_file": "",
+        "db_query_timing": "after_api",
+        "db_queries": {
+            "default": "models/db_queries/Query_models_GET.sql",
+            "count_query": "SELECT COUNT(*) AS count FROM public.vw_model;"
+        },
+        "db_type": "postgresql",
+        "db_connection_name": "models",
+        "test_summary": "Test TC011: Send empty payload {} to allocation endpoint, verify 400 Bad Request error for missing required fields"
+    },
+    {
+        "test_id": "TC012",
+        "service_name": "models",
+        "workflow_mode": "sequential",
+        "test_name": "PUT /allocation/{modelId} with empty entityType - Bad Request error (TC012)",
+        "protocol": "REST",
+        "test_type": [
+            "Functional",
+            "Smoke"
+        ],
+        "mainURL": "{{base_url}}",
+        "endpoint": "/allocation/{{first_model_id}}",
+        "method": "PUT",
+        "rpc_method": "",
+        "graphql_query": "",
+        "graphql_variables": "",
+        "soap_action": "",
+        "soap_envelope": "",
+        "headers_additional": {
+            "Content-Type": "application/json"
+        },
+        "payload": {
+            "allocations": [
+                {
+                    "entityType": "",
+                    "allocationName": "string",
+                    "modelId": "string",
+                    "cusip": "string",
+                    "ticker": "string",
+                    "weight": 0
+                }
+            ]
+        },
+        "expected_status": "400",
+        "expected_response_schema": "models\\schemas\\Schema_model_id_PUT_400_error.json",
+        "expected_response": null,
+        "ignore_fields": [
+            "id"
+        ],
+        "extract_values": [],
+        "validate": {
+            "performance": {
+                "max_response_time_ms": null
+            },
+            "security": {
+                "checks": [
+                    "sql_injection",
+                    "xss"
+                ]
+            },
+            "data_comparison": [
+                {
+                    "source": "api_response",
+                    "source_array_path": "status",
+                    "target": "literal",
+                    "target_literal": 400,
+                    "comparison_name": "Verify status is 400"
+                },
+                {
+                    "source": "api_response",
+                    "source_array_path": "title",
+                    "target": "literal",
+                    "target_literal": "Invalid JSON",
+                    "comparison_name": "Verify error title is 'Invalid JSON'"
+                }
+            ]
+        },
+        "test_data_file": "",
+        "db_query_timing": "after_api",
+        "db_queries": {
+            "default": "models/db_queries/Query_models_GET.sql",
+            "count_query": "SELECT COUNT(*) AS count FROM public.vw_model;"
+        },
+        "db_type": "postgresql",
+        "db_connection_name": "models",
+        "test_summary": "Test TC012: Send payload with empty entityType field, verify 400 Bad Request error for invalid entityType value"
+    },
+    {
+        "test_id": "TC013",
+        "service_name": "models",
+        "workflow_mode": "sequential",
+        "test_name": "PUT /allocation/{modelId} with invalid field in payload - Bad Request error (TC013)",
+        "protocol": "REST",
+        "test_type": [
+            "Functional",
+            "Smoke"
+        ],
+        "mainURL": "{{base_url}}",
+        "endpoint": "/allocation/{{first_model_id}}",
+        "method": "PUT",
+        "rpc_method": "",
+        "graphql_query": "",
+        "graphql_variables": "",
+        "soap_action": "",
+        "soap_envelope": "",
+        "headers_additional": {
+            "Content-Type": "application/json"
+        },
+        "payload": {
+            "allocations": [
+                {
+                    "entityType": "Security",
+                    "allocationName": "string",
+                    "modelId": "string",
+                    "cusip": "string",
+                    "ticker": "string",
+                    "weight": 0.5,
+                    "test": 123
+                }
+            ]
+        },
+        "expected_status": "400",
+        "expected_response_schema": "models\\schemas\\Schema_model_id_PUT_400_error.json",
+        "expected_response": null,
+        "ignore_fields": [
+            "id"
+        ],
+        "extract_values": [],
+        "validate": {
+            "performance": {
+                "max_response_time_ms": null
+            },
+            "security": {
+                "checks": [
+                    "sql_injection",
+                    "xss"
+                ]
+            },
+            "data_comparison": [
+                {
+                    "source": "api_response",
+                    "source_array_path": "status",
+                    "target": "literal",
+                    "target_literal": 400,
+                    "comparison_name": "Verify status is 400"
+                },
+                {
+                    "source": "api_response",
+                    "source_array_path": "title",
+                    "target": "literal",
+                    "target_literal": "Invalid JSON",
+                    "comparison_name": "Verify error title is 'Invalid JSON'"
+                }
+            ]
+        },
+        "test_data_file": "",
+        "db_query_timing": "after_api",
+        "db_queries": {
+            "default": "models/db_queries/Query_models_GET.sql",
+            "count_query": "SELECT COUNT(*) AS count FROM public.vw_model;"
+        },
+        "db_type": "postgresql",
+        "db_connection_name": "models",
+        "test_summary": "Test TC013: Send payload with invalid field 'test' in allocations, verify 400 Bad Request error for unrecognized field"
+    },
+    {
+        "test_id": "TC014",
+        "service_name": "models",
+        "workflow_mode": "sequential",
+        "test_name": "PUT /allocation/{modelId} with invalid data type for allocationName - Bad Request error (TC014)",
+        "protocol": "REST",
+        "test_type": [
+            "Functional",
+            "Smoke"
+        ],
+        "mainURL": "{{base_url}}",
+        "endpoint": "/allocation/{{first_model_id}}",
+        "method": "PUT",
+        "rpc_method": "",
+        "graphql_query": "",
+        "graphql_variables": "",
+        "soap_action": "",
+        "soap_envelope": "",
+        "headers_additional": {
+            "Content-Type": "application/json"
+        },
+        "payload": {
+            "allocations": [
+                {
+                    "entityType": "Security",
+                    "allocationName": 234,
+                    "modelId": "string",
+                    "cusip": "string",
+                    "ticker": "string",
+                    "weight": 0.5
+                }
+            ]
+        },
+        "expected_status": "400",
+        "expected_response_schema": "models\\schemas\\Schema_model_id_PUT_400_error.json",
+        "expected_response": null,
+        "ignore_fields": [
+            "id"
+        ],
+        "extract_values": [],
+        "validate": {
+            "performance": {
+                "max_response_time_ms": null
+            },
+            "security": {
+                "checks": [
+                    "sql_injection",
+                    "xss"
+                ]
+            },
+            "data_comparison": [
+                {
+                    "source": "api_response",
+                    "source_array_path": "status",
+                    "target": "literal",
+                    "target_literal": 400,
+                    "comparison_name": "Verify status is 400"
+                },
+                {
+                    "source": "api_response",
+                    "source_array_path": "title",
+                    "target": "literal",
+                    "target_literal": "Invalid JSON",
+                    "comparison_name": "Verify error title is 'Invalid JSON'"
+                }
+            ]
+        },
+        "test_data_file": "",
+        "db_query_timing": "after_api",
+        "db_queries": {
+            "default": "models/db_queries/Query_models_GET.sql",
+            "count_query": "SELECT COUNT(*) AS count FROM public.vw_model;"
+        },
+        "db_type": "postgresql",
+        "db_connection_name": "models",
+        "test_summary": "Test TC014: Send payload with numeric value for allocationName field (expected string), verify 400 Bad Request error for invalid data type"
     }
 ]

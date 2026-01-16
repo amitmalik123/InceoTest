@@ -6,16 +6,19 @@
         "custodian": [
             "Fidelity"
         ],
-        "investmentMin": {
-            "additionalProp1": 10000
-        },
+        "investmentMin": [
+            {
+                "type": "System",
+                "value": 10000
+            }
+        ],
         "modelType": "Strategic",
         "riskProfile": "Moderate",
         "metadata": {
             "additionalProp1": "value1"
         }
     },
-    "allocationDetail": [
+    "allocations": [
         {
             "entityType": "Security",
             "allocationName": "Apple Inc",
@@ -35,5 +38,5 @@
     ],
     "investmentApproachName": "Test Approach",
     "benchmarkName": "S&P 500",
-    "benchmarkIsPrimary": true
+    "benchmarkIsPrimary": false
 }

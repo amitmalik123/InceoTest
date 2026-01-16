@@ -1,0 +1,629 @@
+{
+    "test_data_file": "",
+    "testcases": [
+        {
+            "test_id": "TC_RP_BANDS_001",
+            "service_name": "analyticsApiServices",
+            "workflow_mode": "parallel",
+            "test_name": "GET /v1/riskProfile/bands - Successful retrieval of risk profile bands",
+            "protocol": "REST",
+            "test_type": [
+                "Functional",
+                "Smoke"
+            ],
+            "mainURL": "{{base_url}}",
+            "endpoint": "/v1/riskProfile/bands",
+            "method": "GET",
+            "rpc_method": "",
+            "graphql_query": "",
+            "graphql_variables": "",
+            "soap_action": "",
+            "soap_envelope": "",
+            "headers_additional": {
+                "Content-Type": "application/json",
+                "Accept": "application/json"
+            },
+            "payload": null,
+            "expected_status": "200",
+            "expected_response_schema": "",
+            "expected_response": null,
+            "ignore_fields": [],
+            "extract_values": [
+                {
+                    "from": "response",
+                    "key": "[0].bandId",
+                    "assign_to": "first_band_id"
+                }
+            ],
+            "validate": {
+                "performance": {
+                    "max_response_time_ms": 2000
+                },
+                "security": {
+                    "checks": []
+                },
+                "data_comparison": {
+                    "source": "",
+                    "target": "",
+                    "format": "",
+                    "key_field": [],
+                    "fields_to_compare": [],
+                    "log_differences": false
+                }
+            },
+            "test_data_file": "",
+            "db_query": "",
+            "db_type": "",
+            "db_connection_name": "",
+            "test_summary": "Verify successful retrieval of all risk profile bands with valid response structure",
+            "test_scenario": "Positive test case to validate the API returns a list of risk profile bands with correct schema and status 200"
+        },
+        {
+            "test_id": "TC_RP_BANDS_002",
+            "service_name": "analyticsApiServices",
+            "workflow_mode": "parallel",
+            "test_name": "GET /v1/riskProfile/bands - Response contains valid band data",
+            "protocol": "REST",
+            "test_type": [
+                "Functional"
+            ],
+            "mainURL": "{{base_url}}",
+            "endpoint": "/v1/riskProfile/bands",
+            "method": "GET",
+            "rpc_method": "",
+            "graphql_query": "",
+            "graphql_variables": "",
+            "soap_action": "",
+            "soap_envelope": "",
+            "headers_additional": {
+                "Content-Type": "application/json"
+            },
+            "payload": null,
+            "expected_status": "200",
+            "expected_response_schema": "",
+            "expected_response": null,
+            "ignore_fields": [],
+            "extract_values": [],
+            "validate": {
+                "performance": {
+                    "max_response_time_ms": 2000
+                },
+                "security": {
+                    "checks": []
+                },
+                "data_comparison": {
+                    "source": "",
+                    "target": "",
+                    "format": "",
+                    "key_field": [],
+                    "fields_to_compare": [],
+                    "log_differences": false
+                }
+            },
+            "test_data_file": "",
+            "db_query": "",
+            "db_type": "",
+            "db_connection_name": "",
+            "test_summary": "Validate that response contains non-empty array of risk profile bands",
+            "test_scenario": "Verify the API returns at least one risk profile band in the response array"
+        },
+        {
+            "test_id": "TC_RP_BANDS_003",
+            "service_name": "analyticsApiServices",
+            "workflow_mode": "parallel",
+            "test_name": "GET /v1/riskProfile/bands - Validate response time performance",
+            "protocol": "REST",
+            "test_type": [
+                "Performance"
+            ],
+            "mainURL": "{{base_url}}",
+            "endpoint": "/v1/riskProfile/bands",
+            "method": "GET",
+            "rpc_method": "",
+            "graphql_query": "",
+            "graphql_variables": "",
+            "soap_action": "",
+            "soap_envelope": "",
+            "headers_additional": {
+                "Content-Type": "application/json"
+            },
+            "payload": null,
+            "expected_status": "200",
+            "expected_response_schema": "",
+            "expected_response": null,
+            "ignore_fields": [],
+            "extract_values": [],
+            "validate": {
+                "performance": {
+                    "max_response_time_ms": 1000
+                },
+                "security": {
+                    "checks": []
+                },
+                "data_comparison": {
+                    "source": "",
+                    "target": "",
+                    "format": "",
+                    "key_field": [],
+                    "fields_to_compare": [],
+                    "log_differences": false
+                }
+            },
+            "test_data_file": "",
+            "db_query": "",
+            "db_type": "",
+            "db_connection_name": "",
+            "test_summary": "Performance test to ensure API responds within acceptable time limits",
+            "test_scenario": "Verify that the API responds within 1000ms for risk profile bands retrieval"
+        },
+        {
+            "test_id": "TC_RP_BANDS_004",
+            "service_name": "analyticsApiServices",
+            "workflow_mode": "parallel",
+            "test_name": "GET /v1/riskProfile/bands - Validate response headers",
+            "protocol": "REST",
+            "test_type": [
+                "Functional"
+            ],
+            "mainURL": "{{base_url}}",
+            "endpoint": "/v1/riskProfile/bands",
+            "method": "GET",
+            "rpc_method": "",
+            "graphql_query": "",
+            "graphql_variables": "",
+            "soap_action": "",
+            "soap_envelope": "",
+            "headers_additional": {
+                "Content-Type": "application/json",
+                "Accept": "application/json"
+            },
+            "payload": null,
+            "expected_status": "200",
+            "expected_response_schema": "",
+            "expected_response": null,
+            "ignore_fields": [],
+            "extract_values": [],
+            "validate": {
+                "performance": {
+                    "max_response_time_ms": null
+                },
+                "security": {
+                    "checks": []
+                },
+                "data_comparison": {
+                    "source": "",
+                    "target": "",
+                    "format": "",
+                    "key_field": [],
+                    "fields_to_compare": [],
+                    "log_differences": false
+                }
+            },
+            "test_data_file": "",
+            "db_query": "",
+            "db_type": "",
+            "db_connection_name": "",
+            "test_summary": "Verify response headers contain correct Content-Type",
+            "test_scenario": "Validate that the API returns Content-Type: application/json in response headers"
+        },
+        {
+            "test_id": "TC_RP_BANDS_005",
+            "service_name": "analyticsApiServices",
+            "workflow_mode": "parallel",
+            "test_name": "GET /v1/riskProfile/bands - Invalid HTTP method (POST)",
+            "protocol": "REST",
+            "test_type": [
+                "Negative"
+            ],
+            "mainURL": "{{base_url}}",
+            "endpoint": "/v1/riskProfile/bands",
+            "method": "POST",
+            "rpc_method": "",
+            "graphql_query": "",
+            "graphql_variables": "",
+            "soap_action": "",
+            "soap_envelope": "",
+            "headers_additional": {
+                "Content-Type": "application/json"
+            },
+            "payload": {},
+            "expected_status": "405",
+            "expected_response_schema": "",
+            "expected_response": null,
+            "ignore_fields": [],
+            "extract_values": [],
+            "validate": {
+                "performance": {
+                    "max_response_time_ms": null
+                },
+                "security": {
+                    "checks": []
+                },
+                "data_comparison": {
+                    "source": "",
+                    "target": "",
+                    "format": "",
+                    "key_field": [],
+                    "fields_to_compare": [],
+                    "log_differences": false
+                }
+            },
+            "test_data_file": "",
+            "db_query": "",
+            "db_type": "",
+            "db_connection_name": "",
+            "test_summary": "Negative test: Verify POST method is not allowed",
+            "test_scenario": "Using POST method on GET-only endpoint should return 405 Method Not Allowed"
+        },
+        {
+            "test_id": "TC_RP_BANDS_006",
+            "service_name": "analyticsApiServices",
+            "workflow_mode": "parallel",
+            "test_name": "GET /v1/riskProfile/bands - Invalid HTTP method (PUT)",
+            "protocol": "REST",
+            "test_type": [
+                "Negative"
+            ],
+            "mainURL": "{{base_url}}",
+            "endpoint": "/v1/riskProfile/bands",
+            "method": "PUT",
+            "rpc_method": "",
+            "graphql_query": "",
+            "graphql_variables": "",
+            "soap_action": "",
+            "soap_envelope": "",
+            "headers_additional": {
+                "Content-Type": "application/json"
+            },
+            "payload": {},
+            "expected_status": "405",
+            "expected_response_schema": "",
+            "expected_response": null,
+            "ignore_fields": [],
+            "extract_values": [],
+            "validate": {
+                "performance": {
+                    "max_response_time_ms": null
+                },
+                "security": {
+                    "checks": []
+                },
+                "data_comparison": {
+                    "source": "",
+                    "target": "",
+                    "format": "",
+                    "key_field": [],
+                    "fields_to_compare": [],
+                    "log_differences": false
+                }
+            },
+            "test_data_file": "",
+            "db_query": "",
+            "db_type": "",
+            "db_connection_name": "",
+            "test_summary": "Negative test: Verify PUT method is not allowed",
+            "test_scenario": "Using PUT method on GET-only endpoint should return 405 Method Not Allowed"
+        },
+        {
+            "test_id": "TC_RP_BANDS_007",
+            "service_name": "analyticsApiServices",
+            "workflow_mode": "parallel",
+            "test_name": "GET /v1/riskProfile/bands - Invalid HTTP method (DELETE)",
+            "protocol": "REST",
+            "test_type": [
+                "Negative"
+            ],
+            "mainURL": "{{base_url}}",
+            "endpoint": "/v1/riskProfile/bands",
+            "method": "DELETE",
+            "rpc_method": "",
+            "graphql_query": "",
+            "graphql_variables": "",
+            "soap_action": "",
+            "soap_envelope": "",
+            "headers_additional": {
+                "Content-Type": "application/json"
+            },
+            "payload": null,
+            "expected_status": "405",
+            "expected_response_schema": "",
+            "expected_response": null,
+            "ignore_fields": [],
+            "extract_values": [],
+            "validate": {
+                "performance": {
+                    "max_response_time_ms": null
+                },
+                "security": {
+                    "checks": []
+                },
+                "data_comparison": {
+                    "source": "",
+                    "target": "",
+                    "format": "",
+                    "key_field": [],
+                    "fields_to_compare": [],
+                    "log_differences": false
+                }
+            },
+            "test_data_file": "",
+            "db_query": "",
+            "db_type": "",
+            "db_connection_name": "",
+            "test_summary": "Negative test: Verify DELETE method is not allowed",
+            "test_scenario": "Using DELETE method on GET-only endpoint should return 405 Method Not Allowed"
+        },
+        {
+            "test_id": "TC_RP_BANDS_008",
+            "service_name": "analyticsApiServices",
+            "workflow_mode": "parallel",
+            "test_name": "GET /v1/riskProfile/bands - Concurrent requests stress test",
+            "protocol": "REST",
+            "test_type": [
+                "Performance",
+                "Load"
+            ],
+            "mainURL": "{{base_url}}",
+            "endpoint": "/v1/riskProfile/bands",
+            "method": "GET",
+            "rpc_method": "",
+            "graphql_query": "",
+            "graphql_variables": "",
+            "soap_action": "",
+            "soap_envelope": "",
+            "headers_additional": {
+                "Content-Type": "application/json"
+            },
+            "payload": null,
+            "expected_status": "200",
+            "expected_response_schema": "",
+            "expected_response": null,
+            "ignore_fields": [],
+            "extract_values": [],
+            "validate": {
+                "performance": {
+                    "max_response_time_ms": 3000
+                },
+                "security": {
+                    "checks": []
+                },
+                "data_comparison": {
+                    "source": "",
+                    "target": "",
+                    "format": "",
+                    "key_field": [],
+                    "fields_to_compare": [],
+                    "log_differences": false
+                }
+            },
+            "test_data_file": "",
+            "db_query": "",
+            "db_type": "",
+            "db_connection_name": "",
+            "test_summary": "Load test: Verify API handles concurrent requests efficiently",
+            "test_scenario": "Simulate multiple concurrent requests to ensure API remains responsive under load"
+        },
+        {
+            "test_id": "TC_RP_BANDS_009",
+            "service_name": "analyticsApiServices",
+            "workflow_mode": "parallel",
+            "test_name": "GET /v1/riskProfile/bands - Data consistency check",
+            "protocol": "REST",
+            "test_type": [
+                "Functional",
+                "Regression"
+            ],
+            "mainURL": "{{base_url}}",
+            "endpoint": "/v1/riskProfile/bands",
+            "method": "GET",
+            "rpc_method": "",
+            "graphql_query": "",
+            "graphql_variables": "",
+            "soap_action": "",
+            "soap_envelope": "",
+            "headers_additional": {
+                "Content-Type": "application/json"
+            },
+            "payload": null,
+            "expected_status": "200",
+            "expected_response_schema": "",
+            "expected_response": null,
+            "ignore_fields": [],
+            "extract_values": [],
+            "validate": {
+                "performance": {
+                    "max_response_time_ms": null
+                },
+                "security": {
+                    "checks": []
+                },
+                "data_comparison": [
+                    {
+                        "source": "api_response",
+                        "target": "db_result",
+                        "format": "json",
+                        "key_field": [
+                            {
+                                "source": "riskProfileBandId",
+                                "target": "RiskProfileID"
+                            }
+                        ],
+                        "fields_to_compare": [
+                            {
+                                "source": "riskProfileBandId",
+                                "target": "RiskProfileID"
+                            },
+                            {
+                                "source": "profileName",
+                                "target": "ProfileName"
+                            },
+                            {
+                                "source": "riskProfileValue",
+                                "target": "ProfileValue"
+                            },
+                            {
+                                "source": "annualStandardDeviation",
+                                "target": "AnnualStdDeviation"
+                            }
+                        ],
+                        "log_differences": true
+                    }
+                ]
+            },
+            "test_data_file": "",
+            "db_query": "SELECT RiskProfileID, ProfileName, ProfileValue, AnnualStdDeviation FROM Platform.dbo.RiskProfile",
+            "db_type": "mssql",
+            "db_connection_name": "analytics_db",
+            "test_summary": "Verify API response data matches database records",
+            "test_scenario": "Compare risk profile bands from API response with database to ensure data consistency"
+        },
+        {
+            "test_id": "TC_RP_BANDS_010",
+            "service_name": "analyticsApiServices",
+            "workflow_mode": "parallel",
+            "test_name": "GET /v1/riskProfile/bands - Idempotency test",
+            "protocol": "REST",
+            "test_type": [
+                "Functional"
+            ],
+            "mainURL": "{{base_url}}",
+            "endpoint": "/v1/riskProfile/bands",
+            "method": "GET",
+            "rpc_method": "",
+            "graphql_query": "",
+            "graphql_variables": "",
+            "soap_action": "",
+            "soap_envelope": "",
+            "headers_additional": {
+                "Content-Type": "application/json"
+            },
+            "payload": null,
+            "expected_status": "200",
+            "expected_response_schema": "",
+            "expected_response": null,
+            "ignore_fields": [],
+            "extract_values": [],
+            "validate": {
+                "performance": {
+                    "max_response_time_ms": null
+                },
+                "security": {
+                    "checks": []
+                },
+                "data_comparison": {
+                    "source": "",
+                    "target": "",
+                    "format": "",
+                    "key_field": [],
+                    "fields_to_compare": [],
+                    "log_differences": false
+                }
+            },
+            "test_data_file": "",
+            "db_query": "",
+            "db_type": "",
+            "db_connection_name": "",
+            "test_summary": "Verify multiple identical GET requests return the same response",
+            "test_scenario": "Execute the same GET request multiple times and verify response consistency (idempotency)"
+        },
+        {
+            "test_id": "TC_RP_BANDS_011",
+            "service_name": "analyticsApiServices",
+            "workflow_mode": "parallel",
+            "test_name": "GET /v1/riskProfile/bands - Cache validation",
+            "protocol": "REST",
+            "test_type": [
+                "Performance"
+            ],
+            "mainURL": "{{base_url}}",
+            "endpoint": "/v1/riskProfile/bands",
+            "method": "GET",
+            "rpc_method": "",
+            "graphql_query": "",
+            "graphql_variables": "",
+            "soap_action": "",
+            "soap_envelope": "",
+            "headers_additional": {
+                "Content-Type": "application/json",
+                "Cache-Control": "max-age=3600"
+            },
+            "payload": null,
+            "expected_status": "200",
+            "expected_response_schema": "",
+            "expected_response": null,
+            "ignore_fields": [],
+            "extract_values": [],
+            "validate": {
+                "performance": {
+                    "max_response_time_ms": 500
+                },
+                "security": {
+                    "checks": []
+                },
+                "data_comparison": {
+                    "source": "",
+                    "target": "",
+                    "format": "",
+                    "key_field": [],
+                    "fields_to_compare": [],
+                    "log_differences": false
+                }
+            },
+            "test_data_file": "",
+            "db_query": "",
+            "db_type": "",
+            "db_connection_name": "",
+            "test_summary": "Verify response caching headers are properly set",
+            "test_scenario": "Check if API returns appropriate cache headers and subsequent requests are faster due to caching"
+        },
+        {
+            "test_id": "TC_RP_BANDS_012",
+            "service_name": "analyticsApiServices",
+            "workflow_mode": "parallel",
+            "test_name": "GET /v1/riskProfile/bands - Invalid endpoint path",
+            "protocol": "REST",
+            "test_type": [
+                "Negative"
+            ],
+            "mainURL": "{{base_url}}",
+            "endpoint": "/v1/riskProfile/band",
+            "method": "GET",
+            "rpc_method": "",
+            "graphql_query": "",
+            "graphql_variables": "",
+            "soap_action": "",
+            "soap_envelope": "",
+            "headers_additional": {
+                "Content-Type": "application/json"
+            },
+            "payload": null,
+            "expected_status": "404",
+            "expected_response_schema": "",
+            "expected_response": null,
+            "ignore_fields": [],
+            "extract_values": [],
+            "validate": {
+                "performance": {
+                    "max_response_time_ms": null
+                },
+                "security": {
+                    "checks": []
+                },
+                "data_comparison": {
+                    "source": "",
+                    "target": "",
+                    "format": "",
+                    "key_field": [],
+                    "fields_to_compare": [],
+                    "log_differences": false
+                }
+            },
+            "test_data_file": "",
+            "db_query": "",
+            "db_type": "",
+            "db_connection_name": "",
+            "test_summary": "Negative test: Invalid endpoint path should return 404",
+            "test_scenario": "Request with typo in endpoint path (band instead of bands) should return Not Found"
+        }
+    ]
+}

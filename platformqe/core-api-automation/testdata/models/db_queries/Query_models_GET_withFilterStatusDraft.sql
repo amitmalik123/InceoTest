@@ -2,7 +2,21 @@ SELECT id AS model_id,
        name,
        owner_id,
        modified_by,
-       investment_min,
+       -- Transform investment_min from object {system: value} to array [{type: 'System', value: value}]
+       (
+           SELECT jsonb_agg(
+               jsonb_build_object(
+                   'type', INITCAP(key),
+                   'value', (value::text)::numeric
+               )
+           )
+           FROM jsonb_each(
+               CASE 
+                   WHEN jsonb_typeof(investment_min::jsonb) = 'object' THEN investment_min::jsonb
+                   ELSE '{}'::jsonb
+               END
+           )
+       ) AS investment_min,
        solution_type,
        model_type,
        custodian,

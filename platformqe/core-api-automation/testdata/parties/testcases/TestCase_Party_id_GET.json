@@ -177,12 +177,9 @@
       "Content-Type": "application/json"
     },
     "payload": null,
-    "expected_status": "200",
+    "expected_status": "204",
     "expected_response_schema": "",
-    "expected_response": {
-      "status": 204,
-      "error": "No content for the specified PartyId: 123abcf0-d6ee-43a4-959e-8c2a7babc085"
-    },
+    "expected_response": null,
     "extract_values": [
       {
         "from": "response",

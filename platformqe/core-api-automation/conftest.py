@@ -23,14 +23,27 @@ from datetime import datetime
 from framework.reporter.reporter import Reporter
 import yaml
 from dotenv import load_dotenv
+from influxdb_client import InfluxDBClient, Point
+from influxdb_client.client.write_api import SYNCHRONOUS
 
 import urllib3
 urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
+
+# Module-level logger (reused throughout to avoid duplicate get_logger calls)
+logger = get_logger(__name__)
 
 
 # ============================================================================
 # UTILITY FUNCTIONS
 # ============================================================================
+
+def get_env_name():
+    """Get environment name from ENV_NAME environment variable.
+    
+    Returns:
+        str: Environment name or 'N/A' if not set
+    """
+    return os.environ.get('ENV_NAME', 'N/A')
 
 def _encode_banner_image():
     """Encode the API Test Banner image as base64 for embedding in HTML reports"""
@@ -41,11 +54,173 @@ def _encode_banner_image():
                 encoded = base64.b64encode(img_file.read()).decode('utf-8')
                 return f'data:image/png;base64,{encoded}'
         else:
-            get_logger(__name__).warning(f"Banner image not found at: {banner_path}")
+            logger.warning(f"Banner image not found at: {banner_path}")
             return None
     except Exception as e:
-        get_logger(__name__).warning(f"Failed to encode banner image: {e}")
+        logger.warning(f"Failed to encode banner image: {e}")
         return None
+
+
+def push_results_to_influxdb(json_file_path):
+    """Auto-push test results to InfluxDB after each test run
+    
+    Reads InfluxDB connection details from config file (db_connections.influxdb.default)
+    """
+    
+    try:
+        # Load InfluxDB connection details from config
+        from framework.loaders.config_loader import get_config
+        config = get_config()
+        
+        influx_config = config.get('db_connections', {}).get('influxdb', {}).get('default', {})
+        
+        if not influx_config:
+            logger.error("[InfluxDB] No InfluxDB configuration found in config file (db_connections.influxdb.default)")
+            return False
+        
+        INFLUX_URL = influx_config.get('url')
+        INFLUX_TOKEN = influx_config.get('token')
+        INFLUX_ORG = influx_config.get('org')
+        INFLUX_BUCKET = influx_config.get('bucket')
+        
+        # Validate required fields
+        if not all([INFLUX_URL, INFLUX_TOKEN, INFLUX_ORG, INFLUX_BUCKET]):
+            missing = []
+            if not INFLUX_URL: missing.append('url')
+            if not INFLUX_TOKEN: missing.append('token')
+            if not INFLUX_ORG: missing.append('org')
+            if not INFLUX_BUCKET: missing.append('bucket')
+            logger.error(f"[InfluxDB] Missing required config fields: {', '.join(missing)}")
+            return False
+        
+        logger.info(f"[InfluxDB] Using config: url={INFLUX_URL}, org={INFLUX_ORG}, bucket={INFLUX_BUCKET}")
+        
+        # Load test data from JSON file
+        import json
+        with open(json_file_path, 'r') as f:
+            data = json.load(f)
+        
+        # Initialize InfluxDB client
+        client = InfluxDBClient(url=INFLUX_URL, token=INFLUX_TOKEN, org=INFLUX_ORG)
+        write_api = client.write_api(write_options=SYNCHRONOUS)
+        
+        logger.info(f"[Auto-Push] Connected to InfluxDB at {INFLUX_URL}")
+        
+        # Parse timestamp
+        timestamp_str = data.get('timestamp', '')
+        try:
+            timestamp = datetime.strptime(timestamp_str, "%Y%m%d_%H%M%S")
+        except ValueError:
+            timestamp = datetime.now()
+            logger.warning(f"[Auto-Push] Could not parse timestamp '{timestamp_str}', using current time")
+        
+        # Get session-level data
+        session_start_time = data.get('start_time')
+        session_end_time = data.get('end_time')
+        session_duration = data.get('duration')
+        
+        points = []
+        
+        # Write summary data with session timing
+        summary = data.get('summary', {})
+        summary_point = Point("test_summary") \
+            .tag("run_id", timestamp_str) \
+            .field("total", summary.get('total', 0)) \
+            .field("passed", summary.get('passed', 0)) \
+            .field("failed", summary.get('failed', 0)) \
+            .field("skipped", summary.get('skipped', 0)) \
+            .time(timestamp)
+        
+        # Add session timing fields if available
+        if session_start_time:
+            summary_point.field("session_start_time", session_start_time)
+        if session_end_time:
+            summary_point.field("session_end_time", session_end_time)
+        if session_duration:
+            summary_point.field("session_duration", session_duration)
+        
+        points.append(summary_point)
+        
+        # Write individual test results
+        results = data.get('results', [])
+        for result in results:
+            # Create point for each test result
+            point = Point("test_result") \
+                .tag("run_id", timestamp_str) \
+                .tag("test_id", result.get('test_id', 'unknown')) \
+                .tag("service_name", result.get('service_name', 'unknown')) \
+                .tag("endpoint", result.get('endpoint', 'unknown')) \
+                .tag("method", result.get('method', 'unknown')) \
+                .tag("status", result.get('status', 'unknown')) \
+                .field("test_name", result.get('test_name', '')) \
+                .field("response_time", result.get('response_time', 0)) \
+                .field("summary", result.get('summary', '')) \
+                .time(timestamp)
+            
+            # Add test types as tags
+            test_types = result.get('type', [])
+            if isinstance(test_types, list):
+                point.tag("test_types", ",".join(test_types))
+            
+            # Add new fields as tags and fields
+            if result.get('workflow_mode'):
+                point.tag("workflow_mode", result.get('workflow_mode'))
+            if result.get('protocol'):
+                point.tag("protocol", result.get('protocol'))
+            if result.get('environment'):
+                point.tag("environment", result.get('environment'))
+            
+            # Add new fields as fields
+            if result.get('mainURL'):
+                point.field("mainURL", result.get('mainURL'))
+            if result.get('test_summary'):
+                point.field("test_summary", result.get('test_summary'))
+            if result.get('test_scenario'):
+                point.field("test_scenario", result.get('test_scenario'))
+            if result.get('start_time'):
+                point.field("start_time", result.get('start_time'))
+            if result.get('end_time'):
+                point.field("end_time", result.get('end_time'))
+            
+            points.append(point)
+            
+            # Write validation stats for each test
+            validation_stats = result.get('validation_stats', {})
+            for check_type, stats in validation_stats.items():
+                if isinstance(stats, dict):
+                    validation_point = Point("validation_stats") \
+                        .tag("run_id", timestamp_str) \
+                        .tag("test_id", result.get('test_id', 'unknown')) \
+                        .tag("check_type", check_type) \
+                        .field("total", stats.get('total', 0)) \
+                        .field("passed", stats.get('passed', 0)) \
+                        .field("failed", stats.get('failed', 0)) \
+                        .time(timestamp)
+                    points.append(validation_point)
+        
+        # Write all points to InfluxDB
+        write_api.write(bucket=INFLUX_BUCKET, org=INFLUX_ORG, record=points)
+        
+        logger.info(f"[Auto-Push] Successfully wrote {len(points)} data points to InfluxDB")
+        logger.info(f"[Auto-Push]   - 1 summary record")
+        logger.info(f"[Auto-Push]   - {len(results)} test result records")
+        logger.info(f"[Auto-Push]   - {len(points) - len(results) - 1} validation stats records")
+        
+        # Close the client
+        client.close()
+        return True
+        
+    except FileNotFoundError:
+        logger.error(f"[Auto-Push] File not found: {json_file_path}")
+        return False
+    except json.JSONDecodeError as e:
+        logger.error(f"[Auto-Push] Invalid JSON in {json_file_path}: {e}")
+        return False
+    except Exception as e:
+        logger.error(f"[Auto-Push] Error pushing to InfluxDB: {e}")
+        import traceback
+        logger.debug(traceback.format_exc())
+        return False
 
 # ============================================================================
 # COMMAND-LINE OPTIONS
@@ -114,11 +289,10 @@ def pytest_configure(config):
     testcase_file = config.getoption('--testcase-file', default=None)
     fix_testcase_file(testcase_file)
     
-    env_name = config.getoption("--env")
-    if env_name:
-        os.environ['ENV_NAME'] = env_name
-        logger = get_logger(__name__)
-        logger.info(f"ENV_NAME set to '{env_name}' from CLI argument (--env)")
+    cli_env_name = config.getoption("--env")
+    if cli_env_name:
+        os.environ['ENV_NAME'] = cli_env_name
+        logger.info(f"ENV_NAME set to '{cli_env_name}' from CLI argument (--env)")
     
     # Configure HTML report with timestamp
     timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
@@ -132,7 +306,6 @@ def pytest_configure(config):
         html_report_path = reports_dir / f"pytest_report_{timestamp}.html"
         config.option.htmlpath = str(html_report_path)
     
-    logger = get_logger(__name__)
     logger.info('Test session is starting')
     logger.info(f'HTML report will be generated at: {reports_dir}')
 
@@ -235,7 +408,7 @@ def pytest_html_results_summary(prefix, summary, postfix, session):
         pass_percent = fail_percent = skip_percent = 0
     
     # Get environment and execution time
-    env_name = escape(os.environ.get('ENV_NAME', 'N/A'))
+    env_name = escape(get_env_name())
     current_time = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
     
     # Determine status badge color and text
@@ -777,8 +950,7 @@ def pytest_html_results_table_row(report, cells):
         service_name = test_case.get('service_name', 'N/A')
         
         # Get ENV_NAME from environment variable
-        import os
-        env_name = os.environ.get('ENV_NAME', 'N/A')
+        env_name = get_env_name()
         
         test_type = test_case.get('test_type', 'N/A')
         if isinstance(test_type, list):
@@ -997,8 +1169,7 @@ def pytest_html_results_table_row(report, cells):
         cells.insert(10, f'<td class="col-summary" style="width: 400px; max-width: 400px; height: 30px !important; max-height: 30px !important; overflow-y: auto !important; word-wrap: break-word; white-space: normal; padding: 10px;">{test_summary}</td>')
     except Exception as e:
         # Fallback if metadata not available
-        import os
-        env_name = os.environ.get('ENV_NAME', 'N/A')
+        env_name = get_env_name()
         cells.insert(1, '<td>N/A</td>')
         cells.insert(2, '<td>N/A</td>')
         cells.insert(3, f'<td>{env_name}</td>')
@@ -1132,8 +1303,6 @@ def client(config, case=None):
     """
     from framework.clients.api_client import ApiClientFactory, ApiClient
     
-    logger = get_logger(__name__)
-    
     # Try to get service name from case if available
     service_name = None
     if case and isinstance(case, dict):
@@ -1222,26 +1391,22 @@ def get_report_path(config):
 
 @pytest.hookimpl(hookwrapper=True)
 def pytest_runtest_setup(item):
-    logger = get_logger(__name__)
     logger.info(f'Setup for test: {item.name}')
     yield
 
 @pytest.hookimpl(hookwrapper=True)
 def pytest_runtest_teardown(item, nextitem):
     yield
-    logger = get_logger(__name__)
     logger.info(f'Teardown for test: {item.name}')
 
 @pytest.hookimpl(hookwrapper=True)
 def pytest_runtest_call(item):
-    logger = get_logger(__name__)
     logger.info(f'Running test: {item.name}')
     yield
 
 def pytest_exception_interact(node, call, report):
     # Only log genuine test exceptions, suppress misleading HTML report errors
     if call.excinfo and 'html' not in str(call.excinfo).lower():
-        logger = get_logger(__name__)
         logger.error(f'Exception in {node.name}: {call.excinfo}')
 
 def archive_pytest_session_log():
@@ -1323,14 +1488,21 @@ def pytest_runtest_makereport(item, call):
 # ============================================================================
 
 reporter_instance = None
+session_start_time = None
+session_end_time = None
 
 def pytest_sessionstart(session):
-    global reporter_instance
+    global reporter_instance, session_start_time
+    from datetime import datetime
+    session_start_time = datetime.now().isoformat()
     if reporter_instance is None:
         reporter_instance = Reporter()
 
 def pytest_sessionfinish(session, exitstatus):
-    global reporter_instance
+    global reporter_instance, session_end_time
+    from datetime import datetime
+    session_end_time = datetime.now().isoformat()
+    
     # Archive previous pytest_session.log
     archive_pytest_session_log()
     
@@ -1338,10 +1510,8 @@ def pytest_sessionfinish(session, exitstatus):
     try:
         from framework.clients.db_client import DatabaseClientFactory
         DatabaseClientFactory.close_all()
-        logger = get_logger(__name__)
         logger.info("All database connections closed successfully")
     except Exception as e:
-        logger = get_logger(__name__)
         logger.warning(f"Failed to close database connections: {e}")
     
     # Write all reports at the end of the session (from tests/conftest.py)
@@ -1365,11 +1535,14 @@ def pytest_sessionfinish(session, exitstatus):
         import json
         from framework.reporter.reporter import Reporter
         temp_reporter = Reporter()
-        test_summary_path = temp_reporter._resolve_path('test_summary.json')
+        test_summary_path = temp_reporter._resolve_path('test_results_summary.json')
         
         # Prepare data for JSON serialization
         summary_stats = result_collector.get_summary_stats()
         test_results_serializable = []
+        
+        # Get environment name from environment variable
+        env_name = get_env_name()
         
         for result in test_results:
             # Create a clean copy for JSON serialization
@@ -1383,20 +1556,43 @@ def pytest_sessionfinish(session, exitstatus):
                 'status': result.get('status', ''),
                 'response_time': result.get('response_time'),
                 'summary': result.get('summary', ''),
-                'validation_stats': result.get('validation_stats', {})
+                'validation_stats': result.get('validation_stats', {}),
+                # Additional fields
+                'workflow_mode': result.get('workflow_mode', ''),
+                'protocol': result.get('protocol', 'REST'),
+                'mainURL': result.get('main_url', ''),
+                'environment': env_name,
+                'test_summary': result.get('test_summary', ''),
+                'test_scenario': result.get('test_scenario', ''),
+                'start_time': result.get('start_time'),
+                'end_time': result.get('end_time')
             }
             test_results_serializable.append(clean_result)
+        
+        # Calculate session duration in HH:MM:SS format
+        session_duration = None
+        if session_start_time and session_end_time:
+            from datetime import datetime
+            start_dt = datetime.fromisoformat(session_start_time)
+            end_dt = datetime.fromisoformat(session_end_time)
+            total_seconds = int((end_dt - start_dt).total_seconds())
+            hours = total_seconds // 3600
+            minutes = (total_seconds % 3600) // 60
+            seconds = total_seconds % 60
+            session_duration = f"{hours:02d}:{minutes:02d}:{seconds:02d}"
         
         summary_data = {
             'summary': summary_stats,
             'results': test_results_serializable,
-            'timestamp': temp_reporter._current_run_marker
+            'timestamp': temp_reporter._current_run_marker,
+            'start_time': session_start_time,
+            'end_time': session_end_time,
+            'duration': session_duration
         }
         
         with open(test_summary_path, 'w', encoding='utf-8') as f:
             json.dump(summary_data, f, indent=2)
         
-        logger = get_logger(__name__)
         logger.info(f"Test summary with validation stats saved to: {test_summary_path}")
         print(f"✅ Test summary saved for email reporting: {test_summary_path}")
         
@@ -1414,7 +1610,6 @@ def pytest_sessionfinish(session, exitstatus):
             reporter_instance.write_html_report(testcases, test_results, timestamped=True)
             logger.info(f"HTML report generated with {len(test_results)} test results")
     except Exception as e:
-        logger = get_logger(__name__)
         logger.warning(f"Failed to generate HTML report: {e}")
     
     # Push results to InfluxDB (only if enabled in config)
@@ -1424,9 +1619,6 @@ def pytest_sessionfinish(session, exitstatus):
         influxdb_enabled = config.get('db_connections', {}).get('influxdb', {}).get('default', {}).get('enabled', False)
         
         if influxdb_enabled:
-            from framework.reporter.influx_reporter import push_to_infux
-            logger = get_logger(__name__)
-            
             # Extract summary for logging
             summary_info = result_collector.get_summary_stats()
             total = summary_info.get('total', 0)
@@ -1437,17 +1629,19 @@ def pytest_sessionfinish(session, exitstatus):
             xpassed = summary_info.get('xpassed', 0)
             
             logger.info(f"[InfluxDB] Pushing test results | Total: {total} | Passed: {passed} | Failed: {failed} | Skipped: {skipped} | XFailed: {xfailed} | XPassed: {xpassed}")
-            success = push_to_infux()
-            if not success:
+            
+            # Use push_results_to_influxdb with test_summary_path for direct JSON push
+            success = push_results_to_influxdb(test_summary_path)
+            if success:
+                print(f"✅ Test results pushed to InfluxDB")
+            else:
                 logger.warning("[InfluxDB] Push completed with warnings or no data pushed")
+                print(f"⚠️  InfluxDB push failed (check logs)")
         else:
-            logger = get_logger(__name__)
             logger.info("[InfluxDB] Push disabled in configuration. Skipping InfluxDB push.")
     except ImportError:
-        logger = get_logger(__name__)
         logger.warning("InfluxDB client not available. Skipping InfluxDB push.")
     except Exception as e:
-        logger = get_logger(__name__)
         logger.warning(f"Failed to push results to InfluxDB: {e}")
 
     # Ensure all log handlers are closed to release file locks (fixes PermissionError on Windows)

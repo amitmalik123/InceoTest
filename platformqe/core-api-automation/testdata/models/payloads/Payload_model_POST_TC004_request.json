@@ -7,11 +7,12 @@
             "TD Ameritrade",
             "Charles Schwab"
         ],
-        "investmentMin": {
-            "additionalProp1": 5000,
-            "additionalProp2": 15000,
-            "additionalProp3": 30000
-        },
+        "investmentMin": [
+            {
+                "type": "System",
+                "value": 5000
+            }
+        ],
         "modelType": "Tactical",
         "riskProfile": "Aggressive",
         "metadata": {
@@ -20,7 +21,7 @@
             "additionalProp3": "security_value3"
         }
     },
-    "allocationDetail": [
+    "allocations": [
         {
             "entityType": "Security",
             "allocationName": "Apple Inc Stock",
@@ -46,7 +47,7 @@
             "weight": 0.25
         }
     ],
-    "investmentApproachName": "Tech Growth Strategy",
+    "investmentApproachId": "{{db_investment_approach_id}}",
     "benchmarkName": "NASDAQ Composite",
-    "benchmarkIsPrimary": true
+    "benchmarkIsPrimary": false
 }

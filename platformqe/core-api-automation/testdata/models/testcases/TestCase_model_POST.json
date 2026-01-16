@@ -1,5 +1,62 @@
 [
     {
+        "test_id": "TC000",
+        "service_name": "models",
+        "workflow_mode": "sequential",
+        "test_name": "DB_ONLY - Fetch investment_approach_id from Database",
+        "protocol": "DB_ONLY",
+        "test_type": [
+            "Functional"
+        ],
+        "mainURL": "",
+        "endpoint": "",
+        "method": "",
+        "rpc_method": "",
+        "graphql_query": "",
+        "graphql_variables": "",
+        "soap_action": "",
+        "soap_envelope": "",
+        "headers_additional": {
+            "Content-Type": "application/json"
+        },
+        "payload": null,
+        "expected_status": "",
+        "expected_response_schema": "",
+        "expected_response": "",
+        "extract_values": [
+            {
+                "from": "db_result",
+                "key": "0.investment_approach_id",
+                "assign_to": "db_investment_approach_id"
+            }
+        ],
+        "validate": {
+            "performance": {
+                "max_response_time_ms": 500
+            },
+            "security": {
+                "checks": []
+            },
+            "data_comparison": {
+                "source": "api_response",
+                "target": "db_result",
+                "format": "table",
+                "key_field": [
+                    "",
+                    ""
+                ],
+                "fields_to_compare": [],
+                "log_differences": true
+            }
+        },
+        "test_data_file": "",
+        "db_type": "postgresql",
+        "db_connection_name": "models",
+        "db_query": "SELECT investment_approach_id FROM public.investment_approach LIMIT 1",
+        "test_summary": "Step 0: Fetch valid investment_approach_id from database to use in model creation payload",
+        "test_scenario": "Retrieve investment approach ID from database for data-driven test"
+    },
+    {
         "test_id": "TC001",
         "service_name": "models",
         "workflow_mode": "parallel",
@@ -27,11 +84,12 @@
                 "custodian": [
                     "string"
                 ],
-                "investmentMin": {
-                    "additionalProp1": 1,
-                    "additionalProp2": 2,
-                    "additionalProp3": 3
-                },
+                "investmentMin": [
+                    {
+                        "type": "System",
+                        "value": 1
+                    }
+                ],
                 "modelType": "string",
                 "riskProfile": "string",
                 "metadata": {
@@ -40,7 +98,7 @@
                     "additionalProp3": "string"
                 }
             },
-            "allocationDetail": [
+            "allocations": [
                 {
                     "entityType": "Model",
                     "allocationName": "string",
@@ -50,9 +108,9 @@
                     "weight": 0.5
                 }
             ],
-            "investmentApproachName": "string",
+            "investmentApproachId": "{{db_investment_approach_id}}",
             "benchmarkName": "string",
-            "benchmarkIsPrimary": true
+            "benchmarkIsPrimary": false
         },
         "expected_status": "201",
         "expected_response_schema": "models\\schemas\\Schema_post_response copy.json",
@@ -473,5 +531,299 @@
         "db_connection_name": "",
         "test_summary": "Test TC006: POST /model - Invalid Weight Value [negative] - Verify 422 error when weight is 0",
         "test_scenario": "Attempt to create a model with weight 0 and verify 422 Unprocessable Entity error"
+    },
+    {
+        "test_id": "TC007",
+        "service_name": "models",
+        "workflow_mode": "parallel",
+        "test_name": "POST /model [positive] (TC001)",
+        "protocol": "REST",
+        "test_type": [
+            "Functional"
+        ],
+        "mainURL": "{{base_url}}",
+        "endpoint": "/model",
+        "method": "POST",
+        "rpc_method": "",
+        "graphql_query": "",
+        "graphql_variables": "",
+        "soap_action": "",
+        "soap_envelope": "",
+        "headers_additional": {
+            "Content-Type": "application/json"
+        },
+        "payload": {
+            "name": "string",
+            "ownerId": "3fa85f64-5717-4562-b3fc-2c963f66afa6",
+            "modelAttributes": {
+                "solutionType": "string",
+                "custodian": [
+                    "string"
+                ],
+                "investmentMin": [
+                    {
+                        "type": "System",
+                        "value": 1
+                    },
+                    {
+                        "type": "Displayed",
+                        "value": 2
+                    },
+                    {
+                        "type": "Trading",
+                        "value": 3
+                    }
+                ],
+                "modelType": "string",
+                "riskProfile": "string",
+                "metadata": {
+                    "additionalProp1": "string",
+                    "additionalProp2": "string",
+                    "additionalProp3": "string"
+                }
+            },
+            "allocations": [
+                {
+                    "entityType": "Model",
+                    "allocationName": "string",
+                    "modelId": "string",
+                    "cusip": "string",
+                    "ticker": "string",
+                    "weight": 0.5
+                }
+            ],
+            "investmentApproachId": "{{db_investment_approach_id}}",
+            "benchmarkName": "string",
+            "benchmarkIsPrimary": false
+        },
+        "expected_status": "201",
+        "expected_response_schema": "models\\schemas\\Schema_post_response copy.json",
+        "expected_response": null,
+        "ignore_fields": [
+            "id"
+        ],
+        "extract_values": [
+            {
+                "from": "response",
+                "key": "modelId",
+                "assign_to": "response_model_id"
+            },
+            {
+                "from": "db_result",
+                "query": "",
+                "assign": [
+                    {
+                        "key": "",
+                        "assign_to": ""
+                    }
+                ]
+            }
+        ],
+        "validate": {
+            "performance": {
+                "max_response_time_ms": null
+            },
+            "security": {
+                "checks": [
+                    "sql_injection",
+                    "xss"
+                ]
+            },
+            "data_comparison": {
+                "source": "api_response",
+                "target": "db_result",
+                "format": "table",
+                "key_field": [
+                    "",
+                    ""
+                ],
+                "fields_to_compare": [],
+                "log_differences": true
+            }
+        },
+        "test_data_file": "",
+        "db_query": "",
+        "db_type": "",
+        "db_connection_name": "",
+        "test_summary": "Test TC001: POST /model [positive] (TC001) - Test POST request to /model for functional scenario validation.",
+        "test_scenario": "Test POST request to /model for functional scenario validation."
+    },
+    {
+        "test_id": "TC002",
+        "service_name": "models",
+        "workflow_mode": "sequential",
+        "test_name": "POST /model with empty payload - Bad Request error (TC002)",
+        "protocol": "REST",
+        "test_type": [
+            "Functional",
+            "Smoke"
+        ],
+        "mainURL": "{{base_url}}",
+        "endpoint": "/model",
+        "method": "POST",
+        "headers_additional": {
+            "Content-Type": "application/json"
+        },
+        "payload": {},
+        "expected_status": "400",
+        "expected_response_schema": "",
+        "expected_response": null,
+        "ignore_fields": [],
+        "extract_values": [],
+        "validate": {
+            "performance": {
+                "max_response_time_ms": null
+            },
+            "data_comparison": [
+                {
+                    "source": "api_response",
+                    "source_array_path": "status",
+                    "target": "literal",
+                    "target_literal": 400,
+                    "comparison_name": "Verify status is 400"
+                }
+            ]
+        },
+        "test_data_file": "",
+        "db_query": "",
+        "db_type": "",
+        "db_connection_name": "",
+        "test_summary": "Test TC002: Send empty payload {} to model endpoint, verify 400 Bad Request error"
+    },
+    {
+        "test_id": "TC003",
+        "service_name": "models",
+        "workflow_mode": "sequential",
+        "test_name": "POST /model with empty name field - Bad Request error (TC003)",
+        "protocol": "REST",
+        "test_type": [
+            "Functional",
+            "Smoke"
+        ],
+        "mainURL": "{{base_url}}",
+        "endpoint": "/model",
+        "method": "POST",
+        "headers_additional": {
+            "Content-Type": "application/json"
+        },
+        "payload": {
+            "name": "",
+            "investmentApproachId": "{{db_investment_approach_id}}"
+        },
+        "expected_status": "400",
+        "expected_response_schema": "",
+        "expected_response": null,
+        "ignore_fields": [],
+        "extract_values": [],
+        "validate": {
+            "performance": {
+                "max_response_time_ms": null
+            },
+            "data_comparison": [
+                {
+                    "source": "api_response",
+                    "source_array_path": "status",
+                    "target": "literal",
+                    "target_literal": 400,
+                    "comparison_name": "Verify status is 400"
+                }
+            ]
+        },
+        "test_data_file": "",
+        "db_query": "",
+        "db_type": "",
+        "db_connection_name": "",
+        "test_summary": "Test TC003: Send payload with empty name field, verify 400 Bad Request error"
+    },
+    {
+        "test_id": "TC004",
+        "service_name": "models",
+        "workflow_mode": "sequential",
+        "test_name": "POST /model with invalid field - Bad Request error (TC004)",
+        "protocol": "REST",
+        "test_type": [
+            "Functional",
+            "Smoke"
+        ],
+        "mainURL": "{{base_url}}",
+        "endpoint": "/model",
+        "method": "POST",
+        "headers_additional": {
+            "Content-Type": "application/json"
+        },
+        "payload": {
+            "name": "Test Model",
+            "investmentApproachId": "{{db_investment_approach_id}}",
+            "invalidField": 123
+        },
+        "expected_status": "400",
+        "expected_response_schema": "",
+        "expected_response": null,
+        "ignore_fields": [],
+        "extract_values": [],
+        "validate": {
+            "performance": {
+                "max_response_time_ms": null
+            },
+            "data_comparison": [
+                {
+                    "source": "api_response",
+                    "source_array_path": "status",
+                    "target": "literal",
+                    "target_literal": 400,
+                    "comparison_name": "Verify status is 400"
+                }
+            ]
+        },
+        "test_data_file": "",
+        "db_query": "",
+        "db_type": "",
+        "db_connection_name": "",
+        "test_summary": "Test TC004: Send payload with invalid field 'invalidField', verify 400 Bad Request error"
+    },
+    {
+        "test_id": "TC005",
+        "service_name": "models",
+        "workflow_mode": "sequential",
+        "test_name": "POST /model with invalid data type for name - Bad Request error (TC005)",
+        "protocol": "REST",
+        "test_type": [
+            "Functional",
+            "Smoke"
+        ],
+        "mainURL": "{{base_url}}",
+        "endpoint": "/model",
+        "method": "POST",
+        "headers_additional": {
+            "Content-Type": "application/json"
+        },
+        "payload": {
+            "name": 999,
+            "investmentApproachId": "{{db_investment_approach_id}}"
+        },
+        "expected_status": "400",
+        "expected_response_schema": "",
+        "expected_response": null,
+        "ignore_fields": [],
+        "extract_values": [],
+        "validate": {
+            "performance": {
+                "max_response_time_ms": null
+            },
+            "data_comparison": [
+                {
+                    "source": "api_response",
+                    "source_array_path": "status",
+                    "target": "literal",
+                    "target_literal": 400,
+                    "comparison_name": "Verify status is 400"
+                }
+            ]
+        },
+        "test_data_file": "",
+        "db_query": "",
+        "db_type": "",
+        "db_connection_name": "",
+        "test_summary": "Test TC005: Send payload with numeric value for name field (expected string), verify 400 Bad Request error"
     }
 ]

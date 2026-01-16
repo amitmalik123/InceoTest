@@ -34,10 +34,7 @@
       "weight": 0.50
     }
   ],
-  "investmentApproach": {
-    "name": "Core Balanced Strategy",
-    "id": null
-  },
+  "investmentApproachId": "{{db_investment_approach_id}}",
   "benchmark": [
     {
       "name": "60/40 Balanced Index",

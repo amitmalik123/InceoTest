@@ -8,6 +8,8 @@ services:
     testType: functional
     environments:
     - TSADEV
+    - TSATEST
+    - TSASILO
     functionalTestArgs: --service-name work_item_notification --env {environment}
     nonFunctionalTestArgs: --file testdata/WorkItemNotification/testcases/TestCase_api_workitemnotification_v1_aplid_GET.json
       --test_type Performance --env {environment} --headless -u 5 -r 1 -t 10s
@@ -24,6 +26,8 @@ services:
     testType: functional
     environments:
     - TSADEV
+    - TSATEST
+    - TSASILO
     functionalTestArgs: --service-name parties --env {environment}
     nonFunctionalTestArgs: --file testdata/parties/testcases/TestCase_Party_POST.json
       --test_type Performance --env {environment} --headless -u 10 -r 2 -t 30s
@@ -40,7 +44,9 @@ services:
     testType: functional
     environments:
     - TSADEV
-    functionalTestArgs: --service-name movemoney --env {environment}
+    - TSATEST
+    - TSASILO
+    functionalTestArgs: --service-name MoveMoneyAPI --env {environment}
     nonFunctionalTestArgs: --file testdata/MoveMoneyAPI/testcases/TestCase_moneymovement_requests_POST.json
       --test_type Performance --env {environment} --headless -u 8 -r 2 -t 20s
     tags:
@@ -56,7 +62,9 @@ services:
     testType: functional
     environments:
     - TSADEV
-    functionalTestArgs: --service-name securities --env {environment}
+    - TSATEST
+    - TSASILO
+    functionalTestArgs: --service-name securitiesServices --env {environment}
     nonFunctionalTestArgs: --file testdata/securitiesServices/testcases/TestCase_securities_GET.json
       --test_type Performance --env {environment} --headless -u 5 -r 1 -t 15s
     tags:
@@ -72,6 +80,8 @@ services:
     testType: functional
     environments:
     - TSADEV
+    - TSATEST
+    - TSASILO
     functionalTestArgs: --service-name hnebase --env {environment}
     nonFunctionalTestArgs: ''
     tags:
@@ -87,6 +97,8 @@ services:
     testType: functional
     environments:
     - TSADEV
+    - TSATEST
+    - TSASILO
     functionalTestArgs: --service-name models --env {environment}
     nonFunctionalTestArgs: ''
     tags:
@@ -102,7 +114,9 @@ services:
     testType: functional
     environments:
     - TSADEV
-    functionalTestArgs: --service-name addressservice --env {environment}
+    - TSATEST
+    - TSASILO
+    functionalTestArgs: --service-name AddressService.API --env {environment}
     nonFunctionalTestArgs: ''
     tags:
     - address
@@ -117,7 +131,9 @@ services:
     testType: functional
     environments:
     - TSADEV
-    functionalTestArgs: --service-name analytics --env {environment}
+    - TSATEST
+    - TSASILO
+    functionalTestArgs: --service-name analyticsApiServices --env {environment}
     nonFunctionalTestArgs: ''
     tags:
     - analytics
@@ -129,6 +145,8 @@ global:
   pythonVersion: '3.10'
   defaultEnvironments:
   - TSADEV
+  - TSATEST
+  - TSASILO
   defaultTestType: functional
   parallelExecution:
     maxParallel: 5

@@ -120,7 +120,7 @@
                             "target": "owner_id"
                         },
                         {
-                            "source": "holdings",
+                            "source": "allocations",
                             "target": "allocations"
                         },
                         {
@@ -129,7 +129,27 @@
                         }
                     ],
                     "log_differences": true,
-                    "comparison_name": "Verify Response API vs DB field values"
+                    "comparison_name": "Verify Response API vs DB field values",
+                    "field_transformers": [
+                        {
+                            "field": "investmentMin",
+                            "transform": "array_to_object",
+                            "options": {
+                                "key_field": "type",
+                                "value_field": "value",
+                                "lowercase_keys": true
+                            }
+                        },
+                        {
+                            "field": "investment_min",
+                            "transform": "array_to_object",
+                            "options": {
+                                "key_field": "type",
+                                "value_field": "value",
+                                "lowercase_keys": true
+                            }
+                        }
+                    ]
                 },
                 {
                     "source": "api_response",
@@ -371,7 +391,7 @@
                             "target": "owner_id"
                         },
                         {
-                            "source": "holdings",
+                            "source": "allocations",
                             "target": "allocations"
                         },
                         {
@@ -380,7 +400,27 @@
                         }
                     ],
                     "log_differences": true,
-                    "comparison_name": "Verify Response API vs DB field values"
+                    "comparison_name": "Verify Response API vs DB field values",
+                    "field_transformers": [
+                        {
+                            "field": "investmentMin",
+                            "transform": "array_to_object",
+                            "options": {
+                                "key_field": "type",
+                                "value_field": "value",
+                                "lowercase_keys": true
+                            }
+                        },
+                        {
+                            "field": "investment_min",
+                            "transform": "array_to_object",
+                            "options": {
+                                "key_field": "type",
+                                "value_field": "value",
+                                "lowercase_keys": true
+                            }
+                        }
+                    ]
                 },
                 {
                     "source": "api_response",
@@ -608,5 +648,180 @@
         "db_type": "",
         "db_connection_name": "",
         "test_summary": "Test TC007: Send a POST request to a PUT-only endpoint and verify that the server returns a 405 Method Not Allowed."
+    },
+    {
+        "test_id": "TC008",
+        "service_name": "models",
+        "workflow_mode": "sequential",
+        "test_name": "PUT /investmentapproach/{id} with empty payload - Bad Request error (TC008)",
+        "protocol": "REST",
+        "test_type": [
+            "Functional",
+            "Smoke"
+        ],
+        "mainURL": "{{base_url}}",
+        "endpoint": "/investmentapproach/123",
+        "method": "PUT",
+        "headers_additional": {
+            "Content-Type": "application/json"
+        },
+        "payload": "0",
+        "expected_status": "400",
+        "expected_response_schema": "",
+        "expected_response": null,
+        "ignore_fields": [],
+        "extract_values": [],
+        "validate": {
+            "performance": {
+                "max_response_time_ms": null
+            },
+            "data_comparison": [
+                {
+                    "source": "api_response",
+                    "source_array_path": "status",
+                    "target": "literal",
+                    "target_literal": 400,
+                    "comparison_name": "Verify status is 400"
+                }
+            ]
+        },
+        "test_data_file": "",
+        "db_query": "",
+        "db_type": "",
+        "db_connection_name": "",
+        "test_summary": "Test TC008: Send empty payload {} to investmentapproach endpoint, verify 400 Bad Request error"
+    },
+    {
+        "test_id": "TC009",
+        "service_name": "models",
+        "workflow_mode": "sequential",
+        "test_name": "PUT /investmentapproach/{id} with empty name field - Bad Request error (TC009)",
+        "protocol": "REST",
+        "test_type": [
+            "Functional",
+            "Smoke"
+        ],
+        "mainURL": "{{base_url}}",
+        "endpoint": "/investmentapproach/123",
+        "method": "PUT",
+        "headers_additional": {
+            "Content-Type": "application/json"
+        },
+        "payload": {
+            "name": ""
+        },
+        "expected_status": "422",
+        "expected_response_schema": "",
+        "expected_response": null,
+        "ignore_fields": [],
+        "extract_values": [],
+        "validate": {
+            "performance": {
+                "max_response_time_ms": null
+            },
+            "data_comparison": [
+                {
+                    "source": "api_response",
+                    "source_array_path": "status",
+                    "target": "literal",
+                    "target_literal": 422,
+                    "comparison_name": "Verify status is 422"
+                }
+            ]
+        },
+        "test_data_file": "",
+        "db_query": "",
+        "db_type": "",
+        "db_connection_name": "",
+        "test_summary": "Test TC009: Send payload with empty name field, verify 400 Bad Request error"
+    },
+    {
+        "test_id": "TC010",
+        "service_name": "models",
+        "workflow_mode": "sequential",
+        "test_name": "PUT /investmentapproach/{id} with invalid field - Bad Request error (TC010)",
+        "protocol": "REST",
+        "test_type": [
+            "Functional",
+            "Smoke"
+        ],
+        "mainURL": "{{base_url}}",
+        "endpoint": "/investmentapproach/{{first_investment_approach_id}}",
+        "method": "PUT",
+        "headers_additional": {
+            "Content-Type": "application/json"
+        },
+        "payload": {
+            "name": "Test Name",
+            "invalidField": 123
+        },
+        "expected_status": "400",
+        "expected_response_schema": "",
+        "expected_response": null,
+        "ignore_fields": [],
+        "extract_values": [],
+        "validate": {
+            "performance": {
+                "max_response_time_ms": null
+            },
+            "data_comparison": [
+                {
+                    "source": "api_response",
+                    "source_array_path": "status",
+                    "target": "literal",
+                    "target_literal": 400,
+                    "comparison_name": "Verify status is 400"
+                }
+            ]
+        },
+        "test_data_file": "",
+        "db_query": "",
+        "db_type": "",
+        "db_connection_name": "",
+        "test_summary": "Test TC010: Send payload with invalid field 'invalidField', verify 400 Bad Request error"
+    },
+    {
+        "test_id": "TC011",
+        "service_name": "models",
+        "workflow_mode": "sequential",
+        "test_name": "PUT /investmentapproach/{id} with invalid data type for name - Bad Request error (TC011)",
+        "protocol": "REST",
+        "test_type": [
+            "Functional",
+            "Smoke"
+        ],
+        "mainURL": "{{base_url}}",
+        "endpoint": "/investmentapproach/{{first_investment_approach_id}}",
+        "method": "PUT",
+        "headers_additional": {
+            "Content-Type": "application/json"
+        },
+        "payload": {
+            "name": 456
+        },
+        "expected_status": "400",
+        "expected_response_schema": "",
+        "expected_response": null,
+        "ignore_fields": [],
+        "extract_values": [],
+        "validate": {
+            "performance": {
+                "max_response_time_ms": null
+            },
+            "data_comparison": [
+                {
+                    "source": "api_response",
+                    "source_array_path": "status",
+                    "target": "literal",
+                    "target_literal": 400,
+                    "comparison_name": "Verify status is 400"
+                }
+            ]
+        },
+        "test_data_file": "",
+        "db_query": "",
+        "db_type": "",
+        "db_connection_name": "",
+        "test_summary": "Test TC011: Send payload with numeric value for name field (expected string), verify 400 Bad Request error"
     }
 ]

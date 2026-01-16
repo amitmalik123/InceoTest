@@ -171,7 +171,7 @@
                             "target": "owner_id"
                         },
                         {
-                            "source": "holdings",
+                            "source": "allocations",
                             "target": "allocations"
                         },
                         {
@@ -180,7 +180,27 @@
                         }
                     ],
                     "log_differences": true,
-                    "comparison_name": "Verify Response API vs DB field values"
+                    "comparison_name": "Verify Response API vs DB field values",
+                    "field_transformers": [
+                        {
+                            "field": "investmentMin",
+                            "transform": "array_to_object",
+                            "options": {
+                                "key_field": "type",
+                                "value_field": "value",
+                                "lowercase_keys": true
+                            }
+                        },
+                        {
+                            "field": "investment_min",
+                            "transform": "array_to_object",
+                            "options": {
+                                "key_field": "type",
+                                "value_field": "value",
+                                "lowercase_keys": true
+                            }
+                        }
+                    ]
                 },
                 {
                     "source": "api_response",
@@ -377,7 +397,7 @@
                             "target": "owner_id"
                         },
                         {
-                            "source": "holdings",
+                            "source": "allocations",
                             "target": "allocations"
                         },
                         {
@@ -386,7 +406,27 @@
                         }
                     ],
                     "log_differences": true,
-                    "comparison_name": "Verify Response API vs DB field values"
+                    "comparison_name": "Verify Response API vs DB field values",
+                    "field_transformers": [
+                        {
+                            "field": "investmentMin",
+                            "transform": "array_to_object",
+                            "options": {
+                                "key_field": "type",
+                                "value_field": "value",
+                                "lowercase_keys": true
+                            }
+                        },
+                        {
+                            "field": "investment_min",
+                            "transform": "array_to_object",
+                            "options": {
+                                "key_field": "type",
+                                "value_field": "value",
+                                "lowercase_keys": true
+                            }
+                        }
+                    ]
                 },
                 {
                     "source": "api_response",
@@ -569,7 +609,7 @@
                             "target": "owner_id"
                         },
                         {
-                            "source": "holdings",
+                            "source": "allocations",
                             "target": "allocations"
                         },
                         {
@@ -578,7 +618,27 @@
                         }
                     ],
                     "log_differences": true,
-                    "comparison_name": "Verify Response API vs DB field values"
+                    "comparison_name": "Verify Response API vs DB field values",
+                    "field_transformers": [
+                        {
+                            "field": "investmentMin",
+                            "transform": "array_to_object",
+                            "options": {
+                                "key_field": "type",
+                                "value_field": "value",
+                                "lowercase_keys": true
+                            }
+                        },
+                        {
+                            "field": "investment_min",
+                            "transform": "array_to_object",
+                            "options": {
+                                "key_field": "type",
+                                "value_field": "value",
+                                "lowercase_keys": true
+                            }
+                        }
+                    ]
                 },
                 {
                     "source": "api_response",
@@ -762,7 +822,7 @@
                             "target": "owner_id"
                         },
                         {
-                            "source": "holdings",
+                            "source": "allocations",
                             "target": "allocations"
                         },
                         {
@@ -771,7 +831,27 @@
                         }
                     ],
                     "log_differences": true,
-                    "comparison_name": "Verify Response API vs DB field values"
+                    "comparison_name": "Verify Response API vs DB field values",
+                    "field_transformers": [
+                        {
+                            "field": "investmentMin",
+                            "transform": "array_to_object",
+                            "options": {
+                                "key_field": "type",
+                                "value_field": "value",
+                                "lowercase_keys": true
+                            }
+                        },
+                        {
+                            "field": "investment_min",
+                            "transform": "array_to_object",
+                            "options": {
+                                "key_field": "type",
+                                "value_field": "value",
+                                "lowercase_keys": true
+                            }
+                        }
+                    ]
                 },
                 {
                     "source": "api_response",
@@ -955,7 +1035,7 @@
                             "target": "owner_id"
                         },
                         {
-                            "source": "holdings",
+                            "source": "allocations",
                             "target": "allocations"
                         },
                         {
@@ -964,7 +1044,27 @@
                         }
                     ],
                     "log_differences": true,
-                    "comparison_name": "Verify Response API vs DB field values"
+                    "comparison_name": "Verify Response API vs DB field values",
+                    "field_transformers": [
+                        {
+                            "field": "investmentMin",
+                            "transform": "array_to_object",
+                            "options": {
+                                "key_field": "type",
+                                "value_field": "value",
+                                "lowercase_keys": true
+                            }
+                        },
+                        {
+                            "field": "investment_min",
+                            "transform": "array_to_object",
+                            "options": {
+                                "key_field": "type",
+                                "value_field": "value",
+                                "lowercase_keys": true
+                            }
+                        }
+                    ]
                 },
                 {
                     "source": "api_response",
@@ -1009,6 +1109,56 @@
         "test_summary": "Test TC005: Retrieve models filtered by specific OwnerId and validate response fields, filter applied, and record count against database"
     },
     {
+        "test_id": "TC005.1",
+        "service_name": "models",
+        "workflow_mode": "sequential",
+        "test_name": "GET /models - Setup variables for TC006 (TC005.1)",
+        "protocol": "REST",
+        "test_type": [
+            "Setup"
+        ],
+        "mainURL": "{{base_url}}",
+        "endpoint": "/models",
+        "method": "GET",
+        "rpc_method": "",
+        "graphql_query": "",
+        "graphql_variables": "",
+        "soap_action": "",
+        "soap_envelope": "",
+        "headers_additional": {
+            "Content-Type": "application/json"
+        },
+        "payload": null,
+        "expected_status": "200",
+        "expected_response_schema": "models\\schemas\\Schema_models_GET.json",
+        "expected_response": null,
+        "ignore_fields": [],
+        "extract_values": [
+            {
+                "from": "response",
+                "key": "models.0.modelId",
+                "assign_to": "tc006_model_id"
+            },
+            {
+                "from": "response",
+                "key": "models.0.owner.ownerId",
+                "assign_to": "tc006_owner_id"
+            },
+            {
+                "from": "response",
+                "key": "models.0.status",
+                "assign_to": "tc006_model_status"
+            }
+        ],
+        "validate": {},
+        "test_data_file": "",
+        "db_query_timing": "",
+        "db_queries": {},
+        "db_type": "",
+        "db_connection_name": "",
+        "test_summary": "Setup test: Extract fresh model variables for TC006 to ensure all 3 values come from the same model"
+    },
+    {
         "test_id": "TC006",
         "service_name": "models",
         "workflow_mode": "sequential",
@@ -1020,7 +1170,7 @@
             "Smoke"
         ],
         "mainURL": "{{base_url}}",
-        "endpoint": "/models?Id={{first_model_id}}&OwnerId={{first_owner_id}}&Status={{first_model_status}}",
+        "endpoint": "/models?Id={{tc006_model_id}}&Status={{tc006_model_status}}&OwnerId={{tc006_owner_id}}",
         "method": "GET",
         "rpc_method": "",
         "graphql_query": "",
@@ -1038,17 +1188,6 @@
             "id"
         ],
         "extract_values": [
-            {
-                "from": "response",
-                "key": "models.0.modelId",
-                "assign_to": "first_model_id"
-            },
-            {
-                "from": "response",
-                "record_count": false,
-                "array_path": "",
-                "assign_to": ""
-            },
             {
                 "from": "db_result",
                 "query": "default",
@@ -1072,7 +1211,7 @@
             },
             "data_comparison": [
                 {
-                    "source": "first_model_id",
+                    "source": "tc006_model_id",
                     "target": "DB_model_id",
                     "log_differences": true,
                     "comparison_name": "Model ID match between API and DB"
@@ -1147,7 +1286,7 @@
                             "target": "owner_id"
                         },
                         {
-                            "source": "holdings",
+                            "source": "allocations",
                             "target": "allocations"
                         },
                         {
@@ -1156,7 +1295,27 @@
                         }
                     ],
                     "log_differences": true,
-                    "comparison_name": "Verify Response API vs DB field values"
+                    "comparison_name": "Verify Response API vs DB field values",
+                    "field_transformers": [
+                        {
+                            "field": "investmentMin",
+                            "transform": "array_to_object",
+                            "options": {
+                                "key_field": "type",
+                                "value_field": "value",
+                                "lowercase_keys": true
+                            }
+                        },
+                        {
+                            "field": "investment_min",
+                            "transform": "array_to_object",
+                            "options": {
+                                "key_field": "type",
+                                "value_field": "value",
+                                "lowercase_keys": true
+                            }
+                        }
+                    ]
                 },
                 {
                     "source": "api_response",
@@ -1182,7 +1341,7 @@
                     "comparison_name": "Verify count field value matches with DB count "
                 },
                 {
-                    "source": "first_model_id",
+                    "source": "tc006_model_id",
                     "target": "api_response",
                     "target_array_path": "filters.id",
                     "log_differences": true,
@@ -1190,14 +1349,14 @@
                 },
                 {
                     "source": "variable",
-                    "source_variable": "first_model_status",
+                    "source_variable": "tc006_model_status",
                     "target": "api_response",
                     "target_array_path": "filters.status",
                     "log_differences": true,
                     "comparison_name": "Verify filter status matches requested query param status"
                 },
                 {
-                    "source": "first_owner_id",
+                    "source": "tc006_owner_id",
                     "target": "api_response",
                     "target_array_path": "filters.ownerId",
                     "log_differences": true,
@@ -1209,7 +1368,7 @@
         "db_query_timing": "after_api",
         "db_queries": {
             "default": "models/db_queries/Query_models_GET_with_All_Filters.sql",
-            "count_query": "SELECT COUNT(*) AS count FROM public.vw_model WHERE owner_id = '{{first_owner_id}}' AND status = '{{first_model_status}}' AND id = '{{first_model_id}}';"
+            "count_query": "SELECT COUNT(*) AS count FROM public.vw_model WHERE owner_id = '{{tc006_owner_id}}' AND status = '{{tc006_model_status}}' AND id = '{{tc006_model_id}}';"
         },
         "db_type": "postgresql",
         "db_connection_name": "models",
