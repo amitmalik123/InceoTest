@@ -53,10 +53,10 @@ parameters:
     type: string
     default: "2"
 
-#  - name: runnerFile
-#    displayName: "Runner File"
-#    type: string
-#    default: "*"
+  - name: runnerFile
+    displayName: "Runner File"
+    type: string
+    default: "*"
 
 # -----------------------------
 # Job Section
