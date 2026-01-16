@@ -745,7 +745,7 @@ stages:
                   --build-id "$(Build.BuildId)" \
                   --team-project "$(System.TeamProject)" \
                   --collection-uri "$(System.TeamFoundationCollectionUri)" \
-                  --service-name "$(name)_$(environment)"
+                  --service-name "$(name)"
               workingDirectory: $(buildPath)
           
           - task: Bash@3
