@@ -56,7 +56,21 @@
           }
         ],
         "log_differences": true
-      }
+      },
+      "assertions": [
+        {
+          "actual": "{{api_version}}",
+          "operator": ">=",
+          "expected": 1,
+          "message": "Expected version to be at least 1"
+        },
+        {
+          "actual": "{{api_version}}",
+          "operator": "==",
+          "expected": "{{db_version}}",
+          "message": "Expected API version to match database version"
+        }
+      ]
     },
     "test_data_file": "parties/data_driven/Data_parties_GET.csv",
     "db_type": "mssql",
@@ -160,7 +174,15 @@
         "key_field": ["", ""],
         "fields_to_compare": [],
         "log_differences": true
-      }
+      },
+      "assertions": [
+        {
+          "actual": "{{created_party_id}}",
+          "operator": "!=",
+          "expected": "",
+          "message": "Expected created party ID to be non-empty"
+        }
+      ]
     },
     "test_data_file": "",
     "db_type": "",
@@ -239,7 +261,21 @@
           }
         ],
         "log_differences": true
-      }
+      },
+      "assertions": [
+        {
+          "actual": "{{version_after_post}}",
+          "operator": "==",
+          "expected": 1,
+          "message": "Expected version to be 1 after POST"
+        },
+        {
+          "actual": "{{version_after_post}}",
+          "operator": "==",
+          "expected": "{{db_version_after_post}}",
+          "message": "Expected API version to match database version after POST"
+        }
+      ]
     },
     "test_data_file": "",
     "db_type": "mssql",
@@ -338,7 +374,21 @@
         "key_field": ["", ""],
         "fields_to_compare": [],
         "log_differences": true
-      }
+      },
+      "assertions": [
+        {
+          "actual": "{{version_after_post}}",
+          "operator": "==",
+          "expected": 1,
+          "message": "Expected version to be 1 after POST"
+        },
+        {
+          "actual": "{{version_after_post}}",
+          "operator": "==",
+          "expected": "{{db_version_after_post}}",
+          "message": "Expected API version to match database version"
+        }
+      ]
     },
     "test_data_file": "",
     "db_type": "mssql",
@@ -417,7 +467,21 @@
           }
         ],
         "log_differences": true
-      }
+      },
+      "assertions": [
+        {
+          "actual": "{{version_after_first_put}}",
+          "operator": "==",
+          "expected": 2,
+          "message": "Expected version to be 2 after first PUT"
+        },
+        {
+          "actual": "{{version_after_first_put}}",
+          "operator": "==",
+          "expected": "{{db_version_after_first_put}}",
+          "message": "Expected API version to match database version after first PUT"
+        }
+      ]
     },
     "test_data_file": "",
     "db_type": "mssql",
@@ -516,7 +580,21 @@
         "key_field": ["", ""],
         "fields_to_compare": [],
         "log_differences": true
-      }
+      },
+      "assertions": [
+        {
+          "actual": "{{version_after_first_put}}",
+          "operator": "==",
+          "expected": 2,
+          "message": "Expected version to be 2 after first PUT"
+        },
+        {
+          "actual": "{{version_after_first_put}}",
+          "operator": "==",
+          "expected": "{{db_version_after_first_put}}",
+          "message": "Expected API version to match database version"
+        }
+      ]
     },
     "test_data_file": "",
     "db_type": "",
@@ -595,7 +673,21 @@
           }
         ],
         "log_differences": true
-      }
+      },
+      "assertions": [
+        {
+          "actual": "{{version_after_second_put}}",
+          "operator": "==",
+          "expected": 3,
+          "message": "Expected version to be 3 after second PUT"
+        },
+        {
+          "actual": "{{version_after_second_put}}",
+          "operator": "==",
+          "expected": "{{db_version_after_second_put}}",
+          "message": "Expected API version to match database version after second PUT"
+        }
+      ]
     },
     "test_data_file": "",
     "db_type": "mssql",
@@ -694,7 +786,8 @@
         "key_field": ["", ""],
         "fields_to_compare": [],
         "log_differences": true
-      }
+      },
+      "assertions": []
     },
     "test_data_file": "",
     "db_type": "",
@@ -773,7 +866,21 @@
           }
         ],
         "log_differences": true
-      }
+      },
+      "assertions": [
+        {
+          "actual": "{{final_version}}",
+          "operator": "==",
+          "expected": 3,
+          "message": "Expected version to remain 3 after failed PUT"
+        },
+        {
+          "actual": "{{final_version}}",
+          "operator": "==",
+          "expected": "{{db_final_version}}",
+          "message": "Expected API version to match database version"
+        }
+      ]
     },
     "test_data_file": "",
     "db_type": "mssql",

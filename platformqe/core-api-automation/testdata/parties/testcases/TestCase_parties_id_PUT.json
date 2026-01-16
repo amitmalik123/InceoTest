@@ -100,7 +100,15 @@
         "key_field": ["", ""],
         "fields_to_compare": [],
         "log_differences": true
-      }
+      },
+      "assertions": [
+        {
+          "actual": "{{response_party_id}}",
+          "operator": "!=",
+          "expected": "",
+          "message": "Expected response_party_id to be non-empty after POST"
+        }
+      ]
     },
     "test_data_file": "",
     "db_query": "",
@@ -204,7 +212,8 @@
         "key_field": [],
         "fields_to_compare": [],
         "log_differences": true
-      }
+      },
+      "assertions": []
     },
     "test_data_file": "",
     "db_query": "",
@@ -321,7 +330,8 @@
         "key_field": ["", ""],
         "fields_to_compare": [],
         "log_differences": true
-      }
+      },
+      "assertions": []
     },
     "test_data_file": "",
     "db_query": "",
@@ -373,7 +383,8 @@
         "key_field": ["", ""],
         "fields_to_compare": [],
         "log_differences": true
-      }
+      },
+      "assertions": []
     },
     "test_data_file": "",
     "db_query": "",
@@ -490,7 +501,8 @@
         "key_field": ["", ""],
         "fields_to_compare": [],
         "log_differences": true
-      }
+      },
+      "assertions": []
     },
     "test_data_file": "",
     "db_query": "",

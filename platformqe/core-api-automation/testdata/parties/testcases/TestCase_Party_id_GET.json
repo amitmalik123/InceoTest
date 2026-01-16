@@ -42,7 +42,15 @@
         "key_field": ["", ""],
         "fields_to_compare": [],
         "log_differences": true
-      }
+      },
+      "assertions": [
+        {
+          "actual": "{{db_party_id}}",
+          "operator": "!=",
+          "expected": "",
+          "message": "Expected db_party_id to be extracted from database"
+        }
+      ]
     },
     "test_data_file": "parties/data_driven/Data_parties_GET.csv",
     "db_type": "mssql",

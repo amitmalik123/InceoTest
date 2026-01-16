@@ -58,7 +58,15 @@
           }
         ],
         "log_differences": true
-      }
+      },
+      "assertions": [
+        {
+          "actual": "{{party_id}}",
+          "operator": "!=",
+          "expected": "",
+          "message": "Expected created party_id to be non-empty"
+        }
+      ]
     },
     "test_data_file": "parties/data_driven/Data_parties_POST.csv",
     "db_type": "mssql",

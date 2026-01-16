@@ -52,7 +52,8 @@
           }
         ],
         "log_differences": true
-      }
+      },
+      "assertions": []
     },
     "test_data_file": "",
     "db_type": "mssql",
@@ -130,7 +131,8 @@
           }
         ],
         "log_differences": true
-      }
+      },
+      "assertions": []
     },
     "test_data_file": "",
     "db_type": "mssql",
@@ -191,7 +193,8 @@
           }
         ],
         "log_differences": true
-      }
+      },
+      "assertions": []
     },
     "test_data_file": "",
     "db_type": "mssql",
@@ -247,7 +250,8 @@
           }
         ],
         "log_differences": true
-      }
+      },
+      "assertions": []
     },
     "test_data_file": "",
     "db_type": "mssql",
