@@ -31,13 +31,21 @@ from framework.common.html_utils import (
 
 
 def send_email_report(build_number, job_status, reports_path, build_id, team_project, collection_uri,
-                     smtp_server, smtp_port, from_addr, to_addrs, cc_addrs, bcc_addrs, subject_prefix, service_name=''):
+                     smtp_server, smtp_port, from_addr, to_addrs, cc_addrs, bcc_addrs, subject_prefix, service_name='', environment=''):
     """Send email with test report attachments.
     
     Args:
         service_name: Service being tested (e.g., 'parties', 'work_item_notification')
                      Used to route emails to service-specific teams
+        environment: Environment being tested (e.g., 'TSADEV', 'TSATEST', 'TSASILO')
     """
+    
+    # Print environment info
+    print(f"📧 Email Report Configuration:")
+    print(f"   Service: {service_name}")
+    print(f"   Environment: {environment}")
+    print(f"   Build Number: {build_number}")
+    print(f"   Job Status: {job_status}")
     
     # Parse email addresses (comma-separated strings to lists)
     to_list = [addr.strip() for addr in to_addrs.split(',') if addr.strip()]
@@ -63,9 +71,11 @@ def send_email_report(build_number, job_status, reports_path, build_id, team_pro
         
         print(f"📧 Service-specific routing for '{service_name}': TO={len(to_list)}, CC={len(cc_list)}, BCC={len(bcc_list)}")
     
-    subject = f'{subject_prefix} - {job_status} - Job# {build_number}'
+    subject = f'{subject_prefix} - {job_status} - Job# {build_number} '
     if service_name:
         subject += f' - {service_name.upper()}'
+    if environment:
+        subject += f' - {environment.upper()}'
     
     # Create message
     msg = MIMEMultipart()
@@ -90,7 +100,7 @@ def send_email_report(build_number, job_status, reports_path, build_id, team_pro
     validation_stats = aggregate_validation_stats(test_results)
     
     # Log summary
-    print(f"📊 Test Summary: {test_summary['total']} tests ({test_summary['passed']} passed, {test_summary['failed']} failed, {test_summary['skipped']} skipped)")
+    print(f"📊 Test Summary: {test_summary['total']} tests ({test_summary['passed']} passed, {test_summary['failed']} failed, {test_summary['skipped']} skipped) in environment {environment.upper() if environment else 'N/A'}")
     total_val = sum(v['total'] for v in validation_stats.values())
     total_val_passed = sum(v['passed'] for v in validation_stats.values())
     print(f"📊 Validation Summary: {total_val} total ({total_val_passed} passed, {total_val - total_val_passed} failed)")
@@ -141,7 +151,7 @@ def send_email_report(build_number, job_status, reports_path, build_id, team_pro
         </style>
     </head>
     <body>
-    <h2>API Test Report{f' - {service_name.upper()}' if service_name else ''}</h2>
+    <h2>API Test Report{f' - {service_name.upper()}' if service_name else ''}{f' - {environment.upper()}' if environment else ''}</h2>
     <p><strong>Job Number:</strong> {build_number}</p>
     <p><strong>Job Status:</strong> {job_status}</p>
     <p><strong>Job URL:</strong> <a href="{build_url}">View Test Execution</a></p>
@@ -181,6 +191,8 @@ if __name__ == '__main__':
     parser.add_argument('--collection-uri', required=True, help='Collection URI')
     # Service name for routing to specific teams
     parser.add_argument('--service-name', default='', help='Service being tested (e.g., parties, work_item_notification)')
+    # Environment being tested
+    parser.add_argument('--environment', default='', help='Environment being tested (e.g., TSADEV, TSATEST, TSASILO)')
     
     # Email configuration from environment variables (populated from variable group)
     parser.add_argument('--smtp-server', default=os.getenv('SMTP_SERVER', 'smtp-nonprod.corp.local'))
@@ -207,7 +219,8 @@ if __name__ == '__main__':
         args.cc_addrs,
         args.bcc_addrs,
         args.subject_prefix,
-        args.service_name
+        args.service_name,
+        args.environment
     )
     
     sys.exit(exit_code)
