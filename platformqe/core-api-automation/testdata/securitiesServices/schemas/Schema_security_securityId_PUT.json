@@ -1,0 +1,48 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "type": "object",
+  "title": "PUT /security/{securityId} Response Schema",
+  "description": "Response schema for /security/{securityId}",
+  "properties": {
+    "securityId": {
+      "type": "integer"
+    },
+    "cusip": {
+      "type": ["string", "null"]
+    },
+    "ticker": {
+      "type": ["string", "null"]
+    },
+    "name": {
+      "type": "string"
+    },
+    "createdBy": {
+      "type": "string"
+    },
+    "createdDate": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "modifiedBy": {
+      "type": ["string", "null"]
+    },
+    "modifiedDate": {
+      "type": ["string", "null"],
+      "format": "date-time"
+    },
+    "assetClass": {
+      "type": "string"
+    },
+    "assetType": {
+      "type": "string"
+    },
+    "subAssetType": {
+      "type": "string"
+    }
+  },
+  "required": [
+    "securityId",
+    "name",
+    "createdDate"
+  ]
+}
