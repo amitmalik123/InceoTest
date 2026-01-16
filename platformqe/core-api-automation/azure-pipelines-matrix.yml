@@ -718,6 +718,22 @@ stages:
               EMAIL_CC: $(email_cc)
               EMAIL_BCC: $(email_bcc)
               EMAIL_SUBJECT_PREFIX: $(email_subject_prefix)
+              EMAIL_TO_MOVEMONEYAPI: $(email_to_MoveMoneyAPI)
+              EMAIL_CC_MOVEMONEYAPI: $(email_cc_MoveMoneyAPI)
+              EMAIL_TO_PARTIES: $(email_to_parties)
+              EMAIL_CC_PARTIES: $(email_cc_parties)
+              EMAIL_TO_ADDRESSSERVICE.API: $(email_to_AddressService.API)
+              EMAIL_CC_ADDRESSSERVICE.API: $(email_cc_AddressService.API)
+              EMAIL_TO_WORK_ITEM_NOTIFICATION: $(email_to_work_item_notification)
+              EMAIL_CC_WORK_ITEM_NOTIFICATION: $(email_cc_work_item_notification)
+              EMAIL_TO_SECURITIESSERVICES: $(email_to_securitiesServices)
+              EMAIL_CC_SECURITIESSERVICES: $(email_cc_securitiesServices)
+              EMAIL_TO_MODELS: $(email_to_models)
+              EMAIL_CC_MODELS: $(email_cc_models)
+              EMAIL_TO_ANALYTICSAPISERVICES: $(email_to_analyticsApiServices)
+              EMAIL_CC_ANALYTICSAPISERVICES: $(email_cc_analyticsApiServices)
+              EMAIL_TO_HNEBASE: $(email_to_hnebase)
+              EMAIL_CC_HNEBASE: $(email_cc_hnebase)
             inputs:
               targetType: inline
               script: |
