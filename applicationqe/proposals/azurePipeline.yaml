@@ -7,20 +7,20 @@ trigger: none
 # -----------------------------
 # Scheduled triggers
 # -----------------------------
-schedules:
-  - cron: "30 20 * * *" # 3:30 PM EST → Silo
-    displayName: "Schedule for Silo"
-    branches:
-      include:
-        - playwrightaaron
-    always: true
+#schedules:
+#  - cron: "30 20 * * *" # 3:30 PM EST → Silo
+#    displayName: "Schedule for Silo"
+#    branches:
+#      include:
+#        - playwrightaaron
+#    always: true
 
-  - cron: "45 20 * * *"      # 3:45 PM EST → Test11
-    displayName: "Schedule for Test11"
-    branches:
-      include:
-        - playwrightaaron
-    always: true
+#  - cron: "45 20 * * *"      # 3:45 PM EST → Test11
+#    displayName: "Schedule for Test11"
+#    branches:
+#      include:
+#        - playwrightaaron
+#    always: true
 
 #  - cron: "0 21 * * *"       # 4 PM EST → Test10
 #    displayName: "Schedule for Test10"
@@ -46,7 +46,7 @@ parameters:
   - name: tag
     displayName: "BDD Tag to Run"
     type: string
-    default: "@regression|@smokeTest|@e2e"
+    default: "@regression|@smoke|@e2e"
 
   - name: threadCount
     displayName: "Number of Threads"
@@ -97,19 +97,19 @@ jobs:
               if [ "$HOUR" -ge 21 ] && [ "$MINUTE" -ge 00 ]; then
                 # afet 4:00 PM EST → Test11
                 echo "##vso[task.setvariable variable=environment]test10"
-                echo "##vso[task.setvariable variable=tag]@regression|@smokeTest|@e2e"
+                echo "##vso[task.setvariable variable=tag]@regression|@smoke|@e2e"
                 echo "##vso[task.setvariable variable=threadCount]2"
                 echo "##vso[task.setvariable variable=runnerFile]*"
               elif [ "$HOUR" -ge 20 ] && [ "$MINUTE" -ge 45 ]; then
                 # after 3:45 PM EST → test11
                 echo "##vso[task.setvariable variable=environment]test11"
-                echo "##vso[task.setvariable variable=tag]@regression|@smokeTest|@e2e"
+                echo "##vso[task.setvariable variable=tag]@regression|@smoke|@e2e"
                 echo "##vso[task.setvariable variable=threadCount]2"
                 echo "##vso[task.setvariable variable=runnerFile]*"
               elif [ "$HOUR" -eq 20 ] && [ "$MINUTE" -eq 30 ]; then
                 # after 3:30 PM EST → silo
                 echo "##vso[task.setvariable variable=environment]silo"
-                echo "##vso[task.setvariable variable=tag]@regression|@smokeSilo|@e2e"
+                echo "##vso[task.setvariable variable=tag]@regression|@smoke|@e2e"
                 echo "##vso[task.setvariable variable=threadCount]2"
                 echo "##vso[task.setvariable variable=runnerFile]*"
               else
