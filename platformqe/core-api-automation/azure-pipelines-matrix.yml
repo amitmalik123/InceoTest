@@ -128,6 +128,12 @@ variables:
     value: 'config/services-matrix.yaml'
   - name: pythonVersion
     value: '3.10'
+  # Environments controlled via variable group - override services-matrix.yaml defaults
+  # Set ENABLED_ENVIRONMENTS in 'qa-pipelines-shared-config' variable group
+  # Format: comma-separated list (e.g., "TSADEV,TSATEST,TSASILO")
+  # If not set, falls back to "all" which uses services-matrix.yaml defaults
+  - name: defaultEnvironments
+    value: $[coalesce(variables['ENABLED_ENVIRONMENTS'], 'all')]
 
 ###############################################################################
 # Stages
@@ -230,10 +236,22 @@ stages:
                   echo "Using schedule-specified service: $SERVICES_PARAM"
                 fi
                 
-                # Set environments parameter (use "all" if empty)
+                # Set environments parameter
+                # Priority: 1) Manual parameter, 2) Variable group ENABLED_ENVIRONMENTS, 3) services-matrix.yaml defaults
                 ENVIRONMENTS_PARAM="${{ parameters.environments }}"
-                if [ -z "$ENVIRONMENTS_PARAM" ]; then
-                  ENVIRONMENTS_PARAM="all"
+                VAR_GROUP_ENVS="$(defaultEnvironments)"
+                
+                if [ -z "$ENVIRONMENTS_PARAM" ] || [ "$ENVIRONMENTS_PARAM" = "all" ]; then
+                  # Use variable group value if set, otherwise use "all" for service defaults
+                  if [ -n "$VAR_GROUP_ENVS" ] && [ "$VAR_GROUP_ENVS" != "all" ]; then
+                    ENVIRONMENTS_PARAM="$VAR_GROUP_ENVS"
+                    echo "Using environments from variable group: $ENVIRONMENTS_PARAM"
+                  else
+                    ENVIRONMENTS_PARAM="all"
+                    echo "Using default environments from services-matrix.yaml"
+                  fi
+                else
+                  echo "Using manually specified environments: $ENVIRONMENTS_PARAM"
                 fi
                 
                 # Store custom args in variables to handle quotes and special characters safely
@@ -718,20 +736,20 @@ stages:
               EMAIL_CC: $(email_cc)
               EMAIL_BCC: $(email_bcc)
               EMAIL_SUBJECT_PREFIX: $(email_subject_prefix)
-              EMAIL_TO_MOVEMONEYAPI: $(email_to_MoveMoneyAPI)
-              EMAIL_CC_MOVEMONEYAPI: $(email_cc_MoveMoneyAPI)
+              EMAIL_TO_MOVEMONEY: $(email_to_movemoney)
+              EMAIL_CC_MOVEMONEY: $(email_cc_movemoney)
               EMAIL_TO_PARTIES: $(email_to_parties)
               EMAIL_CC_PARTIES: $(email_cc_parties)
-              EMAIL_TO_ADDRESSSERVICE.API: $(email_to_AddressService.API)
-              EMAIL_CC_ADDRESSSERVICE.API: $(email_cc_AddressService.API)
+              EMAIL_TO_ADDRESSSERVICE: $(email_to_addressservice)
+              EMAIL_CC_ADDRESSSERVICE: $(email_cc_addressservice)
               EMAIL_TO_WORK_ITEM_NOTIFICATION: $(email_to_work_item_notification)
               EMAIL_CC_WORK_ITEM_NOTIFICATION: $(email_cc_work_item_notification)
-              EMAIL_TO_SECURITIESSERVICES: $(email_to_securitiesServices)
-              EMAIL_CC_SECURITIESSERVICES: $(email_cc_securitiesServices)
+              EMAIL_TO_SECURITIES: $(email_to_securities)
+              EMAIL_CC_SECURITIES: $(email_cc_securities)
               EMAIL_TO_MODELS: $(email_to_models)
               EMAIL_CC_MODELS: $(email_cc_models)
-              EMAIL_TO_ANALYTICSAPISERVICES: $(email_to_analyticsApiServices)
-              EMAIL_CC_ANALYTICSAPISERVICES: $(email_cc_analyticsApiServices)
+              EMAIL_TO_ANALYTICS: $(email_to_analytics)
+              EMAIL_CC_ANALYTICS: $(email_cc_analytics)
               EMAIL_TO_HNEBASE: $(email_to_hnebase)
               EMAIL_CC_HNEBASE: $(email_cc_hnebase)
             inputs:
@@ -745,7 +763,8 @@ stages:
                   --build-id "$(Build.BuildId)" \
                   --team-project "$(System.TeamProject)" \
                   --collection-uri "$(System.TeamFoundationCollectionUri)" \
-                  --service-name "$(name)"
+                  --service-name "$(name)" \
+                  --environment "$(environment)"
               workingDirectory: $(buildPath)
           
           - task: Bash@3

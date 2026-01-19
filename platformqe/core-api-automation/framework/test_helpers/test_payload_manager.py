@@ -54,10 +54,16 @@ class PayloadManager:
         
         # Check if constructing from CSV test_data_file
         # Skip CSV construction for SOAP tests that use soap_envelope
+        # Also skip if 'payload' key exists and is explicitly null (user doesn't want a body)
         protocol = case.get('protocol', '').upper()
         has_soap_envelope = case.get('soap_envelope') and case.get('soap_envelope') != "<Envelope>...</Envelope>"
         
-        if not case.get('payload') and case.get('test_data_file') and method.upper() in ['POST', 'PUT', 'PATCH']:
+        # Only construct from CSV if:
+        # 1. 'payload' key is NOT present in case (missing, not explicitly null)
+        # 2. test_data_file is specified
+        # 3. Method is POST, PUT, or PATCH
+        # If 'payload' is explicitly set to null, the user intends no request body
+        if 'payload' not in case and case.get('test_data_file') and method.upper() in ['POST', 'PUT', 'PATCH']:
             # Skip CSV payload construction for SOAP tests with soap_envelope
             if protocol == 'SOAP' and has_soap_envelope:
                 logger.debug("Skipping CSV payload construction for SOAP test with soap_envelope")

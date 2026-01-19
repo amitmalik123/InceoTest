@@ -1,0 +1,721 @@
+[
+    {
+        "test_id": "TC001",
+        "service_name": "securitiesServices",
+        "workflow_mode": "parallel",
+        "test_name": "POST /security [validation: securityId invalid] (TC001)",
+        "protocol": "REST",
+        "test_type": [
+            "Negative",
+            "Validation"
+        ],
+        "mainURL": "{{base_url}}",
+        "endpoint": "/security/{{invalid_securityId}}?name={{random_string(7)}}&ticker={{random_string(5)}}&cusip={{random_string(9)}}",
+        "method": "PUT",
+        "headers_additional": {
+            "Content-Type": "application/json"
+        },
+        "payload": null,
+        "expected_status": "400",
+        "expected_response_schema": "",
+        "expected_response": null,
+        "ignore_fields": [],
+        "extract_values": [
+            {
+                "from": "response",
+                "key": "status",
+                "assign_to": "error_status"
+            },
+            {
+                "from": "response",
+                "key": "errors.securityId.0",
+                "assign_to": "securityId_error_message"
+            }
+        ],
+        "validate": {
+            "performance": {
+                "max_response_time_ms": 650
+            },
+            "security": {
+                "checks": [
+                    "sql_injection",
+                    "xss"
+                ]
+            },
+            "assertions": [
+                {
+                    "actual": "{{error_status}}",
+                    "operator": "==",
+                    "expected": 400,
+                    "message": "Expected error status to be 400"
+                },
+                {
+                    "actual": "{{securityId_error_message}}",
+                    "operator": "contains",
+                    "expected": "The value",
+                    "message": "Expected securityId error message to include the invalid securityId value"
+                },
+                {
+                    "actual": "{{securityId_error_message}}",
+                    "operator": "contains",
+                    "expected": "{{invalid_securityId}}",
+                    "message": "Expected securityId error message to include the invalid securityId value"
+                },
+                {
+                    "actual": "{{securityId_error_message}}",
+                    "operator": "contains",
+                    "expected": "is not valid.",
+                    "message": "Expected securityId error message to include the invalid securityId value"
+                }
+            ]
+        },
+        "test_data_file": "securitiesServices/data_driven/Data_security_PUT.csv",
+        "db_query": "",
+        "db_type": "",
+        "db_connection_name": "",
+        "test_summary": "Test TC000: Validate securityId invalid error using assertions",
+        "test_scenario": "Extract error response fields and validate them using assertions. Checks title, status, and securityId-specific error message."
+    },
+    {
+        "test_id": "TC002",
+        "service_name": "securitiesServices",
+        "workflow_mode": "parallel",
+        "test_name": "POST /security [validation: update too short cusip] (TC002)",
+        "protocol": "REST",
+        "test_type": [
+            "Negative",
+            "Validation"
+        ],
+        "mainURL": "{{base_url}}",
+        "endpoint": "/security/{{valid_securityId}}?name={{random_string(7)}}&ticker={{random_string(5)}}&cusip={{random_string(8)}}",
+        "method": "PUT",
+        "headers_additional": {
+            "Content-Type": "application/json"
+        },
+        "payload": null,
+        "expected_status": "422",
+        "expected_response_schema": "",
+        "expected_response": null,
+        "ignore_fields": [],
+        "extract_values": [
+            {
+                "from": "response",
+                "key": "type",
+                "assign_to": "error_type"
+            },
+            {
+                "from": "response",
+                "key": "title",
+                "assign_to": "error_title"
+            },
+            {
+                "from": "response",
+                "key": "status",
+                "assign_to": "error_status"
+            },
+            {
+                "from": "response",
+                "key": "detail",
+                "assign_to": "error_detail"
+            },
+            {
+                "from": "response",
+                "key": "instance",
+                "assign_to": "error_instance"
+            },
+            {
+                "from": "response",
+                "key": "errors.cusip.0",
+                "assign_to": "cusip_error_message"
+            }
+        ],
+        "validate": {
+            "performance": {
+                "max_response_time_ms": 650
+            },
+            "security": {
+                "checks": [
+                    "sql_injection",
+                    "xss"
+                ]
+            },
+            "assertions": [
+                {
+                    "actual": "{{error_type}}",
+                    "operator": "==",
+                    "expected": "business-rule-violation",
+                    "message": "Expected error type to be 'business-rule-violation'"
+                },
+                {
+                    "actual": "{{error_title}}",
+                    "operator": "==",
+                    "expected": "Business Rule Violation",
+                    "message": "Expected error title to be 'Business Rule Violation'"
+                },
+                {
+                    "actual": "{{error_status}}",
+                    "operator": "==",
+                    "expected": 422,
+                    "message": "Expected error status to be 422"
+                },
+                {
+                    "actual": "{{error_detail}}",
+                    "operator": "==",
+                    "expected": "The request is invalid and not meeting business rules requirements",
+                    "message": "Expected details to mention 'The request is invalid and not meeting business rules requirements'"
+                },
+                {
+                    "actual": "{{error_instance}}",
+                    "operator": "contains",
+                    "expected": "/api/security/v1/security",
+                    "message": "Expected instance to be '/api/security/v1/security'"
+                },
+                {
+                    "actual": "{{error_instance}}",
+                    "operator": "contains",
+                    "expected": "{{valid_securityId}}",
+                    "message": "Expected instance to be '/api/security/v1/security'"
+                },
+                {
+                    "actual": "{{cusip_error_message}}",
+                    "operator": "contains",
+                    "expected": "Cusip must be 9 alphanumeric characters. Provided Cusip",
+                    "message": "Expected cusip error message to include the invalid cusip value"
+                },
+                {
+                    "actual": "{{cusip_error_message}}",
+                    "operator": "contains",
+                    "expected": "is too short.",
+                    "message": "Expected cusip error message to include 'is too short' text"
+                }
+            ]
+        },
+        "test_data_file": "securitiesServices/data_driven/Data_security_PUT.csv",
+        "db_query": "",
+        "db_type": "",
+        "db_connection_name": "",
+        "test_summary": "Test TC002: Validate too short cusip error using assertions",
+        "test_scenario": "Extract error response fields and validate them using assertions. Checks title, status, and cusip-specific error message."
+    },
+    {
+        "test_id": "TC003",
+        "service_name": "securitiesServices",
+        "workflow_mode": "parallel",
+        "test_name": "POST /security [validation: update too long cusip] (TC003)",
+        "protocol": "REST",
+        "test_type": [
+            "Negative",
+            "Validation"
+        ],
+        "mainURL": "{{base_url}}",
+        "endpoint": "/security/{{valid_securityId}}?name={{random_string(7)}}&ticker={{random_string(5)}}&cusip={{random_string(10)}}",
+        "method": "PUT",
+        "headers_additional": {
+            "Content-Type": "application/json"
+        },
+        "payload": null,
+        "expected_status": "422",
+        "expected_response_schema": "",
+        "expected_response": null,
+        "ignore_fields": [],
+        "extract_values": [
+            {
+                "from": "response",
+                "key": "type",
+                "assign_to": "error_type"
+            },
+            {
+                "from": "response",
+                "key": "title",
+                "assign_to": "error_title"
+            },
+            {
+                "from": "response",
+                "key": "status",
+                "assign_to": "error_status"
+            },
+            {
+                "from": "response",
+                "key": "detail",
+                "assign_to": "error_detail"
+            },
+            {
+                "from": "response",
+                "key": "instance",
+                "assign_to": "error_instance"
+            },
+            {
+                "from": "response",
+                "key": "errors.cusip.0",
+                "assign_to": "cusip_error_message"
+            }
+        ],
+        "validate": {
+            "performance": {
+                "max_response_time_ms": 650
+            },
+            "security": {
+                "checks": [
+                    "sql_injection",
+                    "xss"
+                ]
+            },
+            "assertions": [
+                {
+                    "actual": "{{error_type}}",
+                    "operator": "==",
+                    "expected": "business-rule-violation",
+                    "message": "Expected error type to be 'business-rule-violation'"
+                },
+                {
+                    "actual": "{{error_title}}",
+                    "operator": "==",
+                    "expected": "Business Rule Violation",
+                    "message": "Expected error title to be 'Business Rule Violation'"
+                },
+                {
+                    "actual": "{{error_status}}",
+                    "operator": "==",
+                    "expected": 422,
+                    "message": "Expected error status to be 422"
+                },
+                {
+                    "actual": "{{error_detail}}",
+                    "operator": "==",
+                    "expected": "The request is invalid and not meeting business rules requirements",
+                    "message": "Expected details to mention 'The request is invalid and not meeting business rules requirements'"
+                },
+                {
+                    "actual": "{{error_instance}}",
+                    "operator": "contains",
+                    "expected": "/api/security/v1/security",
+                    "message": "Expected instance to be '/api/security/v1/security'"
+                },
+                {
+                    "actual": "{{error_instance}}",
+                    "operator": "contains",
+                    "expected": "{{valid_securityId}}",
+                    "message": "Expected instance to be '/api/security/v1/security'"
+                },
+                {
+                    "actual": "{{cusip_error_message}}",
+                    "operator": "contains",
+                    "expected": "Cusip must be 9 alphanumeric characters. Provided Cusip",
+                    "message": "Expected cusip error message to include the invalid cusip value"
+                },
+                {
+                    "actual": "{{cusip_error_message}}",
+                    "operator": "contains",
+                    "expected": "is too long.",
+                    "message": "Expected cusip error message to include 'is too long' text"
+                }
+            ]
+        },
+        "test_data_file": "securitiesServices/data_driven/Data_security_PUT.csv",
+        "db_query": "",
+        "db_type": "",
+        "db_connection_name": "",
+        "test_summary": "Test TC003: Validate too long cusip error using assertions",
+        "test_scenario": "Extract error response fields and validate them using assertions. Checks title, status, and cusip-specific error message."
+    },
+    {
+        "test_id": "TC004",
+        "service_name": "securitiesServices",
+        "workflow_mode": "parallel",
+        "test_name": "POST /security [validation: not providing any parameter value to update] (TC004)",
+        "protocol": "REST",
+        "test_type": [
+            "Negative",
+            "Validation"
+        ],
+        "mainURL": "{{base_url}}",
+        "endpoint": "/security/{{valid_securityId}}",
+        "method": "PUT",
+        "headers_additional": {
+            "Content-Type": "application/json"
+        },
+        "payload": null,
+        "expected_status": "400",
+        "expected_response_schema": "",
+        "expected_response": null,
+        "ignore_fields": [],
+        "extract_values": [
+            {
+                "from": "response",
+                "key": "type",
+                "assign_to": "error_type"
+            },
+            {
+                "from": "response",
+                "key": "title",
+                "assign_to": "error_title"
+            },
+            {
+                "from": "response",
+                "key": "status",
+                "assign_to": "error_status"
+            },
+            {
+                "from": "response",
+                "key": "detail",
+                "assign_to": "error_detail"
+            },
+            {
+                "from": "response",
+                "key": "instance",
+                "assign_to": "error_instance"
+            },
+            {
+                "from": "response",
+                "key": "errors.name, ticker, cusip.0",
+                "assign_to": "error_message"
+            }
+        ],
+        "validate": {
+            "performance": {
+                "max_response_time_ms": 650
+            },
+            "security": {
+                "checks": [
+                    "sql_injection",
+                    "xss"
+                ]
+            },
+            "assertions": [
+                {
+                    "actual": "{{error_type}}",
+                    "operator": "==",
+                    "expected": "invalid-request",
+                    "message": "Expected error type to be 'invalid-request'"
+                },
+                {
+                    "actual": "{{error_title}}",
+                    "operator": "==",
+                    "expected": "Invalid Request",
+                    "message": "Expected error title to be 'Invalid Request'"
+                },
+                {
+                    "actual": "{{error_status}}",
+                    "operator": "==",
+                    "expected": 400,
+                    "message": "Expected error status to be 400"
+                },
+                {
+                    "actual": "{{error_detail}}",
+                    "operator": "==",
+                    "expected": "The request contains invalid values",
+                    "message": "Expected details to mention 'The request contains invalid values'"
+                },
+                {
+                    "actual": "{{error_instance}}",
+                    "operator": "contains",
+                    "expected": "/api/security/v1/security",
+                    "message": "Expected instance to be '/api/security/v1/security'"
+                },
+                {
+                    "actual": "{{error_instance}}",
+                    "operator": "contains",
+                    "expected": "{{valid_securityId}}",
+                    "message": "Expected instance to be '/api/security/v1/security'"
+                },
+                {
+                    "actual": "{{error_message}}",
+                    "operator": "==",
+                    "expected": "Request body must include at least one updatable field.",
+                    "message": "Expected error message to include that at least one updatable field"
+                }
+            ]
+        },
+        "test_data_file": "securitiesServices/data_driven/Data_security_PUT.csv",
+        "db_query": "",
+        "db_type": "",
+        "db_connection_name": "",
+        "test_summary": "Test TC004: Validate no update parameters error using assertions",
+        "test_scenario": "Extract error response fields and validate them using assertions. Checks type,title, status,details and specific error message."
+    },
+    {
+        "test_id": "TC005",
+        "service_name": "securitiesServices",
+        "workflow_mode": "parallel",
+        "test_name": "Updates a single security Name & Ticker & Cusip [positive] (TC005)",
+        "protocol": "REST",
+        "test_type": [
+            "Functional",
+            "Positive"
+        ],
+        "mainURL": "{{base_url}}",
+        "endpoint": "/security/{{valid_securityId}}?name={{random_string(7)}}&ticker={{random_string(5)}}&cusip={{random_string(9)}}",
+        "method": "PUT",
+        "rpc_method": "",
+        "graphql_query": "",
+        "graphql_variables": "",
+        "soap_action": "",
+        "soap_envelope": "",
+        "headers_additional": {
+            "Content-Type": "application/json"
+        },
+        "payload": "",
+        "expected_status": "200",
+        "expected_response_schema": "securitiesServices\\schemas\\Schema_security_securityId_PUT.json",
+        "expected_response": null,
+        "ignore_fields": [
+            "id"
+        ],
+        "extract_values": [],
+        "validate": {
+            "performance": {
+                "max_response_time_ms": 500
+            },
+            "security": {
+                "checks": [
+                    "sql_injection",
+                    "xss"
+                ]
+            },
+            "data_comparison": {
+                "source": "api_response",
+                "target": "db_result",
+                "format": "table",
+                "source_array_path": "",
+                "key_field": [
+                    "",
+                    ""
+                ],
+                "fields_to_compare": [
+                    {
+                        "source": "securityId",
+                        "target": "db_securities_id"
+                    },
+                    {
+                        "source": "name",
+                        "target": "db_name"
+                    },
+                    {
+                        "source": "ticker",
+                        "target": "db_ticker"
+                    },
+                    {
+                        "source": "cusip",
+                        "target": "db_cusip"
+                    }
+                ],
+                "log_differences": true,
+                "comparison_name": "Verify name,ticker,cusip is updated "
+            }
+        },
+        "test_data_file": "securitiesServices\\data_driven\\Data_security_PUT.csv",
+        "db_query": "securitiesServices/db_queries/Query_security_PUT.sql",
+        "db_type": "postgresql",
+        "db_connection_name": "securitiesServices",
+        "test_summary": "Test TC005: Updates a single security. Can update Name, Ticker or Cusip [positive] (TC005) - Test PUT request to /security/{securityId} for functional scenario validation.",
+        "payload_file": "",
+        "test_scenario": "Test PUT request to /security/{securityId} for functional scenario validation."
+    },
+    {
+        "test_id": "TC006",
+        "service_name": "securitiesServices",
+        "workflow_mode": "parallel",
+        "test_name": "Updates a single security Name [positive] (TC006)",
+        "protocol": "REST",
+        "test_type": [
+            "Functional"
+        ],
+        "mainURL": "{{base_url}}",
+        "endpoint": "/security/{{valid_securityId}}?name={{random_string(7)}}",
+        "method": "PUT",
+        "rpc_method": "",
+        "graphql_query": "",
+        "graphql_variables": "",
+        "soap_action": "",
+        "soap_envelope": "",
+        "headers_additional": {
+            "Content-Type": "application/json"
+        },
+        "payload": "",
+        "expected_status": "200",
+        "expected_response_schema": "securitiesServices\\schemas\\Schema_security_securityId_PUT.json",
+        "expected_response": null,
+        "ignore_fields": [
+            "id"
+        ],
+        "extract_values": [],
+        "validate": {
+            "performance": {
+                "max_response_time_ms": 500
+            },
+            "security": {
+                "checks": [
+                    "sql_injection",
+                    "xss"
+                ]
+            },
+            "data_comparison": {
+                "source": "api_response",
+                "target": "db_result",
+                "format": "table",
+                "source_array_path": "",
+                "key_field": [
+                    "",
+                    ""
+                ],
+                "fields_to_compare": [
+                    {
+                        "source": "securityId",
+                        "target": "db_securities_id"
+                    },
+                    {
+                        "source": "name",
+                        "target": "db_name"
+                    }
+                ],
+                "log_differences": true,
+                "comparison_name": "Verify name is updated "
+            }
+        },
+        "test_data_file": "securitiesServices\\data_driven\\Data_security_PUT.csv",
+        "db_query": "securitiesServices/db_queries/Query_security_PUT.sql",
+        "db_type": "postgresql",
+        "db_connection_name": "securitiesServices",
+        "test_summary": "Test TC006: Updates a single security Name [positive] (TC006) - Test PUT request to /security/{securityId} for functional scenario validation.",
+        "payload_file": "",
+        "test_scenario": "Test PUT request to /security/{securityId} for functional scenario validation."
+    },
+    {
+        "test_id": "TC007",
+        "service_name": "securitiesServices",
+        "workflow_mode": "parallel",
+        "test_name": "Updates a single security Ticker  [positive] (TC007)",
+        "protocol": "REST",
+        "test_type": [
+            "Functional"
+        ],
+        "mainURL": "{{base_url}}",
+        "endpoint": "/security/{{valid_securityId}}?ticker={{random_string(5)}}",
+        "method": "PUT",
+        "rpc_method": "",
+        "graphql_query": "",
+        "graphql_variables": "",
+        "soap_action": "",
+        "soap_envelope": "",
+        "headers_additional": {
+            "Content-Type": "application/json"
+        },
+        "payload": "",
+        "expected_status": "200",
+        "expected_response_schema": "securitiesServices\\schemas\\Schema_security_securityId_PUT.json",
+        "expected_response": null,
+        "ignore_fields": [
+            "id"
+        ],
+        "extract_values": [],
+        "validate": {
+            "performance": {
+                "max_response_time_ms": 500
+            },
+            "security": {
+                "checks": [
+                    "sql_injection",
+                    "xss"
+                ]
+            },
+            "data_comparison": {
+                "source": "api_response",
+                "target": "db_result",
+                "format": "table",
+                "source_array_path": "",
+                "key_field": [
+                    "",
+                    ""
+                ],
+                "fields_to_compare": [
+                    {
+                        "source": "securityId",
+                        "target": "db_securities_id"
+                    },
+                    {
+                        "source": "ticker",
+                        "target": "db_ticker"
+                    }
+                ],
+                "log_differences": true,
+                "comparison_name": "Verify ticker is updated "
+            }
+        },
+        "test_data_file": "securitiesServices\\data_driven\\Data_security_PUT.csv",
+        "db_query": "securitiesServices/db_queries/Query_security_PUT.sql",
+        "db_type": "postgresql",
+        "db_connection_name": "securitiesServices",
+        "test_summary": "Test TC007: Updates a single security Ticker  [positive] (TC007) - Test PUT request to /security/{securityId} for functional scenario validation.",
+        "payload_file": "",
+        "test_scenario": "Test PUT request to /security/{securityId} for functional scenario validation."
+    },
+    {
+        "test_id": "TC008",
+        "service_name": "securitiesServices",
+        "workflow_mode": "parallel",
+        "test_name": "Updates Cusip for a single security  [positive] (TC008)",
+        "protocol": "REST",
+        "test_type": [
+            "Functional"
+        ],
+        "mainURL": "{{base_url}}",
+        "endpoint": "/security/{{valid_securityId}}?cusip={{random_string(9)}}",
+        "method": "PUT",
+        "rpc_method": "",
+        "graphql_query": "",
+        "graphql_variables": "",
+        "soap_action": "",
+        "soap_envelope": "",
+        "headers_additional": {
+            "Content-Type": "application/json"
+        },
+        "payload": "",
+        "expected_status": "200",
+        "expected_response_schema": "securitiesServices\\schemas\\Schema_security_securityId_PUT.json",
+        "expected_response": null,
+        "ignore_fields": [
+            "id"
+        ],
+        "extract_values": [],
+        "validate": {
+            "performance": {
+                "max_response_time_ms": 500
+            },
+            "security": {
+                "checks": [
+                    "sql_injection",
+                    "xss"
+                ]
+            },
+            "data_comparison": {
+                "source": "api_response",
+                "target": "db_result",
+                "format": "table",
+                "source_array_path": "",
+                "key_field": [
+                    "",
+                    ""
+                ],
+                "fields_to_compare": [
+                    {
+                        "source": "securityId",
+                        "target": "db_securities_id"
+                    },
+                    {
+                        "source": "cusip",
+                        "target": "db_cusip"
+                    }
+                ],
+                "log_differences": true,
+                "comparison_name": "Verify cusip is updated "
+            }
+        },
+        "test_data_file": "securitiesServices\\data_driven\\Data_security_PUT.csv",
+        "db_query": "securitiesServices/db_queries/Query_security_PUT.sql",
+        "db_type": "postgresql",
+        "db_connection_name": "securitiesServices",
+        "test_summary": "Test TC008: Updates a single security Cusip  [positive] (TC008) - Test PUT request to /security/{securityId} for functional scenario validation.",
+        "payload_file": "",
+        "test_scenario": "Test PUT request to /security/{securityId} for functional scenario validation."
+    }
+]
