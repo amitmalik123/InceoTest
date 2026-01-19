@@ -55,7 +55,7 @@
     "test_data_file": "parties/data_driven/Data_parties_GET.csv",
     "db_type": "mssql",
     "db_connection_name": "parties",
-    "db_query": "SELECT Id as db_id FROM Party WHERE Id ='{{id}}';",
+    "db_query": "SELECT TOP 1 Id as db_id FROM Party WHERE Id ='{{id}}';",
     "test_summary": "Test TC000: Extract DB [positive] (TC000)"
   },
   {
@@ -102,7 +102,7 @@
     "test_data_file": "parties/data_driven/Data_parties_GET.csv",
     "db_type": "mssql",
     "db_connection_name": "parties",
-    "db_query": "SELECT Id as db_id FROM Party WHERE Id ='{{id}}';",
+    "db_query": "SELECT TOP 1 Id as db_id FROM Party WHERE Id ='{{id}}';",
     "test_summary": "Test TC001: GET /parties/{id} [positive] (TC001)"
   },
   {
