@@ -69,10 +69,13 @@ def push_results_to_influxdb(json_file_path):
     
     try:
         # Load InfluxDB connection details from config
-        from framework.loaders.config_loader import get_config
+        from framework.loaders.config_loader import get_config, substitute_env_vars
         config = get_config()
         
         influx_config = config.get('db_connections', {}).get('influxdb', {}).get('default', {})
+        
+        # Substitute environment variables in config values (e.g., ${INFLUX_URL} -> actual URL)
+        influx_config = substitute_env_vars(influx_config)
         
         if not influx_config:
             logger.error("[InfluxDB] No InfluxDB configuration found in config file (db_connections.influxdb.default)")
