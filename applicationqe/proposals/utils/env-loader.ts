@@ -8,7 +8,7 @@ import * as path from 'path';
  * @returns The environment name that was loaded
  */
 export function loadEnvironment(environment?: string, configPath: string = '../config'): string {
-    const env = environment || process.env.ENVIRONMENT || process.env.Environment;
+    const env = environment || process.env.ENVIRONMENT || process.env.Environment || 'test11';
     const envFilePath = path.resolve(__dirname, `${configPath}/.env.${env}`);
 
     // Check if file exists before trying to load it

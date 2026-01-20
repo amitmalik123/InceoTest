@@ -131,7 +131,7 @@ jobs:
 
       - script: |
           echo "Building Playwright BDD test command..."
-          TEST_CMD="npx playwright test --grep $(tag) --reporter=allure-playwright,html,junit"
+          TEST_CMD="npx playwright test --grep \"$(tag)\" --reporter=allure-playwright,html,junit"
 
           echo "Final command: $TEST_CMD"
           echo "##vso[task.setvariable variable=TEST_CMD]$TEST_CMD"
@@ -159,6 +159,8 @@ jobs:
         workingDirectory: $(Build.SourcesDirectory)/applicationqe/proposals
         displayName: "Generate BDD Tests"
         continueOnError: false
+        env:
+          ENVIRONMENT: $(environment)
 
       - script: |
           echo "Checking for required system libraries..."
@@ -227,6 +229,8 @@ jobs:
         displayName: "Run Playwright Tests with Allure"
         workingDirectory: $(Build.SourcesDirectory)/applicationqe/proposals
         continueOnError: true
+        env:
+          ENVIRONMENT: $(environment)
 
       - script: |
           echo "Checking for JUnit test results..."
