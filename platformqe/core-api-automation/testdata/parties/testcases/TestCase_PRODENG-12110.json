@@ -96,7 +96,15 @@
           "api_entity_created_date"
         ],
         "date_only_pattern": "^\\d{4}-\\d{2}-\\d{2}$"
-      }
+      },
+      "assertions": [
+        {
+          "actual": "{{api_individual_dob}}",
+          "operator": "!=",
+          "expected": "",
+          "message": "Expected dateOfBirth to be extracted from API response"
+        }
+      ]
     },
     "test_data_file": "parties/data_driven/Data_parties_GET.csv",
     "db_query": "",
@@ -172,7 +180,15 @@
         "date_only_pattern": "^\\d{4}-\\d{2}-\\d{2}$",
         "forbid_time_component": true,
         "forbid_timezone_component": true
-      }
+      },
+      "assertions": [
+        {
+          "actual": "{{api_individual_dob}}",
+          "operator": "!=",
+          "expected": "",
+          "message": "Expected dateOfBirth to be extracted from API response"
+        }
+      ]
     },
     "test_data_file": "parties/data_driven/Data_parties_GET.csv",
     "db_query": "",
@@ -258,7 +274,21 @@
         "timestamp_pattern": "^\\d{4}-\\d{2}-\\d{2}T\\d{2}:\\d{2}:\\d{2}",
         "must_contain_time_component": true,
         "allow_timezone_component": true
-      }
+      },
+      "assertions": [
+        {
+          "actual": "{{api_created_datetime}}",
+          "operator": "!=",
+          "expected": "",
+          "message": "Expected createdDate to be extracted from API response"
+        },
+        {
+          "actual": "{{api_updated_datetime}}",
+          "operator": "!=",
+          "expected": "",
+          "message": "Expected updatedDate to be extracted from API response"
+        }
+      ]
     },
     "test_data_file": "parties/data_driven/Data_parties_GET.csv",
     "db_query": "",

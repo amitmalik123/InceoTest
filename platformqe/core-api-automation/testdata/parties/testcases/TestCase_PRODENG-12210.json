@@ -56,7 +56,15 @@
           }
         ],
         "log_differences": true
-      }
+      },
+      "assertions": [
+        {
+          "actual": "{{party_id}}",
+          "operator": "!=",
+          "expected": "",
+          "message": "Expected party_id to be extracted from database query"
+        }
+      ]
     },
     "test_data_file": "",
     "db_type": "mssql",
@@ -112,7 +120,8 @@
           }
         ],
         "log_differences": true
-      }
+      },
+      "assertions": []
     },
     "test_data_file": "",
     "db_type": "mssql",
