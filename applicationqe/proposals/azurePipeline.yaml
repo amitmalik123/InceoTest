@@ -4,23 +4,23 @@ pool:
 
 trigger: none
 
-# -----------------------------
-# Scheduled triggers
-# -----------------------------
-#schedules:
-#  - cron: "30 20 * * *" # 3:30 PM EST → Silo
-#    displayName: "Schedule for Silo"
-#    branches:
-#      include:
-#        - playwrightaaron
-#    always: true
+ -----------------------------
+ Scheduled triggers
+ -----------------------------
+schedules:
+  - cron: "30 20 * * *" # 3:30 PM EST → Silo
+    displayName: "Schedule for Silo"
+    branches:
+      include:
+        - playwrightaaron
+    always: true
 
-#  - cron: "45 20 * * *"      # 3:45 PM EST → Test11
-#    displayName: "Schedule for Test11"
-#    branches:
-#      include:
-#        - playwrightaaron
-#    always: true
+  - cron: "45 20 * * *"      # 3:45 PM EST → Test11
+    displayName: "Schedule for Test11"
+    branches:
+      include:
+        - playwrightaaron
+    always: true
 
 #  - cron: "0 21 * * *"       # 4 PM EST → Test10
 #    displayName: "Schedule for Test10"
@@ -380,7 +380,8 @@ jobs:
           PathtoPublish: "$(proposalsPath)/reports/playwright-report"
           ArtifactName: "PlaywrightReport"
           publishLocation: "Container"
-        condition: always()
+        condition: and(always(), or(succeeded(), failed()), eq(variables['System.PullRequest.IsFork'], 'False'))
+        continueOnError: true
 
       - task: PublishBuildArtifacts@1
         displayName: "Publish Allure Report"

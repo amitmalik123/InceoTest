@@ -40,6 +40,7 @@ export default defineConfig({
     ['allure-playwright', { outputFolder: 'reports/allure-results' }],
     ['html', { outputFolder: 'reports/playwright-report', open: 'never' }],
     ['junit', { outputFile: 'reports/test-results/junit-report.xml' }],
+    ['list'], // Always show test results in console
   ],
   /* Shared settings for all the projects below. See https://playwright.dev/docs/api/class-testoptions. */
   use: {
