@@ -23,8 +23,7 @@ from datetime import datetime
 from framework.reporter.reporter import Reporter
 import yaml
 from dotenv import load_dotenv
-from influxdb_client import InfluxDBClient, Point
-from influxdb_client.client.write_api import SYNCHRONOUS
+from influxdb_client import Point  # Only Point needed for creating data points
 
 import urllib3
 urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
@@ -64,37 +63,41 @@ def _encode_banner_image():
 def push_results_to_influxdb(json_file_path):
     """Auto-push test results to InfluxDB after each test run
     
+    Uses centralized DatabaseClientFactory for connection management.
     Reads InfluxDB connection details from config file (db_connections.influxdb.default)
     """
     
     try:
-        # Load InfluxDB connection details from config
+        # Load config to check if InfluxDB is enabled
         from framework.loaders.config_loader import get_config, substitute_env_vars
-        config = get_config()
+        from framework.clients.db_client import DatabaseClientFactory
         
+        config = get_config()
         influx_config = config.get('db_connections', {}).get('influxdb', {}).get('default', {})
         
-        # Substitute environment variables in config values (e.g., ${INFLUX_URL} -> actual URL)
+        # Substitute environment variables to check enabled flag
         influx_config = substitute_env_vars(influx_config)
         
         if not influx_config:
             logger.error("[InfluxDB] No InfluxDB configuration found in config file (db_connections.influxdb.default)")
             return False
         
-        INFLUX_URL = influx_config.get('url')
-        INFLUX_TOKEN = influx_config.get('token')
-        INFLUX_ORG = influx_config.get('org')
-        INFLUX_BUCKET = influx_config.get('bucket')
+        # Check if InfluxDB push is enabled - skip silently if disabled
+        influx_enabled = influx_config.get('enabled', False)
+        if isinstance(influx_enabled, str):
+            influx_enabled = influx_enabled.lower() in ('true', '1', 'yes')
         
-        # Validate required fields
-        if not all([INFLUX_URL, INFLUX_TOKEN, INFLUX_ORG, INFLUX_BUCKET]):
-            missing = []
-            if not INFLUX_URL: missing.append('url')
-            if not INFLUX_TOKEN: missing.append('token')
-            if not INFLUX_ORG: missing.append('org')
-            if not INFLUX_BUCKET: missing.append('bucket')
-            logger.error(f"[InfluxDB] Missing required config fields: {', '.join(missing)}")
-            return False
+        if not influx_enabled:
+            logger.info("[InfluxDB] Push is disabled in config (enabled=false). Skipping.")
+            return True  # Return True to indicate graceful skip, not an error
+        
+        # Use centralized DatabaseClientFactory - handles env var substitution internally
+        influx_client = DatabaseClientFactory.get_client('influxdb', 'default', auto_connect=True)
+        
+        # Get connection details from the client
+        INFLUX_URL = influx_client.url
+        INFLUX_ORG = influx_client.org
+        INFLUX_BUCKET = influx_client.bucket
         
         logger.info(f"[InfluxDB] Using config: url={INFLUX_URL}, org={INFLUX_ORG}, bucket={INFLUX_BUCKET}")
         
@@ -103,9 +106,8 @@ def push_results_to_influxdb(json_file_path):
         with open(json_file_path, 'r') as f:
             data = json.load(f)
         
-        # Initialize InfluxDB client
-        client = InfluxDBClient(url=INFLUX_URL, token=INFLUX_TOKEN, org=INFLUX_ORG)
-        write_api = client.write_api(write_options=SYNCHRONOUS)
+        # Use the write_api from centralized client
+        write_api = influx_client.write_api
         
         logger.info(f"[Auto-Push] Connected to InfluxDB at {INFLUX_URL}")
         
@@ -209,8 +211,8 @@ def push_results_to_influxdb(json_file_path):
         logger.info(f"[Auto-Push]   - {len(results)} test result records")
         logger.info(f"[Auto-Push]   - {len(points) - len(results) - 1} validation stats records")
         
-        # Close the client
-        client.close()
+        # Note: Don't close the client here - DatabaseClientFactory manages connection pooling
+        # Use DatabaseClientFactory.close_all() at session end if needed
         return True
         
     except FileNotFoundError:
