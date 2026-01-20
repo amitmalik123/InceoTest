@@ -191,7 +191,7 @@ jobs:
           echo "========================================"
           echo "PLAYWRIGHT TEST EXECUTION START"
           echo "========================================"
-          echo "Test Command: $(TEST_CMD)"
+          # echo "Test Command: $(TEST_CMD)"
           echo "Environment: $(environment)"
           echo "Build Path: $(buildPath)"
           echo "Proposals Path: $(proposalsPath)"
@@ -209,11 +209,11 @@ jobs:
           echo "NPM version: $(npm --version)"
           echo ""
           # echo "Executing: $(TEST_CMD)"
-          echo "Executing: npx playwright test --grep \"$(tag)\" --reporter=allure-playwright,html,junit"
+          echo "Executing: npx playwright test --grep \"$(tag)\""
           echo "========================================"
           echo ""
           # eval "$(TEST_CMD)" 2>&1 || TEST_EXIT_CODE=$? || true
-          npx playwright test --grep "$(tag)" --reporter=allure-playwright,html,junit 2>&1 || TEST_EXIT_CODE=$? || true
+          npx playwright test --grep "$(tag)" 2>&1 || TEST_EXIT_CODE=$? || true
           echo ""
           echo "========================================"
           echo "Test Execution Exit Code: ${TEST_EXIT_CODE:-0}"
@@ -353,6 +353,14 @@ jobs:
           INFLUXDB_TOKEN: $(INFLUXDB_TOKEN)
           INFLUXDB_ORG: $(INFLUXDB_ORG)
           INFLUXDB_BUCKET: $(INFLUXDB_BUCKET)
+
+      - script: |
+          echo "Ensuring report directories exist for artifact publishing..."
+          mkdir -p "$(proposalsPath)/reports/playwright-report"
+          mkdir -p "$(allureReportDir)"
+          mkdir -p "$(allureResultsDir)"
+        displayName: "Ensure Report Directories Exist"
+        condition: always()
 
       - task: PublishBuildArtifacts@1
         displayName: "Publish Test Results Directory"
