@@ -129,15 +129,16 @@ jobs:
           echo "ThreadCount: $(threadCount)"
         displayName: "Print Parameters"
 
-      - script: |
-          echo "Building Playwright BDD test command..."
-          TEST_CMD="npx playwright test --grep \"$(tag)\" --reporter=allure-playwright,html,junit"
-
-          echo "Final command: $TEST_CMD"
-          echo "##vso[task.setvariable variable=TEST_CMD]$TEST_CMD"
-        displayName: "Build Playwright BDD Command"
-        workingDirectory: $(Build.SourcesDirectory)/applicationqe/proposals
-        continueOnError: false
+      # Old approach using TEST_CMD variable - commented out to avoid eval issues with pipes
+      # - script: |
+      #     echo "Building Playwright BDD test command..."
+      #     TEST_CMD="npx playwright test --grep \"$(tag)\" --reporter=allure-playwright,html,junit"
+      #
+      #     echo "Final command: $TEST_CMD"
+      #     echo "##vso[task.setvariable variable=TEST_CMD]$TEST_CMD"
+      #   displayName: "Build Playwright BDD Command"
+      #   workingDirectory: $(Build.SourcesDirectory)/applicationqe/proposals
+      #   continueOnError: false
 
       - task: NodeTool@0
         inputs:
@@ -207,10 +208,12 @@ jobs:
           echo "Node version: $(node --version)"
           echo "NPM version: $(npm --version)"
           echo ""
-          echo "Executing: $(TEST_CMD)"
+          # echo "Executing: $(TEST_CMD)"
+          echo "Executing: npx playwright test --grep \"$(tag)\" --reporter=allure-playwright,html,junit"
           echo "========================================"
           echo ""
-          eval "$(TEST_CMD)" 2>&1 || TEST_EXIT_CODE=$? || true
+          # eval "$(TEST_CMD)" 2>&1 || TEST_EXIT_CODE=$? || true
+          npx playwright test --grep "$(tag)" --reporter=allure-playwright,html,junit 2>&1 || TEST_EXIT_CODE=$? || true
           echo ""
           echo "========================================"
           echo "Test Execution Exit Code: ${TEST_EXIT_CODE:-0}"
