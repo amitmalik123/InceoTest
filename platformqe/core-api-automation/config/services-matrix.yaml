@@ -37,10 +37,10 @@ services:
     priority: 1
   movemoney:
     displayName: Move Money API
-    enabled: false
+    enabled: true
     runOnPR: false
     runOnPush: false
-    runOnSchedule: false
+    runOnSchedule: true
     testType: functional
     environments:
     - TSADEV
@@ -55,10 +55,10 @@ services:
     priority: 1
   securities:
     displayName: Securities Hub
-    enabled: false
+    enabled: true
     runOnPR: false
     runOnPush: false
-    runOnSchedule: false
+    runOnSchedule: true
     testType: functional
     environments:
     - TSADEV
@@ -73,10 +73,10 @@ services:
     priority: 2
   hnebase:
     displayName: HNE Base API
-    enabled: false
+    enabled: true
     runOnPR: false
     runOnPush: false
-    runOnSchedule: false
+    runOnSchedule: true
     testType: functional
     environments:
     - TSADEV
@@ -90,10 +90,10 @@ services:
     priority: 3
   models:
     displayName: Models API
-    enabled: false
+    enabled: true
     runOnPR: false
     runOnPush: false
-    runOnSchedule: false
+    runOnSchedule: true
     testType: functional
     environments:
     - TSADEV
@@ -107,10 +107,10 @@ services:
     priority: 3
   addressservice:
     displayName: Address Service
-    enabled: false
+    enabled: true
     runOnPR: false
     runOnPush: false
-    runOnSchedule: false
+    runOnSchedule: true
     testType: functional
     environments:
     - TSADEV
@@ -124,10 +124,10 @@ services:
     priority: 3
   analytics:
     displayName: Analytics API
-    enabled: false
+    enabled: true
     runOnPR: false
     runOnPush: false
-    runOnSchedule: false
+    runOnSchedule: true
     testType: functional
     environments:
     - TSADEV
