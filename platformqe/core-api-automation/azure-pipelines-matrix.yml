@@ -215,18 +215,31 @@ stages:
                   
                   # Map cron times to service names (hour:minute -> service)
                   # Format: "HH:MM" where HH is 00-23, MM is 00-59
+                  # IMPORTANT: Keep these mappings in sync with the cron schedules at the top of this file
                   case "${CURRENT_HOUR}:${CURRENT_MINUTE}" in
-                    "19:25")
-                      SCHEDULE_SERVICE="parties"
-                      ;;
                     "6:0"|"06:00")
                       SCHEDULE_SERVICE="work_item_notification"
                       ;;
-                    "7:15")
+                    "15:15")
                       SCHEDULE_SERVICE="movemoney"
                       ;;
-                    "7:0"|"07:00")
+                    "15:30")
                       SCHEDULE_SERVICE="models"
+                      ;;
+                    "15:45")
+                      SCHEDULE_SERVICE="analytics"
+                      ;;
+                    "16:0"|"16:00")
+                      SCHEDULE_SERVICE="parties"
+                      ;;
+                    "16:15")
+                      SCHEDULE_SERVICE="addressservice"
+                      ;;
+                    "16:30")
+                      SCHEDULE_SERVICE="securities"
+                      ;;
+                    "16:45")
+                      SCHEDULE_SERVICE="hnebase"
                       ;;
                     *)
                       echo "WARNING: No service found for time ${CURRENT_HOUR}:${CURRENT_MINUTE}"
@@ -234,18 +247,30 @@ stages:
                       # Allow 5-minute window for schedule matching
                       CURRENT_TIME_MIN=$((10#$CURRENT_HOUR * 60 + 10#$CURRENT_MINUTE))
                       
-                      # parties: 19:25 (1165 min)
-                      if [ $CURRENT_TIME_MIN -ge 1163 ] && [ $CURRENT_TIME_MIN -le 1167 ]; then
-                        SCHEDULE_SERVICE="parties"
                       # work_item_notification: 06:00 (360 min)
-                      elif [ $CURRENT_TIME_MIN -ge 358 ] && [ $CURRENT_TIME_MIN -le 362 ]; then
+                      if [ $CURRENT_TIME_MIN -ge 358 ] && [ $CURRENT_TIME_MIN -le 362 ]; then
                         SCHEDULE_SERVICE="work_item_notification"
-                      # movemoney: 07:15 (435 min)
-                      elif [ $CURRENT_TIME_MIN -ge 433 ] && [ $CURRENT_TIME_MIN -le 437 ]; then
+                      # movemoney: 15:15 (915 min)
+                      elif [ $CURRENT_TIME_MIN -ge 913 ] && [ $CURRENT_TIME_MIN -le 917 ]; then
                         SCHEDULE_SERVICE="movemoney"
-                      # models: 07:00 (420 min)
-                      elif [ $CURRENT_TIME_MIN -ge 418 ] && [ $CURRENT_TIME_MIN -le 422 ]; then
+                      # models: 15:30 (930 min)
+                      elif [ $CURRENT_TIME_MIN -ge 928 ] && [ $CURRENT_TIME_MIN -le 932 ]; then
                         SCHEDULE_SERVICE="models"
+                      # analytics: 15:45 (945 min)
+                      elif [ $CURRENT_TIME_MIN -ge 943 ] && [ $CURRENT_TIME_MIN -le 947 ]; then
+                        SCHEDULE_SERVICE="analytics"
+                      # parties: 16:00 (960 min)
+                      elif [ $CURRENT_TIME_MIN -ge 958 ] && [ $CURRENT_TIME_MIN -le 962 ]; then
+                        SCHEDULE_SERVICE="parties"
+                      # addressservice: 16:15 (975 min)
+                      elif [ $CURRENT_TIME_MIN -ge 973 ] && [ $CURRENT_TIME_MIN -le 977 ]; then
+                        SCHEDULE_SERVICE="addressservice"
+                      # securities: 16:30 (990 min)
+                      elif [ $CURRENT_TIME_MIN -ge 988 ] && [ $CURRENT_TIME_MIN -le 992 ]; then
+                        SCHEDULE_SERVICE="securities"
+                      # hnebase: 16:45 (1005 min)
+                      elif [ $CURRENT_TIME_MIN -ge 1003 ] && [ $CURRENT_TIME_MIN -le 1007 ]; then
+                        SCHEDULE_SERVICE="hnebase"
                       fi
                       ;;
                   esac
