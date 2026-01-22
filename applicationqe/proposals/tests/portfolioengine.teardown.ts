@@ -2,9 +2,7 @@ import { navigateToHomePage } from '@helperfunctions/navigateToHomePage';
 import { navigateToPortfolioEngine } from '@helperfunctions/navigateToPortfolioEngine';
 import { PortfolioEnginePage } from '../pages/PortfolioEngineObjectModel';
 import { EwmPage } from '../pages/ewmPageObjectModel';
-import { test as teardown, expect } from '@playwright/test';
-import { networkInterfaces } from 'os';
-import { time } from 'console';
+import { test as teardown } from '@playwright/test';
 
 teardown.describe.configure({ mode: 'default' });
 
@@ -16,7 +14,6 @@ teardown.describe('Delete Portfolio', () => {
         const portfolioEnginePage = new PortfolioEnginePage(await navigateToPortfolioEngine(page));
         await portfolioEnginePage.managePortfoliosButton.click();
         await portfolioEnginePage.deletePortfolio();
-
     });
 });
 
@@ -32,7 +29,7 @@ teardown.describe('Delete Client', () => {
         while (totalItems > index) {
             // Increment index to move down the list since deleted clients remain visible in search
             totalItems = await portfolioEnginePage.searchForClient('guy dude', index);
-            await portfolioEnginePage.deleteClientLink.waitFor({ state: 'visible', timeout: 5000 });
+            await portfolioEnginePage.deleteClientLink.waitFor({ state: 'visible' });
             await portfolioEnginePage.deleteClient();
             index++;
         }
@@ -48,7 +45,6 @@ teardown.describe.skip('Delete All Portfolios', () => {
         await portfolioEnginePage.deleteAllPortfolios();
     });
 });
-
 
 teardown.describe('Logout', () => {
     //apply storage state of role from auth file created in setup

@@ -21,9 +21,8 @@ export class SwitchIDPage {
     //Switch role from eWm pages
     async gotoSwitchIDPage() {
         await this.switchIDLink.click();
-        await this.page.waitForLoadState('networkidle');
+        await this.idInput.waitFor({ state: 'visible' });
     }
-
 
     //Switch ID to advisor
     async selectID(advisorId: string) {
@@ -31,11 +30,10 @@ export class SwitchIDPage {
         await this.idInput.click();
         await this.idInput.fill(advisorId);
         await this.idInput.press('Enter');
-        await this.page.waitForLoadState('networkidle');
+        await this.userIDLink.waitFor({ state: 'visible' });
         await this.userIDLink.click();
-        await this.page.waitForLoadState('networkidle');
         await selectIfVisible(this.roleRadioButton);
         await selectIfVisible(this.continueButton);
-        await this.page.waitForLoadState('networkidle');
+        await this.switchIDLink.waitFor({ state: 'visible' });
     }
 }

@@ -1,5 +1,6 @@
 import { Given, When, Then } from '../../../../fixtures/fixtures';
 import { expect } from '@playwright/test';
+import { logger } from '../../../../utils/logger';
 import { navigateToHomePage } from '../../../../helperfunctions/navigateToHomePage';
 import { navigateToPortfolioEngine } from '../../../../helperfunctions/navigateToPortfolioEngine';
 import { PortfolioEnginePage } from '../../../../pages/PortfolioEngineObjectModel';
@@ -11,19 +12,33 @@ Given('I am on the Portfolio Engine page', async ({ page }) => {
     await navigateToHomePage(page);
     const portfolioEnginePageObject = await navigateToPortfolioEngine(page);
     portfolioEnginePageInstance = new PortfolioEnginePage(portfolioEnginePageObject);
-    await expect(portfolioEnginePageInstance.getStartedButton.or(portfolioEnginePageInstance.managePortfoliosButton)).toBeVisible({ timeout: 300000 });
+    try {
+        await expect(
+            portfolioEnginePageInstance.getStartedButton.or(portfolioEnginePageInstance.managePortfoliosButton)
+        ).toBeVisible();
+    } catch (err) {
+        logger.error('Portfolio Engine homepage failed to load in time', err);
+        throw err;
+    }
 });
 
 Given('I have created a portfolio with strategies', async () => {
     await Promise.race([
-        portfolioEnginePageInstance.getStartedButton.waitFor({ state: 'visible', timeout: 300000 }),
-        portfolioEnginePageInstance.managePortfoliosButton.waitFor({ state: 'visible', timeout: 300000 })
+        portfolioEnginePageInstance.getStartedButton.waitFor({ state: 'visible' }),
+        portfolioEnginePageInstance.managePortfoliosButton.waitFor({ state: 'visible' }),
     ]);
     await portfolioEnginePageInstance.createPortfolioIfNeeded('E2E Test Portfolio');
 });
 
 When('I click the manage portfolios button', async () => {
-    await expect(portfolioEnginePageInstance.getStartedButton.or(portfolioEnginePageInstance.managePortfoliosButton)).toBeVisible({ timeout: 300000 });
+    try {
+        await expect(
+            portfolioEnginePageInstance.getStartedButton.or(portfolioEnginePageInstance.managePortfoliosButton)
+        ).toBeVisible();
+    } catch (err) {
+        logger.error('Portfolio Engine homepage failed to load in time', err);
+        throw err;
+    }
     if (await portfolioEnginePageInstance.getStartedButton.isVisible()) {
         await portfolioEnginePageInstance.getStartedButton.click();
     } else if (await portfolioEnginePageInstance.managePortfoliosButton.isVisible()) {
@@ -35,18 +50,22 @@ When('I create a new model portfolio', async () => {
     await portfolioEnginePageInstance.createNewModelPortfolioButton.click();
 });
 
-When('I select {string} as portfolio type', async ({ }, portfolioType: string) => {
+When('I select AssetMark Platform Strategies as portfolio type', async () => {
     await portfolioEnginePageInstance.assetMarkPlatformStrategiesText.click();
 });
 
-When('I add the following strategies to the portfolio:', async ({ }, dataTable) => {
+When('I select Savos Personal Portfolio Custom as portfolio type', async () => {
+    await portfolioEnginePageInstance.SavosPersonalStrategyText.click();
+});
+
+When('I add the following strategies to the portfolio:', async ({}, dataTable) => {
     const strategies = dataTable.raw().flat();
     for (const strategy of strategies) {
         await portfolioEnginePageInstance.addStrategyToPortfolio(strategy);
     }
 });
 
-When('I enter portfolio name {string}', async ({ }, portfolioName: string) => {
+When('I enter portfolio name {string}', async ({}, portfolioName: string) => {
     await portfolioEnginePageInstance.modelPortfolioNameTextbox.fill(portfolioName);
 });
 
@@ -56,11 +75,23 @@ When('I save the portfolio', async ({ page }) => {
 });
 
 Then('the portfolio should contain the expected strategies', async () => {
-    await expect(portfolioEnginePageInstance.investmentAllocationText).toContainText('Core MarketsAssetMark Income Builder, Profile 2, ConservativeETF | 2Tactical Strategies - Enhanced Return FocusBlackRock Equity DividendIMA | 6Tactical Strategies - Limit Loss FocusSavos US Risk Controlled Strategy, Profile 6GMS | 6Diversifying Strategies - Equity AlternativesAlphaSimplex, Alternative Model Portfolio, Profile 5, GrowthMF | 5Diversifying Strategies - Bonds and Bond AlternativesJPMorgan Absolute Return - Profile 1MF | 1', { timeout: 300000 });
+    try {
+        await expect(portfolioEnginePageInstance.investmentAllocationText).toContainText(
+            'Core MarketsAssetMark Income Builder, Profile 2, ConservativeETF | 2Tactical Strategies - Enhanced Return FocusBlackRock Equity DividendIMA | 6Tactical Strategies - Limit Loss FocusSavos US Risk Controlled Strategy, Profile 6GMS | 6Diversifying Strategies - Equity AlternativesAlphaSimplex, Alternative Model Portfolio, Profile 5, GrowthMF | 5Diversifying Strategies - Bonds and Bond AlternativesJPMorgan Absolute Return - Profile 1MF | 1'
+        );
+    } catch (err) {
+        logger.error('Expected strategies not found in portfolio allocation text', err);
+        throw err;
+    }
 });
 
-Then('all strategies should have {string} percent allocation', async ({ }, expectedAllocation: string) => {
+Then('all strategies should have {string} percent allocation', async ({}, expectedAllocation: string) => {
     for (let i = 0; i < 5; i++) {
-        await expect(portfolioEnginePageInstance.getAllocationTextbox(i)).toHaveValue(expectedAllocation, { timeout: 300000 });
+        try {
+            await expect(portfolioEnginePageInstance.getAllocationTextbox(i)).toHaveValue(expectedAllocation, {});
+        } catch (err) {
+            logger.error(`Allocation percent mismatch for strategy index ${i}`, err);
+            throw err;
+        }
     }
 });

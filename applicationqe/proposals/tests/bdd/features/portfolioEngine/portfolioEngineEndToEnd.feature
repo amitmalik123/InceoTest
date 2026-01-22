@@ -7,7 +7,7 @@ Feature: Portfolio Engine Happy Path E2E Test
         Given I am on the Portfolio Engine page
         When I click the manage portfolios button
         And I create a new model portfolio
-        And I select "AssetMark Platform Strategies" as portfolio type
+        And I select AssetMark Platform Strategies as portfolio type
         And I add the following strategies to the portfolio:
             | assetmark income builder, profile 2, conservative            |
             | blackrock equity dividend                                    |

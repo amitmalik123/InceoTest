@@ -1,9 +1,10 @@
 import { test as setup, expect } from '@playwright/test';
 import { LoginPage } from '../../pages/LoginPageObjectModel';
 import { SwitchIDPage } from '../../pages/SwitchIDPageObjectModel';
+import { logger } from '../../utils/logger';
 
 setup('Setup - Login to Environment', async ({ page }) => {
-    console.log('\n=== Running BDD Setup: Logging in and saving auth state ===');
+    logger.debug('\n=== Running BDD Setup: Logging in and saving auth state ===');
     const role1AuthFile = './authfiles/role1.json';
     const loginPage = new LoginPage(page);
     const switchIDPage = new SwitchIDPage(page);
@@ -12,15 +13,21 @@ setup('Setup - Login to Environment', async ({ page }) => {
     await loginPage.gotoLoginPage();
     await loginPage.signIn(process.env.USER, process.env.PASS);
 
-    // Switch to correct ID if using admin account
-    if (process.env.userID) {
+    // Switch to correct ID if using admin account and not in prod
+    const env = process.env.ENVIRONMENT || process.env.Environment;
+    if (process.env.userID && env.toLowerCase() !== 'prod') {
         await switchIDPage.selectID(process.env.userID);
     }
 
     await page.waitForLoadState();
-    await expect(page.getByText('Welcome ' + process.env.advisorName)).toBeVisible();
+    try {
+        await expect(page.getByText('Welcome ' + process.env.advisorName)).toBeVisible();
+    } catch (err) {
+        logger.error('BDD setup: expected welcome text not visible', err);
+        throw err;
+    }
 
     // Save auth state
     await page.context().storageState({ path: role1AuthFile });
-    console.log('\n===Setup Complete ===\n');
+    logger.debug('\n===Setup Complete ===\n');
 });

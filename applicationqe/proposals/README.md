@@ -38,7 +38,7 @@ Automated end-to-end testing suite for the Proposal system using Playwright with
 npm ci
 
 # Install Playwright browsers
-npx playwright install chromium
+npx playwright install --with-deps
 ```
 
 ### Environment Setup
@@ -163,6 +163,18 @@ Pipeline configuration: `azurePipeline.yaml`
 - TypeScript for type safety
 - 4-space indentation for code
 - 2-space indentation for configs
+
+### Tooling (ESLint / Prettier / Husky)
+
+- ESLint: repository linting with TypeScript support and Playwright plugin. Run with `npm run lint` or `npm run es`.
+- Prettier: formatting with `npm run format` or `npm run fmt`, and check formatting with `npm run format:check` / `npm run fmt:check`.
+- Husky + lint-staged: pre-commit hooks auto-run locally to format and lint staged files. Hooks are installed via the `prepare` script. Local commands:
+  - Install hooks: `npm run husky:install`
+  - In CI do not install hooks — use `HUSKY=0 npm ci` (CI runs authoritative checks separately).
+
+Scripts added (shortcuts): `es`, `es:fix`, `fmt`, `fmt:check`, `husky:install` (see `package.json`).
+
+The repo uses `lint-staged` so on commit staged files are auto-fixed and re-staged.
 
 ### Best Practices
 

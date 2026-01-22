@@ -2,6 +2,7 @@ import { Given, When, Then } from '../../../fixtures/fixtures';
 import { expect } from '@playwright/test';
 import * as fs from 'fs';
 import { loadEnvironment } from '../../../utils/env-loader';
+import { logger } from '../../../utils/logger';
 
 // Load environment variables
 loadEnvironment();
@@ -20,7 +21,7 @@ Given('I am logged into the application', async ({ page, context, loginPage, swi
         try {
             const storageState = JSON.parse(fs.readFileSync(authFile, 'utf-8'));
             await context.addCookies(storageState.cookies);
-            console.log('\nChecking validity of existing auth state');
+            logger.debug('\nChecking validity of existing auth state');
 
             // Navigate to the app and verify we're still logged in
             await page.goto(process.env.baseURL + '/en.aspx');
@@ -28,11 +29,12 @@ Given('I am logged into the application', async ({ page, context, loginPage, swi
 
             // Check if advisor name is visible (indicates valid session)
             const advisorWelcome = page.getByText('Welcome ' + process.env.advisorName);
-            await advisorWelcome.waitFor({ state: 'visible', timeout: 5000 });
+            await advisorWelcome.waitFor({ state: 'visible' });
             authValid = true;
-            console.log('\nAuth state is valid, session active');
+            logger.debug('\nAuth state is valid, session active');
         } catch (error) {
-            console.log('\nAuth state expired or invalid, performing fresh login');
+            logger.debug('\nAuth state expired or invalid, performing fresh login');
+            logger.error(error);
         }
     }
 
@@ -46,11 +48,11 @@ Given('I am logged into the application', async ({ page, context, loginPage, swi
         }
 
         await page.waitForLoadState();
-        await expect(page.getByText('Welcome ' + process.env.advisorName)).toBeVisible({ timeout: 10000 });
+        await expect(page.getByText('Welcome ' + process.env.advisorName)).toBeVisible();
 
         // Save auth state for future use
         await page.context().storageState({ path: authFile });
-        console.log('\nFresh login completed, auth state saved');
+        logger.debug('\nFresh login completed, auth state saved');
     }
 });
 
@@ -67,11 +69,12 @@ Given('I am logged in as {string}', async ({ page, context, loginPage, switchIDP
 
             // Validate auth is still valid
             const welcomeText = page.getByText('Welcome');
-            await welcomeText.waitFor({ state: 'visible', timeout: 10000 });
+            await welcomeText.waitFor({ state: 'visible' });
             authValid = true;
-            console.log(`\nUsing cached auth state for ${role}`);
+            logger.debug(`\nUsing cached auth state for ${role}`);
         } catch (error) {
-            console.log(`\nCached auth state for ${role} expired or invalid, performing fresh login`);
+            logger.debug(`\nCached auth state for ${role} expired or invalid, performing fresh login`);
+            logger.error(error);
             fs.unlinkSync(authFile);
         }
     }
@@ -79,8 +82,10 @@ Given('I am logged in as {string}', async ({ page, context, loginPage, switchIDP
     if (!authValid) {
         // Perform login based on role-specific env vars
         await loginPage.gotoLoginPage();
-        await loginPage.signIn(process.env[`USER_${role.toUpperCase()}`] || process.env.USER,
-            process.env[`PASS_${role.toUpperCase()}`] || process.env.PASS);
+        await loginPage.signIn(
+            process.env[`USER_${role.toUpperCase()}`] || process.env.USER,
+            process.env[`PASS_${role.toUpperCase()}`] || process.env.PASS
+        );
 
         if (process.env[`userID_${role}`]) {
             await switchIDPage.selectID(process.env[`userID_${role}`]);
@@ -88,7 +93,7 @@ Given('I am logged in as {string}', async ({ page, context, loginPage, switchIDP
 
         await page.waitForLoadState();
         await page.context().storageState({ path: authFile });
-        console.log(`\nFresh login for ${role} completed, auth state saved`);
+        logger.debug(`\nFresh login for ${role} completed, auth state saved`);
     }
 });
 

@@ -1,5 +1,7 @@
 import * as dotenv from 'dotenv';
 import * as path from 'path';
+import * as fs from 'fs';
+import { logger } from './logger';
 
 /**
  * Loads environment variables from the config directory based on the ENVIRONMENT variable.
@@ -12,14 +14,13 @@ export function loadEnvironment(environment?: string, configPath: string = '../c
     const envFilePath = path.resolve(__dirname, `${configPath}/.env.${env}`);
 
     // Check if file exists before trying to load it
-    const fs = require('fs');
     if (fs.existsSync(envFilePath)) {
         dotenv.config({
             path: envFilePath,
-            override: true
+            override: true,
         });
     } else {
-        console.warn(`Warning: Environment file not found at ${envFilePath}, using existing environment variables`);
+        logger.warn(`Warning: Environment file not found at ${envFilePath}, using existing environment variables`);
     }
 
     return env;

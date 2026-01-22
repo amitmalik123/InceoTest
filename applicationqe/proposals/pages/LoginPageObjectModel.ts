@@ -20,7 +20,8 @@ export class LoginPage {
     // Navigate to login page
     async gotoLoginPage() {
         await this.page.goto(process.env.loginURL);
-        await this.page.waitForLoadState('networkidle');
+        // Prefer waiting for a specific element instead of 'networkidle'
+        await this.usernameInput.waitFor({ state: 'visible' });
     }
 
     //Sign in with given username and password
@@ -28,11 +29,20 @@ export class LoginPage {
         if (await this.cookieAcceptButton.isVisible()) {
             await this.cookieAcceptButton.click();
         }
+
         await this.usernameInput.fill(username);
         await this.passwordInput.fill(password);
         await this.signInButton.click();
-        await this.page.waitForLoadState('networkidle');
+
+        await Promise.race([
+            this.privacyPolicyButton.waitFor({ state: 'visible' }),
+            this.page.getByText('Welcome').waitFor({ state: 'visible' }),
+        ]);
+        if (await this.privacyPolicyButton.isVisible()) {
+            await this.privacyPolicyButton.scrollIntoViewIfNeeded();
+            await this.privacyPolicyButton.click();
+        }
+        // Wait for the sign-in button to disappear (navigation completed)
+        await this.signInButton.waitFor({ state: 'detached' });
     }
-
-
 }

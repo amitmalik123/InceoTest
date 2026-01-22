@@ -1,6 +1,6 @@
-import { text } from 'stream/consumers';
 import { selectIfVisible } from '../helperfunctions/selectIfVisible';
 import { type Locator, type Page } from '@playwright/test';
+import { logger } from '../utils/logger';
 
 export class PortfolioEnginePage {
     readonly page: Page;
@@ -75,6 +75,7 @@ export class PortfolioEnginePage {
 
     // Portfolio Creation Elements
     readonly assetMarkPlatformStrategiesText: Locator;
+    readonly SavosPersonalStrategyText: Locator;
     readonly strategySearchBox: Locator;
     readonly addToPortfolioText: Locator;
     readonly modelPortfolioNameTextbox: Locator;
@@ -288,49 +289,138 @@ export class PortfolioEnginePage {
         this.performanceHeader = page.getByRole('heading', { name: /Performance/i });
 
         // Widget Selection Checkboxes
-        this.widgetSelectionDropdownButton = page.locator('header').getByRole('button').filter({ has: page.locator('svg path[d*="M10 13.5a3.5"]') });
-        this.performanceWidgetCheckbox = page.locator('[class*="menu-component__item"]').filter({ hasText: 'Performance' }).locator('span').first();
-        this.drawdownWidgetCheckbox = page.locator('[class*="menu-component__item"]').filter({ hasText: 'Drawdown' }).locator('span').first();
-        this.summaryStatisticsWidgetCheckbox = page.locator('[class*="menu-component__item"]').filter({ hasText: 'Summary Statistics' }).locator('span').first();
-        this.riskVsReturnWidgetCheckbox = page.locator('[class*="menu-component__item"]').filter({ hasText: 'Risk vs Return' }).locator('span').first();
-        this.assetAllocationWidgetCheckbox = page.locator('[class*="menu-component__item"]').filter({ hasText: 'Asset Allocation & Holdings' }).locator('span').first();
-        this.stressTestWidgetCheckbox = page.locator('[class*="menu-component__item"]').filter({ hasText: 'Stress Test' }).locator('span').first();
-        this.returnByStrategyWidgetCheckbox = page.locator('[class*="menu-component__item"]').filter({ hasText: 'Return by Strategy' }).locator('span').first();
-        this.investmentApproachWidgetCheckbox = page.locator('[class*="menu-component__item"]').filter({ hasText: 'Investment Approach' }).locator('span').first();
-        this.upsideDownsideWidgetCheckbox = page.locator('[class*="menu-component__item"]').filter({ hasText: 'Upside/Downside Capture' }).locator('span').first();
+        this.widgetSelectionDropdownButton = page
+            .locator('header')
+            .getByRole('button')
+            .filter({ has: page.locator('svg path[d*="M10 13.5a3.5"]') });
+        this.performanceWidgetCheckbox = page
+            .locator('[class*="menu-component__item"]')
+            .filter({ hasText: 'Performance' })
+            .locator('span')
+            .first();
+        this.drawdownWidgetCheckbox = page
+            .locator('[class*="menu-component__item"]')
+            .filter({ hasText: 'Drawdown' })
+            .locator('span')
+            .first();
+        this.summaryStatisticsWidgetCheckbox = page
+            .locator('[class*="menu-component__item"]')
+            .filter({ hasText: 'Summary Statistics' })
+            .locator('span')
+            .first();
+        this.riskVsReturnWidgetCheckbox = page
+            .locator('[class*="menu-component__item"]')
+            .filter({ hasText: 'Risk vs Return' })
+            .locator('span')
+            .first();
+        this.assetAllocationWidgetCheckbox = page
+            .locator('[class*="menu-component__item"]')
+            .filter({ hasText: 'Asset Allocation & Holdings' })
+            .locator('span')
+            .first();
+        this.stressTestWidgetCheckbox = page
+            .locator('[class*="menu-component__item"]')
+            .filter({ hasText: 'Stress Test' })
+            .locator('span')
+            .first();
+        this.returnByStrategyWidgetCheckbox = page
+            .locator('[class*="menu-component__item"]')
+            .filter({ hasText: 'Return by Strategy' })
+            .locator('span')
+            .first();
+        this.investmentApproachWidgetCheckbox = page
+            .locator('[class*="menu-component__item"]')
+            .filter({ hasText: 'Investment Approach' })
+            .locator('span')
+            .first();
+        this.upsideDownsideWidgetCheckbox = page
+            .locator('[class*="menu-component__item"]')
+            .filter({ hasText: 'Upside/Downside Capture' })
+            .locator('span')
+            .first();
 
         // Widget graph containers - has header and content
-        this.performanceGraphContainer = page.locator('article').filter({ hasText: 'Performance' }).first().locator('div[class*="widget-component__content"]');
-        this.drawdownGraphContainer = page.locator('article').filter({ hasText: 'Drawdown' }).first().locator('div[class*="widget-component__content"]');
-        this.summaryStatisticsGraphContainer = page.locator('article').filter({ hasText: 'Summary Statistics' }).first().locator('div[class*="widget-component__content"]');
-        this.riskVsReturnGraphContainer = page.locator('article').filter({ hasText: 'Risk vs Return' }).first().locator('div[class*="widget-component__content"]');
-        this.assetAllocationGraphContainer = page.locator('article').filter({ hasText: 'Asset Allocation & Holdings' }).first().locator('div[class*="widget-component__content"]');
-        this.stressTestGraphContainer = page.locator('article').filter({ hasText: 'Stress Test' }).first().locator('div[class*="widget-component__content"]');
-        this.returnByStrategyGraphContainer = page.locator('article').filter({ hasText: 'Return by Strategy' }).first().locator('div[class*="widget-component__content"]');
-        this.investmentApproachGraphContainer = page.locator('article').filter({ hasText: 'Investment Approach' }).first().locator('div[class*="widget-component__content"]');
-        this.upsideDownsideGraphContainer = page.locator('article').filter({ hasText: 'Upside/Downside Capture' }).first().locator('div[class*="widget-component__content"]');
+        this.performanceGraphContainer = page
+            .locator('article')
+            .filter({ hasText: 'Performance' })
+            .first()
+            .locator('div[class*="widget-component__content"]');
+        this.drawdownGraphContainer = page
+            .locator('article')
+            .filter({ hasText: 'Drawdown' })
+            .first()
+            .locator('div[class*="widget-component__content"]');
+        this.summaryStatisticsGraphContainer = page
+            .locator('article')
+            .filter({ hasText: 'Summary Statistics' })
+            .first()
+            .locator('div[class*="widget-component__content"]');
+        this.riskVsReturnGraphContainer = page
+            .locator('article')
+            .filter({ hasText: 'Risk vs Return' })
+            .first()
+            .locator('div[class*="widget-component__content"]');
+        this.assetAllocationGraphContainer = page
+            .locator('article')
+            .filter({ hasText: 'Asset Allocation & Holdings' })
+            .first()
+            .locator('div[class*="widget-component__content"]');
+        this.stressTestGraphContainer = page
+            .locator('article')
+            .filter({ hasText: 'Stress Test' })
+            .first()
+            .locator('div[class*="widget-component__content"]');
+        this.returnByStrategyGraphContainer = page
+            .locator('article')
+            .filter({ hasText: 'Return by Strategy' })
+            .first()
+            .locator('div[class*="widget-component__content"]');
+        this.investmentApproachGraphContainer = page
+            .locator('article')
+            .filter({ hasText: 'Investment Approach' })
+            .first()
+            .locator('div[class*="widget-component__content"]');
+        this.upsideDownsideGraphContainer = page
+            .locator('article')
+            .filter({ hasText: 'Upside/Downside Capture' })
+            .first()
+            .locator('div[class*="widget-component__content"]');
 
         // Widget Content Elements - specific chart/graph elements for validation
         this.performanceGraphContent = this.performanceGraphContainer.locator('svg text');
         this.drawdownGraphContent = this.drawdownGraphContainer.locator('tbody tr');
         this.summaryStatisticsGraphContent = this.summaryStatisticsGraphContainer.locator('tbody tr');
         this.riskVsReturnGraphContent = this.riskVsReturnGraphContainer.locator('svg circle');
-        this.assetAllocationGraphContent = this.assetAllocationGraphContainer.locator('svg path[class*="recharts-sector"]');
+        this.assetAllocationGraphContent = this.assetAllocationGraphContainer.locator(
+            'svg path[class*="recharts-sector"]'
+        );
         this.stressTestGraphContent = this.stressTestGraphContainer.locator('div[class*="tick"]');
         this.returnByStrategyGraphContent = this.returnByStrategyGraphContainer.locator('svg rect');
-        this.investmentApproachGraphContent = this.investmentApproachGraphContainer.locator('svg path[class*="recharts-sector"]');
+        this.investmentApproachGraphContent = this.investmentApproachGraphContainer.locator(
+            'svg path[class*="recharts-sector"]'
+        );
         this.upsideDownsideGraphContent = this.upsideDownsideGraphContainer.locator('svg rect');
 
         // Portfolio Management Buttons
         this.managePortfoliosButton = page.getByRole('button', { name: 'Manage Portfolios' });
         this.createNewModelPortfolioButton = page.getByRole('button', { name: 'Create New Model Portfolio' });
-        this.strategySaveButton = page.locator('[class*="popup-component__footer"], [class*="management-footer"]').getByRole('button', { name: 'Save' });
-        this.portfolioCloseButton = page.locator('[class*="popup-component__footer"], [class*="management-footer"]').getByRole('button', { name: 'Close' });
+        this.strategySaveButton = page
+            .locator('[class*="popup-component__footer"], [class*="management-footer"]')
+            .getByRole('button', { name: 'Save' });
+        this.portfolioCloseButton = page
+            .locator('[class*="popup-component__footer"], [class*="management-footer"]')
+            .getByRole('button', { name: 'Close' });
         this.createProposalButton = page.getByRole('button', { name: 'Create Proposal' });
 
         // Portfolio Management - Delete Elements
-        this.portfolioDeleteControlButton = page.locator('[class*="popup-component"]').locator('button[class*="button-icon"]').filter({ has: page.locator('svg[viewBox="0 0 17 17"]') }).first();
-        this.portfolioDeleteText = page.locator('[class*="popover-controls-component__action"]').getByText('Delete', { exact: true });
+        this.portfolioDeleteControlButton = page
+            .locator('[class*="popup-component"]')
+            .locator('button[class*="button-icon"]')
+            .filter({ has: page.locator('svg[viewBox="0 0 17 17"]') })
+            .first();
+        this.portfolioDeleteText = page
+            .locator('[class*="popover-controls-component__action"]')
+            .getByText('Delete', { exact: true });
         this.portfolioDeleteConfirmButton = page.getByRole('button', { name: 'Delete' });
         this.previewProposalButton = page.getByRole('button', { name: 'Preview Proposal' });
         this.saveProposalButton = page.getByRole('button', { name: 'save proposal' });
@@ -339,10 +429,13 @@ export class PortfolioEnginePage {
 
         // Portfolio Creation Elements
         this.assetMarkPlatformStrategiesText = page.getByText('AssetMark Platform Strategies', { exact: true });
+        this.SavosPersonalStrategyText = page.getByText('Savos Personal Portfolio Custom', { exact: true });
         this.strategySearchBox = page.getByRole('textbox', { name: 'Search' });
         this.addToPortfolioText = page.getByText('Add to Portfolio');
         this.modelPortfolioNameTextbox = page.getByRole('textbox', { name: 'Model Portfolio Name' });
-        this.investmentAllocationText = page.locator('[class*="sidebar-portfolio-component"]').locator('[class*="sectionTwo"]');
+        this.investmentAllocationText = page
+            .locator('[class*="sidebar-portfolio-component"]')
+            .locator('[class*="sectionTwo"]');
 
         // Proposal Creation - Client Type
         this.newClientRadio = page.getByRole('radio', { name: 'New Client' });
@@ -364,24 +457,64 @@ export class PortfolioEnginePage {
         this.riskToleranceModerateRadio = page.getByRole('radio', { name: '3 - Moderate' });
 
         // Proposal Creation - Account Setup
-        this.selectCustodianDropdown = page.locator('[class*="custodian"], [class*="dropdown"]').getByRole('img', { name: 'ArrowDown' }).first();
+        this.selectCustodianDropdown = page
+            .locator('[class*="custodian"], [class*="dropdown"]')
+            .getByRole('img', { name: 'ArrowDown' })
+            .first();
         this.fidelityText = page.getByRole('listitem').filter({ hasText: /^Fidelity$/ });
         this.assetMarkText = page.getByRole('listitem').filter({ hasText: /^AssetMark Trust$/ });
         this.schwabText = page.getByRole('listitem').filter({ hasText: /^Schwab$/ });
-        this.pershingAdvisorSolutionsText = page.getByRole('listitem').filter({ hasText: /^Pershing Advisor Solutions$/ });
+        this.pershingAdvisorSolutionsText = page
+            .getByRole('listitem')
+            .filter({ hasText: /^Pershing Advisor Solutions$/ });
         this.addRegistrationButton = page.locator('img[class*="accounts_icon"]').first();
         this.registrationNameTextbox = page.getByRole('textbox');
-        this.registrationTypeDropdown = page.locator('[class*="accounts_regType"]').locator('[class*="accounts-select-dropdown_secondSelectCss"]');
-        this.individualCategory = page.locator('[class*="accounts-select-dropdown_group"]').filter({ hasText: 'Individual' }).locator('p').first();
-        this.trustCategory = page.locator('[class*="accounts-select-dropdown_parentList"]').filter({ hasText: 'Trust' }).locator('p');
-        this.jointCategory = page.locator('[class*="accounts-select-dropdown_group"]').filter({ hasText: 'Joint' }).locator('p').first();
-        this.irasCategory = page.locator('[class*="accounts-select-dropdown_group"]').filter({ hasText: "IRA's" }).locator('p').first();
-        this.retirementPlansCategory = page.locator('[class*="accounts-select-dropdown_group"]').filter({ hasText: 'Retirement Plans' }).locator('p').first();
-        this.businessAccountsCategory = page.locator('[class*="accounts-select-dropdown_group"]').filter({ hasText: 'Business Accounts' }).locator('p').first();
-        this.organizationsCategory = page.locator('[class*="accounts-select-dropdown_group"]').filter({ hasText: 'Organizations' }).locator('p').first();
-        this.otherCategory = page.locator('[class*="accounts-select-dropdown_group"]').filter({ hasText: 'Other' }).locator('p').first();
+        this.registrationTypeDropdown = page
+            .locator('[class*="accounts_regType"]')
+            .locator('[class*="accounts-select-dropdown_secondSelectCss"]');
+        this.individualCategory = page
+            .locator('[class*="accounts-select-dropdown_group"]')
+            .filter({ hasText: 'Individual' })
+            .locator('p')
+            .first();
+        this.trustCategory = page
+            .locator('[class*="accounts-select-dropdown_parentList"]')
+            .filter({ hasText: 'Trust' })
+            .locator('p');
+        this.jointCategory = page
+            .locator('[class*="accounts-select-dropdown_group"]')
+            .filter({ hasText: 'Joint' })
+            .locator('p')
+            .first();
+        this.irasCategory = page
+            .locator('[class*="accounts-select-dropdown_group"]')
+            .filter({ hasText: "IRA's" })
+            .locator('p')
+            .first();
+        this.retirementPlansCategory = page
+            .locator('[class*="accounts-select-dropdown_group"]')
+            .filter({ hasText: 'Retirement Plans' })
+            .locator('p')
+            .first();
+        this.businessAccountsCategory = page
+            .locator('[class*="accounts-select-dropdown_group"]')
+            .filter({ hasText: 'Business Accounts' })
+            .locator('p')
+            .first();
+        this.organizationsCategory = page
+            .locator('[class*="accounts-select-dropdown_group"]')
+            .filter({ hasText: 'Organizations' })
+            .locator('p')
+            .first();
+        this.otherCategory = page
+            .locator('[class*="accounts-select-dropdown_group"]')
+            .filter({ hasText: 'Other' })
+            .locator('p')
+            .first();
         this.addAccountButton = page.locator('img[class*="addAccIcon"]');
-        this.modelListConfirm = page.locator('[class*="accounts-popUp"]').getByRole('button', { name: 'CONFIRM', exact: true });
+        this.modelListConfirm = page
+            .locator('[class*="accounts-popUp"]')
+            .getByRole('button', { name: 'CONFIRM', exact: true });
         this.investmentAmountInput = page.locator('input[name="investmentAmount"]');
         this.enrollInTaxRadio = page.getByRole('radio', { name: 'Enroll in Tax Management Services', exact: true });
         this.doNotEnrollInTaxRadio = page.getByRole('radio', { name: 'Do not enroll in Tax' });
@@ -396,36 +529,81 @@ export class PortfolioEnginePage {
         this.multipleStrategyAccountAmount = page.locator('[class*="proposedAccounts-sidebar-toggle_toggleDataValue"]');
         this.enterFeePercentageTextbox = page.getByRole('textbox', { name: 'Enter %' });
         this.feeDetailsContainer = page.locator('[class*="fees_feeDetails"]');
-        this.portfolioValueLabel = this.feeDetailsContainer.locator('[class*="fees_feeValue"]').filter({ hasText: 'Portfolio Value' }).locator('div').first();
-        this.portfolioValueAmount = this.feeDetailsContainer.locator('[class*="fees_feeValue"]').filter({ hasText: 'Portfolio Value' }).locator('div').last();
-        this.financialAdvisorFeeLabel = this.feeDetailsContainer.locator('[class*="fees_feeValue"]').filter({ hasText: 'Financial Advisor' }).locator('div').first();
-        this.financialAdvisorFee = this.feeDetailsContainer.locator('[class*="fees_feeValue"]').filter({ hasText: 'Financial Advisor' }).locator('div').last();
-        this.platformFeeLabel = this.feeDetailsContainer.locator('[class*="fees_feeValue"]').filter({ hasText: 'Platform' }).locator('div').first();
-        this.platformFee = this.feeDetailsContainer.locator('[class*="fees_feeValue"]').filter({ hasText: 'Platform' }).locator('div').last();
+        this.portfolioValueLabel = this.feeDetailsContainer
+            .locator('[class*="fees_feeValue"]')
+            .filter({ hasText: 'Portfolio Value' })
+            .locator('div')
+            .first();
+        this.portfolioValueAmount = this.feeDetailsContainer
+            .locator('[class*="fees_feeValue"]')
+            .filter({ hasText: 'Portfolio Value' })
+            .locator('div')
+            .last();
+        this.financialAdvisorFeeLabel = this.feeDetailsContainer
+            .locator('[class*="fees_feeValue"]')
+            .filter({ hasText: 'Financial Advisor' })
+            .locator('div')
+            .first();
+        this.financialAdvisorFee = this.feeDetailsContainer
+            .locator('[class*="fees_feeValue"]')
+            .filter({ hasText: 'Financial Advisor' })
+            .locator('div')
+            .last();
+        this.platformFeeLabel = this.feeDetailsContainer
+            .locator('[class*="fees_feeValue"]')
+            .filter({ hasText: 'Platform' })
+            .locator('div')
+            .first();
+        this.platformFee = this.feeDetailsContainer
+            .locator('[class*="fees_feeValue"]')
+            .filter({ hasText: 'Platform' })
+            .locator('div')
+            .last();
         this.totalFeeLabel = this.feeDetailsContainer.locator('[class*="fees_totalFee"]').locator('div').first();
         this.totalFee = this.feeDetailsContainer.locator('[class*="fees_totalFee"]').locator('div').last();
         this.continueButton = page.getByRole('button', { name: 'Continue' });
-        this.fundedAccountsDiv = page.locator('div').filter({ hasText: /^Funded Accounts\(0\) \$0$/ }).first();
+        this.fundedAccountsDiv = page
+            .locator('div')
+            .filter({ hasText: /^Funded Accounts\(0\) \$0$/ })
+            .first();
         this.oneCombinedDocumentText = page.getByText('One Combined Document');
 
         // Strategy Checkboxes
-        this.assetMarkIncomeBuilderCheckbox = page.getByRole("checkbox", { name: 'AssetMark Income Builder, Profile 2, Conservative' });
-        this.blackRockEquityDividendCheckbox = page.getByRole("checkbox", { name: 'BlackRock Equity Dividend' });
-        this.savosUSRiskCheckbox = page.getByRole("checkbox", { name: 'Savos US Risk Controlled Strategy, Profile 6' });
-        this.alphaSimplexCheckbox = page.getByRole("checkbox", { name: 'AlphaSimplex, Alternative Model Portfolio, Profile 5, Growth' });
-        this.jpMorganAbsoluteReturnCheckbox = page.getByRole("checkbox", { name: 'JPMorgan Absolute Return - Profile 1' });
+        this.assetMarkIncomeBuilderCheckbox = page.getByRole('checkbox', {
+            name: 'AssetMark Income Builder, Profile 2, Conservative',
+        });
+        this.blackRockEquityDividendCheckbox = page.getByRole('checkbox', { name: 'BlackRock Equity Dividend' });
+        this.savosUSRiskCheckbox = page.getByRole('checkbox', { name: 'Savos US Risk Controlled Strategy, Profile 6' });
+        this.alphaSimplexCheckbox = page.getByRole('checkbox', {
+            name: 'AlphaSimplex, Alternative Model Portfolio, Profile 5, Growth',
+        });
+        this.jpMorganAbsoluteReturnCheckbox = page.getByRole('checkbox', {
+            name: 'JPMorgan Absolute Return - Profile 1',
+        });
 
         // Strategy Display Text
-        this.assetMarkIncomeBuilderText = page.locator('[class*="portfolio-sidebar-toggle_toggleDataWrapper"]').filter({ hasText: 'AssetMark Income Builder, Profile 2, Conservative' });
-        this.blackRockEquityDividendText = page.locator('[class*="portfolio-sidebar-toggle_toggleDataWrapper"]').filter({ hasText: 'BlackRock Equity Dividend' });
-        this.savosUSRiskText = page.locator('[class*="portfolio-sidebar-toggle_toggleDataWrapper"]').filter({ hasText: 'Savos US Risk Controlled Strategy, Profile 6' });
-        this.alphaSimplexText = page.locator('[class*="portfolio-sidebar-toggle_toggleDataWrapper"]').filter({ hasText: 'AlphaSimplex, Alternative Model Portfolio, Profile 5, Growth' });
-        this.jpMorganAbsoluteReturnText = page.locator('[class*="portfolio-sidebar-toggle_toggleDataWrapper"]').filter({ hasText: 'JPMorgan Absolute Return - Profile 1' });
+        this.assetMarkIncomeBuilderText = page
+            .locator('[class*="portfolio-sidebar-toggle_toggleDataWrapper"]')
+            .filter({ hasText: 'AssetMark Income Builder, Profile 2, Conservative' });
+        this.blackRockEquityDividendText = page
+            .locator('[class*="portfolio-sidebar-toggle_toggleDataWrapper"]')
+            .filter({ hasText: 'BlackRock Equity Dividend' });
+        this.savosUSRiskText = page
+            .locator('[class*="portfolio-sidebar-toggle_toggleDataWrapper"]')
+            .filter({ hasText: 'Savos US Risk Controlled Strategy, Profile 6' });
+        this.alphaSimplexText = page
+            .locator('[class*="portfolio-sidebar-toggle_toggleDataWrapper"]')
+            .filter({ hasText: 'AlphaSimplex, Alternative Model Portfolio, Profile 5, Growth' });
+        this.jpMorganAbsoluteReturnText = page
+            .locator('[class*="portfolio-sidebar-toggle_toggleDataWrapper"]')
+            .filter({ hasText: 'JPMorgan Absolute Return - Profile 1' });
 
         // Proposal Document Sections - Checkboxes
         this.introductionCheckbox = page.locator('.th-Introduction-wrap .checkbox-container .clsA');
         this.pursuingYourGoalsCheckbox = page.locator('.th-wrap.th-Investing .checkbox-container .clsA');
-        this.investingIsPersonalCheckbox = page.locator('.th-listview-title.listview-child .checkbox-container .clsA').first();
+        this.investingIsPersonalCheckbox = page
+            .locator('.th-listview-title.listview-child .checkbox-container .clsA')
+            .first();
         this.equitiesVsBondsCheckbox = page.locator('.th-wrap.th-Growth .checkbox-container .clsA').first();
         this.cycleOfEmotionsCheckbox = page.locator('.th-wrap.th-The.Cycle .checkbox-container .clsA');
         this.stayingInvestedCheckbox = page.locator('.th-wrap.th-Growth .checkbox-container .clsA').nth(1);
@@ -434,12 +612,18 @@ export class PortfolioEnginePage {
         this.portfolioStrategistsCheckbox = page.locator('.th-wrap.th-Portfolio .checkbox-container .clsA');
         this.custodianSelectionCheckbox = page.locator('.th-wrap.th-Custodian .checkbox-container .clsA');
         this.ongoingReviewCheckbox = page.locator('.th-wrap.th-Ongoing .checkbox-container .clsA');
-        this.recommendedInvestmentPortfolioCheckbox = page.locator('.th-wrap.th-Recommended .checkbox-container .clsA').first();
+        this.recommendedInvestmentPortfolioCheckbox = page
+            .locator('.th-wrap.th-Recommended .checkbox-container .clsA')
+            .first();
         this.allocationByAssetClassCheckbox = page.locator('.th-wrap.th-Allocation .checkbox-container .clsA');
         this.topHoldingsCheckbox = page.locator('.th-wrap.th-Top .checkbox-container .clsA');
         this.proposedAccountsEstimatedYieldCheckbox = page.locator('.th-wrap.th-Proposed .checkbox-container .clsA');
-        this.hypotheticalHistoricalPerformanceCheckbox = page.locator('.th-wrap.th-Hypothetical .checkbox-container .clsA').first();
-        this.hypotheticalGrowthOfProposedAccountsCheckbox = page.locator('.th-wrap.th-Hypothetical .checkbox-container .clsA').nth(1);
+        this.hypotheticalHistoricalPerformanceCheckbox = page
+            .locator('.th-wrap.th-Hypothetical .checkbox-container .clsA')
+            .first();
+        this.hypotheticalGrowthOfProposedAccountsCheckbox = page
+            .locator('.th-wrap.th-Hypothetical .checkbox-container .clsA')
+            .nth(1);
         this.ratesCheckbox = page.locator('.th-wrap.th-Rates .checkbox-container .clsA');
         this.calendarYearReturnsCheckbox = page.locator('.th-wrap.th-Calendar .checkbox-container .clsA');
         this.historicalCumulativePerformanceCheckbox = page.locator('.th-wrap.th-Historical .checkbox-container .clsA');
@@ -452,39 +636,72 @@ export class PortfolioEnginePage {
 
         // Proposal Document Sections - Dropdown Icons (using stable section-specific patterns)
         this.pursuingYourGoalsDropdownIcon = page.locator('.th-wrap.th-Investing .icon-holder i');
-        this.recommendedInvestmentPortfolioDropdownIcon = page.locator('.th-wrap.th-Recommended .icon-holder i').first();
-        this.hypotheticalHistoricalPerformanceDropdownIcon = page.locator('.th-wrap.th-Hypothetical .icon-holder i').first();
+        this.recommendedInvestmentPortfolioDropdownIcon = page
+            .locator('.th-wrap.th-Recommended .icon-holder i')
+            .first();
+        this.hypotheticalHistoricalPerformanceDropdownIcon = page
+            .locator('.th-wrap.th-Hypothetical .icon-holder i')
+            .first();
         this.annualPortfolioFeesDropdownIcon = page.locator('.th-wrap.th-Fee .icon-holder i').first();
 
         // Proposal Document Verification - Click Elements (using stable patterns with class combinations)
         this.coverPageHeader = page.locator('.th-header').first();
         this.pursueYourGoalsText = page.getByText('Pursue Your Goals', { exact: true });
         this.tableOfContentsText = page.getByText('Table Of Contents', { exact: true });
-        this.introductionHeader = page.getByRole('heading', { name: /Introduction/i }).or(page.locator('.th-wrap.th-Introduction-wrap .th-header'));
+        this.introductionHeader = page
+            .getByRole('heading', { name: /Introduction/i })
+            .or(page.locator('.th-wrap.th-Introduction-wrap .th-header'));
         this.investingIsPersonalText = page.getByText('Investing is Personal', { exact: true });
-        this.equitiesVsBondsTitle = page.locator('.th-wrap.th-Growth .th-title').filter({ hasText: 'Equities vs. Bonds' });
-        this.cycleOfEmotionsHeader = page.getByRole('heading', { name: /Cycle of Emotions/i }).or(page.locator('.th-wrap.th-The.Cycle .th-header'));
-        this.stayingInvestedTitle = page.locator('.th-wrap.th-Growth .th-title').filter({ hasText: 'Staying Invested' });
+        this.equitiesVsBondsTitle = page
+            .locator('.th-wrap.th-Growth .th-title')
+            .filter({ hasText: 'Equities vs. Bonds' });
+        this.cycleOfEmotionsHeader = page
+            .getByRole('heading', { name: /Cycle of Emotions/i })
+            .or(page.locator('.th-wrap.th-The.Cycle .th-header'));
+        this.stayingInvestedTitle = page
+            .locator('.th-wrap.th-Growth .th-title')
+            .filter({ hasText: 'Staying Invested' });
         this.yourInvestmentTeamDiv = page.getByText('Your Investment Team (3)');
         this.portfolioStrategistsSection = page.locator('.th-wrap.th-Portfolio');
-        this.custodianSelectionHeader = page.getByRole('heading', { name: /Custodian Selection/i }).or(page.locator('.th-wrap.th-Custodian .th-header'));
+        this.custodianSelectionHeader = page
+            .getByRole('heading', { name: /Custodian Selection/i })
+            .or(page.locator('.th-wrap.th-Custodian .th-header'));
         this.ongoingReviewText = page.getByText('Ongoing Review of Your Portfolio', { exact: true });
-        this.yourFinancialAnalysisHeader = page.locator('.th-wrap.th-Your.Financial')
-        this.recommendedPortfolioDiv = page.locator('.th-title.th-listview-title.listview-child').filter({ hasText: 'Recommended Portfolio' });
-        this.allocationByAssetClassHeader = page.getByRole('heading', { name: /Allocation by Asset Class/i }).or(page.locator('.th-wrap.th-Allocation .th-header'));
+        this.yourFinancialAnalysisHeader = page.locator('.th-wrap.th-Your.Financial');
+        this.recommendedPortfolioDiv = page
+            .locator('.th-title.th-listview-title.listview-child')
+            .filter({ hasText: 'Recommended Portfolio' });
+        this.allocationByAssetClassHeader = page
+            .getByRole('heading', { name: /Allocation by Asset Class/i })
+            .or(page.locator('.th-wrap.th-Allocation .th-header'));
         this.topHoldingsText = page.getByText('Top Holdings').first();
         this.proposedAccountsTitle = page.locator('.th-wrap.th-Proposed .th-title');
-        this.hypotheticalHistoricalPerformanceDiv = page.locator('.th-wrap.th-Hypothetical .th-title').filter({ hasText: 'Hypothetical Historical Performance' }).first();
-        this.hypotheticalSectionTitle = page.locator('.th-wrap.th-Hypothetical .th-title').filter({ hasText: 'Hypothetical Historical Performance' }).last();
-        this.ratesHeader = page.getByRole('heading', { name: /Rates/i }).or(page.locator('.th-wrap.th-Rates .th-header'));
+        this.hypotheticalHistoricalPerformanceDiv = page
+            .locator('.th-wrap.th-Hypothetical .th-title')
+            .filter({ hasText: 'Hypothetical Historical Performance' })
+            .first();
+        this.hypotheticalSectionTitle = page
+            .locator('.th-wrap.th-Hypothetical .th-title')
+            .filter({ hasText: 'Hypothetical Historical Performance' })
+            .last();
+        this.ratesHeader = page
+            .getByRole('heading', { name: /Rates/i })
+            .or(page.locator('.th-wrap.th-Rates .th-header'));
         this.calendarYearReturnsText = page.locator('.th-wrap.th-Calendar .th-header');
         this.historicalCumulativeText = page.getByText('Historical Cumulative').first();
         this.riskVersusReturnSection = page.locator('.th-wrap.th-Risk');
-        this.feeScheduleDiv = page.locator('div').filter({ hasText: /^Annual Portfolio Fees \(3\)$/ }).first()
+        this.feeScheduleDiv = page
+            .locator('div')
+            .filter({ hasText: /^Annual Portfolio Fees \(3\)$/ })
+            .first();
         //getByText('Fee Schedule').nth(1);
-        this.tieredFeeScheduleHeader = page.getByRole('heading', { name: /Tiered Fee Schedule/i }).or(page.locator('.th-wrap.th-Tiered .th-header'));
+        this.tieredFeeScheduleHeader = page
+            .getByRole('heading', { name: /Tiered Fee Schedule/i })
+            .or(page.locator('.th-wrap.th-Tiered .th-header'));
         this.estimateExpenseTitle = page.locator('.th-wrap.th-Estimated .th-title');
-        this.importantInformationText = page.getByText('Important Information and Standardized Performance Returns', { exact: true });
+        this.importantInformationText = page.getByText('Important Information and Standardized Performance Returns', {
+            exact: true,
+        });
         this.disclosuresTitle = page.locator('.th-wrap.th-Disclosures .th-title');
         this.clientSignatureText = page.getByText('Client Signature', { exact: true });
         this.investmentPolicyStatementText = page.getByText('Investment Policy Statement', { exact: true });
@@ -519,11 +736,11 @@ export class PortfolioEnginePage {
         this.clientSignatureCanvas = page.locator('.page-wrap.Client canvas');
         this.investmentPolicyCanvas = page.locator('.page-wrap.Investment.Policy canvas');
 
-
-
         // Client Search Elements
         this.loadingImageModal = page.locator('#loadingImageModal');
-        this.clientSearchInput = page.getByRole('textbox', { name: 'client_search_input' }).or(page.locator('#client_search_input'));
+        this.clientSearchInput = page
+            .getByRole('textbox', { name: 'client_search_input' })
+            .or(page.locator('#client_search_input'));
         this.searchButton = page.getByRole('button', { name: 'search' }).or(page.locator('#searchbutton'));
         //this.clientCollapsedLink = page.locator('#ClientListGrid tbody tr.jqgrow').first().locator('td[aria-describedby="ClientListGrid_subgrid"] a');
         this.clientCollapsedLink = page.locator('td[role="gridcell"][aria-describedby="ClientListGrid_clientName"]');
@@ -531,7 +748,7 @@ export class PortfolioEnginePage {
         this.viewDocumentHistoryLink = page.getByRole('link', { name: 'View Document History' });
         this.portfolioDetailsLink = page.getByRole('link', { name: 'Portfolio Details' });
         this.deleteClientLink = page.getByRole('link', { name: 'Delete Client' });
-        this.newClientExperienceDecline = page.getByRole('button', { name: 'No, Thank You' })
+        this.newClientExperienceDecline = page.getByRole('button', { name: 'No, Thank You' });
     }
 
     // Helper Methods
@@ -564,7 +781,11 @@ export class PortfolioEnginePage {
             await this.managePortfoliosButton.click();
 
             // Check for existing portfolio with today's date and portfolio name
-            const existingPortfolio = this.page.locator('tr').filter({ hasText: portfolioName }).filter({ hasText: this.getTodayDate() }).first();
+            const existingPortfolio = this.page
+                .locator('tr')
+                .filter({ hasText: portfolioName })
+                .filter({ hasText: this.getTodayDate() })
+                .first();
 
             if (await existingPortfolio.isVisible()) {
                 // Portfolio already exists, select it and close
@@ -587,7 +808,7 @@ export class PortfolioEnginePage {
 
         await this.modelPortfolioNameTextbox.fill(portfolioName);
         await this.strategySaveButton.click();
-        await this.page.waitForLoadState();
+        await this.strategySaveButton.waitFor({ state: 'detached' });
     }
 
     /**
@@ -660,6 +881,8 @@ export class PortfolioEnginePage {
     /**
      * Search for a client by name
      * @param clientName - Full name of the client
+     * @param index - Index of the client in the search results (default is 0)
+     * @returns Number of total items found
      */
     async searchForClient(clientName: string, index: number = 0): Promise<number> {
         await this.clientsLink.click();
@@ -668,48 +891,47 @@ export class PortfolioEnginePage {
         await this.clientSearchInput.fill(clientName);
         await this.searchButton.click();
 
-        // Wait for either results or "no results" message
-        try {
-            await this.page.getByText('$500,000.00').first().waitFor({ timeout: 5000 });
-        } catch {
-            await this.page.getByText('No search results were found.').waitFor({ timeout: 5000 });
-            return 0;
-        }
+        await Promise.race([
+            this.page.getByText('No search results were found.').waitFor(),
+            this.page.getByText('$500,000.00').first().waitFor(),
+        ]);
 
-        let totalItems: number;
-        // Get the total items count
-        const totalElement = this.page.locator('span.viewall span.total').first();
-        if (await totalElement.isVisible()) {
-            const totalText = await totalElement.textContent();
-            totalItems = parseInt(totalText);
-        } else {
-            totalItems = 0;
+        if (await this.page.getByText('No search results were found.').isVisible()) {
+            return 0;
+        } else if (await this.page.getByText('$500,000.00').first().isVisible()) {
+            let totalItems: number;
+            // Get the total items count
+            const totalElement = this.page.locator('span.viewall span.total').first();
+            if (await totalElement.isVisible()) {
+                const totalText = await totalElement.textContent();
+                totalItems = parseInt(totalText);
+            } else {
+                totalItems = 0;
+            }
+            await this.clientCollapsedLink.nth(index).click();
+            // const clientLink = this.page.getByRole('link').filter({ hasText: clientName }).and(this.page.locator('[href*="ClientID"]'));
+            // await clientLink.click();
+            return totalItems;
         }
-        await this.clientCollapsedLink.nth(index).click();
-        // const clientLink = this.page.getByRole('link').filter({ hasText: clientName }).and(this.page.locator('[href*="ClientID"]'));
-        // await clientLink.click();
-        return totalItems;
     }
 
     /**
      * Select a registration type from the dropdown
      * @param registrationType - The specific registration type to select (e.g., 'Individual', 'Traditional IRA', 'Trust')
-     * @example
-     * await portfolioEnginePage.selectRegistrationType('Individual');
-     * await portfolioEnginePage.selectRegistrationType('Traditional IRA');
-     * await portfolioEnginePage.selectRegistrationType('Trust');
      */
     async selectRegistrationType(registrationType: string): Promise<void> {
         // Check if it's a top-level simple option (Select, Trust)
-        const simpleOption = this.page.locator('[class*="accounts-select-dropdown_parentList"]').filter({ hasText: registrationType });
-        if (await simpleOption.count() > 0) {
+        const simpleOption = this.page
+            .locator('[class*="accounts-select-dropdown_parentList"]')
+            .filter({ hasText: registrationType });
+        if ((await simpleOption.count()) > 0) {
             await simpleOption.click();
             return;
         }
 
         // Map of registration types to their parent categories for nested options
         const categoryMap: { [key: string]: string } = {
-            'Individual': 'Individual',
+            Individual: 'Individual',
             'Individual TOD': 'Individual',
             'Community Property': 'Joint',
             'Community Property with Rights of Survivorship': 'Joint',
@@ -733,9 +955,9 @@ export class PortfolioEnginePage {
             'Defined Benefit Pension Plan': 'Retirement Plans',
             'Money Purchase Pension Plan': 'Retirement Plans',
             'Profit Sharing Plan': 'Retirement Plans',
-            'Corporation': 'Business Accounts',
+            Corporation: 'Business Accounts',
             'Limited Liability Company': 'Business Accounts',
-            'Partnership': 'Business Accounts',
+            Partnership: 'Business Accounts',
             'Sole Proprietor': 'Business Accounts',
             'Sub-Custodian FBO': 'Business Accounts',
             '501(c)': 'Organizations',
@@ -745,8 +967,8 @@ export class PortfolioEnginePage {
             'Foundation (Taxable)': 'Organizations',
             'Uniform Gift to Minors': 'Other',
             'Uniform Transfer to Minors': 'Other',
-            'Guardianship': 'Other',
-            'Estate': 'Other'
+            Guardianship: 'Other',
+            Estate: 'Other',
         };
 
         const category = categoryMap[registrationType];
@@ -755,20 +977,24 @@ export class PortfolioEnginePage {
         }
 
         // Hover over the parent category to reveal nested options
-        const parentCategory = this.page.locator('[class*="accounts-select-dropdown_group"]').filter({ hasText: category }).locator('p').first();
+        const parentCategory = this.page
+            .locator('[class*="accounts-select-dropdown_group"]')
+            .filter({ hasText: category })
+            .locator('p')
+            .first();
         await parentCategory.hover();
 
         // Click the exact nested option using regex for exact match
-        const nestedOption = this.page.locator('[class*="accounts-select-dropdown_nestedListItem"]').filter({ hasText: new RegExp(`^${registrationType}$`) });
+        const nestedOption = this.page
+            .locator('[class*="accounts-select-dropdown_nestedListItem"]')
+            .filter({ hasText: new RegExp(`^${registrationType}$`) });
         await nestedOption.click();
     }
 
-
     /**
      * Navigate to client's portfolio details
-     * @param clientName - Full name of the client (e.g., 'Guy Dude, Individual')
      */
-    async navigateToClientPortfolioDetails(clientName: string): Promise<void> {
+    async navigateToClientPortfolioDetails(): Promise<void> {
         await selectIfVisible(this.viewDocumentHistoryLink);
         await this.portfolioDetailsLink.click();
     }
@@ -779,7 +1005,7 @@ export class PortfolioEnginePage {
      */
     async deleteClient(): Promise<void> {
         this.page.once('dialog', dialog => {
-            console.log(`Dialog message: ${dialog.message()}`);
+            logger.debug('Dialog message', { message: dialog.message() });
             dialog.accept();
         });
         await this.deleteClientLink.click();
@@ -799,17 +1025,19 @@ export class PortfolioEnginePage {
             this.stressTestWidgetCheckbox,
             this.returnByStrategyWidgetCheckbox,
             this.investmentApproachWidgetCheckbox,
-            this.upsideDownsideWidgetCheckbox
+            this.upsideDownsideWidgetCheckbox,
         ];
 
         for (const widget of widgets) {
-            const isChecked = await widget.evaluate((el) => {
+            const isChecked = await widget.evaluate(el => {
                 // Check if the parent li has a class indicating checked state
                 const listItem = el.closest('li');
-                return listItem?.classList.contains('selected') ||
+                return (
+                    listItem?.classList.contains('selected') ||
                     listItem?.classList.contains('checked') ||
                     el.getAttribute('aria-checked') === 'true' ||
-                    window.getComputedStyle(el).opacity === '1';
+                    window.getComputedStyle(el).opacity === '1'
+                );
             });
 
             if (!isChecked) {
@@ -817,7 +1045,6 @@ export class PortfolioEnginePage {
             }
         }
     }
-
 
     /**
      * Get the control button (3-dot menu) for a specific portfolio by date or name
@@ -828,11 +1055,13 @@ export class PortfolioEnginePage {
      */
     getPortfolioControlButton(identifier: string): Locator {
         // Find the row containing the identifier, then get the 3-dot button in that row
-        return this.page.locator('[class*="popup-component"]')
+        return this.page
+            .locator('[class*="popup-component"]')
             .locator('tbody tr')
             .filter({ hasText: identifier })
             .locator('button[class*="button-icon"]')
-            .filter({ has: this.page.locator('svg[viewBox="0 0 17 17"]') }).first();
+            .filter({ has: this.page.locator('svg[viewBox="0 0 17 17"]') })
+            .first();
     }
 
     /**
@@ -850,7 +1079,7 @@ export class PortfolioEnginePage {
         while (hasMatchingPortfolios) {
             // Try to find the control button for the matching portfolio
             const controlButton = this.getPortfolioControlButton(dateToUse);
-            const isVisible = await controlButton.isVisible({ timeout: 2000 }).catch(() => false);
+            const isVisible = await controlButton.isVisible().catch(() => false);
 
             if (isVisible) {
                 await controlButton.click();
@@ -873,7 +1102,8 @@ export class PortfolioEnginePage {
 
         while (hasPortfolios) {
             // Find all control buttons in the portfolio table
-            const controlButtons = this.page.locator('[class*="popup-component"]')
+            const controlButtons = this.page
+                .locator('[class*="popup-component"]')
                 .locator('tbody tr')
                 .locator('button[class*="button-icon"]')
                 .filter({ has: this.page.locator('svg[viewBox="0 0 17 17"]') });
@@ -896,7 +1126,7 @@ export class PortfolioEnginePage {
      * @param canvas - The canvas locator to validate
      * @returns Promise<boolean> - True if canvas has rendered content, false otherwise
      */
-    async validateCanvas(canvas: any): Promise<boolean> {
+    async validateCanvas(canvas: Locator): Promise<boolean> {
         const hasRenderedContent = await canvas.evaluate((el: HTMLCanvasElement) => {
             if (!el) return false;
             const ctx = el.getContext('2d');
@@ -929,9 +1159,9 @@ export class PortfolioEnginePage {
      * @param content - The content locator to verify
      * @returns Promise<boolean> - True if section is verified successfully
      */
-    async verifyProposalSection(clickElement: any, content: any): Promise<boolean> {
+    async verifyProposalSection(clickElement: Locator, content: Locator): Promise<boolean> {
         await clickElement.click();
-        await content.waitFor({ state: 'visible', timeout: 300000 });
+        await content.waitFor({ state: 'visible' });
         return await this.validateCanvas(content);
     }
 
@@ -946,5 +1176,4 @@ export class PortfolioEnginePage {
         const year = today.getFullYear().toString().slice(-2);
         return `${month}/${day}/${year}`;
     }
-
 }

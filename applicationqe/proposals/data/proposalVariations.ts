@@ -1,13 +1,33 @@
-import { Locator, Page } from '@playwright/test';
+import { Locator } from '@playwright/test';
+
+// Interface for page objects used by these helpers
+interface ProposalPageLike {
+    selectCustodianDropdown: Locator;
+    fidelityText: Locator;
+    assetMarkText: Locator;
+    schwabText: Locator;
+    pershingAdvisorSolutionsText: Locator;
+
+    registrationTypeDropdown?: Locator;
+    individualCategory?: Locator;
+    individualOption?: Locator;
+    individualTODOption?: Locator;
+    trustOption?: Locator;
+}
 
 /**
  * Select a custodian from the dropdown, works for Portfolio Engine and New Account Wizard
  * @param currentPage - The current page object
  * @param custodian - Name of the custodian to select
  */
-export async function selectCustodian(currentPage: any): Promise<void> {
+export async function selectCustodian(currentPage: ProposalPageLike): Promise<void> {
     await currentPage.selectCustodianDropdown.click();
-    const custodians = [currentPage.fidelityText, currentPage.assetMarkText, currentPage.schwabText, currentPage.pershingAdvisorSolutionsText];
+    const custodians = [
+        currentPage.fidelityText,
+        currentPage.assetMarkText,
+        currentPage.schwabText,
+        currentPage.pershingAdvisorSolutionsText,
+    ];
     const randomIndex = Math.floor(Math.random() * custodians.length);
     const randomCustodian = custodians[randomIndex];
     await randomCustodian.click();
@@ -20,7 +40,11 @@ export async function selectCustodian(currentPage: any): Promise<void> {
  * @param registrationType - Category of the registration to select
  * @param registrationName - Name of the registration to enter in each category
  */
-export async function selectRegistrationType(currentPage: any, registrationCategory: Locator, registrationName: Locator): Promise<void> {
+export async function selectRegistrationType(
+    currentPage: ProposalPageLike,
+    registrationCategory: Locator,
+    registrationName: Locator
+): Promise<void> {
     await currentPage.registrationTypeDropdown.click();
     const registrationCategoryText = await registrationCategory.innerText();
     const registrationNameText = await registrationName.innerText();
