@@ -33,8 +33,8 @@ export default defineConfig({
     forbidOnly: !!process.env.CI,
     /* Retry # for CI : local */
     retries: process.env.CI ? 2 : 0,
-    /* Opt out of parallel tests on CI. */
-    workers: process.env.CI ? 1 : undefined,
+    // /* Opt out of parallel tests on CI. */
+    // workers: process.env.CI ? 1 : undefined,
     /* Reporter to use. See https://playwright.dev/docs/test-reporters */
     reporter: [
         ['allure-playwright', { outputFolder: 'reports/allure-results' }],
@@ -85,20 +85,19 @@ export default defineConfig({
             name: 'teardown',
             testDir: './tests/bdd',
             testMatch: /cleanup\.teardown\.ts/,
-            //dependencies: ['chromium'],
         },
 
-        {
-            name: 'firefox',
-            dependencies: ['setup'],
-            use: { ...devices['Desktop Firefox'] },
-        },
+        // {
+        //     name: 'firefox',
+        //     dependencies: ['setup'],
+        //     use: { ...devices['Desktop Firefox'] },
+        // },
 
-        {
-            name: 'webkit',
-            dependencies: ['setup'],
-            use: { ...devices['Desktop Safari'] },
-        },
+        // {
+        //     name: 'webkit',
+        //     dependencies: ['setup'],
+        //     use: { ...devices['Desktop Safari'] },
+        // },
 
         /* Test against mobile viewports. */
         // {
