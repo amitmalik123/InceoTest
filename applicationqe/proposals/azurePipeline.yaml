@@ -148,7 +148,7 @@ jobs:
             workingDirectory: $(Build.SourcesDirectory)/applicationqe/proposals
             displayName: 'Install Dependencies'
 
-          - script: npx playwright install --with-deps
+          - script: npx playwright install chromium
             workingDirectory: $(Build.SourcesDirectory)/applicationqe/proposals
             displayName: 'Install Playwright Browsers'
             continueOnError: false
