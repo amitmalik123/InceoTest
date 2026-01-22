@@ -25,17 +25,6 @@ db_connections:
       server: "t12ewmdba"
       database: "TrackingCenter"
       trusted_connection: true
-
-    sqlcustodialdataopsdev:
-    # Azure SQL Server with Entra ID (Azure AD) Password Authentication
-      driver: "ODBC Driver 17 for SQL Server"
-      server: "sqlcustodialdataopsdev.database.windows.net"
-      database: "Accounts"
-      user: "${DB_USER}"
-      password: "${DB_PASS}"
-      authentication: "ActiveDirectoryPassword"
-      encrypt: true
-      trust_server_certificate: true  
     
     # Azure SQL Server with Entra ID (Azure AD) Password Authentication
     movemoney:
@@ -119,13 +108,6 @@ api_endpoints:
     auth_token: "your-token-if-needed"
     timeout: ${API_TIMEOUT:30}
     retry_count: ${API_RETRY_COUNT:3}
-    verify: false
-
-  account:
-    base_url: "https://platform.dev01.assetmark.com/api/accounts/v1"
-    auth_token: "your-token-if-needed"
-    timeout: 30
-    retry_count: 3
     verify: false
 
   work_item_notification:
