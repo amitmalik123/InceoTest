@@ -260,6 +260,7 @@ export class PortfolioEnginePage {
     readonly loadingImageModal: Locator;
     readonly clientSearchInput: Locator;
     readonly searchButton: Locator;
+    readonly noClientsFoundMessage: Locator;
     readonly clientCollapsedLink: Locator;
     readonly guyDudeIndividualLink: Locator;
     readonly viewDocumentHistoryLink: Locator;
@@ -742,6 +743,7 @@ export class PortfolioEnginePage {
             .getByRole('textbox', { name: 'client_search_input' })
             .or(page.locator('#client_search_input'));
         this.searchButton = page.getByRole('button', { name: 'search' }).or(page.locator('#searchbutton'));
+        this.noClientsFoundMessage = page.getByText('No search results were found.');
         //this.clientCollapsedLink = page.locator('#ClientListGrid tbody tr.jqgrow').first().locator('td[aria-describedby="ClientListGrid_subgrid"] a');
         this.clientCollapsedLink = page.locator('td[role="gridcell"][aria-describedby="ClientListGrid_clientName"]');
         this.guyDudeIndividualLink = page.getByRole('link', { name: 'Guy Dude, Individual' });
@@ -884,35 +886,12 @@ export class PortfolioEnginePage {
      * @param index - Index of the client in the search results (default is 0)
      * @returns Number of total items found
      */
-    async searchForClient(clientName: string, index: number = 0): Promise<number> {
+    async searchForClient(clientName: string): Promise<void> {
         await this.clientsLink.click();
         await this.page.waitForLoadState();
         await selectIfVisible(this.newClientExperienceDecline);
         await this.clientSearchInput.fill(clientName);
         await this.searchButton.click();
-
-        await Promise.race([
-            this.page.getByText('No search results were found.').waitFor(),
-            this.page.getByText('$500,000.00').first().waitFor(),
-        ]);
-
-        if (await this.page.getByText('No search results were found.').isVisible()) {
-            return 0;
-        } else if (await this.page.getByText('$500,000.00').first().isVisible()) {
-            let totalItems: number;
-            // Get the total items count
-            const totalElement = this.page.locator('span.viewall span.total').first();
-            if (await totalElement.isVisible()) {
-                const totalText = await totalElement.textContent();
-                totalItems = parseInt(totalText);
-            } else {
-                totalItems = 0;
-            }
-            await this.clientCollapsedLink.nth(index).click();
-            // const clientLink = this.page.getByRole('link').filter({ hasText: clientName }).and(this.page.locator('[href*="ClientID"]'));
-            // await clientLink.click();
-            return totalItems;
-        }
     }
 
     /**
@@ -1004,11 +983,13 @@ export class PortfolioEnginePage {
      * @param clientName - Full name of the client (e.g., 'Guy Dude, Individual')
      */
     async deleteClient(): Promise<void> {
-        this.page.once('dialog', dialog => {
-            logger.debug('Dialog message', { message: dialog.message() });
-            dialog.accept();
+        // Clicks delete and accepts confirmation dialog, waits for page redirect before moving on
+        this.page.once('dialog', async dialog => {
+            logger.debug(dialog.message());
+            await dialog.accept();
         });
         await this.deleteClientLink.click();
+        await this.page.getByText('There are two ways to get started.').waitFor({ state: 'visible', timeout: 10000 });
     }
 
     /**
@@ -1067,10 +1048,6 @@ export class PortfolioEnginePage {
     /**
      * Delete all portfolios matching the specified identifier (date or name). Defaults to today's date if no identifier provided.
      * @param identifier - The date (e.g., '12/18/25') or portfolio name to delete. If not provided, uses today's date.
-     * @example
-     * await portfolioEnginePage.deletePortfolio(); // Deletes all portfolios with today's date
-     * await portfolioEnginePage.deletePortfolio('12/18/25');
-     * await portfolioEnginePage.deletePortfolio('Test Portfolio');
      */
     async deletePortfolio(identifier?: string): Promise<void> {
         const dateToUse = identifier ?? this.getTodayDate();

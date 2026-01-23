@@ -26,6 +26,7 @@ export class LoginPage {
 
     //Sign in with given username and password
     async signIn(username: string, password: string) {
+        await this.cookieAcceptButton.waitFor({ state: 'visible', timeout: 5000 }); //waiting because it may load slowly
         if (await this.cookieAcceptButton.isVisible()) {
             await this.cookieAcceptButton.click();
         }

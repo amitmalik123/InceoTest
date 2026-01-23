@@ -7,8 +7,8 @@ import { logger } from '../../utils/logger';
 teardown.describe('Teardown', () => {
     teardown.use({ storageState: './authfiles/role1.json' });
 
-    teardown('Delete E2E Test Portfolio', async ({ page }) => {
-        logger.debug('\nDeleting E2E Test Portfolios...');
+    teardown('Delete Test Portfolio', async ({ page }) => {
+        logger.debug('\nDeleting Test Portfolios...');
 
         await navigateToHomePage(page);
         const portfolioEnginePage = new PortfolioEnginePage(await navigateToPortfolioEngine(page));
@@ -26,34 +26,14 @@ teardown.describe('Teardown', () => {
         }
     });
 
-    teardown('Delete E2E Test Clients', async ({ page }) => {
-        logger.debug('\nDeleting test clients...');
-
+    teardown('Delete Test Clients', async ({ page }) => {
+        logger.debug('\nDeleting Test Clients...');
         await navigateToHomePage(page);
         const portfolioEnginePage = new PortfolioEnginePage(page);
-
-        // First check if any clients exist
-        let totalItems = await portfolioEnginePage.searchForClient('guy dude', 0);
-
-        if (totalItems === 0) {
-            logger.debug('No test clients found to delete');
-            return;
-        }
-
-        let index = 0;
-        while (index < totalItems) {
-            if (index < totalItems) {
-                await portfolioEnginePage.deleteClientLink.waitFor({ state: 'visible' });
-                await portfolioEnginePage.deleteClient();
-                index++;
-                if (index < totalItems) {
-                    totalItems = await portfolioEnginePage.searchForClient('guy dude', index);
-                }
-            } else {
-                break; // No more clients to delete
-            }
-        }
-
+        // deleting pe e2e client
+        await portfolioEnginePage.searchForClient('guy dude');
+        await portfolioEnginePage.clientCollapsedLink.nth(0).click();
+        await portfolioEnginePage.deleteClient();
         logger.debug('All test clients deleted');
     });
 });
