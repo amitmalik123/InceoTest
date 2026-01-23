@@ -53,7 +53,8 @@
         "key_field": ["", ""],
         "fields_to_compare": [],
         "log_differences": true
-      }
+      },
+      "assertions": []
     },
     "test_data_file": "",
     "db_query": "",

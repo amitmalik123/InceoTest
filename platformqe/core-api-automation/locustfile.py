@@ -264,9 +264,17 @@ influx_batch_lock = None  # Thread lock for batch buffer
 
 try:
     # Check if InfluxDB is enabled in configuration
+    from framework.loaders.config_loader import substitute_env_vars
     db_connections = config.get('db_connections', {})
     influx_config = db_connections.get('influxdb', {}).get('default', {})
+    
+    # Substitute environment variables to properly evaluate enabled flag
+    influx_config = substitute_env_vars(influx_config)
+    
+    # Handle enabled flag - can be bool or string
     influx_enabled = influx_config.get('enabled', False)
+    if isinstance(influx_enabled, str):
+        influx_enabled = influx_enabled.lower() in ('true', '1', 'yes')
     
     # DEBUG: Print to console to verify execution
     print(f"[DEBUG] InfluxDB config check - enabled: {influx_enabled}, INFLUX_AVAILABLE: {INFLUX_AVAILABLE}")
