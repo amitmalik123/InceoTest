@@ -15,7 +15,7 @@ setup('Setup - Login to Environment', async ({ page }) => {
 
     // Switch to correct ID if using admin account and not in prod
     const env = process.env.ENVIRONMENT || process.env.Environment;
-    if (process.env.userID && env.toLowerCase() !== 'prod') {
+    if (process.env.userID && env.toLowerCase() !== 'prod' && process.env.userID && env.toLowerCase() !== 'silo') {
         await switchIDPage.selectID(process.env.userID);
     }
 

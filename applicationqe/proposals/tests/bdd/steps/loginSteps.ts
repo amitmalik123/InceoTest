@@ -43,7 +43,8 @@ Given('I am logged into the application', async ({ page, context, loginPage, swi
         await loginPage.gotoLoginPage();
         await loginPage.signIn(process.env.USER, process.env.PASS);
 
-        if (process.env.userID) {
+        const env = process.env.ENVIRONMENT || process.env.Environment;
+        if (process.env.userID && env.toLowerCase() !== 'prod' && process.env.userID && env.toLowerCase() !== 'silo') {
             await switchIDPage.selectID(process.env.userID);
         }
 
@@ -105,7 +106,8 @@ When('the user enters a valid username and password', async ({ switchIDPage, log
     await loginPage.signIn(process.env.USER, process.env.PASS);
 
     // Switch to correct ID if using admin account
-    if (process.env.userID) {
+    const env = process.env.ENVIRONMENT || process.env.Environment;
+    if (env.toLowerCase() !== 'prod' && env.toLowerCase() !== 'silo') {
         await switchIDPage.selectID(process.env.userID);
     }
 });
