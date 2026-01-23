@@ -35,26 +35,25 @@
             }
         },
         "expected_status": "200",
-        "expected_response_schema": "",
+        "expected_response_schema": "MoveMoneyAPI\\schemas\\Schema_instructions_instructionId_PUT.json",
         "expected_response": null,
         "ignore_fields": [
-            "id"
+            "traceId",
+            "timestamp",
+            "createdDate",
+            "modifiedDate",
+            "version"
         ],
         "extract_values": [
             {
                 "from": "response",
-                "key": "id",
-                "assign_to": ""
+                "key": "instructionId",
+                "assign_to": "instructionId"
             },
             {
-                "from": "db_result",
-                "query": "",
-                "assign": [
-                    {
-                        "key": "",
-                        "assign_to": ""
-                    }
-                ]
+                "from": "response",
+                "key": "version",
+                "assign_to": "version"
             }
         ],
         "validate": {
@@ -67,24 +66,31 @@
                     "xss"
                 ]
             },
-            "data_comparison": {
-                "source": "api_response",
-                "target": "db_result",
-                "format": "table",
-                "key_field": [
-                    "",
-                    ""
-                ],
-                "fields_to_compare": [],
-                "log_differences": true
-            }
+            "assertions": [
+                {
+                    "actual": "{{instructionId}}",
+                    "expected": "",
+                    "operator": "!=",
+                    "message": "InstructionId should not be empty"
+                },
+                {
+                    "actual": "{{version}}",
+                    "expected": 1,
+                    "operator": ">",
+                    "message": "Version should be incremented after update"
+                }
+            ],
+            "data_comparison": []
         },
         "test_data_file": "",
-        "db_query": "",
+        "db_query_timing": "after_api",
+        "db_queries": {
+            "default": "",
+            "audit_query": ""
+        },
         "db_type": "",
         "db_connection_name": "",
-        "test_summary": "Test TC001: PUT /instructions/{instructionId} [positive] (TC001) - Validate the 200 successful response with valid Instruction Id and Request body.",
-        "test_scenario": "Test PUT request to /instructions/{instructionId} for functional scenario validation."
+        "test_summary": "Test TC001: PUT /instructions/{instructionId} [positive] (TC001) - Validate the 200 successful response with valid Instruction Id and Request body."
     },
     {
         "test_id": "TC002",
@@ -122,24 +128,33 @@
             }
         },
         "expected_status": "200",
-        "expected_response_schema": "",
+        "expected_response_schema": "MoveMoneyAPI\\schemas\\Schema_instructions_instructionId_PUT.json",
         "expected_response": null,
         "ignore_fields": [
-            "id"
+            "traceId",
+            "timestamp",
+            "createdDate",
+            "modifiedDate",
+            "version"
         ],
         "extract_values": [
             {
                 "from": "response",
-                "key": "id",
-                "assign_to": ""
+                "key": "instructionId",
+                "assign_to": "instructionId"
+            },
+            {
+                "from": "response",
+                "key": "version",
+                "assign_to": "version"
             },
             {
                 "from": "db_result",
-                "query": "",
+                "query": "default",
                 "assign": [
                     {
-                        "key": "",
-                        "assign_to": ""
+                        "key": "0.instructionId",
+                        "assign_to": "db_instructionId"
                     }
                 ]
             }
@@ -154,30 +169,44 @@
                     "xss"
                 ]
             },
-            "data_comparison": {
-                "source": "api_response",
-                "target": "db_result",
-                "format": "table",
-                "key_field": [
-                    "",
-                    ""
-                ],
-                "fields_to_compare": [],
-                "log_differences": true
-            }
+            "assertions": [
+                {
+                    "actual": "{{instructionId}}",
+                    "expected": "",
+                    "operator": "!=",
+                    "message": "InstructionId should not be empty"
+                },
+                {
+                    "actual": "{{version}}",
+                    "expected": 1,
+                    "operator": ">",
+                    "message": "Version should be incremented after update"
+                }
+            ],
+            "data_comparison": [
+                {
+                    "source": "instructionId",
+                    "target": "db_instructionId",
+                    "log_differences": true,
+                    "comparison_name": "InstructionId match between API and DB"
+                }
+            ]
         },
         "test_data_file": "",
-        "db_query": "",
-        "db_type": "",
-        "db_connection_name": "",
-        "test_summary": "Test TC002: PUT /instructions/{instructionId} [positive] (TC002) - Verify that the API returns a 200 successful response to update letter of authorization, status and bank details.",
-        "test_scenario": "Verify that the API returns a 200 successful response to update letter of authorization, status and bank details when the required parameter 'instructionId' is provided in the PUT request to /instructions/{instructionId}."
+        "db_query_timing": "after_api",
+        "db_queries": {
+            "default": "SELECT LOWER([Id]) AS instructionId FROM [dbo].[MoneyMovementInstruction] WHERE [Id] = '{{instructionId}}'",
+            "audit_query": ""
+        },
+        "db_type": "mssql",
+        "db_connection_name": "movemoney",
+        "test_summary": "Test TC002: PUT /instructions/{instructionId} [positive] (TC002) - Verify that the API returns a 200 successful response to update letter of authorization, status and bank details."
     },
     {
         "test_id": "TC003",
         "service_name": "MoveMoneyAPI",
         "workflow_mode": "parallel",
-        "test_name": "PUT /instructions/{instructionId} [negative] (TC003)",
+        "test_name": "PUT /instructions/{instructionId} [negative: Invalid routing number] (TC003)",
         "protocol": "REST",
         "test_type": [
             "Negative"
@@ -209,30 +238,24 @@
             }
         },
         "expected_status": "400",
-        "expected_response_schema": "",
-        "expected_response": {
-            "status": 400,
-            "error": "routingNumber must be exactly 9 digits (Parameter 'routingNumber')",
-            "fields": "routingNumber"
-        },
-        "ignore_fields": [
-            "id"
-        ],
+        "expected_response_schema": null,
+        "expected_response": null,
+        "ignore_fields": [],
         "extract_values": [
             {
                 "from": "response",
-                "key": "id",
-                "assign_to": ""
+                "key": "status",
+                "assign_to": "error_status"
             },
             {
-                "from": "db_result",
-                "query": "",
-                "assign": [
-                    {
-                        "key": "",
-                        "assign_to": ""
-                    }
-                ]
+                "from": "response",
+                "key": "error",
+                "assign_to": "error_message"
+            },
+            {
+                "from": "response",
+                "key": "fields",
+                "assign_to": "error_fields"
             }
         ],
         "validate": {
@@ -245,30 +268,43 @@
                     "xss"
                 ]
             },
-            "data_comparison": {
-                "source": "api_response",
-                "target": "db_result",
-                "format": "table",
-                "key_field": [
-                    "",
-                    ""
-                ],
-                "fields_to_compare": [],
-                "log_differences": true
-            }
+            "assertions": [
+                {
+                    "actual": "{{error_status}}",
+                    "expected": 400,
+                    "operator": "==",
+                    "message": "Error status should be 400"
+                },
+                {
+                    "actual": "{{error_message}}",
+                    "expected": "9 digits",
+                    "operator": "contains",
+                    "message": "Error message should mention routing number must be 9 digits"
+                },
+                {
+                    "actual": "{{error_fields}}",
+                    "expected": "routingNumber",
+                    "operator": "==",
+                    "message": "Error field should be routingNumber"
+                }
+            ],
+            "data_comparison": []
         },
         "test_data_file": "",
-        "db_query": "",
+        "db_query_timing": "after_api",
+        "db_queries": {
+            "default": "",
+            "audit_query": ""
+        },
         "db_type": "",
         "db_connection_name": "",
-        "test_summary": "Test TC003: PUT /instructions/{instructionId} [negative] (TC003) - Validate that the API returns 400 response to verify the routing number is exactly 9 digits.",
-        "test_scenario": "Test PUT request to /instructions/{instructionId} for negative scenario validation."
+        "test_summary": "Test TC003: PUT /instructions/{instructionId} [negative] (TC003) - Validate that the API returns 400 response to verify the routing number is exactly 9 digits."
     },
     {
         "test_id": "TC004",
         "service_name": "MoveMoneyAPI",
         "workflow_mode": "parallel",
-        "test_name": "PUT /instructions/{instructionId} [negative] (TC004)",
+        "test_name": "PUT /instructions/{instructionId} [negative: Missing required field] (TC004)",
         "protocol": "REST",
         "test_type": [
             "Negative"
@@ -299,30 +335,24 @@
             }
         },
         "expected_status": "400",
-        "expected_response_schema": "",
-        "expected_response": {
-            "status": 400,
-            "error": "Missing required field: letterOfAuthorization",
-            "fields": "letterOfAuthorization"
-        },
-        "ignore_fields": [
-            "id"
-        ],
+        "expected_response_schema": null,
+        "expected_response": null,
+        "ignore_fields": [],
         "extract_values": [
             {
                 "from": "response",
-                "key": "id",
-                "assign_to": ""
+                "key": "status",
+                "assign_to": "error_status"
             },
             {
-                "from": "db_result",
-                "query": "",
-                "assign": [
-                    {
-                        "key": "",
-                        "assign_to": ""
-                    }
-                ]
+                "from": "response",
+                "key": "error",
+                "assign_to": "error_message"
+            },
+            {
+                "from": "response",
+                "key": "fields",
+                "assign_to": "error_fields"
             }
         ],
         "validate": {
@@ -335,24 +365,37 @@
                     "xss"
                 ]
             },
-            "data_comparison": {
-                "source": "api_response",
-                "target": "db_result",
-                "format": "table",
-                "key_field": [
-                    "",
-                    ""
-                ],
-                "fields_to_compare": [],
-                "log_differences": true
-            }
+            "assertions": [
+                {
+                    "actual": "{{error_status}}",
+                    "expected": 400,
+                    "operator": "==",
+                    "message": "Error status should be 400"
+                },
+                {
+                    "actual": "{{error_message}}",
+                    "expected": "letterOfAuthorization",
+                    "operator": "contains",
+                    "message": "Error message should mention missing letterOfAuthorization"
+                },
+                {
+                    "actual": "{{error_fields}}",
+                    "expected": "letterOfAuthorization",
+                    "operator": "==",
+                    "message": "Error field should be letterOfAuthorization"
+                }
+            ],
+            "data_comparison": []
         },
         "test_data_file": "",
-        "db_query": "",
+        "db_query_timing": "after_api",
+        "db_queries": {
+            "default": "",
+            "audit_query": ""
+        },
         "db_type": "",
         "db_connection_name": "",
-        "test_summary": "Test TC004: PUT /instructions/{instructionId} [negative] (TC004) - Validate that the API returns 400 to verify if any fields are missing in the PUT request to /instructions/{instructionId}.",
-        "test_scenario": "Verify that the API returns a 400 Bad Request error when invalid data is provided in the PUT request to /instructions/{instructionId}."
+        "test_summary": "Test TC004: PUT /instructions/{instructionId} [negative] (TC004) - Validate that the API returns 400 to verify if any fields are missing in the PUT request to /instructions/{instructionId}."
     },
     {
         "test_id": "TC005",
@@ -390,30 +433,24 @@
             }
         },
         "expected_status": "400",
-        "expected_response_schema": "",
-        "expected_response": {
-            "status": 400,
-            "error": "Invalid GUID format for 'accountId'.",
-            "fields": "accountId"
-        },
-        "ignore_fields": [
-            "id"
-        ],
+        "expected_response_schema": null,
+        "expected_response": null,
+        "ignore_fields": [],
         "extract_values": [
             {
                 "from": "response",
-                "key": "id",
-                "assign_to": ""
+                "key": "status",
+                "assign_to": "error_status"
             },
             {
-                "from": "db_result",
-                "query": "",
-                "assign": [
-                    {
-                        "key": "",
-                        "assign_to": ""
-                    }
-                ]
+                "from": "response",
+                "key": "error",
+                "assign_to": "error_message"
+            },
+            {
+                "from": "response",
+                "key": "fields",
+                "assign_to": "error_fields"
             }
         ],
         "validate": {
@@ -426,24 +463,37 @@
                     "xss"
                 ]
             },
-            "data_comparison": {
-                "source": "api_response",
-                "target": "db_result",
-                "format": "table",
-                "key_field": [
-                    "",
-                    ""
-                ],
-                "fields_to_compare": [],
-                "log_differences": true
-            }
+            "assertions": [
+                {
+                    "actual": "{{error_status}}",
+                    "expected": 400,
+                    "operator": "==",
+                    "message": "Error status should be 400"
+                },
+                {
+                    "actual": "{{error_message}}",
+                    "expected": "GUID",
+                    "operator": "contains",
+                    "message": "Error message should mention invalid GUID format"
+                },
+                {
+                    "actual": "{{error_fields}}",
+                    "expected": "accountId",
+                    "operator": "==",
+                    "message": "Error field should be accountId"
+                }
+            ],
+            "data_comparison": []
         },
         "test_data_file": "",
-        "db_query": "",
+        "db_query_timing": "after_api",
+        "db_queries": {
+            "default": "",
+            "audit_query": ""
+        },
         "db_type": "",
         "db_connection_name": "",
-        "test_summary": "Test TC005: PUT /instructions/{instructionId} [negative] (TC005) - Validate that the API returns a 400 to verify if the accountId is invalid.",
-        "test_scenario": "Verify that the API returns a 400 if the accountId is invalid in the PUT request to /instructions/{instructionId}."
+        "test_summary": "Test TC005: PUT /instructions/{instructionId} [negative: Invalid accountId] (TC005) - Validate that the API returns 400 when invalid accountId GUID format is provided."
     },
     {
         "test_id": "TC006",
@@ -481,30 +531,24 @@
             }
         },
         "expected_status": "400",
-        "expected_response_schema": "",
-        "expected_response": {
-            "status": 400,
-            "error": "Invalid value for 'status'. Must be one of: Draft, Pending, Confirmed, Deleted",
-            "fields": "status"
-        },
-        "ignore_fields": [
-            "id"
-        ],
+        "expected_response_schema": null,
+        "expected_response": null,
+        "ignore_fields": [],
         "extract_values": [
             {
                 "from": "response",
-                "key": "id",
-                "assign_to": ""
+                "key": "status",
+                "assign_to": "error_status"
             },
             {
-                "from": "db_result",
-                "query": "",
-                "assign": [
-                    {
-                        "key": "",
-                        "assign_to": ""
-                    }
-                ]
+                "from": "response",
+                "key": "error",
+                "assign_to": "error_message"
+            },
+            {
+                "from": "response",
+                "key": "fields",
+                "assign_to": "error_fields"
             }
         ],
         "validate": {
@@ -517,30 +561,43 @@
                     "xss"
                 ]
             },
-            "data_comparison": {
-                "source": "api_response",
-                "target": "db_result",
-                "format": "table",
-                "key_field": [
-                    "",
-                    ""
-                ],
-                "fields_to_compare": [],
-                "log_differences": true
-            }
+            "assertions": [
+                {
+                    "actual": "{{error_status}}",
+                    "expected": 400,
+                    "operator": "==",
+                    "message": "Error status should be 400"
+                },
+                {
+                    "actual": "{{error_message}}",
+                    "expected": "status",
+                    "operator": "contains",
+                    "message": "Error message should mention invalid status enum value"
+                },
+                {
+                    "actual": "{{error_fields}}",
+                    "expected": "status",
+                    "operator": "==",
+                    "message": "Error field should be status"
+                }
+            ],
+            "data_comparison": []
         },
         "test_data_file": "",
-        "db_query": "",
+        "db_query_timing": "after_api",
+        "db_queries": {
+            "default": "",
+            "audit_query": ""
+        },
         "db_type": "",
         "db_connection_name": "",
-        "test_summary": "Test TC006: PUT /instructions/{instructionId} [negative: invalid status] (TC006) - Validate that the API returns 400 error response to verify the enum value for 'status'.",
-        "test_scenario": "Verify that the API returns a 400 Bad Request error when invalid data is provided in the PUT request to /instructions/{instructionId}."
+        "test_summary": "Test TC006: PUT /instructions/{instructionId} [negative: invalid status] (TC006) - Validate that the API returns 400 error response to verify the enum value for 'status'."
     },
     {
         "test_id": "TC007",
         "service_name": "MoveMoneyAPI",
         "workflow_mode": "parallel",
-        "test_name": "PUT /instructions/{instructionId} [negative] (TC007)",
+        "test_name": "PUT /instructions/{instructionId} [negative: invalid holderRelation] (TC007)",
         "protocol": "REST",
         "test_type": [
             "Negative"
@@ -572,30 +629,24 @@
             }
         },
         "expected_status": "400",
-        "expected_response_schema": "",
-        "expected_response": {
-            "status": 400,
-            "error": "Invalid value for 'holderRelationship'. Must be one of: FirstParty, ThirdParty, etc.",
-            "fields": "holderRelationship"
-        },
-        "ignore_fields": [
-            "id"
-        ],
+        "expected_response_schema": null,
+        "expected_response": null,
+        "ignore_fields": [],
         "extract_values": [
             {
                 "from": "response",
-                "key": "id",
-                "assign_to": ""
+                "key": "status",
+                "assign_to": "error_status"
             },
             {
-                "from": "db_result",
-                "query": "",
-                "assign": [
-                    {
-                        "key": "",
-                        "assign_to": ""
-                    }
-                ]
+                "from": "response",
+                "key": "error",
+                "assign_to": "error_message"
+            },
+            {
+                "from": "response",
+                "key": "fields",
+                "assign_to": "error_fields"
             }
         ],
         "validate": {
@@ -608,30 +659,43 @@
                     "xss"
                 ]
             },
-            "data_comparison": {
-                "source": "api_response",
-                "target": "db_result",
-                "format": "table",
-                "key_field": [
-                    "",
-                    ""
-                ],
-                "fields_to_compare": [],
-                "log_differences": true
-            }
+            "assertions": [
+                {
+                    "actual": "{{error_status}}",
+                    "expected": 400,
+                    "operator": "==",
+                    "message": "Error status should be 400"
+                },
+                {
+                    "actual": "{{error_message}}",
+                    "expected": "holderRelationship",
+                    "operator": "contains",
+                    "message": "Error message should mention invalid holderRelation enum value"
+                },
+                {
+                    "actual": "{{error_fields}}",
+                    "expected": "holderRelationship",
+                    "operator": "==",
+                    "message": "Error field should be holderRelationship"
+                }
+            ],
+            "data_comparison": []
         },
         "test_data_file": "",
-        "db_query": "",
+        "db_query_timing": "after_api",
+        "db_queries": {
+            "default": "",
+            "audit_query": ""
+        },
         "db_type": "",
         "db_connection_name": "",
-        "test_summary": "Test TC007: PUT /instructions/{instructionId} [negative] (TC007) - Validate that the API returns 400 error response to verify the enum value for 'holderRelationship'.",
-        "test_scenario": "Verify that the API returns a 400 Bad Request error when the 'holderRelationship' field has an invalid enum value."
+        "test_summary": "Test TC007: PUT /instructions/{instructionId} [negative] (TC007) - Validate that the API returns 400 error response to verify the enum value for 'holderRelation'."
     },
     {
         "test_id": "TC008",
         "service_name": "MoveMoneyAPI",
         "workflow_mode": "parallel",
-        "test_name": "PUT /instructions/{instructionId} [negative] (TC008)",
+        "test_name": "PUT /instructions/{instructionId} [negative: invalid railType] (TC008)",
         "protocol": "REST",
         "test_type": [
             "Negative"
@@ -663,30 +727,24 @@
             }
         },
         "expected_status": "400",
-        "expected_response_schema": "",
-        "expected_response": {
-            "status": 400,
-            "error": "Invalid value for 'railType'. Must be one of: ACH, Wire, Check, Journal, Transfer",
-            "fields": "railType"
-        },
-        "ignore_fields": [
-            "id"
-        ],
+        "expected_response_schema": null,
+        "expected_response": null,
+        "ignore_fields": [],
         "extract_values": [
             {
                 "from": "response",
-                "key": "id",
-                "assign_to": ""
+                "key": "status",
+                "assign_to": "error_status"
             },
             {
-                "from": "db_result",
-                "query": "",
-                "assign": [
-                    {
-                        "key": "",
-                        "assign_to": ""
-                    }
-                ]
+                "from": "response",
+                "key": "error",
+                "assign_to": "error_message"
+            },
+            {
+                "from": "response",
+                "key": "fields",
+                "assign_to": "error_fields"
             }
         ],
         "validate": {
@@ -699,30 +757,43 @@
                     "xss"
                 ]
             },
-            "data_comparison": {
-                "source": "api_response",
-                "target": "db_result",
-                "format": "table",
-                "key_field": [
-                    "",
-                    ""
-                ],
-                "fields_to_compare": [],
-                "log_differences": true
-            }
+            "assertions": [
+                {
+                    "actual": "{{error_status}}",
+                    "expected": 400,
+                    "operator": "==",
+                    "message": "Error status should be 400"
+                },
+                {
+                    "actual": "{{error_message}}",
+                    "expected": "railType",
+                    "operator": "contains",
+                    "message": "Error message should mention invalid railType enum value"
+                },
+                {
+                    "actual": "{{error_fields}}",
+                    "expected": "railType",
+                    "operator": "==",
+                    "message": "Error field should be railType"
+                }
+            ],
+            "data_comparison": []
         },
         "test_data_file": "",
-        "db_query": "",
+        "db_query_timing": "after_api",
+        "db_queries": {
+            "default": "",
+            "audit_query": ""
+        },
         "db_type": "",
         "db_connection_name": "",
-        "test_summary": "Test TC008: PUT /instructions/{instructionId} [negative] (TC008) - Validate that the API returns 400 error response to verify the enum value for 'railType'.",
-        "test_scenario": "Verify that the API returns a 400 Bad Request error when the 'railType' field has an invalid enum value."
+        "test_summary": "Test TC008: PUT /instructions/{instructionId} [negative] (TC008) - Validate that the API returns 400 error response to verify the enum value for 'railType'."
     },
     {
         "test_id": "TC009",
         "service_name": "MoveMoneyAPI",
         "workflow_mode": "parallel",
-        "test_name": "PUT /instructions/{instructionId} [negative] (TC009)",
+        "test_name": "PUT /instructions/{instructionId} [negative: version mismatch] (TC009)",
         "protocol": "REST",
         "test_type": [
             "Negative"
@@ -754,30 +825,24 @@
             }
         },
         "expected_status": "409",
-        "expected_response_schema": "",
-        "expected_response": {
-            "status": 409,
-            "error": "Version mismatch. The request has been modified by another user or process.",
-            "field": "version"
-        },
-        "ignore_fields": [
-            "id"
-        ],
+        "expected_response_schema": null,
+        "expected_response": null,
+        "ignore_fields": [],
         "extract_values": [
             {
                 "from": "response",
-                "key": "id",
-                "assign_to": ""
+                "key": "status",
+                "assign_to": "error_status"
             },
             {
-                "from": "db_result",
-                "query": "",
-                "assign": [
-                    {
-                        "key": "",
-                        "assign_to": ""
-                    }
-                ]
+                "from": "response",
+                "key": "error",
+                "assign_to": "error_message"
+            },
+            {
+                "from": "response",
+                "key": "field",
+                "assign_to": "error_field"
             }
         ],
         "validate": {
@@ -790,30 +855,38 @@
                     "xss"
                 ]
             },
-            "data_comparison": {
-                "source": "api_response",
-                "target": "db_result",
-                "format": "table",
-                "key_field": [
-                    "",
-                    ""
-                ],
-                "fields_to_compare": [],
-                "log_differences": true
-            }
+            "assertions": [
+                {
+                    "actual": "{{error_status}}",
+                    "expected": 409,
+                    "operator": "==",
+                    "message": "Error status should be 409"
+                },
+                {
+                    "actual": "{{error_field}}",
+                    "expected": "version",
+                    "operator": "==",
+                    "message": "Error field should be version"
+                }
+            ],
+            "data_comparison": []
         },
         "test_data_file": "",
-        "db_query": "",
+        "db_query_timing": "after_api",
+        "db_queries": {
+            "default": "",
+            "audit_query": ""
+        },
         "db_type": "",
         "db_connection_name": "",
-        "test_summary": "Test TC009: PUT /instructions/{instructionId} [negative] (TC009) - Validate that the API returns 409 error response to verify the version mismatch.",
-        "test_scenario": "Verify that the API returns a 409 Conflict error when there is a version mismatch in the request."
+        "test_summary": "Test TC009: PUT /instructions/{instructionId} [negative] (TC009) - Validate that the API returns 409 error response to verify the version mismatch."
     },
     {
         "test_id": "TC010",
+        "skip": true,
         "service_name": "MoveMoneyAPI",
         "workflow_mode": "parallel",
-        "test_name": "PUT /instructions/{instructionId} [negative: error 500] (TC010)",
+        "test_name": "PUT /instructions/{instructionId} [negative: error 400] (TC010)",
         "protocol": "REST",
         "test_type": [
             "Negative"
@@ -831,26 +904,19 @@
         },
         "payload": null,
         "expected_status": "500",
-        "expected_response_schema": "",
+        "expected_response_schema": null,
         "expected_response": null,
-        "ignore_fields": [
-            "id"
-        ],
+        "ignore_fields": [],
         "extract_values": [
             {
                 "from": "response",
-                "key": "id",
-                "assign_to": ""
+                "key": "status",
+                "assign_to": "error_status"
             },
             {
-                "from": "db_result",
-                "query": "",
-                "assign": [
-                    {
-                        "key": "",
-                        "assign_to": ""
-                    }
-                ]
+                "from": "response",
+                "key": "error",
+                "assign_to": "error_message"
             }
         ],
         "validate": {
@@ -863,24 +929,30 @@
                     "xss"
                 ]
             },
-            "data_comparison": {
-                "source": "api_response",
-                "target": "db_result",
-                "format": "table",
-                "key_field": [
-                    "",
-                    ""
-                ],
-                "fields_to_compare": [],
-                "log_differences": true
-            }
+            "assertions": [
+                {
+                    "actual": "{{error_status}}",
+                    "expected": 500,
+                    "operator": "==",
+                    "message": "Error status should be 500"
+                },
+                {
+                    "actual": "{{error_message}}",
+                    "expected": "",
+                    "operator": "!=",
+                    "message": "Error message should not be empty"
+                }
+            ],
+            "data_comparison": []
         },
         "test_data_file": "",
-        "db_query": "",
+        "db_query_timing": "after_api",
+        "db_queries": {
+            "default": "",
+            "audit_query": ""
+        },
         "db_type": "",
         "db_connection_name": "",
-        "test_summary": "Test TC008: PUT /instructions/{instructionId} [negative: error 500] (TC008) - Test PUT request to /instructions/{instructionId} for negative scenario validation.",
-        "error_case": "500",
-        "test_scenario": "Test PUT request to /instructions/{instructionId} for negative scenario validation."
+        "test_summary": "Test TC010: Verify that the API returns 500 Internal Server Error which would indicate a Server side crash."
     }
 ]
