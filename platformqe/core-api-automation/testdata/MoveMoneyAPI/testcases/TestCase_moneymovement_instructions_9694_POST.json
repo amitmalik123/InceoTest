@@ -3,63 +3,70 @@
         "test_id": "TC001",
         "service_name": "MoveMoneyAPI",
         "workflow_mode": "parallel",
-        "test_name": "POST /instructions [positive] (TC001)",
+        "test_name": "POST /instructions [positive]",
         "protocol": "REST",
         "test_type": [
-            "Functional"
+            "Functional",
+            "Performance",
+            "Security",
+            "Database"
         ],
         "mainURL": "{{base_url}}",
         "endpoint": "/instructions",
         "method": "POST",
-        "rpc_method": "",
-        "graphql_query": "",
-        "graphql_variables": "",
-        "soap_action": "",
-        "soap_envelope": "",
         "headers_additional": {
             "Content-Type": "application/json"
         },
-        "payload": {
-            "letterOfAuthorization": "Both",
-            "accountId": "123e4567-e89b-12d3-a456-426614174000",
-            "status": "Draft",
-            "holderRelationship": "FirstParty",
-            "railType": "ACH",
-            "custodianInstructionNumber": "AINS123456",
-            "bank": {
-                "routingNumber": "121000248",
-                "bankAccountNumber": "1234567890",
-                "bankAccountName": "John Smith",
-                "bankAccountType": "Checking",
-                "bankName": "Wells Fargo Bank"
-            }
-        },
+        "payload": "MoveMoneyAPI\\payloads\\Payload_moneymovement_Instruction_POST_request.json",
         "expected_status": "200",
-        "expected_response_schema": "",
+        "expected_response_schema": "MoveMoneyAPI\\schemas\\Schema_instructions_POST.json",
         "expected_response": null,
         "ignore_fields": [
-            "id"
+            "traceId",
+            "id",
+            "addressid",
+            "contactid",
+            "identifierid",
+            "timestamp",
+            "createdDate",
+            "modifiedDate",
+            "entitycreateddate",
+            "individualdateofbirth",
+            "instructionId"
         ],
         "extract_values": [
             {
                 "from": "response",
-                "key": "id",
-                "assign_to": ""
+                "key": "instructionId",
+                "assign_to": "instructionId"
+            },
+            {
+                "from": "response",
+                "key": "version",
+                "assign_to": "version"
             },
             {
                 "from": "db_result",
-                "query": "",
+                "query": "default",
                 "assign": [
                     {
-                        "key": "",
-                        "assign_to": ""
+                        "key": "0.instructionId",
+                        "assign_to": "db_instructionId"
+                    },
+                    {
+                        "key": "0.version",
+                        "assign_to": "db_version"
+                    },
+                    {
+                        "key": "0.status",
+                        "assign_to": "db_status"
                     }
                 ]
             }
         ],
         "validate": {
             "performance": {
-                "max_response_time_ms": 500
+                "max_response_time_ms": 1000
             },
             "security": {
                 "checks": [
@@ -67,24 +74,44 @@
                     "xss"
                 ]
             },
-            "data_comparison": {
-                "source": "api_response",
-                "target": "db_result",
-                "format": "table",
-                "key_field": [
-                    "",
-                    ""
-                ],
-                "fields_to_compare": [],
-                "log_differences": true
-            }
+            "assertions": [
+                {
+                    "actual": "{{instructionId}}",
+                    "expected": "",
+                    "operator": "!=",
+                    "message": "InstructionId should not be empty"
+                },
+                {
+                    "actual": "{{version}}",
+                    "expected": 1,
+                    "operator": "==",
+                    "message": "Version should be 1"
+                }
+            ],
+            "data_comparison": [
+                {
+                    "source": "instructionId",
+                    "target": "db_instructionId",
+                    "log_differences": true,
+                    "comparison_name": "InstructionId match between API and DB"
+                },
+                {
+                    "source": "version",
+                    "target": "db_version",
+                    "log_differences": true,
+                    "comparison_name": "Version match between API and DB"
+                }
+            ]
         },
         "test_data_file": "",
-        "db_query": "",
-        "db_type": "",
-        "db_connection_name": "",
-        "test_summary": "Test TC001: POST /moneymovement/instructions [positive] (TC001) - Test POST request to /moneymovement/instructions for functional scenario validation.",
-        "test_scenario": "Test POST request to /moneymovement/instructions for functional scenario validation."
+        "db_query_timing": "after_api",
+        "db_queries": {
+            "default": "SELECT LOWER([Id]) AS instructionId, [Version] AS version, [Status] AS status FROM [dbo].[MoneyMovementInstruction] WHERE [Id] = '{{instructionId}}'",
+            "audit_query": ""
+        },
+        "db_type": "mssql",
+        "db_connection_name": "movemoney",
+        "test_summary": "Verify that the API returns 200 response all the fields are valid and successful instruction creation with full validation (API + Database + Schema + Headers + Security)"
     },
     {
         "test_id": "TC002",
@@ -128,23 +155,25 @@
             "fields": "letterOfAuthorization"
         },
         "ignore_fields": [
-            "id"
+            "id",
+            "traceId",
+            "timestamp"
         ],
         "extract_values": [
             {
                 "from": "response",
-                "key": "id",
-                "assign_to": ""
+                "key": "status",
+                "assign_to": "error_status"
             },
             {
-                "from": "db_result",
-                "query": "",
-                "assign": [
-                    {
-                        "key": "",
-                        "assign_to": ""
-                    }
-                ]
+                "from": "response",
+                "key": "fields",
+                "assign_to": "error_fields"
+            },
+            {
+                "from": "response",
+                "key": "error",
+                "assign_to": "error_message"
             }
         ],
         "validate": {
@@ -157,24 +186,37 @@
                     "xss"
                 ]
             },
-            "data_comparison": {
-                "source": "api_response",
-                "target": "db_result",
-                "format": "table",
-                "key_field": [
-                    "",
-                    ""
-                ],
-                "fields_to_compare": [],
-                "log_differences": true
-            }
+            "assertions": [
+                {
+                    "actual": "{{error_status}}",
+                    "expected": 400,
+                    "operator": "==",
+                    "message": "Error status should be 400"
+                },
+                {
+                    "actual": "{{error_fields}}",
+                    "expected": "letterOfAuthorization",
+                    "operator": "==",
+                    "message": "Error fields should indicate letterOfAuthorization"
+                },
+                {
+                    "actual": "{{error_message}}",
+                    "expected": "",
+                    "operator": "!=",
+                    "message": "Error message should not be empty"
+                }
+            ],
+            "data_comparison": []
         },
         "test_data_file": "",
-        "db_query": "",
+        "db_query_timing": "after_api",
+        "db_queries": {
+            "default": "",
+            "audit_query": ""
+        },
         "db_type": "",
         "db_connection_name": "",
-        "test_summary": "Test TC002: POST /moneymovement/instructions [negative] (TC002) - Test POST request to /moneymovement/instructions for negative scenario validation.",
-        "test_scenario": "Test POST request to /moneymovement/instructions for negative scenario validation."
+        "test_summary": "Verify theat the API returns a 400 Bad Request error when the required parameter 'letterOfAuthorization' is missing from the POST request to /moneymovement/instructions."
     },
     {
         "test_id": "TC003",
@@ -219,23 +261,25 @@
             "fields": "letterOfAuthorization"
         },
         "ignore_fields": [
-            "id"
+            "id",
+            "traceId",
+            "timestamp"
         ],
         "extract_values": [
             {
                 "from": "response",
-                "key": "id",
-                "assign_to": ""
+                "key": "status",
+                "assign_to": "error_status"
             },
             {
-                "from": "db_result",
-                "query": "",
-                "assign": [
-                    {
-                        "key": "",
-                        "assign_to": ""
-                    }
-                ]
+                "from": "response",
+                "key": "fields",
+                "assign_to": "error_fields"
+            },
+            {
+                "from": "response",
+                "key": "error",
+                "assign_to": "error_message"
             }
         ],
         "validate": {
@@ -248,25 +292,37 @@
                     "xss"
                 ]
             },
-            "data_comparison": {
-                "source": "api_response",
-                "target": "db_result",
-                "format": "table",
-                "key_field": [
-                    "",
-                    ""
-                ],
-                "fields_to_compare": [],
-                "log_differences": true
-            }
+            "assertions": [
+                {
+                    "actual": "{{error_status}}",
+                    "expected": 400,
+                    "operator": "==",
+                    "message": "Error status should be 400"
+                },
+                {
+                    "actual": "{{error_fields}}",
+                    "expected": "letterOfAuthorization",
+                    "operator": "==",
+                    "message": "Error fields should indicate letterOfAuthorization"
+                },
+                {
+                    "actual": "{{error_message}}",
+                    "expected": "",
+                    "operator": "!=",
+                    "message": "Error message should not be empty"
+                }
+            ],
+            "data_comparison": []
         },
         "test_data_file": "",
-        "db_query": "",
+        "db_query_timing": "after_api",
+        "db_queries": {
+            "default": "",
+            "audit_query": ""
+        },
         "db_type": "",
         "db_connection_name": "",
-        "test_summary": "Test TC003: POST /moneymovement/instructions [negative: invalid payload] (TC003) - Verify that the API returns a 400 Bad Request error when invalid data is provided in the POST request to /moneymovement/instructions.",
-        "invalid_payload": true,
-        "test_scenario": "Verify that the API returns a 400 Bad Request error when invalid data is provided in the POST request to /moneymovement/instructions."
+        "test_summary": "Verify that the API returns a 400 Bad Request error when invalid data is provided in letter of authorization field in the POST request to /moneymovement/instructions."
     },
     {
         "test_id": "TC004",
@@ -311,23 +367,25 @@
             "fields": "accountId"
         },
         "ignore_fields": [
-            "id"
+            "id",
+            "traceId",
+            "timestamp"
         ],
         "extract_values": [
             {
                 "from": "response",
-                "key": "id",
-                "assign_to": ""
+                "key": "status",
+                "assign_to": "error_status"
             },
             {
-                "from": "db_result",
-                "query": "",
-                "assign": [
-                    {
-                        "key": "",
-                        "assign_to": ""
-                    }
-                ]
+                "from": "response",
+                "key": "fields",
+                "assign_to": "error_fields"
+            },
+            {
+                "from": "response",
+                "key": "error",
+                "assign_to": "error_message"
             }
         ],
         "validate": {
@@ -340,25 +398,37 @@
                     "xss"
                 ]
             },
-            "data_comparison": {
-                "source": "api_response",
-                "target": "db_result",
-                "format": "table",
-                "key_field": [
-                    "",
-                    ""
-                ],
-                "fields_to_compare": [],
-                "log_differences": true
-            }
+            "assertions": [
+                {
+                    "actual": "{{error_status}}",
+                    "expected": 400,
+                    "operator": "==",
+                    "message": "Error status should be 400"
+                },
+                {
+                    "actual": "{{error_fields}}",
+                    "expected": "accountId",
+                    "operator": "==",
+                    "message": "Error fields should indicate accountId"
+                },
+                {
+                    "actual": "{{error_message}}",
+                    "expected": "",
+                    "operator": "!=",
+                    "message": "Error message should not be empty"
+                }
+            ],
+            "data_comparison": []
         },
         "test_data_file": "",
-        "db_query": "",
+        "db_query_timing": "after_api",
+        "db_queries": {
+            "default": "",
+            "audit_query": ""
+        },
         "db_type": "",
         "db_connection_name": "",
-        "test_summary": "Test TC004: POST /moneymovement/instructions [negative: missing auth] (TC004) - Verify that the API returns a 400 Bad Request error when the required parameter 'auth' is missing from the POST request to /moneymovement/instructions.",
-        "no_auth": true,
-        "test_scenario": "Verify that the API returns a 400 Bad Request error when the required parameter 'auth' is missing from the POST request to /moneymovement/instructions."
+        "test_summary": "Verify that the API returns a 400 Bad Request error when the accountId is in invalid format in the POST request to /moneymovement/instructions."
     },
     {
         "test_id": "TC005",
@@ -403,23 +473,25 @@
             "fields": "railType"
         },
         "ignore_fields": [
-            "id"
+            "id",
+            "traceId",
+            "timestamp"
         ],
         "extract_values": [
             {
                 "from": "response",
-                "key": "id",
-                "assign_to": ""
+                "key": "status",
+                "assign_to": "error_status"
             },
             {
-                "from": "db_result",
-                "query": "",
-                "assign": [
-                    {
-                        "key": "",
-                        "assign_to": ""
-                    }
-                ]
+                "from": "response",
+                "key": "fields",
+                "assign_to": "error_fields"
+            },
+            {
+                "from": "response",
+                "key": "error",
+                "assign_to": "error_message"
             }
         ],
         "validate": {
@@ -432,25 +504,37 @@
                     "xss"
                 ]
             },
-            "data_comparison": {
-                "source": "api_response",
-                "target": "db_result",
-                "format": "table",
-                "key_field": [
-                    "",
-                    ""
-                ],
-                "fields_to_compare": [],
-                "log_differences": true
-            }
+            "assertions": [
+                {
+                    "actual": "{{error_status}}",
+                    "expected": 400,
+                    "operator": "==",
+                    "message": "Error status should be 400"
+                },
+                {
+                    "actual": "{{error_fields}}",
+                    "expected": "railType",
+                    "operator": "==",
+                    "message": "Error fields should indicate railType"
+                },
+                {
+                    "actual": "{{error_message}}",
+                    "expected": "",
+                    "operator": "!=",
+                    "message": "Error message should not be empty"
+                }
+            ],
+            "data_comparison": []
         },
         "test_data_file": "",
-        "db_query": "",
+        "db_query_timing": "after_api",
+        "db_queries": {
+            "default": "",
+            "audit_query": ""
+        },
         "db_type": "",
         "db_connection_name": "",
-        "test_summary": "Test TC005: POST /moneymovement/instructions [negative: invalid auth] (TC005) - Verify that the API returns a 400 Bad Request error when invalid data is provided in the POST request to /moneymovement/instructions.",
-        "invalid_auth": true,
-        "test_scenario": "Verify that the API returns a 400 Bad Request error when invalid data is provided in the POST request to /moneymovement/instructions."
+        "test_summary": "Verify that the API retuns a 400 Bad request to verify invalid railType in the POST request to /moneymovement/instructions."
     },
     {
         "test_id": "TC006",
@@ -490,25 +574,11 @@
         "expected_response_schema": "",
         "expected_response": null,
         "ignore_fields": [
-            "id"
+            "id",
+            "traceId",
+            "timestamp"
         ],
-        "extract_values": [
-            {
-                "from": "response",
-                "key": "id",
-                "assign_to": ""
-            },
-            {
-                "from": "db_result",
-                "query": "",
-                "assign": [
-                    {
-                        "key": "",
-                        "assign_to": ""
-                    }
-                ]
-            }
-        ],
+        "extract_values": [],
         "validate": {
             "performance": {
                 "max_response_time_ms": 500
@@ -519,25 +589,18 @@
                     "xss"
                 ]
             },
-            "data_comparison": {
-                "source": "api_response",
-                "target": "db_result",
-                "format": "table",
-                "key_field": [
-                    "",
-                    ""
-                ],
-                "fields_to_compare": [],
-                "log_differences": true
-            }
+            "assertions": [],
+            "data_comparison": []
         },
         "test_data_file": "",
-        "db_query": "",
+        "db_query_timing": "after_api",
+        "db_queries": {
+            "default": "",
+            "audit_query": ""
+        },
         "db_type": "",
         "db_connection_name": "",
-        "test_summary": "Test TC006: POST /moneymovement/instructions [negative: error 500] (TC006) - Test POST request to /moneymovement/instructions for negative scenario validation.",
-        "error_case": "500",
-        "test_scenario": "Test POST request to /moneymovement/instructions for negative scenario validation."
+        "test_summary": "Verify that the API returns a 400 Bad Request error when the routing number is exactly 9 digits in length but invalidn the POST request to /moneymovement/instructions."
     },
     {
         "test_id": "TC007",
@@ -564,25 +627,11 @@
         "expected_response_schema": "",
         "expected_response": null,
         "ignore_fields": [
-            "id"
+            "id",
+            "traceId",
+            "timestamp"
         ],
-        "extract_values": [
-            {
-                "from": "response",
-                "key": "id",
-                "assign_to": ""
-            },
-            {
-                "from": "db_result",
-                "query": "",
-                "assign": [
-                    {
-                        "key": "",
-                        "assign_to": ""
-                    }
-                ]
-            }
-        ],
+        "extract_values": [],
         "validate": {
             "performance": {
                 "max_response_time_ms": 500
@@ -593,25 +642,18 @@
                     "xss"
                 ]
             },
-            "data_comparison": {
-                "source": "api_response",
-                "target": "db_result",
-                "format": "table",
-                "key_field": [
-                    "",
-                    ""
-                ],
-                "fields_to_compare": [],
-                "log_differences": true
-            }
+            "assertions": [],
+            "data_comparison": []
         },
         "test_data_file": "",
-        "db_query": "",
+        "db_query_timing": "after_api",
+        "db_queries": {
+            "default": "",
+            "audit_query": ""
+        },
         "db_type": "",
         "db_connection_name": "",
-        "test_summary": "Test TC007: POST /moneymovement/instructions [negative: error 500] (TC007) - Test POST request to /moneymovement/instructions for negative scenario validation.",
-        "error_case": "500",
-        "test_scenario": "Test POST request to /moneymovement/instructions for negative scenario validation."
+        "test_summary": "Verify that the API returns 500 Internal Server Error which would indicate a Server side crash."
     },
     {
         "test_id": "TC008",
@@ -651,23 +693,23 @@
         "expected_response_schema": "",
         "expected_response": null,
         "ignore_fields": [
-            "id"
+            "id",
+            "traceId",
+            "timestamp",
+            "createdDate",
+            "modifiedDate",
+            "instructionId"
         ],
         "extract_values": [
             {
                 "from": "response",
-                "key": "id",
-                "assign_to": ""
+                "key": "instructionId",
+                "assign_to": "instructionId"
             },
             {
-                "from": "db_result",
-                "query": "",
-                "assign": [
-                    {
-                        "key": "",
-                        "assign_to": ""
-                    }
-                ]
+                "from": "response",
+                "key": "version",
+                "assign_to": "version"
             }
         ],
         "validate": {
@@ -680,23 +722,30 @@
                     "xss"
                 ]
             },
-            "data_comparison": {
-                "source": "api_response",
-                "target": "db_result",
-                "format": "table",
-                "key_field": [
-                    "",
-                    ""
-                ],
-                "fields_to_compare": [],
-                "log_differences": true
-            }
+            "assertions": [
+                {
+                    "actual": "{{instructionId}}",
+                    "expected": "",
+                    "operator": "!=",
+                    "message": "InstructionId should not be empty"
+                },
+                {
+                    "actual": "{{version}}",
+                    "expected": 0,
+                    "operator": ">",
+                    "message": "Version should be greater than 0"
+                }
+            ],
+            "data_comparison": []
         },
         "test_data_file": "",
-        "db_query": "",
+        "db_query_timing": "after_api",
+        "db_queries": {
+            "default": "",
+            "audit_query": ""
+        },
         "db_type": "",
         "db_connection_name": "",
-        "test_summary": "Test TC008: POST /moneymovement/instructions [positive] (TC008) - Test POST request to /moneymovement/instructions for functional scenario validation.",
-        "test_scenario": "Test POST request to /moneymovement/instructions for functional scenario validation."
+        "test_summary": "Verify that the API returns 200 response when all the fields are valid with different enum values in the payloads"
     }
 ]

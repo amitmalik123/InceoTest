@@ -1,0 +1,21 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "type": "object",
+  "title": "POST /instructions Response Schema",
+  "description": "Response schema for POST /instructions endpoint",
+  "properties": {
+    "instructionId": {
+      "type": "string",
+      "format": "uuid",
+      "description": "Unique identifier for the instruction"
+    },
+    "version": {
+      "type": "integer",
+      "description": "Version number of the instruction"
+    }
+  },
+  "required": [
+    "instructionId",
+    "version"
+  ]
+}
