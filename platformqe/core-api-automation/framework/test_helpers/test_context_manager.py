@@ -9,7 +9,7 @@ from typing import Dict, List, Any, Optional
 from framework.common.logger import get_logger
 from framework.common.template_utils import render_template, render_hybrid
 from framework.common.common_functions import extract_value
-from framework.common.utils import random_string, random_email, random_firstname, random_lastname
+from framework.common.utils import random_string, random_numeric, random_email, random_firstname, random_lastname
 
 logger = get_logger(__name__)
 
