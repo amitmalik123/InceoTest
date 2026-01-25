@@ -222,10 +222,10 @@ class TestValidationManager:
                     raise AssertionError(f"Unsupported operator '{operator}' in custom assertion. Supported: ==, !=, >, <, >=, <=, contains, not_contains, starts_with, ends_with, in, not_in")
                 
                 # Log detailed success message
-                logger.info(f"✓ Assertion {idx} PASSED: {actual_val} {operator} {expected_val}")
+                logger.info(f"[PASS] Assertion {idx} PASSED: {actual_val} {operator} {expected_val}")
             
             except AssertionError as e:
-                logger.error(f"✗ Assertion {idx} FAILED: {str(e)}")
+                logger.error(f"[FAIL] Assertion {idx} FAILED: {str(e)}")
                 raise
         
         logger.info(f"Custom assertions validation PASSED: {len(assertions)} assertion(s)")
@@ -509,6 +509,181 @@ class TestValidationManager:
             raise AssertionError(error_msg)
         
         logger.info(f"Schema validation PASSED for {schema_file}")
+    
+    def execute_custom_scripts(
+        self,
+        case: Dict,
+        response: Any = None,
+        db_results: List[Dict] = None,
+        extracted_vars: Dict = None,
+        config: Dict = None
+    ) -> Optional[Dict]:
+        """
+        Execute custom validator script(s) defined in test case.
+        
+        Loads and executes Python script specified in case['scripts'] with 
+        full test context. Returns results that can be used in extract_values
+        and data_comparison validations.
+        
+        Args:
+            case: Test case configuration containing 'scripts' field
+            response: API response object
+            db_results: Database query results
+            extracted_vars: Previously extracted variables
+            config: Framework configuration
+        
+        Returns:
+            Dict with script results:
+            {
+                "success": bool,
+                "errors": List[str],
+                "extracted_values": Dict[str, Any],
+                "computed_values": Dict[str, Any],
+                "comparison_data": Dict[str, Any]
+            }
+            Returns None if no scripts configured.
+        
+        Raises:
+            AssertionError: If script execution fails and should fail the test
+        
+        Example test case JSON:
+            {
+                "test_id": "TC001",
+                "scripts": "analyticsApiServices\\\\validators\\\\ewma_validator.py",
+                "extract_values": [
+                    {"from": "script_result", "key": "computed_volatility", "assign_to": "expected_volatility"}
+                ]
+            }
+        """
+        scripts = case.get('scripts')
+        
+        if not scripts:
+            logger.debug("No custom scripts configured, skipping script validation")
+            return None
+        
+        try:
+            from framework.validators.script_executor import execute_test_script
+            
+            result = execute_test_script(
+                test_case=case,
+                response=response,
+                db_results=db_results,
+                extracted_vars=extracted_vars,
+                config=config
+            )
+            
+            if result is None:
+                logger.debug("Script executor returned None")
+                return None
+            
+            # Convert ScriptResult to dict if needed
+            if hasattr(result, 'to_dict'):
+                result_dict = result.to_dict()
+            else:
+                result_dict = result
+            
+            # Log script execution results
+            if result_dict.get('success'):
+                logger.info(f"Custom script validation PASSED")
+                if result_dict.get('extracted_values'):
+                    logger.info(f"  Extracted {len(result_dict['extracted_values'])} values from script")
+            else:
+                errors = result_dict.get('errors', [])
+                logger.error(f"Custom script validation FAILED with {len(errors)} error(s)")
+                for error in errors:
+                    logger.error(f"  - {error}")
+            
+            return result_dict
+            
+        except ImportError as e:
+            logger.error(f"Failed to import script executor: {e}")
+            return {
+                "success": False,
+                "errors": [f"Script executor import error: {str(e)}"],
+                "extracted_values": {},
+                "computed_values": {}
+            }
+        except Exception as e:
+            logger.error(f"Script execution error: {e}")
+            import traceback
+            logger.debug(traceback.format_exc())
+            return {
+                "success": False,
+                "errors": [f"Script execution error: {str(e)}"],
+                "extracted_values": {},
+                "computed_values": {}
+            }
+    
+    def validate_with_script_results(
+        self,
+        case: Dict,
+        script_result: Dict,
+        context: Dict
+    ) -> List[str]:
+        """
+        Perform data_comparison validation using script-computed values.
+        
+        Uses comparison_data from script result to validate API response
+        against computed expected values.
+        
+        Args:
+            case: Test case configuration
+            script_result: Result from execute_custom_scripts()
+            context: Test context with extracted variables
+        
+        Returns:
+            List of validation error messages (empty if all pass)
+        """
+        errors = []
+        
+        if not script_result:
+            return errors
+        
+        comparison_data = script_result.get('comparison_data', {})
+        if not comparison_data:
+            logger.debug("No comparison_data in script result")
+            return errors
+        
+        expected = comparison_data.get('expected', {})
+        actual = comparison_data.get('actual', {})
+        
+        if not expected or not actual:
+            return errors
+        
+        # Compare each field
+        tolerance = case.get('validate', {}).get('tolerance', 0.0001)
+        
+        for field, expected_value in expected.items():
+            actual_value = actual.get(field)
+            
+            if actual_value is None:
+                errors.append(f"Missing field '{field}' in API response")
+                continue
+            
+            # Numeric comparison with tolerance
+            if isinstance(expected_value, (int, float)) and isinstance(actual_value, (int, float)):
+                if expected_value == 0:
+                    is_match = abs(actual_value) <= tolerance
+                else:
+                    relative_diff = abs((actual_value - expected_value) / expected_value)
+                    is_match = relative_diff <= tolerance
+                
+                if not is_match:
+                    errors.append(
+                        f"Field '{field}' mismatch: actual={actual_value}, "
+                        f"expected={expected_value}, diff={abs(actual_value - expected_value)}"
+                    )
+            else:
+                # Direct comparison for non-numeric
+                if actual_value != expected_value:
+                    errors.append(f"Field '{field}': actual={actual_value}, expected={expected_value}")
+        
+        if errors:
+            logger.error(f"Script-based validation failed with {len(errors)} error(s)")
+        else:
+            logger.info("Script-based data comparison PASSED")
+        
+        return errors
 
 
 # Singleton accessor function
@@ -527,6 +702,7 @@ def get_validation_manager() -> TestValidationManager:
         >>> errors = validation_mgr.validate_response_fields(response, expected, case)
         >>> validation_mgr.validate_response_match(response, expected_response, ignore_fields)
         >>> validation_mgr.validate_schema(response, 'schemas/user.json')
+        >>> script_result = validation_mgr.execute_custom_scripts(case, response, db_results)
     """
     global _validation_manager_instance
     if _validation_manager_instance is None:

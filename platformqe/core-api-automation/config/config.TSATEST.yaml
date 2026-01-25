@@ -21,10 +21,13 @@ db_connections:
   # MSSQL Connections - Multiple servers and databases
   mssql:
     tracking_center:
-      driver: "ODBC Driver 17 for SQL Server"
-      server: "t12ewmdba"
-      database: "TrackingCenter"
-      trusted_connection: true
+      connection_string: "${TRACKING_CENTER_SQLDB}"
+
+    platform_db:
+      connection_string: "${PLATFORM_DB_SQLDB}"
+
+    am_db:
+      connection_string: "${AM_DB_SQLDB}"    
     
     # Azure SQL Server with Entra ID (Azure AD) Password Authentication
     movemoney:
