@@ -212,15 +212,15 @@ class MSSQLClient(DatabaseClient):
         elif 'Database' in params:
             odbc_parts.append(f"DATABASE={params['Database']}")
         
-        if 'User ID' in params:
-            odbc_parts.append(f"UID={params['User ID']}")
-        elif 'UID' in params:
-            odbc_parts.append(f"UID={params['UID']}")
+        # Handle various case variations for User ID (User ID, User Id, UserId, UID, etc.)
+        user_id_key = next((k for k in params.keys() if k.lower().replace(' ', '') in ['userid', 'uid']), None)
+        if user_id_key:
+            odbc_parts.append(f"UID={params[user_id_key]}")
         
-        if 'Password' in params:
-            odbc_parts.append(f"PWD={params['Password']}")
-        elif 'PWD' in params:
-            odbc_parts.append(f"PWD={params['PWD']}")
+        # Handle various case variations for Password (Password, password, PWD, pwd)
+        password_key = next((k for k in params.keys() if k.lower() in ['password', 'pwd']), None)
+        if password_key:
+            odbc_parts.append(f"PWD={params[password_key]}")
         
         # Convert True/False to yes/no for ODBC
         if 'Encrypt' in params:
@@ -341,13 +341,15 @@ class PostgreSQLClient(DatabaseClient):
         if 'Database' in params:
             psycopg2_parts.append(f"dbname={params['Database']}")
         
-        if 'User ID' in params:
-            psycopg2_parts.append(f"user={params['User ID']}")
-        elif 'User' in params:
-            psycopg2_parts.append(f"user={params['User']}")
+        # Handle various case variations for User ID (User ID, User Id, UserId, UID, User, etc.)
+        user_id_key = next((k for k in params.keys() if k.lower().replace(' ', '') in ['userid', 'uid', 'user']), None)
+        if user_id_key:
+            psycopg2_parts.append(f"user={params[user_id_key]}")
         
-        if 'Password' in params:
-            psycopg2_parts.append(f"password={params['Password']}")
+        # Handle various case variations for Password (Password, password, PWD, pwd)
+        password_key = next((k for k in params.keys() if k.lower() in ['password', 'pwd']), None)
+        if password_key:
+            psycopg2_parts.append(f"password={params[password_key]}")
         
         # Convert SSL Mode to sslmode
         if 'Ssl Mode' in params or 'SslMode' in params or 'SSL Mode' in params:
