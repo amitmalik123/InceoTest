@@ -2,3 +2,6 @@ environment,blend_1_id,blend_1_type,blend_1_weight,blend_2_id,blend_2_type,blend
 T11,CAMUNI,model,0.6,CIBCP3,model,0.4,ewma,240
 T11,ALFBB3,model,0.8,MOD388,model,0.2,ewma,180
 T11,CLSTU6,model,0.9,GPSDN2,model,0.1,ewma,240
+TSATEST,CAMUNI,model,0.6,CIBCP3,model,0.4,ewma,240
+TSATEST,ALFBB3,model,0.8,MOD388,model,0.2,ewma,180
+TSATEST,CLSTU6,model,0.9,GPSDN2,model,0.1,ewma,240
