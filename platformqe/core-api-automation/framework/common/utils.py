@@ -18,6 +18,10 @@ def random_string(length=8):
     """Generate a random string of given length."""
     return ''.join(random.choices(string.ascii_letters + string.digits, k=length))
 
+def random_numeric(length=8):
+    """Generate a random numeric string of given length."""
+    return ''.join(random.choices(string.digits, k=length))
+
 def random_email():
     """Generate a random email address."""
     return faker.email()
