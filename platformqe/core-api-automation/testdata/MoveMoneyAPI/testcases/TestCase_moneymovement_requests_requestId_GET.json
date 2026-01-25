@@ -17,49 +17,34 @@
         "soap_action": "",
         "soap_envelope": "",
         "headers_additional": {
-            "Content-Type": "application/json"
+            "Accept": "application/json"
         },
         "payload": null,
         "expected_status": "200",
-        "expected_response_schema": "",
-        "expected_response": {
-            "requestId": "2dbad6b9-f23f-4450-9248-671f3f3fc013",
-            "instructionId": "126d23af-e3c2-46a8-923e-2a8238b6fe32",
-            "accountId": "9fa85f64-5717-4562-b3fc-2c963f66afa6",
-            "railType": "ACH",
-            "amount": 1000.11,
-            "requestType": "Deposit",
-            "status": "Draft",
-            "reason": "IRARothTransfer",
-            "scheduleType": "OneTime",
-            "paymentDate": "2026-12-18T00:00:00",
-            "frequency": null,
-            "startDate": null,
-            "endDate": null,
-            "nextDate": null,
-            "createdDate": "2025-12-19T04:19:28.125",
-            "modifiedDate": "2025-12-19T04:19:28.125",
-            "createdBy": "System",
-            "modifiedBy": "System"
-        },
+        "expected_response_schema": "MoveMoneyAPI\\schemas\\Schema_requests_requestId_GET.json",
+        "expected_response": null,
         "ignore_fields": [
-            "id"
+            "id",
+            "traceId",
+            "timestamp",
+            "createdDate",
+            "modifiedDate"
         ],
         "extract_values": [
             {
                 "from": "response",
-                "key": "id",
-                "assign_to": ""
+                "key": "requestId",
+                "assign_to": "requestId"
             },
             {
-                "from": "db_result",
-                "query": "",
-                "assign": [
-                    {
-                        "key": "",
-                        "assign_to": ""
-                    }
-                ]
+                "from": "response",
+                "key": "instructionId",
+                "assign_to": "instructionId"
+            },
+            {
+                "from": "response",
+                "key": "amount",
+                "assign_to": "amount"
             }
         ],
         "validate": {
@@ -72,33 +57,34 @@
                     "xss"
                 ]
             },
-            "data_comparison": {
-                "source": "api_response",
-                "target": "db_result",
-                "format": "table",
-                "key_field": [
-                    "",
-                    ""
-                ],
-                "fields_to_compare": [],
-                "log_differences": true
-            }
+            "assertions": [
+                {
+                    "actual": "{{requestId}}",
+                    "expected": "",
+                    "operator": "!=",
+                    "message": "RequestId should not be empty"
+                }
+            ],
+            "data_comparison": []
         },
         "test_data_file": "",
-        "db_query": "",
+        "db_query_timing": "after_api",
+        "db_queries": {
+            "default": "",
+            "audit_query": ""
+        },
         "db_type": "",
         "db_connection_name": "",
-        "test_summary": "Test TC001: GET /moneymovement/requests/{requestId} [positive] (TC001) - Validate that the system returns 200 successful response when the right requestID is provided.",
-        "test_scenario": "Test GET request to /moneymovement/requests/{requestId} for functional scenario validation."
+        "test_summary": "Test TC001: GET /moneymovement/requests/{requestId} [positive] (TC001) - Validate that the system returns 200 successful response when the right requestID is provided."
     },
     {
         "test_id": "TC002",
         "service_name": "MoveMoneyAPI",
         "workflow_mode": "parallel",
-        "test_name": "GET /requests/{requestId} [positive] (TC001)",
+        "test_name": "GET /requests/{requestId} [positive] (TC002)",
         "protocol": "REST",
         "test_type": [
-            "Functional"
+            "Positive"
         ],
         "mainURL": "{{base_url}}",
         "endpoint": "/requests/2DBAD6B9-F23F-4450-9248-671F3F3FC013?status=Draft",
@@ -109,32 +95,14 @@
         "soap_action": "",
         "soap_envelope": "",
         "headers_additional": {
-            "Content-Type": "application/json"
+            "Accept": "application/json"
         },
         "payload": null,
         "expected_status": "204",
-        "expected_response_schema": "",
+        "expected_response_schema": null,
         "expected_response": null,
-        "ignore_fields": [
-            "id"
-        ],
-        "extract_values": [
-            {
-                "from": "response",
-                "key": "id",
-                "assign_to": ""
-            },
-            {
-                "from": "db_result",
-                "query": "",
-                "assign": [
-                    {
-                        "key": "",
-                        "assign_to": ""
-                    }
-                ]
-            }
-        ],
+        "ignore_fields": [],
+        "extract_values": [],
         "validate": {
             "performance": {
                 "max_response_time_ms": 500
@@ -145,24 +113,18 @@
                     "xss"
                 ]
             },
-            "data_comparison": {
-                "source": "api_response",
-                "target": "db_result",
-                "format": "table",
-                "key_field": [
-                    "",
-                    ""
-                ],
-                "fields_to_compare": [],
-                "log_differences": true
-            }
+            "assertions": [],
+            "data_comparison": []
         },
         "test_data_file": "",
-        "db_query": "",
+        "db_query_timing": "after_api",
+        "db_queries": {
+            "default": "",
+            "audit_query": ""
+        },
         "db_type": "",
         "db_connection_name": "",
-        "test_summary": "Test TC002: GET /moneymovement/requests/{requestId} [positive] (TC002) - Validate that the system returns 200 successful response when the right requestID and Status is provided.",
-        "test_scenario": "Test GET request to /moneymovement/requests/{requestId} for functional scenario validation."
+        "test_summary": "Test TC002: GET /moneymovement/requests/{requestId} [positive] (TC002) - Validate that the system returns 200 successful response when the right requestID and Status is provided."
     },
     {
         "test_id": "TC003",
@@ -189,23 +151,17 @@
         "expected_response_schema": "",
         "expected_response": null,
         "ignore_fields": [
-            "id"
+            "id",
+            "traceId",
+            "timestamp",
+            "createdDate",
+            "modifiedDate"
         ],
         "extract_values": [
             {
                 "from": "response",
                 "key": "id",
                 "assign_to": ""
-            },
-            {
-                "from": "db_result",
-                "query": "",
-                "assign": [
-                    {
-                        "key": "",
-                        "assign_to": ""
-                    }
-                ]
             }
         ],
         "validate": {
@@ -218,20 +174,14 @@
                     "xss"
                 ]
             },
-            "data_comparison": {
-                "source": "api_response",
-                "target": "db_result",
-                "format": "table",
-                "key_field": [
-                    "",
-                    ""
-                ],
-                "fields_to_compare": [],
-                "log_differences": true
-            }
+            "data_comparison": []
         },
         "test_data_file": "",
-        "db_query": "",
+        "db_query_timing": "after_api",
+        "db_queries": {
+            "default": "",
+            "audit_query": ""
+        },
         "db_type": "",
         "db_connection_name": "",
         "test_summary": "Test TC003: GET /moneymovement/requests/{requestId} [positive] (TC003) - Validate that the system returns 204 response when RequestId not found or does not match.",
@@ -266,23 +216,15 @@
             "error": "Invalid UUID format for 'requestId' parameter"
         },
         "ignore_fields": [
-            "id"
+            "id",
+            "traceId",
+            "timestamp"
         ],
         "extract_values": [
             {
                 "from": "response",
                 "key": "id",
                 "assign_to": ""
-            },
-            {
-                "from": "db_result",
-                "query": "",
-                "assign": [
-                    {
-                        "key": "",
-                        "assign_to": ""
-                    }
-                ]
             }
         ],
         "validate": {
@@ -295,20 +237,14 @@
                     "xss"
                 ]
             },
-            "data_comparison": {
-                "source": "api_response",
-                "target": "db_result",
-                "format": "table",
-                "key_field": [
-                    "",
-                    ""
-                ],
-                "fields_to_compare": [],
-                "log_differences": true
-            }
+            "data_comparison": []
         },
         "test_data_file": "",
-        "db_query": "",
+        "db_query_timing": "after_api",
+        "db_queries": {
+            "default": "",
+            "audit_query": ""
+        },
         "db_type": "",
         "db_connection_name": "",
         "test_summary": "Test TC004: GET /moneymovement/requests/{requestId} [negative] (TC004) - Validate that the system returns 400 response when there is a Invalid RequestId.",
@@ -339,23 +275,15 @@
         "expected_response_schema": "",
         "expected_response": null,
         "ignore_fields": [
-            "id"
+            "id",
+            "traceId",
+            "timestamp"
         ],
         "extract_values": [
             {
                 "from": "response",
                 "key": "id",
                 "assign_to": ""
-            },
-            {
-                "from": "db_result",
-                "query": "",
-                "assign": [
-                    {
-                        "key": "",
-                        "assign_to": ""
-                    }
-                ]
             }
         ],
         "validate": {
@@ -368,20 +296,14 @@
                     "xss"
                 ]
             },
-            "data_comparison": {
-                "source": "api_response",
-                "target": "db_result",
-                "format": "table",
-                "key_field": [
-                    "",
-                    ""
-                ],
-                "fields_to_compare": [],
-                "log_differences": true
-            }
+            "data_comparison": []
         },
         "test_data_file": "",
-        "db_query": "",
+        "db_query_timing": "after_api",
+        "db_queries": {
+            "default": "",
+            "audit_query": ""
+        },
         "db_type": "",
         "db_connection_name": "",
         "test_summary": "Test TC005: GET /moneymovement/requests/{requestId} [negative] (TC004) - Validate that the system returns 400 response when there is No RequestId.",
@@ -412,23 +334,15 @@
         "expected_response_schema": "",
         "expected_response": null,
         "ignore_fields": [
-            "id"
+            "id",
+            "traceId",
+            "timestamp"
         ],
         "extract_values": [
             {
                 "from": "response",
                 "key": "id",
                 "assign_to": ""
-            },
-            {
-                "from": "db_result",
-                "query": "",
-                "assign": [
-                    {
-                        "key": "",
-                        "assign_to": ""
-                    }
-                ]
             }
         ],
         "validate": {
@@ -441,20 +355,14 @@
                     "xss"
                 ]
             },
-            "data_comparison": {
-                "source": "api_response",
-                "target": "db_result",
-                "format": "table",
-                "key_field": [
-                    "",
-                    ""
-                ],
-                "fields_to_compare": [],
-                "log_differences": true
-            }
+            "data_comparison": []
         },
         "test_data_file": "",
-        "db_query": "",
+        "db_query_timing": "after_api",
+        "db_queries": {
+            "default": "",
+            "audit_query": ""
+        },
         "db_type": "",
         "db_connection_name": "",
         "test_summary": "Test TC006: GET /moneymovement/requests/{requestId} [negative: error 500] (TC006) -  Validate the 500 Internal server error response .",
@@ -486,23 +394,17 @@
         "expected_response_schema": "",
         "expected_response": null,
         "ignore_fields": [
-            "id"
+            "id",
+            "traceId",
+            "timestamp",
+            "createdDate",
+            "modifiedDate"
         ],
         "extract_values": [
             {
                 "from": "response",
                 "key": "id",
                 "assign_to": ""
-            },
-            {
-                "from": "db_result",
-                "query": "",
-                "assign": [
-                    {
-                        "key": "",
-                        "assign_to": ""
-                    }
-                ]
             }
         ],
         "validate": {
@@ -515,20 +417,14 @@
                     "xss"
                 ]
             },
-            "data_comparison": {
-                "source": "api_response",
-                "target": "db_result",
-                "format": "table",
-                "key_field": [
-                    "",
-                    ""
-                ],
-                "fields_to_compare": [],
-                "log_differences": true
-            }
+            "data_comparison": []
         },
         "test_data_file": "",
-        "db_query": "",
+        "db_query_timing": "after_api",
+        "db_queries": {
+            "default": "",
+            "audit_query": ""
+        },
         "db_type": "",
         "db_connection_name": "",
         "test_summary": "Test TC007: GET /moneymovement/requests/{requestId} [positive] (TC007) - Validate that the system returns 204 response when Status not matching the RequestId.",

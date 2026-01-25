@@ -1,0 +1,13 @@
+SELECT
+    [Id] AS db_requestId,
+    [Version] AS db_version,
+    [InstructionId] AS db_instructionId,
+    [AccountId] AS db_accountId,
+    [RailType] AS db_railType,
+    [Amount] AS db_amount,
+    [RequestType] AS db_requestType,
+    [Status] AS db_status,
+    [CreatedDate] AS db_createdDate,
+    [UpdatedDate] AS db_updatedDate
+FROM [dbo].[MoneyMovementRequest]
+WHERE [Id] = '{{requestId}}'

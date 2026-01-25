@@ -1,0 +1,14 @@
+{         "letterOfAuthorization": "Both",
+            "accountId": "123e4567-e89b-12d3-a456-426614174000",
+            "status": "Draft",
+            "holderRelationship": "FirstParty",
+            "railType": "ACH",
+            "custodianInstructionNumber": "AINS123456",
+            "bank": {
+                "routingNumber": "121000248",
+                "bankAccountNumber": "1234567890",
+                "bankAccountName": "John Smith",
+                "bankAccountType": "Checking",
+                "bankName": "Wells Fargo Bank"
+            }
+        }
