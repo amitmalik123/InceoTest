@@ -312,6 +312,26 @@ def test_api_case(case, request):
     # Log response
     _log_response_info(response, json_module, logger)
     
+    # ========== PHASE 4.5: SCRIPT EXECUTION (AFTER API, BEFORE VALUE EXTRACTION) ==========
+    # Execute custom validator scripts if configured
+    scripts = case.get('scripts')
+    if scripts:
+        logger.info(f"Executing custom script(s): {scripts}")
+        config = request.getfixturevalue('config')
+        script_result = validation_manager.execute_custom_scripts(
+            case=case,
+            response=response,
+            db_results=db_results,  # Pass full dict with named queries for multi-query support
+            extracted_vars=context,
+            config=config
+        )
+        if script_result:
+            # Store script_result in context for extract_values to use
+            context['script_result'] = script_result
+            logger.info(f"Script execution completed. Success: {script_result.get('success', False)}")
+            if script_result.get('extracted_values'):
+                logger.info(f"  Extracted values from script: {list(script_result['extracted_values'].keys())}")
+    
     # ========== PHASE 5: VALUE EXTRACTION (AFTER API) ==========
     extract_config = case.get('extract_values', [])
     if extract_config and isinstance(extract_config, list):
@@ -372,7 +392,7 @@ def test_api_case(case, request):
                     result_collector.update_status(result_entry, "FAIL", f"Data comparison validation failed: {errors}")
                     result_collector.update_validation(result_entry, None, None, None, "FAIL")
                     result_collector.add_result(result_entry)
-                    logger.error(f"❌ Data Comparisons: FAIL (0/{len(comparison_names)})")
+                    logger.error(f"[FAIL] Data Comparisons: FAIL (0/{len(comparison_names)})")
                     pytest.fail(f"Data comparison validation failed: {errors}")
                 else:
                     result_collector.update_validation_stats(result_entry, "data_comparisons", total=len(comparison_names), passed=len(comparison_names), failed=0)
@@ -385,7 +405,7 @@ def test_api_case(case, request):
                             "PASS"
                         )
                     result_collector.update_validation(result_entry, None, None, None, "PASS")
-                    logger.info(f"✅ Data Comparisons: PASS ({len(comparison_names)}/{len(comparison_names)})")
+                    logger.info(f"[PASS] Data Comparisons: PASS ({len(comparison_names)}/{len(comparison_names)})")
         else:
             # DB query was configured but all queries failed
             error_msg = f"Database query failed for {case.get('db_type', 'unknown')} ({case.get('db_connection_name', 'default')})"
@@ -404,14 +424,14 @@ def test_api_case(case, request):
             # Track successful status code validation
             result_collector.update_validation_stats(result_entry, "status_code_checks", total=1, passed=1, failed=0)
             result_entry["status_code"] = expected_status  # Track for dashboard
-            logger.info(f"✅ Status Code Validation: PASS (Expected: {expected_status}, Got: {response.status_code})")
+            logger.info(f"[PASS] Status Code Validation: PASS (Expected: {expected_status}, Got: {response.status_code})")
         except AssertionError as e:
             # Track failed status code validation
             result_collector.update_validation_stats(result_entry, "status_code_checks", total=1, passed=0, failed=1)
             result_entry["status_code"] = expected_status  # Track for dashboard
             result_collector.update_status(result_entry, "FAIL", str(e))
             result_collector.add_result(result_entry)
-            logger.error(f"❌ Status Code Validation: FAIL (Expected: {expected_status}, Got: {response.status_code})")
+            logger.error(f"[FAIL] Status Code Validation: FAIL (Expected: {expected_status}, Got: {response.status_code})")
             raise
     result_entry["status"] = "PASS"
     
@@ -442,7 +462,7 @@ def test_api_case(case, request):
         )
         result_collector.update_status(result_entry, "FAIL", str(e))
         result_collector.add_result(result_entry)
-        logger.error(f"❌ Performance Validation: FAIL - {str(e)}")
+        logger.error(f"[FAIL] Performance Validation: FAIL - {str(e)}")
         raise
     
     # Security validation
@@ -466,7 +486,7 @@ def test_api_case(case, request):
                     check,
                     "PASS"
                 )
-            logger.info(f"✅ Security Checks: PASS ({security_check_count}/{security_check_count})")
+            logger.info(f"[PASS] Security Checks: PASS ({security_check_count}/{security_check_count})")
     except AssertionError as e:
         result_collector.update_validation_stats(result_entry, "security_checks", total=security_check_count, passed=0, failed=security_check_count)
         # Add individual security check details as FAIL
@@ -480,7 +500,7 @@ def test_api_case(case, request):
         result_collector.update_status(result_entry, "FAIL", str(e))
         result_collector.update_validation(result_entry, None, "FAIL", None)
         result_collector.add_result(result_entry)
-        logger.error(f"❌ Security Checks: FAIL (0/{security_check_count})")
+        logger.error(f"[FAIL] Security Checks: FAIL (0/{security_check_count})")
         raise
     
     # Prepare expected config for validation
@@ -499,7 +519,7 @@ def test_api_case(case, request):
         result_collector.update_status(result_entry, "FAIL", f"Field validation errors: {validation_errors}")
         result_collector.update_validation(result_entry, "FAIL", None, None)
         result_collector.add_result(result_entry)
-        logger.error(f"❌ Contract Check: FAIL (0/1)")
+        logger.error(f"[FAIL] Contract Check: FAIL (0/1)")
         assert False, f"Field validation errors: {validation_errors}"
     
     result_collector.update_validation_stats(result_entry, "contract_checks", total=1, passed=1, failed=0)
@@ -510,7 +530,7 @@ def test_api_case(case, request):
         "PASS"
     )
     result_collector.update_validation(result_entry, "PASS", None, None)
-    logger.info(f"✅ Contract Check: PASS (1/1)")
+    logger.info(f"[PASS] Contract Check: PASS (1/1)")
     
     # Response match validation
     expected_response = case.get('expected_response')
@@ -549,12 +569,12 @@ def test_api_case(case, request):
             result_collector.update_status(result_entry, "FAIL", f"Data comparison validation failed: {errors}")
             result_collector.update_validation(result_entry, None, None, None, "FAIL")
             result_collector.add_result(result_entry)
-            logger.error(f"❌ Data Comparisons: FAIL (0/1)")
+            logger.error(f"[FAIL] Data Comparisons: FAIL (0/1)")
             pytest.fail(f"Data comparison validation failed: {errors}")
         else:
             result_collector.update_validation_stats(result_entry, "data_comparisons", total=1, passed=1, failed=0)
             result_collector.update_validation(result_entry, None, None, None, "PASS")
-            logger.info(f"✅ Data Comparisons: PASS (1/1)")
+            logger.info(f"[PASS] Data Comparisons: PASS (1/1)")
     
     # Custom assertions validation
     assertion_stats = {"total": 0, "passed": 0, "failed": 0, "details": []}
@@ -584,7 +604,7 @@ def test_api_case(case, request):
         assertions = validate_cfg.get("assertions", [])
         if assertions:
             result_collector.update_validation(result_entry, custom="PASS")
-            logger.info(f"✅ Assertions: PASS ({assertion_stats['passed']}/{assertion_stats['total']})")
+            logger.info(f"[PASS] Assertions: PASS ({assertion_stats['passed']}/{assertion_stats['total']})")
     except AssertionError as e:
         assertion_stats["failed"] = assertion_stats.get("total", 1)
         assertion_stats["passed"] = 0
@@ -598,7 +618,7 @@ def test_api_case(case, request):
         result_collector.update_status(result_entry, "FAIL", f"Custom assertion failed: {str(e)}")
         result_collector.update_validation(result_entry, custom="FAIL")
         result_collector.add_result(result_entry)
-        logger.error(f"❌ Assertions: FAIL ({assertion_stats['failed']}/{assertion_stats['total']})")
+        logger.error(f"[FAIL] Assertions: FAIL ({assertion_stats['failed']}/{assertion_stats['total']})")
         raise
     
     # ========== PHASE 8: COLLECT RESULTS ==========

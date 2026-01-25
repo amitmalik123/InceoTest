@@ -1,0 +1,27 @@
+{
+    "calculationRequest": {
+        "inputs": {
+            "blend": [
+                {
+                    "id": "{{blend_1_id}}",
+                    "entityType": "{{blend_1_type}}",
+                    "weight": {{blend_1_weight}}
+                },
+                {
+                    "id": "{{blend_2_id}}",
+                    "entityType": "{{blend_2_type}}",
+                    "weight": {{blend_2_weight}}
+                }
+            ]
+        },
+        "calculations": [
+            {
+                "calculationType": "blended risk",
+                "configurations": {
+                    "method": "{{calculation_method}}",
+                    "timeHorizon": {{horizon}}
+                }
+            }
+        ]
+    }
+}

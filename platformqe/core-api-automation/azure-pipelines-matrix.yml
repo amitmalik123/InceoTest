@@ -451,7 +451,7 @@ stages:
             inputs:
               azureSubscription: $(subscription_dev)
               KeyVaultName: 'amkkvqapipeline-devncus'
-              SecretsFilter: 'parties-sqldb-connection-string,movemoney-sqldb-connection-string,hne-db-connection-string,securitieshub-db-connection-string,modelhub-db-connection-string'
+              SecretsFilter: 'parties-sqldb-connection-string,movemoney-sqldb-connection-string,hne-db-connection-string,securitieshub-db-connection-string,modelhub-db-connection-string,am-db-connection-string,platform-db-connection-string,tracking-center-sqldb-connection-string'
               RunAsPreJob: false
           
           # TSATEST Environment Key Vault
@@ -461,7 +461,7 @@ stages:
             inputs:
               azureSubscription: $(subscription_test)
               KeyVaultName: 'amkkvqapipeline-testncus'
-              SecretsFilter: 'parties-sqldb-connection-string,movemoney-sqldb-connection-string,hne-db-connection-string,securitieshub-db-connection-string,modelhub-db-connection-string'
+              SecretsFilter: 'parties-sqldb-connection-string,movemoney-sqldb-connection-string,hne-db-connection-string,securitieshub-db-connection-string,modelhub-db-connection-string,am-db-connection-string,platform-db-connection-string,tracking-center-sqldb-connection-string'
               RunAsPreJob: false
           
           # TSASILO Environment Key Vault
@@ -471,7 +471,7 @@ stages:
             inputs:
               azureSubscription: $(subscription_silo)
               KeyVaultName: 'amkkvqapipeline-siloncus'
-              SecretsFilter: 'parties-sqldb-connection-string,movemoney-sqldb-connection-string,hne-db-connection-string,securitieshub-db-connection-string,modelhub-db-connection-string'
+              SecretsFilter: 'parties-sqldb-connection-string,movemoney-sqldb-connection-string,hne-db-connection-string,securitieshub-db-connection-string,modelhub-db-connection-string,am-db-connection-string,platform-db-connection-string,tracking-center-sqldb-connection-string'
               RunAsPreJob: false
           
           # Resolve environment-specific variables based on matrix environment selection
@@ -650,6 +650,9 @@ stages:
               HNE_DB: $(hne-db-connection-string)
               SECURITIESHUB_DB: $(securitieshub-db-connection-string)
               MODELHUB_DB: $(modelhub-db-connection-string)
+              AM_DB_SQLDB: $(am-db-connection-string)
+              PLATFORM_DB_SQLDB: $(platform-db-connection-string)
+              TRACKING_CENTER_SQLDB: $(tracking-center-sqldb-connection-string)
               AZURE_SQL_PASSWORD: $(AZURE_SQL_PASSWORD)
               POSTGRES_DB_PASSWORD: $(POSTGRES_DB_PASSWORD)
               ADDRESS_BASE_URL: $(RESOLVED_ADDRESS_BASE_URL)
@@ -703,6 +706,9 @@ stages:
               HNE_DB: $(hne-db-connection-string)
               SECURITIESHUB_DB: $(securitieshub-db-connection-string)
               MODELHUB_DB: $(modelhub-db-connection-string)
+              AM_DB_SQLDB: $(am-db-connection-string)
+              PLATFORM_DB_SQLDB: $(platform-db-connection-string)
+              TRACKING_CENTER_SQLDB: $(tracking-center-sqldb-connection-string)
               AZURE_SQL_PASSWORD: $(AZURE_SQL_PASSWORD)
               POSTGRES_DB_PASSWORD: $(POSTGRES_DB_PASSWORD)
               ADDRESS_BASE_URL: $(RESOLVED_ADDRESS_BASE_URL)
