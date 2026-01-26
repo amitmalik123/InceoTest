@@ -1,48 +1,55 @@
 {
-  "partyRequest": {
-    "partyType": "{{req_partyType}}",
-    "status": "{{req_status}}",
-    "taxidentifier": "SSN",
-    "core": {
-      "individual": {
-        "firstName": "{{req_firstName}}",
-        "middleName": "{{req_middleName}}",
-        "lastName": "{{req_lastName}}",
-        "suffix": "{{req_suffix}}",
-        "dateOfBirth": "{{req_dateOfBirth}}",
-        "taxId": "{{req_taxId}}",
-        "citizenship": "{{req_citizenship}}",
-        "maritalStatus": "{{req_maritalStatus}}",
-        "isDeceased": false,
-        "dateOfDeath": null
-      }
+  "partyType": "{{req_partyType}}",
+  "status": "{{req_status}}",
+  "taxidentifier": "SSN",
+  "core": {
+    "individual": {
+      "firstName": "{{req_firstName}}",
+      "middleName": "{{req_middleName}}",
+      "lastName": "{{req_lastName}}",
+      "suffix": "{{req_suffix}}",
+      "dateOfBirth": "{{req_dateOfBirth}}",
+      "taxId": "{{req_taxId}}",
+      "citizenship": "{{req_citizenship}}",
+      "maritalStatus": "{{req_maritalStatus}}",
+      "isDeceased": false,
+      "dateOfDeath": null
     },
-    "addresses": [
-      {
-        "addressId": "{{req_addressId}}",
-        "addressType": "{{req_addressType}}",
-        "line1": "{{req_addressline1}}",
-        "line2": "{{req_addressline2}}",
-        "city": "{{req_city}}",
-        "state": "{{req_state}}",
-        "zip": "{{req_zip}}",
-        "country": "{{req_country}}",
-        "priorityType": "{{req_priorityType}}"
-      }
-    ],
-    "contacts": [
-      {
-        "contactType": "{{req_contactType}}",
-        "usageType": "{{req_usageType}}",
-        "value": "{{req_value}}",
-        "priorityType": "{{req_priorityType}}"
-      }
-    ],
-    "identifiers": [
-      {
-        "type": "{{req_identifierType}}",
-        "value": "{{req_identifierValue}}"
-      }
-    ]
-  }
+    "entity": {
+      "type": "Business",
+      "subType": "Unknown",
+      "title": "Acme Corporation Ltd",
+      "taxId": "987654321",
+      "taxidentifier": "SSN",
+      "createdDate": "2026-01-26"
+    }
+  },
+  "addresses": [
+    {
+      "addressId": "{{req_addressId}}",
+      "addressType": "{{req_addressType}}",
+      "line1": "{{req_addressline1}}",
+      "line2": "{{req_addressline2}}",
+      "city": "{{req_city}}",
+      "state": "{{req_state}}",
+      "zip": "{{req_zip}}",
+      "country": "{{req_country}}",
+      "priorityType": "{{req_priorityType}}"
+    }
+  ],
+  "contacts": [
+    {
+      "contactType": "{{req_contactType}}",
+      "usageType": "{{req_usageType}}",
+      "value": "{{req_value}}",
+      "priorityType": "{{req_priorityType}}"
+    }
+  ],
+  "identifiers": [
+    {
+      "type": "{{req_identifierType}}",
+      "value": "{{req_identifierValue}}"
+    }
+  ],
+  "householdId": "string"
 }

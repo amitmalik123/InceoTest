@@ -63,7 +63,8 @@
             "type": "APL",
             "value": "string"
           }
-        ]
+        ],
+        "householdId": "string"
       }
     },
     "expected_status": "201",
@@ -180,7 +181,8 @@
             "type": "APL",
             "value": "string"
           }
-        ]
+        ],
+        "householdId": "string"
       }
     },
     "expected_status": "200",
@@ -292,7 +294,8 @@
             "type": "APL",
             "value": "string"
           }
-        ]
+        ],
+        "householdId": "string"
       }
     },
     "expected_status": "400",
@@ -463,7 +466,8 @@
             "type": "",
             "value": "string"
           }
-        ]
+        ],
+        "householdId": "string"
       }
     },
     "expected_status": "400",
