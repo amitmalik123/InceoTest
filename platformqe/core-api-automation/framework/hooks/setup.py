@@ -359,23 +359,10 @@ class TestDataManager:
     
     def restore_csv_files(self) -> None:
         """Restore CSV files to their original state."""
-        testdata_path = os.path.join(
-            os.path.dirname(__file__), '..', '..', 'testdata'
-        )
+        from .config import restore_csv_file
         
         for csv_file, original_data in self.original_csv_data.items():
-            csv_path = os.path.join(testdata_path, csv_file)
-            
-            try:
-                if original_data:
-                    fieldnames = original_data[0].keys() if original_data else []
-                    with open(csv_path, 'w', newline='', encoding='utf-8') as f:
-                        writer = csv.DictWriter(f, fieldnames=fieldnames)
-                        writer.writeheader()
-                        writer.writerows(original_data)
-                    logger.info(f"Restored original data to: {csv_path}")
-            except Exception as e:
-                logger.error(f"Failed to restore CSV {csv_file}: {e}")
+            restore_csv_file(csv_file, original_data)
     
     def cleanup(self) -> None:
         """Clean up any resources."""

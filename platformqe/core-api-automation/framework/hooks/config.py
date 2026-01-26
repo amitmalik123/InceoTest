@@ -123,3 +123,35 @@ def load_all_service_configs() -> Dict[str, HooksConfig]:
     
     return configs
 
+
+def restore_csv_file(csv_file: str, original_data: List[Dict]) -> bool:
+    """
+    Restore a CSV file to its original state.
+    Shared utility function used by both TestDataManager and CleanupManager.
+    
+    Args:
+        csv_file: Relative path to CSV file from testdata folder
+        original_data: List of dictionaries representing original CSV rows
+        
+    Returns:
+        True if successful, False otherwise
+    """
+    import csv
+    
+    testdata_path = os.path.join(
+        os.path.dirname(__file__), '..', '..', 'testdata'
+    )
+    csv_path = os.path.join(testdata_path, csv_file)
+    
+    try:
+        if original_data:
+            fieldnames = list(original_data[0].keys()) if original_data else []
+            with open(csv_path, 'w', newline='', encoding='utf-8') as f:
+                writer = csv.DictWriter(f, fieldnames=fieldnames)
+                writer.writeheader()
+                writer.writerows(original_data)
+            logger.info(f"Restored original data to: {csv_path}")
+            return True
+    except Exception as e:
+        logger.error(f"Failed to restore CSV {csv_file}: {e}")
+        return False
