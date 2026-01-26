@@ -105,7 +105,7 @@
               "required": ["individual", "entity"]
             },
             "addresses": {
-              "type": ["array", "null"],
+              "type": "array",
               "items": [
                 {
                   "type": "object",
@@ -153,7 +153,7 @@
               ]
             },
             "contacts": {
-              "type": ["array", "null"],
+              "type": "array",
               "items": [
                 {
                   "type": "object",
@@ -185,7 +185,7 @@
               ]
             },
             "identifiers": {
-              "type": ["array", "null"],
+              "type": "array",
               "items": [
                 {
                   "type": "object",
@@ -212,7 +212,10 @@
             "partyId",
             "status",
             "partyType",
-            "core"
+            "core",
+            "addresses",
+            "contacts",
+            "identifiers"
           ]
         }
       ]
