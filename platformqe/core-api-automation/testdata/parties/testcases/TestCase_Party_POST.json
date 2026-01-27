@@ -53,7 +53,7 @@
         "key_field": ["", ""],
         "fields_to_compare": [
           {
-            "source": "partyRequest.status",
+            "source": "status",
             "target": "Status"
           }
         ],

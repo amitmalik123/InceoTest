@@ -86,7 +86,7 @@
                       "type": ["null"]
                     },
                     "taxidentifier": {
-                      "type": "string"
+                      "type": ["string", "null"]
                     },
                     "createdDate": {
                       "type": ["string", "null"]

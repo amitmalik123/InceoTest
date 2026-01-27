@@ -1,7 +1,6 @@
 {
   "partyType": "{{req_partyType}}",
   "status": "{{req_status}}",
-  "taxidentifier": "SSN",
   "core": {
     "individual": {
       "firstName": "{{req_firstName}}",
@@ -9,7 +8,7 @@
       "lastName": "{{req_lastName}}",
       "suffix": "{{req_suffix}}",
       "dateOfBirth": "{{req_dateOfBirth}}",
-      "taxId": "{{req_taxId}}",
+      "taxId": " {{req_taxId[:-1]}}",
       "citizenship": "{{req_citizenship}}",
       "maritalStatus": "{{req_maritalStatus}}",
       "isDeceased": false,
@@ -19,20 +18,19 @@
       "type": "Business",
       "subType": "Unknown",
       "title": "Acme Corporation Ltd",
-      "taxId": "987654321",
+      "taxId": " {{random_numeric(8)}}",
       "taxidentifier": "SSN",
       "createdDate": "2026-01-26"
     }
   },
   "addresses": [
     {
-      "addressId": "{{req_addressId}}",
       "addressType": "{{req_addressType}}",
       "line1": "{{req_addressline1}}",
       "line2": "{{req_addressline2}}",
       "city": "{{req_city}}",
       "state": "{{req_state}}",
-      "zip": "{{req_zip}}",
+      "zip": " {{req_zip[:-1]}}",
       "country": "{{req_country}}",
       "priorityType": "{{req_priorityType}}"
     }
