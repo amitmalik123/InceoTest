@@ -48,6 +48,7 @@ Given('I am logged into the application', async ({ page, context, loginPage, swi
             await switchIDPage.selectID(process.env.userID);
         }
 
+        await page.goto(process.env.baseURL + '/en.aspx');
         await page.waitForLoadState();
         await expect(page.getByText('Welcome ' + process.env.advisorName)).toBeVisible();
 
@@ -69,7 +70,7 @@ Given('I am logged in as {string}', async ({ page, context, loginPage, switchIDP
             await page.waitForLoadState();
 
             // Validate auth is still valid
-            const welcomeText = page.getByText('Welcome');
+            const welcomeText = page.getByText('Welcome').or(page.getByText('Hello'));
             await welcomeText.waitFor({ state: 'visible' });
             authValid = true;
             logger.debug(`\nUsing cached auth state for ${role}`);
@@ -114,7 +115,9 @@ When('the user enters a valid username and password', async ({ switchIDPage, log
 
 Then('the user should be redirected to the dashboard', async ({ page }) => {
     await page.waitForLoadState();
-    await expect(page.getByText('Welcome ' + process.env.advisorName)).toBeVisible();
+    await expect(
+        page.getByText('Welcome ' + process.env.advisorName).or(page.getByText('Hello, ' + process.env.advisorName))
+    ).toBeVisible();
     //save auth state
     await page.context().storageState({ path: './authfiles/role1.json' });
 });

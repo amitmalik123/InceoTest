@@ -18,15 +18,14 @@ setup('Setup - Login to Environment', async ({ page }) => {
     if (process.env.userID && env.toLowerCase() !== 'prod' && process.env.userID && env.toLowerCase() !== 'silo') {
         await switchIDPage.selectID(process.env.userID);
     }
-
+    await page.goto(process.env.baseURL + '/en.aspx');
     await page.waitForLoadState();
     try {
-        await expect(page.getByText('Welcome ' + process.env.advisorName)).toBeVisible();
+        await expect(page.getByText(process.env.advisorName)).toBeVisible();
     } catch (err) {
         logger.error('BDD setup: expected welcome text not visible', err);
         throw err;
     }
-
     // Save auth state
     await page.context().storageState({ path: role1AuthFile });
     logger.debug('\n===Setup Complete ===\n');

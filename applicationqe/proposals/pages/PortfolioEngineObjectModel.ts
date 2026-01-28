@@ -689,7 +689,9 @@ export class PortfolioEnginePage {
             .getByRole('heading', { name: /Rates/i })
             .or(page.locator('.th-wrap.th-Rates .th-header'));
         this.calendarYearReturnsText = page.locator('.th-wrap.th-Calendar .th-header');
-        this.historicalCumulativeText = page.getByText('Historical Cumulative').first();
+        this.historicalCumulativeText = page
+            .locator('.th-wrap.th-Historical > .th-header > .th-title')
+            .filter({ hasText: 'Historical Cumulative' });
         this.riskVersusReturnSection = page.locator('.th-wrap.th-Risk');
         this.feeScheduleDiv = page
             .locator('div')
