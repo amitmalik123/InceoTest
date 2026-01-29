@@ -30,11 +30,12 @@ def extract_value(response: Any, key: str, record_count: bool = False, array_pat
     """
     Extracts a value from the response for workflow chaining.
     Supports dot notation and list indexing (e.g., 'users.0.name').
+    Supports wildcard '*' to find first non-null value in arrays (e.g., 'models.*.investmentApproach.id').
     Supports record counting for arrays in both JSON (REST) and XML (SOAP) responses.
     
     Args:
         response: Response data (dict, list, or XML string/object)
-        key: Key path to extract (supports dot notation)
+        key: Key path to extract (supports dot notation and wildcard '*' for first non-null)
         record_count: If True, returns the count of items in the array at array_path
         array_path: Path to the array whose count should be returned (supports dot notation and Jinja-like paths)
     
@@ -55,6 +56,10 @@ def extract_value(response: Any, key: str, record_count: bool = False, array_pat
                 logger.warning(f"record_count requested with empty array_path, but response is not a list: {type(response)}")
                 return 0
     
+    # Check if key contains wildcard '*' for first non-null extraction
+    if '.*.' in key:
+        return _extract_first_non_null(response, key)
+    
     # Regular value extraction
     value = response
     for k in key.split('.'):
@@ -68,6 +73,70 @@ def extract_value(response: Any, key: str, record_count: bool = False, array_pat
             return None
     logger.debug(f"Extracted value for '{key}': {value}")
     return value
+
+
+def _extract_first_non_null(response: Any, key: str) -> Any:
+    """
+    Extract first non-null value from an array using wildcard pattern.
+    
+    Example: 'models.*.investmentApproach.id' will iterate through models array
+    and return the first non-null investmentApproach.id value.
+    
+    Args:
+        response: Response data
+        key: Key path with wildcard (e.g., 'models.*.investmentApproach.id')
+    
+    Returns:
+        First non-null value found, or None if no non-null value exists
+    """
+    try:
+        parts = key.split('.')
+        wildcard_index = parts.index('*')
+        
+        # Navigate to the array before wildcard
+        value = response
+        for k in parts[:wildcard_index]:
+            if isinstance(value, dict):
+                value = value.get(k)
+            else:
+                logger.warning(f"Failed to navigate to array at '{'.'.join(parts[:wildcard_index])}'")
+                return None
+        
+        # Ensure we have an array
+        if not isinstance(value, list):
+            logger.warning(f"Expected array at '{'.'.join(parts[:wildcard_index])}', got {type(value)}")
+            return None
+        
+        # Get remaining path after wildcard
+        remaining_path = parts[wildcard_index + 1:]
+        
+        # Iterate through array to find first non-null value
+        for item in value:
+            item_value = item
+            found = True
+            
+            # Navigate through remaining path
+            for k in remaining_path:
+                if isinstance(item_value, dict):
+                    item_value = item_value.get(k)
+                elif isinstance(item_value, list) and k.isdigit():
+                    index = int(k)
+                    item_value = item_value[index] if index < len(item_value) else None
+                else:
+                    found = False
+                    break
+            
+            # Return first non-null value found
+            if found and item_value is not None:
+                logger.debug(f"Found first non-null value for '{key}': {item_value}")
+                return item_value
+        
+        logger.warning(f"No non-null value found for path '{key}'")
+        return None
+        
+    except (ValueError, IndexError, KeyError) as e:
+        logger.error(f"Error extracting first non-null value from '{key}': {e}")
+        return None
 
 
 def _extract_record_count(response: Any, array_path: str) -> int:
