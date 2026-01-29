@@ -113,7 +113,8 @@ def validate_db_comparison(api_response, db_result, key_fields, fields_to_compar
                 api_field = mapping["source"]
                 db_field = mapping["target"]
                 api_value = resolve_nested_key(api_row, api_field)
-                db_value = db_row.get(db_field)
+                # Use nested key resolution for DB field as well
+                db_value = resolve_nested_key(db_row, db_field)
                 
                 # Apply field transformations if configured
                 if transformer:
@@ -194,7 +195,8 @@ def validate_db_comparison(api_response, db_result, key_fields, fields_to_compar
             # Resolve variable if needed
             if api_value is None and api_field.startswith("{{"):
                 api_value = resolve_var(api_row.get(api_field.strip("{}")))
-            db_value = db_row.get(db_field)
+            # Use nested key resolution for DB field as well
+            db_value = resolve_nested_key(db_row, db_field)
             
             # Apply field transformations if configured
             if transformer:
