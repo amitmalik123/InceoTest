@@ -1,0 +1,7 @@
+environment,blend_1_id,blend_1_type,blend_1_weight,blend_2_id,blend_2_type,blend_2_weight,blend_3_id,blend_3_type,blend_3_weight,blend_4_id,blend_4_type,blend_4_weight,blend_5_id,blend_5_type,blend_5_weight,blend_6_id,blend_6_type,blend_6_weight,blend_7_id,blend_7_type,blend_7_weight,blend_8_id,blend_8_type,blend_8_weight,blend_9_id,blend_9_type,blend_9_weight,blend_10_id,blend_10_type,blend_10_weight
+T11,CSETM6,model,0.6,TPUAR5,model,0.4,,,,,,,,,,,,,,,,,,,,,,,,
+T11,CSETM6,model,0.4,TPUAR5,model,0.6,,,,,,,,,,,,,,,,,,,,,,,,
+T11,RS5SAL,model,0.5,ALFBA3,model,0.5,,,,,,,,,,,,,,,,,,,,,,,,
+T11,RS5SAL,model,0.2,ALFBA3,model,0.8,,,,,,,,,,,,,,,,,,,,,,,,
+T11,CSETM6,model,0.4,TPUAR5,model,0.4,RS5SAL,model,0.2,,,,,,,,,,,,,,,,,,,,,
+TSATEST,CSETM6,model,0.6,TPUAR5,model,0.4,,,,,,,,,,,,,,,,,,,,,,,,

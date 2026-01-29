@@ -145,6 +145,22 @@ api_endpoints:
     use_azure_auth: false  # Set to true to use Azure AD authentication
     azure_resource: "https://management.azure.com/"
 
+  strategies:
+    base_url: "${STRATEGIES_BASE_URL}"  # Fetched from Azure variable group: qa-pipelines-variable-group-test
+    auth_token: "${STRATEGIES_AUTH_TOKEN}"
+    timeout: ${API_TIMEOUT:30}
+    retry_count: ${API_RETRY_COUNT:3}
+    use_azure_auth: false  # Set to true to use Azure AD authentication
+    azure_resource: "https://management.azure.com/"  # Azure resource for token generation
+
+  wrapToken:
+    base_url: "${WRAPTOKEN_BASE_URL}"  # Fetched from Azure variable group: qa-pipelines-variable-group-test
+    auth_token: "${WRAPTOKEN_AUTH_TOKEN}"
+    timeout: ${API_TIMEOUT:30}
+    retry_count: ${API_RETRY_COUNT:3}
+    use_azure_auth: false  # Set to true to use Azure AD authentication
+    azure_resource: "https://management.azure.com/"  # Azure resource for token generation
+
   hnebase:
     base_url: "${HNE_BASE_URL}"  # Fetched from Azure variable group: qa-pipelines-variable-group-dev
     auth_token: "${HNEBASE_AUTH_TOKEN}"

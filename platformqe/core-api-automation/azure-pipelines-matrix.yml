@@ -147,6 +147,8 @@ variables:
   # Required variables in this group:
   #   TSADEV_parties_base_url, TSATEST_parties_base_url, TSASILO_parties_base_url
   #   TSADEV_address_base_url, TSATEST_address_base_url, TSASILO_address_base_url
+  #   TSADEV_strategies_base_url, TSATEST_strategies_base_url, TSASILO_strategies_base_url
+  #   TSADEV_wraptoken_base_url, TSATEST_wraptoken_base_url, TSASILO_wraptoken_base_url
   #   ... (same pattern for all service URLs)
   #
   - group: 'qa-pipelines-config'
@@ -511,6 +513,8 @@ stages:
                     echo "##vso[task.setvariable variable=RESOLVED_MOVEMONEY_BASE_URL]$(TSADEV_movemoney_base_url)"
                     echo "##vso[task.setvariable variable=RESOLVED_SECURITIES_BASE_URL]$(TSADEV_securities_base_url)"
                     echo "##vso[task.setvariable variable=RESOLVED_WORK_ITEM_NOTIFICATION_BASE_URL]$(TSADEV_work_item_notification_base_url)"
+                    echo "##vso[task.setvariable variable=RESOLVED_STRATEGIES_BASE_URL]$(TSADEV_strategies_base_url)"
+                    echo "##vso[task.setvariable variable=RESOLVED_WRAPTOKEN_BASE_URL]$(TSADEV_wraptoken_base_url)"
                     ;;
                   "TSATEST")
                     echo "##vso[task.setvariable variable=RESOLVED_PARTIES_BASE_URL]$(TSATEST_parties_base_url)"
@@ -521,6 +525,8 @@ stages:
                     echo "##vso[task.setvariable variable=RESOLVED_MOVEMONEY_BASE_URL]$(TSATEST_movemoney_base_url)"
                     echo "##vso[task.setvariable variable=RESOLVED_SECURITIES_BASE_URL]$(TSATEST_securities_base_url)"
                     echo "##vso[task.setvariable variable=RESOLVED_WORK_ITEM_NOTIFICATION_BASE_URL]$(TSATEST_work_item_notification_base_url)"
+                    echo "##vso[task.setvariable variable=RESOLVED_STRATEGIES_BASE_URL]$(TSATEST_strategies_base_url)"
+                    echo "##vso[task.setvariable variable=RESOLVED_WRAPTOKEN_BASE_URL]$(TSATEST_wraptoken_base_url)"
                     ;;
                   "TSASILO")
                     echo "##vso[task.setvariable variable=RESOLVED_PARTIES_BASE_URL]$(TSASILO_parties_base_url)"
@@ -531,6 +537,8 @@ stages:
                     echo "##vso[task.setvariable variable=RESOLVED_MOVEMONEY_BASE_URL]$(TSASILO_movemoney_base_url)"
                     echo "##vso[task.setvariable variable=RESOLVED_SECURITIES_BASE_URL]$(TSASILO_securities_base_url)"
                     echo "##vso[task.setvariable variable=RESOLVED_WORK_ITEM_NOTIFICATION_BASE_URL]$(TSASILO_work_item_notification_base_url)"
+                    echo "##vso[task.setvariable variable=RESOLVED_STRATEGIES_BASE_URL]$(TSASILO_strategies_base_url)"
+                    echo "##vso[task.setvariable variable=RESOLVED_WRAPTOKEN_BASE_URL]$(TSASILO_wraptoken_base_url)"
                     ;;
                   *)
                     echo "❌ ERROR: Unknown environment: $SELECTED_ENV"
@@ -543,6 +551,8 @@ stages:
                     echo "##vso[task.setvariable variable=RESOLVED_MOVEMONEY_BASE_URL]$(TSADEV_movemoney_base_url)"
                     echo "##vso[task.setvariable variable=RESOLVED_SECURITIES_BASE_URL]$(TSADEV_securities_base_url)"
                     echo "##vso[task.setvariable variable=RESOLVED_WORK_ITEM_NOTIFICATION_BASE_URL]$(TSADEV_work_item_notification_base_url)"
+                    echo "##vso[task.setvariable variable=RESOLVED_STRATEGIES_BASE_URL]$(TSADEV_strategies_base_url)"
+                    echo "##vso[task.setvariable variable=RESOLVED_WRAPTOKEN_BASE_URL]$(TSADEV_wraptoken_base_url)"
                     ;;
                 esac
                 
@@ -568,6 +578,8 @@ stages:
                 echo "RESOLVED_MOVEMONEY_BASE_URL: $(RESOLVED_MOVEMONEY_BASE_URL)"
                 echo "RESOLVED_SECURITIES_BASE_URL: $(RESOLVED_SECURITIES_BASE_URL)"
                 echo "RESOLVED_WORK_ITEM_NOTIFICATION_BASE_URL: $(RESOLVED_WORK_ITEM_NOTIFICATION_BASE_URL)"
+                echo "RESOLVED_STRATEGIES_BASE_URL: $(RESOLVED_STRATEGIES_BASE_URL)"
+                echo "RESOLVED_WRAPTOKEN_BASE_URL: $(RESOLVED_WRAPTOKEN_BASE_URL)"
                 echo "=========================================="
           
           # - task: UsePythonVersion@0

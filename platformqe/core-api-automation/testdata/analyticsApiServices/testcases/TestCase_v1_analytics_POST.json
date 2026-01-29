@@ -103,7 +103,7 @@
         },
         "test_data_file": "analyticsApiServices/data_driven/Data_analytics_POST.csv",
         "db_queries": {
-            "monthlyPerformance_query": "SELECT * FROM (SELECT TOP {{horizon}} a.MonthId, a.performance AS {{blend_1_id}}_Performance, b.performance AS {{blend_2_id}}_Performance FROM AM.dbo.MonthlyPerformance a INNER JOIN AM.dbo.MonthlyPerformance b ON a.MonthId = b.MonthId WHERE a.ItemId = '{{blend_1_id}}' AND b.ItemId = '{{blend_2_id}}' ORDER BY a.MonthId DESC) AS RecentMonths ORDER BY MonthId ASC",
+            "monthlyPerformance_query": "analyticsApiServices/db_queries/Query_BlendedRisk_MonthlyPerformance.txt",
             "riskBands_query": "SELECT ProfileValue, AnnualStdDeviation FROM Platform.dbo.RiskProfile ORDER BY ProfileValue"
         },
         "db_type": "mssql",

@@ -5,7 +5,14 @@ import json
 def render_template(template_str, context):
     if not isinstance(template_str, str):
         return template_str
-    return Template(template_str).render(**context)
+    # Filter context to only include valid Python identifier keys (strings that are valid variable names)
+    # This is needed because **kwargs requires string keys that are valid Python identifiers
+    filtered_context = {
+        k: v for k, v in context.items() 
+        if isinstance(k, str) and k.isidentifier()
+    }
+    # Pass context as both expanded kwargs AND as _context dict for dynamic key access
+    return Template(template_str).render(_context=context, **filtered_context)
 
 
 def load_external_file_if_needed(value, context):
