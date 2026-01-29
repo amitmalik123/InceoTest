@@ -235,8 +235,12 @@ def validate_db_comparison(api_response, db_result, key_fields, fields_to_compar
                     return norm1.lower() == norm2.lower()
                 
                 # Handle numeric comparisons with type coercion
-                # Convert string numbers to numeric types for comparison
+                # Convert string numbers and Decimal types to float for comparison
+                from decimal import Decimal
                 def try_numeric(val):
+                    # Handle Decimal from database (SQL Server returns Decimal for numeric columns)
+                    if isinstance(val, Decimal):
+                        return float(val)
                     if isinstance(val, (int, float)):
                         return val
                     if isinstance(val, str):
@@ -252,6 +256,10 @@ def validate_db_comparison(api_response, db_result, key_fields, fields_to_compar
                 
                 typed_val1 = try_numeric(norm1)
                 typed_val2 = try_numeric(norm2)
+                
+                # Use tolerance for float comparison to handle precision differences
+                if isinstance(typed_val1, float) and isinstance(typed_val2, float):
+                    return abs(typed_val1 - typed_val2) < 1e-12
                 
                 return typed_val1 == typed_val2
             
