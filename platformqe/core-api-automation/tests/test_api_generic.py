@@ -331,6 +331,12 @@ def test_api_case(case, request):
             logger.info(f"Script execution completed. Success: {script_result.get('success', False)}")
             if script_result.get('extracted_values'):
                 logger.info(f"  Extracted values from script: {list(script_result['extracted_values'].keys())}")
+            # Log script_result as JSON for debugging
+            try:
+                import json
+                logger.info(f"Script execution result (JSON):\n{json.dumps(script_result, indent=2, default=str)}")
+            except Exception as e:
+                logger.warning(f"Could not serialize script_result to JSON: {e}")
     
     # ========== PHASE 5: VALUE EXTRACTION (AFTER API) ==========
     extract_config = case.get('extract_values', [])

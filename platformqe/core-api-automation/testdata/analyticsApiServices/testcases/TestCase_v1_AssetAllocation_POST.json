@@ -1,0 +1,161 @@
+[
+    {
+        "test_id": "TC_AssetAllocation_001",
+        "service_name": "analyticsApiServices",
+        "workflow_mode": "sequential",
+        "test_name": "POST /v1/analytics - Asset Allocation with API Data Fetching (TC_AssetAllocation_001)",
+        "protocol": "REST",
+        "test_type": [
+            "Functional"
+        ],
+        "mainURL": "{{base_url}}",
+        "endpoint": "/v1/analytics",
+        "method": "POST",
+        "headers_additional": {
+            "Content-Type": "application/json"
+        },
+        "payload": "analyticsApiServices/payloads/Payload_AssetAllocation_POST.txt",
+        "expected_status": "200",
+        "expected_response_schema": "",
+        "expected_response": null,
+        "ignore_fields": [],
+        "scripts": [
+            "analyticsApiServices/validators/asset_allocation_validator.py"
+        ],
+        "extract_values": [
+            {
+                "from": "response",
+                "key": "calculationResults.0.calculationType",
+                "assign_to": "api_calculation_type"
+            },
+            {
+                "from": "script_result",
+                "key": "api_blendBreakdown",
+                "assign_to": "api_blendBreakdown"
+            },
+            {
+                "from": "script_result",
+                "key": "api_componentBreakdown",
+                "assign_to": "api_componentBreakdown"
+            },
+            {
+                "from": "script_result",
+                "key": "script_blendBreakdown",
+                "assign_to": "script_blendBreakdown"
+            },
+            {
+                "from": "script_result",
+                "key": "script_componentBreakdown",
+                "assign_to": "script_componentBreakdown"
+            }
+        ],
+        "validate": {
+            "performance": {
+                "max_response_time_ms": 5000
+            },
+            "assertions": [
+                {
+                    "actual": "{{api_blendBreakdown}}",
+                    "operator": "==",
+                    "expected": "{{script_blendBreakdown}}",
+                    "message": "Verify API blendBreakdown matches script-computed values"
+                },
+                {
+                    "actual": "{{api_componentBreakdown}}",
+                    "operator": "==",
+                    "expected": "{{script_componentBreakdown}}",
+                    "message": "Verify API componentBreakdown matches script-computed values"
+                },
+                {
+                    "actual": "{{api_calculation_type}}",
+                    "operator": "==",
+                    "expected": "asset allocation",
+                    "message": "Verify correct calculation type in response"
+                }
+            ]
+        },
+        "test_data_file": "analyticsApiServices/data_driven/Data_AssetAllocation_POST.csv",
+        "test_summary": "Test Asset Allocation API response validation. Extracts blendBreakdown and componentBreakdown from response and validates calculation type.",
+        "test_scenario": "Validate asset allocation API response contains correct blendBreakdown, componentBreakdown, and calculation type."
+    },
+    {
+        "test_id": "TC_AssetAllocation_002",
+        "service_name": "analyticsApiServices",
+        "workflow_mode": "sequential",
+        "test_name": "POST /v1/analytics - Asset Allocation Self-Validation (TC_AssetAllocation_002)",
+        "protocol": "REST",
+        "test_type": [
+            "Functional",
+            "Smoke"
+        ],
+        "mainURL": "{{base_url}}",
+        "endpoint": "/v1/analytics",
+        "method": "POST",
+        "headers_additional": {
+            "Content-Type": "application/json"
+        },
+        "payload": "analyticsApiServices/payloads/Payload_AssetAllocation_POST.txt",
+        "expected_status": "200",
+        "expected_response_schema": "",
+        "expected_response": null,
+        "ignore_fields": [],
+        "scripts": [
+            "analyticsApiServices/validators/asset_allocation_validator.py"
+        ],
+        "extract_values": [
+            {
+                "from": "response",
+                "key": "calculationResults.0.calculationType",
+                "assign_to": "api_calculation_type"
+            },
+            {
+                "from": "script_result",
+                "key": "api_blendBreakdown",
+                "assign_to": "api_blendBreakdown"
+            },
+            {
+                "from": "script_result",
+                "key": "api_componentBreakdown",
+                "assign_to": "api_componentBreakdown"
+            },
+            {
+                "from": "script_result",
+                "key": "script_blendBreakdown",
+                "assign_to": "script_blendBreakdown"
+            },
+            {
+                "from": "script_result",
+                "key": "script_componentBreakdown",
+                "assign_to": "script_componentBreakdown"
+            }
+        ],
+        "validate": {
+            "performance": {
+                "max_response_time_ms": 5000
+            },
+            "assertions": [
+                {
+                    "actual": "{{api_blendBreakdown}}",
+                    "operator": "==",
+                    "expected": "{{script_blendBreakdown}}",
+                    "message": "Verify API blendBreakdown matches script-computed values"
+                },
+                {
+                    "actual": "{{api_componentBreakdown}}",
+                    "operator": "==",
+                    "expected": "{{script_componentBreakdown}}",
+                    "message": "Verify API componentBreakdown matches script-computed values"
+                },
+                {
+                    "actual": "{{api_calculation_type}}",
+                    "operator": "==",
+                    "expected": "asset allocation",
+                    "message": "Verify correct calculation type in response"
+                }
+            ]
+        },
+        "test_data_file": "analyticsApiServices/data_driven/Data_AssetAllocation_POST.csv",
+        "test_summary": "Test Asset Allocation API response validation (Smoke test). Extracts blendBreakdown and componentBreakdown from response and validates calculation type.",
+        "test_scenario": "Validate asset allocation API response contains correct blendBreakdown, componentBreakdown, and calculation type."
+    }
+]
