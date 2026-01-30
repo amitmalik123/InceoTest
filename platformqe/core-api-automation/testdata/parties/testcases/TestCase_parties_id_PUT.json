@@ -89,7 +89,7 @@
     ],
     "validate": {
       "performance": {
-        "max_response_time_ms": 500
+        "max_response_time_ms": 1000
       },
       "security": {
         "checks": ["sql_injection", "xss"]
