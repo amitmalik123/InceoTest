@@ -2,26 +2,21 @@
     {
         "test_id": "TC001",
         "service_name": "MoveMoneyAPI",
-        "workflow_mode": "parallel",
+        "workflow_mode": "sequential",
         "test_name": "PUT /requests/{requestId} [positive] (TC001)",
         "protocol": "REST",
         "test_type": [
             "Functional"
         ],
         "mainURL": "{{base_url}}",
-        "endpoint": "/requests/3B943BE1-EF60-4DFD-93AC-065CE9510AC5",
+        "endpoint": "/requests/e96f0d82-b1b2-49d4-9ab4-7331dacdd089",
         "method": "PUT",
-        "rpc_method": "",
-        "graphql_query": "",
-        "graphql_variables": "",
-        "soap_action": "",
-        "soap_envelope": "",
         "headers_additional": {
             "Content-Type": "application/json"
         },
         "payload": {
-            "version": 9,
-            "instructionId": "BB00EC97-9759-4B89-81E3-089BF584E607",
+            "version": 13,
+            "instructionId": "D223450C-7974-4B23-8E10-6CC418E7907C",
             "accountId": "456E7890-E89B-12D3-A456-426614174111",
             "railType": "ACH",
             "amount": 7500.0,
@@ -33,26 +28,25 @@
             }
         },
         "expected_status": "200",
-        "expected_response_schema": "",
+        "expected_response_schema": "MoveMoneyAPI\\schemas\\Schema_requests_requestId_PUT.json",
         "expected_response": null,
         "ignore_fields": [
-            "id"
+            "traceId",
+            "timestamp",
+            "createdDate",
+            "modifiedDate",
+            "version"
         ],
         "extract_values": [
             {
                 "from": "response",
-                "key": "id",
-                "assign_to": ""
+                "key": "requestId",
+                "assign_to": "requestId"
             },
             {
-                "from": "db_result",
-                "query": "",
-                "assign": [
-                    {
-                        "key": "",
-                        "assign_to": ""
-                    }
-                ]
+                "from": "response",
+                "key": "version",
+                "assign_to": "version"
             }
         ],
         "validate": {
@@ -65,48 +59,50 @@
                     "xss"
                 ]
             },
-            "data_comparison": {
-                "source": "api_response",
-                "target": "db_result",
-                "format": "table",
-                "key_field": [
-                    "",
-                    ""
-                ],
-                "fields_to_compare": [],
-                "log_differences": true
-            }
+            "assertions": [
+                {
+                    "actual": "{{requestId}}",
+                    "expected": "",
+                    "operator": "!=",
+                    "message": "RequestId should not be empty"
+                },
+                {
+                    "actual": "{{version}}",
+                    "expected": 1,
+                    "operator": ">",
+                    "message": "Version should be incremented after update"
+                }
+            ],
+            "data_comparison": []
         },
         "test_data_file": "",
-        "db_query": "",
+        "db_query_timing": "",
+        "db_queries": {
+            "default": "",
+            "audit_query": ""
+        },
         "db_type": "",
         "db_connection_name": "",
-        "test_summary": "Test TC001: PUT /requests/{requestId} [positive] (TC001) - Validate the 200 successful response with valid Request Id and Request body.",
-        "test_scenario": "Test PUT request to /requests/{requestId} for functional scenario validation."
+        "test_summary": "Test TC001: PUT /requests/{requestId} [positive] (TC001) - Validate the 200 successful response with valid Request Id and Request body."
     },
     {
         "test_id": "TC002",
         "service_name": "MoveMoneyAPI",
-        "workflow_mode": "parallel",
+        "workflow_mode": "sequential",
         "test_name": "PUT /requests/{requestId} [positive] (TC002)",
         "protocol": "REST",
         "test_type": [
             "Functional"
         ],
         "mainURL": "{{base_url}}",
-        "endpoint": "/requests/3B943BE1-EF60-4DFD-93AC-065CE9510AC5",
+        "endpoint": "/requests/a9159d0c-55ed-4e0f-9950-8fb64fdcc4d5",
         "method": "PUT",
-        "rpc_method": "",
-        "graphql_query": "",
-        "graphql_variables": "",
-        "soap_action": "",
-        "soap_envelope": "",
         "headers_additional": {
             "Content-Type": "application/json"
         },
         "payload": {
-            "version": 10,
-            "instructionId": "BB00EC97-9759-4B89-81E3-089BF584E607",
+            "version": 6,
+            "instructionId": "D223450C-7974-4B23-8E10-6CC418E7907C",
             "accountId": "456E7890-E89B-12D3-A456-426614174111",
             "railType": "ACH",
             "amount": 7500.0,
@@ -118,26 +114,25 @@
             }
         },
         "expected_status": "200",
-        "expected_response_schema": "",
+        "expected_response_schema": "MoveMoneyAPI\\schemas\\Schema_requests_requestId_PUT.json",
         "expected_response": null,
         "ignore_fields": [
-            "id"
+            "traceId",
+            "timestamp",
+            "createdDate",
+            "modifiedDate",
+            "version"
         ],
         "extract_values": [
             {
                 "from": "response",
-                "key": "id",
-                "assign_to": ""
+                "key": "requestId",
+                "assign_to": "requestId"
             },
             {
-                "from": "db_result",
-                "query": "",
-                "assign": [
-                    {
-                        "key": "",
-                        "assign_to": ""
-                    }
-                ]
+                "from": "response",
+                "key": "version",
+                "assign_to": "version"
             }
         ],
         "validate": {
@@ -150,48 +145,44 @@
                     "xss"
                 ]
             },
-            "data_comparison": {
-                "source": "api_response",
-                "target": "db_result",
-                "format": "table",
-                "key_field": [
-                    "",
-                    ""
-                ],
-                "fields_to_compare": [],
-                "log_differences": true
-            }
+            "assertions": [
+                {
+                    "actual": "{{requestId}}",
+                    "expected": "",
+                    "operator": "!=",
+                    "message": "RequestId should not be empty"
+                }
+            ],
+            "data_comparison": []
         },
         "test_data_file": "",
-        "db_query": "",
+        "db_query_timing": "",
+        "db_queries": {
+            "default": "",
+            "audit_query": ""
+        },
         "db_type": "",
         "db_connection_name": "",
-        "test_summary": "Test TC002: PUT /requests/{requestId} [positive] (TC002) - Validate the 200 successful response with valid Request Id and Request body with updated status & Payment date .",
-        "test_scenario": "Test PUT request to /requests/{requestId} for functional scenario validation."
+        "test_summary": "Test TC002: PUT /requests/{requestId} [positive] (TC002) - Validate the 200 successful response with valid Request Id and Request body with updated status & Payment date ."
     },
     {
         "test_id": "TC003",
         "service_name": "MoveMoneyAPI",
-        "workflow_mode": "parallel",
+        "workflow_mode": "sequential",
         "test_name": "PUT /requests/{requestId} [positive] (TC003)",
         "protocol": "REST",
         "test_type": [
             "Functional"
         ],
         "mainURL": "{{base_url}}",
-        "endpoint": "/requests/3B943BE1-EF60-4DFD-93AC-065CE9510AC5",
+        "endpoint": "/requests/c5514f30-f693-4d86-a400-2b87541d2eb7",
         "method": "PUT",
-        "rpc_method": "",
-        "graphql_query": "",
-        "graphql_variables": "",
-        "soap_action": "",
-        "soap_envelope": "",
         "headers_additional": {
             "Content-Type": "application/json"
         },
         "payload": {
-            "version": 11,
-            "instructionId": "BB00EC97-9759-4B89-81E3-089BF584E607",
+            "version": 6,
+            "instructionId": "D223450C-7974-4B23-8E10-6CC418E7907C",
             "accountId": "456E7890-E89B-12D3-A456-426614174111",
             "railType": "ACH",
             "amount": 7500.0,
@@ -206,26 +197,25 @@
             }
         },
         "expected_status": "200",
-        "expected_response_schema": "",
+        "expected_response_schema": "MoveMoneyAPI\\schemas\\Schema_requests_requestId_PUT.json",
         "expected_response": null,
         "ignore_fields": [
-            "id"
+            "traceId",
+            "timestamp",
+            "createdDate",
+            "modifiedDate",
+            "version"
         ],
         "extract_values": [
             {
                 "from": "response",
-                "key": "id",
-                "assign_to": ""
+                "key": "requestId",
+                "assign_to": "requestId"
             },
             {
-                "from": "db_result",
-                "query": "",
-                "assign": [
-                    {
-                        "key": "",
-                        "assign_to": ""
-                    }
-                ]
+                "from": "response",
+                "key": "version",
+                "assign_to": "version"
             }
         ],
         "validate": {
@@ -238,24 +228,25 @@
                     "xss"
                 ]
             },
-            "data_comparison": {
-                "source": "api_response",
-                "target": "db_result",
-                "format": "table",
-                "key_field": [
-                    "",
-                    ""
-                ],
-                "fields_to_compare": [],
-                "log_differences": true
-            }
+            "assertions": [
+                {
+                    "actual": "{{requestId}}",
+                    "expected": "",
+                    "operator": "!=",
+                    "message": "RequestId should not be empty"
+                }
+            ],
+            "data_comparison": []
         },
         "test_data_file": "",
-        "db_query": "",
+        "db_query_timing": "",
+        "db_queries": {
+            "default": "",
+            "audit_query": ""
+        },
         "db_type": "",
         "db_connection_name": "",
-        "test_summary": "Test TC003: PUT /requests/{requestId} [positive] (TC003) - Validate the 200 successful response with valid Request Id and Request body with updated status,Reason,Payment date & Schedule type.",
-        "test_scenario": "Test PUT request to /requests/{requestId} for functional scenario validation."
+        "test_summary": "Test TC003: PUT /requests/{requestId} [positive] (TC003) - Validate the 200 successful response with valid Request Id and Request body with updated status,Reason,Payment date & Schedule type."
     },
     {
         "test_id": "TC004",
@@ -294,28 +285,10 @@
             }
         },
         "expected_status": "204",
-        "expected_response_schema": "",
+        "expected_response_schema": null,
         "expected_response": null,
-        "ignore_fields": [
-            "id"
-        ],
-        "extract_values": [
-            {
-                "from": "response",
-                "key": "id",
-                "assign_to": ""
-            },
-            {
-                "from": "db_result",
-                "query": "",
-                "assign": [
-                    {
-                        "key": "",
-                        "assign_to": ""
-                    }
-                ]
-            }
-        ],
+        "ignore_fields": [],
+        "extract_values": [],
         "validate": {
             "performance": {
                 "max_response_time_ms": 500
@@ -326,25 +299,18 @@
                     "xss"
                 ]
             },
-            "data_comparison": {
-                "source": "api_response",
-                "target": "db_result",
-                "format": "table",
-                "key_field": [
-                    "",
-                    ""
-                ],
-                "fields_to_compare": [],
-                "log_differences": true
-            }
+            "assertions": [],
+            "data_comparison": []
         },
         "test_data_file": "",
-        "db_query": "",
+        "db_query_timing": "after_api",
+        "db_queries": {
+            "default": "",
+            "audit_query": ""
+        },
         "db_type": "",
         "db_connection_name": "",
-        "test_summary": "Test TC004: PUT /requests/{requestId} - Verify that the API returns a 204 response if there is mismatch or Wrong Request ID.",
-        "invalid_payload": true,
-        "test_scenario": "Verify that the API returns a 400 Bad Request error when invalid data is provided in the PUT request to /requests/{requestId}."
+        "test_summary": "Test TC004: PUT /requests/{requestId} - Verify that the API returns a 204 response if there is mismatch or Wrong Request ID."
     },
     {
         "test_id": "TC005",
@@ -383,30 +349,18 @@
             }
         },
         "expected_status": "400",
-        "expected_response_schema": "",
+        "expected_response_schema": null,
         "expected_response": {
             "status": 400,
             "error": "instructionId cannot be changed after request creation (Parameter 'InstructionId')",
             "fields": "InstructionId"
         },
-        "ignore_fields": [
-            "id"
-        ],
+        "ignore_fields": [],
         "extract_values": [
             {
                 "from": "response",
-                "key": "id",
-                "assign_to": ""
-            },
-            {
-                "from": "db_result",
-                "query": "",
-                "assign": [
-                    {
-                        "key": "",
-                        "assign_to": ""
-                    }
-                ]
+                "key": "status",
+                "assign_to": "error_status"
             }
         ],
         "validate": {
@@ -419,25 +373,25 @@
                     "xss"
                 ]
             },
-            "data_comparison": {
-                "source": "api_response",
-                "target": "db_result",
-                "format": "table",
-                "key_field": [
-                    "",
-                    ""
-                ],
-                "fields_to_compare": [],
-                "log_differences": true
-            }
+            "assertions": [
+                {
+                    "actual": "{{error_status}}",
+                    "expected": 400,
+                    "operator": "==",
+                    "message": "Should return 400 for immutable field change (InstructionId)"
+                }
+            ],
+            "data_comparison": []
         },
         "test_data_file": "",
-        "db_query": "",
+        "db_query_timing": "after_api",
+        "db_queries": {
+            "default": "",
+            "audit_query": ""
+        },
         "db_type": "",
         "db_connection_name": "",
-        "test_summary": "Test TC005: PUT /requests/{requestId} - Verify that the API returns a 400 response if there is Immutable Field Changed(AccountId).",
-        "invalid_payload": true,
-        "test_scenario": "Verify that the API returns a 400 response if there is Immutable Field Changed(AccountId)."
+        "test_summary": "Test TC005: PUT /requests/{requestId} - Verify that the API returns a 400 response if there is Immutable Field Changed(AccountId)."
     },
     {
         "test_id": "TC006",
@@ -476,30 +430,18 @@
             }
         },
         "expected_status": "400",
-        "expected_response_schema": "",
+        "expected_response_schema": null,
         "expected_response": {
             "status": 400,
             "error": "The field Amount must be between 0.01 and 999999999.99.",
             "fields": "amount"
         },
-        "ignore_fields": [
-            "id"
-        ],
+        "ignore_fields": [],
         "extract_values": [
             {
                 "from": "response",
-                "key": "id",
-                "assign_to": ""
-            },
-            {
-                "from": "db_result",
-                "query": "",
-                "assign": [
-                    {
-                        "key": "",
-                        "assign_to": ""
-                    }
-                ]
+                "key": "status",
+                "assign_to": "error_status"
             }
         ],
         "validate": {
@@ -512,25 +454,25 @@
                     "xss"
                 ]
             },
-            "data_comparison": {
-                "source": "api_response",
-                "target": "db_result",
-                "format": "table",
-                "key_field": [
-                    "",
-                    ""
-                ],
-                "fields_to_compare": [],
-                "log_differences": true
-            }
+            "assertions": [
+                {
+                    "actual": "{{error_status}}",
+                    "expected": 400,
+                    "operator": "==",
+                    "message": "Should return 400 for invalid amount (must be min 0.01)"
+                }
+            ],
+            "data_comparison": []
         },
         "test_data_file": "",
-        "db_query": "",
+        "db_query_timing": "after_api",
+        "db_queries": {
+            "default": "",
+            "audit_query": ""
+        },
         "db_type": "",
         "db_connection_name": "",
-        "test_summary": "Test TC006: PUT /requests/{requestId} - Verify that the API returns a 400 response if there is Invalid Amount Field.",
-        "invalid_payload": true,
-        "test_scenario": "Verify that the API returns a 400 response if there is Invalid Amount Field."
+        "test_summary": "Test TC006: PUT /requests/{requestId} - Verify that the API returns a 400 response if there is Invalid Amount Field."
     },
     {
         "test_id": "TC007",
@@ -569,30 +511,18 @@
             }
         },
         "expected_status": "400",
-        "expected_response_schema": "",
+        "expected_response_schema": null,
         "expected_response": {
             "status": 400,
             "error": "The field Amount must be between 0.01 and 999999999.99.",
             "fields": "amount"
         },
-        "ignore_fields": [
-            "id"
-        ],
+        "ignore_fields": [],
         "extract_values": [
             {
                 "from": "response",
-                "key": "id",
-                "assign_to": ""
-            },
-            {
-                "from": "db_result",
-                "query": "",
-                "assign": [
-                    {
-                        "key": "",
-                        "assign_to": ""
-                    }
-                ]
+                "key": "status",
+                "assign_to": "error_status"
             }
         ],
         "validate": {
@@ -605,25 +535,25 @@
                     "xss"
                 ]
             },
-            "data_comparison": {
-                "source": "api_response",
-                "target": "db_result",
-                "format": "table",
-                "key_field": [
-                    "",
-                    ""
-                ],
-                "fields_to_compare": [],
-                "log_differences": true
-            }
+            "assertions": [
+                {
+                    "actual": "{{error_status}}",
+                    "expected": 400,
+                    "operator": "==",
+                    "message": "Should return 400 for invalid amount (must be max 999999999.99)"
+                }
+            ],
+            "data_comparison": []
         },
         "test_data_file": "",
-        "db_query": "",
+        "db_query_timing": "after_api",
+        "db_queries": {
+            "default": "",
+            "audit_query": ""
+        },
         "db_type": "",
         "db_connection_name": "",
-        "test_summary": "Test TC007: PUT /requests/{requestId} - Verify that the API returns a 400 response if there is Invalid Maximum value in Amount Field.",
-        "invalid_payload": true,
-        "test_scenario": "Verify that the API returns a 400 response if there is Invalid Maximum value in Amount Field."
+        "test_summary": "Test TC007: PUT /requests/{requestId} - Verify that the API returns a 400 response if there is Invalid Maximum value in Amount Field."
     },
     {
         "test_id": "TC008",
@@ -659,26 +589,14 @@
             }
         },
         "expected_status": "400",
-        "expected_response_schema": "",
+        "expected_response_schema": null,
         "expected_response": null,
-        "ignore_fields": [
-            "id"
-        ],
+        "ignore_fields": [],
         "extract_values": [
             {
                 "from": "response",
-                "key": "id",
-                "assign_to": ""
-            },
-            {
-                "from": "db_result",
-                "query": "",
-                "assign": [
-                    {
-                        "key": "",
-                        "assign_to": ""
-                    }
-                ]
+                "key": "status",
+                "assign_to": "error_status"
             }
         ],
         "validate": {
@@ -691,25 +609,25 @@
                     "xss"
                 ]
             },
-            "data_comparison": {
-                "source": "api_response",
-                "target": "db_result",
-                "format": "table",
-                "key_field": [
-                    "",
-                    ""
-                ],
-                "fields_to_compare": [],
-                "log_differences": true
-            }
+            "assertions": [
+                {
+                    "actual": "{{error_status}}",
+                    "expected": 400,
+                    "operator": "==",
+                    "message": "Should return 400 for invalid date format"
+                }
+            ],
+            "data_comparison": []
         },
         "test_data_file": "",
-        "db_query": "",
+        "db_query_timing": "after_api",
+        "db_queries": {
+            "default": "",
+            "audit_query": ""
+        },
         "db_type": "",
         "db_connection_name": "",
-        "test_summary": "Test TC008: PUT /requests/{requestId} - Verify that the API returns a 400 response if there is Invalid Date Field.",
-        "invalid_payload": true,
-        "test_scenario": "Verify that the API returns a 400 response if there is Invalid Date Field."
+        "test_summary": "Test TC008: PUT /requests/{requestId} - Verify that the API returns a 400 response if there is Invalid Date Field."
     },
     {
         "test_id": "TC009",
@@ -745,26 +663,14 @@
             }
         },
         "expected_status": "409",
-        "expected_response_schema": "",
+        "expected_response_schema": null,
         "expected_response": null,
-        "ignore_fields": [
-            "id"
-        ],
+        "ignore_fields": [],
         "extract_values": [
             {
                 "from": "response",
-                "key": "id",
-                "assign_to": ""
-            },
-            {
-                "from": "db_result",
-                "query": "",
-                "assign": [
-                    {
-                        "key": "",
-                        "assign_to": ""
-                    }
-                ]
+                "key": "status",
+                "assign_to": "error_status"
             }
         ],
         "validate": {
@@ -777,25 +683,25 @@
                     "xss"
                 ]
             },
-            "data_comparison": {
-                "source": "api_response",
-                "target": "db_result",
-                "format": "table",
-                "key_field": [
-                    "",
-                    ""
-                ],
-                "fields_to_compare": [],
-                "log_differences": true
-            }
+            "assertions": [
+                {
+                    "actual": "{{error_status}}",
+                    "expected": 409,
+                    "operator": "==",
+                    "message": "Should return 409 Conflict for version mismatch (optimistic concurrency control)"
+                }
+            ],
+            "data_comparison": []
         },
         "test_data_file": "",
-        "db_query": "",
+        "db_query_timing": "after_api",
+        "db_queries": {
+            "default": "",
+            "audit_query": ""
+        },
         "db_type": "",
         "db_connection_name": "",
-        "test_summary": "Test TC009: PUT /requests/{requestId} - Verify that the API returns a 409 response if there is a Version Mismatch.",
-        "invalid_payload": true,
-        "test_scenario": "Verify that the API returns a 400 response if there is Version Mismatch."
+        "test_summary": "Test TC009: PUT /requests/{requestId} - Verify that the API returns a 409 response if there is a Version Mismatch."
     },
     {
         "test_id": "TC010",
@@ -831,28 +737,10 @@
             }
         },
         "expected_status": "500",
-        "expected_response_schema": "",
+        "expected_response_schema": null,
         "expected_response": null,
-        "ignore_fields": [
-            "id"
-        ],
-        "extract_values": [
-            {
-                "from": "response",
-                "key": "id",
-                "assign_to": ""
-            },
-            {
-                "from": "db_result",
-                "query": "",
-                "assign": [
-                    {
-                        "key": "",
-                        "assign_to": ""
-                    }
-                ]
-            }
-        ],
+        "ignore_fields": [],
+        "extract_values": [],
         "validate": {
             "performance": {
                 "max_response_time_ms": 500
@@ -863,24 +751,17 @@
                     "xss"
                 ]
             },
-            "data_comparison": {
-                "source": "api_response",
-                "target": "db_result",
-                "format": "table",
-                "key_field": [
-                    "",
-                    ""
-                ],
-                "fields_to_compare": [],
-                "log_differences": true
-            }
+            "assertions": [],
+            "data_comparison": []
         },
         "test_data_file": "",
-        "db_query": "",
+        "db_query_timing": "after_api",
+        "db_queries": {
+            "default": "",
+            "audit_query": ""
+        },
         "db_type": "",
         "db_connection_name": "",
-        "test_summary": "Test TC010: PUT /requests/{requestId} - Verify that the API returns a 500 response if there is Server Error.",
-        "invalid_payload": true,
-        "test_scenario": "Verify that the API returns a 400 response if there is Server Error."
+        "test_summary": "Test TC010: PUT /requests/{requestId} - Verify that the API returns a 500 response if there is Server Error."
     }
 ]

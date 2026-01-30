@@ -1,0 +1,104 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "type": "object",
+  "title": "GET /instructions/{instructionId} Response Schema",
+  "description": "Response schema for /instructions/{instructionId}",
+  "properties": {
+    "instructionId": {
+      "type": "string",
+      "format": "uuid",
+      "description": "Unique, stable identifier for the MMI record across the entire platform"
+    },
+    "accountId": {
+      "type": "string",
+      "format": "uuid",
+      "description": "Unique, stable identifier for the account associated with this instruction"
+    },
+    "version": {
+      "type": "integer",
+      "minimum": 1,
+      "description": "Record version number for optimistic concurrency control and change tracking"
+    },
+    "status": {
+      "type": "string",
+      "enum": ["Draft", "Pending", "Confirmed", "Deleted"],
+      "description": "Indicates whether the MMI is currently active and eligible for use"
+    },
+    "holderRelation": {
+      "type": "string",
+      "enum": ["FirstParty", "ThirdParty"],
+      "description": "Identifies the relationship of the account holder to the destination"
+    },
+    "letterOfAuthorization": {
+      "type": "string",
+      "enum": ["Deposit", "Withdrawal", "Both", "None"],
+      "description": "Client authorization for the instruction"
+    },
+    "railType": {
+      "type": "string",
+      "enum": ["ACH", "Wire", "Check", "Journal"],
+      "description": "Payment rail type (legacy field)"
+    },
+    "rail": {
+      "type": "object",
+      "description": "Payment rail configuration for this instruction",
+      "properties": {
+        "type": {
+          "type": "string",
+          "enum": ["ACH", "Wire", "Check", "Journal"],
+          "description": "Payment rail type"
+        }
+      }
+    },
+    "custodianInstructionNumber": {
+      "type": ["string", "null"],
+      "description": "Custodian instruction number"
+    },
+    "bank": {
+      "type": "object",
+      "properties": {
+        "bankAccountName": {
+          "type": "string",
+          "description": "Name on the bank account"
+        },
+        "bankAccountType": {
+          "type": "string",
+          "description": "Type of bank account"
+        },
+        "bankName": {
+          "type": "string",
+          "description": "Name of the bank"
+        },
+        "routingNumber": {
+          "type": "string",
+          "description": "Bank routing number"
+        },
+        "bankAccountNumber": {
+          "type": "string",
+          "description": "Bank account number"
+        }
+      },
+      "required": ["bankAccountName", "bankAccountType", "bankName", "routingNumber", "bankAccountNumber"]
+    },
+    "createdDate": {
+      "type": "string",
+      "format": "date-time",
+      "description": "Timestamp when the record was first created in the system"
+    },
+    "createdBy": {
+      "type": "string",
+      "description": "Identifier of the user, system, or process that created the record"
+    },
+    "modifiedDate": {
+      "type": "string",
+      "format": "date-time",
+      "description": "Timestamp of the most recent modification to the record"
+    },
+    "modifiedBy": {
+      "type": "string",
+      "description": "Identifier of the user, system, or process that last modified the record"
+    }
+  },
+  "required": ["instructionId", "accountId", "version", "status"],
+  "additionalProperties": true
+}

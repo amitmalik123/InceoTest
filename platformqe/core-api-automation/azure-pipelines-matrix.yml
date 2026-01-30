@@ -147,6 +147,8 @@ variables:
   # Required variables in this group:
   #   TSADEV_parties_base_url, TSATEST_parties_base_url, TSASILO_parties_base_url
   #   TSADEV_address_base_url, TSATEST_address_base_url, TSASILO_address_base_url
+  #   TSADEV_strategies_base_url, TSATEST_strategies_base_url, TSASILO_strategies_base_url
+  #   TSADEV_wraptoken_base_url, TSATEST_wraptoken_base_url, TSASILO_wraptoken_base_url
   #   ... (same pattern for all service URLs)
   #
   - group: 'qa-pipelines-config'
@@ -451,7 +453,7 @@ stages:
             inputs:
               azureSubscription: $(subscription_dev)
               KeyVaultName: 'amkkvqapipeline-devncus'
-              SecretsFilter: 'parties-sqldb-connection-string,movemoney-sqldb-connection-string,hne-db-connection-string,securitieshub-db-connection-string,modelhub-db-connection-string'
+              SecretsFilter: 'parties-sqldb-connection-string,movemoney-sqldb-connection-string,hne-db-connection-string,securitieshub-db-connection-string,modelhub-db-connection-string,am-db-connection-string,platform-db-connection-string'
               RunAsPreJob: false
           
           # TSATEST Environment Key Vault
@@ -461,7 +463,7 @@ stages:
             inputs:
               azureSubscription: $(subscription_test)
               KeyVaultName: 'amkkvqapipeline-testncus'
-              SecretsFilter: 'parties-sqldb-connection-string,movemoney-sqldb-connection-string,hne-db-connection-string,securitieshub-db-connection-string,modelhub-db-connection-string'
+              SecretsFilter: 'parties-sqldb-connection-string,movemoney-sqldb-connection-string,hne-db-connection-string,securitieshub-db-connection-string,modelhub-db-connection-string,am-db-connection-string,platform-db-connection-string'
               RunAsPreJob: false
           
           # TSASILO Environment Key Vault
@@ -471,7 +473,7 @@ stages:
             inputs:
               azureSubscription: $(subscription_silo)
               KeyVaultName: 'amkkvqapipeline-siloncus'
-              SecretsFilter: 'parties-sqldb-connection-string,movemoney-sqldb-connection-string,hne-db-connection-string,securitieshub-db-connection-string,modelhub-db-connection-string'
+              SecretsFilter: 'parties-sqldb-connection-string,movemoney-sqldb-connection-string,hne-db-connection-string,securitieshub-db-connection-string,modelhub-db-connection-string,am-db-connection-string,platform-db-connection-string'
               RunAsPreJob: false
           
           # Resolve environment-specific variables based on matrix environment selection
@@ -511,6 +513,8 @@ stages:
                     echo "##vso[task.setvariable variable=RESOLVED_MOVEMONEY_BASE_URL]$(TSADEV_movemoney_base_url)"
                     echo "##vso[task.setvariable variable=RESOLVED_SECURITIES_BASE_URL]$(TSADEV_securities_base_url)"
                     echo "##vso[task.setvariable variable=RESOLVED_WORK_ITEM_NOTIFICATION_BASE_URL]$(TSADEV_work_item_notification_base_url)"
+                    echo "##vso[task.setvariable variable=RESOLVED_STRATEGIES_BASE_URL]$(TSADEV_strategies_base_url)"
+                    echo "##vso[task.setvariable variable=RESOLVED_WRAPTOKEN_BASE_URL]$(TSADEV_wraptoken_base_url)"
                     ;;
                   "TSATEST")
                     echo "##vso[task.setvariable variable=RESOLVED_PARTIES_BASE_URL]$(TSATEST_parties_base_url)"
@@ -521,6 +525,8 @@ stages:
                     echo "##vso[task.setvariable variable=RESOLVED_MOVEMONEY_BASE_URL]$(TSATEST_movemoney_base_url)"
                     echo "##vso[task.setvariable variable=RESOLVED_SECURITIES_BASE_URL]$(TSATEST_securities_base_url)"
                     echo "##vso[task.setvariable variable=RESOLVED_WORK_ITEM_NOTIFICATION_BASE_URL]$(TSATEST_work_item_notification_base_url)"
+                    echo "##vso[task.setvariable variable=RESOLVED_STRATEGIES_BASE_URL]$(TSATEST_strategies_base_url)"
+                    echo "##vso[task.setvariable variable=RESOLVED_WRAPTOKEN_BASE_URL]$(TSATEST_wraptoken_base_url)"
                     ;;
                   "TSASILO")
                     echo "##vso[task.setvariable variable=RESOLVED_PARTIES_BASE_URL]$(TSASILO_parties_base_url)"
@@ -531,6 +537,8 @@ stages:
                     echo "##vso[task.setvariable variable=RESOLVED_MOVEMONEY_BASE_URL]$(TSASILO_movemoney_base_url)"
                     echo "##vso[task.setvariable variable=RESOLVED_SECURITIES_BASE_URL]$(TSASILO_securities_base_url)"
                     echo "##vso[task.setvariable variable=RESOLVED_WORK_ITEM_NOTIFICATION_BASE_URL]$(TSASILO_work_item_notification_base_url)"
+                    echo "##vso[task.setvariable variable=RESOLVED_STRATEGIES_BASE_URL]$(TSASILO_strategies_base_url)"
+                    echo "##vso[task.setvariable variable=RESOLVED_WRAPTOKEN_BASE_URL]$(TSASILO_wraptoken_base_url)"
                     ;;
                   *)
                     echo "❌ ERROR: Unknown environment: $SELECTED_ENV"
@@ -543,6 +551,8 @@ stages:
                     echo "##vso[task.setvariable variable=RESOLVED_MOVEMONEY_BASE_URL]$(TSADEV_movemoney_base_url)"
                     echo "##vso[task.setvariable variable=RESOLVED_SECURITIES_BASE_URL]$(TSADEV_securities_base_url)"
                     echo "##vso[task.setvariable variable=RESOLVED_WORK_ITEM_NOTIFICATION_BASE_URL]$(TSADEV_work_item_notification_base_url)"
+                    echo "##vso[task.setvariable variable=RESOLVED_STRATEGIES_BASE_URL]$(TSADEV_strategies_base_url)"
+                    echo "##vso[task.setvariable variable=RESOLVED_WRAPTOKEN_BASE_URL]$(TSADEV_wraptoken_base_url)"
                     ;;
                 esac
                 
@@ -568,6 +578,8 @@ stages:
                 echo "RESOLVED_MOVEMONEY_BASE_URL: $(RESOLVED_MOVEMONEY_BASE_URL)"
                 echo "RESOLVED_SECURITIES_BASE_URL: $(RESOLVED_SECURITIES_BASE_URL)"
                 echo "RESOLVED_WORK_ITEM_NOTIFICATION_BASE_URL: $(RESOLVED_WORK_ITEM_NOTIFICATION_BASE_URL)"
+                echo "RESOLVED_STRATEGIES_BASE_URL: $(RESOLVED_STRATEGIES_BASE_URL)"
+                echo "RESOLVED_WRAPTOKEN_BASE_URL: $(RESOLVED_WRAPTOKEN_BASE_URL)"
                 echo "=========================================="
           
           # - task: UsePythonVersion@0
@@ -650,6 +662,9 @@ stages:
               HNE_DB: $(hne-db-connection-string)
               SECURITIESHUB_DB: $(securitieshub-db-connection-string)
               MODELHUB_DB: $(modelhub-db-connection-string)
+              AM_DB_SQLDB: $(am-db-connection-string)
+              PLATFORM_DB_SQLDB: $(platform-db-connection-string)
+              # TRACKING_CENTER_SQLDB: $(tracking-center-sqldb-connection-string)
               AZURE_SQL_PASSWORD: $(AZURE_SQL_PASSWORD)
               POSTGRES_DB_PASSWORD: $(POSTGRES_DB_PASSWORD)
               ADDRESS_BASE_URL: $(RESOLVED_ADDRESS_BASE_URL)
@@ -703,6 +718,9 @@ stages:
               HNE_DB: $(hne-db-connection-string)
               SECURITIESHUB_DB: $(securitieshub-db-connection-string)
               MODELHUB_DB: $(modelhub-db-connection-string)
+              AM_DB_SQLDB: $(am-db-connection-string)
+              PLATFORM_DB_SQLDB: $(platform-db-connection-string)
+              # TRACKING_CENTER_SQLDB: $(tracking-center-sqldb-connection-string)
               AZURE_SQL_PASSWORD: $(AZURE_SQL_PASSWORD)
               POSTGRES_DB_PASSWORD: $(POSTGRES_DB_PASSWORD)
               ADDRESS_BASE_URL: $(RESOLVED_ADDRESS_BASE_URL)
