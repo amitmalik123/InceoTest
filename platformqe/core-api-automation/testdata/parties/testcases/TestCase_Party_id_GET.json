@@ -5,7 +5,7 @@
     "workflow_mode": "sequential",
     "test_name": "QUERY and Extract DB Values",
     "protocol": "DB_ONLY",
-    "test_type": ["Functional", "Smoke"],
+    "test_type": ["Functional", "Smoke", "Business Logic"],
     "mainURL": "",
     "endpoint": "",
     "method": "",
@@ -64,7 +64,7 @@
     "workflow_mode": "parallel",
     "test_name": "GET /parties/{id} [positive] (TC001)",
     "protocol": "REST",
-    "test_type": ["Functional", "Smoke"],
+    "test_type": ["Functional", "Smoke", "Business Logic"],
     "mainURL": "{{base_url}}",
     "endpoint": "/parties/{{id}}",
     "method": "GET",
@@ -78,7 +78,7 @@
     },
     "payload": null,
     "expected_status": "200",
-    "expected_response_schema": "parties\\schemas\\Schema_parties_Party_id_GET_response_success.json",
+    "expected_response_schema": "parties\\schemas\\Schema_parties_Party_id_GET_response_with_version.json",
     "expected_response": "",
     "extract_values": [],
     "validate": {
@@ -94,7 +94,10 @@
         "format": "table",
         "key_field": ["", ""],
         "fields_to_compare": [
-          { "source": "parties.0.partyId", "target": "db_id" }
+          {
+            "source": "parties.0.partyId",
+            "target": "db_id"
+          }
         ],
         "log_differences": true
       }
@@ -111,7 +114,7 @@
     "workflow_mode": "parallel",
     "test_name": "GET /parties/{id} [negative: missing id] (TC002)",
     "protocol": "REST",
-    "test_type": ["Negative"],
+    "test_type": ["Negative", "Business Logic"],
     "mainURL": "{{base_url}}",
     "endpoint": "/parties/",
     "method": "GET",
@@ -172,7 +175,7 @@
     "workflow_mode": "parallel",
     "test_name": "GET /parties/{id} [negative: not found] (TC003)",
     "protocol": "REST",
-    "test_type": ["Negative"],
+    "test_type": ["Negative", "Business Logic"],
     "mainURL": "{{base_url}}",
     "endpoint": "/parties/123abcf0-d6ee-43a4-959e-8c2a7babc085",
     "method": "GET",
