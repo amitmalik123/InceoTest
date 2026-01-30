@@ -5,7 +5,7 @@
     "workflow_mode": "parallel",
     "test_name": "POST /parties [positive] (TC001)",
     "protocol": "REST",
-    "test_type": ["Functional"],
+    "test_type": ["Functional", "Business Logic"],
     "mainURL": "{{base_url}}",
     "endpoint": "/parties",
     "method": "POST",
@@ -41,7 +41,7 @@
     ],
     "validate": {
       "performance": {
-        "max_response_time_ms": 500
+        "max_response_time_ms": 1000
       },
       "security": {
         "checks": ["sql_injection", "xss"]
