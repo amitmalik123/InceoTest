@@ -427,6 +427,15 @@ class Validators:
             logger.error(msg)
             return msg
         
+        # If response.json() returns a string (JSON-encoded string), parse it again
+        if isinstance(actual_json, str):
+            try:
+                actual_json = json.loads(actual_json)
+            except Exception as e:
+                msg = f"Failed to parse JSON-encoded string response: {e}"
+                logger.error(msg)
+                return msg
+        
         try:
             jsonschema.validate(instance=actual_json, schema=schema)
             logger.info("JSON schema validation PASSED")
