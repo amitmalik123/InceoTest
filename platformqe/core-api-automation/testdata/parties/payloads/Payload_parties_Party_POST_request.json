@@ -11,17 +11,17 @@
       "taxId": " {{req_taxId[:-1]}}",
       "citizenship": "{{req_citizenship}}",
       "maritalStatus": "{{req_maritalStatus}}",
-      "isDeceased": false,
-      "dateOfDeath": null
+      "isDeceased": "{{req_isDeceased}}",
+      "dateOfDeath": "{{req_dateOfDeath}}"
     },
-    "entity": {
-      "type": "Business",
-      "subType": "Unknown",
-      "title": "Acme Corporation Ltd",
-      "taxId": " {{random_numeric(8)}}",
-      "taxidentifier": "SSN",
-      "createdDate": "2026-01-26"
-    }
+     "entity": {
+        "type": "{{req_entityType}}",
+        "subType": "{{req_entitySubType}}",
+        "title": "{{req_entityTitle}}",
+        "taxId": "{{req_entityTaxId}}",
+        "taxidentifier": "{{req_taxidentifier}}",
+        "createdDate": "{{req_createdDate}}"
+      }
   },
   "addresses": [
     {
@@ -40,7 +40,7 @@
       "contactType": "{{req_contactType}}",
       "usageType": "{{req_usageType}}",
       "value": "{{req_value}}",
-      "priorityType": "{{req_priorityType}}"
+        "priorityType": "{{req_contactPriorityType}}"
     }
   ],
   "identifiers": [
