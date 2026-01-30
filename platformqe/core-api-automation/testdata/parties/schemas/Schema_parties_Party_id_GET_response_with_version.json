@@ -90,11 +90,11 @@
                 "type": "object",
                 "properties": {
                   "type": {
-                    "type": "string",
-                    "enum": ["Business", "Trust"]
+                    "type": ["string", "null"],
+                    "enum": ["Business", "Trust", null]
                   },
                   "subType": {
-                    "type": "string",
+                    "type": ["string", "null"],
                     "enum": [
                       "Unknown",
                       "FamilyTrust",
@@ -103,7 +103,8 @@
                       "RevocableTrust",
                       "TestamentaryTrust",
                       "IrrevocableLivingTrust",
-                      "CharitableTrust"
+                      "CharitableTrust",
+                      null
                     ]
                   },
                   "title": {
@@ -115,8 +116,8 @@
                     "maxLength": 11
                   },
                   "taxidentifier": {
-                    "type": "string",
-                    "enum": ["SSN", "EIN"]
+                    "type": ["string", "null"],
+                    "enum": ["SSN", "EIN", null]
                   },
                   "createdDate": {
                     "type": ["string", "null"],
