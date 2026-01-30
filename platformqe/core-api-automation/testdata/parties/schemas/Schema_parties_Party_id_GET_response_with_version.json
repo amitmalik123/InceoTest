@@ -18,7 +18,7 @@
             "type": "integer"
           },
           "partyType": {
-            "type": "string",
+            "type": ["string", "null"],
             "enum": ["Individual", "Business", "Trust"]
           },
           "core": {
@@ -52,7 +52,7 @@
                     "maxLength": 9
                   },
                   "citizenship": {
-                    "type": "string",
+                    "type": ["string", "null"],
                     "enum": [
                       "Unknown",
                       "BirthRight",
@@ -61,7 +61,7 @@
                     ]
                   },
                   "maritalStatus": {
-                    "type": "string",
+                    "type": ["string", "null"],
                     "enum": [
                       "Unknown",
                       "Single",
