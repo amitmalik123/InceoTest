@@ -3,15 +3,15 @@
         "test_id": "TC001",
         "service_name": "models",
         "workflow_mode": "sequential",
-        "test_name": "Get Model by Status and Extract IDs (TC001)",
+        "test_name": "POST /investmentapproach - Create New Investment Approach (TC001)",
         "protocol": "REST",
         "test_type": [
-            "Functional",
-            "Smoke"
+            "Positive",
+            "Setup"
         ],
         "mainURL": "{{base_url}}",
-        "endpoint": "/models/?Status=Draft",
-        "method": "GET",
+        "endpoint": "/investmentapproach",
+        "method": "POST",
         "rpc_method": "",
         "graphql_query": "",
         "graphql_variables": "",
@@ -20,192 +20,44 @@
         "headers_additional": {
             "Content-Type": "application/json"
         },
-        "payload": null,
-        "expected_status": "200",
-        "expected_response_schema": "models\\schemas\\Schema_models_GET.json",
+        "payload": {
+            "name": "{{random_string(20)}}",
+            "isActive": true
+        },
+        "expected_status": "201",
+        "expected_response_schema": "",
         "expected_response": null,
-        "ignore_fields": [
-            "id"
-        ],
+        "ignore_fields": [],
         "extract_values": [
             {
                 "from": "response",
-                "key": "models.0.modelId",
-                "assign_to": "first_model_id"
+                "key": "id",
+                "assign_to": "first_investment_approach_id"
             },
             {
                 "from": "response",
-                "key": "models.0.investmentApproach.id",
-                "assign_to": "first_investment_approach_id"
+                "key": "name",
+                "assign_to": "created_investment_approach_name"
             }
         ],
         "validate": {
             "performance": {
-                "max_response_time_ms": null
+                "max_response_time_ms": 3000
             },
             "security": {
-                "checks": [
-                    "sql_injection",
-                    "xss"
-                ]
+                "checks": []
             },
-            "data_comparison": [
-                {
-                    "source": "api_response",
-                    "target": "db_result",
-                    "target_query": "default",
-                    "format": "table",
-                    "source_array_path": "models",
-                    "key_field": [
-                        {
-                            "source": "modelId",
-                            "target": "model_id"
-                        },
-                        {
-                            "source": "status",
-                            "target": "status"
-                        },
-                        {
-                            "source": "version",
-                            "target": "version"
-                        }
-                    ],
-                    "fields_to_compare": [
-                        {
-                            "source": "modelId",
-                            "target": "model_id"
-                        },
-                        {
-                            "source": "name",
-                            "target": "name"
-                        },
-                        {
-                            "source": "status",
-                            "target": "status"
-                        },
-                        {
-                            "source": "version",
-                            "target": "version"
-                        },
-                        {
-                            "source": "modelType",
-                            "target": "model_type"
-                        },
-                        {
-                            "source": "solutionType",
-                            "target": "solution_type"
-                        },
-                        {
-                            "source": "custodian",
-                            "target": "custodian"
-                        },
-                        {
-                            "source": "investmentApproach",
-                            "target": "investment_approach"
-                        },
-                        {
-                            "source": "benchmarks",
-                            "target": "benchmark"
-                        },
-                        {
-                            "source": "investmentMin",
-                            "target": "investment_min"
-                        },
-                        {
-                            "source": "riskProfile",
-                            "target": "risk_profile"
-                        },
-                        {
-                            "source": "owner.ownerId",
-                            "target": "owner_id"
-                        },
-                        {
-                            "source": "allocations",
-                            "target": "allocations"
-                        },
-                        {
-                            "source": "metadata",
-                            "target": "metadata"
-                        }
-                    ],
-                    "log_differences": true,
-                    "comparison_name": "Verify Response API vs DB field values",
-                    "field_transformers": [
-                        {
-                            "field": "investmentMin",
-                            "transform": "array_to_object",
-                            "options": {
-                                "key_field": "type",
-                                "value_field": "value",
-                                "lowercase_keys": true
-                            }
-                        },
-                        {
-                            "field": "investment_min",
-                            "transform": "array_to_object",
-                            "options": {
-                                "key_field": "type",
-                                "value_field": "value",
-                                "lowercase_keys": true
-                            }
-                        }
-                    ]
-                },
-                {
-                    "source": "api_response",
-                    "target": "db_result",
-                    "target_query": "default",
-                    "compare_record_count": true,
-                    "source_array_path": "models",
-                    "target_array_path": "",
-                    "log_differences": true,
-                    "comparison_name": "Verify Record count - API Vs DB"
-                },
-                {
-                    "source": "api_response",
-                    "target": "db_result",
-                    "target_query": "count_query",
-                    "fields_to_compare": [
-                        {
-                            "source": "count",
-                            "target": "count"
-                        }
-                    ],
-                    "log_differences": true,
-                    "comparison_name": "Verify count field value matches with DB count"
-                },
-                {
-                    "source": "api_response",
-                    "source_array_path": "filters.id",
-                    "target": "literal",
-                    "target_literal": null,
-                    "comparison_name": "Verify No filter -  id is null"
-                },
-                {
-                    "source": "api_response",
-                    "source_array_path": "filters.status",
-                    "target": "literal",
-                    "target_literal": "Draft",
-                    "comparison_name": "Verify No filter - status is Draft"
-                },
-                {
-                    "source": "api_response",
-                    "source_array_path": "filters.ownerId",
-                    "target": "literal",
-                    "target_literal": null,
-                    "comparison_name": "Verify No filter - ownerId is null"
-                }
-            ]
+            "assertions": [],
+            "data_comparison": []
         },
         "test_data_file": "",
         "db_query_timing": "after_api",
         "db_queries": {
-            "default": "models/db_queries/Query_models_GET_withFilterStatusDraft.sql",
-            "count_query": "SELECT COUNT(*) AS count FROM public.vw_model WHERE status = 'Draft';"
+            "default": "SELECT investment_approach_id, name, is_active, modified_by, created_by FROM public.investment_approach WHERE investment_approach_id = {{first_investment_approach_id}};"
         },
         "db_type": "postgresql",
         "db_connection_name": "models",
-        "test_summary": "Test TC001: Retrieve a model with 'Draft' status and extract its modelId and investmentApproachId for subsequent tests."
+        "test_summary": "Test TC001: Create a new investment approach with auto-generated name and extract the ID for use in subsequent tests. Validate creation in database."
     },
     {
         "test_id": "TC002",
@@ -279,35 +131,36 @@
         "test_id": "TC003",
         "service_name": "models",
         "workflow_mode": "sequential",
-        "test_name": "Verify Updated Investment Approach Name (TC003)",
+        "test_name": "Update Investment Approach with Random Data and Verify DB Changes (TC003)",
         "protocol": "REST",
         "test_type": [
             "Functional",
-            "Smoke"
+            "Database Validation"
         ],
         "mainURL": "{{base_url}}",
-        "endpoint": "/models/?Id={{first_model_id}}",
-        "method": "GET",
-        "rpc_method": "",
-        "graphql_query": "",
-        "graphql_variables": "",
-        "soap_action": "",
-        "soap_envelope": "",
+        "endpoint": "/investmentapproach/{{first_investment_approach_id}}",
+        "method": "PUT",
         "headers_additional": {
             "Content-Type": "application/json"
         },
-        "payload": null,
+        "payload": {
+            "name": "{{random_string(20)}}",
+            "isActive": true
+        },
         "expected_status": "200",
-        "expected_response_schema": "models\\schemas\\Schema_models_GET.json",
-        "expected_response": null,
+        "expected_response_schema": "models/schemas/Schema_updateInvApproachRequest.json",
+        "expected_response": {
+            "status": 200,
+            "error": "Request successful"
+        },
         "ignore_fields": [
             "id"
         ],
         "extract_values": [
             {
-                "from": "response",
-                "key": "models.0.investmentApproach.name",
-                "assign_to": "updated_investment_approach_name"
+                "from": "request",
+                "key": "name",
+                "assign_to": "updated_random_name"
             }
         ],
         "validate": {
@@ -323,197 +176,49 @@
             "data_comparison": [
                 {
                     "source": "api_response",
-                    "target": "db_result",
-                    "target_query": "default",
-                    "format": "table",
-                    "source_array_path": "models",
-                    "key_field": [
-                        {
-                            "source": "modelId",
-                            "target": "model_id"
-                        },
-                        {
-                            "source": "status",
-                            "target": "status"
-                        },
-                        {
-                            "source": "version",
-                            "target": "version"
-                        }
-                    ],
-                    "fields_to_compare": [
-                        {
-                            "source": "modelId",
-                            "target": "model_id"
-                        },
-                        {
-                            "source": "name",
-                            "target": "name"
-                        },
-                        {
-                            "source": "status",
-                            "target": "status"
-                        },
-                        {
-                            "source": "version",
-                            "target": "version"
-                        },
-                        {
-                            "source": "modelType",
-                            "target": "model_type"
-                        },
-                        {
-                            "source": "solutionType",
-                            "target": "solution_type"
-                        },
-                        {
-                            "source": "custodian",
-                            "target": "custodian"
-                        },
-                        {
-                            "source": "investmentApproach",
-                            "target": "investment_approach"
-                        },
-                        {
-                            "source": "benchmarks",
-                            "target": "benchmark"
-                        },
-                        {
-                            "source": "investmentMin",
-                            "target": "investment_min"
-                        },
-                        {
-                            "source": "riskProfile",
-                            "target": "risk_profile"
-                        },
-                        {
-                            "source": "owner.ownerId",
-                            "target": "owner_id"
-                        },
-                        {
-                            "source": "allocations",
-                            "target": "allocations"
-                        },
-                        {
-                            "source": "metadata",
-                            "target": "metadata"
-                        }
-                    ],
-                    "log_differences": true,
-                    "comparison_name": "Verify Response API vs DB field values",
-                    "field_transformers": [
-                        {
-                            "field": "investmentMin",
-                            "transform": "array_to_object",
-                            "options": {
-                                "key_field": "type",
-                                "value_field": "value",
-                                "lowercase_keys": true
-                            }
-                        },
-                        {
-                            "field": "investment_min",
-                            "transform": "array_to_object",
-                            "options": {
-                                "key_field": "type",
-                                "value_field": "value",
-                                "lowercase_keys": true
-                            }
-                        }
-                    ]
-                },
-                {
-                    "source": "api_response",
-                    "target": "db_result",
-                    "target_query": "default",
-                    "compare_record_count": true,
-                    "source_array_path": "models",
-                    "target_array_path": "",
-                    "log_differences": true,
-                    "comparison_name": "Verify Record count - API Vs DB"
-                },
-                {
-                    "source": "dd_name",
-                    "target": "api_response",
-                    "target_array_path": "models.0.investmentApproach.name",
-                    "log_differences": true,
-                    "comparison_name": "Verify Updated Value - API Vs DataDriven Input"
-                },
-                {
-                    "source": "api_response",
-                    "target": "db_result",
-                    "target_query": "count_query",
-                    "fields_to_compare": [
-                        {
-                            "source": "count",
-                            "target": "count"
-                        }
-                    ],
-                    "log_differences": true,
-                    "comparison_name": "Verify count field value matches with DB count"
-                },
-                {
-                    "source": "api_response",
-                    "source_array_path": "filters.id",
-                    "target": "first_model_id",
-                    "comparison_name": "Verify No filter -  id matches first_model_id"
-                },
-                {
-                    "source": "api_response",
-                    "source_array_path": "filters.ownerId",
+                    "source_array_path": "status",
                     "target": "literal",
-                    "target_literal": null,
-                    "comparison_name": "Verify No filter - ownerId is null"
+                    "target_literal": 200,
+                    "comparison_name": "Verify status is 200"
+                },
+                {
+                    "source": "api_response",
+                    "source_array_path": "error",
+                    "target": "literal",
+                    "target_literal": "Request successful",
+                    "comparison_name": "Verify Message is 'Request successful'"
+                },
+                {
+                    "source": "updated_random_name",
+                    "target": "db_result",
+                    "target_query": "default",
+                    "target_array_path": "0.name",
+                    "log_differences": true,
+                    "comparison_name": "Verify updated name in database matches request payload"
+                },
+                {
+                    "source": "db_result",
+                    "source_array_path": "0.is_active",
+                    "target": "literal",
+                    "target_literal": true,
+                    "comparison_name": "Verify isActive is true in database"
                 }
             ]
         },
-        "test_data_file": "models/data_driven/Data_models_GET.csv",
+        "test_data_file": "",
         "db_query_timing": "after_api",
         "db_queries": {
-            "default": "models/db_queries/Query_models_GET_withFilterId.sql",
-            "count_query": "SELECT COUNT(*) AS count FROM public.vw_model WHERE Id = '{{first_model_id}}';"
+            "default": "SELECT investment_approach_id, name, is_active, modified_by FROM public.investment_approach WHERE investment_approach_id = {{first_investment_approach_id}};"
         },
         "db_type": "postgresql",
         "db_connection_name": "models",
-        "test_summary": "Test TC003: Retrieve the updated model and verify that the investment approach name matches the value from the data-driven test file."
+        "test_summary": "Test TC003: Update investment approach with random name and isActive=true, then validate the changes in database"
     },
     {
         "test_id": "TC004",
         "service_name": "models",
         "workflow_mode": "sequential",
-        "test_name": "Update Investment Approach - Negative: Missing ID (TC004)",
-        "protocol": "REST",
-        "test_type": [
-            "Negative"
-        ],
-        "mainURL": "{{base_url}}",
-        "endpoint": "/investmentapproach/",
-        "method": "PUT",
-        "headers_additional": {
-            "Content-Type": "application/json"
-        },
-        "payload": "models/payloads/Payload_UpdateInvApproachRequest_valid.json",
-        "expected_status": "404",
-        "expected_response_schema": "",
-        "expected_response": null,
-        "ignore_fields": [],
-        "extract_values": [],
-        "validate": {
-            "performance": {
-                "max_response_time_ms": null
-            }
-        },
-        "test_data_file": "",
-        "db_query": "",
-        "db_type": "",
-        "db_connection_name": "",
-        "test_summary": "Test TC004: Send a PUT request to the /investmentapproach/ endpoint without an ID and verify that it returns a 404 Not Found status."
-    },
-    {
-        "test_id": "TC005",
-        "service_name": "models",
-        "workflow_mode": "sequential",
-        "test_name": "Update Investment Approach - Negative: Invalid ID Type (TC005)",
+        "test_name": "Update Investment Approach - Negative: Invalid ID Type (TC004)",
         "protocol": "REST",
         "test_type": [
             "Negative"
@@ -559,13 +264,13 @@
         "db_query": "",
         "db_type": "",
         "db_connection_name": "",
-        "test_summary": "Test TC005: Send a PUT request with a non-integer ID and verify that the server returns a 500 Internal Server Error."
+        "test_summary": "Test TC004: Send a PUT request with a non-integer ID and verify that the server returns a 500 Internal Server Error."
     },
     {
-        "test_id": "TC006",
+        "test_id": "TC005",
         "service_name": "models",
         "workflow_mode": "sequential",
-        "test_name": "Update Investment Approach - Negative: Unexpected Parameter (TC006)",
+        "test_name": "Update Investment Approach - Negative: Unexpected Parameter (TC005)",
         "protocol": "REST",
         "test_type": [
             "Negative"
@@ -615,13 +320,13 @@
         "db_query": "",
         "db_type": "",
         "db_connection_name": "",
-        "test_summary": "Test TC006: Send a PUT request with an unexpected parameter in the payload and verify that the server returns a 400 Bad Request."
+        "test_summary": "Test TC005: Send a PUT request with an unexpected parameter in the payload and verify that the server returns a 400 Bad Request."
     },
     {
-        "test_id": "TC007",
+        "test_id": "TC006",
         "service_name": "models",
         "workflow_mode": "sequential",
-        "test_name": "Update Investment Approach - Negative: Invalid Payload (TC007)",
+        "test_name": "Update Investment Approach - Negative: Invalid Payload (TC006)",
         "protocol": "REST",
         "test_type": [
             "Negative"
@@ -647,13 +352,13 @@
         "db_query": "",
         "db_type": "",
         "db_connection_name": "",
-        "test_summary": "Test TC007: Send a POST request to a PUT-only endpoint and verify that the server returns a 405 Method Not Allowed."
+        "test_summary": "Test TC006: Send a POST request to a PUT-only endpoint and verify that the server returns a 405 Method Not Allowed."
     },
     {
-        "test_id": "TC008",
+        "test_id": "TC007",
         "service_name": "models",
         "workflow_mode": "sequential",
-        "test_name": "PUT /investmentapproach/{id} with empty payload - Bad Request error (TC008)",
+        "test_name": "PUT /investmentapproach/{id} with empty payload - Bad Request error (TC007)",
         "protocol": "REST",
         "test_type": [
             "Functional",
@@ -689,13 +394,13 @@
         "db_query": "",
         "db_type": "",
         "db_connection_name": "",
-        "test_summary": "Test TC008: Send empty payload {} to investmentapproach endpoint, verify 400 Bad Request error"
+        "test_summary": "Test TC007: Send empty payload {} to investmentapproach endpoint, verify 400 Bad Request error"
     },
     {
-        "test_id": "TC009",
+        "test_id": "TC008",
         "service_name": "models",
         "workflow_mode": "sequential",
-        "test_name": "PUT /investmentapproach/{id} with empty name field - Bad Request error (TC009)",
+        "test_name": "PUT /investmentapproach/{id} with empty name field - Bad Request error (TC008)",
         "protocol": "REST",
         "test_type": [
             "Functional",
@@ -733,13 +438,13 @@
         "db_query": "",
         "db_type": "",
         "db_connection_name": "",
-        "test_summary": "Test TC009: Send payload with empty name field, verify 400 Bad Request error"
+        "test_summary": "Test TC008: Send payload with empty name field, verify 400 Bad Request error"
     },
     {
-        "test_id": "TC010",
+        "test_id": "TC009",
         "service_name": "models",
         "workflow_mode": "sequential",
-        "test_name": "PUT /investmentapproach/{id} with invalid field - Bad Request error (TC010)",
+        "test_name": "PUT /investmentapproach/{id} with invalid field - Bad Request error (TC009)",
         "protocol": "REST",
         "test_type": [
             "Functional",
@@ -778,13 +483,13 @@
         "db_query": "",
         "db_type": "",
         "db_connection_name": "",
-        "test_summary": "Test TC010: Send payload with invalid field 'invalidField', verify 400 Bad Request error"
+        "test_summary": "Test TC009: Send payload with invalid field 'invalidField', verify 400 Bad Request error"
     },
     {
-        "test_id": "TC011",
+        "test_id": "TC010",
         "service_name": "models",
         "workflow_mode": "sequential",
-        "test_name": "PUT /investmentapproach/{id} with invalid data type for name - Bad Request error (TC011)",
+        "test_name": "PUT /investmentapproach/{id} with invalid data type for name - Bad Request error (TC010)",
         "protocol": "REST",
         "test_type": [
             "Functional",
@@ -822,6 +527,6 @@
         "db_query": "",
         "db_type": "",
         "db_connection_name": "",
-        "test_summary": "Test TC011: Send payload with numeric value for name field (expected string), verify 400 Bad Request error"
+        "test_summary": "Test TC010: Send payload with numeric value for name field (expected string), verify 400 Bad Request error"
     }
 ]

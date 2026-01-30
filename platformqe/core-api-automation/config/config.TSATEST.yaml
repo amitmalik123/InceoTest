@@ -1,3 +1,4 @@
+
 # Azure AD Authentication Resources
 azure_ad:
   resources:
@@ -14,39 +15,36 @@ azure_ad:
     # Default resource for database operations
     default_database: "https://ossrdbms-aad.database.windows.net"
 
+
 # Database connection strings - Enhanced to support multiple connections
 db_connections:
   # MSSQL Connections - Multiple servers and databases
   mssql:
     tracking_center:
       connection_string: "${TRACKING_CENTER_SQLDB}"
+
     platform_db:
       connection_string: "${PLATFORM_DB_SQLDB}"
+
     am_db:
       connection_string: "${AM_DB_SQLDB}"    
     
     # Azure SQL Server with Entra ID (Azure AD) Password Authentication
     movemoney:
       connection_string: "${MOVEMONEY_SQLDB}"
-    # Parties Service - Azure SQL Server (TSATEST Environment)
-    # Using ActiveDirectoryPassword for Azure AD authentication (no MFA prompts)
+
     parties:
-      driver: "ODBC Driver 17 for SQL Server"
-      server: "sqlcustodialdataopstest.database.windows.net,1433"
-      database: "Parties"
-      authentication: "ActiveDirectoryPassword"
-      user: "${PARTIES_DB_USER}"
-      password: "${PARTIES_DB_PASSWORD}"
-      encrypt: true
-      trust_server_certificate: true
+      connection_string: "${PARTIES_SQLDB}"
   
   # PostgreSQL Connections - Multiple servers and databases
   postgresql:
     # Removed old 'parties' Postgres connection after migration to Azure SQL
     securitiesServices:
       connection_string: "${SECURITIESHUB_DB}"
+
     models:
       connection_string: "${MODELHUB_DB}"
+
     hneServices:
       connection_string: "${HNE_DB}"
     
@@ -89,16 +87,19 @@ db_connections:
       bucket: "${INFLUX_BUCKET}"
       timeout: ${INFLUX_TIMEOUT:10000}  # Connection timeout in milliseconds
       enabled: ${INFLUX_ENABLE:false}  # Set to true to enable InfluxDB push for this environment
+
 # API Endpoints - Multiple services and environments
 api_endpoints:
+
   MoveMoneyAPI:
     base_url: "${MOVEMONEY_BASE_URL}"  # Fetched from Azure variable group: qa-pipelines-variable-group-dev
     auth_token: "${MOVEMONEY_API_TOKEN}"   # Use your actual token or environment variable
     timeout: ${API_TIMEOUT:30}
     retry_count: ${API_RETRY_COUNT:3}
     verify: false
+
   parties:
-    base_url: "${PARTIES_BASE_URL}"
+    base_url: "${PARTIES_BASE_URL}"  # Fetched from Azure variable group: qa-pipelines-variable-group-dev
     auth_token: "${PARTIES_AUTH_TOKEN}"
     timeout: ${API_TIMEOUT:30}
     retry_count: ${API_RETRY_COUNT:3}
@@ -111,6 +112,7 @@ api_endpoints:
     timeout: ${API_TIMEOUT:30}
     retry_count: ${API_RETRY_COUNT:3}
     verify: false
+
   work_item_notification:
     base_url: "${WORK_ITEM_NOTIFICATION_BASE_URL}"  # Fetched from Azure variable group: qa-pipelines-variable-group-dev
     auth_token: "${WORK_ITEM_AUTH_TOKEN}"
@@ -118,6 +120,7 @@ api_endpoints:
     retry_count: ${API_RETRY_COUNT:3}
     use_azure_auth: false  # Set to true to use Azure AD authentication
     azure_resource: "https://management.azure.com/"  # Azure resource for token generation
+
   securitiesServices:
     base_url: "${SECURITIES_BASE_URL}"  # Fetched from Azure variable group: qa-pipelines-variable-group-dev
     auth_token: "${SECURITY_ITEM_AUTH_TOKEN}"
@@ -125,6 +128,7 @@ api_endpoints:
     retry_count: ${API_RETRY_COUNT:3}
     use_azure_auth: false  # Set to true to use Azure AD authentication
     azure_resource: "https://management.azure.com/"  # Azure resource for token generation
+
   models:
     base_url: "${MODELS_BASE_URL}"  # Fetched from Azure variable group: qa-pipelines-variable-group-dev
     auth_token: "${MODELS_AUTH_TOKEN}"
@@ -132,6 +136,7 @@ api_endpoints:
     retry_count: ${API_RETRY_COUNT:3}
     use_azure_auth: false  # Set to true to use Azure AD authentication
     azure_resource: "https://management.azure.com/"
+
   analyticsApiServices:
     base_url: "${ANALYTICS_BASE_URL}"  # Fetched from Azure variable group: qa-pipelines-variable-group-dev
     auth_token: "${ANALYTICS_AUTH_TOKEN}"
@@ -139,6 +144,23 @@ api_endpoints:
     retry_count: ${API_RETRY_COUNT:3}
     use_azure_auth: false  # Set to true to use Azure AD authentication
     azure_resource: "https://management.azure.com/"
+
+  strategies:
+    base_url: "${STRATEGIES_BASE_URL}"  # Fetched from Azure variable group: qa-pipelines-variable-group-test
+    auth_token: "${STRATEGIES_AUTH_TOKEN}"
+    timeout: ${API_TIMEOUT:30}
+    retry_count: ${API_RETRY_COUNT:3}
+    use_azure_auth: false  # Set to true to use Azure AD authentication
+    azure_resource: "https://management.azure.com/"  # Azure resource for token generation
+
+  wrapToken:
+    base_url: "${WRAPTOKEN_BASE_URL}"  # Fetched from Azure variable group: qa-pipelines-variable-group-test
+    auth_token: "${WRAPTOKEN_AUTH_TOKEN}"
+    timeout: ${API_TIMEOUT:30}
+    retry_count: ${API_RETRY_COUNT:3}
+    use_azure_auth: false  # Set to true to use Azure AD authentication
+    azure_resource: "https://management.azure.com/"  # Azure resource for token generation
+
   hnebase:
     base_url: "${HNE_BASE_URL}"  # Fetched from Azure variable group: qa-pipelines-variable-group-dev
     auth_token: "${HNEBASE_AUTH_TOKEN}"
@@ -146,6 +168,7 @@ api_endpoints:
     retry_count: ${API_RETRY_COUNT:3}
     use_azure_auth: false  # Set to true to use Azure AD authentication
     azure_resource: "https://management.azure.com/"  # Azure resource for token generation
+
   # Example: Azure AD authenticated API
   azure_resource_manager:
     base_url: "https://management.azure.com"
@@ -154,11 +177,14 @@ api_endpoints:
     retry_count: ${API_RETRY_COUNT:3}
     use_azure_auth: true  # Enable Azure AD authentication
     azure_resource: "https://management.azure.com/"
+
 # Legacy support for api_base_url variable (used in some testcases)
 api_base_url: "https://your-parties-api-url.azurewebsites.net"  # TODO: Update with actual Parties API URL
+
 user_load: 100
 feature_flags:
   enable_feature_x: true
+
   # Synced from .env
 env_name: "TSATEST"
 appinsights_instrumentation_key: "your_instrumentation_key_here"

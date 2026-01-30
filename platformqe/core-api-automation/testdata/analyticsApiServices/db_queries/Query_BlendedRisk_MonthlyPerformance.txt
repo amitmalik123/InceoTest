@@ -1,0 +1,23 @@
+{% set blend_items = [] %}
+{% for i in range(1, 11) %}
+{% if _context.get('blend_' ~ i|string ~ '_id') %}
+{% set _ = blend_items.append(i) %}
+{% endif %}
+{% endfor %}
+SELECT * FROM (
+    SELECT TOP {{horizon}} 
+        t1.MonthId
+        {% for i in blend_items %}
+        , t{{ i }}.performance AS {{ _context['blend_' ~ i|string ~ '_id'] }}_Performance
+        {% endfor %}
+    FROM AM.dbo.MonthlyPerformance t1
+    {% for i in blend_items[1:] %}
+    INNER JOIN AM.dbo.MonthlyPerformance t{{ i }} ON t1.MonthId = t{{ i }}.MonthId
+    {% endfor %}
+    WHERE t1.ItemId = '{{ _context['blend_1_id'] }}'
+    {% for i in blend_items[1:] %}
+    AND t{{ i }}.ItemId = '{{ _context['blend_' ~ i|string ~ '_id'] }}'
+    {% endfor %}
+    ORDER BY t1.MonthId DESC
+) AS RecentMonths 
+ORDER BY MonthId ASC
