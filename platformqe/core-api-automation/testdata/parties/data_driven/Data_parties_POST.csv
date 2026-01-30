@@ -1,6 +1,6 @@
 environment,req_status,req_partyType,req_taxidentifier,req_addressId,req_addressType,req_addressline1,req_addressline2,req_city,req_state,req_zip,req_country,req_priorityType,req_contactType,req_usageType,req_value,req_priorityType,req_identifierType,req_identifierValue,req_firstName,req_middleName,req_lastName,req_suffix,req_dateOfBirth,req_taxId,req_citizenship,req_maritalStatus,req_isDeceased,req_dateOfDeath
-TSADEV,Draft,Individual,SSN,c2b7d2e3-2345-4f67-9b0c-2345678901bc,Mailing,123 Main St,Apt 4B,San Francisco,CA,94105,US,Primary,Email,Personal,john.doe@example.com,Primary,BETA,123-45-6789,John,A,Doe,Jr.,1980-01-01T00:00:00Z,123456789,Unknown,Single,false,null
-TSATEST,Draft,Individual,SSN,c2b7d2e3-2345-4f67-9b0c-2345678901bc,Mailing,123 Main St,Apt 4B,San Francisco,CA,94105,US,Primary,Email,Personal,john.doe@example.com,Primary,BETA,123-45-6789,John,A,Doe,Jr.,1980-01-01T00:00:00Z,123456789,Unknown,Single,false,null
-TSASILO,Draft,Individual,SSN,c2b7d2e3-2345-4f67-9b0c-2345678901bc,Mailing,123 Main St,Apt 4B,San Francisco,CA,94105,US,Primary,Email,Personal,john.doe@example.com,Primary,BETA,123-45-6789,John,A,Doe,Jr.,1980-01-01T00:00:00Z,123456789,Unknown,Single,false,null
+TSADEV,Draft,Individual,SSN,c2b7d2e3-2345-4f67-9b0c-2345678901bc,Mailing,123 Main St,Apt 4B,San Francisco,CA,94105,US,Primary,Email,Personal,john.doe@example.com,Primary,BETA,123-45-6789,John,A,Doe,Jr.,1980-01-01,123456789,Unknown,Single,false,null
+TSATEST,Draft,Individual,SSN,c2b7d2e3-2345-4f67-9b0c-2345678901bc,Mailing,123 Main St,Apt 4B,San Francisco,CA,94105,US,Primary,Email,Personal,john.doe@example.com,Primary,BETA,123-45-6789,John,A,Doe,Jr.,1980-01-01,123456789,Unknown,Single,false,null
+TSASILO,Draft,Individual,SSN,c2b7d2e3-2345-4f67-9b0c-2345678901bc,Mailing,123 Main St,Apt 4B,San Francisco,CA,94105,US,Primary,Email,Personal,john.doe@example.com,Primary,BETA,123-45-6789,John,A,Doe,Jr.,1980-01-01,123456789,Unknown,Single,false,null
 
 

@@ -3,7 +3,7 @@
   "type": "object",
   "properties": {
     "parties": {
-      "type": "array",
+      "type": ["array", "null"],
       "items": {
         "type": "object",
         "properties": {
@@ -11,8 +11,8 @@
             "type": ["string", "null"]
           },
           "status": {
-            "type": "string",
-            "enum": ["Draft", "Pending", "Confirmed"]
+            "type": ["string", "null"],
+            "enum": ["Draft", "Pending", "Confirmed", null]
           },
           "version": {
             "type": "integer"
