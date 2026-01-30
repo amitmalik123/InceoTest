@@ -1,48 +1,21 @@
 {
-    "$schema": "http://json-schema.org/draft-04/schema#",
-    "type": "object",
-    "properties": {
-        "type": {
-            "type": "string"
-        },
-        "title": {
-            "type": "string"
-        },
-        "status": {
-            "type": "integer"
-        },
-        "errors": {
-            "type": "object",
-            "properties": {
-                "request": {
-                    "type": "array",
-                    "items": {
-                        "type": "string"
-                    }
-                }
-            },
-            "required": [
-                "request"
-            ],
-            "additionalProperties": {
-                "type": "array",
-                "items": {
-                    "type": "string"
-                }
-            }
-        },
-        "traceId": {
-            "type": "string"
-        }
+  "$schema": "http://json-schema.org/draft-04/schema#",
+  "type": "object",
+  "properties": {
+    "type": {
+      "type": ["string", "null"]
     },
-    "required": [
-        "type",
-        "title",
-        "status",
-        "errors",
-        "traceId"
-    ]
+    "title": {
+      "type": ["string", "null"]
+    },
+    "status": {
+      "type": ["integer", "null"]
+    },
+    "detail": {
+      "type": ["string", "null"]
+    },
+    "instance": {
+      "type": ["string", "null"]
+    }
+  }
 }
-
-
-
