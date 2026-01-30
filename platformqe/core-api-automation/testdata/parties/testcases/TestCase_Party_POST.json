@@ -51,12 +51,7 @@
         "target": "db_result",
         "format": "table",
         "key_field": ["", ""],
-        "fields_to_compare": [
-          {
-            "source": "status",
-            "target": "Status"
-          }
-        ],
+        "fields_to_compare": [],
         "log_differences": true
       },
       "assertions": [

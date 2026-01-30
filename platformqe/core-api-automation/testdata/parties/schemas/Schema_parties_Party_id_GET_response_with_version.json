@@ -3,7 +3,7 @@
   "type": "object",
   "properties": {
     "parties": {
-      "type": ["array", "null"],
+      "type": "array",
       "items": {
         "type": "object",
         "properties": {
@@ -11,14 +11,14 @@
             "type": ["string", "null"]
           },
           "status": {
-            "type": ["string", "null"],
-            "enum": ["Draft", "Pending", "Confirmed", null]
+            "type": "string",
+            "enum": ["Draft", "Pending", "Confirmed"]
           },
           "version": {
             "type": "integer"
           },
           "partyType": {
-            "type": ["string", "null"],
+            "type": "string",
             "enum": ["Individual", "Business", "Trust"]
           },
           "core": {
