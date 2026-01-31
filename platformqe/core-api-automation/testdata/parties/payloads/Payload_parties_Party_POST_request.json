@@ -2,7 +2,6 @@
   "partyRequest": {
     "partyType": "{{req_partyType}}",
     "status": "{{req_status}}",
-    "taxidentifier": "SSN",
     "core": {
       "individual": {
         "firstName": "{{req_firstName}}",
@@ -13,13 +12,20 @@
         "taxId": "{{req_taxId}}",
         "citizenship": "{{req_citizenship}}",
         "maritalStatus": "{{req_maritalStatus}}",
-        "isDeceased": false,
-        "dateOfDeath": null
+        "isDeceased": "{{req_isDeceased}}",
+        "dateOfDeath": "{{req_dateOfDeath}}"
+      },
+      "entity": {
+        "type": "{{req_entityType}}",
+        "subType": "{{req_entitySubType}}",
+        "title": "{{req_entityTitle}}",
+        "taxId": "{{req_entityTaxId}}",
+        "taxidentifier": "{{req_taxidentifier}}",
+        "createdDate": "{{req_createdDate}}"
       }
     },
     "addresses": [
       {
-        "addressId": "{{req_addressId}}",
         "addressType": "{{req_addressType}}",
         "line1": "{{req_addressline1}}",
         "line2": "{{req_addressline2}}",
@@ -35,7 +41,7 @@
         "contactType": "{{req_contactType}}",
         "usageType": "{{req_usageType}}",
         "value": "{{req_value}}",
-        "priorityType": "{{req_priorityType}}"
+        "priorityType": "{{req_contactPriorityType}}"
       }
     ],
     "identifiers": [
@@ -43,6 +49,7 @@
         "type": "{{req_identifierType}}",
         "value": "{{req_identifierValue}}"
       }
-    ]
+    ],
+    "householdId": "string"
   }
 }
