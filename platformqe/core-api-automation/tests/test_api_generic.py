@@ -612,8 +612,16 @@ def test_api_case(case, request):
             result_collector.update_validation(result_entry, custom="PASS")
             logger.info(f"[PASS] Assertions: PASS ({assertion_stats['passed']}/{assertion_stats['total']})")
     except AssertionError as e:
-        assertion_stats["failed"] = assertion_stats.get("total", 1)
-        assertion_stats["passed"] = 0
+        # Get the actual assertion count from test case config
+        validate_cfg = case.get("validate", {})
+        assertions = validate_cfg.get("assertions", [])
+        total_assertions = len(assertions)
+        
+        # Update stats with actual counts
+        if assertion_stats.get("total", 0) == 0:
+            assertion_stats["total"] = total_assertions
+        assertion_stats["failed"] = assertion_stats["total"] - assertion_stats.get("passed", 0)
+        
         result_collector.update_validation_stats(
             result_entry,
             "assertions",
@@ -624,7 +632,39 @@ def test_api_case(case, request):
         result_collector.update_status(result_entry, "FAIL", f"Custom assertion failed: {str(e)}")
         result_collector.update_validation(result_entry, custom="FAIL")
         result_collector.add_result(result_entry)
-        logger.error(f"[FAIL] Assertions: FAIL ({assertion_stats['failed']}/{assertion_stats['total']})")
+        logger.error(f"[FAIL] Assertions: FAIL ({assertion_stats['passed']}/{assertion_stats['total']})")
+        
+        # Show validation summary even on failure
+        stats = result_entry.get("validation_stats", {})
+        logger.info("\n" + "="*80)
+        logger.info("VALIDATION SUMMARY:")
+        logger.info("="*80)
+        
+        # Contract Checks
+        contract_stats = stats.get("contract_checks", {"total": 0, "passed": 0, "failed": 0})
+        contract_status = result_entry.get("contract_check", "N/A")
+        if contract_stats["total"] > 0 or contract_status != "N/A":
+            logger.info(f"  Contract Check: {contract_status} ({contract_stats['passed']}/{contract_stats['total']})")
+        
+        # Security Checks
+        security_stats = stats.get("security_checks", {"total": 0, "passed": 0, "failed": 0})
+        security_status = result_entry.get("security_checks", "N/A")
+        if security_stats["total"] > 0 or security_status != "N/A":
+            logger.info(f"  Security Checks: {security_status} ({security_stats['passed']}/{security_stats['total']})")
+        
+        # Custom Assertions (use local assertion_stats for accurate counts)
+        assertion_status = "FAIL"
+        if assertion_stats["total"] > 0:
+            logger.info(f"  Custom Assertions: {assertion_status} ({assertion_stats['passed']}/{assertion_stats['total']})")
+        
+        # Data Comparisons
+        comparison_stats = stats.get("data_comparisons", {"total": 0, "passed": 0, "failed": 0})
+        comparison_status = result_entry.get("data_comparison", "N/A")
+        if comparison_stats["total"] > 0 or comparison_status != "N/A":
+            logger.info(f"  Data Comparisons: {comparison_status} ({comparison_stats['passed']}/{comparison_stats['total']})")
+        
+        logger.info("="*80 + "\n")
+        
         raise
     
     # ========== PHASE 8: COLLECT RESULTS ==========
