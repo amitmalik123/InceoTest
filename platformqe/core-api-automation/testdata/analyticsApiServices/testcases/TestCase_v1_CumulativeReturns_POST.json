@@ -1,0 +1,162 @@
+[
+    {
+        "test_id": "TC_CumulativeReturns_001",
+        "service_name": "analyticsApiServices",
+        "workflow_mode": "sequential",
+        "test_name": "POST /v1/analytics - CumulativeReturns Calculation (TC_CumulativeReturns_001)",
+        "protocol": "REST",
+        "test_type": [
+            "Functional",
+            "Smoke"
+        ],
+        "mainURL": "{{base_url}}",
+        "endpoint": "/v1/analytics",
+        "method": "POST",
+        "headers_additional": {
+            "Content-Type": "application/json"
+        },
+        "payload": "analyticsApiServices/payloads/Payload_RiskVsReturn_POST.txt",
+        "expected_status": "200",
+        "expected_response_schema": "",
+        "expected_response": null,
+        "ignore_fields": [],
+        "scripts": [
+            "analyticsApiServices/validators/return_validator.py"
+        ],
+        "extract_values": [
+            {
+                "from": "response",
+                "key": "calculationResults.0.calculationType",
+                "assign_to": "api_calculation_type"
+            },
+            {
+                "from": "response",
+                "key": "calculationResults.0.startDate",
+                "assign_to": "api_start_date"
+            },
+            {
+                "from": "response",
+                "key": "calculationResults.0.endDate",
+                "assign_to": "api_end_date"
+            },
+            {
+                "from": "response",
+                "key": "calculationResults.0.result.0.cumulativeReturn",
+                "assign_to": "blend_cumulative_returns_time_series"
+            },
+            {
+                "from": "response",
+                "key": "calculationResults.0.result.0.blend.0.id",
+                "assign_to": "blend_model_1_id"
+            },
+            {
+                "from": "response",
+                "key": "calculationResults.0.result.0.blend.0.entityType",
+                "assign_to": "blend_model_1_entity_type"
+            },
+            {
+                "from": "response",
+                "key": "calculationResults.0.result.0.blend.1.id",
+                "assign_to": "blend_model_2_id"
+            },
+            {
+                "from": "response",
+                "key": "calculationResults.0.result.0.blend.1.entityType",
+                "assign_to": "blend_model_2_entity_type"
+            },
+            {
+                "from": "response",
+                "key": "calculationResults.0.result.1.id",
+                "assign_to": "benchmark_id"
+            },
+            {
+                "from": "response",
+                "key": "calculationResults.0.result.1.entityType",
+                "assign_to": "benchmark_entity_type"
+            },
+            {
+                "from": "script_result",
+                "key": "validation_type",
+                "assign_to": "validator_type"
+            },
+            {
+                "from": "script_result",
+                "key": "validation_success",
+                "assign_to": "validator_success"
+            },
+            {
+                "from": "script_result",
+                "key": "validation_errors",
+                "assign_to": "validator_errors"
+            },
+            {
+                "from": "script_result",
+                "key": "computed_script_response",
+                "assign_to": "computed_script_response"
+            }
+        ],
+        "validate": {
+            "performance": {
+                "max_response_time_ms": null
+            },
+            "assertions": [
+                {
+                    "actual": "{{api_calculation_type}}",
+                    "operator": "==",
+                    "expected": "cumulative returns time series",
+                    "message": "Verify correct calculation type is 'cumulative returns time series'"
+                },
+                {
+                    "actual": "{{validator_success}}",
+                    "operator": "==",
+                    "expected": true,
+                    "message": "Verify return validator completed successfully"
+                },
+                {
+                    "actual": "{{validator_type}}",
+                    "operator": "==",
+                    "expected": "cumulative_returns_time_series",
+                    "message": "Verify validator identified correct validation type"
+                },
+                {
+                    "actual": "{{blend_model_1_entity_type}}",
+                    "operator": "==",
+                    "expected": "model",
+                    "message": "Verify first blend model entity type is 'model'"
+                },
+                {
+                    "actual": "{{blend_model_2_entity_type}}",
+                    "operator": "==",
+                    "expected": "model",
+                    "message": "Verify second blend model entity type is 'model'"
+                },
+                {
+                    "actual": "{{benchmark_entity_type}}",
+                    "operator": "==",
+                    "expected": "benchmark",
+                    "message": "Verify benchmark entity type is 'benchmark'"
+                }
+            ],
+            "data_comparison": [
+                {
+                    "source": "{{response.body}}",
+                    "target": "{{computed_script_response}}",
+                    "comparison_type": "deep_diff",
+                    "tolerance": 0.0001,
+                    "ignore_keys": [
+                        "asOfDate"
+                    ],
+                    "comparison_name": "API Response vs Script Computed Response",
+                    "message": "Deep comparison: API response vs Script computed response"
+                }
+            ]
+        },
+        "test_data_file": "analyticsApiServices/data_driven/Data_CumulativeReturns_POST.csv",
+        "db_queries": {},
+        "db_type": "mssql",
+        "db_connection_name": "am_db",
+        "db_query_timing": "before_api",
+        "test_summary": "Test cumulative returns time series API calculation. Validates monthly cumulative returns calculations for blended portfolios, individual models, and benchmarks.",
+        "test_scenario": "Validate cumulative returns time series API response contains correct monthly cumulative returns for each month in the period. The validator computes expected values using the formula: Cumulative[i] = Product(1 + monthly_return[0..i]) - 1, and compares against API response."
+    }
+]
