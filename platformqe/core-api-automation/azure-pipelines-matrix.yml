@@ -655,6 +655,7 @@ stages:
               LOG_LEVEL: $(log_level)
               WORK_ITEM_AUTH_TOKEN: $(WORK_ITEM_AUTH_TOKEN)
               PARTIES_AUTH_TOKEN: $(PARTIES_AUTH_TOKEN)
+              MODELS_AUTH_TOKEN: $(models_auth_token)
               # Use resolved environment-specific base URLs
               PARTIES_BASE_URL: $(RESOLVED_PARTIES_BASE_URL)
               PARTIES_SQLDB: $(parties-sqldb-connection-string)
@@ -711,6 +712,7 @@ stages:
               LOG_LEVEL: $(log_level)
               WORK_ITEM_AUTH_TOKEN: $(WORK_ITEM_AUTH_TOKEN)
               PARTIES_AUTH_TOKEN: $(PARTIES_AUTH_TOKEN)
+              MODELS_AUTH_TOKEN: $(models_auth_token)
               # Use resolved environment-specific base URLs
               PARTIES_BASE_URL: $(RESOLVED_PARTIES_BASE_URL)
               PARTIES_SQLDB: $(parties-sqldb-connection-string)
