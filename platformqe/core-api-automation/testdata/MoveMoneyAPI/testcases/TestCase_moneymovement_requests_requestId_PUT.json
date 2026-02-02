@@ -1,0 +1,767 @@
+[
+    {
+        "test_id": "TC001",
+        "service_name": "MoveMoneyAPI",
+        "workflow_mode": "sequential",
+        "test_name": "PUT /requests/{requestId} [positive] (TC001)",
+        "protocol": "REST",
+        "test_type": [
+            "Functional"
+        ],
+        "mainURL": "{{base_url}}",
+        "endpoint": "/requests/e96f0d82-b1b2-49d4-9ab4-7331dacdd089",
+        "method": "PUT",
+        "headers_additional": {
+            "Content-Type": "application/json"
+        },
+        "payload": {
+            "version": 13,
+            "instructionId": "D223450C-7974-4B23-8E10-6CC418E7907C",
+            "accountId": "456E7890-E89B-12D3-A456-426614174111",
+            "railType": "ACH",
+            "amount": 7500.0,
+            "requestType": "Deposit",
+            "status": "Confirmed",
+            "schedule": {
+                "scheduleType": "OneTime",
+                "paymentDate": "2026-11-18"
+            }
+        },
+        "expected_status": "200",
+        "expected_response_schema": "MoveMoneyAPI\\schemas\\Schema_requests_requestId_PUT.json",
+        "expected_response": null,
+        "ignore_fields": [
+            "traceId",
+            "timestamp",
+            "createdDate",
+            "modifiedDate",
+            "version"
+        ],
+        "extract_values": [
+            {
+                "from": "response",
+                "key": "requestId",
+                "assign_to": "requestId"
+            },
+            {
+                "from": "response",
+                "key": "version",
+                "assign_to": "version"
+            }
+        ],
+        "validate": {
+            "performance": {
+                "max_response_time_ms": 500
+            },
+            "security": {
+                "checks": [
+                    "sql_injection",
+                    "xss"
+                ]
+            },
+            "assertions": [
+                {
+                    "actual": "{{requestId}}",
+                    "expected": "",
+                    "operator": "!=",
+                    "message": "RequestId should not be empty"
+                },
+                {
+                    "actual": "{{version}}",
+                    "expected": 1,
+                    "operator": ">",
+                    "message": "Version should be incremented after update"
+                }
+            ],
+            "data_comparison": []
+        },
+        "test_data_file": "",
+        "db_query_timing": "",
+        "db_queries": {
+            "default": "",
+            "audit_query": ""
+        },
+        "db_type": "",
+        "db_connection_name": "",
+        "test_summary": "Test TC001: PUT /requests/{requestId} [positive] (TC001) - Validate the 200 successful response with valid Request Id and Request body."
+    },
+    {
+        "test_id": "TC002",
+        "service_name": "MoveMoneyAPI",
+        "workflow_mode": "sequential",
+        "test_name": "PUT /requests/{requestId} [positive] (TC002)",
+        "protocol": "REST",
+        "test_type": [
+            "Functional"
+        ],
+        "mainURL": "{{base_url}}",
+        "endpoint": "/requests/a9159d0c-55ed-4e0f-9950-8fb64fdcc4d5",
+        "method": "PUT",
+        "headers_additional": {
+            "Content-Type": "application/json"
+        },
+        "payload": {
+            "version": 6,
+            "instructionId": "D223450C-7974-4B23-8E10-6CC418E7907C",
+            "accountId": "456E7890-E89B-12D3-A456-426614174111",
+            "railType": "ACH",
+            "amount": 7500.0,
+            "requestType": "Deposit",
+            "status": "Pending",
+            "schedule": {
+                "scheduleType": "OneTime",
+                "paymentDate": "2027-11-18"
+            }
+        },
+        "expected_status": "200",
+        "expected_response_schema": "MoveMoneyAPI\\schemas\\Schema_requests_requestId_PUT.json",
+        "expected_response": null,
+        "ignore_fields": [
+            "traceId",
+            "timestamp",
+            "createdDate",
+            "modifiedDate",
+            "version"
+        ],
+        "extract_values": [
+            {
+                "from": "response",
+                "key": "requestId",
+                "assign_to": "requestId"
+            },
+            {
+                "from": "response",
+                "key": "version",
+                "assign_to": "version"
+            }
+        ],
+        "validate": {
+            "performance": {
+                "max_response_time_ms": 500
+            },
+            "security": {
+                "checks": [
+                    "sql_injection",
+                    "xss"
+                ]
+            },
+            "assertions": [
+                {
+                    "actual": "{{requestId}}",
+                    "expected": "",
+                    "operator": "!=",
+                    "message": "RequestId should not be empty"
+                }
+            ],
+            "data_comparison": []
+        },
+        "test_data_file": "",
+        "db_query_timing": "",
+        "db_queries": {
+            "default": "",
+            "audit_query": ""
+        },
+        "db_type": "",
+        "db_connection_name": "",
+        "test_summary": "Test TC002: PUT /requests/{requestId} [positive] (TC002) - Validate the 200 successful response with valid Request Id and Request body with updated status & Payment date ."
+    },
+    {
+        "test_id": "TC003",
+        "service_name": "MoveMoneyAPI",
+        "workflow_mode": "sequential",
+        "test_name": "PUT /requests/{requestId} [positive] (TC003)",
+        "protocol": "REST",
+        "test_type": [
+            "Functional"
+        ],
+        "mainURL": "{{base_url}}",
+        "endpoint": "/requests/c5514f30-f693-4d86-a400-2b87541d2eb7",
+        "method": "PUT",
+        "headers_additional": {
+            "Content-Type": "application/json"
+        },
+        "payload": {
+            "version": 6,
+            "instructionId": "D223450C-7974-4B23-8E10-6CC418E7907C",
+            "accountId": "456E7890-E89B-12D3-A456-426614174111",
+            "railType": "ACH",
+            "amount": 7500.0,
+            "requestType": "Deposit",
+            "status": "Pending",
+            "reason": "IRARothTransfer",
+            "schedule": {
+                "scheduleType": "Periodic",
+                "frequency": "Monthly",
+                "startDate": "2026-11-15",
+                "endDate": "2027-11-15"
+            }
+        },
+        "expected_status": "200",
+        "expected_response_schema": "MoveMoneyAPI\\schemas\\Schema_requests_requestId_PUT.json",
+        "expected_response": null,
+        "ignore_fields": [
+            "traceId",
+            "timestamp",
+            "createdDate",
+            "modifiedDate",
+            "version"
+        ],
+        "extract_values": [
+            {
+                "from": "response",
+                "key": "requestId",
+                "assign_to": "requestId"
+            },
+            {
+                "from": "response",
+                "key": "version",
+                "assign_to": "version"
+            }
+        ],
+        "validate": {
+            "performance": {
+                "max_response_time_ms": 500
+            },
+            "security": {
+                "checks": [
+                    "sql_injection",
+                    "xss"
+                ]
+            },
+            "assertions": [
+                {
+                    "actual": "{{requestId}}",
+                    "expected": "",
+                    "operator": "!=",
+                    "message": "RequestId should not be empty"
+                }
+            ],
+            "data_comparison": []
+        },
+        "test_data_file": "",
+        "db_query_timing": "",
+        "db_queries": {
+            "default": "",
+            "audit_query": ""
+        },
+        "db_type": "",
+        "db_connection_name": "",
+        "test_summary": "Test TC003: PUT /requests/{requestId} [positive] (TC003) - Validate the 200 successful response with valid Request Id and Request body with updated status,Reason,Payment date & Schedule type."
+    },
+    {
+        "test_id": "TC004",
+        "service_name": "MoveMoneyAPI",
+        "workflow_mode": "parallel",
+        "test_name": "PUT /requests/{requestId}  (TC004)",
+        "protocol": "REST",
+        "test_type": [
+            "Negative"
+        ],
+        "mainURL": "{{base_url}}",
+        "endpoint": "/requests/126D23AF-E3C2-46A8-923E-2A8238B6FE32",
+        "method": "PUT",
+        "rpc_method": "",
+        "graphql_query": "",
+        "graphql_variables": "",
+        "soap_action": "",
+        "soap_envelope": "",
+        "headers_additional": {
+            "Content-Type": "application/json"
+        },
+        "payload": {
+            "version": 5,
+            "instructionId": "BB00EC97-9759-4B89-81E3-089BF584E607",
+            "accountId": "456E7890-E89B-12D3-A456-426614174111",
+            "railType": "ACH",
+            "amount": 7500.0,
+            "requestType": "Deposit",
+            "status": "Pending",
+            "reason": "IRARothTransfer",
+            "schedule": {
+                "scheduleType": "Periodic",
+                "frequency": "Monthly",
+                "startDate": "2026-11-15",
+                "endDate": "2027-11-15"
+            }
+        },
+        "expected_status": "204",
+        "expected_response_schema": null,
+        "expected_response": null,
+        "ignore_fields": [],
+        "extract_values": [],
+        "validate": {
+            "performance": {
+                "max_response_time_ms": 500
+            },
+            "security": {
+                "checks": [
+                    "sql_injection",
+                    "xss"
+                ]
+            },
+            "assertions": [],
+            "data_comparison": []
+        },
+        "test_data_file": "",
+        "db_query_timing": "after_api",
+        "db_queries": {
+            "default": "",
+            "audit_query": ""
+        },
+        "db_type": "",
+        "db_connection_name": "",
+        "test_summary": "Test TC004: PUT /requests/{requestId} - Verify that the API returns a 204 response if there is mismatch or Wrong Request ID."
+    },
+    {
+        "test_id": "TC005",
+        "service_name": "MoveMoneyAPI",
+        "workflow_mode": "parallel",
+        "test_name": "PUT /requests/{requestId}  (TC005)",
+        "protocol": "REST",
+        "test_type": [
+            "Negative"
+        ],
+        "mainURL": "{{base_url}}",
+        "endpoint": "/requests/3B943BE1-EF60-4DFD-93AC-065CE9510AC5",
+        "method": "PUT",
+        "rpc_method": "",
+        "graphql_query": "",
+        "graphql_variables": "",
+        "soap_action": "",
+        "soap_envelope": "",
+        "headers_additional": {
+            "Content-Type": "application/json"
+        },
+        "payload": {
+            "version": 5,
+            "instructionId": "126D23AF-E3C2-46A8-923E-2A8238B6FE32",
+            "accountId": "456E7890-E89B-12D3-A456-426614174111",
+            "railType": "ACH",
+            "amount": 7500.0,
+            "requestType": "Deposit",
+            "status": "Pending",
+            "reason": "IRARothTransfer",
+            "schedule": {
+                "scheduleType": "Periodic",
+                "frequency": "Monthly",
+                "startDate": "2026-11-15",
+                "endDate": "2027-11-15"
+            }
+        },
+        "expected_status": "400",
+        "expected_response_schema": null,
+        "expected_response": {
+            "status": 400,
+            "error": "instructionId cannot be changed after request creation (Parameter 'InstructionId')",
+            "fields": "InstructionId"
+        },
+        "ignore_fields": [],
+        "extract_values": [
+            {
+                "from": "response",
+                "key": "status",
+                "assign_to": "error_status"
+            }
+        ],
+        "validate": {
+            "performance": {
+                "max_response_time_ms": 500
+            },
+            "security": {
+                "checks": [
+                    "sql_injection",
+                    "xss"
+                ]
+            },
+            "assertions": [
+                {
+                    "actual": "{{error_status}}",
+                    "expected": 400,
+                    "operator": "==",
+                    "message": "Should return 400 for immutable field change (InstructionId)"
+                }
+            ],
+            "data_comparison": []
+        },
+        "test_data_file": "",
+        "db_query_timing": "after_api",
+        "db_queries": {
+            "default": "",
+            "audit_query": ""
+        },
+        "db_type": "",
+        "db_connection_name": "",
+        "test_summary": "Test TC005: PUT /requests/{requestId} - Verify that the API returns a 400 response if there is Immutable Field Changed(AccountId)."
+    },
+    {
+        "test_id": "TC006",
+        "service_name": "MoveMoneyAPI",
+        "workflow_mode": "parallel",
+        "test_name": "PUT /requests/{requestId}  (TC006)",
+        "protocol": "REST",
+        "test_type": [
+            "Negative"
+        ],
+        "mainURL": "{{base_url}}",
+        "endpoint": "/requests/3B943BE1-EF60-4DFD-93AC-065CE9510AC5",
+        "method": "PUT",
+        "rpc_method": "",
+        "graphql_query": "",
+        "graphql_variables": "",
+        "soap_action": "",
+        "soap_envelope": "",
+        "headers_additional": {
+            "Content-Type": "application/json"
+        },
+        "payload": {
+            "version": 7,
+            "instructionId": "BB00EC97-9759-4B89-81E3-089BF584E607",
+            "accountId": "456E7890-E89B-12D3-A456-426614174111",
+            "railType": "ACH",
+            "amount": 0.0,
+            "requestType": "Deposit",
+            "status": "Pending",
+            "reason": "IRARothTransfer",
+            "schedule": {
+                "scheduleType": "Periodic",
+                "frequency": "Monthly",
+                "startDate": "2026-11-15",
+                "endDate": "2027-11-15"
+            }
+        },
+        "expected_status": "400",
+        "expected_response_schema": null,
+        "expected_response": {
+            "status": 400,
+            "error": "The field Amount must be between 0.01 and 999999999.99.",
+            "fields": "amount"
+        },
+        "ignore_fields": [],
+        "extract_values": [
+            {
+                "from": "response",
+                "key": "status",
+                "assign_to": "error_status"
+            }
+        ],
+        "validate": {
+            "performance": {
+                "max_response_time_ms": 500
+            },
+            "security": {
+                "checks": [
+                    "sql_injection",
+                    "xss"
+                ]
+            },
+            "assertions": [
+                {
+                    "actual": "{{error_status}}",
+                    "expected": 400,
+                    "operator": "==",
+                    "message": "Should return 400 for invalid amount (must be min 0.01)"
+                }
+            ],
+            "data_comparison": []
+        },
+        "test_data_file": "",
+        "db_query_timing": "after_api",
+        "db_queries": {
+            "default": "",
+            "audit_query": ""
+        },
+        "db_type": "",
+        "db_connection_name": "",
+        "test_summary": "Test TC006: PUT /requests/{requestId} - Verify that the API returns a 400 response if there is Invalid Amount Field."
+    },
+    {
+        "test_id": "TC007",
+        "service_name": "MoveMoneyAPI",
+        "workflow_mode": "parallel",
+        "test_name": "PUT /requests/{requestId}  (TC007)",
+        "protocol": "REST",
+        "test_type": [
+            "Negative"
+        ],
+        "mainURL": "{{base_url}}",
+        "endpoint": "/requests/3B943BE1-EF60-4DFD-93AC-065CE9510AC5",
+        "method": "PUT",
+        "rpc_method": "",
+        "graphql_query": "",
+        "graphql_variables": "",
+        "soap_action": "",
+        "soap_envelope": "",
+        "headers_additional": {
+            "Content-Type": "application/json"
+        },
+        "payload": {
+            "version": 7,
+            "instructionId": "BB00EC97-9759-4B89-81E3-089BF584E607",
+            "accountId": "456E7890-E89B-12D3-A456-426614174111",
+            "railType": "ACH",
+            "amount": 9999999233444.99,
+            "requestType": "Deposit",
+            "status": "Pending",
+            "reason": "IRARothTransfer",
+            "schedule": {
+                "scheduleType": "Periodic",
+                "frequency": "Monthly",
+                "startDate": "2026-11-15",
+                "endDate": "2027-11-15"
+            }
+        },
+        "expected_status": "400",
+        "expected_response_schema": null,
+        "expected_response": {
+            "status": 400,
+            "error": "The field Amount must be between 0.01 and 999999999.99.",
+            "fields": "amount"
+        },
+        "ignore_fields": [],
+        "extract_values": [
+            {
+                "from": "response",
+                "key": "status",
+                "assign_to": "error_status"
+            }
+        ],
+        "validate": {
+            "performance": {
+                "max_response_time_ms": 500
+            },
+            "security": {
+                "checks": [
+                    "sql_injection",
+                    "xss"
+                ]
+            },
+            "assertions": [
+                {
+                    "actual": "{{error_status}}",
+                    "expected": 400,
+                    "operator": "==",
+                    "message": "Should return 400 for invalid amount (must be max 999999999.99)"
+                }
+            ],
+            "data_comparison": []
+        },
+        "test_data_file": "",
+        "db_query_timing": "after_api",
+        "db_queries": {
+            "default": "",
+            "audit_query": ""
+        },
+        "db_type": "",
+        "db_connection_name": "",
+        "test_summary": "Test TC007: PUT /requests/{requestId} - Verify that the API returns a 400 response if there is Invalid Maximum value in Amount Field."
+    },
+    {
+        "test_id": "TC008",
+        "service_name": "MoveMoneyAPI",
+        "workflow_mode": "parallel",
+        "test_name": "PUT /requests/{requestId}  (TC00)",
+        "protocol": "REST",
+        "test_type": [
+            "Negative"
+        ],
+        "mainURL": "{{base_url}}",
+        "endpoint": "/requests/3B943BE1-EF60-4DFD-93AC-065CE9510AC5",
+        "method": "PUT",
+        "rpc_method": "",
+        "graphql_query": "",
+        "graphql_variables": "",
+        "soap_action": "",
+        "soap_envelope": "",
+        "headers_additional": {
+            "Content-Type": "application/json"
+        },
+        "payload": {
+            "version": 7,
+            "instructionId": "BB00EC97-9759-4B89-81E3-089BF584E607",
+            "accountId": "456E7890-E89B-12D3-A456-426614174111",
+            "railType": "ACH",
+            "amount": 7500.0,
+            "requestType": "Deposit",
+            "status": "Pending",
+            "schedule": {
+                "scheduleType": "OneTime",
+                "paymentDate": "20-11-2020"
+            }
+        },
+        "expected_status": "400",
+        "expected_response_schema": null,
+        "expected_response": null,
+        "ignore_fields": [],
+        "extract_values": [
+            {
+                "from": "response",
+                "key": "status",
+                "assign_to": "error_status"
+            }
+        ],
+        "validate": {
+            "performance": {
+                "max_response_time_ms": 500
+            },
+            "security": {
+                "checks": [
+                    "sql_injection",
+                    "xss"
+                ]
+            },
+            "assertions": [
+                {
+                    "actual": "{{error_status}}",
+                    "expected": 400,
+                    "operator": "==",
+                    "message": "Should return 400 for invalid date format"
+                }
+            ],
+            "data_comparison": []
+        },
+        "test_data_file": "",
+        "db_query_timing": "after_api",
+        "db_queries": {
+            "default": "",
+            "audit_query": ""
+        },
+        "db_type": "",
+        "db_connection_name": "",
+        "test_summary": "Test TC008: PUT /requests/{requestId} - Verify that the API returns a 400 response if there is Invalid Date Field."
+    },
+    {
+        "test_id": "TC009",
+        "service_name": "MoveMoneyAPI",
+        "workflow_mode": "parallel",
+        "test_name": "PUT /requests/{requestId}  (TC009)",
+        "protocol": "REST",
+        "test_type": [
+            "Negative"
+        ],
+        "mainURL": "{{base_url}}",
+        "endpoint": "/requests/3B943BE1-EF60-4DFD-93AC-065CE9510AC5",
+        "method": "PUT",
+        "rpc_method": "",
+        "graphql_query": "",
+        "graphql_variables": "",
+        "soap_action": "",
+        "soap_envelope": "",
+        "headers_additional": {
+            "Content-Type": "application/json"
+        },
+        "payload": {
+            "version": 7,
+            "instructionId": "BB00EC97-9759-4B89-81E3-089BF584E607",
+            "accountId": "456E7890-E89B-12D3-A456-426614174111",
+            "railType": "ACH",
+            "amount": 7500.0,
+            "requestType": "Deposit",
+            "status": "Pending",
+            "schedule": {
+                "scheduleType": "OneTime",
+                "paymentDate": "2026-11-20"
+            }
+        },
+        "expected_status": "409",
+        "expected_response_schema": null,
+        "expected_response": null,
+        "ignore_fields": [],
+        "extract_values": [
+            {
+                "from": "response",
+                "key": "status",
+                "assign_to": "error_status"
+            }
+        ],
+        "validate": {
+            "performance": {
+                "max_response_time_ms": 500
+            },
+            "security": {
+                "checks": [
+                    "sql_injection",
+                    "xss"
+                ]
+            },
+            "assertions": [
+                {
+                    "actual": "{{error_status}}",
+                    "expected": 409,
+                    "operator": "==",
+                    "message": "Should return 409 Conflict for version mismatch (optimistic concurrency control)"
+                }
+            ],
+            "data_comparison": []
+        },
+        "test_data_file": "",
+        "db_query_timing": "after_api",
+        "db_queries": {
+            "default": "",
+            "audit_query": ""
+        },
+        "db_type": "",
+        "db_connection_name": "",
+        "test_summary": "Test TC009: PUT /requests/{requestId} - Verify that the API returns a 409 response if there is a Version Mismatch."
+    },
+    {
+        "test_id": "TC010",
+        "service_name": "MoveMoneyAPI",
+        "workflow_mode": "parallel",
+        "test_name": "PUT /requests/{requestId}  (TC010)",
+        "protocol": "REST",
+        "test_type": [
+            "Negative"
+        ],
+        "mainURL": "{{base_url}}",
+        "endpoint": "/requests/3B943BE1-EF60-4DFD-93AC-065CE9510AC5",
+        "method": "PUT",
+        "rpc_method": "",
+        "graphql_query": "",
+        "graphql_variables": "",
+        "soap_action": "",
+        "soap_envelope": "",
+        "headers_additional": {
+            "Content-Type": "application/json"
+        },
+        "payload": {
+            "version": 7,
+            "instructionId": "BB00EC97-9759-4B89-81E3-089BF584E607",
+            "accountId": "456E7890-E89B-12D3-A456-426614174111",
+            "railType": "ACH",
+            "amount": 7500.0,
+            "requestType": "Deposit",
+            "status": "Pending",
+            "schedule": {
+                "scheduleType": "OneTime",
+                "paymentDate": "2026-11-20"
+            }
+        },
+        "expected_status": "500",
+        "expected_response_schema": null,
+        "expected_response": null,
+        "ignore_fields": [],
+        "extract_values": [],
+        "validate": {
+            "performance": {
+                "max_response_time_ms": 500
+            },
+            "security": {
+                "checks": [
+                    "sql_injection",
+                    "xss"
+                ]
+            },
+            "assertions": [],
+            "data_comparison": []
+        },
+        "test_data_file": "",
+        "db_query_timing": "after_api",
+        "db_queries": {
+            "default": "",
+            "audit_query": ""
+        },
+        "db_type": "",
+        "db_connection_name": "",
+        "test_summary": "Test TC010: PUT /requests/{requestId} - Verify that the API returns a 500 response if there is Server Error."
+    }
+]

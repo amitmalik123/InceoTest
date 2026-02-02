@@ -1,0 +1,60 @@
+{
+  "parties": [
+    {
+      "partyId": "a5c726cf-dfd5-4282-b53c-39e6b22ef2d9",
+      "status": "Draft",
+      "partyType": "Individual",
+      "core": {
+        "individual": {
+          "firstName": "string",
+          "middleName": "string",
+          "lastName": "string",
+          "suffix": "string",
+          "dateOfBirth": "2025-12-04T00:00:00",
+          "taxId": "string",
+          "citizenship": "Unknown",
+          "maritalStatus": "Unknown",
+          "isDeceased": true,
+          "dateOfDeath": "2025-12-04T00:00:00"
+        },
+        "entity": {
+          "type": "Business",
+          "subType": "Unknown",
+          "title": "string",
+          "taxId": null,
+          "taxidentifier": "SSN",
+          "createdDate": "2025-12-04T00:00:00"
+        }
+      },
+      "addresses": [
+        {
+          "addressId": "f45be6c0-5541-4b0b-8405-d068ca8e5467",
+          "addressType": "Business",
+          "line1": "string",
+          "line2": "string",
+          "city": "string",
+          "state": "AL",
+          "zip": "strin",
+          "country": "AD",
+          "priorityType": "Primary"
+        }
+      ],
+      "contacts": [
+        {
+          "contactId": "7e255914-0325-4b87-b898-350b85362e09",
+          "contactType": "Phone",
+          "usageType": "Unknown",
+          "value": "string",
+          "priorityType": "Primary"
+        }
+      ],
+      "identifiers": [
+        {
+          "identifierId": "59de7040-8b5b-4a4a-9e7c-90a3f7eb911f",
+          "type": "APL",
+          "value": "string"
+        }
+      ]
+    }
+  ]
+}

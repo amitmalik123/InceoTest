@@ -1,0 +1,506 @@
+[
+    {
+        "test_id": "TC001",
+        "service_name": "MoveMoneyAPI",
+        "workflow_mode": "parallel",
+        "test_name": "GET /instructions/{instructionId} [positive] (TC001)",
+        "protocol": "REST",
+        "test_type": [
+            "Functional"
+        ],
+        "mainURL": "{{base_url}}",
+        "endpoint": "/instructions/16EF33F5-42F9-4FD0-89F9-11B88872E695",
+        "method": "GET",
+        "rpc_method": "",
+        "graphql_query": "",
+        "graphql_variables": "",
+        "soap_action": "",
+        "soap_envelope": "",
+        "headers_additional": {
+            "Accept": "application/json"
+        },
+        "payload": null,
+        "expected_status": "200",
+        "expected_response_schema": "MoveMoneyAPI\\schemas\\Schema_instructions_instructionId_GET.json",
+        "expected_response": {
+            "instructionId": "16ef33f5-42f9-4fd0-89f9-11b88872e695",
+            "accountId": "456e7890-e89b-12d3-a456-426614174111",
+            "version": 3,
+            "status": "Pending",
+            "holderRelation": "ThirdParty",
+            "letterOfAuthorization": "Deposit",
+            "railType": "ACH",
+            "custodianInstructionNumber": null,
+            "bank": {
+                "bankAccountName": "Sarah Johnson",
+                "bankAccountType": "Checking",
+                "bankName": "Chase Bank",
+                "routingNumber": "026009593",
+                "bankAccountNumber": "5555666677"
+            },
+            "createdDate": "2025-12-17T12:03:03.956109",
+            "createdBy": "System",
+            "modifiedDate": "2025-12-17T12:06:11.4965005",
+            "modifiedBy": "system"
+        },
+        "ignore_fields": [
+            "id",
+            "traceId",
+            "addressid",
+            "contactid",
+            "identifierid",
+            "timestamp",
+            "createdDate",
+            "modifiedDate",
+            "entitycreateddate",
+            "individualdateofbirth"
+        ],
+        "extract_values": [
+            {
+                "from": "response",
+                "key": "instructionId",
+                "assign_to": "instructionId"
+            },
+            {
+                "from": "response",
+                "key": "version",
+                "assign_to": "version"
+            },
+            {
+                "from": "response",
+                "key": "status",
+                "assign_to": "status"
+            },
+            {
+                "from": "response",
+                "key": "railType",
+                "assign_to": "railType"
+            },
+            {
+                "from": "response",
+                "key": "holderRelation",
+                "assign_to": "holderRelation"
+            },
+            {
+                "from": "response",
+                "key": "letterOfAuthorization",
+                "assign_to": "letterOfAuthorization"
+            }
+        ],
+        "validate": {
+            "performance": {
+                "max_response_time_ms": 500
+            },
+            "security": {
+                "checks": [
+                    "sql_injection",
+                    "xss"
+                ]
+            },
+            "assertions": [
+                {
+                    "actual": "{{instructionId}}",
+                    "expected": "",
+                    "operator": "!=",
+                    "message": "InstructionId should not be empty"
+                },
+                {
+                    "actual": "{{version}}",
+                    "expected": 0,
+                    "operator": ">",
+                    "message": "Version should be greater than 0"
+                },
+                {
+                    "actual": "{{status}}",
+                    "expected": [
+                        "Draft",
+                        "Pending",
+                        "Confirmed",
+                        "Deleted"
+                    ],
+                    "operator": "in",
+                    "message": "Status should be one of: Draft, Pending, Confirmed, Deleted"
+                },
+                {
+                    "actual": "{{railType}}",
+                    "expected": [
+                        "ACH",
+                        "Wire",
+                        "Check",
+                        "Journal"
+                    ],
+                    "operator": "in",
+                    "message": "RailType should be one of: ACH, Wire, Check, Journal"
+                },
+                {
+                    "actual": "{{holderRelation}}",
+                    "expected": [
+                        "FirstParty",
+                        "ThirdParty"
+                    ],
+                    "operator": "in",
+                    "message": "HolderRelation should be one of: FirstParty, ThirdParty"
+                },
+                {
+                    "actual": "{{letterOfAuthorization}}",
+                    "expected": [
+                        "Deposit",
+                        "Withdrawal",
+                        "Both",
+                        "None"
+                    ],
+                    "operator": "in",
+                    "message": "LetterOfAuthorization should be one of: Deposit, Withdrawal, Both, None"
+                }
+            ],
+            "data_comparison": []
+        },
+        "test_data_file": "",
+        "db_query_timing": "after_api",
+        "db_queries": {
+            "default": "",
+            "audit_query": ""
+        },
+        "db_type": "",
+        "db_connection_name": "",
+        "test_summary": "Test TC001: GET /moneymovement/instructions/{instructionId} [positive] (TC001) - Validate that the API returns the correct instruction details for a valid instructionId without status."
+    },
+    {
+        "test_id": "TC002",
+        "service_name": "MoveMoneyAPI",
+        "workflow_mode": "parallel",
+        "test_name": "GET /instructions/{instructionId} [positive] (TC002)",
+        "protocol": "REST",
+        "test_type": [
+            "Positive"
+        ],
+        "mainURL": "{{base_url}}",
+        "endpoint": "/instructions/16EF33F5-42F9-4FD0-89F9-11B88872E695?status=Pending",
+        "method": "GET",
+        "rpc_method": "",
+        "graphql_query": "",
+        "graphql_variables": "",
+        "soap_action": "",
+        "soap_envelope": "",
+        "headers_additional": {
+            "Accept": "application/json"
+        },
+        "payload": null,
+        "expected_status": "200",
+        "expected_response_schema": "MoveMoneyAPI\\schemas\\Schema_instructions_instructionId_GET.json",
+        "expected_response": {
+            "instructionId": "16ef33f5-42f9-4fd0-89f9-11b88872e695",
+            "accountId": "456e7890-e89b-12d3-a456-426614174111",
+            "version": 3,
+            "status": "Pending",
+            "holderRelation": "ThirdParty",
+            "letterOfAuthorization": "Deposit",
+            "railType": "ACH",
+            "custodianInstructionNumber": null,
+            "bank": {
+                "bankAccountName": "Sarah Johnson",
+                "bankAccountType": "Checking",
+                "bankName": "Chase Bank",
+                "routingNumber": "026009593",
+                "bankAccountNumber": "5555666677"
+            },
+            "createdDate": "2025-12-17T12:03:03.956109",
+            "createdBy": "System",
+            "modifiedDate": "2025-12-17T12:06:11.4965005",
+            "modifiedBy": "system"
+        },
+        "ignore_fields": [
+            "id",
+            "traceId",
+            "addressid",
+            "contactid",
+            "identifierid",
+            "timestamp",
+            "createdDate",
+            "modifiedDate",
+            "entitycreateddate",
+            "individualdateofbirth"
+        ],
+        "extract_values": [
+            {
+                "from": "response",
+                "key": "instructionId",
+                "assign_to": "instructionId"
+            },
+            {
+                "from": "response",
+                "key": "status",
+                "assign_to": "status"
+            },
+            {
+                "from": "response",
+                "key": "railType",
+                "assign_to": "railType"
+            },
+            {
+                "from": "response",
+                "key": "holderRelation",
+                "assign_to": "holderRelation"
+            },
+            {
+                "from": "response",
+                "key": "letterOfAuthorization",
+                "assign_to": "letterOfAuthorization"
+            }
+        ],
+        "validate": {
+            "performance": {
+                "max_response_time_ms": 500
+            },
+            "security": {
+                "checks": [
+                    "sql_injection",
+                    "xss"
+                ]
+            },
+            "assertions": [
+                {
+                    "actual": "{{instructionId}}",
+                    "expected": "",
+                    "operator": "!=",
+                    "message": "InstructionId should not be empty"
+                },
+                {
+                    "actual": "{{status}}",
+                    "expected": "Pending",
+                    "operator": "==",
+                    "message": "Status should be Pending"
+                },
+                {
+                    "actual": "{{railType}}",
+                    "expected": [
+                        "ACH",
+                        "Wire",
+                        "Check",
+                        "Journal"
+                    ],
+                    "operator": "in",
+                    "message": "RailType should be one of: ACH, Wire, Check, Journal"
+                },
+                {
+                    "actual": "{{holderRelation}}",
+                    "expected": [
+                        "FirstParty",
+                        "ThirdParty"
+                    ],
+                    "operator": "in",
+                    "message": "HolderRelation should be one of: FirstParty, ThirdParty"
+                },
+                {
+                    "actual": "{{letterOfAuthorization}}",
+                    "expected": [
+                        "Deposit",
+                        "Withdrawal",
+                        "Both",
+                        "None"
+                    ],
+                    "operator": "in",
+                    "message": "LetterOfAuthorization should be one of: Deposit, Withdrawal, Both, None"
+                }
+            ],
+            "data_comparison": []
+        },
+        "test_data_file": "",
+        "db_query_timing": "after_api",
+        "db_queries": {
+            "default": "",
+            "audit_query": ""
+        },
+        "db_type": "",
+        "db_connection_name": "",
+        "test_summary": "Test TC002: GET /moneymovement/instructions/{instructionId} [positive] (TC002) - Validate that the API returns the correct instruction details for a valid instructionId and status."
+    },
+    {
+        "test_id": "TC003",
+        "service_name": "MoveMoneyAPI",
+        "workflow_mode": "parallel",
+        "test_name": "GET /instructions/{instructionId} [Negative] (TC003)",
+        "protocol": "REST",
+        "test_type": [
+            "Negative"
+        ],
+        "mainURL": "{{base_url}}",
+        "endpoint": "/instructions/6d12b0df-947f-4b3b-b671-8d8bf19d41b5?status=Pending",
+        "method": "GET",
+        "rpc_method": "",
+        "graphql_query": "",
+        "graphql_variables": "",
+        "soap_action": "",
+        "soap_envelope": "",
+        "headers_additional": {
+            "Accept": "application/json"
+        },
+        "payload": null,
+        "expected_status": "204",
+        "expected_response_schema": null,
+        "expected_response": null,
+        "ignore_fields": [],
+        "extract_values": [],
+        "validate": {
+            "performance": {
+                "max_response_time_ms": 500
+            },
+            "security": {
+                "checks": [
+                    "sql_injection",
+                    "xss"
+                ]
+            },
+            "assertions": [],
+            "data_comparison": []
+        },
+        "test_data_file": "",
+        "db_query_timing": "after_api",
+        "db_queries": {
+            "default": "",
+            "audit_query": ""
+        },
+        "db_type": "",
+        "db_connection_name": "",
+        "test_summary": "Test TC003: GET /moneymovement/instructions/{instructionId} [Negative] (TC003) - Validate that the API returns the correct instruction details for a invalid instructionId and status."
+    },
+    {
+        "test_id": "TC004",
+        "service_name": "MoveMoneyAPI",
+        "workflow_mode": "parallel",
+        "test_name": "GET /instructions/{instructionId} [Negative] (TC004)",
+        "protocol": "REST",
+        "test_type": [
+            "Negative"
+        ],
+        "mainURL": "{{base_url}}",
+        "endpoint": "/instructions/6d12b0df-947f-4b3b-b671-8d8bf19d41b3?status=CHECK",
+        "method": "GET",
+        "rpc_method": "",
+        "graphql_query": "",
+        "graphql_variables": "",
+        "soap_action": "",
+        "soap_envelope": "",
+        "headers_additional": {},
+        "payload": null,
+        "expected_status": "400",
+        "expected_response_schema": "",
+        "expected_response": {
+            "status": 400,
+            "error": "Invalid value for 'status' parameter. Must be one of: Draft, Pending, Confirmed, Deleted (Parameter 'status')",
+            "fields": "status"
+        },
+        "ignore_fields": [],
+        "extract_values": [
+            {
+                "from": "response",
+                "key": "status",
+                "assign_to": "error_status"
+            },
+            {
+                "from": "response",
+                "key": "error",
+                "assign_to": "error_message"
+            },
+            {
+                "from": "response",
+                "key": "fields",
+                "assign_to": "error_fields"
+            }
+        ],
+        "validate": {
+            "performance": {
+                "max_response_time_ms": 500
+            },
+            "security": {
+                "checks": [
+                    "sql_injection",
+                    "xss"
+                ]
+            },
+            "assertions": [
+                {
+                    "actual": "{{error_status}}",
+                    "expected": 400,
+                    "operator": "==",
+                    "message": "Error status should be 400"
+                },
+                {
+                    "actual": "{{error_message}}",
+                    "expected": "",
+                    "operator": "!=",
+                    "message": "Error message should not be empty"
+                },
+                {
+                    "actual": "{{error_message}}",
+                    "expected": "Draft, Pending, Confirmed, Deleted",
+                    "operator": "contains",
+                    "message": "Error message should mention valid status values"
+                },
+                {
+                    "actual": "{{error_fields}}",
+                    "expected": "status",
+                    "operator": "==",
+                    "message": "Error field should be 'status'"
+                }
+            ],
+            "data_comparison": []
+        },
+        "test_data_file": "",
+        "db_query_timing": "after_api",
+        "db_queries": {
+            "default": "",
+            "audit_query": ""
+        },
+        "db_type": "",
+        "db_connection_name": "",
+        "test_summary": "Test TC004: GET /moneymovement/instructions/{instructionId} [negative] (TC004) - Verify that the API returns a 400 Bad Request error when the status is invalid."
+    },
+    {
+        "test_id": "TC005",
+        "service_name": "MoveMoneyAPI",
+        "workflow_mode": "parallel",
+        "test_name": "GET /instructions/{instructionId} [Negative] (TC003)",
+        "protocol": "REST",
+        "test_type": [
+            "Negative"
+        ],
+        "mainURL": "{{base_url}}",
+        "endpoint": "/instructions/7aed499c-2143-49e2-8382-3d1e311f18e1",
+        "method": "GET",
+        "rpc_method": "",
+        "graphql_query": "",
+        "graphql_variables": "",
+        "soap_action": "",
+        "soap_envelope": "",
+        "headers_additional": {},
+        "payload": null,
+        "expected_status": "500",
+        "expected_response_schema": null,
+        "expected_response": null,
+        "ignore_fields": [],
+        "extract_values": [],
+        "validate": {
+            "performance": {
+                "max_response_time_ms": 500
+            },
+            "security": {
+                "checks": [
+                    "sql_injection",
+                    "xss"
+                ]
+            },
+            "assertions": [],
+            "data_comparison": []
+        },
+        "test_data_file": "",
+        "db_query_timing": "after_api",
+        "db_queries": {
+            "default": "",
+            "audit_query": ""
+        },
+        "db_type": "",
+        "db_connection_name": "",
+        "test_summary": "Verify that the API returns 500 Internal Server Error which would indicate a Server side crash."
+    }
+]

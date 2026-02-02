@@ -1,0 +1,15 @@
+- environment: T12
+  dataType: Positive
+  description: Test data positive
+  workItemVisibilityPreferenceType: AccountTrackingNoFunding
+  agentAPLID: AGA4JX
+  visibility: true
+  createdBy: Test
+
+- environment: T12
+  dataType: Positive
+  description: Test data positive
+  workItemVisibilityPreferenceType: AccountTrackingNoFunding
+  agentAPLID: AGA4JX
+  visibility: false
+  createdBy: Test

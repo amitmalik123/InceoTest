@@ -1,0 +1,45 @@
+{
+    "name": "Test Model with Model EntityType",
+    "ownerId": "3fa85f64-5717-4562-b3fc-2c963f66afa6",
+    "modelAttributes": {
+        "solutionType": "Managed",
+        "custodian": [
+            "Fidelity",
+            "Schwab"
+        ],
+        "investmentMin": [
+            {
+                "type": "System",
+                "value": 10000
+            }
+        ],
+        "modelType": "Strategic",
+        "riskProfile": "Moderate",
+        "metadata": {
+            "additionalProp1": "value1",
+            "additionalProp2": "value2",
+            "additionalProp3": "value3"
+        }
+    },
+    "allocations": [
+        {
+            "entityType": "Model",
+            "allocationName": "Growth Model Allocation",
+            "modelId": "",
+            "cusip": "",
+            "ticker": "",
+            "weight": 0.6
+        },
+        {
+            "entityType": "Model",
+            "allocationName": "Conservative Model Allocation",
+            "modelId": "",
+            "cusip": "",
+            "ticker": "",
+            "weight": 0.4
+        }
+    ],
+    "investmentApproachId": "{{db_investment_approach_id}}",
+    "benchmarkName": "S&P 500",
+    "benchmarkIsPrimary": false
+}

@@ -1,0 +1,138 @@
+{
+  "type": "object",
+  "required": [],
+  "properties": {
+    "models": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["name"],
+        "properties": {
+          "modelId": {
+            "type": "string",
+			"format": "uuid"
+          },
+          "name": {
+            "type": "string"
+          },
+          "status": {
+            "type": "string"
+          },
+          "version": {
+            "type": "integer"
+          },
+          "modelType": {
+            "type": ["string", "null"]
+          },
+          "solutionType": {
+            "type": ["string", "null"]
+          },
+          "custodian": {
+            "type": ["array","null"],
+            "items": {
+              "type": "string"
+            }
+          },
+          "mandate": {
+            "type": "object",
+            "required": [],
+            "properties": {
+              "name": {
+                "type": "string"
+              }
+            }
+          },
+					"investmentApproach": {
+          "type": ["object", "null"],
+          "required": ["name"],
+          "properties": {
+            "id": {
+              "type": "integer",
+              "format": "int32"
+            },
+            "name": {
+              "type": "string"
+            }
+          }
+        },
+         "benchmarks": {
+            "type": ["array", "null"],
+            "items": { "type": "object" },
+            "nullable": true,
+            "default": null
+          },
+          "investmentMin": {
+          "type": ["object", "null"],
+          "additionalProperties": {
+            "type": "integer",
+            "format": "int32"
+            }
+          },
+          "riskProfile": {
+            "type": "string",
+            "nullable": true
+          },
+          "owner": {
+            "type": ["object", "null"],
+            "required": [],
+            "properties": {             
+              "ownerid": {
+                "type": "string"
+              }
+            }
+          },
+          "holdings": {
+            "type": ["array", "null"],
+            "items": { "type": "object" },
+            "nullable": true,
+            "default": null
+          },
+          "analytics": {
+            "type": "object",
+            "required": [],
+            "properties": {
+              "estimatedYields": {
+                "type": "array",
+                "items": {
+                  "type": "string"
+                }
+              },
+              "tenYearReturn": {
+                "type": "number"
+              },
+              "tenYearVolatility": {
+                "type": "number"
+              }
+            }
+          },
+          "metadata": {
+            "type": ["object", "null"],
+            "properties": {}
+          },
+          "publishedDate": {
+            "type": ["string", "null"],
+            "nullable": true
+          }
+        }
+      }
+    },
+    "filters": {
+      "type": "object",
+      "required": [],
+      "properties": {
+        "id": {
+          	"type": ["string", "null"]
+        },
+        "status": {
+          	"type": ["string", "null"]
+        },
+        "version": {
+			"type": ["string", "null"]
+        }
+      }
+    },
+    "count": {
+      "type": "integer"
+    }
+  }
+}

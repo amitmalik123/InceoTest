@@ -1,0 +1,47 @@
+{
+  "name": "Model-Based Portfolio - Diversified Strategy",
+  "modelType": "Multi-Model",
+  "solutionType": "Multi-Model Approach",
+  "custodian": [
+    "Fidelity",
+    "Charles Schwab"
+  ],
+  "investmentApproachId": "{{db_investment_approach_id}}",
+  "benchmark": [
+    {
+      "name": "S&P 500",
+      "isPrimary": false,
+      "id": 0
+    }
+  ],
+  "investmentMin":  [
+    {
+      "type": "System",
+      "value": 2
+    }
+  ],
+  "riskProfile": "Moderate Risk - Balanced Returns",
+  "allocations": [
+    {
+      "entityType": "Model",
+      "allocationName": "Growth Model Portfolio",
+      "modelId": "growth-model-001",
+      "cusip": "string",
+      "ticker": "GROWTH-MDL",
+      "weight": 0.55
+    },
+    {
+      "entityType": "Model",
+      "allocationName": "Income Model Portfolio",
+      "modelId": "income-model-002",
+      "cusip": "string",
+      "ticker": "INCOME-MDL",
+      "weight": 0.45
+    }
+  ],
+  "metadata": {
+    "targetRebalanceFrequency": "Quarterly",
+    "category": "Blended",
+    "riskLevel": "5"
+  }
+}

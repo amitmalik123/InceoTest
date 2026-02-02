@@ -1,0 +1,38 @@
+{
+  "name": "string",
+  "modelType": "string",
+  "solutionType": "string",
+  "custodian": [
+    "string"
+  ],
+  "investmentApproachId": "{{db_investment_approach_id}}",
+  "benchmark": [
+    {
+      "name": "string",
+      "isPrimary": true,
+      "id": 0
+    }
+  ],
+  "investmentMin": [
+    {
+      "type": "System",
+      "value": 2
+    }
+  ],
+  "riskProfile": "string",
+  "allocations": [
+    {
+      "entityType": "Security",
+      "allocationName": "string",
+      "modelId": "string",
+      "cusip": "string",
+      "ticker": "string",
+      "weight": 0
+    }
+  ],
+  "metadata": {
+    "additionalProp1": "string",
+    "additionalProp2": "string",
+    "additionalProp3": "string"
+  }
+}

@@ -1,0 +1,1225 @@
+[
+    {
+        "test_id": "TC001",
+        "service_name": "models",
+        "workflow_mode": "sequential",
+        "test_name": "GET /models with Status=Draft filter - Verify only Draft records returned and validate with DB (TC001)",
+        "protocol": "REST",
+        "test_type": [
+            "Positive",
+            "Filter Validation",
+            "Database Validation"
+        ],
+        "mainURL": "{{base_url}}",
+        "endpoint": "/models?Status=Draft",
+        "method": "GET",
+        "rpc_method": "",
+        "graphql_query": "",
+        "graphql_variables": "",
+        "soap_action": "",
+        "soap_envelope": "",
+        "headers_additional": {
+            "Content-Type": "application/json"
+        },
+        "payload": null,
+        "expected_status": "200",
+        "expected_response_schema": "models\\schemas\\Schema_models_GET.json",
+        "expected_response": null,
+        "ignore_fields": [],
+        "extract_values": [
+            {
+                "from": "response",
+                "key": "models",
+                "assign_to": "draft_models"
+            },
+            {
+                "from": "response",
+                "key": "models.0.modelId",
+                "assign_to": "first_model_id"
+            },
+            {
+                "from": "response",
+                "key": "models.0.owner.ownerId",
+                "assign_to": "first_owner_id"
+            }
+        ],
+        "validate": {
+            "performance": {
+                "max_response_time_ms": 3000
+            },
+            "security": {
+                "checks": []
+            },
+            "assertions": [
+                {
+                    "actual": "{{draft_models}}",
+                    "operator": "!=",
+                    "expected": null,
+                    "message": "Verify API response contains models list"
+                }
+            ],
+            "data_comparison": [
+                {
+                    "source": "db",
+                    "target": "api",
+                    "compare_type": "count",
+                    "source_path": "db_results",
+                    "target_path": "models",
+                    "message": "Verify count of Draft models from database matches API response count"
+                },
+                {
+                    "source": "db",
+                    "target": "api",
+                    "compare_type": "field",
+                    "source_path": "db_results.*.model_id",
+                    "target_path": "models.*.id",
+                    "message": "Verify all Draft model IDs match between database and API"
+                },
+                {
+                    "source": "db",
+                    "target": "api",
+                    "compare_type": "field",
+                    "source_path": "db_results.*.name",
+                    "target_path": "models.*.name",
+                    "message": "Verify all Draft model names match between database and API"
+                },
+                {
+                    "source": "db",
+                    "target": "api",
+                    "compare_type": "field",
+                    "source_path": "db_results.*.model_type",
+                    "target_path": "models.*.modelType",
+                    "message": "Verify all model types match between database and API"
+                },
+                {
+                    "source": "db",
+                    "target": "api",
+                    "compare_type": "field",
+                    "source_path": "db_results.*.solution_type",
+                    "target_path": "models.*.solutionType",
+                    "message": "Verify all solution types match between database and API"
+                },
+                {
+                    "source": "db",
+                    "target": "api",
+                    "compare_type": "field",
+                    "source_path": "db_results.*.custodian",
+                    "target_path": "models.*.custodian",
+                    "message": "Verify all custodian values match between database and API"
+                },
+                {
+                    "source": "db",
+                    "target": "api",
+                    "compare_type": "field",
+                    "source_path": "db_results.*.investment_approach",
+                    "target_path": "models.*.investmentApproach",
+                    "message": "Verify all investment approach values match between database and API"
+                },
+                {
+                    "source": "db",
+                    "target": "api",
+                    "compare_type": "field",
+                    "source_path": "db_results.*.benchmark",
+                    "target_path": "models.*.benchmark",
+                    "message": "Verify all benchmark values match between database and API"
+                },
+                {
+                    "source": "db",
+                    "target": "api",
+                    "compare_type": "field",
+                    "source_path": "db_results.*.investment_min",
+                    "target_path": "models.*.investmentMin",
+                    "message": "Verify all investment minimum values match between database and API"
+                },
+                {
+                    "source": "db",
+                    "target": "api",
+                    "compare_type": "field",
+                    "source_path": "db_results.*.risk_profile",
+                    "target_path": "models.*.riskProfile",
+                    "message": "Verify all risk profile values match between database and API"
+                },
+                {
+                    "source": "db",
+                    "target": "api",
+                    "compare_type": "field",
+                    "source_path": "db_results.*.owner_id",
+                    "target_path": "models.*.owner.ownerId",
+                    "message": "Verify all owner IDs match between database and API"
+                },
+                {
+                    "source": "db",
+                    "target": "api",
+                    "compare_type": "field",
+                    "source_path": "db_results.*.metadata",
+                    "target_path": "models.*.metadata",
+                    "message": "Verify all metadata values match between database and API"
+                },
+                {
+                    "source": "db",
+                    "target": "api",
+                    "compare_type": "field",
+                    "source_path": "db_results.*.modified_date",
+                    "target_path": "models.*.modifiedDate",
+                    "message": "Verify all modified dates match between database and API"
+                },
+                {
+                    "source": "db",
+                    "target": "api",
+                    "compare_type": "field",
+                    "source_path": "db_results.*.modified_by",
+                    "target_path": "models.*.modifiedBy",
+                    "message": "Verify all modified by values match between database and API"
+                },
+                {
+                    "source": "db",
+                    "target": "api",
+                    "compare_type": "field",
+                    "source_path": "db_results.*.created_by",
+                    "target_path": "models.*.createdBy",
+                    "message": "Verify all created by values match between database and API"
+                }
+            ]
+        },
+        "test_data_file": "",
+        "db_query_timing": "after_api",
+        "db_queries": {
+            "default": "models\\db_queries\\Query_models_GET_Draft.sql",
+            "audit_query": ""
+        },
+        "db_type": "postgresql",
+        "db_connection_name": "default",
+        "test_summary": "Test TC003: Apply Status=Draft filter, verify API returns only Draft models, and validate with database"
+    },
+    {
+        "test_id": "TC002",
+        "service_name": "models",
+        "workflow_mode": "sequential",
+        "test_name": "PUT /allocation/{modelId} with entityType=Model - Success scenario (TC002)",
+        "protocol": "REST",
+        "test_type": [
+            "Functional",
+            "Performance",
+            "Smoke"
+        ],
+        "mainURL": "{{base_url}}",
+        "endpoint": "/allocation/{{first_model_id}}",
+        "method": "PUT",
+        "rpc_method": "",
+        "graphql_query": "",
+        "graphql_variables": "",
+        "soap_action": "",
+        "soap_envelope": "",
+        "headers_additional": {
+            "Content-Type": "application/json"
+        },
+        "payload": {
+            "allocations": [
+                {
+                    "entityType": "Model",
+                    "allocationName": "string",
+                    "modelId": "string",
+                    "cusip": "string",
+                    "ticker": "string",
+                    "weight": 0.5
+                }
+            ]
+        },
+        "expected_status": "200",
+        "expected_response_schema": "models\\schemas\\Schema_model_id_PUT_success.json",
+        "expected_response": null,
+        "ignore_fields": [
+            "id"
+        ],
+        "extract_values": [],
+        "validate": {
+            "performance": {
+                "max_response_time_ms": null
+            },
+            "security": {
+                "checks": [
+                    "sql_injection",
+                    "xss"
+                ]
+            },
+            "data_comparison": [
+                {
+                    "source": "api_response",
+                    "source_array_path": "status",
+                    "target": "literal",
+                    "target_literal": 200,
+                    "comparison_name": "Verify status is 200"
+                },
+                {
+                    "source": "api_response",
+                    "source_array_path": "error",
+                    "target": "literal",
+                    "target_literal": "Request successful",
+                    "comparison_name": "Verify Message is 'Request successful'"
+                }
+            ]
+        },
+        "test_data_file": "",
+        "db_query_timing": "after_api",
+        "db_queries": {
+            "default": "models/db_queries/Query_models_GET.sql",
+            "count_query": "SELECT COUNT(*) AS count FROM public.vw_model;"
+        },
+        "db_type": "postgresql",
+        "db_connection_name": "models",
+        "test_summary": "Test TC002: Update allocation for Draft model with entityType=Model, verify 200 status and success message"
+    },
+    {
+        "test_id": "TC003",
+        "service_name": "models",
+        "workflow_mode": "sequential",
+        "test_name": "PUT /allocation/{modelId} with entityType=Security - Success scenario (TC003)",
+        "protocol": "REST",
+        "test_type": [
+            "Functional",
+            "Performance",
+            "Smoke"
+        ],
+        "mainURL": "{{base_url}}",
+        "endpoint": "/allocation/{{first_model_id}}",
+        "method": "PUT",
+        "rpc_method": "",
+        "graphql_query": "",
+        "graphql_variables": "",
+        "soap_action": "",
+        "soap_envelope": "",
+        "headers_additional": {
+            "Content-Type": "application/json"
+        },
+        "payload": {
+            "allocations": [
+                {
+                    "entityType": "Security",
+                    "allocationName": "string",
+                    "modelId": "string",
+                    "cusip": "string",
+                    "ticker": "string",
+                    "weight": 0.5
+                }
+            ]
+        },
+        "expected_status": "200",
+        "expected_response_schema": "models\\schemas\\Schema_model_id_PUT_success.json",
+        "expected_response": null,
+        "ignore_fields": [
+            "id"
+        ],
+        "extract_values": [],
+        "validate": {
+            "performance": {
+                "max_response_time_ms": null
+            },
+            "security": {
+                "checks": [
+                    "sql_injection",
+                    "xss"
+                ]
+            },
+            "data_comparison": [
+                {
+                    "source": "api_response",
+                    "source_array_path": "status",
+                    "target": "literal",
+                    "target_literal": 200,
+                    "comparison_name": "Verify status is 200"
+                },
+                {
+                    "source": "api_response",
+                    "source_array_path": "error",
+                    "target": "literal",
+                    "target_literal": "Request successful",
+                    "comparison_name": "Verify Message is 'Request successful'"
+                }
+            ]
+        },
+        "test_data_file": "",
+        "db_query_timing": "after_api",
+        "db_queries": {
+            "default": "models/db_queries/Query_models_GET.sql",
+            "count_query": "SELECT COUNT(*) AS count FROM public.vw_model;"
+        },
+        "db_type": "postgresql",
+        "db_connection_name": "models",
+        "test_summary": "Test TC003: Update allocation for Draft model with entityType=Security, verify 200 status and success message"
+    },
+    {
+        "test_id": "TC004",
+        "service_name": "models",
+        "workflow_mode": "sequential",
+        "test_name": "GET /models with Status=Published filter - Verify only Published records returned (TC004)",
+        "protocol": "REST",
+        "test_type": [
+            "Positive",
+            "Filter Validation"
+        ],
+        "mainURL": "{{base_url}}",
+        "endpoint": "/models?Status=Published",
+        "method": "GET",
+        "rpc_method": "",
+        "graphql_query": "",
+        "graphql_variables": "",
+        "soap_action": "",
+        "soap_envelope": "",
+        "headers_additional": {
+            "Content-Type": "application/json"
+        },
+        "payload": null,
+        "expected_status": "200",
+        "expected_response_schema": "models\\schemas\\Schema_models_GET.json",
+        "expected_response": null,
+        "ignore_fields": [],
+        "extract_values": [
+            {
+                "from": "response",
+                "key": "models",
+                "assign_to": "filtered_models"
+            },
+            {
+                "from": "response",
+                "key": "models.0.modelId",
+                "assign_to": "published_model_id"
+            },
+            {
+                "from": "response",
+                "key": "models.0.owner.ownerId",
+                "assign_to": "published_owner_id"
+            }
+        ],
+        "validate": {
+            "performance": {
+                "max_response_time_ms": 3000
+            },
+            "security": {
+                "checks": []
+            },
+            "assertions": [
+                {
+                    "actual": "{{filtered_models}}",
+                    "operator": "!=",
+                    "expected": null,
+                    "message": "Verify API response contains models list"
+                }
+            ],
+            "data_comparison": [
+                {
+                    "source": "db",
+                    "target": "api",
+                    "compare_type": "count",
+                    "source_path": "db_results",
+                    "target_path": "models",
+                    "message": "Verify count of Published models from database matches API response count"
+                },
+                {
+                    "source": "db",
+                    "target": "api",
+                    "compare_type": "field",
+                    "source_path": "db_results.*.model_id",
+                    "target_path": "models.*.modelId",
+                    "message": "Verify all Published model IDs match between database and API"
+                },
+                {
+                    "source": "db",
+                    "target": "api",
+                    "compare_type": "field",
+                    "source_path": "db_results.*.name",
+                    "target_path": "models.*.name",
+                    "message": "Verify all Published model names match between database and API"
+                },
+                {
+                    "source": "db",
+                    "target": "api",
+                    "compare_type": "field",
+                    "source_path": "db_results.*.model_type",
+                    "target_path": "models.*.modelType",
+                    "message": "Verify all model types match between database and API"
+                },
+                {
+                    "source": "db",
+                    "target": "api",
+                    "compare_type": "field",
+                    "source_path": "db_results.*.custodian",
+                    "target_path": "models.*.custodian",
+                    "message": "Verify all custodian values match between database and API"
+                },
+                {
+                    "source": "db",
+                    "target": "api",
+                    "compare_type": "field",
+                    "source_path": "db_results.*.solution_type",
+                    "target_path": "models.*.solutionType",
+                    "message": "Verify all solution types match between database and API"
+                },
+                {
+                    "source": "db",
+                    "target": "api",
+                    "compare_type": "field",
+                    "source_path": "db_results.*.investment_approach",
+                    "target_path": "models.*.investmentApproach",
+                    "message": "Verify all investment approach values match between database and API"
+                },
+                {
+                    "source": "db",
+                    "target": "api",
+                    "compare_type": "field",
+                    "source_path": "db_results.*.benchmark",
+                    "target_path": "models.*.benchmark",
+                    "message": "Verify all benchmark values match between database and API"
+                },
+                {
+                    "source": "db",
+                    "target": "api",
+                    "compare_type": "field",
+                    "source_path": "db_results.*.investment_min",
+                    "target_path": "models.*.investmentMin",
+                    "message": "Verify all investment minimum values match between database and API"
+                },
+                {
+                    "source": "db",
+                    "target": "api",
+                    "compare_type": "field",
+                    "source_path": "db_results.*.risk_profile",
+                    "target_path": "models.*.riskProfile",
+                    "message": "Verify all risk profile values match between database and API"
+                },
+                {
+                    "source": "db",
+                    "target": "api",
+                    "compare_type": "field",
+                    "source_path": "db_results.*.owner_id",
+                    "target_path": "models.*.owner.ownerId",
+                    "message": "Verify all owner IDs match between database and API"
+                },
+                {
+                    "source": "db",
+                    "target": "api",
+                    "compare_type": "field",
+                    "source_path": "db_results.*.metadata",
+                    "target_path": "models.*.metadata",
+                    "message": "Verify all metadata values match between database and API"
+                },
+                {
+                    "source": "db",
+                    "target": "api",
+                    "compare_type": "field",
+                    "source_path": "db_results.*.modified_date",
+                    "target_path": "models.*.modifiedDate",
+                    "message": "Verify all modified dates match between database and API"
+                },
+                {
+                    "source": "db",
+                    "target": "api",
+                    "compare_type": "field",
+                    "source_path": "db_results.*.modified_by",
+                    "target_path": "models.*.modifiedBy",
+                    "message": "Verify all modified by values match between database and API"
+                },
+                {
+                    "source": "db",
+                    "target": "api",
+                    "compare_type": "field",
+                    "source_path": "db_results.*.created_by",
+                    "target_path": "models.*.createdBy",
+                    "message": "Verify all created by values match between database and API"
+                }
+            ]
+        },
+        "test_data_file": "",
+        "db_query_timing": "after_api",
+        "db_queries": {
+            "default": "models\\db_queries\\Query_models_GET_withFilterStatusPublished.sql",
+            "audit_query": ""
+        },
+        "db_type": "postgresql",
+        "db_connection_name": "default",
+        "test_summary": "Test TC002: Apply Status=Published filter and verify API returns models (manual verification of Published status in response)"
+    },
+    {
+        "test_id": "TC006",
+        "service_name": "models",
+        "workflow_mode": "sequential",
+        "test_name": "PUT /allocation/{modelId} with entityType=Security and invalid field - Negative test (TC006)",
+        "protocol": "REST",
+        "test_type": [
+            "Functional",
+            "Performance",
+            "Smoke"
+        ],
+        "mainURL": "{{base_url}}",
+        "endpoint": "/allocation/{{published_model_id}}",
+        "method": "PUT",
+        "rpc_method": "",
+        "graphql_query": "",
+        "graphql_variables": "",
+        "soap_action": "",
+        "soap_envelope": "",
+        "headers_additional": {
+            "Content-Type": "application/json"
+        },
+        "payload": {
+            "allocations": [
+                {
+                    "entityType": "Security",
+                    "allocationName": "string",
+                    "modelId": "string",
+                    "cusip": "string",
+                    "tickerr": "string",
+                    "weight": 0.5
+                }
+            ]
+        },
+        "expected_status": "400",
+        "expected_response_schema": "models\\schemas\\Schema_model_id_PUT_400_error.json",
+        "expected_response": null,
+        "ignore_fields": [
+            "id"
+        ],
+        "extract_values": [],
+        "validate": {
+            "performance": {
+                "max_response_time_ms": null
+            },
+            "security": {
+                "checks": [
+                    "sql_injection",
+                    "xss"
+                ]
+            },
+            "data_comparison": [
+                {
+                    "source": "api_response",
+                    "source_array_path": "status",
+                    "target": "literal",
+                    "target_literal": 400,
+                    "comparison_name": "Verify status is 400"
+                },
+                {
+                    "source": "api_response",
+                    "source_array_path": "title",
+                    "target": "literal",
+                    "target_literal": "Invalid JSON",
+                    "comparison_name": "Verify Message is 'Invalid JSON'"
+                }
+            ]
+        },
+        "test_data_file": "",
+        "db_query_timing": "after_api",
+        "db_queries": {
+            "default": "models/db_queries/Query_models_GET.sql",
+            "count_query": "SELECT COUNT(*) AS count FROM public.vw_model;"
+        },
+        "db_type": "postgresql",
+        "db_connection_name": "models",
+        "test_summary": "Test TC006: Update Published model allocation with entityType=Security and invalid 'modifiedBy' field, verify 400 Invalid JSON error"
+    },
+    {
+        "test_id": "TC007",
+        "service_name": "models",
+        "workflow_mode": "sequential",
+        "test_name": "PUT /allocation/{modelId} without entityType field - Validation error (TC007)",
+        "protocol": "REST",
+        "test_type": [
+            "Functional",
+            "Performance",
+            "Smoke"
+        ],
+        "mainURL": "{{base_url}}",
+        "endpoint": "/allocation/{{first_model_id}}",
+        "method": "PUT",
+        "rpc_method": "",
+        "graphql_query": "",
+        "graphql_variables": "",
+        "soap_action": "",
+        "soap_envelope": "",
+        "headers_additional": {
+            "Content-Type": "application/json"
+        },
+        "payload": {
+            "allocations": [
+                {
+                    "allocationName": "string",
+                    "modelId": "string",
+                    "cusip": "string",
+                    "ticker": "string",
+                    "weight": 0.5
+                }
+            ]
+        },
+        "expected_status": "400",
+        "expected_response_schema": "models\\schemas\\Schema_model_id_PUT_400_error.json",
+        "expected_response": null,
+        "ignore_fields": [
+            "id"
+        ],
+        "extract_values": [],
+        "validate": {
+            "performance": {
+                "max_response_time_ms": null
+            },
+            "security": {
+                "checks": [
+                    "sql_injection",
+                    "xss"
+                ]
+            },
+            "data_comparison": [
+                {
+                    "source": "api_response",
+                    "source_array_path": "status",
+                    "target": "literal",
+                    "target_literal": 400,
+                    "comparison_name": "Verify status is 400"
+                },
+                {
+                    "source": "api_response",
+                    "source_array_path": "title",
+                    "target": "literal",
+                    "target_literal": "Invalid JSON",
+                    "comparison_name": "Verify Message is 'Invalid JSON'"
+                }
+            ]
+        },
+        "test_data_file": "",
+        "db_query_timing": "after_api",
+        "db_queries": {
+            "default": "models/db_queries/Query_models_GET.sql",
+            "count_query": "SELECT COUNT(*) AS count FROM public.vw_model;"
+        },
+        "db_type": "postgresql",
+        "db_connection_name": "models",
+        "test_summary": "Test TC007: Update Draft model allocation without required 'entityType' field and with invalid 'modifiedBy', verify 400 Invalid JSON error"
+    },
+    {
+        "test_id": "TC008",
+        "service_name": "models",
+        "workflow_mode": "sequential",
+        "test_name": "PUT /allocation/{modelId} with nested allocations and invalid field - Negative test (TC008)",
+        "protocol": "REST",
+        "test_type": [
+            "Functional",
+            "Performance",
+            "Smoke"
+        ],
+        "mainURL": "{{base_url}}",
+        "endpoint": "/allocation/{{published_model_id}}",
+        "method": "PUT",
+        "rpc_method": "",
+        "graphql_query": "",
+        "graphql_variables": "",
+        "soap_action": "",
+        "soap_envelope": "",
+        "headers_additional": {
+            "Content-Type": "application/json"
+        },
+        "payload": {
+            "modifiedBy": "3fa85f64-5717-4562-b3fc-2c963f66afa6",
+            "allocations": [
+                {
+                    "entityType": "Security",
+                    "allocationName": "string",
+                    "modelId": "string",
+                    "cusip": "string",
+                    "ticker": "string",
+                    "weightt": 0.5
+                }
+            ]
+        },
+        "expected_status": "400",
+        "expected_response_schema": "models\\schemas\\Schema_model_id_PUT_400_error.json",
+        "expected_response": null,
+        "ignore_fields": [
+            "id"
+        ],
+        "extract_values": [],
+        "validate": {
+            "performance": {
+                "max_response_time_ms": null
+            },
+            "security": {
+                "checks": [
+                    "sql_injection",
+                    "xss"
+                ]
+            },
+            "data_comparison": [
+                {
+                    "source": "api_response",
+                    "source_array_path": "status",
+                    "target": "literal",
+                    "target_literal": 400,
+                    "comparison_name": "Verify status is 400"
+                },
+                {
+                    "source": "api_response",
+                    "source_array_path": "title",
+                    "target": "literal",
+                    "target_literal": "Invalid JSON",
+                    "comparison_name": "Verify Message is 'Invalid JSON'"
+                }
+            ]
+        },
+        "test_data_file": "",
+        "db_query_timing": "after_api",
+        "db_queries": {
+            "default": "models/db_queries/Query_models_GET.sql",
+            "count_query": "SELECT COUNT(*) AS count FROM public.vw_model;"
+        },
+        "db_type": "postgresql",
+        "db_connection_name": "models",
+        "test_summary": "Test TC008: Update Published model with entityType=Security, nested allocations array, and invalid 'modifiedBy' field, verify 400 Invalid JSON error"
+    },
+    {
+        "test_id": "TC009",
+        "service_name": "models",
+        "workflow_mode": "sequential",
+        "test_name": "POST /allocation/{modelId} - Method Not Allowed error (TC009)",
+        "protocol": "REST",
+        "test_type": [
+            "Functional",
+            "Performance",
+            "Smoke"
+        ],
+        "mainURL": "{{base_url}}",
+        "endpoint": "/allocation/{{published_model_id}}",
+        "method": "POST",
+        "rpc_method": "",
+        "graphql_query": "",
+        "graphql_variables": "",
+        "soap_action": "",
+        "soap_envelope": "",
+        "headers_additional": {
+            "Content-Type": "application/json"
+        },
+        "payload": {
+            "modifiedBy": "3fa85f64-5717-4562-b3fc-2c963f66afa6",
+            "allocations": [
+                {
+                    "entityType": "Security",
+                    "allocationName": "string",
+                    "modelId": "string",
+                    "cusip": "string",
+                    "ticker": "string",
+                    "weight": 0.5,
+                    "allocations": [
+                        {
+                            "name": "string",
+                            "entityType": "Security",
+                            "assetType": "string",
+                            "assetClass": "string",
+                            "assetSubClass": "string",
+                            "weight": 0.5
+                        }
+                    ]
+                }
+            ]
+        },
+        "expected_status": "405",
+        "expected_response_schema": "",
+        "expected_response": null,
+        "ignore_fields": [
+            "id"
+        ],
+        "extract_values": [],
+        "validate": {
+            "performance": {
+                "max_response_time_ms": null
+            },
+            "security": {
+                "checks": [
+                    "sql_injection",
+                    "xss"
+                ]
+            },
+            "data_comparison": []
+        },
+        "test_data_file": "",
+        "db_query_timing": "after_api",
+        "db_queries": {
+            "default": "models/db_queries/Query_models_GET.sql",
+            "count_query": "SELECT COUNT(*) AS count FROM public.vw_model;"
+        },
+        "db_type": "postgresql",
+        "db_connection_name": "models",
+        "test_summary": "Test TC009: Attempt to update allocation using POST method instead of PUT, verify 405 Method Not Allowed error"
+    },
+    {
+        "test_id": "TC010",
+        "service_name": "models",
+        "workflow_mode": "sequential",
+        "test_name": "PUT /allocation/{invalidModelId} - State Conflict error (TC010)",
+        "protocol": "REST",
+        "test_type": [
+            "Functional",
+            "Performance",
+            "Smoke"
+        ],
+        "mainURL": "{{base_url}}",
+        "endpoint": "/allocation/a3e6fc95-c1aa-470c-a715-b60634c6fADD",
+        "method": "PUT",
+        "rpc_method": "",
+        "graphql_query": "",
+        "graphql_variables": "",
+        "soap_action": "",
+        "soap_envelope": "",
+        "headers_additional": {
+            "Content-Type": "application/json"
+        },
+        "payload": {
+            "allocations": [
+                {
+                    "entityType": "Model",
+                    "allocationName": "string",
+                    "modelId": "string",
+                    "cusip": "string",
+                    "ticker": "string",
+                    "weight": 0.5
+                }
+            ]
+        },
+        "expected_status": "409",
+        "expected_response_schema": "models\\schemas\\Schema_model_id_PUT_409_error.json",
+        "expected_response": null,
+        "ignore_fields": [
+            "id"
+        ],
+        "extract_values": [],
+        "validate": {
+            "performance": {
+                "max_response_time_ms": null
+            },
+            "security": {
+                "checks": [
+                    "sql_injection",
+                    "xss"
+                ]
+            },
+            "data_comparison": [
+                {
+                    "source": "api_response",
+                    "source_array_path": "status",
+                    "target": "literal",
+                    "target_literal": 409,
+                    "comparison_name": "Verify status is 409"
+                },
+                {
+                    "source": "api_response",
+                    "source_array_path": "type",
+                    "target": "literal",
+                    "target_literal": "StateConflict",
+                    "comparison_name": "Verify Message is 'StateConflict'"
+                }
+            ]
+        },
+        "test_data_file": "",
+        "db_query_timing": "after_api",
+        "db_queries": {
+            "default": "models/db_queries/Query_models_GET.sql",
+            "count_query": "SELECT COUNT(*) AS count FROM public.vw_model;"
+        },
+        "db_type": "postgresql",
+        "db_connection_name": "models",
+        "test_summary": "Test TC010: Update allocation with hardcoded invalid/non-existent model ID, verify 409 State Conflict error"
+    },
+    {
+        "test_id": "TC011",
+        "service_name": "models",
+        "workflow_mode": "sequential",
+        "test_name": "PUT /allocation/{modelId} with empty payload - Bad Request error (TC011)",
+        "protocol": "REST",
+        "test_type": [
+            "Functional",
+            "Smoke"
+        ],
+        "mainURL": "{{base_url}}",
+        "endpoint": "/allocation/{{first_model_id}}",
+        "method": "PUT",
+        "rpc_method": "",
+        "graphql_query": "",
+        "graphql_variables": "",
+        "soap_action": "",
+        "soap_envelope": "",
+        "headers_additional": {
+            "Content-Type": "application/json"
+        },
+        "payload": "test",
+        "expected_status": "400",
+        "expected_response_schema": "models\\schemas\\Schema_model_id_PUT_400_error.json",
+        "expected_response": null,
+        "ignore_fields": [
+            "id"
+        ],
+        "extract_values": [],
+        "validate": {
+            "performance": {
+                "max_response_time_ms": null
+            },
+            "security": {
+                "checks": [
+                    "sql_injection",
+                    "xss"
+                ]
+            },
+            "data_comparison": [
+                {
+                    "source": "api_response",
+                    "source_array_path": "status",
+                    "target": "literal",
+                    "target_literal": 400,
+                    "comparison_name": "Verify status is 400"
+                },
+                {
+                    "source": "api_response",
+                    "source_array_path": "title",
+                    "target": "literal",
+                    "target_literal": "Invalid JSON",
+                    "comparison_name": "Verify error title is 'Invalid JSON'"
+                }
+            ]
+        },
+        "test_data_file": "",
+        "db_query_timing": "after_api",
+        "db_queries": {
+            "default": "models/db_queries/Query_models_GET.sql",
+            "count_query": "SELECT COUNT(*) AS count FROM public.vw_model;"
+        },
+        "db_type": "postgresql",
+        "db_connection_name": "models",
+        "test_summary": "Test TC011: Send empty payload {} to allocation endpoint, verify 400 Bad Request error for missing required fields"
+    },
+    {
+        "test_id": "TC012",
+        "service_name": "models",
+        "workflow_mode": "sequential",
+        "test_name": "PUT /allocation/{modelId} with empty entityType - Bad Request error (TC012)",
+        "protocol": "REST",
+        "test_type": [
+            "Functional",
+            "Smoke"
+        ],
+        "mainURL": "{{base_url}}",
+        "endpoint": "/allocation/{{first_model_id}}",
+        "method": "PUT",
+        "rpc_method": "",
+        "graphql_query": "",
+        "graphql_variables": "",
+        "soap_action": "",
+        "soap_envelope": "",
+        "headers_additional": {
+            "Content-Type": "application/json"
+        },
+        "payload": {
+            "allocations": [
+                {
+                    "entityType": "",
+                    "allocationName": "string",
+                    "modelId": "string",
+                    "cusip": "string",
+                    "ticker": "string",
+                    "weight": 0
+                }
+            ]
+        },
+        "expected_status": "400",
+        "expected_response_schema": "models\\schemas\\Schema_model_id_PUT_400_error.json",
+        "expected_response": null,
+        "ignore_fields": [
+            "id"
+        ],
+        "extract_values": [],
+        "validate": {
+            "performance": {
+                "max_response_time_ms": null
+            },
+            "security": {
+                "checks": [
+                    "sql_injection",
+                    "xss"
+                ]
+            },
+            "data_comparison": [
+                {
+                    "source": "api_response",
+                    "source_array_path": "status",
+                    "target": "literal",
+                    "target_literal": 400,
+                    "comparison_name": "Verify status is 400"
+                },
+                {
+                    "source": "api_response",
+                    "source_array_path": "title",
+                    "target": "literal",
+                    "target_literal": "Invalid JSON",
+                    "comparison_name": "Verify error title is 'Invalid JSON'"
+                }
+            ]
+        },
+        "test_data_file": "",
+        "db_query_timing": "after_api",
+        "db_queries": {
+            "default": "models/db_queries/Query_models_GET.sql",
+            "count_query": "SELECT COUNT(*) AS count FROM public.vw_model;"
+        },
+        "db_type": "postgresql",
+        "db_connection_name": "models",
+        "test_summary": "Test TC012: Send payload with empty entityType field, verify 400 Bad Request error for invalid entityType value"
+    },
+    {
+        "test_id": "TC013",
+        "service_name": "models",
+        "workflow_mode": "sequential",
+        "test_name": "PUT /allocation/{modelId} with invalid field in payload - Bad Request error (TC013)",
+        "protocol": "REST",
+        "test_type": [
+            "Functional",
+            "Smoke"
+        ],
+        "mainURL": "{{base_url}}",
+        "endpoint": "/allocation/{{first_model_id}}",
+        "method": "PUT",
+        "rpc_method": "",
+        "graphql_query": "",
+        "graphql_variables": "",
+        "soap_action": "",
+        "soap_envelope": "",
+        "headers_additional": {
+            "Content-Type": "application/json"
+        },
+        "payload": {
+            "allocations": [
+                {
+                    "entityType": "Security",
+                    "allocationName": "string",
+                    "modelId": "string",
+                    "cusip": "string",
+                    "ticker": "string",
+                    "weight": 0.5,
+                    "test": 123
+                }
+            ]
+        },
+        "expected_status": "400",
+        "expected_response_schema": "models\\schemas\\Schema_model_id_PUT_400_error.json",
+        "expected_response": null,
+        "ignore_fields": [
+            "id"
+        ],
+        "extract_values": [],
+        "validate": {
+            "performance": {
+                "max_response_time_ms": null
+            },
+            "security": {
+                "checks": [
+                    "sql_injection",
+                    "xss"
+                ]
+            },
+            "data_comparison": [
+                {
+                    "source": "api_response",
+                    "source_array_path": "status",
+                    "target": "literal",
+                    "target_literal": 400,
+                    "comparison_name": "Verify status is 400"
+                },
+                {
+                    "source": "api_response",
+                    "source_array_path": "title",
+                    "target": "literal",
+                    "target_literal": "Invalid JSON",
+                    "comparison_name": "Verify error title is 'Invalid JSON'"
+                }
+            ]
+        },
+        "test_data_file": "",
+        "db_query_timing": "after_api",
+        "db_queries": {
+            "default": "models/db_queries/Query_models_GET.sql",
+            "count_query": "SELECT COUNT(*) AS count FROM public.vw_model;"
+        },
+        "db_type": "postgresql",
+        "db_connection_name": "models",
+        "test_summary": "Test TC013: Send payload with invalid field 'test' in allocations, verify 400 Bad Request error for unrecognized field"
+    },
+    {
+        "test_id": "TC014",
+        "service_name": "models",
+        "workflow_mode": "sequential",
+        "test_name": "PUT /allocation/{modelId} with invalid data type for allocationName - Bad Request error (TC014)",
+        "protocol": "REST",
+        "test_type": [
+            "Functional",
+            "Smoke"
+        ],
+        "mainURL": "{{base_url}}",
+        "endpoint": "/allocation/{{first_model_id}}",
+        "method": "PUT",
+        "rpc_method": "",
+        "graphql_query": "",
+        "graphql_variables": "",
+        "soap_action": "",
+        "soap_envelope": "",
+        "headers_additional": {
+            "Content-Type": "application/json"
+        },
+        "payload": {
+            "allocations": [
+                {
+                    "entityType": "Security",
+                    "allocationName": 234,
+                    "modelId": "string",
+                    "cusip": "string",
+                    "ticker": "string",
+                    "weight": 0.5
+                }
+            ]
+        },
+        "expected_status": "400",
+        "expected_response_schema": "models\\schemas\\Schema_model_id_PUT_400_error.json",
+        "expected_response": null,
+        "ignore_fields": [
+            "id"
+        ],
+        "extract_values": [],
+        "validate": {
+            "performance": {
+                "max_response_time_ms": null
+            },
+            "security": {
+                "checks": [
+                    "sql_injection",
+                    "xss"
+                ]
+            },
+            "data_comparison": [
+                {
+                    "source": "api_response",
+                    "source_array_path": "status",
+                    "target": "literal",
+                    "target_literal": 400,
+                    "comparison_name": "Verify status is 400"
+                },
+                {
+                    "source": "api_response",
+                    "source_array_path": "title",
+                    "target": "literal",
+                    "target_literal": "Invalid JSON",
+                    "comparison_name": "Verify error title is 'Invalid JSON'"
+                }
+            ]
+        },
+        "test_data_file": "",
+        "db_query_timing": "after_api",
+        "db_queries": {
+            "default": "models/db_queries/Query_models_GET.sql",
+            "count_query": "SELECT COUNT(*) AS count FROM public.vw_model;"
+        },
+        "db_type": "postgresql",
+        "db_connection_name": "models",
+        "test_summary": "Test TC014: Send payload with numeric value for allocationName field (expected string), verify 400 Bad Request error for invalid data type"
+    }
+]

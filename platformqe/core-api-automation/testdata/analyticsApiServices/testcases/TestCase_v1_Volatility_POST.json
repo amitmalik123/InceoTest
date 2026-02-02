@@ -1,0 +1,238 @@
+[
+    {
+        "test_id": "TC_Volatility_001",
+        "service_name": "analyticsApiServices",
+        "workflow_mode": "sequential",
+        "test_name": "POST /v1/analytics - Volatility Calculation (TC_Volatility_001)",
+        "protocol": "REST",
+        "test_type": [
+            "Functional",
+            "Smoke"
+        ],
+        "mainURL": "{{base_url}}",
+        "endpoint": "/v1/analytics",
+        "method": "POST",
+        "headers_additional": {
+            "Content-Type": "application/json"
+        },
+        "payload": "analyticsApiServices/payloads/Payload_RiskVsReturn_POST.txt",
+        "expected_status": "200",
+        "expected_response_schema": "",
+        "expected_response": null,
+        "ignore_fields": [],
+        "scripts": [
+            "analyticsApiServices/validators/return_validator.py"
+        ],
+        "extract_values": [
+            {
+                "from": "response",
+                "key": "calculationResults.0.calculationType",
+                "assign_to": "api_calculation_type"
+            },
+            {
+                "from": "response",
+                "key": "calculationResults.0.result.0.volatility",
+                "assign_to": "blend_volatility"
+            },
+            {
+                "from": "response",
+                "key": "calculationResults.0.result.0.annualizedVolatility",
+                "assign_to": "blend_annualized_volatility"
+            },
+            {
+                "from": "response",
+                "key": "calculationResults.0.result.0.blend.0.id",
+                "assign_to": "blend_model_1_id"
+            },
+            {
+                "from": "response",
+                "key": "calculationResults.0.result.0.blend.0.entityType",
+                "assign_to": "blend_model_1_entity_type"
+            },
+            {
+                "from": "response",
+                "key": "calculationResults.0.result.0.blend.0.volatility",
+                "assign_to": "blend_model_1_volatility"
+            },
+            {
+                "from": "response",
+                "key": "calculationResults.0.result.0.blend.0.annualizedVolatility",
+                "assign_to": "blend_model_1_annualized_volatility"
+            },
+            {
+                "from": "response",
+                "key": "calculationResults.0.result.0.blend.1.id",
+                "assign_to": "blend_model_2_id"
+            },
+            {
+                "from": "response",
+                "key": "calculationResults.0.result.0.blend.1.entityType",
+                "assign_to": "blend_model_2_entity_type"
+            },
+            {
+                "from": "response",
+                "key": "calculationResults.0.result.0.blend.1.volatility",
+                "assign_to": "blend_model_2_volatility"
+            },
+            {
+                "from": "response",
+                "key": "calculationResults.0.result.0.blend.1.annualizedVolatility",
+                "assign_to": "blend_model_2_annualized_volatility"
+            },
+            {
+                "from": "response",
+                "key": "calculationResults.0.result.1.id",
+                "assign_to": "benchmark_id"
+            },
+            {
+                "from": "response",
+                "key": "calculationResults.0.result.1.entityType",
+                "assign_to": "benchmark_entity_type"
+            },
+            {
+                "from": "response",
+                "key": "calculationResults.0.result.1.volatility",
+                "assign_to": "benchmark_volatility"
+            },
+            {
+                "from": "response",
+                "key": "calculationResults.0.result.1.annualizedVolatility",
+                "assign_to": "benchmark_annualized_volatility"
+            },
+            {
+                "from": "script_result",
+                "key": "computed_model_1_volatility",
+                "assign_to": "computed_model_1_volatility"
+            },
+            {
+                "from": "script_result",
+                "key": "computed_model_1_annualized_volatility",
+                "assign_to": "computed_model_1_annualized_volatility"
+            },
+            {
+                "from": "script_result",
+                "key": "computed_model_2_volatility",
+                "assign_to": "computed_model_2_volatility"
+            },
+            {
+                "from": "script_result",
+                "key": "computed_model_2_annualized_volatility",
+                "assign_to": "computed_model_2_annualized_volatility"
+            },
+            {
+                "from": "script_result",
+                "key": "computed_blend_volatility",
+                "assign_to": "computed_blend_volatility"
+            },
+            {
+                "from": "script_result",
+                "key": "computed_blend_annualized_volatility",
+                "assign_to": "computed_blend_annualized_volatility"
+            },
+            {
+                "from": "script_result",
+                "key": "computed_benchmark_volatility",
+                "assign_to": "computed_benchmark_volatility"
+            },
+            {
+                "from": "script_result",
+                "key": "computed_benchmark_annualized_volatility",
+                "assign_to": "computed_benchmark_annualized_volatility"
+            }
+        ],
+        "validate": {
+            "performance": {
+                "max_response_time_ms": null
+            },
+            "assertions": [
+                {
+                    "actual": "{{api_calculation_type}}",
+                    "operator": "==",
+                    "expected": "volatility",
+                    "message": "Verify correct calculation type is 'volatility'"
+                },
+                {
+                    "actual": "{{blend_model_1_volatility}}",
+                    "operator": "==",
+                    "expected": "{{computed_model_1_volatility}}",
+                    "tolerance": 0.0001,
+                    "message": "API vs Computed: Blend Model 1 Monthly Volatility"
+                },
+                {
+                    "actual": "{{blend_model_1_annualized_volatility}}",
+                    "operator": "==",
+                    "expected": "{{computed_model_1_annualized_volatility}}",
+                    "tolerance": 0.0001,
+                    "message": "API vs Computed: Blend Model 1 Annualized Volatility"
+                },
+                {
+                    "actual": "{{blend_model_2_volatility}}",
+                    "operator": "==",
+                    "expected": "{{computed_model_2_volatility}}",
+                    "tolerance": 0.0001,
+                    "message": "API vs Computed: Blend Model 2 Monthly Volatility"
+                },
+                {
+                    "actual": "{{blend_model_2_annualized_volatility}}",
+                    "operator": "==",
+                    "expected": "{{computed_model_2_annualized_volatility}}",
+                    "tolerance": 0.0001,
+                    "message": "API vs Computed: Blend Model 2 Annualized Volatility"
+                },
+                {
+                    "actual": "{{blend_volatility}}",
+                    "operator": "==",
+                    "expected": "{{computed_blend_volatility}}",
+                    "tolerance": 0.0001,
+                    "message": "API vs Computed: Blended Portfolio Monthly Volatility"
+                },
+                {
+                    "actual": "{{blend_annualized_volatility}}",
+                    "operator": "==",
+                    "expected": "{{computed_blend_annualized_volatility}}",
+                    "tolerance": 0.0001,
+                    "message": "API vs Computed: Blended Portfolio Annualized Volatility"
+                },
+                {
+                    "actual": "{{benchmark_volatility}}",
+                    "operator": "==",
+                    "expected": "{{computed_benchmark_volatility}}",
+                    "tolerance": 0.0001,
+                    "message": "API vs Computed: Benchmark Monthly Volatility"
+                },
+                {
+                    "actual": "{{benchmark_annualized_volatility}}",
+                    "operator": "==",
+                    "expected": "{{computed_benchmark_annualized_volatility}}",
+                    "tolerance": 0.0001,
+                    "message": "API vs Computed: Benchmark Annualized Volatility"
+                },
+                {
+                    "actual": "{{benchmark_entity_type}}",
+                    "operator": "==",
+                    "expected": "benchmark",
+                    "message": "Verify benchmark entity type is 'benchmark'"
+                },
+                {
+                    "actual": "{{blend_model_1_entity_type}}",
+                    "operator": "==",
+                    "expected": "model",
+                    "message": "Verify first blend model entity type is 'model'"
+                },
+                {
+                    "actual": "{{blend_model_2_entity_type}}",
+                    "operator": "==",
+                    "expected": "model",
+                    "message": "Verify second blend model entity type is 'model'"
+                }
+            ]
+        },
+        "test_data_file": "analyticsApiServices/data_driven/Data_Volatility_POST.csv",
+        "db_queries": {},
+        "db_type": "mssql",
+        "db_connection_name": "am_db",
+        "db_query_timing": "before_api",
+        "test_summary": "Test Volatility API calculation. Validates monthly and annualized volatility calculations for blended portfolios and benchmarks.",
+        "test_scenario": "Validate volatility API response contains correct monthly volatility (standard deviation) and annualized volatility (monthly × sqrt(12)) for model blends and benchmarks."
+    }
+]

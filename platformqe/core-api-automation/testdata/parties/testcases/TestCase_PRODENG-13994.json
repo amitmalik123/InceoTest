@@ -1,0 +1,916 @@
+[
+  {
+    "test_id": "TC_PRODENG_13994_001",
+    "service_name": "parties",
+    "workflow_mode": "parallel",
+    "test_name": "GET /parties/{id} - Verify version field exists and matches DB",
+    "protocol": "REST",
+    "test_type": ["Functional", "Smoke", "PRODENG-13994", "Business Logic"],
+    "mainURL": "{{base_url}}",
+    "endpoint": "/parties/{{id}}",
+    "method": "GET",
+    "rpc_method": "",
+    "graphql_query": "",
+    "graphql_variables": "",
+    "soap_action": "",
+    "soap_envelope": "",
+    "headers_additional": {
+      "Content-Type": "application/json"
+    },
+    "payload": null,
+    "expected_status": "200",
+    "expected_response_schema": "parties\\schemas\\Schema_parties_Party_id_GET_response_with_version.json",
+    "expected_response": null,
+    "extract_values": [
+      {
+        "from": "response",
+        "key": "parties.0.version",
+        "assign_to": "api_version"
+      },
+      {
+        "from": "db_result",
+        "key": "0.db_version",
+        "assign_to": "db_version"
+      }
+    ],
+    "validate": {
+      "performance": {
+        "max_response_time_ms": 500
+      },
+      "security": {
+        "checks": ["sql_injection", "xss"]
+      },
+      "data_comparison": {
+        "source": "api_response",
+        "target": "db_result",
+        "format": "table",
+        "key_field": ["", ""],
+        "fields_to_compare": [
+          {
+            "source": "parties.0.partyId",
+            "target": "db_id"
+          },
+          {
+            "source": "parties.0.version",
+            "target": "db_version"
+          }
+        ],
+        "log_differences": true
+      },
+      "assertions": [
+        {
+          "actual": "{{api_version}}",
+          "operator": ">=",
+          "expected": 1,
+          "message": "Expected version to be at least 1"
+        },
+        {
+          "actual": "{{api_version}}",
+          "operator": "==",
+          "expected": "{{db_version}}",
+          "message": "Expected API version to match database version"
+        }
+      ]
+    },
+    "test_data_file": "parties/data_driven/Data_parties_GET.csv",
+    "db_type": "mssql",
+    "db_connection_name": "parties",
+    "db_query": "SELECT TOP 1 Id as db_id, Version as db_version FROM Party WHERE Id ='{{id}}' ORDER BY Version DESC;",
+    "test_summary": "Test TC_PRODENG_13994_001: Data-driven test to verify version field exists in GET response and matches database max version"
+  },
+  {
+    "test_id": "TC_VERSION_001",
+    "service_name": "parties",
+    "workflow_mode": "sequential",
+    "test_name": "POST /parties - Create party and verify initial version is 1",
+    "protocol": "REST",
+    "test_type": ["Functional", "Smoke", "PRODENG-13994", "Business Logic"],
+    "mainURL": "{{base_url}}",
+    "endpoint": "/parties",
+    "method": "POST",
+    "rpc_method": "",
+    "graphql_query": "",
+    "graphql_variables": "",
+    "soap_action": "",
+    "soap_envelope": "",
+    "headers_additional": {
+      "Content-Type": "application/json"
+    },
+    "payload": {
+      "partyRequest": {
+        "partyType": "Individual",
+        "status": "Draft",
+        "core": {
+          "individual": {
+            "firstName": "John",
+            "middleName": "Michael",
+            "lastName": "Doe",
+            "suffix": "Jr",
+            "dateOfBirth": "1990-05-15",
+            "taxId": "123456789",
+            "citizenship": "US",
+            "maritalStatus": "Single",
+            "isDeceased": false,
+            "dateOfDeath": null
+          },
+          "entity": {
+            "type": "Business",
+            "subType": "Unknown",
+            "title": "Test Entity",
+            "taxId": "987654321",
+            "taxidentifier": "EIN",
+            "createdDate": "2025-12-16"
+          }
+        },
+        "addresses": [
+          {
+            "addressType": "Business",
+            "line1": "123 Main St",
+            "line2": "Suite 100",
+            "city": "San Francisco",
+            "state": "CA",
+            "zip": "94102",
+            "country": "US",
+            "priorityType": "Primary"
+          }
+        ],
+        "contacts": [
+          {
+            "contactType": "Phone",
+            "usageType": "Business",
+            "value": "555-1234",
+            "priorityType": "Primary"
+          }
+        ],
+        "identifiers": [
+          {
+            "type": "APL",
+            "value": "TEST001"
+          }
+        ]
+      }
+    },
+    "expected_status": "201",
+    "expected_response_schema": "parties\\schemas\\Schema_parties_Party_POST_response_success.json",
+    "expected_response": null,
+    "extract_values": [
+      {
+        "from": "response",
+        "key": "partyId",
+        "assign_to": "created_party_id"
+      }
+    ],
+    "validate": {
+      "performance": {
+        "max_response_time_ms": 1000
+      },
+      "security": {
+        "checks": ["sql_injection", "xss"]
+      },
+      "data_comparison": {
+        "source": "api_response",
+        "target": "db_result",
+        "format": "table",
+        "key_field": ["", ""],
+        "fields_to_compare": [],
+        "log_differences": true
+      },
+      "assertions": [
+        {
+          "actual": "{{created_party_id}}",
+          "operator": "!=",
+          "expected": "",
+          "message": "Expected created party ID to be non-empty"
+        }
+      ]
+    },
+    "test_data_file": "",
+    "db_type": "",
+    "db_connection_name": "parties",
+    "db_query": "",
+    "test_summary": "Test TC_VERSION_001: Create a new party via POST and extract partyId for subsequent tests"
+  },
+  {
+    "test_id": "TC_VERSION_002",
+    "service_name": "parties",
+    "workflow_mode": "sequential",
+    "test_name": "GET /parties/{id} - Verify initial version is 1 after POST",
+    "protocol": "REST",
+    "test_type": ["Functional", "Smoke", "PRODENG-13994", "Business Logic"],
+    "mainURL": "{{base_url}}",
+    "endpoint": "/parties/{{created_party_id}}",
+    "method": "GET",
+    "rpc_method": "",
+    "graphql_query": "",
+    "graphql_variables": "",
+    "soap_action": "",
+    "soap_envelope": "",
+    "headers_additional": {
+      "Content-Type": "application/json"
+    },
+    "payload": null,
+    "expected_status": "200",
+    "expected_response_schema": "",
+    "expected_response": null,
+    "extract_values": [
+      {
+        "from": "response",
+        "key": "parties.0.version",
+        "assign_to": "version_after_post"
+      },
+      {
+        "from": "response",
+        "key": "parties.0.status",
+        "assign_to": "status_after_post"
+      },
+      {
+        "from": "db_result",
+        "key": "0.db_version",
+        "assign_to": "db_version_after_post"
+      },
+      {
+        "from": "db_result",
+        "key": "0.db_status",
+        "assign_to": "db_status_after_post"
+      }
+    ],
+    "validate": {
+      "performance": {
+        "max_response_time_ms": 500
+      },
+      "security": {
+        "checks": ["sql_injection", "xss"]
+      },
+      "data_comparison": {
+        "source": "api_response",
+        "target": "db_result",
+        "format": "table",
+        "key_field": ["", ""],
+        "fields_to_compare": [
+          {
+            "source": "parties.0.partyId",
+            "target": "db_id"
+          },
+          {
+            "source": "parties.0.version",
+            "target": "db_version"
+          },
+          {
+            "source": "parties.0.status",
+            "target": "db_status"
+          }
+        ],
+        "log_differences": true
+      },
+      "assertions": [
+        {
+          "actual": "{{version_after_post}}",
+          "operator": "==",
+          "expected": 1,
+          "message": "Expected version to be 1 after POST"
+        },
+        {
+          "actual": "{{version_after_post}}",
+          "operator": "==",
+          "expected": "{{db_version_after_post}}",
+          "message": "Expected API version to match database version after POST"
+        }
+      ]
+    },
+    "test_data_file": "",
+    "db_type": "mssql",
+    "db_connection_name": "parties",
+    "db_query": "SELECT TOP 1 Id as db_id, Version as db_version, Status as db_status FROM Party WHERE Id ='{{created_party_id}}' ORDER BY Version DESC;",
+    "test_summary": "Test TC_VERSION_002: Verify that version is 1 after initial POST and compare with DB max version for that ID"
+  },
+  {
+    "test_id": "TC_VERSION_003",
+    "service_name": "parties",
+    "workflow_mode": "sequential",
+    "test_name": "PUT /parties/{id} - First update with version 1",
+    "protocol": "REST",
+    "test_type": [
+      "Functional",
+      "Regression",
+      "PRODENG-13994",
+      "Business Logic"
+    ],
+    "mainURL": "{{base_url}}",
+    "endpoint": "/parties/{{created_party_id}}",
+    "method": "PUT",
+    "rpc_method": "",
+    "graphql_query": "",
+    "graphql_variables": "",
+    "soap_action": "",
+    "soap_envelope": "",
+    "headers_additional": {
+      "Content-Type": "application/json",
+      "version": "1"
+    },
+    "payload": {
+      "partyRequest": {
+        "partyType": "Individual",
+        "status": "Active",
+        "core": {
+          "individual": {
+            "firstName": "John",
+            "middleName": "Michael",
+            "lastName": "Smith",
+            "suffix": "Jr",
+            "dateOfBirth": "1990-05-15",
+            "taxId": "123456789",
+            "citizenship": "US",
+            "maritalStatus": "Married",
+            "isDeceased": false,
+            "dateOfDeath": null
+          },
+          "entity": {
+            "type": "Business",
+            "subType": "Unknown",
+            "title": "Updated Entity",
+            "taxId": "987654321",
+            "taxidentifier": "EIN",
+            "createdDate": "2025-12-16"
+          }
+        },
+        "addresses": [
+          {
+            "addressType": "Business",
+            "line1": "456 Oak Ave",
+            "line2": "Floor 2",
+            "city": "San Francisco",
+            "state": "CA",
+            "zip": "94103",
+            "country": "US",
+            "priorityType": "Primary"
+          }
+        ],
+        "contacts": [
+          {
+            "contactType": "Phone",
+            "usageType": "Business",
+            "value": "555-5678",
+            "priorityType": "Primary"
+          }
+        ],
+        "identifiers": [
+          {
+            "type": "APL",
+            "value": "TEST002"
+          }
+        ]
+      }
+    },
+    "expected_status": "200",
+    "expected_response_schema": "",
+    "expected_response": null,
+    "extract_values": [],
+    "validate": {
+      "performance": {
+        "max_response_time_ms": 500
+      },
+      "security": {
+        "checks": ["sql_injection", "xss"]
+      },
+      "data_comparison": {
+        "source": "api_response",
+        "target": "db_result",
+        "format": "table",
+        "key_field": ["", ""],
+        "fields_to_compare": [],
+        "log_differences": true
+      },
+      "assertions": [
+        {
+          "actual": "{{version_after_post}}",
+          "operator": "==",
+          "expected": 1,
+          "message": "Expected version to be 1 after POST"
+        },
+        {
+          "actual": "{{version_after_post}}",
+          "operator": "==",
+          "expected": "{{db_version_after_post}}",
+          "message": "Expected API version to match database version"
+        }
+      ]
+    },
+    "test_data_file": "",
+    "db_type": "mssql",
+    "db_connection_name": "parties",
+    "db_query": "SELECT TOP 1 Id as db_id, Version as db_version, Status as db_status FROM Party WHERE Id ='{{created_party_id}}' ORDER BY Version DESC;",
+    "test_summary": "Test TC_VERSION_003: Update party with version 1 in header, version should increment to 2"
+  },
+  {
+    "test_id": "TC_VERSION_004",
+    "service_name": "parties",
+    "workflow_mode": "sequential",
+    "test_name": "GET /parties/{id} - Verify version is 2 after first PUT",
+    "protocol": "REST",
+    "test_type": [
+      "Functional",
+      "Regression",
+      "PRODENG-13994",
+      "Business Logic"
+    ],
+    "mainURL": "{{base_url}}",
+    "endpoint": "/parties/{{created_party_id}}",
+    "method": "GET",
+    "rpc_method": "",
+    "graphql_query": "",
+    "graphql_variables": "",
+    "soap_action": "",
+    "soap_envelope": "",
+    "headers_additional": {
+      "Content-Type": "application/json"
+    },
+    "payload": null,
+    "expected_status": "200",
+    "expected_response_schema": "",
+    "expected_response": null,
+    "extract_values": [
+      {
+        "from": "response",
+        "key": "parties.0.version",
+        "assign_to": "version_after_first_put"
+      },
+      {
+        "from": "response",
+        "key": "parties.0.status",
+        "assign_to": "status_after_first_put"
+      },
+      {
+        "from": "db_result",
+        "key": "0.db_version",
+        "assign_to": "db_version_after_first_put"
+      },
+      {
+        "from": "db_result",
+        "key": "0.db_status",
+        "assign_to": "db_status_after_first_put"
+      }
+    ],
+    "validate": {
+      "performance": {
+        "max_response_time_ms": 500
+      },
+      "security": {
+        "checks": ["sql_injection", "xss"]
+      },
+      "data_comparison": {
+        "source": "api_response",
+        "target": "db_result",
+        "format": "table",
+        "key_field": ["", ""],
+        "fields_to_compare": [
+          {
+            "source": "parties.0.partyId",
+            "target": "db_id"
+          },
+          {
+            "source": "parties.0.version",
+            "target": "db_version"
+          },
+          {
+            "source": "parties.0.status",
+            "target": "db_status"
+          }
+        ],
+        "log_differences": true
+      },
+      "assertions": [
+        {
+          "actual": "{{version_after_first_put}}",
+          "operator": "==",
+          "expected": 2,
+          "message": "Expected version to be 2 after first PUT"
+        },
+        {
+          "actual": "{{version_after_first_put}}",
+          "operator": "==",
+          "expected": "{{db_version_after_first_put}}",
+          "message": "Expected API version to match database version after first PUT"
+        }
+      ]
+    },
+    "test_data_file": "",
+    "db_type": "mssql",
+    "db_connection_name": "parties",
+    "db_query": "SELECT TOP 1 Id as db_id, Version as db_version, Status as db_status FROM Party WHERE Id ='{{created_party_id}}' ORDER BY Version DESC;",
+    "test_summary": "Test TC_VERSION_004: Verify that API version incremented to 2 after first PUT and compare with DB max version"
+  },
+  {
+    "test_id": "TC_VERSION_005",
+    "service_name": "parties",
+    "workflow_mode": "sequential",
+    "test_name": "PUT /parties/{id} - Second update with version 2",
+    "protocol": "REST",
+    "test_type": [
+      "Functional",
+      "Regression",
+      "PRODENG-13994",
+      "Business Logic"
+    ],
+    "mainURL": "{{base_url}}",
+    "endpoint": "/parties/{{created_party_id}}",
+    "method": "PUT",
+    "rpc_method": "",
+    "graphql_query": "",
+    "graphql_variables": "",
+    "soap_action": "",
+    "soap_envelope": "",
+    "headers_additional": {
+      "Content-Type": "application/json",
+      "version": "2"
+    },
+    "payload": {
+      "partyRequest": {
+        "partyType": "Individual",
+        "status": "Active",
+        "core": {
+          "individual": {
+            "firstName": "John",
+            "middleName": "Michael",
+            "lastName": "Johnson",
+            "suffix": "Sr",
+            "dateOfBirth": "1990-05-15",
+            "taxId": "123456789",
+            "citizenship": "US",
+            "maritalStatus": "Married",
+            "isDeceased": false,
+            "dateOfDeath": null
+          },
+          "entity": {
+            "type": "Business",
+            "subType": "Unknown",
+            "title": "Final Entity Update",
+            "taxId": "987654321",
+            "taxidentifier": "EIN",
+            "createdDate": "2025-12-16"
+          }
+        },
+        "addresses": [
+          {
+            "addressType": "Business",
+            "line1": "789 Pine St",
+            "line2": "Building C",
+            "city": "San Francisco",
+            "state": "CA",
+            "zip": "94104",
+            "country": "US",
+            "priorityType": "Primary"
+          }
+        ],
+        "contacts": [
+          {
+            "contactType": "Email",
+            "usageType": "Business",
+            "value": "john.johnson@example.com",
+            "priorityType": "Primary"
+          }
+        ],
+        "identifiers": [
+          {
+            "type": "APL",
+            "value": "TEST003"
+          }
+        ]
+      }
+    },
+    "expected_status": "200",
+    "expected_response_schema": "",
+    "expected_response": null,
+    "extract_values": [],
+    "validate": {
+      "performance": {
+        "max_response_time_ms": 500
+      },
+      "security": {
+        "checks": ["sql_injection", "xss"]
+      },
+      "data_comparison": {
+        "source": "api_response",
+        "target": "db_result",
+        "format": "table",
+        "key_field": ["", ""],
+        "fields_to_compare": [],
+        "log_differences": true
+      },
+      "assertions": [
+        {
+          "actual": "{{version_after_first_put}}",
+          "operator": "==",
+          "expected": 2,
+          "message": "Expected version to be 2 after first PUT"
+        },
+        {
+          "actual": "{{version_after_first_put}}",
+          "operator": "==",
+          "expected": "{{db_version_after_first_put}}",
+          "message": "Expected API version to match database version"
+        }
+      ]
+    },
+    "test_data_file": "",
+    "db_type": "",
+    "db_connection_name": "",
+    "db_query": "",
+    "test_summary": "Test TC_VERSION_005: Update party with version 2 in header, version should increment to 3"
+  },
+  {
+    "test_id": "TC_VERSION_006",
+    "service_name": "parties",
+    "workflow_mode": "sequential",
+    "test_name": "GET /parties/{id} - Verify version is 3 after second PUT",
+    "protocol": "REST",
+    "test_type": [
+      "Functional",
+      "Regression",
+      "PRODENG-13994",
+      "Business Logic"
+    ],
+    "mainURL": "{{base_url}}",
+    "endpoint": "/parties/{{created_party_id}}",
+    "method": "GET",
+    "rpc_method": "",
+    "graphql_query": "",
+    "graphql_variables": "",
+    "soap_action": "",
+    "soap_envelope": "",
+    "headers_additional": {
+      "Content-Type": "application/json"
+    },
+    "payload": null,
+    "expected_status": "200",
+    "expected_response_schema": "",
+    "expected_response": null,
+    "extract_values": [
+      {
+        "from": "response",
+        "key": "parties.0.version",
+        "assign_to": "version_after_second_put"
+      },
+      {
+        "from": "response",
+        "key": "parties.0.core.individual.lastName",
+        "assign_to": "last_name_after_second_put"
+      },
+      {
+        "from": "db_result",
+        "key": "0.db_version",
+        "assign_to": "db_version_after_second_put"
+      },
+      {
+        "from": "db_result",
+        "key": "0.db_status",
+        "assign_to": "db_status_after_second_put"
+      }
+    ],
+    "validate": {
+      "performance": {
+        "max_response_time_ms": 500
+      },
+      "security": {
+        "checks": ["sql_injection", "xss"]
+      },
+      "data_comparison": {
+        "source": "api_response",
+        "target": "db_result",
+        "format": "table",
+        "key_field": ["", ""],
+        "fields_to_compare": [
+          {
+            "source": "parties.0.partyId",
+            "target": "db_id"
+          },
+          {
+            "source": "parties.0.version",
+            "target": "db_version"
+          },
+          {
+            "source": "parties.0.status",
+            "target": "db_status"
+          }
+        ],
+        "log_differences": true
+      },
+      "assertions": [
+        {
+          "actual": "{{version_after_second_put}}",
+          "operator": "==",
+          "expected": 3,
+          "message": "Expected version to be 3 after second PUT"
+        },
+        {
+          "actual": "{{version_after_second_put}}",
+          "operator": "==",
+          "expected": "{{db_version_after_second_put}}",
+          "message": "Expected API version to match database version after second PUT"
+        }
+      ]
+    },
+    "test_data_file": "",
+    "db_type": "mssql",
+    "db_connection_name": "parties",
+    "db_query": "SELECT TOP 1 Id as db_id, Version as db_version, Status as db_status FROM Party WHERE Id ='{{created_party_id}}' ORDER BY Version DESC;",
+    "test_summary": "Test TC_VERSION_006: Verify that API version incremented to 3 after second PUT and compare with DB max version"
+  },
+  {
+    "test_id": "TC_VERSION_007",
+    "service_name": "parties",
+    "workflow_mode": "sequential",
+    "test_name": "PUT /parties/{id} - Negative test with outdated version header",
+    "protocol": "REST",
+    "test_type": ["Negative", "PRODENG-13994", "Business Logic"],
+    "mainURL": "{{base_url}}",
+    "endpoint": "/parties/{{created_party_id}}",
+    "method": "PUT",
+    "rpc_method": "",
+    "graphql_query": "",
+    "graphql_variables": "",
+    "soap_action": "",
+    "soap_envelope": "",
+    "headers_additional": {
+      "Content-Type": "application/json",
+      "version": "1"
+    },
+    "payload": {
+      "partyRequest": {
+        "partyType": "Individual",
+        "status": "Active",
+        "core": {
+          "individual": {
+            "firstName": "John",
+            "middleName": "Michael",
+            "lastName": "WillFail",
+            "suffix": "Jr",
+            "dateOfBirth": "1990-05-15",
+            "taxId": "123456789",
+            "citizenship": "US",
+            "maritalStatus": "Single",
+            "isDeceased": false,
+            "dateOfDeath": null
+          },
+          "entity": {
+            "type": "Business",
+            "subType": "Unknown",
+            "title": "Should Fail",
+            "taxId": "987654321",
+            "taxidentifier": "EIN",
+            "createdDate": "2025-12-16"
+          }
+        },
+        "addresses": [
+          {
+            "addressType": "Business",
+            "line1": "999 Fail St",
+            "line2": "",
+            "city": "San Francisco",
+            "state": "CA",
+            "zip": "94105",
+            "country": "US",
+            "priorityType": "Primary"
+          }
+        ],
+        "contacts": [
+          {
+            "contactType": "Phone",
+            "usageType": "Business",
+            "value": "555-9999",
+            "priorityType": "Primary"
+          }
+        ],
+        "identifiers": [
+          {
+            "type": "APL",
+            "value": "FAIL001"
+          }
+        ]
+      }
+    },
+    "expected_status": "400",
+    "expected_response_schema": "",
+    "expected_response": null,
+    "extract_values": [],
+    "validate": {
+      "performance": {
+        "max_response_time_ms": 500
+      },
+      "security": {
+        "checks": ["sql_injection", "xss"]
+      },
+      "data_comparison": {
+        "source": "api_response",
+        "target": "db_result",
+        "format": "table",
+        "key_field": ["", ""],
+        "fields_to_compare": [],
+        "log_differences": true
+      },
+      "assertions": []
+    },
+    "test_data_file": "",
+    "db_type": "",
+    "db_connection_name": "",
+    "db_query": "",
+    "test_summary": "Test TC_VERSION_007: Negative test - attempt to update with outdated version 1 when current version is 3, should return 400 (optimistic locking)"
+  },
+  {
+    "test_id": "TC_VERSION_008",
+    "service_name": "parties",
+    "workflow_mode": "sequential",
+    "test_name": "GET /parties/{id} - Final verification that version remained 3",
+    "protocol": "REST",
+    "test_type": [
+      "Functional",
+      "Regression",
+      "PRODENG-13994",
+      "Business Logic"
+    ],
+    "mainURL": "{{base_url}}",
+    "endpoint": "/parties/{{created_party_id}}",
+    "method": "GET",
+    "rpc_method": "",
+    "graphql_query": "",
+    "graphql_variables": "",
+    "soap_action": "",
+    "soap_envelope": "",
+    "headers_additional": {
+      "Content-Type": "application/json"
+    },
+    "payload": null,
+    "expected_status": "200",
+    "expected_response_schema": "",
+    "expected_response": null,
+    "extract_values": [
+      {
+        "from": "response",
+        "key": "parties.0.version",
+        "assign_to": "final_version"
+      },
+      {
+        "from": "response",
+        "key": "parties.0.core.individual.lastName",
+        "assign_to": "final_last_name"
+      },
+      {
+        "from": "db_result",
+        "key": "0.db_version",
+        "assign_to": "db_final_version"
+      },
+      {
+        "from": "db_result",
+        "key": "0.db_status",
+        "assign_to": "db_final_status"
+      }
+    ],
+    "validate": {
+      "performance": {
+        "max_response_time_ms": 500
+      },
+      "security": {
+        "checks": ["sql_injection", "xss"]
+      },
+      "data_comparison": {
+        "source": "api_response",
+        "target": "db_result",
+        "format": "table",
+        "key_field": ["", ""],
+        "fields_to_compare": [
+          {
+            "source": "parties.0.partyId",
+            "target": "db_id"
+          },
+          {
+            "source": "parties.0.version",
+            "target": "db_version"
+          },
+          {
+            "source": "parties.0.status",
+            "target": "db_status"
+          }
+        ],
+        "log_differences": true
+      },
+      "assertions": [
+        {
+          "actual": "{{final_version}}",
+          "operator": "==",
+          "expected": 3,
+          "message": "Expected version to remain 3 after failed PUT"
+        },
+        {
+          "actual": "{{final_version}}",
+          "operator": "==",
+          "expected": "{{db_final_version}}",
+          "message": "Expected API version to match database version"
+        }
+      ]
+    },
+    "test_data_file": "",
+    "db_type": "mssql",
+    "db_connection_name": "parties",
+    "db_query": "SELECT TOP 1 Id as db_id, Version as db_version, Status as db_status FROM Party WHERE Id ='{{created_party_id}}' ORDER BY Version DESC;",
+    "test_summary": "Test TC_VERSION_008: Final verification that API version is still 3 (failed PUT should not have changed it) and compare with DB max version"
+  }
+]

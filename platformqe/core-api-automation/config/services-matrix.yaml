@@ -1,0 +1,156 @@
+services:
+  work_item_notification:
+    displayName: Work Item Notification
+    enabled: false
+    runOnPR: false
+    runOnPush: false
+    runOnSchedule: false
+    testType: functional
+    environments:
+    - TSADEV
+    - TSATEST
+    - TSASILO
+    functionalTestArgs: --service-name work_item_notification --env {environment}
+    nonFunctionalTestArgs: --file testdata/WorkItemNotification/testcases/TestCase_api_workitemnotification_v1_aplid_GET.json
+      --test_type Performance --env {environment} --headless -u 5 -r 1 -t 10s
+    tags:
+    - notification
+    - high-priority
+    priority: 1
+  parties:
+    displayName: Parties API
+    enabled: true
+    runOnPR: true
+    runOnPush: true
+    runOnSchedule: true
+    testType: functional
+    environments:
+    - TSADEV
+    - TSATEST
+    - TSASILO
+    functionalTestArgs: --service-name parties --env {environment}
+    nonFunctionalTestArgs: --file testdata/parties/testcases/TestCase_Party_POST.json
+      --test_type Performance --env {environment} --headless -u 10 -r 2 -t 30s
+    tags:
+    - core-service
+    - high-priority
+    priority: 1
+  movemoney:
+    displayName: Move Money API
+    enabled: true
+    runOnPR: false
+    runOnPush: false
+    runOnSchedule: true
+    testType: functional
+    environments:
+    - TSADEV
+    - TSATEST
+    - TSASILO
+    functionalTestArgs: --service-name MoveMoneyAPI --env {environment}
+    nonFunctionalTestArgs: --file testdata/MoveMoneyAPI/testcases/TestCase_moneymovement_requests_POST.json
+      --test_type Performance --env {environment} --headless -u 8 -r 2 -t 20s
+    tags:
+    - financial
+    - critical
+    priority: 1
+  securities:
+    displayName: Securities Hub
+    enabled: true
+    runOnPR: false
+    runOnPush: false
+    runOnSchedule: true
+    testType: functional
+    environments:
+    - TSADEV
+    - TSATEST
+    - TSASILO
+    functionalTestArgs: --service-name securitiesServices --env {environment}
+    nonFunctionalTestArgs: --file testdata/securitiesServices/testcases/TestCase_securities_GET.json
+      --test_type Performance --env {environment} --headless -u 5 -r 1 -t 15s
+    tags:
+    - securities
+    - medium-priority
+    priority: 2
+  hnebase:
+    displayName: HNE Base API
+    enabled: true
+    runOnPR: false
+    runOnPush: false
+    runOnSchedule: true
+    testType: functional
+    environments:
+    - TSADEV
+    - TSATEST
+    - TSASILO
+    functionalTestArgs: --service-name hnebase --env {environment}
+    nonFunctionalTestArgs: ''
+    tags:
+    - hne
+    - low-priority
+    priority: 3
+  models:
+    displayName: Models API
+    enabled: true
+    runOnPR: false
+    runOnPush: false
+    runOnSchedule: true
+    testType: functional
+    environments:
+    - TSADEV
+    - TSATEST
+    - TSASILO
+    functionalTestArgs: --service-name models --env {environment}
+    nonFunctionalTestArgs: ''
+    tags:
+    - models
+    - low-priority
+    priority: 3
+  addressservice:
+    displayName: Address Service
+    enabled: true
+    runOnPR: false
+    runOnPush: false
+    runOnSchedule: true
+    testType: functional
+    environments:
+    - TSADEV
+    - TSATEST
+    - TSASILO
+    functionalTestArgs: --service-name AddressService.API --env {environment}
+    nonFunctionalTestArgs: ''
+    tags:
+    - address
+    - low-priority
+    priority: 3
+  analytics:
+    displayName: Analytics API
+    enabled: true
+    runOnPR: false
+    runOnPush: false
+    runOnSchedule: true
+    testType: functional
+    environments:
+    - TSADEV
+    - TSATEST
+    - TSASILO
+    functionalTestArgs: --service-name analyticsApiServices --env {environment}
+    nonFunctionalTestArgs: ''
+    tags:
+    - analytics
+    - low-priority
+    priority: 3
+global:
+  defaultPool:
+    name: ewm20-docker-build-agent-inc-dev
+  pythonVersion: '3.10'
+  defaultEnvironments:
+  - TSADEV
+  - TSATEST
+  - TSASILO
+  defaultTestType: functional
+  parallelExecution:
+    maxParallel: 5
+    timeoutInMinutes: 60
+  reportRetention:
+    daysToKeep: 30
+    artifactsToKeep: 50

@@ -1,0 +1,344 @@
+trigger: none
+
+parameters:
+- name: environment
+  displayName: 'Environment'
+  type: string
+  default: 'DEV'
+  values:
+  - DEV
+  - TEST
+- name: testType
+  displayName: 'Test Type'
+  type: string
+  default: 'functional'
+  values:
+  - functional
+  - non-functional
+  - both
+- name: testArgs
+  displayName: 'Functional Test Arguments'
+  type: string
+  default: '--service-name work_item_notification --env T12'
+- name: locustArgs
+  displayName: 'Non-Functional Test Arguments'
+  type: string
+  default: '--file testdata/WorkItemNotification/testcases/TestCase_api_workitemnotification_v1_aplid_GET.json --test_type Performance --env T12 --headless -u 5 -r 1 -t 10s'
+
+
+variables:
+  - ${{ if eq(parameters.environment, 'DEV') }}:
+    - group: 'qa-pipelines-config-dev'  # DEV environment variables (URLs, non-secret config)
+  - ${{ if eq(parameters.environment, 'TEST') }}:
+    - group: 'qa-pipelines-config-test'  # TEST environment variables (URLs, non-secret config)
+  - group: 'qa-pipelines-shared-config'  # Shared configuration (email, API settings, etc.)
+  - name: buildPath
+    value: '$(Build.SourcesDirectory)/platformqe/core-api-automation'
+  - name: environment_name
+    value: '${{ parameters.environment }}'
+  - name: subscription
+    ${{ if eq(parameters.environment, 'DEV') }}:
+      value: $[variables['subscription_dev']]
+    ${{ if eq(parameters.environment, 'TEST') }}:
+      value: $[variables['subscription_test']]
+  - name: key_vault_name
+    ${{ if eq(parameters.environment, 'DEV') }}:
+      value: 'amkkvqapipeline-devncus'
+    ${{ if eq(parameters.environment, 'TEST') }}:
+      value: 'amkkvqapipeline-testncus'
+
+stages:
+  - stage: __default
+    jobs:
+    - job: Job
+      pool:
+        name: ewm20-docker-build-agent-inc-dev
+      steps:
+      # Fetch database connection strings from Azure Key Vault
+      - task: AzureKeyVault@2
+        displayName: 'Fetch database connection strings from Azure Key Vault'
+        inputs:
+          azureSubscription: $(subscription)
+          KeyVaultName: $(key_vault_name)
+          SecretsFilter: 'parties-sqldb-connection-string,movemoney-sqldb-connection-string,hne-db-connection-string,securitieshub-db-connection-string,modelhub-db-connection-string'
+          RunAsPreJob: true
+      # - task: UsePythonVersion@0
+      #   displayName: 'Set up Python 3.10'
+      #   inputs:
+      #     versionSpec: '3.10'
+      #     addToPath: true
+      
+      - task: Bash@3
+        displayName: 'Debug: Verify Variable Group Loading'
+        inputs:
+          targetType: inline
+          script: |
+            echo "=========================================="
+            echo "Variable Group Debug Information"
+            echo "=========================================="
+            echo "Environment: ${{ parameters.environment }}"
+            echo "Variable Group: qa-pipelines-config-${{ lower(parameters.environment) }}"
+            echo "parties_base_url from variable group: $(parties_base_url)"
+            echo "subscription: $(subscription)"
+            echo "key_vault_name: $(key_vault_name)"
+            echo ""
+            echo "All environment variables:"
+            env | sort
+            echo "=========================================="
+      
+      - script: |
+          python3 --version
+        displayName: 'Check Python 3 Version'
+
+      - task: CmdLine@2
+        displayName: 'Install Python dependencies'
+        inputs:
+          script: |
+            # Clear Python cache files to ensure fresh code execution
+            find . -type d -name "__pycache__" -exec rm -rf {} + 2>/dev/null || true
+            find . -type f -name "*.pyc" -delete 2>/dev/null || true
+            
+            python -m pip install --upgrade pip
+            pip install -r requirements.txt
+          workingDirectory: $(buildPath)
+      - task: Bash@3
+        displayName: 'Run Functional Tests'
+        condition: or(eq('${{ parameters.testType }}', 'functional'), eq('${{ parameters.testType }}', 'both'))
+        env:
+          WORK_ITEM_AUTH_TOKEN: $(WORK_ITEM_AUTH_TOKEN)
+          PARTIES_AUTH_TOKEN: $(PARTIES_AUTH_TOKEN)
+          PARTIES_BASE_URL: $(parties_base_url)
+          PARTIES_SQLDB: $(parties-sqldb-connection-string)
+          MOVEMONEY_SQLDB: $(movemoney-sqldb-connection-string)
+          HNE_DB: $(hne-db-connection-string)
+          SECURITIESHUB_DB: $(securitieshub-db-connection-string)
+          MODELHUB_DB: $(modelhub-db-connection-string)
+          AZURE_SQL_PASSWORD: $(AZURE_SQL_PASSWORD)
+          POSTGRES_DB_PASSWORD: $(POSTGRES_DB_PASSWORD)
+          ADDRESS_BASE_URL: $(address_base_url)
+          ANALYTICS_BASE_URL: $(analytics_base_url)
+          HNE_BASE_URL: $(hne_base_url)
+          MODELS_BASE_URL: $(models_base_url)
+          MOVEMONEY_BASE_URL: $(movemoney_base_url)
+          SECURITIES_BASE_URL: $(securities_base_url)
+          WORK_ITEM_NOTIFICATION_BASE_URL: $(work_item_notification_base_url)
+          API_TIMEOUT: $(api_timeout)
+          API_RETRY_COUNT: $(api_retry_count)
+        inputs:
+          targetType: inline
+          script: |
+            echo "=========================================="
+            echo "Running Functional Tests"
+            echo "=========================================="
+            
+            # Environment Variables Check
+            echo "🔍 Environment Variables Check:"
+            echo "-------------------------------------------"
+            echo "PARTIES_BASE_URL: ${PARTIES_BASE_URL:+<SET>}"
+            echo "PARTIES_AUTH_TOKEN: ${PARTIES_AUTH_TOKEN:+<SET>}"
+            echo "PARTIES_SQLDB: ${PARTIES_SQLDB:+<SET>}"
+            echo "MOVEMONEY_SQLDB: ${MOVEMONEY_SQLDB:+<SET>}"
+            echo "HNE_DB: ${HNE_DB:+<SET>}"
+            echo "SECURITIESHUB_DB: ${SECURITIESHUB_DB:+<SET>}"
+            echo "MODELHUB_DB: ${MODELHUB_DB:+<SET>}"
+            echo "WORK_ITEM_AUTH_TOKEN: ${WORK_ITEM_AUTH_TOKEN:+<SET>}"
+            echo "AZURE_SQL_PASSWORD: ${AZURE_SQL_PASSWORD:+<SET>}"
+            echo "POSTGRES_DB_PASSWORD: ${POSTGRES_DB_PASSWORD:+<SET>}"
+            echo "-------------------------------------------"
+            
+            # Validation
+            if [ -z "$PARTIES_BASE_URL" ]; then
+              echo "❌ CRITICAL: Required environment variables not set!"
+              echo "   Check Azure variable group 'qa-pipelines-config-${{ lower(parameters.environment) }}'"
+              exit 1
+            fi
+            echo "✅ Environment variables validated"
+            
+            echo ""
+            echo "Test Command: ${{ parameters.testArgs }}"
+            echo "=========================================="
+
+            pytest -sv tests/test_api_generic.py ${{ parameters.testArgs }}
+            TEST_EXIT_CODE=$?
+            echo "##vso[task.setvariable variable=TEST_EXIT_CODE]$TEST_EXIT_CODE"
+            exit $TEST_EXIT_CODE
+          workingDirectory: $(buildPath)
+      - task: Bash@3
+        displayName: 'Locate reports folder'
+        condition: succeededOrFailed()
+        inputs:
+          targetType: inline
+          script: |
+            latest=$(ls -td reports/[0-9]*/ 2>/dev/null | head -1 || echo "reports/")
+            echo "##vso[task.setvariable variable=REPORTS_PATH]$latest"
+            echo "Reports location: $latest"
+            
+            # Extract service name from test arguments for email routing
+            service_name=$(echo "${{ parameters.testArgs }}" | grep -oP '(?<=--service-name\s)\S+' || echo "")
+            if [ -z "$service_name" ]; then
+              echo "Service name not found in arguments, using default email list"
+              service_name="generic"
+            fi
+            echo "##vso[task.setvariable variable=SERVICE_NAME]$service_name"
+            echo "Service name: $service_name"
+          workingDirectory: $(buildPath)
+      - task: Bash@3
+        displayName: 'Run Non-Functional Tests'
+        condition: and(succeededOrFailed(), or(eq('${{ parameters.testType }}', 'non-functional'), eq('${{ parameters.testType }}', 'both')))
+        env:
+          WORK_ITEM_AUTH_TOKEN: $(WORK_ITEM_AUTH_TOKEN)
+          PARTIES_AUTH_TOKEN: $(PARTIES_AUTH_TOKEN)
+          PARTIES_BASE_URL: $(parties_base_url)
+          PARTIES_SQLDB: $(parties-sqldb-connection-string)
+          MOVEMONEY_SQLDB: $(movemoney-sqldb-connection-string)
+          HNE_DB: $(hne-db-connection-string)
+          SECURITIESHUB_DB: $(securitieshub-db-connection-string)
+          MODELHUB_DB: $(modelhub-db-connection-string)
+          AZURE_SQL_PASSWORD: $(AZURE_SQL_PASSWORD)
+          POSTGRES_DB_PASSWORD: $(POSTGRES_DB_PASSWORD)
+          ADDRESS_BASE_URL: $(address_base_url)
+          ANALYTICS_BASE_URL: $(analytics_base_url)
+          HNE_BASE_URL: $(hne_base_url)
+          MODELS_BASE_URL: $(models_base_url)
+          MOVEMONEY_BASE_URL: $(movemoney_base_url)
+          SECURITIES_BASE_URL: $(securities_base_url)
+          WORK_ITEM_NOTIFICATION_BASE_URL: $(work_item_notification_base_url)
+          API_TIMEOUT: $(api_timeout)
+          API_RETRY_COUNT: $(api_retry_count)
+          INFLUX_URL: $(influx_url)
+          INFLUX_TOKEN: $(influx_token)
+          INFLUX_ORG: $(influx_org)
+          INFLUX_BUCKET: $(influx_bucket)
+          INFLUX_TIMEOUT: $(influx_timeout)
+          INFLUX_ENABLE: $(influx_enable)
+        inputs:
+          targetType: inline
+          script: |
+            echo "=========================================="
+            echo "Running Non-Functional Tests"
+            echo "=========================================="
+            
+            # Get the latest reports folder timestamp
+            latest=$(ls -td reports/[0-9]*/ 2>/dev/null | head -1)
+            if [ -n "$latest" ]; then
+              report_dir="${latest%/}"
+              echo "Using existing report directory: $report_dir"
+            else
+              timestamp=$(date +%Y%m%d_%H%M%S)
+              report_dir="reports/${timestamp}"
+              mkdir -p "$report_dir"
+              echo "Created new report directory: $report_dir"
+            fi
+            
+            # Use appropriate args based on testType
+            if [ "${{ parameters.testType }}" = "non-functional" ]; then
+              ARGS="${{ parameters.locustArgs }}"
+            else
+              # testType is 'both', use separate locustArgs
+              ARGS="${{ parameters.locustArgs }}"
+            fi
+            
+            echo "Locust Command: $ARGS"
+            echo "Report Directory: $report_dir"
+            echo ""
+            
+            # Run Locust with reports to same timestamp directory
+            locust -f locustfile.py $ARGS \
+              --html="${report_dir}/performance_report.html" \
+              --csv="${report_dir}/performance_report"
+            
+            LOCUST_EXIT_CODE=$?
+            echo "##vso[task.setvariable variable=LOCUST_EXIT_CODE]$LOCUST_EXIT_CODE"
+            
+            echo "Locust reports saved to: $report_dir"
+            exit $LOCUST_EXIT_CODE
+          workingDirectory: $(buildPath)
+      - task: PublishTestResults@2
+        condition: succeededOrFailed()
+        inputs:
+          testResultsFormat: 'JUnit'
+          testResultsFiles: '**/junit_report*.xml'
+          searchFolder: '$(buildPath)/$(REPORTS_PATH)'
+          mergeTestResults: true
+          failTaskOnFailedTests: false
+          testRunTitle: 'API Test Results - $(Build.BuildNumber)'
+      - task: PublishBuildArtifacts@1
+        condition: succeededOrFailed()
+        inputs:
+          PathtoPublish: '$(buildPath)/reports'
+          ArtifactName: 'test-reports-$(Build.BuildNumber)'
+          publishLocation: 'Container'
+        displayName: 'Publish Test Reports'
+      - task: PublishBuildArtifacts@1
+        condition: succeededOrFailed()
+        inputs:
+          PathtoPublish: '$(buildPath)/framework/logs'
+          ArtifactName: 'framework-logs-$(Build.BuildNumber)'
+          publishLocation: 'Container'
+        displayName: 'Publish Framework Logs'
+      - task: Bash@3
+        displayName: 'Send Test Report Email'
+        condition: and(succeededOrFailed(), or(eq(variables['email_feature_enabled'], 'true'), eq(variables['email_feature_enabled'], 'True'), eq(variables['email_feature_enabled'], 'TRUE')))
+        env:
+          SMTP_SERVER: $(smtp_server)
+          SMTP_PORT: $(smtp_port)
+          EMAIL_FROM: $(email_from)
+          EMAIL_TO: $(email_to)
+          EMAIL_CC: $(email_cc)
+          EMAIL_BCC: $(email_bcc)
+          EMAIL_SUBJECT_PREFIX: $(email_subject_prefix)
+          # Service-specific email lists (e.g., EMAIL_TO_PARTIES, EMAIL_TO_WORK_ITEM_NOTIFICATION)
+          EMAIL_TO_PARTIES: $(email_to_parties)
+          EMAIL_CC_PARTIES: $(email_cc_parties)
+          EMAIL_TO_WORK_ITEM_NOTIFICATION: $(email_to_work_item_notification)
+          EMAIL_CC_WORK_ITEM_NOTIFICATION: $(email_cc_work_item_notification)
+        inputs:
+          targetType: inline
+          script: |
+            export PYTHONPATH="${PYTHONPATH}:$(pwd)"
+            python3 framework/reporter/email_reporter.py \
+              --build-number "$(Build.BuildNumber)" \
+              --job-status "$(Agent.JobStatus)" \
+              --reports-path "$(REPORTS_PATH)" \
+              --build-id "$(Build.BuildId)" \
+              --team-project "$(System.TeamProject)" \
+              --collection-uri "$(System.TeamFoundationCollectionUri)" \
+              --service-name "$(SERVICE_NAME)"
+          workingDirectory: $(buildPath)
+      - task: Bash@3
+        displayName: 'Fail build if tests failed'
+        condition: always()
+        inputs:
+          targetType: inline
+          script: |
+            echo "=========================================="
+            echo "Final Test Result Check"
+            echo "=========================================="
+            failed=false
+
+            # Check functional test results if run
+            if [ "${{ parameters.testType }}" = "functional" ] || [ "${{ parameters.testType }}" = "both" ]; then
+              if [ "$(TEST_EXIT_CODE)" != "0" ]; then
+                echo "❌ Functional Tests failed with exit code: $(TEST_EXIT_CODE)"
+                failed=true
+              else
+                echo "✅ Functional Tests passed"
+              fi
+            fi
+
+            # Check non-functional test results if run
+            if [ "${{ parameters.testType }}" = "non-functional" ] || [ "${{ parameters.testType }}" = "both" ]; then
+              if [ "$(LOCUST_EXIT_CODE)" != "0" ]; then
+                echo "❌ Non-Functional Tests failed with exit code: $(LOCUST_EXIT_CODE)"
+                failed=true
+              else
+                echo "✅ Non-Functional Tests passed"
+              fi
+            fi
+
+            if [ "$failed" = "true" ]; then
+              echo "##vso[task.complete result=Failed;]One or more test suites failed"
+              exit 1
+            else
+              echo "✅ All tests passed successfully"
+            fi

@@ -1,0 +1,33 @@
+{
+  "type": "object",
+  "required": ["modelName" , "versions"],
+  "properties": {
+    "id": {
+      "type": "string"
+    },
+    "modelName": {
+      "type": "string"
+    },
+    "versions": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["status"],
+        "properties": {
+          "version": {
+            "type": "number"
+          },
+          "status": {
+            "type": "string"
+          },
+          "modifiedDate": {
+            "type": "string"
+          },
+          "modifiedBy": {
+            "type": "string"
+          }
+        }
+      }
+    }
+  }
+}
