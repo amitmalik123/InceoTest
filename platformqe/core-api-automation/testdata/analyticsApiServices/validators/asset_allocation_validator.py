@@ -240,7 +240,8 @@ class APIDataFetcher:
                 return {}
             
             data = response.json()
-            logger.debug(f"Security data for CUSIP {cusip}: {data}")
+            logger.debug(f"Security data retrieved for CUSIP {cusip}")
+            logger.debug(f"Full security response: {data}")
             
             # Handle both single object and array response
             security = data[0] if isinstance(data, list) and len(data) > 0 else data if isinstance(data, dict) else {}
@@ -1500,7 +1501,8 @@ def validate(context):
                                        config.get("securities_api_base") or
                                        extracted_vars.get("securities_api_base"))
             
-            logger.info(f"Resolved API URLs - token: {token_url}, models/strategies: {models_api_base}, securities: {securities_api_base}")
+            logger.info("Resolved API URLs for token, models/strategies, and securities endpoints")
+            logger.debug(f"API URLs - token: {token_url}, models/strategies: {models_api_base}, securities: {securities_api_base}")
             
             # Initialize API data fetcher
             fetcher = APIDataFetcher({
@@ -1609,15 +1611,15 @@ def validate(context):
         
         # Log blendBreakdown comparison
         logger.info("\n[BLEND BREAKDOWN COMPARISON]")
-        logger.info(f"API blendBreakdown:\n{json.dumps(actual_blend, indent=2, default=str)}")
-        logger.info(f"Script blendBreakdown:\n{json.dumps(script_blend, indent=2, default=str)}")
+        logger.debug(f"API blendBreakdown:\n{json.dumps(actual_blend, indent=2, default=str)}")
+        logger.debug(f"Script blendBreakdown:\n{json.dumps(script_blend, indent=2, default=str)}")
         blend_match = actual_blend == script_blend
         logger.info(f"Blend Match: {'[PASS]' if blend_match else '[FAIL]'} - {blend_match}")
         
         # Log componentBreakdown comparison
         logger.info("\n[COMPONENT BREAKDOWN COMPARISON]")
-        logger.info(f"API componentBreakdown:\n{json.dumps(actual_components, indent=2, default=str)}")
-        logger.info(f"Script componentBreakdown:\n{json.dumps(script_components, indent=2, default=str)}")
+        logger.debug(f"API componentBreakdown:\n{json.dumps(actual_components, indent=2, default=str)}")
+        logger.debug(f"Script componentBreakdown:\n{json.dumps(script_components, indent=2, default=str)}")
         component_match = actual_components == script_components
         logger.info(f"Component Match: {'[PASS]' if component_match else '[FAIL]'} - {component_match}")
         
