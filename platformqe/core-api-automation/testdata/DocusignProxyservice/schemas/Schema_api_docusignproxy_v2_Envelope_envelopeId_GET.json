@@ -1,0 +1,49 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "oneOf": [
+    {
+      "type": "object",
+      "properties": {
+        "allowMarkup": { "type": "boolean" },
+        "autoNavigation": { "type": "boolean" },
+        "brandId": { "type": "string" },
+        "certificateUri": { "type": "string" },
+        "createdDateTime": { "type": "string", "format": "date-time" },
+        "customFieldsUri": { "type": "string" },
+        "documentsCombinedUri": { "type": "string" },
+        "documentsUri": { "type": "string" },
+        "emailSubject": { "type": "string" },
+        "enableWetSign": { "type": "boolean" },
+        "envelopeIdStamping": { "type": "boolean" },
+        "envelopeId": { "type": "string" },
+        "envelopeUri": { "type": "string" },
+        "initialSentDateTime": { "type": "string", "format": "date-time" },
+        "is21CfrPart11": { "type": "boolean" },
+        "isSignatureProviderEnvelope": { "type": "boolean" },
+        "lastModifiedDateTime": { "type": "string", "format": "date-time" },
+        "notificationUri": { "type": "string" },
+        "purgeState": { "type": "string" },
+        "recipientsUri": { "type": "string" },
+        "sentDateTime": { "type": "string", "format": "date-time" },
+        "status": { "type": "string" },
+        "statusChangedDateTime": { "type": "string", "format": "date-time" },
+        "templatesUri": { "type": "string" },
+        "id": { "type": "string" },
+        "data": { "type": ["object", "null"] },
+        "message": { "type": "string" },
+        "timestamp": { "type": "string", "format": "date-time" }
+      },
+      "required": ["envelopeId"],
+      "additionalProperties": true
+    },
+    {
+      "type": "object",
+      "properties": {
+        "errorCode": { "type": "string" },
+        "message": { "type": "string" }
+      },
+      "required": ["errorCode", "message"],
+      "additionalProperties": true
+    }
+  ]
+}
