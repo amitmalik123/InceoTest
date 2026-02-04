@@ -1,0 +1,3126 @@
+{
+  "$schema": "http://json-schema.org/draft-04/schema#",
+  "type": "object",
+  "properties": {
+    "page": {
+      "type": "integer"
+    },
+    "pageSize": {
+      "type": "integer"
+    },
+    "total": {
+      "type": "integer"
+    },
+    "items": {
+      "type": "array",
+      "items": [
+        {
+          "type": "object",
+          "properties": {
+            "partyId": {
+              "type": "string"
+            },
+            "status": {
+              "type": "string"
+            },
+            "partyType": {
+              "type": "string"
+            },
+            "firstName": {
+              "type": "string"
+            },
+            "lastName": {
+              "type": "string"
+            },
+            "title": {
+              "type": "null"
+            }
+          },
+          "required": [
+            "partyId",
+            "status",
+            "partyType",
+            "firstName",
+            "lastName",
+            "title"
+          ]
+        },
+        {
+          "type": "object",
+          "properties": {
+            "partyId": {
+              "type": "string"
+            },
+            "status": {
+              "type": "string"
+            },
+            "partyType": {
+              "type": "string"
+            },
+            "firstName": {
+              "type": "string"
+            },
+            "lastName": {
+              "type": "string"
+            },
+            "title": {
+              "type": "null"
+            }
+          },
+          "required": [
+            "partyId",
+            "status",
+            "partyType",
+            "firstName",
+            "lastName",
+            "title"
+          ]
+        },
+        {
+          "type": "object",
+          "properties": {
+            "partyId": {
+              "type": "string"
+            },
+            "status": {
+              "type": "string"
+            },
+            "partyType": {
+              "type": "string"
+            },
+            "firstName": {
+              "type": "string"
+            },
+            "lastName": {
+              "type": "string"
+            },
+            "title": {
+              "type": "null"
+            }
+          },
+          "required": [
+            "partyId",
+            "status",
+            "partyType",
+            "firstName",
+            "lastName",
+            "title"
+          ]
+        },
+        {
+          "type": "object",
+          "properties": {
+            "partyId": {
+              "type": "string"
+            },
+            "status": {
+              "type": "string"
+            },
+            "partyType": {
+              "type": "string"
+            },
+            "firstName": {
+              "type": "string"
+            },
+            "lastName": {
+              "type": "string"
+            },
+            "title": {
+              "type": "null"
+            }
+          },
+          "required": [
+            "partyId",
+            "status",
+            "partyType",
+            "firstName",
+            "lastName",
+            "title"
+          ]
+        },
+        {
+          "type": "object",
+          "properties": {
+            "partyId": {
+              "type": "string"
+            },
+            "status": {
+              "type": "string"
+            },
+            "partyType": {
+              "type": "string"
+            },
+            "firstName": {
+              "type": "string"
+            },
+            "lastName": {
+              "type": "string"
+            },
+            "title": {
+              "type": "null"
+            }
+          },
+          "required": [
+            "partyId",
+            "status",
+            "partyType",
+            "firstName",
+            "lastName",
+            "title"
+          ]
+        },
+        {
+          "type": "object",
+          "properties": {
+            "partyId": {
+              "type": "string"
+            },
+            "status": {
+              "type": "string"
+            },
+            "partyType": {
+              "type": "string"
+            },
+            "firstName": {
+              "type": "string"
+            },
+            "lastName": {
+              "type": "string"
+            },
+            "title": {
+              "type": "null"
+            }
+          },
+          "required": [
+            "partyId",
+            "status",
+            "partyType",
+            "firstName",
+            "lastName",
+            "title"
+          ]
+        },
+        {
+          "type": "object",
+          "properties": {
+            "partyId": {
+              "type": "string"
+            },
+            "status": {
+              "type": "string"
+            },
+            "partyType": {
+              "type": "string"
+            },
+            "firstName": {
+              "type": "string"
+            },
+            "lastName": {
+              "type": "string"
+            },
+            "title": {
+              "type": "null"
+            }
+          },
+          "required": [
+            "partyId",
+            "status",
+            "partyType",
+            "firstName",
+            "lastName",
+            "title"
+          ]
+        },
+        {
+          "type": "object",
+          "properties": {
+            "partyId": {
+              "type": "string"
+            },
+            "status": {
+              "type": "string"
+            },
+            "partyType": {
+              "type": "string"
+            },
+            "firstName": {
+              "type": "string"
+            },
+            "lastName": {
+              "type": "string"
+            },
+            "title": {
+              "type": "null"
+            }
+          },
+          "required": [
+            "partyId",
+            "status",
+            "partyType",
+            "firstName",
+            "lastName",
+            "title"
+          ]
+        },
+        {
+          "type": "object",
+          "properties": {
+            "partyId": {
+              "type": "string"
+            },
+            "status": {
+              "type": "string"
+            },
+            "partyType": {
+              "type": "string"
+            },
+            "firstName": {
+              "type": "string"
+            },
+            "lastName": {
+              "type": "string"
+            },
+            "title": {
+              "type": "null"
+            }
+          },
+          "required": [
+            "partyId",
+            "status",
+            "partyType",
+            "firstName",
+            "lastName",
+            "title"
+          ]
+        },
+        {
+          "type": "object",
+          "properties": {
+            "partyId": {
+              "type": "string"
+            },
+            "status": {
+              "type": "string"
+            },
+            "partyType": {
+              "type": "string"
+            },
+            "firstName": {
+              "type": "string"
+            },
+            "lastName": {
+              "type": "string"
+            },
+            "title": {
+              "type": "null"
+            }
+          },
+          "required": [
+            "partyId",
+            "status",
+            "partyType",
+            "firstName",
+            "lastName",
+            "title"
+          ]
+        },
+        {
+          "type": "object",
+          "properties": {
+            "partyId": {
+              "type": "string"
+            },
+            "status": {
+              "type": "string"
+            },
+            "partyType": {
+              "type": "string"
+            },
+            "firstName": {
+              "type": "string"
+            },
+            "lastName": {
+              "type": "string"
+            },
+            "title": {
+              "type": "null"
+            }
+          },
+          "required": [
+            "partyId",
+            "status",
+            "partyType",
+            "firstName",
+            "lastName",
+            "title"
+          ]
+        },
+        {
+          "type": "object",
+          "properties": {
+            "partyId": {
+              "type": "string"
+            },
+            "status": {
+              "type": "string"
+            },
+            "partyType": {
+              "type": "string"
+            },
+            "firstName": {
+              "type": "string"
+            },
+            "lastName": {
+              "type": "string"
+            },
+            "title": {
+              "type": "null"
+            }
+          },
+          "required": [
+            "partyId",
+            "status",
+            "partyType",
+            "firstName",
+            "lastName",
+            "title"
+          ]
+        },
+        {
+          "type": "object",
+          "properties": {
+            "partyId": {
+              "type": "string"
+            },
+            "status": {
+              "type": "string"
+            },
+            "partyType": {
+              "type": "string"
+            },
+            "firstName": {
+              "type": "string"
+            },
+            "lastName": {
+              "type": "string"
+            },
+            "title": {
+              "type": "null"
+            }
+          },
+          "required": [
+            "partyId",
+            "status",
+            "partyType",
+            "firstName",
+            "lastName",
+            "title"
+          ]
+        },
+        {
+          "type": "object",
+          "properties": {
+            "partyId": {
+              "type": "string"
+            },
+            "status": {
+              "type": "string"
+            },
+            "partyType": {
+              "type": "string"
+            },
+            "firstName": {
+              "type": "string"
+            },
+            "lastName": {
+              "type": "string"
+            },
+            "title": {
+              "type": "null"
+            }
+          },
+          "required": [
+            "partyId",
+            "status",
+            "partyType",
+            "firstName",
+            "lastName",
+            "title"
+          ]
+        },
+        {
+          "type": "object",
+          "properties": {
+            "partyId": {
+              "type": "string"
+            },
+            "status": {
+              "type": "string"
+            },
+            "partyType": {
+              "type": "string"
+            },
+            "firstName": {
+              "type": "string"
+            },
+            "lastName": {
+              "type": "string"
+            },
+            "title": {
+              "type": "null"
+            }
+          },
+          "required": [
+            "partyId",
+            "status",
+            "partyType",
+            "firstName",
+            "lastName",
+            "title"
+          ]
+        },
+        {
+          "type": "object",
+          "properties": {
+            "partyId": {
+              "type": "string"
+            },
+            "status": {
+              "type": "string"
+            },
+            "partyType": {
+              "type": "string"
+            },
+            "firstName": {
+              "type": "string"
+            },
+            "lastName": {
+              "type": "string"
+            },
+            "title": {
+              "type": "null"
+            }
+          },
+          "required": [
+            "partyId",
+            "status",
+            "partyType",
+            "firstName",
+            "lastName",
+            "title"
+          ]
+        },
+        {
+          "type": "object",
+          "properties": {
+            "partyId": {
+              "type": "string"
+            },
+            "status": {
+              "type": "string"
+            },
+            "partyType": {
+              "type": "string"
+            },
+            "firstName": {
+              "type": "string"
+            },
+            "lastName": {
+              "type": "string"
+            },
+            "title": {
+              "type": "null"
+            }
+          },
+          "required": [
+            "partyId",
+            "status",
+            "partyType",
+            "firstName",
+            "lastName",
+            "title"
+          ]
+        },
+        {
+          "type": "object",
+          "properties": {
+            "partyId": {
+              "type": "string"
+            },
+            "status": {
+              "type": "string"
+            },
+            "partyType": {
+              "type": "string"
+            },
+            "firstName": {
+              "type": "string"
+            },
+            "lastName": {
+              "type": "string"
+            },
+            "title": {
+              "type": "null"
+            }
+          },
+          "required": [
+            "partyId",
+            "status",
+            "partyType",
+            "firstName",
+            "lastName",
+            "title"
+          ]
+        },
+        {
+          "type": "object",
+          "properties": {
+            "partyId": {
+              "type": "string"
+            },
+            "status": {
+              "type": "string"
+            },
+            "partyType": {
+              "type": "string"
+            },
+            "firstName": {
+              "type": "string"
+            },
+            "lastName": {
+              "type": "string"
+            },
+            "title": {
+              "type": "null"
+            }
+          },
+          "required": [
+            "partyId",
+            "status",
+            "partyType",
+            "firstName",
+            "lastName",
+            "title"
+          ]
+        },
+        {
+          "type": "object",
+          "properties": {
+            "partyId": {
+              "type": "string"
+            },
+            "status": {
+              "type": "string"
+            },
+            "partyType": {
+              "type": "string"
+            },
+            "firstName": {
+              "type": "string"
+            },
+            "lastName": {
+              "type": "string"
+            },
+            "title": {
+              "type": "null"
+            }
+          },
+          "required": [
+            "partyId",
+            "status",
+            "partyType",
+            "firstName",
+            "lastName",
+            "title"
+          ]
+        },
+        {
+          "type": "object",
+          "properties": {
+            "partyId": {
+              "type": "string"
+            },
+            "status": {
+              "type": "string"
+            },
+            "partyType": {
+              "type": "string"
+            },
+            "firstName": {
+              "type": "string"
+            },
+            "lastName": {
+              "type": "string"
+            },
+            "title": {
+              "type": "null"
+            }
+          },
+          "required": [
+            "partyId",
+            "status",
+            "partyType",
+            "firstName",
+            "lastName",
+            "title"
+          ]
+        },
+        {
+          "type": "object",
+          "properties": {
+            "partyId": {
+              "type": "string"
+            },
+            "status": {
+              "type": "string"
+            },
+            "partyType": {
+              "type": "string"
+            },
+            "firstName": {
+              "type": "string"
+            },
+            "lastName": {
+              "type": "string"
+            },
+            "title": {
+              "type": "null"
+            }
+          },
+          "required": [
+            "partyId",
+            "status",
+            "partyType",
+            "firstName",
+            "lastName",
+            "title"
+          ]
+        },
+        {
+          "type": "object",
+          "properties": {
+            "partyId": {
+              "type": "string"
+            },
+            "status": {
+              "type": "string"
+            },
+            "partyType": {
+              "type": "string"
+            },
+            "firstName": {
+              "type": "string"
+            },
+            "lastName": {
+              "type": "string"
+            },
+            "title": {
+              "type": "null"
+            }
+          },
+          "required": [
+            "partyId",
+            "status",
+            "partyType",
+            "firstName",
+            "lastName",
+            "title"
+          ]
+        },
+        {
+          "type": "object",
+          "properties": {
+            "partyId": {
+              "type": "string"
+            },
+            "status": {
+              "type": "string"
+            },
+            "partyType": {
+              "type": "string"
+            },
+            "firstName": {
+              "type": "string"
+            },
+            "lastName": {
+              "type": "string"
+            },
+            "title": {
+              "type": "null"
+            }
+          },
+          "required": [
+            "partyId",
+            "status",
+            "partyType",
+            "firstName",
+            "lastName",
+            "title"
+          ]
+        },
+        {
+          "type": "object",
+          "properties": {
+            "partyId": {
+              "type": "string"
+            },
+            "status": {
+              "type": "string"
+            },
+            "partyType": {
+              "type": "string"
+            },
+            "firstName": {
+              "type": "string"
+            },
+            "lastName": {
+              "type": "string"
+            },
+            "title": {
+              "type": "null"
+            }
+          },
+          "required": [
+            "partyId",
+            "status",
+            "partyType",
+            "firstName",
+            "lastName",
+            "title"
+          ]
+        },
+        {
+          "type": "object",
+          "properties": {
+            "partyId": {
+              "type": "string"
+            },
+            "status": {
+              "type": "string"
+            },
+            "partyType": {
+              "type": "string"
+            },
+            "firstName": {
+              "type": "string"
+            },
+            "lastName": {
+              "type": "string"
+            },
+            "title": {
+              "type": "null"
+            }
+          },
+          "required": [
+            "partyId",
+            "status",
+            "partyType",
+            "firstName",
+            "lastName",
+            "title"
+          ]
+        },
+        {
+          "type": "object",
+          "properties": {
+            "partyId": {
+              "type": "string"
+            },
+            "status": {
+              "type": "string"
+            },
+            "partyType": {
+              "type": "string"
+            },
+            "firstName": {
+              "type": "string"
+            },
+            "lastName": {
+              "type": "string"
+            },
+            "title": {
+              "type": "null"
+            }
+          },
+          "required": [
+            "partyId",
+            "status",
+            "partyType",
+            "firstName",
+            "lastName",
+            "title"
+          ]
+        },
+        {
+          "type": "object",
+          "properties": {
+            "partyId": {
+              "type": "string"
+            },
+            "status": {
+              "type": "string"
+            },
+            "partyType": {
+              "type": "string"
+            },
+            "firstName": {
+              "type": "string"
+            },
+            "lastName": {
+              "type": "string"
+            },
+            "title": {
+              "type": "null"
+            }
+          },
+          "required": [
+            "partyId",
+            "status",
+            "partyType",
+            "firstName",
+            "lastName",
+            "title"
+          ]
+        },
+        {
+          "type": "object",
+          "properties": {
+            "partyId": {
+              "type": "string"
+            },
+            "status": {
+              "type": "string"
+            },
+            "partyType": {
+              "type": "string"
+            },
+            "firstName": {
+              "type": "string"
+            },
+            "lastName": {
+              "type": "string"
+            },
+            "title": {
+              "type": "null"
+            }
+          },
+          "required": [
+            "partyId",
+            "status",
+            "partyType",
+            "firstName",
+            "lastName",
+            "title"
+          ]
+        },
+        {
+          "type": "object",
+          "properties": {
+            "partyId": {
+              "type": "string"
+            },
+            "status": {
+              "type": "string"
+            },
+            "partyType": {
+              "type": "string"
+            },
+            "firstName": {
+              "type": "string"
+            },
+            "lastName": {
+              "type": "string"
+            },
+            "title": {
+              "type": "null"
+            }
+          },
+          "required": [
+            "partyId",
+            "status",
+            "partyType",
+            "firstName",
+            "lastName",
+            "title"
+          ]
+        },
+        {
+          "type": "object",
+          "properties": {
+            "partyId": {
+              "type": "string"
+            },
+            "status": {
+              "type": "string"
+            },
+            "partyType": {
+              "type": "string"
+            },
+            "firstName": {
+              "type": "string"
+            },
+            "lastName": {
+              "type": "string"
+            },
+            "title": {
+              "type": "null"
+            }
+          },
+          "required": [
+            "partyId",
+            "status",
+            "partyType",
+            "firstName",
+            "lastName",
+            "title"
+          ]
+        },
+        {
+          "type": "object",
+          "properties": {
+            "partyId": {
+              "type": "string"
+            },
+            "status": {
+              "type": "string"
+            },
+            "partyType": {
+              "type": "string"
+            },
+            "firstName": {
+              "type": "string"
+            },
+            "lastName": {
+              "type": "string"
+            },
+            "title": {
+              "type": "null"
+            }
+          },
+          "required": [
+            "partyId",
+            "status",
+            "partyType",
+            "firstName",
+            "lastName",
+            "title"
+          ]
+        },
+        {
+          "type": "object",
+          "properties": {
+            "partyId": {
+              "type": "string"
+            },
+            "status": {
+              "type": "string"
+            },
+            "partyType": {
+              "type": "string"
+            },
+            "firstName": {
+              "type": "string"
+            },
+            "lastName": {
+              "type": "string"
+            },
+            "title": {
+              "type": "null"
+            }
+          },
+          "required": [
+            "partyId",
+            "status",
+            "partyType",
+            "firstName",
+            "lastName",
+            "title"
+          ]
+        },
+        {
+          "type": "object",
+          "properties": {
+            "partyId": {
+              "type": "string"
+            },
+            "status": {
+              "type": "string"
+            },
+            "partyType": {
+              "type": "string"
+            },
+            "firstName": {
+              "type": "string"
+            },
+            "lastName": {
+              "type": "string"
+            },
+            "title": {
+              "type": "null"
+            }
+          },
+          "required": [
+            "partyId",
+            "status",
+            "partyType",
+            "firstName",
+            "lastName",
+            "title"
+          ]
+        },
+        {
+          "type": "object",
+          "properties": {
+            "partyId": {
+              "type": "string"
+            },
+            "status": {
+              "type": "string"
+            },
+            "partyType": {
+              "type": "string"
+            },
+            "firstName": {
+              "type": "string"
+            },
+            "lastName": {
+              "type": "string"
+            },
+            "title": {
+              "type": "null"
+            }
+          },
+          "required": [
+            "partyId",
+            "status",
+            "partyType",
+            "firstName",
+            "lastName",
+            "title"
+          ]
+        },
+        {
+          "type": "object",
+          "properties": {
+            "partyId": {
+              "type": "string"
+            },
+            "status": {
+              "type": "string"
+            },
+            "partyType": {
+              "type": "string"
+            },
+            "firstName": {
+              "type": "string"
+            },
+            "lastName": {
+              "type": "string"
+            },
+            "title": {
+              "type": "null"
+            }
+          },
+          "required": [
+            "partyId",
+            "status",
+            "partyType",
+            "firstName",
+            "lastName",
+            "title"
+          ]
+        },
+        {
+          "type": "object",
+          "properties": {
+            "partyId": {
+              "type": "string"
+            },
+            "status": {
+              "type": "string"
+            },
+            "partyType": {
+              "type": "string"
+            },
+            "firstName": {
+              "type": "string"
+            },
+            "lastName": {
+              "type": "string"
+            },
+            "title": {
+              "type": "null"
+            }
+          },
+          "required": [
+            "partyId",
+            "status",
+            "partyType",
+            "firstName",
+            "lastName",
+            "title"
+          ]
+        },
+        {
+          "type": "object",
+          "properties": {
+            "partyId": {
+              "type": "string"
+            },
+            "status": {
+              "type": "string"
+            },
+            "partyType": {
+              "type": "string"
+            },
+            "firstName": {
+              "type": "string"
+            },
+            "lastName": {
+              "type": "string"
+            },
+            "title": {
+              "type": "null"
+            }
+          },
+          "required": [
+            "partyId",
+            "status",
+            "partyType",
+            "firstName",
+            "lastName",
+            "title"
+          ]
+        },
+        {
+          "type": "object",
+          "properties": {
+            "partyId": {
+              "type": "string"
+            },
+            "status": {
+              "type": "string"
+            },
+            "partyType": {
+              "type": "string"
+            },
+            "firstName": {
+              "type": "string"
+            },
+            "lastName": {
+              "type": "string"
+            },
+            "title": {
+              "type": "null"
+            }
+          },
+          "required": [
+            "partyId",
+            "status",
+            "partyType",
+            "firstName",
+            "lastName",
+            "title"
+          ]
+        },
+        {
+          "type": "object",
+          "properties": {
+            "partyId": {
+              "type": "string"
+            },
+            "status": {
+              "type": "string"
+            },
+            "partyType": {
+              "type": "string"
+            },
+            "firstName": {
+              "type": "string"
+            },
+            "lastName": {
+              "type": "string"
+            },
+            "title": {
+              "type": "null"
+            }
+          },
+          "required": [
+            "partyId",
+            "status",
+            "partyType",
+            "firstName",
+            "lastName",
+            "title"
+          ]
+        },
+        {
+          "type": "object",
+          "properties": {
+            "partyId": {
+              "type": "string"
+            },
+            "status": {
+              "type": "string"
+            },
+            "partyType": {
+              "type": "string"
+            },
+            "firstName": {
+              "type": "string"
+            },
+            "lastName": {
+              "type": "string"
+            },
+            "title": {
+              "type": "null"
+            }
+          },
+          "required": [
+            "partyId",
+            "status",
+            "partyType",
+            "firstName",
+            "lastName",
+            "title"
+          ]
+        },
+        {
+          "type": "object",
+          "properties": {
+            "partyId": {
+              "type": "string"
+            },
+            "status": {
+              "type": "string"
+            },
+            "partyType": {
+              "type": "string"
+            },
+            "firstName": {
+              "type": "string"
+            },
+            "lastName": {
+              "type": "string"
+            },
+            "title": {
+              "type": "null"
+            }
+          },
+          "required": [
+            "partyId",
+            "status",
+            "partyType",
+            "firstName",
+            "lastName",
+            "title"
+          ]
+        },
+        {
+          "type": "object",
+          "properties": {
+            "partyId": {
+              "type": "string"
+            },
+            "status": {
+              "type": "string"
+            },
+            "partyType": {
+              "type": "string"
+            },
+            "firstName": {
+              "type": "string"
+            },
+            "lastName": {
+              "type": "string"
+            },
+            "title": {
+              "type": "null"
+            }
+          },
+          "required": [
+            "partyId",
+            "status",
+            "partyType",
+            "firstName",
+            "lastName",
+            "title"
+          ]
+        },
+        {
+          "type": "object",
+          "properties": {
+            "partyId": {
+              "type": "string"
+            },
+            "status": {
+              "type": "string"
+            },
+            "partyType": {
+              "type": "string"
+            },
+            "firstName": {
+              "type": "string"
+            },
+            "lastName": {
+              "type": "string"
+            },
+            "title": {
+              "type": "null"
+            }
+          },
+          "required": [
+            "partyId",
+            "status",
+            "partyType",
+            "firstName",
+            "lastName",
+            "title"
+          ]
+        },
+        {
+          "type": "object",
+          "properties": {
+            "partyId": {
+              "type": "string"
+            },
+            "status": {
+              "type": "string"
+            },
+            "partyType": {
+              "type": "string"
+            },
+            "firstName": {
+              "type": "string"
+            },
+            "lastName": {
+              "type": "string"
+            },
+            "title": {
+              "type": "null"
+            }
+          },
+          "required": [
+            "partyId",
+            "status",
+            "partyType",
+            "firstName",
+            "lastName",
+            "title"
+          ]
+        },
+        {
+          "type": "object",
+          "properties": {
+            "partyId": {
+              "type": "string"
+            },
+            "status": {
+              "type": "string"
+            },
+            "partyType": {
+              "type": "string"
+            },
+            "firstName": {
+              "type": "string"
+            },
+            "lastName": {
+              "type": "string"
+            },
+            "title": {
+              "type": "null"
+            }
+          },
+          "required": [
+            "partyId",
+            "status",
+            "partyType",
+            "firstName",
+            "lastName",
+            "title"
+          ]
+        },
+        {
+          "type": "object",
+          "properties": {
+            "partyId": {
+              "type": "string"
+            },
+            "status": {
+              "type": "string"
+            },
+            "partyType": {
+              "type": "string"
+            },
+            "firstName": {
+              "type": "string"
+            },
+            "lastName": {
+              "type": "string"
+            },
+            "title": {
+              "type": "null"
+            }
+          },
+          "required": [
+            "partyId",
+            "status",
+            "partyType",
+            "firstName",
+            "lastName",
+            "title"
+          ]
+        },
+        {
+          "type": "object",
+          "properties": {
+            "partyId": {
+              "type": "string"
+            },
+            "status": {
+              "type": "string"
+            },
+            "partyType": {
+              "type": "string"
+            },
+            "firstName": {
+              "type": "string"
+            },
+            "lastName": {
+              "type": "string"
+            },
+            "title": {
+              "type": "null"
+            }
+          },
+          "required": [
+            "partyId",
+            "status",
+            "partyType",
+            "firstName",
+            "lastName",
+            "title"
+          ]
+        },
+        {
+          "type": "object",
+          "properties": {
+            "partyId": {
+              "type": "string"
+            },
+            "status": {
+              "type": "string"
+            },
+            "partyType": {
+              "type": "string"
+            },
+            "firstName": {
+              "type": "string"
+            },
+            "lastName": {
+              "type": "string"
+            },
+            "title": {
+              "type": "null"
+            }
+          },
+          "required": [
+            "partyId",
+            "status",
+            "partyType",
+            "firstName",
+            "lastName",
+            "title"
+          ]
+        },
+        {
+          "type": "object",
+          "properties": {
+            "partyId": {
+              "type": "string"
+            },
+            "status": {
+              "type": "string"
+            },
+            "partyType": {
+              "type": "string"
+            },
+            "firstName": {
+              "type": "string"
+            },
+            "lastName": {
+              "type": "string"
+            },
+            "title": {
+              "type": "null"
+            }
+          },
+          "required": [
+            "partyId",
+            "status",
+            "partyType",
+            "firstName",
+            "lastName",
+            "title"
+          ]
+        },
+        {
+          "type": "object",
+          "properties": {
+            "partyId": {
+              "type": "string"
+            },
+            "status": {
+              "type": "string"
+            },
+            "partyType": {
+              "type": "string"
+            },
+            "firstName": {
+              "type": "string"
+            },
+            "lastName": {
+              "type": "string"
+            },
+            "title": {
+              "type": "null"
+            }
+          },
+          "required": [
+            "partyId",
+            "status",
+            "partyType",
+            "firstName",
+            "lastName",
+            "title"
+          ]
+        },
+        {
+          "type": "object",
+          "properties": {
+            "partyId": {
+              "type": "string"
+            },
+            "status": {
+              "type": "string"
+            },
+            "partyType": {
+              "type": "string"
+            },
+            "firstName": {
+              "type": "string"
+            },
+            "lastName": {
+              "type": "string"
+            },
+            "title": {
+              "type": "null"
+            }
+          },
+          "required": [
+            "partyId",
+            "status",
+            "partyType",
+            "firstName",
+            "lastName",
+            "title"
+          ]
+        },
+        {
+          "type": "object",
+          "properties": {
+            "partyId": {
+              "type": "string"
+            },
+            "status": {
+              "type": "string"
+            },
+            "partyType": {
+              "type": "string"
+            },
+            "firstName": {
+              "type": "string"
+            },
+            "lastName": {
+              "type": "string"
+            },
+            "title": {
+              "type": "null"
+            }
+          },
+          "required": [
+            "partyId",
+            "status",
+            "partyType",
+            "firstName",
+            "lastName",
+            "title"
+          ]
+        },
+        {
+          "type": "object",
+          "properties": {
+            "partyId": {
+              "type": "string"
+            },
+            "status": {
+              "type": "string"
+            },
+            "partyType": {
+              "type": "string"
+            },
+            "firstName": {
+              "type": "string"
+            },
+            "lastName": {
+              "type": "string"
+            },
+            "title": {
+              "type": "null"
+            }
+          },
+          "required": [
+            "partyId",
+            "status",
+            "partyType",
+            "firstName",
+            "lastName",
+            "title"
+          ]
+        },
+        {
+          "type": "object",
+          "properties": {
+            "partyId": {
+              "type": "string"
+            },
+            "status": {
+              "type": "string"
+            },
+            "partyType": {
+              "type": "string"
+            },
+            "firstName": {
+              "type": "string"
+            },
+            "lastName": {
+              "type": "string"
+            },
+            "title": {
+              "type": "null"
+            }
+          },
+          "required": [
+            "partyId",
+            "status",
+            "partyType",
+            "firstName",
+            "lastName",
+            "title"
+          ]
+        },
+        {
+          "type": "object",
+          "properties": {
+            "partyId": {
+              "type": "string"
+            },
+            "status": {
+              "type": "string"
+            },
+            "partyType": {
+              "type": "string"
+            },
+            "firstName": {
+              "type": "string"
+            },
+            "lastName": {
+              "type": "string"
+            },
+            "title": {
+              "type": "null"
+            }
+          },
+          "required": [
+            "partyId",
+            "status",
+            "partyType",
+            "firstName",
+            "lastName",
+            "title"
+          ]
+        },
+        {
+          "type": "object",
+          "properties": {
+            "partyId": {
+              "type": "string"
+            },
+            "status": {
+              "type": "string"
+            },
+            "partyType": {
+              "type": "string"
+            },
+            "firstName": {
+              "type": "string"
+            },
+            "lastName": {
+              "type": "string"
+            },
+            "title": {
+              "type": "null"
+            }
+          },
+          "required": [
+            "partyId",
+            "status",
+            "partyType",
+            "firstName",
+            "lastName",
+            "title"
+          ]
+        },
+        {
+          "type": "object",
+          "properties": {
+            "partyId": {
+              "type": "string"
+            },
+            "status": {
+              "type": "string"
+            },
+            "partyType": {
+              "type": "string"
+            },
+            "firstName": {
+              "type": "string"
+            },
+            "lastName": {
+              "type": "string"
+            },
+            "title": {
+              "type": "null"
+            }
+          },
+          "required": [
+            "partyId",
+            "status",
+            "partyType",
+            "firstName",
+            "lastName",
+            "title"
+          ]
+        },
+        {
+          "type": "object",
+          "properties": {
+            "partyId": {
+              "type": "string"
+            },
+            "status": {
+              "type": "string"
+            },
+            "partyType": {
+              "type": "string"
+            },
+            "firstName": {
+              "type": "string"
+            },
+            "lastName": {
+              "type": "string"
+            },
+            "title": {
+              "type": "null"
+            }
+          },
+          "required": [
+            "partyId",
+            "status",
+            "partyType",
+            "firstName",
+            "lastName",
+            "title"
+          ]
+        },
+        {
+          "type": "object",
+          "properties": {
+            "partyId": {
+              "type": "string"
+            },
+            "status": {
+              "type": "string"
+            },
+            "partyType": {
+              "type": "string"
+            },
+            "firstName": {
+              "type": "string"
+            },
+            "lastName": {
+              "type": "string"
+            },
+            "title": {
+              "type": "null"
+            }
+          },
+          "required": [
+            "partyId",
+            "status",
+            "partyType",
+            "firstName",
+            "lastName",
+            "title"
+          ]
+        },
+        {
+          "type": "object",
+          "properties": {
+            "partyId": {
+              "type": "string"
+            },
+            "status": {
+              "type": "string"
+            },
+            "partyType": {
+              "type": "string"
+            },
+            "firstName": {
+              "type": "string"
+            },
+            "lastName": {
+              "type": "string"
+            },
+            "title": {
+              "type": "null"
+            }
+          },
+          "required": [
+            "partyId",
+            "status",
+            "partyType",
+            "firstName",
+            "lastName",
+            "title"
+          ]
+        },
+        {
+          "type": "object",
+          "properties": {
+            "partyId": {
+              "type": "string"
+            },
+            "status": {
+              "type": "string"
+            },
+            "partyType": {
+              "type": "string"
+            },
+            "firstName": {
+              "type": "string"
+            },
+            "lastName": {
+              "type": "string"
+            },
+            "title": {
+              "type": "null"
+            }
+          },
+          "required": [
+            "partyId",
+            "status",
+            "partyType",
+            "firstName",
+            "lastName",
+            "title"
+          ]
+        },
+        {
+          "type": "object",
+          "properties": {
+            "partyId": {
+              "type": "string"
+            },
+            "status": {
+              "type": "string"
+            },
+            "partyType": {
+              "type": "string"
+            },
+            "firstName": {
+              "type": "string"
+            },
+            "lastName": {
+              "type": "string"
+            },
+            "title": {
+              "type": "null"
+            }
+          },
+          "required": [
+            "partyId",
+            "status",
+            "partyType",
+            "firstName",
+            "lastName",
+            "title"
+          ]
+        },
+        {
+          "type": "object",
+          "properties": {
+            "partyId": {
+              "type": "string"
+            },
+            "status": {
+              "type": "string"
+            },
+            "partyType": {
+              "type": "string"
+            },
+            "firstName": {
+              "type": "string"
+            },
+            "lastName": {
+              "type": "string"
+            },
+            "title": {
+              "type": "null"
+            }
+          },
+          "required": [
+            "partyId",
+            "status",
+            "partyType",
+            "firstName",
+            "lastName",
+            "title"
+          ]
+        },
+        {
+          "type": "object",
+          "properties": {
+            "partyId": {
+              "type": "string"
+            },
+            "status": {
+              "type": "string"
+            },
+            "partyType": {
+              "type": "string"
+            },
+            "firstName": {
+              "type": "string"
+            },
+            "lastName": {
+              "type": "string"
+            },
+            "title": {
+              "type": "null"
+            }
+          },
+          "required": [
+            "partyId",
+            "status",
+            "partyType",
+            "firstName",
+            "lastName",
+            "title"
+          ]
+        },
+        {
+          "type": "object",
+          "properties": {
+            "partyId": {
+              "type": "string"
+            },
+            "status": {
+              "type": "string"
+            },
+            "partyType": {
+              "type": "string"
+            },
+            "firstName": {
+              "type": "string"
+            },
+            "lastName": {
+              "type": "string"
+            },
+            "title": {
+              "type": "null"
+            }
+          },
+          "required": [
+            "partyId",
+            "status",
+            "partyType",
+            "firstName",
+            "lastName",
+            "title"
+          ]
+        },
+        {
+          "type": "object",
+          "properties": {
+            "partyId": {
+              "type": "string"
+            },
+            "status": {
+              "type": "string"
+            },
+            "partyType": {
+              "type": "string"
+            },
+            "firstName": {
+              "type": "string"
+            },
+            "lastName": {
+              "type": "string"
+            },
+            "title": {
+              "type": "null"
+            }
+          },
+          "required": [
+            "partyId",
+            "status",
+            "partyType",
+            "firstName",
+            "lastName",
+            "title"
+          ]
+        },
+        {
+          "type": "object",
+          "properties": {
+            "partyId": {
+              "type": "string"
+            },
+            "status": {
+              "type": "string"
+            },
+            "partyType": {
+              "type": "string"
+            },
+            "firstName": {
+              "type": "string"
+            },
+            "lastName": {
+              "type": "string"
+            },
+            "title": {
+              "type": "null"
+            }
+          },
+          "required": [
+            "partyId",
+            "status",
+            "partyType",
+            "firstName",
+            "lastName",
+            "title"
+          ]
+        },
+        {
+          "type": "object",
+          "properties": {
+            "partyId": {
+              "type": "string"
+            },
+            "status": {
+              "type": "string"
+            },
+            "partyType": {
+              "type": "string"
+            },
+            "firstName": {
+              "type": "string"
+            },
+            "lastName": {
+              "type": "string"
+            },
+            "title": {
+              "type": "null"
+            }
+          },
+          "required": [
+            "partyId",
+            "status",
+            "partyType",
+            "firstName",
+            "lastName",
+            "title"
+          ]
+        },
+        {
+          "type": "object",
+          "properties": {
+            "partyId": {
+              "type": "string"
+            },
+            "status": {
+              "type": "string"
+            },
+            "partyType": {
+              "type": "string"
+            },
+            "firstName": {
+              "type": "string"
+            },
+            "lastName": {
+              "type": "string"
+            },
+            "title": {
+              "type": "null"
+            }
+          },
+          "required": [
+            "partyId",
+            "status",
+            "partyType",
+            "firstName",
+            "lastName",
+            "title"
+          ]
+        },
+        {
+          "type": "object",
+          "properties": {
+            "partyId": {
+              "type": "string"
+            },
+            "status": {
+              "type": "string"
+            },
+            "partyType": {
+              "type": "string"
+            },
+            "firstName": {
+              "type": "string"
+            },
+            "lastName": {
+              "type": "string"
+            },
+            "title": {
+              "type": "null"
+            }
+          },
+          "required": [
+            "partyId",
+            "status",
+            "partyType",
+            "firstName",
+            "lastName",
+            "title"
+          ]
+        },
+        {
+          "type": "object",
+          "properties": {
+            "partyId": {
+              "type": "string"
+            },
+            "status": {
+              "type": "string"
+            },
+            "partyType": {
+              "type": "string"
+            },
+            "firstName": {
+              "type": "string"
+            },
+            "lastName": {
+              "type": "string"
+            },
+            "title": {
+              "type": "null"
+            }
+          },
+          "required": [
+            "partyId",
+            "status",
+            "partyType",
+            "firstName",
+            "lastName",
+            "title"
+          ]
+        },
+        {
+          "type": "object",
+          "properties": {
+            "partyId": {
+              "type": "string"
+            },
+            "status": {
+              "type": "string"
+            },
+            "partyType": {
+              "type": "string"
+            },
+            "firstName": {
+              "type": "string"
+            },
+            "lastName": {
+              "type": "string"
+            },
+            "title": {
+              "type": "null"
+            }
+          },
+          "required": [
+            "partyId",
+            "status",
+            "partyType",
+            "firstName",
+            "lastName",
+            "title"
+          ]
+        },
+        {
+          "type": "object",
+          "properties": {
+            "partyId": {
+              "type": "string"
+            },
+            "status": {
+              "type": "string"
+            },
+            "partyType": {
+              "type": "string"
+            },
+            "firstName": {
+              "type": "string"
+            },
+            "lastName": {
+              "type": "string"
+            },
+            "title": {
+              "type": "null"
+            }
+          },
+          "required": [
+            "partyId",
+            "status",
+            "partyType",
+            "firstName",
+            "lastName",
+            "title"
+          ]
+        },
+        {
+          "type": "object",
+          "properties": {
+            "partyId": {
+              "type": "string"
+            },
+            "status": {
+              "type": "string"
+            },
+            "partyType": {
+              "type": "string"
+            },
+            "firstName": {
+              "type": "string"
+            },
+            "lastName": {
+              "type": "string"
+            },
+            "title": {
+              "type": "null"
+            }
+          },
+          "required": [
+            "partyId",
+            "status",
+            "partyType",
+            "firstName",
+            "lastName",
+            "title"
+          ]
+        },
+        {
+          "type": "object",
+          "properties": {
+            "partyId": {
+              "type": "string"
+            },
+            "status": {
+              "type": "string"
+            },
+            "partyType": {
+              "type": "string"
+            },
+            "firstName": {
+              "type": "string"
+            },
+            "lastName": {
+              "type": "string"
+            },
+            "title": {
+              "type": "null"
+            }
+          },
+          "required": [
+            "partyId",
+            "status",
+            "partyType",
+            "firstName",
+            "lastName",
+            "title"
+          ]
+        },
+        {
+          "type": "object",
+          "properties": {
+            "partyId": {
+              "type": "string"
+            },
+            "status": {
+              "type": "string"
+            },
+            "partyType": {
+              "type": "string"
+            },
+            "firstName": {
+              "type": "string"
+            },
+            "lastName": {
+              "type": "string"
+            },
+            "title": {
+              "type": "null"
+            }
+          },
+          "required": [
+            "partyId",
+            "status",
+            "partyType",
+            "firstName",
+            "lastName",
+            "title"
+          ]
+        },
+        {
+          "type": "object",
+          "properties": {
+            "partyId": {
+              "type": "string"
+            },
+            "status": {
+              "type": "string"
+            },
+            "partyType": {
+              "type": "string"
+            },
+            "firstName": {
+              "type": "string"
+            },
+            "lastName": {
+              "type": "string"
+            },
+            "title": {
+              "type": "null"
+            }
+          },
+          "required": [
+            "partyId",
+            "status",
+            "partyType",
+            "firstName",
+            "lastName",
+            "title"
+          ]
+        },
+        {
+          "type": "object",
+          "properties": {
+            "partyId": {
+              "type": "string"
+            },
+            "status": {
+              "type": "string"
+            },
+            "partyType": {
+              "type": "string"
+            },
+            "firstName": {
+              "type": "string"
+            },
+            "lastName": {
+              "type": "string"
+            },
+            "title": {
+              "type": "null"
+            }
+          },
+          "required": [
+            "partyId",
+            "status",
+            "partyType",
+            "firstName",
+            "lastName",
+            "title"
+          ]
+        },
+        {
+          "type": "object",
+          "properties": {
+            "partyId": {
+              "type": "string"
+            },
+            "status": {
+              "type": "string"
+            },
+            "partyType": {
+              "type": "string"
+            },
+            "firstName": {
+              "type": "string"
+            },
+            "lastName": {
+              "type": "string"
+            },
+            "title": {
+              "type": "null"
+            }
+          },
+          "required": [
+            "partyId",
+            "status",
+            "partyType",
+            "firstName",
+            "lastName",
+            "title"
+          ]
+        },
+        {
+          "type": "object",
+          "properties": {
+            "partyId": {
+              "type": "string"
+            },
+            "status": {
+              "type": "string"
+            },
+            "partyType": {
+              "type": "string"
+            },
+            "firstName": {
+              "type": "string"
+            },
+            "lastName": {
+              "type": "string"
+            },
+            "title": {
+              "type": "null"
+            }
+          },
+          "required": [
+            "partyId",
+            "status",
+            "partyType",
+            "firstName",
+            "lastName",
+            "title"
+          ]
+        },
+        {
+          "type": "object",
+          "properties": {
+            "partyId": {
+              "type": "string"
+            },
+            "status": {
+              "type": "string"
+            },
+            "partyType": {
+              "type": "string"
+            },
+            "firstName": {
+              "type": "string"
+            },
+            "lastName": {
+              "type": "string"
+            },
+            "title": {
+              "type": "null"
+            }
+          },
+          "required": [
+            "partyId",
+            "status",
+            "partyType",
+            "firstName",
+            "lastName",
+            "title"
+          ]
+        },
+        {
+          "type": "object",
+          "properties": {
+            "partyId": {
+              "type": "string"
+            },
+            "status": {
+              "type": "string"
+            },
+            "partyType": {
+              "type": "string"
+            },
+            "firstName": {
+              "type": "string"
+            },
+            "lastName": {
+              "type": "string"
+            },
+            "title": {
+              "type": "null"
+            }
+          },
+          "required": [
+            "partyId",
+            "status",
+            "partyType",
+            "firstName",
+            "lastName",
+            "title"
+          ]
+        },
+        {
+          "type": "object",
+          "properties": {
+            "partyId": {
+              "type": "string"
+            },
+            "status": {
+              "type": "string"
+            },
+            "partyType": {
+              "type": "string"
+            },
+            "firstName": {
+              "type": "string"
+            },
+            "lastName": {
+              "type": "string"
+            },
+            "title": {
+              "type": "null"
+            }
+          },
+          "required": [
+            "partyId",
+            "status",
+            "partyType",
+            "firstName",
+            "lastName",
+            "title"
+          ]
+        },
+        {
+          "type": "object",
+          "properties": {
+            "partyId": {
+              "type": "string"
+            },
+            "status": {
+              "type": "string"
+            },
+            "partyType": {
+              "type": "string"
+            },
+            "firstName": {
+              "type": "string"
+            },
+            "lastName": {
+              "type": "string"
+            },
+            "title": {
+              "type": "null"
+            }
+          },
+          "required": [
+            "partyId",
+            "status",
+            "partyType",
+            "firstName",
+            "lastName",
+            "title"
+          ]
+        },
+        {
+          "type": "object",
+          "properties": {
+            "partyId": {
+              "type": "string"
+            },
+            "status": {
+              "type": "string"
+            },
+            "partyType": {
+              "type": "string"
+            },
+            "firstName": {
+              "type": "string"
+            },
+            "lastName": {
+              "type": "string"
+            },
+            "title": {
+              "type": "null"
+            }
+          },
+          "required": [
+            "partyId",
+            "status",
+            "partyType",
+            "firstName",
+            "lastName",
+            "title"
+          ]
+        },
+        {
+          "type": "object",
+          "properties": {
+            "partyId": {
+              "type": "string"
+            },
+            "status": {
+              "type": "string"
+            },
+            "partyType": {
+              "type": "string"
+            },
+            "firstName": {
+              "type": "string"
+            },
+            "lastName": {
+              "type": "string"
+            },
+            "title": {
+              "type": "null"
+            }
+          },
+          "required": [
+            "partyId",
+            "status",
+            "partyType",
+            "firstName",
+            "lastName",
+            "title"
+          ]
+        },
+        {
+          "type": "object",
+          "properties": {
+            "partyId": {
+              "type": "string"
+            },
+            "status": {
+              "type": "string"
+            },
+            "partyType": {
+              "type": "string"
+            },
+            "firstName": {
+              "type": "string"
+            },
+            "lastName": {
+              "type": "string"
+            },
+            "title": {
+              "type": "null"
+            }
+          },
+          "required": [
+            "partyId",
+            "status",
+            "partyType",
+            "firstName",
+            "lastName",
+            "title"
+          ]
+        },
+        {
+          "type": "object",
+          "properties": {
+            "partyId": {
+              "type": "string"
+            },
+            "status": {
+              "type": "string"
+            },
+            "partyType": {
+              "type": "string"
+            },
+            "firstName": {
+              "type": "string"
+            },
+            "lastName": {
+              "type": "string"
+            },
+            "title": {
+              "type": "null"
+            }
+          },
+          "required": [
+            "partyId",
+            "status",
+            "partyType",
+            "firstName",
+            "lastName",
+            "title"
+          ]
+        },
+        {
+          "type": "object",
+          "properties": {
+            "partyId": {
+              "type": "string"
+            },
+            "status": {
+              "type": "string"
+            },
+            "partyType": {
+              "type": "string"
+            },
+            "firstName": {
+              "type": "string"
+            },
+            "lastName": {
+              "type": "string"
+            },
+            "title": {
+              "type": "null"
+            }
+          },
+          "required": [
+            "partyId",
+            "status",
+            "partyType",
+            "firstName",
+            "lastName",
+            "title"
+          ]
+        },
+        {
+          "type": "object",
+          "properties": {
+            "partyId": {
+              "type": "string"
+            },
+            "status": {
+              "type": "string"
+            },
+            "partyType": {
+              "type": "string"
+            },
+            "firstName": {
+              "type": "string"
+            },
+            "lastName": {
+              "type": "string"
+            },
+            "title": {
+              "type": "null"
+            }
+          },
+          "required": [
+            "partyId",
+            "status",
+            "partyType",
+            "firstName",
+            "lastName",
+            "title"
+          ]
+        },
+        {
+          "type": "object",
+          "properties": {
+            "partyId": {
+              "type": "string"
+            },
+            "status": {
+              "type": "string"
+            },
+            "partyType": {
+              "type": "string"
+            },
+            "firstName": {
+              "type": "string"
+            },
+            "lastName": {
+              "type": "string"
+            },
+            "title": {
+              "type": "null"
+            }
+          },
+          "required": [
+            "partyId",
+            "status",
+            "partyType",
+            "firstName",
+            "lastName",
+            "title"
+          ]
+        },
+        {
+          "type": "object",
+          "properties": {
+            "partyId": {
+              "type": "string"
+            },
+            "status": {
+              "type": "string"
+            },
+            "partyType": {
+              "type": "string"
+            },
+            "firstName": {
+              "type": "string"
+            },
+            "lastName": {
+              "type": "string"
+            },
+            "title": {
+              "type": "null"
+            }
+          },
+          "required": [
+            "partyId",
+            "status",
+            "partyType",
+            "firstName",
+            "lastName",
+            "title"
+          ]
+        },
+        {
+          "type": "object",
+          "properties": {
+            "partyId": {
+              "type": "string"
+            },
+            "status": {
+              "type": "string"
+            },
+            "partyType": {
+              "type": "string"
+            },
+            "firstName": {
+              "type": "string"
+            },
+            "lastName": {
+              "type": "string"
+            },
+            "title": {
+              "type": "null"
+            }
+          },
+          "required": [
+            "partyId",
+            "status",
+            "partyType",
+            "firstName",
+            "lastName",
+            "title"
+          ]
+        },
+        {
+          "type": "object",
+          "properties": {
+            "partyId": {
+              "type": "string"
+            },
+            "status": {
+              "type": "string"
+            },
+            "partyType": {
+              "type": "string"
+            },
+            "firstName": {
+              "type": "string"
+            },
+            "lastName": {
+              "type": "string"
+            },
+            "title": {
+              "type": "null"
+            }
+          },
+          "required": [
+            "partyId",
+            "status",
+            "partyType",
+            "firstName",
+            "lastName",
+            "title"
+          ]
+        },
+        {
+          "type": "object",
+          "properties": {
+            "partyId": {
+              "type": "string"
+            },
+            "status": {
+              "type": "string"
+            },
+            "partyType": {
+              "type": "string"
+            },
+            "firstName": {
+              "type": "string"
+            },
+            "lastName": {
+              "type": "string"
+            },
+            "title": {
+              "type": "null"
+            }
+          },
+          "required": [
+            "partyId",
+            "status",
+            "partyType",
+            "firstName",
+            "lastName",
+            "title"
+          ]
+        },
+        {
+          "type": "object",
+          "properties": {
+            "partyId": {
+              "type": "string"
+            },
+            "status": {
+              "type": "string"
+            },
+            "partyType": {
+              "type": "string"
+            },
+            "firstName": {
+              "type": "string"
+            },
+            "lastName": {
+              "type": "string"
+            },
+            "title": {
+              "type": "null"
+            }
+          },
+          "required": [
+            "partyId",
+            "status",
+            "partyType",
+            "firstName",
+            "lastName",
+            "title"
+          ]
+        },
+        {
+          "type": "object",
+          "properties": {
+            "partyId": {
+              "type": "string"
+            },
+            "status": {
+              "type": "string"
+            },
+            "partyType": {
+              "type": "string"
+            },
+            "firstName": {
+              "type": "string"
+            },
+            "lastName": {
+              "type": "string"
+            },
+            "title": {
+              "type": "null"
+            }
+          },
+          "required": [
+            "partyId",
+            "status",
+            "partyType",
+            "firstName",
+            "lastName",
+            "title"
+          ]
+        },
+        {
+          "type": "object",
+          "properties": {
+            "partyId": {
+              "type": "string"
+            },
+            "status": {
+              "type": "string"
+            },
+            "partyType": {
+              "type": "string"
+            },
+            "firstName": {
+              "type": "string"
+            },
+            "lastName": {
+              "type": "string"
+            },
+            "title": {
+              "type": "null"
+            }
+          },
+          "required": [
+            "partyId",
+            "status",
+            "partyType",
+            "firstName",
+            "lastName",
+            "title"
+          ]
+        },
+        {
+          "type": "object",
+          "properties": {
+            "partyId": {
+              "type": "string"
+            },
+            "status": {
+              "type": "string"
+            },
+            "partyType": {
+              "type": "string"
+            },
+            "firstName": {
+              "type": "string"
+            },
+            "lastName": {
+              "type": "string"
+            },
+            "title": {
+              "type": "null"
+            }
+          },
+          "required": [
+            "partyId",
+            "status",
+            "partyType",
+            "firstName",
+            "lastName",
+            "title"
+          ]
+        }
+      ]
+    }
+  },
+  "required": [
+    "page",
+    "pageSize",
+    "total",
+    "items"
+  ]
+}
