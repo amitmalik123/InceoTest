@@ -21,6 +21,11 @@ build/
 .env
 *.env
 
+# Config files with sensitive credentials
+config/*.yaml
+config/*.yml
+!config/*.example.yaml
+
 # Reports
 reports/
 *.log
