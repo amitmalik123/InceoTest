@@ -139,6 +139,41 @@ services:
     - analytics
     - low-priority
     priority: 3
+  lexisnexiscipproxy:
+    displayName: LexisNexis CIP Proxy Service
+    enabled: true
+    runOnPR: false
+    runOnPush: true
+    runOnSchedule: true
+    testType: functional
+    environments:
+    - TSADEV
+    - TSATEST
+    - TSASILO
+    functionalTestArgs: --service-name LexisNexisCipProxyService --env {environment}
+    nonFunctionalTestArgs: --file testdata/LexisNexisCipProxyService/testcases/TestCase_cip_business_POST.json --test_type Performance --env {environment} --headless -u 5 -r 1 -t 15s
+    tags:
+    - lexisnexis
+    - cip
+    - compliance
+    priority: 2
+  accountdistributions:
+    displayName: Account Distributions
+    enabled: true
+    runOnPR: false
+    runOnPush: true
+    runOnSchedule: true
+    testType: functional
+    environments:
+    - TSADEV
+    - TSATEST
+    - TSASILO
+    functionalTestArgs: --service-name accountdistributions --env {environment}
+    nonFunctionalTestArgs: --file testdata/AccountDistributions/testcases/TestCase_api_v1_OneTimeDistributionCode_reasons_retirementPlanType_GET.json --test_type Performance --env {environment} --headless -u 5 -r 1 -t 15s
+    tags:
+    - distributions
+    - account
+    priority: 2
 global:
   defaultPool:
     name: ewm20-docker-build-agent-inc-dev
