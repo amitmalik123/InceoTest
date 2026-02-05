@@ -87,27 +87,6 @@ schedules:
         - qe_platform
     always: true
 
-  - cron: "00 17 * * *"       # 17:00 UTC -> accountdistributions
-    displayName: 'Account Distributions API - Daily Test'
-    branches:
-      include:
-        - qe_platform
-    always: true
-
-  - cron: "00 18 * * *"       # 18:00 UTC -> lexisnexiscipproxy
-    displayName: 'LexisNexis CIP Proxy Service - Daily Test'
-    branches:
-      include:
-        - qe_platform
-    always: true
-
-  - cron: "15 18 * * *"       # 18:15 UTC -> docusignproxyservice
-    displayName: 'Docusign Proxy Service - Daily Test'
-    branches:
-      include:
-        - qe_platform
-    always: true
-
 
 ###############################################################################
 # Pipeline Parameters - For Manual Execution
@@ -264,12 +243,6 @@ stages:
                     "16:45")
                       SCHEDULE_SERVICE="hnebase"
                       ;;
-                    "17:0"|"17:00")
-                      SCHEDULE_SERVICE="accountdistributions"
-                      ;;
-                    "18:0"|"18:00")
-                      SCHEDULE_SERVICE="lexisnexiscipproxy"
-                      ;;
                     *)
                       echo "WARNING: No service found for time ${CURRENT_HOUR}:${CURRENT_MINUTE}"
                       echo "Checking with minute tolerance (within 5 minutes)..."
@@ -300,15 +273,6 @@ stages:
                       # hnebase: 16:45 (1005 min)
                       elif [ $CURRENT_TIME_MIN -ge 1003 ] && [ $CURRENT_TIME_MIN -le 1007 ]; then
                         SCHEDULE_SERVICE="hnebase"
-                      # accountdistributions: 17:00 (1020 min)
-                      elif [ $CURRENT_TIME_MIN -ge 1018 ] && [ $CURRENT_TIME_MIN -le 1022 ]; then
-                        SCHEDULE_SERVICE="accountdistributions"
-                      # lexisnexiscipproxy: 18:00 (1080 min)
-                      elif [ $CURRENT_TIME_MIN -ge 1078 ] && [ $CURRENT_TIME_MIN -le 1082 ]; then
-                        SCHEDULE_SERVICE="lexisnexiscipproxy"
-                      # docusignproxyservice: 18:15 (1095 min)
-                      elif [ $CURRENT_TIME_MIN -ge 1093 ] && [ $CURRENT_TIME_MIN -le 1097 ]; then
-                        SCHEDULE_SERVICE="docusignproxyservice"
                       fi
                       ;;
                   esac
