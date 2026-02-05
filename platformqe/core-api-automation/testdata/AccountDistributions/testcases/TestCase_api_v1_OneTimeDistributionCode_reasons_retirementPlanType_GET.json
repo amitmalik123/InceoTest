@@ -3,12 +3,12 @@
         "test_id": "TC001",
         "service_name": "accountdistributions",
         "workflow_mode": "parallel",
-        "test_name": "GET /api/v1/OneTimeDistributionCode/reasons/{{retirementPlanType}} [positive] (TC001)",
+        "test_name": "GET /OneTimeDistributionCode/reasons/{{retirementPlanType}} [positive] (TC001)",
         "protocol": "REST",
         "test_type": [
             "Functional"
         ],
-        "mainURL": "{{base_url}}",
+        "mainURL": "{{accountdistributions_base_url}}",
         "endpoint": "/OneTimeDistributionCode/reasons/{{retirementPlanType}}",
         "method": "GET",
         "rpc_method": "",
