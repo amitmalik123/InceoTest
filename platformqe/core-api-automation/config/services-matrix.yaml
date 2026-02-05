@@ -20,8 +20,8 @@ services:
   parties:
     displayName: Parties API
     enabled: true
-    runOnPR: true
-    runOnPush: true
+    runOnPR: false
+    runOnPush: false
     runOnSchedule: true
     testType: functional
     environments:
@@ -143,7 +143,7 @@ services:
     displayName: LexisNexis CIP Proxy Service
     enabled: true
     runOnPR: false
-    runOnPush: true
+    runOnPush: false
     runOnSchedule: true
     testType: functional
     environments:
@@ -161,7 +161,7 @@ services:
     displayName: Account Distributions
     enabled: true
     runOnPR: false
-    runOnPush: true
+    runOnPush: false
     runOnSchedule: true
     testType: functional
     environments:
@@ -178,7 +178,7 @@ services:
     displayName: Docusign Proxy Service
     enabled: true
     runOnPR: false
-    runOnPush: true
+    runOnPush: false
     runOnSchedule: true
     testType: functional
     environments:
