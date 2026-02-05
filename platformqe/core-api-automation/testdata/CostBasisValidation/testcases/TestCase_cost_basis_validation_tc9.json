@@ -1,0 +1,527 @@
+[
+    {
+        "test_id": "TC009_01",
+        "service_name": "cost_basis_validation",
+        "workflow_mode": "parallel",
+        "test_name": "TC9 - Create Transfer",
+        "protocol": "REST",
+        "test_type": [
+            "Functional"
+        ],
+        "mainURL": "{{base_url}}",
+        "endpoint": "/api/v1/Transfer/create/{{ExternalID}}",
+        "method": "POST",
+        "rpc_method": "",
+        "graphql_query": "",
+        "graphql_variables": "",
+        "soap_action": "",
+        "soap_envelope": "",
+        "headers_additional": {
+            "Content-Type": "application/json"
+        },
+        "payload": {
+            "externalId": "{{ExternalID}}",
+            "custodian": "GNW",
+            "transferDirection": "In",
+            "amountType": "Unknown",
+            "transferType": "Unknown",
+            "auditUser": "TestUser",
+            "transferStatus": "Received",
+            "costBasis": "Pending",
+            "transferAllocations": [
+                {
+                    "auditUser": "TestUser",
+                    "accountNumber": "{{AccountNumber}} ",
+                    "accountName": "Test Allocation Account",
+                    "allocationUnit": "Percent",
+                    "allocationPercent": 100,
+                    "uiAction": "NEW"
+                }
+            ]
+        },
+        "expected_status": "201",
+        "expected_response_schema": "",
+        "expected_response": {
+            "transferInfoId": null,
+            "status": "SUCCESS"
+        },
+        "ignore_fields": [
+            "transferInfoId"
+        ],
+        "pre_scripts": "CostBasisValidation\\testcases\\validators\\generate_tc9_external_id.py",
+        "scripts": "CostBasisValidation\\testcases\\validators\\update_tc9_csv.py",
+        "extract_values": [
+            {
+                "from": "response",
+                "key": "transferInfoId",
+                "assign_to": "TransferID"
+            }
+        ],
+        "validate": {
+            "performance": {
+                "max_response_time_ms": 1500
+            },
+            "security": {
+                "checks": [
+                    "sql_injection",
+                    "xss"
+                ]
+            },
+            "assertions": [
+                {
+                    "actual": "{{TransferID}}",
+                    "expected": "",
+                    "operator": "!=",
+                    "message": "Transfer ID should not be empty"
+                },
+                {
+                    "actual": "{{ExternalID}}",
+                    "expected": "B",
+                    "operator": "starts_with",
+                    "message": "ExternalID should start with 'B'"
+                }
+            ],
+            "data_comparison": {
+                "source": "api_response",
+                "target": "db_result",
+                "format": "table",
+                "key_field": [
+                    "",
+                    ""
+                ],
+                "fields_to_compare": [],
+                "log_differences": true
+            }
+        },
+        "test_data_file": "CostBasisValidation\\data_driven\\Data_cost_basis_validation_tc9.csv",
+        "db_query": "",
+        "db_type": "",
+        "db_connection_name": "",
+        "test_summary": "TC9 step 1: Create transfer using provided ExternalID and CostBasisExternalID values."
+    },
+    {
+        "test_id": "TC009_02",
+        "service_name": "cost_basis_validation",
+        "workflow_mode": "parallel",
+        "test_name": "TC9 - Get Transfer Details",
+        "protocol": "REST",
+        "test_type": [
+            "Functional"
+        ],
+        "mainURL": "{{base_url}}",
+        "endpoint": "/api/v1/Transfer/details/{{ExternalID}}",
+        "method": "GET",
+        "rpc_method": "",
+        "graphql_query": "",
+        "graphql_variables": "",
+        "soap_action": "",
+        "soap_envelope": "",
+        "headers_additional": {
+            "Content-Type": "application/json"
+        },
+        "payload": null,
+        "expected_status": "200",
+        "expected_response_schema": "",
+        "expected_response": null,
+        "extract_values": [
+            {
+                "from": "response",
+                "key": "rowVersion",
+                "assign_to": "rowVersion"
+            },
+            {
+                "from": "response",
+                "key": "transferInfoId",
+                "assign_to": "TransferID_LIVE"
+            },
+            {
+                "from": "response",
+                "key": "externalId",
+                "assign_to": "ExternalID"
+            },
+            {
+                "from": "response",
+                "key": "transferAllocations.0.accountNumber",
+                "assign_to": "AccountNumber"
+            }
+        ],
+        "validate": {
+            "performance": {
+                "max_response_time_ms": 500
+            },
+            "security": {
+                "checks": [
+                    "sql_injection",
+                    "xss"
+                ]
+            },
+            "assertions": [
+                {
+                    "actual": "{{rowVersion}}",
+                    "expected": 0,
+                    "operator": ">",
+                    "message": "Row version should be greater than 0"
+                },
+                {
+                    "actual": "{{TransferID_LIVE}}",
+                    "expected": "",
+                    "operator": "!=",
+                    "message": "Transfer ID should not be empty"
+                },
+                {
+                    "actual": "{{ExternalID}}",
+                    "expected": "B",
+                    "operator": "starts_with",
+                    "message": "ExternalID should start with 'B'"
+                },
+                {
+                    "actual": "{{AccountNumber}}",
+                    "expected": "",
+                    "operator": "!=",
+                    "message": "Account number should not be empty"
+                }
+            ],
+            "data_comparison": {
+                "source": "api_response",
+                "target": "db_result",
+                "format": "table",
+                "key_field": [
+                    "",
+                    ""
+                ],
+                "fields_to_compare": [],
+                "log_differences": true
+            }
+        },
+        "test_data_file": "CostBasisValidation\\data_driven\\Data_cost_basis_validation_tc9.csv",
+        "db_query": "",
+        "db_type": "",
+        "db_connection_name": "",
+        "test_summary": "TC9 step 2: Get transfer details using TransferID and extract externalId, rowVersion, AccountNumber."
+    },
+    {
+        "test_id": "TC009_03",
+        "service_name": "cost_basis_validation",
+        "workflow_mode": "parallel",
+        "test_name": "TC9 - Update Transfer (Pending)",
+        "protocol": "REST",
+        "test_type": [
+            "Functional"
+        ],
+        "mainURL": "{{base_url}}",
+        "endpoint": "/api/v1/Transfer/in/update/{{ExternalID}}",
+        "method": "POST",
+        "rpc_method": "",
+        "graphql_query": "",
+        "graphql_variables": "",
+        "soap_action": "",
+        "soap_envelope": "",
+        "headers_additional": {
+            "Content-Type": "application/json",
+            "Accept": "*/*",
+            "Accept-Encoding": "gzip, deflate, br",
+            "Connection": "keep-alive"
+        },
+        "payload": "CostBasisValidation\\payloads\\Payload_tc9_update_pending.txt",
+        "expected_status": "200",
+        "expected_response_schema": "",
+        "expected_response": {
+            "transferInfoId": null,
+            "rowVersion": null,
+            "status": "SUCCESS",
+            "messageDescription": "Transfer record update completed successfully."
+        },
+        "ignore_fields": [
+            "transferInfoId",
+            "rowVersion"
+        ],
+        "extract_values": [
+            {
+                "from": "response",
+                "key": "transferInfoId",
+                "assign_to": "TransferID_Update"
+            },
+            {
+                "from": "response",
+                "key": "rowVersion",
+                "assign_to": "rowVersion_Update"
+            },
+            {
+                "from": "response",
+                "key": "status",
+                "assign_to": "status_Update"
+            },
+            {
+                "from": "response",
+                "key": "messageDescription",
+                "assign_to": "messageDescription_Update"
+            }
+        ],
+        "validate": {
+            "performance": {
+                "max_response_time_ms": 2000
+            },
+            "security": {
+                "checks": [
+                    "sql_injection",
+                    "xss"
+                ]
+            },
+            "assertions": [
+                {
+                    "actual": "{{TransferID_Update}}",
+                    "expected": "",
+                    "operator": "!=",
+                    "message": "Transfer ID should not be empty"
+                },
+                {
+                    "actual": "{{rowVersion_Update}}",
+                    "expected": 0,
+                    "operator": ">",
+                    "message": "Row version should be greater than 0"
+                },
+                {
+                    "actual": "{{status_Update}}",
+                    "expected": "SUCCESS",
+                    "operator": "==",
+                    "message": "Status should be SUCCESS"
+                },
+                {
+                    "actual": "{{messageDescription_Update}}",
+                    "expected": "completed successfully",
+                    "operator": "contains",
+                    "message": "Message should indicate successful update"
+                }
+            ],
+            "data_comparison": {
+                "source": "api_response",
+                "target": "db_result",
+                "format": "table",
+                "key_field": [
+                    "",
+                    ""
+                ],
+                "fields_to_compare": [],
+                "log_differences": true
+            }
+        },
+        "test_data_file": "CostBasisValidation\\data_driven\\Data_cost_basis_validation_tc9.csv",
+        "db_query": "",
+        "db_type": "",
+        "db_connection_name": "",
+        "test_summary": "TC9 step 3: Update transfer to Pending status."
+    },
+    {
+        "test_id": "TC009_04",
+        "service_name": "cost_basis_validation",
+        "workflow_mode": "parallel",
+        "test_name": "TC9 - Update Cost Basis External ID",
+        "protocol": "REST",
+        "test_type": [
+            "Functional"
+        ],
+        "mainURL": "{{base_url}}",
+        "endpoint": "/api/v1/Transfer/update/costbasisexternalid/{{ExternalID}}",
+        "method": "POST",
+        "rpc_method": "",
+        "graphql_query": "",
+        "graphql_variables": "",
+        "soap_action": "",
+        "soap_envelope": "",
+        "headers_additional": {
+            "Content-Type": "application/json"
+        },
+        "payload": {
+            "externalId": "{{ExternalID}}",
+            "costBasisExternalID": "{{CostBasisExternalID}}",
+            "auditUser": "TestUser"
+        },
+        "expected_status": "200",
+        "expected_response_schema": "",
+        "expected_response": {
+            "rowVersion": null,
+            "message": "CostBasisExternalID updated on transfer record: 7668",
+            "status": "SUCCESS"
+        },
+        "ignore_fields": [
+            "rowVersion",
+            "message"
+        ],
+        "extract_values": [
+            {
+                "from": "response",
+                "key": "rowVersion",
+                "assign_to": "rowVersion_CostBasis"
+            },
+            {
+                "from": "response",
+                "key": "message",
+                "assign_to": "message_CostBasis"
+            },
+            {
+                "from": "response",
+                "key": "status",
+                "assign_to": "status_CostBasis"
+            }
+        ],
+        "validate": {
+            "performance": {
+                "max_response_time_ms": 1000
+            },
+            "security": {
+                "checks": [
+                    "sql_injection",
+                    "xss"
+                ]
+            },
+            "assertions": [
+                {
+                    "actual": "{{rowVersion_CostBasis}}",
+                    "expected": 0,
+                    "operator": ">",
+                    "message": "Row version should be greater than 0"
+                },
+                {
+                    "actual": "{{status_CostBasis}}",
+                    "expected": "SUCCESS",
+                    "operator": "==",
+                    "message": "Status should be SUCCESS"
+                },
+                {
+                    "actual": "{{message_CostBasis}}",
+                    "expected": "CostBasisExternalID updated",
+                    "operator": "contains",
+                    "message": "Message should indicate CostBasisExternalID update"
+                }
+            ],
+            "data_comparison": {
+                "source": "api_response",
+                "target": "db_result",
+                "format": "table",
+                "key_field": [
+                    "",
+                    ""
+                ],
+                "fields_to_compare": [],
+                "log_differences": true
+            }
+        },
+        "test_data_file": "CostBasisValidation\\data_driven\\Data_cost_basis_validation_tc9.csv",
+        "db_query": "",
+        "db_type": "",
+        "db_connection_name": "",
+        "test_summary": "TC9 step 4: Update cost basis external ID."
+    },
+    {
+        "test_id": "TC009_05",
+        "service_name": "cost_basis_validation",
+        "workflow_mode": "parallel",
+        "test_name": "TC9 - Validate Cost Basis",
+        "protocol": "REST",
+        "test_type": [
+            "Functional"
+        ],
+        "mainURL": "{{base_url}}",
+        "endpoint": "/api/v1/transfer-cost-basis/validate",
+        "method": "POST",
+        "rpc_method": "",
+        "graphql_query": "",
+        "graphql_variables": "",
+        "soap_action": "",
+        "soap_envelope": "",
+        "headers_additional": {
+            "Content-Type": "application/json"
+        },
+        "payload": {
+            "costBasisExternalID": "{{CostBasisExternalID}}",
+            "auditUser": "TestUser"
+        },
+        "expected_status": "200",
+        "expected_response_schema": "",
+        "expected_response": {
+            "clientMessages": [
+                {
+                    "message": "Cost basis incomplete for some assets. \nAAPL - Quantity: 50, Cost Basis Received For: 0\nCEO - Quantity: 100, Cost Basis Received For: 0\nAMZN - Quantity: 100, Cost Basis Received For: 50\nNFLX - Quantity: 100, Cost Basis Received For: 0",
+                    "advisorVisible": false,
+                    "order": 1
+                },
+                {
+                    "message": "Cost basis has been updated on 0 position(s) and 4 position(s) remain not in good order",
+                    "advisorVisible": true,
+                    "order": 2
+                }
+            ],
+            "validationResponses": [],
+            "completionTimeInSeconds": 0,
+            "alertWorkItem": true,
+            "closeWorkItem": false
+        },
+        "ignore_fields": [
+            "clientMessages"
+        ],
+        "extract_values": [
+            {
+                "from": "response",
+                "key": "completionTimeInSeconds",
+                "assign_to": "completionTimeInSeconds"
+            },
+            {
+                "from": "response",
+                "key": "alertWorkItem",
+                "assign_to": "alertWorkItem"
+            },
+            {
+                "from": "response",
+                "key": "closeWorkItem",
+                "assign_to": "closeWorkItem"
+            }
+        ],
+        "validate": {
+            "performance": {
+                "max_response_time_ms": 1000
+            },
+            "security": {
+                "checks": [
+                    "sql_injection",
+                    "xss"
+                ]
+            },
+            "assertions": [
+                {
+                    "actual": "{{completionTimeInSeconds}}",
+                    "expected": 0,
+                    "operator": ">=",
+                    "message": "Completion time should be >= 0"
+                },
+                {
+                    "actual": "{{alertWorkItem}}",
+                    "expected": true,
+                    "operator": "==",
+                    "message": "alertWorkItem should be true"
+                },
+                {
+                    "actual": "{{closeWorkItem}}",
+                    "expected": false,
+                    "operator": "==",
+                    "message": "closeWorkItem should be false"
+                }
+            ],
+            "data_comparison": {
+                "source": "api_response",
+                "target": "db_result",
+                "format": "table",
+                "key_field": [
+                    "",
+                    ""
+                ],
+                "fields_to_compare": [],
+                "log_differences": true
+            }
+        },
+        "test_data_file": "CostBasisValidation\\data_driven\\Data_cost_basis_validation_tc9.csv",
+        "db_query": "",
+        "db_type": "",
+        "db_connection_name": "",
+        "test_summary": "TC9 step 5: Validate cost basis."
+    }
+]
