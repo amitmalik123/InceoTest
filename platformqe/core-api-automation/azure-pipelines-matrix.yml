@@ -557,7 +557,7 @@ stages:
                     echo "##vso[task.setvariable variable=RESOLVED_ACCOUNTDISTRIBUTIONS_BASE_URL]$(TSASILO_accountdistributions_base_url)"
                     ;;
                   *)
-                    echo "❌ ERROR: Unknown environment: $SELECTED_ENV"
+                    echo "ERROR: Unknown environment: $SELECTED_ENV"
                     echo "Defaulting to TSADEV variables"
                     echo "##vso[task.setvariable variable=RESOLVED_PARTIES_BASE_URL]$(TSADEV_parties_base_url)"
                     echo "##vso[task.setvariable variable=RESOLVED_ADDRESS_BASE_URL]$(TSADEV_address_base_url)"
@@ -598,7 +598,7 @@ stages:
                 echo "RESOLVED_STRATEGIES_BASE_URL: $(RESOLVED_STRATEGIES_BASE_URL)"
                 echo "RESOLVED_WRAPTOKEN_BASE_URL: $(RESOLVED_WRAPTOKEN_BASE_URL)"
                 echo "RESOLVED_ACCOUNTDISTRIBUTIONS_BASE_URL: $(RESOLVED_ACCOUNTDISTRIBUTIONS_BASE_URL)"
-                echo "==========================================""
+                echo "=========================================="
           
           # - task: UsePythonVersion@0
           #   displayName: 'Set up Python $(pythonVersion)'
