@@ -151,7 +151,7 @@ services:
     - TSATEST
     - TSASILO
     functionalTestArgs: --service-name lexisnexiscipproxyservice --env {environment}
-    nonFunctionalTestArgs: --file testdata/LexisNexisCipProxyService/testcases/TestCase_cip_business_POST.json --test_type Performance --env {environment} --headless -u 5 -r 1 -t 15s
+    nonFunctionalTestArgs: --file testdata/lexisnexiscipproxyservice/testcases/TestCase_cip_business_POST.json --test_type Performance --env {environment} --headless -u 5 -r 1 -t 15s
     tags:
     - lexisnexis
     - cip
