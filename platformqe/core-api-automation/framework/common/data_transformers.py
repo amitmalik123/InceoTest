@@ -59,43 +59,87 @@ class DataTransformer:
             'lowercase_string': self._lowercase_string,
             'uppercase_string': self._uppercase_string,
             'strip_whitespace': self._strip_whitespace,
+            'substring': self._substring,
         }
     
-    def apply_transformations(self, field_name: str, value: Any) -> Any:
+    def apply_transformations(self, field_name: str, value: Any, parent_path: str = '') -> Any:
         """
         Apply configured transformations to a field value.
+        Recursively processes nested structures (lists and dicts).
         
         Args:
             field_name: Name of the field to transform
             value: Original value
+            parent_path: Path to the parent field (for nested structures)
         
         Returns:
             Transformed value or original value if no transformations configured
         """
-        # Find transformer config for this field
+        # Build the full path for matching wildcard patterns
+        full_path = f"{parent_path}.{field_name}" if parent_path else field_name
+        
+        # Find transformer config for this field (exact match)
         transformer_config = next(
             (t for t in self.transformers_config if t.get('field') == field_name),
             None
         )
         
+        # If no exact match, try wildcard pattern matching (e.g., versions.*.publishedDate)
         if not transformer_config:
-            return value
+            for t in self.transformers_config:
+                pattern = t.get('field', '')
+                # Check if pattern contains wildcard
+                if '*' in pattern:
+                    # Convert pattern to regex (e.g., versions.*.publishedDate -> publishedDate$)
+                    # Extract the final part after the last wildcard
+                    parts = pattern.split('*')
+                    if parts and field_name.endswith(parts[-1].lstrip('.')):
+                        transformer_config = t
+                        break
         
-        transform_type = transformer_config.get('transform')
-        options = transformer_config.get('options', {})
+        # If we have a transformer config, apply it to the value
+        if transformer_config:
+            transform_type = transformer_config.get('transform')
+            options = transformer_config.get('options', {})
+            
+            if transform_type in self.transformers:
+                try:
+                    transformer_func = self.transformers[transform_type]
+                    transformed_value = transformer_func(value, options)
+                    logger.debug(f"Transformed field '{full_path}' using '{transform_type}': {value} -> {transformed_value}")
+                    return transformed_value
+                except Exception as e:
+                    logger.warning(f"Failed to transform field '{full_path}' using '{transform_type}': {e}")
+            else:
+                logger.warning(f"Unknown transformation type '{transform_type}' for field '{full_path}'")
         
-        if transform_type not in self.transformers:
-            logger.warning(f"Unknown transformation type '{transform_type}' for field '{field_name}'")
-            return value
+        # If value is a list, recursively apply transformations to each item
+        if isinstance(value, list):
+            return [self.apply_transformations(field_name, item, parent_path) if not isinstance(item, dict) 
+                    else self._transform_dict(item, full_path) 
+                    for item in value]
         
-        try:
-            transformer_func = self.transformers[transform_type]
-            transformed_value = transformer_func(value, options)
-            logger.debug(f"Transformed field '{field_name}' using '{transform_type}': {value} -> {transformed_value}")
-            return transformed_value
-        except Exception as e:
-            logger.warning(f"Failed to transform field '{field_name}' using '{transform_type}': {e}")
-            return value
+        # If value is a dict, recursively apply transformations to all fields
+        if isinstance(value, dict):
+            return self._transform_dict(value, full_path)
+        
+        return value
+    
+    def _transform_dict(self, data: dict, parent_path: str = '') -> dict:
+        """
+        Recursively transform all fields in a dictionary.
+        
+        Args:
+            data: Dictionary to transform
+            parent_path: Path to the parent field
+        
+        Returns:
+            Transformed dictionary
+        """
+        result = {}
+        for key, val in data.items():
+            result[key] = self.apply_transformations(key, val, parent_path)
+        return result
     
     def _array_to_object(self, value: Any, options: Dict) -> Any:
         """
@@ -297,6 +341,35 @@ class DataTransformer:
         if isinstance(value, str):
             return value.strip()
         return value
+    
+    def _substring(self, value: Any, options: Dict) -> Any:
+        """
+        Extract a substring from string values.
+        
+        Example:
+            Input: "2026-01-14T13:35:21.450602Z"
+            Options: {"start": 0, "end": 19}
+            Output: "2026-01-14T13:35:21"
+        
+        Args:
+            value: Value to transform
+            options: Transformation options
+                - start: Starting index (default: 0)
+                - end: Ending index (optional)
+        
+        Returns:
+            Substring or original value if not applicable
+        """
+        if not isinstance(value, str):
+            return value
+        
+        start = options.get('start', 0)
+        end = options.get('end')
+        
+        if end is not None:
+            return value[start:end]
+        else:
+            return value[start:]
 
 
 def apply_field_transformers(

@@ -1,0 +1,13 @@
+SELECT
+    [Id] AS db_instructionId,
+    [Version] AS db_version,
+    [AccountId] AS db_accountId,
+    [Status] AS db_status,
+    [LetterOfAuthorization] AS db_letterOfAuthorization,
+    [HolderRelationshipToAccount] AS db_holderRelationship,
+    [RailType] AS db_railType,
+    [CustodialInstructionNumber] AS db_custodianInstructionNumber,
+    [CreatedDate] AS db_createdDate,
+    [UpdatedDate] AS db_updatedDate
+FROM [dbo].[MoneyMovementInstruction]
+WHERE [Id] = '{{instructionId}}'

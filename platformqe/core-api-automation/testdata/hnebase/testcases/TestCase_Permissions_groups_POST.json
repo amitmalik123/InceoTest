@@ -8,7 +8,7 @@
         "test_type": [
             "Functional"
         ],
-    "mainURL": "{{base_url}}",
+        "mainURL": "{{base_url}}",
         "endpoint": "/Permissions/groups",
         "method": "POST",
         "rpc_method": "",
@@ -26,9 +26,7 @@
         "ignore_fields": [
             "id"
         ],
-        "extract_values": [
-
-        ],
+        "extract_values": [],
         "validate": {
             "performance": {
                 "max_response_time_ms": null
@@ -41,18 +39,30 @@
             },
             "data_comparison": {
                 "source": "api_response",
+                "source_array_path": "permissionGroups.0.permissions",
                 "target": "db_result",
                 "format": "table",
-                "key_field": ["", ""],
+                "key_field": [
+                    {
+                        "source": "permissionKey",
+                        "target": "db_permission_key"
+                    }
+                ],
                 "fields_to_compare": [
-                    {"source": "permissionGroups.0.permissions.0.permissionEffect", "target": "db_permission_effect"},
-                    {"source": "permissionGroups.0.permissions.0.permissionKey", "target": "db_permission_key"}
+                    {
+                        "source": "permissionEffect",
+                        "target": "db_permission_effect"
+                    },
+                    {
+                        "source": "permissionKey",
+                        "target": "db_permission_key"
+                    }
                 ],
                 "log_differences": true
             }
         },
         "test_data_file": "hnebase/data_driven/Data_hnebase_post.csv",
-        "db_query": "hnebase/db_queries/Query_hnebase_select _permission.sql",
+        "db_query": "hnebase/db_queries/Query_hnebase_select_permission.sql",
         "db_type": "postgresql",
         "db_connection_name": "hneServices",
         "test_summary": "Test TC001: POST /Permissions/groups [positive] (TC001) - valid single ssoguid and groupname. https://assetmark.atlassian.net/browse/PRODENG-12005",
@@ -68,7 +78,7 @@
         "test_type": [
             "Functional Negative"
         ],
-    "mainURL": "{{base_url}}",
+        "mainURL": "{{base_url}}",
         "endpoint": "/Permissions/groups",
         "method": "POST",
         "rpc_method": "",
@@ -86,9 +96,7 @@
         "ignore_fields": [
             "instance"
         ],
-        "extract_values": [
-
-        ],
+        "extract_values": [],
         "validate": {
             "performance": {
                 "max_response_time_ms": null
@@ -103,9 +111,11 @@
                 "source": "api_response",
                 "target": "db_result",
                 "format": "table",
-                "key_field": ["", ""],
-                "fields_to_compare": [
-                    ],
+                "key_field": [
+                    "",
+                    ""
+                ],
+                "fields_to_compare": [],
                 "log_differences": true
             }
         },
@@ -126,7 +136,7 @@
         "test_type": [
             "Functional Negative"
         ],
-    "mainURL": "{{base_url}}",
+        "mainURL": "{{base_url}}",
         "endpoint": "/Permissions/groups",
         "method": "POST",
         "rpc_method": "",
@@ -144,9 +154,7 @@
         "ignore_fields": [
             "instance"
         ],
-        "extract_values": [
-
-        ],
+        "extract_values": [],
         "validate": {
             "performance": {
                 "max_response_time_ms": null
@@ -161,9 +169,11 @@
                 "source": "api_response",
                 "target": "db_result",
                 "format": "table",
-                "key_field": ["", ""],
-                "fields_to_compare": [
-                    ],
+                "key_field": [
+                    "",
+                    ""
+                ],
+                "fields_to_compare": [],
                 "log_differences": true
             }
         },
@@ -184,7 +194,7 @@
         "test_type": [
             "Functional Positive"
         ],
-    "mainURL": "{{base_url}}",
+        "mainURL": "{{base_url}}",
         "endpoint": "/Permissions/groups",
         "method": "POST",
         "rpc_method": "",
@@ -202,9 +212,7 @@
         "ignore_fields": [
             "instance"
         ],
-        "extract_values": [
-
-        ],
+        "extract_values": [],
         "validate": {
             "performance": {
                 "max_response_time_ms": null
@@ -219,9 +227,11 @@
                 "source": "api_response",
                 "target": "db_result",
                 "format": "table",
-                "key_field": ["", ""],
-                "fields_to_compare": [
-                    ],
+                "key_field": [
+                    "",
+                    ""
+                ],
+                "fields_to_compare": [],
                 "log_differences": true
             }
         },
@@ -242,7 +252,7 @@
         "test_type": [
             "Functional Negative"
         ],
-    "mainURL": "{{base_url}}",
+        "mainURL": "{{base_url}}",
         "endpoint": "/Permissions/groups",
         "method": "POST",
         "rpc_method": "",
@@ -258,11 +268,10 @@
         "expected_response_schema": "hnebase/schemas/Schema_Permissions_groups_POST_error_missing_groupname.json",
         "expected_response": "hnebase/payloads/response_payloads/Payload_Permissions_groups_POST_response_missing_groupname_valid_ssoguid.json",
         "ignore_fields": [
-            "traceId", "type"
+            "traceId",
+            "type"
         ],
-        "extract_values": [
-
-        ],
+        "extract_values": [],
         "validate": {
             "performance": {
                 "max_response_time_ms": null
@@ -277,9 +286,11 @@
                 "source": "api_response",
                 "target": "db_result",
                 "format": "table",
-                "key_field": ["", ""],
-                "fields_to_compare": [
-                    ],
+                "key_field": [
+                    "",
+                    ""
+                ],
+                "fields_to_compare": [],
                 "log_differences": true
             }
         },
@@ -300,7 +311,7 @@
         "test_type": [
             "Functional Positive"
         ],
-    "mainURL": "{{base_url}}",
+        "mainURL": "{{base_url}}",
         "endpoint": "/Permissions/groups",
         "method": "POST",
         "rpc_method": "",
@@ -316,11 +327,10 @@
         "expected_response_schema": "hnebase/schemas/Schema_Permissions_groups_POST.json",
         "expected_response": "hnebase/payloads/response_payloads/Payload_Permissions_groups_POST_response_empty_groupname_valid_ssoguid.json",
         "ignore_fields": [
-            "traceId", "type"
+            "traceId",
+            "type"
         ],
-        "extract_values": [
-
-        ],
+        "extract_values": [],
         "validate": {
             "performance": {
                 "max_response_time_ms": null
@@ -335,9 +345,11 @@
                 "source": "api_response",
                 "target": "db_result",
                 "format": "table",
-                "key_field": ["", ""],
-                "fields_to_compare": [
-                    ],
+                "key_field": [
+                    "",
+                    ""
+                ],
+                "fields_to_compare": [],
                 "log_differences": true
             }
         },

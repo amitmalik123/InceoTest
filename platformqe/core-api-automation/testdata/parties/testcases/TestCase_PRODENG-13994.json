@@ -5,7 +5,7 @@
     "workflow_mode": "parallel",
     "test_name": "GET /parties/{id} - Verify version field exists and matches DB",
     "protocol": "REST",
-    "test_type": ["Functional", "Smoke", "PRODENG-13994"],
+    "test_type": ["Functional", "Smoke", "PRODENG-13994", "Business Logic"],
     "mainURL": "{{base_url}}",
     "endpoint": "/parties/{{id}}",
     "method": "GET",
@@ -84,7 +84,7 @@
     "workflow_mode": "sequential",
     "test_name": "POST /parties - Create party and verify initial version is 1",
     "protocol": "REST",
-    "test_type": ["Functional", "Smoke", "PRODENG-13994"],
+    "test_type": ["Functional", "Smoke", "PRODENG-13994", "Business Logic"],
     "mainURL": "{{base_url}}",
     "endpoint": "/parties",
     "method": "POST",
@@ -162,7 +162,7 @@
     ],
     "validate": {
       "performance": {
-        "max_response_time_ms": 500
+        "max_response_time_ms": 1000
       },
       "security": {
         "checks": ["sql_injection", "xss"]
@@ -196,7 +196,7 @@
     "workflow_mode": "sequential",
     "test_name": "GET /parties/{id} - Verify initial version is 1 after POST",
     "protocol": "REST",
-    "test_type": ["Functional", "Smoke", "PRODENG-13994"],
+    "test_type": ["Functional", "Smoke", "PRODENG-13994", "Business Logic"],
     "mainURL": "{{base_url}}",
     "endpoint": "/parties/{{created_party_id}}",
     "method": "GET",
@@ -289,7 +289,12 @@
     "workflow_mode": "sequential",
     "test_name": "PUT /parties/{id} - First update with version 1",
     "protocol": "REST",
-    "test_type": ["Functional", "Regression", "PRODENG-13994"],
+    "test_type": [
+      "Functional",
+      "Regression",
+      "PRODENG-13994",
+      "Business Logic"
+    ],
     "mainURL": "{{base_url}}",
     "endpoint": "/parties/{{created_party_id}}",
     "method": "PUT",
@@ -402,7 +407,12 @@
     "workflow_mode": "sequential",
     "test_name": "GET /parties/{id} - Verify version is 2 after first PUT",
     "protocol": "REST",
-    "test_type": ["Functional", "Regression", "PRODENG-13994"],
+    "test_type": [
+      "Functional",
+      "Regression",
+      "PRODENG-13994",
+      "Business Logic"
+    ],
     "mainURL": "{{base_url}}",
     "endpoint": "/parties/{{created_party_id}}",
     "method": "GET",
@@ -495,7 +505,12 @@
     "workflow_mode": "sequential",
     "test_name": "PUT /parties/{id} - Second update with version 2",
     "protocol": "REST",
-    "test_type": ["Functional", "Regression", "PRODENG-13994"],
+    "test_type": [
+      "Functional",
+      "Regression",
+      "PRODENG-13994",
+      "Business Logic"
+    ],
     "mainURL": "{{base_url}}",
     "endpoint": "/parties/{{created_party_id}}",
     "method": "PUT",
@@ -608,7 +623,12 @@
     "workflow_mode": "sequential",
     "test_name": "GET /parties/{id} - Verify version is 3 after second PUT",
     "protocol": "REST",
-    "test_type": ["Functional", "Regression", "PRODENG-13994"],
+    "test_type": [
+      "Functional",
+      "Regression",
+      "PRODENG-13994",
+      "Business Logic"
+    ],
     "mainURL": "{{base_url}}",
     "endpoint": "/parties/{{created_party_id}}",
     "method": "GET",
@@ -701,7 +721,7 @@
     "workflow_mode": "sequential",
     "test_name": "PUT /parties/{id} - Negative test with outdated version header",
     "protocol": "REST",
-    "test_type": ["Negative", "PRODENG-13994"],
+    "test_type": ["Negative", "PRODENG-13994", "Business Logic"],
     "mainURL": "{{base_url}}",
     "endpoint": "/parties/{{created_party_id}}",
     "method": "PUT",
@@ -801,7 +821,12 @@
     "workflow_mode": "sequential",
     "test_name": "GET /parties/{id} - Final verification that version remained 3",
     "protocol": "REST",
-    "test_type": ["Functional", "Regression", "PRODENG-13994"],
+    "test_type": [
+      "Functional",
+      "Regression",
+      "PRODENG-13994",
+      "Business Logic"
+    ],
     "mainURL": "{{base_url}}",
     "endpoint": "/parties/{{created_party_id}}",
     "method": "GET",

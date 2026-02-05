@@ -19,44 +19,51 @@
         "headers_additional": {
             "Content-Type": "application/json"
         },
-        "payload": {
-            "calculationRequest": {
-                "inputs": {
-                    "blend": [
-                        {
-                            "id": "ALFBB3",
-                            "entityType": "model",
-                            "weight": 0.8
-                        },
-                        {
-                            "id": "MOD389",
-                            "entityType": "model",
-                            "weight": 0.2
-                        }
-                    ]
-                },
-                "calculations": [
-                    {
-                        "calculationType": "blended risk",
-                        "configurations": {
-                            "method": "ewma",
-                            "timeHorizon": 240
-                        }
-                    }
-                ]
-            }
-        },
+        "payload": "analyticsApiServices/payloads/Payload_POST_Request.txt",
         "expected_status": "200",
         "expected_response_schema": "",
         "expected_response": null,
         "ignore_fields": [
             "id"
         ],
+        "scripts": [
+            "analyticsApiServices/validators/ewma_validator.py"
+        ],
         "extract_values": [
             {
                 "from": "response",
-                "key": "id",
-                "assign_to": ""
+                "key": "calculationResults.0.result.annualizedVolatility",
+                "assign_to": "actual_volatility"
+            },
+            {
+                "from": "response",
+                "key": "calculationResults.0.result.blendedRiskScore",
+                "assign_to": "actual_risk_score"
+            },
+            {
+                "from": "response",
+                "key": "calculationResults.0.result.profileValue",
+                "assign_to": "actual_profile_value"
+            },
+            {
+                "from": "script_result",
+                "key": "computed_annualized_volatility",
+                "assign_to": "expected_volatility"
+            },
+            {
+                "from": "script_result",
+                "key": "computed_blended_risk_score",
+                "assign_to": "expected_risk_score"
+            },
+            {
+                "from": "script_result",
+                "key": "computed_profile_value",
+                "assign_to": "expected_profile_value"
+            },
+            {
+                "from": "script_result",
+                "key": "api_annualized_volatility",
+                "assign_to": "expected_volatility"
             },
             {
                 "from": "db_result",
@@ -73,30 +80,37 @@
             "performance": {
                 "max_response_time_ms": null
             },
-            "security": {
-                "checks": [
-                    "sql_injection",
-                    "xss"
-                ]
-            },
-            "data_comparison": {
-                "source": "api_response",
-                "target": "db_result",
-                "format": "table",
-                "key_field": [
-                    "",
-                    ""
-                ],
-                "fields_to_compare": [],
-                "log_differences": true
-            }
+            "assertions": [
+                {
+                    "actual": "{{expected_volatility}}",
+                    "operator": "==",
+                    "expected": "{{actual_volatility}}",
+                    "message": "Verify Computed volatility matches with API Volatility"
+                },
+                {
+                    "actual": "{{expected_risk_score}}",
+                    "operator": "==",
+                    "expected": "{{actual_risk_score}}",
+                    "message": "Verify Computed risk score matches with API Risk Score"
+                },
+                {
+                    "actual": "{{expected_profile_value}}",
+                    "operator": "==",
+                    "expected": "{{actual_profile_value}}",
+                    "message": "Verify Computed profile value matches with API Profile Value"
+                }
+            ]
         },
-        "test_data_file": "",
-        "db_query": "",
-        "db_type": "",
-        "db_connection_name": "",
-        "test_summary": "Test TC001: POST /v1/analytics [positive] (TC001) - Test POST request to /v1/analytics for functional scenario validation.",
-        "test_scenario": "Test POST request to /v1/analytics for functional scenario validation."
+        "test_data_file": "analyticsApiServices/data_driven/Data_analytics_POST.csv",
+        "db_queries": {
+            "monthlyPerformance_query": "analyticsApiServices/db_queries/Query_BlendedRisk_MonthlyPerformance.txt",
+            "riskBands_query": "SELECT ProfileValue, AnnualStdDeviation FROM Platform.dbo.RiskProfile ORDER BY ProfileValue"
+        },
+        "db_type": "mssql",
+        "db_connection_name": "am_db",
+        "db_query_timing": "before_api",
+        "test_summary": "Test TC001: POST /v1/analytics [positive] (TC001) - Validate blended risk calculation with EWMA method for 10 models (ABSGT6, ACWIEX, ALTMF5, APODCF, B110MM, BBEMAG, CAMUNI, CIBCP3, CIBCP6, ETFALB) each with 10% weight.",
+        "test_scenario": "Test EWMA blended risk calculation with 10 models (equal 10% weight each) and {{horizon}}-month time horizon. Validates annualized volatility, blended risk score, and profile value calculations."
     },
     {
         "test_id": "TC002",

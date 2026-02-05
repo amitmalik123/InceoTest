@@ -473,7 +473,7 @@
             "test_data_file": "",
             "db_query": "SELECT RiskProfileID, ProfileName, ProfileValue, AnnualStdDeviation FROM Platform.dbo.RiskProfile",
             "db_type": "mssql",
-            "db_connection_name": "analytics_db",
+            "db_connection_name": "platform_db",
             "test_summary": "Verify API response data matches database records",
             "test_scenario": "Compare risk profile bands from API response with database to ensure data consistency"
         },

@@ -68,6 +68,29 @@ class TestDatabaseManager:
         has_query = case.get('db_query') or case.get('db_queries')
         return db_query_timing == 'after_api' and has_query
     
+    def _clean_query_for_logging(self, query: str) -> str:
+        """
+        Clean SQL query for logging by removing excessive whitespace while preserving readability.
+        Pretty formats the query with proper indentation.
+        
+        Args:
+            query: Raw SQL query string
+        
+        Returns:
+            Cleaned query string suitable for logging with pretty formatting
+        """
+        if not query:
+            return query
+        
+        # Split into lines and strip each line
+        lines = [line.strip() for line in query.splitlines()]
+        # Remove empty lines
+        lines = [line for line in lines if line]
+        # Join with newlines and indent for pretty formatting
+        cleaned = '\n    '.join(lines)
+        
+        return f"\n    {cleaned}"
+    
     def execute_query(self, case: Dict, context: Dict) -> Optional[List[Dict]]:
         """
         Execute DB query with timing control (before/after API).
@@ -98,6 +121,10 @@ class TestDatabaseManager:
             
             # Render the query with context variables
             rendered_query = render_template(query_content, context)
+            
+            # Log the full query at DEBUG level (cleaned for readability)
+            cleaned_query = self._clean_query_for_logging(rendered_query)
+            logger.debug(f"Executing DB query on {db_type} ({db_connection_name or 'default'}): {cleaned_query}")
             
             # Execute query based on database type
             if db_type.lower() in ['mongodb', 'cosmosdb']:
@@ -155,6 +182,10 @@ class TestDatabaseManager:
                     
                     # Render the query with context variables
                     rendered_query = render_template(query_str, context)
+                    
+                    # Log the full query at DEBUG level (cleaned for readability)
+                    cleaned_query = self._clean_query_for_logging(rendered_query)
+                    logger.debug(f"Executing DB query '{query_name}' on {db_type} ({db_connection_name or 'default'}): {cleaned_query}")
                     
                     # Execute query based on database type
                     if db_type.lower() in ['mongodb', 'cosmosdb']:

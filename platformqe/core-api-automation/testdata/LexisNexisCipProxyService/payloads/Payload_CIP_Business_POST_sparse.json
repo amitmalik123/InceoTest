@@ -1,0 +1,72 @@
+{
+  "BusinessInstantID20Request": {
+    "User": {
+      "ReferenceCode": null,
+      "BillingCode": null,
+      "QueryId": null,
+      "GLBPurpose": null,
+      "DLPurpose": null,
+      "SubDLPurpose": null,
+      "EndUser": {
+        "CompanyName": null,
+        "StreetAddress1": null,
+        "City": null,
+        "State": null,
+        "Zip5": null,
+        "Phone": null
+      },
+      "MaxWaitSeconds": null,
+      "AccountNumber": null,
+      "OutputType": null
+    },
+    "Options": {
+      "GlobalWatchlistThreshold": null,
+      "WatchListsRequested": {
+        "WatchList": [null]
+      },
+      "BIID20ProductType": null,
+      "DOBMatchOptions": {
+        "DOBMatchOption": [
+          {
+            "MatchType": null,
+            "MatchYearRadius": null
+          }
+        ]
+      },
+      "DOBRadius": null,
+      "ExactAddrMatch": null,
+      "ExactDOBMatch": null,
+      "ExactDriverLicenseMatch": null,
+      "ExactFirstNameMatch": null,
+      "ExactFirstNameMatchAllowNicknames": null,
+      "ExactLastNameMatch": null,
+      "ExactPhoneMatch": null,
+      "ExactSSNMatch": null,
+      "ExcludeWatchLists": null,
+      "IncludeAdditionalWatchlists": null,
+      "IncludeCLOverride": null,
+      "IncludeDLVerification": null,
+      "IncludeDOBInCVI": null,
+      "IncludeDPBC": null,
+      "IncludeDPCAA": null,
+      "IncludeEOB": null,
+      "IncludeInstantVerify": null,
+      "IncludeModels": null,
+      "IncludeNonVoters": null,
+      "IncludeOutput": null,
+      "IncludePhoneandEmailValidation": null,
+      "IncludeProduction": null,
+      "IncludeQuickVerify": null,
+      "IncludeRiskIndicators": null,
+      "IncludeVoters": null,
+      "NoOfResults": null,
+      "PhoneMatchOption": null,
+      "ReservedExpansion": null,
+      "SSNMatchOption": null,
+      "WorkPhoneMatch": null,
+      "PerformAddressParsing": null,
+      "IncludeResidualData": null,
+      "RejectKnownFraudulent": null
+    }
+  }
+}
