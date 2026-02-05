@@ -570,6 +570,8 @@ stages:
                     echo "##vso[task.setvariable variable=RESOLVED_STRATEGIES_BASE_URL]$(TSADEV_strategies_base_url)"
                     echo "##vso[task.setvariable variable=RESOLVED_WRAPTOKEN_BASE_URL]$(TSADEV_wraptoken_base_url)"
                     echo "##vso[task.setvariable variable=RESOLVED_ACCOUNTDISTRIBUTIONS_BASE_URL]$(TSADEV_accountdistributions_base_url)"
+                    echo "##vso[task.setvariable variable=RESOLVED_ACCOUNTDISTRIBUTIONS_BASE_URL]$(T10_accountdistributions_base_url)"
+
                     ;;
                 esac
                 
