@@ -97,11 +97,11 @@ api_endpoints:
     azure_resource: "https://management.azure.com/"
   
   accountdistributions:
-    base_url: "https://app-accountdistributions-test-test10.azurewebsites.net"
-    auth_token: "${PARTIES_AUTH_TOKEN}"
-    timeout: 30
-    retry_count: 3
-    use_azure_auth: false  # Set to true to use Azure AD authentication
+    base_url: "${ACCOUNTDISTRIBUTIONS_BASE_URL}"
+    auth_token: "${ACCOUNTDISTRIBUTIONS_AUTH_TOKEN:}"
+    timeout: ${API_TIMEOUT:30}
+    retry_count: ${API_RETRY_COUNT:3}
+    use_azure_auth: false
     azure_resource: "https://management.azure.com/"
   
   work_item_notification:
