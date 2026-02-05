@@ -44,7 +44,7 @@
                 "log_differences": true
             }
         },
-        "test_data_file": "MoveMoneyAPI/data_driven/Data_accountdistributions_GET.csv",
+        "test_data_file": "AccountDistributions/data_driven/Data_accountdistributions_GET.csv",
         "db_query_timing": "none",
         "db_queries": {},
         "db_type": "",
