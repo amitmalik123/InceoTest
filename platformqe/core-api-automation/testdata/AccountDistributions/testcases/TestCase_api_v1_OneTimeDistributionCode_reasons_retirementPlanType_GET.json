@@ -61,7 +61,7 @@
             "Negative"
         ],
         "mainURL": "{{base_url}}",
-        "endpoint": "/api/v1/OneTimeDistributionCode/reasons/ ",
+        "endpoint": "/OneTimeDistributionCode/reasons/ ",
         "method": "GET",
         "rpc_method": "",
         "graphql_query": "",
