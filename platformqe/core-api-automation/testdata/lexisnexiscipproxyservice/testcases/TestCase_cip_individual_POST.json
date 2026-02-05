@@ -1,7 +1,7 @@
 [
     {
         "test_id": "TC001",
-        "service_name": "LexisNexisCipProxyService",
+        "service_name": "lexisnexiscipproxyservice",
         "workflow_mode": "parallel",
         "test_name": "POST /cip/individual [positive] (TC001)",
         "protocol": "REST",
@@ -19,9 +19,9 @@
         "headers_additional": {
             "Content-Type": "application/json"
         },
-        "payload": "LexisNexisCipProxyService/payloads/Payload_CIP_Individual_POST_request.json",
+        "payload": "lexisnexiscipproxyservice/payloads/Payload_CIP_Individual_POST_request.json",
         "expected_status": "200",
-        "expected_response_schema": "LexisNexisCipProxyService/schemas/Schema_CIP_Individual_POST_response.json",
+        "expected_response_schema": "lexisnexiscipproxyservice/schemas/Schema_CIP_Individual_POST_response.json",
         "ignore_fields": [],
         "extract_values": [],
         "validate": {
@@ -38,7 +38,7 @@
     },
     {
         "test_id": "TC002",
-        "service_name": "LexisNexisCipProxyService",
+        "service_name": "lexisnexiscipproxyservice",
         "workflow_mode": "parallel",
         "test_name": "POST /cip/individual [negative: extra param] (TC002)",
         "protocol": "REST",
@@ -84,7 +84,7 @@
     },
     {
         "test_id": "TC003",
-        "service_name": "LexisNexisCipProxyService",
+        "service_name": "lexisnexiscipproxyservice",
         "workflow_mode": "parallel",
         "test_name": "POST /cip/individual [negative: invalid payload] (TC003)",
         "protocol": "REST",
@@ -128,7 +128,7 @@
     },
     {
         "test_id": "TC006",
-        "service_name": "LexisNexisCipProxyService",
+        "service_name": "lexisnexiscipproxyservice",
         "workflow_mode": "parallel",
         "test_name": "Verify CIP Individual search with minimal fields (SSN + ZIP only)",
         "protocol": "REST",
@@ -141,9 +141,9 @@
         "headers_additional": {
             "Content-Type": "application/json"
         },
-        "payload": "LexisNexisCipProxyService/payloads/Payload_CIP_Individual_POST_ssn_zip.json",
+        "payload": "lexisnexiscipproxyservice/payloads/Payload_CIP_Individual_POST_ssn_zip.json",
         "expected_status": "200",
-        "expected_response_schema": "LexisNexisCipProxyService/schemas/Schema_CIP_Individual_POST_response.json",
+        "expected_response_schema": "lexisnexiscipproxyservice/schemas/Schema_CIP_Individual_POST_response.json",
         "validate": {
             "performance": {
                 "max_response_time_ms": 5000
@@ -153,7 +153,7 @@
     },
     {
         "test_id": "TC007",
-        "service_name": "LexisNexisCipProxyService",
+        "service_name": "lexisnexiscipproxyservice",
         "workflow_mode": "parallel",
         "test_name": "Verify CIP Individual search with only Last Name and ZIP",
         "protocol": "REST",
@@ -166,9 +166,9 @@
         "headers_additional": {
             "Content-Type": "application/json"
         },
-        "payload": "LexisNexisCipProxyService/payloads/Payload_CIP_Individual_POST_lastname_zip.json",
+        "payload": "lexisnexiscipproxyservice/payloads/Payload_CIP_Individual_POST_lastname_zip.json",
         "expected_status": "200",
-        "expected_response_schema": "LexisNexisCipProxyService/schemas/Schema_CIP_Individual_POST_response.json",
+        "expected_response_schema": "lexisnexiscipproxyservice/schemas/Schema_CIP_Individual_POST_response.json",
         "validate": {
             "performance": {
                 "max_response_time_ms": 5000
@@ -178,7 +178,7 @@
     },
     {
         "test_id": "TC008",
-        "service_name": "LexisNexisCipProxyService",
+        "service_name": "lexisnexiscipproxyservice",
         "workflow_mode": "parallel",
         "test_name": "Verify CIP Individual search with all optional fields",
         "protocol": "REST",
@@ -191,9 +191,9 @@
         "headers_additional": {
             "Content-Type": "application/json"
         },
-        "payload": "LexisNexisCipProxyService/payloads/Payload_CIP_Individual_POST_request.json",
+        "payload": "lexisnexiscipproxyservice/payloads/Payload_CIP_Individual_POST_request.json",
         "expected_status": "200",
-        "expected_response_schema": "LexisNexisCipProxyService/schemas/Schema_CIP_Individual_POST_response.json",
+        "expected_response_schema": "lexisnexiscipproxyservice/schemas/Schema_CIP_Individual_POST_response.json",
         "validate": {
             "performance": {
                 "max_response_time_ms": 5000
@@ -203,7 +203,7 @@
     },
     {
         "test_id": "TC009",
-        "service_name": "LexisNexisCipProxyService",
+        "service_name": "lexisnexiscipproxyservice",
         "workflow_mode": "parallel",
         "test_name": "Verify proxy accepts empty/sparse request (pass-through validation) - Individual",
         "protocol": "REST",
@@ -216,9 +216,9 @@
         "headers_additional": {
             "Content-Type": "application/json"
         },
-        "payload": "LexisNexisCipProxyService/payloads/Payload_CIP_Individual_POST_sparse.json",
+        "payload": "lexisnexiscipproxyservice/payloads/Payload_CIP_Individual_POST_sparse.json",
         "expected_status": "200",
-        "expected_response_schema": "LexisNexisCipProxyService/schemas/Schema_CIP_Individual_POST_response.json",
+        "expected_response_schema": "lexisnexiscipproxyservice/schemas/Schema_CIP_Individual_POST_response.json",
         "validate": {
             "performance": {
                 "max_response_time_ms": 5000
@@ -228,7 +228,7 @@
     },
     {
         "test_id": "TC010",
-        "service_name": "LexisNexisCipProxyService",
+        "service_name": "lexisnexiscipproxyservice",
         "workflow_mode": "parallel",
         "test_name": "Verify proxy forwards extra/unknown fields in request - Individual",
         "protocol": "REST",
@@ -241,9 +241,9 @@
         "headers_additional": {
             "Content-Type": "application/json"
         },
-        "payload": "LexisNexisCipProxyService/payloads/Payload_CIP_Individual_POST_extra_fields.json",
+        "payload": "lexisnexiscipproxyservice/payloads/Payload_CIP_Individual_POST_extra_fields.json",
         "expected_status": "200",
-        "expected_response_schema": "LexisNexisCipProxyService/schemas/Schema_CIP_Individual_POST_response.json",
+        "expected_response_schema": "lexisnexiscipproxyservice/schemas/Schema_CIP_Individual_POST_response.json",
         "validate": {
             "performance": {
                 "max_response_time_ms": 5000
@@ -253,7 +253,7 @@
     },
     {
         "test_id": "TC012",
-        "service_name": "LexisNexisCipProxyService",
+        "service_name": "lexisnexiscipproxyservice",
         "workflow_mode": "parallel",
         "test_name": "Verify Individual endpoint availability and response time",
         "protocol": "REST",
@@ -266,9 +266,9 @@
         "headers_additional": {
             "Content-Type": "application/json"
         },
-        "payload": "LexisNexisCipProxyService/payloads/Payload_CIP_Individual_POST_request.json",
+        "payload": "lexisnexiscipproxyservice/payloads/Payload_CIP_Individual_POST_request.json",
         "expected_status": "200",
-        "expected_response_schema": "LexisNexisCipProxyService/schemas/Schema_CIP_Individual_POST_response.json",
+        "expected_response_schema": "lexisnexiscipproxyservice/schemas/Schema_CIP_Individual_POST_response.json",
         "validate": {
             "performance": {
                 "max_response_time_ms": 5000
