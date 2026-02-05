@@ -600,6 +600,7 @@ stages:
                 echo "RESOLVED_STRATEGIES_BASE_URL: $(RESOLVED_STRATEGIES_BASE_URL)"
                 echo "RESOLVED_WRAPTOKEN_BASE_URL: $(RESOLVED_WRAPTOKEN_BASE_URL)"
                 echo "RESOLVED_ACCOUNTDISTRIBUTIONS_BASE_URL: $(RESOLVED_ACCOUNTDISTRIBUTIONS_BASE_URL)"
+                echo "RESOLVED_LEXISNEXIS_BASE_URL: $(RESOLVED_LEXISNEXIS_BASE_URL)"
                 echo "=========================================="
           
           # - task: UsePythonVersion@0
