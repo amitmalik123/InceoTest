@@ -421,6 +421,16 @@ stages:
                 
                 echo "=========================================="
                 
+                # Set output variable to indicate whether services were found
+                # ExecuteTests stage condition depends on this variable
+                if grep -q "##vso\[task.setvariable variable=servicesMatrix" matrix_output.log; then
+                  echo "##vso[task.setvariable variable=hasServices;isOutput=true]true"
+                  echo "✅ hasServices output variable set to TRUE - ExecuteTests will run"
+                else
+                  echo "##vso[task.setvariable variable=hasServices;isOutput=true]false"
+                  echo "⚠️ hasServices output variable set to FALSE - ExecuteTests will be SKIPPED"
+                fi
+                
                 exit $exit_code
               workingDirectory: $(buildPath)
 

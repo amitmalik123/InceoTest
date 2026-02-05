@@ -139,7 +139,7 @@ services:
     - analytics
     - low-priority
     priority: 3
-  lexisnexiscipproxy:
+  lexisnexiscipproxyservice:
     displayName: LexisNexis CIP Proxy Service
     enabled: true
     runOnPR: false
@@ -150,7 +150,7 @@ services:
     - TSADEV
     - TSATEST
     - TSASILO
-    functionalTestArgs: --service-name LexisNexisCipProxyService --env {environment}
+    functionalTestArgs: --service-name lexisnexiscipproxyservice --env {environment}
     nonFunctionalTestArgs: --file testdata/LexisNexisCipProxyService/testcases/TestCase_cip_business_POST.json --test_type Performance --env {environment} --headless -u 5 -r 1 -t 15s
     tags:
     - lexisnexis
