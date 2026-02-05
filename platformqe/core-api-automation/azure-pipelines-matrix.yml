@@ -101,6 +101,13 @@ schedules:
         - qe_platform
     always: true
 
+  - cron: "15 18 * * *"       # 18:15 UTC -> docusignproxyservice
+    displayName: 'Docusign Proxy Service - Daily Test'
+    branches:
+      include:
+        - qe_platform
+    always: true
+
 
 ###############################################################################
 # Pipeline Parameters - For Manual Execution
@@ -299,6 +306,9 @@ stages:
                       # lexisnexiscipproxy: 18:00 (1080 min)
                       elif [ $CURRENT_TIME_MIN -ge 1078 ] && [ $CURRENT_TIME_MIN -le 1082 ]; then
                         SCHEDULE_SERVICE="lexisnexiscipproxy"
+                      # docusignproxyservice: 18:15 (1095 min)
+                      elif [ $CURRENT_TIME_MIN -ge 1093 ] && [ $CURRENT_TIME_MIN -le 1097 ]; then
+                        SCHEDULE_SERVICE="docusignproxyservice"
                       fi
                       ;;
                   esac
@@ -420,16 +430,6 @@ stages:
                 fi
                 
                 echo "=========================================="
-                
-                # Set output variable to indicate whether services were found
-                # ExecuteTests stage condition depends on this variable
-                if grep -q "##vso\[task.setvariable variable=servicesMatrix" matrix_output.log; then
-                  echo "##vso[task.setvariable variable=hasServices;isOutput=true]true"
-                  echo "✅ hasServices output variable set to TRUE - ExecuteTests will run"
-                else
-                  echo "##vso[task.setvariable variable=hasServices;isOutput=true]false"
-                  echo "⚠️ hasServices output variable set to FALSE - ExecuteTests will be SKIPPED"
-                fi
                 
                 exit $exit_code
               workingDirectory: $(buildPath)
@@ -553,6 +553,7 @@ stages:
                     echo "##vso[task.setvariable variable=RESOLVED_WRAPTOKEN_BASE_URL]$(TSADEV_wraptoken_base_url)"
                     echo "##vso[task.setvariable variable=RESOLVED_ACCOUNTDISTRIBUTIONS_BASE_URL]$(TSADEV_accountdistributions_base_url)"
                     echo "##vso[task.setvariable variable=RESOLVED_LEXISNEXIS_BASE_URL]$(TSADEV_lexisnexis_base_url)"
+                    echo "##vso[task.setvariable variable=RESOLVED_DOCUSIGN_BASE_URL]$(TSADEV_docusign_base_url)"
                     ;;
                   "TSATEST")
                     echo "##vso[task.setvariable variable=RESOLVED_PARTIES_BASE_URL]$(TSATEST_parties_base_url)"
@@ -567,6 +568,7 @@ stages:
                     echo "##vso[task.setvariable variable=RESOLVED_WRAPTOKEN_BASE_URL]$(TSATEST_wraptoken_base_url)"
                     echo "##vso[task.setvariable variable=RESOLVED_ACCOUNTDISTRIBUTIONS_BASE_URL]$(TSATEST_accountdistributions_base_url)"
                     echo "##vso[task.setvariable variable=RESOLVED_LEXISNEXIS_BASE_URL]$(TSATEST_lexisnexis_base_url)"
+                    echo "##vso[task.setvariable variable=RESOLVED_DOCUSIGN_BASE_URL]$(T11_docusign_base_url)"
                     ;;
                   "TSASILO")
                     echo "##vso[task.setvariable variable=RESOLVED_PARTIES_BASE_URL]$(TSASILO_parties_base_url)"
@@ -581,6 +583,7 @@ stages:
                     echo "##vso[task.setvariable variable=RESOLVED_WRAPTOKEN_BASE_URL]$(TSASILO_wraptoken_base_url)"
                     echo "##vso[task.setvariable variable=RESOLVED_ACCOUNTDISTRIBUTIONS_BASE_URL]$(TSASILO_accountdistributions_base_url)"
                     echo "##vso[task.setvariable variable=RESOLVED_LEXISNEXIS_BASE_URL]$(TSASILO_lexisnexis_base_url)"
+                    echo "##vso[task.setvariable variable=RESOLVED_DOCUSIGN_BASE_URL]$(TSASILO_docusign_base_url)"
                     ;;
                   *)
                     echo "ERROR: Unknown environment: $SELECTED_ENV"
@@ -597,6 +600,7 @@ stages:
                     echo "##vso[task.setvariable variable=RESOLVED_WRAPTOKEN_BASE_URL]$(TSADEV_wraptoken_base_url)"
                     echo "##vso[task.setvariable variable=RESOLVED_ACCOUNTDISTRIBUTIONS_BASE_URL]$(TSADEV_accountdistributions_base_url)"
                     echo "##vso[task.setvariable variable=RESOLVED_LEXISNEXIS_BASE_URL]$(TSADEV_lexisnexis_base_url)"
+                    echo "##vso[task.setvariable variable=RESOLVED_DOCUSIGN_BASE_URL]$(TSADEV_docusign_base_url)"
                     echo "##vso[task.setvariable variable=RESOLVED_ACCOUNTDISTRIBUTIONS_BASE_URL]$(T10_accountdistributions_base_url)"
 
                     ;;
@@ -628,6 +632,7 @@ stages:
                 echo "RESOLVED_WRAPTOKEN_BASE_URL: $(RESOLVED_WRAPTOKEN_BASE_URL)"
                 echo "RESOLVED_ACCOUNTDISTRIBUTIONS_BASE_URL: $(RESOLVED_ACCOUNTDISTRIBUTIONS_BASE_URL)"
                 echo "RESOLVED_LEXISNEXIS_BASE_URL: $(RESOLVED_LEXISNEXIS_BASE_URL)"
+                echo "RESOLVED_DOCUSIGN_BASE_URL: $(RESOLVED_DOCUSIGN_BASE_URL)"
                 echo "=========================================="
           
           # - task: UsePythonVersion@0
@@ -725,6 +730,7 @@ stages:
               WORK_ITEM_NOTIFICATION_BASE_URL: $(RESOLVED_WORK_ITEM_NOTIFICATION_BASE_URL)
               ACCOUNTDISTRIBUTIONS_BASE_URL: $(RESOLVED_ACCOUNTDISTRIBUTIONS_BASE_URL)
               LEXISNEXIS_BASE_URL: $(RESOLVED_LEXISNEXIS_BASE_URL)
+              DOCUSIGN_BASE_URL: $(RESOLVED_DOCUSIGN_BASE_URL)
               API_TIMEOUT: $(api_timeout)
               API_RETRY_COUNT: $(api_retry_count)
             inputs:
@@ -784,6 +790,7 @@ stages:
               WORK_ITEM_NOTIFICATION_BASE_URL: $(RESOLVED_WORK_ITEM_NOTIFICATION_BASE_URL)
               ACCOUNTDISTRIBUTIONS_BASE_URL: $(RESOLVED_ACCOUNTDISTRIBUTIONS_BASE_URL)
               LEXISNEXIS_BASE_URL: $(RESOLVED_LEXISNEXIS_BASE_URL)
+              DOCUSIGN_BASE_URL: $(RESOLVED_DOCUSIGN_BASE_URL)
               API_TIMEOUT: $(api_timeout)
               API_RETRY_COUNT: $(api_retry_count)
               INFLUX_URL: $(influx_url)
