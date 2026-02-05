@@ -9,7 +9,7 @@
             "Functional"
         ],
         "mainURL": "{{base_url}}",
-        "endpoint": "/api/v1/OneTimeDistributionCode/reasons/{{retirementPlanType}}",
+        "endpoint": "/OneTimeDistributionCode/reasons/{{retirementPlanType}}",
         "method": "GET",
         "rpc_method": "",
         "graphql_query": "",
@@ -44,24 +44,24 @@
                 "log_differences": true
             }
         },
-        "test_data_file": "MoveMoneyAPI/data_driven/Data_accountdistributions_GET.csv",
+        "test_data_file": "AccountDistributions/data_driven/Data_accountdistributions_GET.csv",
         "db_query_timing": "none",
         "db_queries": {},
         "db_type": "",
         "db_connection_name": "",
-        "test_summary": "Test TC001: GET /api/v1/OneTimeDistributionCode/reasons/{{retirementPlanType}} [positive] (TC001)"
+        "test_summary": "Test TC001: GET /OneTimeDistributionCode/reasons/{{retirementPlanType}} [positive] (TC001)"
     },
     {
         "test_id": "TC004",
         "service_name": "accountdistributions",
         "workflow_mode": "parallel",
-        "test_name": "GET /api/v1/OneTimeDistributionCode/reasons [negative: missing retirementPlanType] (TC004)",
+        "test_name": "GET /OneTimeDistributionCode/reasons [negative: missing retirementPlanType] (TC004)",
         "protocol": "REST",
         "test_type": [
             "Negative"
         ],
         "mainURL": "{{base_url}}",
-        "endpoint": "/api/v1/OneTimeDistributionCode/reasons/ ",
+        "endpoint": "/OneTimeDistributionCode/reasons/ ",
         "method": "GET",
         "rpc_method": "",
         "graphql_query": "",
@@ -109,6 +109,6 @@
         "db_queries": {},
         "db_type": "",
         "db_connection_name": "",
-        "test_summary": "Test TC004: GET /api/v1/OneTimeDistributionCode/reasons/{{retirementPlanType}} [negative: missing retirementPlanType] (TC004)"
+        "test_summary": "Test TC004: GET /OneTimeDistributionCode/reasons/{{retirementPlanType}} [negative: missing retirementPlanType] (TC004)"
     }
 ]

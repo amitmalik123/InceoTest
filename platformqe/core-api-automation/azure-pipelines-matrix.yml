@@ -515,6 +515,8 @@ stages:
                     echo "##vso[task.setvariable variable=RESOLVED_WORK_ITEM_NOTIFICATION_BASE_URL]$(TSADEV_work_item_notification_base_url)"
                     echo "##vso[task.setvariable variable=RESOLVED_STRATEGIES_BASE_URL]$(TSADEV_strategies_base_url)"
                     echo "##vso[task.setvariable variable=RESOLVED_WRAPTOKEN_BASE_URL]$(TSADEV_wraptoken_base_url)"
+                    echo "##vso[task.setvariable variable=RESOLVED_LEXISNEXIS_BASE_URL]$(TSADEV_lexisnexis_base_url)"
+                    echo "##vso[task.setvariable variable=RESOLVED_DOCUSIGN_BASE_URL]$(T10_docusign_base_url)"
                     ;;
                   "TSATEST")
                     echo "##vso[task.setvariable variable=RESOLVED_PARTIES_BASE_URL]$(TSATEST_parties_base_url)"
@@ -527,6 +529,9 @@ stages:
                     echo "##vso[task.setvariable variable=RESOLVED_WORK_ITEM_NOTIFICATION_BASE_URL]$(TSATEST_work_item_notification_base_url)"
                     echo "##vso[task.setvariable variable=RESOLVED_STRATEGIES_BASE_URL]$(TSATEST_strategies_base_url)"
                     echo "##vso[task.setvariable variable=RESOLVED_WRAPTOKEN_BASE_URL]$(TSATEST_wraptoken_base_url)"
+                    echo "##vso[task.setvariable variable=RESOLVED_ACCOUNTDISTRIBUTIONS_BASE_URL]$(TSATEST_accountdistributions_base_url)"
+                    echo "##vso[task.setvariable variable=RESOLVED_LEXISNEXIS_BASE_URL]$(TSATEST_lexisnexis_base_url)"
+                    echo "##vso[task.setvariable variable=RESOLVED_DOCUSIGN_BASE_URL]$(T11_docusign_base_url)"
                     ;;
                   "TSASILO")
                     echo "##vso[task.setvariable variable=RESOLVED_PARTIES_BASE_URL]$(TSASILO_parties_base_url)"
@@ -541,7 +546,7 @@ stages:
                     echo "##vso[task.setvariable variable=RESOLVED_WRAPTOKEN_BASE_URL]$(TSASILO_wraptoken_base_url)"
                     ;;
                   *)
-                    echo "❌ ERROR: Unknown environment: $SELECTED_ENV"
+                    echo "ERROR: Unknown environment: $SELECTED_ENV"
                     echo "Defaulting to TSADEV variables"
                     echo "##vso[task.setvariable variable=RESOLVED_PARTIES_BASE_URL]$(TSADEV_parties_base_url)"
                     echo "##vso[task.setvariable variable=RESOLVED_ADDRESS_BASE_URL]$(TSADEV_address_base_url)"
@@ -553,6 +558,10 @@ stages:
                     echo "##vso[task.setvariable variable=RESOLVED_WORK_ITEM_NOTIFICATION_BASE_URL]$(TSADEV_work_item_notification_base_url)"
                     echo "##vso[task.setvariable variable=RESOLVED_STRATEGIES_BASE_URL]$(TSADEV_strategies_base_url)"
                     echo "##vso[task.setvariable variable=RESOLVED_WRAPTOKEN_BASE_URL]$(TSADEV_wraptoken_base_url)"
+                    echo "##vso[task.setvariable variable=RESOLVED_ACCOUNTDISTRIBUTIONS_BASE_URL]$(TSADEV_accountdistributions_base_url)"
+                    echo "##vso[task.setvariable variable=RESOLVED_LEXISNEXIS_BASE_URL]$(TSADEV_lexisnexis_base_url)"
+                    echo "##vso[task.setvariable variable=RESOLVED_DOCUSIGN_BASE_URL]$(T10_docusign_base_url)"
+
                     ;;
                 esac
                 
@@ -580,6 +589,9 @@ stages:
                 echo "RESOLVED_WORK_ITEM_NOTIFICATION_BASE_URL: $(RESOLVED_WORK_ITEM_NOTIFICATION_BASE_URL)"
                 echo "RESOLVED_STRATEGIES_BASE_URL: $(RESOLVED_STRATEGIES_BASE_URL)"
                 echo "RESOLVED_WRAPTOKEN_BASE_URL: $(RESOLVED_WRAPTOKEN_BASE_URL)"
+                echo "RESOLVED_ACCOUNTDISTRIBUTIONS_BASE_URL: $(RESOLVED_ACCOUNTDISTRIBUTIONS_BASE_URL)"
+                echo "RESOLVED_LEXISNEXIS_BASE_URL: $(RESOLVED_LEXISNEXIS_BASE_URL)"
+                echo "RESOLVED_DOCUSIGN_BASE_URL: $(RESOLVED_DOCUSIGN_BASE_URL)"
                 echo "=========================================="
           
           # - task: UsePythonVersion@0
@@ -675,6 +687,9 @@ stages:
               MOVEMONEY_BASE_URL: $(RESOLVED_MOVEMONEY_BASE_URL)
               SECURITIES_BASE_URL: $(RESOLVED_SECURITIES_BASE_URL)
               WORK_ITEM_NOTIFICATION_BASE_URL: $(RESOLVED_WORK_ITEM_NOTIFICATION_BASE_URL)
+              ACCOUNTDISTRIBUTIONS_BASE_URL: $(RESOLVED_ACCOUNTDISTRIBUTIONS_BASE_URL)
+              LEXISNEXIS_BASE_URL: $(RESOLVED_LEXISNEXIS_BASE_URL)
+              DOCUSIGN_BASE_URL: $(RESOLVED_DOCUSIGN_BASE_URL)
               API_TIMEOUT: $(api_timeout)
               API_RETRY_COUNT: $(api_retry_count)
             inputs:
@@ -732,6 +747,9 @@ stages:
               MOVEMONEY_BASE_URL: $(RESOLVED_MOVEMONEY_BASE_URL)
               SECURITIES_BASE_URL: $(RESOLVED_SECURITIES_BASE_URL)
               WORK_ITEM_NOTIFICATION_BASE_URL: $(RESOLVED_WORK_ITEM_NOTIFICATION_BASE_URL)
+              ACCOUNTDISTRIBUTIONS_BASE_URL: $(RESOLVED_ACCOUNTDISTRIBUTIONS_BASE_URL)
+              LEXISNEXIS_BASE_URL: $(RESOLVED_LEXISNEXIS_BASE_URL)
+              DOCUSIGN_BASE_URL: $(RESOLVED_DOCUSIGN_BASE_URL)
               API_TIMEOUT: $(api_timeout)
               API_RETRY_COUNT: $(api_retry_count)
               INFLUX_URL: $(influx_url)
