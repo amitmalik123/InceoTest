@@ -184,7 +184,7 @@ services:
     environments:
     - T10
     - T11
-    functionalTestArgs: --service-name docusignproxyservice --env {environment}
+    functionalTestArgs: --service-name DocusignProxyservice --env {environment}
     nonFunctionalTestArgs: --file testdata/DocusignProxyservice/testcases/TestCase_api_docusignproxy_v2_Envelope_envelopeId_custom_fields_GET.json --test_type Performance --env {environment} --headless -u 5 -r 1 -t 15s
     tags:
     - docusign
