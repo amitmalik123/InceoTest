@@ -104,7 +104,7 @@ api_endpoints:
     use_azure_auth: false  # Set to true to use Azure AD authentication
     azure_resource: "https://management.azure.com/"  # Azure resource for token generation
   
-  docusignproxyservice:
+  DocusignProxyservice:
     base_url: "${DOCUSIGN_BASE_URL}"
     auth_token: "${DOCUSIGN_AUTH_TOKEN}"
     timeout: 30

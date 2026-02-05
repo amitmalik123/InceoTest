@@ -174,7 +174,7 @@ services:
     - distributions
     - account
     priority: 2
-  docusignproxyservice:
+  DocusignProxyservice:
     displayName: Docusign Proxy Service
     enabled: true
     runOnPR: false
