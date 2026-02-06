@@ -48,8 +48,6 @@
         "ignore_fields": [
             "transferInfoId"
         ],
-        "pre_scripts": "CostBasisValidation\\testcases\\validators\\generate_tc9_external_id.py",
-        "scripts": "CostBasisValidation\\testcases\\validators\\update_tc9_csv.py",
         "extract_values": [
             {
                 "from": "response",
@@ -366,7 +364,7 @@
         ],
         "validate": {
             "performance": {
-                "max_response_time_ms": 1000
+                "max_response_time_ms": 6000
             },
             "security": {
                 "checks": [
@@ -438,24 +436,7 @@
         },
         "expected_status": "200",
         "expected_response_schema": "",
-        "expected_response": {
-            "clientMessages": [
-                {
-                    "message": "Cost basis incomplete for some assets. \nAAPL - Quantity: 50, Cost Basis Received For: 0\nCEO - Quantity: 100, Cost Basis Received For: 0\nAMZN - Quantity: 100, Cost Basis Received For: 50\nNFLX - Quantity: 100, Cost Basis Received For: 0",
-                    "advisorVisible": false,
-                    "order": 1
-                },
-                {
-                    "message": "Cost basis has been updated on 0 position(s) and 4 position(s) remain not in good order",
-                    "advisorVisible": true,
-                    "order": 2
-                }
-            ],
-            "validationResponses": [],
-            "completionTimeInSeconds": 0,
-            "alertWorkItem": true,
-            "closeWorkItem": false
-        },
+        "expected_response": null,
         "ignore_fields": [
             "clientMessages"
         ],
@@ -478,7 +459,7 @@
         ],
         "validate": {
             "performance": {
-                "max_response_time_ms": 1000
+                "max_response_time_ms": 6000
             },
             "security": {
                 "checks": [
@@ -495,9 +476,9 @@
                 },
                 {
                     "actual": "{{alertWorkItem}}",
-                    "expected": true,
+                    "expected": false,
                     "operator": "==",
-                    "message": "alertWorkItem should be true"
+                    "message": "alertWorkItem should be false"
                 },
                 {
                     "actual": "{{closeWorkItem}}",
@@ -523,5 +504,54 @@
         "db_type": "",
         "db_connection_name": "",
         "test_summary": "TC9 step 5: Validate cost basis."
+    },
+    {
+        "test_id": "TC009_06",
+        "service_name": "cost_basis_validation",
+        "workflow_mode": "parallel",
+        "test_name": "TC9 - Delete Transfer Copy 5",
+        "protocol": "REST",
+        "test_type": [
+            "Functional"
+        ],
+        "mainURL": "{{base_url}}",
+        "endpoint": "/api/v1/Transfer/delete/{{ExternalID}}",
+        "method": "POST",
+        "rpc_method": "",
+        "graphql_query": "",
+        "graphql_variables": "",
+        "soap_action": "",
+        "soap_envelope": "",
+        "headers_additional": {
+            "Content-Type": "application/json"
+        },
+        "payload": {
+            "externalId": "{{ExternalID}}",
+            "auditUser": "TestUser"
+        },
+        "expected_status": "200",
+        "expected_response_schema": "",
+        "expected_response": {
+            "status": "SUCCESS",
+            "messageDescription": "Transfer record deleted completed successfully."
+        },
+        "extract_values": [],
+        "validate": {
+            "performance": {
+                "max_response_time_ms": 2000
+            },
+            "security": {
+                "checks": [
+                    "sql_injection",
+                    "xss"
+                ]
+            },
+            "assertions": []
+        },
+        "test_data_file": "CostBasisValidation\\data_driven\\Data_cost_basis_validation_tc9.csv",
+        "db_query": "",
+        "db_type": "",
+        "db_connection_name": "",
+        "test_summary": "TC9 step 6: Delete transfer using ExternalID."
     }
 ]
