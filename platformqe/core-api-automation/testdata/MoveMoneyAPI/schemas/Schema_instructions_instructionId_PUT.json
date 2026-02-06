@@ -1,0 +1,23 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "type": "object",
+  "title": "PUT /instructions/{instructionId} Response Schema",
+  "description": "Response schema for PUT /instructions/{instructionId} - returns minimal response with instructionId and version",
+  "properties": {
+    "instructionId": {
+      "type": "string",
+      "format": "uuid",
+      "description": "Unique identifier for the instruction"
+    },
+    "version": {
+      "type": "integer",
+      "minimum": 1,
+      "description": "Record version number after update"
+    }
+  },
+  "required": [
+    "instructionId",
+    "version"
+  ],
+  "additionalProperties": false
+}

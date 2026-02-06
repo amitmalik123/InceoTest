@@ -1,0 +1,93 @@
+[
+    {
+        "test_id": "TC001",
+        "service_name": "parties",
+        "workflow_mode": "parallel",
+        "test_name": "Health check to determine if the service is healthy [positive] (TC001)",
+        "protocol": "REST",
+        "test_type": [
+            "Functional"
+        ],
+        "mainURL": "{{base_url}}",
+        "endpoint": "/health/ready",
+        "method": "GET",
+        "rpc_method": "",
+        "graphql_query": "",
+        "graphql_variables": "",
+        "soap_action": "",
+        "soap_envelope": "",
+        "headers_additional": {
+            "Content-Type": "application/json"
+        },
+        "payload": null,
+        "expected_status": "200",
+        "expected_response_schema": "parties/schemas/Schema_parties_Party_health_ready.json",
+        "expected_response": {
+            "status": "Healthy",
+            "checks": [
+                {
+                    "name": "BETAConnectivity",
+                    "status": "Healthy",
+                    "description": "Healthy"
+                },
+                {
+                    "name": "DatabaseConnectivity",
+                    "status": "Healthy",
+                    "description": "Healthy"
+                },
+                {
+                    "name": "ValidationServiceConnectivity",
+                    "status": "Healthy",
+                    "description": "Healthy"
+                }
+            ]
+        },
+        "ignore_fields": [
+            "id"
+        ],
+        "extract_values": [
+            {
+                "from": "response",
+                "key": "id",
+                "assign_to": ""
+            },
+            {
+                "from": "response",
+                "record_count": false,
+                "array_path": "",
+                "assign_to": ""
+            },
+            {
+                "from": "db_result",
+                "query": "",
+                "assign": [
+                    {
+                        "key": "",
+                        "assign_to": ""
+                    }
+                ]
+            }
+        ],
+        "validate": {
+            "performance": {
+                "max_response_time_ms": 5000
+            },
+            "security": {
+                "checks": [
+                    "sql_injection",
+                    "xss"
+                ]
+            }
+        },
+        "test_data_file": "",
+        "db_query_timing": "after_api",
+        "db_queries": {
+            "default": "",
+            "audit_query": ""
+        },
+        "db_type": "",
+        "db_connection_name": "",
+        "test_summary": "Test TC001: Health check to determine if the service is healthy [positive] (TC001)",
+        "test_scenario": "Test GET request to /health/ready for functional scenario validation."
+    }
+]

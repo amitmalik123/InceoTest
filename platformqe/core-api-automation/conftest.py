@@ -23,8 +23,7 @@ from datetime import datetime
 from framework.reporter.reporter import Reporter
 import yaml
 from dotenv import load_dotenv
-from influxdb_client import InfluxDBClient, Point
-from influxdb_client.client.write_api import SYNCHRONOUS
+from influxdb_client import Point  # Only Point needed for creating data points
 
 import urllib3
 urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
@@ -64,34 +63,41 @@ def _encode_banner_image():
 def push_results_to_influxdb(json_file_path):
     """Auto-push test results to InfluxDB after each test run
     
+    Uses centralized DatabaseClientFactory for connection management.
     Reads InfluxDB connection details from config file (db_connections.influxdb.default)
     """
     
     try:
-        # Load InfluxDB connection details from config
-        from framework.loaders.config_loader import get_config
-        config = get_config()
+        # Load config to check if InfluxDB is enabled
+        from framework.loaders.config_loader import get_config, substitute_env_vars
+        from framework.clients.db_client import DatabaseClientFactory
         
+        config = get_config()
         influx_config = config.get('db_connections', {}).get('influxdb', {}).get('default', {})
+        
+        # Substitute environment variables to check enabled flag
+        influx_config = substitute_env_vars(influx_config)
         
         if not influx_config:
             logger.error("[InfluxDB] No InfluxDB configuration found in config file (db_connections.influxdb.default)")
             return False
         
-        INFLUX_URL = influx_config.get('url')
-        INFLUX_TOKEN = influx_config.get('token')
-        INFLUX_ORG = influx_config.get('org')
-        INFLUX_BUCKET = influx_config.get('bucket')
+        # Check if InfluxDB push is enabled - skip silently if disabled
+        influx_enabled = influx_config.get('enabled', False)
+        if isinstance(influx_enabled, str):
+            influx_enabled = influx_enabled.lower() in ('true', '1', 'yes')
         
-        # Validate required fields
-        if not all([INFLUX_URL, INFLUX_TOKEN, INFLUX_ORG, INFLUX_BUCKET]):
-            missing = []
-            if not INFLUX_URL: missing.append('url')
-            if not INFLUX_TOKEN: missing.append('token')
-            if not INFLUX_ORG: missing.append('org')
-            if not INFLUX_BUCKET: missing.append('bucket')
-            logger.error(f"[InfluxDB] Missing required config fields: {', '.join(missing)}")
-            return False
+        if not influx_enabled:
+            logger.info("[InfluxDB] Push is disabled in config (enabled=false). Skipping.")
+            return True  # Return True to indicate graceful skip, not an error
+        
+        # Use centralized DatabaseClientFactory - handles env var substitution internally
+        influx_client = DatabaseClientFactory.get_client('influxdb', 'default', auto_connect=True)
+        
+        # Get connection details from the client
+        INFLUX_URL = influx_client.url
+        INFLUX_ORG = influx_client.org
+        INFLUX_BUCKET = influx_client.bucket
         
         logger.info(f"[InfluxDB] Using config: url={INFLUX_URL}, org={INFLUX_ORG}, bucket={INFLUX_BUCKET}")
         
@@ -100,9 +106,8 @@ def push_results_to_influxdb(json_file_path):
         with open(json_file_path, 'r') as f:
             data = json.load(f)
         
-        # Initialize InfluxDB client
-        client = InfluxDBClient(url=INFLUX_URL, token=INFLUX_TOKEN, org=INFLUX_ORG)
-        write_api = client.write_api(write_options=SYNCHRONOUS)
+        # Use the write_api from centralized client
+        write_api = influx_client.write_api
         
         logger.info(f"[Auto-Push] Connected to InfluxDB at {INFLUX_URL}")
         
@@ -206,8 +211,8 @@ def push_results_to_influxdb(json_file_path):
         logger.info(f"[Auto-Push]   - {len(results)} test result records")
         logger.info(f"[Auto-Push]   - {len(points) - len(results) - 1} validation stats records")
         
-        # Close the client
-        client.close()
+        # Note: Don't close the client here - DatabaseClientFactory manages connection pooling
+        # Use DatabaseClientFactory.close_all() at session end if needed
         return True
         
     except FileNotFoundError:
@@ -1490,18 +1495,67 @@ def pytest_runtest_makereport(item, call):
 reporter_instance = None
 session_start_time = None
 session_end_time = None
+_test_data_manager = None  # Global manager for test data setup/teardown
 
 def pytest_sessionstart(session):
-    global reporter_instance, session_start_time
+    global reporter_instance, session_start_time, _test_data_manager
     from datetime import datetime
     session_start_time = datetime.now().isoformat()
     if reporter_instance is None:
         reporter_instance = Reporter()
+    
+    # Trigger hooks for service-specific test data setup
+    service_name = session.config.getoption('--service-name', default=None)
+    if service_name:
+        try:
+            from framework.hooks.setup import TestDataManager
+            # Get environment from CLI, environment variable, or config (generic - no hard-coded default)
+            env = session.config.getoption('--env', default=None) or os.environ.get('ENV_NAME')
+            if not env:
+                # Fallback to config environment if available
+                from framework.loaders.config_loader import get_config
+                config = get_config()
+                env = config.get('environment', 'test')
+            
+            logger.info(f"Triggering hooks for service: {service_name}, environment: {env}")
+            _test_data_manager = TestDataManager(service_name, environment=env)
+            success = _test_data_manager.setup()
+            
+            # Store setup results in session config for access by fixtures
+            session.config._test_data_setup_results = {
+                'success': success,
+                'service': service_name,
+                'environment': env
+            }
+            
+            if success:
+                logger.info(f"✅ Hooks completed successfully for {service_name}")
+            else:
+                logger.warning(f"⚠️ Hooks completed with warnings for {service_name}")
+        except Exception as e:
+            logger.error(f"Failed to run hooks for {service_name}: {e}")
 
 def pytest_sessionfinish(session, exitstatus):
-    global reporter_instance, session_end_time
+    global reporter_instance, session_end_time, _test_data_manager
     from datetime import datetime
     session_end_time = datetime.now().isoformat()
+    
+    # Cleanup test data created by hooks
+    if _test_data_manager and hasattr(session.config, '_test_data_setup_results'):
+        service_name = session.config._test_data_setup_results.get('service')
+        logger.info(f"Running teardown/cleanup for {service_name}")
+        try:
+            from framework.hooks.teardown import CleanupManager
+            created_data = _test_data_manager.created_data if hasattr(_test_data_manager, 'created_data') else []
+            
+            if created_data:
+                cleanup = CleanupManager(service_name, created_data=created_data)
+                cleanup.teardown()
+                logger.info(f"✅ Cleanup completed for {service_name}")
+            else:
+                logger.info(f"No test data to cleanup for {service_name}")
+        except Exception as e:
+            logger.warning(f"Failed to cleanup test data for {service_name}: {e}")
     
     # Archive previous pytest_session.log
     archive_pytest_session_log()
@@ -1649,3 +1703,51 @@ def pytest_sessionfinish(session, exitstatus):
     logging.shutdown()
     
     # All report writing is now handled by Reporter instance, which writes only to the timestamped directory.
+
+
+# ============================================================================
+# TEST DATA FIXTURES
+# ============================================================================
+
+@pytest.fixture(scope="session")
+def test_data_setup_results(request):
+    """
+    Provides access to test data setup results from hooks.
+    Can be used by tests to get information about the setup operation.
+    
+    Returns:
+        dict: Setup results with keys: success, service, environment
+    """
+    return getattr(request.config, '_test_data_setup_results', {})
+
+
+@pytest.fixture(scope="session")
+def test_data_manager():
+    """
+    Provides access to the TestDataManager instance.
+    Useful for tests that need to access created test data.
+    
+    Returns:
+        TestDataManager: The manager instance used for setup
+    """
+    global _test_data_manager
+    return _test_data_manager
+
+
+@pytest.fixture(scope="session")
+def created_test_data_ids(test_data_manager):
+    """
+    Provides a list of IDs created during setup via hooks.
+    
+    Usage:
+        def test_something(created_test_data_ids):
+            for item_id in created_test_data_ids:
+                # use item_id in test
+    
+    Returns:
+        list: List of created item IDs
+    """
+    if not test_data_manager or not hasattr(test_data_manager, 'created_data'):
+        return []
+    
+    return [item.get('id') for item in test_data_manager.created_data if item.get('id')]

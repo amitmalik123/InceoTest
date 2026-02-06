@@ -20,8 +20,8 @@ services:
   parties:
     displayName: Parties API
     enabled: true
-    runOnPR: true
-    runOnPush: true
+    runOnPR: false
+    runOnPush: false
     runOnSchedule: true
     testType: functional
     environments:
@@ -37,10 +37,10 @@ services:
     priority: 1
   movemoney:
     displayName: Move Money API
-    enabled: false
+    enabled: true
     runOnPR: false
     runOnPush: false
-    runOnSchedule: false
+    runOnSchedule: true
     testType: functional
     environments:
     - TSADEV
@@ -55,10 +55,10 @@ services:
     priority: 1
   securities:
     displayName: Securities Hub
-    enabled: false
+    enabled: true
     runOnPR: false
     runOnPush: false
-    runOnSchedule: false
+    runOnSchedule: true
     testType: functional
     environments:
     - TSADEV
@@ -73,10 +73,10 @@ services:
     priority: 2
   hnebase:
     displayName: HNE Base API
-    enabled: false
+    enabled: true
     runOnPR: false
     runOnPush: false
-    runOnSchedule: false
+    runOnSchedule: true
     testType: functional
     environments:
     - TSADEV
@@ -90,10 +90,10 @@ services:
     priority: 3
   models:
     displayName: Models API
-    enabled: false
+    enabled: true
     runOnPR: false
     runOnPush: false
-    runOnSchedule: false
+    runOnSchedule: true
     testType: functional
     environments:
     - TSADEV
@@ -107,10 +107,10 @@ services:
     priority: 3
   addressservice:
     displayName: Address Service
-    enabled: false
+    enabled: true
     runOnPR: false
     runOnPush: false
-    runOnSchedule: false
+    runOnSchedule: true
     testType: functional
     environments:
     - TSADEV
@@ -124,10 +124,10 @@ services:
     priority: 3
   analytics:
     displayName: Analytics API
-    enabled: false
+    enabled: true
     runOnPR: false
     runOnPush: false
-    runOnSchedule: false
+    runOnSchedule: true
     testType: functional
     environments:
     - TSADEV
@@ -139,6 +139,57 @@ services:
     - analytics
     - low-priority
     priority: 3
+  lexisnexiscipproxyservice:
+    displayName: LexisNexis CIP Proxy Service
+    enabled: true
+    runOnPR: false
+    runOnPush: false
+    runOnSchedule: true
+    testType: functional
+    environments:
+    - TSADEV
+    - TSATEST
+    - TSASILO
+    functionalTestArgs: --service-name lexisnexiscipproxyservice --env {environment}
+    nonFunctionalTestArgs: --file testdata/lexisnexiscipproxyservice/testcases/TestCase_cip_business_POST.json --test_type Performance --env {environment} --headless -u 5 -r 1 -t 15s
+    tags:
+    - lexisnexis
+    - cip
+    - compliance
+    priority: 2
+  accountdistributions:
+    displayName: Account Distributions
+    enabled: true
+    runOnPR: false
+    runOnPush: false
+    runOnSchedule: true
+    testType: functional
+    environments:
+    - TSADEV
+    - TSATEST
+    - TSASILO
+    functionalTestArgs: --service-name accountdistributions --env {environment}
+    nonFunctionalTestArgs: --file testdata/AccountDistributions/testcases/TestCase_api_v1_OneTimeDistributionCode_reasons_retirementPlanType_GET.json --test_type Performance --env {environment} --headless -u 5 -r 1 -t 15s
+    tags:
+    - distributions
+    - account
+    priority: 2
+  DocusignProxyservice:
+    displayName: Docusign Proxy Service
+    enabled: true
+    runOnPR: false
+    runOnPush: false
+    runOnSchedule: true
+    testType: functional
+    environments:
+    - T10
+    - T11
+    functionalTestArgs: --service-name DocusignProxyservice --env {environment}
+    nonFunctionalTestArgs: --file testdata/DocusignProxyservice/testcases/TestCase_api_docusignproxy_v2_Envelope_envelopeId_custom_fields_GET.json --test_type Performance --env {environment} --headless -u 5 -r 1 -t 15s
+    tags:
+    - docusign
+    - proxy
+    priority: 2
 global:
   defaultPool:
     name: ewm20-docker-build-agent-inc-dev

@@ -273,11 +273,43 @@ def push_to_infux(report_filename: str = None) -> bool:
                     if 'validation_stats' in result:
                         vstats = result['validation_stats']
                         if isinstance(vstats, dict):
-                            # Add aggregated validation counts for each check type
-                            contract = vstats.get('contract_checks', {})
-                            security = vstats.get('security_checks', {})
-                            performance = vstats.get('performance_checks', {})
+                            # Status Code Checks - field names match dashboard queries
+                            status_code = vstats.get('status_code_checks', {})
+                            point.field("status_code_checks_total", int(status_code.get('total', 0)))
+                            point.field("status_code_checks_passed", int(status_code.get('passed', 0)))
+                            point.field("status_code_checks_failed", int(status_code.get('failed', 0)))
                             
+                            # Assertions
+                            assertions = vstats.get('assertions', {})
+                            point.field("assertions_total", int(assertions.get('total', 0)))
+                            point.field("assertions_passed", int(assertions.get('passed', 0)))
+                            point.field("assertions_failed", int(assertions.get('failed', 0)))
+                            
+                            # Contract Checks
+                            contract = vstats.get('contract_checks', {})
+                            point.field("contract_checks_total", int(contract.get('total', 0)))
+                            point.field("contract_checks_passed", int(contract.get('passed', 0)))
+                            point.field("contract_checks_failed", int(contract.get('failed', 0)))
+                            
+                            # Data Comparisons
+                            data_comparisons = vstats.get('data_comparisons', {})
+                            point.field("data_comparisons_total", int(data_comparisons.get('total', 0)))
+                            point.field("data_comparisons_passed", int(data_comparisons.get('passed', 0)))
+                            point.field("data_comparisons_failed", int(data_comparisons.get('failed', 0)))
+                            
+                            # Security Checks
+                            security = vstats.get('security_checks', {})
+                            point.field("security_checks_total", int(security.get('total', 0)))
+                            point.field("security_checks_passed", int(security.get('passed', 0)))
+                            point.field("security_checks_failed", int(security.get('failed', 0)))
+                            
+                            # Performance Checks
+                            performance = vstats.get('performance_checks', {})
+                            point.field("performance_checks_total", int(performance.get('total', 0)))
+                            point.field("performance_checks_passed", int(performance.get('passed', 0)))
+                            point.field("performance_checks_failed", int(performance.get('failed', 0)))
+                            
+                            # Keep backward compatibility fields
                             point.field("validation_contract_total", int(contract.get('total', 0)))
                             point.field("validation_contract_passed", int(contract.get('passed', 0)))
                             point.field("validation_security_total", int(security.get('total', 0)))

@@ -21,26 +21,30 @@
         },
         "payload": null,
         "expected_status": "200",
-        "expected_response_schema": "",
+        "expected_response_schema": "MoveMoneyAPI\\schemas\\Schema_instructions_GET.json",
         "expected_response": null,
         "ignore_fields": [
-            "id"
+            "id",
+            "traceId",
+            "timestamp",
+            "createdDate",
+            "modifiedDate"
         ],
         "extract_values": [
             {
                 "from": "response",
-                "key": "id",
-                "assign_to": ""
+                "key": "page",
+                "assign_to": "response_page"
             },
             {
-                "from": "db_result",
-                "query": "",
-                "assign": [
-                    {
-                        "key": "",
-                        "assign_to": ""
-                    }
-                ]
+                "from": "response",
+                "key": "pageSize",
+                "assign_to": "response_pageSize"
+            },
+            {
+                "from": "response",
+                "key": "total",
+                "assign_to": "response_total"
             }
         ],
         "validate": {
@@ -53,24 +57,37 @@
                     "xss"
                 ]
             },
-            "data_comparison": {
-                "source": "api_response",
-                "target": "db_result",
-                "format": "table",
-                "key_field": [
-                    "",
-                    ""
-                ],
-                "fields_to_compare": [],
-                "log_differences": true
-            }
+            "data_comparison": [],
+            "assertions": [
+                {
+                    "actual": "{{response_page}}",
+                    "expected": 0,
+                    "operator": ">",
+                    "message": "Page number should be greater than 0"
+                },
+                {
+                    "actual": "{{response_pageSize}}",
+                    "expected": 0,
+                    "operator": ">",
+                    "message": "Page size should be greater than 0"
+                },
+                {
+                    "actual": "{{response_total}}",
+                    "expected": 0,
+                    "operator": ">=",
+                    "message": "Total should be greater than or equal to 0"
+                }
+            ]
         },
         "test_data_file": "",
-        "db_query": "",
+        "db_query_timing": "after_api",
+        "db_queries": {
+            "default": "",
+            "audit_query": ""
+        },
         "db_type": "",
         "db_connection_name": "",
-        "test_summary": "Test TC001: GET /instructions [positive] (TC001) -  Validate that the API returns the 200 successful reponse without filters.",
-        "test_scenario": "Test GET request to /instructions for functional scenario validation."
+        "test_summary": "Test TC001: GET /instructions [positive] (TC001) -  Validate that the API returns the 200 successful reponse without filters."
     },
     {
         "test_id": "TC002",
@@ -97,23 +114,27 @@
         "expected_response_schema": "",
         "expected_response": null,
         "ignore_fields": [
-            "id"
+            "id",
+            "traceId",
+            "timestamp",
+            "createdDate",
+            "modifiedDate"
         ],
         "extract_values": [
             {
                 "from": "response",
-                "key": "id",
-                "assign_to": ""
+                "key": "page",
+                "assign_to": "response_page"
             },
             {
-                "from": "db_result",
-                "query": "",
-                "assign": [
-                    {
-                        "key": "",
-                        "assign_to": ""
-                    }
-                ]
+                "from": "response",
+                "key": "pageSize",
+                "assign_to": "response_pageSize"
+            },
+            {
+                "from": "response",
+                "key": "total",
+                "assign_to": "response_total"
             }
         ],
         "validate": {
@@ -126,24 +147,37 @@
                     "xss"
                 ]
             },
-            "data_comparison": {
-                "source": "api_response",
-                "target": "db_result",
-                "format": "table",
-                "key_field": [
-                    "",
-                    ""
-                ],
-                "fields_to_compare": [],
-                "log_differences": true
-            }
+            "data_comparison": [],
+            "assertions": [
+                {
+                    "actual": "{{response_page}}",
+                    "expected": 0,
+                    "operator": ">",
+                    "message": "Page number should be greater than 0"
+                },
+                {
+                    "actual": "{{response_pageSize}}",
+                    "expected": 0,
+                    "operator": ">",
+                    "message": "Page size should be greater than 0"
+                },
+                {
+                    "actual": "{{response_total}}",
+                    "expected": 0,
+                    "operator": ">=",
+                    "message": "Total should be greater than or equal to 0"
+                }
+            ]
         },
         "test_data_file": "",
-        "db_query": "",
+        "db_query_timing": "after_api",
+        "db_queries": {
+            "default": "",
+            "audit_query": ""
+        },
         "db_type": "",
         "db_connection_name": "",
-        "test_summary": "Test TC002: GET /moneymovement/instructions [positive] (TC002) -  Validate that the API returns the 200 successful response with more than one account id.",
-        "test_scenario": "Validate that the API returns the 200 successful response with more than one account id in the GET request to /moneymovement/instructions."
+        "test_summary": "Test TC002: GET /moneymovement/instructions [positive] (TC002) -  Validate that the API returns the 200 successful response with more than one account id."
     },
     {
         "test_id": "TC003",
@@ -170,23 +204,27 @@
         "expected_response_schema": "",
         "expected_response": null,
         "ignore_fields": [
-            "id"
+            "id",
+            "traceId",
+            "timestamp",
+            "createdDate",
+            "modifiedDate"
         ],
         "extract_values": [
             {
                 "from": "response",
-                "key": "id",
-                "assign_to": ""
+                "key": "page",
+                "assign_to": "response_page"
             },
             {
-                "from": "db_result",
-                "query": "",
-                "assign": [
-                    {
-                        "key": "",
-                        "assign_to": ""
-                    }
-                ]
+                "from": "response",
+                "key": "pageSize",
+                "assign_to": "response_pageSize"
+            },
+            {
+                "from": "response",
+                "key": "total",
+                "assign_to": "response_total"
             }
         ],
         "validate": {
@@ -199,24 +237,37 @@
                     "xss"
                 ]
             },
-            "data_comparison": {
-                "source": "api_response",
-                "target": "db_result",
-                "format": "table",
-                "key_field": [
-                    "",
-                    ""
-                ],
-                "fields_to_compare": [],
-                "log_differences": true
-            }
+            "data_comparison": [],
+            "assertions": [
+                {
+                    "actual": "{{response_page}}",
+                    "expected": 0,
+                    "operator": ">",
+                    "message": "Page number should be greater than 0"
+                },
+                {
+                    "actual": "{{response_pageSize}}",
+                    "expected": 0,
+                    "operator": ">",
+                    "message": "Page size should be greater than 0"
+                },
+                {
+                    "actual": "{{response_total}}",
+                    "expected": 0,
+                    "operator": ">=",
+                    "message": "Total should be greater than or equal to 0"
+                }
+            ]
         },
         "test_data_file": "",
-        "db_query": "",
+        "db_query_timing": "after_api",
+        "db_queries": {
+            "default": "",
+            "audit_query": ""
+        },
         "db_type": "",
         "db_connection_name": "",
-        "test_summary": "Test TC003: GET /moneymovement/instructions [positive] (TC003) -  Validate that the API returns the 200 successful response with more than one railTypes.",
-        "test_scenario": "Validate that the API returns the 200 successful response with more than one railTypes in the GET request to /moneymovement/instructions."
+        "test_summary": "Test TC003: GET /moneymovement/instructions [positive] (TC003) -  Validate that the API returns the 200 successful response with more than one railTypes."
     },
     {
         "test_id": "TC004",
@@ -247,23 +298,25 @@
             "fields": "AccountId"
         },
         "ignore_fields": [
-            "id"
+            "id",
+            "traceId",
+            "timestamp"
         ],
         "extract_values": [
             {
                 "from": "response",
-                "key": "id",
-                "assign_to": ""
+                "key": "status",
+                "assign_to": "error_status"
             },
             {
-                "from": "db_result",
-                "query": "",
-                "assign": [
-                    {
-                        "key": "",
-                        "assign_to": ""
-                    }
-                ]
+                "from": "response",
+                "key": "fields",
+                "assign_to": "error_fields"
+            },
+            {
+                "from": "response",
+                "key": "error",
+                "assign_to": "error_message"
             }
         ],
         "validate": {
@@ -276,24 +329,37 @@
                     "xss"
                 ]
             },
-            "data_comparison": {
-                "source": "api_response",
-                "target": "db_result",
-                "format": "table",
-                "key_field": [
-                    "",
-                    ""
-                ],
-                "fields_to_compare": [],
-                "log_differences": true
-            }
+            "data_comparison": [],
+            "assertions": [
+                {
+                    "actual": "{{error_status}}",
+                    "expected": 400,
+                    "operator": "==",
+                    "message": "Error status should be 400"
+                },
+                {
+                    "actual": "{{error_fields}}",
+                    "expected": "AccountId",
+                    "operator": "==",
+                    "message": "Error fields should indicate AccountId"
+                },
+                {
+                    "actual": "{{error_message}}",
+                    "expected": "",
+                    "operator": "!=",
+                    "message": "Error message should not be empty"
+                }
+            ]
         },
         "test_data_file": "",
-        "db_query": "",
+        "db_query_timing": "after_api",
+        "db_queries": {
+            "default": "",
+            "audit_query": ""
+        },
         "db_type": "",
         "db_connection_name": "",
-        "test_summary": "Test TC004: GET /moneymovement/instructions [negative] (TC004) - Validate that the API Returns the 400 reponse given invalid accountId.",
-        "test_scenario": "Test GET request to /moneymovement/instructions for negative scenario validation."
+        "test_summary": "Test TC004: GET /moneymovement/instructions [negative] (TC004) - Validate that the API Returns the 400 reponse given invalid accountId."
     },
     {
         "test_id": "TC005",
@@ -305,7 +371,7 @@
             "Negative"
         ],
         "mainURL": "{{base_url}}",
-        "endpoint": "/instructions?accountId=3fa85f64-5717-4562-b3fc-2c963f66afa6&status=Confirmed&railTypes=ACH",
+        "endpoint": "/instructions?accountId=3fa85f64-5717-4562-b3fc-2c963f66afa6&status=pending&railTypes=ACH",
         "method": "GET",
         "rpc_method": "",
         "graphql_query": "",
@@ -319,26 +385,8 @@
         "expected_status": "204",
         "expected_response_schema": "",
         "expected_response": null,
-        "ignore_fields": [
-            "id"
-        ],
-        "extract_values": [
-            {
-                "from": "response",
-                "key": "id",
-                "assign_to": ""
-            },
-            {
-                "from": "db_result",
-                "query": "",
-                "assign": [
-                    {
-                        "key": "",
-                        "assign_to": ""
-                    }
-                ]
-            }
-        ],
+        "ignore_fields": [],
+        "extract_values": [],
         "validate": {
             "performance": {
                 "max_response_time_ms": 500
@@ -349,24 +397,18 @@
                     "xss"
                 ]
             },
-            "data_comparison": {
-                "source": "api_response",
-                "target": "db_result",
-                "format": "table",
-                "key_field": [
-                    "",
-                    ""
-                ],
-                "fields_to_compare": [],
-                "log_differences": true
-            }
+            "data_comparison": [],
+            "assertions": []
         },
         "test_data_file": "",
-        "db_query": "",
+        "db_query_timing": "after_api",
+        "db_queries": {
+            "default": "",
+            "audit_query": ""
+        },
         "db_type": "",
         "db_connection_name": "",
-        "test_summary": "Test TC005: GET /moneymovement/instructions [negative] (TC005) - Verify that the API Returns the 204 No MMI's match the provided filter.",
-        "test_scenario": "Verify that the API returns a 204 No Content response when no MMI's match the provided filter in the GET request to /moneymovement/instructions."
+        "test_summary": "Test TC005: GET /moneymovement/instructions [negative] (TC005) - Verify that the API Returns the 204 No MMI's match the provided filter."
     },
     {
         "test_id": "TC006",
@@ -397,23 +439,25 @@
             "fields": "RailTypes"
         },
         "ignore_fields": [
-            "id"
+            "id",
+            "traceId",
+            "timestamp"
         ],
         "extract_values": [
             {
                 "from": "response",
-                "key": "id",
-                "assign_to": ""
+                "key": "status",
+                "assign_to": "error_status"
             },
             {
-                "from": "db_result",
-                "query": "",
-                "assign": [
-                    {
-                        "key": "",
-                        "assign_to": ""
-                    }
-                ]
+                "from": "response",
+                "key": "fields",
+                "assign_to": "error_fields"
+            },
+            {
+                "from": "response",
+                "key": "error",
+                "assign_to": "error_message"
             }
         ],
         "validate": {
@@ -426,24 +470,37 @@
                     "xss"
                 ]
             },
-            "data_comparison": {
-                "source": "api_response",
-                "target": "db_result",
-                "format": "table",
-                "key_field": [
-                    "",
-                    ""
-                ],
-                "fields_to_compare": [],
-                "log_differences": true
-            }
+            "data_comparison": [],
+            "assertions": [
+                {
+                    "actual": "{{error_status}}",
+                    "expected": 400,
+                    "operator": "==",
+                    "message": "Error status should be 400"
+                },
+                {
+                    "actual": "{{error_fields}}",
+                    "expected": "RailTypes",
+                    "operator": "==",
+                    "message": "Error fields should indicate RailTypes"
+                },
+                {
+                    "actual": "{{error_message}}",
+                    "expected": "",
+                    "operator": "!=",
+                    "message": "Error message should not be empty"
+                }
+            ]
         },
         "test_data_file": "",
-        "db_query": "",
+        "db_query_timing": "after_api",
+        "db_queries": {
+            "default": "",
+            "audit_query": ""
+        },
         "db_type": "",
         "db_connection_name": "",
-        "test_summary": "Test TC006: GET /moneymovement/instructions [negative] (TC006) - Verify that the API Validate that the API Returns the 400 reponse given invalid railTypes.",
-        "test_scenario": "Verify that the API returns a 400 Bad Request error when invalid data is provided in the GET request to /moneymovement/instructions."
+        "test_summary": "Test TC006: GET /moneymovement/instructions [negative] (TC006) - Verify that the API Validate that the API Returns the 400 reponse given invalid railTypes."
     },
     {
         "test_id": "TC007",
@@ -474,23 +531,25 @@
             "fields": "Status"
         },
         "ignore_fields": [
-            "id"
+            "id",
+            "traceId",
+            "timestamp"
         ],
         "extract_values": [
             {
                 "from": "response",
-                "key": "id",
-                "assign_to": ""
+                "key": "status",
+                "assign_to": "error_status"
             },
             {
-                "from": "db_result",
-                "query": "",
-                "assign": [
-                    {
-                        "key": "",
-                        "assign_to": ""
-                    }
-                ]
+                "from": "response",
+                "key": "fields",
+                "assign_to": "error_fields"
+            },
+            {
+                "from": "response",
+                "key": "error",
+                "assign_to": "error_message"
             }
         ],
         "validate": {
@@ -503,24 +562,37 @@
                     "xss"
                 ]
             },
-            "data_comparison": {
-                "source": "api_response",
-                "target": "db_result",
-                "format": "table",
-                "key_field": [
-                    "",
-                    ""
-                ],
-                "fields_to_compare": [],
-                "log_differences": true
-            }
+            "data_comparison": [],
+            "assertions": [
+                {
+                    "actual": "{{error_status}}",
+                    "expected": 400,
+                    "operator": "==",
+                    "message": "Error status should be 400"
+                },
+                {
+                    "actual": "{{error_fields}}",
+                    "expected": "Status",
+                    "operator": "==",
+                    "message": "Error fields should indicate Status"
+                },
+                {
+                    "actual": "{{error_message}}",
+                    "expected": "",
+                    "operator": "!=",
+                    "message": "Error message should not be empty"
+                }
+            ]
         },
         "test_data_file": "",
-        "db_query": "",
+        "db_query_timing": "after_api",
+        "db_queries": {
+            "default": "",
+            "audit_query": ""
+        },
         "db_type": "",
         "db_connection_name": "",
-        "test_summary": "Test TC007: GET /moneymovement/instructions [negative] (TC007) - Verify that the API Validate that the API Returns the 400 reponse given invalid status types.",
-        "test_scenario": "Verify that the API returns a 400 Bad Request error when invalid data is provided in the GET request to /moneymovement/instructions."
+        "test_summary": "Verify that the API returns 400 response given invalid status types."
     },
     {
         "test_id": "TC008",
@@ -547,25 +619,11 @@
         "expected_response_schema": "",
         "expected_response": null,
         "ignore_fields": [
-            "id"
+            "id",
+            "traceId",
+            "timestamp"
         ],
-        "extract_values": [
-            {
-                "from": "response",
-                "key": "id",
-                "assign_to": ""
-            },
-            {
-                "from": "db_result",
-                "query": "",
-                "assign": [
-                    {
-                        "key": "",
-                        "assign_to": ""
-                    }
-                ]
-            }
-        ],
+        "extract_values": [],
         "validate": {
             "performance": {
                 "max_response_time_ms": 500
@@ -576,24 +634,17 @@
                     "xss"
                 ]
             },
-            "data_comparison": {
-                "source": "api_response",
-                "target": "db_result",
-                "format": "table",
-                "key_field": [
-                    "",
-                    ""
-                ],
-                "fields_to_compare": [],
-                "log_differences": true
-            }
+            "data_comparison": [],
+            "assertions": []
         },
         "test_data_file": "",
-        "db_query": "",
+        "db_query_timing": "after_api",
+        "db_queries": {
+            "default": "",
+            "audit_query": ""
+        },
         "db_type": "",
         "db_connection_name": "",
-        "test_summary": "Test TC008: GET /moneymovement/instructions [negative: error 500] (TC008) - Test GET request to /moneymovement/instructions for negative scenario validation.",
-        "error_case": "500",
-        "test_scenario": "Test GET request to /moneymovement/instructions for negative scenario validation."
+        "test_summary": "Verify that the API returns 500 Internal Server Error which would indicate a Server side crash."
     }
 ]

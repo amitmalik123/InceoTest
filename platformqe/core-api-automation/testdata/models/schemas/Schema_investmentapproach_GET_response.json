@@ -1,0 +1,23 @@
+{
+  "type": "array",
+  "items": {
+    "type": "object",
+    "required": ["id", "name", "isActive"],
+    "properties": {
+      "id": {
+        "type": "integer",
+        "format": "int32"
+      },
+      "name": {
+        "type": "string"
+      },
+      "isActive": {
+        "type": "boolean"
+      },
+      "modifiedBy": {
+        "type": "string",
+        "format": "uuid"
+      }
+    }
+  }
+}

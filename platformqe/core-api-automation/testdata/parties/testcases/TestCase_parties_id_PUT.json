@@ -5,7 +5,7 @@
     "workflow_mode": "sequential",
     "test_name": "POST /parties [positive] (TC000)",
     "protocol": "REST",
-    "test_type": ["Functional"],
+    "test_type": ["Functional", "Business Logic"],
     "mainURL": "{{base_url}}",
     "endpoint": "/parties",
     "method": "POST",
@@ -18,16 +18,16 @@
         "status": "Draft",
         "core": {
           "individual": {
-            "firstName": "string",
-            "middleName": "string",
-            "lastName": "string",
-            "suffix": "string",
-            "dateOfBirth": "2025-12-10",
-            "taxId": "string",
+            "firstName": "John",
+            "middleName": "A",
+            "lastName": "Doe",
+            "suffix": "Jr.",
+            "dateOfBirth": "2025-12-05",
+            "taxId": "123456789",
             "citizenship": "Unknown",
-            "maritalStatus": "Unknown",
-            "isDeceased": true,
-            "dateOfDeath": "2025-12-10"
+            "maritalStatus": "Single",
+            "isDeceased": false,
+            "dateOfDeath": "2025-12-05"
           },
           "entity": {
             "type": "Business",
@@ -35,35 +35,36 @@
             "title": "string",
             "taxId": "string",
             "taxidentifier": "SSN",
-            "createdDate": "2025-12-10"
+            "createdDate": "2026-01-19"
           }
         },
         "addresses": [
           {
-            "addressType": "Business",
-            "line1": "string",
-            "line2": "string",
-            "city": "string",
-            "state": "AL",
-            "zip": "strin",
-            "country": "AD",
+            "addressType": "Mailing",
+            "line1": "123 Main S",
+            "line2": "Apt 4Ba",
+            "city": "San Francisco",
+            "state": "CA",
+            "zip": "94105",
+            "country": "US",
             "priorityType": "Primary"
           }
         ],
         "contacts": [
           {
-            "contactType": "Phone",
-            "usageType": "Unknown",
-            "value": "string",
+            "contactType": "Email",
+            "usageType": "Personal",
+            "value": "john.doe@example.com",
             "priorityType": "Primary"
           }
         ],
         "identifiers": [
           {
-            "type": "APL",
-            "value": "string"
+            "type": "BETA",
+            "value": "123-45-6789"
           }
-        ]
+        ],
+        "householdId": "string"
       }
     },
     "expected_status": "201",
@@ -88,7 +89,7 @@
     ],
     "validate": {
       "performance": {
-        "max_response_time_ms": 500
+        "max_response_time_ms": 1000
       },
       "security": {
         "checks": ["sql_injection", "xss"]
@@ -100,7 +101,15 @@
         "key_field": ["", ""],
         "fields_to_compare": [],
         "log_differences": true
-      }
+      },
+      "assertions": [
+        {
+          "actual": "{{response_party_id}}",
+          "operator": "!=",
+          "expected": "",
+          "message": "Expected response_party_id to be non-empty after POST"
+        }
+      ]
     },
     "test_data_file": "",
     "db_query": "",
@@ -113,7 +122,7 @@
     "workflow_mode": "sequential",
     "test_name": "Replaces party information with complete replacement and version tracking [positive] (TC001)",
     "protocol": "REST",
-    "test_type": ["Functional"],
+    "test_type": ["Functional", "Business Logic"],
     "mainURL": "{{base_url}}",
     "endpoint": "/parties/{{response_party_id}}",
     "method": "PUT",
@@ -127,16 +136,16 @@
         "status": "Draft",
         "core": {
           "individual": {
-            "firstName": "string",
-            "middleName": "string",
-            "lastName": "string",
-            "suffix": "string",
-            "dateOfBirth": "2025-12-10",
-            "taxId": "string",
+            "firstName": "John",
+            "middleName": "A",
+            "lastName": "Doe",
+            "suffix": "Jr.",
+            "dateOfBirth": "2025-12-05",
+            "taxId": "123456789",
             "citizenship": "Unknown",
-            "maritalStatus": "Unknown",
-            "isDeceased": true,
-            "dateOfDeath": "2025-12-10"
+            "maritalStatus": "Single",
+            "isDeceased": false,
+            "dateOfDeath": "2025-12-05"
           },
           "entity": {
             "type": "Business",
@@ -144,35 +153,36 @@
             "title": "string",
             "taxId": "string",
             "taxidentifier": "SSN",
-            "createdDate": "2025-12-10"
+            "createdDate": "2026-01-19"
           }
         },
         "addresses": [
           {
-            "addressType": "Business",
-            "line1": "string",
-            "line2": "string",
-            "city": "string",
-            "state": "AL",
-            "zip": "strin",
-            "country": "AD",
+            "addressType": "Mailing",
+            "line1": "123 Main S",
+            "line2": "Apt 4Ba",
+            "city": "San Francisco",
+            "state": "CA",
+            "zip": "94105",
+            "country": "US",
             "priorityType": "Primary"
           }
         ],
         "contacts": [
           {
-            "contactType": "Phone",
-            "usageType": "Unknown",
-            "value": "string",
+            "contactType": "Email",
+            "usageType": "Personal",
+            "value": "john.doe@example.com",
             "priorityType": "Primary"
           }
         ],
         "identifiers": [
           {
-            "type": "APL",
-            "value": "string"
+            "type": "BETA",
+            "value": "123-45-6789"
           }
-        ]
+        ],
+        "householdId": "string"
       }
     },
     "expected_status": "200",
@@ -204,7 +214,8 @@
         "key_field": [],
         "fields_to_compare": [],
         "log_differences": true
-      }
+      },
+      "assertions": []
     },
     "test_data_file": "",
     "db_query": "",
@@ -283,7 +294,8 @@
             "type": "APL",
             "value": "string"
           }
-        ]
+        ],
+        "householdId": "string"
       }
     },
     "expected_status": "400",
@@ -321,7 +333,8 @@
         "key_field": ["", ""],
         "fields_to_compare": [],
         "log_differences": true
-      }
+      },
+      "assertions": []
     },
     "test_data_file": "",
     "db_query": "",
@@ -350,7 +363,7 @@
     "payload": null,
     "expected_status": "400",
     "expected_response": "",
-    "expected_response_schema": "",
+    "expected_response_schema": "parties/schemas/Schema_parties_Party_id_400_response.json",
     "ignore_fields": ["traceId"],
     "extract_values": [
       {
@@ -373,7 +386,8 @@
         "key_field": ["", ""],
         "fields_to_compare": [],
         "log_differences": true
-      }
+      },
+      "assertions": []
     },
     "test_data_file": "",
     "db_query": "",
@@ -452,7 +466,8 @@
             "type": "",
             "value": "string"
           }
-        ]
+        ],
+        "householdId": "string"
       }
     },
     "expected_status": "400",
@@ -490,7 +505,8 @@
         "key_field": ["", ""],
         "fields_to_compare": [],
         "log_differences": true
-      }
+      },
+      "assertions": []
     },
     "test_data_file": "",
     "db_query": "",

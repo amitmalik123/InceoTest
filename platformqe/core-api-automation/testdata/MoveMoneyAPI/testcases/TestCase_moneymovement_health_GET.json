@@ -1,0 +1,108 @@
+[
+    {
+        "test_id": "TC001",
+        "service_name": "MoveMoneyAPI",
+        "workflow_mode": "parallel",
+        "test_name": "GET /health [positive] (TC001)",
+        "protocol": "REST",
+        "test_type": [
+            "Functional"
+        ],
+        "mainURL": "{{base_url}}",
+        "endpoint": "/health",
+        "method": "GET",
+        "rpc_method": null,
+        "graphql_query": null,
+        "graphql_variables": null,
+        "soap_action": null,
+        "soap_envelope": null,
+        "headers_additional": {
+            "Content-Type": "application/json",
+            "Authorization": "Bearer {{auth_token}}"
+        },
+        "payload": null,
+        "expected_status": "200",
+        "expected_response_schema": null,
+        "expected_response": "Service is Alive",
+        "ignore_fields": [],
+        "extract_values": [],
+        "validate": {
+            "performance": {
+                "max_response_time_ms": 500
+            },
+            "security": {
+                "checks": [
+                    "sql_injection",
+                    "xss"
+                ]
+            },
+            "assertions": [],
+            "data_comparison": []
+        },
+        "test_data_file": "",
+        "db_query_timing": "after_api",
+        "db_queries": {
+            "default": "",
+            "audit_query": ""
+        },
+        "db_type": "",
+        "db_connection_name": "",
+        "test_summary": "Test TC001: Verify that the API returns 200 OK status with 'Service is Alive' response indicating the service is healthy when accessed with valid authentication."
+    },
+    {
+        "test_id": "TC002",
+        "service_name": "MoveMoneyAPI",
+        "workflow_mode": "parallel",
+        "test_name": "GET /health [negative: missing auth] (TC002)",
+        "protocol": "REST",
+        "test_type": [
+            "Negative"
+        ],
+        "mainURL": "{{base_url}}",
+        "endpoint": "/health",
+        "method": "GET",
+        "rpc_method": null,
+        "graphql_query": null,
+        "graphql_variables": null,
+        "soap_action": null,
+        "soap_envelope": null,
+        "headers_additional": {
+            "Content-Type": "application/json"
+        },
+        "payload": null,
+        "expected_status": "503",
+        "expected_response_schema": null,
+        "expected_response": "Service Unavailable",
+        "ignore_fields": [],
+        "extract_values": [],
+        "validate": {
+            "performance": {
+                "max_response_time_ms": 500
+            },
+            "security": {
+                "checks": [
+                    "sql_injection",
+                    "xss"
+                ]
+            },
+            "assertions": [
+                {
+                    "actual": "{{response_text}}",
+                    "expected": "Service Unavailable",
+                    "operator": "==",
+                    "message": "Health response should be 'Service Unavailable'"
+                }
+            ],
+            "data_comparison": []
+        },
+        "test_data_file": "",
+        "db_query_timing": "after_api",
+        "db_queries": {
+            "default": "",
+            "audit_query": ""
+        },
+        "db_type": "",
+        "db_connection_name": "",
+        "test_summary": "Verify that the API returns 503 Service Unavailable which would indicate the service is not available without authentication."
+    }
+]

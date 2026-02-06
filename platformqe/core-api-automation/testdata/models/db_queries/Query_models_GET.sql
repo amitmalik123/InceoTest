@@ -1,18 +1,11 @@
-SELECT id AS model_id,
-       name,
-       owner_id,
-       modified_by,
-       investment_min,
-       solution_type,
-       model_type,
-       custodian,
-       metadata,
-       to_char(
-            date_trunc('milliseconds', modified_date AT TIME ZONE 'UTC'),
-            'YYYY-MM-DD"T"HH24:MI:SS.FF4"Z"'
-        ) AS modified_date,
-       risk_profile,
-       -- Filter benchmark JSON to only include 'id' and 'name' fields, with camelCase keys
+SELECT
+    id                                           AS "model_id",
+    name                                              ,
+    model_type                                         ,
+    solution_type                                      ,
+    custodian                                          ,
+    investment_approach                               ,
+    -- Filter benchmark JSON to only include 'id' and 'name' fields, with camelCase keys
        COALESCE(
            (
                SELECT jsonb_agg(
@@ -31,50 +24,74 @@ SELECT id AS model_id,
            ),
            '[]'::jsonb
        ) AS benchmark,
-       investment_approach,
-       version,
-       status,
-       allocation_id AS allocationId,
-       -- Rebuild allocations JSON with camelCase keys, return NULL if null/empty
-       (
-           SELECT jsonb_agg(
-               jsonb_build_object(
-                   'cusip', alloc->>'Cusip',
-                   'ticker', alloc->>'Ticker',
-                   'weight', (alloc->>'Weight')::numeric,
-                   'modelId', alloc->>'ModelId',
-                   'entityType', alloc->>'EntityType',
-                   'allocationName', alloc->>'AllocationName',
-                   'allocations', (
-                       SELECT jsonb_agg(
-                           jsonb_build_object(
-                               'name', child->>'name',
-                               'weight', (child->>'weight')::numeric,
-                               'assetType', child->>'assetType',
-                               'assetClass', child->>'assetClass',
-                               'entityType', child->>'entityType',
-                               'assetSubClass', child->>'assetSubClass'
-                           )
-                       )
-                       FROM jsonb_array_elements(
-                           CASE 
-                               WHEN jsonb_typeof(alloc->'Allocations') = 'array' THEN alloc->'Allocations'
-                               ELSE '[]'::jsonb
-                           END
-                       ) AS child
-                   )
-               )
-           )
-           FROM jsonb_array_elements(
-               CASE 
-                   WHEN jsonb_typeof(allocations::jsonb) = 'array' THEN allocations::jsonb
-                   ELSE '[]'::jsonb
-               END
-           ) AS alloc
-       ) AS allocations,
-       model_active_modified_by,
-       to_char(
-            date_trunc('milliseconds', model_active_modified_date AT TIME ZONE 'UTC'),
-            'YYYY-MM-DD"T"HH24:MI:SS.FF5"Z"'
-        ) AS model_active_modified_date
-FROM public.vw_model;
+    investment_min                                    ,
+    risk_profile                                      ,
+   jsonb_build_object('ownerId', owner_id) AS owner ,
+    metadata                                           ,
+ 
+    jsonb_agg(
+        jsonb_build_object(
+            'version', version,
+            'status',  status,
+            'allocations',
+CASE
+    WHEN allocations IS NULL
+         OR jsonb_array_length(allocations) = 0
+    THEN '[]'::jsonb
+    ELSE (
+        SELECT jsonb_agg(
+            jsonb_build_object(
+                'cusip', alloc->>'Cusip',
+                'ticker', alloc->>'Ticker',
+               	'weight', (alloc->>'Weight')::numeric,
+                'modelId', alloc->>'ModelId',
+                'entityType', alloc->>'EntityType',
+                'allocationName', alloc->>'AllocationName',
+                'allocations', '[]'::jsonb
+            )
+        )
+        FROM jsonb_array_elements(allocations) AS alloc
+    )
+END,
+            'publishedDate',
+                CASE
+                    WHEN status = 'Published'
+                    THEN to_char(
+                        date_trunc('second', model_active_modified_date AT TIME ZONE 'UTC'),
+                        'YYYY-MM-DD"T"HH24:MI:SS'
+                    )
+                    ELSE NULL
+                END,
+            'modifiedDate', to_char(
+                date_trunc('second', model_active_modified_date AT TIME ZONE 'UTC'),
+                'YYYY-MM-DD"T"HH24:MI:SS'
+            ),
+            'modifiedBy',   model_active_modified_by,
+            'createdBy',    model_active_created_by
+        )
+        ORDER BY version
+    )                                                    AS versions,
+ 
+     to_char(
+            date_trunc('second', modified_date AT TIME ZONE 'UTC'),
+            'YYYY-MM-DD"T"HH24:MI:SS'
+        ) AS modifiedDate,                                
+   modified_by as     modifiedBy                             ,
+    created_by   as                 createdBy                  
+ 
+FROM public.vw_model m 
+GROUP BY
+    id,
+    name,
+    model_type,
+    solution_type,
+    custodian,
+    investment_approach,
+    benchmark,
+    investment_min,
+    risk_profile,
+    owner_id,
+    metadata,
+	 modified_date,
+	  modified_by,  
+	  created_by;
