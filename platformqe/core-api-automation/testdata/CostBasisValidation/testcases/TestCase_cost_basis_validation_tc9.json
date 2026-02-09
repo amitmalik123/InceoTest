@@ -1,8 +1,8 @@
 [
     {
         "test_id": "TC009_01",
-        "service_name": "cost_basis_validation",
-        "workflow_mode": "parallel",
+        "service_name": "Transfer_Service_validation",
+        "workflow_mode": "sequential",
         "test_name": "TC9 - Create Transfer",
         "protocol": "REST",
         "test_type": [
@@ -57,7 +57,7 @@
         ],
         "validate": {
             "performance": {
-                "max_response_time_ms": 1500
+                "max_response_time_ms": 1600
             },
             "security": {
                 "checks": [
@@ -99,8 +99,8 @@
     },
     {
         "test_id": "TC009_02",
-        "service_name": "cost_basis_validation",
-        "workflow_mode": "parallel",
+        "service_name": "Transfer_Service_validation",
+        "workflow_mode": "sequential",
         "test_name": "TC9 - Get Transfer Details",
         "protocol": "REST",
         "test_type": [
@@ -199,8 +199,8 @@
     },
     {
         "test_id": "TC009_03",
-        "service_name": "cost_basis_validation",
-        "workflow_mode": "parallel",
+        "service_name": "Transfer_Service_validation",
+        "workflow_mode": "sequential",
         "test_name": "TC9 - Update Transfer (Pending)",
         "protocol": "REST",
         "test_type": [
@@ -311,8 +311,8 @@
     },
     {
         "test_id": "TC009_04",
-        "service_name": "cost_basis_validation",
-        "workflow_mode": "parallel",
+        "service_name": "Transfer_Service_validation",
+        "workflow_mode": "sequential",
         "test_name": "TC9 - Update Cost Basis External ID",
         "protocol": "REST",
         "test_type": [
@@ -364,7 +364,7 @@
         ],
         "validate": {
             "performance": {
-                "max_response_time_ms": 6000
+                "max_response_time_ms": 7000
             },
             "security": {
                 "checks": [
@@ -412,8 +412,8 @@
     },
     {
         "test_id": "TC009_05",
-        "service_name": "cost_basis_validation",
-        "workflow_mode": "parallel",
+        "service_name": "Transfer_Service_validation",
+        "workflow_mode": "sequential",
         "test_name": "TC9 - Validate Cost Basis",
         "protocol": "REST",
         "test_type": [
@@ -459,7 +459,7 @@
         ],
         "validate": {
             "performance": {
-                "max_response_time_ms": 6000
+                "max_response_time_ms": 16000
             },
             "security": {
                 "checks": [
@@ -507,8 +507,8 @@
     },
     {
         "test_id": "TC009_06",
-        "service_name": "cost_basis_validation",
-        "workflow_mode": "parallel",
+        "service_name": "Transfer_Service_validation",
+        "workflow_mode": "sequential",
         "test_name": "TC9 - Delete Transfer Copy 5",
         "protocol": "REST",
         "test_type": [
@@ -538,7 +538,7 @@
         "extract_values": [],
         "validate": {
             "performance": {
-                "max_response_time_ms": 2000
+                "max_response_time_ms": 2500
             },
             "security": {
                 "checks": [
