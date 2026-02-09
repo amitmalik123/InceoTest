@@ -89,7 +89,7 @@ db_connections:
   influxdb:
     default:
       url: "http://azncc03perf.corp.local:8086"
-      token: "${INFLUXDB_TOKEN}" # Set via environment variable
+      token: "g5gf0ukY8fPdwaWynLviDLd0wz1l5snomLbip3t2IrQkeNNkiEFYECEHlcJLwsAPvv2Gx-op4ho6QcpVsCpdGQ=="
       org: "MF"
       bucket: "Platform_Automation"
       timeout: 10000 # Connection timeout in milliseconds
