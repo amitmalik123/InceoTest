@@ -114,7 +114,7 @@ api_endpoints:
     azure_resource: "https://management.azure.com/" # Azure resource for token generation
 
   # Account Distributions API - D13 Environment
-  AccountDistributions:
+  accountdistributions:
     base_url: "https://app-accountdistributions-dev.azurewebsites.net"
     swagger_url: "https://app-accountdistributions-dev.azurewebsites.net/swagger/accountdistributions/v1/swagger.json"
     auth_token: "${ACCOUNT_DISTRIBUTIONS_AUTH_TOKEN}"
@@ -140,5 +140,5 @@ feature_flags:
   enable_feature_x: true
 
   # Synced from .env
-env_name: "D13"
+env_name: "D11"
 appinsights_instrumentation_key: "your_instrumentation_key_here"

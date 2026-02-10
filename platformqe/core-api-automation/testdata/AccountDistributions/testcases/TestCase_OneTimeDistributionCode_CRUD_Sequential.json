@@ -1,336 +1,317 @@
 [
-    {
-        "test_id": "TC001_CREATE",
-        "service_name": "AccountDistributions",
-        "workflow_mode": "sequential",
-        "distribution_code_value": "QCD7",
-        "test_name": "POST /api/v1/OneTimeDistributionCode/create - Create new distribution code with wirePurpose",
-        "protocol": "REST",
-        "test_type": [
-            "Functional"
-        ],
-        "mainURL": "{{base_url}}",
-        "endpoint": "/api/v1/OneTimeDistributionCode/create",
-        "method": "POST",
-        "rpc_method": "",
-        "graphql_query": "",
-        "graphql_variables": "",
-        "soap_action": "",
-        "soap_envelope": "",
-        "headers_additional": {
-            "Content-Type": "application/json"
-        },
-        "payload": {
-            "auditUser": "PRODENG-17304",
-            "createdBy": "PRODENG-17304",
-            "retirementPlanType": "RO",
-            "description": "QUALIFIED CHARITABLE DISTRIBUTION",
-            "distributionCode": "{{distribution_code_value}}",
-            "minimumAgeThreshold": 0.0,
-            "maximumAgeThreshold": 999.99,
-            "wirePurpose": "QUALIFIED CHARITABLE DISTRIBUTION"
-        },
-        "expected_status": "201",
-        "expected_response_schema": "",
-        "expected_response": null,
-        "ignore_fields": [],
-        "extract_values": [],
-        "validate": {
-            "performance": {
-                "max_response_time_ms": 5000
-            },
-            "security": {
-                "checks": [
-                    "sql_injection",
-                    "xss"
-                ]
-            },
-            "data_comparison": [
-                {
-                    "source": "api_request",
-                    "target": "db_result",
-                    "target_query": "default",
-                    "format": "table",
-                    "key_field": [
-                        {
-                            "source": "distributionCode",
-                            "target": "DistributionCode"
-                        }
-                    ],
-                    "fields_to_compare": [
-                        {
-                            "source": "wirePurpose",
-                            "target": "WirePurpose"
-                        },
-                        {
-                            "source": "description",
-                            "target": "Description"
-                        },
-                        {
-                            "source": "retirementPlanType",
-                            "target": "RetirementPlanType"
-                        }
-                    ],
-                    "log_differences": true,
-                    "comparison_name": "Request vs DB View - Verify wirePurpose persistence"
-                }
-            ]
-        },
-        "test_data_file": "",
-        "db_query_timing": "after_api",
-        "db_queries": {
-            "default": "SELECT TOP 1 * FROM [dbo].[OneTimeDistributionCode] WHERE DistributionCode = '{{distribution_code_value}}' ORDER BY OneTimeDistributionCode_ID DESC"
-        },
-        "db_type": "mssql",
-        "db_connection_name": "account_distributions",
-        "test_summary": "Test TC001_CREATE: Create OneTimeDistributionCode with wirePurpose field and verify data persistence in DB"
+  {
+    "test_id": "TC001_CREATE",
+    "service_name": "accountdistributions",
+    "workflow_mode": "sequential",
+    "distribution_code_value": "QCD7",
+    "test_name": "POST /api/v1/OneTimeDistributionCode/create - Create new distribution code with wirePurpose",
+    "protocol": "REST",
+    "test_type": ["Functional"],
+    "mainURL": "{{base_url}}",
+    "endpoint": "/api/v1/OneTimeDistributionCode/create",
+    "method": "POST",
+    "rpc_method": "",
+    "graphql_query": "",
+    "graphql_variables": "",
+    "soap_action": "",
+    "soap_envelope": "",
+    "headers_additional": {
+      "Content-Type": "application/json"
     },
-    {
-        "test_id": "TC002_DB_FETCH",
-        "service_name": "AccountDistributions",
-        "workflow_mode": "sequential",
-        "distribution_code_value": "QCD7",
-        "test_name": "DB Query - Fetch created record data from database for UPDATE operation",
-        "protocol": "DB_ONLY",
-        "test_type": [
-            "Functional"
-        ],
-        "mainURL": "",
-        "endpoint": "",
-        "method": "",
-        "rpc_method": "",
-        "graphql_query": "",
-        "graphql_variables": "",
-        "soap_action": "",
-        "soap_envelope": "",
-        "headers_additional": {},
-        "payload": null,
-        "expected_status": "",
-        "expected_response_schema": "",
-        "expected_response": null,
-        "ignore_fields": [],
-        "extract_values": [
+    "payload": {
+      "auditUser": "PRODENG-17304",
+      "createdBy": "PRODENG-17304",
+      "retirementPlanType": "RO",
+      "description": "TESTCREATION",
+      "distributionCode": "{{distribution_code_value}}",
+      "minimumAgeThreshold": 0.0,
+      "maximumAgeThreshold": 999.99,
+      "wirePurpose": "TESTCREATION"
+    },
+    "expected_status": "201",
+    "expected_response_schema": "",
+    "expected_response": null,
+    "ignore_fields": [],
+    "extract_values": [],
+    "validate": {
+      "performance": {
+        "max_response_time_ms": 5000
+      },
+      "security": {
+        "checks": ["sql_injection", "xss"]
+      },
+      "data_comparison": [
+        {
+          "source": "api_request",
+          "target": "db_result",
+          "target_query": "default",
+          "format": "table",
+          "key_field": [
             {
-                "from": "db_result",
-                "key": "0.OneTimeDistributionCode_ID",
-                "assign_to": "created_id"
-            },
-            {
-                "from": "db_result",
-                "key": "0.RowVer",
-                "assign_to": "created_row_version"
-            },
-            {
-                "from": "db_result",
-                "key": "0.CreatedBy",
-                "assign_to": "created_by"
-            },
-            {
-                "from": "db_result",
-                "key": "0.CreatedDateTime",
-                "assign_to": "created_datetime"
-            },
-            {
-                "from": "db_result",
-                "key": "0.RetirementPlanType",
-                "assign_to": "created_retirement_plan_type"
-            },
-            {
-                "from": "db_result",
-                "key": "0.Description",
-                "assign_to": "created_description"
-            },
-            {
-                "from": "db_result",
-                "key": "0.DistributionCode",
-                "assign_to": "created_distribution_code"
-            },
-            {
-                "from": "db_result",
-                "key": "0.MinimumAgeThreshold",
-                "assign_to": "created_min_age"
-            },
-            {
-                "from": "db_result",
-                "key": "0.MaximumAgeThreshold",
-                "assign_to": "created_max_age"
+              "source": "distributionCode",
+              "target": "DistributionCode"
             }
-        ],
-        "validate": {},
-        "test_data_file": "",
-        "db_type": "mssql",
-        "db_connection_name": "account_distributions",
-        "db_query": "SELECT TOP 1 * FROM [dbo].[OneTimeDistributionCode] WHERE DistributionCode = '{{distribution_code_value}}' ORDER BY OneTimeDistributionCode_ID DESC",
-        "test_summary": "Test TC002_DB_FETCH: Fetch the created record from database to extract current values for UPDATE"
-    },
-    {
-        "test_id": "TC003_UPDATE",
-        "service_name": "AccountDistributions",
-        "workflow_mode": "sequential",
-        "distribution_code_value": "QCD7",
-        "test_name": "POST /api/v1/OneTimeDistributionCode/update - Update created distribution code with new wirePurpose",
-        "protocol": "REST",
-        "test_type": [
-            "Functional"
-        ],
-        "mainURL": "{{base_url}}",
-        "endpoint": "/api/v1/OneTimeDistributionCode/update",
-        "method": "POST",
-        "rpc_method": "",
-        "graphql_query": "",
-        "graphql_variables": "",
-        "soap_action": "",
-        "soap_envelope": "",
-        "headers_additional": {
-            "Content-Type": "application/json"
-        },
-        "payload": {
-            "oneTimeDistributionCode_ID": "{{created_id}}",
-            "auditUser": "PRODENG-17304",
-            "createdBy": "{{created_by}}",
-            "createdDateTime": "{{created_datetime}}",
-            "retirementPlanType": "{{created_retirement_plan_type}}",
-            "description": "{{created_description}}",
-            "wirePurpose": "QUALIFIED CHARITABLE DISTRIBUTION",
-            "distributionCode": "{{created_distribution_code}}",
-            "minimumAgeThreshold": "{{created_min_age}}",
-            "maximumAgeThreshold": "{{created_max_age}}",
-            "rowVersion": "{{created_row_version}}",
-            "force": false
-        },
-        "expected_status": "200",
-        "expected_response_schema": "",
-        "expected_response": null,
-        "ignore_fields": [],
-        "extract_values": [],
-        "validate": {
-            "performance": {
-                "max_response_time_ms": 5000
-            },
-            "security": {
-                "checks": [
-                    "sql_injection",
-                    "xss"
-                ]
-            },
-            "data_comparison": [
-                {
-                    "source": "api_request",
-                    "target": "db_result",
-                    "target_query": "default",
-                    "format": "table",
-                    "key_field": [
-                        {
-                            "source": "distributionCode",
-                            "target": "DistributionCode"
-                        }
-                    ],
-                    "fields_to_compare": [
-                        {
-                            "source": "wirePurpose",
-                            "target": "WirePurpose"
-                        }
-                    ],
-                    "log_differences": true,
-                    "comparison_name": "Request vs DB View - Verify updated wirePurpose"
-                }
-            ]
-        },
-        "test_data_file": "",
-        "db_query_timing": "after_api",
-        "db_queries": {
-            "default": "SELECT TOP 1 * FROM [dbo].[OneTimeDistributionCode] WHERE DistributionCode = '{{distribution_code_value}}' ORDER BY OneTimeDistributionCode_ID DESC"
-        },
-        "db_type": "mssql",
-        "db_connection_name": "account_distributions",
-        "test_summary": "Test TC003_UPDATE: Update OneTimeDistributionCode with new wirePurpose field and verify persistence"
-    },
-    {
-        "test_id": "TC004_DB_FETCH_FOR_DELETE",
-        "service_name": "AccountDistributions",
-        "workflow_mode": "sequential",
-        "distribution_code_value": "QCD7",
-        "test_name": "DB Query - Fetch updated record data from database for DELETE operation",
-        "protocol": "DB_ONLY",
-        "test_type": [
-            "Functional"
-        ],
-        "mainURL": "",
-        "endpoint": "",
-        "method": "",
-        "rpc_method": "",
-        "graphql_query": "",
-        "graphql_variables": "",
-        "soap_action": "",
-        "soap_envelope": "",
-        "headers_additional": {},
-        "payload": null,
-        "expected_status": "",
-        "expected_response_schema": "",
-        "expected_response": null,
-        "ignore_fields": [],
-        "extract_values": [
+          ],
+          "fields_to_compare": [
             {
-                "from": "db_result",
-                "key": "0.OneTimeDistributionCode_ID",
-                "assign_to": "created_id"
+              "source": "wirePurpose",
+              "target": "WirePurpose"
             },
             {
-                "from": "db_result",
-                "key": "0.RowVer",
-                "assign_to": "created_row_version"
-            }
-        ],
-        "validate": {},
-        "test_data_file": "",
-        "db_type": "mssql",
-        "db_connection_name": "account_distributions",
-        "db_query": "SELECT TOP 1 * FROM [dbo].[OneTimeDistributionCode] WHERE DistributionCode = '{{distribution_code_value}}' ORDER BY OneTimeDistributionCode_ID DESC",
-        "test_summary": "Test TC004_DB_FETCH_FOR_DELETE: Fetch the updated record from database to extract current RowVer for DELETE"
-    },
-    {
-        "test_id": "TC005_DELETE",
-        "service_name": "AccountDistributions",
-        "workflow_mode": "sequential",
-        "test_name": "POST /api/v1/OneTimeDistributionCode/delete - Delete created distribution code",
-        "protocol": "REST",
-        "test_type": [
-            "Functional"
-        ],
-        "mainURL": "{{base_url}}",
-        "endpoint": "/api/v1/OneTimeDistributionCode/delete",
-        "method": "POST",
-        "rpc_method": "",
-        "graphql_query": "",
-        "graphql_variables": "",
-        "soap_action": "",
-        "soap_envelope": "",
-        "headers_additional": {
-            "Content-Type": "application/json"
-        },
-        "payload": {
-            "oneTimeDistributionCode_ID": "{{created_id}}",
-            "auditUser": "PRODENG-17304",
-            "rowVersion": "{{created_row_version}}",
-            "force": true
-        },
-        "expected_status": "200",
-        "expected_response_schema": "",
-        "expected_response": null,
-        "ignore_fields": [],
-        "extract_values": [],
-        "validate": {
-            "performance": {
-                "max_response_time_ms": 5000
+              "source": "description",
+              "target": "Description"
             },
-            "security": {
-                "checks": [
-                    "sql_injection",
-                    "xss"
-                ]
+            {
+              "source": "retirementPlanType",
+              "target": "RetirementPlanType"
             }
-        },
-        "test_data_file": "",
-        "test_summary": "Test TC005_DELETE: Delete OneTimeDistributionCode and verify removal"
-    }
+          ],
+          "log_differences": true,
+          "comparison_name": "Request vs DB View - Verify wirePurpose persistence"
+        }
+      ]
+    },
+    "test_data_file": "",
+    "db_query_timing": "after_api",
+    "db_queries": {
+      "default": "SELECT TOP 1 * FROM [dbo].[OneTimeDistributionCode] WHERE DistributionCode = '{{distribution_code_value}}' ORDER BY OneTimeDistributionCode_ID DESC"
+    },
+    "db_type": "mssql",
+    "db_connection_name": "account_distributions",
+    "test_summary": "Test TC001_CREATE: Create OneTimeDistributionCode with wirePurpose field and verify data persistence in DB"
+  },
+  {
+    "test_id": "TC002_DB_FETCH",
+    "service_name": "accountdistributions",
+    "workflow_mode": "sequential",
+    "distribution_code_value": "QCD7",
+    "test_name": "DB Query - Fetch created record data from database for UPDATE operation",
+    "protocol": "DB_ONLY",
+    "test_type": ["Functional"],
+    "mainURL": "",
+    "endpoint": "",
+    "method": "",
+    "rpc_method": "",
+    "graphql_query": "",
+    "graphql_variables": "",
+    "soap_action": "",
+    "soap_envelope": "",
+    "headers_additional": {},
+    "payload": null,
+    "expected_status": "",
+    "expected_response_schema": "",
+    "expected_response": null,
+    "ignore_fields": [],
+    "extract_values": [
+      {
+        "from": "db_result",
+        "key": "0.OneTimeDistributionCode_ID",
+        "assign_to": "created_id"
+      },
+      {
+        "from": "db_result",
+        "key": "0.RowVer",
+        "assign_to": "created_row_version"
+      },
+      {
+        "from": "db_result",
+        "key": "0.CreatedBy",
+        "assign_to": "created_by"
+      },
+      {
+        "from": "db_result",
+        "key": "0.CreatedDateTime",
+        "assign_to": "created_datetime"
+      },
+      {
+        "from": "db_result",
+        "key": "0.RetirementPlanType",
+        "assign_to": "created_retirement_plan_type"
+      },
+      {
+        "from": "db_result",
+        "key": "0.Description",
+        "assign_to": "created_description"
+      },
+      {
+        "from": "db_result",
+        "key": "0.DistributionCode",
+        "assign_to": "created_distribution_code"
+      },
+      {
+        "from": "db_result",
+        "key": "0.MinimumAgeThreshold",
+        "assign_to": "created_min_age"
+      },
+      {
+        "from": "db_result",
+        "key": "0.MaximumAgeThreshold",
+        "assign_to": "created_max_age"
+      }
+    ],
+    "validate": {},
+    "test_data_file": "",
+    "db_type": "mssql",
+    "db_connection_name": "account_distributions",
+    "db_query": "SELECT TOP 1 * FROM [dbo].[OneTimeDistributionCode] WHERE DistributionCode = '{{distribution_code_value}}' ORDER BY OneTimeDistributionCode_ID DESC",
+    "test_summary": "Test TC002_DB_FETCH: Fetch the created record from database to extract current values for UPDATE"
+  },
+  {
+    "test_id": "TC003_UPDATE",
+    "service_name": "accountdistributions",
+    "workflow_mode": "sequential",
+    "distribution_code_value": "QCD7",
+    "test_name": "POST /api/v1/OneTimeDistributionCode/update - Update created distribution code with new wirePurpose",
+    "protocol": "REST",
+    "test_type": ["Functional"],
+    "mainURL": "{{base_url}}",
+    "endpoint": "/api/v1/OneTimeDistributionCode/update",
+    "method": "POST",
+    "rpc_method": "",
+    "graphql_query": "",
+    "graphql_variables": "",
+    "soap_action": "",
+    "soap_envelope": "",
+    "headers_additional": {
+      "Content-Type": "application/json"
+    },
+    "payload": {
+      "oneTimeDistributionCode_ID": "{{created_id}}",
+      "auditUser": "PRODENG-17304",
+      "createdBy": "{{created_by}}",
+      "createdDateTime": "{{created_datetime}}",
+      "retirementPlanType": "{{created_retirement_plan_type}}",
+      "description": "{{created_description}}",
+      "wirePurpose": "QUALIFIED CHARITABLE DISTRIBUTION",
+      "distributionCode": "{{created_distribution_code}}",
+      "minimumAgeThreshold": "{{created_min_age}}",
+      "maximumAgeThreshold": "{{created_max_age}}",
+      "rowVersion": "{{created_row_version}}",
+      "force": false
+    },
+    "expected_status": "200",
+    "expected_response_schema": "",
+    "expected_response": null,
+    "ignore_fields": [],
+    "extract_values": [],
+    "validate": {
+      "performance": {
+        "max_response_time_ms": 5000
+      },
+      "security": {
+        "checks": ["sql_injection", "xss"]
+      },
+      "data_comparison": [
+        {
+          "source": "api_request",
+          "target": "db_result",
+          "target_query": "default",
+          "format": "table",
+          "key_field": [
+            {
+              "source": "distributionCode",
+              "target": "DistributionCode"
+            }
+          ],
+          "fields_to_compare": [
+            {
+              "source": "wirePurpose",
+              "target": "WirePurpose"
+            }
+          ],
+          "log_differences": true,
+          "comparison_name": "Request vs DB View - Verify updated wirePurpose"
+        }
+      ]
+    },
+    "test_data_file": "",
+    "db_query_timing": "after_api",
+    "db_queries": {
+      "default": "SELECT TOP 1 * FROM [dbo].[OneTimeDistributionCode] WHERE DistributionCode = '{{distribution_code_value}}' ORDER BY OneTimeDistributionCode_ID DESC"
+    },
+    "db_type": "mssql",
+    "db_connection_name": "account_distributions",
+    "test_summary": "Test TC003_UPDATE: Update OneTimeDistributionCode with new wirePurpose field and verify persistence"
+  },
+  {
+    "test_id": "TC004_DB_FETCH_FOR_DELETE",
+    "service_name": "accountdistributions",
+    "workflow_mode": "sequential",
+    "distribution_code_value": "QCD7",
+    "test_name": "DB Query - Fetch updated record data from database for DELETE operation",
+    "protocol": "DB_ONLY",
+    "test_type": ["Functional"],
+    "mainURL": "",
+    "endpoint": "",
+    "method": "",
+    "rpc_method": "",
+    "graphql_query": "",
+    "graphql_variables": "",
+    "soap_action": "",
+    "soap_envelope": "",
+    "headers_additional": {},
+    "payload": null,
+    "expected_status": "",
+    "expected_response_schema": "",
+    "expected_response": null,
+    "ignore_fields": [],
+    "extract_values": [
+      {
+        "from": "db_result",
+        "key": "0.OneTimeDistributionCode_ID",
+        "assign_to": "created_id"
+      },
+      {
+        "from": "db_result",
+        "key": "0.RowVer",
+        "assign_to": "created_row_version"
+      }
+    ],
+    "validate": {},
+    "test_data_file": "",
+    "db_type": "mssql",
+    "db_connection_name": "account_distributions",
+    "db_query": "SELECT TOP 1 * FROM [dbo].[OneTimeDistributionCode] WHERE DistributionCode = '{{distribution_code_value}}' ORDER BY OneTimeDistributionCode_ID DESC",
+    "test_summary": "Test TC004_DB_FETCH_FOR_DELETE: Fetch the updated record from database to extract current RowVer for DELETE"
+  },
+  {
+    "test_id": "TC005_DELETE",
+    "service_name": "accountdistributions",
+    "workflow_mode": "sequential",
+    "test_name": "POST /api/v1/OneTimeDistributionCode/delete - Delete created distribution code",
+    "protocol": "REST",
+    "test_type": ["Functional"],
+    "mainURL": "{{base_url}}",
+    "endpoint": "/api/v1/OneTimeDistributionCode/delete",
+    "method": "POST",
+    "rpc_method": "",
+    "graphql_query": "",
+    "graphql_variables": "",
+    "soap_action": "",
+    "soap_envelope": "",
+    "headers_additional": {
+      "Content-Type": "application/json"
+    },
+    "payload": {
+      "oneTimeDistributionCode_ID": "{{created_id}}",
+      "auditUser": "PRODENG-17304",
+      "rowVersion": "{{created_row_version}}",
+      "force": true
+    },
+    "expected_status": "200",
+    "expected_response_schema": "",
+    "expected_response": null,
+    "ignore_fields": [],
+    "extract_values": [],
+    "validate": {
+      "performance": {
+        "max_response_time_ms": 5000
+      },
+      "security": {
+        "checks": ["sql_injection", "xss"]
+      }
+    },
+    "test_data_file": "",
+    "test_summary": "Test TC005_DELETE: Delete OneTimeDistributionCode and verify removal"
+  }
 ]
