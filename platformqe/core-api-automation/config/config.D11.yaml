@@ -24,7 +24,7 @@ db_connections:
       database: "TrackingCenter"
       trusted_connection: true
 
-    # Account Distributions - Azure SQL Server (D13 Environment)
+    # Account Distributions - Azure SQL Server (D11 Environment)
     account_distributions:
       driver: "ODBC Driver 17 for SQL Server"
       server: "sqlwfidev.database.windows.net"
@@ -113,7 +113,7 @@ api_endpoints:
     use_azure_auth: false # Set to true to use Azure AD authentication
     azure_resource: "https://management.azure.com/" # Azure resource for token generation
 
-  # Account Distributions API - D13 Environment
+  # Account Distributions API - D11 Environment
   accountdistributions:
     base_url: "https://app-accountdistributions-dev.azurewebsites.net"
     swagger_url: "https://app-accountdistributions-dev.azurewebsites.net/swagger/accountdistributions/v1/swagger.json"
