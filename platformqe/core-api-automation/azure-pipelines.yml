@@ -122,6 +122,8 @@ stages:
           MOVEMONEY_BASE_URL: $(movemoney_base_url)
           SECURITIES_BASE_URL: $(securities_base_url)
           WORK_ITEM_NOTIFICATION_BASE_URL: $(work_item_notification_base_url)
+          LEXISNEXIS_BASE_URL: $(lexisnexis_base_url)
+          ACCOUNTDISTRIBUTIONS_BASE_URL: $(accountdistributions_base_url)
           API_TIMEOUT: $(api_timeout)
           API_RETRY_COUNT: $(api_retry_count)
         inputs:
@@ -203,6 +205,8 @@ stages:
           MOVEMONEY_BASE_URL: $(movemoney_base_url)
           SECURITIES_BASE_URL: $(securities_base_url)
           WORK_ITEM_NOTIFICATION_BASE_URL: $(work_item_notification_base_url)
+          LEXISNEXIS_BASE_URL: $(lexisnexis_base_url)
+          ACCOUNTDISTRIBUTIONS_BASE_URL: $(accountdistributions_base_url)
           API_TIMEOUT: $(api_timeout)
           API_RETRY_COUNT: $(api_retry_count)
           INFLUX_URL: $(influx_url)
