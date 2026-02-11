@@ -124,13 +124,12 @@ api_endpoints:
   
   # Account Distributions API - T11 Environment
   accountdistributions:
-    base_url: "https://app-accountdistributions-test.azurewebsites.net"
-    swagger_url: "https://app-accountdistributions-test.azurewebsites.net/swagger/accountdistributions/v1/swagger.json"
-    auth_token: "${ACCOUNT_DISTRIBUTIONS_AUTH_TOKEN}"
+    base_url: "${ACCOUNTDISTRIBUTIONS_BASE_URL}"
+    auth_token: "${ACCOUNTDISTRIBUTIONS_AUTH_TOKEN}"
     timeout: 30
     retry_count: 3
     use_azure_auth: false
-    verify: false
+    azure_resource: "https://management.azure.com/"
   
   # Example: Azure AD authenticated API
   azure_resource_manager:
