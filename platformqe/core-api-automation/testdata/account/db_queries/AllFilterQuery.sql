@@ -15,7 +15,7 @@ CROSS APPLY OPENJSON(a.Identifiers)
     Type NVARCHAR(100) '$.type'
   ) i
 WHERE a.rn = 1
-  AND a.AccountClassification = 'Registration'
+  AND a.AccountClassification = 'Account'
   AND a.AccountType = 'corporate'
   AND a.AccountSubType = 'BankorTrustCompanyTaxable'
   AND p.RoleType = 'Trustee'

@@ -1,6 +1,7 @@
 {
         "parentaccountid": "{{AccountID4}}",
-        "status": "Initiated",
+        "changeState": "PendingFunding",
+        "status": "Draft",
         "version": 0,
         "accountclassification": "Sleeve",
         "accounttype": "Personal",

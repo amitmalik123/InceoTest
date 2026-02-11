@@ -1,40 +1,80 @@
 {
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "AccountResponse",
   "type": "object",
   "properties": {
     "account": {
       "type": "object",
+      "description": "Represents the base account data transfer object containing core account information.",
       "properties": {
-        "parentAccountId": { "type": ["string", "null"], "format": "uuid" },
-        "status": {
+        "accountId": {
+          "type": ["string", "null"],
+          "format": "uuid"
+        },
+        "parentAccountId": {
+          "type": ["string", "null"],
+          "format": "uuid"
+        },
+        "changeState": {
           "type": "string",
           "enum": [
-            "Initiated", "Proposal", "Contract", "AtBDOrOSJ", "Rejected", "AtBDorOSJAfterRejection", "Funded", "Terminated", "Activated", "Pending", "Proposed", "InProcess", "PendingFunding"
+            "Initiated", "Proposal", "Contract", "AtBDOrOSJ", "Rejected", "AtBDorOSJAfterRejection",
+            "Funded", "Terminated", "Activated", "Pending", "Proposed", "InProcess", "PendingFunding"
           ]
         },
-        "version": { "type": "integer" },
+        "status": {
+          "type": "string",
+          "enum": ["Draft", "Pending", "Confirmed"]
+        },
+        "version": {
+          "type": "integer"
+        },
         "accountClassification": {
           "type": "string",
-          "enum": ["Household", "Registration", "Account", "Sleeve"]
+          "enum": ["Household", "CustodyAccount", "Sleeve"]
         },
         "accountType": {
           "type": "string",
           "enum": [
-            "Personal", "Corporate", "JointFamily", "DonorAdvisedFund", "Individual", "Trust", "Joint", "IRAs", "RetirementPlans", "BusinessAccounts", "Organizations", "Other"
+            "Unknown", "Personal", "Corporate", "JointFamily", "DonorAdvisedFund", "Individual", "Trust", "Joint",
+            "IRAs", "RetirementPlans", "BusinessAccounts", "Organizations", "Other"
           ]
         },
         "accountSubType": {
           "type": "string",
           "enum": [
-            "BankorTrustCompanyNonTaxable", "BankorTrustCompanyTaxable", "Corporate", "LLC", "Partnership", "SoleProprietor", "SubCustodianFBO", "Individual", "IndividualTOD", "InheritedIRA", "InheritedIRATrust", "InheritedRothIRA", "InheritedRothIRATrust", "RolloverIRA", "RothIRA", "SEPIRA", "SimpleIRA", "TraditionalIRA", "CommunityProperty", "CommunityPropertyWROS", "CommunityPropertyWROSTOD", "JointTenantWROS", "JointTenantWROSTOD", "TenantsbyEntirety", "TenantsbyEntiretyTOD", "TenantsInCommon", "_501c", "AssetMarkCharitable", "EndowmentNonTaxable", "EndowmentTaxable", "FoundationNonTaxable", "FoundationTaxable", "_403bIndividual", "Estate", "FederallyRecognizedIndianTribe", "Guardianship", "InvestmentClub", "OtherIRA", "PersonalTrust", "UGMA", "Unspecified", "UTMA", "_401k", "_403bPlan", "DefinedBenefitPensionPlan", "Individualk", "MoneyPurchasePensionPlan", "ProfitSharingPlan", "SelfDirectedBrokerageAccount", "SelfDirectedBrokerageAccount403b", "Trust"
+            "BankorTrustCompanyNonTaxable", "BankorTrustCompanyTaxable", "Corporate", "LLC", "Partnership", "SoleProprietor",
+            "SubCustodianFBO", "Individual", "IndividualTOD", "InheritedIRA", "InheritedIRATrust", "InheritedRothIRA",
+            "InheritedRothIRATrust", "RolloverIRA", "RothIRA", "SEPIRA", "SimpleIRA", "TraditionalIRA", "CommunityProperty",
+            "CommunityPropertyWROS", "CommunityPropertyWROSTOD", "JointTenantWROS", "JointTenantWROSTOD", "TenantsbyEntirety",
+            "TenantsbyEntiretyTOD", "TenantsInCommon", "_501c", "AssetMarkCharitable", "EndowmentNonTaxable", "EndowmentTaxable",
+            "FoundationNonTaxable", "FoundationTaxable", "_403bIndividual", "Estate", "FederallyRecognizedIndianTribe",
+            "Guardianship", "InvestmentClub", "OtherIRA", "PersonalTrust", "UGMA", "Unspecified", "UTMA", "_401k", "_403bPlan",
+            "DefinedBenefitPensionPlan", "Individualk", "MoneyPurchasePensionPlan", "ProfitSharingPlan", "SelfDirectedBrokerageAccount",
+            "SelfDirectedBrokerageAccount403b", "Trust"
           ]
         },
-        "displayName": { "type": ["string", "null"], "maxLength": 255, "minLength": 0 },
-        "sortName": { "type": ["string", "null"], "maxLength": 255, "minLength": 0 },
-        "openDate": { "type": "string", "format": "date-time" },
-        "terminationDate": { "type": ["string", "null"], "format": "date-time" },
+        "displayName": {
+          "type": ["string", "null"],
+          "maxLength": 255
+        },
+        "sortName": {
+          "type": ["string", "null"],
+          "maxLength": 255
+        },
+        "openDate": {
+          "type": ["string", "null"],
+          "format": "date"
+        },
+        "terminationDate": {
+          "type": ["string", "null"],
+          "format": "date"
+        },
         "riskToleranceProfile": {
           "type": ["string", "null"],
-          "enum": ["Conservative", "ModerateConservative", "Moderate", "ModerateGrowth", "MaximumGrowth", "Growth"]
+          "enum": [
+            "Conservative", "ModerateConservative", "Moderate", "ModerateGrowth", "MaximumGrowth", "Growth", null
+          ]
         },
         "custodialAuthorization": {
           "type": "string",
@@ -49,11 +89,16 @@
           "items": {
             "type": "object",
             "properties": {
-              "id": { "type": ["string", "null"], "format": "uuid" },
+              "partyId": {
+                "type": ["string", "null"],
+                "format": "uuid"
+              },
               "roleType": {
                 "type": "string",
                 "enum": [
-                  "AccountHolder", "Trustee", "Trust", "Custodian", "AuthorizedAgents", "Guardian", "Executor", "Donor", "Trustors", "Minor", "Ward", "PrimaryBeneficiary", "ContingentBeneficiary", "BeneficialOwnershipControlOwner", "BeneficialOwnershipEntityOwner", "Entity", "InterestedParty"
+                  "AccountHolder", "Trustee", "Trust", "Custodian", "AuthorizedAgents", "Guardian", "Executor", "Donor",
+                  "Trustors", "Minor", "Ward", "PrimaryBeneficiary", "ContingentBeneficiary", "BeneficialOwnershipControlOwner",
+                  "BeneficialOwnershipEntityOwner", "Entity", "InterestedParty", "PowerOfAttorney"
                 ]
               },
               "attributes": {
@@ -63,15 +108,20 @@
                   "properties": {
                     "type": {
                       "type": "string",
-                      "enum": ["IsMailingAddress", "IsPrimary", "BeneAllocationPercentage", "BenePerStirpes", "BeneRelationship"]
+                      "enum": [
+                        "IsMailingAddress", "IsPrimary", "BeneAllocationPercentage", "BenePerStirpes", "BeneRelationship"
+                      ]
                     },
-                    "value": { "type": ["string", "null"], "maxLength": 255, "minLength": 0 }
+                    "value": {
+                      "type": ["string", "null"],
+                      "maxLength": 255
+                    }
                   },
                   "required": ["type"]
                 }
               }
             },
-            "required": ["id", "roleType"]
+            "required": ["roleType"]
           }
         },
         "identifiers": {
@@ -81,16 +131,36 @@
             "properties": {
               "type": {
                 "type": "string",
-                "enum": ["APL", "AccountNumber", "AdvisorId", "AgreementVersionId", "ModelId", "Custodian"]
+                "enum": [
+                  "APL", "AccountNumber", "AdvisorId", "AgreementVersionId", "ModelId", "Custodian"
+                ]
               },
-              "value": { "type": ["string", "null"], "maxLength": 255, "minLength": 0 }
+              "value": {
+                "type": ["string", "null"],
+                "maxLength": 255
+              }
             },
             "required": ["type"]
           }
+        },
+        "createdDate": {
+          "type": ["string", "null"],
+          "format": "date-time"
+        },
+        "updatedDate": {
+          "type": ["string", "null"],
+          "format": "date-time"
+        },
+        "createdBy": {
+          "type": ["string", "null"]
+        },
+        "updatedBy": {
+          "type": ["string", "null"]
         }
       },
       "required": [
-        "status", "version", "accountClassification", "accountType", "accountSubType", "displayName", "sortName", "openDate", "riskToleranceProfile", "custodialAuthorization", "managingPlatform"
+        "changeState", "status", "version", "accountClassification", "accountType", "accountSubType",
+        "riskToleranceProfile", "custodialAuthorization", "managingPlatform"
       ]
     }
   },

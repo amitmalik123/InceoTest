@@ -34,12 +34,42 @@
                 "assign_to": "first_account_classification"
             },
             {
+                "from": "response",
+                "key": "accounts.totalCount",
+                "assign_to": "api_total_count"
+            },
+            {
+                "from": "response",
+                "key": "accounts.page",
+                "assign_to": "page"
+            },
+            {
+                "from": "response",
+                "key": "accounts.pageSize",
+                "assign_to": "page_size"
+            },
+            {
+                "from": "response",
+                "calculate": "(page - 1) * page_size",
+                "assign_to": "offset"
+            },
+            {
                 "from": "db_result",
                 "query": "default",
                 "assign": [
                     {
                         "key": "0.AccountClassification",
                         "assign_to": "db_account_classification"
+                    }
+                ]
+            },
+            {
+                "from": "db_result",
+                "query": "count_query",
+                "assign": [
+                    {
+                        "key": "0.count",
+                        "assign_to": "db_total_count"
                     }
                 ]
             }
@@ -83,11 +113,11 @@
         "test_data_file": "",
         "db_query_timing": "after_api",
         "db_queries": {
-            "default": "SELECT * FROM Account a WHERE a.Version = (SELECT MAX(Version) FROM Account WHERE Id = a.Id) AND a.AccountClassification = 'Household';",
+            "default": "SELECT * FROM (SELECT *, ROW_NUMBER() OVER (ORDER BY a.Id, a.Version) AS rn FROM Account a WHERE a.Version = (SELECT MAX(Version) FROM Account WHERE Id = a.Id) AND a.AccountClassification = 'Household') t WHERE t.rn > (({{page}} - 1) * {{page_size}}) AND t.rn <= ({{page}} * {{page_size}});",
             "count_query": "SELECT COUNT(*) AS count FROM Account a WHERE a.Version = (SELECT MAX(Version) FROM Account WHERE Id = a.Id) AND a.AccountClassification = 'Household';"
         },
         "db_type": "mssql",
-        "db_connection_name": "sqlcustodialdataopsdev",
+        "db_connection_name": "account_service",
         "test_summary": "Test TC001: GET /Accounts Single-Filter Scenario: Only AccountClassification (Household)",
         "test_scenario": "Test GET request to /accounts with only AccountClassification filter."
     },
@@ -113,29 +143,13 @@
             "Content-Type": "application/json"
         },
         "payload": null,
-        "expected_status": "200",
-        "expected_response_schema": "account\\schemas\\Schema_Accounts_GET.json",
+        "expected_status": "400",
+        "expected_response_schema": "",
         "expected_response": null,
         "ignore_fields": [
             "id"
         ],
-        "extract_values": [
-            {
-                "from": "response",
-                "key": "accounts.items.0.accountClassification",
-                "assign_to": "account_classification_Reg"
-            },
-            {
-                "from": "db_result",
-                "query": "default",
-                "assign": [
-                    {
-                        "key": "0.AccountClassification",
-                        "assign_to": "db_account_classification_Reg"
-                    }
-                ]
-            }
-        ],
+        "extract_values": [],
         "validate": {
             "performance": {
                 "max_response_time_ms": 500
@@ -146,40 +160,14 @@
                     "xss"
                 ]
             },
-            "assertions": [
-                {
-                    "actual": "{{account_classification_Reg}}",
-                    "operator": "==",
-                    "expected": "{{db_account_classification_Reg}}",
-                    "message": "Account classification should match the database value"
-                }
-            ],
-            "data_comparison": [
-                {
-                    "source": "api_response",
-                    "target": "db_result",
-                    "target_query": "default",
-                    "format": "table",
-                    "source_array_path": "accounts.items",
-                    "fields_to_compare": [
-                        {
-                            "source": "account_classification_Reg",
-                            "target": "db_account_classification_Reg"
-                        }
-                    ],
-                    "log_differences": true,
-                    "comparison_name": "AccountClassification match"
-                }
-            ]
+            "assertions": [],
+            "data_comparison": []
         },
         "test_data_file": "",
         "db_query_timing": "after_api",
-        "db_queries": {
-            "default": "SELECT * FROM Account a WHERE a.Version = (SELECT MAX(Version) FROM Account WHERE Id = a.Id) AND a.AccountClassification = 'Registration';",
-            "count_query": "SELECT COUNT(*) AS count FROM Account a WHERE a.Version = (SELECT MAX(Version) FROM Account WHERE Id = a.Id) AND a.AccountClassification = 'Registration';"
-        },
+        "db_queries": {},
         "db_type": "mssql",
-        "db_connection_name": "sqlcustodialdataopsdev",
+        "db_connection_name": "account_service",
         "test_summary": "Test TC002: GET /Accounts Single-Filter Scenario: Only AccountClassification (Registration)",
         "test_scenario": "Test GET request to /accounts with only AccountClassification filter."
     },
@@ -267,11 +255,11 @@
         "test_data_file": "",
         "db_query_timing": "after_api",
         "db_queries": {
-            "default": "SELECT * FROM Account a WHERE AccountType = 'Individual' AND Version = (SELECT MAX(Version) FROM Account WHERE Id = a.Id AND AccountType = 'Individual');",
+            "default": "SELECT * FROM (SELECT *, ROW_NUMBER() OVER (ORDER BY a.Id, a.Version) AS rn FROM Account a WHERE AccountType = 'Individual' AND Version = (SELECT MAX(Version) FROM Account WHERE Id = a.Id AND AccountType = 'Individual')) t WHERE t.rn > (({{page}} - 1) * {{page_size}}) AND t.rn <= ({{page}} * {{page_size}});",
             "count_query": "SELECT COUNT(*) AS count FROM ( SELECT *,  ROW_NUMBER() OVER (PARTITION BY Id ORDER BY version DESC) AS rn FROM Account  WHERE AccountType = 'Individual') t WHERE t.rn = 1;"
         },
         "db_type": "mssql",
-        "db_connection_name": "sqlcustodialdataopsdev",
+        "db_connection_name": "account_service",
         "test_summary": "Test TC003: GET /Accounts Single-Filter Scenario: Only AccountType (Individual)",
         "test_scenario": "Test GET request to /accounts with only AccountType filter."
     },
@@ -359,11 +347,11 @@
         "test_data_file": "",
         "db_query_timing": "after_api",
         "db_queries": {
-            "default": "SELECT * FROM Account a WHERE AccountType = 'Corporate' AND Version = (SELECT MAX(Version) FROM Account WHERE Id = a.Id AND AccountType = 'Corporate');",
+            "default": "SELECT * FROM (SELECT *, ROW_NUMBER() OVER (ORDER BY a.Id, a.Version) AS rn FROM Account a WHERE AccountType = 'Corporate' AND Version = (SELECT MAX(Version) FROM Account WHERE Id = a.Id AND AccountType = 'Corporate')) t WHERE t.rn > (({{page}} - 1) * {{page_size}}) AND t.rn <= ({{page}} * {{page_size}});",
             "count_query": "SELECT COUNT(*) AS count FROM ( SELECT *,  ROW_NUMBER() OVER (PARTITION BY Id ORDER BY version DESC) AS rn FROM Account  WHERE AccountType = 'Corporate') t WHERE t.rn = 1;"
         },
         "db_type": "mssql",
-        "db_connection_name": "sqlcustodialdataopsdev",
+        "db_connection_name": "account_service",
         "test_summary": "Test TC004: GET /Accounts Single-Filter Scenario: Only AccountType (Corporate)",
         "test_scenario": "Test GET request to /accounts with only AccountType filter."
     },
@@ -451,11 +439,11 @@
         "test_data_file": "",
         "db_query_timing": "after_api",
         "db_queries": {
-            "default": "SELECT * FROM Account a WHERE a.Version = (SELECT MAX(Version) FROM Account WHERE Id = a.Id) AND a.ChangeState = 'Proposal';",
+            "default": "SELECT * FROM (SELECT *, ROW_NUMBER() OVER (ORDER BY a.Id, a.Version) AS rn FROM Account a WHERE a.Version = (SELECT MAX(Version) FROM Account WHERE Id = a.Id) AND a.ChangeState = 'Proposal') t WHERE t.rn > (({{page}} - 1) * {{page_size}}) AND t.rn <= ({{page}} * {{page_size}});",
             "count_query": "SELECT COUNT(*) AS count FROM Account a WHERE a.Version = (SELECT MAX(Version) FROM Account WHERE Id = a.Id) AND a.ChangeState = 'Proposal';"
         },
         "db_type": "mssql",
-        "db_connection_name": "sqlcustodialdataopsdev",
+        "db_connection_name": "account_service",
         "test_summary": "Test TC005: GET /Accounts Single-Filter Scenario: Only Status (Proposal)",
         "test_scenario": "Test GET request to /accounts with only Status filter."
     },
@@ -543,11 +531,11 @@
         "test_data_file": "",
         "db_query_timing": "after_api",
         "db_queries": {
-            "default": "SELECT * FROM Account a WHERE a.Version = (SELECT MAX(Version) FROM Account WHERE Id = a.Id) AND a.ChangeState = 'Funded';",
+            "default": "SELECT * FROM (SELECT *, ROW_NUMBER() OVER (ORDER BY a.Id, a.Version) AS rn FROM Account a WHERE a.Version = (SELECT MAX(Version) FROM Account WHERE Id = a.Id) AND a.ChangeState = 'Funded') t WHERE t.rn > (({{page}} - 1) * {{page_size}}) AND t.rn <= ({{page}} * {{page_size}});",
             "count_query": "SELECT COUNT(*) AS count FROM Account a WHERE a.Version = (SELECT MAX(Version) FROM Account WHERE Id = a.Id) AND a.ChangeState = 'Funded';"
         },
         "db_type": "mssql",
-        "db_connection_name": "sqlcustodialdataopsdev",
+        "db_connection_name": "account_service",
         "test_summary": "Test TC006: GET /Accounts Single-Filter Scenario: Only Status (Funded)",
         "test_scenario": "Test GET request to /accounts with only Status filter."
     },
@@ -645,11 +633,11 @@
         "test_data_file": "",
         "db_query_timing": "after_api",
         "db_queries": {
-            "default": "SELECT * FROM (SELECT *, ROW_NUMBER() OVER (ORDER BY a.Id) AS rn FROM Account a WHERE AccountSubType = 'BankorTrustCompanyNonTaxable' AND Version = (SELECT MAX(Version) FROM Account WHERE Id = a.Id AND AccountSubType = 'BankorTrustCompanyNonTaxable')) t WHERE t.rn > (({{api_page}} - 1) * {{api_page_size}}) AND t.rn <= ({{api_page}} * {{api_page_size}});",
+            "default": "SELECT * FROM (SELECT *, ROW_NUMBER() OVER (ORDER BY a.Id) AS rn FROM Account a WHERE AccountSubType = 'BankorTrustCompanyNonTaxable' AND Version = (SELECT MAX(Version) FROM Account WHERE Id = a.Id AND AccountSubType = 'BankorTrustCompanyNonTaxable')) t WHERE t.rn > (({{page}} - 1) * {{page_size}}) AND t.rn <= ({{page}} * {{page_size}});",
             "count_query": "SELECT COUNT(*) AS count FROM ( SELECT *,  ROW_NUMBER() OVER (PARTITION BY Id ORDER BY version DESC) AS rn FROM Account  WHERE AccountSubType = 'BankorTrustCompanyNonTaxable') t WHERE t.rn = 1;"
         },
         "db_type": "mssql",
-        "db_connection_name": "sqlcustodialdataopsdev",
+        "db_connection_name": "account_service",
         "test_summary": "Test TC007: GET /Accounts Single-Filter Scenario: Only AccountSubType (BankorTrustCompanyNonTaxable)",
         "test_scenario": "Test GET request to /accounts with only AccountSubType filter."
     },
@@ -737,11 +725,11 @@
         "test_data_file": "",
         "db_query_timing": "after_api",
         "db_queries": {
-            "default": "SELECT * FROM Account a WHERE AccountSubType = 'Individual' AND Version = (SELECT MAX(Version) FROM Account WHERE Id = a.Id AND AccountSubType = 'Individual');",
+            "default": "SELECT * FROM (SELECT *, ROW_NUMBER() OVER (ORDER BY a.Id, a.Version) AS rn FROM Account a WHERE AccountSubType = 'Individual' AND Version = (SELECT MAX(Version) FROM Account WHERE Id = a.Id AND AccountSubType = 'Individual')) t WHERE t.rn > (({{page}} - 1) * {{page_size}}) AND t.rn <= ({{page}} * {{page_size}});",
             "count_query": "SELECT COUNT(*) AS count FROM ( SELECT *,  ROW_NUMBER() OVER (PARTITION BY Id ORDER BY version DESC) AS rn FROM Account  WHERE AccountSubType = 'Individual') t WHERE t.rn = 1;"
         },
         "db_type": "mssql",
-        "db_connection_name": "sqlcustodialdataopsdev",
+        "db_connection_name": "account_service",
         "test_summary": "Test TC007: GET /Accounts Single-Filter Scenario: Only AccountSubType (Individual)",
         "test_scenario": "Test GET request to /accounts with only AccountSubType filter."
     },
@@ -756,7 +744,7 @@
             "Single-Filter"
         ],
         "mainURL": "{{base_url}}",
-        "endpoint": "/accounts?PartyRoleType=Trustee",
+        "endpoint": "/accounts?PartyRoleType=AccountHolder",
         "method": "GET",
         "rpc_method": "",
         "graphql_query": "",
@@ -777,7 +765,7 @@
             {
                 "from": "response",
                 "key": "accounts.items.0.parties.0.roleType",
-                "assign_to": "account_party_role_type_Trustee"
+                "assign_to": "account_party_role_type_AccountHolder"
             },
             {
                 "from": "db_result",
@@ -785,7 +773,7 @@
                 "assign": [
                     {
                         "key": "0.roleType",
-                        "assign_to": "db_account_party_role_type_Trustee"
+                        "assign_to": "db_account_party_role_type_AccountHolder"
                     }
                 ]
             }
@@ -802,9 +790,9 @@
             },
             "assertions": [
                 {
-                    "actual": "{{account_party_role_type_Trustee}}",
+                    "actual": "{{account_party_role_type_AccountHolder}}",
                     "operator": "==",
-                    "expected": "{{db_account_party_role_type_Trustee}}",
+                    "expected": "{{db_account_party_role_type_AccountHolder}}",
                     "message": "Account party role type should match the database value"
                 }
             ],
@@ -817,8 +805,8 @@
                     "source_array_path": "accounts.items",
                     "fields_to_compare": [
                         {
-                            "source": "account_party_role_type_Trustee",
-                            "target": "db_account_party_role_type_Trustee"
+                            "source": "account_party_role_type_AccountHolder",
+                            "target": "db_account_party_role_type_AccountHolder"
                         }
                     ],
                     "log_differences": true,
@@ -829,12 +817,12 @@
         "test_data_file": "",
         "db_query_timing": "after_api",
         "db_queries": {
-            "default": "SELECT a.*, JSON_VALUE(a.Parties, '$[0].roleType') AS roleType, JSON_VALUE(a.identifiers, '$[0].type') AS identifier_type, JSON_VALUE(a.identifiers, '$[0].value') AS identifier_value FROM Account a WHERE JSON_VALUE(a.Parties, '$[0].roleType') = 'Trustee'  AND Version = (SELECT MAX(Version) FROM Account WHERE Id = a.Id AND JSON_VALUE(a.Parties, '$[0].roleType') = 'Trustee');",
+            "default": "SELECT * FROM (SELECT a.*, p.roleType, p.partyId, ROW_NUMBER() OVER (ORDER BY a.Id, a.Version) AS rn FROM Account a CROSS APPLY OPENJSON(a.Parties) WITH (partyId NVARCHAR(100), roleType NVARCHAR(100)) AS p WHERE p.roleType = 'AccountHolder' AND a.Version = (SELECT MAX(Version) FROM Account WHERE Id = a.Id)) t WHERE t.rn > (({{page}} - 1) * {{page_size}}) AND t.rn <= ({{page}} * {{page_size}});",
             "count_query": "SELECT COUNT(*) AS count FROM ( SELECT *,  ROW_NUMBER() OVER (PARTITION BY Id ORDER BY version DESC) AS rn FROM Account  WHERE JSON_VALUE(Parties, '$[0].roleType') = 'Trustee') t WHERE t.rn = 1;"
         },
         "db_type": "mssql",
-        "db_connection_name": "sqlcustodialdataopsdev",
-        "test_summary": "Test TC010: GET /Accounts Single-Filter Scenario: Only AccountPartyRoleType (Trustee)",
+        "db_connection_name": "account_service",
+        "test_summary": "Test TC009: GET /Accounts Single-Filter Scenario: Only AccountPartyRoleType (Trustee)",
         "test_scenario": "Test GET request to /accounts with only AccountPartyRoleType filter."
     },
     {
@@ -921,11 +909,11 @@
         "test_data_file": "",
         "db_query_timing": "after_api",
         "db_queries": {
-            "default": "SELECT a.*, JSON_VALUE(a.Parties, '$[0].roleType') AS roleType, JSON_VALUE(a.identifiers, '$[0].type') AS identifier_type, JSON_VALUE(a.identifiers, '$[0].value') AS identifier_value FROM Account a WHERE JSON_VALUE(a.Parties, '$[0].roleType') = 'AccountHolder'  AND Version = (SELECT MAX(Version) FROM Account WHERE Id = a.Id AND JSON_VALUE(a.Parties, '$[0].roleType') = 'AccountHolder');",
+            "default": "SELECT * FROM (SELECT a.*, JSON_VALUE(a.Parties, '$[0].roleType') AS roleType, JSON_VALUE(a.identifiers, '$[0].type') AS identifier_type, JSON_VALUE(a.identifiers, '$[0].value') AS identifier_value, ROW_NUMBER() OVER (ORDER BY a.Id, a.Version) AS rn FROM Account a WHERE JSON_VALUE(a.Parties, '$[0].roleType') = 'AccountHolder'  AND Version = (SELECT MAX(Version) FROM Account WHERE Id = a.Id AND JSON_VALUE(a.Parties, '$[0].roleType') = 'AccountHolder')) t WHERE t.rn > (({{page}} - 1) * {{page_size}}) AND t.rn <= ({{page}} * {{page_size}});",
             "count_query": "SELECT COUNT(*) AS count FROM ( SELECT *,  ROW_NUMBER() OVER (PARTITION BY Id ORDER BY version DESC) AS rn FROM Account  WHERE JSON_VALUE(Parties, '$[0].roleType') = 'AccountHolder') t WHERE t.rn = 1;"
         },
         "db_type": "mssql",
-        "db_connection_name": "sqlcustodialdataopsdev",
+        "db_connection_name": "account_service",
         "test_summary": "Test TC010: GET /Accounts Single-Filter Scenario: Only AccountPartyRoleType (AccountHolder)",
         "test_scenario": "Test GET request to /accounts with only AccountPartyRoleType filter."
     },
@@ -1013,11 +1001,11 @@
         "test_data_file": "",
         "db_query_timing": "after_api",
         "db_queries": {
-            "default": "SELECT a.*, JSON_VALUE(a.Parties, '$[0].roleType') AS roleType FROM Account a WHERE JSON_VALUE(a.Parties, '$[0].roleType') = 'AuthorizedAgents' AND Version = (SELECT MAX(Version) FROM Account WHERE Id = a.Id AND JSON_VALUE(a.Parties, '$[0].roleType') = 'AuthorizedAgents');",
+            "default": "SELECT * FROM (SELECT a.*, JSON_VALUE(a.Parties, '$[0].roleType') AS roleType, ROW_NUMBER() OVER (ORDER BY a.Id, a.Version) AS rn FROM Account a WHERE JSON_VALUE(a.Parties, '$[0].roleType') = 'AuthorizedAgents' AND Version = (SELECT MAX(Version) FROM Account WHERE Id = a.Id AND JSON_VALUE(a.Parties, '$[0].roleType') = 'AuthorizedAgents')) t WHERE t.rn > (({{page}} - 1) * {{page_size}}) AND t.rn <= ({{page}} * {{page_size}});",
             "count_query": "SELECT COUNT(*) AS count FROM (SELECT *, ROW_NUMBER() OVER (PARTITION BY Id ORDER BY version DESC) AS rn FROM Account WHERE JSON_VALUE(Parties, '$[0].roleType') = 'AuthorizedAgents') t WHERE t.rn = 1;"
         },
         "db_type": "mssql",
-        "db_connection_name": "sqlcustodialdataopsdev",
+        "db_connection_name": "account_service",
         "test_summary": "Test TC011: GET /Accounts Single-Filter Scenario: Only AccountPartyRoleType (AuthorizedAgents)",
         "test_scenario": "Test GET request to /accounts with only AccountPartyRoleType filter."
     },
@@ -1130,11 +1118,11 @@
         "test_data_file": "",
         "db_query_timing": "after_api",
         "db_queries": {
-            "default": "SELECT * FROM (SELECT a.*, JSON_VALUE(a.identifiers,'$[0].type') AS identifier_type, ROW_NUMBER() OVER (PARTITION BY a.Id ORDER BY a.Version DESC) AS rn FROM Account a WHERE JSON_VALUE(a.identifiers,'$[0].type') = 'AgreementVersionId') t WHERE t.rn = 1;",
+            "default": "SELECT a.*, AccountType, JSON_VALUE(a.identifiers,'$[0].type') AS identifier_type FROM Account a WHERE  JSON_VALUE(a.Identifiers,'$[0].type') = 'AgreementVersionId' AND Version = (SELECT MAX(Version) FROM Account WHERE Id = a.Id  AND JSON_VALUE(a.Identifiers,'$[0].type') = 'AgreementVersionId');",
             "count_query": "SELECT COUNT(*) AS count FROM (SELECT *, ROW_NUMBER() OVER (PARTITION BY Id ORDER BY version DESC) AS rn FROM Account WHERE JSON_VALUE(identifiers, '$[0].type') = 'AgreementVersionId') t WHERE t.rn = 1;"
         },
         "db_type": "mssql",
-        "db_connection_name": "sqlcustodialdataopsdev",
+        "db_connection_name": "account_service",
         "test_summary": "Test TC012: GET /Accounts Single-Filter Scenario: Only AccountIdentifierType (type)",
         "test_scenario": "Test GET request to /accounts with only AccountIdentifierType filter."
     },
@@ -1222,11 +1210,11 @@
         "test_data_file": "",
         "db_query_timing": "after_api",
         "db_queries": {
-            "default": "SELECT a.*, JSON_VALUE(a.identifiers,'$[0].value') As value FROM Account a WHERE JSON_VALUE(a.identifiers,'$[0].value') = 'SLV-12345' AND Version = ( SELECT MAX(Version) FROM Account WHERE Id = a.Id AND JSON_VALUE(a.identifiers,'$[0].value') = 'SLV-12345');",
+            "default": "SELECT * FROM (SELECT a.*, JSON_VALUE(a.identifiers,'$[0].value') As value, ROW_NUMBER() OVER (ORDER BY a.Id, a.Version) AS rn FROM Account a WHERE JSON_VALUE(a.identifiers,'$[0].value') = 'SLV-12345' AND Version = ( SELECT MAX(Version) FROM Account WHERE Id = a.Id AND JSON_VALUE(a.identifiers,'$[0].value') = 'SLV-12345')) t WHERE t.rn > (({{page}} - 1) * {{page_size}}) AND t.rn <= ({{page}} * {{page_size}});",
             "count_query": "SELECT COUNT(*) AS count FROM ( SELECT *,  ROW_NUMBER() OVER (PARTITION BY Id ORDER BY version DESC) AS rn FROM Account  WHERE JSON_VALUE(identifiers, '$[0].value') = 'SLV-12345') t WHERE t.rn = 1;"
         },
         "db_type": "mssql",
-        "db_connection_name": "sqlcustodialdataopsdev",
+        "db_connection_name": "account_service",
         "test_summary": "Test TC013: GET /Accounts Single-Filter Scenario: Only IdentifierValue (value)",
         "test_scenario": "Test GET request to /accounts with only IdentifierValue filter."
     },
@@ -1241,7 +1229,7 @@
             "two-Filter"
         ],
         "mainURL": "{{base_url}}",
-        "endpoint": "/accounts?AccountClassification=Account&AccountType=Personal",
+        "endpoint": "/accounts?AccountClassification=CustodyAccount&AccountType=Personal",
         "method": "GET",
         "rpc_method": "",
         "graphql_query": "",
@@ -1268,6 +1256,16 @@
                 "from": "response",
                 "key": "accounts.items.0.accountType",
                 "assign_to": "account_type_Personal"
+            },
+            {
+                "from": "response",
+                "key": "accounts.page",
+                "assign_to": "page"
+            },
+            {
+                "from": "response",
+                "key": "accounts.pageSize",
+                "assign_to": "page_size"
             },
             {
                 "from": "db_result",
@@ -1339,11 +1337,11 @@
         "test_data_file": "",
         "db_query_timing": "after_api",
         "db_queries": {
-            "default": "SELECT * FROM (SELECT *, ROW_NUMBER() OVER (PARTITION BY Id ORDER BY Version DESC) AS rn FROM Account WHERE AccountClassification = 'Account') t WHERE t.rn = 1 AND t.AccountType = 'Personal';",
-            "count_query": "SELECT COUNT(*) AS count FROM ( SELECT *, ROW_NUMBER() OVER (PARTITION BY Id ORDER BY Version DESC) AS rn FROM Account WHERE AccountClassification = 'Account') t WHERE t.rn = 1 AND t.AccountType = 'Personal';"
+            "default": "SELECT * FROM (SELECT a.*, ROW_NUMBER() OVER (ORDER BY a.Id, a.Version) AS rn FROM Account a WHERE a.AccountClassification = 'CustodyAccount' AND a.AccountType = 'Personal' AND a.Version = (SELECT MAX(Version) FROM Account WHERE Id = a.Id)) t WHERE t.rn > (({{page}} - 1) * {{page_size}}) AND t.rn <= ({{page}} * {{page_size}});",
+            "count_query": "SELECT COUNT(*) AS count FROM ( SELECT *, ROW_NUMBER() OVER (PARTITION BY Id ORDER BY Version DESC) AS rn FROM Account WHERE AccountClassification = 'CustodyAccount') t WHERE t.rn = 1 AND t.AccountType = 'Personal';"
         },
         "db_type": "mssql",
-        "db_connection_name": "sqlcustodialdataopsdev",
+        "db_connection_name": "account_service",
         "test_summary": "Test TC014: GET /Accounts two-Filter Scenario: Only AccountClassification and AccountType",
         "test_scenario": "Test GET request to /accounts with only AccountClassification and AccountType filter."
     },
@@ -1358,7 +1356,7 @@
             "two-Filter"
         ],
         "mainURL": "{{base_url}}",
-        "endpoint": "/accounts?AccountClassification=Account&changeState=Initiated",
+        "endpoint": "/accounts?AccountClassification=CustodyAccount&changeState=Initiated",
         "method": "GET",
         "rpc_method": "",
         "graphql_query": "",
@@ -1385,6 +1383,16 @@
                 "from": "response",
                 "key": "accounts.items.0.changeState",
                 "assign_to": "account_changeState_Initiated"
+            },
+            {
+                "from": "response",
+                "key": "accounts.page",
+                "assign_to": "page"
+            },
+            {
+                "from": "response",
+                "key": "accounts.pageSize",
+                "assign_to": "page_size"
             },
             {
                 "from": "db_result",
@@ -1456,11 +1464,11 @@
         "test_data_file": "",
         "db_query_timing": "after_api",
         "db_queries": {
-            "default": "SELECT * FROM (SELECT *, ROW_NUMBER() OVER (PARTITION BY Id ORDER BY Version DESC) AS rn FROM Account) t WHERE t.rn = 1 AND t.AccountClassification = 'Account' AND t.ChangeState = 'Initiated';",
-            "count_query": "SELECT COUNT(*) AS count FROM (SELECT *, ROW_NUMBER() OVER (PARTITION BY Id ORDER BY Version DESC) AS rn FROM Account) t WHERE t.rn = 1 AND t.AccountClassification = 'Account' AND t.ChangeState = 'Initiated';"
+            "default": "SELECT * FROM (SELECT *, ROW_NUMBER() OVER (PARTITION BY Id ORDER BY Version DESC) AS rn FROM Account) t WHERE t.rn = 1 AND t.AccountClassification = 'CustodyAccount' AND t.ChangeState = 'Initiated' AND t.rn > (({{page}} - 1) * {{page_size}}) AND t.rn <= ({{page}} * {{page_size}});",
+            "count_query": "SELECT COUNT(*) AS count FROM (SELECT *, ROW_NUMBER() OVER (PARTITION BY Id ORDER BY Version DESC) AS rn FROM Account) t WHERE t.rn = 1 AND t.AccountClassification = 'CustodyAccount' AND t.ChangeState = 'Initiated';"
         },
         "db_type": "mssql",
-        "db_connection_name": "sqlcustodialdataopsdev",
+        "db_connection_name": "account_service",
         "test_summary": "Test TC015: GET /Accounts two-Filter Scenario: Only AccountClassification and Status",
         "test_scenario": "Test GET request to /accounts with only AccountClassification and Status filter."
     },
@@ -1502,6 +1510,16 @@
                 "from": "response",
                 "key": "accounts.items.0.accountSubType",
                 "assign_to": "account_sub_type_BankorTrustCompanyNonTaxable"
+            },
+            {
+                "from": "response",
+                "key": "accounts.page",
+                "assign_to": "page"
+            },
+            {
+                "from": "response",
+                "key": "accounts.pageSize",
+                "assign_to": "page_size"
             },
             {
                 "from": "db_result",
@@ -1573,11 +1591,11 @@
         "test_data_file": "",
         "db_query_timing": "after_api",
         "db_queries": {
-            "default": "SELECT * FROM ( SELECT *, ROW_NUMBER() OVER (PARTITION BY Id ORDER BY Version DESC) AS rn FROM Account) t WHERE t.rn = 1 AND t.AccountSubType = 'BankorTrustCompanyNonTaxable' AND t.AccountClassification = 'Sleeve';",
+            "default": "SELECT * FROM (SELECT *, ROW_NUMBER() OVER (ORDER BY Id) AS page_rn FROM (SELECT a.* FROM Account a WHERE a.Version = (SELECT MAX(Version) FROM Account WHERE Id = a.Id) AND a.AccountClassification = 'Sleeve' AND a.AccountSubType = 'BankorTrustCompanyNonTaxable') latest) t WHERE t.page_rn > (({{page}} - 1) * {{page_size}}) AND t.page_rn <= ({{page}} * {{page_size}});",
             "count_query": "SELECT COUNT(*) AS count FROM ( SELECT *, ROW_NUMBER() OVER (PARTITION BY Id ORDER BY Version DESC) AS rn FROM Account) t WHERE t.rn = 1 AND t.AccountSubType = 'BankorTrustCompanyNonTaxable' AND t.AccountClassification = 'Sleeve';"
         },
         "db_type": "mssql",
-        "db_connection_name": "sqlcustodialdataopsdev",
+        "db_connection_name": "account_service",
         "test_summary": "Test TC016: GET /Accounts two-Filter Scenario: Only AccountClassification and AccountSubType",
         "test_scenario": "Test GET request to /accounts with only AccountClassification and AccountSubType filter."
     },
@@ -1694,7 +1712,7 @@
             "count_query": "SELECT COUNT(*) AS count FROM (SELECT *, ROW_NUMBER() OVER (PARTITION BY Id ORDER BY Version DESC) AS rn FROM Account) a WHERE a.rn = 1 AND a.AccountClassification = 'Sleeve' AND JSON_VALUE(a.Parties, '$[0].roleType') = 'AuthorizedAgents';"
         },
         "db_type": "mssql",
-        "db_connection_name": "sqlcustodialdataopsdev",
+        "db_connection_name": "account_service",
         "test_summary": "Test TC017: GET /Accounts two-Filter Scenario: Only AccountClassification and PartyRoleType",
         "test_scenario": "Test GET request to /accounts with only AccountClassification and PartyRoleType filter."
     },
@@ -1811,7 +1829,7 @@
             "count_query": "SELECT COUNT(*) AS count FROM ( SELECT *,  ROW_NUMBER() OVER (PARTITION BY Id ORDER BY version DESC) AS rn FROM Account  WHERE AccountClassification = 'Household' And  JSON_VALUE(Parties, '$[0].partyId') = '7e2b1c3a-4d5e-6f7a-8b9c-0d1e2f3a4b5c') t WHERE t.rn = 1;"
         },
         "db_type": "mssql",
-        "db_connection_name": "sqlcustodialdataopsdev",
+        "db_connection_name": "account_service",
         "test_summary": "Test TC017: GET /Accounts two-Filter Scenario: Only AccountClassification and PartyId",
         "test_scenario": "Test GET request to /accounts with only AccountClassification and PartyId filter."
     },
@@ -1928,7 +1946,7 @@
             "count_query": "SELECT COUNT(*) AS count FROM (SELECT *, ROW_NUMBER() OVER (PARTITION BY Id ORDER BY Version DESC) AS rn FROM Account) t WHERE t.rn = 1 AND t.AccountType = 'Personal' AND t.ChangeState = 'Proposal';"
         },
         "db_type": "mssql",
-        "db_connection_name": "sqlcustodialdataopsdev",
+        "db_connection_name": "account_service",
         "test_summary": "Test TC019: GET /Accounts two-Filter Scenario: Only AccountType and ChangeState",
         "test_scenario": "Test GET request to /accounts with only AccountType and ChangeState filter."
     },
@@ -2055,7 +2073,7 @@
             "count_query": "SELECT COUNT(*) AS count FROM (SELECT *, ROW_NUMBER() OVER (PARTITION BY Id ORDER BY version DESC) AS rn     FROM Account) t WHERE t.rn = 1 AND t.AccountType = 'Personal' AND t.AccountSubType = 'BankorTrustCompanyNonTaxable';"
         },
         "db_type": "mssql",
-        "db_connection_name": "sqlcustodialdataopsdev",
+        "db_connection_name": "account_service",
         "test_summary": "Test TC020: GET /Accounts two-Filter Scenario: Only AccountType and AccountSubType",
         "test_scenario": "Test GET request to /accounts with only AccountType and AccountSubType filter."
     },
@@ -2172,7 +2190,7 @@
             "count_query": "SELECT COUNT(*) AS count FROM ( SELECT *,  ROW_NUMBER() OVER (PARTITION BY Id ORDER BY version DESC) AS rn FROM Account  WHERE AccountType = 'Corporate' And  JSON_VALUE(Parties, '$[0].roleType') = 'AccountHolder') t WHERE t.rn = 1;"
         },
         "db_type": "mssql",
-        "db_connection_name": "sqlcustodialdataopsdev",
+        "db_connection_name": "account_service",
         "test_summary": "Test TC021: GET /Accounts two-Filter Scenario: Only AccountType and PartyRoleType",
         "test_scenario": "Test GET request to /accounts with only AccountType and PartyRoleType filter."
     },
@@ -2289,7 +2307,7 @@
             "count_query": "SELECT COUNT(*) AS count FROM ( SELECT *,  ROW_NUMBER() OVER (PARTITION BY Id ORDER BY version DESC) AS rn FROM Account  WHERE AccountType = 'Corporate' And  JSON_VALUE(Parties, '$[0].partyId') = '7e2b1c3a-4d5e-6f7a-8b9c-0d1e2f3a4b5c') t WHERE t.rn = 1;"
         },
         "db_type": "mssql",
-        "db_connection_name": "sqlcustodialdataopsdev",
+        "db_connection_name": "account_service",
         "test_summary": "Test TC022: GET /Accounts two-Filter Scenario: Only AccountType and PartyId",
         "test_scenario": "Test GET request to /accounts with only AccountType and PartyId filter."
     },
@@ -2402,11 +2420,11 @@
         "test_data_file": "",
         "db_query_timing": "after_api",
         "db_queries": {
-            "default": "SELECT * FROM Account a WHERE ChangeState = 'Funded' AND AccountSubType = 'TraditionalIRA' AND Version = (SELECT MAX(Version) FROM Account WHERE Id = a.Id AND ChangeState = 'Funded' AND AccountSubType = 'TraditionalIRA');",
+            "default": "SELECT * FROM (SELECT *, ROW_NUMBER() OVER (PARTITION BY Id ORDER BY Version DESC) AS rn FROM Account) t WHERE t.rn = 1 AND t.ChangeState = 'Funded' AND t.AccountSubType = 'TraditionalIRA' AND t.rn > (({{page}} - 1) * {{page_size}}) AND t.rn <= ({{page}} * {{page_size}});",
             "count_query": "SELECT COUNT(*) AS count FROM ( SELECT *,  ROW_NUMBER() OVER (PARTITION BY Id ORDER BY version DESC) AS rn FROM Account  WHERE ChangeState = 'Funded' And AccountSubType = 'TraditionalIRA') t WHERE t.rn = 1;"
         },
         "db_type": "mssql",
-        "db_connection_name": "sqlcustodialdataopsdev",
+        "db_connection_name": "account_service",
         "test_summary": "Test TC023: GET /Accounts two-Filter Scenario: Only Status and AccountSubType",
         "test_scenario": "Test GET request to /accounts with only Status and AccountSubType filter."
     },
@@ -2448,6 +2466,16 @@
                 "from": "response",
                 "key": "accounts.items.0.partyRoleType",
                 "assign_to": "party_role_type_AccountHolder"
+            },
+            {
+                "from": "response",
+                "key": "accounts.page",
+                "assign_to": "page"
+            },
+            {
+                "from": "response",
+                "key": "accounts.pageSize",
+                "assign_to": "page_size"
             },
             {
                 "from": "db_result",
@@ -2519,11 +2547,11 @@
         "test_data_file": "",
         "db_query_timing": "after_api",
         "db_queries": {
-            "default": " SELECT a.*, changeState, JSON_VALUE(a.Parties,'$[0].roleType') As partyRoleType FROM Account a WHERE changeState = 'Funded' AND JSON_VALUE(a.Parties,'$[0].roleType') = 'AccountHolder' AND Version = ( SELECT MAX(Version) FROM Account WHERE Id = a.Id AND changeState = 'Funded' AND JSON_VALUE(a.Parties,'$[0].roleType') = 'AccountHolder');",
-            "count_query": "SELECT COUNT(*) AS count FROM ( SELECT *,  ROW_NUMBER() OVER (PARTITION BY Id ORDER BY version DESC) AS rn FROM Account  WHERE changeState = 'Funded' And  JSON_VALUE(Parties, '$[0].roleType') = 'AccountHolder') t WHERE t.rn = 1;"
+            "default": "WITH latest_accounts AS (SELECT *, ROW_NUMBER() OVER (PARTITION BY Id ORDER BY Version DESC) AS rn_latest FROM Account WHERE changeState = 'Funded' AND JSON_VALUE(Parties,'$[0].roleType') = 'AccountHolder'), paged_accounts AS (SELECT *, ROW_NUMBER() OVER (ORDER BY Id) AS rn_page FROM latest_accounts) SELECT changeState, JSON_VALUE(Parties,'$[0].roleType') AS PartyRoleType, Id, Version, AccountType, AccountSubType, AccountClassification, Status, Parties FROM paged_accounts WHERE rn_page > (({{page}} - 1) * {{page_size}}) AND rn_page <= ({{page}} * {{page_size}});",
+            "count_query": "SELECT COUNT(*) AS count FROM ( SELECT ROW_NUMBER() OVER (PARTITION BY Id ORDER BY version DESC) AS rn FROM Account  WHERE changeState = 'Funded' And  JSON_VALUE(Parties, '$[0].roleType') = 'AccountHolder') t WHERE t.rn = 1;"
         },
         "db_type": "mssql",
-        "db_connection_name": "sqlcustodialdataopsdev",
+        "db_connection_name": "account_service",
         "test_summary": "Test TC024: GET /Accounts two-Filter Scenario: Only Status and PartyRoleType",
         "test_scenario": "Test GET request to /accounts with only Status and PartyRoleType filter."
     },
@@ -2595,7 +2623,7 @@
             "count_query": " SELECT COUNT(*) AS count FROM ( SELECT *,  ROW_NUMBER() OVER (PARTITION BY Id ORDER BY version DESC) AS rn FROM Account  WHERE Status in ('Initiated', 'Funded')) t WHERE t.rn = 1;"
         },
         "db_type": "mssql",
-        "db_connection_name": "sqlcustodialdataopsdev",
+        "db_connection_name": "account_service",
         "test_summary": "Test TC025: GET /Accounts Single-Filter Scenario: Only changeState (Funded)",
         "test_scenario": "Test GET request to /accounts with only changeState filter."
     },
@@ -2712,7 +2740,7 @@
             "count_query": "SELECT COUNT(*) AS count FROM ( SELECT *,  ROW_NUMBER() OVER (PARTITION BY Id ORDER BY version DESC) AS rn FROM Account  WHERE ChangeState = 'Funded' And  JSON_VALUE(Parties, '$[0].partyId') = '7e2b1c3a-4d5e-6f7a-8b9c-0d1e2f3a4b5c') t WHERE t.rn = 1;"
         },
         "db_type": "mssql",
-        "db_connection_name": "sqlcustodialdataopsdev",
+        "db_connection_name": "account_service",
         "test_summary": "Test TC026: GET /Accounts two-Filter Scenario: Only Status and PartyId",
         "test_scenario": "Test GET request to /accounts with only Status and PartyId filter."
     },
@@ -2829,7 +2857,7 @@
             "count_query": "SELECT COUNT(*) AS count FROM ( SELECT *,  ROW_NUMBER() OVER (PARTITION BY Id ORDER BY version DESC) AS rn FROM Account  WHERE AccountSubType = 'BankorTrustCompanyNonTaxable' And  JSON_VALUE(Parties, '$[0].roleType') = 'Trustee') t WHERE t.rn = 1;"
         },
         "db_type": "mssql",
-        "db_connection_name": "sqlcustodialdataopsdev",
+        "db_connection_name": "account_service",
         "test_summary": "Test TC027: GET /Accounts two-Filter Scenario: Only AccountSubType and PartyRoleType",
         "test_scenario": "Test GET request to /accounts with only AccountSubType and PartyRoleType filter."
     },
@@ -2901,7 +2929,7 @@
             "count_query": " SELECT COUNT(*) AS count FROM ( SELECT *,  ROW_NUMBER() OVER (PARTITION BY Id ORDER BY version DESC) AS rn FROM Account  WHERE AccountSubType in ('BankorTrustCompanyNonTaxable', 'Corporate')) t WHERE t.rn = 1;"
         },
         "db_type": "mssql",
-        "db_connection_name": "sqlcustodialdataopsdev",
+        "db_connection_name": "account_service",
         "test_summary": "Test TC028: GET /Accounts Single-Filter Scenario: Only AccountSubType (BankorTrustCompanyNonTaxable, Corporate)",
         "test_scenario": "Test GET request to /accounts with only AccountSubType filter."
     },
@@ -3018,7 +3046,7 @@
             "count_query": "SELECT COUNT(*) AS count FROM ( SELECT *,  ROW_NUMBER() OVER (PARTITION BY Id ORDER BY version DESC) AS rn FROM Account  WHERE AccountSubType = 'BankorTrustCompanyNonTaxable' And  JSON_VALUE(Parties, '$[0].partyId') = '7e2b1c3a-4d5e-6f7a-8b9c-0d1e2f3a4b5c') t WHERE t.rn = 1;"
         },
         "db_type": "mssql",
-        "db_connection_name": "sqlcustodialdataopsdev",
+        "db_connection_name": "account_service",
         "test_summary": "Test TC029: GET /Accounts two-Filter Scenario: Only AccountSubType and PartyId",
         "test_scenario": "Test GET request to /accounts with only AccountSubType and PartyId filter."
     },
@@ -3135,7 +3163,7 @@
             "count_query": "SELECT COUNT(*) AS count FROM ( SELECT *,  ROW_NUMBER() OVER (PARTITION BY Id ORDER BY version DESC) AS rn FROM Account  WHERE JSON_VALUE(Parties, '$[0].roleType') = 'AccountHolder' And  JSON_VALUE(Parties, '$[0].partyId') = '7e2b1c3a-4d5e-6f7a-8b9c-0d1e2f3a4b5c') t WHERE t.rn = 1;"
         },
         "db_type": "mssql",
-        "db_connection_name": "sqlcustodialdataopsdev",
+        "db_connection_name": "account_service",
         "test_summary": "Test TC030: GET /Accounts two-Filter Scenario: Only PartyRoleType and PartyId",
         "test_scenario": "Test GET request to /accounts with only PartyRoleType and PartyId filter."
     },
@@ -3242,11 +3270,11 @@
         "test_data_file": "",
         "db_query_timing": "after_api",
         "db_queries": {
-            "default": "SELECT a.*, JSON_VALUE(a.Identifiers,'$[0].type') AS identifier_type, JSON_VALUE(a.Identifiers,'$[0].value') AS identifier_value FROM Account a WHERE JSON_VALUE(a.Identifiers,'$[0].type') = 'APL' AND JSON_VALUE(a.Identifiers,'$[0].value') = 'HH-12345' AND Version = (SELECT MAX(Version) FROM Account WHERE Id = a.Id AND JSON_VALUE(a.Identifiers,'$[0].type') = 'APL' AND JSON_VALUE(a.Identifiers,'$[0].value') = 'HH-12345');",
+            "default": "SELECT * FROM (SELECT a.*, JSON_VALUE(a.Identifiers,'$[0].type') AS identifier_type, JSON_VALUE(a.Identifiers,'$[0].value') AS identifier_value, ROW_NUMBER() OVER (PARTITION BY Id ORDER BY Version DESC) AS rn FROM Account a) t WHERE t.rn = 1 AND t.identifier_type = 'APL' AND t.identifier_value = 'HH-12345' AND t.rn > (({{page}} - 1) * {{page_size}}) AND t.rn <= ({{page}} * {{page_size}});",
             "count_query": "SELECT COUNT(*) AS count FROM ( SELECT *,  ROW_NUMBER() OVER (PARTITION BY Id ORDER BY version DESC) AS rn FROM Account  WHERE JSON_VALUE(Identifiers, '$[0].type') = 'APL' And  JSON_VALUE(Identifiers, '$[0].value') = 'HH-12345') t WHERE t.rn = 1;"
         },
         "db_type": "mssql",
-        "db_connection_name": "sqlcustodialdataopsdev",
+        "db_connection_name": "account_service",
         "test_summary": "Test TC031: GET /Accounts two-Filter Scenario: Only IdentifierType and IdentifierValue",
         "test_scenario": "Test GET request to /accounts with only IdentifierType and IdentifierValue filter."
     },
@@ -3376,7 +3404,7 @@
             "count_query": "SELECT COUNT(*) AS count FROM (SELECT *, ROW_NUMBER() OVER (PARTITION BY Id ORDER BY Version DESC) AS rn FROM Account WHERE AccountClassification = 'Household' AND AccountType = 'Personal' AND LOWER(ChangeState) = 'Proposal') t WHERE t.rn = 1;"
         },
         "db_type": "mssql",
-        "db_connection_name": "sqlcustodialdataopsdev",
+        "db_connection_name": "account_service",
         "test_summary": "Test TC032: GET /Accounts three-Filter Scenario: Only AccountClassification, AccountType and AccountStatus",
         "test_scenario": "Test GET request to /accounts with only AccountClassification, AccountType and AccountStatus filter."
     },
@@ -3391,7 +3419,7 @@
             "three-Filter"
         ],
         "mainURL": "{{base_url}}",
-        "endpoint": "/accounts?AccountClassification=Account&AccountType=JointFamily&AccountSubType=Corporate",
+        "endpoint": "/accounts?AccountClassification=CustodyAccount&AccountType=JointFamily&AccountSubType=Corporate",
         "method": "GET",
         "rpc_method": "",
         "graphql_query": "",
@@ -3508,11 +3536,11 @@
         "test_data_file": "",
         "db_query_timing": "after_api",
         "db_queries": {
-            "default": "SELECT * FROM (SELECT *, ROW_NUMBER() OVER (PARTITION BY Id ORDER BY Version DESC) AS rn FROM Account WHERE AccountClassification = 'Account' AND AccountType = 'JointFamily' AND AccountSubType = 'Corporate') t WHERE t.rn = 1;",
-            "count_query": "SELECT COUNT(*) AS count FROM (SELECT *, ROW_NUMBER() OVER (PARTITION BY Id ORDER BY Version DESC) AS rn FROM Account WHERE AccountClassification = 'Account' AND AccountType = 'JointFamily' AND AccountSubType = 'Corporate') t WHERE t.rn = 1;"
+            "default": "SELECT * FROM (SELECT *, ROW_NUMBER() OVER (PARTITION BY Id ORDER BY Version DESC) AS rn FROM Account WHERE AccountClassification = 'CustodyAccount' AND AccountType = 'JointFamily' AND AccountSubType = 'Corporate') t WHERE t.rn = 1;",
+            "count_query": "SELECT COUNT(*) AS count FROM (SELECT *, ROW_NUMBER() OVER (PARTITION BY Id ORDER BY Version DESC) AS rn FROM Account WHERE AccountClassification = 'CustodyAccount' AND AccountType = 'JointFamily' AND AccountSubType = 'Corporate') t WHERE t.rn = 1;"
         },
         "db_type": "mssql",
-        "db_connection_name": "sqlcustodialdataopsdev",
+        "db_connection_name": "account_service",
         "test_summary": "Test TC033: GET /Accounts three-Filter Scenario: Only AccountClassification, AccountType and AccountSubType",
         "test_scenario": "Test GET request to /accounts with only AccountClassification, AccountType and AccountSubType filter."
     },
@@ -3648,7 +3676,7 @@
             "count_query": "SELECT COUNT(*) AS count FROM ( SELECT *, ROW_NUMBER() OVER (PARTITION BY Id ORDER BY Version DESC) AS rn FROM Account WHERE AccountClassification = 'Household' AND ChangeState = 'Funded' AND AccountSubType = 'BankorTrustCompanyNonTaxable') t WHERE t.rn = 1;"
         },
         "db_type": "mssql",
-        "db_connection_name": "sqlcustodialdataopsdev",
+        "db_connection_name": "account_service",
         "test_summary": "Test TC034: GET /Accounts three-Filter Scenario: Only AccountClassification, ChangeState and AccountSubType",
         "test_scenario": "Test GET request to /accounts with only AccountClassification, ChangeState and AccountSubType filter."
     },
@@ -3784,7 +3812,7 @@
             "count_query": "  SELECT COUNT(*) AS count FROM ( SELECT *,  ROW_NUMBER() OVER (PARTITION BY Id ORDER BY version DESC) AS rn FROM Account  WHERE AccountType = 'Corporate' And ChangeState = 'Funded' And AccountSubType = 'BankorTrustCompanyNonTaxable') t WHERE t.rn = 1;"
         },
         "db_type": "mssql",
-        "db_connection_name": "sqlcustodialdataopsdev",
+        "db_connection_name": "account_service",
         "test_summary": "Test TC035: GET /Accounts three-Filter Scenario: Only AccountType, Status and AccountSubType",
         "test_scenario": "Test GET request to /accounts with only AccountType, Status and AccountSubType filter."
     },
@@ -3856,7 +3884,7 @@
             "count_query": " SELECT COUNT(*) AS count FROM ( SELECT *,  ROW_NUMBER() OVER (PARTITION BY Id ORDER BY version DESC) AS rn FROM Account  WHERE Status in ('Initiated', 'Funded', 'Proposal')) t WHERE t.rn = 1;"
         },
         "db_type": "mssql",
-        "db_connection_name": "sqlcustodialdataopsdev",
+        "db_connection_name": "account_service",
         "test_summary": "Test TC036: GET /Accounts Single-Filter Scenario: Only ChangeState (Funded)",
         "test_scenario": "Test GET request to /accounts with only ChangeState filter."
     },
@@ -3928,7 +3956,7 @@
             "count_query": " SELECT COUNT(*) AS count FROM ( SELECT *,  ROW_NUMBER() OVER (PARTITION BY Id ORDER BY version DESC) AS rn FROM Account  WHERE AccountSubType in ('BankorTrustCompanyNonTaxable', 'Corporate', 'CommunityProperty')) t WHERE t.rn = 1;"
         },
         "db_type": "mssql",
-        "db_connection_name": "sqlcustodialdataopsdev",
+        "db_connection_name": "account_service",
         "test_summary": "Test TC037: GET /Accounts Single-Filter Scenario: Only AccountSubType (BankorTrustCompanyNonTaxable, Corporate, CommunityProperty)",
         "test_scenario": "Test GET request to /accounts with only AccountSubType filter."
     },
@@ -3943,7 +3971,7 @@
             "two-Filter"
         ],
         "mainURL": "{{base_url}}",
-        "endpoint": "/accounts?AccountClassification=Registration&PartyRoleType=Trustee&PartyId=7e2b1c3a-4d5e-6f7a-8b9c-0d1e2f3a4b5c",
+        "endpoint": "/accounts?AccountClassification=Sleeve&PartyRoleType=Trustee&PartyId=7e2b1c3a-4d5e-6f7a-8b9c-0d1e2f3a4b5c",
         "method": "GET",
         "rpc_method": "",
         "graphql_query": "",
@@ -3964,7 +3992,7 @@
             {
                 "from": "response",
                 "key": "accounts.items.0.accountClassification",
-                "assign_to": "account_classification_Registration"
+                "assign_to": "account_classification_Sleeve"
             },
             {
                 "from": "response",
@@ -3982,7 +4010,7 @@
                 "assign": [
                     {
                         "key": "0.AccountClassification",
-                        "assign_to": "db_account_classification_Registration"
+                        "assign_to": "db_account_classification_Sleeve"
                     }
                 ]
             },
@@ -4019,9 +4047,9 @@
             },
             "assertions": [
                 {
-                    "actual": "{{account_classification_Registration}}",
+                    "actual": "{{account_classification_Sleeve}}",
                     "operator": "==",
-                    "expected": "{{db_account_classification_Registration}}",
+                    "expected": "{{db_account_classification_Sleeve}}",
                     "message": "Account classification should match the database value"
                 },
                 {
@@ -4046,8 +4074,8 @@
                     "source_array_path": "accounts.items",
                     "fields_to_compare": [
                         {
-                            "source": "account_classification_Registration",
-                            "target": "db_account_classification_Registration"
+                            "source": "account_classification_Sleeve",
+                            "target": "db_account_classification_Sleeve"
                         },
                         {
                             "source": "party_role_type_Trustee",
@@ -4066,11 +4094,11 @@
         "test_data_file": "",
         "db_query_timing": "after_api",
         "db_queries": {
-            "default": "SELECT a.*, Accountclassification, JSON_VALUE(a.Parties, '$[0].roleType') AS roleType, JSON_VALUE(a.Parties, '$[0].partyId') AS partyId FROM Account a WHERE Accountclassification = 'Registration' AND JSON_VALUE(a.Parties, '$[0].roleType') = 'Trustee'  AND JSON_VALUE(a.Parties, '$[0].partyId') = '7e2b1c3a-4d5e-6f7a-8b9c-0d1e2f3a4b5c' AND Version = (SELECT MAX(Version) FROM Account WHERE Id = a.Id AND Accountclassification = 'Registration' AND JSON_VALUE(a.Parties, '$[0].roleType') = 'Trustee' AND JSON_VALUE(a.Parties, '$[0].partyId') = '7e2b1c3a-4d5e-6f7a-8b9c-0d1e2f3a4b5c');",
-            "count_query": "SELECT COUNT(*) AS count FROM ( SELECT *,  ROW_NUMBER() OVER (PARTITION BY Id ORDER BY version DESC) AS rn FROM Account  WHERE AccountClassification = 'Registration' And  JSON_VALUE(Parties, '$[0].roleType') = 'Trustee') t WHERE t.rn = 1;"
+            "default": "SELECT a.*, Accountclassification, JSON_VALUE(a.Parties, '$[0].roleType') AS roleType, JSON_VALUE(a.Parties, '$[0].partyId') AS partyId FROM Account a WHERE Accountclassification = 'Sleeve' AND JSON_VALUE(a.Parties, '$[0].roleType') = 'Trustee'  AND JSON_VALUE(a.Parties, '$[0].partyId') = '7e2b1c3a-4d5e-6f7a-8b9c-0d1e2f3a4b5c' AND Version = (SELECT MAX(Version) FROM Account WHERE Id = a.Id AND Accountclassification = 'Sleeve' AND JSON_VALUE(a.Parties, '$[0].roleType') = 'Trustee' AND JSON_VALUE(a.Parties, '$[0].partyId') = '7e2b1c3a-4d5e-6f7a-8b9c-0d1e2f3a4b5c');",
+            "count_query": "SELECT COUNT(*) AS count FROM ( SELECT *,  ROW_NUMBER() OVER (PARTITION BY Id ORDER BY version DESC) AS rn FROM Account  WHERE AccountClassification = 'Sleeve' And  JSON_VALUE(Parties, '$[0].roleType') = 'Trustee') t WHERE t.rn = 1;"
         },
         "db_type": "mssql",
-        "db_connection_name": "sqlcustodialdataopsdev",
+        "db_connection_name": "account_service",
         "test_summary": "Test TC038: GET /Accounts three-Filter Scenario: Only AccountClassification, PartyRoleType, and PartyId",
         "test_scenario": "Test GET request to /accounts with only AccountClassification, PartyRoleType, and PartyId filter."
     },
@@ -4212,7 +4240,7 @@
             "count_query": "SELECT COUNT(*) AS count FROM ( SELECT *,  ROW_NUMBER() OVER (PARTITION BY Id ORDER BY version DESC) AS rn FROM Account  WHERE AccountType = 'Personal' And  JSON_VALUE(Parties, '$[0].roleType') = 'Trustee') t WHERE t.rn = 1;"
         },
         "db_type": "mssql",
-        "db_connection_name": "sqlcustodialdataopsdev",
+        "db_connection_name": "account_service",
         "test_summary": "Test TC039: GET /Accounts three-Filter Scenario: Only AccountType, PartyRoleType, and PartyId",
         "test_scenario": "Test GET request to /accounts with only AccountType, PartyRoleType, and PartyId filter."
     },
@@ -4354,7 +4382,7 @@
             "count_query": "SELECT COUNT(*) AS count FROM ( SELECT *,  ROW_NUMBER() OVER (PARTITION BY Id ORDER BY version DESC) AS rn FROM Account  WHERE Status = 'Initiated' And  JSON_VALUE(Parties, '$[0].roleType') = 'Trustee') t WHERE t.rn = 1;"
         },
         "db_type": "mssql",
-        "db_connection_name": "sqlcustodialdataopsdev",
+        "db_connection_name": "account_service",
         "test_summary": "Test TC040: GET /Accounts three-Filter Scenario: Only AccountChangeState, PartyRoleType, and PartyId",
         "test_scenario": "Test GET request to /accounts with only AccountChangeState, PartyRoleType, and PartyId filter."
     },
@@ -4369,7 +4397,7 @@
             "three-Filter"
         ],
         "mainURL": "{{base_url}}",
-        "endpoint": "/accounts?AccountClassification=Registration&AccountType=corporate&changeState=proposal&AccountSubType=BankorTrustCompanyTaxable&PartyRoleType=Trustee&PartyId=7e2b1c3a-4d5e-6f7a-8b9c-0d1e2f3a4b5c&IdentifierType=AccountNumber",
+        "endpoint": "/accounts?AccountClassification=CustodyAccount&AccountType=corporate&changeState=proposal&AccountSubType=BankorTrustCompanyTaxable&PartyRoleType=Trustee&PartyId=7e2b1c3a-4d5e-6f7a-8b9c-0d1e2f3a4b5c&IdentifierType=AccountNumber",
         "method": "GET",
         "rpc_method": "",
         "graphql_query": "",
@@ -4390,7 +4418,7 @@
             {
                 "from": "response",
                 "key": "accounts.items.0.accountClassification",
-                "assign_to": "account_classification_Registration"
+                "assign_to": "account_classification_Account"
             },
             {
                 "from": "response",
@@ -4433,7 +4461,7 @@
                 "assign": [
                     {
                         "key": "0.AccountClassification",
-                        "assign_to": "db_account_classification_Registration"
+                        "assign_to": "db_account_classification_Account"
                     }
                 ]
             },
@@ -4520,9 +4548,9 @@
             },
             "assertions": [
                 {
-                    "actual": "{{account_classification_Registration}}",
+                    "actual": "{{account_classification_Account}}",
                     "operator": "==",
-                    "expected": "{{db_account_classification_Registration}}",
+                    "expected": "{{db_account_classification_Account}}",
                     "message": "Account classification should match the database value"
                 },
                 {
@@ -4577,8 +4605,8 @@
                     "source_array_path": "accounts.items",
                     "fields_to_compare": [
                         {
-                            "source": "account_classification_Registration",
-                            "target": "db_account_classification_Registration"
+                            "source": "account_classification_Account",
+                            "target": "db_account_classification_Account"
                         },
                         {
                             "source": "account_type_Corporate",
@@ -4621,7 +4649,7 @@
             "count_query": "account\\db_queries\\AllFilterCountQuery.sql"
         },
         "db_type": "mssql",
-        "db_connection_name": "sqlcustodialdataopsdev",
+        "db_connection_name": "account_service",
         "test_summary": "Test TC041: GET /Accounts All Filter Scenario",
         "test_scenario": "Test GET request to /accounts with all filters"
     }

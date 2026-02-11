@@ -1,6 +1,7 @@
 {
     "parentaccountid": null,
-    "status": "Initiated",
+    "changeState": "Activated",
+    "status": "Draft",
     "version": 0,
     "accountclassification": "Household",
     "accounttype": "Personal",
