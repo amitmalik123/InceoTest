@@ -1,0 +1,41 @@
+{
+  "name": "qaautomationui",
+  "version": "1.0.0",
+  "type": "module",
+  "description": "Playwright with Typescript",
+  "main": "index.js",
+  "scripts": {
+    "test:e2e": "playwright test --project userRoles --project compareiFrame",
+    "test:compare": "playwright test --project compareiFrame",
+    "test:users": "playwright test --project userRoles",
+    "test:title": "playwright test --project urlsTitles",
+    
+    "test:locunauth": "playwright test --project localUnauth",
+    "test:locauth": "playwright test --project localAuth",
+    "test:exp": "playwright test --project exp",
+    
+    "postinstall": "playwright install",
+    "prepare": "husky install",
+    "precommit:check": "echo 'Run lint and format checks here'"
+  },
+  "lint-staged": {
+    "*.{ts,tsx,js,jsx}": [
+      "npm run precommit:check"
+    ]
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://AssetmarkInc@dev.azure.com/AssetmarkInc/Core/_git/QAAutomationUI"
+  },
+  "keywords": [],
+  "author": "Srilu Balla",
+  "license": "ISC",
+  "devDependencies": {
+    "@playwright/test": "^1.56.1",
+    "@types/node": "^24.10.4",
+    "allure-playwright": "^3.4.2",
+    "dotenv": "^17.2.3",
+    "husky": "^9.1.7",
+    "vitest": "^4.0.6"
+  }
+}
