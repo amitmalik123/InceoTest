@@ -133,8 +133,8 @@ api_endpoints:
     verify: false
 
   Transfer_Service_validation:
-    base_url: "https://app-transferservice-test.azurewebsites.net"  # Base URL for Cost Basis Validation Testing (e.g., https://platform.dev01.assetmark.com)
-    auth_token: "${Transfer_Service_AUTH_TOKEN}"
+    base_url: "${TRANSFER_SERVICE_VALIDATION_BASE_URL}"  # Base URL for Cost Basis Validation Testing (e.g., https://platform.dev01.assetmark.com)
+    auth_token: "${TRANSFER_SERVICE_AUTH_TOKEN}"
     timeout: 30
     retry_count: 3
     use_azure_auth: false  # Set to true to use Azure AD authentication
