@@ -113,7 +113,8 @@ def validate_db_comparison(api_response, db_result, key_fields, fields_to_compar
                 api_field = mapping["source"]
                 db_field = mapping["target"]
                 api_value = resolve_nested_key(api_row, api_field)
-                db_value = db_row.get(db_field)
+                # Use nested key resolution for DB field as well
+                db_value = resolve_nested_key(db_row, db_field)
                 
                 # Apply field transformations if configured
                 if transformer:
@@ -194,7 +195,8 @@ def validate_db_comparison(api_response, db_result, key_fields, fields_to_compar
             # Resolve variable if needed
             if api_value is None and api_field.startswith("{{"):
                 api_value = resolve_var(api_row.get(api_field.strip("{}")))
-            db_value = db_row.get(db_field)
+            # Use nested key resolution for DB field as well
+            db_value = resolve_nested_key(db_row, db_field)
             
             # Apply field transformations if configured
             if transformer:
@@ -233,8 +235,12 @@ def validate_db_comparison(api_response, db_result, key_fields, fields_to_compar
                     return norm1.lower() == norm2.lower()
                 
                 # Handle numeric comparisons with type coercion
-                # Convert string numbers to numeric types for comparison
+                # Convert string numbers and Decimal types to float for comparison
+                from decimal import Decimal
                 def try_numeric(val):
+                    # Handle Decimal from database (SQL Server returns Decimal for numeric columns)
+                    if isinstance(val, Decimal):
+                        return float(val)
                     if isinstance(val, (int, float)):
                         return val
                     if isinstance(val, str):
@@ -250,6 +256,10 @@ def validate_db_comparison(api_response, db_result, key_fields, fields_to_compar
                 
                 typed_val1 = try_numeric(norm1)
                 typed_val2 = try_numeric(norm2)
+                
+                # Use tolerance for float comparison to handle precision differences
+                if isinstance(typed_val1, float) and isinstance(typed_val2, float):
+                    return abs(typed_val1 - typed_val2) < 1e-12
                 
                 return typed_val1 == typed_val2
             
@@ -416,6 +426,15 @@ class Validators:
             msg = f"Response is not valid JSON: {e}"
             logger.error(msg)
             return msg
+        
+        # If response.json() returns a string (JSON-encoded string), parse it again
+        if isinstance(actual_json, str):
+            try:
+                actual_json = json.loads(actual_json)
+            except Exception as e:
+                msg = f"Failed to parse JSON-encoded string response: {e}"
+                logger.error(msg)
+                return msg
         
         try:
             jsonschema.validate(instance=actual_json, schema=schema)

@@ -21,7 +21,7 @@
         },
         "payload": null,
         "expected_status": "200",
-        "expected_response_schema": "",
+        "expected_response_schema": "MoveMoneyAPI\\schemas\\Schema_instructions_instructionId_GET.json",
         "expected_response": {
             "instructionId": "16ef33f5-42f9-4fd0-89f9-11b88872e695",
             "accountId": "456e7890-e89b-12d3-a456-426614174111",
@@ -44,23 +44,47 @@
             "modifiedBy": "system"
         },
         "ignore_fields": [
-            "id"
+            "id",
+            "traceId",
+            "addressid",
+            "contactid",
+            "identifierid",
+            "timestamp",
+            "createdDate",
+            "modifiedDate",
+            "entitycreateddate",
+            "individualdateofbirth"
         ],
         "extract_values": [
             {
                 "from": "response",
-                "key": "id",
-                "assign_to": ""
+                "key": "instructionId",
+                "assign_to": "instructionId"
             },
             {
-                "from": "db_result",
-                "query": "",
-                "assign": [
-                    {
-                        "key": "",
-                        "assign_to": ""
-                    }
-                ]
+                "from": "response",
+                "key": "version",
+                "assign_to": "version"
+            },
+            {
+                "from": "response",
+                "key": "status",
+                "assign_to": "status"
+            },
+            {
+                "from": "response",
+                "key": "railType",
+                "assign_to": "railType"
+            },
+            {
+                "from": "response",
+                "key": "holderRelation",
+                "assign_to": "holderRelation"
+            },
+            {
+                "from": "response",
+                "key": "letterOfAuthorization",
+                "assign_to": "letterOfAuthorization"
             }
         ],
         "validate": {
@@ -73,24 +97,73 @@
                     "xss"
                 ]
             },
-            "data_comparison": {
-                "source": "api_response",
-                "target": "db_result",
-                "format": "table",
-                "key_field": [
-                    "",
-                    ""
-                ],
-                "fields_to_compare": [],
-                "log_differences": true
-            }
+            "assertions": [
+                {
+                    "actual": "{{instructionId}}",
+                    "expected": "",
+                    "operator": "!=",
+                    "message": "InstructionId should not be empty"
+                },
+                {
+                    "actual": "{{version}}",
+                    "expected": 0,
+                    "operator": ">",
+                    "message": "Version should be greater than 0"
+                },
+                {
+                    "actual": "{{status}}",
+                    "expected": [
+                        "Draft",
+                        "Pending",
+                        "Confirmed",
+                        "Deleted"
+                    ],
+                    "operator": "in",
+                    "message": "Status should be one of: Draft, Pending, Confirmed, Deleted"
+                },
+                {
+                    "actual": "{{railType}}",
+                    "expected": [
+                        "ACH",
+                        "Wire",
+                        "Check",
+                        "Journal"
+                    ],
+                    "operator": "in",
+                    "message": "RailType should be one of: ACH, Wire, Check, Journal"
+                },
+                {
+                    "actual": "{{holderRelation}}",
+                    "expected": [
+                        "FirstParty",
+                        "ThirdParty"
+                    ],
+                    "operator": "in",
+                    "message": "HolderRelation should be one of: FirstParty, ThirdParty"
+                },
+                {
+                    "actual": "{{letterOfAuthorization}}",
+                    "expected": [
+                        "Deposit",
+                        "Withdrawal",
+                        "Both",
+                        "None"
+                    ],
+                    "operator": "in",
+                    "message": "LetterOfAuthorization should be one of: Deposit, Withdrawal, Both, None"
+                }
+            ],
+            "data_comparison": []
         },
         "test_data_file": "",
-        "db_query": "",
+        "db_query_timing": "after_api",
+        "db_queries": {
+            "default": "",
+            "audit_query": ""
+        },
         "db_type": "",
         "db_connection_name": "",
-        "test_summary": "Test TC001: GET /moneymovement/instructions/{instructionId} [positive] (TC001) - Validate that the API returns the correct instruction details for a valid instructionId without status.",
-        "test_scenario": "Test GET request to /moneymovement/instructions/{instructionId} with a valid instructionId without status and verify the response contains the expected instruction details."
+        "test_summary": "Test TC001: GET /moneymovement/instructions/{instructionId} [positive] (TC001) - Validate that the API returns the correct instruction details for a valid instructionId without status."
     },
     {
         "test_id": "TC002",
@@ -114,7 +187,7 @@
         },
         "payload": null,
         "expected_status": "200",
-        "expected_response_schema": "",
+        "expected_response_schema": "MoveMoneyAPI\\schemas\\Schema_instructions_instructionId_GET.json",
         "expected_response": {
             "instructionId": "16ef33f5-42f9-4fd0-89f9-11b88872e695",
             "accountId": "456e7890-e89b-12d3-a456-426614174111",
@@ -137,23 +210,42 @@
             "modifiedBy": "system"
         },
         "ignore_fields": [
-            "id"
+            "id",
+            "traceId",
+            "addressid",
+            "contactid",
+            "identifierid",
+            "timestamp",
+            "createdDate",
+            "modifiedDate",
+            "entitycreateddate",
+            "individualdateofbirth"
         ],
         "extract_values": [
             {
                 "from": "response",
-                "key": "id",
-                "assign_to": ""
+                "key": "instructionId",
+                "assign_to": "instructionId"
             },
             {
-                "from": "db_result",
-                "query": "",
-                "assign": [
-                    {
-                        "key": "",
-                        "assign_to": ""
-                    }
-                ]
+                "from": "response",
+                "key": "status",
+                "assign_to": "status"
+            },
+            {
+                "from": "response",
+                "key": "railType",
+                "assign_to": "railType"
+            },
+            {
+                "from": "response",
+                "key": "holderRelation",
+                "assign_to": "holderRelation"
+            },
+            {
+                "from": "response",
+                "key": "letterOfAuthorization",
+                "assign_to": "letterOfAuthorization"
             }
         ],
         "validate": {
@@ -166,24 +258,62 @@
                     "xss"
                 ]
             },
-            "data_comparison": {
-                "source": "api_response",
-                "target": "db_result",
-                "format": "table",
-                "key_field": [
-                    "",
-                    ""
-                ],
-                "fields_to_compare": [],
-                "log_differences": true
-            }
+            "assertions": [
+                {
+                    "actual": "{{instructionId}}",
+                    "expected": "",
+                    "operator": "!=",
+                    "message": "InstructionId should not be empty"
+                },
+                {
+                    "actual": "{{status}}",
+                    "expected": "Pending",
+                    "operator": "==",
+                    "message": "Status should be Pending"
+                },
+                {
+                    "actual": "{{railType}}",
+                    "expected": [
+                        "ACH",
+                        "Wire",
+                        "Check",
+                        "Journal"
+                    ],
+                    "operator": "in",
+                    "message": "RailType should be one of: ACH, Wire, Check, Journal"
+                },
+                {
+                    "actual": "{{holderRelation}}",
+                    "expected": [
+                        "FirstParty",
+                        "ThirdParty"
+                    ],
+                    "operator": "in",
+                    "message": "HolderRelation should be one of: FirstParty, ThirdParty"
+                },
+                {
+                    "actual": "{{letterOfAuthorization}}",
+                    "expected": [
+                        "Deposit",
+                        "Withdrawal",
+                        "Both",
+                        "None"
+                    ],
+                    "operator": "in",
+                    "message": "LetterOfAuthorization should be one of: Deposit, Withdrawal, Both, None"
+                }
+            ],
+            "data_comparison": []
         },
         "test_data_file": "",
-        "db_query": "",
+        "db_query_timing": "after_api",
+        "db_queries": {
+            "default": "",
+            "audit_query": ""
+        },
         "db_type": "",
         "db_connection_name": "",
-        "test_summary": "Test TC002: GET /moneymovement/instructions/{instructionId} [positive] (TC002) - Validate that the API returns the correct instruction details for a valid instructionId and status.",
-        "test_scenario": "Test GET request to /moneymovement/instructions/{instructionId} with a valid instructionId and valid status and verify the response contains the expected instruction details."
+        "test_summary": "Test TC002: GET /moneymovement/instructions/{instructionId} [positive] (TC002) - Validate that the API returns the correct instruction details for a valid instructionId and status."
     },
     {
         "test_id": "TC003",
@@ -207,28 +337,10 @@
         },
         "payload": null,
         "expected_status": "204",
-        "expected_response_schema": "",
+        "expected_response_schema": null,
         "expected_response": null,
-        "ignore_fields": [
-            "id"
-        ],
-        "extract_values": [
-            {
-                "from": "response",
-                "key": "id",
-                "assign_to": ""
-            },
-            {
-                "from": "db_result",
-                "query": "",
-                "assign": [
-                    {
-                        "key": "",
-                        "assign_to": ""
-                    }
-                ]
-            }
-        ],
+        "ignore_fields": [],
+        "extract_values": [],
         "validate": {
             "performance": {
                 "max_response_time_ms": 500
@@ -239,24 +351,18 @@
                     "xss"
                 ]
             },
-            "data_comparison": {
-                "source": "api_response",
-                "target": "db_result",
-                "format": "table",
-                "key_field": [
-                    "",
-                    ""
-                ],
-                "fields_to_compare": [],
-                "log_differences": true
-            }
+            "assertions": [],
+            "data_comparison": []
         },
         "test_data_file": "",
-        "db_query": "",
+        "db_query_timing": "after_api",
+        "db_queries": {
+            "default": "",
+            "audit_query": ""
+        },
         "db_type": "",
         "db_connection_name": "",
-        "test_summary": "Test TC003: GET /moneymovement/instructions/{instructionId} [Negative] (TC003) - Validate that the API returns the correct instruction details for a invalid instructionId and status.",
-        "test_scenario": "Test GET request to /moneymovement/instructions/{instructionId} with a invalid instructionId and valid status and verify the response contains the expected instruction details."
+        "test_summary": "Test TC003: GET /moneymovement/instructions/{instructionId} [Negative] (TC003) - Validate that the API returns the correct instruction details for a invalid instructionId and status."
     },
     {
         "test_id": "TC004",
@@ -284,24 +390,22 @@
             "error": "Invalid value for 'status' parameter. Must be one of: Draft, Pending, Confirmed, Deleted (Parameter 'status')",
             "fields": "status"
         },
-        "ignore_fields": [
-            "id"
-        ],
+        "ignore_fields": [],
         "extract_values": [
             {
                 "from": "response",
-                "key": "id",
-                "assign_to": ""
+                "key": "status",
+                "assign_to": "error_status"
             },
             {
-                "from": "db_result",
-                "query": "",
-                "assign": [
-                    {
-                        "key": "",
-                        "assign_to": ""
-                    }
-                ]
+                "from": "response",
+                "key": "error",
+                "assign_to": "error_message"
+            },
+            {
+                "from": "response",
+                "key": "fields",
+                "assign_to": "error_fields"
             }
         ],
         "validate": {
@@ -314,24 +418,43 @@
                     "xss"
                 ]
             },
-            "data_comparison": {
-                "source": "api_response",
-                "target": "db_result",
-                "format": "table",
-                "key_field": [
-                    "",
-                    ""
-                ],
-                "fields_to_compare": [],
-                "log_differences": true
-            }
+            "assertions": [
+                {
+                    "actual": "{{error_status}}",
+                    "expected": 400,
+                    "operator": "==",
+                    "message": "Error status should be 400"
+                },
+                {
+                    "actual": "{{error_message}}",
+                    "expected": "",
+                    "operator": "!=",
+                    "message": "Error message should not be empty"
+                },
+                {
+                    "actual": "{{error_message}}",
+                    "expected": "Draft, Pending, Confirmed, Deleted",
+                    "operator": "contains",
+                    "message": "Error message should mention valid status values"
+                },
+                {
+                    "actual": "{{error_fields}}",
+                    "expected": "status",
+                    "operator": "==",
+                    "message": "Error field should be 'status'"
+                }
+            ],
+            "data_comparison": []
         },
         "test_data_file": "",
-        "db_query": "",
+        "db_query_timing": "after_api",
+        "db_queries": {
+            "default": "",
+            "audit_query": ""
+        },
         "db_type": "",
         "db_connection_name": "",
-        "test_summary": "Test TC004: GET /moneymovement/instructions/{instructionId} [negative] (TC004) - Verify that the API returns a 400 Bad Request error when the status is invalid.",
-        "test_scenario": "Verify that the API returns a 400 Bad Request error when the status is invalid."
+        "test_summary": "Test TC004: GET /moneymovement/instructions/{instructionId} [negative] (TC004) - Verify that the API returns a 400 Bad Request error when the status is invalid."
     },
     {
         "test_id": "TC005",
@@ -353,28 +476,10 @@
         "headers_additional": {},
         "payload": null,
         "expected_status": "500",
-        "expected_response_schema": "",
+        "expected_response_schema": null,
         "expected_response": null,
-        "ignore_fields": [
-            "id"
-        ],
-        "extract_values": [
-            {
-                "from": "response",
-                "key": "id",
-                "assign_to": ""
-            },
-            {
-                "from": "db_result",
-                "query": "",
-                "assign": [
-                    {
-                        "key": "",
-                        "assign_to": ""
-                    }
-                ]
-            }
-        ],
+        "ignore_fields": [],
+        "extract_values": [],
         "validate": {
             "performance": {
                 "max_response_time_ms": 500
@@ -385,23 +490,17 @@
                     "xss"
                 ]
             },
-            "data_comparison": {
-                "source": "api_response",
-                "target": "db_result",
-                "format": "table",
-                "key_field": [
-                    "",
-                    ""
-                ],
-                "fields_to_compare": [],
-                "log_differences": true
-            }
+            "assertions": [],
+            "data_comparison": []
         },
         "test_data_file": "",
-        "db_query": "",
+        "db_query_timing": "after_api",
+        "db_queries": {
+            "default": "",
+            "audit_query": ""
+        },
         "db_type": "",
         "db_connection_name": "",
-        "test_summary": "Test TC005: GET /moneymovement/instructions/{instructionId} [negative] (TC005) - Verify that the API returns a 500 reponse for Internal Server Error when valid instructionId is provided in GET request to /moneymovement/instructions/{instructionId}.",
-        "test_scenario": "Verify that the API returns a 500 Internal Server Error when valid instructionId is provided in the GET request to /moneymovement/instructions/{instructionId}."
+        "test_summary": "Verify that the API returns 500 Internal Server Error which would indicate a Server side crash."
     }
 ]

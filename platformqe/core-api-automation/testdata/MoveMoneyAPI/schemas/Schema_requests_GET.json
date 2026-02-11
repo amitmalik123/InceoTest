@@ -1,0 +1,103 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "type": "object",
+  "title": "GET /requests Response Schema",
+  "description": "Paginated response schema for /requests endpoint",
+  "properties": {
+    "page": {
+      "type": "integer",
+      "description": "Current page number",
+      "minimum": 1
+    },
+    "pageSize": {
+      "type": "integer",
+      "description": "Number of items per page",
+      "minimum": 1
+    },
+    "total": {
+      "type": "integer",
+      "description": "Total number of items",
+      "minimum": 0
+    },
+    "items": {
+      "type": "array",
+      "description": "Array of money movement requests",
+      "items": {
+        "type": "object",
+        "properties": {
+          "requestId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "instructionId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "accountId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "railType": {
+            "type": "string",
+            "enum": ["ACH", "Wire", "Check", "Journal"]
+          },
+          "amount": {
+            "type": "number",
+            "minimum": 0
+          },
+          "requestType": {
+            "type": "string",
+            "enum": ["Deposit", "Withdrawal"]
+          },
+          "status": {
+            "type": "string",
+            "enum": ["Draft", "Pending", "Confirmed", "Deleted", "Cancelled"]
+          },
+          "reason": {
+            "type": ["integer", "string", "null"]
+          },
+          "version": {
+            "type": "integer",
+            "minimum": 0
+          },
+          "schedule": {
+            "type": "object",
+            "properties": {
+              "scheduleType": {
+                "type": "string",
+                "enum": ["OneTime", "Periodic"]
+              },
+              "paymentDate": {
+                "type": ["string", "null"]
+              },
+              "frequency": {
+                "type": ["string", "null"]
+              },
+              "startDate": {
+                "type": ["string", "null"]
+              },
+              "endDate": {
+                "type": ["string", "null"]
+              }
+            }
+          },
+          "createdDate": {
+            "type": "string"
+          },
+          "modifiedDate": {
+            "type": "string"
+          },
+          "createdBy": {
+            "type": ["string", "null"]
+          },
+          "modifiedBy": {
+            "type": ["string", "null"]
+          }
+        },
+        "required": ["requestId", "instructionId", "accountId", "railType", "amount", "requestType", "status"],
+        "additionalProperties": true
+      }
+    }
+  },
+  "required": ["page", "pageSize", "total", "items"]
+}

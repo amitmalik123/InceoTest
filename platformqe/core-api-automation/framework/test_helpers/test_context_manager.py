@@ -9,7 +9,7 @@ from typing import Dict, List, Any, Optional
 from framework.common.logger import get_logger
 from framework.common.template_utils import render_template, render_hybrid
 from framework.common.common_functions import extract_value
-from framework.common.utils import random_string, random_email, random_firstname, random_lastname
+from framework.common.utils import random_string, random_email, random_firstname, random_lastname, random_int
 
 logger = get_logger(__name__)
 
@@ -60,6 +60,7 @@ class TestContextManager:
         
         # Add utility functions for template rendering
         context['random_string'] = random_string
+        context['random_int'] = random_int
         context['random_email'] = random_email
         context['random_firstname'] = random_firstname
         context['random_lastname'] = random_lastname
@@ -179,6 +180,44 @@ class TestContextManager:
             elif source_type == 'request':
                 source_type = 'api_request'
             
+            # Handle script_result source type - extract from script execution results
+            if source_type == 'script_result':
+                # Script results should be in context under 'script_result' key
+                script_result = temp_context.get('script_result', {})
+                
+                if not script_result:
+                    logger.debug("No script_result in context, skipping extraction")
+                    continue
+                
+                # Extract from script_result.extracted_values
+                extracted_values = script_result.get('extracted_values', {})
+                
+                # Handle nested 'assign' array structure
+                if 'assign' in extract and isinstance(extract['assign'], list):
+                    for assign_item in extract['assign']:
+                        key = assign_item.get('key')
+                        assign_to = assign_item.get('assign_to')
+                        
+                        if key and assign_to:
+                            value = extracted_values.get(key)
+                            if value is not None:
+                                extracted[assign_to] = value
+                                self._global_variables[assign_to] = value
+                                logger.debug(f"Extracted '{assign_to}' = '{value}' from script_result")
+                else:
+                    # Old format: {"from": "script_result", "key": "computed_volatility", "assign_to": "expected_vol"}
+                    key = extract.get('key')
+                    assign_to = extract.get('assign_to')
+                    
+                    if key and assign_to:
+                        value = extracted_values.get(key)
+                        if value is not None:
+                            extracted[assign_to] = value
+                            self._global_variables[assign_to] = value
+                            logger.debug(f"Extracted '{assign_to}' = '{value}' from script_result")
+                
+                continue  # Move to next extract config
+            
             # Use validators' _resolve_data_source for consistent logic
             try:
                 source_data = _resolve_data_source(
@@ -198,6 +237,7 @@ class TestContextManager:
             # Check if this uses the new nested 'assign' array structure
             if 'assign' in extract and isinstance(extract['assign'], list):
                 # New format: {"from": "response", "assign": [{"key": "id", "assign_to": "user_id"}]}
+
                 for assign_item in extract['assign']:
                     key = assign_item.get('key')
                     assign_to = assign_item.get('assign_to')

@@ -680,17 +680,17 @@
             },
             {
                 "from": "response",
-                "key": "models.0.investmentMin.standard",
+                "key": "models.0.investmentMin.type",
                 "assign_to": "tc002_updated_min_standard"
             },
             {
                 "from": "response",
-                "key": "models.0.allocations.0.ticker",
+                "key": "models.0.versions.0.allocations.0.ticker",
                 "assign_to": "tc002_updated_ticker_1"
             },
             {
                 "from": "response",
-                "key": "models.0.allocations.0.weight",
+                "key": "models.0.versions.0.allocations.0.weight",
                 "assign_to": "tc002_updated_weight_1"
             },
             {
@@ -1054,17 +1054,17 @@
             },
             {
                 "from": "response",
-                "key": "models.0.allocations.0.entityType",
+                "key": "models.0.versions.0.allocations.0.entityType",
                 "assign_to": "tc003_updated_entity_type"
             },
             {
                 "from": "response",
-                "key": "models.0.allocations.0.modelId",
+                "key": "models.0.versions.0.allocations.0.modelId",
                 "assign_to": "tc003_updated_model_id_1"
             },
             {
                 "from": "response",
-                "key": "models.0.allocations.0.weight",
+                "key": "models.0.versions.0.allocations.0.weight",
                 "assign_to": "tc003_updated_weight_1"
             }
         ],
@@ -1371,27 +1371,27 @@
             },
             {
                 "from": "response",
-                "key": "models.0.allocations.0.entityType",
+                "key": "models.0.versions.0.allocations.0.entityType",
                 "assign_to": "tc004_updated_entity_type_1"
             },
             {
                 "from": "response",
-                "key": "models.0.allocations.0.modelId",
+                "key": "models.0.versions.0.allocations.0.modelId",
                 "assign_to": "tc004_updated_model_id_1"
             },
             {
                 "from": "response",
-                "key": "models.0.allocations.1.modelId",
+                "key": "models.0.versions.0.allocations.1.modelId",
                 "assign_to": "tc004_updated_model_id_2"
             },
             {
                 "from": "response",
-                "key": "models.0.allocations.2.modelId",
+                "key": "models.0.versions.0.allocations.2.modelId",
                 "assign_to": "tc004_updated_model_id_3"
             },
             {
                 "from": "response",
-                "key": "models.0.allocations.2.weight",
+                "key": "models.0.versions.0.allocations.2.weight",
                 "assign_to": "tc004_updated_weight_3"
             }
         ],

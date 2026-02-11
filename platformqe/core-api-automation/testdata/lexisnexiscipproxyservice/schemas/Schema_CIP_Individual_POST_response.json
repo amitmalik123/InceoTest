@@ -1,0 +1,138 @@
+{
+  "$schema": "http://json-schema.org/draft-04/schema#",
+  "type": "object",
+  "properties": {
+    "InstantIDResponseEx": {
+      "type": "object",
+      "properties": {
+        "@xmlns": {
+          "type": ["string", "null"]
+        },
+        "response": {
+          "type": "object",
+          "properties": {
+            "Header": {
+              "type": "object",
+              "properties": {
+                "Status": {
+                  "type": ["integer", "string", "null"]
+                },
+                "TransactionId": {
+                  "type": ["string", "null"]
+                },
+                "QueryId": {
+                  "type": ["string", "null"]
+                }
+              }
+            },
+            "Result": {
+          "type": "object",
+          "properties": {
+            "InputEcho": {
+              "type": "object"
+            },
+            "UniqueId": {
+              "type": ["string", "null"]
+            },
+            "VerifiedInput": {
+              "type": "object",
+              "properties": {
+                "Name": {
+                  "type": "object",
+                  "properties": {
+                    "First": {
+                      "type": ["string", "null"]
+                    },
+                    "Middle": {
+                      "type": ["string", "null"]
+                    },
+                    "Last": {
+                      "type": ["string", "null"]
+                    }
+                  }
+                },
+                "Address": {
+                  "type": "object",
+                  "properties": {
+                    "StreetAddress1": {
+                      "type": ["string", "null"]
+                    },
+                    "City": {
+                      "type": ["string", "null"]
+                    },
+                    "State": {
+                      "type": ["string", "null"]
+                    },
+                    "Zip5": {
+                      "type": ["string", "null"]
+                    }
+                  }
+                },
+                "SSN": {
+                  "type": ["string", "null"]
+                },
+                "DOB": {
+                  "type": "object",
+                  "properties": {
+                    "Year": {
+                      "type": ["string", "integer", "null"]
+                    },
+                    "Month": {
+                      "type": ["string", "integer", "null"]
+                    },
+                    "Day": {
+                      "type": ["string", "integer", "null"]
+                    }
+                  }
+                },
+                "HomePhone": {
+                  "type": ["string", "null"]
+                }
+              }
+            },
+            "ReversePhone": {
+              "type": ["object", "null"]
+            },
+            "ComprehensiveVerification": {
+              "type": "object",
+              "properties": {
+                "ComprehensiveVerificationIndex": {
+                  "type": ["string", "integer", "null"]
+                },
+                "RiskIndicators": {
+                  "type": ["object", "array", "null"]
+                }
+              }
+            },
+            "WatchLists": {
+              "type": ["object", "null"],
+              "properties": {
+                "WatchList": {
+                  "type": ["array", "null"]
+                }
+              }
+            },
+            "ChronologyHistories": {
+              "type": ["object", "null"],
+              "properties": {
+                "ChronologyHistory": {
+                  "type": ["array", "null"]
+                }
+              }
+            },
+            "PassportValidated": {
+              "type": ["boolean", "null"]
+            },
+            "DriverLicenseResult": {
+              "type": ["object", "null"]
+            }
+          }
+        }
+      },
+      "required": ["Header", "Result"]
+    }
+      }
+    }
+  },
+  "required": ["InstantIDResponseEx"]
+}
