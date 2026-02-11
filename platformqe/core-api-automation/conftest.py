@@ -1529,9 +1529,9 @@ def pytest_sessionstart(session):
             }
             
             if success:
-                logger.info(f"✅ Hooks completed successfully for {service_name}")
+                logger.info(f"Hooks completed successfully for {service_name}")
             else:
-                logger.warning(f"⚠️ Hooks completed with warnings for {service_name}")
+                logger.warning(f"Hooks completed with warnings for {service_name}")
         except Exception as e:
             logger.error(f"Failed to run hooks for {service_name}: {e}")
 
@@ -1551,7 +1551,7 @@ def pytest_sessionfinish(session, exitstatus):
             if created_data:
                 cleanup = CleanupManager(service_name, created_data=created_data)
                 cleanup.teardown()
-                logger.info(f"✅ Cleanup completed for {service_name}")
+                logger.info(f"Cleanup completed for {service_name}")
             else:
                 logger.info(f"No test data to cleanup for {service_name}")
         except Exception as e:

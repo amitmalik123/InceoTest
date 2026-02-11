@@ -1,72 +1,83 @@
 [
-  {
-    "test_id": "TC001",
-    "service_name": "parties",
-    "workflow_mode": "parallel",
-    "test_name": "POST /parties [positive] (TC001)",
-    "protocol": "REST",
-    "test_type": ["Functional", "Business Logic"],
-    "mainURL": "{{base_url}}",
-    "endpoint": "/parties",
-    "method": "POST",
-    "rpc_method": "",
-    "graphql_query": "",
-    "graphql_variables": "",
-    "soap_action": "",
-    "soap_envelope": "",
-    "headers_additional": {
-      "Content-Type": "application/json"
-    },
-    "payload": "parties/payloads/Payload_parties_Party_POST_request.json",
-    "expected_status": "201",
-    "expected_response_schema": "parties/schemas/Schema_parties_Party_POST_response_success.json",
-    "expected_response": "",
-    "ignore_keys": ["id"],
-    "extract_values": [
-      {
-        "from": "response",
-        "key": "partyId",
-        "assign_to": "party_id"
-      },
-      {
-        "from": "db_result",
-        "query": "",
-        "assign": [
-          {
-            "key": "",
-            "assign_to": ""
-          }
-        ]
-      }
-    ],
-    "validate": {
-      "performance": {
-        "max_response_time_ms": 1000
-      },
-      "security": {
-        "checks": ["sql_injection", "xss"]
-      },
-      "data_comparison": {
-        "source": "api_request",
-        "target": "db_result",
-        "format": "table",
-        "key_field": ["", ""],
-        "fields_to_compare": [],
-        "log_differences": true
-      },
-      "assertions": [
-        {
-          "actual": "{{party_id}}",
-          "operator": "!=",
-          "expected": "",
-          "message": "Expected created party_id to be non-empty"
-        }
-      ]
-    },
-    "test_data_file": "parties/data_driven/Data_parties_POST.csv",
-    "db_type": "mssql",
-    "db_connection_name": "parties",
-    "db_query": "parties/db_queries/Query_Party_POST.txt",
-    "test_summary": "Test TC001: POST /parties [positive] (TC001)"
-  }
+    {
+        "test_id": "TC001",
+        "service_name": "parties",
+        "workflow_mode": "parallel",
+        "test_name": "POST /parties [positive] (TC001)",
+        "protocol": "REST",
+        "test_type": [
+            "Functional",
+            "Business Logic"
+        ],
+        "mainURL": "{{base_url}}",
+        "endpoint": "/parties",
+        "method": "POST",
+        "rpc_method": "",
+        "graphql_query": "",
+        "graphql_variables": "",
+        "soap_action": "",
+        "soap_envelope": "",
+        "headers_additional": {
+            "Content-Type": "application/json"
+        },
+        "payload": "parties/payloads/Payload_parties_Party_POST_request.json",
+        "expected_status": "201",
+        "expected_response_schema": "parties/schemas/Schema_parties_Party_POST_response_success.json",
+        "expected_response": "",
+        "ignore_keys": [
+            "id"
+        ],
+        "extract_values": [
+            {
+                "from": "response",
+                "key": "partyId",
+                "assign_to": "party_id"
+            },
+            {
+                "from": "db_result",
+                "query": "",
+                "assign": [
+                    {
+                        "key": "",
+                        "assign_to": ""
+                    }
+                ]
+            }
+        ],
+        "validate": {
+            "performance": {
+                "max_response_time_ms": 1000
+            },
+            "security": {
+                "checks": [
+                    "sql_injection",
+                    "xss"
+                ]
+            },
+            "data_comparison": {
+                "source": "api_request",
+                "target": "db_result",
+                "format": "table",
+                "key_field": [
+                    "",
+                    ""
+                ],
+                "fields_to_compare": [],
+                "log_differences": true
+            },
+            "assertions": [
+                {
+                    "actual": "{{party_id}}",
+                    "operator": "!=",
+                    "expected": "",
+                    "message": "Expected created party_id to be non-empty"
+                }
+            ]
+        },
+        "test_data_file": "parties/data_driven/Data_parties_POST.csv",
+        "db_type": "mssql",
+        "db_connection_name": "parties",
+        "db_query": "parties/db_queries/Query_Party_POST.txt",
+        "test_summary": "Test TC001: POST /parties [positive] (TC001)"
+    }
 ]
