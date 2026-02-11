@@ -77,19 +77,19 @@ SERVICE_DEFAULTS: Dict[str, Dict] = {
     },
 
     'MoveMoneyAPI': {
-        'max_records': 5,
+        'max_records': 10,
         # Prerequisite test case to run before other tests
         'prerequisite_testcase': {
             'enabled': True,
-            'count': 3,  # Number of party IDs to create
+            'count': 10,  # Number of party IDs to create
             'testcase_file': 'MoveMoneyAPI/testcases/TestCase_moneymovement_requestid_POST.json',
             'test_data_file': 'MoveMoneyAPI/data_driven/Data_MoveMoneyAPI_POST.csv',
             'extract_from_response': {
                 'field': 'requestId',  # Field to extract from API response
-                'assign_to': 'id'    # Variable name to use
+                'assign_to': 'requestId'    # Variable name to use
             },
-            'update_csv_file': 'MoveMoneyAPI/data_driven/Data_instructions_PUT.csv',
-            'csv_columns': ['environment', 'id']
+            'update_csv_file': 'MoveMoneyAPI/data_driven/Data_requests_requestId_PUT.csv',
+            'csv_columns': ['environment', 'requestId', 'version', 'instructionId', 'accountId', 'railType', 'amount', 'requestType', 'status', 'reason', 'scheduleType', 'paymentDate', 'frequency', 'startDate', 'endDate']
         }
     }
 }

@@ -344,6 +344,7 @@ class TestDataManager:
     ) -> None:
         """
         Update CSV file with extracted values from prerequisite tests.
+        Supports merge mode: preserves existing columns and updates only extracted fields.
         
         Args:
             csv_file: Relative path to CSV file from testdata folder
@@ -359,31 +360,56 @@ class TestDataManager:
             # Create directory if needed
             os.makedirs(os.path.dirname(csv_path), exist_ok=True)
             
-            # Backup original data
+            # Check if file exists for merge mode
+            existing_rows = []
+            existing_columns = []
             if os.path.exists(csv_path):
                 with open(csv_path, 'r', newline='', encoding='utf-8') as f:
                     reader = csv.DictReader(f)
-                    self.original_csv_data[csv_file] = list(reader)
+                    existing_columns = reader.fieldnames if reader.fieldnames else []
+                    existing_rows = list(reader)
+                
+                # Backup original data
+                self.original_csv_data[csv_file] = existing_rows
+                
+                logger.info(f"Merge mode: Updating existing CSV with {len(all_extracted_values)} extracted values")
+                
+                # Update existing rows with extracted values (one extracted value per row)
+                for idx, extracted in enumerate(all_extracted_values):
+                    if idx < len(existing_rows):
+                        # Update only the extracted columns in this row
+                        for key, value in extracted.items():
+                            existing_rows[idx][key] = value
+                        logger.info(f"Row {idx+1}: Updated {list(extracted.keys())} with values {list(extracted.values())}")
+                
+                # Use existing columns if file existed, otherwise use provided columns
+                final_columns = existing_columns if existing_columns else columns
+            else:
+                logger.info(f"New mode: Creating new CSV with {len(all_extracted_values)} prerequisite entries")
+                
+                # Create new rows from extracted values
+                existing_rows = []
+                for extracted in all_extracted_values:
+                    row = {'environment': self.environment}
+                    for col in columns:
+                        if col != 'environment' and col in extracted:
+                            row[col] = extracted[col]
+                    existing_rows.append(row)
+                
+                final_columns = columns
             
-            # Create rows from extracted values
-            rows = []
-            for extracted in all_extracted_values:
-                row = {'environment': self.environment}
-                for col in columns:
-                    if col != 'environment' and col in extracted:
-                        row[col] = extracted[col]
-                rows.append(row)
-            
-            # Write updated CSV
+            # Write updated CSV with all columns (existing + new)
             with open(csv_path, 'w', newline='', encoding='utf-8') as f:
-                writer = csv.DictWriter(f, fieldnames=columns)
+                writer = csv.DictWriter(f, fieldnames=final_columns)
                 writer.writeheader()
-                writer.writerows(rows)
+                writer.writerows(existing_rows)
             
-            logger.info(f"Updated {csv_path} with {len(rows)} prerequisite entries")
+            logger.info(f"Updated {csv_path} with {len(existing_rows)} entries")
             
         except Exception as e:
             logger.error(f"Failed to update CSV {csv_file}: {e}")
+            import traceback
+            logger.error(traceback.format_exc())
     
     def restore_csv_files(self) -> None:
         """Restore CSV files to their original state."""

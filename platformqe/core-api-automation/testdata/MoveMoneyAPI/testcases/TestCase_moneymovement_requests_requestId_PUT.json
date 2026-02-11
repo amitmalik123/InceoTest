@@ -9,22 +9,26 @@
             "Functional"
         ],
         "mainURL": "{{base_url}}",
-        "endpoint": "/requests/e96f0d82-b1b2-49d4-9ab4-7331dacdd089",
+        "endpoint": "/requests/{{requestId}}",
         "method": "PUT",
         "headers_additional": {
             "Content-Type": "application/json"
         },
         "payload": {
-            "version": 13,
-            "instructionId": "D223450C-7974-4B23-8E10-6CC418E7907C",
-            "accountId": "456E7890-E89B-12D3-A456-426614174111",
-            "railType": "ACH",
-            "amount": 7500.0,
-            "requestType": "Deposit",
-            "status": "Confirmed",
+            "version": "{{version}}",
+            "instructionId": "{{instructionId}}",
+            "accountId": "{{accountId}}",
+            "railType": "{{railType}}",
+            "amount": "{{amount}}",
+            "requestType": "{{requestType}}",
+            "status": "{{status}}",
+            "reason": "{{reason}}",
             "schedule": {
-                "scheduleType": "OneTime",
-                "paymentDate": "2026-11-18"
+                "scheduleType": "{{scheduleType}}",
+                "paymentDate": "{{paymentDate}}",
+                "frequency": "{{frequency}}",
+                "startDate": "{{startDate}}",
+                "endDate": "{{endDate}}"
             }
         },
         "expected_status": "200",
@@ -75,7 +79,7 @@
             ],
             "data_comparison": []
         },
-        "test_data_file": "",
+        "test_data_file": "MoveMoneyAPI/data_driven/Data_requests_requestId_PUT.csv",
         "db_query_timing": "",
         "db_queries": {
             "default": "",
@@ -101,16 +105,20 @@
             "Content-Type": "application/json"
         },
         "payload": {
-            "version": 6,
-            "instructionId": "D223450C-7974-4B23-8E10-6CC418E7907C",
-            "accountId": "456E7890-E89B-12D3-A456-426614174111",
-            "railType": "ACH",
-            "amount": 7500.0,
-            "requestType": "Deposit",
-            "status": "Pending",
+            "version": "{{version}}",
+            "instructionId": "{{instructionId}}",
+            "accountId": "{{accountId}}",
+            "railType": "{{railType}}",
+            "amount": "{{amount}}",
+            "requestType": "{{requestType}}",
+            "status": "{{status}}",
+            "reason": "{{reason}}",
             "schedule": {
-                "scheduleType": "OneTime",
-                "paymentDate": "2027-11-18"
+                "scheduleType": "{{scheduleType}}",
+                "paymentDate": "{{paymentDate}}",
+                "frequency": "{{frequency}}",
+                "startDate": "{{startDate}}",
+                "endDate": "{{endDate}}"
             }
         },
         "expected_status": "200",
@@ -155,7 +163,7 @@
             ],
             "data_comparison": []
         },
-        "test_data_file": "",
+        "test_data_file": "MoveMoneyAPI/data_driven/Data_requests_requestId_PUT.csv",
         "db_query_timing": "",
         "db_queries": {
             "default": "",
@@ -181,19 +189,20 @@
             "Content-Type": "application/json"
         },
         "payload": {
-            "version": 6,
-            "instructionId": "D223450C-7974-4B23-8E10-6CC418E7907C",
-            "accountId": "456E7890-E89B-12D3-A456-426614174111",
-            "railType": "ACH",
-            "amount": 7500.0,
-            "requestType": "Deposit",
-            "status": "Pending",
-            "reason": "IRARothTransfer",
+            "version": "{{version}}",
+            "instructionId": "{{instructionId}}",
+            "accountId": "{{accountId}}",
+            "railType": "{{railType}}",
+            "amount": "{{amount}}",
+            "requestType": "{{requestType}}",
+            "status": "{{status}}",
+            "reason": "{{reason}}",
             "schedule": {
-                "scheduleType": "Periodic",
-                "frequency": "Monthly",
-                "startDate": "2026-11-15",
-                "endDate": "2027-11-15"
+                "scheduleType": "{{scheduleType}}",
+                "paymentDate": "{{paymentDate}}",
+                "frequency": "{{frequency}}",
+                "startDate": "{{startDate}}",
+                "endDate": "{{endDate}}"
             }
         },
         "expected_status": "200",
@@ -238,7 +247,7 @@
             ],
             "data_comparison": []
         },
-        "test_data_file": "",
+        "test_data_file": "MoveMoneyAPI/data_driven/Data_requests_requestId_PUT.csv",
         "db_query_timing": "",
         "db_queries": {
             "default": "",
@@ -269,19 +278,20 @@
             "Content-Type": "application/json"
         },
         "payload": {
-            "version": 5,
-            "instructionId": "BB00EC97-9759-4B89-81E3-089BF584E607",
-            "accountId": "456E7890-E89B-12D3-A456-426614174111",
-            "railType": "ACH",
-            "amount": 7500.0,
-            "requestType": "Deposit",
-            "status": "Pending",
-            "reason": "IRARothTransfer",
+            "version": "{{version}}",
+            "instructionId": "{{instructionId}}",
+            "accountId": "{{accountId}}",
+            "railType": "{{railType}}",
+            "amount": "{{amount}}",
+            "requestType": "{{requestType}}",
+            "status": "{{status}}",
+            "reason": "{{reason}}",
             "schedule": {
-                "scheduleType": "Periodic",
-                "frequency": "Monthly",
-                "startDate": "2026-11-15",
-                "endDate": "2027-11-15"
+                "scheduleType": "{{scheduleType}}",
+                "paymentDate": "{{paymentDate}}",
+                "frequency": "{{frequency}}",
+                "startDate": "{{startDate}}",
+                "endDate": "{{endDate}}"
             }
         },
         "expected_status": "204",
@@ -302,7 +312,7 @@
             "assertions": [],
             "data_comparison": []
         },
-        "test_data_file": "",
+        "test_data_file": "MoveMoneyAPI/data_driven/Data_requests_requestId_PUT.csv",
         "db_query_timing": "after_api",
         "db_queries": {
             "default": "",
@@ -333,19 +343,20 @@
             "Content-Type": "application/json"
         },
         "payload": {
-            "version": 5,
-            "instructionId": "126D23AF-E3C2-46A8-923E-2A8238B6FE32",
-            "accountId": "456E7890-E89B-12D3-A456-426614174111",
-            "railType": "ACH",
-            "amount": 7500.0,
-            "requestType": "Deposit",
-            "status": "Pending",
-            "reason": "IRARothTransfer",
+            "version": "{{version}}",
+            "instructionId": "{{instructionId}}",
+            "accountId": "{{accountId}}",
+            "railType": "{{railType}}",
+            "amount": "{{amount}}",
+            "requestType": "{{requestType}}",
+            "status": "{{status}}",
+            "reason": "{{reason}}",
             "schedule": {
-                "scheduleType": "Periodic",
-                "frequency": "Monthly",
-                "startDate": "2026-11-15",
-                "endDate": "2027-11-15"
+                "scheduleType": "{{scheduleType}}",
+                "paymentDate": "{{paymentDate}}",
+                "frequency": "{{frequency}}",
+                "startDate": "{{startDate}}",
+                "endDate": "{{endDate}}"
             }
         },
         "expected_status": "400",
@@ -383,7 +394,7 @@
             ],
             "data_comparison": []
         },
-        "test_data_file": "",
+        "test_data_file": "MoveMoneyAPI/data_driven/Data_requests_requestId_PUT.csv",
         "db_query_timing": "after_api",
         "db_queries": {
             "default": "",
@@ -414,19 +425,20 @@
             "Content-Type": "application/json"
         },
         "payload": {
-            "version": 7,
-            "instructionId": "BB00EC97-9759-4B89-81E3-089BF584E607",
-            "accountId": "456E7890-E89B-12D3-A456-426614174111",
-            "railType": "ACH",
-            "amount": 0.0,
-            "requestType": "Deposit",
-            "status": "Pending",
-            "reason": "IRARothTransfer",
+            "version": "{{version}}",
+            "instructionId": "{{instructionId}}",
+            "accountId": "{{accountId}}",
+            "railType": "{{railType}}",
+            "amount": "{{amount}}",
+            "requestType": "{{requestType}}",
+            "status": "{{status}}",
+            "reason": "{{reason}}",
             "schedule": {
-                "scheduleType": "Periodic",
-                "frequency": "Monthly",
-                "startDate": "2026-11-15",
-                "endDate": "2027-11-15"
+                "scheduleType": "{{scheduleType}}",
+                "paymentDate": "{{paymentDate}}",
+                "frequency": "{{frequency}}",
+                "startDate": "{{startDate}}",
+                "endDate": "{{endDate}}"
             }
         },
         "expected_status": "400",
@@ -464,7 +476,7 @@
             ],
             "data_comparison": []
         },
-        "test_data_file": "",
+        "test_data_file": "MoveMoneyAPI/data_driven/Data_requests_requestId_PUT.csv",
         "db_query_timing": "after_api",
         "db_queries": {
             "default": "",
@@ -495,19 +507,20 @@
             "Content-Type": "application/json"
         },
         "payload": {
-            "version": 7,
-            "instructionId": "BB00EC97-9759-4B89-81E3-089BF584E607",
-            "accountId": "456E7890-E89B-12D3-A456-426614174111",
-            "railType": "ACH",
-            "amount": 9999999233444.99,
-            "requestType": "Deposit",
-            "status": "Pending",
-            "reason": "IRARothTransfer",
+            "version": "{{version}}",
+            "instructionId": "{{instructionId}}",
+            "accountId": "{{accountId}}",
+            "railType": "{{railType}}",
+            "amount": "{{amount}}",
+            "requestType": "{{requestType}}",
+            "status": "{{status}}",
+            "reason": "{{reason}}",
             "schedule": {
-                "scheduleType": "Periodic",
-                "frequency": "Monthly",
-                "startDate": "2026-11-15",
-                "endDate": "2027-11-15"
+                "scheduleType": "{{scheduleType}}",
+                "paymentDate": "{{paymentDate}}",
+                "frequency": "{{frequency}}",
+                "startDate": "{{startDate}}",
+                "endDate": "{{endDate}}"
             }
         },
         "expected_status": "400",
@@ -545,7 +558,7 @@
             ],
             "data_comparison": []
         },
-        "test_data_file": "",
+        "test_data_file": "MoveMoneyAPI/data_driven/Data_requests_requestId_PUT.csv",
         "db_query_timing": "after_api",
         "db_queries": {
             "default": "",
@@ -576,16 +589,20 @@
             "Content-Type": "application/json"
         },
         "payload": {
-            "version": 7,
-            "instructionId": "BB00EC97-9759-4B89-81E3-089BF584E607",
-            "accountId": "456E7890-E89B-12D3-A456-426614174111",
-            "railType": "ACH",
-            "amount": 7500.0,
-            "requestType": "Deposit",
-            "status": "Pending",
+            "version": "{{version}}",
+            "instructionId": "{{instructionId}}",
+            "accountId": "{{accountId}}",
+            "railType": "{{railType}}",
+            "amount": "{{amount}}",
+            "requestType": "{{requestType}}",
+            "status": "{{status}}",
+            "reason": "{{reason}}",
             "schedule": {
-                "scheduleType": "OneTime",
-                "paymentDate": "20-11-2020"
+                "scheduleType": "{{scheduleType}}",
+                "paymentDate": "{{paymentDate}}",
+                "frequency": "{{frequency}}",
+                "startDate": "{{startDate}}",
+                "endDate": "{{endDate}}"
             }
         },
         "expected_status": "400",
@@ -619,7 +636,7 @@
             ],
             "data_comparison": []
         },
-        "test_data_file": "",
+        "test_data_file": "MoveMoneyAPI/data_driven/Data_requests_requestId_PUT.csv",
         "db_query_timing": "after_api",
         "db_queries": {
             "default": "",
@@ -650,16 +667,20 @@
             "Content-Type": "application/json"
         },
         "payload": {
-            "version": 7,
-            "instructionId": "BB00EC97-9759-4B89-81E3-089BF584E607",
-            "accountId": "456E7890-E89B-12D3-A456-426614174111",
-            "railType": "ACH",
-            "amount": 7500.0,
-            "requestType": "Deposit",
-            "status": "Pending",
+            "version": "{{version}}",
+            "instructionId": "{{instructionId}}",
+            "accountId": "{{accountId}}",
+            "railType": "{{railType}}",
+            "amount": "{{amount}}",
+            "requestType": "{{requestType}}",
+            "status": "{{status}}",
+            "reason": "{{reason}}",
             "schedule": {
-                "scheduleType": "OneTime",
-                "paymentDate": "2026-11-20"
+                "scheduleType": "{{scheduleType}}",
+                "paymentDate": "{{paymentDate}}",
+                "frequency": "{{frequency}}",
+                "startDate": "{{startDate}}",
+                "endDate": "{{endDate}}"
             }
         },
         "expected_status": "409",
@@ -693,7 +714,7 @@
             ],
             "data_comparison": []
         },
-        "test_data_file": "",
+        "test_data_file": "MoveMoneyAPI/data_driven/Data_requests_requestId_PUT.csv",
         "db_query_timing": "after_api",
         "db_queries": {
             "default": "",
@@ -724,16 +745,20 @@
             "Content-Type": "application/json"
         },
         "payload": {
-            "version": 7,
-            "instructionId": "BB00EC97-9759-4B89-81E3-089BF584E607",
-            "accountId": "456E7890-E89B-12D3-A456-426614174111",
-            "railType": "ACH",
-            "amount": 7500.0,
-            "requestType": "Deposit",
-            "status": "Pending",
+            "version": "{{version}}",
+            "instructionId": "{{instructionId}}",
+            "accountId": "{{accountId}}",
+            "railType": "{{railType}}",
+            "amount": "{{amount}}",
+            "requestType": "{{requestType}}",
+            "status": "{{status}}",
+            "reason": "{{reason}}",
             "schedule": {
-                "scheduleType": "OneTime",
-                "paymentDate": "2026-11-20"
+                "scheduleType": "{{scheduleType}}",
+                "paymentDate": "{{paymentDate}}",
+                "frequency": "{{frequency}}",
+                "startDate": "{{startDate}}",
+                "endDate": "{{endDate}}"
             }
         },
         "expected_status": "500",
@@ -754,7 +779,7 @@
             "assertions": [],
             "data_comparison": []
         },
-        "test_data_file": "",
+        "test_data_file": "MoveMoneyAPI/data_driven/Data_requests_requestId_PUT.csv",
         "db_query_timing": "after_api",
         "db_queries": {
             "default": "",
