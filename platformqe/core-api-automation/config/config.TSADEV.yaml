@@ -89,7 +89,7 @@ db_connections:
 api_endpoints:
 
   MoveMoneyAPI:
-    base_url: "${MOVEMONEY_BASE_URL}"  # Fetched from Azure variable group: qa-pipelines-variable-group-dev
+    base_url: https://platform.dev01.assetmark.com/api/moneymovement/v1  # Fetched from Azure variable group: qa-pipelines-variable-group-dev
     auth_token: "${MOVEMONEY_API_TOKEN}"   # Use your actual token or environment variable
     timeout: ${API_TIMEOUT:30}
     retry_count: ${API_RETRY_COUNT:3}
