@@ -9,7 +9,7 @@ from typing import Dict, List, Any, Optional
 from framework.common.logger import get_logger
 from framework.common.template_utils import render_template, render_hybrid
 from framework.common.common_functions import extract_value
-from framework.common.utils import random_string, random_email, random_firstname, random_lastname, random_int
+from framework.common.utils import random_string, random_email, random_firstname, random_lastname, random_int, random_numeric
 
 logger = get_logger(__name__)
 
@@ -61,6 +61,7 @@ class TestContextManager:
         # Add utility functions for template rendering
         context['random_string'] = random_string
         context['random_int'] = random_int
+        context['random_numeric'] = random_numeric
         context['random_email'] = random_email
         context['random_firstname'] = random_firstname
         context['random_lastname'] = random_lastname
