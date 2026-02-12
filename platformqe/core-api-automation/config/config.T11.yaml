@@ -130,6 +130,14 @@ api_endpoints:
     retry_count: 3
     use_azure_auth: false
     azure_resource: "https://management.azure.com/"
+
+  Transfer_Service_validation:
+    base_url: "${TRANSFER_SERVICE_VALIDATION_BASE_URL}"  # Base URL for Cost Basis Validation Testing (e.g., https://platform.dev01.assetmark.com)
+    auth_token: "${TRANSFER_SERVICE_AUTH_TOKEN}"
+    timeout: 30
+    retry_count: 3
+    use_azure_auth: false  # Set to true to use Azure AD authentication
+    azure_resource: "https://management.azure.com/"  # Azure resource for token generation
   
   # Example: Azure AD authenticated API
   azure_resource_manager:

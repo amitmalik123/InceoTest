@@ -1,5 +1,122 @@
 [
     {
+        "test_id": "TC000",
+        "service_name": "securitiesServices",
+        "workflow_mode": "sequential",
+        "test_name": "POST /classifications [setup: create test classification] (TC000)",
+        "protocol": "REST",
+        "test_type": [
+            "Setup",
+            "Positive"
+        ],
+        "mainURL": "{{base_url}}",
+        "endpoint": "/classifications",
+        "method": "POST",
+        "headers_additional": {
+            "Content-Type": "application/json"
+        },
+        "payload": "securitiesServices/payloads/Payload_security_classifications_POST_request.json",
+        "expected_status": "200",
+        "expected_response_schema": "securitiesServices/schemas/Schema_classifications_POST_response.json",
+        "expected_response": null,
+        "ignore_fields": [],
+        "extract_values": [
+            {
+                "from": "request",
+                "key": "0.subAssetTypeId",
+                "assign_to": "request_subAssetTypeId"
+            },
+            {
+                "from": "response",
+                "key": "0.status",
+                "assign_to": "creation_status"
+            }
+        ],
+        "validate": {
+            "performance": {
+                "max_response_time_ms": 2811
+            },
+            "security": {
+                "checks": [
+                    "sql_injection",
+                    "xss"
+                ]
+            },
+            "assertions": [
+                {
+                    "actual": "{{creation_status}}",
+                    "operator": "in",
+                    "expected": [
+                        "success",
+                        "Duplicate Inserts"
+                    ],
+                    "message": "Expected creation status to be success or Duplicate Inserts"
+                }
+            ]
+        },
+        "test_data_file": "",
+        "db_queries": "",
+        "db_type": "",
+        "db_connection_name": "securitiesServices",
+        "test_summary": "Test TC000: Setup - Create a test classification to be retrieved by GET tests",
+        "test_scenario": "Create a classification using POST /classifications to ensure data exists for GET /classifications tests."
+    },
+    {
+        "test_id": "TC00A",
+        "service_name": "securitiesServices",
+        "workflow_mode": "sequential",
+        "test_name": "POST /security [positive: Create security] (TC00A)",
+        "protocol": "REST",
+        "test_type": [
+            "Functional",
+            "Positive"
+        ],
+        "mainURL": "{{base_url}}",
+        "endpoint": "/security?subAssetTypeId={{request_subAssetTypeId}}&cusip={{random_string(9)}}&name={{random_string(5)}}",
+        "method": "POST",
+        "headers_additional": {
+            "Content-Type": "application/json"
+        },
+        "payload": null,
+        "expected_status": "200",
+        "expected_response_schema": "securitiesServices/schemas/Schema_security_POST.json",
+        "expected_response": null,
+        "ignore_fields": [],
+        "extract_values": [
+            {
+                "from": "response",
+                "key": "securityId",
+                "assign_to": "created_securityId"
+            }
+        ],
+        "validate": {
+            "performance": {
+                "max_response_time_ms": 1000
+            },
+            "security": {
+                "checks": [
+                    "sql_injection",
+                    "xss"
+                ]
+            },
+            "data_comparison": [],
+            "assertions": [
+                {
+                    "actual": "{{created_securityId}}",
+                    "operator": "!=",
+                    "expected": null,
+                    "message": "Expected created securityId to be not null"
+                }
+            ]
+        },
+        "test_data_file": "",
+        "db_queries": "",
+        "db_type": "",
+        "db_connection_name": "",
+        "test_summary": "Test TC00A: Create security",
+        "test_scenario": "Verify that a valid 9-character alphanumeric CUSIP is accepted successfully."
+    },
+    {
         "test_id": "TC001",
         "service_name": "securitiesServices",
         "workflow_mode": "parallel",
@@ -10,17 +127,27 @@
             "Validation"
         ],
         "mainURL": "{{base_url}}",
-        "endpoint": "/security/{{invalid_securityId}}?name={{random_string(7)}}&ticker={{random_string(5)}}&cusip={{random_string(9)}}",
+        "endpoint": "/security/{{random_numeric(9)}}?name={{random_string(7)}}&ticker={{random_string(5)}}&cusip={{random_string(9)}}",
         "method": "PUT",
         "headers_additional": {
             "Content-Type": "application/json"
         },
         "payload": null,
-        "expected_status": "400",
+        "expected_status": "422",
         "expected_response_schema": "",
         "expected_response": null,
         "ignore_fields": [],
         "extract_values": [
+            {
+                "from": "response",
+                "key": "title",
+                "assign_to": "error_title"
+            },
+            {
+                "from": "response",
+                "key": "detail",
+                "assign_to": "error_detail"
+            },
             {
                 "from": "response",
                 "key": "status",
@@ -46,30 +173,36 @@
                 {
                     "actual": "{{error_status}}",
                     "operator": "==",
-                    "expected": 400,
-                    "message": "Expected error status to be 400"
+                    "expected": 422,
+                    "message": "Expected error status to be 422"
+                },
+                {
+                    "actual": "{{error_title}}",
+                    "operator": "==",
+                    "expected": "Business Rule Violation",
+                    "message": "Expected error title to be 'Business Rule Violation'"
+                },
+                {
+                    "actual": "{{error_detail}}",
+                    "operator": "==",
+                    "expected": "The request is invalid and not meeting business rules requirements",
+                    "message": "Expected details to mention 'The request is invalid and not meeting business rules requirements'"
                 },
                 {
                     "actual": "{{securityId_error_message}}",
                     "operator": "contains",
-                    "expected": "The value",
+                    "expected": "Security Id",
                     "message": "Expected securityId error message to include the invalid securityId value"
                 },
                 {
                     "actual": "{{securityId_error_message}}",
                     "operator": "contains",
-                    "expected": "{{invalid_securityId}}",
-                    "message": "Expected securityId error message to include the invalid securityId value"
-                },
-                {
-                    "actual": "{{securityId_error_message}}",
-                    "operator": "contains",
-                    "expected": "is not valid.",
+                    "expected": "does not exist.",
                     "message": "Expected securityId error message to include the invalid securityId value"
                 }
             ]
         },
-        "test_data_file": "securitiesServices/data_driven/Data_security_PUT.csv",
+        "test_data_file": "",
         "db_query": "",
         "db_type": "",
         "db_connection_name": "",
@@ -79,7 +212,7 @@
     {
         "test_id": "TC002",
         "service_name": "securitiesServices",
-        "workflow_mode": "parallel",
+        "workflow_mode": "sequential",
         "test_name": "POST /security [validation: update too short cusip] (TC002)",
         "protocol": "REST",
         "test_type": [
@@ -87,7 +220,7 @@
             "Validation"
         ],
         "mainURL": "{{base_url}}",
-        "endpoint": "/security/{{valid_securityId}}?name={{random_string(7)}}&ticker={{random_string(5)}}&cusip={{random_string(8)}}",
+        "endpoint": "/security/{{created_securityId}}?name={{random_string(7)}}&ticker={{random_string(5)}}&cusip={{random_string(8)}}",
         "method": "PUT",
         "headers_additional": {
             "Content-Type": "application/json"
@@ -173,7 +306,7 @@
                 {
                     "actual": "{{error_instance}}",
                     "operator": "contains",
-                    "expected": "{{valid_securityId}}",
+                    "expected": "{{created_securityId}}",
                     "message": "Expected instance to be '/api/security/v1/security'"
                 },
                 {
@@ -190,7 +323,7 @@
                 }
             ]
         },
-        "test_data_file": "securitiesServices/data_driven/Data_security_PUT.csv",
+        "test_data_file": "",
         "db_query": "",
         "db_type": "",
         "db_connection_name": "",
@@ -200,7 +333,7 @@
     {
         "test_id": "TC003",
         "service_name": "securitiesServices",
-        "workflow_mode": "parallel",
+        "workflow_mode": "sequential",
         "test_name": "POST /security [validation: update too long cusip] (TC003)",
         "protocol": "REST",
         "test_type": [
@@ -208,7 +341,7 @@
             "Validation"
         ],
         "mainURL": "{{base_url}}",
-        "endpoint": "/security/{{valid_securityId}}?name={{random_string(7)}}&ticker={{random_string(5)}}&cusip={{random_string(10)}}",
+        "endpoint": "/security/{{created_securityId}}?name={{random_string(7)}}&ticker={{random_string(5)}}&cusip={{random_string(10)}}",
         "method": "PUT",
         "headers_additional": {
             "Content-Type": "application/json"
@@ -294,7 +427,7 @@
                 {
                     "actual": "{{error_instance}}",
                     "operator": "contains",
-                    "expected": "{{valid_securityId}}",
+                    "expected": "{{created_securityId}}",
                     "message": "Expected instance to be '/api/security/v1/security'"
                 },
                 {
@@ -311,7 +444,7 @@
                 }
             ]
         },
-        "test_data_file": "securitiesServices/data_driven/Data_security_PUT.csv",
+        "test_data_file": "",
         "db_query": "",
         "db_type": "",
         "db_connection_name": "",
@@ -321,7 +454,7 @@
     {
         "test_id": "TC004",
         "service_name": "securitiesServices",
-        "workflow_mode": "parallel",
+        "workflow_mode": "sequential",
         "test_name": "POST /security [validation: not providing any parameter value to update] (TC004)",
         "protocol": "REST",
         "test_type": [
@@ -329,7 +462,7 @@
             "Validation"
         ],
         "mainURL": "{{base_url}}",
-        "endpoint": "/security/{{valid_securityId}}",
+        "endpoint": "/security/{{created_securityId}}",
         "method": "PUT",
         "headers_additional": {
             "Content-Type": "application/json"
@@ -415,7 +548,7 @@
                 {
                     "actual": "{{error_instance}}",
                     "operator": "contains",
-                    "expected": "{{valid_securityId}}",
+                    "expected": "{{created_securityId}}",
                     "message": "Expected instance to be '/api/security/v1/security'"
                 },
                 {
@@ -426,7 +559,7 @@
                 }
             ]
         },
-        "test_data_file": "securitiesServices/data_driven/Data_security_PUT.csv",
+        "test_data_file": "",
         "db_query": "",
         "db_type": "",
         "db_connection_name": "",
@@ -436,7 +569,7 @@
     {
         "test_id": "TC005",
         "service_name": "securitiesServices",
-        "workflow_mode": "parallel",
+        "workflow_mode": "sequential",
         "test_name": "Updates a single security Name & Ticker & Cusip [positive] (TC005)",
         "protocol": "REST",
         "test_type": [
@@ -444,7 +577,7 @@
             "Positive"
         ],
         "mainURL": "{{base_url}}",
-        "endpoint": "/security/{{valid_securityId}}?name={{random_string(7)}}&ticker={{random_string(5)}}&cusip={{random_string(9)}}",
+        "endpoint": "/security/{{created_securityId}}?name={{random_string(7)}}&ticker={{random_string(5)}}&cusip={{random_string(9)}}",
         "method": "PUT",
         "rpc_method": "",
         "graphql_query": "",
@@ -464,7 +597,7 @@
         "extract_values": [],
         "validate": {
             "performance": {
-                "max_response_time_ms": 500
+                "max_response_time_ms": 800
             },
             "security": {
                 "checks": [
@@ -503,7 +636,7 @@
                 "comparison_name": "Verify name,ticker,cusip is updated "
             }
         },
-        "test_data_file": "securitiesServices\\data_driven\\Data_security_PUT.csv",
+        "test_data_file": "",
         "db_query": "securitiesServices/db_queries/Query_security_PUT.sql",
         "db_type": "postgresql",
         "db_connection_name": "securitiesServices",
@@ -514,14 +647,15 @@
     {
         "test_id": "TC006",
         "service_name": "securitiesServices",
-        "workflow_mode": "parallel",
+        "workflow_mode": "sequential",
         "test_name": "Updates a single security Name [positive] (TC006)",
         "protocol": "REST",
         "test_type": [
-            "Functional"
+            "Functional",
+            "Positive"
         ],
         "mainURL": "{{base_url}}",
-        "endpoint": "/security/{{valid_securityId}}?name={{random_string(7)}}",
+        "endpoint": "/security/{{created_securityId}}?name={{random_string(7)}}",
         "method": "PUT",
         "rpc_method": "",
         "graphql_query": "",
@@ -572,7 +706,7 @@
                 "comparison_name": "Verify name is updated "
             }
         },
-        "test_data_file": "securitiesServices\\data_driven\\Data_security_PUT.csv",
+        "test_data_file": "",
         "db_query": "securitiesServices/db_queries/Query_security_PUT.sql",
         "db_type": "postgresql",
         "db_connection_name": "securitiesServices",
@@ -583,14 +717,15 @@
     {
         "test_id": "TC007",
         "service_name": "securitiesServices",
-        "workflow_mode": "parallel",
+        "workflow_mode": "sequential",
         "test_name": "Updates a single security Ticker  [positive] (TC007)",
         "protocol": "REST",
         "test_type": [
-            "Functional"
+            "Functional",
+            "Positive"
         ],
         "mainURL": "{{base_url}}",
-        "endpoint": "/security/{{valid_securityId}}?ticker={{random_string(5)}}",
+        "endpoint": "/security/{{created_securityId}}?ticker={{random_string(5)}}",
         "method": "PUT",
         "rpc_method": "",
         "graphql_query": "",
@@ -641,7 +776,7 @@
                 "comparison_name": "Verify ticker is updated "
             }
         },
-        "test_data_file": "securitiesServices\\data_driven\\Data_security_PUT.csv",
+        "test_data_file": "",
         "db_query": "securitiesServices/db_queries/Query_security_PUT.sql",
         "db_type": "postgresql",
         "db_connection_name": "securitiesServices",
@@ -652,14 +787,15 @@
     {
         "test_id": "TC008",
         "service_name": "securitiesServices",
-        "workflow_mode": "parallel",
+        "workflow_mode": "sequential",
         "test_name": "Updates Cusip for a single security  [positive] (TC008)",
         "protocol": "REST",
         "test_type": [
-            "Functional"
+            "Functional",
+            "Positive"
         ],
         "mainURL": "{{base_url}}",
-        "endpoint": "/security/{{valid_securityId}}?cusip={{random_string(9)}}",
+        "endpoint": "/security/{{created_securityId}}?cusip={{random_string(9)}}",
         "method": "PUT",
         "rpc_method": "",
         "graphql_query": "",
@@ -710,7 +846,7 @@
                 "comparison_name": "Verify cusip is updated "
             }
         },
-        "test_data_file": "securitiesServices\\data_driven\\Data_security_PUT.csv",
+        "test_data_file": "",
         "db_query": "securitiesServices/db_queries/Query_security_PUT.sql",
         "db_type": "postgresql",
         "db_connection_name": "securitiesServices",

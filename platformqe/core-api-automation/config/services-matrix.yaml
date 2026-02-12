@@ -17,6 +17,22 @@ services:
     - notification
     - high-priority
     priority: 1
+  Transfer_Service_validation:
+    displayName: Transfer Service
+    enabled: false
+    runOnPR: false
+    runOnPush: false
+    runOnSchedule: false
+    testType: functional
+    environments:
+    - T11
+    functionalTestArgs: --service-name Transfer_Service_validation --env {environment}
+    nonFunctionalTestArgs: --file testdata/CostBasisValidation/testcases/TestCase_cost_basis_validation_tc9.json
+      --test_type Performance --env {environment} --headless -u 5 -r 1 -t 10s
+    tags:
+    - transfer-service
+    - high-priority
+    priority: 1
   parties:
     displayName: Parties API
     enabled: true
