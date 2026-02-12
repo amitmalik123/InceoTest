@@ -1,1 +1,1 @@
-SELECT securities_id as db_securities_id,cusip as db_cusip,ticker as db_ticker,name as db_name FROM public."Securities" where securities_id='{{valid_securityId}}';
+SELECT securities_id as db_securities_id,cusip as db_cusip,ticker as db_ticker,name as db_name FROM public."Securities" where securities_id='{{created_securityId}}';

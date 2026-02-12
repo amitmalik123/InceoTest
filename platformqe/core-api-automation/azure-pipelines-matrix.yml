@@ -86,6 +86,13 @@ schedules:
       include:
         - qe_platform
     always: true
+  
+  - cron: "20 15 * * *"       # 15:20 UTC -> transfer_service_validation
+    displayName: 'Transfer Service Validation - Daily Test'
+    branches:
+      include:
+        - qe_platform
+    always: true
 
 
 ###############################################################################
@@ -228,6 +235,24 @@ stages:
                     "7:0"|"07:00")
                       SCHEDULE_SERVICE="models"
                       ;;
+                    "15:45")
+                      SCHEDULE_SERVICE="analytics"
+                      ;;
+                    "16:0"|"16:00")
+                      SCHEDULE_SERVICE="parties"
+                      ;;
+                    "16:15")
+                      SCHEDULE_SERVICE="addressservice"
+                      ;;
+                    "16:30")
+                      SCHEDULE_SERVICE="securities"
+                      ;;
+                    "16:45")
+                      SCHEDULE_SERVICE="hnebase"
+                      ;;
+                    "15:20")
+                      SCHEDULE_SERVICE="transfer_service_validation"
+                      ;;
                     *)
                       echo "WARNING: No service found for time ${CURRENT_HOUR}:${CURRENT_MINUTE}"
                       echo "Checking with minute tolerance (within 5 minutes)..."
@@ -246,6 +271,24 @@ stages:
                       # models: 07:00 (420 min)
                       elif [ $CURRENT_TIME_MIN -ge 418 ] && [ $CURRENT_TIME_MIN -le 422 ]; then
                         SCHEDULE_SERVICE="models"
+                      # analytics: 15:45 (945 min)
+                      elif [ $CURRENT_TIME_MIN -ge 943 ] && [ $CURRENT_TIME_MIN -le 947 ]; then
+                        SCHEDULE_SERVICE="analytics"
+                      # parties: 16:00 (960 min)
+                      elif [ $CURRENT_TIME_MIN -ge 958 ] && [ $CURRENT_TIME_MIN -le 962 ]; then
+                        SCHEDULE_SERVICE="parties"
+                      # addressservice: 16:15 (975 min)
+                      elif [ $CURRENT_TIME_MIN -ge 973 ] && [ $CURRENT_TIME_MIN -le 977 ]; then
+                        SCHEDULE_SERVICE="addressservice"
+                      # securities: 16:30 (990 min)
+                      elif [ $CURRENT_TIME_MIN -ge 988 ] && [ $CURRENT_TIME_MIN -le 992 ]; then
+                        SCHEDULE_SERVICE="securities"
+                      # hnebase: 16:45 (1005 min)
+                      elif [ $CURRENT_TIME_MIN -ge 1003 ] && [ $CURRENT_TIME_MIN -le 1007 ]; then
+                        SCHEDULE_SERVICE="hnebase"
+                      # transfer_service_validation: 17:00 (1020 min)
+                      elif [ $CURRENT_TIME_MIN -ge 1018 ] && [ $CURRENT_TIME_MIN -le 1022 ]; then
+                        SCHEDULE_SERVICE="transfer_service_validation"
                       fi
                       ;;
                   esac
@@ -486,6 +529,11 @@ stages:
                     echo "##vso[task.setvariable variable=RESOLVED_MOVEMONEY_BASE_URL]$(TSADEV_movemoney_base_url)"
                     echo "##vso[task.setvariable variable=RESOLVED_SECURITIES_BASE_URL]$(TSADEV_securities_base_url)"
                     echo "##vso[task.setvariable variable=RESOLVED_WORK_ITEM_NOTIFICATION_BASE_URL]$(TSADEV_work_item_notification_base_url)"
+                    echo "##vso[task.setvariable variable=RESOLVED_STRATEGIES_BASE_URL]$(TSADEV_strategies_base_url)"
+                    echo "##vso[task.setvariable variable=RESOLVED_WRAPTOKEN_BASE_URL]$(TSADEV_wraptoken_base_url)"
+                    echo "##vso[task.setvariable variable=RESOLVED_LEXISNEXIS_BASE_URL]$(TSADEV_lexisnexis_base_url)"
+                    echo "##vso[task.setvariable variable=RESOLVED_DOCUSIGN_BASE_URL]$(T10_docusign_base_url)"
+                    echo "##vso[task.setvariable variable=RESOLVED_TRANSFER_SERVICE_VALIDATION_BASE_URL]$(T11_transfer_service_validation_base_url)"
                     ;;
                   "TSATEST")
                     echo "##vso[task.setvariable variable=RESOLVED_PARTIES_BASE_URL]$(TSATEST_parties_base_url)"
@@ -496,6 +544,12 @@ stages:
                     echo "##vso[task.setvariable variable=RESOLVED_MOVEMONEY_BASE_URL]$(TSATEST_movemoney_base_url)"
                     echo "##vso[task.setvariable variable=RESOLVED_SECURITIES_BASE_URL]$(TSATEST_securities_base_url)"
                     echo "##vso[task.setvariable variable=RESOLVED_WORK_ITEM_NOTIFICATION_BASE_URL]$(TSATEST_work_item_notification_base_url)"
+                    echo "##vso[task.setvariable variable=RESOLVED_STRATEGIES_BASE_URL]$(TSATEST_strategies_base_url)"
+                    echo "##vso[task.setvariable variable=RESOLVED_WRAPTOKEN_BASE_URL]$(TSATEST_wraptoken_base_url)"
+                    echo "##vso[task.setvariable variable=RESOLVED_ACCOUNTDISTRIBUTIONS_BASE_URL]$(TSATEST_accountdistributions_base_url)"
+                    echo "##vso[task.setvariable variable=RESOLVED_LEXISNEXIS_BASE_URL]$(TSATEST_lexisnexis_base_url)"
+                    echo "##vso[task.setvariable variable=RESOLVED_DOCUSIGN_BASE_URL]$(T11_docusign_base_url)"
+                    echo "##vso[task.setvariable variable=RESOLVED_TRANSFER_SERVICE_VALIDATION_BASE_URL]$(T11_transfer_service_validation_base_url)"
                     ;;
                   "TSASILO")
                     echo "##vso[task.setvariable variable=RESOLVED_PARTIES_BASE_URL]$(TSASILO_parties_base_url)"
@@ -518,6 +572,13 @@ stages:
                     echo "##vso[task.setvariable variable=RESOLVED_MOVEMONEY_BASE_URL]$(TSADEV_movemoney_base_url)"
                     echo "##vso[task.setvariable variable=RESOLVED_SECURITIES_BASE_URL]$(TSADEV_securities_base_url)"
                     echo "##vso[task.setvariable variable=RESOLVED_WORK_ITEM_NOTIFICATION_BASE_URL]$(TSADEV_work_item_notification_base_url)"
+                    echo "##vso[task.setvariable variable=RESOLVED_STRATEGIES_BASE_URL]$(TSADEV_strategies_base_url)"
+                    echo "##vso[task.setvariable variable=RESOLVED_WRAPTOKEN_BASE_URL]$(TSADEV_wraptoken_base_url)"
+                    echo "##vso[task.setvariable variable=RESOLVED_ACCOUNTDISTRIBUTIONS_BASE_URL]$(TSADEV_accountdistributions_base_url)"
+                    echo "##vso[task.setvariable variable=RESOLVED_LEXISNEXIS_BASE_URL]$(TSADEV_lexisnexis_base_url)"
+                    echo "##vso[task.setvariable variable=RESOLVED_DOCUSIGN_BASE_URL]$(T10_docusign_base_url)"
+                    echo "##vso[task.setvariable variable=RESOLVED_TRANSFER_SERVICE_VALIDATION_BASE_URL]$(T11_transfer_service_validation_base_url)"
+
                     ;;
                 esac
                 
@@ -543,6 +604,12 @@ stages:
                 echo "RESOLVED_MOVEMONEY_BASE_URL: $(RESOLVED_MOVEMONEY_BASE_URL)"
                 echo "RESOLVED_SECURITIES_BASE_URL: $(RESOLVED_SECURITIES_BASE_URL)"
                 echo "RESOLVED_WORK_ITEM_NOTIFICATION_BASE_URL: $(RESOLVED_WORK_ITEM_NOTIFICATION_BASE_URL)"
+                echo "RESOLVED_STRATEGIES_BASE_URL: $(RESOLVED_STRATEGIES_BASE_URL)"
+                echo "RESOLVED_WRAPTOKEN_BASE_URL: $(RESOLVED_WRAPTOKEN_BASE_URL)"
+                echo "RESOLVED_ACCOUNTDISTRIBUTIONS_BASE_URL: $(RESOLVED_ACCOUNTDISTRIBUTIONS_BASE_URL)"
+                echo "RESOLVED_LEXISNEXIS_BASE_URL: $(RESOLVED_LEXISNEXIS_BASE_URL)"
+                echo "RESOLVED_DOCUSIGN_BASE_URL: $(RESOLVED_DOCUSIGN_BASE_URL)"
+                echo "RESOLVED_TRANSFER_SERVICE_VALIDATION_BASE_URL: $(RESOLVED_TRANSFER_SERVICE_VALIDATION_BASE_URL)"
                 echo "=========================================="
           
           # - task: UsePythonVersion@0
@@ -635,6 +702,12 @@ stages:
               MOVEMONEY_BASE_URL: $(RESOLVED_MOVEMONEY_BASE_URL)
               SECURITIES_BASE_URL: $(RESOLVED_SECURITIES_BASE_URL)
               WORK_ITEM_NOTIFICATION_BASE_URL: $(RESOLVED_WORK_ITEM_NOTIFICATION_BASE_URL)
+              STRATEGIES_BASE_URL: $(RESOLVED_STRATEGIES_BASE_URL)
+              WRAPTOKEN_BASE_URL: $(RESOLVED_WRAPTOKEN_BASE_URL)
+              ACCOUNTDISTRIBUTIONS_BASE_URL: $(RESOLVED_ACCOUNTDISTRIBUTIONS_BASE_URL)
+              LEXISNEXIS_BASE_URL: $(RESOLVED_LEXISNEXIS_BASE_URL)
+              DOCUSIGN_BASE_URL: $(RESOLVED_DOCUSIGN_BASE_URL)
+              TRANSFER_SERVICE_VALIDATION_BASE_URL: $(RESOLVED_TRANSFER_SERVICE_VALIDATION_BASE_URL)
               API_TIMEOUT: $(api_timeout)
               API_RETRY_COUNT: $(api_retry_count)
             inputs:
@@ -689,6 +762,12 @@ stages:
               MOVEMONEY_BASE_URL: $(RESOLVED_MOVEMONEY_BASE_URL)
               SECURITIES_BASE_URL: $(RESOLVED_SECURITIES_BASE_URL)
               WORK_ITEM_NOTIFICATION_BASE_URL: $(RESOLVED_WORK_ITEM_NOTIFICATION_BASE_URL)
+              STRATEGIES_BASE_URL: $(RESOLVED_STRATEGIES_BASE_URL)
+              WRAPTOKEN_BASE_URL: $(RESOLVED_WRAPTOKEN_BASE_URL)
+              ACCOUNTDISTRIBUTIONS_BASE_URL: $(RESOLVED_ACCOUNTDISTRIBUTIONS_BASE_URL)
+              LEXISNEXIS_BASE_URL: $(RESOLVED_LEXISNEXIS_BASE_URL)
+              DOCUSIGN_BASE_URL: $(RESOLVED_DOCUSIGN_BASE_URL)
+              TRANSFER_SERVICE_VALIDATION_BASE_URL: $(RESOLVED_TRANSFER_SERVICE_VALIDATION_BASE_URL)
               API_TIMEOUT: $(api_timeout)
               API_RETRY_COUNT: $(api_retry_count)
               INFLUX_URL: $(influx_url)

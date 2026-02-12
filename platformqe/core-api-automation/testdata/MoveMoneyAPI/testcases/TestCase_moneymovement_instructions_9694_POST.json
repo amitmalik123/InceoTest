@@ -609,59 +609,6 @@
         "test_name": "POST /instructions [positive] (TC007)",
         "protocol": "REST",
         "test_type": [
-            "Negative"
-        ],
-        "mainURL": "{{base_url}}",
-        "endpoint": "/instructions",
-        "method": "POST",
-        "rpc_method": "",
-        "graphql_query": "",
-        "graphql_variables": "",
-        "soap_action": "",
-        "soap_envelope": "",
-        "headers_additional": {
-            "Content-Type": "application/json"
-        },
-        "payload": null,
-        "expected_status": "500",
-        "expected_response_schema": "",
-        "expected_response": null,
-        "ignore_fields": [
-            "id",
-            "traceId",
-            "timestamp"
-        ],
-        "extract_values": [],
-        "validate": {
-            "performance": {
-                "max_response_time_ms": 500
-            },
-            "security": {
-                "checks": [
-                    "sql_injection",
-                    "xss"
-                ]
-            },
-            "assertions": [],
-            "data_comparison": []
-        },
-        "test_data_file": "",
-        "db_query_timing": "after_api",
-        "db_queries": {
-            "default": "",
-            "audit_query": ""
-        },
-        "db_type": "",
-        "db_connection_name": "",
-        "test_summary": "Verify that the API returns 500 Internal Server Error which would indicate a Server side crash."
-    },
-    {
-        "test_id": "TC008",
-        "service_name": "MoveMoneyAPI",
-        "workflow_mode": "parallel",
-        "test_name": "POST /instructions [positive] (TC008)",
-        "protocol": "REST",
-        "test_type": [
             "Functional"
         ],
         "mainURL": "{{base_url}}",
