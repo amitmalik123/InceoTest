@@ -165,7 +165,7 @@
             "pageSize": 50,
             "items": [
                 {
-                    "unitType": "Amount",
+                    "unitType": "Percent",
                     "percent": 100.0,
                     "purpose": null
                 }
@@ -303,7 +303,7 @@
             "pageSize": 50,
             "items": [
                 {
-                    "unitType": "Amount",
+                    "unitType": "Percent",
                     "percent": 100.0,
                     "purpose": null
                 }
