@@ -531,7 +531,7 @@
         "test_data_file": "",
         "db_type": "",
         "db_connection_name": "",
-        "test_summary": "Test TC006: POST /moneymovement/requests [negative] (TC007) - Verify that the API returns a 400 Bad Request error when Invalid GUID format for 'InstructionId'",
+        "test_summary": "Test TC007: POST /moneymovement/requests [negative] (TC007) - Verify that the API returns a 400 Bad Request error when Invalid GUID format for 'InstructionId'",
         "test_scenario": "Verify that the API returns a 400 Bad Request error when invalid data is provided in the POST request to /moneymovement/requests.",
         "db_query_timing": "after_api",
         "db_queries": {
@@ -543,85 +543,7 @@
         "test_id": "TC008",
         "service_name": "MoveMoneyAPI",
         "workflow_mode": "parallel",
-        "test_name": "POST /requests [Negative] (TC008)",
-        "protocol": "REST",
-        "test_type": [
-            "Negative"
-        ],
-        "mainURL": "{{base_url}}",
-        "endpoint": "/requests",
-        "method": "POST",
-        "rpc_method": "",
-        "graphql_query": "",
-        "graphql_variables": "",
-        "soap_action": "",
-        "soap_envelope": "",
-        "headers_additional": {
-            "Content-Type": "application/json"
-        },
-        "payload": {
-            "instructionId": "126D@#23AF-E3C2-46A8-923E-2A823@#8B6FE32",
-            "accountId": "9FA85F64-5717-4562-B3FC-2C963F66AFA6",
-            "railType": "ACH",
-            "amount": 1000.11,
-            "requestType": "Deposit",
-            "status": "Draft",
-            "reason": "IRARothTransfer",
-            "schedule": {
-                "scheduleType": "OneTime",
-                "paymentDate": "2026-12-18"
-            }
-        },
-        "expected_status": "500",
-        "expected_response_schema": "",
-        "expected_response": null,
-        "ignore_fields": [
-            "id"
-        ],
-        "extract_values": [
-            {
-                "from": "response",
-                "key": "status",
-                "assign_to": "error_status"
-            }
-        ],
-        "validate": {
-            "performance": {
-                "max_response_time_ms": 500
-            },
-            "security": {
-                "checks": [
-                    "sql_injection",
-                    "xss"
-                ]
-            },
-            "data_comparison": [],
-            "assertions": [
-                {
-                    "actual": "{{error_status}}",
-                    "expected": 500,
-                    "operator": "==",
-                    "message": "Status should be 500 for server error"
-                }
-            ]
-        },
-        "test_data_file": "",
-        "db_type": "",
-        "db_connection_name": "",
-        "test_summary": "Verify that the API returns 500 Internal Server Error which would indicate a Server side crash.",
-        "error_case": "500",
-        "test_scenario": "Test POST request to /moneymovement/requests for negative scenario validation.",
-        "db_query_timing": "after_api",
-        "db_queries": {
-            "default": "",
-            "audit_query": ""
-        }
-    },
-    {
-        "test_id": "TC009",
-        "service_name": "MoveMoneyAPI",
-        "workflow_mode": "parallel",
-        "test_name": "POST /requests [positive] (TC009)",
+        "test_name": "POST /requests [positive] (TC008)",
         "protocol": "REST",
         "test_type": [
             "Functional"
@@ -692,14 +614,14 @@
             "default": "",
             "audit_query": ""
         },
-        "test_summary": "Test TC009: POST /moneymovement/requests [positive] (TC009) - Test 200 Response for One-Time Deposit via Wire with Updates to support new attributes .",
+        "test_summary": "Test TC008: POST /moneymovement/requests [positive] (TC008) - Test 200 Response for One-Time Deposit via Wire with Updates to support new attributes .",
         "test_scenario": "Test POST request to /moneymovement/requests for functional scenario validation."
     },
     {
-        "test_id": "TC010",
+        "test_id": "TC009",
         "service_name": "MoveMoneyAPI",
         "workflow_mode": "parallel",
-        "test_name": "POST /requests [Negative] (TC010)",
+        "test_name": "POST /requests [Negative] (TC009)",
         "protocol": "REST",
         "test_type": [
             "Negative"
@@ -758,7 +680,7 @@
         "test_data_file": "",
         "db_type": "",
         "db_connection_name": "",
-        "test_summary": "Test TC010: POST /moneymovement/requests [negative] (TC010) - Verify that the API returns a 400 Bad Request error when Invalid format for 'UnitType'",
+        "test_summary": "Test TC009: POST /moneymovement/requests [negative] (TC009) - Verify that the API returns a 400 Bad Request error when Invalid format for 'UnitType'",
         "test_scenario": "Verify that the API returns a 400 Bad Request error when invalid data is provided in the POST request to /moneymovement/requests.",
         "db_query_timing": "after_api",
         "db_queries": {
@@ -767,10 +689,10 @@
         }
     },
     {
-        "test_id": "TC011",
+        "test_id": "TC010",
         "service_name": "MoveMoneyAPI",
         "workflow_mode": "parallel",
-        "test_name": "POST /requests [Negative] (TC011)",
+        "test_name": "POST /requests [Negative] (TC010)",
         "protocol": "REST",
         "test_type": [
             "Negative"
@@ -829,7 +751,7 @@
         "test_data_file": "",
         "db_type": "",
         "db_connection_name": "",
-        "test_summary": "Test TC011: POST /moneymovement/requests [negative] (TC011) - Verify that the API returns a 400 Bad Request error when there is Wrong 'UnitType'",
+        "test_summary": "Test TC010: POST /moneymovement/requests [negative] (TC010) - Verify that the API returns a 400 Bad Request error when there is Wrong 'UnitType'",
         "test_scenario": "Verify that the API returns a 400 Bad Request error when invalid data is provided in the POST request to /moneymovement/requests.",
         "db_query_timing": "after_api",
         "db_queries": {
@@ -838,10 +760,10 @@
         }
     },
     {
-        "test_id": "TC012",
+        "test_id": "TC011",
         "service_name": "MoveMoneyAPI",
         "workflow_mode": "parallel",
-        "test_name": "POST /requests [Negative] (TC012)",
+        "test_name": "POST /requests [Negative] (TC011)",
         "protocol": "REST",
         "test_type": [
             "Functional"
@@ -900,7 +822,7 @@
         "test_data_file": "",
         "db_type": "",
         "db_connection_name": "",
-        "test_summary": "Test TC012: POST /moneymovement/requests [Negative] (TC012) - Test 400 Response for One-Time Deposit via ACH when there is a Maximum Percent value exceeded.",
+        "test_summary": "Test TC011: POST /moneymovement/requests [Negative] (TC011) - Test 400 Response for One-Time Deposit via ACH when there is a Maximum Percent value exceeded.",
         "test_scenario": "Test POST request to /moneymovement/requests for functional scenario validation.",
         "db_query_timing": "after_api",
         "db_queries": {
@@ -909,10 +831,10 @@
         }
     },
     {
-        "test_id": "TC013",
+        "test_id": "TC012",
         "service_name": "MoveMoneyAPI",
         "workflow_mode": "parallel",
-        "test_name": "POST /requests [Negative] (TC013)",
+        "test_name": "POST /requests [Negative] (TC012)",
         "protocol": "REST",
         "test_type": [
             "Functional"
@@ -971,7 +893,7 @@
         "test_data_file": "",
         "db_type": "",
         "db_connection_name": "",
-        "test_summary": "Test TC013: POST /moneymovement/requests [Negative] (TC013) - Test 400 Response for One-Time Deposit via ACH when there is a Minimum Percent value exceeded.",
+        "test_summary": "Test TC012: POST /moneymovement/requests [Negative] (TC012) - Test 400 Response for One-Time Deposit via ACH when there is a Minimum Percent value exceeded.",
         "test_scenario": "Test POST request to /moneymovement/requests for functional scenario validation.",
         "db_query_timing": "after_api",
         "db_queries": {
@@ -980,10 +902,10 @@
         }
     },
     {
-        "test_id": "TC014",
+        "test_id": "TC013",
         "service_name": "MoveMoneyAPI",
         "workflow_mode": "parallel",
-        "test_name": "POST /requests [Negative] (TC014)",
+        "test_name": "POST /requests [Negative] (TC013)",
         "protocol": "REST",
         "test_type": [
             "Functional"
@@ -1042,7 +964,7 @@
         "test_data_file": "",
         "db_type": "",
         "db_connection_name": "",
-        "test_summary": "Test TC014: POST /moneymovement/requests [Negative] (TC014) - Test 400 Response for One-Time Deposit via ACH when thePercent value Exceeds more than 2 decimal places.",
+        "test_summary": "Test TC013: POST /moneymovement/requests [Negative] (TC013) - Test 400 Response for One-Time Deposit via ACH when thePercent value Exceeds more than 2 decimal places.",
         "test_scenario": "Test POST request to /moneymovement/requests for functional scenario validation.",
         "db_query_timing": "after_api",
         "db_queries": {
@@ -1051,10 +973,10 @@
         }
     },
     {
-        "test_id": "TC015",
+        "test_id": "TC014",
         "service_name": "MoveMoneyAPI",
         "workflow_mode": "parallel",
-        "test_name": "POST /requests [Negative] (TC015)",
+        "test_name": "POST /requests [Negative] (TC014)",
         "protocol": "REST",
         "test_type": [
             "Functional"
@@ -1113,7 +1035,7 @@
         "test_data_file": "",
         "db_type": "",
         "db_connection_name": "",
-        "test_summary": "Test TC015: POST /moneymovement/requests [Negative] (TC015) - Test 400 Response for One-Time Deposit via ACH when there is Amount field which Exceeds more than 2 decimal places.",
+        "test_summary": "Test TC014: POST /moneymovement/requests [Negative] (TC014) - Test 400 Response for One-Time Deposit via ACH when there is Amount field which Exceeds more than 2 decimal places.",
         "test_scenario": "Test POST request to /moneymovement/requests for functional scenario validation.",
         "db_query_timing": "after_api",
         "db_queries": {
@@ -1122,10 +1044,10 @@
         }
     },
     {
-        "test_id": "TC016",
+        "test_id": "TC015",
         "service_name": "MoveMoneyAPI",
         "workflow_mode": "parallel",
-        "test_name": "POST /requests [Negative] (TC016)",
+        "test_name": "POST /requests [Negative] (TC015)",
         "protocol": "REST",
         "test_type": [
             "Functional"
@@ -1184,7 +1106,7 @@
         "test_data_file": "",
         "db_type": "",
         "db_connection_name": "",
-        "test_summary": "Test TC016: POST /moneymovement/requests [Negative] (TC016) - Test 400 Response for One-Time Deposit via ACH when there is Amount field which Exceeds the minimum Amount value.",
+        "test_summary": "Test TC015: POST /moneymovement/requests [Negative] (TC015) - Test 400 Response for One-Time Deposit via ACH when there is Amount field which Exceeds the minimum Amount value.",
         "test_scenario": "Test POST request to /moneymovement/requests for functional scenario validation.",
         "db_query_timing": "after_api",
         "db_queries": {
@@ -1193,10 +1115,10 @@
         }
     },
     {
-        "test_id": "TC017",
+        "test_id": "TC016",
         "service_name": "MoveMoneyAPI",
         "workflow_mode": "parallel",
-        "test_name": "POST /requests [Negative] (TC017)",
+        "test_name": "POST /requests [Negative] (TC016)",
         "protocol": "REST",
         "test_type": [
             "Functional"
@@ -1255,7 +1177,7 @@
         "test_data_file": "",
         "db_type": "",
         "db_connection_name": "",
-        "test_summary": "Test TC017: POST /moneymovement/requests [Negative] (TC017) - Test 400 Response for One-Time Deposit via ACH when there is Amount field which Exceeds the maximum Amount value.",
+        "test_summary": "Test TC016: POST /moneymovement/requests [Negative] (TC016) - Test 400 Response for One-Time Deposit via ACH when there is Amount field which Exceeds the maximum Amount value.",
         "test_scenario": "Test POST request to /moneymovement/requests for functional scenario validation.",
         "db_query_timing": "after_api",
         "db_queries": {

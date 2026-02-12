@@ -166,190 +166,51 @@
                   "type": "string",
                   "enum": [
                     "AL",
-                    "OH",
                     "AK",
                     "AZ",
-                    "OK",
                     "AR",
                     "CA",
-                    "OR",
                     "CO",
                     "CT",
-                    "PA",
                     "DE",
                     "FL",
-                    "RI",
                     "GA",
                     "HI",
                     "ID",
                     "IL",
                     "IN",
                     "IA",
-                    "SC",
                     "KS",
                     "KY",
-                    "SD",
                     "LA",
                     "ME",
-                    "TN",
                     "MD",
                     "MA",
-                    "TX",
                     "MI",
                     "MN",
                     "MS",
                     "MO",
                     "MT",
                     "NE",
-                    "UT",
                     "NV",
                     "NH",
-                    "VT",
                     "NJ",
                     "NM",
                     "NY",
-                    "VA",
                     "NC",
                     "ND",
-                    "WA",
-                    "WV",
-                    "WI",
-                    "WY"
-                  ]
-                },
-                "zip": {
-                  "type": ["string", "null"],
-                  "maxLength": 5,
-                  "minLength": 1
-                },
-                "country": {
-                  "type": "string"
-                },
-                "priorityType": {
-                  "type": "string",
-                  "enum": ["Primary", "Secondary", "Alternative", "Unknown"]
-                }
-              }
-            }
-          },
-          "contacts": {
-            "type": ["array", "null"],
-            "items": {
-              "type": "object",
-              "properties": {
-                "contactId": {
-                  "type": ["string", "null"]
-                },
-                "contactType": {
-                  "type": "string",
-                  "enum": ["Phone", "Email"]
-                },
-                "usageType": {
-                  "type": "string",
-                  "enum": [
-                    "Unknown",
-                    "Personal",
-                    "Work",
-                    "Business",
-                    "DayTime",
-                    "Home",
-                    "Cellular"
-                  ]
-                },
-                "value": {
-                  "type": ["string", "null"],
-                  "maxLength": 255
-                },
-                "priorityType": {
-                  "type": "string",
-                  "enum": ["Primary", "Secondary", "Alternative", "Unknown"]
-              }
-            }
-          },
-          "addresses": {
-            "type": ["array", "null"],
-            "items": {
-              "type": "object",
-              "properties": {
-                "addressId": {
-                  "type": ["string", "null"]
-                },
-                "addressType": {
-                  "type": "string",
-                  "enum": [
-                    "Business",
-                    "Residence",
-                    "Mailing",
-                    "Billing",
-                    "Previous",
-                    "AffiliationsEmployer",
-                    "AffiliationsPubliclyTradedCompany"
-                  ]
-                },
-                "line1": {
-                  "type": ["string", "null"],
-                  "maxLength": 60,
-                  "minLength": 1
-                },
-                "line2": {
-                  "type": ["string", "null"],
-                  "maxLength": 60,
-                  "minLength": 1
-                },
-                "city": {
-                  "type": ["string", "null"],
-                  "maxLength": 50,
-                  "minLength": 1
-                },
-                "state": {
-                  "type": "string",
-                  "enum": [
-                    "AL",
                     "OH",
-                    "AK",
-                    "AZ",
                     "OK",
-                    "AR",
-                    "CA",
                     "OR",
-                    "CO",
-                    "CT",
                     "PA",
-                    "DE",
-                    "FL",
                     "RI",
-                    "GA",
-                    "HI",
-                    "ID",
-                    "IL",
-                    "IN",
-                    "IA",
                     "SC",
-                    "KS",
-                    "KY",
                     "SD",
-                    "LA",
-                    "ME",
                     "TN",
-                    "MD",
-                    "MA",
                     "TX",
-                    "MI",
-                    "MN",
-                    "MS",
-                    "MO",
-                    "MT",
-                    "NE",
                     "UT",
-                    "NV",
-                    "NH",
                     "VT",
-                    "NJ",
-                    "NM",
-                    "NY",
                     "VA",
-                    "NC",
-                    "ND",
                     "WA",
                     "WV",
                     "WI",
@@ -403,24 +264,6 @@
                   "type": "string",
                   "enum": ["Primary", "Secondary", "Alternative", "Unknown"]
                 }
-              }
-            }
-          },
-          "identifiers": {
-            "type": ["array", "null"],
-            "items": {
-              "type": "object",
-              "properties": {
-                "identifierId": {
-                  "type": ["string", "null"]
-                },
-                "type": {
-                  "type": "string",
-                  "enum": ["APL", "BETA", "RedTail", "WealthFrontID"]
-                },
-                "value": {
-                  "type": ["string", "null"],
-                  "maxLength": 255
               }
             }
           },
@@ -449,6 +292,5 @@
         }
       }
     }
-  }
   }
 }

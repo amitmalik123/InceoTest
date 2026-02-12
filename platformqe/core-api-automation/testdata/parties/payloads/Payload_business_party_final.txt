@@ -1,0 +1,41 @@
+{
+  "partyType": "{{req_partyType}}",
+  "status": "{{req_status}}",
+  "core": {
+    "entity": {
+      "type": "{{req_entity_type}}",
+      "subType": "{{req_entity_subType}}",
+      "title": "Acme Corporation Final",
+      "taxId": "{{req_entity_taxId}}",
+      "taxidentifier": "{{req_entity_taxidentifier}}",
+      "createdDate": "{{req_entity_createdDate}}"
+    }
+  },
+  "addresses": [
+    {
+      "addressType": "{{req_addressType}}",
+      "line1": "{{req_addressline1}}",
+      "line2": "{{req_addressline2}}",
+      "city": "{{req_city}}",
+      "state": "{{req_state}}",
+      "zip": "{{req_zip}}",
+      "country": "{{req_country}}",
+      "priorityType": "{{req_priorityType}}"
+    }
+  ],
+  "contacts": [
+    {
+      "contactType": "{{req_contactType}}",
+      "usageType": "{{req_usageType}}",
+      "value": "{{req_value}}",
+      "priorityType": "{{req_contactPriorityType}}"
+    }
+  ],
+  "identifiers": [
+    {
+      "type": "{{req_identifierType}}",
+      "value": "{{req_identifierValue}}"
+    }
+  ],
+  "householdId": "{{req_householdId}}"
+}
