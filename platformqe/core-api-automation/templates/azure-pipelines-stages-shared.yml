@@ -1,0 +1,905 @@
+###############################################################################
+# Shared Stages Template for QE Automation Framework
+# File: templates/azure-pipelines-stages-shared.yml
+###############################################################################
+# This template contains reusable stages for both azure-pipelines-matrix.yml
+# and azure-pipelines-callable.yml to eliminate code duplication.
+#
+# Usage:
+#   stages:
+#   - template: templates/azure-pipelines-stages-shared.yml
+#     parameters:
+#       repositoryAlias: 'self'
+#       buildPath: '$(Build.SourcesDirectory)/platformqe/core-api-automation'
+#       buildPathSuffix: 'platformqe/core-api-automation'
+#       executionMode: 'auto'
+#       services: 'all'
+#       environments: 'all'
+#       testType: 'functional'
+#       overrideEnabled: false
+#       customFunctionalArgs: 'N/A'
+#       customNonFunctionalArgs: 'N/A'
+#       triggerReason: '$(Build.Reason)'
+#       enableScheduleDetection: true  # Set to true for scheduled pipeline runs
+###############################################################################
+
+parameters:
+  # Repository configuration
+  - name: repositoryAlias
+    type: string
+    default: 'self'
+  
+  # Build path configuration
+  - name: buildPath
+    type: string
+    default: ''
+  
+  - name: buildPathSuffix
+    type: string
+    default: 'platformqe/core-api-automation'
+  
+  # Execution parameters
+  - name: executionMode
+    type: string
+    default: 'auto'
+  
+  - name: services
+    type: string
+    default: 'all'
+  
+  - name: environments
+    type: string
+    default: 'all'
+  
+  - name: testType
+    type: string
+    default: 'functional'
+  
+  - name: overrideEnabled
+    type: boolean
+    default: false
+  
+  - name: customFunctionalArgs
+    type: string
+    default: 'N/A'
+  
+  - name: customNonFunctionalArgs
+    type: string
+    default: 'N/A'
+  
+  # Trigger configuration
+  - name: triggerReason
+    type: string
+    default: 'Manual'
+  
+  # Enable schedule detection (for matrix pipeline with cron triggers)
+  - name: enableScheduleDetection
+    type: boolean
+    default: false
+
+  # Default environments (fallback when ENABLED_ENVIRONMENTS variable is not set)
+  - name: defaultEnvironments
+    type: string
+    default: 'all'
+
+stages:
+  ###########################################################################
+  # Stage 1: Initialization - Parse Matrix and Determine Services to Run
+  ###########################################################################
+  - stage: Initialize
+    displayName: 'Initialize and Parse Service Matrix'
+    jobs:
+      - job: ParseMatrix
+        displayName: 'Parse Services Matrix'
+        pool:
+          name: ewm20-docker-build-agent-inc-dev
+        steps:
+          - checkout: ${{ parameters.repositoryAlias }}
+          
+          - task: Bash@3
+            name: SetBuildPath
+            displayName: 'Determine Build Path'
+            env:
+              SOURCE_DIR: $(Build.SourcesDirectory)
+              REPO_ALIAS: ${{ parameters.repositoryAlias }}
+              BUILD_PATH_PARAM: ${{ parameters.buildPath }}
+              BUILD_PATH_SUFFIX: ${{ parameters.buildPathSuffix }}
+            inputs:
+              targetType: inline
+              script: |
+                echo "=========================================="
+                echo "Determining Build Path"
+                echo "=========================================="
+                
+                # If buildPath is explicitly provided, use it
+                if [ -n "$BUILD_PATH_PARAM" ]; then
+                  BUILD_PATH="$BUILD_PATH_PARAM"
+                  echo "Using provided buildPath: $BUILD_PATH"
+                # Otherwise, calculate based on repository alias
+                elif [ "$REPO_ALIAS" = "self" ]; then
+                  BUILD_PATH="${SOURCE_DIR}/${BUILD_PATH_SUFFIX}"
+                else
+                  # Try with alias folder first (multiple repos checkout)
+                  BUILD_PATH="${SOURCE_DIR}/${REPO_ALIAS}/${BUILD_PATH_SUFFIX}"
+                  
+                  # If not found, try without alias (single repo checkout)
+                  if [ ! -d "$BUILD_PATH" ]; then
+                    echo "Path with alias not found, trying without alias..."
+                    BUILD_PATH="${SOURCE_DIR}/${BUILD_PATH_SUFFIX}"
+                  fi
+                fi
+                
+                echo "Source Directory: $SOURCE_DIR"
+                echo "Repository Alias: $REPO_ALIAS"
+                echo "Build Path Suffix: $BUILD_PATH_SUFFIX"
+                echo "Build Path: $BUILD_PATH"
+                
+                # Verify path exists
+                if [ -d "$BUILD_PATH" ]; then
+                  echo "✅ Build path exists"
+                else
+                  echo "❌ Build path does not exist!"
+                  echo "Available directories in source:"
+                  ls -la "${SOURCE_DIR}/"
+                  exit 1
+                fi
+                
+                echo "##vso[task.setvariable variable=buildPath;isOutput=true]$BUILD_PATH"
+                echo "##vso[task.setvariable variable=buildPath]$BUILD_PATH"
+                echo "=========================================="
+          
+          - task: Bash@3
+            displayName: 'Install PyYAML'
+            inputs:
+              targetType: inline
+              script: |
+                pip install pyyaml
+          
+          - task: Bash@3
+            name: DetermineServices
+            displayName: 'Determine Services to Run'
+            env:
+              BUILD_REASON: $(Build.Reason)
+              SERVICES_INPUT: ${{ parameters.services }}
+              ENABLE_SCHEDULE: ${{ parameters.enableScheduleDetection }}
+              ENVIRONMENTS_INPUT: ${{ parameters.environments }}
+              DEFAULT_ENVIRONMENTS: ${{ parameters.defaultEnvironments }}
+              EXECUTION_MODE: ${{ parameters.executionMode }}
+              TEST_TYPE: ${{ parameters.testType }}
+              TRIGGER_REASON: ${{ parameters.triggerReason }}
+              OVERRIDE_ENABLED: ${{ parameters.overrideEnabled }}
+              CUSTOM_FUNC_ARGS: ${{ parameters.customFunctionalArgs }}
+              CUSTOM_NONFUNC_ARGS: ${{ parameters.customNonFunctionalArgs }}
+            inputs:
+              targetType: inline
+              script: |
+                echo "=========================================="
+                echo "Using manage_matrix.py to determine services"
+                echo "=========================================="
+                
+                # Handle schedule service detection (for matrix pipeline with cron triggers)
+                SERVICES_PARAM="$SERVICES_INPUT"
+                
+                if [ "$ENABLE_SCHEDULE" = "True" ] && [ "$BUILD_REASON" = "Schedule" ]; then
+                  echo "Schedule detection enabled - determining service from cron time..."
+                  
+                  CURRENT_HOUR=$(date -u +%H)
+                  CURRENT_MINUTE=$(date -u +%M)
+                  
+                  echo "Schedule triggered at UTC: ${CURRENT_HOUR}:${CURRENT_MINUTE}"
+                  
+                  # Map cron times to service names
+                  SCHEDULE_SERVICE=""
+                  case "${CURRENT_HOUR}:${CURRENT_MINUTE}" in
+                    "6:0"|"06:00")
+                      SCHEDULE_SERVICE="work_item_notification"
+                      ;;
+                    "15:15")
+                      SCHEDULE_SERVICE="movemoney"
+                      ;;
+                    "15:20")
+                      SCHEDULE_SERVICE="transfer_service_validation"
+                      ;;
+                    "15:30")
+                      SCHEDULE_SERVICE="models"
+                      ;;
+                    "15:45")
+                      SCHEDULE_SERVICE="analytics"
+                      ;;
+                    "16:0"|"16:00")
+                      SCHEDULE_SERVICE="parties"
+                      ;;
+                    "16:15")
+                      SCHEDULE_SERVICE="addressservice"
+                      ;;
+                    "16:30")
+                      SCHEDULE_SERVICE="securities"
+                      ;;
+                    "16:45")
+                      SCHEDULE_SERVICE="hnebase"
+                      ;;
+                    *)
+                      echo "WARNING: No exact match for time ${CURRENT_HOUR}:${CURRENT_MINUTE}"
+                      echo "Checking with minute tolerance (within 5 minutes)..."
+                      CURRENT_TIME_MIN=$((10#$CURRENT_HOUR * 60 + 10#$CURRENT_MINUTE))
+                      
+                      # work_item_notification: 06:00 (360 min)
+                      if [ $CURRENT_TIME_MIN -ge 358 ] && [ $CURRENT_TIME_MIN -le 362 ]; then
+                        SCHEDULE_SERVICE="work_item_notification"
+                      # movemoney: 15:15 (915 min)
+                      elif [ $CURRENT_TIME_MIN -ge 913 ] && [ $CURRENT_TIME_MIN -le 917 ]; then
+                        SCHEDULE_SERVICE="movemoney"
+                      # transfer_service_validation: 15:20 (920 min)
+                      elif [ $CURRENT_TIME_MIN -ge 918 ] && [ $CURRENT_TIME_MIN -le 922 ]; then
+                        SCHEDULE_SERVICE="transfer_service_validation"
+                      # models: 15:30 (930 min)
+                      elif [ $CURRENT_TIME_MIN -ge 928 ] && [ $CURRENT_TIME_MIN -le 932 ]; then
+                        SCHEDULE_SERVICE="models"
+                      # analytics: 15:45 (945 min)
+                      elif [ $CURRENT_TIME_MIN -ge 943 ] && [ $CURRENT_TIME_MIN -le 947 ]; then
+                        SCHEDULE_SERVICE="analytics"
+                      # parties: 16:00 (960 min)
+                      elif [ $CURRENT_TIME_MIN -ge 958 ] && [ $CURRENT_TIME_MIN -le 962 ]; then
+                        SCHEDULE_SERVICE="parties"
+                      # addressservice: 16:15 (975 min)
+                      elif [ $CURRENT_TIME_MIN -ge 973 ] && [ $CURRENT_TIME_MIN -le 977 ]; then
+                        SCHEDULE_SERVICE="addressservice"
+                      # securities: 16:30 (990 min)
+                      elif [ $CURRENT_TIME_MIN -ge 988 ] && [ $CURRENT_TIME_MIN -le 992 ]; then
+                        SCHEDULE_SERVICE="securities"
+                      # hnebase: 16:45 (1005 min)
+                      elif [ $CURRENT_TIME_MIN -ge 1003 ] && [ $CURRENT_TIME_MIN -le 1007 ]; then
+                        SCHEDULE_SERVICE="hnebase"
+                      fi
+                      ;;
+                  esac
+                  
+                  if [ -n "$SCHEDULE_SERVICE" ]; then
+                    SERVICES_PARAM="$SCHEDULE_SERVICE"
+                    echo "Matched schedule to service: $SERVICES_PARAM"
+                  else
+                    echo "ERROR: Could not determine service for scheduled run"
+                    echo "Falling back to parameter value: $SERVICES_PARAM"
+                  fi
+                fi
+                
+                # Set environments parameter
+                ENVIRONMENTS_PARAM="$ENVIRONMENTS_INPUT"
+                VAR_GROUP_ENVS="$DEFAULT_ENVIRONMENTS"
+                
+                if [ -z "$ENVIRONMENTS_PARAM" ] || [ "$ENVIRONMENTS_PARAM" = "all" ]; then
+                  if [ -n "$VAR_GROUP_ENVS" ] && [ "$VAR_GROUP_ENVS" != "all" ]; then
+                    ENVIRONMENTS_PARAM="$VAR_GROUP_ENVS"
+                    echo "Using environments from variable group: $ENVIRONMENTS_PARAM"
+                  else
+                    ENVIRONMENTS_PARAM="all"
+                    echo "Using default environments from services-matrix.yaml"
+                  fi
+                else
+                  echo "Using manually specified environments: $ENVIRONMENTS_PARAM"
+                fi
+                
+                # Build arguments array
+                set -- "scripts/manage_matrix.py" "generate-pipeline-matrix" \
+                  "--execution-mode" "$EXECUTION_MODE" \
+                  "--services" "$SERVICES_PARAM" \
+                  "--environments" "$ENVIRONMENTS_PARAM" \
+                  "--test-type" "$TEST_TYPE" \
+                  "--trigger-reason" "$TRIGGER_REASON"
+                
+                # Add optional arguments
+                if [ "$OVERRIDE_ENABLED" = "True" ]; then
+                  set -- "$@" "--override-enabled"
+                fi
+                
+                echo "DEBUG: customFunctionalArgs = '$CUSTOM_FUNC_ARGS'"
+                echo "DEBUG: customNonFunctionalArgs = '$CUSTOM_NONFUNC_ARGS'"
+                
+                if [ -n "$CUSTOM_FUNC_ARGS" ] && [ "$CUSTOM_FUNC_ARGS" != "N/A" ]; then
+                  echo "DEBUG: Adding custom functional args to command"
+                  set -- "$@" "--custom-functional-args" "$CUSTOM_FUNC_ARGS"
+                fi
+                
+                if [ -n "$CUSTOM_NONFUNC_ARGS" ] && [ "$CUSTOM_NONFUNC_ARGS" != "N/A" ]; then
+                  echo "DEBUG: Adding custom non-functional args to command"
+                  set -- "$@" "--custom-nonfunctional-args" "$CUSTOM_NONFUNC_ARGS"
+                fi
+                
+                echo "DEBUG: Full command: python3 $@"
+                
+                python3 "$@" > matrix_output.log 2>&1
+                exit_code=$?
+                cat matrix_output.log
+                
+                echo ""
+                echo "Script completed with exit code: $exit_code"
+                
+                # Verify the output variables
+                echo "=========================================="
+                echo "Verifying Matrix Output"
+                echo "=========================================="
+                
+                if grep -q "##vso\[task.setvariable variable=servicesMatrix" matrix_output.log; then
+                  echo "✅ servicesMatrix variable command found"
+                  matrix_json=$(grep "##vso\[task.setvariable variable=servicesMatrix" matrix_output.log | sed 's/.*isOutput=true\]//')
+                  if echo "$matrix_json" | python3 -m json.tool > /dev/null 2>&1; then
+                    echo "✅ Matrix JSON is valid"
+                    echo "Matrix keys count: $(echo "$matrix_json" | python3 -c 'import json,sys; print(len(json.load(sys.stdin)))')"
+                  else
+                    echo "❌ ERROR: Matrix JSON is INVALID!"
+                  fi
+                else
+                  echo "❌ ERROR: No servicesMatrix variable command found in output!"
+                fi
+                
+                echo "=========================================="
+                exit $exit_code
+              workingDirectory: $(buildPath)
+
+  ###########################################################################
+  # Stage 2: Execute Tests - Dynamic Jobs Based on Service Matrix
+  ###########################################################################
+  - stage: ExecuteTests
+    displayName: 'Execute Service Tests'
+    dependsOn: Initialize
+    condition: and(succeeded(), eq(dependencies.Initialize.outputs['ParseMatrix.DetermineServices.hasServices'], 'true'))
+    jobs:
+      - job: RunTests
+        displayName: 'Run Tests'
+        pool:
+          name: ewm20-docker-build-agent-inc-dev
+        strategy:
+          maxParallel: 5
+          matrix: $[ stageDependencies.Initialize.ParseMatrix.outputs['DetermineServices.servicesMatrix'] ]
+                
+        steps:
+          - checkout: ${{ parameters.repositoryAlias }}
+          
+          - task: Bash@3
+            name: SetBuildPath
+            displayName: 'Determine Build Path'
+            env:
+              SOURCE_DIR: $(Build.SourcesDirectory)
+              REPO_ALIAS: ${{ parameters.repositoryAlias }}
+              BUILD_PATH_PARAM: ${{ parameters.buildPath }}
+              BUILD_PATH_SUFFIX: ${{ parameters.buildPathSuffix }}
+            inputs:
+              targetType: inline
+              script: |
+                if [ -n "$BUILD_PATH_PARAM" ]; then
+                  BUILD_PATH="$BUILD_PATH_PARAM"
+                elif [ "$REPO_ALIAS" = "self" ]; then
+                  BUILD_PATH="${SOURCE_DIR}/${BUILD_PATH_SUFFIX}"
+                else
+                  # Try with alias folder first (multiple repos checkout)
+                  BUILD_PATH="${SOURCE_DIR}/${REPO_ALIAS}/${BUILD_PATH_SUFFIX}"
+                  # If not found, try without alias (single repo checkout)
+                  if [ ! -d "$BUILD_PATH" ]; then
+                    BUILD_PATH="${SOURCE_DIR}/${BUILD_PATH_SUFFIX}"
+                  fi
+                fi
+                echo "Build Path: $BUILD_PATH"
+                echo "##vso[task.setvariable variable=buildPath]$BUILD_PATH"
+          
+          - task: Bash@3
+            displayName: 'Debug Matrix Variables'
+            inputs:
+              targetType: inline
+              script: |
+                echo "=========================================="
+                echo "Matrix Variable Injection Test"
+                echo "=========================================="
+                echo "  name = '$(name)'"
+                echo "  displayName = '$(displayName)'"
+                echo "  environment = '$(environment)'"
+                echo "  testType = '$(testType)'"
+                echo "  priority = '$(priority)'"
+                echo "  reason = '$(reason)'"
+                echo "  functionalTestArgs = '$(functionalTestArgs)'"
+                echo "  buildPath = '$(buildPath)'"
+                if [ -z "$(name)" ]; then
+                  echo "❌ ERROR: Matrix variables are EMPTY!"
+                else
+                  echo "✅ Matrix variables populated correctly"
+                fi
+                echo "=========================================="
+          
+          # Fetch database connection strings from Azure Key Vault
+          - task: AzureKeyVault@2
+            displayName: 'Fetch secrets from Key Vault (TSADEV)'
+            condition: or(eq(variables['environment'], 'TSADEV'), eq(variables['environment'], 'all'))
+            inputs:
+              azureSubscription: $(subscription_dev)
+              KeyVaultName: 'amkkvqapipeline-devncus'
+              SecretsFilter: 'parties-sqldb-connection-string,movemoney-sqldb-connection-string,hne-db-connection-string,securitieshub-db-connection-string,modelhub-db-connection-string,am-db-connection-string,platform-db-connection-string'
+              RunAsPreJob: false
+          
+          - task: AzureKeyVault@2
+            displayName: 'Fetch secrets from Key Vault (TSATEST)'
+            condition: eq(variables['environment'], 'TSATEST')
+            inputs:
+              azureSubscription: $(subscription_test)
+              KeyVaultName: 'amkkvqapipeline-testncus'
+              SecretsFilter: 'parties-sqldb-connection-string,movemoney-sqldb-connection-string,hne-db-connection-string,securitieshub-db-connection-string,modelhub-db-connection-string,am-db-connection-string,platform-db-connection-string'
+              RunAsPreJob: false
+          
+          - task: AzureKeyVault@2
+            displayName: 'Fetch secrets from Key Vault (TSASILO)'
+            condition: eq(variables['environment'], 'TSASILO')
+            inputs:
+              azureSubscription: $(subscription_silo)
+              KeyVaultName: 'amkkvqapipeline-siloncus'
+              SecretsFilter: 'parties-sqldb-connection-string,movemoney-sqldb-connection-string,hne-db-connection-string,securitieshub-db-connection-string,modelhub-db-connection-string,am-db-connection-string,platform-db-connection-string'
+              RunAsPreJob: false
+          
+          # Resolve environment-specific variables
+          - task: Bash@3
+            name: ResolveEnvVars
+            displayName: 'Resolve Environment Variables'
+            inputs:
+              targetType: inline
+              script: |
+                echo "=========================================="
+                echo "Resolving Environment-Specific Variables"
+                echo "=========================================="
+                echo "Selected Environment: $(environment)"
+                
+                SELECTED_ENV="$(environment)"
+                if [ "$SELECTED_ENV" = "all" ]; then
+                  SELECTED_ENV="TSADEV"
+                  echo "Environment 'all' selected, defaulting to: $SELECTED_ENV"
+                fi
+                
+                echo "Using environment: $SELECTED_ENV"
+                
+                case "$SELECTED_ENV" in
+                  "TSADEV")
+                    echo "##vso[task.setvariable variable=RESOLVED_PARTIES_BASE_URL]$(TSADEV_parties_base_url)"
+                    echo "##vso[task.setvariable variable=RESOLVED_ADDRESS_BASE_URL]$(TSADEV_address_base_url)"
+                    echo "##vso[task.setvariable variable=RESOLVED_ANALYTICS_BASE_URL]$(TSADEV_analytics_base_url)"
+                    echo "##vso[task.setvariable variable=RESOLVED_HNE_BASE_URL]$(TSADEV_hne_base_url)"
+                    echo "##vso[task.setvariable variable=RESOLVED_MODELS_BASE_URL]$(TSADEV_models_base_url)"
+                    echo "##vso[task.setvariable variable=RESOLVED_MOVEMONEY_BASE_URL]$(TSADEV_movemoney_base_url)"
+                    echo "##vso[task.setvariable variable=RESOLVED_SECURITIES_BASE_URL]$(TSADEV_securities_base_url)"
+                    echo "##vso[task.setvariable variable=RESOLVED_WORK_ITEM_NOTIFICATION_BASE_URL]$(TSADEV_work_item_notification_base_url)"
+                    echo "##vso[task.setvariable variable=RESOLVED_STRATEGIES_BASE_URL]$(TSADEV_strategies_base_url)"
+                    echo "##vso[task.setvariable variable=RESOLVED_WRAPTOKEN_BASE_URL]$(TSADEV_wraptoken_base_url)"
+                    echo "##vso[task.setvariable variable=RESOLVED_ACCOUNTDISTRIBUTIONS_BASE_URL]$(TSADEV_accountdistributions_base_url)"
+                    echo "##vso[task.setvariable variable=RESOLVED_LEXISNEXIS_BASE_URL]$(TSADEV_lexisnexis_base_url)"
+                    echo "##vso[task.setvariable variable=RESOLVED_DOCUSIGN_BASE_URL]$(T10_docusign_base_url)"
+                    echo "##vso[task.setvariable variable=RESOLVED_TRANSFER_SERVICE_VALIDATION_BASE_URL]$(T11_transfer_service_validation_base_url)"
+                    ;;
+                  "TSATEST")
+                    echo "##vso[task.setvariable variable=RESOLVED_PARTIES_BASE_URL]$(TSATEST_parties_base_url)"
+                    echo "##vso[task.setvariable variable=RESOLVED_ADDRESS_BASE_URL]$(TSATEST_address_base_url)"
+                    echo "##vso[task.setvariable variable=RESOLVED_ANALYTICS_BASE_URL]$(TSATEST_analytics_base_url)"
+                    echo "##vso[task.setvariable variable=RESOLVED_HNE_BASE_URL]$(TSATEST_hne_base_url)"
+                    echo "##vso[task.setvariable variable=RESOLVED_MODELS_BASE_URL]$(TSATEST_models_base_url)"
+                    echo "##vso[task.setvariable variable=RESOLVED_MOVEMONEY_BASE_URL]$(TSATEST_movemoney_base_url)"
+                    echo "##vso[task.setvariable variable=RESOLVED_SECURITIES_BASE_URL]$(TSATEST_securities_base_url)"
+                    echo "##vso[task.setvariable variable=RESOLVED_WORK_ITEM_NOTIFICATION_BASE_URL]$(TSATEST_work_item_notification_base_url)"
+                    echo "##vso[task.setvariable variable=RESOLVED_STRATEGIES_BASE_URL]$(TSATEST_strategies_base_url)"
+                    echo "##vso[task.setvariable variable=RESOLVED_WRAPTOKEN_BASE_URL]$(TSATEST_wraptoken_base_url)"
+                    echo "##vso[task.setvariable variable=RESOLVED_ACCOUNTDISTRIBUTIONS_BASE_URL]$(TSATEST_accountdistributions_base_url)"
+                    echo "##vso[task.setvariable variable=RESOLVED_LEXISNEXIS_BASE_URL]$(TSATEST_lexisnexis_base_url)"
+                    echo "##vso[task.setvariable variable=RESOLVED_DOCUSIGN_BASE_URL]$(T11_docusign_base_url)"
+                    echo "##vso[task.setvariable variable=RESOLVED_TRANSFER_SERVICE_VALIDATION_BASE_URL]$(T11_transfer_service_validation_base_url)"
+                    ;;
+                  "TSASILO")
+                    echo "##vso[task.setvariable variable=RESOLVED_PARTIES_BASE_URL]$(TSASILO_parties_base_url)"
+                    echo "##vso[task.setvariable variable=RESOLVED_ADDRESS_BASE_URL]$(TSASILO_address_base_url)"
+                    echo "##vso[task.setvariable variable=RESOLVED_ANALYTICS_BASE_URL]$(TSASILO_analytics_base_url)"
+                    echo "##vso[task.setvariable variable=RESOLVED_HNE_BASE_URL]$(TSASILO_hne_base_url)"
+                    echo "##vso[task.setvariable variable=RESOLVED_MODELS_BASE_URL]$(TSASILO_models_base_url)"
+                    echo "##vso[task.setvariable variable=RESOLVED_MOVEMONEY_BASE_URL]$(TSASILO_movemoney_base_url)"
+                    echo "##vso[task.setvariable variable=RESOLVED_SECURITIES_BASE_URL]$(TSASILO_securities_base_url)"
+                    echo "##vso[task.setvariable variable=RESOLVED_WORK_ITEM_NOTIFICATION_BASE_URL]$(TSASILO_work_item_notification_base_url)"
+                    echo "##vso[task.setvariable variable=RESOLVED_STRATEGIES_BASE_URL]$(TSASILO_strategies_base_url)"
+                    echo "##vso[task.setvariable variable=RESOLVED_WRAPTOKEN_BASE_URL]$(TSASILO_wraptoken_base_url)"
+                    ;;
+                  *)
+                    echo "ERROR: Unknown environment: $SELECTED_ENV"
+                    echo "Defaulting to TSADEV variables"
+                    echo "##vso[task.setvariable variable=RESOLVED_PARTIES_BASE_URL]$(TSADEV_parties_base_url)"
+                    echo "##vso[task.setvariable variable=RESOLVED_ADDRESS_BASE_URL]$(TSADEV_address_base_url)"
+                    echo "##vso[task.setvariable variable=RESOLVED_ANALYTICS_BASE_URL]$(TSADEV_analytics_base_url)"
+                    echo "##vso[task.setvariable variable=RESOLVED_HNE_BASE_URL]$(TSADEV_hne_base_url)"
+                    echo "##vso[task.setvariable variable=RESOLVED_MODELS_BASE_URL]$(TSADEV_models_base_url)"
+                    echo "##vso[task.setvariable variable=RESOLVED_MOVEMONEY_BASE_URL]$(TSADEV_movemoney_base_url)"
+                    echo "##vso[task.setvariable variable=RESOLVED_SECURITIES_BASE_URL]$(TSADEV_securities_base_url)"
+                    echo "##vso[task.setvariable variable=RESOLVED_WORK_ITEM_NOTIFICATION_BASE_URL]$(TSADEV_work_item_notification_base_url)"
+                    echo "##vso[task.setvariable variable=RESOLVED_STRATEGIES_BASE_URL]$(TSADEV_strategies_base_url)"
+                    echo "##vso[task.setvariable variable=RESOLVED_WRAPTOKEN_BASE_URL]$(TSADEV_wraptoken_base_url)"
+                    echo "##vso[task.setvariable variable=RESOLVED_ACCOUNTDISTRIBUTIONS_BASE_URL]$(TSADEV_accountdistributions_base_url)"
+                    echo "##vso[task.setvariable variable=RESOLVED_LEXISNEXIS_BASE_URL]$(TSADEV_lexisnexis_base_url)"
+                    echo "##vso[task.setvariable variable=RESOLVED_DOCUSIGN_BASE_URL]$(T10_docusign_base_url)"
+                    echo "##vso[task.setvariable variable=RESOLVED_TRANSFER_SERVICE_VALIDATION_BASE_URL]$(T11_transfer_service_validation_base_url)"
+                    ;;
+                esac
+                
+                echo "✅ Environment variables resolved for: $SELECTED_ENV"
+                echo "=========================================="
+          
+          - task: Bash@3
+            displayName: 'Debug Resolved Environment URLs'
+            inputs:
+              targetType: inline
+              script: |
+                echo "=========================================="
+                echo "Resolved Environment URLs"
+                echo "=========================================="
+                echo "Environment: $(environment)"
+                echo ""
+                echo "RESOLVED_PARTIES_BASE_URL: $(RESOLVED_PARTIES_BASE_URL)"
+                echo "RESOLVED_ADDRESS_BASE_URL: $(RESOLVED_ADDRESS_BASE_URL)"
+                echo "RESOLVED_ANALYTICS_BASE_URL: $(RESOLVED_ANALYTICS_BASE_URL)"
+                echo "RESOLVED_HNE_BASE_URL: $(RESOLVED_HNE_BASE_URL)"
+                echo "RESOLVED_MODELS_BASE_URL: $(RESOLVED_MODELS_BASE_URL)"
+                echo "RESOLVED_MOVEMONEY_BASE_URL: $(RESOLVED_MOVEMONEY_BASE_URL)"
+                echo "RESOLVED_SECURITIES_BASE_URL: $(RESOLVED_SECURITIES_BASE_URL)"
+                echo "RESOLVED_WORK_ITEM_NOTIFICATION_BASE_URL: $(RESOLVED_WORK_ITEM_NOTIFICATION_BASE_URL)"
+                echo "RESOLVED_STRATEGIES_BASE_URL: $(RESOLVED_STRATEGIES_BASE_URL)"
+                echo "RESOLVED_WRAPTOKEN_BASE_URL: $(RESOLVED_WRAPTOKEN_BASE_URL)"
+                echo "RESOLVED_ACCOUNTDISTRIBUTIONS_BASE_URL: $(RESOLVED_ACCOUNTDISTRIBUTIONS_BASE_URL)"
+                echo "RESOLVED_LEXISNEXIS_BASE_URL: $(RESOLVED_LEXISNEXIS_BASE_URL)"
+                echo "RESOLVED_DOCUSIGN_BASE_URL: $(RESOLVED_DOCUSIGN_BASE_URL)"
+                echo "RESOLVED_TRANSFER_SERVICE_VALIDATION_BASE_URL: $(RESOLVED_TRANSFER_SERVICE_VALIDATION_BASE_URL)"
+                echo "=========================================="
+          
+          - task: Bash@3
+            displayName: 'Environment Info'
+            inputs:
+              targetType: inline
+              script: |
+                echo "=========================================="
+                echo "Service: $(name)"
+                echo "Display Name: $(displayName)"
+                echo "Environment: $(environment)"
+                echo "Test Type: $(testType)"
+                echo "Priority: $(priority)"
+                echo "Reason: $(reason)"
+                echo "Functional Args: $(functionalTestArgs)"
+                echo "Non-Functional Args: $(nonFunctionalTestArgs)"
+                echo "=========================================="
+                echo ""
+                echo "Checking condition for functional tests:"
+                echo "testType value: '$(testType)'"
+                if [ "$(testType)" = "functional" ] || [ "$(testType)" = "both" ]; then
+                  echo "✅ Condition PASSED - Functional tests will run"
+                else
+                  echo "❌ Condition FAILED - Functional tests will be SKIPPED"
+                fi
+                echo "=========================================="
+          
+          - task: CmdLine@2
+            displayName: 'Install Python Dependencies'
+            inputs:
+              script: |
+                find . -type d -name "__pycache__" -exec rm -rf {} + 2>/dev/null || true
+                find . -type f -name "*.pyc" -delete 2>/dev/null || true
+                python -m pip install --upgrade pip
+                pip install -r requirements.txt
+              workingDirectory: $(buildPath)
+          
+          - task: Bash@3
+            displayName: 'Pre-Test Validation'
+            inputs:
+              targetType: inline
+              script: |
+                echo "=========================================="
+                echo "VALIDATING TEST EXECUTION CONDITIONS"
+                echo "=========================================="
+                echo "Service: $(name)"
+                echo "Environment: $(environment)"
+                echo "Test Type Variable: '$(testType)'"
+                echo ""
+                echo "Checking functional test condition..."
+                if [ "$(testType)" = "functional" ]; then
+                  echo "✅ Will run FUNCTIONAL tests only"
+                elif [ "$(testType)" = "both" ]; then
+                  echo "✅ Will run BOTH functional and non-functional tests"
+                elif [ "$(testType)" = "non-functional" ]; then
+                  echo "⚠️ Will run NON-FUNCTIONAL tests only (functional tests skipped)"
+                else
+                  echo "❌ ERROR: testType='$(testType)' is not recognized!"
+                fi
+                echo "=========================================="
+          
+          - task: Bash@3
+            displayName: 'Run Functional Tests - $(name)'
+            condition: and(succeeded(), or(eq(variables['testType'], 'functional'), eq(variables['testType'], 'both')))
+            env:
+              LOG_LEVEL: $(log_level)
+              WORK_ITEM_AUTH_TOKEN: $(WORK_ITEM_AUTH_TOKEN)
+              PARTIES_AUTH_TOKEN: $(PARTIES_AUTH_TOKEN)
+              MODELS_AUTH_TOKEN: $(models_auth_token)
+              PARTIES_BASE_URL: $(RESOLVED_PARTIES_BASE_URL)
+              PARTIES_SQLDB: $(parties-sqldb-connection-string)
+              MOVEMONEY_SQLDB: $(movemoney-sqldb-connection-string)
+              HNE_DB: $(hne-db-connection-string)
+              SECURITIESHUB_DB: $(securitieshub-db-connection-string)
+              MODELHUB_DB: $(modelhub-db-connection-string)
+              AM_DB_SQLDB: $(am-db-connection-string)
+              PLATFORM_DB_SQLDB: $(platform-db-connection-string)
+              AZURE_SQL_PASSWORD: $(AZURE_SQL_PASSWORD)
+              POSTGRES_DB_PASSWORD: $(POSTGRES_DB_PASSWORD)
+              ADDRESS_BASE_URL: $(RESOLVED_ADDRESS_BASE_URL)
+              ANALYTICS_BASE_URL: $(RESOLVED_ANALYTICS_BASE_URL)
+              HNE_BASE_URL: $(RESOLVED_HNE_BASE_URL)
+              MODELS_BASE_URL: $(RESOLVED_MODELS_BASE_URL)
+              MOVEMONEY_BASE_URL: $(RESOLVED_MOVEMONEY_BASE_URL)
+              SECURITIES_BASE_URL: $(RESOLVED_SECURITIES_BASE_URL)
+              WORK_ITEM_NOTIFICATION_BASE_URL: $(RESOLVED_WORK_ITEM_NOTIFICATION_BASE_URL)
+              STRATEGIES_BASE_URL: $(RESOLVED_STRATEGIES_BASE_URL)
+              WRAPTOKEN_BASE_URL: $(RESOLVED_WRAPTOKEN_BASE_URL)
+              ACCOUNTDISTRIBUTIONS_BASE_URL: $(RESOLVED_ACCOUNTDISTRIBUTIONS_BASE_URL)
+              LEXISNEXIS_BASE_URL: $(RESOLVED_LEXISNEXIS_BASE_URL)
+              DOCUSIGN_BASE_URL: $(RESOLVED_DOCUSIGN_BASE_URL)
+              TRANSFER_SERVICE_VALIDATION_BASE_URL: $(RESOLVED_TRANSFER_SERVICE_VALIDATION_BASE_URL)
+              API_TIMEOUT: $(api_timeout)
+              API_RETRY_COUNT: $(api_retry_count)
+            inputs:
+              targetType: inline
+              script: |
+                echo "=========================================="
+                echo "Running Functional Tests"
+                echo "Service: $(name)"
+                echo "Environment: $(environment)"
+                echo "=========================================="
+                echo "Test Arguments: $(functionalTestArgs)"
+                
+                pytest -sv tests/test_api_generic.py $(functionalTestArgs)
+                TEST_EXIT_CODE=$?
+                echo "##vso[task.setvariable variable=TEST_EXIT_CODE]$TEST_EXIT_CODE"
+                exit $TEST_EXIT_CODE
+              workingDirectory: $(buildPath)
+          
+          - task: Bash@3
+            displayName: 'Locate Reports Folder'
+            condition: succeededOrFailed()
+            inputs:
+              targetType: inline
+              script: |
+                latest=$(ls -td reports/[0-9]*/ 2>/dev/null | head -1 || echo "reports/")
+                echo "##vso[task.setvariable variable=REPORTS_PATH]$latest"
+                echo "Reports location: $latest"
+              workingDirectory: $(buildPath)
+          
+          - task: Bash@3
+            displayName: 'Run Non-Functional Tests - $(name)'
+            condition: and(succeededOrFailed(), or(eq(variables['testType'], 'non-functional'), eq(variables['testType'], 'both')))
+            env:
+              LOG_LEVEL: $(log_level)
+              WORK_ITEM_AUTH_TOKEN: $(WORK_ITEM_AUTH_TOKEN)
+              PARTIES_AUTH_TOKEN: $(PARTIES_AUTH_TOKEN)
+              MODELS_AUTH_TOKEN: $(models_auth_token)
+              PARTIES_BASE_URL: $(RESOLVED_PARTIES_BASE_URL)
+              PARTIES_SQLDB: $(parties-sqldb-connection-string)
+              MOVEMONEY_SQLDB: $(movemoney-sqldb-connection-string)
+              HNE_DB: $(hne-db-connection-string)
+              SECURITIESHUB_DB: $(securitieshub-db-connection-string)
+              MODELHUB_DB: $(modelhub-db-connection-string)
+              AM_DB_SQLDB: $(am-db-connection-string)
+              PLATFORM_DB_SQLDB: $(platform-db-connection-string)
+              AZURE_SQL_PASSWORD: $(AZURE_SQL_PASSWORD)
+              POSTGRES_DB_PASSWORD: $(POSTGRES_DB_PASSWORD)
+              ADDRESS_BASE_URL: $(RESOLVED_ADDRESS_BASE_URL)
+              ANALYTICS_BASE_URL: $(RESOLVED_ANALYTICS_BASE_URL)
+              HNE_BASE_URL: $(RESOLVED_HNE_BASE_URL)
+              MODELS_BASE_URL: $(RESOLVED_MODELS_BASE_URL)
+              MOVEMONEY_BASE_URL: $(RESOLVED_MOVEMONEY_BASE_URL)
+              SECURITIES_BASE_URL: $(RESOLVED_SECURITIES_BASE_URL)
+              WORK_ITEM_NOTIFICATION_BASE_URL: $(RESOLVED_WORK_ITEM_NOTIFICATION_BASE_URL)
+              STRATEGIES_BASE_URL: $(RESOLVED_STRATEGIES_BASE_URL)
+              WRAPTOKEN_BASE_URL: $(RESOLVED_WRAPTOKEN_BASE_URL)
+              ACCOUNTDISTRIBUTIONS_BASE_URL: $(RESOLVED_ACCOUNTDISTRIBUTIONS_BASE_URL)
+              LEXISNEXIS_BASE_URL: $(RESOLVED_LEXISNEXIS_BASE_URL)
+              DOCUSIGN_BASE_URL: $(RESOLVED_DOCUSIGN_BASE_URL)
+              TRANSFER_SERVICE_VALIDATION_BASE_URL: $(RESOLVED_TRANSFER_SERVICE_VALIDATION_BASE_URL)
+              API_TIMEOUT: $(api_timeout)
+              API_RETRY_COUNT: $(api_retry_count)
+              INFLUX_URL: $(influx_url)
+              INFLUX_TOKEN: $(influx_token)
+              INFLUX_ORG: $(influx_org)
+              INFLUX_BUCKET: $(influx_bucket)
+              INFLUX_TIMEOUT: $(influx_timeout)
+              INFLUX_ENABLE: $(influx_enable)
+            inputs:
+              targetType: inline
+              script: |
+                echo "=========================================="
+                echo "Running Non-Functional Tests"
+                echo "Service: $(name)"
+                echo "Environment: $(environment)"
+                echo "=========================================="
+                
+                latest=$(ls -td reports/[0-9]*/ 2>/dev/null | head -1)
+                if [ -n "$latest" ]; then
+                  report_dir="${latest%/}"
+                  echo "Using existing report directory: $report_dir"
+                else
+                  timestamp=$(date +%Y%m%d_%H%M%S)
+                  report_dir="reports/${timestamp}"
+                  mkdir -p "$report_dir"
+                  echo "Created new report directory: $report_dir"
+                fi
+                
+                echo "Locust Arguments: $(nonFunctionalTestArgs)"
+                
+                locust -f locustfile.py $(nonFunctionalTestArgs) \
+                  --html="${report_dir}/performance_report.html" \
+                  --csv="${report_dir}/performance_report"
+                
+                LOCUST_EXIT_CODE=$?
+                echo "##vso[task.setvariable variable=LOCUST_EXIT_CODE]$LOCUST_EXIT_CODE"
+                exit $LOCUST_EXIT_CODE
+              workingDirectory: $(buildPath)
+          
+          - task: PublishTestResults@2
+            displayName: 'Publish Test Results - $(name)'
+            condition: succeededOrFailed()
+            inputs:
+              testResultsFormat: 'JUnit'
+              testResultsFiles: '**/junit_report*.xml'
+              searchFolder: '$(buildPath)/$(REPORTS_PATH)'
+              mergeTestResults: true
+              failTaskOnFailedTests: false
+              testRunTitle: '$(displayName) - $(environment) - $(Build.BuildNumber)'
+          
+          - task: PublishBuildArtifacts@1
+            displayName: 'Publish Test Reports - $(name)'
+            condition: succeededOrFailed()
+            inputs:
+              PathtoPublish: '$(buildPath)/reports'
+              ArtifactName: 'test-reports-$(name)-$(environment)-$(Build.BuildNumber)'
+              publishLocation: 'Container'
+          
+          - task: PublishBuildArtifacts@1
+            displayName: 'Publish Framework Logs - $(name)'
+            condition: succeededOrFailed()
+            inputs:
+              PathtoPublish: '$(buildPath)/framework/logs'
+              ArtifactName: 'framework-logs-$(name)-$(environment)-$(Build.BuildNumber)'
+              publishLocation: 'Container'
+          
+          - task: Bash@3
+            displayName: 'Send Email Report - $(name)_$(environment)'
+            condition: and(succeededOrFailed(), or(eq(variables['email_feature_enabled'], 'true'), eq(variables['email_feature_enabled'], 'True')))
+            env:
+              SMTP_SERVER: $(smtp_server)
+              SMTP_PORT: $(smtp_port)
+              EMAIL_FROM: $(email_from)
+              EMAIL_TO: $(email_to)
+              EMAIL_CC: $(email_cc)
+              EMAIL_BCC: $(email_bcc)
+              EMAIL_SUBJECT_PREFIX: $(email_subject_prefix)
+              EMAIL_TO_MOVEMONEY: $(email_to_movemoney)
+              EMAIL_CC_MOVEMONEY: $(email_cc_movemoney)
+              EMAIL_TO_PARTIES: $(email_to_parties)
+              EMAIL_CC_PARTIES: $(email_cc_parties)
+              EMAIL_TO_ADDRESSSERVICE: $(email_to_addressservice)
+              EMAIL_CC_ADDRESSSERVICE: $(email_cc_addressservice)
+              EMAIL_TO_WORK_ITEM_NOTIFICATION: $(email_to_work_item_notification)
+              EMAIL_CC_WORK_ITEM_NOTIFICATION: $(email_cc_work_item_notification)
+              EMAIL_TO_SECURITIES: $(email_to_securities)
+              EMAIL_CC_SECURITIES: $(email_cc_securities)
+              EMAIL_TO_MODELS: $(email_to_models)
+              EMAIL_CC_MODELS: $(email_cc_models)
+              EMAIL_TO_ANALYTICS: $(email_to_analytics)
+              EMAIL_CC_ANALYTICS: $(email_cc_analytics)
+              EMAIL_TO_HNEBASE: $(email_to_hnebase)
+              EMAIL_CC_HNEBASE: $(email_cc_hnebase)
+            inputs:
+              targetType: inline
+              script: |
+                export PYTHONPATH="${PYTHONPATH}:$(pwd)"
+                python3 framework/reporter/email_reporter.py \
+                  --build-number "$(Build.BuildNumber)" \
+                  --job-status "$(Agent.JobStatus)" \
+                  --reports-path "$(REPORTS_PATH)" \
+                  --build-id "$(Build.BuildId)" \
+                  --team-project "$(System.TeamProject)" \
+                  --collection-uri "$(System.TeamFoundationCollectionUri)" \
+                  --service-name "$(name)" \
+                  --environment "$(environment)"
+              workingDirectory: $(buildPath)
+          
+          - task: Bash@3
+            displayName: 'Verify Test Results - $(name)_$(environment)'
+            condition: always()
+            inputs:
+              targetType: inline
+              script: |
+                echo "=========================================="
+                echo "Final Test Results - $(name)"
+                echo "=========================================="
+                failed=false
+                
+                if [ "$(testType)" = "functional" ] || [ "$(testType)" = "both" ]; then
+                  if [ -z "$(TEST_EXIT_CODE)" ]; then
+                    echo "⚠️ Functional Tests were SKIPPED or not executed"
+                    failed=true
+                  elif [ "$(TEST_EXIT_CODE)" != "0" ]; then
+                    echo "❌ Functional Tests Failed (Exit Code: $(TEST_EXIT_CODE))"
+                    failed=true
+                  else
+                    echo "✅ Functional Tests Passed"
+                  fi
+                fi
+                
+                if [ "$(testType)" = "non-functional" ] || [ "$(testType)" = "both" ]; then
+                  if [ -z "$(LOCUST_EXIT_CODE)" ]; then
+                    echo "⚠️ Non-Functional Tests were SKIPPED or not executed"
+                    failed=true
+                  elif [ "$(LOCUST_EXIT_CODE)" != "0" ]; then
+                    echo "❌ Non-Functional Tests Failed (Exit Code: $(LOCUST_EXIT_CODE))"
+                    failed=true
+                  else
+                    echo "✅ Non-Functional Tests Passed"
+                  fi
+                fi
+                
+                if [ "$failed" = "true" ]; then
+                  echo "##vso[task.complete result=Failed;]Tests failed or were skipped for $(name)"
+                  exit 1
+                else
+                  echo "✅ All tests passed for $(name)"
+                fi
+
+  ###########################################################################
+  # Stage 3: Summary and Reporting
+  ###########################################################################
+  - stage: Summary
+    displayName: 'Test Execution Summary'
+    dependsOn:
+      - Initialize
+      - ExecuteTests
+    condition: always()
+    jobs:
+      - job: GenerateSummary
+        displayName: 'Generate Execution Summary'
+        pool:
+          name: ewm20-docker-build-agent-inc-dev
+        variables:
+          initializeResult: $[ stageDependencies.Initialize.ParseMatrix.result ]
+          executeTestsResult: $[ stageDependencies.ExecuteTests.RunTests.result ]
+        steps:
+          - checkout: ${{ parameters.repositoryAlias }}
+          
+          - task: Bash@3
+            displayName: 'Display Summary'
+            inputs:
+              targetType: inline
+              script: |
+                echo "=========================================="
+                echo "Pipeline Execution Summary"
+                echo "=========================================="
+                echo "Build Number: $(Build.BuildNumber)"
+                echo "Build Reason: $(Build.Reason)"
+                echo "Source Branch: $(Build.SourceBranch)"
+                echo "Trigger: $(Build.Reason)"
+                echo "=========================================="
+                echo ""
+                echo "Stage Results:"
+                echo "  Initialize: $(initializeResult)"
+                echo "  ExecuteTests: $(executeTestsResult)"
+                echo "=========================================="
+                echo ""
+                echo "Check the published test results and artifacts for detailed reports."
+                echo ""
+                
+                if [ "$(executeTestsResult)" = "Failed" ]; then
+                  echo "❌ Pipeline FAILED - Tests failed"
+                  echo "##vso[task.complete result=Failed;]Test execution failed"
+                  exit 1
+                elif [ "$(executeTestsResult)" = "Skipped" ]; then
+                  echo "⚠️ Pipeline SKIPPED - Tests were not executed"
+                  echo "##vso[task.complete result=Failed;]Test execution was skipped"
+                  exit 1
+                elif [ "$(executeTestsResult)" = "Canceled" ]; then
+                  echo "⚠️ Pipeline CANCELED"
+                  echo "##vso[task.complete result=Canceled;]Test execution was canceled"
+                  exit 1
+                else
+                  echo "✅ Pipeline execution completed successfully"
+                fi

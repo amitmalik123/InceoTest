@@ -9,7 +9,7 @@
             "Functional"
         ],
         "mainURL": "{{base_url}}",
-        "endpoint": "/requests?accountId=3FA85F64-5717-4562-B3FC-2C963F66AFA6&instructionId=50B730E0-1DF6-4BFF-9615-BB4481A6CED7&status=Confirmed&railTypes=ACH&requestType=Deposit&scheduleType=OneTime&page=1&pageSize=50",
+        "endpoint": "/requests?accountId=321E4567-E89B-12D3-A456-426614174000&instructionId=684225A1-358F-4BDB-A061-9B33576B94CC&status=Confirmed&railTypes=ACH&requestType=Deposit&scheduleType=OneTime&page=1&pageSize=50",
         "method": "GET",
         "rpc_method": "",
         "graphql_query": "",
@@ -22,13 +22,36 @@
         "payload": null,
         "expected_status": "200",
         "expected_response_schema": "MoveMoneyAPI\\schemas\\Schema_requests_GET.json",
-        "expected_response": null,
+        "expected_response": {
+            "page": 1,
+            "pageSize": 50,
+            "items": [
+                {
+                    "unitType": "Percent",
+                    "percent": 100.0,
+                    "purpose": null
+                }
+            ]
+        },
         "ignore_fields": [
             "id",
             "traceId",
             "timestamp",
             "createdDate",
-            "modifiedDate"
+            "modifiedDate",
+            "total",
+            "requestId",
+            "version",
+            "instructionId",
+            "accountId",
+            "railType",
+            "amount",
+            "requestType",
+            "status",
+            "reason",
+            "schedule",
+            "createdBy",
+            "modifiedBy"
         ],
         "extract_values": [
             {
@@ -57,7 +80,31 @@
                     "xss"
                 ]
             },
-            "data_comparison": [],
+            "data_comparison": [
+                {
+                    "source": "api_response",
+                    "target": "api_response",
+                    "fields_to_compare": [
+                        {
+                            "source_field": "page",
+                            "target_field": "page",
+                            "operator": "=="
+                        },
+                        {
+                            "source_field": "pageSize",
+                            "target_field": "pageSize",
+                            "operator": "=="
+                        },
+                        {
+                            "source_field": "total",
+                            "target_field": "total",
+                            "operator": "=="
+                        }
+                    ],
+                    "log_differences": true,
+                    "comparison_name": "Verify pagination response structure (TC001)"
+                }
+            ],
             "assertions": [
                 {
                     "actual": "{{response_page}}",
@@ -100,7 +147,7 @@
             "Positive"
         ],
         "mainURL": "{{base_url}}",
-        "endpoint": "/requests?accountId=3FA85F64-5717-4562-B3FC-2C963F66AFA6&page=1&pageSize=50",
+        "endpoint": "/requests?accountId=321E4567-E89B-12D3-A456-426614174000&page=1&pageSize=50",
         "method": "GET",
         "rpc_method": "",
         "graphql_query": "",
@@ -113,13 +160,36 @@
         "payload": null,
         "expected_status": "200",
         "expected_response_schema": "MoveMoneyAPI\\schemas\\Schema_requests_GET.json",
-        "expected_response": null,
+        "expected_response": {
+            "page": 1,
+            "pageSize": 50,
+            "items": [
+                {
+                    "unitType": "Percent",
+                    "percent": 100.0,
+                    "purpose": null
+                }
+            ]
+        },
         "ignore_fields": [
             "id",
             "traceId",
             "timestamp",
             "createdDate",
-            "modifiedDate"
+            "modifiedDate",
+            "total",
+            "requestId",
+            "version",
+            "instructionId",
+            "accountId",
+            "railType",
+            "amount",
+            "requestType",
+            "status",
+            "reason",
+            "schedule",
+            "createdBy",
+            "modifiedBy"
         ],
         "extract_values": [
             {
@@ -148,7 +218,31 @@
                     "xss"
                 ]
             },
-            "data_comparison": [],
+            "data_comparison": [
+                {
+                    "source": "api_response",
+                    "target": "api_response",
+                    "fields_to_compare": [
+                        {
+                            "source_field": "page",
+                            "target_field": "page",
+                            "operator": "=="
+                        },
+                        {
+                            "source_field": "pageSize",
+                            "target_field": "pageSize",
+                            "operator": "=="
+                        },
+                        {
+                            "source_field": "total",
+                            "target_field": "total",
+                            "operator": "=="
+                        }
+                    ],
+                    "log_differences": true,
+                    "comparison_name": "Verify pagination response structure (TC002)"
+                }
+            ],
             "assertions": [
                 {
                     "actual": "{{response_page}}",
@@ -191,7 +285,7 @@
             "Positive"
         ],
         "mainURL": "{{base_url}}",
-        "endpoint": "/requests?instructionId=50B730E0-1DF6-4BFF-9615-BB4481A6CED7",
+        "endpoint": "/requests?instructionId=684225A1-358F-4BDB-A061-9B33576B94CC",
         "method": "GET",
         "rpc_method": "",
         "graphql_query": "",
@@ -204,13 +298,36 @@
         "payload": null,
         "expected_status": "200",
         "expected_response_schema": "MoveMoneyAPI\\schemas\\Schema_requests_GET.json",
-        "expected_response": null,
+        "expected_response": {
+            "page": 1,
+            "pageSize": 50,
+            "items": [
+                {
+                    "unitType": "Percent",
+                    "percent": 100.0,
+                    "purpose": null
+                }
+            ]
+        },
         "ignore_fields": [
             "id",
             "traceId",
             "timestamp",
             "createdDate",
-            "modifiedDate"
+            "modifiedDate",
+            "total",
+            "requestId",
+            "version",
+            "instructionId",
+            "accountId",
+            "railType",
+            "amount",
+            "requestType",
+            "status",
+            "reason",
+            "schedule",
+            "createdBy",
+            "modifiedBy"
         ],
         "extract_values": [
             {
@@ -239,7 +356,31 @@
                     "xss"
                 ]
             },
-            "data_comparison": [],
+            "data_comparison": [
+                {
+                    "source": "api_response",
+                    "target": "api_response",
+                    "fields_to_compare": [
+                        {
+                            "source_field": "page",
+                            "target_field": "page",
+                            "operator": "=="
+                        },
+                        {
+                            "source_field": "pageSize",
+                            "target_field": "pageSize",
+                            "operator": "=="
+                        },
+                        {
+                            "source_field": "total",
+                            "target_field": "total",
+                            "operator": "=="
+                        }
+                    ],
+                    "log_differences": true,
+                    "comparison_name": "Verify pagination response structure (TC003)"
+                }
+            ],
             "assertions": [
                 {
                     "actual": "{{response_page}}",
@@ -579,7 +720,7 @@
             "Negative"
         ],
         "mainURL": "{{base_url}}",
-        "endpoint": "/requests?accountId=BB00EC97-9759-4B89-81E3-089BF584E607&status=Conf@#$irmed",
+        "endpoint": "/requests?accountId=321E4567-E89B-12D3-A456-426614174000&status=Pen@#$ding",
         "method": "GET",
         "rpc_method": "",
         "graphql_query": "",
@@ -602,7 +743,12 @@
             "traceId",
             "timestamp",
             "createdDate",
-            "modifiedDate"
+            "modifiedDate",
+            "type",
+            "title",
+            "detail",
+            "instance",
+            "errors"
         ],
         "extract_values": [
             {
@@ -655,7 +801,7 @@
             "Negative"
         ],
         "mainURL": "{{base_url}}",
-        "endpoint": "/requests?accountId=BB00EC97-9759-4B89-81E3-089BF584E607&instructionId=456E7890-E89B-12D3-A456-426614174111&status=Draft&railTypes=success",
+        "endpoint": "/requests?accountId=321E4567-E89B-12D3-A456-426614174000&instructionId=684225A1-358F-4BDB-A061-9B33576B94CC&status=Confirmed&railTypes=AC#$H",
         "method": "GET",
         "rpc_method": "",
         "graphql_query": "",
@@ -670,7 +816,7 @@
         "expected_response_schema": "",
         "expected_response": {
             "status": 400,
-            "error": "Invalid railTypes value. Valid values are: ACH, Wire, Check, Journal (Parameter 'RailTypes')",
+            "error": "Invalid railTypes value. Valid values are: ACH, Wire, Check, Journal, Transfer (Parameter 'RailTypes')",
             "fields": "RailTypes"
         },
         "ignore_fields": [
@@ -678,7 +824,12 @@
             "traceId",
             "timestamp",
             "createdDate",
-            "modifiedDate"
+            "modifiedDate",
+            "type",
+            "title",
+            "detail",
+            "instance",
+            "errors"
         ],
         "extract_values": [
             {
@@ -931,7 +1082,31 @@
                     "xss"
                 ]
             },
-            "data_comparison": [],
+            "data_comparison": [
+                {
+                    "source": "api_response",
+                    "target": "api_response",
+                    "fields_to_compare": [
+                        {
+                            "source_field": "page",
+                            "target_field": "page",
+                            "operator": "=="
+                        },
+                        {
+                            "source_field": "pageSize",
+                            "target_field": "pageSize",
+                            "operator": "=="
+                        },
+                        {
+                            "source_field": "total",
+                            "target_field": "total",
+                            "operator": "=="
+                        }
+                    ],
+                    "log_differences": true,
+                    "comparison_name": "Verify pagination response structure (TC012)"
+                }
+            ],
             "assertions": [
                 {
                     "actual": "{{response_page}}",
