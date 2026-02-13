@@ -83,20 +83,15 @@ parameters:
     type: string
     default: 'N/A'
 
-###############################################################################
-# Global Variables
-###############################################################################
-variables:
-  - group: 'qa-pipelines-shared-config'
-  - group: 'qa-pipelines-config'
-
   - name: pythonVersion
-    value: '3.10'
-  - name: defaultEnvironments
-    value: $[coalesce(variables['ENABLED_ENVIRONMENTS'], 'all')]
+    displayName: 'Python Version'
+    type: string
+    default: '3.10'
 
 ###############################################################################
 # Use Common Stages Template
+# Note: Variables groups must be defined in the calling pipeline, not here.
+# Required variable groups: 'qa-pipelines-shared-config', 'qa-pipelines-config'
 ###############################################################################
 stages:
   - template: templates/azure-pipelines-stages-shared.yml
@@ -109,5 +104,6 @@ stages:
       overrideEnabled: ${{ parameters.overrideEnabled }}
       customFunctionalArgs: ${{ parameters.customFunctionalArgs }}
       customNonFunctionalArgs: ${{ parameters.customNonFunctionalArgs }}
+      pythonVersion: ${{ parameters.pythonVersion }}
       triggerReason: 'Manual'
       enableScheduleDetection: false  # Callable template doesn't use cron schedules
