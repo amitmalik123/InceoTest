@@ -114,7 +114,14 @@ stages:
                 elif [ "$REPO_ALIAS" = "self" ]; then
                   BUILD_PATH="${SOURCE_DIR}/${BUILD_PATH_SUFFIX}"
                 else
+                  # Try with alias folder first (multiple repos checkout)
                   BUILD_PATH="${SOURCE_DIR}/${REPO_ALIAS}/${BUILD_PATH_SUFFIX}"
+                  
+                  # If not found, try without alias (single repo checkout)
+                  if [ ! -d "$BUILD_PATH" ]; then
+                    echo "Path with alias not found, trying without alias..."
+                    BUILD_PATH="${SOURCE_DIR}/${BUILD_PATH_SUFFIX}"
+                  fi
                 fi
                 
                 echo "Source Directory: $SOURCE_DIR"
@@ -359,7 +366,12 @@ stages:
                 elif [ "$REPO_ALIAS" = "self" ]; then
                   BUILD_PATH="${SOURCE_DIR}/${BUILD_PATH_SUFFIX}"
                 else
+                  # Try with alias folder first (multiple repos checkout)
                   BUILD_PATH="${SOURCE_DIR}/${REPO_ALIAS}/${BUILD_PATH_SUFFIX}"
+                  # If not found, try without alias (single repo checkout)
+                  if [ ! -d "$BUILD_PATH" ]; then
+                    BUILD_PATH="${SOURCE_DIR}/${BUILD_PATH_SUFFIX}"
+                  fi
                 fi
                 echo "Build Path: $BUILD_PATH"
                 echo "##vso[task.setvariable variable=buildPath]$BUILD_PATH"
