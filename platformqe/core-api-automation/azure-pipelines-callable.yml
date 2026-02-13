@@ -83,11 +83,6 @@ parameters:
     type: string
     default: 'N/A'
 
-  - name: pythonVersion
-    displayName: 'Python Version'
-    type: string
-    default: '3.10'
-
 ###############################################################################
 # Use Common Stages Template
 # Note: Variables groups must be defined in the calling pipeline, not here.
@@ -104,6 +99,5 @@ stages:
       overrideEnabled: ${{ parameters.overrideEnabled }}
       customFunctionalArgs: ${{ parameters.customFunctionalArgs }}
       customNonFunctionalArgs: ${{ parameters.customNonFunctionalArgs }}
-      pythonVersion: ${{ parameters.pythonVersion }}
       triggerReason: 'Manual'
       enableScheduleDetection: false  # Callable template doesn't use cron schedules
