@@ -23,8 +23,22 @@
     "expected_response": "",
     "extract_values": [],
     "validate": {
+      "business_rules": [
+        {
+          "rule": "PRODENG-12205: Party table must exist in the database schema",
+          "validation": "TABLE_NAME equals 'Party'"
+        },
+        {
+          "rule": "Party table must exist in dbo schema",
+          "validation": "TABLE_SCHEMA equals 'dbo'"
+        },
+        {
+          "rule": "INFORMATION_SCHEMA.TABLES query must return at least one row for Party table",
+          "validation": "row_count > 0"
+        }
+      ],
       "performance": {
-        "max_response_time_ms": null
+        "max_response_time_ms": 1000
       },
       "security": {
         "checks": ["sql_injection", "xss"]
@@ -85,8 +99,30 @@
     "expected_response": "",
     "extract_values": [],
     "validate": {
+      "business_rules": [
+        {
+          "rule": "PRODENG-12205: Party table must have required columns defined in schema",
+          "validation": "COLUMN_NAME contains all required columns: Id, Version, Status, PartyType, CreatedDate, UpdatedDate"
+        },
+        {
+          "rule": "Id column must be uniqueidentifier data type",
+          "validation": "COLUMN_NAME='Id' has DATA_TYPE='uniqueidentifier'"
+        },
+        {
+          "rule": "Version column must be int data type",
+          "validation": "COLUMN_NAME='Version' has DATA_TYPE='int'"
+        },
+        {
+          "rule": "Version column must be NOT NULL",
+          "validation": "COLUMN_NAME='Version' has IS_NULLABLE='NO'"
+        },
+        {
+          "rule": "Party table must have at least 10 columns defined",
+          "validation": "row_count >= 10"
+        }
+      ],
       "performance": {
-        "max_response_time_ms": null
+        "max_response_time_ms": 1000
       },
       "security": {
         "checks": ["sql_injection", "xss"]
@@ -164,8 +200,22 @@
     "expected_response": "",
     "extract_values": [],
     "validate": {
+      "business_rules": [
+        {
+          "rule": "PRODENG-12205: Party table must have a PRIMARY KEY constraint defined",
+          "validation": "CONSTRAINT_TYPE equals 'PRIMARY KEY'"
+        },
+        {
+          "rule": "Primary key constraint must be on Party table",
+          "validation": "TABLE_NAME equals 'Party'"
+        },
+        {
+          "rule": "Primary key constraint must exist (row_count > 0)",
+          "validation": "row_count > 0"
+        }
+      ],
       "performance": {
-        "max_response_time_ms": null
+        "max_response_time_ms": 1000
       },
       "security": {
         "checks": ["sql_injection", "xss"]
@@ -226,8 +276,26 @@
     "expected_response": "",
     "extract_values": [],
     "validate": {
+      "business_rules": [
+        {
+          "rule": "PRODENG-12205: Party table primary key must be composite key on Id and Version columns",
+          "validation": "COLUMN_NAME set equals ['Id', 'Version']"
+        },
+        {
+          "rule": "Composite primary key constraint must be named PK_Party",
+          "validation": "CONSTRAINT_NAME equals 'PK_Party'"
+        },
+        {
+          "rule": "Primary key must consist of exactly 2 columns",
+          "validation": "row_count equals 2"
+        },
+        {
+          "rule": "Primary key columns must include Id and Version",
+          "validation": "COLUMN_NAME includes 'Id' and 'Version'"
+        }
+      ],
       "performance": {
-        "max_response_time_ms": null
+        "max_response_time_ms": 1000
       },
       "security": {
         "checks": ["sql_injection", "xss"]
