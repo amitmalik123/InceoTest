@@ -77,6 +77,11 @@ parameters:
     type: boolean
     default: false
 
+  # Default environments (fallback when ENABLED_ENVIRONMENTS variable is not set)
+  - name: defaultEnvironments
+    type: string
+    default: 'all'
+
 stages:
   ###########################################################################
   # Stage 1: Initialization - Parse Matrix and Determine Services to Run
@@ -158,7 +163,7 @@ stages:
               SERVICES_INPUT: ${{ parameters.services }}
               ENABLE_SCHEDULE: ${{ parameters.enableScheduleDetection }}
               ENVIRONMENTS_INPUT: ${{ parameters.environments }}
-              DEFAULT_ENVIRONMENTS: $(defaultEnvironments)
+              DEFAULT_ENVIRONMENTS: ${{ parameters.defaultEnvironments }}
               EXECUTION_MODE: ${{ parameters.executionMode }}
               TEST_TYPE: ${{ parameters.testType }}
               TRIGGER_REASON: ${{ parameters.triggerReason }}
