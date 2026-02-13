@@ -76,10 +76,26 @@ SERVICE_DEFAULTS: Dict[str, Dict] = {
         }
     },
 
-    'movemoney': { # Can add here service-specific defaults later
-        'max_records': 5,
-        'prerequisite_testcase': {}
-    },
+        'MoveMoneyAPI': {
+        'max_records': 10,
+        # Prerequisite test case to run before other tests
+        'prerequisite_testcase': {
+            'enabled': True,
+            'count': 10,  # Number of party IDs to create
+            'testcase_file': 'MoveMoneyAPI/testcases/TestCase_moneymovement_requestid_POST.json',
+            'test_data_file': 'MoveMoneyAPI/data_driven/Data_MoveMoneyAPI_POST.csv',
+            'extract_from_response': {
+                'field': 'requestId',  # Field to extract from API response
+                'assign_to': 'requestId'    # Variable name to use
+            },
+            'update_csv_file': 'MoveMoneyAPI/data_driven/Data_requests_requestId_PUT.csv',
+            'csv_columns': ['environment', 'requestId', 'version', 'instructionId', 'accountId', 'railType', 'amount', 'percent','requestType', 'status', 'reason', 'scheduleType', 'paymentDate', 'frequency', 'startDate', 'endDate'],
+            # Transfer endpoint configuration
+             'update_csv_file_transfer': 'MoveMoneyAPI/data_driven/Data_transfer_POST.csv',
+            'csv_columns_transfer': ['environment', 'movementType', 'transferUnitType', 'amount', 'amountExpectation', 'status', 'fundingAccountNumber', 'contraFirmId', 'contraFirmName', 'contraFirmAccountNumber', 'contraFirmNameLine1', 'contraFirmNameLine2', 'contraFirmRegistrationType']
+
+        }
+    }
 }
 
 

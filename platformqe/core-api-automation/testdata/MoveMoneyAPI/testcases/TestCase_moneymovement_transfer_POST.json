@@ -20,34 +20,21 @@
             "Content-Type": "application/json"
         },
         "payload": {
-            "movementType": "Cash",
-            "transferUnitType": "Full",
-            "amount": 100.0,
-            "amountExpectation": "Estimated",
-            "status": "Received",
-            "fundingAccountNumber": "FUND789012",
+            "movementType": "{{movementType}}",
+            "transferUnitType": "{{transferUnitType}}",
+            "amount": "{{amount}}",
+            "amountExpectation": "{{amountExpectation}}",
+            "status": "{{status}}",
+            "fundingAccountNumber": "{{fundingAccountNumber}}",
             "contraFirm": {
-                "contraFirmId": "3fa85f64-5717-4562-b3fc-2c963f66afa6",
-                "name": "Fidelity Investments",
-                "accountNumber": "Z12345678",
-                "nameLine1": "Fidelity Brokerage Services LLC",
-                "registrationType": "IRA"
+                "contraFirmId": "{{contraFirmId}}",
+                "name": "{{contraFirmName}}",
+                "accountNumber": "{{contraFirmAccountNumber}}",
+                "nameLine1": "{{contraFirmNameLine1}}",
+                "registrationType": "{{contraFirmRegistrationType}}"
             },
-            "allocations": [
-                {
-                    "accountId": "123e4567-e89b-12d3-a456-426614174000",
-                    "allocationUnitType": "Percent",
-                    "percent": 100.0,
-                    "amount": 125000.0
-                }
-            ],
-            "securityTransfers": [
-                {
-                    "securityId": "3fa85f64-5717-4562-b3fc-2c963f66afa6",
-                    "securityUnitType": "Amount",
-                    "quantity": 100.0
-                }
-            ]
+            "allocations": "{{allocations}}",
+            "securityTransfers": "{{securityTransfers}}"
         },
         "expected_status": "200",
         "expected_response_schema": "MoveMoneyAPI\\schemas\\Schema_transfer_POST.json",
@@ -130,7 +117,8 @@
                 }
             ]
         },
-        "test_data_file": "",
+        "test_data_file": "MoveMoneyAPI/data_driven/Data_transfer_POST.csv",
+        "csv_row_index": 0,
         "db_query_timing": "after_api",
         "db_queries": {
             "default": "SELECT\n    LOWER([RequestId]) AS requestId,\n    [Version] AS version\nFROM \n    [dbo].[MoneyMovementRequest]\nWHERE \n    [RequestId] = '{{requestId}}'",
@@ -161,40 +149,22 @@
             "Content-Type": "application/json"
         },
         "payload": {
-            "movementType": "InKind",
-            "transferUnitType": "Partial",
-            "amount": 50000.0,
-            "amountExpectation": "Estimated",
-            "status": "Received",
+            "movementType": "{{movementType}}",
+            "transferUnitType": "{{transferUnitType}}",
+            "amount": "{{amount}}",
+            "amountExpectation": "{{amountExpectation}}",
+            "status": "{{status}}",
             "fundingAccountNumber": null,
             "contraFirm": {
-                "contraFirmId": "ee0e8400-e29b-41d4-a716-446655440050",
-                "name": "Charles Schwab",
-                "accountNumber": "1234-5678",
-                "nameLine1": "Charles Schwab & Co., Inc.",
-                "nameLine2": "Individual Brokerage",
-                "registrationType": "Single"
+                "contraFirmId": "{{contraFirmId}}",
+                "name": "{{contraFirmName}}",
+                "accountNumber": "{{contraFirmAccountNumber}}",
+                "nameLine1": "{{contraFirmNameLine1}}",
+                "nameLine2": "{{contraFirmNameLine2}}",
+                "registrationType": "{{contraFirmRegistrationType}}"
             },
-            "allocations": [
-                {
-                    "accountId": "456e7890-e89b-12d3-a456-426614174111",
-                    "allocationUnitType": "Percent",
-                    "percent": 100.0,
-                    "amount": 50000.0
-                }
-            ],
-            "securityTransfers": [
-                {
-                    "securityId": "3fa85f64-5717-4562-b3fc-2c963f66afa6",
-                    "securityUnitType": "Amount",
-                    "quantity": 250.0
-                },
-                {
-                    "securityId": "3fa85f64-5717-4562-b3fc-2c963f66afa7",
-                    "securityUnitType": "Amount",
-                    "quantity": 500.0
-                }
-            ]
+            "allocations": "{{allocations}}",
+            "securityTransfers": "{{securityTransfers}}"
         },
         "expected_status": "200",
         "expected_response_schema": "MoveMoneyAPI\\schemas\\Schema_transfer_POST.json",
@@ -302,7 +272,8 @@
                 }
             ]
         },
-        "test_data_file": "",
+        "test_data_file": "MoveMoneyAPI/data_driven/Data_transfer_POST.csv",
+        "csv_row_index": 1,
         "db_query_timing": "after_api",
         "db_queries": {
             "default": "SELECT\n    LOWER([RequestId]) AS requestId,\n    [Version] AS version\nFROM \n    [dbo].[MoneyMovementRequest]\nWHERE \n    [RequestId] = '{{requestId}}'",
@@ -334,35 +305,22 @@
             "Content-Type": "application/json"
         },
         "payload": {
-            "movementType": "Cash",
-            "transferUnitType": "Full",
-            "amount": 0.0,
-            "amountExpectation": "Exact",
-            "status": "Received",
-            "fundingAccountNumber": "FUND789012",
+            "movementType": "{{movementType}}",
+            "transferUnitType": "{{transferUnitType}}",
+            "amount": "{{amount}}",
+            "amountExpectation": "{{amountExpectation}}",
+            "status": "{{status}}",
+            "fundingAccountNumber": "{{fundingAccountNumber}}",
             "contraFirm": {
-                "contraFirmId": "cc0e8400-e29b-41d4-a716-446655440030",
-                "name": "Vanguard",
-                "accountNumber": "9876543210 ",
-                "nameLine1": "The Vanguard Group, Inc.",
+                "contraFirmId": "{{contraFirmId}}",
+                "name": "{{contraFirmName}}",
+                "accountNumber": "{{contraFirmAccountNumber}}",
+                "nameLine1": "{{contraFirmNameLine1}}",
                 "nameLine2": null,
-                "registrationType": "Retirement401K"
+                "registrationType": "{{contraFirmRegistrationType}}"
             },
-            "allocations": [
-                {
-                    "accountId": "123e4567-e89b-12d3-a456-426614174000",
-                    "allocationUnitType": "Percent",
-                    "percent": 60.0,
-                    "amount": 120000.0
-                },
-                {
-                    "accountId": "456e7890-e89b-12d3-a456-426614174111",
-                    "allocationUnitType": "Percent",
-                    "percent": 40.0,
-                    "amount": 80000.0
-                }
-            ],
-            "securityTransfers": []
+            "allocations": "{{allocations}}",
+            "securityTransfers": "{{securityTransfers}}"
         },
         "expected_status": "200",
         "expected_response_schema": "MoveMoneyAPI\\schemas\\Schema_transfer_POST.json",
@@ -471,7 +429,8 @@
                 }
             ]
         },
-        "test_data_file": "",
+        "test_data_file": "MoveMoneyAPI/data_driven/Data_transfer_POST.csv",
+        "csv_row_index": 2,
         "db_query_timing": "after_api",
         "db_queries": {
             "default": "SELECT\n    LOWER([RequestId]) AS requestId,\n    [Version] AS version\nFROM \n    [dbo].[MoneyMovementRequest]\nWHERE \n    [RequestId] = '{{requestId}}'",
@@ -503,28 +462,21 @@
             "Content-Type": "application/json"
         },
         "payload": {
-            "movementType": "Test",
-            "transferUnitType": "Full",
-            "amount": 100.0,
-            "amountExpectation": "Estimated",
-            "status": "Received",
-            "fundingAccountNumber": "FUND789012",
+            "movementType": "{{movementType}}",
+            "transferUnitType": "{{transferUnitType}}",
+            "amount": "{{amount}}",
+            "amountExpectation": "{{amountExpectation}}",
+            "status": "{{status}}",
+            "fundingAccountNumber": "{{fundingAccountNumber}}",
             "contraFirm": {
-                "contraFirmId": "3fa85f64-5717-4562-b3fc-2c963f66afa6",
-                "name": "Fidelity Investments",
-                "accountNumber": "Z12345678",
-                "nameLine1": "Fidelity Brokerage Services LLC",
-                "registrationType": "IRA"
+                "contraFirmId": "{{contraFirmId}}",
+                "name": "{{contraFirmName}}",
+                "accountNumber": "{{contraFirmAccountNumber}}",
+                "nameLine1": "{{contraFirmNameLine1}}",
+                "registrationType": "{{contraFirmRegistrationType}}"
             },
-            "allocations": [
-                {
-                    "accountId": "123e4567-e89b-12d3-a456-426614174000",
-                    "allocationUnitType": "Percent",
-                    "percent": 100.0,
-                    "amount": 125000.0
-                }
-            ],
-            "securityTransfers": []
+            "allocations": "{{allocations}}",
+            "securityTransfers": "{{securityTransfers}}"
         },
         "expected_status": "400",
         "expected_response_schema": "",
@@ -546,7 +498,8 @@
         "validate": {
             "assertions": []
         },
-        "test_data_file": "",
+        "test_data_file": "MoveMoneyAPI/data_driven/Data_transfer_POST.csv",
+        "csv_row_index": 3,
         "db_query_timing": "",
         "db_queries": {},
         "db_type": "",
@@ -574,28 +527,21 @@
             "Content-Type": "application/json"
         },
         "payload": {
-            "movementType": "Cash",
-            "transferUnitType": "Test",
-            "amount": 100.0,
-            "amountExpectation": "Estimated",
-            "status": "Received",
-            "fundingAccountNumber": "FUND789012",
+            "movementType": "{{movementType}}",
+            "transferUnitType": "{{transferUnitType}}",
+            "amount": "{{amount}}",
+            "amountExpectation": "{{amountExpectation}}",
+            "status": "{{status}}",
+            "fundingAccountNumber": "{{fundingAccountNumber}}",
             "contraFirm": {
-                "contraFirmId": "3fa85f64-5717-4562-b3fc-2c963f66afa6",
-                "name": "Fidelity Investments",
-                "accountNumber": "Z12345678",
-                "nameLine1": "Fidelity Brokerage Services LLC",
-                "registrationType": "IRA"
+                "contraFirmId": "{{contraFirmId}}",
+                "name": "{{contraFirmName}}",
+                "accountNumber": "{{contraFirmAccountNumber}}",
+                "nameLine1": "{{contraFirmNameLine1}}",
+                "registrationType": "{{contraFirmRegistrationType}}"
             },
-            "allocations": [
-                {
-                    "accountId": "123e4567-e89b-12d3-a456-426614174000",
-                    "allocationUnitType": "Percent",
-                    "percent": 100.0,
-                    "amount": 125000.0
-                }
-            ],
-            "securityTransfers": []
+            "allocations": "{{allocations}}",
+            "securityTransfers": "{{securityTransfers}}"
         },
         "expected_status": "400",
         "expected_response_schema": "",
@@ -617,7 +563,8 @@
         "validate": {
             "assertions": []
         },
-        "test_data_file": "",
+        "test_data_file": "MoveMoneyAPI/data_driven/Data_transfer_POST.csv",
+        "csv_row_index": 4,
         "db_query_timing": "",
         "db_queries": {},
         "db_type": "",
@@ -645,28 +592,21 @@
             "Content-Type": "application/json"
         },
         "payload": {
-            "movementType": "Cash",
-            "transferUnitType": "Full",
-            "amount": 100.0,
-            "amountExpectation": "Test",
-            "status": "Received",
-            "fundingAccountNumber": "FUND789012",
+            "movementType": "{{movementType}}",
+            "transferUnitType": "{{transferUnitType}}",
+            "amount": "{{amount}}",
+            "amountExpectation": "{{amountExpectation}}",
+            "status": "{{status}}",
+            "fundingAccountNumber": "{{fundingAccountNumber}}",
             "contraFirm": {
-                "contraFirmId": "3fa85f64-5717-4562-b3fc-2c963f66afa6",
-                "name": "Fidelity Investments",
-                "accountNumber": "Z12345678",
-                "nameLine1": "Fidelity Brokerage Services LLC",
-                "registrationType": "IRA"
+                "contraFirmId": "{{contraFirmId}}",
+                "name": "{{contraFirmName}}",
+                "accountNumber": "{{contraFirmAccountNumber}}",
+                "nameLine1": "{{contraFirmNameLine1}}",
+                "registrationType": "{{contraFirmRegistrationType}}"
             },
-            "allocations": [
-                {
-                    "accountId": "123e4567-e89b-12d3-a456-426614174000",
-                    "allocationUnitType": "Percent",
-                    "percent": 100.0,
-                    "amount": 125000.0
-                }
-            ],
-            "securityTransfers": []
+            "allocations": "{{allocations}}",
+            "securityTransfers": "{{securityTransfers}}"
         },
         "expected_status": "400",
         "expected_response_schema": "",
@@ -688,7 +628,8 @@
         "validate": {
             "assertions": []
         },
-        "test_data_file": "",
+        "test_data_file": "MoveMoneyAPI/data_driven/Data_transfer_POST.csv",
+        "csv_row_index": 5,
         "db_query_timing": "",
         "db_queries": {},
         "db_type": "",
@@ -716,28 +657,21 @@
             "Content-Type": "application/json"
         },
         "payload": {
-            "movementType": "Cash",
-            "transferUnitType": "Full",
-            "amount": 100.0,
-            "amountExpectation": "Estimated",
-            "status": "Received",
-            "fundingAccountNumber": "FUND789012",
+            "movementType": "{{movementType}}",
+            "transferUnitType": "{{transferUnitType}}",
+            "amount": "{{amount}}",
+            "amountExpectation": "{{amountExpectation}}",
+            "status": "{{status}}",
+            "fundingAccountNumber": "{{fundingAccountNumber}}",
             "contraFirm": {
-                "contraFirmId": "3fa85f64-5717-4562-b3fc-2c963f66afa6",
-                "name": "Fidelity Investments",
-                "accountNumber": "",
-                "nameLine1": "Fidelity Brokerage Services LLC",
-                "registrationType": "IRA"
+                "contraFirmId": "{{contraFirmId}}",
+                "name": "{{contraFirmName}}",
+                "accountNumber": "{{contraFirmAccountNumber}}",
+                "nameLine1": "{{contraFirmNameLine1}}",
+                "registrationType": "{{contraFirmRegistrationType}}"
             },
-            "allocations": [
-                {
-                    "accountId": "123e4567-e89b-12d3-a456-426614174000",
-                    "allocationUnitType": "Percent",
-                    "percent": 100.0,
-                    "amount": 125000.0
-                }
-            ],
-            "securityTransfers": []
+            "allocations": "{{allocations}}",
+            "securityTransfers": "{{securityTransfers}}"
         },
         "expected_status": "400",
         "expected_response_schema": "",
@@ -759,7 +693,8 @@
         "validate": {
             "assertions": []
         },
-        "test_data_file": "",
+        "test_data_file": "MoveMoneyAPI/data_driven/Data_transfer_POST.csv",
+        "csv_row_index": 6,
         "db_query_timing": "",
         "db_queries": {},
         "db_type": "",

@@ -197,6 +197,9 @@ class TestCaseLoader:
         Expand test cases with test_data rows if test_data_file is specified.
         Each row becomes a separate parametrized test case.
         
+        If csv_row_index is specified, only that specific row is used.
+        Otherwise, all rows are used for parametrization.
+        
         Args:
             cases: List of test case dictionaries
         
@@ -218,18 +221,44 @@ class TestCaseLoader:
                 test_data_rows = TestDataLoader(test_data_path).load()
                 
                 if isinstance(test_data_rows, list) and test_data_rows:
-                    for row in test_data_rows:
-                        param_case = case.copy()
-                        param_case.update(row)
-                        
-                        # If loader returned error marker, set fail marker
-                        if row.get("__testdata_error__"):
-                            param_case["status"] = "FAIL"
-                            param_case["reason"] = row.get("__error_message__", "Test data file error")
-                        
-                        param_cases.append(param_case)
+                    # Check if csv_row_index is specified
+                    csv_row_index = case.get('csv_row_index')
                     
-                    logger.debug(f"Expanded {case.get('test_id')} into {len(test_data_rows)} test cases")
+                    if csv_row_index is not None:
+                        # Use only the specified row index
+                        if 0 <= csv_row_index < len(test_data_rows):
+                            row = test_data_rows[csv_row_index]
+                            param_case = case.copy()
+                            param_case.update(row)
+                            
+                            # If loader returned error marker, set fail marker
+                            if row.get("__testdata_error__"):
+                                param_case["status"] = "FAIL"
+                                param_case["reason"] = row.get("__error_message__", "Test data file error")
+                            
+                            param_cases.append(param_case)
+                            logger.debug(f"Used csv_row_index={csv_row_index} for {case.get('test_id')}")
+                        else:
+                            logger.warning(f"csv_row_index={csv_row_index} out of range for {case.get('test_id')} (max: {len(test_data_rows)-1})")
+                            # Add case without data expansion but mark as error
+                            param_case = case.copy()
+                            param_case["status"] = "FAIL"
+                            param_case["reason"] = f"csv_row_index={csv_row_index} out of range (available rows: 0-{len(test_data_rows)-1})"
+                            param_cases.append(param_case)
+                    else:
+                        # No csv_row_index specified, expand with all rows (original behavior)
+                        for row in test_data_rows:
+                            param_case = case.copy()
+                            param_case.update(row)
+                            
+                            # If loader returned error marker, set fail marker
+                            if row.get("__testdata_error__"):
+                                param_case["status"] = "FAIL"
+                                param_case["reason"] = row.get("__error_message__", "Test data file error")
+                            
+                            param_cases.append(param_case)
+                        
+                        logger.debug(f"Expanded {case.get('test_id')} into {len(test_data_rows)} test cases")
                 else:
                     # If no matching rows, skip (don't add to param_cases)
                     logger.debug(f"No test data rows for {case.get('test_id')}, skipping")
