@@ -21,13 +21,16 @@ db_connections:
   # MSSQL Connections - Multiple servers and databases
   mssql:
     tracking_center:
-      driver: "ODBC Driver 17 for SQL Server"
-      server: "t12ewmdba"
-      database: "TrackingCenter"
-      trusted_connection: true
+      connection_string: "${TRACKING_CENTER_SQLDB}"
+
+    platform_db:
+      connection_string: "${PLATFORM_DB_SQLDB}"
 
     account_service:
       connection_string: "${ACCOUNT_SQLDB}"
+
+    am_db:
+      connection_string: "${AM_DB_SQLDB}"    
     
     # Azure SQL Server with Entra ID (Azure AD) Password Authentication
     movemoney:
@@ -97,13 +100,6 @@ api_endpoints:
     timeout: ${API_TIMEOUT:30}
     retry_count: ${API_RETRY_COUNT:3}
     verify: false
-  
-  account_service:
-    base_url: "${ACCOUNTS_BASE_URL}"
-    auth_token: "your-token-if-needed"
-    timeout: 30
-    retry_count: 3
-    verify: false
 
   parties:
     base_url: "${PARTIES_BASE_URL}"  # Fetched from Azure variable group: qa-pipelines-variable-group-dev
@@ -118,6 +114,13 @@ api_endpoints:
     auth_token: "your-token-if-needed"
     timeout: ${API_TIMEOUT:30}
     retry_count: ${API_RETRY_COUNT:3}
+    verify: false
+
+  account_service:
+    base_url: "${ACCOUNTS_BASE_URL}"
+    auth_token: "your-token-if-needed"
+    timeout: 30
+    retry_count: 3
     verify: false
 
   work_item_notification:
@@ -152,6 +155,22 @@ api_endpoints:
     use_azure_auth: false  # Set to true to use Azure AD authentication
     azure_resource: "https://management.azure.com/"
 
+  strategies:
+    base_url: "${STRATEGIES_BASE_URL}"  # Fetched from Azure variable group: qa-pipelines-variable-group-test
+    auth_token: "${STRATEGIES_AUTH_TOKEN}"
+    timeout: ${API_TIMEOUT:30}
+    retry_count: ${API_RETRY_COUNT:3}
+    use_azure_auth: false  # Set to true to use Azure AD authentication
+    azure_resource: "https://management.azure.com/"  # Azure resource for token generation
+
+  wrapToken:
+    base_url: "${WRAPTOKEN_BASE_URL}"  # Fetched from Azure variable group: qa-pipelines-variable-group-test
+    auth_token: "${WRAPTOKEN_AUTH_TOKEN}"
+    timeout: ${API_TIMEOUT:30}
+    retry_count: ${API_RETRY_COUNT:3}
+    use_azure_auth: false  # Set to true to use Azure AD authentication
+    azure_resource: "https://management.azure.com/"  # Azure resource for token generation
+
   hnebase:
     base_url: "${HNE_BASE_URL}"  # Fetched from Azure variable group: qa-pipelines-variable-group-dev
     auth_token: "${HNEBASE_AUTH_TOKEN}"
@@ -159,6 +178,14 @@ api_endpoints:
     retry_count: ${API_RETRY_COUNT:3}
     use_azure_auth: false  # Set to true to use Azure AD authentication
     azure_resource: "https://management.azure.com/"  # Azure resource for token generation
+
+  lexisnexiscipproxyservice:
+    base_url: "${LEXISNEXIS_BASE_URL}"
+    auth_token: "${LEXISNEXIS_CIP_AUTH_TOKEN}"
+    timeout: ${API_TIMEOUT:30}
+    retry_count: ${API_RETRY_COUNT:3}
+    use_azure_auth: false # Set to true to use Azure AD authentication
+    azure_resource: "https://management.azure.com/"
 
   # Example: Azure AD authenticated API
   azure_resource_manager:
