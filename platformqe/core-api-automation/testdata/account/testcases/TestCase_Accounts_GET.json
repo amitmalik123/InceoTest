@@ -1,7 +1,7 @@
 [
     {
         "test_id": "TC001",
-        "service_name": "account",
+        "service_name": "account_service",
         "workflow_mode": "parallel",
         "test_name": "GET /Accounts [positive] (TC001)",
         "protocol": "REST",
@@ -123,7 +123,7 @@
     },
     {
         "test_id": "TC002",
-        "service_name": "account",
+        "service_name": "account_service",
         "workflow_mode": "parallel",
         "test_name": "GET /Accounts [positive] (TC002)",
         "protocol": "REST",
@@ -173,7 +173,7 @@
     },
     {
         "test_id": "TC003",
-        "service_name": "account",
+        "service_name": "account_service",
         "workflow_mode": "parallel",
         "test_name": "GET /Accounts [positive] (TC003)",
         "protocol": "REST",
@@ -204,6 +204,16 @@
                 "from": "response",
                 "key": "accounts.items.0.accountType",
                 "assign_to": "account_type_Ind"
+            },
+            {
+                "from": "response",
+                "key": "accounts.page",
+                "assign_to": "page"
+            },
+            {
+                "from": "response",
+                "key": "accounts.pageSize",
+                "assign_to": "page_size"
             },
             {
                 "from": "db_result",
@@ -265,7 +275,7 @@
     },
     {
         "test_id": "TC004",
-        "service_name": "account",
+        "service_name": "account_service",
         "workflow_mode": "parallel",
         "test_name": "GET /Accounts [positive] (TC004)",
         "protocol": "REST",
@@ -296,6 +306,16 @@
                 "from": "response",
                 "key": "accounts.items.0.accountType",
                 "assign_to": "account_type_Corp"
+            },
+            {
+                "from": "response",
+                "key": "accounts.page",
+                "assign_to": "page"
+            },
+            {
+                "from": "response",
+                "key": "accounts.pageSize",
+                "assign_to": "page_size"
             },
             {
                 "from": "db_result",
@@ -357,7 +377,7 @@
     },
     {
         "test_id": "TC005",
-        "service_name": "account",
+        "service_name": "account_service",
         "workflow_mode": "parallel",
         "test_name": "GET /Accounts [positive] (TC005)",
         "protocol": "REST",
@@ -388,6 +408,16 @@
                 "from": "response",
                 "key": "accounts.items.0.changeState",
                 "assign_to": "account_change_state_Proposal"
+            },
+            {
+                "from": "response",
+                "key": "accounts.page",
+                "assign_to": "page"
+            },
+            {
+                "from": "response",
+                "key": "accounts.pageSize",
+                "assign_to": "page_size"
             },
             {
                 "from": "db_result",
@@ -449,7 +479,7 @@
     },
     {
         "test_id": "TC006",
-        "service_name": "account",
+        "service_name": "account_service",
         "workflow_mode": "parallel",
         "test_name": "GET /Accounts [positive] (TC006)",
         "protocol": "REST",
@@ -480,6 +510,16 @@
                 "from": "response",
                 "key": "accounts.items.0.changeState",
                 "assign_to": "account_change_State_Funded"
+            },
+            {
+                "from": "response",
+                "key": "accounts.page",
+                "assign_to": "page"
+            },
+            {
+                "from": "response",
+                "key": "accounts.pageSize",
+                "assign_to": "page_size"
             },
             {
                 "from": "db_result",
@@ -541,7 +581,7 @@
     },
     {
         "test_id": "TC007",
-        "service_name": "account",
+        "service_name": "account_service",
         "workflow_mode": "parallel",
         "test_name": "GET /Accounts [positive] (TC007)",
         "protocol": "REST",
@@ -643,7 +683,7 @@
     },
     {
         "test_id": "TC008",
-        "service_name": "account",
+        "service_name": "account_service",
         "workflow_mode": "parallel",
         "test_name": "GET /Accounts [positive] (TC008)",
         "protocol": "REST",
@@ -674,6 +714,16 @@
                 "from": "response",
                 "key": "accounts.items.0.accountSubType",
                 "assign_to": "account_subtype_Individual"
+            },
+            {
+                "from": "response",
+                "key": "accounts.page",
+                "assign_to": "page"
+            },
+            {
+                "from": "response",
+                "key": "accounts.pageSize",
+                "assign_to": "page_size"
             },
             {
                 "from": "db_result",
@@ -730,12 +780,12 @@
         },
         "db_type": "mssql",
         "db_connection_name": "account_service",
-        "test_summary": "Test TC007: GET /Accounts Single-Filter Scenario: Only AccountSubType (Individual)",
+        "test_summary": "Test TC008: GET /Accounts Single-Filter Scenario: Only AccountSubType (Individual)",
         "test_scenario": "Test GET request to /accounts with only AccountSubType filter."
     },
     {
         "test_id": "TC009",
-        "service_name": "account",
+        "service_name": "account_service",
         "workflow_mode": "parallel",
         "test_name": "GET /Accounts [positive] (TC009)",
         "protocol": "REST",
@@ -768,11 +818,21 @@
                 "assign_to": "account_party_role_type_AccountHolder"
             },
             {
+                "from": "response",
+                "key": "accounts.page",
+                "assign_to": "page"
+            },
+            {
+                "from": "response",
+                "key": "accounts.pageSize",
+                "assign_to": "page_size"
+            },
+            {
                 "from": "db_result",
                 "query": "default",
                 "assign": [
                     {
-                        "key": "0.roleType",
+                        "key": "0.RoleType",
                         "assign_to": "db_account_party_role_type_AccountHolder"
                     }
                 ]
@@ -817,7 +877,7 @@
         "test_data_file": "",
         "db_query_timing": "after_api",
         "db_queries": {
-            "default": "SELECT * FROM (SELECT a.*, p.roleType, p.partyId, ROW_NUMBER() OVER (ORDER BY a.Id, a.Version) AS rn FROM Account a CROSS APPLY OPENJSON(a.Parties) WITH (partyId NVARCHAR(100), roleType NVARCHAR(100)) AS p WHERE p.roleType = 'AccountHolder' AND a.Version = (SELECT MAX(Version) FROM Account WHERE Id = a.Id)) t WHERE t.rn > (({{page}} - 1) * {{page_size}}) AND t.rn <= ({{page}} * {{page_size}});",
+            "default": "WITH RankedAccounts AS (SELECT a.Id, a.Version, p.RoleType, ROW_NUMBER() OVER (PARTITION BY a.Id ORDER BY a.Version DESC) AS rn FROM Account a CROSS APPLY OPENJSON(a.Parties) WITH (PartyId NVARCHAR(100) '$.PartyId', RoleType NVARCHAR(100) '$.RoleType') p WHERE p.RoleType = 'AccountHolder') SELECT Id, Version, RoleType FROM RankedAccounts WHERE rn = 1 ORDER BY Id OFFSET 0 ROWS FETCH NEXT 50 ROWS ONLY",
             "count_query": "SELECT COUNT(*) AS count FROM ( SELECT *,  ROW_NUMBER() OVER (PARTITION BY Id ORDER BY version DESC) AS rn FROM Account  WHERE JSON_VALUE(Parties, '$[0].roleType') = 'Trustee') t WHERE t.rn = 1;"
         },
         "db_type": "mssql",
@@ -827,7 +887,7 @@
     },
     {
         "test_id": "TC010",
-        "service_name": "account",
+        "service_name": "account_service",
         "workflow_mode": "parallel",
         "test_name": "GET /Accounts [positive] (TC010)",
         "protocol": "REST",
@@ -836,7 +896,7 @@
             "Single-Filter"
         ],
         "mainURL": "{{base_url}}",
-        "endpoint": "/accounts?PartyRoleType=AccountHolder",
+        "endpoint": "/accounts?PartyRoleType=Trustee",
         "method": "GET",
         "rpc_method": "",
         "graphql_query": "",
@@ -857,15 +917,25 @@
             {
                 "from": "response",
                 "key": "accounts.items.0.parties.0.roleType",
-                "assign_to": "account_party_role_type_AccountHolder"
+                "assign_to": "account_party_role_type_Trustee"
+            },
+            {
+                "from": "response",
+                "key": "accounts.page",
+                "assign_to": "page"
+            },
+            {
+                "from": "response",
+                "key": "accounts.pageSize",
+                "assign_to": "page_size"
             },
             {
                 "from": "db_result",
                 "query": "default",
                 "assign": [
                     {
-                        "key": "0.roleType",
-                        "assign_to": "db_account_party_role_type_AccountHolder"
+                        "key": "0.RoleType",
+                        "assign_to": "db_account_party_role_type_Trustee"
                     }
                 ]
             }
@@ -882,9 +952,9 @@
             },
             "assertions": [
                 {
-                    "actual": "{{account_party_role_type_AccountHolder}}",
+                    "actual": "{{account_party_role_type_Trustee}}",
                     "operator": "==",
-                    "expected": "{{db_account_party_role_type_AccountHolder}}",
+                    "expected": "{{db_account_party_role_type_Trustee}}",
                     "message": "Account party role type should match the database value"
                 }
             ],
@@ -897,8 +967,8 @@
                     "source_array_path": "accounts.items",
                     "fields_to_compare": [
                         {
-                            "source": "account_party_role_type_AccountHolder",
-                            "target": "db_account_party_role_type_AccountHolder"
+                            "source": "account_party_role_type_Trustee",
+                            "target": "db_account_party_role_type_Trustee"
                         }
                     ],
                     "log_differences": true,
@@ -909,17 +979,17 @@
         "test_data_file": "",
         "db_query_timing": "after_api",
         "db_queries": {
-            "default": "SELECT * FROM (SELECT a.*, JSON_VALUE(a.Parties, '$[0].roleType') AS roleType, JSON_VALUE(a.identifiers, '$[0].type') AS identifier_type, JSON_VALUE(a.identifiers, '$[0].value') AS identifier_value, ROW_NUMBER() OVER (ORDER BY a.Id, a.Version) AS rn FROM Account a WHERE JSON_VALUE(a.Parties, '$[0].roleType') = 'AccountHolder'  AND Version = (SELECT MAX(Version) FROM Account WHERE Id = a.Id AND JSON_VALUE(a.Parties, '$[0].roleType') = 'AccountHolder')) t WHERE t.rn > (({{page}} - 1) * {{page_size}}) AND t.rn <= ({{page}} * {{page_size}});",
-            "count_query": "SELECT COUNT(*) AS count FROM ( SELECT *,  ROW_NUMBER() OVER (PARTITION BY Id ORDER BY version DESC) AS rn FROM Account  WHERE JSON_VALUE(Parties, '$[0].roleType') = 'AccountHolder') t WHERE t.rn = 1;"
+            "default": "WITH RankedAccounts AS (SELECT a.Id, a.Version, p.RoleType, ROW_NUMBER() OVER (PARTITION BY a.Id ORDER BY a.Version DESC) AS rn FROM Account a CROSS APPLY OPENJSON(a.Parties) WITH (PartyId NVARCHAR(100) '$.PartyId', RoleType NVARCHAR(100) '$.RoleType') p WHERE p.RoleType = 'Trustee') SELECT Id, Version, RoleType FROM RankedAccounts WHERE rn = 1 ORDER BY Id OFFSET 0 ROWS FETCH NEXT 50 ROWS ONLY",
+            "count_query": "SELECT COUNT(*) AS count FROM ( SELECT *,  ROW_NUMBER() OVER (PARTITION BY Id ORDER BY version DESC) AS rn FROM Account  WHERE JSON_VALUE(Parties, '$[0].roleType') = 'Trustee') t WHERE t.rn = 1;"
         },
         "db_type": "mssql",
         "db_connection_name": "account_service",
-        "test_summary": "Test TC010: GET /Accounts Single-Filter Scenario: Only AccountPartyRoleType (AccountHolder)",
+        "test_summary": "Test TC010: GET /Accounts Single-Filter Scenario: Only AccountPartyRoleType (Trustee)",
         "test_scenario": "Test GET request to /accounts with only AccountPartyRoleType filter."
     },
     {
         "test_id": "TC011",
-        "service_name": "account",
+        "service_name": "account_service",
         "workflow_mode": "parallel",
         "test_name": "GET /Accounts [positive] (TC011)",
         "protocol": "REST",
@@ -950,6 +1020,16 @@
                 "from": "response",
                 "key": "accounts.items.0.parties.0.roleType",
                 "assign_to": "account_party_role_type_AuthorizedAgents"
+            },
+            {
+                "from": "response",
+                "key": "accounts.page",
+                "assign_to": "page"
+            },
+            {
+                "from": "response",
+                "key": "accounts.pageSize",
+                "assign_to": "page_size"
             },
             {
                 "from": "db_result",
@@ -1001,7 +1081,7 @@
         "test_data_file": "",
         "db_query_timing": "after_api",
         "db_queries": {
-            "default": "SELECT * FROM (SELECT a.*, JSON_VALUE(a.Parties, '$[0].roleType') AS roleType, ROW_NUMBER() OVER (ORDER BY a.Id, a.Version) AS rn FROM Account a WHERE JSON_VALUE(a.Parties, '$[0].roleType') = 'AuthorizedAgents' AND Version = (SELECT MAX(Version) FROM Account WHERE Id = a.Id AND JSON_VALUE(a.Parties, '$[0].roleType') = 'AuthorizedAgents')) t WHERE t.rn > (({{page}} - 1) * {{page_size}}) AND t.rn <= ({{page}} * {{page_size}});",
+            "default": "WITH RankedAccounts AS (SELECT a.Id, a.Version, p.RoleType, ROW_NUMBER() OVER (PARTITION BY a.Id ORDER BY a.Version DESC) AS rn FROM Account a CROSS APPLY OPENJSON(a.Parties) WITH (PartyId NVARCHAR(100) '$.PartyId', RoleType NVARCHAR(100) '$.RoleType') p WHERE p.RoleType = 'AuthorizedAgents') SELECT Id, Version, RoleType FROM RankedAccounts WHERE rn = 1 ORDER BY Id OFFSET 0 ROWS FETCH NEXT 50 ROWS ONLY",
             "count_query": "SELECT COUNT(*) AS count FROM (SELECT *, ROW_NUMBER() OVER (PARTITION BY Id ORDER BY version DESC) AS rn FROM Account WHERE JSON_VALUE(Parties, '$[0].roleType') = 'AuthorizedAgents') t WHERE t.rn = 1;"
         },
         "db_type": "mssql",
@@ -1011,7 +1091,7 @@
     },
     {
         "test_id": "TC012",
-        "service_name": "account",
+        "service_name": "account_service",
         "workflow_mode": "parallel",
         "test_name": "GET /Accounts [positive] (TC012)",
         "protocol": "REST",
@@ -1046,12 +1126,12 @@
             {
                 "from": "response",
                 "key": "accounts.page",
-                "assign_to": "api_page"
+                "assign_to": "page"
             },
             {
                 "from": "response",
                 "key": "accounts.pageSize",
-                "assign_to": "api_page_size"
+                "assign_to": "page_size"
             },
             {
                 "from": "response",
@@ -1128,7 +1208,7 @@
     },
     {
         "test_id": "TC013",
-        "service_name": "account",
+        "service_name": "account_service",
         "workflow_mode": "parallel",
         "test_name": "GET /Accounts [positive] (TC013)",
         "protocol": "REST",
@@ -1159,6 +1239,16 @@
                 "from": "response",
                 "key": "accounts.items.0.identifiers.0.value",
                 "assign_to": "account_identifier_value"
+            },
+            {
+                "from": "response",
+                "key": "accounts.page",
+                "assign_to": "page"
+            },
+            {
+                "from": "response",
+                "key": "accounts.pageSize",
+                "assign_to": "page_size"
             },
             {
                 "from": "db_result",
@@ -1220,7 +1310,7 @@
     },
     {
         "test_id": "TC014",
-        "service_name": "account",
+        "service_name": "account_service",
         "workflow_mode": "parallel",
         "test_name": "GET /Accounts [positive] (TC014)",
         "protocol": "REST",
@@ -1347,7 +1437,7 @@
     },
     {
         "test_id": "TC015",
-        "service_name": "account",
+        "service_name": "account_service",
         "workflow_mode": "parallel",
         "test_name": "GET /Accounts [positive] (TC015)",
         "protocol": "REST",
@@ -1474,7 +1564,7 @@
     },
     {
         "test_id": "TC016",
-        "service_name": "account",
+        "service_name": "account_service",
         "workflow_mode": "parallel",
         "test_name": "GET /Accounts [positive] (TC016)",
         "protocol": "REST",
@@ -1601,7 +1691,7 @@
     },
     {
         "test_id": "TC017",
-        "service_name": "account",
+        "service_name": "account_service",
         "workflow_mode": "parallel",
         "test_name": "GET /Accounts [positive] (TC017)",
         "protocol": "REST",
@@ -1637,6 +1727,16 @@
                 "from": "response",
                 "key": "accounts.items.0.partyRoleType",
                 "assign_to": "party_role_type_AuthorizedAgents"
+            },
+            {
+                "from": "response",
+                "key": "accounts.page",
+                "assign_to": "page"
+            },
+            {
+                "from": "response",
+                "key": "accounts.pageSize",
+                "assign_to": "page_size"
             },
             {
                 "from": "db_result",
@@ -1718,7 +1818,7 @@
     },
     {
         "test_id": "TC018",
-        "service_name": "account",
+        "service_name": "account_service",
         "workflow_mode": "parallel",
         "test_name": "GET /Accounts [positive] (TC018)",
         "protocol": "REST",
@@ -1754,6 +1854,16 @@
                 "from": "response",
                 "key": "accounts.items.0.partyId",
                 "assign_to": "party_id"
+            },
+            {
+                "from": "response",
+                "key": "accounts.page",
+                "assign_to": "page"
+            },
+            {
+                "from": "response",
+                "key": "accounts.pageSize",
+                "assign_to": "page_size"
             },
             {
                 "from": "db_result",
@@ -1835,7 +1945,7 @@
     },
     {
         "test_id": "TC019",
-        "service_name": "account",
+        "service_name": "account_service",
         "workflow_mode": "parallel",
         "test_name": "GET /Accounts [positive] (TC019)",
         "protocol": "REST",
@@ -1871,6 +1981,16 @@
                 "from": "response",
                 "key": "accounts.items.0.changeState",
                 "assign_to": "account_change_state_proposal"
+            },
+            {
+                "from": "response",
+                "key": "accounts.page",
+                "assign_to": "page"
+            },
+            {
+                "from": "response",
+                "key": "accounts.pageSize",
+                "assign_to": "page_size"
             },
             {
                 "from": "db_result",
@@ -1952,7 +2072,7 @@
     },
     {
         "test_id": "TC020",
-        "service_name": "account",
+        "service_name": "account_service",
         "workflow_mode": "parallel",
         "test_name": "GET /Accounts [positive] (TC020)",
         "protocol": "REST",
@@ -1992,12 +2112,12 @@
             {
                 "from": "response",
                 "key": "accounts.page",
-                "assign_to": "api_page"
+                "assign_to": "page"
             },
             {
                 "from": "response",
                 "key": "accounts.pageSize",
-                "assign_to": "api_page_size"
+                "assign_to": "page_size"
             },
             {
                 "from": "db_result",
@@ -2079,7 +2199,7 @@
     },
     {
         "test_id": "TC021",
-        "service_name": "account",
+        "service_name": "account_service",
         "workflow_mode": "parallel",
         "test_name": "GET /Accounts [positive] (TC021)",
         "protocol": "REST",
@@ -2115,6 +2235,16 @@
                 "from": "response",
                 "key": "accounts.items.0.partyRoleType",
                 "assign_to": "party_role_type_AccountHolder"
+            },
+            {
+                "from": "response",
+                "key": "accounts.page",
+                "assign_to": "page"
+            },
+            {
+                "from": "response",
+                "key": "accounts.pageSize",
+                "assign_to": "page_size"
             },
             {
                 "from": "db_result",
@@ -2196,7 +2326,7 @@
     },
     {
         "test_id": "TC022",
-        "service_name": "account",
+        "service_name": "account_service",
         "workflow_mode": "parallel",
         "test_name": "GET /Accounts [positive] (TC022)",
         "protocol": "REST",
@@ -2232,6 +2362,16 @@
                 "from": "response",
                 "key": "accounts.items.0.partyId",
                 "assign_to": "party_id_7e2b1c3a_4d5e_6f7a_8b9c_0d1e2f3a4b5c"
+            },
+            {
+                "from": "response",
+                "key": "accounts.page",
+                "assign_to": "page"
+            },
+            {
+                "from": "response",
+                "key": "accounts.pageSize",
+                "assign_to": "page_size"
             },
             {
                 "from": "db_result",
@@ -2313,7 +2453,7 @@
     },
     {
         "test_id": "TC023",
-        "service_name": "account",
+        "service_name": "account_service",
         "workflow_mode": "parallel",
         "test_name": "GET /Accounts [positive] (TC023)",
         "protocol": "REST",
@@ -2349,6 +2489,16 @@
                 "from": "response",
                 "key": "accounts.items.0.accountSubType",
                 "assign_to": "account_sub_type_TraditionalIRA"
+            },
+            {
+                "from": "response",
+                "key": "accounts.page",
+                "assign_to": "page"
+            },
+            {
+                "from": "response",
+                "key": "accounts.pageSize",
+                "assign_to": "page_size"
             },
             {
                 "from": "db_result",
@@ -2430,7 +2580,7 @@
     },
     {
         "test_id": "TC024",
-        "service_name": "account",
+        "service_name": "account_service",
         "workflow_mode": "parallel",
         "test_name": "GET /Accounts [positive] (TC024)",
         "protocol": "REST",
@@ -2557,7 +2707,7 @@
     },
     {
         "test_id": "TC025",
-        "service_name": "account",
+        "service_name": "account_service",
         "workflow_mode": "parallel",
         "test_name": "GET /Accounts [positive] (TC025)",
         "protocol": "REST",
@@ -2589,6 +2739,16 @@
                 "key": "accounts.items.totalCount",
                 "record_count": true,
                 "assign_to": "api_accounts_count"
+            },
+            {
+                "from": "response",
+                "key": "accounts.page",
+                "assign_to": "page"
+            },
+            {
+                "from": "response",
+                "key": "accounts.pageSize",
+                "assign_to": "page_size"
             },
             {
                 "from": "db_result",
@@ -2629,7 +2789,7 @@
     },
     {
         "test_id": "TC026",
-        "service_name": "account",
+        "service_name": "account_service",
         "workflow_mode": "parallel",
         "test_name": "GET /Accounts [positive] (TC026)",
         "protocol": "REST",
@@ -2665,6 +2825,16 @@
                 "from": "response",
                 "key": "accounts.items.0.partyId",
                 "assign_to": "party_id"
+            },
+            {
+                "from": "response",
+                "key": "accounts.page",
+                "assign_to": "page"
+            },
+            {
+                "from": "response",
+                "key": "accounts.pageSize",
+                "assign_to": "page_size"
             },
             {
                 "from": "db_result",
@@ -2746,7 +2916,7 @@
     },
     {
         "test_id": "TC027",
-        "service_name": "account",
+        "service_name": "account_service",
         "workflow_mode": "parallel",
         "test_name": "GET /Accounts [positive] (TC027)",
         "protocol": "REST",
@@ -2782,6 +2952,16 @@
                 "from": "response",
                 "key": "accounts.items.0.partyRoleType",
                 "assign_to": "party_role_type_Trustee"
+            },
+            {
+                "from": "response",
+                "key": "accounts.page",
+                "assign_to": "page"
+            },
+            {
+                "from": "response",
+                "key": "accounts.pageSize",
+                "assign_to": "page_size"
             },
             {
                 "from": "db_result",
@@ -2863,7 +3043,7 @@
     },
     {
         "test_id": "TC028",
-        "service_name": "account",
+        "service_name": "account_service",
         "workflow_mode": "parallel",
         "test_name": "GET /Accounts [positive] (TC028)",
         "protocol": "REST",
@@ -2895,6 +3075,16 @@
                 "key": "accounts.items.totalCount",
                 "record_count": true,
                 "assign_to": "api_accounts_count"
+            },
+            {
+                "from": "response",
+                "key": "accounts.page",
+                "assign_to": "page"
+            },
+            {
+                "from": "response",
+                "key": "accounts.pageSize",
+                "assign_to": "page_size"
             },
             {
                 "from": "db_result",
@@ -2935,7 +3125,7 @@
     },
     {
         "test_id": "TC029",
-        "service_name": "account",
+        "service_name": "account_service",
         "workflow_mode": "parallel",
         "test_name": "GET /Accounts [positive] (TC029)",
         "protocol": "REST",
@@ -2971,6 +3161,16 @@
                 "from": "response",
                 "key": "accounts.items.0.partyId",
                 "assign_to": "party_id"
+            },
+            {
+                "from": "response",
+                "key": "accounts.page",
+                "assign_to": "page"
+            },
+            {
+                "from": "response",
+                "key": "accounts.pageSize",
+                "assign_to": "page_size"
             },
             {
                 "from": "db_result",
@@ -3052,7 +3252,7 @@
     },
     {
         "test_id": "TC030",
-        "service_name": "account",
+        "service_name": "account_service",
         "workflow_mode": "parallel",
         "test_name": "GET /Accounts [positive] (TC030)",
         "protocol": "REST",
@@ -3090,6 +3290,16 @@
                 "assign_to": "party_id"
             },
             {
+                "from": "response",
+                "key": "accounts.page",
+                "assign_to": "page"
+            },
+            {
+                "from": "response",
+                "key": "accounts.pageSize",
+                "assign_to": "page_size"
+            },
+            {
                 "from": "db_result",
                 "query": "default",
                 "assign": [
@@ -3106,6 +3316,20 @@
                     {
                         "key": "0.PartyId",
                         "assign_to": "db_party_id"
+                    }
+                ]
+            },
+            {
+                "from": "db_result",
+                "query": "default",
+                "assign": [
+                    {
+                        "key": "0.Page",
+                        "assign_to": "db_page"
+                    },
+                    {
+                        "key": "0.PageSize",
+                        "assign_to": "db_page_size"
                     }
                 ]
             }
@@ -3169,7 +3393,7 @@
     },
     {
         "test_id": "TC031",
-        "service_name": "account",
+        "service_name": "account_service",
         "workflow_mode": "parallel",
         "test_name": "GET /Accounts [positive] (TC031)",
         "protocol": "REST",
@@ -3205,6 +3429,16 @@
                 "from": "response",
                 "key": "accounts.items.0.identifiers.0.value",
                 "assign_to": "identifier_value"
+            },
+            {
+                "from": "response",
+                "key": "accounts.page",
+                "assign_to": "page"
+            },
+            {
+                "from": "response",
+                "key": "accounts.pageSize",
+                "assign_to": "page_size"
             },
             {
                 "from": "db_result",
@@ -3280,7 +3514,7 @@
     },
     {
         "test_id": "TC032",
-        "service_name": "account",
+        "service_name": "account_service",
         "workflow_mode": "parallel",
         "test_name": "GET /Accounts [positive] (TC032)",
         "protocol": "REST",
@@ -3321,6 +3555,16 @@
                 "from": "response",
                 "key": "accounts.items.0.changeState",
                 "assign_to": "account_change_state_Proposal"
+            },
+            {
+                "from": "response",
+                "key": "accounts.page",
+                "assign_to": "page"
+            },
+            {
+                "from": "response",
+                "key": "accounts.pageSize",
+                "assign_to": "page_size"
             },
             {
                 "from": "db_result",
@@ -3410,7 +3654,7 @@
     },
     {
         "test_id": "TC033",
-        "service_name": "account",
+        "service_name": "account_service",
         "workflow_mode": "parallel",
         "test_name": "GET /Accounts [positive] (TC033)",
         "protocol": "REST",
@@ -3451,6 +3695,16 @@
                 "from": "response",
                 "key": "accounts.items.0.accountSubType",
                 "assign_to": "account_sub_type_Corporate"
+            },
+            {
+                "from": "response",
+                "key": "accounts.page",
+                "assign_to": "page"
+            },
+            {
+                "from": "response",
+                "key": "accounts.pageSize",
+                "assign_to": "page_size"
             },
             {
                 "from": "db_result",
@@ -3546,7 +3800,7 @@
     },
     {
         "test_id": "TC034",
-        "service_name": "account",
+        "service_name": "account_service",
         "workflow_mode": "parallel",
         "test_name": "GET /Accounts [positive] (TC034)",
         "protocol": "REST",
@@ -3587,6 +3841,16 @@
                 "from": "response",
                 "key": "accounts.items.0.accountSubType",
                 "assign_to": "account_sub_type_BankorTrustCompanyNonTaxable"
+            },
+            {
+                "from": "response",
+                "key": "accounts.page",
+                "assign_to": "page"
+            },
+            {
+                "from": "response",
+                "key": "accounts.pageSize",
+                "assign_to": "page_size"
             },
             {
                 "from": "db_result",
@@ -3682,7 +3946,7 @@
     },
     {
         "test_id": "TC035",
-        "service_name": "account",
+        "service_name": "account_service",
         "workflow_mode": "parallel",
         "test_name": "GET /Accounts [positive] (TC035)",
         "protocol": "REST",
@@ -3723,6 +3987,16 @@
                 "from": "response",
                 "key": "accounts.items.0.accountSubType",
                 "assign_to": "account_sub_type_BankorTrustCompanyNonTaxable"
+            },
+            {
+                "from": "response",
+                "key": "accounts.page",
+                "assign_to": "page"
+            },
+            {
+                "from": "response",
+                "key": "accounts.pageSize",
+                "assign_to": "page_size"
             },
             {
                 "from": "db_result",
@@ -3818,7 +4092,7 @@
     },
     {
         "test_id": "TC036",
-        "service_name": "account",
+        "service_name": "account_service",
         "workflow_mode": "parallel",
         "test_name": "GET /Accounts [positive] (TC036)",
         "protocol": "REST",
@@ -3850,6 +4124,16 @@
                 "key": "accounts.items.totalCount",
                 "record_count": true,
                 "assign_to": "api_accounts_count"
+            },
+            {
+                "from": "response",
+                "key": "accounts.page",
+                "assign_to": "page"
+            },
+            {
+                "from": "response",
+                "key": "accounts.pageSize",
+                "assign_to": "page_size"
             },
             {
                 "from": "db_result",
@@ -3890,7 +4174,7 @@
     },
     {
         "test_id": "TC037",
-        "service_name": "account",
+        "service_name": "account_service",
         "workflow_mode": "parallel",
         "test_name": "GET /Accounts [positive] (TC037)",
         "protocol": "REST",
@@ -3922,6 +4206,16 @@
                 "key": "accounts.items.totalCount",
                 "record_count": true,
                 "assign_to": "api_accounts_count"
+            },
+            {
+                "from": "response",
+                "key": "accounts.page",
+                "assign_to": "page"
+            },
+            {
+                "from": "response",
+                "key": "accounts.pageSize",
+                "assign_to": "page_size"
             },
             {
                 "from": "db_result",
@@ -3962,7 +4256,7 @@
     },
     {
         "test_id": "TC038",
-        "service_name": "account",
+        "service_name": "account_service",
         "workflow_mode": "parallel",
         "test_name": "GET /Accounts [positive] (TC038)",
         "protocol": "REST",
@@ -4003,6 +4297,16 @@
                 "from": "response",
                 "key": "accounts.items.0.partyId",
                 "assign_to": "party_id"
+            },
+            {
+                "from": "response",
+                "key": "accounts.page",
+                "assign_to": "page"
+            },
+            {
+                "from": "response",
+                "key": "accounts.pageSize",
+                "assign_to": "page_size"
             },
             {
                 "from": "db_result",
@@ -4104,7 +4408,7 @@
     },
     {
         "test_id": "TC039",
-        "service_name": "account",
+        "service_name": "account_service",
         "workflow_mode": "parallel",
         "test_name": "GET /Accounts [positive] (TC039)",
         "protocol": "REST",
@@ -4145,6 +4449,16 @@
                 "from": "response",
                 "key": "accounts.items.0.partyId",
                 "assign_to": "party_id"
+            },
+            {
+                "from": "response",
+                "key": "accounts.page",
+                "assign_to": "page"
+            },
+            {
+                "from": "response",
+                "key": "accounts.pageSize",
+                "assign_to": "page_size"
             },
             {
                 "from": "db_result",
@@ -4246,7 +4560,7 @@
     },
     {
         "test_id": "TC040",
-        "service_name": "account",
+        "service_name": "account_service",
         "workflow_mode": "parallel",
         "test_name": "GET /Accounts [positive] (TC040)",
         "protocol": "REST",
@@ -4287,6 +4601,16 @@
                 "from": "response",
                 "key": "accounts.items.0.partyId",
                 "assign_to": "party_id"
+            },
+            {
+                "from": "response",
+                "key": "accounts.page",
+                "assign_to": "page"
+            },
+            {
+                "from": "response",
+                "key": "accounts.pageSize",
+                "assign_to": "page_size"
             },
             {
                 "from": "db_result",
@@ -4388,7 +4712,7 @@
     },
     {
         "test_id": "TC041",
-        "service_name": "account",
+        "service_name": "account_service",
         "workflow_mode": "parallel",
         "test_name": "GET /Accounts [positive] (TC041)",
         "protocol": "REST",
@@ -4454,6 +4778,16 @@
                 "from": "response",
                 "key": "accounts.items.0.identifier.value",
                 "assign_to": "account_identifier_value"
+            },
+            {
+                "from": "response",
+                "key": "accounts.page",
+                "assign_to": "page"
+            },
+            {
+                "from": "response",
+                "key": "accounts.pageSize",
+                "assign_to": "page_size"
             },
             {
                 "from": "db_result",
