@@ -181,8 +181,7 @@ services:
     runOnSchedule: true
     testType: functional
     environments:
-    - T10
-    - T11
+    - D11
     functionalTestArgs: --service-name accountdistributions --env {environment}
     nonFunctionalTestArgs: --file testdata/AccountDistributions/testcases/TestCase_api_v1_OneTimeDistributionCode_reasons_retirementPlanType_GET.json --test_type Performance --env {environment} --headless -u 5 -r 1 -t 15s
     tags:

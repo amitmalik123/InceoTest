@@ -98,7 +98,7 @@ api_endpoints:
   
   accountdistributions:
     base_url: "${ACCOUNTDISTRIBUTIONS_BASE_URL}"
-    auth_token: "${ACCOUNTDISTRIBUTIONS_AUTH_TOKEN:}"
+    auth_token: "${ACCOUNTDISTRIBUTIONS_AUTH_TOKEN}"
     timeout: ${API_TIMEOUT:30}
     retry_count: ${API_RETRY_COUNT:3}
     use_azure_auth: false
