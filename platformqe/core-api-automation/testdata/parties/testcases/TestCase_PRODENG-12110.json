@@ -62,6 +62,44 @@
       }
     ],
     "validate": {
+      "response_structure": {
+        "required_fields": [
+          "parties",
+          "parties[0].core.individual.dateOfBirth",
+          "parties[0].core.individual.dateOfDeath",
+          "parties[0].core.entity.createdDate"
+        ]
+      },
+      "business_rules": [
+        {
+          "rule": "PRODENG-12110: dateOfBirth must be in date-only format (YYYY-MM-DD) without time or timezone",
+          "validation": "api_individual_dob matches pattern ^\\d{4}-\\d{2}-\\d{2}$"
+        },
+        {
+          "rule": "PRODENG-12110: dateOfDeath must be in date-only format (YYYY-MM-DD) without time or timezone",
+          "validation": "api_date_of_death matches pattern ^\\d{4}-\\d{2}-\\d{2}$"
+        },
+        {
+          "rule": "PRODENG-12110: Entity createdDate must be in date-only format (YYYY-MM-DD) without time or timezone",
+          "validation": "api_entity_created_date matches pattern ^\\d{4}-\\d{2}-\\d{2}$"
+        },
+        {
+          "rule": "Individual dateOfBirth from API must exactly match database value",
+          "validation": "api_individual_dob equals db_individual_dob"
+        },
+        {
+          "rule": "Individual dateOfDeath from API must exactly match database value",
+          "validation": "api_date_of_death equals db_date_of_death"
+        },
+        {
+          "rule": "Entity createdDate from API must exactly match database value",
+          "validation": "api_entity_created_date equals db_entity_created_date"
+        },
+        {
+          "rule": "Date fields must not contain time component (T, Z, or timezone offset)",
+          "validation": "date fields do not contain 'T' or 'Z' or '+' or '-' after date portion"
+        }
+      ],
       "performance": {
         "max_response_time_ms": 500
       },
@@ -157,6 +195,36 @@
       }
     ],
     "validate": {
+      "response_structure": {
+        "required_fields": [
+          "parties",
+          "parties[0].core.individual.dateOfBirth",
+          "parties[0].core.individual.dateOfDeath",
+          "parties[0].core.entity.createdDate"
+        ]
+      },
+      "business_rules": [
+        {
+          "rule": "PRODENG-12110: dateOfBirth must be date-only format without time component",
+          "validation": "api_individual_dob matches pattern ^\\d{4}-\\d{2}-\\d{2}$ and does not contain 'T'"
+        },
+        {
+          "rule": "PRODENG-12110: dateOfDeath must be date-only format without time component",
+          "validation": "api_date_of_death matches pattern ^\\d{4}-\\d{2}-\\d{2}$ and does not contain 'T'"
+        },
+        {
+          "rule": "PRODENG-12110: Entity createdDate must be date-only format without time component",
+          "validation": "api_entity_created_date matches pattern ^\\d{4}-\\d{2}-\\d{2}$ and does not contain 'T'"
+        },
+        {
+          "rule": "Date-only fields must not contain timezone indicators (Z, +, -)",
+          "validation": "date fields do not contain 'Z' or timezone offset"
+        },
+        {
+          "rule": "Date-only fields must not contain time-of-day (hours, minutes, seconds)",
+          "validation": "date fields do not match time pattern T\\d{2}:\\d{2}:\\d{2}"
+        }
+      ],
       "performance": {
         "max_response_time_ms": 500
       },
@@ -246,6 +314,39 @@
       }
     ],
     "validate": {
+      "response_structure": {
+        "required_fields": [
+          "parties",
+          "parties[0].createdDate",
+          "parties[0].updatedDate"
+        ]
+      },
+      "business_rules": [
+        {
+          "rule": "PRODENG-12110: createdDate must be a full timestamp with date and time components",
+          "validation": "api_created_datetime matches pattern ^\\d{4}-\\d{2}-\\d{2}T\\d{2}:\\d{2}:\\d{2}"
+        },
+        {
+          "rule": "PRODENG-12110: updatedDate must be a full timestamp with date and time components",
+          "validation": "api_updated_datetime matches pattern ^\\d{4}-\\d{2}-\\d{2}T\\d{2}:\\d{2}:\\d{2}"
+        },
+        {
+          "rule": "Timestamp fields must contain time component (T separator with hours, minutes, seconds)",
+          "validation": "timestamp fields contain 'T' and time portion"
+        },
+        {
+          "rule": "API createdDate must match database CreatedDate timestamp",
+          "validation": "api_created_datetime equals db_created_datetime"
+        },
+        {
+          "rule": "API updatedDate must match database UpdatedDate timestamp",
+          "validation": "api_updated_datetime equals db_updated_datetime"
+        },
+        {
+          "rule": "Timestamp fields are allowed to contain timezone information",
+          "validation": "timestamp fields may contain 'Z' or timezone offset"
+        }
+      ],
       "performance": {
         "max_response_time_ms": 500
       },
