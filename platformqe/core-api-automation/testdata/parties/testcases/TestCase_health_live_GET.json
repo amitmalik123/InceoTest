@@ -40,8 +40,25 @@
       }
     ],
     "validate": {
+      "response_structure": {
+        "required_fields": []
+      },
+      "business_rules": [
+        {
+          "rule": "Health liveness probe must return HTTP 200 OK when service is running",
+          "validation": "response.status equals 200"
+        },
+        {
+          "rule": "Liveness endpoint must respond with 'Healthy' text",
+          "validation": "response.body equals 'Healthy'"
+        },
+        {
+          "rule": "Liveness check must complete within acceptable response time for k8s probes",
+          "validation": "response.time_ms <= 5000"
+        }
+      ],
       "performance": {
-        "max_response_time_ms": null
+        "max_response_time_ms": 5000
       },
       "security": {
         "checks": ["sql_injection", "xss"]
