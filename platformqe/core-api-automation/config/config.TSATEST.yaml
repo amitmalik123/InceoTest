@@ -26,6 +26,9 @@ db_connections:
     platform_db:
       connection_string: "${PLATFORM_DB_SQLDB}"
 
+    account_service:
+      connection_string: "${ACCOUNT_SQLDB}"
+
     am_db:
       connection_string: "${AM_DB_SQLDB}"    
     
@@ -111,6 +114,13 @@ api_endpoints:
     auth_token: "your-token-if-needed"
     timeout: ${API_TIMEOUT:30}
     retry_count: ${API_RETRY_COUNT:3}
+    verify: false
+
+  account_service:
+    base_url: "${ACCOUNTS_BASE_URL}"
+    auth_token: "your-token-if-needed"
+    timeout: 30
+    retry_count: 3
     verify: false
 
   work_item_notification:
