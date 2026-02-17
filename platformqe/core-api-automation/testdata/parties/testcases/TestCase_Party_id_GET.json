@@ -29,6 +29,16 @@
       }
     ],
     "validate": {
+      "business_rules": [
+        {
+          "rule": "Database query must successfully retrieve party record by Id",
+          "validation": "db_party_id is not null and not empty"
+        },
+        {
+          "rule": "Retrieved party Id must match the queried Id parameter",
+          "validation": "db_party_id equals id"
+        }
+      ],
       "performance": {
         "max_response_time_ms": 500
       },
@@ -82,6 +92,27 @@
     "expected_response": "",
     "extract_values": [],
     "validate": {
+      "response_structure": {
+        "required_fields": ["parties", "parties[0].partyId"]
+      },
+      "business_rules": [
+        {
+          "rule": "GET party by Id must return HTTP 200 OK status",
+          "validation": "response.status equals 200"
+        },
+        {
+          "rule": "Retrieved party partyId must match the requested Id parameter",
+          "validation": "parties.0.partyId equals id"
+        },
+        {
+          "rule": "Party data consistency: API response partyId must match database Id",
+          "validation": "parties.0.partyId equals db_id"
+        },
+        {
+          "rule": "Response must contain party array with at least one party record",
+          "validation": "parties is not empty and length > 0"
+        }
+      ],
       "performance": {
         "max_response_time_ms": 500
       },
@@ -148,6 +179,16 @@
       }
     ],
     "validate": {
+      "business_rules": [
+        {
+          "rule": "GET request without required Id parameter must return HTTP 405 Method Not Allowed",
+          "validation": "response.status equals 405"
+        },
+        {
+          "rule": "API must enforce required path parameters for resource retrieval",
+          "validation": "response.status equals 405"
+        }
+      ],
       "performance": {
         "max_response_time_ms": 500
       },
@@ -209,6 +250,16 @@
       }
     ],
     "validate": {
+      "business_rules": [
+        {
+          "rule": "GET request for non-existent party Id must return HTTP 204 No Content",
+          "validation": "response.status equals 204"
+        },
+        {
+          "rule": "API must gracefully handle requests for resources that do not exist",
+          "validation": "response.status equals 204 and response.body is empty"
+        }
+      ],
       "performance": {
         "max_response_time_ms": 500
       },
