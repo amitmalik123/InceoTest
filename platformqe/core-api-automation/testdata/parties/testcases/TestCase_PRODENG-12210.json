@@ -29,6 +29,24 @@
       }
     ],
     "validate": {
+      "business_rules": [
+        {
+          "rule": "PRODENG-12210: PII table must have foreign key relationship to Party table",
+          "validation": "PartyID is not null and PII_ID is not null"
+        },
+        {
+          "rule": "PII records must reference valid Party IDs",
+          "validation": "PartyID foreign key to Party.Id"
+        },
+        {
+          "rule": "Database query must return at least one PII record linked to Party",
+          "validation": "row_count > 0"
+        },
+        {
+          "rule": "Extracted party_id must be a valid non-empty value",
+          "validation": "party_id is not null and not empty"
+        }
+      ],
       "performance": {
         "max_response_time_ms": 500
       },
@@ -96,6 +114,20 @@
     "expected_response": "",
     "extract_values": [],
     "validate": {
+      "business_rules": [
+        {
+          "rule": "PRODENG-12210: PII table must exist in the database",
+          "validation": "TABLE_NAME equals 'PII'"
+        },
+        {
+          "rule": "Exactly one PII table must exist in INFORMATION_SCHEMA",
+          "validation": "row_count equals 1"
+        },
+        {
+          "rule": "PII table must be present in parties database schema",
+          "validation": "PII table exists and is queryable"
+        }
+      ],
       "performance": {
         "max_response_time_ms": 500
       },

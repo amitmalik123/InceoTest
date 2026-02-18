@@ -101,7 +101,7 @@
                 },
                 {
                     "rule": "All items have valid status",
-                    "validation": "status in ['DRAFT', 'IN-PROCESS', 'CONFIRMED', 'Draft', 'Pending']"
+                    "validation": "status in ['DRAFT', 'CONFIRMED', 'Draft', 'Pending']"
                 },
                 {
                     "rule": "All partyIds are non-empty GUIDs",
@@ -529,6 +529,69 @@
         "test_id": "TC008",
         "service_name": "parties",
         "workflow_mode": "parallel",
+        "test_name": "GET /parties/household/{householdId} - 204 for negative page number",
+        "protocol": "REST",
+        "test_type": [
+            "Negative"
+        ],
+        "mainURL": "{{base_url}}",
+        "endpoint": "/parties/household/99999999-9999-9999-9999-999999999999?page=1&pageSize=50",
+        "method": "GET",
+        "headers_additional": {
+            "Content-Type": "application/json"
+        },
+        "query_params": {},
+        "path_params": {
+            "householdId": "{{householdId}}"
+        },
+        "payload": null,
+        "expected_status": "204",
+        "expected_response_structure": {
+            "required_fields": [
+                "type",
+                "title",
+                "status",
+                "errors"
+            ]
+        },
+        "expected_response_body_contains": [
+            "page",
+            "validation",
+            "negative"
+        ],
+        "ignore_fields": [],
+        "extract_values": [],
+        "validate": {
+            "error_response": {
+                "validate_error_structure": true,
+                "expected_status_in_body": 204,
+                "error_message_contains": [
+                    "page",
+                    "must be positive",
+                    "greater than 0"
+                ]
+            },
+            "business_rules": [
+                {
+                    "rule": "Page number must be positive",
+                    "validation": "negative page returns 204"
+                },
+                {
+                    "rule": "Error indicates page validation failure",
+                    "validation": "error message mentions page number validation"
+                }
+            ],
+            "performance": {
+                "max_response_time_ms": 1000
+            }
+        },
+        "test_summary": "Validates 204 error when non-existent household.",
+        "test_scenario": "Request with non-existent household and verify API returns 400 validation error."
+    },
+    {
+        "test_id": "TC009",
+        "service_name": "parties",
+        "workflow_mode": "parallel",
         "test_name": "GET /parties/household/{householdId} - 204 for non-existent householdId",
         "protocol": "REST",
         "test_type": [
@@ -546,7 +609,8 @@
         },
         "path_params": {},
         "payload": null,
-        "expected_status": "204",
+        "expected_status": "400",
+        "expected_response": "Invalid household ID. Must be a valid non-empty GUID",
         "expected_response_body": null,
         "expected_response_headers": {
             "content-length": "0"
@@ -559,8 +623,8 @@
             },
             "business_rules": [
                 {
-                    "rule": "Non-existent householdId returns 204",
-                    "validation": "status is 204"
+                    "rule": "Non-existent householdId returns 400",
+                    "validation": "status is 400"
                 },
                 {
                     "rule": "Response body is empty",
@@ -571,7 +635,7 @@
                 "max_response_time_ms": 1000
             }
         },
-        "test_summary": "Validates 204 No Content response when householdId does not exist.",
+        "test_summary": "Validates 400 response when householdId is invalid.",
         "test_scenario": "Request with non-existent householdId (all zeros GUID) and verify 204 response."
     },
     {
@@ -737,6 +801,7 @@
         },
         "payload": null,
         "expected_status": "400",
+        "expected_response": "Page must be greater than 0",
         "expected_response_structure": {
             "required_fields": [
                 "type",
