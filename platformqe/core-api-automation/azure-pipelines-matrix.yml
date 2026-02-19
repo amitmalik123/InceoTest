@@ -140,6 +140,11 @@ parameters:
     type: string
     default: 'N/A'
 
+  - name: deploymentsync
+    displayName: 'wait to sync ArgoCd charts and deployment sucessfully'
+    type: number
+    default: 0
+
 ###############################################################################
 # Global Variables
 ###############################################################################
@@ -158,6 +163,7 @@ variables:
 stages:
   - template: templates/azure-pipelines-stages-shared.yml
     parameters:
+      deploymentsync: ${{ parameters.deploymentsync }}
       repositoryAlias: 'self'
       executionMode: ${{ parameters.executionMode }}
       services: ${{ parameters.services }}

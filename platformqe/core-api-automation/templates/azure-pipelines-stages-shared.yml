@@ -81,6 +81,11 @@ parameters:
   - name: defaultEnvironments
     type: string
     default: 'all'
+  # sleept time To sync the deployment charts
+  - name: deploymentsync
+    displayName: 'wait to sync ArgoCd charts and deployment sucessfully'
+    type: number
+    default: 0
 
 stages:
   ###########################################################################
@@ -95,7 +100,12 @@ stages:
           name: ewm20-docker-build-agent-inc-dev
         steps:
           - checkout: ${{ parameters.repositoryAlias }}
-          
+          - task: PowerShell@2
+            displayName: 'Sleep time if triggered from deployment pipeline'
+            inputs:
+              targetType: 'inline'
+              script: |
+                    Start-Sleep -Seconds ${{ parameters.deploymentsync }}
           - task: Bash@3
             name: SetBuildPath
             displayName: 'Determine Build Path'
