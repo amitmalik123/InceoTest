@@ -1,0 +1,902 @@
+[
+  {
+    "test_id": "TC001",
+    "service_name": "parties",
+    "workflow_mode": "parallel",
+    "test_name": "Batch GET - Valid request with all existing Party IDs returns 200 OK with full party objects",
+    "protocol": "REST",
+    "test_type": ["Functional", "Smoke", "Regression"],
+    "mainURL": "{{base_url}}",
+    "endpoint": "/parties/batch?partyIds={{partyId1}}&partyIds={{partyId2}}&partyIds={{partyId3}}",
+    "method": "GET",
+    "rpc_method": "",
+    "graphql_query": "",
+    "graphql_variables": "",
+    "soap_action": "",
+    "soap_envelope": "",
+    "headers_additional": {
+      "Content-Type": "application/json"
+    },
+    "payload": null,
+    "expected_status": "200",
+    "expected_response_schema": "",
+    "expected_response": null,
+    "ignore_fields": [],
+    "extract_values": [
+      {
+        "from": "response",
+        "record_count": true,
+        "array_path": "$.parties",
+        "assign_to": "response_party_count"
+      },
+      {
+        "from": "response",
+        "key": "$.parties[0].partyId",
+        "assign_to": "first_party_id"
+      }
+    ],
+    "validate": {
+      "response_structure": {
+        "required_fields": [
+          "parties",
+          "parties[*].partyId",
+          "parties[*].partyType",
+          "parties[*].status"
+        ]
+      },
+      "business_rules": [
+        {
+          "rule": "Batch GET with all valid Party IDs must return HTTP 200 OK",
+          "validation": "response.status equals 200"
+        },
+        {
+          "rule": "Batch GET must return all requested party objects when all IDs exist",
+          "validation": "parties array length equals 3"
+        },
+        {
+          "rule": "All returned party objects must contain required fields: partyId, partyType, status",
+          "validation": "all parties have partyId and partyType and status"
+        },
+        {
+          "rule": "Returned party IDs must exactly match the requested IDs",
+          "validation": "all returned partyIds are in requested partyIds list"
+        }
+      ],
+      "performance": {
+        "max_response_time_ms": 1000
+      },
+      "security": {
+        "checks": ["sql_injection", "xss"]
+      },
+      "response_validations": [
+        {
+          "field": "$.parties",
+          "condition": "is_array",
+          "error_message": "Response must have a parties array"
+        },
+        {
+          "field": "$.parties",
+          "condition": "array_length_equals",
+          "expected_value": 3,
+          "error_message": "Response must contain exactly 3 party objects"
+        },
+        {
+          "field": "$.parties[*].partyId",
+          "condition": "not_null",
+          "error_message": "Each party object must have a partyId"
+        },
+        {
+          "field": "$.parties[*].partyType",
+          "condition": "not_null",
+          "error_message": "Each party object must have a partyType"
+        },
+        {
+          "field": "$.parties[*].status",
+          "condition": "not_null",
+          "error_message": "Each party object must have a status"
+        },
+        {
+          "field": "$.parties[0].partyId",
+          "condition": "in_list",
+          "expected_value": ["{{partyId1}}", "{{partyId2}}", "{{partyId3}}"],
+          "error_message": "Returned party IDs must match requested IDs"
+        },
+        {
+          "field": "$.parties[1].partyId",
+          "condition": "in_list",
+          "expected_value": ["{{partyId1}}", "{{partyId2}}", "{{partyId3}}"],
+          "error_message": "Returned party IDs must match requested IDs"
+        },
+        {
+          "field": "$.parties[2].partyId",
+          "condition": "in_list",
+          "expected_value": ["{{partyId1}}", "{{partyId2}}", "{{partyId3}}"],
+          "error_message": "Returned party IDs must match requested IDs"
+        }
+      ],
+      "data_comparison": []
+    },
+    "test_data_file": "parties/data_driven/Data_parties_batch_GET.csv",
+    "db_query_timing": "after_api",
+    "db_queries": {
+      "default": "SELECT * FROM Party WHERE Id IN ('{{partyId1}}', '{{partyId2}}', '{{partyId3}}')",
+      "audit_query": ""
+    },
+    "db_type": "mssql",
+    "db_connection_name": "parties",
+    "test_summary": "AC1: Verify that a valid GET request with all existing Party IDs returns 200 OK with full party objects for all requested IDs"
+  },
+  {
+    "test_id": "TC002",
+    "service_name": "parties",
+    "workflow_mode": "parallel",
+    "test_name": "Batch GET - Mix of existing and non-existing Party IDs returns 200 OK with only found parties",
+    "protocol": "REST",
+    "test_type": ["Functional", "Regression"],
+    "mainURL": "{{base_url}}",
+    "endpoint": "/parties/batch?partyIds={{partyId1}}&partyIds={{nonExistentId1}}&partyIds={{partyId2}}&partyIds={{nonExistentId2}}",
+    "method": "GET",
+    "rpc_method": "",
+    "graphql_query": "",
+    "graphql_variables": "",
+    "soap_action": "",
+    "soap_envelope": "",
+    "headers_additional": {
+      "Content-Type": "application/json"
+    },
+    "payload": null,
+    "expected_status": "200",
+    "expected_response_schema": "",
+    "expected_response": null,
+    "ignore_fields": [],
+    "extract_values": [
+      {
+        "from": "response",
+        "record_count": true,
+        "array_path": "$.parties",
+        "assign_to": "response_party_count"
+      }
+    ],
+    "validate": {
+      "response_structure": {
+        "required_fields": [
+          "parties",
+          "parties[*].partyId",
+          "parties[*].partyType",
+          "parties[*].status"
+        ]
+      },
+      "business_rules": [
+        {
+          "rule": "Batch GET with mixed valid and invalid Party IDs must return HTTP 200 OK",
+          "validation": "response.status equals 200"
+        },
+        {
+          "rule": "Batch GET must return only existing party objects, excluding non-existent IDs",
+          "validation": "parties array length equals 2 (only existing parties)"
+        },
+        {
+          "rule": "Non-existent Party IDs must not appear in the response",
+          "validation": "response does not contain nonExistentId1 or nonExistentId2"
+        },
+        {
+          "rule": "All returned party objects must contain required fields: partyId, partyType, status",
+          "validation": "all parties have partyId and partyType and status"
+        }
+      ],
+      "performance": {
+        "max_response_time_ms": 1000
+      },
+      "security": {
+        "checks": ["sql_injection", "xss"]
+      },
+      "response_validations": [
+        {
+          "field": "$.parties",
+          "condition": "is_array",
+          "error_message": "Response must be an array"
+        },
+        {
+          "field": "$.parties",
+          "condition": "array_length_equals",
+          "expected_value": 2,
+          "error_message": "Response must contain only 2 party objects for existing IDs"
+        },
+        {
+          "field": "$.parties[*].partyId",
+          "condition": "not_contains",
+          "expected_value": "{{nonExistentId1}}",
+          "error_message": "Non-existent ID should not be in response"
+        },
+        {
+          "field": "$.parties[*].partyId",
+          "condition": "not_contains",
+          "expected_value": "{{nonExistentId2}}",
+          "error_message": "Invalid ID should not be in response"
+        },
+        {
+          "field": "$.parties[*].partyId",
+          "condition": "not_null",
+          "error_message": "Each returned party must have a partyId"
+        },
+        {
+          "field": "$.parties[*].partyType",
+          "condition": "not_null",
+          "error_message": "Each returned party must have a partyType"
+        },
+        {
+          "field": "$.parties[*].status",
+          "condition": "not_null",
+          "error_message": "Each returned party must have a status"
+        },
+        {
+          "field": "$.parties[0].partyId",
+          "condition": "in_list",
+          "expected_value": ["{{partyId1}}", "{{partyId2}}"],
+          "error_message": "Returned party IDs must match only the existing requested IDs"
+        },
+        {
+          "field": "$.parties[1].partyId",
+          "condition": "in_list",
+          "expected_value": ["{{partyId1}}", "{{partyId2}}"],
+          "error_message": "Returned party IDs must match only the existing requested IDs"
+        }
+      ],
+      "data_comparison": []
+    },
+    "test_data_file": "parties/data_driven/Data_parties_batch_GET.csv",
+    "db_query_timing": "after_api",
+    "db_queries": {
+      "default": "SELECT * FROM Party WHERE Id IN ('{{partyId1}}', '{{partyId2}}')",
+      "audit_query": ""
+    },
+    "db_type": "mssql",
+    "db_connection_name": "parties",
+    "test_summary": "AC2: Verify that a request with mix of existing and non-existing IDs returns 200 OK with only found parties, excluding missing IDs without errors"
+  },
+  {
+    "test_id": "TC003",
+    "service_name": "parties",
+    "workflow_mode": "parallel",
+    "test_name": "Batch GET - None of the Party IDs exist returns 204 No Content with empty body",
+    "protocol": "REST",
+    "test_type": ["Functional", "Negative", "Regression"],
+    "mainURL": "{{base_url}}",
+    "endpoint": "/parties/batch?partyIds=11111111-1111-1111-1111-111111111111&partyIds=22222222-2222-2222-2222-222222222222&partyIds=33333333-3333-3333-3333-333333333333",
+    "method": "GET",
+    "rpc_method": "",
+    "graphql_query": "",
+    "graphql_variables": "",
+    "soap_action": "",
+    "soap_envelope": "",
+    "headers_additional": {
+      "Content-Type": "application/json"
+    },
+    "payload": null,
+    "expected_status": "204",
+    "expected_response_schema": "",
+    "expected_response": null,
+    "ignore_fields": [],
+    "extract_values": [],
+    "validate": {
+      "response_structure": {
+        "required_fields": []
+      },
+      "business_rules": [
+        {
+          "rule": "Batch GET with no existing Party IDs must return HTTP 204 No Content",
+          "validation": "response.status equals 204"
+        },
+        {
+          "rule": "Response body must be empty when no parties are found",
+          "validation": "response body is empty"
+        },
+        {
+          "rule": "Endpoint must gracefully handle requests where all Party IDs do not exist",
+          "validation": "no error is returned, status is 204"
+        }
+      ],
+      "performance": {
+        "max_response_time_ms": 1000
+      },
+      "security": {
+        "checks": ["sql_injection", "xss"]
+      },
+      "response_validations": [
+        {
+          "field": "body",
+          "condition": "is_empty",
+          "error_message": "Response body must be empty for 204 No Content"
+        }
+      ],
+      "data_comparison": []
+    },
+    "test_data_file": "",
+    "db_query_timing": "after_api",
+    "db_queries": {
+      "default": "",
+      "audit_query": ""
+    },
+    "db_type": "mssql",
+    "db_connection_name": "parties",
+    "test_summary": "AC3: Verify that when none of the provided Party IDs exist, the endpoint returns 204 No Content with empty response body"
+  },
+  {
+    "test_id": "TC004",
+    "service_name": "parties",
+    "workflow_mode": "parallel",
+    "test_name": "Batch GET - Missing query parameter returns 400 Bad Request",
+    "protocol": "REST",
+    "test_type": ["Functional", "Negative", "Regression"],
+    "mainURL": "{{base_url}}",
+    "endpoint": "/parties/batch",
+    "method": "GET",
+    "rpc_method": "",
+    "graphql_query": "",
+    "graphql_variables": "",
+    "soap_action": "",
+    "soap_envelope": "",
+    "headers_additional": {
+      "Content-Type": "application/json"
+    },
+    "payload": null,
+    "expected_status": "400",
+    "expected_response_schema": "",
+    "expected_response": null,
+    "ignore_fields": [],
+    "extract_values": [],
+    "validate": {
+      "response_structure": {
+        "required_fields": [
+          "error"
+        ]
+      },
+      "business_rules": [
+        {
+          "rule": "Batch GET without required query parameter must return HTTP 400 Bad Request",
+          "validation": "response.status equals 400"
+        },
+        {
+          "rule": "Error response must contain a descriptive error message",
+          "validation": "response contains error field with string value"
+        },
+        {
+          "rule": "Endpoint must validate presence of required query parameters",
+          "validation": "error message indicates missing parameter"
+        }
+      ],
+      "performance": {
+        "max_response_time_ms": 1000
+      },
+      "security": {
+        "checks": ["sql_injection", "xss"]
+      },
+      "response_validations": [
+        {
+          "field": "$.error",
+          "condition": "exists",
+          "error_message": "Error message should be present in response"
+        },
+        {
+          "field": "$.error",
+          "condition": "not_null",
+          "error_message": "Error field must not be null"
+        },
+        {
+          "field": "$.error",
+          "condition": "is_string",
+          "error_message": "Error message should be a string"
+        }
+      ],
+      "data_comparison": []
+    },
+    "test_data_file": "",
+    "db_query_timing": "after_api",
+    "db_queries": {
+      "default": "",
+      "audit_query": ""
+    },
+    "db_type": "mssql",
+    "db_connection_name": "parties",
+    "test_summary": "AC4: Verify that when query parameter is missing, the endpoint returns 400 Bad Request"
+  },
+  {
+    "test_id": "TC005",
+    "service_name": "parties",
+    "workflow_mode": "parallel",
+    "test_name": "Batch GET - Empty query parameter returns 400 Bad Request",
+    "protocol": "REST",
+    "test_type": ["Functional", "Negative", "Regression"],
+    "mainURL": "{{base_url}}",
+    "endpoint": "/parties/batch?partyIds=",
+    "method": "GET",
+    "rpc_method": "",
+    "graphql_query": "",
+    "graphql_variables": "",
+    "soap_action": "",
+    "soap_envelope": "",
+    "headers_additional": {
+      "Content-Type": "application/json"
+    },
+    "payload": null,
+    "expected_status": "400",
+    "expected_response_schema": "",
+    "expected_response": null,
+    "ignore_fields": [],
+    "extract_values": [],
+    "validate": {
+      "response_structure": {
+        "required_fields": [
+          "error"
+        ]
+      },
+      "business_rules": [
+        {
+          "rule": "Batch GET with empty partyIds parameter must return HTTP 400 Bad Request",
+          "validation": "response.status equals 400"
+        },
+        {
+          "rule": "Error response must contain a descriptive error message",
+          "validation": "response contains error field with string value"
+        },
+        {
+          "rule": "Endpoint must validate that query parameters have values",
+          "validation": "error message indicates empty parameter"
+        }
+      ],
+      "performance": {
+        "max_response_time_ms": 1000
+      },
+      "security": {
+        "checks": ["sql_injection", "xss"]
+      },
+      "response_validations": [
+        {
+          "field": "$.error",
+          "condition": "exists",
+          "error_message": "Error message should be present in response"
+        },
+        {
+          "field": "$.error",
+          "condition": "not_null",
+          "error_message": "Error field must not be null"
+        },
+        {
+          "field": "$.error",
+          "condition": "is_string",
+          "error_message": "Error message should be a string"
+        }
+      ],
+      "data_comparison": []
+    },
+    "test_data_file": "",
+    "db_query_timing": "after_api",
+    "db_queries": {
+      "default": "",
+      "audit_query": ""
+    },
+    "db_type": "mssql",
+    "db_connection_name": "parties",
+    "test_summary": "AC4: Verify that when query parameter is empty, the endpoint returns 400 Bad Request"
+  },
+  {
+    "test_id": "TC006",
+    "service_name": "parties",
+    "workflow_mode": "parallel",
+    "test_name": "Batch GET - Large number of Party IDs (Performance Test)",
+    "protocol": "REST",
+    "test_type": ["Performance", "Regression"],
+    "mainURL": "{{base_url}}",
+    "endpoint": "/parties/batch?partyIds={{partyId1}}&partyIds={{partyId2}}&partyIds={{partyId3}}&partyIds={{partyId4}}&partyIds={{partyId5}}&partyIds={{partyId6}}&partyIds={{partyId7}}&partyIds={{partyId8}}&partyIds={{partyId9}}&partyIds={{partyId10}}",
+    "method": "GET",
+    "rpc_method": "",
+    "graphql_query": "",
+    "graphql_variables": "",
+    "soap_action": "",
+    "soap_envelope": "",
+    "headers_additional": {
+      "Content-Type": "application/json"
+    },
+    "payload": null,
+    "expected_status": "200",
+    "expected_response_schema": "",
+    "expected_response": null,
+    "ignore_fields": [],
+    "extract_values": [
+      {
+        "from": "response",
+        "record_count": true,
+        "array_path": "$.parties",
+        "assign_to": "response_party_count"
+      }
+    ],
+    "validate": {
+      "response_structure": {
+        "required_fields": [
+          "parties",
+          "parties[*].partyId",
+          "parties[*].partyType",
+          "parties[*].status"
+        ]
+      },
+      "business_rules": [
+        {
+          "rule": "Batch GET with large number of Party IDs must return HTTP 200 OK",
+          "validation": "response.status equals 200"
+        },
+        {
+          "rule": "Endpoint must handle large batch requests efficiently within performance threshold",
+          "validation": "response time is less than 2000ms for 10 party IDs"
+        },
+        {
+          "rule": "All requested parties must be returned when they exist",
+          "validation": "parties array contains all requested valid party objects"
+        },
+        {
+          "rule": "Each party object must contain required fields regardless of batch size",
+          "validation": "all parties have partyId and partyType and status"
+        }
+      ],
+      "performance": {
+        "max_response_time_ms": 2000
+      },
+      "security": {
+        "checks": ["sql_injection", "xss"]
+      },
+      "response_validations": [
+        {
+          "field": "$.parties",
+          "condition": "is_array",
+          "error_message": "Response must be an array"
+        },
+        {
+          "field": "$.parties",
+          "condition": "array_length_equals",
+          "expected_value": 3,
+          "error_message": "Response must contain exactly 3 unique party objects (CSV has 3 unique IDs)"
+        },
+        {
+          "field": "$.parties[*].partyId",
+          "condition": "not_null",
+          "error_message": "Each party object must have a partyId"
+        },
+        {
+          "field": "$.parties[*].partyType",
+          "condition": "not_null",
+          "error_message": "Each party object must have a partyType"
+        },
+        {
+          "field": "$.parties[*].status",
+          "condition": "not_null",
+          "error_message": "Each party object must have a status"
+        }
+      ],
+      "data_comparison": []
+    },
+    "test_data_file": "parties/data_driven/Data_parties_batch_GET.csv",
+    "db_query_timing": "after_api",
+    "db_queries": {
+      "default": "",
+      "audit_query": ""
+    },
+    "db_type": "mssql",
+    "db_connection_name": "parties",
+    "test_summary": "Performance test: Verify endpoint can handle multiple Party IDs (10) with acceptable response time"
+  },
+  {
+    "test_id": "TC007",
+    "service_name": "parties",
+    "workflow_mode": "parallel",
+    "test_name": "Batch GET - Single Party ID returns 200 OK with one party object",
+    "protocol": "REST",
+    "test_type": ["Functional", "Regression"],
+    "mainURL": "{{base_url}}",
+    "endpoint": "/parties/batch?partyIds={{partyId1}}",
+    "method": "GET",
+    "rpc_method": "",
+    "graphql_query": "",
+    "graphql_variables": "",
+    "soap_action": "",
+    "soap_envelope": "",
+    "headers_additional": {
+      "Content-Type": "application/json"
+    },
+    "payload": null,
+    "expected_status": "200",
+    "expected_response_schema": "",
+    "expected_response": null,
+    "ignore_fields": [],
+    "extract_values": [
+      {
+        "from": "response",
+        "record_count": true,
+        "array_path": "$.parties",
+        "assign_to": "response_party_count"
+      }
+    ],
+    "validate": {
+      "response_structure": {
+        "required_fields": [
+          "parties",
+          "parties[*].partyId",
+          "parties[*].partyType",
+          "parties[*].status"
+        ]
+      },
+      "business_rules": [
+        {
+          "rule": "Batch GET with single valid Party ID must return HTTP 200 OK",
+          "validation": "response.status equals 200"
+        },
+        {
+          "rule": "Single Party ID request must return exactly one party object",
+          "validation": "parties array length equals 1"
+        },
+        {
+          "rule": "Returned party ID must exactly match the requested ID",
+          "validation": "parties[0].partyId equals requested partyId1"
+        },
+        {
+          "rule": "Party object must contain all required fields",
+          "validation": "party has partyId and partyType and status"
+        }
+      ],
+      "performance": {
+        "max_response_time_ms": 1000
+      },
+      "security": {
+        "checks": ["sql_injection", "xss"]
+      },
+      "response_validations": [
+        {
+          "field": "$.parties",
+          "condition": "is_array",
+          "error_message": "Response must be an array"
+        },
+        {
+          "field": "$.parties",
+          "condition": "array_length_equals",
+          "expected_value": 1,
+          "error_message": "Response must contain exactly 1 party object"
+        },
+        {
+          "field": "$.parties[0].partyId",
+          "condition": "equals",
+          "expected_value": "{{partyId1}}",
+          "error_message": "Returned party ID must match the requested ID"
+        },
+        {
+          "field": "$.parties[0].partyType",
+          "condition": "not_null",
+          "error_message": "Party object must have a partyType"
+        },
+        {
+          "field": "$.parties[0].status",
+          "condition": "not_null",
+          "error_message": "Party object must have a status"
+        }
+      ],
+      "data_comparison": []
+    },
+    "test_data_file": "parties/data_driven/Data_parties_batch_GET.csv",
+    "db_query_timing": "after_api",
+    "db_queries": {
+      "default": "SELECT * FROM Party WHERE Id = '{{partyId1}}'",
+      "audit_query": ""
+    },
+    "db_type": "mssql",
+    "db_connection_name": "parties",
+    "test_summary": "Boundary test: Verify endpoint works correctly with single Party ID"
+  },
+  {
+    "test_id": "TC008",
+    "service_name": "parties",
+    "workflow_mode": "parallel",
+    "test_name": "Batch GET - Duplicate Party IDs returns unique party objects",
+    "protocol": "REST",
+    "test_type": ["Functional", "Edge Case"],
+    "mainURL": "{{base_url}}",
+    "endpoint": "/parties/batch?partyIds={{partyId1}}&partyIds={{partyId2}}&partyIds={{partyId1}}",
+    "method": "GET",
+    "rpc_method": "",
+    "graphql_query": "",
+    "graphql_variables": "",
+    "soap_action": "",
+    "soap_envelope": "",
+    "headers_additional": {
+      "Content-Type": "application/json"
+    },
+    "payload": null,
+    "expected_status": "200",
+    "expected_response_schema": "",
+    "expected_response": null,
+    "ignore_fields": [],
+    "extract_values": [
+      {
+        "from": "response",
+        "record_count": true,
+        "array_path": "$.parties",
+        "assign_to": "response_party_count"
+      }
+    ],
+    "validate": {
+      "response_structure": {
+        "required_fields": [
+          "parties",
+          "parties[*].partyId",
+          "parties[*].partyType",
+          "parties[*].status"
+        ]
+      },
+      "business_rules": [
+        {
+          "rule": "Batch GET with duplicate Party IDs must return HTTP 200 OK",
+          "validation": "response.status equals 200"
+        },
+        {
+          "rule": "Duplicate Party IDs in request must be deduplicated in response",
+          "validation": "parties array length equals 2 (unique parties only)"
+        },
+        {
+          "rule": "Each unique party must appear only once in response regardless of duplicates in request",
+          "validation": "response contains only unique partyId values"
+        },
+        {
+          "rule": "All returned party objects must contain required fields",
+          "validation": "all parties have partyId and partyType and status"
+        }
+      ],
+      "performance": {
+        "max_response_time_ms": 1000
+      },
+      "security": {
+        "checks": ["sql_injection", "xss"]
+      },
+      "response_validations": [
+        {
+          "field": "$.parties",
+          "condition": "is_array",
+          "error_message": "Response must be an array"
+        },
+        {
+          "field": "$.parties",
+          "condition": "array_length_equals",
+          "expected_value": 2,
+          "error_message": "Response must contain 2 unique party objects (duplicates should be removed)"
+        },
+        {
+          "field": "$.parties[*].partyId",
+          "condition": "not_null",
+          "error_message": "Each party object must have a partyId"
+        },
+        {
+          "field": "$.parties[*].partyType",
+          "condition": "not_null",
+          "error_message": "Each party object must have a partyType"
+        },
+        {
+          "field": "$.parties[*].status",
+          "condition": "not_null",
+          "error_message": "Each party object must have a status"
+        },
+        {
+          "field": "$.parties[0].partyId",
+          "condition": "in_list",
+          "expected_value": ["{{partyId1}}", "{{partyId2}}"],
+          "error_message": "Returned party IDs must match requested unique IDs"
+        },
+        {
+          "field": "$.parties[1].partyId",
+          "condition": "in_list",
+          "expected_value": ["{{partyId1}}", "{{partyId2}}"],
+          "error_message": "Returned party IDs must match requested unique IDs"
+        }
+      ],
+      "data_comparison": []
+    },
+    "test_data_file": "parties/data_driven/Data_parties_batch_GET.csv",
+    "db_query_timing": "after_api",
+    "db_queries": {
+      "default": "",
+      "audit_query": ""
+    },
+    "db_type": "mssql",
+    "db_connection_name": "parties",
+    "test_summary": "Edge case: Verify endpoint handles duplicate Party IDs and returns unique objects only"
+  },
+  {
+    "test_id": "TC009",
+    "service_name": "parties",
+    "workflow_mode": "parallel",
+    "test_name": "Batch GET - Verify response schema and data integrity",
+    "protocol": "REST",
+    "test_type": ["Functional", "Data Integrity"],
+    "mainURL": "{{base_url}}",
+    "endpoint": "/parties/batch?partyIds={{partyId1}}&partyIds={{partyId2}}",
+    "method": "GET",
+    "rpc_method": "",
+    "graphql_query": "",
+    "graphql_variables": "",
+    "soap_action": "",
+    "soap_envelope": "",
+    "headers_additional": {
+      "Content-Type": "application/json"
+    },
+    "payload": null,
+    "expected_status": "200",
+    "expected_response_schema": "",
+    "expected_response": null,
+    "ignore_fields": [],
+    "extract_values": [],
+    "validate": {
+      "response_structure": {
+        "required_fields": [
+          "parties",
+          "parties[*].partyId",
+          "parties[*].partyType",
+          "parties[*].status"
+        ]
+      },
+      "business_rules": [
+        {
+          "rule": "Batch GET response must maintain data integrity with all required fields present",
+          "validation": "all parties have partyId and partyType and status fields"
+        },
+        {
+          "rule": "Response must conform to the expected schema structure",
+          "validation": "response contains parties array with properly structured objects"
+        },
+        {
+          "rule": "Returned party IDs must exactly match the requested IDs in correct order",
+          "validation": "parties[0].partyId equals partyId1 and parties[1].partyId equals partyId2"
+        },
+        {
+          "rule": "All party data fields must contain valid non-null values",
+          "validation": "no required fields are null or missing"
+        }
+      ],
+      "performance": {
+        "max_response_time_ms": 1000
+      },
+      "security": {
+        "checks": ["sql_injection", "xss"]
+      },
+      "response_validations": [
+        {
+          "field": "$.parties[*].partyId",
+          "condition": "not_null",
+          "error_message": "PartyId must not be null"
+        },
+        {
+          "field": "$.parties[*].partyType",
+          "condition": "not_null",
+          "error_message": "PartyType must not be null"
+        },
+        {
+          "field": "$.parties[*].status",
+          "condition": "not_null",
+          "error_message": "Status must not be null"
+        },
+        {
+          "field": "$.parties[0].partyId",
+          "condition": "equals",
+          "expected_value": "{{partyId1}}",
+          "error_message": "First party ID must match the requested ID"
+        },
+        {
+          "field": "$.parties[1].partyId",
+          "condition": "equals",
+          "expected_value": "{{partyId2}}",
+          "error_message": "Second party ID must match the requested ID"
+        }
+      ],
+      "data_comparison": []
+    },
+    "test_data_file": "parties/data_driven/Data_parties_batch_GET.csv",
+    "db_query_timing": "none",
+    "db_queries": {},
+    "db_type": "mssql",
+    "db_connection_name": "parties",
+    "test_summary": "Data integrity test: Verify response schema and all required fields are present (DB comparison disabled - requires valid test data setup)"
+  }
+]

@@ -26,6 +26,9 @@ db_connections:
       database: "TrackingCenter"
       trusted_connection: true
     
+    account_service:
+      connection_string: "${ACCOUNT_SQLDB}"
+    
     # Azure SQL Server with Entra ID (Azure AD) Password Authentication
     movemoney:
       connection_string: "${MOVEMONEY_SQLDB}"
@@ -108,6 +111,13 @@ api_endpoints:
     auth_token: "your-token-if-needed"
     timeout: ${API_TIMEOUT:30}
     retry_count: ${API_RETRY_COUNT:3}
+    verify: false
+
+  account_service:
+    base_url: "${ACCOUNTS_BASE_URL}"
+    auth_token: "your-token-if-needed"
+    timeout: 30
+    retry_count: 3
     verify: false
 
   work_item_notification:

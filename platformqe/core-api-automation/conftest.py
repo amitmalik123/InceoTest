@@ -1635,9 +1635,16 @@ def pytest_sessionfinish(session, exitstatus):
             seconds = total_seconds % 60
             session_duration = f"{hours:02d}:{minutes:02d}:{seconds:02d}"
         
+        # Derive service_name from first result or environment variable
+        service_name = os.environ.get('SERVICE_NAME', 'unknown')
+        if test_results_serializable:
+            service_name = test_results_serializable[0].get('service_name', service_name)
+        
         summary_data = {
             'summary': summary_stats,
             'results': test_results_serializable,
+            'environment': env_name,
+            'service_name': service_name,
             'timestamp': temp_reporter._current_run_marker,
             'start_time': session_start_time,
             'end_time': session_end_time,
