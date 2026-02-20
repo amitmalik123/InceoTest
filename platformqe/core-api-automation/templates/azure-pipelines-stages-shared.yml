@@ -822,6 +822,7 @@ stages:
               LOG_ANALYTICS_SHARED_KEY: $(logAnalyticsSharedKey)
               LOG_ANALYTICS_ENABLED: $(logAnalyticsEnabled)
               SERVICE_NAME: $(name)
+              ENV_NAME: $(environment)
             inputs:
               targetType: inline
               script: |
