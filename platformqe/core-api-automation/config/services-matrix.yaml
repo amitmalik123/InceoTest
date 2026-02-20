@@ -206,7 +206,7 @@ services:
     priority: 2
 global:
   defaultPool:
-    name: ewm20-docker-build-agent-inc-dev
+    name: ewm20-docker-build-agent-qa-dev
   pythonVersion: '3.10'
   defaultEnvironments:
   - TSADEV

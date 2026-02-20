@@ -97,7 +97,7 @@ stages:
       - job: ParseMatrix
         displayName: 'Parse Services Matrix'
         pool:
-          name: ewm20-docker-build-agent-inc-dev
+          name: ewm20-docker-build-agent-qa-dev
         steps:
           - checkout: ${{ parameters.repositoryAlias }}
           - task: PowerShell@2
@@ -357,7 +357,7 @@ stages:
       - job: RunTests
         displayName: 'Run Tests'
         pool:
-          name: ewm20-docker-build-agent-inc-dev
+          name: ewm20-docker-build-agent-qa-dev
         strategy:
           maxParallel: 5
           matrix: $[ stageDependencies.Initialize.ParseMatrix.outputs['DetermineServices.servicesMatrix'] ]
@@ -903,7 +903,7 @@ stages:
       - job: GenerateSummary
         displayName: 'Generate Execution Summary'
         pool:
-          name: ewm20-docker-build-agent-inc-dev
+          name: ewm20-docker-build-agent-qa-dev
         variables:
           initializeResult: $[ stageDependencies.Initialize.ParseMatrix.result ]
           executeTestsResult: $[ stageDependencies.ExecuteTests.RunTests.result ]
