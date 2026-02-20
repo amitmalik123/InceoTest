@@ -81,6 +81,11 @@ parameters:
   - name: defaultEnvironments
     type: string
     default: 'all'
+  # sleept time To sync the deployment charts
+  - name: deploymentsync
+    displayName: 'wait to sync ArgoCd charts and deployment sucessfully'
+    type: number
+    default: 0
 
 stages:
   ###########################################################################
@@ -95,7 +100,12 @@ stages:
           name: ewm20-docker-build-agent-inc-dev
         steps:
           - checkout: ${{ parameters.repositoryAlias }}
-          
+          - task: PowerShell@2
+            displayName: 'Sleep time if triggered from deployment pipeline'
+            inputs:
+              targetType: 'inline'
+              script: |
+                    Start-Sleep -Seconds ${{ parameters.deploymentsync }}
           - task: Bash@3
             name: SetBuildPath
             displayName: 'Determine Build Path'
@@ -163,7 +173,7 @@ stages:
               SERVICES_INPUT: ${{ parameters.services }}
               ENABLE_SCHEDULE: ${{ parameters.enableScheduleDetection }}
               ENVIRONMENTS_INPUT: ${{ parameters.environments }}
-              DEFAULT_ENVIRONMENTS: ${{ parameters.defaultEnvironments }}
+              DEFAULT_ENVIRONMENTS: $(ENABLED_ENVIRONMENTS)
               EXECUTION_MODE: ${{ parameters.executionMode }}
               TEST_TYPE: ${{ parameters.testType }}
               TRIGGER_REASON: ${{ parameters.triggerReason }}
@@ -802,6 +812,39 @@ stages:
                   --collection-uri "$(System.TeamFoundationCollectionUri)" \
                   --service-name "$(name)" \
                   --environment "$(environment)"
+              workingDirectory: $(buildPath)
+          
+          - task: Bash@3
+            displayName: 'Push to Log Analytics - $(name)_$(environment)'
+            condition: always()
+            env:
+              LOG_ANALYTICS_WORKSPACE_ID: $(logAnalyticsWorkspaceId)
+              LOG_ANALYTICS_SHARED_KEY: $(logAnalyticsSharedKey)
+              LOG_ANALYTICS_ENABLED: $(logAnalyticsEnabled)
+              SERVICE_NAME: $(name)
+            inputs:
+              targetType: inline
+              script: |
+                export PYTHONPATH="${PYTHONPATH}:$(pwd)"
+                echo "=========================================="
+                echo "Pushing Test Results to Log Analytics"
+                echo "=========================================="
+                echo "Service: $(name)"
+                echo "Environment: $(environment)"
+                echo "Workspace ID: $(logAnalyticsWorkspaceId)"
+                echo "Enabled: ${LOG_ANALYTICS_ENABLED:-true}"
+                echo ""
+                
+                # Push aggregated test metrics to Log Analytics
+                python3 framework/reporter/log_analytics_reporter.py
+                
+                if [ $? -eq 0 ]; then
+                  echo "✅ Log Analytics push completed"
+                  echo "⏳ Note: Table may take 5-15 minutes to appear in Log Analytics"
+                  echo "📊 Table created: TestResults_CL"
+                else
+                  echo "⚠️ Log Analytics push failed (non-blocking)"
+                fi
               workingDirectory: $(buildPath)
           
           - task: Bash@3

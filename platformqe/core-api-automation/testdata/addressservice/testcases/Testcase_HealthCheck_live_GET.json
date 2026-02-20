@@ -9,7 +9,7 @@
             "Functional"
         ],
         "mainURL": "{{api_base_url}}",
-        "endpoint": "/HealthCheck/live",
+        "endpoint": "/health/live",
         "method": "GET",
         "rpc_method": "",
         "graphql_query": "",
