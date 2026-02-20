@@ -1,0 +1,2 @@
+environment,instructionId,accountId,railType,unitType,amount,percent,requestType,status,reason,purpose,scheduleType,paymentDate,expected_status
+TSADEV,684225A1-358F-4BDB-A061-9B33576B94CC,321E4567-E89B-12D3-A456-426614174000,ACH,Percent,999999999.99,100,Deposit,Draft,DEPNonQualified,string,OneTime,2026-05-15T20:27:38.082Z,200

@@ -24,9 +24,9 @@ For technical architecture, design rationale, and extensibility details, see the
 - **Static and dynamic test case management**: OpenAPI/Swagger/Postman imports with auto-generation
 - **Data-driven and hybrid testing**: CSV-based test data with Jinja2 templating
 - **Modular test execution**: Pluggable test_helpers modules for separation of concerns
-- **Rich reporting**: Allure, JUnit, JSON, HTML, and custom reports
+- **Rich reporting**: Allure, JUnit, JSON, HTML, email notifications, and custom reports
 - **Performance/load testing**: Built-in Locust integration with framework clients, validators, and automatic report archiving
-- **Real-time monitoring**: InfluxDB integration for time-series metrics with Grafana dashboards
+- **Real-time monitoring**: Azure Log Analytics integration for centralized metrics and Grafana visualization; InfluxDB support for time-series metrics
 - **Security scanning**: Bandit and Safety integration for vulnerability detection
 
 ### CI/CD Integration
@@ -226,6 +226,8 @@ flowchart TD
   - `reporter/` - Reporting utilities
     - `reporter.py` - Multi-format report generation (Allure, JUnit, JSON, HTML)
     - `influx_reporter.py` - InfluxDB time-series metrics reporting
+    - `log_analytics_reporter.py` - Azure Log Analytics integration with HTTP Data Collector API
+    - `email_reporter.py` - Email notification for test results
   - `common/` - Shared utilities and logger
     - `logger.py` - Centralized logging configuration
     - `utils.py` - Common utility functions
@@ -383,6 +385,160 @@ influx_client = DatabaseClientFactory.get_client('influxdb', 'default', auto_con
 influx_client.write_point(point)  # Write single metric
 influx_client.write_points(points)  # Batch write metrics
 ```
+
+---
+
+## Azure Log Analytics Integration
+
+The framework automatically pushes aggregated test results to Azure Log Analytics for monitoring and visualization in Grafana dashboards.
+
+### Overview
+
+Test results are pushed to Log Analytics using the HTTP Data Collector API with Shared Key authentication. A single custom table is created automatically:
+
+- **TestResults_CL** - Aggregated test metrics per pipeline run (pass rate, failed tests, total tests, timing, validation statistics)
+
+### Configuration
+
+The following variables must be configured in your Azure DevOps variable group (e.g., `qa-pipelines-shared-config`):
+
+```yaml
+# Required
+logAnalyticsWorkspaceId: "<your-workspace-id-guid>"
+logAnalyticsSharedKey: "<your-primary-or-secondary-shared-key>"  # Mark as secret
+
+# Optional
+logAnalyticsEnabled: "true"  # Set to "false" to disable (default: true)
+```
+
+**How to get credentials:**
+1. Azure Portal → Log Analytics workspaces → Select your workspace
+2. Settings → Agents
+3. Copy **Workspace ID** and **Primary key**
+
+### Usage
+
+The Log Analytics reporter runs automatically in the Azure Pipeline after test execution:
+
+```yaml
+- task: Bash@3
+  displayName: 'Push to Log Analytics'
+  env:
+    LOG_ANALYTICS_WORKSPACE_ID: $(logAnalyticsWorkspaceId)
+    LOG_ANALYTICS_SHARED_KEY: $(logAnalyticsSharedKey)
+    LOG_ANALYTICS_ENABLED: $(logAnalyticsEnabled)
+  script: |
+    python3 framework/reporter/log_analytics_reporter.py
+```
+
+**Standalone usage:**
+```bash
+# Push aggregated test metrics
+export LOG_ANALYTICS_WORKSPACE_ID="<workspace-id>"
+export LOG_ANALYTICS_SHARED_KEY="<shared-key>"
+export LOG_ANALYTICS_ENABLED="true"
+python framework/reporter/log_analytics_reporter.py
+```
+
+### Data Schema
+
+**TestResults_CL:**
+- **Pipeline Info**: BuildId, BuildNumber, PipelineId, PipelineName, RunTimestamp
+- **Environment**: Environment, ServiceName
+- **Test Metrics**: TotalTests, PassedTests, FailedTests, SkippedTests, PassRate
+- **Performance**: Duration, AvgResponseTime, StartTime, EndTime
+- **Failed Tests**: FailedTestNames (comma-separated, max 10), FailedTestCount
+- **Validation Statistics** (aggregated across all tests):
+  - StatusCodeChecks: Total, Passed, Failed
+  - Assertions: Total, Passed, Failed
+  - ContractChecks: Total, Passed, Failed
+  - SecurityChecks: Total, Passed, Failed
+  - PerformanceChecks: Total, Passed, Failed
+
+### Grafana Dashboard Queries
+
+Query examples for Grafana dashboards using KQL (Kusto Query Language):
+
+#### 1. Pass Rate Over Time
+```kql
+TestResults_CL
+| where TimeGenerated > ago(7d)
+| project TimeGenerated, PassRate_d, ServiceName_s, BuildNumber_s, TotalTests_d
+| order by TimeGenerated asc
+```
+
+**Visualization**: Time series chart
+- X-axis: TimeGenerated
+- Y-axis: PassRate_d
+- Group by: ServiceName_s (optional)
+
+#### 2. Failed Tests Per Build
+```kql
+TestResults_CL
+| where TimeGenerated > ago(30d)
+| project TimeGenerated, BuildNumber_s, FailedTests_d, ServiceName_s, FailedTestNames_s
+| order by FailedTests_d desc
+```
+
+**Visualization**: Bar chart or table
+- X-axis: BuildNumber_s
+- Y-axis: FailedTests_d
+- Color by: ServiceName_s (optional)
+
+#### 3. Total Tests Per Pipeline
+```kql
+TestResults_CL
+| where TimeGenerated > ago(30d)
+| summarize TotalTestsRun = sum(TotalTests_d), Builds = count() by PipelineName_s, ServiceName_s
+| project PipelineName_s, ServiceName_s, TotalTestsRun, Builds, AvgTestsPerBuild = TotalTestsRun / Builds
+| order by TotalTestsRun desc
+```
+
+**Visualization**: Table or bar chart
+- Shows total tests executed per pipeline/service over the time period
+- Includes average tests per build
+
+#### Bonus: Service Health Dashboard
+```kql
+TestResults_CL
+| where TimeGenerated > ago(24h)
+| summarize 
+    TotalRuns = count(),
+    AvgPassRate = avg(PassRate_d),
+    TotalFailures = sum(FailedTests_d),
+    LatestBuild = max(BuildNumber_s)
+  by ServiceName_s
+| extend HealthStatus = case(
+    AvgPassRate >= 95, "Healthy",
+    AvgPassRate >= 80, "Warning",
+    "Critical"
+  )
+| order by AvgPassRate asc
+```
+
+#### Trend Analysis: Pass Rate Trend (Last 7 Days)
+```kql
+TestResults_CL
+| where TimeGenerated > ago(7d)
+| summarize AvgPassRate = avg(PassRate_d) by ServiceName_s, bin(TimeGenerated, 12h)
+| render timechart
+```
+
+### Grafana Dashboard Setup
+
+1. **Add Azure Monitor Data Source** in Grafana
+   - Configuration → Data Sources → Add Azure Monitor
+   - Select your Log Analytics workspace
+   
+2. **Create Dashboard Panels**:
+   - Panel 1: "Pass Rate Over Time" (Line chart)
+   - Panel 2: "Failed Tests Per Build" (Bar chart)
+   - Panel 3: "Total Tests Per Pipeline" (Table)
+   - Panel 4: "Service Health Status" (Stat panel with thresholds)
+
+3. **Set Refresh Interval**: 5-15 minutes (to match Log Analytics ingestion latency)
+
+**Note:** Custom tables may take 5-15 minutes to appear in Log Analytics after the first write.
 
 ---
 

@@ -97,7 +97,7 @@ stages:
       - job: ParseMatrix
         displayName: 'Parse Services Matrix'
         pool:
-          name: ewm20-docker-build-agent-inc-dev
+          name: ewm20-docker-build-agent-qa-dev
         steps:
           - checkout: ${{ parameters.repositoryAlias }}
           - task: PowerShell@2
@@ -357,7 +357,7 @@ stages:
       - job: RunTests
         displayName: 'Run Tests'
         pool:
-          name: ewm20-docker-build-agent-inc-dev
+          name: ewm20-docker-build-agent-qa-dev
         strategy:
           maxParallel: 5
           matrix: $[ stageDependencies.Initialize.ParseMatrix.outputs['DetermineServices.servicesMatrix'] ]
@@ -622,7 +622,7 @@ stages:
               LOG_LEVEL: $(log_level)
               WORK_ITEM_AUTH_TOKEN: $(WORK_ITEM_AUTH_TOKEN)
               PARTIES_AUTH_TOKEN: $(PARTIES_AUTH_TOKEN)
-              MODELS_AUTH_TOKEN: $(models_auth_token)
+              MODELS_X_USER_ID: $(models_x_user_id)
               PARTIES_BASE_URL: $(RESOLVED_PARTIES_BASE_URL)
               PARTIES_SQLDB: $(parties-sqldb-connection-string)
               MOVEMONEY_SQLDB: $(movemoney-sqldb-connection-string)
@@ -682,7 +682,7 @@ stages:
               LOG_LEVEL: $(log_level)
               WORK_ITEM_AUTH_TOKEN: $(WORK_ITEM_AUTH_TOKEN)
               PARTIES_AUTH_TOKEN: $(PARTIES_AUTH_TOKEN)
-              MODELS_AUTH_TOKEN: $(models_auth_token)
+              MODELS_X_USER_ID: $(models_x_user_id)
               PARTIES_BASE_URL: $(RESOLVED_PARTIES_BASE_URL)
               PARTIES_SQLDB: $(parties-sqldb-connection-string)
               MOVEMONEY_SQLDB: $(movemoney-sqldb-connection-string)
@@ -771,6 +771,40 @@ stages:
               PathtoPublish: '$(buildPath)/framework/logs'
               ArtifactName: 'framework-logs-$(name)-$(environment)-$(Build.BuildNumber)'
               publishLocation: 'Container'
+          
+          - task: Bash@3
+            displayName: 'Push to Log Analytics - $(name)_$(environment)'
+            condition: always()
+            env:
+              LOG_ANALYTICS_WORKSPACE_ID: $(logAnalyticsWorkspaceId)
+              LOG_ANALYTICS_SHARED_KEY: $(logAnalyticsSharedKey)
+              LOG_ANALYTICS_ENABLED: $(logAnalyticsEnabled)
+              SERVICE_NAME: $(name)
+              ENV_NAME: $(environment)
+            inputs:
+              targetType: inline
+              script: |
+                export PYTHONPATH="${PYTHONPATH}:$(pwd)"
+                echo "=========================================="
+                echo "Pushing Test Results to Log Analytics"
+                echo "=========================================="
+                echo "Service: $(name)"
+                echo "Environment: $(environment)"
+                echo "Workspace ID: $(logAnalyticsWorkspaceId)"
+                echo "Enabled: ${LOG_ANALYTICS_ENABLED:-true}"
+                echo ""
+                
+                # Push aggregated test metrics to Log Analytics
+                python3 framework/reporter/log_analytics_reporter.py
+                
+                if [ $? -eq 0 ]; then
+                  echo "✅ Log Analytics push completed"
+                  echo "⏳ Note: Table may take 5-15 minutes to appear in Log Analytics"
+                  echo "📊 Table created: TestResults_CL"
+                else
+                  echo "⚠️ Log Analytics push failed (non-blocking)"
+                fi
+              workingDirectory: $(buildPath)
           
           - task: Bash@3
             displayName: 'Send Email Report - $(name)_$(environment)'
@@ -869,7 +903,7 @@ stages:
       - job: GenerateSummary
         displayName: 'Generate Execution Summary'
         pool:
-          name: ewm20-docker-build-agent-inc-dev
+          name: ewm20-docker-build-agent-qa-dev
         variables:
           initializeResult: $[ stageDependencies.Initialize.ParseMatrix.result ]
           executeTestsResult: $[ stageDependencies.ExecuteTests.RunTests.result ]

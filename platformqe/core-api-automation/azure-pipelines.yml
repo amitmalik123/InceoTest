@@ -52,7 +52,7 @@ stages:
     jobs:
     - job: Job
       pool:
-        name: ewm20-docker-build-agent-inc-dev
+        name: ewm20-docker-build-agent-qa-dev
       steps:
       # Fetch database connection strings from Azure Key Vault
       - task: AzureKeyVault@2
