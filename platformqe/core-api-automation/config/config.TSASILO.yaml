@@ -139,7 +139,9 @@ api_endpoints:
 
   models:
     base_url: "${MODELS_BASE_URL}"  # Fetched from Azure variable group: qa-pipelines-variable-group-dev
-    auth_token: "${MODELS_AUTH_TOKEN}"
+    auth_token: null  # No Bearer token authentication
+    custom_headers:
+      x-user-id: "${MODELS_X_USER_ID}"  # Example of custom header with env var fallback
     timeout: ${API_TIMEOUT:30}
     retry_count: ${API_RETRY_COUNT:3}
     use_azure_auth: false  # Set to true to use Azure AD authentication
