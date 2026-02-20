@@ -26,9 +26,10 @@ except ImportError:
 class ApiClient:
     """Enhanced API Client with support for authentication, retries, and timeouts"""
     
-    def __init__(self, base_url, auth_token=None, verify=False, timeout=30, retry_count=3):
+    def __init__(self, base_url, auth_token=None, custom_headers=None, verify=False, timeout=30, retry_count=3):
         self.base_url = base_url.rstrip('/')
         self.auth_token = auth_token
+        self.custom_headers = custom_headers or {}
         self.verify = verify
         self.timeout = timeout
         self.retry_count = retry_count
@@ -48,8 +49,9 @@ class ApiClient:
         """
         url = f"{self.base_url}{endpoint}" if not endpoint.startswith('http') else endpoint
         
-        # Merge headers: start with provided headers, then add auth
-        headers = kwargs.pop('headers', {})
+        # Merge headers: start with custom headers from config, then provided headers, then add auth
+        headers = {**self.custom_headers}
+        headers.update(kwargs.pop('headers', {}))
         
         # Add authentication token if available
         if self.auth_token:
@@ -163,6 +165,7 @@ class ApiClientFactory:
         # Get API endpoint configuration
         base_url = None
         auth_token = None
+        custom_headers = {}
         timeout = 30
         retry_count = 3
         verify = False
@@ -174,6 +177,11 @@ class ApiClientFactory:
                 endpoint_config = api_endpoints[service_name]
                 base_url = substitute_env_vars(endpoint_config.get('base_url'))
                 auth_token = substitute_env_vars(endpoint_config.get('auth_token'))
+                
+                # Load custom headers from config
+                if 'custom_headers' in endpoint_config:
+                    custom_headers = {k: substitute_env_vars(v) for k, v in endpoint_config['custom_headers'].items()}
+                
                 timeout = int(substitute_env_vars(str(endpoint_config.get('timeout', 30))))
                 retry_count = int(substitute_env_vars(str(endpoint_config.get('retry_count', 3))))
                 verify = endpoint_config.get('verify', False)
@@ -220,6 +228,7 @@ class ApiClientFactory:
         client = ApiClient(
             base_url=base_url,
             auth_token=auth_token,
+            custom_headers=custom_headers,
             verify=verify,
             timeout=timeout,
             retry_count=retry_count
