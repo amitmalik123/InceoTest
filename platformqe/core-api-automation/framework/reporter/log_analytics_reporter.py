@@ -150,6 +150,7 @@ class LogAnalyticsReporter:
                     'status_code_checks': {'total': 0, 'passed': 0, 'failed': 0},
                     'assertions': {'total': 0, 'passed': 0, 'failed': 0},
                     'contract_checks': {'total': 0, 'passed': 0, 'failed': 0},
+                    'data_comparisons': {'total': 0, 'passed': 0, 'failed': 0},
                     'security_checks': {'total': 0, 'passed': 0, 'failed': 0},
                     'performance_checks': {'total': 0, 'passed': 0, 'failed': 0}
                 }
@@ -199,6 +200,9 @@ class LogAnalyticsReporter:
                 "ContractChecksTotal": validation_aggregates['contract_checks']['total'],
                 "ContractChecksPassed": validation_aggregates['contract_checks']['passed'],
                 "ContractChecksFailed": validation_aggregates['contract_checks']['failed'],
+                "DataComparisonChecksTotal": validation_aggregates['data_comparisons']['total'],
+                "DataComparisonChecksPassed": validation_aggregates['data_comparisons']['passed'],
+                "DataComparisonChecksFailed": validation_aggregates['data_comparisons']['failed'],
                 "SecurityChecksTotal": validation_aggregates['security_checks']['total'],
                 "SecurityChecksPassed": validation_aggregates['security_checks']['passed'],
                 "SecurityChecksFailed": validation_aggregates['security_checks']['failed'],
