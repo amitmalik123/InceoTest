@@ -272,7 +272,7 @@
         },
         "db_type": "",
         "db_connection_name": "",
-        "test_summary": "Test TC002: GET /moneymovement/requests [Positive] (TC002) - Verify that the API returns a 200 OK response when valid accountId is provided without filters in the GET request to /moneymovement/requests.",
+        "test_summary": "Test TC002: GET /moneymovement/requests [Positive] (TC002) - Verify that the API returns a 200 OK response when single valid accountId is provided without filters in the GET request to /moneymovement/requests.",
         "test_scenario": "Verify that the API returns a 200 OK response when valid accountId is provided without filters in the GET request to /moneymovement/requests."
     },
     {
@@ -1034,7 +1034,7 @@
             "Functional"
         ],
         "mainURL": "{{base_url}}",
-        "endpoint": "/requests?accountId=123E4567-E89B-12D3-A456-426614174000%2C%20456E7890-E89B-12D3-A456-426614174111&railTypes=ACH%2C%20Wire",
+        "endpoint": "/requests?accountId=123E4567-E89B-12D3-A456-426614174000%2C%20456E7890-E89B-12D3-A456-426614174111",
         "method": "GET",
         "rpc_method": "",
         "graphql_query": "",
@@ -1045,7 +1045,7 @@
             "Content-Type": "application/json"
         },
         "payload": null,
-        "expected_status": "200",
+        "expected_status": "400",
         "expected_response_schema": "",
         "expected_response": null,
         "ignore_fields": [
@@ -1082,51 +1082,8 @@
                     "xss"
                 ]
             },
-            "data_comparison": [
-                {
-                    "source": "api_response",
-                    "target": "api_response",
-                    "fields_to_compare": [
-                        {
-                            "source_field": "page",
-                            "target_field": "page",
-                            "operator": "=="
-                        },
-                        {
-                            "source_field": "pageSize",
-                            "target_field": "pageSize",
-                            "operator": "=="
-                        },
-                        {
-                            "source_field": "total",
-                            "target_field": "total",
-                            "operator": "=="
-                        }
-                    ],
-                    "log_differences": true,
-                    "comparison_name": "Verify pagination response structure (TC012)"
-                }
-            ],
-            "assertions": [
-                {
-                    "actual": "{{response_page}}",
-                    "expected": 0,
-                    "operator": ">",
-                    "message": "Page number should be greater than 0"
-                },
-                {
-                    "actual": "{{response_pageSize}}",
-                    "expected": 0,
-                    "operator": ">",
-                    "message": "Page size should be greater than 0"
-                },
-                {
-                    "actual": "{{response_total}}",
-                    "expected": 0,
-                    "operator": ">=",
-                    "message": "Total should be greater than or equal to 0"
-                }
-            ]
+            "data_comparison": [],
+            "assertions": []
         },
         "test_data_file": "",
         "db_query_timing": "after_api",
@@ -1136,7 +1093,7 @@
         },
         "db_type": "",
         "db_connection_name": "",
-        "test_summary": "Test TC012: GET /moneymovement/requests [positive] (TC012) - Test GET request to validate the 200 successful responses for given more than one accountId and railTypes.",
-        "test_scenario": "Test GET request to /moneymovement/requests for functional scenario validation."
+        "test_summary": "Test TC012: GET /moneymovement/requests [negative] (TC012) - Test GET request to validate the 400 Bad request responses for given more than one accountIds in a comma-separated list are not supported.",
+        "test_scenario": "Test GET request to /moneymovement/requests for negative scenario validation."
     }
 ]
