@@ -25,6 +25,9 @@ db_connections:
       server: "t12ewmdba"
       database: "TrackingCenter"
       trusted_connection: true
+
+    account_service:
+      connection_string: "${ACCOUNT_SQLDB}"
     
     # Azure SQL Server with Entra ID (Azure AD) Password Authentication
     movemoney:
@@ -110,6 +113,14 @@ api_endpoints:
     retry_count: ${API_RETRY_COUNT:3}
     verify: false
 
+  account_service:
+    base_url: "${ACCOUNTS_BASE_URL}"
+    auth_token: "your-token-if-needed"
+    timeout: 30
+    retry_count: 3
+    verify: false
+
+    
   work_item_notification:
     base_url: "${WORK_ITEM_NOTIFICATION_BASE_URL}"  # Fetched from Azure variable group: qa-pipelines-variable-group-dev
     auth_token: "${WORK_ITEM_AUTH_TOKEN}"
@@ -128,7 +139,9 @@ api_endpoints:
 
   models:
     base_url: "${MODELS_BASE_URL}"  # Fetched from Azure variable group: qa-pipelines-variable-group-dev
-    auth_token: "${MODELS_AUTH_TOKEN}"
+    auth_token: null  # No Bearer token authentication
+    custom_headers:
+      x-user-id: "${MODELS_X_USER_ID}"  # Example of custom header with env var fallback
     timeout: ${API_TIMEOUT:30}
     retry_count: ${API_RETRY_COUNT:3}
     use_azure_auth: false  # Set to true to use Azure AD authentication

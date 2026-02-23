@@ -1,0 +1,499 @@
+[
+    {
+        "test_id": "TC001",
+        "service_name": "MoveMoneyAPI",
+        "workflow_mode": "parallel",
+        "test_name": "GET /transfer/{requestId} [positive] (TC001)",
+        "protocol": "REST",
+        "test_type": [
+            "Functional"
+        ],
+        "mainURL": "{{base_url}}",
+        "endpoint": "/transfer/44FCC06D-9B29-4851-BF06-16FFDB61F79B",
+        "method": "GET",
+        "rpc_method": "",
+        "graphql_query": "",
+        "graphql_variables": "",
+        "soap_action": "",
+        "soap_envelope": "",
+        "headers_additional": {
+            "Content-Type": "application/json"
+        },
+        "payload": null,
+        "expected_status": "200",
+        "expected_response_schema": "MoveMoneyAPI\\schemas\\Schema_transfer_requestId_GET.json",
+        "expected_response": {
+            "requestId": "44fcc06d-9b29-4851-bf06-16ffdb61f79b",
+            "version": 1,
+            "movementType": "Cash",
+            "transferUnitType": "Full",
+            "amount": 0,
+            "amountExpectation": "Exact",
+            "status": "Draft",
+            "reason": "DEPNonQualified",
+            "fundingAccountNumber": "FUND789012",
+            "contraFirm": {
+                "contraFirmId": "cc0e8400-e29b-41d4-a716-446655440030",
+                "name": "Vanguard",
+                "accountNumber": "9876543210",
+                "nameLine1": "The Vanguard Group, Inc.",
+                "nameLine2": "",
+                "registrationType": "Retirement401K"
+            },
+            "allocations": [
+                {
+                    "allocationId": "d1422a84-cabf-49d7-aa1b-654d288559e9",
+                    "accountId": "123e4567-e89b-12d3-a456-426614174000",
+                    "allocationUnitType": "Percent",
+                    "percent": 60,
+                    "amount": 120000
+                },
+                {
+                    "allocationId": "f8cddb65-6340-4a67-8914-41c7abdb5de9",
+                    "accountId": "456e7890-e89b-12d3-a456-426614174111",
+                    "allocationUnitType": "Percent",
+                    "percent": 40,
+                    "amount": 80000
+                }
+            ],
+            "securityTransfers": [],
+            "createdDate": "2026-02-06T10:45:42.472",
+            "modifiedDate": "2026-02-06T10:45:42.472",
+            "createdBy": null,
+            "modifiedBy": null
+        },
+        "ignore_fields": [
+            "id",
+            "traceId",
+            "timestamp",
+            "createdDate",
+            "modifiedDate",
+            "requestId",
+            "version",
+            "instructionId",
+            "accountId",
+            "railType",
+            "amount",
+            "requestType",
+            "status",
+            "reason",
+            "schedule",
+            "createdBy",
+            "modifiedBy"
+        ],
+        "extract_values": [
+            {
+                "from": "response",
+                "key": "requestId",
+                "assign_to": "requestId"
+            },
+            {
+                "from": "response",
+                "key": "instructionId",
+                "assign_to": "instructionId"
+            },
+            {
+                "from": "response",
+                "key": "amount",
+                "assign_to": "amount"
+            }
+        ],
+        "validate": {
+            "performance": {
+                "max_response_time_ms": 500
+            },
+            "security": {
+                "checks": [
+                    "sql_injection",
+                    "xss"
+                ]
+            },
+            "assertions": [
+                {
+                    "actual": "{{requestId}}",
+                    "expected": "",
+                    "operator": "!=",
+                    "message": "RequestId should not be empty"
+                }
+            ],
+            "data_comparison": [
+                {
+                    "source": "api_response",
+                    "target": "api_response",
+                    "fields_to_compare": [
+                        {
+                            "source_field": "requestId",
+                            "target_field": "requestId",
+                            "operator": "=="
+                        },
+                        {
+                            "source_field": "version",
+                            "target_field": "version",
+                            "operator": "=="
+                        },
+                        {
+                            "source_field": "movementType",
+                            "target_field": "movementType",
+                            "operator": "=="
+                        },
+                        {
+                            "source_field": "transferUnitType",
+                            "target_field": "transferUnitType",
+                            "operator": "=="
+                        },
+                        {
+                            "source_field": "status",
+                            "target_field": "status",
+                            "operator": "=="
+                        },
+                        {
+                            "source_field": "contraFirm.contraFirmId",
+                            "target_field": "contraFirm.contraFirmId",
+                            "operator": "=="
+                        },
+                        {
+                            "source_field": "contraFirm.name",
+                            "target_field": "contraFirm.name",
+                            "operator": "=="
+                        }
+                    ],
+                    "log_differences": true,
+                    "comparison_name": "Verify transfer response structure and key fields"
+                }
+            ]
+        },
+        "test_data_file": "",
+        "db_query_timing": "after_api",
+        "db_queries": {
+            "default": "",
+            "audit_query": ""
+        },
+        "db_type": "",
+        "db_connection_name": "",
+        "test_summary": "Test TC001: GET /moneymovement/transfer/{requestId} [positive] (TC001) - Validate that the system returns 200 successful response when the right requestID is provided."
+    },
+    {
+        "test_id": "TC002",
+        "service_name": "MoveMoneyAPI",
+        "workflow_mode": "parallel",
+        "test_name": "GET /transfer/{requestId} [positive] (TC002)",
+        "protocol": "REST",
+        "test_type": [
+            "Functional"
+        ],
+        "mainURL": "{{base_url}}",
+        "endpoint": "/transfer/44FCC06D-9B29-4851-BF06-16FFDB61F79B?status=Draft",
+        "method": "GET",
+        "rpc_method": "",
+        "graphql_query": "",
+        "graphql_variables": "",
+        "soap_action": "",
+        "soap_envelope": "",
+        "headers_additional": {
+            "Content-Type": "application/json"
+        },
+        "payload": null,
+        "expected_status": "200",
+        "expected_response_schema": "MoveMoneyAPI\\schemas\\Schema_transfer_requestId_GET.json",
+        "expected_response": {
+            "requestId": "44fcc06d-9b29-4851-bf06-16ffdb61f79b",
+            "version": 1,
+            "movementType": "Cash",
+            "transferUnitType": "Full",
+            "amount": 0,
+            "amountExpectation": "Exact",
+            "status": "Draft",
+            "reason": "DEPNonQualified",
+            "fundingAccountNumber": "FUND789012",
+            "contraFirm": {
+                "contraFirmId": "cc0e8400-e29b-41d4-a716-446655440030",
+                "name": "Vanguard",
+                "accountNumber": "9876543210",
+                "nameLine1": "The Vanguard Group, Inc.",
+                "nameLine2": "",
+                "registrationType": "Retirement401K"
+            },
+            "allocations": [
+                {
+                    "allocationId": "d1422a84-cabf-49d7-aa1b-654d288559e9",
+                    "accountId": "123e4567-e89b-12d3-a456-426614174000",
+                    "allocationUnitType": "Percent",
+                    "percent": 60,
+                    "amount": 120000
+                },
+                {
+                    "allocationId": "f8cddb65-6340-4a67-8914-41c7abdb5de9",
+                    "accountId": "456e7890-e89b-12d3-a456-426614174111",
+                    "allocationUnitType": "Percent",
+                    "percent": 40,
+                    "amount": 80000
+                }
+            ],
+            "securityTransfers": [],
+            "createdDate": "2026-02-06T10:45:42.472",
+            "modifiedDate": "2026-02-06T10:45:42.472",
+            "createdBy": null,
+            "modifiedBy": null
+        },
+        "ignore_fields": [
+            "id",
+            "traceId",
+            "timestamp",
+            "createdDate",
+            "modifiedDate",
+            "requestId",
+            "version",
+            "instructionId",
+            "accountId",
+            "railType",
+            "amount",
+            "requestType",
+            "status",
+            "reason",
+            "schedule",
+            "createdBy",
+            "modifiedBy"
+        ],
+        "extract_values": [
+            {
+                "from": "response",
+                "key": "requestId",
+                "assign_to": "requestId"
+            },
+            {
+                "from": "response",
+                "key": "instructionId",
+                "assign_to": "instructionId"
+            },
+            {
+                "from": "response",
+                "key": "amount",
+                "assign_to": "amount"
+            }
+        ],
+        "validate": {
+            "performance": {
+                "max_response_time_ms": 500
+            },
+            "security": {
+                "checks": [
+                    "sql_injection",
+                    "xss"
+                ]
+            },
+            "assertions": [
+                {
+                    "actual": "{{requestId}}",
+                    "expected": "",
+                    "operator": "!=",
+                    "message": "RequestId should not be empty"
+                }
+            ],
+            "data_comparison": [
+                {
+                    "source": "api_response",
+                    "target": "api_response",
+                    "fields_to_compare": [
+                        {
+                            "source_field": "requestId",
+                            "target_field": "requestId",
+                            "operator": "=="
+                        },
+                        {
+                            "source_field": "version",
+                            "target_field": "version",
+                            "operator": "=="
+                        },
+                        {
+                            "source_field": "movementType",
+                            "target_field": "movementType",
+                            "operator": "=="
+                        },
+                        {
+                            "source_field": "transferUnitType",
+                            "target_field": "transferUnitType",
+                            "operator": "=="
+                        },
+                        {
+                            "source_field": "status",
+                            "target_field": "status",
+                            "operator": "=="
+                        },
+                        {
+                            "source_field": "contraFirm.contraFirmId",
+                            "target_field": "contraFirm.contraFirmId",
+                            "operator": "=="
+                        },
+                        {
+                            "source_field": "contraFirm.name",
+                            "target_field": "contraFirm.name",
+                            "operator": "=="
+                        }
+                    ],
+                    "log_differences": true,
+                    "comparison_name": "Verify transfer response with status filter matches expected data"
+                }
+            ]
+        },
+        "test_data_file": "",
+        "db_query_timing": "after_api",
+        "db_queries": {
+            "default": "",
+            "audit_query": ""
+        },
+        "db_type": "",
+        "db_connection_name": "",
+        "test_summary": "Test TC002: GET /moneymovement/transfer/{requestId} [positive] (TC002) - Validate that the system returns 200 successful response when both requestID & status fields are provided correctly."
+    },
+    {
+        "test_id": "TC003",
+        "service_name": "MoveMoneyAPI",
+        "workflow_mode": "parallel",
+        "test_name": "GET /transfer/{requestId} [Negative] (TC003)",
+        "protocol": "REST",
+        "test_type": [
+            "Functional"
+        ],
+        "mainURL": "{{base_url}}",
+        "endpoint": "/transfer/cc0e8400-e29b-41d4-a716-446655440030",
+        "method": "GET",
+        "rpc_method": "",
+        "graphql_query": "",
+        "graphql_variables": "",
+        "soap_action": "",
+        "soap_envelope": "",
+        "headers_additional": {
+            "Content-Type": "application/json"
+        },
+        "payload": null,
+        "expected_status": "204",
+        "expected_response_schema": null,
+        "expected_response": null,
+        "ignore_fields": [],
+        "extract_values": [],
+        "validate": {
+            "performance": {
+                "max_response_time_ms": 500
+            },
+            "security": {
+                "checks": [
+                    "sql_injection",
+                    "xss"
+                ]
+            },
+            "assertions": [],
+            "data_comparison": []
+        },
+        "test_data_file": "",
+        "db_query_timing": "after_api",
+        "db_queries": {
+            "default": "",
+            "audit_query": ""
+        },
+        "db_type": "",
+        "db_connection_name": "",
+        "test_summary": "Test TC003: GET /moneymovement/transfer/{requestId} [Negative] (TC003) - Validate that the system returns 204 response when wrong RequestId is provided."
+    },
+    {
+        "test_id": "TC004",
+        "service_name": "MoveMoneyAPI",
+        "workflow_mode": "parallel",
+        "test_name": "GET /transfer/{requestId} [Negative] (TC004)",
+        "protocol": "REST",
+        "test_type": [
+            "Functional"
+        ],
+        "mainURL": "{{base_url}}",
+        "endpoint": "/transfer/44FCC06D-9B29-4851-BF06-16FFDB61F79B?status=Submitted",
+        "method": "GET",
+        "rpc_method": "",
+        "graphql_query": "",
+        "graphql_variables": "",
+        "soap_action": "",
+        "soap_envelope": "",
+        "headers_additional": {
+            "Content-Type": "application/json"
+        },
+        "payload": null,
+        "expected_status": "204",
+        "expected_response_schema": null,
+        "expected_response": null,
+        "ignore_fields": [],
+        "extract_values": [],
+        "validate": {
+            "performance": {
+                "max_response_time_ms": 500
+            },
+            "security": {
+                "checks": [
+                    "sql_injection",
+                    "xss"
+                ]
+            },
+            "assertions": [],
+            "data_comparison": []
+        },
+        "test_data_file": "",
+        "db_query_timing": "after_api",
+        "db_queries": {
+            "default": "",
+            "audit_query": ""
+        },
+        "db_type": "",
+        "db_connection_name": "",
+        "test_summary": "Test TC004: GET /moneymovement/transfer/{requestId} [Negative] (TC004) - Validate that the system returns 204 response when wrong Status is provided."
+    },
+    {
+        "test_id": "TC005",
+        "service_name": "MoveMoneyAPI",
+        "workflow_mode": "parallel",
+        "test_name": "GET /transfer/{requestId} [Negative] (TC005)",
+        "protocol": "REST",
+        "test_type": [
+            "Functional"
+        ],
+        "mainURL": "{{base_url}}",
+        "endpoint": "/transfer/44FCC06D-9B29-4851-BF06-16FFDB61F79B?status=Dr@#$aft",
+        "method": "GET",
+        "rpc_method": "",
+        "graphql_query": "",
+        "graphql_variables": "",
+        "soap_action": "",
+        "soap_envelope": "",
+        "headers_additional": {
+            "Content-Type": "application/json"
+        },
+        "payload": null,
+        "expected_status": "400",
+        "expected_response_schema": null,
+        "expected_response": {
+            "status": 400,
+            "error": "Invalid value for 'status' parameter. Must be one of:Received,IWRComplete,QCApprovedFirstPass,QCNotApprovedFirstPass,EditPendingSubmission,ReadyForSubmissionPendingQC,SubmittedPendingQC,QCApprovedSecondPass,QCNotApprovedSecondPass,Submitted,EditPendingResubmission,Resubmitted,Inflight,Draft (Parameter 'status')",
+            "fields": "status"
+        },
+        "ignore_fields": [],
+        "extract_values": [],
+        "validate": {
+            "performance": {
+                "max_response_time_ms": 500
+            },
+            "security": {
+                "checks": [
+                    "sql_injection",
+                    "xss"
+                ]
+            },
+            "assertions": [],
+            "data_comparison": []
+        },
+        "test_data_file": "",
+        "db_query_timing": "after_api",
+        "db_queries": {
+            "default": "",
+            "audit_query": ""
+        },
+        "db_type": "",
+        "db_connection_name": "",
+        "test_summary": "Test TC005: GET /moneymovement/transfer/{requestId} [negative] (TC005) - Validate that the system returns 400 response when we provide invalid Status Fields."
+    }
+]

@@ -200,6 +200,9 @@ class TestCaseLoader:
         If csv_row_index is specified, only that specific row is used.
         Otherwise, all rows are used for parametrization.
         
+        If csv_row_index is specified, only that row is used.
+        Otherwise, all rows are used (default behavior).
+        
         Args:
             cases: List of test case dictionaries
         
@@ -259,6 +262,39 @@ class TestCaseLoader:
                             param_cases.append(param_case)
                         
                         logger.debug(f"Expanded {case.get('test_id')} into {len(test_data_rows)} test cases")
+                    # Check if csv_row_index is specified
+                    csv_row_index = case.get('csv_row_index')
+                    
+                    if csv_row_index is not None:
+                        # Use only the specified row
+                        if isinstance(csv_row_index, int) and 0 <= csv_row_index < len(test_data_rows):
+                            row = test_data_rows[csv_row_index]
+                            param_case = case.copy()
+                            param_case.update(row)
+                            
+                            # If loader returned error marker, set fail marker
+                            if row.get("__testdata_error__"):
+                                param_case["status"] = "FAIL"
+                                param_case["reason"] = row.get("__error_message__", "Test data file error")
+                            
+                            param_cases.append(param_case)
+                            logger.debug(f"Used csv_row_index={csv_row_index} for {case.get('test_id')}")
+                        else:
+                            logger.warning(f"csv_row_index={csv_row_index} out of range for {case.get('test_id')} (rows: {len(test_data_rows)})")
+                    else:
+                        # Use all rows (default behavior)
+                        for row in test_data_rows:
+                            param_case = case.copy()
+                            param_case.update(row)
+                            
+                            # If loader returned error marker, set fail marker
+                            if row.get("__testdata_error__"):
+                                param_case["status"] = "FAIL"
+                                param_case["reason"] = row.get("__error_message__", "Test data file error")
+                            
+                            param_cases.append(param_case)
+                        
+                        logger.debug(f"Expanded {case.get('test_id')} into {len(test_data_rows)} test cases (no csv_row_index)")
                 else:
                     # If no matching rows, skip (don't add to param_cases)
                     logger.debug(f"No test data rows for {case.get('test_id')}, skipping")

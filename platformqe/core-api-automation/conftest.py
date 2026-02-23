@@ -1529,9 +1529,9 @@ def pytest_sessionstart(session):
             }
             
             if success:
-                logger.info(f"✅ Hooks completed successfully for {service_name}")
+                logger.info(f"Hooks completed successfully for {service_name}")
             else:
-                logger.warning(f"⚠️ Hooks completed with warnings for {service_name}")
+                logger.warning(f"Hooks completed with warnings for {service_name}")
         except Exception as e:
             logger.error(f"Failed to run hooks for {service_name}: {e}")
 
@@ -1551,7 +1551,7 @@ def pytest_sessionfinish(session, exitstatus):
             if created_data:
                 cleanup = CleanupManager(service_name, created_data=created_data)
                 cleanup.teardown()
-                logger.info(f"✅ Cleanup completed for {service_name}")
+                logger.info(f"Cleanup completed for {service_name}")
             else:
                 logger.info(f"No test data to cleanup for {service_name}")
         except Exception as e:
@@ -1635,9 +1635,16 @@ def pytest_sessionfinish(session, exitstatus):
             seconds = total_seconds % 60
             session_duration = f"{hours:02d}:{minutes:02d}:{seconds:02d}"
         
+        # Derive service_name from first result or environment variable
+        service_name = os.environ.get('SERVICE_NAME', 'unknown')
+        if test_results_serializable:
+            service_name = test_results_serializable[0].get('service_name', service_name)
+        
         summary_data = {
             'summary': summary_stats,
             'results': test_results_serializable,
+            'environment': env_name,
+            'service_name': service_name,
             'timestamp': temp_reporter._current_run_marker,
             'start_time': session_start_time,
             'end_time': session_end_time,

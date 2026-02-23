@@ -1,5 +1,0 @@
-test_id,environment,instructionId
-TC001,TSADEV,05bcfd03-1cc4-4501-8d0f-1389aeac05bf
-TC001,TSATEST,05bcfd03-1cc4-4501-8d0f-1389aeac05bf
-TC002,TSADEV,c5eea52c-5ad2-4952-852c-b30c241be4b9
-TC002,TSATEST,c5eea52c-5ad2-4952-852c-b30c241be4b9

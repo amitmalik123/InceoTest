@@ -112,11 +112,12 @@ def get_service_hooks_config(service_name: str) -> HooksConfig:
     # Create config
     hooks_config = HooksConfig.from_service_name(service_name)
     
-    # Apply service-specific defaults if available
+    # Apply service-specific defaults if available (try exact match first, then lowercase)
     if service_name in SERVICE_DEFAULTS:
         defaults = SERVICE_DEFAULTS[service_name]
         hooks_config.max_records = defaults.get('max_records', 10)
         hooks_config.prerequisite_testcase = defaults.get('prerequisite_testcase', {})
+        logger.debug(f"[HOOKS CONFIG] Loaded config for service: {service_name}")
     
     return hooks_config
 

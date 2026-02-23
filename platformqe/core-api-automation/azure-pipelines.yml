@@ -52,7 +52,7 @@ stages:
     jobs:
     - job: Job
       pool:
-        name: ewm20-docker-build-agent-inc-dev
+        name: ewm20-docker-build-agent-qa-dev
       steps:
       # Fetch database connection strings from Azure Key Vault
       - task: AzureKeyVault@2
@@ -60,7 +60,7 @@ stages:
         inputs:
           azureSubscription: $(subscription)
           KeyVaultName: $(key_vault_name)
-          SecretsFilter: 'parties-sqldb-connection-string,movemoney-sqldb-connection-string,hne-db-connection-string,securitieshub-db-connection-string,modelhub-db-connection-string'
+          SecretsFilter: 'parties-sqldb-connection-string,movemoney-sqldb-connection-string,hne-db-connection-string,securitieshub-db-connection-string,modelhub-db-connection-string,accounts-sqldb-connection-string'
           RunAsPreJob: true
       # - task: UsePythonVersion@0
       #   displayName: 'Set up Python 3.10'
@@ -113,6 +113,7 @@ stages:
           HNE_DB: $(hne-db-connection-string)
           SECURITIESHUB_DB: $(securitieshub-db-connection-string)
           MODELHUB_DB: $(modelhub-db-connection-string)
+          ACCOUNT_SQLDB: $(accounts-sqldb-connection-string)
           AZURE_SQL_PASSWORD: $(AZURE_SQL_PASSWORD)
           POSTGRES_DB_PASSWORD: $(POSTGRES_DB_PASSWORD)
           ADDRESS_BASE_URL: $(address_base_url)
@@ -197,6 +198,7 @@ stages:
           HNE_DB: $(hne-db-connection-string)
           SECURITIESHUB_DB: $(securitieshub-db-connection-string)
           MODELHUB_DB: $(modelhub-db-connection-string)
+          ACCOUNT_SQLDB: $(accounts-sqldb-connection-string)
           AZURE_SQL_PASSWORD: $(AZURE_SQL_PASSWORD)
           POSTGRES_DB_PASSWORD: $(POSTGRES_DB_PASSWORD)
           ADDRESS_BASE_URL: $(address_base_url)
