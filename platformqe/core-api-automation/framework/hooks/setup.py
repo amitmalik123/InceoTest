@@ -95,14 +95,20 @@ class TestDataManager:
         
         try:
             # Execute prerequisite test case if configured
-            if self.config.prerequisite_testcase and self.config.prerequisite_testcase.get('enabled'):
-                self._execute_prerequisite_testcase()
+            prereq = self.config.prerequisite_testcase
+            if prereq and prereq.get('enabled'):
+                logger.info(f"Executing prerequisite test case")
+                result = self._execute_prerequisite_testcase()
+            else:
+                logger.info(f"No prerequisite test case configured or disabled")
             
             logger.info(f"Setup completed for service: {self.service_name}")
             return True
             
         except Exception as e:
             logger.error(f"Setup failed for service {self.service_name}: {e}")
+            import traceback
+            logger.error(traceback.format_exc())
             return False
     
     def _execute_prerequisite_testcase(self) -> Optional[Dict]:
@@ -191,15 +197,29 @@ class TestDataManager:
             
             # Load and render payload
             payload = None
-            payload_file = testcase.get('payload')
-            if payload_file:
-                payload_path = os.path.join(testdata_path, payload_file)
-                if os.path.exists(payload_path):
-                    with open(payload_path, 'r', encoding='utf-8') as f:
-                        payload_template = f.read()
-                    # Render template with context variables
-                    rendered_payload = render_template(payload_template, context)
+            payload_data = testcase.get('payload')
+            logger.debug(f"[HOOKS DEBUG] payload_data type: {type(payload_data)}, value: {payload_data}")
+            
+            if payload_data:
+                if isinstance(payload_data, dict):
+                    # Payload is already a dict with template variables
+                    logger.debug(f"[HOOKS DEBUG] Payload is a dict, rendering with context")
+                    payload_json_str = json.dumps(payload_data)
+                    rendered_payload = render_template(payload_json_str, context)
                     payload = json.loads(rendered_payload)
+                elif isinstance(payload_data, str):
+                    # Payload is a file path
+                    logger.debug(f"[HOOKS DEBUG] Payload is a file path: {payload_data}")
+                    payload_path = os.path.join(testdata_path, payload_data)
+                    if os.path.exists(payload_path):
+                        with open(payload_path, 'r', encoding='utf-8') as f:
+                            payload_template = f.read()
+                        # Render template with context variables
+                        rendered_payload = render_template(payload_template, context)
+                        payload = json.loads(rendered_payload)
+                    else:
+                        logger.error(f"Payload file not found: {payload_path}")
+                        return None
             
             # Get API endpoint info
             endpoint = testcase.get('endpoint', '')
@@ -243,15 +263,19 @@ class TestDataManager:
             response_data = response.json() if response.text else {}
             
             extract_config = prereq_config.get('extract_from_response', {})
+            logger.debug(f"[HOOKS DEBUG] extract_config: {extract_config}")
+            logger.debug(f"[HOOKS DEBUG] extract_config is truthy: {bool(extract_config)}")
             if extract_config:
                 field = extract_config.get('field', '')
                 assign_to = extract_config.get('assign_to', field)
+                logger.debug(f"[HOOKS DEBUG] field='{field}', assign_to='{assign_to}'")
                 
                 # Handle nested fields (e.g., "data.partyId")
                 value = self._extract_value_from_response(response_data, field)
+                logger.debug(f"[HOOKS DEBUG] _extract_value_from_response returned: {value}")
                 if value:
                     extracted_values[assign_to] = value
-                    logger.info(f"Extracted {assign_to}={value} from response")
+                    logger.info(f"✅ Extracted {assign_to}={value}")
                     
                     # Track created data for cleanup
                     self.created_data.append({
@@ -259,6 +283,10 @@ class TestDataManager:
                         'service': self.service_name,
                         'timestamp': datetime.now().isoformat()
                     })
+                else:
+                    logger.warning(f"⚠️ Failed to extract '{field}' from response_data. Available keys: {list(response_data.keys())}")
+            else:
+                logger.warning(f"⚠️ extract_config is empty or not truthy: {extract_config}")
             
             return extracted_values
             
@@ -316,6 +344,7 @@ class TestDataManager:
     ) -> None:
         """
         Update CSV file with extracted values from prerequisite tests.
+        Supports merge mode: preserves existing columns and updates only extracted fields.
         
         Args:
             csv_file: Relative path to CSV file from testdata folder
@@ -331,31 +360,56 @@ class TestDataManager:
             # Create directory if needed
             os.makedirs(os.path.dirname(csv_path), exist_ok=True)
             
-            # Backup original data
+            # Check if file exists for merge mode
+            existing_rows = []
+            existing_columns = []
             if os.path.exists(csv_path):
                 with open(csv_path, 'r', newline='', encoding='utf-8') as f:
                     reader = csv.DictReader(f)
-                    self.original_csv_data[csv_file] = list(reader)
+                    existing_columns = reader.fieldnames if reader.fieldnames else []
+                    existing_rows = list(reader)
+                
+                # Backup original data
+                self.original_csv_data[csv_file] = existing_rows
+                
+                logger.info(f"Merge mode: Updating existing CSV with {len(all_extracted_values)} extracted values")
+                
+                # Update existing rows with extracted values (one extracted value per row)
+                for idx, extracted in enumerate(all_extracted_values):
+                    if idx < len(existing_rows):
+                        # Update only the extracted columns in this row
+                        for key, value in extracted.items():
+                            existing_rows[idx][key] = value
+                        logger.info(f"Row {idx+1}: Updated {list(extracted.keys())} with values {list(extracted.values())}")
+                
+                # Use existing columns if file existed, otherwise use provided columns
+                final_columns = existing_columns if existing_columns else columns
+            else:
+                logger.info(f"New mode: Creating new CSV with {len(all_extracted_values)} prerequisite entries")
+                
+                # Create new rows from extracted values
+                existing_rows = []
+                for extracted in all_extracted_values:
+                    row = {'environment': self.environment}
+                    for col in columns:
+                        if col != 'environment' and col in extracted:
+                            row[col] = extracted[col]
+                    existing_rows.append(row)
+                
+                final_columns = columns
             
-            # Create rows from extracted values
-            rows = []
-            for extracted in all_extracted_values:
-                row = {'environment': self.environment}
-                for col in columns:
-                    if col != 'environment' and col in extracted:
-                        row[col] = extracted[col]
-                rows.append(row)
-            
-            # Write updated CSV
+            # Write updated CSV with all columns (existing + new)
             with open(csv_path, 'w', newline='', encoding='utf-8') as f:
-                writer = csv.DictWriter(f, fieldnames=columns)
+                writer = csv.DictWriter(f, fieldnames=final_columns)
                 writer.writeheader()
-                writer.writerows(rows)
+                writer.writerows(existing_rows)
             
-            logger.info(f"Updated {csv_path} with {len(rows)} prerequisite entries")
+            logger.info(f"Updated {csv_path} with {len(existing_rows)} entries")
             
         except Exception as e:
             logger.error(f"Failed to update CSV {csv_file}: {e}")
+            import traceback
+            logger.error(traceback.format_exc())
     
     def restore_csv_files(self) -> None:
         """Restore CSV files to their original state."""
