@@ -44,6 +44,14 @@ def render_hybrid(value, context):
     elif isinstance(value, list):
         return [render_hybrid(item, context) for item in value]
     elif isinstance(value, str):
+        # Special handling for pure template variables: if the entire string is just {{variable}},
+        # return the actual value from context (could be dict, list, etc.) instead of string representation
+        if value.startswith("{{") and value.endswith("}}") and value.count("{{") == 1:
+            var_name = value[2:-2].strip()
+            if var_name in context:
+                return context[var_name]
+        
+        # Normal Jinja2 template rendering for strings with embedded variables or complex templates
         rendered = render_template(value, context)
         loaded = load_external_file_if_needed(rendered, context)
         return loaded if loaded != rendered else rendered
