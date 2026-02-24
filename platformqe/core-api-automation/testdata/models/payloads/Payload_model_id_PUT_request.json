@@ -2,7 +2,7 @@
   "name": "Updated Model via PUT",
   "modelType": "Aggressive Growth",
   "solutionType": "Equity Focused",
-  "custodian": [
+  "custodians": [
     "Fidelity",
     "Schwab"
   ],
@@ -14,7 +14,7 @@
       "id": 0
     }
   ],
-  "investmentMin": [
+  "investmentMins": [
     {
       "type": "System",
       "value": 1

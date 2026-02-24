@@ -2,7 +2,7 @@
   "name": "Multi-Model Strategy - Strategic Allocation",
   "modelType": "Model-of-Models",
   "solutionType": "Model-of-Models",
-  "custodian": [
+  "custodians": [
     "Interactive Brokers",
     "TD Ameritrade",
     "Vanguard"
@@ -15,7 +15,7 @@
       "id": 0
     }
   ],
-  "investmentMin":  [
+  "investmentMins":  [
     {
       "type": "System",
       "value": 3

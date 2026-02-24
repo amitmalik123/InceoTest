@@ -2,7 +2,7 @@
   "name": "Comprehensive Update - Conservative Growth Model",
   "modelType": "Aggressive Growth",
   "solutionType": "Balanced Portfolio",
-  "custodian": [
+  "custodians": [
     "E*TRADE",
     "TD Ameritrade"
   ],
@@ -14,7 +14,7 @@
       "id": 0
     }
   ],
-  "investmentMin":  [
+  "investmentMins":  [
     {
       "type": "System",
       "value": 1
