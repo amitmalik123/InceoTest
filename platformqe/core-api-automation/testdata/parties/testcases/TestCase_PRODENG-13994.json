@@ -450,17 +450,27 @@
       }
     },
     "expected_status": "200",
-    "expected_response_schema": "",
+    "expected_response_schema": "parties/schemas/Schema_parties_Party_id_PUT_response_success.json",
     "expected_response": null,
-    "extract_values": [],
+    "extract_values": [
+      {
+        "from": "response",
+        "key": "versionNumber",
+        "assign_to": "version_from_put_response"
+      }
+    ],
     "validate": {
       "response_structure": {
-        "required_fields": ["partyId", "status", "version"]
+        "required_fields": ["partyId", "status", "version", "versionNumber"]
       },
       "business_rules": [
         {
           "rule": "PRODENG-13994: PUT with version header must return HTTP 200 OK",
           "validation": "response.status equals 200"
+        },
+        {
+          "rule": "PUT response must include the newly incremented versionNumber",
+          "validation": "response.versionNumber equals 2"
         },
         {
           "rule": "PUT with version 1 must increment version to 2 in database",
@@ -494,6 +504,12 @@
         "log_differences": true
       },
       "assertions": [
+        {
+          "actual": "{{version_from_put_response}}",
+          "operator": "==",
+          "expected": 2,
+          "message": "Expected versionNumber in PUT response to be 2"
+        },
         {
           "actual": "{{version_after_post}}",
           "operator": "==",
@@ -721,10 +737,25 @@
       }
     },
     "expected_status": "200",
-    "expected_response_schema": "",
+    "expected_response_schema": "parties/schemas/Schema_parties_Party_id_PUT_response_success.json",
     "expected_response": null,
-    "extract_values": [],
+    "extract_values": [
+      {
+        "from": "response",
+        "key": "versionNumber",
+        "assign_to": "version_from_second_put_response"
+      }
+    ],
     "validate": {
+      "response_structure": {
+        "required_fields": ["versionNumber"]
+      },
+      "business_rules": [
+        {
+          "rule": "PUT response must include the newly incremented versionNumber",
+          "validation": "response.versionNumber equals 3"
+        }
+      ],
       "performance": {
         "max_response_time_ms": 500
       },
@@ -740,6 +771,12 @@
         "log_differences": true
       },
       "assertions": [
+        {
+          "actual": "{{version_from_second_put_response}}",
+          "operator": "==",
+          "expected": 3,
+          "message": "Expected versionNumber in PUT response to be 3"
+        },
         {
           "actual": "{{version_after_first_put}}",
           "operator": "==",
