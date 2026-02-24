@@ -203,6 +203,7 @@
       }
     },
     "expected_status": "200",
+    "expected_response_schema": "parties/schemas/Schema_parties_Party_id_PUT_response_success.json",
     "expected_response": "",
     "ignore_fields": ["id"],
     "extract_values": [
@@ -212,12 +213,20 @@
         "assign_to": null
       },
       {
+        "from": "response",
+        "key": "versionNumber",
+        "assign_to": "updated_version"
+      },
+      {
         "from": "db_result",
         "query": null,
         "assign": []
       }
     ],
     "validate": {
+      "response_structure": {
+        "required_fields": ["versionNumber"]
+      },
       "business_rules": [
         {
           "rule": "PUT operation must return HTTP 200 OK for successful update",
@@ -234,6 +243,10 @@
         {
           "rule": "Version must increment after successful PUT operation",
           "validation": "response.version > request.headers.version"
+        },
+        {
+          "rule": "PUT response must include the newly incremented versionNumber",
+          "validation": "response.versionNumber equals 2"
         }
       ],
       "performance": {
@@ -250,7 +263,14 @@
         "fields_to_compare": [],
         "log_differences": true
       },
-      "assertions": []
+      "assertions": [
+        {
+          "actual": "{{updated_version}}",
+          "operator": "==",
+          "expected": 2,
+          "message": "Expected versionNumber to be 2 after PUT with version 1"
+        }
+      ]
     },
     "test_data_file": "",
     "db_query": "",
