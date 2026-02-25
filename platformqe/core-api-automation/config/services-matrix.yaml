@@ -96,8 +96,6 @@ services:
     testType: functional
     environments:
     - TSADEV
-    - TSATEST
-    - TSASILO
     functionalTestArgs: --service-name hnebase --env {environment}
     nonFunctionalTestArgs: ''
     tags:
