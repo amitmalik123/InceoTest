@@ -23,19 +23,19 @@
             "Content-Type": "application/json"
         },
         "payload": {
-            "instructionId": "D223450C-7974-4B23-8E10-6CC418E7907C",
-            "accountId": "456E7890-E89B-12D3-A456-426614174111",
-            "railType": "ACH",
-            "unitType": "Percent",
-            "amount": 999999999.99,
-            "percent": 100,
-            "requestType": "Deposit",
-            "status": "Confirmed",
-            "reason": "DEPNonQualified",
-            "purpose": "string",
+            "instructionId": "{{instructionId}}",
+            "accountId": "{{accountId}}",
+            "railType": "{{railType}}",
+            "unitType": "{{unitType}}",
+            "amount": "{{amount}}",
+            "percent": "{{percent}}",
+            "requestType": "{{requestType}}",
+            "status": "{{status}}",
+            "reason": "{{reason}}",
+            "purpose": "{{purpose}}",
             "schedule": {
-                "scheduleType": "OneTime",
-                "paymentDate": "2026-11-10"
+                "scheduleType": "{{scheduleType}}",
+                "paymentDate": "{{paymentDate}}"
             }
         },
         "expected_status": "200",
@@ -117,15 +117,16 @@
                 }
             ]
         },
-        "test_data_file": "",
+        "test_data_file": "MoveMoneyAPI/data_driven/Data_requests_POST.csv",
+        "csv_row_index": 0,
         "db_query_timing": "after_api",
         "db_queries": {
-            "default": "SELECT LOWER([Id]) AS requestId, [Version] AS version, [Status] AS status FROM [dbo].[MoneyMovementRequest] WHERE [Id] = '{{requestId}}'",
+            "default": "SELECT LOWER([RequestId]) AS requestId, [Version] AS version, [Status] AS status FROM [dbo].[MoneyMovementRequest] WHERE [RequestId] = '{{requestId}}'",
             "audit_query": ""
         },
         "db_type": "mssql",
         "db_connection_name": "movemoney",
-        "test_summary": "Test TC001: POST /moneymovement/requests [positive] (TC001) - Test 200 Response for One-Time Deposit via Wire with full validation (API + Database + Schema + Headers + Security).",
+        "test_summary": "Test TC001: POST /moneymovement/requests [positive] (TC001) - Test 200 Response for One-Time Deposit via ACH with full validation (API + Database + Schema + Headers + Security).",
         "test_scenario": "Test POST request to /moneymovement/requests for functional scenario validation."
     },
     {
@@ -149,16 +150,16 @@
             "Content-Type": "application/json"
         },
         "payload": {
-            "instructionId": "126D23AF-E3C2-46A8-923E-2A8238B6FE32",
-            "accountId": "9FA85F64-5717-4562-B3FC-2C963F66AFA6",
-            "railType": "ACH",
-            "amount": 6500.0,
-            "requestType": "Deposit",
-            "status": "Draft",
-            "reason": "IRARothTransfer",
+            "instructionId": "{{instructionId}}",
+            "accountId": "{{accountId}}",
+            "railType": "{{railType}}",
+            "amount": "{{amount}}",
+            "requestType": "{{requestType}}",
+            "status": "{{status}}",
+            "reason": "{{reason}}",
             "schedule": {
-                "scheduleType": "OneTime",
-                "paymentDate": "2026-12-18"
+                "scheduleType": "{{scheduleType}}",
+                "paymentDate": "{{paymentDate}}"
             }
         },
         "expected_status": "200",
@@ -192,7 +193,8 @@
                 }
             ]
         },
-        "test_data_file": "",
+        "test_data_file": "MoveMoneyAPI/data_driven/Data_requests_POST.csv",
+        "csv_row_index": 1,
         "db_type": "",
         "db_connection_name": "",
         "db_query_timing": "after_api",
@@ -200,7 +202,7 @@
             "default": "",
             "audit_query": ""
         },
-        "test_summary": "Test TC002: POST /moneymovement/requests [Positive] (TC002) - Test 200 Response for Roth IRA Conversion.",
+        "test_summary": "Test TC002: POST /moneymovement/requests [Positive] (TC002) - Test 200 Response railtype is wire for status field with valid value RCVNRothConversion.",
         "test_scenario": "Test POST request to /moneymovement/requests for negative scenario validation."
     },
     {
@@ -224,16 +226,16 @@
             "Content-Type": "application/json"
         },
         "payload": {
-            "instructionId": "126D23AF-E3C2-46A8-923E-2A8238B6FE32",
-            "accountId": "9FA85F64-5717-4562-B3FC-2C963F66AFA6",
-            "railType": "ACH",
-            "amount": 0.0,
-            "requestType": "Deposit",
-            "status": "Draft",
-            "reason": "IRARothTransfer",
+            "instructionId": "{{instructionId}}",
+            "accountId": "{{accountId}}",
+            "railType": "{{railType}}",
+            "amount": "{{amount}}",
+            "requestType": "{{requestType}}",
+            "status": "{{status}}",
+            "reason": "{{reason}}",
             "schedule": {
-                "scheduleType": "OneTime",
-                "paymentDate": "2026-12-18"
+                "scheduleType": "{{scheduleType}}",
+                "paymentDate": "{{paymentDate}}"
             }
         },
         "expected_status": "400",
@@ -260,7 +262,8 @@
             "data_comparison": [],
             "assertions": []
         },
-        "test_data_file": "",
+        "test_data_file": "MoveMoneyAPI/data_driven/Data_requests_POST.csv",
+        "csv_row_index": 2,
         "db_type": "",
         "db_connection_name": "",
         "test_summary": "Test TC003: POST /moneymovement/requests [negative] (TC003) - Verify that the API returns a 400 Bad Request error when the field Amount must be between 0.01 - 999999999.99.",
@@ -292,16 +295,16 @@
             "Content-Type": "application/json"
         },
         "payload": {
-            "instructionId": "126D23AF-E3C2-46A8-923E-2A8238B6FE32",
-            "accountId": "9FA85F64-5717-4562-B3FC-2C963F66AFA6",
-            "railType": "ACH",
-            "amount": 1000.121,
-            "requestType": "Deposit",
-            "status": "Draft",
-            "reason": "IRARothTransfer",
+            "instructionId": "{{instructionId}}",
+            "accountId": "{{accountId}}",
+            "railType": "{{railType}}",
+            "amount": "{{amount}}",
+            "requestType": "{{requestType}}",
+            "status": "{{status}}",
+            "reason": "{{reason}}",
             "schedule": {
-                "scheduleType": "OneTime",
-                "paymentDate": "2026-12-18"
+                "scheduleType": "{{scheduleType}}",
+                "paymentDate": "{{paymentDate}}"
             }
         },
         "expected_status": "400",
@@ -328,7 +331,8 @@
             "data_comparison": [],
             "assertions": []
         },
-        "test_data_file": "",
+        "test_data_file": "MoveMoneyAPI/data_driven/Data_requests_POST.csv",
+        "csv_row_index": 3,
         "db_type": "",
         "db_connection_name": "",
         "test_summary": "Test TC004: POST /moneymovement/requests [negative] (TC004) - Verify that the API returns a 400 Bad Request error when Amount must have at most 2 decimal places.",
@@ -360,16 +364,16 @@
             "Content-Type": "application/json"
         },
         "payload": {
-            "instructionId": "126D23AF-E3C2-46A8-923E-2A8238B6FE32",
-            "accountId": "9FA85F64-5717-4562-B3FC-2C963F66AFA6",
-            "railType": "ACH",
-            "amount": 1000.11,
-            "requestType": "Deposit",
-            "status": "D@#$raft",
-            "reason": "IRARothTransfer",
+            "instructionId": "{{instructionId}}",
+            "accountId": "{{accountId}}",
+            "railType": "{{railType}}",
+            "amount": "{{amount}}",
+            "requestType": "{{requestType}}",
+            "status": "{{status}}",
+            "reason": "{{reason}}",
             "schedule": {
-                "scheduleType": "OneTime",
-                "paymentDate": "2026-12-18"
+                "scheduleType": "{{scheduleType}}",
+                "paymentDate": "{{paymentDate}}"
             }
         },
         "expected_status": "400",
@@ -396,7 +400,8 @@
             "data_comparison": [],
             "assertions": []
         },
-        "test_data_file": "",
+        "test_data_file": "MoveMoneyAPI/data_driven/Data_requests_POST.csv",
+        "csv_row_index": 4,
         "db_type": "",
         "db_connection_name": "",
         "test_summary": "Test TC005: POST /moneymovement/requests [negative] (TC005) - Verify that the API returns a 400 Bad Request error when Invalid value for 'status'.",
@@ -428,16 +433,16 @@
             "Content-Type": "application/json"
         },
         "payload": {
-            "instructionId": "126D23AF-E3C2-46A8-923E-2A8238B6FE32",
-            "accountId": "9FA85F@#64-5717-4562-B3FC-2C963F6@@6AFA6",
-            "railType": "ACH",
-            "amount": 1000.11,
-            "requestType": "Deposit",
-            "status": "Draft",
-            "reason": "IRARothTransfer",
+            "instructionId": "{{instructionId}}",
+            "accountId": "{{accountId}}",
+            "railType": "{{railType}}",
+            "amount": "{{amount}}",
+            "requestType": "{{requestType}}",
+            "status": "{{status}}",
+            "reason": "{{reason}}",
             "schedule": {
-                "scheduleType": "OneTime",
-                "paymentDate": "2026-12-18"
+                "scheduleType": "{{scheduleType}}",
+                "paymentDate": "{{paymentDate}}"
             }
         },
         "expected_status": "400",
@@ -464,7 +469,8 @@
             "data_comparison": [],
             "assertions": []
         },
-        "test_data_file": "",
+        "test_data_file": "MoveMoneyAPI/data_driven/Data_requests_POST.csv",
+        "csv_row_index": 5,
         "db_type": "",
         "db_connection_name": "",
         "test_summary": "Test TC006: POST /moneymovement/requests [negative] (TC006) - Verify that the API returns a 400 Bad Request error when Invalid GUID format for 'accountId'",
@@ -496,16 +502,16 @@
             "Content-Type": "application/json"
         },
         "payload": {
-            "instructionId": "126D@#23AF-E3C2-46A8-923E-2A823@#8B6FE32",
-            "accountId": "9FA85F64-5717-4562-B3FC-2C963F66AFA6",
-            "railType": "ACH",
-            "amount": 1000.11,
-            "requestType": "Deposit",
-            "status": "Draft",
-            "reason": "IRARothTransfer",
+            "instructionId": "{{instructionId}}",
+            "accountId": "{{accountId}}",
+            "railType": "{{railType}}",
+            "amount": "{{amount}}",
+            "requestType": "{{requestType}}",
+            "status": "{{status}}",
+            "reason": "{{reason}}",
             "schedule": {
-                "scheduleType": "OneTime",
-                "paymentDate": "2026-12-18"
+                "scheduleType": "{{scheduleType}}",
+                "paymentDate": "{{paymentDate}}"
             }
         },
         "expected_status": "400",
@@ -528,7 +534,8 @@
             "data_comparison": [],
             "assertions": []
         },
-        "test_data_file": "",
+        "test_data_file": "MoveMoneyAPI/data_driven/Data_requests_POST.csv",
+        "csv_row_index": 6,
         "db_type": "",
         "db_connection_name": "",
         "test_summary": "Test TC007: POST /moneymovement/requests [negative] (TC007) - Verify that the API returns a 400 Bad Request error when Invalid GUID format for 'InstructionId'",
@@ -560,19 +567,19 @@
             "Content-Type": "application/json"
         },
         "payload": {
-            "instructionId": "8F845022-4485-413A-B269-51678D8C1768",
-            "accountId": "456E7890-E89B-12D3-A456-426614174111",
-            "railType": "Wire",
-            "unitType": "Percent",
-            "amount": 10.99,
-            "percent": 100,
-            "requestType": "Deposit",
-            "status": "Confirmed",
-            "reason": "DEPNonQualified",
-            "purpose": "string",
+            "instructionId": "{{instructionId}}",
+            "accountId": "{{accountId}}",
+            "railType": "{{railType}}",
+            "unitType": "{{unitType}}",
+            "amount": "{{amount}}",
+            "percent": "{{percent}}",
+            "requestType": "{{requestType}}",
+            "status": "{{status}}",
+            "reason": "{{reason}}",
+            "purpose": "{{purpose}}",
             "schedule": {
-                "scheduleType": "OneTime",
-                "paymentDate": "2026-11-10"
+                "scheduleType": "{{scheduleType}}",
+                "paymentDate": "{{paymentDate}}"
             }
         },
         "expected_status": "200",
@@ -606,7 +613,8 @@
                 }
             ]
         },
-        "test_data_file": "",
+        "test_data_file": "MoveMoneyAPI/data_driven/Data_requests_POST.csv",
+        "csv_row_index": 7,
         "db_type": "",
         "db_connection_name": "",
         "db_query_timing": "after_api",
@@ -638,19 +646,19 @@
             "Content-Type": "application/json"
         },
         "payload": {
-            "instructionId": "8F845022-4485-413A-B269-51678D8C1768",
-            "accountId": "456E7890-E89B-12D3-A456-426614174111",
-            "railType": "Wire",
-            "unitType": "Per@#cent",
-            "amount": 10.99,
-            "percent": 100,
-            "requestType": "Deposit",
-            "status": "Confirmed",
-            "reason": "DEPNonQualified",
-            "purpose": "string",
+            "instructionId": "{{instructionId}}",
+            "accountId": "{{accountId}}",
+            "railType": "{{railType}}",
+            "unitType": "{{unitType}}",
+            "amount": "{{amount}}",
+            "percent": "{{percent}}",
+            "requestType": "{{requestType}}",
+            "status": "{{status}}",
+            "reason": "{{reason}}",
+            "purpose": "{{purpose}}",
             "schedule": {
-                "scheduleType": "OneTime",
-                "paymentDate": "2026-11-10"
+                "scheduleType": "{{scheduleType}}",
+                "paymentDate": "{{paymentDate}}"
             }
         },
         "expected_status": "400",
@@ -677,7 +685,8 @@
             "data_comparison": [],
             "assertions": []
         },
-        "test_data_file": "",
+        "test_data_file": "MoveMoneyAPI/data_driven/Data_requests_POST.csv",
+        "csv_row_index": 8,
         "db_type": "",
         "db_connection_name": "",
         "test_summary": "Test TC009: POST /moneymovement/requests [negative] (TC009) - Verify that the API returns a 400 Bad Request error when Invalid format for 'UnitType'",
@@ -709,19 +718,19 @@
             "Content-Type": "application/json"
         },
         "payload": {
-            "instructionId": "8F845022-4485-413A-B269-51678D8C1768",
-            "accountId": "456E7890-E89B-12D3-A456-426614174111",
-            "railType": "Wire",
-            "unitType": "Perdfgfdhcent",
-            "amount": 10.99,
-            "percent": 100,
-            "requestType": "Deposit",
-            "status": "Confirmed",
-            "reason": "DEPNonQualified",
-            "purpose": "string",
+            "instructionId": "{{instructionId}}",
+            "accountId": "{{accountId}}",
+            "railType": "{{railType}}",
+            "unitType": "{{unitType}}",
+            "amount": "{{amount}}",
+            "percent": "{{percent}}",
+            "requestType": "{{requestType}}",
+            "status": "{{status}}",
+            "reason": "{{reason}}",
+            "purpose": "{{purpose}}",
             "schedule": {
-                "scheduleType": "OneTime",
-                "paymentDate": "2026-11-10"
+                "scheduleType": "{{scheduleType}}",
+                "paymentDate": "{{paymentDate}}"
             }
         },
         "expected_status": "400",
@@ -748,7 +757,8 @@
             "data_comparison": [],
             "assertions": []
         },
-        "test_data_file": "",
+        "test_data_file": "MoveMoneyAPI/data_driven/Data_requests_POST.csv",
+        "csv_row_index": 9,
         "db_type": "",
         "db_connection_name": "",
         "test_summary": "Test TC010: POST /moneymovement/requests [negative] (TC010) - Verify that the API returns a 400 Bad Request error when there is Wrong 'UnitType'",
@@ -780,19 +790,19 @@
             "Content-Type": "application/json"
         },
         "payload": {
-            "instructionId": "8F845022-4485-413A-B269-51678D8C1768",
-            "accountId": "456E7890-E89B-12D3-A456-426614174111",
-            "railType": "ACH",
-            "unitType": "Percent",
-            "amount": 10.99,
-            "percent": 101,
-            "requestType": "Deposit",
-            "status": "Confirmed",
-            "reason": "DEPNonQualified",
-            "purpose": "string",
+            "instructionId": "{{instructionId}}",
+            "accountId": "{{accountId}}",
+            "railType": "{{railType}}",
+            "unitType": "{{unitType}}",
+            "amount": "{{amount}}",
+            "percent": "{{percent}}",
+            "requestType": "{{requestType}}",
+            "status": "{{status}}",
+            "reason": "{{reason}}",
+            "purpose": "{{purpose}}",
             "schedule": {
-                "scheduleType": "OneTime",
-                "paymentDate": "2026-11-10"
+                "scheduleType": "{{scheduleType}}",
+                "paymentDate": "{{paymentDate}}"
             }
         },
         "expected_status": "400",
@@ -819,7 +829,8 @@
             "data_comparison": [],
             "assertions": []
         },
-        "test_data_file": "",
+        "test_data_file": "MoveMoneyAPI/data_driven/Data_requests_POST.csv",
+        "csv_row_index": 10,
         "db_type": "",
         "db_connection_name": "",
         "test_summary": "Test TC011: POST /moneymovement/requests [Negative] (TC011) - Test 400 Response for One-Time Deposit via ACH when there is a Maximum Percent value exceeded.",
@@ -851,19 +862,19 @@
             "Content-Type": "application/json"
         },
         "payload": {
-            "instructionId": "8F845022-4485-413A-B269-51678D8C1768",
-            "accountId": "456E7890-E89B-12D3-A456-426614174111",
-            "railType": "ACH",
-            "unitType": "Percent",
-            "amount": 10.99,
-            "percent": 0,
-            "requestType": "Deposit",
-            "status": "Confirmed",
-            "reason": "DEPNonQualified",
-            "purpose": "string",
+            "instructionId": "{{instructionId}}",
+            "accountId": "{{accountId}}",
+            "railType": "{{railType}}",
+            "unitType": "{{unitType}}",
+            "amount": "{{amount}}",
+            "percent": "{{percent}}",
+            "requestType": "{{requestType}}",
+            "status": "{{status}}",
+            "reason": "{{reason}}",
+            "purpose": "{{purpose}}",
             "schedule": {
-                "scheduleType": "OneTime",
-                "paymentDate": "2026-11-10"
+                "scheduleType": "{{scheduleType}}",
+                "paymentDate": "{{paymentDate}}"
             }
         },
         "expected_status": "400",
@@ -890,7 +901,8 @@
             "data_comparison": [],
             "assertions": []
         },
-        "test_data_file": "",
+        "test_data_file": "MoveMoneyAPI/data_driven/Data_requests_POST.csv",
+        "csv_row_index": 11,
         "db_type": "",
         "db_connection_name": "",
         "test_summary": "Test TC012: POST /moneymovement/requests [Negative] (TC012) - Test 400 Response for One-Time Deposit via ACH when there is a Minimum Percent value exceeded.",
@@ -922,19 +934,19 @@
             "Content-Type": "application/json"
         },
         "payload": {
-            "instructionId": "8F845022-4485-413A-B269-51678D8C1768",
-            "accountId": "456E7890-E89B-12D3-A456-426614174111",
-            "railType": "ACH",
-            "unitType": "Percent",
-            "amount": 10.99,
-            "percent": 99.999,
-            "requestType": "Deposit",
-            "status": "Confirmed",
-            "reason": "DEPNonQualified",
-            "purpose": "string",
+            "instructionId": "{{instructionId}}",
+            "accountId": "{{accountId}}",
+            "railType": "{{railType}}",
+            "unitType": "{{unitType}}",
+            "amount": "{{amount}}",
+            "percent": "{{percent}}",
+            "requestType": "{{requestType}}",
+            "status": "{{status}}",
+            "reason": "{{reason}}",
+            "purpose": "{{purpose}}",
             "schedule": {
-                "scheduleType": "OneTime",
-                "paymentDate": "2026-11-10"
+                "scheduleType": "{{scheduleType}}",
+                "paymentDate": "{{paymentDate}}"
             }
         },
         "expected_status": "400",
@@ -961,7 +973,8 @@
             "data_comparison": [],
             "assertions": []
         },
-        "test_data_file": "",
+        "test_data_file": "MoveMoneyAPI/data_driven/Data_requests_POST.csv",
+        "csv_row_index": 12,
         "db_type": "",
         "db_connection_name": "",
         "test_summary": "Test TC013: POST /moneymovement/requests [Negative] (TC013) - Test 400 Response for One-Time Deposit via ACH when thePercent value Exceeds more than 2 decimal places.",
@@ -993,19 +1006,19 @@
             "Content-Type": "application/json"
         },
         "payload": {
-            "instructionId": "8F845022-4485-413A-B269-51678D8C1768",
-            "accountId": "456E7890-E89B-12D3-A456-426614174111",
-            "railType": "ACH",
-            "unitType": "Percent",
-            "amount": 10.999,
-            "percent": 99,
-            "requestType": "Deposit",
-            "status": "Confirmed",
-            "reason": "DEPNonQualified",
-            "purpose": "string",
+            "instructionId": "{{instructionId}}",
+            "accountId": "{{accountId}}",
+            "railType": "{{railType}}",
+            "unitType": "{{unitType}}",
+            "amount": "{{amount}}",
+            "percent": "{{percent}}",
+            "requestType": "{{requestType}}",
+            "status": "{{status}}",
+            "reason": "{{reason}}",
+            "purpose": "{{purpose}}",
             "schedule": {
-                "scheduleType": "OneTime",
-                "paymentDate": "2026-11-10"
+                "scheduleType": "{{scheduleType}}",
+                "paymentDate": "{{paymentDate}}"
             }
         },
         "expected_status": "400",
@@ -1032,7 +1045,8 @@
             "data_comparison": [],
             "assertions": []
         },
-        "test_data_file": "",
+        "test_data_file": "MoveMoneyAPI/data_driven/Data_requests_POST.csv",
+        "csv_row_index": 13,
         "db_type": "",
         "db_connection_name": "",
         "test_summary": "Test TC014: POST /moneymovement/requests [Negative] (TC014) - Test 400 Response for One-Time Deposit via ACH when there is Amount field which Exceeds more than 2 decimal places.",
@@ -1064,19 +1078,19 @@
             "Content-Type": "application/json"
         },
         "payload": {
-            "instructionId": "8F845022-4485-413A-B269-51678D8C1768",
-            "accountId": "456E7890-E89B-12D3-A456-426614174111",
-            "railType": "ACH",
-            "unitType": "Percent",
-            "amount": 0,
-            "percent": 99,
-            "requestType": "Deposit",
-            "status": "Confirmed",
-            "reason": "DEPNonQualified",
-            "purpose": "string",
+            "instructionId": "{{instructionId}}",
+            "accountId": "{{accountId}}",
+            "railType": "{{railType}}",
+            "unitType": "{{unitType}}",
+            "amount": "{{amount}}",
+            "percent": "{{percent}}",
+            "requestType": "{{requestType}}",
+            "status": "{{status}}",
+            "reason": "{{reason}}",
+            "purpose": "{{purpose}}",
             "schedule": {
-                "scheduleType": "OneTime",
-                "paymentDate": "2026-11-10"
+                "scheduleType": "{{scheduleType}}",
+                "paymentDate": "{{paymentDate}}"
             }
         },
         "expected_status": "400",
@@ -1103,7 +1117,8 @@
             "data_comparison": [],
             "assertions": []
         },
-        "test_data_file": "",
+        "test_data_file": "MoveMoneyAPI/data_driven/Data_requests_POST.csv",
+        "csv_row_index": 14,
         "db_type": "",
         "db_connection_name": "",
         "test_summary": "Test TC015: POST /moneymovement/requests [Negative] (TC015) - Test 400 Response for One-Time Deposit via ACH when there is Amount field which Exceeds the minimum Amount value.",
@@ -1135,19 +1150,19 @@
             "Content-Type": "application/json"
         },
         "payload": {
-            "instructionId": "8F845022-4485-413A-B269-51678D8C1768",
-            "accountId": "456E7890-E89B-12D3-A456-426614174111",
-            "railType": "ACH",
-            "unitType": "Percent",
-            "amount": 1.1e+23,
-            "percent": 99,
-            "requestType": "Deposit",
-            "status": "Confirmed",
-            "reason": "DEPNonQualified",
-            "purpose": "string",
+            "instructionId": "{{instructionId}}",
+            "accountId": "{{accountId}}",
+            "railType": "{{railType}}",
+            "unitType": "{{unitType}}",
+            "amount": "{{amount}}",
+            "percent": "{{percent}}",
+            "requestType": "{{requestType}}",
+            "status": "{{status}}",
+            "reason": "{{reason}}",
+            "purpose": "{{purpose}}",
             "schedule": {
-                "scheduleType": "OneTime",
-                "paymentDate": "2026-11-10"
+                "scheduleType": "{{scheduleType}}",
+                "paymentDate": "{{paymentDate}}"
             }
         },
         "expected_status": "400",
@@ -1174,7 +1189,8 @@
             "data_comparison": [],
             "assertions": []
         },
-        "test_data_file": "",
+        "test_data_file": "MoveMoneyAPI/data_driven/Data_requests_POST.csv",
+        "csv_row_index": 15,
         "db_type": "",
         "db_connection_name": "",
         "test_summary": "Test TC016: POST /moneymovement/requests [Negative] (TC016) - Test 400 Response for One-Time Deposit via ACH when there is Amount field which Exceeds the maximum Amount value.",

@@ -197,6 +197,9 @@ class TestCaseLoader:
         Expand test cases with test_data rows if test_data_file is specified.
         Each row becomes a separate parametrized test case.
         
+        If csv_row_index is specified, only that specific row is used.
+        Otherwise, all rows are used for parametrization.
+        
         If csv_row_index is specified, only that row is used.
         Otherwise, all rows are used (default behavior).
         

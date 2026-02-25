@@ -1,0 +1,704 @@
+[
+    {
+        "test_id": "TC001",
+        "service_name": "MoveMoneyAPI",
+        "workflow_mode": "parallel",
+        "test_name": "POST /transfer [positive] (TC001)",
+        "protocol": "REST",
+        "test_type": [
+            "Functional"
+        ],
+        "mainURL": "{{base_url}}",
+        "endpoint": "/transfer",
+        "method": "POST",
+        "rpc_method": "",
+        "graphql_query": "",
+        "graphql_variables": "",
+        "soap_action": "",
+        "soap_envelope": "",
+        "headers_additional": {
+            "Content-Type": "application/json"
+        },
+        "payload": {
+            "movementType": "{{movementType}}",
+            "transferUnitType": "{{transferUnitType}}",
+            "amount": "{{amount}}",
+            "amountExpectation": "{{amountExpectation}}",
+            "status": "{{status}}",
+            "fundingAccountNumber": "{{fundingAccountNumber}}",
+            "contraFirm": {
+                "contraFirmId": "{{contraFirmId}}",
+                "name": "{{contraFirmName}}",
+                "accountNumber": "{{contraFirmAccountNumber}}",
+                "nameLine1": "{{contraFirmNameLine1}}",
+                "registrationType": "{{contraFirmRegistrationType}}"
+            },
+            "allocations": "{{allocations}}",
+            "securityTransfers": "{{securityTransfers}}"
+        },
+        "expected_status": "200",
+        "expected_response_schema": "MoveMoneyAPI\\schemas\\Schema_transfer_POST.json",
+        "expected_response": null,
+        "ignore_fields": [
+            "traceId",
+            "id",
+            "addressid",
+            "contactid",
+            "identifierid",
+            "timestamp",
+            "createdDate",
+            "modifiedDate",
+            "entitycreateddate",
+            "individualdateofbirth",
+            "instructionId"
+        ],
+        "extract_values": [
+            {
+                "from": "response",
+                "key": "requestId",
+                "assign_to": "requestId"
+            },
+            {
+                "from": "response",
+                "key": "version",
+                "assign_to": "version"
+            },
+            {
+                "from": "db_result",
+                "query": "default",
+                "assign": [
+                    {
+                        "key": "0.requestId",
+                        "assign_to": "db_requestId"
+                    },
+                    {
+                        "key": "0.version",
+                        "assign_to": "db_version"
+                    }
+                ]
+            }
+        ],
+        "validate": {
+            "performance": {
+                "max_response_time_ms": 1000
+            },
+            "security": {
+                "checks": [
+                    "sql_injection",
+                    "xss"
+                ]
+            },
+            "assertions": [
+                {
+                    "actual": "{{requestId}}",
+                    "expected": "",
+                    "operator": "!=",
+                    "message": "RequestId should not be empty"
+                },
+                {
+                    "actual": "{{version}}",
+                    "expected": 1,
+                    "operator": "==",
+                    "message": "Version should be 1"
+                }
+            ],
+            "data_comparison": [
+                {
+                    "source": "requestId",
+                    "target": "db_requestId",
+                    "log_differences": true,
+                    "comparison_name": "RequestId match between API and DB"
+                },
+                {
+                    "source": "version",
+                    "target": "db_version",
+                    "log_differences": true,
+                    "comparison_name": "Version match between API and DB"
+                }
+            ]
+        },
+        "test_data_file": "MoveMoneyAPI/data_driven/Data_transfer_POST.csv",
+        "csv_row_index": 0,
+        "db_query_timing": "after_api",
+        "db_queries": {
+            "default": "SELECT\n    LOWER([RequestId]) AS requestId,\n    [Version] AS version\nFROM \n    [dbo].[MoneyMovementRequest]\nWHERE \n    [RequestId] = '{{requestId}}'",
+            "audit_query": ""
+        },
+        "db_type": "mssql",
+        "db_connection_name": "movemoney",
+        "test_summary": "Verify that the API returns 200 response all the fields are valid and create Cash Transfer successful RequestId and version creation with full validation (API + Database + Schema + Headers + Security)"
+    },
+    {
+        "test_id": "TC002",
+        "service_name": "MoveMoneyAPI",
+        "workflow_mode": "parallel",
+        "test_name": "POST /transfer [positive] (TC002)",
+        "protocol": "REST",
+        "test_type": [
+            "Functional"
+        ],
+        "mainURL": "{{base_url}}",
+        "endpoint": "/transfer",
+        "method": "POST",
+        "rpc_method": "",
+        "graphql_query": "",
+        "graphql_variables": "",
+        "soap_action": "",
+        "soap_envelope": "",
+        "headers_additional": {
+            "Content-Type": "application/json"
+        },
+        "payload": {
+            "movementType": "{{movementType}}",
+            "transferUnitType": "{{transferUnitType}}",
+            "amount": "{{amount}}",
+            "amountExpectation": "{{amountExpectation}}",
+            "status": "{{status}}",
+            "fundingAccountNumber": null,
+            "contraFirm": {
+                "contraFirmId": "{{contraFirmId}}",
+                "name": "{{contraFirmName}}",
+                "accountNumber": "{{contraFirmAccountNumber}}",
+                "nameLine1": "{{contraFirmNameLine1}}",
+                "nameLine2": "{{contraFirmNameLine2}}",
+                "registrationType": "{{contraFirmRegistrationType}}"
+            },
+            "allocations": "{{allocations}}",
+            "securityTransfers": "{{securityTransfers}}"
+        },
+        "expected_status": "200",
+        "expected_response_schema": "MoveMoneyAPI\\schemas\\Schema_transfer_POST.json",
+        "expected_response": null,
+        "ignore_fields": [
+            "traceId",
+            "id",
+            "addressid",
+            "contactid",
+            "identifierid",
+            "timestamp",
+            "createdDate",
+            "modifiedDate",
+            "entitycreateddate",
+            "individualdateofbirth",
+            "instructionId"
+        ],
+        "extract_values": [
+            {
+                "from": "response",
+                "key": "requestId",
+                "assign_to": "requestId"
+            },
+            {
+                "from": "response",
+                "key": "version",
+                "assign_to": "version"
+            },
+            {
+                "from": "db_result",
+                "query": "default",
+                "assign": [
+                    {
+                        "key": "0.requestId",
+                        "assign_to": "db_requestId"
+                    },
+                    {
+                        "key": "0.version",
+                        "assign_to": "db_version"
+                    }
+                ]
+            }
+        ],
+        "validate": {
+            "performance": {
+                "max_response_time_ms": 1000
+            },
+            "security": {
+                "checks": [
+                    "sql_injection",
+                    "xss"
+                ]
+            },
+            "assertions": [
+                {
+                    "actual": "{{requestId}}",
+                    "expected": "",
+                    "operator": "!=",
+                    "message": "RequestId should not be empty"
+                },
+                {
+                    "actual": "{{version}}",
+                    "expected": 1,
+                    "operator": "==",
+                    "message": "Version should be 1"
+                }
+            ],
+            "data_comparison": [
+                {
+                    "source": "requestId",
+                    "target": "db_requestId",
+                    "log_differences": true,
+                    "comparison_name": "RequestId match between API and DB"
+                },
+                {
+                    "source": "version",
+                    "target": "db_version",
+                    "log_differences": true,
+                    "comparison_name": "Version match between API and DB"
+                },
+                {
+                    "source": "api_request",
+                    "source_array_path": "securityTransfers",
+                    "target": "db_result",
+                    "target_query": "security_transfers",
+                    "compare_record_count": true,
+                    "log_differences": true,
+                    "comparison_name": "SecurityTransfers record count match between API request and DB"
+                },
+                {
+                    "source": "api_request",
+                    "source_array_path": "securityTransfers",
+                    "target": "db_result",
+                    "target_query": "security_transfers",
+                    "key_field": [
+                        "securityId"
+                    ],
+                    "fields_to_compare": [
+                        "securityId",
+                        "securityUnitType",
+                        "quantity"
+                    ],
+                    "log_differences": true,
+                    "comparison_name": "SecurityTransfers match between API request and DB"
+                }
+            ]
+        },
+        "test_data_file": "MoveMoneyAPI/data_driven/Data_transfer_POST.csv",
+        "csv_row_index": 1,
+        "db_query_timing": "after_api",
+        "db_queries": {
+            "default": "SELECT\n    LOWER([RequestId]) AS requestId,\n    [Version] AS version\nFROM \n    [dbo].[MoneyMovementRequest]\nWHERE \n    [RequestId] = '{{requestId}}'",
+            "security_transfers": "SELECT\n    JSON_VALUE(j.[value], '$.SecurityId') AS securityId,\n    JSON_VALUE(j.[value], '$.SecurityUnitType') AS securityUnitType,\n    CAST(JSON_VALUE(j.[value], '$.Quantity') AS decimal(18,2)) AS quantity\nFROM\n    [dbo].[MoneyMovementRequest] mmr\nCROSS APPLY OPENJSON(mmr.[SecurityTransfers]) AS j\nWHERE\n    mmr.[RequestId] = '{{requestId}}'",
+            "audit_query": ""
+        },
+        "db_type": "mssql",
+        "db_connection_name": "movemoney",
+        "test_summary": "Verify that the API returns 200 response all the fields are valid and create InKind Transfer successful RequestId and version creation with Security Transfers validation (API + Database + Schema + Headers + Security)"
+    },
+    {
+        "test_id": "TC003",
+        "service_name": "MoveMoneyAPI",
+        "workflow_mode": "parallel",
+        "test_name": "POST /transfer [positive] (TC003)",
+        "protocol": "REST",
+        "test_type": [
+            "Functional"
+        ],
+        "mainURL": "{{base_url}}",
+        "endpoint": "/transfer",
+        "method": "POST",
+        "rpc_method": "",
+        "graphql_query": "",
+        "graphql_variables": "",
+        "soap_action": "",
+        "soap_envelope": "",
+        "headers_additional": {
+            "Content-Type": "application/json"
+        },
+        "payload": {
+            "movementType": "{{movementType}}",
+            "transferUnitType": "{{transferUnitType}}",
+            "amount": "{{amount}}",
+            "amountExpectation": "{{amountExpectation}}",
+            "status": "{{status}}",
+            "fundingAccountNumber": "{{fundingAccountNumber}}",
+            "contraFirm": {
+                "contraFirmId": "{{contraFirmId}}",
+                "name": "{{contraFirmName}}",
+                "accountNumber": "{{contraFirmAccountNumber}}",
+                "nameLine1": "{{contraFirmNameLine1}}",
+                "nameLine2": null,
+                "registrationType": "{{contraFirmRegistrationType}}"
+            },
+            "allocations": "{{allocations}}",
+            "securityTransfers": "{{securityTransfers}}"
+        },
+        "expected_status": "200",
+        "expected_response_schema": "MoveMoneyAPI\\schemas\\Schema_transfer_POST.json",
+        "expected_response": null,
+        "ignore_fields": [
+            "traceId",
+            "id",
+            "addressid",
+            "contactid",
+            "identifierid",
+            "timestamp",
+            "createdDate",
+            "modifiedDate",
+            "entitycreateddate",
+            "individualdateofbirth",
+            "instructionId"
+        ],
+        "extract_values": [
+            {
+                "from": "response",
+                "key": "requestId",
+                "assign_to": "requestId"
+            },
+            {
+                "from": "response",
+                "key": "version",
+                "assign_to": "version"
+            },
+            {
+                "from": "db_result",
+                "query": "default",
+                "assign": [
+                    {
+                        "key": "0.requestId",
+                        "assign_to": "db_requestId"
+                    },
+                    {
+                        "key": "0.version",
+                        "assign_to": "db_version"
+                    }
+                ]
+            }
+        ],
+        "validate": {
+            "performance": {
+                "max_response_time_ms": 1000
+            },
+            "security": {
+                "checks": [
+                    "sql_injection",
+                    "xss"
+                ]
+            },
+            "assertions": [
+                {
+                    "actual": "{{requestId}}",
+                    "expected": "",
+                    "operator": "!=",
+                    "message": "RequestId should not be empty"
+                },
+                {
+                    "actual": "{{version}}",
+                    "expected": 1,
+                    "operator": "==",
+                    "message": "Version should be 1"
+                }
+            ],
+            "data_comparison": [
+                {
+                    "source": "requestId",
+                    "target": "db_requestId",
+                    "log_differences": true,
+                    "comparison_name": "RequestId match between API and DB"
+                },
+                {
+                    "source": "version",
+                    "target": "db_version",
+                    "log_differences": true,
+                    "comparison_name": "Version match between API and DB"
+                },
+                {
+                    "source": "api_request",
+                    "source_array_path": "allocations",
+                    "target": "db_result",
+                    "target_query": "allocations",
+                    "compare_record_count": true,
+                    "log_differences": true,
+                    "comparison_name": "Allocations record count match between API request and DB"
+                },
+                {
+                    "source": "api_request",
+                    "source_array_path": "allocations",
+                    "target": "db_result",
+                    "target_query": "allocations",
+                    "key_field": [
+                        "accountId"
+                    ],
+                    "fields_to_compare": [
+                        "accountId",
+                        "allocationUnitType",
+                        "amount",
+                        "percent"
+                    ],
+                    "log_differences": true,
+                    "comparison_name": "Allocations match between API request and DB"
+                }
+            ]
+        },
+        "test_data_file": "MoveMoneyAPI/data_driven/Data_transfer_POST.csv",
+        "csv_row_index": 2,
+        "db_query_timing": "after_api",
+        "db_queries": {
+            "default": "SELECT\n    LOWER([RequestId]) AS requestId,\n    [Version] AS version\nFROM \n    [dbo].[MoneyMovementRequest]\nWHERE \n    [RequestId] = '{{requestId}}'",
+            "allocations": "SELECT\n    JSON_VALUE(j.[value], '$.AccountId') AS accountId,\n    JSON_VALUE(j.[value], '$.UnitType') AS allocationUnitType,\n    CAST(JSON_VALUE(j.[value], '$.Amount') AS decimal(18,2)) AS amount,\n    CAST(JSON_VALUE(j.[value], '$.Percent') AS decimal(18,2)) AS [percent]\nFROM\n    [dbo].[MoneyMovementRequest] mmr\nCROSS APPLY OPENJSON(mmr.[Allocations]) AS j\nWHERE\n    mmr.[RequestId] = '{{requestId}}'",
+            "audit_query": ""
+        },
+        "db_type": "mssql",
+        "db_connection_name": "movemoney",
+        "test_summary": "Verify that the API returns 200 response all the fields are valid and create Cash Transfer with multiple allocations validation (API + Database + Schema + Headers + Security)"
+    },
+    {
+        "test_id": "TC004",
+        "service_name": "MoveMoneyAPI",
+        "workflow_mode": "parallel",
+        "test_name": "POST /transfer [negative] (TC004)",
+        "protocol": "REST",
+        "test_type": [
+            "Functional"
+        ],
+        "mainURL": "{{base_url}}",
+        "endpoint": "/transfer",
+        "method": "POST",
+        "rpc_method": "",
+        "graphql_query": "",
+        "graphql_variables": "",
+        "soap_action": "",
+        "soap_envelope": "",
+        "headers_additional": {
+            "Content-Type": "application/json"
+        },
+        "payload": {
+            "movementType": "{{movementType}}",
+            "transferUnitType": "{{transferUnitType}}",
+            "amount": "{{amount}}",
+            "amountExpectation": "{{amountExpectation}}",
+            "status": "{{status}}",
+            "fundingAccountNumber": "{{fundingAccountNumber}}",
+            "contraFirm": {
+                "contraFirmId": "{{contraFirmId}}",
+                "name": "{{contraFirmName}}",
+                "accountNumber": "{{contraFirmAccountNumber}}",
+                "nameLine1": "{{contraFirmNameLine1}}",
+                "registrationType": "{{contraFirmRegistrationType}}"
+            },
+            "allocations": "{{allocations}}",
+            "securityTransfers": "{{securityTransfers}}"
+        },
+        "expected_status": "400",
+        "expected_response_schema": "",
+        "expected_response": null,
+        "ignore_fields": [
+            "traceId",
+            "id",
+            "addressid",
+            "contactid",
+            "identifierid",
+            "timestamp",
+            "createdDate",
+            "modifiedDate",
+            "entitycreateddate",
+            "individualdateofbirth",
+            "instructionId"
+        ],
+        "extract_values": [],
+        "validate": {
+            "assertions": []
+        },
+        "test_data_file": "MoveMoneyAPI/data_driven/Data_transfer_POST.csv",
+        "csv_row_index": 3,
+        "db_query_timing": "",
+        "db_queries": {},
+        "db_type": "",
+        "db_connection_name": "",
+        "test_summary": "Verify that invalid movementType returns 400"
+    },
+    {
+        "test_id": "TC005",
+        "service_name": "MoveMoneyAPI",
+        "workflow_mode": "parallel",
+        "test_name": "POST /transfer [negative] (TC005)",
+        "protocol": "REST",
+        "test_type": [
+            "Functional"
+        ],
+        "mainURL": "{{base_url}}",
+        "endpoint": "/transfer",
+        "method": "POST",
+        "rpc_method": "",
+        "graphql_query": "",
+        "graphql_variables": "",
+        "soap_action": "",
+        "soap_envelope": "",
+        "headers_additional": {
+            "Content-Type": "application/json"
+        },
+        "payload": {
+            "movementType": "{{movementType}}",
+            "transferUnitType": "{{transferUnitType}}",
+            "amount": "{{amount}}",
+            "amountExpectation": "{{amountExpectation}}",
+            "status": "{{status}}",
+            "fundingAccountNumber": "{{fundingAccountNumber}}",
+            "contraFirm": {
+                "contraFirmId": "{{contraFirmId}}",
+                "name": "{{contraFirmName}}",
+                "accountNumber": "{{contraFirmAccountNumber}}",
+                "nameLine1": "{{contraFirmNameLine1}}",
+                "registrationType": "{{contraFirmRegistrationType}}"
+            },
+            "allocations": "{{allocations}}",
+            "securityTransfers": "{{securityTransfers}}"
+        },
+        "expected_status": "400",
+        "expected_response_schema": "",
+        "expected_response": null,
+        "ignore_fields": [
+            "traceId",
+            "id",
+            "addressid",
+            "contactid",
+            "identifierid",
+            "timestamp",
+            "createdDate",
+            "modifiedDate",
+            "entitycreateddate",
+            "individualdateofbirth",
+            "instructionId"
+        ],
+        "extract_values": [],
+        "validate": {
+            "assertions": []
+        },
+        "test_data_file": "MoveMoneyAPI/data_driven/Data_transfer_POST.csv",
+        "csv_row_index": 4,
+        "db_query_timing": "",
+        "db_queries": {},
+        "db_type": "",
+        "db_connection_name": "",
+        "test_summary": "Verify that invalid transferUnitType returns 400"
+    },
+    {
+        "test_id": "TC006",
+        "service_name": "MoveMoneyAPI",
+        "workflow_mode": "parallel",
+        "test_name": "POST /transfer [negative] (TC006)",
+        "protocol": "REST",
+        "test_type": [
+            "Functional"
+        ],
+        "mainURL": "{{base_url}}",
+        "endpoint": "/transfer",
+        "method": "POST",
+        "rpc_method": "",
+        "graphql_query": "",
+        "graphql_variables": "",
+        "soap_action": "",
+        "soap_envelope": "",
+        "headers_additional": {
+            "Content-Type": "application/json"
+        },
+        "payload": {
+            "movementType": "{{movementType}}",
+            "transferUnitType": "{{transferUnitType}}",
+            "amount": "{{amount}}",
+            "amountExpectation": "{{amountExpectation}}",
+            "status": "{{status}}",
+            "fundingAccountNumber": "{{fundingAccountNumber}}",
+            "contraFirm": {
+                "contraFirmId": "{{contraFirmId}}",
+                "name": "{{contraFirmName}}",
+                "accountNumber": "{{contraFirmAccountNumber}}",
+                "nameLine1": "{{contraFirmNameLine1}}",
+                "registrationType": "{{contraFirmRegistrationType}}"
+            },
+            "allocations": "{{allocations}}",
+            "securityTransfers": "{{securityTransfers}}"
+        },
+        "expected_status": "400",
+        "expected_response_schema": "",
+        "expected_response": null,
+        "ignore_fields": [
+            "traceId",
+            "id",
+            "addressid",
+            "contactid",
+            "identifierid",
+            "timestamp",
+            "createdDate",
+            "modifiedDate",
+            "entitycreateddate",
+            "individualdateofbirth",
+            "instructionId"
+        ],
+        "extract_values": [],
+        "validate": {
+            "assertions": []
+        },
+        "test_data_file": "MoveMoneyAPI/data_driven/Data_transfer_POST.csv",
+        "csv_row_index": 5,
+        "db_query_timing": "",
+        "db_queries": {},
+        "db_type": "",
+        "db_connection_name": "",
+        "test_summary": "Verify that invalid amountExpectation returns 400"
+    },
+    {
+        "test_id": "TC007",
+        "service_name": "MoveMoneyAPI",
+        "workflow_mode": "parallel",
+        "test_name": "POST /transfer [negative] (TC007)",
+        "protocol": "REST",
+        "test_type": [
+            "Functional"
+        ],
+        "mainURL": "{{base_url}}",
+        "endpoint": "/transfer",
+        "method": "POST",
+        "rpc_method": "",
+        "graphql_query": "",
+        "graphql_variables": "",
+        "soap_action": "",
+        "soap_envelope": "",
+        "headers_additional": {
+            "Content-Type": "application/json"
+        },
+        "payload": {
+            "movementType": "{{movementType}}",
+            "transferUnitType": "{{transferUnitType}}",
+            "amount": "{{amount}}",
+            "amountExpectation": "{{amountExpectation}}",
+            "status": "{{status}}",
+            "fundingAccountNumber": "{{fundingAccountNumber}}",
+            "contraFirm": {
+                "contraFirmId": "{{contraFirmId}}",
+                "name": "{{contraFirmName}}",
+                "accountNumber": "{{contraFirmAccountNumber}}",
+                "nameLine1": "{{contraFirmNameLine1}}",
+                "registrationType": "{{contraFirmRegistrationType}}"
+            },
+            "allocations": "{{allocations}}",
+            "securityTransfers": "{{securityTransfers}}"
+        },
+        "expected_status": "400",
+        "expected_response_schema": "",
+        "expected_response": null,
+        "ignore_fields": [
+            "traceId",
+            "id",
+            "addressid",
+            "contactid",
+            "identifierid",
+            "timestamp",
+            "createdDate",
+            "modifiedDate",
+            "entitycreateddate",
+            "individualdateofbirth",
+            "instructionId"
+        ],
+        "extract_values": [],
+        "validate": {
+            "assertions": []
+        },
+        "test_data_file": "MoveMoneyAPI/data_driven/Data_transfer_POST.csv",
+        "csv_row_index": 6,
+        "db_query_timing": "",
+        "db_queries": {},
+        "db_type": "",
+        "db_connection_name": "",
+        "test_summary": "Verify that missing contraFirm.accountNumber returns 400"
+    }
+]

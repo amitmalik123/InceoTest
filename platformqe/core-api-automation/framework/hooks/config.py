@@ -75,8 +75,7 @@ SERVICE_DEFAULTS: Dict[str, Dict] = {
             'csv_columns': ['environment', 'id']
         }
     },
-
-    'MoveMoneyAPI': {
+        'MoveMoneyAPI': {
         'max_records': 10,
         # Prerequisite test case to run before other tests
         'prerequisite_testcase': {
@@ -89,10 +88,11 @@ SERVICE_DEFAULTS: Dict[str, Dict] = {
                 'assign_to': 'requestId'    # Variable name to use
             },
             'update_csv_file': 'MoveMoneyAPI/data_driven/Data_requests_requestId_PUT.csv',
-            'csv_columns': ['environment', 'requestId', 'version', 'instructionId', 'accountId', 'railType', 'amount', 'requestType', 'status', 'reason', 'scheduleType', 'paymentDate', 'frequency', 'startDate', 'endDate']
+            'csv_columns': ['environment', 'requestId', 'version', 'instructionId', 'accountId', 'railType', 'amount', 'percent','requestType', 'status', 'reason', 'scheduleType', 'paymentDate', 'frequency', 'startDate', 'endDate'],
         }
     }
 }
+ 
 
 
 def get_service_hooks_config(service_name: str) -> HooksConfig:
