@@ -239,14 +239,27 @@
     },
     "payload": "parties/payloads/Payload_individual_party_updated.txt",
     "expected_status": "200",
-    "expected_response_schema": "",
+    "expected_response_schema": "parties/schemas/Schema_parties_Party_id_PUT_response_success.json",
     "expected_response": null,
-    "extract_values": [],
+    "extract_values": [
+      {
+        "from": "response",
+        "key": "versionNumber",
+        "assign_to": "individual_version_from_put"
+      }
+    ],
     "validate": {
+      "response_structure": {
+        "required_fields": ["versionNumber"]
+      },
       "business_rules": [
         {
           "rule": "PUT operation must succeed when taxIdentifierType is not explicitly provided",
           "validation": "response.status equals 200"
+        },
+        {
+          "rule": "PUT response must include the newly incremented versionNumber",
+          "validation": "response.versionNumber is not null"
         },
         {
           "rule": "Version must increment after successful PUT operation",
@@ -267,7 +280,14 @@
         "fields_to_compare": [],
         "log_differences": true
       },
-      "assertions": []
+      "assertions": [
+        {
+          "actual": "{{individual_version_from_put}}",
+          "operator": "!=",
+          "expected": null,
+          "message": "Expected versionNumber in PUT response to be non-null"
+        }
+      ]
     },
     "test_data_file": "parties/data_driven/Data_PRODENG-19146_Individual_TaxId_BugFix.csv",
     "db_type": "",
@@ -457,14 +477,27 @@
     },
     "payload": "parties/payloads/Payload_individual_party_final.txt",
     "expected_status": "200",
-    "expected_response_schema": "",
+    "expected_response_schema": "parties/schemas/Schema_parties_Party_id_PUT_response_success.json",
     "expected_response": null,
-    "extract_values": [],
+    "extract_values": [
+      {
+        "from": "response",
+        "key": "versionNumber",
+        "assign_to": "individual_version_from_second_put"
+      }
+    ],
     "validate": {
+      "response_structure": {
+        "required_fields": ["versionNumber"]
+      },
       "business_rules": [
         {
           "rule": "Multiple PUT operations must be supported for Individual party",
           "validation": "response.status equals 200"
+        },
+        {
+          "rule": "PUT response must include the newly incremented versionNumber",
+          "validation": "response.versionNumber is not null"
         },
         {
           "rule": "Version increments with each PUT operation",
@@ -485,7 +518,14 @@
         "fields_to_compare": [],
         "log_differences": true
       },
-      "assertions": []
+      "assertions": [
+        {
+          "actual": "{{individual_version_from_second_put}}",
+          "operator": "!=",
+          "expected": null,
+          "message": "Expected versionNumber in PUT response to be non-null"
+        }
+      ]
     },
     "test_data_file": "parties/data_driven/Data_PRODENG-19146_Individual_TaxId_BugFix.csv",
     "db_type": "",
@@ -868,14 +908,27 @@
     },
     "payload": "parties/payloads/Payload_business_party_updated.txt",
     "expected_status": "200",
-    "expected_response_schema": "",
+    "expected_response_schema": "parties/schemas/Schema_parties_Party_id_PUT_response_success.json",
     "expected_response": null,
-    "extract_values": [],
+    "extract_values": [
+      {
+        "from": "response",
+        "key": "versionNumber",
+        "assign_to": "business_version_from_put"
+      }
+    ],
     "validate": {
+      "response_structure": {
+        "required_fields": ["versionNumber"]
+      },
       "business_rules": [
         {
           "rule": "PUT operation must succeed when taxIdentifierType is not explicitly provided for Business party",
           "validation": "response.status equals 200"
+        },
+        {
+          "rule": "PUT response must include the newly incremented versionNumber",
+          "validation": "response.versionNumber is not null"
         },
         {
           "rule": "Version must increment after successful PUT operation",
@@ -896,7 +949,14 @@
         "fields_to_compare": [],
         "log_differences": true
       },
-      "assertions": []
+      "assertions": [
+        {
+          "actual": "{{business_version_from_put}}",
+          "operator": "!=",
+          "expected": null,
+          "message": "Expected versionNumber in PUT response to be non-null"
+        }
+      ]
     },
     "test_data_file": "parties/data_driven/Data_PRODENG-19146_Business_TaxId_BugFix.csv",
     "db_type": "",
@@ -1094,14 +1154,27 @@
     },
     "payload": "parties/payloads/Payload_business_party_final.txt",
     "expected_status": "200",
-    "expected_response_schema": "",
+    "expected_response_schema": "parties/schemas/Schema_parties_Party_id_PUT_response_success.json",
     "expected_response": null,
-    "extract_values": [],
+    "extract_values": [
+      {
+        "from": "response",
+        "key": "versionNumber",
+        "assign_to": "business_version_from_second_put"
+      }
+    ],
     "validate": {
+      "response_structure": {
+        "required_fields": ["versionNumber"]
+      },
       "business_rules": [
         {
           "rule": "Multiple PUT operations must succeed without requiring explicit taxIdentifierType for Business party",
           "validation": "response.status equals 200"
+        },
+        {
+          "rule": "PUT response must include the newly incremented versionNumber",
+          "validation": "response.versionNumber is not null"
         },
         {
           "rule": "Version must continue incrementing with each successive PUT operation",
@@ -1122,7 +1195,14 @@
         "fields_to_compare": [],
         "log_differences": true
       },
-      "assertions": []
+      "assertions": [
+        {
+          "actual": "{{business_version_from_second_put}}",
+          "operator": "!=",
+          "expected": null,
+          "message": "Expected versionNumber in PUT response to be non-null"
+        }
+      ]
     },
     "test_data_file": "parties/data_driven/Data_PRODENG-19146_Business_TaxId_BugFix.csv",
     "db_type": "",
