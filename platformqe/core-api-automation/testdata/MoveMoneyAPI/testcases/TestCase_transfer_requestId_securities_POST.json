@@ -14,7 +14,7 @@
         "headers_additional": {
             "Content-Type": "application/json"
         },
-        "payload": "movemoney/payloads/Payload_transfer_requestId_securities_POST_functional.json",
+        "payload": "MoveMoneyAPI/payloads/Payload_transfer_requestId_securities_POST_functional.json",
         "expected_status": "201",
         "expected_response_schema": null,
         "expected_response": null,
@@ -158,7 +158,7 @@
         "headers_additional": {
             "Content-Type": "application/json"
         },
-        "payload": "movemoney/payloads/Payload_transfer_requestId_securities_POST_functional.json",
+        "payload": "MoveMoneyAPI/payloads/Payload_transfer_requestId_securities_POST_functional.json",
         "expected_status": "400",
         "expected_response_schema": null,
         "expected_response": null,
@@ -205,7 +205,7 @@
         "headers_additional": {
             "Content-Type": "application/json"
         },
-        "payload": "movemoney/payloads/Payload_transfer_requestId_securities_POST_functional.json",
+        "payload": "MoveMoneyAPI/payloads/Payload_transfer_requestId_securities_POST_functional.json",
         "expected_status": "400",
         "expected_response_schema": null,
         "expected_response": null,
@@ -252,7 +252,7 @@
         "headers_additional": {
             "Content-Type": "application/json"
         },
-        "payload": "movemoney/payloads/Payload_transfer_requestId_securities_POST_functional.json",
+        "payload": "MoveMoneyAPI/payloads/Payload_transfer_requestId_securities_POST_functional.json",
         "expected_status": "400",
         "expected_response_schema": null,
         "expected_response": null,
@@ -299,7 +299,7 @@
         "headers_additional": {
             "Content-Type": "application/json"
         },
-        "payload": "movemoney/payloads/Payload_transfer_requestId_securities_POST_functional.json",
+        "payload": "MoveMoneyAPI/payloads/Payload_transfer_requestId_securities_POST_functional.json",
         "expected_status": "400",
         "expected_response_schema": null,
         "expected_response": null,
