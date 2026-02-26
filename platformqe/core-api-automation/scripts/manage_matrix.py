@@ -558,7 +558,21 @@ class ServiceMatrixManager:
             
             if should_run:
                 # Determine environments to run
-                envs_to_run = selected_environments if selected_environments else service_environments
+                # When ENABLED_ENVIRONMENTS (or manual environments) are specified,
+                # intersect with the service's configured environments from services-matrix.yaml.
+                # This ensures a service only runs on environments it is actually configured for,
+                # not every environment listed in ENABLED_ENVIRONMENTS.
+                if selected_environments:
+                    envs_to_run = [env for env in service_environments if env in selected_environments]
+                    if not envs_to_run:
+                        print(f"[SKIP] {service_name}: No matching environments between "
+                              f"enabled {selected_environments} and service-configured {service_environments}")
+                        continue
+                    else:
+                        print(f"[FILTER] {service_name}: Filtered environments from {service_environments} "
+                              f"to {envs_to_run} (enabled: {selected_environments})")
+                else:
+                    envs_to_run = service_environments
                 
                 if not envs_to_run:
                     envs_to_run = ['TSADEV']  # Default fallback
