@@ -676,9 +676,9 @@
                         "expected_value": [
                             "model_id",
                             "solution_type",
-                            "custodian",
+                            "custodians",
                             "investment_approach_id",
-                            "investment_min",
+                            "investment_mins",
                             "metadata",
                             "model_type",
                             "risk_profile"

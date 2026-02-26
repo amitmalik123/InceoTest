@@ -2,7 +2,7 @@
   "name": "Model-Based Portfolio - Diversified Strategy",
   "modelType": "Multi-Model",
   "solutionType": "Multi-Model Approach",
-  "custodian": [
+  "custodians": [
     "Fidelity",
     "Charles Schwab"
   ],
@@ -14,7 +14,7 @@
       "id": 0
     }
   ],
-  "investmentMin":  [
+  "investmentMins":  [
     {
       "type": "System",
       "value": 2
