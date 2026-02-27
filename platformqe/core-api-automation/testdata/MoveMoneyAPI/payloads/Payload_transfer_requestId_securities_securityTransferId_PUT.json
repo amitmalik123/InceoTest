@@ -1,0 +1,5 @@
+{
+  "securityId": "{{securityId}}",
+  "securityUnitType": "{{securityUnitType}}",
+  "quantity": "{{quantity}}"
+}
