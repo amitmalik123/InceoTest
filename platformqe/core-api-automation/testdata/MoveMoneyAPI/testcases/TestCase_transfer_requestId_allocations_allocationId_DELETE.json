@@ -1,0 +1,192 @@
+[
+    {
+        "test_id": "TC001_SETUP",
+        "service_name": "MoveMoneyAPI",
+        "workflow_mode": "sequential",
+        "test_name": "POST /transfer/{requestId}/allocations - Create allocation for delete tests",
+        "protocol": "REST",
+        "test_type": [
+            "Functional"
+        ],
+        "mainURL": "{{base_url}}",
+        "endpoint": "/transfer/{{requestId}}/allocations",
+        "method": "POST",
+        "headers_additional": {
+            "Content-Type": "application/json"
+        },
+        "payload": "MoveMoneyAPI/payloads/Payload_transfer_requestId_allocations_POST_for_delete_dynamic.txt",
+        "expected_status": "201",
+        "expected_response_schema": null,
+        "expected_response": null,
+        "ignore_fields": [
+            "id",
+            "createdDate",
+            "modifiedDate",
+            "timestamp"
+        ],
+        "extract_values": [
+            {
+                "from": "request",
+                "key": "allocationId",
+                "assign_to": "latestAllocationIdForDelete"
+            },
+            {
+                "from": "db_result",
+                "key": "0.allocationid",
+                "assign_to": "latestAllocationIdForDelete"
+            }
+        ],
+        "validate": {
+            "performance": {
+                "max_response_time_ms": 5000
+            },
+            "security": {
+                "checks": [
+                    "sql_injection",
+                    "xss"
+                ]
+            },
+            "assertions": [
+                {
+                    "actual": "{{requestId}}",
+                    "expected": "",
+                    "operator": "!=",
+                    "message": "RequestId should not be empty"
+                },
+                {
+                    "actual": "{{latestAllocationIdForDelete}}",
+                    "expected": "",
+                    "operator": "!=",
+                    "message": "Request allocationId should not be empty"
+                }
+            ],
+            "data_comparison": []
+        },
+        "test_data_file": "MoveMoneyAPI/data_driven/Data_transfer_requestId_allocations_allocationId_DELETE.csv",
+        "csv_row_index": 0,
+        "db_query_timing": "after_api",
+        "db_queries": {
+            "default": "SELECT TOP (1) a.[value] AS LatestAllocationJson, LOWER(COALESCE(JSON_VALUE(a.[value], '$.AllocationId'), JSON_VALUE(a.[value], '$.allocationId'))) AS allocationId FROM dbo.MoneyMovementRequest r CROSS APPLY OPENJSON(r.Allocations) a WHERE r.RequestId = '{{requestId}}' ORDER BY TRY_CONVERT(int, a.[key]) DESC",
+            "audit_query": ""
+        },
+        "db_type": "mssql",
+        "db_connection_name": "movemoney",
+        "test_summary": "Create a transfer allocation and capture allocationId for subsequent DELETE test cases"
+    },
+    {
+        "test_id": "TC001",
+        "service_name": "MoveMoneyAPI",
+        "workflow_mode": "sequential",
+        "test_name": "DELETE /transfer/{requestId}/allocations/{allocationId} [positive] (TC001)",
+        "requestId": "B50AAE4A-577C-4CC9-BCE6-048F53792C63",
+        "protocol": "REST",
+        "test_type": [
+            "Functional"
+        ],
+        "mainURL": "{{base_url}}",
+        "endpoint": "/transfer/B50AAE4A-577C-4CC9-BCE6-048F53792C63/allocations/{{latestAllocationIdForDelete}}",
+        "method": "DELETE",
+        "headers_additional": {
+            "Content-Type": "application/json"
+        },
+        "payload": null,
+        "expected_status": "200",
+        "expected_response_schema": null,
+        "expected_response": null,
+        "ignore_fields": [
+            "id"
+        ],
+        "extract_values": [],
+        "validate": {
+            "performance": {
+                "max_response_time_ms": 500
+            },
+            "security": {
+                "checks": [
+                    "sql_injection",
+                    "xss"
+                ]
+            },
+            "assertions": [
+                {
+                    "actual": "{{requestId}}",
+                    "expected": "",
+                    "operator": "!=",
+                    "message": "RequestId should not be empty"
+                },
+                {
+                    "actual": "{{latestAllocationIdForDelete}}",
+                    "expected": "",
+                    "operator": "!=",
+                    "message": "Setup allocationId should not be empty"
+                }
+            ],
+            "data_comparison": []
+        },
+        "test_data_file": null,
+        "csv_row_index": null,
+        "db_query_timing": null,
+        "db_queries": null,
+        "db_type": "",
+        "db_connection_name": "",
+        "test_summary": "Delete the allocation created in setup using the same requestId and allocationId"
+    },
+    {
+        "test_id": "TC002",
+        "service_name": "MoveMoneyAPI",
+        "workflow_mode": "sequential",
+        "test_name": "DELETE /transfer/{requestId}/allocations/{allocationId} [negative: already deleted] (TC002)",
+        "requestId": "B50AAE4A-577C-4CC9-BCE6-048F53792C63",
+        "protocol": "REST",
+        "test_type": [
+            "Negative"
+        ],
+        "mainURL": "{{base_url}}",
+        "endpoint": "/transfer/B50AAE4A-577C-4CC9-BCE6-048F53792C63/allocations/{{latestAllocationIdForDelete}}",
+        "method": "DELETE",
+        "headers_additional": {
+            "Content-Type": "application/json"
+        },
+        "payload": null,
+        "expected_status": "204",
+        "expected_response_schema": null,
+        "expected_response": "",
+        "ignore_fields": [
+            "id"
+        ],
+        "extract_values": [],
+        "validate": {
+            "performance": {
+                "max_response_time_ms": 500
+            },
+            "security": {
+                "checks": [
+                    "sql_injection",
+                    "xss"
+                ]
+            },
+            "assertions": [
+                {
+                    "actual": "{{requestId}}",
+                    "expected": "",
+                    "operator": "!=",
+                    "message": "RequestId should not be empty"
+                },
+                {
+                    "actual": "{{latestAllocationIdForDelete}}",
+                    "expected": "",
+                    "operator": "!=",
+                    "message": "Setup allocationId should not be empty"
+                }
+            ],
+            "data_comparison": []
+        },
+        "test_data_file": null,
+        "csv_row_index": null,
+        "db_query_timing": null,
+        "db_queries": null,
+        "db_type": "",
+        "db_connection_name": "",
+        "test_summary": "Re-delete using the same requestId and allocationId from setup and TC001"
+    }
+]
