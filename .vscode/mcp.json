@@ -1,0 +1,14 @@
+{
+  "servers": {
+    "dm1-test-framework": {
+      "type": "stdio",
+      "command": "python",
+      "args": [
+        "ai/mcp/server.py"
+      ],
+      "env": {
+        "PYTHONPATH": "${workspaceFolder}"
+      }
+    }
+  }
+}

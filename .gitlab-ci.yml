@@ -1,0 +1,121 @@
+# GitLab CI/CD Pipeline with SonarQube Integration
+# For GitLab users
+
+variables:
+  PIP_CACHE_DIR: "$CI_PROJECT_DIR/.cache/pip"
+  SONAR_USER_HOME: "${CI_PROJECT_DIR}/.sonar"
+  GIT_DEPTH: "0" # Tells git to fetch all the branches of the project, required by SonarQube
+
+cache:
+  paths:
+    - .cache/pip
+    - .sonar/cache
+
+stages:
+  - test
+  - quality
+  - sonarqube
+
+# Install dependencies and run tests
+test:
+  stage: test
+  image: mcr.microsoft.com/playwright/python:v1.40.0-focal
+  before_script:
+    - python -m pip install --upgrade pip
+    - pip install -r requirements.txt
+    - pip install pytest-cov bandit
+    - playwright install chromium
+  script:
+    - mkdir -p reports
+    # Run tests with coverage
+    - |
+      pytest tests/ \
+        --cov=pages \
+        --cov=utils \
+        --cov=config \
+        --cov=fixtures \
+        --cov-report=xml:reports/coverage.xml \
+        --cov-report=html:reports/htmlcov \
+        --junitxml=reports/junit.xml \
+        --tb=short \
+        -v || true
+  artifacts:
+    paths:
+      - reports/
+    reports:
+      junit: reports/junit.xml
+      coverage_report:
+        coverage_format: cobertura
+        path: reports/coverage.xml
+    expire_in: 1 week
+  coverage: '/(?i)total.*? (100(?:\.0+)?\%|[1-9]?\d(?:\.\d+)?\%)$/'
+
+# Run code quality tools
+code-quality:
+  stage: quality
+  image: python:3.11
+  before_script:
+    - pip install -r requirements.txt
+    - pip install bandit
+  script:
+    - mkdir -p reports
+    # Run Flake8
+    - flake8 --output-file=reports/flake8-report.txt --format=default pages utils config fixtures features/steps || true
+    # Run Pylint
+    - pylint pages utils config fixtures features/steps --output-format=json --output=reports/pylint-report.json --exit-zero || true
+    # Run MyPy
+    - mypy pages utils config fixtures --config-file=mypy.ini > reports/mypy-report.txt 2>&1 || true
+    # Run Bandit
+    - bandit -r pages utils config fixtures -f json -o reports/bandit-report.json || true
+  artifacts:
+    paths:
+      - reports/
+    expire_in: 1 week
+  allow_failure: true
+
+# SonarQube analysis
+sonarqube-check:
+  stage: sonarqube
+  image:
+    name: sonarsource/sonar-scanner-cli:latest
+    entrypoint: [""]
+  dependencies:
+    - test
+    - code-quality
+  script:
+    - |
+      sonar-scanner \
+        -Dsonar.projectKey=python-playwright-automation \
+        -Dsonar.sources=. \
+        -Dsonar.host.url=${SONAR_HOST_URL} \
+        -Dsonar.login=${SONAR_TOKEN}
+  allow_failure: true
+  only:
+    - main
+    - develop
+    - merge_requests
+
+# SonarQube quality gate check
+sonarqube-quality-gate:
+  stage: sonarqube
+  image: curlimages/curl:latest
+  dependencies:
+    - sonarqube-check
+  script:
+    - |
+      # Wait for quality gate result
+      sleep 10
+      # Check quality gate status
+      QUALITY_GATE=$(curl -s -u ${SONAR_TOKEN}: \
+        "${SONAR_HOST_URL}/api/qualitygates/project_status?projectKey=python-playwright-automation" \
+        | grep -o '"status":"[^"]*"' | cut -d'"' -f4)
+      echo "Quality Gate Status: ${QUALITY_GATE}"
+      if [ "${QUALITY_GATE}" != "OK" ]; then
+        echo "Quality Gate failed!"
+        exit 1
+      fi
+  allow_failure: true
+  only:
+    - main
+    - develop
+    - merge_requests
