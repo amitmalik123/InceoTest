@@ -3,7 +3,7 @@
         "test_id": "TC001_SETUP",
         "service_name": "MoveMoneyAPI",
         "workflow_mode": "sequential",
-        "test_name": "POST /transfer/{requestId}/allocations - Create allocation for delete tests",
+        "test_name": "TC001_SETUP - POST /transfer/{requestId}/allocations - Create allocation for delete flow",
         "protocol": "REST",
         "test_type": [
             "Functional"
@@ -16,8 +16,6 @@
         },
         "payload": "MoveMoneyAPI/payloads/Payload_transfer_requestId_allocations_POST_for_delete_dynamic.txt",
         "expected_status": "201",
-        "expected_response_schema": null,
-        "expected_response": null,
         "ignore_fields": [
             "id",
             "createdDate",
@@ -60,7 +58,13 @@
                     "message": "Request allocationId should not be empty"
                 }
             ],
-            "data_comparison": []
+            "data_comparison": {
+                "comparison_name": "API response self-compare",
+                "source": "api_response",
+                "target": "api_response",
+                "fields_to_compare": [],
+                "log_differences": true
+            }
         },
         "test_data_file": "MoveMoneyAPI/data_driven/Data_transfer_requestId_allocations_allocationId_DELETE.csv",
         "csv_row_index": 0,
@@ -71,28 +75,86 @@
         },
         "db_type": "mssql",
         "db_connection_name": "movemoney",
-        "test_summary": "Create a transfer allocation and capture allocationId for subsequent DELETE test cases"
+        "test_summary": "TC001_SETUP creates an allocation and captures allocationId for delete validation"
     },
     {
         "test_id": "TC001",
         "service_name": "MoveMoneyAPI",
         "workflow_mode": "sequential",
-        "test_name": "DELETE /transfer/{requestId}/allocations/{allocationId} [positive] (TC001)",
-        "requestId": "B50AAE4A-577C-4CC9-BCE6-048F53792C63",
+        "test_name": "TC001 - GET /transfer/{requestId} - Capture latest allocationId",
         "protocol": "REST",
         "test_type": [
             "Functional"
         ],
         "mainURL": "{{base_url}}",
-        "endpoint": "/transfer/B50AAE4A-577C-4CC9-BCE6-048F53792C63/allocations/{{latestAllocationIdForDelete}}",
+        "endpoint": "/transfer/{{requestId}}",
+        "method": "GET",
+        "headers_additional": {
+            "Content-Type": "application/json"
+        },
+        "expected_status": "200",
+        "ignore_fields": [
+            "id"
+        ],
+        "extract_values": [
+            {
+                "from": "response",
+                "key": "allocations.*.allocationId",
+                "assign_to": "latestAllocationIdForDelete"
+            }
+        ],
+        "validate": {
+            "performance": {
+                "max_response_time_ms": 500
+            },
+            "security": {
+                "checks": [
+                    "sql_injection",
+                    "xss"
+                ]
+            },
+            "assertions": [
+                {
+                    "actual": "{{requestId}}",
+                    "expected": "",
+                    "operator": "!=",
+                    "message": "RequestId should not be empty"
+                },
+                {
+                    "actual": "{{latestAllocationIdForDelete}}",
+                    "expected": "",
+                    "operator": "!=",
+                    "message": "Setup allocationId should not be empty"
+                }
+            ],
+            "data_comparison": {
+                "comparison_name": "API response self-compare",
+                "source": "api_response",
+                "target": "api_response",
+                "fields_to_compare": [],
+                "log_differences": true
+            }
+        },
+        "test_data_file": "MoveMoneyAPI/data_driven/Data_transfer_requestId_allocations_allocationId_DELETE.csv",
+        "csv_row_index": 1,
+        "test_summary": "TC001 fetches transfer details and extracts latest allocationId"
+    },
+    {
+        "test_id": "TC002",
+        "service_name": "MoveMoneyAPI",
+        "workflow_mode": "sequential",
+        "test_name": "TC002 - DELETE /transfer/{requestId}/allocations/{allocationId} [positive]",
+        "protocol": "REST",
+        "test_type": [
+            "Functional"
+        ],
+        "mainURL": "{{base_url}}",
+        "endpoint": "/transfer/{{requestId}}/allocations/{{latestAllocationIdForDelete}}",
         "method": "DELETE",
         "headers_additional": {
             "Content-Type": "application/json"
         },
-        "payload": null,
         "expected_status": "200",
-        "expected_response_schema": null,
-        "expected_response": null,
         "ignore_fields": [
             "id"
         ],
@@ -121,35 +183,34 @@
                     "message": "Setup allocationId should not be empty"
                 }
             ],
-            "data_comparison": []
+            "data_comparison": {
+                "comparison_name": "API response self-compare",
+                "source": "api_response",
+                "target": "api_response",
+                "fields_to_compare": [],
+                "log_differences": true
+            }
         },
-        "test_data_file": null,
-        "csv_row_index": null,
-        "db_query_timing": null,
-        "db_queries": null,
-        "db_type": "",
-        "db_connection_name": "",
-        "test_summary": "Delete the allocation created in setup using the same requestId and allocationId"
+        "test_data_file": "MoveMoneyAPI/data_driven/Data_transfer_requestId_allocations_allocationId_DELETE.csv",
+        "csv_row_index": 2,
+        "test_summary": "TC002 deletes the latest captured allocation id"
     },
     {
-        "test_id": "TC002",
+        "test_id": "TC003",
         "service_name": "MoveMoneyAPI",
         "workflow_mode": "sequential",
-        "test_name": "DELETE /transfer/{requestId}/allocations/{allocationId} [negative: already deleted] (TC002)",
-        "requestId": "B50AAE4A-577C-4CC9-BCE6-048F53792C63",
+        "test_name": "TC003 - DELETE /transfer/{requestId}/allocations/{allocationId} [negative: already deleted]",
         "protocol": "REST",
         "test_type": [
             "Negative"
         ],
         "mainURL": "{{base_url}}",
-        "endpoint": "/transfer/B50AAE4A-577C-4CC9-BCE6-048F53792C63/allocations/{{latestAllocationIdForDelete}}",
+        "endpoint": "/transfer/{{requestId}}/allocations/{{latestAllocationIdForDelete}}",
         "method": "DELETE",
         "headers_additional": {
             "Content-Type": "application/json"
         },
-        "payload": null,
         "expected_status": "204",
-        "expected_response_schema": null,
         "expected_response": "",
         "ignore_fields": [
             "id"
@@ -179,14 +240,16 @@
                     "message": "Setup allocationId should not be empty"
                 }
             ],
-            "data_comparison": []
+            "data_comparison": {
+                "comparison_name": "API response self-compare",
+                "source": "api_response",
+                "target": "api_response",
+                "fields_to_compare": [],
+                "log_differences": true
+            }
         },
-        "test_data_file": null,
-        "csv_row_index": null,
-        "db_query_timing": null,
-        "db_queries": null,
-        "db_type": "",
-        "db_connection_name": "",
-        "test_summary": "Re-delete using the same requestId and allocationId from setup and TC001"
+        "test_data_file": "MoveMoneyAPI/data_driven/Data_transfer_requestId_allocations_allocationId_DELETE.csv",
+        "csv_row_index": 3,
+        "test_summary": "TC003 re-deletes the same allocation and expects 204"
     }
 ]

@@ -52,7 +52,14 @@
                     "operator": "!=",
                     "message": "SecurityTransferId should not be empty"
                 }
-            ]
+            ],
+            "data_comparison": {
+                "comparison_name": "API response self-compare",
+                "source": "api_response",
+                "target": "api_response",
+                "fields_to_compare": [],
+                "log_differences": true
+            }
         },
         "test_data_file": "MoveMoneyAPI/data_driven/Data_SecurityTransferId_Delete.csv",
         "csv_row_index": 0,
@@ -107,7 +114,14 @@
                     "operator": "!=",
                     "message": "SecurityTransferId should not be empty"
                 }
-            ]
+            ],
+            "data_comparison": {
+                "comparison_name": "API response self-compare",
+                "source": "api_response",
+                "target": "api_response",
+                "fields_to_compare": [],
+                "log_differences": true
+            }
         },
         "test_data_file": "MoveMoneyAPI/data_driven/Data_SecurityTransferId_Delete.csv",
         "csv_row_index": 1,
@@ -155,7 +169,14 @@
                     "operator": "!=",
                     "message": "SecurityTransferId should not be empty"
                 }
-            ]
+            ],
+            "data_comparison": {
+                "comparison_name": "API response self-compare",
+                "source": "api_response",
+                "target": "api_response",
+                "fields_to_compare": [],
+                "log_differences": true
+            }
         },
         "test_data_file": "MoveMoneyAPI/data_driven/Data_SecurityTransferId_Delete.csv",
         "csv_row_index": 2,
@@ -204,7 +225,14 @@
                     "operator": "!=",
                     "message": "SecurityTransferId should not be empty"
                 }
-            ]
+            ],
+            "data_comparison": {
+                "comparison_name": "API response self-compare",
+                "source": "api_response",
+                "target": "api_response",
+                "fields_to_compare": [],
+                "log_differences": true
+            }
         },
         "test_data_file": "MoveMoneyAPI/data_driven/Data_SecurityTransferId_Delete.csv",
         "csv_row_index": 3,
