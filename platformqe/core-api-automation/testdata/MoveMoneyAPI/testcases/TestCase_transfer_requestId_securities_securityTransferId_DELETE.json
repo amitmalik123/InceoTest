@@ -1,0 +1,213 @@
+[
+    {
+        "test_id": "TC001_SETUP",
+        "service_name": "MoveMoneyAPI",
+        "workflow_mode": "sequential",
+        "test_name": "TC001_SETUP - POST /transfer/{requestId}/securities - Create security transfer for delete flow",
+        "protocol": "REST",
+        "test_type": [
+            "Functional"
+        ],
+        "mainURL": "{{base_url}}",
+        "endpoint": "/transfer/{{requestId}}/securities",
+        "method": "POST",
+        "headers_additional": {
+            "Content-Type": "application/json"
+        },
+        "payload": "MoveMoneyAPI/payloads/Payload_transfer_requestId_securities_POST_functional.json",
+        "expected_status": "201",
+        "ignore_fields": [
+            "id",
+            "createdDate",
+            "modifiedDate",
+            "timestamp"
+        ],
+        "extract_values": [
+            {
+                "from": "response",
+                "key": "securityTransferId",
+                "assign_to": "latestSecurityTransferIdForDelete"
+            }
+        ],
+        "validate": {
+            "performance": {
+                "max_response_time_ms": 5000
+            },
+            "security": {
+                "checks": [
+                    "sql_injection",
+                    "xss"
+                ]
+            },
+            "assertions": [
+                {
+                    "actual": "{{requestId}}",
+                    "expected": "",
+                    "operator": "!=",
+                    "message": "RequestId should not be empty"
+                },
+                {
+                    "actual": "{{latestSecurityTransferIdForDelete}}",
+                    "expected": "",
+                    "operator": "!=",
+                    "message": "SecurityTransferId should not be empty"
+                }
+            ]
+        },
+        "test_data_file": "MoveMoneyAPI/data_driven/Data_SecurityTransferId_Delete.csv",
+        "csv_row_index": 0,
+        "test_summary": "TC001_SETUP creates a security transfer and prepares data for delete validation"
+    },
+    {
+        "test_id": "TC001",
+        "service_name": "MoveMoneyAPI",
+        "workflow_mode": "sequential",
+        "test_name": "TC001 - GET /transfer/{requestId} - Capture latest securityTransferId",
+        "protocol": "REST",
+        "test_type": [
+            "Functional"
+        ],
+        "mainURL": "{{base_url}}",
+        "endpoint": "/transfer/{{requestId}}",
+        "method": "GET",
+        "headers_additional": {
+            "Content-Type": "application/json"
+        },
+        "expected_status": "200",
+        "ignore_fields": [
+            "id"
+        ],
+        "extract_values": [
+            {
+                "from": "response",
+                "key": "securityTransfers.*.securityTransferId",
+                "assign_to": "latestSecurityTransferIdForDelete"
+            }
+        ],
+        "validate": {
+            "performance": {
+                "max_response_time_ms": 500
+            },
+            "security": {
+                "checks": [
+                    "sql_injection",
+                    "xss"
+                ]
+            },
+            "assertions": [
+                {
+                    "actual": "{{requestId}}",
+                    "expected": "",
+                    "operator": "!=",
+                    "message": "RequestId should not be empty"
+                },
+                {
+                    "actual": "{{latestSecurityTransferIdForDelete}}",
+                    "expected": "",
+                    "operator": "!=",
+                    "message": "SecurityTransferId should not be empty"
+                }
+            ]
+        },
+        "test_data_file": "MoveMoneyAPI/data_driven/Data_SecurityTransferId_Delete.csv",
+        "csv_row_index": 1,
+        "test_summary": "TC001 fetches transfer details and extracts latest securityTransferId"
+    },
+    {
+        "test_id": "TC002",
+        "service_name": "MoveMoneyAPI",
+        "workflow_mode": "sequential",
+        "test_name": "TC002 - DELETE /transfer/{requestId}/securities/{securityTransferId} [positive]",
+        "protocol": "REST",
+        "test_type": [
+            "Functional"
+        ],
+        "mainURL": "{{base_url}}",
+        "endpoint": "/transfer/{{requestId}}/securities/{{latestSecurityTransferIdForDelete}}",
+        "method": "DELETE",
+        "headers_additional": {
+            "Content-Type": "application/json"
+        },
+        "expected_status": "200",
+        "ignore_fields": [
+            "id"
+        ],
+        "validate": {
+            "performance": {
+                "max_response_time_ms": 500
+            },
+            "security": {
+                "checks": [
+                    "sql_injection",
+                    "xss"
+                ]
+            },
+            "assertions": [
+                {
+                    "actual": "{{requestId}}",
+                    "expected": "",
+                    "operator": "!=",
+                    "message": "RequestId should not be empty"
+                },
+                {
+                    "actual": "{{latestSecurityTransferIdForDelete}}",
+                    "expected": "",
+                    "operator": "!=",
+                    "message": "SecurityTransferId should not be empty"
+                }
+            ]
+        },
+        "test_data_file": "MoveMoneyAPI/data_driven/Data_SecurityTransferId_Delete.csv",
+        "csv_row_index": 2,
+        "test_summary": "TC002 deletes the latest captured security transfer id"
+    },
+    {
+        "test_id": "TC003",
+        "service_name": "MoveMoneyAPI",
+        "workflow_mode": "sequential",
+        "test_name": "TC003 - DELETE /transfer/{requestId}/securities/{securityTransferId} [negative: already deleted]",
+        "protocol": "REST",
+        "test_type": [
+            "Negative"
+        ],
+        "mainURL": "{{base_url}}",
+        "endpoint": "/transfer/{{requestId}}/securities/{{latestSecurityTransferIdForDelete}}",
+        "method": "DELETE",
+        "headers_additional": {
+            "Content-Type": "application/json"
+        },
+        "expected_status": "204",
+        "expected_response": "",
+        "ignore_fields": [
+            "id"
+        ],
+        "validate": {
+            "performance": {
+                "max_response_time_ms": 500
+            },
+            "security": {
+                "checks": [
+                    "sql_injection",
+                    "xss"
+                ]
+            },
+            "assertions": [
+                {
+                    "actual": "{{requestId}}",
+                    "expected": "",
+                    "operator": "!=",
+                    "message": "RequestId should not be empty"
+                },
+                {
+                    "actual": "{{latestSecurityTransferIdForDelete}}",
+                    "expected": "",
+                    "operator": "!=",
+                    "message": "SecurityTransferId should not be empty"
+                }
+            ]
+        },
+        "test_data_file": "MoveMoneyAPI/data_driven/Data_SecurityTransferId_Delete.csv",
+        "csv_row_index": 3,
+        "test_summary": "TC003 repeats delete on same id and expects 204 (already deleted)"
+    }
+]
