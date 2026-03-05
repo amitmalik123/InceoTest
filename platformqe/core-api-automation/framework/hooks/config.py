@@ -58,6 +58,41 @@ class HooksConfig:
 
 
 # Service-specific default settings
+# 
+# Two configuration formats are supported:
+# 
+# 1. FLAT FORMAT (single endpoint per service):
+#    'service_name': {
+#        'prerequisite_testcase': {
+#            'enabled': True,
+#            'count': 3,
+#            'testcase_file': '...',
+#            ...
+#        }
+#    }
+# 
+# 2. NESTED FORMAT (multiple endpoints per service):
+#    'service_name': {
+#        'prerequisite_testcase': {
+#            'endpoint1': {
+#                'enabled': True,
+#                'count': 5,
+#                'testcase_file': '...',
+#                ...
+#            },
+#            'endpoint2': {
+#                'enabled': True,
+#                'count': 3,
+#                'testcase_file': '...',
+#                ...
+#            }
+#        }
+#    }
+# 
+# Usage:
+#   - Flat format: pytest --service-name=parties --env=T11
+#   - Nested format: pytest --service-name=MoveMoneyAPI --env=TSADEV
+#                     (executes all enabled endpoints: requests + instructions)
 SERVICE_DEFAULTS: Dict[str, Dict] = {
     'parties': {
         'max_records': 10,
@@ -75,20 +110,60 @@ SERVICE_DEFAULTS: Dict[str, Dict] = {
             'csv_columns': ['environment', 'id']
         }
     },
-        'MoveMoneyAPI': {
+    'MoveMoneyAPI': {
         'max_records': 10,
-        # Prerequisite test case to run before other tests
+        # Prerequisite test cases for MoveMoneyAPI service
+        # Supports multiple endpoints: requests and instructions
         'prerequisite_testcase': {
-            'enabled': True,
-            'count': 10,  # Number of party IDs to create
-            'testcase_file': 'MoveMoneyAPI/testcases/TestCase_moneymovement_requestid_POST.json',
-            'test_data_file': 'MoveMoneyAPI/data_driven/Data_MoveMoneyAPI_POST.csv',
-            'extract_from_response': {
-                'field': 'requestId',  # Field to extract from API response
-                'assign_to': 'requestId'    # Variable name to use
+            # === REQUESTS ENDPOINT ===
+            'requests': {
+                'enabled': True,
+                'count': 10,  # Number of requestIds to create
+                'testcase_file': 'MoveMoneyAPI/testcases/TestCase_moneymovement_requestid_POST.json',
+                'test_data_file': 'MoveMoneyAPI/data_driven/Data_MoveMoneyAPI_POST.csv',
+                'extract_from_response': {
+                    'field': 'requestId',  # Field to extract from API response
+                    'assign_to': 'requestId'    # Variable name to use
+                },
+                'update_csv_file': 'MoveMoneyAPI/data_driven/Data_requests_requestId_PUT.csv',
+                'csv_columns': ['environment', 'requestId', 'version', 'instructionId', 'accountId', 'railType', 'amount', 'percent','requestType', 'status', 'reason', 'scheduleType', 'paymentDate', 'frequency', 'startDate', 'endDate'],
             },
-            'update_csv_file': 'MoveMoneyAPI/data_driven/Data_requests_requestId_PUT.csv',
-            'csv_columns': ['environment', 'requestId', 'version', 'instructionId', 'accountId', 'railType', 'amount', 'percent','requestType', 'status', 'reason', 'scheduleType', 'paymentDate', 'frequency', 'startDate', 'endDate'],
+            # === INSTRUCTIONS ENDPOINT ===
+            'instructions': {
+                'enabled': True,
+                'count': 1,  # Create one instructionId for DELETE flow (TC001 -> TC003)
+                'testcase_file': 'MoveMoneyAPI/testcases/TestCase_moneymovement_instructions_9694_POST.json',
+                'test_data_file': 'MoveMoneyAPI/data_driven/Data_Instructions_9694_POST.csv',
+                'extract_from_response': {
+                    'fields': [
+                        {
+                            'field': 'instructionId',
+                            'assign_to': 'instruction_id'
+                        },
+                        {
+                            'field': 'version',
+                            'assign_to': 'version'
+                        }
+                    ]
+                },
+                'update_csv_files': [
+                    {
+                        'csv_file': 'MoveMoneyAPI/data_driven/Data_instructions_instructionId_Delete.csv',
+                        'csv_columns': ['environment', 'instruction_id', 'version'],
+                        'extract_fields': ['instruction_id', 'version']
+                    },
+                    {
+                        'csv_file': 'MoveMoneyAPI/data_driven/Data_Instructions_InstructionId_PUT.csv',
+                        'csv_columns': ['environment', 'instruction_id', 'instructionId_endpoint'],
+                        'extract_fields': ['instruction_id', 'instructionId_endpoint']
+                    },
+                    {
+                        'csv_file': 'MoveMoneyAPI/data_driven/Data_instructions_instructionId_GET.csv',
+                        'csv_columns': ['test_id', 'environment', 'instructionId', 'status'],
+                        'extract_fields': ['instructionId']
+                    }
+                ],
+            }
         }
     }
 }

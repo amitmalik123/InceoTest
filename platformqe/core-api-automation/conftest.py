@@ -251,6 +251,12 @@ def pytest_addoption(parser):
         help="Run only test cases with this service_name value."
     )
     parser.addoption(
+        "--hook-endpoint",
+        action="store",
+        default=None,
+        help="Limit hooks to a single endpoint group (e.g., requests, instructions)."
+    )
+    parser.addoption(
         "--test-id",
         action="store",
         default=None,
@@ -1506,6 +1512,7 @@ def pytest_sessionstart(session):
     
     # Trigger hooks for service-specific test data setup
     service_name = session.config.getoption('--service-name', default=None)
+    hook_endpoint = session.config.getoption('--hook-endpoint', default=None)
     if service_name:
         try:
             from framework.hooks.setup import TestDataManager
@@ -1517,8 +1524,9 @@ def pytest_sessionstart(session):
                 config = get_config()
                 env = config.get('environment', 'test')
             
-            logger.info(f"Triggering hooks for service: {service_name}, environment: {env}")
-            _test_data_manager = TestDataManager(service_name, environment=env)
+            endpoint_label = hook_endpoint or "all"
+            logger.info(f"Triggering hooks for service: {service_name}, endpoint: {endpoint_label}, environment: {env}")
+            _test_data_manager = TestDataManager(service_name, environment=env, endpoint_filter=hook_endpoint)
             success = _test_data_manager.setup()
             
             # Store setup results in session config for access by fixtures

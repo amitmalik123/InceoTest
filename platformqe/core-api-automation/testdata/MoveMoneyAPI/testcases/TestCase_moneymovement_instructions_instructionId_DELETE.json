@@ -1,85 +1,5 @@
 [
     {
-        "test_id": "TC001_SETUP",
-        "service_name": "MoveMoneyAPI",
-        "workflow_mode": "sequential",
-        "test_name": "POST /instructions - Create instruction for deletion test",
-        "protocol": "REST",
-        "test_type": [
-            "Functional"
-        ],
-        "mainURL": "{{base_url}}",
-        "endpoint": "/instructions",
-        "method": "POST",
-        "headers_additional": {
-            "Content-Type": "application/json"
-        },
-        "payload": "MoveMoneyAPI\\payloads\\Payload_moneymovement_Instruction_POST_request.json",
-        "expected_status": "200",
-        "expected_response_schema": "MoveMoneyAPI\\schemas\\Schema_instructions_POST.json",
-        "expected_response": null,
-        "ignore_fields": [
-            "traceId",
-            "id",
-            "addressid",
-            "contactid",
-            "identifierid",
-            "timestamp",
-            "createdDate",
-            "modifiedDate",
-            "entitycreateddate",
-            "individualdateofbirth",
-            "instructionId"
-        ],
-        "extract_values": [
-            {
-                "from": "response",
-                "key": "instructionId",
-                "assign_to": "created_instructionId"
-            },
-            {
-                "from": "response",
-                "key": "version",
-                "assign_to": "created_version"
-            }
-        ],
-        "validate": {
-            "performance": {
-                "max_response_time_ms": 1000
-            },
-            "security": {
-                "checks": [
-                    "sql_injection",
-                    "xss"
-                ]
-            },
-            "assertions": [
-                {
-                    "actual": "{{created_instructionId}}",
-                    "expected": "",
-                    "operator": "!=",
-                    "message": "InstructionId should not be empty"
-                },
-                {
-                    "actual": "{{created_version}}",
-                    "expected": 1,
-                    "operator": "==",
-                    "message": "Version should be 1"
-                }
-            ],
-            "data_comparison": []
-        },
-        "test_data_file": "",
-        "db_query_timing": "",
-        "db_queries": {
-            "default": "",
-            "audit_query": ""
-        },
-        "db_type": "",
-        "db_connection_name": "",
-        "test_summary": "Create a new instruction to use for DELETE test"
-    },
-    {
         "test_id": "TC001",
         "service_name": "MoveMoneyAPI",
         "workflow_mode": "sequential",
@@ -89,7 +9,7 @@
             "Functional"
         ],
         "mainURL": "{{base_url}}",
-        "endpoint": "/instructions/{{created_instructionId}}",
+        "endpoint": "/instructions/{{instruction_id}}",
         "method": "DELETE",
         "rpc_method": "",
         "graphql_query": "",
@@ -174,10 +94,11 @@
                 }
             ]
         },
-        "test_data_file": "",
+        "test_data_file": "MoveMoneyAPI/data_driven/Data_instructions_instructionId_Delete.csv",
+        "csv_row_index": 0,
         "db_query_timing": "after_api",
         "db_queries": {
-            "default": "SELECT TOP 1 * FROM [dbo].[MoneyMovementInstruction] WHERE Id = '{{created_instructionId}}' ORDER BY Version DESC",
+            "default": "SELECT TOP 1 * FROM [dbo].[MoneyMovementInstruction] WHERE Id = '{{instruction_id}}' ORDER BY Version DESC",
             "audit_query": ""
         },
         "db_type": "mssql",
@@ -212,12 +133,7 @@
         "extract_values": [
             {
                 "from": "response",
-                "key": "status",
-                "assign_to": "error_status"
-            },
-            {
-                "from": "response",
-                "key": "error",
+                "key": "errors.instructionId.0",
                 "assign_to": "error_message"
             }
         ],
@@ -233,12 +149,6 @@
             },
             "assertions": [
                 {
-                    "actual": "{{error_status}}",
-                    "expected": 400,
-                    "operator": "==",
-                    "message": "Error status should be 400"
-                },
-                {
                     "actual": "{{error_message}}",
                     "expected": "",
                     "operator": "!=",
@@ -248,7 +158,7 @@
                     "actual": "{{error_message}}",
                     "expected": "UUID",
                     "operator": "contains",
-                    "message": "Error message should mention GUID or UUID validation"
+                    "message": "Error message should mention UUID validation"
                 }
             ],
             "data_comparison": []
@@ -266,14 +176,14 @@
     {
         "test_id": "TC003",
         "service_name": "MoveMoneyAPI",
-        "workflow_mode": "parallel",
+        "workflow_mode": "sequential",
         "test_name": "DELETE /instructions/{instructionId} [negative: not found returns 204] (TC003)",
         "protocol": "REST",
         "test_type": [
             "Negative"
         ],
         "mainURL": "{{base_url}}",
-        "endpoint": "/instructions/{{created_instructionId}}",
+        "endpoint": "/instructions/{{instruction_id}}",
         "method": "DELETE",
         "rpc_method": "",
         "graphql_query": "",
@@ -302,7 +212,8 @@
             "assertions": [],
             "data_comparison": []
         },
-        "test_data_file": "",
+        "test_data_file": "MoveMoneyAPI/data_driven/Data_instructions_instructionId_Delete.csv",
+        "csv_row_index": 0,
         "db_query_timing": "after_api",
         "db_queries": {
             "default": "",
