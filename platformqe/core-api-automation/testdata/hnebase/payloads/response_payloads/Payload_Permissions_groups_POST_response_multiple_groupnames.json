@@ -1,19 +1,24 @@
 {
   "permissionGroups": [
     {
-      "groupName": "Advisor Wrapper Model",
+      "groupName": "New Navigation",
       "permissions": [
         {
-          "permissionKey": "Advisor_Wrapper_Model_Create",
+          "permissionKey": "eWMNewNavigation",
           "permissionEffect": "allow"
         },
         {
-          "permissionKey": "Advisor_Wrapper_Model_Edit",
+          "permissionKey": "New_Navigation_View",
           "permissionEffect": "allow"
-        },
+        }
+      ]
+    },
+    {
+      "groupName": "Morningstar",
+      "permissions": [
         {
-          "permissionKey": "Advisor_Wrapper_Model_View",
-          "permissionEffect": "allow"
+          "permissionKey": "ClientCenter",
+          "permissionEffect": "notallowed"
         }
       ]
     }

@@ -1,3 +1,10 @@
 {
-  "permissionGroups": []
+  "title": "One or more validation errors occurred.",
+  "status": 400,
+  "instance": "/api/hne/v1/Permissions/groups",
+  "errors": {
+    "GroupNames[0]": [
+      "Group name cannot be empty."
+    ]
+  }
 }
