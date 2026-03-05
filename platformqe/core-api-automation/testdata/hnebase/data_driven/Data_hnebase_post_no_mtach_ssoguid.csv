@@ -1,5 +1,5 @@
 environment,test_id,req_ssoguid, req_groupNames, expected_status
-TSADEV,TC006,sso-guid-nonexistent-999, New Navigation, 200
+TSADEV,TC006,sso-guid-nonexistent-999, New Navigation, 404
 
 
 
