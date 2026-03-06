@@ -60,8 +60,8 @@
               "bankAccountName": {"type": "string"},
               "bankAccountType": {"type": "string"},
               "bankName": {"type": "string"},
-              "routingNumber": {"type": "string"},
-              "bankAccountNumber": {"type": "string"}
+              "routingNumber": {"type": ["string", "integer"]},
+              "bankAccountNumber": {"type": ["string", "integer"]}
             }
           },
           "createdDate": {
