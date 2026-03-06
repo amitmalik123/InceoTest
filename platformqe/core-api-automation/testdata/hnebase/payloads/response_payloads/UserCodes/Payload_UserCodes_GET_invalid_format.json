@@ -1,0 +1,9 @@
+{
+  "title": "One or more validation errors occurred.",
+  "status": 400,
+  "errors": {
+    "SsoGuid": [
+      "SSOGUID must be a valid SSOGUID format."
+    ]
+  }
+}
