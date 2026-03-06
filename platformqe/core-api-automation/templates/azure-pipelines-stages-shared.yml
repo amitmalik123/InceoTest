@@ -421,7 +421,7 @@ stages:
             inputs:
               azureSubscription: $(subscription_dev)
               KeyVaultName: 'amkkvqapipeline-devncus'
-              SecretsFilter: 'parties-sqldb-connection-string,movemoney-sqldb-connection-string,hne-db-connection-string,securitieshub-db-connection-string,modelhub-db-connection-string,am-db-connection-string,platform-db-connection-string'
+              SecretsFilter: 'parties-sqldb-connection-string,accounts-sqldb-connection-string,movemoney-sqldb-connection-string,hne-db-connection-string,securitieshub-db-connection-string,modelhub-db-connection-string,am-db-connection-string,platform-db-connection-string'
               RunAsPreJob: false
           
           - task: AzureKeyVault@2
@@ -430,7 +430,7 @@ stages:
             inputs:
               azureSubscription: $(subscription_test)
               KeyVaultName: 'amkkvqapipeline-testncus'
-              SecretsFilter: 'parties-sqldb-connection-string,movemoney-sqldb-connection-string,hne-db-connection-string,securitieshub-db-connection-string,modelhub-db-connection-string,am-db-connection-string,platform-db-connection-string'
+              SecretsFilter: 'parties-sqldb-connection-string,accounts-sqldb-connection-string,movemoney-sqldb-connection-string,hne-db-connection-string,securitieshub-db-connection-string,modelhub-db-connection-string,am-db-connection-string,platform-db-connection-string'
               RunAsPreJob: false
           
           - task: AzureKeyVault@2
@@ -439,7 +439,7 @@ stages:
             inputs:
               azureSubscription: $(subscription_silo)
               KeyVaultName: 'amkkvqapipeline-siloncus'
-              SecretsFilter: 'parties-sqldb-connection-string,movemoney-sqldb-connection-string,hne-db-connection-string,securitieshub-db-connection-string,modelhub-db-connection-string,am-db-connection-string,platform-db-connection-string'
+              SecretsFilter: 'parties-sqldb-connection-string,accounts-sqldb-connection-string,movemoney-sqldb-connection-string,hne-db-connection-string,securitieshub-db-connection-string,modelhub-db-connection-string,am-db-connection-string,platform-db-connection-string'
               RunAsPreJob: false
           
           # Resolve environment-specific variables
@@ -625,6 +625,7 @@ stages:
               MODELS_X_USER_ID: $(models_x_user_id)
               PARTIES_BASE_URL: $(RESOLVED_PARTIES_BASE_URL)
               PARTIES_SQLDB: $(parties-sqldb-connection-string)
+              ACCOUNTS_SQLDB: $(accounts-sqldb-connection-string)
               MOVEMONEY_SQLDB: $(movemoney-sqldb-connection-string)
               HNE_DB: $(hne-db-connection-string)
               SECURITIESHUB_DB: $(securitieshub-db-connection-string)
@@ -685,6 +686,7 @@ stages:
               MODELS_X_USER_ID: $(models_x_user_id)
               PARTIES_BASE_URL: $(RESOLVED_PARTIES_BASE_URL)
               PARTIES_SQLDB: $(parties-sqldb-connection-string)
+              ACCOUNTS_SQLDB: $(accounts-sqldb-connection-string)
               MOVEMONEY_SQLDB: $(movemoney-sqldb-connection-string)
               HNE_DB: $(hne-db-connection-string)
               SECURITIESHUB_DB: $(securitieshub-db-connection-string)
