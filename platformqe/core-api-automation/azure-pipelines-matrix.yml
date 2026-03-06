@@ -151,6 +151,9 @@ parameters:
 variables:
   - group: 'qa-pipelines-shared-config'
   - group: 'qa-pipelines-config'
+  - group: 'qa-pipelines-config-dev'
+  - group: 'qa-pipelines-config-test'
+  - group: 'qa-pipelines-config-silo'
 
   - name: pythonVersion
     value: '3.10'
