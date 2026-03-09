@@ -165,7 +165,8 @@ Then(
         await expect(portfolioEnginePageInstance.oneCombinedDocumentText).toBeVisible();
 
         // Adjust for prod environment
-        if (process.env.Environment.toLowerCase() === 'prod') {
+        const environment = (process.env.ENVIRONMENT || process.env.Environment || '').toLowerCase();
+        if (environment === 'prod') {
             expectedProposalPageCount += 3;
         }
 
@@ -192,7 +193,8 @@ Then('the proposal should be saved successfully with {int} pages', async ({}, ex
     await expect(portfolioEnginePageInstance.oneCombinedDocumentText).toBeVisible();
 
     // Adjust for prod environment
-    if (process.env.Environment.toLowerCase() === 'prod') {
+    const environment = (process.env.ENVIRONMENT || process.env.Environment || '').toLowerCase();
+    if (environment === 'prod') {
         expectedProposalPageCount += 3;
     }
 
