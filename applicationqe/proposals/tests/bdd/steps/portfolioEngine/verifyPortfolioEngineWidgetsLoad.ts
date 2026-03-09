@@ -1,16 +1,18 @@
 import { When, Then } from '../../../../fixtures/fixtures';
 import { expect } from '@playwright/test';
-import { portfolioEnginePageInstance } from './addStrategiesToPortfolio';
+import { getPortfolioEnginePageInstance } from '../shared/instanceManager';
 import { logger } from '../../../../utils/logger';
 
 When('I enable all Portfolio Engine widgets', async () => {
     logger.debug('\nEnabling all widgets');
+    const portfolioEnginePageInstance = getPortfolioEnginePageInstance();
     await portfolioEnginePageInstance.selectAllWidgetsIfNeeded();
 });
 
 Then('the Portfolio Engine widgets should load successfully', async () => {
     // Verify all widget headers are loaded
     logger.debug('\nVerifying widget headers are visible');
+    const portfolioEnginePageInstance = getPortfolioEnginePageInstance();
     await expect(portfolioEnginePageInstance.upsideDownsideCaptureHeader).toBeVisible();
     await expect(portfolioEnginePageInstance.investmentApproachHeader).toBeVisible();
     await expect(portfolioEnginePageInstance.returnByStrategyHeader).toBeVisible();

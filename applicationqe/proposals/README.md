@@ -106,8 +106,7 @@ Example feature:
 Feature: Portfolio Creation
   
   Scenario: Create a new portfolio with strategies
-    Given I am logged into the application
-    And I am on the Portfolio Engine page
+    Given I am on the Portfolio Engine page
     When I create a portfolio with strategies
     Then the portfolio should be saved successfully
 ```

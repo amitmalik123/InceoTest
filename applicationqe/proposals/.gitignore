@@ -10,6 +10,9 @@ authfiles/
 
 # BDD generated files
 .features-gen/
+# Keep snapshot baselines under generated specs
+!.features-gen/**/.spec.js-snapshots/
+!.features-gen/**/.spec.js-snapshots/**/*.png
 
 # Node modules
 node_modules/

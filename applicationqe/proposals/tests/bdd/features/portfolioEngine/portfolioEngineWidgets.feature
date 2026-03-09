@@ -1,8 +1,17 @@
 @smoke @regression @portfolioEngine @widgetTests
 Feature: Portfolio Engine Widgets
     Scenario: Verify Portfolio Engine Widgets Load
-        Given I am logged into the application
         Given I am on the Portfolio Engine page
-        Given I have created a portfolio with strategies
+        When I click the manage portfolios button
+        And I create a new model portfolio
+        And I select AssetMark Platform Strategies as portfolio type
+        And I add the following strategies to the portfolio:
+            | assetmark income builder, profile 2, conservative            |
+            | blackrock equity dividend                                    |
+            | savos us risk controlled strategy, profile 6                 |
+            | alphasimplex, alternative model portfolio, profile 5, growth |
+            | jpmorgan absolute return - profile 1                         |
+        And I enter portfolio name "Widget Test Portfolio"
+        And I save the portfolio
         When I enable all Portfolio Engine widgets
         Then the Portfolio Engine widgets should load successfully

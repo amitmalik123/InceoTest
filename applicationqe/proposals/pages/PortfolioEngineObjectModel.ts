@@ -223,6 +223,7 @@ export class PortfolioEnginePage {
     readonly estimateExpenseTitle: Locator;
     readonly importantInformationText: Locator;
     readonly disclosuresTitle: Locator;
+    readonly taxManagementServicesText: Locator;
     readonly clientSignatureText: Locator;
     readonly investmentPolicyStatementText: Locator;
 
@@ -253,20 +254,30 @@ export class PortfolioEnginePage {
     readonly estimatedExpenseCanvas: Locator;
     readonly importantInformationCanvas: Locator;
     readonly disclosuresCanvas: Locator;
+    readonly taxManagementServicesCanvas: Locator;
     readonly clientSignatureCanvas: Locator;
     readonly investmentPolicyCanvas: Locator;
+
+    // Asset Allocation Summary - Investment Approach Rows
+    readonly coreMarketsRow: Locator;
+    readonly tacticalEnhancedReturnRow: Locator;
+    readonly tacticalLimitLossRow: Locator;
+    readonly diversifyingEquityAlternativesRow: Locator;
+    readonly diversifyingBondsRow: Locator;
+    readonly additionalInvestmentsRow: Locator;
 
     // Client Search Elements
     readonly loadingImageModal: Locator;
     readonly clientSearchInput: Locator;
     readonly searchButton: Locator;
     readonly noClientsFoundMessage: Locator;
+    readonly noResultsMessage: Locator;
     readonly clientCollapsedLink: Locator;
-    readonly guyDudeIndividualLink: Locator;
     readonly viewDocumentHistoryLink: Locator;
     readonly deleteClientLink: Locator;
     readonly portfolioDetailsLink: Locator;
     readonly newClientExperienceDecline: Locator;
+    readonly okButton: Locator;
 
     constructor(page: Page) {
         this.page = page;
@@ -560,6 +571,7 @@ export class PortfolioEnginePage {
             .filter({ hasText: 'Platform' })
             .locator('div')
             .last();
+
         this.totalFeeLabel = this.feeDetailsContainer.locator('[class*="fees_totalFee"]').locator('div').first();
         this.totalFee = this.feeDetailsContainer.locator('[class*="fees_totalFee"]').locator('div').last();
         this.continueButton = page.getByRole('button', { name: 'Continue' });
@@ -601,10 +613,8 @@ export class PortfolioEnginePage {
 
         // Proposal Document Sections - Checkboxes
         this.introductionCheckbox = page.locator('.th-Introduction-wrap .checkbox-container .clsA');
-        this.pursuingYourGoalsCheckbox = page.locator('.th-wrap.th-Investing .checkbox-container .clsA');
-        this.investingIsPersonalCheckbox = page
-            .locator('.th-listview-title.listview-child .checkbox-container .clsA')
-            .first();
+        this.pursuingYourGoalsCheckbox = page.locator('.th-wrap.th-Investing .checkbox-container .clsA').first();
+        this.investingIsPersonalCheckbox = page.locator('.th-wrap.th-Investing .checkbox-container .clsA').nth(1);
         this.equitiesVsBondsCheckbox = page.locator('.th-wrap.th-Growth .checkbox-container .clsA').first();
         this.cycleOfEmotionsCheckbox = page.locator('.th-wrap.th-The.Cycle .checkbox-container .clsA');
         this.stayingInvestedCheckbox = page.locator('.th-wrap.th-Growth .checkbox-container .clsA').nth(1);
@@ -645,7 +655,7 @@ export class PortfolioEnginePage {
             .first();
         this.annualPortfolioFeesDropdownIcon = page.locator('.th-wrap.th-Fee .icon-holder i').first();
 
-        // Proposal Document Verification - Click Elements (using stable patterns with class combinations)
+        // Proposal Document Verification - Click Elements
         this.coverPageHeader = page.locator('.th-header').first();
         this.pursueYourGoalsText = page.getByText('Pursue Your Goals', { exact: true });
         this.tableOfContentsText = page.getByText('Table Of Contents', { exact: true });
@@ -697,7 +707,7 @@ export class PortfolioEnginePage {
             .locator('div')
             .filter({ hasText: /^Annual Portfolio Fees \(3\)$/ })
             .first();
-        //getByText('Fee Schedule').nth(1);
+
         this.tieredFeeScheduleHeader = page
             .getByRole('heading', { name: /Tiered Fee Schedule/i })
             .or(page.locator('.th-wrap.th-Tiered .th-header'));
@@ -706,38 +716,50 @@ export class PortfolioEnginePage {
             exact: true,
         });
         this.disclosuresTitle = page.locator('.th-wrap.th-Disclosures .th-title');
+        this.taxManagementServicesText = page.locator('.th-wrap.th-Tax.Management.Services-wrap .th-title');
         this.clientSignatureText = page.getByText('Client Signature', { exact: true });
         this.investmentPolicyStatementText = page.getByText('Investment Policy Statement', { exact: true });
 
-        // Proposal Document Verification - Content Visibility (targeting canvas elements directly)
-        this.previewLayoutContentFirst = page.locator('canvas').first();
-        this.tableOfContentsContent = page.locator('.page-wrap.Table canvas');
-        this.introductionContent = page.locator('.page-wrap.Introduction-page-component-wrap canvas');
-        this.investingContent = page.locator('.page-wrap.Investing canvas');
-        this.growthContentFirst = page.locator('.page-wrap.Growth canvas').first();
-        this.theContent = page.locator('.page-wrap.The canvas');
-        this.growthContentSecond = page.locator('.page-wrap.Growth canvas').nth(1);
-        this.yourContentCanvas = page.locator('.page-wrap.Your canvas').first();
-        this.portfolioContent = page.locator('.page-wrap.Portfolio canvas');
-        this.custodianContent = page.locator('.page-wrap.Custodian canvas');
-        this.ongoingContent = page.locator('.page-wrap.Ongoing canvas');
-        this.yourFinancialContent = page.locator('.page-wrap.Your.Financial canvas');
-        this.recommendedContent = page.locator('.page-wrap.Recommended canvas');
-        this.allocationContent = page.locator('.page-wrap.Allocation canvas');
-        this.topHoldingsContent = page.locator('.page-wrap.Top canvas');
-        this.proposedContentFirst = page.locator('.page-wrap.Proposed canvas').first();
-        this.hypotheticalContent = page.locator('.page-wrap.Hypothetical canvas');
-        this.ratesContent = page.locator('.page-wrap.Rates canvas');
-        this.calendarContent = page.locator('.page-wrap.Calendar canvas');
-        this.historicalContent = page.locator('.page-wrap.Historical canvas');
-        this.riskContent = page.locator('.page-wrap.Risk canvas');
-        this.feeContentFirst = page.locator('.page-wrap.Fee canvas').first();
-        this.tieredContent = page.locator('.page-wrap.Tiered canvas');
-        this.estimatedExpenseCanvas = page.locator('.page-wrap.Estimated.Expense canvas');
-        this.importantInformationCanvas = page.locator('.page-wrap.Important.Information canvas');
-        this.disclosuresCanvas = page.locator('.page-wrap.Disclosures canvas');
-        this.clientSignatureCanvas = page.locator('.page-wrap.Client canvas');
-        this.investmentPolicyCanvas = page.locator('.page-wrap.Investment.Policy canvas');
+        // Proposal Document Verification - Content Visibility
+        this.previewLayoutContentFirst = page.locator('.page-component:not(.fainted) canvas').first();
+        this.tableOfContentsContent = page.locator('.page-wrap.Table:not(.fainted) canvas');
+        this.introductionContent = page.locator('.page-wrap.Introduction-page-component-wrap:not(.fainted) canvas');
+        this.investingContent = page.locator('.page-wrap.Investing:not(.fainted) canvas');
+        this.growthContentFirst = page.locator('.page-wrap.Growth:not(.fainted) canvas').first();
+        this.theContent = page.locator('.page-wrap.The:not(.fainted) canvas');
+        this.growthContentSecond = page.locator('.page-wrap.Growth:not(.fainted) canvas').nth(1);
+        this.yourContentCanvas = page.locator('.page-wrap.Your:not(.fainted) canvas').first();
+        this.portfolioContent = page.locator('.page-wrap.Portfolio:not(.fainted) canvas');
+        this.custodianContent = page.locator('.page-wrap.Custodian:not(.fainted) canvas');
+        this.ongoingContent = page.locator('.page-wrap.Ongoing:not(.fainted) canvas');
+        this.yourFinancialContent = page.locator('.page-wrap.Your.Financial:not(.fainted) canvas');
+        this.recommendedContent = page.locator('.page-wrap.Recommended:not(.fainted) canvas');
+        this.allocationContent = page.locator('.page-wrap.Allocation:not(.fainted) canvas');
+        this.topHoldingsContent = page.locator('.page-wrap.Top:not(.fainted) canvas');
+        this.proposedContentFirst = page.locator('.page-wrap.Proposed:not(.fainted) canvas').first();
+        this.hypotheticalContent = page.locator('.page-wrap.Hypothetical:not(.fainted) canvas');
+        this.ratesContent = page.locator('.page-wrap.Rates:not(.fainted) canvas');
+        this.calendarContent = page.locator('.page-wrap.Calendar:not(.fainted) canvas');
+        this.historicalContent = page.locator('.page-wrap.Historical:not(.fainted) canvas');
+        this.riskContent = page.locator('.page-wrap.Risk:not(.fainted) canvas');
+        this.feeContentFirst = page.locator('.page-wrap.Fee:not(.fainted) canvas').first();
+        this.tieredContent = page.locator('.page-wrap.Tiered:not(.fainted) canvas');
+        this.estimatedExpenseCanvas = page.locator('.page-wrap.Estimated.Expense:not(.fainted) canvas');
+        this.importantInformationCanvas = page.locator('.page-wrap.Important.Information:not(.fainted) canvas');
+        this.disclosuresCanvas = page.locator('.page-wrap.Disclosures:not(.fainted) canvas');
+        this.taxManagementServicesCanvas = page.locator(
+            '.page-wrap.Tax.Management.Services-page-component-wrap:not(.fainted) canvas'
+        );
+        this.clientSignatureCanvas = page.locator('.page-wrap.Client:not(.fainted) canvas');
+        this.investmentPolicyCanvas = page.locator('.page-wrap.Investment.Policy:not(.fainted) canvas');
+
+        // Asset Allocation Summary - Investment Approach Rows
+        this.coreMarketsRow = page.locator('#asset-allocation-summary-widget .asset-class').nth(0);
+        this.tacticalEnhancedReturnRow = page.locator('#asset-allocation-summary-widget .asset-class').nth(1);
+        this.tacticalLimitLossRow = page.locator('#asset-allocation-summary-widget .asset-class').nth(2);
+        this.diversifyingEquityAlternativesRow = page.locator('#asset-allocation-summary-widget .asset-class').nth(3);
+        this.diversifyingBondsRow = page.locator('#asset-allocation-summary-widget .asset-class').nth(4);
+        this.additionalInvestmentsRow = page.locator('#asset-allocation-summary-widget .asset-class').nth(5);
 
         // Client Search Elements
         this.loadingImageModal = page.locator('#loadingImageModal');
@@ -746,16 +768,24 @@ export class PortfolioEnginePage {
             .or(page.locator('#client_search_input'));
         this.searchButton = page.getByRole('button', { name: 'search' }).or(page.locator('#searchbutton'));
         this.noClientsFoundMessage = page.getByText('No search results were found.');
-        //this.clientCollapsedLink = page.locator('#ClientListGrid tbody tr.jqgrow').first().locator('td[aria-describedby="ClientListGrid_subgrid"] a');
+        this.noResultsMessage = page.getByText('No search results were found');
         this.clientCollapsedLink = page.locator('td[role="gridcell"][aria-describedby="ClientListGrid_clientName"]');
-        this.guyDudeIndividualLink = page.getByRole('link', { name: 'Guy Dude, Individual' });
         this.viewDocumentHistoryLink = page.getByRole('link', { name: 'View Document History' });
         this.portfolioDetailsLink = page.getByRole('link', { name: 'Portfolio Details' });
         this.deleteClientLink = page.getByRole('link', { name: 'Delete Client' });
         this.newClientExperienceDecline = page.getByRole('button', { name: 'No, Thank You' });
+        this.okButton = page.getByRole('button', { name: 'OK' });
     }
 
     // Helper Methods
+
+    /**
+     * Get client name cell by display name
+     * @param displayName - Client name in display format (LastName, FirstName)
+     */
+    getClientNameCell(displayName: string): Locator {
+        return this.page.locator('#ClientListGrid tbody tr.jqgrow td').filter({ hasText: displayName }).first();
+    }
 
     /**
      * Add a strategy to portfolio by searching and clicking "Add to Portfolio"
@@ -772,47 +802,6 @@ export class PortfolioEnginePage {
      */
     getAllocationTextbox(index: number): Locator {
         return this.page.locator('[class*="portfolio-valid-item"]').locator('input[type="text"]').nth(index);
-    }
-
-    /**
-     * Create a new portfolio with default strategies if one doesn't already exist
-     * @param portfolioName - Name for the portfolio (defaults to 'E2E Test Portfolio')
-     */
-    async createPortfolioIfNeeded(portfolioName: string = 'Generic Portfolio'): Promise<void> {
-        if (await this.getStartedButton.isVisible()) {
-            await this.getStartedButton.click();
-        } else if (await this.managePortfoliosButton.isVisible()) {
-            await this.managePortfoliosButton.click();
-
-            // Check for existing portfolio with today's date and portfolio name
-            const existingPortfolio = this.page
-                .locator('tr')
-                .filter({ hasText: portfolioName })
-                .filter({ hasText: this.getTodayDate() })
-                .first();
-
-            if (await existingPortfolio.isVisible()) {
-                // Portfolio already exists, select it and close
-                await existingPortfolio.click();
-                await this.portfolioCloseButton.click();
-                return;
-            }
-        }
-
-        // Create new model portfolio
-        await this.createNewModelPortfolioButton.click();
-        await this.assetMarkPlatformStrategiesText.click();
-
-        // Add strategies to the portfolio
-        await this.addStrategyToPortfolio('assetmark income builder, profile 2, conservative');
-        await this.addStrategyToPortfolio('blackrock equity dividend');
-        await this.addStrategyToPortfolio('savos us risk controlled strategy, profile 6');
-        await this.addStrategyToPortfolio('alphasimplex, alternative model portfolio, profile 5, growth');
-        await this.addStrategyToPortfolio('jpmorgan absolute return - profile 1');
-
-        await this.modelPortfolioNameTextbox.fill(portfolioName);
-        await this.strategySaveButton.click();
-        await this.strategySaveButton.waitFor({ state: 'detached' });
     }
 
     /**
@@ -846,40 +835,102 @@ export class PortfolioEnginePage {
         await this.jpMorganAbsoluteReturnCheckbox.click();
     }
 
+    async clickAndWaitForExpansion(clickElement: Locator): Promise<void> {
+        await clickElement.click();
+        await this.page.waitForTimeout(100);
+    }
+
     /**
      * Set all proposal document section checkboxes
      */
     async setAllProposalSections(): Promise<void> {
-        await this.introductionCheckbox.setChecked(true);
-        await this.pursuingYourGoalsCheckbox.setChecked(true);
-        await this.pursuingYourGoalsDropdownIcon.click();
-        await this.investingIsPersonalCheckbox.setChecked(true);
-        await this.equitiesVsBondsCheckbox.setChecked(true);
-        await this.cycleOfEmotionsCheckbox.setChecked(true);
-        await this.stayingInvestedCheckbox.setChecked(true);
-        await this.yourInvestmentTeamCheckboxTop.setChecked(true);
-        await this.yourInvestmentTeamCheckboxInside.setChecked(true);
-        await this.portfolioStrategistsCheckbox.setChecked(true);
-        await this.custodianSelectionCheckbox.setChecked(true);
-        await this.ongoingReviewCheckbox.setChecked(true);
-        await this.recommendedInvestmentPortfolioCheckbox.setChecked(true);
-        await this.recommendedInvestmentPortfolioDropdownIcon.click();
-        await this.allocationByAssetClassCheckbox.setChecked(true);
-        await this.topHoldingsCheckbox.setChecked(true);
-        await this.proposedAccountsEstimatedYieldCheckbox.setChecked(true);
-        await this.hypotheticalHistoricalPerformanceCheckbox.setChecked(true);
-        await this.hypotheticalHistoricalPerformanceDropdownIcon.click();
-        await this.hypotheticalGrowthOfProposedAccountsCheckbox.setChecked(true);
-        await this.ratesCheckbox.setChecked(true);
-        await this.calendarYearReturnsCheckbox.setChecked(true);
-        await this.historicalCumulativePerformanceCheckbox.setChecked(true);
-        await this.riskVersusReturnCheckbox.setChecked(true);
-        await this.annualPortfolioFeesCheckbox.setChecked(true);
-        await this.annualPortfolioFeesDropdownIcon.click();
-        await this.tieredFeeScheduleCheckbox.setChecked(true);
-        await this.estimateExpenseCheckbox.setChecked(true);
-        await this.clientSignatureCheckbox.setChecked(true);
-        await this.investmentPolicyStatementCheckbox.setChecked(true);
+        const setAndVerifyCheckbox = async (checkbox: Locator) => {
+            // First, check if already checked to avoid unnecessary operations
+            const currentState = await checkbox.isChecked().catch(() => false);
+            if (currentState) {
+                // Already checked, no action needed
+                return;
+            }
+
+            // Set the checkbox using click for more reliable event handling
+            await checkbox.click();
+
+            // Wait for the UI to process the click and update the DOM
+            await this.page.waitForTimeout(100);
+
+            // Verify the checkbox is now checked with retry logic
+            let isChecked = await checkbox.isChecked().catch(() => false);
+
+            if (!isChecked) {
+                // Retry once more with additional wait
+                await this.page.waitForTimeout(150);
+                isChecked = await checkbox.isChecked().catch(() => false);
+            }
+
+            if (!isChecked) {
+                throw new Error(`Failed to check checkbox`);
+            }
+        };
+
+        // Group 1: Introduction section
+        await setAndVerifyCheckbox(this.introductionCheckbox);
+
+        // Group 2: Pursuing Your Goals (expandable)
+        await this.clickAndWaitForExpansion(this.pursuingYourGoalsDropdownIcon);
+
+        // Group 3: Investing is Personal
+        await setAndVerifyCheckbox(this.investingIsPersonalCheckbox);
+
+        // Group 4: Equities vs Bonds
+        await setAndVerifyCheckbox(this.equitiesVsBondsCheckbox);
+
+        // Group 5: Cycle of Emotions
+        await setAndVerifyCheckbox(this.cycleOfEmotionsCheckbox);
+
+        // Group 6: Staying Invested
+        await setAndVerifyCheckbox(this.stayingInvestedCheckbox);
+
+        // Group 7: Investment Team (dual checkboxes)
+        await setAndVerifyCheckbox(this.yourInvestmentTeamCheckboxInside);
+
+        // Group 8: Portfolio Strategists
+        await setAndVerifyCheckbox(this.portfolioStrategistsCheckbox);
+
+        // Group 9: Custodian Selection
+        await setAndVerifyCheckbox(this.custodianSelectionCheckbox);
+
+        // Group 10: Ongoing Review
+        await setAndVerifyCheckbox(this.ongoingReviewCheckbox);
+
+        // Group 11: Recommended Investment Portfolio (expandable)
+        await this.clickAndWaitForExpansion(this.recommendedInvestmentPortfolioDropdownIcon);
+
+        // Group 12: Asset Allocation and Holdings
+        await setAndVerifyCheckbox(this.allocationByAssetClassCheckbox);
+        await setAndVerifyCheckbox(this.topHoldingsCheckbox);
+        await setAndVerifyCheckbox(this.proposedAccountsEstimatedYieldCheckbox);
+
+        // Group 13: Hypothetical Performance (expandable)
+        await this.clickAndWaitForExpansion(this.hypotheticalHistoricalPerformanceDropdownIcon);
+        await setAndVerifyCheckbox(this.hypotheticalGrowthOfProposedAccountsCheckbox);
+
+        // Group 14: Performance Data
+        await setAndVerifyCheckbox(this.ratesCheckbox);
+        await setAndVerifyCheckbox(this.calendarYearReturnsCheckbox);
+        await setAndVerifyCheckbox(this.historicalCumulativePerformanceCheckbox);
+        await setAndVerifyCheckbox(this.riskVersusReturnCheckbox);
+
+        // Group 15: Annual Portfolio Fees (expandable)
+        await this.clickAndWaitForExpansion(this.annualPortfolioFeesDropdownIcon);
+        await setAndVerifyCheckbox(this.tieredFeeScheduleCheckbox);
+
+        // Group 16: Final sections
+        await setAndVerifyCheckbox(this.estimateExpenseCheckbox);
+        await setAndVerifyCheckbox(this.clientSignatureCheckbox);
+        await setAndVerifyCheckbox(this.investmentPolicyStatementCheckbox);
+
+        // Wait for all UI updates to complete
+        await this.page.waitForLoadState();
     }
 
     /**
@@ -933,6 +984,7 @@ export class PortfolioEnginePage {
             'Beneficiary Roth IRA Trust': "IRA's",
             '401(k)': 'Retirement Plans',
             'Individual 401(k)': 'Retirement Plans',
+            '403(b) Plan': 'Retirement Plans',
             'Defined Benefit Pension Plan': 'Retirement Plans',
             'Money Purchase Pension Plan': 'Retirement Plans',
             'Profit Sharing Plan': 'Retirement Plans',
@@ -981,17 +1033,19 @@ export class PortfolioEnginePage {
     }
 
     /**
-     * Navigate to client's portfolio details
-     * @param clientName - Full name of the client (e.g., 'Guy Dude, Individual')
+     * Delete the current client
+     * Clicks delete link, handles confirmation dialog, and waits for redirect
      */
     async deleteClient(): Promise<void> {
-        // Clicks delete and accepts confirmation dialog, waits for page redirect before moving on
-        this.page.once('dialog', async dialog => {
-            logger.debug(dialog.message());
-            await dialog.accept();
-        });
-        await this.deleteClientLink.click();
-        await this.page.getByText('There are two ways to get started.').waitFor({ state: 'visible', timeout: 10000 });
+        await Promise.all([
+            this.page.waitForEvent('dialog').then(async dialog => {
+                await dialog.accept();
+            }),
+            this.deleteClientLink.click(),
+        ]);
+        // Verify redirect completed
+        await this.page.waitForLoadState();
+        await this.page.getByText(/There are two ways to get started/i).waitFor({ state: 'visible', timeout: 10000 });
     }
 
     /**
@@ -1048,55 +1102,191 @@ export class PortfolioEnginePage {
     }
 
     /**
-     * Delete all portfolios matching the specified identifier (date or name). Defaults to today's date if no identifier provided.
-     * @param identifier - The date (e.g., '12/18/25') or portfolio name to delete. If not provided, uses today's date.
+     * Delete portfolios matching the specified names via API.
+     * Fetches portfolios from /api/pe/v2/portfolios and deletes those with names matching any in the array.
+     * @param names - Array of portfolio names to delete. If not provided, defaults to empty array.
      */
-    async deletePortfolio(identifier?: string): Promise<void> {
-        const dateToUse = identifier ?? this.getTodayDate();
-        let hasMatchingPortfolios = true;
+    async deletePortfolio(names?: Array<string>): Promise<void> {
+        const namesToDelete = names ?? [];
 
-        while (hasMatchingPortfolios) {
-            // Try to find the control button for the matching portfolio
-            const controlButton = this.getPortfolioControlButton(dateToUse);
-            const isVisible = await controlButton.isVisible().catch(() => false);
+        if (namesToDelete.length === 0) {
+            logger.warn('No portfolio names provided to delete');
+            return;
+        }
 
-            if (isVisible) {
-                await controlButton.click();
-                await this.portfolioDeleteText.click();
-                await this.portfolioDeleteConfirmButton.click();
-            } else {
-                hasMatchingPortfolios = false;
+        try {
+            const baseUrl = new URL(this.page.url()).origin;
+
+            // Fetch portfolios from API
+            const response = await this.page.request.get(`${baseUrl}/api/pe/v2/portfolios`);
+            if (!response.ok()) {
+                logger.error(`Failed to fetch portfolios: ${response.status()}`);
+                return;
             }
+
+            const data = (await response.json()) as { id?: string; name?: string }[] | { id?: string; name?: string };
+            const portfolios = Array.isArray(data) ? data : [data];
+
+            logger.info(`Fetched ${portfolios.length} portfolios`);
+
+            // Filter portfolios matching any of the provided names
+            const portfoliosToDelete = portfolios.filter(portfolio => {
+                return portfolio.name && namesToDelete.includes(portfolio.name);
+            });
+
+            logger.info(`Found ${portfoliosToDelete.length} portfolios matching names: ${namesToDelete.join(', ')}`);
+
+            // Delete each matching portfolio
+            for (const portfolio of portfoliosToDelete) {
+                if (!portfolio.id) continue;
+
+                try {
+                    const deleteResponse = await this.page.request.delete(
+                        `${baseUrl}/api/pe/v2/portfolio/${portfolio.id}`
+                    );
+                    if (deleteResponse.ok()) {
+                        logger.info(`Successfully deleted portfolio ${portfolio.id} with name "${portfolio.name}"`);
+                    } else {
+                        logger.error(`Failed to delete portfolio ${portfolio.id}: ${deleteResponse.status()}`);
+                    }
+                } catch (err) {
+                    logger.error(
+                        `Error deleting portfolio ${portfolio.id}: ${err instanceof Error ? err.message : String(err)}`
+                    );
+                }
+            }
+        } catch (err) {
+            logger.error(`Error in deletePortfolio: ${err instanceof Error ? err.message : String(err)}`);
         }
     }
 
     /**
-     * Delete all portfolios in the manage portfolios view regardless of date or name
+     * Delete portfolios created before 2025 via API.
+     * Fetches all portfolios from /api/pe/v2/portfolios and /api/pe/v2/holisticPortfolio
+     * and deletes those with createdOn year < 2025 or if value is null
+     * Not used anywhere in the current test suite but can be used for bulk cleanup of old portfolios if needed
      * @example
-     * await portfolioEnginePage.managePortfoliosButton.click();
      * await portfolioEnginePage.deleteAllPortfolios();
      */
     async deleteAllPortfolios(): Promise<void> {
-        let hasPortfolios = true;
+        try {
+            const baseUrl = new URL(this.page.url()).origin;
 
-        while (hasPortfolios) {
-            // Find all control buttons in the portfolio table
-            const controlButtons = this.page
-                .locator('[class*="popup-component"]')
-                .locator('tbody tr')
-                .locator('button[class*="button-icon"]')
-                .filter({ has: this.page.locator('svg[viewBox="0 0 17 17"]') });
-
-            const count = await controlButtons.count();
-
-            if (count > 0) {
-                // Click the first control button
-                await controlButtons.first().click();
-                await this.portfolioDeleteText.click();
-                await this.portfolioDeleteConfirmButton.click();
-            } else {
-                hasPortfolios = false;
+            // Fetch regular portfolios
+            const response = await this.page.request.get(`${baseUrl}/api/pe/v2/portfolios`);
+            if (!response.ok()) {
+                logger.error(`Failed to fetch portfolios: ${response.status()}`);
+                return;
             }
+
+            const data = (await response.json()) as
+                | { id?: string; name?: string; createdOn?: string }[]
+                | { id?: string; name?: string; createdOn?: string };
+            const portfolios = Array.isArray(data) ? data : [data];
+
+            logger.info(`Fetched ${portfolios.length} portfolios`);
+
+            // Fetch holistic portfolios
+            const holisticResponse = await this.page.request.get(`${baseUrl}/api/pe/v2/holisticPortfolios`);
+            let holisticPortfolios: { id?: string; name?: string; createdOn?: string }[] = [];
+            if (holisticResponse.ok()) {
+                const holisticData = (await holisticResponse.json()) as
+                    | { id?: string; name?: string; createdOn?: string }[]
+                    | { id?: string; name?: string; createdOn?: string };
+                holisticPortfolios = Array.isArray(holisticData) ? holisticData : [holisticData];
+                logger.info(`Fetched ${holisticPortfolios.length} holistic portfolios`);
+            } else {
+                logger.warn(`Failed to fetch holistic portfolios: ${holisticResponse.status()}`);
+            }
+
+            // ============================================================
+            // FILTER OPTION 1: Delete by year
+            // Comment out this block to use name-based filtering instead
+            // ============================================================
+            const portfoliosToDelete = portfolios.filter(portfolio => {
+                if (!portfolio.createdOn) return true; // Delete if no date
+                const createdYear = new Date(portfolio.createdOn).getFullYear();
+                return createdYear < 2025;
+            });
+
+            const holisticPortfoliosToDelete = holisticPortfolios.filter(portfolio => {
+                if (!portfolio.createdOn) return true; // Delete if no date
+                const createdYear = new Date(portfolio.createdOn).getFullYear();
+                return createdYear < 2025;
+            });
+
+            // ============================================================
+            // FILTER OPTION 2: Delete by name (created before 2026)
+            // Uncomment this block to delete MSAPerfModel or PerfHolisticTest portfolios
+            // ============================================================
+            // const portfoliosToDelete = portfolios.filter(portfolio => {
+            //     if (!portfolio.name) return false;
+            //     const hasTargetName =
+            //         portfolio.name.includes('MSAPerfModel') || portfolio.name.includes('PerfHolisticTest');
+            //     if (!hasTargetName) return false;
+            //     if (!portfolio.createdOn) return true; // Delete if has target name but no date
+            //     const createdYear = new Date(portfolio.createdOn).getFullYear();
+            //     return createdYear < 2026;
+            // });
+
+            // const holisticPortfoliosToDelete = holisticPortfolios.filter(portfolio => {
+            //     if (!portfolio.name) return false;
+            //     const hasTargetName =
+            //         portfolio.name.includes('MSAPerfModel') || portfolio.name.includes('PerfHolisticTest');
+            //     if (!hasTargetName) return false;
+            //     if (!portfolio.createdOn) return true; // Delete if has target name but no date
+            //     const createdYear = new Date(portfolio.createdOn).getFullYear();
+            //     return createdYear < 2026;
+            // });
+
+            logger.info(`Found ${portfoliosToDelete.length} portfolios to delete`);
+            logger.info(`Found ${holisticPortfoliosToDelete.length} holistic portfolios to delete`);
+
+            // Delete portfolios via API
+            for (const portfolio of portfoliosToDelete) {
+                if (!portfolio.id) continue;
+
+                try {
+                    const deleteResponse = await this.page.request.delete(
+                        `${baseUrl}/api/pe/v2/portfolio/${portfolio.id}`
+                    );
+                    if (deleteResponse.ok()) {
+                        logger.info(
+                            `Successfully deleted portfolio ${portfolio.id} with name ${portfolio.name} created on ${portfolio.createdOn}`
+                        );
+                    } else {
+                        logger.error(`Failed to delete portfolio ${portfolio.id}: ${deleteResponse.status()}`);
+                    }
+                } catch (err) {
+                    logger.error(
+                        `Error deleting portfolio ${portfolio.id}: ${err instanceof Error ? err.message : String(err)}`
+                    );
+                }
+            }
+
+            // Delete holistic portfolios via API
+            for (const portfolio of holisticPortfoliosToDelete) {
+                if (!portfolio.id) continue;
+
+                try {
+                    const deleteResponse = await this.page.request.delete(
+                        `${baseUrl}/api/pe/v2/holisticPortfolio/${portfolio.id}`
+                    );
+                    if (deleteResponse.ok()) {
+                        logger.info(
+                            `Successfully deleted holistic portfolio ${portfolio.id} with name ${portfolio.name} created on ${portfolio.createdOn}`
+                        );
+                    } else {
+                        logger.error(`Failed to delete holistic portfolio ${portfolio.id}: ${deleteResponse.status()}`);
+                    }
+                } catch (err) {
+                    logger.error(
+                        `Error deleting holistic portfolio ${portfolio.id}: ${err instanceof Error ? err.message : String(err)}`
+                    );
+                }
+            }
+        } catch (err) {
+            logger.error(`Error in deleteAllPortfolios: ${err instanceof Error ? err.message : String(err)}`);
         }
     }
 
@@ -1134,25 +1324,64 @@ export class PortfolioEnginePage {
 
     /**
      * Verify a proposal section by clicking the element and validating its content
-     * @param clickElement - The element to click
-     * @param content - The content locator to verify
-     * @returns Promise<boolean> - True if section is verified successfully
+     * Ensures the content is visually enabled (not greyed out) and contains data
+     * @param clickElement - The element to click (trigger/header)
+     * @param content - The content locator to verify (canvas or HTML content)
+     * @returns Promise<boolean> - True if section is verified and enabled
+     * @throws Error if element is not visible or disabled
      */
-    async verifyProposalSection(clickElement: Locator, content: Locator): Promise<boolean> {
-        await clickElement.click();
-        await content.waitFor({ state: 'visible' });
-        return await this.validateCanvas(content);
-    }
+    async verifyProposalSection(clickElement: Locator, content: Locator, checkBox?: Locator): Promise<boolean> {
+        try {
+            const sectionName = await clickElement
+                .evaluate(el => (el.textContent || '').trim())
+                .catch(() => 'Unknown section');
+            //click into pdf section
+            await clickElement.click();
+            // ensure we actually have the checkbox locator
+            if (checkBox) {
+                // get current state (await!)
+                const currentlyChecked = await checkBox.isChecked().catch(() => false);
 
-    /**
-     * Get today's date formatted as M/D/YY
-     * @returns Today's date string (e.g., '12/18/25')
-     */
-    private getTodayDate(): string {
-        const today = new Date();
-        const month = today.getMonth() + 1; // getMonth() returns 0-11
-        const day = today.getDate();
-        const year = today.getFullYear().toString().slice(-2);
-        return `${month}/${day}/${year}`;
+                if (!currentlyChecked) {
+                    await checkBox.check();
+                }
+            }
+            // Retry canvas validation a few times to allow client-side rendering
+            const attempts = 3;
+            for (let i = 0; i < attempts; i++) {
+                const valid = await this.validateCanvas(content).catch(() => false);
+                if (valid) {
+                    return true;
+                }
+                // small backoff between attempts
+                await this.page
+                    .locator('body')
+                    .evaluate((_, delayMs) => new Promise(resolve => setTimeout(resolve, delayMs)), 200 + i * 100);
+            }
+
+            // Check parent containers for a 'fainted' class after canvas retries
+            const parentClass = await content
+                .evaluate((el: Element) => {
+                    const parent = el.closest('.page-component') || el.closest('.page-wrap') || el.parentElement;
+                    return parent ? parent.className || '' : '';
+                })
+                .catch(() => '');
+
+            if (typeof parentClass === 'string' && parentClass.includes('fainted')) {
+                // If the parent container has a 'fainted' class, it is likely greyed out/disabled
+                const failureMessage = `Section appears to not be selected: ${sectionName}`;
+                logger.warn(failureMessage);
+                throw new Error(failureMessage);
+            }
+
+            // If we reached here, canvas didn't contain rendered pixels
+            const failureMessage = `Canvas content validation failed for section: ${sectionName}`;
+            logger.warn(failureMessage);
+            throw new Error(failureMessage);
+        } catch (err) {
+            const message = err instanceof Error ? err.message : String(err);
+            logger.warn(`verifyProposalSection error: ${message}`);
+            throw err;
+        }
     }
 }

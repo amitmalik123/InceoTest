@@ -3,15 +3,18 @@ import { navigateToHomePage } from '../../helperfunctions/navigateToHomePage';
 import { navigateToPortfolioEngine } from '../../helperfunctions/navigateToPortfolioEngine';
 import { PortfolioEnginePage } from '../../pages/PortfolioEngineObjectModel';
 import { logger } from '../../utils/logger';
+import { cleanupDownloads } from '../../utils/pdfUtils';
+
+import { deleteTestClient } from './steps/shared/clientCleanupHelper';
 
 teardown.describe('Teardown', () => {
     teardown.use({ storageState: './authfiles/role1.json' });
 
     teardown('Delete Test Portfolio', async ({ page }) => {
-        logger.debug('\nDeleting Test Portfolios...');
-
         await navigateToHomePage(page);
         const portfolioEnginePage = new PortfolioEnginePage(await navigateToPortfolioEngine(page));
+        //await portfolioEnginePage.deleteAllPortfolios(); // uncomment this line to do bulk cleanup, comment out remaining lines
+        logger.debug('\nDeleting Test Portfolios...');
         await Promise.race([
             portfolioEnginePage.getStartedButton.waitFor({ state: 'visible' }),
             portfolioEnginePage.managePortfoliosButton.waitFor({ state: 'visible' }),
@@ -21,19 +24,21 @@ teardown.describe('Teardown', () => {
             return;
         } else if (await portfolioEnginePage.managePortfoliosButton.isVisible()) {
             await portfolioEnginePage.managePortfoliosButton.click();
-            await portfolioEnginePage.deletePortfolio();
+            await portfolioEnginePage.deletePortfolio(['Widget Test Portfolio', 'E2E Test Portfolio']);
             logger.debug('Portfolios deleted');
         }
     });
 
-    teardown('Delete Test Clients', async ({ page }) => {
-        logger.debug('\nDeleting Test Clients...');
+    teardown('Delete Test Client', async ({ page }) => {
         await navigateToHomePage(page);
-        const portfolioEnginePage = new PortfolioEnginePage(page);
-        // deleting pe e2e client
-        await portfolioEnginePage.searchForClient('guy dude');
-        await portfolioEnginePage.clientCollapsedLink.nth(0).click();
-        await portfolioEnginePage.deleteClient();
-        logger.debug('All test clients deleted');
+        const portfolioEnginePageInstance = new PortfolioEnginePage(await navigateToPortfolioEngine(page));
+        //await portfolioEnginePage.deleteAllPortfolios(); // uncomment this line to do bulk cleanup, comment out remaining lines
+        logger.debug('\nDeleting Test Clients...');
+        await deleteTestClient(portfolioEnginePageInstance, ['Guy NAWE2E', 'Guy PeE2E', 'Guy NAWTMS']);
+    });
+
+    teardown('Clean up downloads folder', async () => {
+        logger.debug('\nCleaning up downloads folder...');
+        cleanupDownloads();
     });
 });

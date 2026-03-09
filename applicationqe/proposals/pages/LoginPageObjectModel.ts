@@ -37,7 +37,8 @@ export class LoginPage {
 
         await Promise.race([
             this.privacyPolicyButton.waitFor({ state: 'visible' }),
-            this.page.getByText('Welcome').waitFor({ state: 'visible' }),
+            this.page.getByText(`Welcome ${process.env.advisorName}`).waitFor({ state: 'visible' }),
+            this.page.getByText('Choose a role to continue').waitFor({ state: 'visible' }),
         ]);
         if (await this.privacyPolicyButton.isVisible()) {
             await this.privacyPolicyButton.scrollIntoViewIfNeeded();

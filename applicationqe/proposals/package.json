@@ -22,8 +22,8 @@
     "fmt": "npm run format",
     "fmt:check": "npm run format:check",
     "quality": "npm run lint && npm run format:check",
-    "prepare": "node ./scripts/prepare-husky.js"
-    ,"husky:install": "node ./scripts/prepare-husky.js",
+    "prepare": "node ./scripts/prepare-husky.js",
+    "husky:install": "node ./scripts/prepare-husky.js",
     "husky:disable": "node -e \"console.log('Set HUSKY=0 when installing in CI')\""
   },
   "keywords": [],
@@ -33,6 +33,7 @@
     "@eslint/eslintrc": "^3.3.3",
     "@playwright/test": "^1.56.1",
     "@types/node": "^24.9.1",
+    "@types/pdf-parse": "^1.1.5",
     "@typescript-eslint/eslint-plugin": "^8.53.1",
     "@typescript-eslint/parser": "^8.53.1",
     "allure-playwright": "^3.4.2",
@@ -42,6 +43,7 @@
     "eslint-plugin-playwright": "^2.5.0",
     "husky": "^8.0.0",
     "lint-staged": "^14.0.0",
+    "pdf-parse": "^2.4.5",
     "playwright-bdd": "^8.4.2",
     "prettier": "^3.8.0",
     "ts-node": "^10.9.2"

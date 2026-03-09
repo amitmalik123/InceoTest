@@ -1,6 +1,7 @@
 import { defineConfig, devices } from '@playwright/test';
 import { defineBddConfig } from 'playwright-bdd';
 import { loadEnvironment } from './utils/env-loader';
+import path from 'path';
 
 /**
  * Read environment variables from file.
@@ -54,6 +55,7 @@ export default defineConfig({
         video: 'retain-on-failure',
         screenshot: 'only-on-failure',
         headless: true,
+        acceptDownloads: true,
     },
 
     /* Configure projects for major browsers */
@@ -75,8 +77,13 @@ export default defineConfig({
             dependencies: ['setup'],
             use: {
                 ...devices['Desktop Chrome'],
+                storageState: './authfiles/role1.json',
+                launchOptions: {
+                    args: ['--disable-features=PdfViewer'],
+                },
                 contextOptions: {
                     ignoreHTTPSErrors: true,
+                    acceptDownloads: true,
                 },
             },
         },
