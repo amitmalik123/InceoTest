@@ -28,6 +28,8 @@ export default defineConfig({
     },
     /* Directory for test files */
     testDir,
+    /* Store visual baselines outside generated .features-gen files. */
+    snapshotPathTemplate: 'tests/bdd/snapshots/{testFilePath}/{arg}{ext}',
     /* Run tests in files in parallel */
     fullyParallel: true,
     /* Fail the build on CI if you accidentally left test.only in the source code. */
