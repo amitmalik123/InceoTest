@@ -105,7 +105,13 @@ def _get_session_file(
     return AUTH_STATE_DIR / f"{base_name}.json"
 
 
-def _perform_login(page: Page, app_config: AppConfig, test_data: dict) -> bool:
+def _perform_login(
+    page: Page,
+    app_config: AppConfig,
+    test_data: dict,
+    username: str | None = None,
+    password: str | None = None,
+) -> bool:
     """
     Perform login using the app-specific login page.
 
@@ -122,8 +128,10 @@ def _perform_login(page: Page, app_config: AppConfig, test_data: dict) -> bool:
         login_page = app_config.login_page_class(page, base_url=base_url)
         login_page.navigate()
         login_page.accept_cookies()
-        login_page.enter_username(test_data.get("username", "default_user"))
-        login_page.enter_password(test_data.get("password", "default_password"))
+        resolved_username = username or test_data.get("username", "default_user")
+        resolved_password = password or test_data.get("password", "default_password")
+        login_page.enter_username(resolved_username)
+        login_page.enter_password(resolved_password)
         login_page.click_sign_in()
         #    login_page.submit_login_form()
 
@@ -164,7 +172,9 @@ def authenticated_page(browser, test_data, request) -> Generator[Page, None, Non
         raise ValueError(f"Unknown app: {app_name}. Available: {list(APP_CONFIGS.keys())}")
 
     app_config = APP_CONFIGS[app_name]
-    username = test_data.get("username", "default_user")
+    # Impersonation-based BDD flows require admin credentials for Switch ID access.
+    username = os.getenv("ADMIN_USERNAME", "ssoabralc")
+    password = os.getenv("ADMIN_PASSWORD", "QAAdminUser_33a")
     role = test_data.get("role")  # Get role from test data
     session_file = _get_session_file(username, app_name, worker_id, role)
     session_max_age_hours = 8
@@ -220,7 +230,13 @@ def authenticated_page(browser, test_data, request) -> Generator[Page, None, Non
         temp_context = browser.new_context(ignore_https_errors=True)
         temp_page = temp_context.new_page()
 
-        login_success = _perform_login(temp_page, app_config, test_data)
+        login_success = _perform_login(
+            temp_page,
+            app_config,
+            test_data,
+            username=username,
+            password=password,
+        )
 
         if login_success:
             # Save session from login context
@@ -272,3 +288,9 @@ def fresh_page(browser) -> Generator[Page, None, None]:
     yield page
 
     context.close()
+
+
+@pytest.fixture
+def page(authenticated_page: Page) -> Page:
+    """Backwards-compatible page fixture bound to authenticated session."""
+    return authenticated_page

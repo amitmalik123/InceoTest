@@ -9,7 +9,7 @@ All fixtures are re-exported from their specialized modules for easy importing.
 from tests.fixtures.assertion_fixtures import reset_step_screenshot_counter, soft_assert
 
 # Authentication fixtures
-from tests.fixtures.auth_fixtures import authenticated_page, fresh_page
+from tests.fixtures.auth_fixtures import authenticated_page, fresh_page, page
 
 # Browser fixtures
 from tests.fixtures.browser_fixtures import (
@@ -56,6 +56,7 @@ __all__ = [
     "reset_step_screenshot_counter",
     # auth
     "authenticated_page",
+    "page",
     "fresh_page",
     # browser
     "browser_context_args",

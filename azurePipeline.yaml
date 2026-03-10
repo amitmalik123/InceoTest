@@ -22,13 +22,13 @@ trigger: none
 # -----------------------------
 # Scheduled triggers
 # -----------------------------
-#schedules:
-#  - cron: "35 20 * * *" # 12:35 PM PST → Test11
-#    displayName: "Schedule for Test11"
-#    branches:
-#      include:
-#        - main
-#    always: true
+schedules:
+  - cron: "0 11 * * *" # 11:00 UTC daily (4:30 PM IST)
+    displayName: "Daily Regression Run at 11:00 UTC (4:30 PM IST)"
+    branches:
+      include:
+        - refs/heads/PortfolioReporting
+    always: true
 
 # -----------------------------
 # Parameters for Manual Runs
