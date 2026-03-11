@@ -27,7 +27,7 @@ schedules:
     displayName: "Daily Regression Run at 11:00 UTC (4:30 PM IST)"
     branches:
       include:
-        - refs/heads/PortfolioReporting
+        - PortfolioReporting
     always: true
 
 # -----------------------------
