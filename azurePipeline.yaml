@@ -1,23 +1,8 @@
 pool:
-#  name: 'ewm20-docker-build-agent-qa-dev'
   name: 'ubuntu2204-qa'
   timeoutInMinutes: 10
 
 trigger: none
-# -----------------------------
-# CI Trigger - Run on every commit
-# -----------------------------
-# trigger:
-#   branches:
-#     include:
-#       - main
-#       - develop
-#       # - '*'  # Uncomment to trigger on ALL branches
-#   paths:
-#     exclude:
-#       - docs/**
-#       - README.md
-#       - '*.md'
 
 # -----------------------------
 # Scheduled triggers
@@ -48,11 +33,12 @@ parameters:
   - name: marker
     displayName: "Pytest Marker to Run"
     type: string
-    default: "add_ach"
+    default: "rgl"
     values:
-      - add_ach
-      - roth_conversion
-      - all_tests
+      - rgl
+      - tms
+      - rgl_tms
+      - regression
 
   - name: workers
     displayName: "Number of Parallel Workers"
@@ -73,15 +59,13 @@ parameters:
       - msedge
       - both
 
-variables:
-  azureSubscription: 'TEST Foundation (9156b16c-8a2e-4b7d-a886-e772dc017316)-Core'  # ← Replace with your Azure DevOps service connection name
 # -----------------------------
 # Job Section
 # -----------------------------
 jobs:
 - job: RunPytestBDDTests
   displayName: "Run Python Playwright BDD Tests"
-  timeoutInMinutes: 45
+  timeoutInMinutes: 180
 
   variables:
     buildPath: '$(Build.SourcesDirectory)'
@@ -96,43 +80,10 @@ jobs:
     INFLUXDB_ORG: 'MF'
     INFLUXDB_BUCKET: 'AutomationData'
     INFLUXDB_TOKEN: 'g5gf0ukY8fPdwaWynLviDLd0wz1l5snomLbip3t2IrQkeNNkiEFYECEHlcJLwsAPvv2Gx-op4ho6QcpVsCpdGQ=='
-    # Azure Key Vault configuration
-    keyVaultName: 'amkkvqapipeline-testncus'           # ← Replace with your Key Vault name
-    
 
   steps:
   - checkout: self
     clean: true
-
-  # -----------------------------------------------------------------
-  # Azure Key Vault: Fetch secrets and map them to pipeline variables
-  # -----------------------------------------------------------------
-  # Prerequisites:
-  #   1. Create an Azure Key Vault in your Azure subscription
-  #   2. Store secrets with naming convention: {env}-{service}-{key}
-  #      Examples:
-  #        test11-azure-sql-username
-  #        test11-azure-sql-password
-  #        test11-sql-server-username
-  #        test11-sql-server-password
-  #        test11-api-auth-token
-  #        common-sonar-token
-  #        common-influxdb-token
-  #   3. Create a Service Connection in Azure DevOps:
-  #      Project Settings → Service connections → New → Azure Resource Manager
-  #   4. Grant the Service Connection's Service Principal "Key Vault Secrets User"
-  #      role on the Key Vault (Access policies or RBAC)
-  #   5. Update 'keyVaultName' and 'azureSubscription' variables above
-  # -----------------------------------------------------------------
-  - task: AzureKeyVault@2
-    displayName: 'Fetch Secrets from Azure Key Vault'
-    inputs:
-      azureSubscription: $(azureSubscription)
-      KeyVaultName: $(keyVaultName)
-      SecretsFilter: '*'
-      RunAsPreJob: true
-    # Each secret becomes a pipeline variable with the same name.
-    # E.g., Key Vault secret "test11-azure-sql-password" → $(test11-azure-sql-password)
 
   - script: |
       echo "Determining environment and test settings dynamically..."
@@ -142,16 +93,14 @@ jobs:
         echo "##vso[task.setvariable variable=workers]${{ parameters.workers }}"
       else
         echo "##vso[task.setvariable variable=environment]test11"
-        echo "##vso[task.setvariable variable=marker]roth_conversion"
-        echo "##vso[task.setvariable variable=workers]2"
+        echo "##vso[task.setvariable variable=marker]rgl_tms"
+        echo "##vso[task.setvariable variable=workers]1"
       fi
     displayName: "Set Environment Variables Dynamically"
 
   - script: |
       echo "##vso[task.setvariable variable=TEST_ENV]$(environment)"
-      # Key Vault URL for the Python AzureKeyVaultClient (utils/azure_key_vault.py)
-      echo "##vso[task.setvariable variable=AZURE_KEY_VAULT_URL]https://$(keyVaultName).vault.azure.net/"
-    displayName: "Set Playwright & Key Vault Environment Variables"
+    displayName: "Set Playwright Environment Variables"
 
   - script: |
       echo "========================================"
@@ -272,9 +221,15 @@ jobs:
       echo ""
       # Build pytest command with parallel workers support
       # Determine test target based on marker
-      if [ "$(marker)" = "all_tests" ]; then
-        TEST_TARGET="tests/ui/"
-        echo "Running ALL test files from tests/ui/"
+      if [ "$(marker)" = "rgl" ]; then
+        TEST_TARGET="tests/bdd/test_runners/test_rgl.py"
+        echo "Running RGL feature tests"
+      elif [ "$(marker)" = "tms" ]; then
+        TEST_TARGET="tests/bdd/test_runners/test_tms.py"
+        echo "Running TMS feature tests"
+      elif [ "$(marker)" = "rgl_tms" ]; then
+        TEST_TARGET="tests/bdd/test_runners/test_rgl.py tests/bdd/test_runners/test_tms.py"
+        echo "Running RGL and TMS feature tests"
       else
         TEST_TARGET="-m \"$(marker)\""
         echo "Running tests with marker: $(marker)"
@@ -332,21 +287,12 @@ jobs:
     displayName: "Run Pytest BDD Tests with Allure"
     continueOnError: true
     env:
-      WORK_ITEM_AUTH_TOKEN: $(WORK_ITEM_AUTH_TOKEN)
-      PARTIES_AUTH_TOKEN: $(PARTIES_AUTH_TOKEN)
+      ADMIN_USERNAME: $(ADMIN_USERNAME)
+      ADMIN_PASSWORD: $(ADMIN_PASSWORD)
       INFLUXDB_URL: $(INFLUXDB_URL)
       INFLUXDB_TOKEN: $(INFLUXDB_TOKEN)
       INFLUXDB_ORG: $(INFLUXDB_ORG)
       INFLUXDB_BUCKET: $(INFLUXDB_BUCKET)
-      # Azure Key Vault env vars for Python AzureKeyVaultClient
-      AZURE_KEY_VAULT_URL: https://$(keyVaultName).vault.azure.net/
-      # ── Connection strings: AzureKeyVault@2 fetches secrets → mapped to env vars ──
-      # Python reads these via os.getenv() — no direct Key Vault API calls.
-      TRANSFER_CONNECTION_STRING: $(transfer-connection-string)
-      ACCOUNTDISTRIBUTIONS_CONNECTION_STRING: $(accoundistributions-connection-string)
-      CRM_DB_CONNECTION_STRING: $(crm-db-connection-string)
-      AM_BILLING_CONNECTION_STRING: $(am-billing-connection-string)
-      API_AUTH_TOKEN: $(test11-api-auth-token)
 
   - script: |
       echo "Checking Allure Results Directory..."
