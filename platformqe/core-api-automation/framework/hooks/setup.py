@@ -44,8 +44,7 @@ class TestDataManager:
         self,
         service_name: str,
         environment: Optional[str] = None,
-        config: Optional[HooksConfig] = None,
-        endpoint_filter: Optional[str] = None
+        config: Optional[HooksConfig] = None
     ):
         """
         Initialize the TestDataManager.
@@ -54,13 +53,11 @@ class TestDataManager:
             service_name: Name of the service (e.g., 'parties', 'securities')
             environment: Environment name (defaults to config environment)
             config: Optional HooksConfig, will load default if not provided
-            endpoint_filter: Optional endpoint group name (e.g., 'requests', 'instructions')
         """
         self.service_name = service_name
         self.config = config or get_service_hooks_config(service_name)
         self.app_config = get_config()
         self.environment = environment or self.app_config.get('environment', 'test')
-        self.endpoint_filter = endpoint_filter.strip().lower() if endpoint_filter else None
         
         # Initialize API client lazily
         self._api_client = None
@@ -99,60 +96,13 @@ class TestDataManager:
         try:
             # Execute prerequisite test case if configured
             prereq = self.config.prerequisite_testcase
-            
-            if not prereq:
-                logger.info(f"No prerequisite test case configured")
-                return True
-            
-            # Check if it's a nested structure (e.g., MoveMoneyAPI with requests/instructions)
-            # or flat structure (e.g., parties with direct 'enabled' key)
-            if self._is_nested_config(prereq):
-                logger.info(f"Detected nested prerequisite configuration")
-                if self.endpoint_filter and self.endpoint_filter not in prereq:
-                    logger.warning(
-                        f"Hook endpoint filter '{self.endpoint_filter}' not found for service '{self.service_name}'."
-                    )
-                    return True
-                # Execute each endpoint's prerequisite
-                for endpoint_name, endpoint_config in prereq.items():
-                    if self.endpoint_filter and endpoint_name.lower() != self.endpoint_filter:
-                        continue
-                    if isinstance(endpoint_config, dict) and endpoint_config.get('enabled'):
-                        logger.info(f"Executing prerequisite for endpoint: {endpoint_name}")
-                        # Temporarily override config with endpoint-specific config
-                        original_prereq = self.config.prerequisite_testcase
-                        self.config.prerequisite_testcase = endpoint_config
-                        result = self._execute_prerequisite_testcase()
-                        self.config.prerequisite_testcase = original_prereq
-                        
-                        # Store extracted values in global context for tests to access
-                        if result:
-                            from framework.test_helpers.test_context_manager import get_context_manager
-                            context_mgr = get_context_manager()
-                            for key, value in result.items():
-                                context_mgr.set_variable(key, value)
-                                logger.info(f"Stored global variable: {key}={value}")
-                    else:
-                        logger.info(f"Skipping disabled endpoint: {endpoint_name}")
+            logger.info(f"[DEBUG] prerequisite_testcase config: {prereq}")
+            logger.info(f"[DEBUG] prereq exists: {bool(prereq)}, enabled: {prereq.get('enabled') if prereq else 'N/A'}")
+            if prereq and prereq.get('enabled'):
+                logger.info(f"Executing prerequisite test case")
+                result = self._execute_prerequisite_testcase()
             else:
-                # Flat structure - execute directly
-                if self.endpoint_filter:
-                    logger.info(
-                        f"Hook endpoint filter '{self.endpoint_filter}' ignored for flat configuration."
-                    )
-                if prereq.get('enabled'):
-                    logger.info(f"Executing prerequisite test case")
-                    result = self._execute_prerequisite_testcase()
-                    
-                    # Store extracted values in global context for tests to access
-                    if result:
-                        from framework.test_helpers.test_context_manager import get_context_manager
-                        context_mgr = get_context_manager()
-                        for key, value in result.items():
-                            context_mgr.set_variable(key, value)
-                            logger.info(f"Stored global variable: {key}={value}")
-                else:
-                    logger.info(f"Prerequisite test case disabled")
+                logger.info(f"No prerequisite test case configured or disabled")
             
             logger.info(f"Setup completed for service: {self.service_name}")
             return True
@@ -162,28 +112,6 @@ class TestDataManager:
             import traceback
             logger.error(traceback.format_exc())
             return False
-    
-    def _is_nested_config(self, config: Dict) -> bool:
-        """
-        Check if prerequisite_testcase config is nested (multiple endpoints)
-        or flat (single configuration).
-        
-        Nested structure has keys like 'requests', 'instructions' with dict values.
-        Flat structure has direct keys like 'enabled', 'testcase_file'.
-        
-        Returns:
-            True if nested, False if flat
-        """
-        # If it has 'enabled' or 'testcase_file' at top level, it's flat
-        if 'enabled' in config or 'testcase_file' in config:
-            return False
-        
-        # If it has sub-dicts with 'enabled' or 'testcase_file', it's nested
-        for key, value in config.items():
-            if isinstance(value, dict) and ('enabled' in value or 'testcase_file' in value):
-                return True
-        
-        return False
     
     def _execute_prerequisite_testcase(self) -> Optional[Dict]:
         """
@@ -218,21 +146,10 @@ class TestDataManager:
             return None
         
         # Update CSV with all extracted values
-        update_csv_files = prereq_config.get('update_csv_files')
-        if isinstance(update_csv_files, list) and update_csv_files:
-            for csv_cfg in update_csv_files:
-                if not isinstance(csv_cfg, dict):
-                    continue
-                csv_file = csv_cfg.get('csv_file')
-                csv_columns = csv_cfg.get('csv_columns', ['environment', 'id'])
-                extract_fields = csv_cfg.get('extract_fields')
-                if csv_file:
-                    self._update_csv_with_values(csv_file, all_extracted_values, csv_columns, extract_fields)
-        else:
-            update_csv = prereq_config.get('update_csv_file')
-            if update_csv:
-                csv_columns = prereq_config.get('csv_columns', ['environment', 'id'])
-                self._update_csv_with_values(update_csv, all_extracted_values, csv_columns)
+        update_csv = prereq_config.get('update_csv_file')
+        if update_csv:
+            csv_columns = prereq_config.get('csv_columns', ['environment', 'id'])
+            self._update_csv_with_values(update_csv, all_extracted_values, csv_columns)
         
         return all_extracted_values[-1]  # Return last extracted values
     
@@ -351,45 +268,51 @@ class TestDataManager:
             logger.debug(f"[HOOKS DEBUG] extract_config: {extract_config}")
             logger.debug(f"[HOOKS DEBUG] extract_config is truthy: {bool(extract_config)}")
             if extract_config:
-                fields = extract_config.get('fields')
-                if isinstance(fields, list) and fields:
-                    for field_cfg in fields:
-                        if not isinstance(field_cfg, dict):
-                            continue
-                        field = field_cfg.get('field', '')
-                        assign_to = field_cfg.get('assign_to', field)
+                # Support both single field and multiple fields (as dict or list)
+                if isinstance(extract_config, dict):
+                    # Check if it's a simple field extraction or a fields array
+                    if 'fields' in extract_config:
+                        # Multiple fields in array format
+                        fields_list = extract_config.get('fields', [])
+                        for field_config in fields_list:
+                            if isinstance(field_config, dict):
+                                field = field_config.get('field', '')
+                                assign_to = field_config.get('assign_to', field)
+                                logger.debug(f"[HOOKS DEBUG] field='{field}', assign_to='{assign_to}'")
+                                value = self._extract_value_from_response(response_data, field)
+                                if value:
+                                    extracted_values[assign_to] = value
+                                    logger.info(f"✅ Extracted {assign_to}={value}")
+                                    self.created_data.append({
+                                        'id': value,
+                                        'service': self.service_name,
+                                        'timestamp': datetime.now().isoformat()
+                                    })
+                                else:
+                                    logger.warning(f"⚠️ Failed to extract '{field}' from response_data. Available keys: {list(response_data.keys())}")
+                    else:
+                        # Single field format
+                        field = extract_config.get('field', '')
+                        assign_to = extract_config.get('assign_to', field)
                         logger.debug(f"[HOOKS DEBUG] field='{field}', assign_to='{assign_to}'")
+                        
+                        # Handle nested fields (e.g., "data.partyId")
                         value = self._extract_value_from_response(response_data, field)
                         logger.debug(f"[HOOKS DEBUG] _extract_value_from_response returned: {value}")
-                        if value is not None and value != "":
+                        if value:
                             extracted_values[assign_to] = value
-                            logger.info(f"Extracted {assign_to}={value}")
+                            logger.info(f"✅ Extracted {assign_to}={value}")
+                            
+                            # Track created data for cleanup
+                            self.created_data.append({
+                                'id': value,
+                                'service': self.service_name,
+                                'timestamp': datetime.now().isoformat()
+                            })
                         else:
-                            logger.warning(
-                                f"Failed to extract '{field}' from response_data. Available keys: {list(response_data.keys())}"
-                            )
-                else:
-                    field = extract_config.get('field', '')
-                    assign_to = extract_config.get('assign_to', field)
-                    logger.debug(f"[HOOKS DEBUG] field='{field}', assign_to='{assign_to}'")
-                    value = self._extract_value_from_response(response_data, field)
-                    logger.debug(f"[HOOKS DEBUG] _extract_value_from_response returned: {value}")
-                    if value is not None and value != "":
-                        extracted_values[assign_to] = value
-                        logger.info(f"Extracted {assign_to}={value}")
-                    else:
-                        logger.warning(
-                            f"Failed to extract '{field}' from response_data. Available keys: {list(response_data.keys())}"
-                        )
+                            logger.warning(f"⚠️ Failed to extract '{field}' from response_data. Available keys: {list(response_data.keys())}")
             else:
-                logger.warning(f"extract_config is empty or not truthy: {extract_config}")
-
-            if 'instruction_id' in extracted_values:
-                self.created_data.append({
-                    'id': extracted_values['instruction_id'],
-                    'service': self.service_name,
-                    'timestamp': datetime.now().isoformat()
-                })
+                logger.warning(f"⚠️ extract_config is empty or not truthy: {extract_config}")
             
             return extracted_values
             
@@ -443,8 +366,7 @@ class TestDataManager:
         self,
         csv_file: str,
         all_extracted_values: List[Dict],
-        columns: List[str],
-        extract_fields: Optional[List[str]] = None
+        columns: List[str]
     ) -> None:
         """
         Update CSV file with extracted values from prerequisite tests.
@@ -454,7 +376,6 @@ class TestDataManager:
             csv_file: Relative path to CSV file from testdata folder
             all_extracted_values: List of dictionaries with extracted values
             columns: List of column names for the CSV
-            extract_fields: Optional list of fields to extract and write (filters which fields get updated)
         """
         testdata_path = os.path.join(
             os.path.dirname(__file__), '..', '..', 'testdata'
@@ -465,18 +386,6 @@ class TestDataManager:
             # Create directory if needed
             os.makedirs(os.path.dirname(csv_path), exist_ok=True)
             
-            def _sync_instruction_id_fields(row: Dict, extracted: Dict) -> None:
-                if not extracted or 'instruction_id' not in extracted:
-                    return
-                force_put = csv_file.lower().endswith('data_instructions_instructionid_put.csv')
-                force_get = csv_file.lower().endswith('data_instructions_instructionid_get.csv')
-
-                if 'instructionId_endpoint' in row and (force_put or not row.get('instructionId_endpoint')):
-                    row['instructionId_endpoint'] = extracted['instruction_id']
-
-                if 'instructionId' in row and (force_get or not row.get('instructionId')):
-                    row['instructionId'] = extracted['instruction_id']
-
             # Check if file exists for merge mode
             existing_rows = []
             existing_columns = []
@@ -489,52 +398,18 @@ class TestDataManager:
                 # Backup original data
                 self.original_csv_data[csv_file] = existing_rows
                 
-                if existing_rows:
-                    logger.info(f"Merge mode: Updating existing CSV with {len(all_extracted_values)} extracted values")
-                    
-                    # Update existing rows with extracted values
-                    if len(all_extracted_values) == 1:
-                        # Apply a single extracted value set to all rows
-                        extracted = all_extracted_values[0]
-                        for idx in range(len(existing_rows)):
-                            for key, value in extracted.items():
-                                # Only update if extract_fields not specified or key is in extract_fields
-                                if not extract_fields or key in extract_fields:
-                                    existing_rows[idx][key] = value
-                            _sync_instruction_id_fields(existing_rows[idx], extracted)
-                        fields_updated = [k for k in extracted.keys() if not extract_fields or k in extract_fields]
-                        logger.info(
-                            f"Updated all {len(existing_rows)} rows with {fields_updated}"
-                        )
-                    else:
-                        # Apply one extracted value per row
-                        for idx, extracted in enumerate(all_extracted_values):
-                            if idx < len(existing_rows):
-                                # Update only the extracted columns in this row
-                                for key, value in extracted.items():
-                                    # Only update if extract_fields not specified or key is in extract_fields
-                                    if not extract_fields or key in extract_fields:
-                                        existing_rows[idx][key] = value
-                                _sync_instruction_id_fields(existing_rows[idx], extracted)
-                                fields_updated = [k for k in extracted.keys() if not extract_fields or k in extract_fields]
-                                logger.info(
-                                    f"Row {idx+1}: Updated {fields_updated} with values {[extracted.get(k) for k in fields_updated]}"
-                                )
-                    
-                    # Use existing columns if file existed, otherwise use provided columns
-                    final_columns = existing_columns if existing_columns else columns
-                else:
-                    # File exists but has no rows, treat as new
-                    logger.info("Existing CSV has no rows; creating new rows from extracted values")
-                    existing_rows = []
-                    for extracted in all_extracted_values:
-                        row = {'environment': self.environment}
-                        for col in columns:
-                            if col != 'environment' and col in extracted:
-                                row[col] = extracted[col]
-                        _sync_instruction_id_fields(row, extracted)
-                        existing_rows.append(row)
-                    final_columns = columns
+                logger.info(f"Merge mode: Updating existing CSV with {len(all_extracted_values)} extracted values")
+                
+                # Update existing rows with extracted values (one extracted value per row)
+                for idx, extracted in enumerate(all_extracted_values):
+                    if idx < len(existing_rows):
+                        # Update only the extracted columns in this row
+                        for key, value in extracted.items():
+                            existing_rows[idx][key] = value
+                        logger.info(f"Row {idx+1}: Updated {list(extracted.keys())} with values {list(extracted.values())}")
+                
+                # Use existing columns if file existed, otherwise use provided columns
+                final_columns = existing_columns if existing_columns else columns
             else:
                 logger.info(f"New mode: Creating new CSV with {len(all_extracted_values)} prerequisite entries")
                 
@@ -545,7 +420,6 @@ class TestDataManager:
                     for col in columns:
                         if col != 'environment' and col in extracted:
                             row[col] = extracted[col]
-                    _sync_instruction_id_fields(row, extracted)
                     existing_rows.append(row)
                 
                 final_columns = columns

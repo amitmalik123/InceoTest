@@ -116,17 +116,88 @@ SERVICE_DEFAULTS: Dict[str, Dict] = {
         # Supports multiple endpoints: requests and instructions
         'prerequisite_testcase': {
             # === REQUESTS ENDPOINT ===
-            'requests': {
+            'requests_put': {
+                'enabled': True,
+                'count': 21,  # Number of requestIds to create
+                'testcase_file': 'MoveMoneyAPI/testcases/TestCase_moneymovement_requestid_POST.json',
+                'test_data_file': 'MoveMoneyAPI/data_driven/Data_MoveMoneyAPI_POST.csv',
+                'extract_from_response': {
+                    'fields': [
+                        {
+                            'field': 'requestId',
+                            'assign_to': 'requestId'
+                        },
+                        {
+                            'field': 'version',
+                            'assign_to': 'version'
+                        },
+                        {
+                            'field': 'instructionId',
+                            'assign_to': 'instructionId'
+                        },
+                        {
+                            'field': 'accountId',
+                            'assign_to': 'accountId'
+                        }
+                    ]
+                },
+                'update_csv_files': [
+                    {
+                        'csv_file': 'MoveMoneyAPI/data_driven/Data_requests_requestId_PUT.csv',
+                        'csv_columns': ['environment', 'requestId', 'version', 'instructionId', 'accountId', 'railType', 'unitType', 'amount', 'percent', 'requestType', 'status', 'reason', 'purpose', 'scheduleType', 'paymentDate', 'frequency', 'startDate', 'endDate', 'changeState'],
+                        'extract_fields': ['requestId', 'version', 'instructionId', 'accountId']
+                    }
+                ],
+            },
+            'requests_get': {
                 'enabled': True,
                 'count': 10,  # Number of requestIds to create
                 'testcase_file': 'MoveMoneyAPI/testcases/TestCase_moneymovement_requestid_POST.json',
                 'test_data_file': 'MoveMoneyAPI/data_driven/Data_MoveMoneyAPI_POST.csv',
                 'extract_from_response': {
-                    'field': 'requestId',  # Field to extract from API response
-                    'assign_to': 'requestId'    # Variable name to use
+                    'fields': [
+                        {
+                            'field': 'requestId',
+                            'assign_to': 'requestId'
+                        },
+                        {
+                            'field': 'version',
+                            'assign_to': 'version'
+                        }
+                    ]
                 },
-                'update_csv_file': 'MoveMoneyAPI/data_driven/Data_requests_requestId_PUT.csv',
-                'csv_columns': ['environment', 'requestId', 'version', 'instructionId', 'accountId', 'railType', 'amount', 'percent','requestType', 'status', 'reason', 'scheduleType', 'paymentDate', 'frequency', 'startDate', 'endDate'],
+                'update_csv_files': [
+                    {
+                        'csv_file': 'MoveMoneyAPI/data_driven/Data_requests_requestId_GET.csv',
+                        'csv_columns': ['test_id', 'environment', 'requestId', 'status'],
+                        'extract_fields': ['requestId']
+                    }
+                ],
+            },
+            'requests_delete': {
+                'enabled': True,
+                'count': 10,  # Number of requestIds to create
+                'testcase_file': 'MoveMoneyAPI/testcases/TestCase_moneymovement_requestid_POST.json',
+                'test_data_file': 'MoveMoneyAPI/data_driven/Data_MoveMoneyAPI_POST.csv',
+                'extract_from_response': {
+                    'fields': [
+                        {
+                            'field': 'requestId',
+                            'assign_to': 'requestId'
+                        },
+                        {
+                            'field': 'version',
+                            'assign_to': 'version'
+                        }
+                    ]
+                },
+                'update_csv_files': [
+                    {
+                        'csv_file': 'MoveMoneyAPI/data_driven/Data_requests_requestId_DELETE.csv',
+                        'csv_columns': ['environment', 'requestId', 'version'],
+                        'extract_fields': ['requestId', 'version']
+                    }
+                ],
             },
             # === INSTRUCTIONS ENDPOINT ===
             'instructions': {
@@ -146,23 +217,12 @@ SERVICE_DEFAULTS: Dict[str, Dict] = {
                         }
                     ]
                 },
-                'update_csv_files': [
+             'update_csv_files': [
                     {
-                        'csv_file': 'MoveMoneyAPI/data_driven/Data_instructions_instructionId_Delete.csv',
-                        'csv_columns': ['environment', 'instruction_id', 'version'],
-                        'extract_fields': ['instruction_id', 'version']
-                    },
-                    {
-                        'csv_file': 'MoveMoneyAPI/data_driven/Data_Instructions_InstructionId_PUT.csv',
-                        'csv_columns': ['environment', 'instruction_id', 'instructionId_endpoint'],
-                        'extract_fields': ['instruction_id', 'instructionId_endpoint']
-                    },
-                    {
-                        'csv_file': 'MoveMoneyAPI/data_driven/Data_instructions_instructionId_GET.csv',
-                        'csv_columns': ['test_id', 'environment', 'instructionId', 'status'],
-                        'extract_fields': ['instructionId']
-                    }
-                ],
+                        'csv_file': 'MoveMoneyAPI/data_driven/Data_instructions_New_GET.csv',
+                        'csv_columns': ['test_id', 'environment', 'instructionId', 'status', 'version'],
+                      
+                    }   
             }
         }
     }
