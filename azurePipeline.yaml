@@ -215,6 +215,15 @@ jobs:
       export ALLURE_RESULTS_DIR="$(allureResultsDir)"
       echo "✓ TEST_ENV=$TEST_ENV"
       echo "✓ CI=$CI"
+
+      # If admin creds are not provided by pipeline variables, tests will use
+      # framework fallback values from the auth fixture.
+      if [ -z "$ADMIN_USERNAME" ] || [ -z "$ADMIN_PASSWORD" ]; then
+        echo "##vso[task.logissue type=warning]ADMIN_USERNAME or ADMIN_PASSWORD not set in pipeline variables; using fixture fallback credentials."
+      else
+        echo "✓ ADMIN_USERNAME is set"
+        echo "✓ ADMIN_PASSWORD is set"
+      fi
       echo ""
       echo "Current working directory: $(pwd)"
       echo "Python version: $(python --version)"

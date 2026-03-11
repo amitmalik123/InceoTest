@@ -173,6 +173,8 @@ def authenticated_page(browser, test_data, request) -> Generator[Page, None, Non
 
     app_config = APP_CONFIGS[app_name]
     # Impersonation-based BDD flows require admin credentials for Switch ID access.
+    # Prefer env vars when available; fall back to defaults for environments where
+    # pipeline secret variables cannot be configured yet.
     username = os.getenv("ADMIN_USERNAME", "ssoabralc")
     password = os.getenv("ADMIN_PASSWORD", "QAAdminUser_33a")
     role = test_data.get("role")  # Get role from test data
