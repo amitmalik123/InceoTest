@@ -9,7 +9,7 @@
             "Functional"
         ],
         "mainURL": "{{base_url}}",
-        "endpoint": "/transfer/{{requestId_endpoint}}/allocations/{{allocationId_endpoint}}",
+        "endpoint": "/{{requestId_endpoint}}/allocations/{{allocationId_endpoint}}",
         "method": "PUT",
         "headers_additional": {
             "Content-Type": "application/json"
@@ -167,7 +167,7 @@
             "Functional"
         ],
         "mainURL": "{{base_url}}",
-        "endpoint": "/transfer/{{requestId_endpoint}}/allocations/{{allocationId_endpoint}}",
+        "endpoint": "/{{requestId_endpoint}}/allocations/{{allocationId_endpoint}}",
         "method": "PUT",
         "headers_additional": {
             "Content-Type": "application/json"
@@ -325,7 +325,7 @@
             "Negative"
         ],
         "mainURL": "{{base_url}}",
-        "endpoint": "/transfer/{{requestId_endpoint}}/allocations/{{allocationId_endpoint}}",
+        "endpoint": "/{{requestId_endpoint}}/allocations/{{allocationId_endpoint}}",
         "method": "PUT",
         "headers_additional": {
             "Content-Type": "application/json"
@@ -385,7 +385,7 @@
             "Negative"
         ],
         "mainURL": "{{base_url}}",
-        "endpoint": "/transfer/{{requestId_endpoint}}/allocations/{{allocationId_endpoint}}",
+        "endpoint": "/{{requestId_endpoint}}/allocations/{{allocationId_endpoint}}",
         "method": "PUT",
         "headers_additional": {
             "Content-Type": "application/json"
@@ -431,7 +431,7 @@
             "Negative"
         ],
         "mainURL": "{{base_url}}",
-        "endpoint": "/transfer/{{requestId_endpoint}}/allocations/{{allocationId_endpoint}}",
+        "endpoint": "/{{requestId_endpoint}}/allocations/{{allocationId_endpoint}}",
         "method": "PUT",
         "headers_additional": {
             "Content-Type": "application/json"
@@ -477,7 +477,7 @@
             "Negative"
         ],
         "mainURL": "{{base_url}}",
-        "endpoint": "/transfer/{{requestId_endpoint}}/allocations/{{allocationId_endpoint}}",
+        "endpoint": "/{{requestId_endpoint}}/allocations/{{allocationId_endpoint}}",
         "method": "PUT",
         "headers_additional": {
             "Content-Type": "application/json"
@@ -523,7 +523,7 @@
             "Negative"
         ],
         "mainURL": "{{base_url}}",
-        "endpoint": "/transfer/{{requestId_endpoint}}/allocations/{{allocationId_endpoint}}",
+        "endpoint": "/{{requestId_endpoint}}/allocations/{{allocationId_endpoint}}",
         "method": "PUT",
         "headers_additional": {
             "Content-Type": "application/json"

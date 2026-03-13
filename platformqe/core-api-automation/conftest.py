@@ -257,6 +257,12 @@ def pytest_addoption(parser):
         help="Limit hooks to a single endpoint group (e.g., requests, instructions)."
     )
     parser.addoption(
+        "--skip-teardown",
+        action="store_true",
+        default=False,
+        help="Skip teardown/cleanup phase after tests complete (keeps created test data)."
+    )
+    parser.addoption(
         "--test-id",
         action="store",
         default=None,
@@ -1526,8 +1532,35 @@ def pytest_sessionstart(session):
             
             endpoint_label = hook_endpoint or "all"
             logger.info(f"Triggering hooks for service: {service_name}, endpoint: {endpoint_label}, environment: {env}")
-            _test_data_manager = TestDataManager(service_name, environment=env, endpoint_filter=hook_endpoint)
+            _test_data_manager = TestDataManager(service_name, environment=env)
             success = _test_data_manager.setup()
+            
+            # --- Update instructionId in CSV immediately after hook runs ---
+            if _test_data_manager and hasattr(_test_data_manager, 'created_data'):
+                created_data = _test_data_manager.created_data
+                if created_data:
+                    latest_instruction_id = (
+                        created_data[-1].get('instructionId') or
+                        created_data[-1].get('instruction_id')
+                    )
+                    if latest_instruction_id:
+                        from framework.hooks.config import update_instruction_id_in_csv
+                        csv_path = r"c:\Users\Kodimalar.A\OneDrive - AssetMark, Inc\Desktop\Pytest Automation New\qeautomation\platformqe\core-api-automation\testdata\MoveMoneyAPI\data_driven\Data_instructions_instructionId_GET.csv"
+                        update_instruction_id_in_csv(csv_path, latest_instruction_id)
+                        logger.info(f"Updated instructionId in CSV to: {latest_instruction_id}")
+
+            session.config._test_data_setup_results = {
+                'success': success,
+                'service': service_name,
+                'environment': env
+            }
+            
+            if success:
+                logger.info(f"Hooks completed successfully for {service_name}")
+            else:
+                logger.warning(f"Hooks completed with warnings for {service_name}")
+        except Exception as e:
+            logger.error(f"Failed to run hooks for {service_name}: {e}")
             
             # Store setup results in session config for access by fixtures
             session.config._test_data_setup_results = {
@@ -1548,22 +1581,47 @@ def pytest_sessionfinish(session, exitstatus):
     from datetime import datetime
     session_end_time = datetime.now().isoformat()
     
+    # --- Inserted: Update instructionId in CSV with the latest from hook ---
+    try:
+        if _test_data_manager and hasattr(_test_data_manager, 'created_data'):
+            created_data = _test_data_manager.created_data
+            if created_data:
+                # Get the latest instructionId
+                latest_instruction_id = (
+                    created_data[-1].get('instructionId') or
+                    created_data[-1].get('instruction_id')
+                )
+                if latest_instruction_id:
+                    from framework.hooks.config import update_instruction_id_in_csv
+                    csv_path = r"c:\Users\Kodimalar.A\OneDrive - AssetMark, Inc\Desktop\Pytest Automation New\qeautomation\platformqe\core-api-automation\testdata\MoveMoneyAPI\data_driven\Data_instructions_instructionId_GET.csv"
+                    update_instruction_id_in_csv(csv_path, latest_instruction_id)
+                    logger.info(f"Updated instructionId in CSV to: {latest_instruction_id}")
+    except Exception as e:
+        logger.warning(f"Failed to update instructionId in CSV: {e}")
+
+    # Check if teardown is skipped
+    skip_teardown = session.config.getoption('--skip-teardown', default=False)
+    
     # Cleanup test data created by hooks
     if _test_data_manager and hasattr(session.config, '_test_data_setup_results'):
         service_name = session.config._test_data_setup_results.get('service')
-        logger.info(f"Running teardown/cleanup for {service_name}")
-        try:
-            from framework.hooks.teardown import CleanupManager
-            created_data = _test_data_manager.created_data if hasattr(_test_data_manager, 'created_data') else []
-            
-            if created_data:
-                cleanup = CleanupManager(service_name, created_data=created_data)
-                cleanup.teardown()
-                logger.info(f"Cleanup completed for {service_name}")
-            else:
-                logger.info(f"No test data to cleanup for {service_name}")
-        except Exception as e:
-            logger.warning(f"Failed to cleanup test data for {service_name}: {e}")
+        
+        if skip_teardown:
+            logger.info(f"Skipping teardown/cleanup for {service_name} (--skip-teardown flag set)")
+        else:
+            logger.info(f"Running teardown/cleanup for {service_name}")
+            try:
+                from framework.hooks.teardown import CleanupManager
+                created_data = _test_data_manager.created_data if hasattr(_test_data_manager, 'created_data') else []
+                
+                if created_data:
+                    cleanup = CleanupManager(service_name, created_data=created_data)
+                    cleanup.teardown()
+                    logger.info(f"Cleanup completed for {service_name}")
+                else:
+                    logger.info(f"No test data to cleanup for {service_name}")
+            except Exception as e:
+                logger.warning(f"Failed to cleanup test data for {service_name}: {e}")
     
     # Archive previous pytest_session.log
     archive_pytest_session_log()

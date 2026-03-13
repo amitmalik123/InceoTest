@@ -1,6 +1,2 @@
 test_id,environment,instructionId,status
 TC001,TSADEV,63fcf11b-9d93-4fdb-9ad8-5c81483d4e95,
-TC002,TSADEV,63fcf11b-9d93-4fdb-9ad8-5c81483d4e95,?status=Draft
-TC003,TSADEV,63fcf11b-9d93-4fdb-9ad8-5c81483d4e95,?status=Pending
-TC004,TSADEV,63fcf11b-9d93-4fdb-9ad8-5c81483d4e95,?status=CHECK
-TC005,TSADEV,63fcf11b-9d93-4fdb-9ad8-5c81483d4e95,

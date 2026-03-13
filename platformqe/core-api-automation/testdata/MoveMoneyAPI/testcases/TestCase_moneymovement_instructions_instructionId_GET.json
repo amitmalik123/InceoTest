@@ -9,7 +9,7 @@
             "Functional"
         ],
         "mainURL": "{{base_url}}",
-        "endpoint": "/instructions/{{instructionId}}{{status}}",
+        "endpoint": "/instructions/{{instructionId}}",
         "method": "GET",
         "rpc_method": "",
         "graphql_query": "",
@@ -167,7 +167,7 @@
             "Positive"
         ],
         "mainURL": "{{base_url}}",
-        "endpoint": "/instructions/{{instructionId}}{{status}}",
+        "endpoint": "/instructions/{{instructionId}}?status=Draft",
         "method": "GET",
         "rpc_method": "",
         "graphql_query": "",
@@ -289,7 +289,7 @@
             "data_comparison": []
         },
         "test_data_file": "MoveMoneyAPI/data_driven/Data_instructions_instructionId_GET.csv",
-        "csv_row_index": 1,
+        "csv_row_index": 0,
         "db_query_timing": "after_api",
         "db_queries": {
             "default": "",
@@ -309,7 +309,7 @@
             "Negative"
         ],
         "mainURL": "{{base_url}}",
-        "endpoint": "/instructions/{{instructionId}}{{status}}",
+        "endpoint": "/instructions/684225A1-358F-4BDB-A061-9B33576B94CC?status=Pending",
         "method": "GET",
         "rpc_method": "",
         "graphql_query": "",
@@ -339,7 +339,7 @@
             "data_comparison": []
         },
         "test_data_file": "MoveMoneyAPI/data_driven/Data_instructions_instructionId_GET.csv",
-        "csv_row_index": 2,
+        "csv_row_index": 0,
         "db_query_timing": "after_api",
         "db_queries": {
             "default": "",
@@ -359,7 +359,7 @@
             "Negative"
         ],
         "mainURL": "{{base_url}}",
-        "endpoint": "/instructions/{{instructionId}}{{status}}",
+        "endpoint": "/instructions/{{instructionId}}?status=CHECK",
         "method": "GET",
         "rpc_method": "",
         "graphql_query": "",
@@ -422,7 +422,7 @@
             "data_comparison": []
         },
         "test_data_file": "MoveMoneyAPI/data_driven/Data_instructions_instructionId_GET.csv",
-        "csv_row_index": 3,
+        "csv_row_index": 0,
         "db_query_timing": "after_api",
         "db_queries": {
             "default": "",
@@ -442,7 +442,7 @@
             "Functional"
         ],
         "mainURL": "{{base_url}}",
-        "endpoint": "/instructions/{{instructionId}}{{status}}",
+        "endpoint": "/instructions/{{instructionId}}",
         "method": "GET",
         "rpc_method": "",
         "graphql_query": "",
@@ -516,7 +516,7 @@
             "data_comparison": []
         },
         "test_data_file": "MoveMoneyAPI/data_driven/Data_instructions_instructionId_GET.csv",
-        "csv_row_index": 4,
+        "csv_row_index": 0,
         "db_query_timing": "after_api",
         "db_queries": {
             "default": "",

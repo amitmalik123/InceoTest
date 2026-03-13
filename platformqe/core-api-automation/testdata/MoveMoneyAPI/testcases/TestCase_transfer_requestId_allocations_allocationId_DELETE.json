@@ -9,7 +9,7 @@
             "Functional"
         ],
         "mainURL": "{{base_url}}",
-        "endpoint": "/transfer/{{requestId}}/allocations",
+        "endpoint": "/{{requestId}}/allocations",
         "method": "POST",
         "headers_additional": {
             "Content-Type": "application/json"
@@ -58,13 +58,26 @@
                     "message": "Request allocationId should not be empty"
                 }
             ],
-            "data_comparison": {
-                "comparison_name": "API response self-compare",
-                "source": "api_response",
-                "target": "api_response",
-                "fields_to_compare": [],
-                "log_differences": true
-            }
+            "data_comparison": [
+                {
+                    "comparison_name": "AllocationId match between API and DB",
+                    "source": "response_allocationId",
+                    "target": "db_allocationId",
+                    "log_differences": true
+                },
+                {
+                    "comparison_name": "AccountId match between API and DB",
+                    "source": "response_accountId",
+                    "target": "db_accountId",
+                    "log_differences": true
+                },
+                {
+                    "comparison_name": "Amount match between API and DB",
+                    "source": "response_amount",
+                    "target": "db_amount",
+                    "log_differences": true
+                }
+            ]
         },
         "test_data_file": "MoveMoneyAPI/data_driven/Data_transfer_requestId_allocations_allocationId_DELETE.csv",
         "csv_row_index": 0,
@@ -127,13 +140,26 @@
                     "message": "Setup allocationId should not be empty"
                 }
             ],
-            "data_comparison": {
-                "comparison_name": "API response self-compare",
-                "source": "api_response",
-                "target": "api_response",
-                "fields_to_compare": [],
-                "log_differences": true
-            }
+            "data_comparison": [
+                {
+                    "comparison_name": "AllocationId match between API and DB",
+                    "source": "response_allocationId",
+                    "target": "db_allocationId",
+                    "log_differences": true
+                },
+                {
+                    "comparison_name": "AccountId match between API and DB",
+                    "source": "response_accountId",
+                    "target": "db_accountId",
+                    "log_differences": true
+                },
+                {
+                    "comparison_name": "Amount match between API and DB",
+                    "source": "response_amount",
+                    "target": "db_amount",
+                    "log_differences": true
+                }
+            ]
         },
         "test_data_file": "MoveMoneyAPI/data_driven/Data_transfer_requestId_allocations_allocationId_DELETE.csv",
         "csv_row_index": 1,
@@ -149,7 +175,7 @@
             "Functional"
         ],
         "mainURL": "{{base_url}}",
-        "endpoint": "/transfer/{{requestId}}/allocations/{{latestAllocationIdForDelete}}",
+        "endpoint": "/{{requestId}}/allocations/{{latestAllocationIdForDelete}}",
         "method": "DELETE",
         "headers_additional": {
             "Content-Type": "application/json"
@@ -183,13 +209,26 @@
                     "message": "Setup allocationId should not be empty"
                 }
             ],
-            "data_comparison": {
-                "comparison_name": "API response self-compare",
-                "source": "api_response",
-                "target": "api_response",
-                "fields_to_compare": [],
-                "log_differences": true
-            }
+            "data_comparison": [
+                {
+                    "comparison_name": "AllocationId match between API and DB",
+                    "source": "response_allocationId",
+                    "target": "db_allocationId",
+                    "log_differences": true
+                },
+                {
+                    "comparison_name": "AccountId match between API and DB",
+                    "source": "response_accountId",
+                    "target": "db_accountId",
+                    "log_differences": true
+                },
+                {
+                    "comparison_name": "Amount match between API and DB",
+                    "source": "response_amount",
+                    "target": "db_amount",
+                    "log_differences": true
+                }
+            ]
         },
         "test_data_file": "MoveMoneyAPI/data_driven/Data_transfer_requestId_allocations_allocationId_DELETE.csv",
         "csv_row_index": 2,
@@ -199,13 +238,13 @@
         "test_id": "TC003",
         "service_name": "MoveMoneyAPI",
         "workflow_mode": "sequential",
-        "test_name": "TC003 - DELETE /transfer/{requestId}/allocations/{allocationId} [negative: already deleted]",
+        "test_name": "TC003 - DELETE/{requestId}/allocations/{allocationId} [negative: already deleted]",
         "protocol": "REST",
         "test_type": [
             "Negative"
         ],
         "mainURL": "{{base_url}}",
-        "endpoint": "/transfer/{{requestId}}/allocations/{{latestAllocationIdForDelete}}",
+        "endpoint": "/{{requestId}}/allocations/{{latestAllocationIdForDelete}}",
         "method": "DELETE",
         "headers_additional": {
             "Content-Type": "application/json"
