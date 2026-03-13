@@ -27,7 +27,7 @@ db_connections:
       trusted_connection: true
     
     account_service:
-      connection_string: "${ACCOUNT_SQLDB}"
+      connection_string: "${ACCOUNTS_SQLDB}"
     
     # Azure SQL Server with Entra ID (Azure AD) Password Authentication
     movemoney:
