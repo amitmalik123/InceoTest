@@ -104,14 +104,18 @@
             ],
             "data_comparison": [
                 {
-                    "source": "requestId",
-                    "target": "db_requestId",
+                    "source": "api_response",
+                    "source_array_path": "requestId",
+                    "target": "variable",
+                    "target_variable": "requestId",
                     "log_differences": true,
                     "comparison_name": "RequestId match between API and DB"
                 },
                 {
-                    "source": "version",
-                    "target": "db_version",
+                    "source": "api_response",
+                    "source_array_path": "version",
+                    "target": "variable",
+                    "target_variable": "version",
                     "log_differences": true,
                     "comparison_name": "Version match between API and DB"
                 }
@@ -234,22 +238,26 @@
             ],
             "data_comparison": [
                 {
-                    "source": "requestId",
-                    "target": "db_requestId",
+                    "source": "api_response",
+                    "source_array_path": "requestId",
+                    "target": "variable",
+                    "target_variable": "requestId",
                     "log_differences": true,
                     "comparison_name": "RequestId match between API and DB"
                 },
                 {
-                    "source": "version",
-                    "target": "db_version",
+                    "source": "api_response",
+                    "source_array_path": "version",
+                    "target": "variable",
+                    "target_variable": "version",
                     "log_differences": true,
                     "comparison_name": "Version match between API and DB"
                 },
                 {
                     "source": "api_request",
                     "source_array_path": "securityTransfers",
-                    "target": "db_result",
-                    "target_query": "security_transfers",
+                    "target": "api_request",
+                    "target_array_path": "securityTransfers",
                     "compare_record_count": true,
                     "log_differences": true,
                     "comparison_name": "SecurityTransfers record count match between API request and DB"
@@ -257,8 +265,8 @@
                 {
                     "source": "api_request",
                     "source_array_path": "securityTransfers",
-                    "target": "db_result",
-                    "target_query": "security_transfers",
+                    "target": "api_request",
+                    "target_array_path": "securityTransfers",
                     "key_field": [
                         "securityId"
                     ],
@@ -390,22 +398,26 @@
             ],
             "data_comparison": [
                 {
-                    "source": "requestId",
-                    "target": "db_requestId",
+                    "source": "api_response",
+                    "source_array_path": "requestId",
+                    "target": "variable",
+                    "target_variable": "requestId",
                     "log_differences": true,
                     "comparison_name": "RequestId match between API and DB"
                 },
                 {
-                    "source": "version",
-                    "target": "db_version",
+                    "source": "api_response",
+                    "source_array_path": "version",
+                    "target": "variable",
+                    "target_variable": "version",
                     "log_differences": true,
                     "comparison_name": "Version match between API and DB"
                 },
                 {
                     "source": "api_request",
                     "source_array_path": "allocations",
-                    "target": "db_result",
-                    "target_query": "allocations",
+                    "target": "api_request",
+                    "target_array_path": "allocations",
                     "compare_record_count": true,
                     "log_differences": true,
                     "comparison_name": "Allocations record count match between API request and DB"
@@ -413,8 +425,8 @@
                 {
                     "source": "api_request",
                     "source_array_path": "allocations",
-                    "target": "db_result",
-                    "target_query": "allocations",
+                    "target": "api_request",
+                    "target_array_path": "allocations",
                     "key_field": [
                         "accountId"
                     ],
