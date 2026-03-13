@@ -5,7 +5,7 @@
     "workflow_mode": "parallel",
     "test_name": "Liveness probe to check if the service is running [positive] (TC001)",
     "protocol": "REST",
-    "test_type": ["Functional"],
+    "test_type": ["Functional", "Smoke"],
     "mainURL": "{{base_url}}",
     "endpoint": "/health/live",
     "method": "GET",
