@@ -369,8 +369,26 @@
         "expected_status": "204",
         "expected_response_schema": null,
         "expected_response": null,
-        "ignore_fields": [],
-        "extract_values": [],
+        "ignore_fields": [
+            "error"
+        ],
+        "extract_values": [
+            {
+                "from": "response",
+                "key": "status",
+                "assign_to": "error_status"
+            },
+            {
+                "from": "response",
+                "key": "fields",
+                "assign_to": "error_fields"
+            },
+            {
+                "from": "response",
+                "key": "error",
+                "assign_to": "error_message"
+            }
+        ],
         "validate": {
             "performance": {
                 "max_response_time_ms": 500
@@ -381,7 +399,20 @@
                     "xss"
                 ]
             },
-            "assertions": [],
+            "assertions": [
+                {
+                    "actual": "{{error_status}}",
+                    "expected": null,
+                    "operator": "==",
+                    "message": "Response body status should be null for 204 No Content"
+                },
+                {
+                    "actual": "{{error_fields}}",
+                    "expected": null,
+                    "operator": "==",
+                    "message": "Response body fields should be null for 204 No Content"
+                }
+            ],
             "data_comparison": []
         },
         "test_data_file": "",
@@ -418,8 +449,26 @@
         "expected_status": "204",
         "expected_response_schema": null,
         "expected_response": null,
-        "ignore_fields": [],
-        "extract_values": [],
+        "ignore_fields": [
+            "error"
+        ],
+        "extract_values": [
+            {
+                "from": "response",
+                "key": "status",
+                "assign_to": "error_status"
+            },
+            {
+                "from": "response",
+                "key": "fields",
+                "assign_to": "error_fields"
+            },
+            {
+                "from": "response",
+                "key": "error",
+                "assign_to": "error_message"
+            }
+        ],
         "validate": {
             "performance": {
                 "max_response_time_ms": 500
@@ -430,7 +479,20 @@
                     "xss"
                 ]
             },
-            "assertions": [],
+            "assertions": [
+                {
+                    "actual": "{{error_status}}",
+                    "expected": null,
+                    "operator": "==",
+                    "message": "Response body status should be null for 204 No Content"
+                },
+                {
+                    "actual": "{{error_fields}}",
+                    "expected": null,
+                    "operator": "==",
+                    "message": "Response body fields should be null for 204 No Content"
+                }
+            ],
             "data_comparison": []
         },
         "test_data_file": "",
@@ -471,8 +533,26 @@
             "error": "Invalid value for 'status' parameter. Must be one of:Received,IWRComplete,QCApprovedFirstPass,QCNotApprovedFirstPass,EditPendingSubmission,ReadyForSubmissionPendingQC,SubmittedPendingQC,QCApprovedSecondPass,QCNotApprovedSecondPass,Submitted,EditPendingResubmission,Resubmitted,Inflight,Draft (Parameter 'status')",
             "fields": "status"
         },
-        "ignore_fields": [],
-        "extract_values": [],
+        "ignore_fields": [
+            "error"
+        ],
+        "extract_values": [
+            {
+                "from": "response",
+                "key": "status",
+                "assign_to": "error_status"
+            },
+            {
+                "from": "response",
+                "key": "fields",
+                "assign_to": "error_fields"
+            },
+            {
+                "from": "response",
+                "key": "error",
+                "assign_to": "error_message"
+            }
+        ],
         "validate": {
             "performance": {
                 "max_response_time_ms": 500
@@ -483,7 +563,26 @@
                     "xss"
                 ]
             },
-            "assertions": [],
+            "assertions": [
+                {
+                    "actual": "{{error_status}}",
+                    "expected": 400,
+                    "operator": "==",
+                    "message": "Status should be 400 for invalid status query parameter"
+                },
+                {
+                    "actual": "{{error_fields}}",
+                    "expected": "status",
+                    "operator": "==",
+                    "message": "Error fields should indicate status"
+                },
+                {
+                    "actual": "{{error_message}}",
+                    "expected": "Invalid value for 'status' parameter",
+                    "operator": "contains",
+                    "message": "Error message should indicate invalid status parameter"
+                }
+            ],
             "data_comparison": []
         },
         "test_data_file": "",
