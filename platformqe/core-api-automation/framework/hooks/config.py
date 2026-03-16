@@ -57,42 +57,6 @@ class HooksConfig:
         )
 
 
-# Service-specific default settings
-# 
-# Two configuration formats are supported:
-# 
-# 1. FLAT FORMAT (single endpoint per service):
-#    'service_name': {
-#        'prerequisite_testcase': {
-#            'enabled': True,
-#            'count': 3,
-#            'testcase_file': '...',
-#            ...
-#        }
-#    }
-# 
-# 2. NESTED FORMAT (multiple endpoints per service):
-#    'service_name': {
-#        'prerequisite_testcase': {
-#            'endpoint1': {
-#                'enabled': True,
-#                'count': 5,
-#                'testcase_file': '...',
-#                ...
-#            },
-#            'endpoint2': {
-#                'enabled': True,
-#                'count': 3,
-#                'testcase_file': '...',
-#                ...
-#            }
-#        }
-#    }
-# 
-# Usage:
-#   - Flat format: pytest --service-name=parties --env=T11
-#   - Nested format: pytest --service-name=MoveMoneyAPI --env=TSADEV
-#                     (executes all enabled endpoints: requests + instructions)
 SERVICE_DEFAULTS: Dict[str, Dict] = {
     'parties': {
         'max_records': 10,
@@ -147,8 +111,8 @@ SERVICE_DEFAULTS: Dict[str, Dict] = {
                     ]
                 },
                 'update_csv_file': 'MoveMoneyAPI/data_driven/Data_instructions_instructionId_GET.csv',
-                'csv_columns': ['test_id', 'environment', 'instructionId', 'status'],
-                'extract_fields': ['instructionId']
+                'csv_columns': ['test_id', 'environment', 'instructionId', 'version', 'status'],
+                
             }
         }
     }
