@@ -20,8 +20,9 @@
         "calculations": [
             {
                 "calculationType": "asset allocation",
-                        "configurations": {
-                        }
+                "configurations": {
+                    "method": "ewma"
+                }
             }
         ]
     }

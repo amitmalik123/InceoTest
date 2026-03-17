@@ -33,6 +33,34 @@ from framework.clients.api_client import ApiClientFactory
 logger = get_logger(__name__)
 
 
+def _ci_get(data: Dict[str, Any], key: str, default=None):
+    """Case-insensitive dict key lookup."""
+    if not isinstance(data, dict):
+        return default
+    if key in data:
+        return data[key]
+    key_lower = key.lower()
+    for existing_key, value in data.items():
+        if str(existing_key).lower() == key_lower:
+            return value
+    return default
+
+
+def _pick_key(data: Dict[str, Any], *candidates: str) -> Optional[str]:
+    """Return the first matching key name found in dict (case-insensitive)."""
+    if not isinstance(data, dict):
+        return None
+    for candidate in candidates:
+        if candidate in data:
+            return candidate
+    lowered = {str(k).lower(): k for k in data.keys()}
+    for candidate in candidates:
+        found = lowered.get(candidate.lower())
+        if found is not None:
+            return found
+    return None
+
+
 # =============================================================================
 # API DATA FETCHING UTILITIES
 # =============================================================================
@@ -688,7 +716,7 @@ class ReturnCalculationValidator:
         }
         
         # Extract calculation results from API response
-        calc_results = api_response.get('calculationResults', [])
+        calc_results = _ci_get(api_response, 'calculationResults', [])
         if not calc_results:
             errors.append("No calculationResults found in response")
             return False, errors, computed_data
@@ -696,7 +724,8 @@ class ReturnCalculationValidator:
         # Find the cumulative returns time series calculation
         cumulative_result = None
         for result in calc_results:
-            if result.get('calculationType') == 'cumulative returns time series':
+            calc_type = _ci_get(result, 'calculationType')
+            if isinstance(calc_type, str) and calc_type.strip().lower() == 'cumulative returns time series':
                 cumulative_result = result
                 break
         
@@ -704,7 +733,7 @@ class ReturnCalculationValidator:
             errors.append("No 'cumulative returns time series' calculation found in response")
             return False, errors, computed_data
         
-        result_data = cumulative_result.get('result', [])
+        result_data = _ci_get(cumulative_result, 'result', [])
         if not result_data:
             errors.append("No result data found in cumulative returns time series")
             return False, errors, computed_data
@@ -722,10 +751,10 @@ class ReturnCalculationValidator:
         logger.info("VALIDATING INDIVIDUAL MODEL CUMULATIVE RETURNS")
         logger.info("-" * 80)
         
-        blend_models_api = blend_section.get('blend', [])
+        blend_models_api = _ci_get(blend_section, 'blend', [])
         
         for model_api in blend_models_api:
-            model_id = model_api.get('id')
+            model_id = _ci_get(model_api, 'id')
             if not model_id or model_id not in models_monthly_data:
                 logger.warning(f"Model {model_id} not found in monthly data, skipping")
                 continue
@@ -739,15 +768,15 @@ class ReturnCalculationValidator:
             computed_cumulative = self.compute_monthly_cumulative_returns(monthly_returns)
             
             # Get API cumulative returns (may be in reverse order)
-            api_cumulative_array = model_api.get('cumulativeReturn', [])
+            api_cumulative_array = _ci_get(model_api, 'cumulativeReturn', [])
             
             # Sort API data by date to ensure chronological order
-            api_cumulative_sorted = sorted(api_cumulative_array, key=lambda x: x.get('date', ''))
+            api_cumulative_sorted = sorted(api_cumulative_array, key=lambda x: _ci_get(x, 'date', ''))
             
             # Validate each month's cumulative return
             for i, api_cum_obj in enumerate(api_cumulative_sorted):
-                api_date = api_cum_obj.get('date')
-                api_cum_value = api_cum_obj.get('return')
+                api_date = _ci_get(api_cum_obj, 'date')
+                api_cum_value = _ci_get(api_cum_obj, 'return')
                 
                 if i < len(computed_cumulative):
                     computed_cum_value = computed_cumulative[i]
@@ -793,15 +822,15 @@ class ReturnCalculationValidator:
         blended_cumulative = self.compute_monthly_cumulative_returns(blended_monthly_returns)
         
         # Get API blended cumulative returns (may be in reverse order)
-        api_blend_cumulative_array = blend_section.get('cumulativeReturn', [])
+        api_blend_cumulative_array = _ci_get(blend_section, 'cumulativeReturn', [])
         
         # Sort API data by date to ensure chronological order
-        api_blend_cumulative_sorted = sorted(api_blend_cumulative_array, key=lambda x: x.get('date', ''))
+        api_blend_cumulative_sorted = sorted(api_blend_cumulative_array, key=lambda x: _ci_get(x, 'date', ''))
         
         # Validate each month's blended cumulative return
         for i, api_cum_obj in enumerate(api_blend_cumulative_sorted):
-            api_date = api_cum_obj.get('date')
-            api_cum_value = api_cum_obj.get('return')
+            api_date = _ci_get(api_cum_obj, 'date')
+            api_cum_value = _ci_get(api_cum_obj, 'return')
             
             if i < len(blended_cumulative):
                 computed_cum_value = blended_cumulative[i]
@@ -832,7 +861,7 @@ class ReturnCalculationValidator:
         logger.info("VALIDATING BENCHMARK CUMULATIVE RETURNS")
         logger.info("-" * 80)
         
-        benchmark_id = benchmark_section.get('id')
+        benchmark_id = _ci_get(benchmark_section, 'id')
         if benchmark_id and benchmark_id in benchmark_monthly_data:
             logger.info(f"Validating benchmark: {benchmark_id}")
             
@@ -843,15 +872,15 @@ class ReturnCalculationValidator:
             benchmark_cumulative = self.compute_monthly_cumulative_returns(benchmark_returns)
             
             # Get API benchmark cumulative returns (may be in reverse order)
-            api_benchmark_cumulative_array = benchmark_section.get('cumulativeReturn', [])
+            api_benchmark_cumulative_array = _ci_get(benchmark_section, 'cumulativeReturn', [])
             
             # Sort API data by date to ensure chronological order
-            api_benchmark_cumulative_sorted = sorted(api_benchmark_cumulative_array, key=lambda x: x.get('date', ''))
+            api_benchmark_cumulative_sorted = sorted(api_benchmark_cumulative_array, key=lambda x: _ci_get(x, 'date', ''))
             
             # Validate each month's benchmark cumulative return
             for i, api_cum_obj in enumerate(api_benchmark_cumulative_sorted):
-                api_date = api_cum_obj.get('date')
-                api_cum_value = api_cum_obj.get('return')
+                api_date = _ci_get(api_cum_obj, 'date')
+                api_cum_value = _ci_get(api_cum_obj, 'return')
                 
                 if i < len(benchmark_cumulative):
                     computed_cum_value = benchmark_cumulative[i]
@@ -931,19 +960,20 @@ class ReturnCalculationValidator:
         errors = []
         
         # Extract calculation results from API response
-        calc_results = api_response.get('calculationResults', [])
+        calc_results = _ci_get(api_response, 'calculationResults', [])
         if not calc_results:
             errors.append("No calculationResults found in response")
-            return False, errors
+            return False, errors, {}
         
         return_result = calc_results[0]
-        if return_result.get('calculationType') != 'return':
-            errors.append(f"Expected calculationType 'return', got '{return_result.get('calculationType')}'")
+        calc_type = _ci_get(return_result, 'calculationType')
+        if str(calc_type).strip().lower() != 'return':
+            errors.append(f"Expected calculationType 'return', got '{calc_type}'")
         
-        result_data = return_result.get('result', [])
+        result_data = _ci_get(return_result, 'result', [])
         if not result_data or len(result_data) < 1:
             errors.append("No result data found")
-            return False, errors
+            return False, errors, {}
         
         # Extract blend and benchmark data from API response
         blend_result = result_data[0]
@@ -963,7 +993,7 @@ class ReturnCalculationValidator:
         
         # Compute cumulative returns for each blend model
         computed_model_returns = []
-        blend_models_api = blend_result.get('blend', [])
+        blend_models_api = _ci_get(blend_result, 'blend', [])
         
         for i, (model_id, weight) in enumerate(zip(blend_ids, blend_weights)):
             logger.info(f"Computing returns for blend model {i+1}: {model_id} (weight: {weight})")
@@ -992,10 +1022,10 @@ class ReturnCalculationValidator:
             logger.info(f"  Computed Annualized Return: {computed_annualized:.10f}")
             
             # Compare with API response for this model
-            api_model = next((m for m in blend_models_api if m.get('id') == model_id), None)
+            api_model = next((m for m in blend_models_api if _ci_get(m, 'id') == model_id), None)
             if api_model:
-                api_cum = api_model.get('cumulativeReturn')
-                api_ann = api_model.get('annualizedReturn')
+                api_cum = _ci_get(api_model, 'cumulativeReturn')
+                api_ann = _ci_get(api_model, 'annualizedReturn')
                 
                 logger.info(f"  API Cumulative Return: {api_cum:.10f}")
                 logger.info(f"  API Annualized Return: {api_ann:.10f}")
@@ -1043,8 +1073,8 @@ class ReturnCalculationValidator:
             logger.info(f"  Computed Blended Annualized Return: {computed_blend_annualized:.10f}")
             
             # Compare with API response
-            api_blend_cum = blend_result.get('cumulativeReturn')
-            api_blend_ann = blend_result.get('annualizedReturn')
+            api_blend_cum = _ci_get(blend_result, 'cumulativeReturn')
+            api_blend_ann = _ci_get(blend_result, 'annualizedReturn')
             
             logger.info(f"  API Blended Cumulative Return: {api_blend_cum:.10f}")
             logger.info(f"  API Blended Annualized Return: {api_blend_ann:.10f}")
@@ -1094,8 +1124,8 @@ class ReturnCalculationValidator:
                 logger.info(f"  Computed Benchmark Annualized Return: {computed_benchmark_annualized:.10f}")
                 
                 # Compare with API response
-                api_bench_cum = benchmark_result.get('cumulativeReturn')
-                api_bench_ann = benchmark_result.get('annualizedReturn')
+                api_bench_cum = _ci_get(benchmark_result, 'cumulativeReturn')
+                api_bench_ann = _ci_get(benchmark_result, 'annualizedReturn')
                 
                 logger.info(f"  API Benchmark Cumulative Return: {api_bench_cum:.10f}")
                 logger.info(f"  API Benchmark Annualized Return: {api_bench_ann:.10f}")
@@ -1205,19 +1235,22 @@ def validate(context):
         
         # Detect calculation type from API response
         calculation_type = None
-        if 'calculationResults' in api_response and len(api_response['calculationResults']) > 0:
-            calculation_type = api_response['calculationResults'][0].get('calculationType', 'return')
+        calc_results = _ci_get(api_response, 'calculationResults', [])
+        if calc_results:
+            calculation_type = _ci_get(calc_results[0], 'calculationType', 'return')
         
         logger.info(f"Detected calculation type: '{calculation_type}'")
         
         # Route to appropriate validation based on calculation type
-        if calculation_type == 'volatility':
+        calc_type_normalized = str(calculation_type).strip().lower() if calculation_type is not None else ''
+
+        if calc_type_normalized == 'volatility':
             logger.info("Routing to volatility validation logic")
             return validate_volatility_calculation(ctx, logger)
-        elif calculation_type == 'cumulative returns time series':
+        elif calc_type_normalized == 'cumulative returns time series':
             logger.info("Routing to monthly cumulative returns time series validation logic")
             return validate_cumulative_returns_time_series(ctx, logger)
-        elif calculation_type == 'return':
+        elif calc_type_normalized == 'return':
             logger.info("Routing to return validation logic")
         else:
             logger.warning(f"Unknown calculation type '{calculation_type}', defaulting to return validation")
@@ -1467,9 +1500,10 @@ def validate_cumulative_returns_time_series(ctx, logger):
         
         # Extract actual start and end dates from API response
         # The API may adjust the dates based on data availability
-        calc_result = api_response.get('calculationResults', [{}])[0]
-        api_start_date = calc_result.get('startDate', start_date)
-        api_end_date = calc_result.get('endDate', end_date)
+        calc_results = _ci_get(api_response, 'calculationResults', [{}])
+        calc_result = calc_results[0] if calc_results else {}
+        api_start_date = _ci_get(calc_result, 'startDate', start_date)
+        api_end_date = _ci_get(calc_result, 'endDate', end_date)
         
         logger.info(f"API Response Period: {api_start_date} to {api_end_date}")
         
@@ -1593,13 +1627,13 @@ def validate_cumulative_returns_time_series(ctx, logger):
         logger.info("=" * 80)
         
         # Get month dates from the API response (to preserve exact date format)
-        api_calc_result = api_response.get('calculationResults', [{}])[0]
-        api_result = api_calc_result.get('result', [])
+        api_calc_result = calc_result
+        api_result = _ci_get(api_calc_result, 'result', [])
         api_blend_section = api_result[0] if len(api_result) > 0 else {}
-        api_blend_cumulative = api_blend_section.get('cumulativeReturn', [])
+        api_blend_cumulative = _ci_get(api_blend_section, 'cumulativeReturn', [])
         
         # Extract dates in chronological order
-        month_dates = sorted([item.get('date') for item in api_blend_cumulative])
+        month_dates = sorted([_ci_get(item, 'date') for item in api_blend_cumulative if _ci_get(item, 'date')])
         
         logger.info(f"Using {len(month_dates)} month dates from API response")
         
@@ -1662,19 +1696,74 @@ def validate_cumulative_returns_time_series(ctx, logger):
                 break  # Use first benchmark
         
         # Build complete script response structure matching API format
+        response_code_key = _pick_key(api_response, 'responseCode') or 'responseCode'
+        message_key = _pick_key(api_response, 'message') or 'message'
+        as_of_date_key = _pick_key(api_response, 'asOfDate') or 'asOfDate'
+        calc_results_key = _pick_key(api_response, 'calculationResults') or 'calculationResults'
+        calculation_type_key = _pick_key(api_calc_result, 'calculationType') or 'calculationType'
+        start_date_key = _pick_key(api_calc_result, 'startDate') or 'startDate'
+        end_date_key = _pick_key(api_calc_result, 'endDate') or 'endDate'
+        result_key = _pick_key(api_calc_result, 'result') or 'result'
+        blend_key = _pick_key(api_blend_section, 'blend') or 'blend'
+        cumulative_return_key = _pick_key(api_blend_section, 'cumulativeReturn') or 'cumulativeReturn'
+        entity_type_key = 'entityType'
+        if blend_models_constructed:
+            entity_type_key = _pick_key(blend_models_constructed[0], 'entityType') or 'entityType'
+        date_key = 'date'
+        return_key = 'return'
+        if blend_cumulative_return_array:
+            date_key = _pick_key(blend_cumulative_return_array[0], 'date') or 'date'
+            return_key = _pick_key(blend_cumulative_return_array[0], 'return') or 'return'
+
+        # Rebuild with key style matching API response.
+        blend_models_styled = []
+        for model in blend_models_constructed:
+            styled_cumulative = []
+            for item in model.get('cumulativeReturn', []):
+                styled_cumulative.append({
+                    date_key: item.get('date'),
+                    return_key: item.get('return')
+                })
+            blend_models_styled.append({
+                'id': model.get('id'),
+                entity_type_key: model.get('entityType'),
+                cumulative_return_key: styled_cumulative
+            })
+
+        blend_cumulative_styled = []
+        for item in blend_cumulative_return_array:
+            blend_cumulative_styled.append({
+                date_key: item.get('date'),
+                return_key: item.get('return')
+            })
+
+        benchmark_styled = None
+        if benchmark_constructed:
+            bench_series = []
+            for item in benchmark_constructed.get('cumulativeReturn', []):
+                bench_series.append({
+                    date_key: item.get('date'),
+                    return_key: item.get('return')
+                })
+            benchmark_styled = {
+                'id': benchmark_constructed.get('id'),
+                entity_type_key: benchmark_constructed.get('entityType'),
+                cumulative_return_key: bench_series
+            }
+
         computed_script_response = {
-            "responseCode": 200,
-            "message": "Request processed successfully",
-            "asOfDate": api_response.get('asOfDate', ''),
-            "calculationResults": [
+            response_code_key: _ci_get(api_response, 'responseCode', 200),
+            message_key: _ci_get(api_response, 'message', 'Request processed successfully'),
+            as_of_date_key: _ci_get(api_response, 'asOfDate', ''),
+            calc_results_key: [
                 {
-                    "calculationType": "cumulative returns time series",
-                    "startDate": start_date,
-                    "endDate": end_date,
-                    "result": [
+                    calculation_type_key: _ci_get(api_calc_result, 'calculationType', 'cumulative returns time series'),
+                    start_date_key: start_date,
+                    end_date_key: end_date,
+                    result_key: [
                         {
-                            "cumulativeReturn": blend_cumulative_return_array,
-                            "blend": blend_models_constructed
+                            cumulative_return_key: blend_cumulative_styled,
+                            blend_key: blend_models_styled
                         }
                     ]
                 }
@@ -1682,8 +1771,8 @@ def validate_cumulative_returns_time_series(ctx, logger):
         }
         
         # Add benchmark if available
-        if benchmark_constructed:
-            computed_script_response["calculationResults"][0]["result"].append(benchmark_constructed)
+        if benchmark_styled:
+            computed_script_response[calc_results_key][0][result_key].append(benchmark_styled)
         
         logger.info("Script response structure constructed successfully")
         logger.info("=" * 80)

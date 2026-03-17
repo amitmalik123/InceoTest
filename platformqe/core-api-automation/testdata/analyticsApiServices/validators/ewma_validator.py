@@ -150,22 +150,63 @@ class EWMABlendedRiskValidator:
         Returns:
             Result dictionary for the calculation type, or None if not found
         """
+        def _get_ci(obj: Any, key: str, default: Any = None) -> Any:
+            """Case-insensitive dict getter for API payloads with mixed casing."""
+            if not isinstance(obj, dict):
+                return default
+            key_lower = key.lower()
+            for k, v in obj.items():
+                if str(k).lower() == key_lower:
+                    return v
+            return default
+
+        def _normalize_calc_type(value: Any) -> str:
+            if value is None:
+                return ""
+            return str(value).strip().lower().replace("_", " ").replace("-", " ")
+
+        def _looks_like_blended_risk_result(result_obj: Any) -> bool:
+            if not isinstance(result_obj, dict):
+                return False
+            return (
+                _get_ci(result_obj, "annualizedVolatility") is not None
+                and _get_ci(result_obj, "blendedRiskScore") is not None
+                and _get_ci(result_obj, "profileValue") is not None
+            )
+
         if not api_response:
             return None
         
         # Try calculationResults array
-        calc_results = api_response.get("calculationResults", [])
+        calc_results = _get_ci(api_response, "calculationResults", []) or []
+        requested_type = _normalize_calc_type(calculation_type)
+
         for result in calc_results:
-            if result.get("calculationType") == calculation_type:
-                return result.get("result", result)
+            result_type = _normalize_calc_type(_get_ci(result, "calculationType"))
+
+            # Accept exact and common variants like "blended_risk" / "blended-risk"
+            if result_type == requested_type:
+                return _get_ci(result, "result", result)
+
+            # Fallback for result type variants that still clearly indicate blended risk
+            if requested_type == "blended risk" and "blended" in result_type and "risk" in result_type:
+                return _get_ci(result, "result", result)
+
+        # Last fallback: pick the first result object that contains expected blended risk fields
+        for result in calc_results:
+            candidate = _get_ci(result, "result", result)
+            if _looks_like_blended_risk_result(candidate):
+                return candidate
         
         # Try direct result field
-        if "result" in api_response:
-            return api_response["result"]
+        direct_result = _get_ci(api_response, "result")
+        if direct_result is not None and _looks_like_blended_risk_result(direct_result):
+            return direct_result
         
         # Try data field
-        if "data" in api_response:
-            return api_response["data"]
+        data_result = _get_ci(api_response, "data")
+        if data_result is not None and _looks_like_blended_risk_result(data_result):
+            return data_result
         
         return None
     
@@ -544,8 +585,8 @@ class EWMABlendedRiskValidator:
         logger.info(f"  Variance Index:    {expected['intermediateValues']['finalVarianceMonthIndex']}")
         logger.info("-" * 80)
         
-        # Compare annualized volatility
-        actual_vol = actual_result.get("annualizedVolatility")
+        # Compare annualized volatility (support mixed API key casing)
+        actual_vol = actual_result.get("annualizedVolatility", actual_result.get("AnnualizedVolatility"))
         expected_vol = expected["annualizedVolatility"]
         
         logger.info(f"Annualized Volatility:")
@@ -564,8 +605,8 @@ class EWMABlendedRiskValidator:
         # For blendedRiskScore and profileValue, we validate internal consistency:
         # The API's derived values should match what we would compute from the API's annualizedVolatility
         # This validates the API's internal calculation logic, not our EWMA calculation
-        actual_score = actual_result.get("blendedRiskScore")
-        actual_profile = actual_result.get("profileValue")
+        actual_score = actual_result.get("blendedRiskScore", actual_result.get("BlendedRiskScore"))
+        actual_profile = actual_result.get("profileValue", actual_result.get("ProfileValue"))
         
         # Compute expected derived values from our computed annualizedVolatility
         computed_score, computed_profile = self.calculate_blended_risk_score(expected_vol)
