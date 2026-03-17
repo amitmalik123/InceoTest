@@ -72,6 +72,7 @@ from tests.bdd.steps.navigation_steps import (
     click_on_account_list,
     click_searched_account_and_navigate_to_wizard,
     navigate_to_clients_menu,
+    user_navigate_to_clients_menu,
     verify_account_list_page_loaded,
     verify_account_list_page_loaded_and_search,
     verify_account_wizard_page_is_loaded,
@@ -89,11 +90,65 @@ from tests.bdd.steps.roth_conversion_steps import (
     verify_destination_account_correct,
 )
 
+# Client accounts steps
+from tests.bdd.steps.client_accounts_steps import (
+    select_authorized_signer_approval_option,
+    verify_signer_information_dialog_exists_with_correct_information,
+    verify_authorized_signer_approval_section,
+    verify_fields_for_esign_method,
+    verify_authorized_signer_esign_method_section,
+    user_select_authorized_signer_esign_method,
+    provide_authorized_signers_information,
+    verify_authorized_signer_dropdown,
+    click_continue_button,
+    verify_account_number_displayed_and_radio_selected,
+    user_select_oam_request_and_type,
+    verify_form_heading_matches_oam_type,
+    user_select_submission_type,
+    user_select_client_signature_method,
+    verify_client_signature_not_required_dialog,
+    verify_request_dialog,
+    user_click_on_d_number,
+)
+
+# DocuSign steps
+from tests.bdd.steps.docusign_steps import (
+    user_confirm_and_continue,
+    user_finish_the_docusign_process,
+    user_should_be_redirected_to_docusign_page,
+    verify_as_authorized_by_stamp_presence,
+    verify_docusign_review_and_continue_dialog_text,
+    user_add_signature,
+    verify_signature_and_date_added_on_document,
+)
+
+# Outlook steps
+from tests.bdd.steps.outlook_steps import (
+    fetch_otp_from_outlook,
+    user_login_to_the_email_and_search_the_authorized_signer_email,
+    fetch_authorized_signer_email_subject_and_body_step,
+    user_login_to_the_email_and_complete_the_workflow_approver_signature,
+    user_login_to_the_email_and_fetch_the_latest_otp,
+    user_verifies_carbon_copy_received_in_email,
+    user_click_on_review_document_link_in_authorized_signer_email,
+)
+
 # Tracking center steps
 from tests.bdd.steps.tracking_center_steps import (
     navigate_to_tracking_center,
     verify_roth_conversion_entry_exists,
     verify_text_in_tracking_details,
+)
+
+# Tracking center item detail steps
+from tests.bdd.steps.trackingCenter_ItemDetail_steps import (
+    verify_item_detail_d_number_matches_request_submitted_pop_up_d_number,
+    verify_tracking_center_item_detail_status,
+    verify_buttons_displayed,
+    verify_notes_description,
+    verify_advisor_alert_required_value,
+    verify_redirected_to_tracking_center_item_detail_page,
+    verify_agent_name,
 )
 
 __all__ = [
@@ -112,6 +167,24 @@ __all__ = [
     "check_and_click_add_ach_instruction_link",
     # api
     "validate_api_with_status_code",
+    # client accounts
+    "select_authorized_signer_approval_option",
+    "verify_signer_information_dialog_exists_with_correct_information",
+    "verify_authorized_signer_approval_section",
+    "verify_fields_for_esign_method",
+    "verify_authorized_signer_esign_method_section",
+    "user_select_authorized_signer_esign_method",
+    "provide_authorized_signers_information",
+    "verify_authorized_signer_dropdown",
+    "click_continue_button",
+    "verify_account_number_displayed_and_radio_selected",
+    "user_select_oam_request_and_type",
+    "verify_form_heading_matches_oam_type",
+    "user_select_submission_type",
+    "user_select_client_signature_method",
+    "verify_client_signature_not_required_dialog",
+    "verify_request_dialog",
+    "user_click_on_d_number",
     # common
     "use_test_data_for_scenario",
     "use_test_data_for_user_type",
@@ -131,6 +204,14 @@ __all__ = [
     "verify_database_contains_records",
     "verify_transfer_status_exists",
     "verify_database_contains_minimum_records",
+    # docusign
+    "user_confirm_and_continue",
+    "user_finish_the_docusign_process",
+    "user_should_be_redirected_to_docusign_page",
+    "verify_as_authorized_by_stamp_presence",
+    "verify_docusign_review_and_continue_dialog_text",
+    "user_add_signature",
+    "verify_signature_and_date_added_on_document",
     # login
     "login_with_valid_credentials",
     "verify_redirect_to_home_page",
@@ -144,11 +225,20 @@ __all__ = [
     "click_next_button_on_add_ach_page",
     # navigation
     "navigate_to_clients_menu",
+    "user_navigate_to_clients_menu",
     "click_on_account_list",
     "verify_account_list_page_loaded",
     "verify_account_list_page_loaded_and_search",
     "click_searched_account_and_navigate_to_wizard",
     "verify_account_wizard_page_is_loaded",
+    # outlook
+    "fetch_otp_from_outlook",
+    "user_login_to_the_email_and_search_the_authorized_signer_email",
+    "fetch_authorized_signer_email_subject_and_body_step",
+    "user_login_to_the_email_and_complete_the_workflow_approver_signature",
+    "user_login_to_the_email_and_fetch_the_latest_otp",
+    "user_verifies_carbon_copy_received_in_email",
+    "user_click_on_review_document_link_in_authorized_signer_email",
     # roth conversion
     "select_destination_account",
     "verify_destination_account_correct",
@@ -162,4 +252,12 @@ __all__ = [
     "navigate_to_tracking_center",
     "verify_roth_conversion_entry_exists",
     "verify_text_in_tracking_details",
+    # tracking center item detail
+    "verify_item_detail_d_number_matches_request_submitted_pop_up_d_number",
+    "verify_tracking_center_item_detail_status",
+    "verify_buttons_displayed",
+    "verify_notes_description",
+    "verify_advisor_alert_required_value",
+    "verify_redirected_to_tracking_center_item_detail_page",
+    "verify_agent_name",
 ]

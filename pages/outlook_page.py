@@ -1,0 +1,1010 @@
+from __future__ import annotations
+
+import re
+from dataclasses import dataclass
+from datetime import datetime, timedelta, time
+from pathlib import Path
+from typing import Optional
+
+import allure
+from playwright.sync_api import Page, TimeoutError as PlaywrightTimeoutError
+
+from pages.base_page import BasePage
+from pages.docusign_page import DocuSignPage
+from utils.credential_encrypter import decrypt
+from utils.allure_logger import get_allure_logger
+
+logger = get_allure_logger(__name__)
+
+TIME_FORMAT = "%I:%M %p"  # corresponds to pattern "h:m a"
+
+
+@dataclass
+class OutlookOtpConfig:
+    mail_field1: str
+    mail_field2: str
+    secret_key: str
+
+
+class OutlookPage(BasePage):
+    """Page Object for handling OTP retrieval from Outlook webmail.
+
+    Usage example (sync Playwright):
+
+        page2 = context.new_page()
+        otp_page = OutlookPage.from_config(page2)
+        otp = otp_page.get_otp(submitting_time=datetime.now().time(), max_wait_time_in_seconds=60)
+    """
+
+    OUTLOOK_URL = "https://outlook.office365.com/mail/"
+    
+    # ========================================================================================
+    # LOCATORS - All page element locators defined at class level for easy maintenance
+    # ========================================================================================
+    
+    # Loading and UI elements
+    LOADING_LOGO = "#loadingLogo"
+    
+    # Email time locators
+    EMAIL_TIME_SPAN = "//span[@class='_rWRU U2XB8 qq2gS cbNn0']"
+    
+    # Message and email locators
+    MESSAGE_ROWS = "div[role='option']"
+    MAIL_BODY_CONTAINER = '[data-test-id="mailMessageBodyContainer"]'
+    
+    # Sign-in field locators (multiple fallbacks)
+    USERNAME_FIELD_PRIMARY = "#i0116"
+    USERNAME_FIELD_FALLBACK1 = "input[name='loginfmt']"
+    USERNAME_FIELD_FALLBACK2 = "input[type='email']"
+    
+    # Password field locators (multiple fallbacks)
+    PASSWORD_FIELD_PRIMARY = "#i0118"
+    PASSWORD_FIELD_FALLBACK1 = "input[name='passwd']"
+    PASSWORD_FIELD_FALLBACK2 = "input[type='password']"
+    
+    # Sign-in button locators (multiple fallbacks)
+    SIGNIN_BUTTON_PRIMARY = "#idSIButton9"
+    SIGNIN_BUTTON_FALLBACK1 = "//input[@type='submit' and @value='Next']"
+    SIGNIN_BUTTON_FALLBACK2 = "//input[@type='submit' and @value='Sign in']"
+    SIGNIN_BUTTON_FALLBACK3 = "button[type='submit']"
+    
+    # Stay signed in prompt
+    STAY_SIGNED_IN_YES = "//input[@type='submit' and @value='Yes']"
+    
+    # Inbox and search related
+    INBOX_LINK_LABEL = '[aria-label="Inbox"]'
+
+    def __init__(self, page: Page, config: OutlookOtpConfig):
+        # Initialize BasePage (logging, auto-healing, etc.)
+        super().__init__(page)
+        self.context = page.context
+        self.config = config
+
+    @classmethod
+    def from_config(
+        cls,
+        page: Page,
+        config_path: Optional[Path] = None,
+    ) -> "OutlookPage":
+        """Factory method to create OutlookPage instance from encrypted credentials.
+        
+        Loads credentials from the environment configuration file (env.{env}.yaml)
+        instead of an external config.yaml file.
+        
+        Args:
+            page: Playwright Page instance
+            config_path: Deprecated - kept for backward compatibility, ignored
+        
+        Returns:
+            OutlookPage: Configured instance with decrypted credentials
+            
+        Raises:
+            ValueError: If secret_key or encrypted credentials not found in config
+        """
+        from config.settings import get_settings
+        
+        settings = get_settings()
+        
+        # Get values from environment configuration (env.test11.yaml, etc.)
+        secret_key = str(settings.secret_key or "")
+        if not secret_key:
+            raise ValueError(
+                f"secret_key not found in env.{settings.env}.yaml. "
+                "Add 'secret_key: <16-or-32-byte-key>' to your environment config."
+            )
+        
+        encrypted_email = str(settings.outlook_email or "")
+        encrypted_password = str(settings.outlook_password or "")
+        if not encrypted_email or not encrypted_password:
+            raise ValueError(
+                f"Outlook credentials not found in env.{settings.env}.yaml. "
+                "Add email.outlook.email_address and email.outlook.password to your environment config."
+            )
+        
+        # Decrypt credentials
+        field1 = decrypt(encrypted_email, secret_key)
+        field2 = decrypt(encrypted_password, secret_key)
+        
+        config = OutlookOtpConfig(mail_field1=field1, mail_field2=field2, secret_key=secret_key)
+        return cls(page=page, config=config)
+
+    # --- Public API -----------------------------------------------------
+
+    def get_otp(self, submitting_time: time, max_wait_time_in_seconds: int, parent_page = None, email_page: Optional[Page] = None) -> Optional[str]:
+        """Read OTP from Outlook mail.
+
+        Returns the 6-digit OTP as a string, or None if not found.
+        """
+        logger.info("Starting OTP retrieval from Outlook")
+        otp: Optional[str] = None        
+
+        try:
+            normalized_submitting = datetime.strptime(
+                submitting_time.strftime(TIME_FORMAT), TIME_FORMAT
+            ).time()
+
+            received_time = (datetime.now() - timedelta(minutes=10)).time()
+
+            if email_page is None:
+                # Use centralized login function
+                email_page = self.login_outlook(context_message="OTP retrieval")
+            else:
+                email_page.bring_to_front()
+                # Avoid strict networkidle here as well; a simple reload with
+                # DOM content loaded is sufficient for updated inbox content.
+                email_page.reload(wait_until="domcontentloaded")
+
+            # Get the initial received time from the inbox list
+            received_time = self._read_latest_mail_time(email_page, default_time=received_time)
+
+            # Poll for updated inbox and OTP mail
+            step = 5
+            for _ in range(0, max_wait_time_in_seconds, step):
+                if received_time < normalized_submitting:
+                    # Mail is older than submitting time, refresh and retry
+                    email_page.reload(wait_until="domcontentloaded")
+                    email_page.wait_for_timeout(step * 1000)
+                    received_time = self._read_latest_mail_time(email_page, default_time=received_time)
+                else:
+                    otp = self._extract_otp_from_latest_mail(email_page)
+                    break
+
+        except Exception as ex:  # pragma: no cover - defensive
+            otp = None
+            # Log the exception and attach details to Allure
+            self.logger.error(f"Error while fetching OTP through email: {ex}")
+            with allure.step("Error while fetching OTP through email"):
+                allure.attach(
+                    str(ex),
+                    name="OTP Fetch Error",
+                    attachment_type=allure.attachment_type.TEXT,
+                )
+        finally:
+            if email_page is not None:
+                email_page.close()
+            # Focus back to original page
+            try:
+                if parent_page is not None:
+                    parent_page.bring_to_front()
+            except Exception as ex:
+                self.logger.error(f"Failed to bring parent_page to front after get_otp: {ex}")
+
+        return otp
+
+    def get_otp_with_retry(self, submitting_time: time, max_wait_time_in_seconds: int) -> Optional[str]:
+        otp = self.get_otp(submitting_time, max_wait_time_in_seconds, parent_page=self.page)
+        if otp is None:
+            otp = self.get_otp(submitting_time, max_wait_time_in_seconds, parent_page=self.page)
+        return otp
+
+    def login_outlook(self, context_message: str = "Outlook login") -> Page:
+        """Login to Outlook and wait for the inbox to load.
+        
+        This is a centralized login function that handles:
+        - Opening a new page to Outlook
+        - Navigating to OUTLOOK_URL
+        - Handling sign-in if needed
+        - Waiting for loading logo to disappear
+        
+        Args:
+            context_message: Description of what we're logging in for (used in error messages)
+            
+        Returns:
+            Page: The authenticated Outlook page
+            
+        Raises:
+            RuntimeError: If sign-in fails
+        """
+        outlook_email_page = self.context.new_page()
+        try:
+            # Global fixtures define viewport/window size; do not override here.
+            # Use a lighter DOM load wait instead of networkidle to avoid
+            # Outlook SPA timeouts.
+            outlook_email_page.goto(self.OUTLOOK_URL, wait_until="domcontentloaded")
+
+            # Sign-in flow if needed; if this fails, do not
+            # continue with inbox/search as if authenticated.
+            if not self._handle_sign_in_if_needed(outlook_email_page):
+                raise RuntimeError(
+                    f"Outlook sign-in did not complete successfully for {context_message}."
+                )
+
+            # Try to wait for the loading logo to disappear if present
+            loading_logo = outlook_email_page.locator("#loadingLogo")
+            try:
+                loading_logo.wait_for(state="hidden", timeout=10_000)
+            except PlaywrightTimeoutError as ex:
+                # Not critical; log and continue
+                self.logger.error(f"loadingLogo did not disappear within timeout ({context_message}): {ex}")
+                with allure.step(
+                    "loadingLogo did not disappear within timeout; continuing"
+                ):
+                    pass
+        except Exception:
+            # If something failed during login, close the page and re-raise
+            try:
+                outlook_email_page.close()
+            except Exception:
+                pass
+            raise
+
+        return outlook_email_page
+
+    # --- Internal helpers -----------------------------------------------
+
+    def _handle_sign_in_if_needed(self, page: Page) -> bool:
+        """Handle Outlook sign-in page if it is currently shown.
+
+        Returns ``True`` if either no sign-in was required (already
+        signed in) or the username/password flow was executed without
+        obvious locator failures. Returns ``False`` if required login
+        elements could not be found or another blocking error occurred.
+
+        This method is defensive against navigation races. If the page is
+        navigating while we try to read the title, Playwright can raise an
+        "execution context was destroyed" error. In that case we simply log
+        and return ``False`` so callers can avoid proceeding as if
+        Outlook were authenticated.
+        """
+        try:
+            # Best-effort wait for the page to reach a stable state.
+            try:
+                page.wait_for_load_state("domcontentloaded", timeout=15000)
+            except Exception:
+                # Non-fatal; continue and attempt to read title anyway.
+                pass
+
+            try:
+                title = page.title().lower()
+            except Exception as ex:
+                # If the execution context was destroyed due to navigation,
+                # log but continue; we'll decide based on field presence.
+                # Log at debug level via generic logger if needed; do not
+                # treat this as an error for normal test runs.
+                self.logger.warning(
+                    f"Outlook sign-in: unable to read page title: {ex}"
+                )
+
+            # Try multiple locators for username/email, password, and buttons,
+            # since Microsoft occasionally updates the markup and IDs.
+            username_locators = [
+                page.locator("#i0116"),
+                page.locator("input[name='loginfmt']"),
+                page.locator("input[type='email']"),
+            ]
+            password_locators = [
+                page.locator("#i0118"),
+                page.locator("input[name='passwd']"),
+                page.locator("input[type='password']"),
+            ]
+            next_button_locators = [
+                page.locator("#idSIButton9"),
+                page.locator("//input[@type='submit' and @value='Next']"),
+                page.locator("//input[@type='submit' and @value='Sign in']"),
+                page.locator("button[type='submit']"),
+            ]
+            stay_signed_in_yes = page.locator("//input[@type='submit' and @value='Yes']")
+
+            # Helper to pick the first visible locator from a list.
+            def _first_visible(locators, timeout_ms: int):
+                for loc in locators:
+                    try:
+                        loc.wait_for(state="visible", timeout=timeout_ms)
+                        return loc
+                    except PlaywrightTimeoutError:
+                        continue
+                    except Exception as ex_inner:
+                        self.logger.warning(
+                            f"Outlook sign-in: error while probing locator; continuing: {ex_inner}"
+                        )
+                return None
+
+            # Fast-path: if an Inbox marker is already visible, assume we are
+            # signed in and skip probing username/password fields. This avoids
+            # spending several seconds waiting for fields that will never
+            # appear when the mailbox UI is already loaded.
+            inbox_locators = [
+                page.get_by_text("Inbox").first,
+                page.get_by_role("link", name=re.compile(r"^Inbox$", re.I)),
+                page.locator('[aria-label="Inbox"]'),
+            ]
+            if _first_visible(inbox_locators, 3_000) is not None:
+                self.logger.info(
+                    "Outlook sign-in: Inbox UI visible; assuming session already signed in."
+                )
+                return True
+
+            # If neither username nor password fields are visible, assume we
+            # are already signed in and skip the sign-in flow.
+            if (
+                _first_visible(username_locators, 5_000) is None
+                and _first_visible(password_locators, 5_000) is None
+            ):
+                self.logger.info(
+                    "Outlook sign-in: no username or password fields visible; "
+                    "assuming session already signed in."
+                )
+                return True
+
+            # Enter email directly on the Outlook page (avoid BasePage
+            # helpers so we don't accidentally target the EWM tab).
+            try:
+                user_id_locator = _first_visible(username_locators, 20_000)
+                if not user_id_locator:
+                    self.logger.error(
+                        "Outlook sign-in: could not find a visible username/email input."
+                    )
+                    return False
+                else:
+                    self.logger.info("Outlook sign-in: filling username/email field.")
+                    user_id_locator.fill(self.config.mail_field1)
+
+                next_button = _first_visible(next_button_locators, 20_000)
+                if next_button:
+                    self.logger.info("Outlook sign-in: clicking Next/Sign in button after username.")
+                    next_button.click()
+                else:
+                    self.logger.error(
+                        "Outlook sign-in: could not find Next/Sign in button after username entry."
+                    )
+                    return False
+            except Exception as ex:
+                self.logger.error(f"Error while entering Outlook username: {ex}")
+                return False
+
+            # Enter password on the same Outlook page
+            try:
+                # When the dedicated "Enter password" screen is shown,
+                # wait explicitly for its heading so we don't attempt to
+                # type into the password field before the page is ready.
+                try:
+                    import re as _re  # local alias to avoid shadowing
+
+                    enter_pwd_heading = page.get_by_role(
+                        "heading", name=_re.compile("Enter password", _re.I)
+                    )
+                    enter_pwd_heading.wait_for(state="visible", timeout=20_000)
+                    self.logger.info(
+                        "Outlook sign-in: 'Enter password' heading is visible; "
+                        "locating password field."
+                    )
+                except PlaywrightTimeoutError:
+                    # Heading not shown in this variant of the flow;
+                    # proceed to locate password directly.
+                    self.logger.info(
+                        "Outlook sign-in: 'Enter password' heading not visible within "
+                        "timeout; probing password field directly."
+                    )
+                except Exception as heading_ex:
+                    self.logger.warning(
+                        "Outlook sign-in: error while waiting for 'Enter password' "
+                        f"heading; continuing to locate password field: {heading_ex}"
+                    )
+
+                password_locator = _first_visible(password_locators, 20_000)
+                if not password_locator:
+                    self.logger.error(
+                        "Outlook sign-in: could not find a visible password input."
+                    )
+                    return False
+
+                # Make sure the password field is ready before typing
+                try:
+                    password_locator.wait_for(state="visible", timeout=10_000)
+                except Exception as wait_ex:
+                    self.logger.error(
+                        f"Outlook sign-in: password input did not become visible in time: {wait_ex}"
+                    )
+                    return False
+
+                self.logger.info("Outlook sign-in: filling password field.")
+                password_locator.fill(self.config.mail_field2)
+
+                sign_in_button = _first_visible(next_button_locators, 20_000)
+                if sign_in_button:
+                    self.logger.info("Outlook sign-in: clicking Sign in button after password.")
+                    sign_in_button.click()
+                else:
+                    self.logger.error(
+                        "Outlook sign-in: could not find Sign in button after password entry."
+                    )
+                    return False
+
+                # Stay signed in prompt (best-effort only).
+                try:
+                    stay_signed_in_yes.wait_for(state="visible", timeout=5_000)
+                    stay_signed_in_yes.click()
+                except (PlaywrightTimeoutError, Exception) as ex:
+                    self.logger.error(
+                        f"Error while handling 'Stay signed in' prompt: {ex}"
+                    )
+                # If we've reached this point, treat sign-in as completed
+                # from the automation point of view.
+                return True
+            except (PlaywrightTimeoutError, Exception) as ex:
+                self.logger.error(f"Error while entering Outlook password: {ex}")
+                return False
+        except Exception as ex:
+            # Fully defensive: never let unexpected errors here fail the test.
+            self.logger.error(f"Unexpected error in _handle_sign_in_if_needed: {ex}")
+            return False
+
+    def _read_latest_mail_time(self, page: Page, default_time: time) -> time:
+        time_elements = page.locator("//span[@class='_rWRU U2XB8 qq2gS cbNn0']")
+        try:
+            if time_elements.count() > 0:
+                text = time_elements.nth(0).inner_text().strip()
+                return datetime.strptime(text, TIME_FORMAT).time()
+        except Exception as ex:
+            self.logger.error(f"Unable to parse mail time; using default: {ex}")
+            with allure.step("Unable to parse mail time; using default."):
+                pass
+        return default_time
+
+    def _extract_otp_from_latest_mail(self, page: Page) -> Optional[str]:
+        # When multiple DocuSign verification emails exist, always pick the
+        # newest one from the Outlook message list. In modern Outlook Web,
+        # each message row is typically a `div[role="option"]` in the inbox.
+        message_rows = page.locator("div[role='option']").filter(
+            has_text=re.compile("Docusign verification", re.I)
+        )
+
+        if message_rows.count() == 0:
+            return None
+
+        # Click the first matching row (top-most = newest) directly on the
+        # Outlook page to avoid BasePage auto-healing targeting another tab.
+        newest_row = message_rows.first
+        newest_row.click()
+
+        # Scope OTP extraction to the opened mail body container to avoid
+        # strict-mode violations from multiple matching preview items.
+        body_container = page.locator('[data-test-id="mailMessageBodyContainer"]').first
+        try:
+            body_container.wait_for(state="visible", timeout=10_000)
+            otp_text = body_container.inner_text()
+        except PlaywrightTimeoutError as ex:
+            self.logger.error(f"Timeout while reading OTP body text from mail body container: {ex}")
+            return None
+        except Exception as ex:
+            # Catch any other unexpected Playwright or locator errors here
+            self.logger.error(f"Unexpected error while reading OTP body text from mail body container: {ex}")
+            return None
+
+        match = re.search(r"\b\d{6}\b", otp_text)
+        if match:
+            return match.group(0)
+
+        # Body text was found but did not contain a 6-digit OTP
+        self.logger.error(f"Email body did not contain a valid 6-digit OTP. Body text: {otp_text!r}")
+        return None
+
+    def _click_inbox_search_and_select(
+        self,
+        outlook_email_page: Page,
+        search_text: str,
+        retries: int = 1,
+        subject: Optional[str] = None,
+        body: Optional[str] = None,
+    ) -> None:
+        """Click Inbox, run the search_text search, and open a result.
+
+        If ``subject`` is provided, this method attempts to click the first
+        email whose subject/text matches it (case-insensitive). If ``subject``
+        is None, it clicks the first email row from the search results.
+
+        If ``body`` is provided, then after searching (and optionally filtering
+        by ``subject``), this method will open each candidate email in turn and
+        inspect the message body. The first email whose body text contains the
+        given ``body`` substring (case-insensitive) will be selected.
+
+        For each retry attempt after the first, the page is reloaded before
+        performing the Inbox/search steps again.
+        """
+
+        last_error: Optional[Exception] = None
+
+        for attempt in range(retries):
+            try:
+                # Reload for every retry attempt after the first.
+                if attempt > 0:
+                    try:
+                        self.logger.info(
+                            "Outlook Inbox/search: reloading page before retry attempt "
+                            f"{attempt + 1} of {retries}."
+                        )
+                        outlook_email_page.reload(wait_until="domcontentloaded")
+                    except Exception as reload_ex:
+                        self.logger.warning(
+                            f"Outlook Inbox/search: error while reloading before retry: {reload_ex}"
+                        )
+
+                self.logger.info(
+                    f"Outlook Inbox/search attempt {attempt + 1} of {retries} for search text: {search_text!r}."
+                )
+
+                # Click Inbox if it is easily available. In some Outlook
+                # layouts the default view is already Inbox or the folder
+                # pane may be collapsed, so failure to find an explicit
+                # "Inbox" link should not fail the whole flow.
+                inbox_clicked = False
+                inbox_locators = [
+                    outlook_email_page.get_by_text("Inbox").first,
+                    outlook_email_page.get_by_role(
+                        "link", name=re.compile(r"^Inbox$", re.I)
+                    ),
+                    outlook_email_page.locator('[aria-label="Inbox"]'),
+                ]
+
+                for locator in inbox_locators:
+                    try:
+                        locator.wait_for(state="visible", timeout=2_000)
+                        locator.click()
+                        inbox_clicked = True
+                        self.logger.info("Clicked Inbox folder in Outlook.")
+                        break
+                    except PlaywrightTimeoutError:
+                        # Try the next locator; not fatal if none are visible.
+                        continue
+                    except Exception as ex:
+                        # Log and continue trying other locators.
+                        self.logger.warning(
+                            f"Error while trying to click Inbox locator; continuing: {ex}"
+                        )
+
+                if not inbox_clicked:
+                    self.logger.warning(
+                        "Could not explicitly click Inbox; proceeding to search across all mail."
+                    )
+
+                # Search for the AssetMark DocuSign email using the D-number.
+                # Outlook layouts vary, so try several strategies to locate
+                # the search box and wait for it to be visible.
+                search_box = None
+                search_locators = [
+                    outlook_email_page.get_by_role(
+                        "combobox", name=re.compile("search", re.I)
+                    ),
+                    outlook_email_page.get_by_role(
+                        "textbox", name=re.compile("search", re.I)
+                    ),
+                    outlook_email_page.locator('[role="searchbox"]'),
+                    outlook_email_page.locator('[aria-label="Search"]'),
+                    outlook_email_page.locator('input[type="search"]'),
+                ]
+
+                for locator in search_locators:
+                    try:
+                        locator.wait_for(state="visible", timeout=2_000)
+                        search_box = locator
+                        self.logger.info(
+                            f"Outlook search: using located search input for search text: {search_text!r}."
+                        )
+                        break
+                    except PlaywrightTimeoutError:
+                        continue
+                    except Exception as ex:
+                        self.logger.warning(
+                            f"Outlook search: error while probing search box locator; continuing: {ex}"
+                        )
+
+                if not search_box:
+                    raise RuntimeError(
+                        "Outlook search: could not locate a visible search box to search for authorized signer email."
+                    )
+
+                search_box.fill(search_text)
+                search_box.press("Enter")
+
+                # After running the search, ensure that we actually have at
+                # least one email result row, then click either a subject-
+                # matching row or the first result.
+                results = outlook_email_page.locator("div[role='option']")
+                # Give Outlook a short moment to render the filtered list.
+                outlook_email_page.wait_for_timeout(2_000)
+                count = results.count()
+                if count == 0:
+                    raise RuntimeError(
+                        f"Outlook search: no email rows found after searching for {search_text!r}."
+                    )
+                self.logger.info(
+                    f"Outlook search: found {count} email row(s) after searching for {search_text!r}."
+                )
+
+                # Choose which email row to open.
+                candidate_rows = results
+                if subject:
+                    try:
+                        subject_rows = results.filter(
+                            has_text=re.compile(re.escape(subject), re.I)
+                        )
+                        if subject_rows.count() > 0:
+                            self.logger.info(
+                                "Outlook search: restricting candidates to email rows "
+                                f"matching subject {subject!r}."
+                            )
+                            candidate_rows = subject_rows
+                        else:
+                            self.logger.warning(
+                                "Outlook search: no email row matched subject "
+                                f"{subject!r}; using all search results as candidates."
+                            )
+                    except Exception as subject_ex:
+                        self.logger.warning(
+                            "Outlook search: error while filtering results by subject "
+                            f"{subject!r}; using all search results as candidates: {subject_ex}"
+                        )
+
+                # If a specific body text is requested, iterate through
+                # candidate rows, open each email, and check its body for the
+                # given substring.
+                if body:
+                    body_pattern = re.compile(re.escape(body), re.I)
+                    candidate_count = candidate_rows.count()
+                    self.logger.info(
+                        "Outlook search: scanning up to %d candidate email(s) for body text %r.",
+                        candidate_count,
+                        body,
+                    )
+
+                    for idx in range(candidate_count):
+                        row = candidate_rows.nth(idx)
+                        try:
+                            row.click()
+                            # Wait for message body container to be visible
+                            body_container = outlook_email_page.locator(
+                                '[data-test-id="mailMessageBodyContainer"]'
+                            ).first
+                            body_container.wait_for(state="visible", timeout=10_000)
+                            email_body_text = body_container.inner_text()
+
+                            if body_pattern.search(email_body_text or ""):
+                                self.logger.info(
+                                    "Outlook search: found email whose body contains the "
+                                    "requested text; selecting this email."
+                                )
+                                return
+
+                            self.logger.info(
+                                "Outlook search: candidate email %d/%d did not contain "
+                                "requested body text; continuing.",
+                                idx + 1,
+                                candidate_count,
+                            )
+                        except Exception as body_ex:
+                            self.logger.warning(
+                                "Outlook search: error while checking email body for "
+                                f"candidate {idx + 1}/{candidate_count}: {body_ex}"
+                            )
+
+                    # If we exhaust all candidates without finding the body
+                    # text, treat this attempt as failed so outer retry logic
+                    # can decide whether to reload and try again.
+                    raise RuntimeError(
+                        "Outlook search: no email in search results contained the "
+                        f"requested body text {body!r}."
+                    )
+
+                # No body filter requested: click a single target row.
+                target_row = candidate_rows.first
+                self.logger.info(
+                    "Outlook search: clicking first email row from candidate search results."
+                )
+                target_row.click()
+
+                # If we reached here without raising, treat this attempt as
+                # successful and stop retrying.
+                return
+
+            except Exception as ex:
+                last_error = ex
+                self.logger.warning(
+                    f"Outlook Inbox/search attempt {attempt + 1} of {retries} failed; "
+                    f"will retry if attempts remain: {ex}"
+                )
+
+        # If all attempts failed, re-raise the last error so the caller can handle it.
+        if last_error is not None:
+            raise last_error
+
+    def search_authorized_signer_email(self, outlook_email_page: Page, search_text: str) -> None:
+        """Search for authorized signer email using D-number only.
+        
+        Searches for the email containing the D-number (search_text) and opens it.
+        Only searches by D-number, does not filter by subject.
+        
+        Args:
+            outlook_email_page: Authenticated Outlook page to search in
+            search_text: D-number to search for
+        """
+        try:
+            # Use shared helper to click Inbox and search for the D-number.
+            # Search only by D-number, no subject filtering.
+            self._click_inbox_search_and_select(
+                outlook_email_page,
+                search_text,
+                retries=10,
+            )
+            
+            logger.info(f"Successfully searched and opened authorized signer email for D-number: {search_text}")
+
+        except Exception as ex:  # pragma: no cover - defensive
+            self.logger.error(f"Error while searching email: {ex}")
+            raise
+
+    def fetch_authorized_signer_email_subject_and_body(self, outlook_email_page: Page, d_number: str) -> tuple[str, str]:
+        """Fetch and return the authorized signer email subject and body content separately.
+        
+        Args:
+            outlook_email_page: Outlook page containing the open email
+            d_number: The D-number expected in the email subject (for logging purposes)
+            
+        Returns:
+            tuple[str, str]: (subject_text, body_text) - Subject and body as separate strings
+            
+        Raises:
+            Exception: If content cannot be retrieved
+        """
+        try:
+            # Fetch email subject
+            subject_element = outlook_email_page.locator('//div[contains(@id,"SUBJECT")]/descendant::span[1]')
+            
+            try:
+                subject_element.wait_for(state="visible", timeout=5_000)
+                subject_text = subject_element.inner_text()
+            except PlaywrightTimeoutError:
+                raise RuntimeError(f"Email subject element not found or not visible for D-number: {d_number}")
+            
+            self.logger.info(f"Fetched Email Subject: {subject_text}")
+            
+            # Fetch email body
+            body_container = outlook_email_page.locator('(//div[@data-test-id="mailMessageBodyContainer"]/descendant::table[2]/tbody/tr)[3]/descendant::span')
+            
+            try:
+                body_container.wait_for(state="visible", timeout=10_000)
+                body_text = body_container.inner_text()
+            except PlaywrightTimeoutError:
+                raise RuntimeError("Email body container not found or not visible")
+            
+            self.logger.info("Fetched Email Body successfully")
+            
+            with allure.step(f"Email content fetched for D-number: {d_number}"):
+                allure.attach(
+                    subject_text,
+                    name="Email Subject",
+                    attachment_type=allure.attachment_type.TEXT
+                )
+                allure.attach(
+                    body_text[:1000],
+                    name="Email Body Content",
+                    attachment_type=allure.attachment_type.TEXT
+                )
+            
+            return (subject_text, body_text)
+                
+        except Exception as ex:  # pragma: no cover - defensive
+            self.logger.error(f"Error while fetching email content: {ex}")
+            raise
+
+    def click_review_document_link(self, outlook_email_page: Page) -> Page:
+        """Click the 'REVIEW DOCUMENT' link in the authorized signer email.
+        
+        Clicking this link opens DocuSign in a new tab/popup.
+        
+        Args:
+            outlook_email_page: Outlook page containing the email with Review Document link
+            
+        Returns:
+            Page: The new DocuSign page that opens after clicking
+            
+        Raises:
+            Exception: If Review Document link cannot be found or clicked
+        """
+        try:
+            # When clicking REVIEW DOCUMENT, DocuSign opens in a new tab
+            with outlook_email_page.expect_popup() as popup_info:
+                review_link = outlook_email_page.get_by_role("link", name="REVIEW DOCUMENT")
+                review_link.wait_for(state="visible", timeout=10_000)
+                self.logger.info("Clicking 'REVIEW DOCUMENT' link in authorized signer email")
+                review_link.click()
+            
+            docusign_page = popup_info.value
+            self.logger.info("✓ successfully clicked 'REVIEW DOCUMENT' link, DocuSign page opened")
+            
+            return docusign_page
+            
+        except Exception as ex:  # pragma: no cover - defensive
+            self.logger.error(f"Error while clicking Review Document link: {ex}")
+            raise
+
+    def login_and_complete_the_signing(self, search_text: str) -> None:
+        """Login to Outlook and search for emails containing search_text."""
+        parent_page = self.page
+        outlook_email_page: Optional[Page] = None
+        docusign_page: Optional[DocuSignPage] = None
+
+        try:
+            # Use centralized login function
+            outlook_email_page = self.login_outlook(context_message="complete signing workflow")
+
+            # Use shared helper to click Inbox (best-effort), run the
+            # search_text search (with retry handled inside the helper), and
+            # open the AssetMark email for the authorized signer flow.
+            self._click_inbox_search_and_select(
+                outlook_email_page,
+                search_text,
+                retries=3,
+                subject="AssetMark for eSig",
+            )
+
+            # When clicking REVIEW DOCUMENT, DocuSign opens in a new tab.
+            with outlook_email_page.expect_popup() as docusign_page_info:
+                review_link = outlook_email_page.get_by_role(
+                    "link", name="REVIEW DOCUMENT"
+                )
+                review_link.wait_for(state="visible", timeout=10_000)
+                review_link.click()
+
+            docusign_raw_page = docusign_page_info.value
+
+            docusign_page = DocuSignPage(docusign_raw_page)
+            docusign_page.verify_docusign_page_loaded()
+            # Use the already-open Outlook tab to provide the OTP so that
+            # we don't open a second Outlook window.
+
+            def _fetch_otp_from_outlook() -> Optional[str]:
+                submitting_time = datetime.now().time()
+                return self.get_otp(
+                    submitting_time=submitting_time,
+                    max_wait_time_in_seconds=60,
+                    parent_page=docusign_raw_page,
+                    email_page=outlook_email_page,
+                )
+
+            docusign_page.complete_docusign_signing_with_otp(
+                fetch_otp=_fetch_otp_from_outlook,
+                session_timeout_check=False,
+            )
+
+        except Exception as ex:  # pragma: no cover - defensive
+            self.logger.error(f"Error while searching email: {ex}")
+            raise
+        finally:
+            if outlook_email_page is not None:
+                try:
+                    # get_otp may already have closed this page when using
+                    # it as email_page; close only if still open.
+                    if not outlook_email_page.is_closed():
+                        outlook_email_page.close()
+                except Exception:
+                    pass
+            if docusign_page is not None:
+                try:
+                    docusign_page.close()
+                except Exception:
+                    pass
+            try:
+                parent_page.bring_to_front()
+            except Exception as ex:
+                self.logger.error(f"Failed to bring parent_page to front after login_and_search_email: {ex}")
+
+    def login_and_complete_the_signing_without_otp(self, search_text: str) -> None:
+        """Login to Outlook and search for emails containing search_text."""
+        parent_page = self.page
+        outlook_email_page: Optional[Page] = None
+        docusign_page: Optional[DocuSignPage] = None
+
+        try:
+            # Use centralized login function
+            outlook_email_page = self.login_outlook(context_message="complete ERSD consent")
+
+            # Use shared helper to click Inbox (best-effort), run the
+            # search_text search (with retry handled inside the helper), and
+            # open the AssetMark email for the authorized signer flow.
+            self._click_inbox_search_and_select(
+                outlook_email_page,
+                search_text,
+                retries=3,
+                subject="AssetMark for eSig",
+            )
+
+            # When clicking REVIEW DOCUMENT, DocuSign opens in a new tab.
+            with outlook_email_page.expect_popup() as docusign_page_info:
+                review_link = outlook_email_page.get_by_role(
+                    "link", name="REVIEW DOCUMENT"
+                )
+                review_link.wait_for(state="visible", timeout=10_000)
+                review_link.click()
+
+            docusign_raw_page = docusign_page_info.value
+
+            docusign_page = DocuSignPage(docusign_raw_page)
+            docusign_page.verify_docusign_page_loaded()
+
+            docusign_page.complete_ersd_and_finish()
+
+        except Exception as ex:  # pragma: no cover - defensive
+            self.logger.error(f"Error while searching email: {ex}")
+            raise
+        finally:
+            if outlook_email_page is not None:
+                outlook_email_page.close()
+            if docusign_page is not None:
+                docusign_page.close()
+            try:
+                parent_page.bring_to_front()
+            except Exception as ex:
+                self.logger.error(f"Failed to bring parent_page to front after login_and_search_email: {ex}")
+
+    def login_and_click_the_carbon_copy(self, search_text: str) -> None:
+        """Login to Outlook and search for emails containing search_text."""
+        parent_page = self.page
+        outlook_email_page: Optional[Page] = None
+        docusign_page: Optional[DocuSignPage] = None
+
+        try:
+            # Use centralized login function
+            outlook_email_page = self.login_outlook(context_message="view completed document")
+
+            # Use shared helper to click Inbox (best-effort), run the
+            # search_text search (with retry handled inside the helper), and
+            # open the AssetMark email for the authorized signer flow.
+            self._click_inbox_search_and_select(
+                outlook_email_page,
+                search_text,
+                retries=3,
+                subject="AssetMark for eSig",
+                body=(
+                    "All signers have completed the request and AssetMark has approved. Please process these documents."
+                ),
+            )
+
+            # When clicking VIEW COMPLETED DOCUMENT, DocuSign opens in a new tab.
+            with outlook_email_page.expect_popup() as docusign_page_info:
+                review_link = outlook_email_page.get_by_role(
+                    "link", name="VIEW COMPLETED DOCUMENT"
+                )
+                review_link.wait_for(state="visible", timeout=10_000)
+                review_link.click()
+
+            docusign_raw_page = docusign_page_info.value
+
+            docusign_page = DocuSignPage(docusign_raw_page)
+            docusign_page.verify_docusign_page_loaded()
+
+
+        except Exception as ex:  # pragma: no cover - defensive
+            self.logger.error(f"Error while searching email: {ex}")
+            raise
+        finally:
+            if outlook_email_page is not None:
+                outlook_email_page.close()
+            if docusign_page is not None:
+                docusign_page.close()
+            try:
+                parent_page.bring_to_front()
+            except Exception as ex:
+                self.logger.error(f"Failed to bring parent_page to front after login_and_search_email: {ex}")
+                
+
+    

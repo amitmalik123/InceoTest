@@ -1,8 +1,50 @@
-scenario,role,username,password,client_id,account_name,destination_account,account_number,conversion_amount,routing_number,ach_option,advisor_id,expected_description
-Successfully login and navigate to Account List,non-ira,T11_AGA1G1_Perf,QAAdminUser_33a,13222266,"Carmen E Tucker, Individual",13443983,13443983,1000,121000358,Yes,AGA1G1,Bank/Payee Instructions - Add
-Successfully complete Add ACH flow,ira,T11_AGA1G1_Perf,QAAdminUser_33a,13454189,"Brian Chabrunn",13443983,13443983,1000,121000358,Yes,AGA1G1,Bank/Payee Instructions - Add
-cancel-swp-ira,T11_AGA1TO_Perf,QAAdminUser_33a,40007734,"Levi J Ascher, Individual TOD",40007734,40007734,1000,121000358,Yes,AGA1TO,Bank/Payee Instructions - Add
-swp-ira,T11_AG8959_Perf,QAAdminUser_33a,13879837,"Howard Hom, Rollover IRA",13879837,13879837,1000,121000358,Yes,AG8959,Bank/Payee Instructions - Add
-address,T11_AGA1G1_Perf,QAAdminUser_33a,13222266,"Carmen E Tucker",13443983,13443983,1000,121000358,Yes,AGA1G1,Bank/Payee Instructions - Add
-Successfully change investments on a client account,non-ira,T11_AGA1G1_Perf,QAAdminUser_33a,13222266,"Carmen E Tucker, Individual",13443983,13443983,1000,121000358,Yes,AGA1G1,Change Investments
-Successfully complete account suspension via complete and print with DocuSign,non-ira,T11_AGA1G1_Perf,QAAdminUser_33a,13222266,"Carmen E Tucker, Individual",13443983,13443983,1000,121000358,Yes,AGA1G1,Account Information change - Account Suspension
+Scenario,Role,Document_Creator_Role,Authorized_Signer_Role,Agent,username,password,Account_Number,account_name,OAM_Request,OAM_Type,Submission_Type,Client_Signature_Method,Expected_Signer_Information_Text,Expected_Authorized_Signer_Approval_Text,Authorized_Signer_Approval_Option,Authorized_Signer_eSign_Method,Authorized_Signer,Email_Address,Phone,Expected_docusign_ReviewAndContinue_Text,As_authorized_by_stamp_present,Expected_RequestPopUp_Text,Expected_Advisor_Alert_Required,Expected_AuthorizedSigner_Email_Subject,Expected_AuthorizedSigner_Email_Body,Expected_TrackingCenter_Notes,Expected_Roles,Expected_RoutingOrders
+OAM_Initiated by FA_Online Submit_Finish,,,,AGA1G1,T11_AGA1G1_Perf,QAAdminUser_33a,13222266,Carmen E Tucker,Additional Account Documentation,Historical Document Retrieval,Complete and Submit,Proceed and submit without a client signature,,,,,,,,Please review and sign the document electronically.,No,"Request Submitted
+|
+Your request has been submitted to AssetMark for processing.
+|
+To view your request, go to the Tracking Center and select
+|
+a copy for your records.
+|
+Click Close to return to eWealthManager.",No,,,Document has been completed and routed to Operations for review and processing.,Advisor,1
+OAM_Initiated by SAU_Online Submit_Authorized Signer_Required_FA,SAU,SAU,FA,AGA1G1,SAU_AGA1G1_T11,QAAdminUser_33a,13222266,Carmen E Tucker,Contributions,Copy for Digital Deposit,Complete and Submit,Proceed and submit without a client signature,"Signer(s) Information 
+|
+Please provide the advisor’s or their Shared Access user’s details and indicate whether they should be notified via Tracking Center or SMS.
+Once setup is complete, they’ll receive an email alerting them to the pending documents and granting access through the selected notification method.","Authorized Signer Approval 
+|
+You are authorized to begin the signature process; approval is not required.
+Do you need approval from another authorized signer before proceeding with eSignature?",Yes,SMS,Howard Ginsberg CPA,saransh.saxena@assetmark.com,925 532 9706,Please review and sign the document electronically.,No,"Request Ready for Financial Advisor Review
+|
+Your request will be sent to the Financial Advisor to review, approve and submit to AssetMark for processing.
+|
+To view your request, go to the Tracking Center and select
+|
+a copy for your records.
+|
+Click Close to return to eWealthManager.",Yes,[External] <Document_Creator_Role_Name> requested your Electronic Signature - <D Number>,"<Authorized_Signer_Role_Name>,
+
+Your Shared Access User has prepared one or more documents that are ready for you to sign electronically.","Document has been routed to <FA Name> for review and submission.
+|
+Document completed by <SAU Name> and is pending review and submission.
+|
+Document created by <SAU Name>",,
+OAM_Initiated by SAU_Online Submit_Authorized Signer_Not_Required,SAU,SAU,,AGA1G1,SAU_AGA1G1_T11,QAAdminUser_33a,13222266,Carmen E Tucker,Contributions,Copy for Digital Deposit,Complete and Submit,Proceed and submit without a client signature,"Signer(s) Information 
+|
+Please provide the advisor’s or their Shared Access user’s details and indicate whether they should be notified via Tracking Center or SMS.
+Once setup is complete, they’ll receive an email alerting them to the pending documents and granting access through the selected notification method.","Authorized Signer Approval 
+|
+You are authorized to begin the signature process; approval is not required.
+Do you need approval from another authorized signer before proceeding with eSignature?",No,,,,,Please review and sign the document electronically.,Yes,"Request Submitted
+|
+Your request has been submitted to AssetMark for processing.
+|
+To view your request, go to the Tracking Center and select
+|
+a copy for your records.
+|
+Click Close to return to eWealthManager.",No,"Document has been completed and routed to Operations for review and processing.
+|
+Document created by <FA Name>",,"Document has been completed and routed to Operations for review and processing.
+|
+Document created by <FA Name>",Advisor,1

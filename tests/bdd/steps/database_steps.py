@@ -164,3 +164,190 @@ def _assert_minimum_records(test_context, count: int, query_key: Optional[str] =
 
 # Last query result (legacy shortcut)
 # last = test_context["database_results"]
+@then("Verify the Routing Order in database")
+def verify_routing_order_in_database(test_context):
+    """Verify the Routing Order of specified role(s) in datbase
+    
+    Accepts one or multiple roles:
+    - Single role: Verify the Routing Order in database for Role(s) "Advisor"
+    - Multiple roles: Verify the Routing Order in database for Role(s) "Advisor" "Shared Access User"
+    
+    Uses dnumber and queries trackingcenter database.
+    Validates that recipient role matches one of the specified roles.
+    """
+    logger.info("Verifying Routing Order in database")
+
+    # Get dnumber from test context
+    dnumber = test_context.get('d_number', '')
+
+    if not dnumber:
+        raise ValueError(
+            "Dnumber not found in test_context. "
+        )
+
+    logger.info(f"Querying ItemId for dnumber: {dnumber}")
+
+    # Get configured database connection (using SQL Server for trackingcenter DB)
+    from utils.database import get_configured_sql_server
+
+    db = get_configured_sql_server(database="CRM")
+
+    try:
+        # Connect to database
+        db.connect()
+        from config.settings import settings
+        logger.info(f"Connected to database")
+
+        # Get query from centralized queries file
+        from config.settings import settings
+        query = settings.database_queries.get("tracking_center", {}).get(
+            "itemId_by_dnumber"
+        )
+        
+        if not query:
+            raise ValueError(
+                "Query not found: tracking_center.itemId_by_dnumber in queries/sql_queries.yaml"
+            )
+
+        logger.info(f"Executing query: {query}")
+        logger.info(f"Query parameter (dnumber): {dnumber}")
+        logger.info(f"Attempting up to 6 retries with exponential backoff...")
+
+        # Use retry logic for itemId query
+        # Data may not be immediately available in tracking center database
+        try:
+            results = None
+            def get_itemid():
+                nonlocal results
+                results = db.execute_query(query, (dnumber,))
+                return bool(results)
+            
+            retry_until_true(
+                condition=get_itemid,
+                max_attempts=6,
+                delay=5.0,
+                error_message=f"No ItemId found in database for dnumber: {dnumber}"
+            )
+        except RetryError as e:
+            raise AssertionError(str(e)) from e
+
+        # Extract ItemId from result
+        item_id = results[0].get("ItemId")  # Dictionary access
+
+        logger.info(f"✓ ItemId: {item_id} found in database for dnumber: {dnumber}")
+
+        # Step 2: Query DocuSignID using the fetched ItemId
+        logger.info(f"Step 2: Querying DocuSignID for ItemId: {item_id} and dnumber: {dnumber}")
+
+        # Get second query from centralized queries file
+        query_docusign = settings.database_queries.get("tracking_center", {}).get(
+            "docusign_id_by_item_id"
+        )
+        if not query_docusign:
+            raise ValueError(
+                "Query not found: tracking_center.docusign_id_by_item_id in queries/sql_queries.yaml"
+            )
+
+        logger.info(f"Executing query: {query_docusign}")
+        logger.info(f"Query parameter (ItemId): {item_id}")
+        logger.info(f"Attempting up to 6 retries with exponential backoff...")
+
+        # Use retry logic for docusign_id query
+        # Data may not be immediately available in tracking center database
+        try:
+            docusign_results = None
+            def get_docusignid():
+                nonlocal docusign_results
+                docusign_results = db.execute_query(query_docusign, (item_id,))
+                return bool(docusign_results)
+            
+            retry_until_true(
+                condition=get_docusignid,
+                max_attempts=6,
+                delay=5.0,
+                error_message=f"No DocuSignID found in database for ItemId: {item_id} and dnumber: {dnumber}"
+            )
+        except RetryError as e:
+            raise AssertionError(str(e)) from e
+
+        # Extract DocuSignID from result
+        docusign_id = docusign_results[0].get("DocuSignID")  # Dictionary access
+
+        logger.info(f"✓ DocuSignID {docusign_id} found in database for ItemId: {item_id} and dnumber: {dnumber}")
+
+        # Step 3: Query recipient data using the fetched DocuSignID
+        # NOTE: Using retry logic since data may not be immediately available in esignaturedata DB
+        logger.info(f"Step 3: Querying recipient data for DocuSignID: {docusign_id} (with retry logic)")
+
+        # Get third query from centralized queries file
+        query_recipient = settings.database_queries.get("esignature_data", {}).get(
+            "recipient_by_envelope_provider_id"
+        )
+        if not query_recipient:
+            raise ValueError(
+                "Query not found: esignature_data.recipient_by_envelope_provider_id in queries/sql_queries.yaml"
+            )
+
+        logger.info(f"Query: {query_recipient}")
+        logger.info(f"Query parameter (DocuSignID): {docusign_id}")
+        logger.info(f"Attempting up to 6 retries with exponential backoff (5s → 10s → 20s → 40s → 60s)...")
+
+        # Use retry logic for recipient query
+        # Data may not be immediately available due to database replication/async processing
+        try:
+            recipient_results = None
+            def get_recipient():
+                nonlocal recipient_results
+                recipient_results = db.execute_query(query_recipient, (docusign_id,))
+                return bool(recipient_results)
+            
+            retry_until_true(
+                condition=get_recipient,
+                max_attempts=6,
+                delay=5.0,
+                error_message=f"No recipient data found in database for DocuSignID: {docusign_id}"
+            )
+        except RetryError as e:
+            raise AssertionError(str(e)) from e
+
+        logger.info(f"✓ Recipient data found in database for DocuSignID: {docusign_id}, ItemId: {item_id} and Dnumber: {dnumber}")
+        
+        # Validate routing order for expected roles
+        logger.info(f"Validating routing order")
+
+        # Get test data
+        test_data = test_context.get("test_data", {})
+        expected_roles = test_data.get("Expected_Roles", "")
+        expected_routing_orders = test_data.get("Expected_RoutingOrders", "")
+        expected_roles_list = [role.strip() for role in expected_roles.split(",")]
+        expected_routing_orders_list = [order.strip() for order in expected_routing_orders.split(",")]
+        role_routing_map = dict(zip(expected_roles_list, expected_routing_orders_list))
+        logger.info(f"Expected Roles and Routing Orders: {role_routing_map}")
+        for row in recipient_results:
+            role = row.get("Role")
+            routing_order = str(row.get("RoutingOrder"))
+            logger.info(f"  Recipient Role: {role}, Routing Order: {routing_order}")
+
+            if role in role_routing_map:
+                expected_order = role_routing_map[role]
+                assert (
+                    routing_order == expected_order
+                ), f"Routing Order mismatch for Role '{role}': expected {expected_order}, got {routing_order}"
+                logger.info(f"  ✓ Routing Order for Role '{role}' matches expected value: {expected_order}")
+            else:
+                raise AssertionError(
+                    f"Unexpected role '{role}' found in database recipient records. "
+                    f"Expected roles: {list(role_routing_map.keys())}"
+                )
+
+        logger.info("\n✓ Routing Order verification successful")
+
+    except Exception as e:
+        logger.error(f"Routing Order verification failed: {e}")
+        raise
+    finally:
+        try:
+            db.close()
+            logger.info("Database connection closed")
+        except:
+            pass

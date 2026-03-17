@@ -42,3 +42,75 @@ am_billing:
 
 # Example parameterized queries
 # Use ? for parameters, pass as tuple to execute_query(query, params=(value1, value2))
+# Agent Related Queries
+agent:
+  agent_details_by_id: >
+    select distinct  usl.UserID AgentAPLID,
+           cv.[Description] "Role",
+           sd.UserID,
+           ltrim(rtrim(sd.FName)) + ' ' + ltrim(rtrim(sd.LName)) "Name_ManageLogin"
+    from AM..Users u
+    join AM..UserSSOLink usl on u.UserID = usl.UserID
+    join AM..User_SSODetails sd on usl.SSOGUID = sd.SSOGUIDID
+    join ADS..CodeValue cv on usl.InvitationTypeCD = cv.CodeValue_ID
+    left join AM..User_Contact uc on u.UserID = uc.UserID
+    join crm..agent ag on usl.userid = ag.aplid
+    where cv.[Description] in ('Agent')
+    and usl.UserID = ?
+
+  all_agents_by_id: >
+    select distinct  usl.UserID AgentAPLID,
+       cv.[Description] "Role",
+       sd.UserID,
+       ltrim(rtrim(sd.FName)) + ' ' + ltrim(rtrim(sd.LName)) "Name_ManageLogin"
+    from AM..Users u
+    join AM..UserSSOLink usl on u.UserID = usl.UserID
+    join AM..User_SSODetails sd on usl.SSOGUID = sd.SSOGUIDID
+    join ADS..CodeValue cv on usl.InvitationTypeCD = cv.CodeValue_ID
+    left join AM..User_Contact uc on u.UserID = uc.UserID
+    join crm..agent ag on usl.userid = ag.aplid
+    where
+    cv.[Description] in ('Agent','Shared Access User')
+    and usl.UserID = ?
+    and sd.UserID != ?
+  
+  agent_name_by_aplid: >
+    select distinct 
+       ltrim(rtrim(sd.FName)) + ' ' + ltrim(rtrim(sd.LName)) "Name_ManageLogin"
+    from AM..Users u
+    join AM..UserSSOLink usl on u.UserID = usl.UserID
+    join AM..User_SSODetails sd on usl.SSOGUID = sd.SSOGUIDID
+    join ADS..CodeValue cv on usl.InvitationTypeCD = cv.CodeValue_ID
+    left join AM..User_Contact uc on u.UserID = uc.UserID
+    join crm..agent ag on usl.userid = ag.aplid
+    where
+    cv.[Description] in ('Agent')
+    and usl.UserID = ?
+
+  sau_name_by_aplid: >
+    select distinct 
+       ltrim(rtrim(sd.FName)) + ' ' + ltrim(rtrim(sd.LName)) "Name_ManageLogin"
+    from AM..Users u
+    join AM..UserSSOLink usl on u.UserID = usl.UserID
+    join AM..User_SSODetails sd on usl.SSOGUID = sd.SSOGUIDID
+    join ADS..CodeValue cv on usl.InvitationTypeCD = cv.CodeValue_ID
+    left join AM..User_Contact uc on u.UserID = uc.UserID
+    join crm..agent ag on usl.userid = ag.aplid
+    where
+    cv.[Description] in ('Shared Access User')
+    and sd.UserID = ?
+
+  agentName__by_aplid_from_agentTable : >
+    SELECT
+      ltrim(rtrim(FirstName)) + ' ' + ltrim(rtrim(LastName)) as "Name_ManageLogin"
+      FROM [CRM].[dbo].[Agent]
+      where APLID = ? 
+
+# Tracking Center Related Queries
+tracking_center:
+  itemId_by_dnumber: "SELECT ItemId FROM trackingcenter..item WHERE externalid = ?"
+  docusign_id_by_item_id: "SELECT DocuSignID FROM trackingcenter..envelope WHERE itemid = ?"
+
+# E-Signature Data Queries
+esignature_data:
+  recipient_by_envelope_provider_id: "SELECT Role, RoutingOrder FROM esignaturedata.dbo.recipient WHERE envelopeproviderid = CAST(? AS UNIQUEIDENTIFIER)"

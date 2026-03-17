@@ -143,6 +143,9 @@ markers = [
     "prod: Tests for production environment",
     "performance: Performance monitoring tests",
     "lighthouse: Lighthouse audit tests",
+    "SAU_Online_Submit_Authorized_Not_Required: SAU authorized signer approval not required",
+    "SAU_Online_Submit_Authorized_FA: SAU authorized signer approval required with FA",
+    "HappyPath: Happy path scenario",
 ]
 asyncio_mode = "strict"
 log_cli = true

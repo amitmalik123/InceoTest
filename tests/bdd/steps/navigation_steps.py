@@ -38,6 +38,12 @@ def navigate_to_clients_menu(authenticated_page: Page, clients_page: ClientsPage
     logger.info(f"Clients menu navigation verified - URL: {authenticated_page.url}")
 
 
+@when("User navigate to Clients menu")
+def user_navigate_to_clients_menu(authenticated_page: Page, clients_page: ClientsPage, soft_assert):
+    """User navigate to clients menu - aliases navigate_to_clients_menu"""
+    navigate_to_clients_menu(authenticated_page, clients_page, soft_assert)
+
+
 @when("I click on Account List")
 def click_on_account_list(authenticated_page: Page, clients_page: ClientsPage, soft_assert):
     """Click on Account List and verify page loads"""

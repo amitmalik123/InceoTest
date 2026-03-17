@@ -626,3 +626,147 @@ def get_azure_db_connection(**kwargs) -> SQLDatabase:
         SQLDatabase instance
     """
     return SQLDatabase(**kwargs)
+
+def fetch_agent_name_by_aplid_from_db(aplid: str, role: str) -> Optional[str]:
+    """
+    Fetch user name from database by APLID/UserID based on role.
+    
+    Supports fetching names for both Agent and Shared Access User (SAU) roles.
+    Uses the appropriate query from queries/sql_queries.yaml:
+    - Agent (FA): 'agent.agent_name_by_aplid' - requires usl.UserID (APLID)
+    - SAU: 'agent.sau_name_by_aplid' - requires sd.UserID (UserID)
+    
+    Queries the AM database on SQL Server.
+    
+    Args:
+        aplid: User identifier to lookup:
+               - For Agent role: APLID (usl.UserID from SSO Link table)
+               - For SAU role: UserID (sd.UserID from SSO Details table)
+        role: User role (REQUIRED) - accepts:
+              Agent: 'FA', 'fa', 'agent', 'Agent' 
+              SAU: 'SAU', 'sau', 'shared access user', 'Shared Access User'
+        
+    Returns:
+        User name (Name_ManageLogin) or None if not found
+        
+    Raises:
+        PermissionError: If attempting to connect to production/silo environment
+        ValueError: If role is invalid or query not found in sql_queries.yaml
+        TypeError: If aplid or role is not provided
+        
+    Example:
+        >>> # Fetch Agent name using APLID
+        >>> agent_name = fetch_agent_name_by_aplid_from_db("123456", role="Agent")
+        >>> if agent_name:
+        ...     print(f"Agent: {agent_name}")
+        
+        >>> # Fetch SAU name using UserID
+        >>> sau_name = fetch_agent_name_by_aplid_from_db("789012", role="SAU")
+        >>> if sau_name:
+        ...     print(f"Shared Access User: {sau_name}")
+    """
+    try:
+        # Step 1: Validate required parameters
+        if not aplid:
+            raise TypeError("aplid is required and cannot be empty")
+        if not role:
+            raise TypeError("role is required and cannot be empty")
+        
+        # Step 2: Normalize and validate role
+        role_normalized = _normalize_role(role)
+        logger.info(f"Fetching {role_normalized} name for ID: {aplid}")
+        
+        # Step 3: Get database settings
+        settings = _get_db_settings()
+        
+        # Step 4: Determine which query to use based on role
+        if role_normalized == "Agent":
+            query_name = "agentName__by_aplid_from_agentTable"
+            id_type = "APLID"
+        elif role_normalized == "SAU":
+            query_name = "sau_name_by_aplid"
+            id_type = "UserID"
+        else:
+            raise ValueError(f"Invalid role: '{role}'. Use 'Agent'/'FA' or 'SAU'/'Shared Access User'.")
+        
+        # Step 5: Get query from centralized queries file
+        query = settings.database_queries.get("agent", {}).get(query_name)
+        
+        if not query:
+            raise ValueError(
+                f"Query 'agent.{query_name}' not found in queries/sql_queries.yaml. "
+                f"Ensure the query is defined under 'agent:' section."
+            )
+        
+        logger.info(f"Query found: agent.{query_name}")
+        
+        # Step 6: Get configured SQL Server connection (agent data is in AM database)
+        db = get_configured_sql_server(database="AM")
+        db.connect()
+        logger.info("✓ Connected to AM database")
+        
+        # Step 7: Execute parameterized query
+        logger.info(f"Executing {query_name} query with {id_type}: {aplid}")
+        results = db.execute_query(query, params=(aplid,))
+        
+        # Step 8: Close database connection
+        db.close()
+        logger.info("✓ Database connection closed")
+        
+        # Step 9: Extract and return name
+        if results and len(results) > 0:
+            user_name = results[0].get("Name_ManageLogin")
+            logger.info(f"✓ {role_normalized} name found: {user_name}")
+            return user_name
+        else:
+            logger.warning(f"⚠ No {role_normalized} found for {id_type}: {aplid}")
+            return None
+            
+    except (PermissionError, ValueError, TypeError) as e:
+        logger.error(f"✗ Error: {str(e)}")
+        raise
+    except Exception as ex:
+        logger.error(f"✗ Error fetching {role} name for ID '{aplid}': {str(ex)}")
+        raise
+
+
+def _normalize_role(role: str) -> str:
+    """
+    Normalize role input to standard format.
+    
+    Args:
+        role: Role input - accepts various formats for Agent or SAU
+        
+    Returns:
+        Normalized role: 'Agent' or 'SAU'
+        
+    Raises:
+        ValueError: If role doesn't match known values
+        
+    Example:
+        >>> _normalize_role("fa")
+        'Agent'
+        >>> _normalize_role("SAU")
+        'SAU'
+        >>> _normalize_role("shared access user")
+        'SAU'
+    """
+    # Agent role aliases
+    agent_aliases = ["fa", "agent"]
+    
+    # SAU role aliases
+    sau_aliases = ["sau", "shared access user"]
+    
+    role_lower = role.strip().lower()
+    
+    if role_lower in agent_aliases:
+        return "Agent"
+    elif role_lower in sau_aliases:
+        return "SAU"
+    else:
+        raise ValueError(
+            f"Invalid role: '{role}'. "
+            f"Accepted values for Agent: {agent_aliases + ['Agent', 'FA']}. "
+            f"Accepted values for SAU: {sau_aliases + ['SAU', 'Shared Access User']}."
+        )
+

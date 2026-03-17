@@ -358,6 +358,114 @@ def wait_for_console_message(
     finally:
         page.remove_listener("console", on_console)
 
+def wait_for_element_to_disappear(
+    locator: Locator, timeout: float = 15.0, poll_interval: float = 0.2
+) -> bool:
+    """
+    Wait for element to become hidden or disappear from DOM.
+
+    Args:
+        locator: Playwright locator for element to wait for
+        timeout: Maximum time to wait in seconds
+        poll_interval: Time between visibility checks
+
+    Returns:
+        True if element disappeared
+
+    Raises:
+        WaitTimeoutError: If element remains visible after timeout
+
+    Example:
+        # Wait for loading spinner to disappear
+        spinner = page.locator(".loading-image")
+        wait_for_element_to_disappear(spinner, timeout=15.0)
+    """
+
+    def condition():
+        # Element disappeared if count is 0 or is not visible
+        element_count = locator.count()
+        if element_count == 0:
+            return True
+        # Element exists but check if it's visible
+        try:
+            return not locator.is_visible(timeout=100)  # Quick check
+        except Exception:
+            return True  # If any error, consider it disappeared
+
+    return wait_for_condition(
+        condition,
+        timeout=timeout,
+        poll_interval=poll_interval,
+        error_message="Element did not disappear within timeout",
+    )
+
+
+def wait_for_loading_spinner_to_disappear(
+    frame, timeout: float = 15.0, spinner_selectors: Optional[list] = None
+) -> bool:
+    """
+    Wait for a loading spinner to disappear from a frame or page.
+
+    Args:
+        frame: Playwright frame or page object to search for spinner
+        timeout: Maximum time to wait in seconds (default: 15)
+        spinner_selectors: List of CSS selectors to check for spinner
+                          (default: [".loading-image", "#theLoadingImage"])
+
+    Returns:
+        True if spinner disappeared or was not found
+
+    Raises:
+        WaitTimeoutError: If spinner remains visible after timeout
+
+    Example:
+        # Wait for loading spinner in iframe to disappear
+        spinner_present = wait_for_loading_spinner_to_disappear(iframe_frame, timeout=15.0)
+    """
+    if spinner_selectors is None:
+        spinner_selectors = [".loading-image", "#theLoadingImage"]
+
+    start_time = time.time()
+    logger.info(f"Waiting for loading spinner to disappear (timeout: {timeout}s)...")
+
+    while (time.time() - start_time) < timeout:
+        try:
+            # Check each possible spinner selector
+            spinner_found = False
+            for selector in spinner_selectors:
+                spinner = frame.locator(selector)
+                if spinner.count() > 0:
+                    logger.debug(f"Found spinner with selector: {selector}")
+                    spinner_found = True
+                    # Try to wait for this spinner to disappear
+                    try:
+                        wait_for_element_to_disappear(
+                            spinner, 
+                            timeout=min(2.0, timeout - (time.time() - start_time)),
+                            poll_interval=0.2
+                        )
+                        logger.info(f"✓ Loading spinner ({selector}) disappeared")
+                        return True
+                    except WaitTimeoutError:
+                        # This spinner is still visible, continue checking
+                        logger.debug(f"Spinner {selector} still visible, checking again...")
+                        time.sleep(0.5)
+                        continue
+
+            # If no spinner found on this iteration, we're done
+            if not spinner_found:
+                logger.info("✓ No loading spinner detected")
+                return True
+
+        except Exception as e:
+            logger.debug(f"Error checking for spinner: {e}")
+            time.sleep(0.5)
+
+    elapsed = time.time() - start_time
+    error_msg = f"Loading spinner did not disappear within {elapsed:.2f}s"
+    logger.error(error_msg)
+    raise WaitTimeoutError(error_msg)
+
 
 class WaitContext:
     """
