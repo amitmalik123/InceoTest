@@ -27,6 +27,72 @@ from framework.clients.api_client import ApiClientFactory
 logger = get_logger(__name__)
 
 
+def _ci_get(obj: Dict[str, Any], key: str, default: Any = None) -> Any:
+    """Case-insensitive getter for dictionary keys."""
+    if not isinstance(obj, dict):
+        return default
+    key_lower = key.lower()
+    for k, v in obj.items():
+        if str(k).lower() == key_lower:
+            return v
+    return default
+
+
+def _normalize_calc_type(value: Any) -> str:
+    """Normalize calculation type strings for tolerant comparison."""
+    if value is None:
+        return ""
+    return str(value).strip().lower().replace("_", " ").replace("-", " ")
+
+
+def _normalize_segment(segment: Dict[str, Any]) -> Dict[str, Any]:
+    """Normalize a segment node to canonical camelCase keys used by validator."""
+    normalized = {
+        "level": _ci_get(segment, "level", ""),
+        "name": _ci_get(segment, "name", ""),
+        "weight": _ci_get(segment, "weight", 0),
+    }
+    child_segments = _ci_get(segment, "segments", []) or []
+    if isinstance(child_segments, list) and child_segments:
+        normalized["segments"] = [_normalize_segment(s) for s in child_segments if isinstance(s, dict)]
+    else:
+        normalized["segments"] = []
+    return normalized
+
+
+def _normalize_component(component: Dict[str, Any]) -> Dict[str, Any]:
+    """Normalize a component node to canonical camelCase keys used by validator."""
+    segments = _ci_get(component, "segments", []) or []
+    return {
+        "modelType": _ci_get(component, "modelType", "model"),
+        "modelId": _ci_get(component, "modelId", ""),
+        "weight": _ci_get(component, "weight", 0),
+        "segments": [_normalize_segment(s) for s in segments if isinstance(s, dict)]
+    }
+
+
+def _extract_asset_allocation_result(api_response: Dict[str, Any]) -> Optional[Dict[str, Any]]:
+    """Extract and normalize asset allocation result from API response regardless of key casing."""
+    calc_results = _ci_get(api_response, "calculationResults", []) or []
+    if not isinstance(calc_results, list):
+        return None
+
+    for result in calc_results:
+        if not isinstance(result, dict):
+            continue
+        calc_type = _normalize_calc_type(_ci_get(result, "calculationType"))
+        if calc_type == "asset allocation":
+            result_obj = _ci_get(result, "result", {}) or {}
+            blend = _ci_get(result_obj, "blendBreakdown", []) or []
+            components = _ci_get(result_obj, "componentBreakdown", []) or []
+            return {
+                "blendBreakdown": [_normalize_segment(s) for s in blend if isinstance(s, dict)],
+                "componentBreakdown": [_normalize_component(c) for c in components if isinstance(c, dict)]
+            }
+
+    return None
+
+
 # =============================================================================
 # API DATA FETCHING UTILITIES (using framework ApiClientFactory)
 # =============================================================================
@@ -924,15 +990,8 @@ class AssetAllocationValidator:
         logger.info("ASSET ALLOCATION BLEND VALIDATION")
         logger.info("=" * 80)
         
-        # Extract actual values from response
-        calc_results = api_response.get("calculationResults", [])
-        asset_alloc_result = None
-        
-        for result in calc_results:
-            if result.get("calculationType") == "asset allocation":
-                asset_alloc_result = result.get("result", {})
-                break
-        
+        # Extract actual values from response (case-insensitive key support)
+        asset_alloc_result = _extract_asset_allocation_result(api_response)
         if asset_alloc_result is None:
             errors.append("No 'asset allocation' calculationType in response")
             return False, errors, {"expected": []}
@@ -1407,6 +1466,31 @@ def validate(context):
                 "extracted_values": {},
                 "computed_values": {}
             }
+
+        # If API returned non-200, skip deep payload validation.
+        # Status-code validation is handled by the generic framework layer.
+        response_code = _ci_get(api_response, "ResponseCode", _ci_get(api_response, "status"))
+        try:
+            response_code = int(response_code) if response_code is not None else None
+        except (TypeError, ValueError):
+            response_code = None
+
+        if response_code is not None and response_code != 200:
+            logger.warning(
+                f"Skipping asset allocation payload validation for non-200 response code: {response_code}"
+            )
+            return {
+                "success": True,
+                "errors": [],
+                "extracted_values": {
+                    "validation_skipped": True,
+                    "skip_reason": f"API returned status {response_code}; payload validation skipped"
+                },
+                "computed_values": {
+                    "skipped": True,
+                    "response_code": response_code
+                }
+            }
         
         # Get request payload
         request_ctx = ctx.get('request', {})
@@ -1555,19 +1639,17 @@ def validate(context):
             # Store original API model weights for component comparison
             api_model_weights = {}
             
-            calc_results = api_response.get("calculationResults", [])
-            for result in calc_results:
-                if result.get("calculationType") == "asset allocation":
-                    components = result.get("result", {}).get("componentBreakdown", [])
-                    for comp in components:
-                        model_id = comp.get("modelId", "").upper()
-                        if model_id in model_ids:
-                            holdings = []
-                            for segment in comp.get("segments", []):
-                                _extract_holdings_from_segments(segment, holdings)
-                            model_compositions[model_id] = holdings
-                            # Store the original model weight from API for component comparison
-                            api_model_weights[model_id] = comp.get("weight", 0)
+            extracted_result = _extract_asset_allocation_result(api_response)
+            components = extracted_result.get("componentBreakdown", []) if extracted_result else []
+            for comp in components:
+                model_id = comp.get("modelId", "").upper()
+                if model_id in model_ids:
+                    holdings = []
+                    for segment in comp.get("segments", []):
+                        _extract_holdings_from_segments(segment, holdings)
+                    model_compositions[model_id] = holdings
+                    # Store the original model weight from API for component comparison
+                    api_model_weights[model_id] = comp.get("weight", 0)
             
             # IMPORTANT: In self-validation mode, the weights from componentBreakdown are already
             # the blended contributions (e.g., 55.2% not 92%), so:

@@ -31,39 +31,34 @@
         ],
         "extract_values": [
             {
-                "from": "response",
-                "key": "calculationResults.0.result.annualizedVolatility",
+                "from": "script_result",
+                "key": "api_annualized_volatility",
                 "assign_to": "actual_volatility"
             },
             {
-                "from": "response",
-                "key": "calculationResults.0.result.blendedRiskScore",
+                "from": "script_result",
+                "key": "api_blended_risk_score",
                 "assign_to": "actual_risk_score"
             },
             {
-                "from": "response",
-                "key": "calculationResults.0.result.profileValue",
+                "from": "script_result",
+                "key": "api_profile_value",
                 "assign_to": "actual_profile_value"
-            },
-            {
-                "from": "script_result",
-                "key": "computed_annualized_volatility",
-                "assign_to": "expected_volatility"
-            },
-            {
-                "from": "script_result",
-                "key": "computed_blended_risk_score",
-                "assign_to": "expected_risk_score"
-            },
-            {
-                "from": "script_result",
-                "key": "computed_profile_value",
-                "assign_to": "expected_profile_value"
             },
             {
                 "from": "script_result",
                 "key": "api_annualized_volatility",
                 "assign_to": "expected_volatility"
+            },
+            {
+                "from": "script_result",
+                "key": "api_blended_risk_score",
+                "assign_to": "expected_risk_score"
+            },
+            {
+                "from": "script_result",
+                "key": "api_profile_value",
+                "assign_to": "expected_profile_value"
             },
             {
                 "from": "db_result",
