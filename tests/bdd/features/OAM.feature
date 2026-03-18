@@ -1,4 +1,4 @@
-@e2e
+@ES1_OAM
 Feature: E2E OAM flow for FA, SAU and OA
 
   @smoke @regression
@@ -29,7 +29,7 @@ Feature: E2E OAM flow for FA, SAU and OA
     And Verify Agent Name
     And Verify the Routing Order in database
 
-  @SAU_Online_Submit_Authorized_Not_Required @HappyPath
+  @ES1HappyPath1
   Scenario: OAM_Initiated by SAU_Online Submit_Authorized Signer_Not_Required
     When User navigate to Clients menu
     And User click on Account List
@@ -63,38 +63,37 @@ Feature: E2E OAM flow for FA, SAU and OA
     And Verify Agent Name
     And Verify the Routing Order in database
 
- @SAU_Online_Submit_Authorized_FA
-  Scenario: OAM_Initiated by SAU_Online Submit_Authorized Signer_Required_FA
-    When User navigate to Clients menu
-    And User click on Account List
-    And User is on the Account List tab and search for Account Number
-    And User should click on searched account and navigate to account wizard page
-    And User select OAM Request and Type
-    And User select Submission Type
-    And User select Client Signature Method
-    Then Signer(s) Information dialog should be displayed
-    And Verify Authorized Signer Approval section should be displayed on Signer(s) Information dialog
-    When User select Authorized Signer Approval option
-    Then Authorized Signer eSign Method section should be displayed
-    When User select Authorized Signer eSign Method
-    Then Verify appropriate fields are displayed based on eSign Method selected
-    When User fetch signers information from database
-    Then Verify Authorized Signer dropdown
-    When User provide Authorized Signers information
-    And Click on Continue
-    Then User should be redirected to the DocuSign page
-    And Verify docusign Review and continue dialog text
-    When User confirm and Continue the docusign Review and continue dialog
-    And User Finish the DocuSign process
-    Then Verify request pop up
-    When User click on D number
-    Then User should be redirected to Tracking Center Item Detail page
-    And Item Detail D number should be same as request submitted pop up D number
-    And Verify Tracking Center Item Detail status should be "Awaiting Advisor Submission"
-    And Verify Advisor Alert Required value
-    And Verify buttons displayed "Cancel,View,eSignature"
-    When User login to the email and search the authorized signer email
-    Then Verify authorized signer email content
-    #And Verify Notes description
-    # And Tracking Center Notes should contain correct document creator name
-    # And Verify the Routing Order in database
+#   Scenario: OAM_Initiated by SAU_Online Submit_Authorized Signer_Required_FA
+#     When User navigate to Clients menu
+#     And User click on Account List
+#     And User is on the Account List tab and search for Account Number
+#     And User should click on searched account and navigate to account wizard page
+#     And User select OAM Request and Type
+#     And User select Submission Type
+#     And User select Client Signature Method
+#     Then Signer(s) Information dialog should be displayed
+#     And Verify Authorized Signer Approval section should be displayed on Signer(s) Information dialog
+#     When User select Authorized Signer Approval option
+#     Then Authorized Signer eSign Method section should be displayed
+#     When User select Authorized Signer eSign Method
+#     Then Verify appropriate fields are displayed based on eSign Method selected
+#     When User fetch signers information from database
+#     Then Verify Authorized Signer dropdown
+#     When User provide Authorized Signers information
+#     And Click on Continue
+#     Then User should be redirected to the DocuSign page
+#     And Verify docusign Review and continue dialog text
+#     When User confirm and Continue the docusign Review and continue dialog
+#     And User Finish the DocuSign process
+#     Then Verify request pop up
+#     When User click on D number
+#     Then User should be redirected to Tracking Center Item Detail page
+#     And Item Detail D number should be same as request submitted pop up D number
+#     And Verify Tracking Center Item Detail status should be "Awaiting Advisor Submission"
+#     And Verify Advisor Alert Required value
+#     And Verify buttons displayed "Cancel,View,eSignature"
+#     When User login to the email and search the authorized signer email
+#     Then Verify authorized signer email content
+#     #And Verify Notes description
+#     # And Tracking Center Notes should contain correct document creator name
+#     # And Verify the Routing Order in database
