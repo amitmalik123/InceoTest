@@ -28,7 +28,6 @@ tests/.auth/
 scripts/
 ai/
 
-
 # Temporary - Work in Progress (remove from .gitignore once stable)
 temp_recording*.py           # Playwright codegen recordings
 
@@ -57,9 +56,6 @@ allure-report/
 
 # Environment
 .env
-
-# InfluxDB Config (contains sensitive tokens)
-config/influxdb_config.json
 
 # IDE
 # .vscode/ is NOT ignored — we commit .vscode/mcp.json for MCP server config

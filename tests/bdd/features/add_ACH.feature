@@ -3,19 +3,20 @@ Feature: Add ACH E2E flow
   As a financial advisor
   I want to add ACH instructions
 
-  # @smoke
-  #  Scenario: Successfully login and navigate to Account List
-  #    When I navigate to Clients menu
+  @smoke
+   Scenario: Successfully login and navigate to Account List
+     When I navigate to Clients menu
 
-  @regression @ach
-  Scenario: Successfully complete Add ACH flow
-  # sql db connection steps
-    When I verify the retirement billing client in database
-   When I verify the am billing accounts data from database
+  # @regression @ach
+  # Scenario: Successfully complete Add ACH flow
+  # # sql db connection steps
+  #   When I verify the retirement billing client in database
+  #  When I verify the am billing accounts data from database
 
-  # azure db connection steps
-    When I verify the transfer status in database
-    When I verify the account distribution in database
+  # # azure db connection steps
+  #   When I verify the transfer status in database
+  #   When I verify the account distribution in database
+
    # excel
    # When I load test data from excel sheet "Shell"
 

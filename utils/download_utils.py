@@ -119,7 +119,7 @@ class DownloadManager:
             assert (
                 actual_filename == expected_filename
             ), f"Filename mismatch: expected '{expected_filename}', got '{actual_filename}'"
-            logger.debug(f"✓ Filename matches: {expected_filename}")
+            logger.debug(f"[OK] Filename matches: {expected_filename}")
 
         # Validate extension
         if expected_extension:
@@ -129,7 +129,7 @@ class DownloadManager:
             assert (
                 actual_extension == expected_extension
             ), f"Extension mismatch: expected '{expected_extension}', got '{actual_extension}'"
-            logger.debug(f"✓ Extension matches: {expected_extension}")
+            logger.debug(f"[OK] Extension matches: {expected_extension}")
 
         # Validate file size
         if save and filepath.exists():
