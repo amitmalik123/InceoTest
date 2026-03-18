@@ -9,7 +9,7 @@
             "Functional"
         ],
         "mainURL": "{{base_url}}",
-        "endpoint": "/instructions/{{instruction_id}}",
+        "endpoint": "/instructions/{{instructionId}}",
         "method": "DELETE",
         "rpc_method": "",
         "graphql_query": "",
@@ -98,7 +98,7 @@
         "csv_row_index": 0,
         "db_query_timing": "after_api",
         "db_queries": {
-            "default": "SELECT TOP 1 * FROM [dbo].[MoneyMovementInstruction] WHERE Id = '{{instruction_id}}' ORDER BY Version DESC",
+            "default": "SELECT TOP 1 * FROM [dbo].[MoneyMovementInstruction] WHERE Id = '{{instructionId}}' ORDER BY Version DESC",
             "audit_query": ""
         },
         "db_type": "mssql",
@@ -183,7 +183,7 @@
             "Negative"
         ],
         "mainURL": "{{base_url}}",
-        "endpoint": "/instructions/{{instruction_id}}",
+        "endpoint": "/instructions/{{instructionId}}",
         "method": "DELETE",
         "rpc_method": "",
         "graphql_query": "",
@@ -212,7 +212,7 @@
             "assertions": [],
             "data_comparison": []
         },
-        "test_data_file": "MoveMoneyAPI/data_driven/Data_instructions_instructionId_Delete.csv",
+        "test_data_file": "MoveMoneyAPI/data_driven/Data_instructions_instructionId_GET.csv",
         "csv_row_index": 0,
         "db_query_timing": "after_api",
         "db_queries": {

@@ -86,9 +86,18 @@ SERVICE_DEFAULTS: Dict[str, Dict] = {
                 'testcase_file': 'MoveMoneyAPI/testcases/TestCase_moneymovement_requestid_POST.json',
                 'test_data_file': 'MoveMoneyAPI/data_driven/Data_MoveMoneyAPI_POST.csv',
                 'extract_from_response': {
+                    'fields': [
+                {
                     'field': 'requestId',  # Field to extract from API response
                     'assign_to': 'requestId'    # Variable name to use
                 },
+                {
+                    'field': 'version',  # Field to extract from API response
+                    'assign_to': 'version'    # Variable name to use
+                }
+                    ]
+                },
+
                 'update_csv_file': 'MoveMoneyAPI/data_driven/Data_requests_requestId_PUT.csv',
                 'csv_columns': ['environment', 'requestId', 'version', 'instructionId', 'accountId', 'railType', 'amount', 'percent','requestType', 'status', 'reason', 'scheduleType', 'paymentDate', 'frequency', 'startDate', 'endDate'],
             },
@@ -96,8 +105,8 @@ SERVICE_DEFAULTS: Dict[str, Dict] = {
             'instructions': {
                 'enabled': True,
                 'count': 1,  # Create one instructionId for DELETE flow (TC001 -> TC003)
-                'testcase_file': 'MoveMoneyAPI/testcases/TestCase_moneymovement_instructions_9694_POST.json',
-                'test_data_file': 'MoveMoneyAPI/data_driven/Data_Instructions_9694_POST.csv',
+                'testcase_file': 'MoveMoneyAPI/testcases/TestCase_instructions_POST.json',
+                'test_data_file': 'MoveMoneyAPI/data_driven/Data_instructions_POST.CSV',
                 'extract_from_response': {
                     'fields': [
                         {
@@ -111,8 +120,7 @@ SERVICE_DEFAULTS: Dict[str, Dict] = {
                     ]
                 },
                 'update_csv_file': 'MoveMoneyAPI/data_driven/Data_instructions_instructionId_GET.csv',
-                'csv_columns': ['test_id', 'environment', 'instructionId', 'version', 'status'],
-                
+                'csv_columns': [ 'test_id','environment', 'instructionId', 'version', 'status'],
             }
         }
     }

@@ -167,7 +167,7 @@
             "Positive"
         ],
         "mainURL": "{{base_url}}",
-        "endpoint": "/instructions/{{instructionId}}?status=Draft",
+        "endpoint": "/instructions/{{instructionId}}?status=Confirmed",
         "method": "GET",
         "rpc_method": "",
         "graphql_query": "",
@@ -244,9 +244,9 @@
                 },
                 {
                     "actual": "{{status}}",
-                    "expected": "Draft",
+                    "expected": "Confirmed",
                     "operator": "==",
-                    "message": "Status should be Draft for hook-created instruction"
+                    "message": "Status should be Confirmed for hook-created instruction"
                 },
                 {
                     "actual": "{{railType}}",

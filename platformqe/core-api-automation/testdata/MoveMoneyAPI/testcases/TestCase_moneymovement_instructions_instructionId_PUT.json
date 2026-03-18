@@ -9,7 +9,7 @@
             "Functional"
         ],
         "mainURL": "{{base_url}}",
-        "endpoint": "/instructions/{{instruction_id}}",
+        "endpoint": "/instructions/{{instructionId}}",
         "method": "PUT",
         "rpc_method": "",
         "graphql_query": "",
@@ -21,18 +21,18 @@
         },
         "payload": {
             "version": "{{version}}",
-            "letterOfAuthorization": "{{letterOfAuthorization}}",
-            "accountId": "{{accountId}}",
-            "status": "{{status}}",
-            "holderRelationship": "{{holderRelationship}}",
-            "railType": "{{railType}}",
-            "custodianInstructionNumber": "{{custodianInstructionNumber}}",
+            "letterOfAuthorization": "Both",
+            "accountId": "123e4567-e89b-12d3-a456-426614174000",
+            "status": "Draft",
+            "holderRelationship": "FirstParty",
+            "railType": "ACH",
+            "custodianInstructionNumber": "AINS123456",
             "bank": {
-                "routingNumber": "{{bank_routingNumber}}",
-                "bankAccountNumber": "{{bank_bankAccountNumber}}",
-                "bankAccountName": "{{bank_bankAccountName}}",
-                "bankAccountType": "{{bank_bankAccountType}}",
-                "bankName": "{{bank_bankName}}"
+                "routingNumber": "121000248",
+                "bankAccountNumber": "1234567890",
+                "bankAccountName": "John Smith",
+                "bankAccountType": "Checking",
+                "bankName": "Wells Fargo Bank"
             }
         },
         "expected_status": "200",
@@ -49,12 +49,12 @@
             {
                 "from": "response",
                 "key": "instructionId",
-                "assign_to": "instructionId"
+                "assign_to": "tc001_instructionId"
             },
             {
                 "from": "response",
                 "key": "version",
-                "assign_to": "version"
+                "assign_to": "tc001_version"
             }
         ],
         "validate": {
@@ -69,13 +69,13 @@
             },
             "assertions": [
                 {
-                    "actual": "{{instructionId}}",
+                    "actual": "{{tc001_instructionId}}",
                     "expected": "",
                     "operator": "!=",
                     "message": "InstructionId should not be empty"
                 },
                 {
-                    "actual": "{{version}}",
+                    "actual": "{{tc001_version}}",
                     "expected": 1,
                     "operator": ">",
                     "message": "Version should be incremented after update"
@@ -83,7 +83,7 @@
             ],
             "data_comparison": []
         },
-        "test_data_file": "MoveMoneyAPI/data_driven/Data_Instructions_InstructionId_PUT.csv",
+        "test_data_file": "MoveMoneyAPI/data_driven/Data_Instructions_InstructionId_GET.csv",
         "csv_row_index": 0,
         "db_query_timing": "after_api",
         "db_queries": {
@@ -104,7 +104,7 @@
             "Positive"
         ],
         "mainURL": "{{base_url}}",
-        "endpoint": "/instructions/{{instruction_id}}",
+        "endpoint": "/instructions/{{tc001_instructionId}}",
         "method": "PUT",
         "rpc_method": "",
         "graphql_query": "",
@@ -115,19 +115,19 @@
             "Content-Type": "application/json"
         },
         "payload": {
-            "version": "{{version}}",
-            "letterOfAuthorization": "{{letterOfAuthorization}}",
-            "accountId": "{{accountId}}",
-            "status": "{{status}}",
-            "holderRelationship": "{{holderRelationship}}",
-            "railType": "{{railType}}",
-            "custodianInstructionNumber": "{{custodianInstructionNumber}}",
+            "version": "{{tc001_version}}",
+            "letterOfAuthorization": "Both",
+            "accountId": "456e7890-e89b-12d3-a456-426614174111",
+            "status": "Draft",
+            "holderRelationship": "FirstParty",
+            "railType": "ACH",
+            "custodianInstructionNumber": "AINS123456",
             "bank": {
-                "routingNumber": "{{bank_routingNumber}}",
-                "bankAccountNumber": "{{bank_bankAccountNumber}}",
-                "bankAccountName": "{{bank_bankAccountName}}",
-                "bankAccountType": "{{bank_bankAccountType}}",
-                "bankName": "{{bank_bankName}}"
+                "routingNumber": "121000248",
+                "bankAccountNumber": "1234567890",
+                "bankAccountName": "Mathew",
+                "bankAccountType": "Checking",
+                "bankName": "Wells Fargo Bank"
             }
         },
         "expected_status": "200",
@@ -144,12 +144,12 @@
             {
                 "from": "response",
                 "key": "instructionId",
-                "assign_to": "instructionId"
+                "assign_to": "tc002_instructionId"
             },
             {
                 "from": "response",
                 "key": "version",
-                "assign_to": "version"
+                "assign_to": "tc002_version"
             },
             {
                 "from": "db_result",
@@ -174,13 +174,13 @@
             },
             "assertions": [
                 {
-                    "actual": "{{instructionId}}",
+                    "actual": "{{tc002_instructionId}}",
                     "expected": "",
                     "operator": "!=",
                     "message": "InstructionId should not be empty"
                 },
                 {
-                    "actual": "{{version}}",
+                    "actual": "{{tc002_version}}",
                     "expected": 2,
                     "operator": ">",
                     "message": "Version should be incremented from TC001 update"
@@ -188,18 +188,18 @@
             ],
             "data_comparison": [
                 {
-                    "source": "instructionId",
+                    "source": "tc002_instructionId",
                     "target": "db_instructionId",
                     "log_differences": true,
                     "comparison_name": "InstructionId match between API and DB"
                 }
             ]
         },
-        "test_data_file": "MoveMoneyAPI/data_driven/Data_Instructions_InstructionId_PUT.csv",
-        "csv_row_index": 1,
+        "test_data_file": "",
+        "csv_row_index": 0,
         "db_query_timing": "after_api",
         "db_queries": {
-            "default": "SELECT LOWER([Id]) AS instructionId FROM [dbo].[MoneyMovementInstruction] WHERE [Id] = '{{instructionId}}'",
+            "default": "SELECT LOWER([Id]) AS instructionId FROM [dbo].[MoneyMovementInstruction] WHERE [Id] = '{{tc002_instructionId}}'",
             "audit_query": ""
         },
         "db_type": "mssql",
@@ -216,7 +216,180 @@
             "Negative"
         ],
         "mainURL": "{{base_url}}",
-        "endpoint": "/instructions/{{instructionId_endpoint}}",
+        "endpoint": "/instructions/{{tc002_instructionId}}",
+        "method": "PUT",
+        "rpc_method": "",
+        "graphql_query": "",
+        "graphql_variables": "",
+        "soap_action": "",
+        "soap_envelope": "",
+        "headers_additional": {
+            "Content-Type": "application/json"
+        },
+        "payload": {
+            "letterOfAuthorization": "{{letterOfAuthorization}}",
+            "accountId": "{{accountId}}",
+            "status": "{{status}}",
+            "holderRelationship": "{{holderRelationship}}",
+            "railType": "{{railType}}",
+            "custodianInstructionNumber": "{{custodianInstructionNumber}}",
+            "bank": {
+                "routingNumber": "{{bank_routingNumber}}",
+                "bankAccountNumber": "{{bank_bankAccountNumber}}",
+                "bankAccountName": "{{bank_bankAccountName}}",
+                "bankAccountType": "{{bank_bankAccountType}}",
+                "bankName": "{{bank_bankName}}"
+            }
+        },
+        "expected_status": "400",
+        "expected_response_schema": null,
+        "expected_response": null,
+        "ignore_fields": [],
+        "extract_values": [
+            {
+                "from": "response",
+                "key": "status",
+                "assign_to": "error_status"
+            },
+            {
+                "from": "response",
+                "key": "error",
+                "assign_to": "error_message"
+            },
+            {
+                "from": "response",
+                "key": "fields",
+                "assign_to": "error_fields"
+            }
+        ],
+        "validate": {
+            "performance": {
+                "max_response_time_ms": 500
+            },
+            "security": {
+                "checks": [
+                    "sql_injection",
+                    "xss"
+                ]
+            },
+            "assertions": [
+                {
+                    "actual": "{{error_status}}",
+                    "expected": 400,
+                    "operator": "==",
+                    "message": "Error status should be 400"
+                }
+            ],
+            "data_comparison": []
+        },
+        "test_data_file": "MoveMoneyAPI/data_driven/Data_Instructions_InstructionId_PUT.csv",
+        "csv_row_index": 0,
+        "db_query_timing": "after_api",
+        "db_queries": {
+            "default": "",
+            "audit_query": ""
+        },
+        "db_type": "",
+        "db_connection_name": "",
+        "test_summary": "Test TC003: PUT /instructions/{instructionId} [negative] (TC003) - Validate that the API returns 400 response to verify the routing number is exactly 9 digits."
+    },
+    {
+        "test_id": "TC004",
+        "service_name": "MoveMoneyAPI",
+        "workflow_mode": "parallel",
+        "test_name": "PUT /instructions/{instructionId} [negative: Missing required field] (TC004)",
+        "protocol": "REST",
+        "test_type": [
+            "Negative"
+        ],
+        "mainURL": "{{base_url}}",
+        "endpoint": "/instructions/{{tc002_instructionId}}",
+        "method": "PUT",
+        "rpc_method": "",
+        "graphql_query": "",
+        "graphql_variables": "",
+        "soap_action": "",
+        "soap_envelope": "",
+        "headers_additional": {
+            "Content-Type": "application/json"
+        },
+        "payload": {
+            "accountId": "{{accountId}}",
+            "status": "{{status}}",
+            "holderRelationship": "{{holderRelationship}}",
+            "railType": "{{railType}}",
+            "custodianInstructionNumber": "{{custodianInstructionNumber}}",
+            "bank": {
+                "routingNumber": "{{bank_routingNumber}}",
+                "bankAccountNumber": "{{bank_bankAccountNumber}}",
+                "bankAccountName": "{{bank_bankAccountName}}",
+                "bankAccountType": "{{bank_bankAccountType}}",
+                "bankName": "{{bank_bankName}}"
+            }
+        },
+        "expected_status": "400",
+        "expected_response_schema": null,
+        "expected_response": null,
+        "ignore_fields": [],
+        "extract_values": [
+            {
+                "from": "response",
+                "key": "status",
+                "assign_to": "error_status"
+            },
+            {
+                "from": "response",
+                "key": "error",
+                "assign_to": "error_message"
+            },
+            {
+                "from": "response",
+                "key": "fields",
+                "assign_to": "error_fields"
+            }
+        ],
+        "validate": {
+            "performance": {
+                "max_response_time_ms": 500
+            },
+            "security": {
+                "checks": [
+                    "sql_injection",
+                    "xss"
+                ]
+            },
+            "assertions": [
+                {
+                    "actual": "{{error_status}}",
+                    "expected": 400,
+                    "operator": "==",
+                    "message": "Error status should be 400"
+                }
+            ],
+            "data_comparison": []
+        },
+        "test_data_file": "MoveMoneyAPI/data_driven/Data_Instructions_InstructionId_PUT.csv",
+        "csv_row_index": 1,
+        "db_query_timing": "after_api",
+        "db_queries": {
+            "default": "",
+            "audit_query": ""
+        },
+        "db_type": "",
+        "db_connection_name": "",
+        "test_summary": "Test TC004: PUT /instructions/{instructionId} [negative] (TC004) - Validate that the API returns 400 to verify if any fields are missing in the PUT request to /instructions/{instructionId}."
+    },
+    {
+        "test_id": "TC005",
+        "service_name": "MoveMoneyAPI",
+        "workflow_mode": "parallel",
+        "test_name": "PUT /instructions/{instructionId} [negative: Invalid accountId] (TC005)",
+        "protocol": "REST",
+        "test_type": [
+            "Negative"
+        ],
+        "mainURL": "{{base_url}}",
+        "endpoint": "/instructions/{{tc002_instructionId}}",
         "method": "PUT",
         "rpc_method": "",
         "graphql_query": "",
@@ -291,19 +464,19 @@
         },
         "db_type": "",
         "db_connection_name": "",
-        "test_summary": "Test TC003: PUT /instructions/{instructionId} [negative] (TC003) - Validate that the API returns 400 response to verify the routing number is exactly 9 digits."
+        "test_summary": "Test TC005: PUT /instructions/{instructionId} [negative: Invalid accountId] (TC005) - Validate that the API returns 400 when invalid accountId GUID format is provided."
     },
     {
-        "test_id": "TC004",
+        "test_id": "TC006",
         "service_name": "MoveMoneyAPI",
         "workflow_mode": "parallel",
-        "test_name": "PUT /instructions/{instructionId} [negative: Missing required field] (TC004)",
+        "test_name": "PUT /instructions/{instructionId} [negative: invalid status] (TC006)",
         "protocol": "REST",
         "test_type": [
             "Negative"
         ],
         "mainURL": "{{base_url}}",
-        "endpoint": "/instructions/{{instructionId_endpoint}}",
+        "endpoint": "/instructions/{{tc002_instructionId}}",
         "method": "PUT",
         "rpc_method": "",
         "graphql_query": "",
@@ -314,6 +487,7 @@
             "Content-Type": "application/json"
         },
         "payload": {
+            "letterOfAuthorization": "{{letterOfAuthorization}}",
             "accountId": "{{accountId}}",
             "status": "{{status}}",
             "holderRelationship": "{{holderRelationship}}",
@@ -377,19 +551,19 @@
         },
         "db_type": "",
         "db_connection_name": "",
-        "test_summary": "Test TC004: PUT /instructions/{instructionId} [negative] (TC004) - Validate that the API returns 400 to verify if any fields are missing in the PUT request to /instructions/{instructionId}."
+        "test_summary": "Test TC006: PUT /instructions/{instructionId} [negative: invalid status] (TC006) - Validate that the API returns 400 error response to verify the enum value for 'status'."
     },
     {
-        "test_id": "TC005",
+        "test_id": "TC007",
         "service_name": "MoveMoneyAPI",
         "workflow_mode": "parallel",
-        "test_name": "PUT /instructions/{instructionId} [negative: Invalid accountId] (TC005)",
+        "test_name": "PUT /instructions/{instructionId} [negative: invalid holderRelation] (TC007)",
         "protocol": "REST",
         "test_type": [
             "Negative"
         ],
         "mainURL": "{{base_url}}",
-        "endpoint": "/instructions/{{instructionId_endpoint}}",
+        "endpoint": "/instructions/{{tc002_instructionId}}",
         "method": "PUT",
         "rpc_method": "",
         "graphql_query": "",
@@ -464,19 +638,19 @@
         },
         "db_type": "",
         "db_connection_name": "",
-        "test_summary": "Test TC005: PUT /instructions/{instructionId} [negative: Invalid accountId] (TC005) - Validate that the API returns 400 when invalid accountId GUID format is provided."
+        "test_summary": "Test TC007: PUT /instructions/{instructionId} [negative] (TC007) - Validate that the API returns 400 error response to verify the enum value for 'holderRelation'."
     },
     {
-        "test_id": "TC006",
+        "test_id": "TC008",
         "service_name": "MoveMoneyAPI",
         "workflow_mode": "parallel",
-        "test_name": "PUT /instructions/{instructionId} [negative: invalid status] (TC006)",
+        "test_name": "PUT /instructions/{instructionId} [negative: invalid railType] (TC008)",
         "protocol": "REST",
         "test_type": [
             "Negative"
         ],
         "mainURL": "{{base_url}}",
-        "endpoint": "/instructions/{{instructionId_endpoint}}",
+        "endpoint": "/instructions/{{tc002_instructionId}}",
         "method": "PUT",
         "rpc_method": "",
         "graphql_query": "",
@@ -551,180 +725,6 @@
         },
         "db_type": "",
         "db_connection_name": "",
-        "test_summary": "Test TC006: PUT /instructions/{instructionId} [negative: invalid status] (TC006) - Validate that the API returns 400 error response to verify the enum value for 'status'."
-    },
-    {
-        "test_id": "TC007",
-        "service_name": "MoveMoneyAPI",
-        "workflow_mode": "parallel",
-        "test_name": "PUT /instructions/{instructionId} [negative: invalid holderRelation] (TC007)",
-        "protocol": "REST",
-        "test_type": [
-            "Negative"
-        ],
-        "mainURL": "{{base_url}}",
-        "endpoint": "/instructions/{{instructionId_endpoint}}",
-        "method": "PUT",
-        "rpc_method": "",
-        "graphql_query": "",
-        "graphql_variables": "",
-        "soap_action": "",
-        "soap_envelope": "",
-        "headers_additional": {
-            "Content-Type": "application/json"
-        },
-        "payload": {
-            "letterOfAuthorization": "{{letterOfAuthorization}}",
-            "accountId": "{{accountId}}",
-            "status": "{{status}}",
-            "holderRelationship": "{{holderRelationship}}",
-            "railType": "{{railType}}",
-            "custodianInstructionNumber": "{{custodianInstructionNumber}}",
-            "bank": {
-                "routingNumber": "{{bank_routingNumber}}",
-                "bankAccountNumber": "{{bank_bankAccountNumber}}",
-                "bankAccountName": "{{bank_bankAccountName}}",
-                "bankAccountType": "{{bank_bankAccountType}}",
-                "bankName": "{{bank_bankName}}"
-            }
-        },
-        "expected_status": "400",
-        "expected_response_schema": null,
-        "expected_response": null,
-        "ignore_fields": [],
-        "extract_values": [
-            {
-                "from": "response",
-                "key": "status",
-                "assign_to": "error_status"
-            },
-            {
-                "from": "response",
-                "key": "error",
-                "assign_to": "error_message"
-            },
-            {
-                "from": "response",
-                "key": "fields",
-                "assign_to": "error_fields"
-            }
-        ],
-        "validate": {
-            "performance": {
-                "max_response_time_ms": 500
-            },
-            "security": {
-                "checks": [
-                    "sql_injection",
-                    "xss"
-                ]
-            },
-            "assertions": [
-                {
-                    "actual": "{{error_status}}",
-                    "expected": 400,
-                    "operator": "==",
-                    "message": "Error status should be 400"
-                }
-            ],
-            "data_comparison": []
-        },
-        "test_data_file": "MoveMoneyAPI/data_driven/Data_Instructions_InstructionId_PUT.csv",
-        "csv_row_index": 6,
-        "db_query_timing": "after_api",
-        "db_queries": {
-            "default": "",
-            "audit_query": ""
-        },
-        "db_type": "",
-        "db_connection_name": "",
-        "test_summary": "Test TC007: PUT /instructions/{instructionId} [negative] (TC007) - Validate that the API returns 400 error response to verify the enum value for 'holderRelation'."
-    },
-    {
-        "test_id": "TC008",
-        "service_name": "MoveMoneyAPI",
-        "workflow_mode": "parallel",
-        "test_name": "PUT /instructions/{instructionId} [negative: invalid railType] (TC008)",
-        "protocol": "REST",
-        "test_type": [
-            "Negative"
-        ],
-        "mainURL": "{{base_url}}",
-        "endpoint": "/instructions/{{instructionId_endpoint}}",
-        "method": "PUT",
-        "rpc_method": "",
-        "graphql_query": "",
-        "graphql_variables": "",
-        "soap_action": "",
-        "soap_envelope": "",
-        "headers_additional": {
-            "Content-Type": "application/json"
-        },
-        "payload": {
-            "letterOfAuthorization": "{{letterOfAuthorization}}",
-            "accountId": "{{accountId}}",
-            "status": "{{status}}",
-            "holderRelationship": "{{holderRelationship}}",
-            "railType": "{{railType}}",
-            "custodianInstructionNumber": "{{custodianInstructionNumber}}",
-            "bank": {
-                "routingNumber": "{{bank_routingNumber}}",
-                "bankAccountNumber": "{{bank_bankAccountNumber}}",
-                "bankAccountName": "{{bank_bankAccountName}}",
-                "bankAccountType": "{{bank_bankAccountType}}",
-                "bankName": "{{bank_bankName}}"
-            }
-        },
-        "expected_status": "400",
-        "expected_response_schema": null,
-        "expected_response": null,
-        "ignore_fields": [],
-        "extract_values": [
-            {
-                "from": "response",
-                "key": "status",
-                "assign_to": "error_status"
-            },
-            {
-                "from": "response",
-                "key": "error",
-                "assign_to": "error_message"
-            },
-            {
-                "from": "response",
-                "key": "fields",
-                "assign_to": "error_fields"
-            }
-        ],
-        "validate": {
-            "performance": {
-                "max_response_time_ms": 500
-            },
-            "security": {
-                "checks": [
-                    "sql_injection",
-                    "xss"
-                ]
-            },
-            "assertions": [
-                {
-                    "actual": "{{error_status}}",
-                    "expected": 400,
-                    "operator": "==",
-                    "message": "Error status should be 400"
-                }
-            ],
-            "data_comparison": []
-        },
-        "test_data_file": "MoveMoneyAPI/data_driven/Data_Instructions_InstructionId_PUT.csv",
-        "csv_row_index": 7,
-        "db_query_timing": "after_api",
-        "db_queries": {
-            "default": "",
-            "audit_query": ""
-        },
-        "db_type": "",
-        "db_connection_name": "",
         "test_summary": "Test TC008: PUT /instructions/{instructionId} [negative] (TC008) - Validate that the API returns 400 error response to verify the enum value for 'railType'."
     },
     {
@@ -737,7 +737,7 @@
             "Negative"
         ],
         "mainURL": "{{base_url}}",
-        "endpoint": "/instructions/{{instructionId_endpoint}}",
+        "endpoint": "/instructions/{{tc002_instructionId}}",
         "method": "PUT",
         "rpc_method": "",
         "graphql_query": "",
@@ -805,7 +805,7 @@
             "data_comparison": []
         },
         "test_data_file": "MoveMoneyAPI/data_driven/Data_Instructions_InstructionId_PUT.csv",
-        "csv_row_index": 8,
+        "csv_row_index": 6,
         "db_query_timing": "",
         "db_queries": {},
         "db_type": "",
@@ -823,7 +823,7 @@
             "Database"
         ],
         "mainURL": "{{base_url}}",
-        "endpoint": "/instructions/{{instruction_id}}",
+        "endpoint": "/instructions/{{tc002_instructionId}}",
         "method": "PUT",
         "rpc_method": "",
         "graphql_query": "",
@@ -834,20 +834,20 @@
             "Content-Type": "application/json"
         },
         "payload": {
-            "version": "{{version}}",
-            "letterOfAuthorization": "{{letterOfAuthorization}}",
-            "accountId": "{{accountId}}",
-            "status": "{{status}}",
-            "holderRelationship": "{{holderRelationship}}",
-            "railType": "{{railType}}",
-            "custodianInstructionNumber": "{{custodianInstructionNumber}}",
-            "changeState": "{{changeState}}",
+            "version": "{{tc002_version}}",
+            "letterOfAuthorization": "Both",
+            "accountId": "3FA85F64-5717-4562-B3FC-2C963F66AFA6",
+            "status": "Confirmed",
+            "holderRelationship": "FirstParty",
+            "railType": "ACH",
+            "custodianInstructionNumber": "AINS123456",
+            "changeState": "Inactive",
             "bank": {
-                "routingNumber": "{{bank_routingNumber}}",
-                "bankAccountNumber": "{{bank_bankAccountNumber}}",
-                "bankAccountName": "{{bank_bankAccountName}}",
-                "bankAccountType": "{{bank_bankAccountType}}",
-                "bankName": "{{bank_bankName}}"
+                "routingNumber": "121000248",
+                "bankAccountNumber": "1234567890",
+                "bankAccountName": "John",
+                "bankAccountType": "Checking",
+                "bankName": "Chase Bank"
             }
         },
         "expected_status": "200",
@@ -864,12 +864,12 @@
             {
                 "from": "response",
                 "key": "instructionId",
-                "assign_to": "instructionId"
+                "assign_to": "tc010_instructionId"
             },
             {
                 "from": "response",
                 "key": "version",
-                "assign_to": "version"
+                "assign_to": "tc010_version"
             },
             {
                 "from": "db_result",
@@ -898,13 +898,13 @@
             },
             "assertions": [
                 {
-                    "actual": "{{instructionId}}",
+                    "actual": "{{tc010_instructionId}}",
                     "expected": "",
                     "operator": "!=",
                     "message": "InstructionId should not be empty"
                 },
                 {
-                    "actual": "{{version}}",
+                    "actual": "{{tc010_version}}",
                     "expected": 3,
                     "operator": ">",
                     "message": "Version should increment after changeState update"
@@ -921,11 +921,11 @@
             ],
             "data_comparison": []
         },
-        "test_data_file": "MoveMoneyAPI/data_driven/Data_Instructions_InstructionId_PUT.csv",
-        "csv_row_index": 9,
+        "test_data_file": "",
+        "csv_row_index": 0,
         "db_query_timing": "after_api",
         "db_queries": {
-            "default": "SELECT [Version] AS version, [ChangeState] AS changeState FROM [dbo].[MoneyMovementInstruction] WHERE [Id] = '{{instructionId}}'"
+            "default": "SELECT [Version] AS version, [ChangeState] AS changeState FROM [dbo].[MoneyMovementInstruction] WHERE [Id] = '{{tc010_instructionId}}'"
         },
         "db_type": "mssql",
         "db_connection_name": "movemoney",

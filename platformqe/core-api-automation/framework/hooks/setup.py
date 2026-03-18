@@ -83,37 +83,59 @@ class TestDataManager:
     def setup(self) -> bool:
         """
         Run all setup operations based on configuration.
-        
+        Supports endpoint-specific prerequisite configs (e.g., 'instructions', 'requests').
         Returns:
             True if setup completed successfully, False otherwise
         """
         if not self.config.enabled:
             logger.info(f"Hooks disabled for service: {self.service_name}")
             return True
-        
         logger.info(f"Starting setup for service: {self.service_name}")
-        
         try:
-            # Execute prerequisite test case if configured
             prereq = self.config.prerequisite_testcase
             logger.info(f"[DEBUG] prerequisite_testcase config: {prereq}")
-            logger.info(f"[DEBUG] prereq exists: {bool(prereq)}, enabled: {prereq.get('enabled') if prereq else 'N/A'}")
-            if prereq and prereq.get('enabled'):
+            # Support endpoint-specific configs (dict of endpoints)
+            if isinstance(prereq, dict):
+                # If a specific endpoint is requested via environment variable or CLI, use it
+                import os
+                hook_endpoint = os.environ.get('HOOK_ENDPOINT')
+                # Fallback: try to get from pytest CLI if available
+                try:
+                    import sys
+                    for i, arg in enumerate(sys.argv):
+                        if arg.startswith('--hook-endpoint'):
+                            if '=' in arg:
+                                hook_endpoint = arg.split('=')[1]
+                            elif i+1 < len(sys.argv):
+                                hook_endpoint = sys.argv[i+1]
+                except Exception:
+                    pass
+                # If not specified, run all enabled endpoints
+                endpoints_to_run = []
+                if hook_endpoint and hook_endpoint in prereq:
+                    endpoints_to_run = [hook_endpoint]
+                else:
+                    endpoints_to_run = [k for k, v in prereq.items() if v.get('enabled')]
+                if not endpoints_to_run:
+                    logger.info(f"No enabled prerequisite endpoints found in config.")
+                for endpoint in endpoints_to_run:
+                    endpoint_config = prereq[endpoint]
+                    logger.info(f"Executing prerequisite test case for endpoint: {endpoint}")
+                    result = self._execute_prerequisite_testcase(endpoint_config)
+            elif prereq and prereq.get('enabled'):
                 logger.info(f"Executing prerequisite test case")
-                result = self._execute_prerequisite_testcase()
+                result = self._execute_prerequisite_testcase(prereq)
             else:
                 logger.info(f"No prerequisite test case configured or disabled")
-            
             logger.info(f"Setup completed for service: {self.service_name}")
             return True
-            
         except Exception as e:
             logger.error(f"Setup failed for service {self.service_name}: {e}")
             import traceback
             logger.error(traceback.format_exc())
             return False
     
-    def _execute_prerequisite_testcase(self) -> Optional[Dict]:
+    def _execute_prerequisite_testcase(self, prereq_config=None) -> Optional[Dict]:
         """
         Execute a prerequisite test case (e.g., POST to create test data)
         multiple times based on 'count' config and extract values from responses.
@@ -121,7 +143,9 @@ class TestDataManager:
         Returns:
             Dictionary of extracted values from last execution, or None if failed
         """
-        prereq_config = self.config.prerequisite_testcase
+        if prereq_config is None:
+            prereq_config = self.config.prerequisite_testcase
+        self.prereq_config = prereq_config
         testcase_file = prereq_config.get('testcase_file')
         test_data_file = prereq_config.get('test_data_file')
         count = prereq_config.get('count', 1)  # Number of times to execute
@@ -144,13 +168,31 @@ class TestDataManager:
         if not all_extracted_values:
             logger.error("No prerequisite data was created")
             return None
-        
+
+        # Debug: Log all extracted values before CSV update
+        logger.debug(f"[HOOKS DEBUG] Extracted values from POST prerequisite: {all_extracted_values}")
+
         # Update CSV with all extracted values
         update_csv = prereq_config.get('update_csv_file')
         if update_csv:
-            csv_columns = prereq_config.get('csv_columns', ['environment', 'id'])
+            csv_columns = prereq_config.get('csv_columns', ['environment', 'instructionId', 'version', 'status'])
+            logger.debug(f"[HOOKS DEBUG] Updating CSV '{update_csv}' with columns {csv_columns} and values: {all_extracted_values}")
             self._update_csv_with_values(update_csv, all_extracted_values, csv_columns)
-        
+            # Debug: After update, read back the CSV and log contents
+            try:
+                import os, csv
+                testdata_path = os.path.join(os.path.dirname(__file__), '..', '..', 'testdata')
+                csv_path = os.path.join(testdata_path, update_csv)
+                if os.path.exists(csv_path):
+                    with open(csv_path, 'r', newline='', encoding='utf-8') as f:
+                        reader = csv.reader(f)
+                        csv_content = list(reader)
+                    logger.debug(f"[HOOKS DEBUG] CSV '{update_csv}' contents after update: {csv_content}")
+                else:
+                    logger.warning(f"[HOOKS DEBUG] CSV '{update_csv}' not found after update!")
+            except Exception as e:
+                logger.warning(f"[HOOKS DEBUG] Failed to read back CSV '{update_csv}': {e}")
+
         return all_extracted_values[-1]  # Return last extracted values
     
     def _execute_single_prerequisite(
@@ -377,11 +419,12 @@ class TestDataManager:
             all_extracted_values: List of dictionaries with extracted values
             columns: List of column names for the CSV
         """
+        logger.info(f"[HOOKS DEBUG] Updating CSV: {csv_file} with values: {all_extracted_values}")  # <-- Add here
         testdata_path = os.path.join(
             os.path.dirname(__file__), '..', '..', 'testdata'
         )
         csv_path = os.path.join(testdata_path, csv_file)
-        
+        prereq = self.prereq_config
         try:
             # Create directory if needed
             os.makedirs(os.path.dirname(csv_path), exist_ok=True)

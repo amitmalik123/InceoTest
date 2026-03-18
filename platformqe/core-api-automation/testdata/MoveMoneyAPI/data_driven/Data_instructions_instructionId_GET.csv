@@ -1,2 +1,2 @@
-test_id,environment,instructionId,status
-TC001,TSADEV,63fcf11b-9d93-4fdb-9ad8-5c81483d4e95,
+environment,instructionId,version,status
+TSADEV,b01fd43e-abdb-458d-a900-127680eaaeba,1,
