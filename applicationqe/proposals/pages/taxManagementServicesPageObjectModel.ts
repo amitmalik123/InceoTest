@@ -141,6 +141,7 @@ export class TaxManagementServicesPage {
     // Methods
     async uploadHoldingsTemplate(fileName: string = 'NEW-REVISED Sample TMS ticker file.csv'): Promise<void> {
         const filePath = path.resolve(__dirname, `../data/${fileName}`);
+        await this.page.waitForLoadState();
         await this.uploadInput.setInputFiles(filePath);
         await this.page.waitForLoadState();
         await this.viewResultsButton.click();
