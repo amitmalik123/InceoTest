@@ -189,7 +189,7 @@ class MailHogClient:
         """
         email = self.wait_for_email(to, from_address, subject_contains, timeout)
         assert email is not None, "Email not received"
-        logger.info("✓ Email received")
+        logger.info("[OK] Email received")
         return email
 
     def assert_email_subject_contains(
@@ -205,7 +205,7 @@ class MailHogClient:
 
         assert search_text in subject, f"Subject '{email_msg.subject}' does not contain '{text}'"
 
-        logger.info(f"✓ Subject contains: '{text}'")
+        logger.info(f"[OK] Subject contains: '{text}'")
         return True
 
     def assert_email_body_contains(
@@ -221,7 +221,7 @@ class MailHogClient:
 
         assert search_text in body, f"Body does not contain '{text}'"
 
-        logger.info(f"✓ Body contains: '{text}'")
+        logger.info(f"[OK] Body contains: '{text}'")
         return True
 
     def get_message_count(self) -> int:

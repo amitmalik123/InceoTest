@@ -28,6 +28,8 @@ def load_influxdb_config():
                     "token": config.get("influxdb_token", ""),
                     "org": config.get("influxdb_org", "default"),
                     "bucket": config.get("influxdb_bucket", "test-results"),
+                    "project_name": config.get("project_name", "unknown"),
+                    "auto_push": config.get("auto_push", False),
                 }
         except Exception as e:
             print(f"⚠️  Error loading InfluxDB config file: {e}")
@@ -38,6 +40,8 @@ def load_influxdb_config():
         "token": os.getenv("INFLUXDB_TOKEN", ""),
         "org": os.getenv("INFLUXDB_ORG", "default"),
         "bucket": os.getenv("INFLUXDB_BUCKET", "test-results"),
+        "project_name": os.getenv("PROJECT_NAME", "unknown"),
+        "auto_push": os.getenv("INFLUXDB_AUTO_PUSH", "false").lower() == "true",
     }
 
 
@@ -50,6 +54,8 @@ class AllureToInfluxDB:
         self.influx_token = influx_config["token"]
         self.influx_org = influx_config["org"]
         self.influx_bucket = influx_config["bucket"]
+        self.project_name = influx_config.get("project_name", "unknown")
+        self.auto_push = influx_config.get("auto_push", False)
         self.allure_results_dir = os.getenv("ALLURE_RESULTS_DIR", "./target/allure-results")
         self.build_id = os.getenv("BUILD_ID", "local")
         self.build_reason = os.getenv("BUILD_REASON", "Manual")
@@ -236,7 +242,7 @@ class AllureToInfluxDB:
         """Create InfluxDB line protocol points from metrics"""
         timestamp = int(datetime.now().timestamp() * 1e9)  # nanoseconds
 
-        tags = f'build_id="{self.build_id}",environment="{self.environment}",build_reason="{self.build_reason}"'
+        tags = f'build_id="{self.build_id}",environment="{self.environment}",build_reason="{self.build_reason}",project_name="{self.project_name}"'
 
         # Main test execution metrics
         points = [
