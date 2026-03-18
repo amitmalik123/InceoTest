@@ -5,7 +5,7 @@
     "workflow_mode": "parallel",
     "test_name": "Health check to determine if the service is healthy [positive] (TC001)",
     "protocol": "REST",
-    "test_type": ["Functional"],
+    "test_type": ["Functional", "Smoke"],
     "mainURL": "{{base_url}}",
     "endpoint": "/health/ready",
     "method": "GET",

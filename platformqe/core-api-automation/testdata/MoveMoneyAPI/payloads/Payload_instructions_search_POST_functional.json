@@ -1,0 +1,8 @@
+{
+    "accountIds": "{{accountIds}}",
+    "status": "{{status}}",
+    "holderRelationship": "{{holderRelationship}}",
+    "railTypes": "{{railTypes}}",
+    "page": "{{page}}",
+    "pageSize": "{{pageSize}}"
+}

@@ -2,7 +2,7 @@
   "name": "string",
   "modelType": "string",
   "solutionType": "string",
-  "custodian": [
+  "custodians": [
     "string"
   ],
   "investmentApproachId": "{{db_investment_approach_id}}",
@@ -13,7 +13,7 @@
       "id": 0
     }
   ],
-  "investmentMin": [
+  "investmentMins": [
     {
       "type": "System",
       "value": 2

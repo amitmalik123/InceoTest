@@ -5,7 +5,7 @@
     "workflow_mode": "parallel",
     "test_name": "POST /parties [positive] (TC001)",
     "protocol": "REST",
-    "test_type": ["Functional", "Business Logic"],
+    "test_type": ["Functional", "Smoke", "Business Logic"],
     "mainURL": "{{base_url}}",
     "endpoint": "/parties",
     "method": "POST",

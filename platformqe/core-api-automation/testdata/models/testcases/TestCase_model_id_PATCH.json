@@ -215,7 +215,7 @@
         "payload": [
             {
                 "op": "replace",
-                "path": "/custodian",
+                "path": "/custodians",
                 "value": [
                     "Fidelity"
                 ]
@@ -255,8 +255,8 @@
         "db_query": "",
         "db_type": "",
         "db_connection_name": "",
-        "test_summary": "Verify PATCH /model/{id} updates only the custodian field",
-        "test_scenario": "AC2: Request body is optional. AC3: Only custodian field is updated, all other fields remain unchanged."
+        "test_summary": "Verify PATCH /model/{id} updates only the custodians field",
+        "test_scenario": "AC2: Request body is optional. AC3: Only custodians field is updated, all other fields remain unchanged."
     },
     {
         "test_id": "TC004",
@@ -613,7 +613,7 @@
             },
             {
                 "op": "replace",
-                "path": "/custodian",
+                "path": "/custodians",
                 "value": [
                     "Schwab",
                     "TD Ameritrade"
@@ -654,8 +654,8 @@
         "db_query": "",
         "db_type": "",
         "db_connection_name": "",
-        "test_summary": "Verify PATCH updates solutionType and custodian array",
-        "test_scenario": "AC2: Verify updating solutionType and custodian, other fields remain unchanged."
+        "test_summary": "Verify PATCH updates solutionType and custodians array",
+        "test_scenario": "AC2: Verify updating solutionType and custodians, other fields remain unchanged."
     },
     {
         "test_id": "TC011",
@@ -695,7 +695,7 @@
             },
             {
                 "op": "replace",
-                "path": "/custodian",
+                "path": "/custodians",
                 "value": [
                     "Fidelity",
                     "Vanguard"
@@ -737,7 +737,7 @@
         "db_type": "",
         "db_connection_name": "",
         "test_summary": "Verify PATCH updates all core fields simultaneously",
-        "test_scenario": "AC2: Verify updating all core fields (name, modelType, solutionType, custodian, investmentApproachId) in single request."
+        "test_scenario": "AC2: Verify updating all core fields (name, modelType, solutionType, custodians, investmentApproachId) in single request."
     },
     {
         "test_id": "TC012",
@@ -889,7 +889,7 @@
         "payload": [
             {
                 "op": "replace",
-                "path": "/custodian",
+                "path": "/custodians",
                 "value": [
                     "Fidelity",
                     "Schwab",
@@ -932,8 +932,8 @@
         "db_query": "",
         "db_type": "",
         "db_connection_name": "",
-        "test_summary": "Verify PATCH replaces custodian array with multiple values",
-        "test_scenario": "AC2: Verify custodian array can be updated with multiple values."
+        "test_summary": "Verify PATCH replaces custodians array with multiple values",
+        "test_scenario": "AC2: Verify custodians array can be updated with multiple values."
     },
     {
         "test_id": "TC015",
@@ -972,7 +972,7 @@
             },
             {
                 "op": "replace",
-                "path": "/custodian",
+                "path": "/custodians",
                 "value": [
                     "Interactive Brokers"
                 ]
@@ -1013,7 +1013,7 @@
         "db_type": "",
         "db_connection_name": "",
         "test_summary": "Verify PATCH handles complex sequence of replace, remove, and add operations",
-        "test_scenario": "AC3: Verify sequential operations: replace name, remove investmentApproachId, add modelType, replace custodian."
+        "test_scenario": "AC3: Verify sequential operations: replace name, remove investmentApproachId, add modelType, replace custodians."
     },
     {
         "test_id": "TC016",
@@ -1053,7 +1053,7 @@
             },
             {
                 "op": "replace",
-                "path": "/custodian",
+                "path": "/custodians",
                 "value": [
                     "Fidelity",
                     "Schwab",
@@ -1078,7 +1078,7 @@
             },
             {
                 "op": "replace",
-                "path": "/investmentMin",
+                "path": "/investmentMins",
                 "value": [
                     {
                         "type": "System",
@@ -1198,7 +1198,7 @@
         "db_type": "postgresql",
         "db_connection_name": "models",
         "test_summary": "Verify PATCH updates all model fields including complex nested objects and arrays",
-        "test_scenario": "AC2: Comprehensive update of all model fields with DB validation - name, modelType, solutionType, custodian, investmentApproachId, benchmarks (with isPrimary=false), investmentMin, riskProfile, and metadata. Validates support for complex nested structures and array updates."
+        "test_scenario": "AC2: Comprehensive update of all model fields with DB validation - name, modelType, solutionType, custodians, investmentApproachId, benchmarks (with isPrimary=false), investmentMins, riskProfile, and metadata. Validates support for complex nested structures and array updates."
     },
     {
         "test_id": "TC017",
@@ -1238,7 +1238,7 @@
             },
             {
                 "op": "add",
-                "path": "/custodian",
+                "path": "/custodians",
                 "value": [
                     "E*TRADE",
                     "Interactive Brokers",
@@ -1268,7 +1268,7 @@
             },
             {
                 "op": "add",
-                "path": "/investmentMin",
+                "path": "/investmentMins",
                 "value": [
                     {
                         "type": "System",
@@ -1391,7 +1391,7 @@
         "db_type": "postgresql",
         "db_connection_name": "models",
         "test_summary": "Verify PATCH adds all model fields using add operation with DB validation",
-        "test_scenario": "AC3: Comprehensive add operation test with DB validation - adds name, modelType, solutionType, custodian (3 values), investmentApproachId, benchmarks (3 benchmarks with isPrimary=false), investmentMin (4 tiers), riskProfile, and metadata (12 custom fields). Validates support for add operation on complex nested structures and arrays."
+        "test_scenario": "AC3: Comprehensive add operation test with DB validation - adds name, modelType, solutionType, custodians (3 values), investmentApproachId, benchmarks (3 benchmarks with isPrimary=false), investmentMins (4 tiers), riskProfile, and metadata (12 custom fields). Validates support for add operation on complex nested structures and arrays."
     },
     {
         "test_id": "TC018",
@@ -1426,7 +1426,7 @@
             },
             {
                 "op": "replace",
-                "path": "/custodian",
+                "path": "/custodians",
                 "value": null
             },
             {
@@ -1436,7 +1436,7 @@
             },
             {
                 "op": "replace",
-                "path": "/investmentMin",
+                "path": "/investmentMins",
                 "value": null
             },
             {
@@ -1532,7 +1532,7 @@
         "db_type": "postgresql",
         "db_connection_name": "models",
         "test_summary": "Verify PATCH can set multiple fields to null with DB validation",
-        "test_scenario": "AC2: Verify ability to clear optional fields by setting them to null with DB validation - modelType, solutionType, custodian, investmentApproachId, benchmarks, investmentMin, riskProfile, and metadata. Validates null handling for both simple fields and complex nested objects/arrays."
+        "test_scenario": "AC2: Verify ability to clear optional fields by setting them to null with DB validation - modelType, solutionType, custodians, investmentApproachId, benchmarks, investmentMins, riskProfile, and metadata. Validates null handling for both simple fields and complex nested objects/arrays."
     },
     {
         "test_id": "TC019",

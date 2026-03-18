@@ -1,0 +1,5 @@
+environment,test_id,req_ssoguid,method,expected_status
+TSADEV,TC005,sso-guid-james-taylor-009,PUT,405
+TSADEV,TC005,sso-guid-james-taylor-009,POST,405
+TSADEV,TC005,sso-guid-james-taylor-009,PATCH,405
+TSADEV,TC005,sso-guid-james-taylor-009,DELETE,405

@@ -543,13 +543,13 @@
             },
             {
                 "from": "request",
-                "key": "custodian.0",
-                "assign_to": "tc002_expected_custodian_1"
+                "key": "custodians.0",
+                "assign_to": "tc002_expected_custodians_1"
             },
             {
                 "from": "request",
-                "key": "custodian.1",
-                "assign_to": "tc002_expected_custodian_2"
+                "key": "custodians.1",
+                "assign_to": "tc002_expected_custodians_2"
             },
             {
                 "from": "request",
@@ -558,7 +558,7 @@
             },
             {
                 "from": "request",
-                "key": "investmentMin.standard",
+                "key": "investmentMins.standard",
                 "assign_to": "tc002_expected_min_standard"
             },
             {
@@ -608,7 +608,7 @@
         "db_query": "",
         "db_type": "",
         "db_connection_name": "",
-        "test_summary": "Step 3: PUT /model - Comprehensive update of ALL model fields: name, type, solution, custodians, benchmarks, allocations, metadata",
+        "test_summary": "Step 3: PUT /model - Comprehensive update of ALL model fields: name, type, solution, custodianss, benchmarks, allocations, metadata",
         "test_scenario": "Replace entire model with completely new data across ALL fields, extract all sent values from request for verification"
     },
     {
@@ -665,13 +665,13 @@
             },
             {
                 "from": "response",
-                "key": "models.0.custodian.0",
-                "assign_to": "tc002_updated_custodian_1"
+                "key": "models.0.custodians.0",
+                "assign_to": "tc002_updated_custodians_1"
             },
             {
                 "from": "response",
-                "key": "models.0.custodian.1",
-                "assign_to": "tc002_updated_custodian_2"
+                "key": "models.0.custodians.1",
+                "assign_to": "tc002_updated_custodians_2"
             },
             {
                 "from": "response",
@@ -680,7 +680,7 @@
             },
             {
                 "from": "response",
-                "key": "models.0.investmentMin.type",
+                "key": "models.0.investmentMins.type",
                 "assign_to": "tc002_updated_min_standard"
             },
             {
@@ -767,16 +767,16 @@
                     "message": "Verify riskProfile matches the exact value sent in PUT request (Low Risk - Stable Returns)"
                 },
                 {
-                    "actual": "{{tc002_updated_custodian_1}}",
+                    "actual": "{{tc002_updated_custodians_1}}",
                     "operator": "==",
-                    "expected": "{{tc002_expected_custodian_1}}",
-                    "message": "Verify first custodian matches the value sent in PUT request (TD Ameritrade)"
+                    "expected": "{{tc002_expected_custodians_1}}",
+                    "message": "Verify first custodians matches the value sent in PUT request (TD Ameritrade)"
                 },
                 {
-                    "actual": "{{tc002_updated_custodian_2}}",
+                    "actual": "{{tc002_updated_custodians_2}}",
                     "operator": "==",
-                    "expected": "{{tc002_expected_custodian_2}}",
-                    "message": "Verify second custodian matches the value sent in PUT request (E*TRADE)"
+                    "expected": "{{tc002_expected_custodians_2}}",
+                    "message": "Verify second custodians matches the value sent in PUT request (E*TRADE)"
                 },
                 {
                     "actual": "{{tc002_updated_benchmarks_array}}",
@@ -788,7 +788,7 @@
                     "actual": "{{tc002_updated_min_standard}}",
                     "operator": "==",
                     "expected": "{{tc002_expected_min_standard}}",
-                    "message": "Verify investmentMin.standard matches the value sent in PUT request (25000)"
+                    "message": "Verify investmentMins.standard matches the value sent in PUT request (25000)"
                 },
                 {
                     "actual": "{{tc002_updated_ticker_1}}",
@@ -821,7 +821,7 @@
         "db_type": "",
         "db_connection_name": "",
         "test_summary": "Step 4: GET /models - Comprehensive verification that ALL model fields were successfully updated via PUT",
-        "test_scenario": "Final verification: Retrieve model and confirm ALL fields updated correctly - name, modelType, solutionType, riskProfile, custodians, benchmarks, investmentMin, allocations, metadata - comparing both against original values and exact sent values"
+        "test_scenario": "Final verification: Retrieve model and confirm ALL fields updated correctly - name, modelType, solutionType, riskProfile, custodianss, benchmarks, investmentMins, allocations, metadata - comparing both against original values and exact sent values"
     },
     {
         "test_id": "TC003",

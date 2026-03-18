@@ -27,7 +27,7 @@
           "solutionType": {
             "type": ["string", "null"]
           },
-          "custodian": {
+          "custodians": {
             "type": ["array","null"],
             "items": {
               "type": "string"
@@ -61,7 +61,7 @@
             "nullable": true,
             "default": null
           },
-          "investmentMin": {
+          "investmentMins": {
           "type": ["object", "null"],
           "additionalProperties": {
             "type": "integer",

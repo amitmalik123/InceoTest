@@ -5,7 +5,7 @@
     "workflow_mode": "parallel",
     "test_name": "GET /parties/{id} - verify DOB, DOD, EntityCreatedDate are date-only and match DB",
     "protocol": "REST",
-    "test_type": ["Functional", "Regression", "Smoke", "Business Logic"],
+    "test_type": ["Functional", "Regression", "Business Logic"],
     "mainURL": "{{base_url}}",
     "endpoint": "/parties/{{id}}",
     "method": "GET",
