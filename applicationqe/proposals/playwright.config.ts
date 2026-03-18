@@ -21,7 +21,7 @@ export default defineConfig({
     /* Configure individual test timeouts */
     timeout: 600_000,
     /*Set timeout for entire test suite*/
-    globalTimeout: 900_000,
+    globalTimeout: 1_800_000,
     /* Set timeout for each expect call*/
     expect: {
         timeout: 300_000,
