@@ -52,6 +52,9 @@ dependencies = [
 
     # Performance Monitoring (optional)
     "influxdb-client>=1.38.0"
+
+    #PyCryptodome to encrypt/decrypt credentials for email access
+    "pycryptodome>=3.20.0"
 ]
 
 [tool.setuptools.packages.find]
