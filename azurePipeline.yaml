@@ -48,11 +48,9 @@ parameters:
   - name: marker
     displayName: "Pytest Marker to Run"
     type: string
-    default: "add_ach"
+    default: "ES1_OAM_FullRegression"
     values:
-      - add_ach
-      - roth_conversion
-      - all_tests
+      - ES1_OAM_FullRegression
 
   - name: workers
     displayName: "Number of Parallel Workers"

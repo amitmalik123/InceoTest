@@ -145,7 +145,7 @@ markers = [
     "lighthouse: Lighthouse audit tests",
     "HappyPath: Happy path scenario",
     "ES1HappyPath1: ES1 Happy Path scenario 1",
-    "ES1_OAM: ES1 Full Regression"
+    "ES1_OAM_FullRegression: ES1 Full Regression"
 ]
 asyncio_mode = "strict"
 log_cli = true

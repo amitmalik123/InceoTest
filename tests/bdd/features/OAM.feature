@@ -1,4 +1,4 @@
-@ES1_OAM
+@ES1_OAM_FullRegression
 Feature: E2E OAM flow for FA, SAU and OA
 
   @smoke @regression
