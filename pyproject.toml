@@ -51,9 +51,9 @@ dependencies = [
     "PyPDF2>=3.0.0",
 
     # Performance Monitoring (optional)
-    "influxdb-client>=1.38.0"
+    "influxdb-client>=1.38.0",
 
-    #PyCryptodome to encrypt/decrypt credentials for email access
+    # PyCryptodome to encrypt and decrypt credentials for email access
     "pycryptodome>=3.20.0"
 ]
 
