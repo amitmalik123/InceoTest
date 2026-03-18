@@ -158,17 +158,12 @@ class AllureToInfluxDB:
             "passed": 0,
             "failed": 0,
             "skipped": 0,
-            "broken": 0,
             "flaky": 0,
             "retried": 0,
             "total_duration": 0,
-            "avg_duration": 0,
-            "max_duration": 0,
-            "min_duration": 0,
             "pass_rate": 0,
         }
 
-        durations = []
         status_counts = {}
         test_details = []
 
@@ -191,13 +186,9 @@ class AllureToInfluxDB:
                     test_details.append(f"  ✓ {test_name} [PASSED - FLAKY]")
                 else:
                     test_details.append(f"  ✓ {test_name} [PASSED]")
-            elif status == "failed":
+            elif status in ("failed", "broken"):
                 metrics["failed"] += 1
-                test_details.append(f"  ✗ {test_name} [FAILED]")
-            elif status == "broken":
-                # Broken is tracked separately, not added to failed
-                metrics["broken"] += 1
-                test_details.append(f"  ✗ {test_name} [BROKEN]")
+                test_details.append(f"  ✗ {test_name} [{status.upper()}]")
             elif status == "skipped":
                 metrics["skipped"] += 1
                 test_details.append(f"  - {test_name} [SKIPPED]")
@@ -211,17 +202,12 @@ class AllureToInfluxDB:
                 # Test has history - indicates retries
                 metrics["retried"] += 1
 
-            # Track duration
+            # Track duration (ms from Allure, convert to seconds)
             duration = test.get("stop", 0) - test.get("start", 0)
             metrics["total_duration"] += duration
-            if duration > 0:
-                durations.append(duration)
 
-        # Calculate duration statistics
-        if durations:
-            metrics["avg_duration"] = int(metrics["total_duration"] / len(durations))
-            metrics["max_duration"] = max(durations)
-            metrics["min_duration"] = min(durations)
+        # Convert total duration from ms to seconds
+        metrics["total_duration"] = round(metrics["total_duration"] / 1000, 2)
 
         # Calculate pass rate (excluding skipped tests from calculation)
         testable_total = metrics["total"] - metrics["skipped"]
@@ -251,14 +237,10 @@ class AllureToInfluxDB:
             f'passed={metrics["passed"]}i,'
             f'failed={metrics["failed"]}i,'
             f'skipped={metrics["skipped"]}i,'
-            f'broken={metrics["broken"]}i,'
             f'flaky={metrics["flaky"]}i,'
             f'retried={metrics["retried"]}i,'
             f'pass_rate={metrics["pass_rate"]:.2f},'
-            f'total_duration={metrics["total_duration"]}i,'
-            f'avg_duration={metrics["avg_duration"]}i,'
-            f'max_duration={metrics["max_duration"]}i,'
-            f'min_duration={metrics["min_duration"]}i '
+            f'total_duration={metrics["total_duration"]} '
             f"{timestamp}"
         ]
 
@@ -336,13 +318,9 @@ class AllureToInfluxDB:
         print(f"  Passed: {metrics['passed']}")
         print(f"  Failed: {metrics['failed']}")
         print(f"  Skipped: {metrics['skipped']}")
-        print(f"  Broken: {metrics['broken']}")
         print(f"  Flaky Tests: {metrics['flaky']}")
         print(f"  Pass Rate: {metrics['pass_rate']:.2f}%")
-        print(f"  Total Duration: {metrics['total_duration']}ms")
-        print(f"  Avg Duration: {metrics['avg_duration']}ms")
-        print(f"  Max Duration: {metrics['max_duration']}ms")
-        print(f"  Min Duration: {metrics['min_duration']}ms")
+        print(f"  Total Duration: {metrics['total_duration']}s")
 
         print("\n⚠️  Test Quality Metrics:")
         if metrics["total"] > 0:
