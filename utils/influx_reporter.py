@@ -78,10 +78,8 @@ class AllureToInfluxDB:
             return urls
 
         base_url = f"{self.system_team_foundation_collection_uri.rstrip('/')}/{self.system_team_project}/_build/results"
-        artifacts = ["PlaywrightReport", "AllureReport", "AllureResults", "TestResults"]
 
-        for artifact in artifacts:
-            urls[artifact] = f"{base_url}?buildId={self.build_buildid}&artifactName={artifact}"
+        urls["AllureReport"] = f"{base_url}?buildId={self.build_buildid}&artifactName=AllureReport"
 
         return urls
 
