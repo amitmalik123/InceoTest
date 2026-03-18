@@ -13,6 +13,8 @@ from typing import Any, Dict, List
 from influxdb_client import InfluxDBClient
 from influxdb_client.client.write_api import SYNCHRONOUS
 
+from utils.crypto_utils import decrypt_value
+
 
 def load_influxdb_config():
     """Load InfluxDB configuration from config file or environment variables"""
@@ -25,7 +27,7 @@ def load_influxdb_config():
                 config = json.load(f)
                 return {
                     "url": config.get("influxdb_url", "http://localhost:8086"),
-                    "token": config.get("influxdb_token", ""),
+                    "token": decrypt_value(config.get("influxdb_token", "")),
                     "org": config.get("influxdb_org", "default"),
                     "bucket": config.get("influxdb_bucket", "test-results"),
                     "project_name": config.get("project_name", "unknown"),

@@ -418,26 +418,6 @@ jobs:
     continueOnError: true
 
   - script: |
-      if [ -f "$(testResultsDir)/auto_healing_report.json" ]; then
-        echo "##vso[task.setvariable variable=autoHealReportExists]true"
-      else
-        echo "Auto-healing report not found (no locators needed healing). Skipping publish."
-        echo "##vso[task.setvariable variable=autoHealReportExists]false"
-      fi
-    displayName: "Check Auto-Healing Report"
-    condition: always()
-    continueOnError: true
-
-  - task: PublishBuildArtifacts@1
-    displayName: "Publish Auto-Healing Report"
-    inputs:
-      PathtoPublish: '$(testResultsDir)/auto_healing_report.json'
-      ArtifactName: 'AutoHealingReport'
-      publishLocation: 'Container'
-    condition: and(always(), eq(variables['autoHealReportExists'], 'true'))
-    continueOnError: true
-
-  - script: |
       echo "✓ Test Execution Complete"
       echo "Reports are available in the build artifacts:"
       echo "  - Pytest HTML Report: PytestReport"

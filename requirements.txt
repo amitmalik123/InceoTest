@@ -12,6 +12,9 @@ bandit==1.7.7
 black==24.3.0
 chromadb>=0.5.0
 coverage[toml]==7.4.4
+
+# Encryption (for config token encryption)
+cryptography>=42.0.0
 flake8==7.0.0
 flake8-bugbear==24.2.6
 flake8-comprehensions==3.14.0
