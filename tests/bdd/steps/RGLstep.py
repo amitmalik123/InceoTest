@@ -12,8 +12,40 @@ logger = get_allure_logger(__name__)
 
 
 @when(parsers.parse('user navigates to the RGL page "{client_name}"'))
-def navigate_to_rgl_page(page: Page, client_name: str):
+def navigate_to_rgl_page(page: Page, client_name: str, test_context):
+	row_data = test_context.get("excel_row_data") or {}
+	excel_client_name = row_data.get("ClientName")
+	if excel_client_name is not None and str(excel_client_name).strip() != "":
+		excel_client_name = str(excel_client_name).strip()
+		feature_client_name = client_name.strip()
+		is_excel_placeholder = feature_client_name.lower() in {"clientname", "client name"}
+		if (
+			not feature_client_name.lower().startswith("source:")
+			and not is_excel_placeholder
+			and feature_client_name != excel_client_name
+		):
+			raise AssertionError(
+				f"Client name mismatch: feature='{client_name}' excel='{excel_client_name}'"
+			)
+		client_name = excel_client_name
+
 	logger.info(f"Navigating to RGL page for client: {client_name}")
+	rgl_page = RGLPage(page)
+	rgl_page.navigate_to_gain_loss_page(client_name)
+
+
+@when("user navigates to the RGL page")
+def navigate_to_rgl_page_from_excel_row(page: Page, test_context):
+	row_data = test_context.get("excel_row_data") or {}
+	client_name = row_data.get("ClientName")
+	if client_name is None or str(client_name).strip() == "":
+		raise ValueError(
+			"ClientName is missing in excel row data. "
+			"Provide a row with 'ClientName' value in the Excel sheet."
+		)
+
+	client_name = str(client_name).strip()
+	logger.info(f"Navigating to RGL page from Excel row for client: {client_name}")
 	rgl_page = RGLPage(page)
 	rgl_page.navigate_to_gain_loss_page(client_name)
 

@@ -12,8 +12,40 @@ logger = get_allure_logger(__name__)
 
 
 @when(parsers.parse('user navigates to the TMS page "{account_number}"'))
-def navigate_to_tms_page(page: Page, account_number: str):
+def navigate_to_tms_page(page: Page, account_number: str, test_context):
+    row_data = test_context.get("excel_row_data") or {}
+    excel_account_number = row_data.get("AccountNumber")
+    if excel_account_number is not None and str(excel_account_number).strip() != "":
+        excel_account_number = str(excel_account_number).strip()
+        feature_account_number = account_number.strip()
+        is_excel_placeholder = feature_account_number.lower() in {"accountnumber", "account number"}
+        if (
+            not feature_account_number.lower().startswith("source:")
+            and not is_excel_placeholder
+            and feature_account_number != excel_account_number
+        ):
+            raise AssertionError(
+                f"Account number mismatch: feature='{account_number}' excel='{excel_account_number}'"
+            )
+        account_number = excel_account_number
+
     logger.info(f"Navigating to TMS page for account number: {account_number}")
+    tms_page = TMSPage(page)
+    tms_page.navigate_to_tms_page(account_number)
+
+
+@when("user navigates to the TMS page")
+def navigate_to_tms_page_from_excel_row(page: Page, test_context):
+    row_data = test_context.get("excel_row_data") or {}
+    account_number = row_data.get("AccountNumber")
+    if account_number is None or str(account_number).strip() == "":
+        raise ValueError(
+            "AccountNumber is missing in excel row data. "
+            "Provide a row with 'AccountNumber' value in the Excel sheet."
+        )
+
+    account_number = str(account_number).strip()
+    logger.info(f"Navigating to TMS page from Excel row for account number: {account_number}")
     tms_page = TMSPage(page)
     tms_page.navigate_to_tms_page(account_number)
 

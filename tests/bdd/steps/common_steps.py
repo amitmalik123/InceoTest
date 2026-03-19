@@ -8,6 +8,23 @@ from utils.allure_logger import get_allure_logger
 logger = get_allure_logger(__name__)
 
 
+def _excel_row(excel_data_manager, sheet_name: str, row_number: int) -> dict:
+    if row_number < 2:
+        raise ValueError(
+            f"Invalid RowNumber '{row_number}' for sheet '{sheet_name}'. "
+            "Use Excel row numbers starting at 2 (first data row)."
+        )
+    return excel_data_manager.get_row(sheet_name, row_number - 2)
+
+
+def _first_non_empty(row_data: dict, keys: list[str]) -> str | None:
+    for key in keys:
+        value = row_data.get(key)
+        if value is not None and str(value).strip() != "":
+            return str(value).strip()
+    return None
+
+
 # ============================================================================
 # Scalable Multi-User Data Access Steps
 # ============================================================================
@@ -138,3 +155,27 @@ def login_and_impersonate_agent(authenticated_page, agent_id: str):
         authenticated_page.wait_for_load_state("domcontentloaded", timeout=30000)
 
     logger.info(f"Impersonation completed for agent: {agent_id}")
+
+
+@given(
+    parsers.parse(
+        'User should login to the application and impersonate into an agent "{sheet_name}" , {row_number:d}'
+    )
+)
+def login_and_impersonate_agent_from_excel(
+    authenticated_page, excel_data_manager, test_context, sheet_name: str, row_number: int
+):
+    row_data = _excel_row(excel_data_manager, sheet_name, row_number)
+    test_context["excel_row_data"] = row_data
+
+    agent_id = _first_non_empty(row_data, ["UserName", "Username", "Agentid", "AgentId"])
+    if not agent_id:
+        raise ValueError(
+            f"Could not resolve agent id from Excel sheet '{sheet_name}' row {row_number}. "
+            "Expected one of columns: UserName, Username, Agentid, AgentId"
+        )
+
+    logger.info(
+        f"Using Excel row for login - Sheet: {sheet_name}, Row: {row_number}, Agent: {agent_id}"
+    )
+    login_and_impersonate_agent(authenticated_page, agent_id)
