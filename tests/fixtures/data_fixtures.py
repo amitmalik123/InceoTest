@@ -70,12 +70,12 @@ class TestDataManager:
     def get_scenarios(self) -> List[str]:
         """Get list of unique test scenarios"""
         return list(
-            {row.get("test_scenario", "") for row in self._data if row.get("test_scenario")}
+            {row.get("scenario", "") for row in self._data if row.get("scenario")}
         )
 
     def get_user_types(self) -> List[str]:
         """Get list of unique user types"""
-        return list({row.get("user_type", "") for row in self._data if row.get("user_type")})
+        return list({row.get("role", "") for row in self._data if row.get("role")})
 
     def __len__(self):
         """Return number of data rows"""

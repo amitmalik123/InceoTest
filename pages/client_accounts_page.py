@@ -492,7 +492,7 @@ class ClientAccountsPage(BasePage):
             
             # Step 4: Wait for navigation/dialog to close
             logger.info("  Step 4: Waiting for page to load after clicking Continue...")
-            self.page.wait_for_load_state("networkidle", timeout=5000)
+            self.page.wait_for_load_state("domcontentloaded", timeout=10000)
             logger.info("  ✓ Page loaded after Continue click")
             
             logger.info("✓ Successfully clicked Continue button on Signer(s) Information dialog")

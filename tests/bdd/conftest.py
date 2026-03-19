@@ -52,6 +52,7 @@ def test_data(test_data_manager, request) -> dict:
         print(f"[TEST DATA] Role: {data.get('role')}")
         print(f"[TEST DATA] Username: {data.get('username')}")
         print(f"[TEST DATA] Client ID: {data.get('client_id')}")
+        print(f"[TEST DATA] Account Number: {data.get('account_number')}")
         print(f"{'=' * 60}")
         return data
     else:

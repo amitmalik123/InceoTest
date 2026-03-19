@@ -6,7 +6,7 @@ Feature: E2E OAM flow for FA, SAU and OA
     When User navigate to Clients menu
     And User click on Account List
     And User is on the Account List tab and search for Account Number
-    And User should click on searched account and navigate to account wizard page
+    And User click on searched account and navigate to account wizard page
     Then Account Number is displayed and radio button is selected
     When User select OAM Request and Type
     Then Verify Form Heading must be same as selected OAM Type
@@ -34,7 +34,7 @@ Feature: E2E OAM flow for FA, SAU and OA
     When User navigate to Clients menu
     And User click on Account List
     And User is on the Account List tab and search for Account Number
-    And User should click on searched account and navigate to account wizard page
+    And User click on searched account and navigate to account wizard page
     Then Account Number is displayed and radio button is selected
     When User select OAM Request and Type
     Then Verify Form Heading must be same as selected OAM Type
@@ -66,7 +66,7 @@ Feature: E2E OAM flow for FA, SAU and OA
 #   Scenario: OAM_Initiated by SAU_Online Submit_Authorized Signer_Required_FA
 #     When User navigate to Clients menu
 #     And User click on Account List
-#     And User is on the Account List tab and search for Account Number
+#     And User is on the Account List tab and search for Client ID
 #     And User should click on searched account and navigate to account wizard page
 #     And User select OAM Request and Type
 #     And User select Submission Type

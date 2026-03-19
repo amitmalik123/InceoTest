@@ -228,7 +228,8 @@ class AllureToInfluxDB:
         """Create InfluxDB line protocol points from metrics"""
         timestamp = int(datetime.now().timestamp() * 1e9)  # nanoseconds
 
-        tags = f'build_id="{self.build_id}",environment="{self.environment}",build_reason="{self.build_reason}",project_name="{self.project_name}"'
+        #tags = f'build_id="{self.build_id}",environment="{self.environment}",build_reason="{self.build_reason}",project_name="{self.project_name}"'
+        tags = f'build_id={self.build_id},environment={self.environment},build_reason={self.build_reason},project_name={self.project_name}'
 
         # Main test execution metrics
         points = [

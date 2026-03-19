@@ -17,13 +17,16 @@ from pages.account_wizard_page import AccountWizardPage
 from pages.add_ach_instruction import AddACHInstructionPage
 from pages.api_utility_page import APIUtilityPage
 from pages.change_investments_page import ChangeInvestmentsPage
+from pages.client_accounts_page import ClientAccountsPage
 from pages.clients_page import ClientsPage
+from pages.docusign_page import DocuSignPage
 from pages.dmtool_page import DMToolPage
 from pages.login_page import LoginPage
 from pages.manage_instruction_1_page import ManageInstruction1Page
 from pages.manage_instruction_2_page import ManageInstruction2Page
 from pages.roth_conversion_page import RothConversionPage
 from pages.tracking_center_page import TrackingCenterPage
+from pages.trackingCenter_ItemDetail_page import TrackingCenterItemDetailPage
 
 # Resolve base_url once from the active environment config
 _base_url = get_settings().base_url
@@ -42,9 +45,21 @@ def clients_page(authenticated_page: Page) -> ClientsPage:
 
 
 @pytest.fixture
+def client_accounts_page(authenticated_page: Page) -> ClientAccountsPage:
+    """Client accounts page object fixture"""
+    return ClientAccountsPage(authenticated_page, base_url=_base_url)
+
+
+@pytest.fixture
 def dmtool_page(authenticated_page: Page) -> DMToolPage:
     """DMTool page object fixture"""
     return DMToolPage(authenticated_page)
+
+
+@pytest.fixture
+def docusign_page(authenticated_page: Page) -> DocuSignPage:
+    """DocuSign page object fixture"""
+    return DocuSignPage(authenticated_page, base_url=_base_url)
 
 
 @pytest.fixture
@@ -115,3 +130,15 @@ def account_management_page(authenticated_page: Page) -> AccountManagementPage:
 def tracking_center_page(authenticated_page: Page) -> TrackingCenterPage:
     """Tracking center page object fixture"""
     return TrackingCenterPage(authenticated_page, base_url=_base_url)
+
+
+@pytest.fixture
+def tracking_center_item_detail_page(authenticated_page: Page) -> TrackingCenterItemDetailPage:
+    """Tracking center item detail page object fixture"""
+    return TrackingCenterItemDetailPage(authenticated_page, base_url=_base_url)
+
+
+@pytest.fixture
+def trackingCenter_ItemDetail_page(authenticated_page: Page) -> TrackingCenterItemDetailPage:
+    """Tracking center item detail page object fixture (camelCase alias)"""
+    return TrackingCenterItemDetailPage(authenticated_page, base_url=_base_url)

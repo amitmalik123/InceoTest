@@ -4,6 +4,7 @@ from pages.clients_page import ClientsPage
 from pages.account_list_page import AccountListPage
 from utils.allure_logger import get_allure_logger
 from utils.assertions import Assertions
+from pages.account_detail_page import AccountDetailPage
 
 logger = get_allure_logger(__name__)
 
@@ -49,13 +50,30 @@ def click_on_account_list(authenticated_page: Page, clients_page: ClientsPage, s
 
     logger.info(f"Account List page loaded - URL: {authenticated_page.url}")
 
+
 @when("User is on the Account List tab and search for Account Number")
-def user_is_on_account_list_tab_and_search_for_account_number(
+def search_for_account_number(
     authenticated_page: Page, account_list_page: AccountListPage, test_context
 ):
-    """User is on the Account List tab and search for Account Number - calls verify_account_list_page_loaded_and_search"""
-    from tests.bdd.steps.navigation_steps import verify_account_list_page_loaded_and_search
-    verify_account_list_page_loaded_and_search(authenticated_page, account_list_page, test_context)
+    account_number = test_context["test_data"]["account_number"]
+    logger.info(
+        f"Account list loaded at {authenticated_page.url} - Searching for account: {account_number}"
+    )
+    account_list_page.search_account(account_number)
+
+@when("User click on searched account and navigate to account wizard page")
+def click_searched_account_and_navigate_to_wizard(
+    authenticated_page: Page,
+    account_list_page: AccountListPage,
+    account_detail_page: AccountDetailPage,
+    test_context,
+):
+    """Click on searched account and navigate to account wizard page"""
+    logger.info(f"Selecting account and navigating to wizard from {authenticated_page.url}")
+    account_list_page.select_account(
+        test_context["test_data"]["account_name"], test_context["test_data"]["account_number"]
+    )
+    account_detail_page.click_account_wizard()
 
 @then("I should see the Account Detail page")
 def verify_account_detail_page_loaded(authenticated_page: Page, account_detail_page):
@@ -63,3 +81,5 @@ def verify_account_detail_page_loaded(authenticated_page: Page, account_detail_p
     logger.info("Verifying Account Detail page is loaded")
     account_detail_page.navigate()
     authenticated_page.wait_for_load_state("domcontentloaded")
+
+

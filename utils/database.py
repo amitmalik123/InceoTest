@@ -700,8 +700,8 @@ def fetch_agent_name_by_aplid_from_db(aplid: str, role: str) -> Optional[str]:
         
         logger.info(f"Query found: agent.{query_name}")
         
-        # Step 6: Get configured SQL Server connection (agent data is in AM database)
-        db = get_configured_sql_server(database="AM")
+        # Step 6: Get configured SQL Server connection (agent data is in AM database, accessed via billing vault alias)
+        db = get_configured_db("billing", database="AM")
         db.connect()
         logger.info("✓ Connected to AM database")
         

@@ -54,6 +54,39 @@ class AccountListPage(BasePage):
 
         logger.info(f"Search completed for client: {client_id}")
 
+    def search_account(self, account_number: str, click_header: Optional[str] = None) -> None:
+        logger.info(f"Searching for account: {account_number}")
+
+        try:
+            search_input = self.page.locator("#client_search_input")
+            search_input.wait_for(state="visible", timeout=30000)
+            self.fill(search_input, account_number)
+            logger.info(f"Filled account number: {account_number}")
+        except Exception as e:
+            logger.error(f"Search input not found: {e}")
+            self.page.screenshot(
+                path=f"reports/account_list_search_input_not_found_{account_number}.png"
+            )
+            raise Exception(f"Search input not found for account {account_number}")
+
+        try:
+            search_button = self.page.locator("form.client_search button#searchbutton")
+            search_button.wait_for(state="visible", timeout=30000)
+            self.click(search_button)
+            logger.info("Clicked search button")
+        except Exception as e:
+            logger.error(f"Search button not found or not clickable: {e}")
+            self.page.screenshot(
+                path=f"reports/account_list_search_button_not_found_{account_number}.png"
+            )
+            raise Exception(f"Search button not found or not clickable for account {account_number}")
+
+        after_path = f"reports/account_list_after_search_{account_number}.png"
+        self.page.screenshot(path=after_path)
+        logger.info(f"Screenshot saved: {after_path}")
+
+        logger.info(f"Search completed for account: {account_number}")
+
     def select_account(self, account_name: str, client_id: Optional[str] = None) -> None:
         logger.info(f"Selecting account: {account_name} (Client ID: {client_id})")
 

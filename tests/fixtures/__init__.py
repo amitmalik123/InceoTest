@@ -41,13 +41,17 @@ from tests.fixtures.page_fixtures import (
     add_ach_instruction_page,
     api_utility_page,
     change_investments_page,
+    client_accounts_page,
     clients_page,
     dmtool_page,
+    docusign_page,
     login_page,
     manage_instruction_1_page,
     manage_instruction_2_page,
     roth_conversion_page,
     tracking_center_page,
+    tracking_center_item_detail_page,
+    trackingCenter_ItemDetail_page,
 )
 
 __all__ = [
@@ -74,6 +78,8 @@ __all__ = [
     # pages
     "login_page",
     "clients_page",
+    "client_accounts_page",
+    "docusign_page",
     "dmtool_page",
     "account_list_page",
     "api_utility_page",
@@ -86,4 +92,6 @@ __all__ = [
     "change_investments_page",
     "roth_conversion_page",
     "tracking_center_page",
+    "tracking_center_item_detail_page",
+    "trackingCenter_ItemDetail_page",
 ]
