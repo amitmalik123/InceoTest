@@ -1,4 +1,4 @@
-@ES1_OAM_FullRegression
+@ES1_OAM_Regression
 Feature: E2E OAM flow for FA, SAU and OA
 
   @smoke @regression
@@ -29,7 +29,7 @@ Feature: E2E OAM flow for FA, SAU and OA
     And Verify Agent Name
     And Verify the Routing Order in database
 
-  @ES1HappyPath1
+  @ES1HappyPath1 @smoke @regression
   Scenario: OAM_Initiated by SAU_Online Submit_Authorized Signer_Not_Required
     When User navigate to Clients menu
     And User click on Account List
