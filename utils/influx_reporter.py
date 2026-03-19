@@ -13,6 +13,8 @@ from typing import Any, Dict, List
 from influxdb_client import InfluxDBClient
 from influxdb_client.client.write_api import SYNCHRONOUS
 
+from utils.crypto_utils import decrypt_value
+
 
 def load_influxdb_config():
     """Load InfluxDB configuration from config file or environment variables"""
@@ -25,9 +27,11 @@ def load_influxdb_config():
                 config = json.load(f)
                 return {
                     "url": config.get("influxdb_url", "http://localhost:8086"),
-                    "token": config.get("influxdb_token", ""),
+                    "token": decrypt_value(config.get("influxdb_token", "")),
                     "org": config.get("influxdb_org", "default"),
                     "bucket": config.get("influxdb_bucket", "test-results"),
+                    "project_name": config.get("project_name", "unknown"),
+                    "auto_push": config.get("auto_push", False),
                 }
         except Exception as e:
             print(f"⚠️  Error loading InfluxDB config file: {e}")
@@ -38,6 +42,8 @@ def load_influxdb_config():
         "token": os.getenv("INFLUXDB_TOKEN", ""),
         "org": os.getenv("INFLUXDB_ORG", "default"),
         "bucket": os.getenv("INFLUXDB_BUCKET", "test-results"),
+        "project_name": os.getenv("PROJECT_NAME", "unknown"),
+        "auto_push": os.getenv("INFLUXDB_AUTO_PUSH", "false").lower() == "true",
     }
 
 
@@ -50,6 +56,8 @@ class AllureToInfluxDB:
         self.influx_token = influx_config["token"]
         self.influx_org = influx_config["org"]
         self.influx_bucket = influx_config["bucket"]
+        self.project_name = influx_config.get("project_name", "unknown")
+        self.auto_push = influx_config.get("auto_push", False)
         self.allure_results_dir = os.getenv("ALLURE_RESULTS_DIR", "./target/allure-results")
         self.build_id = os.getenv("BUILD_ID", "local")
         self.build_reason = os.getenv("BUILD_REASON", "Manual")
@@ -70,10 +78,8 @@ class AllureToInfluxDB:
             return urls
 
         base_url = f"{self.system_team_foundation_collection_uri.rstrip('/')}/{self.system_team_project}/_build/results"
-        artifacts = ["PlaywrightReport", "AllureReport", "AllureResults", "TestResults"]
 
-        for artifact in artifacts:
-            urls[artifact] = f"{base_url}?buildId={self.build_buildid}&artifactName={artifact}"
+        urls["AllureReport"] = f"{base_url}?buildId={self.build_buildid}&artifactName=AllureReport"
 
         return urls
 
@@ -152,17 +158,12 @@ class AllureToInfluxDB:
             "passed": 0,
             "failed": 0,
             "skipped": 0,
-            "broken": 0,
             "flaky": 0,
             "retried": 0,
             "total_duration": 0,
-            "avg_duration": 0,
-            "max_duration": 0,
-            "min_duration": 0,
             "pass_rate": 0,
         }
 
-        durations = []
         status_counts = {}
         test_details = []
 
@@ -185,13 +186,9 @@ class AllureToInfluxDB:
                     test_details.append(f"  ✓ {test_name} [PASSED - FLAKY]")
                 else:
                     test_details.append(f"  ✓ {test_name} [PASSED]")
-            elif status == "failed":
+            elif status in ("failed", "broken"):
                 metrics["failed"] += 1
-                test_details.append(f"  ✗ {test_name} [FAILED]")
-            elif status == "broken":
-                # Broken is tracked separately, not added to failed
-                metrics["broken"] += 1
-                test_details.append(f"  ✗ {test_name} [BROKEN]")
+                test_details.append(f"  ✗ {test_name} [{status.upper()}]")
             elif status == "skipped":
                 metrics["skipped"] += 1
                 test_details.append(f"  - {test_name} [SKIPPED]")
@@ -205,17 +202,12 @@ class AllureToInfluxDB:
                 # Test has history - indicates retries
                 metrics["retried"] += 1
 
-            # Track duration
+            # Track duration (ms from Allure, convert to seconds)
             duration = test.get("stop", 0) - test.get("start", 0)
             metrics["total_duration"] += duration
-            if duration > 0:
-                durations.append(duration)
 
-        # Calculate duration statistics
-        if durations:
-            metrics["avg_duration"] = int(metrics["total_duration"] / len(durations))
-            metrics["max_duration"] = max(durations)
-            metrics["min_duration"] = min(durations)
+        # Convert total duration from ms to seconds
+        metrics["total_duration"] = round(metrics["total_duration"] / 1000, 2)
 
         # Calculate pass rate (excluding skipped tests from calculation)
         testable_total = metrics["total"] - metrics["skipped"]
@@ -236,7 +228,7 @@ class AllureToInfluxDB:
         """Create InfluxDB line protocol points from metrics"""
         timestamp = int(datetime.now().timestamp() * 1e9)  # nanoseconds
 
-        tags = f'build_id="{self.build_id}",environment="{self.environment}",build_reason="{self.build_reason}"'
+        tags = f'build_id="{self.build_id}",environment="{self.environment}",build_reason="{self.build_reason}",project_name="{self.project_name}"'
 
         # Main test execution metrics
         points = [
@@ -245,14 +237,10 @@ class AllureToInfluxDB:
             f'passed={metrics["passed"]}i,'
             f'failed={metrics["failed"]}i,'
             f'skipped={metrics["skipped"]}i,'
-            f'broken={metrics["broken"]}i,'
             f'flaky={metrics["flaky"]}i,'
             f'retried={metrics["retried"]}i,'
             f'pass_rate={metrics["pass_rate"]:.2f},'
-            f'total_duration={metrics["total_duration"]}i,'
-            f'avg_duration={metrics["avg_duration"]}i,'
-            f'max_duration={metrics["max_duration"]}i,'
-            f'min_duration={metrics["min_duration"]}i '
+            f'total_duration={metrics["total_duration"]} '
             f"{timestamp}"
         ]
 
@@ -330,13 +318,9 @@ class AllureToInfluxDB:
         print(f"  Passed: {metrics['passed']}")
         print(f"  Failed: {metrics['failed']}")
         print(f"  Skipped: {metrics['skipped']}")
-        print(f"  Broken: {metrics['broken']}")
         print(f"  Flaky Tests: {metrics['flaky']}")
         print(f"  Pass Rate: {metrics['pass_rate']:.2f}%")
-        print(f"  Total Duration: {metrics['total_duration']}ms")
-        print(f"  Avg Duration: {metrics['avg_duration']}ms")
-        print(f"  Max Duration: {metrics['max_duration']}ms")
-        print(f"  Min Duration: {metrics['min_duration']}ms")
+        print(f"  Total Duration: {metrics['total_duration']}s")
 
         print("\n⚠️  Test Quality Metrics:")
         if metrics["total"] > 0:

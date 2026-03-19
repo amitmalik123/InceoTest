@@ -59,6 +59,8 @@ parameters:
       - msedge
       - both
 
+variables:
+  azureSubscription: 'TEST Foundation (9156b16c-8a2e-4b7d-a886-e772dc017316)'  # ← Replace with your Azure DevOps service connection name
 # -----------------------------
 # Job Section
 # -----------------------------
@@ -76,10 +78,9 @@ jobs:
     allureReportDir: '$(Build.SourcesDirectory)/reports/allure-report'
     allureToolsDir: '$(Build.ArtifactStagingDirectory)/allure-tools'
     testResultsDir: '$(Build.SourcesDirectory)/reports'
-    INFLUXDB_URL: 'http://azncc03perf.corp.local:8086'
-    INFLUXDB_ORG: 'MF'
-    INFLUXDB_BUCKET: 'AutomationData'
-    INFLUXDB_TOKEN: 'g5gf0ukY8fPdwaWynLviDLd0wz1l5snomLbip3t2IrQkeNNkiEFYECEHlcJLwsAPvv2Gx-op4ho6QcpVsCpdGQ=='
+    # Azure Key Vault configuration
+    keyVaultName: 'amkkvqapipeline-testncus'           # ← Replace with your Key Vault name
+
 
   steps:
   - checkout: self
@@ -296,12 +297,27 @@ jobs:
     displayName: "Run Pytest BDD Tests with Allure"
     continueOnError: true
     env:
+<<<<<<< HEAD
       ADMIN_USERNAME: $(ADMIN_USERNAME)
       ADMIN_PASSWORD: $(ADMIN_PASSWORD)
       INFLUXDB_URL: $(INFLUXDB_URL)
       INFLUXDB_TOKEN: $(INFLUXDB_TOKEN)
       INFLUXDB_ORG: $(INFLUXDB_ORG)
       INFLUXDB_BUCKET: $(INFLUXDB_BUCKET)
+=======
+      WORK_ITEM_AUTH_TOKEN: $(WORK_ITEM_AUTH_TOKEN)
+      PARTIES_AUTH_TOKEN: $(PARTIES_AUTH_TOKEN)
+      INFLUXDB_AUTO_PUSH: 'false'  # Pipeline has its own dedicated push step
+      # Azure Key Vault env vars for Python AzureKeyVaultClient
+      AZURE_KEY_VAULT_URL: https://$(keyVaultName).vault.azure.net/
+      # ── Connection strings: AzureKeyVault@2 fetches secrets → mapped to env vars ──
+      # Python reads these via os.getenv() — no direct Key Vault API calls.
+      TRANSFER_CONNECTION_STRING: $(transfer-connection-string)
+      ACCOUNTDISTRIBUTIONS_CONNECTION_STRING: $(accoundistributions-connection-string)
+      CRM_DB_CONNECTION_STRING: $(crm-db-connection-string)
+      AM_BILLING_CONNECTION_STRING: $(am-billing-connection-string)
+      API_AUTH_TOKEN: $(test11-api-auth-token)
+>>>>>>> qeautomation/application/baseBranch
 
   - script: |
       echo "Checking Allure Results Directory..."
@@ -349,10 +365,6 @@ jobs:
 
   - script: |
       echo "Pushing test metrics to InfluxDB..."
-      export INFLUXDB_URL="${INFLUXDB_URL}"
-      export INFLUXDB_TOKEN="${INFLUXDB_TOKEN}"
-      export INFLUXDB_ORG="${INFLUXDB_ORG}"
-      export INFLUXDB_BUCKET="${INFLUXDB_BUCKET}"
       export ALLURE_RESULTS_DIR="$(allureResultsDir)"
       export ENVIRONMENT="$(environment)"
       export BUILD_ID="$(Build.BuildId)"
@@ -362,11 +374,6 @@ jobs:
     displayName: "Push Metrics to InfluxDB"
     condition: always()
     continueOnError: true
-    env:
-      INFLUXDB_URL: $(INFLUXDB_URL)
-      INFLUXDB_TOKEN: $(INFLUXDB_TOKEN)
-      INFLUXDB_ORG: $(INFLUXDB_ORG)
-      INFLUXDB_BUCKET: $(INFLUXDB_BUCKET)
 
   - task: PublishBuildArtifacts@1
     displayName: "Publish Test Results Directory"
@@ -385,39 +392,6 @@ jobs:
       mergeTestResults: true
       failTaskOnFailedTests: false
       publishRunAttachments: true
-    condition: always()
-    continueOnError: true
-
-  - task: PublishBuildArtifacts@1
-    displayName: "Publish Pytest HTML Report"
-    inputs:
-      PathtoPublish: '$(testResultsDir)'
-      ArtifactName: 'PytestReport'
-      publishLocation: 'Container'
-    condition: always()
-
-  - task: PublishBuildArtifacts@1
-    displayName: "Publish Allure Report"
-    inputs:
-      PathtoPublish: '$(allureReportDir)'
-      ArtifactName: 'AllureReport'
-      publishLocation: 'Container'
-    condition: always()
-
-  - task: PublishBuildArtifacts@1
-    displayName: "Publish Allure Results Data"
-    inputs:
-      PathtoPublish: '$(allureResultsDir)'
-      ArtifactName: 'AllureResults'
-      publishLocation: 'Container'
-    condition: always()
-
-  - task: PublishBuildArtifacts@1
-    displayName: "Publish Auto-Healing Report"
-    inputs:
-      PathtoPublish: '$(testResultsDir)/auto_healing_report.json'
-      ArtifactName: 'AutoHealingReport'
-      publishLocation: 'Container'
     condition: always()
     continueOnError: true
 
