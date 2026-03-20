@@ -16,6 +16,9 @@ def navigate_to_clients_menu(authenticated_page: Page, clients_page: ClientsPage
     logger.info("Navigating to clients menu")
     clients_page.navigate()
     clients_page.click_clients()
+    
+    # Wait for page navigation to complete after clicking (using BasePage utility)
+    clients_page.wait_for_load_state("domcontentloaded", timeout=10000)
 
     # Hard assertions - fail immediately if critical navigation broke
     Assertions.assert_true(
@@ -27,9 +30,9 @@ def navigate_to_clients_menu(authenticated_page: Page, clients_page: ClientsPage
     )
 
     # Soft assertions - collect UI checks, reported together at test end
-    soft_assert.assert_true(clients_page.clients_link.is_visible(), "Clients link not visible")
+    soft_assert.assert_true(clients_page.is_visible(clients_page.clients_link), "Clients link not visible")
     soft_assert.assert_true(
-        clients_page.account_list_link.is_visible(), "Account List link not visible"
+        clients_page.is_visible(clients_page.account_list_link), "Account List link not visible"
     )
     soft_assert.assert_true(
         authenticated_page.title() != "", "Page title is empty after navigation"
