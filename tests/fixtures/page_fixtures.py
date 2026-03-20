@@ -26,7 +26,7 @@ from pages.manage_instruction_1_page import ManageInstruction1Page
 from pages.manage_instruction_2_page import ManageInstruction2Page
 from pages.roth_conversion_page import RothConversionPage
 from pages.tracking_center_page import TrackingCenterPage
-from pages.trackingCenter_ItemDetail_page import TrackingCenterItemDetailPage
+from pages.item_detail_page import TrackingCenterItemDetailPage
 
 # Resolve base_url once from the active environment config
 _base_url = get_settings().base_url
