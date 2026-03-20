@@ -206,8 +206,8 @@ class AllureToInfluxDB:
             duration = test.get("stop", 0) - test.get("start", 0)
             metrics["total_duration"] += duration
 
-        # Convert total duration from ms to seconds
-        metrics["total_duration"] = round(metrics["total_duration"] / 1000, 2)
+        # Convert total duration from ms to seconds (integer)
+        metrics["total_duration"] = int(metrics["total_duration"] / 1000)
 
         # Calculate pass rate (excluding skipped tests from calculation)
         testable_total = metrics["total"] - metrics["skipped"]
@@ -228,7 +228,6 @@ class AllureToInfluxDB:
         """Create InfluxDB line protocol points from metrics"""
         timestamp = int(datetime.now().timestamp() * 1e9)  # nanoseconds
 
-        #tags = f'build_id="{self.build_id}",environment="{self.environment}",build_reason="{self.build_reason}",project_name="{self.project_name}"'
         tags = f'build_id={self.build_id},environment={self.environment},build_reason={self.build_reason},project_name={self.project_name}'
 
         # Main test execution metrics
@@ -241,7 +240,7 @@ class AllureToInfluxDB:
             f'flaky={metrics["flaky"]}i,'
             f'retried={metrics["retried"]}i,'
             f'pass_rate={metrics["pass_rate"]:.2f},'
-            f'total_duration={metrics["total_duration"]} '
+            f'total_duration={metrics["total_duration"]}i '
             f"{timestamp}"
         ]
 
