@@ -11,6 +11,7 @@ from pytest_bdd import then, when
 
 from utils.allure_logger import get_allure_logger
 from utils.database import execute_query_from_yaml
+from utils.retry_utils import retry_until_true, RetryError
 
 logger = get_allure_logger(__name__)
 
@@ -188,9 +189,9 @@ def verify_routing_order_in_database(test_context):
     logger.info(f"Querying ItemId for dnumber: {dnumber}")
 
     # Get configured database connection (using SQL Server for trackingcenter DB)
-    from utils.database import get_configured_sql_server
+    from utils.database import get_configured_db
 
-    db = get_configured_sql_server(database="CRM")
+    db = get_configured_db("crm", database="CRM")
 
     try:
         # Connect to database
