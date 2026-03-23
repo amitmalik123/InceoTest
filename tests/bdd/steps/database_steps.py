@@ -352,3 +352,94 @@ def verify_routing_order_in_database(test_context):
             logger.info("Database connection closed")
         except:
             pass
+
+
+@when("User fetch signers information from database")
+def user_fetch_signers_information_from_database(test_context, db_manager):
+    """
+    Fetch authorized signers information from database using all_agents_by_id query.
+    
+    This step queries the database for all agents and shared access users (signers),
+    extracts their 'Name_ManageLogin' values, and stores them in test_context['multiple_signers'].
+    
+    The query filters based on the username from test_data CSV, excluding the current user.
+    
+    Uses:
+        - test_data['username']: The logged-in user's username (current_user_id parameter)
+        - agent.all_agents_by_id query: Fetches all agents and shared access users
+    
+    Stores in test_context:
+        - multiple_signers: List of dictionaries containing signer information with Name_ManageLogin
+    """
+    logger.info(">>> STEP: User fetch signers information from database")
+    
+    try:
+        # Step 1: Get username from test data
+        logger.info("Step 1: Fetching username from test_data...")
+        test_data = test_context.get("test_data", {})
+        username = test_data.get("username")
+        
+        if not username:
+            raise ValueError(
+                "username not found in test_data CSV. "
+                "Test data must include 'username' column for this step."
+            )
+        
+        logger.info(f"  ✓ Username: {username}")
+        
+        # Step 2: Execute query using execute_query_from_yaml utility
+        # This handles database connection, query loading, and result processing
+        logger.info("Step 2: Executing all_agents_by_id query using execute_query_from_yaml...")
+        logger.info(f"  Query parameters: UserID={username}, ExcludeUserID={username}")
+        
+        from utils.database import execute_query_from_yaml
+        
+        try:
+            results = execute_query_from_yaml(
+                query_category="agent",
+                query_name="all_agents_by_id",
+                params=(username, username),
+                db_manager=db_manager
+            )
+        except Exception as query_error:
+            logger.error(f"Failed to execute all_agents_by_id query: {query_error}")
+            raise
+        
+        if not results:
+            logger.warning(f"  ⚠ No signers found for username: {username}")
+            test_context["multiple_signers"] = []
+            logger.info("  ✓ multiple_signers set to empty list")
+        else:
+            # Step 3: Extract Name_ManageLogin from results
+            logger.info(f"Step 3: Processing {len(results)} signer record(s)...")
+            signers = []
+            for idx, row in enumerate(results, 1):
+                signer_name = row.get("Name_ManageLogin")
+                agent_aplid = row.get("AgentAPLID")
+                role = row.get("Role")
+                
+                if signer_name:
+                    signers.append({
+                        "Name_ManageLogin": signer_name,
+                        "AgentAPLID": agent_aplid,
+                        "Role": role
+                    })
+                    logger.info(f"  Record {idx}: {signer_name} ({role})")
+                else:
+                    logger.warning(f"  Record {idx}: Missing Name_ManageLogin field")
+            
+            # Step 4: Store in test_context
+            logger.info(f"Step 4: Storing {len(signers)} signer(s) in test_context['multiple_signers']...")
+            test_context["multiple_signers"] = signers
+            logger.info(f"  ✓ Successfully stored {len(signers)} signer(s)")
+            
+            # Log summary
+            logger.info("\nSigner Summary:")
+            for signer in signers:
+                logger.info(f"  - {signer['Name_ManageLogin']} ({signer['Role']})")
+            
+            logger.info(f"\n✓ Successfully fetched signers information from database")
+    
+    except Exception as e:
+        logger.error(f"✗ Failed to fetch signers information from database: {e}")
+        raise AssertionError(f"Failed to fetch signers information from database: {e}") from e
