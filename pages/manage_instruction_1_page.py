@@ -1,5 +1,6 @@
 from playwright.sync_api import Locator, Page
 
+from locators import manage_instruction_1_locators
 from pages.base_page import BasePage
 from utils.allure_logger import get_allure_logger
 
@@ -10,7 +11,8 @@ class ManageInstruction1Page(BasePage):
 
     def __init__(self, page: Page):
         super().__init__(page)
-        self.next_button: Locator = page.get_by_role("button", name="NEXT")
+        locators = manage_instruction_1_locators.initialize_locators(page)
+        self.next_button: Locator = locators["next_button"]
 
     def select_radio_button(self, radio_type: str) -> None:
         """Select radio button by type (e.g., 'ACH', 'Wire', etc.)"""

@@ -26,7 +26,7 @@ from pages.manage_instruction_1_page import ManageInstruction1Page
 from pages.manage_instruction_2_page import ManageInstruction2Page
 from pages.roth_conversion_page import RothConversionPage
 from pages.tracking_center_page import TrackingCenterPage
-from pages.item_detail_page import TrackingCenterItemDetailPage
+from pages.item_detail_page import ItemDetailPage
 
 # Resolve base_url once from the active environment config
 _base_url = get_settings().base_url
@@ -133,12 +133,12 @@ def tracking_center_page(authenticated_page: Page) -> TrackingCenterPage:
 
 
 @pytest.fixture
-def tracking_center_item_detail_page(authenticated_page: Page) -> TrackingCenterItemDetailPage:
+def tracking_center_item_detail_page(authenticated_page: Page) -> ItemDetailPage:
     """Tracking center item detail page object fixture"""
-    return TrackingCenterItemDetailPage(authenticated_page, base_url=_base_url)
+    return ItemDetailPage(authenticated_page, base_url=_base_url)
 
 
 @pytest.fixture
-def trackingCenter_ItemDetail_page(authenticated_page: Page) -> TrackingCenterItemDetailPage:
+def trackingCenter_ItemDetail_page(authenticated_page: Page) -> ItemDetailPage:
     """Tracking center item detail page object fixture (camelCase alias)"""
-    return TrackingCenterItemDetailPage(authenticated_page, base_url=_base_url)
+    return ItemDetailPage(authenticated_page, base_url=_base_url)

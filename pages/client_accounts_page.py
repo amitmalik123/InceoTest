@@ -6,6 +6,7 @@ Page object for client account interactions and verifications.
 
 from playwright.sync_api import Locator, Page
 
+from locators import client_accounts_locators
 from pages.base_page import BasePage
 from utils.allure_logger import get_allure_logger
 from utils.dialog_utils import DialogHandler
@@ -20,59 +21,39 @@ class ClientAccountsPage(BasePage):
 
     PAGE_PATH = "en.aspx"
     
-    # ========================================================================================
-    # LOCATORS - All page element locators defined at class level for easy maintenance
-    # ========================================================================================
-    
-    # IFrame and container locators
-    ESIG_IFRAME = "iframe#esig_iframe"
-    DROPDOWN_DIV = "div#dropdownDiv"
-    NOTE_TC_DIV = "div#noteTc"
-    
-    # Form input locators
-    AUTHORIZED_SIGNERS_DROPDOWN = "select[name='authorizedSignersDropdown']"
-    EMAIL_INPUT = "input[name='emailText']"
-    PHONE_INPUT = "input[name='PhoneText']"
-    CONTINUE_BUTTON = "input[type='submit'][value='Continue']"
-    
-    # Radio button and approval option locators
-    RADIO_YES = "input[value='radiobtnYes']"
-    RADIO_NO = "input[value='radiobtnNo']"
-    RADIO_SMS = "input#radiobtnSMS"
-    RADIO_TC = "input#radiobtnTC"
-    
-    # Label locators
-    AUTHORIZED_SIGNERS_LABEL = "span:has-text('Authorized Signers')"
-    EMAIL_ADDRESS_LABEL = "span:has-text('Email Address')"
-    PHONE_LABEL = "span:has-text('Phone')"
-    
-    # Dialog and form elements
-    DIALOG_ROLE = '[role="dialog"]'
-    CONFIRMATION_LINK = 'a.printConfirmationLink'
-    DOWNLOAD_LINK = 'a[onclick*="btnDownload"]'
-    CLOSE_BUTTON_CONTAINER = '.close-button-container button.formButton'
-    
-    # Request/Type table locators
-    TABLE_CONTAINER = "#divlstContainer"
-    REQUEST_LIST = "#HTMLlslCategory"
-    REQUEST_LIST_ITEM = "#lstcategoryli0"
-    SUBCATEGORY_CONTAINER = "#divSubCategory"
-    SUBCATEGORY_LIST = "#HTMLSubCategory"
-    
-    # Submit buttons
-    COMPLETE_SUBMIT_BUTTON = "OnlineSubmitbutton"
-    COMPLETE_PRINT_BUTTON = "HTMLPrintButton"
-    COMPLETE_ESIGN_BUTTON = "eSignatureButton"
-    
-    # Form elements
-    FORM_HEADING_SPAN = "span#ctl00_cphContentArea_AccountActionsBox1_lblTaskName"
-    FORM_HEADING_BOLD = "b"
-    MODAL_TITLE = "div.modal-title-transition"
-    
-    # Radio buttons for signature options
-    RADIO_SUBMIT = "input#rbSubmit"
-    RADIO_PRINT = "input#rbPrint"
-    RADIO_ESIGN = "input#rbEsign"
+    # Import locators from locators module
+    ESIG_IFRAME = client_accounts_locators.ESIG_IFRAME
+    DROPDOWN_DIV = client_accounts_locators.DROPDOWN_DIV
+    NOTE_TC_DIV = client_accounts_locators.NOTE_TC_DIV
+    AUTHORIZED_SIGNERS_DROPDOWN = client_accounts_locators.AUTHORIZED_SIGNERS_DROPDOWN
+    EMAIL_INPUT = client_accounts_locators.EMAIL_INPUT
+    PHONE_INPUT = client_accounts_locators.PHONE_INPUT
+    CONTINUE_BUTTON = client_accounts_locators.CONTINUE_BUTTON
+    RADIO_YES = client_accounts_locators.RADIO_YES
+    RADIO_NO = client_accounts_locators.RADIO_NO
+    RADIO_SMS = client_accounts_locators.RADIO_SMS
+    RADIO_TC = client_accounts_locators.RADIO_TC
+    AUTHORIZED_SIGNERS_LABEL = client_accounts_locators.AUTHORIZED_SIGNERS_LABEL
+    EMAIL_ADDRESS_LABEL = client_accounts_locators.EMAIL_ADDRESS_LABEL
+    PHONE_LABEL = client_accounts_locators.PHONE_LABEL
+    DIALOG_ROLE = client_accounts_locators.DIALOG_ROLE
+    CONFIRMATION_LINK = client_accounts_locators.CONFIRMATION_LINK
+    DOWNLOAD_LINK = client_accounts_locators.DOWNLOAD_LINK
+    CLOSE_BUTTON_CONTAINER = client_accounts_locators.CLOSE_BUTTON_CONTAINER
+    TABLE_CONTAINER = client_accounts_locators.TABLE_CONTAINER
+    REQUEST_LIST = client_accounts_locators.REQUEST_LIST
+    REQUEST_LIST_ITEM = client_accounts_locators.REQUEST_LIST_ITEM
+    SUBCATEGORY_CONTAINER = client_accounts_locators.SUBCATEGORY_CONTAINER
+    SUBCATEGORY_LIST = client_accounts_locators.SUBCATEGORY_LIST
+    COMPLETE_SUBMIT_BUTTON = client_accounts_locators.COMPLETE_SUBMIT_BUTTON
+    COMPLETE_PRINT_BUTTON = client_accounts_locators.COMPLETE_PRINT_BUTTON
+    COMPLETE_ESIGN_BUTTON = client_accounts_locators.COMPLETE_ESIGN_BUTTON
+    FORM_HEADING_SPAN = client_accounts_locators.FORM_HEADING_SPAN
+    FORM_HEADING_BOLD = client_accounts_locators.FORM_HEADING_BOLD
+    MODAL_TITLE = client_accounts_locators.MODAL_TITLE
+    RADIO_SUBMIT = client_accounts_locators.RADIO_SUBMIT
+    RADIO_PRINT = client_accounts_locators.RADIO_PRINT
+    RADIO_ESIGN = client_accounts_locators.RADIO_ESIGN
 
     def __init__(self, page: Page, base_url: str = ""):
         super().__init__(page, base_url=base_url)
@@ -89,11 +70,11 @@ class ClientAccountsPage(BasePage):
         Returns:
             FrameLocator if found, None otherwise
         """
-        iframe_locator = self.page.locator("iframe#esig_iframe")
+        iframe_locator = self.page.locator(client_accounts_locators.ESIG_IFRAME)
         if iframe_locator.count() == 0:
             logger.warning("🔧 iframe#esig_iframe not found")
             return None
-        return self.page.frame_locator("iframe#esig_iframe")
+        return self.page.frame_locator(client_accounts_locators.ESIG_IFRAME)
 
 
     def select_authorized_signer_approval_option(self, option: str) -> None:
@@ -739,9 +720,9 @@ class ClientAccountsPage(BasePage):
         logger.info("Verifying Request/Type table readiness...")
         
         try:
-            table_container = self.page.locator("#divlstContainer")
-            request_list = self.page.locator("#HTMLlslCategory")
-            first_option = self.page.locator("#lstcategoryli0")
+            table_container = self.page.locator(client_accounts_locators.TABLE_CONTAINER)
+            request_list = self.page.locator(client_accounts_locators.REQUEST_LIST)
+            first_option = self.page.locator(client_accounts_locators.REQUEST_LIST_ITEM)
             
             # Verify all key components are visible and enabled
             with WaitContext(timeout=10.0, poll_interval=0.2) as wait:

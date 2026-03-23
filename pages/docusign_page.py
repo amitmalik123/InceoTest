@@ -11,6 +11,7 @@ import allure
 from playwright.sync_api import Page, TimeoutError as PlaywrightTimeoutError
 
 from pages.base_page import BasePage
+from locators import docusign_locators
 from utils.allure_logger import get_allure_logger
 from utils.helpers import get_locator_attribute
 
@@ -19,41 +20,6 @@ logger = get_allure_logger(__name__)
 
 class DocuSignPage(BasePage):
     """Page object for DocuSign signing page"""
-    
-    DOCUSIGN_URL_PATTERN = "https://apps-d.docusign.com/"
-    
-    # ========================================================================================
-    # LOCATORS - All page element locators defined at class level for easy maintenance
-    # ========================================================================================
-    
-    # ERSD Consent checkbox and related text
-    ERSD_CONSENT_TEXT = "I confirm I have read and I consent to the Electronic Record and Signature Disclosure."
-    
-    # Button locators
-    FINISH_BUTTON = '#action-bar-btn-finish'
-    SEND_NOW_BUTTON_PATTERN = "Send Now"
-    CONFIRM_CODE_BUTTON_PATTERN = "Confirm Code"
-    RESEND_CODE_BUTTON_PATTERN = "Resend Code"
-    SIGN_HERE_BUTTON_PATTERN = r"Required\s*-\s*Sign Here"
-    SIGNATURE_APPLIED_BUTTON_PATTERN = r"Required\s*-\s*Signature Applied"
-    
-    # Dialog locators
-    REVIEW_CONTINUE_DIALOG = '[aria-label="Review and continue"]'
-    DIALOG_CONTENT_P_TAG = 'p[data-qa="email-message-content"]'
-    
-    # Sign button and signature elements
-    SIGN_BUTTON = '//div[@data-type="SignHere"]/button'
-    SIGNATURE_TAB_BUTTON = "//button[contains(@data-qa,'signature-tab-required')]"
-    DATE_SIGNED_INPUT = "//div[@data-type='DateSigned']/descendant::input"
-    
-    # Session timeout banner
-    SESSION_TIMEOUT_BANNER = "#ds_hldrBdy_lblHeaderText"
-    
-    # Stamping element (dynamic text-based locator)
-    STAMPING_ELEMENT_TEXT_KEY = "As authorized by"  # Used with get_by_text()
-    
-    # OTP field (dynamic regex pattern)
-    OTP_FIELD_NAME_PATTERN = "verification code"  # Used with get_by_role()
 
     def __init__(self, page: Page, base_url: str = ""):
         super().__init__(page, base_url=base_url)
@@ -71,7 +37,7 @@ class DocuSignPage(BasePage):
         logger.info("Waiting for DocuSign page to load...")
         
         # Wait for navigation to DocuSign
-        self.page.wait_for_url(lambda url: self.DOCUSIGN_URL_PATTERN in url, timeout=timeout)
+        self.page.wait_for_url(lambda url: docusign_locators.DOCUSIGN_URL_PATTERN in url, timeout=timeout)
         
         logger.info("DocuSign page URL detected")
         
@@ -101,8 +67,7 @@ class DocuSignPage(BasePage):
         logger.info("Checking ERSD consent checkbox...")
         
         # Locate the label text and click on it to check the checkbox
-        consent_text = "I confirm I have read and I consent to the Electronic Record and Signature Disclosure."
-        label_locator = self.page.get_by_text(consent_text)
+        label_locator = self.page.get_by_text(docusign_locators.ERSD_CONSENT_TEXT)
         
         # Wait for label to be visible
         label_locator.wait_for(state="visible", timeout=timeout)
@@ -153,7 +118,7 @@ class DocuSignPage(BasePage):
         
         # Locate the top right header Finish button by id attribute
         # This targets the action-bar-btn-finish specifically, not the bottom or slide-up-bar finish buttons
-        finish_button = self.page.locator('#action-bar-btn-finish')
+        finish_button = self.page.locator(docusign_locators.FINISH_BUTTON)
         
         # Wait for button to be visible and enabled
         finish_button.wait_for(state="visible", timeout=timeout)
@@ -209,7 +174,7 @@ class DocuSignPage(BasePage):
         logger.info("Fetching DocuSign Review and Continue dialog text...")
         
         # Locate the dialog by aria-label
-        dialog_locator = self.page.locator('[aria-label="Review and continue"]')
+        dialog_locator = self.page.locator(docusign_locators.REVIEW_CONTINUE_DIALOG)
         
         # Verify dialog is present
         try:
@@ -220,7 +185,7 @@ class DocuSignPage(BasePage):
             raise AssertionError('[FAIL] DocuSignPage: Review and Continue Dialog Presence — Expected: dialog with aria-label="Review and continue" found, Actual: dialog not found. Details: Review and Continue dialog must be visible. Locator: [aria-label="Review and continue"].')
         
         # Get the text from the p tag with data-qa="email-message-content"
-        content_locator = dialog_locator.locator('p[data-qa="email-message-content"]')
+        content_locator = dialog_locator.locator(docusign_locators.DIALOG_CONTENT_P_TAG)
         
         # Wait for content to be visible
         try:
@@ -250,7 +215,7 @@ class DocuSignPage(BasePage):
         logger.info("Clicking Sign button...")
         
         # Locate the Sign button/div by finding a div with text 'Sign'
-        sign_button = self.page.locator('//div[@data-type="SignHere"]/button')
+        sign_button = self.page.locator(docusign_locators.SIGN_BUTTON)
         
         # Wait for the button to be visible
         sign_button.wait_for(state="visible", timeout=timeout)
@@ -290,8 +255,7 @@ class DocuSignPage(BasePage):
             # STEP 1: Locate the signature tab button using XPath
             # XPath: //button[contains(@data-qa,'signature-tab-required')]
             logger.debug("Locating signature tab button...")
-            sig_button_xpath = "//button[contains(@data-qa,'signature-tab-required')]"
-            sig_button = self.page.locator(sig_button_xpath)
+            sig_button = self.page.locator(docusign_locators.SIGNATURE_TAB_BUTTON)
             
             # Wait for button to be present in DOM using BasePage utility
             logger.debug("Waiting for signature button to be attached...")
@@ -364,8 +328,7 @@ class DocuSignPage(BasePage):
         try:
             # STEP 1: Locate the Date Signed div using XPath
             logger.debug("Locating Date Signed div...")
-            date_signed_xpath = "//div[@data-type='DateSigned']/descendant::input"
-            date_signed_input = self.page.locator(date_signed_xpath)
+            date_signed_input = self.page.locator(docusign_locators.DATE_SIGNED_INPUT)
             
             # Wait for input to be present in DOM using BasePage utility
             logger.debug("Waiting for Date Signed input to be attached...")
@@ -467,7 +430,7 @@ class DocuSignPage(BasePage):
         # In that case, return a sentinel string so callers can react
         # appropriately instead of attempting to continue the flow.
         if session_timeout_check:
-            timeout_banner = self.page.locator("#ds_hldrBdy_lblHeaderText")
+            timeout_banner = self.page.locator(docusign_locators.SESSION_TIMEOUT_BANNER)
             try:
                 timeout_banner.wait_for(state="visible", timeout=session_timeout)
                 banner_text = timeout_banner.inner_text().strip().lower()

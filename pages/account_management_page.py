@@ -16,6 +16,7 @@ DOM evidence: Not yet captured — locators below are best-guess placeholders.
 
 from playwright.sync_api import Locator, Page
 
+from locators import account_management_locators
 from pages.base_page import BasePage
 from utils.allure_logger import get_allure_logger
 
@@ -29,47 +30,17 @@ class AccountManagementPage(BasePage):
 
     def __init__(self, page: Page, base_url: str = ""):
         super().__init__(page, base_url=base_url)
-
-        # -- Account Wizard: Account Management section --
-        # TODO: Replace with real locators after flow recorder capture
-        self.account_management_link: Locator = page.get_by_role(
-            "link", name="Account Information change"
-        )  # TODO: verify exact link text from DOM
-
-        # -- Request / Type selection --
-        self.request_dropdown: Locator = page.locator(
-            "#ctl00_cphContentArea_ddlRequest"
-        )  # TODO: verify real ID from DOM
-        self.type_dropdown: Locator = page.locator(
-            "#ctl00_cphContentArea_ddlType"
-        )  # TODO: verify real ID from DOM
-
-        # -- Complete and Print button --
-        self.complete_and_print_button: Locator = page.get_by_role(
-            "button", name="Complete and Print"
-        )  # TODO: could be link or button — verify from DOM
-
-        # -- DocuSign page (redirects to docusign.net in same tab) --
-        self.docusign_continue_button: Locator = page.get_by_role(
-            "button", name="Continue"
-        )  # TODO: verify from DocuSign DOM
-        self.docusign_finish_button: Locator = page.get_by_role(
-            "button", name="Finish"
-        )  # TODO: could be "Continue & Finish" single button
-
-        # -- Post-DocuSign: Tracking ID & Close --
-        self.tracking_id_element: Locator = page.locator(
-            "#trackingId, .tracking-id, [data-tracking-id]"
-        )  # TODO: verify from DOM — might be text, span, or link
-        self.close_button: Locator = page.get_by_role(
-            "button", name="Close"
-        )  # TODO: verify from DOM
-
-        # -- Tracking Center: PDF Upload --
-        self.upload_pdf_input: Locator = page.locator("input[type='file']")  # TODO: verify from DOM
-        self.upload_button: Locator = page.get_by_role(
-            "button", name="Upload"
-        )  # TODO: verify from DOM
+        locators = account_management_locators.initialize_locators(page)
+        self.account_management_link: Locator = locators["account_management_link"]
+        self.request_dropdown: Locator = locators["request_dropdown"]
+        self.type_dropdown: Locator = locators["type_dropdown"]
+        self.complete_and_print_button: Locator = locators["complete_and_print_button"]
+        self.docusign_continue_button: Locator = locators["docusign_continue_button"]
+        self.docusign_finish_button: Locator = locators["docusign_finish_button"]
+        self.tracking_id_element: Locator = locators["tracking_id_element"]
+        self.close_button: Locator = locators["close_button"]
+        self.upload_pdf_input: Locator = locators["upload_pdf_input"]
+        self.upload_button: Locator = locators["upload_button"]
 
     # ------------------------------------------------------------------
     # Navigation to Account Management

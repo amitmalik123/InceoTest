@@ -1,0 +1,37 @@
+"""
+Locators for Item Detail Page (Tracking Center Item Detail)
+
+This module contains all locator definitions for the Item Detail page.
+Locators are organized by functional area for easy maintenance.
+"""
+
+# ========================================================================================
+# LOCATORS - All page element locators defined for easy maintenance
+# ========================================================================================
+
+# Status field locator
+STATUS_LABEL = "span:has-text('Status:') + label"
+
+# Advisor Alert Required field locator
+ADVISOR_ALERT_REQUIRED_LABEL = "span:has-text('Advisor Alert Required:') + label"
+
+# Item Number (D-number) field locator
+ITEM_NUMBER_LABEL = "span:has-text('Item Number:') + label"
+
+# Agent Name field locator
+AGENT_NAME_LABEL = "//span[text()='Agent Name']/following-sibling::label"
+
+# Column flow container (buttons area)
+COLUMN_FLOW_CONTAINER = "div#column-flow-container"
+
+# Buttons within the column flow container
+BUTTONS_SELECTOR = "button, a.btn, .item-detail-button"
+
+# Notes grid table
+NOTES_GRID_TABLE = "table#TrackingCenterItemDetailNotesGrid"
+
+# Description cells in notes grid
+NOTES_DESCRIPTION_CELLS = "td[aria-describedby='TrackingCenterItemDetailNotesGrid_description']"
+
+# Data rows in notes grid (excluding header)
+NOTES_GRID_DATA_ROWS = "tbody tr:not(:first-child)"

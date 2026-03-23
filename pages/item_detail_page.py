@@ -1,43 +1,13 @@
 from playwright.sync_api import Locator, Page, expect
 from pages.base_page import BasePage
+from locators import item_detail_locators
 from utils.allure_logger import get_allure_logger
 
 logger = get_allure_logger(__name__)
 
 
-class TrackingCenterItemDetailPage(BasePage):
+class ItemDetailPage(BasePage):
     PAGE_PATH = "AccountsAnalysis/TrackingCenter/TrackingCenterItemDetail"
-    
-    # ========================================================================================
-    # LOCATORS - All page element locators defined at class level for easy maintenance
-    # ========================================================================================
-    
-    # Status field locator
-    STATUS_LABEL = "span:has-text('Status:') + label"
-    
-    # Advisor Alert Required field locator
-    ADVISOR_ALERT_REQUIRED_LABEL = "span:has-text('Advisor Alert Required:') + label"
-    
-    # Item Number (D-number) field locator
-    ITEM_NUMBER_LABEL = "span:has-text('Item Number:') + label"
-    
-    # Agent Name field locator
-    AGENT_NAME_LABEL = "//span[text()='Agent Name']/following-sibling::label"
-    
-    # Column flow container (buttons area)
-    COLUMN_FLOW_CONTAINER = "div#column-flow-container"
-    
-    # Buttons within the column flow container
-    BUTTONS_SELECTOR = "button, a.btn, .item-detail-button"
-    
-    # Notes grid table
-    NOTES_GRID_TABLE = "table#TrackingCenterItemDetailNotesGrid"
-    
-    # Description cells in notes grid
-    NOTES_DESCRIPTION_CELLS = "td[aria-describedby='TrackingCenterItemDetailNotesGrid_description']"
-    
-    # Data rows in notes grid (excluding header)
-    NOTES_GRID_DATA_ROWS = "tbody tr:not(:first-child)"
 
     def __init__(self, page: Page, base_url: str = ""):
         super().__init__(page, base_url=base_url)
@@ -64,7 +34,7 @@ class TrackingCenterItemDetailPage(BasePage):
         
         # Locate the label that follows the "Status:" span
         # Using adjacent sibling combinator: span:has-text("Status:") + label
-        status_label = self.page.locator(self.STATUS_LABEL)
+        status_label = self.page.locator(item_detail_locators.STATUS_LABEL)
         
         # Wait for the status label to be visible
         status_label.wait_for(state="visible", timeout=10000)
@@ -98,7 +68,7 @@ class TrackingCenterItemDetailPage(BasePage):
         
         # Locate the label that follows the "Advisor Alert Required:" span
         # Using adjacent sibling combinator: span:has-text("Advisor Alert Required:") + label
-        advisor_alert_label = self.page.locator(self.ADVISOR_ALERT_REQUIRED_LABEL)
+        advisor_alert_label = self.page.locator(item_detail_locators.ADVISOR_ALERT_REQUIRED_LABEL)
         
         # Wait for the advisor alert label to be visible
         advisor_alert_label.wait_for(state="visible", timeout=10000)
@@ -132,7 +102,7 @@ class TrackingCenterItemDetailPage(BasePage):
         
         # Locate the label that follows the "Item Number:" span
         # Using adjacent sibling combinator: span:has-text("Item Number:") + label
-        item_number_label = self.page.locator(self.ITEM_NUMBER_LABEL)
+        item_number_label = self.page.locator(item_detail_locators.ITEM_NUMBER_LABEL)
         
         # Wait for the item number label to be visible
         item_number_label.wait_for(state="visible", timeout=10000)
@@ -167,7 +137,7 @@ class TrackingCenterItemDetailPage(BasePage):
         
         # Locate the label that follows the "Agent Name:" span using XPath
         # XPath: //span[text()='Agent Name']/following-sibling::label
-        agent_name_label = self.page.locator(self.AGENT_NAME_LABEL)
+        agent_name_label = self.page.locator(item_detail_locators.AGENT_NAME_LABEL)
         
         # Wait for the agent name label to be visible
         agent_name_label.wait_for(state="visible", timeout=10000)
@@ -207,7 +177,7 @@ class TrackingCenterItemDetailPage(BasePage):
         logger.info("Getting VISIBLE button information from column-flow-container...")
         
         # Locate the column-flow-container div
-        container = self.page.locator(self.COLUMN_FLOW_CONTAINER)
+        container = self.page.locator(item_detail_locators.COLUMN_FLOW_CONTAINER)
         
         # Wait for container to be visible
         container.wait_for(state="visible", timeout=10000)
@@ -215,7 +185,7 @@ class TrackingCenterItemDetailPage(BasePage):
         
         # Find all buttons/links within the container
         # This includes <button>, <a> elements with class "btn", and elements with class "item-detail-button"
-        all_buttons = container.locator(self.BUTTONS_SELECTOR)
+        all_buttons = container.locator(item_detail_locators.BUTTONS_SELECTOR)
         
         # Get the count of ALL buttons (for logging)
         all_button_count = all_buttons.count()
@@ -272,14 +242,14 @@ class TrackingCenterItemDetailPage(BasePage):
         logger.info("Getting all description texts from Notes grid...")
         
         # Locate the Notes grid table
-        notes_grid = self.page.locator(self.NOTES_GRID_TABLE)
+        notes_grid = self.page.locator(item_detail_locators.NOTES_GRID_TABLE)
         
         # Wait for the grid to be visible
         notes_grid.wait_for(state="visible", timeout=10000)
         logger.info("Notes grid is visible")
         
         # Find all description cells (td elements with the description aria-describedby)
-        description_cells = notes_grid.locator(self.NOTES_DESCRIPTION_CELLS)
+        description_cells = notes_grid.locator(item_detail_locators.NOTES_DESCRIPTION_CELLS)
         
         # Get count of description cells
         cell_count = description_cells.count()
@@ -316,7 +286,7 @@ class TrackingCenterItemDetailPage(BasePage):
         """
         try:
             # Locate the Notes grid table
-            notes_grid = self.page.locator(self.NOTES_GRID_TABLE)
+            notes_grid = self.page.locator(item_detail_locators.NOTES_GRID_TABLE)
             
             # Wait for grid to be visible
             notes_grid.wait_for(state="visible", timeout=5000)
@@ -324,7 +294,7 @@ class TrackingCenterItemDetailPage(BasePage):
             
             # Find all data rows in the grid (exclude header row)
             # tbody tr:not(:first-child) selects all <tr> except the first one (header)
-            grid_rows = notes_grid.locator(self.NOTES_GRID_DATA_ROWS)
+            grid_rows = notes_grid.locator(item_detail_locators.NOTES_GRID_DATA_ROWS)
             row_count = grid_rows.count()
             
             logger.info(f"Grid row count: {row_count}")

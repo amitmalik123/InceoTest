@@ -2,6 +2,7 @@ from typing import Optional
 
 from playwright.sync_api import Page
 
+from locators import account_list_locators
 from pages.base_page import BasePage
 from utils.allure_logger import get_allure_logger
 
@@ -25,7 +26,7 @@ class AccountListPage(BasePage):
         logger.info(f"Searching for client: {client_id}")
 
         try:
-            search_input = self.page.locator("#client_search_input")
+            search_input = self.page.locator(account_list_locators.ACCOUNT_SEARCH_INPUT)
             search_input.wait_for(state="visible", timeout=30000)
             self.fill(search_input, client_id)
             logger.info(f"Filled client ID: {client_id}")
@@ -37,7 +38,7 @@ class AccountListPage(BasePage):
             raise Exception(f"Search input not found for client {client_id}")
 
         try:
-            search_button = self.page.locator("form.client_search button#searchbutton")
+            search_button = self.page.locator(account_list_locators.ACCOUNT_SEARCH_BUTTON)
             search_button.wait_for(state="visible", timeout=30000)
             self.click(search_button)
             logger.info("Clicked search button")
@@ -58,7 +59,7 @@ class AccountListPage(BasePage):
         logger.info(f"Searching for account: {account_number}")
 
         try:
-            search_input = self.page.locator("#client_search_input")
+            search_input = self.page.locator(account_list_locators.ACCOUNT_SEARCH_INPUT)
             search_input.wait_for(state="visible", timeout=30000)
             self.fill(search_input, account_number)
             logger.info(f"Filled account number: {account_number}")
@@ -70,7 +71,7 @@ class AccountListPage(BasePage):
             raise Exception(f"Search input not found for account {account_number}")
 
         try:
-            search_button = self.page.locator("form.client_search button#searchbutton")
+            search_button = self.page.locator(account_list_locators.ACCOUNT_SEARCH_BUTTON)
             search_button.wait_for(state="visible", timeout=30000)
             self.click(search_button)
             logger.info("Clicked search button")

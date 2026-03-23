@@ -3,6 +3,7 @@ from typing import Optional
 from playwright.sync_api import Locator, Page
 
 from pages.base_page import BasePage
+from locators import account_wizard_locators
 from utils.allure_logger import get_allure_logger
 
 logger = get_allure_logger(__name__)
@@ -13,12 +14,11 @@ class AccountWizardPage(BasePage):
 
     def __init__(self, page: Page, base_url: str = ""):
         super().__init__(page, base_url=base_url)
-        self.account_wizard_link: Locator = page.get_by_role("link", name="Account Wizard")
-        self.account_wizard_header: Locator = page.get_by_role("heading", name="Account Wizard")
-        self.selected_account_label: Locator = page.locator("div.radio:has(span.checked) + label")
-        self.client_name: Locator = page.locator(
-            "[data-testid='client-name'], .client-name, h2.client-name"
-        )
+        locators = account_wizard_locators.initialize_locators(page)
+        self.account_wizard_link: Locator = locators["account_wizard_link"]
+        self.account_wizard_header: Locator = locators["account_wizard_header"]
+        self.selected_account_label: Locator = locators["selected_account_label"]
+        self.client_name: Locator = locators["client_name"]
 
     def navigate(self) -> None:
         logger.info(f"AccountWizardPage navigate - Current URL: {self.page.url}")

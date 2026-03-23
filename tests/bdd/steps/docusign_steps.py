@@ -6,6 +6,7 @@ from datetime import datetime
 from playwright.sync_api import Page
 from pytest_bdd import then, when, parsers
 
+from locators import docusign_locators
 from pages.docusign_page import DocuSignPage
 from utils.allure_logger import get_allure_logger
 from utils.assertions import Assertions, SoftAssertions
@@ -50,7 +51,7 @@ def user_should_be_redirected_to_docusign_page(authenticated_page: Page, docusig
     
     # Compare current URL with DocuSign URL pattern
     current_url = authenticated_page.url
-    docusign_url_pattern = DocuSignPage.DOCUSIGN_URL_PATTERN
+    docusign_url_pattern = docusign_locators.DOCUSIGN_URL_PATTERN
     logger.info(f"Comparing current URL: {current_url} with pattern: {docusign_url_pattern}")
     
     assert docusign_url_pattern in current_url, \

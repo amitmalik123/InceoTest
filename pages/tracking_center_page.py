@@ -1,5 +1,6 @@
 from playwright.sync_api import Locator, Page, expect
 
+from locators import tracking_center_locators
 from pages.base_page import BasePage
 from utils.allure_logger import get_allure_logger
 
@@ -11,10 +12,11 @@ class TrackingCenterPage(BasePage):
 
     def __init__(self, page: Page, base_url: str = ""):
         super().__init__(page, base_url=base_url)
+        locators = tracking_center_locators.initialize_locators(page)
         self.account_src_label: Locator = None  # Will be set dynamically
-        self.roth_str_label: Locator = page.get_by_text("Roth Conversion")
-        self.logout_link: Locator = page.get_by_role("link", name="Logout")
-        self.bodycontent_div: Locator = page.locator("div#BodyContent")
+        self.roth_str_label: Locator = locators["roth_str_label"]
+        self.logout_link: Locator = locators["logout_link"]
+        self.bodycontent_div: Locator = locators["bodycontent_div"]
 
     def navigate(self) -> None:
         url = f"{self.base_url}{self.PAGE_PATH}"
