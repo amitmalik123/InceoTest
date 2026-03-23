@@ -48,9 +48,9 @@ parameters:
   - name: marker
     displayName: "Pytest Marker to Run"
     type: string
-    default: "ES1_OAM_Regression"
+    default: "regression"
     values:
-      - ES1_OAM_Regression
+      - regression
 
   - name: workers
     displayName: "Number of Parallel Workers"

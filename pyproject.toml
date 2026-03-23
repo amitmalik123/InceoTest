@@ -148,7 +148,6 @@ markers = [
     "performance: Performance monitoring tests",
     "lighthouse: Lighthouse audit tests",
     "HappyPath: Happy path scenario",
-    "ES1HappyPath1: ES1 Happy Path scenario 1",
     "ES1_OAM_Regression: ES1 OAM Regression tests"
 ]
 asyncio_mode = "strict"
