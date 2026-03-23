@@ -24,7 +24,7 @@ from tests.bdd.steps.navigation_steps import *  # noqa: F401,F403
 from tests.bdd.steps.outlook_steps import *  # noqa: F401,F403
 from tests.bdd.steps.roth_conversion_steps import *  # noqa: F401,F403
 from tests.bdd.steps.tracking_center_steps import *  # noqa: F401,F403
-from tests.bdd.steps.trackingCenter_ItemDetail_steps import *  # noqa: F401,F403
+from tests.bdd.steps.item_detail_steps import *  # noqa: F401,F403
 
 
 # Load all scenarios from the feature file

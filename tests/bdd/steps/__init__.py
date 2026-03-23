@@ -140,8 +140,8 @@ from tests.bdd.steps.tracking_center_steps import (
     verify_text_in_tracking_details,
 )
 
-# Tracking center item detail steps
-from tests.bdd.steps.trackingCenter_ItemDetail_steps import (
+# Item detail steps
+from tests.bdd.steps.item_detail_steps import (
     verify_item_detail_d_number_matches_request_submitted_pop_up_d_number,
     verify_tracking_center_item_detail_status,
     verify_buttons_displayed,
