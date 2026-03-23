@@ -38,6 +38,48 @@ steps:
         $summaryFiles = $summaryFiles | Sort-Object -Property FullName -Unique
         Write-Host "Found $($summaryFiles.Count) test_results_summary.json file(s)"
 
+        # Filter by service name if specified (only include artifacts for the specific service)
+        if (-not [string]::IsNullOrWhiteSpace($requestedServices) -and $requestedServices -ne 'all') {
+          Write-Host "Filtering artifacts for requested service: $requestedServices"
+          $summaryFiles = $summaryFiles | Where-Object {
+            $_.FullName -match "test-reports-$([regex]::Escape($requestedServices))-" -or
+            $_.FullName -like "*$requestedServices*"
+          }
+          Write-Host "Filtered to $($summaryFiles.Count) matching file(s) for service: $requestedServices"
+        }
+
+        # Keep only the most recent run per service (avoid aggregating historical runs)
+        Write-Host "Filtering to only the latest run artifacts per service..."
+        $latestFiles = @()
+        $filesByService = @{}
+        
+        foreach ($file in $summaryFiles) {
+          # Extract service name from path (test-reports-SERVICE_NAME-ENVIRONMENT-*)
+          $pathMatch = $file.FullName -match 'test-reports-([^-]+)'
+          if ($pathMatch) {
+            $serviceName = $Matches[1]
+            if (-not $filesByService.ContainsKey($serviceName)) {
+              $filesByService[$serviceName] = @()
+            }
+            $filesByService[$serviceName] += $file
+          } else {
+            # If can't extract service name, include it anyway
+            $latestFiles += $file
+          }
+        }
+        
+        # For each service, keep only the file from the most recent run
+        foreach ($service in $filesByService.Keys) {
+          $serviceFiles = $filesByService[$service] | Sort-Object -Property FullName -Descending
+          if ($serviceFiles.Count -gt 0) {
+            Write-Host "Service '$service': Found $($serviceFiles.Count) artifact(s), using latest: $($serviceFiles[0].FullName)"
+            $latestFiles += $serviceFiles[0]
+          }
+        }
+        
+        $summaryFiles = $latestFiles
+        Write-Host "After deduplication: Using $($summaryFiles.Count) latest file(s)"
+
         foreach ($summaryFile in $summaryFiles) {
           try {
             $summaryJson = Get-Content -LiteralPath $summaryFile.FullName -Raw | ConvertFrom-Json
@@ -80,6 +122,48 @@ steps:
               }
           }
           $junitFiles = $junitFiles | Sort-Object -Property FullName -Unique
+          
+          # Filter by service name if specified (only include artifacts for the specific service)
+          if (-not [string]::IsNullOrWhiteSpace($requestedServices) -and $requestedServices -ne 'all') {
+            Write-Host "Filtering JUnit artifacts for requested service: $requestedServices"
+            $junitFiles = $junitFiles | Where-Object {
+              $_.FullName -match "test-reports-$([regex]::Escape($requestedServices))-" -or
+              $_.FullName -like "*$requestedServices*"
+            }
+          }
+          
+          # Keep only the most recent run per service (avoid aggregating historical runs)
+          Write-Host "Filtering JUnit to only the latest run artifacts per service..."
+          $latestJunitFiles = @()
+          $junitFilesByService = @{}
+          
+          foreach ($file in $junitFiles) {
+            # Extract service name from path (test-reports-SERVICE_NAME-ENVIRONMENT-*)
+            $pathMatch = $file.FullName -match 'test-reports-([^-]+)'
+            if ($pathMatch) {
+              $serviceName = $Matches[1]
+              if (-not $junitFilesByService.ContainsKey($serviceName)) {
+                $junitFilesByService[$serviceName] = @()
+              }
+              $junitFilesByService[$serviceName] += $file
+            } else {
+              # If can't extract service name, include it anyway
+              $latestJunitFiles += $file
+            }
+          }
+          
+          # For each service, keep only files from the most recent run
+          foreach ($service in $junitFilesByService.Keys) {
+            $serviceFiles = $junitFilesByService[$service] | Sort-Object -Property FullName -Descending
+            if ($serviceFiles.Count -gt 0) {
+              Write-Host "JUnit service '$service': Found $($serviceFiles.Count) artifact(s), using latest: $($serviceFiles[0].FullName)"
+              $latestJunitFiles += $serviceFiles[0]
+            }
+          }
+          
+          $junitFiles = $latestJunitFiles
+          Write-Host "After deduplication: Using $($junitFiles.Count) latest JUnit file(s)"
+          
           Write-Host "Found $($junitFiles.Count) JUnit XML file(s)"
           $junitFiles | Select-Object -First 10 | ForEach-Object { Write-Host "JUnit candidate: $($_.FullName)" }
 
