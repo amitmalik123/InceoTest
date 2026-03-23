@@ -122,6 +122,7 @@ addopts = """
 markers = [
     "smoke: Quick smoke tests for critical functionality",
     "regression: Full regression test suite",
+    "InDev: Tests in development (work in progress)",
     "roth_conversion: Roth IRA conversion related tests",
     "add_ach: Add ACH instructions related tests",
     "ach: ACH functionality tests",
