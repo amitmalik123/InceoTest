@@ -48,9 +48,9 @@ parameters:
   - name: marker
     displayName: "Pytest Marker to Run"
     type: string
-    default: "regression"
+    default: "FNT_regression"
     values:
-      - regression
+      - FNT_regression
 
   - name: workers
     displayName: "Number of Parallel Workers"
