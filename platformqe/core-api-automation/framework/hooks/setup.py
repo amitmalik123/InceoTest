@@ -175,9 +175,9 @@ class TestDataManager:
         # Update CSV with all extracted values
         update_csv = prereq_config.get('update_csv_file')
         if update_csv:
-            csv_columns = prereq_config.get('csv_columns', ['environment', 'instructionId', 'version', 'status'])
-            logger.debug(f"[HOOKS DEBUG] Updating CSV '{update_csv}' with columns {csv_columns} and values: {all_extracted_values}")
+            csv_columns = prereq_config['csv_columns']  # Assumes always present in config
             self._update_csv_with_values(update_csv, all_extracted_values, csv_columns)
+
             # Debug: After update, read back the CSV and log contents
             try:
                 import os, csv

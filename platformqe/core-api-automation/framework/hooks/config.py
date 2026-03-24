@@ -82,7 +82,7 @@ SERVICE_DEFAULTS: Dict[str, Dict] = {
             # === REQUESTS ENDPOINT ===
             'requests': {
                 'enabled': True,
-                'count': 10,  # Number of requestIds to create
+                'count': 1,  # Number of requestIds to create requestId and version for GET/PUT/DELETE flow 
                 'testcase_file': 'MoveMoneyAPI/testcases/TestCase_moneymovement_requestid_POST.json',
                 'test_data_file': 'MoveMoneyAPI/data_driven/Data_MoveMoneyAPI_POST.csv',
                 'extract_from_response': {
@@ -98,13 +98,13 @@ SERVICE_DEFAULTS: Dict[str, Dict] = {
                     ]
                 },
 
-                'update_csv_file': 'MoveMoneyAPI/data_driven/Data_requests_requestId_PUT.csv',
+                'update_csv_file': 'MoveMoneyAPI/data_driven/Data_requests_requestId_GET.csv',
                 'csv_columns': ['environment', 'requestId', 'version', 'instructionId', 'accountId', 'railType', 'amount', 'percent','requestType', 'status', 'reason', 'scheduleType', 'paymentDate', 'frequency', 'startDate', 'endDate'],
             },
             # === INSTRUCTIONS ENDPOINT ===
             'instructions': {
                 'enabled': True,
-                'count': 1,  # Create one instructionId for DELETE flow (TC001 -> TC003)
+                'count': 1,  # Create instructionId and version for GET/PUT/DELETE flow 
                 'testcase_file': 'MoveMoneyAPI/testcases/TestCase_instructions_POST.json',
                 'test_data_file': 'MoveMoneyAPI/data_driven/Data_instructions_POST.CSV',
                 'extract_from_response': {
