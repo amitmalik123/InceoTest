@@ -116,7 +116,9 @@ def test_data_manager() -> TestDataManager:
     csv_path = settings.test_data_csv
     logger.info(f"[SESSION SCOPE] Loading test data from: {csv_path}")
 
-    with open(csv_path, "r") as file:
+    # Open CSV with latin-1 encoding to handle Windows-1252 special characters
+    # (e.g., smart quotes created by Excel on Windows)
+    with open(csv_path, "r", encoding="latin-1") as file:
         reader = csv.DictReader(file)
         data_rows = list(reader)
 
