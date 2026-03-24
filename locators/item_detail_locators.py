@@ -27,6 +27,19 @@ COLUMN_FLOW_CONTAINER = "div#column-flow-container"
 # Buttons within the column flow container
 BUTTONS_SELECTOR = "button, a.btn, .item-detail-button"
 
+# Upload button (File upload label button)
+# Note: Uses get_by_role("button", name="Upload") or get_by_text("Upload") in page object
+# HTML: <label class="fileuploadbutton item-detail-button"><span class="">Upload</span></label>
+UPLOAD_BUTTON_TEXT = "Upload"
+
+# File input for document upload
+FILE_INPUT_SELECTOR = "input[type='file']"
+
+# Close button (Dialog/modal close button)
+# Note: Uses get_by_role("button", name="Close") - stable selector
+# HTML: <span class="right-padding"><button type="button" class="btn btn-default">Close</button></span>
+CLOSE_BUTTON_TEXT = "Close"
+
 # Notes grid table
 NOTES_GRID_TABLE = "table#TrackingCenterItemDetailNotesGrid"
 

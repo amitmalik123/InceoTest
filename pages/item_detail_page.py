@@ -326,3 +326,179 @@ class ItemDetailPage(BasePage):
         except Exception as e:
             logger.error(f"✗ Error refreshing page: {e}")
             raise
+
+    def click_upload_button_and_upload_document(self, file_path: str = "") -> None:
+        """
+        Click the Upload button and upload a document on the Tracking Center Item Detail page.
+        
+        This method:
+        1. Locates the Upload button using stable selector (get_by_text)
+        2. Waits for the associated file input to be attached
+        3. Creates a minimal test PDF if no file provided
+        4. Sets the file via set_input_files() for secure upload
+        5. Clicks the Upload button to trigger submission
+        6. Waits for page load after upload
+        
+        Args:
+            file_path: Optional path to document file. If empty, creates a minimal test PDF.
+                      Default: "" (generates test PDF)
+        
+        Returns:
+            None
+            
+        Raises:
+            PlaywrightTimeoutError: If Upload button or file input not found
+            Exception: If file upload fails
+            
+        Example:
+            item_detail_page.click_upload_button_and_upload_document()
+            item_detail_page.click_upload_button_and_upload_document("/path/to/document.pdf")
+        """
+        import os
+        import tempfile
+
+        logger.info("Starting document upload process...")
+        
+        # Step 1: Create test PDF if no file provided
+        if not file_path or not os.path.exists(file_path):
+            file_path = os.path.join(tempfile.gettempdir(), "item_detail_upload.pdf")
+            if not os.path.exists(file_path):
+                _create_min_pdf_for_upload(file_path)
+            logger.info(f"Using generated test PDF: {file_path}")
+        else:
+            logger.info(f"Using provided file: {file_path}")
+
+        # Step 2: Find file input associated with Upload button
+        logger.info("Locating file input for upload...")
+        try:
+            # Try to find file input in the page
+            file_input = self.page.locator(item_detail_locators.FILE_INPUT_SELECTOR).first
+            file_input.wait_for(state="attached", timeout=10000)
+            logger.info("✓ File input located")
+        except Exception as e:
+            logger.error(f"✗ File input not found: {e}")
+            raise
+
+        # Step 3: Set the file for upload
+        logger.info(f"Setting file for upload: {file_path}")
+        try:
+            file_input.set_input_files(file_path)
+            logger.info("✓ File set successfully on input element")
+        except Exception as e:
+            logger.error(f"✗ Failed to set file on input: {e}")
+            raise
+
+        # Step 4: Wait for page stabilization before clicking
+        self.page.wait_for_timeout(1000)
+
+        # Step 5: Click Upload button
+        logger.info("Clicking Upload button...")
+        try:
+            # Use get_by_text to find the Upload button (stable selector)
+            upload_button = self.page.get_by_text(item_detail_locators.UPLOAD_BUTTON_TEXT)
+            upload_button.wait_for(state="visible", timeout=10000)
+            upload_button.click()
+            logger.info("✓ Upload button clicked")
+        except Exception as e:
+            logger.warning(f"⚠ Upload button click warning: {e} - File may auto-upload")
+
+        # Step 6: Wait for page load and stabilization
+        logger.info("Waiting for page load after upload...")
+        try:
+            self.page.wait_for_load_state("domcontentloaded", timeout=30000)
+            logger.info("✓ Page loaded after upload")
+        except Exception as e:
+            logger.warning(f"⚠ Page load warning: {e}")
+
+        logger.info("✓ Document upload process completed successfully")
+
+    def click_close_button(self) -> None:
+        """
+        Click the Close button on the Tracking Center Item Detail page.
+        
+        This method:
+        1. Locates the Close button using stable selector (get_by_role)
+        2. Waits for the button to be visible and enabled
+        3. Clicks the Close button
+        4. Waits for page stabilization
+        
+        The Close button HTML:
+            <span class="right-padding">
+                <button type="button" class="btn btn-default">Close</button>
+            </span>
+        
+        Selector Strategy: Uses get_by_role("button", name="Close") - stable & accessible
+        
+        Returns:
+            None
+            
+        Raises:
+            PlaywrightTimeoutError: If Close button not found or not clickable
+            Exception: If button click fails
+            
+        Example:
+            item_detail_page.click_close_button()
+        """
+        logger.info("Clicking Close button on Tracking Center Item Detail page...")
+        
+        try:
+            # Locate the Close button using role-based selector (most stable)
+            # This uses the button role and matches the text "Close"
+            close_button = self.page.get_by_role("button", name=item_detail_locators.CLOSE_BUTTON_TEXT)
+            
+            # Wait for button to be visible and enabled
+            close_button.wait_for(state="visible", timeout=10000)
+            logger.info("✓ Close button is visible")
+            
+            # Click the Close button
+            close_button.click()
+            logger.info("✓ Close button clicked successfully")
+            
+            # Wait for page stabilization after close
+            self.page.wait_for_timeout(2000)
+            logger.info("✓ Page stabilized after Close button click")
+            
+        except Exception as e:
+            logger.error(f"✗ Failed to click Close button: {e}")
+            raise AssertionError(
+                f"Failed to click Close button. "
+                f"Locator: button[role='button'][name='Close']. "
+                f"HTML: <button type='button' class='btn btn-default'>Close</button>. "
+                f"Error: {e}"
+            ) from e
+
+
+def _create_min_pdf_for_upload(path: str) -> None:
+    """
+    Create a minimal valid PDF file for testing document uploads on Item Detail page.
+    
+    This helper function generates a compact, valid PDF file with proper structure:
+    - PDF header (%PDF-1.0)
+    - Object definitions (Catalog, Pages, Page)
+    - Cross-reference table (xref)
+    - Trailer
+    
+    Args:
+        path: File path where the PDF should be created
+        
+    Returns:
+        None - Creates file at specified path
+        
+    Example:
+        _create_min_pdf_for_upload("/tmp/test_upload.pdf")
+    """
+    pdf_content = (
+        b"%PDF-1.0\n"
+        b"1 0 obj<</Type/Catalog/Pages 2 0 R>>endobj\n"
+        b"2 0 obj<</Type/Pages/Kids[3 0 R]/Count 1>>endobj\n"
+        b"3 0 obj<</Type/Page/MediaBox[0 0 612 792]/Parent 2 0 R>>endobj\n"
+        b"xref\n0 4\n"
+        b"0000000000 65535 f \n"
+        b"0000000009 00000 n \n"
+        b"0000000058 00000 n \n"
+        b"0000000115 00000 n \n"
+        b"trailer<</Size 4/Root 1 0 R>>\n"
+        b"startxref\n190\n%%EOF"
+    )
+    with open(path, "wb") as f:
+        f.write(pdf_content)

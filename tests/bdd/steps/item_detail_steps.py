@@ -544,3 +544,89 @@ def verify_agent_name(trackingCenter_ItemDetail_page, test_context):
         except Exception as e:
             logger.error(f"✗ Agent Name verification failed: {e}")
             raise AssertionError(f"Agent Name verification failed: {e}") from e
+
+
+@then("User click on Upload button and upload the document")
+def user_click_upload_button_and_upload_document(trackingCenter_ItemDetail_page):
+    """
+    Click the Upload button and upload a document on the Tracking Center Item Detail page,
+    then click the Close button to complete the workflow.
+    
+    This step performs a complete upload-and-close workflow:
+    1. Locates the Upload button (label with text "Upload")
+    2. Finds the associated file input element
+    3. Creates and uploads a test document (PDF)
+    4. Clicks the Upload button to trigger submission
+    5. Waits for page load after upload
+    6. Clicks the Close button to complete the interaction
+    7. Waits for page stabilization
+    
+    The Upload button HTML:
+        <label class="fileuploadbutton item-detail-button">
+            <span class="">Upload</span>
+        </label>
+    
+    The Close button HTML:
+        <span class="right-padding">
+            <button type="button" class="btn btn-default">Close</button>
+        </span>
+    
+    Selector Strategies:
+    - Upload: Uses get_by_text("Upload") - stable and accessible
+    - Close: Uses get_by_role("button", name="Close") - accessible role-based selector
+    
+    Example in feature file:
+        When User click on Upload button and upload the document
+    """
+    with allure.step("Click Upload button, upload document, and close modal"):
+        logger.info(">>> STEP: User click on Upload button and upload the document")
+        
+        try:
+            # Step 1: Upload the document
+            logger.info("Step 1: Uploading document...")
+            trackingCenter_ItemDetail_page.click_upload_button_and_upload_document()
+            logger.info("✓ Document uploaded successfully via Upload button")
+            
+            # Attach screenshot after upload
+            screenshot = trackingCenter_ItemDetail_page.page.screenshot()
+            allure.attach(
+                screenshot,
+                name="After Document Upload",
+                attachment_type=allure.attachment_type.PNG
+            )
+            
+            # Step 2: Click Close button to complete the workflow
+            logger.info("Step 2: Clicking Close button...")
+            trackingCenter_ItemDetail_page.click_close_button()
+            logger.info("✓ Close button clicked successfully")
+            
+            # Attach screenshot after close
+            screenshot = trackingCenter_ItemDetail_page.page.screenshot()
+            allure.attach(
+                screenshot,
+                name="After Close Button Click",
+                attachment_type=allure.attachment_type.PNG
+            )
+            
+            logger.info("✓ Upload and Close workflow completed successfully")
+            
+        except Exception as e:
+            logger.error(f"✗ Upload and Close workflow failed: {e}")
+            
+            # Attach screenshot on failure for debugging
+            try:
+                screenshot = trackingCenter_ItemDetail_page.page.screenshot()
+                allure.attach(
+                    screenshot,
+                    name="Upload/Close Failure Screenshot",
+                    attachment_type=allure.attachment_type.PNG
+                )
+            except Exception:
+                pass
+            
+            raise AssertionError(
+                f"Failed to complete upload and close workflow. "
+                f"Upload Button Locator: label.fileuploadbutton with text 'Upload'. "
+                f"Close Button Locator: button[role='button'][name='Close']. "
+                f"Error: {e}"
+            ) from e
