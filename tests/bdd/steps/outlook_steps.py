@@ -11,7 +11,7 @@ from utils.database import fetch_agent_name_by_aplid_from_db
 logger = get_allure_logger(__name__)
 
 
-@then("User fetches OTP from email")
+@when("User fetches OTP from email")
 def fetch_otp_from_outlook(page: Page):
     """Fetch OTP from Outlook using OutlookPage helper.
 
@@ -188,8 +188,10 @@ def fetch_authorized_signer_email_subject_and_body_step(page: Page, test_context
                     allure.attach(error_msg, name="Subject Mismatch", attachment_type=allure.attachment_type.TEXT)
                     raise AssertionError(error_msg)
                 
-                if actual_body_stripped != expected_body_stripped:
-                    error_msg = f"Email body mismatch.\nExpected: {expected_body_stripped}\nActual: {actual_body_stripped}"
+                # For email body, use substring match since Outlook may add headers, warnings, and footers
+                # Check if expected body text is contained within the actual body
+                if expected_body_stripped not in actual_body_stripped:
+                    error_msg = f"Email body mismatch.\nExpected (substring): {expected_body_stripped}\nActual: {actual_body_stripped}"
                     logger.error(error_msg)
                     allure.attach(error_msg, name="Body Mismatch", attachment_type=allure.attachment_type.TEXT)
                     raise AssertionError(error_msg)

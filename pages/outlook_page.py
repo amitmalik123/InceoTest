@@ -711,10 +711,13 @@ class OutlookPage(BasePage):
             raise last_error
 
     def search_authorized_signer_email(self, outlook_email_page: Page, search_text: str) -> None:
-        """Search for authorized signer email using D-number only.
+        """Search for authorized signer email using D-number with subject and body filters.
         
-        Searches for the email containing the D-number (search_text) and opens it.
-        Only searches by D-number, does not filter by subject.
+        Searches for the email containing the D-number (search_text) AND filters by:
+        - Subject: "Electronic Signature" (identifies DocuSign signing emails)
+        - Body: "ready for you to sign" (identifies active, non-voided signing requests)
+        
+        This ensures we get the correct active signing request email and avoid voided/cancelled emails.
         
         Args:
             outlook_email_page: Authenticated Outlook page to search in
@@ -722,11 +725,14 @@ class OutlookPage(BasePage):
         """
         try:
             # Use shared helper to click Inbox and search for the D-number.
-            # Search only by D-number, no subject filtering.
+            # Filter results by subject (Electronic Signature) and body (ready for you to sign)
+            # to ensure we get the correct active signing email for this D-number
             self._click_inbox_search_and_select(
                 outlook_email_page,
                 search_text,
                 retries=10,
+                subject="Electronic Signature",
+                body="ready for you to sign",  # Only in active/pending emails, not voided ones
             )
             
             logger.info(f"Successfully searched and opened authorized signer email for D-number: {search_text}")
@@ -760,12 +766,17 @@ class OutlookPage(BasePage):
             
             self.logger.info(f"Fetched Email Subject: {subject_text}")
             
-            # Fetch email body
-            body_container = outlook_email_page.locator('(//div[@data-test-id="mailMessageBodyContainer"]/descendant::table[2]/tbody/tr)[3]/descendant::span')
+            # Fetch email body - use more robust locator for the container
+            # Try multiple approaches: look for the mailMessageBodyContainer div first
+            body_container = outlook_email_page.locator('//div[@data-test-id="mailMessageBodyContainer"]')
             
             try:
                 body_container.wait_for(state="visible", timeout=10_000)
+                # Get all text content from the container
                 body_text = body_container.inner_text()
+                if not body_text or body_text.strip() == "":
+                    # If container is empty, try to get any span text within it
+                    body_text = outlook_email_page.locator('//div[@data-test-id="mailMessageBodyContainer"]//span').first.inner_text()
             except PlaywrightTimeoutError:
                 raise RuntimeError("Email body container not found or not visible")
             

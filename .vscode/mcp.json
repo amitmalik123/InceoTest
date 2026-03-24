@@ -1,14 +1,10 @@
 {
   "servers": {
-    "dm1-test-framework": {
-      "type": "stdio",
-      "command": "python",
+    "playwright": {
+      "command": "npx",
       "args": [
-        "ai/mcp/server.py"
-      ],
-      "env": {
-        "PYTHONPATH": "${workspaceFolder}"
-      }
+        "@playwright/mcp@latest"
+      ]
     }
   }
 }

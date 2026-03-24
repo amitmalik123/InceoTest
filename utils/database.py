@@ -690,12 +690,12 @@ def fetch_agent_name_by_aplid_from_db(aplid: str, role: str) -> Optional[str]:
             raise ValueError(f"Invalid role: '{role}'. Use 'Agent'/'FA' or 'SAU'/'Shared Access User'.")
         
         # Step 5: Get query from centralized queries file
-        query = settings.database_queries.get("agent", {}).get(query_name)
+        query = settings.database_queries.get("agent", {}).get("queries", {}).get(query_name)
         
         if not query:
             raise ValueError(
                 f"Query 'agent.{query_name}' not found in queries/sql_queries.yaml. "
-                f"Ensure the query is defined under 'agent:' section."
+                f"Ensure the query is defined under 'agent: -> queries:' section."
             )
         
         logger.info(f"Query found: agent.{query_name}")

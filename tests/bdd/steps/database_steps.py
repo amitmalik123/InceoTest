@@ -7,6 +7,7 @@ All business logic is in utils/database.py for reusability.
 
 from typing import Optional
 
+import allure
 from pytest_bdd import then, when
 
 from utils.allure_logger import get_allure_logger
@@ -201,7 +202,7 @@ def verify_routing_order_in_database(test_context):
 
         # Get query from centralized queries file
         from config.settings import settings
-        query = settings.database_queries.get("tracking_center", {}).get(
+        query = settings.database_queries.get("tracking_center", {}).get("queries", {}).get(
             "itemId_by_dnumber"
         )
         
@@ -241,7 +242,7 @@ def verify_routing_order_in_database(test_context):
         logger.info(f"Step 2: Querying DocuSignID for ItemId: {item_id} and dnumber: {dnumber}")
 
         # Get second query from centralized queries file
-        query_docusign = settings.database_queries.get("tracking_center", {}).get(
+        query_docusign = settings.database_queries.get("tracking_center", {}).get("queries", {}).get(
             "docusign_id_by_item_id"
         )
         if not query_docusign:
@@ -281,7 +282,7 @@ def verify_routing_order_in_database(test_context):
         logger.info(f"Step 3: Querying recipient data for DocuSignID: {docusign_id} (with retry logic)")
 
         # Get third query from centralized queries file
-        query_recipient = settings.database_queries.get("esignature_data", {}).get(
+        query_recipient = settings.database_queries.get("esignature_data", {}).get("queries", {}).get(
             "recipient_by_envelope_provider_id"
         )
         if not query_recipient:
@@ -355,7 +356,7 @@ def verify_routing_order_in_database(test_context):
 
 
 @when("User fetch signers information from database")
-def user_fetch_signers_information_from_database(test_context, db_manager):
+def user_fetch_signers_information_from_database(test_context, db_manager, authenticated_page):
     """
     Fetch authorized signers information from database using all_agents_by_id query.
     
@@ -370,76 +371,163 @@ def user_fetch_signers_information_from_database(test_context, db_manager):
     
     Stores in test_context:
         - multiple_signers: List of dictionaries containing signer information with Name_ManageLogin
-    """
-    logger.info(">>> STEP: User fetch signers information from database")
     
-    try:
-        # Step 1: Get username from test data
-        logger.info("Step 1: Fetching username from test_data...")
-        test_data = test_context.get("test_data", {})
-        username = test_data.get("username")
-        
-        if not username:
-            raise ValueError(
-                "username not found in test_data CSV. "
-                "Test data must include 'username' column for this step."
-            )
-        
-        logger.info(f"  ✓ Username: {username}")
-        
-        # Step 2: Execute query using execute_query_from_yaml utility
-        # This handles database connection, query loading, and result processing
-        logger.info("Step 2: Executing all_agents_by_id query using execute_query_from_yaml...")
-        logger.info(f"  Query parameters: UserID={username}, ExcludeUserID={username}")
-        
-        from utils.database import execute_query_from_yaml
+    Fixtures Required:
+        - test_context: BDD test context fixture (MUST persist across steps!)
+        - db_manager: Database connection manager fixture
+        - authenticated_page: Playwright page for screenshot on failure
+    """
+    with allure.step("User fetch signers information from database"):
+        logger.info(">>> STEP: User fetch signers information from database")
+        logger.info(f">>> test_context object ID: {id(test_context)}")  # Debug: verify same instance
+        logger.info(f">>> test_context keys at step start: {list(test_context.keys())}")
         
         try:
-            results = execute_query_from_yaml(
-                query_category="agent",
-                query_name="all_agents_by_id",
-                params=(username, username),
-                db_manager=db_manager
-            )
-        except Exception as query_error:
-            logger.error(f"Failed to execute all_agents_by_id query: {query_error}")
-            raise
-        
-        if not results:
-            logger.warning(f"  ⚠ No signers found for username: {username}")
-            test_context["multiple_signers"] = []
-            logger.info("  ✓ multiple_signers set to empty list")
-        else:
-            # Step 3: Extract Name_ManageLogin from results
-            logger.info(f"Step 3: Processing {len(results)} signer record(s)...")
-            signers = []
-            for idx, row in enumerate(results, 1):
-                signer_name = row.get("Name_ManageLogin")
-                agent_aplid = row.get("AgentAPLID")
-                role = row.get("Role")
+            # Step 0: Verify fixtures are available
+            logger.info("Step 0: Verifying fixtures...")
+            if not test_context:
+                raise AssertionError("test_context fixture not available")
+            if not db_manager:
+                raise AssertionError("db_manager fixture not available")
+            logger.info("  ✓ Required fixtures available")
+            
+            # Step 1: Get username from test data
+            logger.info("Step 1: Fetching username from test_data...")
+            test_data = test_context.get("test_data", {})
+            logger.info(f"  test_data retrieved: {bool(test_data)}")
+            
+            if not test_data:
+                error_msg = (
+                    "test_data not found in test_context. "
+                    "Ensure test_data fixture is properly initialized via conftest.py. "
+                    f"test_context keys: {list(test_context.keys())}"
+                )
+                logger.error(error_msg)
+                raise ValueError(error_msg)
+            
+            username = test_data.get("username")
+            logger.info(f"  username extracted: {username}")
+            
+            if not username:
+                error_msg = (
+                    "username not found in test_data CSV. "
+                    "Test data must include 'username' column for this step. "
+                    f"Available keys: {list(test_data.keys())}"
+                )
+                logger.error(error_msg)
+                raise ValueError(error_msg)
+            
+            logger.info(f"  ✓ Username: {username}")
+            
+            # Step 2: Execute query using execute_query_from_yaml utility
+            logger.info("Step 2: Executing all_agents_by_id query using execute_query_from_yaml...")
+            logger.info(f"  Query parameters: UserID={username}, ExcludeUserID={username}")
+            
+            from utils.database import execute_query_from_yaml
+            
+            try:
+                results = execute_query_from_yaml(
+                    query_category="agent",
+                    query_name="all_agents_by_id",
+                    params=(username, username),
+                    db_manager=db_manager
+                )
+                logger.info(f"  ✓ Query executed successfully, returned {len(results) if results else 0} rows")
+            except Exception as query_error:
+                error_msg = (
+                    f"Failed to execute all_agents_by_id query: {query_error}\n"
+                    f"Query category: 'agent'\n"
+                    f"Query name: 'all_agents_by_id'\n"
+                    f"Parameters: ({username}, {username})"
+                )
+                logger.error(error_msg)
+                raise AssertionError(error_msg) from query_error
+            
+            # Step 3: Process results
+            if not results:
+                logger.warning(f"  ⚠ No signers found for username: {username}")
+                test_context["multiple_signers"] = []
+                logger.info("  ✓ multiple_signers set to empty list")
+                logger.info(f">>> test_context after storage: {list(test_context.keys())}")
                 
-                if signer_name:
-                    signers.append({
-                        "Name_ManageLogin": signer_name,
-                        "AgentAPLID": agent_aplid,
-                        "Role": role
-                    })
-                    logger.info(f"  Record {idx}: {signer_name} ({role})")
-                else:
-                    logger.warning(f"  Record {idx}: Missing Name_ManageLogin field")
+                allure.attach(
+                    "No signers found in database for user: " + username,
+                    name="Signers Query Result",
+                    attachment_type=allure.attachment_type.TEXT
+                )
+            else:
+                # Step 3: Extract Name_ManageLogin from results
+                logger.info(f"Step 3: Processing {len(results)} signer record(s)...")
+                signers = []
+                for idx, row in enumerate(results, 1):
+                    signer_name = row.get("Name_ManageLogin")
+                    agent_aplid = row.get("AgentAPLID")
+                    role = row.get("Role")
+                    
+                    if signer_name:
+                        signers.append({
+                            "Name_ManageLogin": signer_name,
+                            "AgentAPLID": agent_aplid,
+                            "Role": role
+                        })
+                        logger.info(f"  Record {idx}: {signer_name} ({role})")
+                    else:
+                        logger.warning(f"  Record {idx}: Missing Name_ManageLogin field")
+                
+                # Step 4: Store in test_context
+                logger.info(f"Step 4: Storing {len(signers)} signer(s) in test_context['multiple_signers']...")
+                test_context["multiple_signers"] = signers
+                logger.info(f"  ✓ Successfully stored {len(signers)} signer(s)")
+                logger.info(f">>> test_context after storage: {list(test_context.keys())}")
+                
+                # Log summary
+                logger.info("\nSigner Summary:")
+                for signer in signers:
+                    logger.info(f"  - {signer['Name_ManageLogin']} ({signer['Role']})")
+                
+                # Attach summary to Allure
+                summary_text = "\n".join([f"- {s['Name_ManageLogin']} ({s['Role']})" for s in signers])
+                allure.attach(
+                    f"Fetched {len(signers)} signer(s):\n{summary_text}",
+                    name="Signers Query Result",
+                    attachment_type=allure.attachment_type.TEXT
+                )
+                
+                logger.info(f"\n✓ Successfully fetched signers information from database")
+        
+        except AssertionError as e:
+            logger.error(f"✗ Failed to fetch signers information from database: {e}")
+            try:
+                allure.attach(
+                    f"AssertionError: {str(e)}",
+                    name="Fetch Signers - Assertion Error",
+                    attachment_type=allure.attachment_type.TEXT
+                )
+                allure.attach(
+                    authenticated_page.screenshot(),
+                    name="Fetch Signers - Failed",
+                    attachment_type=allure.attachment_type.PNG,
+                )
+            except:
+                pass
+            raise
+        except Exception as e:
+            logger.error(f"✗ Failed to fetch signers information from database: {e}")
+            logger.error(f"  Exception type: {type(e).__name__}")
+            logger.error(f"  Exception details: {str(e)}")
             
-            # Step 4: Store in test_context
-            logger.info(f"Step 4: Storing {len(signers)} signer(s) in test_context['multiple_signers']...")
-            test_context["multiple_signers"] = signers
-            logger.info(f"  ✓ Successfully stored {len(signers)} signer(s)")
+            try:
+                allure.attach(
+                    f"Error: {str(e)}\nType: {type(e).__name__}",
+                    name="Fetch Signers - Error",
+                    attachment_type=allure.attachment_type.TEXT
+                )
+                allure.attach(
+                    authenticated_page.screenshot(),
+                    name="Fetch Signers - Failed",
+                    attachment_type=allure.attachment_type.PNG,
+                )
+            except:
+                pass
             
-            # Log summary
-            logger.info("\nSigner Summary:")
-            for signer in signers:
-                logger.info(f"  - {signer['Name_ManageLogin']} ({signer['Role']})")
-            
-            logger.info(f"\n✓ Successfully fetched signers information from database")
-    
-    except Exception as e:
-        logger.error(f"✗ Failed to fetch signers information from database: {e}")
-        raise AssertionError(f"Failed to fetch signers information from database: {e}") from e
+            raise AssertionError(f"Failed to fetch signers information from database: {e}") from e

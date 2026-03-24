@@ -291,13 +291,22 @@ class ClientAccountsPage(BasePage):
             
             # Step 5: Verify it's selected
             logger.info(f"  Step 5: Verifying '{method}' radio button is selected...")
-            self.page.wait_for_load_state("networkidle", timeout=5000)
-            
-            is_checked = radio_button.is_checked()
-            if not is_checked:
-                logger.warning(f"  ⚠ '{method}' radio button may not be selected (is_checked returned False)")
-            else:
+            try:
+                # Wait for radio button to be checked (up to 3 seconds)
+                radio_button.wait_for(state="checked", timeout=3000)
                 logger.info(f"  ✓ '{method}' radio button is selected")
+            except Exception as wait_error:
+                # If wait fails, log warning but don't fail - sometimes the page doesn't update immediately
+                logger.warning(f"  ⚠ Radio button selection state could not be confirmed within timeout. Details: {wait_error}")
+                # Still verify the checked status
+                try:
+                    is_checked = radio_button.is_checked()
+                    if is_checked:
+                        logger.info(f"  ✓ '{method}' radio button confirmed as selected")
+                    else:
+                        logger.warning(f"  ⚠ '{method}' radio button may not be selected (is_checked returned False)")
+                except:
+                    logger.warning(f"  ⚠ Could not verify radio button state")
             
             logger.info(f"✓ Successfully selected '{method}' eSign method")
             

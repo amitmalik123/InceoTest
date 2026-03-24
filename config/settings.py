@@ -282,6 +282,16 @@ class Settings:
         """Get Outlook IMAP port. Defaults to 993."""
         return self.config.get("outlook", {}).get("imap_port", 993)
 
+    @property
+    def secret_key(self):
+        """Get encryption secret key (YAML → env-var fallback).
+        
+        Used to decrypt sensitive credentials like Outlook email/password.
+        Should be a 16 or 32-byte encryption key.
+        """
+        yaml_val = self.config.get("secret_key", "")
+        return yaml_val or os.getenv("ENCRYPTION_SECRET_KEY", "")
+
 
 # ---------------------------------------------------------------------------
 # Lazy singleton – environment resolved ONCE from TEST_ENV env-var

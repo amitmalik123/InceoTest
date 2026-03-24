@@ -291,17 +291,17 @@ def verify_notes_description(trackingCenter_ItemDetail_page, test_context):
                 # Replace <SAU Name> placeholder if present
                 if "<SAU Name>" in processed_desc:
                     logger.info("    Found '<SAU Name>' placeholder - fetching SAU name from database...")
-                    
-                    if agent_id:
+                    username = test_data.get("username", "")
+                    if username:
                         try:
-                            # For SAU role, use the same agent_id but with 'SAU' role
-                            sau_name = fetch_agent_name_by_aplid_from_db(agent_id, "SAU")
+                            # For SAU role, use the same username but with 'SAU' role
+                            sau_name = fetch_agent_name_by_aplid_from_db(username, "SAU")
                             
                             if sau_name:
                                 logger.info(f"    ✓ SAU name fetched: '{sau_name}'")
                                 processed_desc = processed_desc.replace("<SAU Name>", sau_name)
                             else:
-                                logger.warning(f"    ⚠ No SAU name found for UserID '{agent_id}'")
+                                logger.warning(f"    ⚠ No SAU name found for UserID '{username}'")
                         except Exception as e:
                             logger.warning(f"    ⚠ Error fetching SAU name: {e}")
                 

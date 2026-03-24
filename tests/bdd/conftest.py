@@ -65,15 +65,53 @@ def test_data(test_data_manager, request) -> dict:
         return test_data_manager[0] if len(test_data_manager) > 0 else {}
 
 
+# Store test_context instances at module level to ensure persistence across steps in BDD scenarios
+_test_context_cache = {}
+
+
 @pytest.fixture
-def test_context(test_data) -> dict:
+def test_context(test_data, request) -> dict:
     """
     Context to store test data and state across BDD steps.
+    
+    IMPORTANT: This fixture MUST persist across ALL steps in a single BDD scenario.
+    Without this, steps cannot share data (e.g., database query results).
+    
+    Solution: Cache instances by test node ID so all steps in same scenario share context.
 
     Args:
         test_data: Injected from test_data fixture (filtered by scenario name)
+        request: Pytest request object with node info
 
     Returns:
         dict: Context with test_data accessible via test_context["test_data"]
+              and allows steps to store/retrieve shared state via test_context dict
     """
-    return {"test_data": test_data}
+    # Use test node ID as cache key so all steps in same scenario share context
+    test_node_id = request.node.nodeid
+    
+    # Create context only once per test, reuse for all steps
+    if test_node_id not in _test_context_cache:
+        print(f"\n[TEST CONTEXT] Creating new context for: {test_node_id}")
+        _test_context_cache[test_node_id] = {"test_data": test_data}
+    else:
+        print(f"\n[TEST CONTEXT] Reusing existing context for: {test_node_id}")
+    
+    context = _test_context_cache[test_node_id]
+    
+    # Log current state
+    print(f"[TEST CONTEXT] Available keys: {list(context.keys())}")
+    for key in context.keys():
+        if key != "test_data":  # Don't log large test_data dict
+            value = context[key]
+            if isinstance(value, list) and len(value) > 0:
+                print(f"  - {key}: {len(value)} item(s)")
+            else:
+                print(f"  - {key}: {value}")
+    
+    yield context
+    
+    # Cleanup after test completes
+    if test_node_id in _test_context_cache:
+        print(f"[TEST CONTEXT] Cleanup: Removing context for {test_node_id}")
+        del _test_context_cache[test_node_id]

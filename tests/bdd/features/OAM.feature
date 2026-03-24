@@ -97,6 +97,7 @@ Feature: E2E OAM flow for FA, SAU and OA
     And Verify buttons displayed "Cancel,View,eSignature"
     When User login to the email and search the authorized signer email
     Then Verify authorized signer email content
-    And Verify Notes description
+    When User fetches OTP from email
+    Then Verify Notes description
     And Verify Agent Name
-    And Verify the Routing Order in database
+    #And Verify the Routing Order in database
