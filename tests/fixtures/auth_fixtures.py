@@ -18,6 +18,7 @@ from typing import Optional
 
 import pytest
 from playwright.sync_api import Page
+from playwright.sync_api import TimeoutError as PlaywrightTimeoutError
 
 from config.settings import Settings, get_settings
 from pages.login_page import LoginPage
@@ -206,23 +207,31 @@ def authenticated_page(browser, test_data, request) -> Generator[Page, None, Non
 
         # Navigate to home URL to activate session
         print(f"[SESSION] Navigating to: {app_config.home_url}")
-        page.goto(app_config.home_url, timeout=30000)
-        page.wait_for_load_state("domcontentloaded", timeout=10000)
+        try:
+            page.goto(app_config.home_url, wait_until="domcontentloaded", timeout=30000)
+            page.wait_for_load_state("domcontentloaded", timeout=10000)
+        except PlaywrightTimeoutError:
+            print("[SESSION] Saved session navigation timed out, deleting stale session and re-authenticating...")
+            page.close()
+            context.close()
+            if session_file.exists():
+                session_file.unlink()
 
-        # Verify session is still valid
-        if "login" not in page.url.lower():
-            print("[SESSION] Session valid! Already authenticated.")
-            yield page
-            page.close()
-            context.close()
-            return
-        else:
-            # Session expired - close this context and delete session file
-            print("[SESSION] Session expired, deleting and re-authenticating...")
-            page.close()
-            context.close()
-            session_file.unlink()
-            # Fall through to login block below
+        if session_file.exists():
+            # Verify session is still valid
+            if "login" not in page.url.lower():
+                print("[SESSION] Session valid! Already authenticated.")
+                yield page
+                page.close()
+                context.close()
+                return
+            else:
+                # Session expired - close this context and delete session file
+                print("[SESSION] Session expired, deleting and re-authenticating...")
+                page.close()
+                context.close()
+                session_file.unlink()
+                # Fall through to login block below
 
     # No session or expired - perform login in TEMPORARY context
     if not session_file.exists():
@@ -263,7 +272,7 @@ def authenticated_page(browser, test_data, request) -> Generator[Page, None, Non
 
         # Navigate to home page
         print(f"[SESSION] Navigating to: {app_config.home_url}")
-        page.goto(app_config.home_url, timeout=30000)
+        page.goto(app_config.home_url, wait_until="domcontentloaded", timeout=30000)
         page.wait_for_load_state("domcontentloaded", timeout=10000)
         print("[SESSION] Ready for test execution!")
 

@@ -37,7 +37,6 @@ class LookupPage(BasePage):
         self.fill(self.lookup_user_id_input, user_id, timeout=timeout)
         self.click(self.find_button, timeout=timeout)
         self.page.wait_for_load_state("domcontentloaded", timeout=timeout)
-        self.page.wait_for_load_state("networkidle", timeout=timeout)
         self.wait_for_element(self.results_row.first, state="visible", timeout=timeout)
 
     def click_agent_result(self, timeout: int = 10000) -> None:
