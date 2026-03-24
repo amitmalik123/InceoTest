@@ -30,7 +30,7 @@ class ClientsPage(BasePage):
             self.page.wait_for_load_state("domcontentloaded", timeout=10000)
         else:
             logger.info(f"Navigating to: {url}")
-            self.page.goto(url, wait_until="domcontentloaded", timeout=30000)
+            self.page.goto(url, wait_until="domcontentloaded", timeout=60000)
         logger.info("Clients page ready")
 
     def click_clients(self) -> None:

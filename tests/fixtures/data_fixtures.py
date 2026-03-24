@@ -120,8 +120,7 @@ def test_data_manager() -> TestDataManager:
     # (e.g., smart quotes created by Excel on Windows)
     with open(csv_path, "r", encoding="latin-1") as file:
         reader = csv.DictReader(file)
-        # Strip whitespace from all values to prevent matching issues
-        data_rows = [{key: value.strip() if isinstance(value, str) else value for key, value in row.items()} for row in reader]
+        data_rows = list(reader)
 
     logger.info(f"[SESSION SCOPE] Loaded {len(data_rows)} test data row(s)")
 
