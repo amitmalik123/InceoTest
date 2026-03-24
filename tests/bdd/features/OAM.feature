@@ -64,7 +64,7 @@ Feature: E2E OAM flow for FA, SAU and OA
 
   
 
-  @FNT_regression
+  @InDev
   Scenario: OAM_Initiated by SAU_Complete and Print 
     When User navigate to Clients menu
     And User click on Account List

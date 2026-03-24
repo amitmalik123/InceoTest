@@ -44,8 +44,9 @@ def test_data(test_data_manager, request) -> dict:
     print(f"\n{'=' * 60}")
     print(f"[TEST DATA] Scenario: '{scenario_name}'")
 
-    # Try to find matching data by scenario name
-    data = test_data_manager.get_by(scenario=scenario_name)
+    # Try to find matching data by scenario name (strip whitespace from both)
+    scenario_name_stripped = scenario_name.strip() if scenario_name else ""
+    data = test_data_manager.get_by(scenario=scenario_name_stripped)
 
     if data:
         print("[TEST DATA] MATCHED in CSV!")
@@ -53,14 +54,15 @@ def test_data(test_data_manager, request) -> dict:
         print(f"[TEST DATA] Username: {data.get('username')}")
         print(f"[TEST DATA] Client ID: {data.get('client_id')}")
         print(f"[TEST DATA] Account Number: {data.get('account_number')}")
+        print(f"[TEST DATA] Submission_Type: {data.get('Submission_Type')}")
         print(f"{'=' * 60}")
         return data
     else:
         print("[TEST DATA] NOT FOUND - No exact match")
-        print("[TEST DATA] Available in CSV:")
+        print("[TEST DATA] Available scenarios in CSV:")
         for row in test_data_manager.get_all():
-            print(f"  - '{row.get('scenario', 'N/A')}'")
-        print("[TEST DATA] Fallback: using first row")
+            print(f"  - Scenario: '{row.get('scenario', 'N/A')}' | Submission_Type: '{row.get('Submission_Type', 'N/A')}'")
+        print(f"[TEST DATA] Fallback: using first row with Submission_Type '{test_data_manager[0].get('Submission_Type')}'")
         print(f"{'=' * 60}")
         return test_data_manager[0] if len(test_data_manager) > 0 else {}
 

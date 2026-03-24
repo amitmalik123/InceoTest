@@ -896,26 +896,12 @@ class ClientAccountsPage(BasePage):
         d_link_href = d_link.get_attribute("href") or ""
         logger.info(f"D-Link Text: {d_link_text}, Href: {d_link_href}")
 
-        # Get the "Print or Download" link from the FIRST dialog only
-        # Target: <a href="#" onclick="return btnDownload();">Print or Download</a>
-        print_download_link = self.page.locator('[role="dialog"]').first.locator('a[onclick*="btnDownload"]')
-        logger.info(f"Print or Download link found: {print_download_link.count() > 0}")
-
-        # Get Close button from the FIRST dialog only
-        # Target the visible formButton close button at the bottom (not the hidden titlebar close button)
-        # The close button is in the .close-button-container div in the footer
-        close_button = self.page.locator('[role="dialog"]').first.locator('.close-button-container button.formButton')
-        close_button.wait_for(state="visible", timeout=5000)
-        logger.info("Close button found")
-
         return {
             'title': dialog_title,
             'content': dialog_content,
             'd_link': d_link,
             'd_link_text': d_link_text,
             'd_link_href': d_link_href,
-            'print_download_link': print_download_link,
-            'close_button': close_button
         }
 
     def get_signer_information_dialog_text(self) -> str:

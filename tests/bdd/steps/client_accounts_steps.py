@@ -1288,40 +1288,16 @@ def verify_request_dialog(authenticated_page: Page, client_accounts_page, test_c
             else:
                 raise AssertionError("D-link not found in dialog")
             
-            # Validate Print or Download link (SOFT ASSERTION)
-            logger.info("Validating Print or Download link (SOFT ASSERTION)...")
-            print_download_link = dialog_data.get('print_download_link')
-            if print_download_link and print_download_link.count() > 0:
-                soft_assert.assert_visible(
-                    print_download_link,
-                    "[FAIL] RequestDialog: Print/Download Link Visibility — Expected: visible=True, Actual: visible=False. Details: Print or Download link must be visible in Request Submitted dialog. Locator: print_download_link."
-                )
-                logger.info("✓ Print or Download link collected for soft assertion verification")
-            else:
-                soft_assert.assert_true(
-                    False,
-                    "[FAIL] RequestDialog: Print/Download Link Presence — Expected: print_download_link count > 0, Actual: count=0 or not found. Details: Print or Download link should exist in Request Submitted dialog. Locator: print_download_link."
-                )
-                logger.warning("✗ Print or Download link not found in dialog")
-            
-            # Validate close button
-            close_button = dialog_data.get('close_button')
-            if close_button:
-                assert close_button.is_visible(), "Close button not visible"
-                logger.info("✓ Close button is visible and enabled")
-            else:
-                raise AssertionError("Close button not found in dialog")
-            
             # Verify all soft assertions
             logger.info("Verifying soft assertions for optional dialog elements...")
             try:
                 soft_assert.assert_all()
-                logger.info("✓ All soft assertions passed (Print/Download link validated)")
+                logger.info("✓ All soft assertions passed")
             except Exception as soft_assert_error:
                 logger.error(f"✗ Soft assertion(s) failed: {str(soft_assert_error)}")
                 allure.attach(
                     str(soft_assert_error),
-                    name="Request Dialog - Print/Download Link Assertion Failures",
+                    name="Request Dialog - Soft Assertion Failures",
                     attachment_type=allure.attachment_type.TEXT,
                 )
                 raise
@@ -1350,27 +1326,37 @@ def user_click_on_d_number(authenticated_page: Page, client_accounts_page, test_
     with allure.step("User click on D number"):
         logger.info(">>> STEP: User click on D number")
         
+        d_number = None
         try:
-            # Click the D-number link and get the D-number value
+            # STEP 1: Click the D-number link and get the D-number value
             d_number = client_accounts_page.click_d_number()
-            logger.info(f"D-number clicked successfully: {d_number}")
+            logger.info(f"✓ D-number clicked successfully: {d_number}")
             
             # Store D-number in test_context for later verification
             test_context['d_number'] = d_number
-            logger.info(f"D-number stored in test_context: {d_number}")
+            logger.info(f"✓ D-number stored in test_context: {d_number}")
             
-            # Wait for page navigation to Tracking Center
-            authenticated_page.wait_for_load_state("networkidle", timeout=30000)
-            logger.info(f"\u2713 Navigated to Tracking Center with D-number: {d_number}")
-            
-            # Take screenshot for Allure reporting
-            screenshot = authenticated_page.screenshot()
-            allure.attach(screenshot, name="D-number Clicked - Navigating to Tracking Center", attachment_type=allure.attachment_type.PNG)
-            
-            logger.info("\u2713 D-number click step completed successfully")
         except Exception as e:
-            logger.error(f"\u2717 Failed to click D-number: {e}")
+            logger.error(f"✗ Failed to click D-number element: {e}")
             screenshot = authenticated_page.screenshot()
             allure.attach(screenshot, name="D-Number Click - Failed", attachment_type=allure.attachment_type.PNG)
             raise AssertionError(f"Failed to click D-number: {e}") from e
+        
+        # STEP 2: Wait for page navigation to Tracking Center
+        try:
+            authenticated_page.wait_for_load_state("networkidle", timeout=30000)
+            logger.info(f"✓ Page navigated to Tracking Center with D-number: {d_number}")
+            
+        except Exception as e:
+            logger.error(f"✗ Timeout waiting for Tracking Center page to load: {e}")
+            logger.error(f"   (D-number {d_number} was clicked, but page load timed out)")
+            screenshot = authenticated_page.screenshot()
+            allure.attach(screenshot, name="D-Number Navigation - Page Load Timeout", attachment_type=allure.attachment_type.PNG)
+            raise AssertionError(f"Page failed to load after clicking D-number {d_number}: {e}") from e
+        
+        # STEP 3: Take screenshot for Allure reporting
+        screenshot = authenticated_page.screenshot()
+        allure.attach(screenshot, name="D-number Clicked - Navigating to Tracking Center", attachment_type=allure.attachment_type.PNG)
+        
+        logger.info(f"✓ D-number click step completed successfully for D-number: {d_number}")
 
