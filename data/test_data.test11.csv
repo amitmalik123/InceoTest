@@ -10,8 +10,8 @@ a copy for your records.
 Click Close to return to eWealthManager.",No,,,Document has been completed and routed to Operations for review and processing.,Advisor,1
 OAM_Initiated by SAU_Online Submit_Authorized Signer_Required_FA,SAU,SAU,FA,AGA1G1,SAU_AGA1G1_T11,QAAdminUser_33a,,13222266,Carmen E Tucker,Contributions,Copy for Digital Deposit,Complete and Submit,Proceed and submit without a client signature,"Signer(s) Information 
 |
-Please provide the advisor’s or their Shared Access user’s details and indicate whether they should be notified via Tracking Center or SMS.
-Once setup is complete, they’ll receive an email alerting them to the pending documents and granting access through the selected notification method.","Authorized Signer Approval 
+Please provide the advisor's or their Shared Access user's details and indicate whether they should be notified via Tracking Center or SMS.
+Once setup is complete, they'll receive an email alerting them to the pending documents and granting access through the selected notification method.","Authorized Signer Approval 
 |
 You are authorized to begin the signature process; approval is not required.
 Do you need approval from another authorized signer before proceeding with eSignature?",Yes,SMS,Howard Ginsberg CPA,saransh.saxena@assetmark.com,925 532 9706,Please review and sign the document electronically.,No,"Request Ready for Financial Advisor Review
@@ -31,8 +31,8 @@ Document completed by <SAU Name> and is pending review and submission.
 Document created by <SAU Name>",Advisor,1
 OAM_Initiated by SAU_Online Submit_Authorized Signer_Not_Required,SAU,SAU,,AGA1G1,SAU_AGA1G1_T11,QAAdminUser_33a,,13222266,Carmen E Tucker,Contributions,Copy for Digital Deposit,Complete and Submit,Proceed and submit without a client signature,"Signer(s) Information 
 |
-Please provide the advisor’s or their Shared Access user’s details and indicate whether they should be notified via Tracking Center or SMS.
-Once setup is complete, they’ll receive an email alerting them to the pending documents and granting access through the selected notification method.","Authorized Signer Approval 
+Please provide the advisor's or their Shared Access user's details and indicate whether they should be notified via Tracking Center or SMS.
+Once setup is complete, they'll receive an email alerting them to the pending documents and granting access through the selected notification method.","Authorized Signer Approval 
 |
 You are authorized to begin the signature process; approval is not required.
 Do you need approval from another authorized signer before proceeding with eSignature?",No,,,,,Please review and sign the document electronically.,Yes,"Request Submitted
@@ -48,10 +48,3 @@ Click Close to return to eWealthManager.",No,"Document has been completed and ro
 Document created by <FA Name>",,"Document has been completed and routed to Operations for review and processing.
 |
 Document created by <FA Name>",Advisor,1
-OAM_Initiated by SAU_Complete and Print ,SAU,SAU,,AGA1G1,SAU_AGA1G1_T11,QAAdminUser_33a,,13222266,Carmen E Tucker,Contributions,Copy for Digital Deposit,Complete and Print,,,,,,,,,Please review and sign the document electronically.,No,"Ready for Signatures
-|
-After printing and obtaining signatures, scan the signed document and upload to the Tracking Center by selecting
-|
-The Tracking Center provides one-stop access to your documents and status updates.",Yes,,,"Once completed and signed, submit document from Tracking Center upload or mail.
-|
-Document created by Cheryl G. Hirss.",Advisor,1
