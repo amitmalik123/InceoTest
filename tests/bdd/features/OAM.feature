@@ -62,8 +62,6 @@ Feature: E2E OAM flow for FA, SAU and OA
     And Verify Agent Name
     And Verify the Routing Order in database
 
-  
-
   @InDev
   Scenario: OAM_Initiated by SAU_Complete and Print 
     When User navigate to Clients menu
@@ -88,4 +86,4 @@ Feature: E2E OAM flow for FA, SAU and OA
     And Verify Advisor Alert Required value
     And Verify buttons displayed "Cancel,View,Upload"
     And Verify Notes description
-    #And Verify the Routing Order in database
+    And Verify the Routing Order in database
