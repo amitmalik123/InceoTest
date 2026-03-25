@@ -26,7 +26,7 @@ def user_confirm_and_continue(authenticated_page: Page, docusign_page):
     logger.info("Clicking Continue button...")
     docusign_page.click_ersd_continue_button(timeout=10000)
     
-    logger.info("✓ User confirmed and clicked Continue button")
+    logger.info("[PASS] DocuSignPage: ERSD Consent Confirmed.")
 
 
 @when("User Finish the DocuSign process")
@@ -38,7 +38,7 @@ def user_finish_the_docusign_process(authenticated_page: Page, docusign_page):
     logger.info("Clicking Finish button to complete DocuSign process...")
     docusign_page.click_finish_button(timeout=10000)
     
-    logger.info("✓ User finished the DocuSign process")
+    logger.info("[PASS] DocuSignPage: DocuSign Process Finished.")
 
 @then("User should be redirected to the DocuSign page")
 def user_should_be_redirected_to_docusign_page(authenticated_page: Page, docusign_page):
@@ -57,7 +57,7 @@ def user_should_be_redirected_to_docusign_page(authenticated_page: Page, docusig
     assert docusign_url_pattern in current_url, \
         f"[FAIL] DocuSignPage: Page Redirect — Expected: URL contains '{docusign_url_pattern}', Actual: '{current_url}'. Details: Page must redirect to DocuSign signing interface. Locator: window.location.href."
     
-    logger.info("✓ User successfully redirected to DocuSign page")
+    logger.info("[PASS] DocuSignPage: Page Redirection Verified.")
 
 
 @then("Verify As_authorized_by stamp presence")
@@ -102,7 +102,7 @@ def verify_as_authorized_by_stamp_presence(authenticated_page: Page, docusign_pa
         logger.info("Step 2: Verifying soft assertions...")
         try:
             soft_assert.assert_all()
-            logger.info(f"✓ Soft assertion PASSED: '{STAMPING_TEXT}' stamp verification")
+            logger.info(f"[PASS] DocuSignPage: Stamping Verification Completed.")
         except Exception as soft_assert_error:
             logger.error(f"✗ Soft assertion(s) failed: {str(soft_assert_error)}")
             allure.attach(
@@ -113,7 +113,7 @@ def verify_as_authorized_by_stamp_presence(authenticated_page: Page, docusign_pa
             raise
         
         result_text = "IS PRESENT" if should_be_present else "IS NOT PRESENT"
-        logger.info(f"✓ Verified: '{STAMPING_TEXT}' stamp {result_text}")
+        logger.info(f"[PASS] DocuSignPage: Stamping Presence Verified.")
         # Take screenshot for Allure reporting
         logger.info("Step 3: Capturing screenshot for verification...")
         screenshot = authenticated_page.screenshot()
@@ -171,7 +171,7 @@ def verify_docusign_review_and_continue_dialog_text(authenticated_page: Page, do
         logger.info("Step 3: Verifying soft assertions...")
         try:
             soft_assert.assert_all()
-            logger.info(f"✓ Soft assertion PASSED: Dialog text matches expected value")
+            logger.info(f"[PASS] DocuSignPage: Dialog Text Verification Completed.")
         except Exception as soft_assert_error:
             logger.error(f"✗ Soft assertion(s) failed: {str(soft_assert_error)}")
             allure.attach(
@@ -214,7 +214,7 @@ def user_add_signature(authenticated_page: Page, docusign_page):
     screenshot = authenticated_page.screenshot()
     allure.attach(screenshot, name="Signature Process Completed", attachment_type=allure.attachment_type.PNG)
     
-    logger.info("✓ User signature addition process completed successfully")
+    logger.info("[PASS] DocuSignPage: Signature Addition Process Completed.")
 
 
 @then("Signature and today's date should be added on the document")
@@ -303,7 +303,7 @@ def verify_signature_and_date_added_on_document(authenticated_page: Page, docusi
         # STEP 4: Verify all soft assertions - raises SoftAssertionError if any failed
         try:
             soft_assert.assert_all()
-            logger.info(f"✓ SOFT ASSERTION PASSED: Signature and date verified as added on document")
+            logger.info(f"[PASS] DocuSignPage: Signature and Date Verification Completed.")
             logger.info(f"  - Signature field is valid (aria-invalid=false)")
             logger.info(f"  - Parent div class is set: '{parent_class}'")
             logger.info(f"  - Date Signed is set: '{date_signed_value}'")
@@ -317,5 +317,5 @@ def verify_signature_and_date_added_on_document(authenticated_page: Page, docusi
             )
             raise
         
-        logger.info(f"✓ Step completed successfully - Signature and date verification PASSED")
+        logger.info(f"[PASS] DocuSignPage: Signature and Date Verification Passed.")
 

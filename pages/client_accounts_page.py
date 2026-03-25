@@ -1193,4 +1193,110 @@ class ClientAccountsPage(BasePage):
         logger.info(f"✓ Successfully fetched label for account '{account_number}'")
         return matching_label
 
+    def get_account_radio_button(self, account_number: str) -> tuple:
+        """
+        Get the radio button element for a given account number and validate it exists.
+        
+        This method:
+        1. Fetches the account label using fetch_selected_account()
+        2. Extracts the radio button ID from the label's 'for' attribute
+        3. Locates and validates the radio button exists
+        4. Returns both the radio button and its ID for further operations
+        
+        Args:
+            account_number: The account number to find radio button for (e.g., '13222266')
+            
+        Returns:
+            Tuple of (radio_button: Locator, label_for_attr: str)
+            
+        Raises:
+            AssertionError: If account not found or radio button doesn't exist
+            
+        Example:
+            radio_button, button_id = page_obj.get_account_radio_button('13222266')
+            is_checked = radio_button.is_checked()
+        """
+        logger.info(f"Getting radio button for account: {account_number}")
+        
+        # Get the matching account label
+        matching_label = self.fetch_selected_account(account_number)
+        logger.info("✓ Account label fetched successfully")
+        
+        # Extract the radio button ID from the label's 'for' attribute
+        label_for_attr = matching_label.get_attribute("for")
+        logger.info(f"Label 'for' attribute: '{label_for_attr}'")
+        
+        # Locate the radio input with matching id
+        radio_button = self.page.locator(f"input#{label_for_attr}")
+        
+        # Validate radio button exists
+        assert radio_button.count() > 0, \
+            f"[FAIL] ClientAccountsPage: Radio Button Lookup — Expected: radio_button count > 0, " \
+            f"Actual: count=0 (not found). Details: Radio button with id '{label_for_attr}' for account '{account_number}' should exist. " \
+            f"Locator: input#{label_for_attr}."
+        
+        radio_button = radio_button.first
+        logger.info(f"✓ Radio button located for account '{account_number}'")
+        
+        return radio_button, label_for_attr
+
+    def ensure_account_radio_selected(self, account_number: str) -> dict:
+        """
+        Ensure an account's radio button is selected (select if not already).
+        
+        This method:
+        1. Gets the radio button for the specified account
+        2. Checks its current selection state
+        3. Selects it if not already selected
+        4. Returns comprehensive data for assertions
+        
+        Args:
+            account_number: The account number to ensure is selected (e.g., '13222266')
+            
+        Returns:
+            Dictionary containing:
+            - 'radio_button': Locator for the radio button
+            - 'label_for_attr': The ID of the radio button
+            - 'is_checked': Final checked state after selection attempt
+            - 'was_already_checked': Boolean indicating if it was already checked before selection
+            
+        Raises:
+            AssertionError: If account not found or radio button operation fails
+            
+        Example:
+            result = page_obj.ensure_account_radio_selected('13222266')
+            assert result['is_checked'], "Radio should be checked"
+        """
+        logger.info(f"Ensuring account radio is selected: {account_number}")
+        
+        # Step 1: Get radio button and its ID
+        logger.info("Step 1: Getting radio button for account...")
+        radio_button, label_for_attr = self.get_account_radio_button(account_number)
+        
+        # Step 2: Check current state
+        logger.info("Step 2: Checking current radio button state...")
+        is_checked = radio_button.is_checked()
+        was_already_checked = is_checked
+        logger.info(f"Radio button current state - checked: {is_checked}")
+        
+        # Step 3: Select if not already checked
+        if not is_checked:
+            logger.info(f"Radio button is NOT checked - selecting it...")
+            radio_button.check()
+            self.page.wait_for_timeout(500)  # Wait for state update
+            is_checked = radio_button.is_checked()
+            logger.info(f"Radio button after selection - checked: {is_checked}")
+        else:
+            logger.info(f"Radio button is already checked")
+        
+        result = {
+            'radio_button': radio_button,
+            'label_for_attr': label_for_attr,
+            'is_checked': is_checked,
+            'was_already_checked': was_already_checked
+        }
+        
+        logger.info(f"✓ Account radio button operation completed: {result}")
+        return result
+
  
