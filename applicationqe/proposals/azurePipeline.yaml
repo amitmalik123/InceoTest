@@ -90,7 +90,7 @@ jobs:
               echo "UTC hour: $HOUR, minute: $MINUTE"
               # Map UTC hours to environments.
               # Test10 should run every 6 hours starting at 05:00 UTC (midnight EST): 05,11,17,23
-              if [ "$HOUR" = "05" ] || [ "$HOUR" = "11" ] || [ "$HOUR" = "17" ] || [ "$HOUR" = "23" ]; then
+              if [ "$HOUR" = "05" ] || [ "$HOUR" = "11" ] || [ "$HOUR" = "17" ] || [ "$HOUR" = "23" ] || [ "$HOUR" = "24" ]; then
                 echo "##vso[task.setvariable variable=environment]test10"
                 echo "##vso[task.setvariable variable=tag]@regression|@smoke|@e2e"
                 echo "##vso[task.setvariable variable=threadCount]2"
