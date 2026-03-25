@@ -100,7 +100,7 @@ addopts = """
 """
 ```
 
-### azurePipeline.yaml
+### FormsAndTracking.yaml
 ```yaml
 # Browser parameter with dropdown
 parameters:

@@ -8,7 +8,7 @@ Migrate from agent-dependent pipeline to Docker-based pipeline for consistent, d
 
 ## Comparison: Before vs After
 
-### ❌ Before (Agent-Dependent - azurePipeline.yaml)
+### ❌ Before (Agent-Dependent - FormsAndTracking.yaml)
 
 ```yaml
 pool:
@@ -92,7 +92,7 @@ cp azurePipeline-docker.yaml azurePipeline.yaml
 ```
 
 **Option B: Keep Both (Recommended)**
-- Keep `azurePipeline.yaml` (legacy)
+- Keep `FormsAndTracking.yaml` (legacy)
 - Use `azurePipeline-docker.yaml` (new)
 - Update Azure DevOps to point to new file
 

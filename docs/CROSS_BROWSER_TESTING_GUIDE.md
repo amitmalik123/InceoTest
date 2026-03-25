@@ -369,7 +369,7 @@ addopts = """
 # Note: --browser is NOT hardcoded, pass it at runtime
 ```
 
-### azurePipeline.yaml
+### FormsAndTracking.yaml
 ```yaml
 parameters:
   - name: browser
