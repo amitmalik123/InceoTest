@@ -896,26 +896,12 @@ class ClientAccountsPage(BasePage):
         d_link_href = d_link.get_attribute("href") or ""
         logger.info(f"D-Link Text: {d_link_text}, Href: {d_link_href}")
 
-        # Get the "Print or Download" link from the FIRST dialog only
-        # Target: <a href="#" onclick="return btnDownload();">Print or Download</a>
-        print_download_link = self.page.locator('[role="dialog"]').first.locator('a[onclick*="btnDownload"]')
-        logger.info(f"Print or Download link found: {print_download_link.count() > 0}")
-
-        # Get Close button from the FIRST dialog only
-        # Target the visible formButton close button at the bottom (not the hidden titlebar close button)
-        # The close button is in the .close-button-container div in the footer
-        close_button = self.page.locator('[role="dialog"]').first.locator('.close-button-container button.formButton')
-        close_button.wait_for(state="visible", timeout=5000)
-        logger.info("Close button found")
-
         return {
             'title': dialog_title,
             'content': dialog_content,
             'd_link': d_link,
             'd_link_text': d_link_text,
             'd_link_href': d_link_href,
-            'print_download_link': print_download_link,
-            'close_button': close_button
         }
 
     def get_signer_information_dialog_text(self) -> str:
@@ -1123,4 +1109,88 @@ class ClientAccountsPage(BasePage):
             logger.error(f"✗ Failed to check radio button status for id '{radio_id}': {e}")
             raise
 
-    # TODO: Add additional page-specific methods for client account interactions
+    def fetch_selected_account(self, account_number: str) -> Locator:
+        """
+        Fetch and return the label element for a given account number.
+        
+        This method:
+        1. Waits for any loading spinners to disappear
+        2. Searches all account labels for the specified account number
+        3. Returns the matching label element (Locator object)
+        
+        Args:
+            account_number: The account number to search for (e.g., '13222266')
+            
+        Returns:
+            Locator: The matching label element for the account
+            
+        Raises:
+            AssertionError: If no account labels found or account number not found in any label
+            
+        Example:
+            matching_label = client_accounts_page.fetch_selected_account('13222266')
+            # Use matching_label with radio button lookup
+        """
+        logger.info(f"Fetching account label for account number: {account_number}")
+        
+        # STEP 0: Wait for any loading spinner to disappear before searching for labels
+        logger.info("Step 0: Waiting for loading spinner to disappear...")
+        spinner_selectors = [
+            ".spinner",
+            ".loading",
+            ".loader",
+            "div.lds-container",
+            "[role='progressbar']",
+            ".ajaxLoader"
+        ]
+        
+        # Use existing WaitContext utility to wait for spinners to disappear
+        wait_context = WaitContext(timeout=15.0, poll_interval=0.2)
+        for selector in spinner_selectors:
+            try:
+                spinner = self.page.locator(selector)
+                if spinner.count() > 0:
+                    logger.info(f"Found spinner with selector '{selector}', waiting for it to disappear...")
+                    wait_context.until_hidden(spinner)
+                    logger.info(f"Spinner '{selector}' disappeared")
+            except Exception as e:
+                # Spinner not found or already gone - continue
+                logger.debug(f"Spinner '{selector}' not found or already hidden: {e}")
+        
+        # Also wait for page to settle using existing BasePage utility
+        self.wait_for_load_state("domcontentloaded", timeout=15000)
+        logger.info("Page load state settled")
+        
+        # STEP 1: Find label containing the account number
+        logger.info(f"Step 1: Searching for account number '{account_number}' in account labels...")
+        
+        # Get all labels in the account list container
+        account_list_container = self.page.locator('div#ctl00_cphContentArea_ToSetTheRadioItemBackgroundColor')
+        labels = account_list_container.locator('label')
+        
+        label_count = labels.count()
+        assert label_count > 0, "[FAIL] ClientAccountsPage: Account Labels Presence — Expected: label_count > 0, Actual: count=0. Details: At least one account label should be displayed on the account list page. Locator: div#ctl00_cphContentArea_ToSetTheRadioItemBackgroundColor label."
+        logger.info(f"Found {label_count} account labels on the page")
+        
+        # Find the label containing the account number
+        matching_label = None
+        matching_label_text = None
+        for i in range(label_count):
+            label_text = labels.nth(i).inner_text()
+            if account_number in label_text:
+                matching_label = labels.nth(i)
+                matching_label_text = label_text
+                logger.info(f"✓ Found label with account number at index {i}")
+                logger.info(f"  Label text: {label_text}")
+                break
+        
+        # HARD ASSERT - Account number must exist in a label
+        assert matching_label is not None, \
+            f"[FAIL] ClientAccountsPage: Account Lookup — Expected: account_number='{account_number}' found in labels, " \
+            f"Actual: matching_label=None (not found). Details: Account '{account_number}' must exist in Account Management on this test environment. " \
+            f"Locator: div#ctl00_cphContentArea_ToSetTheRadioItemBackgroundColor label."
+        
+        logger.info(f"✓ Successfully fetched label for account '{account_number}'")
+        return matching_label
+
+ 

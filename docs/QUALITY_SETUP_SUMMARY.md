@@ -98,7 +98,7 @@ start reports/coverage-html/index.html
 ## 🔧 Integration with Azure Pipeline
 
 ### Add Quality Gate Step
-Add to `azurePipeline.yaml` after test execution:
+Add to `FormsAndTracking.yaml` after test execution:
 
 ```yaml
 - script: |

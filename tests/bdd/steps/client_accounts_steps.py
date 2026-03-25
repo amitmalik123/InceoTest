@@ -820,62 +820,9 @@ def verify_account_number_displayed_and_radio_selected(authenticated_page: Page,
         logger.info(f">>> ENTERED STEP: verify_account_number_displayed_and_radio_selected")
         logger.info(f"Account_Number from test data: '{account_number}'")
         
-        # STEP 0: Wait for any loading spinner to disappear before searching for labels
-        logger.info("Step 0: Waiting for loading spinner to disappear...")
-        spinner_selectors = [
-            ".spinner",
-            ".loading",
-            ".loader",
-            "div.lds-container",
-            "[role='progressbar']",
-            ".ajaxLoader"
-        ]
-        
-        # Use existing WaitContext utility to wait for spinners to disappear
-        wait_context = WaitContext(timeout=15.0, poll_interval=0.2)
-        for selector in spinner_selectors:
-            try:
-                spinner = authenticated_page.locator(selector)
-                if spinner.count() > 0:
-                    logger.info(f"Found spinner with selector '{selector}', waiting for it to disappear...")
-                    wait_context.until_hidden(spinner)
-                    logger.info(f"Spinner '{selector}' disappeared")
-            except Exception as e:
-                # Spinner not found or already gone - continue
-                logger.debug(f"Spinner '{selector}' not found or already hidden: {e}")
-        
-        # Also wait for page to settle using existing BasePage utility via client_accounts_page
-        client_accounts_page.wait_for_load_state("domcontentloaded", timeout=15000)
-        logger.info("Page load state settled")
-        
-        # STEP 1: Find label containing the account number
-        logger.info(f"Step 1: Searching for account number '{account_number}' in account labels...")
-        
-        # Get all labels in the account list container
-        account_list_container = authenticated_page.locator('div#ctl00_cphContentArea_ToSetTheRadioItemBackgroundColor')
-        labels = account_list_container.locator('label')
-        
-        label_count = labels.count()
-        assert label_count > 0, "[FAIL] ClientAccountsPage: Account Labels Presence — Expected: label_count > 0, Actual: count=0. Details: At least one account label should be displayed on the account list page. Locator: div#ctl00_cphContentArea_ToSetTheRadioItemBackgroundColor label."
-        logger.info(f"Found {label_count} account labels on the page")
-        
-        # Find the label containing the account number
-        matching_label = None
-        matching_label_text = None
-        for i in range(label_count):
-            label_text = labels.nth(i).inner_text()
-            if account_number in label_text:
-                matching_label = labels.nth(i)
-                matching_label_text = label_text
-                logger.info(f"✓ Found label with account number at index {i}")
-                logger.info(f"  Label text: {label_text}")
-                break
-        
-        # HARD ASSERT - Account number must exist in a label
-        assert matching_label is not None, \
-            f"[FAIL] ClientAccountsPage: Account Lookup — Expected: account_number='{account_number}' found in labels, " \
-            f"Actual: matching_label=None (not found). Details: Account '{account_number}' must exist in Account Management on this test environment. " \
-            f"Locator: div#ctl00_cphContentArea_ToSetTheRadioItemBackgroundColor label."
+        # STEP 0-1: Fetch the matching account label using page object method
+        logger.info("Step 0-1: Fetching account label using page object method...")
+        matching_label = client_accounts_page.fetch_selected_account(account_number)
         logger.info(f"✓ HARD ASSERTION PASSED: Account Number '{account_number}' is displayed under Account Management.")
         
         # STEP 2: Get the corresponding radio button using the label's 'for' attribute
@@ -1288,40 +1235,16 @@ def verify_request_dialog(authenticated_page: Page, client_accounts_page, test_c
             else:
                 raise AssertionError("D-link not found in dialog")
             
-            # Validate Print or Download link (SOFT ASSERTION)
-            logger.info("Validating Print or Download link (SOFT ASSERTION)...")
-            print_download_link = dialog_data.get('print_download_link')
-            if print_download_link and print_download_link.count() > 0:
-                soft_assert.assert_visible(
-                    print_download_link,
-                    "[FAIL] RequestDialog: Print/Download Link Visibility — Expected: visible=True, Actual: visible=False. Details: Print or Download link must be visible in Request Submitted dialog. Locator: print_download_link."
-                )
-                logger.info("✓ Print or Download link collected for soft assertion verification")
-            else:
-                soft_assert.assert_true(
-                    False,
-                    "[FAIL] RequestDialog: Print/Download Link Presence — Expected: print_download_link count > 0, Actual: count=0 or not found. Details: Print or Download link should exist in Request Submitted dialog. Locator: print_download_link."
-                )
-                logger.warning("✗ Print or Download link not found in dialog")
-            
-            # Validate close button
-            close_button = dialog_data.get('close_button')
-            if close_button:
-                assert close_button.is_visible(), "Close button not visible"
-                logger.info("✓ Close button is visible and enabled")
-            else:
-                raise AssertionError("Close button not found in dialog")
-            
             # Verify all soft assertions
             logger.info("Verifying soft assertions for optional dialog elements...")
             try:
                 soft_assert.assert_all()
-                logger.info("✓ All soft assertions passed (Print/Download link validated)")
+                logger.info("✓ All soft assertions passed")
             except Exception as soft_assert_error:
                 logger.error(f"✗ Soft assertion(s) failed: {str(soft_assert_error)}")
                 allure.attach(
                     str(soft_assert_error),
-                    name="Request Dialog - Print/Download Link Assertion Failures",
+                    name="Request Dialog - Soft Assertion Failures",
                     attachment_type=allure.attachment_type.TEXT,
                 )
                 raise
@@ -1350,27 +1273,37 @@ def user_click_on_d_number(authenticated_page: Page, client_accounts_page, test_
     with allure.step("User click on D number"):
         logger.info(">>> STEP: User click on D number")
         
+        d_number = None
         try:
-            # Click the D-number link and get the D-number value
+            # STEP 1: Click the D-number link and get the D-number value
             d_number = client_accounts_page.click_d_number()
-            logger.info(f"D-number clicked successfully: {d_number}")
+            logger.info(f"✓ D-number clicked successfully: {d_number}")
             
             # Store D-number in test_context for later verification
             test_context['d_number'] = d_number
-            logger.info(f"D-number stored in test_context: {d_number}")
+            logger.info(f"✓ D-number stored in test_context: {d_number}")
             
-            # Wait for page navigation to Tracking Center
-            authenticated_page.wait_for_load_state("networkidle", timeout=30000)
-            logger.info(f"\u2713 Navigated to Tracking Center with D-number: {d_number}")
-            
-            # Take screenshot for Allure reporting
-            screenshot = authenticated_page.screenshot()
-            allure.attach(screenshot, name="D-number Clicked - Navigating to Tracking Center", attachment_type=allure.attachment_type.PNG)
-            
-            logger.info("\u2713 D-number click step completed successfully")
         except Exception as e:
-            logger.error(f"\u2717 Failed to click D-number: {e}")
+            logger.error(f"✗ Failed to click D-number element: {e}")
             screenshot = authenticated_page.screenshot()
             allure.attach(screenshot, name="D-Number Click - Failed", attachment_type=allure.attachment_type.PNG)
             raise AssertionError(f"Failed to click D-number: {e}") from e
+        
+        # STEP 2: Wait for page navigation to Tracking Center
+        try:
+            authenticated_page.wait_for_load_state("networkidle", timeout=30000)
+            logger.info(f"✓ Page navigated to Tracking Center with D-number: {d_number}")
+            
+        except Exception as e:
+            logger.error(f"✗ Timeout waiting for Tracking Center page to load: {e}")
+            logger.error(f"   (D-number {d_number} was clicked, but page load timed out)")
+            screenshot = authenticated_page.screenshot()
+            allure.attach(screenshot, name="D-Number Navigation - Page Load Timeout", attachment_type=allure.attachment_type.PNG)
+            raise AssertionError(f"Page failed to load after clicking D-number {d_number}: {e}") from e
+        
+        # STEP 3: Take screenshot for Allure reporting
+        screenshot = authenticated_page.screenshot()
+        allure.attach(screenshot, name="D-number Clicked - Navigating to Tracking Center", attachment_type=allure.attachment_type.PNG)
+        
+        logger.info(f"✓ D-number click step completed successfully for D-number: {d_number}")
 

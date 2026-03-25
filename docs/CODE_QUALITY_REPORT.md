@@ -219,7 +219,7 @@ pytest --cov=pages,tests,utils \
 
 ## 8. CI/CD Integration
 
-Add to Azure Pipeline (already configured in `azurePipeline.yaml`):
+Add to Azure Pipeline (already configured in `FormsAndTracking.yaml`):
 ```yaml
 - script: |
     flake8 pages/ tests/ utils/ --max-line-length=100 --statistics

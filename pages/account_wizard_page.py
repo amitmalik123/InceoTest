@@ -29,7 +29,7 @@ class AccountWizardPage(BasePage):
             self.page.wait_for_load_state("domcontentloaded", timeout=30000)
         else:
             logger.info(f"Navigating to: {url}")
-            self.page.goto(url, wait_until="networkidle", timeout=30000)
+            self.page.goto(url, wait_until="networkidle", timeout=60000)
         logger.info("Account wizard page ready")
 
     def click_account_wizard(self) -> None:

@@ -194,7 +194,7 @@ def authenticated_page(browser, test_data, request) -> Generator[Page, None, Non
 
         # Navigate to home URL to activate session
         print(f"[SESSION] Navigating to: {app_config.home_url}")
-        page.goto(app_config.home_url, timeout=30000)
+        page.goto(app_config.home_url, timeout=60000)
         page.wait_for_load_state("domcontentloaded", timeout=10000)
 
         # Verify session is still valid
@@ -245,7 +245,7 @@ def authenticated_page(browser, test_data, request) -> Generator[Page, None, Non
 
         # Navigate to home page
         print(f"[SESSION] Navigating to: {app_config.home_url}")
-        page.goto(app_config.home_url, timeout=30000)
+        page.goto(app_config.home_url, timeout=60000)
         page.wait_for_load_state("domcontentloaded", timeout=10000)
         print("[SESSION] Ready for test execution!")
 

@@ -84,7 +84,7 @@ pytest tests/ui/test_add_ach.py -v
 **Automatically set in Azure Pipeline** via `variables` and `env` sections:
 
 ```yaml
-# azurePipeline.yaml - Lines 67-74
+# FormsAndTracking.yaml - Lines 67-74
 variables:
   INFLUXDB_URL: 'http://azncc03perf.corp.local:8086'
   INFLUXDB_ORG: 'MF'
@@ -241,7 +241,7 @@ from(bucket: "AutomationData")
 ### Flaky Tests Not Tracked in CI/CD?
 
 **Check:**
-1. ✅ InfluxDB env vars passed to pytest execution step (azurePipeline.yaml line 241-247)
+1. ✅ InfluxDB env vars passed to pytest execution step (FormsAndTracking.yaml line 241-247)
 2. ✅ `pytest-rerunfailures` installed (requirements.txt line 43)
 3. ✅ `--reruns` flag in addopts (pyproject.toml line 49)
 4. ✅ InfluxDB token has write permissions

@@ -194,7 +194,7 @@ This framework is built on a robust, modern technology stack designed for scalab
 *   **Mypy** (v1.8.0+): Optional static type checking
 
 #### 10. **CI/CD Integration**
-*   **Azure Pipelines** configuration: `azurePipeline.yaml`
+*   **Azure Pipelines** configuration: `FormsAndTracking.yaml`
 *   **Features**:
     - Custom Linux agent pool: `ubuntu2204-qa`
     - Parameterized builds (environment, pytest markers, worker count)
@@ -278,7 +278,7 @@ DM_Automation_new/
 │
 ├── tools/                           # Helper tools and scripts
 │
-├── azurePipeline.yaml              # Azure DevOps CI/CD pipeline definition
+├── FormsAndTracking.yaml              # Azure DevOps CI/CD pipeline definition
 ├── pyproject.toml                  # Project dependencies and tool configs
 ├── requirements.txt                # Python dependencies (pip format)
 ├── run_tests.bat                   # Windows helper script for local execution
@@ -872,7 +872,7 @@ pre-commit run --all-files
 
 ### 9.1 Azure Pipeline Configuration
 
-**File**: `azurePipeline.yaml`
+**File**: `FormsAndTracking.yaml`
 
 #### Pipeline Structure
 ```yaml
