@@ -80,8 +80,7 @@ jobs:
     allureReportDir: '$(Build.SourcesDirectory)/reports/allure-report'
     allureToolsDir: '$(Build.ArtifactStagingDirectory)/allure-tools'
     testResultsDir: '$(Build.SourcesDirectory)/reports'
-    # Azure Key Vault configuration
-    keyVaultName: 'amkkvqapipeline-testncus'           # ← Replace with your Key Vault name
+    keyVaultName: 'amkkvqapipeline-testncus'  # Azure Key Vault configuration
 
 
   steps:
