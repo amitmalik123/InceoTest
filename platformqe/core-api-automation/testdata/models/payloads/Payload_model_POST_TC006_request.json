@@ -3,20 +3,7 @@
     "ownerId": "3fa85f64-5717-4562-b3fc-2c963f66afa6",
     "modelAttributes": {
         "solutionType": "Managed",
-        "custodians": [
-            "Fidelity"
-        ],
-        "investmentMins": [
-            {
-                "type": "System",
-                "value": 10000
-            }
-        ],
-        "modelType": "Strategic",
-        "riskProfile": "Moderate",
-        "metadata": {
-            "additionalProp1": "value1"
-        }
+        "modelType": "Strategic"
     },
     "allocations": [
         {
@@ -28,7 +15,20 @@
             "weight": 0
         }
     ],
-    "investmentApproachId": "{{db_investment_approach_id}}",
+    "investmentApproachId": null,
     "benchmarkName": "S&P 500",
-    "benchmarkIsPrimary": false
+    "benchmarkIsPrimary": false,
+    "custodians": [
+        "Fidelity"
+    ],
+    "investmentMins": [
+        {
+            "type": "System",
+            "value": 10000
+        }
+    ],
+    "riskProfile": "Moderate",
+    "versionMetadata": {
+        "additionalProp1": "value1"
+    }
 }

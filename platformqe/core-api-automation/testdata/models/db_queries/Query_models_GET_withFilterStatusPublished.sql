@@ -6,7 +6,7 @@ SELECT id AS model_id,
        solution_type,
        model_type,
        custodian,
-       metadata,
+       version_metadata AS metadata,
        to_char(
             date_trunc('milliseconds', modified_date AT TIME ZONE 'UTC'),
             'YYYY-MM-DD"T"HH24:MI:SS.FF4"Z"'
@@ -18,7 +18,7 @@ SELECT id AS model_id,
                SELECT jsonb_agg(
                    jsonb_build_object(
                        'id', (elem->>'id')::int,
-                       'name', elem->>'name'
+                       'name', elem->>'Name'
                    )
                    ORDER BY (elem->>'id')::int
                )
