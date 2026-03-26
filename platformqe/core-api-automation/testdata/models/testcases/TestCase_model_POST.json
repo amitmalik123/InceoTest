@@ -81,22 +81,7 @@
             "ownerId": "3fa85f64-5717-4562-b3fc-2c963f66afa6",
             "modelAttributes": {
                 "solutionType": "string",
-                "custodians": [
-                    "string"
-                ],
-                "investmentMins": [
-                    {
-                        "type": "System",
-                        "value": 1
-                    }
-                ],
-                "modelType": "string",
-                "riskProfile": "string",
-                "metadata": {
-                    "additionalProp1": "string",
-                    "additionalProp2": "string",
-                    "additionalProp3": "string"
-                }
+                "modelType": "string"
             },
             "allocations": [
                 {
@@ -108,9 +93,24 @@
                     "weight": 0.5
                 }
             ],
-            "investmentApproachId": "{{db_investment_approach_id}}",
+            "investmentApproachId": null,
             "benchmarkName": "string",
-            "benchmarkIsPrimary": false
+            "benchmarkIsPrimary": false,
+            "custodians": [
+                "string"
+            ],
+            "investmentMins": [
+                {
+                    "type": "System",
+                    "value": 1
+                }
+            ],
+            "riskProfile": "string",
+            "versionMetadata": {
+                "additionalProp1": "string",
+                "additionalProp2": "string",
+                "additionalProp3": "string"
+            }
         },
         "expected_status": "201",
         "expected_response_schema": "models\\schemas\\Schema_post_response copy.json",
@@ -557,30 +557,7 @@
             "ownerId": "3fa85f64-5717-4562-b3fc-2c963f66afa6",
             "modelAttributes": {
                 "solutionType": "string",
-                "custodians": [
-                    "string"
-                ],
-                "investmentMins": [
-                    {
-                        "type": "System",
-                        "value": 1
-                    },
-                    {
-                        "type": "Displayed",
-                        "value": 2
-                    },
-                    {
-                        "type": "Trading",
-                        "value": 3
-                    }
-                ],
-                "modelType": "string",
-                "riskProfile": "string",
-                "metadata": {
-                    "additionalProp1": "string",
-                    "additionalProp2": "string",
-                    "additionalProp3": "string"
-                }
+                "modelType": "string"
             },
             "allocations": [
                 {
@@ -592,9 +569,32 @@
                     "weight": 0.5
                 }
             ],
-            "investmentApproachId": "{{db_investment_approach_id}}",
+            "investmentApproachId": null,
             "benchmarkName": "string",
-            "benchmarkIsPrimary": false
+            "benchmarkIsPrimary": false,
+            "custodians": [
+                "string"
+            ],
+            "investmentMins": [
+                {
+                    "type": "System",
+                    "value": 1
+                },
+                {
+                    "type": "Displayed",
+                    "value": 2
+                },
+                {
+                    "type": "Trading",
+                    "value": 3
+                }
+            ],
+            "riskProfile": "string",
+            "versionMetadata": {
+                "additionalProp1": "string",
+                "additionalProp2": "string",
+                "additionalProp3": "string"
+            }
         },
         "expected_status": "201",
         "expected_response_schema": "models\\schemas\\Schema_post_response copy.json",
@@ -708,7 +708,7 @@
         },
         "payload": {
             "name": "",
-            "investmentApproachId": "{{db_investment_approach_id}}"
+            "investmentApproachId": null
         },
         "expected_status": "400",
         "expected_response_schema": "",
@@ -753,7 +753,7 @@
         },
         "payload": {
             "name": "Test Model",
-            "investmentApproachId": "{{db_investment_approach_id}}",
+            "investmentApproachId": null,
             "invalidField": 123
         },
         "expected_status": "400",
@@ -799,7 +799,7 @@
         },
         "payload": {
             "name": 999,
-            "investmentApproachId": "{{db_investment_approach_id}}"
+            "investmentApproachId": null
         },
         "expected_status": "400",
         "expected_response_schema": "",
@@ -825,5 +825,329 @@
         "db_type": "",
         "db_connection_name": "",
         "test_summary": "Test TC005: Send payload with numeric value for name field (expected string), verify 400 Bad Request error"
+    },
+    {
+        "test_id": "TC008",
+        "service_name": "models",
+        "workflow_mode": "sequential",
+        "test_name": "POST /model - API Contract: 5 Migrated Fields Accepted in Request [positive] (TC008 Step 1)",
+        "protocol": "REST",
+        "test_type": [
+            "Functional",
+            "API Contract Validation",
+            "Integration"
+        ],
+        "mainURL": "{{base_url}}",
+        "endpoint": "/model",
+        "method": "POST",
+        "rpc_method": "",
+        "graphql_query": "",
+        "graphql_variables": "",
+        "soap_action": "",
+        "soap_envelope": "",
+        "headers_additional": {
+            "Content-Type": "application/json"
+        },
+        "payload": "models\\payloads\\Payload_model_id_POST_request.json",
+        "expected_status": "201",
+        "expected_response_schema": "",
+        "expected_response": null,
+        "ignore_fields": [],
+        "extract_values": [
+            {
+                "from": "response",
+                "key": "modelId",
+                "assign_to": "tc008_model_id"
+            }
+        ],
+        "validate": {
+            "performance": {
+                "max_response_time_ms": null
+            },
+            "security": {
+                "checks": []
+            },
+            "assertions": []
+        },
+        "test_data_file": "",
+        "db_query": "",
+        "db_type": "",
+        "db_connection_name": "",
+        "test_summary": "POST /model with all 5 migrated fields (investmentMins, riskProfile, custodians, metadata and benchmarkName) — Verify 201 and extract modelId",
+        "test_scenario": "Confirm all 5 fields migrated to model_version_attribute are still accepted in POST request contract unchanged"
+    },
+    {
+        "test_id": "TC009",
+        "service_name": "models",
+        "workflow_mode": "sequential",
+        "test_name": "GET /models - API Contract: 5 Migrated Fields Returned in GetModelResponse after POST [positive] (TC008 Step 2)",
+        "protocol": "REST",
+        "test_type": [
+            "Functional",
+            "API Contract Validation",
+            "Integration"
+        ],
+        "mainURL": "{{base_url}}",
+        "endpoint": "/models?Id={{tc008_model_id}}",
+        "method": "GET",
+        "rpc_method": "",
+        "graphql_query": "",
+        "graphql_variables": "",
+        "soap_action": "",
+        "soap_envelope": "",
+        "headers_additional": {
+            "Content-Type": "application/json"
+        },
+        "payload": null,
+        "expected_status": "200",
+        "expected_response_schema": "",
+        "expected_response": null,
+        "ignore_fields": [],
+        "extract_values": [
+            {
+                "from": "response",
+                "key": "models.0.versions.0.riskProfile",
+                "assign_to": "tc008_resp_risk_profile"
+            },
+            {
+                "from": "response",
+                "key": "models.0.versions.0.custodians.0",
+                "assign_to": "tc008_resp_custodian_1"
+            },
+            {
+                "from": "response",
+                "key": "models.0.versions.0.custodians.1",
+                "assign_to": "tc008_resp_custodian_2"
+            },
+            {
+                "from": "response",
+                "key": "models.0.versions.0.investmentMins",
+                "assign_to": "tc008_resp_investment_mins"
+            },
+            {
+                "from": "response",
+                "key": "models.0.versions.0.metadata",
+                "assign_to": "tc008_resp_metadata"
+            },
+            {
+                "from": "response",
+                "key": "models.0.versions.0.benchmarks",
+                "assign_to": "tc008_resp_benchmarks"
+            }
+        ],
+        "validate": {
+            "performance": {
+                "max_response_time_ms": null
+            },
+            "security": {
+                "checks": []
+            },
+            "assertions": [
+                {
+                    "actual": "{{tc008_resp_risk_profile}}",
+                    "operator": "==",
+                    "expected": "string",
+                    "message": "riskProfile returned by GetModelResponse matches value sent in POST request"
+                },
+                {
+                    "actual": "{{tc008_resp_custodian_1}}",
+                    "operator": "==",
+                    "expected": "string",
+                    "message": "First custodian returned by GetModelResponse matches value sent in POST request"
+                },
+                {
+                    "actual": "{{tc008_resp_custodian_2}}",
+                    "operator": "!=",
+                    "expected": null,
+                    "message": "Second custodian is present in GetModelResponse after POST"
+                },
+                {
+                    "actual": "{{tc008_resp_investment_mins}}",
+                    "operator": "!=",
+                    "expected": null,
+                    "message": "investmentMins is present and non-null in GetModelResponse after POST"
+                },
+                {
+                    "actual": "{{tc008_resp_metadata}}",
+                    "operator": "!=",
+                    "expected": null,
+                    "message": "metadata is present and non-null in GetModelResponse after POST"
+                },
+                {
+                    "actual": "{{tc008_resp_benchmarks}}",
+                    "operator": "!=",
+                    "expected": null,
+                    "message": "benchmarks is present and non-null in GetModelResponse after POST"
+                }
+            ]
+        },
+        "test_data_file": "",
+        "db_query": "",
+        "db_type": "",
+        "db_connection_name": "",
+        "test_summary": "GET /models — Verify all 5 migrated fields (riskProfile, custodians, investmentMins, metadata, benchmarks) are returned in GetModelResponse after POST",
+        "test_scenario": "Confirm GetModelResponse still returns all 5 fields unchanged even after persistence moves to model_version_attribute"
+    },
+    {
+        "test_id": "TC010",
+        "service_name": "models",
+        "workflow_mode": "sequential",
+        "test_name": "POST /model - AC03 Step 1: Create model to verify 5 fields persisted to model_version_attribute [positive]",
+        "protocol": "REST",
+        "test_type": [
+            "Functional",
+            "Integration",
+            "Data Integrity"
+        ],
+        "mainURL": "{{base_url}}",
+        "endpoint": "/model",
+        "method": "POST",
+        "rpc_method": "",
+        "graphql_query": "",
+        "graphql_variables": "",
+        "soap_action": "",
+        "soap_envelope": "",
+        "headers_additional": {
+            "Content-Type": "application/json"
+        },
+        "payload": "models\\payloads\\Payload_model_id_POST_request.json",
+        "expected_status": "201",
+        "expected_response_schema": "",
+        "expected_response": null,
+        "ignore_fields": [],
+        "extract_values": [
+            {
+                "from": "response",
+                "key": "modelId",
+                "assign_to": "tc010_model_id"
+            }
+        ],
+        "validate": {
+            "performance": {
+                "max_response_time_ms": null
+            },
+            "security": {
+                "checks": []
+            },
+            "assertions": []
+        },
+        "test_data_file": "",
+        "db_query": "",
+        "db_type": "",
+        "db_connection_name": "",
+        "test_summary": "POST /model with all 5 fields (investmentMins, riskProfile, custodians, versionMetadata, benchmarkName) — Extract modelId for AC03 GetModelResponse source verification",
+        "test_scenario": "AC03: Create model via POST to verify those 5 fields are persisted to model_version_attribute and returned from there by GetModelResponse"
+    },
+    {
+        "test_id": "TC011",
+        "service_name": "models",
+        "workflow_mode": "sequential",
+        "test_name": "GET /models - AC03 Step 2: Verify 5 fields populated from model_version_attribute, NOT from model_attribute [positive]",
+        "protocol": "REST",
+        "test_type": [
+            "Functional",
+            "Integration",
+            "Data Integrity"
+        ],
+        "mainURL": "{{base_url}}",
+        "endpoint": "/models?Id={{tc010_model_id}}",
+        "method": "GET",
+        "rpc_method": "",
+        "graphql_query": "",
+        "graphql_variables": "",
+        "soap_action": "",
+        "soap_envelope": "",
+        "headers_additional": {
+            "Content-Type": "application/json"
+        },
+        "payload": null,
+        "expected_status": "200",
+        "expected_response_schema": "",
+        "expected_response": null,
+        "ignore_fields": [],
+        "extract_values": [
+            {
+                "from": "response",
+                "key": "models.0.versions.0.riskProfile",
+                "assign_to": "tc010_versions_risk_profile"
+            },
+            {
+                "from": "response",
+                "key": "models.0.versions.0.custodians.0",
+                "assign_to": "tc010_versions_custodian_1"
+            },
+            {
+                "from": "response",
+                "key": "models.0.versions.0.investmentMins",
+                "assign_to": "tc010_versions_inv_mins"
+            },
+            {
+                "from": "response",
+                "key": "models.0.versions.0.metadata",
+                "assign_to": "tc010_versions_metadata"
+            },
+            {
+                "from": "response",
+                "key": "models.0.versions.0.benchmarks",
+                "assign_to": "tc010_versions_benchmarks"
+            },
+            {
+                "from": "response",
+                "key": "models.0.metadata",
+                "assign_to": "tc010_model_attr_metadata"
+            }
+        ],
+        "validate": {
+            "performance": {
+                "max_response_time_ms": null
+            },
+            "security": {
+                "checks": []
+            },
+            "assertions": [
+                {
+                    "actual": "{{tc010_versions_risk_profile}}",
+                    "operator": "==",
+                    "expected": "string",
+                    "message": "AC03: riskProfile is populated from model_version_attribute (versions.0.riskProfile) in GetModelResponse after POST"
+                },
+                {
+                    "actual": "{{tc010_versions_custodian_1}}",
+                    "operator": "==",
+                    "expected": "string",
+                    "message": "AC03: custodians populated from model_version_attribute (versions.0.custodians) in GetModelResponse after POST"
+                },
+                {
+                    "actual": "{{tc010_versions_inv_mins}}",
+                    "operator": "!=",
+                    "expected": null,
+                    "message": "AC03: investmentMins populated from model_version_attribute (versions.0.investmentMins) in GetModelResponse after POST"
+                },
+                {
+                    "actual": "{{tc010_versions_metadata}}",
+                    "operator": "!=",
+                    "expected": null,
+                    "message": "AC03: metadata populated from model_version_attribute (versions.0.metadata) in GetModelResponse after POST"
+                },
+                {
+                    "actual": "{{tc010_versions_benchmarks}}",
+                    "operator": "!=",
+                    "expected": null,
+                    "message": "AC03: benchmarks populated from model_version_attribute (versions.0.benchmarks) in GetModelResponse after POST"
+                },
+                {
+                    "actual": "{{tc010_model_attr_metadata}}",
+                    "operator": "==",
+                    "expected": {},
+                    "message": "AC03: model-level metadata (models.0.metadata) is empty — confirms fields are NOT read from model_attribute after POST"
+                }
+            ]
+        },
+        "test_data_file": "",
+        "db_query": "",
+        "db_type": "",
+        "db_connection_name": "",
+        "test_summary": "GET /models — Verify all 5 migrated fields read from model_version_attribute (versions.0.*) and model_attribute (models.0.metadata) is empty after POST",
+        "test_scenario": "AC03: GetModelResponse MUST return investmentMins, riskProfile, custodians, metadata, benchmarks from model_version_attribute (versions.0.*), and model-level metadata (model_attribute) MUST be empty"
     }
 ]
