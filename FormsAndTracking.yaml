@@ -72,7 +72,8 @@ parameters:
       - both
 
 variables:
-  azureSubscription: 'TEST Foundation (9156b16c-8a2e-4b7d-a886-e772dc017316)'  # ← Replace with your Azure DevOps service connection name
+- group: qa-pipelines-shared-config
+# subscription_test comes from the library group above
 # -----------------------------
 # Job Section
 # -----------------------------
@@ -121,7 +122,7 @@ jobs:
   - task: AzureKeyVault@2
     displayName: 'Fetch Secrets from Azure Key Vault'
     inputs:
-      azureSubscription: $(azureSubscription)
+      azureSubscription: $(subscription_test)
       KeyVaultName: $(keyVaultName)
       SecretsFilter: '*'
       RunAsPreJob: true
@@ -174,6 +175,10 @@ jobs:
       echo "  Allure Report Dir: $(allureReportDir)"
       echo "  Allure Tools Dir: $(allureToolsDir)"
       echo "  Test Results Dir: $(testResultsDir)"
+      echo ""
+      echo "Azure Log Analytics:"
+      echo "  Workspace ID: $(logAnalyticsWorkspaceId)"
+      echo "  Shared Key: [SET]"
       echo "========================================"
     displayName: "Print Pipeline Variables"
 
@@ -392,6 +397,20 @@ jobs:
 
       python utils/influx_reporter.py
     displayName: "Push Metrics to InfluxDB"
+    condition: always()
+    continueOnError: true
+
+  - script: |
+      echo "Pushing test metrics to Azure Log Analytics..."
+      export ALLURE_RESULTS_DIR="$(allureResultsDir)"
+      export ENVIRONMENT="$(environment)"
+      export BUILD_ID="$(Build.BuildId)"
+      export BUILD_REASON="$(Build.Reason)"
+      export AZURE_LOG_WORKSPACE_ID="$(logAnalyticsWorkspaceId)"
+      export AZURE_LOG_SHARED_KEY="$(logAnalyticsSharedKey)"
+
+      python utils/azure_analytics_reporter.py
+    displayName: "Push Metrics to Azure Log Analytics"
     condition: always()
     continueOnError: true
 
