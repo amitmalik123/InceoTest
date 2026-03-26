@@ -168,6 +168,17 @@ def authenticated_page(browser, test_data, request) -> Generator[Page, None, Non
     app_marker = request.node.get_closest_marker("app")
     app_name = app_marker.args[0] if app_marker else "ewm"
 
+    # Bypass framework auto-login for newNavBar scenarios - login is handled
+    # manually in the 'Login application' step using NavbarLoginPage.
+    if request.node.get_closest_marker("newNavBar"):
+        print("[SESSION] newNavBar scenario detected - skipping framework auto-login")
+        temp_context = browser.new_context(ignore_https_errors=True)
+        temp_page = temp_context.new_page()
+        yield temp_page
+        temp_page.close()
+        temp_context.close()
+        return
+
     # Get app configuration
     if app_name not in APP_CONFIGS:
         raise ValueError(f"Unknown app: {app_name}. Available: {list(APP_CONFIGS.keys())}")

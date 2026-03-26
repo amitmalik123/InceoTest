@@ -12,93 +12,115 @@ logger = get_allure_logger(__name__)
 class RGLPage(BasePage):
     def __init__(self, page: Page):
         super().__init__(page)
-        self.clients_tab: Locator = page.locator("//a[text()='Clients']")
-        self.client_list_search_input: Locator = page.locator("//input[@name='search_input']")
-        self.search_button: Locator = page.locator("//button[@class='searchbutton']")
-        self.gain_loss_link: Locator = page.locator("//a[text()='Gain/Loss']")
-        self.account_information_link: Locator = page.locator("//a[normalize-space()='Account Information']")
-        self.account_list_link: Locator = page.locator("//a[text()='Account List']")
-        self.solution_types_dropdown: Locator = page.locator("//span[text()='Solution Types']")
-        self.cash_advantage_checkbox: Locator = page.locator(
+        self._init_locators()
+
+    def _init_locators(self) -> None:
+        """Initialize locators using active_root for both iframe and non-iframe scenarios.
+        
+        The active_root() method automatically detects:
+        - New navbar: Returns iframe context ("All Clients" iframe)
+        - Old navbar: Returns main page context
+        
+        All locators wrapped with form_root work in both contexts seamlessly.
+        """
+        # Get the active root context (iframe or main page)
+        self.form_root = self.active_root()
+        
+        # Navigation links
+        self.clients_tab: Locator = self.form_root.locator("a:has-text('Clients')")
+        self.gain_loss_link: Locator = self.form_root.locator("a:has-text('Gain/Loss')")
+        self.account_information_link: Locator = self.form_root.locator("a:has-text('Account Information')")
+        self.account_list_link: Locator = self.form_root.locator("a:has-text('Account List')")
+        
+        # Buttons and inputs
+        self.search_button: Locator = self.form_root.locator("button:has-text('Search'), [class*='search'][class*='button']")
+        
+        # Search input by name attribute
+        self.client_list_search_input: Locator = self.form_root.locator("input[name='search_input']")
+        
+        # Additional locators
+        self.cash_advantage_checkbox: Locator = self.page.locator(
             "//*[@id='filter-3']//label[normalize-space(.)='Cash Advantage']"
             "/preceding-sibling::a[contains(@class,'ui-genworthcheckbox')]"
         )
-        self.apply_button: Locator = page.locator(
+        self.apply_button: Locator = self.page.locator(
             "//*[@id='filter-3']//div[@class='button save' and normalize-space(.)='Apply']"
         )
-        self.first_account_row: Locator = page.locator(
+        self.first_account_row: Locator = self.page.locator(
             "(//*[@id='AccountListGrid']//td[@aria-describedby='AccountListGrid_accountAccordianArrow'])[1]"
         )
-        self.first_non_cash_advantage_account_row: Locator = page.locator(
+        self.first_non_cash_advantage_account_row: Locator = self.page.locator(
             "(//*[@id='AccountListGrid']//tr[not(.//td[contains(normalize-space(),'Cash Advantage')])]"
             "//td[@aria-describedby='AccountListGrid_accountAccordianArrow'])[1]"
         )
-        self.learn_more_about_link: Locator = page.locator(
+        self.learn_more_about_link: Locator = self.page.locator(
             "//a[text()='Learn more about additional account information']"
         )
-        self.cash_advantage_account: Locator = page.locator(
+        self.cash_advantage_account: Locator = self.page.locator(
             "//td[contains(normalize-space(), 'Cash Advantage')]"
         )
-        self.mouse_over_date: Locator = page.locator(
+        self.mouse_over_date: Locator = self.page.locator(
             "//input[@name='GetSessionstickyValue']//parent::div"
         )
-        self.all_option: Locator = page.locator(
+        self.all_option: Locator = self.page.locator(
             "//div[@class='ui-genworthdropdownpanel-dropdownContent']//div[text()='All']"
         )
-        self.list_of_headers: Locator = page.locator(
+        self.solution_types_dropdown: Locator = self.page.locator("//span[text()='Solution Types']")
+        self.list_of_headers: Locator = self.form_root.locator(
             "//*[@role='tab' and not(ancestor-or-self::*[contains(@style, 'display: none')])]/a"
         )
-        self.header_expander: Locator = page.locator(
+        self.header_expander: Locator = self.page.locator(
             "//div[@aria-disabled='false']//h3[@aria-expanded='false']"
             "//span[@class='ui-accordion-header-icon ui-icon ui-icon-triangle-1-e'"
             " and not(ancestor-or-self::*[contains(@style, 'display: none')])]"
         )
-        self.proceeds_list: Locator = page.locator(
+        self.proceeds_list: Locator = self.page.locator(
             "//h3[@aria-expanded='true']//parent::div[@role='tablist']"
             "//div//div//table//tr//td[contains(@aria-describedby,'proceeds')]"
         )
-        self.cost_basis_list: Locator = page.locator(
+        self.cost_basis_list: Locator = self.page.locator(
             "//h3[@aria-expanded='true']//parent::div[@role='tablist']"
             "//div//div//table//tr//td[contains(@aria-describedby,'costBasis')]"
         )
-        self.gain_loss_list: Locator = page.locator(
+        self.gain_loss_list: Locator = self.page.locator(
             "//h3[@aria-expanded='true']//parent::div[@role='tablist']"
             "//div//div//table//tr//td[contains(@aria-describedby,'gainLoss')]"
         )
-        self.income_list: Locator = page.locator(
+        self.income_list: Locator = self.page.locator(
             "//h3[@aria-expanded='true']//parent::div[@role='tablist']"
             "//div//div//table//tr//td[contains(@aria-describedby,'income')]"
         )
-        self.expanded_header: Locator = page.locator(
+        self.expanded_header: Locator = self.page.locator(
             "//h3[@aria-expanded='true']//span[contains(@class,'ui-accordion-header-icon')"
             " and not(ancestor-or-self::*[contains(@style, 'display: none')])]"
         )
-        self.print_button: Locator = page.locator("//div[text()='Print']")
-        self.download_button: Locator = page.locator("//div[text()='Download']")
-        self.csv_link: Locator = page.locator("//a[@href='#CSV']")
-        self.xls_link: Locator = page.locator("//a[@href='#XLS']")
-        self.individual_dropdown: Locator = page.locator("//span[@class='selectBox-arrow']")
-        self.individual_account: Locator = page.locator("(//div[text()='eSig Test 4 Individual'])[1]")
-        self.net_investment: Locator = page.locator(
+        self.print_button: Locator = self.page.locator("//div[text()='Print']")
+        self.download_button: Locator = self.page.locator("//div[text()='Download']")
+        self.csv_link: Locator = self.page.locator("//a[@href='#CSV']")
+        self.xls_link: Locator = self.page.locator("//a[@href='#XLS']")
+        self.individual_dropdown: Locator = self.page.locator("//span[@class='selectBox-arrow']")
+        self.individual_account: Locator = self.page.locator("(//div[text()='eSig Test 4 Individual'])[1]")
+        self.net_investment: Locator = self.page.locator(
             "//div[@class='ui-jqgrid-bdiv']//div//table//tbody//tr//following-sibling::tr"
             "//td[@class='null ui-td-notsort ui-td-netInvestment']"
         )
-        self.client_names: Locator = page.locator(
+        self.client_names: Locator = self.page.locator(
             "//div[@class='ui-jqgrid-bdiv']//div//table//tbody//tr//following-sibling::tr"
             "//td[@class='null ui-td-notsort ui-td-clientName']"
         )
-        self.net_column: Locator = page.locator("//th[@id='ClientListGrid_netInvestment']")
-        self.loading_spinner: Locator = page.locator(
+        self.net_column: Locator = self.page.locator("//th[@id='ClientListGrid_netInvestment']")
+        # Loading indicators - search in iframe context
+        self.loading_spinner: Locator = self.form_root.locator(
             "//div[contains(@class,'loading-indicator-component__spinner')]"
         )
-        self.loading_indicator: Locator = page.locator(
-            "//*[contains(@class, 'loading-indication-component')"
-            " and contains(@class, 'isVisible')]"
+        self.loading_indicator: Locator = self.form_root.locator(
+            "//*[contains(@class, 'loading-indication-component') and contains(@class, 'isVisible')]"
         )
-        self.loading_modal: Locator = page.locator("#loadingImageModal")
+        self.loading_modal: Locator = self.form_root.locator("#loadingImageModal")
 
     def _client_name_locator(self, client_name: str) -> Locator:
-        return self.page.locator(f"//td[normalize-space()='{client_name}']")
+        # Client name appears in search results inside the iframe
+        return self.form_root.locator(f"//td[normalize-space()='{client_name}']")
 
     def _is_cash_advantage_selected(self) -> bool:
         checkbox_class = (self.cash_advantage_checkbox.get_attribute("class") or "").lower()
@@ -136,11 +158,25 @@ class RGLPage(BasePage):
             self.page.wait_for_load_state("domcontentloaded", timeout=timeout)
 
         self.click(self.clients_tab, timeout=timeout)
+        self._search_and_navigate_to_gain_loss(client_name, timeout=timeout)
+
+    def navigate_to_gain_loss_page_from_clients(self, client_name: str, timeout: int = 30000) -> None:
+        """Navigate to the Gain/Loss page assuming we are already on the clients list page.
+        Used by the new navbar flow where the clients tab has already been clicked."""
+        logger.info("Navigating to Gain/Loss page (already on clients page)")
+        self._search_and_navigate_to_gain_loss(client_name, timeout=timeout)
+
+    def _search_and_navigate_to_gain_loss(self, client_name: str, timeout: int = 30000) -> None:
         self.wait_for_element(self.client_list_search_input, timeout=timeout)
         self.fill(self.client_list_search_input, client_name, timeout=timeout)
         self.click(self.search_button, timeout=timeout)
+        # Wait for search results to load (spinners disappear)
+        self.wait_for_all_spinners_to_disappear(timeout=timeout)
         self.wait_for_element(self._client_name_locator(client_name), timeout=timeout)
         self.click(self._client_name_locator(client_name), timeout=timeout)
+        # After clicking the client, page navigates away from the iframe context.
+        # Re-initialize locators so form_root reflects the new page context.
+        self._init_locators()
         self.click(self.gain_loss_link, timeout=timeout)
         self.wait_for_all_spinners_to_disappear(timeout=timeout)
         logger.info("Gain/Loss page displayed")

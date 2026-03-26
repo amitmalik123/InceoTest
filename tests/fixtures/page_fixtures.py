@@ -21,6 +21,7 @@ from pages.clients_page import ClientsPage
 from pages.dmtool_page import DMToolPage
 from pages.login_page import LoginPage
 from pages.manage_instruction_1_page import ManageInstruction1Page
+from pages.navbar_login_page import NavbarLoginPage
 from pages.manage_instruction_2_page import ManageInstruction2Page
 from pages.roth_conversion_page import RothConversionPage
 from pages.tracking_center_page import TrackingCenterPage
@@ -33,6 +34,12 @@ _base_url = get_settings().base_url
 def login_page(authenticated_page: Page) -> LoginPage:
     """Login page object fixture"""
     return LoginPage(authenticated_page, base_url=_base_url)
+
+
+@pytest.fixture
+def navbar_login_page(authenticated_page: Page) -> NavbarLoginPage:
+    """Navbar login page object fixture"""
+    return NavbarLoginPage(authenticated_page)
 
 
 @pytest.fixture

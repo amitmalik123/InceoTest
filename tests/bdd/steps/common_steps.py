@@ -1,7 +1,8 @@
 from playwright.sync_api import Page
-from pytest_bdd import given, parsers, then
+from pytest_bdd import given, parsers, then, when
 
 from config.settings import get_settings
+from pages.clients_page import ClientsPage
 from pages.lookup_page import LookupPage
 from utils.allure_logger import get_allure_logger
 
@@ -179,3 +180,46 @@ def login_and_impersonate_agent_from_excel(
         f"Using Excel row for login - Sheet: {sheet_name}, Row: {row_number}, Agent: {agent_id}"
     )
     login_and_impersonate_agent(authenticated_page, agent_id)
+
+
+# ============================================================================
+# New NavBar Steps
+# ============================================================================
+
+
+@when("Login application")
+def login_application(authenticated_page: Page, test_context: dict):
+    """
+    Login to the new navbar application using credentials from test data.
+    The authenticated_page fixture yields a fresh unauthenticated page for
+    @newNavBar scenarios - NavbarLoginPage handles the actual login.
+    """
+    from pages.navbar_login_page import NavbarLoginPage
+
+    test_data = test_context.get("test_data", {})
+    username = test_data.get("username") or test_data.get("UserName")
+    password = test_data.get("password") or test_data.get("Password")
+
+    if not username or not password:
+        raise ValueError(
+            "Missing credentials in test data. "
+            "Expected 'username'/'password' or 'UserName'/'Password' columns."
+        )
+
+    logger.info(f"Logging in to navbar application as: {username}")
+    navbar_login_page = NavbarLoginPage(authenticated_page)
+    navbar_login_page.login_application(username, password)
+
+
+@when("User clicks on the clients tab")
+def click_clients_tab(authenticated_page: Page):
+    """
+    Click on the Clients tab in the new navbar flow.
+    Used in new navbar scenario flows.
+    """
+    logger.info("Clicking on the Clients tab")
+    settings = get_settings()
+    base_url = settings.base_url
+    clients_page = ClientsPage(authenticated_page, base_url=base_url)
+    clients_page.click_clients()
+    logger.info("Clients tab clicked successfully")

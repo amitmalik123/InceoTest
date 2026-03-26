@@ -57,3 +57,14 @@ Feature: Verify RGL page functionality
  Examples:
    | SheetName  | RowNumber |
    | Econ       |         5 |
+
+  @regression @rgl @newNavBar
+  Scenario Outline: User login and navigate to RGL page with new navbar 
+    When Login application
+    When User clicks on the clients tab
+    When user navigates to the new navbar RGL page using "<SheetName>" , <RowNumber>
+    Then new navbar RGL page should be displayed
+
+    Examples:
+      | SheetName | RowNumber |
+      | Econ      |         5 |

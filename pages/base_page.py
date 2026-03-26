@@ -36,6 +36,41 @@ class BasePage:
             BasePage._healing_engine = AutoHealingEngine("locator_mappings.json")
             self.logger.info("Auto-healing engine initialized")
 
+    def active_root(self):
+        """
+        Get the active root context for locators - handles both iframe and non-iframe scenarios.
+
+        Returns:
+            FrameLocator if "All Clients" iframe exists (clients list page),
+            Frame if any app-domain iframe exists (client detail pages),
+            Otherwise returns the page itself (old navbar or no iframe)
+        """
+        try:
+            # Try to get the "All Clients" iframe (new navbar - clients list page)
+            frame = self.page.frame_locator('iframe[title="All Clients"]')
+            frame.locator("body").first.wait_for(state="visible", timeout=3000)
+            self.logger.debug("Using iframe context (All Clients)")
+            return frame
+        except Exception:
+            pass
+
+        # Check for any app-domain content iframe (e.g. client detail / RGL pages)
+        try:
+            for frame in self.page.frames:
+                if frame == self.page.main_frame:
+                    continue
+                frame_url = frame.url or ""
+                if "assetmark.com" in frame_url and "login" not in frame_url.lower():
+                    frame.wait_for_load_state("domcontentloaded", timeout=3000)
+                    self.logger.debug(f"Using iframe context (app frame: {frame_url})")
+                    return frame
+        except Exception:
+            pass
+
+        # Fallback to main page (old navbar or no iframe)
+        self.logger.debug("Using main page context (no iframe)")
+        return self.page
+
     def navigate_to(
         self,
         url: str,
