@@ -67,7 +67,6 @@
         "db_type": "",
         "test_summary": "Test TC001: POST /address/validation [positive] (TC001)"
     },
-
     {
         "test_id": "TC002",
         "service_name": "AddressService.API",
@@ -136,7 +135,6 @@
         "db_type": "",
         "test_summary": "Test TC002: POST /address/validation [positive-32] (TC002)"
     },
-
     {
         "test_id": "TC003",
         "service_name": "AddressService.API",
@@ -205,7 +203,6 @@
         "db_type": "",
         "test_summary": "Test TC003: POST /address/validation [positive] (TC003)"
     },
-
     {
         "test_id": "TC004",
         "service_name": "AddressService.API",
@@ -216,7 +213,7 @@
             "Negative"
         ],
         "mainURL": "{{api_base_url}}",
-    "endpoint": "/AddressValidation/validate",
+        "endpoint": "/AddressValidation/validate",
         "method": "POST",
         "rpc_method": "",
         "graphql_query": "",

@@ -425,7 +425,7 @@ stages:
             inputs:
               azureSubscription: $(subscription_dev)
               KeyVaultName: 'amkkvqapipeline-devncus'
-              SecretsFilter: 'parties-sqldb-connection-string,accounts-sqldb-connection-string,movemoney-sqldb-connection-string,hne-db-connection-string,securitieshub-db-connection-string,modelhub-db-connection-string,am-db-connection-string,platform-db-connection-string'
+              SecretsFilter: 'parties-sqldb-connection-string,movemoney-sqldb-connection-string,hne-db-connection-string,securitieshub-db-connection-string,modelhub-db-connection-string,am-db-connection-string,platform-db-connection-string,account-sqldb-connection-string'
               RunAsPreJob: false
           
           - task: AzureKeyVault@2
@@ -434,7 +434,7 @@ stages:
             inputs:
               azureSubscription: $(subscription_test)
               KeyVaultName: 'amkkvqapipeline-testncus'
-              SecretsFilter: 'parties-sqldb-connection-string,accounts-sqldb-connection-string,movemoney-sqldb-connection-string,hne-db-connection-string,securitieshub-db-connection-string,modelhub-db-connection-string,am-db-connection-string,platform-db-connection-string'
+              SecretsFilter: 'parties-sqldb-connection-string,movemoney-sqldb-connection-string,hne-db-connection-string,securitieshub-db-connection-string,modelhub-db-connection-string,am-db-connection-string,platform-db-connection-string,account-sqldb-connection-string'
               RunAsPreJob: false
           
           - task: AzureKeyVault@2
@@ -443,7 +443,7 @@ stages:
             inputs:
               azureSubscription: $(subscription_silo)
               KeyVaultName: 'amkkvqapipeline-siloncus'
-              SecretsFilter: 'parties-sqldb-connection-string,accounts-sqldb-connection-string,movemoney-sqldb-connection-string,hne-db-connection-string,securitieshub-db-connection-string,modelhub-db-connection-string,am-db-connection-string,platform-db-connection-string'
+              SecretsFilter: 'parties-sqldb-connection-string,movemoney-sqldb-connection-string,hne-db-connection-string,securitieshub-db-connection-string,modelhub-db-connection-string,am-db-connection-string,platform-db-connection-string,account-sqldb-connection-string'
               RunAsPreJob: false
           
           # Resolve environment-specific variables
@@ -483,6 +483,7 @@ stages:
                     echo "##vso[task.setvariable variable=RESOLVED_LEXISNEXIS_BASE_URL]$(TSADEV_lexisnexis_base_url)"
                     echo "##vso[task.setvariable variable=RESOLVED_DOCUSIGN_BASE_URL]$(T10_docusign_base_url)"
                     echo "##vso[task.setvariable variable=RESOLVED_TRANSFER_SERVICE_VALIDATION_BASE_URL]$(T11_transfer_service_validation_base_url)"
+                    echo "##vso[task.setvariable variable=RESOLVED_ACCOUNTS_BASE_URL]$(TSADEV_accounts_base_url)"
                     ;;
                   "TSATEST")
                     echo "##vso[task.setvariable variable=RESOLVED_PARTIES_BASE_URL]$(TSATEST_parties_base_url)"
@@ -500,6 +501,7 @@ stages:
                     echo "##vso[task.setvariable variable=RESOLVED_LEXISNEXIS_BASE_URL]$(TSATEST_lexisnexis_base_url)"
                     echo "##vso[task.setvariable variable=RESOLVED_DOCUSIGN_BASE_URL]$(T11_docusign_base_url)"
                     echo "##vso[task.setvariable variable=RESOLVED_TRANSFER_SERVICE_VALIDATION_BASE_URL]$(T11_transfer_service_validation_base_url)"
+                    echo "##vso[task.setvariable variable=RESOLVED_ACCOUNTS_BASE_URL]$(TSATEST_accounts_base_url)"
                     ;;
                   "TSASILO")
                     echo "##vso[task.setvariable variable=RESOLVED_PARTIES_BASE_URL]$(TSASILO_parties_base_url)"
@@ -513,6 +515,7 @@ stages:
                     echo "##vso[task.setvariable variable=RESOLVED_WORK_ITEM_NOTIFICATION_BASE_URL]$(TSASILO_work_item_notification_base_url)"
                     echo "##vso[task.setvariable variable=RESOLVED_STRATEGIES_BASE_URL]$(TSASILO_strategies_base_url)"
                     echo "##vso[task.setvariable variable=RESOLVED_WRAPTOKEN_BASE_URL]$(TSASILO_wraptoken_base_url)"
+                    echo "##vso[task.setvariable variable=RESOLVED_ACCOUNTS_BASE_URL]$(TSASILO_accounts_base_url)"
                     ;;
                   *)
                     echo "ERROR: Unknown environment: $SELECTED_ENV"
@@ -659,6 +662,8 @@ stages:
               TRANSFER_SERVICE_VALIDATION_BASE_URL: $(RESOLVED_TRANSFER_SERVICE_VALIDATION_BASE_URL)
               API_TIMEOUT: $(api_timeout)
               API_RETRY_COUNT: $(api_retry_count)
+              ACCOUNTS_BASE_URL: $(RESOLVED_ACCOUNTS_BASE_URL)
+              ACCOUNT_SQLDB: $(account-sqldb-connection-string)
             inputs:
               targetType: inline
               script: |
@@ -727,6 +732,8 @@ stages:
               INFLUX_BUCKET: $(influx_bucket)
               INFLUX_TIMEOUT: $(influx_timeout)
               INFLUX_ENABLE: $(influx_enable)
+              ACCOUNTS_BASE_URL: $(RESOLVED_ACCOUNTS_BASE_URL)
+              ACCOUNT_SQLDB: $(account-sqldb-connection-string)
             inputs:
               targetType: inline
               script: |

@@ -1,0 +1,339 @@
+[
+    {
+        "test_id": "TC000",
+        "service_name": "account_service",
+        "workflow_mode": "sequential",
+        "test_name": "QUERY and Extract DB Values",
+        "protocol": "DB_ONLY",
+        "test_type": [
+            "Functional",
+            "Smoke",
+            "Business Logic"
+        ],
+        "mainURL": "",
+        "endpoint": "",
+        "method": "",
+        "rpc_method": "",
+        "graphql_query": "",
+        "graphql_variables": "",
+        "soap_action": "",
+        "soap_envelope": "",
+        "headers_additional": {
+            "Content-Type": "application/json"
+        },
+        "payload": null,
+        "expected_status": "",
+        "expected_response_schema": "",
+        "expected_response": "",
+        "extract_values": [
+            {
+                "from": "db_result",
+                "query": "default",
+                "assign": [
+                    {
+                        "key": "0.Id",
+                        "assign_to": "db_HH_id_1"
+                    },
+                    {
+                        "key": "0.Status",
+                        "assign_to": "db_HH_status_1"
+                    },
+                    {
+                        "key": "0.Version",
+                        "assign_to": "db_HH_version_1"
+                    }
+                ]
+            }
+        ],
+        "validate": {
+            "performance": {
+                "max_response_time_ms": 500
+            },
+            "security": {
+                "checks": [
+                    "sql_injection",
+                    "xss"
+                ]
+            },
+            "data_comparison": {
+                "source": "api_response",
+                "target": "db_result",
+                "format": "table",
+                "key_field": [
+                    "",
+                    ""
+                ],
+                "fields_to_compare": [],
+                "log_differences": true
+            },
+            "assertions": []
+        },
+        "test_data_file": "",
+        "db_query_timing": "before_api",
+        "db_queries": {
+            "default": "SELECT a.Id, a.Version, a.Status FROM Account a INNER JOIN (SELECT Id, MAX([Version]) AS MaxVersion FROM Account WHERE AccountClassification = 'Household' GROUP BY Id) mv ON a.Id = mv.Id AND a.[Version] = mv.MaxVersion WHERE a.AccountClassification = 'Household';"
+        },
+        "db_type": "mssql",
+        "db_connection_name": "account_service",
+        "test_summary": "Test TC000: GET /Accounts/{id} [positive] (TC000) - Test GET request to /Accounts/{id} for functional scenario validation.",
+        "test_scenario": "Test GET request to /Accounts/{id} for functional scenario validation."
+    },
+    {
+        "test_id": "TC001",
+        "service_name": "account_service",
+        "workflow_mode": "parallel",
+        "test_name": "PATCH /Accounts [positive] (TC001)",
+        "protocol": "REST",
+        "test_type": [
+            "Functional"
+        ],
+        "mainURL": "{{base_url}}",
+        "endpoint": "/accounts/{{db_HH_id_1}}",
+        "method": "PATCH",
+        "rpc_method": "",
+        "graphql_query": "",
+        "graphql_variables": "",
+        "soap_action": "",
+        "soap_envelope": "",
+        "headers_additional": {
+            "Content-Type": "application/json"
+        },
+        "payload": "account\\payloads\\PATCH_Account_by_Id\\PATCH_Payload_1.json",
+        "expected_status": "200",
+        "expected_response_schema": "account\\schemas\\Schema_Accounts_GET.json",
+        "expected_response": null,
+        "ignore_fields": [
+            "id"
+        ],
+        "extract_values": [
+            {
+                "from": "response",
+                "key": "accounts.items.0.id",
+                "assign_to": "HH_account_id"
+            }
+        ],
+        "validate": {
+            "performance": {
+                "max_response_time_ms": 500
+            },
+            "security": {
+                "checks": [
+                    "sql_injection",
+                    "xss"
+                ]
+            },
+            "assertions": [
+                {
+                    "actual": "{{HH_account_id}}",
+                    "operator": "==",
+                    "expected": "{{db_HH_id_1}}",
+                    "message": "Account ID should match the database value"
+                }
+            ],
+            "data_comparison": []
+        },
+        "test_data_file": "",
+        "db_query_timing": "",
+        "db_queries": {},
+        "db_type": "",
+        "db_connection_name": "",
+        "test_summary": "Test TC001: PATCH /Accounts : Only AccountClassification (Household)",
+        "test_scenario": "Test PATCH request to /accounts."
+    },
+    {
+        "test_id": "TC002",
+        "service_name": "account_service",
+        "workflow_mode": "parallel",
+        "test_name": "PATCH /Accounts [positive] (TC002)",
+        "protocol": "REST",
+        "test_type": [
+            "Functional"
+        ],
+        "mainURL": "{{base_url}}",
+        "endpoint": "/accounts/{{db_HH_id_1}}",
+        "method": "PATCH",
+        "rpc_method": "",
+        "graphql_query": "",
+        "graphql_variables": "",
+        "soap_action": "",
+        "soap_envelope": "",
+        "headers_additional": {
+            "Content-Type": "application/json"
+        },
+        "payload": "account\\payloads\\PATCH_Account_by_Id\\PATCH_payload_400.json",
+        "expected_status": "400",
+        "expected_response_schema": "account\\schemas\\Schema_Accounts_PATCH_negative.json",
+        "expected_response": null,
+        "ignore_fields": [
+            "id"
+        ],
+        "extract_values": [],
+        "validate": {
+            "performance": {
+                "max_response_time_ms": 500
+            },
+            "security": {
+                "checks": [
+                    "sql_injection",
+                    "xss"
+                ]
+            },
+            "assertions": [],
+            "data_comparison": []
+        },
+        "test_data_file": "",
+        "db_query_timing": "",
+        "db_queries": {},
+        "db_type": "",
+        "db_connection_name": "",
+        "test_summary": "Test TC002: PATCH /Accounts : Only AccountClassification (Household)",
+        "test_scenario": "Test PATCH request to /accounts."
+    },
+    {
+        "test_id": "TC003",
+        "service_name": "account_service",
+        "workflow_mode": "parallel",
+        "test_name": "PATCH /Accounts [positive] (TC003)",
+        "protocol": "REST",
+        "test_type": [
+            "Functional"
+        ],
+        "mainURL": "{{base_url}}",
+        "endpoint": "/accounts/EDE05D20-2A50-468B-ACA2-F9E58F0356T3",
+        "method": "PATCH",
+        "rpc_method": "",
+        "graphql_query": "",
+        "graphql_variables": "",
+        "soap_action": "",
+        "soap_envelope": "",
+        "headers_additional": {
+            "Content-Type": "application/json"
+        },
+        "payload": "account\\payloads\\PATCH_Account_by_Id\\PATCH_payload_400.json",
+        "expected_status": "404",
+        "expected_response_schema": "",
+        "expected_response": null,
+        "ignore_fields": [
+            "id"
+        ],
+        "extract_values": [],
+        "validate": {
+            "performance": {
+                "max_response_time_ms": 500
+            },
+            "security": {
+                "checks": [
+                    "sql_injection",
+                    "xss"
+                ]
+            },
+            "assertions": [],
+            "data_comparison": []
+        },
+        "test_data_file": "",
+        "db_query_timing": "",
+        "db_queries": {},
+        "db_type": "",
+        "db_connection_name": "",
+        "test_summary": "Test TC003: PATCH /Accounts : Only AccountClassification (Household)",
+        "test_scenario": "Test PATCH request to /accounts."
+    },
+    {
+        "test_id": "TC004",
+        "service_name": "account_service",
+        "workflow_mode": "parallel",
+        "test_name": "PATCH /Accounts [positive] (TC004)",
+        "protocol": "REST",
+        "test_type": [
+            "Functional"
+        ],
+        "mainURL": "{{base_url}}",
+        "endpoint": "/accounts/{{db_HH_id_1}}",
+        "method": "PATCH",
+        "rpc_method": "",
+        "graphql_query": "",
+        "graphql_variables": "",
+        "soap_action": "",
+        "soap_envelope": "",
+        "headers_additional": {
+            "Content-Type": "application/json"
+        },
+        "payload": "account\\payloads\\PATCH_Account_by_Id\\PATCH_payload_409.json",
+        "expected_status": "409",
+        "expected_response_schema": "",
+        "expected_response": null,
+        "ignore_fields": [
+            "id"
+        ],
+        "extract_values": [],
+        "validate": {
+            "performance": {
+                "max_response_time_ms": 500
+            },
+            "security": {
+                "checks": [
+                    "sql_injection",
+                    "xss"
+                ]
+            },
+            "assertions": [],
+            "data_comparison": []
+        },
+        "test_data_file": "",
+        "db_query_timing": "",
+        "db_queries": {},
+        "db_type": "",
+        "db_connection_name": "",
+        "test_summary": "Test TC004: PATCH /Accounts : Only AccountClassification (Household)",
+        "test_scenario": "Test PATCH request to /accounts."
+    },
+    {
+        "test_id": "TC005",
+        "service_name": "account_service",
+        "workflow_mode": "parallel",
+        "test_name": "PATCH /Accounts [positive] (TC005)",
+        "protocol": "REST",
+        "test_type": [
+            "Functional"
+        ],
+        "mainURL": "{{base_url}}",
+        "endpoint": "/accounts/{{db_HH_id_1}}",
+        "method": "PATCH",
+        "rpc_method": "",
+        "graphql_query": "",
+        "graphql_variables": "",
+        "soap_action": "",
+        "soap_envelope": "",
+        "headers_additional": {
+            "Content-Type": "application/json"
+        },
+        "payload": "account\\payloads\\PATCH_Account_by_Id\\PATCH_payload_409.json",
+        "expected_status": "422",
+        "expected_response_schema": "",
+        "expected_response": null,
+        "ignore_fields": [
+            "id"
+        ],
+        "extract_values": [],
+        "validate": {
+            "performance": {
+                "max_response_time_ms": 500
+            },
+            "security": {
+                "checks": [
+                    "sql_injection",
+                    "xss"
+                ]
+            },
+            "assertions": [],
+            "data_comparison": []
+        },
+        "test_data_file": "",
+        "db_query_timing": "",
+        "db_queries": {},
+        "db_type": "",
+        "db_connection_name": "",
+        "test_summary": "Test TC005: PATCH /Accounts : Only AccountClassification (Household)",
+        "test_scenario": "Test PATCH request to /accounts."
+    }
+]

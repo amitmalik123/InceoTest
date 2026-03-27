@@ -21,4 +21,3 @@ WHERE a.rn = 1
   AND p.RoleType = 'Trustee'
   AND p.PartyId = '7e2b1c3a-4d5e-6f7a-8b9c-0d1e2f3a4b5c'
   AND i.Type = 'AccountNumber'
-  -- Add changeState filter if needed

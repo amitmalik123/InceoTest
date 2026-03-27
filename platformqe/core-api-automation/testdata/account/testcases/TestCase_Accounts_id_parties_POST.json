@@ -1,0 +1,513 @@
+[
+    {
+        "test_id": "TC000",
+        "service_name": "account_service",
+        "workflow_mode": "sequential",
+        "test_name": "QUERY and Extract DB Values",
+        "protocol": "DB_ONLY",
+        "test_type": [
+            "Functional",
+            "Smoke",
+            "Business Logic"
+        ],
+        "mainURL": "",
+        "endpoint": "",
+        "method": "",
+        "rpc_method": "",
+        "graphql_query": "",
+        "graphql_variables": "",
+        "soap_action": "",
+        "soap_envelope": "",
+        "headers_additional": {
+            "Content-Type": "application/json"
+        },
+        "payload": null,
+        "expected_status": "",
+        "expected_response_schema": "",
+        "expected_response": "",
+        "extract_values": [
+            {
+                "from": "db_result",
+                "query": "default",
+                "assign": [
+                    {
+                        "key": "0.Id",
+                        "assign_to": "db_POST_account_id1"
+                    },
+                    {
+                        "key": "0.RoleType",
+                        "assign_to": "db_POST_account_roletype1"
+                    },
+                    {
+                        "key": "0.PartyId",
+                        "assign_to": "db_POST_account_partyId1"
+                    },
+                    {
+                        "key": "0.Type",
+                        "assign_to": "db_POST_account_attributeType1"
+                    }
+                ]
+            }
+        ],
+        "validate": {
+            "performance": {
+                "max_response_time_ms": 500
+            },
+            "security": {
+                "checks": [
+                    "sql_injection",
+                    "xss"
+                ]
+            },
+            "data_comparison": {
+                "source": "",
+                "target": "",
+                "format": "",
+                "key_field": [
+                    "",
+                    ""
+                ],
+                "fields_to_compare": [],
+                "log_differences": true
+            },
+            "assertions": []
+        },
+        "test_data_file": "",
+        "db_query_timing": "before_api",
+        "db_queries": {
+            "default": "account\\db_queries\\Parties_queries\\Delete_by_partyid_accountid_roletype_attributes.sql"
+        },
+        "db_type": "mssql",
+        "db_connection_name": "account_service",
+        "test_summary": "Test TC000: DELETE /Accounts/{accountId}/parties/{roleType}/{partyId}/attributes/{attributeType} [positive] (TC000) - Test DELETE request to /Accounts/{accountId}/parties/{roleType}/{partyId}/attributes/{attributeType} for functional scenario validation.",
+        "test_scenario": "Test DELETE request to /Accounts/{accountId}/parties/{roleType}/{partyId}/attributes/{attributeType} for functional scenario validation."
+    },
+    {
+        "test_id": "TC001",
+        "service_name": "account_service",
+        "workflow_mode": "parallel",
+        "test_name": "POST /Accounts/{accountId}/parties [positive] (TC001)",
+        "protocol": "REST",
+        "test_type": [
+            "Functional",
+            "Single-Filter"
+        ],
+        "mainURL": "{{base_url}}",
+        "endpoint": "/accounts/{{db_POST_account_id1}}/parties",
+        "method": "POST",
+        "rpc_method": "",
+        "graphql_query": "",
+        "graphql_variables": "",
+        "soap_action": "",
+        "soap_envelope": "",
+        "headers_additional": {
+            "Content-Type": "application/json"
+        },
+        "payload": "account\\payloads\\DELETE_Parties_byid\\POST_attribute_DELETE_payload.json",
+        "expected_status": "201",
+        "expected_response_schema": "",
+        "expected_response": null,
+        "ignore_fields": [
+            "id"
+        ],
+        "extract_values": [
+            {
+                "from": "response",
+                "key": "roleType",
+                "assign_to": "POST_account_roletype1"
+            },
+            {
+                "from": "response",
+                "key": "attributes[0].type",
+                "assign_to": "POST_account_attributeType1"
+            },
+            {
+                "from": "response",
+                "key": "attributes",
+                "assign_to": "DEBUG_attributes_array"
+            }
+        ],
+        "validate": {
+            "performance": {
+                "max_response_time_ms": 500
+            },
+            "security": {
+                "checks": [
+                    "sql_injection",
+                    "xss"
+                ]
+            },
+            "assertions": [],
+            "data_comparison": []
+        },
+        "test_data_file": "",
+        "db_query_timing": "after_api",
+        "db_queries": {},
+        "db_type": "",
+        "db_connection_name": "",
+        "test_summary": "Test TC001: POST /Accounts Staging party id and roletype for delete endpoint validation (TC001) - Test POST request to /Accounts/{accountId}/parties for functional scenario validation.",
+        "test_scenario": "Test POST request to /Accounts/{accountId}/parties for functional scenario validation."
+    },
+    {
+        "test_id": "TC002",
+        "service_name": "account_service",
+        "workflow_mode": "parallel",
+        "test_name": "DELETE /Accounts/{accountId}/parties [positive] (TC002)",
+        "protocol": "REST",
+        "test_type": [
+            "Functional",
+            "Single-Filter"
+        ],
+        "mainURL": "{{base_url}}",
+        "endpoint": "/accounts/{{db_POST_account_id1}}/parties/{{db_POST_account_roletype1}}/{{db_POST_account_partyId1}}",
+        "method": "DELETE",
+        "rpc_method": "",
+        "graphql_query": "",
+        "graphql_variables": "",
+        "soap_action": "",
+        "soap_envelope": "",
+        "headers_additional": {
+            "Content-Type": "application/json"
+        },
+        "payload": "",
+        "expected_status": "200",
+        "expected_response_schema": "",
+        "expected_response": null,
+        "ignore_fields": [
+            "id"
+        ],
+        "extract_values": [],
+        "validate": {
+            "performance": {
+                "max_response_time_ms": 500
+            },
+            "security": {
+                "checks": [
+                    "sql_injection",
+                    "xss"
+                ]
+            },
+            "assertions": [],
+            "data_comparison": []
+        },
+        "test_data_file": "",
+        "db_query_timing": "after_api",
+        "db_queries": {},
+        "db_type": "",
+        "db_connection_name": "",
+        "test_summary": "Test TC002: DELETE /Accounts Staging party id and roletype for delete endpoint validation (TC002) - Test DELETE request to /Accounts/{accountId}/parties for functional scenario validation.",
+        "test_scenario": "Test DELETE request to /Accounts/{accountId}/parties for functional scenario validation."
+    },
+    {
+        "test_id": "TC003",
+        "service_name": "account_service",
+        "workflow_mode": "parallel",
+        "test_name": "POST /Accounts/{accountId}/parties [negative] (TC003)",
+        "protocol": "REST",
+        "test_type": [
+            "Functional",
+            "Single-Filter"
+        ],
+        "mainURL": "{{base_url}}",
+        "endpoint": "/accounts/{{db_POST_account_id1}}/parties",
+        "method": "POST",
+        "rpc_method": "",
+        "graphql_query": "",
+        "graphql_variables": "",
+        "soap_action": "",
+        "soap_envelope": "",
+        "headers_additional": {
+            "Content-Type": "application/json"
+        },
+        "payload": [
+            "Test"
+        ],
+        "expected_status": "400",
+        "expected_response_schema": "",
+        "expected_response": null,
+        "ignore_fields": [
+            "id"
+        ],
+        "extract_values": [],
+        "validate": {
+            "performance": {
+                "max_response_time_ms": 500
+            },
+            "security": {
+                "checks": [
+                    "sql_injection",
+                    "xss"
+                ]
+            },
+            "assertions": [],
+            "data_comparison": []
+        },
+        "test_data_file": "",
+        "db_query_timing": "after_api",
+        "db_queries": {},
+        "db_type": "",
+        "db_connection_name": "",
+        "test_summary": "Test TC003: POST /Accounts Staging party id and roletype for delete endpoint validation (TC003) - Test POST request to /Accounts/{accountId}/parties for negative scenario validation.",
+        "test_scenario": "Test POST request to /Accounts/{accountId}/parties for negative scenario validation."
+    },
+    {
+        "test_id": "TC004",
+        "service_name": "account_service",
+        "workflow_mode": "parallel",
+        "test_name": "POST /Accounts/{accountId}/parties [negative] (TC004)",
+        "protocol": "REST",
+        "test_type": [
+            "Functional",
+            "Single-Filter"
+        ],
+        "mainURL": "{{base_url}}",
+        "endpoint": "/accounts/F96E525A-D4E4-44D7-A4C5-EB52B8635910/parties",
+        "method": "POST",
+        "rpc_method": "",
+        "graphql_query": "",
+        "graphql_variables": "",
+        "soap_action": "",
+        "soap_envelope": "",
+        "headers_additional": {
+            "Content-Type": "application/json"
+        },
+        "payload": "account\\payloads\\DELETE_Parties_byid\\POST_attribute_DELETE_payload.json",
+        "expected_status": "404",
+        "expected_response_schema": "",
+        "expected_response": null,
+        "ignore_fields": [
+            "id"
+        ],
+        "extract_values": [],
+        "validate": {
+            "performance": {
+                "max_response_time_ms": 500
+            },
+            "security": {
+                "checks": [
+                    "sql_injection",
+                    "xss"
+                ]
+            },
+            "assertions": [],
+            "data_comparison": []
+        },
+        "test_data_file": "",
+        "db_query_timing": "after_api",
+        "db_queries": {},
+        "db_type": "",
+        "db_connection_name": "",
+        "test_summary": "Test TC004: POST /Accounts Staging party id and roletype for delete endpoint validation (TC004) - Test POST request to /Accounts/{accountId}/parties for negative scenario validation.",
+        "test_scenario": "Test POST request to /Accounts/{accountId}/parties for negative scenario validation."
+    },
+    {
+        "test_id": "TC005",
+        "service_name": "account_service",
+        "workflow_mode": "parallel",
+        "test_name": "POST /Accounts/{accountId}/parties [negative] (TC005)",
+        "protocol": "REST",
+        "test_type": [
+            "Functional",
+            "Single-Filter"
+        ],
+        "mainURL": "{{base_url}}",
+        "endpoint": "/accounts/{{db_POST_account_id1}}/parties",
+        "method": "POST",
+        "rpc_method": "",
+        "graphql_query": "",
+        "graphql_variables": "",
+        "soap_action": "",
+        "soap_envelope": "",
+        "headers_additional": {
+            "Content-Type": "application/json"
+        },
+        "payload": "account\\payloads\\DELETE_Parties_byid\\POST_attribute_DELETE_payload.json",
+        "expected_status": "409",
+        "expected_response_schema": "",
+        "expected_response": null,
+        "ignore_fields": [
+            "id"
+        ],
+        "extract_values": [
+            {
+                "from": "response",
+                "key": "roleType",
+                "assign_to": "POST_account_roletype1"
+            },
+            {
+                "from": "response",
+                "key": "attributes[0].type",
+                "assign_to": "POST_account_attributeType1"
+            },
+            {
+                "from": "response",
+                "key": "attributes",
+                "assign_to": "DEBUG_attributes_array"
+            }
+        ],
+        "validate": {
+            "performance": {
+                "max_response_time_ms": 500
+            },
+            "security": {
+                "checks": [
+                    "sql_injection",
+                    "xss"
+                ]
+            },
+            "assertions": [],
+            "data_comparison": []
+        },
+        "test_data_file": "",
+        "db_query_timing": "after_api",
+        "db_queries": {},
+        "db_type": "",
+        "db_connection_name": "",
+        "test_summary": "Test TC005: POST /Accounts Staging party id and roletype for delete endpoint validation (TC005) - Test POST request to /Accounts/{accountId}/parties for negative scenario validation.",
+        "test_scenario": "Test POST request to /Accounts/{accountId}/parties for negative scenario validation."
+    },
+    {
+        "test_id": "TC006",
+        "service_name": "account_service",
+        "workflow_mode": "sequential",
+        "test_name": "QUERY and Extract DB Values",
+        "protocol": "DB_ONLY",
+        "test_type": [
+            "Functional",
+            "Smoke",
+            "Business Logic"
+        ],
+        "mainURL": "",
+        "endpoint": "",
+        "method": "",
+        "rpc_method": "",
+        "graphql_query": "",
+        "graphql_variables": "",
+        "soap_action": "",
+        "soap_envelope": "",
+        "headers_additional": {
+            "Content-Type": "application/json"
+        },
+        "payload": null,
+        "expected_status": "",
+        "expected_response_schema": "",
+        "expected_response": "",
+        "extract_values": [
+            {
+                "from": "db_result",
+                "query": "default",
+                "assign": [
+                    {
+                        "key": "0.Id",
+                        "assign_to": "db_POST_account_id2"
+                    },
+                    {
+                        "key": "0.RoleType",
+                        "assign_to": "db_POST_account_roletype2"
+                    },
+                    {
+                        "key": "0.PartyId",
+                        "assign_to": "db_POST_account_partyId2"
+                    },
+                    {
+                        "key": "0.Type",
+                        "assign_to": "db_POST_account_attributeType2"
+                    }
+                ]
+            }
+        ],
+        "validate": {
+            "performance": {
+                "max_response_time_ms": 500
+            },
+            "security": {
+                "checks": [
+                    "sql_injection",
+                    "xss"
+                ]
+            },
+            "data_comparison": {
+                "source": "",
+                "target": "",
+                "format": "",
+                "key_field": [
+                    "",
+                    ""
+                ],
+                "fields_to_compare": [],
+                "log_differences": true
+            },
+            "assertions": []
+        },
+        "test_data_file": "",
+        "db_query_timing": "before_api",
+        "db_queries": {
+            "default": "account\\db_queries\\Parties_queries\\POST_bypartyid_roletype_query.sql"
+        },
+        "db_type": "mssql",
+        "db_connection_name": "account_service",
+        "test_summary": "Test TC006: DELETE /Accounts/{accountId}/parties/{roleType}/{partyId}/attributes/{attributeType} [positive] (TC006) - Test DELETE request to /Accounts/{accountId}/parties/{roleType}/{partyId}/attributes/{attributeType} for functional scenario validation.",
+        "test_scenario": "Test DELETE request to /Accounts/{accountId}/parties/{roleType}/{partyId}/attributes/{attributeType} for functional scenario validation."
+    },
+    {
+        "test_id": "TC007",
+        "service_name": "account_service",
+        "workflow_mode": "parallel",
+        "test_name": "POST /Accounts/{accountId}/parties [negative] (TC007)",
+        "protocol": "REST",
+        "test_type": [
+            "Functional",
+            "Single-Filter"
+        ],
+        "mainURL": "{{base_url}}",
+        "endpoint": "/accounts/{{db_POST_account_id2}}/parties",
+        "method": "POST",
+        "rpc_method": "",
+        "graphql_query": "",
+        "graphql_variables": "",
+        "soap_action": "",
+        "soap_envelope": "",
+        "headers_additional": {
+            "Content-Type": "application/json"
+        },
+        "payload": [
+            {
+                "partyId": "{{db_POST_account_partyId2}}",
+                "roleType": "{{db_POST_account_roletype2}}",
+                "attributes": [
+                    {
+                        "type": "{{db_POST_account_attributeType2}}",
+                        "value": "string"
+                    }
+                ]
+            }
+        ],
+        "expected_status": "422",
+        "expected_response_schema": "",
+        "expected_response": null,
+        "ignore_fields": [
+            "id"
+        ],
+        "extract_values": [],
+        "validate": {
+            "performance": {
+                "max_response_time_ms": 500
+            },
+            "security": {
+                "checks": [
+                    "sql_injection",
+                    "xss"
+                ]
+            },
+            "assertions": [],
+            "data_comparison": []
+        },
+        "test_data_file": "",
+        "db_query_timing": "after_api",
+        "db_queries": {},
+        "db_type": "",
+        "db_connection_name": "",
+        "test_summary": "Test TC007: POST /Accounts Staging party id and roletype for delete endpoint validation (TC007) - Test POST request to /Accounts/{accountId}/parties for negative scenario validation.",
+        "test_scenario": "Test POST request to /Accounts/{accountId}/parties for negative scenario validation."
+    }
+]
