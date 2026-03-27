@@ -56,55 +56,55 @@ class RGLPage(BasePage):
         self.learn_more_about_link: Locator = self.page.locator(
             "//a[text()='Learn more about additional account information']"
         )
-        self.cash_advantage_account: Locator = self.page.locator(
+        self.cash_advantage_account: Locator = self.form_root.locator(
             "//td[contains(normalize-space(), 'Cash Advantage')]"
         )
-        self.mouse_over_date: Locator = self.page.locator(
+        self.mouse_over_date: Locator = self.form_root.locator(
             "//input[@name='GetSessionstickyValue']//parent::div"
         )
-        self.all_option: Locator = self.page.locator(
+        self.all_option: Locator = self.form_root.locator(
             "//div[@class='ui-genworthdropdownpanel-dropdownContent']//div[text()='All']"
         )
-        self.solution_types_dropdown: Locator = self.page.locator("//span[text()='Solution Types']")
+        self.solution_types_dropdown: Locator = self.form_root.locator("//span[text()='Solution Types']")
         self.list_of_headers: Locator = self.form_root.locator(
             "//*[@role='tab' and not(ancestor-or-self::*[contains(@style, 'display: none')])]/a"
         )
-        self.header_expander: Locator = self.page.locator(
+        self.header_expander: Locator = self.form_root.locator(
             "//div[@aria-disabled='false']//h3[@aria-expanded='false']"
             "//span[@class='ui-accordion-header-icon ui-icon ui-icon-triangle-1-e'"
             " and not(ancestor-or-self::*[contains(@style, 'display: none')])]"
         )
-        self.proceeds_list: Locator = self.page.locator(
+        self.proceeds_list: Locator = self.form_root.locator(
             "//h3[@aria-expanded='true']//parent::div[@role='tablist']"
             "//div//div//table//tr//td[contains(@aria-describedby,'proceeds')]"
         )
-        self.cost_basis_list: Locator = self.page.locator(
+        self.cost_basis_list: Locator = self.form_root.locator(
             "//h3[@aria-expanded='true']//parent::div[@role='tablist']"
             "//div//div//table//tr//td[contains(@aria-describedby,'costBasis')]"
         )
-        self.gain_loss_list: Locator = self.page.locator(
+        self.gain_loss_list: Locator = self.form_root.locator(
             "//h3[@aria-expanded='true']//parent::div[@role='tablist']"
             "//div//div//table//tr//td[contains(@aria-describedby,'gainLoss')]"
         )
-        self.income_list: Locator = self.page.locator(
+        self.income_list: Locator = self.form_root.locator(
             "//h3[@aria-expanded='true']//parent::div[@role='tablist']"
             "//div//div//table//tr//td[contains(@aria-describedby,'income')]"
         )
-        self.expanded_header: Locator = self.page.locator(
+        self.expanded_header: Locator = self.form_root.locator(
             "//h3[@aria-expanded='true']//span[contains(@class,'ui-accordion-header-icon')"
             " and not(ancestor-or-self::*[contains(@style, 'display: none')])]"
         )
-        self.print_button: Locator = self.page.locator("//div[text()='Print']")
-        self.download_button: Locator = self.page.locator("//div[text()='Download']")
-        self.csv_link: Locator = self.page.locator("//a[@href='#CSV']")
-        self.xls_link: Locator = self.page.locator("//a[@href='#XLS']")
-        self.individual_dropdown: Locator = self.page.locator("//span[@class='selectBox-arrow']")
-        self.individual_account: Locator = self.page.locator("(//div[text()='eSig Test 4 Individual'])[1]")
-        self.net_investment: Locator = self.page.locator(
+        self.print_button: Locator = self.form_root.locator("//div[text()='Print']")
+        self.download_button: Locator = self.form_root.locator("//div[text()='Download']")
+        self.csv_link: Locator = self.form_root.locator("//a[@href='#CSV']")
+        self.xls_link: Locator = self.form_root.locator("//a[@href='#XLS']")
+        self.individual_dropdown: Locator = self.form_root.locator("//span[@class='selectBox-arrow']")
+        self.individual_account: Locator = self.form_root.locator("(//div[text()='eSig Test 4 Individual'])[1]")
+        self.net_investment: Locator = self.form_root.locator(
             "//div[@class='ui-jqgrid-bdiv']//div//table//tbody//tr//following-sibling::tr"
             "//td[@class='null ui-td-notsort ui-td-netInvestment']"
         )
-        self.client_names: Locator = self.page.locator(
+        self.client_names: Locator = self.form_root.locator(
             "//div[@class='ui-jqgrid-bdiv']//div//table//tbody//tr//following-sibling::tr"
             "//td[@class='null ui-td-notsort ui-td-clientName']"
         )
@@ -170,13 +170,19 @@ class RGLPage(BasePage):
         self.wait_for_element(self.client_list_search_input, timeout=timeout)
         self.fill(self.client_list_search_input, client_name, timeout=timeout)
         self.click(self.search_button, timeout=timeout)
-        # Wait for search results to load (spinners disappear)
         self.wait_for_all_spinners_to_disappear(timeout=timeout)
         self.wait_for_element(self._client_name_locator(client_name), timeout=timeout)
         self.click(self._client_name_locator(client_name), timeout=timeout)
-        # After clicking the client, page navigates away from the iframe context.
-        # Re-initialize locators so form_root reflects the new page context.
+        # Wait for "All Clients" iframe to detach - confirms we've fully left the clients list page
+        try:
+            self.page.locator('iframe[title="All Clients"]').wait_for(state="detached", timeout=timeout)
+        except Exception:
+            pass
+        self.page.wait_for_load_state("domcontentloaded", timeout=timeout)
+        self.wait_for_all_spinners_to_disappear(timeout=timeout)
+        # Now re-init - active_root() will correctly find the client detail content iframe
         self._init_locators()
+        self.wait_for_element(self.gain_loss_link, timeout=timeout)
         self.click(self.gain_loss_link, timeout=timeout)
         self.wait_for_all_spinners_to_disappear(timeout=timeout)
         logger.info("Gain/Loss page displayed")

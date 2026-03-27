@@ -60,6 +60,11 @@ class BasePage:
                 if frame == self.page.main_frame:
                     continue
                 frame_url = frame.url or ""
+                frame_name = frame.name or ""
+                # Skip chat/messaging/embedded widget frames
+                if any(skip in frame_url.lower() or skip in frame_name.lower()
+                       for skip in ["messaging", "embedded", "sitecontext", "chat"]):
+                    continue
                 if "assetmark.com" in frame_url and "login" not in frame_url.lower():
                     frame.wait_for_load_state("domcontentloaded", timeout=3000)
                     self.logger.debug(f"Using iframe context (app frame: {frame_url})")
