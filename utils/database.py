@@ -138,10 +138,9 @@ def get_db_from_vault(alias: str, database: Optional[str] = None) -> "SQLDatabas
     Resolution order:
         1. ``env_var`` from YAML config (e.g. ``CRM_DB_CONNECTION_STRING``)
         2. Derived env var from ``secret_name`` (e.g. ``crm-db-connection-string`` → ``CRM_DB_CONNECTION_STRING``)
-        3. Fallback: direct Key Vault call via Python SDK (backward compat)
 
     For local development, set the env var in the ``.env`` file.
-    For CI/CD, the pipeline injects it automatically.
+    For CI/CD, the pipeline injects it automatically via AzureKeyVault@2.
 
     Safety: Prevents connections to production/silo databases.
 
@@ -195,18 +194,11 @@ def get_db_from_vault(alias: str, database: Optional[str] = None) -> "SQLDatabas
                 )
 
     if not conn_str:
-        # 3. Last resort: try Key Vault Python SDK (backward compat)
-        secret_name = cfg.get("secret_name", "")
-        if secret_name:
-            conn_str = s.get_vault_connection_string(secret_name)
-
-    if not conn_str:
         raise ValueError(
             f"Could not resolve connection string for database alias '{alias}'.\n"
             f"Tried:\n"
             f"  1. Env var: {cfg.get('env_var', '(not set)')}\n"
             f"  2. Derived env var from secret_name: {cfg.get('secret_name', '').upper().replace('-', '_')}\n"
-            f"  3. Key Vault direct call for: {cfg.get('secret_name', '(not set)')}\n"
             f"\n"
             f"For local dev: set {cfg.get('env_var', 'the env var')} in your .env file.\n"
             f"For CI/CD: ensure AzureKeyVault@2 task maps the secret to the env var."
