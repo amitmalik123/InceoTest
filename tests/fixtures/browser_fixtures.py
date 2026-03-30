@@ -14,8 +14,13 @@ These fixtures handle browser/context configuration and multi-context scenarios.
 
 import logging
 import os
-import tomllib
+import sys
 from collections.abc import Callable, Generator
+
+if sys.version_info >= (3, 11):
+    import tomllib
+else:
+    import tomli as tomllib
 from pathlib import Path
 from urllib.parse import urlparse
 
