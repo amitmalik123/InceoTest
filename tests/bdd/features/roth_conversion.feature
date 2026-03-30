@@ -4,7 +4,7 @@ Feature: Roth IRA Conversion Flow
   I want to convert a Traditional IRA to a Roth IRA
   So that I can help my clients with tax planning
 
-  @smoke @regression @conversion
+  @smoke @conversion
   Scenario: Successfully complete Roth IRA conversion
   When I verify the Roth Conversion status in database
     Then the transfer status should be in the database

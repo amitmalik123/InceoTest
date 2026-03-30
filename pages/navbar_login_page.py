@@ -78,6 +78,10 @@ class NavbarLoginPage(BasePage):
 
     def login_application(self, username: str, password: str) -> None:
         self.navigate()
+        if "dashboard" in (self.page.url or "").lower():
+            logger.info(f"Navbar already on dashboard: {self.page.url}")
+            return
+
         if (
             not self.page.is_closed()
             and self.username_input.count() > 0
@@ -86,13 +90,14 @@ class NavbarLoginPage(BasePage):
             self.enter_username(username)
             self.enter_password(password)
             self.click_sign_in()
-            # Wait for the full OAuth redirect chain to complete (callback → signinCallback → app)
-            self.page.wait_for_load_state("domcontentloaded", timeout=30000)
-            self.page.wait_for_url(
-                lambda url: "callback" not in url.lower() and "signinCallback" not in url,
-                timeout=30000
+            # Complete OAuth chain and ensure we settle on dashboard.
+            self.page.wait_for_url(lambda url: "app." in url.lower(), timeout=60000)
+            self.page.wait_for_function(
+                """() => window.location.href.toLowerCase().includes('/dashboard')""",
+                timeout=60000,
             )
             self.page.wait_for_load_state("domcontentloaded", timeout=30000)
+            self.page.wait_for_timeout(5000)
             logger.info(f"Navbar login submitted. Current URL: {self.page.url}")
             return
 

@@ -16,14 +16,13 @@ class TMSPage(BasePage):
         self.account_list_link: Locator = page.locator("//a[text()='Account List']")
         self.search_input: Locator = page.locator("//input[@name='search_input']")
         self.search_button: Locator = page.locator("//button[@type='submit']")
-        self.account_information_link: Locator = page.locator("//a[normalize-space()='Account Information']")
+        self.account_information_link: Locator = page.locator('//a[text()="Account Information"]')
         self.tax_management_service_link: Locator = page.locator("//a[text()='Tax Management Service']")
         self.account_name_header: Locator = page.locator(
-            "//div[@class='account-information-content']//h1//strong"
-            " | //div[@class='account-information-content']//h1//Strong"
+            "//div[@class='account-information-content']//h1/strong"
         )
         self.account_number_header: Locator = page.locator(
-            "//div[@class='account-information-content']//h1[@class='gbmask']"
+            "//div[@class='account-information-content']//h1[contains(text(),'Account')]"
         )
         self.loading_spinner: Locator = page.locator(
             "//div[contains(@class,'loading-indicator-component__spinner')]"
@@ -66,7 +65,10 @@ class TMSPage(BasePage):
         self.click(self.clients_tab, timeout=timeout)
         self.wait_for_all_spinners_to_disappear(timeout=timeout)
 
-        self.wait_for_element(self.account_list_link, timeout=timeout)
+        if not self.account_list_link.is_visible(timeout=5000):
+            self.click(self.page.locator("//a[text()='Accounts']"), timeout=timeout)
+            self.wait_for_all_spinners_to_disappear(timeout=timeout)
+
         self.click(self.account_list_link, timeout=timeout)
         self.wait_for_all_spinners_to_disappear(timeout=timeout)
 
@@ -82,22 +84,85 @@ class TMSPage(BasePage):
         self.click(self.account_information_link, timeout=timeout)
         self.wait_for_all_spinners_to_disappear(timeout=timeout)
 
+    def navigate_to_tms_page_from_clients(self, account_number: str, timeout: int = 30000) -> None:
+        logger.info(f"Navigating to TMS page from clients (new navbar) for account: {account_number}")
+
+        self.page.wait_for_load_state("domcontentloaded", timeout=timeout)
+        self.page.wait_for_timeout(2000)
+
+        form_root = self.active_root()
+        account_list_link = form_root.locator("a:has-text('Account List'):visible").first
+        if not account_list_link.is_visible(timeout=3000):
+            accounts_main = self.page.locator("//a[text()='Accounts']").first
+            if accounts_main.is_visible(timeout=3000):
+                self.click(accounts_main, timeout=timeout)
+            else:
+                self.click(form_root.locator("a:has-text('Accounts'):visible").first, timeout=timeout)
+
+            self.page.wait_for_load_state("domcontentloaded", timeout=timeout)
+            self.wait_for_all_spinners_to_disappear(timeout=timeout)
+            self.page.wait_for_timeout(2000)
+
+        form_root = self.active_root()
+        account_list_link = form_root.locator("a:has-text('Account List'):visible").first
+        if account_list_link.is_visible(timeout=5000):
+            self.click(account_list_link, timeout=timeout)
+
+        self.page.wait_for_load_state("domcontentloaded", timeout=timeout)
+        self.wait_for_all_spinners_to_disappear(timeout=timeout)
+        self.page.wait_for_timeout(2000)
+
+        form_root = self.active_root()
+        search_input = form_root.locator("input[name='search_input']")
+        search_button = form_root.locator("button[type='submit']")
+        account_row = form_root.locator(f"//td[normalize-space()='{account_number}']")
+
+        self.wait_for_element(search_input, timeout=timeout)
+
+        self.fill(search_input, account_number, timeout=timeout)
+        self.click(search_button, timeout=timeout)
+        self.wait_for_element(account_row, timeout=timeout)
+        self.click(account_row, timeout=timeout)
+
+        try:
+            self.page.locator('iframe[title="All Clients"]').wait_for(state="detached", timeout=timeout)
+        except Exception:
+            pass
+
+        self.page.wait_for_load_state("domcontentloaded", timeout=timeout)
+        self.wait_for_all_spinners_to_disappear(timeout=timeout)
+
+        account_information_link = self.active_root().locator('//a[text()="Account Information"]')
+        self.wait_for_element(account_information_link, timeout=timeout)
+        self.click(account_information_link, timeout=timeout)
+        self.page.wait_for_load_state("domcontentloaded", timeout=timeout)
+        self.wait_for_all_spinners_to_disappear(timeout=timeout)
+
+        tax_management_service_link = self.active_root().locator('//a[text()="Tax Management Service"]')
+        self.wait_for_element(tax_management_service_link, timeout=timeout)
+        self.click(tax_management_service_link, timeout=timeout)
+        self.page.wait_for_load_state("domcontentloaded", timeout=timeout)
+        self.wait_for_all_spinners_to_disappear(timeout=timeout)
+
     def assert_tax_management_service_present(self, timeout: int = 10000) -> None:
         logger.info("Validating Tax Management Service link is present")
         try:
-            self.wait_for_element(self.tax_management_service_link, timeout=timeout)
+            tax_management_service_link = self.active_root().locator("a:has-text('Tax Management Service')")
+            self.wait_for_element(tax_management_service_link, timeout=timeout)
         except Exception as exc:
             raise AssertionError("Tax Management Service link is not present") from exc
         logger.info("Tax Management Service link is present")
 
     def open_tax_management_service(self, timeout: int = 10000) -> None:
         logger.info("Opening Tax Management Service section")
-        self.wait_for_element(self.tax_management_service_link, timeout=timeout)
-        self.click(self.tax_management_service_link, timeout=timeout)
+        tax_management_service_link = self.active_root().locator("a:has-text('Tax Management Service')")
+        self.wait_for_element(tax_management_service_link, timeout=timeout)
+        self.click(tax_management_service_link, timeout=timeout)
         self.wait_for_all_spinners_to_disappear(timeout=timeout)
 
     def _row_by_label(self, label: str) -> Locator:
-        return self.page.locator(
+        form_root = self.active_root()
+        return form_root.locator(
             "//div[@id='tax-management-service']//div[contains(@class,'gbmask')]"
             f"[.//b[normalize-space()='{label}']"
             " and not(ancestor-or-self::*[contains(@style, 'display: none')])]"
@@ -175,13 +240,17 @@ class TMSPage(BasePage):
         return short_term_gain_budget, long_term_gain_budget
 
     def assert_account_fields_alphanumeric_and_not_editable(self, timeout: int = 10000) -> tuple[str, str]:
-        self.wait_for_element(self.account_name_header, timeout=timeout)
-        self.wait_for_element(self.account_number_header, timeout=timeout)
+        form_root = self.active_root()
+        account_name_header = form_root.locator("//div[@class='account-information-content']//h1/strong").first
+        account_number_header = form_root.locator(
+            "//div[@class='account-information-content']//h1[contains(text(),'Account')]"
+        ).first
 
-        account_name = " ".join((self.account_name_header.first.inner_text(timeout=timeout) or "").split())
-        account_number_text = " ".join(
-            (self.account_number_header.first.inner_text(timeout=timeout) or "").split()
-        )
+        self.wait_for_element(account_name_header, timeout=timeout)
+        self.wait_for_element(account_number_header, timeout=timeout)
+
+        account_name = " ".join((account_name_header.inner_text(timeout=timeout) or "").split())
+        account_number_text = " ".join((account_number_header.inner_text(timeout=timeout) or "").split())
 
         if not account_name:
             raise AssertionError("Account Name header text is empty")
@@ -199,7 +268,7 @@ class TMSPage(BasePage):
                 " or an alphanumeric value"
             )
 
-        editable_control = self.page.locator(
+        editable_control = form_root.locator(
             "//div[@class='account-information-content']//input[not(@readonly) and not(@disabled)]"
             " | //div[@class='account-information-content']//textarea[not(@readonly) and not(@disabled)]"
             " | //div[@class='account-information-content']//*[@contenteditable='true']"

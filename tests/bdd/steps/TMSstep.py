@@ -34,20 +34,34 @@ def navigate_to_tms_page(page: Page, account_number: str, test_context):
     tms_page.navigate_to_tms_page(account_number)
 
 
-@when("user navigates to the TMS page")
-def navigate_to_tms_page_from_excel_row(page: Page, test_context):
-    row_data = test_context.get("excel_row_data") or {}
-    account_number = row_data.get("AccountNumber")
-    if account_number is None or str(account_number).strip() == "":
+@when(parsers.parse('user navigates to the new navbar TMS page using "{sheet_name}" , {row_number:d}'))
+def navigate_to_new_navbar_tms_page(
+    page: Page, excel_data_manager, test_context, sheet_name: str, row_number: int
+):
+    if row_number < 2:
         raise ValueError(
-            "AccountNumber is missing in excel row data. "
-            "Provide a row with 'AccountNumber' value in the Excel sheet."
+            f"Invalid RowNumber '{row_number}' for sheet '{sheet_name}'. "
+            "Use Excel row numbers starting at 2 (first data row)."
         )
 
-    account_number = str(account_number).strip()
-    logger.info(f"Navigating to TMS page from Excel row for account number: {account_number}")
+    row_data = excel_data_manager.get_row(sheet_name, row_number - 2)
+    test_context["excel_row_data"] = row_data
+
+    account_number = None
+    for key in ["AccountNumber", "Account Number", "accountnumber"]:
+        value = row_data.get(key)
+        if value is not None and str(value).strip() != "":
+            account_number = str(value).strip()
+            break
+
+    if not account_number:
+        raise ValueError(
+            f"AccountNumber is missing in Excel sheet '{sheet_name}' row {row_number}."
+        )
+
+    logger.info(f"Navigating to new navbar TMS page for account: {account_number}")
     tms_page = TMSPage(page)
-    tms_page.navigate_to_tms_page(account_number)
+    tms_page.navigate_to_tms_page_from_clients(account_number)
 
 
 @then("TMS page should be displayed")

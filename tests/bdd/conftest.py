@@ -44,6 +44,32 @@ def test_data(test_data_manager, request) -> dict:
     print(f"\n{'=' * 60}")
     print(f"[TEST DATA] Scenario: '{scenario_name}'")
 
+    # Targeted overrides for new-navbar credential expectations.
+    node_path = str(getattr(request.node, "fspath", "")).lower().replace("\\", "/")
+    is_rgl_runner = node_path.endswith("tests/bdd/test_runners/test_rgl.py")
+    is_tms_runner = node_path.endswith("tests/bdd/test_runners/test_tms.py")
+    if is_rgl_runner and scenario_name == "User login and navigate to RGL page with new navbar":
+        base = test_data_manager[0] if len(test_data_manager) > 0 else {}
+        data = dict(base)
+        data["username"] = "AG1634SSO"
+        data["password"] = "QAAdminUser_33a"
+        print("[TEST DATA] Applied scenario-specific credentials override")
+        print(f"[TEST DATA] Username: {data.get('username')}")
+        print(f"{'=' * 60}")
+        return data
+
+    is_new_navbar = bool(getattr(request.node, "get_closest_marker", lambda *_: None)("newNavBar"))
+
+    if is_tms_runner and is_new_navbar:
+        base = test_data_manager[0] if len(test_data_manager) > 0 else {}
+        data = dict(base)
+        data["username"] = "AGAXNV_T11"
+        data["password"] = "QAAdminUser_33a"
+        print("[TEST DATA] Applied scenario-specific credentials override")
+        print(f"[TEST DATA] Username: {data.get('username')}")
+        print(f"{'=' * 60}")
+        return data
+
     # Try to find matching data by scenario name
     data = test_data_manager.get_by(scenario=scenario_name)
 
