@@ -5,12 +5,13 @@ Base Page class with common functionality for all page objects
 """
 
 import logging
+import os
 import re
 from typing import Any, Callable, Literal, Optional
 
 import allure
-from playwright.sync_api import Error as PlaywrightError
-from playwright.sync_api import Locator, Page
+from playwright.sync_api import Download, Error as PlaywrightError
+from playwright.sync_api import FrameLocator, Locator, Page
 from playwright.sync_api import TimeoutError as PlaywrightTimeoutError
 
 from utils.auto_healing import AutoHealingEngine
@@ -282,6 +283,46 @@ class BasePage:
             loc.focus()
 
         self._heal_and_retry(locator, _action)
+
+    def upload_file(
+        self,
+        file_path: str | list[str],
+        locator: Optional[Locator] = None,
+        trigger_locator: Optional[Locator] = None,
+        timeout: int = 10000,
+    ) -> None:
+        """Upload file(s) via a file input or a file chooser dialog.
+
+        Option A – direct input: pass *locator* pointing to an ``<input type="file">``
+        element. Uses ``set_input_files`` directly (works even when the input is hidden).
+
+        Option B – file chooser dialog: pass *trigger_locator* (the button/link that
+        opens the OS file picker). The method listens for the ``filechooser`` event
+        and calls ``set_files`` on the dialog.
+
+        Provide exactly one of *locator* or *trigger_locator*.
+        """
+        paths = file_path if isinstance(file_path, list) else [file_path]
+        self.logger.info(f"Uploading file(s): {paths}")
+
+        if locator:
+            def _action(loc: Locator) -> None:
+                loc.wait_for(state="attached", timeout=timeout)
+                loc.set_input_files(paths)
+
+            self._heal_and_retry(locator, _action)
+
+        elif trigger_locator:
+            def _action(loc: Locator) -> None:
+                with self.page.expect_file_chooser(timeout=timeout) as fc_info:
+                    loc.click()
+                file_chooser = fc_info.value
+                file_chooser.set_files(paths)
+
+            self._heal_and_retry(trigger_locator, _action)
+
+        else:
+            raise ValueError("Provide one of: locator (file input) or trigger_locator (button that opens picker)")
     
 
     # ------------------------------------------------------------------
@@ -372,4 +413,68 @@ class BasePage:
             src.drag_to(target)
 
         self._heal_and_retry(source, _action)
-    
+
+    # ------------------------------------------------------------------
+    # Download handling
+    # ------------------------------------------------------------------
+
+    def download_file(
+        self,
+        trigger_locator: Locator,
+        save_path: Optional[str] = None,
+        filename: Optional[str] = None,
+        timeout: int = 30000,
+    ) -> Download:
+        """Click a link/button that triggers a download and return the Download object.
+
+        Files are saved to ``reports/downloads/`` by default (cleaned at session start).
+        Pass *save_path* to override the full destination, or *filename* to override
+        just the file name within the default downloads folder.
+
+        Args:
+            trigger_locator: Element that initiates the download.
+            save_path: Optional full path to save the file (takes priority over *filename*).
+            filename: Optional custom file name (used inside ``reports/downloads/``).
+                      Defaults to the browser-suggested filename.
+            timeout: Max wait for the download to start.
+
+        Returns:
+            Playwright Download object (has .path(), .suggested_filename, .url, etc.).
+        """
+        self.logger.info("Waiting for download...")
+
+        with self.page.expect_download(timeout=timeout) as dl_info:
+            trigger_locator.click()
+
+        download = dl_info.value
+        self.logger.info(f"Download started: {download.suggested_filename}")
+
+        name = filename or download.suggested_filename
+        dest = save_path or f"reports/downloads/{name}"
+        os.makedirs(os.path.dirname(dest), exist_ok=True)
+        download.save_as(dest)
+        self.logger.info(f"Download saved to: {dest}")
+
+        return download
+
+    # ------------------------------------------------------------------
+    # Iframe support
+    # ------------------------------------------------------------------
+
+    def get_frame(self, selector: str) -> FrameLocator:
+        """Get a FrameLocator for interacting with elements inside an iframe.
+
+        Args:
+            selector: CSS selector or iframe name/id.
+                      e.g. "iframe#content", "iframe[name='main']", "#myFrame"
+
+        Returns:
+            FrameLocator that can chain .locator() calls inside the iframe.
+
+        Usage::
+
+            frame = self.get_frame("iframe#content")
+            frame.locator("#submit").click()
+        """
+        self.logger.info(f"Accessing iframe: {selector}")
+        return self.page.frame_locator(selector)

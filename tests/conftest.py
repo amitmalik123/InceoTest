@@ -83,6 +83,7 @@ def pytest_sessionstart(session) -> None:
         "reports/allure-results",
         "reports/videos",
         "reports/traces",
+        "reports/downloads",
     ]
 
     files_to_clean = [
