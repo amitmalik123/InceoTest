@@ -406,8 +406,7 @@ jobs:
       export BUILD_REASON="$(Build.Reason)"
       export AZURE_LOG_WORKSPACE_ID="$(logAnalyticsWorkspaceId)"
       export AZURE_LOG_SHARED_KEY="$(logAnalyticsSharedKey)"
-      export PROJECT_NAME="$(Build.Repository.Name)"
-
+  
       python utils/azure_analytics_reporter.py
     displayName: "Push Metrics to Azure Log Analytics"
     condition: always()
