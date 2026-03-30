@@ -15,7 +15,6 @@ from pathlib import Path
 import yaml  # type: ignore
 from dotenv import load_dotenv
 
-from utils.azure_key_vault import AzureKeyVaultClient
 from utils.logger import setup_logger
 
 # Load .env file from project root (if present).
@@ -39,41 +38,26 @@ class Settings:
         self.config_path = Path(__file__).parent / f"env.{env}.yaml"
         self.config = self._load_config()
         self._queries = self._load_queries()
-        self._vault = AzureKeyVaultClient()
-
-    def _vault_or_yaml(self, vault_key: str, yaml_value):
-        """Try Key Vault first, fall back to YAML value."""
-        secret = self._vault.get_secret(f"{self.env}-{vault_key}")
-        if secret is not None:
-            return secret
-        return yaml_value
 
     def get_vault_connection_string(self, secret_name: str) -> str | None:
-        """Fetch a connection string from environment variable or Key Vault.
+        """Fetch a connection string from environment variable.
 
-        The framework's preferred approach is **env-var first**:
-        1. The Azure DevOps pipeline ``AzureKeyVault@2`` task fetches secrets
-           and maps them to env vars (e.g. ``CRM_DB_CONNECTION_STRING``).
-        2. For local dev, the same env vars are set in the ``.env`` file.
-        3. As a last resort, falls back to the Python Key Vault client.
+        Resolution:
+        1. Pipeline: AzureKeyVault@2 fetches secrets → env vars.
+        2. Local: same env vars set in .env file.
 
         Args:
-            secret_name: Key Vault secret name (e.g. 'crm-db-connection-string').
-                         Also used to derive an env-var name by uppercasing and
-                         replacing hyphens with underscores.
+            secret_name: Secret name (e.g. 'crm-db-connection-string').
+                         Converted to env var: CRM_DB_CONNECTION_STRING.
 
         Returns:
             The connection string value, or None if unavailable.
         """
-        # 1. Try env var derived from secret name: crm-db-connection-string → CRM_DB_CONNECTION_STRING
         env_var = secret_name.upper().replace("-", "_")
         value = os.getenv(env_var)
         if value:
             self.logger.info(f"Connection string resolved from env var: {env_var}")
-            return value
-
-        # 2. Fallback: try Key Vault directly (for backward compatibility)
-        return self._vault.get_secret(secret_name)
+        return value
 
     def get_connection_string_from_env(self, env_var: str) -> str | None:
         """Read a connection string directly from an environment variable.
@@ -151,26 +135,6 @@ class Settings:
         return self.config["application"]["timeout"]
 
     @property
-    def browser_type(self):
-        """Get browser type (chromium, firefox, webkit)."""
-        return self.config["browser"]["browser_type"]
-
-    @property
-    def headless(self):
-        """Check if browser should run in headless mode."""
-        return self.config["browser"]["headless"]
-
-    @property
-    def viewport(self):
-        """Get viewport dimensions."""
-        return self.config["browser"]["viewport"]
-
-    @property
-    def browser_args(self):
-        """Get browser launch arguments."""
-        return self.config["browser"].get("args", [])
-
-    @property
     def test_data_csv(self):
         """Get path to test data CSV file."""
         base_path = Path(__file__).parent.parent
@@ -186,26 +150,14 @@ class Settings:
         return base_path / excel_path
 
     @property
-    def allure_results_dir(self):
-        """Get Allure results directory."""
-        base_path = Path(__file__).parent.parent
-        return base_path / self.config["reporting"]["allure_results"]
-
-    @property
     def screenshot_each_step(self):
         """Check if screenshots should be taken after each BDD step."""
         return self.config.get("test", {}).get("screenshot_each_step", False)
 
     @property
-    def screenshot_on_failure(self):
-        """Check if screenshots should be taken on test failure."""
-        return self.config.get("test", {}).get("screenshot_on_failure", True)
-
-    @property
     def api_auth_token(self):
-        """Get API authorization token (Key Vault → YAML fallback)."""
-        yaml_val = self.config.get("api", {}).get("auth_token", "")
-        return self._vault_or_yaml("api-auth-token", yaml_val)
+        """Get API authorization token (env var → YAML fallback)."""
+        return os.getenv(f"{self.env.upper()}_API_AUTH_TOKEN") or os.getenv("API_AUTH_TOKEN") or self.config.get("api", {}).get("auth_token", "")
 
     @property
     def database_config(self):
@@ -266,11 +218,8 @@ class Settings:
 
     @property
     def outlook_password(self):
-        """Get Outlook password / app-password (Key Vault → YAML → env-var fallback)."""
-        yaml_val = self.config.get("outlook", {}).get("password", "")
-        return self._vault_or_yaml("outlook-password", yaml_val) or os.getenv(
-            "OUTLOOK_PASSWORD", ""
-        )
+        """Get Outlook password / app-password (env var → YAML fallback)."""
+        return os.getenv("OUTLOOK_PASSWORD", "") or self.config.get("outlook", {}).get("password", "")
 
     @property
     def outlook_imap_server(self):

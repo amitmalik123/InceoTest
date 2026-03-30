@@ -62,7 +62,8 @@ parameters:
       - both
 
 variables:
-  azureSubscription: 'TEST Foundation (9156b16c-8a2e-4b7d-a886-e772dc017316)'  # ← Replace with your Azure DevOps service connection name
+- group: qa-pipelines-shared-config
+# subscription_test comes from the library group above
 # -----------------------------
 # Job Section
 # -----------------------------
@@ -87,6 +88,36 @@ jobs:
   - checkout: self
     clean: true
 
+  # -----------------------------------------------------------------
+  # Azure Key Vault: Fetch secrets and map them to pipeline variables
+  # -----------------------------------------------------------------
+  # Prerequisites:
+  #   1. Create an Azure Key Vault in your Azure subscription
+  #   2. Store secrets with naming convention: {env}-{service}-{key}
+  #      Examples:
+  #        test11-azure-sql-username
+  #        test11-azure-sql-password
+  #        test11-sql-server-username
+  #        test11-sql-server-password
+  #        test11-api-auth-token
+  #        common-sonar-token
+  #        common-influxdb-token
+  #   3. Create a Service Connection in Azure DevOps:
+  #      Project Settings → Service connections → New → Azure Resource Manager
+  #   4. Grant the Service Connection's Service Principal "Key Vault Secrets User"
+  #      role on the Key Vault (Access policies or RBAC)
+  #   5. Update 'keyVaultName' and 'azureSubscription' variables above
+  # -----------------------------------------------------------------
+  - task: AzureKeyVault@2
+    displayName: 'Fetch Secrets from Azure Key Vault'
+    inputs:
+      azureSubscription: $(subscription_test)
+      KeyVaultName: $(keyVaultName)
+      SecretsFilter: '*'
+      RunAsPreJob: true
+    # Each secret becomes a pipeline variable with the same name.
+    # E.g., Key Vault secret "test11-azure-sql-password" → $(test11-azure-sql-password)
+
   - script: |
       echo "Determining environment and test settings dynamically..."
       if [ "$(Build.Reason)" = "Manual" ]; then
@@ -102,7 +133,7 @@ jobs:
 
   - script: |
       echo "##vso[task.setvariable variable=TEST_ENV]$(environment)"
-    displayName: "Set Playwright Environment Variables"
+    displayName: "Set Test Environment Variable"
 
   - script: |
       echo "========================================"
@@ -131,6 +162,10 @@ jobs:
       echo "  Allure Report Dir: $(allureReportDir)"
       echo "  Allure Tools Dir: $(allureToolsDir)"
       echo "  Test Results Dir: $(testResultsDir)"
+      echo ""
+      echo "Azure Log Analytics:"
+      echo "  Workspace ID: $(logAnalyticsWorkspaceId)"
+      echo "  Shared Key: [SET]"
       echo "========================================"
     displayName: "Print Pipeline Variables"
 
@@ -309,8 +344,6 @@ jobs:
       WORK_ITEM_AUTH_TOKEN: $(WORK_ITEM_AUTH_TOKEN)
       PARTIES_AUTH_TOKEN: $(PARTIES_AUTH_TOKEN)
       INFLUXDB_AUTO_PUSH: 'false'  # Pipeline has its own dedicated push step
-      # Azure Key Vault env vars for Python AzureKeyVaultClient
-      AZURE_KEY_VAULT_URL: https://$(keyVaultName).vault.azure.net/
       # ── Connection strings: AzureKeyVault@2 fetches secrets → mapped to env vars ──
       # Python reads these via os.getenv() — no direct Key Vault API calls.
       TRANSFER_CONNECTION_STRING: $(transfer-connection-string)
@@ -372,6 +405,20 @@ jobs:
 
       python utils/influx_reporter.py
     displayName: "Push Metrics to InfluxDB"
+    condition: always()
+    continueOnError: true
+
+  - script: |
+      echo "Pushing test metrics to Azure Log Analytics..."
+      export ALLURE_RESULTS_DIR="$(allureResultsDir)"
+      export ENVIRONMENT="$(environment)"
+      export BUILD_ID="$(Build.BuildId)"
+      export BUILD_REASON="$(Build.Reason)"
+      export AZURE_LOG_WORKSPACE_ID="$(logAnalyticsWorkspaceId)"
+      export AZURE_LOG_SHARED_KEY="$(logAnalyticsSharedKey)"
+  
+      python utils/azure_analytics_reporter.py
+    displayName: "Push Metrics to Azure Log Analytics"
     condition: always()
     continueOnError: true
 

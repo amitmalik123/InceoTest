@@ -2,7 +2,8 @@
 Database Fixtures
 
 Provides fixtures for database connection management with lazy initialization.
-All connections use connection strings from Azure Key Vault (no username/password).
+All connections use connection strings from environment variables
+(injected by pipeline's AzureKeyVault@2 task or set in .env for local dev).
 """
 
 from collections.abc import Generator
@@ -17,8 +18,8 @@ class DatabaseConnectionManager:
     """
     Manages database connections with lazy initialization.
 
-    All connections use connection strings from Key Vault (injected as env vars
-    by the Azure DevOps pipeline, or set in .env for local dev).
+    All connections use connection strings from environment variables
+    (injected by pipeline or set in .env for local dev).
 
     Connections are cached per vault alias and automatically closed after test.
     """

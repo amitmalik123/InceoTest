@@ -30,8 +30,6 @@ from utils.flaky_test_tracker import FlakyTestTracker, get_tracker
 
 # Helpers
 from utils.helpers import ensure_directory_exists, generate_test_data, get_timestamp
-from utils.lighthouse_runner import LighthouseRunner
-
 # Logger utilities
 from utils.logger import setup_logger
 

@@ -14,6 +14,7 @@ from tests.fixtures.auth_fixtures import authenticated_page, fresh_page, page
 # Browser fixtures
 from tests.fixtures.browser_fixtures import (
     browser_context_args,
+    browser_type_launch_args,
     multi_user_contexts,
     new_context,
     new_page,
@@ -60,6 +61,7 @@ __all__ = [
     "fresh_page",
     # browser
     "browser_context_args",
+    "browser_type_launch_args",
     "new_context",
     "new_page",
     "multi_user_contexts",

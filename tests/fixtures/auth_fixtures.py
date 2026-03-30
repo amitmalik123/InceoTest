@@ -22,6 +22,7 @@ from playwright.sync_api import TimeoutError as PlaywrightTimeoutError
 
 from config.settings import Settings, get_settings
 from pages.login_page import LoginPage
+from tests.fixtures.browser_fixtures import apply_context_listeners, apply_route_blocks
 
 # Use centralized Settings singleton
 settings = get_settings()
@@ -145,7 +146,7 @@ def _perform_login(
 
 
 @pytest.fixture
-def authenticated_page(browser, test_data, request) -> Generator[Page, None, None]:
+def authenticated_page(browser, browser_context_args, test_data, request) -> Generator[Page, None, None]:
     """
     Flexible authenticated page fixture supporting multiple applications.
 
@@ -193,6 +194,14 @@ def authenticated_page(browser, test_data, request) -> Generator[Page, None, Non
     session_file = _get_session_file(username, app_name, worker_id, role)
     session_max_age_hours = 8
 
+    # Build context args: inherit video/viewport/recording settings from browser_context_args
+    # but exclude record_video_dir for the temporary login context
+    base_ctx_args = {k: v for k, v in browser_context_args.items()}
+
+    # Read tracing config from pytest CLI options
+    tracing_option = request.config.getoption("--tracing", default="off")
+    capture_trace = tracing_option in ("on", "retain-on-failure")
+
     print(f"\n{'=' * 60}")
     print(f"[SESSION] App: {app_name}")
     print(f"[SESSION] Worker: {worker_id}")
@@ -213,7 +222,11 @@ def authenticated_page(browser, test_data, request) -> Generator[Page, None, Non
     # Try to load existing session
     if session_file.exists():
         print("[SESSION] Loading saved session...")
-        context = browser.new_context(storage_state=str(session_file), ignore_https_errors=True)
+        context = browser.new_context(storage_state=str(session_file), **base_ctx_args)
+        apply_route_blocks(context)
+        apply_context_listeners(context)
+        if capture_trace:
+            context.tracing.start(screenshots=True, snapshots=True, sources=True)
         page = context.new_page()
 
         # Navigate to home URL to activate session
@@ -243,12 +256,30 @@ def authenticated_page(browser, test_data, request) -> Generator[Page, None, Non
                 context.close()
                 session_file.unlink()
                 # Fall through to login block below
+        # Verify session is still valid
+        if "login" not in page.url.lower():
+            print("[SESSION] Session valid! Already authenticated.")
+            yield page
+            # Save trace on failure if configured
+            _stop_tracing(context, tracing_option, request)
+            page.close()
+            context.close()
+            return
+        else:
+            # Session expired - close this context and delete session file
+            print("[SESSION] Session expired, deleting and re-authenticating...")
+            if capture_trace:
+                context.tracing.stop()  # discard trace from expired session attempt
+            page.close()
+            context.close()
+            session_file.unlink()
+            # Fall through to login block below
 
     # No session or expired - perform login in TEMPORARY context
     if not session_file.exists():
         print(f"[SESSION] No valid session, logging in to {app_name}...")
 
-        # Create temporary context for login
+        # Create temporary context for login (no video/trace needed)
         temp_context = browser.new_context(ignore_https_errors=True)
         temp_page = temp_context.new_page()
 
@@ -276,9 +307,13 @@ def authenticated_page(browser, test_data, request) -> Generator[Page, None, Non
         temp_page.close()
         temp_context.close()
 
-        # Create NEW context with saved session (consistent with session-exists path)
+        # Create NEW context with saved session and full recording settings
         print("[SESSION] Creating new context with saved session...")
-        context = browser.new_context(storage_state=str(session_file), ignore_https_errors=True)
+        context = browser.new_context(storage_state=str(session_file), **base_ctx_args)
+        apply_route_blocks(context)
+        apply_context_listeners(context)
+        if capture_trace:
+            context.tracing.start(screenshots=True, snapshots=True, sources=True)
         page = context.new_page()
 
         # Navigate to home page
@@ -289,12 +324,39 @@ def authenticated_page(browser, test_data, request) -> Generator[Page, None, Non
 
         yield page
 
+        _stop_tracing(context, tracing_option, request)
         page.close()
         context.close()
 
 
+def _stop_tracing(context, tracing_option: str, request) -> None:
+    """Stop tracing and save the trace file based on the tracing option."""
+    if tracing_option == "off":
+        return
+
+    failed = request.node.rep_call.failed if hasattr(request.node, "rep_call") else False
+    # Also check for setup failure
+    if not failed:
+        failed = getattr(getattr(request.node, "rep_setup", None), "failed", False)
+
+    if tracing_option == "on" or (tracing_option == "retain-on-failure" and failed):
+        trace_dir = Path("reports/traces")
+        trace_dir.mkdir(parents=True, exist_ok=True)
+        trace_path = trace_dir / f"{request.node.name}.zip"
+        try:
+            context.tracing.stop(path=str(trace_path))
+            print(f"[TRACE] Saved: {trace_path}")
+        except Exception as e:
+            print(f"[TRACE] Failed to save: {e}")
+    else:
+        try:
+            context.tracing.stop()  # Stop without saving
+        except Exception:
+            pass
+
+
 @pytest.fixture
-def fresh_page(browser) -> Generator[Page, None, None]:
+def fresh_page(browser, browser_context_args) -> Generator[Page, None, None]:
     """
     Provides a fresh page WITHOUT authentication.
     Use this when you need to test login flow or unauthenticated access.
@@ -304,7 +366,9 @@ def fresh_page(browser) -> Generator[Page, None, None]:
             fresh_page.goto("/login")
             # No session - test login flow
     """
-    context = browser.new_context(ignore_https_errors=True)
+    context = browser.new_context(**browser_context_args)
+    apply_route_blocks(context)
+    apply_context_listeners(context)
     page = context.new_page()
 
     yield page

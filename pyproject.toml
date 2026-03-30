@@ -43,10 +43,6 @@ dependencies = [
     # Environment (.env) file support
     "python-dotenv>=1.0.0",
 
-    # Azure Key Vault
-    "azure-identity>=1.15.0",
-    "azure-keyvault-secrets>=4.8.0",
-
     # PDF Testing
     "PyPDF2>=3.0.0",
 
@@ -145,7 +141,6 @@ markers = [
     "silo: Tests for silo environment",
     "prod: Tests for production environment",
     "performance: Performance monitoring tests",
-    "lighthouse: Lighthouse audit tests",
 ]
 asyncio_mode = "strict"
 log_cli = true
@@ -180,6 +175,36 @@ max-line-length = 100
 [tool.isort]
 profile = "black"
 line_length = 100
+
+[tool.coverage.run]
+source = ["pages", "utils", "config"]
+omit = ["*/tests/*", "*/__pycache__/*", "*/generated/*"]
+
+[tool.coverage.report]
+show_missing = true
+exclude_lines = [
+    "if __name__",
+    "pass",
+    "raise NotImplementedError",
+    "pragma: no cover",
+]
+
+[tool.route-blocking]
+# Allow only requests to these domains; abort everything else.
+# Subdomains are automatically included (e.g., app.assetmark.com matches assetmark.com).
+# Set enabled = false to disable and allow all traffic.
+enabled = true
+http_error_log = "reports/network_errors.log"
+allowed_domains = [
+    "assetmark.com",
+    "ewealthmanager.com",
+    "assetmark.net",
+    "docusign.net",
+    "docusign.com",
+    "azure.com",
+    "outlook.com",
+    "azncc03perf.corp",
+]
 
 [tool.flake8]
 max-line-length = 100
