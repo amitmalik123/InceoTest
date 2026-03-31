@@ -10,7 +10,7 @@ trigger: none
 # Scheduled triggers
 # -----------------------------
 schedules:
-  - cron: "0 19 * * *" # 19:00 UTC daily (12:30 AM IST next day)
+  - cron: "25 9 * * *" # 09:25 UTC daily (2:55 PM IST)
     displayName: "Daily Regression"
     branches:
       include:
@@ -61,9 +61,16 @@ parameters:
       - msedge
       - both
 
+  - name: useProtectedResources
+    displayName: "Enable Key Vault and shared config"
+    type: boolean
+    default: false
+
 variables:
-- group: qa-pipelines-shared-config
-# subscription_test comes from the library group above
+- name: azureSubscription
+  value: 'TEST Foundation (9156b16c-8a2e-4b7d-a886-e772dc017316)'  # ← Replace with your Azure DevOps service connection name
+- ${{ if eq(parameters.useProtectedResources, true) }}:
+  - group: qa-pipelines-shared-config
 # -----------------------------
 # Job Section
 # -----------------------------
@@ -88,35 +95,23 @@ jobs:
   - checkout: self
     clean: true
 
-  # -----------------------------------------------------------------
-  # Azure Key Vault: Fetch secrets and map them to pipeline variables
-  # -----------------------------------------------------------------
-  # Prerequisites:
-  #   1. Create an Azure Key Vault in your Azure subscription
-  #   2. Store secrets with naming convention: {env}-{service}-{key}
-  #      Examples:
-  #        test11-azure-sql-username
-  #        test11-azure-sql-password
-  #        test11-sql-server-username
-  #        test11-sql-server-password
-  #        test11-api-auth-token
-  #        common-sonar-token
-  #        common-influxdb-token
-  #   3. Create a Service Connection in Azure DevOps:
-  #      Project Settings → Service connections → New → Azure Resource Manager
-  #   4. Grant the Service Connection's Service Principal "Key Vault Secrets User"
-  #      role on the Key Vault (Access policies or RBAC)
-  #   5. Update 'keyVaultName' and 'azureSubscription' variables above
-  # -----------------------------------------------------------------
-  - task: AzureKeyVault@2
-    displayName: 'Fetch Secrets from Azure Key Vault'
-    inputs:
-      azureSubscription: $(subscription_test)
-      KeyVaultName: $(keyVaultName)
-      SecretsFilter: '*'
-      RunAsPreJob: true
-    # Each secret becomes a pipeline variable with the same name.
-    # E.g., Key Vault secret "test11-azure-sql-password" → $(test11-azure-sql-password)
+  - script: |
+      echo "Protected resources enabled: ${{ parameters.useProtectedResources }}"
+      if [ "${{ parameters.useProtectedResources }}" = "True" ]; then
+        echo "Shared variable group, Azure Key Vault, and Azure Log Analytics integrations are enabled."
+      else
+        echo "Scheduled-safe mode: protected resources are disabled for this run."
+      fi
+    displayName: "Print Resource Mode"
+
+  - ${{ if eq(parameters.useProtectedResources, true) }}:
+    - task: AzureKeyVault@2
+      displayName: 'Fetch Secrets from Azure Key Vault'
+      inputs:
+        azureSubscription: $(subscription_test)
+        KeyVaultName: $(keyVaultName)
+        SecretsFilter: '*'
+        RunAsPreJob: true
 
   - script: |
       echo "Determining environment and test settings dynamically..."
@@ -133,7 +128,7 @@ jobs:
 
   - script: |
       echo "##vso[task.setvariable variable=TEST_ENV]$(environment)"
-    displayName: "Set Test Environment Variable"
+    displayName: "Set Playwright Environment Variables"
 
   - script: |
       echo "========================================"
@@ -144,6 +139,7 @@ jobs:
       echo "  Marker: ${{ parameters.marker }}"
       echo "  Workers: ${{ parameters.workers }}"
       echo "  Browser: ${{ parameters.browser }}"
+      echo "  Protected Resources: ${{ parameters.useProtectedResources }}"
       echo ""
       echo "Runtime Variables:"
       echo "  Environment: $(environment)"
@@ -162,10 +158,12 @@ jobs:
       echo "  Allure Report Dir: $(allureReportDir)"
       echo "  Allure Tools Dir: $(allureToolsDir)"
       echo "  Test Results Dir: $(testResultsDir)"
-      echo ""
-      echo "Azure Log Analytics:"
-      echo "  Workspace ID: $(logAnalyticsWorkspaceId)"
-      echo "  Shared Key: [SET]"
+      if [ "${{ parameters.useProtectedResources }}" = "True" ]; then
+        echo ""
+        echo "Azure Log Analytics:"
+        echo "  Workspace ID: $(logAnalyticsWorkspaceId)"
+        echo "  Shared Key: [SET]"
+      fi
       echo "========================================"
     displayName: "Print Pipeline Variables"
 
@@ -344,8 +342,7 @@ jobs:
       WORK_ITEM_AUTH_TOKEN: $(WORK_ITEM_AUTH_TOKEN)
       PARTIES_AUTH_TOKEN: $(PARTIES_AUTH_TOKEN)
       INFLUXDB_AUTO_PUSH: 'false'  # Pipeline has its own dedicated push step
-      # ── Connection strings: AzureKeyVault@2 fetches secrets → mapped to env vars ──
-      # Python reads these via os.getenv() — no direct Key Vault API calls.
+      # ── Connection strings can come from pipeline variables or AzureKeyVault@2 ──
       TRANSFER_CONNECTION_STRING: $(transfer-connection-string)
       ACCOUNTDISTRIBUTIONS_CONNECTION_STRING: $(accoundistributions-connection-string)
       CRM_DB_CONNECTION_STRING: $(crm-db-connection-string)
@@ -408,19 +405,20 @@ jobs:
     condition: always()
     continueOnError: true
 
-  - script: |
-      echo "Pushing test metrics to Azure Log Analytics..."
-      export ALLURE_RESULTS_DIR="$(allureResultsDir)"
-      export ENVIRONMENT="$(environment)"
-      export BUILD_ID="$(Build.BuildId)"
-      export BUILD_REASON="$(Build.Reason)"
-      export AZURE_LOG_WORKSPACE_ID="$(logAnalyticsWorkspaceId)"
-      export AZURE_LOG_SHARED_KEY="$(logAnalyticsSharedKey)"
-  
-      python utils/azure_analytics_reporter.py
-    displayName: "Push Metrics to Azure Log Analytics"
-    condition: always()
-    continueOnError: true
+  - ${{ if eq(parameters.useProtectedResources, true) }}:
+    - script: |
+        echo "Pushing test metrics to Azure Log Analytics..."
+        export ALLURE_RESULTS_DIR="$(allureResultsDir)"
+        export ENVIRONMENT="$(environment)"
+        export BUILD_ID="$(Build.BuildId)"
+        export BUILD_REASON="$(Build.Reason)"
+        export AZURE_LOG_WORKSPACE_ID="$(logAnalyticsWorkspaceId)"
+        export AZURE_LOG_SHARED_KEY="$(logAnalyticsSharedKey)"
+
+        python utils/azure_analytics_reporter.py
+      displayName: "Push Metrics to Azure Log Analytics"
+      condition: always()
+      continueOnError: true
 
   - task: PublishBuildArtifacts@1
     displayName: "Publish Test Results Directory"
