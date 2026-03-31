@@ -10,7 +10,7 @@ trigger: none
 # Scheduled triggers
 # -----------------------------
 schedules:
-  - cron: "25 9 * * *" # 09:25 UTC daily (2:55 PM IST)
+  - cron: "0 19 * * *" # 19:00 UTC daily (12:30 AM IST next day)
     displayName: "Daily Regression"
     branches:
       include:
@@ -61,16 +61,8 @@ parameters:
       - msedge
       - both
 
-  - name: useProtectedResources
-    displayName: "Enable Key Vault and shared config"
-    type: boolean
-    default: false
-
 variables:
-- name: azureSubscription
-  value: 'TEST Foundation (9156b16c-8a2e-4b7d-a886-e772dc017316)'  # ← Replace with your Azure DevOps service connection name
-- ${{ if eq(parameters.useProtectedResources, true) }}:
-  - group: qa-pipelines-shared-config
+  azureSubscription: 'TEST Foundation (9156b16c-8a2e-4b7d-a886-e772dc017316)'  # ← Replace with your Azure DevOps service connection name
 # -----------------------------
 # Job Section
 # -----------------------------
@@ -94,24 +86,6 @@ jobs:
   steps:
   - checkout: self
     clean: true
-
-  - script: |
-      echo "Protected resources enabled: ${{ parameters.useProtectedResources }}"
-      if [ "${{ parameters.useProtectedResources }}" = "True" ]; then
-        echo "Shared variable group, Azure Key Vault, and Azure Log Analytics integrations are enabled."
-      else
-        echo "Scheduled-safe mode: protected resources are disabled for this run."
-      fi
-    displayName: "Print Resource Mode"
-
-  - ${{ if eq(parameters.useProtectedResources, true) }}:
-    - task: AzureKeyVault@2
-      displayName: 'Fetch Secrets from Azure Key Vault'
-      inputs:
-        azureSubscription: $(subscription_test)
-        KeyVaultName: $(keyVaultName)
-        SecretsFilter: '*'
-        RunAsPreJob: true
 
   - script: |
       echo "Determining environment and test settings dynamically..."
@@ -139,7 +113,6 @@ jobs:
       echo "  Marker: ${{ parameters.marker }}"
       echo "  Workers: ${{ parameters.workers }}"
       echo "  Browser: ${{ parameters.browser }}"
-      echo "  Protected Resources: ${{ parameters.useProtectedResources }}"
       echo ""
       echo "Runtime Variables:"
       echo "  Environment: $(environment)"
@@ -158,12 +131,6 @@ jobs:
       echo "  Allure Report Dir: $(allureReportDir)"
       echo "  Allure Tools Dir: $(allureToolsDir)"
       echo "  Test Results Dir: $(testResultsDir)"
-      if [ "${{ parameters.useProtectedResources }}" = "True" ]; then
-        echo ""
-        echo "Azure Log Analytics:"
-        echo "  Workspace ID: $(logAnalyticsWorkspaceId)"
-        echo "  Shared Key: [SET]"
-      fi
       echo "========================================"
     displayName: "Print Pipeline Variables"
 
@@ -342,7 +309,10 @@ jobs:
       WORK_ITEM_AUTH_TOKEN: $(WORK_ITEM_AUTH_TOKEN)
       PARTIES_AUTH_TOKEN: $(PARTIES_AUTH_TOKEN)
       INFLUXDB_AUTO_PUSH: 'false'  # Pipeline has its own dedicated push step
-      # ── Connection strings can come from pipeline variables or AzureKeyVault@2 ──
+      # Azure Key Vault env vars for Python AzureKeyVaultClient
+      AZURE_KEY_VAULT_URL: https://$(keyVaultName).vault.azure.net/
+      # ── Connection strings: AzureKeyVault@2 fetches secrets → mapped to env vars ──
+      # Python reads these via os.getenv() — no direct Key Vault API calls.
       TRANSFER_CONNECTION_STRING: $(transfer-connection-string)
       ACCOUNTDISTRIBUTIONS_CONNECTION_STRING: $(accoundistributions-connection-string)
       CRM_DB_CONNECTION_STRING: $(crm-db-connection-string)
@@ -404,21 +374,6 @@ jobs:
     displayName: "Push Metrics to InfluxDB"
     condition: always()
     continueOnError: true
-
-  - ${{ if eq(parameters.useProtectedResources, true) }}:
-    - script: |
-        echo "Pushing test metrics to Azure Log Analytics..."
-        export ALLURE_RESULTS_DIR="$(allureResultsDir)"
-        export ENVIRONMENT="$(environment)"
-        export BUILD_ID="$(Build.BuildId)"
-        export BUILD_REASON="$(Build.Reason)"
-        export AZURE_LOG_WORKSPACE_ID="$(logAnalyticsWorkspaceId)"
-        export AZURE_LOG_SHARED_KEY="$(logAnalyticsSharedKey)"
-
-        python utils/azure_analytics_reporter.py
-      displayName: "Push Metrics to Azure Log Analytics"
-      condition: always()
-      continueOnError: true
 
   - task: PublishBuildArtifacts@1
     displayName: "Publish Test Results Directory"
