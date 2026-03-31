@@ -120,7 +120,7 @@ SERVICE_DEFAULTS: Dict[str, Dict] = {
                     ]
                 },
                 'update_csv_file': 'MoveMoneyAPI/data_driven/Data_instructions_instructionId_GET.csv',
-                'csv_columns': [ 'test_id','environment', 'instructionId', 'version', 'status'],
+                'csv_columns': ['environment', 'instructionId', 'version'],
             }
         }
     }
