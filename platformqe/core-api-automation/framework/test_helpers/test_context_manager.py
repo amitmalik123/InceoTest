@@ -220,12 +220,10 @@ class TestContextManager:
                 continue  # Move to next extract config
             
             # Use validators' _resolve_data_source for consistent logic
-            # Include the named query key so that db_results with non-'default' names resolve correctly
-            query_name = extract.get('query', 'default')
             try:
                 source_data = _resolve_data_source(
                     data_source_type=source_type,
-                    comparison_config={'source': source_type, 'source_query': query_name},
+                    comparison_config={'source': source_type},  # Minimal config for resolution
                     response=response,
                     context=temp_context
                 )
