@@ -1,0 +1,8 @@
+{
+    "identifiers": [
+        {
+            "type": "INVALIDTYPE",
+            "value": "some-value"
+        }
+    ]
+}
