@@ -23,27 +23,33 @@ def load_azure_analytics_config():
     config_path = Path(__file__).parent.parent / "config" / "azure_analytics_config.json"
 
     # Try to load from config file first
+    config = {}
     if config_path.exists():
         try:
             with open(config_path, "r") as f:
                 config = json.load(f)
-                return {
-                    "workspace_id": config.get("workspace_id", ""),
-                    "shared_key": decrypt_value(config.get("shared_key", "")),
-                    "log_type": config.get("log_type", "TestExecution"),
-                    "project_name": config.get("project_name", "unknown"),
-                    "auto_push": config.get("auto_push", False),
-                }
         except Exception as e:
             print(f"Warning: Error loading Azure Analytics config file: {e}")
 
-    # Fall back to environment variables
+    # Decrypt shared_key separately so a decryption failure doesn't lose other config values
+    shared_key = ""
+    if config.get("shared_key"):
+        try:
+            shared_key = decrypt_value(config["shared_key"])
+        except Exception:
+            print("Warning: Could not decrypt shared_key from config, falling back to env var")
+
+    # Build final config: config file values → environment variable overrides → defaults
+    default_project = os.getenv(
+        "BUILD_REPOSITORY_NAME", os.getenv("SYSTEM_TEAMPROJECT", "unknown")
+    )
     return {
-        "workspace_id": os.getenv("AZURE_LOG_WORKSPACE_ID", ""),
-        "shared_key": os.getenv("AZURE_LOG_SHARED_KEY", ""),
-        "log_type": os.getenv("AZURE_LOG_TYPE", "TestExecution"),
-        "project_name": os.getenv("PROJECT_NAME", "unknown"),
-        "auto_push": os.getenv("AZURE_ANALYTICS_AUTO_PUSH", "false").lower() == "true",
+        "workspace_id": os.getenv("AZURE_LOG_WORKSPACE_ID", config.get("workspace_id", "")),
+        "shared_key": os.getenv("AZURE_LOG_SHARED_KEY", "") or shared_key,
+        "log_type": os.getenv("AZURE_LOG_TYPE", config.get("log_type", "TestExecution")),
+        "project_name": os.getenv("PROJECT_NAME", config.get("project_name", "")) or default_project,
+        "auto_push": os.getenv("AZURE_ANALYTICS_AUTO_PUSH", str(config.get("auto_push", False))).lower()
+        in ("true", "1"),
     }
 
 

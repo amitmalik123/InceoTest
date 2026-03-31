@@ -144,9 +144,7 @@ jobs:
 
   - script: |
       echo "##vso[task.setvariable variable=TEST_ENV]$(environment)"
-      # Key Vault URL for the Python AzureKeyVaultClient (utils/azure_key_vault.py)
-      echo "##vso[task.setvariable variable=AZURE_KEY_VAULT_URL]https://$(keyVaultName).vault.azure.net/"
-    displayName: "Set Playwright & Key Vault Environment Variables"
+    displayName: "Set Test Environment Variable"
 
   - script: |
       echo "========================================"
@@ -334,8 +332,6 @@ jobs:
       WORK_ITEM_AUTH_TOKEN: $(WORK_ITEM_AUTH_TOKEN)
       PARTIES_AUTH_TOKEN: $(PARTIES_AUTH_TOKEN)
       INFLUXDB_AUTO_PUSH: 'false'  # Pipeline has its own dedicated push step
-      # Azure Key Vault env vars for Python AzureKeyVaultClient
-      AZURE_KEY_VAULT_URL: https://$(keyVaultName).vault.azure.net/
       # ── Connection strings: AzureKeyVault@2 fetches secrets → mapped to env vars ──
       # Python reads these via os.getenv() — no direct Key Vault API calls.
       TRANSFER_CONNECTION_STRING: $(transfer-connection-string)
@@ -408,7 +404,7 @@ jobs:
       export BUILD_REASON="$(Build.Reason)"
       export AZURE_LOG_WORKSPACE_ID="$(logAnalyticsWorkspaceId)"
       export AZURE_LOG_SHARED_KEY="$(logAnalyticsSharedKey)"
-
+  
       python utils/azure_analytics_reporter.py
     displayName: "Push Metrics to Azure Log Analytics"
     condition: always()
