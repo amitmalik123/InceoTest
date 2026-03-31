@@ -49,13 +49,8 @@ def pytest_configure(config) -> None:
         "markers", "app(name): mark test to run with specific application (default: ewm)"
     )
 
-    # Configure step screenshots - Priority: CLI > ENV VAR > CONFIG FILE
-    settings_instance = get_settings()
-    screenshot_each_step = (
-        config.getoption("--screenshot-each-step", default=False)
-        or os.getenv("SCREENSHOT_EACH_STEP", "").lower() in ("true", "1", "yes", "on")
-        or settings_instance.screenshot_each_step
-    )
+    # Match qeautomation/test01_navbar_influxdb behavior: always attach a screenshot for every BDD step.
+    screenshot_each_step = True
     enable_step_screenshots(screenshot_each_step)
 
     # Print screenshot configuration
