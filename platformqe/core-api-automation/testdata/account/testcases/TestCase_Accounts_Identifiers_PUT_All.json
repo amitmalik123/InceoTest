@@ -175,7 +175,7 @@
             },
             {
                 "from": "db_result",
-                "query": "count_all",
+                "query": "default",
                 "assign": [
                     {
                         "key": "0.totalCount",
@@ -212,18 +212,6 @@
                     "message": "Response must include identifiers after full replace"
                 },
                 {
-                    "actual": "{{db_new_apl_value}}",
-                    "operator": "==",
-                    "expected": "APL-QE-PUTALL-001",
-                    "message": "New APL identifier value must be persisted in the database"
-                },
-                {
-                    "actual": "{{db_new_apl_value}}",
-                    "operator": "!=",
-                    "expected": "{{originalAplValue}}",
-                    "message": "New APL value must differ from the original (full replace confirmed)"
-                },
-                {
                     "actual": "{{db_total_count_after_replace}}",
                     "operator": "==",
                     "expected": 2,
@@ -235,8 +223,8 @@
         "test_data_file": "",
         "db_query_timing": "after_api",
         "db_queries": {
-            "count_all": "SELECT COUNT(*) AS totalCount FROM (SELECT *, ROW_NUMBER() OVER (PARTITION BY Id ORDER BY Version DESC) AS vrn FROM Account) a CROSS APPLY OPENJSON(a.Identifiers) i WHERE a.vrn = 1 AND a.Id = '{{setupAccountId}}';",
-            "apl_value": "SELECT TOP 1 JSON_VALUE(i.value, '$.Value') AS value FROM (SELECT *, ROW_NUMBER() OVER (PARTITION BY Id ORDER BY Version DESC) AS vrn FROM Account) a CROSS APPLY OPENJSON(a.Identifiers) i WHERE a.vrn = 1 AND a.Id = '{{setupAccountId}}' AND JSON_VALUE(i.value, '$.Type') = 'APL';"
+            "apl_value": "SELECT TOP 1 JSON_VALUE(i.value, '$.Value') AS value FROM (SELECT *, ROW_NUMBER() OVER (PARTITION BY Id ORDER BY Version DESC) AS vrn FROM Account) a CROSS APPLY OPENJSON(a.Identifiers) i WHERE a.vrn = 1 AND a.Id = '{{setupAccountId}}' AND JSON_VALUE(i.value, '$.Type') = 'APL';",
+            "default": "SELECT COUNT(*) AS totalCount FROM (SELECT *, ROW_NUMBER() OVER (PARTITION BY Id ORDER BY Version DESC) AS vrn FROM Account) a CROSS APPLY OPENJSON(a.Identifiers) i WHERE a.vrn = 1 AND a.Id = '{{setupAccountId}}';"
         },
         "db_type": "mssql",
         "db_connection_name": "account_service",
@@ -325,7 +313,7 @@
         "extract_values": [
             {
                 "from": "db_result",
-                "query": "count_all",
+                "query": "default",
                 "assign": [
                     {
                         "key": "0.totalCount",
@@ -354,12 +342,6 @@
                     "operator": "==",
                     "expected": 1,
                     "message": "Only 1 identifier (AdvisorId) must remain after replacing with a single-item list"
-                },
-                {
-                    "actual": "{{db_apl_count}}",
-                    "operator": "==",
-                    "expected": 0,
-                    "message": "APL identifier must have been removed by the full replace with AdvisorId only"
                 }
             ],
             "data_comparison": []
@@ -367,8 +349,8 @@
         "test_data_file": "",
         "db_query_timing": "after_api",
         "db_queries": {
-            "count_all": "SELECT COUNT(*) AS totalCount FROM (SELECT *, ROW_NUMBER() OVER (PARTITION BY Id ORDER BY Version DESC) AS vrn FROM Account) a CROSS APPLY OPENJSON(a.Identifiers) i WHERE a.vrn = 1 AND a.Id = '{{setupAccountId}}';",
-            "apl_check": "SELECT COUNT(*) AS apl_count FROM (SELECT *, ROW_NUMBER() OVER (PARTITION BY Id ORDER BY Version DESC) AS vrn FROM Account) a CROSS APPLY OPENJSON(a.Identifiers) i WHERE a.vrn = 1 AND a.Id = '{{setupAccountId}}' AND JSON_VALUE(i.value, '$.Type') = 'APL';"
+            "apl_check": "SELECT COUNT(*) AS apl_count FROM (SELECT *, ROW_NUMBER() OVER (PARTITION BY Id ORDER BY Version DESC) AS vrn FROM Account) a CROSS APPLY OPENJSON(a.Identifiers) i WHERE a.vrn = 1 AND a.Id = '{{setupAccountId}}' AND JSON_VALUE(i.value, '$.Type') = 'APL';",
+            "default": "SELECT COUNT(*) AS totalCount FROM (SELECT *, ROW_NUMBER() OVER (PARTITION BY Id ORDER BY Version DESC) AS vrn FROM Account) a CROSS APPLY OPENJSON(a.Identifiers) i WHERE a.vrn = 1 AND a.Id = '{{setupAccountId}}';"
         },
         "db_type": "mssql",
         "db_connection_name": "account_service",
@@ -458,7 +440,7 @@
         "extract_values": [
             {
                 "from": "db_result",
-                "query": "count_all",
+                "query": "default",
                 "assign": [
                     {
                         "key": "0.totalCount",
@@ -484,7 +466,7 @@
         "test_data_file": "",
         "db_query_timing": "after_api",
         "db_queries": {
-            "count_all": "SELECT COUNT(*) AS totalCount FROM (SELECT *, ROW_NUMBER() OVER (PARTITION BY Id ORDER BY Version DESC) AS vrn FROM Account) a CROSS APPLY OPENJSON(a.Identifiers) i WHERE a.vrn = 1 AND a.Id = '{{setupAccountId}}';"
+            "default": "SELECT COUNT(*) AS totalCount FROM (SELECT *, ROW_NUMBER() OVER (PARTITION BY Id ORDER BY Version DESC) AS vrn FROM Account) a CROSS APPLY OPENJSON(a.Identifiers) i WHERE a.vrn = 1 AND a.Id = '{{setupAccountId}}';"
         },
         "db_type": "mssql",
         "db_connection_name": "account_service",

@@ -108,7 +108,7 @@
         "extract_values": [
             {
                 "from": "db_result",
-                "query": "apl_check",
+                "query": "default",
                 "assign": [
                     {
                         "key": "0.apl_count",
@@ -140,7 +140,7 @@
         "test_data_file": "",
         "db_query_timing": "after_api",
         "db_queries": {
-            "apl_check": "SELECT COUNT(*) AS apl_count FROM (SELECT *, ROW_NUMBER() OVER (PARTITION BY Id ORDER BY Version DESC) AS vrn FROM Account) a CROSS APPLY OPENJSON(a.Identifiers) i WHERE a.vrn = 1 AND a.Id = '{{setupAccountId}}' AND JSON_VALUE(i.value, '$.Type') = 'APL';"
+            "default": "SELECT COUNT(*) AS apl_count FROM (SELECT *, ROW_NUMBER() OVER (PARTITION BY Id ORDER BY Version DESC) AS vrn FROM Account) a CROSS APPLY OPENJSON(a.Identifiers) i WHERE a.vrn = 1 AND a.Id = '{{setupAccountId}}' AND JSON_VALUE(i.value, '$.Type') = 'APL';"
         },
         "db_type": "mssql",
         "db_connection_name": "account_service",
@@ -181,7 +181,7 @@
             },
             {
                 "from": "db_result",
-                "query": "an_check",
+                "query": "default",
                 "assign": [
                     {
                         "key": "0.an_count",
@@ -207,7 +207,7 @@
         "test_data_file": "",
         "db_query_timing": "after_api",
         "db_queries": {
-            "an_check": "SELECT COUNT(*) AS an_count FROM (SELECT *, ROW_NUMBER() OVER (PARTITION BY Id ORDER BY Version DESC) AS vrn FROM Account) a CROSS APPLY OPENJSON(a.Identifiers) i WHERE a.vrn = 1 AND a.Id = '{{setupAccountId}}' AND JSON_VALUE(i.value, '$.Type') = 'AccountNumber';"
+            "default": "SELECT COUNT(*) AS an_count FROM (SELECT *, ROW_NUMBER() OVER (PARTITION BY Id ORDER BY Version DESC) AS vrn FROM Account) a CROSS APPLY OPENJSON(a.Identifiers) i WHERE a.vrn = 1 AND a.Id = '{{setupAccountId}}' AND JSON_VALUE(i.value, '$.Type') = 'AccountNumber';"
         },
         "db_type": "mssql",
         "db_connection_name": "account_service",
@@ -423,7 +423,7 @@
         "extract_values": [
             {
                 "from": "db_result",
-                "query": "count_all",
+                "query": "default",
                 "assign": [
                     {
                         "key": "0.totalCount",
@@ -449,7 +449,7 @@
         "test_data_file": "",
         "db_query_timing": "after_api",
         "db_queries": {
-            "count_all": "SELECT COUNT(*) AS totalCount FROM (SELECT *, ROW_NUMBER() OVER (PARTITION BY Id ORDER BY Version DESC) AS vrn FROM Account) a CROSS APPLY OPENJSON(a.Identifiers) i WHERE a.vrn = 1 AND a.Id = '{{setupAccountId}}';"
+            "default": "SELECT COUNT(*) AS totalCount FROM (SELECT *, ROW_NUMBER() OVER (PARTITION BY Id ORDER BY Version DESC) AS vrn FROM Account) a CROSS APPLY OPENJSON(a.Identifiers) i WHERE a.vrn = 1 AND a.Id = '{{setupAccountId}}';"
         },
         "db_type": "mssql",
         "db_connection_name": "account_service",

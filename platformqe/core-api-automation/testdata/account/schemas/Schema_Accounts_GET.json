@@ -196,6 +196,7 @@
                         "Adhesion",
                         "ADSAccountId",
                         "InvestmentDirectiveId",
+                        "FAFeeId",
                         null
                       ]
                     },
