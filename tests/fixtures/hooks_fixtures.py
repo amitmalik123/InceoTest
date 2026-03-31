@@ -16,7 +16,7 @@ import os
 import allure
 
 from config.settings import get_settings
-from utils.allure_logger import get_allure_logger
+from utils.allure_logger import get_allure_logger, get_step_screenshot_config
 
 # Global storage for active allure step contexts
 _active_allure_steps = {}
@@ -43,12 +43,9 @@ def pytest_bdd_after_step(request, feature, scenario, step, step_func) -> None:
     Hook that runs AFTER each BDD step completes.
     Takes screenshot and closes the Allure step context.
     """
-    # Check screenshot setting from config/env var
-    settings_instance = get_settings()
-    screenshot_enabled = (
-        os.getenv("SCREENSHOT_EACH_STEP", "").lower() in ("true", "1", "yes", "on")
-        or settings_instance.screenshot_each_step
-    )
+    # Check screenshot setting from global config (set by enable_step_screenshots in pytest_configure)
+    screenshot_config = get_step_screenshot_config()
+    screenshot_enabled = screenshot_config.should_screenshot(step_failed=False)
 
     # Get page object from pytest request fixture
     page = None
