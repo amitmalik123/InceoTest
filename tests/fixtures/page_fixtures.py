@@ -22,6 +22,7 @@ from pages.clients_page import ClientsPage
 from pages.docusign_page import DocuSignPage
 from pages.dmtool_page import DMToolPage
 from pages.login_page import LoginPage
+from pages.outlook_page import OutlookPage
 from pages.manage_instruction_1_page import ManageInstruction1Page
 from pages.manage_instruction_2_page import ManageInstruction2Page
 from pages.roth_conversion_page import RothConversionPage
@@ -142,3 +143,13 @@ def tracking_center_item_detail_page(authenticated_page: Page) -> ItemDetailPage
 def trackingCenter_ItemDetail_page(authenticated_page: Page) -> ItemDetailPage:
     """Tracking center item detail page object fixture (camelCase alias)"""
     return ItemDetailPage(authenticated_page, base_url=_base_url)
+
+
+@pytest.fixture
+def outlook_page(authenticated_page: Page) -> OutlookPage:
+    """Outlook page object fixture for email-based workflows.
+    
+    This fixture creates an OutlookPage instance initialized from configuration,
+    used for OTP retrieval and email-based signing workflows.
+    """
+    return OutlookPage.from_config(authenticated_page)

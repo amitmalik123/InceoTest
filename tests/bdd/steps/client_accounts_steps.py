@@ -3,7 +3,8 @@ Client Accounts Step Definitions
 
 Step definitions for client account related interactions in BDD tests.
 """
-
+import re
+import unicodedata
 import allure
 from playwright.sync_api import Page
 from pytest_bdd import given, when, then, parsers
@@ -16,6 +17,46 @@ from utils.helpers import find_element_position_in_parent
 from utils.wait_utils import WaitContext
 
 logger = get_allure_logger(__name__)
+
+
+def _normalize_text_for_comparison(text: str) -> str:
+    """
+    Normalize text for comparison by handling special characters and Unicode issues.
+    
+    Handles:
+    - Unicode normalization (NFC)
+    - Smart quotes (curly) → regular quotes
+    - Non-breaking spaces → regular spaces
+    - Multiple consecutive spaces → single space
+    - Other whitespace normalization
+    """
+    if not text:
+        return ""
+    
+    # Apply Unicode NFC normalization
+    text = unicodedata.normalize('NFC', text)
+    
+    # Replace smart/curly quotes with regular straight quotes
+    text = text.replace('\u2018', "'")  # Left single quotation mark
+    text = text.replace('\u2019', "'")  # Right single quotation mark (most common)
+    text = text.replace('\u201C', '"')  # Left double quotation mark
+    text = text.replace('\u201D', '"')  # Right double quotation mark
+    
+    # Replace non-breaking space with regular space
+    text = text.replace('\u00A0', ' ')  # Non-breaking space
+    text = text.replace('\u2009', ' ')  # Thin space
+    text = text.replace('\u200B', '')   # Zero-width space (remove)
+    
+    # Replace em-dash with regular hyphen
+    text = text.replace('\u2014', '-')  # Em-dash
+    text = text.replace('\u2013', '-')  # En-dash
+    
+    # Normalize multiple whitespace to single space
+    text = re.sub(r'\s+', ' ', text)
+    
+    # Strip leading/trailing whitespace
+    return text.strip()
+
 
 @when("User select Authorized Signer Approval option")
 def select_authorized_signer_approval_option(authenticated_page: Page, client_accounts_page, test_context):
@@ -149,7 +190,21 @@ def verify_signer_information_dialog_exists_with_correct_information(
                 first_td = details_table.locator("td").first
                 soft_assert.assert_count(first_td, 1, message="[FAIL] ClientAccountsPage: Details TD — Expected: td count=1, Actual: count!=1. Details: First TD must exist in table. Locator: table#esig_user_details_table td.")
                 soft_assert.assert_visible(first_td, message="[FAIL] ClientAccountsPage: Details TD Visibility — Expected: visible=True, Actual: visible=False. Details: First TD must be visible. Locator: table#esig_user_details_table td:first.")
-                soft_assert.assert_text_contains(first_td, instruction_text[:50], message=f"[FAIL] ClientAccountsPage: Instruction Text — Expected: contains '{instruction_text[:50]}', Actual: text mismatch. Details: Instruction must be in first TD. Locator: table#esig_user_details_table td:first.")
+                
+                # Get actual text from element for debugging
+                actual_instruction_text = first_td.text_content().strip() if first_td.count() > 0 else ""
+                # Normalize both texts for comparison (handles Unicode, smart quotes, special chars)
+                normalized_actual_text = _normalize_text_for_comparison(actual_instruction_text)
+                normalized_expected_text = _normalize_text_for_comparison(instruction_text)
+                logger.info(f"  Expected instruction text (normalized): '{normalized_expected_text}'")
+                logger.info(f"  Actual instruction text from element (normalized): '{normalized_actual_text}'")
+                
+                # Check if normalized actual text contains normalized expected text
+                text_match = normalized_expected_text in normalized_actual_text
+                soft_assert.assert_true(
+                    text_match,
+                    message=f"[FAIL] ClientAccountsPage: Instruction Text — Expected: contains '{normalized_expected_text}', Actual: '{normalized_actual_text}'. Details: Instruction must be in first TD. Locator: table#esig_user_details_table td:first."
+                )
                 logger.info(f"  [PASS] ClientAccountsPage: Signer Information Instruction Verified.")
             else:
                 logger.info("  Checking main page content...")
@@ -169,7 +224,21 @@ def verify_signer_information_dialog_exists_with_correct_information(
                     first_td = details_table.locator("td").first
                     soft_assert.assert_count(first_td, 1, "[FAIL] ClientAccountsPage: Details TD (Main Page) — Expected: count=1, Actual: count!=1. Details: First TD must exist in table. Locator: table#esig_user_details_table td:first.")
                     soft_assert.assert_visible(first_td, "[FAIL] ClientAccountsPage: Details TD Visibility (Main Page) — Expected: visible=True, Actual: visible=False. Details: First TD must be visible. Locator: table#esig_user_details_table td:first.")
-                    soft_assert.assert_text_contains(first_td, instruction_text[:50], "[FAIL] ClientAccountsPage: Instruction Text (Main Page) — Expected: contains '{instruction_text[:50]}', Actual: text mismatch. Details: Instruction must be in first TD. Locator: table#esig_user_details_table td:first.")
+                    
+                    # Get actual text from element for debugging
+                    actual_instruction_text = first_td.text_content().strip() if first_td.count() > 0 else ""
+                    # Normalize both texts for comparison (handles Unicode, smart quotes, special chars)
+                    normalized_actual_text = _normalize_text_for_comparison(actual_instruction_text)
+                    normalized_expected_text = _normalize_text_for_comparison(instruction_text)
+                    logger.info(f"  Expected instruction text (normalized): '{normalized_expected_text}'")
+                    logger.info(f"  Actual instruction text from element (normalized): '{normalized_actual_text}'")
+                    
+                    # Check if normalized actual text contains normalized expected text
+                    text_match = normalized_expected_text in normalized_actual_text
+                    soft_assert.assert_true(
+                        text_match,
+                        message=f"[FAIL] ClientAccountsPage: Instruction Text (Main Page) — Expected: contains '{normalized_expected_text}', Actual: '{normalized_actual_text}'. Details: Instruction must be in first TD. Locator: table#esig_user_details_table td:first."
+                    )
                     logger.info(f"  [PASS] ClientAccountsPage: Signer Information Instruction Verified.")
             
             logger.info("[PASS] ClientAccountsPage: All Signer Information Validations Collected.")

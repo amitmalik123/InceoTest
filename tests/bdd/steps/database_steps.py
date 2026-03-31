@@ -321,8 +321,8 @@ def verify_routing_order_in_database(test_context):
         test_data = test_context.get("test_data", {})
         expected_roles = test_data.get("Expected_Roles", "")
         expected_routing_orders = test_data.get("Expected_RoutingOrders", "")
-        expected_roles_list = [role.strip() for role in expected_roles.split(",")]
-        expected_routing_orders_list = [order.strip() for order in expected_routing_orders.split(",")]
+        expected_roles_list = [role.strip() for role in expected_roles.split("|")]
+        expected_routing_orders_list = [order.strip() for order in expected_routing_orders.split("|")]
         role_routing_map = dict(zip(expected_roles_list, expected_routing_orders_list))
         logger.info(f"Expected Roles and Routing Orders: {role_routing_map}")
         for row in recipient_results:
