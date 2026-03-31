@@ -1,0 +1,9 @@
+{
+    "accountClassification": "Household",
+    "accountType": "Personal",
+    "accountSubType": "Individual",
+    "sortName": "Test, Missing DisplayName",
+    "openDate": "2025-01-01",
+    "custodialAuthorization": "Managed",
+    "managingPlatform": "Internal"
+}
