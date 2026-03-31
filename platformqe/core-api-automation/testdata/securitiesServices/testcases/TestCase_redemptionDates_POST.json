@@ -1,0 +1,71 @@
+[
+    {
+        "test_id": "TC001",
+        "service_name": "securitiesServices",
+        "workflow_mode": "parallel",
+        "test_name": "POST /redemptionDates - Verify DB stores fund name without exact uppercase CIK suffix",
+        "protocol": "REST",
+        "test_type": [
+            "Functional",
+            "Database Validation"
+        ],
+        "mainURL": "{{base_url}}",
+        "endpoint": "/redemptionDates",
+        "method": "POST",
+        "rpc_method": "",
+        "graphql_query": "",
+        "graphql_variables": "",
+        "soap_action": "",
+        "soap_envelope": "",
+        "headers_additional": {
+            "Content-Type": "application/json"
+        },
+        "payload": "securitiesServices/payloads/Payload_redemptionDates_POST.json",
+        "expected_status": "200",
+        "expected_response_schema": "",
+        "expected_response": null,
+        "ignore_fields": [],
+        "extract_values": [
+            {
+                "from": "db_result",
+                "key": "0.db_fund_name",
+                "assign_to": "db_fund_name"
+            },
+            {
+                "from": "db_result",
+                "key": "0.db_fund_cik",
+                "assign_to": "db_fund_cik"
+            }
+        ],
+        "validate": {
+            "performance": {
+                "max_response_time_ms": 1000
+            },
+            "security": {
+                "checks": [
+                    "sql_injection",
+                    "xss"
+                ]
+            },
+            "assertions": [
+                {
+                    "actual": "{{db_fund_name}}",
+                    "operator": "not_contains",
+                    "expected": "(CIK",
+                    "message": "Expected database fund_name to be stored without the exact uppercase CIK suffix."
+                },
+                {
+                    "actual": "{{db_fund_cik}}",
+                    "operator": "==",
+                    "expected": "{{request_fund_cik}}",
+                    "message": "Expected database fund_cik to match the requested CIK value."
+                }
+            ]
+        },
+        "test_data_file": "securitiesServices/data_driven/Data_redemptionDates_POST.csv",
+        "db_type": "postgresql",
+        "db_connection_name": "securitiesServices",
+        "db_query": "securitiesServices/db_queries/Query_redemptionDates_POST.sql",
+        "test_summary": "Test TC001: Verify POST /redemptionDates keeps the CIK suffix in API response while IntervalFundRedemptionDates stores fund_name without the exact uppercase parenthesized CIK suffix and uses redemption_window_begin/end columns."
+    }
+]
