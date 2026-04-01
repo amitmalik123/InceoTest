@@ -126,6 +126,7 @@ stages:
           LEXISNEXIS_BASE_URL: $(lexisnexis_base_url)
           ACCOUNTDISTRIBUTIONS_BASE_URL: $(accountdistributions_base_url)
           TRANSFER_SERVICE_VALIDATION_BASE_URL: $(transfer_service_validation_base_url)
+          CUSTODIAL_INTEGRATION_BASE_URL: $(custodial_integration_base_url)
           API_TIMEOUT: $(api_timeout)
           API_RETRY_COUNT: $(api_retry_count)
         inputs:
@@ -211,6 +212,7 @@ stages:
           LEXISNEXIS_BASE_URL: $(lexisnexis_base_url)
           ACCOUNTDISTRIBUTIONS_BASE_URL: $(accountdistributions_base_url)
           TRANSFER_SERVICE_VALIDATION_BASE_URL: $(transfer_service_validation_base_url)
+          CUSTODIAL_INTEGRATION_BASE_URL: $(custodial_integration_base_url)
           API_TIMEOUT: $(api_timeout)
           API_RETRY_COUNT: $(api_retry_count)
           INFLUX_URL: $(influx_url)
