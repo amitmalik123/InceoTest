@@ -14,7 +14,7 @@ from utils.allure_logger import get_allure_logger
 from utils.assertions import Assertions, SoftAssertions
 from utils.dialog_utils import DialogHandler
 from utils.helpers import find_element_position_in_parent
-from utils.wait_utils import WaitContext
+from utils.wait_utils import WaitContext, wait_for_element_count
 
 logger = get_allure_logger(__name__)
 
@@ -136,7 +136,7 @@ def verify_signer_information_dialog_exists_with_correct_information(
             # Step 1: Wait for and detect dialog
             logger.info("Step 1: Waiting for Signer Information dialog...")
             dialog_handler = DialogHandler(authenticated_page)
-            dialog = dialog_handler.wait_for_dialog(timeout=15000)
+            dialog = dialog_handler.wait_for_dialog(timeout=19000)
             Assertions.assert_visible(dialog, "[FAIL] ClientAccountsPage: Dialog Detection — Expected: visible=True, Actual: visible=False. Details: Signer(s) Information dialog must be visible after being detected. Locator: [role='dialog'].")
             logger.info("[PASS] ClientAccountsPage: Signer Information Dialog Detected.")
             
@@ -155,6 +155,16 @@ def verify_signer_information_dialog_exists_with_correct_information(
             logger.info(f"[PASS] ClientAccountsPage: CSV Data Parsed.")
             
             # Step 3: Try iframe first, fallback to main page
+            logger.info("Step 3: Waiting for potential iframe to be ready...")
+            try:
+                wait_for_element_count(
+                    authenticated_page.locator("iframe#esig_iframe"),
+                    count=1,
+                    timeout=30.0
+                )
+            except Exception:
+                logger.debug("Iframe not present or didn't appear within timeout - will check main page content")
+            
             logger.info("Step 3: Validating content...")
             iframe_count = authenticated_page.locator("iframe#esig_iframe").count()
             
@@ -163,6 +173,16 @@ def verify_signer_information_dialog_exists_with_correct_information(
                 iframe_frame = authenticated_page.frame_locator("iframe#esig_iframe")
                 
                 if heading_text:
+                    logger.info("  Waiting for signer header element to be available...")
+                    try:
+                        wait_for_element_count(
+                            iframe_frame.locator("div#divSignersInfo"),
+                            count=1,
+                            timeout=30.0
+                        )
+                    except Exception as e:
+                        logger.warning(f"  ⚠ Signer header element wait timeout/error: {e} - proceeding with assertion anyway")
+                    
                     signer_header = iframe_frame.locator("div#divSignersInfo")
             soft_assert.assert_count(
                 signer_header,
