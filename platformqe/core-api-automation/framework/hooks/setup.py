@@ -171,6 +171,11 @@ class TestDataManager:
 
         # Debug: Log all extracted values before CSV update
         logger.debug(f"[HOOKS DEBUG] Extracted values from POST prerequisite: {all_extracted_values}")
+        
+        # Log individual extracted values for visibility
+        if all_extracted_values and isinstance(all_extracted_values[-1], dict):
+            for field_name, field_value in all_extracted_values[-1].items():
+                logger.info(f"[HOOKS] Extracted {field_name}: {field_value}")
 
         # Update CSV with all extracted values
         update_csv = prereq_config.get('update_csv_file')

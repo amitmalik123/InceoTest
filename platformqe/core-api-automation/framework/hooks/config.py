@@ -119,6 +119,7 @@ SERVICE_DEFAULTS: Dict[str, Dict] = {
                         }
                     ]
                 },
+
                 'update_csv_file': 'MoveMoneyAPI/data_driven/Data_instructions_instructionId_GET.csv',
                 'csv_columns': ['environment', 'instructionId', 'version'],
             }
@@ -147,6 +148,21 @@ def get_service_hooks_config(service_name: str) -> HooksConfig:
         hooks_config.max_records = defaults.get('max_records', 10)
         hooks_config.prerequisite_testcase = defaults.get('prerequisite_testcase', {})
         logger.debug(f"[HOOKS CONFIG] Loaded config for service: {service_name}")
+        
+        # Log endpoint-specific configurations
+        prereq_tc = hooks_config.prerequisite_testcase
+        if isinstance(prereq_tc, dict):
+            for endpoint_name, endpoint_config in prereq_tc.items():
+                if isinstance(endpoint_config, dict) and endpoint_config.get('enabled'):
+                    # Extract field names
+                    extract_fields = []
+                    extract_cfg = endpoint_config.get('extract_from_response', {})
+                    if 'fields' in extract_cfg and isinstance(extract_cfg['fields'], list):
+                        extract_fields = [f.get('assign_to') for f in extract_cfg['fields']]
+                    
+                    logger.debug(f"[HOOKS CONFIG] Loaded prerequisite test case for {endpoint_name} endpoint")
+                    logger.debug(f"  - Extract fields: {extract_fields}")
+                    logger.debug(f"  - Update CSV: {endpoint_config.get('update_csv_file')}")
     
     return hooks_config
 
