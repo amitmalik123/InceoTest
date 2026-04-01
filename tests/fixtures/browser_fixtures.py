@@ -14,6 +14,7 @@ These fixtures handle browser/context configuration and multi-context scenarios.
 
 import logging
 import os
+import re
 import sys
 from collections.abc import Callable, Generator
 
@@ -27,6 +28,81 @@ from urllib.parse import urlparse
 import pytest
 
 logger = logging.getLogger(__name__)
+
+# ---------------------------------------------------------------------------
+# ID Tracker – captures IDs from responses and page content
+# ---------------------------------------------------------------------------
+
+# Log file for captured IDs (same as network errors log directory)
+_ID_LOG_PATH = Path("reports/network_errors.log")
+
+
+def _load_id_capture_config() -> tuple[bool, re.Pattern | None]:
+    """Load id-capture config from pyproject.toml [tool.id-capture]."""
+    try:
+        with open(_PYPROJECT_PATH, "rb") as f:
+            config = tomllib.load(f)
+        section = config.get("tool", {}).get("id-capture", {})
+        enabled = section.get("enabled", False)
+        patterns = section.get("patterns", [])
+        if not enabled or not patterns:
+            return False, None
+        combined = "|".join(f"({p})" for p in patterns)
+        return True, re.compile(combined)
+    except Exception:
+        return False, None
+
+
+_ID_CAPTURE_ENABLED, _ID_PATTERN = _load_id_capture_config()
+
+
+class IdTracker:
+    """Collects unique IDs per scenario and writes a summary line."""
+
+    def __init__(self):
+        self._ids: dict[str, set[str]] = {}   # prefix → set of IDs
+        self._scenario: str = ""
+
+    def set_scenario(self, name: str) -> None:
+        if name != self._scenario:
+            self._scenario = name
+            self._ids.clear()
+
+    def scan(self, text: str) -> None:
+        """Find all matching IDs in *text* and track unique ones."""
+        if not _ID_PATTERN:
+            return
+        for match in _ID_PATTERN.finditer(text):
+            value = match.group()
+            prefix = value[0]
+            self._ids.setdefault(prefix, set()).add(value)
+
+    def flush(self) -> None:
+        """Write captured IDs to the log file and reset."""
+        if not self._ids:
+            return
+        parts = []
+        for prefix in sorted(self._ids):
+            ids = ", ".join(sorted(self._ids[prefix]))
+            parts.append(f"#{prefix}: {ids}")
+        line = f"{self._scenario} | {', '.join(parts)}"
+        _write_to_id_log(line)
+        logger.info(f"[ID CAPTURE] {line}")
+        self._ids.clear()
+
+
+def _write_to_id_log(line: str) -> None:
+    """Append an ID capture line to the log file."""
+    from datetime import datetime
+
+    _ID_LOG_PATH.parent.mkdir(parents=True, exist_ok=True)
+    timestamp = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+    with open(_ID_LOG_PATH, "a", encoding="utf-8") as f:
+        f.write(f"{timestamp}  [ID CAPTURE] {line}\n")
+
+
+# Singleton tracker – shared with hooks_fixtures
+id_tracker = IdTracker()
 
 # Path to pyproject.toml (repo root)
 _PYPROJECT_PATH = Path(__file__).resolve().parent.parent.parent / "pyproject.toml"
@@ -100,6 +176,17 @@ def apply_context_listeners(context) -> None:
             line = f"[HTTP {response.status}] {response.request.method} {response.url} (redirect)"
             logger.info(line)
             _write_to_log(line)
+
+        # Scan response body for IDs (if id-capture is enabled)
+        if _ID_CAPTURE_ENABLED:
+            try:
+                content_type = response.headers.get("content-type", "")
+                if any(ct in content_type for ct in ("text/", "json", "xml", "html")):
+                    body = response.text()
+                    if body:
+                        id_tracker.scan(body)
+            except Exception:
+                pass  # network errors, binary responses, etc.
 
     context.on("response", _on_response)
 
