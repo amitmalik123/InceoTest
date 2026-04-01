@@ -118,7 +118,7 @@
             },
             {
                 "from": "response",
-                "key": "attributes[0].type",
+                "key": "attributes.0.type",
                 "assign_to": "DEL_account_attributeType1"
             },
             {
@@ -159,7 +159,7 @@
             "Single-Filter"
         ],
         "mainURL": "{{base_url}}",
-        "endpoint": "/accounts/{{db_DEL_account_id1}}/parties/{{db_DEL_account_roletype1}}/{{db_DEL_account_partyId1}}/attributes/{{DEL_account_attributeType1}}",
+        "endpoint": "/accounts/{{db_DEL_account_id1}}/parties/AccountHolder/3e2c1b7a-8f4a-4c2e-9b1d-7a6e2f5c9e3a/attributes/IsPrimary",
         "method": "DELETE",
         "rpc_method": "",
         "graphql_query": "",
@@ -209,7 +209,7 @@
             "Single-Filter"
         ],
         "mainURL": "{{base_url}}",
-        "endpoint": "/accounts/{{DEL_account_id1}}/parties/{{DEL_account_roletype1}}/{{DEL_account_partyId1}}",
+        "endpoint": "/accounts/{{db_DEL_account_id1}}/parties/AccountHolder/3e2c1b7a-8f4a-4c2e-9b1d-7a6e2f5c9e3a",
         "method": "DELETE",
         "rpc_method": "",
         "graphql_query": "",

@@ -1,5 +1,5 @@
 SELECT
-    a.Id AS accountId,
+    a.Id AS Id,
     party.PartyId,
     party.RoleType,
     attr.Type,

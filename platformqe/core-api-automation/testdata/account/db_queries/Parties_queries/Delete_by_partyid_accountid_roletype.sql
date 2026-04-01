@@ -1,13 +1,20 @@
 SELECT
-    a.Id AS accountId,
-    party.PartyId AS partyId, *
+    a.Id AS Id,
+    party.PartyId AS partyId, 
+    party.RoleType AS RoleType,
+    attr.Type AS AttributeType
 FROM
     Account a
     CROSS APPLY OPENJSON(a.Parties)
         WITH (
             PartyId UNIQUEIDENTIFIER '$.PartyId',
-            RoleType NVARCHAR(100) '$.RoleType'
+            RoleType NVARCHAR(100) '$.RoleType',
+            Attributes NVARCHAR(MAX) AS JSON
         ) AS party
+    OUTER APPLY OPENJSON(party.Attributes)
+        WITH (
+            Type NVARCHAR(100) '$.Type'
+        ) AS attr
 WHERE
     a.Version = (
         SELECT MAX(a2.Version)
@@ -20,5 +27,5 @@ WHERE
             WITH (
                 RoleType NVARCHAR(100) '$.RoleType'
             ) AS p
-        WHERE p.RoleType = 'AccountHolder' -- Change as needed
+        WHERE p.RoleType = 'AccountHolder'
     )

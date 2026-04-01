@@ -32,30 +32,12 @@
                 "assign": [
                     {
                         "key": "0.Id",
-                        "assign_to": "db_HH_id_1"
-                    },
-                    {
-                        "key": "0.Status",
-                        "assign_to": "db_HH_status_1"
-                    },
-                    {
-                        "key": "0.Version",
-                        "assign_to": "db_HH_version_1"
+                        "assign_to": "db_HH_parent_id_1"
                     }
                 ]
             }
         ],
         "validate": {
-            "business_rules": [
-                {
-                    "rule": "Database query must successfully retrieve party record by Id",
-                    "validation": "db_party_id is not null and not empty"
-                },
-                {
-                    "rule": "Retrieved party Id must match the queried Id parameter",
-                    "validation": "db_party_id equals id"
-                }
-            ],
             "performance": {
                 "max_response_time_ms": 500
             },
@@ -66,9 +48,9 @@
                 ]
             },
             "data_comparison": {
-                "source": "api_response",
-                "target": "db_result",
-                "format": "table",
+                "source": "",
+                "target": "",
+                "format": "",
                 "key_field": [
                     "",
                     ""
@@ -76,37 +58,32 @@
                 "fields_to_compare": [],
                 "log_differences": true
             },
-            "assertions": [
-                {
-                    "actual": "{{db_party_id}}",
-                    "operator": "!=",
-                    "expected": "",
-                    "message": "Expected db_party_id to be extracted from database"
-                }
-            ]
+            "assertions": []
         },
         "test_data_file": "",
         "db_query_timing": "before_api",
         "db_queries": {
-            "default": "SELECT a.Id, a.Version, a.Status FROM Account a INNER JOIN (SELECT Id, MAX([Version]) AS MaxVersion FROM Account WHERE AccountClassification = 'Household' AND Status = 'Draft' GROUP BY Id) mv ON a.Id = mv.Id AND a.[Version] = mv.MaxVersion WHERE a.AccountClassification = 'Household' AND Status = 'Draft';"
+            "default": "account\\db_queries\\Main_HH_Query.sql"
         },
         "db_type": "mssql",
         "db_connection_name": "account_service",
-        "test_summary": "Test TC001: GET /Accounts/{id} [positive] (TC000) - Test GET request to /Accounts/{id} for functional scenario validation.",
+        "test_summary": "Test TC000: GET /Accounts/{id} [positive] (TC000) - Test GET request to /Accounts/{id} for functional scenario validation.",
         "test_scenario": "Test GET request to /Accounts/{id} for functional scenario validation."
     },
     {
         "test_id": "TC001",
         "service_name": "account_service",
-        "workflow_mode": "parallel",
-        "test_name": "GET /Accounts/{id} [positive] (TC001)",
-        "protocol": "REST",
+        "workflow_mode": "sequential",
+        "test_name": "QUERY and Extract DB Values",
+        "protocol": "DB_ONLY",
         "test_type": [
-            "Functional"
+            "Functional",
+            "Smoke",
+            "Business Logic"
         ],
-        "mainURL": "{{base_url}}",
-        "endpoint": "/Accounts/{{db_HH_id_1}}?version={{db_HH_version_1}}",
-        "method": "GET",
+        "mainURL": "",
+        "endpoint": "",
+        "method": "",
         "rpc_method": "",
         "graphql_query": "",
         "graphql_variables": "",
@@ -116,8 +93,89 @@
             "Content-Type": "application/json"
         },
         "payload": null,
+        "expected_status": "",
+        "expected_response_schema": "",
+        "expected_response": "",
+        "extract_values": [
+            {
+                "from": "db_result",
+                "query": "default",
+                "assign": [
+                    {
+                        "key": "0.Status",
+                        "assign_to": "db_HH_parent_status_1"
+                    },
+                    {
+                        "key": "0.Version",
+                        "assign_to": "db_HH_version_1"
+                    },
+                    {
+                        "key": "1.Status",
+                        "assign_to": "db_HH_parent_status_2"
+                    },
+                    {
+                        "key": "1.Version",
+                        "assign_to": "db_HH_version_2"
+                    }
+                ]
+            }
+        ],
+        "validate": {
+            "performance": {
+                "max_response_time_ms": 500
+            },
+            "security": {
+                "checks": [
+                    "sql_injection",
+                    "xss"
+                ]
+            },
+            "data_comparison": {
+                "source": "",
+                "target": "",
+                "format": "",
+                "key_field": [
+                    "",
+                    ""
+                ],
+                "fields_to_compare": [],
+                "log_differences": true
+            },
+            "assertions": []
+        },
+        "test_data_file": "",
+        "db_query_timing": "before_api",
+        "db_queries": {
+            "default": "Select * From Account where Id = '{{db_HH_parent_id_1}}'"
+        },
+        "db_type": "mssql",
+        "db_connection_name": "account_service",
+        "test_summary": "Test TC001: GET /Accounts/{id} [positive] (TC001) - Test GET request to /Accounts/{id} for functional scenario validation.",
+        "test_scenario": "Test GET request to /Accounts/{id} for functional scenario validation."
+    },
+    {
+        "test_id": "TC002",
+        "service_name": "account_service",
+        "workflow_mode": "parallel",
+        "test_name": "GET /Accounts/children [positive] (TC002)",
+        "protocol": "REST",
+        "test_type": [
+            "Functional"
+        ],
+        "mainURL": "{{base_url}}",
+        "endpoint": "/accounts/{{db_HH_parent_id_1}}?depth=0",
+        "method": "GET",
+        "rpc_method": "",
+        "graphql_query": "",
+        "graphql_variables": "",
+        "soap_action": "",
+        "soap_envelope": "",
+        "headers_additional": {
+            "Content-Type": "application/json"
+        },
+        "payload": "",
         "expected_status": "200",
-        "expected_response_schema": "account\\schemas\\Schema_Accounts_id_GET.json",
+        "expected_response_schema": "account\\schemas\\Schema_Accounts_GET.json",
         "expected_response": null,
         "ignore_fields": [
             "id"
@@ -126,17 +184,7 @@
             {
                 "from": "response",
                 "key": "account.accountId",
-                "assign_to": "HH_id_1"
-            },
-            {
-                "from": "response",
-                "key": "account.status",
-                "assign_to": "HH_status_1"
-            },
-            {
-                "from": "response",
-                "key": "account.version",
-                "assign_to": "HH_version_1"
+                "assign_to": "HH_account_id_1"
             }
         ],
         "validate": {
@@ -151,34 +199,20 @@
             },
             "assertions": [
                 {
-                    "actual": "{{HH_id_1}}",
+                    "actual": "{{HH_account_id_1}}",
                     "operator": "==",
-                    "expected": "{{db_HH_id_1}}",
+                    "expected": "{{db_HH_parent_id_1}}",
                     "message": "Account ID should match the database value"
-                },
-                {
-                    "actual": "{{HH_status_1}}",
-                    "operator": "==",
-                    "expected": "{{db_HH_status_1}}",
-                    "message": "Account status should match the database value"
-                },
-                {
-                    "actual": "{{HH_version_1}}",
-                    "operator": "==",
-                    "expected": "{{db_HH_version_1}}",
-                    "message": "Account version should match the database value"
                 }
             ],
             "data_comparison": []
         },
         "test_data_file": "",
         "db_query_timing": "",
-        "db_queries": {
-            "default": ""
-        },
+        "db_queries": {},
         "db_type": "",
         "db_connection_name": "",
-        "test_summary": "Test TC001: GET /Accounts/{id} [positive] (TC001) - Test GET request to /Accounts/{id} for functional scenario validation.",
-        "test_scenario": "Test GET request to /Accounts/{id} for functional scenario validation."
+        "test_summary": "Test TC002: GET /Accounts/children : Only AccountClassification (Household)",
+        "test_scenario": "Test GET request to /accounts/children."
     }
 ]

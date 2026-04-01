@@ -1,8 +1,9 @@
 {
-       "parentaccountid": "{{Registration_Account_ID1}}",
-        "status": "Initiated",
+        "parentaccountid": "{{HouseholdAccountID1}}",
+        "changeState": "Initiated",
+        "status": "Draft",
         "version": 0,
-        "accountclassification": "Account",
+        "accountclassification": "CustodyAccount",
         "accounttype": "Personal",
         "accountsubtype": "BankorTrustCompanyNonTaxable",
         "displayname": "Doe Account 1",
@@ -19,7 +20,7 @@
             "attributes": [
               {
                 "type": "IsMailingAddress",
-                "value": "String"
+                "value": "true"
               }
             ]
           }
@@ -27,7 +28,7 @@
         "identifiers": [
           {
             "type": "APL",
-            "value": "ACC-12345"
+            "value": "ACC-123459"
           }
         ],
   "createddate": "2025-12-05T11:54:40.559Z",
