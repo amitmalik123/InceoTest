@@ -216,9 +216,11 @@ class TestDataManager:
         Returns:
             Dictionary of extracted values, or None if failed
         """
-        # Log before execution
+        # Log before execution - use print() to force output
+        print(f"\n[HOOKS] Running prerequisite testcase: {testcase_file}")
         logger.info(f"[HOOKS] Running prerequisite testcase: {testcase_file}")
         if test_data_file:
+            print(f"[HOOKS] Using test data file: {test_data_file}")
             logger.debug(f"[HOOKS] Using test data file: {test_data_file}")
         
         try:
@@ -338,6 +340,7 @@ class TestDataManager:
                                 value = self._extract_value_from_response(response_data, field)
                                 if value:
                                     extracted_values[assign_to] = value
+                                    print(f"[HOOKS EXTRACTED] {assign_to}={value}")
                                     logger.info(f"✅ Extracted {assign_to}={value}")
                                     self.created_data.append({
                                         'id': value,
@@ -357,6 +360,7 @@ class TestDataManager:
                         logger.debug(f"[HOOKS DEBUG] _extract_value_from_response returned: {value}")
                         if value:
                             extracted_values[assign_to] = value
+                            print(f"[HOOKS EXTRACTED] {assign_to}={value}")
                             logger.info(f"✅ Extracted {assign_to}={value}")
                             
                             # Track created data for cleanup
