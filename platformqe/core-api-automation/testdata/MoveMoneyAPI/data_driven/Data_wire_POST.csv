@@ -1,0 +1,6 @@
+environment,amount,requestType,status,changeState,referenceNumber,allocations,instructionId,paymentDate,purpose
+TSADEV,250000.00,Deposit,Draft,,20240315MMQFMP6B000201,"[{""accountId"":""123e4567-e89b-12d3-a456-426614174000"",""allocationunitType"":""Percent"",""percent"":60.00,""reason"":""DEPNonQualified""},{""accountId"":""550e8400-e29b-41d4-a716-446655440000"",""allocationunitType"":""Percent"",""percent"":40.00,""reason"":""DEPQualified""}]",,,
+TSADEV,75000.00,Withdrawal,Draft,Pending,,,7EFC385A-97FF-4256-AEA2-F7A7C6B113F6,2027-04-01,Quarterly distribution
+TSADEV,250000.00,,Draft,,20240315MMQFMP6B000201,"[{""accountId"":""123e4567-e89b-12d3-a456-426614174000"",""allocationunitType"":""Percent"",""percent"":60.00,""reason"":""DEPNonQualified""},{""accountId"":""550e8400-e29b-41d4-a716-446655440000"",""allocationunitType"":""Percent"",""percent"":40.00,""reason"":""DEPQualified""}]",,,
+TSADEV,,,,,20240315MMQFMP6B000201,"[{""accountId"":""123e4567-e89b-12d3-a456-426614174000"",""allocationunitType"":""Percent"",""percent"":60.00,""reason"":""DEPNonQualified""},{""accountId"":""550e8400-e29b-41d4-a716-446655440000"",""allocationunitType"":""Percent"",""percent"":40.00,""reason"":""DEPQualified""}]",,,
+
