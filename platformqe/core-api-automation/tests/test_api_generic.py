@@ -212,15 +212,15 @@ def test_api_case(case, request):
     
     # Log CSV test data for DELETE operations
     if case.get('method', '').upper() == 'DELETE' and case.get('test_data_file'):
-        logger.info(f"[DEBUG] {case.get('test_id')} - CSV Test Data:")
-        logger.info(f"  Test data file: {case.get('test_data_file')}")
-        logger.info(f"  CSV row index: {case.get('csv_row_index', 0)}")
+        logger.debug(f"[HOOKS] {case.get('test_id')} - CSV Test Data:")
+        logger.debug(f"[HOOKS]  Test data file: {case.get('test_data_file')}")
+        logger.debug(f"[HOOKS]  CSV row index: {case.get('csv_row_index', 0)}")
         if test_data and len(test_data) > 0:
             test_row = test_data[case.get('csv_row_index', 0)] if len(test_data) > case.get('csv_row_index', 0) else test_data[0]
-            logger.info(f"  CSV row data: {test_row}")
+            logger.debug(f"[HOOKS]  CSV row data: {test_row}")
             # Log specific instructionId if available
             if 'instructionId' in test_row:
-                logger.info(f"  --> instructionId to use: {test_row['instructionId']}")
+                logger.debug(f"[HOOKS]  --> instructionId to use: {test_row['instructionId']}")
     
     # Render endpoint and method with context
     api_name = case.get('api_name', 'UserService')
@@ -230,10 +230,10 @@ def test_api_case(case, request):
     
     # Log endpoint rendering for DELETE operations with instructionId
     if method.upper() == 'DELETE' and '{{instructionId}}' in case.get('endpoint', ''):
-        logger.info(f"[DEBUG] {case.get('test_id')} DELETE endpoint rendering:")
-        logger.info(f"  Template: {case.get('endpoint')}")
-        logger.info(f"  instructionId from context: {context.get('instructionId', 'NOT FOUND')}")
-        logger.info(f"  Rendered endpoint: {endpoint}")
+        logger.debug(f"[HOOKS] {case.get('test_id')} DELETE endpoint rendering:")
+        logger.debug(f"[HOOKS]  Template: {case.get('endpoint')}")
+        logger.debug(f"[HOOKS]  instructionId from context: {context.get('instructionId', 'NOT FOUND')}")
+        logger.debug(f"[HOOKS]  Rendered endpoint: {endpoint}")
     
     # Render headers_additional with context for data-driven values
     # Headers must remain as strings (HTTP requirement), so convert any rendered values to strings
