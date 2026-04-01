@@ -128,6 +128,8 @@ stages:
           TRANSFER_SERVICE_VALIDATION_BASE_URL: $(transfer_service_validation_base_url)
           API_TIMEOUT: $(api_timeout)
           API_RETRY_COUNT: $(api_retry_count)
+          LOG_LEVEL: DEBUG
+          LOG_TO_CONSOLE: 'true'
         inputs:
           targetType: inline
           script: |
@@ -219,6 +221,8 @@ stages:
           INFLUX_BUCKET: $(influx_bucket)
           INFLUX_TIMEOUT: $(influx_timeout)
           INFLUX_ENABLE: $(influx_enable)
+          LOG_LEVEL: DEBUG
+          LOG_TO_CONSOLE: 'true'
         inputs:
           targetType: inline
           script: |
