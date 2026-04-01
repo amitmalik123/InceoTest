@@ -68,20 +68,6 @@ def user_finish_the_docusign_process(authenticated_page: Page, test_context):
     logger.info("Clicking Finish button to complete DocuSign process...")
     docusign_page.click_finish_button(timeout=10000)
     
-    # Close the new DocuSign page if it was created from a separate tab
-    if test_context.get("new_docusign_page"):
-        try:
-            logger.info("Closing new DocuSign page...")
-            new_page = test_context.get("new_docusign_page")
-            if new_page and new_page.page and not new_page.page.is_closed():
-                new_page.page.close()
-                logger.info("[PASS] New DocuSign page closed successfully")
-                # Clear from context since page is now closed
-                test_context["new_docusign_page"] = None
-                logger.info("[DEBUG] Cleared new_docusign_page from test_context")
-        except Exception as e:
-            logger.warning(f"Could not close new DocuSign page: {str(e)}")
-    
     logger.info("[PASS] DocuSignPage: DocuSign Process Finished.")
 
 @then("User should be redirected to the DocuSign page")
