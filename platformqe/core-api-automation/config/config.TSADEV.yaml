@@ -120,8 +120,7 @@ api_endpoints:
     verify: false
 
   custodialintegration:
-    base_url: "https://platform.dev01.assetmark.com/api/custodialintegration/v1" # TSADEV environment
-    swagger_url: "https://platform.dev01.assetmark.com/api/custodialintegration/swagger/v1/swagger.json"
+    base_url: "${CUSTODIAL_INTEGRATION_BASE_URL}"  # Fetched from Azure variable group: qa-pipelines-variable-group-dev
     auth_token: "${CUSTODIALINTEGRATION_AUTH_TOKEN}"
     timeout: ${API_TIMEOUT:30}
     retry_count: ${API_RETRY_COUNT:3}
