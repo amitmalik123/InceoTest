@@ -19,6 +19,7 @@ from pages.api_utility_page import APIUtilityPage
 from pages.change_investments_page import ChangeInvestmentsPage
 from pages.clients_page import ClientsPage
 from pages.dmtool_page import DMToolPage
+from pages.document_vault_page import DocumentVaultPage
 from pages.login_page import LoginPage
 from pages.manage_instruction_1_page import ManageInstruction1Page
 from pages.navbar_login_page import NavbarLoginPage
@@ -52,6 +53,12 @@ def clients_page(authenticated_page: Page) -> ClientsPage:
 def dmtool_page(authenticated_page: Page) -> DMToolPage:
     """DMTool page object fixture"""
     return DMToolPage(authenticated_page)
+
+
+@pytest.fixture
+def document_vault_page(authenticated_page: Page) -> DocumentVaultPage:
+    """Document Vault page object fixture"""
+    return DocumentVaultPage(authenticated_page)
 
 
 @pytest.fixture

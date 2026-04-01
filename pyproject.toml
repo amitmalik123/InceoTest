@@ -113,6 +113,7 @@ addopts = """
 # --reruns-delay=1
 
 markers = [
+    "daily: Daily execution smoke/regression subset",
     "smoke: Quick smoke tests for critical functionality",
     "regression: Full regression test suite",
     "rgl: Realized Gain/Loss feature tests",
