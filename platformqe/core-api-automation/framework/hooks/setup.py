@@ -169,6 +169,10 @@ class TestDataManager:
             logger.error("No prerequisite data was created")
             return None
 
+        # Log completion of prerequisite testcase with extracted values
+        logger.debug(f"[HOOKS] Prerequisite testcase completed: {testcase_file}")
+        logger.debug(f"[HOOKS] Extracted values: {all_extracted_values}")
+        
         # Debug: Log all extracted values before CSV update
         logger.debug(f"[HOOKS DEBUG] Extracted values from POST prerequisite: {all_extracted_values}")
         
@@ -212,6 +216,11 @@ class TestDataManager:
         Returns:
             Dictionary of extracted values, or None if failed
         """
+        # Log before execution
+        logger.info(f"[HOOKS] Running prerequisite testcase: {testcase_file}")
+        if test_data_file:
+            logger.debug(f"[HOOKS] Using test data file: {test_data_file}")
+        
         try:
             # Get base paths
             base_path = os.path.dirname(os.path.dirname(os.path.dirname(__file__)))
