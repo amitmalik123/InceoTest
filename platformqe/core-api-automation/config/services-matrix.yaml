@@ -51,24 +51,6 @@ services:
     - core-service
     - high-priority
     priority: 1
-    account_service:
-      displayName: Account Service API
-      enabled: true
-      runOnPR: false
-      runOnPush: false
-      runOnSchedule: true
-      testType: functional
-      environments:
-      - TSADEV
-      - TSATEST
-      - TSASILO
-      functionalTestArgs: --service-name account_service --env {environment}
-      nonFunctionalTestArgs: --file testdata/account/testcases/TestCase_Accounts_GET.json
-        --test_type Performance --env {environment} --headless -u 10 -r 2 -t 30s
-      tags:
-      - core-service
-      - high-priority
-      priority: 1
   movemoney:
     displayName: Move Money API
     enabled: true
