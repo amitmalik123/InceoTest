@@ -161,6 +161,7 @@ def get_service_hooks_config(service_name: str) -> HooksConfig:
                         extract_fields = [f.get('assign_to') for f in extract_cfg['fields']]
                     
                     logger.debug(f"[HOOKS CONFIG] Loaded prerequisite test case for {endpoint_name} endpoint")
+                    logger.debug(f"  - Testcase file: {endpoint_config.get('testcase_file')}")
                     logger.debug(f"  - Extract fields: {extract_fields}")
                     logger.debug(f"  - Update CSV: {endpoint_config.get('update_csv_file')}")
     
