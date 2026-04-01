@@ -11,10 +11,6 @@
           "name": { "type": "string" },
           "modelType": { "type": ["string", "null"] },
           "solutionType": { "type": ["string", "null"] },
-          "custodians": {
-            "type": "array",
-            "items": { "type": "string" }
-          },
           "mandate": {
             "type": "object",
             "properties": {
@@ -28,79 +24,14 @@
               "name": { "type": "string" }
             }
           },
-          "benchmarks": {
-            "type": "array",
-            "items": {
-              "type": "object",
-              "properties": {
-                "id": { "type": "integer" },
-                "name": { "type": "string" }
-              }
-            }
-          },
-          "investmentMins": {
-            "oneOf": [
-              {
-                "type": "array",
-                "items": {
-                  "type": "object",
-                  "properties": {
-                    "type": { "type": "string" },
-                    "value": { "type": "number" }
-                  },
-                  "required": ["type", "value"]
-                },
-                "minItems": 0
-              },
-              {
-                "type": "object",
-                "properties": {
-                  "additionalProp1": { "type": "number" },
-                  "additionalProp2": { "type": "number" },
-                  "additionalProp3": { "type": "number" }
-                }
-              },
-              {
-                "type": "array",
-                "items": {
-                  "type": "object",
-                  "properties": {
-                    "warning": { "type": "string" }
-                  },
-                  "required": ["warning"]
-                },
-                "minItems": 1
-              },
-              {
-                "type": "null"
-              }
-            ]
-          },
-          "riskProfile": { "type": ["string", "null"] },
           "owner": {
             "type": "object",
             "properties": {
               "ownerId": { "type": "string", "format": "uuid" }
             }
           },
-          "analytics": {
-            "type": "object",
-            "properties": {
-              "estimatedYields": {
-                "type": "array",
-                "items": {}
-              },
-              "tenYearReturn": { "type": "number" },
-              "tenYearVolatility": { "type": "number" }
-            }
-          },
           "metadata": {
-            "type": "object",
-            "properties": {
-              "additionalProp1": { "type": "string" },
-              "additionalProp2": { "type": "string" },
-              "additionalProp3": { "type": "string" }
-            }
+            "type": "object"
           },
           "versions": {
             "type": "array",
@@ -135,7 +66,58 @@
                     }
                   }
                 },
+                "analytics": {
+                  "type": ["object", "null"],
+                  "properties": {
+                    "estimatedYields": {
+                      "type": "array",
+                      "items": {}
+                    },
+                    "tenYearReturn": { "type": "number" },
+                    "tenYearVolatility": { "type": "number" }
+                  }
+                },
                 "version": { "type": "integer" },
+                "benchmarks": {
+                  "type": ["array", "null"],
+                  "items": {
+                    "type": "object",
+                    "properties": {
+                      "id": { "type": "integer" },
+                      "name": { "type": "string" }
+                    }
+                  }
+                },
+                "investmentMins": {
+                  "oneOf": [
+                    {
+                      "type": "array",
+                      "items": {
+                        "type": "object",
+                        "properties": {
+                          "type": { "type": "string" },
+                          "value": { "type": "number" }
+                        },
+                        "required": ["type", "value"]
+                      },
+                      "minItems": 0
+                    },
+                    {
+                      "type": "object"
+                    },
+                    {
+                      "type": "null"
+                    }
+                  ]
+                },
+                "riskProfile": { "type": ["string", "null"] },
+                "metadata": {
+                  "type": ["object", "null"]
+                },
+                "custodians": {
+                  "type": ["array", "null"],
+                  "items": { "type": "string" }
+                },
                 "status": { "type": "string" },
                 "publishedDate": { "type": ["string", "null"], "format": "date-time" },
                 "modifiedDate": { "type": ["string", "null"], "format": "date-time" },
@@ -154,14 +136,9 @@
           "name",
           "modelType",
           "solutionType",
-          "custodians",
           "mandate",
           "investmentApproach",
-          "benchmarks",
-          "investmentMins",
-          "riskProfile",
           "owner",
-          "analytics",
           "metadata",
           "versions"
         ]

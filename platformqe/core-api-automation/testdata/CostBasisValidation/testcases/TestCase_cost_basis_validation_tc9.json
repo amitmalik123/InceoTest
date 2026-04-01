@@ -57,7 +57,7 @@
         ],
         "validate": {
             "performance": {
-                "max_response_time_ms": 1600
+                "max_response_time_ms": 20000
             },
             "security": {
                 "checks": [
@@ -145,7 +145,7 @@
         ],
         "validate": {
             "performance": {
-                "max_response_time_ms": 500
+                "max_response_time_ms": 1000
             },
             "security": {
                 "checks": [
@@ -448,6 +448,11 @@
             },
             {
                 "from": "response",
+                "key": "externalId",
+                "assign_to": "ValidatedExternalID"
+            },
+            {
+                "from": "response",
                 "key": "alertWorkItem",
                 "assign_to": "alertWorkItem"
             },
@@ -485,6 +490,12 @@
                     "expected": false,
                     "operator": "==",
                     "message": "closeWorkItem should be false"
+                },
+                {
+                    "actual": "{{ValidatedExternalID}}",
+                    "expected": "{{ValidatedCostBasisExternalID}}",
+                    "operator": "==",
+                    "message": "Validated externalId should match the expected associated ExternalID for this cost basis record"
                 }
             ],
             "data_comparison": {

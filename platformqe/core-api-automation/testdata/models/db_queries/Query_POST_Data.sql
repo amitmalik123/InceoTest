@@ -6,12 +6,12 @@ SELECT id,
        solution_type,
        model_type,
        custodian,
-       metadata,
+       version_metadata AS metadata,
        modified_date,
        risk_profile,
        CASE 
            WHEN benchmark IS NOT NULL THEN 
-               (SELECT jsonb_agg(jsonb_build_object('name', elem->>'name'))
+               (SELECT jsonb_agg(jsonb_build_object('name', elem->>'Name'))
                 FROM jsonb_array_elements(benchmark) AS elem)
            ELSE NULL 
        END AS benchmarks,

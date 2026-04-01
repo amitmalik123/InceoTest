@@ -123,6 +123,13 @@ api_endpoints:
     retry_count: 3
     verify: false
 
+  custodialintegration:
+    base_url: "${CUSTODIAL_INTEGRATION_BASE_URL}"  # Fetched from Azure variable group: qa-pipelines-variable-group-dev
+    auth_token: "${CUSTODIALINTEGRATION_AUTH_TOKEN}"
+    timeout: ${API_TIMEOUT:30}
+    retry_count: ${API_RETRY_COUNT:3}
+    verify: false
+
   work_item_notification:
     base_url: "${WORK_ITEM_NOTIFICATION_BASE_URL}"  # Fetched from Azure variable group: qa-pipelines-variable-group-dev
     auth_token: "${WORK_ITEM_AUTH_TOKEN}"

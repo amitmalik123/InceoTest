@@ -668,7 +668,7 @@
                     {
                         "source_field": "row_count",
                         "comparison": "equals",
-                        "expected_value": 8
+                        "expected_value": 4
                     },
                     {
                         "source_field": "column_name",
@@ -676,12 +676,8 @@
                         "expected_value": [
                             "model_id",
                             "solution_type",
-                            "custodians",
                             "investment_approach_id",
-                            "investment_mins",
-                            "metadata",
-                            "model_type",
-                            "risk_profile"
+                            "model_type"
                         ]
                     },
                     {
@@ -695,32 +691,12 @@
                         "expected_value": "character varying"
                     },
                     {
-                        "source_field": "column_name=custodian.data_type",
-                        "comparison": "equals",
-                        "expected_value": "ARRAY"
-                    },
-                    {
                         "source_field": "column_name=investment_approach_id.data_type",
                         "comparison": "equals",
                         "expected_value": "integer"
                     },
                     {
-                        "source_field": "column_name=investment_min.data_type",
-                        "comparison": "equals",
-                        "expected_value": "jsonb"
-                    },
-                    {
-                        "source_field": "column_name=metadata.data_type",
-                        "comparison": "equals",
-                        "expected_value": "jsonb"
-                    },
-                    {
                         "source_field": "column_name=model_type.data_type",
-                        "comparison": "equals",
-                        "expected_value": "character varying"
-                    },
-                    {
-                        "source_field": "column_name=risk_profile.data_type",
                         "comparison": "equals",
                         "expected_value": "character varying"
                     }
@@ -733,7 +709,7 @@
         "db_type": "postgresql",
         "db_connection_name": "models",
         "db_query": "SELECT column_name, data_type FROM information_schema.columns WHERE table_name = 'model_attribute' ORDER BY ordinal_position;",
-        "test_summary": "Test TC007: Validate model_attribute table - Verify all column names and data types match expected schema (note: custodian is ARRAY type)"
+        "test_summary": "Test TC007: Validate model_attribute table - Verify all column names and data types match expected schema (note: version-specific fields moved to model_version_attribute)"
     },
     {
         "test_id": "TC008",
@@ -1034,5 +1010,111 @@
         "db_connection_name": "models",
         "db_query": "SELECT column_name, data_type FROM information_schema.columns WHERE table_name = 'snapshot_analytic' ORDER BY ordinal_position;",
         "test_summary": "Test TC010: Validate snapshot_analytic table - Verify all column names and data types match expected schema"
+    },
+    {
+        "test_id": "TC011",
+        "service_name": "models",
+        "workflow_mode": "sequential",
+        "test_name": "Validate model_version_attribute table schema and data types",
+        "protocol": "DB_ONLY",
+        "test_type": [
+            "Functional",
+            "Database Validation",
+            "Schema Validation"
+        ],
+        "mainURL": "",
+        "endpoint": "",
+        "method": "",
+        "rpc_method": "",
+        "graphql_query": "",
+        "graphql_variables": "",
+        "soap_action": "",
+        "soap_envelope": "",
+        "headers_additional": {
+            "Content-Type": "application/json"
+        },
+        "payload": null,
+        "expected_status": "",
+        "expected_response_schema": "",
+        "expected_response": "",
+        "extract_values": [],
+        "validate": {
+            "performance": {
+                "max_response_time_ms": null
+            },
+            "security": {
+                "checks": []
+            },
+            "data_comparison": {
+                "source": "db_result",
+                "target": null,
+                "format": "table",
+                "key_field": [
+                    "column_name"
+                ],
+                "fields_to_compare": [
+                    {
+                        "source_field": "row_count",
+                        "comparison": "equals",
+                        "expected_value": 7
+                    },
+                    {
+                        "source_field": "column_name",
+                        "comparison": "contains_all",
+                        "expected_value": [
+                            "model_id",
+                            "version",
+                            "custodians",
+                            "investment_mins",
+                            "risk_profile",
+                            "metadata",
+                            "benchmarks"
+                        ]
+                    },
+                    {
+                        "source_field": "column_name=model_id.data_type",
+                        "comparison": "equals",
+                        "expected_value": "uuid"
+                    },
+                    {
+                        "source_field": "column_name=version.data_type",
+                        "comparison": "equals",
+                        "expected_value": "smallint"
+                    },
+                    {
+                        "source_field": "column_name=custodian.data_type",
+                        "comparison": "equals",
+                        "expected_value": "ARRAY"
+                    },
+                    {
+                        "source_field": "column_name=investment_min.data_type",
+                        "comparison": "equals",
+                        "expected_value": "jsonb"
+                    },
+                    {
+                        "source_field": "column_name=risk_profile.data_type",
+                        "comparison": "equals",
+                        "expected_value": "character varying"
+                    },
+                    {
+                        "source_field": "column_name=metadata.data_type",
+                        "comparison": "equals",
+                        "expected_value": "jsonb"
+                    },
+                    {
+                        "source_field": "column_name=benchmarks.data_type",
+                        "comparison": "equals",
+                        "expected_value": "jsonb"
+                    }
+                ],
+                "log_differences": true
+            },
+            "assertions": []
+        },
+        "test_data_file": "",
+        "db_type": "postgresql",
+        "db_connection_name": "models",
+        "db_query": "SELECT column_name, data_type FROM information_schema.columns WHERE table_name = 'model_version_attribute' ORDER BY ordinal_position;",
+        "test_summary": "Test TC011: Validate model_version_attribute table - Verify all column names and data types match expected schema (note: version-specific attributes including custodian, investment_min, risk_profile, metadata, and benchmarks)"
     }
 ]

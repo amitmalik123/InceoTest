@@ -27,7 +27,7 @@ trigger:
   branches:
     include:
       - qe_platform
-
+      
 # Scheduled Triggers - Each schedule targets a specific service
 schedules:
   - cron: "0 6 * * *"       # 06:00 UTC -> work_item_notification
@@ -145,6 +145,11 @@ parameters:
     type: number
     default: 0
 
+  - name: teamsNotificationEnabled
+    displayName: 'Enable Teams Result Notification'
+    type: boolean
+    default: false
+
 ###############################################################################
 # Global Variables
 ###############################################################################
@@ -172,5 +177,6 @@ stages:
       overrideEnabled: ${{ parameters.overrideEnabled }}
       customFunctionalArgs: ${{ parameters.customFunctionalArgs }}
       customNonFunctionalArgs: ${{ parameters.customNonFunctionalArgs }}
+      teamsNotificationEnabled: ${{ parameters.teamsNotificationEnabled }}
       triggerReason: '$(Build.Reason)'
       enableScheduleDetection: true  # Enable schedule-based service detection for cron triggers

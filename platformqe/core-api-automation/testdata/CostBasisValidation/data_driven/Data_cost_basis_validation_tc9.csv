@@ -1,2 +1,2 @@
-ExternalID,AccountNumber,CostBasisExternalID,environment,TransferID
-B999679812,13477321,B888238993,T11,7683
+ExternalID,AccountNumber,CostBasisExternalID,ValidatedCostBasisExternalID,environment,TransferID
+B999679812,13477321,B888238993,B999444133,T11,7683

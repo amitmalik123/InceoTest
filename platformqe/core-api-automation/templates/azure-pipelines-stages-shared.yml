@@ -66,6 +66,10 @@ parameters:
   - name: customNonFunctionalArgs
     type: string
     default: 'N/A'
+
+  - name: teamsNotificationEnabled
+    type: boolean
+    default: false
   
   # Trigger configuration
   - name: triggerReason
@@ -956,3 +960,15 @@ stages:
                 else
                   echo "✅ Pipeline execution completed successfully"
                 fi
+          - task: DownloadBuildArtifacts@1
+            displayName: 'Download Build Artifacts for Teams Summary'
+            condition: succeededOrFailed()
+            inputs:
+              buildType: 'current'
+              downloadType: 'all'
+              downloadPath: '$(Pipeline.Workspace)/teams-summary'
+          - ${{ if eq(parameters.teamsNotificationEnabled, true) }}:
+            - template: qe-teams-summary-notification.yml
+              parameters:
+                teamswebhookurl: $(TEAMS_WEBHOOK_URL)
+                serviceNames: ${{ parameters.services }}

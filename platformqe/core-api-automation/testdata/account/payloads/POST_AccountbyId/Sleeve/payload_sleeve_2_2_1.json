@@ -1,0 +1,38 @@
+{
+        "parentaccountid": "{{AccountID4}}",
+        "status": "Initiated",
+        "version": 0,
+        "accountclassification": "Sleeve",
+        "accounttype": "Personal",
+        "accountsubtype": "BankorTrustCompanyNonTaxable",
+        "displayname": "Growth Sleeve",
+        "sortname": "Sleeve B",
+        "opendate": "2025-12-01T00:00:00",
+        "terminationdate": null,
+        "risktolerance": "Conservative",
+        "custodialauthorization": "Managed",
+        "managingplatform": "Internal",
+        "parties": [
+          {
+            "partyid": "4a5b6c7d-8e9f-0a1b-2c3d-4e5f6a7b8c9d",
+            "roletype": "AuthorizedAgents",
+            "attributes": [
+              {
+                "type": "IsMailingAddress",
+                "value": "String"
+              }
+            ]
+          }
+        ],
+        "identifiers": [
+          {
+            "type": "APL",
+            "value": "SLV-12345"
+          }
+        ],
+  "createddate": "2025-12-05T11:54:40.559Z",
+  "modifieddate": "2025-12-05T11:54:40.559Z",
+  "createdby": "Test",
+  "modifiedby": "Test"
+      
+}

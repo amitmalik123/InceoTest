@@ -1,6 +1,6 @@
-SELECT *
+SELECT c.Id, c.ParentAccountId, c.AccountClassification
 FROM Account c
-WHERE c.ParentAccountId = "{{db_account_id}}"
+WHERE c.ParentAccountId = {{db_HH_account_id}}
   AND c.Version = (
     SELECT MAX(v.Version)
     FROM Account v
