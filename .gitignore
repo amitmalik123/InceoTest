@@ -73,6 +73,7 @@ Thumbs.db
 # Logs
 *.log
 logs/
+PROMPTS_LOG.md
 
 # Contracts (generated/temporary)
 contracts/

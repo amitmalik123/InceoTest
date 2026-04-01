@@ -3,17 +3,23 @@ DocuSign Page Object
 Handles interactions with the DocuSign signing interface
 """
 from __future__ import annotations
+import os
 import re
+import time
 from datetime import datetime
-from typing import Callable, Optional
+from typing import TYPE_CHECKING, Callable, Optional
 
 import allure
 from playwright.sync_api import Page, TimeoutError as PlaywrightTimeoutError
 
+from config.settings import get_settings
 from pages.base_page import BasePage
 from locators import docusign_locators
 from utils.allure_logger import get_allure_logger
 from utils.helpers import get_locator_attribute
+
+if TYPE_CHECKING:
+    from pages.outlook_page import OutlookPage
 
 logger = get_allure_logger(__name__)
 
@@ -23,27 +29,129 @@ class DocuSignPage(BasePage):
 
     def __init__(self, page: Page, base_url: str = ""):
         super().__init__(page, base_url=base_url)
+        self._initialize_locators()
+        self._last_send_now_epoch = None
+    
+    def _initialize_locators(self) -> None:
+        """Initialize all locator properties for Send Now and Resend Code buttons."""
+        # Send Now button with multiple locator strategies
+        self.send_now_button = self.page.locator('button[data-qa*="send-now"]')
+        self.send_now_button_by_role = self.page.get_by_role("button", name=docusign_locators.SEND_NOW_BUTTON_PATTERN)
+        self.send_now_button_text = self.page.get_by_text(docusign_locators.SEND_NOW_BUTTON_PATTERN)
+        
+        # Resend Code button with multiple locator strategies
+        self.resend_code_button = self.page.locator('button[data-qa*="resend-code"]')
+        self.resend_code_primary_button = self.page.get_by_role("button", name=docusign_locators.RESEND_CODE_BUTTON_PATTERN)
+        
+        # Fallback locator for Send Now button variants
+        self.send_now_fallback_buttons = self.page.get_by_role("button").filter(has_text=re.compile("Send Now|send now", re.IGNORECASE))
+    
+    @staticmethod
+    def get_email() -> str:
+        """Get Outlook email from settings configuration.
+        
+        Returns:
+            Encrypted email address from settings
+        """
+        settings = get_settings()
+        return settings.outlook_email or ""
+    
+    @staticmethod
+    def get_password() -> str:
+        """Get Outlook password from settings configuration.
+        
+        Returns:
+            Encrypted password from settings
+        """
+        settings = get_settings()
+        return settings.outlook_password or ""
+    
+    def _init_locators(self, page: Page) -> None:
+        """Reinitialize locators for a new page (for context switching).
+        
+        Args:
+            page: Playwright Page instance to bind locators to
+        """
+        self.page = page
+        self._initialize_locators()
+    
+    def submit_otp(self, otp_code: str, timeout: int = 10000) -> None:
+        """Submit OTP code to the verification code field in DocuSign.
+        
+        Args:
+            otp_code: The 6-digit OTP code to submit
+            timeout: Maximum time to wait for field in milliseconds
+            
+        Raises:
+            RuntimeError: If OTP code is incorrect or submission fails
+        """
+        logger.info(f"Submitting OTP code to DocuSign")
+        
+        try:
+            # Locate the OTP input field by role and name pattern
+            otp_field = self.page.get_by_role("textbox", name=re.compile(docusign_locators.OTP_FIELD_NAME_PATTERN, re.IGNORECASE))
+            
+            # Wait for field to be visible
+            otp_field.wait_for(state="visible", timeout=timeout)
+            logger.debug("OTP field is visible")
+            
+            # Fill the OTP code
+            otp_field.fill(otp_code)
+            logger.info(f"OTP code entered")
+            
+            # Wait a moment for the field to process
+            self.page.wait_for_timeout(1000)
+            
+            # Click the Confirm Code button to submit
+            confirm_button = self.page.get_by_role("button", name=docusign_locators.CONFIRM_CODE_BUTTON_PATTERN)
+            confirm_button.wait_for(state="visible", timeout=timeout)
+            logger.debug("Confirm Code button is visible")
+            
+            confirm_button.click()
+            logger.info("Confirm Code button clicked")
+            
+            # Wait for submission to complete
+            self.page.wait_for_timeout(2000)
+            
+        except Exception as e:
+            logger.error(f"Failed to submit OTP: {str(e).splitlines()[0]}")
+            raise RuntimeError(f"Code is incorrect or submission failed: {e}")
 
-    def verify_docusign_page_loaded(self, timeout: int = 30000):
+    def verify_docusign_page_loaded(self, timeout: int = 60000):
         """
         Wait for DocuSign page to load and take screenshot for evidence.
         
         Args:
-            timeout: Maximum time to wait in milliseconds
+            timeout: Maximum time to wait in milliseconds (default: 60000ms = 60 seconds)
             
         Example:
             docusign_page.verify_docusign_page_loaded()
         """
         logger.info("Waiting for DocuSign page to load...")
+        logger.info(f"[OTP_DEBUG] Page load timeout: {timeout}ms ({timeout/1000}s)")
         
-        # Wait for navigation to DocuSign
-        self.page.wait_for_url(lambda url: docusign_locators.DOCUSIGN_URL_PATTERN in url, timeout=timeout)
-        
-        logger.info("DocuSign page URL detected")
-        
-        # Wait for page to be fully loaded before taking screenshot (intelligent wait)
-        self.page.wait_for_load_state("networkidle", timeout=timeout)
-        logger.info("DocuSign page fully loaded")
+        # Check if we're already on DocuSign page to avoid unnecessary waits
+        current_url = self.page.url
+        if docusign_locators.DOCUSIGN_URL_PATTERN in current_url:
+            logger.info(f"[OTP_DEBUG] Already on DocuSign page: {current_url}")
+            
+            # Still wait for networkidle to ensure page is fully loaded
+            try:
+                self.page.wait_for_load_state("networkidle", timeout=timeout)
+                logger.info("DocuSign page is fully loaded (networkidle)")
+            except Exception as e:
+                logger.warning(f"[OTP_DEBUG] Page didn't reach complete networkidle state: {str(e)[:100]}")
+                # Don't fail here - page might already be interactive enough
+        else:
+            logger.info(f"[OTP_DEBUG] Not yet on DocuSign page. Current URL: {current_url}")
+            
+            # Wait for navigation to DocuSign
+            self.page.wait_for_url(lambda url: docusign_locators.DOCUSIGN_URL_PATTERN in url, timeout=timeout)
+            logger.info("DocuSign page URL detected")
+            
+            # Wait for page to be fully loaded before taking screenshot (intelligent wait)
+            self.page.wait_for_load_state("networkidle", timeout=timeout)
+            logger.info("DocuSign page fully loaded")
         
         # Take screenshot for evidence
         screenshot = self.page.screenshot()
@@ -352,299 +460,6 @@ class DocuSignPage(BasePage):
             logger.error(f"✗ Failed to retrieve Date Signed value: {e}")
             raise
 
-    def complete_docusign_signing_with_otp(
-        self,
-        fetch_otp: Callable[[], Optional[str]],
-        send_now_timeout: int = 10_000,
-        otp_field_timeout: int = 10_000,
-        consent_timeout: int = 20_000,
-        continue_timeout: int = 10_000,
-        finish_timeout: int = 10_000,
-        session_timeout: int = 20_000,
-        session_timeout_check: bool = False,
-    ) -> Optional[str]:
-        """Complete the full authorized signer DocuSign flow using an OTP callback.
-
-        This method encapsulates the common sequence used for the authorized
-        signer flow:
-
-        1. Click the "Send Now" button to trigger the OTP email
-        2. Invoke ``fetch_otp`` to retrieve the OTP (typically from Outlook)
-        3. Enter the OTP in the verification textbox and click "Confirm Code"
-          4. Run the standard ERSD + Continue + Finish sequence, unless the
-              DocuSign session has already timed out after OTP entry.
-
-        The ``fetch_otp`` callback is responsible for interacting with the
-        email system (e.g. OutlookOtpPage) and must return a 6-digit OTP
-        string. If it returns ``None`` or an empty string, this method raises
-        ``RuntimeError``.
-        """
-        logger.info("Starting authorized signer DocuSign flow with OTP...")
-
-        # Ensure the DocuSign page is fully loaded before interacting.
-        self.page.wait_for_load_state("networkidle")
-
-        # 1) Click the "Send Now" button to send the verification email.
-        send_now_button = self.page.get_by_role("button", name="Send Now")
-        send_now_button.wait_for(state="visible", timeout=send_now_timeout)
-        send_now_button.click()
-        logger.info("Clicked 'Send Now' button on DocuSign.")
-
-        # 2) Fetch OTP using the provided callback (typically from Outlook).
-        otp = fetch_otp()
-        if not otp:
-            logger.error(
-                "No OTP fetched from email; cannot complete authorized signer verification."
-            )
-            raise RuntimeError(
-                "No OTP fetched from authorized signer email; see OTP provider logs for details."
-            )
-
-        # 3) Enter OTP and confirm on the DocuSign verification page.
-        otp_input = self.page.get_by_role(
-            "textbox", name=re.compile("verification code", re.I)
-        )
-        otp_input.wait_for(state="visible", timeout=otp_field_timeout)
-        otp_input.fill(otp)
-        logger.info("Filled DocuSign verification code textbox with OTP.")
-
-        confirm_button = self.page.get_by_role(
-            "button", name=re.compile("Confirm Code", re.I)
-        )
-        confirm_button.wait_for(state="visible", timeout=otp_field_timeout)       
-        confirm_button.click()
-        logger.info("Clicked 'Confirm Code' button on DocuSign.")
-
-        # If DocuSign reports that the code is incorrect, trigger the
-        # resend flow and submit a fresh OTP from the same provider.
-        self.handle_incorrect_otp_and_resend_code(
-            fetch_otp=fetch_otp,
-            otp_field_timeout=otp_field_timeout,
-            resend_popup_timeout=otp_field_timeout,
-        )
-
-        # 3a) Check for a DocuSign session timeout banner after OTP entry
-        # before proceeding to ERSD/Finish. When the session has timed
-        # out, DocuSign shows a message like:
-        #   <span id="ds_hldrBdy_lblHeaderText">Your session has timed out.</span>
-        # In that case, return a sentinel string so callers can react
-        # appropriately instead of attempting to continue the flow.
-        if session_timeout_check:
-            timeout_banner = self.page.locator(docusign_locators.SESSION_TIMEOUT_BANNER)
-            try:
-                timeout_banner.wait_for(state="visible", timeout=session_timeout)
-                banner_text = timeout_banner.inner_text().strip().lower()
-                if "session has timed out" in banner_text:
-                    logger.error(
-                        "DocuSign session has timed out after OTP entry; "
-                        "skipping ERSD/Finish steps."
-                    )
-                    return "Session time out"
-            except PlaywrightTimeoutError:
-                # No visible timeout banner; proceed with the normal flow.
-                pass
-
-        # 4) Run the standard ERSD + Continue + Finish sequence.
-        logger.info("Completing DocuSign ERSD consent and Finish sequence...")
-        self.complete_ersd_and_finish(
-            consent_timeout=consent_timeout,
-            continue_timeout=continue_timeout,
-            finish_timeout=finish_timeout,
-        )
-        logger.info("✓ Authorized signer DocuSign flow with OTP completed")
-        return None
-    
-    def handle_incorrect_otp_and_resend_code(
-        self,
-        fetch_otp: Callable[[], Optional[str]],
-        otp_field_timeout: int = 2_000,
-        resend_popup_timeout: int = 10_000,
-    ) -> None:
-        """Handle an incorrect OTP by resending and submitting a new one.
-
-        Workflow (based on the Playwright recorder steps):
-
-        1. Detect the "Code is incorrect" message.
-        2. Click the main "Resend Code" button.
-        3. Verify the "Resend Code" popup header is visible.
-        4. Click "Resend Code" again in the popup to trigger a new OTP.
-        5. Fetch the latest OTP via ``fetch_otp`` and submit it.
-
-        If the error message is not present, this method returns
-        immediately without doing anything.
-        """
-        # 1) Look for the error message indicating the OTP was incorrect.
-        error_paragraph = self.page.get_by_role("paragraph")
-        try:
-            error_paragraph.wait_for(state="visible", timeout=otp_field_timeout)
-            error_text = error_paragraph.inner_text().strip().lower()
-        except PlaywrightTimeoutError:
-            logger.info(
-                "No OTP error paragraph became visible after confirming code; "
-                "assuming code was accepted."
-            )
-            return
-
-        if "code is incorrect" not in error_text:
-            logger.info(
-                "OTP error paragraph visible but does not contain 'Code is incorrect'; "
-                f"text was: '{error_text}'"
-            )
-            return
-
-        logger.warning("DocuSign reported 'Code is incorrect'; starting resend-code flow.")
-
-        # 2) Click the main "Resend Code" button on the page.
-        resend_button = self.page.get_by_role(
-            "button", name=re.compile("Resend Code", re.I)
-        )
-        resend_button.wait_for(state="visible", timeout=otp_field_timeout)
-        resend_button.click()
-        logger.info("Clicked primary 'Resend Code' button.")
-
-        # 3) Verify the popup heading "Resend Code" is visible.
-        popup_header_span = (
-            self.page.get_by_role("heading", name=re.compile("Resend Code", re.I))
-            .locator("span")
-        )
-        popup_header_span.wait_for(state="visible", timeout=resend_popup_timeout)
-        logger.info("'Resend Code' confirmation popup header is visible.")
-
-        # 4) Click "Resend Code" again in the popup to actually send a new code.
-        resend_button_popup = self.page.get_by_role(
-            "button", name=re.compile("Resend Code", re.I)
-        )
-        resend_button_popup.wait_for(state="visible", timeout=resend_popup_timeout)
-        resend_button_popup.click()
-        logger.info("Confirmed 'Resend Code' in the popup dialog.")
-
-        # 5) Fetch the latest OTP and submit it.
-        new_otp = fetch_otp()
-        if not new_otp:
-            logger.error(
-                "No OTP fetched after requesting resend; cannot complete verification."
-            )
-            raise RuntimeError(
-                "No OTP fetched after DocuSign resend; see OTP provider logs for details."
-            )
-
-        otp_input = self.page.get_by_role(
-            "textbox", name=re.compile("verification code", re.I)
-        )
-        otp_input.wait_for(state="visible", timeout=otp_field_timeout)
-        otp_input.fill(new_otp)
-        logger.info("Filled DocuSign verification code textbox with resent OTP.")
-
-        confirm_button = self.page.get_by_role(
-            "button", name=re.compile("Confirm Code", re.I)
-        )
-        confirm_button.wait_for(state="visible", timeout=otp_field_timeout)
-        confirm_button.click()
-        logger.info("Clicked 'Confirm Code' button after resending OTP.")
-
-    def complete_ersd_and_finish(
-        self,
-        consent_timeout: int = 20000,
-        continue_timeout: int = 10000,
-        finish_timeout: int = 10000,
-    ) -> None:
-        """Complete the standard ERSD + Continue + Finish flow.
-
-        This is a convenience wrapper that performs the common sequence
-        of actions required after the user enters the DocuSign OTP:
-
-        1. Check the Electronic Record and Signature Disclosure consent
-        2. Click the ERSD Continue button
-        3. Complete any required inline recipient signature
-        4. Click the top right header Finish button
-
-        Timeouts are in milliseconds to align with Playwright's API.
-        """
-        logger.info("Starting DocuSign ERSD consent and Finish sequence...")
-        try:
-            self.check_ersd_consent_checkbox(timeout=consent_timeout)
-            self.click_ersd_continue_button(timeout=continue_timeout)
-
-            self.complete_recipient_signature_if_required(timeout=finish_timeout)
-
-            self.click_finish_button(timeout=finish_timeout)
-            logger.info("✓ Completed DocuSign ERSD consent and Finish sequence")
-        except Exception as ex:
-            logger.error(f"Error during DocuSign ERSD consent and Finish sequence: {ex}")
-            # Re-raise so callers can decide how to handle failures
-            raise
-
-    def complete_recipient_signature_if_required(self, timeout: int = 10_000) -> None:
-        """Wait for Finish and complete inline signing when required.
-
-        Behaviour:
-
-        1. Wait for the main Finish button (header action bar) to be
-           visible, using the full ``timeout``.
-        2. Using only a short timeout (up to 2 seconds), check for the
-           optional inline "Required - Sign Here" button and click it
-           when present.
-        3. After clicking, wait (with the same short timeout) for the
-           "Required - Signature Applied" indicator.
-
-        If no required-sign button appears within the short timeout,
-        the method simply logs and returns so flows without inline
-        signatures do not incur the full ``timeout``. A missing Finish
-        button will still raise an error via Playwright's timeout.
-        """
-        # 1) Ensure the header Finish button is present before we try
-        # to reason about the document surface and optional inline
-        # signing steps. If this times out, let the exception bubble up
-        # so the overall flow fails visibly.
-        finish_button = self.page.locator('#action-bar-btn-finish')
-        finish_button.wait_for(state="visible", timeout=timeout)
-        logger.debug("Header Finish button is visible after ERSD Continue")
-
-        # 2) Use a short timeout window to detect the optional
-        # "Required - Sign Here" step so scenarios without inline
-        # signing do not pay the full timeout cost.
-        short_sign_timeout = min(2000, timeout)
-
-        try:
-            # Look for the inline "Required - Sign Here" button.
-            sign_here_button = self.page.get_by_role(
-                "button", name=re.compile(r"Required\s*-\s*Sign Here", re.I)
-            )
-
-            try:
-                sign_here_button.wait_for(state="visible", timeout=short_sign_timeout)
-            except PlaywrightTimeoutError:
-                logger.info(
-                    "DocuSign: no 'Required - Sign Here' button visible within short timeout; "
-                    "assuming no inline recipient signature is required."
-                )
-                return
-
-            logger.info("DocuSign: 'Required - Sign Here' button visible; clicking to sign.")
-            sign_here_button.click()
-
-            # After clicking, wait for the signature-applied state to
-            # confirm that the inline signing step has completed.
-            signature_applied_button = self.page.get_by_role(
-                "button", name=re.compile(r"Required\s*-\s*Signature Applied", re.I)
-            )
-            try:
-                signature_applied_button.wait_for(state="visible", timeout=short_sign_timeout)
-                logger.info("DocuSign: 'Required - Signature Applied' state confirmed.")
-            except PlaywrightTimeoutError as ex:
-                logger.warning(
-                    "DocuSign: 'Required - Signature Applied' indicator did not appear within "
-                    f"short timeout after signing; proceeding anyway: {ex}"
-                )
-
-        except Exception as ex:
-            # Fully defensive: do not fail entire flow if this optional
-            # inline signing logic encounters an unexpected condition.
-            logger.warning(
-                f"DocuSign: error while handling inline recipient signature; "
-                f"continuing to Finish step: {ex}"
-            )
-
     def close(self) -> None:
         """Close the underlying DocuSign Playwright page.
 
@@ -656,11 +471,6 @@ class DocuSignPage(BasePage):
         except Exception as ex:
             logger.error(f"Error while closing DocuSign page: {ex}")
 
-    def complete_signing_with_outlook_otp(
-        self,
-        max_wait_time_in_seconds: int = 60,
-        session_timeout_check: bool = False,
-    ) -> Optional[str]:
         """End-to-end DocuSign signing using an OTP fetched from Outlook.
 
         This is a convenience wrapper around ``complete_docusign_signing_with_otp``
@@ -668,17 +478,320 @@ class DocuSignPage(BasePage):
         The OutlookPage import is local to avoid circular imports.
         """
 
-        def _fetch_otp() -> Optional[str]:
-            # Local import to prevent circular dependency at module load time.
-            from pages.outlook_page import OutlookPage
 
-            otp_page = OutlookPage.from_config(self.page)
-            submitting_time = datetime.now().time()
-            return otp_page.get_otp_with_retry(
-                submitting_time, max_wait_time_in_seconds=max_wait_time_in_seconds
+    def otp_verification(self, outlook_page: Optional[Page] = None) -> None:
+        """Run Send Now + OTP submission flow using existing Outlook page.
+        
+        Args:
+            outlook_page: Existing Outlook page (optional). If not provided, will look for
+                         any existing Outlook page in the context. If none found, will create new.
+        """
+        logger.info("[common_otp] Start")
+        outlook_page_to_close = False
+        new_outlook_page_opened = None
+        
+        try:
+            # Get the list of pages BEFORE clicking Send Now to detect if a new one opens
+            pages_before = set(self.page.context.pages)
+            
+            # Click Send Now to trigger OTP email
+            self.click_send_now()
+            logger.info("Send Now clicked to trigger OTP email")
+            
+            # Check if a new page opened after clicking Send Now
+            self.page.wait_for_timeout(2000)  # Wait briefly for new page to open
+            pages_after = set(self.page.context.pages)
+            new_pages = pages_after - pages_before
+            
+            if new_pages and outlook_page is not None:
+                # A new page opened but we have an existing Outlook page
+                # Close the new page and use the existing one
+                new_outlook_page_opened = list(new_pages)[0]
+                logger.info("New page opened after Send Now, but existing outlook_page provided; closing new page")
+                try:
+                    new_outlook_page_opened.close()
+                except Exception as e:
+                    logger.warning(f"Error closing new Outlook page: {e}")
+                new_outlook_page_opened = None
+            
+            # Get Outlook page - use provided one or find existing one
+            if outlook_page is None:
+                # Try to find existing Outlook page in context
+                outlook_pages = [p for p in self.page.context.pages 
+                                if "outlook" in p.url.lower() or "mail" in p.url.lower()]
+                if outlook_pages:
+                    outlook_page = outlook_pages[0]
+                    logger.info("Found existing Outlook page in context")
+                else:
+                    # Create new page only if none exists
+                    outlook_page = self.page.context.new_page()
+                    outlook_page_to_close = True
+                    logger.info("Created new Outlook page")
+            else:
+                # Use the provided Outlook page - bring it to front
+                logger.info("Using provided Outlook page; bringing to front")
+                outlook_page.bring_to_front()
+            
+            # Get credentials from settings
+            outlook_email = self.get_email()
+            outlook_password = self.get_password()
+            logger.info("Retrieved Outlook credentials from settings")
+            
+            # Lazy import to avoid circular import
+            from pages.outlook_page import OutlookPage
+            
+            # Initialize Outlook page object
+            outlook_otp = OutlookPage.from_config(outlook_page)
+            logger.info("Initialized OutlookPage object with existing page")
+            
+            # Fetch and submit OTP
+            otp_submitted = self.fetch_and_submit_otp(
+                outlook_otp,
+                email=outlook_email,
+                password=outlook_password,
+                timeout=180.0,
+                refresh_interval=5.0,
+                preferred_sender=getattr(self, "_preferred_otp_sender", None),
+                max_attempts=2,
             )
 
-        return self.complete_docusign_signing_with_otp(
-            fetch_otp=_fetch_otp,
-            session_timeout_check=session_timeout_check,
-        )  
+            if not otp_submitted:
+                raise RuntimeError("OTP retrieval failed during e-signature flow")
+
+            logger.info("[common_otp] Completed")
+        finally:
+            # Only close the Outlook page if we created it
+            if outlook_page_to_close and outlook_page:
+                logger.info("[common_otp] Closing Outlook page that was created")
+                try:
+                    outlook_page.close()
+                except Exception as e:
+                    logger.warning(f"Error closing Outlook page: {e}")
+            # Bring DocuSign page back to front
+            try:
+                self.page.bring_to_front()
+            except Exception as e:
+                logger.warning(f"Error bringing DocuSign page to front: {e}")
+
+    def _fetch_and_submit_otp_from_outlook(self, outlook_page: Optional[Page] = None) -> None:
+        """Fetch OTP from Outlook and submit it in DocuSign.
+        
+        Args:
+            outlook_page: Existing Outlook page (optional). If not provided, will look for
+                         any existing Outlook page in the context. If none found, will create new.
+        """
+        outlook_page_to_close = False
+        
+        try:
+            logger.info("Starting OTP flow")
+            
+            # Get Outlook page - use provided one or find existing one
+            if outlook_page is None:
+                # Try to find existing Outlook page in context
+                outlook_pages = [p for p in self.page.context.pages 
+                                if "outlook" in p.url.lower() or "mail" in p.url.lower()]
+                if outlook_pages:
+                    outlook_page = outlook_pages[0]
+                    logger.info("Found existing Outlook page in context")
+                else:
+                    # Create new page only if none exists
+                    outlook_page = self.page.context.new_page()
+                    outlook_page_to_close = True
+                    logger.info("Created new Outlook page")
+            
+            # Get credentials from settings
+            outlook_email = self.get_email()
+            outlook_password = self.get_password()
+            logger.info("Retrieved Outlook credentials from settings")
+
+            # Lazy import to avoid circular import
+            from pages.outlook_page import OutlookPage
+            
+            # Initialize Outlook page with credentials
+            outlook_otp = OutlookPage.from_config(outlook_page)
+            logger.info("Initialized OutlookPage object with existing page")
+
+            otp_submitted = self.fetch_and_submit_otp(
+                outlook_otp,
+                email=outlook_email,
+                password=outlook_password,
+                timeout=180.0,
+                refresh_interval=5.0,
+                preferred_sender=getattr(self, "_preferred_otp_sender", None),
+                max_attempts=2,
+            )
+
+            if not otp_submitted:
+                logger.error("Failed to fetch OTP from Outlook")
+                raise RuntimeError("OTP retrieval failed during e-signature flow")
+
+            logger.info("OTP flow completed")
+
+        except Exception as e:
+            logger.warning(f"Outlook OTP flow failed: {str(e).splitlines()[0]}")
+            raise  # Re-raise the exception to stop execution
+        finally:
+            # Only close the Outlook page if we created it
+            if outlook_page_to_close and outlook_page:
+                logger.info("Closing Outlook page that was created")
+                try:
+                    outlook_page.close()
+                except Exception as e:
+                    logger.warning(f"Error closing Outlook page: {e}")
+
+    def fetch_and_submit_otp(
+        self,
+        outlook_otp: "OutlookPage",
+        email: str = None,
+        password: str = None,
+        timeout: float = 120.0,
+        refresh_interval: float = 5.0,
+        preferred_sender: str = None,
+        max_attempts: int = 2,
+    ) -> bool:
+        """Fetch and submit OTP with retry attempts using existing Outlook page.
+        
+        **Important**: This method expects the OutlookPage object to be initialized with
+        an already-open Outlook page (either passed from test step or created if needed).
+        
+        Args:
+            outlook_otp: OutlookPage instance initialized with existing page
+            email: Email address (optional, uses settings if not provided)
+            password: Password (optional, uses settings if not provided)
+            timeout: Total timeout in seconds
+            refresh_interval: Page refresh interval in seconds
+            preferred_sender: Preferred email sender for OTP filtering
+            max_attempts: Maximum retry attempts for OTP submission
+            
+        Returns:
+            True if OTP submitted successfully, False otherwise
+            
+        Note:
+            - Does NOT create new Outlook pages or close existing ones
+            - Reuses Outlook tab opened by previous test steps
+            - OutlookPage initialization happens in caller (otp_verification)
+        """
+        max_missing_otp_resends = 2
+        max_incorrect_otp_resends = 3
+        max_total_attempts = max(max_attempts, 1 + max_missing_otp_resends + max_incorrect_otp_resends)
+
+        missing_otp_resends = 0
+        incorrect_otp_resends = 0
+        attempt = 0
+
+        while attempt < max_total_attempts:
+            attempt += 1
+            otp_code = outlook_otp.get_otp_with_retry(
+                email=email,
+                password=password,
+                timeout=timeout,
+                refresh_interval=refresh_interval,
+                sent_after_epoch=getattr(self, "_last_send_now_epoch", None),
+                preferred_sender=preferred_sender,
+                outlook_page=outlook_otp.page,  # Pass the existing Outlook page to avoid creating new one
+            )
+
+            if not otp_code:
+                if missing_otp_resends < max_missing_otp_resends:
+                    missing_otp_resends += 1
+                    logger.warning(
+                        f"OTP not fetched on attempt {attempt}; triggering resend "
+                        f"({missing_otp_resends}/{max_missing_otp_resends})"
+                    )
+                    self._click_resend_code_button()
+                    continue
+                continue
+
+            try:
+                # Ensure submit happens on current DocuSign/review page
+                self._init_locators(self.page)
+                self.submit_otp(otp_code)
+                logger.info("OTP submitted successfully")
+                return True
+            except RuntimeError as otp_error:
+                message = str(otp_error)
+                if "Code is incorrect" in message:
+                    if incorrect_otp_resends < max_incorrect_otp_resends:
+                        incorrect_otp_resends += 1
+                        logger.warning(
+                            f"Incorrect OTP on attempt {attempt}; triggering resend "
+                            f"({incorrect_otp_resends}/{max_incorrect_otp_resends})"
+                        )
+                        self._click_resend_code_button()
+                        continue
+                    self.assert_true(False, "OTP verification failed after max incorrect-OTP retries")
+                raise
+
+        logger.error(
+            f"OTP attempts exhausted without success | attempts={attempt}, "
+            f"missing_otp_resends={missing_otp_resends}/{max_missing_otp_resends}, "
+            f"incorrect_otp_resends={incorrect_otp_resends}/{max_incorrect_otp_resends}"
+        )
+        return False
+
+    def _click_resend_code_button(self) -> None:
+        """Click Resend Code when OTP is incorrect."""
+        resend_button = self.resend_code_button
+        resend_button.wait_for(state="visible", timeout=10000)
+        resend_button.click(timeout=5000)
+        self.page.wait_for_timeout(3000)
+
+        resend_primary_button = self.resend_code_primary_button
+        resend_primary_button.wait_for(state="visible", timeout=10000)
+        resend_primary_button.click(timeout=5000)
+
+        self._last_send_now_epoch = time.time()
+        self.page.wait_for_timeout(3000)
+        logger.info("Clicked Resend Code")
+
+    def click_send_now(self) -> None:
+        """Click the Send Now button to trigger OTP email in DocuSign"""
+        try:
+            for locator, label in (
+                (self.send_now_button, "data-qa locator"),
+                (self.send_now_button_by_role, "role locator"),
+                (self.send_now_button_text, "text locator"),
+            ):
+                try:
+                    locator.wait_for(state="visible", timeout=10000)
+                    if not locator.is_enabled():
+                        continue
+                    locator.scroll_into_view_if_needed()
+                    locator.click(timeout=5000)
+                    self._last_send_now_epoch = time.time()
+                    logger.info("Send Now Button Clicked")
+                    self.wait_for_timeout(15000)
+                    return
+                except Exception:
+                    continue
+
+            # Final fallback: pick any visible+enabled Send Now-like button and click first match
+            fallback_buttons = self.send_now_fallback_buttons
+            fallback_count = fallback_buttons.count()
+            for index in range(fallback_count):
+                candidate = fallback_buttons.nth(index)
+                try:
+                    if candidate.is_visible(timeout=1000) and candidate.is_enabled(timeout=1000):
+                        candidate.scroll_into_view_if_needed()
+                        candidate.click(timeout=5000)
+                        self._last_send_now_epoch = time.time()
+                        logger.info("Send Now Button Clicked")
+                        self.wait_for_timeout(15000)
+                        return
+                except Exception:
+                    continue
+
+            raise RuntimeError("Send Now button not found or not visible")
+        except Exception as e:
+            try:
+                os.makedirs("reports/screenshots", exist_ok=True)
+                screenshot_path = f"reports/screenshots/send_now_missing_{int(time.time())}.png"
+                self.page.screenshot(path=screenshot_path, full_page=True)
+                logger.error(f"Send Now button FAILED - screenshot saved: {screenshot_path}")
+                logger.error(f"Current URL: {self.page.url}")
+            except Exception as screenshot_error:
+                logger.warning(f"Failed to capture Send Now screenshot: {screenshot_error}")
+            logger.error(f"ERROR: {str(e).splitlines()[0]}")
+            raise
+
+

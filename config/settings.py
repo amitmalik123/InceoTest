@@ -37,6 +37,7 @@ class Settings:
         self.logger = setup_logger(__name__)
         self.config_path = Path(__file__).parent / f"env.{env}.yaml"
         self.config = self._load_config()
+        self._mail_config = self._load_mail_config()
         self._queries = self._load_queries()
 
     def get_vault_connection_string(self, secret_name: str) -> str | None:
@@ -118,6 +119,37 @@ class Settings:
 
         with open(self.config_path, "r") as file:
             return yaml.safe_load(file)
+
+    def _load_mail_config(self) -> dict:
+        """
+        Load mail configuration from mail_config.properties file.
+        
+        Returns:
+            dict: Mail configuration with keys like outlook.email, outlook.password, etc.
+        """
+        mail_config_path = Path(__file__).parent / "mail_config.properties"
+        mail_config = {}
+        
+        if not mail_config_path.exists():
+            self.logger.warning(f"Mail config file not found: {mail_config_path}")
+            return mail_config
+        
+        try:
+            with open(mail_config_path, "r") as file:
+                for line in file:
+                    line = line.strip()
+                    # Skip empty lines and comments
+                    if not line or line.startswith("#"):
+                        continue
+                    # Parse key=value
+                    if "=" in line:
+                        key, value = line.split("=", 1)
+                        mail_config[key.strip()] = value.strip()
+            self.logger.debug(f"Loaded mail config from {mail_config_path}")
+        except Exception as e:
+            self.logger.error(f"Error loading mail config: {e}")
+        
+        return mail_config
 
     @property
     def base_url(self):
@@ -213,23 +245,135 @@ class Settings:
 
     @property
     def outlook_email(self):
-        """Get Outlook email address (YAML → env-var fallback)."""
-        return self.config.get("outlook", {}).get("email", "") or os.getenv("OUTLOOK_EMAIL", "")
+        """
+        Get Outlook email address.
+        
+        Priority:
+        1. mail_config.properties (outlook.email)
+        2. environment variable (OUTLOOK_EMAIL)
+        3. YAML config (outlook.email)
+        
+        Returns:
+            Outlook email address (encrypted in properties file, decrypted via crypto_utils)
+        """
+        # Try mail_config.properties first
+        from utils.crypto_utils import decrypt_value
+        
+        mail_email = self._mail_config.get("outlook.email", "")
+        if mail_email:
+            try:
+                return decrypt_value(mail_email)
+            except Exception as e:
+                self.logger.warning(f"Error decrypting outlook email from mail_config.properties: {e}")
+        
+        # Fall back to environment variable
+        env_email = os.getenv("OUTLOOK_EMAIL", "")
+        if env_email:
+            return env_email
+        
+        # Fall back to YAML (for backward compatibility)
+        return self.config.get("outlook", {}).get("email", "")
 
     @property
     def outlook_password(self):
-        """Get Outlook password / app-password (env var → YAML fallback)."""
-        return os.getenv("OUTLOOK_PASSWORD", "") or self.config.get("outlook", {}).get("password", "")
+        """
+        Get Outlook password / app-password.
+        
+        Priority:
+        1. mail_config.properties (outlook.password)
+        2. environment variable (OUTLOOK_PASSWORD)
+        3. Key Vault secret (outlook-password)
+        4. YAML config (outlook.password)
+        
+        Returns:
+            Outlook password or App Password (encrypted in properties file, decrypted via crypto_utils)
+        """
+        # Try mail_config.properties first
+        from utils.crypto_utils import decrypt_value
+        
+        mail_password = self._mail_config.get("outlook.password", "")
+        if mail_password:
+            try:
+                return decrypt_value(mail_password)
+            except Exception as e:
+                self.logger.warning(f"Error decrypting outlook password from mail_config.properties: {e}")
+        
+        # Fall back to environment variable
+        env_password = os.getenv("OUTLOOK_PASSWORD", "")
+        if env_password:
+            return env_password
+        
+        # Fall back to Key Vault + YAML (for backward compatibility)
+        yaml_val = self.config.get("outlook", {}).get("password", "")
+        vault_password = self._vault_or_yaml("outlook-password", yaml_val)
+        if vault_password:
+            return vault_password
+        
+        return ""
 
     @property
     def outlook_imap_server(self):
-        """Get Outlook IMAP server. Defaults to outlook.office365.com."""
-        return self.config.get("outlook", {}).get("imap_server", "outlook.office365.com")
+        """
+        Get Outlook IMAP server.
+        
+        Priority:
+        1. mail_config.properties (outlook.imap_server)
+        2. environment variable (OUTLOOK_IMAP_SERVER)
+        3. YAML config (outlook.imap_server)
+        4. Default: outlook.office365.com
+        """
+        # Try mail_config.properties first
+        mail_server = self._mail_config.get("outlook.imap_server", "")
+        if mail_server:
+            return mail_server
+        
+        # Try environment variable
+        env_server = os.getenv("OUTLOOK_IMAP_SERVER", "")
+        if env_server:
+            return env_server
+        
+        # Fall back to YAML
+        yaml_server = self.config.get("outlook", {}).get("imap_server", "")
+        if yaml_server:
+            return yaml_server
+        
+        # Default
+        return "outlook.office365.com"
 
     @property
     def outlook_imap_port(self):
-        """Get Outlook IMAP port. Defaults to 993."""
-        return self.config.get("outlook", {}).get("imap_port", 993)
+        """
+        Get Outlook IMAP port.
+        
+        Priority:
+        1. mail_config.properties (outlook.imap_port)
+        2. environment variable (OUTLOOK_IMAP_PORT)
+        3. YAML config (outlook.imap_port)
+        4. Default: 993
+        """
+        # Try mail_config.properties first
+        mail_port = self._mail_config.get("outlook.imap_port", "")
+        if mail_port:
+            try:
+                return int(mail_port)
+            except ValueError:
+                self.logger.warning(f"Invalid outlook.imap_port in mail_config.properties: {mail_port}")
+        
+        # Try environment variable
+        env_port = os.getenv("OUTLOOK_IMAP_PORT", "")
+        if env_port:
+            try:
+                return int(env_port)
+            except ValueError:
+                self.logger.warning(f"Invalid OUTLOOK_IMAP_PORT environment variable: {env_port}")
+        
+        # Fall back to YAML
+        yaml_port = self.config.get("outlook", {}).get("imap_port")
+        if yaml_port:
+            return yaml_port
+        
+        # Default
+        return 993
 
     @property
     def secret_key(self):
