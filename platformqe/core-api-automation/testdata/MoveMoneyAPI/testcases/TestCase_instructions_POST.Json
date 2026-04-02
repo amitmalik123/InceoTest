@@ -118,7 +118,7 @@
                 }
             ]
         },
-        "test_data_file": "MoveMoneyAPI/data_driven/Data_instructions_POST.csv",
+        "test_data_file": "MoveMoneyAPI/data_driven/Data_instructions_Hook_POST.csv",
         "csv_row_index": 0,
         "db_query_timing": "after_api",
         "db_queries": {
