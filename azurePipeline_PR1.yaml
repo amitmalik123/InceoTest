@@ -25,7 +25,7 @@ trigger: none
 # Scheduled triggers
 # -----------------------------
 schedules:
-  - cron: "0 0 * * *" # 00:00 UTC daily (5:30 AM IST)
+  - cron: "45 11 * * *" # 11:45 UTC daily (5:15 PM IST)
     displayName: "Daily Regression"
     branches:
       include:
@@ -254,7 +254,9 @@ jobs:
         TEST_TARGET="tests/bdd/test_runners/test_rgl.py tests/bdd/test_runners/test_tms.py"
         echo "Running RGL and TMS feature tests"
       else
-        TEST_TARGET="-m \"$(marker)\""
+        # For any other marker (including 'regression'), use pytest marker filtering
+        # This automatically picks up ALL features with the specified @tag, regardless of file
+        TEST_TARGET="tests/bdd/test_runners -m \"$(marker)\""
         echo "Running tests with marker: $(marker)"
       fi
 
