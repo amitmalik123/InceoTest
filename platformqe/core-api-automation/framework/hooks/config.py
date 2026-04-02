@@ -62,7 +62,7 @@ SERVICE_DEFAULTS: Dict[str, Dict] = {
         'max_records': 10,
         # Prerequisite test case to run before other tests
         'prerequisite_testcase': {
-            'enabled': True,
+            'enabled': False,
             'count': 3,  # Number of party IDs to create
             'testcase_file': 'parties/testcases/TestCase_Party_POST.json',
             'test_data_file': 'parties/data_driven/Data_parties_POST.csv',
