@@ -97,8 +97,25 @@ class TestDataManager:
             prereq = self.config.prerequisite_testcase
             print(f"[HOOKS SETUP] prerequisite_testcase type: {type(prereq)}, value: {prereq}")
             logger.info(f"[DEBUG] prerequisite_testcase config: {prereq}")
-            # Support endpoint-specific configs (dict of endpoints)
-            if isinstance(prereq, dict):
+            
+            # Check if this is a single config or multi-endpoint config
+            # Single config has 'testcase_file' at top level
+            # Multi-endpoint config has nested dicts like {'endpoint_name': {...}, 'endpoint_name': {...}}
+            is_single_config = isinstance(prereq, dict) and 'testcase_file' in prereq
+            
+            if is_single_config:
+                # Single prerequisite config (not multi-endpoint)
+                if prereq.get('enabled'):
+                    print(f"[HOOKS SETUP] Executing single prerequisite test case")
+                    logger.info(f"Executing prerequisite test case")
+                    result = self._execute_prerequisite_testcase(prereq)
+                else:
+                    print(f"[HOOKS SETUP] Single prerequisite config is disabled")
+                    logger.info(f"Single prerequisite config is disabled")
+            elif isinstance(prereq, dict):
+                # Multi-endpoint config: dict of endpoints
+                print(f"[HOOKS SETUP] Multi-endpoint configuration detected")
+                logger.info(f"Multi-endpoint configuration detected")
                 # If a specific endpoint is requested via environment variable or CLI, use it
                 import os
                 hook_endpoint = os.environ.get('HOOK_ENDPOINT')
@@ -118,18 +135,18 @@ class TestDataManager:
                 if hook_endpoint and hook_endpoint in prereq:
                     endpoints_to_run = [hook_endpoint]
                 else:
-                    endpoints_to_run = [k for k, v in prereq.items() if v.get('enabled')]
+                    endpoints_to_run = [k for k, v in prereq.items() if isinstance(v, dict) and v.get('enabled')]
                 if not endpoints_to_run:
+                    print(f"[HOOKS SETUP] No enabled prerequisite endpoints found in config")
                     logger.info(f"No enabled prerequisite endpoints found in config.")
                 for endpoint in endpoints_to_run:
                     endpoint_config = prereq[endpoint]
+                    print(f"[HOOKS SETUP] Executing prerequisite test case for endpoint: {endpoint}")
                     logger.info(f"Executing prerequisite test case for endpoint: {endpoint}")
                     result = self._execute_prerequisite_testcase(endpoint_config)
-            elif prereq and prereq.get('enabled'):
-                logger.info(f"Executing prerequisite test case")
-                result = self._execute_prerequisite_testcase(prereq)
             else:
-                logger.info(f"No prerequisite test case configured or disabled")
+                print(f"[HOOKS SETUP] No prerequisite test case configured or invalid config: {prereq}")
+                logger.info(f"No prerequisite test case configured or invalid config")
             logger.info(f"Setup completed for service: {self.service_name}")
             print(f"[HOOKS SETUP] ✅ Setup completed successfully for {self.service_name}")
             return True
