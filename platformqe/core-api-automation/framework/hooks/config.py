@@ -76,8 +76,10 @@ SERVICE_DEFAULTS: Dict[str, Dict] = {
     },
     'movemoney': {
         'max_records': 10,
-        # Prerequisite test case for MoveMoneyAPI service
+        # Multiple endpoints, each with its own prerequisite testcase
         'prerequisite_testcase': {
+            # === INSTRUCTIONS ENDPOINT ===
+            'instructions': {
             'enabled': True,
             'count': 1,  # Number of instructionIds to create
             'testcase_file': 'MoveMoneyAPI/testcases/TestCase_instructions_POST.json',
@@ -96,10 +98,34 @@ SERVICE_DEFAULTS: Dict[str, Dict] = {
             },
             'update_csv_file': 'MoveMoneyAPI/data_driven/Data_instructions_instructionId_Delete.csv',
             'csv_columns': ['environment', 'instruction_id', 'version'],
+
+            },
+            # === REQUESTS ENDPOINT ===
+            'requests': {
+                'enabled': True,
+                'count': 1,  # Number of requestIds to create requestId and version for GET/PUT/DELETE flow 
+                'testcase_file': 'MoveMoneyAPI/testcases/TestCase_moneymovement_requestid_POST.json',
+                'test_data_file': 'MoveMoneyAPI/data_driven/Data_MoveMoneyAPI_POST.csv',
+                'extract_from_response': {
+                    'fields': [
+                {
+                    'field': 'requestId',  # Field to extract from API response
+                    'assign_to': 'requestId'    # Variable name to use
+                },
+                {
+                    'field': 'version',  # Field to extract from API response
+                    'assign_to': 'version'    # Variable name to use
+                }
+                    ]
+                },
+
+                'update_csv_file': 'MoveMoneyAPI/data_driven/Data_requests_requestId_GET.csv',
+                'csv_columns': ['environment', 'requestId', 'version', 'instructionId', 'accountId', 'railType', 'amount', 'percent','requestType', 'status', 'reason', 'scheduleType', 'paymentDate', 'frequency', 'startDate', 'endDate'],
+            }
         }
     }
 }
- 
+
 
 
 def get_service_hooks_config(service_name: str) -> HooksConfig:
