@@ -1561,7 +1561,7 @@ def pytest_sessionstart(session):
             if success and service_name == 'movemoney':
                 try:
                     import csv as csv_module
-                    csv_path = os.path.join(os.path.dirname(__file__), 'testdata', 'MoveMoneyAPI', 'data_driven', 'Data_instructions_instructionId_GET.csv')
+                    csv_path = os.path.join(os.path.dirname(__file__), 'testdata', 'MoveMoneyAPI', 'data_driven', 'Data_instructions_instructionId_Delete.csv')
                     if os.path.exists(csv_path):
                         print(f"\n{'='*80}\n[CONFTEST HOOK VERIFICATION] After hooks complete:\n{'='*80}")
                         with open(csv_path, 'r', newline='', encoding='utf-8') as f:
