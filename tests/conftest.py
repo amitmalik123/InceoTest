@@ -16,6 +16,7 @@ Fixture Organization:
 """
 
 import os
+import re
 import subprocess
 from collections.abc import Generator
 from pathlib import Path
@@ -108,6 +109,43 @@ def pytest_sessionstart(session) -> None:
                 print(f"\nCleared old log: {file_path}")
             except Exception as e:
                 print(f"\nWarning: Failed to clear {file_path}: {e}")
+
+
+def _feature_has_tag(feature_name: str, tag_name: str) -> bool:
+    """Check whether a BDD feature file contains a given @tag on any tag line."""
+    features_dir = Path(__file__).resolve().parent / "bdd" / "features"
+    normalized_feature = feature_name.lower()
+    tag = tag_name.lower()
+
+    for feature_file in features_dir.glob("*.feature"):
+        if feature_file.stem.lower() != normalized_feature:
+            continue
+
+        for line in feature_file.read_text(encoding="utf-8", errors="ignore").splitlines():
+            stripped = line.strip()
+            if not stripped.startswith("@"):
+                continue
+            tags = [m.lower() for m in re.findall(r"@([A-Za-z0-9_]+)", stripped)]
+            if tag in tags:
+                return True
+        return False
+
+    return False
+
+
+def pytest_ignore_collect(collection_path: Path, config: pytest.Config) -> bool:
+    """Skip non-regression BDD runners during regression-marked runs."""
+    mark_expr = (getattr(config.option, "markexpr", "") or "").lower()
+    if "regression" not in mark_expr:
+        return False
+
+    normalized_path = str(collection_path).replace("\\", "/").lower()
+    if "/tests/bdd/test_runners/test_" not in normalized_path or not normalized_path.endswith(".py"):
+        return False
+
+    runner_name = Path(normalized_path).stem
+    feature_name = runner_name.replace("test_", "", 1)
+    return not _feature_has_tag(feature_name, "regression")
 
 
 def pytest_collection_modifyitems(config, items) -> None:  # noqa: C901
