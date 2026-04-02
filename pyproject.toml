@@ -201,14 +201,46 @@ exclude_lines = [
 enabled = true
 http_error_log = "reports/network_errors.log"
 allowed_domains = [
+    # ===== Core AssetMark =====
     "assetmark.com",
     "ewealthmanager.com",
     "assetmark.net",
+    
+    # ===== DocuSign Services =====
     "docusign.net",
     "docusign.com",
-    "azure.com",
+    "apps-d.docusign.com",
+    "cdn.docusign.net",
+    "docusignaws.com",
+    "secure.docusign.com",
+    "static.docusign.com",
+    "analytics.docusign.com",
+    "cdn.docusignaws.net",
+    "signingapi.com",
+    "doublecheck.docusign.com",
+    "dsext.docusign.net",
+    "trust.docusign.com",
+    
+    # ===== Microsoft/Outlook/Office365 (from backup) =====
     "outlook.com",
+    "outlook.office.com",
+    "outlook.cloud.microsoft",
+    "office365.com",
+    "microsoftonline.com",
+    "microsoft.com",
+    "msftauth.net",
+    "msauth.net",
+    "live.com",
+    "akamaihd.net",
+    "office.net",
+    
+    # ===== Azure/Corporate =====
+    "azure.com",
     "azncc03perf.corp",
+    "corp.local",
+    
+    # ===== Analytics =====
+    "analytics.google.com",
 ]
 
 [tool.id-capture]
