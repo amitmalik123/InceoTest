@@ -1537,12 +1537,9 @@ def pytest_sessionstart(session):
             try:
                 _test_data_manager = TestDataManager(service_name, environment=env)
                 success = _test_data_manager.setup()
-                logger.info(f"[HOOKS] Setup completed with status: {success}")
             except Exception as e:
-                logger.error(f"[HOOKS] ❌ CRITICAL ERROR during setup(): {type(e).__name__}: {e}")
-                logger.error(f"[HOOKS] Traceback:", exc_info=True)
-                print(f"\n[HOOKS] ❌ CRITICAL ERROR during setup():")
-                print(f"[HOOKS] {type(e).__name__}: {e}")
+                logger.error(f"Setup failed for {service_name}: {type(e).__name__}: {e}", exc_info=True)
+                print(f"\n[HOOKS] ERROR: {type(e).__name__}: {e}")
                 import traceback
                 traceback.print_exc()
                 success = False
@@ -1555,8 +1552,7 @@ def pytest_sessionstart(session):
             }
             
             if not success:
-                logger.warning(f"[HOOKS] ⚠️ Setup completed but returned False - hooks may not have executed properly")
-                print(f"\n[HOOKS] ⚠️ Setup returned False - check logs above for details")
+                logger.warning(f"Hooks setup returned False for {service_name}")
             
             # Force file system sync after hooks write CSV (fixes Docker/pipeline lag)
             import time
@@ -1565,33 +1561,22 @@ def pytest_sessionstart(session):
                 try:
                     if os.name == 'posix':  # Linux/Mac
                         subprocess.run(['sync'], check=False, timeout=5)
-                        logger.info("[CONFTEST] ✅ OS sync executed after hooks")
                 except Exception as e:
-                    logger.debug(f"[CONFTEST] OS sync (non-blocking): {e}")
-                print(f"[CONFTEST] ⏳ Waiting 10 seconds for file system sync...")
-                logger.info(f"[CONFTEST] ⏳ Waiting 10 seconds for file system sync...")
+                    logger.debug(f"OS sync failed: {e}")
                 time.sleep(10)  # 10 second delay to ensure file system catches up in Docker/pipeline
-                logger.info("[CONFTEST] ✅ Hooks completed, 10s file sync confirmed")
             
-            # Verify CSV was updated by reading it back
+            # Verify CSV was updated (quietly - just verify readability)
             if success and service_name == 'movemoney':
                 try:
-                    import csv as csv_module
                     csv_path = os.path.join(os.path.dirname(__file__), 'testdata', 'MoveMoneyAPI', 'data_driven', 'Data_instructions_instructionId_Delete.csv')
-                    if os.path.exists(csv_path):
-                        print(f"\n{'='*80}\n[CONFTEST HOOK VERIFICATION] After hooks complete:\n{'='*80}")
-                        with open(csv_path, 'r', newline='', encoding='utf-8') as f:
-                            reader = csv_module.reader(f)
-                            csv_content = list(reader)
-                        print(f"CSV File: {csv_path}")
-                        print(f"CSV Contents: {csv_content}")
-                        logger.info(f"[CONFTEST] Hook verification - CSV contents: {csv_content}")
-                        print(f"{'='*80}\n")
+                    if not os.path.exists(csv_path):
+                        logger.warning(f"CSV file not found: {csv_path}")
                     else:
-                        print(f"\n[CONFTEST HOOK VERIFICATION] CSV file not found: {csv_path}")
-                        logger.warning(f"[CONFTEST] CSV file not found: {csv_path}")
+                        # Quick read to verify file was written
+                        with open(csv_path, 'r', newline='', encoding='utf-8') as f:
+                            f.read(100)  # Just read first 100 chars to verify
                 except Exception as e:
-                    logger.warning(f"[CONFTEST] Failed to verify CSV: {e}")
+                    logger.warning(f"CSV verification failed: {e}")
             
             if success:
                 logger.info(f"Hooks completed successfully for {service_name}")
