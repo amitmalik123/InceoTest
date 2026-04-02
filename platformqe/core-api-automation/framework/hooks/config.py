@@ -80,7 +80,7 @@ SERVICE_DEFAULTS: Dict[str, Dict] = {
         # Supports multiple endpoints: requests and instructions
         'prerequisite_testcase': {
             # === INSTRUCTIONS ENDPOINT ===
-            'instructions': {
+            
                 'enabled': True,
                 'count': 1,  # Create instructionId and version for GET/PUT/DELETE flow 
                 'testcase_file': 'MoveMoneyAPI/testcases/TestCase_instructions_POST.json',
@@ -101,7 +101,7 @@ SERVICE_DEFAULTS: Dict[str, Dict] = {
                 'update_csv_file': 'MoveMoneyAPI/data_driven/Data_instructions_instructionId_GET.csv',
                 'csv_columns': ['environment', 'instructionId', 'version'],
             }
-        }
+        
     }
 }
  
