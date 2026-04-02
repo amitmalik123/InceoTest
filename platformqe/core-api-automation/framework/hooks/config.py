@@ -107,20 +107,31 @@ def get_service_hooks_config(service_name: str) -> HooksConfig:
     Get hooks configuration for a service.
     
     Args:
-        service_name: Name of the service
+        service_name: Name of the service (e.g., 'MoveMoneyAPI' or 'movemoney')
         
     Returns:
         HooksConfig for the service
     """
+    # Service name mapping (handle case variations and aliases)
+    SERVICE_NAME_MAPPING = {
+        'MoveMoneyAPI': 'movemoney',
+        'movemoney': 'movemoney',
+        'Parties': 'parties',
+        'parties': 'parties',
+    }
+    
+    # Normalize service name using mapping
+    normalized_service_name = SERVICE_NAME_MAPPING.get(service_name, service_name.lower())
+    
     # Create config
     hooks_config = HooksConfig.from_service_name(service_name)
     
-    # Apply service-specific defaults if available (try exact match first, then lowercase)
-    if service_name in SERVICE_DEFAULTS:
-        defaults = SERVICE_DEFAULTS[service_name]
+    # Apply service-specific defaults if available
+    if normalized_service_name in SERVICE_DEFAULTS:
+        defaults = SERVICE_DEFAULTS[normalized_service_name]
         hooks_config.max_records = defaults.get('max_records', 10)
         hooks_config.prerequisite_testcase = defaults.get('prerequisite_testcase', {})
-        logger.debug(f"[HOOKS CONFIG] Loaded config for service: {service_name}")
+        logger.debug(f"[HOOKS CONFIG] Loaded config for service: {service_name} (normalized: {normalized_service_name})")
         
         # Log endpoint-specific configurations
         prereq_tc = hooks_config.prerequisite_testcase

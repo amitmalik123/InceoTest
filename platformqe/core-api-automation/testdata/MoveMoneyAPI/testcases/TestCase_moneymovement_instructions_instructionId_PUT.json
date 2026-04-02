@@ -1,7 +1,7 @@
 [
     {
         "test_id": "TC001",
-        "service_name": "MoveMoneyAPI",
+        "service_name": "movemoney",
         "workflow_mode": "sequential",
         "test_name": "PUT /instructions/{instructionId} [positive] (TC001)",
         "protocol": "REST",
@@ -96,7 +96,7 @@
     },
     {
         "test_id": "TC002",
-        "service_name": "MoveMoneyAPI",
+        "service_name": "movemoney",
         "workflow_mode": "sequential",
         "test_name": "PUT /instructions/{instructionId} [Positive] (TC002)",
         "protocol": "REST",
@@ -208,7 +208,7 @@
     },
     {
         "test_id": "TC003",
-        "service_name": "MoveMoneyAPI",
+        "service_name": "movemoney",
         "workflow_mode": "sequential",
         "test_name": "PUT /instructions/{instructionId} [negative: Invalid routing number] (TC003)",
         "protocol": "REST",
@@ -295,7 +295,7 @@
     },
     {
         "test_id": "TC004",
-        "service_name": "MoveMoneyAPI",
+        "service_name": "movemoney",
         "workflow_mode": "parallel",
         "test_name": "PUT /instructions/{instructionId} [negative: Missing required field] (TC004)",
         "protocol": "REST",
@@ -381,7 +381,7 @@
     },
     {
         "test_id": "TC005",
-        "service_name": "MoveMoneyAPI",
+        "service_name": "movemoney",
         "workflow_mode": "parallel",
         "test_name": "PUT /instructions/{instructionId} [negative: Invalid accountId] (TC005)",
         "protocol": "REST",
@@ -468,7 +468,7 @@
     },
     {
         "test_id": "TC006",
-        "service_name": "MoveMoneyAPI",
+        "service_name": "movemoney",
         "workflow_mode": "parallel",
         "test_name": "PUT /instructions/{instructionId} [negative: invalid status] (TC006)",
         "protocol": "REST",
@@ -555,7 +555,7 @@
     },
     {
         "test_id": "TC007",
-        "service_name": "MoveMoneyAPI",
+        "service_name": "movemoney",
         "workflow_mode": "parallel",
         "test_name": "PUT /instructions/{instructionId} [negative: invalid holderRelation] (TC007)",
         "protocol": "REST",
@@ -642,7 +642,7 @@
     },
     {
         "test_id": "TC008",
-        "service_name": "MoveMoneyAPI",
+        "service_name": "movemoney",
         "workflow_mode": "parallel",
         "test_name": "PUT /instructions/{instructionId} [negative: invalid railType] (TC008)",
         "protocol": "REST",
@@ -729,7 +729,7 @@
     },
     {
         "test_id": "TC009",
-        "service_name": "MoveMoneyAPI",
+        "service_name": "movemoney",
         "workflow_mode": "parallel",
         "test_name": "PUT /instructions/{instructionId} [negative: version mismatch] (TC009)",
         "protocol": "REST",
@@ -814,7 +814,7 @@
     },
     {
         "test_id": "TC010",
-        "service_name": "MoveMoneyAPI",
+        "service_name": "movemoney",
         "workflow_mode": "sequential",
         "test_name": "PUT /instructions/{instructionId} [positive: changeState update persists] (TC010)",
         "protocol": "REST",

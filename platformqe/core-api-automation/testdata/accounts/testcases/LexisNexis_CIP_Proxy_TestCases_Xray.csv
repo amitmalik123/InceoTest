@@ -1,0 +1,140 @@
+TCID,Summary,Pre-requisite,Step Action,Step Data,Step Expected Result,Issue Type,Test Type,Test Folder,Story,Assigned Team 
+TC001,Verify CIP Consumer search with recommended fields,"1. LexisNexis CIP Proxy Manual is deployed and accessible
+2. Valid authentication token is available
+3. Test consumer data available (First Name, Last Name, SSN, ZIP)",Obtain valid Azure AD authentication token,Azure AD credentials,Valid bearer token obtained,Test,Manual,LexisNexis CIP Proxy,PRODENG-15924,Custodial Data Ops
+TC001,Verify CIP Consumer search with recommended fields,"1. LexisNexis CIP Proxy Manual is deployed and accessible
+2. Valid authentication token is available
+3. Test consumer data available (First Name, Last Name, SSN, ZIP)","Send POST request to /cip/consumer endpoint with First Name, Last Name, SSN, ZIP",Consumer data with recommended fields,"Request sent successfully, HTTP 200 status code",Test,Manual,LexisNexis CIP Proxy,PRODENG-15924,Custodial Data Ops
+TC001,Verify CIP Consumer search with recommended fields,"1. LexisNexis CIP Proxy Manual is deployed and accessible
+2. Valid authentication token is available
+3. Test consumer data available (First Name, Last Name, SSN, ZIP)",Review the response,Response payload,Response contains LexisNexis match data structure with Status field and verification results,Test,Manual,LexisNexis CIP Proxy,PRODENG-15924,Custodial Data Ops
+TC002,Verify CIP Consumer search with minimal fields (SSN + ZIP only),"1. LexisNexis CIP Proxy Manual is deployed and accessible
+2. Valid authentication token is available
+3. Test data with SSN and ZIP available",Obtain valid Azure AD authentication token,Azure AD credentials,Valid bearer token obtained,Test,Manual,LexisNexis CIP Proxy,PRODENG-15924,Custodial Data Ops
+TC002,Verify CIP Consumer search with minimal fields (SSN + ZIP only),"1. LexisNexis CIP Proxy Manual is deployed and accessible
+2. Valid authentication token is available
+3. Test data with SSN and ZIP available","Send POST request to /cip/consumer endpoint with only SSN and ZIP (no First Name, no Last Name)",Minimal consumer data: SSN and ZIP only,"Request sent successfully, HTTP 200 status code",Test,Manual,LexisNexis CIP Proxy,PRODENG-15924,Custodial Data Ops
+TC002,Verify CIP Consumer search with minimal fields (SSN + ZIP only),"1. LexisNexis CIP Proxy Manual is deployed and accessible
+2. Valid authentication token is available
+3. Test data with SSN and ZIP available",Review the response,Response payload,"Response contains match data, proxy successfully passes through minimal fields without validation, response structure matches LexisNexis schema",Test,Manual,LexisNexis CIP Proxy,PRODENG-15924,Custodial Data Ops
+TC003,Verify CIP Consumer search with only Last Name and ZIP,"1. LexisNexis CIP Proxy Manual is deployed and accessible
+2. Valid authentication token is available
+3. Test data with Last Name and ZIP available",Obtain valid Azure AD authentication token,Azure AD credentials,Valid bearer token obtained,Test,Manual,LexisNexis CIP Proxy,PRODENG-15924,Custodial Data Ops
+TC003,Verify CIP Consumer search with only Last Name and ZIP,"1. LexisNexis CIP Proxy Manual is deployed and accessible
+2. Valid authentication token is available
+3. Test data with Last Name and ZIP available",Send POST request to /cip/consumer endpoint,"Last Name and ZIP (No First Name, No SSN)","Request sent successfully, HTTP 200 status code",Test,Manual,LexisNexis CIP Proxy,PRODENG-15924,Custodial Data Ops
+TC003,Verify CIP Consumer search with only Last Name and ZIP,"1. LexisNexis CIP Proxy Manual is deployed and accessible
+2. Valid authentication token is available
+3. Test data with Last Name and ZIP available",Review the response,Response payload,"Response contains potential match data, proxy passes through sparse request without validation, response indicates match confidence level",Test,Manual,LexisNexis CIP Proxy,PRODENG-15924,Custodial Data Ops
+TC004,Verify CIP Consumer search with all optional fields,"1. LexisNexis CIP Proxy Manual is deployed and accessible
+2. Valid authentication token is available
+3. Complete test consumer data available (all fields)",Obtain valid Azure AD authentication token,Azure AD credentials,Valid bearer token obtained,Test,Manual,LexisNexis CIP Proxy,PRODENG-15924,Custodial Data Ops
+TC004,Verify CIP Consumer search with all optional fields,"1. LexisNexis CIP Proxy Manual is deployed and accessible
+2. Valid authentication token is available
+3. Complete test consumer data available (all fields)",Send POST request to /cip/consumer endpoint,"All fields: First Name, Last Name, SSN, ZIP, DOB, HomePhone, Full Address components","Request sent successfully, HTTP 200 status code",Test,Manual,LexisNexis CIP Proxy,PRODENG-15924,Custodial Data Ops
+TC004,Verify CIP Consumer search with all optional fields,"1. LexisNexis CIP Proxy Manual is deployed and accessible
+2. Valid authentication token is available
+3. Complete test consumer data available (all fields)",Review the response,Response payload,"Response contains high-confidence match data, all request fields successfully passed through to LexisNexis, more detailed verification results returned",Test,Manual,LexisNexis CIP Proxy,PRODENG-15924,Custodial Data Ops
+TC005,Verify CIP Business search with recommended fields,"1. LexisNexis CIP Proxy Manual is deployed and accessible
+2. Valid authentication token is available
+3. Test business data available",Obtain valid Azure AD authentication token,Azure AD credentials,Valid bearer token obtained,Test,Manual,LexisNexis CIP Proxy,PRODENG-15924,Custodial Data Ops
+TC005,Verify CIP Business search with recommended fields,"1. LexisNexis CIP Proxy Manual is deployed and accessible
+2. Valid authentication token is available
+3. Test business data available",Send POST request to /cip/business endpoint,"company_name, company_zip, company_fein, company_phone, authrep_first, authrep_last","Request sent successfully, HTTP 200 status code",Test,Manual,LexisNexis CIP Proxy,PRODENG-15924,Custodial Data Ops
+TC005,Verify CIP Business search with recommended fields,"1. LexisNexis CIP Proxy Manual is deployed and accessible
+2. Valid authentication token is available
+3. Test business data available",Review the response,Response payload,"Response contains business verification data, authorized representative verification included, business watchlist check results returned",Test,Manual,LexisNexis CIP Proxy,PRODENG-15924,Custodial Data Ops
+TC006,Verify CIP Business search with minimal fields,"1. LexisNexis CIP Proxy Manual is deployed and accessible
+2. Valid authentication token is available
+3. Test data with company_name and company_zip available",Obtain valid Azure AD authentication token,Azure AD credentials,Valid bearer token obtained,Test,Manual,LexisNexis CIP Proxy,PRODENG-15924,Custodial Data Ops
+TC006,Verify CIP Business search with minimal fields,"1. LexisNexis CIP Proxy Manual is deployed and accessible
+2. Valid authentication token is available
+3. Test data with company_name and company_zip available",Send POST request to /cip/business endpoint,Only company_name and company_zip,"Request sent successfully, HTTP 200 status code",Test,Manual,LexisNexis CIP Proxy,PRODENG-15924,Custodial Data Ops
+TC006,Verify CIP Business search with minimal fields,"1. LexisNexis CIP Proxy Manual is deployed and accessible
+2. Valid authentication token is available
+3. Test data with company_name and company_zip available",Review the response,Response payload,"Response contains business match data, proxy passes through minimal business data without validation, LexisNexis accepts and processes sparse business data",Test,Manual,LexisNexis CIP Proxy,PRODENG-15924,Custodial Data Ops
+TC007,Verify proxy accepts empty/sparse request (pass-through validation),"1. LexisNexis CIP Proxy Manual is deployed and accessible
+2. Valid authentication token is available",Obtain valid Azure AD authentication token,Azure AD credentials,Valid bearer token obtained,Test,Manual,LexisNexis CIP Proxy,PRODENG-15924,Custodial Data Ops
+TC007,Verify proxy accepts empty/sparse request (pass-through validation),"1. LexisNexis CIP Proxy Manual is deployed and accessible
+2. Valid authentication token is available",Send POST request to /cip/consumer endpoint,JSON containing mostly null/empty fields,"Request sent successfully, proxy accepts request without validation",Test,Manual,LexisNexis CIP Proxy,PRODENG-15924,Custodial Data Ops
+TC007,Verify proxy accepts empty/sparse request (pass-through validation),"1. LexisNexis CIP Proxy Manual is deployed and accessible
+2. Valid authentication token is available",Review the response,Response payload,"HTTP 200 or LexisNexis error code returned, proxy forwards request to LexisNexis unchanged, validates proxy does not perform input validation",Test,Manual,LexisNexis CIP Proxy,PRODENG-15924,Custodial Data Ops
+TC008,Verify proxy forwards extra/unknown fields in request,"1. LexisNexis CIP Proxy Manual is deployed and accessible
+2. Valid authentication token is available
+3. Test consumer data with custom fields",Obtain valid Azure AD authentication token,Azure AD credentials,Valid bearer token obtained,Test,Manual,LexisNexis CIP Proxy,PRODENG-15924,Custodial Data Ops
+TC008,Verify proxy forwards extra/unknown fields in request,"1. LexisNexis CIP Proxy Manual is deployed and accessible
+2. Valid authentication token is available
+3. Test consumer data with custom fields",Send POST request to /cip/consumer endpoint,"Standard fields (First Name, Last Name, SSN, ZIP) + custom/unknown fields","Request sent successfully, proxy accepts request with extra fields",Test,Manual,LexisNexis CIP Proxy,PRODENG-15924,Custodial Data Ops
+TC008,Verify proxy forwards extra/unknown fields in request,"1. LexisNexis CIP Proxy Manual is deployed and accessible
+2. Valid authentication token is available
+3. Test consumer data with custom fields",Review the request forwarded and response,Request/response payloads,"All fields forwarded to LexisNexis unchanged, validates true pass-through behavior",Test,Manual,LexisNexis CIP Proxy,PRODENG-15924,Custodial Data Ops
+TC009,Verify proxy returns exact LexisNexis error responses,"1. LexisNexis CIP Proxy Manual is deployed and accessible
+2. Valid authentication token is available
+3. Test data that triggers LexisNexis error",Obtain valid Azure AD authentication token,Azure AD credentials,Valid bearer token obtained,Test,Manual,LexisNexis CIP Proxy,PRODENG-15924,Custodial Data Ops
+TC009,Verify proxy returns exact LexisNexis error responses,"1. LexisNexis CIP Proxy Manual is deployed and accessible
+2. Valid authentication token is available
+3. Test data that triggers LexisNexis error",Send POST request to /cip/consumer endpoint with data that triggers LexisNexis error,Invalid or problematic consumer data,"Request forwarded to LexisNexis, error response received",Test,Manual,LexisNexis CIP Proxy,PRODENG-15924,Custodial Data Ops
+TC009,Verify proxy returns exact LexisNexis error responses,"1. LexisNexis CIP Proxy Manual is deployed and accessible
+2. Valid authentication token is available
+3. Test data that triggers LexisNexis error",Review error response from proxy,Error response payload,"Proxy returns exact LexisNexis error response without modification, error format and content preserved",Test,Manual,LexisNexis CIP Proxy,PRODENG-15924,Custodial Data Ops
+TC010,Verify authentication enforcement on Consumer endpoint,"1. LexisNexis CIP Proxy Manual is deployed and accessible
+2. Test consumer data available",Send POST request to /cip/consumer WITHOUT authentication token,Consumer data without bearer token,"Request rejected, HTTP 401 Unauthorized returned",Test,Manual,LexisNexis CIP Proxy,PRODENG-15924,Custodial Data Ops
+TC010,Verify authentication enforcement on Consumer endpoint,"1. LexisNexis CIP Proxy Manual is deployed and accessible
+2. Test consumer data available",Review error response,Response payload,Error message indicates authentication required,Test,Manual,LexisNexis CIP Proxy,PRODENG-15924,Custodial Data Ops
+TC011,Verify authentication enforcement on Business endpoint,"1. LexisNexis CIP Proxy Manual is deployed and accessible
+2. Test business data available",Send POST request to /cip/business WITHOUT authentication token,Business data without bearer token,"Request rejected, HTTP 401 Unauthorized returned",Test,Manual,LexisNexis CIP Proxy,PRODENG-15924,Custodial Data Ops
+TC011,Verify authentication enforcement on Business endpoint,"1. LexisNexis CIP Proxy Manual is deployed and accessible
+2. Test business data available",Review error response,Response payload,Error message indicates authentication required,Test,Manual,LexisNexis CIP Proxy,PRODENG-15924,Custodial Data Ops
+TC012,Verify invalid token rejection,"1. LexisNexis CIP Proxy Manual is deployed and accessible
+2. Invalid or expired Azure AD token available",Obtain invalid or expired Azure AD token,Invalid or expired credentials,Invalid token obtained,Test,Manual,LexisNexis CIP Proxy,PRODENG-15924,Custodial Data Ops
+TC012,Verify invalid token rejection,"1. LexisNexis CIP Proxy Manual is deployed and accessible
+2. Invalid or expired Azure AD token available",Send POST request to /cip/consumer with invalid token,Consumer data with invalid bearer token,"Request rejected, HTTP 401 or 403 returned",Test,Manual,LexisNexis CIP Proxy,PRODENG-15924,Custodial Data Ops
+TC012,Verify invalid token rejection,"1. LexisNexis CIP Proxy Manual is deployed and accessible
+2. Invalid or expired Azure AD token available",Review error response,Response payload,Error message indicates authentication failure or token invalid,Test,Manual,LexisNexis CIP Proxy,PRODENG-15924,Custodial Data Ops
+TC013,Verify HTTPS/TLS enforcement on Consumer endpoint,"1. LexisNexis CIP Proxy Manual is deployed and accessible
+2. Valid authentication token is available",Attempt HTTP (non-HTTPS) connection to /cip/consumer,Consumer data over HTTP protocol,Connection refused or automatically redirected to HTTPS,Test,Manual,LexisNexis CIP Proxy,PRODENG-15924,Custodial Data Ops
+TC013,Verify HTTPS/TLS enforcement on Consumer endpoint,"1. LexisNexis CIP Proxy Manual is deployed and accessible
+2. Valid authentication token is available",Review connection result,Connection response,HTTP connections not allowed or redirected to secure connection,Test,Manual,LexisNexis CIP Proxy,PRODENG-15924,Custodial Data Ops
+TC014,Verify HTTPS/TLS enforcement on Business endpoint,"1. LexisNexis CIP Proxy Manual is deployed and accessible
+2. Valid authentication token is available",Attempt HTTP (non-HTTPS) connection to /cip/business,Business data over HTTP protocol,Connection refused or automatically redirected to HTTPS,Test,Manual,LexisNexis CIP Proxy,PRODENG-15924,Custodial Data Ops
+TC014,Verify HTTPS/TLS enforcement on Business endpoint,"1. LexisNexis CIP Proxy Manual is deployed and accessible
+2. Valid authentication token is available",Review connection result,Connection response,HTTP connections not allowed or redirected to secure connection,Test,Manual,LexisNexis CIP Proxy,PRODENG-15924,Custodial Data Ops
+TC015,Verify logging of successful Consumer requests with PII masking,"1. LexisNexis CIP Proxy Manual is deployed and accessible
+2. Valid authentication token is available
+3. Access to application logs",Obtain valid Azure AD authentication token,Azure AD credentials,Valid bearer token obtained,Test,Manual,LexisNexis CIP Proxy,PRODENG-15924,Custodial Data Ops
+TC015,Verify logging of successful Consumer requests with PII masking,"1. LexisNexis CIP Proxy Manual is deployed and accessible
+2. Valid authentication token is available
+3. Access to application logs",Send POST request to /cip/consumer with SSN and sensitive data,Consumer data including SSN and other PII,"Request processed successfully, HTTP 200 returned",Test,Manual,LexisNexis CIP Proxy,PRODENG-15924,Custodial Data Ops
+TC015,Verify logging of successful Consumer requests with PII masking,"1. LexisNexis CIP Proxy Manual is deployed and accessible
+2. Valid authentication token is available
+3. Access to application logs",Review application logs,Log entries,"Request logged with SSN, ZIP, and DOB masked/redacted, PII protection enforced in logs",Test,Manual,LexisNexis CIP Proxy,PRODENG-15924,Custodial Data Ops
+TC016,Verify Consumer endpoint availability and response time,"1. LexisNexis CIP Proxy Manual is deployed and accessible
+2. Valid authentication token is available
+3. Test consumer data available",Obtain valid Azure AD authentication token,Azure AD credentials,Valid bearer token obtained,Test,Manual,LexisNexis CIP Proxy,PRODENG-15924,Custodial Data Ops
+TC016,Verify Consumer endpoint availability and response time,"1. LexisNexis CIP Proxy Manual is deployed and accessible
+2. Valid authentication token is available
+3. Test consumer data available",Send POST request to /cip/consumer endpoint and measure response time,Consumer data with performance monitoring,"Request sent successfully, response time recorded",Test,Manual,LexisNexis CIP Proxy,PRODENG-15924,Custodial Data Ops
+TC016,Verify Consumer endpoint availability and response time,"1. LexisNexis CIP Proxy Manual is deployed and accessible
+2. Valid authentication token is available
+3. Test consumer data available",Verify response time meets SLA,Response time metrics,"Endpoint responds within acceptable time limits (e.g., < 5 seconds), SLA requirements met",Test,Manual,LexisNexis CIP Proxy,PRODENG-15924,Custodial Data Ops
+TC017,Verify Business endpoint availability and response time,"1. LexisNexis CIP Proxy Manual is deployed and accessible
+2. Valid authentication token is available
+3. Test business data available",Obtain valid Azure AD authentication token,Azure AD credentials,Valid bearer token obtained,Test,Manual,LexisNexis CIP Proxy,PRODENG-15924,Custodial Data Ops
+TC017,Verify Business endpoint availability and response time,"1. LexisNexis CIP Proxy Manual is deployed and accessible
+2. Valid authentication token is available
+3. Test business data available",Send POST request to /cip/business endpoint and measure response time,Business data with performance monitoring,"Request sent successfully, response time recorded",Test,Manual,LexisNexis CIP Proxy,PRODENG-15924,Custodial Data Ops
+TC017,Verify Business endpoint availability and response time,"1. LexisNexis CIP Proxy Manual is deployed and accessible
+2. Valid authentication token is available
+3. Test business data available",Verify response time meets SLA,Response time metrics,"Endpoint responds within acceptable time limits (e.g., < 5 seconds), SLA requirements met",Test,Manual,LexisNexis CIP Proxy,PRODENG-15924,Custodial Data Ops
+TC018,Verify Manual documentation accuracy for Consumer endpoint,"1. Manual documentation is available
+2. LexisNexis CIP Proxy Manual is deployed and accessible
+3. Valid authentication token is available",Review Manual documentation for /cip/consumer endpoint,Manual documentation,Documentation reviewed and understood,Test,Manual,LexisNexis CIP Proxy,PRODENG-15924,Custodial Data Ops
+TC018,Verify Manual documentation accuracy for Consumer endpoint,"1. Manual documentation is available
+2. LexisNexis CIP Proxy Manual is deployed and accessible
+3. Valid authentication token is available",Compare documented request format with actual Manual behavior,Test requests with various formats,Request format matches documentation,Test,Manual,LexisNexis CIP Proxy,PRODENG-15924,Custodial Data Ops
+TC018,Verify Manual documentation accuracy for Consumer endpoint,"1. Manual documentation is available
+2. LexisNexis CIP Proxy Manual is deployed and accessible
+3. Valid authentication token is available",Compare documented response format with actual Manual behavior,Test responses from Manual,Response format matches documentation,Test,Manual,LexisNexis CIP Proxy,PRODENG-15924,Custodial Data Ops
+TC018,Verify Manual documentation accuracy for Consumer endpoint,"1. Manual documentation is available
+2. LexisNexis CIP Proxy Manual is deployed and accessible
+3. Valid authentication token is available",Verify documented authentication requirements match implementation,Authentication tests,"Manual documentation accurately describes endpoint behavior, request/response formats, and authentication requirements",Test,Manual,LexisNexis CIP Proxy,PRODENG-15924,Custodial Data Ops

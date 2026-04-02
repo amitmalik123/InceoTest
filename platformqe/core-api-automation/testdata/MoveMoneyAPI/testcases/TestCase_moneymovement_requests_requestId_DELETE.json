@@ -1,7 +1,7 @@
 [
     {
         "test_id": "TC001_SETUP",
-        "service_name": "MoveMoneyAPI",
+        "service_name": "movemoney",
         "workflow_mode": "sequential",
         "test_name": "POST /requests - Create request for deletion test",
         "protocol": "REST",
@@ -91,7 +91,7 @@
     },
     {
         "test_id": "TC001",
-        "service_name": "MoveMoneyAPI",
+        "service_name": "movemoney",
         "workflow_mode": "sequential",
         "test_name": "DELETE /requests/{requestId} [positive] (TC001)",
         "protocol": "REST",
@@ -196,7 +196,7 @@
     },
     {
         "test_id": "TC002",
-        "service_name": "MoveMoneyAPI",
+        "service_name": "movemoney",
         "workflow_mode": "parallel",
         "test_name": "DELETE /requests/{requestId} [negative: invalid UUID format] (TC002)",
         "protocol": "REST",
@@ -275,7 +275,7 @@
     },
     {
         "test_id": "TC003",
-        "service_name": "MoveMoneyAPI",
+        "service_name": "movemoney",
         "workflow_mode": "parallel",
         "test_name": "DELETE /requests/{requestId} [negative: not found returns 204] (TC003)",
         "protocol": "REST",

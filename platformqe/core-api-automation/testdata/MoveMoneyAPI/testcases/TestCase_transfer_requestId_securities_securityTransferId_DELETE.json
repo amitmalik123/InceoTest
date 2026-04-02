@@ -1,7 +1,7 @@
 [
     {
         "test_id": "TC001_SETUP",
-        "service_name": "MoveMoneyAPI",
+        "service_name": "movemoney",
         "workflow_mode": "sequential",
         "test_name": "TC001_SETUP - POST /transfer/{requestId}/securities - Create security transfer for delete flow",
         "protocol": "REST",
@@ -67,7 +67,7 @@
     },
     {
         "test_id": "TC001",
-        "service_name": "MoveMoneyAPI",
+        "service_name": "movemoney",
         "workflow_mode": "sequential",
         "test_name": "TC001 - GET /{{requestId}} - Capture latest securityTransferId",
         "protocol": "REST",
@@ -129,7 +129,7 @@
     },
     {
         "test_id": "TC002",
-        "service_name": "MoveMoneyAPI",
+        "service_name": "movemoney",
         "workflow_mode": "sequential",
         "test_name": "TC002 - DELETE /{requestId}/securities/{securityTransferId} [positive]",
         "protocol": "REST",
@@ -184,7 +184,7 @@
     },
     {
         "test_id": "TC003",
-        "service_name": "MoveMoneyAPI",
+        "service_name": "movemoney",
         "workflow_mode": "sequential",
         "test_name": "TC003 - DELETE /transfer/{requestId}/securities/{securityTransferId} [negative: already deleted]",
         "protocol": "REST",

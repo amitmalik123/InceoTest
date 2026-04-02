@@ -1,0 +1,238 @@
+[
+  {
+    "test_id": "TC_ENUM_001",
+    "jira_id": "PRODENG-22284",
+    "service_name": "EmailNotificationService",
+    "test_name": "Database Data Validation - Verify all 6 enum entries with correct values and match AC1",
+    "test_type": ["Functional", "Data Validation", "Acceptance Criteria"],
+    "test_category": "Positive",
+    "description": "Verify that all 6 email notification category enum entries exist in database with correct Name and Description values matching story AC1 specifications exactly",
+    "preconditions": [
+      "Migration script has been executed",
+      "Database contains EmailNotificationGroupEnum table with data"
+    ],
+    "steps": [
+      {
+        "step_number": 1,
+        "description": "Retrieve all enum entries ordered by name",
+        "action": "Query DB: SELECT [Name], [Description] FROM EmailNotificationGroupEnum WHERE CreatedBy='PRODENG-22284' ORDER BY [Name]"
+      },
+      {
+        "step_number": 2,
+        "description": "Verify receivedCompletedNewAccounts record",
+        "action": "Verify query result contains: Name='receivedCompletedNewAccounts', Description='New Accounts'"
+      },
+      {
+        "step_number": 3,
+        "description": "Verify receivedCompletedMoneyIn record",
+        "action": "Verify query result contains: Name='receivedCompletedMoneyIn', Description='Money In'"
+      },
+      {
+        "step_number": 4,
+        "description": "Verify receivedCompletedStandingInstructions record",
+        "action": "Verify query result contains: Name='receivedCompletedStandingInstructions', Description='Standing Instructions'"
+      },
+      {
+        "step_number": 5,
+        "description": "Verify receivedCompletedInvestmentChanges record",
+        "action": "Verify query result contains: Name='receivedCompletedInvestmentChanges', Description='Investment Changes and Journals'"
+      },
+      {
+        "step_number": 6,
+        "description": "Verify receivedCompletedWithdrawals record",
+        "action": "Verify query result contains: Name='receivedCompletedWithdrawals', Description='Withdrawals and Bank Maintenance'"
+      },
+      {
+        "step_number": 7,
+        "description": "Verify receivedCompletedTerminations record",
+        "action": "Verify query result contains: Name='receivedCompletedTerminations', Description='Terminations and Transfer out'"
+      },
+      {
+        "step_number": 8,
+        "description": "Cross-check against AC1 specification",
+        "action": "Compare all 6 returned records against story AC1 table for exact match - no typos, no missing entries, no incorrect values"
+      }
+    ],
+    "expected_results": [
+      {
+        "step": 1,
+        "assertion": "Query returns 6 records",
+        "expected_value": "6 rows returned ordered alphabetically",
+        "verification": "All 6 enum entries are present in database"
+      },
+      {
+        "step": 2,
+        "assertion": "receivedCompletedNewAccounts exists with correct values",
+        "expected_value": {
+          "Name": "receivedCompletedNewAccounts",
+          "Description": "New Accounts"
+        },
+        "verification": "Record found with exact values"
+      },
+      {
+        "step": 3,
+        "assertion": "receivedCompletedMoneyIn exists with correct values",
+        "expected_value": {
+          "Name": "receivedCompletedMoneyIn",
+          "Description": "Money In"
+        },
+        "verification": "Record found with exact values"
+      },
+      {
+        "step": 4,
+        "assertion": "receivedCompletedStandingInstructions exists with correct values",
+        "expected_value": {
+          "Name": "receivedCompletedStandingInstructions",
+          "Description": "Standing Instructions"
+        },
+        "verification": "Record found with exact values"
+      },
+      {
+        "step": 5,
+        "assertion": "receivedCompletedInvestmentChanges exists with correct values",
+        "expected_value": {
+          "Name": "receivedCompletedInvestmentChanges",
+          "Description": "Investment Changes and Journals"
+        },
+        "verification": "Record found with exact values"
+      },
+      {
+        "step": 6,
+        "assertion": "receivedCompletedWithdrawals exists with correct values",
+        "expected_value": {
+          "Name": "receivedCompletedWithdrawals",
+          "Description": "Withdrawals and Bank Maintenance"
+        },
+        "verification": "Record found with exact values"
+      },
+      {
+        "step": 7,
+        "assertion": "receivedCompletedTerminations exists with correct values",
+        "expected_value": {
+          "Name": "receivedCompletedTerminations",
+          "Description": "Terminations and Transfer out"
+        },
+        "verification": "Record found with exact values"
+      },
+      {
+        "step": 8,
+        "assertion": "All records match AC1 specification exactly",
+        "expected_value": [
+          {"Name": "receivedCompletedInvestmentChanges", "Description": "Investment Changes and Journals"},
+          {"Name": "receivedCompletedMoneyIn", "Description": "Money In"},
+          {"Name": "receivedCompletedNewAccounts", "Description": "New Accounts"},
+          {"Name": "receivedCompletedStandingInstructions", "Description": "Standing Instructions"},
+          {"Name": "receivedCompletedTerminations", "Description": "Terminations and Transfer out"},
+          {"Name": "receivedCompletedWithdrawals", "Description": "Withdrawals and Bank Maintenance"}
+        ],
+        "verification": "All 6 records match story AC1 specification exactly - no typos, no missing entries, no incorrect values"
+      }
+    ],
+    "cleanup": "No cleanup required"
+  },
+  {
+    "test_id": "TC_ENUM_002",
+    "jira_id": "PRODENG-22284",
+    "service_name": "EmailNotificationService",
+    "test_name": "Database Data Validation - Verify total count and no duplicates",
+    "test_type": ["Functional", "Data Validation"],
+    "test_category": "Positive",
+    "description": "Verify that exactly 6 email notification enum entries created by PRODENG-22284 exist in the database with no duplicates",
+    "preconditions": [
+      "Migration script has been executed",
+      "Database contains EmailNotificationGroupEnum table"
+    ],
+    "steps": [
+      {
+        "step_number": 1,
+        "description": "Count all records created by PRODENG-22284",
+        "action": "Query DB: SELECT COUNT(*) as total_count FROM EmailNotificationGroupEnum WHERE CreatedBy='PRODENG-22284'"
+      },
+      {
+        "step_number": 2,
+        "description": "Count distinct enum names created by PRODENG-22284",
+        "action": "Query DB: SELECT COUNT(DISTINCT [Name]) as distinct_names FROM EmailNotificationGroupEnum WHERE CreatedBy='PRODENG-22284'"
+      }
+    ],
+    "expected_results": [
+      {
+        "step": 1,
+        "assertion": "Total count of enum entries",
+        "expected_value": "6",
+        "verification": "Exactly 6 records exist"
+      },
+      {
+        "step": 2,
+        "assertion": "Distinct enum names count",
+        "expected_value": "6",
+        "verification": "No duplicate names exist (6 distinct records)"
+      }
+    ],
+    "cleanup": "No cleanup required"
+  },
+  {
+    "test_id": "TC_ENUM_003",
+    "jira_id": "PRODENG-22284",
+    "service_name": "EmailNotificationService",
+    "test_name": "Database Data Validation - Verify CreatedBy and CreatedDate metadata",
+    "test_type": ["Functional", "Data Validation"],
+    "test_category": "Positive",
+    "description": "Verify that all 6 enum entries have correct CreatedBy='PRODENG-22284' and CreatedDate is set to current date",
+    "preconditions": [
+      "Migration script has been executed",
+      "Database contains EmailNotificationGroupEnum table"
+    ],
+    "steps": [
+      {
+        "step_number": 1,
+        "description": "Retrieve all enum entries with metadata",
+        "action": "Query DB: SELECT [Name], [CreatedBy], CAST([CreatedDate] as DATE) as CreatedDate_Only FROM EmailNotificationGroupEnum WHERE CreatedBy='PRODENG-22284' ORDER BY [Name]"
+      }
+    ],
+    "expected_results": [
+      {
+        "step": 1,
+        "assertion": "All records have CreatedBy='PRODENG-22284'",
+        "expected_value": "6 rows with CreatedBy='PRODENG-22284'",
+        "verification": "All records have correct CreatedBy value"
+      },
+      {
+        "step": 1,
+        "assertion": "All records have current date as CreatedDate",
+        "expected_value": "CreatedDate = Today's date for all 6 records",
+        "verification": "CreatedDate is today's date (no NULL values)"
+      }
+    ],
+    "cleanup": "No cleanup required"
+  },
+  {
+    "test_id": "TC_ENUM_004",
+    "jira_id": "PRODENG-22284",
+    "service_name": "EmailNotificationService",
+    "test_name": "Database Data Validation - Verify no NULL values in required fields",
+    "test_type": ["Functional", "Data Validation"],
+    "test_category": "Positive",
+    "description": "Verify that all required fields (Name, Description, CreatedBy, CreatedDate) have non-NULL values for all 6 enum entries",
+    "preconditions": [
+      "Migration script has been executed",
+      "Database contains all 6 enum entries"
+    ],
+    "steps": [
+      {
+        "step_number": 1,
+        "description": "Query for any NULL values in required fields",
+        "action": "Query DB: SELECT [Name], [Description], [CreatedBy], [CreatedDate] FROM EmailNotificationGroupEnum WHERE CreatedBy='PRODENG-22284' AND ([Name] IS NULL OR [Description] IS NULL OR [CreatedBy] IS NULL OR [CreatedDate] IS NULL)"
+      }
+    ],
+    "expected_results": [
+      {
+        "step": 1,
+        "assertion": "No NULL values in required fields",
+        "expected_value": "0 rows returned",
+        "verification": "All required fields have values for all 6 records"
+      }
+    ],
+    "cleanup": "No cleanup required"
+  }
+]
+]

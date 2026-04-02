@@ -1,7 +1,7 @@
 [
     {
         "test_id": "TC001",
-        "service_name": "MoveMoneyAPI",
+        "service_name": "movemoney",
         "workflow_mode": "parallel",
         "test_name": "Replaces an existing allocation for a given money movement transfer request. [positive] (TC001)",
         "protocol": "REST",
@@ -159,7 +159,7 @@
     },
     {
         "test_id": "TC002",
-        "service_name": "MoveMoneyAPI",
+        "service_name": "movemoney",
         "workflow_mode": "parallel",
         "test_name": "Verify the API returns 200 response when the allocation record is updated with provided amount value. [positive] (TC002)",
         "protocol": "REST",
@@ -317,7 +317,7 @@
     },
     {
         "test_id": "TC003",
-        "service_name": "MoveMoneyAPI",
+        "service_name": "movemoney",
         "workflow_mode": "parallel",
         "test_name": "Verify the API returns 204 indicating the allocationId is not found under the given requestId. [negative] (TC003)",
         "protocol": "REST",
@@ -377,7 +377,7 @@
     },
     {
         "test_id": "TC004",
-        "service_name": "MoveMoneyAPI",
+        "service_name": "movemoney",
         "workflow_mode": "parallel",
         "test_name": "PUT /transfer/{requestId}/allocations/{allocationId} [negative: extra param] (TC004)",
         "protocol": "REST",
@@ -423,7 +423,7 @@
     },
     {
         "test_id": "TC005",
-        "service_name": "MoveMoneyAPI",
+        "service_name": "movemoney",
         "workflow_mode": "parallel",
         "test_name": "PUT /transfer/{requestId}/allocations/{allocationId} [negative] (TC005)",
         "protocol": "REST",
@@ -469,7 +469,7 @@
     },
     {
         "test_id": "TC006",
-        "service_name": "MoveMoneyAPI",
+        "service_name": "movemoney",
         "workflow_mode": "parallel",
         "test_name": "PUT /transfer/{requestId}/allocations/{allocationId} [negative] (TC006)",
         "protocol": "REST",
@@ -515,7 +515,7 @@
     },
     {
         "test_id": "TC007",
-        "service_name": "MoveMoneyAPI",
+        "service_name": "movemoney",
         "workflow_mode": "parallel",
         "test_name": "PUT /transfer/{requestId}/allocations/{allocationId} [negative] (TC007)",
         "protocol": "REST",

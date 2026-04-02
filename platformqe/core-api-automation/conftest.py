@@ -1558,7 +1558,7 @@ def pytest_sessionstart(session):
                 logger.info("[CONFTEST] ✅ Hooks completed, 30s file sync confirmed")
             
             # Verify CSV was updated by reading it back
-            if success and service_name == 'MoveMoneyAPI':
+            if success and service_name == 'movemoney':
                 try:
                     import csv as csv_module
                     csv_path = os.path.join(os.path.dirname(__file__), 'testdata', 'MoveMoneyAPI', 'data_driven', 'Data_instructions_instructionId_GET.csv')

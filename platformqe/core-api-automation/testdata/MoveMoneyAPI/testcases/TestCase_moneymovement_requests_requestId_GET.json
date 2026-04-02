@@ -1,7 +1,7 @@
 [
     {
         "test_id": "TC001",
-        "service_name": "MoveMoneyAPI",
+        "service_name": "movemoney",
         "workflow_mode": "parallel",
         "test_name": "GET /requests/{requestId} [positive] (TC001)",
         "protocol": "REST",
@@ -109,7 +109,7 @@
     },
     {
         "test_id": "TC002",
-        "service_name": "MoveMoneyAPI",
+        "service_name": "movemoney",
         "workflow_mode": "parallel",
         "test_name": "GET /requests/{requestId} [positive] (TC002)",
         "protocol": "REST",
@@ -194,7 +194,7 @@
     },
     {
         "test_id": "TC003",
-        "service_name": "MoveMoneyAPI",
+        "service_name": "movemoney",
         "workflow_mode": "parallel",
         "test_name": "GET /requests/{requestId} (TC003)",
         "protocol": "REST",
@@ -255,7 +255,7 @@
     },
     {
         "test_id": "TC004",
-        "service_name": "MoveMoneyAPI",
+        "service_name": "movemoney",
         "workflow_mode": "parallel",
         "test_name": "GET /requests/{requestId} [Negative] (TC004)",
         "protocol": "REST",
@@ -318,7 +318,7 @@
     },
     {
         "test_id": "TC005",
-        "service_name": "MoveMoneyAPI",
+        "service_name": "movemoney",
         "workflow_mode": "parallel",
         "test_name": "GET /requests/{requestId} [Negative] (TC005)",
         "protocol": "REST",
@@ -377,7 +377,7 @@
     },
     {
         "test_id": "TC006",
-        "service_name": "MoveMoneyAPI",
+        "service_name": "movemoney",
         "workflow_mode": "parallel",
         "test_name": "GET /requests/{requestId} [Negative] (TC006)",
         "protocol": "REST",

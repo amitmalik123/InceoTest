@@ -91,7 +91,7 @@ db_connections:
 # API Endpoints - Multiple services and environments
 api_endpoints:
 
-  MoveMoneyAPI:
+  movemoney:
     base_url: "${MOVEMONEY_BASE_URL}"  # Fetched from Azure variable group: qa-pipelines-variable-group-dev
     auth_token: "${MOVEMONEY_API_TOKEN}"   # Use your actual token or environment variable
     timeout: ${API_TIMEOUT:30}

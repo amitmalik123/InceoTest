@@ -1,7 +1,7 @@
 [
     {
         "test_id": "TC001",
-        "service_name": "MoveMoneyAPI",
+        "service_name": "movemoney",
         "workflow_mode": "parallel",
         "test_name": "creates a new allocation for a given money movement transfer request. [positive] (TC001)",
         "protocol": "REST",
@@ -134,7 +134,7 @@
     },
     {
         "test_id": "TC002",
-        "service_name": "MoveMoneyAPI",
+        "service_name": "movemoney",
         "workflow_mode": "parallel",
         "test_name": "creates a new allocation for a given money movement transfer request. [Negative] (TC002)",
         "protocol": "REST",
@@ -186,7 +186,7 @@
     },
     {
         "test_id": "TC003",
-        "service_name": "MoveMoneyAPI",
+        "service_name": "movemoney",
         "workflow_mode": "parallel",
         "test_name": "creates a new allocation for a given money movement transfer request. [Negative] (TC002)",
         "protocol": "REST",
@@ -238,7 +238,7 @@
     },
     {
         "test_id": "TC004",
-        "service_name": "MoveMoneyAPI",
+        "service_name": "movemoney",
         "workflow_mode": "parallel",
         "test_name": "creates a new allocation for a given money movement transfer request. [Negative] (TC002)",
         "protocol": "REST",
@@ -290,7 +290,7 @@
     },
     {
         "test_id": "TC005",
-        "service_name": "MoveMoneyAPI",
+        "service_name": "movemoney",
         "workflow_mode": "parallel",
         "test_name": "creates a new allocation for a given money movement transfer request. [Negative] (TC002)",
         "protocol": "REST",
@@ -342,7 +342,7 @@
     },
     {
         "test_id": "TC006",
-        "service_name": "MoveMoneyAPI",
+        "service_name": "movemoney",
         "workflow_mode": "parallel",
         "test_name": "creates a new allocation for a given money movement transfer request. [Negative] (TC002)",
         "protocol": "REST",
@@ -394,7 +394,7 @@
     },
     {
         "test_id": "TC007",
-        "service_name": "MoveMoneyAPI",
+        "service_name": "movemoney",
         "workflow_mode": "parallel",
         "test_name": "creates a new allocation for a given money movement transfer request. [positive] (TC001)",
         "protocol": "REST",

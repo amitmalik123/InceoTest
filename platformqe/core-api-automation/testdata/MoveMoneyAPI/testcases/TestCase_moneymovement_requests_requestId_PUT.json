@@ -1,7 +1,7 @@
 [
     {
         "test_id": "TC001_SETUP",
-        "service_name": "MoveMoneyAPI",
+        "service_name": "movemoney",
         "workflow_mode": "sequential",
         "test_name": "POST /requests [positive] (TC001_SETUP)",
         "protocol": "REST",
@@ -85,7 +85,7 @@
     },
     {
         "test_id": "TC001",
-        "service_name": "MoveMoneyAPI",
+        "service_name": "movemoney",
         "workflow_mode": "sequential",
         "test_name": "PUT /requests/{requestId} [positive] (TC001)",
         "protocol": "REST",
@@ -176,7 +176,7 @@
     },
     {
         "test_id": "TC002",
-        "service_name": "MoveMoneyAPI",
+        "service_name": "movemoney",
         "workflow_mode": "sequential",
         "test_name": "PUT /requests/{requestId} [positive] (TC002)",
         "protocol": "REST",
@@ -263,7 +263,7 @@
     },
     {
         "test_id": "TC003",
-        "service_name": "MoveMoneyAPI",
+        "service_name": "movemoney",
         "workflow_mode": "sequential",
         "test_name": "PUT /requests/{requestId} [positive] (TC003)",
         "protocol": "REST",
@@ -355,7 +355,7 @@
     },
     {
         "test_id": "TC004",
-        "service_name": "MoveMoneyAPI",
+        "service_name": "movemoney",
         "workflow_mode": "parallel",
         "test_name": "PUT /requests/{requestId}  (TC004)",
         "protocol": "REST",
@@ -420,7 +420,7 @@
     },
     {
         "test_id": "TC005",
-        "service_name": "MoveMoneyAPI",
+        "service_name": "movemoney",
         "workflow_mode": "parallel",
         "test_name": "PUT /requests/{requestId}  (TC005)",
         "protocol": "REST",
@@ -502,7 +502,7 @@
     },
     {
         "test_id": "TC006",
-        "service_name": "MoveMoneyAPI",
+        "service_name": "movemoney",
         "workflow_mode": "parallel",
         "test_name": "PUT /requests/{requestId}  (TC006)",
         "protocol": "REST",
@@ -584,7 +584,7 @@
     },
     {
         "test_id": "TC007",
-        "service_name": "MoveMoneyAPI",
+        "service_name": "movemoney",
         "workflow_mode": "parallel",
         "test_name": "PUT /requests/{requestId}  (TC007)",
         "protocol": "REST",
@@ -666,7 +666,7 @@
     },
     {
         "test_id": "TC008",
-        "service_name": "MoveMoneyAPI",
+        "service_name": "movemoney",
         "workflow_mode": "parallel",
         "test_name": "PUT /requests/{requestId}  (TC00)",
         "protocol": "REST",
@@ -741,7 +741,7 @@
     },
     {
         "test_id": "TC009",
-        "service_name": "MoveMoneyAPI",
+        "service_name": "movemoney",
         "workflow_mode": "parallel",
         "test_name": "PUT /requests/{requestId}  (TC009)",
         "protocol": "REST",
@@ -816,7 +816,7 @@
     },
     {
         "test_id": "TC011",
-        "service_name": "MoveMoneyAPI",
+        "service_name": "movemoney",
         "workflow_mode": "sequential",
         "test_name": "PUT /requests/{requestId} [positive] (TC011)",
         "protocol": "REST",
@@ -915,7 +915,7 @@
     },
     {
         "test_id": "TC012",
-        "service_name": "MoveMoneyAPI",
+        "service_name": "movemoney",
         "workflow_mode": "sequential",
         "test_name": "PUT /requests/{requestId} [positive] (TC012)",
         "protocol": "REST",
@@ -1014,7 +1014,7 @@
     },
     {
         "test_id": "TC013",
-        "service_name": "MoveMoneyAPI",
+        "service_name": "movemoney",
         "workflow_mode": "sequential",
         "test_name": "PUT /requests/{requestId} [positive] (TC013)",
         "protocol": "REST",
@@ -1113,7 +1113,7 @@
     },
     {
         "test_id": "TC014",
-        "service_name": "MoveMoneyAPI",
+        "service_name": "movemoney",
         "workflow_mode": "sequential",
         "test_name": "PUT /requests/{requestId} [positive] (TC014)",
         "protocol": "REST",
@@ -1212,7 +1212,7 @@
     },
     {
         "test_id": "TC015",
-        "service_name": "MoveMoneyAPI",
+        "service_name": "movemoney",
         "workflow_mode": "parallel",
         "test_name": "PUT /requests/{requestId} [negative] (TC015)",
         "protocol": "REST",
@@ -1288,7 +1288,7 @@
     },
     {
         "test_id": "TC016",
-        "service_name": "MoveMoneyAPI",
+        "service_name": "movemoney",
         "workflow_mode": "parallel",
         "test_name": "PUT /requests/{requestId} [negative] (TC016)",
         "protocol": "REST",
@@ -1364,7 +1364,7 @@
     },
     {
         "test_id": "TC017",
-        "service_name": "MoveMoneyAPI",
+        "service_name": "movemoney",
         "workflow_mode": "parallel",
         "test_name": "PUT /requests/{requestId} [negative] (TC017)",
         "protocol": "REST",
@@ -1440,7 +1440,7 @@
     },
     {
         "test_id": "TC018",
-        "service_name": "MoveMoneyAPI",
+        "service_name": "movemoney",
         "workflow_mode": "parallel",
         "test_name": "PUT /requests/{requestId} [negative] (TC018)",
         "protocol": "REST",
@@ -1516,7 +1516,7 @@
     },
     {
         "test_id": "TC019",
-        "service_name": "MoveMoneyAPI",
+        "service_name": "movemoney",
         "workflow_mode": "parallel",
         "test_name": "PUT /requests/{requestId} [negative] (TC019)",
         "protocol": "REST",
@@ -1592,7 +1592,7 @@
     },
     {
         "test_id": "TC020",
-        "service_name": "MoveMoneyAPI",
+        "service_name": "movemoney",
         "workflow_mode": "parallel",
         "test_name": "PUT /requests/{requestId} [negative] (TC020)",
         "protocol": "REST",

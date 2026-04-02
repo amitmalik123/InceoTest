@@ -1,7 +1,7 @@
 [
     {
         "test_id": "TC001",
-        "service_name": "MoveMoneyAPI",
+        "service_name": "movemoney",
         "workflow_mode": "parallel",
         "test_name": "GET /health [positive] (TC001)",
         "protocol": "REST",
@@ -49,5 +49,4 @@
         "db_connection_name": "",
         "test_summary": "Test TC001: Verify that the API returns 200 OK status with 'Service is Alive' response indicating the service is healthy when accessed with valid authentication."
     }
-    
 ]
