@@ -1532,8 +1532,20 @@ def pytest_sessionstart(session):
             
             endpoint_label = hook_endpoint or "all"
             logger.info(f"Triggering hooks for service: {service_name}, endpoint: {endpoint_label}, environment: {env}")
-            _test_data_manager = TestDataManager(service_name, environment=env)
-            success = _test_data_manager.setup()
+            
+            success = False
+            try:
+                _test_data_manager = TestDataManager(service_name, environment=env)
+                success = _test_data_manager.setup()
+                logger.info(f"[HOOKS] Setup completed with status: {success}")
+            except Exception as e:
+                logger.error(f"[HOOKS] ❌ CRITICAL ERROR during setup(): {type(e).__name__}: {e}")
+                logger.error(f"[HOOKS] Traceback:", exc_info=True)
+                print(f"\n[HOOKS] ❌ CRITICAL ERROR during setup():")
+                print(f"[HOOKS] {type(e).__name__}: {e}")
+                import traceback
+                traceback.print_exc()
+                success = False
             
             # Store setup results in session config for access by fixtures
             session.config._test_data_setup_results = {
@@ -1541,6 +1553,10 @@ def pytest_sessionstart(session):
                 'service': service_name,
                 'environment': env
             }
+            
+            if not success:
+                logger.warning(f"[HOOKS] ⚠️ Setup completed but returned False - hooks may not have executed properly")
+                print(f"\n[HOOKS] ⚠️ Setup returned False - check logs above for details")
             
             # Force file system sync after hooks write CSV (fixes Docker/pipeline lag)
             import time
