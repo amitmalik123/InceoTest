@@ -100,9 +100,7 @@ SERVICE_DEFAULTS: Dict[str, Dict] = {
 
                 'update_csv_file': 'MoveMoneyAPI/data_driven/Data_requests_requestId_GET.csv',
                 'csv_columns': ['environment', 'requestId', 'version', 'instructionId', 'accountId', 'railType', 'amount', 'percent','requestType', 'status', 'reason', 'scheduleType', 'paymentDate', 'frequency', 'startDate', 'endDate'],
-            }
             },
-            'prerequisite_testcase': {
             # === INSTRUCTIONS ENDPOINT ===
             'instructions': {
                 'enabled': True,
