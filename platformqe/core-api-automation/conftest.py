@@ -1555,7 +1555,7 @@ def pytest_sessionfinish(session, exitstatus):
     session_end_time = datetime.now().isoformat()
     
     # Check if teardown is skipped
-    skip_teardown = session.config.getoption('--skip-teardown', default=False)
+    skip_teardown = session.config.getoption('--skip-teardown', default=True)
     
     # Cleanup test data created by hooks
     if _test_data_manager and hasattr(session.config, '_test_data_setup_results'):

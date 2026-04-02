@@ -169,8 +169,17 @@ class TestDataManager:
             logger.error("No prerequisite data was created")
             return None
 
+        # Log completion of prerequisite testcase with extracted values
+        logger.debug(f"[HOOKS] Prerequisite testcase completed: {testcase_file}")
+        logger.debug(f"[HOOKS] Extracted values: {all_extracted_values}")
+        
         # Debug: Log all extracted values before CSV update
         logger.debug(f"[HOOKS DEBUG] Extracted values from POST prerequisite: {all_extracted_values}")
+        
+        # Log individual extracted values for visibility
+        if all_extracted_values and isinstance(all_extracted_values[-1], dict):
+            for field_name, field_value in all_extracted_values[-1].items():
+                logger.info(f"[HOOKS] Extracted {field_name}: {field_value}")
 
         # Update CSV with all extracted values
         update_csv = prereq_config.get('update_csv_file')
@@ -207,6 +216,13 @@ class TestDataManager:
         Returns:
             Dictionary of extracted values, or None if failed
         """
+        # Log before execution - use print() to force output
+        print(f"\n[HOOKS] Running prerequisite testcase: {testcase_file}")
+        logger.info(f"[HOOKS] Running prerequisite testcase: {testcase_file}")
+        if test_data_file:
+            print(f"[HOOKS] Using test data file: {test_data_file}")
+            logger.debug(f"[HOOKS] Using test data file: {test_data_file}")
+        
         try:
             # Get base paths
             base_path = os.path.dirname(os.path.dirname(os.path.dirname(__file__)))
@@ -324,6 +340,7 @@ class TestDataManager:
                                 value = self._extract_value_from_response(response_data, field)
                                 if value:
                                     extracted_values[assign_to] = value
+                                    print(f"[HOOKS EXTRACTED] {assign_to}={value}")
                                     logger.info(f"✅ Extracted {assign_to}={value}")
                                     self.created_data.append({
                                         'id': value,
@@ -343,6 +360,7 @@ class TestDataManager:
                         logger.debug(f"[HOOKS DEBUG] _extract_value_from_response returned: {value}")
                         if value:
                             extracted_values[assign_to] = value
+                            print(f"[HOOKS EXTRACTED] {assign_to}={value}")
                             logger.info(f"✅ Extracted {assign_to}={value}")
                             
                             # Track created data for cleanup

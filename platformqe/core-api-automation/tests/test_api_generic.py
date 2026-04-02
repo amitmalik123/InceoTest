@@ -210,15 +210,30 @@ def test_api_case(case, request):
     # Create execution context with all variables (includes test_data, api_defs, and global extracted values)
     context = context_manager.create_context(case, test_data, api_defs)
     
-    # Debug logging for TC001
-    if case.get('test_id') == 'TC001':
-        logger.info(f"[DEBUG] Context before payload rendering for TC001: {context}")
+    # Log CSV test data for DELETE operations
+    if case.get('method', '').upper() == 'DELETE' and case.get('test_data_file'):
+        logger.debug(f"[HOOKS] {case.get('test_id')} - CSV Test Data:")
+        logger.debug(f"[HOOKS]  Test data file: {case.get('test_data_file')}")
+        logger.debug(f"[HOOKS]  CSV row index: {case.get('csv_row_index', 0)}")
+        if test_data and len(test_data) > 0:
+            test_row = test_data[case.get('csv_row_index', 0)] if len(test_data) > case.get('csv_row_index', 0) else test_data[0]
+            logger.debug(f"[HOOKS]  CSV row data: {test_row}")
+            # Log specific instructionId if available
+            if 'instructionId' in test_row:
+                logger.debug(f"[HOOKS]  --> instructionId to use: {test_row['instructionId']}")
     
     # Render endpoint and method with context
     api_name = case.get('api_name', 'UserService')
     api_def = api_defs.get(api_name, {})
     endpoint = render_hybrid(case.get('endpoint', api_def.get('endpoint', '/')), context)
     method = render_hybrid(case.get('method', api_def.get('method', 'GET')), context)
+    
+    # Log endpoint rendering for DELETE operations with instructionId
+    if method.upper() == 'DELETE' and '{{instructionId}}' in case.get('endpoint', ''):
+        logger.debug(f"[HOOKS] {case.get('test_id')} DELETE endpoint rendering:")
+        logger.debug(f"[HOOKS]  Template: {case.get('endpoint')}")
+        logger.debug(f"[HOOKS]  instructionId from context: {context.get('instructionId', 'NOT FOUND')}")
+        logger.debug(f"[HOOKS]  Rendered endpoint: {endpoint}")
     
     # Render headers_additional with context for data-driven values
     # Headers must remain as strings (HTTP requirement), so convert any rendered values to strings
