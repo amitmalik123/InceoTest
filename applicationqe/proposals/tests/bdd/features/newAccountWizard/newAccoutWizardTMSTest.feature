@@ -52,4 +52,4 @@ Feature: New Account Wizard Happy Path TMS Test
         And the client signature section should be verified
         And the investment policy statement section should be verified
         And I save the proposal
-        Then the proposal should be saved successfully with 96 pages including Tax Management Services
+        Then the proposal should be saved successfully with 95 pages including Tax Management Services
