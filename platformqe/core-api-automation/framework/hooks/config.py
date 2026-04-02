@@ -81,7 +81,7 @@ SERVICE_DEFAULTS: Dict[str, Dict] = {
             # === INSTRUCTIONS ENDPOINT ===
             'instructions': {
             'enabled': True,
-            'count': 1,  # Number of instructionIds to create
+            'count': 2,  # Number of instructionIds to create
             'testcase_file': 'MoveMoneyAPI/testcases/TestCase_instructions_POST.json',
             'test_data_file': 'MoveMoneyAPI/data_driven/Data_instructions_Hook_POST.csv',
             'extract_from_response': {
@@ -97,8 +97,7 @@ SERVICE_DEFAULTS: Dict[str, Dict] = {
                 ]
             },
             'update_csv_file': 'MoveMoneyAPI/data_driven/Data_instructions_instructionId_Delete.csv',
-            'csv_columns': ['environment', 'instruction_id', 'version'],
-
+                'csv_columns': ['test_id', 'environment', 'instruction_id', 'version'],
             },
             # === REQUESTS ENDPOINT ===
             'requests': {
