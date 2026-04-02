@@ -98,7 +98,7 @@ def fetch_authorized_signer_email_subject_and_body_step(page: Page, test_context
             # For document creator role
             if document_creator_role.upper() in ["FA", "AGENT"]:
                 document_creator_aplid = agent_id
-            else:  # SAU
+            else:  # SAU or OA (both use username)
                 document_creator_aplid = username
             
             document_creator_role_name = fetch_agent_name_by_aplid_from_db(document_creator_aplid, document_creator_role)
@@ -107,7 +107,7 @@ def fetch_authorized_signer_email_subject_and_body_step(page: Page, test_context
             # For authorized signer role
             if authorized_signer_role.upper() in ["FA", "AGENT"]:
                 authorized_signer_aplid = agent_id
-            else:  # SAU
+            else:  # SAU or OA (both use username)
                 authorized_signer_aplid = username
             
             authorized_signer_role_name = fetch_agent_name_by_aplid_from_db(authorized_signer_aplid, authorized_signer_role)
