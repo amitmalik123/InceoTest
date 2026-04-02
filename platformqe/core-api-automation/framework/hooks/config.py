@@ -86,7 +86,7 @@ SERVICE_DEFAULTS: Dict[str, Dict] = {
                 'fields': [
                     {
                         'field': 'instructionId',
-                        'assign_to': 'instructionId'
+                        'assign_to': 'instruction_id'
                     },
                     {
                         'field': 'version',
@@ -95,7 +95,7 @@ SERVICE_DEFAULTS: Dict[str, Dict] = {
                 ]
             },
             'update_csv_file': 'MoveMoneyAPI/data_driven/Data_instructions_instructionId_Delete.csv',
-            'csv_columns': ['environment', 'instructionId', 'version'],
+            'csv_columns': ['environment', 'instruction_id', 'version'],
         }
     }
 }
