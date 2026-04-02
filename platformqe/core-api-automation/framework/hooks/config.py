@@ -94,7 +94,7 @@ SERVICE_DEFAULTS: Dict[str, Dict] = {
                     }
                 ]
             },
-            'update_csv_file': 'MoveMoneyAPI/data_driven/Data_instructions_instructionId_GET.csv',
+            'update_csv_file': 'MoveMoneyAPI/data_driven/Data_instructions_instructionId_Delete.csv',
             'csv_columns': ['environment', 'instructionId', 'version'],
         }
     }
