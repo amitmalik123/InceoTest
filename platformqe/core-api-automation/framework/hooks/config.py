@@ -106,7 +106,7 @@ SERVICE_DEFAULTS: Dict[str, Dict] = {
                 'enabled': True,
                 'count': 1,  # Create instructionId and version for GET/PUT/DELETE flow 
                 'testcase_file': 'MoveMoneyAPI/testcases/TestCase_instructions_POST.json',
-                'test_data_file': 'MoveMoneyAPI/data_driven/Data_instructions_POST.csv',
+                'test_data_file': 'MoveMoneyAPI/data_driven/Data_instructions_Hook_POST.csv',
                 'extract_from_response': {
                     'fields': [
                         {

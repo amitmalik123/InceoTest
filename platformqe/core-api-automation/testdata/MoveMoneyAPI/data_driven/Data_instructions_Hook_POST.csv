@@ -1,0 +1,2 @@
+environment,letterOfAuthorization,accountId,status,holderRelationship,railType,custodianInstructionNumber,changeState,bank_routingNumber,bank_bankAccountNumber,bank_bankAccountName,bank_bankAccountType,bank_bankName
+TSADEV,Both,123e4567-e89b-12d3-a456-426614174000,Confirmed,FirstParty,ACH,AINS123456,,121000248,1234567890,John Smith,Checking,Wells Fargo Bank
