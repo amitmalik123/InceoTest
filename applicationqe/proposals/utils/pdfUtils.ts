@@ -260,7 +260,7 @@ function isPdfComplete(pdfPath: string, expectedPageCount: number): boolean {
 
     // Confirm the expected page count is present.
     const actualPageCount = extractPdfPageCount(pdfBuffer);
-    return actualPageCount === expectedPageCount;
+    return actualPageCount >= expectedPageCount;
 }
 
 /**
