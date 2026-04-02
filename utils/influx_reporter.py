@@ -64,7 +64,7 @@ class AllureToInfluxDB:
 
     def get_artifact_urls(self) -> Dict[str, str]:
         """Generate artifact download URLs for Azure Pipelines"""
-        urls = {}
+        urls: Dict[str, str] = {}
 
         if not self.system_team_foundation_collection_uri or not self.system_team_project:
             return urls
@@ -79,7 +79,7 @@ class AllureToInfluxDB:
 
     def read_allure_results(self) -> Dict[str, Any]:
         """Read Allure results from JSON files"""
-        results = {"tests": [], "containers": [], "groups": []}
+        results: Dict[str, Any] = {"tests": [], "containers": [], "groups": []}
 
         if not os.path.exists(self.allure_results_dir):
             print(f"⚠️  Allure results directory not found: {self.allure_results_dir}")
@@ -147,7 +147,7 @@ class AllureToInfluxDB:
         """Calculate test metrics from Allure results"""
         tests = results.get("tests", [])
 
-        metrics = {
+        metrics: Dict[str, Any] = {
             "total": len(tests),
             "passed": 0,
             "failed": 0,
@@ -162,9 +162,9 @@ class AllureToInfluxDB:
             "pass_rate": 0,
         }
 
-        durations = []
-        status_counts = {}
-        test_details = []
+        durations: List[int] = []
+        status_counts: Dict[str, int] = {}
+        test_details: List[str] = []
 
         for test in tests:
             status = test.get("status", "unknown")

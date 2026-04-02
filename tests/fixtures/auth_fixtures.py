@@ -12,6 +12,8 @@ This module contains:
 These fixtures handle authentication state persistence and multi-app support.
 """
 
+# flake8: noqa: SIM105
+import json
 from collections.abc import Generator
 from pathlib import Path
 from typing import Optional
@@ -21,6 +23,7 @@ from playwright.sync_api import Page
 
 from config.settings import Settings, get_settings
 from pages.login_page import LoginPage
+from tests.fixtures.auth_providers import ensure_sessions, find_storage
 
 # Use centralized Settings singleton
 settings = get_settings()
@@ -84,6 +87,35 @@ def _load_app_configs(settings_obj: Settings) -> dict:
 APP_CONFIGS = _load_app_configs(settings)
 
 
+def _compute_landing_url(session_file: Path, app_config: AppConfig, test_data: dict) -> str:
+    """Compute the best landing URL after loading a storage_state.
+
+    Priority:
+      1. If the storage JSON has `origins`, use the first origin + `test_data['expected']` (if present).
+      2. Otherwise use `app_config.home_url` + `test_data['expected']` (if present).
+      3. Fallback to `app_config.home_url`.
+    """
+    expected = (test_data.get("expected") or "").strip()
+    # If expected is a full URL, return it directly
+    if expected.lower().startswith("http://") or expected.lower().startswith("https://"):
+        return expected
+    if expected and not expected.startswith("/"):
+        expected = "/" + expected
+
+    origins = []
+    try:
+        if session_file and session_file.exists():
+            data = json.loads(session_file.read_text(encoding="utf8"))
+            origins = data.get("origins") or []
+    except Exception:
+        origins = []
+
+    base = origins[0].rstrip("/") if origins else app_config.home_url.rstrip("/")
+    if expected:
+        return base + expected
+    return base + "/"
+
+
 def _get_session_file(
     username: str, app_name: str, worker_id: str, role: Optional[str] = None
 ) -> Path:
@@ -113,14 +145,22 @@ def _perform_login(page: Page, app_config: AppConfig, test_data: dict) -> bool:
         bool: True if login successful, False otherwise
     """
     try:
-        # Derive base_url from login_url (strip the path portion)
+        # If a `login_url` is provided in YAML, navigate directly to it
+        # (treat as the full login page URL). Otherwise derive a base_url
+        # (scheme+netloc) and let the page object append its PAGE_PATH.
         from urllib.parse import urlparse
 
-        parsed = urlparse(app_config.login_url)
-        base_url = f"{parsed.scheme}://{parsed.netloc}/"
-
-        login_page = app_config.login_page_class(page, base_url=base_url)
-        login_page.navigate()
+        login_url_cfg = (app_config.login_url or "").strip()
+        if login_url_cfg:
+            # Use the configured login_url directly
+            page.goto(login_url_cfg)
+            # Instantiate the page object so subsequent helper methods work
+            login_page = app_config.login_page_class(page, base_url="")
+        else:
+            parsed = urlparse(app_config.home_url)
+            base_url = f"{parsed.scheme}://{parsed.netloc}/"
+            login_page = app_config.login_page_class(page, base_url=base_url)
+            login_page.navigate()
         login_page.accept_cookies()
         login_page.enter_username(test_data.get("username", "default_user"))
         login_page.enter_password(test_data.get("password", "default_password"))
@@ -136,7 +176,7 @@ def _perform_login(page: Page, app_config: AppConfig, test_data: dict) -> bool:
 
 
 @pytest.fixture
-def authenticated_page(browser, test_data, request) -> Generator[Page, None, None]:
+def authenticated_page(browser, test_data, request) -> Generator[Page, None, None]:  # noqa: C901
     """
     Flexible authenticated page fixture supporting multiple applications.
 
@@ -166,7 +206,50 @@ def authenticated_page(browser, test_data, request) -> Generator[Page, None, Non
     app_config = APP_CONFIGS[app_name]
     username = test_data.get("username", "default_user")
     role = test_data.get("role")  # Get role from test data
-    session_file = _get_session_file(username, app_name, worker_id, role)
+
+    # Allow overriding the storage file directly via pytest marker on the test/feature:
+    # @pytest.mark.auth_file("tests/.auth/advisorAuthFile.json")
+    auth_file_marker = request.node.get_closest_marker("auth_file")
+    marker_path = None
+    if auth_file_marker:
+        if auth_file_marker.args:
+            marker_path = auth_file_marker.args[0]
+        elif auth_file_marker.kwargs and auth_file_marker.kwargs.get("path"):
+            marker_path = auth_file_marker.kwargs.get("path")
+
+    # Determine session_file in order of precedence:
+    # 1) auth_file marker override
+    # 2) runner-produced storage (find_storage)
+    # 3) fallback generated session file path (_get_session_file)
+
+    # Attempt to ensure multi-user sessions (external runner) exist.
+    try:
+        ensure_sessions()
+    except Exception as e:
+        print(f"[SESSION] Auth provider ensure_sessions failed: {e}")
+
+    if marker_path:
+        session_file = Path(marker_path)
+        print(f"[SESSION] Using auth_file marker override: {session_file}")
+        # If the user requested a specific auth file but it doesn't exist,
+        # request the external auth runner to refresh and recreate files.
+        if not session_file.exists():
+            try:
+                print(
+                    f"[SESSION] Marker path {session_file} not found — requesting runner refresh..."
+                )
+                ensure_sessions(force=True)
+            except Exception as e:
+                print(f"[SESSION] ensure_sessions(force=True) failed for marker path: {e}")
+            # re-evaluate marker existence
+            if session_file.exists():
+                print(f"[SESSION] Marker path now exists: {session_file}")
+    else:
+        runner_storage = find_storage(app_name, role, username)
+        if runner_storage:
+            session_file = Path(runner_storage)
+        else:
+            session_file = _get_session_file(username, app_name, worker_id, role)
     session_max_age_hours = 8
 
     print(f"\n{'=' * 60}")
@@ -183,8 +266,44 @@ def authenticated_page(browser, test_data, request) -> Generator[Page, None, Non
         file_age_hours = file_age.total_seconds() / 3600
 
         if file_age_hours > session_max_age_hours:
-            print(f"[SESSION] Session too old ({file_age_hours:.1f}h), deleting...")
-            session_file.unlink()
+            print(
+                f"[SESSION] Session too old ({file_age_hours:.1f}h), deleting expired sessions..."
+            )
+            deleted_any = False
+            try:
+                # Remove the entire auth directory to ensure no stale files remain.
+                # This is faster and guarantees that partial/individual invalid
+                # session files don't leave the suite in an inconsistent state.
+                import shutil
+
+                if AUTH_STATE_DIR.exists():
+                    shutil.rmtree(AUTH_STATE_DIR)
+                    deleted_any = True
+                    print(f"[SESSION] Deleted auth directory: {AUTH_STATE_DIR}")
+            except Exception as e:
+                print(f"[SESSION] Error while cleaning expired sessions: {e}")
+
+            # If we removed any stale sessions, ask the external runner to refresh
+            if deleted_any:
+                try:
+                    print("[SESSION] Expired sessions removed — requesting auth runner refresh...")
+                    ensure_sessions(force=True)
+                except Exception as e:
+                    print(f"[SESSION] Auth runner refresh failed: {e}")
+
+                # Re-evaluate runner storage lookup in case runner created files
+                if not marker_path:
+                    try:
+                        runner_storage = find_storage(app_name, role, username)
+                        if runner_storage:
+                            session_file = Path(runner_storage)
+                        else:
+                            session_file = _get_session_file(username, app_name, worker_id, role)
+                    except Exception:
+                        session_file = _get_session_file(username, app_name, worker_id, role)
+            else:
+                # No files removed — fall through and proceed with original session_file
+                pass
 
     # Try to load existing session
     if session_file.exists():
@@ -193,8 +312,9 @@ def authenticated_page(browser, test_data, request) -> Generator[Page, None, Non
         page = context.new_page()
 
         # Navigate to home URL to activate session
-        print(f"[SESSION] Navigating to: {app_config.home_url}")
-        page.goto(app_config.home_url, timeout=30000)
+        target = _compute_landing_url(session_file, app_config, test_data)
+        print(f"[SESSION] Navigating to: {target}")
+        page.goto(target, timeout=30000)
         page.wait_for_load_state("domcontentloaded", timeout=10000)
 
         # Verify session is still valid
@@ -209,7 +329,41 @@ def authenticated_page(browser, test_data, request) -> Generator[Page, None, Non
             print("[SESSION] Session expired, deleting and re-authenticating...")
             page.close()
             context.close()
-            session_file.unlink()
+            try:
+                session_file.unlink()
+            except Exception:
+                pass
+
+            # Give the external auth runner a chance to refresh sessions
+            try:
+                ensure_sessions(force=True)
+                # If runner produced a new session file, try loading it
+                if session_file.exists():
+                    print("[SESSION] New session file created by runner, loading...")
+                    context = browser.new_context(
+                        storage_state=str(session_file), ignore_https_errors=True
+                    )
+                    page = context.new_page()
+
+                    target = _compute_landing_url(session_file, app_config, test_data)
+                    print(f"[SESSION] Navigating to: {target}")
+                    page.goto(target, timeout=30000)
+                    page.wait_for_load_state("domcontentloaded", timeout=10000)
+
+                    if "login" not in page.url.lower():
+                        print(
+                            "[SESSION] Session valid after runner refresh! Already authenticated."
+                        )
+                        yield page
+                        page.close()
+                        context.close()
+                        return
+                    else:
+                        print(
+                            "[SESSION] Runner produced file but still redirected; falling back to login."
+                        )
+            except Exception as e:
+                print(f"[SESSION] ensure_sessions(force=True) failed: {e}")
             # Fall through to login block below
 
     # No session or expired - perform login in TEMPORARY context
@@ -244,8 +398,9 @@ def authenticated_page(browser, test_data, request) -> Generator[Page, None, Non
         page = context.new_page()
 
         # Navigate to home page
-        print(f"[SESSION] Navigating to: {app_config.home_url}")
-        page.goto(app_config.home_url, timeout=30000)
+        target = _compute_landing_url(session_file, app_config, test_data)
+        print(f"[SESSION] Navigating to: {target}")
+        page.goto(target, timeout=30000)
         page.wait_for_load_state("domcontentloaded", timeout=10000)
         print("[SESSION] Ready for test execution!")
 

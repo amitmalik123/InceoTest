@@ -43,9 +43,11 @@ from tests.fixtures.page_fixtures import (
     change_investments_page,
     clients_page,
     dmtool_page,
+    global_navigation_page,
     login_page,
     manage_instruction_1_page,
     manage_instruction_2_page,
+    proposal_page,
     roth_conversion_page,
     tracking_center_page,
 )
@@ -74,6 +76,8 @@ __all__ = [
     # pages
     "login_page",
     "clients_page",
+    "global_navigation_page",
+    "proposal_page",
     "dmtool_page",
     "account_list_page",
     "api_utility_page",

@@ -5,6 +5,7 @@ This demonstrates how pages and utilities can contribute to Allure reports
 without tight coupling to the test framework.
 """
 
+import pytest
 from playwright.sync_api import Locator, Page
 
 from utils.allure_logger import get_allure_logger
@@ -165,10 +166,6 @@ class BasePage:
 # ============================================================================
 # EXAMPLE 5: Using in Conftest/Fixtures
 # ============================================================================
-
-import pytest
-
-from utils.allure_logger import get_allure_logger
 
 logger = get_allure_logger("fixtures")
 

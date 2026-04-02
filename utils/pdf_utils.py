@@ -269,21 +269,21 @@ class PDFValidator:
             assert expected_title in str(
                 actual_title
             ), f"Title mismatch: expected '{expected_title}', got '{actual_title}'"
-            logger.debug(f"✓ PDF title matches")
+            logger.debug("✓ PDF title matches")
 
         if expected_author:
             actual_author = metadata.get("/Author") or metadata.get("author", "")
             assert expected_author in str(
                 actual_author
             ), f"Author mismatch: expected '{expected_author}', got '{actual_author}'"
-            logger.debug(f"✓ PDF author matches")
+            logger.debug("✓ PDF author matches")
 
         if expected_creator:
             actual_creator = metadata.get("/Creator") or metadata.get("creator", "")
             assert expected_creator in str(
                 actual_creator
             ), f"Creator mismatch: expected '{expected_creator}', got '{actual_creator}'"
-            logger.debug(f"✓ PDF creator matches")
+            logger.debug("✓ PDF creator matches")
 
         return True
 

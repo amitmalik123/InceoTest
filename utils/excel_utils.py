@@ -4,7 +4,7 @@ Excel utility module for comprehensive Excel file operations.
 
 import os
 from pathlib import Path
-from typing import Any, List, Optional, Union
+from typing import Any, Dict, List, Optional, Union
 
 import pandas as pd
 from openpyxl import Workbook, load_workbook
@@ -131,7 +131,7 @@ class ExcelUtils:
         sheet_name: Optional[str] = None,
         header_row: int = 0,
         use_pandas: bool = False,
-    ) -> Union[List[List], pd.DataFrame]:
+    ) -> Union[List[List[Any]], pd.DataFrame, Dict[str, pd.DataFrame]]:
         """
         Read data from a sheet.
 
@@ -191,9 +191,9 @@ class ExcelUtils:
             # Create or load workbook
             if os.path.exists(file_path):
                 wb = load_workbook(file_path)
-                if sheet_name in wb.sheetnames:
+                try:
                     sheet = wb[sheet_name]
-                else:
+                except KeyError:
                     sheet = wb.create_sheet(title=sheet_name)
             else:
                 wb = Workbook()
@@ -1054,13 +1054,13 @@ class ExcelUtils:
 # Convenience functions
 def read_excel(
     file_path: str, sheet_name: Optional[str] = None, **kwargs
-) -> Union[List[List], pd.DataFrame]:
+) -> Union[List[List[Any]], pd.DataFrame, Dict[str, pd.DataFrame]]:
     """Read data from an Excel sheet."""
     return ExcelUtils().read_sheet(file_path, sheet_name, **kwargs)
 
 
 def write_excel(
-    file_path: str, data: Union[List[List], pd.DataFrame], sheet_name: str = "Sheet1", **kwargs
+    file_path: str, data: Union[List[List[Any]], pd.DataFrame], sheet_name: str = "Sheet1", **kwargs
 ) -> bool:
     """Write data to an Excel sheet."""
     return ExcelUtils().write_sheet(file_path, data, sheet_name, **kwargs)

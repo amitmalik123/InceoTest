@@ -12,6 +12,8 @@ This will:
 5. Also capture a screenshot to reports/dom_screenshot_holding_page.png
 """
 
+import contextlib
+
 from playwright.sync_api import Page
 
 
@@ -219,7 +221,7 @@ def test_capture_holding_page_dom(  # noqa: C901
                 label = ""
                 with contextlib.suppress(Exception):
                     label = r.evaluate(
-                        "el => { const lbl = el.closest('label') || document.querySelector('label[for=\"'+el.id+'\"]"); return lbl ? lbl.textContent.trim() : ''; }"
+                        "el => { const lbl = el.closest('label') || document.querySelector('label[for=\"'+el.id+'\"]'); return lbl ? lbl.textContent.trim() : ''; }"
                     )
                 f.write(f"  [{i}] {attrs} label='{label[:80]}'\n")
             except Exception:

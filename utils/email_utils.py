@@ -358,7 +358,9 @@ class IMAPEmailClient:
         self.password = password
         self.port = port
         self.use_ssl = use_ssl
-        self.connection: Optional[imaplib.IMAP4_SSL] = None
+        from typing import Union
+
+        self.connection: Optional[Union[imaplib.IMAP4, imaplib.IMAP4_SSL]] = None
 
     def connect(self) -> bool:
         """Connect to IMAP server"""

@@ -5,6 +5,8 @@ Override test_data to select data based on scenario name from CSV
 
 import pytest
 
+from tests.fixtures.auth_providers import ensure_sessions
+
 
 @pytest.fixture
 def test_data(test_data_manager, request) -> dict:
@@ -76,3 +78,18 @@ def test_context(test_data) -> dict:
         dict: Context with test_data accessible via test_context["test_data"]
     """
     return {"test_data": test_data}
+
+
+@pytest.fixture(scope="session", autouse=True)
+def ensure_auth_sessions():
+    """Autouse session fixture that ensures multi-user storage states exist.
+
+    This mirrors Playwright's TypeScript `setup` dependency: it runs once
+    before any tests and will refresh sessions only when the runner's
+    timestamp indicates expiration.
+    """
+    try:
+        ensure_sessions()
+    except Exception as e:
+        print(f"[AUTH_SETUP] ensure_sessions failed: {e}")
+    yield

@@ -230,6 +230,16 @@ def get_db_from_vault(alias: str, database: Optional[str] = None) -> "SQLDatabas
     # Authentication: from connection string or None
     authentication = parsed.get("authentication")
 
+    # Detect Windows Integrated / Trusted Connection (common local dev pattern)
+    # Accept variants: Trusted_Connection, trusted_connection, Integrated Security
+    trusted_val = (
+        parsed.get("trusted_connection")
+        or parsed.get("trustedconnection")
+        or parsed.get("integrated security")
+    )
+    if trusted_val and str(trusted_val).lower() in ("yes", "true", "sspi", "1"):
+        authentication = "trusted"
+
     return SQLDatabase(
         server=server,
         database=db_name,
@@ -470,27 +480,42 @@ class SQLDatabase(DatabaseConnection):
                         f"Attempting connection to {self.database} using Azure AD authentication"
                     )
             else:
-                # Standard SQL authentication
-                if self.username and "@" in self.username:
-                    self.logger.warning(
-                        f"Email username '{self.username}' may fail with SQL auth. "
-                        f"Use SQL username OR install Driver 18 for Azure AD."
+                # Handle Windows Integrated / Trusted Connection
+                if self.authentication and self.authentication == "trusted":
+                    connection_string = (
+                        f"DRIVER={self.driver};"
+                        f"SERVER={self.server};"
+                        f"DATABASE={self.database};"
+                        f"Trusted_Connection=yes;"
+                        "Encrypt=yes;"
+                        "TrustServerCertificate=yes;"
+                        "Connection Timeout=30;"
                     )
-                connection_string = (
-                    f"DRIVER={self.driver};"
-                    f"SERVER={self.server};"
-                    f"DATABASE={self.database};"
-                    f"UID={self.username};"
-                    f"PWD={self.password};"
-                    "Encrypt=yes;"
-                    "TrustServerCertificate=yes;"
-                    "Connection Timeout=30;"
-                )
-                self.logger.info(
-                    f"Attempting connection to {self.database} using SQL authentication"
-                )
-                masked = connection_string.replace(f"PWD={self.password}", "PWD=****")
-                self.logger.info(f"connection string {masked} ")
+                    self.logger.info(
+                        f"Attempting connection to {self.database} using Windows Integrated authentication"
+                    )
+                else:
+                    # Standard SQL authentication
+                    if self.username and "@" in self.username:
+                        self.logger.warning(
+                            f"Email username '{self.username}' may fail with SQL auth. "
+                            f"Use SQL username OR install Driver 18 for Azure AD."
+                        )
+                    connection_string = (
+                        f"DRIVER={self.driver};"
+                        f"SERVER={self.server};"
+                        f"DATABASE={self.database};"
+                        f"UID={self.username};"
+                        f"PWD={self.password};"
+                        "Encrypt=yes;"
+                        "TrustServerCertificate=yes;"
+                        "Connection Timeout=30;"
+                    )
+                    self.logger.info(
+                        f"Attempting connection to {self.database} using SQL authentication"
+                    )
+                    masked = connection_string.replace(f"PWD={self.password}", "PWD=****")
+                    self.logger.info(f"connection string {masked} ")
 
             # Retry transient connection failures (Azure SQL often has transient errors)
             with RetryContext(max_retries=3, initial_delay=2.0, exponential_base=2.0) as retry:

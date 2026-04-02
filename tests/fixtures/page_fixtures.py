@@ -16,9 +16,11 @@ from pages.account_management_page import AccountManagementPage
 from pages.account_wizard_page import AccountWizardPage
 from pages.add_ach_instruction import AddACHInstructionPage
 from pages.api_utility_page import APIUtilityPage
+from pages.apro_proposals_page import AproProposalsPage
 from pages.change_investments_page import ChangeInvestmentsPage
 from pages.clients_page import ClientsPage
 from pages.dmtool_page import DMToolPage
+from pages.global_navigation_page import GlobalNavigationPage
 from pages.login_page import LoginPage
 from pages.manage_instruction_1_page import ManageInstruction1Page
 from pages.manage_instruction_2_page import ManageInstruction2Page
@@ -39,6 +41,18 @@ def login_page(authenticated_page: Page) -> LoginPage:
 def clients_page(authenticated_page: Page) -> ClientsPage:
     """Clients page object fixture"""
     return ClientsPage(authenticated_page, base_url=_base_url)
+
+
+@pytest.fixture
+def global_navigation_page(authenticated_page: Page) -> GlobalNavigationPage:
+    """Global navigation page object fixture"""
+    return GlobalNavigationPage(authenticated_page, base_url=_base_url)
+
+
+@pytest.fixture
+def proposal_page(authenticated_page: Page) -> AproProposalsPage:
+    """APro proposal modal/page fixture"""
+    return AproProposalsPage(authenticated_page, base_url=_base_url)
 
 
 @pytest.fixture

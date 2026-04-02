@@ -48,6 +48,14 @@ def pytest_configure(config) -> None:
     config.addinivalue_line(
         "markers", "app(name): mark test to run with specific application (default: ewm)"
     )
+    # Common test tags used in BDD feature files
+    config.addinivalue_line("markers", "regression: mark test as regression")
+    config.addinivalue_line("markers", "proposal: mark test as proposal flow")
+    config.addinivalue_line("markers", "e2e: mark test as end-to-end")
+    config.addinivalue_line(
+        "markers",
+        "auth_file(path): override storage_state file for a test, e.g. @pytest.mark.auth_file('tests/.auth/advisor.json')",
+    )
 
     # Configure step screenshots - Priority: CLI > ENV VAR > CONFIG FILE
     settings_instance = get_settings()

@@ -98,7 +98,7 @@ jobs:
     INFLUXDB_TOKEN: 'g5gf0ukY8fPdwaWynLviDLd0wz1l5snomLbip3t2IrQkeNNkiEFYECEHlcJLwsAPvv2Gx-op4ho6QcpVsCpdGQ=='
     # Azure Key Vault configuration
     keyVaultName: 'amkkvqapipeline-testncus'           # ← Replace with your Key Vault name
-    
+
 
   steps:
   - checkout: self

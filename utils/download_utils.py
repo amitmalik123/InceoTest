@@ -268,10 +268,10 @@ class DownloadManager:
             # Validate columns
             if expected_columns:
                 actual_columns = reader.fieldnames
-                assert set(actual_columns) == set(
+                assert set(actual_columns or []) == set(
                     expected_columns
                 ), f"Column mismatch: expected {expected_columns}, got {actual_columns}"
-                logger.debug(f"✓ CSV columns match")
+                logger.debug("✓ CSV columns match")
 
             # Count rows
             rows = list(reader)

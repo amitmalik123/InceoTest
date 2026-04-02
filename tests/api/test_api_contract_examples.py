@@ -523,7 +523,7 @@ def test_user_api_contract_example():
     result = tester.test_contract(contract, mock_response)
 
     assert result.is_valid, f"User contract validation failed: {result.errors}"
-    print(f"\n✓ User API contract validated successfully")
+    print("\n✓ User API contract validated successfully")
 
 
 if __name__ == "__main__":

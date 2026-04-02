@@ -15,7 +15,9 @@ class JSONUtils:
     def __init__(self):
         self.logger = setup_logger(__name__)
 
-    def read_json(self, file_path: str, encoding: str = "utf-8") -> Union[Dict, List]:
+    def read_json(
+        self, file_path: str, encoding: str = "utf-8"
+    ) -> Union[Dict[str, Any], List[Any]]:
         """
         Read and parse a JSON file.
 
@@ -48,7 +50,7 @@ class JSONUtils:
     def write_json(
         self,
         file_path: str,
-        data: Union[Dict, List],
+        data: Union[Dict[str, Any], List[Any]],
         indent: int = 4,
         ensure_ascii: bool = False,
         encoding: str = "utf-8",
@@ -81,7 +83,7 @@ class JSONUtils:
             raise
 
     def append_to_json_array(
-        self, file_path: str, new_data: Union[Dict, List], encoding: str = "utf-8"
+        self, file_path: str, new_data: Union[Dict[str, Any], List[Any]], encoding: str = "utf-8"
     ) -> bool:
         """
         Append data to a JSON array file.
@@ -118,7 +120,11 @@ class JSONUtils:
             raise
 
     def update_json(
-        self, file_path: str, updates: Dict, encoding: str = "utf-8", merge_deep: bool = False
+        self,
+        file_path: str,
+        updates: Dict[str, Any],
+        encoding: str = "utf-8",
+        merge_deep: bool = False,
     ) -> bool:
         """
         Update existing JSON file with new values.
@@ -134,7 +140,7 @@ class JSONUtils:
         """
         try:
             # Read existing data
-            data = self.read_json(file_path, encoding)
+            data: Any = self.read_json(file_path, encoding)
 
             if not isinstance(data, dict):
                 raise ValueError("File must contain a JSON object")
@@ -169,9 +175,8 @@ class JSONUtils:
             Value at the specified path or default
         """
         try:
-            data = self.read_json(file_path, encoding)
+            data: Any = self.read_json(file_path, encoding)
             keys = key_path.split(".")
-
             for key in keys:
                 if isinstance(data, dict):
                     data = data.get(key)
@@ -206,10 +211,14 @@ class JSONUtils:
             data = self.read_json(file_path, encoding)
             keys = key_path.split(".")
 
+            # Ensure top-level object is a dict
+            if not isinstance(data, dict):
+                raise ValueError("File must contain a JSON object")
+
             # Navigate to parent
-            current = data
+            current: Dict[str, Any] = data
             for key in keys[:-1]:
-                if key not in current:
+                if key not in current or not isinstance(current[key], dict):
                     current[key] = {}
                 current = current[key]
 
@@ -237,13 +246,18 @@ class JSONUtils:
             True if successful
         """
         try:
+
             data = self.read_json(file_path, encoding)
             keys = key_path.split(".")
 
+            if not isinstance(data, dict):
+                self.logger.warning(f"Key path '{key_path}' not found (not a JSON object)")
+                return False
+
             # Navigate to parent
-            current = data
+            current: Dict[str, Any] = data
             for key in keys[:-1]:
-                if key not in current:
+                if key not in current or not isinstance(current[key], dict):
                     self.logger.warning(f"Key path '{key_path}' not found")
                     return False
                 current = current[key]
@@ -295,7 +309,7 @@ class JSONUtils:
             True if successful
         """
         try:
-            merged_data = {}
+            merged_data: Dict[str, Any] = {}
 
             for file_path in file_paths:
                 data = self.read_json(file_path, encoding)
@@ -498,9 +512,9 @@ class JSONUtils:
             raise
 
     # Helper methods
-    def _deep_merge(self, dict1: Dict, dict2: Dict) -> Dict:
+    def _deep_merge(self, dict1: Dict[str, Any], dict2: Dict[str, Any]) -> Dict[str, Any]:
         """Deep merge two dictionaries."""
-        result = dict1.copy()
+        result: Dict[str, Any] = dict1.copy()
 
         for key, value in dict2.items():
             if key in result and isinstance(result[key], dict) and isinstance(value, dict):
@@ -510,7 +524,9 @@ class JSONUtils:
 
         return result
 
-    def _search_recursive(self, data: Any, search_key: str, results: Optional[List] = None) -> List:
+    def _search_recursive(
+        self, data: Any, search_key: str, results: Optional[List[Any]] = None
+    ) -> List[Any]:
         """Recursively search for a key in nested structures."""
         if results is None:
             results = []
@@ -526,11 +542,11 @@ class JSONUtils:
 
         return results
 
-    def _find_differences(self, data1: Any, data2: Any, path: str = "") -> List[Dict]:
+    def _find_differences(self, data1: Any, data2: Any, path: str = "") -> List[Dict[str, Any]]:
         """Find differences between two data structures."""
-        differences = []
+        differences: List[Dict[str, Any]] = []
 
-        if type(data1) != type(data2):
+        if type(data1) is not type(data2):
             differences.append(
                 {
                     "path": path,

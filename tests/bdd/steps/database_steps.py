@@ -15,6 +15,11 @@ from utils.database import execute_query_from_yaml
 logger = get_allure_logger(__name__)
 
 
+@when("I verify the Roth Conversion status in database")
+def verify_roth_conversion_status_in_database(test_context, db_manager):
+    """Verify the Roth Conversion status in database"""
+
+
 @when("I verify the database using query from <query_category>.<query_name>")
 def verify_database_with_query(test_context, query_category: str, query_name: str, db_manager):
     """

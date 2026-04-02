@@ -270,7 +270,7 @@ class LighthouseRunner:
 
         if violations:
             logger.warning("Lighthouse budget violations detected:")
-            for key, message in violations.items():
+            for _key, message in violations.items():
                 logger.warning(f"  - {message}")
             return False
 

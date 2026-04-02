@@ -4,7 +4,7 @@ CSV utility module for comprehensive CSV file operations.
 
 import csv
 import os
-from typing import Any, Callable, Dict, List, Optional
+from typing import Any, Callable, Dict, List, Optional, Tuple
 
 from utils.logger import setup_logger
 
@@ -987,7 +987,7 @@ class CSVUtils:
 
             save_path = output_path or file_path
             self.write_csv(save_path, transposed, delimiter, encoding, mode="w")
-            self.logger.info(f"Transposed CSV file")
+            self.logger.info("Transposed CSV file")
             return True
         except Exception as e:
             self.logger.error(f"Error transposing CSV: {str(e)}")

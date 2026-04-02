@@ -27,6 +27,8 @@ sandbox/
 tests/.auth/
 scripts/
 ai/
+tmp/
+pre-commit-output.txt
 
 
 # Temporary - Work in Progress (remove from .gitignore once stable)

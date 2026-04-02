@@ -75,7 +75,7 @@ DEFAULT_IMAP_PORT = 993
 class OutlookEmail:
     """Represents a single Outlook email message."""
 
-    id: str
+    id: Union[str, bytes]
     subject: str
     from_address: str
     to_addresses: List[str]
@@ -149,8 +149,10 @@ class OutlookClient:
         imap_port: int = DEFAULT_IMAP_PORT,
         folder: str = "INBOX",
     ):
-        self.email = email or os.getenv("OUTLOOK_EMAIL", "")
-        self.password = password or os.getenv("OUTLOOK_PASSWORD", "")
+        self.email: str = str(email) if email is not None else os.getenv("OUTLOOK_EMAIL", "")
+        self.password: str = (
+            str(password) if password is not None else os.getenv("OUTLOOK_PASSWORD", "")
+        )
         self.imap_server = imap_server
         self.imap_port = imap_port
         self.folder = folder
@@ -853,12 +855,18 @@ class OutlookClient:
             List of OutlookAttachment objects with content bytes.
         """
         mail = self._ensure_connection()
-        msg_id_str = email_obj.id if isinstance(email_obj.id, str) else email_obj.id.decode("utf-8")
+        msg_id = email_obj.id
+        msg_id_str = msg_id if isinstance(msg_id, str) else msg_id.decode("utf-8")
         status, data = mail.fetch(msg_id_str, "(RFC822)")
         if status != "OK" or not data or not data[0]:
             return []
 
-        raw: bytes = data[0][1]  # type: ignore[index]
+        raw_any = data[0][1]
+        if isinstance(raw_any, (bytes, bytearray)):
+            raw: bytes = bytes(raw_any)
+        else:
+            # Fallback: convert to bytes via utf-8 representation
+            raw = str(raw_any).encode("utf-8")
         msg = email_lib.message_from_bytes(raw)
 
         attachments: List[OutlookAttachment] = []

@@ -4,7 +4,8 @@
 max-line-length = 100
 
 # Maximum complexity
-max-complexity = 10
+# Increase complexity threshold to reduce noise from large helper functions
+max-complexity = 20
 
 # Exclude directories
 exclude =

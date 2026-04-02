@@ -16,22 +16,20 @@ logger = get_allure_logger(__name__)
 # ============================================================================
 # BEFORE (Old Approach - Too Verbose)
 # ============================================================================
-"""
-@when("I search for the client")
-def search_for_client(page: Page, account_list_page, test_context):
-    with allure.step(f"Search for client {test_context['test_data']['client_id']}"):
-        logger.info(f"Searching for client: {test_context['test_data']['client_id']}")
-        allure.attach(
-            test_context["test_data"]["client_id"],
-            name="Client ID",
-            attachment_type=allure.attachment_type.TEXT,
-        )
-        account_list_page.search_client(test_context["test_data"]["client_id"])
-        screenshot = page.screenshot()
-        allure.attach(
-            screenshot, name="Account List After Search", attachment_type=allure.attachment_type.PNG
-        )
-"""
+# @when("I search for the client")
+# def search_for_client(page: Page, account_list_page, test_context):
+#     with allure.step(f"Search for client {test_context['test_data']['client_id']}"):
+#         logger.info(f"Searching for client: {test_context['test_data']['client_id']}")
+#         allure.attach(
+#             test_context["test_data"]["client_id"],
+#             name="Client ID",
+#             attachment_type=allure.attachment_type.TEXT,
+#         )
+#         account_list_page.search_client(test_context["test_data"]["client_id"])
+#         screenshot = page.screenshot()
+#         allure.attach(
+#             screenshot, name="Account List After Search", attachment_type=allure.attachment_type.PNG
+#         )
 
 
 # ============================================================================

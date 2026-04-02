@@ -75,58 +75,54 @@ def reset_step_screenshot_counter():
 # ============================================================================
 # USAGE EXAMPLES
 # ============================================================================
-"""
 # Method 1: Command-line
-pytest --screenshot-each-step
-
+# pytest --screenshot-each-step
+#
 # Method 2: Environment variable
-export SCREENSHOT_EACH_STEP=true
-pytest
-
+# export SCREENSHOT_EACH_STEP=true
+# pytest
+#
 # Method 3: In conftest.py programmatically
-from utils.allure_logger import enable_step_screenshots
-
-enable_step_screenshots(True)
-
+# from utils.allure_logger import enable_step_screenshots
+#
+# enable_step_screenshots(True)
+#
 # Method 4: Per-test control
-def test_something(page):
-    from utils.allure_logger import enable_step_screenshots
-    enable_step_screenshots(True)  # Enable for this test only
-    # ... test code ...
-"""
+# def test_something(page):
+#     from utils.allure_logger import enable_step_screenshots
+#     enable_step_screenshots(True)  # Enable for this test only
+#     # ... test code ...
 
 
 # ============================================================================
 # STEP FILE USAGE
 # ============================================================================
-"""
 # Old approach (manual screenshot)
-@when("I search for the client")
-def search_for_client(page, account_list_page, test_context):
-    with allure.step("Search for client"):
-        account_list_page.search_client(client_id)
-        screenshot = page.screenshot()
-        allure.attach(screenshot, name="After Search", ...)
-
-# New approach (auto-screenshot)
-from utils.allure_logger import get_allure_logger
-
-logger = get_allure_logger(__name__)
-
-@when("I search for the client")
-def search_for_client(page, account_list_page, test_context):
-    client_id = test_context['test_data']['client_id']
-
-    # Auto-screenshot if page is passed
-    with logger.step("Search for client", page=page):
-        logger.info(f"Searching for: {client_id}")
-        account_list_page.search_client(client_id)
-        # Screenshot automatically taken here (if enabled)
-
-# Or without auto-screenshot for specific step
-@when("I navigate to menu")
-def navigate_menu(page):
-    with logger.step("Navigate to menu", page=page, auto_screenshot=False):
-        # ... no screenshot taken ...
-        pass
-"""
+# @when("I search for the client")
+# def search_for_client(page, account_list_page, test_context):
+#     with allure.step("Search for client"):
+#         account_list_page.search_client(client_id)
+#         screenshot = page.screenshot()
+#         allure.attach(screenshot, name="After Search", ...)
+#
+# # New approach (auto-screenshot)
+# from utils.allure_logger import get_allure_logger
+#
+# logger = get_allure_logger(__name__)
+#
+# @when("I search for the client")
+# def search_for_client(page, account_list_page, test_context):
+#     client_id = test_context['test_data']['client_id']
+#
+#     # Auto-screenshot if page is passed
+#     with logger.step("Search for client", page=page):
+#         logger.info(f"Searching for: {client_id}")
+#         account_list_page.search_client(client_id)
+#         # Screenshot automatically taken here (if enabled)
+#
+# # Or without auto-screenshot for specific step
+# @when("I navigate to menu")
+# def navigate_menu(page):
+#     with logger.step("Navigate to menu", page=page, auto_screenshot=False):
+#         # ... no screenshot taken ...
+#         pass

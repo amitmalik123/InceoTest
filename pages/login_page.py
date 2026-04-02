@@ -12,8 +12,23 @@ class LoginPage(BasePage):
     def __init__(self, page: Page, base_url: str = ""):
         super().__init__(page, base_url=base_url)
         self.allow_all_button: Locator = page.get_by_role("button", name="Allow All")
+        # Prefer Okta login input IDs when present, otherwise fall back to label-based locators
         self.username_input_field: Locator = page.get_by_label("Username")
         self.password_input_field: Locator = page.get_by_label("Password")
+
+        try:
+            username_candidate = page.locator("input#okta-signin-username")
+            if username_candidate.count() > 0:
+                self.username_input_field = username_candidate
+        except Exception:
+            pass
+
+        try:
+            password_candidate = page.locator("input#okta-signin-password")
+            if password_candidate.count() > 0:
+                self.password_input_field = password_candidate
+        except Exception:
+            pass
         self.sign_in_button: Locator = page.get_by_role("button", name="SIGN IN")
         self.login_form: Locator = page.locator(
             "form#form19.primary-auth-form.o-form.o-form-edit-mode"
