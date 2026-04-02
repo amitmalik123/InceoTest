@@ -74,7 +74,7 @@ SERVICE_DEFAULTS: Dict[str, Dict] = {
             'csv_columns': ['environment', 'id']
         }
     },
-    'MoveMoneyAPI': {
+    'movemoney': {
         'max_records': 10,
         # Prerequisite test case for MoveMoneyAPI service
         'prerequisite_testcase': {
