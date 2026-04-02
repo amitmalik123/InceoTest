@@ -30,7 +30,13 @@ from tests.bdd.steps.tracking_center_steps import *  # noqa: F401, F403
         ),
     ],
 )
-@scenario("../features/apro_poposal_happy_path.feature", "APro poposal happy path")
-def test_apro_poposal_happy_path(auth_file, request):
+@scenario("../features/apro_proposal_happy_path.feature", "Create Prospect Proposal Happy Path")
+def test_create_prospect_proposal(auth_file, request):
     # scenario steps are executed by pytest-bdd via the @scenario decorator
     pass
+
+
+# @scenario("../features/apro_proposal_happy_path.feature", "Create Client Proposal Happy Path")
+# def test_create_client_proposal(auth_file, request):
+#     # scenario steps are executed by pytest-bdd via the @scenario decorator
+#     pass

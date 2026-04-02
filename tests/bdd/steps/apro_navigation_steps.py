@@ -16,3 +16,10 @@ def navigate_to_apro_prospects(authenticated_page: Page):
 def verify_apro_prospects_page(authenticated_page: Page):
     """Verify that the APro prospects page is displayed"""
     expect(authenticated_page.get_by_text("Prospects List")).to_be_visible()
+
+
+@when('I search for client "{client_id}"')
+def search_for_client(authenticated_page: Page, client_id: str):
+    """Search for a client by client ID using the global search."""
+    gnav = GlobalNavigationPage(authenticated_page)
+    gnav.search(client_id)

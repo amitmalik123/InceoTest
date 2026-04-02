@@ -143,6 +143,8 @@ markers = [
     "prod: Tests for production environment",
     "performance: Performance monitoring tests",
     "lighthouse: Lighthouse audit tests",
+    "global_search: Global search functionality tests",
+    "apro: APro proposal workflow tests",
 ]
 asyncio_mode = "strict"
 log_cli = true

@@ -2101,6 +2101,8 @@ class AproProposalsPage(BasePage):
 
     def set_shares(self, value: str) -> None:
         logger.info(f"Setting Shares: {value}")
+        # Wait for field to be enabled before attempting to fill
+        self.wait_for_element(self.shares_input, state="visible", timeout=8000)
         # Type the provided value as-is (numbers from JSON are accepted)
         digits = str(value)
         # focus, select-all, type digits, then commit with Enter
@@ -2117,6 +2119,8 @@ class AproProposalsPage(BasePage):
 
     def set_cost(self, value: str) -> None:
         logger.info(f"Setting Cost: {value}")
+        # Wait for field to be enabled before attempting to fill
+        self.wait_for_element(self.cost_input, state="visible", timeout=8000)
         # Type the provided value as-is (numbers from JSON are accepted)
         digits = str(value)
         self.cost_input.hover()
@@ -2189,7 +2193,6 @@ class AproProposalsPage(BasePage):
             except Exception:
                 logger.warning(f"Timed out waiting for symbol details to load for {ticker}")
 
-            self.page.wait_for_timeout(2000)
             # set acquisition date (optional fourth field) or default
             acquisition = None
             if isinstance(entry, dict):

@@ -1,7 +1,7 @@
 @regression @proposal @e2e
-Feature: APro poposal happy path
+Feature: APro proposal happy path
 
-    Scenario: APro poposal happy path
+    Scenario: Create Prospect Proposal Happy Path
         When I navigate to the APro prospects page
         Then I should see the APro prospects page
         And I start a new proposal
@@ -15,4 +15,14 @@ Feature: APro poposal happy path
         And I complete the generate report section with all reports
         Then the proposal should be generated with all reports
         Then the History/Actions section should contain the expected information
+        And the proposal should appear in the prospects list
         Then I delete the proposal
+
+# Scenario: Create Client Proposal Happy Path
+#     When I search for client "45255105"
+#     And I click the Proposals (New) link
+#     And I select the existing proposal
+#     Then The client details should be prefilled
+#     When I set the investment amount to $1
+#     When I edit the first holding in the list
+#     Then The total shares should be updated accordingly

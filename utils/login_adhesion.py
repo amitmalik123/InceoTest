@@ -159,7 +159,7 @@ async def login_one(playwright, user):
     context = await browser.new_context()
     page = await context.new_page()
     try:
-        print(f"🔐 Logging in as {user['username']}...")
+        print(f"Logging in as {user['username']}...")
         await page.goto(BASE_URL, timeout=AUTH_TIMEOUT_MS)
 
         # wait for username input (try common selectors)
@@ -187,7 +187,7 @@ async def login_one(playwright, user):
         storage_path = Path(user["storage"])
         storage_path.parent.mkdir(parents=True, exist_ok=True)
         await context.storage_state(path=str(storage_path))
-        print(f"✅ Session for {user['username']} saved to {storage_path}")
+        print(f"Session for {user['username']} saved to {storage_path}")
     except Exception:
         safe = (user.get("username") or "unknown").replace("@", "_").replace("+", "_")
         AUTH_DIR.mkdir(parents=True, exist_ok=True)
@@ -197,7 +197,7 @@ async def login_one(playwright, user):
             await page.screenshot(path=str(screenshot), full_page=True)
             content = await page.content()
             html_file.write_text(content, encoding="utf8")
-            print(f"🧾 Saved debug artifacts for {user['username']}: {screenshot}, {html_file}")
+            print(f"Saved debug artifacts for {user['username']}: {screenshot}, {html_file}")
         except Exception as save_err:
             print("Failed to save debug artifacts:", save_err)
         raise
@@ -213,23 +213,23 @@ async def login_all_users():
                 data = json.loads(TIMESTAMP_FILE.read_text())
                 ts = data.get("timestamp")
                 if isinstance(ts, int) and now - ts < 24 * 60 * 60 * 1000:
-                    print("🕒 Sessions fresh; skipping login refresh")
+                    print("Sessions fresh; skipping login refresh")
                     return
             except Exception:
-                print("⚠️ Failed to parse timestamp file; will refresh")
+                print("Failed to parse timestamp file; will refresh")
         else:
-            print("ℹ️ Timestamp file missing. Will refresh.")
+            print("Timestamp file missing. Will refresh.")
     else:
-        print("⚡ Force refresh enabled via AUTH_FORCE_REFRESH")
+        print("Force refresh enabled via AUTH_FORCE_REFRESH")
 
     users = [u for u in USERS if u.get("username") and u.get("password") and u.get("storage")]
     skipped = len(USERS) - len(users)
     if skipped:
-        print(f"⚠️ Skipping {skipped} user(s) with missing env values")
+        print(f"Skipping {skipped} user(s) with missing env values")
 
     failures = []
     if CONCURRENCY is not None and CONCURRENCY > 0:
-        print(f"🚀 Logging in {len(users)} users with concurrency {CONCURRENCY}")
+        print(f"Logging in {len(users)} users with concurrency {CONCURRENCY}")
         async with async_playwright() as p:
             sem = asyncio.Semaphore(CONCURRENCY)
 
@@ -244,7 +244,7 @@ async def login_all_users():
                 except Exception as e:
                     failures.append(str(e))
     else:
-        print(f"🚀 Logging in {len(users)} users concurrently (no limit)")
+        print(f"Logging in {len(users)} users concurrently (no limit)")
         async with async_playwright() as p:
             tasks = [login_one(p, u) for u in users]
             results = await asyncio.gather(*tasks, return_exceptions=True)
@@ -257,9 +257,9 @@ async def login_all_users():
     try:
         AUTH_DIR.mkdir(parents=True, exist_ok=True)
         TIMESTAMP_FILE.write_text(json.dumps({"timestamp": int(time.time() * 1000)}))
-        print("✅ Login sessions refreshed.")
+        print("Login sessions refreshed.")
     except Exception as e:
-        print("⚠️ Failed to write timestamp file:", e)
+        print("Failed to write timestamp file:", e)
 
 
 if __name__ == "__main__":

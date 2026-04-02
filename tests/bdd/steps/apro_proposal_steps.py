@@ -239,7 +239,6 @@ def step_report_complete(proposal_page: AproProposalsPage) -> None:
 @then("the History/Actions section should contain the expected information")
 def _view_history(proposal_page: AproProposalsPage):
     details = proposal_page.wait_for_history_details()
-    print(f"History details: {details}")
 
     assert details["client"] and details["client"] not in {
         "--",

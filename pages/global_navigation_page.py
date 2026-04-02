@@ -46,6 +46,38 @@ class GlobalNavigationPage(BasePage):
             "main-navigation-adhesion-platform"
         )
 
+        # Global search bar
+        self.global_search_input: Locator = page.locator("input#global-search")
+        self.global_search_results: Locator = page.locator("div#search-results")
+        self.global_search_clients_results: Locator = page.locator("table#clients-results")
+        self.global_search_accounts_results: Locator = page.locator(
+            "table#accounts-results tbody tr"
+        )
+
+        # Action menu items
+        self.action_menu_items: Locator = page.locator("div#divActionMenuItems")
+        self.action_lock_unlock: Locator = page.locator(
+            "div#divActionMenuItems div:has-text('Lock/Unlock')"
+        )
+        self.action_cash_management: Locator = page.locator(
+            "div#divActionMenuItems div:has-text('Cash Management')"
+        )
+        self.action_rebalancing: Locator = page.locator(
+            "div#divActionMenuItems div:has-text('Rebalancing')"
+        )
+        self.action_change_allocation: Locator = page.locator(
+            "div#divActionMenuItems div:has-text('Change Allocation')"
+        )
+        self.action_change_settings: Locator = page.locator(
+            "div#divActionMenuItems div:has-text('Change Settings')"
+        )
+        self.action_create_proposal: Locator = page.locator(
+            "div#divActionMenuItems div:has-text('Create/Edit Proposal')"
+        )
+        self.action_unenroll: Locator = page.locator(
+            "div#divActionMenuItems div:has-text('Unenroll')"
+        )
+
     # -----------------
     # Click helpers
     # -----------------
@@ -93,3 +125,63 @@ class GlobalNavigationPage(BasePage):
         """Open the global navigation by clicking the menu trigger (hamburger)."""
         logger.info("Clicking global navigation menu trigger")
         self.click(self.nav_menu_trigger)
+
+    def search(self, query: str) -> None:
+        """Type a search query into the global search bar."""
+        logger.info(f"Searching for: {query}")
+        self.click(self.global_search_input)
+        self.fill(self.global_search_input, query)
+
+    def clear_search(self) -> None:
+        """Clear the search input field."""
+        logger.info("Clearing global search")
+        self.global_search_input.clear()
+
+    # -----------------
+    # Action menu helpers
+    # -----------------
+    def click_action_item(self, action_name: str) -> None:
+        """Click an action menu item by name."""
+        logger.info(f"Clicking action: {action_name}")
+        action_map = {
+            "Lock/Unlock": self.action_lock_unlock,
+            "Cash Management": self.action_cash_management,
+            "Rebalancing": self.action_rebalancing,
+            "Change Allocation": self.action_change_allocation,
+            "Change Settings": self.action_change_settings,
+            "Create/Edit Proposal": self.action_create_proposal,
+            "Unenroll": self.action_unenroll,
+        }
+        locator = action_map.get(action_name)
+        if locator:
+            self.click(locator)
+        else:
+            raise ValueError(f"Unknown action: {action_name}")
+
+    def click_lock_unlock(self) -> None:
+        logger.info("Clicking Lock/Unlock action")
+        self.click(self.action_lock_unlock)
+
+    def click_cash_management(self) -> None:
+        logger.info("Clicking Cash Management action")
+        self.click(self.action_cash_management)
+
+    def click_rebalancing(self) -> None:
+        logger.info("Clicking Rebalancing action")
+        self.click(self.action_rebalancing)
+
+    def click_change_allocation(self) -> None:
+        logger.info("Clicking Change Allocation action")
+        self.click(self.action_change_allocation)
+
+    def click_change_settings(self) -> None:
+        logger.info("Clicking Change Settings action")
+        self.click(self.action_change_settings)
+
+    def click_create_proposal(self) -> None:
+        logger.info("Clicking Create/Edit Proposal action")
+        self.click(self.action_create_proposal)
+
+    def click_unenroll(self) -> None:
+        logger.info("Clicking Unenroll action")
+        self.click(self.action_unenroll)
