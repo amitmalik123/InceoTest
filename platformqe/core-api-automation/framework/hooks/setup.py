@@ -87,12 +87,15 @@ class TestDataManager:
         Returns:
             True if setup completed successfully, False otherwise
         """
+        print(f"\n{'='*80}\n[HOOKS SETUP] Starting setup for service: {self.service_name}\n{'='*80}")
         if not self.config.enabled:
+            print(f"[HOOKS SETUP] Hooks disabled for service: {self.service_name}")
             logger.info(f"Hooks disabled for service: {self.service_name}")
             return True
         logger.info(f"Starting setup for service: {self.service_name}")
         try:
             prereq = self.config.prerequisite_testcase
+            print(f"[HOOKS SETUP] prerequisite_testcase type: {type(prereq)}, value: {prereq}")
             logger.info(f"[DEBUG] prerequisite_testcase config: {prereq}")
             # Support endpoint-specific configs (dict of endpoints)
             if isinstance(prereq, dict):
@@ -128,10 +131,17 @@ class TestDataManager:
             else:
                 logger.info(f"No prerequisite test case configured or disabled")
             logger.info(f"Setup completed for service: {self.service_name}")
+            print(f"[HOOKS SETUP] ✅ Setup completed successfully for {self.service_name}")
             return True
         except Exception as e:
-            logger.error(f"Setup failed for service {self.service_name}: {e}")
+            print(f"\n{'='*80}\n[HOOKS SETUP] ❌ CRITICAL ERROR\n{'='*80}")
+            print(f"[HOOKS SETUP] Exception type: {type(e).__name__}")
+            print(f"[HOOKS SETUP] Exception message: {e}")
+            print(f"[HOOKS SETUP] Full traceback:")
             import traceback
+            traceback.print_exc()
+            print(f"{'='*80}\n")
+            logger.error(f"Setup failed for service {self.service_name}: {e}")
             logger.error(traceback.format_exc())
             return False
     
