@@ -1542,6 +1542,41 @@ def pytest_sessionstart(session):
                 'environment': env
             }
             
+            # Force file system sync after hooks write CSV (fixes Docker/pipeline lag)
+            import time
+            import subprocess
+            if success:
+                try:
+                    if os.name == 'posix':  # Linux/Mac
+                        subprocess.run(['sync'], check=False, timeout=5)
+                        logger.info("[CONFTEST] ✅ OS sync executed after hooks")
+                except Exception as e:
+                    logger.debug(f"[CONFTEST] OS sync (non-blocking): {e}")
+                print(f"[CONFTEST] ⏳ Waiting 30 seconds for file system sync...")
+                logger.info(f"[CONFTEST] ⏳ Waiting 30 seconds for file system sync...")
+                time.sleep(30)  # 30 second delay to ensure file system catches up in Docker/pipeline
+                logger.info("[CONFTEST] ✅ Hooks completed, 30s file sync confirmed")
+            
+            # Verify CSV was updated by reading it back
+            if success and service_name == 'MoveMoneyAPI':
+                try:
+                    import csv as csv_module
+                    csv_path = os.path.join(os.path.dirname(__file__), 'testdata', 'MoveMoneyAPI', 'data_driven', 'Data_instructions_instructionId_GET.csv')
+                    if os.path.exists(csv_path):
+                        print(f"\n{'='*80}\n[CONFTEST HOOK VERIFICATION] After hooks complete:\n{'='*80}")
+                        with open(csv_path, 'r', newline='', encoding='utf-8') as f:
+                            reader = csv_module.reader(f)
+                            csv_content = list(reader)
+                        print(f"CSV File: {csv_path}")
+                        print(f"CSV Contents: {csv_content}")
+                        logger.info(f"[CONFTEST] Hook verification - CSV contents: {csv_content}")
+                        print(f"{'='*80}\n")
+                    else:
+                        print(f"\n[CONFTEST HOOK VERIFICATION] CSV file not found: {csv_path}")
+                        logger.warning(f"[CONFTEST] CSV file not found: {csv_path}")
+                except Exception as e:
+                    logger.warning(f"[CONFTEST] Failed to verify CSV: {e}")
+            
             if success:
                 logger.info(f"Hooks completed successfully for {service_name}")
             else:

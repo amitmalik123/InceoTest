@@ -222,6 +222,24 @@ def test_api_case(case, request):
             if 'instructionId' in test_row:
                 logger.debug(f"[HOOKS]  --> instructionId to use: {test_row['instructionId']}")
     
+    # Log CSV test data for GET operations with instructionId
+    if case.get('method', '').upper() == 'GET' and case.get('test_data_file') and 'instructions' in case.get('test_data_file', ''):
+        from datetime import datetime
+        print(f"\n{'='*80}")
+        print(f"[TEST EXECUTION] {datetime.now().isoformat()}")
+        print(f"[TEST] {case.get('test_id')} - using CSV Test Data:")
+        print(f"[TEST]  Test data file: {case.get('test_data_file')}")
+        print(f"[TEST]  CSV row index: {case.get('csv_row_index', 0)}")
+        if test_data and len(test_data) > 0:
+            test_row = test_data[case.get('csv_row_index', 0)] if len(test_data) > case.get('csv_row_index', 0) else test_data[0]
+            print(f"[TEST]  CSV row data: {test_row}")
+            logger.debug(f"[TEST]  CSV row data: {test_row}")
+            # Log specific instructionId if available
+            if 'instructionId' in test_row:
+                print(f"[TEST]  --> instructionId to use: {test_row['instructionId']}")
+                logger.debug(f"[TEST]  --> instructionId to use: {test_row['instructionId']}")
+        print(f"{'='*80}\n")
+    
     # Render endpoint and method with context
     api_name = case.get('api_name', 'UserService')
     api_def = api_defs.get(api_name, {})

@@ -4,6 +4,7 @@ import glob
 import yaml
 import csv
 import concurrent.futures
+import datetime
 from collections import defaultdict
 from typing import List, Dict, Optional, Union
 
@@ -91,7 +92,24 @@ class TestDataLoader:
             return []
 
     def _load_csv(self, file: str) -> List[Dict]:
-            logger.info(f"Loading CSV test data from: {file}")
+            import time
+            timestamp = datetime.datetime.now().isoformat() if hasattr(datetime, 'datetime') else str(time.time())
+            print(f"\n[TEST DATA LOADER] {timestamp}")
+            print(f"[CSV LOAD] File: {file}")
+            logger.info(f"\n[TEST DATA LOADER] {timestamp}")
+            logger.info(f"[CSV LOAD] File: {file}")
+            
+            # Force file system read from disk (not cache) - critical for Docker/pipeline
+            import os
+            try:
+                if os.name == 'posix':  # Linux/Mac
+                    import subprocess
+                    subprocess.run(['sync'], check=False, timeout=5)
+                    print(f"[CSV LOAD] ✅ OS cache cleared (Linux)")
+                    logger.debug(f"[CSV LOAD] ✅ OS cache cleared (Linux)")
+            except Exception as e:
+                logger.debug(f"[CSV LOAD] OS cache clear (non-blocking): {e}")
+            
             try:
                 with open(file, 'r', encoding='utf-8', newline='') as f:
                     reader = csv.DictReader(f)
@@ -121,9 +139,11 @@ class TestDataLoader:
                                 value = v
                             clean_row[key] = value
                         rows.append(clean_row)
-                    logger.info(f"[DEBUG] Loaded CSV rows: {rows}")
+                    print(f"[CSV LOAD] Loaded {len(rows)} rows: {rows}")
+                    logger.info(f"[CSV LOAD] Loaded {len(rows)} rows: {rows}")
                     return rows
             except Exception as e:
+                print(f"[CSV LOAD ERROR] {e}")
                 logger.error(f"Error loading CSV from {file}: {e}")
                 return []
 

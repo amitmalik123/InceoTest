@@ -437,7 +437,17 @@ class TestDataManager:
             all_extracted_values: List of dictionaries with extracted values
             columns: List of column names for the CSV
         """
-        logger.info(f"[HOOKS DEBUG] Updating CSV: {csv_file} with values: {all_extracted_values}")  # <-- Add here
+        import time
+        timestamp = datetime.now().isoformat()
+        print(f"\n{'='*80}\n[HOOKS CSV UPDATE] {timestamp}\n{'='*80}")
+        print(f"[CSV UPDATE] File: {csv_file}")
+        print(f"[CSV UPDATE] Values to write: {all_extracted_values}")
+        logger.info(f"{'='*80}")
+        logger.info(f"[HOOKS CSV UPDATE] {timestamp}")
+        logger.info(f"{'='*80}")
+        logger.info(f"[CSV UPDATE] File: {csv_file}")
+        logger.info(f"[CSV UPDATE] Values to write: {all_extracted_values}")
+        
         testdata_path = os.path.join(
             os.path.dirname(__file__), '..', '..', 'testdata'
         )
@@ -490,10 +500,38 @@ class TestDataManager:
                 writer = csv.DictWriter(f, fieldnames=final_columns)
                 writer.writeheader()
                 writer.writerows(existing_rows)
+                # Force flush to disk immediately (fixes Docker/pipeline sync lag)
+                f.flush()
+                os.fsync(f.fileno())
             
+            print(f"[CSV UPDATE] ✅ CSV written successfully: {csv_path}")
             logger.info(f"Updated {csv_path} with {len(existing_rows)} entries")
             
+            # Force OS-level sync to ensure file is written to disk (critical for Docker/pipeline)
+            import subprocess
+            try:
+                if os.name == 'posix':  # Linux/Mac
+                    subprocess.run(['sync'], check=False, timeout=5)
+                    print(f"[CSV UPDATE] ✅ OS sync completed (Linux)")
+                    logger.info(f"[CSV UPDATE] ✅ OS sync completed (Linux)")
+            except Exception as e:
+                logger.warning(f"[CSV UPDATE] OS sync warning (non-blocking): {e}")
+            
+            # Read back and verify
+            import time
+            time.sleep(0.1)  # Brief delay to ensure file system catches up
+            try:
+                with open(csv_path, 'r', newline='', encoding='utf-8') as f:
+                    reader = csv.reader(f)
+                    csv_content = list(reader)
+                print(f"[CSV UPDATE] ✅ CSV verification - file contents: {csv_content}")
+                logger.info(f"[CSV UPDATE] ✅ CSV verification - file contents: {csv_content}")
+            except Exception as e:
+                print(f"[CSV UPDATE] ⚠️  Failed to read back CSV: {e}")
+                logger.warning(f"[CSV UPDATE] Failed to read back CSV: {e}")
+            
         except Exception as e:
+            print(f"[CSV UPDATE] ❌ Failed to update CSV {csv_file}: {e}")
             logger.error(f"Failed to update CSV {csv_file}: {e}")
             import traceback
             logger.error(traceback.format_exc())
