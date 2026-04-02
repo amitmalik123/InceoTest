@@ -79,29 +79,31 @@ SERVICE_DEFAULTS: Dict[str, Dict] = {
         # Prerequisite test cases for MoveMoneyAPI service
         # Supports multiple endpoints: requests and instructions
         'prerequisite_testcase': {
-            # === INSTRUCTIONS ENDPOINT ===
-            
+            # === REQUESTS ENDPOINT ===
+            'requests': {
                 'enabled': True,
-                'count': 1,  # Create instructionId and version for GET/PUT/DELETE flow 
-                'testcase_file': 'MoveMoneyAPI/testcases/TestCase_instructions_POST.json',
-                'test_data_file': 'MoveMoneyAPI/data_driven/Data_instructions_Hook_POST.csv',
+                'count': 1,  # Number of requestIds to create requestId and version for GET/PUT/DELETE flow 
+                'testcase_file': 'MoveMoneyAPI/testcases/TestCase_moneymovement_requestid_POST.json',
+                'test_data_file': 'MoveMoneyAPI/data_driven/Data_MoveMoneyAPI_POST.csv',
                 'extract_from_response': {
                     'fields': [
-                        {
-                            'field': 'instructionId',
-                            'assign_to': 'instructionId'
-                        },
-                        {
-                            'field': 'version',
-                            'assign_to': 'version'
-                        }
+                {
+                    'field': 'requestId',  # Field to extract from API response
+                    'assign_to': 'requestId'    # Variable name to use
+                },
+                {
+                    'field': 'version',  # Field to extract from API response
+                    'assign_to': 'version'    # Variable name to use
+                }
                     ]
                 },
 
-                'update_csv_file': 'MoveMoneyAPI/data_driven/Data_instructions_instructionId_GET.csv',
-                'csv_columns': ['environment', 'instructionId', 'version'],
+                'update_csv_file': 'MoveMoneyAPI/data_driven/Data_requests_requestId_GET.csv',
+                'csv_columns': ['environment', 'requestId', 'version', 'instructionId', 'accountId', 'railType', 'amount', 'percent','requestType', 'status', 'reason', 'scheduleType', 'paymentDate', 'frequency', 'startDate', 'endDate'],
             }
-        
+            # === INSTRUCTIONS ENDPOINT ===
+            
+        }
     }
 }
  
