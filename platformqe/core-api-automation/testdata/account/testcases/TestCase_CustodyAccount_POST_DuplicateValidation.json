@@ -57,11 +57,7 @@
             },
             {
                 "from": "db_result",
-<<<<<<< HEAD
                 "query": "account_exists",
-=======
-                "query": "default",
->>>>>>> ad0175a189a950ae56f612ce8e44f826f4ba3518
                 "assign": [
                     {
                         "key": "0.id",
@@ -92,11 +88,7 @@
         },
         "db_query_timing": "after_api",
         "db_queries": {
-<<<<<<< HEAD
             "account_exists": "SELECT TOP 1 LOWER(CAST(Id AS NVARCHAR(50))) AS id FROM (SELECT *, ROW_NUMBER() OVER (PARTITION BY Id ORDER BY Version DESC) AS vrn FROM Account) a WHERE a.vrn = 1 AND a.Id = '{{householdAccountId}}'"
-=======
-            "default": "SELECT TOP 1 LOWER(CAST(Id AS NVARCHAR(50))) AS id FROM (SELECT *, ROW_NUMBER() OVER (PARTITION BY Id ORDER BY Version DESC) AS vrn FROM Account) a WHERE a.vrn = 1 AND a.Id = '{{householdAccountId}}'"
->>>>>>> ad0175a189a950ae56f612ce8e44f826f4ba3518
         },
         "db_type": "mssql",
         "db_connection_name": "account_service",
@@ -171,11 +163,7 @@
             },
             {
                 "from": "db_result",
-<<<<<<< HEAD
                 "query": "acct_num",
-=======
-                "query": "default",
->>>>>>> ad0175a189a950ae56f612ce8e44f826f4ba3518
                 "assign": [
                     {
                         "key": "0.value",
@@ -216,28 +204,20 @@
                     "operator": "==",
                     "expected": "{{acct_num_test}}",
                     "message": "AccountNumber must be persisted in the database"
-<<<<<<< HEAD
                 },
                 {
                     "actual": "{{db_custodian_1}}",
                     "operator": "==",
                     "expected": "FID",
                     "message": "Custodian identifier must be persisted in the database"
-=======
->>>>>>> ad0175a189a950ae56f612ce8e44f826f4ba3518
                 }
             ],
             "data_comparison": []
         },
         "db_query_timing": "after_api",
         "db_queries": {
-<<<<<<< HEAD
             "acct_num": "SELECT TOP 1 JSON_VALUE(i.value, '$.Value') AS value FROM (SELECT *, ROW_NUMBER() OVER (PARTITION BY Id ORDER BY Version DESC) AS vrn FROM Account) a CROSS APPLY OPENJSON(a.Identifiers) i WHERE a.vrn = 1 AND a.Id = '{{custody_account_id_1}}' AND JSON_VALUE(i.value, '$.Type') = 'AccountNumber'",
             "custodian": "SELECT TOP 1 JSON_VALUE(i.value, '$.Value') AS value FROM (SELECT *, ROW_NUMBER() OVER (PARTITION BY Id ORDER BY Version DESC) AS vrn FROM Account) a CROSS APPLY OPENJSON(a.Identifiers) i WHERE a.vrn = 1 AND a.Id = '{{custody_account_id_1}}' AND JSON_VALUE(i.value, '$.Type') = 'Custodian'"
-=======
-            "custodian": "SELECT TOP 1 JSON_VALUE(i.value, '$.Value') AS value FROM (SELECT *, ROW_NUMBER() OVER (PARTITION BY Id ORDER BY Version DESC) AS vrn FROM Account) a CROSS APPLY OPENJSON(a.Identifiers) i WHERE a.vrn = 1 AND a.Id = '{{custody_account_id_1}}' AND JSON_VALUE(i.value, '$.Type') = 'Custodian'",
-            "default": "SELECT TOP 1 JSON_VALUE(i.value, '$.Value') AS value FROM (SELECT *, ROW_NUMBER() OVER (PARTITION BY Id ORDER BY Version DESC) AS vrn FROM Account) a CROSS APPLY OPENJSON(a.Identifiers) i WHERE a.vrn = 1 AND a.Id = '{{custody_account_id_1}}' AND JSON_VALUE(i.value, '$.Type') = 'AccountNumber'"
->>>>>>> ad0175a189a950ae56f612ce8e44f826f4ba3518
         },
         "db_type": "mssql",
         "db_connection_name": "account_service",
@@ -301,11 +281,7 @@
             },
             {
                 "from": "db_result",
-<<<<<<< HEAD
                 "query": "dup_count",
-=======
-                "query": "default",
->>>>>>> ad0175a189a950ae56f612ce8e44f826f4ba3518
                 "assign": [
                     {
                         "key": "0.cnt",
@@ -336,11 +312,7 @@
         },
         "db_query_timing": "after_api",
         "db_queries": {
-<<<<<<< HEAD
             "dup_count": "SELECT COUNT(*) AS cnt FROM (SELECT *, ROW_NUMBER() OVER (PARTITION BY Id ORDER BY Version DESC) AS vrn FROM Account) a CROSS APPLY OPENJSON(a.Identifiers) i1 CROSS APPLY OPENJSON(a.Identifiers) i2 WHERE a.vrn = 1 AND JSON_VALUE(i1.value, '$.Type') = 'AccountNumber' AND UPPER(JSON_VALUE(i1.value, '$.Value')) = UPPER('{{acct_num_test}}') AND JSON_VALUE(i2.value, '$.Type') = 'Custodian' AND UPPER(JSON_VALUE(i2.value, '$.Value')) = 'FID'"
-=======
-            "default": "SELECT COUNT(*) AS cnt FROM (SELECT *, ROW_NUMBER() OVER (PARTITION BY Id ORDER BY Version DESC) AS vrn FROM Account) a CROSS APPLY OPENJSON(a.Identifiers) i1 CROSS APPLY OPENJSON(a.Identifiers) i2 WHERE a.vrn = 1 AND JSON_VALUE(i1.value, '$.Type') = 'AccountNumber' AND UPPER(JSON_VALUE(i1.value, '$.Value')) = UPPER('{{acct_num_test}}') AND JSON_VALUE(i2.value, '$.Type') = 'Custodian' AND UPPER(JSON_VALUE(i2.value, '$.Value')) = 'FID'"
->>>>>>> ad0175a189a950ae56f612ce8e44f826f4ba3518
         },
         "db_type": "mssql",
         "db_connection_name": "account_service",
@@ -367,11 +339,7 @@
         "protocol": "REST",
         "db_query_timing": "after_api",
         "db_queries": {
-<<<<<<< HEAD
             "acct_num": "SELECT TOP 1 JSON_VALUE(i.value, '$.Value') AS value FROM (SELECT *, ROW_NUMBER() OVER (PARTITION BY Id ORDER BY Version DESC) AS vrn FROM Account) a CROSS APPLY OPENJSON(a.Identifiers) i WHERE a.vrn = 1 AND a.Id = '{{custody_account_id_3}}' AND JSON_VALUE(i.value, '$.Type') = 'AccountNumber'"
-=======
-            "default": "SELECT TOP 1 JSON_VALUE(i.value, '$.Value') AS value FROM (SELECT *, ROW_NUMBER() OVER (PARTITION BY Id ORDER BY Version DESC) AS vrn FROM Account) a CROSS APPLY OPENJSON(a.Identifiers) i WHERE a.vrn = 1 AND a.Id = '{{custody_account_id_3}}' AND JSON_VALUE(i.value, '$.Type') = 'AccountNumber'"
->>>>>>> ad0175a189a950ae56f612ce8e44f826f4ba3518
         },
         "db_type": "mssql",
         "db_connection_name": "account_service",
@@ -416,11 +384,7 @@
             },
             {
                 "from": "db_result",
-<<<<<<< HEAD
                 "query": "acct_num",
-=======
-                "query": "default",
->>>>>>> ad0175a189a950ae56f612ce8e44f826f4ba3518
                 "assign": [
                     {
                         "key": "0.value",
@@ -466,11 +430,7 @@
         "protocol": "REST",
         "db_query_timing": "after_api",
         "db_queries": {
-<<<<<<< HEAD
             "custodian": "SELECT TOP 1 JSON_VALUE(i.value, '$.Value') AS value FROM (SELECT *, ROW_NUMBER() OVER (PARTITION BY Id ORDER BY Version DESC) AS vrn FROM Account) a CROSS APPLY OPENJSON(a.Identifiers) i WHERE a.vrn = 1 AND a.Id = '{{custody_account_id_4}}' AND JSON_VALUE(i.value, '$.Type') = 'Custodian'"
-=======
-            "default": "SELECT TOP 1 JSON_VALUE(i.value, '$.Value') AS value FROM (SELECT *, ROW_NUMBER() OVER (PARTITION BY Id ORDER BY Version DESC) AS vrn FROM Account) a CROSS APPLY OPENJSON(a.Identifiers) i WHERE a.vrn = 1 AND a.Id = '{{custody_account_id_4}}' AND JSON_VALUE(i.value, '$.Type') = 'Custodian'"
->>>>>>> ad0175a189a950ae56f612ce8e44f826f4ba3518
         },
         "db_type": "mssql",
         "db_connection_name": "account_service",
@@ -515,11 +475,7 @@
             },
             {
                 "from": "db_result",
-<<<<<<< HEAD
                 "query": "custodian",
-=======
-                "query": "default",
->>>>>>> ad0175a189a950ae56f612ce8e44f826f4ba3518
                 "assign": [
                     {
                         "key": "0.value",
@@ -565,11 +521,7 @@
         "protocol": "REST",
         "db_query_timing": "after_api",
         "db_queries": {
-<<<<<<< HEAD
             "dup_count": "SELECT COUNT(*) AS cnt FROM (SELECT *, ROW_NUMBER() OVER (PARTITION BY Id ORDER BY Version DESC) AS vrn FROM Account) a CROSS APPLY OPENJSON(a.Identifiers) i1 CROSS APPLY OPENJSON(a.Identifiers) i2 WHERE a.vrn = 1 AND JSON_VALUE(i1.value, '$.Type') = 'AccountNumber' AND UPPER(JSON_VALUE(i1.value, '$.Value')) = UPPER('{{acct_num_test}}') AND JSON_VALUE(i2.value, '$.Type') = 'Custodian' AND UPPER(JSON_VALUE(i2.value, '$.Value')) = 'FID'"
-=======
-            "default": "SELECT COUNT(*) AS cnt FROM (SELECT *, ROW_NUMBER() OVER (PARTITION BY Id ORDER BY Version DESC) AS vrn FROM Account) a CROSS APPLY OPENJSON(a.Identifiers) i1 CROSS APPLY OPENJSON(a.Identifiers) i2 WHERE a.vrn = 1 AND JSON_VALUE(i1.value, '$.Type') = 'AccountNumber' AND UPPER(JSON_VALUE(i1.value, '$.Value')) = UPPER('{{acct_num_test}}') AND JSON_VALUE(i2.value, '$.Type') = 'Custodian' AND UPPER(JSON_VALUE(i2.value, '$.Value')) = 'FID'"
->>>>>>> ad0175a189a950ae56f612ce8e44f826f4ba3518
         },
         "db_type": "mssql",
         "db_connection_name": "account_service",
@@ -607,11 +559,7 @@
         "extract_values": [
             {
                 "from": "db_result",
-<<<<<<< HEAD
                 "query": "dup_count",
-=======
-                "query": "default",
->>>>>>> ad0175a189a950ae56f612ce8e44f826f4ba3518
                 "assign": [
                     {
                         "key": "0.cnt",
@@ -657,11 +605,7 @@
         "protocol": "REST",
         "db_query_timing": "after_api",
         "db_queries": {
-<<<<<<< HEAD
             "dup_count": "SELECT COUNT(*) AS cnt FROM (SELECT *, ROW_NUMBER() OVER (PARTITION BY Id ORDER BY Version DESC) AS vrn FROM Account) a CROSS APPLY OPENJSON(a.Identifiers) i1 CROSS APPLY OPENJSON(a.Identifiers) i2 WHERE a.vrn = 1 AND JSON_VALUE(i1.value, '$.Type') = 'AccountNumber' AND UPPER(JSON_VALUE(i1.value, '$.Value')) = UPPER('{{acct_num_test}}') AND JSON_VALUE(i2.value, '$.Type') = 'Custodian' AND UPPER(JSON_VALUE(i2.value, '$.Value')) = 'FID'"
-=======
-            "default": "SELECT COUNT(*) AS cnt FROM (SELECT *, ROW_NUMBER() OVER (PARTITION BY Id ORDER BY Version DESC) AS vrn FROM Account) a CROSS APPLY OPENJSON(a.Identifiers) i1 CROSS APPLY OPENJSON(a.Identifiers) i2 WHERE a.vrn = 1 AND JSON_VALUE(i1.value, '$.Type') = 'AccountNumber' AND UPPER(JSON_VALUE(i1.value, '$.Value')) = UPPER('{{acct_num_test}}') AND JSON_VALUE(i2.value, '$.Type') = 'Custodian' AND UPPER(JSON_VALUE(i2.value, '$.Value')) = 'FID'"
->>>>>>> ad0175a189a950ae56f612ce8e44f826f4ba3518
         },
         "db_type": "mssql",
         "db_connection_name": "account_service",
@@ -699,11 +643,7 @@
         "extract_values": [
             {
                 "from": "db_result",
-<<<<<<< HEAD
                 "query": "dup_count",
-=======
-                "query": "default",
->>>>>>> ad0175a189a950ae56f612ce8e44f826f4ba3518
                 "assign": [
                     {
                         "key": "0.cnt",
@@ -749,13 +689,8 @@
         "protocol": "REST",
         "db_query_timing": "after_api",
         "db_queries": {
-<<<<<<< HEAD
             "acct_num": "SELECT TOP 1 JSON_VALUE(i.value, '$.Value') AS value FROM (SELECT *, ROW_NUMBER() OVER (PARTITION BY Id ORDER BY Version DESC) AS vrn FROM Account) a CROSS APPLY OPENJSON(a.Identifiers) i WHERE a.vrn = 1 AND a.Id = '{{custody_account_id_7}}' AND JSON_VALUE(i.value, '$.Type') = 'AccountNumber'",
             "custodian": "SELECT TOP 1 JSON_VALUE(i.value, '$.Value') AS value FROM (SELECT *, ROW_NUMBER() OVER (PARTITION BY Id ORDER BY Version DESC) AS vrn FROM Account) a CROSS APPLY OPENJSON(a.Identifiers) i WHERE a.vrn = 1 AND a.Id = '{{custody_account_id_7}}' AND JSON_VALUE(i.value, '$.Type') = 'Custodian'"
-=======
-            "custodian": "SELECT TOP 1 JSON_VALUE(i.value, '$.Value') AS value FROM (SELECT *, ROW_NUMBER() OVER (PARTITION BY Id ORDER BY Version DESC) AS vrn FROM Account) a CROSS APPLY OPENJSON(a.Identifiers) i WHERE a.vrn = 1 AND a.Id = '{{custody_account_id_7}}' AND JSON_VALUE(i.value, '$.Type') = 'Custodian'",
-            "default": "SELECT TOP 1 JSON_VALUE(i.value, '$.Value') AS value FROM (SELECT *, ROW_NUMBER() OVER (PARTITION BY Id ORDER BY Version DESC) AS vrn FROM Account) a CROSS APPLY OPENJSON(a.Identifiers) i WHERE a.vrn = 1 AND a.Id = '{{custody_account_id_7}}' AND JSON_VALUE(i.value, '$.Type') = 'AccountNumber'"
->>>>>>> ad0175a189a950ae56f612ce8e44f826f4ba3518
         },
         "db_type": "mssql",
         "db_connection_name": "account_service",
@@ -809,11 +744,7 @@
             },
             {
                 "from": "db_result",
-<<<<<<< HEAD
                 "query": "acct_num",
-=======
-                "query": "default",
->>>>>>> ad0175a189a950ae56f612ce8e44f826f4ba3518
                 "assign": [
                     {
                         "key": "0.value",
@@ -842,15 +773,12 @@
                     "operator": "==",
                     "expected": "{{acct_num_test_7}}",
                     "message": "AccountNumber must be persisted in the database"
-<<<<<<< HEAD
                 },
                 {
                     "actual": "{{db_custodian_7}}",
                     "operator": "==",
                     "expected": "FID",
                     "message": "Custodian must be persisted in the database"
-=======
->>>>>>> ad0175a189a950ae56f612ce8e44f826f4ba3518
                 }
             ],
             "data_comparison": []
@@ -878,13 +806,8 @@
         "protocol": "REST",
         "db_query_timing": "after_api",
         "db_queries": {
-<<<<<<< HEAD
             "acct_num": "SELECT TOP 1 JSON_VALUE(i.value, '$.Value') AS value FROM (SELECT *, ROW_NUMBER() OVER (PARTITION BY Id ORDER BY Version DESC) AS vrn FROM Account) a CROSS APPLY OPENJSON(a.Identifiers) i WHERE a.vrn = 1 AND a.Id = '{{custody_account_id_8}}' AND JSON_VALUE(i.value, '$.Type') = 'AccountNumber'",
             "custodian": "SELECT TOP 1 JSON_VALUE(i.value, '$.Value') AS value FROM (SELECT *, ROW_NUMBER() OVER (PARTITION BY Id ORDER BY Version DESC) AS vrn FROM Account) a CROSS APPLY OPENJSON(a.Identifiers) i WHERE a.vrn = 1 AND a.Id = '{{custody_account_id_8}}' AND JSON_VALUE(i.value, '$.Type') = 'Custodian'"
-=======
-            "custodian": "SELECT TOP 1 JSON_VALUE(i.value, '$.Value') AS value FROM (SELECT *, ROW_NUMBER() OVER (PARTITION BY Id ORDER BY Version DESC) AS vrn FROM Account) a CROSS APPLY OPENJSON(a.Identifiers) i WHERE a.vrn = 1 AND a.Id = '{{custody_account_id_8}}' AND JSON_VALUE(i.value, '$.Type') = 'Custodian'",
-            "default": "SELECT TOP 1 JSON_VALUE(i.value, '$.Value') AS value FROM (SELECT *, ROW_NUMBER() OVER (PARTITION BY Id ORDER BY Version DESC) AS vrn FROM Account) a CROSS APPLY OPENJSON(a.Identifiers) i WHERE a.vrn = 1 AND a.Id = '{{custody_account_id_8}}' AND JSON_VALUE(i.value, '$.Type') = 'AccountNumber'"
->>>>>>> ad0175a189a950ae56f612ce8e44f826f4ba3518
         },
         "db_type": "mssql",
         "db_connection_name": "account_service",
@@ -933,11 +856,7 @@
             },
             {
                 "from": "db_result",
-<<<<<<< HEAD
                 "query": "acct_num",
-=======
-                "query": "default",
->>>>>>> ad0175a189a950ae56f612ce8e44f826f4ba3518
                 "assign": [
                     {
                         "key": "0.value",
@@ -966,15 +885,12 @@
                     "operator": "==",
                     "expected": "{{acct_num_test}}",
                     "message": "AccountNumber must be persisted in the database"
-<<<<<<< HEAD
                 },
                 {
                     "actual": "{{db_custodian_8}}",
                     "operator": "==",
                     "expected": "AMK",
                     "message": "Custodian AMK must be persisted in the database"
-=======
->>>>>>> ad0175a189a950ae56f612ce8e44f826f4ba3518
                 }
             ],
             "data_comparison": []
@@ -1002,11 +918,7 @@
         "protocol": "REST",
         "db_query_timing": "after_api",
         "db_queries": {
-<<<<<<< HEAD
             "account_exists": "SELECT TOP 1 LOWER(CAST(Id AS NVARCHAR(50))) AS id FROM (SELECT *, ROW_NUMBER() OVER (PARTITION BY Id ORDER BY Version DESC) AS vrn FROM Account) a WHERE a.vrn = 1 AND a.Id = '{{custody_account_id_9}}'"
-=======
-            "default": "SELECT TOP 1 LOWER(CAST(Id AS NVARCHAR(50))) AS id FROM (SELECT *, ROW_NUMBER() OVER (PARTITION BY Id ORDER BY Version DESC) AS vrn FROM Account) a WHERE a.vrn = 1 AND a.Id = '{{custody_account_id_9}}'"
->>>>>>> ad0175a189a950ae56f612ce8e44f826f4ba3518
         },
         "db_type": "mssql",
         "db_connection_name": "account_service",
@@ -1046,11 +958,7 @@
             },
             {
                 "from": "db_result",
-<<<<<<< HEAD
                 "query": "account_exists",
-=======
-                "query": "default",
->>>>>>> ad0175a189a950ae56f612ce8e44f826f4ba3518
                 "assign": [
                     {
                         "key": "0.id",
