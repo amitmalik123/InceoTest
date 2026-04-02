@@ -242,7 +242,11 @@
         "extract_values": [
             {
                 "from": "db_result",
+<<<<<<< HEAD
                 "query": "count_all",
+=======
+                "query": "default",
+>>>>>>> ad0175a189a950ae56f612ce8e44f826f4ba3518
                 "assign": [
                     {
                         "key": "0.totalCount",
@@ -274,7 +278,11 @@
         "test_data_file": "",
         "db_query_timing": "after_api",
         "db_queries": {
+<<<<<<< HEAD
             "count_all": "SELECT COUNT(*) AS totalCount FROM (SELECT *, ROW_NUMBER() OVER (PARTITION BY Id ORDER BY Version DESC) AS vrn FROM Account) a CROSS APPLY OPENJSON(a.Identifiers) i WHERE a.vrn = 1 AND a.Id = '{{setupAccountId}}';"
+=======
+            "default": "SELECT COUNT(*) AS totalCount FROM (SELECT *, ROW_NUMBER() OVER (PARTITION BY Id ORDER BY Version DESC) AS vrn FROM Account) a CROSS APPLY OPENJSON(a.Identifiers) i WHERE a.vrn = 1 AND a.Id = '{{setupAccountId}}';"
+>>>>>>> ad0175a189a950ae56f612ce8e44f826f4ba3518
         },
         "db_type": "mssql",
         "db_connection_name": "account_service",

@@ -220,10 +220,11 @@ class TestContextManager:
                 continue  # Move to next extract config
             
             # Use validators' _resolve_data_source for consistent logic
+            # Include the named query key so that db_results with non-'default' names resolve correctly
             try:
                 source_data = _resolve_data_source(
                     data_source_type=source_type,
-                    comparison_config={'source': source_type},  # Minimal config for resolution
+                    comparison_config={'source': source_type},
                     response=response,
                     context=temp_context
                 )
