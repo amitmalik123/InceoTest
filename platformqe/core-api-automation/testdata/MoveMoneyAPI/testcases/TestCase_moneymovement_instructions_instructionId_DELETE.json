@@ -183,7 +183,7 @@
             "Negative"
         ],
         "mainURL": "{{base_url}}",
-        "endpoint": "/instructions/{{instructionId_delete}}",
+        "endpoint": "/instructions/{{instruction_id}}",
         "method": "DELETE",
         "rpc_method": "",
         "graphql_query": "",
