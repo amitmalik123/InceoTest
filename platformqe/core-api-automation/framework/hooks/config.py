@@ -62,7 +62,7 @@ SERVICE_DEFAULTS: Dict[str, Dict] = {
         'max_records': 10,
         # Prerequisite test case to run before other tests
         'prerequisite_testcase': {
-            'enabled': False,
+            'enabled': True,
             'count': 3,  # Number of party IDs to create
             'testcase_file': 'parties/testcases/TestCase_Party_POST.json',
             'test_data_file': 'parties/data_driven/Data_parties_POST.csv',
@@ -100,7 +100,9 @@ SERVICE_DEFAULTS: Dict[str, Dict] = {
 
                 'update_csv_file': 'MoveMoneyAPI/data_driven/Data_requests_requestId_GET.csv',
                 'csv_columns': ['environment', 'requestId', 'version', 'instructionId', 'accountId', 'railType', 'amount', 'percent','requestType', 'status', 'reason', 'scheduleType', 'paymentDate', 'frequency', 'startDate', 'endDate'],
+            }
             },
+            'prerequisite_testcase': {
             # === INSTRUCTIONS ENDPOINT ===
             'instructions': {
                 'enabled': True,
