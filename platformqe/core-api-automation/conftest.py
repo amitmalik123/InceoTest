@@ -1519,7 +1519,6 @@ def pytest_sessionstart(session):
     # Trigger hooks for service-specific test data setup
     service_name = session.config.getoption('--service-name', default=None)
     hook_endpoint = session.config.getoption('--hook-endpoint', default=None)
-    print(f"\n{'='*80}\n[HOOKS] pytest_sessionstart triggered\n[HOOKS] service_name: {service_name}\n[HOOKS] hook_endpoint: {hook_endpoint}\n{'='*80}")
     if service_name:
         try:
             from framework.hooks.setup import TestDataManager
@@ -1532,26 +1531,20 @@ def pytest_sessionstart(session):
                 env = config.get('environment', 'test')
             
             endpoint_label = hook_endpoint or "all"
-            print(f"\n[HOOKS] Triggering hooks for service: {service_name}, environment: {env}")
             logger.info(f"Triggering hooks for service: {service_name}, endpoint: {endpoint_label}, environment: {env}")
             
             success = False
             try:
-                print(f"[HOOKS] Loading TestDataManager for service: {service_name}")
                 _test_data_manager = TestDataManager(service_name, environment=env)
-                print(f"[HOOKS] TestDataManager created. Calling setup()...")
                 success = _test_data_manager.setup()
-                print(f"[HOOKS] setup() returned: {success}")
                 logger.info(f"[HOOKS] Setup completed with status: {success}")
             except Exception as e:
-                print(f"\n[HOOKS] ❌ CRITICAL ERROR during setup():")
-                print(f"[HOOKS] Exception type: {type(e).__name__}")
-                print(f"[HOOKS] Exception message: {e}")
-                import traceback
-                print("[HOOKS] Full traceback:")
-                traceback.print_exc()
                 logger.error(f"[HOOKS] ❌ CRITICAL ERROR during setup(): {type(e).__name__}: {e}")
                 logger.error(f"[HOOKS] Traceback:", exc_info=True)
+                print(f"\n[HOOKS] ❌ CRITICAL ERROR during setup():")
+                print(f"[HOOKS] {type(e).__name__}: {e}")
+                import traceback
+                traceback.print_exc()
                 success = False
             
             # Store setup results in session config for access by fixtures
@@ -1575,10 +1568,10 @@ def pytest_sessionstart(session):
                         logger.info("[CONFTEST] ✅ OS sync executed after hooks")
                 except Exception as e:
                     logger.debug(f"[CONFTEST] OS sync (non-blocking): {e}")
-                print(f"[CONFTEST] ⏳ Waiting 30 seconds for file system sync...")
-                logger.info(f"[CONFTEST] ⏳ Waiting 30 seconds for file system sync...")
-                time.sleep(30)  # 30 second delay to ensure file system catches up in Docker/pipeline
-                logger.info("[CONFTEST] ✅ Hooks completed, 30s file sync confirmed")
+                print(f"[CONFTEST] ⏳ Waiting 10 seconds for file system sync...")
+                logger.info(f"[CONFTEST] ⏳ Waiting 10 seconds for file system sync...")
+                time.sleep(10)  # 10 second delay to ensure file system catches up in Docker/pipeline
+                logger.info("[CONFTEST] ✅ Hooks completed, 10s file sync confirmed")
             
             # Verify CSV was updated by reading it back
             if success and service_name == 'movemoney':
