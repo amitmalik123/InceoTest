@@ -62,4 +62,4 @@ Feature: Portfolio Engine Happy Path E2E Test
         And the client signature section should be verified
         And the investment policy statement section should be verified
         And I save the proposal
-        Then the proposal should be saved successfully with 92 pages
+        Then the proposal should be saved successfully with 93 pages
