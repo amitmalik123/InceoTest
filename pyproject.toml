@@ -116,6 +116,7 @@ markers = [
     "daily: Daily execution smoke/regression subset",
     "smoke: Quick smoke tests for critical functionality",
     "regression: Full regression test suite",
+    "documentvault: Document Vault feature tests",
     "rgl: Realized Gain/Loss feature tests",
     "tms: Tax Management Service feature tests",
     "newNavBar: New NavBar RGL feature tests",
