@@ -93,7 +93,7 @@ schedules:
         - qe_platform
     always: true
 
-  - cron: "0 17 * * *"       # 17:00 UTC -> account_service 
+  - cron: "45 12 * * *"       # 12:45 UTC -> account_service 
     displayName: 'Account Service API - Daily Test'
     branches:
       include:
