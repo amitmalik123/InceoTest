@@ -1,9 +1,0 @@
-environment,letterOfAuthorization,accountId,status,holderRelationship,railType,custodianInstructionNumber,bank_routingNumber,bank_bankAccountNumber,bank_bankAccountName,bank_bankAccountType,bank_bankName,changeState,version_static
-TSADEV,Both,3FA85F64-5717-4562-B3FC-2C963F66AFA6,Confirmed,FirstParty,ACH,AINS123456,12100024,1234567890,Johny,Checking,Wells Fargo Bank,,
-TSADEV,,3FA85F64-5717-4562-B3FC-2C963F66AFA6,Confirmed,FirstParty,ACH,AINS123456,12100024800,1234567890,Johny,Checking,Wells Fargo Bank,,
-TSADEV,Both,123E4567-E89B-12D3-A456-4266141740@@,Draft,FirstParty,ACH,AINS123456,121000248,1234567890,Sara,Checking,Chase Bank,,
-TSADEV,Both,456e7890-e89b-12d3-a456-426614174111,Check,FirstParty,ACH,AINS123456,121000248,1234567890,Mathew,Checking,Wells Fargo Bank,,
-TSADEV,Both,456e7890-e89b-12d3-a456-426614174111,Pending,TEST,ACH,AINS123456,121000248,1234567890,Mathew,Checking,Wells Fargo Bank,,
-TSADEV,Both,456e7890-e89b-12d3-a456-426614174111,Pending,FirstParty,TEST,AINS123456,121000248,1234567890,Mathew,Checking,Wells Fargo Bank,,1
-TSADEV,Both,123e4567-e89b-12d3-a456-426614174000,Draft,FirstParty,ACH,,121000248,1234567899,Jane Smith,Checking,Wells Fargo Bank,,5
-
