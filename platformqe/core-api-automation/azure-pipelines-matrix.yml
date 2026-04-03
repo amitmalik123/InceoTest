@@ -1,0 +1,195 @@
+###############################################################################
+# Azure DevOps Pipeline - Services Matrix Based Execution
+# File: azure-pipelines-matrix.yml
+###############################################################################
+# This pipeline reads configuration from services-matrix.yaml and executes
+# tests based on service configurations.
+#
+# Features:
+# - Single or multiple service execution
+# - On-demand manual runs
+# - Automated PR triggers
+# - Automated Push triggers
+# - Scheduled runs (cron-based)
+# - Multi-environment support (TSADEV, TSATEST, T12, T11, T10)
+# - Dynamic job generation based on service matrix
+# - Uses azure-pipelines-stages-shared.yml template to reduce duplication
+###############################################################################
+
+# PR Trigger - runs when PRs are created/updated
+pr:
+  branches:
+    include:
+      - qe_platform
+
+# Push Trigger - runs when code is pushed to branches
+trigger:
+  branches:
+    include:
+      - qe_platform
+      
+# Scheduled Triggers - Each schedule targets a specific service
+schedules:
+  - cron: "0 6 * * *"       # 06:00 UTC -> work_item_notification
+    displayName: 'Work Item Notification - Daily Test'
+    branches:
+      include:
+        - qe_platform
+    always: true
+  
+  - cron: "15 15 * * *"      # 15:15 UTC -> movemoney
+    displayName: 'Move Money API - Daily Test'
+    branches:
+      include:
+        - qe_platform
+    always: true
+  
+  - cron: "30 15 * * *"       # 15:30 UTC -> models
+    displayName: 'Models API - Daily Test'
+    branches:
+      include:
+        - qe_platform
+    always: true
+
+  - cron: "45 15 * * *"       # 15:45 UTC -> analytics
+    displayName: 'Analytics API - Daily Test'
+    branches:
+      include:
+        - qe_platform
+    always: true
+
+  - cron: "00 16 * * *"      # 16:00 UTC -> parties
+    displayName: 'Parties API - Daily Test'
+    branches:
+      include:
+        - qe_platform
+    always: true
+  
+  - cron: "15 16 * * *"       # 16:15 UTC -> addressservice
+    displayName: 'AddressService API - Daily Test'
+    branches:
+      include:
+        - qe_platform
+    always: true
+
+  - cron: "30 16 * * *"       # 16:30 UTC -> securities
+    displayName: 'Securities API - Daily Test'
+    branches:
+      include:
+        - qe_platform
+    always: true
+
+  - cron: "45 16 * * *"       # 16:45 UTC -> hnebase
+    displayName: 'HNE Base API - Daily Test'
+    branches:
+      include:
+        - qe_platform
+    always: true
+  
+  - cron: "20 15 * * *"       # 15:20 UTC -> transfer_service_validation
+    displayName: 'Transfer Service Validation - Daily Test'
+    branches:
+      include:
+        - qe_platform
+    always: true
+
+  - cron: "0 17 * * *"        # 17:00 UTC -> custodialintegration
+    displayName: 'Custodial Integration - Daily Test'
+    branches:
+      include:
+        - qe_platform
+    always: true
+
+  - cron: "10 13 * * *"       # 13:10 UTC -> account_service 
+    displayName: 'Account Service API - Daily Test'
+    branches:
+      include:
+        - qe_platform
+    always: true
+
+###############################################################################
+# Pipeline Parameters - For Manual Execution
+###############################################################################
+parameters:
+  - name: executionMode
+    displayName: 'Execution Mode'
+    type: string
+    default: 'auto'
+    values:
+      - auto      # Automatic based on trigger (PR/Push/Schedule)
+      - manual    # Manual selection of services
+  
+  - name: services
+    displayName: 'Services to Run (comma-separated, or "all" for all enabled)'
+    type: string
+    default: 'all'
+  
+  - name: environments
+    displayName: 'Environments (comma-separated, or "all" for service defaults)'
+    type: string
+    default: 'all'
+  
+  - name: testType
+    displayName: 'Test Type'
+    type: string
+    default: 'functional'
+    values:
+      - functional
+      - non-functional
+      - both
+  
+  - name: overrideEnabled
+    displayName: 'Override Enabled Flag (run disabled services too)'
+    type: boolean
+    default: false
+  
+  - name: customFunctionalArgs
+    displayName: 'Custom Functional Test Args (optional - overrides services-matrix)'
+    type: string
+    default: 'N/A'
+  
+  - name: customNonFunctionalArgs
+    displayName: 'Custom Non-Functional Test Args (optional - overrides services-matrix)'
+    type: string
+    default: 'N/A'
+
+  - name: deploymentsync
+    displayName: 'wait to sync ArgoCd charts and deployment sucessfully'
+    type: number
+    default: 0
+
+  - name: teamsNotificationEnabled
+    displayName: 'Enable Teams Result Notification'
+    type: boolean
+    default: false
+
+###############################################################################
+# Global Variables
+###############################################################################
+variables:
+  - group: 'qa-pipelines-shared-config'
+  - group: 'qa-pipelines-config'
+
+  - name: pythonVersion
+    value: '3.10'
+  - name: defaultEnvironments
+    value: $[coalesce(variables['ENABLED_ENVIRONMENTS'], 'all')]
+
+###############################################################################
+# Use Common Stages Template
+###############################################################################
+stages:
+  - template: templates/azure-pipelines-stages-shared.yml
+    parameters:
+      deploymentsync: ${{ parameters.deploymentsync }}
+      repositoryAlias: 'self'
+      executionMode: ${{ parameters.executionMode }}
+      services: ${{ parameters.services }}
+      environments: ${{ parameters.environments }}
+      testType: ${{ parameters.testType }}
+      overrideEnabled: ${{ parameters.overrideEnabled }}
+      customFunctionalArgs: ${{ parameters.customFunctionalArgs }}
+      customNonFunctionalArgs: ${{ parameters.customNonFunctionalArgs }}
+      teamsNotificationEnabled: ${{ parameters.teamsNotificationEnabled }}
+      triggerReason: '$(Build.Reason)'
+      enableScheduleDetection: true  # Enable schedule-based service detection for cron triggers
