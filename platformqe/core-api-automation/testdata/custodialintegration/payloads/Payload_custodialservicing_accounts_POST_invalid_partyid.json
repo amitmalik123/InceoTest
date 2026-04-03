@@ -1,0 +1,17 @@
+{
+  "requestType": "BeneficiaryChange",
+  "accounts": [
+    {
+      "accountId": "a68b01d9-2128-4aa5-9dd9-ceddbe0e75e9",
+      "parties": [
+        {
+          "partyId": "not-a-valid-uuid",
+          "action": "Add"
+        }
+      ]
+    }
+  ],
+  "metaData": {
+    "ItemNumber": "D12345678"
+  }
+}
