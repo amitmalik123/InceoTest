@@ -1,4 +1,4 @@
-SELECT a.*
+SELECT a.*, LOWER(a.Id) AS Id
 FROM Account a
 WHERE a.AccountClassification = 'Household'
   AND a.Version = (

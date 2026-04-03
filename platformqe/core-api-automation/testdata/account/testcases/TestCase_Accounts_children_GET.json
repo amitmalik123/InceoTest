@@ -124,7 +124,7 @@
         "test_data_file": "",
         "db_query_timing": "before_api",
         "db_queries": {
-            "default": "SELECT c.*,c.Id FROM Account c WHERE c.ParentAccountId = '{{db_HH_parent_id_1}}' AND c.AccountClassification = 'CustodyAccount' AND c.Version = (SELECT MAX(vc.Version) FROM Account vc WHERE vc.Id = c.Id);"
+            "default": "SELECT c.*, LOWER(c.Id) AS Id FROM Account c WHERE c.ParentAccountId = '{{db_HH_parent_id_1}}' AND c.AccountClassification = 'CustodyAccount' AND c.Version = (SELECT MAX(vc.Version) FROM Account vc WHERE vc.Id = c.Id);"
         },
         "db_type": "mssql",
         "db_connection_name": "account_service",
@@ -132,7 +132,7 @@
         "test_scenario": "Test GET request to /Accounts/{id} for functional scenario validation."
     },
     {
-        "test_id": "TC003",
+        "test_id": "TC002",
         "service_name": "account_service",
         "workflow_mode": "sequential",
         "test_name": "QUERY and Extract DB Values",
@@ -199,7 +199,7 @@
         "test_data_file": "",
         "db_query_timing": "before_api",
         "db_queries": {
-            "default": "SELECT s.* FROM Account s WHERE s.ParentAccountId = '{{db_custody_account_id_1}}' AND s.AccountClassification = 'Sleeve' AND s.Version = (SELECT MAX(vs.Version) FROM Account vs WHERE vs.Id = s.Id);"
+            "default": "SELECT s.*, LOWER(s.Id) AS Id FROM Account s WHERE s.ParentAccountId = '{{db_custody_account_id_1}}' AND s.AccountClassification = 'Sleeve' AND s.Version = (SELECT MAX(vs.Version) FROM Account vs WHERE vs.Id = s.Id);"
         },
         "db_type": "mssql",
         "db_connection_name": "account_service",
