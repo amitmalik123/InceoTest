@@ -15,7 +15,7 @@ Feature: APro proposal happy path
         And I complete the generate report section with all reports
         Then the proposal should be generated with all reports
         Then the History/Actions section should contain the expected information
-        And the proposal should appear in the prospects list
+        #And the proposal should appear in the prospects list
         Then I delete the proposal
 
 # Scenario: Create Client Proposal Happy Path

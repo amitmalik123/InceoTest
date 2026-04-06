@@ -177,6 +177,8 @@ class AproProposalsPage(BasePage):
         )
         # Internal guard to avoid clicking PREVIEW more than once per flow
         self._preview_clicked: bool = False
+        # Store FileId from GenerateReport response for later use
+        self._generated_file_id: str | None = None
         # Additional Finish variants and titlebar close locators (for helpers)
         # Scoped primary wizard modal (contains proposal-wizard-* steps)
         self.proposal_wizard_modal: Locator = page.locator(
@@ -229,13 +231,65 @@ class AproProposalsPage(BasePage):
         ).first
 
     def click_generate_preview(self) -> None:
-        """Click the GENERATE PREVIEW button inside the template selector modal."""
+        """Click the GENERATE PREVIEW button inside the template selector modal.
+
+        Intercepts the GenerateReport API response to capture the FileId for later PDF download.
+        """
         logger.info("Clicking GENERATE PREVIEW")
         try:
-            self.generate_preview_button.click()
+            # Reset FileId for this new generation
+            self._generated_file_id = None
+
+            # Try to intercept the response before clicking
+            response_captured = False
+
+            def capture_response(response):
+                nonlocal response_captured
+                try:
+                    url = response.url.lower()
+                    # Log first few responses to DEBUG
+                    if not response_captured:
+                        logger.debug(f"Response: {response.status} - {url[:100]}")
+
+                    if "generatereport" in url:
+                        logger.info(f"🎯 Found GenerateReport: {url}")
+                        try:
+                            body = response.json()
+                            if isinstance(body, dict) and body.get("Success"):
+                                self._generated_file_id = body.get("FileId")
+                                if self._generated_file_id:
+                                    logger.info(f"🔵 FileId captured: {self._generated_file_id}")
+                                    response_captured = True
+                        except Exception as e:
+                            logger.debug(f"Error parsing response: {e}")
+                except Exception:
+                    pass
+
+            self.page.on("response", capture_response)
+
+            try:
+                self.generate_preview_button.click()
+                logger.info("✓ GENERATE PREVIEW clicked")
+
+                # Wait for response with longer timeout
+                import time
+
+                for i in range(60):  # Wait up to 30 seconds
+                    if self._generated_file_id or response_captured:
+                        break
+                    if i == 0:
+                        logger.info("Waiting for GenerateReport response...")
+                    elif i % 10 == 0:
+                        logger.debug(f"Still waiting ({i}s)...")
+                    time.sleep(0.5)
+
+                if not self._generated_file_id:
+                    logger.warning("GenerateReport response not captured after 30 seconds")
+            finally:
+                self.page.remove_listener("response", capture_response)
+
         except Exception as exc:
-            logger.warning(f"Failed to click GENERATE PREVIEW: {exc}")
-        # no side-effects here; expected values are set during flow steps
+            logger.error(f"Failed to click GENERATE PREVIEW: {exc}")
 
     def click_preview_proposal_button(self) -> None:
         """Click the 'Preview Proposal' button in the confirmation popup (opens PDF tab)."""
@@ -476,6 +530,19 @@ class AproProposalsPage(BasePage):
         self.confirm_delete_button.click()
         logger.info("Confirmed proposal deletion")
 
+        # Clean up tmp folder after successful deletion
+        try:
+            import shutil
+            from pathlib import Path
+
+            tmp_dir = Path("tmp")
+            if tmp_dir.exists():
+                shutil.rmtree(tmp_dir)
+                tmp_dir.mkdir(parents=True, exist_ok=True)
+                logger.info("✓ Cleared tmp folder")
+        except Exception as e:
+            logger.warning(f"Could not clear tmp folder: {e}")
+
     def click_next(self) -> None:  # noqa: C901
         """Click the modal 'Next' button scoped to the currently visible wizard step.
 
@@ -639,7 +706,21 @@ class AproProposalsPage(BasePage):
 
     def get_advisor_dropdown_value(self) -> str:
         self.advisor_dropdown.wait_for(state="visible", timeout=5000)
-        return self.advisor_dropdown.locator("span.k-input-value-text").inner_text().strip()
+        # Wait for the value text to be populated (not empty)
+        value_locator = self.advisor_dropdown.locator("span.k-input-value-text")
+        value_locator.wait_for(state="visible", timeout=5000)
+        # Poll until text is non-empty (handles timing in headless mode)
+        end = time.time() + 5.0
+        while time.time() < end:
+            try:
+                text = value_locator.inner_text().strip()
+                if text:
+                    return text
+            except Exception:
+                pass
+            time.sleep(0.1)
+        # Fallback: return whatever text is there even if empty
+        return value_locator.inner_text().strip()
 
     def set_client_name(self, name: str) -> None:
         logger.info(f"Setting client name: {name}")
@@ -1466,19 +1547,25 @@ class AproProposalsPage(BasePage):
         except Exception:
             raise TimeoutError("Preview/Generate modal not visible")
 
-    def click_preview_proposal_and_verify_tab(  # noqa: C901
-        self, timeout: int = 20000, save_pdf_path: str = "tmp/proposal_preview.pdf"
-    ) -> str | None:
-        """Click the Preview Proposal button, wait for the PDF tab, save the PDF locally, and return focus.
+    def click_preview_proposal_and_verify_tab(self, timeout: int = 20000) -> str | None:
+        """Click Preview Proposal button and download the PDF.
+
+        Detects headed vs headless mode and uses appropriate strategy:
+        - Headless: CDP forces download to disk, polls filesystem with size stability check
+        - Headed: Makes direct HTTP request to PDF URL and saves to disk
 
         Args:
-            timeout: max wait time in ms for the preview button / new tab.
-            save_pdf_path: local file path to save the downloaded PDF.
+            timeout: max wait time in ms for the preview button / download.
 
         Returns:
-            The path to the saved PDF file, or None if the PDF could not be saved.
+            The path to the downloaded PDF file, or None if download failed.
         """
-        logger.info("Clicking PREVIEW PROPOSAL button and verifying new tab")
+        import time
+        from pathlib import Path
+
+        from utils.pdf_utils import PDFValidator
+
+        logger.info("Clicking PREVIEW PROPOSAL button and downloading PDF")
         preview_proposal_btn = self.preview_proposal_button
         try:
             wait_timeout = max(timeout, 60000)
@@ -1495,73 +1582,165 @@ class AproProposalsPage(BasePage):
         if dis is not None or (aria is not None and str(aria).strip().lower() == "true"):
             raise RuntimeError("Preview Proposal locator is disabled/aria-disabled")
 
-        new_page = None
+        downloads_dir = Path("tmp").absolute()
+        downloads_dir.mkdir(parents=True, exist_ok=True)
+
+        # Configure CDP on the MAIN page to force PDF downloads to disk (headless mode)
         try:
-            with self.page.context.expect_page(timeout=15000) as new_page_info:
-                preview_proposal_btn.click()
-            new_page = new_page_info.value
-        except Exception:
-            logger.warning(
-                "No new tab created by Preview Proposal click; checking for same-tab PDF"
+            cdp_session = self.page.context.new_cdp_session(self.page)
+            cdp_session.send(
+                "Page.setDownloadBehavior",
+                {"behavior": "allow", "downloadPath": str(downloads_dir)},
             )
+            logger.info(f"✓ CDP configured to download PDFs to: {downloads_dir}")
+        except Exception as e:
+            logger.warning(f"Could not configure CDP download behavior: {e}")
 
-        saved_path: str | None = None
+        pdf_path = None
 
-        if new_page:
-            wait_deadline = time.time() + max(timeout, 90000) / 1000.0
-            try:
-                new_page.wait_for_load_state("load", timeout=max(timeout, 60000))
-            except Exception:
-                pass
-            try:
-                new_page.wait_for_load_state("networkidle", timeout=5000)
-            except Exception:
-                pass
+        try:
+            # Listen for new page/popup event
+            with self.page.context.expect_event("page", timeout=timeout) as new_page_context:
+                # Record start time
+                start_time = time.time()
 
-            # Poll URL until it stabilizes (no change for 0.5s) or deadline
-            prev_url = new_page.url or ""
-            last_change = time.time()
-            while time.time() < wait_deadline:
-                cur_url = new_page.url or ""
-                if cur_url != prev_url:
-                    prev_url = cur_url
-                    last_change = time.time()
-                elif time.time() - last_change > 0.5:
-                    break
-                time.sleep(0.15)
+                preview_proposal_btn.click()
+                logger.info("✓ Preview button clicked")
 
-            final_url = new_page.url or ""
-            logger.info(f"Preview opened in new tab (final url={final_url})")
+                # Get the new page
+                new_page = new_page_context.value
+                logger.info(f"✓ New page created: {new_page.url}")
 
-            # Download the PDF from the new tab's URL
-            try:
-                from pathlib import Path
+                # Detect if headed or headless based on new page URL
+                # Headless: URL is ":" (stuck at initial state)
+                # Headed: URL is the full DownloadReport URL with fileId
+                is_headed = new_page.url.startswith("http")
 
-                Path(save_pdf_path).parent.mkdir(parents=True, exist_ok=True)
+                if is_headed:
+                    logger.info(f"Headed mode detected - waiting for URL to load...")
+                    # Wait for the URL to stabilize (may take time to navigate)
+                    url_wait_timeout = 10  # seconds
+                    url_wait_start = time.time()
+                    final_url = None
 
-                response = self.page.context.request.get(final_url)
-                if response.ok:
-                    with open(save_pdf_path, "wb") as f:
-                        f.write(response.body())
-                    saved_path = save_pdf_path
-                    logger.info(f"PDF saved to {save_pdf_path} ({len(response.body())} bytes)")
+                    while time.time() - url_wait_start < url_wait_timeout:
+                        current_url = new_page.url
+                        if current_url.startswith("http") and "DownloadReport" in current_url:
+                            final_url = current_url
+                            logger.info(f"URL loaded: {final_url}")
+                            break
+                        time.sleep(0.5)
+
+                    if not final_url:
+                        logger.warning(
+                            f"URL did not load properly after {url_wait_timeout}s, last URL: {new_page.url}"
+                        )
+                    else:
+                        try:
+                            # Make a direct HTTP request to get the PDF from the URL
+                            pdf_response = new_page.context.request.get(final_url)
+                            if pdf_response.ok and "application/pdf" in pdf_response.headers.get(
+                                "content-type", ""
+                            ):
+                                pdf_data = pdf_response.body()
+                                pdf_path = str(downloads_dir / "DownloadReport.pdf")
+                                with open(pdf_path, "wb") as f:
+                                    f.write(pdf_data)
+                                logger.info(f"✓ PDF downloaded from URL ({len(pdf_data)} bytes)")
+                            else:
+                                logger.warning(
+                                    f"PDF response not OK or wrong content-type: {pdf_response.status}"
+                                )
+                        except Exception as e:
+                            logger.warning(f"Failed to download PDF from URL: {e}")
+
+                    try:
+                        new_page.close()
+                    except Exception:
+                        pass
                 else:
-                    logger.warning(f"Failed to download PDF: HTTP {response.status}")
+                    logger.info("Headless mode detected - using filesystem polling")
+                    # Close the new page
+                    try:
+                        new_page.close()
+                    except Exception:
+                        pass
+
+                    # Poll the downloads folder for a PDF file with size stability check
+                    # CDP should have downloaded it instead of opening it in the viewer
+                    logger.info(f"Polling for downloaded PDF in: {downloads_dir}")
+                    poll_timeout = max(30, timeout / 1000)  # Convert ms to seconds, min 30s
+                    poll_interval = 0.5
+                    size_stability_duration = 2.0  # File must be stable for 2 seconds
+                    last_stable_time = None
+
+                    while time.time() - start_time < poll_timeout:
+                        try:
+                            # Look for any .pdf file in the downloads directory
+                            pdf_files = list(downloads_dir.glob("*.pdf"))
+                            if pdf_files:
+                                candidate = pdf_files[0]  # Get first PDF
+                                candidate_size = candidate.stat().st_size
+
+                                # Verify it's a complete PDF (has proper header and trailer)
+                                if candidate_size > 1000:  # Minimum reasonable PDF size
+                                    with open(candidate, "rb") as f:
+                                        header = f.read(4)
+                                        f.seek(-100, 2)  # Seek to near end
+                                        trailer = f.read()
+
+                                    if header == b"%PDF" and b"%%EOF" in trailer:
+                                        # Check size stability - has file size stayed the same?
+                                        if last_stable_time is None:
+                                            last_stable_time = time.time()
+                                            last_stable_size = candidate_size
+                                        elif candidate_size == last_stable_size:
+                                            # Size hasn't changed - check if stable long enough
+                                            if (
+                                                time.time() - last_stable_time
+                                                >= size_stability_duration
+                                            ):
+                                                logger.info(
+                                                    f"Found PDF: {candidate.name} ({candidate_size} bytes)"
+                                                )
+                                                logger.info(f"✓ Valid PDF detected")
+                                                pdf_path = str(candidate)
+                                                break
+                                        else:
+                                            # Size changed - reset stability timer
+                                            last_stable_time = time.time()
+                                            last_stable_size = candidate_size
+                        except Exception as e:
+                            logger.debug(f"Poll iteration error: {e}")
+
+                        time.sleep(poll_interval)
+
+                    if not pdf_path:
+                        logger.warning(
+                            f"No valid PDF found in {downloads_dir} after {poll_timeout}s"
+                        )
+
+        except Exception as e:
+            logger.warning(f"Error during page creation: {e}")
+
+        # If PDF was found, validate it
+        if pdf_path:
+            try:
+                logger.info(f"PDF located at: {pdf_path}")
+
+                # Validate PDF
+                validator = PDFValidator(Path(pdf_path))
+                page_count = validator.get_page_count()
+                file_size_mb = validator.get_file_size_mb()
+                logger.info(f"✓ PDF validated: {page_count} pages, {file_size_mb:.2f}MB")
+                return pdf_path
             except Exception as exc:
-                logger.warning(f"Failed to save PDF from preview tab: {exc}")
+                logger.error(f"PDF validation failed: {exc}")
+                return None
 
-            # Close the preview tab and return focus
-            try:
-                new_page.close()
-            except Exception:
-                pass
-            try:
-                self.page.bring_to_front()
-                logger.info("Brought original page to front after preview")
-            except Exception:
-                logger.warning("Failed to bring original page to front")
-
-        return saved_path
+        # No PDF captured
+        logger.error("No PDF file downloaded to disk")
+        return None
 
     def click_finish_button(self) -> bool:
         """Click a Finish button"""

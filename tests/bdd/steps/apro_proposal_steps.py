@@ -5,6 +5,7 @@ from pytest_bdd import parsers, then, when
 
 from pages import AproProposalsPage
 from utils.allure_logger import get_allure_logger
+from utils.pdf_utils import PDFValidator
 
 logger = get_allure_logger(__name__)
 
@@ -166,8 +167,6 @@ def _verify_report_generated(proposal_page: AproProposalsPage):
     assert pdf_path is not None, "PDF was not saved from the preview tab"
 
     # Validate PDF content
-    from utils.pdf_utils import PDFValidator
-
     pdf = PDFValidator(pdf_path)
 
     # Validate page count
