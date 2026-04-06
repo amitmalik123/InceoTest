@@ -84,12 +84,37 @@ def pytest_bdd_after_step(request, feature, scenario, step, step_func) -> None:
         with contextlib.suppress(Exception):
             allure_step_context.__exit__(None, None, None)
 
-    # Scan page text content for A/B/D IDs
+    # Scan page content for IDs (all frames + shadow DOM)
     if page:
         try:
-            page_text = page.content()
-            if page_text:
-                id_tracker.scan(page_text)
+            # Main frame + all child frames (iframes)
+            for frame in page.frames:
+                try:
+                    frame_text = frame.content()
+                    if frame_text:
+                        id_tracker.scan(frame_text)
+                except Exception:
+                    pass
+
+            # Shadow DOM — JS walks all shadow roots and collects textContent
+            try:
+                shadow_text = page.evaluate("""() => {
+                    const texts = [];
+                    function walk(root) {
+                        for (const el of root.querySelectorAll('*')) {
+                            if (el.shadowRoot) {
+                                texts.push(el.shadowRoot.textContent || '');
+                                walk(el.shadowRoot);
+                            }
+                        }
+                    }
+                    walk(document);
+                    return texts.join(' ');
+                }""")
+                if shadow_text:
+                    id_tracker.scan(shadow_text)
+            except Exception:
+                pass
         except Exception:
             pass
 
