@@ -173,7 +173,7 @@ class ClientAccountsPage(BasePage):
             
             # Step 2: Check and handle Authorized Signers dropdown
             logger.info("  Step 2: Checking Authorized Signers dropdown...")
-            dropdown = iframe_frame.locator("select[name='authorizedSignersDropdown']")
+            dropdown = iframe_frame.locator(self.AUTHORIZED_SIGNERS_DROPDOWN)
             
             if dropdown.count() == 0:
                 raise AssertionError("Authorized Signers dropdown not found")
@@ -186,7 +186,16 @@ class ClientAccountsPage(BasePage):
                 logger.info(f"  Step 3: Dropdown is enabled. Attempting to select '{authorized_signer}'...")
                 dropdown.select_option(value=authorized_signer)
                 logger.info(f"  ✓ Option '{authorized_signer}' selected")
-                self.page.wait_for_load_state("networkidle", timeout=3000)
+                
+                # Wait for Email Address field to appear after dropdown selection
+                logger.info("  Waiting for form to update after dropdown selection...")
+                try:
+                    email_input_element = iframe_frame.locator(self.EMAIL_INPUT)
+                    with WaitContext(timeout=5.0, poll_interval=0.3) as wait:
+                        wait.until_visible(email_input_element)
+                    logger.info("  ✓ Form updated, Email Address field is now visible")
+                except WaitTimeoutError:
+                    logger.warning("  ⚠ Email Address field did not appear within timeout, continuing anyway")
             else:
                 if is_disabled:
                     logger.info("  ✓ Dropdown is disabled, skipping selection as per requirements")
@@ -196,13 +205,20 @@ class ClientAccountsPage(BasePage):
             # Step 4: Fill Email Address
             if email_address and email_address.strip():
                 logger.info("  Step 4: Filling Email Address...")
-                email_input = iframe_frame.locator("input[name='emailText']")
+                
+                # Wait for Email Address input to be visible
+                logger.info("  Waiting for Email Address input to be visible...")
+                email_input = iframe_frame.locator(self.EMAIL_INPUT)
                 
                 if email_input.count() == 0:
                     raise AssertionError("Email Address input not found")
                 
-                if not email_input.is_visible():
-                    raise AssertionError("Email Address input not visible")
+                try:
+                    with WaitContext(timeout=3.0, poll_interval=0.2) as wait:
+                        wait.until_visible(email_input)
+                    logger.info("  ✓ Email Address input is visible")
+                except WaitTimeoutError:
+                    raise AssertionError("Email Address input not visible within timeout")
                 
                 # Clear existing value first
                 email_input.clear()
@@ -214,13 +230,20 @@ class ClientAccountsPage(BasePage):
             # Step 5: Fill Phone
             if phone and phone.strip():
                 logger.info("  Step 5: Filling Phone...")
-                phone_input = iframe_frame.locator("input[name='PhoneText']")
+                
+                # Wait for Phone input to be visible
+                logger.info("  Waiting for Phone input to be visible...")
+                phone_input = iframe_frame.locator(self.PHONE_INPUT)
                 
                 if phone_input.count() == 0:
                     raise AssertionError("Phone input not found")
                 
-                if not phone_input.is_visible():
-                    raise AssertionError("Phone input not visible")
+                try:
+                    with WaitContext(timeout=3.0, poll_interval=0.2) as wait:
+                        wait.until_visible(phone_input)
+                    logger.info("  ✓ Phone input is visible")
+                except WaitTimeoutError:
+                    raise AssertionError("Phone input not visible within timeout")
                 
                 # Clear existing value first
                 phone_input.clear()
