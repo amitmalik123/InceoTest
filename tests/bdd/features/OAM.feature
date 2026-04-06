@@ -89,7 +89,7 @@ Feature: E2E OAM flow for FA, SAU and OA
     And Verify the Routing Order in database
 
 
-  @InDev
+  @FNT_regression
   Scenario: OAM_Initiated by SAU_Online Submit_Authorized Signer_Required_FA
     When User navigate to Clients menu
     And User click on Account List
