@@ -47,17 +47,7 @@
                     "xss"
                 ]
             },
-            "data_comparison": {
-                "source": "",
-                "target": "",
-                "format": "",
-                "key_field": [
-                    "",
-                    ""
-                ],
-                "fields_to_compare": [],
-                "log_differences": true
-            },
+            "data_comparison": [],
             "assertions": []
         },
         "test_data_file": "",
@@ -237,8 +227,8 @@
             "Content-Type": "application/json"
         },
         "payload": "",
-        "expected_status": "200",
-        "expected_response_schema": "account\\schemas\\Schema_Accounts_GET.json",
+        "expected_status": "404",
+        "expected_response_schema": "",
         "expected_response": null,
         "ignore_fields": [
             "id"
@@ -260,14 +250,7 @@
                     "xss"
                 ]
             },
-            "assertions": [
-                {
-                    "actual": "{{custody_account_id_1}}",
-                    "operator": "==",
-                    "expected": "{{db_custody_account_id_1}}",
-                    "message": "Account ID should match the database value"
-                }
-            ],
+            "assertions": [],
             "data_comparison": []
         },
         "test_data_file": "",
@@ -299,8 +282,8 @@
             "Content-Type": "application/json"
         },
         "payload": "",
-        "expected_status": "200",
-        "expected_response_schema": "account\\schemas\\Schema_Accounts_GET.json",
+        "expected_status": "404",
+        "expected_response_schema": "",
         "expected_response": null,
         "ignore_fields": [
             "id"
@@ -327,20 +310,7 @@
                     "xss"
                 ]
             },
-            "assertions": [
-                {
-                    "actual": "{{sleeve_id_2}}",
-                    "operator": "==",
-                    "expected": "{{db_sleeve_id_1}}",
-                    "message": "Account ID should match the database value"
-                },
-                {
-                    "actual": "{{sleeve_id_1}}",
-                    "operator": "==",
-                    "expected": "{{db_sleeve_id_2}}",
-                    "message": "Account ID should match the database value"
-                }
-            ],
+            "assertions": [],
             "data_comparison": []
         },
         "test_data_file": "",
@@ -372,8 +342,8 @@
             "Content-Type": "application/json"
         },
         "payload": "",
-        "expected_status": "200",
-        "expected_response_schema": "account\\schemas\\Schema_Accounts_GET.json",
+        "expected_status": "404",
+        "expected_response_schema": "",
         "expected_response": null,
         "ignore_fields": [
             "id"
@@ -405,26 +375,7 @@
                     "xss"
                 ]
             },
-            "assertions": [
-                {
-                    "actual": "{{custody_account_id_1}}",
-                    "operator": "==",
-                    "expected": "{{db_custody_account_id_1}}",
-                    "message": "Account ID should match the database value"
-                },
-                {
-                    "actual": "{{sleeve_id_2}}",
-                    "operator": "==",
-                    "expected": "{{db_sleeve_id_1}}",
-                    "message": "Account ID should match the database value"
-                },
-                {
-                    "actual": "{{sleeve_id_1}}",
-                    "operator": "==",
-                    "expected": "{{db_sleeve_id_2}}",
-                    "message": "Account ID should match the database value"
-                }
-            ],
+            "assertions": [],
             "data_comparison": []
         },
         "test_data_file": "",

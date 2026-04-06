@@ -20,9 +20,6 @@ azure_ad:
 db_connections:
   # MSSQL Connections - Multiple servers and databases
   mssql:
-    account_service:
-      connection_string: "${ACCOUNT_SQLDB}"
-
     tracking_center:
       driver: "ODBC Driver 17 for SQL Server"
       server: "t12ewmdba"
@@ -115,15 +112,6 @@ api_endpoints:
     retry_count: 3
     use_azure_auth: true  # Enable Azure AD authentication
     azure_resource: "https://management.azure.com/"
-
-  # Account Service API
-  account_service:
-    base_url: "${ACCOUNTS_BASE_URL}"
-    auth_token: "${ACCOUNTS_AUTH_TOKEN}"
-    timeout: 30
-    retry_count: 3
-    verify: false
-    use_azure_auth: false
 
  # Account Distributions API - New endpoint configuration
   accountdistributions:
