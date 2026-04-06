@@ -1,0 +1,228 @@
+[
+    {
+        "test_id": "TC001",
+        "service_name": "account_service",
+        "workflow_mode": "parallel",
+        "test_name": "PUT /accounts/{accountId} [negative: 404 account not found with non-existent accountId] (TC001)",
+        "protocol": "REST",
+        "test_type": [
+            "Negative",
+            "Functional",
+            "Regression"
+        ],
+        "mainURL": "{{base_url}}",
+        "endpoint": "/accounts/ffffffff-ffff-ffff-ffff-ffffffffffff",
+        "method": "PUT",
+        "rpc_method": "",
+        "graphql_query": "",
+        "graphql_variables": "",
+        "soap_action": "",
+        "soap_envelope": "",
+        "headers_additional": {
+            "Content-Type": "application/json"
+        },
+        "payload": "account/payloads/Payload_Accounts_PUT_update_display_name.json",
+        "expected_status": "404",
+        "expected_response_schema": "account/schemas/Schema_Accounts_PUT_404.json",
+        "expected_response": null,
+        "ignore_fields": [],
+        "extract_values": [
+            {
+                "from": "response",
+                "key": "",
+                "assign_to": ""
+            }
+        ],
+        "validate": {
+            "performance": {
+                "max_response_time_ms": 2000
+            },
+            "data_comparison": []
+        },
+        "test_data_file": "",
+        "db_query": "",
+        "db_type": "",
+        "test_summary": "Test TC001: PUT /accounts/{accountId} with a valid UUID format that does not correspond to any existing account (all-F UUID). Expects HTTP 404 Not Found with ProblemDetails response body."
+    },
+    {
+        "test_id": "TC002",
+        "service_name": "account_service",
+        "workflow_mode": "parallel",
+        "test_name": "PUT /accounts/{accountId} [negative: 404 invalid UUID format for accountId] (TC002)",
+        "protocol": "REST",
+        "test_type": [
+            "Negative",
+            "Functional",
+            "Regression"
+        ],
+        "mainURL": "{{base_url}}",
+        "endpoint": "/accounts/not-a-valid-uuid",
+        "method": "PUT",
+        "rpc_method": "",
+        "graphql_query": "",
+        "graphql_variables": "",
+        "soap_action": "",
+        "soap_envelope": "",
+        "headers_additional": {
+            "Content-Type": "application/json"
+        },
+        "payload": "account/payloads/Payload_Accounts_PUT_update_display_name.json",
+        "expected_status": "404",
+        "expected_response_schema": "",
+        "expected_response": null,
+        "ignore_fields": [],
+        "extract_values": [
+            {
+                "from": "response",
+                "key": "",
+                "assign_to": ""
+            }
+        ],
+        "validate": {
+            "performance": {
+                "max_response_time_ms": 2000
+            },
+            "data_comparison": []
+        },
+        "test_data_file": "",
+        "db_query": "",
+        "db_type": "",
+        "test_summary": "Test TC002: PUT /accounts/{accountId} where accountId is a non-UUID string ('not-a-valid-uuid'). The API returns HTTP 404 for invalid UUID path parameters (route match failure). Response body is empty for this case."
+    },
+    {
+        "test_id": "TC003",
+        "service_name": "account_service",
+        "workflow_mode": "parallel",
+        "test_name": "PUT /accounts/{accountId} [negative: 400 invalid accountType enum value] (TC003)",
+        "protocol": "REST",
+        "test_type": [
+            "Negative",
+            "Functional",
+            "Regression"
+        ],
+        "mainURL": "{{base_url}}",
+        "endpoint": "/accounts/ffffffff-ffff-ffff-ffff-ffffffffffff",
+        "method": "PUT",
+        "rpc_method": "",
+        "graphql_query": "",
+        "graphql_variables": "",
+        "soap_action": "",
+        "soap_envelope": "",
+        "headers_additional": {
+            "Content-Type": "application/json"
+        },
+        "payload": "account/payloads/Payload_Accounts_PUT_invalid_account_type.json",
+        "expected_status": "400",
+        "expected_response_schema": "account/schemas/Schema_Accounts_PUT_400.json",
+        "expected_response": null,
+        "ignore_fields": [],
+        "extract_values": [
+            {
+                "from": "response",
+                "key": "",
+                "assign_to": ""
+            }
+        ],
+        "validate": {
+            "performance": {
+                "max_response_time_ms": 2000
+            },
+            "data_comparison": []
+        },
+        "test_data_file": "",
+        "db_query": "",
+        "db_type": "",
+        "test_summary": "Test TC003: PUT /accounts/{accountId} with an invalid accountType value ('INVALIDTYPE') not in the allowed enum. Expects HTTP 400 Bad Request from schema/model validation."
+    },
+    {
+        "test_id": "TC004",
+        "service_name": "account_service",
+        "workflow_mode": "parallel",
+        "test_name": "PUT /accounts/{accountId} [negative: 400 displayName exceeds 255 character limit] (TC004)",
+        "protocol": "REST",
+        "test_type": [
+            "Negative",
+            "Functional",
+            "Regression",
+            "EdgeCase"
+        ],
+        "mainURL": "{{base_url}}",
+        "endpoint": "/accounts/ffffffff-ffff-ffff-ffff-ffffffffffff",
+        "method": "PUT",
+        "rpc_method": "",
+        "graphql_query": "",
+        "graphql_variables": "",
+        "soap_action": "",
+        "soap_envelope": "",
+        "headers_additional": {
+            "Content-Type": "application/json"
+        },
+        "payload": "account/payloads/Payload_Accounts_PUT_display_name_too_long.json",
+        "expected_status": "400",
+        "expected_response_schema": "account/schemas/Schema_Accounts_PUT_400.json",
+        "expected_response": null,
+        "ignore_fields": [],
+        "extract_values": [
+            {
+                "from": "response",
+                "key": "",
+                "assign_to": ""
+            }
+        ],
+        "validate": {
+            "performance": {
+                "max_response_time_ms": 2000
+            },
+            "data_comparison": []
+        },
+        "test_data_file": "",
+        "db_query": "",
+        "db_type": "",
+        "test_summary": "Test TC004: PUT /accounts/{accountId} with a displayName of 256 characters, exceeding the 255-character maximum. Expects HTTP 400 Bad Request from field length validation."
+    },
+    {
+        "test_id": "TC005",
+        "service_name": "account_service",
+        "workflow_mode": "parallel",
+        "test_name": "PUT /accounts/{accountId} [negative: 400 missing required displayName field] (TC005)",
+        "protocol": "REST",
+        "test_type": [
+            "Negative",
+            "Functional",
+            "Regression"
+        ],
+        "mainURL": "{{base_url}}",
+        "endpoint": "/accounts/ffffffff-ffff-ffff-ffff-ffffffffffff",
+        "method": "PUT",
+        "rpc_method": "",
+        "graphql_query": "",
+        "graphql_variables": "",
+        "soap_action": "",
+        "soap_envelope": "",
+        "headers_additional": {
+            "Content-Type": "application/json"
+        },
+        "payload": "account/payloads/Payload_Accounts_PUT_missing_display_name.json",
+        "expected_status": "400",
+        "expected_response_schema": "account/schemas/Schema_Accounts_PUT_400.json",
+        "expected_response": null,
+        "ignore_fields": [],
+        "extract_values": [
+            {
+                "from": "response",
+                "key": "",
+                "assign_to": ""
+            }
+        ],
+        "validate": {
+            "performance": {
+                "max_response_time_ms": 2000
+            },
+            "data_comparison": []
+        },
+        "test_data_file": "",
+        "db_query": "",
+        "db_type": "",
+        "test_summary": "Test TC005: PUT /accounts/{accountId} with the required 'displayName' field omitted from the request body. Expects HTTP 400 Bad Request from request validation."
+    }
+]
