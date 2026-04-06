@@ -1,7 +1,3 @@
-{
-    "identifiers": [
-        {
-            "type": "APL"
-        }
-    ]
-}
+[
+  {"type": "APL"}
+]

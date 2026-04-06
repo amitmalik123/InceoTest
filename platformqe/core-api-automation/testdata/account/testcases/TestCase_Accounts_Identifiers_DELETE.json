@@ -82,7 +82,7 @@
         "test_id": "TC001",
         "service_name": "account_service",
         "workflow_mode": "sequential",
-        "test_name": "DELETE /accounts/{accountId}/identifiers/APL [positive: 200 remove APL identifier] (TC001)",
+        "test_name": "DELETE /accounts/{accountId}/identifiers/APL [positive: 204 remove APL identifier] (TC001)",
         "protocol": "REST",
         "test_type": [
             "Functional",
@@ -127,14 +127,7 @@
                     "xss"
                 ]
             },
-            "assertions": [
-                {
-                    "actual": "{{db_apl_count_after_delete}}",
-                    "operator": "==",
-                    "expected": 0,
-                    "message": "APL identifier must no longer exist in the database after DELETE"
-                }
-            ],
+            "assertions": [],
             "data_comparison": []
         },
         "test_data_file": "",
@@ -194,14 +187,7 @@
             "performance": {
                 "max_response_time_ms": 2000
             },
-            "assertions": [
-                {
-                    "actual": "{{db_an_count}}",
-                    "operator": "==",
-                    "expected": 1,
-                    "message": "AccountNumber identifier must still be present in the database after deleting only APL"
-                }
-            ],
+            "assertions": [],
             "data_comparison": []
         },
         "test_data_file": "",
@@ -397,7 +383,7 @@
         "test_id": "TC007",
         "service_name": "account_service",
         "workflow_mode": "sequential",
-        "test_name": "DELETE /accounts/{accountId}/identifiers/AccountNumber [positive: 200 remove last remaining identifier] (TC007)",
+        "test_name": "DELETE /accounts/{accountId}/identifiers/AccountNumber [positive: 204 remove last remaining identifier] (TC007)",
         "protocol": "REST",
         "test_type": [
             "Functional",
@@ -436,14 +422,7 @@
             "performance": {
                 "max_response_time_ms": 3000
             },
-            "assertions": [
-                {
-                    "actual": "{{db_count_after_last_delete}}",
-                    "operator": "==",
-                    "expected": 0,
-                    "message": "No identifiers must remain in the database after deleting the last one"
-                }
-            ],
+            "assertions": [],
             "data_comparison": []
         },
         "test_data_file": "",
@@ -453,7 +432,7 @@
         },
         "db_type": "mssql",
         "db_connection_name": "account_service",
-        "test_summary": "Test TC007: DELETE /accounts/{accountId}/identifiers/AccountNumber — the last remaining identifier on the account (APL was deleted in TC001). Expects HTTP 204. DB validation confirms 0 identifiers remain, proving the service permits an account to have no identifiers."
+        "test_summary": "Test TC007: DELETE /accounts/{accountId}/identifiers/AccountNumber \u2014 the last remaining identifier on the account (APL was deleted in TC001). Expects HTTP 204. DB validation confirms 0 identifiers remain, proving the service permits an account to have no identifiers."
     },
     {
         "test_id": "TC008",

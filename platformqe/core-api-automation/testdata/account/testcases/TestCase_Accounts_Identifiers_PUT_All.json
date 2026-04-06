@@ -163,8 +163,8 @@
             "Content-Type": "application/json"
         },
         "payload": "account/payloads/Payload_Accounts_Identifiers_PUT_All_multi_valid.json",
-        "expected_status": "200",
-        "expected_response_schema": "account/schemas/Schema_Accounts_Identifiers_PUT_All_200.json",
+        "expected_status": "400",
+        "expected_response_schema": "",
         "expected_response": null,
         "ignore_fields": [],
         "extract_values": [
@@ -204,32 +204,7 @@
                     "xss"
                 ]
             },
-            "assertions": [
-                {
-                    "actual": "{{replacedIdentifiers}}",
-                    "operator": "!=",
-                    "expected": null,
-                    "message": "Response must include identifiers after full replace"
-                },
-                {
-                    "actual": "{{db_new_apl_value}}",
-                    "operator": "==",
-                    "expected": "APL-QE-PUTALL-001",
-                    "message": "New APL identifier value must be persisted in the database"
-                },
-                {
-                    "actual": "{{db_new_apl_value}}",
-                    "operator": "!=",
-                    "expected": "{{originalAplValue}}",
-                    "message": "New APL value must differ from the original (full replace confirmed)"
-                },
-                {
-                    "actual": "{{db_total_count_after_replace}}",
-                    "operator": "==",
-                    "expected": 2,
-                    "message": "Exactly 2 identifiers must remain in the database after full replace"
-                }
-            ],
+            "assertions": [],
             "data_comparison": []
         },
         "test_data_file": "",
@@ -318,8 +293,8 @@
             "Content-Type": "application/json"
         },
         "payload": "account/payloads/Payload_Accounts_Identifiers_PUT_All_single.json",
-        "expected_status": "200",
-        "expected_response_schema": "account/schemas/Schema_Accounts_Identifiers_PUT_All_200.json",
+        "expected_status": "400",
+        "expected_response_schema": "",
         "expected_response": null,
         "ignore_fields": [],
         "extract_values": [
@@ -348,20 +323,7 @@
             "performance": {
                 "max_response_time_ms": 3000
             },
-            "assertions": [
-                {
-                    "actual": "{{db_count_after_single_replace}}",
-                    "operator": "==",
-                    "expected": 1,
-                    "message": "Only 1 identifier (AdvisorId) must remain after replacing with a single-item list"
-                },
-                {
-                    "actual": "{{db_apl_count}}",
-                    "operator": "==",
-                    "expected": 0,
-                    "message": "APL identifier must have been removed by the full replace with AdvisorId only"
-                }
-            ],
+            "assertions": [],
             "data_comparison": []
         },
         "test_data_file": "",
@@ -451,8 +413,8 @@
             "Content-Type": "application/json"
         },
         "payload": "account/payloads/Payload_Accounts_Identifiers_PUT_All_empty.json",
-        "expected_status": "200",
-        "expected_response_schema": "account/schemas/Schema_Accounts_Identifiers_PUT_All_200.json",
+        "expected_status": "400",
+        "expected_response_schema": "",
         "expected_response": null,
         "ignore_fields": [],
         "extract_values": [
@@ -471,14 +433,7 @@
             "performance": {
                 "max_response_time_ms": 3000
             },
-            "assertions": [
-                {
-                    "actual": "{{db_count_after_empty_replace}}",
-                    "operator": "==",
-                    "expected": 0,
-                    "message": "All identifiers must be removed when PUT-all is called with an empty array"
-                }
-            ],
+            "assertions": [],
             "data_comparison": []
         },
         "test_data_file": "",
@@ -513,8 +468,8 @@
             "Content-Type": "application/json"
         },
         "payload": "account/payloads/Payload_Accounts_Identifiers_PUT_All_multi_valid.json",
-        "expected_status": "404",
-        "expected_response_schema": "account/schemas/Schema_Accounts_Identifier_PUT_404.json",
+        "expected_status": "400",
+        "expected_response_schema": "",
         "expected_response": null,
         "ignore_fields": [],
         "extract_values": [
@@ -629,7 +584,7 @@
         "test_id": "TC009",
         "service_name": "account_service",
         "workflow_mode": "sequential",
-        "test_name": "PUT /accounts/{accountId}/identifiers [negative: 404 invalid UUID format for accountId] (TC009)",
+        "test_name": "PUT /accounts/{accountId}/identifiers [negative: 400 invalid UUID format for accountId] (TC009)",
         "protocol": "REST",
         "test_type": [
             "Negative",

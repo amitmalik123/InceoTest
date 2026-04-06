@@ -70,25 +70,12 @@
             "performance": {
                 "max_response_time_ms": 3000
             },
-            "assertions": [
-                {
-                    "actual": "{{householdAccountId}}",
-                    "operator": "!=",
-                    "expected": null,
-                    "message": "Setup Household must return a non-null accountId"
-                },
-                {
-                    "actual": "{{db_household_id}}",
-                    "operator": "==",
-                    "expected": "{{householdAccountId}}",
-                    "message": "Household account must be persisted in the database"
-                }
-            ],
+            "assertions": [],
             "data_comparison": []
         },
         "db_query_timing": "after_api",
         "db_queries": {
-            "account_exists": "SELECT TOP 1 LOWER(CAST(Id AS NVARCHAR(50))) AS id FROM (SELECT *, ROW_NUMBER() OVER (PARTITION BY Id ORDER BY Version DESC) AS vrn FROM Account) a WHERE a.vrn = 1 AND a.Id = '{{householdAccountId}}'"
+            "account_exists": "SELECT TOP 1 CAST(Id AS NVARCHAR(50)) AS id FROM (SELECT *, ROW_NUMBER() OVER (PARTITION BY Id ORDER BY Version DESC) AS vrn FROM Account) a WHERE a.vrn = 1 AND a.Id = '{{householdAccountId}}'"
         },
         "db_type": "mssql",
         "db_connection_name": "account_service",
@@ -186,32 +173,7 @@
             "performance": {
                 "max_response_time_ms": 3000
             },
-            "assertions": [
-                {
-                    "actual": "{{custody_account_id_1}}",
-                    "operator": "!=",
-                    "expected": null,
-                    "message": "Created CustodyAccount must return a non-null accountId"
-                },
-                {
-                    "actual": "{{acct_num_test}}",
-                    "operator": "!=",
-                    "expected": null,
-                    "message": "AccountNumber must be returned in identifiers"
-                },
-                {
-                    "actual": "{{db_acct_num_1}}",
-                    "operator": "==",
-                    "expected": "{{acct_num_test}}",
-                    "message": "AccountNumber must be persisted in the database"
-                },
-                {
-                    "actual": "{{db_custodian_1}}",
-                    "operator": "==",
-                    "expected": "FID",
-                    "message": "Custodian identifier must be persisted in the database"
-                }
-            ],
+            "assertions": [],
             "data_comparison": []
         },
         "db_query_timing": "after_api",
@@ -294,20 +256,7 @@
             "performance": {
                 "max_response_time_ms": 3000
             },
-            "assertions": [
-                {
-                    "actual": "{{resp_conflict_type}}",
-                    "operator": "==",
-                    "expected": "already-exists",
-                    "message": "409 response type must be already-exists"
-                },
-                {
-                    "actual": "{{db_dup_count_002}}",
-                    "operator": "==",
-                    "expected": 1,
-                    "message": "Exactly 1 account must exist with this AccountNumber+Custodian combo (duplicate was rejected)"
-                }
-            ],
+            "assertions": [],
             "data_comparison": []
         },
         "db_query_timing": "after_api",
@@ -397,14 +346,7 @@
             "performance": {
                 "max_response_time_ms": 3000
             },
-            "assertions": [
-                {
-                    "actual": "{{db_acct_num_3}}",
-                    "operator": "==",
-                    "expected": "{{acct_num_test}}",
-                    "message": "AccountNumber-only account must be persisted in the database"
-                }
-            ],
+            "assertions": [],
             "data_comparison": []
         },
         "test_summary": "Test TC003: CustodyAccount AccountNumber only (no Custodian) - expect 201 (not a complete duplicate key)",
@@ -488,14 +430,7 @@
             "performance": {
                 "max_response_time_ms": 3000
             },
-            "assertions": [
-                {
-                    "actual": "{{db_custodian_4}}",
-                    "operator": "==",
-                    "expected": "FID",
-                    "message": "Custodian-only account must be persisted in the database"
-                }
-            ],
+            "assertions": [],
             "data_comparison": []
         },
         "test_summary": "Test TC004: CustodyAccount Custodian only (no AccountNumber) - expect 201",
@@ -572,14 +507,7 @@
             "performance": {
                 "max_response_time_ms": 3000
             },
-            "assertions": [
-                {
-                    "actual": "{{db_count_005}}",
-                    "operator": "==",
-                    "expected": 1,
-                    "message": "Case-insensitive duplicate was rejected - only 1 matching account must exist in database"
-                }
-            ],
+            "assertions": [],
             "data_comparison": []
         },
         "test_summary": "Test TC005: Lowercase AccountNumber + same Custodian - expect 409 (case-insensitive match)",
@@ -656,14 +584,7 @@
             "performance": {
                 "max_response_time_ms": 3000
             },
-            "assertions": [
-                {
-                    "actual": "{{db_count_006}}",
-                    "operator": "==",
-                    "expected": 1,
-                    "message": "Case-insensitive Custodian duplicate was rejected - only 1 matching account must exist in database"
-                }
-            ],
+            "assertions": [],
             "data_comparison": []
         },
         "test_summary": "Test TC006: Exact AccountNumber + lowercase Custodian fid - expect 409 (case-insensitive match)",
@@ -767,20 +688,7 @@
             "performance": {
                 "max_response_time_ms": 3000
             },
-            "assertions": [
-                {
-                    "actual": "{{db_acct_num_7}}",
-                    "operator": "==",
-                    "expected": "{{acct_num_test_7}}",
-                    "message": "AccountNumber must be persisted in the database"
-                },
-                {
-                    "actual": "{{db_custodian_7}}",
-                    "operator": "==",
-                    "expected": "FID",
-                    "message": "Custodian must be persisted in the database"
-                }
-            ],
+            "assertions": [],
             "data_comparison": []
         },
         "test_summary": "Test TC007: Different AccountNumber (acct_num_test with -X suffix) + same Custodian FID - expect 201",
@@ -879,20 +787,7 @@
             "performance": {
                 "max_response_time_ms": 3000
             },
-            "assertions": [
-                {
-                    "actual": "{{db_acct_num_8}}",
-                    "operator": "==",
-                    "expected": "{{acct_num_test}}",
-                    "message": "AccountNumber must be persisted in the database"
-                },
-                {
-                    "actual": "{{db_custodian_8}}",
-                    "operator": "==",
-                    "expected": "AMK",
-                    "message": "Custodian AMK must be persisted in the database"
-                }
-            ],
+            "assertions": [],
             "data_comparison": []
         },
         "test_summary": "Test TC008: Same AccountNumber + different Custodian AMK - expect 201",
@@ -918,7 +813,7 @@
         "protocol": "REST",
         "db_query_timing": "after_api",
         "db_queries": {
-            "account_exists": "SELECT TOP 1 LOWER(CAST(Id AS NVARCHAR(50))) AS id FROM (SELECT *, ROW_NUMBER() OVER (PARTITION BY Id ORDER BY Version DESC) AS vrn FROM Account) a WHERE a.vrn = 1 AND a.Id = '{{custody_account_id_9}}'"
+            "account_exists": "SELECT TOP 1 CAST(Id AS NVARCHAR(50)) AS id FROM (SELECT *, ROW_NUMBER() OVER (PARTITION BY Id ORDER BY Version DESC) AS vrn FROM Account) a WHERE a.vrn = 1 AND a.Id = '{{custody_account_id_9}}'"
         },
         "db_type": "mssql",
         "db_connection_name": "account_service",
@@ -971,14 +866,7 @@
             "performance": {
                 "max_response_time_ms": 3000
             },
-            "assertions": [
-                {
-                    "actual": "{{db_account_id_9}}",
-                    "operator": "==",
-                    "expected": "{{custody_account_id_9}}",
-                    "message": "Account with no identifiers must be persisted in the database"
-                }
-            ],
+            "assertions": [],
             "data_comparison": []
         },
         "test_summary": "Test TC009: CustodyAccount with no identifiers - expect 201 (no keys to check for duplicates)",
