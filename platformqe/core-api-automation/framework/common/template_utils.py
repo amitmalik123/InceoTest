@@ -36,7 +36,7 @@ def render_hybrid(value, context):
             rv = render_hybrid(v, context)
             if isinstance(rv, str) and rv.lower() in ["true", "false"]:
                 result[k] = rv.lower() == "true"
-            elif isinstance(rv, str) and rv.isdigit():
+            elif isinstance(rv, str) and rv.isdigit() and not isinstance(v, str):
                 result[k] = int(rv)
             else:
                 result[k] = rv

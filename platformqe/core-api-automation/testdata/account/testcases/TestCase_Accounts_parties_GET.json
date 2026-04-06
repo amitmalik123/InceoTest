@@ -1,0 +1,316 @@
+[
+    {
+        "test_id": "TC000",
+        "service_name": "account_service",
+        "workflow_mode": "sequential",
+        "test_name": "QUERY and Extract DB Values",
+        "protocol": "DB_ONLY",
+        "test_type": [
+            "Functional",
+            "Smoke",
+            "Business Logic"
+        ],
+        "mainURL": "",
+        "endpoint": "",
+        "method": "",
+        "rpc_method": "",
+        "graphql_query": "",
+        "graphql_variables": "",
+        "soap_action": "",
+        "soap_envelope": "",
+        "headers_additional": {
+            "Content-Type": "application/json"
+        },
+        "payload": null,
+        "expected_status": "",
+        "expected_response_schema": "",
+        "expected_response": "",
+        "extract_values": [
+            {
+                "from": "db_result",
+                "query": "default",
+                "assign": [
+                    {
+                        "key": "0.Id",
+                        "assign_to": "db_id_1"
+                    },
+                    {
+                        "key": "0.PartyId_0",
+                        "assign_to": "db_party_id_1"
+                    },
+                    {
+                        "key": "0.RoleType_0",
+                        "assign_to": "db_party_role_1"
+                    },
+                    {
+                        "key": "0.PartyId_1",
+                        "assign_to": "db_party_id_2"
+                    },
+                    {
+                        "key": "0.RoleType_1",
+                        "assign_to": "db_party_role_2"
+                    },
+                    {
+                        "key": "0.PartyId_2",
+                        "assign_to": "db_party_id_3"
+                    },
+                    {
+                        "key": "0.RoleType_2",
+                        "assign_to": "db_party_role_3"
+                    }
+                ]
+            }
+        ],
+        "validate": {
+            "performance": {
+                "max_response_time_ms": 500
+            },
+            "security": {
+                "checks": [
+                    "sql_injection",
+                    "xss"
+                ]
+            },
+            "data_comparison": {
+                "source": "",
+                "target": "",
+                "format": "",
+                "key_field": [
+                    "",
+                    ""
+                ],
+                "fields_to_compare": [],
+                "log_differences": true
+            },
+            "assertions": []
+        },
+        "test_data_file": "",
+        "db_query_timing": "before_api",
+        "db_queries": {
+            "default": "account\\db_queries\\Parties_queries\\single_party_query.sql"
+        },
+        "db_type": "mssql",
+        "db_connection_name": "account_service",
+        "test_summary": "Test TC000: GET /Accounts/{id} [positive] (TC000) - Test GET request to /Accounts/{id} for functional scenario validation.",
+        "test_scenario": "Test GET request to /Accounts/{id} for functional scenario validation."
+    },
+    {
+        "test_id": "TC001",
+        "service_name": "account_service",
+        "workflow_mode": "parallel",
+        "test_name": "GET /Accounts/children [positive] (TC001)",
+        "protocol": "REST",
+        "test_type": [
+            "Functional"
+        ],
+        "mainURL": "{{base_url}}",
+        "endpoint": "/accounts/{{db_id_1}}/parties?partyRoleType={{db_party_role_1}}",
+        "method": "GET",
+        "rpc_method": "",
+        "graphql_query": "",
+        "graphql_variables": "",
+        "soap_action": "",
+        "soap_envelope": "",
+        "headers_additional": {
+            "Content-Type": "application/json"
+        },
+        "payload": "",
+        "expected_status": "200",
+        "expected_response_schema": "account\\schemas\\Schema_Accounts_GET.json",
+        "expected_response": null,
+        "ignore_fields": [
+            "id"
+        ],
+        "extract_values": [
+            {
+                "from": "response",
+                "key": "parties.items.0.partyId",
+                "assign_to": "party_id_1"
+            },
+            {
+                "from": "response",
+                "key": "parties.items.0.roleType",
+                "assign_to": "party_role_1"
+            }
+        ],
+        "validate": {
+            "performance": {
+                "max_response_time_ms": 500
+            },
+            "security": {
+                "checks": [
+                    "sql_injection",
+                    "xss"
+                ]
+            },
+            "assertions": [
+                {
+                    "actual": "{{party_id_1}}",
+                    "operator": "==",
+                    "expected": "{{db_party_id_1}}",
+                    "message": "Party ID should match the database value"
+                },
+                {
+                    "actual": "{{party_role_1}}",
+                    "operator": "==",
+                    "expected": "{{db_party_role_1}}",
+                    "message": "Party Role should match the database value"
+                }
+            ],
+            "data_comparison": []
+        },
+        "test_data_file": "",
+        "db_query_timing": "",
+        "db_queries": {},
+        "db_type": "",
+        "db_connection_name": "",
+        "test_summary": "Test TC001: GET /accounts/accountId/parties : GET party Id and roleType from AccountId",
+        "test_scenario": "Test GET request to /accounts/accountId/parties."
+    },
+    {
+        "test_id": "TC002",
+        "service_name": "account_service",
+        "workflow_mode": "parallel",
+        "test_name": "GET /Accounts/children [positive] (TC002)",
+        "protocol": "REST",
+        "test_type": [
+            "Functional"
+        ],
+        "mainURL": "{{base_url}}",
+        "endpoint": "/accounts/{{db_id_1}}/parties?partyRoleType={{db_party_role_2}}",
+        "method": "GET",
+        "rpc_method": "",
+        "graphql_query": "",
+        "graphql_variables": "",
+        "soap_action": "",
+        "soap_envelope": "",
+        "headers_additional": {
+            "Content-Type": "application/json"
+        },
+        "payload": "",
+        "expected_status": "200",
+        "expected_response_schema": "account\\schemas\\Schema_Accounts_GET.json",
+        "expected_response": null,
+        "ignore_fields": [
+            "id"
+        ],
+        "extract_values": [
+            {
+                "from": "response",
+                "key": "parties.items.0.partyId",
+                "assign_to": "party_id_2"
+            },
+            {
+                "from": "response",
+                "key": "parties.items.0.roleType",
+                "assign_to": "party_role_2"
+            }
+        ],
+        "validate": {
+            "performance": {
+                "max_response_time_ms": 500
+            },
+            "security": {
+                "checks": [
+                    "sql_injection",
+                    "xss"
+                ]
+            },
+            "assertions": [
+                {
+                    "actual": "{{party_id_2}}",
+                    "operator": "==",
+                    "expected": "{{db_party_id_2}}",
+                    "message": "Party ID should match the database value"
+                },
+                {
+                    "actual": "{{party_role_2}}",
+                    "operator": "==",
+                    "expected": "{{db_party_role_2}}",
+                    "message": "Party Role should match the database value"
+                }
+            ],
+            "data_comparison": []
+        },
+        "test_data_file": "",
+        "db_query_timing": "",
+        "db_queries": {},
+        "db_type": "",
+        "db_connection_name": "",
+        "test_summary": "Test TC002: GET /accounts/accountId/parties : GET party Id and roleType from AccountId",
+        "test_scenario": "Test GET request to /accounts/accountId/parties."
+    },
+    {
+        "test_id": "TC003",
+        "service_name": "account_service",
+        "workflow_mode": "parallel",
+        "test_name": "GET /Accounts/children [positive] (TC003)",
+        "protocol": "REST",
+        "test_type": [
+            "Functional"
+        ],
+        "mainURL": "{{base_url}}",
+        "endpoint": "/accounts/{{db_id_1}}/parties?partyRoleType={{db_party_role_3}}",
+        "method": "GET",
+        "rpc_method": "",
+        "graphql_query": "",
+        "graphql_variables": "",
+        "soap_action": "",
+        "soap_envelope": "",
+        "headers_additional": {
+            "Content-Type": "application/json"
+        },
+        "payload": "",
+        "expected_status": "200",
+        "expected_response_schema": "account\\schemas\\Schema_Accounts_GET.json",
+        "expected_response": null,
+        "ignore_fields": [
+            "id"
+        ],
+        "extract_values": [
+            {
+                "from": "response",
+                "key": "parties.items.0.partyId",
+                "assign_to": "party_id_3"
+            },
+            {
+                "from": "response",
+                "key": "parties.items.0.roleType",
+                "assign_to": "party_role_3"
+            }
+        ],
+        "validate": {
+            "performance": {
+                "max_response_time_ms": 500
+            },
+            "security": {
+                "checks": [
+                    "sql_injection",
+                    "xss"
+                ]
+            },
+            "assertions": [
+                {
+                    "actual": "{{party_id_3}}",
+                    "operator": "==",
+                    "expected": "{{db_party_id_3}}",
+                    "message": "Party ID should match the database value"
+                },
+                {
+                    "actual": "{{party_role_3}}",
+                    "operator": "==",
+                    "expected": "{{db_party_role_3}}",
+                    "message": "Party Role should match the database value"
+                }
+            ],
+            "data_comparison": []
+        },
+        "test_data_file": "",
+        "db_query_timing": "",
+        "db_queries": {},
+        "db_type": "",
+        "db_connection_name": "",
+        "test_summary": "Test TC003: GET /accounts/accountId/parties : GET party Id and roleType from AccountId",
+        "test_scenario": "Test GET request to /accounts/accountId/parties."
+    }
+]

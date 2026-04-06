@@ -6,7 +6,8 @@
         "test_name": "GET /v1/health [positive] (TC001)",
         "protocol": "REST",
         "test_type": [
-            "Functional", "Health"
+            "Functional",
+            "Health"
         ],
         "mainURL": "{{api_base_url}}",
         "endpoint": "/health",
@@ -17,7 +18,7 @@
         "soap_action": "",
         "soap_envelope": "",
         "headers_additional": {
-               "Accept": "*/*"
+            "Accept": "*/*"
         },
         "payload": null,
         "expected_status": "200",

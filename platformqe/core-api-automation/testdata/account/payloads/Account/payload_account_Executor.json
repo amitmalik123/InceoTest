@@ -1,8 +1,9 @@
 {
-       "parentaccountid": "{{Registration_Account_ID2}}",
-        "status": "Initiated",
+        "parentaccountid": "{{HouseholdAccountID2}}",
+        "changeState": "Contract",
+        "status": "Pending",
         "version": 0,
-        "accountclassification": "Account",
+        "accountclassification": "CustodyAccount",
         "accounttype": "Personal",
         "accountsubtype": "BankorTrustCompanyNonTaxable",
         "displayname": "Doe Account",
@@ -27,7 +28,7 @@
         "identifiers": [
           {
             "type": "APL",
-            "value": "ACC-12345"
+            "value": "ACC-129345"
           }
         ],
   "createddate": "2025-12-05T11:54:40.559Z",
