@@ -94,7 +94,7 @@
                 }
             ]
         },
-        "test_data_file": "MoveMoneyAPI/data_driven/Data_instructions_instructionId_Delete.csv",
+        "test_data_file": "MoveMoneyAPI/data_driven/Data_instructions_instructionId_GET.csv",
         "csv_row_index": 0,
         "db_query_timing": "after_api",
         "db_queries": {
@@ -212,7 +212,7 @@
             "assertions": [],
             "data_comparison": []
         },
-        "test_data_file": "MoveMoneyAPI/data_driven/Data_instructions_instructionId_Delete.csv",
+        "test_data_file": "MoveMoneyAPI/data_driven/Data_instructions_instructionId_GET.csv",
         "csv_row_index": 0,
         "db_query_timing": "after_api",
         "db_queries": {

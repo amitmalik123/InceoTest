@@ -9,7 +9,7 @@
             "Functional"
         ],
         "mainURL": "{{base_url}}",
-        "endpoint": "/instructions/{{instructionId}}",
+        "endpoint": "/instructions/{{instruction_id}}",
         "method": "PUT",
         "rpc_method": "",
         "graphql_query": "",
@@ -49,12 +49,12 @@
             {
                 "from": "response",
                 "key": "instructionId",
-                "assign_to": "tc001_instructionId"
+                "assign_to": "instructionId"
             },
             {
                 "from": "response",
                 "key": "version",
-                "assign_to": "tc001_version"
+                "assign_to": "version"
             }
         ],
         "validate": {
@@ -69,13 +69,13 @@
             },
             "assertions": [
                 {
-                    "actual": "{{tc001_instructionId}}",
+                    "actual": "{{instructionId}}",
                     "expected": "",
                     "operator": "!=",
                     "message": "InstructionId should not be empty"
                 },
                 {
-                    "actual": "{{tc001_version}}",
+                    "actual": "{{version}}",
                     "expected": 1,
                     "operator": ">",
                     "message": "Version should be incremented after update"
@@ -104,7 +104,7 @@
             "Positive"
         ],
         "mainURL": "{{base_url}}",
-        "endpoint": "/instructions/{{tc001_instructionId}}",
+        "endpoint": "/instructions/{{instructionId}}",
         "method": "PUT",
         "rpc_method": "",
         "graphql_query": "",
@@ -115,7 +115,7 @@
             "Content-Type": "application/json"
         },
         "payload": {
-            "version": "{{tc001_version}}",
+            "version": "{{version}}",
             "letterOfAuthorization": "Both",
             "accountId": "456e7890-e89b-12d3-a456-426614174111",
             "status": "Draft",

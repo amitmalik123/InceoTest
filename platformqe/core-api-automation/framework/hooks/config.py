@@ -96,8 +96,8 @@ SERVICE_DEFAULTS: Dict[str, Dict] = {
                     }
                 ]
             },
-            'update_csv_file': 'MoveMoneyAPI/data_driven/Data_instructions_instructionId_Delete.csv',
-                'csv_columns': ['test_id', 'environment', 'instruction_id', 'version'],
+            'update_csv_file': 'MoveMoneyAPI/data_driven/Data_instructions_instructionId_GET.csv',
+                'csv_columns': ['environment', 'instruction_id', 'version'],
             },
             # === REQUESTS ENDPOINT ===
             'requests': {
