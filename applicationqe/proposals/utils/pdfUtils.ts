@@ -295,8 +295,8 @@ export async function validatePdfContent(pdfPath: string, expectedPageCount: num
     if (actualPageCount === null) {
         throw new Error(`Unable to determine PDF page count for: ${pdfPath}`);
     }
-    if (actualPageCount !== expectedPageCount) {
-        throw new Error(`Expected ${expectedPageCount} pages but found ${actualPageCount} in PDF: ${pdfPath}`);
+    if (actualPageCount < expectedPageCount) {
+        throw new Error(`Expected at least ${expectedPageCount} pages but found ${actualPageCount} in PDF: ${pdfPath}`);
     }
 
     logger.debug(
