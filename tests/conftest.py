@@ -121,12 +121,22 @@ def pytest_collection_modifyitems(config, items) -> None:  # noqa: C901
     - Slow test detection
     """
     current_env = get_settings().env
+    available_apps = set(get_settings().get_available_apps())
 
     for item in items:
         # 1. Initialize retry tracking for flaky test detection
         item.execution_count = 0
         item.failed_count = 0
         item.start_time = None
+
+        # 1b. Auto-map feature file tags to @pytest.mark.app()
+        # If a scenario is tagged @crm, @ewm, etc. and that tag matches
+        # a configured app name, add the app marker automatically.
+        if not item.get_closest_marker("app"):
+            for mark in item.iter_markers():
+                if mark.name in available_apps:
+                    item.add_marker(pytest.mark.app(mark.name))
+                    break
 
         # 2. Add environment markers
         if current_env == "test11":

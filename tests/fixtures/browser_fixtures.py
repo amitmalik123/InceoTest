@@ -175,7 +175,7 @@ def apply_context_listeners(context) -> None:
         elif response.status >= 300:
             line = f"[HTTP {response.status}] {response.request.method} {response.url} (redirect)"
             logger.info(line)
-            _write_to_log(line)
+        #    _write_to_log(line)
 
         # Scan response body for IDs (if id-capture is enabled)
         if _ID_CAPTURE_ENABLED:
@@ -203,7 +203,7 @@ def apply_context_listeners(context) -> None:
             logger.warning(line)
             _write_to_log(line)
 
-        page.on("console", _on_console)
+     #   page.on("console", _on_console)
         page.on("pageerror", _on_pageerror)
 
     context.on("page", _attach_page_listeners)
