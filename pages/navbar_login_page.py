@@ -26,9 +26,6 @@ class NavbarLoginPage(BasePage):
         self.sign_in_button: Locator = self.page.locator(
             "input#okta-signin-submit[type='submit'][value='Sign In']"
         )
-        self.login_form: Locator = self.page.locator(
-            "form#form32.primary-auth-form.o-form.o-form-edit-mode"
-        )
 
     def _switch_to_latest_open_page(self) -> bool:
         """Switch to latest open page in context if current page gets closed."""
@@ -76,31 +73,68 @@ class NavbarLoginPage(BasePage):
         logger.info("Clicking navbar sign in button")
         self.click(self.sign_in_button)
 
+    def _maximize_window(self) -> None:
+        """Maximize headed browser window (OS-level)."""
+        try:
+            cdp = self.page.context.new_cdp_session(self.page)
+            window_id = cdp.send("Browser.getWindowForTarget")["windowId"]
+            cdp.send("Browser.setWindowBounds", {
+                "windowId": window_id,
+                "bounds": {"windowState": "maximized"},
+            })
+        except Exception:
+            pass
+
+    def _stabilize_post_login_ui(self) -> None:
+        self._maximize_window()
+        self.page.wait_for_timeout(600)
+
+        try:
+            accept_all = self.page.locator("button:has-text('Accept All')").first
+            if self.is_visible(accept_all, timeout=2000):
+                accept_all.click(timeout=4000, force=True)
+                self.page.wait_for_timeout(1200)
+        except Exception:
+            pass
+
+        # User-provided exact close locator for "The Sidebar Navigation" popup.
+        sidebar_close = self.page.locator(
+            "//div[text()=\"The Sidebar Navigation\"]//parent::div//child::button[@type=\"button\"]"
+        ).first
+        for _ in range(2):
+            try:
+                if self.is_visible(sidebar_close, timeout=5000):
+                    sidebar_close.click(timeout=4000, force=True)
+                    self.page.wait_for_timeout(800)
+                else:
+                    break
+            except Exception:
+                self.page.wait_for_timeout(700)
+
     def login_application(self, username: str, password: str) -> None:
         self.navigate()
         if "dashboard" in (self.page.url or "").lower():
+            self._stabilize_post_login_ui()
             logger.info(f"Navbar already on dashboard: {self.page.url}")
             return
 
-        if (
-            not self.page.is_closed()
-            and self.username_input.count() > 0
-            and self.username_input.first.is_visible(timeout=3000)
-        ):
-            self.enter_username(username)
-            self.enter_password(password)
-            self.click_sign_in()
-            # Complete OAuth chain and ensure we settle on dashboard.
-            self.page.wait_for_url(lambda url: "app." in url.lower(), timeout=60000)
-            self.page.wait_for_function(
-                """() => window.location.href.toLowerCase().includes('/dashboard')""",
-                timeout=60000,
+        can_login = not self.page.is_closed() and self.is_visible(self.username_input.first, timeout=3000)
+        if not can_login:
+            logger.info(
+                f"Navbar login form not visible; continuing with current URL: {self.page.url}"
             )
-            self.page.wait_for_load_state("domcontentloaded", timeout=30000)
-            self.page.wait_for_timeout(5000)
-            logger.info(f"Navbar login submitted. Current URL: {self.page.url}")
             return
 
-        logger.info(
-            f"Navbar login form not visible; continuing with current URL: {self.page.url}"
+        self.enter_username(username)
+        self.enter_password(password)
+        self.click_sign_in()
+        # Complete OAuth chain and ensure we settle on dashboard.
+        self.page.wait_for_url(lambda url: "app." in url.lower(), timeout=60000)
+        self.page.wait_for_function(
+            """() => window.location.href.toLowerCase().includes('/dashboard')""",
+            timeout=60000,
         )
+        self.page.wait_for_load_state("domcontentloaded", timeout=30000)
+        self._stabilize_post_login_ui()
+        self.page.wait_for_timeout(5000)
+        logger.info(f"Navbar login submitted. Current URL: {self.page.url}")

@@ -17,6 +17,13 @@ class DocumentVaultPage(BasePage):
     def _init_locators(self) -> None:
         self.form_root = self.active_root()
 
+        # New navbar top-level navigation element
+        self.statements_reports_link: Locator = self.page.locator('//a[text()="Statements & Reports"]')
+        self.document_type_dropdown: Locator = self.form_root.locator('//span[text()="Select a document type"]')
+        self.year_dropdown: Locator = self.form_root.locator('//select[@name="ddYear"]')
+        self.quarter_dropdown: Locator = self.form_root.locator('//select[@name="ddQtrMonth"]')
+        self.document_dropdown: Locator = self.form_root.locator('//select[@name="ddDocument"]')
+
         self.clients_tab: Locator = self.form_root.locator("//a[text()='Clients']")
         self.client_list_search_input: Locator = self.form_root.locator("//input[@name='search_input']")
         self.search_button: Locator = self.form_root.locator("//button[@class='searchbutton']")
@@ -106,6 +113,33 @@ class DocumentVaultPage(BasePage):
         """Navigate to Document Vault assuming Clients tab already clicked (new navbar flow)."""
         logger.info(f"Navigating to Document Vault from clients page for: {client_name}")
         self._search_and_navigate_to_doc_vault(client_name, timeout=timeout)
+
+    def open_statements_and_reports_and_validate(self, timeout: int = 30000) -> None:
+        """Open Statements & Reports and assert Client Document and Reports Vault page is visible."""
+        logger.info("Clicking Statements & Reports and validating vault page load")
+        self.wait_for_element(self.statements_reports_link, timeout=timeout)
+        self.click(self.statements_reports_link, timeout=timeout)
+        self.page.wait_for_load_state("domcontentloaded", timeout=timeout)
+        heading_xpath = '//span[normalize-space()="Client Document and Reports Vault"]'
+
+        candidates = [self.active_root(), self.page] + [
+            frame for frame in self.page.frames if frame != self.page.main_frame
+        ]
+        for candidate in candidates:
+            try:
+                if self.is_visible(candidate.locator(heading_xpath), timeout=5000):
+                    logger.info("Statements and Reports page loaded successfully")
+                    self._init_locators()  # Re-resolve form_root for this page
+                    return
+            except Exception:
+                pass
+
+        frame_urls = [f.url for f in self.page.frames if f != self.page.main_frame]
+        logger.error(f"Heading not found in page or frames. Frame URLs seen: {frame_urls}")
+
+        raise AssertionError(
+            "Client Document and Reports Vault text is not visible after clicking Statements & Reports"
+        )
 
     def _search_and_navigate_to_doc_vault(self, client_name: str, timeout: int = 30000) -> None:
         """Common navigation logic for both old and new navbar flows."""
@@ -271,3 +305,43 @@ class DocumentVaultPage(BasePage):
         except Exception:
             # Some environments render the disabled state but keep it hidden.
             self.restore_default_disabled.first.wait_for(state="attached", timeout=timeout)
+
+    def validate_all_dropdowns_enabled_for_user_interaction(self, timeout: int = 15000) -> None:
+        """Validate the 4 agent-level dropdown controls are visible."""
+        logger.info("Validating agent-level dropdown controls visibility")
+
+        xpaths = [
+            ("DocumentTypeDropdown", '//span[text()="Select a document type"]'),
+            ("yeardropdown",         '//select[@name="ddYear"]'),
+            ("quarterdropdown",      '//select[@name="ddQtrMonth"]'),
+            ("documentdropdown",     '//select[@name="ddDocument"]'),
+        ]
+
+        # Resolve the correct context once using the first locator, then reuse it.
+        candidates = [self.page] + list(self.page.frames)
+        active_context = None
+        first_name, first_xpath = xpaths[0]
+        for candidate in candidates:
+            try:
+                first_loc = candidate.locator(first_xpath).first
+                if self.is_visible(first_loc, timeout=1200):
+                    active_context = candidate
+                    first_loc.scroll_into_view_if_needed()
+                    break
+            except Exception:
+                continue
+
+        if active_context is None:
+            raise AssertionError(f"{first_name} is not visible")
+
+        # Validate all remaining dropdowns in the same context.
+        for name, xpath in xpaths[1:]:
+            loc = active_context.locator(xpath).first
+            try:
+                loc.scroll_into_view_if_needed()
+            except Exception:
+                pass
+            if not self.is_visible(loc, timeout=2000):
+                raise AssertionError(f"{name} is not visible")
+
+        logger.info("Validated all 4 dropdown controls are visible")

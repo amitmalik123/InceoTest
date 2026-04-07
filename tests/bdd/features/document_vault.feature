@@ -13,3 +13,9 @@ Feature: Verify Document Vault page functionality client level
     Examples:
       | SheetName | RowNumber |
       | Econ      |         5 |
+  
+  @regression @e2e @documentvault @newNavBar
+  Scenario: Validation of Document Vault page functionalities Agent Level
+    When Login application
+    And User clicks on the Statements and Reports
+    Then validate all the dropdowns are enabled for user interaction

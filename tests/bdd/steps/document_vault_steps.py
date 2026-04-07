@@ -7,6 +7,12 @@ from utils.allure_logger import get_allure_logger
 logger = get_allure_logger(__name__)
 
 
+@when("User clicks on the Statements and Reports")
+def click_statements_and_reports(page: Page):
+    document_vault_page = DocumentVaultPage(page)
+    document_vault_page.open_statements_and_reports_and_validate()
+
+
 @when(parsers.parse('navigates to document vault with "{sheet_name}" , {row_number:d}'))
 def navigates_to_document_vault_with(page: Page, excel_data_manager, test_context, sheet_name: str, row_number: int):
     """Navigate to document vault using Excel row data (new navbar flow - clients tab already clicked)."""
@@ -67,3 +73,14 @@ def validate_the_restore_default_functionality(page: Page):
 def close_all_the_expanded_headers(page: Page):
     document_vault_page = DocumentVaultPage(page)
     document_vault_page.close_expanded_headers()
+
+
+@then("validate all the dropdowns are enabled for user interaction")
+@then("validate all the dropdowns are enable for user interaction")
+def validate_all_dropdowns_enabled_for_user_interaction(page: Page):
+    document_vault_page = DocumentVaultPage(page)
+    try:
+        document_vault_page.validate_all_dropdowns_enabled_for_user_interaction()
+        assert True, "All dropdowns are visible"
+    except AssertionError as exc:
+        assert False, f"Dropdown visibility validation failed: {exc}"
