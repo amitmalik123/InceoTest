@@ -175,7 +175,7 @@ Feature: E2E OAM flow for FA, SAU and OA
     Then Verify Form Heading must be same as selected OAM Type
     When User select Submission Type
     Then User should be redirected to the DocuSign page
-    And Verify docusign Review and continue dialog text "Your Shared Access User has prepared one or more documents that are ready for you to sign electronically."
+    And Verify docusign Review and continue dialog text "Please review and sign the document electronically."
     And Verify As_authorized_by stamp presence
     When User confirm and Continue the docusign Review and continue dialog
     And User Finish the DocuSign process
