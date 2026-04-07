@@ -1064,10 +1064,7 @@ class OutlookPage(BasePage):
             try:
                 body_container.wait_for(state="visible", timeout=10_000)
                 # Get all text content from the container
-                body_text = body_container.inner_text()
-                if not body_text or body_text.strip() == "":
-                    # If container is empty, try to get any span text within it
-                    body_text = outlook_email_page.locator('//div[@data-test-id="mailMessageBodyContainer"]//span').first.inner_text()
+                body_text = outlook_email_page.locator('//div[@data-test-id="mailMessageBodyContainer"]/descendant::table[@role="presentation"][1]/descendant::table[1]/tbody/tr[3]/td/span').first.inner_text()
             except PlaywrightTimeoutError:
                 raise RuntimeError("Email body container not found or not visible")
             

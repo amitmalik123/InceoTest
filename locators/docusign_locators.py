@@ -39,3 +39,8 @@ STAMPING_ELEMENT_TEXT_KEY = "As authorized by"  # Used with get_by_text()
 
 # OTP field (dynamic regex pattern)
 OTP_FIELD_NAME_PATTERN = "verification code"  # Used with get_by_role()
+
+# Adopt Signature Modal locators
+ADOPT_SIGNATURE_MODAL = '[data-qa="adopt-signature-modal"]'
+ADOPT_AND_SIGN_BUTTON_TEXT = "Adopt and Sign"  # Used with get_by_role()
+ADOPT_AND_SIGN_BUTTON_DATA_QA = "adopt-submit"  # Alternative: data-qa attribute

@@ -709,6 +709,10 @@ def provide_authorized_signers_information(authenticated_page: Page, client_acco
             logger.info(f"    - Email_Address: '{email_address if email_address else 'N/A'}'")
             logger.info(f"    - Phone: '{phone if phone else 'N/A'}'")
             
+            # Store authorized_signer in test_context for use in subsequent steps
+            test_context["authorized_signer"] = authorized_signer
+            logger.info(f"  Stored authorized_signer in test_context: {authorized_signer}")
+            
             # Step 2: Call page object method to provide information
             logger.info("  Step 2: Providing information via page method...")
             client_accounts_page.provide_authorized_signers_information(

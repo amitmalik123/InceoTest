@@ -237,6 +237,53 @@ class DocuSignPage(BasePage):
         finish_button.click()
         logger.info("✓ DocuSign top right header Finish button clicked")
 
+    def click_adopt_and_sign(self, timeout: int = 10000):
+        """
+        Click the 'Adopt and Sign' button in the Adopt Signature modal.
+        Uses Playwright role-based locator for accessibility and resilience.
+        
+        Args:
+            timeout: Maximum time to wait in milliseconds
+            
+        Raises:
+            PlaywrightTimeoutError: If the Adopt and Sign button is not found or not visible
+            
+        Example:
+            docusign_page.click_adopt_and_sign()
+        """
+        logger.info("Clicking Adopt and Sign button...")
+        
+        try:
+            # First, wait for the Adopt Signature modal to be visible
+            modal_locator = self.page.locator(docusign_locators.ADOPT_SIGNATURE_MODAL)
+            modal_locator.wait_for(state="visible", timeout=timeout)
+            logger.debug("Adopt Signature modal is visible")
+            
+            # Locate the Adopt and Sign button by role and name (most semantic approach)
+            adopt_sign_button = self.page.get_by_role(
+                "button", 
+                name=docusign_locators.ADOPT_AND_SIGN_BUTTON_TEXT
+            )
+            
+            # Wait for button to be visible and enabled
+            adopt_sign_button.wait_for(state="visible", timeout=timeout)
+            logger.debug("Adopt and Sign button is visible")
+            
+            # Click the button
+            logger.info("Clicking Adopt and Sign button")
+            adopt_sign_button.click()
+            logger.info("✓ Adopt and Sign button clicked")
+            
+            # Wait for modal to close and signature to be adopted
+            self.page.wait_for_timeout(1000)
+            
+        except PlaywrightTimeoutError as e:
+            logger.error(f"Failed to locate Adopt and Sign button within timeout: {str(e).splitlines()[0]}")
+            raise
+        except Exception as e:
+            logger.error(f"Error clicking Adopt and Sign button: {str(e).splitlines()[0]}")
+            raise
+
     def get_stamping_element(self, stamping_text: str):
         """
         Get locator for a stamping element by its text.

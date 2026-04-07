@@ -267,6 +267,55 @@ def user_add_signature(authenticated_page: Page, docusign_page):
     logger.info("[PASS] DocuSignPage: Signature Addition Process Completed.")
 
 
+@when("User click on Sign and add signature")
+def user_click_on_sign_and_add_signature(authenticated_page: Page, docusign_page, test_context):
+    """Click on the Sign button to add signature to the document.
+    
+    Supports both single page (authenticated_page) and multi-page scenarios (new_docusign_page).
+    Calls the page object method to locate and click the Sign button/div in DocuSign.
+    
+    Uses framework utilities:
+    - docusign_page.click_sign_button(): Clicks Sign button in document
+    - Framework logging via get_allure_logger
+    
+    Example (in feature file):
+        And User click on Sign and add signature
+    """
+    logger.info(">>> ENTERED STEP: user_click_on_sign_and_add_signature")
+    
+    # Retrieve the DocuSignPage object from test_context (may be new page from Review Document link)
+    # If not found, fall back to using authenticated_page directly
+    docusign_page = test_context.get("new_docusign_page")
+    if docusign_page:
+        logger.info("[DEBUG] Using new_docusign_page from test_context")
+    else:
+        logger.info("[DEBUG] new_docusign_page not in test_context, creating default DocuSignPage")
+        from pages.docusign_page import DocuSignPage
+        docusign_page = DocuSignPage(authenticated_page)
+    
+    with allure.step("User click on Sign button and add signature"):
+        logger.info("Clicking Sign button to add signature...")
+        docusign_page.click_sign_button(timeout=10000)
+        
+        # Click the Adopt and Sign button to confirm signature
+        logger.info("Clicking Adopt and Sign button to confirm signature...")
+        docusign_page.click_adopt_and_sign(timeout=10000)
+        
+        # Wait a moment for the signature to be registered
+        authenticated_page.wait_for_timeout(1000)
+        
+        # Take screenshot for audit trail
+        logger.info("Taking screenshot after signature added...")
+        screenshot = authenticated_page.screenshot()
+        allure.attach(
+            screenshot,
+            name="Signature Added",
+            attachment_type=allure.attachment_type.PNG
+        )
+        
+        logger.info("[PASS] DocuSignPage: Sign Button Clicked and Signature Added.")
+
+
 @then("Signature and today's date should be added on the document")
 def verify_signature_and_date_added_on_document(authenticated_page: Page, docusign_page):
     """Verify that signature and today's date have been added on the document.
