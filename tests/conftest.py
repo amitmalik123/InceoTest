@@ -75,28 +75,44 @@ def pytest_configure(config) -> None:
 def pytest_sessionstart(session) -> None:
     """
     Hook that runs before test session starts.
-    Clears old Allure results to ensure fresh report for each run.
+    Clears old Allure results, videos, and traces to ensure fresh artifacts for each run.
     """
     import shutil
 
-    allure_results_dir = "reports/allure-results"
+    dirs_to_clean = [
+        "reports/allure-results",
+        "reports/videos",
+        "reports/traces",
+        "reports/downloads",
+    ]
 
-    if os.path.exists(allure_results_dir):
-        try:
-            # Remove all files in the directory but keep the directory
-            for item in os.listdir(allure_results_dir):
-                item_path = os.path.join(allure_results_dir, item)
-                if os.path.isfile(item_path):
-                    os.remove(item_path)
-                elif os.path.isdir(item_path):
-                    shutil.rmtree(item_path)
-            print(f"\nCleared old Allure results from {allure_results_dir}")
-        except Exception as e:
-            print(f"\nWarning: Failed to clear Allure results: {e}")
-    else:
-        # Create the directory if it doesn't exist
-        os.makedirs(allure_results_dir, exist_ok=True)
-        print(f"\nCreated Allure results directory: {allure_results_dir}")
+    files_to_clean = [
+        "reports/network_errors.log",  # Matches http_error_log in pyproject.toml
+    ]
+
+    for dir_path in dirs_to_clean:
+        if os.path.exists(dir_path):
+            try:
+                for item in os.listdir(dir_path):
+                    item_path = os.path.join(dir_path, item)
+                    if os.path.isfile(item_path):
+                        os.remove(item_path)
+                    elif os.path.isdir(item_path):
+                        shutil.rmtree(item_path)
+                print(f"\nCleared old artifacts from {dir_path}")
+            except Exception as e:
+                print(f"\nWarning: Failed to clear {dir_path}: {e}")
+        else:
+            os.makedirs(dir_path, exist_ok=True)
+            print(f"\nCreated directory: {dir_path}")
+
+    for file_path in files_to_clean:
+        if os.path.exists(file_path):
+            try:
+                os.remove(file_path)
+                print(f"\nCleared old log: {file_path}")
+            except Exception as e:
+                print(f"\nWarning: Failed to clear {file_path}: {e}")
 
 
 def pytest_collection_modifyitems(config, items) -> None:  # noqa: C901
@@ -110,12 +126,22 @@ def pytest_collection_modifyitems(config, items) -> None:  # noqa: C901
     - Slow test detection
     """
     current_env = get_settings().env
+    available_apps = set(get_settings().get_available_apps())
 
     for item in items:
         # 1. Initialize retry tracking for flaky test detection
         item.execution_count = 0
         item.failed_count = 0
         item.start_time = None
+
+        # 1b. Auto-map feature file tags to @pytest.mark.app()
+        # If a scenario is tagged @crm, @ewm, etc. and that tag matches
+        # a configured app name, add the app marker automatically.
+        if not item.get_closest_marker("app"):
+            for mark in item.iter_markers():
+                if mark.name in available_apps:
+                    item.add_marker(pytest.mark.app(mark.name))
+                    break
 
         # 2. Add environment markers
         if current_env == "test11":
@@ -204,8 +230,11 @@ def pytest_runtest_makereport(item, call) -> Generator:
     outcome = yield
     rep = outcome.get_result()
 
-    # Only take screenshot on failure or error
-    if rep.when == "call" and rep.failed and "authenticated_page" in item.funcargs:
+    # Store report on node so fixtures can check pass/fail status (used by _stop_tracing)
+    setattr(item, f"rep_{rep.when}", rep)
+
+    # Only take screenshot on failure or error (including setup failures)
+    if rep.failed and rep.when in ("call", "setup") and "authenticated_page" in item.funcargs:
         page = item.funcargs["authenticated_page"]
         try:
             # Take screenshot and attach to Allure

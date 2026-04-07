@@ -16,6 +16,7 @@ import os
 import allure
 
 from config.settings import get_settings
+from tests.fixtures.browser_fixtures import id_tracker
 from utils.allure_logger import get_allure_logger
 
 # Global storage for active allure step contexts
@@ -28,6 +29,9 @@ def pytest_bdd_before_step(request, feature, scenario, step, step_func) -> None:
     Starts an Allure step context that will wrap the entire step execution.
     """
     step_name = f"{step.keyword} {step.name}"
+
+    # Set scenario name on the ID tracker (idempotent within the same scenario)
+    id_tracker.set_scenario(scenario.name)
 
     # Create and enter allure step context
     allure_step_context = allure.step(step_name)
@@ -80,6 +84,40 @@ def pytest_bdd_after_step(request, feature, scenario, step, step_func) -> None:
         with contextlib.suppress(Exception):
             allure_step_context.__exit__(None, None, None)
 
+    # Scan page content for IDs (all frames + shadow DOM)
+    if page:
+        try:
+            # Main frame + all child frames (iframes)
+            for frame in page.frames:
+                try:
+                    frame_text = frame.content()
+                    if frame_text:
+                        id_tracker.scan(frame_text)
+                except Exception:
+                    pass
+
+            # Shadow DOM — JS walks all shadow roots and collects textContent
+            try:
+                shadow_text = page.evaluate("""() => {
+                    const texts = [];
+                    function walk(root) {
+                        for (const el of root.querySelectorAll('*')) {
+                            if (el.shadowRoot) {
+                                texts.push(el.shadowRoot.textContent || '');
+                                walk(el.shadowRoot);
+                            }
+                        }
+                    }
+                    walk(document);
+                    return texts.join(' ');
+                }""")
+                if shadow_text:
+                    id_tracker.scan(shadow_text)
+            except Exception:
+                pass
+        except Exception:
+            pass
+
 
 def pytest_bdd_step_error(
     request, feature, scenario, step, step_func, step_func_args, exception
@@ -117,3 +155,11 @@ def pytest_bdd_step_error(
         allure_step_context = _active_allure_steps.pop(step_key)
         with contextlib.suppress(Exception):
             allure_step_context.__exit__(type(exception), exception, exception.__traceback__)
+
+
+def pytest_bdd_after_scenario(request, feature, scenario) -> None:
+    """
+    Hook that runs AFTER each BDD scenario completes.
+    Flushes any captured A/B/D IDs to the log file.
+    """
+    id_tracker.flush()

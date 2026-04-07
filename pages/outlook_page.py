@@ -4,16 +4,19 @@ import re
 from dataclasses import dataclass
 from datetime import datetime, timedelta, time
 from pathlib import Path
-from typing import Optional
+from typing import TYPE_CHECKING, Optional
 
 import allure
 from playwright.sync_api import Page, TimeoutError as PlaywrightTimeoutError
 
 from locators import outlook_locators
 from pages.base_page import BasePage
-from pages.docusign_page import DocuSignPage
 from utils.credential_encrypter import decrypt
 from utils.allure_logger import get_allure_logger
+from utils.wait_utils import wait_for_element_count, WaitTimeoutError
+
+if TYPE_CHECKING:
+    from pages.docusign_page import DocuSignPage
 
 logger = get_allure_logger(__name__)
 
@@ -116,41 +119,126 @@ class OutlookPage(BasePage):
     def get_otp(self, submitting_time: time, max_wait_time_in_seconds: int, parent_page = None, email_page: Optional[Page] = None) -> Optional[str]:
         """Read OTP from Outlook mail.
 
+        Args:
+            submitting_time: Time when 'Send Now' was clicked
+            max_wait_time_in_seconds: Maximum time to wait for OTP
+            parent_page: Parent page to bring to front when done
+            email_page: Outlook page (if None, will create new one; if provided, won't close it)
+
         Returns the 6-digit OTP as a string, or None if not found.
         """
         logger.info("Starting OTP retrieval from Outlook")
-        otp: Optional[str] = None        
+        otp: Optional[str] = None
+        page_created_locally = False
 
         try:
             normalized_submitting = datetime.strptime(
                 submitting_time.strftime(TIME_FORMAT), TIME_FORMAT
             ).time()
+            logger.info(f"[OTP_DEBUG] normalized_submitting (Send Now time): {normalized_submitting.strftime(TIME_FORMAT)}")
+
+            # Calculate minimum acceptable email time (allow 2 minutes before Send Now for delivery delays)
+            min_acceptable_datetime = datetime.combine(datetime.today(), normalized_submitting) - timedelta(minutes=2)
+            min_acceptable_time = min_acceptable_datetime.time()
+            logger.info(f"[OTP_DEBUG] Min acceptable email time (Send Now - 2 min): {min_acceptable_time.strftime(TIME_FORMAT)}")
 
             received_time = (datetime.now() - timedelta(minutes=10)).time()
+            logger.info(f"[OTP_DEBUG] Initial received_time (current time - 10 min): {received_time.strftime(TIME_FORMAT)}")
 
             if email_page is None:
                 # Use centralized login function
                 email_page = self.login_outlook(context_message="OTP retrieval")
+                page_created_locally = True
+                logger.info("[OTP_DEBUG] Created new Outlook page in get_otp()")
             else:
+                logger.info("[OTP_DEBUG] Using provided Outlook page in get_otp()")
                 email_page.bring_to_front()
                 # Avoid strict networkidle here as well; a simple reload with
                 # DOM content loaded is sufficient for updated inbox content.
                 email_page.reload(wait_until="domcontentloaded")
 
-            # Get the initial received time from the inbox list
-            received_time = self._read_latest_mail_time(email_page, default_time=received_time)
-
-            # Poll for updated inbox and OTP mail
-            step = 5
-            for _ in range(0, max_wait_time_in_seconds, step):
-                if received_time < normalized_submitting:
-                    # Mail is older than submitting time, refresh and retry
-                    email_page.reload(wait_until="domcontentloaded")
-                    email_page.wait_for_timeout(step * 1000)
-                    received_time = self._read_latest_mail_time(email_page, default_time=received_time)
-                else:
+            # Click first mail and check its timestamp
+            logger.info("[OTP_DEBUG] Clicking first mail to check timestamp...")
+            try:
+                first_mail = email_page.locator("div[role='option']").first
+                first_mail.click()
+                email_page.wait_for_timeout(500)
+                logger.info("[OTP_DEBUG] Clicked first mail")
+            except Exception as ex:
+                logger.warning(f"[OTP_DEBUG] Could not click first mail: {ex}")
+            
+            # Read timestamp from clicked mail
+            mail_time = self._read_latest_mail_time(email_page)
+            
+            if mail_time is not None:
+                logger.info(f"[OTP_DEBUG] First mail timestamp: {mail_time.strftime(TIME_FORMAT)}")
+                logger.info(f"[OTP_DEBUG] Comparing: {mail_time.strftime(TIME_FORMAT)} >= {min_acceptable_time.strftime(TIME_FORMAT)}? (tolerance: 2 min before Send Now)")
+                
+                if mail_time >= min_acceptable_time:
+                    logger.info("[OTP_DEBUG] First mail timestamp is within acceptable window, extracting OTP...")
                     otp = self._extract_otp_from_latest_mail(email_page)
-                    break
+                    if otp:
+                        logger.info(f"[OTP_DEBUG] Successfully extracted OTP: {otp}")
+                        return otp
+                    else:
+                        logger.warning("[OTP_DEBUG] Valid timestamp but no OTP found in body")
+                else:
+                    logger.info(f"[OTP_DEBUG] First mail timestamp too old ({mail_time.strftime(TIME_FORMAT)} < {min_acceptable_time.strftime(TIME_FORMAT)}), will poll and retry...")
+            else:
+                logger.warning("[OTP_DEBUG] Could not read timestamp from first mail, will poll and retry...")
+            
+            # Enter polling retry loop - refresh page and recheck first mail each time
+            logger.info("[OTP_DEBUG] Entering polling retry loop...")
+            step = 5
+            poll_attempt = 0
+            
+            for _ in range(0, max_wait_time_in_seconds, step):
+                poll_attempt += 1
+                logger.info(f"[OTP_DEBUG] Poll attempt #{poll_attempt}")
+                
+                # Refresh page to get latest emails
+                email_page.reload(wait_until="domcontentloaded")
+                email_page.wait_for_timeout(step * 1000)
+                logger.info(f"[OTP_DEBUG] Poll #{poll_attempt}: Page refreshed, now navigating to OTP folder...")
+                
+                # Navigate back to OTP folder
+                try:
+                    self._navigate_to_otp_folder(email_page)
+                    logger.info(f"[OTP_DEBUG] Poll #{poll_attempt}: Navigated to OTP folder")
+                except Exception as ex:
+                    logger.warning(f"[OTP_DEBUG] Poll #{poll_attempt}: Error navigating to OTP folder: {ex}")
+                
+                # Click first mail again
+                try:
+                    first_mail = email_page.locator("div[role='option']").first
+                    first_mail.click()
+                    email_page.wait_for_timeout(500)
+                    logger.info(f"[OTP_DEBUG] Poll #{poll_attempt}: Clicked first mail")
+                except Exception as ex:
+                    logger.warning(f"[OTP_DEBUG] Poll #{poll_attempt}: Could not click first mail: {ex}")
+                    continue
+                
+                # Read timestamp
+                mail_time = self._read_latest_mail_time(email_page)
+                
+                if mail_time is not None:
+                    logger.info(f"[OTP_DEBUG] Poll #{poll_attempt}: First mail timestamp: {mail_time.strftime(TIME_FORMAT)}")
+                    logger.info(f"[OTP_DEBUG] Poll #{poll_attempt}: Comparing: {mail_time.strftime(TIME_FORMAT)} >= {min_acceptable_time.strftime(TIME_FORMAT)}? (tolerance: 2 min before Send Now)")
+                    
+                    if mail_time >= min_acceptable_time:
+                        logger.info(f"[OTP_DEBUG] Poll #{poll_attempt}: Timestamp is within acceptable window, extracting OTP...")
+                        otp = self._extract_otp_from_latest_mail(email_page)
+                        if otp:
+                            logger.info(f"[OTP_DEBUG] Poll #{poll_attempt}: Successfully extracted OTP: {otp}")
+                            return otp
+                        else:
+                            logger.warning(f"[OTP_DEBUG] Poll #{poll_attempt}: Valid timestamp but no OTP found in body")
+                    else:
+                        logger.info(f"[OTP_DEBUG] Poll #{poll_attempt}: Timestamp still outside acceptable window ({mail_time.strftime(TIME_FORMAT)} < {min_acceptable_time.strftime(TIME_FORMAT)}), will retry...")
+                else:
+                    logger.warning(f"[OTP_DEBUG] Poll #{poll_attempt}: Could not read timestamp, will retry...")
+                
+                logger.info(f"[OTP_DEBUG] Poll #{poll_attempt}: Continuing to next attempt...")
 
         except Exception as ex:  # pragma: no cover - defensive
             otp = None
@@ -163,8 +251,15 @@ class OutlookPage(BasePage):
                     attachment_type=allure.attachment_type.TEXT,
                 )
         finally:
-            if email_page is not None:
-                email_page.close()
+            # Only close the page if we created it locally
+            # If page was provided by caller, don't close it - let them manage its lifecycle
+            if page_created_locally and email_page is not None:
+                try:
+                    email_page.close()
+                    logger.info("[OTP_DEBUG] Closed locally-created Outlook page")
+                except Exception as ex:
+                    logger.warning(f"[OTP_DEBUG] Failed to close page: {ex}")
+            
             # Focus back to original page
             try:
                 if parent_page is not None:
@@ -174,11 +269,114 @@ class OutlookPage(BasePage):
 
         return otp
 
-    def get_otp_with_retry(self, submitting_time: time, max_wait_time_in_seconds: int) -> Optional[str]:
-        otp = self.get_otp(submitting_time, max_wait_time_in_seconds, parent_page=self.page)
-        if otp is None:
-            otp = self.get_otp(submitting_time, max_wait_time_in_seconds, parent_page=self.page)
-        return otp
+    def get_otp_with_retry(
+        self,
+        email: str = None,
+        password: str = None,
+        timeout: float = 60.0,
+        refresh_interval: float = 5.0,
+        sent_after_epoch: float = None,
+        preferred_sender: str = None,
+        outlook_page: Optional[Page] = None,
+    ) -> Optional[str]:
+        """
+        Complete Outlook workflow to retrieve OTP from OTP folder with time-based refresh.
+        
+        This method:
+        1. Uses provided Outlook page OR logs in to create new one
+        2. Navigates to the OTP folder
+        3. Waits for and retrieves the OTP email from OTP folder only
+        4. Refreshes page every 5 seconds for up to 1 minute to ensure latest OTP is fetched
+        
+        Args:
+            email: Email address for login (optional, uses config if not provided)
+            password: Email password (optional, uses config if not provided)
+            timeout: Total timeout in seconds (default: 60 seconds)
+            refresh_interval: Interval between page refreshes in seconds (default: 5 seconds)
+            sent_after_epoch: Filter emails sent after this timestamp (optional)
+            preferred_sender: Filter emails from this sender (optional)
+            outlook_page: Existing Outlook page to use (optional). If provided, uses this instead of creating new one.
+            
+        Returns:
+            OTP code (6 digits) or None if not found
+        """
+        email_page = outlook_page
+        page_created_locally = False
+        
+        try:
+            # Use provided page or create a new one
+            if email_page is None:
+                email_page = self.login_outlook(context_message="OTP retrieval with retry")
+                page_created_locally = True
+                logger.info("Created new Outlook page for OTP retrieval")
+            else:
+                logger.info("Using provided Outlook page for OTP retrieval")
+                # Ensure the provided page is visible and ready
+                email_page.bring_to_front()
+                email_page.reload(wait_until="domcontentloaded")
+            
+            # Navigate to OTP folder
+            logger.info("[OTP_DEBUG] [get_otp_with_retry] Navigating to OTP folder...")
+            self._navigate_to_otp_folder(email_page)
+            logger.info("[OTP_DEBUG] [get_otp_with_retry] OTP folder navigation completed")
+            
+            # Wait a moment for OTP folder to fully render and load emails
+            email_page.wait_for_timeout(2000)
+            
+            # Wait for the first mail to be present in OTP folder
+            try:
+                mail_locator = email_page.locator("div[role='option']")
+                initial_count = mail_locator.count()
+                logger.info(f"[OTP_DEBUG] [get_otp_with_retry] Initial mail count in OTP folder: {initial_count}")
+                
+                # If no mails yet, wait for at least one to appear
+                if initial_count == 0:
+                    logger.info("[OTP_DEBUG] [get_otp_with_retry] No mails found, waiting for mails to appear...")
+                    wait_for_element_count(mail_locator, count=1, timeout=10.0)
+                    logger.info("[OTP_DEBUG] [get_otp_with_retry] First mail element appeared in OTP folder")
+                else:
+                    logger.info(f"[OTP_DEBUG] [get_otp_with_retry] Mails already present ({initial_count}), proceeding...")
+                
+                # Click on the first/initial mail in the OTP folder to load it
+                first_mail = mail_locator.first
+                first_mail.click()
+                logger.info("[OTP_DEBUG] [get_otp_with_retry] Clicked on first mail in OTP folder")
+                email_page.wait_for_timeout(1500)  # Brief wait for mail to load
+                logger.info("[OTP_DEBUG] [get_otp_with_retry] Mail loaded and ready for OTP extraction")
+                
+            except WaitTimeoutError as ex:
+                logger.warning(f"[OTP_DEBUG] [get_otp_with_retry] Timeout waiting for mail in OTP folder: {ex}")
+                logger.warning("[OTP_DEBUG] [get_otp_with_retry] OTP folder may be empty or locator may be incorrect")
+            except Exception as ex:
+                logger.warning(f"[OTP_DEBUG] [get_otp_with_retry] Could not click initial mail: {ex}")
+            
+            # Retrieve OTP from OTP folder using the working get_otp() method
+            otp = self.get_otp(
+                submitting_time=datetime.now().time(),
+                max_wait_time_in_seconds=int(timeout),
+                email_page=email_page
+            )
+            
+            if otp:
+                logger.info(f"Successfully retrieved OTP from OTP folder in Outlook: {otp}")
+                return otp
+            else:
+                logger.error(f"Failed to retrieve OTP from OTP folder within {int(timeout)}s")
+                return None
+
+        except Exception as e:
+            logger.error(f"Error in OTP retrieval workflow: {str(e).splitlines()[0]}")
+            return None
+        finally:
+            # Only close the page if we created it locally
+            # If a page was provided, don't close it - let the caller manage its lifecycle
+            if page_created_locally and email_page is not None:
+                try:
+                    email_page.close()
+                    logger.info("Closed locally created Outlook page")
+                except Exception:
+                    pass
+
 
     def login_outlook(self, context_message: str = "Outlook login") -> Page:
         """Login to Outlook and wait for the inbox to load.
@@ -232,6 +430,51 @@ class OutlookPage(BasePage):
             raise
 
         return outlook_email_page
+
+    def _navigate_to_otp_folder(self, email_page: Page) -> None:
+        """Navigate to the OTP folder in Outlook.
+        
+        Clicks on the OTP folder in the folder pane to view emails in that folder.
+        
+        Args:
+            email_page: The authenticated Outlook page
+            
+        Raises:
+            Exception: If OTP folder cannot be found or clicked
+        """
+        try:
+            # Try to find and click the OTP folder using multiple strategies
+            otp_folder_locators = [
+                email_page.get_by_text("OTP", exact=False).first,
+                email_page.get_by_role("link", name=re.compile(r"OTP", re.I)),
+                email_page.locator('[aria-label*="OTP"]').first,
+                email_page.locator('//span[contains(text(), "OTP")]').first,
+                email_page.locator('[role="treeitem"][aria-label*="OTP"]').first,
+            ]
+            
+            otp_folder_clicked = False
+            for locator in otp_folder_locators:
+                try:
+                    locator.wait_for(state="visible", timeout=3_000)
+                    locator.click()
+                    otp_folder_clicked = True
+                    logger.info("Successfully navigated to OTP folder in Outlook.")
+                    # Wait for the folder contents to load
+                    email_page.wait_for_load_state("domcontentloaded", timeout=10_000)
+                    break
+                except PlaywrightTimeoutError:
+                    # Try the next locator
+                    continue
+                except Exception as ex:
+                    logger.warning(f"Error while trying OTP folder locator: {ex}")
+                    continue
+            
+            if not otp_folder_clicked:
+                logger.warning("Could not find OTP folder; proceeding with current view")
+                
+        except Exception as ex:
+            logger.error(f"Error while navigating to OTP folder: {ex}")
+            raise
 
     # --- Internal helpers -----------------------------------------------
 
@@ -432,17 +675,65 @@ class OutlookPage(BasePage):
             self.logger.error(f"Unexpected error in _handle_sign_in_if_needed: {ex}")
             return False
 
-    def _read_latest_mail_time(self, page: Page, default_time: time) -> time:
-        time_elements = page.locator("//span[@class='_rWRU U2XB8 qq2gS cbNn0']")
+    def _read_latest_mail_time(self, page: Page) -> Optional[time]:
+        """Read the timestamp of the currently clicked email in Outlook.
+        
+        Locates the timestamp element for the clicked mail and parses it to a time object.
+        Waits for the timestamp element to be present before attempting to read.
+        
+        Returns:
+            time object if successfully parsed, None if not found or parsing fails
+        """
+        logger.info("[OTP_DEBUG] [_read_latest_mail_time] Starting to read clicked email timestamp")
+        logger.info(f"[OTP_DEBUG] [_read_latest_mail_time] Using locator: //div[@data-testid='SentReceivedSavedTime'] (first instance)")
+        logger.info(f"[OTP_DEBUG] [_read_latest_mail_time] Expected TIME_FORMAT: {TIME_FORMAT}")
+
+        # Use the first SentReceivedSavedTime element which is the clicked mail's timestamp
+        time_elements = page.locator("//div[@data-testid='SentReceivedSavedTime']")
+        
         try:
-            if time_elements.count() > 0:
-                text = time_elements.nth(0).inner_text().strip()
-                return datetime.strptime(text, TIME_FORMAT).time()
-        except Exception as ex:
-            self.logger.error(f"Unable to parse mail time; using default: {ex}")
-            with allure.step("Unable to parse mail time; using default."):
+            # Wait for timestamp element to be present (at least 1)
+            logger.info("[OTP_DEBUG] [_read_latest_mail_time] Waiting for timestamp element to appear...")
+            wait_for_element_count(time_elements, count=1, timeout=10.0)
+            logger.info("[OTP_DEBUG] [_read_latest_mail_time] Timestamp element is now present")
+            
+            element_count = time_elements.count()
+            logger.info(f"[OTP_DEBUG] [_read_latest_mail_time] Found {element_count} timestamp element(s)")
+            
+            if element_count > 0:
+                logger.info("[OTP_DEBUG] [_read_latest_mail_time] Reading inner text from first element")
+                full_text = time_elements.first.inner_text().strip()
+                logger.info(f"[OTP_DEBUG] [_read_latest_mail_time] Raw timestamp text: '{full_text}'")
+                
+                # Extract just the time portion (e.g., "1:40 AM" from "Tue 3/31/2026 1:40 AM")
+                time_match = re.search(r'(\d{1,2}:\d{2}\s(?:AM|PM))', full_text)
+                if time_match:
+                    time_str = time_match.group(1)
+                    logger.info(f"[OTP_DEBUG] [_read_latest_mail_time] Extracted time portion: '{time_str}'")
+                    
+                    parsed_time = datetime.strptime(time_str, TIME_FORMAT).time()
+                    logger.info(f"[OTP_DEBUG] [_read_latest_mail_time] Successfully parsed to time object: {parsed_time.strftime(TIME_FORMAT)}")
+                    return parsed_time
+                else:
+                    logger.error(f"[OTP_DEBUG] [_read_latest_mail_time] Could not extract time pattern from text: '{full_text}'")
+            else:
+                logger.warning("[OTP_DEBUG] [_read_latest_mail_time] No timestamp elements found on page")
+                
+        except WaitTimeoutError as ex:
+            logger.error(f"[OTP_DEBUG] [_read_latest_mail_time] Timeout waiting for timestamp element: {ex}")
+            logger.warning("[OTP_DEBUG] [_read_latest_mail_time] Timestamp element did not appear within timeout")
+        except ValueError as ex:
+            self.logger.error(f"[OTP_DEBUG] [_read_latest_mail_time] ValueError parsing timestamp - invalid format: {ex}")
+            logger.info(f"[OTP_DEBUG] [_read_latest_mail_time] Raw text was: '{time_elements.first.inner_text().strip() if time_elements.count() > 0 else 'N/A'}'")
+            with allure.step("Failed to parse mail time - invalid format"):
                 pass
-        return default_time
+        except Exception as ex:
+            self.logger.error(f"[OTP_DEBUG] [_read_latest_mail_time] Unexpected error reading/parsing mail time: {type(ex).__name__}: {ex}")
+            with allure.step("Unexpected error parsing mail time"):
+                pass
+        
+        logger.warning("[OTP_DEBUG] [_read_latest_mail_time] Could not retrieve/parse latest email time; returning None")
+        return None
 
     def _extract_otp_from_latest_mail(self, page: Page) -> Optional[str]:
         # When multiple DocuSign verification emails exist, always pick the
@@ -835,7 +1126,7 @@ class OutlookPage(BasePage):
         """Login to Outlook and search for emails containing search_text."""
         parent_page = self.page
         outlook_email_page: Optional[Page] = None
-        docusign_page: Optional[DocuSignPage] = None
+        docusign_page: Optional["DocuSignPage"] = None
 
         try:
             # Use centralized login function
@@ -861,6 +1152,9 @@ class OutlookPage(BasePage):
 
             docusign_raw_page = docusign_page_info.value
 
+            # Lazy import to avoid circular import
+            from pages.docusign_page import DocuSignPage
+            
             docusign_page = DocuSignPage(docusign_raw_page)
             docusign_page.verify_docusign_page_loaded()
             # Use the already-open Outlook tab to provide the OTP so that
@@ -906,7 +1200,7 @@ class OutlookPage(BasePage):
         """Login to Outlook and search for emails containing search_text."""
         parent_page = self.page
         outlook_email_page: Optional[Page] = None
-        docusign_page: Optional[DocuSignPage] = None
+        docusign_page: Optional["DocuSignPage"] = None
 
         try:
             # Use centralized login function
@@ -932,6 +1226,9 @@ class OutlookPage(BasePage):
 
             docusign_raw_page = docusign_page_info.value
 
+            # Lazy import to avoid circular import
+            from pages.docusign_page import DocuSignPage
+            
             docusign_page = DocuSignPage(docusign_raw_page)
             docusign_page.verify_docusign_page_loaded()
 
@@ -954,7 +1251,7 @@ class OutlookPage(BasePage):
         """Login to Outlook and search for emails containing search_text."""
         parent_page = self.page
         outlook_email_page: Optional[Page] = None
-        docusign_page: Optional[DocuSignPage] = None
+        docusign_page: Optional["DocuSignPage"] = None
 
         try:
             # Use centralized login function
@@ -983,6 +1280,9 @@ class OutlookPage(BasePage):
 
             docusign_raw_page = docusign_page_info.value
 
+            # Lazy import to avoid circular import
+            from pages.docusign_page import DocuSignPage
+            
             docusign_page = DocuSignPage(docusign_raw_page)
             docusign_page.verify_docusign_page_loaded()
 

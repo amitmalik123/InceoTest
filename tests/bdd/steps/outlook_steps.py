@@ -200,12 +200,8 @@ def fetch_authorized_signer_email_subject_and_body_step(page: Page, test_context
                 allure.attach("Email subject and body match expected values", name="Verification Result", attachment_type=allure.attachment_type.TEXT)
             
         finally:
-            if outlook_email_page is not None:
-                try:
-                    if not outlook_email_page.is_closed():
-                        outlook_email_page.close()
-                except Exception:
-                    pass
+            # Don't close the email page here - it's needed by the next step
+            # "User perform advisor signature 'by mail' method" to click the Review Document link
             try:
                 page.bring_to_front()
             except Exception:

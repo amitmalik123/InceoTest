@@ -4,10 +4,6 @@ allure-pytest>=2.13.0
 
 # Code Quality & Linting
 autopep8==2.0.4
-
-# Azure Key Vault (optional – falls back to YAML if not installed)
-azure-identity>=1.15.0
-azure-keyvault-secrets>=4.8.0
 bandit==1.7.7
 black==24.3.0
 chromadb>=0.5.0
@@ -70,3 +66,6 @@ pyyaml>=6.0
 # HTTP Requests (for email testing APIs)
 requests>=2.31.0
 sentence-transformers>=3.0.0
+
+# TOML parsing (backport for Python <3.11)
+tomli>=2.0.0;python_version<"3.11"

@@ -43,10 +43,6 @@ dependencies = [
     # Environment (.env) file support
     "python-dotenv>=1.0.0",
 
-    # Azure Key Vault
-    "azure-identity>=1.15.0",
-    "azure-keyvault-secrets>=4.8.0",
-
     # PDF Testing
     "PyPDF2>=3.0.0",
 
@@ -184,6 +180,76 @@ max-line-length = 100
 [tool.isort]
 profile = "black"
 line_length = 100
+
+[tool.coverage.run]
+source = ["pages", "utils", "config"]
+omit = ["*/tests/*", "*/__pycache__/*", "*/generated/*"]
+
+[tool.coverage.report]
+show_missing = true
+exclude_lines = [
+    "if __name__",
+    "pass",
+    "raise NotImplementedError",
+    "pragma: no cover",
+]
+
+[tool.route-blocking]
+# Allow only requests to these domains; abort everything else.
+# Subdomains are automatically included (e.g., app.assetmark.com matches assetmark.com).
+# Set enabled = false to disable and allow all traffic.
+enabled = true
+http_error_log = "reports/network_errors.log"
+allowed_domains = [
+    # ===== Core AssetMark =====
+    "assetmark.com",
+    "ewealthmanager.com",
+    "assetmark.net",
+    
+    # ===== DocuSign Services =====
+    "docusign.net",
+    "docusign.com",
+    "apps-d.docusign.com",
+    "cdn.docusign.net",
+    "docusignaws.com",
+    "secure.docusign.com",
+    "static.docusign.com",
+    "analytics.docusign.com",
+    "cdn.docusignaws.net",
+    "signingapi.com",
+    "doublecheck.docusign.com",
+    "dsext.docusign.net",
+    "trust.docusign.com",
+    
+    # ===== Microsoft/Outlook/Office365 (from backup) =====
+    "outlook.com",
+    "outlook.office.com",
+    "outlook.cloud.microsoft",
+    "office365.com",
+    "microsoftonline.com",
+    "microsoft.com",
+    "msftauth.net",
+    "msauth.net",
+    "live.com",
+    "akamaihd.net",
+    "office.net",
+    
+    # ===== Azure/Corporate =====
+    "azure.com",
+    "azncc03perf.corp",
+    "corp.local",
+    
+    # ===== Analytics =====
+    "analytics.google.com",
+]
+
+[tool.id-capture]
+# Capture IDs matching these regex patterns from API responses and page DOM.
+# Logged per scenario to reports/network_errors.log with deduplication.
+enabled = true
+patterns = [
+    "[ABDN]\\d{9}",
+]
 
 [tool.flake8]
 max-line-length = 100

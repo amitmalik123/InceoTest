@@ -14,6 +14,7 @@ from tests.fixtures.auth_fixtures import authenticated_page, fresh_page
 # Browser fixtures
 from tests.fixtures.browser_fixtures import (
     browser_context_args,
+    browser_type_launch_args,
     multi_user_contexts,
     new_context,
     new_page,
@@ -27,6 +28,7 @@ from tests.fixtures.db_fixtures import db_manager
 
 # Hooks (pytest-bdd lifecycle — no __all__ entry needed, just imported for side-effects)
 from tests.fixtures.hooks_fixtures import (  # noqa: F401
+    pytest_bdd_after_scenario,
     pytest_bdd_after_step,
     pytest_bdd_before_step,
     pytest_bdd_step_error,
@@ -48,6 +50,7 @@ from tests.fixtures.page_fixtures import (
     login_page,
     manage_instruction_1_page,
     manage_instruction_2_page,
+    outlook_page,
     roth_conversion_page,
     tracking_center_page,
     tracking_center_item_detail_page,
@@ -63,6 +66,7 @@ __all__ = [
     "fresh_page",
     # browser
     "browser_context_args",
+    "browser_type_launch_args",
     "new_context",
     "new_page",
     "multi_user_contexts",
@@ -74,6 +78,7 @@ __all__ = [
     # hooks
     "pytest_bdd_before_step",
     "pytest_bdd_after_step",
+    "pytest_bdd_after_scenario",
     "pytest_bdd_step_error",
     # pages
     "login_page",
@@ -81,6 +86,7 @@ __all__ = [
     "client_accounts_page",
     "docusign_page",
     "dmtool_page",
+    "outlook_page",
     "account_list_page",
     "api_utility_page",
     "account_detail_page",

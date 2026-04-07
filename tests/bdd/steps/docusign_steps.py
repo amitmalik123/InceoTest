@@ -14,9 +14,24 @@ from utils.assertions import Assertions, SoftAssertions
 logger = get_allure_logger(__name__)
 
 @when("User confirm and Continue the docusign Review and continue dialog")
-def user_confirm_and_continue(authenticated_page: Page, docusign_page):
-    """Check ERSD consent checkbox and click Continue button in the DocuSign Review and Continue dialog"""
+def user_confirm_and_continue(authenticated_page: Page, test_context):
+    """Check ERSD consent checkbox and click Continue button in the DocuSign Review and Continue dialog
+    
+    Args:
+        authenticated_page: Playwright Page object
+        test_context: Test context containing the new_docusign_page object from previous step
+    """
     logger.info(">>> ENTERED STEP: user_confirm_and_continue")
+    
+    # Retrieve the DocuSignPage object from test_context
+    # If not found, fall back to using authenticated_page directly
+    docusign_page = test_context.get("new_docusign_page")
+    if docusign_page:
+        logger.info("[DEBUG] Using new_docusign_page from test_context")
+    else:
+        logger.info("[DEBUG] new_docusign_page not in test_context, creating default DocuSignPage")
+        from pages.docusign_page import DocuSignPage
+        docusign_page = DocuSignPage(authenticated_page)
     
     # Check the ERSD consent checkbox
     logger.info("Checking Electronic Record and Signature Disclosure consent...")
@@ -30,9 +45,24 @@ def user_confirm_and_continue(authenticated_page: Page, docusign_page):
 
 
 @when("User Finish the DocuSign process")
-def user_finish_the_docusign_process(authenticated_page: Page, docusign_page):
-    """Click the Finish button to complete the DocuSign signing process"""
+def user_finish_the_docusign_process(authenticated_page: Page, test_context):
+    """Click the Finish button to complete the DocuSign signing process
+    
+    Args:
+        authenticated_page: Playwright Page object
+        test_context: Test context containing the new_docusign_page object from previous step
+    """
     logger.info(">>> ENTERED STEP: user_finish_the_docusign_process")
+    
+    # Retrieve the DocuSignPage object from test_context
+    # If not found, fall back to using authenticated_page directly
+    docusign_page = test_context.get("new_docusign_page")
+    if docusign_page:
+        logger.info("[DEBUG] Using new_docusign_page from test_context")
+    else:
+        logger.info("[DEBUG] new_docusign_page not in test_context, creating default DocuSignPage")
+        from pages.docusign_page import DocuSignPage
+        docusign_page = DocuSignPage(authenticated_page)
     
     # Click the Finish button
     logger.info("Clicking Finish button to complete DocuSign process...")
@@ -45,13 +75,18 @@ def user_should_be_redirected_to_docusign_page(authenticated_page: Page, docusig
     """Verify that the user is redirected to the DocuSign page"""
     logger.info(">>> ENTERED STEP: user_should_be_redirected_to_docusign_page")
     
-    # Wait for DocuSign page to load
-    logger.info("Waiting for DocuSign page to load...")
-    docusign_page.verify_docusign_page_loaded(timeout=30000)
-    
-    # Compare current URL with DocuSign URL pattern
+    # Check if already on DocuSign page before waiting (page may have already loaded)
     current_url = authenticated_page.url
     docusign_url_pattern = docusign_locators.DOCUSIGN_URL_PATTERN
+    
+    if docusign_url_pattern in current_url:
+        logger.info(f"[FAST PATH] Already on DocuSign page: {current_url}")
+    else:
+        # Wait for DocuSign page to load (60 second timeout)
+        logger.info("Waiting for DocuSign page to load...")
+        docusign_page.verify_docusign_page_loaded(timeout=60000)
+        current_url = authenticated_page.url
+    
     logger.info(f"Comparing current URL: {current_url} with pattern: {docusign_url_pattern}")
     
     assert docusign_url_pattern in current_url, \
@@ -120,12 +155,22 @@ def verify_as_authorized_by_stamp_presence(authenticated_page: Page, docusign_pa
         allure.attach(screenshot, name=f"As_authorized_by Stamp - {result_text}", attachment_type=allure.attachment_type.PNG)
 
 
-@then("Verify docusign Review and continue dialog text")
-def verify_docusign_review_and_continue_dialog_text(authenticated_page: Page, docusign_page, test_context):
-    """Verify the Review and Continue dialog text matches expected value from test data.
+@then(parsers.parse('Verify docusign Review and continue dialog text "{expected_text}"'))
+def verify_docusign_review_and_continue_dialog_text(authenticated_page: Page, docusign_page, test_context, expected_text: str):
+    """Verify the Review and Continue dialog text matches expected value from feature file.
     
-    Reads 'Expected_docusign_ReviewAndContinue_Text' from test_data CSV
+    Takes expected text as a parameter from the feature file step
     and verifies it matches the text fetched from the dialog using soft assertions.
+    
+    Intelligently selects which DocuSign page to use:
+    - If test_context["new_docusign_page"] exists: Use the new page (from "Review Document" link)
+    - Otherwise: Use the docusign_page fixture (original page)
+    
+    Args:
+        authenticated_page: Playwright Page object for screenshots
+        docusign_page: DocuSignPage fixture for DocuSign interactions (fallback if no new page)
+        test_context: Test context containing optional new_docusign_page from previous step
+        expected_text: Expected dialog text passed from feature file step
     
     Uses framework utilities:
     - docusign_page.fetch_docusign_review_and_continue_dialog_text(): Fetches dialog text
@@ -133,13 +178,18 @@ def verify_docusign_review_and_continue_dialog_text(authenticated_page: Page, do
     - Framework logging via setup_logger
     """
     logger.info(">>> ENTERED STEP: verify_docusign_review_and_continue_dialog_text")
-    
-    # Get expected text from test data
-    test_data = test_context.get("test_data", {})
-    expected_text = test_data.get("Expected_docusign_ReviewAndContinue_Text", "").strip()
+    logger.info(f"Expected text from feature file: '{expected_text}'")
     
     if not expected_text:
-        raise KeyError("Test data must include 'Expected_docusign_ReviewAndContinue_Text' column for this step")
+        raise ValueError("Expected text parameter is required for this step")
+    
+    # Select which DocuSignPage object to use
+    page_obj = test_context.get("new_docusign_page")
+    if page_obj:
+        logger.info("[DEBUG] Using new_docusign_page from test_context (from 'Review Document' link)")
+    else:
+        logger.info("[DEBUG] Using docusign_page fixture (original page, no 'Review Document' link used)")
+        page_obj = docusign_page
     
     with allure.step("Verify Review and Continue dialog text"):
         logger.info(f"Expected text from test data: '{expected_text}'")
@@ -147,7 +197,7 @@ def verify_docusign_review_and_continue_dialog_text(authenticated_page: Page, do
         # STEP 1: Fetch the dialog text using page object method
         logger.info("Step 1: Fetching dialog text...")
         try:
-            actual_text = docusign_page.fetch_docusign_review_and_continue_dialog_text()
+            actual_text = page_obj.fetch_docusign_review_and_continue_dialog_text()
             logger.info(f"Step 1: Dialog text fetched successfully: '{actual_text}'")
         except Exception as e:
             logger.error(f"✗ Failed to fetch dialog text: {e}")
@@ -318,4 +368,98 @@ def verify_signature_and_date_added_on_document(authenticated_page: Page, docusi
             raise
         
         logger.info(f"[PASS] DocuSignPage: Signature and Date Verification Passed.")
+
+
+@when("User click on Review Document and submit the otp")
+def user_click_review_document_and_submit_opt(authenticated_page: Page, docusign_page, test_context):
+    """Click on Review Document link and submit OTP for document signing.
+    
+    This step performs the complete end-to-end OTP verification and DocuSign signing workflow:
+    1. Click the Review Document link in the authorized signer email (opens DocuSign in new tab)
+    2. Perform OTP verification from Outlook and submit to DocuSign
+    3. Complete the document signing process
+    
+    The Outlook page is expected to already be open from the prior step
+    'User login to the email and search the authorized signer email' which
+    searches for and opens the authorized signer email.
+    
+    Args:
+        authenticated_page: Playwright Page object for the main DocuSign page (not used in this flow)
+        docusign_page: DocuSignPage fixture for DocuSign interactions
+        test_context: Test context dictionary containing the stored outlook_email_page
+        
+    Workflow:
+        1. Retrieve stored outlook_email_page from test_context (created in previous step)
+        2. Click 'Review Document' link in email, opens DocuSign in new tab
+        3. Retrieve OTP from Outlook and submit to DocuSign
+        4. Complete OTP verification and signing process
+    """
+    logger.info(">>> ENTERED STEP: user_click_review_document_and_submit_opt")
+    
+    with allure.step("User perform advisor signature 'by mail' method"):
+        try:
+            # Retrieve the stored outlook email page from test_context
+            # This was created and stored by the previous step:
+            # "User login to the email and search the authorized signer email"
+            outlook_email_page = test_context.get("outlook_email_page")
+            if not outlook_email_page:
+                raise ValueError(
+                    "outlook_email_page not found in test_context. "
+                    "Ensure the step 'User login to the email and search the authorized signer email' "
+                    "runs before this step to create and store the email page."
+                )
+            
+            # Verify the page is still open before proceeding
+            if outlook_email_page.is_closed():
+                raise RuntimeError(
+                    "outlook_email_page has been closed. "
+                    "The page must remain open between steps for this workflow."
+                )
+            
+            logger.info("Retrieved stored outlook_email_page from test_context")
+            
+            # STEP 1: Click Review Document link in the email to open DocuSign in new tab
+            logger.info("STEP 1: Clicking 'Review Document' link in authorized signer email...")
+            
+            # Bring the Outlook email page to the foreground
+            outlook_email_page.bring_to_front()
+            logger.info("Brought outlook email page to foreground")
+            
+            # Click the REVIEW DOCUMENT link which opens DocuSign in a new page context
+            review_link = outlook_email_page.get_by_role("link", name="REVIEW DOCUMENT")
+            review_link.wait_for(timeout=15000)
+            
+            # Get the new page that opens when we click the link
+            with outlook_email_page.context.expect_page() as new_page_info:
+                review_link.click()
+                new_docusign_page = new_page_info.value
+            
+            logger.info("[PASS] DocuSign page opened from email 'Review Document' link")
+            
+            # STEP 2: Create DocuSignPage wrapper around the new page for OTP workflow
+            logger.info("STEP 2: Initializing DocuSignPage object for new DocuSign tab...")
+            new_docusign_page_obj = DocuSignPage(new_docusign_page)
+            logger.info("[PASS] DocuSignPage object initialized")
+            
+            # Store the new DocuSignPage object in test_context so subsequent steps can use it
+            # This is critical because verification steps need to reference the SAME page object
+            test_context["new_docusign_page"] = new_docusign_page_obj
+            logger.info("[DEBUG] Stored new_docusign_page in test_context for subsequent verification steps")
+            
+            # STEP 3: Perform OTP verification and signing workflow
+            # This retrieves OTP from Outlook and submits it to DocuSign
+            logger.info("STEP 3: Initiating OTP verification and signing workflow...")
+            new_docusign_page_obj.otp_verification(outlook_page=outlook_email_page)
+            logger.info("[PASS] OTP verification and signing workflow completed")
+            
+            logger.info("[PASS] DocuSignPage: Advisor Signature 'By Mail' Method Completed Successfully.")
+            
+        except Exception as e:
+            logger.error(f"[FAIL] Advisor signature 'by mail' workflow failed: {str(e).splitlines()[0]}")
+            allure.attach(
+                str(e),
+                name="Advisor Signature 'By Mail' - Error Details",
+                attachment_type=allure.attachment_type.TEXT
+            )
+            raise
 
