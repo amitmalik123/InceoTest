@@ -9,7 +9,7 @@
             "Functional"
         ],
         "mainURL": "{{base_url}}",
-        "endpoint": "/requests",
+        "endpoint": "/ach",
         "method": "POST",
         "rpc_method": "",
         "graphql_query": "",
@@ -22,20 +22,15 @@
         "payload": {
             "instructionId": "{{instructionId}}",
             "accountId": "{{accountId}}",
-            "railType": "{{railType}}",
-            "unitType": "{{unitType}}",
             "amount": "{{amount}}",
-            "percent": "{{percent}}",
             "requestType": "{{requestType}}",
             "status": "{{status}}",
-            "reason": "{{reason}}",
-            "purpose": "{{purpose}}",
             "schedule": {
                 "scheduleType": "{{scheduleType}}",
                 "paymentDate": "{{paymentDate}}"
             }
         },
-        "expected_status": "200",
+        "expected_status": "201",
         "expected_response_schema": "MoveMoneyAPI\\schemas\\Schema_requests_POST.json",
         "expected_response": null,
         "ignore_fields": [],
@@ -74,7 +69,7 @@
             "default": "",
             "audit_query": ""
         },
-        "test_summary": "Test TC009: POST /moneymovement/requests [positive] (TC009) - Test 200 Response for One-Time Deposit via Wire with Updates to support new attributes .",
+        "test_summary": "Test TC001: POST /moneymovement/requests [positive] (TC009) - Test 200 Response for One-Time Deposit via Wire with Updates to support new attributes .",
         "test_scenario": "Test POST request to /moneymovement/requests for functional scenario validation."
     }
 ]

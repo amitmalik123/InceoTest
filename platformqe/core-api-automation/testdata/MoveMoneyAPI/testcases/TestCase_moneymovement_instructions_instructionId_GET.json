@@ -3,13 +3,13 @@
         "test_id": "TC001",
         "service_name": "movemoney",
         "workflow_mode": "parallel",
-        "test_name": "GET /instructions/{instructionId} [positive] (TC001)",
+        "test_name": "GET /instructions/{instruction_id} [positive] (TC001)",
         "protocol": "REST",
         "test_type": [
             "Functional"
         ],
         "mainURL": "{{base_url}}",
-        "endpoint": "/instructions/{{instructionId}}",
+        "endpoint": "/instructions/{{instruction_id}}",
         "method": "GET",
         "rpc_method": "",
         "graphql_query": "",
@@ -161,13 +161,13 @@
         "test_id": "TC002",
         "service_name": "movemoney",
         "workflow_mode": "parallel",
-        "test_name": "GET /instructions/{instructionId} [positive] (TC002)",
+        "test_name": "GET /instructions/{instruction_id} [positive] (TC002)",
         "protocol": "REST",
         "test_type": [
             "Positive"
         ],
         "mainURL": "{{base_url}}",
-        "endpoint": "/instructions/{{instructionId}}?status=Confirmed",
+        "endpoint": "/instructions/{{instruction_id}}?status=Confirmed",
         "method": "GET",
         "rpc_method": "",
         "graphql_query": "",
@@ -303,7 +303,7 @@
         "test_id": "TC003",
         "service_name": "movemoney",
         "workflow_mode": "parallel",
-        "test_name": "GET /instructions/{instructionId} [Negative] (TC003)",
+        "test_name": "GET /instructions/{instruction_id} [Negative] (TC003)",
         "protocol": "REST",
         "test_type": [
             "Negative"
@@ -353,13 +353,13 @@
         "test_id": "TC004",
         "service_name": "movemoney",
         "workflow_mode": "parallel",
-        "test_name": "GET /instructions/{instructionId} [Negative] (TC004)",
+        "test_name": "GET /instructions/{instruction_id} [Negative] (TC004)",
         "protocol": "REST",
         "test_type": [
             "Negative"
         ],
         "mainURL": "{{base_url}}",
-        "endpoint": "/instructions/{{instructionId}}?status=CHECK",
+        "endpoint": "/instructions/{{instruction_id}}?status=CHECK",
         "method": "GET",
         "rpc_method": "",
         "graphql_query": "",
@@ -436,13 +436,13 @@
         "test_id": "TC005",
         "service_name": "movemoney",
         "workflow_mode": "parallel",
-        "test_name": "GET /instructions/{instructionId} [positive - changeState field presence] (TC005)",
+        "test_name": "GET /instructions/{instruction_id} [positive - changeState field presence] (TC005)",
         "protocol": "REST",
         "test_type": [
             "Functional"
         ],
         "mainURL": "{{base_url}}",
-        "endpoint": "/instructions/{{instructionId}}",
+        "endpoint": "/instructions/{{instruction_id}}",
         "method": "GET",
         "rpc_method": "",
         "graphql_query": "",
