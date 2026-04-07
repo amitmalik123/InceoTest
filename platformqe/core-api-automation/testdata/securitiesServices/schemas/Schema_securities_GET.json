@@ -10,8 +10,8 @@
         "properties": {
           "securities_id": { "type": "integer" },
           "cusip": { "type": "string" },
-          "ticker": { "type": "string" },
-          "name": { "type": "string" },
+          "ticker": { "type": ["string", "null"] },
+          "name": { "type": ["string", "null"] },
           "subAssetType_id": { "type": "integer" },
           "assetClass": { "type": "string" },
           "assetType": { "type": "string" },
