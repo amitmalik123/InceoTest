@@ -444,25 +444,25 @@
                         "format": "json",
                         "key_field": [
                             {
-                                "source": "riskProfileBandId",
+                                "source": "RiskProfileBandId",
                                 "target": "RiskProfileID"
                             }
                         ],
                         "fields_to_compare": [
                             {
-                                "source": "riskProfileBandId",
+                                "source": "RiskProfileBandId",
                                 "target": "RiskProfileID"
                             },
                             {
-                                "source": "profileName",
+                                "source": "ProfileName",
                                 "target": "ProfileName"
                             },
                             {
-                                "source": "riskProfileValue",
+                                "source": "RiskProfileValue",
                                 "target": "ProfileValue"
                             },
                             {
-                                "source": "annualStandardDeviation",
+                                "source": "AnnualStandardDeviation",
                                 "target": "AnnualStdDeviation"
                             }
                         ],
