@@ -6,9 +6,7 @@
         "test_name": "QUERY and Extract DB Values",
         "protocol": "DB_ONLY",
         "test_type": [
-            "Functional",
-            "Smoke",
-            "Business Logic"
+            "Children Endpoint DB extraction"
         ],
         "mainURL": "",
         "endpoint": "",
@@ -32,7 +30,7 @@
                 "assign": [
                     {
                         "key": "0.Id",
-                        "assign_to": "db_HH_parent_id_1"
+                        "assign_to": "db_HH_parent_ChildEP_id_1"
                     }
                 ]
             }
@@ -77,9 +75,7 @@
         "test_name": "QUERY and Extract DB Values",
         "protocol": "DB_ONLY",
         "test_type": [
-            "Functional",
-            "Smoke",
-            "Business Logic"
+            "Children Endpoint DB extraction"
         ],
         "mainURL": "",
         "endpoint": "",
@@ -103,7 +99,7 @@
                 "assign": [
                     {
                         "key": "0.Id",
-                        "assign_to": "db_custody_account_id_1"
+                        "assign_to": "db_custody_account_childEP_id_1"
                     }
                 ]
             }
@@ -134,7 +130,7 @@
         "test_data_file": "",
         "db_query_timing": "before_api",
         "db_queries": {
-            "default": "SELECT c.*, LOWER(c.Id) AS Id FROM Account c WHERE c.ParentAccountId = '{{db_HH_parent_id_1}}' AND c.AccountClassification = 'CustodyAccount' AND c.Version = (SELECT MAX(vc.Version) FROM Account vc WHERE vc.Id = c.Id);"
+            "default": "SELECT c.*,c.Id FROM Account c WHERE c.ParentAccountId = '{{db_HH_parent_ChildEP_id_1}}' AND c.AccountClassification = 'CustodyAccount' AND c.Version = (SELECT MAX(vc.Version) FROM Account vc WHERE vc.Id = c.Id);"
         },
         "db_type": "mssql",
         "db_connection_name": "account_service",
@@ -148,9 +144,7 @@
         "test_name": "QUERY and Extract DB Values",
         "protocol": "DB_ONLY",
         "test_type": [
-            "Functional",
-            "Smoke",
-            "Business Logic"
+            "Children Endpoint DB extraction"
         ],
         "mainURL": "",
         "endpoint": "",
@@ -174,11 +168,11 @@
                 "assign": [
                     {
                         "key": "0.Id",
-                        "assign_to": "db_sleeve_id_1"
+                        "assign_to": "db_sleeve_id_childEP_1"
                     },
                     {
                         "key": "0.Id",
-                        "assign_to": "db_sleeve_id_2"
+                        "assign_to": "db_sleeve_id_childEP_2"
                     }
                 ]
             }
@@ -209,7 +203,7 @@
         "test_data_file": "",
         "db_query_timing": "before_api",
         "db_queries": {
-            "default": "SELECT s.*, LOWER(s.Id) AS Id FROM Account s WHERE s.ParentAccountId = '{{db_custody_account_id_1}}' AND s.AccountClassification = 'Sleeve' AND s.Version = (SELECT MAX(vs.Version) FROM Account vs WHERE vs.Id = s.Id);"
+            "default": "SELECT LOWER(s.Id) AS Id, LOWER(s.parentAccountId) AS parentAccountId, LOWER(s.AccountClassification) AS AccountClassification FROM Account s WHERE s.ParentAccountId = '{{db_custody_account_childEP_id_1}}' AND s.AccountClassification = 'Sleeve' AND s.Version = (SELECT MAX(vs.Version) FROM Account vs WHERE vs.Id = s.Id);"
         },
         "db_type": "mssql",
         "db_connection_name": "account_service",
@@ -223,10 +217,11 @@
         "test_name": "GET /Accounts/children [positive] (TC003)",
         "protocol": "REST",
         "test_type": [
+            "Children Endpoint",
             "Functional"
         ],
         "mainURL": "{{base_url}}",
-        "endpoint": "/accounts/{{db_HH_parent_id_1}}/children?depth=1",
+        "endpoint": "/accounts/{{db_HH_parent_ChildEP_id_1}}/children?depth=1",
         "method": "GET",
         "rpc_method": "",
         "graphql_query": "",
@@ -247,7 +242,7 @@
             {
                 "from": "response",
                 "key": "accounts.items.0.accountId",
-                "assign_to": "custody_account_id_1"
+                "assign_to": "custody_account_childEP_id_2"
             }
         ],
         "validate": {
@@ -262,9 +257,9 @@
             },
             "assertions": [
                 {
-                    "actual": "{{custody_account_id_1}}",
+                    "actual": "{{custody_account_childEP_id_2}}",
                     "operator": "==",
-                    "expected": "{{db_custody_account_id_1}}",
+                    "expected": "{{db_custody_account_childEP_id_1}}",
                     "message": "Account ID should match the database value"
                 }
             ],
@@ -285,10 +280,11 @@
         "test_name": "GET /Accounts/children [positive] (TC004)",
         "protocol": "REST",
         "test_type": [
+            "Children Endpoint",
             "Functional"
         ],
         "mainURL": "{{base_url}}",
-        "endpoint": "/accounts/{{db_custody_account_id_1}}/children?depth=1",
+        "endpoint": "/accounts/{{db_custody_account_childEP_id_1}}/children?depth=1",
         "method": "GET",
         "rpc_method": "",
         "graphql_query": "",
@@ -309,12 +305,12 @@
             {
                 "from": "response",
                 "key": "accounts.items.0.accountId",
-                "assign_to": "sleeve_id_1"
+                "assign_to": "sleeve_id_childEP_1"
             },
             {
                 "from": "response",
                 "key": "accounts.items.1.accountId",
-                "assign_to": "sleeve_id_2"
+                "assign_to": "sleeve_id_childEP_2"
             }
         ],
         "validate": {
@@ -329,15 +325,15 @@
             },
             "assertions": [
                 {
-                    "actual": "{{sleeve_id_2}}",
+                    "actual": "{{sleeve_id_childEP_1}}",
                     "operator": "==",
-                    "expected": "{{db_sleeve_id_1}}",
+                    "expected": "{{db_sleeve_id_childEP_2}}",
                     "message": "Account ID should match the database value"
                 },
                 {
-                    "actual": "{{sleeve_id_1}}",
+                    "actual": "{{sleeve_id_childEP_2}}",
                     "operator": "==",
-                    "expected": "{{db_sleeve_id_2}}",
+                    "expected": "{{db_sleeve_id_childEP_1}}",
                     "message": "Account ID should match the database value"
                 }
             ],
@@ -358,10 +354,11 @@
         "test_name": "GET /Accounts/children [positive] (TC005)",
         "protocol": "REST",
         "test_type": [
+            "Children Endpoint",
             "Functional"
         ],
         "mainURL": "{{base_url}}",
-        "endpoint": "/accounts/{{db_HH_parent_id_1}}/children?depth=2",
+        "endpoint": "/accounts/{{db_HH_parent_ChildEP_id_1}}/children?depth=2",
         "method": "GET",
         "rpc_method": "",
         "graphql_query": "",
@@ -382,17 +379,17 @@
             {
                 "from": "response",
                 "key": "accounts.items.0.accountId",
-                "assign_to": "custody_account_id_1"
+                "assign_to": "custody_account_childEP_id_2"
             },
             {
                 "from": "response",
                 "key": "accounts.items.0.children.items.0.accountId",
-                "assign_to": "sleeve_id_1"
+                "assign_to": "sleeve_id_childEP_1"
             },
             {
                 "from": "response",
                 "key": "accounts.items.0.children.items.1.accountId",
-                "assign_to": "sleeve_id_2"
+                "assign_to": "sleeve_id_childEP_2"
             }
         ],
         "validate": {
@@ -407,21 +404,21 @@
             },
             "assertions": [
                 {
-                    "actual": "{{custody_account_id_1}}",
+                    "actual": "{{custody_account_childEP_id_1}}",
                     "operator": "==",
-                    "expected": "{{db_custody_account_id_1}}",
+                    "expected": "{{db_custody_account_childEP_id_1}}",
                     "message": "Account ID should match the database value"
                 },
                 {
-                    "actual": "{{sleeve_id_2}}",
+                    "actual": "{{sleeve_id_childEP_2}}",
                     "operator": "==",
-                    "expected": "{{db_sleeve_id_1}}",
+                    "expected": "{{db_sleeve_id_childEP_1}}",
                     "message": "Account ID should match the database value"
                 },
                 {
-                    "actual": "{{sleeve_id_1}}",
+                    "actual": "{{sleeve_id_childEP_1}}",
                     "operator": "==",
-                    "expected": "{{db_sleeve_id_2}}",
+                    "expected": "{{db_sleeve_id_childEP_2}}",
                     "message": "Account ID should match the database value"
                 }
             ],
