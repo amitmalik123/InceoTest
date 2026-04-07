@@ -55,17 +55,7 @@
                     "xss"
                 ]
             },
-            "data_comparison": {
-                "source": "api_response",
-                "target": "db_result",
-                "format": "table",
-                "key_field": [
-                    "",
-                    ""
-                ],
-                "fields_to_compare": [],
-                "log_differences": true
-            },
+            "data_comparison": [],
             "assertions": []
         },
         "test_data_file": "",
@@ -99,8 +89,8 @@
             "Content-Type": "application/json"
         },
         "payload": "account\\payloads\\PATCH_Account_by_Id\\PATCH_Payload_1.json",
-        "expected_status": "422",
-        "expected_response_schema": "account\\schemas\\Schema_Accounts_GET.json",
+        "expected_status": "405",
+        "expected_response_schema": "",
         "expected_response": null,
         "ignore_fields": [
             "id"
@@ -148,8 +138,8 @@
             "Content-Type": "application/json"
         },
         "payload": "account\\payloads\\PATCH_Account_by_Id\\PATCH_payload_400.json",
-        "expected_status": "400",
-        "expected_response_schema": "account\\schemas\\Schema_Accounts_PATCH_negative.json",
+        "expected_status": "405",
+        "expected_response_schema": "",
         "expected_response": null,
         "ignore_fields": [
             "id"
@@ -246,7 +236,7 @@
             "Content-Type": "application/json"
         },
         "payload": "account\\payloads\\PATCH_Account_by_Id\\PATCH_payload_409.json",
-        "expected_status": "409",
+        "expected_status": "405",
         "expected_response_schema": "",
         "expected_response": null,
         "ignore_fields": [

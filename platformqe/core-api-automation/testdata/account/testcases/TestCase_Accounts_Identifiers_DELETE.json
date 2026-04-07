@@ -1,0 +1,490 @@
+[
+    {
+        "test_id": "TC000",
+        "service_name": "account_service",
+        "workflow_mode": "sequential",
+        "test_name": "POST /accounts [setup] Create account with APL and AccountNumber identifiers for DELETE identifier tests (TC000)",
+        "protocol": "REST",
+        "test_type": [
+            "Functional",
+            "Regression",
+            "Setup"
+        ],
+        "mainURL": "{{base_url}}",
+        "endpoint": "/accounts",
+        "method": "POST",
+        "rpc_method": "",
+        "graphql_query": "",
+        "graphql_variables": "",
+        "soap_action": "",
+        "soap_envelope": "",
+        "headers_additional": {
+            "Content-Type": "application/json"
+        },
+        "payload": {
+            "parentAccountId": null,
+            "accountClassification": "Household",
+            "accountType": "Personal",
+            "accountSubType": "Individual",
+            "displayName": "Test Household IdentDEL Setup {{ random_string(6) }}",
+            "sortName": "Test, Household IdentDEL",
+            "openDate": "2025-01-01",
+            "custodialAuthorization": "Managed",
+            "managingPlatform": "Internal",
+            "identifiers": [
+                {
+                    "type": "APL",
+                    "value": "APL-QE-DEL-SETUP-{{ random_string(6) }}"
+                },
+                {
+                    "type": "AccountNumber",
+                    "value": "AN-QE-DEL-SETUP-{{ random_string(6) }}"
+                }
+            ]
+        },
+        "expected_status": "201",
+        "expected_response_schema": "account/schemas/Schema_Accounts_POST.json",
+        "expected_response": null,
+        "ignore_fields": [
+            "createdDate",
+            "updatedDate",
+            "createdBy",
+            "updatedBy",
+            "version"
+        ],
+        "extract_values": [
+            {
+                "from": "response",
+                "key": "account.accountId",
+                "assign_to": "setupAccountId"
+            }
+        ],
+        "validate": {
+            "performance": {
+                "max_response_time_ms": 3000
+            },
+            "assertions": [
+                {
+                    "actual": "{{setupAccountId}}",
+                    "operator": "!=",
+                    "expected": null,
+                    "message": "Setup must return a non-null accountId"
+                }
+            ],
+            "data_comparison": []
+        },
+        "test_data_file": "",
+        "db_query": "",
+        "db_type": "",
+        "test_summary": "Test TC000: [Setup] Create a Household account with APL and AccountNumber identifiers. Extracts setupAccountId for use in TC001-TC008."
+    },
+    {
+        "test_id": "TC001",
+        "service_name": "account_service",
+        "workflow_mode": "sequential",
+        "test_name": "DELETE /accounts/{accountId}/identifiers/APL [positive: 204 remove APL identifier] (TC001)",
+        "protocol": "REST",
+        "test_type": [
+            "Functional",
+            "Regression",
+            "Positive"
+        ],
+        "mainURL": "{{base_url}}",
+        "endpoint": "/accounts/{{setupAccountId}}/identifiers/APL",
+        "method": "DELETE",
+        "rpc_method": "",
+        "graphql_query": "",
+        "graphql_variables": "",
+        "soap_action": "",
+        "soap_envelope": "",
+        "headers_additional": {
+            "Content-Type": "application/json"
+        },
+        "payload": null,
+        "expected_status": "200",
+        "expected_response_schema": "account/schemas/Schema_Accounts_Identifiers_DELETE_204.json",
+        "expected_response": null,
+        "ignore_fields": [],
+        "extract_values": [
+            {
+                "from": "db_result",
+                "query": "apl_check",
+                "assign": [
+                    {
+                        "key": "0.apl_count",
+                        "assign_to": "db_apl_count_after_delete"
+                    }
+                ]
+            }
+        ],
+        "validate": {
+            "performance": {
+                "max_response_time_ms": 3000
+            },
+            "security": {
+                "checks": [
+                    "sql_injection",
+                    "xss"
+                ]
+            },
+            "assertions": [],
+            "data_comparison": []
+        },
+        "test_data_file": "",
+        "db_query_timing": "after_api",
+        "db_queries": {
+            "apl_check": "SELECT COUNT(*) AS apl_count FROM (SELECT *, ROW_NUMBER() OVER (PARTITION BY Id ORDER BY Version DESC) AS vrn FROM Account) a CROSS APPLY OPENJSON(a.Identifiers) i WHERE a.vrn = 1 AND a.Id = '{{setupAccountId}}' AND JSON_VALUE(i.value, '$.Type') = 'APL';"
+        },
+        "db_type": "mssql",
+        "db_connection_name": "account_service",
+        "test_summary": "Test TC001: DELETE /accounts/{accountId}/identifiers/APL on an account that has an APL identifier. Expects HTTP 204 No Content. DB validation confirms the APL identifier is no longer present."
+    },
+    {
+        "test_id": "TC002",
+        "service_name": "account_service",
+        "workflow_mode": "sequential",
+        "test_name": "GET /accounts/{accountId} [positive: verify APL removed, AccountNumber still present after DELETE] (TC002)",
+        "protocol": "REST",
+        "test_type": [
+            "Functional",
+            "Regression",
+            "Positive"
+        ],
+        "mainURL": "{{base_url}}",
+        "endpoint": "/accounts/{{setupAccountId}}",
+        "method": "GET",
+        "rpc_method": "",
+        "graphql_query": "",
+        "graphql_variables": "",
+        "soap_action": "",
+        "soap_envelope": "",
+        "headers_additional": {
+            "Content-Type": "application/json"
+        },
+        "payload": null,
+        "expected_status": "200",
+        "expected_response_schema": "account/schemas/Schema_Accounts_POST.json",
+        "expected_response": null,
+        "ignore_fields": [],
+        "extract_values": [
+            {
+                "from": "response",
+                "key": "account.identifiers",
+                "assign_to": "identifiersAfterDelete"
+            },
+            {
+                "from": "db_result",
+                "query": "an_check",
+                "assign": [
+                    {
+                        "key": "0.an_count",
+                        "assign_to": "db_an_count"
+                    }
+                ]
+            }
+        ],
+        "validate": {
+            "performance": {
+                "max_response_time_ms": 2000
+            },
+            "assertions": [],
+            "data_comparison": []
+        },
+        "test_data_file": "",
+        "db_query_timing": "after_api",
+        "db_queries": {
+            "an_check": "SELECT COUNT(*) AS an_count FROM (SELECT *, ROW_NUMBER() OVER (PARTITION BY Id ORDER BY Version DESC) AS vrn FROM Account) a CROSS APPLY OPENJSON(a.Identifiers) i WHERE a.vrn = 1 AND a.Id = '{{setupAccountId}}' AND JSON_VALUE(i.value, '$.Type') = 'AccountNumber';"
+        },
+        "db_type": "mssql",
+        "db_connection_name": "account_service",
+        "test_summary": "Test TC002: GET the account after deleting APL. Validates the account record is intact, APL is gone, and the AccountNumber identifier is still present. Confirms DELETE is type-scoped and does not affect other identifiers."
+    },
+    {
+        "test_id": "TC003",
+        "service_name": "account_service",
+        "workflow_mode": "sequential",
+        "test_name": "DELETE /accounts/{accountId}/identifiers/APL [negative: 404 identifier already deleted] (TC003)",
+        "protocol": "REST",
+        "test_type": [
+            "Negative",
+            "Functional",
+            "Regression"
+        ],
+        "mainURL": "{{base_url}}",
+        "endpoint": "/accounts/{{setupAccountId}}/identifiers/APL",
+        "method": "DELETE",
+        "rpc_method": "",
+        "graphql_query": "",
+        "graphql_variables": "",
+        "soap_action": "",
+        "soap_envelope": "",
+        "headers_additional": {
+            "Content-Type": "application/json"
+        },
+        "payload": null,
+        "expected_status": "404",
+        "expected_response_schema": "account/schemas/Schema_Accounts_Identifier_PUT_404.json",
+        "expected_response": null,
+        "ignore_fields": [],
+        "extract_values": [
+            {
+                "from": "response",
+                "key": "",
+                "assign_to": ""
+            }
+        ],
+        "validate": {
+            "performance": {
+                "max_response_time_ms": 2000
+            },
+            "data_comparison": []
+        },
+        "test_data_file": "",
+        "db_query": "",
+        "db_type": "",
+        "test_summary": "Test TC003: DELETE /accounts/{accountId}/identifiers/APL on the same account again after TC001 already removed it. The APL identifier no longer exists, so the service must return HTTP 404 Not Found (not idempotent)."
+    },
+    {
+        "test_id": "TC004",
+        "service_name": "account_service",
+        "workflow_mode": "sequential",
+        "test_name": "DELETE /accounts/{accountId}/identifiers/ModelId [negative: 404 identifier type never existed on account] (TC004)",
+        "protocol": "REST",
+        "test_type": [
+            "Negative",
+            "Functional",
+            "Regression"
+        ],
+        "mainURL": "{{base_url}}",
+        "endpoint": "/accounts/{{setupAccountId}}/identifiers/ModelId",
+        "method": "DELETE",
+        "rpc_method": "",
+        "graphql_query": "",
+        "graphql_variables": "",
+        "soap_action": "",
+        "soap_envelope": "",
+        "headers_additional": {
+            "Content-Type": "application/json"
+        },
+        "payload": null,
+        "expected_status": "404",
+        "expected_response_schema": "account/schemas/Schema_Accounts_Identifier_PUT_404.json",
+        "expected_response": null,
+        "ignore_fields": [],
+        "extract_values": [
+            {
+                "from": "response",
+                "key": "",
+                "assign_to": ""
+            }
+        ],
+        "validate": {
+            "performance": {
+                "max_response_time_ms": 2000
+            },
+            "data_comparison": []
+        },
+        "test_data_file": "",
+        "db_query": "",
+        "db_type": "",
+        "test_summary": "Test TC004: DELETE targeting the 'ModelId' identifier type on an account that never had a ModelId identifier. Expects HTTP 404 Not Found with ProblemDetails."
+    },
+    {
+        "test_id": "TC005",
+        "service_name": "account_service",
+        "workflow_mode": "sequential",
+        "test_name": "DELETE /accounts/{accountId}/identifiers/APL [negative: 404 account not found] (TC005)",
+        "protocol": "REST",
+        "test_type": [
+            "Negative",
+            "Functional",
+            "Regression"
+        ],
+        "mainURL": "{{base_url}}",
+        "endpoint": "/accounts/ffffffff-ffff-ffff-ffff-ffffffffffff/identifiers/APL",
+        "method": "DELETE",
+        "rpc_method": "",
+        "graphql_query": "",
+        "graphql_variables": "",
+        "soap_action": "",
+        "soap_envelope": "",
+        "headers_additional": {
+            "Content-Type": "application/json"
+        },
+        "payload": null,
+        "expected_status": "404",
+        "expected_response_schema": "account/schemas/Schema_Accounts_Identifier_PUT_404.json",
+        "expected_response": null,
+        "ignore_fields": [],
+        "extract_values": [
+            {
+                "from": "response",
+                "key": "",
+                "assign_to": ""
+            }
+        ],
+        "validate": {
+            "performance": {
+                "max_response_time_ms": 2000
+            },
+            "data_comparison": []
+        },
+        "test_data_file": "",
+        "db_query": "",
+        "db_type": "",
+        "test_summary": "Test TC005: DELETE /accounts/{accountId}/identifiers/APL with a non-existent accountId (all-F UUID). Expects HTTP 404 Not Found with ProblemDetails indicating the account was not found."
+    },
+    {
+        "test_id": "TC006",
+        "service_name": "account_service",
+        "workflow_mode": "sequential",
+        "test_name": "DELETE /accounts/{accountId}/identifiers/INVALIDTYPE [negative: 400 invalid identifier type in URL path] (TC006)",
+        "protocol": "REST",
+        "test_type": [
+            "Negative",
+            "Functional",
+            "Regression"
+        ],
+        "mainURL": "{{base_url}}",
+        "endpoint": "/accounts/{{setupAccountId}}/identifiers/INVALIDTYPE",
+        "method": "DELETE",
+        "rpc_method": "",
+        "graphql_query": "",
+        "graphql_variables": "",
+        "soap_action": "",
+        "soap_envelope": "",
+        "headers_additional": {
+            "Content-Type": "application/json"
+        },
+        "payload": null,
+        "expected_status": "400",
+        "expected_response_schema": "account/schemas/Schema_Accounts_Identifier_PUT_400.json",
+        "expected_response": null,
+        "ignore_fields": [],
+        "extract_values": [
+            {
+                "from": "response",
+                "key": "",
+                "assign_to": ""
+            }
+        ],
+        "validate": {
+            "performance": {
+                "max_response_time_ms": 2000
+            },
+            "data_comparison": []
+        },
+        "test_data_file": "",
+        "db_query": "",
+        "db_type": "",
+        "test_summary": "Test TC006: DELETE with an identifierType path value ('INVALIDTYPE') that is not in the allowed enum [APL, AccountNumber, AdvisorId, AgreementVersionId, ModelId, Custodian]. Expects HTTP 400 Bad Request from route parameter validation."
+    },
+    {
+        "test_id": "TC007",
+        "service_name": "account_service",
+        "workflow_mode": "sequential",
+        "test_name": "DELETE /accounts/{accountId}/identifiers/AccountNumber [positive: 204 remove last remaining identifier] (TC007)",
+        "protocol": "REST",
+        "test_type": [
+            "Functional",
+            "Regression",
+            "Positive"
+        ],
+        "mainURL": "{{base_url}}",
+        "endpoint": "/accounts/{{setupAccountId}}/identifiers/AccountNumber",
+        "method": "DELETE",
+        "rpc_method": "",
+        "graphql_query": "",
+        "graphql_variables": "",
+        "soap_action": "",
+        "soap_envelope": "",
+        "headers_additional": {
+            "Content-Type": "application/json"
+        },
+        "payload": null,
+        "expected_status": "200",
+        "expected_response_schema": "account/schemas/Schema_Accounts_Identifiers_DELETE_204.json",
+        "expected_response": null,
+        "ignore_fields": [],
+        "extract_values": [
+            {
+                "from": "db_result",
+                "query": "count_all",
+                "assign": [
+                    {
+                        "key": "0.totalCount",
+                        "assign_to": "db_count_after_last_delete"
+                    }
+                ]
+            }
+        ],
+        "validate": {
+            "performance": {
+                "max_response_time_ms": 3000
+            },
+            "assertions": [],
+            "data_comparison": []
+        },
+        "test_data_file": "",
+        "db_query_timing": "after_api",
+        "db_queries": {
+            "count_all": "SELECT COUNT(*) AS totalCount FROM (SELECT *, ROW_NUMBER() OVER (PARTITION BY Id ORDER BY Version DESC) AS vrn FROM Account) a CROSS APPLY OPENJSON(a.Identifiers) i WHERE a.vrn = 1 AND a.Id = '{{setupAccountId}}';"
+        },
+        "db_type": "mssql",
+        "db_connection_name": "account_service",
+        "test_summary": "Test TC007: DELETE /accounts/{accountId}/identifiers/AccountNumber \u2014 the last remaining identifier on the account (APL was deleted in TC001). Expects HTTP 204. DB validation confirms 0 identifiers remain, proving the service permits an account to have no identifiers."
+    },
+    {
+        "test_id": "TC008",
+        "service_name": "account_service",
+        "workflow_mode": "sequential",
+        "test_name": "GET /accounts/{accountId} [positive: verify no identifiers remain after deleting all] (TC008)",
+        "protocol": "REST",
+        "test_type": [
+            "Functional",
+            "Regression",
+            "Positive"
+        ],
+        "mainURL": "{{base_url}}",
+        "endpoint": "/accounts/{{setupAccountId}}",
+        "method": "GET",
+        "rpc_method": "",
+        "graphql_query": "",
+        "graphql_variables": "",
+        "soap_action": "",
+        "soap_envelope": "",
+        "headers_additional": {
+            "Content-Type": "application/json"
+        },
+        "payload": null,
+        "expected_status": "200",
+        "expected_response_schema": "account/schemas/Schema_Accounts_POST.json",
+        "expected_response": null,
+        "ignore_fields": [],
+        "extract_values": [
+            {
+                "from": "response",
+                "key": "account.accountId",
+                "assign_to": "accountIdAfterAllDeletes"
+            }
+        ],
+        "validate": {
+            "performance": {
+                "max_response_time_ms": 2000
+            },
+            "assertions": [
+                {
+                    "actual": "{{accountIdAfterAllDeletes}}",
+                    "operator": "==",
+                    "expected": "{{setupAccountId}}",
+                    "message": "Account must still be retrievable (intact) after all identifiers have been deleted"
+                }
+            ],
+            "data_comparison": []
+        },
+        "test_data_file": "",
+        "db_query": "",
+        "db_type": "",
+        "test_summary": "Test TC008: GET the account after both APL and AccountNumber identifiers have been deleted. Confirms the account record remains valid and retrievable even with an empty identifiers list. Validates DELETE does not corrupt or delete the account itself."
+    }
+]

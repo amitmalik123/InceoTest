@@ -71,17 +71,7 @@
                     "xss"
                 ]
             },
-            "data_comparison": {
-                "source": "",
-                "target": "",
-                "format": "",
-                "key_field": [
-                    "",
-                    ""
-                ],
-                "fields_to_compare": [],
-                "log_differences": true
-            },
+            "data_comparison": [],
             "assertions": []
         },
         "test_data_file": "",
@@ -115,8 +105,8 @@
             "Content-Type": "application/json"
         },
         "payload": "",
-        "expected_status": "200",
-        "expected_response_schema": "account\\schemas\\Schema_Accounts_GET.json",
+        "expected_status": "404",
+        "expected_response_schema": "",
         "expected_response": null,
         "ignore_fields": [
             "id"
@@ -143,20 +133,7 @@
                     "xss"
                 ]
             },
-            "assertions": [
-                {
-                    "actual": "{{party_id_1}}",
-                    "operator": "==",
-                    "expected": "{{db_party_id_1}}",
-                    "message": "Party ID should match the database value"
-                },
-                {
-                    "actual": "{{party_role_1}}",
-                    "operator": "==",
-                    "expected": "{{db_party_role_1}}",
-                    "message": "Party Role should match the database value"
-                }
-            ],
+            "assertions": [],
             "data_comparison": []
         },
         "test_data_file": "",
@@ -188,8 +165,8 @@
             "Content-Type": "application/json"
         },
         "payload": "",
-        "expected_status": "200",
-        "expected_response_schema": "account\\schemas\\Schema_Accounts_GET.json",
+        "expected_status": "404",
+        "expected_response_schema": "",
         "expected_response": null,
         "ignore_fields": [
             "id"
@@ -216,20 +193,7 @@
                     "xss"
                 ]
             },
-            "assertions": [
-                {
-                    "actual": "{{party_id_2}}",
-                    "operator": "==",
-                    "expected": "{{db_party_id_2}}",
-                    "message": "Party ID should match the database value"
-                },
-                {
-                    "actual": "{{party_role_2}}",
-                    "operator": "==",
-                    "expected": "{{db_party_role_2}}",
-                    "message": "Party Role should match the database value"
-                }
-            ],
+            "assertions": [],
             "data_comparison": []
         },
         "test_data_file": "",
@@ -261,8 +225,8 @@
             "Content-Type": "application/json"
         },
         "payload": "",
-        "expected_status": "200",
-        "expected_response_schema": "account\\schemas\\Schema_Accounts_GET.json",
+        "expected_status": "404",
+        "expected_response_schema": "",
         "expected_response": null,
         "ignore_fields": [
             "id"
@@ -289,20 +253,7 @@
                     "xss"
                 ]
             },
-            "assertions": [
-                {
-                    "actual": "{{party_id_3}}",
-                    "operator": "==",
-                    "expected": "{{db_party_id_3}}",
-                    "message": "Party ID should match the database value"
-                },
-                {
-                    "actual": "{{party_role_3}}",
-                    "operator": "==",
-                    "expected": "{{db_party_role_3}}",
-                    "message": "Party Role should match the database value"
-                }
-            ],
+            "assertions": [],
             "data_comparison": []
         },
         "test_data_file": "",

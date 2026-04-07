@@ -186,7 +186,19 @@
                   "properties": {
                     "type": {
                       "type": ["string", "null"],
-                      "enum": ["APL", "AccountNumber", "AdvisorId", "AgreementVersionId", "ModelId", "Custodian", "Adhesion", "InvestmentDirectiveId", "ADSAccountId" , "FAFeeId", null]
+                      "enum": [
+                        "APL",
+                        "AccountNumber",
+                        "AdvisorId",
+                        "AgreementVersionId",
+                        "ModelId",
+                        "Custodian",
+                        "Adhesion",
+                        "ADSAccountId",
+                        "InvestmentDirectiveId",
+                        "FAFeeId",
+                        null
+                      ]
                     },
                     "value": { "type": ["string", "null"], "maxLength": 255 }
                   },

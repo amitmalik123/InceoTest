@@ -1,4 +1,4 @@
 {
-    "IdentifierType": "AccountNumber",
-    "IdentifierValue": "AN-QE-POST-001"
+  "type": "AccountNumber",
+  "value": "AN-QE-POST-001"
 }

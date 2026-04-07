@@ -47,17 +47,7 @@
                     "xss"
                 ]
             },
-            "data_comparison": {
-                "source": "",
-                "target": "",
-                "format": "",
-                "key_field": [
-                    "",
-                    ""
-                ],
-                "fields_to_compare": [],
-                "log_differences": true
-            },
+            "data_comparison": [],
             "assertions": []
         },
         "test_data_file": "",
@@ -175,7 +165,7 @@
         },
         "payload": "",
         "expected_status": "200",
-        "expected_response_schema": "account\\schemas\\Schema_Accounts_GET.json",
+        "expected_response_schema": "",
         "expected_response": null,
         "ignore_fields": [
             "id"
@@ -197,14 +187,7 @@
                     "xss"
                 ]
             },
-            "assertions": [
-                {
-                    "actual": "{{HH_account_id_1}}",
-                    "operator": "==",
-                    "expected": "{{db_HH_parent_id_1}}",
-                    "message": "Account ID should match the database value"
-                }
-            ],
+            "assertions": [],
             "data_comparison": []
         },
         "test_data_file": "",

@@ -1,0 +1,25 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "IdentifiersPutAllResponse",
+  "description": "Response schema for PUT /accounts/{accountId}/identifiers - 200 OK (full replace)",
+  "type": "object",
+  "properties": {
+    "identifiers": {
+      "type": ["array", "null"],
+      "items": {
+        "type": "object",
+        "properties": {
+          "type": {
+            "type": "string",
+            "enum": ["APL", "AccountNumber", "AdvisorId", "AgreementVersionId", "ModelId", "Custodian"]
+          },
+          "value": {
+            "type": ["string", "null"]
+          }
+        },
+        "required": ["type"]
+      }
+    }
+  },
+  "additionalProperties": true
+}
