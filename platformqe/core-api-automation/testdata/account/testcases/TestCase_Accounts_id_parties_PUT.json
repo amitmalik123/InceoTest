@@ -6,6 +6,7 @@
         "test_name": "QUERY and Extract DB Values",
         "protocol": "DB_ONLY",
         "test_type": [
+            "PUT /Accounts/{accountId}/parties endpoint validation",
             "Functional",
             "Smoke",
             "Business Logic"
@@ -79,6 +80,7 @@
         "test_name": "PUT /Accounts/{accountId}/parties [negative] (TC001)",
         "protocol": "REST",
         "test_type": [
+            "PUT /Accounts/{accountId}/parties endpoint validation",
             "Functional",
             "Single-Filter"
         ],
@@ -131,6 +133,7 @@
         "test_name": "PUT /Accounts/{accountId}/parties [negative] (TC002)",
         "protocol": "REST",
         "test_type": [
+            "PUT /Accounts/{accountId}/parties endpoint validation",
             "Functional",
             "Single-Filter"
         ],
@@ -181,6 +184,7 @@
         "test_name": "PUT /Accounts/{accountId}/parties [negative] (TC003)",
         "protocol": "REST",
         "test_type": [
+            "PUT /Accounts/{accountId}/parties endpoint validation",
             "Functional",
             "Single-Filter"
         ],

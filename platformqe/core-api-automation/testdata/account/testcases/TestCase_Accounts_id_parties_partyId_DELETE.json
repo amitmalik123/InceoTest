@@ -6,6 +6,7 @@
         "test_name": "QUERY and Extract DB Values",
         "protocol": "DB_ONLY",
         "test_type": [
+            "POST /Accounts/{accountId}/parties/{roleTupe}/ {partyId} endpoint validation",
             "Functional",
             "Smoke",
             "Business Logic"
@@ -67,6 +68,7 @@
         "test_name": "POST /Accounts/{accountId}/parties [positive] (TC001)",
         "protocol": "REST",
         "test_type": [
+            "POST /Accounts/{accountId}/parties/{roleTupe}/ {partyId} endpoint validation",
             "Functional",
             "Single-Filter"
         ],
@@ -128,6 +130,7 @@
         "test_name": "DELETE /Accounts/{accountId}/parties [positive] (TC002)",
         "protocol": "REST",
         "test_type": [
+            "POST /Accounts/{accountId}/parties/{roleTupe}/ {partyId} endpoint validation",
             "Functional",
             "Single-Filter"
         ],
@@ -178,6 +181,7 @@
         "test_name": "DELETE /Accounts/{accountId}/parties [Negative] (TC003)",
         "protocol": "REST",
         "test_type": [
+            "POST /Accounts/{accountId}/parties/{roleTupe}/ {partyId} endpoint validation",
             "Functional",
             "Single-Filter"
         ],
@@ -228,6 +232,7 @@
         "test_name": "DELETE /Accounts/{accountId}/parties [Negative] (TC004)",
         "protocol": "REST",
         "test_type": [
+            "POST /Accounts/{accountId}/parties/{roleTupe}/ {partyId} endpoint validation",
             "Functional",
             "Single-Filter"
         ],

@@ -6,6 +6,7 @@
         "test_name": "QUERY and Extract DB Values",
         "protocol": "DB_ONLY",
         "test_type": [
+            "POST /Accounts/{accountId}/parties/{roletype}/{partyId}/attributes/{attributeTyppe} endpoint validation",
             "Functional",
             "Smoke",
             "Business Logic"
@@ -79,6 +80,7 @@
         "test_name": "POST /Accounts/{accountId}/parties [positive] (TC001)",
         "protocol": "REST",
         "test_type": [
+            "POST /Accounts/{accountId}/parties/{roletype}/{partyId}/attributes/{attributeTyppe} endpoint validation",
             "Functional",
             "Single-Filter"
         ],
@@ -145,6 +147,7 @@
         "test_name": "DELETE /Accounts/{accountId}/parties [positive] (TC002)",
         "protocol": "REST",
         "test_type": [
+            "DELETE /Accounts/{accountId}/parties endpoint validation",
             "Functional",
             "Single-Filter"
         ],
@@ -195,8 +198,10 @@
         "test_name": "DELETE /Accounts/{accountId}/parties [positive] (TC003)",
         "protocol": "REST",
         "test_type": [
+            "DELETE /Accounts/{accountId}/parties endpoint validation",
             "Functional",
-            "Single-Filter"
+            "Single-Filter"          
+
         ],
         "mainURL": "{{base_url}}",
         "endpoint": "/accounts/{{db_DEL_account_id1}}/parties/AccountHolder/3e2c1b7a-8f4a-4c2e-9b1d-7a6e2f5c9e3a",
@@ -245,6 +250,7 @@
         "test_name": "DELETE /Accounts/{accountId}/parties [Negative] (TC004)",
         "protocol": "REST",
         "test_type": [
+            "POST /Accounts/{accountId}/parties/{roletype}/{partyId}/attributes/{attributeTyppe} endpoint validation",
             "Functional",
             "Single-Filter"
         ],
@@ -295,6 +301,7 @@
         "test_name": "DELETE /Accounts/{accountId}/parties [Negative] (TC005)",
         "protocol": "REST",
         "test_type": [
+            "POST /Accounts/{accountId}/parties/{roletype}/{partyId}/attributes/{attributeTyppe} endpoint validation",
             "Functional",
             "Single-Filter"
         ],
