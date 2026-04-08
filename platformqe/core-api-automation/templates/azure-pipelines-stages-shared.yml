@@ -483,6 +483,7 @@ stages:
                     echo "##vso[task.setvariable variable=RESOLVED_LEXISNEXIS_BASE_URL]$(TSADEV_lexisnexis_base_url)"
                     echo "##vso[task.setvariable variable=RESOLVED_DOCUSIGN_BASE_URL]$(T10_docusign_base_url)"
                     echo "##vso[task.setvariable variable=RESOLVED_TRANSFER_SERVICE_VALIDATION_BASE_URL]$(T11_transfer_service_validation_base_url)"
+                    echo "##vso[task.setvariable variable=RESOLVED_CUSTODIAL_INTEGRATION_BASE_URL]$(TSADEV_custodial_integration_base_url)"
                     ;;
                   "TSATEST")
                     echo "##vso[task.setvariable variable=RESOLVED_PARTIES_BASE_URL]$(TSATEST_parties_base_url)"
@@ -500,6 +501,7 @@ stages:
                     echo "##vso[task.setvariable variable=RESOLVED_LEXISNEXIS_BASE_URL]$(TSATEST_lexisnexis_base_url)"
                     echo "##vso[task.setvariable variable=RESOLVED_DOCUSIGN_BASE_URL]$(T11_docusign_base_url)"
                     echo "##vso[task.setvariable variable=RESOLVED_TRANSFER_SERVICE_VALIDATION_BASE_URL]$(T11_transfer_service_validation_base_url)"
+                    echo "##vso[task.setvariable variable=RESOLVED_CUSTODIAL_INTEGRATION_BASE_URL]$(TSATEST_custodial_integration_base_url)"
                     ;;
                   "TSASILO")
                     echo "##vso[task.setvariable variable=RESOLVED_PARTIES_BASE_URL]$(TSASILO_parties_base_url)"
@@ -532,6 +534,7 @@ stages:
                     echo "##vso[task.setvariable variable=RESOLVED_LEXISNEXIS_BASE_URL]$(TSADEV_lexisnexis_base_url)"
                     echo "##vso[task.setvariable variable=RESOLVED_DOCUSIGN_BASE_URL]$(T10_docusign_base_url)"
                     echo "##vso[task.setvariable variable=RESOLVED_TRANSFER_SERVICE_VALIDATION_BASE_URL]$(T11_transfer_service_validation_base_url)"
+                    echo "##vso[task.setvariable variable=RESOLVED_CUSTODIAL_INTEGRATION_BASE_URL]$(TSADEV_custodial_integration_base_url)"
                     ;;
                 esac
                 
@@ -563,6 +566,7 @@ stages:
                 echo "RESOLVED_LEXISNEXIS_BASE_URL: $(RESOLVED_LEXISNEXIS_BASE_URL)"
                 echo "RESOLVED_DOCUSIGN_BASE_URL: $(RESOLVED_DOCUSIGN_BASE_URL)"
                 echo "RESOLVED_TRANSFER_SERVICE_VALIDATION_BASE_URL: $(RESOLVED_TRANSFER_SERVICE_VALIDATION_BASE_URL)"
+                echo "RESOLVED_CUSTODIAL_INTEGRATION_BASE_URL: $(RESOLVED_CUSTODIAL_INTEGRATION_BASE_URL)"
                 echo "=========================================="
           
           - task: Bash@3
@@ -657,6 +661,7 @@ stages:
               LEXISNEXIS_BASE_URL: $(RESOLVED_LEXISNEXIS_BASE_URL)
               DOCUSIGN_BASE_URL: $(RESOLVED_DOCUSIGN_BASE_URL)
               TRANSFER_SERVICE_VALIDATION_BASE_URL: $(RESOLVED_TRANSFER_SERVICE_VALIDATION_BASE_URL)
+              CUSTODIAL_INTEGRATION_BASE_URL: $(RESOLVED_CUSTODIAL_INTEGRATION_BASE_URL)
               API_TIMEOUT: $(api_timeout)
               API_RETRY_COUNT: $(api_retry_count)
             inputs:
@@ -719,6 +724,7 @@ stages:
               LEXISNEXIS_BASE_URL: $(RESOLVED_LEXISNEXIS_BASE_URL)
               DOCUSIGN_BASE_URL: $(RESOLVED_DOCUSIGN_BASE_URL)
               TRANSFER_SERVICE_VALIDATION_BASE_URL: $(RESOLVED_TRANSFER_SERVICE_VALIDATION_BASE_URL)
+              CUSTODIAL_INTEGRATION_BASE_URL: $(RESOLVED_CUSTODIAL_INTEGRATION_BASE_URL)
               API_TIMEOUT: $(api_timeout)
               API_RETRY_COUNT: $(api_retry_count)
               INFLUX_URL: $(influx_url)
