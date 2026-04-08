@@ -59,17 +59,7 @@
                     "xss"
                 ]
             },
-            "data_comparison": {
-                "source": "",
-                "target": "",
-                "format": "",
-                "key_field": [
-                    "",
-                    ""
-                ],
-                "fields_to_compare": [],
-                "log_differences": true
-            },
+            "data_comparison": [],
             "assertions": []
         },
         "test_data_file": "",
@@ -106,7 +96,7 @@
         "payload": [
             "Test"
         ],
-        "expected_status": "400",
+        "expected_status": "404",
         "expected_response_schema": "",
         "expected_response": null,
         "ignore_fields": [
@@ -206,7 +196,7 @@
             "Content-Type": "application/json"
         },
         "payload": "account\\payloads\\DELETE_Parties_byid\\POST_attribute_DELETE_payload.json",
-        "expected_status": "409",
+        "expected_status": "404",
         "expected_response_schema": "",
         "expected_response": null,
         "ignore_fields": [
