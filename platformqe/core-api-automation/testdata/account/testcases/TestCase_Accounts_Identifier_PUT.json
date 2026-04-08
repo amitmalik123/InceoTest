@@ -197,7 +197,6 @@
                     "operator": "!=",
                     "expected": "{{originalIdentifierValue}}",
                     "message": "Updated value must differ from the original (full replace occurred)"
-                },
                 }
             ],
             "data_comparison": []
@@ -271,7 +270,6 @@
                     "operator": "==",
                     "expected": "APL-QE-PUT-UPDATED-002",
                     "message": "Second PUT must fully replace the previous value"
-                },
                 }
             ],
             "data_comparison": []
