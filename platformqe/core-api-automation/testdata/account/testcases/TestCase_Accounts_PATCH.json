@@ -89,7 +89,7 @@
             "Content-Type": "application/json"
         },
         "payload": "account\\payloads\\PATCH_Account_by_Id\\PATCH_Payload_1.json",
-        "expected_status": "405",
+        "expected_status": "422",
         "expected_response_schema": "",
         "expected_response": null,
         "ignore_fields": [
@@ -138,7 +138,7 @@
             "Content-Type": "application/json"
         },
         "payload": "account\\payloads\\PATCH_Account_by_Id\\PATCH_payload_400.json",
-        "expected_status": "405",
+        "expected_status": "400",
         "expected_response_schema": "",
         "expected_response": null,
         "ignore_fields": [
@@ -236,7 +236,7 @@
             "Content-Type": "application/json"
         },
         "payload": "account\\payloads\\PATCH_Account_by_Id\\PATCH_payload_409.json",
-        "expected_status": "405",
+        "expected_status": "409",
         "expected_response_schema": "",
         "expected_response": null,
         "ignore_fields": [

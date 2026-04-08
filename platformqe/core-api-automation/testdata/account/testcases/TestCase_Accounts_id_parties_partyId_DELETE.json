@@ -82,7 +82,7 @@
             "Content-Type": "application/json"
         },
         "payload": "account\\payloads\\DELETE_Parties_byid\\PUT_AccountHolder_payload.json",
-        "expected_status": "404",
+        "expected_status": "201",
         "expected_response_schema": "",
         "expected_response": null,
         "ignore_fields": [
@@ -143,7 +143,7 @@
             "Content-Type": "application/json"
         },
         "payload": "",
-        "expected_status": "404",
+        "expected_status": "200",
         "expected_response_schema": "",
         "expected_response": null,
         "ignore_fields": [
@@ -243,7 +243,7 @@
             "Content-Type": "application/json"
         },
         "payload": "",
-        "expected_status": "404",
+        "expected_status": "400",
         "expected_response_schema": "",
         "expected_response": [],
         "ignore_fields": [
