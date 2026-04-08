@@ -198,6 +198,11 @@
                     "expected": "{{originalIdentifierValue}}",
                     "message": "Updated value must differ from the original (full replace occurred)"
                 },
+                {
+                    "actual": "{{updatedIdentifierValue}}",
+                    "operator": "==",
+                    "expected": "{{db_identifier_value}}",
+                    "message": "Response identifier value must be persisted in the database"
                 }
             ],
             "data_comparison": []
@@ -272,6 +277,11 @@
                     "expected": "APL-QE-PUT-UPDATED-002",
                     "message": "Second PUT must fully replace the previous value"
                 },
+                {
+                    "actual": "{{secondUpdatedValue}}",
+                    "operator": "==",
+                    "expected": "{{db_identifier_value_after_second_put}}",
+                    "message": "Second updated value must be persisted in the database"
                 }
             ],
             "data_comparison": []

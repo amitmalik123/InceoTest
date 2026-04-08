@@ -84,8 +84,31 @@
                     "xss"
                 ]
             },
-            "assertions": [],
-            "data_comparison": []
+            "assertions": [
+                {
+                    "actual": "{{first_account_classification}}",
+                    "operator": "==",
+                    "expected": "{{db_account_classification}}",
+                    "message": "Account classification should match the database value"
+                }
+            ],
+            "data_comparison": [
+                {
+                    "source": "api_response",
+                    "target": "db_result",
+                    "target_query": "default",
+                    "format": "table",
+                    "source_array_path": "accounts.items",
+                    "fields_to_compare": [
+                        {
+                            "source": "first_account_classification",
+                            "target": "db_account_classification"
+                        }
+                    ],
+                    "log_differences": true,
+                    "comparison_name": "AccountClassification match"
+                }
+            ]
         },
         "test_data_file": "",
         "db_query_timing": "after_api",
@@ -213,8 +236,31 @@
                     "xss"
                 ]
             },
-            "assertions": [],
-            "data_comparison": []
+            "assertions": [
+                {
+                    "actual": "{{account_type_Ind}}",
+                    "operator": "==",
+                    "expected": "{{db_account_type_Ind}}",
+                    "message": "Account type should match the database value"
+                }
+            ],
+            "data_comparison": [
+                {
+                    "source": "api_response",
+                    "target": "db_result",
+                    "target_query": "default",
+                    "format": "table",
+                    "source_array_path": "accounts.items",
+                    "fields_to_compare": [
+                        {
+                            "source": "account_type_Ind",
+                            "target": "db_account_type_Ind"
+                        }
+                    ],
+                    "log_differences": true,
+                    "comparison_name": "AccountType match"
+                }
+            ]
         },
         "test_data_file": "",
         "db_query_timing": "after_api",
@@ -292,8 +338,31 @@
                     "xss"
                 ]
             },
-            "assertions": [],
-            "data_comparison": []
+            "assertions": [
+                {
+                    "actual": "{{account_type_Corp}}",
+                    "operator": "==",
+                    "expected": "{{db_account_type_Corp}}",
+                    "message": "Account type should match the database value"
+                }
+            ],
+            "data_comparison": [
+                {
+                    "source": "api_response",
+                    "target": "db_result",
+                    "target_query": "default",
+                    "format": "table",
+                    "source_array_path": "accounts.items",
+                    "fields_to_compare": [
+                        {
+                            "source": "account_type_Corp",
+                            "target": "db_account_type_Corp"
+                        }
+                    ],
+                    "log_differences": true,
+                    "comparison_name": "AccountType match"
+                }
+            ]
         },
         "test_data_file": "",
         "db_query_timing": "after_api",
@@ -371,8 +440,31 @@
                     "xss"
                 ]
             },
-            "assertions": [],
-            "data_comparison": []
+            "assertions": [
+                {
+                    "actual": "{{account_change_state_Proposal}}",
+                    "operator": "==",
+                    "expected": "{{db_account_change_state_Proposal}}",
+                    "message": "Account changeState should match the database value"
+                }
+            ],
+            "data_comparison": [
+                {
+                    "source": "api_response",
+                    "target": "db_result",
+                    "target_query": "default",
+                    "format": "table",
+                    "source_array_path": "accounts.items",
+                    "fields_to_compare": [
+                        {
+                            "source": "account_change_state_Proposal",
+                            "target": "db_account_change_state_Proposal"
+                        }
+                    ],
+                    "log_differences": true,
+                    "comparison_name": "AccountChangeState match"
+                }
+            ]
         },
         "test_data_file": "",
         "db_query_timing": "after_api",
@@ -450,8 +542,31 @@
                     "xss"
                 ]
             },
-            "assertions": [],
-            "data_comparison": []
+            "assertions": [
+                {
+                    "actual": "{{account_change_State_Funded}}",
+                    "operator": "==",
+                    "expected": "{{db_account_Change_State_Funded}}",
+                    "message": "Account changeState should match the database value"
+                }
+            ],
+            "data_comparison": [
+                {
+                    "source": "api_response",
+                    "target": "db_result",
+                    "target_query": "default",
+                    "format": "table",
+                    "source_array_path": "accounts.items",
+                    "fields_to_compare": [
+                        {
+                            "source": "account_change_State_Funded",
+                            "target": "db_account_Change_State_Funded"
+                        }
+                    ],
+                    "log_differences": true,
+                    "comparison_name": "AccountChangeState match"
+                }
+            ]
         },
         "test_data_file": "",
         "db_query_timing": "after_api",
@@ -529,8 +644,31 @@
                     "xss"
                 ]
             },
-            "assertions": [],
-            "data_comparison": []
+            "assertions": [
+                {
+                    "actual": "{{account_subtype_BankorTrustCompanyNonTaxable}}",
+                    "operator": "==",
+                    "expected": "{{db_account_subtype_BankorTrustCompanyNonTaxable}}",
+                    "message": "Account subtype should match the database value"
+                }
+            ],
+            "data_comparison": [
+                {
+                    "source": "api_response",
+                    "target": "db_result",
+                    "target_query": "default",
+                    "format": "table",
+                    "source_array_path": "accounts.items",
+                    "fields_to_compare": [
+                        {
+                            "source": "account_subtype_BankorTrustCompanyNonTaxable",
+                            "target": "db_account_subtype_BankorTrustCompanyNonTaxable"
+                        }
+                    ],
+                    "log_differences": true,
+                    "comparison_name": "AccountSubType match"
+                }
+            ]
         },
         "test_data_file": "",
         "db_query_timing": "after_api",
@@ -608,8 +746,31 @@
                     "xss"
                 ]
             },
-            "assertions": [],
-            "data_comparison": []
+            "assertions": [
+                {
+                    "actual": "{{account_subtype_Individual}}",
+                    "operator": "==",
+                    "expected": "{{db_account_subtype_Individual}}",
+                    "message": "Account subtype should match the database value"
+                }
+            ],
+            "data_comparison": [
+                {
+                    "source": "api_response",
+                    "target": "db_result",
+                    "target_query": "default",
+                    "format": "table",
+                    "source_array_path": "accounts.items",
+                    "fields_to_compare": [
+                        {
+                            "source": "account_subtype_Individual",
+                            "target": "db_account_subtype_Individual"
+                        }
+                    ],
+                    "log_differences": true,
+                    "comparison_name": "AccountSubType match"
+                }
+            ]
         },
         "test_data_file": "",
         "db_query_timing": "after_api",
@@ -687,8 +848,31 @@
                     "xss"
                 ]
             },
-            "assertions": [],
-            "data_comparison": []
+            "assertions": [
+                {
+                    "actual": "{{account_party_role_type_AccountHolder}}",
+                    "operator": "==",
+                    "expected": "{{db_account_party_role_type_AccountHolder}}",
+                    "message": "Account party role type should match the database value"
+                }
+            ],
+            "data_comparison": [
+                {
+                    "source": "api_response",
+                    "target": "db_result",
+                    "target_query": "default",
+                    "format": "table",
+                    "source_array_path": "accounts.items",
+                    "fields_to_compare": [
+                        {
+                            "source": "account_party_role_type_AccountHolder",
+                            "target": "db_account_party_role_type_AccountHolder"
+                        }
+                    ],
+                    "log_differences": true,
+                    "comparison_name": "AccountPartyRoleType match"
+                }
+            ]
         },
         "test_data_file": "",
         "db_query_timing": "after_api",
@@ -766,7 +950,14 @@
                     "xss"
                 ]
             },
-            "assertions": [],
+            "assertions": [
+                {
+                    "actual": "{{account_party_role_type_Trustee}}",
+                    "operator": "==",
+                    "expected": "{{db_account_party_role_type_Trustee}}",
+                    "message": "Account party role type should match the database value"
+                }
+            ],
             "data_comparison": []
         },
         "test_data_file": "",
@@ -845,8 +1036,31 @@
                     "xss"
                 ]
             },
-            "assertions": [],
-            "data_comparison": []
+            "assertions": [
+                {
+                    "actual": "{{account_party_role_type_AuthorizedAgents}}",
+                    "operator": "==",
+                    "expected": "{{db_account_party_role_type_AuthorizedAgents}}",
+                    "message": "Account party role type should match the database value"
+                }
+            ],
+            "data_comparison": [
+                {
+                    "source": "api_response",
+                    "target": "db_result",
+                    "target_query": "default",
+                    "format": "table",
+                    "source_array_path": "accounts.items",
+                    "fields_to_compare": [
+                        {
+                            "source": "account_party_role_type_AuthorizedAgents",
+                            "target": "db_account_party_role_type_AuthorizedAgents"
+                        }
+                    ],
+                    "log_differences": true,
+                    "comparison_name": "AccountPartyRoleType match"
+                }
+            ]
         },
         "test_data_file": "",
         "db_query_timing": "after_api",
@@ -939,8 +1153,31 @@
                     "xss"
                 ]
             },
-            "assertions": [],
-            "data_comparison": []
+            "assertions": [
+                {
+                    "actual": "{{account_identifier_type}}",
+                    "operator": "==",
+                    "expected": "{{db_account_identifier_type}}",
+                    "message": "Account identifier type should match the database value"
+                }
+            ],
+            "data_comparison": [
+                {
+                    "source": "api_response",
+                    "target": "db_result",
+                    "target_query": "default",
+                    "format": "table",
+                    "source_array_path": "accounts.items",
+                    "fields_to_compare": [
+                        {
+                            "source": "account_identifier_type",
+                            "target": "db_account_identifier_type"
+                        }
+                    ],
+                    "log_differences": true,
+                    "comparison_name": "AccountIdentifierType match"
+                }
+            ]
         },
         "test_data_file": "",
         "db_query_timing": "after_api",
@@ -1018,8 +1255,31 @@
                     "xss"
                 ]
             },
-            "assertions": [],
-            "data_comparison": []
+            "assertions": [
+                {
+                    "actual": "{{account_identifier_value}}",
+                    "operator": "==",
+                    "expected": "{{db_account_identifier_value}}",
+                    "message": "Identifier value should match the database value"
+                }
+            ],
+            "data_comparison": [
+                {
+                    "source": "api_response",
+                    "target": "db_result",
+                    "target_query": "default",
+                    "format": "table",
+                    "source_array_path": "accounts.items",
+                    "fields_to_compare": [
+                        {
+                            "source": "account_identifier_value",
+                            "target": "db_account_identifier_value"
+                        }
+                    ],
+                    "log_differences": true,
+                    "comparison_name": "IdentifierValue match"
+                }
+            ]
         },
         "test_data_file": "",
         "db_query_timing": "after_api",
@@ -1112,8 +1372,41 @@
                     "xss"
                 ]
             },
-            "assertions": [],
-            "data_comparison": []
+            "assertions": [
+                {
+                    "actual": "{{account_classification_Account}}",
+                    "operator": "==",
+                    "expected": "{{db_account_classification_Account}}",
+                    "message": "Account classification should match the database value"
+                },
+                {
+                    "actual": "{{account_type_Personal}}",
+                    "operator": "==",
+                    "expected": "{{db_account_type_Personal}}",
+                    "message": "Account type should match the database value"
+                }
+            ],
+            "data_comparison": [
+                {
+                    "source": "api_response",
+                    "target": "db_result",
+                    "target_query": "default",
+                    "format": "table",
+                    "source_array_path": "accounts.items",
+                    "fields_to_compare": [
+                        {
+                            "source": "account_classification_Account",
+                            "target": "db_account_classification_Account"
+                        },
+                        {
+                            "source": "account_type_Personal",
+                            "target": "db_account_type_Personal"
+                        }
+                    ],
+                    "log_differences": true,
+                    "comparison_name": "AccountClassificationAndType match"
+                }
+            ]
         },
         "test_data_file": "",
         "db_query_timing": "after_api",
@@ -1206,8 +1499,41 @@
                     "xss"
                 ]
             },
-            "assertions": [],
-            "data_comparison": []
+            "assertions": [
+                {
+                    "actual": "{{account_classification_Account}}",
+                    "operator": "==",
+                    "expected": "{{db_account_classification_Account}}",
+                    "message": "Account classification should match the database value"
+                },
+                {
+                    "actual": "{{account_changeState_Initiated}}",
+                    "operator": "==",
+                    "expected": "{{db_account_changeState_Initiated}}",
+                    "message": "Account changeState should match the database value"
+                }
+            ],
+            "data_comparison": [
+                {
+                    "source": "api_response",
+                    "target": "db_result",
+                    "target_query": "default",
+                    "format": "table",
+                    "source_array_path": "accounts.items",
+                    "fields_to_compare": [
+                        {
+                            "source": "account_classification_Account",
+                            "target": "db_account_classification_Account"
+                        },
+                        {
+                            "source": "account_changeState_Initiated",
+                            "target": "db_account_changeState_Initiated"
+                        }
+                    ],
+                    "log_differences": true,
+                    "comparison_name": "AccountClassificationAndStatus match"
+                }
+            ]
         },
         "test_data_file": "",
         "db_query_timing": "after_api",
@@ -1300,8 +1626,41 @@
                     "xss"
                 ]
             },
-            "assertions": [],
-            "data_comparison": []
+            "assertions": [
+                {
+                    "actual": "{{account_classification_Sleeve}}",
+                    "operator": "==",
+                    "expected": "{{db_account_classification_Sleeve}}",
+                    "message": "Account classification should match the database value"
+                },
+                {
+                    "actual": "{{account_sub_type_BankorTrustCompanyNonTaxable}}",
+                    "operator": "==",
+                    "expected": "{{db_account_sub_type_BankorTrustCompanyNonTaxable}}",
+                    "message": "Account sub type should match the database value"
+                }
+            ],
+            "data_comparison": [
+                {
+                    "source": "api_response",
+                    "target": "db_result",
+                    "target_query": "default",
+                    "format": "table",
+                    "source_array_path": "accounts.items",
+                    "fields_to_compare": [
+                        {
+                            "source": "account_classification_Account",
+                            "target": "db_account_classification_Account"
+                        },
+                        {
+                            "source": "account_sub_type_BankorTrustCompanyNonTaxable",
+                            "target": "db_account_sub_type_BankorTrustCompanyNonTaxable"
+                        }
+                    ],
+                    "log_differences": true,
+                    "comparison_name": "AccountClassificationAndSubType match"
+                }
+            ]
         },
         "test_data_file": "",
         "db_query_timing": "after_api",
@@ -1394,8 +1753,41 @@
                     "xss"
                 ]
             },
-            "assertions": [],
-            "data_comparison": []
+            "assertions": [
+                {
+                    "actual": "{{account_classification_Sleeve}}",
+                    "operator": "==",
+                    "expected": "{{db_account_classification_Sleeve}}",
+                    "message": "Account classification should match the database value"
+                },
+                {
+                    "actual": "{{party_role_type_AuthorizedAgents}}",
+                    "operator": "==",
+                    "expected": "{{db_party_role_type_AuthorizedAgents}}",
+                    "message": "Party role type should match the database value"
+                }
+            ],
+            "data_comparison": [
+                {
+                    "source": "api_response",
+                    "target": "db_result",
+                    "target_query": "default",
+                    "format": "table",
+                    "source_array_path": "accounts.items",
+                    "fields_to_compare": [
+                        {
+                            "source": "account_classification_Sleeve",
+                            "target": "db_account_classification_Sleeve"
+                        },
+                        {
+                            "source": "party_role_type_AuthorizedAgents",
+                            "target": "db_party_role_type_AuthorizedAgents"
+                        }
+                    ],
+                    "log_differences": true,
+                    "comparison_name": "AccountClassificationAndPartyRoleType match"
+                }
+            ]
         },
         "test_data_file": "",
         "db_query_timing": "after_api",
@@ -1488,8 +1880,41 @@
                     "xss"
                 ]
             },
-            "assertions": [],
-            "data_comparison": []
+            "assertions": [
+                {
+                    "actual": "{{account_classification_Household}}",
+                    "operator": "==",
+                    "expected": "{{db_account_classification_Household}}",
+                    "message": "Account classification should match the database value"
+                },
+                {
+                    "actual": "{{party_id}}",
+                    "operator": "==",
+                    "expected": "{{db_party_id}}",
+                    "message": "Party ID should match the database value"
+                }
+            ],
+            "data_comparison": [
+                {
+                    "source": "api_response",
+                    "target": "db_result",
+                    "target_query": "default",
+                    "format": "table",
+                    "source_array_path": "accounts.items",
+                    "fields_to_compare": [
+                        {
+                            "source": "account_classification_Household",
+                            "target": "db_account_classification_Household"
+                        },
+                        {
+                            "source": "party_id",
+                            "target": "db_party_id"
+                        }
+                    ],
+                    "log_differences": true,
+                    "comparison_name": "AccountClassificationAndPartyRoleType match"
+                }
+            ]
         },
         "test_data_file": "",
         "db_query_timing": "after_api",
@@ -1582,8 +2007,41 @@
                     "xss"
                 ]
             },
-            "assertions": [],
-            "data_comparison": []
+            "assertions": [
+                {
+                    "actual": "{{account_type_Personal}}",
+                    "operator": "==",
+                    "expected": "{{db_account_type_Personal}}",
+                    "message": "Account type should match the database value"
+                },
+                {
+                    "actual": "{{account_change_state_proposal}}",
+                    "operator": "==",
+                    "expected": "{{db_account_change_state_proposal}}",
+                    "message": "Account change state should match the database value"
+                }
+            ],
+            "data_comparison": [
+                {
+                    "source": "api_response",
+                    "target": "db_result",
+                    "target_query": "default",
+                    "format": "table",
+                    "source_array_path": "accounts.items",
+                    "fields_to_compare": [
+                        {
+                            "source": "account_type_Account",
+                            "target": "db_account_type_Account"
+                        },
+                        {
+                            "source": "account_change_state_Proposal",
+                            "target": "db_account_change_state_Proposal"
+                        }
+                    ],
+                    "log_differences": true,
+                    "comparison_name": "AccountTypeAndStatus match"
+                }
+            ]
         },
         "test_data_file": "",
         "db_query_timing": "after_api",
@@ -1676,8 +2134,41 @@
                     "xss"
                 ]
             },
-            "assertions": [],
-            "data_comparison": []
+            "assertions": [
+                {
+                    "actual": "{{account_type_Personal}}",
+                    "operator": "==",
+                    "expected": "{{db_account_type_Personal}}",
+                    "message": "Account type should match the database value"
+                },
+                {
+                    "actual": "{{account_sub_type_BankorTrustCompanyNonTaxable}}",
+                    "operator": "==",
+                    "expected": "{{db_account_sub_type_BankorTrustCompanyNonTaxable}}",
+                    "message": "Account sub type should match the database value"
+                }
+            ],
+            "data_comparison": [
+                {
+                    "source": "api_response",
+                    "target": "db_result",
+                    "target_query": "default",
+                    "format": "table",
+                    "source_array_path": "accounts.items",
+                    "fields_to_compare": [
+                        {
+                            "source": "account_type_Personal",
+                            "target": "db_account_type_Personal"
+                        },
+                        {
+                            "source": "account_sub_type_BankorTrustCompanyNonTaxable",
+                            "target": "db_account_sub_type_BankorTrustCompanyNonTaxable"
+                        }
+                    ],
+                    "log_differences": true,
+                    "comparison_name": "AccountTypeAndSubType match"
+                }
+            ]
         },
         "test_data_file": "",
         "db_query_timing": "after_api",
@@ -1770,8 +2261,41 @@
                     "xss"
                 ]
             },
-            "assertions": [],
-            "data_comparison": []
+            "assertions": [
+                {
+                    "actual": "{{account_type_Corporate}}",
+                    "operator": "==",
+                    "expected": "{{db_account_type_Corporate}}",
+                    "message": "Account type should match the database value"
+                },
+                {
+                    "actual": "{{party_role_type_AccountHolder}}",
+                    "operator": "==",
+                    "expected": "{{db_party_role_type_AccountHolder}}",
+                    "message": "Party role type should match the database value"
+                }
+            ],
+            "data_comparison": [
+                {
+                    "source": "api_response",
+                    "target": "db_result",
+                    "target_query": "default",
+                    "format": "table",
+                    "source_array_path": "accounts.items",
+                    "fields_to_compare": [
+                        {
+                            "source": "account_type_Corporate",
+                            "target": "db_account_type_Corporate"
+                        },
+                        {
+                            "source": "party_role_type_AccountHolder",
+                            "target": "db_party_role_type_AccountHolder"
+                        }
+                    ],
+                    "log_differences": true,
+                    "comparison_name": "AccountTypeAndPartyRoleType match"
+                }
+            ]
         },
         "test_data_file": "",
         "db_query_timing": "after_api",
@@ -1864,8 +2388,41 @@
                     "xss"
                 ]
             },
-            "assertions": [],
-            "data_comparison": []
+            "assertions": [
+                {
+                    "actual": "{{account_type_Corporate}}",
+                    "operator": "==",
+                    "expected": "{{db_account_type_Corporate}}",
+                    "message": "Account type should match the database value"
+                },
+                {
+                    "actual": "{{party_id}}",
+                    "operator": "==",
+                    "expected": "{{db_party_id}}",
+                    "message": "Party ID should match the database value"
+                }
+            ],
+            "data_comparison": [
+                {
+                    "source": "api_response",
+                    "target": "db_result",
+                    "target_query": "default",
+                    "format": "table",
+                    "source_array_path": "accounts.items",
+                    "fields_to_compare": [
+                        {
+                            "source": "account_type_Corporate",
+                            "target": "db_account_type_Corporate"
+                        },
+                        {
+                            "source": "party_id",
+                            "target": "db_party_id"
+                        }
+                    ],
+                    "log_differences": true,
+                    "comparison_name": "AccountTypeAndPartyId match"
+                }
+            ]
         },
         "test_data_file": "",
         "db_query_timing": "after_api",
@@ -1958,8 +2515,41 @@
                     "xss"
                 ]
             },
-            "assertions": [],
-            "data_comparison": []
+            "assertions": [
+                {
+                    "actual": "{{account_changeState_Funded}}",
+                    "operator": "==",
+                    "expected": "{{db_account_ChangeState_Funded}}",
+                    "message": "Account changeState should match the database value"
+                },
+                {
+                    "actual": "{{account_sub_type_TraditionalIRA}}",
+                    "operator": "==",
+                    "expected": "{{db_account_sub_type_TraditionalIRA}}",
+                    "message": "Account sub type should match the database value"
+                }
+            ],
+            "data_comparison": [
+                {
+                    "source": "api_response",
+                    "target": "db_result",
+                    "target_query": "default",
+                    "format": "table",
+                    "source_array_path": "accounts.items",
+                    "fields_to_compare": [
+                        {
+                            "source": "account_changeState_Funded",
+                            "target": "db_account_ChangeState_Funded"
+                        },
+                        {
+                            "source": "account_sub_type_TraditionalIRA",
+                            "target": "db_account_sub_type_TraditionalIRA"
+                        }
+                    ],
+                    "log_differences": true,
+                    "comparison_name": "AccountTypeAndSubType match"
+                }
+            ]
         },
         "test_data_file": "",
         "db_query_timing": "after_api",
@@ -2052,8 +2642,41 @@
                     "xss"
                 ]
             },
-            "assertions": [],
-            "data_comparison": []
+            "assertions": [
+                {
+                    "actual": "{{account_change_state_Funded}}",
+                    "operator": "==",
+                    "expected": "{{db_account_change_state_Funded}}",
+                    "message": "Account change state should match the database value"
+                },
+                {
+                    "actual": "{{party_role_type_AccountHolder}}",
+                    "operator": "==",
+                    "expected": "{{db_party_role_type_AccountHolder}}",
+                    "message": "Party role type should match the database value"
+                }
+            ],
+            "data_comparison": [
+                {
+                    "source": "api_response",
+                    "target": "db_result",
+                    "target_query": "default",
+                    "format": "table",
+                    "source_array_path": "accounts.items",
+                    "fields_to_compare": [
+                        {
+                            "source": "account_change_state_Funded",
+                            "target": "db_account_change_state_Funded"
+                        },
+                        {
+                            "source": "party_role_type_AccountHolder",
+                            "target": "db_party_role_type_AccountHolder"
+                        }
+                    ],
+                    "log_differences": true,
+                    "comparison_name": "AccountTypeAndPartyRoleType match"
+                }
+            ]
         },
         "test_data_file": "",
         "db_query_timing": "after_api",
@@ -2221,8 +2844,41 @@
                     "xss"
                 ]
             },
-            "assertions": [],
-            "data_comparison": []
+            "assertions": [
+                {
+                    "actual": "{{account_changeState_Funded}}",
+                    "operator": "==",
+                    "expected": "{{db_account_ChangeState_Funded}}",
+                    "message": "Account changeState should match the database value"
+                },
+                {
+                    "actual": "{{party_id}}",
+                    "operator": "==",
+                    "expected": "{{db_party_id}}",
+                    "message": "Party ID should match the database value"
+                }
+            ],
+            "data_comparison": [
+                {
+                    "source": "api_response",
+                    "target": "db_result",
+                    "target_query": "default",
+                    "format": "table",
+                    "source_array_path": "accounts.items",
+                    "fields_to_compare": [
+                        {
+                            "source": "account_changeState_Funded",
+                            "target": "db_account_ChangeState_Funded"
+                        },
+                        {
+                            "source": "party_id",
+                            "target": "db_party_id"
+                        }
+                    ],
+                    "log_differences": true,
+                    "comparison_name": "AccountTypeAndPartyRoleType match"
+                }
+            ]
         },
         "test_data_file": "",
         "db_query_timing": "after_api",
@@ -2315,7 +2971,20 @@
                     "xss"
                 ]
             },
-            "assertions": [],
+            "assertions": [
+                {
+                    "actual": "{{account_sub_type_BankorTrustCompanyNonTaxable}}",
+                    "operator": "==",
+                    "expected": "{{db_account_sub_type_BankorTrustCompanyNonTaxable}}",
+                    "message": "Account sub type should match the database value"
+                },
+                {
+                    "actual": "{{party_role_type_Trustee}}",
+                    "operator": "==",
+                    "expected": "{{db_party_role_type_Trustee}}",
+                    "message": "Party role type should match the database value"
+                }
+            ],
             "data_comparison": []
         },
         "test_data_file": "",
@@ -2484,8 +3153,41 @@
                     "xss"
                 ]
             },
-            "assertions": [],
-            "data_comparison": []
+            "assertions": [
+                {
+                    "actual": "{{account_sub_type_BankorTrustCompanyNonTaxable}}",
+                    "operator": "==",
+                    "expected": "{{db_account_sub_type_BankorTrustCompanyNonTaxable}}",
+                    "message": "Account sub type should match the database value"
+                },
+                {
+                    "actual": "{{party_id}}",
+                    "operator": "==",
+                    "expected": "{{db_party_id}}",
+                    "message": "Party ID should match the database value"
+                }
+            ],
+            "data_comparison": [
+                {
+                    "source": "api_response",
+                    "target": "db_result",
+                    "target_query": "default",
+                    "format": "table",
+                    "source_array_path": "accounts.items",
+                    "fields_to_compare": [
+                        {
+                            "source": "account_sub_type_BankorTrustCompanyNonTaxable",
+                            "target": "db_account_sub_type_BankorTrustCompanyNonTaxable"
+                        },
+                        {
+                            "source": "party_id",
+                            "target": "db_party_id"
+                        }
+                    ],
+                    "log_differences": true,
+                    "comparison_name": "AccountSubTypeAndPartyId match"
+                }
+            ]
         },
         "test_data_file": "",
         "db_query_timing": "after_api",
@@ -2592,8 +3294,41 @@
                     "xss"
                 ]
             },
-            "assertions": [],
-            "data_comparison": []
+            "assertions": [
+                {
+                    "actual": "{{account_sub_type_BankorTrustCompanyNonTaxable}}",
+                    "operator": "==",
+                    "expected": "{{db_account_sub_type_BankorTrustCompanyNonTaxable}}",
+                    "message": "Account sub type should match the database value"
+                },
+                {
+                    "actual": "{{party_id}}",
+                    "operator": "==",
+                    "expected": "{{db_party_id}}",
+                    "message": "Party ID should match the database value"
+                }
+            ],
+            "data_comparison": [
+                {
+                    "source": "api_response",
+                    "target": "db_result",
+                    "target_query": "default",
+                    "format": "table",
+                    "source_array_path": "accounts.items",
+                    "fields_to_compare": [
+                        {
+                            "source": "account_sub_type_BankorTrustCompanyNonTaxable",
+                            "target": "db_account_sub_type_BankorTrustCompanyNonTaxable"
+                        },
+                        {
+                            "source": "party_id",
+                            "target": "db_party_id"
+                        }
+                    ],
+                    "log_differences": true,
+                    "comparison_name": "AccountSubTypeAndPartyId match"
+                }
+            ]
         },
         "test_data_file": "",
         "db_query_timing": "after_api",
@@ -2680,8 +3415,41 @@
                     "xss"
                 ]
             },
-            "assertions": [],
-            "data_comparison": []
+            "assertions": [
+                {
+                    "actual": "{{account_identifier_type}}",
+                    "operator": "==",
+                    "expected": "{{db_account_identifier_type}}",
+                    "message": "Account identifier type should match the database value"
+                },
+                {
+                    "actual": "{{identifier_value}}",
+                    "operator": "==",
+                    "expected": "{{db_identifier_value}}",
+                    "message": "Identifier value should match the database value"
+                }
+            ],
+            "data_comparison": [
+                {
+                    "source": "api_response",
+                    "target": "db_result",
+                    "target_query": "default",
+                    "format": "table",
+                    "source_array_path": "accounts.items",
+                    "fields_to_compare": [
+                        {
+                            "source": "account_identifier_type",
+                            "target": "db_account_identifier_type"
+                        },
+                        {
+                            "source": "identifier_value",
+                            "target": "db_identifier_value"
+                        }
+                    ],
+                    "log_differences": true,
+                    "comparison_name": "AccountIdentifierTypeAndIdentifierValue match"
+                }
+            ]
         },
         "test_data_file": "",
         "db_query_timing": "after_api",
@@ -2777,8 +3545,51 @@
                     "xss"
                 ]
             },
-            "assertions": [],
-            "data_comparison": []
+            "assertions": [
+                {
+                    "actual": "{{account_classification_Household}}",
+                    "operator": "==",
+                    "expected": "{{db_account_classification_Household}}",
+                    "message": "Account classification should match the database value"
+                },
+                {
+                    "actual": "{{account_change_state_Proposal}}",
+                    "operator": "==",
+                    "expected": "{{db_account_change_state_Proposal}}",
+                    "message": "Account changeState should match the database value"
+                },
+                {
+                    "actual": "{{account_type_Personal}}",
+                    "operator": "==",
+                    "expected": "{{db_account_type_Personal}}",
+                    "message": "Account type should match the database value"
+                }
+            ],
+            "data_comparison": [
+                {
+                    "source": "api_response",
+                    "target": "db_result",
+                    "target_query": "default",
+                    "format": "table",
+                    "source_array_path": "accounts.items",
+                    "fields_to_compare": [
+                        {
+                            "source": "account_classification_Household",
+                            "target": "db_account_classification_Household"
+                        },
+                        {
+                            "source": "account_type_Personal",
+                            "target": "db_account_type_Personal"
+                        },
+                        {
+                            "source": "account_change_state_Proposal",
+                            "target": "db_account_change_state_Proposal"
+                        }
+                    ],
+                    "log_differences": true,
+                    "comparison_name": "AccountClassification, AccountType and AccountChangeState match"
+                }
+            ]
         },
         "test_data_file": "",
         "db_query_timing": "after_api",
@@ -2880,8 +3691,51 @@
                     "xss"
                 ]
             },
-            "assertions": [],
-            "data_comparison": []
+            "assertions": [
+                {
+                    "actual": "{{account_classification_Account}}",
+                    "operator": "==",
+                    "expected": "{{db_account_classification_Account}}",
+                    "message": "Account classification should match the database value"
+                },
+                {
+                    "actual": "{{account_sub_type_Corporate}}",
+                    "operator": "==",
+                    "expected": "{{db_account_sub_type_Corporate}}",
+                    "message": "Account sub type should match the database value"
+                },
+                {
+                    "actual": "{{account_type_JointFamily}}",
+                    "operator": "==",
+                    "expected": "{{db_account_type_JointFamily}}",
+                    "message": "Account type should match the database value"
+                }
+            ],
+            "data_comparison": [
+                {
+                    "source": "api_response",
+                    "target": "db_result",
+                    "target_query": "default",
+                    "format": "table",
+                    "source_array_path": "accounts.items",
+                    "fields_to_compare": [
+                        {
+                            "source": "account_classification_Account",
+                            "target": "db_account_classification_Account"
+                        },
+                        {
+                            "source": "account_type_JointFamily",
+                            "target": "db_account_type_JointFamily"
+                        },
+                        {
+                            "source": "account_sub_type_Corporate",
+                            "target": "db_account_sub_type_Corporate"
+                        }
+                    ],
+                    "log_differences": true,
+                    "comparison_name": "AccountClassification, AccountType and AccountSubType match"
+                }
+            ]
         },
         "test_data_file": "",
         "db_query_timing": "after_api",
@@ -2983,8 +3837,51 @@
                     "xss"
                 ]
             },
-            "assertions": [],
-            "data_comparison": []
+            "assertions": [
+                {
+                    "actual": "{{account_classification_Household}}",
+                    "operator": "==",
+                    "expected": "{{db_account_classification_Household}}",
+                    "message": "Account classification should match the database value"
+                },
+                {
+                    "actual": "{{account_sub_type_BankorTrustCompanyNonTaxable}}",
+                    "operator": "==",
+                    "expected": "{{db_account_sub_type_BankorTrustCompanyNonTaxable}}",
+                    "message": "Account sub type should match the database value"
+                },
+                {
+                    "actual": "{{account_change_state_Funded}}",
+                    "operator": "==",
+                    "expected": "{{db_account_change_state_Funded}}",
+                    "message": "Account change state should match the database value"
+                }
+            ],
+            "data_comparison": [
+                {
+                    "source": "api_response",
+                    "target": "db_result",
+                    "target_query": "default",
+                    "format": "table",
+                    "source_array_path": "accounts.items",
+                    "fields_to_compare": [
+                        {
+                            "source": "account_classification_Household",
+                            "target": "db_account_classification_Household"
+                        },
+                        {
+                            "source": "account_change_state_Funded",
+                            "target": "db_account_change_state_Funded"
+                        },
+                        {
+                            "source": "account_sub_type_BankorTrustCompanyNonTaxable",
+                            "target": "db_account_sub_type_BankorTrustCompanyNonTaxable"
+                        }
+                    ],
+                    "log_differences": true,
+                    "comparison_name": "AccountClassification, AccountType and AccountSubType match"
+                }
+            ]
         },
         "test_data_file": "",
         "db_query_timing": "after_api",
@@ -3086,8 +3983,51 @@
                     "xss"
                 ]
             },
-            "assertions": [],
-            "data_comparison": []
+            "assertions": [
+                {
+                    "actual": "{{account_type_Corporate}}",
+                    "operator": "==",
+                    "expected": "{{db_account_type_Corporate}}",
+                    "message": "Account type should match the database value"
+                },
+                {
+                    "actual": "{{account_sub_type_BankorTrustCompanyNonTaxable}}",
+                    "operator": "==",
+                    "expected": "{{db_account_sub_type_BankorTrustCompanyNonTaxable}}",
+                    "message": "Account sub type should match the database value"
+                },
+                {
+                    "actual": "{{account_change_state_Funded}}",
+                    "operator": "==",
+                    "expected": "{{db_account_change_state_Funded}}",
+                    "message": "Account change state should match the database value"
+                }
+            ],
+            "data_comparison": [
+                {
+                    "source": "api_response",
+                    "target": "db_result",
+                    "target_query": "default",
+                    "format": "table",
+                    "source_array_path": "accounts.items",
+                    "fields_to_compare": [
+                        {
+                            "source": "account_type_Corporate",
+                            "target": "db_account_type_Corporate"
+                        },
+                        {
+                            "source": "account_change_state_Funded",
+                            "target": "db_account_change_state_Funded"
+                        },
+                        {
+                            "source": "account_sub_type_BankorTrustCompanyNonTaxable",
+                            "target": "db_account_sub_type_BankorTrustCompanyNonTaxable"
+                        }
+                    ],
+                    "log_differences": true,
+                    "comparison_name": "AccountClassification, AccountType and AccountSubType match"
+                }
+            ]
         },
         "test_data_file": "",
         "db_query_timing": "after_api",
@@ -3345,8 +4285,51 @@
                     "xss"
                 ]
             },
-            "assertions": [],
-            "data_comparison": []
+            "assertions": [
+                {
+                    "actual": "{{account_classification_Sleeve}}",
+                    "operator": "==",
+                    "expected": "{{db_account_classification_Sleeve}}",
+                    "message": "Account classification should match the database value"
+                },
+                {
+                    "actual": "{{party_role_type_Trustee}}",
+                    "operator": "==",
+                    "expected": "{{db_party_role_type_Trustee}}",
+                    "message": "Party role type should match the database value"
+                },
+                {
+                    "actual": "{{party_id}}",
+                    "operator": "==",
+                    "expected": "{{db_party_id}}",
+                    "message": "Party ID should match the database value"
+                }
+            ],
+            "data_comparison": [
+                {
+                    "source": "api_response",
+                    "target": "db_result",
+                    "target_query": "default",
+                    "format": "table",
+                    "source_array_path": "accounts.items",
+                    "fields_to_compare": [
+                        {
+                            "source": "account_classification_Sleeve",
+                            "target": "db_account_classification_Sleeve"
+                        },
+                        {
+                            "source": "party_role_type_Trustee",
+                            "target": "db_party_role_type_Trustee"
+                        },
+                        {
+                            "source": "party_id",
+                            "target": "db_party_id"
+                        }
+                    ],
+                    "log_differences": true,
+                    "comparison_name": "AccountClassificationAndPartyRoleTypeANDPartyId match"
+                }
+            ]
         },
         "test_data_file": "",
         "db_query_timing": "after_api",
@@ -3454,8 +4437,51 @@
                     "xss"
                 ]
             },
-            "assertions": [],
-            "data_comparison": []
+            "assertions": [
+                {
+                    "actual": "{{account_type_Personal}}",
+                    "operator": "==",
+                    "expected": "{{db_account_type_Personal}}",
+                    "message": "Account type should match the database value"
+                },
+                {
+                    "actual": "{{party_role_type_Trustee}}",
+                    "operator": "==",
+                    "expected": "{{db_party_role_type_Trustee}}",
+                    "message": "Party role type should match the database value"
+                },
+                {
+                    "actual": "{{party_id}}",
+                    "operator": "==",
+                    "expected": "{{db_party_id}}",
+                    "message": "Party ID should match the database value"
+                }
+            ],
+            "data_comparison": [
+                {
+                    "source": "api_response",
+                    "target": "db_result",
+                    "target_query": "default",
+                    "format": "table",
+                    "source_array_path": "accounts.items",
+                    "fields_to_compare": [
+                        {
+                            "source": "account_type_Personal",
+                            "target": "db_account_type_Personal"
+                        },
+                        {
+                            "source": "party_role_type_Trustee",
+                            "target": "db_party_role_type_Trustee"
+                        },
+                        {
+                            "source": "party_id",
+                            "target": "db_party_id"
+                        }
+                    ],
+                    "log_differences": true,
+                    "comparison_name": "AccountTypeAndPartyRoleTypeANDPartyId match"
+                }
+            ]
         },
         "test_data_file": "",
         "db_query_timing": "after_api",
@@ -3563,8 +4589,51 @@
                     "xss"
                 ]
             },
-            "assertions": [],
-            "data_comparison": []
+            "assertions": [
+                {
+                    "actual": "{{account_change_state_Initiated}}",
+                    "operator": "==",
+                    "expected": "{{db_account_change_state_Initiated}}",
+                    "message": "Account change state should match the database value"
+                },
+                {
+                    "actual": "{{party_role_type_Trustee}}",
+                    "operator": "==",
+                    "expected": "{{db_party_role_type_Trustee}}",
+                    "message": "Party role type should match the database value"
+                },
+                {
+                    "actual": "{{party_id}}",
+                    "operator": "==",
+                    "expected": "{{db_party_id}}",
+                    "message": "Party ID should match the database value"
+                }
+            ],
+            "data_comparison": [
+                {
+                    "source": "api_response",
+                    "target": "db_result",
+                    "target_query": "default",
+                    "format": "table",
+                    "source_array_path": "accounts.items",
+                    "fields_to_compare": [
+                        {
+                            "source": "account_change_state_Initiated",
+                            "target": "db_account_change_state_Initiated"
+                        },
+                        {
+                            "source": "party_role_type_Trustee",
+                            "target": "db_party_role_type_Trustee"
+                        },
+                        {
+                            "source": "party_id",
+                            "target": "db_party_id"
+                        }
+                    ],
+                    "log_differences": true,
+                    "comparison_name": "AccountChangeStateAndPartyRoleTypeANDPartyId match"
+                }
+            ]
         },
         "test_data_file": "",
         "db_query_timing": "after_api",
@@ -3747,8 +4816,101 @@
                     "xss"
                 ]
             },
-            "assertions": [],
-            "data_comparison": []
+            "assertions": [
+                {
+                    "actual": "{{account_classification_Account}}",
+                    "operator": "==",
+                    "expected": "{{db_account_classification_Account}}",
+                    "message": "Account classification should match the database value"
+                },
+                {
+                    "actual": "{{account_type_Corporate}}",
+                    "operator": "==",
+                    "expected": "{{db_account_type_Corporate}}",
+                    "message": "Account type should match the database value"
+                },
+                {
+                    "actual": "{{account_sub_type_BankorTrustCompanyTaxable}}",
+                    "operator": "==",
+                    "expected": "{{db_account_sub_type_BankorTrustCompanyTaxable}}",
+                    "message": "Account sub type should match the database value"
+                },
+                {
+                    "actual": "{{account_change_state_Proposal}}",
+                    "operator": "==",
+                    "expected": "{{db_account_change_state_Proposal}}",
+                    "message": "Account status should match the database value"
+                },
+                {
+                    "actual": "{{party_role_type_Trustee}}",
+                    "operator": "==",
+                    "expected": "{{db_party_role_type_Trustee}}",
+                    "message": "Party role type should match the database value"
+                },
+                {
+                    "actual": "{{party_id}}",
+                    "operator": "==",
+                    "expected": "{{db_party_id}}",
+                    "message": "Party ID should match the database value"
+                },
+                {
+                    "actual": "{{account_identifier_type}}",
+                    "operator": "==",
+                    "expected": "{{db_account_identifier_type}}",
+                    "message": "Account identifier type should match the database value"
+                },
+                {
+                    "actual": "{{account_identifier_value}}",
+                    "operator": "==",
+                    "expected": "{{db_account_identifier_value}}",
+                    "message": "Account identifier value should match the database value"
+                }
+            ],
+            "data_comparison": [
+                {
+                    "source": "api_response",
+                    "target": "db_result",
+                    "target_query": "default",
+                    "format": "table",
+                    "source_array_path": "accounts.items",
+                    "fields_to_compare": [
+                        {
+                            "source": "account_classification_Account",
+                            "target": "db_account_classification_Account"
+                        },
+                        {
+                            "source": "account_type_Corporate",
+                            "target": "db_account_type_Corporate"
+                        },
+                        {
+                            "source": "account_sub_type_BankorTrustCompanyTaxable",
+                            "target": "db_account_sub_type_BankorTrustCompanyTaxable"
+                        },
+                        {
+                            "source": "account_status_Initiated",
+                            "target": "db_account_status_Initiated"
+                        },
+                        {
+                            "source": "party_role_type_Trustee",
+                            "target": "db_party_role_type_Trustee"
+                        },
+                        {
+                            "source": "party_id",
+                            "target": "db_party_id"
+                        },
+                        {
+                            "source": "account_identifier_type",
+                            "target": "db_account_identifier_type"
+                        },
+                        {
+                            "source": "account_identifier_value",
+                            "target": "db_account_identifier_value"
+                        }
+                    ],
+                    "log_differences": true,
+                    "comparison_name": "AccountStatusAndPartyRoleTypeANDPartyId match"
+                }
+            ]
         },
         "test_data_file": "",
         "db_query_timing": "after_api",

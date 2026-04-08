@@ -27,7 +27,7 @@ db_connections:
       connection_string: "${PLATFORM_DB_SQLDB}"
 
     account_service:
-      connection_string: "${ACCOUNTS_SQLDB}"
+      connection_string: "${ACCOUNT_SQLDB}"
 
     am_db:
       connection_string: "${AM_DB_SQLDB}"    
