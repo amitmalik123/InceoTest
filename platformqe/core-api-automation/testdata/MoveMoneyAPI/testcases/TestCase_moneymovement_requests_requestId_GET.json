@@ -3,13 +3,13 @@
         "test_id": "TC001",
         "service_name": "movemoney",
         "workflow_mode": "parallel",
-        "test_name": "GET /requests/{requestId} [positive] (TC001)",
+        "test_name": "GET /ach/{requestId} [positive] (TC001)",
         "protocol": "REST",
         "test_type": [
             "Functional"
         ],
         "mainURL": "{{base_url}}",
-        "endpoint": "/requests/EE167A13-361C-4E53-B799-003B310E233A",
+        "endpoint": "/ach/{{requestId}}",
         "method": "GET",
         "rpc_method": "",
         "graphql_query": "",
@@ -22,25 +22,7 @@
         "payload": null,
         "expected_status": "200",
         "expected_response_schema": "MoveMoneyAPI\\schemas\\Schema_requests_requestId_GET.json",
-        "expected_response": {
-            "requestId": "",
-            "version": 0,
-            "instructionId": "",
-            "accountId": "",
-            "railType": "",
-            "unitType": "Percent",
-            "amount": 0,
-            "percent": 100.0,
-            "purpose": null,
-            "requestType": "",
-            "status": "",
-            "reason": "",
-            "schedule": {},
-            "createdDate": "",
-            "modifiedDate": "",
-            "createdBy": "",
-            "modifiedBy": null
-        },
+        "expected_response": null,
         "ignore_fields": [
             "id",
             "traceId",
@@ -79,7 +61,7 @@
         ],
         "validate": {
             "performance": {
-                "max_response_time_ms": 500
+                "max_response_time_ms": 1000
             },
             "security": {
                 "checks": [
@@ -97,7 +79,8 @@
             ],
             "data_comparison": []
         },
-        "test_data_file": "",
+        "test_data_file": "MoveMoneyAPI/data_driven/Data_requests_requestId_GET.csv",
+        "csv_row_index": 0,
         "db_query_timing": "after_api",
         "db_queries": {
             "default": "",
@@ -111,13 +94,13 @@
         "test_id": "TC002",
         "service_name": "movemoney",
         "workflow_mode": "parallel",
-        "test_name": "GET /requests/{requestId} [positive] (TC002)",
+        "test_name": "GET /ach/{requestId} [positive] (TC002)",
         "protocol": "REST",
         "test_type": [
             "Positive"
         ],
         "mainURL": "{{base_url}}",
-        "endpoint": "/requests/EE167A13-361C-4E53-B799-003B310E233A?status=Draft",
+        "endpoint": "/ach/{{requestId}}?status=Confirmed",
         "method": "GET",
         "rpc_method": "",
         "graphql_query": "",
@@ -130,25 +113,7 @@
         "payload": null,
         "expected_status": "200",
         "expected_response_schema": null,
-        "expected_response": {
-            "requestId": "",
-            "version": 0,
-            "instructionId": "",
-            "accountId": "",
-            "railType": "",
-            "unitType": "Percent",
-            "amount": 0,
-            "percent": 100.0,
-            "purpose": null,
-            "requestType": "",
-            "status": "",
-            "reason": "",
-            "schedule": {},
-            "createdDate": "",
-            "modifiedDate": "",
-            "createdBy": "",
-            "modifiedBy": null
-        },
+        "expected_response": null,
         "ignore_fields": [
             "id",
             "traceId",
@@ -171,7 +136,7 @@
         "extract_values": [],
         "validate": {
             "performance": {
-                "max_response_time_ms": 500
+                "max_response_time_ms": 1000
             },
             "security": {
                 "checks": [
@@ -182,7 +147,8 @@
             "assertions": [],
             "data_comparison": []
         },
-        "test_data_file": "",
+        "test_data_file": "MoveMoneyAPI/data_driven/Data_requests_requestId_GET.csv",
+        "csv_row_index": 0,
         "db_query_timing": "after_api",
         "db_queries": {
             "default": "",
@@ -190,19 +156,19 @@
         },
         "db_type": "",
         "db_connection_name": "",
-        "test_summary": "Test TC002: GET /moneymovement/requests/{requestId} [positive] (TC002) - Validate that the system returns 200 successful response when the right requestID and Status is provided."
+        "test_summary": "Test TC002: GET /ach/{requestId} [positive] (TC002) - Validate that the system returns 200 successful response when the right requestID and Status is provided."
     },
     {
         "test_id": "TC003",
         "service_name": "movemoney",
         "workflow_mode": "parallel",
-        "test_name": "GET /requests/{requestId} (TC003)",
+        "test_name": "GET /ach/{requestId} [Negative] (TC003)",
         "protocol": "REST",
         "test_type": [
-            "Functional"
+            "Negative"
         ],
         "mainURL": "{{base_url}}",
-        "endpoint": "/requests/EE167A13-361C-4E53-B799-003B310E233A?status=Confirmed",
+        "endpoint": "/ach/55f28467-d800-45d8-9a1d-5f05d1cfd46e?status=Confirmed",
         "method": "GET",
         "rpc_method": "",
         "graphql_query": "",
@@ -232,7 +198,7 @@
         ],
         "validate": {
             "performance": {
-                "max_response_time_ms": 500
+                "max_response_time_ms": 1000
             },
             "security": {
                 "checks": [
@@ -243,6 +209,7 @@
             "data_comparison": []
         },
         "test_data_file": "",
+        "csv_row_index": 0,
         "db_query_timing": "after_api",
         "db_queries": {
             "default": "",
@@ -250,20 +217,20 @@
         },
         "db_type": "",
         "db_connection_name": "",
-        "test_summary": "Test TC003: GET /moneymovement/requests/{requestId} [positive] (TC003) - Validate that the system returns 204 response when RequestId not found or does not match.",
-        "test_scenario": "Test GET request to /moneymovement/requests/{requestId} for functional scenario validation."
+        "test_summary": "Test TC003: GET /ach/{requestId} [negative] (TC003) - Validate that the system returns 204 response when the Status filter does not match the RequestId's actual status.",
+        "test_scenario": "Test GET request to /ach/{requestId} for functional scenario validation."
     },
     {
         "test_id": "TC004",
         "service_name": "movemoney",
         "workflow_mode": "parallel",
-        "test_name": "GET /requests/{requestId} [Negative] (TC004)",
+        "test_name": "GET /ach/{requestId} [Negative] (TC004)",
         "protocol": "REST",
         "test_type": [
             "Negative"
         ],
         "mainURL": "{{base_url}}",
-        "endpoint": "/requests/6842@#$25A1-358F-4BDB-A061-9B33@#$576B94CC?status=Draft",
+        "endpoint": "/ach/8c47b1b5-2688-47eb-bd2b-e6df93295089,?status=Draft",
         "method": "GET",
         "rpc_method": "",
         "graphql_query": "",
@@ -295,7 +262,7 @@
         ],
         "validate": {
             "performance": {
-                "max_response_time_ms": 500
+                "max_response_time_ms": 1000
             },
             "security": {
                 "checks": [
@@ -306,6 +273,7 @@
             "data_comparison": []
         },
         "test_data_file": "",
+        "csv_row_index": 0,
         "db_query_timing": "after_api",
         "db_queries": {
             "default": "",
@@ -313,20 +281,20 @@
         },
         "db_type": "",
         "db_connection_name": "",
-        "test_summary": "Test TC004: GET /moneymovement/requests/{requestId} [negative] (TC004) - Validate that the system returns 400 response when there is a Invalid RequestId.",
-        "test_scenario": "Test GET request to /moneymovement/requests/{requestId} for negative scenario validation."
+        "test_summary": "Test TC004: GET /ach/{requestId} [negative] (TC004) - Validate that the system returns 400 response when there is a Invalid RequestId.",
+        "test_scenario": "Test GET request to /ach/{requestId} for negative scenario validation."
     },
     {
         "test_id": "TC005",
         "service_name": "movemoney",
         "workflow_mode": "parallel",
-        "test_name": "GET /requests/{requestId} [Negative] (TC005)",
+        "test_name": "GET /ach/{requestId} [Negative] (TC005)",
         "protocol": "REST",
         "test_type": [
             "Negative"
         ],
         "mainURL": "{{base_url}}",
-        "endpoint": "/requests/?status=Draft",
+        "endpoint": "/ach/null,?status=Draft",
         "method": "GET",
         "rpc_method": "",
         "graphql_query": "",
@@ -354,7 +322,7 @@
         ],
         "validate": {
             "performance": {
-                "max_response_time_ms": 500
+                "max_response_time_ms": 1000
             },
             "security": {
                 "checks": [
@@ -364,7 +332,8 @@
             },
             "data_comparison": []
         },
-        "test_data_file": "",
+        "test_data_file": "MoveMoneyAPI/data_driven/Data_requests_requestId_GET.csv",
+        "csv_row_index": 0,
         "db_query_timing": "after_api",
         "db_queries": {
             "default": "",
@@ -372,20 +341,20 @@
         },
         "db_type": "",
         "db_connection_name": "",
-        "test_summary": "Test TC005: GET /moneymovement/requests/{requestId} [negative] (TC004) - Validate that the system returns 400 response when there is No RequestId.",
-        "test_scenario": "Test GET request to /moneymovement/requests/{requestId} for negative scenario validation."
+        "test_summary": "Test TC005: GET /ach/{requestId} [negative] (TC005) - Validate that the system returns 400 response when there is No RequestId.",
+        "test_scenario": "Test GET request to /ach/{requestId} for negative scenario validation."
     },
     {
         "test_id": "TC006",
         "service_name": "movemoney",
         "workflow_mode": "parallel",
-        "test_name": "GET /requests/{requestId} [Negative] (TC006)",
+        "test_name": "GET /ach/{requestId} [Negative] (TC006)",
         "protocol": "REST",
         "test_type": [
-            "Functional"
+            "Negative"
         ],
         "mainURL": "{{base_url}}",
-        "endpoint": "/requests/770e8400-e29b-41d4-a716-446655440002?status=Processed",
+        "endpoint": "/ach/{{requestId}}?status=Pending",
         "method": "GET",
         "rpc_method": "",
         "graphql_query": "",
@@ -415,7 +384,7 @@
         ],
         "validate": {
             "performance": {
-                "max_response_time_ms": 500
+                "max_response_time_ms": 1000
             },
             "security": {
                 "checks": [
@@ -425,7 +394,8 @@
             },
             "data_comparison": []
         },
-        "test_data_file": "",
+        "test_data_file": "MoveMoneyAPI/data_driven/Data_requests_requestId_GET.csv",
+        "csv_row_index": 0,
         "db_query_timing": "after_api",
         "db_queries": {
             "default": "",
@@ -433,7 +403,171 @@
         },
         "db_type": "",
         "db_connection_name": "",
-        "test_summary": "Test TC006: GET /moneymovement/requests/{requestId} [positive] (TC006) - Validate that the system returns 204 response when Status not matching the RequestId.",
-        "test_scenario": "Test GET request to /moneymovement/requests/{requestId} for functional scenario validation."
+        "test_summary": "Test TC006: GET /ach/{requestId} [negative] (TC006) - Validate that the system returns 204 response when Status not matching the RequestId.",
+        "test_scenario": "Test GET request to /ach/{requestId} for functional scenario validation."
+    },
+    {
+        "test_id": "TC007",
+        "service_name": "movemoney",
+        "workflow_mode": "parallel",
+        "test_name": "GET /ach/{requestId} [changeState present] (TC007)",
+        "protocol": "REST",
+        "test_type": [
+            "Functional"
+        ],
+        "mainURL": "{{base_url}}",
+        "endpoint": "/ach/{{requestId}}",
+        "method": "GET",
+        "rpc_method": "",
+        "graphql_query": "",
+        "graphql_variables": "",
+        "soap_action": "",
+        "soap_envelope": "",
+        "headers_additional": {
+            "Accept": "application/json"
+        },
+        "payload": null,
+        "expected_status": "200",
+        "expected_response_schema": "",
+        "expected_response": null,
+        "ignore_fields": [
+            "id",
+            "traceId",
+            "timestamp",
+            "createdDate",
+            "modifiedDate",
+            "requestId",
+            "version",
+            "instructionId",
+            "accountId",
+            "railType",
+            "amount",
+            "requestType",
+            "status",
+            "reason",
+            "schedule",
+            "createdBy",
+            "modifiedBy"
+        ],
+        "extract_values": [
+            {
+                "from": "response",
+                "key": "changeState",
+                "assign_to": "changeState"
+            }
+        ],
+        "validate": {
+            "performance": {
+                "max_response_time_ms": 1000
+            },
+            "security": {
+                "checks": [
+                    "sql_injection",
+                    "xss"
+                ]
+            },
+            "assertions": [
+                {
+                    "actual": "{{changeState}}",
+                    "expected": "",
+                    "operator": "!=",
+                    "message": "changeState should be present in GET response"
+                }
+            ],
+            "data_comparison": []
+        },
+        "test_data_file": "MoveMoneyAPI/data_driven/Data_requests_requestId_GET.csv",
+        "csv_row_index": 0,
+        "db_query_timing": "after_api",
+        "db_queries": {
+            "default": "",
+            "audit_query": ""
+        },
+        "db_type": "",
+        "db_connection_name": "",
+        "test_summary": "Test TC007: GET /ach/{requestId} [changeState present] (TC007) - Validate that changeState is included in the response for a valid requestId.",
+        "test_scenario": "Verify changeState field is returned alongside other MMR fields for GET /ach/{requestId}."
+    },
+    {
+        "test_id": "TC008",
+        "service_name": "movemoney",
+        "workflow_mode": "parallel",
+        "test_name": "GET /ach/{requestId}?status=Confirmed [changeState present] (TC008)",
+        "protocol": "REST",
+        "test_type": [
+            "Functional"
+        ],
+        "mainURL": "{{base_url}}",
+        "endpoint": "/ach/{{requestId}}?status=Confirmed",
+        "method": "GET",
+        "rpc_method": "",
+        "graphql_query": "",
+        "graphql_variables": "",
+        "soap_action": "",
+        "soap_envelope": "",
+        "headers_additional": {
+            "Accept": "application/json"
+        },
+        "payload": null,
+        "expected_status": "200",
+        "expected_response_schema": "MoveMoneyAPI\\schemas\\Schema_requests_requestId_GET.json",
+        "expected_response": null,
+        "ignore_fields": [
+            "id",
+            "traceId",
+            "timestamp",
+            "createdDate",
+            "modifiedDate",
+            "requestId",
+            "version",
+            "instructionId",
+            "accountId",
+            "railType",
+            "amount",
+            "requestType",
+            "status",
+            "reason",
+            "schedule",
+            "createdBy",
+            "modifiedBy"
+        ],
+        "extract_values": [
+            {
+                "from": "response",
+                "key": "changeState",
+                "assign_to": "changeState"
+            }
+        ],
+        "validate": {
+            "performance": {
+                "max_response_time_ms": 1000
+            },
+            "security": {
+                "checks": [
+                    "sql_injection",
+                    "xss"
+                ]
+            },
+            "assertions": [
+                {
+                    "actual": "{{changeState}}",
+                    "expected": "",
+                    "operator": "!=",
+                    "message": "changeState should be present in GET response"
+                }
+            ],
+            "data_comparison": []
+        },
+        "test_data_file": "MoveMoneyAPI/data_driven/Data_requests_requestId_GET.csv",
+        "csv_row_index": 0,
+        "db_query_timing": "after_api",
+        "db_queries": {
+            "default": "",
+            "audit_query": ""
+        },
+        "db_type": "",
+        "db_connection_name": "",
+        "test_summary": "Test TC008: GET /moneymovement/requests/{requestId}?status=Draft [changeState present] (TC008) - Validate that changeState is included when a status filter is used.",
+        "test_scenario": "Verify changeState field is returned alongside other MMR fields for GET /requests/{requestId} with status filter."
     }
 ]

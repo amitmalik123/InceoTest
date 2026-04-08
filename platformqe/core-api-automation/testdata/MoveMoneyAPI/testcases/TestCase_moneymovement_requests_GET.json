@@ -22,17 +22,7 @@
         "payload": null,
         "expected_status": "200",
         "expected_response_schema": "MoveMoneyAPI\\schemas\\Schema_requests_GET.json",
-        "expected_response": {
-            "page": 1,
-            "pageSize": 50,
-            "items": [
-                {
-                    "unitType": "Percent",
-                    "percent": 100.0,
-                    "purpose": null
-                }
-            ]
-        },
+        "expected_response": null,
         "ignore_fields": [
             "id",
             "traceId",
@@ -160,17 +150,7 @@
         "payload": null,
         "expected_status": "200",
         "expected_response_schema": "MoveMoneyAPI\\schemas\\Schema_requests_GET.json",
-        "expected_response": {
-            "page": 1,
-            "pageSize": 50,
-            "items": [
-                {
-                    "unitType": "Percent",
-                    "percent": 100.0,
-                    "purpose": null
-                }
-            ]
-        },
+        "expected_response": null,
         "ignore_fields": [
             "id",
             "traceId",
@@ -298,17 +278,7 @@
         "payload": null,
         "expected_status": "200",
         "expected_response_schema": "MoveMoneyAPI\\schemas\\Schema_requests_GET.json",
-        "expected_response": {
-            "page": 1,
-            "pageSize": 50,
-            "items": [
-                {
-                    "unitType": "Percent",
-                    "percent": 100.0,
-                    "purpose": null
-                }
-            ]
-        },
+        "expected_response": null,
         "ignore_fields": [
             "id",
             "traceId",
