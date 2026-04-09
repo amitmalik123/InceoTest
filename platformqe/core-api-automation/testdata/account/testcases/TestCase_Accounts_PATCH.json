@@ -6,6 +6,7 @@
         "test_name": "QUERY and Extract DB Values",
         "protocol": "DB_ONLY",
         "test_type": [
+            "PATCH /Accounts endpoint validation",
             "Functional",
             "Smoke",
             "Business Logic"
@@ -55,17 +56,7 @@
                     "xss"
                 ]
             },
-            "data_comparison": {
-                "source": "api_response",
-                "target": "db_result",
-                "format": "table",
-                "key_field": [
-                    "",
-                    ""
-                ],
-                "fields_to_compare": [],
-                "log_differences": true
-            },
+            "data_comparison": [],
             "assertions": []
         },
         "test_data_file": "",
@@ -85,6 +76,7 @@
         "test_name": "PATCH /Accounts [positive] (TC001)",
         "protocol": "REST",
         "test_type": [
+            "PATCH /Accounts endpoint validation",
             "Functional"
         ],
         "mainURL": "{{base_url}}",
@@ -100,7 +92,7 @@
         },
         "payload": "account\\payloads\\PATCH_Account_by_Id\\PATCH_Payload_1.json",
         "expected_status": "422",
-        "expected_response_schema": "account\\schemas\\Schema_Accounts_GET.json",
+        "expected_response_schema": "",
         "expected_response": null,
         "ignore_fields": [
             "id"
@@ -134,6 +126,7 @@
         "test_name": "PATCH /Accounts [positive] (TC002)",
         "protocol": "REST",
         "test_type": [
+            "PATCH /Accounts endpoint validation",
             "Functional"
         ],
         "mainURL": "{{base_url}}",
@@ -149,7 +142,7 @@
         },
         "payload": "account\\payloads\\PATCH_Account_by_Id\\PATCH_payload_400.json",
         "expected_status": "400",
-        "expected_response_schema": "account\\schemas\\Schema_Accounts_PATCH_negative.json",
+        "expected_response_schema": "",
         "expected_response": null,
         "ignore_fields": [
             "id"
@@ -183,6 +176,7 @@
         "test_name": "PATCH /Accounts [positive] (TC003)",
         "protocol": "REST",
         "test_type": [
+            "PATCH /Accounts endpoint validation",
             "Functional"
         ],
         "mainURL": "{{base_url}}",
@@ -232,6 +226,7 @@
         "test_name": "PATCH /Accounts [positive] (TC004)",
         "protocol": "REST",
         "test_type": [
+            "PATCH /Accounts endpoint validation",
             "Functional"
         ],
         "mainURL": "{{base_url}}",

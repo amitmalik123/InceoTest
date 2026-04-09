@@ -6,6 +6,7 @@
         "test_name": "QUERY and Extract DB Values",
         "protocol": "DB_ONLY",
         "test_type": [
+            "DELETE /Accounts/{accountId}/parties/{roleTupe}/ {partyId} endpoint validation",
             "Functional",
             "Smoke",
             "Business Logic"
@@ -47,23 +48,13 @@
                     "xss"
                 ]
             },
-            "data_comparison": {
-                "source": "",
-                "target": "",
-                "format": "",
-                "key_field": [
-                    "",
-                    ""
-                ],
-                "fields_to_compare": [],
-                "log_differences": true
-            },
+            "data_comparison": [],
             "assertions": []
         },
         "test_data_file": "",
         "db_query_timing": "before_api",
         "db_queries": {
-            "default": "account\\db_queries\\Parties_queries\\Delete_by_partyid_accountid_roletype.sql"
+            "default": "SELECT a.Id AS Id, party.PartyId AS partyId,  party.RoleType AS RoleType, attr.Type AS AttributeType FROM Account a CROSS APPLY OPENJSON(a.Parties) WITH (PartyId UNIQUEIDENTIFIER '$.PartyId', RoleType NVARCHAR(100) '$.RoleType', Attributes NVARCHAR(MAX) AS JSON) AS party OUTER APPLY OPENJSON(party.Attributes) WITH (Type NVARCHAR(100) '$.Type') AS attr WHERE a.Version = (SELECT MAX(a2.Version) FROM Account a2 WHERE a2.Id = a.Id) AND NOT EXISTS (SELECT 1 FROM OPENJSON(a.Parties) WITH (RoleType NVARCHAR(100) '$.RoleType') AS p WHERE p.RoleType = 'AccountHolder')"
         },
         "db_type": "mssql",
         "db_connection_name": "account_service",
@@ -77,6 +68,7 @@
         "test_name": "POST /Accounts/{accountId}/parties [positive] (TC001)",
         "protocol": "REST",
         "test_type": [
+            "DELETE /Accounts/{accountId}/parties/{roleTupe}/ {partyId} endpoint validation",
             "Functional",
             "Single-Filter"
         ],
@@ -138,6 +130,7 @@
         "test_name": "DELETE /Accounts/{accountId}/parties [positive] (TC002)",
         "protocol": "REST",
         "test_type": [
+            "DELETE /Accounts/{accountId}/parties/{roleTupe}/ {partyId} endpoint validation",
             "Functional",
             "Single-Filter"
         ],
@@ -188,6 +181,7 @@
         "test_name": "DELETE /Accounts/{accountId}/parties [Negative] (TC003)",
         "protocol": "REST",
         "test_type": [
+            "POST /Accounts/{accountId}/parties/{roleTupe}/ {partyId} endpoint validation",
             "Functional",
             "Single-Filter"
         ],
@@ -238,6 +232,7 @@
         "test_name": "DELETE /Accounts/{accountId}/parties [Negative] (TC004)",
         "protocol": "REST",
         "test_type": [
+            "POST /Accounts/{accountId}/parties/{roleTupe}/ {partyId} endpoint validation",
             "Functional",
             "Single-Filter"
         ],

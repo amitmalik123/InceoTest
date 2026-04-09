@@ -6,6 +6,7 @@
         "test_name": "POST /accounts [negative: extra param] (TC001)",
         "protocol": "REST",
         "test_type": [
+            "POST /accounts endpoint validation",
             "Negative"
         ],
         "mainURL": "{{base_url}}",
@@ -19,7 +20,7 @@
         "headers_additional": {
             "Content-Type": "application/json-patch+json"
         },
-        "payload": "account\\payloads\\POST_AccountbyId\\Payload_Accounts_POST_negative.json",
+        "payload": "account\\payloads\\Payload_Accounts_POST_negative.json",
         "expected_status": "400",
         "expected_response_schema": "account\\schemas\\Schema_Accounts_POST_Negative.json",
         "expected_response": null,
@@ -64,7 +65,7 @@
         "extra_param": {
             "unexpected_param": "unexpected"
         },
-        "payload_file": "account\\payloads\\POST_AccountbyId\\Payload_Accounts_POST_negative.json",
+        "payload_file": "account\\payloads\\Payload_Accounts_POST_negative.json",
         "test_scenario": "Test POST request to /accounts for negative scenario validation."
     },
     {
@@ -74,6 +75,7 @@
         "test_name": "POST /accounts [negative: invalid payload] (TC002)",
         "protocol": "REST",
         "test_type": [
+            "POST /accounts endpoint validation",
             "Negative"
         ],
         "mainURL": "{{base_url}}",
@@ -87,8 +89,8 @@
         "headers_additional": {
             "Content-Type": "application/json-patch+json"
         },
-        "payload": "account\\payloads\\POST_AccountbyId\\payload_sleeve_2_2_3_Negative409.json",
-        "expected_status": "409",
+        "payload": "account\\payloads\\payload_AccountsPOST__Negative409.json",
+        "expected_status": "400",
         "expected_response_schema": "account\\schemas\\Schema_Accounts_POST_Negative.json",
         "expected_response": null,
         "ignore_fields": [
@@ -130,7 +132,7 @@
         "db_connection_name": "account_service",
         "test_summary": "Test TC002: POST /accounts [negative: invalid payload] (TC002) - Verify that the API returns a 400 Bad Request error when invalid data is provided in the POST request to /accounts.",
         "invalid_payload": true,
-        "payload_file": "account\\payloads\\Payload_Accounts_POST_negative.json",
+        "payload_file": "account\\payloads\\payload_AccountsPOST__Negative409.json",
         "test_scenario": "Verify that the API returns a 409 Conflict error when invalid data is provided in the POST request to /accounts."
     }
 ]

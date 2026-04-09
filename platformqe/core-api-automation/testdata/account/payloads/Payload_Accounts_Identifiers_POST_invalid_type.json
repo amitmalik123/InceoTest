@@ -1,4 +1,4 @@
 {
-    "IdentifierType": "INVALIDTYPE",
-    "IdentifierValue": "some-value"
+  "type": "INVALIDTYPE",
+  "value": "some-value"
 }

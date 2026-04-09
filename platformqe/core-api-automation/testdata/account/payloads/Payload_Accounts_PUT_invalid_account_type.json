@@ -1,0 +1,10 @@
+{
+    "accountClassification": "Household",
+    "accountType": "INVALIDTYPE",
+    "accountSubType": "Individual",
+    "displayName": "Invalid Type Test PUT",
+    "sortName": "Invalid, Type PUT",
+    "openDate": "2025-01-01",
+    "custodialAuthorization": "Managed",
+    "managingPlatform": "Internal"
+}
