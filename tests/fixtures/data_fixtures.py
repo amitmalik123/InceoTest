@@ -4,7 +4,6 @@ Test Data Fixtures
 Provides fixtures for loading and managing test data with scalable query capabilities.
 """
 
-import csv
 from typing import Dict, List, Optional
 
 import pytest
@@ -20,7 +19,7 @@ class TestDataManager:
     """
 
     def __init__(self, data_rows: List[Dict[str, str]]):
-        """Initialize with all CSV rows"""
+        """Initialize with all test data rows."""
         self._data = data_rows
 
     def get_by(self, **criteria) -> Optional[Dict[str, str]]:
@@ -91,9 +90,9 @@ class TestDataManager:
 
 
 @pytest.fixture(scope="session")
-def test_data_manager() -> TestDataManager:
+def test_data_manager(excel_data_manager: "ExcelDataManager") -> TestDataManager:
     """
-    Scalable test data manager (session scope - loaded once).
+    Scalable test data manager backed by Excel data (session scope - loaded once).
 
     Returns:
         TestDataManager: Manager with query capabilities
@@ -113,14 +112,19 @@ def test_data_manager() -> TestDataManager:
     from utils.logger import setup_logger
 
     logger = setup_logger(__name__)
-    csv_path = settings.test_data_csv
-    logger.info(f"[SESSION SCOPE] Loading test data from: {csv_path}")
+    data_rows: List[Dict[str, str]] = []
 
-    with open(csv_path, "r") as file:
-        reader = csv.DictReader(file)
-        data_rows = list(reader)
+    for sheet_name in excel_data_manager.sheet_names:
+        for row_number, row_data in enumerate(excel_data_manager.get_sheet(sheet_name), start=2):
+            enriched_row = dict(row_data)
+            enriched_row.setdefault("SheetName", sheet_name)
+            enriched_row.setdefault("RowNumber", row_number)
+            data_rows.append(enriched_row)
 
-    logger.info(f"[SESSION SCOPE] Loaded {len(data_rows)} test data row(s)")
+    logger.info(
+        f"[SESSION SCOPE] Loaded {len(data_rows)} Excel-backed test data row(s) "
+        f"from sheets: {excel_data_manager.sheet_names}"
+    )
 
     # Show available scenarios and user types
     manager = TestDataManager(data_rows)

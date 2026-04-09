@@ -3,12 +3,43 @@ TMS verification steps for navigation and page element validation
 """
 
 from playwright.sync_api import Page
-from pytest_bdd import parsers, then, when
+from pytest_bdd import given, parsers, then, when
 
 from pages.tms_page import TMSPage
 from utils.allure_logger import get_allure_logger
 
 logger = get_allure_logger(__name__)
+
+
+@given("user click on clients tab")
+def given_user_clicks_clients_tab_for_tms(page: Page):
+    """Open Clients tab before TMS navigation in classic flow."""
+    locator_candidates = [
+        page.get_by_role("link", name="Clients").first,
+        page.locator("//a[normalize-space()='Clients']").first,
+        page.locator("text=Clients").first,
+    ]
+
+    last_error = None
+    for clients_tab in locator_candidates:
+        try:
+            clients_tab.wait_for(state="visible", timeout=10000)
+            clients_tab.scroll_into_view_if_needed(timeout=3000)
+            clients_tab.click(timeout=8000)
+            page.wait_for_load_state("domcontentloaded", timeout=15000)
+            logger.info("Clients tab clicked successfully")
+            return
+        except Exception as exc:
+            last_error = exc
+            try:
+                clients_tab.click(timeout=8000, force=True)
+                page.wait_for_load_state("domcontentloaded", timeout=15000)
+                logger.info("Clients tab clicked successfully (force click fallback)")
+                return
+            except Exception as force_exc:
+                last_error = force_exc
+
+    raise AssertionError(f"Unable to click Clients tab before TMS navigation: {last_error}")
 
 
 @when(parsers.parse('user navigates to the TMS page "{account_number}"'))

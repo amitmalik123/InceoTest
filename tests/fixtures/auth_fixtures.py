@@ -86,6 +86,25 @@ def _load_app_configs(settings_obj: Settings) -> dict:
 APP_CONFIGS = _load_app_configs(settings)
 
 
+def _first_non_empty_value(data: dict, keys: tuple[str, ...]) -> str | None:
+    """Return the first non-empty value found for any of the provided keys."""
+    for key in keys:
+        value = data.get(key)
+        if value is not None and str(value).strip() != "":
+            return str(value).strip()
+    return None
+
+
+def _scenario_uses_impersonation(request) -> bool:
+    """Detect scenarios that must keep admin login before impersonation."""
+    scenario = getattr(getattr(request.node, "obj", None), "__scenario__", None)
+    for step in getattr(scenario, "steps", []) or []:
+        step_text = getattr(step, "name", None) or getattr(step, "step_name", None) or str(step)
+        if "impersonate into an agent" in str(step_text).lower():
+            return True
+    return False
+
+
 def _get_session_file(
     username: str, app_name: str, worker_id: str, role: Optional[str] = None
 ) -> Path:
@@ -185,11 +204,19 @@ def authenticated_page(browser, browser_context_args, test_data, request) -> Gen
         raise ValueError(f"Unknown app: {app_name}. Available: {list(APP_CONFIGS.keys())}")
 
     app_config = APP_CONFIGS[app_name]
-    # Impersonation-based BDD flows require admin credentials for Switch ID access.
-    # Prefer env vars when available; fall back to defaults for environments where
-    # pipeline secret variables cannot be configured yet.
-    username = os.getenv("ADMIN_USERNAME") or "ssoabralc"
-    password = os.getenv("ADMIN_PASSWORD") or "QAAdminUser_33a"
+    # Use row-specific Excel credentials by default. Keep admin login only for
+    # scenarios that explicitly perform agent impersonation.
+    if _scenario_uses_impersonation(request):
+        username = os.getenv("ADMIN_USERNAME") or "AG1634SSO"
+        password = os.getenv("ADMIN_PASSWORD") or "QAAdminUser_33a"
+    else:
+        username = _first_non_empty_value(test_data, ("username", "UserName", "Username"))
+        password = _first_non_empty_value(test_data, ("password", "Password"))
+
+        if not username or not password:
+            username = os.getenv("ADMIN_USERNAME") or "AG1634SSO"
+            password = os.getenv("ADMIN_PASSWORD") or "QAAdminUser_33a"
+
     role = test_data.get("role")  # Get role from test data
     session_file = _get_session_file(username, app_name, worker_id, role)
     session_max_age_hours = 8

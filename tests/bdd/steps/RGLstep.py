@@ -11,12 +11,52 @@ from utils.allure_logger import get_allure_logger
 logger = get_allure_logger(__name__)
 
 
+def _get_excel_value(row_data: dict, keys: list[str], field_label: str) -> str:
+	for key in keys:
+		value = row_data.get(key)
+		if value is not None and str(value).strip() != "":
+			return str(value).strip()
+	raise ValueError(f"{field_label} is missing in excel row data. Expected one of columns: {', '.join(keys)}")
+
+
+def _click_clients_tab_and_wait(page: Page):
+	"""Open Clients tab before navigating to RGL page."""
+	logger.info("Ensuring Clients tab is clicked before RGL navigation")
+	locator_candidates = [
+		page.get_by_role("link", name="Clients").first,
+		page.locator("//a[normalize-space()='Clients']").first,
+		page.locator("text=Clients").first,
+	]
+
+	last_error = None
+	for clients_tab in locator_candidates:
+		try:
+			clients_tab.wait_for(state="visible", timeout=10000)
+			clients_tab.scroll_into_view_if_needed(timeout=3000)
+			clients_tab.click(timeout=8000)
+			page.wait_for_load_state("domcontentloaded", timeout=15000)
+			return
+		except Exception as exc:
+			last_error = exc
+			try:
+				clients_tab.click(timeout=8000, force=True)
+				page.wait_for_load_state("domcontentloaded", timeout=15000)
+				return
+			except Exception as force_exc:
+				last_error = force_exc
+
+	raise AssertionError(f"Unable to click Clients tab before RGL navigation: {last_error}")
+
+
 @when(parsers.parse('user navigates to the RGL page "{client_name}"'))
 def navigate_to_rgl_page(page: Page, client_name: str, test_context):
 	row_data = test_context.get("excel_row_data") or {}
-	excel_client_name = row_data.get("ClientName")
-	if excel_client_name is not None and str(excel_client_name).strip() != "":
-		excel_client_name = str(excel_client_name).strip()
+	if row_data:
+		excel_client_name = _get_excel_value(
+			row_data,
+			["ClientName", "Client name", "Client Name", "clientname"],
+			"Client name",
+		)
 		feature_client_name = client_name.strip()
 		is_excel_placeholder = feature_client_name.lower() in {"clientname", "client name"}
 		if (
@@ -37,19 +77,23 @@ def navigate_to_rgl_page(page: Page, client_name: str, test_context):
 @when("user navigates to the RGL page")
 def navigate_to_rgl_page_from_excel_row(page: Page, test_context):
 	row_data = test_context.get("excel_row_data") or {}
-	client_name = row_data.get("ClientName")
-	if client_name is None or str(client_name).strip() == "":
-		raise ValueError(
-			"ClientName is missing in excel row data. "
-			"Provide a row with 'ClientName' value in the Excel sheet."
-		)
-
-	client_name = str(client_name).strip()
+	client_name = _get_excel_value(
+		row_data,
+		["ClientName", "Client name", "Client Name", "clientname"],
+		"Client name",
+	)
 	logger.info(f"Navigating to RGL page from Excel row for client: {client_name}")
 	rgl_page = RGLPage(page)
 	rgl_page.navigate_to_gain_loss_page(client_name)
 
 
+@given("user click on clients tab")
+def given_user_clicks_clients_tab(page: Page):
+	"""BDD Given step to open Clients tab before RGL navigation."""
+	_click_clients_tab_and_wait(page)
+
+
+@given("navigates to account information screen for cash advantage account")
 @when("navigates to account information screen for cash advantage account")
 def navigate_to_account_information_screen(page: Page):
 	logger.info("Navigating to account information screen for cash advantage account")
@@ -57,6 +101,7 @@ def navigate_to_account_information_screen(page: Page):
 	rgl_page.navigate_account_information()
 
 
+@given("navigates to account information screen for non cash advantage account")
 @when("navigates to account information screen for non cash advantage account")
 def navigate_to_non_cash_account_information_screen(page: Page):
 	logger.info("Navigating to account information screen for non cash advantage account")
