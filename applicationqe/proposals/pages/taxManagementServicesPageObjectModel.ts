@@ -42,7 +42,11 @@ export class TaxManagementServicesPage {
 
         // File Upload
         this.uploadInput = page.locator('label#upload').locator('..').locator('input[type="file"]');
-        this.viewResultsButton = page.locator('#VIEWRESULTS').or(page.locator('#VIEW RESULTS')); // Handle both with and without space
+        this.viewResultsButton = page
+            .locator('#VIEWRESULTS')
+            .or(page.locator('#VIEW RESULTS'))
+            .or(page.locator('[aria-label="VIEW RESULTS"]'))
+            .or(page.locator('[label="VIEW RESULTS"]')); // variations to handle slight differences in how the button may be labeled across environments
 
         // Tax Rate Inputs
         this.shortTermRateInput = page.locator('input#ShortTerm');

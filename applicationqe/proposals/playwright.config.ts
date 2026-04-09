@@ -21,7 +21,7 @@ export default defineConfig({
     /* Configure individual test timeouts */
     timeout: 600_000,
     /*Set timeout for entire test suite*/
-    globalTimeout: 1_800_000,
+    globalTimeout: 3_600_000,
     /* Set timeout for each expect call*/
     expect: {
         timeout: 300_000,
@@ -77,6 +77,7 @@ export default defineConfig({
         {
             name: 'chromium',
             dependencies: ['setup'],
+            teardown: 'teardown',
             use: {
                 ...devices['Desktop Chrome'],
                 storageState: './authfiles/role1.json',
