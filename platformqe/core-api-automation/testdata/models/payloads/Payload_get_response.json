@@ -7,7 +7,7 @@
       "version": 1,
       "modelType": "Global ACE - TS",
       "solutionType": null,
-      "custodian": [
+      "custodians": [
         "AssetMark Trust"
       ],
       "mandate": {
@@ -23,7 +23,7 @@
           "name": "Profile 1 (20% Equity/80% Bonds)"
         }
       ],
-      "investmentMin": {
+      "investmentMins": {
         "hardMinInvestment": 9000
       },
       "riskProfile": null,
@@ -117,7 +117,7 @@
       "version": 1,
       "modelType": "Global Tax-Sensitive",
       "solutionType": null,
-      "custodian": [
+      "custodians": [
         "Schwab Direct"
       ],
       "mandate": {
@@ -133,7 +133,7 @@
           "name": "60/40 benchmark"
         }
       ],
-      "investmentMin": {
+      "investmentMins": {
         "hardMinInvestment": 22500
       },
       "riskProfile": null,
@@ -362,7 +362,7 @@
       "version": 1,
       "modelType": "Global Tax-Sensitive",
       "solutionType": null,
-      "custodian": [
+      "custodians": [
         "Schwab"
       ],
       "mandate": {
@@ -378,7 +378,7 @@
           "name": "60/40 benchmark"
         }
       ],
-      "investmentMin": {
+      "investmentMins": {
         "hardMinInvestment": 22500
       },
       "riskProfile": null,
@@ -607,7 +607,7 @@
       "version": 1,
       "modelType": "Global Standard",
       "solutionType": null,
-      "custodian": [
+      "custodians": [
         "AssetMark Trust"
       ],
       "mandate": {
@@ -623,7 +623,7 @@
           "name": "60/40 benchmark"
         }
       ],
-      "investmentMin": {
+      "investmentMins": {
         "hardMinInvestment": 22500
       },
       "riskProfile": null,
@@ -843,7 +843,7 @@
       "version": 1,
       "modelType": "Hedged",
       "solutionType": null,
-      "custodian": [
+      "custodians": [
         "AssetMark Trust"
       ],
       "mandate": {
@@ -859,7 +859,7 @@
           "name": "Bloomberg Global Aggregate Bond Index"
         }
       ],
-      "investmentMin": {
+      "investmentMins": {
         "hardMinInvestment": 50000
       },
       "riskProfile": null,
@@ -917,7 +917,7 @@
       "version": 1,
       "modelType": "Global Standard",
       "solutionType": null,
-      "custodian": [
+      "custodians": [
         "Pershing Advisor Solutions"
       ],
       "mandate": {
@@ -933,7 +933,7 @@
           "name": "60/40 benchmark"
         }
       ],
-      "investmentMin": {
+      "investmentMins": {
         "hardMinInvestment": 22500
       },
       "riskProfile": null,
@@ -1207,7 +1207,7 @@
       "version": 1,
       "modelType": "Global Tax-Sensitive",
       "solutionType": null,
-      "custodian": [
+      "custodians": [
         "Pershing Advisor Solutions"
       ],
       "mandate": {
@@ -1223,7 +1223,7 @@
           "name": "60/40 benchmark"
         }
       ],
-      "investmentMin": {
+      "investmentMins": {
         "hardMinInvestment": 22500
       },
       "riskProfile": null,
@@ -1452,7 +1452,7 @@
       "version": 1,
       "modelType": "Global Standard",
       "solutionType": null,
-      "custodian": [
+      "custodians": [
         "Pershing Advisor Solutions"
       ],
       "mandate": {
@@ -1468,7 +1468,7 @@
           "name": "60/40 benchmark"
         }
       ],
-      "investmentMin": {
+      "investmentMins": {
         "hardMinInvestment": 22500
       },
       "riskProfile": null,
@@ -1688,7 +1688,7 @@
       "version": 1,
       "modelType": "Global ACE - TS",
       "solutionType": null,
-      "custodian": [
+      "custodians": [
         "Schwab"
       ],
       "mandate": {
@@ -1704,7 +1704,7 @@
           "name": "Profile 1 (20% Equity/80% Bonds)"
         }
       ],
-      "investmentMin": {
+      "investmentMins": {
         "hardMinInvestment": 9000
       },
       "riskProfile": null,
@@ -1798,7 +1798,7 @@
       "version": 1,
       "modelType": "Global ACE - TS",
       "solutionType": null,
-      "custodian": [
+      "custodians": [
         "Schwab Direct"
       ],
       "mandate": {
@@ -1814,7 +1814,7 @@
           "name": "Profile 1 (20% Equity/80% Bonds)"
         }
       ],
-      "investmentMin": {
+      "investmentMins": {
         "hardMinInvestment": 9000
       },
       "riskProfile": null,
@@ -1908,7 +1908,7 @@
       "version": 1,
       "modelType": "Global Standard",
       "solutionType": null,
-      "custodian": [
+      "custodians": [
         "Pershing Advisor Solutions"
       ],
       "mandate": {
@@ -1924,7 +1924,7 @@
           "name": "60/40 benchmark"
         }
       ],
-      "investmentMin": {
+      "investmentMins": {
         "hardMinInvestment": 22500
       },
       "riskProfile": null,
@@ -2072,7 +2072,7 @@
       "version": 1,
       "modelType": "Global Standard",
       "solutionType": null,
-      "custodian": [
+      "custodians": [
         "Fidelity Direct"
       ],
       "mandate": {
@@ -2088,7 +2088,7 @@
           "name": "60/40 benchmark"
         }
       ],
-      "investmentMin": {
+      "investmentMins": {
         "hardMinInvestment": 22500
       },
       "riskProfile": null,
@@ -2344,7 +2344,7 @@
       "version": 1,
       "modelType": "Global ACE",
       "solutionType": null,
-      "custodian": [
+      "custodians": [
         "Pershing Advisor Solutions"
       ],
       "mandate": {
@@ -2360,7 +2360,7 @@
           "name": "Profile 1 (20% Equity/80% Bonds)"
         }
       ],
-      "investmentMin": {
+      "investmentMins": {
         "hardMinInvestment": 9000
       },
       "riskProfile": null,
@@ -2445,7 +2445,7 @@
       "version": 1,
       "modelType": "Unclassified",
       "solutionType": null,
-      "custodian": [
+      "custodians": [
         "Schwab Direct"
       ],
       "mandate": {
@@ -2461,7 +2461,7 @@
           "name": "Profile 1 (20% Equity/80% Bonds)"
         }
       ],
-      "investmentMin": {
+      "investmentMins": {
         "hardMinInvestment": 9000
       },
       "riskProfile": null,
@@ -2510,7 +2510,7 @@
       "version": 1,
       "modelType": "Global Standard",
       "solutionType": null,
-      "custodian": [
+      "custodians": [
         "AssetMark Trust"
       ],
       "mandate": {
@@ -2526,7 +2526,7 @@
           "name": "60/40 benchmark"
         }
       ],
-      "investmentMin": {
+      "investmentMins": {
         "hardMinInvestment": 22500
       },
       "riskProfile": null,
@@ -2782,7 +2782,7 @@
       "version": 1,
       "modelType": "Global Tax-Sensitive",
       "solutionType": null,
-      "custodian": [
+      "custodians": [
         "AssetMark Trust"
       ],
       "mandate": {
@@ -2798,7 +2798,7 @@
           "name": "60/40 benchmark"
         }
       ],
-      "investmentMin": {
+      "investmentMins": {
         "hardMinInvestment": 22500
       },
       "riskProfile": null,
@@ -3009,7 +3009,7 @@
       "version": 1,
       "modelType": "Global ACE",
       "solutionType": null,
-      "custodian": [
+      "custodians": [
         "Fidelity"
       ],
       "mandate": {
@@ -3025,7 +3025,7 @@
           "name": "Profile 1 (20% Equity/80% Bonds)"
         }
       ],
-      "investmentMin": {
+      "investmentMins": {
         "hardMinInvestment": 9000
       },
       "riskProfile": null,
@@ -3110,7 +3110,7 @@
       "version": 1,
       "modelType": "Global Standard",
       "solutionType": null,
-      "custodian": [
+      "custodians": [
         "AssetMark Trust"
       ],
       "mandate": {
@@ -3126,7 +3126,7 @@
           "name": "60/40 benchmark"
         }
       ],
-      "investmentMin": {
+      "investmentMins": {
         "hardMinInvestment": 22500
       },
       "riskProfile": null,
@@ -3400,7 +3400,7 @@
       "version": 1,
       "modelType": "Global ACE",
       "solutionType": null,
-      "custodian": [
+      "custodians": [
         "Schwab"
       ],
       "mandate": {
@@ -3416,7 +3416,7 @@
           "name": "Profile 1 (20% Equity/80% Bonds)"
         }
       ],
-      "investmentMin": {
+      "investmentMins": {
         "hardMinInvestment": 9000
       },
       "riskProfile": null,
@@ -3501,7 +3501,7 @@
       "version": 1,
       "modelType": "Global ACE - TS",
       "solutionType": null,
-      "custodian": [
+      "custodians": [
         "Pershing Advisor Solutions"
       ],
       "mandate": {
@@ -3517,7 +3517,7 @@
           "name": "Profile 1 (20% Equity/80% Bonds)"
         }
       ],
-      "investmentMin": {
+      "investmentMins": {
         "hardMinInvestment": 9000
       },
       "riskProfile": null,
@@ -3593,7 +3593,7 @@
       "version": 1,
       "modelType": "Global Standard",
       "solutionType": null,
-      "custodian": [
+      "custodians": [
         "Pershing Advisor Solutions"
       ],
       "mandate": {
@@ -3609,7 +3609,7 @@
           "name": "60/40 benchmark"
         }
       ],
-      "investmentMin": {
+      "investmentMins": {
         "hardMinInvestment": 22500
       },
       "riskProfile": null,
@@ -3865,7 +3865,7 @@
       "version": 1,
       "modelType": "Global ACE",
       "solutionType": null,
-      "custodian": [
+      "custodians": [
         "AssetMark Trust"
       ],
       "mandate": {
@@ -3881,7 +3881,7 @@
           "name": "Profile 1 (20% Equity/80% Bonds)"
         }
       ],
-      "investmentMin": {
+      "investmentMins": {
         "hardMinInvestment": 9000
       },
       "riskProfile": null,
@@ -3966,7 +3966,7 @@
       "version": 1,
       "modelType": "Global ACE - TS",
       "solutionType": null,
-      "custodian": [
+      "custodians": [
         "Schwab"
       ],
       "mandate": {
@@ -3982,7 +3982,7 @@
           "name": "Profile 1 (20% Equity/80% Bonds)"
         }
       ],
-      "investmentMin": {
+      "investmentMins": {
         "hardMinInvestment": 9000
       },
       "riskProfile": null,
@@ -4067,7 +4067,7 @@
       "version": 1,
       "modelType": "Global ACE - TS",
       "solutionType": null,
-      "custodian": [
+      "custodians": [
         "Schwab Direct"
       ],
       "mandate": {
@@ -4083,7 +4083,7 @@
           "name": "Profile 1 (20% Equity/80% Bonds)"
         }
       ],
-      "investmentMin": {
+      "investmentMins": {
         "hardMinInvestment": 9000
       },
       "riskProfile": null,
@@ -4168,7 +4168,7 @@
       "version": 1,
       "modelType": "Global ACE - TS",
       "solutionType": null,
-      "custodian": [
+      "custodians": [
         "Fidelity Direct"
       ],
       "mandate": {
@@ -4184,7 +4184,7 @@
           "name": "Profile 1 (20% Equity/80% Bonds)"
         }
       ],
-      "investmentMin": {
+      "investmentMins": {
         "hardMinInvestment": 9000
       },
       "riskProfile": null,
@@ -4278,7 +4278,7 @@
       "version": 1,
       "modelType": "Global Standard",
       "solutionType": null,
-      "custodian": [
+      "custodians": [
         "Pershing Advisor Solutions"
       ],
       "mandate": {
@@ -4294,7 +4294,7 @@
           "name": "Profile 2 (35% Equity/65% Bonds)"
         }
       ],
-      "investmentMin": {
+      "investmentMins": {
         "hardMinInvestment": 0
       },
       "riskProfile": null,
@@ -4352,7 +4352,7 @@
       "version": 1,
       "modelType": "Global Standard",
       "solutionType": null,
-      "custodian": [
+      "custodians": [
         "AssetMark Trust"
       ],
       "mandate": {
@@ -4368,7 +4368,7 @@
           "name": "60/40 benchmark"
         }
       ],
-      "investmentMin": {
+      "investmentMins": {
         "hardMinInvestment": 22500
       },
       "riskProfile": null,
@@ -4606,7 +4606,7 @@
       "version": 1,
       "modelType": "Global Tax-Sensitive",
       "solutionType": null,
-      "custodian": [
+      "custodians": [
         "Fidelity Direct"
       ],
       "mandate": {
@@ -4622,7 +4622,7 @@
           "name": "60/40 benchmark"
         }
       ],
-      "investmentMin": {
+      "investmentMins": {
         "hardMinInvestment": 22500
       },
       "riskProfile": null,
@@ -4851,7 +4851,7 @@
       "version": 1,
       "modelType": "Global Tax-Sensitive",
       "solutionType": null,
-      "custodian": [
+      "custodians": [
         "Schwab"
       ],
       "mandate": {
@@ -4867,7 +4867,7 @@
           "name": "60/40 benchmark"
         }
       ],
-      "investmentMin": {
+      "investmentMins": {
         "hardMinInvestment": 22500
       },
       "riskProfile": null,
@@ -5078,7 +5078,7 @@
       "version": 1,
       "modelType": "Global ACE - TS",
       "solutionType": null,
-      "custodian": [
+      "custodians": [
         "Fidelity"
       ],
       "mandate": {
@@ -5094,7 +5094,7 @@
           "name": "Profile 1 (20% Equity/80% Bonds)"
         }
       ],
-      "investmentMin": {
+      "investmentMins": {
         "hardMinInvestment": 9000
       },
       "riskProfile": null,
@@ -5188,7 +5188,7 @@
       "version": 1,
       "modelType": "Global ACE",
       "solutionType": null,
-      "custodian": [
+      "custodians": [
         "Fidelity Direct"
       ],
       "mandate": {
@@ -5204,7 +5204,7 @@
           "name": "Profile 1 (20% Equity/80% Bonds)"
         }
       ],
-      "investmentMin": {
+      "investmentMins": {
         "hardMinInvestment": 9000
       },
       "riskProfile": null,
@@ -5289,7 +5289,7 @@
       "version": 1,
       "modelType": "Global ACE",
       "solutionType": null,
-      "custodian": [
+      "custodians": [
         "Schwab"
       ],
       "mandate": {
@@ -5305,7 +5305,7 @@
           "name": "Profile 1 (20% Equity/80% Bonds)"
         }
       ],
-      "investmentMin": {
+      "investmentMins": {
         "hardMinInvestment": 9000
       },
       "riskProfile": null,
@@ -5381,7 +5381,7 @@
       "version": 1,
       "modelType": "Global Tax-Sensitive",
       "solutionType": null,
-      "custodian": [
+      "custodians": [
         "Fidelity"
       ],
       "mandate": {
@@ -5397,7 +5397,7 @@
           "name": "60/40 benchmark"
         }
       ],
-      "investmentMin": {
+      "investmentMins": {
         "hardMinInvestment": 22500
       },
       "riskProfile": null,
@@ -5626,7 +5626,7 @@
       "version": 1,
       "modelType": "Global ACE",
       "solutionType": null,
-      "custodian": [
+      "custodians": [
         "Schwab Direct"
       ],
       "mandate": {
@@ -5642,7 +5642,7 @@
           "name": "Profile 1 (20% Equity/80% Bonds)"
         }
       ],
-      "investmentMin": {
+      "investmentMins": {
         "hardMinInvestment": 9000
       },
       "riskProfile": null,
@@ -5718,7 +5718,7 @@
       "version": 1,
       "modelType": "Global ACE",
       "solutionType": null,
-      "custodian": [
+      "custodians": [
         "Pershing Advisor Solutions"
       ],
       "mandate": {
@@ -5734,7 +5734,7 @@
           "name": "Profile 1 (20% Equity/80% Bonds)"
         }
       ],
-      "investmentMin": {
+      "investmentMins": {
         "hardMinInvestment": 9000
       },
       "riskProfile": null,
@@ -5819,7 +5819,7 @@
       "version": 1,
       "modelType": "Global ACE",
       "solutionType": null,
-      "custodian": [
+      "custodians": [
         "Pershing Advisor Solutions"
       ],
       "mandate": {
@@ -5835,7 +5835,7 @@
           "name": "Profile 1 (20% Equity/80% Bonds)"
         }
       ],
-      "investmentMin": {
+      "investmentMins": {
         "hardMinInvestment": 9000
       },
       "riskProfile": null,
@@ -5911,7 +5911,7 @@
       "version": 1,
       "modelType": "Global Tax-Sensitive",
       "solutionType": null,
-      "custodian": [
+      "custodians": [
         "Fidelity"
       ],
       "mandate": {
@@ -5927,7 +5927,7 @@
           "name": "60/40 benchmark"
         }
       ],
-      "investmentMin": {
+      "investmentMins": {
         "hardMinInvestment": 22500
       },
       "riskProfile": null,
@@ -6138,7 +6138,7 @@
       "version": 1,
       "modelType": "Global ACE",
       "solutionType": null,
-      "custodian": [
+      "custodians": [
         "Fidelity"
       ],
       "mandate": {
@@ -6154,7 +6154,7 @@
           "name": "Profile 1 (20% Equity/80% Bonds)"
         }
       ],
-      "investmentMin": {
+      "investmentMins": {
         "hardMinInvestment": 9000
       },
       "riskProfile": null,
@@ -6239,7 +6239,7 @@
       "version": 1,
       "modelType": "Global ACE - TS",
       "solutionType": null,
-      "custodian": [
+      "custodians": [
         "Fidelity Direct"
       ],
       "mandate": {
@@ -6255,7 +6255,7 @@
           "name": "Profile 1 (20% Equity/80% Bonds)"
         }
       ],
-      "investmentMin": {
+      "investmentMins": {
         "hardMinInvestment": 9000
       },
       "riskProfile": null,
@@ -6349,7 +6349,7 @@
       "version": 1,
       "modelType": "Global ACE - TS",
       "solutionType": null,
-      "custodian": [
+      "custodians": [
         "Fidelity Direct"
       ],
       "mandate": {
@@ -6365,7 +6365,7 @@
           "name": "Profile 1 (20% Equity/80% Bonds)"
         }
       ],
-      "investmentMin": {
+      "investmentMins": {
         "hardMinInvestment": 9000
       },
       "riskProfile": null,
@@ -6459,7 +6459,7 @@
       "version": 1,
       "modelType": "Global ACE",
       "solutionType": null,
-      "custodian": [
+      "custodians": [
         "Fidelity"
       ],
       "mandate": {
@@ -6475,7 +6475,7 @@
           "name": "Profile 1 (20% Equity/80% Bonds)"
         }
       ],
-      "investmentMin": {
+      "investmentMins": {
         "hardMinInvestment": 9000
       },
       "riskProfile": null,
@@ -6551,7 +6551,7 @@
       "version": 1,
       "modelType": "Global ACE - TS",
       "solutionType": null,
-      "custodian": [
+      "custodians": [
         "AssetMark Trust"
       ],
       "mandate": {
@@ -6567,7 +6567,7 @@
           "name": "Profile 1 (20% Equity/80% Bonds)"
         }
       ],
-      "investmentMin": {
+      "investmentMins": {
         "hardMinInvestment": 9000
       },
       "riskProfile": null,
@@ -6661,7 +6661,7 @@
       "version": 1,
       "modelType": "Global ACE",
       "solutionType": null,
-      "custodian": [
+      "custodians": [
         "AssetMark Trust"
       ],
       "mandate": {
@@ -6677,7 +6677,7 @@
           "name": "Profile 1 (20% Equity/80% Bonds)"
         }
       ],
-      "investmentMin": {
+      "investmentMins": {
         "hardMinInvestment": 9000
       },
       "riskProfile": null,
@@ -6762,7 +6762,7 @@
       "version": 1,
       "modelType": "Global ACE",
       "solutionType": null,
-      "custodian": [
+      "custodians": [
         "Fidelity Direct"
       ],
       "mandate": {
@@ -6778,7 +6778,7 @@
           "name": "Profile 1 (20% Equity/80% Bonds)"
         }
       ],
-      "investmentMin": {
+      "investmentMins": {
         "hardMinInvestment": 9000
       },
       "riskProfile": null,
@@ -6863,7 +6863,7 @@
       "version": 1,
       "modelType": "Global Tax-Sensitive",
       "solutionType": null,
-      "custodian": [
+      "custodians": [
         "Fidelity"
       ],
       "mandate": {
@@ -6879,7 +6879,7 @@
           "name": "60/40 benchmark"
         }
       ],
-      "investmentMin": {
+      "investmentMins": {
         "hardMinInvestment": 22500
       },
       "riskProfile": null,
@@ -7090,7 +7090,7 @@
       "version": 1,
       "modelType": "Global ACE - TS",
       "solutionType": null,
-      "custodian": [
+      "custodians": [
         "AssetMark Trust"
       ],
       "mandate": {
@@ -7106,7 +7106,7 @@
           "name": "Profile 1 (20% Equity/80% Bonds)"
         }
       ],
-      "investmentMin": {
+      "investmentMins": {
         "hardMinInvestment": 9000
       },
       "riskProfile": null,
@@ -7200,7 +7200,7 @@
       "version": 1,
       "modelType": "Global Tax-Sensitive",
       "solutionType": null,
-      "custodian": [
+      "custodians": [
         "Pershing Advisor Solutions"
       ],
       "mandate": {
@@ -7216,7 +7216,7 @@
           "name": "60/40 benchmark"
         }
       ],
-      "investmentMin": {
+      "investmentMins": {
         "hardMinInvestment": 22500
       },
       "riskProfile": null,
@@ -7355,7 +7355,7 @@
       "version": 1,
       "modelType": "Global ACE",
       "solutionType": null,
-      "custodian": [
+      "custodians": [
         "Schwab Direct"
       ],
       "mandate": {
@@ -7371,7 +7371,7 @@
           "name": "Profile 1 (20% Equity/80% Bonds)"
         }
       ],
-      "investmentMin": {
+      "investmentMins": {
         "hardMinInvestment": 9000
       },
       "riskProfile": null,
@@ -7456,7 +7456,7 @@
       "version": 1,
       "modelType": "Global Standard",
       "solutionType": null,
-      "custodian": [
+      "custodians": [
         "Schwab"
       ],
       "mandate": {
@@ -7472,7 +7472,7 @@
           "name": "60/40 benchmark"
         }
       ],
-      "investmentMin": {
+      "investmentMins": {
         "hardMinInvestment": 22500
       },
       "riskProfile": null,
@@ -7620,7 +7620,7 @@
       "version": 1,
       "modelType": "Global ACE - TS",
       "solutionType": null,
-      "custodian": [
+      "custodians": [
         "AssetMark Trust"
       ],
       "mandate": {
@@ -7636,7 +7636,7 @@
           "name": "Profile 1 (20% Equity/80% Bonds)"
         }
       ],
-      "investmentMin": {
+      "investmentMins": {
         "hardMinInvestment": 9000
       },
       "riskProfile": null,
@@ -7712,7 +7712,7 @@
       "version": 1,
       "modelType": "Global ACE - TS",
       "solutionType": null,
-      "custodian": [
+      "custodians": [
         "Pershing Advisor Solutions"
       ],
       "mandate": {
@@ -7728,7 +7728,7 @@
           "name": "Profile 1 (20% Equity/80% Bonds)"
         }
       ],
-      "investmentMin": {
+      "investmentMins": {
         "hardMinInvestment": 9000
       },
       "riskProfile": null,
@@ -7822,7 +7822,7 @@
       "version": 1,
       "modelType": "Global Tax-Sensitive",
       "solutionType": null,
-      "custodian": [
+      "custodians": [
         "Schwab"
       ],
       "mandate": {
@@ -7838,7 +7838,7 @@
           "name": "60/40 benchmark"
         }
       ],
-      "investmentMin": {
+      "investmentMins": {
         "hardMinInvestment": 22500
       },
       "riskProfile": null,
@@ -8049,7 +8049,7 @@
       "version": 1,
       "modelType": "Global Tax-Sensitive",
       "solutionType": null,
-      "custodian": [
+      "custodians": [
         "Fidelity"
       ],
       "mandate": {
@@ -8065,7 +8065,7 @@
           "name": "60/40 benchmark"
         }
       ],
-      "investmentMin": {
+      "investmentMins": {
         "hardMinInvestment": 22500
       },
       "riskProfile": null,
@@ -8294,7 +8294,7 @@
       "version": 1,
       "modelType": "Global Tax-Sensitive",
       "solutionType": null,
-      "custodian": [
+      "custodians": [
         "AssetMark Trust"
       ],
       "mandate": {
@@ -8310,7 +8310,7 @@
           "name": "60/40 benchmark"
         }
       ],
-      "investmentMin": {
+      "investmentMins": {
         "hardMinInvestment": 22500
       },
       "riskProfile": null,
@@ -8539,7 +8539,7 @@
       "version": 1,
       "modelType": "Global ACE",
       "solutionType": null,
-      "custodian": [
+      "custodians": [
         "Schwab"
       ],
       "mandate": {
@@ -8555,7 +8555,7 @@
           "name": "Profile 1 (20% Equity/80% Bonds)"
         }
       ],
-      "investmentMin": {
+      "investmentMins": {
         "hardMinInvestment": 9000
       },
       "riskProfile": null,
@@ -8640,7 +8640,7 @@
       "version": 1,
       "modelType": "Global Standard",
       "solutionType": null,
-      "custodian": [
+      "custodians": [
         "Schwab"
       ],
       "mandate": {
@@ -8656,7 +8656,7 @@
           "name": "60/40 benchmark"
         }
       ],
-      "investmentMin": {
+      "investmentMins": {
         "hardMinInvestment": 22500
       },
       "riskProfile": null,
@@ -8894,7 +8894,7 @@
       "version": 1,
       "modelType": "Global Tax-Sensitive",
       "solutionType": null,
-      "custodian": [
+      "custodians": [
         "AssetMark Trust"
       ],
       "mandate": {
@@ -8910,7 +8910,7 @@
           "name": "60/40 benchmark"
         }
       ],
-      "investmentMin": {
+      "investmentMins": {
         "hardMinInvestment": 22500
       },
       "riskProfile": null,
@@ -9049,7 +9049,7 @@
       "version": 1,
       "modelType": "Global Tax-Sensitive",
       "solutionType": null,
-      "custodian": [
+      "custodians": [
         "Fidelity Direct"
       ],
       "mandate": {
@@ -9065,7 +9065,7 @@
           "name": "60/40 benchmark"
         }
       ],
-      "investmentMin": {
+      "investmentMins": {
         "hardMinInvestment": 22500
       },
       "riskProfile": null,
@@ -9204,7 +9204,7 @@
       "version": 1,
       "modelType": "Global Standard",
       "solutionType": null,
-      "custodian": [
+      "custodians": [
         "Schwab"
       ],
       "mandate": {
@@ -9220,7 +9220,7 @@
           "name": "Profile 2 (35% Equity/65% Bonds)"
         }
       ],
-      "investmentMin": {
+      "investmentMins": {
         "hardMinInvestment": 0
       },
       "riskProfile": null,
@@ -9278,7 +9278,7 @@
       "version": 1,
       "modelType": "Global Tax-Sensitive",
       "solutionType": null,
-      "custodian": [
+      "custodians": [
         "Schwab Direct"
       ],
       "mandate": {
@@ -9294,7 +9294,7 @@
           "name": "60/40 benchmark"
         }
       ],
-      "investmentMin": {
+      "investmentMins": {
         "hardMinInvestment": 22500
       },
       "riskProfile": null,
@@ -9505,7 +9505,7 @@
       "version": 1,
       "modelType": "Global ACE",
       "solutionType": null,
-      "custodian": [
+      "custodians": [
         "Fidelity Direct"
       ],
       "mandate": {
@@ -9521,7 +9521,7 @@
           "name": "Profile 1 (20% Equity/80% Bonds)"
         }
       ],
-      "investmentMin": {
+      "investmentMins": {
         "hardMinInvestment": 9000
       },
       "riskProfile": null,
@@ -9606,7 +9606,7 @@
       "version": 1,
       "modelType": "Global Standard",
       "solutionType": null,
-      "custodian": [
+      "custodians": [
         "Pershing Advisor Solutions"
       ],
       "mandate": {
@@ -9622,7 +9622,7 @@
           "name": "60/40 benchmark"
         }
       ],
-      "investmentMin": {
+      "investmentMins": {
         "hardMinInvestment": 22500
       },
       "riskProfile": null,

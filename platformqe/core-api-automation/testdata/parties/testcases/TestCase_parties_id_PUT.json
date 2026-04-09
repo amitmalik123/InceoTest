@@ -5,7 +5,7 @@
     "workflow_mode": "sequential",
     "test_name": "POST /parties [positive] (TC000)",
     "protocol": "REST",
-    "test_type": ["Functional", "Business Logic"],
+    "test_type": ["Functional", "Smoke", "Business Logic"],
     "mainURL": "{{base_url}}",
     "endpoint": "/parties",
     "method": "POST",
@@ -88,6 +88,23 @@
       }
     ],
     "validate": {
+      "response_structure": {
+        "required_fields": ["partyId"]
+      },
+      "business_rules": [
+        {
+          "rule": "Party creation must return HTTP 201 Created status",
+          "validation": "response.status equals 201"
+        },
+        {
+          "rule": "Created party must have a valid GUID as partyId",
+          "validation": "response_party_id is not null and not empty"
+        },
+        {
+          "rule": "Party creation is prerequisite for subsequent PUT operations",
+          "validation": "response_party_id is not null"
+        }
+      ],
       "performance": {
         "max_response_time_ms": 1000
       },
@@ -122,7 +139,7 @@
     "workflow_mode": "sequential",
     "test_name": "Replaces party information with complete replacement and version tracking [positive] (TC001)",
     "protocol": "REST",
-    "test_type": ["Functional", "Business Logic"],
+    "test_type": ["Functional", "Smoke", "Business Logic"],
     "mainURL": "{{base_url}}",
     "endpoint": "/parties/{{response_party_id}}",
     "method": "PUT",
@@ -186,6 +203,7 @@
       }
     },
     "expected_status": "200",
+    "expected_response_schema": "parties/schemas/Schema_parties_Party_id_PUT_response_success.json",
     "expected_response": "",
     "ignore_fields": ["id"],
     "extract_values": [
@@ -195,12 +213,42 @@
         "assign_to": null
       },
       {
+        "from": "response",
+        "key": "versionNumber",
+        "assign_to": "updated_version"
+      },
+      {
         "from": "db_result",
         "query": null,
         "assign": []
       }
     ],
     "validate": {
+      "response_structure": {
+        "required_fields": ["versionNumber"]
+      },
+      "business_rules": [
+        {
+          "rule": "PUT operation must return HTTP 200 OK for successful update",
+          "validation": "response.status equals 200"
+        },
+        {
+          "rule": "Version header is required for optimistic concurrency control",
+          "validation": "request.headers.version is not null"
+        },
+        {
+          "rule": "Party information must be completely replaced with provided data",
+          "validation": "response reflects all updated fields from request payload"
+        },
+        {
+          "rule": "Version must increment after successful PUT operation",
+          "validation": "response.version > request.headers.version"
+        },
+        {
+          "rule": "PUT response must include the newly incremented versionNumber",
+          "validation": "response.versionNumber equals 2"
+        }
+      ],
       "performance": {
         "max_response_time_ms": 500
       },
@@ -215,7 +263,14 @@
         "fields_to_compare": [],
         "log_differences": true
       },
-      "assertions": []
+      "assertions": [
+        {
+          "actual": "{{updated_version}}",
+          "operator": "==",
+          "expected": 2,
+          "message": "Expected versionNumber to be 2 after PUT with version 1"
+        }
+      ]
     },
     "test_data_file": "",
     "db_query": "",
@@ -320,6 +375,20 @@
       }
     ],
     "validate": {
+      "business_rules": [
+        {
+          "rule": "PUT request with missing or invalid version header must return HTTP 400 Bad Request",
+          "validation": "response.status equals 400"
+        },
+        {
+          "rule": "Version header validation is mandatory for all PUT operations",
+          "validation": "response.message contains 'Missing or invalid version header'"
+        },
+        {
+          "rule": "API must enforce optimistic concurrency control through version validation",
+          "validation": "response.status equals 400 when version is invalid"
+        }
+      ],
       "performance": {
         "max_response_time_ms": 500
       },
@@ -373,6 +442,20 @@
       }
     ],
     "validate": {
+      "business_rules": [
+        {
+          "rule": "PUT request for non-existent party Id must return HTTP 400 Bad Request",
+          "validation": "response.status equals 400"
+        },
+        {
+          "rule": "API must validate PartyId existence before processing PUT request",
+          "validation": "response.status equals 400"
+        },
+        {
+          "rule": "Error response must match expected schema for 400 errors",
+          "validation": "response conforms to Schema_parties_Party_id_400_response"
+        }
+      ],
       "performance": {
         "max_response_time_ms": 500
       },
@@ -492,6 +575,20 @@
       }
     ],
     "validate": {
+      "business_rules": [
+        {
+          "rule": "PUT request with missing or invalid version header must return HTTP 400 Bad Request",
+          "validation": "response.status equals 400"
+        },
+        {
+          "rule": "Version header validation is mandatory for all PUT operations",
+          "validation": "response.message contains 'Missing or invalid version header'"
+        },
+        {
+          "rule": "API must enforce optimistic concurrency control through version validation",
+          "validation": "response.status equals 400 when version is invalid"
+        }
+      ],
       "performance": {
         "max_response_time_ms": 500
       },

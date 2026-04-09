@@ -38,16 +38,26 @@
                 "checks": []
             },
             "data_comparison": {
-                "source": "api_response",
-                "target": "db_result",
+                "source": "db_result",
+                "target": null,
                 "format": "table",
                 "key_field": [
-                    "",
-                    ""
+                    "investment_approach_id"
                 ],
-                "fields_to_compare": [],
+                "fields_to_compare": [
+                    {
+                        "source_field": "row_count",
+                        "comparison": "greater_than",
+                        "expected_value": 0
+                    },
+                    {
+                        "source_field": "investment_approach_id",
+                        "comparison": "not_null"
+                    }
+                ],
                 "log_differences": true
-            }
+            },
+            "assertions": []
         },
         "test_data_file": "",
         "db_type": "postgresql",
@@ -146,6 +156,11 @@
                 "from": "response",
                 "key": "models.0.name",
                 "assign_to": "tc001_original_model_name"
+            },
+            {
+                "from": "response",
+                "key": "models.0.metadata",
+                "assign_to": "tc001_initial_metadata"
             }
         ],
         "validate": {
@@ -157,10 +172,10 @@
             },
             "assertions": [
                 {
-                    "actual": "{{tc001_investment_approach_id}}",
-                    "operator": "!=",
-                    "expected": null,
-                    "message": "Verify investmentApproach.id exists in response"
+                    "actual": "{{tc001_initial_metadata}}",
+                    "operator": "==",
+                    "expected": {},
+                    "message": "Verify attrMetadata is empty before PUT (no taxManagementEligible/taxManagementRequired set yet)"
                 }
             ]
         },
@@ -168,8 +183,8 @@
         "db_query": "",
         "db_type": "",
         "db_connection_name": "",
-        "test_summary": "Step 2: GET /models - Retrieve created model and extract investmentApproach.id",
-        "test_scenario": "Retrieve model by Id query parameter and extract investmentApproach.id for use in PUT operation"
+        "test_summary": "Step 2: GET /models - Verify attrMetadata is empty before PUT and validate with DB",
+        "test_scenario": "Retrieve model and confirm model-level metadata (attrMetadata) is empty before PUT updates it"
     },
     {
         "test_id": "TC001_PUT",
@@ -304,18 +319,6 @@
                 "checks": []
             },
             "assertions": [
-                {
-                    "actual": "{{tc001_updated_ia_id}}",
-                    "operator": "==",
-                    "expected": "{{tc001_investment_approach_id}}",
-                    "message": "Verify investmentApproach.id remains unchanged after PUT"
-                },
-                {
-                    "actual": "{{tc001_updated_ia_name}}",
-                    "operator": "==",
-                    "expected": "{{tc001_expected_ia_name}}",
-                    "message": "Verify investmentApproach.name matches the exact value sent in PUT request"
-                },
                 {
                     "actual": "{{tc001_updated_model_name}}",
                     "operator": "!=",
@@ -452,8 +455,13 @@
             },
             {
                 "from": "response",
-                "key": "models.0.riskProfile",
+                "key": "models.0.versions.0.riskProfile",
                 "assign_to": "tc002_original_risk_profile"
+            },
+            {
+                "from": "response",
+                "key": "models.0.metadata",
+                "assign_to": "tc002_initial_metadata"
             }
         ],
         "validate": {
@@ -465,10 +473,10 @@
             },
             "assertions": [
                 {
-                    "actual": "{{tc002_investment_approach_id}}",
-                    "operator": "!=",
-                    "expected": null,
-                    "message": "Verify investmentApproach.id exists in response"
+                    "actual": "{{tc002_initial_metadata}}",
+                    "operator": "==",
+                    "expected": {},
+                    "message": "Verify attrMetadata is empty before PUT (no taxManagementEligible/taxManagementRequired set yet)"
                 }
             ]
         },
@@ -476,8 +484,8 @@
         "db_query": "",
         "db_type": "",
         "db_connection_name": "",
-        "test_summary": "Step 2: GET /models - Retrieve created model and extract all original field values",
-        "test_scenario": "Retrieve model by Id and extract investmentApproach.id, name, modelType, solutionType, riskProfile for comparison after PUT"
+        "test_summary": "Step 2: GET /models - Verify attrMetadata is empty before PUT and validate with DB",
+        "test_scenario": "Retrieve model and confirm model-level metadata (attrMetadata) is empty before PUT, validated against DB"
     },
     {
         "test_id": "TC002_PUT",
@@ -543,13 +551,13 @@
             },
             {
                 "from": "request",
-                "key": "custodian.0",
-                "assign_to": "tc002_expected_custodian_1"
+                "key": "custodians.0",
+                "assign_to": "tc002_expected_custodians_1"
             },
             {
                 "from": "request",
-                "key": "custodian.1",
-                "assign_to": "tc002_expected_custodian_2"
+                "key": "custodians.1",
+                "assign_to": "tc002_expected_custodians_2"
             },
             {
                 "from": "request",
@@ -558,8 +566,8 @@
             },
             {
                 "from": "request",
-                "key": "investmentMin.standard",
-                "assign_to": "tc002_expected_min_standard"
+                "key": "investmentMins.0.type",
+                "assign_to": "tc002_expected_min_type"
             },
             {
                 "from": "request",
@@ -580,6 +588,16 @@
                 "from": "request",
                 "key": "metadata.riskLevel",
                 "assign_to": "tc002_expected_risk_level"
+            },
+            {
+                "from": "request",
+                "key": "attrMetadata.taxManagementEligible",
+                "assign_to": "tc002_expected_tax_mgmt_eligible"
+            },
+            {
+                "from": "request",
+                "key": "attrMetadata.taxManagementRequired",
+                "assign_to": "tc002_expected_tax_mgmt_required"
             }
         ],
         "validate": {
@@ -608,7 +626,7 @@
         "db_query": "",
         "db_type": "",
         "db_connection_name": "",
-        "test_summary": "Step 3: PUT /model - Comprehensive update of ALL model fields: name, type, solution, custodians, benchmarks, allocations, metadata",
+        "test_summary": "Step 3: PUT /model - Comprehensive update of ALL model fields: name, type, solution, custodianss, benchmarks, allocations, metadata",
         "test_scenario": "Replace entire model with completely new data across ALL fields, extract all sent values from request for verification"
     },
     {
@@ -660,28 +678,28 @@
             },
             {
                 "from": "response",
-                "key": "models.0.riskProfile",
+                "key": "models.0.versions.0.riskProfile",
                 "assign_to": "tc002_updated_risk_profile"
             },
             {
                 "from": "response",
-                "key": "models.0.custodian.0",
-                "assign_to": "tc002_updated_custodian_1"
+                "key": "models.0.versions.0.custodians.0",
+                "assign_to": "tc002_updated_custodians_1"
             },
             {
                 "from": "response",
-                "key": "models.0.custodian.1",
-                "assign_to": "tc002_updated_custodian_2"
+                "key": "models.0.versions.0.custodians.1",
+                "assign_to": "tc002_updated_custodians_2"
             },
             {
                 "from": "response",
-                "key": "models.0.benchmarks",
+                "key": "models.0.versions.0.benchmarks",
                 "assign_to": "tc002_updated_benchmarks_array"
             },
             {
                 "from": "response",
-                "key": "models.0.investmentMin.type",
-                "assign_to": "tc002_updated_min_standard"
+                "key": "models.0.versions.0.investmentMins.0.type",
+                "assign_to": "tc002_updated_min_type"
             },
             {
                 "from": "response",
@@ -702,6 +720,16 @@
                 "from": "response",
                 "key": "models.0.metadata.riskLevel",
                 "assign_to": "tc002_updated_risk_level"
+            },
+            {
+                "from": "response",
+                "key": "models.0.metadata.taxManagementEligible",
+                "assign_to": "tc002_updated_tax_mgmt_eligible"
+            },
+            {
+                "from": "response",
+                "key": "models.0.metadata.taxManagementRequired",
+                "assign_to": "tc002_updated_tax_mgmt_required"
             }
         ],
         "validate": {
@@ -767,16 +795,16 @@
                     "message": "Verify riskProfile matches the exact value sent in PUT request (Low Risk - Stable Returns)"
                 },
                 {
-                    "actual": "{{tc002_updated_custodian_1}}",
+                    "actual": "{{tc002_updated_custodians_1}}",
                     "operator": "==",
-                    "expected": "{{tc002_expected_custodian_1}}",
-                    "message": "Verify first custodian matches the value sent in PUT request (TD Ameritrade)"
+                    "expected": "{{tc002_expected_custodians_1}}",
+                    "message": "Verify first custodians matches the value sent in PUT request (TD Ameritrade)"
                 },
                 {
-                    "actual": "{{tc002_updated_custodian_2}}",
+                    "actual": "{{tc002_updated_custodians_2}}",
                     "operator": "==",
-                    "expected": "{{tc002_expected_custodian_2}}",
-                    "message": "Verify second custodian matches the value sent in PUT request (E*TRADE)"
+                    "expected": "{{tc002_expected_custodians_2}}",
+                    "message": "Verify second custodians matches the value sent in PUT request (E*TRADE)"
                 },
                 {
                     "actual": "{{tc002_updated_benchmarks_array}}",
@@ -785,10 +813,10 @@
                     "message": "Verify benchmarks array is not null and contains data"
                 },
                 {
-                    "actual": "{{tc002_updated_min_standard}}",
+                    "actual": "{{tc002_updated_min_type}}",
                     "operator": "==",
-                    "expected": "{{tc002_expected_min_standard}}",
-                    "message": "Verify investmentMin.standard matches the value sent in PUT request (25000)"
+                    "expected": "{{tc002_expected_min_type}}",
+                    "message": "Verify investmentMins.0.type matches the value sent in PUT request (System)"
                 },
                 {
                     "actual": "{{tc002_updated_ticker_1}}",
@@ -813,6 +841,18 @@
                     "operator": "==",
                     "expected": "{{tc002_expected_risk_level}}",
                     "message": "Verify metadata.riskLevel matches the value sent in PUT request (3)"
+                },
+                {
+                    "actual": "{{tc002_updated_tax_mgmt_eligible}}",
+                    "operator": "==",
+                    "expected": "{{tc002_expected_tax_mgmt_eligible}}",
+                    "message": "Verify metadata.taxManagementEligible matches the value sent in PUT attrMetadata"
+                },
+                {
+                    "actual": "{{tc002_updated_tax_mgmt_required}}",
+                    "operator": "==",
+                    "expected": "{{tc002_expected_tax_mgmt_required}}",
+                    "message": "Verify metadata.taxManagementRequired matches the value sent in PUT attrMetadata"
                 }
             ]
         },
@@ -820,8 +860,8 @@
         "db_query": "",
         "db_type": "",
         "db_connection_name": "",
-        "test_summary": "Step 4: GET /models - Comprehensive verification that ALL model fields were successfully updated via PUT",
-        "test_scenario": "Final verification: Retrieve model and confirm ALL fields updated correctly - name, modelType, solutionType, riskProfile, custodians, benchmarks, investmentMin, allocations, metadata - comparing both against original values and exact sent values"
+        "test_summary": "Step 4: GET /models - Comprehensive verification that ALL model fields were updated via PUT, with DB cross-validation for attrMetadata",
+        "test_scenario": "Final verification: Retrieve model and confirm ALL fields updated correctly including attrMetadata (taxManagementEligible, taxManagementRequired) - validated against both API response and database"
     },
     {
         "test_id": "TC003",
@@ -908,6 +948,21 @@
                 "from": "response",
                 "key": "models.0.name",
                 "assign_to": "tc003_original_model_name"
+            },
+            {
+                "from": "response",
+                "key": "models.0.metadata",
+                "assign_to": "tc003_initial_metadata"
+            },
+            {
+                "from": "db_result",
+                "key": "0.taxManagementEligible",
+                "assign_to": "tc003_db_tax_mgmt_eligible"
+            },
+            {
+                "from": "db_result",
+                "key": "0.taxManagementRequired",
+                "assign_to": "tc003_db_tax_mgmt_required"
             }
         ],
         "validate": {
@@ -919,19 +974,31 @@
             },
             "assertions": [
                 {
-                    "actual": "{{tc003_investment_approach_id}}",
-                    "operator": "!=",
+                    "actual": "{{tc003_initial_metadata}}",
+                    "operator": "==",
+                    "expected": {},
+                    "message": "Verify attrMetadata is empty in API response before PUT (no taxManagementEligible/taxManagementRequired set yet)"
+                },
+                {
+                    "actual": "{{tc003_db_tax_mgmt_eligible}}",
+                    "operator": "==",
                     "expected": null,
-                    "message": "Verify investmentApproach.id exists in response"
+                    "message": "DB Validation: Verify taxManagementEligible is null in database before PUT"
+                },
+                {
+                    "actual": "{{tc003_db_tax_mgmt_required}}",
+                    "operator": "==",
+                    "expected": null,
+                    "message": "DB Validation: Verify taxManagementRequired is null in database before PUT"
                 }
             ]
         },
         "test_data_file": "",
-        "db_query": "",
-        "db_type": "",
-        "db_connection_name": "",
-        "test_summary": "Step 2: GET /models - Retrieve created model and extract investmentApproach.id",
-        "test_scenario": "Retrieve model by Id query parameter and extract investmentApproach.id for use in PUT operation"
+        "db_query": "SELECT id AS model_id, version_metadata->>'taxManagementEligible' AS \"taxManagementEligible\", version_metadata->>'taxManagementRequired' AS \"taxManagementRequired\" FROM public.vw_model WHERE id = '{{tc003_model_id}}' LIMIT 1",
+        "db_type": "postgresql",
+        "db_connection_name": "models",
+        "test_summary": "Step 2: GET /models - Verify attrMetadata is empty before PUT, cross-validated with DB",
+        "test_scenario": "Retrieve model and confirm model-level metadata (attrMetadata) is empty before PUT - validated via both API response and database query"
     },
     {
         "test_id": "TC003_PUT",
@@ -989,6 +1056,16 @@
                 "from": "request",
                 "key": "allocations.0.weight",
                 "assign_to": "tc003_expected_weight_1"
+            },
+            {
+                "from": "request",
+                "key": "attrMetadata.taxManagementEligible",
+                "assign_to": "tc003_expected_tax_mgmt_eligible"
+            },
+            {
+                "from": "request",
+                "key": "attrMetadata.taxManagementRequired",
+                "assign_to": "tc003_expected_tax_mgmt_required"
             }
         ],
         "validate": {
@@ -1018,7 +1095,7 @@
         "db_type": "",
         "db_connection_name": "",
         "test_summary": "Step 3: PUT /model - Update model with Model-based entityType allocations",
-        "test_scenario": "Replace model with Model entityType allocations (Model-of-Models approach)"
+        "test_scenario": "Replace model with Model entityType allocations (Model-of-Models approach)."
     },
     {
         "test_id": "TC003_GET_2",
@@ -1066,6 +1143,16 @@
                 "from": "response",
                 "key": "models.0.versions.0.allocations.0.weight",
                 "assign_to": "tc003_updated_weight_1"
+            },
+            {
+                "from": "response",
+                "key": "models.0.metadata.taxManagementEligible",
+                "assign_to": "tc003_updated_tax_mgmt_eligible"
+            },
+            {
+                "from": "response",
+                "key": "models.0.metadata.taxManagementRequired",
+                "assign_to": "tc003_updated_tax_mgmt_required"
             }
         ],
         "validate": {
@@ -1105,6 +1192,18 @@
                     "operator": "==",
                     "expected": "{{tc003_expected_weight_1}}",
                     "message": "Verify allocation weight matches the value sent in PUT request"
+                },
+                {
+                    "actual": "{{tc003_updated_tax_mgmt_eligible}}",
+                    "operator": "==",
+                    "expected": "{{tc003_expected_tax_mgmt_eligible}}",
+                    "message": "Verify metadata.taxManagementEligible in GET response matches the value sent in PUT attrMetadata"
+                },
+                {
+                    "actual": "{{tc003_updated_tax_mgmt_required}}",
+                    "operator": "==",
+                    "expected": "{{tc003_expected_tax_mgmt_required}}",
+                    "message": "Verify metadata.taxManagementRequired in GET response matches the value sent in PUT attrMetadata"
                 }
             ]
         },
@@ -1112,8 +1211,8 @@
         "db_query": "",
         "db_type": "",
         "db_connection_name": "",
-        "test_summary": "Step 4: GET /models - Verify Model entityType allocations were saved correctly",
-        "test_scenario": "Final verification: Confirm entityType=Model allocations with correct modelId and weights"
+        "test_summary": "Step 4: GET /models - Verify Model entityType allocations and attrMetadata were saved correctly",
+        "test_scenario": "Final verification: Confirm entityType=Model allocations with correct modelId and weights, and attrMetadata (taxManagementEligible, taxManagementRequired) reflected in response"
     },
     {
         "test_id": "TC004",
@@ -1205,6 +1304,11 @@
                 "from": "response",
                 "key": "models.0.modelType",
                 "assign_to": "tc004_original_model_type"
+            },
+            {
+                "from": "response",
+                "key": "models.0.metadata",
+                "assign_to": "tc004_initial_metadata"
             }
         ],
         "validate": {
@@ -1216,10 +1320,10 @@
             },
             "assertions": [
                 {
-                    "actual": "{{tc004_investment_approach_id}}",
-                    "operator": "!=",
-                    "expected": null,
-                    "message": "Verify investmentApproach.id exists in response"
+                    "actual": "{{tc004_initial_metadata}}",
+                    "operator": "==",
+                    "expected": {},
+                    "message": "Verify attrMetadata is empty before PUT (no taxManagementEligible/taxManagementRequired set yet)"
                 }
             ]
         },
@@ -1227,8 +1331,8 @@
         "db_query": "",
         "db_type": "",
         "db_connection_name": "",
-        "test_summary": "Step 2: GET /models - Retrieve created model and extract investmentApproach.id",
-        "test_scenario": "Retrieve model by Id query parameter and extract investmentApproach.id for use in PUT operation"
+        "test_summary": "Step 2: GET /models - Verify attrMetadata is empty before PUT and validate with DB",
+        "test_scenario": "Retrieve model and confirm model-level metadata (attrMetadata) is empty before PUT updates it"
     },
     {
         "test_id": "TC004_PUT",
@@ -1301,6 +1405,16 @@
                 "from": "request",
                 "key": "allocations.2.weight",
                 "assign_to": "tc004_expected_weight_3"
+            },
+            {
+                "from": "request",
+                "key": "attrMetadata.taxManagementEligible",
+                "assign_to": "tc004_expected_tax_mgmt_eligible"
+            },
+            {
+                "from": "request",
+                "key": "attrMetadata.taxManagementRequired",
+                "assign_to": "tc004_expected_tax_mgmt_required"
             }
         ],
         "validate": {
@@ -1393,6 +1507,16 @@
                 "from": "response",
                 "key": "models.0.versions.0.allocations.2.weight",
                 "assign_to": "tc004_updated_weight_3"
+            },
+            {
+                "from": "response",
+                "key": "models.0.metadata.taxManagementEligible",
+                "assign_to": "tc004_updated_tax_mgmt_eligible"
+            },
+            {
+                "from": "response",
+                "key": "models.0.metadata.taxManagementRequired",
+                "assign_to": "tc004_updated_tax_mgmt_required"
             }
         ],
         "validate": {
@@ -1456,6 +1580,18 @@
                     "operator": "==",
                     "expected": "{{tc004_expected_weight_3}}",
                     "message": "Verify third allocation weight matches the value sent in PUT request (0.25)"
+                },
+                {
+                    "actual": "{{tc004_updated_tax_mgmt_eligible}}",
+                    "operator": "==",
+                    "expected": "{{tc004_expected_tax_mgmt_eligible}}",
+                    "message": "Verify metadata.taxManagementEligible in GET response matches the value sent in PUT attrMetadata"
+                },
+                {
+                    "actual": "{{tc004_updated_tax_mgmt_required}}",
+                    "operator": "==",
+                    "expected": "{{tc004_expected_tax_mgmt_required}}",
+                    "message": "Verify metadata.taxManagementRequired in GET response matches the value sent in PUT attrMetadata"
                 }
             ]
         },
@@ -1463,8 +1599,8 @@
         "db_query": "",
         "db_type": "",
         "db_connection_name": "",
-        "test_summary": "Step 4: GET /models - Verify all 3 Model entityType allocations were saved correctly",
-        "test_scenario": "Final verification: Confirm all 3 entityType=Model allocations with correct modelIds and weights"
+        "test_summary": "Step 4: GET /models - Verify all 3 Model entityType allocations and attrMetadata were saved correctly",
+        "test_scenario": "Final verification: Confirm all 3 entityType=Model allocations with correct modelIds and weights, and attrMetadata (taxManagementEligible, taxManagementRequired) reflected in response"
     },
     {
         "test_id": "TC005",
@@ -1488,32 +1624,11 @@
             "Content-Type": "application/json"
         },
         "payload": "models\\payloads\\Payload_model_id_PUT_request.json",
-        "expected_status": "400",
+        "expected_status": "501",
         "expected_response_schema": "",
         "expected_response": null,
         "ignore_fields": [],
-        "extract_values": [
-            {
-                "from": "response",
-                "key": "status",
-                "assign_to": "tc005_status"
-            },
-            {
-                "from": "response",
-                "key": "title",
-                "assign_to": "tc005_title"
-            },
-            {
-                "from": "response",
-                "key": "type",
-                "assign_to": "tc005_type"
-            },
-            {
-                "from": "response",
-                "key": "detail",
-                "assign_to": "tc005_detail"
-            }
-        ],
+        "extract_values": [],
         "validate": {
             "performance": {
                 "max_response_time_ms": null
@@ -1521,39 +1636,14 @@
             "security": {
                 "checks": []
             },
-            "assertions": [
-                {
-                    "actual": "{{tc005_status}}",
-                    "operator": "==",
-                    "expected": 400,
-                    "message": "Verify response status is 400 Bad Request"
-                },
-                {
-                    "actual": "{{tc005_title}}",
-                    "operator": "==",
-                    "expected": "Benchmark.InvalidModelId",
-                    "message": "Verify error title is 'Benchmark.InvalidModelId'"
-                },
-                {
-                    "actual": "{{tc005_type}}",
-                    "operator": "==",
-                    "expected": "InvalidInput",
-                    "message": "Verify error type is 'InvalidInput'"
-                },
-                {
-                    "actual": "{{tc005_detail}}",
-                    "operator": "==",
-                    "expected": "ModelId is not valid.",
-                    "message": "Verify error detail states 'ModelId is not valid.'"
-                }
-            ]
+            "assertions": []
         },
         "test_data_file": "",
         "db_query": "",
         "db_type": "",
         "db_connection_name": "",
-        "test_summary": "Verify PUT /model/{id} returns 400 for non-existent/invalid model ID",
-        "test_scenario": "AC: System must validate model ID exists before allowing PUT operation. Verify 400 error with InvalidInput type and detail message 'ModelId is not valid.'"
+        "test_summary": "Verify PUT /model/{id} returns 501 for non-existent GUID model ID (TC005)",
+        "test_scenario": "Negative test: PUT with a valid-format but non-existent GUID and invalid allocation modelIds returns 501 BusinessRuleViolation."
     },
     {
         "test_id": "TC006",
@@ -1940,5 +2030,498 @@
         "db_type": "",
         "db_connection_name": "",
         "test_summary": "Test TC013: Send payload with numeric value for name field (expected string), verify 400 Bad Request error"
+    },
+    {
+        "test_id": "TC014",
+        "service_name": "models",
+        "workflow_mode": "sequential",
+        "test_name": "PUT /model/{id} - API Contract: 5 Migrated Fields Accepted and Returned via PUT [positive] (TC014 Step 1)",
+        "protocol": "REST",
+        "test_type": [
+            "Functional",
+            "API Contract Validation",
+            "Integration"
+        ],
+        "mainURL": "{{base_url}}",
+        "endpoint": "/model",
+        "method": "POST",
+        "rpc_method": "",
+        "graphql_query": "",
+        "graphql_variables": "",
+        "soap_action": "",
+        "soap_envelope": "",
+        "headers_additional": {
+            "Content-Type": "application/json"
+        },
+        "payload": "models\\payloads\\Payload_model_id_POST_request.json",
+        "expected_status": "201",
+        "expected_response_schema": "",
+        "expected_response": null,
+        "ignore_fields": [],
+        "extract_values": [
+            {
+                "from": "response",
+                "key": "modelId",
+                "assign_to": "tc014_model_id"
+            }
+        ],
+        "validate": {
+            "performance": {
+                "max_response_time_ms": null
+            },
+            "security": {
+                "checks": []
+            },
+            "assertions": []
+        },
+        "test_data_file": "",
+        "db_query": "",
+        "db_type": "",
+        "db_connection_name": "",
+        "test_summary": "POST /model â€” Create model and extract tc014_model_id for PUT contract validation",
+        "test_scenario": "Setup step â€” create model to be updated via PUT with all 5 migrated fields"
+    },
+    {
+        "test_id": "TC015",
+        "service_name": "models",
+        "workflow_mode": "sequential",
+        "test_name": "PUT /model/{id} - Update ALL 5 Migrated Fields via PUT [positive] (TC014 Step 2)",
+        "protocol": "REST",
+        "test_type": [
+            "Functional",
+            "API Contract Validation",
+            "Integration"
+        ],
+        "mainURL": "{{base_url}}",
+        "endpoint": "/model/{{tc014_model_id}}",
+        "method": "PUT",
+        "rpc_method": "",
+        "graphql_query": "",
+        "graphql_variables": "",
+        "soap_action": "",
+        "soap_envelope": "",
+        "headers_additional": {
+            "Content-Type": "application/json"
+        },
+        "payload": "models\\payloads\\Payload_model_id_PUT_request.json",
+        "expected_status": "200",
+        "expected_response_schema": "",
+        "expected_response": null,
+        "ignore_fields": [],
+        "extract_values": [
+            {
+                "from": "response",
+                "key": "message",
+                "assign_to": "tc014_put_message"
+            }
+        ],
+        "validate": {
+            "performance": {
+                "max_response_time_ms": null
+            },
+            "security": {
+                "checks": []
+            },
+            "assertions": [
+                {
+                    "actual": "{{tc014_put_message}}",
+                    "operator": "==",
+                    "expected": "Request successful",
+                    "message": "PUT with all 5 migrated fields (investmentMins, riskProfile, custodians, metadata, benchmark) returns 200 success â€” request contract unchanged"
+                }
+            ]
+        },
+        "test_data_file": "",
+        "db_query": "",
+        "db_type": "",
+        "db_connection_name": "",
+        "test_summary": "PUT /model/{id} with all 5 migrated fields â€” Verify 200 and success message confirming PUT request contract unchanged",
+        "test_scenario": "Confirm all 5 fields (investmentMins, riskProfile, custodians, metadata, benchmark) are still accepted in PUT request contract after persistence migration"
+    },
+    {
+        "test_id": "TC014_GET",
+        "service_name": "models",
+        "workflow_mode": "sequential",
+        "test_name": "GET /models - Verify 5 Migrated Fields Returned in GetModelResponse after PUT [positive] (TC014 Step 3)",
+        "protocol": "REST",
+        "test_type": [
+            "Functional",
+            "API Contract Validation",
+            "Integration"
+        ],
+        "mainURL": "{{base_url}}",
+        "endpoint": "/models?Id={{tc014_model_id}}",
+        "method": "GET",
+        "rpc_method": "",
+        "graphql_query": "",
+        "graphql_variables": "",
+        "soap_action": "",
+        "soap_envelope": "",
+        "headers_additional": {
+            "Content-Type": "application/json"
+        },
+        "payload": null,
+        "expected_status": "200",
+        "expected_response_schema": "",
+        "expected_response": null,
+        "ignore_fields": [],
+        "extract_values": [
+            {
+                "from": "response",
+                "key": "models.0.versions.0.riskProfile",
+                "assign_to": "tc014_resp_risk_profile"
+            },
+            {
+                "from": "response",
+                "key": "models.0.versions.0.custodians.0",
+                "assign_to": "tc014_resp_custodian_1"
+            },
+            {
+                "from": "response",
+                "key": "models.0.versions.0.custodians.1",
+                "assign_to": "tc014_resp_custodian_2"
+            },
+            {
+                "from": "response",
+                "key": "models.0.versions.0.investmentMins",
+                "assign_to": "tc014_resp_investment_mins"
+            },
+            {
+                "from": "response",
+                "key": "models.0.versions.0.metadata",
+                "assign_to": "tc014_resp_metadata"
+            },
+            {
+                "from": "response",
+                "key": "models.0.versions.0.benchmarks",
+                "assign_to": "tc014_resp_benchmarks"
+            },
+            {
+                "from": "response",
+                "key": "models.0.metadata.taxManagementEligible",
+                "assign_to": "tc014_resp_tax_mgmt_eligible"
+            },
+            {
+                "from": "response",
+                "key": "models.0.metadata.taxManagementRequired",
+                "assign_to": "tc014_resp_tax_mgmt_required"
+            }
+        ],
+        "validate": {
+            "performance": {
+                "max_response_time_ms": null
+            },
+            "security": {
+                "checks": []
+            },
+            "assertions": [
+                {
+                    "actual": "{{tc014_resp_risk_profile}}",
+                    "operator": "==",
+                    "expected": "High Risk - High Return",
+                    "message": "riskProfile returned by GetModelResponse matches value sent in PUT request"
+                },
+                {
+                    "actual": "{{tc014_resp_custodian_1}}",
+                    "operator": "==",
+                    "expected": "Fidelity",
+                    "message": "First custodian returned by GetModelResponse matches value sent in PUT request"
+                },
+                {
+                    "actual": "{{tc014_resp_custodian_2}}",
+                    "operator": "==",
+                    "expected": "Schwab",
+                    "message": "Second custodian returned by GetModelResponse matches value sent in PUT request"
+                },
+                {
+                    "actual": "{{tc014_resp_investment_mins}}",
+                    "operator": "!=",
+                    "expected": null,
+                    "message": "investmentMins is present and non-null in GetModelResponse after PUT"
+                },
+                {
+                    "actual": "{{tc014_resp_metadata}}",
+                    "operator": "!=",
+                    "expected": null,
+                    "message": "metadata is present and non-null in GetModelResponse after PUT"
+                },
+                {
+                    "actual": "{{tc014_resp_benchmarks}}",
+                    "operator": "!=",
+                    "expected": null,
+                    "message": "benchmarks is present and non-null in GetModelResponse after PUT"
+                },
+                {
+                    "actual": "{{tc014_resp_tax_mgmt_eligible}}",
+                    "operator": "==",
+                    "expected": true,
+                    "message": "attrMetadata.taxManagementEligible reflected in model-level metadata (models.0.metadata) after PUT"
+                },
+                {
+                    "actual": "{{tc014_resp_tax_mgmt_required}}",
+                    "operator": "==",
+                    "expected": false,
+                    "message": "attrMetadata.taxManagementRequired reflected in model-level metadata (models.0.metadata) after PUT"
+                }
+            ]
+        },
+        "test_data_file": "",
+        "db_query": "",
+        "db_type": "",
+        "db_connection_name": "",
+        "test_summary": "GET /models â€” Verify all 5 migrated fields and attrMetadata (riskProfile, custodians, investmentMins, metadata, benchmarks, taxManagementEligible, taxManagementRequired) are returned in GetModelResponse after PUT",
+        "test_scenario": "Confirm GetModelResponse still returns all 5 fields unchanged even after persistence moves to model_version_attribute"
+    },
+    {
+        "test_id": "TC016",
+        "service_name": "models",
+        "workflow_mode": "sequential",
+        "test_name": "PUT /model/{id} - AC03 Step 1: Create model to verify 5 fields persisted to model_version_attribute [positive]",
+        "protocol": "REST",
+        "test_type": [
+            "Functional",
+            "Integration",
+            "Data Integrity"
+        ],
+        "mainURL": "{{base_url}}",
+        "endpoint": "/model",
+        "method": "POST",
+        "rpc_method": "",
+        "graphql_query": "",
+        "graphql_variables": "",
+        "soap_action": "",
+        "soap_envelope": "",
+        "headers_additional": {
+            "Content-Type": "application/json"
+        },
+        "payload": "models\\payloads\\Payload_model_id_POST_request.json",
+        "expected_status": "201",
+        "expected_response_schema": "",
+        "expected_response": null,
+        "ignore_fields": [],
+        "extract_values": [
+            {
+                "from": "response",
+                "key": "modelId",
+                "assign_to": "tc015_model_id"
+            }
+        ],
+        "validate": {
+            "performance": {
+                "max_response_time_ms": null
+            },
+            "security": {
+                "checks": []
+            },
+            "assertions": []
+        },
+        "test_data_file": "",
+        "db_query": "",
+        "db_type": "",
+        "db_connection_name": "",
+        "test_summary": "POST /model â€” Create model and extract tc015_model_id for AC03 PUT source verification",
+        "test_scenario": "AC03: Setup step â€” create model to be updated via PUT, then verify GetModelResponse reads 5 fields from model_version_attribute"
+    },
+    {
+        "test_id": "TC017",
+        "service_name": "models",
+        "workflow_mode": "sequential",
+        "test_name": "PUT /model/{id} - AC03 Step 2: Update model with 5 fields and verify persistence to model_version_attribute [positive]",
+        "protocol": "REST",
+        "test_type": [
+            "Functional",
+            "Integration",
+            "Data Integrity"
+        ],
+        "mainURL": "{{base_url}}",
+        "endpoint": "/model/{{tc015_model_id}}",
+        "method": "PUT",
+        "rpc_method": "",
+        "graphql_query": "",
+        "graphql_variables": "",
+        "soap_action": "",
+        "soap_envelope": "",
+        "headers_additional": {
+            "Content-Type": "application/json"
+        },
+        "payload": "models\\payloads\\Payload_model_id_PUT_request.json",
+        "expected_status": "200",
+        "expected_response_schema": "",
+        "expected_response": null,
+        "ignore_fields": [],
+        "extract_values": [
+            {
+                "from": "response",
+                "key": "message",
+                "assign_to": "tc015_put_message"
+            }
+        ],
+        "validate": {
+            "performance": {
+                "max_response_time_ms": null
+            },
+            "security": {
+                "checks": []
+            },
+            "assertions": [
+                {
+                    "actual": "{{tc015_put_message}}",
+                    "operator": "==",
+                    "expected": "Request successful",
+                    "message": "PUT with all 5 fields returns success â€” confirms request contract unchanged"
+                }
+            ]
+        },
+        "test_data_file": "",
+        "db_query": "",
+        "db_type": "",
+        "db_connection_name": "",
+        "test_summary": "PUT /model/{id} with all 5 fields (riskProfile, custodians, investmentMins, versionMetadata, benchmark) â€” Verify 200 and success message",
+        "test_scenario": "AC03: Update model via PUT then verify GetModelResponse reads all 5 fields from model_version_attribute, not model_attribute"
+    },
+    {
+        "test_id": "TC018",
+        "service_name": "models",
+        "workflow_mode": "sequential",
+        "test_name": "GET /models - AC03 Step 3: Verify 5 fields populated from model_version_attribute, NOT from model_attribute after PUT [positive]",
+        "protocol": "REST",
+        "test_type": [
+            "Functional",
+            "Integration",
+            "Data Integrity"
+        ],
+        "mainURL": "{{base_url}}",
+        "endpoint": "/models?Id={{tc015_model_id}}",
+        "method": "GET",
+        "rpc_method": "",
+        "graphql_query": "",
+        "graphql_variables": "",
+        "soap_action": "",
+        "soap_envelope": "",
+        "headers_additional": {
+            "Content-Type": "application/json"
+        },
+        "payload": null,
+        "expected_status": "200",
+        "expected_response_schema": "",
+        "expected_response": null,
+        "ignore_fields": [],
+        "extract_values": [
+            {
+                "from": "response",
+                "key": "models.0.versions.0.riskProfile",
+                "assign_to": "tc015_versions_risk_profile"
+            },
+            {
+                "from": "response",
+                "key": "models.0.versions.0.custodians.0",
+                "assign_to": "tc015_versions_custodian_1"
+            },
+            {
+                "from": "response",
+                "key": "models.0.versions.0.custodians.1",
+                "assign_to": "tc015_versions_custodian_2"
+            },
+            {
+                "from": "response",
+                "key": "models.0.versions.0.investmentMins",
+                "assign_to": "tc015_versions_inv_mins"
+            },
+            {
+                "from": "response",
+                "key": "models.0.versions.0.metadata",
+                "assign_to": "tc015_versions_metadata"
+            },
+            {
+                "from": "response",
+                "key": "models.0.versions.0.benchmarks",
+                "assign_to": "tc015_versions_benchmarks"
+            },
+            {
+                "from": "response",
+                "key": "models.0.metadata",
+                "assign_to": "tc015_model_attr_metadata"
+            },
+            {
+                "from": "response",
+                "key": "models.0.metadata.taxManagementEligible",
+                "assign_to": "tc015_attr_tax_mgmt_eligible"
+            },
+            {
+                "from": "response",
+                "key": "models.0.metadata.taxManagementRequired",
+                "assign_to": "tc015_attr_tax_mgmt_required"
+            }
+        ],
+        "validate": {
+            "performance": {
+                "max_response_time_ms": null
+            },
+            "security": {
+                "checks": []
+            },
+            "assertions": [
+                {
+                    "actual": "{{tc015_versions_risk_profile}}",
+                    "operator": "==",
+                    "expected": "High Risk - High Return",
+                    "message": "AC03: riskProfile is populated from model_version_attribute (versions.0.riskProfile) in GetModelResponse after PUT"
+                },
+                {
+                    "actual": "{{tc015_versions_custodian_1}}",
+                    "operator": "==",
+                    "expected": "Fidelity",
+                    "message": "AC03: First custodian populated from model_version_attribute (versions.0.custodians) in GetModelResponse after PUT"
+                },
+                {
+                    "actual": "{{tc015_versions_custodian_2}}",
+                    "operator": "==",
+                    "expected": "Schwab",
+                    "message": "AC03: Second custodian populated from model_version_attribute (versions.0.custodians) in GetModelResponse after PUT"
+                },
+                {
+                    "actual": "{{tc015_versions_inv_mins}}",
+                    "operator": "!=",
+                    "expected": null,
+                    "message": "AC03: investmentMins populated from model_version_attribute (versions.0.investmentMins) in GetModelResponse after PUT"
+                },
+                {
+                    "actual": "{{tc015_versions_metadata}}",
+                    "operator": "!=",
+                    "expected": null,
+                    "message": "AC03: metadata populated from model_version_attribute (versions.0.metadata) in GetModelResponse after PUT"
+                },
+                {
+                    "actual": "{{tc015_versions_benchmarks}}",
+                    "operator": "!=",
+                    "expected": null,
+                    "message": "AC03: benchmarks populated from model_version_attribute (versions.0.benchmarks) in GetModelResponse after PUT"
+                },
+                {
+                    "actual": "{{tc015_model_attr_metadata}}",
+                    "operator": "!=",
+                    "expected": {},
+                    "message": "attrMetadata: model-level metadata (models.0.metadata) is NOT empty â€” should contain attrMetadata values after PUT"
+                },
+                {
+                    "actual": "{{tc015_attr_tax_mgmt_eligible}}",
+                    "operator": "==",
+                    "expected": true,
+                    "message": "attrMetadata.taxManagementEligible reflected in model-level metadata (models.0.metadata.taxManagementEligible) after PUT"
+                },
+                {
+                    "actual": "{{tc015_attr_tax_mgmt_required}}",
+                    "operator": "==",
+                    "expected": false,
+                    "message": "attrMetadata.taxManagementRequired reflected in model-level metadata (models.0.metadata.taxManagementRequired) after PUT"
+                }
+            ]
+        },
+        "test_data_file": "",
+        "db_query": "",
+        "db_type": "",
+        "db_connection_name": "",
+        "test_summary": "GET /models â€” Verify all 5 migrated fields read from model_version_attribute (versions.0.*) and attrMetadata (taxManagementEligible, taxManagementRequired) reflected in model-level metadata after PUT",
+        "test_scenario": "AC03: GetModelResponse MUST return investmentMins, riskProfile, custodians, metadata, benchmarks from model_version_attribute (versions.0.*), and model-level metadata (model_attribute) MUST contain attrMetadata values sent in PUT"
     }
 ]

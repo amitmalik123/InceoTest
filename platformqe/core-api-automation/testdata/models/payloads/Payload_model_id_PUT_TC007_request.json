@@ -1,48 +1,47 @@
 {
-  "ownerId": "3fa85f64-5717-4562-b3fc-2c963f66afa6",
-  "modelAttributes": {
-    "solutionType": "Conservative Fixed Income",
-    "custodian": [
-      "Fidelity",
-      "Charles Schwab"
-    ],
-    "investmentMin":  [
-    {
-      "type": "System",
-      "value": 4
-    }
-  ],
-    "modelType": "Conservative",
-    "riskProfile": "Low Risk - Stable Income",
-    "metadata": {
-      "targetRebalanceFrequency": "Quarterly",
-      "taxManaged": "false"
-    }
-  },
-  "allocations": [
-    {
-      "entityType": "Security",
-      "allocationName": "iShares 20+ Year Treasury Bond ETF",
-      "modelId": "",
-      "cusip": "464287200",
-      "ticker": "TLT",
-      "weight": 0.60
+    "ownerId": "3fa85f64-5717-4562-b3fc-2c963f66afa6",
+    "modelAttributes": {
+        "solutionType": "Conservative Fixed Income",
+        "modelType": "Conservative"
     },
-    {
-      "entityType": "Security",
-      "allocationName": "iShares iBoxx Investment Grade Corporate Bond ETF",
-      "modelId": "",
-      "cusip": "464288778",
-      "ticker": "LQD",
-      "weight": 0.40
+    "allocations": [
+        {
+            "entityType": "Security",
+            "allocationName": "iShares 20+ Year Treasury Bond ETF",
+            "modelId": "",
+            "cusip": "464287200",
+            "ticker": "TLT",
+            "weight": 0.6
+        },
+        {
+            "entityType": "Security",
+            "allocationName": "iShares iBoxx Investment Grade Corporate Bond ETF",
+            "modelId": "",
+            "cusip": "464288778",
+            "ticker": "LQD",
+            "weight": 0.4
+        }
+    ],
+    "investmentApproachId": null,
+    "benchmark": [
+        {
+            "name": "Bloomberg Barclays US Aggregate Bond Index",
+            "isPrimary": false
+        }
+    ],
+    "custodians": [
+        "Fidelity",
+        "Charles Schwab"
+    ],
+    "investmentMins": [
+        {
+            "type": "System",
+            "value": 4
+        }
+    ],
+    "riskProfile": "Low Risk - Stable Income",
+    "versionMetadata": {
+        "targetRebalanceFrequency": "Quarterly",
+        "taxManaged": "false"
     }
-  ],
-  "investmentApproachId": "{{db_investment_approach_id}}",
-  "benchmark": [
-    {
-      "name": "Bloomberg Barclays US Aggregate Bond Index",
-      "isPrimary": false,
-      "id": 0
-    }
-  ]
 }

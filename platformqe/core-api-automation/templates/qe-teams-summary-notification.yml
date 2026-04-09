@@ -1,0 +1,281 @@
+parameters:
+  teamswebhookurl: ''
+  serviceNames: ''
+
+steps:
+  - task: PowerShell@2
+    displayName: 'Publish Teams Summary From Downloaded Artifacts'
+    condition: always()
+    inputs:
+      targetType: 'inline'
+      script: |
+        $webhookUrl = "${{ parameters.teamswebhookurl }}"
+        if ([string]::IsNullOrWhiteSpace($webhookUrl)) {
+          Write-Host "##vso[task.logissue type=warning]TEAMS_WEBHOOK_URL is empty. Skipping Teams notification."
+          exit 0
+        }
+
+        $status = "$(Agent.JobStatus)"
+        $pipelineName = "$(Build.DefinitionName)"
+        $buildNumber = "$(Build.BuildNumber)"
+        $requestedServices = "${{ parameters.serviceNames }}"
+        $testTabUrl = "$(System.TeamFoundationCollectionUri)$(System.TeamProject)/_build/results?buildId=$(Build.BuildId)&view=ms.vss-test-web.build-test-results-tab"
+        $executionTimestamp = (Get-Date).ToUniversalTime().ToString("yyyy-MM-dd HH:mm:ss 'UTC'")
+
+        $totalExecuted = 0
+        $failedCount = 0
+        $passedCount = 0
+        $summaryFound = $false
+        $detectedServices = New-Object System.Collections.Generic.HashSet[string]
+
+        $searchRoots = @("$(Pipeline.Workspace)/teams-summary", "$(Build.SourcesDirectory)") |
+          Where-Object { -not [string]::IsNullOrWhiteSpace($_) -and (Test-Path -LiteralPath $_) }
+
+        $summaryFiles = @()
+        foreach ($root in $searchRoots) {
+          $summaryFiles += Get-ChildItem -Path $root -Filter 'test_results_summary.json' -Recurse -File -ErrorAction SilentlyContinue
+        }
+        $summaryFiles = $summaryFiles | Sort-Object -Property FullName -Unique
+        Write-Host "Found $($summaryFiles.Count) test_results_summary.json file(s)"
+
+        # Filter by service name if specified (only include artifacts for the specific service)
+        if (-not [string]::IsNullOrWhiteSpace($requestedServices) -and $requestedServices -ne 'all') {
+          Write-Host "Filtering artifacts for requested service: $requestedServices"
+          $summaryFiles = $summaryFiles | Where-Object {
+            $_.FullName -match "test-reports-$([regex]::Escape($requestedServices))-" -or
+            $_.FullName -like "*$requestedServices*"
+          }
+          Write-Host "Filtered to $($summaryFiles.Count) matching file(s) for service: $requestedServices"
+        }
+
+        # Keep only the most recent run per service (avoid aggregating historical runs)
+        Write-Host "Filtering to only the latest run artifacts per service..."
+        $latestFiles = @()
+        $filesByService = @{}
+        
+        foreach ($file in $summaryFiles) {
+          # Extract service name from path (test-reports-SERVICE_NAME-ENVIRONMENT-*)
+          $pathMatch = $file.FullName -match 'test-reports-([^-]+)'
+          if ($pathMatch) {
+            $serviceName = $Matches[1]
+            if (-not $filesByService.ContainsKey($serviceName)) {
+              $filesByService[$serviceName] = @()
+            }
+            $filesByService[$serviceName] += $file
+          } else {
+            # If can't extract service name, include it anyway
+            $latestFiles += $file
+          }
+        }
+        
+        # For each service, keep only the file from the most recent run
+        foreach ($service in $filesByService.Keys) {
+          $serviceFiles = $filesByService[$service] | Sort-Object -Property FullName -Descending
+          if ($serviceFiles.Count -gt 0) {
+            Write-Host "Service '$service': Found $($serviceFiles.Count) artifact(s), using latest: $($serviceFiles[0].FullName)"
+            $latestFiles += $serviceFiles[0]
+          }
+        }
+        
+        $summaryFiles = $latestFiles
+        Write-Host "After deduplication: Using $($summaryFiles.Count) latest file(s)"
+
+        foreach ($summaryFile in $summaryFiles) {
+          try {
+            $summaryJson = Get-Content -LiteralPath $summaryFile.FullName -Raw | ConvertFrom-Json
+            if ($null -ne $summaryJson.summary) {
+              $s = $summaryJson.summary
+              $sTotal   = [int]($s.total)
+              $sPassed  = [int]($s.passed)
+              $sFailed  = [int]($s.failed)
+              $sSkipped = if ($null -ne $s.skipped) { [int]($s.skipped) } else { 0 }
+              $totalExecuted += [Math]::Max(0, ($sTotal - $sSkipped))
+              $passedCount   += $sPassed
+              $failedCount   += $sFailed
+              $summaryFound   = $true
+              Write-Host "Parsed summary: $($summaryFile.FullName) total=$sTotal passed=$sPassed failed=$sFailed"
+
+              if ($null -ne $summaryJson.service_name -and -not [string]::IsNullOrWhiteSpace([string]$summaryJson.service_name)) {
+                [void]$detectedServices.Add([string]$summaryJson.service_name)
+              }
+            }
+          } catch {
+            Write-Host "##vso[task.logissue type=warning]Failed to parse summary file $($summaryFile.FullName): $_"
+          }
+        }
+
+        $zeroFromSummary = ($totalExecuted -eq 0 -and $passedCount -eq 0 -and $failedCount -eq 0)
+        if ((-not $summaryFound) -or $zeroFromSummary) {
+          if (-not $summaryFound) {
+            Write-Host "No summary JSON found - falling back to JUnit XML discovery"
+          } else {
+            Write-Host "Summary JSON parsed but totals are zero - validating via JUnit XML discovery"
+          }
+
+          $junitFiles = @()
+          foreach ($root in $searchRoots) {
+            $junitFiles += Get-ChildItem -Path $root -Recurse -File -ErrorAction SilentlyContinue |
+              Where-Object {
+                ($_.Name -like 'junit_report*.xml') -or
+                ($_.Name -eq 'junit-report.xml') -or
+                ($_.Name -eq 'junit.xml')
+              }
+          }
+          $junitFiles = $junitFiles | Sort-Object -Property FullName -Unique
+          
+          # Filter by service name if specified (only include artifacts for the specific service)
+          if (-not [string]::IsNullOrWhiteSpace($requestedServices) -and $requestedServices -ne 'all') {
+            Write-Host "Filtering JUnit artifacts for requested service: $requestedServices"
+            $junitFiles = $junitFiles | Where-Object {
+              $_.FullName -match "test-reports-$([regex]::Escape($requestedServices))-" -or
+              $_.FullName -like "*$requestedServices*"
+            }
+          }
+          
+          # Keep only the most recent run per service (avoid aggregating historical runs)
+          Write-Host "Filtering JUnit to only the latest run artifacts per service..."
+          $latestJunitFiles = @()
+          $junitFilesByService = @{}
+          
+          foreach ($file in $junitFiles) {
+            # Extract service name from path (test-reports-SERVICE_NAME-ENVIRONMENT-*)
+            $pathMatch = $file.FullName -match 'test-reports-([^-]+)'
+            if ($pathMatch) {
+              $serviceName = $Matches[1]
+              if (-not $junitFilesByService.ContainsKey($serviceName)) {
+                $junitFilesByService[$serviceName] = @()
+              }
+              $junitFilesByService[$serviceName] += $file
+            } else {
+              # If can't extract service name, include it anyway
+              $latestJunitFiles += $file
+            }
+          }
+          
+          # For each service, keep only files from the most recent run
+          foreach ($service in $junitFilesByService.Keys) {
+            $serviceFiles = $junitFilesByService[$service] | Sort-Object -Property FullName -Descending
+            if ($serviceFiles.Count -gt 0) {
+              Write-Host "JUnit service '$service': Found $($serviceFiles.Count) artifact(s), using latest: $($serviceFiles[0].FullName)"
+              $latestJunitFiles += $serviceFiles[0]
+            }
+          }
+          
+          $junitFiles = $latestJunitFiles
+          Write-Host "After deduplication: Using $($junitFiles.Count) latest JUnit file(s)"
+          
+          Write-Host "Found $($junitFiles.Count) JUnit XML file(s)"
+          $junitFiles | Select-Object -First 10 | ForEach-Object { Write-Host "JUnit candidate: $($_.FullName)" }
+
+          if ($junitFiles.Count -gt 0) {
+            $tests = 0
+            $failedTestCases = 0
+            $skipped = 0
+
+            foreach ($junitFile in $junitFiles) {
+              try {
+                [xml]$junitXml = Get-Content -LiteralPath $junitFile.FullName
+
+                $testCaseNodes = $junitXml.SelectNodes("//*[local-name()='testcase']")
+                $fileTests = $testCaseNodes.Count
+                $tests += $fileTests
+                $fileFailed = 0
+                $fileSkipped = 0
+
+                foreach ($testCase in $testCaseNodes) {
+                  $hasFailure = $null -ne ($testCase.SelectSingleNode("*[local-name()='failure']"))
+                  $hasError = $null -ne ($testCase.SelectSingleNode("*[local-name()='error']"))
+                  $hasSkipped = $null -ne ($testCase.SelectSingleNode("*[local-name()='skipped']"))
+
+                  if ($hasSkipped) {
+                    $skipped += 1
+                    $fileSkipped += 1
+                  }
+                  if ($hasFailure -or $hasError) {
+                    $failedTestCases += 1
+                    $fileFailed += 1
+                  }
+                }
+
+                if ($fileTests -eq 0) {
+                  $suiteNodes = $junitXml.SelectNodes("//*[local-name()='testsuite']")
+                  foreach ($suite in $suiteNodes) {
+                    $suiteTests = [int]($suite.GetAttribute("tests") | ForEach-Object { if ($_ -eq "") { "0" } else { $_ } })
+                    $suiteFailures = [int]($suite.GetAttribute("failures") | ForEach-Object { if ($_ -eq "") { "0" } else { $_ } })
+                    $suiteErrors = [int]($suite.GetAttribute("errors") | ForEach-Object { if ($_ -eq "") { "0" } else { $_ } })
+                    $suiteSkipped = [int]($suite.GetAttribute("skipped") | ForEach-Object { if ($_ -eq "") { "0" } else { $_ } })
+
+                    $tests += $suiteTests
+                    $failedTestCases += ($suiteFailures + $suiteErrors)
+                    $skipped += $suiteSkipped
+                    $fileTests += $suiteTests
+                    $fileFailed += ($suiteFailures + $suiteErrors)
+                    $fileSkipped += $suiteSkipped
+                  }
+                }
+
+                Write-Host "Parsed JUnit file: $($junitFile.FullName) tests=$fileTests failed=$fileFailed skipped=$fileSkipped"
+
+                if ($junitFile.FullName -match 'test-reports-([^-]+)-') {
+                  [void]$detectedServices.Add($matches[1])
+                }
+              } catch {
+                Write-Host "##vso[task.logissue type=warning]Failed to parse JUnit file $($junitFile.FullName): $_"
+              }
+            }
+
+            $failedCount = $failedTestCases
+            $totalExecuted = [Math]::Max(0, ($tests - $skipped))
+            $passedCount = [Math]::Max(0, ($totalExecuted - $failedCount))
+            Write-Host "Final computed totals from JUnit: executed=$totalExecuted passed=$passedCount failed=$failedCount skipped=$skipped"
+          }
+        }
+
+        $servicesDisplay = "N/A"
+        if (-not [string]::IsNullOrWhiteSpace($requestedServices) -and $requestedServices -ne 'all') {
+          $servicesDisplay = $requestedServices
+        } elseif ($detectedServices.Count -gt 0) {
+          $servicesDisplay = ($detectedServices | Sort-Object) -join ', '
+        }
+
+        $themeColor = if ($status -match 'Failed') {
+          'D13438'
+        } elseif ($status -match 'Succeeded') {
+          '2D7D46'
+        } else {
+          'FF8C00'
+        }
+
+        $body = @{
+          '@type' = 'MessageCard'
+          '@context' = 'http://schema.org/extensions'
+          summary = "QA Automation $pipelineName Results"
+          themeColor = $themeColor
+          title = "QA Automation $pipelineName Results"
+          sections = @(
+            @{
+              facts = @(
+                @{ name = 'Pipeline'; value = $pipelineName },
+                @{ name = 'Build'; value = $buildNumber },
+                @{ name = 'Status'; value = $status },
+                @{ name = 'Service(s)'; value = $servicesDisplay },
+                @{ name = 'Total Test Cases Executed'; value = [string]$totalExecuted },
+                @{ name = 'Passed Test Cases'; value = [string]$passedCount },
+                @{ name = 'Failed Test Cases'; value = [string]$failedCount },
+                @{ name = 'Execution Timestamp'; value = $executionTimestamp }
+              )
+              markdown = $true
+            }
+          )
+          potentialAction = @(
+            @{
+              '@type' = 'OpenUri'
+              name = 'View Test Results'
+              targets = @(
+                @{ os = 'default'; uri = $testTabUrl }
+              )
+            }
+          )
+        } | ConvertTo-Json -Depth 10
+
+        Invoke-RestMethod -Uri $webhookUrl -Method Post -Body $body -ContentType 'application/json'

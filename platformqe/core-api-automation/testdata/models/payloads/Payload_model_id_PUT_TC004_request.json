@@ -1,56 +1,59 @@
 {
-  "name": "Multi-Model Strategy - Strategic Allocation",
-  "modelType": "Model-of-Models",
-  "solutionType": "Model-of-Models",
-  "custodian": [
-    "Interactive Brokers",
-    "TD Ameritrade",
-    "Vanguard"
-  ],
-  "investmentApproachId": "{{db_investment_approach_id}}",
-  "benchmark": [
-    {
-      "name": "MSCI World Index",
-      "isPrimary": false,
-      "id": 0
-    }
-  ],
-  "investmentMin":  [
-    {
-      "type": "System",
-      "value": 3
-    }
-  ],
-  "riskProfile": "High Risk - Maximum Growth",
-  "allocations": [
-    {
-      "entityType": "Model",
-      "allocationName": "Equity Model Alpha",
-      "modelId": "equity-alpha-model",
-      "cusip": "string",
-      "ticker": "EQ-ALPHA",
-      "weight": 0.4
+    "name": "Multi-Model Strategy - Strategic Allocation",
+    "modelType": "Model-of-Models",
+    "solutionType": "Model-of-Models",
+    "custodians": [
+        "Interactive Brokers",
+        "TD Ameritrade",
+        "Vanguard"
+    ],
+    "investmentApproachId": null,
+    "benchmark": [
+        {
+            "name": "MSCI World Index",
+            "isPrimary": false
+        }
+    ],
+    "investmentMins": [
+        {
+            "type": "System",
+            "value": 3
+        }
+    ],
+    "riskProfile": "High Risk - Maximum Growth",
+    "allocations": [
+        {
+            "entityType": "Model",
+            "allocationName": "Equity Model Alpha",
+            "modelId": "equity-alpha-model",
+            "cusip": "string",
+            "ticker": "EQ-ALPHA",
+            "weight": 0.4
+        },
+        {
+            "entityType": "Model",
+            "allocationName": "Global Model Beta",
+            "modelId": "global-beta-model",
+            "cusip": "string",
+            "ticker": "GLB-BETA",
+            "weight": 0.35
+        },
+        {
+            "entityType": "Model",
+            "allocationName": "Alternative Model Gamma",
+            "modelId": "alt-gamma-model",
+            "cusip": "string",
+            "ticker": "ALT-GAMMA",
+            "weight": 0.25
+        }
+    ],
+    "versionMetadata": {
+        "targetRebalanceFrequency": "Monthly",
+        "category": "Aggressive Growth",
+        "riskLevel": "9"
     },
-    {
-      "entityType": "Model",
-      "allocationName": "Global Model Beta",
-      "modelId": "global-beta-model",
-      "cusip": "string",
-      "ticker": "GLB-BETA",
-      "weight": 0.35
-    },
-    {
-      "entityType": "Model",
-      "allocationName": "Alternative Model Gamma",
-      "modelId": "alt-gamma-model",
-      "cusip": "string",
-      "ticker": "ALT-GAMMA",
-      "weight": 0.25
+    "attrMetadata": {
+        "taxManagementEligible": "true",
+        "taxManagementRequired": "false"
     }
-  ],
-  "metadata": {
-    "targetRebalanceFrequency": "Monthly",
-    "category": "Aggressive Growth",
-    "riskLevel": "9"
-  }
 }

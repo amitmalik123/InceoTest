@@ -10,12 +10,12 @@
           "middleName": "string",
           "lastName": "string",
           "suffix": "string",
-          "dateOfBirth": "2025-12-04T00:00:00",
+          "dateOfBirth": "2025-12-04",
           "taxId": "string",
           "citizenship": "Unknown",
           "maritalStatus": "Unknown",
           "isDeceased": true,
-          "dateOfDeath": "2025-12-04T00:00:00"
+          "dateOfDeath": "2025-12-04"
         },
         "entity": {
           "type": "Business",
@@ -23,7 +23,7 @@
           "title": "string",
           "taxId": null,
           "taxidentifier": "SSN",
-          "createdDate": "2025-12-04T00:00:00"
+          "createdDate": "2025-12-04"
         }
       },
       "addresses": [
@@ -34,7 +34,7 @@
           "line2": "string",
           "city": "string",
           "state": "AL",
-          "zip": "strin",
+          "zip": "string",
           "country": "AD",
           "priorityType": "Primary"
         }

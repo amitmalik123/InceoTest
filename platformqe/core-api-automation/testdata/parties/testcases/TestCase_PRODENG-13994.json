@@ -34,6 +34,39 @@
       }
     ],
     "validate": {
+      "response_structure": {
+        "required_fields": [
+          "parties",
+          "parties[0].partyId",
+          "parties[0].version"
+        ]
+      },
+      "business_rules": [
+        {
+          "rule": "PRODENG-13994: version field must exist in GET /parties/{id} response",
+          "validation": "api_version is not null and not empty"
+        },
+        {
+          "rule": "PRODENG-13994: version must be at least 1 for any party record",
+          "validation": "api_version >= 1"
+        },
+        {
+          "rule": "PRODENG-13994: API version must exactly match database max version for the party",
+          "validation": "api_version equals db_version"
+        },
+        {
+          "rule": "Version field must be an integer value",
+          "validation": "api_version is integer"
+        },
+        {
+          "rule": "API response partyId must match requested Id parameter",
+          "validation": "parties.0.partyId equals id"
+        },
+        {
+          "rule": "Database version must match API version for data consistency",
+          "validation": "db_version equals api_version"
+        }
+      ],
       "performance": {
         "max_response_time_ms": 500
       },
@@ -84,7 +117,12 @@
     "workflow_mode": "sequential",
     "test_name": "POST /parties - Create party and verify initial version is 1",
     "protocol": "REST",
-    "test_type": ["Functional", "Smoke", "PRODENG-13994", "Business Logic"],
+    "test_type": [
+      "Functional",
+      "Regression",
+      "PRODENG-13994",
+      "Business Logic"
+    ],
     "mainURL": "{{base_url}}",
     "endpoint": "/parties",
     "method": "POST",
@@ -161,6 +199,31 @@
       }
     ],
     "validate": {
+      "response_structure": {
+        "required_fields": ["partyId", "status", "version"]
+      },
+      "business_rules": [
+        {
+          "rule": "PRODENG-13994: Party creation must return HTTP 201 Created",
+          "validation": "response.status equals 201"
+        },
+        {
+          "rule": "Created party must have a valid non-empty partyId",
+          "validation": "created_party_id is not null and not empty"
+        },
+        {
+          "rule": "PartyId must be a valid GUID format",
+          "validation": "created_party_id matches UUID pattern"
+        },
+        {
+          "rule": "Initial version must be 1 for newly created party",
+          "validation": "response.version equals 1"
+        },
+        {
+          "rule": "Initial status must be Draft for newly created party",
+          "validation": "response.status equals 'Draft'"
+        }
+      ],
       "performance": {
         "max_response_time_ms": 1000
       },
@@ -196,7 +259,12 @@
     "workflow_mode": "sequential",
     "test_name": "GET /parties/{id} - Verify initial version is 1 after POST",
     "protocol": "REST",
-    "test_type": ["Functional", "Smoke", "PRODENG-13994", "Business Logic"],
+    "test_type": [
+      "Functional",
+      "Regression",
+      "PRODENG-13994",
+      "Business Logic"
+    ],
     "mainURL": "{{base_url}}",
     "endpoint": "/parties/{{created_party_id}}",
     "method": "GET",
@@ -235,6 +303,36 @@
       }
     ],
     "validate": {
+      "response_structure": {
+        "required_fields": [
+          "parties",
+          "parties[0].partyId",
+          "parties[0].version",
+          "parties[0].status"
+        ]
+      },
+      "business_rules": [
+        {
+          "rule": "PRODENG-13994: GET immediately after POST must return version 1",
+          "validation": "version_after_post equals 1"
+        },
+        {
+          "rule": "API version must match database version after POST",
+          "validation": "version_after_post equals db_version_after_post"
+        },
+        {
+          "rule": "API status must match database status after POST",
+          "validation": "status_after_post equals db_status_after_post"
+        },
+        {
+          "rule": "Retrieved party must have same partyId as created party",
+          "validation": "parties.0.partyId equals created_party_id"
+        },
+        {
+          "rule": "Version consistency: API and database must be synchronized",
+          "validation": "parties.0.version equals db_version"
+        }
+      ],
       "performance": {
         "max_response_time_ms": 500
       },
@@ -362,10 +460,45 @@
       }
     },
     "expected_status": "200",
-    "expected_response_schema": "",
+    "expected_response_schema": "parties/schemas/Schema_parties_Party_id_PUT_response_success.json",
     "expected_response": null,
-    "extract_values": [],
+    "extract_values": [
+      {
+        "from": "response",
+        "key": "versionNumber",
+        "assign_to": "version_from_put_response"
+      }
+    ],
     "validate": {
+      "response_structure": {
+        "required_fields": ["partyId", "status", "version", "versionNumber"]
+      },
+      "business_rules": [
+        {
+          "rule": "PRODENG-13994: PUT with version header must return HTTP 200 OK",
+          "validation": "response.status equals 200"
+        },
+        {
+          "rule": "PUT response must include the newly incremented versionNumber",
+          "validation": "response.versionNumber equals 2"
+        },
+        {
+          "rule": "PUT with version 1 must increment version to 2 in database",
+          "validation": "db_version_after_first_put equals 2"
+        },
+        {
+          "rule": "Version header in request must match current party version for successful update",
+          "validation": "request.headers.version equals 1"
+        },
+        {
+          "rule": "Status must transition from Draft to Active after PUT",
+          "validation": "response.status equals 'Active'"
+        },
+        {
+          "rule": "Optimistic concurrency: version must be provided in header for PUT operations",
+          "validation": "headers contain version field"
+        }
+      ],
       "performance": {
         "max_response_time_ms": 500
       },
@@ -381,6 +514,12 @@
         "log_differences": true
       },
       "assertions": [
+        {
+          "actual": "{{version_from_put_response}}",
+          "operator": "==",
+          "expected": 2,
+          "message": "Expected versionNumber in PUT response to be 2"
+        },
         {
           "actual": "{{version_after_post}}",
           "operator": "==",
@@ -451,6 +590,36 @@
       }
     ],
     "validate": {
+      "response_structure": {
+        "required_fields": [
+          "parties",
+          "parties[0].partyId",
+          "parties[0].version",
+          "parties[0].status"
+        ]
+      },
+      "business_rules": [
+        {
+          "rule": "PRODENG-13994: GET after first PUT must return version 2",
+          "validation": "version_after_first_put equals 2"
+        },
+        {
+          "rule": "API version must match database version after first PUT",
+          "validation": "version_after_first_put equals db_version_after_first_put"
+        },
+        {
+          "rule": "API status must match database status after first PUT",
+          "validation": "status_after_first_put equals db_status_after_first_put"
+        },
+        {
+          "rule": "Version must increment from 1 to 2 after first PUT operation",
+          "validation": "version incremented by 1 from previous version"
+        },
+        {
+          "rule": "Database max version must be 2 after first PUT",
+          "validation": "db_version_after_first_put equals 2"
+        }
+      ],
       "performance": {
         "max_response_time_ms": 500
       },
@@ -578,10 +747,25 @@
       }
     },
     "expected_status": "200",
-    "expected_response_schema": "",
+    "expected_response_schema": "parties/schemas/Schema_parties_Party_id_PUT_response_success.json",
     "expected_response": null,
-    "extract_values": [],
+    "extract_values": [
+      {
+        "from": "response",
+        "key": "versionNumber",
+        "assign_to": "version_from_second_put_response"
+      }
+    ],
     "validate": {
+      "response_structure": {
+        "required_fields": ["versionNumber"]
+      },
+      "business_rules": [
+        {
+          "rule": "PUT response must include the newly incremented versionNumber",
+          "validation": "response.versionNumber equals 3"
+        }
+      ],
       "performance": {
         "max_response_time_ms": 500
       },
@@ -597,6 +781,12 @@
         "log_differences": true
       },
       "assertions": [
+        {
+          "actual": "{{version_from_second_put_response}}",
+          "operator": "==",
+          "expected": 3,
+          "message": "Expected versionNumber in PUT response to be 3"
+        },
         {
           "actual": "{{version_after_first_put}}",
           "operator": "==",

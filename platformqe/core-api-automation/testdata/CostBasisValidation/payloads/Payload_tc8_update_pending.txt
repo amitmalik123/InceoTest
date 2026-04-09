@@ -1,0 +1,36 @@
+{
+  "transferInfoId": {{TransferID_LIVE}},
+  "externalId": "{{ExternalID}}",
+  "custodian": "GNW",
+  "transferDirection": "In",
+  "amountType": "Full",
+  "transferType": "InKind",
+  "clearingFirmName": "CHARLES SCHWAB & CO., INC.",
+  "clearingFirmParticipantId": "0164",
+  "contraFirmName": "Charles Schwab",
+  "contraFirmAccountNumber": "Test",
+  "contraFirmRegistrationId": 4,
+  "contraFirmNameLine1": "Test Account",
+  "contraFirmNameLine2": "Test Line 2",
+  "amount": 100000,
+  "amountExpectation": "Exact",
+  "rowVersion": {{rowVersion}},
+  "fundingAccountNumber": "20600652",
+  "auditUser": "TestUser",
+  "nonAutomatedAccountTransfer": false,
+  "contraFirm_ID": 4,
+  "transferStatus": "Submitted",
+  "costBasis": "Pending",
+  "isCustodianChange": false,
+  "transferAllocations": [
+    {
+      "auditUser": "TestUser",
+      "transferInfoId": {{TransferID_LIVE}},
+      "accountNumber": "{{AccountNumber}}",
+      "accountName": "Test Allocation Account",
+      "allocationUnit": "Percent",
+      "allocationPercent": 100,
+      "uiAction": "NEW"
+    }
+  ]
+}

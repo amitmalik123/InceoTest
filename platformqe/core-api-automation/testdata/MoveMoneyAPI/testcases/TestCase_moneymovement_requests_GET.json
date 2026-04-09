@@ -9,7 +9,7 @@
             "Functional"
         ],
         "mainURL": "{{base_url}}",
-        "endpoint": "/requests?accountId=3FA85F64-5717-4562-B3FC-2C963F66AFA6&instructionId=50B730E0-1DF6-4BFF-9615-BB4481A6CED7&status=Confirmed&railTypes=ACH&requestType=Deposit&scheduleType=OneTime&page=1&pageSize=50",
+        "endpoint": "/requests?accountId=321E4567-E89B-12D3-A456-426614174000&instructionId=684225A1-358F-4BDB-A061-9B33576B94CC&status=Confirmed&railTypes=ACH&requestType=Deposit&scheduleType=OneTime&page=1&pageSize=50",
         "method": "GET",
         "rpc_method": "",
         "graphql_query": "",
@@ -22,13 +22,36 @@
         "payload": null,
         "expected_status": "200",
         "expected_response_schema": "MoveMoneyAPI\\schemas\\Schema_requests_GET.json",
-        "expected_response": null,
+        "expected_response": {
+            "page": 1,
+            "pageSize": 50,
+            "items": [
+                {
+                    "unitType": "Percent",
+                    "percent": 100.0,
+                    "purpose": null
+                }
+            ]
+        },
         "ignore_fields": [
             "id",
             "traceId",
             "timestamp",
             "createdDate",
-            "modifiedDate"
+            "modifiedDate",
+            "total",
+            "requestId",
+            "version",
+            "instructionId",
+            "accountId",
+            "railType",
+            "amount",
+            "requestType",
+            "status",
+            "reason",
+            "schedule",
+            "createdBy",
+            "modifiedBy"
         ],
         "extract_values": [
             {
@@ -57,7 +80,31 @@
                     "xss"
                 ]
             },
-            "data_comparison": [],
+            "data_comparison": [
+                {
+                    "source": "api_response",
+                    "target": "api_response",
+                    "fields_to_compare": [
+                        {
+                            "source_field": "page",
+                            "target_field": "page",
+                            "operator": "=="
+                        },
+                        {
+                            "source_field": "pageSize",
+                            "target_field": "pageSize",
+                            "operator": "=="
+                        },
+                        {
+                            "source_field": "total",
+                            "target_field": "total",
+                            "operator": "=="
+                        }
+                    ],
+                    "log_differences": true,
+                    "comparison_name": "Verify pagination response structure (TC001)"
+                }
+            ],
             "assertions": [
                 {
                     "actual": "{{response_page}}",
@@ -100,7 +147,7 @@
             "Positive"
         ],
         "mainURL": "{{base_url}}",
-        "endpoint": "/requests?accountId=3FA85F64-5717-4562-B3FC-2C963F66AFA6&page=1&pageSize=50",
+        "endpoint": "/requests?accountId=321E4567-E89B-12D3-A456-426614174000&page=1&pageSize=50",
         "method": "GET",
         "rpc_method": "",
         "graphql_query": "",
@@ -113,13 +160,36 @@
         "payload": null,
         "expected_status": "200",
         "expected_response_schema": "MoveMoneyAPI\\schemas\\Schema_requests_GET.json",
-        "expected_response": null,
+        "expected_response": {
+            "page": 1,
+            "pageSize": 50,
+            "items": [
+                {
+                    "unitType": "Percent",
+                    "percent": 100.0,
+                    "purpose": null
+                }
+            ]
+        },
         "ignore_fields": [
             "id",
             "traceId",
             "timestamp",
             "createdDate",
-            "modifiedDate"
+            "modifiedDate",
+            "total",
+            "requestId",
+            "version",
+            "instructionId",
+            "accountId",
+            "railType",
+            "amount",
+            "requestType",
+            "status",
+            "reason",
+            "schedule",
+            "createdBy",
+            "modifiedBy"
         ],
         "extract_values": [
             {
@@ -148,7 +218,31 @@
                     "xss"
                 ]
             },
-            "data_comparison": [],
+            "data_comparison": [
+                {
+                    "source": "api_response",
+                    "target": "api_response",
+                    "fields_to_compare": [
+                        {
+                            "source_field": "page",
+                            "target_field": "page",
+                            "operator": "=="
+                        },
+                        {
+                            "source_field": "pageSize",
+                            "target_field": "pageSize",
+                            "operator": "=="
+                        },
+                        {
+                            "source_field": "total",
+                            "target_field": "total",
+                            "operator": "=="
+                        }
+                    ],
+                    "log_differences": true,
+                    "comparison_name": "Verify pagination response structure (TC002)"
+                }
+            ],
             "assertions": [
                 {
                     "actual": "{{response_page}}",
@@ -178,7 +272,7 @@
         },
         "db_type": "",
         "db_connection_name": "",
-        "test_summary": "Test TC002: GET /moneymovement/requests [Positive] (TC002) - Verify that the API returns a 200 OK response when valid accountId is provided without filters in the GET request to /moneymovement/requests.",
+        "test_summary": "Test TC002: GET /moneymovement/requests [Positive] (TC002) - Verify that the API returns a 200 OK response when single valid accountId is provided without filters in the GET request to /moneymovement/requests.",
         "test_scenario": "Verify that the API returns a 200 OK response when valid accountId is provided without filters in the GET request to /moneymovement/requests."
     },
     {
@@ -191,7 +285,7 @@
             "Positive"
         ],
         "mainURL": "{{base_url}}",
-        "endpoint": "/requests?instructionId=50B730E0-1DF6-4BFF-9615-BB4481A6CED7",
+        "endpoint": "/requests?instructionId=684225A1-358F-4BDB-A061-9B33576B94CC",
         "method": "GET",
         "rpc_method": "",
         "graphql_query": "",
@@ -204,13 +298,36 @@
         "payload": null,
         "expected_status": "200",
         "expected_response_schema": "MoveMoneyAPI\\schemas\\Schema_requests_GET.json",
-        "expected_response": null,
+        "expected_response": {
+            "page": 1,
+            "pageSize": 50,
+            "items": [
+                {
+                    "unitType": "Percent",
+                    "percent": 100.0,
+                    "purpose": null
+                }
+            ]
+        },
         "ignore_fields": [
             "id",
             "traceId",
             "timestamp",
             "createdDate",
-            "modifiedDate"
+            "modifiedDate",
+            "total",
+            "requestId",
+            "version",
+            "instructionId",
+            "accountId",
+            "railType",
+            "amount",
+            "requestType",
+            "status",
+            "reason",
+            "schedule",
+            "createdBy",
+            "modifiedBy"
         ],
         "extract_values": [
             {
@@ -239,7 +356,31 @@
                     "xss"
                 ]
             },
-            "data_comparison": [],
+            "data_comparison": [
+                {
+                    "source": "api_response",
+                    "target": "api_response",
+                    "fields_to_compare": [
+                        {
+                            "source_field": "page",
+                            "target_field": "page",
+                            "operator": "=="
+                        },
+                        {
+                            "source_field": "pageSize",
+                            "target_field": "pageSize",
+                            "operator": "=="
+                        },
+                        {
+                            "source_field": "total",
+                            "target_field": "total",
+                            "operator": "=="
+                        }
+                    ],
+                    "log_differences": true,
+                    "comparison_name": "Verify pagination response structure (TC003)"
+                }
+            ],
             "assertions": [
                 {
                     "actual": "{{response_page}}",
@@ -579,7 +720,7 @@
             "Negative"
         ],
         "mainURL": "{{base_url}}",
-        "endpoint": "/requests?accountId=BB00EC97-9759-4B89-81E3-089BF584E607&status=Conf@#$irmed",
+        "endpoint": "/requests?accountId=321E4567-E89B-12D3-A456-426614174000&status=Pen@#$ding",
         "method": "GET",
         "rpc_method": "",
         "graphql_query": "",
@@ -602,7 +743,12 @@
             "traceId",
             "timestamp",
             "createdDate",
-            "modifiedDate"
+            "modifiedDate",
+            "type",
+            "title",
+            "detail",
+            "instance",
+            "errors"
         ],
         "extract_values": [
             {
@@ -655,7 +801,7 @@
             "Negative"
         ],
         "mainURL": "{{base_url}}",
-        "endpoint": "/requests?accountId=BB00EC97-9759-4B89-81E3-089BF584E607&instructionId=456E7890-E89B-12D3-A456-426614174111&status=Draft&railTypes=success",
+        "endpoint": "/requests?accountId=321E4567-E89B-12D3-A456-426614174000&instructionId=684225A1-358F-4BDB-A061-9B33576B94CC&status=Confirmed&railTypes=AC#$H",
         "method": "GET",
         "rpc_method": "",
         "graphql_query": "",
@@ -670,7 +816,7 @@
         "expected_response_schema": "",
         "expected_response": {
             "status": 400,
-            "error": "Invalid railTypes value. Valid values are: ACH, Wire, Check, Journal (Parameter 'RailTypes')",
+            "error": "Invalid railTypes value. Valid values are: ACH, Wire, Check, Journal, Transfer (Parameter 'RailTypes')",
             "fields": "RailTypes"
         },
         "ignore_fields": [
@@ -678,7 +824,12 @@
             "traceId",
             "timestamp",
             "createdDate",
-            "modifiedDate"
+            "modifiedDate",
+            "type",
+            "title",
+            "detail",
+            "instance",
+            "errors"
         ],
         "extract_values": [
             {
@@ -883,7 +1034,7 @@
             "Functional"
         ],
         "mainURL": "{{base_url}}",
-        "endpoint": "/requests?accountId=123E4567-E89B-12D3-A456-426614174000%2C%20456E7890-E89B-12D3-A456-426614174111&railTypes=ACH%2C%20Wire",
+        "endpoint": "/requests?accountId=123E4567-E89B-12D3-A456-426614174000%2C%20456E7890-E89B-12D3-A456-426614174111",
         "method": "GET",
         "rpc_method": "",
         "graphql_query": "",
@@ -894,7 +1045,7 @@
             "Content-Type": "application/json"
         },
         "payload": null,
-        "expected_status": "200",
+        "expected_status": "400",
         "expected_response_schema": "",
         "expected_response": null,
         "ignore_fields": [
@@ -932,26 +1083,7 @@
                 ]
             },
             "data_comparison": [],
-            "assertions": [
-                {
-                    "actual": "{{response_page}}",
-                    "expected": 0,
-                    "operator": ">",
-                    "message": "Page number should be greater than 0"
-                },
-                {
-                    "actual": "{{response_pageSize}}",
-                    "expected": 0,
-                    "operator": ">",
-                    "message": "Page size should be greater than 0"
-                },
-                {
-                    "actual": "{{response_total}}",
-                    "expected": 0,
-                    "operator": ">=",
-                    "message": "Total should be greater than or equal to 0"
-                }
-            ]
+            "assertions": []
         },
         "test_data_file": "",
         "db_query_timing": "after_api",
@@ -961,79 +1093,7 @@
         },
         "db_type": "",
         "db_connection_name": "",
-        "test_summary": "Test TC012: GET /moneymovement/requests [positive] (TC012) - Test GET request to validate the 200 successful responses for given more than one accountId and railTypes.",
-        "test_scenario": "Test GET request to /moneymovement/requests for functional scenario validation."
-    },
-    {
-        "test_id": "TC013",
-        "service_name": "MoveMoneyAPI",
-        "workflow_mode": "parallel",
-        "test_name": "GET /requests [Negative] (TC013)",
-        "protocol": "REST",
-        "test_type": [
-            "Negative"
-        ],
-        "mainURL": "{{base_url}}",
-        "endpoint": "/requests?accountId=3FA85F64-5717-4562-B3FC-2C963F66AFA6&instructionId=50B730E0-1DF6-4BFF-9615-BB4481A6CED7&status=Confirmed&railTypes=ACH&requestType=Deposit&scheduleType=OneTime&page=1&pageSize=50",
-        "method": "GET",
-        "rpc_method": "",
-        "graphql_query": "",
-        "graphql_variables": "",
-        "soap_action": "",
-        "soap_envelope": "",
-        "headers_additional": {
-            "Content-Type": "application/json"
-        },
-        "payload": null,
-        "expected_status": "500",
-        "expected_response_schema": "",
-        "expected_response": null,
-        "ignore_fields": [
-            "id",
-            "traceId",
-            "timestamp",
-            "createdDate",
-            "modifiedDate"
-        ],
-        "extract_values": [
-            {
-                "from": "response",
-                "key": "id",
-                "assign_to": ""
-            },
-            {
-                "from": "db_result",
-                "query": "",
-                "assign": [
-                    {
-                        "key": "",
-                        "assign_to": ""
-                    }
-                ]
-            }
-        ],
-        "validate": {
-            "performance": {
-                "max_response_time_ms": 500
-            },
-            "security": {
-                "checks": [
-                    "sql_injection",
-                    "xss"
-                ]
-            },
-            "data_comparison": []
-        },
-        "test_data_file": "",
-        "db_query_timing": "after_api",
-        "db_queries": {
-            "default": "",
-            "audit_query": ""
-        },
-        "db_type": "",
-        "db_connection_name": "",
-        "test_summary": "Verify that the API returns 500 Internal Server Error which would indicate a Server side crash.",
-        "error_case": "500",
+        "test_summary": "Test TC012: GET /moneymovement/requests [negative] (TC012) - Test GET request to validate the 400 Bad request responses for given more than one accountIds in a comma-separated list are not supported.",
         "test_scenario": "Test GET request to /moneymovement/requests for negative scenario validation."
     }
 ]

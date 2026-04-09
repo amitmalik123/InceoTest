@@ -1,0 +1,7 @@
+{
+  "name": "Sample Name",
+  "description": "Sample Description",
+  "status": "active",
+  "createdBy": "{{user_id}}",
+  "metadata": {}
+}

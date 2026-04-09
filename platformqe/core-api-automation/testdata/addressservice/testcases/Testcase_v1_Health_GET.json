@@ -3,13 +3,14 @@
         "test_id": "TC001",
         "service_name": "AddressService.API",
         "workflow_mode": "parallel",
-        "test_name": "GET /v1/Health [positive] (TC001)",
+        "test_name": "GET /v1/health [positive] (TC001)",
         "protocol": "REST",
         "test_type": [
-            "Functional", "Health"
+            "Functional",
+            "Health"
         ],
         "mainURL": "{{api_base_url}}",
-        "endpoint": "/HealthCheck",
+        "endpoint": "/health",
         "method": "GET",
         "rpc_method": "",
         "graphql_query": "",
@@ -17,7 +18,7 @@
         "soap_action": "",
         "soap_envelope": "",
         "headers_additional": {
-               "Accept": "*/*"
+            "Accept": "*/*"
         },
         "payload": null,
         "expected_status": "200",
@@ -26,6 +27,6 @@
         "test_data_file": "",
         "db_query": "",
         "db_type": "",
-        "test_summary": "Test TC001: GET /v1/Health [positive] (TC001)"
+        "test_summary": "Test TC001: GET /v1/health [positive] (TC001)"
     }
 ]

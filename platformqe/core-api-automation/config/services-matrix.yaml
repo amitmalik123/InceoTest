@@ -17,11 +17,27 @@ services:
     - notification
     - high-priority
     priority: 1
+  Transfer_Service_validation:
+    displayName: Transfer Service
+    enabled: false
+    runOnPR: false
+    runOnPush: false
+    runOnSchedule: false
+    testType: functional
+    environments:
+    - T11
+    functionalTestArgs: --service-name Transfer_Service_validation --env {environment}
+    nonFunctionalTestArgs: --file testdata/CostBasisValidation/testcases/TestCase_cost_basis_validation_tc9.json
+      --test_type Performance --env {environment} --headless -u 5 -r 1 -t 10s
+    tags:
+    - transfer-service
+    - high-priority
+    priority: 1
   parties:
     displayName: Parties API
     enabled: true
-    runOnPR: true
-    runOnPush: true
+    runOnPR: false
+    runOnPush: false
     runOnSchedule: true
     testType: functional
     environments:
@@ -53,6 +69,25 @@ services:
     - financial
     - critical
     priority: 1
+  account_service:
+    displayName: Account Service
+    enabled: true
+    runOnPR: false
+    runOnPush: false
+    runOnSchedule: true
+    testType: functional
+    environments:
+    - TSADEV
+    - TSATEST
+    - TSASILO
+    functionalTestArgs: --service-name account_service --env {environment}
+    nonFunctionalTestArgs: --file testdata/accounts/testcases/TestCase_accounts_GET.json
+      --test_type Performance --env {environment} --headless -u 8 -r 2 -t 20s
+    tags:
+    - account
+    - financial
+    - critical
+    priority: 1
   securities:
     displayName: Securities Hub
     enabled: true
@@ -80,8 +115,6 @@ services:
     testType: functional
     environments:
     - TSADEV
-    - TSATEST
-    - TSASILO
     functionalTestArgs: --service-name hnebase --env {environment}
     nonFunctionalTestArgs: ''
     tags:
@@ -139,9 +172,76 @@ services:
     - analytics
     - low-priority
     priority: 3
+  lexisnexiscipproxyservice:
+    displayName: LexisNexis CIP Proxy Service
+    enabled: true
+    runOnPR: false
+    runOnPush: false
+    runOnSchedule: true
+    testType: functional
+    environments:
+    - TSADEV
+    - TSATEST
+    - TSASILO
+    functionalTestArgs: --service-name lexisnexiscipproxyservice --env {environment}
+    nonFunctionalTestArgs: --file testdata/lexisnexiscipproxyservice/testcases/TestCase_cip_business_POST.json --test_type Performance --env {environment} --headless -u 5 -r 1 -t 15s
+    tags:
+    - lexisnexis
+    - cip
+    - compliance
+    priority: 2
+  accountdistributions:
+    displayName: Account Distributions
+    enabled: true
+    runOnPR: false
+    runOnPush: false
+    runOnSchedule: true
+    testType: functional
+    environments:
+    - D11
+    functionalTestArgs: --service-name accountdistributions --env {environment}
+    nonFunctionalTestArgs: --file testdata/AccountDistributions/testcases/TestCase_api_v1_OneTimeDistributionCode_reasons_retirementPlanType_GET.json --test_type Performance --env {environment} --headless -u 5 -r 1 -t 15s
+    tags:
+    - distributions
+    - account
+    priority: 2
+  DocusignProxyservice:
+    displayName: Docusign Proxy Service
+    enabled: true
+    runOnPR: false
+    runOnPush: false
+    runOnSchedule: true
+    testType: functional
+    environments:
+    - T10
+    - T11
+    functionalTestArgs: --service-name DocusignProxyservice --env {environment}
+    nonFunctionalTestArgs: --file testdata/DocusignProxyservice/testcases/TestCase_api_docusignproxy_v2_Envelope_envelopeId_custom_fields_GET.json --test_type Performance --env {environment} --headless -u 5 -r 1 -t 15s
+    tags:
+    - docusign
+    - proxy
+    priority: 2
+  custodialintegration:
+    displayName: Custodial Integration
+    enabled: true
+    runOnPR: false
+    runOnPush: false
+    runOnSchedule: true
+    testType: functional
+    environments:
+    - TSADEV
+    - TSATEST
+    functionalTestArgs: --service-name custodialintegration --env {environment}
+    nonFunctionalTestArgs: --file testdata/custodialintegration/testcases/TestCase_custodialservicing_accounts_POST.json
+      --test_type Performance --env {environment} --headless -u 8 -r 2 -t 20s
+    tags:
+    - custodial
+    - integration
+    - critical
+    priority: 1
 global:
   defaultPool:
-    name: ewm20-docker-build-agent-inc-dev
+    name: ewm20-docker-build-agent-qa-dev
   pythonVersion: '3.10'
   defaultEnvironments:
   - TSADEV

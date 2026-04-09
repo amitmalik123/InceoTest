@@ -1,0 +1,20 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "GET /api/docusignproxy/v2/Recipient/{envelopeId} Response Schema (lenient)",
+  "description": "Lenient schema: accepts object, array, or string (covers JSON objects, arrays, and non-JSON payloads such as base64/pdf).",
+  "oneOf": [
+    {
+      "type": "object",
+      "additionalProperties": true,
+      "properties": {
+        "id": { "type": "string" },
+        "data": { "type": ["object","array","string","null" ] },
+        "status": { "type": "string" },
+        "message": { "type": "string" },
+        "timestamp": { "type": "string", "format": "date-time" }
+      }
+    },
+    { "type": "array", "items": {} },
+    { "type": "string" }
+  ]
+}

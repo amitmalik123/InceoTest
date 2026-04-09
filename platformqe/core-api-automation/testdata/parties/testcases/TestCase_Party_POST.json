@@ -5,7 +5,7 @@
     "workflow_mode": "parallel",
     "test_name": "POST /parties [positive] (TC001)",
     "protocol": "REST",
-    "test_type": ["Functional", "Business Logic"],
+    "test_type": ["Functional", "Smoke", "Business Logic"],
     "mainURL": "{{base_url}}",
     "endpoint": "/parties",
     "method": "POST",
@@ -40,6 +40,23 @@
       }
     ],
     "validate": {
+      "response_structure": {
+        "required_fields": ["partyId"]
+      },
+      "business_rules": [
+        {
+          "rule": "Party creation must return HTTP 201 Created status",
+          "validation": "response.status equals 201"
+        },
+        {
+          "rule": "Created party must have a valid GUID as partyId",
+          "validation": "party_id is not null and not empty and matches GUID pattern"
+        },
+        {
+          "rule": "Party creation must persist the party in the database",
+          "validation": "db_result contains party record with matching partyId"
+        }
+      ],
       "performance": {
         "max_response_time_ms": 1000
       },

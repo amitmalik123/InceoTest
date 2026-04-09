@@ -1,0 +1,1356 @@
+[
+  {
+    "test_id": "TC_001",
+    "service_name": "parties",
+    "workflow_mode": "sequential",
+    "test_name": "POST /parties - Create Individual party with taxId",
+    "protocol": "REST",
+    "test_type": [
+      "Functional",
+      "Regression",
+      "PRODENG-12205",
+      "Business Logic"
+    ],
+    "mainURL": "{{base_url}}",
+    "endpoint": "/parties",
+    "method": "POST",
+    "rpc_method": "",
+    "graphql_query": "",
+    "graphql_variables": "",
+    "soap_action": "",
+    "soap_envelope": "",
+    "headers_additional": {
+      "Content-Type": "application/json"
+    },
+    "payload": "parties/payloads/Payload_individual_party.txt",
+    "expected_status": "201",
+    "expected_response_schema": null,
+    "expected_response": null,
+    "extract_values": [
+      {
+        "from": "response",
+        "key": "partyId",
+        "assign_to": "created_party_id"
+      }
+    ],
+    "validate": {
+      "response_structure": {
+        "required_fields": ["partyId", "status", "version"]
+      },
+      "business_rules": [
+        {
+          "rule": "Party creation must return a valid partyId",
+          "validation": "created_party_id is not empty"
+        },
+        {
+          "rule": "PartyId must be a valid GUID format",
+          "validation": "created_party_id matches UUID pattern"
+        },
+        {
+          "rule": "Initial version must be 1 for newly created party",
+          "validation": "response.version equals 1"
+        },
+        {
+          "rule": "Status must be Draft for newly created Individual party",
+          "validation": "response.status equals 'Draft'"
+        }
+      ],
+      "performance": {
+        "max_response_time_ms": 2000
+      },
+      "security": {
+        "checks": ["sql_injection", "xss"]
+      },
+      "data_comparison": {
+        "source": "api_response",
+        "target": "db_result",
+        "format": "table",
+        "key_field": ["", ""],
+        "fields_to_compare": [],
+        "log_differences": true
+      },
+      "assertions": [
+        {
+          "actual": "{{created_party_id}}",
+          "operator": "!=",
+          "expected": "",
+          "message": "Expected created party ID to be non-empty"
+        }
+      ]
+    },
+    "test_data_file": "parties/data_driven/Data_PRODENG-19146_Individual_TaxId_BugFix.csv",
+    "db_type": "",
+    "db_connection_name": "parties",
+    "db_query": "",
+    "test_summary": "Test TC_TAXID_001: Create an Individual party with taxId for subsequent taxIdentifierType validation tests"
+  },
+  {
+    "test_id": "TC_002",
+    "service_name": "parties",
+    "workflow_mode": "sequential",
+    "test_name": "GET /parties/{id} - Verify taxId exists after POST for Individual",
+    "protocol": "REST",
+    "test_type": [
+      "Functional",
+      "Regression",
+      "PRODENG-12205",
+      "Business Logic"
+    ],
+    "mainURL": "{{base_url}}",
+    "endpoint": "/parties/{{created_party_id}}",
+    "method": "GET",
+    "rpc_method": "",
+    "graphql_query": "",
+    "graphql_variables": "",
+    "soap_action": "",
+    "soap_envelope": "",
+    "headers_additional": {
+      "Content-Type": "application/json"
+    },
+    "payload": null,
+    "expected_status": "200",
+    "expected_response_schema": "",
+    "expected_response": null,
+    "extract_values": [
+      {
+        "from": "response",
+        "key": "parties.0.core.individual.taxId",
+        "assign_to": "taxId_after_post"
+      },
+      {
+        "from": "response",
+        "key": "parties.0.core.entity.taxidentifier",
+        "assign_to": "taxIdentifierType_after_post"
+      },
+      {
+        "from": "response",
+        "key": "parties.0.version",
+        "assign_to": "version_after_post"
+      },
+      {
+        "from": "db_result",
+        "key": "0.TaxIdentifierType",
+        "assign_to": "db_taxIdentifierType_after_post"
+      }
+    ],
+    "validate": {
+      "response_structure": {
+        "required_fields": [
+          "parties",
+          "parties[0].core.individual.taxId",
+          "parties[0].core.entity.taxidentifier",
+          "parties[0].version"
+        ]
+      },
+      "business_rules": [
+        {
+          "rule": "PRODENG-12205: Individual party must have taxId populated after creation",
+          "validation": "taxId_after_post is not null and not empty"
+        },
+        {
+          "rule": "PRODENG-12205: Individual party taxIdentifierType must be SSN in API response",
+          "validation": "taxIdentifierType_after_post equals 'SSN'"
+        },
+        {
+          "rule": "PRODENG-12205: Individual party TaxIdentifierType must be SSN in database",
+          "validation": "db_taxIdentifierType_after_post equals 'SSN'"
+        },
+        {
+          "rule": "TaxIdentifierType must match between API response and database",
+          "validation": "taxIdentifierType_after_post equals db_taxIdentifierType_after_post"
+        }
+      ],
+      "performance": {
+        "max_response_time_ms": 500
+      },
+      "security": {
+        "checks": ["sql_injection", "xss"]
+      },
+      "data_comparison": {
+        "source": "api_response",
+        "target": "db_result",
+        "format": "table",
+        "key_field": ["", ""],
+        "fields_to_compare": [],
+        "log_differences": true
+      },
+      "assertions": [
+        {
+          "actual": "{{taxId_after_post}}",
+          "operator": "!=",
+          "expected": null,
+          "message": "Expected taxId to be non-null after POST for Individual party"
+        },
+        {
+          "actual": "{{taxId_after_post}}",
+          "operator": "!=",
+          "expected": "",
+          "message": "Expected taxId to be non-empty after POST for Individual party"
+        },
+        {
+          "actual": "{{taxIdentifierType_after_post}}",
+          "operator": "==",
+          "expected": "SSN",
+          "message": "PRODENG-12205: API Response entity.taxidentifier should be SSN for Individual party"
+        },
+        {
+          "actual": "{{db_taxIdentifierType_after_post}}",
+          "operator": "==",
+          "expected": "SSN",
+          "message": "Expected TaxIdentifierType to be SSN in DB for Individual party after POST"
+        }
+      ]
+    },
+    "test_data_file": "",
+    "db_type": "mssql",
+    "db_connection_name": "parties",
+    "db_query": "SELECT TOP 1 Id, TaxIdentifierType, Version FROM Party WHERE Id = '{{created_party_id}}' ORDER BY Version DESC;",
+    "db_validations": [
+      {
+        "query": "default",
+        "assertion": "TaxIdentifierType must be SSN for Individual party"
+      }
+    ],
+    "test_summary": "Test TC_TAXID_002: Verify taxId is returned and TaxIdentifierType is SSN in DB after POST for Individual party"
+  },
+  {
+    "test_id": "TC_003",
+    "service_name": "parties",
+    "workflow_mode": "sequential",
+    "test_name": "PUT /parties/{id} - Update Individual party WITHOUT taxIdentifierType in payload",
+    "protocol": "REST",
+    "test_type": [
+      "Functional",
+      "Regression",
+      "PRODENG-12205",
+      "Business Logic"
+    ],
+    "mainURL": "{{base_url}}",
+    "endpoint": "/parties/{{created_party_id}}",
+    "method": "PUT",
+    "rpc_method": "",
+    "graphql_query": "",
+    "graphql_variables": "",
+    "soap_action": "",
+    "soap_envelope": "",
+    "headers_additional": {
+      "Content-Type": "application/json",
+      "version": "{{version_after_post}}"
+    },
+    "payload": "parties/payloads/Payload_individual_party_updated.txt",
+    "expected_status": "200",
+    "expected_response_schema": "parties/schemas/Schema_parties_Party_id_PUT_response_success.json",
+    "expected_response": null,
+    "extract_values": [
+      {
+        "from": "response",
+        "key": "versionNumber",
+        "assign_to": "individual_version_from_put"
+      }
+    ],
+    "validate": {
+      "response_structure": {
+        "required_fields": ["versionNumber"]
+      },
+      "business_rules": [
+        {
+          "rule": "PUT operation must succeed when taxIdentifierType is not explicitly provided",
+          "validation": "response.status equals 200"
+        },
+        {
+          "rule": "PUT response must include the newly incremented versionNumber",
+          "validation": "response.versionNumber is not null"
+        },
+        {
+          "rule": "Version must increment after successful PUT operation",
+          "validation": "response.version > version_after_post"
+        }
+      ],
+      "performance": {
+        "max_response_time_ms": 500
+      },
+      "security": {
+        "checks": ["sql_injection", "xss"]
+      },
+      "data_comparison": {
+        "source": "api_response",
+        "target": "db_result",
+        "format": "table",
+        "key_field": ["", ""],
+        "fields_to_compare": [],
+        "log_differences": true
+      },
+      "assertions": [
+        {
+          "actual": "{{individual_version_from_put}}",
+          "operator": "!=",
+          "expected": null,
+          "message": "Expected versionNumber in PUT response to be non-null"
+        }
+      ]
+    },
+    "test_data_file": "parties/data_driven/Data_PRODENG-19146_Individual_TaxId_BugFix.csv",
+    "db_type": "",
+    "db_connection_name": "parties",
+    "db_query": "",
+    "test_summary": "Test TC_TAXID_003: Update Individual party without explicitly setting taxIdentifierType - should preserve SSN"
+  },
+  {
+    "test_id": "TC_004",
+    "service_name": "parties",
+    "workflow_mode": "sequential",
+    "test_name": "GET /parties/{id} - Verify taxId is returned after PUT for Individual (Bug Fix Validation)",
+    "protocol": "REST",
+    "test_type": [
+      "Functional",
+      "Regression",
+      "PRODENG-12205",
+      "Business Logic"
+    ],
+    "mainURL": "{{base_url}}",
+    "endpoint": "/parties/{{created_party_id}}",
+    "method": "GET",
+    "rpc_method": "",
+    "graphql_query": "",
+    "graphql_variables": "",
+    "soap_action": "",
+    "soap_envelope": "",
+    "headers_additional": {
+      "Content-Type": "application/json"
+    },
+    "payload": null,
+    "expected_status": "200",
+    "expected_response_schema": "",
+    "expected_response": null,
+    "extract_values": [
+      {
+        "from": "response",
+        "key": "parties.0.core.individual.taxId",
+        "assign_to": "taxId_after_put"
+      },
+      {
+        "from": "response",
+        "key": "parties.0.core.entity.taxidentifier",
+        "assign_to": "taxIdentifierType_after_put"
+      },
+      {
+        "from": "response",
+        "key": "parties.0.version",
+        "assign_to": "version_after_put"
+      },
+      {
+        "from": "response",
+        "key": "parties.0.core.individual.firstName",
+        "assign_to": "firstName_after_put"
+      },
+      {
+        "from": "db_result",
+        "key": "0.TaxIdentifierType",
+        "assign_to": "db_taxIdentifierType_after_put"
+      }
+    ],
+    "validate": {
+      "business_rules": [
+        {
+          "rule": "PRODENG-12205: TaxId must persist after PUT operation for Individual party",
+          "validation": "taxId_after_put is not null and not empty"
+        },
+        {
+          "rule": "PRODENG-12205: TaxId value must be preserved unchanged after PUT",
+          "validation": "taxId_after_put equals '123456789'"
+        },
+        {
+          "rule": "PRODENG-12205: TaxIdentifierType must remain SSN in API response after PUT",
+          "validation": "taxIdentifierType_after_put equals 'SSN'"
+        },
+        {
+          "rule": "PRODENG-12205: TaxIdentifierType must remain SSN in database after PUT",
+          "validation": "db_taxIdentifierType_after_put equals 'SSN'"
+        },
+        {
+          "rule": "Updated fields must reflect the changes from PUT request",
+          "validation": "firstName_after_put equals 'JohnUpdated'"
+        },
+        {
+          "rule": "Version must increment after successful PUT operation",
+          "validation": "version_after_put > version_after_post"
+        },
+        {
+          "rule": "TaxIdentifierType consistency between API and database",
+          "validation": "taxIdentifierType_after_put equals db_taxIdentifierType_after_put"
+        }
+      ],
+      "performance": {
+        "max_response_time_ms": 500
+      },
+      "security": {
+        "checks": ["sql_injection", "xss"]
+      },
+      "data_comparison": {
+        "source": "api_response",
+        "target": "db_result",
+        "format": "table",
+        "key_field": ["", ""],
+        "fields_to_compare": [],
+        "log_differences": true
+      },
+      "assertions": [
+        {
+          "actual": "{{taxId_after_put}}",
+          "operator": "!=",
+          "expected": null,
+          "message": "PRODENG-12205 Bug Fix: Expected taxId to be non-null after PUT for Individual party"
+        },
+        {
+          "actual": "{{taxId_after_put}}",
+          "operator": "!=",
+          "expected": "",
+          "message": "PRODENG-12205 Bug Fix: Expected taxId to be non-empty after PUT for Individual party"
+        },
+        {
+          "actual": "{{taxId_after_put}}",
+          "operator": "==",
+          "expected": "123456789",
+          "message": "PRODENG-12205 Bug Fix: Expected taxId value to be preserved after PUT"
+        },
+        {
+          "actual": "{{taxIdentifierType_after_put}}",
+          "operator": "==",
+          "expected": "SSN",
+          "message": "PRODENG-12205: API Response entity.taxidentifier should remain SSN after PUT"
+        },
+        {
+          "actual": "{{db_taxIdentifierType_after_put}}",
+          "operator": "==",
+          "expected": "SSN",
+          "message": "PRODENG-12205 Bug Fix: Expected TaxIdentifierType to remain SSN in DB after PUT for Individual party"
+        },
+        {
+          "actual": "{{firstName_after_put}}",
+          "operator": "==",
+          "expected": "JohnUpdated",
+          "message": "Expected firstName to be updated after PUT"
+        },
+        {
+          "actual": "{{version_after_put}}",
+          "operator": ">",
+          "expected": "{{version_after_post}}",
+          "message": "Expected version to increment after PUT"
+        }
+      ]
+    },
+    "test_data_file": "",
+    "db_type": "mssql",
+    "db_connection_name": "parties",
+    "db_query": "SELECT TOP 1 Id, TaxIdentifierType, Version FROM Party WHERE Id = '{{created_party_id}}' ORDER BY Version DESC;",
+    "db_validations": [
+      {
+        "query": "default",
+        "assertion": "TaxIdentifierType must remain SSN after PUT operation"
+      }
+    ],
+    "test_summary": "Test TC_TAXID_004: PRODENG-12205 Bug Fix Validation - Verify taxId is returned and TaxIdentifierType remains SSN after PUT for Individual party"
+  },
+  {
+    "test_id": "TC_005",
+    "service_name": "parties",
+    "workflow_mode": "sequential",
+    "test_name": "PUT /parties/{id} - Second update to Individual party to confirm taxId persistence",
+    "protocol": "REST",
+    "test_type": [
+      "Functional",
+      "Regression",
+      "PRODENG-12205",
+      "Business Logic"
+    ],
+    "mainURL": "{{base_url}}",
+    "endpoint": "/parties/{{created_party_id}}",
+    "method": "PUT",
+    "rpc_method": "",
+    "graphql_query": "",
+    "graphql_variables": "",
+    "soap_action": "",
+    "soap_envelope": "",
+    "headers_additional": {
+      "Content-Type": "application/json",
+      "version": "{{version_after_put}}"
+    },
+    "payload": "parties/payloads/Payload_individual_party_final.txt",
+    "expected_status": "200",
+    "expected_response_schema": "parties/schemas/Schema_parties_Party_id_PUT_response_success.json",
+    "expected_response": null,
+    "extract_values": [
+      {
+        "from": "response",
+        "key": "versionNumber",
+        "assign_to": "individual_version_from_second_put"
+      }
+    ],
+    "validate": {
+      "response_structure": {
+        "required_fields": ["versionNumber"]
+      },
+      "business_rules": [
+        {
+          "rule": "Multiple PUT operations must be supported for Individual party",
+          "validation": "response.status equals 200"
+        },
+        {
+          "rule": "PUT response must include the newly incremented versionNumber",
+          "validation": "response.versionNumber is not null"
+        },
+        {
+          "rule": "Version increments with each PUT operation",
+          "validation": "response.version > previous_version"
+        }
+      ],
+      "performance": {
+        "max_response_time_ms": 500
+      },
+      "security": {
+        "checks": ["sql_injection", "xss"]
+      },
+      "data_comparison": {
+        "source": "api_response",
+        "target": "db_result",
+        "format": "table",
+        "key_field": ["", ""],
+        "fields_to_compare": [],
+        "log_differences": true
+      },
+      "assertions": [
+        {
+          "actual": "{{individual_version_from_second_put}}",
+          "operator": "!=",
+          "expected": null,
+          "message": "Expected versionNumber in PUT response to be non-null"
+        }
+      ]
+    },
+    "test_data_file": "parties/data_driven/Data_PRODENG-19146_Individual_TaxId_BugFix.csv",
+    "db_type": "",
+    "db_connection_name": "parties",
+    "db_query": "",
+    "test_summary": "Test TC_TAXID_005: Second PUT update to verify taxId continues to persist across multiple updates"
+  },
+  {
+    "test_id": "TC_006",
+    "service_name": "parties",
+    "workflow_mode": "sequential",
+    "test_name": "GET /parties/{id} - Final verification of taxId after multiple PUTs for Individual",
+    "protocol": "REST",
+    "test_type": [
+      "Functional",
+      "Regression",
+      "PRODENG-12205",
+      "Business Logic"
+    ],
+    "mainURL": "{{base_url}}",
+    "endpoint": "/parties/{{created_party_id}}",
+    "method": "GET",
+    "rpc_method": "",
+    "graphql_query": "",
+    "graphql_variables": "",
+    "soap_action": "",
+    "soap_envelope": "",
+    "headers_additional": {
+      "Content-Type": "application/json"
+    },
+    "payload": null,
+    "expected_status": "200",
+    "expected_response_schema": "",
+    "expected_response": null,
+    "extract_values": [
+      {
+        "from": "response",
+        "key": "parties.0.core.individual.taxId",
+        "assign_to": "taxId_final"
+      },
+      {
+        "from": "response",
+        "key": "parties.0.core.entity.taxidentifier",
+        "assign_to": "taxIdentifierType_final"
+      },
+      {
+        "from": "response",
+        "key": "parties.0.status",
+        "assign_to": "status_final"
+      },
+      {
+        "from": "db_result",
+        "key": "0.TaxIdentifierType",
+        "assign_to": "db_taxIdentifierType_final"
+      }
+    ],
+    "validate": {
+      "business_rules": [
+        {
+          "rule": "PRODENG-12205: TaxId must persist across multiple PUT operations for Individual party",
+          "validation": "taxId_final is not null"
+        },
+        {
+          "rule": "PRODENG-12205: TaxId value integrity must be maintained across multiple updates",
+          "validation": "taxId_final equals '123456789'"
+        },
+        {
+          "rule": "PRODENG-12205: TaxIdentifierType must always be SSN for Individual party in API response",
+          "validation": "taxIdentifierType_final equals 'SSN'"
+        },
+        {
+          "rule": "PRODENG-12205: TaxIdentifierType must always be SSN for Individual party in database",
+          "validation": "db_taxIdentifierType_final equals 'SSN'"
+        },
+        {
+          "rule": "Party status must remain consistent unless explicitly changed",
+          "validation": "status_final equals 'Draft'"
+        },
+        {
+          "rule": "TaxIdentifierType consistency validation between API and database",
+          "validation": "taxIdentifierType_final equals db_taxIdentifierType_final"
+        }
+      ],
+      "performance": {
+        "max_response_time_ms": 500
+      },
+      "security": {
+        "checks": ["sql_injection", "xss"]
+      },
+      "data_comparison": {
+        "source": "api_response",
+        "target": "db_result",
+        "format": "table",
+        "key_field": ["", ""],
+        "fields_to_compare": [],
+        "log_differences": true
+      },
+      "assertions": [
+        {
+          "actual": "{{taxId_final}}",
+          "operator": "!=",
+          "expected": null,
+          "message": "PRODENG-12205: taxId must not be null after multiple PUT operations for Individual party"
+        },
+        {
+          "actual": "{{taxId_final}}",
+          "operator": "==",
+          "expected": "123456789",
+          "message": "PRODENG-12205: taxId value must persist across multiple PUT operations"
+        },
+        {
+          "actual": "{{taxIdentifierType_final}}",
+          "operator": "==",
+          "expected": "SSN",
+          "message": "PRODENG-12205: API Response entity.taxidentifier must remain SSN after multiple PUTs"
+        },
+        {
+          "actual": "{{db_taxIdentifierType_final}}",
+          "operator": "==",
+          "expected": "SSN",
+          "message": "PRODENG-12205: TaxIdentifierType must always be SSN for Individual party type"
+        },
+        {
+          "actual": "{{status_final}}",
+          "operator": "==",
+          "expected": "Draft",
+          "message": "Expected status to remain Draft"
+        }
+      ]
+    },
+    "test_data_file": "",
+    "db_type": "mssql",
+    "db_connection_name": "parties",
+    "db_query": "SELECT TOP 1 Id, TaxIdentifierType, Version, Status FROM Party WHERE Id = '{{created_party_id}}' ORDER BY Version DESC;",
+    "db_validations": [
+      {
+        "query": "default",
+        "assertion": "TaxIdentifierType must persist as SSN across multiple PUT operations"
+      }
+    ],
+    "test_summary": "Test TC_TAXID_006: PRODENG-12205 Final Validation - Confirm taxId and TaxIdentifierType persist correctly after multiple PUT operations for Individual party"
+  },
+  {
+    "test_id": "TC_007",
+    "service_name": "parties",
+    "workflow_mode": "sequential",
+    "test_name": "POST /parties - Create Business party with taxId",
+    "protocol": "REST",
+    "test_type": [
+      "Functional",
+      "Regression",
+      "PRODENG-12205",
+      "Business Logic"
+    ],
+    "mainURL": "{{base_url}}",
+    "endpoint": "/parties",
+    "method": "POST",
+    "rpc_method": "",
+    "graphql_query": "",
+    "graphql_variables": "",
+    "soap_action": "",
+    "soap_envelope": "",
+    "headers_additional": {
+      "Content-Type": "application/json"
+    },
+    "payload": "parties/payloads/Payload_business_party.txt",
+    "expected_status": "201",
+    "expected_response_schema": null,
+    "expected_response": null,
+    "extract_values": [
+      {
+        "from": "response",
+        "key": "partyId",
+        "assign_to": "created_business_party_id"
+      }
+    ],
+    "validate": {
+      "response_structure": {
+        "required_fields": ["partyId", "status", "version"]
+      },
+      "business_rules": [
+        {
+          "rule": "Business party creation must return a valid partyId",
+          "validation": "created_business_party_id is not empty"
+        },
+        {
+          "rule": "PartyId must be a valid GUID format",
+          "validation": "created_business_party_id matches UUID pattern"
+        },
+        {
+          "rule": "Initial version must be 1 for newly created party",
+          "validation": "response.version equals 1"
+        },
+        {
+          "rule": "Status must be Draft for newly created Business party",
+          "validation": "response.status equals 'Draft'"
+        }
+      ],
+      "performance": {
+        "max_response_time_ms": 2000
+      },
+      "security": {
+        "checks": ["sql_injection", "xss"]
+      },
+      "data_comparison": {
+        "source": "api_response",
+        "target": "db_result",
+        "format": "table",
+        "key_field": ["", ""],
+        "fields_to_compare": [],
+        "log_differences": true
+      },
+      "assertions": [
+        {
+          "actual": "{{created_business_party_id}}",
+          "operator": "!=",
+          "expected": "",
+          "message": "Expected created business party ID to be non-empty"
+        }
+      ]
+    },
+    "test_data_file": "parties/data_driven/Data_PRODENG-19146_Business_TaxId_BugFix.csv",
+    "db_type": "",
+    "db_connection_name": "parties",
+    "db_query": "",
+    "test_summary": "Test TC_TAXID_007: Create a Business party with taxId for subsequent taxIdentifierType validation tests"
+  },
+  {
+    "test_id": "TC_008",
+    "service_name": "parties",
+    "workflow_mode": "sequential",
+    "test_name": "GET /parties/{id} - Verify taxId exists after POST for Business",
+    "protocol": "REST",
+    "test_type": [
+      "Functional",
+      "Regression",
+      "PRODENG-12205",
+      "Business Logic"
+    ],
+    "mainURL": "{{base_url}}",
+    "endpoint": "/parties/{{created_business_party_id}}",
+    "method": "GET",
+    "rpc_method": "",
+    "graphql_query": "",
+    "graphql_variables": "",
+    "soap_action": "",
+    "soap_envelope": "",
+    "headers_additional": {
+      "Content-Type": "application/json"
+    },
+    "payload": null,
+    "expected_status": "200",
+    "expected_response_schema": "",
+    "expected_response": null,
+    "extract_values": [
+      {
+        "from": "response",
+        "key": "parties.0.core.entity.taxId",
+        "assign_to": "business_taxId_after_post"
+      },
+      {
+        "from": "response",
+        "key": "parties.0.core.entity.taxidentifier",
+        "assign_to": "business_taxIdentifierType_after_post"
+      },
+      {
+        "from": "response",
+        "key": "parties.0.version",
+        "assign_to": "business_version_after_post"
+      },
+      {
+        "from": "db_result",
+        "key": "0.TaxIdentifierType",
+        "assign_to": "db_business_taxIdentifierType_after_post"
+      }
+    ],
+    "validate": {
+      "response_structure": {
+        "required_fields": [
+          "parties",
+          "parties[0].core.entity.taxId",
+          "parties[0].core.entity.taxidentifier",
+          "parties[0].version"
+        ]
+      },
+      "business_rules": [
+        {
+          "rule": "PRODENG-12205: Business party must have taxId populated after creation",
+          "validation": "business_taxId_after_post is not null and not empty"
+        },
+        {
+          "rule": "PRODENG-12205: Business party taxIdentifierType must be EIN in API response",
+          "validation": "business_taxIdentifierType_after_post equals 'EIN'"
+        },
+        {
+          "rule": "PRODENG-12205: Business party TaxIdentifierType must be EIN in database",
+          "validation": "db_business_taxIdentifierType_after_post equals 'EIN'"
+        },
+        {
+          "rule": "TaxIdentifierType must match between API response and database",
+          "validation": "business_taxIdentifierType_after_post equals db_business_taxIdentifierType_after_post"
+        }
+      ],
+      "performance": {
+        "max_response_time_ms": 500
+      },
+      "security": {
+        "checks": ["sql_injection", "xss"]
+      },
+      "data_comparison": {
+        "source": "api_response",
+        "target": "db_result",
+        "format": "table",
+        "key_field": ["", ""],
+        "fields_to_compare": [],
+        "log_differences": true
+      },
+      "assertions": [
+        {
+          "actual": "{{business_taxId_after_post}}",
+          "operator": "!=",
+          "expected": null,
+          "message": "Expected taxId to be non-null after POST for Business party"
+        },
+        {
+          "actual": "{{business_taxId_after_post}}",
+          "operator": "!=",
+          "expected": "",
+          "message": "Expected taxId to be non-empty after POST for Business party"
+        },
+        {
+          "actual": "{{business_taxIdentifierType_after_post}}",
+          "operator": "==",
+          "expected": "EIN",
+          "message": "PRODENG-12205: API Response entity.taxidentifier should be EIN for Business party"
+        },
+        {
+          "actual": "{{db_business_taxIdentifierType_after_post}}",
+          "operator": "==",
+          "expected": "EIN",
+          "message": "Expected TaxIdentifierType to be EIN in DB for Business party after POST"
+        }
+      ]
+    },
+    "test_data_file": "",
+    "db_type": "mssql",
+    "db_connection_name": "parties",
+    "db_query": "SELECT TOP 1 Id, TaxIdentifierType, Version FROM Party WHERE Id = '{{created_business_party_id}}' ORDER BY Version DESC;",
+    "db_validations": [
+      {
+        "query": "default",
+        "assertion": "TaxIdentifierType must be EIN for Business party"
+      }
+    ],
+    "test_summary": "Test TC_TAXID_008: Verify taxId is returned and TaxIdentifierType is EIN in DB after POST for Business party"
+  },
+  {
+    "test_id": "TC_009",
+    "service_name": "parties",
+    "workflow_mode": "sequential",
+    "test_name": "PUT /parties/{id} - Update Business party WITHOUT taxIdentifierType in payload",
+    "protocol": "REST",
+    "test_type": [
+      "Functional",
+      "Regression",
+      "PRODENG-12205",
+      "Business Logic"
+    ],
+    "mainURL": "{{base_url}}",
+    "endpoint": "/parties/{{created_business_party_id}}",
+    "method": "PUT",
+    "rpc_method": "",
+    "graphql_query": "",
+    "graphql_variables": "",
+    "soap_action": "",
+    "soap_envelope": "",
+    "headers_additional": {
+      "Content-Type": "application/json",
+      "version": "{{business_version_after_post}}"
+    },
+    "payload": "parties/payloads/Payload_business_party_updated.txt",
+    "expected_status": "200",
+    "expected_response_schema": "parties/schemas/Schema_parties_Party_id_PUT_response_success.json",
+    "expected_response": null,
+    "extract_values": [
+      {
+        "from": "response",
+        "key": "versionNumber",
+        "assign_to": "business_version_from_put"
+      }
+    ],
+    "validate": {
+      "response_structure": {
+        "required_fields": ["versionNumber"]
+      },
+      "business_rules": [
+        {
+          "rule": "PUT operation must succeed when taxIdentifierType is not explicitly provided for Business party",
+          "validation": "response.status equals 200"
+        },
+        {
+          "rule": "PUT response must include the newly incremented versionNumber",
+          "validation": "response.versionNumber is not null"
+        },
+        {
+          "rule": "Version must increment after successful PUT operation",
+          "validation": "response.version > business_version_after_post"
+        }
+      ],
+      "performance": {
+        "max_response_time_ms": 500
+      },
+      "security": {
+        "checks": ["sql_injection", "xss"]
+      },
+      "data_comparison": {
+        "source": "api_response",
+        "target": "db_result",
+        "format": "table",
+        "key_field": ["", ""],
+        "fields_to_compare": [],
+        "log_differences": true
+      },
+      "assertions": [
+        {
+          "actual": "{{business_version_from_put}}",
+          "operator": "!=",
+          "expected": null,
+          "message": "Expected versionNumber in PUT response to be non-null"
+        }
+      ]
+    },
+    "test_data_file": "parties/data_driven/Data_PRODENG-19146_Business_TaxId_BugFix.csv",
+    "db_type": "",
+    "db_connection_name": "parties",
+    "db_query": "",
+    "test_summary": "Test TC_TAXID_009: Update Business party without explicitly setting taxIdentifierType - should preserve EIN"
+  },
+  {
+    "test_id": "TC_010",
+    "service_name": "parties",
+    "workflow_mode": "sequential",
+    "test_name": "GET /parties/{id} - Verify taxId is returned after PUT for Business (Bug Fix Validation)",
+    "protocol": "REST",
+    "test_type": [
+      "Functional",
+      "Regression",
+      "PRODENG-12205",
+      "Business Logic"
+    ],
+    "mainURL": "{{base_url}}",
+    "endpoint": "/parties/{{created_business_party_id}}",
+    "method": "GET",
+    "rpc_method": "",
+    "graphql_query": "",
+    "graphql_variables": "",
+    "soap_action": "",
+    "soap_envelope": "",
+    "headers_additional": {
+      "Content-Type": "application/json"
+    },
+    "payload": null,
+    "expected_status": "200",
+    "expected_response_schema": "",
+    "expected_response": null,
+    "extract_values": [
+      {
+        "from": "response",
+        "key": "parties.0.core.entity.taxId",
+        "assign_to": "business_taxId_after_put"
+      },
+      {
+        "from": "response",
+        "key": "parties.0.core.entity.taxidentifier",
+        "assign_to": "business_taxIdentifierType_after_put"
+      },
+      {
+        "from": "response",
+        "key": "parties.0.version",
+        "assign_to": "business_version_after_put"
+      },
+      {
+        "from": "response",
+        "key": "parties.0.core.entity.title",
+        "assign_to": "business_title_after_put"
+      },
+      {
+        "from": "db_result",
+        "key": "0.TaxIdentifierType",
+        "assign_to": "db_business_taxIdentifierType_after_put"
+      }
+    ],
+    "validate": {
+      "response_structure": {
+        "required_fields": [
+          "parties",
+          "parties[0].core.entity.taxId",
+          "parties[0].core.entity.taxidentifier",
+          "parties[0].version"
+        ]
+      },
+      "business_rules": [
+        {
+          "rule": "PRODENG-12205: Business party taxId must persist after PUT operation",
+          "validation": "business_taxId_after_put is not null and not empty and equals '12-3456789'"
+        },
+        {
+          "rule": "PRODENG-12205: Business party taxIdentifierType must remain EIN in API response after PUT",
+          "validation": "business_taxIdentifierType_after_put equals 'EIN'"
+        },
+        {
+          "rule": "PRODENG-12205: Business party TaxIdentifierType must remain EIN in database after PUT",
+          "validation": "db_business_taxIdentifierType_after_put equals 'EIN'"
+        },
+        {
+          "rule": "TaxIdentifierType must maintain consistency between API and database after PUT",
+          "validation": "business_taxIdentifierType_after_put equals db_business_taxIdentifierType_after_put"
+        },
+        {
+          "rule": "PUT operation must update entity properties while maintaining TaxId",
+          "validation": "business_title_after_put equals 'Acme Corporation Updated'"
+        },
+        {
+          "rule": "Version must increment after successful PUT operation",
+          "validation": "business_version_after_put > business_version_after_post"
+        },
+        {
+          "rule": "Business party type must always have TaxIdentifierType=EIN regardless of updates",
+          "validation": "db_business_taxIdentifierType_after_put equals 'EIN'"
+        }
+      ],
+      "performance": {
+        "max_response_time_ms": 500
+      },
+      "security": {
+        "checks": ["sql_injection", "xss"]
+      },
+      "data_comparison": {
+        "source": "api_response",
+        "target": "db_result",
+        "format": "table",
+        "key_field": ["", ""],
+        "fields_to_compare": [],
+        "log_differences": true
+      },
+      "assertions": [
+        {
+          "actual": "{{business_taxId_after_put}}",
+          "operator": "!=",
+          "expected": null,
+          "message": "PRODENG-12205 Bug Fix: Expected taxId to be non-null after PUT for Business party"
+        },
+        {
+          "actual": "{{business_taxId_after_put}}",
+          "operator": "!=",
+          "expected": "",
+          "message": "PRODENG-12205 Bug Fix: Expected taxId to be non-empty after PUT for Business party"
+        },
+        {
+          "actual": "{{business_taxId_after_put}}",
+          "operator": "==",
+          "expected": "12-3456789",
+          "message": "PRODENG-12205 Bug Fix: Expected taxId value to be preserved after PUT for Business"
+        },
+        {
+          "actual": "{{business_taxIdentifierType_after_put}}",
+          "operator": "==",
+          "expected": "EIN",
+          "message": "PRODENG-12205: API Response entity.taxidentifier should remain EIN after PUT"
+        },
+        {
+          "actual": "{{db_business_taxIdentifierType_after_put}}",
+          "operator": "==",
+          "expected": "EIN",
+          "message": "PRODENG-12205 Bug Fix: Expected TaxIdentifierType to remain EIN in DB after PUT for Business party"
+        },
+        {
+          "actual": "{{business_title_after_put}}",
+          "operator": "==",
+          "expected": "Acme Corporation Updated",
+          "message": "Expected entity title to be updated after PUT"
+        },
+        {
+          "actual": "{{business_version_after_put}}",
+          "operator": ">",
+          "expected": "{{business_version_after_post}}",
+          "message": "Expected version to increment after PUT"
+        }
+      ]
+    },
+    "test_data_file": "",
+    "db_type": "mssql",
+    "db_connection_name": "parties",
+    "db_query": "SELECT TOP 1 Id, TaxIdentifierType, Version FROM Party WHERE Id = '{{created_business_party_id}}' ORDER BY Version DESC;",
+    "db_validations": [
+      {
+        "query": "default",
+        "assertion": "TaxIdentifierType must remain EIN for Business party after PUT"
+      }
+    ],
+    "test_summary": "Test TC_TAXID_010: PRODENG-12205 Bug Fix Validation - Verify taxId is returned and TaxIdentifierType remains EIN after PUT for Business party"
+  },
+  {
+    "test_id": "TC_011",
+    "service_name": "parties",
+    "workflow_mode": "sequential",
+    "test_name": "PUT /parties/{id} - Second update to Business party to confirm taxId persistence",
+    "protocol": "REST",
+    "test_type": [
+      "Functional",
+      "Regression",
+      "PRODENG-12205",
+      "Business Logic"
+    ],
+    "mainURL": "{{base_url}}",
+    "endpoint": "/parties/{{created_business_party_id}}",
+    "method": "PUT",
+    "rpc_method": "",
+    "graphql_query": "",
+    "graphql_variables": "",
+    "soap_action": "",
+    "soap_envelope": "",
+    "headers_additional": {
+      "Content-Type": "application/json",
+      "version": "{{business_version_after_put}}"
+    },
+    "payload": "parties/payloads/Payload_business_party_final.txt",
+    "expected_status": "200",
+    "expected_response_schema": "parties/schemas/Schema_parties_Party_id_PUT_response_success.json",
+    "expected_response": null,
+    "extract_values": [
+      {
+        "from": "response",
+        "key": "versionNumber",
+        "assign_to": "business_version_from_second_put"
+      }
+    ],
+    "validate": {
+      "response_structure": {
+        "required_fields": ["versionNumber"]
+      },
+      "business_rules": [
+        {
+          "rule": "Multiple PUT operations must succeed without requiring explicit taxIdentifierType for Business party",
+          "validation": "response.status equals 200"
+        },
+        {
+          "rule": "PUT response must include the newly incremented versionNumber",
+          "validation": "response.versionNumber is not null"
+        },
+        {
+          "rule": "Version must continue incrementing with each successive PUT operation",
+          "validation": "response.version > business_version_after_put"
+        }
+      ],
+      "performance": {
+        "max_response_time_ms": 500
+      },
+      "security": {
+        "checks": ["sql_injection", "xss"]
+      },
+      "data_comparison": {
+        "source": "api_response",
+        "target": "db_result",
+        "format": "table",
+        "key_field": ["", ""],
+        "fields_to_compare": [],
+        "log_differences": true
+      },
+      "assertions": [
+        {
+          "actual": "{{business_version_from_second_put}}",
+          "operator": "!=",
+          "expected": null,
+          "message": "Expected versionNumber in PUT response to be non-null"
+        }
+      ]
+    },
+    "test_data_file": "parties/data_driven/Data_PRODENG-19146_Business_TaxId_BugFix.csv",
+    "db_type": "",
+    "db_connection_name": "parties",
+    "db_query": "",
+    "test_summary": "Test TC_TAXID_011: Second PUT update to verify taxId continues to persist across multiple updates for Business party"
+  },
+  {
+    "test_id": "TC_012",
+    "service_name": "parties",
+    "workflow_mode": "sequential",
+    "test_name": "GET /parties/{id} - Final verification of taxId after multiple PUTs for Business",
+    "protocol": "REST",
+    "test_type": [
+      "Functional",
+      "Regression",
+      "PRODENG-12205",
+      "Business Logic"
+    ],
+    "mainURL": "{{base_url}}",
+    "endpoint": "/parties/{{created_business_party_id}}",
+    "method": "GET",
+    "rpc_method": "",
+    "graphql_query": "",
+    "graphql_variables": "",
+    "soap_action": "",
+    "soap_envelope": "",
+    "headers_additional": {
+      "Content-Type": "application/json"
+    },
+    "payload": null,
+    "expected_status": "200",
+    "expected_response_schema": "",
+    "expected_response": null,
+    "extract_values": [
+      {
+        "from": "response",
+        "key": "parties.0.core.entity.taxId",
+        "assign_to": "business_taxId_final"
+      },
+      {
+        "from": "response",
+        "key": "parties.0.core.entity.taxidentifier",
+        "assign_to": "business_taxIdentifierType_final"
+      },
+      {
+        "from": "response",
+        "key": "parties.0.status",
+        "assign_to": "business_status_final"
+      },
+      {
+        "from": "db_result",
+        "key": "0.TaxIdentifierType",
+        "assign_to": "db_business_taxIdentifierType_final"
+      }
+    ],
+    "validate": {
+      "response_structure": {
+        "required_fields": [
+          "parties",
+          "parties[0].core.entity.taxId",
+          "parties[0].core.entity.taxidentifier",
+          "parties[0].status"
+        ]
+      },
+      "business_rules": [
+        {
+          "rule": "PRODENG-12205: Business party taxId must persist indefinitely across all PUT operations",
+          "validation": "business_taxId_final is not null and equals '12-3456789'"
+        },
+        {
+          "rule": "PRODENG-12205: Business party taxIdentifierType must always be EIN in API response",
+          "validation": "business_taxIdentifierType_final equals 'EIN'"
+        },
+        {
+          "rule": "PRODENG-12205: Business party TaxIdentifierType must always be EIN in database",
+          "validation": "db_business_taxIdentifierType_final equals 'EIN'"
+        },
+        {
+          "rule": "TaxIdentifierType consistency: API and database must always match for Business parties",
+          "validation": "business_taxIdentifierType_final equals db_business_taxIdentifierType_final"
+        },
+        {
+          "rule": "Business party status must maintain Draft state throughout test workflow",
+          "validation": "business_status_final equals 'Draft'"
+        },
+        {
+          "rule": "Business party type invariant: TaxIdentifierType=EIN must be immutable regardless of update operations",
+          "validation": "db_business_taxIdentifierType_final equals 'EIN'"
+        }
+      ],
+      "performance": {
+        "max_response_time_ms": 500
+      },
+      "security": {
+        "checks": ["sql_injection", "xss"]
+      },
+      "data_comparison": {
+        "source": "api_response",
+        "target": "db_result",
+        "format": "table",
+        "key_field": ["", ""],
+        "fields_to_compare": [],
+        "log_differences": true
+      },
+      "assertions": [
+        {
+          "actual": "{{business_taxId_final}}",
+          "operator": "!=",
+          "expected": null,
+          "message": "PRODENG-12205: taxId must not be null after multiple PUT operations for Business party"
+        },
+        {
+          "actual": "{{business_taxId_final}}",
+          "operator": "==",
+          "expected": "12-3456789",
+          "message": "PRODENG-12205: taxId value must persist across multiple PUT operations for Business"
+        },
+        {
+          "actual": "{{business_taxIdentifierType_final}}",
+          "operator": "==",
+          "expected": "EIN",
+          "message": "PRODENG-12205: API Response entity.taxidentifier must remain EIN after multiple PUTs"
+        },
+        {
+          "actual": "{{db_business_taxIdentifierType_final}}",
+          "operator": "==",
+          "expected": "EIN",
+          "message": "PRODENG-12205: TaxIdentifierType must always be EIN for Business party type"
+        },
+        {
+          "actual": "{{business_status_final}}",
+          "operator": "==",
+          "expected": "Draft",
+          "message": "Expected status to remain Draft"
+        }
+      ]
+    },
+    "test_data_file": "",
+    "db_type": "mssql",
+    "db_connection_name": "parties",
+    "db_query": "SELECT TOP 1 Id, TaxIdentifierType, Version, Status FROM Party WHERE Id = '{{created_business_party_id}}' ORDER BY Version DESC;",
+    "db_validations": [
+      {
+        "query": "default",
+        "assertion": "TaxIdentifierType must always be EIN for Business party after all operations"
+      }
+    ],
+    "test_summary": "Test TC_TAXID_012: PRODENG-12205 Final Validation - Confirm taxId and TaxIdentifierType persist correctly after multiple PUT operations for Business party"
+  }
+]

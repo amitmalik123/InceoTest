@@ -1,45 +1,44 @@
 {
-  "name": "Test Model - Null InvestmentApproach ID",
-  "ownerId": "3fa85f64-5717-4562-b3fc-2c963f66afa6",
-  "modelAttributes": {
-    "solutionType": "Balanced Growth",
-    "custodian": [
-      "Fidelity"
+    "name": "Test Model - Null InvestmentApproach ID",
+    "ownerId": "3fa85f64-5717-4562-b3fc-2c963f66afa6",
+    "modelAttributes": {
+        "solutionType": "Balanced Growth",
+        "modelType": "Balanced"
+    },
+    "allocationDetail": [
+        {
+            "entityType": "Security",
+            "allocationName": "SPDR S&P 500 ETF Trust",
+            "modelId": "",
+            "cusip": "78462F103",
+            "ticker": "SPY",
+            "weight": 0.5
+        },
+        {
+            "entityType": "Security",
+            "allocationName": "iShares 20+ Year Treasury Bond ETF",
+            "modelId": "",
+            "cusip": "464287200",
+            "ticker": "TLT",
+            "weight": 0.5
+        }
     ],
-    "investmentMin": {
-      "standard": 25000,
-      "premium": 100000
+    "investmentApproachId": null,
+    "benchmark": [
+        {
+            "name": "60/40 Balanced Index",
+            "isPrimary": true
+        }
+    ],
+    "custodians": [
+        "Fidelity"
+    ],
+    "investmentMins": {
+        "standard": 25000,
+        "premium": 100000
     },
-    "modelType": "Balanced",
     "riskProfile": "Moderate Risk",
-    "metadata": {
-      "targetRebalanceFrequency": "Quarterly"
+    "versionMetadata": {
+        "targetRebalanceFrequency": "Quarterly"
     }
-  },
-  "allocationDetail": [
-    {
-      "entityType": "Security",
-      "allocationName": "SPDR S&P 500 ETF Trust",
-      "modelId": "",
-      "cusip": "78462F103",
-      "ticker": "SPY",
-      "weight": 0.50
-    },
-    {
-      "entityType": "Security",
-      "allocationName": "iShares 20+ Year Treasury Bond ETF",
-      "modelId": "",
-      "cusip": "464287200",
-      "ticker": "TLT",
-      "weight": 0.50
-    }
-  ],
-  "investmentApproachId": "{{db_investment_approach_id}}",
-  "benchmark": [
-    {
-      "name": "60/40 Balanced Index",
-      "isPrimary": true,
-      "id": 0
-    }
-  ]
 }

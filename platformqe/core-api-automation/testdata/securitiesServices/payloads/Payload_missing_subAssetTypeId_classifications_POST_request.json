@@ -1,0 +1,11 @@
+[
+        {
+                "assetClassName": "{{payload_assetClassName}}",
+                "assetClassId": "{{payload_assetClassId}}",
+                "assetTypeId": "{{payload_assetTypeId}}",
+                "assetTypeName": "{{payload_assetTypeName}}",
+                "subAssetTypeName": "{{payload_subAssetTypeName}}"
+        }
+]
+
+            

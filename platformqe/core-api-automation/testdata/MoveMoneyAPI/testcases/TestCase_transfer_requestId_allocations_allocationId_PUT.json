@@ -1,0 +1,559 @@
+[
+    {
+        "test_id": "TC001",
+        "service_name": "MoveMoneyAPI",
+        "workflow_mode": "parallel",
+        "test_name": "Replaces an existing allocation for a given money movement transfer request. [positive] (TC001)",
+        "protocol": "REST",
+        "test_type": [
+            "Functional"
+        ],
+        "mainURL": "{{base_url}}",
+        "endpoint": "/transfer/{{requestId_endpoint}}/allocations/{{allocationId_endpoint}}",
+        "method": "PUT",
+        "headers_additional": {
+            "Content-Type": "application/json"
+        },
+        "payload": "MoveMoneyAPI/payloads/Payload_transfer_requestId_allocations_allocationId_PUT.json",
+        "expected_status": "200",
+        "expected_response_schema": null,
+        "expected_response": null,
+        "ignore_fields": [
+            "id",
+            "createdDate",
+            "modifiedDate",
+            "timestamp"
+        ],
+        "extract_values": [
+            {
+                "from": "response",
+                "key": "allocationId",
+                "assign_to": "response_allocationId"
+            },
+            {
+                "from": "response",
+                "key": "accountId",
+                "assign_to": "response_accountId"
+            },
+            {
+                "from": "response",
+                "key": "allocationUnitType",
+                "assign_to": "response_allocationUnitType"
+            },
+            {
+                "from": "response",
+                "key": "percent",
+                "assign_to": "response_percent"
+            },
+            {
+                "from": "response",
+                "key": "amount",
+                "assign_to": "response_amount"
+            },
+            {
+                "from": "db_result",
+                "query": "default",
+                "assign": [
+                    {
+                        "key": "0.allocationId",
+                        "assign_to": "db_allocationId"
+                    },
+                    {
+                        "key": "0.accountId",
+                        "assign_to": "db_accountId"
+                    },
+                    {
+                        "key": "0.allocationUnitType",
+                        "assign_to": "db_allocationUnitType"
+                    },
+                    {
+                        "key": "0.percent",
+                        "assign_to": "db_percent"
+                    },
+                    {
+                        "key": "0.amount",
+                        "assign_to": "db_amount"
+                    }
+                ]
+            }
+        ],
+        "validate": {
+            "performance": {
+                "max_response_time_ms": 5000
+            },
+            "security": {
+                "checks": [
+                    "sql_injection",
+                    "xss"
+                ]
+            },
+            "assertions": [
+                {
+                    "actual": "{{requestId_endpoint}}",
+                    "expected": "",
+                    "operator": "!=",
+                    "message": "RequestId should not be empty"
+                },
+                {
+                    "actual": "{{allocationId_endpoint}}",
+                    "expected": "",
+                    "operator": "!=",
+                    "message": "AllocationId should not be empty"
+                },
+                {
+                    "actual": "{{accountId}}",
+                    "expected": "",
+                    "operator": "!=",
+                    "message": "AccountId should not be empty"
+                },
+                {
+                    "actual": "{{allocationUnitType}}",
+                    "expected": "",
+                    "operator": "!=",
+                    "message": "AllocationUnitType should not be empty"
+                }
+            ],
+            "data_comparison": [
+                {
+                    "source": "response_allocationId",
+                    "target": "db_allocationId",
+                    "log_differences": true,
+                    "comparison_name": "AllocationId match between API and DB"
+                },
+                {
+                    "source": "response_accountId",
+                    "target": "db_accountId",
+                    "log_differences": true,
+                    "comparison_name": "AccountId match between API and DB"
+                },
+                {
+                    "source": "response_allocationUnitType",
+                    "target": "db_allocationUnitType",
+                    "log_differences": true,
+                    "comparison_name": "AllocationUnitType match between API and DB"
+                },
+                {
+                    "source": "response_percent",
+                    "target": "db_percent",
+                    "log_differences": true,
+                    "comparison_name": "Percent match between API and DB"
+                },
+                {
+                    "source": "response_amount",
+                    "target": "db_amount",
+                    "log_differences": true,
+                    "comparison_name": "Amount match between API and DB"
+                }
+            ]
+        },
+        "test_data_file": "MoveMoneyAPI/data_driven/Data_transfer_requestId_allocations_allocationId_PUT.csv",
+        "csv_row_index": 0,
+        "db_query_timing": "after_api",
+        "db_queries": {
+            "default": "SELECT LOWER([AllocationId]) AS allocationId, LOWER([AccountId]) AS accountId, [AllocationUnitType] AS allocationUnitType, [Percent] AS percent, [Amount] AS amount FROM [dbo].[MoneyMovementRequest] WHERE [AllocationId] = '{{allocationId_endpoint}}'",
+            "audit_query": ""
+        },
+        "db_type": "mssql",
+        "db_connection_name": "movemoney",
+        "test_summary": "Verify successful 200 response for allocation update with valid request. Replaces the selected allocation record"
+    },
+    {
+        "test_id": "TC002",
+        "service_name": "MoveMoneyAPI",
+        "workflow_mode": "parallel",
+        "test_name": "Verify the API returns 200 response when the allocation record is updated with provided amount value. [positive] (TC002)",
+        "protocol": "REST",
+        "test_type": [
+            "Functional"
+        ],
+        "mainURL": "{{base_url}}",
+        "endpoint": "/transfer/{{requestId_endpoint}}/allocations/{{allocationId_endpoint}}",
+        "method": "PUT",
+        "headers_additional": {
+            "Content-Type": "application/json"
+        },
+        "payload": "MoveMoneyAPI/payloads/Payload_transfer_requestId_allocations_allocationId_PUT.json",
+        "expected_status": "200",
+        "expected_response_schema": null,
+        "expected_response": null,
+        "ignore_fields": [
+            "id",
+            "createdDate",
+            "modifiedDate",
+            "timestamp"
+        ],
+        "extract_values": [
+            {
+                "from": "response",
+                "key": "allocationId",
+                "assign_to": "response_allocationId"
+            },
+            {
+                "from": "response",
+                "key": "accountId",
+                "assign_to": "response_accountId"
+            },
+            {
+                "from": "response",
+                "key": "allocationUnitType",
+                "assign_to": "response_allocationUnitType"
+            },
+            {
+                "from": "response",
+                "key": "percent",
+                "assign_to": "response_percent"
+            },
+            {
+                "from": "response",
+                "key": "amount",
+                "assign_to": "response_amount"
+            },
+            {
+                "from": "db_result",
+                "query": "default",
+                "assign": [
+                    {
+                        "key": "0.allocationId",
+                        "assign_to": "db_allocationId"
+                    },
+                    {
+                        "key": "0.accountId",
+                        "assign_to": "db_accountId"
+                    },
+                    {
+                        "key": "0.allocationUnitType",
+                        "assign_to": "db_allocationUnitType"
+                    },
+                    {
+                        "key": "0.percent",
+                        "assign_to": "db_percent"
+                    },
+                    {
+                        "key": "0.amount",
+                        "assign_to": "db_amount"
+                    }
+                ]
+            }
+        ],
+        "validate": {
+            "performance": {
+                "max_response_time_ms": 5000
+            },
+            "security": {
+                "checks": [
+                    "sql_injection",
+                    "xss"
+                ]
+            },
+            "assertions": [
+                {
+                    "actual": "{{requestId_endpoint}}",
+                    "expected": "",
+                    "operator": "!=",
+                    "message": "RequestId should not be empty"
+                },
+                {
+                    "actual": "{{allocationId_endpoint}}",
+                    "expected": "",
+                    "operator": "!=",
+                    "message": "AllocationId should not be empty"
+                },
+                {
+                    "actual": "{{accountId}}",
+                    "expected": "",
+                    "operator": "!=",
+                    "message": "AccountId should not be empty"
+                },
+                {
+                    "actual": "{{allocationUnitType}}",
+                    "expected": "",
+                    "operator": "!=",
+                    "message": "AllocationUnitType should not be empty"
+                }
+            ],
+            "data_comparison": [
+                {
+                    "source": "response_allocationId",
+                    "target": "db_allocationId",
+                    "log_differences": true,
+                    "comparison_name": "AllocationId match between API and DB"
+                },
+                {
+                    "source": "response_accountId",
+                    "target": "db_accountId",
+                    "log_differences": true,
+                    "comparison_name": "AccountId match between API and DB"
+                },
+                {
+                    "source": "response_allocationUnitType",
+                    "target": "db_allocationUnitType",
+                    "log_differences": true,
+                    "comparison_name": "AllocationUnitType match between API and DB"
+                },
+                {
+                    "source": "response_percent",
+                    "target": "db_percent",
+                    "log_differences": true,
+                    "comparison_name": "Percent match between API and DB"
+                },
+                {
+                    "source": "response_amount",
+                    "target": "db_amount",
+                    "log_differences": true,
+                    "comparison_name": "Amount match between API and DB"
+                }
+            ]
+        },
+        "test_data_file": "MoveMoneyAPI/data_driven/Data_transfer_requestId_allocations_allocationId_PUT.csv",
+        "csv_row_index": 1,
+        "db_query_timing": "after_api",
+        "db_queries": {
+            "default": "SELECT LOWER([AllocationId]) AS allocationId, LOWER([AccountId]) AS accountId, [AllocationUnitType] AS allocationUnitType, [Percent] AS percent, [Amount] AS amount FROM [dbo].[MoneyMovementRequest] WHERE [AllocationId] = '{{allocationId_endpoint}}'",
+            "audit_query": ""
+        },
+        "db_type": "mssql",
+        "db_connection_name": "movemoney",
+        "test_summary": "Verify successful 200 response for allocation update with valid request. Replaces the selected allocation record"
+    },
+    {
+        "test_id": "TC003",
+        "service_name": "MoveMoneyAPI",
+        "workflow_mode": "parallel",
+        "test_name": "Verify the API returns 204 indicating the allocationId is not found under the given requestId. [negative] (TC003)",
+        "protocol": "REST",
+        "test_type": [
+            "Negative"
+        ],
+        "mainURL": "{{base_url}}",
+        "endpoint": "/transfer/{{requestId_endpoint}}/allocations/{{allocationId_endpoint}}",
+        "method": "PUT",
+        "headers_additional": {
+            "Content-Type": "application/json"
+        },
+        "payload": "MoveMoneyAPI/payloads/Payload_transfer_requestId_allocations_allocationId_PUT.json",
+        "expected_status": "204",
+        "expected_response_schema": null,
+        "expected_response": null,
+        "ignore_fields": [
+            "id"
+        ],
+        "extract_values": [],
+        "validate": {
+            "performance": {
+                "max_response_time_ms": 5000
+            },
+            "security": {
+                "checks": [
+                    "sql_injection",
+                    "xss"
+                ]
+            },
+            "assertions": [
+                {
+                    "actual": "{{requestId_endpoint}}",
+                    "expected": "",
+                    "operator": "!=",
+                    "message": "RequestId should not be empty"
+                },
+                {
+                    "actual": "{{allocationId_endpoint}}",
+                    "expected": "",
+                    "operator": "!=",
+                    "message": "AllocationId should not be empty"
+                }
+            ],
+            "data_comparison": []
+        },
+        "test_data_file": "MoveMoneyAPI/data_driven/Data_transfer_requestId_allocations_allocationId_PUT.csv",
+        "csv_row_index": 2,
+        "db_query_timing": "after_api",
+        "db_queries": {
+            "default": "",
+            "audit_query": ""
+        },
+        "db_type": "",
+        "db_connection_name": "",
+        "test_summary": "Test TC003: Verify the API returns 204 indicating the allocationId is not found under the given requestId. [negative] (TC003)"
+    },
+    {
+        "test_id": "TC004",
+        "service_name": "MoveMoneyAPI",
+        "workflow_mode": "parallel",
+        "test_name": "PUT /transfer/{requestId}/allocations/{allocationId} [negative: extra param] (TC004)",
+        "protocol": "REST",
+        "test_type": [
+            "Negative"
+        ],
+        "mainURL": "{{base_url}}",
+        "endpoint": "/transfer/{{requestId_endpoint}}/allocations/{{allocationId_endpoint}}",
+        "method": "PUT",
+        "headers_additional": {
+            "Content-Type": "application/json"
+        },
+        "payload": "MoveMoneyAPI/payloads/Payload_transfer_requestId_allocations_allocationId_PUT.json",
+        "expected_status": "400",
+        "expected_response_schema": null,
+        "expected_response": null,
+        "ignore_fields": [
+            "id"
+        ],
+        "extract_values": [],
+        "validate": {
+            "performance": {
+                "max_response_time_ms": 5000
+            },
+            "security": {
+                "checks": [
+                    "sql_injection",
+                    "xss"
+                ]
+            },
+            "data_comparison": []
+        },
+        "test_data_file": "MoveMoneyAPI/data_driven/Data_transfer_requestId_allocations_allocationId_PUT.csv",
+        "csv_row_index": 3,
+        "db_query_timing": "after_api",
+        "db_queries": {
+            "default": "",
+            "audit_query": ""
+        },
+        "db_type": "",
+        "db_connection_name": "",
+        "test_summary": "Test TC004: Verify the API returns 400 response when allocationUnitType is invalid. [negative] (TC004)"
+    },
+    {
+        "test_id": "TC005",
+        "service_name": "MoveMoneyAPI",
+        "workflow_mode": "parallel",
+        "test_name": "PUT /transfer/{requestId}/allocations/{allocationId} [negative] (TC005)",
+        "protocol": "REST",
+        "test_type": [
+            "Negative"
+        ],
+        "mainURL": "{{base_url}}",
+        "endpoint": "/transfer/{{requestId_endpoint}}/allocations/{{allocationId_endpoint}}",
+        "method": "PUT",
+        "headers_additional": {
+            "Content-Type": "application/json"
+        },
+        "payload": "MoveMoneyAPI/payloads/Payload_transfer_requestId_allocations_allocationId_PUT.json",
+        "expected_status": "400",
+        "expected_response_schema": null,
+        "expected_response": null,
+        "ignore_fields": [
+            "id"
+        ],
+        "extract_values": [],
+        "validate": {
+            "performance": {
+                "max_response_time_ms": 5000
+            },
+            "security": {
+                "checks": [
+                    "sql_injection",
+                    "xss"
+                ]
+            },
+            "data_comparison": []
+        },
+        "test_data_file": "MoveMoneyAPI/data_driven/Data_transfer_requestId_allocations_allocationId_PUT.csv",
+        "csv_row_index": 4,
+        "db_query_timing": "after_api",
+        "db_queries": {
+            "default": "",
+            "audit_query": ""
+        },
+        "db_type": "",
+        "db_connection_name": "",
+        "test_summary": "Test TC005: Verify the API returns 400 Bad Request with an error message indicating that either 'percent' or 'amount' must be provided. [negative] (TC005)"
+    },
+    {
+        "test_id": "TC006",
+        "service_name": "MoveMoneyAPI",
+        "workflow_mode": "parallel",
+        "test_name": "PUT /transfer/{requestId}/allocations/{allocationId} [negative] (TC006)",
+        "protocol": "REST",
+        "test_type": [
+            "Negative"
+        ],
+        "mainURL": "{{base_url}}",
+        "endpoint": "/transfer/{{requestId_endpoint}}/allocations/{{allocationId_endpoint}}",
+        "method": "PUT",
+        "headers_additional": {
+            "Content-Type": "application/json"
+        },
+        "payload": "MoveMoneyAPI/payloads/Payload_transfer_requestId_allocations_allocationId_PUT.json",
+        "expected_status": "400",
+        "expected_response_schema": null,
+        "expected_response": null,
+        "ignore_fields": [
+            "id"
+        ],
+        "extract_values": [],
+        "validate": {
+            "performance": {
+                "max_response_time_ms": 5000
+            },
+            "security": {
+                "checks": [
+                    "sql_injection",
+                    "xss"
+                ]
+            },
+            "data_comparison": []
+        },
+        "test_data_file": "MoveMoneyAPI/data_driven/Data_transfer_requestId_allocations_allocationId_PUT.csv",
+        "csv_row_index": 5,
+        "db_query_timing": "after_api",
+        "db_queries": {
+            "default": "",
+            "audit_query": ""
+        },
+        "db_type": "",
+        "db_connection_name": "",
+        "test_summary": "Test TC006: Verify the API returns 400 Bad Request with an error message indicating that accountId is invalid. [negative] (TC006)"
+    },
+    {
+        "test_id": "TC007",
+        "service_name": "MoveMoneyAPI",
+        "workflow_mode": "parallel",
+        "test_name": "PUT /transfer/{requestId}/allocations/{allocationId} [negative] (TC007)",
+        "protocol": "REST",
+        "test_type": [
+            "Negative"
+        ],
+        "mainURL": "{{base_url}}",
+        "endpoint": "/transfer/{{requestId_endpoint}}/allocations/{{allocationId_endpoint}}",
+        "method": "PUT",
+        "headers_additional": {
+            "Content-Type": "application/json"
+        },
+        "payload": "MoveMoneyAPI/payloads/Payload_transfer_requestId_allocations_allocationId_PUT.json",
+        "expected_status": "400",
+        "expected_response_schema": null,
+        "expected_response": null,
+        "ignore_fields": [
+            "id"
+        ],
+        "extract_values": [],
+        "validate": {
+            "performance": {
+                "max_response_time_ms": 5000
+            },
+            "security": {
+                "checks": [
+                    "sql_injection",
+                    "xss"
+                ]
+            },
+            "data_comparison": []
+        },
+        "test_data_file": "MoveMoneyAPI/data_driven/Data_transfer_requestId_allocations_allocationId_PUT.csv",
+        "csv_row_index": 6,
+        "db_query_timing": "",
+        "db_queries": {},
+        "db_type": "",
+        "db_connection_name": "",
+        "test_summary": "Test TC007: Verify the API returns 400 Bad Request with an error message indicating that accountId is missing. [negative] (TC007)"
+    }
+]
