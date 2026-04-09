@@ -97,7 +97,7 @@ jobs:
                       echo "##vso[task.setvariable variable=threadCount]2"
                       echo "##vso[task.setvariable variable=runnerFile]*"
                     elif [ "$HOUR" = "18" ] && [ "$MINUTE" -ge 45 ]; then
-                      # 20:45 UTC -> Test11 (4:45 PM EST)
+                      # 18:45 UTC -> Test11 (2:45 PM EST)
                       echo "##vso[task.setvariable variable=environment]test11"
                       echo "##vso[task.setvariable variable=tag]@regression|@smoke|@e2e"
                       echo "##vso[task.setvariable variable=threadCount]2"

@@ -350,14 +350,14 @@ export class NewAccountWizardPage {
             // Move from top-left to the button gradually
             const startX = 0;
             const startY = 0;
-            const steps = 20; // Increase steps for slower movement
+            const steps = 40; // Increase steps for slower movement
 
             for (let i = 0; i <= steps; i++) {
                 const progress = i / steps;
                 const currentX = startX + (targetX - startX) * progress;
                 const currentY = startY + (targetY - startY) * progress;
                 await this.page.mouse.move(currentX, currentY);
-                await this.page.waitForTimeout(10); // Small delay between steps for slower speed
+                await this.page.waitForTimeout(25); // Small delay between steps for slower speed
             }
         }
     }
