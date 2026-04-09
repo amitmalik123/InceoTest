@@ -6,6 +6,7 @@
         "test_name": "QUERY and Extract DB Values",
         "protocol": "DB_ONLY",
         "test_type": [
+            "PATCH /Accounts endpoint validation",
             "Functional",
             "Smoke",
             "Business Logic"
@@ -75,6 +76,7 @@
         "test_name": "PATCH /Accounts [positive] (TC001)",
         "protocol": "REST",
         "test_type": [
+            "PATCH /Accounts endpoint validation",
             "Functional"
         ],
         "mainURL": "{{base_url}}",
@@ -89,7 +91,7 @@
             "Content-Type": "application/json"
         },
         "payload": "account\\payloads\\PATCH_Account_by_Id\\PATCH_Payload_1.json",
-        "expected_status": "405",
+        "expected_status": "422",
         "expected_response_schema": "",
         "expected_response": null,
         "ignore_fields": [
@@ -124,6 +126,7 @@
         "test_name": "PATCH /Accounts [positive] (TC002)",
         "protocol": "REST",
         "test_type": [
+            "PATCH /Accounts endpoint validation",
             "Functional"
         ],
         "mainURL": "{{base_url}}",
@@ -138,7 +141,7 @@
             "Content-Type": "application/json"
         },
         "payload": "account\\payloads\\PATCH_Account_by_Id\\PATCH_payload_400.json",
-        "expected_status": "405",
+        "expected_status": "400",
         "expected_response_schema": "",
         "expected_response": null,
         "ignore_fields": [
@@ -173,6 +176,7 @@
         "test_name": "PATCH /Accounts [positive] (TC003)",
         "protocol": "REST",
         "test_type": [
+            "PATCH /Accounts endpoint validation",
             "Functional"
         ],
         "mainURL": "{{base_url}}",
@@ -222,6 +226,7 @@
         "test_name": "PATCH /Accounts [positive] (TC004)",
         "protocol": "REST",
         "test_type": [
+            "PATCH /Accounts endpoint validation",
             "Functional"
         ],
         "mainURL": "{{base_url}}",
@@ -236,7 +241,7 @@
             "Content-Type": "application/json"
         },
         "payload": "account\\payloads\\PATCH_Account_by_Id\\PATCH_payload_409.json",
-        "expected_status": "405",
+        "expected_status": "409",
         "expected_response_schema": "",
         "expected_response": null,
         "ignore_fields": [
