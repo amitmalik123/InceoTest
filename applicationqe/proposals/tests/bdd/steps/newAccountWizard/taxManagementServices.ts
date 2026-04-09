@@ -25,13 +25,19 @@ Then('The UI summary should be generated', async ({}) => {
     // Low sensitivity
     await tmsPage.page.bringToFront();
     await tmsPage.selectTaxSensitivity('Low');
-    const lowSensitivitySnapshot =
-        process.env.Environment === 'prod' ? 'tax-sensitivity-low.prod.png' : 'tax-sensitivity-low.png';
-    await expect(tmsPage.page).toHaveScreenshot(lowSensitivitySnapshot, {
-        mask: screenshotMaskLocators,
-        fullPage: true,
-        maxDiffPixelRatio: 0.03,
-    });
+    if (process.env.Environment === 'prod' || process.env.ENVIRONMENT === 'prod') {
+        await expect(tmsPage.page).toHaveScreenshot('tax-sensitivity-low.prod.png', {
+            mask: screenshotMaskLocators,
+            fullPage: true,
+            maxDiffPixelRatio: 0.03,
+        });
+    } else {
+        await expect(tmsPage.page).toHaveScreenshot('tax-sensitivity-low.png', {
+            mask: screenshotMaskLocators,
+            fullPage: true,
+            maxDiffPixelRatio: 0.03,
+        });
+    }
 
     // Test PDF download for Low sensitivity
     logger.debug('\nAttempting to download PDF for Low sensitivity');
@@ -44,13 +50,19 @@ Then('The UI summary should be generated', async ({}) => {
     // Medium sensitivity
     await tmsPage.page.bringToFront();
     await tmsPage.selectTaxSensitivity('Medium');
-    const mediumSensitivitySnapshot =
-        process.env.Environment === 'prod' ? 'tax-sensitivity-medium.prod.png' : 'tax-sensitivity-medium.png';
-    await expect(tmsPage.page).toHaveScreenshot(mediumSensitivitySnapshot, {
-        mask: screenshotMaskLocators,
-        fullPage: true,
-        maxDiffPixelRatio: 0.03,
-    });
+    if (process.env.Environment === 'prod' || process.env.ENVIRONMENT === 'prod') {
+        await expect(tmsPage.page).toHaveScreenshot('tax-sensitivity-medium.prod.png', {
+            mask: screenshotMaskLocators,
+            fullPage: true,
+            maxDiffPixelRatio: 0.03,
+        });
+    } else {
+        await expect(tmsPage.page).toHaveScreenshot('tax-sensitivity-medium.png', {
+            mask: screenshotMaskLocators,
+            fullPage: true,
+            maxDiffPixelRatio: 0.03,
+        });
+    }
 
     // Test PDF download for Medium sensitivity
     logger.debug('\nAttempting to download PDF for Medium sensitivity');
@@ -63,13 +75,19 @@ Then('The UI summary should be generated', async ({}) => {
     // High sensitivity
     await tmsPage.page.bringToFront();
     await tmsPage.selectTaxSensitivity('High');
-    const highSensitivitySnapshot =
-        process.env.Environment === 'prod' ? 'tax-sensitivity-high.prod.png' : 'tax-sensitivity-high.png';
-    await expect(tmsPage.page).toHaveScreenshot(highSensitivitySnapshot, {
-        mask: screenshotMaskLocators,
-        fullPage: true,
-        maxDiffPixelRatio: 0.03,
-    });
+    if (process.env.Environment === 'prod' || process.env.ENVIRONMENT === 'prod') {
+        await expect(tmsPage.page).toHaveScreenshot('tax-sensitivity-high.prod.png', {
+            mask: screenshotMaskLocators,
+            fullPage: true,
+            maxDiffPixelRatio: 0.03,
+        });
+    } else {
+        await expect(tmsPage.page).toHaveScreenshot('tax-sensitivity-high.png', {
+            mask: screenshotMaskLocators,
+            fullPage: true,
+            maxDiffPixelRatio: 0.03,
+        });
+    }
 
     // Test PDF download for High sensitivity
     logger.debug('\nAttempting to download PDF for High sensitivity');
@@ -82,13 +100,19 @@ Then('The UI summary should be generated', async ({}) => {
     // Very High sensitivity
     await tmsPage.page.bringToFront();
     await tmsPage.selectTaxSensitivity('Very High');
-    const veryHighSensitivitySnapshot =
-        process.env.Environment === 'prod' ? 'tax-sensitivity-very-high.prod.png' : 'tax-sensitivity-very-high.png';
-    await expect(tmsPage.page).toHaveScreenshot(veryHighSensitivitySnapshot, {
-        mask: screenshotMaskLocators,
-        fullPage: true,
-        maxDiffPixelRatio: 0.03,
-    });
+    if (process.env.Environment === 'prod' || process.env.ENVIRONMENT === 'prod') {
+        await expect(tmsPage.page).toHaveScreenshot('tax-sensitivity-very-high.prod.png', {
+            mask: screenshotMaskLocators,
+            fullPage: true,
+            maxDiffPixelRatio: 0.03,
+        });
+    } else {
+        await expect(tmsPage.page).toHaveScreenshot('tax-sensitivity-very-high.png', {
+            mask: screenshotMaskLocators,
+            fullPage: true,
+            maxDiffPixelRatio: 0.03,
+        });
+    }
 
     // Test PDF download for Very High sensitivity
     logger.debug('\nAttempting to download PDF for Very High sensitivity');
