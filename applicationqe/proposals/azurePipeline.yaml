@@ -16,8 +16,8 @@ schedules:
               - playwrightaaron
       always: true
 
-    # Test11 schedule (4:45 PM EST -> 20:45 UTC)
-    - cron: '45 20 * * *' # 4:45 PM EST → Test11
+    # Test11 schedule (2:45 PM EST -> 18:45 UTC)
+    - cron: '45 18 * * *' # 2:45 PM EST → Test11
       displayName: 'Schedule for Test11'
       branches:
           include:
