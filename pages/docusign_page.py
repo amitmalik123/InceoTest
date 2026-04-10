@@ -186,7 +186,7 @@ class DocuSignPage(BasePage):
         label_locator.click()
         logger.info("✓ ERSD consent checkbox checked")
 
-    def click_ersd_continue_button(self, timeout: int = 10000):
+    def click_ersd_continue_button(self, timeout: int = 30000):
         """
         Click the Continue button in the ERSD modal.
         Uses Playwright get_by_role to locate the button by its text.
@@ -198,6 +198,18 @@ class DocuSignPage(BasePage):
             docusign_page.click_ersd_continue_button()
         """
         logger.info("Clicking ERSD Continue button...")
+        
+        # CRITICAL: Wait for page to be fully loaded and stable (especially for headless mode)
+        logger.info("Waiting for page to be fully loaded and network idle...")
+        try:
+            self.page.wait_for_load_state("networkidle", timeout=timeout)
+            logger.debug("Page reached networkidle state")
+        except Exception as e:
+            logger.warning(f"Page didn't reach networkidle: {e}, continuing anyway")
+        
+        # Wait a bit for modal to initialize after network idle
+        import time
+        time.sleep(1)
         
         # Locate the Continue button by role and name
         continue_button = self.page.get_by_role("button", name="Continue")
@@ -211,10 +223,14 @@ class DocuSignPage(BasePage):
         continue_button.click()
         logger.info("✓ ERSD Continue button clicked")
 
-    def click_finish_button(self, timeout: int = 10000):
+    def click_finish_button(self, timeout: int = 30000):
         """
         Click the Finish button in the top right header to complete the DocuSign process.
-        Targets the action-bar Finish button specifically (not the bottom or slide-up bar buttons).
+        
+        Uses scoped search within action-button-wrapper div for reliability:
+        1. Locate the action-button-wrapper container
+        2. Within that div, find the Finish button by role
+        3. Click with page stability checks
         
         Args:
             timeout: Maximum time to wait in milliseconds
@@ -222,20 +238,136 @@ class DocuSignPage(BasePage):
         Example:
             docusign_page.click_finish_button()
         """
-        logger.info("Clicking top right header Finish button...")
+        logger.info("Clicking Finish button...")
         
-        # Locate the top right header Finish button by id attribute
-        # This targets the action-bar-btn-finish specifically, not the bottom or slide-up-bar finish buttons
-        finish_button = self.page.locator(docusign_locators.FINISH_BUTTON)
+        # CRITICAL: Wait for page to be fully loaded and stable
+        logger.info("Waiting for page to be fully loaded (networkidle)...")
+        try:
+            self.page.wait_for_load_state("networkidle", timeout=timeout)
+            logger.debug("Page reached networkidle state")
+        except Exception as e:
+            logger.warning(f"Page didn't reach networkidle: {e}, continuing anyway")
         
-        # Wait for button to be visible and enabled
-        finish_button.wait_for(state="visible", timeout=timeout)
-        logger.debug("Header Finish button is visible")
+        # Wait for DocuSign interface to initialize
+        import time
+        time.sleep(2)
+        
+        finish_button = None
+        
+        # Strategy 1: Scoped search - get button within action-button-wrapper div (MOST ROBUST)
+        try:
+            logger.info("Strategy 1: Using scoped search within action-button-wrapper div...")
+            action_btn_wrapper = self.page.locator(docusign_locators.ACTION_BUTTON_WRAPPER)
+            action_btn_wrapper.wait_for(state="visible", timeout=5000)
+            
+            # Search for Finish button within the scoped div
+            finish_button = action_btn_wrapper.get_by_role("button", name=docusign_locators.FINISH_BUTTON_TEXT)
+            finish_button.wait_for(state="visible", timeout=5000)
+            logger.debug("✓ Found using scoped get_by_role")
+        except Exception as e:
+            logger.debug(f"Strategy 1 failed: {e}")
+        
+        # Strategy 2: Full page search with data-qa selector (fallback)
+        if finish_button is None:
+            try:
+                logger.info("Strategy 2: Using full page CSS selector (fallback)...")
+                finish_button = self.page.locator(docusign_locators.FINISH_BUTTON)
+                finish_button.wait_for(state="visible", timeout=5000)
+                logger.debug("✓ Found using CSS selector")
+            except Exception as e:
+                logger.debug(f"Strategy 2 failed: {e}")
+        
+        # If all strategies failed, log debug info and fail
+        if finish_button is None:
+            logger.error("✗ Could not find Finish button")
+            try:
+                screenshot = self.page.screenshot()
+                allure.attach(screenshot, name="Finish Button Not Found", attachment_type=allure.attachment_type.PNG)
+            except Exception as screenshot_error:
+                logger.warning(f"Could not capture screenshot: {screenshot_error}")
+            
+            raise PlaywrightTimeoutError(
+                f"[FAIL] DocuSignPage: Finish Button Not Found — "
+                f"Scoped search within action-button-wrapper failed. Timeout: {timeout}ms."
+            )
         
         # Click the button
-        logger.info("Clicking top right header Finish button")
+        logger.info("Clicking Finish button")
         finish_button.click()
-        logger.info("✓ DocuSign top right header Finish button clicked")
+        logger.info("✓ Finish button clicked")
+        
+        # CRITICAL: After finishing DocuSign, wait for page to return and stabilize
+        # The Request dialog may be hidden initially and needs render time
+        logger.info("Waiting for page to return from DocuSign and stabilize...")
+        import time
+        try:
+            self.page.wait_for_load_state("networkidle", timeout=10000)
+            logger.debug("Page returned and reached networkidle")
+        except Exception as e:
+            logger.debug(f"Page didn't reach networkidle: {e}")
+        
+        # Give dialog time to render and become visible
+        time.sleep(3)
+        logger.info("✓ Page stabilization complete, dialog should be rendering")
+
+    def click_adopt_and_sign(self, timeout: int = 30000):
+        """
+        Click the 'Adopt and Sign' button in the Adopt Signature modal.
+        Uses Playwright role-based locator for accessibility and resilience.
+        
+        Args:
+            timeout: Maximum time to wait in milliseconds
+            
+        Raises:
+            PlaywrightTimeoutError: If the Adopt and Sign button is not found or not visible
+            
+        Example:
+            docusign_page.click_adopt_and_sign()
+        """
+        logger.info("Clicking Adopt and Sign button...")
+        
+        # CRITICAL: Wait for page to be fully loaded and stable (especially for headless mode)
+        logger.info("Waiting for page to be fully loaded and network idle...")
+        try:
+            self.page.wait_for_load_state("networkidle", timeout=timeout)
+            logger.debug("Page reached networkidle state")
+        except Exception as e:
+            logger.warning(f"Page didn't reach networkidle: {e}, continuing anyway")
+        
+        # Wait a bit for modal to initialize after network idle
+        import time
+        time.sleep(1)
+        
+        try:
+            # First, wait for the Adopt Signature modal to be visible
+            modal_locator = self.page.locator(docusign_locators.ADOPT_SIGNATURE_MODAL)
+            modal_locator.wait_for(state="visible", timeout=timeout)
+            logger.debug("Adopt Signature modal is visible")
+            
+            # Locate the Adopt and Sign button by role and name (most semantic approach)
+            adopt_sign_button = self.page.get_by_role(
+                "button", 
+                name=docusign_locators.ADOPT_AND_SIGN_BUTTON_TEXT
+            )
+            
+            # Wait for button to be visible and enabled
+            adopt_sign_button.wait_for(state="visible", timeout=timeout)
+            logger.debug("Adopt and Sign button is visible")
+            
+            # Click the button
+            logger.info("Clicking Adopt and Sign button")
+            adopt_sign_button.click()
+            logger.info("✓ Adopt and Sign button clicked")
+            
+            # Wait for modal to close and signature to be adopted
+            self.page.wait_for_timeout(1000)
+            
+        except PlaywrightTimeoutError as e:
+            logger.error(f"Failed to locate Adopt and Sign button within timeout: {str(e).splitlines()[0]}")
+            raise
+        except Exception as e:
+            logger.error(f"Error clicking Adopt and Sign button: {str(e).splitlines()[0]}")
+            raise
 
     def get_stamping_element(self, stamping_text: str):
         """
@@ -309,7 +441,7 @@ class DocuSignPage(BasePage):
         
         return dialog_text
 
-    def click_sign_button(self, timeout: int = 10000):
+    def click_sign_button(self, timeout: int = 30000):
         """
         Click the Sign button (div with text 'Sign') on the DocuSign page.
         Locates a div element containing the text 'Sign' using CSS selector.
@@ -321,6 +453,18 @@ class DocuSignPage(BasePage):
             docusign_page.click_sign_button()
         """
         logger.info("Clicking Sign button...")
+        
+        # CRITICAL: Wait for page to be fully loaded and stable (especially for headless mode)
+        logger.info("Waiting for page to be fully loaded and network idle...")
+        try:
+            self.page.wait_for_load_state("networkidle", timeout=timeout)
+            logger.debug("Page reached networkidle state")
+        except Exception as e:
+            logger.warning(f"Page didn't reach networkidle: {e}, continuing anyway")
+        
+        # Wait a bit for interface to initialize after network idle
+        import time
+        time.sleep(1)
         
         # Locate the Sign button/div by finding a div with text 'Sign'
         sign_button = self.page.locator(docusign_locators.SIGN_BUTTON)

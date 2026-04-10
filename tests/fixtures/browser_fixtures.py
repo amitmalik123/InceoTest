@@ -199,6 +199,14 @@ def apply_context_listeners(context) -> None:
                 _write_to_log(line)
 
         def _on_pageerror(error):
+            error_str = str(error)
+            
+            # Skip jQuery/$ not defined errors - these are page-level issues
+            # that don't affect test execution in headless mode
+            if "$ is not defined" in error_str or "jQuery is not defined" in error_str:
+                logger.debug(f"[PAGE ERROR - SUPPRESSED] {error_str}")
+                return
+            
             line = f"[PAGE ERROR] {error}"
             logger.warning(line)
             _write_to_log(line)

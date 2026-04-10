@@ -1,5 +1,5 @@
-scenario,role,Document_Creator_Role,Authorized_Signer_Role,Agent,username,password,client_id,account_number,account_name,OAM_Request,OAM_Type,Submission_Type,Client_Signature_Method,Expected_Signer_Information_Text,Expected_Authorized_Signer_Approval_Text,Authorized_Signer_Approval_Option,Authorized_Signer_eSign_Method,Authorized_Signer,Email_Address,Phone,Expected_docusign_ReviewAndContinue_Text,As_authorized_by_stamp_present,Expected_RequestPopUp_Text,Expected_Advisor_Alert_Required,Expected_AuthorizedSigner_Email_Subject,Expected_AuthorizedSigner_Email_Body,Expected_TrackingCenter_Notes,Expected_Roles,Expected_RoutingOrders
-OAM_Initiated by FA_Online Submit_Finish,,,,AGA1G1,T11_AGA1G1_Perf,QAAdminUser_33a,,13222266,Carmen E Tucker,Additional Account Documentation,Historical Document Retrieval,Complete and Submit,Proceed and submit without a client signature,,,,,,,,Please review and sign the document electronically.,No,"Request Submitted
+scenario,role,Document_Creator_Role,Authorized_Signer_Role,Agent,username,password,client_id,account_number,account_name,OAM_Request,OAM_Type,Submission_Type,Client_Signature_Method,Expected_Signer_Information_Text,Expected_Authorized_Signer_Approval_Text,Authorized_Signer_Approval_Option,Authorized_Signer_eSign_Method,Email_Address,Phone,Expected_docusign_ReviewAndContinue_Text,As_authorized_by_stamp_present,Expected_RequestPopUp_Text,Expected_Advisor_Alert_Required,Expected_AuthorizedSigner_Email_Subject,Expected_AuthorizedSigner_Email_Body,Expected_TrackingCenter_Notes,Expected_Roles,Expected_RoutingOrders
+OAM_Initiated by FA_Online Submit_Finish,,,,AGA1G1,T11_AGA1G1_Perf,QAAdminUser_33a,,13222266,Carmen E Tucker,Additional Account Documentation,Historical Document Retrieval,Complete and Submit,Proceed and submit without a client signature,,,,,,,Please review and sign the document electronically.,No,"Request Submitted
 |
 Your request has been submitted to AssetMark for processing.
 |
@@ -14,7 +14,7 @@ Please provide the advisor's or their Shared Access user's details and indicate 
 Once setup is complete, they'll receive an email alerting them to the pending documents and granting access through the selected notification method.","Authorized Signer Approval 
 |
 You are authorized to begin the signature process; approval is not required.
-Do you need approval from another authorized signer before proceeding with eSignature?",Yes,SMS,Howard Ginsberg CPA,saransh.saxena@assetmark.com,925 532 9706,Please review and sign the document electronically.,No,"Request Ready for Financial Advisor Review
+Do you need approval from another authorized signer before proceeding with eSignature?",Yes,SMS,saransh.saxena@assetmark.com,925 532 9706,Please review and sign the document electronically.,No,"Request Ready for Financial Advisor Review
 |
 Your request will be sent to the Financial Advisor to review, approve and submit to AssetMark for processing.
 |
@@ -41,7 +41,7 @@ Please provide the advisor's or their Shared Access user's details and indicate 
 Once setup is complete, they'll receive an email alerting them to the pending documents and granting access through the selected notification method.","Authorized Signer Approval 
 |
 You are authorized to begin the signature process; approval is not required.
-Do you need approval from another authorized signer before proceeding with eSignature?",No,,,,,Please review and sign the document electronically.,Yes,"Request Submitted
+Do you need approval from another authorized signer before proceeding with eSignature?",No,,,,Please review and sign the document electronically.,Yes,"Request Submitted
 |
 Your request has been submitted to AssetMark for processing.
 |
@@ -54,10 +54,37 @@ Click Close to return to eWealthManager.",No,"Document has been completed and ro
 Document created by <FA Name>",,"Document has been completed and routed to Operations for review and processing.
 |
 Document created by <FA Name>",Advisor,1
-OAM_Initiated by SAU_Complete and Print,SAU,SAU,,AGA1G1,SAU_AGA1G1_T11,QAAdminUser_33a,,13222266,Carmen E Tucker,Contributions,Copy for Digital Deposit,Complete and Print,,,,,,,,,Please review and sign the document electronically.,No,"Ready for Signatures
+OAM_Initiated by SAU_Complete and Print,SAU,SAU,,AGA1G1,SAU_AGA1G1_T11,QAAdminUser_33a,,13222266,Carmen E Tucker,Contributions,Copy for Digital Deposit,Complete and Print,,,,,,,,Please review and sign the document electronically.,No,"Ready for Signatures
 |
 After printing and obtaining signatures, scan the signed document and upload to the Tracking Center by selecting
 |
 The Tracking Center provides one-stop access to your documents and status updates.",Yes,,,"Once completed and signed, submit document from Tracking Center upload or mail.
 |
 Document created by <FA Name>",Advisor,1
+OAM_Initiated by SAU_Online Submit_Authorized Signer_Required_SAU,SAU,SAU,SAU,AGA1G1,SAU_AGA1G1_T11,QAAdminUser_33a,,13222266,Carmen E Tucker,Contributions,Copy for Digital Deposit,Complete and Submit,Proceed and submit without a client signature,"Signer(s) Information 
+|
+Please provide the advisor's or their Shared Access user's details and indicate whether they should be notified via Tracking Center or SMS.
+Once setup is complete, they'll receive an email alerting them to the pending documents and granting access through the selected notification method.","Authorized Signer Approval 
+|
+You are authorized to begin the signature process; approval is not required.
+Do you need approval from another authorized signer before proceeding with eSignature?",Yes,SMS,saransh.saxena@assetmark.com,925 532 9706,Please review and sign the document electronically.,No,"Request Ready for Shared Access User Review
+|
+Your request will be sent to the Shared Access User to review, approve and submit to AssetMark for processing.
+|
+To view your request, go to the Tracking Center and select
+|
+a copy for your records.
+|
+Click Close to return to eWealthManager.",Yes,[External] <Document_Creator_Role_Name> requested your Electronic Signature - <D Number>,"<Authorized_Signer_Role_Name>,
+
+Your Shared Access User has prepared one or more documents that are ready for you to sign electronically.","Document has been completed and routed to Operations for review and processing.
+|
+Document has been routed to <Authorized_Signer_Role_Name> for review and submission.
+|
+Document completed by <SAU Name> and is pending review and submission.
+|
+Document created by <SAU Name>","Shared Access User
+|
+Advisor","1
+|
+2"
