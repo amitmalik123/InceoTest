@@ -1,6 +1,6 @@
 [
   {
-    "environment": "T12",
+    "environment": "D13",
     "dataType": "Positive",
     "description": "Test data positive",
     "workItemVisibilityPreferenceType": "AccountTrackingNoFunding",
@@ -9,7 +9,7 @@
     "createdBy": "Test"
   },
   {
-    "environment": "T12",
+    "environment": "D13",
     "dataType": "Positive",
     "description": "Test data positive",
     "workItemVisibilityPreferenceType": "AccountTrackingNoFunding",

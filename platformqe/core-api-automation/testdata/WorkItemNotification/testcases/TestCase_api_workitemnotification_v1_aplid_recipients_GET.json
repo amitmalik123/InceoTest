@@ -1,0 +1,153 @@
+[
+    {
+        "test_id": "TC001",
+        "service_name": "WorkItemNotification",
+        "workflow_mode": "parallel",
+        "test_name": "GET /api/workitemnotification/v1/{aplId}/recipients [positive] (TC001)",
+        "protocol": "REST",
+        "test_type": [
+            "Functional"
+        ],
+        "mainURL": "{{base_url}}",
+        "endpoint": "/api/workitemnotification/v1/{{aplId}}/recipients",
+        "method": "GET",
+        "rpc_method": "",
+        "graphql_query": "",
+        "graphql_variables": "",
+        "soap_action": "",
+        "soap_envelope": "",
+        "headers_additional": {
+            "Content-Type": "application/json"
+        },
+        "payload": null,
+        "expected_status": "200",
+        "expected_response_schema": "WorkItemNotification\\schemas\\Schema_api_workitemnotification_v1_aplid_recipients_GET_negative.json",
+        "expected_response": null,
+        "ignore_fields": [],
+        "extract_values": [
+            {
+                "from": "response",
+                "key": "aplId",
+                "assign_to": "aplId"
+            }
+        ],
+        "validate": {
+            "performance": {
+                "max_response_time_ms": 500
+            },
+            "security": {
+                "checks": [
+                    "sql_injection",
+                    "xss"
+                ]
+            },
+            "assertions": [
+                {
+                    "actual": "{{aplId}}",
+                    "operator": "==",
+                    "expected": "AGA4JX",
+                    "message": "Verify aplId field matches expected value"
+                }
+            ],
+            "data_comparison": []
+        },
+        "test_data_file": "WorkItemNotification\\data_driven\\Data_preferences_workitems_GET_aplid_recipients.csv",
+        "db_query_timing": "after_api",
+        "db_queries": {
+            "default": "WorkItemNotification\\db_queries\\Query_preference_GET_aplid_recipients_select.sql",
+            "audit_query": "WorkItemNotification\\db_queries\\Query_preference_GET_aplid_recipients_select.sql"
+        },
+        "db_type": "mssql",
+        "db_connection_name": "work_item_notification",
+        "test_summary": "Test TC001: GET /api/workitemnotification/v1/{aplId}/recipients [positive] (TC001)"
+    },
+    {
+        "test_id": "TC002",
+        "service_name": "WorkItemNotification",
+        "workflow_mode": "parallel",
+        "test_name": "GET /api/workitemnotification/v1/{{aplId}}/recipients [negative: missing aplId] (TC002)",
+        "protocol": "REST",
+        "test_type": [
+            "Negative"
+        ],
+        "mainURL": "{{base_url}}",
+        "endpoint": "/api/workitemnotification/v1/23453tygj/recipients",
+        "method": "GET",
+        "headers_additional": {
+            "Content-Type": "application/json"
+        },
+        "payload": null,
+        "expected_status": "200",
+        "expected_response_schema": "WorkItemNotification\\schemas\\Schema_aplid_error.json",
+        "expected_response": null,
+        "ignore_fields": [
+            "id"
+        ],
+        "extract_values": [],
+        "validate": {
+            "performance": {
+                "max_response_time_ms": 500
+            },
+            "security": {
+                "checks": [
+                    "sql_injection",
+                    "xss"
+                ]
+            }
+        },
+        "test_data_file": "",
+        "db_query_timing": "",
+        "db_type": "",
+        "db_connection_name": "",
+        "test_summary": "Test TC002: GET /api/workitemnotification/v1/{aplId}/recipients [negative: missing aplId] (TC002)",
+        "missing_param": "aplId"
+    },
+    {
+        "test_id": "TC003",
+        "service_name": "WorkItemNotification",
+        "workflow_mode": "parallel",
+        "test_name": "GET /api/workitemnotification/v1/{aplId}/recipients [negative: extra param] (TC003)",
+        "protocol": "REST",
+        "test_type": [
+            "Negative"
+        ],
+        "mainURL": "{{base_url}}",
+        "endpoint": "/api/workitemnotification/v1/{aplId}/recipients",
+        "method": "GET",
+        "headers_additional": {
+            "Content-Type": "application/json"
+        },
+        "payload": null,
+        "expected_status": "200",
+        "expected_response_schema": "WorkItemNotification\\schemas\\Schema_aplid_error.json",
+        "expected_response": null,
+        "ignore_fields": [
+            "id"
+        ],
+        "extract_values": [],
+        "validate": {
+            "performance": {
+                "max_response_time_ms": 500
+            },
+            "security": {
+                "checks": [
+                    "sql_injection",
+                    "xss"
+                ]
+            },
+            "data_comparison": []
+        },
+        "test_data_file": "",
+        "db_query_timing": "after_api",
+        "db_queries": {
+            "default": "",
+            "audit_query": ""
+        },
+        "db_type": "",
+        "db_connection_name": "",
+        "test_summary": "Test TC003: GET /api/workitemnotification/v1/{aplId}/recipients [negative: extra param] (TC003)",
+        "extra_param": {
+            "unexpected_param": "unexpected"
+        }
+    }
+]

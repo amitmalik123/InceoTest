@@ -1,0 +1,9 @@
+{
+  "type": "object",
+  "properties": {
+    "preferenceId": { "type": "integer" },
+    "success": { "type": "boolean" },
+    "message": { "type": "string" }
+  },
+  "required": ["preferenceId", "success", "message"]
+}
