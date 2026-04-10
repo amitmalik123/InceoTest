@@ -215,7 +215,7 @@ def verify_notes_description(trackingCenter_ItemDetail_page, test_context):
             
             logger.info(f"✓ Found {len(actual_descriptions)} actual description(s) in Notes grid")
             for idx, desc in enumerate(actual_descriptions, 1):
-                logger.info(f"  Actual Description {idx}: {desc[:100]}...")  # Log first 100 chars
+                logger.info(f"  Actual Description {idx}: {desc}")
             
             # Step 2: Get expected descriptions from test data
             logger.info("Step 2: Retrieving expected notes descriptions from test_data...")

@@ -4,6 +4,9 @@ Client Accounts Page Object
 Page object for client account interactions and verifications.
 """
 
+import re
+import unicodedata
+
 from playwright.sync_api import Locator, Page
 
 from locators import client_accounts_locators
@@ -1262,6 +1265,54 @@ class ClientAccountsPage(BasePage):
         logger.info(f"✓ Radio button located for account '{account_number}'")
         
         return radio_button, label_for_attr
+
+    def normalize_text_for_comparison(self, text: str) -> str:
+        """
+        Normalize text for comparison by handling special characters and Unicode issues.
+        
+        Handles:
+        - Unicode normalization (NFC)
+        - Smart quotes (curly) → regular quotes
+        - Non-breaking spaces → regular spaces
+        - Multiple consecutive spaces → single space
+        - Other whitespace normalization
+        
+        Args:
+            text: Text to normalize
+            
+        Returns:
+            Normalized text string
+            
+        Example:
+            normalized = page_obj.normalize_text_for_comparison("Heading\u2019s Text")
+            # "Heading's Text"
+        """
+        if not text:
+            return ""
+        
+        # Apply Unicode NFC normalization
+        text = unicodedata.normalize('NFC', text)
+        
+        # Replace smart/curly quotes with regular straight quotes
+        text = text.replace('\u2018', "'")  # Left single quotation mark
+        text = text.replace('\u2019', "'")  # Right single quotation mark (most common)
+        text = text.replace('\u201C', '"')  # Left double quotation mark
+        text = text.replace('\u201D', '"')  # Right double quotation mark
+        
+        # Replace non-breaking space with regular space
+        text = text.replace('\u00A0', ' ')  # Non-breaking space
+        text = text.replace('\u2009', ' ')  # Thin space
+        text = text.replace('\u200B', '')   # Zero-width space (remove)
+        
+        # Replace em-dash with regular hyphen
+        text = text.replace('\u2014', '-')  # Em-dash
+        text = text.replace('\u2013', '-')  # En-dash
+        
+        # Normalize multiple whitespace to single space
+        text = re.sub(r'\s+', ' ', text)
+        
+        # Strip leading/trailing whitespace
+        return text.strip()
 
     def ensure_account_radio_selected(self, account_number: str) -> dict:
         """

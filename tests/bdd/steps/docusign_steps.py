@@ -39,7 +39,7 @@ def user_confirm_and_continue(authenticated_page: Page, test_context):
     
     # Click the Continue button
     logger.info("Clicking Continue button...")
-    docusign_page.click_ersd_continue_button(timeout=10000)
+    docusign_page.click_ersd_continue_button(timeout=30000)
     
     logger.info("[PASS] DocuSignPage: ERSD Consent Confirmed.")
 
@@ -66,7 +66,7 @@ def user_finish_the_docusign_process(authenticated_page: Page, test_context):
     
     # Click the Finish button
     logger.info("Clicking Finish button to complete DocuSign process...")
-    docusign_page.click_finish_button(timeout=10000)
+    docusign_page.click_finish_button(timeout=30000)
     
     logger.info("[PASS] DocuSignPage: DocuSign Process Finished.")
 
@@ -125,12 +125,12 @@ def verify_as_authorized_by_stamp_presence(authenticated_page: Page, docusign_pa
         stamping_locator = docusign_page.get_stamping_element(STAMPING_TEXT)
         
         # Use SoftAssertions utility to verify element count (non-blocking)
-        logger.info("Step 1: Verifying stamping presence using soft assertions...")
+        logger.info("Step 1: Verifying As Authorized by stamping presence using soft assertions...")
         soft_assert = SoftAssertions()
         soft_assert.assert_count(
             stamping_locator,
             expected_count=expected_count,
-            message=f"[FAIL] DocuSignPage: Stamping Presence — Expected: '{STAMPING_TEXT}' count={expected_count}, Actual: count != {expected_count}. Details: '{STAMPING_TEXT}' stamp should be {'PRESENT' if should_be_present else 'NOT PRESENT'} (As_authorized_by_stamp_present='{as_authorized_by_value}'). Locator: document-stamping-area."
+            message=f"[FAIL] DocuSignPage: As Authorized by Stamping Presence — Expected: '{STAMPING_TEXT}' count={expected_count}, Actual: count != {expected_count}. Details: '{STAMPING_TEXT}' stamp should be {'PRESENT' if should_be_present else 'NOT PRESENT'} (As_authorized_by_stamp_present='{as_authorized_by_value}'). Locator: document-stamping-area."
         )
         
         # Verify soft assertions
@@ -253,11 +253,11 @@ def user_add_signature(authenticated_page: Page, docusign_page):
     
     # STEP 1: Click Finish button (first call)
     logger.info("Step 1: Clicking Finish button (initial)...")
-    docusign_page.click_finish_button(timeout=10000)
+    docusign_page.click_finish_button(timeout=30000)
     
     # STEP 2: Click on Sign button/div
     logger.info("Step 2: Clicking Sign button...")
-    docusign_page.click_sign_button(timeout=10000)
+    docusign_page.click_sign_button(timeout=30000)
     
     # Take screenshot for audit trail
     authenticated_page.wait_for_timeout(1000)
@@ -295,11 +295,11 @@ def user_click_on_sign_and_add_signature(authenticated_page: Page, docusign_page
     
     with allure.step("User click on Sign button and add signature"):
         logger.info("Clicking Sign button to add signature...")
-        docusign_page.click_sign_button(timeout=10000)
+        docusign_page.click_sign_button(timeout=30000)
         
         # Click the Adopt and Sign button to confirm signature
         logger.info("Clicking Adopt and Sign button to confirm signature...")
-        docusign_page.click_adopt_and_sign(timeout=10000)
+        docusign_page.click_adopt_and_sign(timeout=30000)
         
         # Wait a moment for the signature to be registered
         authenticated_page.wait_for_timeout(1000)

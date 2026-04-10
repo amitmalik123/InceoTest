@@ -145,7 +145,7 @@ markers = [
     "performance: Performance monitoring tests",
     "lighthouse: Lighthouse audit tests",
     "HappyPath: Happy path scenario",
-    "ES1_OAM_Regression: ES1 OAM Regression tests"
+    "Silo_Regression: Silo Regression"
 ]
 asyncio_mode = "strict"
 log_cli = true

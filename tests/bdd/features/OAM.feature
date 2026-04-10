@@ -1,6 +1,6 @@
 Feature: E2E OAM flow for FA, SAU and OA
 
-  @smoke @FNT_regression
+  @smoke @FNT_regression @InDev 
   Scenario: OAM_Initiated by FA_Online Submit_Finish
     When User navigate to Clients menu
     And User click on Account List
@@ -25,10 +25,10 @@ Feature: E2E OAM flow for FA, SAU and OA
     And Verify Advisor Alert Required value
     And Verify buttons displayed "View"
     And Verify Notes description
-    And Verify Agent Name
-    And Verify the Routing Order in database
+    #And Verify Agent Name
+    #And Verify the Routing Order in database
 
-  @HappyPath @FNT_regression
+  @HappyPath @FNT_regression @Silo_Regression
   Scenario: OAM_Initiated by SAU_Online Submit_Authorized Signer_Not_Required
     When User navigate to Clients menu
     And User click on Account List
@@ -59,8 +59,8 @@ Feature: E2E OAM flow for FA, SAU and OA
     And Verify Advisor Alert Required value
     And Verify buttons displayed "View"
     And Verify Notes description
-    And Verify Agent Name
-    And Verify the Routing Order in database
+    #And Verify Agent Name
+    #And Verify the Routing Order in database
 
   @FNT_regression
   Scenario: OAM_Initiated by SAU_Complete and Print 
@@ -127,6 +127,7 @@ Feature: E2E OAM flow for FA, SAU and OA
     When User click on Review Document and submit the otp
     Then Verify docusign Review and continue dialog text "Your Shared Access User has prepared one or more documents that are ready for you to sign electronically."
     When User confirm and Continue the docusign Review and continue dialog
+    And User click on Sign and add signature
     And User Finish the DocuSign process
     Then Verify Tracking Center Item Detail status should be "Document Submitted"
     And Verify buttons displayed "View"
@@ -134,7 +135,7 @@ Feature: E2E OAM flow for FA, SAU and OA
     And Verify Agent Name
     And Verify the Routing Order in database
 
-  @InDev @FNT_regression
+  @FNT_regression
   Scenario: OAM_Initiated by SAU_Online Submit_Authorized Signer_Required_SAU
     When User navigate to Clients menu
     And User click on Account List

@@ -1,2 +1,29 @@
-scenario,role,username,password,client_id,account_name,destination_account,account_number,conversion_amount,routing_number,ach_option,advisor_id,expected_description
-Successfully complete Add ACH flow,ira,T11_AGA1G1_Perf,QAAdminUser_33a,13454189,"Brian Chabrunn",13443983,13443983,1000,121000358,Yes,AGA1G1,Bank/Payee Instructions - Add
+scenario,role,Document_Creator_Role,Authorized_Signer_Role,Agent,username,password,client_id,account_number,account_name,OAM_Request,OAM_Type,Submission_Type,Client_Signature_Method,Expected_Signer_Information_Text,Expected_Authorized_Signer_Approval_Text,Authorized_Signer_Approval_Option,Authorized_Signer_eSign_Method,Email_Address,Phone,Expected_docusign_ReviewAndContinue_Text,As_authorized_by_stamp_present,Expected_RequestPopUp_Text,Expected_Advisor_Alert_Required,Expected_AuthorizedSigner_Email_Subject,Expected_AuthorizedSigner_Email_Body,Expected_TrackingCenter_Notes,Expected_Roles,Expected_RoutingOrders
+OAM_Initiated by FA_Online Submit_Finish,,,,AGA06W,test12345678,Test1234t,,40360477,Henry Ssassafras,Additional Account Documentation,Historical Document Retrieval,Complete and Submit,Proceed and submit without a client signature,,,,,,,Please review and sign the document electronically.,No,"Request Submitted
+|
+Your request has been submitted to AssetMark for processing.
+|
+To view your request, go to the Tracking Center and select
+|
+a copy for your records.
+|
+Click Close to return to eWealthManager.",No,,,Document has been completed and routed to Operations for review and processing.,Advisor,1
+OAM_Initiated by SAU_Online Submit_Authorized Signer_Not_Required,SAU,SAU,,AGA06W,SAU_AGA06W_User5,QAAdminUser_33a,,40360477,Henry Ssassafras,Contributions,Copy for Digital Deposit,Complete and Submit,Proceed and submit without a client signature,"Signer(s) Information 
+|
+Please provide the advisor's or their Shared Access user's details and indicate whether they should be notified via Tracking Center or SMS.
+Once setup is complete, they'll receive an email alerting them to the pending documents and granting access through the selected notification method.","Authorized Signer Approval 
+|
+You are authorized to begin the signature process; approval is not required.
+Do you need approval from another authorized signer before proceeding with eSignature?",No,,,,Please review and sign the document electronically.,Yes,"Request Submitted
+|
+Your request has been submitted to AssetMark for processing.
+|
+To view your request, go to the Tracking Center and select
+|
+a copy for your records.
+|
+Click Close to return to eWealthManager.",No,"Document has been completed and routed to Operations for review and processing.
+|
+Document created by Sample & Agent ' Referrer #1",,"Document has been completed and routed to Operations for review and processing.
+|
+Document created by Sample Agent Referrer",Advisor,1

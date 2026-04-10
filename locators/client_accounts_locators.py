@@ -57,3 +57,7 @@ MODAL_TITLE = "div.modal-title-transition"
 RADIO_SUBMIT = "input#rbSubmit"
 RADIO_PRINT = "input#rbPrint"
 RADIO_ESIGN = "input#rbEsign"
+
+# Dialog action buttons
+CANCEL_BUTTON = "input#btnCancel"
+CONTINUE_BUTTON_DIALOG = "input#btnContinue"
