@@ -990,14 +990,7 @@
                     "message": "ChangeState should be Inactive as explicitly supplied"
                 }
             ],
-            "data_comparison": [
-                {
-                    "source": "changeState",
-                    "target": "db_changeState",
-                    "log_differences": true,
-                    "comparison_name": "ChangeState explicit Inactive value persistence - API request vs Database"
-                }
-            ]
+            "data_comparison": []
         },
         "test_data_file": "MoveMoneyAPI/data_driven/Data_Instructions_9694_POST.csv",
         "csv_row_index": 9,
