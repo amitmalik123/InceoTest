@@ -381,7 +381,7 @@ class TestDataManager:
             all_extracted_values: List of dictionaries with extracted values
             columns: List of column names for the CSV
         """
-logger.info(f"[HOOKS] Updating CSV file: {csv_file} with {len(all_extracted_values)} entries")
+        logger.info(f"[HOOKS] Updating CSV file: {csv_file} with {len(all_extracted_values)} entries")
         
         testdata_path = os.path.join(
             os.path.dirname(__file__), '..', '..', 'testdata'
