@@ -230,7 +230,7 @@ class DocuSignPage(BasePage):
         Uses scoped search within action-button-wrapper div for reliability:
         1. Locate the action-button-wrapper container
         2. Within that div, find the Finish button by role
-        3. Click with page stability checks
+        3. Click with page stability checks and clickability verification
         
         Args:
             timeout: Maximum time to wait in milliseconds
@@ -249,28 +249,29 @@ class DocuSignPage(BasePage):
             logger.warning(f"Page didn't reach networkidle: {e}, continuing anyway")
         
         # Wait for DocuSign interface to initialize
+        # Extended delay for headless mode compatibility (may be slower)
         import time
-        time.sleep(2)
+        time.sleep(3)
         
         finish_button = None
         
         # Strategy 1: Scoped search - get button within action-button-wrapper div (MOST ROBUST)
-        try:
-            logger.info("Strategy 1: Using scoped search within action-button-wrapper div...")
-            action_btn_wrapper = self.page.locator(docusign_locators.ACTION_BUTTON_WRAPPER)
-            action_btn_wrapper.wait_for(state="visible", timeout=5000)
+        # try:
+        #     logger.info("Strategy 1: Using scoped search within action-button-wrapper div...")
+        #     action_btn_wrapper = self.page.locator(docusign_locators.ACTION_BUTTON_WRAPPER)
+        #     action_btn_wrapper.wait_for(state="visible", timeout=5000)
             
-            # Search for Finish button within the scoped div
-            finish_button = action_btn_wrapper.get_by_role("button", name=docusign_locators.FINISH_BUTTON_TEXT)
-            finish_button.wait_for(state="visible", timeout=5000)
-            logger.debug("✓ Found using scoped get_by_role")
-        except Exception as e:
-            logger.debug(f"Strategy 1 failed: {e}")
+        #     # Search for Finish button within the scoped div
+        #     finish_button = action_btn_wrapper.get_by_role("button", name=docusign_locators.FINISH_BUTTON_TEXT)
+        #     finish_button.wait_for(state="visible", timeout=5000)
+        #     logger.debug("✓ Found using scoped get_by_role")
+        # except Exception as e:
+        #     logger.debug(f"Strategy 1 failed: {e}")
         
         # Strategy 2: Full page search with data-qa selector (fallback)
         if finish_button is None:
             try:
-                logger.info("Strategy 2: Using full page CSS selector (fallback)...")
+                logger.info("Strategy 2: Using full page CSS selector")
                 finish_button = self.page.locator(docusign_locators.FINISH_BUTTON)
                 finish_button.wait_for(state="visible", timeout=5000)
                 logger.debug("✓ Found using CSS selector")
@@ -291,15 +292,56 @@ class DocuSignPage(BasePage):
                 f"Scoped search within action-button-wrapper failed. Timeout: {timeout}ms."
             )
         
-        # Click the button
-        logger.info("Clicking Finish button")
-        finish_button.click()
-        logger.info("✓ Finish button clicked")
+        # CRITICAL: Ensure button is clickable before attempting click
+        # In headless mode, button may be visible but not yet interactive
+        logger.info("Ensuring Finish button is clickable...")
+        try:
+            # Wait for button to be enabled (not disabled)
+            # This is more strict than visibility - button must be interactive
+            finish_button.wait_for(state="visible", timeout=5000)
+            
+            # Additional check: verify button is not disabled
+            is_disabled = finish_button.is_disabled()
+            if is_disabled:
+                logger.warning("Finish button appears to be disabled, waiting for it to become enabled...")
+                # Give it more time to become enabled
+                time.sleep(2)
+                is_disabled = finish_button.is_disabled()
+                if is_disabled:
+                    logger.error("Finish button is still disabled, cannot click")
+                    raise PlaywrightTimeoutError("Finish button is disabled and cannot be clicked")
+            
+            # Scroll button into view to ensure it's in viewport
+            finish_button.scroll_into_view_if_needed()
+            logger.debug("Button scrolled into view")
+            
+        except Exception as e:
+            logger.warning(f"Error verifying button clickability: {e}")
+        
+        # Click the button with retry for headless mode resilience
+        max_retries = 3
+        for attempt in range(max_retries):
+            try:
+                logger.info(f"Clicking Finish button (attempt {attempt + 1}/{max_retries})...")
+                finish_button.click(timeout=5000)
+                logger.info("✓ Finish button clicked successfully")
+                break
+            except Exception as e:
+                logger.warning(f"Click attempt {attempt + 1} failed: {e}")
+                if attempt < max_retries - 1:
+                    # Wait before retry - button might still be initializing
+                    time.sleep(2)
+                else:
+                    # All retries exhausted
+                    logger.error(f"✗ Failed to click Finish button after {max_retries} attempts")
+                    raise PlaywrightTimeoutError(
+                        f"[FAIL] DocuSignPage: Could not click Finish Button — "
+                        f"Failed after {max_retries} retry attempts. Timeout: {timeout}ms."
+                    )
         
         # CRITICAL: After finishing DocuSign, wait for page to return and stabilize
         # The Request dialog may be hidden initially and needs render time
         logger.info("Waiting for page to return from DocuSign and stabilize...")
-        import time
         try:
             self.page.wait_for_load_state("networkidle", timeout=10000)
             logger.debug("Page returned and reached networkidle")
@@ -307,6 +349,7 @@ class DocuSignPage(BasePage):
             logger.debug(f"Page didn't reach networkidle: {e}")
         
         # Give dialog time to render and become visible
+        # Extended for headless mode
         time.sleep(3)
         logger.info("✓ Page stabilization complete, dialog should be rendering")
 

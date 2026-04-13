@@ -112,8 +112,8 @@ addopts = """
 """
 # Note: --reruns and --reruns-delay commented out to allow --pdb debug mode
 # Uncomment for normal test runs:
-# --reruns=2
-# --reruns-delay=1
+ --reruns=2
+ --reruns-delay=1
 
 markers = [
     "smoke: Quick smoke tests for critical functionality",
@@ -145,7 +145,8 @@ markers = [
     "performance: Performance monitoring tests",
     "lighthouse: Lighthouse audit tests",
     "HappyPath: Happy path scenario",
-    "Silo_Regression: Silo Regression"
+    "Silo_Regression: Silo Regression",
+    "T10_Regression: T10 Regression"
 ]
 asyncio_mode = "strict"
 log_cli = true

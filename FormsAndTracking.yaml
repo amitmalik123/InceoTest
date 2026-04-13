@@ -51,6 +51,10 @@ parameters:
     default: "FNT_regression"
     values:
       - FNT_regression
+      - Silo_Regression
+      - Smoke
+      - HappyPath
+      - T10_Regression
 
   - name: workers
     displayName: "Number of Parallel Workers"
