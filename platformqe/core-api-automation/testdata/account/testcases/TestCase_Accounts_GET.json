@@ -6,6 +6,7 @@
         "test_name": "GET /Accounts [positive] (TC001)",
         "protocol": "REST",
         "test_type": [
+            "GET /Accounts endpoint validation",
             "Functional",
             "Single-Filter"
         ],
@@ -105,6 +106,7 @@
         "test_name": "GET /Accounts [positive] (TC002)",
         "protocol": "REST",
         "test_type": [
+            "GET /Accounts endpoint validation",
             "Functional",
             "Single-Filter"
         ],
@@ -155,6 +157,7 @@
         "test_name": "GET /Accounts [positive] (TC003)",
         "protocol": "REST",
         "test_type": [
+            "GET /Accounts endpoint validation",
             "Functional",
             "Single-Filter"
         ],
@@ -234,6 +237,7 @@
         "test_name": "GET /Accounts [positive] (TC004)",
         "protocol": "REST",
         "test_type": [
+            "GET /Accounts endpoint validation",
             "Functional",
             "Single-Filter"
         ],
@@ -313,6 +317,7 @@
         "test_name": "GET /Accounts [positive] (TC005)",
         "protocol": "REST",
         "test_type": [
+            "GET /Accounts endpoint validation",
             "Functional",
             "Single-Filter"
         ],
@@ -392,6 +397,7 @@
         "test_name": "GET /Accounts [positive] (TC006)",
         "protocol": "REST",
         "test_type": [
+            "GET /Accounts endpoint validation",
             "Functional",
             "Single-Filter"
         ],
@@ -471,6 +477,7 @@
         "test_name": "GET /Accounts [positive] (TC007)",
         "protocol": "REST",
         "test_type": [
+            "GET /Accounts endpoint validation",
             "Functional",
             "Single-Filter"
         ],
@@ -550,6 +557,7 @@
         "test_name": "GET /Accounts [positive] (TC008)",
         "protocol": "REST",
         "test_type": [
+            "GET /Accounts endpoint validation",
             "Functional",
             "Single-Filter"
         ],
@@ -629,6 +637,7 @@
         "test_name": "GET /Accounts [positive] (TC009)",
         "protocol": "REST",
         "test_type": [
+            "GET /Accounts endpoint validation",
             "Functional",
             "Single-Filter"
         ],
@@ -708,6 +717,7 @@
         "test_name": "GET /Accounts [positive] (TC010)",
         "protocol": "REST",
         "test_type": [
+            "GET /Accounts endpoint validation",
             "Functional",
             "Single-Filter"
         ],
@@ -787,6 +797,7 @@
         "test_name": "GET /Accounts [positive] (TC011)",
         "protocol": "REST",
         "test_type": [
+            "GET /Accounts endpoint validation",
             "Functional",
             "Single-Filter"
         ],
@@ -866,6 +877,7 @@
         "test_name": "GET /Accounts [positive] (TC012)",
         "protocol": "REST",
         "test_type": [
+            "GET /Accounts endpoint validation",
             "Functional",
             "Single-Filter"
         ],
@@ -960,6 +972,7 @@
         "test_name": "GET /Accounts [positive] (TC013)",
         "protocol": "REST",
         "test_type": [
+            "GET /Accounts endpoint validation",
             "Functional",
             "Single-Filter"
         ],
@@ -1039,6 +1052,7 @@
         "test_name": "GET /Accounts [positive] (TC014)",
         "protocol": "REST",
         "test_type": [
+            "GET /Accounts endpoint validation",
             "Functional",
             "two-Filter"
         ],
@@ -1133,6 +1147,7 @@
         "test_name": "GET /Accounts [positive] (TC015)",
         "protocol": "REST",
         "test_type": [
+            "GET /Accounts endpoint validation",
             "Functional",
             "two-Filter"
         ],
@@ -1227,6 +1242,7 @@
         "test_name": "GET /Accounts [positive] (TC016)",
         "protocol": "REST",
         "test_type": [
+            "GET /Accounts endpoint validation",
             "Functional",
             "two-Filter"
         ],
@@ -1321,6 +1337,7 @@
         "test_name": "GET /Accounts [positive] (TC017)",
         "protocol": "REST",
         "test_type": [
+            "GET /Accounts endpoint validation",
             "Functional",
             "two-Filter"
         ],
@@ -1415,6 +1432,7 @@
         "test_name": "GET /Accounts [positive] (TC018)",
         "protocol": "REST",
         "test_type": [
+            "GET /Accounts endpoint validation",
             "Functional",
             "two-Filter"
         ],
@@ -1509,6 +1527,7 @@
         "test_name": "GET /Accounts [positive] (TC019)",
         "protocol": "REST",
         "test_type": [
+            "GET /Accounts endpoint validation",
             "Functional",
             "two-Filter"
         ],
@@ -1603,6 +1622,7 @@
         "test_name": "GET /Accounts [positive] (TC020)",
         "protocol": "REST",
         "test_type": [
+            "GET /Accounts endpoint validation",
             "Functional",
             "two-Filter"
         ],
@@ -1697,6 +1717,7 @@
         "test_name": "GET /Accounts [positive] (TC021)",
         "protocol": "REST",
         "test_type": [
+            "GET /Accounts endpoint validation",
             "Functional",
             "two-Filter"
         ],
@@ -1791,6 +1812,7 @@
         "test_name": "GET /Accounts [positive] (TC022)",
         "protocol": "REST",
         "test_type": [
+            "GET /Accounts endpoint validation",
             "Functional",
             "two-Filter"
         ],
@@ -1885,6 +1907,7 @@
         "test_name": "GET /Accounts [positive] (TC023)",
         "protocol": "REST",
         "test_type": [
+            "GET /Accounts endpoint validation",
             "Functional",
             "two-Filter"
         ],
@@ -1979,6 +2002,7 @@
         "test_name": "GET /Accounts [positive] (TC024)",
         "protocol": "REST",
         "test_type": [
+            "GET /Accounts endpoint validation",
             "Functional",
             "two-Filter"
         ],
@@ -2073,6 +2097,7 @@
         "test_name": "GET /Accounts [positive] (TC025)",
         "protocol": "REST",
         "test_type": [
+            "GET /Accounts endpoint validation",
             "Functional",
             "Single-Filter"
         ],
@@ -2148,6 +2173,7 @@
         "test_name": "GET /Accounts [positive] (TC026)",
         "protocol": "REST",
         "test_type": [
+            "GET /Accounts endpoint validation",
             "Functional",
             "two-Filter"
         ],
@@ -2242,6 +2268,7 @@
         "test_name": "GET /Accounts [positive] (TC027)",
         "protocol": "REST",
         "test_type": [
+            "GET /Accounts endpoint validation",
             "Functional",
             "two-Filter"
         ],
@@ -2336,6 +2363,7 @@
         "test_name": "GET /Accounts [positive] (TC028)",
         "protocol": "REST",
         "test_type": [
+            "GET /Accounts endpoint validation",
             "Functional",
             "Single-Filter"
         ],
@@ -2411,6 +2439,7 @@
         "test_name": "GET /Accounts [positive] (TC029)",
         "protocol": "REST",
         "test_type": [
+            "GET /Accounts endpoint validation",
             "Functional",
             "two-Filter"
         ],
@@ -2505,6 +2534,7 @@
         "test_name": "GET /Accounts [positive] (TC030)",
         "protocol": "REST",
         "test_type": [
+            "GET /Accounts endpoint validation",
             "Functional",
             "two-Filter"
         ],
@@ -2613,6 +2643,7 @@
         "test_name": "GET /Accounts [positive] (TC031)",
         "protocol": "REST",
         "test_type": [
+            "GET /Accounts endpoint validation",
             "Functional",
             "two-Filter"
         ],
@@ -2701,6 +2732,7 @@
         "test_name": "GET /Accounts [positive] (TC032)",
         "protocol": "REST",
         "test_type": [
+            "GET /Accounts endpoint validation",
             "Functional",
             "three-Filter"
         ],
@@ -2798,6 +2830,7 @@
         "test_name": "GET /Accounts [positive] (TC033)",
         "protocol": "REST",
         "test_type": [
+            "GET /Accounts endpoint validation",
             "Functional",
             "three-Filter"
         ],
@@ -2901,6 +2934,7 @@
         "test_name": "GET /Accounts [positive] (TC034)",
         "protocol": "REST",
         "test_type": [
+            "GET /Accounts endpoint validation",
             "Functional",
             "three-Filter"
         ],
@@ -3004,6 +3038,7 @@
         "test_name": "GET /Accounts [positive] (TC035)",
         "protocol": "REST",
         "test_type": [
+            "GET /Accounts endpoint validation",
             "Functional",
             "three-Filter"
         ],
@@ -3107,6 +3142,7 @@
         "test_name": "GET /Accounts [positive] (TC036)",
         "protocol": "REST",
         "test_type": [
+            "GET /Accounts endpoint validation",
             "Functional",
             "Single-Filter"
         ],
@@ -3182,6 +3218,7 @@
         "test_name": "GET /Accounts [positive] (TC037)",
         "protocol": "REST",
         "test_type": [
+            "GET /Accounts endpoint validation",
             "Functional",
             "Single-Filter"
         ],
@@ -3257,6 +3294,7 @@
         "test_name": "GET /Accounts [positive] (TC038)",
         "protocol": "REST",
         "test_type": [
+            "GET /Accounts endpoint validation",
             "Functional",
             "two-Filter"
         ],
@@ -3366,6 +3404,7 @@
         "test_name": "GET /Accounts [positive] (TC039)",
         "protocol": "REST",
         "test_type": [
+            "GET /Accounts endpoint validation",
             "Functional",
             "two-Filter"
         ],
@@ -3475,6 +3514,7 @@
         "test_name": "GET /Accounts [positive] (TC040)",
         "protocol": "REST",
         "test_type": [
+            "GET /Accounts endpoint validation",
             "Functional",
             "three-Filter"
         ],
@@ -3584,6 +3624,7 @@
         "test_name": "GET /Accounts [positive] (TC041)",
         "protocol": "REST",
         "test_type": [
+            "GET /Accounts endpoint validation",
             "Functional",
             "three-Filter"
         ],
@@ -3768,6 +3809,7 @@
         "test_name": "GET /Accounts [positive] (TC042)",
         "protocol": "REST",
         "test_type": [
+            "GET /Accounts endpoint validation",
             "Functional",
             "Single-Filter"
         ],
@@ -3862,6 +3904,7 @@
         "test_name": "GET /Accounts [negative] (TC043)",
         "protocol": "REST",
         "test_type": [
+            "GET /Accounts endpoint validation",
             "Functional",
             "Negative",
             "Single-Filter"
@@ -3913,6 +3956,7 @@
         "test_name": "GET /Accounts [positive] (TC044)",
         "protocol": "REST",
         "test_type": [
+            "GET /Accounts endpoint validation",
             "Functional",
             "Single-Filter"
         ],
@@ -3991,6 +4035,7 @@
         "test_name": "GET /Accounts [positive] (TC045)",
         "protocol": "REST",
         "test_type": [
+            "GET /Accounts endpoint validation",
             "Functional",
             "two-Filter"
         ],
@@ -4100,6 +4145,7 @@
         "test_name": "GET /Accounts [positive] (TC046)",
         "protocol": "REST",
         "test_type": [
+            "GET /Accounts endpoint validation",
             "Functional",
             "two-Filter"
         ],
