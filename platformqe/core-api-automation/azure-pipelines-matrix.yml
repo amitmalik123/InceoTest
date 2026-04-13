@@ -93,14 +93,14 @@ schedules:
         - qe_platform
     always: true
 
-  - cron: "0 17 * * *"        # 17:00 UTC -> custodialintegration
+  - cron: "10 15 * * *"        # 17:00 UTC -> custodialintegration
     displayName: 'Custodial Integration - Daily Test'
     branches:
       include:
         - qe_platform
     always: true
 
-  - cron: "10 21 * * *"       # 21:10 UTC -> account_service 
+  - cron: "05 15 * * *"       # 21:10 UTC -> account_service 
     displayName: 'Account Service API - Daily Test'
     branches:
       include:
