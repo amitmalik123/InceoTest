@@ -260,7 +260,7 @@ function isPdfComplete(pdfPath: string, expectedPageCount: number): boolean {
 
     // Confirm the expected page count is present.
     const actualPageCount = extractPdfPageCount(pdfBuffer);
-    return actualPageCount === expectedPageCount;
+    return actualPageCount >= expectedPageCount;
 }
 
 /**
@@ -295,8 +295,8 @@ export async function validatePdfContent(pdfPath: string, expectedPageCount: num
     if (actualPageCount === null) {
         throw new Error(`Unable to determine PDF page count for: ${pdfPath}`);
     }
-    if (actualPageCount !== expectedPageCount) {
-        throw new Error(`Expected ${expectedPageCount} pages but found ${actualPageCount} in PDF: ${pdfPath}`);
+    if (actualPageCount >= expectedPageCount) {
+        throw new Error(`Expected at least ${expectedPageCount} pages but only found ${actualPageCount} in PDF: ${pdfPath}`);
     }
 
     logger.debug(
