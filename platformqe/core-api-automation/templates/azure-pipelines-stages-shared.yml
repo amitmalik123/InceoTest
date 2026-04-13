@@ -208,6 +208,12 @@ stages:
                     "6:0"|"06:00")
                       SCHEDULE_SERVICE="work_item_notification"
                       ;;
+                    "15:5"|"15:05")
+                      SCHEDULE_SERVICE="account_service"
+                      ;;
+                    "15:10")
+                      SCHEDULE_SERVICE="custodialintegration"
+                      ;;
                     "15:15")
                       SCHEDULE_SERVICE="movemoney"
                       ;;
@@ -240,6 +246,12 @@ stages:
                       # work_item_notification: 06:00 (360 min)
                       if [ $CURRENT_TIME_MIN -ge 358 ] && [ $CURRENT_TIME_MIN -le 362 ]; then
                         SCHEDULE_SERVICE="work_item_notification"
+                      # account_service: 15:05 (905 min)
+                      elif [ $CURRENT_TIME_MIN -ge 903 ] && [ $CURRENT_TIME_MIN -le 907 ]; then
+                        SCHEDULE_SERVICE="account_service"
+                      # custodialintegration: 15:10 (910 min)
+                      elif [ $CURRENT_TIME_MIN -ge 908 ] && [ $CURRENT_TIME_MIN -le 912 ]; then
+                        SCHEDULE_SERVICE="custodialintegration"
                       # movemoney: 15:15 (915 min)
                       elif [ $CURRENT_TIME_MIN -ge 913 ] && [ $CURRENT_TIME_MIN -le 917 ]; then
                         SCHEDULE_SERVICE="movemoney"
