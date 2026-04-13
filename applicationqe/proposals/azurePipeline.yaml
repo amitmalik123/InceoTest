@@ -9,7 +9,7 @@ trigger: none
 # -----------------------------
 schedules:
     # Run Test10 every 6 hours starting at 00:00 EST (UTC 05:00): 05:00, 11:00, 17:00, 23:00 UTC
-    - cron: '0 5/6 * * *' # Every 6 hours starting at 05:00 UTC (midnight EST)
+    - cron: '0 5/6 * * 1-5' # Every 6 hours starting at 05:00 UTC (midnight EST)
       displayName: 'Schedule: Test10 every 6 hours (midnight EST start)'
       branches:
           include:
@@ -17,7 +17,7 @@ schedules:
       always: true
 
     # Test11 schedule (2:45 PM EST -> 18:45 UTC)
-    - cron: '45 18 * * *' # 2:45 PM EST → Test11
+    - cron: '45 18 * * 1-5' # 2:45 PM EST → Test11
       displayName: 'Schedule for Test11'
       branches:
           include:
