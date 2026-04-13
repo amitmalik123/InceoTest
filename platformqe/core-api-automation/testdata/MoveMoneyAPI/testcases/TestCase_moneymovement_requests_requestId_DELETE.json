@@ -1,15 +1,15 @@
 [
     {
         "test_id": "TC001",
-        "service_name": "MoveMoneyAPI",
+        "service_name": "movemoney",
         "workflow_mode": "sequential",
-        "test_name": "DELETE /requests/{requestId} [positive] (TC001)",
+        "test_name": "DELETE /ach/{requestId} [positive] (TC001)",
         "protocol": "REST",
         "test_type": [
             "Functional"
         ],
         "mainURL": "{{base_url}}",
-        "endpoint": "/requests/{{requestId}}",
+        "endpoint": "/ach/{{requestId}}",
         "method": "DELETE",
         "rpc_method": "",
         "graphql_query": "",
@@ -103,19 +103,19 @@
         },
         "db_type": "mssql",
         "db_connection_name": "movemoney",
-        "test_summary": "Test TC001: DELETE /requests/{requestId} [positive] (TC001) - verifies delete response and persisted DB state"
+        "test_summary": "Test TC001: DELETE /ach/{requestId} [positive] (TC001) - verifies delete response and persisted DB state"
     },
     {
         "test_id": "TC002",
-        "service_name": "MoveMoneyAPI",
+        "service_name": "movemoney",
         "workflow_mode": "parallel",
-        "test_name": "DELETE /requests/{requestId} [negative: invalid UUID format] (TC002)",
+        "test_name": "DELETE /ach/{requestId} [negative: invalid UUID format] (TC002)",
         "protocol": "REST",
         "test_type": [
             "Negative"
         ],
         "mainURL": "{{base_url}}",
-        "endpoint": "/requests/invalid-uuid",
+        "endpoint": "/ach/6cec40c7-@#b48e-4887-aec0-76c63d0e99ded",
         "method": "DELETE",
         "rpc_method": "",
         "graphql_query": "",
@@ -182,19 +182,19 @@
         },
         "db_type": "",
         "db_connection_name": "",
-        "test_summary": "Test TC002: DELETE /requests/{requestId} [negative: invalid UUID format] (TC002) - Verify 400 Bad Request for invalid UUID"
+        "test_summary": "Test TC002: DELETE /ach/{requestId} [negative: invalid UUID format] (TC002) - Verify 400 Bad Request for invalid UUID"
     },
     {
         "test_id": "TC003",
-        "service_name": "MoveMoneyAPI",
+        "service_name": "movemoney",
         "workflow_mode": "parallel",
-        "test_name": "DELETE /requests/{requestId} [negative: not found returns 204] (TC003)",
+        "test_name": "DELETE /ach/{requestId} [negative: not found returns 204] (TC003)",
         "protocol": "REST",
         "test_type": [
             "Negative"
         ],
         "mainURL": "{{base_url}}",
-        "endpoint": "/requests/{{requestId}}",
+        "endpoint": "/ach/{{requestId}}",
         "method": "DELETE",
         "rpc_method": "",
         "graphql_query": "",
@@ -232,6 +232,6 @@
         },
         "db_type": "",
         "db_connection_name": "",
-        "test_summary": "Test TC003: DELETE /requests/{requestId} returns 204 No Content when valid UUID not found"
+        "test_summary": "Test TC003: DELETE /ach/{requestId} returns 204 No Content when valid UUID not found"
     }
 ]
