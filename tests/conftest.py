@@ -67,29 +67,9 @@ def pytest_configure(config) -> None:
     # Enable automatic reruns for flaky test detection
     # This can be overridden with --reruns CLI argument
     # Skip reruns if --pdb is enabled (debug mode)
-    try:
-        # Check if reruns option already set via CLI
-        reruns_value = config.getoption("--reruns", default=None)
-        if reruns_value is None and not config.option.usepdb:
-            # Set default reruns to 1 if not already set
-            config.option.reruns = 1
-            config.option.reruns_delay = 1
-            print(f"\n{'=' * 60}")
-            print(f"Test Retry Configuration: ENABLED (1 retry per failed test)")
-            print(f"Retry Delay: 1 second")
-            print(f"{'=' * 60}\n")
-        elif config.option.usepdb:
-            print(f"\n{'=' * 60}")
-            print(f"Test Retry Configuration: DISABLED (Debug mode enabled)")
-            print(f"{'=' * 60}\n")
-    except AttributeError:
-        # If reruns attribute doesn't exist, set it
-        config.option.reruns = 1
-        config.option.reruns_delay = 1
-        print(f"\n{'=' * 60}")
-        print(f"Test Retry Configuration: ENABLED (1 retry per failed test)")
-        print(f"Retry Delay: 1 second")
-        print(f"{'=' * 60}\n")
+    if not config.option.reruns and not config.option.usepdb:
+        config.option.reruns = 1  # Retry failed tests up to 1 time
+        config.option.reruns_delay = 1  # 1 second delay between retries
 
 
 def pytest_sessionstart(session) -> None:

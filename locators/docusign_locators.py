@@ -19,7 +19,7 @@ ERSD_CONSENT_TEXT = "I confirm I have read and I consent to the Electronic Recor
 ACTION_BUTTON_WRAPPER = '[data-qa="action-button-wrapper"]'
 # FINISH_BUTTON uses data-qa attribute (stable for testing)
 # Note: Preferably use get_by_role("button", name="Finish") scoped to ACTION_BUTTON_WRAPPER for maximum robustness
-FINISH_BUTTON = 'button[data-qa="action-bar-btn-finish"]'
+FINISH_BUTTON = 'button[data-qa="envelope-finish"]'
 FINISH_BUTTON_TEXT = "Finish"  # For get_by_role() method
 SEND_NOW_BUTTON_PATTERN = "Send Now"
 CONFIRM_CODE_BUTTON_PATTERN = "Confirm Code"

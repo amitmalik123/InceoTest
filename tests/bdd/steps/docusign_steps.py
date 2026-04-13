@@ -244,7 +244,7 @@ def user_add_signature(authenticated_page: Page, docusign_page):
     """Complete the DocuSign signature process: Finish -> Click Sign -> Finish
     
     Uses framework utilities:
-    - docusign_page.click_finish_button(): Clicks top right Finish button
+    - docusign_page.click_finish_button(): Clicks Finish button
     - docusign_page.click_sign_button(): Clicks Sign button/div
     - Framework logging via get_allure_logger
     """
