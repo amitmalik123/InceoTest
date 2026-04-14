@@ -21,12 +21,14 @@ pr:
   branches:
     include:
       - qe_platform
+      - develop
 
 # Push Trigger - runs when code is pushed to branches
 trigger:
   branches:
     include:
       - qe_platform
+      - develop
       
 # Scheduled Triggers - Each schedule targets a specific service
 schedules:
@@ -35,6 +37,7 @@ schedules:
     branches:
       include:
         - qe_platform
+        - develop
     always: true
   
   - cron: "15 15 * * *"      # 15:15 UTC -> movemoney
@@ -42,6 +45,7 @@ schedules:
     branches:
       include:
         - qe_platform
+        - develop
     always: true
   
   - cron: "30 15 * * *"       # 15:30 UTC -> models
@@ -49,6 +53,7 @@ schedules:
     branches:
       include:
         - qe_platform
+        - develop
     always: true
 
   - cron: "45 15 * * *"       # 15:45 UTC -> analytics
@@ -56,6 +61,7 @@ schedules:
     branches:
       include:
         - qe_platform
+        - develop
     always: true
 
   - cron: "00 16 * * *"      # 16:00 UTC -> parties
@@ -63,6 +69,7 @@ schedules:
     branches:
       include:
         - qe_platform
+        - develop
     always: true
   
   - cron: "15 16 * * *"       # 16:15 UTC -> addressservice
@@ -70,6 +77,7 @@ schedules:
     branches:
       include:
         - qe_platform
+        - develop
     always: true
 
   - cron: "30 16 * * *"       # 16:30 UTC -> securities
@@ -77,6 +85,7 @@ schedules:
     branches:
       include:
         - qe_platform
+        - develop
     always: true
 
   - cron: "45 16 * * *"       # 16:45 UTC -> hnebase
@@ -84,6 +93,7 @@ schedules:
     branches:
       include:
         - qe_platform
+        - develop
     always: true
   
   - cron: "20 15 * * *"       # 15:20 UTC -> transfer_service_validation
@@ -91,6 +101,7 @@ schedules:
     branches:
       include:
         - qe_platform
+        - develop
     always: true
 
   - cron: "10 15 * * *"        # 15:10 UTC -> custodialintegration
@@ -98,6 +109,7 @@ schedules:
     branches:
       include:
         - qe_platform
+        - develop
     always: true
 
   - cron: "05 15 * * *"       # 15:05 UTC -> account_service
@@ -105,6 +117,7 @@ schedules:
     branches:
       include:
         - qe_platform
+        - develop
     always: true
 
 ###############################################################################
@@ -172,8 +185,18 @@ variables:
 
   - name: pythonVersion
     value: '3.10'
+
+  # Branch-to-Environment mapping via library group variables:
+  #   qe_platform -> $(ENABLED_ENVIRONMENTS_DEV)   (set to TSADEV in qa-pipelines-config)
+  #   develop     -> $(ENABLED_ENVIRONMENTS_TEST)   (set to TSATEST in qa-pipelines-config)
+  #   other       -> fallback to ENABLED_ENVIRONMENTS or 'all'
   - name: defaultEnvironments
-    value: $[coalesce(variables['ENABLED_ENVIRONMENTS'], 'all')]
+    ${{ if eq(variables['Build.SourceBranchName'], 'qe_platform') }}:
+      value: $(ENABLED_ENVIRONMENTS_DEV)
+    ${{ elseif eq(variables['Build.SourceBranchName'], 'develop') }}:
+      value: $(ENABLED_ENVIRONMENTS_TEST)
+    ${{ else }}:
+      value: $[coalesce(variables['ENABLED_ENVIRONMENTS'], 'all')]
 
 ###############################################################################
 # Use Common Stages Template
