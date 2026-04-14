@@ -151,6 +151,11 @@ parameters:
       - non-functional
       - both
   
+  - name: testCaseFilter
+    displayName: 'Test Case Filter (e.g. Smoke, Regression, Business Logic - filters by test_type tag in test cases)'
+    type: string
+    default: 'N/A'
+
   - name: overrideEnabled
     displayName: 'Override Enabled Flag (run disabled services too)'
     type: boolean
@@ -214,5 +219,6 @@ stages:
       customFunctionalArgs: ${{ parameters.customFunctionalArgs }}
       customNonFunctionalArgs: ${{ parameters.customNonFunctionalArgs }}
       teamsNotificationEnabled: ${{ parameters.teamsNotificationEnabled }}
+      testCaseFilter: ${{ parameters.testCaseFilter }}
       triggerReason: '$(Build.Reason)'
       enableScheduleDetection: true  # Enable schedule-based service detection for cron triggers
