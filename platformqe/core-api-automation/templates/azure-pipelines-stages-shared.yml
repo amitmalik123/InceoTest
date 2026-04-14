@@ -54,6 +54,12 @@ parameters:
   - name: testType
     type: string
     default: 'functional'
+
+  # Filter test cases by test_type tag (e.g. Smoke, Regression, Business Logic)
+  # This appends --test-type <value> to pytest to filter JSON test cases
+  - name: testCaseFilter
+    type: string
+    default: 'N/A'
   
   - name: overrideEnabled
     type: boolean
@@ -184,12 +190,17 @@ stages:
               OVERRIDE_ENABLED: ${{ parameters.overrideEnabled }}
               CUSTOM_FUNC_ARGS: ${{ parameters.customFunctionalArgs }}
               CUSTOM_NONFUNC_ARGS: ${{ parameters.customNonFunctionalArgs }}
+              TEST_CASE_FILTER: ${{ parameters.testCaseFilter }}
             inputs:
               targetType: inline
               script: |
                 echo "=========================================="
                 echo "Using manage_matrix.py to determine services"
                 echo "=========================================="
+                
+                if [ -n "$TEST_CASE_FILTER" ] && [ "$TEST_CASE_FILTER" != "N/A" ]; then
+                  echo "Test Case Filter: $TEST_CASE_FILTER (will append --test-type $TEST_CASE_FILTER to pytest)"
+                fi
                 
                 # Handle schedule service detection (for matrix pipeline with cron triggers)
                 SERVICES_PARAM="$SERVICES_INPUT"
@@ -359,6 +370,41 @@ stages:
                 fi
                 
                 echo "=========================================="
+                
+                # Display execution plan summary
+                echo ""
+                echo "=========================================="
+                echo "📋 EXECUTION PLAN SUMMARY"
+                echo "=========================================="
+                echo "  Test Type (Runner):     $TEST_TYPE"
+                echo "  Services:               $SERVICES_PARAM"
+                echo "  Environments:           $ENVIRONMENTS_PARAM"
+                echo ""
+                # Functional test details
+                if [ "$TEST_TYPE" = "functional" ] || [ "$TEST_TYPE" = "both" ]; then
+                  echo "  🧪 Functional Tests (pytest):  ✅ Will run"
+                  if [ -n "$TEST_CASE_FILTER" ] && [ "$TEST_CASE_FILTER" != "N/A" ]; then
+                    echo "     Test Case Filter:           $TEST_CASE_FILTER"
+                    echo "     pytest will receive:         --test-type $TEST_CASE_FILTER"
+                    echo "     ℹ️  Only test cases with '$TEST_CASE_FILTER' in their test_type array will run"
+                  else
+                    echo "     Test Case Filter:           None (all test cases will run)"
+                  fi
+                else
+                  echo "  🧪 Functional Tests (pytest):  ⏭️ Skipped (testType=$TEST_TYPE)"
+                  if [ -n "$TEST_CASE_FILTER" ] && [ "$TEST_CASE_FILTER" != "N/A" ]; then
+                    echo "     ⚠️  Test Case Filter '$TEST_CASE_FILTER' ignored (only applies to functional/pytest)"
+                  fi
+                fi
+                echo ""
+                # Non-functional test details
+                if [ "$TEST_TYPE" = "non-functional" ] || [ "$TEST_TYPE" = "both" ]; then
+                  echo "  🔥 Non-Functional Tests (locust): ✅ Will run"
+                else
+                  echo "  🔥 Non-Functional Tests (locust): ⏭️ Skipped (testType=$TEST_TYPE)"
+                fi
+                echo "=========================================="
+                
                 exit $exit_code
               workingDirectory: $(buildPath)
 
@@ -644,6 +690,7 @@ stages:
             displayName: 'Run Functional Tests - $(name)'
             condition: and(succeeded(), or(eq(variables['testType'], 'functional'), eq(variables['testType'], 'both')))
             env:
+              TEST_CASE_FILTER: ${{ parameters.testCaseFilter }}
               LOG_LEVEL: $(log_level)
               WORK_ITEM_AUTH_TOKEN: $(WORK_ITEM_AUTH_TOKEN)
               PARTIES_AUTH_TOKEN: $(PARTIES_AUTH_TOKEN)
@@ -686,7 +733,14 @@ stages:
                 echo "=========================================="
                 echo "Test Arguments: $(functionalTestArgs)"
                 
-                pytest -sv tests/test_api_generic.py $(functionalTestArgs)
+                # Build test case filter argument if specified
+                FILTER_ARG=""
+                if [ -n "$TEST_CASE_FILTER" ] && [ "$TEST_CASE_FILTER" != "N/A" ]; then
+                  FILTER_ARG="--test-type $TEST_CASE_FILTER"
+                  echo "Applying test case filter: $FILTER_ARG"
+                fi
+                
+                pytest -sv tests/test_api_generic.py $(functionalTestArgs) $FILTER_ARG
                 TEST_EXIT_CODE=$?
                 echo "##vso[task.setvariable variable=TEST_EXIT_CODE]$TEST_EXIT_CODE"
                 exit $TEST_EXIT_CODE
