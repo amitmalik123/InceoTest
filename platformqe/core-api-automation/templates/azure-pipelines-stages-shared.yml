@@ -370,6 +370,41 @@ stages:
                 fi
                 
                 echo "=========================================="
+                
+                # Display execution plan summary
+                echo ""
+                echo "=========================================="
+                echo "📋 EXECUTION PLAN SUMMARY"
+                echo "=========================================="
+                echo "  Test Type (Runner):     $TEST_TYPE"
+                echo "  Services:               $SERVICES_PARAM"
+                echo "  Environments:           $ENVIRONMENTS_PARAM"
+                echo ""
+                # Functional test details
+                if [ "$TEST_TYPE" = "functional" ] || [ "$TEST_TYPE" = "both" ]; then
+                  echo "  🧪 Functional Tests (pytest):  ✅ Will run"
+                  if [ -n "$TEST_CASE_FILTER" ] && [ "$TEST_CASE_FILTER" != "N/A" ]; then
+                    echo "     Test Case Filter:           $TEST_CASE_FILTER"
+                    echo "     pytest will receive:         --test-type $TEST_CASE_FILTER"
+                    echo "     ℹ️  Only test cases with '$TEST_CASE_FILTER' in their test_type array will run"
+                  else
+                    echo "     Test Case Filter:           None (all test cases will run)"
+                  fi
+                else
+                  echo "  🧪 Functional Tests (pytest):  ⏭️ Skipped (testType=$TEST_TYPE)"
+                  if [ -n "$TEST_CASE_FILTER" ] && [ "$TEST_CASE_FILTER" != "N/A" ]; then
+                    echo "     ⚠️  Test Case Filter '$TEST_CASE_FILTER' ignored (only applies to functional/pytest)"
+                  fi
+                fi
+                echo ""
+                # Non-functional test details
+                if [ "$TEST_TYPE" = "non-functional" ] || [ "$TEST_TYPE" = "both" ]; then
+                  echo "  🔥 Non-Functional Tests (locust): ✅ Will run"
+                else
+                  echo "  🔥 Non-Functional Tests (locust): ⏭️ Skipped (testType=$TEST_TYPE)"
+                fi
+                echo "=========================================="
+                
                 exit $exit_code
               workingDirectory: $(buildPath)
 
