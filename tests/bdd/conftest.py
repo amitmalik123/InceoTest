@@ -4,6 +4,9 @@ Override test_data to select data based on scenario name from CSV
 """
 
 import pytest
+from utils.allure_logger import get_allure_logger
+
+logger = get_allure_logger(__name__)
 
 
 @pytest.fixture
@@ -68,6 +71,10 @@ def test_data(test_data_manager, request) -> dict:
 # Store test_context instances at module level to ensure persistence across steps in BDD scenarios
 _test_context_cache = {}
 
+# Store D_Numbers per test_node_id for parallel-safe logging (keyed by test_node_id)
+# This is safe for parallel execution because each test has a unique node_id
+_test_d_numbers = {}
+
 
 @pytest.fixture
 def test_context(test_data, request) -> dict:
@@ -111,7 +118,72 @@ def test_context(test_data, request) -> dict:
     
     yield context
     
-    # Cleanup after test completes
+    # Cleanup after test completes - LOG D_NUMBER BEFORE CLEANUP
     if test_node_id in _test_context_cache:
-        print(f"[TEST CONTEXT] Cleanup: Removing context for {test_node_id}")
+        # Extract D_Number before deleting context
+        d_number = context.get("d_number", "N/A")
+        
+        # Store D_Number in per-test dictionary (thread-safe for parallel execution)
+        _test_d_numbers[test_node_id] = d_number
+        
+        logger.info(f"\n{'=' * 60}")
+        logger.info(f"D_Number generated - {d_number}")
+        logger.info(f"{'=' * 60}")
+        
+        # Also print to stdout so it's definitely visible
+        print(f"\n{'=' * 60}")
+        print(f"D_Number generated - {d_number}")
+        print(f"{'=' * 60}\n")
+        
+        logger.info(f"[TEST CONTEXT] Cleanup: Removing context for {test_node_id}")
         del _test_context_cache[test_node_id]
+
+
+def pytest_runtest_logreport(report):
+    """
+    Hook that runs after each test result is logged.
+    Logs the D_Number that was generated/used in the test.
+    This is PARALLEL-SAFE because it uses test_node_id as the key.
+    
+    This hook works with parallel execution (pytest-xdist):
+    - Each test has a unique test_node_id
+    - D_Numbers are stored in _test_d_numbers dict keyed by test_node_id
+    - Multiple workers can run simultaneously without interference
+    """
+    # Log when test is done (after all steps, after teardown)
+    if report.when == "teardown":
+        try:
+            # Get test node ID - this is unique per test even in parallel execution
+            test_node_id = report.nodeid
+            
+            # Look up D_Number from the per-test dictionary
+            if test_node_id in _test_d_numbers:
+                d_number = _test_d_numbers[test_node_id]
+                
+                logger.critical(f"D_Number generated - {d_number}")
+
+                # Also print to ensure it's captured
+                print(f"\n{'=' * 70}")
+                print(f"D_Number generated - {d_number}")
+                print(f"{'=' * 70}\n")
+                
+                # Clean up this test's entry
+                del _test_d_numbers[test_node_id]
+        except Exception as e:
+            # Don't fail if logging fails
+            logger.warning(f"Error logging D_Number in hook: {e}")
+
+
+def pytest_sessionfinish(session):
+    """
+    Hook that runs at the end of the entire test session.
+    Cleans up any remaining D_Numbers from _test_d_numbers dict.
+    This is a safety cleanup in case some tests crashed before reporting.
+    """
+    global _test_d_numbers
+    if _test_d_numbers:
+        logger.info(f"Session cleanup: Removing {len(_test_d_numbers)} leftover D_Number entries")
+        _test_d_numbers.clear()
+
+
+

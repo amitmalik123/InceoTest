@@ -10,7 +10,7 @@ from pytest_bdd import given, when, then, parsers
 from pages.client_accounts_page import ClientAccountsPage
 from utils.allure_logger import get_allure_logger
 from utils.assertions import Assertions, SoftAssertions
-from utils.database import fetch_agent_name_by_aplid_from_db
+from utils.database import fetch_agent_name_by_aplid_from_db, fetch_authorized_signer
 from utils.dialog_utils import DialogHandler
 from utils.helpers import find_element_position_in_parent
 from utils.wait_utils import WaitContext, wait_for_element_count
@@ -676,22 +676,22 @@ def provide_authorized_signers_information(authenticated_page: Page, client_acco
             # Initialize authorized_signer to None (will be set by role-based logic)
             authorized_signer = None
             
-            # Determine Authorized Signer based on role and fetch from database
+            # Determine Authorized Signer based on role and fetch with environment-aware logic
             authorized_signer_role = test_data.get("Authorized_Signer_Role", "").strip()
             logger.info(f"  Authorized_Signer_Role: '{authorized_signer_role}'")
             
             if authorized_signer_role == "FA":
-                # For FA role, use Agent column as APLID and call without custom query_name
+                # For FA role, use Agent column as APLID
                 agent_id = test_data.get("Agent", "").strip()
                 if not agent_id:
                     raise ValueError("[FAIL] ClientAccountsPage: CSV Data Validation — Expected: Agent ID not empty, Actual: empty. Details: For Authorized_Signer_Role='FA', Agent column must contain the APLID value. Locator: test_data['Agent'].")
                 
                 logger.info(f"  Fetching Agent name using APLID: {agent_id}")
-                authorized_signer = fetch_agent_name_by_aplid_from_db(agent_id, role="Agent")
+                authorized_signer = fetch_authorized_signer(agent_id, "Agent", test_data)
                 logger.info(f"  ✓ Agent name fetched: {authorized_signer}")
                 
             elif authorized_signer_role == "SAU":
-                # For SAU role, use username as UserID and Agent as usl.UserID, call with custom query_name
+                # For SAU role, use username as UserID and Agent as usl.UserID
                 user_id = test_data.get("username", "").strip()
                 agent_id = test_data.get("Agent", "").strip()
                 if not user_id:
@@ -700,16 +700,11 @@ def provide_authorized_signers_information(authenticated_page: Page, client_acco
                     raise ValueError("[FAIL] ClientAccountsPage: CSV Data Validation — Expected: Agent not empty, Actual: empty. Details: For Authorized_Signer_Role='SAU', Agent column must contain the usl.UserID value. Locator: test_data['Agent'].")
                 
                 logger.info(f"  Fetching SAU name using sd.UserID: {user_id} and usl.UserID: {agent_id}")
-                authorized_signer = fetch_agent_name_by_aplid_from_db(
-                    user_id, 
-                    role="SAU",
-                    query_name="authorized_signer_SAU_name_ManageLogin_by_UserID",
-                    second_param=agent_id
-                )
+                authorized_signer = fetch_authorized_signer(user_id, "SAU", test_data, second_param=agent_id)
                 logger.info(f"  ✓ SAU name fetched: {authorized_signer}")
             else:
                 # No fallback: Authorized_Signer_Role must be either FA or SAU
-                raise ValueError(f"[FAIL] ClientAccountsPage: CSV Data Validation — Expected: Authorized_Signer_Role in ['FA', 'SAU'], Actual: '{authorized_signer_role}'. Details: Authorized_Signer_Role must be 'FA' (Financial Advisor) or 'SAU' (Shared Access User). Authorized Signer name will ALWAYS be fetched from database using fetch_agent_name_by_aplid_from_db() function. Locator: test_data['Authorized_Signer_Role'].")
+                raise ValueError(f"[FAIL] ClientAccountsPage: CSV Data Validation — Expected: Authorized_Signer_Role in ['FA', 'SAU'], Actual: '{authorized_signer_role}'. Details: Authorized_Signer_Role must be 'FA' (Financial Advisor) or 'SAU' (Shared Access User). Authorized Signer name will be fetched using fetch_authorized_signer() function which uses test sheet for protected environments and database for test environments. Locator: test_data['Authorized_Signer_Role'].")
             
             email_address = test_data.get("Email_Address", "").strip() if test_data.get("Email_Address") else ""
             phone = test_data.get("Phone", "").strip() if test_data.get("Phone") else ""

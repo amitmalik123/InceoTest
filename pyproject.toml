@@ -146,7 +146,8 @@ markers = [
     "lighthouse: Lighthouse audit tests",
     "HappyPath: Happy path scenario",
     "Silo_Regression: Silo Regression",
-    "T10_Regression: T10 Regression"
+    "T10_Regression: T10 Regression",
+    "Prod_Regression: Prod Regression"
 ]
 asyncio_mode = "strict"
 log_cli = true
