@@ -162,12 +162,15 @@ class TestCaseLoader:
         test_id_filter = self.config.getoption("--test-id")
         exclude_test_id_filter = self.config.getoption("--exclude-test-id")
         
-        # Apply test_type filter
+        # Apply test_type filter (supports comma-separated values, e.g. "Smoke,Functional")
         if test_type_filter:
+            # Split comma-separated filter into individual tags
+            filter_tags = [tag.strip() for tag in test_type_filter.split(',') if tag.strip()]
+            logger.debug(f"Applying test_type filter with tags: {filter_tags}")
             filtered_cases = [c for c in filtered_cases if (
-                isinstance(c.get('test_type'), list) and test_type_filter in c.get('test_type')
+                isinstance(c.get('test_type'), list) and any(tag in c.get('test_type') for tag in filter_tags)
             ) or (
-                isinstance(c.get('test_type'), str) and c.get('test_type') == test_type_filter
+                isinstance(c.get('test_type'), str) and c.get('test_type') in filter_tags
             )]
             logger.debug(f"After test_type filter: {len(filtered_cases)} cases")
         
