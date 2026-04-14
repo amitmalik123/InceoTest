@@ -734,13 +734,12 @@ stages:
                 echo "Test Arguments: $(functionalTestArgs)"
                 
                 # Build test case filter argument if specified
-                FILTER_ARG=""
                 if [ -n "$TEST_CASE_FILTER" ] && [ "$TEST_CASE_FILTER" != "N/A" ]; then
-                  FILTER_ARG="--test-type $TEST_CASE_FILTER"
-                  echo "Applying test case filter: $FILTER_ARG"
+                  echo "Applying test case filter: --test-type $TEST_CASE_FILTER"
+                  pytest -sv tests/test_api_generic.py $(functionalTestArgs) --test-type "$TEST_CASE_FILTER"
+                else
+                  pytest -sv tests/test_api_generic.py $(functionalTestArgs)
                 fi
-                
-                pytest -sv tests/test_api_generic.py $(functionalTestArgs) $FILTER_ARG
                 TEST_EXIT_CODE=$?
                 echo "##vso[task.setvariable variable=TEST_EXIT_CODE]$TEST_EXIT_CODE"
                 exit $TEST_EXIT_CODE
@@ -918,19 +917,35 @@ stages:
               EMAIL_CC_ANALYTICS: $(email_cc_analytics)
               EMAIL_TO_HNEBASE: $(email_to_hnebase)
               EMAIL_CC_HNEBASE: $(email_cc_hnebase)
+              TEST_CASE_FILTER: ${{ parameters.testCaseFilter }}
             inputs:
               targetType: inline
               script: |
                 export PYTHONPATH="${PYTHONPATH}:$(pwd)"
-                python3 framework/reporter/email_reporter.py \
-                  --build-number "$(Build.BuildNumber)" \
-                  --job-status "$(Agent.JobStatus)" \
-                  --reports-path "$(REPORTS_PATH)" \
-                  --build-id "$(Build.BuildId)" \
-                  --team-project "$(System.TeamProject)" \
-                  --collection-uri "$(System.TeamFoundationCollectionUri)" \
-                  --service-name "$(name)" \
-                  --environment "$(environment)"
+                
+                # Build email reporter command with optional test case filter
+                if [ -n "$TEST_CASE_FILTER" ] && [ "$TEST_CASE_FILTER" != "N/A" ]; then
+                  python3 framework/reporter/email_reporter.py \
+                    --build-number "$(Build.BuildNumber)" \
+                    --job-status "$(Agent.JobStatus)" \
+                    --reports-path "$(REPORTS_PATH)" \
+                    --build-id "$(Build.BuildId)" \
+                    --team-project "$(System.TeamProject)" \
+                    --collection-uri "$(System.TeamFoundationCollectionUri)" \
+                    --service-name "$(name)" \
+                    --environment "$(environment)" \
+                    --test-case-filter "$TEST_CASE_FILTER"
+                else
+                  python3 framework/reporter/email_reporter.py \
+                    --build-number "$(Build.BuildNumber)" \
+                    --job-status "$(Agent.JobStatus)" \
+                    --reports-path "$(REPORTS_PATH)" \
+                    --build-id "$(Build.BuildId)" \
+                    --team-project "$(System.TeamProject)" \
+                    --collection-uri "$(System.TeamFoundationCollectionUri)" \
+                    --service-name "$(name)" \
+                    --environment "$(environment)"
+                fi
               workingDirectory: $(buildPath)
           
           - task: Bash@3
