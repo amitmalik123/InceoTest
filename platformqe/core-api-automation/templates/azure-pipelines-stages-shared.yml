@@ -918,10 +918,18 @@ stages:
               EMAIL_CC_ANALYTICS: $(email_cc_analytics)
               EMAIL_TO_HNEBASE: $(email_to_hnebase)
               EMAIL_CC_HNEBASE: $(email_cc_hnebase)
+              TEST_CASE_FILTER: ${{ parameters.testCaseFilter }}
             inputs:
               targetType: inline
               script: |
                 export PYTHONPATH="${PYTHONPATH}:$(pwd)"
+                
+                # Build test case filter argument if specified
+                FILTER_ARG=""
+                if [ -n "$TEST_CASE_FILTER" ] && [ "$TEST_CASE_FILTER" != "N/A" ]; then
+                  FILTER_ARG="--test-case-filter $TEST_CASE_FILTER"
+                fi
+                
                 python3 framework/reporter/email_reporter.py \
                   --build-number "$(Build.BuildNumber)" \
                   --job-status "$(Agent.JobStatus)" \
@@ -930,7 +938,8 @@ stages:
                   --team-project "$(System.TeamProject)" \
                   --collection-uri "$(System.TeamFoundationCollectionUri)" \
                   --service-name "$(name)" \
-                  --environment "$(environment)"
+                  --environment "$(environment)" \
+                  $FILTER_ARG
               workingDirectory: $(buildPath)
           
           - task: Bash@3
