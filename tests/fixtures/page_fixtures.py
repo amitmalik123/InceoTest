@@ -17,6 +17,7 @@ from pages.account_wizard_page import AccountWizardPage
 from pages.add_ach_instruction import AddACHInstructionPage
 from pages.api_utility_page import APIUtilityPage
 from pages.apro_proposals_page import AproProposalsPage
+from pages.base_smart_filter_page import BaseSmartFilterPage
 from pages.change_investments_page import ChangeInvestmentsPage
 from pages.clients_page import ClientsPage
 from pages.dmtool_page import DMToolPage
@@ -24,6 +25,7 @@ from pages.global_navigation_page import GlobalNavigationPage
 from pages.login_page import LoginPage
 from pages.manage_instruction_1_page import ManageInstruction1Page
 from pages.manage_instruction_2_page import ManageInstruction2Page
+from pages.prospects_list_page import ProspectsListPage
 from pages.roth_conversion_page import RothConversionPage
 from pages.tracking_center_page import TrackingCenterPage
 
@@ -47,6 +49,22 @@ def clients_page(authenticated_page: Page) -> ClientsPage:
 def global_navigation_page(authenticated_page: Page) -> GlobalNavigationPage:
     """Global navigation page object fixture"""
     return GlobalNavigationPage(authenticated_page, base_url=_base_url)
+
+
+@pytest.fixture
+def prospects_list_page(authenticated_page: Page) -> ProspectsListPage:
+    """APro prospects list page object fixture"""
+    return ProspectsListPage(authenticated_page, base_url=_base_url)
+
+
+@pytest.fixture
+def smart_filter_page(authenticated_page: Page) -> BaseSmartFilterPage:
+    """Generic smart filter page fixture for reusable filter steps.
+
+    Returns a BaseSmartFilterPage instance that can be used by generic smart filter
+    step definitions across different pages (Prospects, Accounts, etc).
+    """
+    return BaseSmartFilterPage(authenticated_page, base_url=_base_url)
 
 
 @pytest.fixture

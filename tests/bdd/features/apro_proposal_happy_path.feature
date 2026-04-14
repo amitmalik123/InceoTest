@@ -1,6 +1,7 @@
-@regression @proposal @e2e
+@proposal @e2e @happypath
 Feature: APro proposal happy path
 
+    @regression @smoke
     Scenario: Create Prospect Proposal Happy Path
         When I navigate to the APro prospects page
         Then I should see the APro prospects page

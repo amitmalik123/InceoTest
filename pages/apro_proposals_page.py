@@ -14,20 +14,15 @@ logger = get_allure_logger(__name__)
 
 
 class AproProposalsPage(BasePage):
-    """Page object for the APro proposals actions dropdown and related items.
+    """Page object for the APro proposals modal and wizard steps.
 
-    Locators:
-      - actions_button: the button that opens the actions dropdown (id `btnMainActionButton`)
-      - items_container: the dropdown container (id `items`)
-      - create_prospect_item: the menu item text 'Create Prospect'
+    This POM manages the proposal creation wizard after a proposal is opened.
+    The ProspectsListPage POM handles the prospects list and starting new proposals.
     """
 
     def __init__(self, page: Page, base_url: str = ""):
         super().__init__(page, base_url=base_url)
 
-        self.actions_button: Locator = page.locator("#btnMainActionButton")
-        self.items_container: Locator = page.locator("#items")
-        self.create_prospect_item: Locator = page.get_by_text("Create Prospect", exact=True)
         # Overlay that appears behind modal dialogs (e.g., after starting a proposal)
         self.overlay: Locator = page.locator("div.k-overlay")
 
@@ -55,7 +50,6 @@ class AproProposalsPage(BasePage):
         self.advisor_dropdown: Locator = page.locator(
             'span.k-dropdownlist[aria-controls="AdvisorID_listbox"]'
         )
-        self.advisor_name_element: Locator = page.locator("div.user div.name")
 
         # Step navigation buttons scoped to the modal
         self.wizard_next_button: Locator = self.proposal_modal.locator("button[data-wizard-next]")
@@ -298,29 +292,6 @@ class AproProposalsPage(BasePage):
             self.click(self.preview_proposal_button)
         except Exception as exc:
             logger.warning(f"Failed to click Preview Proposal: {exc}")
-
-    def open_actions(self) -> None:
-        """Open the actions dropdown."""
-        logger.info("Opening APro actions dropdown")
-        self.click(self.actions_button)
-
-    def wait_for_items(self, timeout: int = 10000) -> None:
-        """Wait for the actions items container to be visible."""
-        logger.info("Waiting for actions items to be visible")
-        self.wait_for_element(self.items_container, state="visible", timeout=timeout)
-
-    def click_create_prospect(self) -> None:
-        """Click the 'Create Prospect' item inside the actions dropdown."""
-        logger.info("Clicking 'Create Prospect' in APro actions")
-        # Ensure dropdown is open and items visible
-        try:
-            self.wait_for_items()
-        except Exception:
-            # Attempt to open then wait again
-            self.open_actions()
-            self.wait_for_items()
-
-        self.click(self.create_prospect_item)
 
     # -----------------
     # Overlay / modal helpers
@@ -697,12 +668,6 @@ class AproProposalsPage(BasePage):
         """Wait for holdings step (step 1) to be visible"""
         logger.info("Waiting for holdings step to be visible")
         self.wait_for_element(self.step_holdings_panel, state="visible", timeout=timeout)
-
-    def store_advisor_name(self) -> None:
-        logger.info("Storing advisor name from page header")
-        self.advisor_name_element.wait_for(state="visible", timeout=5000)
-        self.expected_advisor_name = self.advisor_name_element.inner_text().strip()
-        logger.info(f"Stored advisor name: {self.expected_advisor_name}")
 
     def get_advisor_dropdown_value(self) -> str:
         self.advisor_dropdown.wait_for(state="visible", timeout=5000)

@@ -14,12 +14,14 @@ from pages.api_utility_page import APIUtilityPage
 from pages.apro_proposals_page import AproProposalsPage
 from pages.auto_healing_page import AutoHealingPage
 from pages.base_page import BasePage
+from pages.base_smart_filter_page import BaseSmartFilterPage
 from pages.clients_page import ClientsPage
 from pages.dmtool_page import DMToolPage
 from pages.global_navigation_page import GlobalNavigationPage
 from pages.login_page import LoginPage
 from pages.manage_instruction_1_page import ManageInstruction1Page
 from pages.manage_instruction_2_page import ManageInstruction2Page
+from pages.prospects_list_page import ProspectsListPage
 from pages.roth_conversion_page import RothConversionPage
 from pages.tracking_center_page import TrackingCenterPage
 
@@ -31,6 +33,7 @@ __all__ = [
     "APIUtilityPage",
     "AutoHealingPage",
     "BasePage",
+    "BaseSmartFilterPage",
     "ClientsPage",
     "DMToolPage",
     "LoginPage",
@@ -40,4 +43,5 @@ __all__ = [
     "TrackingCenterPage",
     "GlobalNavigationPage",
     "AproProposalsPage",
+    "ProspectsListPage",
 ]

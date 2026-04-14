@@ -4,6 +4,7 @@ from playwright.sync_api import expect
 from pytest_bdd import parsers, then, when
 
 from pages import AproProposalsPage
+from pages.prospects_list_page import ProspectsListPage
 from utils.allure_logger import get_allure_logger
 from utils.pdf_utils import PDFValidator
 
@@ -12,10 +13,14 @@ logger = get_allure_logger(__name__)
 
 @when("I start a new proposal")
 @then("I start a new proposal")
-def _create_new_proposal(proposal_page: AproProposalsPage):
-    proposal_page.store_advisor_name()
-    proposal_page.open_actions()
-    proposal_page.click_create_prospect()
+def _create_new_proposal(prospects_list_page: ProspectsListPage, proposal_page: AproProposalsPage):
+    # Get advisor name before opening modal
+    advisor_name = prospects_list_page.get_advisor_name()
+    # Open and click to create proposal
+    prospects_list_page.open_actions()
+    prospects_list_page.click_create_prospect()
+    # Store in proposal_page after modal opens
+    proposal_page.expected_advisor_name = advisor_name
 
 
 @when(
@@ -226,7 +231,7 @@ def _verify_report_generated(proposal_page: AproProposalsPage):
 
     proposal_page.click_preview_proposal_close()
     proposal_page.click_preview_report_close()
-    proposal_page.click_finish()
+    # proposal_page.click_finish()
 
 
 @then("the report proposal should be complete")

@@ -145,6 +145,10 @@ markers = [
     "lighthouse: Lighthouse audit tests",
     "global_search: Global search functionality tests",
     "apro: APro proposal workflow tests",
+    "proposal: Proposal creation and management tests",
+    "happypath: Happy path scenario tests",
+    "smartfilter: Smart filter functionality tests",
+    "exportbutton: Smart filter pages export button functionality tests",
 ]
 asyncio_mode = "strict"
 log_cli = true
