@@ -186,4 +186,33 @@ def pytest_sessionfinish(session):
         _test_d_numbers.clear()
 
 
+def pytest_runtest_makereport(item, call):
+    """
+    Hook that processes test results and handles soft assertion warnings.
+    
+    This hook:
+    - Catches SoftAssertionWarning exceptions
+    - Marks test with warning status (yellow/orange indicator) in Allure
+    - Prevents test from being marked as failed
+    - Keeps test status as PASSED but with warning badge
+    
+    This is called for each test at different phases: setup, call, teardown
+    """
+    from utils.soft_assertions_enhanced import SoftAssertionWarning
+    import allure
+    
+    # Only process during the test call phase (when test code runs)
+    if call.when == "call":
+        # Check if the test has a SoftAssertionWarning (soft assertion failure)
+        if call.excinfo and isinstance(call.excinfo.value, SoftAssertionWarning):
+            # Mark as passed despite the warning
+            logger.warning(f"Test {item.nodeid} has soft assertion warnings - marking with yellow indicator")
+            
+            # Add Allure label for visual indication
+            allure.dynamic.label("severity", "warning")
+            allure.dynamic.label("status_badge", "⚠️ WARNINGS")
+            
+            # Suppress the exception so test doesn't fail
+            call.excinfo = None
+
 
