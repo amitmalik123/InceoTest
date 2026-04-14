@@ -177,7 +177,7 @@ stages:
               SERVICES_INPUT: ${{ parameters.services }}
               ENABLE_SCHEDULE: ${{ parameters.enableScheduleDetection }}
               ENVIRONMENTS_INPUT: ${{ parameters.environments }}
-              DEFAULT_ENVIRONMENTS: $(ENABLED_ENVIRONMENTS)
+              DEFAULT_ENVIRONMENTS: $(defaultEnvironments)
               EXECUTION_MODE: ${{ parameters.executionMode }}
               TEST_TYPE: ${{ parameters.testType }}
               TRIGGER_REASON: ${{ parameters.triggerReason }}
