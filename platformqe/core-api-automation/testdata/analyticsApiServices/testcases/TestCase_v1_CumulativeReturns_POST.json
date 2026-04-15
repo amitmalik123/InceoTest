@@ -1,9 +1,9 @@
 [
     {
-        "test_id": "TC001",
+        "test_id": "TC001_V1_cumulativeReturns",
         "service_name": "analyticsApiServices",
         "workflow_mode": "sequential",
-        "test_name": "POST /v1/analytics - CumulativeReturns Calculation (TC001)",
+        "test_name": "POST /v1/analytics - CumulativeReturns Calculation (TC001_V1_cumulativeReturns)",
         "protocol": "REST",
         "test_type": [
             "Functional",
@@ -160,10 +160,10 @@
         "test_scenario": "Validate cumulative returns time series API response contains correct monthly cumulative returns for each month in the period. The validator computes expected values using the formula: Cumulative[i] = Product(1 + monthly_return[0..i]) - 1, and compares against API response."
     },
     {
-        "test_id": "TC002",
+        "test_id": "TC002_V1_cumulativeReturns",
         "service_name": "analyticsApiServices",
         "workflow_mode": "parallel",
-        "test_name": "POST /v1/analytics [negative] (TC002) - Single Model Error",
+        "test_name": "POST /v1/analytics [negative] (TC002_V1_cumulativeReturns) - Single Model Error",
         "protocol": "REST",
         "test_type": [
             "Functional"
@@ -190,10 +190,10 @@
                 },
                 "calculations": [
                     {
-                        "calculationType": "blended_risk",
+                        "calculationType": "cumulative returns time series",
                         "configurations": {
-                            "method": "ewma",
-                            "timeHorizon": 240
+                            "startDate": "2022-02-01",
+                            "endDate": "2026-02-01"
                         }
                     }
                 ]
@@ -204,10 +204,10 @@
         "test_summary": "Validate that the API returns 400 when only one model is provided for blended risk."
     },
     {
-        "test_id": "TC003",
+        "test_id": "TC003_V1_cumulativeReturns",
         "service_name": "analyticsApiServices",
         "workflow_mode": "parallel",
-        "test_name": "POST /v1/analytics [negative] (TC003) - Weight < 1.0",
+        "test_name": "POST /v1/analytics [negative] (TC003_V1_cumulativeReturns) - Weight < 1.0",
         "protocol": "REST",
         "test_type": [
             "Functional"
@@ -239,10 +239,10 @@
                 },
                 "calculations": [
                     {
-                        "calculationType": "blended_risk",
+                        "calculationType": "cumulative returns time series",
                         "configurations": {
-                            "method": "ewma",
-                            "timeHorizon": 240
+                            "startDate": "2022-02-01",
+                            "endDate": "2026-02-01"
                         }
                     }
                 ]
@@ -253,10 +253,10 @@
         "test_summary": "Validate that the API returns 400 when the total sum of model weights is less than 1.0."
     },
     {
-        "test_id": "TC004",
+        "test_id": "TC004_V1_cumulativeReturns",
         "service_name": "analyticsApiServices",
         "workflow_mode": "parallel",
-        "test_name": "POST /v1/analytics [negative] (TC004) - Weight > 1.0",
+        "test_name": "POST /v1/analytics [negative] (TC004_V1_cumulativeReturns) - Weight > 1.0",
         "protocol": "REST",
         "test_type": [
             "Functional"
@@ -288,10 +288,10 @@
                 },
                 "calculations": [
                     {
-                        "calculationType": "blended_risk",
+                        "calculationType": "cumulative returns time series",
                         "configurations": {
-                            "method": "ewma",
-                            "timeHorizon": 240
+                            "startDate": "2022-02-01",
+                            "endDate": "2026-02-01"
                         }
                     }
                 ]
@@ -302,10 +302,10 @@
         "test_summary": "Validate that the API returns 400 when the total sum of model weights is greater than 1.0."
     },
     {
-        "test_id": "TC005",
+        "test_id": "TC005_V1_cumulativeReturns",
         "service_name": "analyticsApiServices",
         "workflow_mode": "parallel",
-        "test_name": "POST /v1/analytics [negative] (TC005) - Invalid Logic",
+        "test_name": "POST /v1/analytics [negative] (TC005_V1_cumulativeReturns) - Invalid Logic",
         "protocol": "REST",
         "test_type": [
             "Functional"
@@ -328,30 +328,30 @@
                         {
                             "id": "TPSMFS",
                             "entityType": "model",
-                            "weight": 0.4
+                            "weight": 0.5
                         }
                     ]
                 },
                 "calculations": [
                     {
-                        "calculationType": "blended_risk",
+                        "calculationType": "cumulative returns time series",
                         "configurations": {
-                            "method": "ewma",
-                            "timeHorizon": 240
+                            "startDate": "2022-02-01",
+                            "endDate": "2026-02-01"
                         }
                     }
                 ]
             }
         },
-        "expected_status": "400",
+        "expected_status": "500",
         "expected_response": null,
-        "test_summary": "Testing specific multi-model weight failure with TPRRS2 and TPSMFS IDs."
+        "test_summary": "TPSMFS does not have performance data. Please ensure there is performance data for the time period requested."
     },
     {
-        "test_id": "TC006",
+        "test_id": "TC006_V1_cumulativeReturns",
         "service_name": "analyticsApiServices",
         "workflow_mode": "parallel",
-        "test_name": "POST /v1/analytics [negative] (TC006) - Invalid calculation type",
+        "test_name": "POST /v1/analytics [negative] (TC006_V1_cumulativeReturns) - Invalid calculation type",
         "protocol": "REST",
         "test_type": [
             "Functional"
@@ -394,13 +394,13 @@
         },
         "expected_status": "400",
         "expected_response": null,
-        "test_summary": "Calculation Type: Invalid calculation type 'cumulative_returns time series' with space instead of underscore."
+        "test_summary": "Calculation Type: Must be blended risk, asset allocation, cumulative returns time series, return, volatility, or fees"
     },
     {
-        "test_id": "TC007",
+        "test_id": "TC007_V1_cumulativeReturns",
         "service_name": "analyticsApiServices",
         "workflow_mode": "parallel",
-        "test_name": "POST /v1/analytics [negative] (TC007) - Duplicate ID",
+        "test_name": "POST /v1/analytics [negative] (TC007_V1_cumulativeReturns) - Duplicate ID",
         "protocol": "REST",
         "test_type": [
             "Functional"
@@ -444,5 +444,179 @@
         "expected_status": "400",
         "expected_response": null,
         "test_summary": "ID: There is a duplicate id in the request. Please ensure all ids are unique."
+    },
+    {
+        "test_id": "TC008_V1_cumulativeReturns",
+        "service_name": "analyticsApiServices",
+        "workflow_mode": "parallel",
+        "test_name": "POST /v1/analytics [negative] (TC008_V1_cumulativeReturns) - Benchmark IDs were not found",
+        "protocol": "REST",
+        "test_type": [
+            "Functional"
+        ],
+        "mainURL": "{{base_url}}",
+        "endpoint": "/v1/analytics",
+        "method": "POST",
+        "headers_additional": {
+            "Content-Type": "application/json"
+        },
+        "payload": {
+            "calculationRequest": {
+                "inputs": {
+                    "benchmark": [
+                        "BUSC"
+                    ],
+                    "blend": [
+                        {
+                            "id": "GPRRS1",
+                            "entityType": "model",
+                            "weight": 0.55
+                        },
+                        {
+                            "id": "UF2SMA",
+                            "entityType": "model",
+                            "weight": 0.45
+                        }
+                    ]
+                },
+                "calculations": [
+                    {
+                        "calculationType": "cumulative returns time series",
+                        "configurations": {
+                            "startDate": "2022-02-01",
+                            "endDate": "2026-02-01"
+                        }
+                    }
+                ]
+            }
+        },
+        "expected_status": "500",
+        "expected_response": null,
+        "test_summary": "Benchmark IDs BUSC were not found"
+    },
+    {
+        "test_id": "TC009_V1_cumulativeReturns",
+        "service_name": "analyticsApiServices",
+        "workflow_mode": "parallel",
+        "test_name": "POST /v1/analytics [negative] (TC009_V1_cumulativeReturns) - The end date is required",
+        "protocol": "REST",
+        "test_type": [
+            "Functional"
+        ],
+        "mainURL": "{{base_url}}",
+        "endpoint": "/v1/analytics",
+        "method": "POST",
+        "headers_additional": {
+            "Content-Type": "application/json"
+        },
+        "payload": {
+            "calculationRequest": {
+                "inputs": {
+                    "benchmark": [
+                        "B15USC"
+                    ],
+                    "blend": [
+                        {
+                            "id": "GPRRS1",
+                            "entityType": "model",
+                            "weight": 0.55
+                        },
+                        {
+                            "id": "UF2SMA",
+                            "entityType": "model",
+                            "weight": 0.45
+                        }
+                    ]
+                },
+                "calculations": [
+                    {
+                        "calculationType": "cumulative returns time series",
+                        "configurations": {}
+                    }
+                ]
+            }
+        },
+        "expected_status": "400",
+        "expected_response": null,
+        "test_summary": "The end date is required"
+    },
+    {
+        "test_id": "TC010_V1_cumulativeReturns",
+        "service_name": "analyticsApiServices",
+        "workflow_mode": "parallel",
+        "test_name": "POST /v1/analytics [negative] (TC010_V1_cumulativeReturns) - Sequence contains no elements",
+        "protocol": "REST",
+        "test_type": [
+            "Functional"
+        ],
+        "mainURL": "{{base_url}}",
+        "endpoint": "/v1/analytics",
+        "method": "POST",
+        "headers_additional": {
+            "Content-Type": "application/json"
+        },
+        "payload": {
+            "calculationRequest": {
+                "inputs": {
+                    "benchmark": [
+                        "B15USC"
+                    ],
+                    "blend": []
+                },
+                "calculations": [
+                    {
+                        "calculationType": "cumulative returns time series",
+                        "configurations": {
+                            "startDate": "2022-02-01",
+                            "endDate": "2026-02-01"
+                        }
+                    }
+                ]
+            }
+        },
+        "expected_status": "400",
+        "expected_response": null,
+        "test_summary": "Sequence contains no elements"
+    },
+    {
+        "test_id": "TC011_V1_cumulativeReturns",
+        "service_name": "analyticsApiServices",
+        "workflow_mode": "parallel",
+        "test_name": "POST /v1/analytics [negative] (TC011_V1_cumulativeReturns) - At least one calculation is required",
+        "protocol": "REST",
+        "test_type": [
+            "Functional"
+        ],
+        "mainURL": "{{base_url}}",
+        "endpoint": "/v1/analytics",
+        "method": "POST",
+        "headers_additional": {
+            "Content-Type": "application/json"
+        },
+        "payload": {
+            "calculationRequest": {
+                "inputs": {
+                    "benchmark": [
+                        "B15USC"
+                    ],
+                    "blend": [
+                        {
+                            "id": "GPRRS1",
+                            "entityType": "model",
+                            "weight": 0.55
+                        },
+                        {
+                            "id": "UF2SMA",
+                            "entityType": "model",
+                            "weight": 0.45
+                        }
+                    ]
+                },
+                "calculations": []
+            }
+        },
+        "expected_status": "500",
+        "expected_response": null,
+        "test_summary": "At least one calculation is required"
     }
 ]
