@@ -147,7 +147,8 @@ markers = [
     "HappyPath: Happy path scenario",
     "Silo_Regression: Silo Regression",
     "T10_Regression: T10 Regression",
-    "Prod_Regression: Prod Regression"
+    "Prod_Regression: Prod Regression",
+    "SiloRegression_OneCleanUp: Silo Regression with one CleanUp Scenario"
 ]
 asyncio_mode = "strict"
 log_cli = true
