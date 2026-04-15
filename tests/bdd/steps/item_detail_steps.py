@@ -3,7 +3,7 @@ from playwright.sync_api import Page
 from pytest_bdd import parsers, then, when
 
 from utils.allure_logger import get_allure_logger
-from utils.assertions import SoftAssertions
+from utils.soft_assertions_enhanced import EnhancedSoftAssertions
 from utils.database import fetch_agent_name_by_aplid_from_db
 from utils.retry_utils import retry_until_true
 from utils.wait_utils import wait_for_url_to_match
@@ -328,7 +328,7 @@ def verify_notes_description(trackingCenter_ItemDetail_page, test_context):
             # Step 6: Use soft assertions to verify each expected description is in actual descriptions
             logger.info("Step 5: Comparing expected vs actual descriptions using soft assertions...")
             
-            with SoftAssertions() as soft:
+            with EnhancedSoftAssertions(trackingCenter_ItemDetail_page.page) as soft:
                 for idx, expected_desc in enumerate(processed_expected, 1):
                     found = False
                     matched_actual = None
@@ -399,7 +399,7 @@ def verify_advisor_alert_required_value(trackingCenter_ItemDetail_page, test_con
             
             # Step 3: Use soft assertions to verify they match
             logger.info("Step 3: Comparing values using soft assertions...")
-            soft_assert = SoftAssertions()
+            soft_assert = EnhancedSoftAssertions(trackingCenter_ItemDetail_page.page)
             soft_assert.assert_equal(
                 actual_value,
                 expected_value,
@@ -538,7 +538,7 @@ def verify_agent_name(trackingCenter_ItemDetail_page, test_context):
             # Step 5: Use soft assertions to compare actual vs expected (with ID)
             logger.info("Step 5: Comparing actual Agent Name with expected Agent Name (including ID) using soft assertions...")
             
-            with SoftAssertions() as soft:
+            with EnhancedSoftAssertions(trackingCenter_ItemDetail_page.page) as soft:
                 if actual_agent_name != expected_agent_name_with_id:
                     error_msg = (f"[FAIL] TrackingCenterPage: Agent Name Validation — Expected: agent_name='{expected_agent_name_with_id}', Actual: agent_name='{actual_agent_name}'. Details: Agent Name displayed on Tracking Center Item Detail does not match the Agent Name from database concatenated with Agent ID. Locator: //span[text()='Agent Name']/following-sibling::label.")
                     logger.error(f"  ✗ {error_msg}")

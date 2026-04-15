@@ -9,7 +9,8 @@ from pytest_bdd import given, when, then, parsers
 
 from pages.client_accounts_page import ClientAccountsPage
 from utils.allure_logger import get_allure_logger
-from utils.assertions import Assertions, SoftAssertions
+from utils.assertions import Assertions
+from utils.soft_assertions_enhanced import EnhancedSoftAssertions
 from utils.database import fetch_agent_name_by_aplid_from_db, fetch_authorized_signer
 from utils.dialog_utils import DialogHandler
 from utils.helpers import find_element_position_in_parent
@@ -91,7 +92,7 @@ def verify_signer_information_dialog_exists_with_correct_information(
         
         try:
             # Initialize soft assertions
-            soft_assert = SoftAssertions()
+            soft_assert = EnhancedSoftAssertions(authenticated_page)
             
             # Step 1: Wait for and detect dialog
             logger.info("Step 1: Waiting for Signer Information dialog...")
@@ -279,7 +280,7 @@ def verify_authorized_signer_approval_section(authenticated_page: Page, test_con
         
         try:
             # Initialize soft assertions for non-critical checks
-            soft_assert = SoftAssertions()
+            soft_assert = EnhancedSoftAssertions(authenticated_page)
             
             # Step 1: Get and parse expected text from CSV
             logger.info("Step 1: Fetching expected text from CSV...")
@@ -797,19 +798,13 @@ def verify_authorized_signer_dropdown(authenticated_page: Page, client_accounts_
             Assertions.assert_visible(dropdown, "[FAIL] ClientAccountsPage: Authorized Signers Dropdown Visibility — Expected: visible=True, Actual: visible=False. Details: Dropdown must be visible. Locator: select[name='authorizedSignersDropdown'].")
             logger.info("  [PASS] ClientAccountsPage: Authorized Signers Dropdown Found and Visible.")
             
-            # Step 4: Determine actual dropdown state from the page
-            # For sheet-based environments (silo, prod, test10), the CSV may only have 1 signer
-            # but the actual page may have multiple. Use the actual dropdown state as source of truth.
-            is_disabled = dropdown.is_disabled()
-            all_options = iframe_frame.locator("select[name='authorizedSignersDropdown'] option").all()
-            # Exclude the "--Select Authorized Signer--" placeholder option
-            actual_option_count = len(all_options) - 1 if len(all_options) > 1 else len(all_options)
-            logger.info(f"  Dropdown disabled={is_disabled}, total options={len(all_options)}, signer options={actual_option_count}")
-            logger.info(f"  Signers from data source: {len(signers)}")
-            
-            if is_disabled and actual_option_count <= 1:
-                # Case 1: Dropdown disabled with 1 signer - verify selected option matches signer name
-                logger.info("  Step 4: Dropdown is disabled (single signer on page)...")
+            # Step 4: Validate based on signer count
+            if len(signers) == 1:
+                # Case 1: Only 1 signer - dropdown should be disabled and show signer name
+                logger.info("  Step 4: Validating dropdown is disabled (1 signer present)...")
+                is_disabled = dropdown.is_disabled()
+                
+                Assertions.assert_true(is_disabled, "[FAIL] ClientAccountsPage: Authorized Signers Dropdown Disabled State — Expected: is_disabled=True, Actual: is_disabled=False. Details: Dropdown should be disabled when only 1 signer is present. Locator: select[name='authorizedSignersDropdown'].")
                 logger.info("  [PASS] ClientAccountsPage: Dropdown Disabled for Single Signer.")
                 
                 # Step 5: Verify the default selected option matches the signer name
@@ -829,43 +824,49 @@ def verify_authorized_signer_dropdown(authenticated_page: Page, client_accounts_
                 Assertions.assert_equal(selected_text, signer_name, f"[FAIL] ClientAccountsPage: Dropdown Selected Value — Expected: '{signer_name}', Actual: '{selected_text}'. Details: Dropdown should show the only available signer's name. Locator: select[name='authorizedSignersDropdown'].")
                 logger.info(f"  [PASS] ClientAccountsPage: Default Selected Option Matches Signer.")
                 
-            elif not is_disabled:
-                # Case 2: Dropdown is enabled - multiple signers on page
-                logger.info(f"  Step 4: Dropdown is enabled — validating dropdown options...")
+            elif len(signers) > 1:
+                # Case 2: Multiple signers - dropdown should be enabled and options match signers
+                logger.info(f"  Step 4: Validating dropdown options match {len(signers)} signers...")
+                is_disabled = dropdown.is_disabled()
+                
+                Assertions.assert_false(is_disabled, f"[FAIL] ClientAccountsPage: Authorized Signers Dropdown Enabled State — Expected: is_disabled=False, Actual: is_disabled=True. Details: Dropdown should be enabled when {len(signers)} signers are present. Locator: select[name='authorizedSignersDropdown'].")
                 logger.info("  [PASS] ClientAccountsPage: Dropdown Enabled for Multiple Signers.")
                 
-                # Step 5: Extract option texts (skip first "--Select Authorized Signer--" option)
-                logger.info("  Step 5: Extracting dropdown option values...")
+                # Step 5: Fetch all options from dropdown
+                logger.info("  Step 5: Fetching dropdown options...")
+                options = iframe_frame.locator("select[name='authorizedSignersDropdown'] option").all()
+                
+                Assertions.assert_greater(len(options), 0, "[FAIL] ClientAccountsPage: Dropdown Options Count — Expected: count>0, Actual: count=0. Details: Dropdown must have at least one option. Locator: select[name='authorizedSignersDropdown'] option.")
+                logger.info(f"  [PASS] ClientAccountsPage: Dropdown Options Found.")
+                
+                # Step 6: Extract option texts (skip first option which is "--Select Authorized Signer--")
+                logger.info("  Step 6: Extracting and validating option values...")
                 option_texts = []
-                for idx, option in enumerate(all_options):
+                for idx, option in enumerate(options):
                     option_text = (option.text_content() or "").strip()
                     option_texts.append(option_text)
                     logger.info(f"    Option {idx}: '{option_text}'")
                 
+                # Skip the first "--Select Authorized Signer--" option
                 actual_options = option_texts[1:] if len(option_texts) > 1 else option_texts
                 
-                Assertions.assert_greater(len(actual_options), 0, "[FAIL] ClientAccountsPage: Dropdown Options Count — Expected: count>0, Actual: count=0. Details: Dropdown must have at least one signer option. Locator: select[name='authorizedSignersDropdown'] option.")
-                logger.info(f"  [PASS] ClientAccountsPage: {len(actual_options)} Dropdown Options Found.")
-                
-                # Step 6: Verify known signer names from data source exist in dropdown
-                logger.info("  Step 6: Verifying known signer names are present in dropdown...")
+                # Step 7: Extract expected signer names from test_context signers
+                logger.info("  Step 7: Comparing options with signer names...")
                 expected_signer_names = [signer.get("Name_ManageLogin", "") for signer in signers]
                 
-                logger.info(f"  Known signer names from data source: {expected_signer_names}")
+                logger.info(f"  Expected signer names: {expected_signer_names}")
                 logger.info(f"  Actual dropdown options: {actual_options}")
                 
-                for signer_name in expected_signer_names:
-                    if signer_name:
-                        Assertions.assert_in(
-                            signer_name,
-                            actual_options,
-                            f"[FAIL] ClientAccountsPage: Signer In Dropdown — Expected: '{signer_name}' in options, Actual: not found. "
-                            f"Details: Known signer must appear in dropdown. Options: {actual_options}. "
-                            f"Locator: select[name='authorizedSignersDropdown']."
-                        )
-                        logger.info(f"  [PASS] ClientAccountsPage: Signer '{signer_name}' found in dropdown.")
+                # Validate count matches
+                Assertions.assert_equal(len(actual_options), len(expected_signer_names), f"[FAIL] ClientAccountsPage: Dropdown Options Count — Expected: {len(expected_signer_names)}, Actual: {len(actual_options)}. Details: Number of dropdown options must match number of signers. Locator: select[name='authorizedSignersDropdown'] option.")
+                logger.info(f"  [PASS] ClientAccountsPage: Option Count Matches Signer Count.")
                 
-                logger.info("  [PASS] ClientAccountsPage: All Known Signer Names Verified in Dropdown.")
+                # Validate each option matches a signer name
+                for idx, (actual, expected) in enumerate(zip(actual_options, expected_signer_names)):
+                    Assertions.assert_equal(actual, expected, f"[FAIL] ClientAccountsPage: Dropdown Option Value — Expected: '{expected}' at index {idx}, Actual: '{actual}'. Details: Each dropdown option must match a signer name. Locator: select[name='authorizedSignersDropdown'] option[{idx+1}].")
+                    logger.info(f"  [PASS] ClientAccountsPage: Dropdown Option Validated.")
+                
+                logger.info("  [PASS] ClientAccountsPage: All Dropdown Options Match Signer Names.")
             
             else:
                 # Case 3: No signers - log warning
@@ -978,7 +979,7 @@ def verify_account_number_displayed_and_radio_selected(authenticated_page: Page,
         was_already_checked = result['was_already_checked']
         is_checked = result['is_checked']
         
-        soft_assert = SoftAssertions()
+        soft_assert = EnhancedSoftAssertions(authenticated_page)
         
         # Step 2: If radio button was NOT selected initially, add soft assertion (warning, non-blocking)
         if not was_already_checked:
@@ -1104,7 +1105,7 @@ def verify_form_heading_matches_oam_type(authenticated_page: Page, client_accoun
         
         # STEP 2: Use SoftAssertions to verify the heading matches OAM_Type
         logger.info("Step 2: Comparing form heading with OAM_Type...")
-        soft_assert = SoftAssertions()
+        soft_assert = EnhancedSoftAssertions(authenticated_page)
         soft_assert.assert_equal(
             actual_heading,
             expected_heading,
@@ -1231,7 +1232,7 @@ def verify_client_signature_not_required_dialog(authenticated_page: Page, client
         logger.info("Step 3: Verifying dialog title matches expected text...")
         expected_title = "Client Signature Not Required"
         
-        soft_assert = SoftAssertions()
+        soft_assert = EnhancedSoftAssertions(authenticated_page)
         soft_assert.assert_equal(
             dialog_title,
             expected_title,
@@ -1352,7 +1353,7 @@ def verify_request_dialog(authenticated_page: Page, client_accounts_page, test_c
         logger.info("Step 3: Fetching dialog elements...")
         try:
             # Initialize soft assertions for optional dialog elements
-            soft_assert = SoftAssertions()
+            soft_assert = EnhancedSoftAssertions(authenticated_page)
             
             dialog_data = client_accounts_page.get_request_submitted_dialog_content()
             

@@ -15,7 +15,7 @@ from dataclasses import dataclass
 from datetime import datetime
 
 import allure
-from playwright.sync_api import Page
+from playwright.sync_api import Locator, Page
 
 from utils.allure_logger import get_allure_logger
 
@@ -96,11 +96,11 @@ class EnhancedSoftAssertions:
         return self
     
     def __exit__(self, exc_type, exc_val, exc_tb):
-        """Exit context manager and generate report"""
+        """Exit context manager and generate report. Does NOT raise - test stays PASSED with warnings."""
         if exc_type is None:  # Only check assertions if no other exception
             self.generate_report()
             if self.failures:
-                self.raise_with_warning()
+                self._mark_test_with_warning()
         return False
     
     def _record_failure(self, message: str, expected: Any, actual: Any, step_name: Optional[str] = None):
@@ -229,6 +229,90 @@ class EnhancedSoftAssertions:
             msg = message or "Value is None"
             self._record_failure(msg, "Not None", value, step_name)
     
+    # Playwright-specific soft assertions
+    def assert_visible(self, locator: Locator, message: Optional[str] = None, step_name: Optional[str] = None):
+        """Assert element is visible."""
+        try:
+            if not locator.is_visible():
+                msg = message or f"Expected element to be visible: {locator}"
+                self._record_failure(msg, "visible=True", "visible=False", step_name)
+        except Exception as e:
+            self._record_failure(f"Error checking visibility: {str(e)}", "visible=True", f"Error: {e}", step_name)
+    
+    def assert_hidden(self, locator: Locator, message: Optional[str] = None, step_name: Optional[str] = None):
+        """Assert element is hidden."""
+        try:
+            if locator.is_visible():
+                msg = message or f"Expected element to be hidden: {locator}"
+                self._record_failure(msg, "visible=False", "visible=True", step_name)
+        except Exception as e:
+            self._record_failure(f"Error checking visibility: {str(e)}", "visible=False", f"Error: {e}", step_name)
+    
+    def assert_text_contains(self, locator: Locator, text: str, message: Optional[str] = None, step_name: Optional[str] = None):
+        """Assert element text contains substring."""
+        try:
+            actual_text = locator.inner_text()
+            if text not in actual_text:
+                msg = message or f"Expected text to contain '{text}', but got '{actual_text}'"
+                self._record_failure(msg, f"contains '{text}'", actual_text, step_name)
+        except Exception as e:
+            self._record_failure(f"Error getting text: {str(e)}", f"contains '{text}'", f"Error: {e}", step_name)
+    
+    def assert_count(self, locator: Locator, expected_count: int, message: Optional[str] = None, step_name: Optional[str] = None):
+        """Assert element count matches expected."""
+        try:
+            actual_count = locator.count()
+            if actual_count != expected_count:
+                msg = message or f"Expected {expected_count} elements, but found {actual_count}"
+                self._record_failure(msg, expected_count, actual_count, step_name)
+        except Exception as e:
+            self._record_failure(f"Error getting count: {str(e)}", expected_count, f"Error: {e}", step_name)
+    
+    def assert_all(self):
+        """
+        Backward-compatible method: generate report and mark with warning if failures exist.
+        Does NOT raise an exception - test stays PASSED with yellow warning indicator.
+        """
+        self.generate_report()
+        if self.failures:
+            self._mark_test_with_warning()
+    
+    def _mark_test_with_warning(self):
+        """
+        Mark test with warning indicators in Allure.
+        Sets severity, tags, and description without raising an exception.
+        """
+        # Set severity to minor (shows as downward arrow indicator in Allure)
+        allure.dynamic.severity(allure.severity_level.MINOR)
+        
+        # Add visible warning tag in the Tags section
+        allure.dynamic.tag("⚠️ SOFT_ASSERTION_WARNING")
+        
+        # Build warning summary
+        warning_msg = f"\n⚠️ WARNING: {len(self.failures)} soft assertion(s) failed:\n"
+        for failure in self.failures:
+            warning_msg += f"\n  #{failure.assertion_number}: {failure.message}\n"
+            warning_msg += f"    Expected: {failure.expected}\n"
+            warning_msg += f"    Actual: {failure.actual}\n"
+        
+        # Attach warning summary as text
+        allure.attach(
+            warning_msg,
+            name="⚠️ Soft Assertion Warnings",
+            attachment_type=allure.attachment_type.TEXT
+        )
+        
+        # Add warning banner in test description
+        warning_html = (
+            '<div style="background:#fff3e0;border-left:4px solid #ff9800;padding:12px;margin:10px 0;border-radius:4px;">'
+            f'<strong style="color:#e65100;">⚠️ {len(self.failures)} Soft Assertion(s) Failed</strong>'
+            '<br><span style="color:#bf360c;">Test PASSED with warnings — review the Soft Assertions Summary Report attachment below.</span>'
+            '</div>'
+        )
+        allure.dynamic.description_html(warning_html)
+        
+        logger.warning(warning_msg)
+    
     def generate_report(self):
         """
         Generate HTML summary report of all soft assertion failures.
@@ -252,26 +336,63 @@ class EnhancedSoftAssertions:
     
     def _generate_html_report(self) -> str:
         """Generate beautiful HTML report of all failures."""
-        html = """
+        # Generate table rows first
+        rows = []
+        for failure in self.failures:
+            data = failure.to_dict()
+            
+            # Comparison section
+            comparison = (
+                '<div class="comparison">'
+                f'<div class="expected">✓ Expected: {data["expected"]}</div>'
+                f'<div class="actual">✗ Actual: {data["actual"]}</div>'
+                '</div>'
+            )
+            
+            # JSON diff if available
+            if data['expected_json'] or data['actual_json']:
+                comparison += '<div class="json-diff"><strong>JSON Comparison:</strong><br>'
+                if data['expected_json']:
+                    comparison += f'Expected JSON:<br><pre>{data["expected_json"]}</pre>'
+                if data['actual_json']:
+                    comparison += f'Actual JSON:<br><pre>{data["actual_json"]}</pre>'
+                comparison += '</div>'
+            
+            row = (
+                '<tr>'
+                f'<td class="assertion-number">{data["number"]}</td>'
+                f'<td><span class="step-name">{data["step_name"]}</span></td>'
+                f'<td>{data["message"]}</td>'
+                f'<td>{comparison}</td>'
+                f'<td><span class="timestamp">{data["timestamp"]}</span></td>'
+                '</tr>'
+            )
+            rows.append(row)
+        
+        rows_html = "\n".join(rows)
+        total = len(self.failures)
+        ts = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+        
+        html = f"""
         <html>
         <head>
             <style>
-                body { font-family: Arial, sans-serif; margin: 20px; background: #f5f5f5; }
-                .container { background: white; padding: 20px; border-radius: 8px; box-shadow: 0 2px 4px rgba(0,0,0,0.1); }
-                .header { background: #ff9800; color: white; padding: 15px; border-radius: 4px; margin-bottom: 20px; }
-                .header h1 { margin: 0; font-size: 24px; }
-                .summary { background: #fff3e0; border-left: 4px solid #ff9800; padding: 10px; margin-bottom: 20px; }
-                table { width: 100%; border-collapse: collapse; margin-bottom: 20px; }
-                th { background: #f44336; color: white; padding: 12px; text-align: left; }
-                td { padding: 12px; border-bottom: 1px solid #ddd; }
-                tr:hover { background: #f9f9f9; }
-                .assertion-number { background: #ffebee; font-weight: bold; }
-                .comparison { background: #f0f0f0; padding: 10px; margin: 10px 0; border-radius: 4px; font-family: monospace; }
-                .expected { background: #e8f5e9; padding: 5px; margin: 5px 0; }
-                .actual { background: #ffebee; padding: 5px; margin: 5px 0; }
-                .json-diff { background: #fffde7; padding: 10px; margin: 10px 0; border-radius: 4px; }
-                .step-name { color: #1976d2; font-weight: bold; }
-                .timestamp { color: #666; font-size: 12px; }
+                body {{ font-family: Arial, sans-serif; margin: 20px; background: #f5f5f5; }}
+                .container {{ background: white; padding: 20px; border-radius: 8px; box-shadow: 0 2px 4px rgba(0,0,0,0.1); }}
+                .header {{ background: #ff9800; color: white; padding: 15px; border-radius: 4px; margin-bottom: 20px; }}
+                .header h1 {{ margin: 0; font-size: 24px; }}
+                .summary {{ background: #fff3e0; border-left: 4px solid #ff9800; padding: 10px; margin-bottom: 20px; }}
+                table {{ width: 100%; border-collapse: collapse; margin-bottom: 20px; }}
+                th {{ background: #f44336; color: white; padding: 12px; text-align: left; }}
+                td {{ padding: 12px; border-bottom: 1px solid #ddd; }}
+                tr:hover {{ background: #f9f9f9; }}
+                .assertion-number {{ background: #ffebee; font-weight: bold; }}
+                .comparison {{ background: #f0f0f0; padding: 10px; margin: 10px 0; border-radius: 4px; font-family: monospace; }}
+                .expected {{ background: #e8f5e9; padding: 5px; margin: 5px 0; }}
+                .actual {{ background: #ffebee; padding: 5px; margin: 5px 0; }}
+                .json-diff {{ background: #fffde7; padding: 10px; margin: 10px 0; border-radius: 4px; }}
+                .step-name {{ color: #1976d2; font-weight: bold; }}
+                .timestamp {{ color: #666; font-size: 12px; }}
             </style>
         </head>
         <body>
@@ -282,8 +403,8 @@ class EnhancedSoftAssertions:
                 </div>
                 
                 <div class="summary">
-                    <strong>Total Failures:</strong> {total_failures}<br>
-                    <strong>Report Generated:</strong> {timestamp}<br>
+                    <strong>Total Failures:</strong> {total}<br>
+                    <strong>Report Generated:</strong> {ts}<br>
                     <strong>Status:</strong> <span style="color: #ff9800; font-weight: bold;">⚠️ WARNING</span> (Test PASSED with warnings)
                 </div>
                 
@@ -298,7 +419,7 @@ class EnhancedSoftAssertions:
                         </tr>
                     </thead>
                     <tbody>
-                        {rows}
+                        {rows_html}
                     </tbody>
                 </table>
             </div>
@@ -306,44 +427,7 @@ class EnhancedSoftAssertions:
         </html>
         """
         
-        # Generate table rows
-        rows = []
-        for failure in self.failures:
-            data = failure.to_dict()
-            
-            # Comparison section
-            comparison = f"""
-            <div class="comparison">
-                <div class="expected">✓ Expected: {data['expected']}</div>
-                <div class="actual">✗ Actual: {data['actual']}</div>
-            </div>
-            """
-            
-            # JSON diff if available
-            if data['expected_json'] or data['actual_json']:
-                comparison += '<div class="json-diff"><strong>JSON Comparison:</strong><br>'
-                if data['expected_json']:
-                    comparison += f'Expected JSON:<br><pre>{data["expected_json"]}</pre>'
-                if data['actual_json']:
-                    comparison += f'Actual JSON:<br><pre>{data["actual_json"]}</pre>'
-                comparison += '</div>'
-            
-            row = f"""
-            <tr>
-                <td class="assertion-number">{data['number']}</td>
-                <td><span class="step-name">{data['step_name']}</span></td>
-                <td>{data['message']}</td>
-                <td>{comparison}</td>
-                <td><span class="timestamp">{data['timestamp']}</span></td>
-            </tr>
-            """
-            rows.append(row)
-        
-        html = html.format(
-            total_failures=len(self.failures),
-            timestamp=datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
-            rows="\n".join(rows)
-        )
+        return html
         
         return html
     

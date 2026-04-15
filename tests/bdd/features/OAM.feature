@@ -1,6 +1,6 @@
 Feature: E2E OAM flow for FA, SAU and OA
 
-  @smoke @FNT_regression @Silo_Regression
+  @smoke @FNT_regression @Silo_Regression 
   Scenario: OAM_Initiated by FA_Online Submit_Finish
     When User navigate to Clients menu
     And User click on Account List
@@ -28,7 +28,7 @@ Feature: E2E OAM flow for FA, SAU and OA
     #And Verify Agent Name
     #And Verify the Routing Order in database
 
-  @HappyPath @FNT_regression @Silo_Regression @SiloRegression_OneCleanUp
+  @HappyPath @FNT_regression @Silo_Regression @SiloRegression_OneCleanUp @Prod_Regression
   Scenario: OAM_Initiated by SAU_Online Submit_Authorized Signer_Not_Required
     When User navigate to Clients menu
     And User click on Account List
@@ -181,7 +181,7 @@ Feature: E2E OAM flow for FA, SAU and OA
     And Verify Agent Name
 
 
-  @Prod_Regression @T10_Regression 
+  @T10_Regression 
   Scenario: Prod_OAM_Initiated by SAU_Online Submit_Authorized Signer_Required_FA
     When User navigate to Clients menu
     And User click on Account List

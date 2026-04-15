@@ -1,2 +1,27 @@
-username,password,client_id,account_name,destination_account,conversion_amount,Authorized_Signer_Role_Name
-PROD_AG8959_Perf,ProdAdminUser_33a,40108642,Core Markets,40108641,1000,
+scenario,role,Document_Creator_Role,Authorized_Signer_Role,Authorized_Signer_Role_Name,Agent,username,password,client_id,account_number,account_name,OAM_Request,OAM_Type,Submission_Type,Client_Signature_Method,Expected_Signer_Information_Text,Expected_Authorized_Signer_Approval_Text,Authorized_Signer_Approval_Option,Authorized_Signer_eSign_Method,Email_Address,Phone,Expected_docusign_ReviewAndContinue_Text,As_authorized_by_stamp_present,Expected_RequestPopUp_Text,Expected_Advisor_Alert_Required,Expected_AuthorizedSigner_Email_Subject,Expected_AuthorizedSigner_Email_Body,Expected_TrackingCenter_Notes,Expected_Roles,Expected_RoutingOrders
+Prod_OAM_Initiated by FA_Complete and Print ,,,,,AG1634,sampleagentlogin,QAAdminUser_33a,,40116288,ABC Corporation,Contributions,Copy for Digital Deposit,Complete and Print,,,,,,,,Please review and sign the document electronically.,No,"Ready for Signatures
+|
+After printing and obtaining signatures, scan the signed document and upload to the Tracking Center by selecting
+|
+The Tracking Center provides one-stop access to your documents and status updates.",Yes,,,"This request has been canceled. A new document will need to be created if this request is still required.
+|
+Once completed and signed, submit document from Tracking Center upload or mail.
+|
+Document created by Valued Financial Advisor.",Advisor,1
+OAM_Initiated by SAU_Online Submit_Authorized Signer_Not_Required,SAU,SAU,,,AG1634,Shared_access_ag1634,Test@wfi12345,,40116288,ABC Corporation,Contributions,Copy for Digital Deposit,Complete and Submit,Proceed and submit without a client signature,"Signer(s) Information 
+|
+Please provide the advisor's or their Shared Access user's details and indicate whether they should be notified via Tracking Center or SMS.
+Once setup is complete, they'll receive an email alerting them to the pending documents and granting access through the selected notification method.","Authorized Signer Approval 
+|
+You are authorized to begin the signature process; approval is not required.
+Do you need approval from another authorized signer before proceeding with eSignature?",No,,,,Please review and sign the document electronically.,Yes,"Request Submitted
+|
+Your request has been submitted to AssetMark for processing.
+|
+To view your request, go to the Tracking Center and select
+|
+a copy for your records.
+|
+Click Close to return to eWealthManager.",No,,,"Document has been completed and routed to Operations for review and processing.
+|
+Document created by Valued Financial Advisor",Advisor,1
