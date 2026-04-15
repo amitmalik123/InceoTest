@@ -54,6 +54,12 @@ parameters:
   - name: testType
     type: string
     default: 'functional'
+
+  # Filter test cases by test_type tag (e.g. Smoke, Regression, Business Logic)
+  # This appends --test-type <value> to pytest to filter JSON test cases
+  - name: testCaseFilter
+    type: string
+    default: 'N/A'
   
   - name: overrideEnabled
     type: boolean
@@ -177,19 +183,24 @@ stages:
               SERVICES_INPUT: ${{ parameters.services }}
               ENABLE_SCHEDULE: ${{ parameters.enableScheduleDetection }}
               ENVIRONMENTS_INPUT: ${{ parameters.environments }}
-              DEFAULT_ENVIRONMENTS: $(ENABLED_ENVIRONMENTS)
+              DEFAULT_ENVIRONMENTS: $(defaultEnvironments)
               EXECUTION_MODE: ${{ parameters.executionMode }}
               TEST_TYPE: ${{ parameters.testType }}
               TRIGGER_REASON: ${{ parameters.triggerReason }}
               OVERRIDE_ENABLED: ${{ parameters.overrideEnabled }}
               CUSTOM_FUNC_ARGS: ${{ parameters.customFunctionalArgs }}
               CUSTOM_NONFUNC_ARGS: ${{ parameters.customNonFunctionalArgs }}
+              TEST_CASE_FILTER: ${{ parameters.testCaseFilter }}
             inputs:
               targetType: inline
               script: |
                 echo "=========================================="
                 echo "Using manage_matrix.py to determine services"
                 echo "=========================================="
+                
+                if [ -n "$TEST_CASE_FILTER" ] && [ "$TEST_CASE_FILTER" != "N/A" ]; then
+                  echo "Test Case Filter: $TEST_CASE_FILTER (will append --test-type $TEST_CASE_FILTER to pytest)"
+                fi
                 
                 # Handle schedule service detection (for matrix pipeline with cron triggers)
                 SERVICES_PARAM="$SERVICES_INPUT"
@@ -207,6 +218,12 @@ stages:
                   case "${CURRENT_HOUR}:${CURRENT_MINUTE}" in
                     "6:0"|"06:00")
                       SCHEDULE_SERVICE="work_item_notification"
+                      ;;
+                    "15:5"|"15:05")
+                      SCHEDULE_SERVICE="account_service"
+                      ;;
+                    "15:10")
+                      SCHEDULE_SERVICE="custodialintegration"
                       ;;
                     "15:15")
                       SCHEDULE_SERVICE="movemoney"
@@ -240,6 +257,12 @@ stages:
                       # work_item_notification: 06:00 (360 min)
                       if [ $CURRENT_TIME_MIN -ge 358 ] && [ $CURRENT_TIME_MIN -le 362 ]; then
                         SCHEDULE_SERVICE="work_item_notification"
+                      # account_service: 15:05 (905 min)
+                      elif [ $CURRENT_TIME_MIN -ge 903 ] && [ $CURRENT_TIME_MIN -le 907 ]; then
+                        SCHEDULE_SERVICE="account_service"
+                      # custodialintegration: 15:10 (910 min)
+                      elif [ $CURRENT_TIME_MIN -ge 908 ] && [ $CURRENT_TIME_MIN -le 912 ]; then
+                        SCHEDULE_SERVICE="custodialintegration"
                       # movemoney: 15:15 (915 min)
                       elif [ $CURRENT_TIME_MIN -ge 913 ] && [ $CURRENT_TIME_MIN -le 917 ]; then
                         SCHEDULE_SERVICE="movemoney"
@@ -347,6 +370,41 @@ stages:
                 fi
                 
                 echo "=========================================="
+                
+                # Display execution plan summary
+                echo ""
+                echo "=========================================="
+                echo "📋 EXECUTION PLAN SUMMARY"
+                echo "=========================================="
+                echo "  Test Type (Runner):     $TEST_TYPE"
+                echo "  Services:               $SERVICES_PARAM"
+                echo "  Environments:           $ENVIRONMENTS_PARAM"
+                echo ""
+                # Functional test details
+                if [ "$TEST_TYPE" = "functional" ] || [ "$TEST_TYPE" = "both" ]; then
+                  echo "  🧪 Functional Tests (pytest):  ✅ Will run"
+                  if [ -n "$TEST_CASE_FILTER" ] && [ "$TEST_CASE_FILTER" != "N/A" ]; then
+                    echo "     Test Case Filter:           $TEST_CASE_FILTER"
+                    echo "     pytest will receive:         --test-type $TEST_CASE_FILTER"
+                    echo "     ℹ️  Only test cases with '$TEST_CASE_FILTER' in their test_type array will run"
+                  else
+                    echo "     Test Case Filter:           None (all test cases will run)"
+                  fi
+                else
+                  echo "  🧪 Functional Tests (pytest):  ⏭️ Skipped (testType=$TEST_TYPE)"
+                  if [ -n "$TEST_CASE_FILTER" ] && [ "$TEST_CASE_FILTER" != "N/A" ]; then
+                    echo "     ⚠️  Test Case Filter '$TEST_CASE_FILTER' ignored (only applies to functional/pytest)"
+                  fi
+                fi
+                echo ""
+                # Non-functional test details
+                if [ "$TEST_TYPE" = "non-functional" ] || [ "$TEST_TYPE" = "both" ]; then
+                  echo "  🔥 Non-Functional Tests (locust): ✅ Will run"
+                else
+                  echo "  🔥 Non-Functional Tests (locust): ⏭️ Skipped (testType=$TEST_TYPE)"
+                fi
+                echo "=========================================="
+                
                 exit $exit_code
               workingDirectory: $(buildPath)
 
@@ -632,6 +690,7 @@ stages:
             displayName: 'Run Functional Tests - $(name)'
             condition: and(succeeded(), or(eq(variables['testType'], 'functional'), eq(variables['testType'], 'both')))
             env:
+              TEST_CASE_FILTER: ${{ parameters.testCaseFilter }}
               LOG_LEVEL: $(log_level)
               WORK_ITEM_AUTH_TOKEN: $(WORK_ITEM_AUTH_TOKEN)
               PARTIES_AUTH_TOKEN: $(PARTIES_AUTH_TOKEN)
@@ -674,7 +733,13 @@ stages:
                 echo "=========================================="
                 echo "Test Arguments: $(functionalTestArgs)"
                 
-                pytest -sv tests/test_api_generic.py $(functionalTestArgs)
+                # Build test case filter argument if specified
+                if [ -n "$TEST_CASE_FILTER" ] && [ "$TEST_CASE_FILTER" != "N/A" ]; then
+                  echo "Applying test case filter: --test-type $TEST_CASE_FILTER"
+                  pytest -sv tests/test_api_generic.py $(functionalTestArgs) --test-type "$TEST_CASE_FILTER"
+                else
+                  pytest -sv tests/test_api_generic.py $(functionalTestArgs)
+                fi
                 TEST_EXIT_CODE=$?
                 echo "##vso[task.setvariable variable=TEST_EXIT_CODE]$TEST_EXIT_CODE"
                 exit $TEST_EXIT_CODE
@@ -852,19 +917,35 @@ stages:
               EMAIL_CC_ANALYTICS: $(email_cc_analytics)
               EMAIL_TO_HNEBASE: $(email_to_hnebase)
               EMAIL_CC_HNEBASE: $(email_cc_hnebase)
+              TEST_CASE_FILTER: ${{ parameters.testCaseFilter }}
             inputs:
               targetType: inline
               script: |
                 export PYTHONPATH="${PYTHONPATH}:$(pwd)"
-                python3 framework/reporter/email_reporter.py \
-                  --build-number "$(Build.BuildNumber)" \
-                  --job-status "$(Agent.JobStatus)" \
-                  --reports-path "$(REPORTS_PATH)" \
-                  --build-id "$(Build.BuildId)" \
-                  --team-project "$(System.TeamProject)" \
-                  --collection-uri "$(System.TeamFoundationCollectionUri)" \
-                  --service-name "$(name)" \
-                  --environment "$(environment)"
+                
+                # Build email reporter command with optional test case filter
+                if [ -n "$TEST_CASE_FILTER" ] && [ "$TEST_CASE_FILTER" != "N/A" ]; then
+                  python3 framework/reporter/email_reporter.py \
+                    --build-number "$(Build.BuildNumber)" \
+                    --job-status "$(Agent.JobStatus)" \
+                    --reports-path "$(REPORTS_PATH)" \
+                    --build-id "$(Build.BuildId)" \
+                    --team-project "$(System.TeamProject)" \
+                    --collection-uri "$(System.TeamFoundationCollectionUri)" \
+                    --service-name "$(name)" \
+                    --environment "$(environment)" \
+                    --test-case-filter "$TEST_CASE_FILTER"
+                else
+                  python3 framework/reporter/email_reporter.py \
+                    --build-number "$(Build.BuildNumber)" \
+                    --job-status "$(Agent.JobStatus)" \
+                    --reports-path "$(REPORTS_PATH)" \
+                    --build-id "$(Build.BuildId)" \
+                    --team-project "$(System.TeamProject)" \
+                    --collection-uri "$(System.TeamFoundationCollectionUri)" \
+                    --service-name "$(name)" \
+                    --environment "$(environment)"
+                fi
               workingDirectory: $(buildPath)
           
           - task: Bash@3

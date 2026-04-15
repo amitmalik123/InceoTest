@@ -68,6 +68,11 @@ parameters:
       - non-functional
       - both
   
+  - name: testCaseFilter
+    displayName: 'Test Case Filter (e.g. Smoke, Regression, Business Logic - filters by test_type tag in test cases)'
+    type: string
+    default: 'N/A'
+
   - name: overrideEnabled
     displayName: 'Override Enabled Flag (run disabled services too)'
     type: boolean
@@ -96,6 +101,7 @@ stages:
       services: ${{ parameters.services }}
       environments: ${{ parameters.environments }}
       testType: ${{ parameters.testType }}
+      testCaseFilter: ${{ parameters.testCaseFilter }}
       overrideEnabled: ${{ parameters.overrideEnabled }}
       customFunctionalArgs: ${{ parameters.customFunctionalArgs }}
       customNonFunctionalArgs: ${{ parameters.customNonFunctionalArgs }}
