@@ -62,7 +62,7 @@ services:
     - TSADEV
     - TSATEST
     - TSASILO
-    functionalTestArgs: --service-name MoveMoneyAPI --env {environment}
+    functionalTestArgs: --service-name movemoney --env {environment}
     nonFunctionalTestArgs: --file testdata/MoveMoneyAPI/testcases/TestCase_moneymovement_requests_POST.json
       --test_type Performance --env {environment} --headless -u 8 -r 2 -t 20s
     tags:
