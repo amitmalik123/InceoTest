@@ -62,7 +62,10 @@
                     "target": "db_result",
                     "target_query": "default",
                     "key_field": [
-                        {}
+                        {
+                            "source": "preferenceId",
+                            "target": "ID"
+                        }
                     ],
                     "fields_to_compare": [
                         {
