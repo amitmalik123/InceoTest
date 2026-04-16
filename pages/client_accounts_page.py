@@ -906,18 +906,34 @@ class ClientAccountsPage(BasePage):
         # Wait for dialog to appear and get the specific dialog locator
         dialog = dialog_handler.wait_for_dialog(timeout=10000)
         logger.info("Request Submitted dialog appeared")
+        
+        # CRITICAL FIX: Wait for dialog content to be fully rendered
+        # Dialog may exist in DOM but text rendering still in progress
+        # Add explicit waits for key content elements before extraction
+        logger.info("Waiting for dialog content to fully render...")
+        try:
+            # Wait for at least one paragraph/text content to exist in dialog
+            dialog.locator('p, div:not(:empty)').first.wait_for(state="visible", timeout=8000)
+            logger.info("Dialog content elements are visible")
+        except Exception as e:
+            logger.warning(f"Could not wait for specific content elements: {e}")
+        
+        # Add small delay for final DOM settlement (animations, etc.)
+        self.page.wait_for_timeout(1000)
 
         # Get dialog title and content using dialog_handler
-        dialog_title = dialog_handler.get_dialog_title(timeout=5000)
+        # INCREASED TIMEOUT: 5000ms → 10000ms to account for slower environments
+        dialog_title = dialog_handler.get_dialog_title(timeout=20000)
         logger.info(f"Dialog Title: {dialog_title}")
 
-        dialog_content = dialog_handler.get_dialog_text(timeout=5000)
+        dialog_content = dialog_handler.get_dialog_text(timeout=20000)
         logger.info(f"Dialog Content:\n{dialog_content}")
 
-        # Get the D-link (tracking center link) from the FIRST dialog only
+        # FIX: Use the same dialog reference instead of re-querying with different selector
+        # This ensures we're always working with the same dialog instance
         # Target: <a class="printConfirmationLink" href="...">D003525811</a>
-        d_link = self.page.locator('[role="dialog"]').first.locator('a.printConfirmationLink')
-        d_link.wait_for(state="visible", timeout=5000)
+        d_link = dialog.locator('a.printConfirmationLink')
+        d_link.wait_for(state="visible", timeout=8000)
         d_link_text = (d_link.text_content() or "").strip() if d_link.text_content() else ""
         d_link_href = d_link.get_attribute("href") or ""
         logger.info(f"D-Link Text: {d_link_text}, Href: {d_link_href}")
