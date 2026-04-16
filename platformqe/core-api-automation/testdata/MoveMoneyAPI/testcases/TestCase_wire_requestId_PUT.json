@@ -1,0 +1,415 @@
+[
+    {
+        "test_id": "TC001_SETUP",
+        "service_name": "movemoney",
+        "workflow_mode": "sequential",
+        "test_name": "POST /wire [positive] (TC001_SETUP)",
+        "protocol": "REST",
+        "test_type": [
+            "Functional"
+        ],
+        "mainURL": "{{base_url}}",
+        "endpoint": "/wire",
+        "method": "POST",
+        "rpc_method": "",
+        "graphql_query": "",
+        "graphql_variables": "",
+        "soap_action": "",
+        "soap_envelope": "",
+        "headers_additional": {
+            "Content-Type": "application/json"
+        },
+        "payload": {
+            "amount": "{{amount}}",
+            "requestType": "{{requestType}}",
+            "status": "{{status}}",
+            "wireDepositDetails": {
+                "referenceNumber": "{{referenceNumber}}",
+                "allocations": "{{allocations}}"
+            }
+        },
+        "expected_status": "200",
+        "expected_response_schema": "MoveMoneyAPI\\schemas\\Schema_wire_POST.json",
+        "expected_response": null,
+        "ignore_fields": [
+            "id"
+        ],
+        "extract_values": [
+            {
+                "from": "response",
+                "key": "requestId",
+                "assign_to": "requestId_setup"
+            },
+            {
+                "from": "response",
+                "key": "version",
+                "assign_to": "version_setup"
+            }
+        ],
+        "validate": {
+            "performance": {
+                "max_response_time_ms": 500
+            },
+            "security": {
+                "checks": [
+                    "sql_injection",
+                    "xss"
+                ]
+            },
+            "assertions": [
+                {
+                    "actual": "{{requestId_setup}}",
+                    "expected": "",
+                    "operator": "!=",
+                    "message": "RequestId should not be empty"
+                },
+                {
+                    "actual": "{{version_setup}}",
+                    "expected": 1,
+                    "operator": "==",
+                    "message": "Version should be 1 for new wire request"
+                }
+            ],
+            "data_comparison": [
+                {
+                    "comparison_name": "API response self-compare",
+                    "source": "api_response",
+                    "target": "api_response",
+                    "fields_to_compare": [],
+                    "log_differences": true
+                }
+            ]
+        },
+        "test_data_file": "MoveMoneyAPI/data_driven/Data_wire_PUT.csv",
+        "csv_row_index": 0,
+        "db_query_timing": "",
+        "db_queries": "",
+        "db_type": "",
+        "db_connection_name": "",
+        "test_summary": "Setup test: Create a new wire request to use for PUT tests"
+    },
+    {
+        "test_id": "TC001",
+        "service_name": "movemoney",
+        "workflow_mode": "sequential",
+        "test_name": "PUT /wire/{requestId} [positive] (TC001)",
+        "protocol": "REST",
+        "test_type": [
+            "Functional"
+        ],
+        "mainURL": "{{base_url}}",
+        "endpoint": "/wire/{{requestId_setup}}",
+        "method": "PUT",
+        "rpc_method": "",
+        "graphql_query": "",
+        "graphql_variables": "",
+        "soap_action": "",
+        "soap_envelope": "",
+        "headers_additional": {
+            "Content-Type": "application/json"
+        },
+        "payload": {
+            "amount": "{{amount}}",
+            "requestType": "{{requestType}}",
+            "status": "{{status}}",
+            "changeState": "{{changeState}}",
+            "wireDepositDetails": {
+                "referenceNumber": "{{referenceNumber}}"
+            },
+            "version": "{{version_setup}}"
+        },
+        "expected_status": "200",
+        "expected_response_schema": "MoveMoneyAPI\\schemas\\Schema_wire_POST.json",
+        "expected_response": null,
+        "ignore_fields": [
+            "id"
+        ],
+        "extract_values": [
+            {
+                "from": "response",
+                "key": "requestId",
+                "assign_to": "requestId_tc001"
+            },
+            {
+                "from": "response",
+                "key": "version",
+                "assign_to": "version_tc001"
+            }
+        ],
+        "validate": {
+            "performance": {
+                "max_response_time_ms": 500
+            },
+            "security": {
+                "checks": [
+                    "sql_injection",
+                    "xss"
+                ]
+            },
+            "assertions": [
+                {
+                    "actual": "{{requestId_tc001}}",
+                    "expected": "",
+                    "operator": "!=",
+                    "message": "RequestId should not be empty"
+                },
+                {
+                    "actual": "{{version_tc001}}",
+                    "expected": "{{version_setup}}",
+                    "operator": ">",
+                    "message": "Version should be incremented"
+                }
+            ],
+            "data_comparison": [
+                {
+                    "comparison_name": "API response self-compare",
+                    "source": "api_response",
+                    "target": "api_response",
+                    "fields_to_compare": [],
+                    "log_differences": true
+                }
+            ]
+        },
+        "test_data_file": "MoveMoneyAPI/data_driven/Data_wire_PUT.csv",
+        "csv_row_index": 1,
+        "db_query_timing": "",
+        "db_queries": "",
+        "db_type": "",
+        "db_connection_name": "",
+        "test_summary": "Updates an existing wire request with version chaining"
+    },
+    {
+        "test_id": "TC002",
+        "service_name": "movemoney",
+        "workflow_mode": "sequential",
+        "test_name": "No Content for PUT /wire/{requestId} [Negative] (TC002)",
+        "protocol": "REST",
+        "test_type": [
+            "Functional"
+        ],
+        "mainURL": "{{base_url}}",
+        "endpoint": "/wire/684225A1-358F-4BDB-A061-9B33576B94CC",
+        "method": "PUT",
+        "rpc_method": "",
+        "graphql_query": "",
+        "graphql_variables": "",
+        "soap_action": "",
+        "soap_envelope": "",
+        "headers_additional": {
+            "Content-Type": "application/json"
+        },
+        "payload": {
+            "amount": "300000.00",
+            "requestType": "Deposit",
+            "status": "Draft",
+            "changeState": "Pending",
+            "wireDepositDetails": {
+                "referenceNumber": "20260315MMQFMP6B000201"
+            },
+            "version": 4
+        },
+        "expected_status": "204",
+        "expected_response_schema": null,
+        "expected_response": null,
+        "ignore_fields": [
+            "id"
+        ],
+        "extract_values": [],
+        "validate": {
+            "performance": {
+                "max_response_time_ms": 500
+            },
+            "security": {
+                "checks": [
+                    "sql_injection",
+                    "xss"
+                ]
+            },
+            "assertions": [],
+            "data_comparison": []
+        },
+        "test_data_file": "",
+        "csv_row_index": 0,
+        "db_query_timing": "",
+        "db_queries": "",
+        "db_type": "",
+        "db_connection_name": "",
+        "test_summary": "Verify the API Returns 204 Bad request response if there is No Content for PUT /wire endpoint"
+    },
+    {
+        "test_id": "TC003",
+        "service_name": "movemoney",
+        "workflow_mode": "sequential",
+        "test_name": "Invalid RequestId for PUT /wire/{requestId} [Negative] (TC003)",
+        "protocol": "REST",
+        "test_type": [
+            "Functional"
+        ],
+        "mainURL": "{{base_url}}",
+        "endpoint": "/wire/6842@#$$#25A1-358F-4BDB-A061-9B33576B94CC",
+        "method": "PUT",
+        "rpc_method": "",
+        "graphql_query": "",
+        "graphql_variables": "",
+        "soap_action": "",
+        "soap_envelope": "",
+        "headers_additional": {
+            "Content-Type": "application/json"
+        },
+        "payload": {
+            "amount": "300000.00",
+            "requestType": "Deposit",
+            "status": "Draft",
+            "changeState": "Pending",
+            "wireDepositDetails": {
+                "referenceNumber": "20260315MMQFMP6B000201"
+            },
+            "version": 4
+        },
+        "expected_status": "400",
+        "expected_response_schema": null,
+        "expected_response": null,
+        "ignore_fields": [
+            "id"
+        ],
+        "extract_values": [],
+        "validate": {
+            "performance": {
+                "max_response_time_ms": 500
+            },
+            "security": {
+                "checks": [
+                    "sql_injection",
+                    "xss"
+                ]
+            },
+            "assertions": [],
+            "data_comparison": []
+        },
+        "test_data_file": "",
+        "csv_row_index": 0,
+        "db_query_timing": "",
+        "db_queries": "",
+        "db_type": "",
+        "db_connection_name": "",
+        "test_summary": "Verify the API Returns 400 Bad request response if there is Invalid RequestId format for PUT /wire endpoint"
+    },
+    {
+        "test_id": "TC004",
+        "service_name": "movemoney",
+        "workflow_mode": "sequential",
+        "test_name": "Business rule validations for PUT /wire/{requestId} [Negative] (TC004)",
+        "protocol": "REST",
+        "test_type": [
+            "Functional"
+        ],
+        "mainURL": "{{base_url}}",
+        "endpoint": "/wire/0996E69C-F291-4E4E-B148-00632667F4AA",
+        "method": "PUT",
+        "rpc_method": "",
+        "graphql_query": "",
+        "graphql_variables": "",
+        "soap_action": "",
+        "soap_envelope": "",
+        "headers_additional": {
+            "Content-Type": "application/json"
+        },
+        "payload": {
+            "amount": "{{amount}}",
+            "requestType": "{{requestType}}",
+            "status": "{{status}}",
+            "changeState": "{{changeState}}",
+            "wireWithdrawalDetails": {
+                "instructionId": "{{instructionId}}",
+                "paymentDate": "{{paymentDate}}",
+                "purpose": "{{purpose}}"
+            },
+            "version": "{{version}}"
+        },
+        "expected_status": "422",
+        "expected_response_schema": null,
+        "expected_response": null,
+        "ignore_fields": [
+            "id"
+        ],
+        "extract_values": [],
+        "validate": {
+            "performance": {
+                "max_response_time_ms": 500
+            },
+            "security": {
+                "checks": [
+                    "sql_injection",
+                    "xss"
+                ]
+            },
+            "assertions": [],
+            "data_comparison": []
+        },
+        "test_data_file": "MoveMoneyAPI/data_driven/Data_wire_PUT.csv",
+        "csv_row_index": 2,
+        "db_query_timing": "",
+        "db_queries": "",
+        "db_type": "",
+        "db_connection_name": "",
+        "test_summary": "Verify the API returns 422 response for business rule violation on PUT /wire endpoint"
+    },
+    {
+        "test_id": "TC005",
+        "service_name": "movemoney",
+        "workflow_mode": "sequential",
+        "test_name": "Conflict happens when version does not match the current version for PUT /wire/{requestId} [Negative] (TC005)",
+        "protocol": "REST",
+        "test_type": [
+            "Functional"
+        ],
+        "mainURL": "{{base_url}}",
+        "endpoint": "/wire/{{requestId_tc001}}",
+        "method": "PUT",
+        "rpc_method": "",
+        "graphql_query": "",
+        "graphql_variables": "",
+        "soap_action": "",
+        "soap_envelope": "",
+        "headers_additional": {
+            "Content-Type": "application/json"
+        },
+        "payload": {
+            "amount": "{{amount}}",
+            "requestType": "{{requestType}}",
+            "status": "{{status}}",
+            "changeState": "{{changeState}}",
+            "wireDepositDetails": {
+                "referenceNumber": "{{referenceNumber}}"
+            },
+            "version": "{{version_setup}}"
+        },
+        "expected_status": "409",
+        "expected_response_schema": null,
+        "expected_response": null,
+        "ignore_fields": [
+            "id"
+        ],
+        "extract_values": [],
+        "validate": {
+            "performance": {
+                "max_response_time_ms": 500
+            },
+            "security": {
+                "checks": [
+                    "sql_injection",
+                    "xss"
+                ]
+            },
+            "assertions": [],
+            "data_comparison": []
+        },
+        "test_data_file": "MoveMoneyAPI/data_driven/Data_wire_PUT.csv",
+        "csv_row_index": 1,
+        "db_query_timing": "",
+        "db_queries": "",
+        "db_type": "",
+        "db_connection_name": "",
+        "test_summary": "Verify the API Returns 409 Bad Request response when the supplied version does not match the server's current version for PUT /wire endpoint"
+    }
+]
