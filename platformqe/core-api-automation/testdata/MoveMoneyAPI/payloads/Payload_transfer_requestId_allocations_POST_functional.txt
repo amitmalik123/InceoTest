@@ -1,7 +1,0 @@
-{
-  "allocationId": "{{allocationId}}",
-  "accountId": "{{accountId}}",
-  "allocationUnitType": "{{allocationUnitType}}",
-  "percent": {{percent}},
-  "amount": {{amount}}
-}

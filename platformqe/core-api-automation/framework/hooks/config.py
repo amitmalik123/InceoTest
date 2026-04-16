@@ -57,7 +57,6 @@ class HooksConfig:
         )
 
 
-# Service-specific default settings
 SERVICE_DEFAULTS: Dict[str, Dict] = {
     'parties': {
         'max_records': 10,
@@ -75,24 +74,57 @@ SERVICE_DEFAULTS: Dict[str, Dict] = {
             'csv_columns': ['environment', 'id']
         }
     },
-        'MoveMoneyAPI': {
+    'movemoney': {
         'max_records': 10,
-        # Prerequisite test case to run before other tests
+        # Multiple endpoints, each with its own prerequisite testcase
         'prerequisite_testcase': {
+            # === INSTRUCTIONS ENDPOINT ===
+            'instructions': {
             'enabled': True,
-            'count': 10,  # Number of party IDs to create
-            'testcase_file': 'MoveMoneyAPI/testcases/TestCase_moneymovement_requestid_POST.json',
-            'test_data_file': 'MoveMoneyAPI/data_driven/Data_MoveMoneyAPI_POST.csv',
+            'count': 2,  # Number of instructionIds to create
+            'testcase_file': 'MoveMoneyAPI/testcases/TestCase_instructions_POST.json',
+            'test_data_file': 'MoveMoneyAPI/data_driven/Data_instructions_Hook_POST.csv',
             'extract_from_response': {
-                'field': 'requestId',  # Field to extract from API response
-                'assign_to': 'requestId'    # Variable name to use
+                'fields': [
+                    {
+                        'field': 'instructionId',
+                        'assign_to': 'instruction_id'
+                    },
+                    {
+                        'field': 'version',
+                        'assign_to': 'version'
+                    }
+                ]
             },
-            'update_csv_file': 'MoveMoneyAPI/data_driven/Data_requests_requestId_PUT.csv',
-            'csv_columns': ['environment', 'requestId', 'version', 'instructionId', 'accountId', 'railType', 'amount', 'percent','requestType', 'status', 'reason', 'scheduleType', 'paymentDate', 'frequency', 'startDate', 'endDate'],
+            'update_csv_file': 'MoveMoneyAPI/data_driven/Data_instructions_instructionId_GET.csv',
+                'csv_columns': ['environment', 'instruction_id', 'version'],
+            },
+            # === REQUESTS ENDPOINT ===
+            'requests': {
+                'enabled': True,
+                'count': 1,  # Number of requestIds to create requestId and version for GET/PUT/DELETE flow 
+                'testcase_file': 'MoveMoneyAPI/testcases/TestCase_moneymovement_requestid_POST.json',
+                'test_data_file': 'MoveMoneyAPI/data_driven/Data_MoveMoneyAPI_POST.csv',
+                'extract_from_response': {
+                    'fields': [
+                {
+                    'field': 'requestId',  # Field to extract from API response
+                    'assign_to': 'requestId'    # Variable name to use
+                },
+                {
+                    'field': 'version',  # Field to extract from API response
+                    'assign_to': 'version'    # Variable name to use
+                }
+                    ]
+                },
+
+                'update_csv_file': 'MoveMoneyAPI/data_driven/Data_requests_requestId_GET.csv',
+                'csv_columns': ['environment', 'requestId', 'version', 'instructionId', 'accountId', 'railType', 'amount', 'percent','requestType', 'status', 'reason', 'scheduleType', 'paymentDate', 'frequency', 'startDate', 'endDate'],
+            }
         }
     }
 }
- 
+
 
 
 def get_service_hooks_config(service_name: str) -> HooksConfig:
@@ -114,6 +146,22 @@ def get_service_hooks_config(service_name: str) -> HooksConfig:
         hooks_config.max_records = defaults.get('max_records', 10)
         hooks_config.prerequisite_testcase = defaults.get('prerequisite_testcase', {})
         logger.debug(f"[HOOKS CONFIG] Loaded config for service: {service_name}")
+        
+        # Log endpoint-specific configurations
+        prereq_tc = hooks_config.prerequisite_testcase
+        if isinstance(prereq_tc, dict):
+            for endpoint_name, endpoint_config in prereq_tc.items():
+                if isinstance(endpoint_config, dict) and endpoint_config.get('enabled'):
+                    # Extract field names
+                    extract_fields = []
+                    extract_cfg = endpoint_config.get('extract_from_response', {})
+                    if 'fields' in extract_cfg and isinstance(extract_cfg['fields'], list):
+                        extract_fields = [f.get('assign_to') for f in extract_cfg['fields']]
+                    
+                    logger.debug(f"[HOOKS CONFIG] Loaded prerequisite test case for {endpoint_name} endpoint")
+                    logger.debug(f"  - Testcase file: {endpoint_config.get('testcase_file')}")
+                    logger.debug(f"  - Extract fields: {extract_fields}")
+                    logger.debug(f"  - Update CSV: {endpoint_config.get('update_csv_file')}")
     
     return hooks_config
 

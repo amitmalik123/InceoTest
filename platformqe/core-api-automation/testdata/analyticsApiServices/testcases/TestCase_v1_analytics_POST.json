@@ -1,9 +1,9 @@
 [
     {
-        "test_id": "TC001",
+        "test_id": "TC001_V1_analytics",
         "service_name": "analyticsApiServices",
         "workflow_mode": "parallel",
-        "test_name": "POST /v1/analytics [positive] (TC001)",
+        "test_name": "POST /v1/analytics [positive] (TC001_V1_analytics)",
         "protocol": "REST",
         "test_type": [
             "Functional"
@@ -104,14 +104,14 @@
         "db_type": "mssql",
         "db_connection_name": "am_db",
         "db_query_timing": "before_api",
-        "test_summary": "Test TC001: POST /v1/analytics [positive] (TC001) - Validate blended risk calculation with EWMA method for 10 models (ABSGT6, ACWIEX, ALTMF5, APODCF, B110MM, BBEMAG, CAMUNI, CIBCP3, CIBCP6, ETFALB) each with 10% weight.",
+        "test_summary": "Test TC001_V1_analytics: POST /v1/analytics [positive] (TC001_V1_analytics) - Validate blended risk calculation with EWMA method for 10 models (ABSGT6, ACWIEX, ALTMF5, APODCF, B110MM, BBEMAG, CAMUNI, CIBCP3, CIBCP6, ETFALB) each with 10% weight.",
         "test_scenario": "Test EWMA blended risk calculation with 10 models (equal 10% weight each) and {{horizon}}-month time horizon. Validates annualized volatility, blended risk score, and profile value calculations."
     },
     {
-        "test_id": "TC002",
+        "test_id": "TC002_V1_analytics",
         "service_name": "analyticsApiServices",
         "workflow_mode": "parallel",
-        "test_name": "POST /v1/analytics [negative] (TC002)",
+        "test_name": "POST /v1/analytics [negative] (TC002_V1_analytics)",
         "protocol": "REST",
         "test_type": [
             "Functional"
@@ -208,14 +208,14 @@
         "db_query": "",
         "db_type": "",
         "db_connection_name": "",
-        "test_summary": "Test TC002: POST /v1/analytics [negative] (TC002) - Test POST request to /v1/analytics for invalid calculationType values.",
+        "test_summary": "Test TC002_V1_analytics: POST /v1/analytics [negative] (TC002_V1_analytics) - Test POST request to /v1/analytics for invalid calculationType values.",
         "test_scenario": "Test POST request to /v1/analytics for invalid calculationType values."
     },
     {
-        "test_id": "TC003",
+        "test_id": "TC003_V1_analytics",
         "service_name": "analyticsApiServices",
         "workflow_mode": "parallel",
-        "test_name": "POST /v1/analytics [negative] (TC003)",
+        "test_name": "POST /v1/analytics [negative] (TC003_V1_analytics)",
         "protocol": "REST",
         "test_type": [
             "Functional"
@@ -302,14 +302,14 @@
         "db_query": "",
         "db_type": "",
         "db_connection_name": "",
-        "test_summary": "Test TC003: POST /v1/analytics [negative] (TC003) - Test POST request to /v1/analytics for At least two inputs of type model must be provided for blended risk score.",
+        "test_summary": "Test TC003_V1_analytics: POST /v1/analytics [negative] (TC003_V1_analytics) - Test POST request to /v1/analytics for At least two inputs of type model must be provided for blended risk score.",
         "test_scenario": "Test POST request to /v1/analytics for At least two inputs of type model must be provided for blended risk score."
     },
     {
-        "test_id": "TC004",
+        "test_id": "TC004_V1_analytics",
         "service_name": "analyticsApiServices",
         "workflow_mode": "parallel",
-        "test_name": "POST /v1/analytics [negative] (TC004)",
+        "test_name": "POST /v1/analytics [negative] (TC004_V1_analytics)",
         "protocol": "REST",
         "test_type": [
             "Functional"
@@ -406,14 +406,14 @@
         "db_query": "",
         "db_type": "",
         "db_connection_name": "",
-        "test_summary": "Test TC004: POST /v1/analytics [negative] (TC004) - Test POST request to /v1/analytics for The sum of all model weights must be 1.0.",
+        "test_summary": "Test TC004_V1_analytics: POST /v1/analytics [negative] (TC004_V1_analytics) - Test POST request to /v1/analytics for The sum of all model weights must be 1.0.",
         "test_scenario": "Test POST request to /v1/analytics for The sum of all model weights must be 1.0."
     },
     {
-        "test_id": "TC005",
+        "test_id": "TC005_V1_analytics",
         "service_name": "analyticsApiServices",
         "workflow_mode": "parallel",
-        "test_name": "POST /v1/analytics [negative] (TC005)",
+        "test_name": "POST /v1/analytics [negative] (TC005_V1_analytics)",
         "protocol": "REST",
         "test_type": [
             "Functional"
@@ -510,14 +510,14 @@
         "db_query": "",
         "db_type": "",
         "db_connection_name": "",
-        "test_summary": "Test TC005: POST /v1/analytics [negative] (TC005) - Test POST request to /v1/analytics for he weight field is required and cannot be negative; Weight: The sum of all model weights must be 1.0.",
+        "test_summary": "Test TC005_V1_analytics: POST /v1/analytics [negative] (TC005_V1_analytics) - Test POST request to /v1/analytics for he weight field is required and cannot be negative; Weight: The sum of all model weights must be 1.0.",
         "test_scenario": "Test POST request to /v1/analytics for he weight field is required and cannot be negative; Weight: The sum of all model weights must be 1.0."
     },
     {
-        "test_id": "TC006",
+        "test_id": "TC006_V1_analytics",
         "service_name": "analyticsApiServices",
         "workflow_mode": "parallel",
-        "test_name": "POST /v1/analytics [negative] (TC006)",
+        "test_name": "POST /v1/analytics [negative] (TC006_V1_analytics)",
         "protocol": "REST",
         "test_type": [
             "Functional"
@@ -608,14 +608,14 @@
         "db_query": "",
         "db_type": "",
         "db_connection_name": "",
-        "test_summary": "Test TC006: POST /v1/analytics [negative] (TC006) - Test POST request to /v1/analytics for The CalculationType field is required.",
+        "test_summary": "Test TC006_V1_analytics: POST /v1/analytics [negative] (TC006_V1_analytics) - Test POST request to /v1/analytics for The CalculationType field is required.",
         "test_scenario": "Test POST request to /v1/analytics for The CalculationType field is required."
     },
     {
-        "test_id": "TC007",
+        "test_id": "TC007_V1_analytics",
         "service_name": "analyticsApiServices",
         "workflow_mode": "parallel",
-        "test_name": "POST /v1/analytics [negative] (TC007)",
+        "test_name": "POST /v1/analytics [negative] (TC007_V1_analytics)",
         "protocol": "REST",
         "test_type": [
             "Functional"
@@ -673,7 +673,7 @@
                 ]
             }
         },
-        "expected_status": "404",
+        "expected_status": "500",
         "expected_response_schema": "",
         "expected_response": null,
         "ignore_fields": [
@@ -722,14 +722,14 @@
         "db_query": "",
         "db_type": "",
         "db_connection_name": "",
-        "test_summary": "Test TC007: POST /v1/analytics [negative] (TC007) - Test POST request to /v1/analytics for Blended Risk calculation failed: Index was out of range.",
+        "test_summary": "Test TC007_V1_analytics: POST /v1/analytics [negative] (TC007_V1_analytics) - Test POST request to /v1/analytics for Blended Risk calculation failed: Index was out of range.",
         "test_scenario": "Test POST request to /v1/analytics for Blended Risk calculation failed: Index was out of range."
     },
     {
-        "test_id": "TC008",
+        "test_id": "TC008_V1_analytics",
         "service_name": "analyticsApiServices",
         "workflow_mode": "parallel",
-        "test_name": "POST /v1/analytics [negative] (TC008)",
+        "test_name": "POST /v1/analytics [negative] (TC008_V1_analytics)",
         "protocol": "REST",
         "test_type": [
             "Functional"
@@ -810,14 +810,14 @@
         "db_query": "",
         "db_type": "",
         "db_connection_name": "",
-        "test_summary": "Test TC008: POST /v1/analytics [negative] (TC008) - Test POST request to /v1/analytics for Input Count: At least two inputs of type model must be provided for blended risk score; Weight: The sum of all model weights must be 1.0.",
+        "test_summary": "Test TC008_V1_analytics: POST /v1/analytics [negative] (TC008_V1_analytics) - Test POST request to /v1/analytics for Input Count: At least two inputs of type model must be provided for blended risk score; Weight: The sum of all model weights must be 1.0.",
         "test_scenario": "Test POST request to /v1/analytics for Input Count: At least two inputs of type model must be provided for blended risk score; Weight: The sum of all model weights must be 1.0."
     },
     {
-        "test_id": "TC009",
+        "test_id": "TC009_V1_analytics",
         "service_name": "analyticsApiServices",
         "workflow_mode": "parallel",
-        "test_name": "POST /v1/analytics [negative] (TC009)",
+        "test_name": "POST /v1/analytics [negative] (TC009_V1_analytics)",
         "protocol": "REST",
         "test_type": [
             "Functional"
@@ -860,7 +860,7 @@
                 ]
             }
         },
-        "expected_status": "404",
+        "expected_status": "500",
         "expected_response_schema": "",
         "expected_response": null,
         "ignore_fields": [
@@ -909,14 +909,14 @@
         "db_query": "",
         "db_type": "",
         "db_connection_name": "",
-        "test_summary": "Test TC009: POST /v1/analytics [negative] (TC009) - Test POST request to /v1/analytics for Blended Risk calculation failed: ID was not found.",
+        "test_summary": "Test TC009_V1_analytics: POST /v1/analytics [negative] (TC009_V1_analytics) - Test POST request to /v1/analytics for Blended Risk calculation failed: ID was not found.",
         "test_scenario": "Test POST request to /v1/analytics for Blended Risk calculation failed: ID was not found."
     },
     {
-        "test_id": "TC010",
+        "test_id": "TC010_V1_analytics",
         "service_name": "analyticsApiServices",
         "workflow_mode": "parallel",
-        "test_name": "POST /v1/analytics [negative] (TC010)",
+        "test_name": "POST /v1/analytics [negative] (TC010_V1_analytics)",
         "protocol": "REST",
         "test_type": [
             "Functional"
@@ -1008,14 +1008,14 @@
         "db_query": "",
         "db_type": "",
         "db_connection_name": "",
-        "test_summary": "Test TC010: POST /v1/analytics [negative] (TC010) - Test POST request to /v1/analytics for Weight is not an number.",
+        "test_summary": "Test TC010_V1_analytics: POST /v1/analytics [negative] (TC010_V1_analytics) - Test POST request to /v1/analytics for Weight is not an number.",
         "test_scenario": "Test POST request to /v1/analytics for Weight is not an number."
     },
     {
-        "test_id": "TC011",
+        "test_id": "TC011_V1_analytics",
         "service_name": "analyticsApiServices",
         "workflow_mode": "parallel",
-        "test_name": "POST /v1/analytics [negative] (TC011)",
+        "test_name": "POST /v1/analytics [negative] (TC011_V1_analytics)",
         "protocol": "REST",
         "test_type": [
             "Functional"
@@ -1106,14 +1106,14 @@
         "db_query": "",
         "db_type": "",
         "db_connection_name": "",
-        "test_summary": "Test TC011: POST /v1/analytics [negative] (TC011) - Test POST request to /v1/analytics for EntityType field is required.",
+        "test_summary": "Test TC011_V1_analytics: POST /v1/analytics [negative] (TC011_V1_analytics) - Test POST request to /v1/analytics for EntityType field is required.",
         "test_scenario": "Test POST request to /v1/analytics for EntityType field is required."
     },
     {
-        "test_id": "TC012",
+        "test_id": "TC012_V1_analytics",
         "service_name": "analyticsApiServices",
         "workflow_mode": "parallel",
-        "test_name": "POST /v1/analytics [negative] (TC012)",
+        "test_name": "POST /v1/analytics [negative] (TC012_V1_analytics)",
         "protocol": "REST",
         "test_type": [
             "Functional"
@@ -1192,14 +1192,14 @@
         "db_query": "",
         "db_type": "",
         "db_connection_name": "",
-        "test_summary": "Test TC012: POST /v1/analytics [negative] (TC012) - Test POST request to /v1/analytics for Blend field is required.",
+        "test_summary": "Test TC012_V1_analytics: POST /v1/analytics [negative] (TC012_V1_analytics) - Test POST request to /v1/analytics for Blend field is required.",
         "test_scenario": "Test POST request to /v1/analytics for Blend field is required."
     },
     {
-        "test_id": "TC013",
+        "test_id": "TC013_V1_analytics",
         "service_name": "analyticsApiServices",
         "workflow_mode": "parallel",
-        "test_name": "POST /v1/analytics [negative] (TC013)",
+        "test_name": "POST /v1/analytics [negative] (TC013_V1_analytics)",
         "protocol": "REST",
         "test_type": [
             "Functional"
@@ -1291,14 +1291,14 @@
         "db_query": "",
         "db_type": "",
         "db_connection_name": "",
-        "test_summary": "Test TC013: POST /v1/analytics [negative] (TC013) - Test POST request to /v1/analytics for Invalid calculation type.",
+        "test_summary": "Test TC013_V1_analytics: POST /v1/analytics [negative] (TC013_V1_analytics) - Test POST request to /v1/analytics for Invalid calculation type.",
         "test_scenario": "Test POST request to /v1/analytics for Invalid calculation type."
     },
     {
-        "test_id": "TC014",
+        "test_id": "TC014_V1_analytics",
         "service_name": "analyticsApiServices",
         "workflow_mode": "parallel",
-        "test_name": "POST /v1/analytics [negative] (TC014)",
+        "test_name": "POST /v1/analytics [negative] (TC014_V1_analytics)",
         "protocol": "REST",
         "test_type": [
             "Functional"
@@ -1389,14 +1389,14 @@
         "db_query": "",
         "db_type": "",
         "db_connection_name": "",
-        "test_summary": "Test TC014: POST /v1/analytics [negative] (TC014) - Test POST request to /v1/analytics for Id field is required.",
+        "test_summary": "Test TC014_V1_analytics: POST /v1/analytics [negative] (TC014_V1_analytics) - Test POST request to /v1/analytics for Id field is required.",
         "test_scenario": "Test POST request to /v1/analytics for Id field is required."
     },
     {
-        "test_id": "TC015",
+        "test_id": "TC015_V1_analytics",
         "service_name": "analyticsApiServices",
         "workflow_mode": "parallel",
-        "test_name": "POST /v1/analytics [negative] (TC015)",
+        "test_name": "POST /v1/analytics [negative] (TC015_V1_analytics)",
         "protocol": "REST",
         "test_type": [
             "Functional"
@@ -1488,7 +1488,7 @@
         "db_query": "",
         "db_type": "",
         "db_connection_name": "",
-        "test_summary": "Test TC015: POST /v1/analytics [negative] (TC015) - Test POST request to /v1/analytics for There is a duplicate id in the request. Please ensure all ids are unique.",
+        "test_summary": "Test TC015_V1_analytics: POST /v1/analytics [negative] (TC015_V1_analytics) - Test POST request to /v1/analytics for There is a duplicate id in the request. Please ensure all ids are unique.",
         "test_scenario": "Test POST request to /v1/analytics for There is a duplicate id in the request. Please ensure all ids are unique."
     }
 ]

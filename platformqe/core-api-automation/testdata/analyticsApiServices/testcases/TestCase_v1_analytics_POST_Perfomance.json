@@ -1,9 +1,9 @@
 [
     {
-        "test_id": "TC001",
+        "test_id": "TC001_perf_analytics",
         "service_name": "analyticsApiServices",
         "workflow_mode": "parallel",
-        "test_name": "POST /v1/analytics [positive] (TC001)",
+        "test_name": "POST /v1/analytics [positive] (TC001_perf_analytics)",
         "protocol": "REST",
         "test_type": [
             "Functional",
@@ -136,14 +136,14 @@
         "db_query": "",
         "db_type": "",
         "db_connection_name": "",
-        "test_summary": "Test TC001: POST /v1/analytics [positive] (TC001) - Test POST request to /v1/analytics for functional scenario validation.",
+        "test_summary": "Test TC001_perf_analytics: POST /v1/analytics [positive] (TC001_perf_analytics) - Test POST request to /v1/analytics for functional scenario validation.",
         "test_scenario": "Test POST request to /v1/analytics for functional scenario validation."
     },
     {
-        "test_id": "TC002",
+        "test_id": "TC002_perf_analytics",
         "service_name": "analyticsApiServices",
         "workflow_mode": "parallel",
-        "test_name": "POST /v1/analytics [positive] (TC002",
+        "test_name": "POST /v1/analytics [positive] (TC002_perf_analytics)",
         "protocol": "REST",
         "test_type": [
             "Functional",
@@ -276,14 +276,14 @@
         "db_query": "",
         "db_type": "",
         "db_connection_name": "",
-        "test_summary": "Test TC002: POST /v1/analytics [positive] (TC002) - Test POST request to /v1/analytics for functional scenario validation.",
+        "test_summary": "Test TC002_perf_analytics: POST /v1/analytics [positive] (TC002_perf_analytics) - Test POST request to /v1/analytics for functional scenario validation.",
         "test_scenario": "Test POST request to /v1/analytics for functional scenario validation."
     },
     {
-        "test_id": "TC003",
+        "test_id": "TC003_perf_analytics",
         "service_name": "analyticsApiServices",
         "workflow_mode": "parallel",
-        "test_name": "POST /v1/analytics [positive] (TC003)",
+        "test_name": "POST /v1/analytics [positive] (TC003_perf_analytics)",
         "protocol": "REST",
         "test_type": [
             "Functional",
@@ -416,7 +416,7 @@
         "db_query": "",
         "db_type": "",
         "db_connection_name": "",
-        "test_summary": "Test TC003: POST /v1/analytics [positive] (TC003) - Test POST request to /v1/analytics for functional scenario validation.",
+        "test_summary": "Test TC003_perf_analytics: POST /v1/analytics [positive] (TC003_perf_analytics) - Test POST request to /v1/analytics for functional scenario validation.",
         "test_scenario": "Test POST request to /v1/analytics for functional scenario validation."
     }
 ]

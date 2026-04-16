@@ -1,7 +1,7 @@
 [
     {
         "test_id": "TC001",
-        "service_name": "MoveMoneyAPI",
+        "service_name": "movemoney",
         "workflow_mode": "parallel",
         "test_name": "Retrieves all available contra firms for transfer operations. [positive] (TC001)",
         "protocol": "REST",
@@ -85,7 +85,7 @@
     },
     {
         "test_id": "TC002",
-        "service_name": "MoveMoneyAPI",
+        "service_name": "movemoney",
         "workflow_mode": "parallel",
         "test_name": "GET /transfer/contrafirm [negative: extra param] (TC002)",
         "protocol": "REST",

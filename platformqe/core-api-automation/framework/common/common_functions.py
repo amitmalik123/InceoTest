@@ -6,6 +6,8 @@ from .logger import get_logger
 
 logger = get_logger(__name__)
 
+_MISSING = object()
+
 # Function registry for dynamic invocation
 _FUNCTION_MAP: Dict[str, Callable] = {}
 
@@ -64,7 +66,16 @@ def extract_value(response: Any, key: str, record_count: bool = False, array_pat
     value = response
     for k in key.split('.'):
         if isinstance(value, dict):
-            value = value.get(k)
+            if k in value:
+                value = value[k]
+            else:
+                # Case-insensitive fallback for APIs returning PascalCase keys.
+                k_lower = k.lower()
+                found_key = next((existing for existing in value if str(existing).lower() == k_lower), _MISSING)
+                if found_key is _MISSING:
+                    logger.warning(f"Failed to extract '{key}' from response.")
+                    return None
+                value = value[found_key]
         elif isinstance(value, list) and k.isdigit():
             index = int(k)
             value = value[index] if index < len(value) else None
