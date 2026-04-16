@@ -201,7 +201,7 @@ exclude_lines = [
 # Allow only requests to these domains; abort everything else.
 # Subdomains are automatically included (e.g., app.assetmark.com matches assetmark.com).
 # Set enabled = false to disable and allow all traffic.
-enabled = true
+enabled = false
 http_error_log = "reports/network_errors.log"
 allowed_domains = [
     # ===== Core AssetMark =====

@@ -28,7 +28,7 @@ Feature: E2E OAM flow for FA, SAU and OA
     #And Verify Agent Name
     #And Verify the Routing Order in database
 
-  @HappyPath @FNT_regression @Silo_Regression @SiloRegression_OneCleanUp @Prod_Regression
+  @HappyPath @FNT_regression @Silo_Regression @Prod_Regression
   Scenario: OAM_Initiated by SAU_Online Submit_Authorized Signer_Not_Required
     When User navigate to Clients menu
     And User click on Account List
@@ -232,9 +232,9 @@ Feature: E2E OAM flow for FA, SAU and OA
     When User select Submission Type
     Then User should be redirected to the DocuSign page
     And Verify docusign Review and continue dialog text "Please review and sign the document electronically."
-    And Verify As_authorized_by stamp presence
     When User confirm and Continue the docusign Review and continue dialog
-    And User Finish the DocuSign process
+    Then Verify As_authorized_by stamp presence
+    When User Finish the DocuSign process
     Then Verify request pop up
     When User click on D number
     Then User should be redirected to Tracking Center Item Detail page

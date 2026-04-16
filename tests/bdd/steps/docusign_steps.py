@@ -195,11 +195,39 @@ def verify_docusign_review_and_continue_dialog_text(authenticated_page: Page, do
     with allure.step("Verify Review and Continue dialog text"):
         logger.info(f"Expected text from test data: '{expected_text}'")
         
-        # STEP 1: Fetch the dialog text using page object method
-        logger.info("Step 1: Fetching dialog text...")
+        # STEP 1: Verify DocuSign page is loaded
+        logger.info("Step 1: Verifying DocuSign page is loaded...")
+        try:
+            page_obj.verify_docusign_page_loaded(timeout=120000)
+            logger.info("Step 1: DocuSign page loaded successfully")
+        except Exception as e:
+            logger.error(f"✗ Failed to load DocuSign page: {e}")
+            try:
+                screenshot = authenticated_page.screenshot()
+                allure.attach(screenshot, name="DocuSign Page Load Failed", attachment_type=allure.attachment_type.PNG)
+            except:
+                pass
+            raise
+        
+        # STEP 2: Verify ERSD modal is visible
+        logger.info("Step 2: Verifying ERSD modal is visible...")
+        try:
+            page_obj._verify_ersd_modal_visible(timeout=120000)
+            logger.info("Step 2: ERSD modal verified as visible")
+        except Exception as e:
+            logger.error(f"✗ ERSD modal not visible: {e}")
+            try:
+                screenshot = authenticated_page.screenshot()
+                allure.attach(screenshot, name="ERSD Modal Visibility Failed", attachment_type=allure.attachment_type.PNG)
+            except:
+                pass
+            raise
+        
+        # STEP 3: Fetch the dialog text using page object method
+        logger.info("Step 3: Fetching dialog text...")
         try:
             actual_text = page_obj.fetch_docusign_review_and_continue_dialog_text()
-            logger.info(f"Step 1: Dialog text fetched successfully: '{actual_text}'")
+            logger.info(f"Step 3: Dialog text fetched successfully: '{actual_text}'")
         except Exception as e:
             logger.error(f"✗ Failed to fetch dialog text: {e}")
             try:
@@ -209,8 +237,8 @@ def verify_docusign_review_and_continue_dialog_text(authenticated_page: Page, do
                 pass
             raise
         
-        # STEP 2: Use SoftAssertions to verify text matches expected value
-        logger.info("Step 2: Verifying dialog text using soft assertions...")
+        # STEP 4: Use SoftAssertions to verify text matches expected value
+        logger.info("Step 4: Verifying dialog text using soft assertions...")
         soft_assert = EnhancedSoftAssertions(authenticated_page)
         soft_assert.assert_equal(
             actual_text,
@@ -218,8 +246,8 @@ def verify_docusign_review_and_continue_dialog_text(authenticated_page: Page, do
             message=f"[FAIL] DocuSignPage: Review and Continue Dialog Text — Expected: '{expected_text}', Actual: '{actual_text}'. Details: Review and Continue dialog text must match expected value from test data. Locator: p[data-qa='email-message-content']."
         )
         
-        # STEP 3: Verify soft assertions
-        logger.info("Step 3: Verifying soft assertions...")
+        # STEP 5: Verify soft assertions
+        logger.info("Step 5: Verifying soft assertions...")
         try:
             soft_assert.assert_all()
             logger.info(f"[PASS] DocuSignPage: Dialog Text Verification Completed.")
@@ -232,8 +260,8 @@ def verify_docusign_review_and_continue_dialog_text(authenticated_page: Page, do
             )
             raise
         
-        # STEP 4: Take screenshot for Allure reporting
-        logger.info("Step 4: Capturing screenshot for verification...")
+        # STEP 6: Take screenshot for Allure reporting
+        logger.info("Step 6: Capturing screenshot for verification...")
         screenshot = authenticated_page.screenshot()
         allure.attach(screenshot, name="DocuSign Review and Continue Dialog - Text Verified", attachment_type=allure.attachment_type.PNG)
         

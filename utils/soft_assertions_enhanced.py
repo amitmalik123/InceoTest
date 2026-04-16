@@ -302,11 +302,22 @@ class EnhancedSoftAssertions:
             attachment_type=allure.attachment_type.TEXT
         )
         
-        # Add warning banner in test description
+        # Add warning banner in test description with failure details
+        failure_details = ''
+        for failure in self.failures:
+            step = failure.step_name or 'N/A'
+            failure_details += (
+                f'<div style="margin:8px 0;padding:8px;background:#fff8e1;border-radius:4px;">'
+                f'<strong>#{failure.assertion_number}:</strong> {failure.message}<br>'
+                f'<span style="color:#555;">Step: {step} | Expected: {failure.expected} | Actual: {failure.actual}</span>'
+                f'</div>'
+            )
+        
         warning_html = (
             '<div style="background:#fff3e0;border-left:4px solid #ff9800;padding:12px;margin:10px 0;border-radius:4px;">'
             f'<strong style="color:#e65100;">⚠️ {len(self.failures)} Soft Assertion(s) Failed</strong>'
-            '<br><span style="color:#bf360c;">Test PASSED with warnings — review the Soft Assertions Summary Report attachment below.</span>'
+            f'<br><span style="color:#bf360c;">Test PASSED with warnings</span>'
+            f'{failure_details}'
             '</div>'
         )
         allure.dynamic.description_html(warning_html)

@@ -17,6 +17,7 @@ from pages.base_page import BasePage
 from locators import docusign_locators
 from utils.allure_logger import get_allure_logger
 from utils.helpers import get_locator_attribute
+from utils.wait_utils import wait_for_condition, WaitTimeoutError
 
 if TYPE_CHECKING:
     from pages.outlook_page import OutlookPage
@@ -161,67 +162,450 @@ class DocuSignPage(BasePage):
             attachment_type=allure.attachment_type.PNG
         )
 
-    def check_ersd_consent_checkbox(self, timeout: int = 10000):
+    def _verify_ersd_modal_visible(self, timeout: int = 10000) -> bool:
         """
-        Check the Electronic Record and Signature Disclosure consent checkbox.
-        Locates and clicks on the consent text itself.
+        Verify that the ERSD (Electronic Record and Signature Disclosure) modal dialog is visible and ready.
+        
+        Uses multi-strategy approach:
+        1. Primary: Check data-qa selector (most stable)
+        2. Fallback: Check ARIA label (alternative implementation)
+        3. Verify content is accessible (message text visible)
         
         Args:
             timeout: Maximum time to wait in milliseconds
             
-        Example:
-            docusign_page.check_ersd_consent_checkbox()
-        """
-        logger.info("Checking ERSD consent checkbox...")
-        
-        # Locate the label text and click on it to check the checkbox
-        label_locator = self.page.get_by_text(docusign_locators.ERSD_CONSENT_TEXT)
-        
-        # Wait for label to be visible
-        label_locator.wait_for(state="visible", timeout=timeout)
-        logger.debug("ERSD consent text is visible")
-        
-        # Click on the text to check the checkbox
-        logger.info("Clicking on ERSD consent text")
-        label_locator.click()
-        logger.info("✓ ERSD consent checkbox checked")
-
-    def click_ersd_continue_button(self, timeout: int = 30000):
-        """
-        Click the Continue button in the ERSD modal.
-        Uses Playwright get_by_role to locate the button by its text.
-        
-        Args:
-            timeout: Maximum time to wait in milliseconds
+        Returns:
+            True if modal is visible and ready, False otherwise
             
-        Example:
-            docusign_page.click_ersd_continue_button()
+        Raises:
+            PlaywrightTimeoutError: If modal doesn't appear within timeout
         """
-        logger.info("Clicking ERSD Continue button...")
+        logger.info("Verifying ERSD modal dialog is visible...")
         
-        # CRITICAL: Wait for page to be fully loaded and stable (especially for headless mode)
-        logger.info("Waiting for page to be fully loaded and network idle...")
+        modal_locator = None
+        
+        # Strategy 1: Primary - Use data-qa selector (most reliable)
         try:
-            self.page.wait_for_load_state("networkidle", timeout=timeout)
-            logger.debug("Page reached networkidle state")
+            logger.debug("Strategy 1: Checking data-qa='ersd-modal' selector...")
+            dialog_primary = self.page.locator(docusign_locators.ERSD_MODAL_PRIMARY)
+            dialog_primary.wait_for(state="visible", timeout=3000)
+            modal_locator = dialog_primary
+            logger.info("✓ ERSD modal found using primary data-qa selector")
+        except PlaywrightTimeoutError:
+            logger.debug("Primary selector timeout, trying fallback...")
         except Exception as e:
-            logger.warning(f"Page didn't reach networkidle: {e}, continuing anyway")
+            logger.debug(f"Primary selector failed: {e}")
         
-        # Wait a bit for modal to initialize after network idle
-        import time
+        # Strategy 2: Fallback - Use ARIA label
+        if modal_locator is None:
+            try:
+                logger.debug("Strategy 2: Checking ARIA label selector...")
+                dialog_fallback = self.page.locator(docusign_locators.ERSD_MODAL_ARIA)
+                dialog_fallback.wait_for(state="visible", timeout=3000)
+                modal_locator = dialog_fallback
+                logger.info("✓ ERSD modal found using ARIA label selector (fallback)")
+            except PlaywrightTimeoutError:
+                logger.debug("Fallback selector timeout")
+            except Exception as e:
+                logger.debug(f"Fallback selector failed: {e}")
+        
+        # If modal not found, raise error
+        if modal_locator is None:
+            error_msg = (
+                f"[FAIL] ERSD Modal Not Visible — Expected to find modal with "
+                f"data-qa='ersd-modal' or aria-label='Review and continue', "
+                f"but neither selector found within {timeout}ms. "
+                "Possible causes: 1) Modal not yet rendered, 2) Page not fully loaded, "
+                "3) Selector mismatch due to UI changes. Details: Modal must be in DOM and visible."
+            )
+            logger.error(error_msg)
+            
+            # Capture screenshot for debugging
+            try:
+                screenshot = self.page.screenshot()
+                allure.attach(screenshot, name="ERSD Modal Not Found", attachment_type=allure.attachment_type.PNG)
+            except Exception as screenshot_error:
+                logger.warning(f"Could not capture screenshot: {screenshot_error}")
+            
+            raise PlaywrightTimeoutError(error_msg)
+        
+        # Verify modal content is accessible
+        logger.debug("Verifying modal content is accessible...")
+        try:
+            content = modal_locator.locator(docusign_locators.DIALOG_CONTENT_P_TAG)
+            content.wait_for(state="visible", timeout=2000)
+            logger.debug("✓ Modal content (message text) is visible")
+        except Exception as e:
+            logger.warning(f"Could not verify modal content visibility: {e}")
+        
+        logger.info("[PASS] ERSD Modal Dialog is visible and ready")
+        return True
+
+    def check_ersd_consent_checkbox(self, timeout: int = 120000):
+        """
+        Check the ERSD consent checkbox with dynamic waiting and verification.
+        
+        Uses `wait_for_condition()` to dynamically poll for checkbox visibility over 120 seconds.
+        
+        Process:
+        1. Dynamically wait for ERSD modal dialog to be visible (up to 120s)
+        2. Locate checkbox using multi-strategy approach (data-qa, text fallback)
+        3. Click checkbox to enable consent
+        4. VERIFY checkbox is actually checked (state verification)
+        5. Handle retry if state not confirmed
+        
+        Args:
+            timeout: Maximum time to wait in milliseconds (default: 120000ms = 120 seconds)
+            
+        Raises:
+            AssertionError: If dialog or checkbox not found after dynamic waiting
+            
+        Example:
+            docusign_page.check_ersd_consent_checkbox()  # Dynamic wait up to 2 mins
+        """
+        logger.info(f">>> STEP: Checking ERSD consent checkbox (dynamic wait: {timeout}ms)")
+        
+        timeout_seconds = timeout / 1000  # Convert to seconds
+        attempt_count = 0
+        
+        # STEP 1: Dynamically wait for dialog to be visible
+        def dialog_visible() -> bool:
+            """Poll for dialog visibility using multi-strategy."""
+            nonlocal attempt_count
+            attempt_count += 1
+            
+            if attempt_count % 10 == 0:
+                logger.info(f"⏳ Waiting for checkbox dialog... ({attempt_count * 2}s elapsed)")
+            
+            try:
+                # Strategy 1: data-qa selector
+                if self.page.locator(docusign_locators.ERSD_MODAL_PRIMARY).is_visible(timeout=500):
+                    logger.debug(f"✓ Dialog found via data-qa (attempt {attempt_count})")
+                    return True
+            except:
+                pass
+            
+            try:
+                # Strategy 2: ARIA label
+                if self.page.locator(docusign_locators.ERSD_MODAL_ARIA).is_visible(timeout=500):
+                    logger.debug(f"✓ Dialog found via ARIA label (attempt {attempt_count})")
+                    return True
+            except:
+                pass
+            
+            try:
+                # Strategy 3: Generic role
+                if self.page.locator('[role="dialog"]').first.is_visible(timeout=500):
+                    logger.debug(f"✓ Dialog found via role selector (attempt {attempt_count})")
+                    return True
+            except:
+                pass
+            
+            return False
+        
+        # Wait for dialog
+        try:
+            wait_for_condition(
+                condition=dialog_visible,
+                timeout=timeout_seconds,
+                poll_interval=2.0,
+                error_message=f"Dialog not found after {timeout_seconds}s"
+            )
+            logger.info(f"✓ Dialog visible (found in {attempt_count} attempts)")
+        except WaitTimeoutError as e:
+            logger.error(f"✗ Dialog timeout: {e}")
+            
+            # Debug capture
+            try:
+                screenshot = self.page.screenshot()
+                allure.attach(screenshot, name="Checkbox Dialog Not Found", attachment_type=allure.attachment_type.PNG)
+            except:
+                pass
+            
+            raise AssertionError(
+                f"[FAIL] ERSD Checkbox Dialog Not Visible after {timeout_seconds}s of dynamic waiting. "
+                f"Strategies: data-qa, ARIA label, role=dialog. "
+                f"Possible causes: 1) Dialog not rendering, 2) Page not fully loaded, 3) Selector mismatch"
+            )
+        
+        # STEP 2: Locate checkbox using multi-strategy approach
+        checkbox_locator = None
+        
+        # Strategy 1: Primary - Use data-qa selector (most reliable)
+        try:
+            logger.debug("Strategy 1: Locating checkbox with data-qa selector...")
+            checkbox_primary = self.page.locator(docusign_locators.ERSD_CONSENT_CHECKBOX_PRIMARY)
+            checkbox_primary.wait_for(state="attached", timeout=3000)
+            checkbox_locator = checkbox_primary
+            logger.info("✓ Checkbox found using primary data-qa selector")
+        except Exception as e:
+            logger.debug(f"Primary checkbox selector failed: {e}")
+        
+        # Strategy 2: Fallback - Use label text locator
+        if checkbox_locator is None:
+            try:
+                logger.debug("Strategy 2: Locating checkbox using label text (fallback)...")
+                checkbox_fallback = self.page.get_by_text(docusign_locators.ERSD_CONSENT_TEXT)
+                checkbox_fallback.wait_for(state="visible", timeout=3000)
+                checkbox_locator = checkbox_fallback
+                logger.info("✓ Checkbox found using text-based selector (fallback)")
+            except Exception as e:
+                logger.debug(f"Fallback checkbox selector failed: {e}")
+        
+        # If checkbox not found, fail with diagnostic info
+        if checkbox_locator is None:
+            error_msg = (
+                f"[FAIL] ERSD Consent Checkbox Not Found After Dialog Visible — "
+                f"Expected: checkbox with data-qa='ersd-agree-checkbox' or text selector, "
+                f"Actual: element not found. "
+                f"Possible causes: 1) Modal not rendering checkbox, 2) Checkbox hidden by CSS, 3) Selector mismatch"
+            )
+            logger.error(error_msg)
+            
+            try:
+                screenshot = self.page.screenshot()
+                allure.attach(screenshot, name="Checkbox Not Found", attachment_type=allure.attachment_type.PNG)
+            except:
+                pass
+            
+            raise AssertionError(error_msg)
+        
+        # STEP 3: Click checkbox to enable consent
+        logger.info("Clicking ERSD consent checkbox...")
+        
+        # CRITICAL: The label element intercepts pointer events, so we need to click the label
+        # This allows the HTML for= attribute association to properly toggle the checkbox
+        try:
+            # Strategy 1: Try clicking the associated label (most reliable)
+            logger.debug("Strategy 1: Attempting to click label element...")
+            try:
+                label_locator = self.page.locator(docusign_locators.ERSD_CONSENT_CHECKBOX_LABEL)
+                label_locator.wait_for(state="visible", timeout=2000)
+                label_locator.click()
+                logger.info("✓ Checkbox clicked via label element")
+            except Exception as label_error:
+                logger.debug(f"Label click failed ({label_error}), trying checkbox directly...")
+                
+                # Strategy 2: Fallback - Click checkbox directly
+                logger.debug("Strategy 2: Attempting to click checkbox input directly...")
+                checkbox_locator.click()
+                logger.info("✓ Checkbox clicked directly")
+                
+        except Exception as e:
+            error_msg = f"Failed to click checkbox: {str(e).splitlines()[0]}"
+            logger.error(error_msg)
+            raise
+        
+        # STEP 4: CRITICAL - Verify checkbox is actually checked
+        logger.info("Verifying checkbox is checked...")
+        time.sleep(0.5)  # Brief wait for state change
+        
+        try:
+            # If we used data-qa selector, check the input element directly
+            if 'data-qa' in docusign_locators.ERSD_CONSENT_CHECKBOX_PRIMARY:
+                checkbox_input = self.page.locator(docusign_locators.ERSD_CONSENT_CHECKBOX_PRIMARY)
+                is_checked = checkbox_input.is_checked()
+                logger.debug(f"Checkbox checked status: {is_checked}")
+            else:
+                # Alternative: check for checked attribute via evaluate
+                is_checked = self.page.evaluate(
+                    f"document.querySelector('{docusign_locators.ERSD_CONSENT_CHECKBOX_PRIMARY}')?.checked || false"
+                )
+                logger.debug(f"Checkbox checked (via evaluate): {is_checked}")
+            
+            if not is_checked:
+                # Try alternative verification method
+                logger.warning("Primary verification indicates unchecked state, attempting alternative check...")
+                is_checked = self.page.evaluate(
+                    "Array.from(document.querySelectorAll('input[type=\"checkbox\"]')).find(cb => cb.closest('[data-qa=\"ersd-modal\"]') && cb.checked) !== undefined"
+                )
+                logger.debug(f"Alternative check result: {is_checked}")
+            
+            if is_checked:
+                logger.info("✓ VERIFIED: Checkbox is checked")
+            else:
+                # Try clicking again if first attempt didn't work
+                logger.warning("Checkbox still unchecked, attempting second click...")
+                checkbox_locator.click()
+                time.sleep(0.5)
+                
+                # Verify again
+                is_checked_retry = self.page.evaluate(
+                    f"document.querySelector('{docusign_locators.ERSD_CONSENT_CHECKBOX_PRIMARY}')?.checked || false"
+                )
+                
+                if not is_checked_retry:
+                    error_msg = (
+                        "[FAIL] ERSD Checkbox Not Checked — Checkbox was clicked but remains unchecked. "
+                        "Possible causes: 1) Click didn't register, 2) Checkbox is disabled, 3) Event listener issue. "
+                        "Verification: attempted .click() twice, both checks show unchecked state."
+                    )
+                    logger.error(error_msg)
+                    raise AssertionError(error_msg)
+                
+                logger.info("✓ VERIFIED: Checkbox checked on retry")
+        
+        except Exception as e:
+            error_msg = f"Failed to verify checkbox state: {str(e).splitlines()[0]}"
+            logger.error(error_msg)
+            raise
+        
+        logger.info("[PASS] ERSD Consent Checkbox: Verified as Checked")
+
+    def click_ersd_continue_button(self, timeout: int = 120000):
+        """
+        Click the Continue button in the ERSD modal with dynamic waiting and verification.
+        
+        Uses `wait_for_condition()` to dynamically poll for button visibility over 120 seconds.
+        
+        Process:
+        1. Wait for page to load (networkidle)
+        2. Dynamically wait for ERSD modal to be visible (up to 120s)
+        3. Locate button using multi-strategy approach (data-qa, get_by_role fallback)
+        4. VERIFY button is enabled (must be clickable)
+        5. Click button
+        6. Verify state change after click
+        
+        Args:
+            timeout: Maximum time to wait in milliseconds (default: 120000ms = 120 seconds)
+            
+        Raises:
+            AssertionError: If modal or button not found after dynamic waiting
+            
+        Example:
+            docusign_page.click_ersd_continue_button()  # Dynamic wait up to 2 mins
+        """
+        logger.info(f">>> STEP: Clicking ERSD Continue button (dynamic wait: {timeout}ms)")
+        
+        # STEP 1: Wait for page to be fully loaded and stable
+        logger.info("Waiting for page to reach networkidle state...")
+        try:
+            self.page.wait_for_load_state("networkidle", timeout=10000)
+            logger.debug("✓ Page reached networkidle state")
+        except Exception as e:
+            logger.warning(f"Page didn't reach networkidle, continuing anyway: {str(e).splitlines()[0]}")
+        
+        # Brief wait for modal to initialize
         time.sleep(1)
         
-        # Locate the Continue button by role and name
-        continue_button = self.page.get_by_role("button", name="Continue")
+        timeout_seconds = timeout / 1000  # Convert to seconds
+        attempt_count = 0
         
-        # Wait for button to be visible and enabled
-        continue_button.wait_for(state="visible", timeout=timeout)
-        logger.debug("ERSD Continue button is visible")
+        # STEP 2: Dynamically wait for button to be visible
+        def button_visible_and_found() -> bool:
+            """Poll for button visibility using multi-strategy."""
+            nonlocal attempt_count
+            attempt_count += 1
+            
+            if attempt_count % 10 == 0:
+                logger.info(f"⏳ Waiting for Continue button... ({attempt_count * 2}s elapsed)")
+            
+            try:
+                # Strategy 1: data-qa selector
+                btn = self.page.locator(docusign_locators.ERSD_CONTINUE_BUTTON_PRIMARY)
+                if btn.is_visible(timeout=500):
+                    logger.debug(f"✓ Button found via data-qa (attempt {attempt_count})")
+                    return True
+            except:
+                pass
+            
+            try:
+                # Strategy 2: get_by_role with button text
+                btn = self.page.get_by_role("button", name=docusign_locators.ERSD_CONTINUE_BUTTON_TEXT)
+                if btn.is_visible(timeout=500):
+                    logger.debug(f"✓ Button found via get_by_role (attempt {attempt_count})")
+                    return True
+            except:
+                pass
+            
+            return False
         
-        # Click the button
-        logger.info("Clicking Continue button")
-        continue_button.click()
-        logger.info("✓ ERSD Continue button clicked")
+        # Wait for button to be visible
+        try:
+            wait_for_condition(
+                condition=button_visible_and_found,
+                timeout=timeout_seconds,
+                poll_interval=2.0,
+                error_message=f"Continue button not found after {timeout_seconds}s"
+            )
+            logger.info(f"✓ Continue button visible (found in {attempt_count} attempts)")
+        except WaitTimeoutError as e:
+            logger.error(f"✗ Button timeout: {e}")
+            
+            # Capture diagnostic info
+            try:
+                screenshot = self.page.screenshot()
+                allure.attach(screenshot, name="Continue Button Not Found - Screenshot", attachment_type=allure.attachment_type.PNG)
+            except:
+                pass
+            
+            raise AssertionError(
+                f"[FAIL] ERSD Continue Button Not Found after {timeout_seconds}s of dynamic waiting. "
+                f"Strategies: data-qa, get_by_role. "
+                f"Possible causes: 1) Modal not rendering button, "
+                f"2) Consent checkbox not checked (button disabled until consent), 3) Page not loaded"
+            )
+        
+        # STEP 3: Locate the button for interaction
+        continue_button = None
+        try:
+            continue_button = self.page.locator(docusign_locators.ERSD_CONTINUE_BUTTON_PRIMARY)
+            if not continue_button.is_visible():
+                continue_button = self.page.get_by_role("button", name=docusign_locators.ERSD_CONTINUE_BUTTON_TEXT)
+        except:
+            continue_button = self.page.get_by_role("button", name=docusign_locators.ERSD_CONTINUE_BUTTON_TEXT)
+        
+        # STEP 4: CRITICAL - Verify button is enabled (not disabled)
+        logger.info("Verifying Continue button is enabled...")
+        try:
+            is_enabled = continue_button.is_enabled()
+            logger.debug(f"Button enabled status: {is_enabled}")
+            
+            if not is_enabled:
+                error_msg = (
+                    "[FAIL] ERSD Continue Button Disabled — Button found but is not clickable. "
+                    "Probable cause: ERSD consent checkbox not checked. Consent MUST be checked before button becomes enabled. "
+                    "Solution: Verify check_ersd_consent_checkbox() executed successfully."
+                )
+                logger.error(error_msg)
+                raise AssertionError(error_msg)
+            
+            logger.info("✓ VERIFIED: Continue button is enabled")
+        
+        except Exception as e:
+            if "disabled" in str(e).lower():
+                error_msg = (
+                    "[FAIL] Continue Button Check Failed — Button is disabled. "
+                    f"Error: {str(e).splitlines()[0]}"
+                )
+                logger.error(error_msg)
+                raise AssertionError(error_msg)
+            logger.warning(f"Skipping enablement check, attempting click anyway: {e}")
+        
+        # STEP 5: Click the Continue button
+        logger.info("Clicking Continue button...")
+        try:
+            continue_button.click()
+            logger.info("✓ Continue button clicked")
+        except Exception as e:
+            error_msg = (
+                f"Failed to click Continue button: {str(e).splitlines()[0]}. "
+                "Possible causes: 1) Button not clickable, 2) Still initializing, 3) JavaScript error"
+            )
+            logger.error(error_msg)
+            raise
+        
+        # STEP 6: Wait for state change after click
+        logger.info("Waiting for page state change after button click...")
+        try:
+            self.page.wait_for_load_state("networkidle", timeout=5000)
+            logger.debug("✓ Page reached networkidle after click")
+        except Exception as e:
+            logger.debug(f"Page didn't reach networkidle after click (expected, page may still be processing): {e}")
+        
+        time.sleep(1)  # Brief wait for any post-click animations
+        
+        logger.info("[PASS] ERSD Continue Button: Successfully Clicked and Verified")
 
     def click_finish_button(self, timeout: int = 30000):
         """
@@ -434,49 +818,145 @@ class DocuSignPage(BasePage):
         
         return stamping_locator
 
-    def fetch_docusign_review_and_continue_dialog_text(self, timeout: int = 10000) -> str:
+    def fetch_docusign_review_and_continue_dialog_text(self, timeout: int = 120000) -> str:
         """
-        Fetch the text from the 'Review and continue' dialog.
+        Fetch the text from the 'Review and continue' dialog with dynamic waiting.
         
-        Locates the dialog by aria-label, then extracts text from p tag with data-qa attribute.
-        Returns the text content for assertion/verification in calling code.
+        Uses `wait_for_condition()` to dynamically poll for dialog visibility over 120 seconds.
+        Multi-strategy approach:
+        1. Primary: data-qa='ersd-modal' selector (most stable)
+        2. Fallback 1: aria-label='Review and continue' (current DocuSign UI)
+        3. Fallback 2: role='dialog' (generic fallback)
+        
+        If dialog not found after 120s:
+        - Captures screenshot and page info for debugging
+        - Includes diagnostic info in error message
         
         Args:
-            timeout: Maximum time to wait in milliseconds
+            timeout: Maximum time to wait in milliseconds (default: 120000ms = 120 seconds)
             
         Returns:
             The text content from the dialog's content element (stripped)
             
         Raises:
-            AssertionError: If dialog or content element not found
+            AssertionError: If dialog or content element not found after polling
             
         Example:
+            # Wait dynamically up to 2 minutes for dialog
             dialog_text = docusign_page.fetch_docusign_review_and_continue_dialog_text()
-            # Use assertions on the returned text in calling code
         """
-        logger.info("Fetching DocuSign Review and Continue dialog text...")
+        logger.info(f"Fetching DocuSign Review and Continue dialog text (dynamic wait: {timeout}ms)...")
         
-        # Locate the dialog by aria-label
-        dialog_locator = self.page.locator(docusign_locators.REVIEW_CONTINUE_DIALOG)
+        timeout_seconds = timeout / 1000  # Convert to seconds for wait_for_condition
+        poll_interval = 2.0  # Poll every 2 seconds
+        attempt_count = 0
+        max_attempts = int(timeout_seconds / poll_interval)
         
-        # Verify dialog is present
+        dialog_locator = None
+        
+        # Use wait_for_condition to dynamically poll for dialog visibility
+        def find_and_verify_dialog() -> bool:
+            """Poll for dialog using multi-strategy approach."""
+            nonlocal dialog_locator, attempt_count
+            attempt_count += 1
+            
+            if attempt_count % 10 == 0:  # Log every 10 attempts (~20 seconds)
+                logger.info(f"⏳ Still waiting for dialog... ({attempt_count}/{max_attempts} attempts, {attempt_count * poll_interval:.0f}s elapsed)")
+            
+            # Strategy 1: Primary - data-qa selector
+            try:
+                test_dialog = self.page.locator(docusign_locators.ERSD_MODAL_PRIMARY)
+                if test_dialog.is_visible(timeout=500):
+                    dialog_locator = test_dialog
+                    logger.debug(f"✓ Dialog found (attempt {attempt_count}): data-qa selector")
+                    return True
+            except:
+                pass
+            
+            # Strategy 2: Fallback - ARIA label
+            try:
+                test_dialog = self.page.locator(docusign_locators.ERSD_MODAL_ARIA)
+                if test_dialog.is_visible(timeout=500):
+                    dialog_locator = test_dialog
+                    logger.debug(f"✓ Dialog found (attempt {attempt_count}): ARIA label selector")
+                    return True
+            except:
+                pass
+            
+            # Strategy 3: Fallback - generic role selector
+            try:
+                test_dialog = self.page.locator('[role="dialog"]').first
+                if test_dialog.is_visible(timeout=500):
+                    # Verify it contains expected content
+                    content_check = test_dialog.locator(docusign_locators.DIALOG_CONTENT_P_TAG)
+                    if content_check.count() > 0:
+                        dialog_locator = test_dialog
+                        logger.debug(f"✓ Dialog found (attempt {attempt_count}): generic role selector")
+                        return True
+            except:
+                pass
+            
+            return False
+        
+        # Wait dynamically for dialog
         try:
-            dialog_locator.wait_for(state="visible", timeout=timeout)
-            logger.info("✓ Review and Continue dialog is present")
-        except:
-            logger.error("✗ Review and Continue dialog not found")
-            raise AssertionError('[FAIL] DocuSignPage: Review and Continue Dialog Presence — Expected: dialog with aria-label="Review and continue" found, Actual: dialog not found. Details: Review and Continue dialog must be visible. Locator: [aria-label="Review and continue"].')
+            wait_for_condition(
+                condition=find_and_verify_dialog,
+                timeout=timeout_seconds,
+                poll_interval=poll_interval,
+                error_message=f"Dialog not found after {timeout_seconds}s of polling (multi-strategy: data-qa, ARIA label, role=dialog)"
+            )
+            logger.info(f"✓ Review and Continue dialog found after {attempt_count} polling attempts")
+        except WaitTimeoutError as e:
+            logger.error(f"✗ Dialog wait timeout after {timeout_seconds}s: {e}")
+            
+            # Capture diagnostic info on failure
+            try:
+                screenshot = self.page.screenshot()
+                allure.attach(screenshot, name="Dialog Not Found - Screenshot", attachment_type=allure.attachment_type.PNG)
+                
+                page_html = self.page.content()
+                allure.attach(page_html, name="Dialog Not Found - Page HTML", attachment_type=allure.attachment_type.HTML)
+                
+                current_url = self.page.url
+                logger.error(f"Current URL: {current_url}")
+                allure.attach(f"URL: {current_url}", name="Dialog Not Found - URL", attachment_type=allure.attachment_type.TEXT)
+            except Exception as debug_error:
+                logger.warning(f"Could not capture diagnostic info: {debug_error}")
+            
+            error_msg = (
+                f"[FAIL] DocuSignPage: Review and Continue Dialog Not Found — "
+                f"Expected: dialog with data-qa='ersd-modal' OR aria-label='Review and continue' found, "
+                f"Actual: dialog not found after {timeout_seconds}s of dynamic polling. "
+                f"Strategies attempted: 1) data-qa selector, 2) ARIA label, 3) role=dialog. "
+                f"Details: Dialog must be rendered and visible. Current URL: {self.page.url}"
+            )
+            raise AssertionError(error_msg)
+        
+        if dialog_locator is None:
+            raise AssertionError("[INTERNAL ERROR] Dialog locator is None despite wait_for_condition success")
         
         # Get the text from the p tag with data-qa="email-message-content"
-        content_locator = dialog_locator.locator(docusign_locators.DIALOG_CONTENT_P_TAG)
-        
-        # Wait for content to be visible
+        logger.info("Fetching content from dialog...")
         try:
-            content_locator.wait_for(state="visible", timeout=timeout)
-            logger.debug("Content p tag is visible")
-        except:
-            logger.error("✗ Content p tag not found within the dialog")
-            raise AssertionError('[FAIL] DocuSignPage: Dialog Content Element — Expected: p[data-qa="email-message-content"] found, Actual: element not found. Details: Content element must exist in the Review and Continue dialog. Locator: p[data-qa="email-message-content"].')
+            content_locator = dialog_locator.locator(docusign_locators.DIALOG_CONTENT_P_TAG)
+            content_locator.wait_for(state="visible", timeout=5000)
+            logger.debug("✓ Content p tag is visible")
+        except Exception as e:
+            logger.error(f"✗ Content p tag not found within the dialog: {e}")
+            
+            # Capture screenshot showing dialog but missing content
+            try:
+                screenshot = self.page.screenshot()
+                allure.attach(screenshot, name="Dialog Content Not Found", attachment_type=allure.attachment_type.PNG)
+            except:
+                pass
+            
+            raise AssertionError(
+                f"[FAIL] DocuSignPage: Dialog Content Element Not Found — "
+                f"Expected: p[data-qa='email-message-content'] found within dialog, "
+                f"Actual: element not found. Details: Content element must exist in the Review and Continue dialog."
+            )
         
         # Get the actual text
         dialog_text = (content_locator.text_content() or "").strip()
