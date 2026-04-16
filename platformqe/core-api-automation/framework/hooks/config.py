@@ -99,12 +99,12 @@ SERVICE_DEFAULTS: Dict[str, Dict] = {
             'update_csv_file': 'MoveMoneyAPI/data_driven/Data_instructions_instructionId_GET.csv',
                 'csv_columns': ['environment', 'instruction_id', 'version'],
             },
-            # === REQUESTS ENDPOINT ===
-            'requests': {
+            # === ACH ENDPOINT ===
+            'ach': {
                 'enabled': True,
                 'count': 1,  # Number of requestIds to create requestId and version for GET/PUT/DELETE flow 
-                'testcase_file': 'MoveMoneyAPI/testcases/TestCase_moneymovement_requestid_POST.json',
-                'test_data_file': 'MoveMoneyAPI/data_driven/Data_MoveMoneyAPI_POST.csv',
+                'testcase_file': 'MoveMoneyAPI/testcases/TestCase_moneymovement_ach_Hook_POST.json',
+                'test_data_file': 'MoveMoneyAPI/data_driven/Data_ach_Hook_POST.csv',
                 'extract_from_response': {
                     'fields': [
                 {
@@ -118,7 +118,7 @@ SERVICE_DEFAULTS: Dict[str, Dict] = {
                     ]
                 },
 
-                'update_csv_file': 'MoveMoneyAPI/data_driven/Data_requests_requestId_GET.csv',
+                'update_csv_file': 'MoveMoneyAPI/data_driven/Data_ach_requestId_GET.csv',
                 'csv_columns': ['environment', 'requestId', 'version', 'instructionId', 'accountId', 'railType', 'amount', 'percent','requestType', 'status', 'reason', 'scheduleType', 'paymentDate', 'frequency', 'startDate', 'endDate'],
             }
         }

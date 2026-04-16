@@ -31,7 +31,7 @@
             }
         },
         "expected_status": "201",
-        "expected_response_schema": "MoveMoneyAPI\\schemas\\Schema_requests_POST.json",
+        "expected_response_schema": "MoveMoneyAPI\\schemas\\Schema_ach_POST.json",
         "expected_response": null,
         "ignore_fields": [],
         "extract_values": [
@@ -61,7 +61,7 @@
                 }
             ]
         },
-        "test_data_file": "MoveMoneyAPI/data_driven/Data_MoveMoneyAPI_POST.csv",
+        "test_data_file": "MoveMoneyAPI/data_driven/Data_ach_Hook_POST.csv",
         "db_type": "",
         "db_connection_name": "",
         "db_query_timing": "after_api",

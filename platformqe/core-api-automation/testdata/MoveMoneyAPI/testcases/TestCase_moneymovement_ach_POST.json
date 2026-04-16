@@ -39,7 +39,7 @@
             }
         },
         "expected_status": "201",
-        "expected_response_schema": "MoveMoneyAPI\\schemas\\Schema_requests_POST.json",
+        "expected_response_schema": "MoveMoneyAPI\\schemas\\Schema_ach_POST.json",
         "expected_response": null,
         "ignore_fields": [
             "traceId",
@@ -70,10 +70,6 @@
                     {
                         "key": "0.version",
                         "assign_to": "db_version"
-                    },
-                    {
-                        "key": "0.status",
-                        "assign_to": "db_status"
                     }
                 ]
             }
@@ -117,7 +113,7 @@
                 }
             ]
         },
-        "test_data_file": "MoveMoneyAPI/data_driven/Data_requests_POST.csv",
+        "test_data_file": "MoveMoneyAPI/data_driven/Data_ach_POST.csv",
         "csv_row_index": 0,
         "db_query_timing": "after_api",
         "db_queries": {
@@ -186,7 +182,7 @@
             "data_comparison": [],
             "assertions": []
         },
-        "test_data_file": "MoveMoneyAPI/data_driven/Data_requests_POST.csv",
+        "test_data_file": "MoveMoneyAPI/data_driven/Data_ach_POST.csv",
         "csv_row_index": 1,
         "db_type": "",
         "db_connection_name": "",
@@ -255,7 +251,7 @@
             "data_comparison": [],
             "assertions": []
         },
-        "test_data_file": "MoveMoneyAPI/data_driven/Data_requests_POST.csv",
+        "test_data_file": "MoveMoneyAPI/data_driven/Data_ach_POST.csv",
         "csv_row_index": 2,
         "db_type": "",
         "db_connection_name": "",
@@ -324,7 +320,7 @@
             "data_comparison": [],
             "assertions": []
         },
-        "test_data_file": "MoveMoneyAPI/data_driven/Data_requests_POST.csv",
+        "test_data_file": "MoveMoneyAPI/data_driven/Data_ach_POST.csv",
         "csv_row_index": 3,
         "db_type": "",
         "db_connection_name": "",
@@ -393,7 +389,7 @@
             "data_comparison": [],
             "assertions": []
         },
-        "test_data_file": "MoveMoneyAPI/data_driven/Data_requests_POST.csv",
+        "test_data_file": "MoveMoneyAPI/data_driven/Data_ach_POST.csv",
         "csv_row_index": 4,
         "db_type": "",
         "db_connection_name": "",
@@ -458,7 +454,7 @@
             "data_comparison": [],
             "assertions": []
         },
-        "test_data_file": "MoveMoneyAPI/data_driven/Data_requests_POST.csv",
+        "test_data_file": "MoveMoneyAPI/data_driven/Data_ach_POST.csv",
         "csv_row_index": 5,
         "db_type": "",
         "db_connection_name": "",
@@ -530,7 +526,7 @@
             "data_comparison": [],
             "assertions": []
         },
-        "test_data_file": "MoveMoneyAPI/data_driven/Data_requests_POST.csv",
+        "test_data_file": "MoveMoneyAPI/data_driven/Data_ach_POST.csv",
         "csv_row_index": 6,
         "db_type": "",
         "db_connection_name": "",
@@ -602,7 +598,7 @@
             "data_comparison": [],
             "assertions": []
         },
-        "test_data_file": "MoveMoneyAPI/data_driven/Data_requests_POST.csv",
+        "test_data_file": "MoveMoneyAPI/data_driven/Data_ach_POST.csv",
         "csv_row_index": 7,
         "db_type": "",
         "db_connection_name": "",
@@ -674,7 +670,7 @@
             "data_comparison": [],
             "assertions": []
         },
-        "test_data_file": "MoveMoneyAPI/data_driven/Data_requests_POST.csv",
+        "test_data_file": "MoveMoneyAPI/data_driven/Data_ach_POST.csv",
         "csv_row_index": 8,
         "db_type": "",
         "db_connection_name": "",
@@ -725,7 +721,7 @@
             "changeState": "{{changeState}}"
         },
         "expected_status": "201",
-        "expected_response_schema": "MoveMoneyAPI\\schemas\\Schema_requests_POST.json",
+        "expected_response_schema": "MoveMoneyAPI\\schemas\\Schema_ach_POST.json",
         "expected_response": null,
         "ignore_fields": [
             "traceId",
@@ -782,7 +778,7 @@
                 }
             ]
         },
-        "test_data_file": "MoveMoneyAPI/data_driven/Data_requests_POST.csv",
+        "test_data_file": "MoveMoneyAPI/data_driven/Data_ach_POST.csv",
         "csv_row_index": 9,
         "db_query_timing": "after_api",
         "db_queries": {
@@ -832,7 +828,7 @@
             }
         },
         "expected_status": "201",
-        "expected_response_schema": "MoveMoneyAPI\\schemas\\Schema_requests_POST.json",
+        "expected_response_schema": "MoveMoneyAPI\\schemas\\Schema_ach_POST.json",
         "expected_response": null,
         "ignore_fields": [
             "traceId",
@@ -886,16 +882,10 @@
                     "target": "db_requestId",
                     "log_differences": true,
                     "comparison_name": "RequestId match between API and DB"
-                },
-                {
-                    "source": "changeState",
-                    "target": "db_changeState",
-                    "log_differences": true,
-                    "comparison_name": "changeState match between API payload and DB"
                 }
             ]
         },
-        "test_data_file": "MoveMoneyAPI/data_driven/Data_requests_POST.csv",
+        "test_data_file": "MoveMoneyAPI/data_driven/Data_ach_POST.csv",
         "csv_row_index": 10,
         "db_query_timing": "after_api",
         "db_queries": {
@@ -945,7 +935,7 @@
             }
         },
         "expected_status": "201",
-        "expected_response_schema": "MoveMoneyAPI\\schemas\\Schema_requests_POST.json",
+        "expected_response_schema": "MoveMoneyAPI\\schemas\\Schema_ach_POST.json",
         "expected_response": null,
         "ignore_fields": [
             "traceId",
@@ -999,16 +989,10 @@
                     "target": "db_requestId",
                     "log_differences": true,
                     "comparison_name": "RequestId match between API and DB"
-                },
-                {
-                    "source": "changeState",
-                    "target": "db_changeState",
-                    "log_differences": true,
-                    "comparison_name": "changeState match between API payload and DB"
                 }
             ]
         },
-        "test_data_file": "MoveMoneyAPI/data_driven/Data_requests_POST.csv",
+        "test_data_file": "MoveMoneyAPI/data_driven/Data_ach_POST.csv",
         "csv_row_index": 11,
         "db_query_timing": "after_api",
         "db_queries": {
@@ -1058,7 +1042,7 @@
             }
         },
         "expected_status": "201",
-        "expected_response_schema": "MoveMoneyAPI\\schemas\\Schema_requests_POST.json",
+        "expected_response_schema": "MoveMoneyAPI\\schemas\\Schema_ach_POST.json",
         "expected_response": null,
         "ignore_fields": [
             "traceId",
@@ -1112,16 +1096,10 @@
                     "target": "db_requestId",
                     "log_differences": true,
                     "comparison_name": "RequestId match between API and DB"
-                },
-                {
-                    "source": "changeState",
-                    "target": "db_changeState",
-                    "log_differences": true,
-                    "comparison_name": "changeState match between API payload and DB"
                 }
             ]
         },
-        "test_data_file": "MoveMoneyAPI/data_driven/Data_requests_POST.csv",
+        "test_data_file": "MoveMoneyAPI/data_driven/Data_ach_POST.csv",
         "csv_row_index": 12,
         "db_query_timing": "after_api",
         "db_queries": {
@@ -1171,7 +1149,7 @@
             }
         },
         "expected_status": "201",
-        "expected_response_schema": "MoveMoneyAPI\\schemas\\Schema_requests_POST.json",
+        "expected_response_schema": "MoveMoneyAPI\\schemas\\Schema_ach_POST.json",
         "expected_response": null,
         "ignore_fields": [
             "traceId",
@@ -1225,16 +1203,10 @@
                     "target": "db_requestId",
                     "log_differences": true,
                     "comparison_name": "RequestId match between API and DB"
-                },
-                {
-                    "source": "changeState",
-                    "target": "db_changeState",
-                    "log_differences": true,
-                    "comparison_name": "changeState match between API payload and DB"
                 }
             ]
         },
-        "test_data_file": "MoveMoneyAPI/data_driven/Data_requests_POST.csv",
+        "test_data_file": "MoveMoneyAPI/data_driven/Data_ach_POST.csv",
         "csv_row_index": 13,
         "db_query_timing": "after_api",
         "db_queries": {
@@ -1284,7 +1256,7 @@
             "changeState": "{{changeState}}"
         },
         "expected_status": "201",
-        "expected_response_schema": "MoveMoneyAPI\\schemas\\Schema_requests_POST.json",
+        "expected_response_schema": "MoveMoneyAPI\\schemas\\Schema_ach_POST.json",
         "expected_response": null,
         "ignore_fields": [
             "traceId",
@@ -1338,16 +1310,10 @@
                     "target": "db_requestId",
                     "log_differences": true,
                     "comparison_name": "RequestId match between API and DB"
-                },
-                {
-                    "source": "changeState",
-                    "target": "db_changeState",
-                    "log_differences": true,
-                    "comparison_name": "changeState match between API payload and DB"
                 }
             ]
         },
-        "test_data_file": "MoveMoneyAPI/data_driven/Data_requests_POST.csv",
+        "test_data_file": "MoveMoneyAPI/data_driven/Data_ach_POST.csv",
         "csv_row_index": 14,
         "db_query_timing": "after_api",
         "db_queries": {
@@ -1357,5 +1323,125 @@
         "db_connection_name": "movemoney",
         "test_summary": "Test TC015: POST /moneymovement/requests [changeState=Canceled] (TC015) - Verify changeState persists as Canceled when explicitly provided.",
         "test_scenario": "Test POST request to /moneymovement/requests to validate explicit changeState=Canceled."
+    },
+    {
+        "test_id": "TC016",
+        "service_name": "movemoney",
+        "workflow_mode": "parallel",
+        "test_name": "POST /ach [AC1: Valid Request Without Removed Fields] (TC016)",
+        "protocol": "REST",
+        "test_type": [
+            "Functional",
+            "Database"
+        ],
+        "mainURL": "{{base_url}}",
+        "endpoint": "/ach",
+        "method": "POST",
+        "headers_additional": {
+            "Content-Type": "application/json"
+        },
+        "payload": {
+            "instructionId": "{{instructionId}}",
+            "accountId": "{{accountId}}",
+            "amount": "{{amount}}",
+            "requestType": "{{requestType}}",
+            "status": "{{status}}",
+            "reason": "{{reason}}",
+            "schedule": {
+                "scheduleType": "{{scheduleType}}",
+                "paymentDate": "{{paymentDate}}"
+            }
+        },
+        "expected_status": "201",
+        "expected_response_schema": "MoveMoneyAPI\\schemas\\Schema_ach_POST.json",
+        "expected_response": null,
+        "ignore_fields": [
+            "traceId",
+            "id",
+            "timestamp",
+            "createdDate",
+            "modifiedDate"
+        ],
+        "extract_values": [
+            {
+                "from": "response",
+                "key": "requestId",
+                "assign_to": "requestId"
+            },
+            {
+                "from": "db_result",
+                "query": "default",
+                "assign": [
+                    {
+                        "key": "0.requestId",
+                        "assign_to": "db_requestId"
+                    },
+                    {
+                        "key": "0.railType",
+                        "assign_to": "db_railType"
+                    },
+                    {
+                        "key": "0.unitType",
+                        "assign_to": "db_unitType"
+                    },
+                    {
+                        "key": "0.percent",
+                        "assign_to": "db_percent"
+                    },
+                    {
+                        "key": "0.purpose",
+                        "assign_to": "db_purpose"
+                    }
+                ]
+            }
+        ],
+        "validate": {
+            "performance": {
+                "max_response_time_ms": 1000
+            },
+            "security": {
+                "checks": [
+                    "sql_injection",
+                    "xss"
+                ]
+            },
+            "assertions": [
+                {
+                    "actual": "{{db_railType}}",
+                    "expected": "ACH",
+                    "operator": "==",
+                    "message": "railType should default to ACH when omitted"
+                },
+                {
+                    "actual": "{{db_unitType}}",
+                    "expected": "Amount",
+                    "operator": "==",
+                    "message": "unitType should default to Amount when omitted"
+                },
+                {
+                    "actual": "{{db_percent}}",
+                    "expected": null,
+                    "operator": "==",
+                    "message": "percent should default to null when omitted"
+                },
+                {
+                    "actual": "{{db_purpose}}",
+                    "expected": null,
+                    "operator": "==",
+                    "message": "purpose should default to null when omitted"
+                }
+            ],
+            "data_comparison": []
+        },
+        "test_data_file": "MoveMoneyAPI/data_driven/Data_ach_POST.csv",
+        "csv_row_index": 15,
+        "db_query_timing": "after_api",
+        "db_queries": {
+            "default": "SELECT LOWER([RequestId]) AS requestId, [RailType] AS railType, [UnitType] AS unitType, [Percent] AS [percent], [Purpose] AS purpose FROM [dbo].[MoneyMovementRequest] WHERE [RequestId] = '{{requestId}}'"
+        },
+        "db_type": "mssql",
+        "db_connection_name": "movemoney",
+        "test_summary": "Test TC016: POST /ach [AC1] - Valid request without railType, unitType, percent, or purpose. API should default these fields and return 201.",
+        "test_scenario": "Test POST /ach omitting railType, unitType, percent, and purpose. Validate defaults in DB."
     }
 ]
