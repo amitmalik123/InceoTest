@@ -9,8 +9,9 @@ from pytest_bdd import given, when, then, parsers
 
 from pages.client_accounts_page import ClientAccountsPage
 from utils.allure_logger import get_allure_logger
-from utils.assertions import Assertions, SoftAssertions
-from utils.database import fetch_agent_name_by_aplid_from_db
+from utils.assertions import Assertions
+from utils.soft_assertions_enhanced import EnhancedSoftAssertions
+from utils.database import fetch_agent_name_by_aplid_from_db, fetch_authorized_signer
 from utils.dialog_utils import DialogHandler
 from utils.helpers import find_element_position_in_parent
 from utils.wait_utils import WaitContext, wait_for_element_count
@@ -91,7 +92,7 @@ def verify_signer_information_dialog_exists_with_correct_information(
         
         try:
             # Initialize soft assertions
-            soft_assert = SoftAssertions()
+            soft_assert = EnhancedSoftAssertions(authenticated_page)
             
             # Step 1: Wait for and detect dialog
             logger.info("Step 1: Waiting for Signer Information dialog...")
@@ -279,7 +280,7 @@ def verify_authorized_signer_approval_section(authenticated_page: Page, test_con
         
         try:
             # Initialize soft assertions for non-critical checks
-            soft_assert = SoftAssertions()
+            soft_assert = EnhancedSoftAssertions(authenticated_page)
             
             # Step 1: Get and parse expected text from CSV
             logger.info("Step 1: Fetching expected text from CSV...")
@@ -676,22 +677,22 @@ def provide_authorized_signers_information(authenticated_page: Page, client_acco
             # Initialize authorized_signer to None (will be set by role-based logic)
             authorized_signer = None
             
-            # Determine Authorized Signer based on role and fetch from database
+            # Determine Authorized Signer based on role and fetch with environment-aware logic
             authorized_signer_role = test_data.get("Authorized_Signer_Role", "").strip()
             logger.info(f"  Authorized_Signer_Role: '{authorized_signer_role}'")
             
             if authorized_signer_role == "FA":
-                # For FA role, use Agent column as APLID and call without custom query_name
+                # For FA role, use Agent column as APLID
                 agent_id = test_data.get("Agent", "").strip()
                 if not agent_id:
                     raise ValueError("[FAIL] ClientAccountsPage: CSV Data Validation — Expected: Agent ID not empty, Actual: empty. Details: For Authorized_Signer_Role='FA', Agent column must contain the APLID value. Locator: test_data['Agent'].")
                 
                 logger.info(f"  Fetching Agent name using APLID: {agent_id}")
-                authorized_signer = fetch_agent_name_by_aplid_from_db(agent_id, role="Agent")
+                authorized_signer = fetch_authorized_signer(agent_id, "Agent", test_data)
                 logger.info(f"  ✓ Agent name fetched: {authorized_signer}")
                 
             elif authorized_signer_role == "SAU":
-                # For SAU role, use username as UserID and Agent as usl.UserID, call with custom query_name
+                # For SAU role, use username as UserID and Agent as usl.UserID
                 user_id = test_data.get("username", "").strip()
                 agent_id = test_data.get("Agent", "").strip()
                 if not user_id:
@@ -700,16 +701,11 @@ def provide_authorized_signers_information(authenticated_page: Page, client_acco
                     raise ValueError("[FAIL] ClientAccountsPage: CSV Data Validation — Expected: Agent not empty, Actual: empty. Details: For Authorized_Signer_Role='SAU', Agent column must contain the usl.UserID value. Locator: test_data['Agent'].")
                 
                 logger.info(f"  Fetching SAU name using sd.UserID: {user_id} and usl.UserID: {agent_id}")
-                authorized_signer = fetch_agent_name_by_aplid_from_db(
-                    user_id, 
-                    role="SAU",
-                    query_name="authorized_signer_SAU_name_ManageLogin_by_UserID",
-                    second_param=agent_id
-                )
+                authorized_signer = fetch_authorized_signer(user_id, "SAU", test_data, second_param=agent_id)
                 logger.info(f"  ✓ SAU name fetched: {authorized_signer}")
             else:
                 # No fallback: Authorized_Signer_Role must be either FA or SAU
-                raise ValueError(f"[FAIL] ClientAccountsPage: CSV Data Validation — Expected: Authorized_Signer_Role in ['FA', 'SAU'], Actual: '{authorized_signer_role}'. Details: Authorized_Signer_Role must be 'FA' (Financial Advisor) or 'SAU' (Shared Access User). Authorized Signer name will ALWAYS be fetched from database using fetch_agent_name_by_aplid_from_db() function. Locator: test_data['Authorized_Signer_Role'].")
+                raise ValueError(f"[FAIL] ClientAccountsPage: CSV Data Validation — Expected: Authorized_Signer_Role in ['FA', 'SAU'], Actual: '{authorized_signer_role}'. Details: Authorized_Signer_Role must be 'FA' (Financial Advisor) or 'SAU' (Shared Access User). Authorized Signer name will be fetched using fetch_authorized_signer() function which uses test sheet for protected environments and database for test environments. Locator: test_data['Authorized_Signer_Role'].")
             
             email_address = test_data.get("Email_Address", "").strip() if test_data.get("Email_Address") else ""
             phone = test_data.get("Phone", "").strip() if test_data.get("Phone") else ""
@@ -983,7 +979,7 @@ def verify_account_number_displayed_and_radio_selected(authenticated_page: Page,
         was_already_checked = result['was_already_checked']
         is_checked = result['is_checked']
         
-        soft_assert = SoftAssertions()
+        soft_assert = EnhancedSoftAssertions(authenticated_page)
         
         # Step 2: If radio button was NOT selected initially, add soft assertion (warning, non-blocking)
         if not was_already_checked:
@@ -1109,7 +1105,7 @@ def verify_form_heading_matches_oam_type(authenticated_page: Page, client_accoun
         
         # STEP 2: Use SoftAssertions to verify the heading matches OAM_Type
         logger.info("Step 2: Comparing form heading with OAM_Type...")
-        soft_assert = SoftAssertions()
+        soft_assert = EnhancedSoftAssertions(authenticated_page)
         soft_assert.assert_equal(
             actual_heading,
             expected_heading,
@@ -1236,7 +1232,7 @@ def verify_client_signature_not_required_dialog(authenticated_page: Page, client
         logger.info("Step 3: Verifying dialog title matches expected text...")
         expected_title = "Client Signature Not Required"
         
-        soft_assert = SoftAssertions()
+        soft_assert = EnhancedSoftAssertions(authenticated_page)
         soft_assert.assert_equal(
             dialog_title,
             expected_title,
@@ -1357,7 +1353,7 @@ def verify_request_dialog(authenticated_page: Page, client_accounts_page, test_c
         logger.info("Step 3: Fetching dialog elements...")
         try:
             # Initialize soft assertions for optional dialog elements
-            soft_assert = SoftAssertions()
+            soft_assert = EnhancedSoftAssertions(authenticated_page)
             
             dialog_data = client_accounts_page.get_request_submitted_dialog_content()
             

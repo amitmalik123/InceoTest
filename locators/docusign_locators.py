@@ -4,15 +4,32 @@ Locators for DocuSign Page
 This module contains all locator definitions for the DocuSign signing page.
 """
 
-# DocuSign URL pattern
-DOCUSIGN_URL_PATTERN = "https://apps-d.docusign.com/"
-
+# DocuSign URL patterns (both environments)
+DOCUSIGN_URL_PATTERNS = (
+    "https://apps-d.docusign.com/",
+    "https://www.docusign.net/",
+)
 # ========================================================================================
 # LOCATORS - All page element locators defined for easy maintenance
 # ========================================================================================
 
-# ERSD Consent checkbox and related text
-ERSD_CONSENT_TEXT = "I confirm I have read and I consent to the Electronic Record and Signature Disclosure."
+# ERSD Modal and Consent Checkbox Locators
+# ================================================
+# PRIMARY: Use data-qa selectors (most stable)
+# FALLBACK: Use ARIA/text locators (for other environments/versions)
+
+# ERSD Modal Dialog
+ERSD_MODAL_PRIMARY = '[data-qa="ersd-modal"]'  # Primary: data-qa selector for ERSD modal container
+ERSD_MODAL_ARIA = '[aria-label="Review and continue"]'  # Fallback: ARIA label
+
+# ERSD Consent Checkbox
+ERSD_CONSENT_CHECKBOX_PRIMARY = '[data-qa="ersd-agree-checkbox"]'  # Primary: stable data-qa selector
+ERSD_CONSENT_CHECKBOX_LABEL = '[data-qa="ersd-agree-checkbox-label"]'  # Label element (associated with checkbox)
+ERSD_CONSENT_TEXT = "I confirm I have read and I consent to the Electronic Record and Signature Disclosure."  # Fallback: text-based locator
+
+# ERSD Continue Button
+ERSD_CONTINUE_BUTTON_PRIMARY = '[data-qa="ersd-modal-agree"]'  # Primary: stable data-qa selector
+ERSD_CONTINUE_BUTTON_TEXT = "Continue"  # Fallback: button text (for get_by_role)
 
 # Button locators
 # ACTION_BUTTON_WRAPPER is the parent div containing Finish button (scoped search)
@@ -27,9 +44,10 @@ RESEND_CODE_BUTTON_PATTERN = "Resend Code"
 SIGN_HERE_BUTTON_PATTERN = r"Required\s*-\s*Sign Here"
 SIGNATURE_APPLIED_BUTTON_PATTERN = r"Required\s*-\s*Signature Applied"
 
-# Dialog locators
-REVIEW_CONTINUE_DIALOG = '[aria-label="Review and continue"]'
-DIALOG_CONTENT_P_TAG = 'p[data-qa="email-message-content"]'
+# Dialog content verification
+REVIEW_CONTINUE_DIALOG = '[aria-label="Review and continue"]'  # Backward compatibility alias for ERSD_MODAL_ARIA (used in fetch_docusign_review_and_continue_dialog_text)
+DIALOG_CONTENT_P_TAG = 'p[data-qa="email-message-content"]'  # Message text verification
+ERSD_DISCLOSURE_LINK = '[data-qa="show-consumer-disclosure-modal"]'  # Disclosure link in modal
 
 # Sign button and signature elements
 SIGN_BUTTON = '//div[@data-type="SignHere"]/button'

@@ -1,7 +1,16 @@
+"""
+Locators for Item Detail Page (Tracking Center Item Detail)
+
+This module contains all locator definitions for the Item Detail page.
+Locators are organized by functional area for easy maintenance.
+"""
+
 from playwright.sync_api import Locator, Page, expect
 from pages.base_page import BasePage
 from locators import item_detail_locators
 from utils.allure_logger import get_allure_logger
+from utils.retry_utils import retry_until_true, RetryError
+from utils.dialog_utils import DialogHandler
 
 logger = get_allure_logger(__name__)
 
@@ -464,6 +473,285 @@ class ItemDetailPage(BasePage):
                 f"Failed to click Close button. "
                 f"Locator: button[role='button'][name='Close']. "
                 f"HTML: <button type='button' class='btn btn-default'>Close</button>. "
+                f"Error: {e}"
+            ) from e
+
+    def click_cancel_button(self) -> None:
+        """
+        Click the Cancel button on the Tracking Center Item Detail page.
+        
+        This method:
+        1. Locates the Cancel button using CSS selector (id-based for stability)
+        2. Waits for the button to be visible
+        3. Scrolls into view if needed for interactivity
+        4. Clicks the button with retry logic using retry_until_true utility
+        5. Waits for page stabilization after click
+        
+        The Cancel button HTML:
+            <a href="#" class="btn btn-default" id="cancelRequest" 
+               onclick="setOmniture('Tracking Center:::Tracking Center_Details page Cancel button')">
+                Cancel
+            </a>
+        
+        Selector Strategy: Uses CSS selector "a#cancelRequest" - stable & unique ID-based
+        
+        Returns:
+            None
+            
+        Raises:
+            AssertionError: If Cancel button not found or all click attempts fail
+            
+        Example:
+            item_detail_page.click_cancel_button()
+        """
+        logger.info("Clicking Cancel button on Tracking Center Item Detail page...")
+        
+        try:
+            # Step 1: Locate the Cancel button using CSS selector with ID
+            # Selector: a#cancelRequest (most stable - uses unique ID)
+            cancel_button = self.page.locator(item_detail_locators.CANCEL_BUTTON_SELECTOR)
+            
+            # Step 2: Wait for button to be visible in the DOM
+            logger.info("Waiting for Cancel button to be visible...")
+            cancel_button.wait_for(state="visible", timeout=10000)
+            logger.info("✓ Cancel button is visible")
+            
+            # Step 3: Scroll into view to ensure it's in viewport (important for clicking)
+            logger.info("Scrolling Cancel button into view...")
+            cancel_button.scroll_into_view_if_needed()
+            logger.info("✓ Cancel button scrolled into view")
+            
+            # Step 4: Click the button with retry logic using retry_until_true utility
+            # This provides resilience for timing issues in headless/headed modes
+            logger.info("Attempting to click Cancel button with retry logic...")
+            
+            def attempt_click() -> bool:
+                """Attempt to click the cancel button and return True on success"""
+                try:
+                    cancel_button.click(timeout=5000)
+                    logger.debug("Cancel button click successful")
+                    return True
+                except Exception as click_error:
+                    logger.debug(f"Cancel button click attempt failed: {click_error}")
+                    return False
+            
+            try:
+                # Use retry_until_true from utils.retry_utils for robust retry logic
+                # Max 3 attempts with 1 second delay between attempts
+                retry_until_true(
+                    condition=attempt_click,
+                    max_attempts=3,
+                    delay=1.0,
+                    error_message="Failed to click Cancel button after retries"
+                )
+                logger.info("✓ Cancel button clicked successfully after retries")
+            except RetryError as retry_error:
+                logger.error(f"✗ All click retry attempts failed: {retry_error}")
+                raise AssertionError(
+                    f"Failed to click Cancel button after 3 retry attempts. "
+                    f"Locator: {item_detail_locators.CANCEL_BUTTON_SELECTOR}. "
+                    f"Error: {retry_error}"
+                ) from retry_error
+            
+            # Step 5: Wait for page stabilization after click
+            logger.info("Waiting for page stabilization after Cancel button click...")
+            self.page.wait_for_timeout(2000)
+            logger.info("✓ Page stabilized after Cancel button click")
+            
+        except AssertionError:
+            # Re-raise assertion errors as-is
+            raise
+        except Exception as e:
+            logger.error(f"✗ Failed to interaction with Cancel button: {e}")
+            raise AssertionError(
+                f"Failed to click Cancel button. "
+                f"Locator: {item_detail_locators.CANCEL_BUTTON_SELECTOR}. "
+                f"HTML: <a href='#' class='btn btn-default' id='cancelRequest'>Cancel</a>. "
+                f"Error: {e}"
+            ) from e
+
+    def confirm_cancel_dialog(self) -> None:
+        """
+        Confirm the cancel request by clicking 'Yes' in the confirmation dialog.
+        
+        This method:
+        1. Uses existing DialogHandler.wait_for_dialog() to detect jQuery UI dialog
+        2. Locates the 'Yes' button using Playwright get_by_text() locator
+        3. Clicks 'Yes' with retry logic for resilience
+        4. Waits for dialog to close
+        5. Waits for page stabilization
+        
+        The Confirmation Dialog HTML:
+            <div tabindex="-1" role="dialog" class="ui-dialog ui-corner-all ui-widget 
+                 ui-widget-content ui-front ui-dialog-buttons" aria-describedby="dialog-confirm">
+                <div class="ui-dialog-titlebar ...">
+                    <span class="ui-dialog-title">You are about to cancel this request.</span>
+                </div>
+                <div id="dialog-confirm" class="ui-dialog-content ...">
+                    <p>Cancelling this request will close the item...</p>
+                </div>
+                <div class="ui-dialog-buttonset">
+                    <div class="button_container">
+                        <button type="button" class="formButton">Yes</button>
+                    </div>
+                    <div class="button_container">
+                        <button type="button" class="formButton">No</button>
+                    </div>
+                </div>
+            </div>
+        
+        Dialog Selector: `.ui-dialog` (jQuery UI dialog class)
+        Yes Button Selector: Playwright `get_by_text("Yes")` locator (simplest & most stable)
+        
+        Returns:
+            None
+            
+        Raises:
+            AssertionError: If dialog doesn't appear or Yes button click fails
+            PlaywrightTimeoutError: If dialog detection times out
+            
+        Example:
+            item_detail_page.click_cancel_button()          # Click Cancel to trigger dialog
+            item_detail_page.confirm_cancel_dialog()        # Confirm cancellation in dialog
+        """
+        logger.info("Confirming cancel request via dialog...")
+        
+        try:
+            # Step 1: Detect dialog using existing DialogHandler.wait_for_dialog() utility
+            logger.info("Step 1: Waiting for cancel confirmation dialog to appear...")
+            dialog_handler = DialogHandler(self.page)
+            
+            try:
+                dialog = dialog_handler.wait_for_dialog(timeout=10000)
+                logger.info("✓ Cancel confirmation dialog detected")
+            except Exception as dialog_error:
+                logger.error(f"✗ Failed to detect cancel confirmation dialog: {dialog_error}")
+                raise AssertionError(
+                    f"Cancel confirmation dialog did not appear. "
+                    f"Dialog Selector: {item_detail_locators.CANCEL_CONFIRMATION_DIALOG_SELECTOR}. "
+                    f"This dialog should appear after clicking the Cancel button. "
+                    f"Error: {dialog_error}"
+                ) from dialog_error
+            
+            # Step 2: Locate the 'Yes' button using Playwright get_by_role locator
+            # get_by_role is more reliable for jQuery UI buttons than get_by_text
+            logger.info("Step 2: Locating 'Yes' button in confirmation dialog...")
+            
+            # Try multiple locator strategies in order of preference
+            yes_button = None
+            locator_strategies = [
+                ("get_by_role button + filter text(Yes)", lambda: self.page.get_by_role("button").filter(has_text="Yes").first),
+                ("get_by_text in dialog", lambda: self.page.locator(".ui-dialog").first.get_by_text("Yes").first),
+            ]
+            
+            for strategy_name, strategy_locator in locator_strategies:
+                try:
+                    test_button = strategy_locator()
+                    test_button.wait_for(state="visible", timeout=3000)
+                    yes_button = test_button
+                    logger.info(f"✓ 'Yes' button located using strategy: {strategy_name}")
+                    break
+                except Exception as e:
+                    logger.debug(f"Strategy '{strategy_name}' failed: {e}")
+                    continue
+            
+            if yes_button is None:
+                raise AssertionError(
+                    f"'Yes' button not found in cancel confirmation dialog using any locator strategy. "
+                    f"Tried: get_by_role('button'), get_by_text in dialog scope. "
+                    f"Button Text: '{item_detail_locators.CANCEL_CONFIRM_YES_BUTTON_TEXT}'."
+                )
+            
+            logger.info("✓ 'Yes' button is visible and clickable")
+            
+            # Step 3: Click 'Yes' button with retry logic for resilience
+            logger.info("Step 3: Clicking 'Yes' button with retry logic...")
+            
+            def attempt_click_yes() -> bool:
+                """Attempt to click Yes button and verify it actually worked"""
+                try:
+                    # jQuery UI dialogs can have animation delays - add wait before clicking
+                    self.page.wait_for_timeout(500)
+                    
+                    # Scroll button into view to ensure it's fully accessible
+                    yes_button.scroll_into_view_if_needed()
+                    logger.debug("Button scrolled into view")
+                    
+                    # Log button details for debugging
+                    button_html = yes_button.evaluate("el => el.outerHTML")
+                    logger.debug(f"Button HTML: {button_html[:100]}...")
+                    
+                    # Click with force=True to bypass any UI overlay issues
+                    # force=True ignores any covering elements
+                    yes_button.click(timeout=5000, force=True)
+                    logger.debug("'Yes' button click command executed")
+                    
+                    # Add delay for dialog to start closing
+                    self.page.wait_for_timeout(500)
+                    
+                    # Verify click actually worked by checking if dialog is still visible
+                    dialog_still_visible = False
+                    try:
+                        dialog_locator = self.page.locator(item_detail_locators.CANCEL_CONFIRMATION_DIALOG_SELECTOR).first
+                        dialog_locator.wait_for(state="visible", timeout=1000)
+                        dialog_still_visible = True
+                        logger.debug("✗ Dialog still visible after click - click may have failed")
+                        return False
+                    except:
+                        # Dialog not visible = click worked!
+                        logger.debug("✓ Dialog is no longer visible after click - click succeeded")
+                        return True
+                    
+                except Exception as click_error:
+                    logger.debug(f"'Yes' button click attempt failed: {click_error}")
+                    return False
+            
+            try:
+                # Use retry_until_true for robust retry logic
+                # Max 3 attempts with 2 second delay between attempts (for jQuery animation settling)
+                retry_until_true(
+                    condition=attempt_click_yes,
+                    max_attempts=3,
+                    delay=2.0,
+                    error_message="Failed to click 'Yes' button in cancel confirmation dialog"
+                )
+                logger.info("✓ 'Yes' button clicked successfully and dialog closed")
+            except RetryError as retry_error:
+                logger.error(f"✗ All click retry attempts failed: {retry_error}")
+                raise AssertionError(
+                    f"Failed to click 'Yes' button after 3 retry attempts. "
+                    f"Button Text: '{item_detail_locators.CANCEL_CONFIRM_YES_BUTTON_TEXT}'. "
+                    f"Error: {retry_error}"
+                ) from retry_error
+            
+            # Step 4: Confirm dialog has closed
+            logger.info("Step 4: Verifying confirmation dialog is closed...")
+            try:
+                # Verify dialog is no longer visible
+                dialog_check = self.page.locator(item_detail_locators.CANCEL_CONFIRMATION_DIALOG_SELECTOR).first
+                dialog_check.wait_for(state="hidden", timeout=5000)
+                logger.info("✓ Confirmation dialog has closed")
+            except Exception as close_error:
+                logger.warning(f"⚠ Dialog may still be closing: {close_error}")
+                # Add extra delay for dialog animations
+                self.page.wait_for_timeout(1000)
+            
+            # Step 5: Wait for page stabilization
+            logger.info("Step 5: Waiting for page stabilization after dialog close...")
+            self.page.wait_for_timeout(2000)
+            logger.info("✓ Page stabilized after dialog confirmation")
+            
+            logger.info("[SUCCESS] Cancel confirmation completed via dialog")
+            
+        except AssertionError:
+            # Re-raise assertion errors as-is
+            raise
+        except Exception as e:
+            logger.error(f"✗ Unexpected error during cancel dialog confirmation: {e}")
+            raise AssertionError(
+                f"Failed to confirm cancel request via dialog. "
+                f"Dialog Selector: {item_detail_locators.CANCEL_CONFIRMATION_DIALOG_SELECTOR}. "
+                f"Yes Button Text: '{item_detail_locators.CANCEL_CONFIRM_YES_BUTTON_TEXT}'. "
                 f"Error: {e}"
             ) from e
 

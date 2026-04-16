@@ -40,6 +40,23 @@ FILE_INPUT_SELECTOR = "input[type='file']"
 # HTML: <span class="right-padding"><button type="button" class="btn btn-default">Close</button></span>
 CLOSE_BUTTON_TEXT = "Close"
 
+# Cancel button (Request cancellation button)
+# Note: Uses id selector or get_by_role("link", name="Cancel")
+# HTML: <a href="#" class="btn btn-default" id="cancelRequest" onclick="...">Cancel</a>
+CANCEL_BUTTON_SELECTOR = "a#cancelRequest"
+
+# Cancel confirmation dialog
+# jQuery UI dialog that appears after clicking Cancel button
+# HTML: <div tabindex="-1" role="dialog" class="ui-dialog ui-corner-all...">
+CANCEL_CONFIRMATION_DIALOG_SELECTOR = ".ui-dialog"
+CANCEL_CONFIRMATION_DIALOG_ID = "dialog-confirm"
+CANCEL_CONFIRMATION_DIALOG_BY_ID = f"#{CANCEL_CONFIRMATION_DIALOG_ID}"
+
+# Yes button in cancel confirmation dialog
+# Note: Uses get_by_text("Yes") with Playwright locators
+# HTML: <button type="button" class="formButton" style="width: 65px;">Yes</button>
+CANCEL_CONFIRM_YES_BUTTON_TEXT = "Yes"
+
 # Notes grid table
 NOTES_GRID_TABLE = "table#TrackingCenterItemDetailNotesGrid"
 

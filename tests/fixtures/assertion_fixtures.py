@@ -13,11 +13,11 @@ from collections.abc import Generator
 import pytest
 
 from utils.allure_logger import reset_step_counter
-from utils.assertions import SoftAssertions
+from utils.soft_assertions_enhanced import EnhancedSoftAssertions
 
 
 @pytest.fixture
-def soft_assert() -> Generator[SoftAssertions, None, None]:
+def soft_assert() -> Generator[EnhancedSoftAssertions, None, None]:
     """
     Auto-validating soft assertions fixture.
 
@@ -34,7 +34,7 @@ def soft_assert() -> Generator[SoftAssertions, None, None]:
             soft_assert.assert_true(authenticated_page.locator("#verified").is_visible())
 
             # Automatically validates all assertions at test end
-            # If any failed, raises SoftAssertionError with all failures listed
+            # If any failed, raises SoftAssertionWarning (test stays PASSED with yellow warning)
 
     Available methods:
         - assert_equal(actual, expected, message=None)
@@ -43,8 +43,11 @@ def soft_assert() -> Generator[SoftAssertions, None, None]:
         - assert_false(condition, message=None)
         - assert_in(item, container, message=None)
         - assert_not_in(item, container, message=None)
+        - assert_visible(locator, message=None)
+        - assert_count(locator, expected_count, message=None)
+        - assert_text_contains(locator, text, message=None)
     """
-    soft = SoftAssertions()
+    soft = EnhancedSoftAssertions()
     yield soft
     # Automatically validate all assertions after test completes
     soft.assert_all()

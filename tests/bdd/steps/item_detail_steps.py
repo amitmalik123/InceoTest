@@ -1,9 +1,9 @@
 import allure
 from playwright.sync_api import Page
-from pytest_bdd import parsers, then
+from pytest_bdd import parsers, then, when
 
 from utils.allure_logger import get_allure_logger
-from utils.assertions import SoftAssertions
+from utils.soft_assertions_enhanced import EnhancedSoftAssertions
 from utils.database import fetch_agent_name_by_aplid_from_db
 from utils.retry_utils import retry_until_true
 from utils.wait_utils import wait_for_url_to_match
@@ -20,6 +20,7 @@ def verify_item_detail_d_number_matches_request_submitted_pop_up_d_number(tracki
     1. Retrieves the D-number stored from the request submitted pop up
     2. Gets the D-number from the Tracking Center Item Detail
     3. Compares them to ensure they match
+    4. Updates test_context with final D-number for logging
     """
     with allure.step("Verify D number matches between request submitted pop up and Tracking Center Item Detail"):
         logger.info(">>> STEP: Verify D number matches request submitted pop up D number")
@@ -44,7 +45,11 @@ def verify_item_detail_d_number_matches_request_submitted_pop_up_d_number(tracki
             # Verify they match
             assert expected_d_number == actual_d_number, \
             f"[FAIL] TrackingCenterPage: D-Number Validation — Expected: d_number='{expected_d_number}', Actual: d_number='{actual_d_number}'. Details: D-number from request submitted dialog must match D-number displayed on Tracking Center Item Detail. Locator: tracking-center-d-number-display."
+            
+            # Update test_context with final D_Number for logging at end of scenario
+            test_context['d_number'] = actual_d_number
             logger.info(f"✓ D-number verification passed: {actual_d_number}")
+            logger.info(f"✓ D-number stored in test_context for final logging: {actual_d_number}")
             
         except Exception as e:
             logger.error(f"✗ D-number verification failed: {e}")
@@ -323,13 +328,19 @@ def verify_notes_description(trackingCenter_ItemDetail_page, test_context):
             # Step 6: Use soft assertions to verify each expected description is in actual descriptions
             logger.info("Step 5: Comparing expected vs actual descriptions using soft assertions...")
             
-            with SoftAssertions() as soft:
+            with EnhancedSoftAssertions(trackingCenter_ItemDetail_page.page) as soft:
                 for idx, expected_desc in enumerate(processed_expected, 1):
                     found = False
                     matched_actual = None
                     
+                    # Normalize expected description: replace non-breaking spaces and extra whitespace with regular spaces
+                    normalized_expected = ' '.join(expected_desc.replace('\xa0', ' ').split())
+                    
                     for actual_desc in actual_descriptions:
-                        if expected_desc in actual_desc:
+                        # Normalize actual description: replace non-breaking spaces and extra whitespace with regular spaces
+                        normalized_actual = ' '.join(actual_desc.replace('\xa0', ' ').split())
+                        
+                        if normalized_expected in normalized_actual:
                             found = True
                             matched_actual = actual_desc
                             break
@@ -388,7 +399,7 @@ def verify_advisor_alert_required_value(trackingCenter_ItemDetail_page, test_con
             
             # Step 3: Use soft assertions to verify they match
             logger.info("Step 3: Comparing values using soft assertions...")
-            soft_assert = SoftAssertions()
+            soft_assert = EnhancedSoftAssertions(trackingCenter_ItemDetail_page.page)
             soft_assert.assert_equal(
                 actual_value,
                 expected_value,
@@ -527,7 +538,7 @@ def verify_agent_name(trackingCenter_ItemDetail_page, test_context):
             # Step 5: Use soft assertions to compare actual vs expected (with ID)
             logger.info("Step 5: Comparing actual Agent Name with expected Agent Name (including ID) using soft assertions...")
             
-            with SoftAssertions() as soft:
+            with EnhancedSoftAssertions(trackingCenter_ItemDetail_page.page) as soft:
                 if actual_agent_name != expected_agent_name_with_id:
                     error_msg = (f"[FAIL] TrackingCenterPage: Agent Name Validation — Expected: agent_name='{expected_agent_name_with_id}', Actual: agent_name='{actual_agent_name}'. Details: Agent Name displayed on Tracking Center Item Detail does not match the Agent Name from database concatenated with Agent ID. Locator: //span[text()='Agent Name']/following-sibling::label.")
                     logger.error(f"  ✗ {error_msg}")
@@ -640,3 +651,99 @@ def user_click_upload_button_and_upload_document(trackingCenter_ItemDetail_page)
                 f"Close Button Locator: button[role='button'][name='Close']. "
                 f"Error: {e}"
             ) from e
+
+
+@when("User cancel the request")
+def user_cancel_the_request(trackingCenter_ItemDetail_page):
+    """
+    Cancel the request from Tracking Center Item Detail page with confirmation dialog.
+    
+    This step:
+    1. Clicks the Cancel button on the Tracking Center Item Detail page
+    2. Waits for the cancel confirmation dialog to appear (jQuery UI dialog)
+    3. Clicks the 'Yes' button to confirm cancellation
+    4. Waits for dialog to close and page stabilization
+    
+    The Cancel button HTML:
+        <a href="#" class="btn btn-default" id="cancelRequest" 
+           onclick="setOmniture('Tracking Center:::Tracking Center_Details page Cancel button')">
+            Cancel
+        </a>
+    
+    The Confirmation Dialog:
+        Dialog Title: "You are about to cancel this request."
+        Dialog Buttons: Yes, No
+    
+    Selector: CSS selector "a#cancelRequest" (stable - unique ID)
+    Dialog Selector: `.ui-dialog` (jQuery UI dialog class)
+    Yes Button: Uses `get_by_text("Yes")` Playwright locator
+    
+    Returns:
+        None
+        
+    Raises:
+        AssertionError: If Cancel button not found, dialog doesn't appear, or Yes button click fails
+        
+    Example:
+        When User cancel the request
+    
+    Used in feature files:
+        Scenario: Cancel a submitted request
+            Given User is on Tracking Center Item Detail page
+            When User cancel the request
+            Then Verify user is redirected to Tracking Center page
+    """
+    with allure.step("Cancel the request and confirm in dialog"):
+        logger.info(">>> STEP: User cancel the request")
+        
+        try:
+            # Step 1: Click the Cancel button
+            logger.info("Step 1: Attempting to click Cancel button...")
+            trackingCenter_ItemDetail_page.click_cancel_button()
+            logger.info("[PASS] Cancel button clicked successfully.")
+            
+            # Attach screenshot after cancel button click
+            screenshot = trackingCenter_ItemDetail_page.page.screenshot()
+            allure.attach(
+                screenshot,
+                name="Cancel Button Clicked - Before Dialog Confirmation",
+                attachment_type=allure.attachment_type.PNG
+            )
+            
+            # Step 2: Confirm cancellation in the dialog by clicking 'Yes'
+            logger.info("Step 2: Confirming cancellation in dialog by clicking 'Yes'...")
+            trackingCenter_ItemDetail_page.confirm_cancel_dialog()
+            logger.info("[PASS] Cancel dialog confirmed successfully.")
+            
+            # Attach screenshot after dialog confirmation
+            screenshot = trackingCenter_ItemDetail_page.page.screenshot()
+            allure.attach(
+                screenshot,
+                name="Cancel Confirmed - Dialog Closed",
+                attachment_type=allure.attachment_type.PNG
+            )
+            
+            logger.info("[PASS] TrackingCenterPage: Request cancellation workflow completed.")
+            
+        except Exception as e:
+            logger.error(f"✗ Failed to cancel request: {e}")
+            
+            # Attach screenshot on failure for debugging
+            try:
+                screenshot = trackingCenter_ItemDetail_page.page.screenshot()
+                allure.attach(
+                    screenshot,
+                    name="Request Cancellation - Failure Screenshot",
+                    attachment_type=allure.attachment_type.PNG
+                )
+            except Exception:
+                pass
+            
+            raise AssertionError(
+                f"Failed to cancel request workflow. "
+                f"Step 1 - Cancel Button Locator: a#cancelRequest. "
+                f"Step 2 - Dialog Selector: .ui-dialog (jQuery UI). "
+                f"Step 2 - Yes Button Text: 'Yes'. "
+                f"Error: {e}"
+            ) from e
+

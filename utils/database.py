@@ -619,6 +619,93 @@ def get_azure_db_connection(**kwargs) -> SQLDatabase:
     """
     return SQLDatabase(**kwargs)
 
+
+def fetch_authorized_signer(
+    aplid: str, 
+    role: str, 
+    test_data: dict,
+    second_param: Optional[str] = None
+) -> str:
+    """
+    Fetch authorized signer name with environment-aware data source selection.
+    
+    For production, silo, and test10 environments: Returns value from test sheet (test_data)
+    For other environments (test11, test12): Queries the database
+    
+    This function implements the strategy to avoid direct database access for protected
+    environments while using test data for those environments.
+    
+    Args:
+        aplid: User identifier (APLID for Agent role, UserID for SAU role)
+        role: User role - 'Agent'/'FA' or 'SAU'/'Shared Access User'
+        test_data: Dictionary containing test data row with 'Authorized_Signer_Role_Name' column
+        second_param: (OPTIONAL) Second parameter required for SAU queries (Agent UserID)
+        
+    Returns:
+        Authorized signer name from either test sheet or database
+        
+    Raises:
+        ValueError: If authorized signer not found in test data for protected environments
+        PermissionError: If attempting database access to restricted environments (handled by fetch_agent_name_by_aplid_from_db)
+        
+    Example:
+        >>> test_data = {"Authorized_Signer_Role_Name": "John Smith", "APLID": "123456"}
+        >>> name = fetch_authorized_signer("123456", "Agent", test_data)
+        >>> print(name)  # "John Smith"
+        
+        >>> # For SAU with two parameters
+        >>> name = fetch_authorized_signer("789012", "SAU", test_data, second_param="123456")
+        >>> print(name)  # "Jane Doe"
+    """
+    try:
+        settings = _get_db_settings()
+        env = settings.env.lower()
+        
+        # Target environments where test sheet is used instead of database
+        sheet_based_envs = ["prod", "production", "silo", "test10"]
+        
+        if env in sheet_based_envs:
+            # Use test sheet value for protected environments
+            signer_name = test_data.get("Authorized_Signer_Role_Name", "").strip()
+            
+            if not signer_name:
+                raise ValueError(
+                    f"Authorized_Signer_Role_Name not found in test data for {env} environment. "
+                    f"Ensure 'Authorized_Signer_Role_Name' column is populated in test_data.{env}.csv"
+                )
+            
+            logger.info(f"Using Authorized_Signer from test sheet for {env}: {signer_name}")
+            return signer_name
+        else:
+            # Use database for other environments
+            logger.info(f"Using Authorized_Signer from database for {env}")
+            
+            # For SAU role, need to pass second_param for the query
+            if second_param:
+                signer_name = fetch_agent_name_by_aplid_from_db(
+                    aplid, 
+                    role,
+                    query_name="authorized_signer_SAU_name_ManageLogin_by_UserID",
+                    second_param=second_param
+                )
+            else:
+                signer_name = fetch_agent_name_by_aplid_from_db(aplid, role)
+            
+            if not signer_name:
+                raise ValueError(
+                    f"Authorized_Signer not found in database for {aplid} with role {role}"
+                )
+            
+            return signer_name
+            
+    except ValueError as e:
+        logger.error(f"Error fetching Authorized_Signer: {str(e)}")
+        raise
+    except Exception as e:
+        logger.error(f"Unexpected error fetching Authorized_Signer: {str(e)}")
+        raise
+
+
 def fetch_agent_name_by_aplid_from_db(
     aplid: str, 
     role: str, 
