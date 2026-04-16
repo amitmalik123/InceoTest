@@ -9,7 +9,7 @@ SELECT
         (SELECT jsonb_agg(
             jsonb_build_object(
                 'id', (elem->>'id')::int,
-                'name', elem->>'name'
+                'name', elem->>'Name'
             ) ORDER BY (elem->>'id')::int
         )
         FROM jsonb_array_elements(
@@ -24,7 +24,7 @@ SELECT
     investment_min,
     risk_profile,
     jsonb_build_object('ownerId', owner_id) AS owner,
-    metadata,
+    version_metadata AS metadata,
     jsonb_agg(
         jsonb_build_object(
             'version', version,
@@ -65,4 +65,4 @@ WHERE owner_id = '{{test_owner_id}}'
 GROUP BY 
     id, name, model_type, solution_type, custodian, 
     investment_approach, benchmark, investment_min, risk_profile, 
-    owner_id, metadata, modified_date, modified_by, created_by
+    owner_id, version_metadata, modified_date, modified_by, created_by

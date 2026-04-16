@@ -69,6 +69,25 @@ services:
     - financial
     - critical
     priority: 1
+  account_service:
+    displayName: Account Service
+    enabled: true
+    runOnPR: false
+    runOnPush: false
+    runOnSchedule: true
+    testType: functional
+    environments:
+    - TSADEV
+    - TSATEST
+    - TSASILO
+    functionalTestArgs: --service-name account_service --env {environment}
+    nonFunctionalTestArgs: --file testdata/accounts/testcases/TestCase_accounts_GET.json
+      --test_type Performance --env {environment} --headless -u 8 -r 2 -t 20s
+    tags:
+    - account
+    - financial
+    - critical
+    priority: 1
   securities:
     displayName: Securities Hub
     enabled: true
@@ -202,6 +221,24 @@ services:
     - docusign
     - proxy
     priority: 2
+  custodialintegration:
+    displayName: Custodial Integration
+    enabled: true
+    runOnPR: false
+    runOnPush: false
+    runOnSchedule: true
+    testType: functional
+    environments:
+    - TSADEV
+    - TSATEST
+    functionalTestArgs: --service-name custodialintegration --env {environment}
+    nonFunctionalTestArgs: --file testdata/custodialintegration/testcases/TestCase_custodialservicing_accounts_POST.json
+      --test_type Performance --env {environment} --headless -u 8 -r 2 -t 20s
+    tags:
+    - custodial
+    - integration
+    - critical
+    priority: 1
 global:
   defaultPool:
     name: ewm20-docker-build-agent-qa-dev

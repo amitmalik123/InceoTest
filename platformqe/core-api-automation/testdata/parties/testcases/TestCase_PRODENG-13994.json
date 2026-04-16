@@ -117,7 +117,12 @@
     "workflow_mode": "sequential",
     "test_name": "POST /parties - Create party and verify initial version is 1",
     "protocol": "REST",
-    "test_type": ["Functional", "Smoke", "PRODENG-13994", "Business Logic"],
+    "test_type": [
+      "Functional",
+      "Regression",
+      "PRODENG-13994",
+      "Business Logic"
+    ],
     "mainURL": "{{base_url}}",
     "endpoint": "/parties",
     "method": "POST",
@@ -254,7 +259,12 @@
     "workflow_mode": "sequential",
     "test_name": "GET /parties/{id} - Verify initial version is 1 after POST",
     "protocol": "REST",
-    "test_type": ["Functional", "Smoke", "PRODENG-13994", "Business Logic"],
+    "test_type": [
+      "Functional",
+      "Regression",
+      "PRODENG-13994",
+      "Business Logic"
+    ],
     "mainURL": "{{base_url}}",
     "endpoint": "/parties/{{created_party_id}}",
     "method": "GET",

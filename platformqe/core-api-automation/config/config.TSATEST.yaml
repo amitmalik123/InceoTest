@@ -27,7 +27,7 @@ db_connections:
       connection_string: "${PLATFORM_DB_SQLDB}"
 
     account_service:
-      connection_string: "${ACCOUNT_SQLDB}"
+      connection_string: "${ACCOUNTS_SQLDB}"
 
     am_db:
       connection_string: "${AM_DB_SQLDB}"    
@@ -121,6 +121,13 @@ api_endpoints:
     auth_token: "your-token-if-needed"
     timeout: 30
     retry_count: 3
+    verify: false
+
+  custodialintegration:
+    base_url: "${CUSTODIAL_INTEGRATION_BASE_URL}"  # Fetched from Azure variable group: qa-pipelines-variable-group-dev
+    auth_token: "${CUSTODIALINTEGRATION_AUTH_TOKEN}"
+    timeout: ${API_TIMEOUT:30}
+    retry_count: ${API_RETRY_COUNT:3}
     verify: false
 
   work_item_notification:

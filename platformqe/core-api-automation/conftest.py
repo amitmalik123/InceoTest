@@ -311,9 +311,12 @@ def pytest_configure(config):
         os.environ['ENV_NAME'] = cli_env_name
         logger.info(f"ENV_NAME set to '{cli_env_name}' from CLI argument (--env)")
     
-    # Configure HTML report with timestamp
-    timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
-    reports_dir = Path("reports") / timestamp
+    # Configure HTML report with a stable run marker and absolute path.
+    # This avoids FileNotFoundError if current working directory changes during the run.
+    project_root = Path(__file__).resolve().parent
+    timestamp = os.environ.get("PYTEST_RUN_TIMESTAMP") or datetime.now().strftime("%Y%m%d_%H%M%S")
+    os.environ["PYTEST_RUN_TIMESTAMP"] = timestamp
+    reports_dir = project_root / "reports" / timestamp
     
     # Ensure directory exists before pytest-html tries to write
     reports_dir.mkdir(parents=True, exist_ok=True)
@@ -321,7 +324,7 @@ def pytest_configure(config):
     # Set HTML report path if not already specified
     if not config.getoption("--html", default=None):
         html_report_path = reports_dir / f"pytest_report_{timestamp}.html"
-        config.option.htmlpath = str(html_report_path)
+        config.option.htmlpath = str(html_report_path.resolve())
     
     logger.info('Test session is starting')
     logger.info(f'HTML report will be generated at: {reports_dir}')
@@ -1398,11 +1401,11 @@ def get_report_path(config):
     custom_path = config.getoption("custom_report_path")
     if custom_path:
         return custom_path
-    # Use absolute path to ensure reports go to project root
-    reports_dir = os.path.join(os.path.dirname(__file__), 'reports')
+    # Use the same run marker as pytest_configure for consistent report paths.
+    timestamp = os.environ.get("PYTEST_RUN_TIMESTAMP") or datetime.now().strftime("%Y%m%d_%H%M%S")
+    reports_dir = os.path.join(os.path.dirname(__file__), 'reports', timestamp)
     if not os.path.exists(reports_dir):
         os.makedirs(reports_dir)
-    timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
     return os.path.join(reports_dir, f"custom_report_{timestamp}.txt")
 
 

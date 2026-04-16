@@ -1,38 +1,37 @@
 {
-  "name": "string",
-  "modelType": "string",
-  "solutionType": "string",
-  "custodians": [
-    "string"
-  ],
-  "investmentApproachId": "{{db_investment_approach_id}}",
-  "benchmark": [
-    {
-      "name": "string",
-      "isPrimary": true,
-      "id": 0
+    "name": "string",
+    "modelType": "string",
+    "solutionType": "string",
+    "custodians": [
+        "string"
+    ],
+    "investmentApproachId": null,
+    "benchmark": [
+        {
+            "name": "string",
+            "isPrimary": true
+        }
+    ],
+    "investmentMins": [
+        {
+            "type": "System",
+            "value": 2
+        }
+    ],
+    "riskProfile": "string",
+    "allocations": [
+        {
+            "entityType": "Security",
+            "allocationName": "string",
+            "modelId": "string",
+            "cusip": "string",
+            "ticker": "string",
+            "weight": 0
+        }
+    ],
+    "versionMetadata": {
+        "additionalProp1": "string",
+        "additionalProp2": "string",
+        "additionalProp3": "string"
     }
-  ],
-  "investmentMins": [
-    {
-      "type": "System",
-      "value": 2
-    }
-  ],
-  "riskProfile": "string",
-  "allocations": [
-    {
-      "entityType": "Security",
-      "allocationName": "string",
-      "modelId": "string",
-      "cusip": "string",
-      "ticker": "string",
-      "weight": 0
-    }
-  ],
-  "metadata": {
-    "additionalProp1": "string",
-    "additionalProp2": "string",
-    "additionalProp3": "string"
-  }
 }

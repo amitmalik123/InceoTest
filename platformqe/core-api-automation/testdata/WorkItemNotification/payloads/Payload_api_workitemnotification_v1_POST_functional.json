@@ -1,0 +1,21 @@
+{
+"aplId": "SR{{random_numeric(4)}}",
+  "itemsRequiringAttention": "Email",
+ 
+  "receivedCompletedSecondary": "None",
+  "approvalNotification": "None",
+  "receivedCompletedNewAccounts": "Email",
+  "receivedCompletedMoneyIn": "Email",
+  "receivedCompletedStandingInstructions": "None",
+  "receivedCompletedInvestmentChanges": "None",
+  "receivedCompletedWithdrawals": "Email",
+  "receivedCompletedTerminations": "None",
+  "preferenceEmailRecipient": {
+    "recipientId": "2F069182-16B6-47AF-BF9F-24CC90F219D6",
+    "emailRecipientType": "UserSSOLink",
+    "notificationGroup": "ReceivedCompletedWithdrawals",
+    "isRecipientAdd": true,
+    "createdBy": "WorkItemNotificationService"
+  },
+  "createdBy": "WorkItemNotificationService"
+}

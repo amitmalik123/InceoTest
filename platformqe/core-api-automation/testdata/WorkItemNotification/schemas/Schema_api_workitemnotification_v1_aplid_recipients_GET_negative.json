@@ -1,0 +1,29 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "type": "object",
+  "title": "GET /api/workitemnotification/v1/{aplid}/recipients Negative Response Schema",
+  "description": "Error response schema for /api/workitemnotification/v1/{aplid}/recipients",
+  "properties": {
+    "id": {"type": ["integer", "string"]},
+    "aplId": {"type": ["string", "null"]},
+    "itemsRequiringAttention": {"type": ["string", "null"]},
+    "receivedCompletedPrimary": {"type": ["string", "null"]},
+    "receivedCompletedSecondary": {"type": ["string", "null"]},
+    "workItemVisibilityPreferences": {"type": ["array", "null"]},
+    "selectedRecipients": {"type": ["array", "null"]},
+    "allRecipients": {"type": "array"},
+    "isPageVisited": {"type": ["boolean", "null"]},
+    "createdBy": {"type": ["string", "null"]},
+    "createdDate": {"type": ["string", "null"]},
+    "modifiedBy": {"type": ["string", "null"]},
+    "modifiedDate": {"type": ["string", "null"]},
+    "approvalNotification": {"type": ["string", "null"]},
+    "receivedCompletedNewAccounts": {"type": ["string", "null"]},
+    "receivedCompletedMoneyIn": {"type": ["string", "null"]},
+    "receivedCompletedStandingInstructions": {"type": ["string", "null"]},
+    "receivedCompletedInvestmentChanges": {"type": ["string", "null"]},
+    "receivedCompletedWithdrawals": {"type": ["string", "null"]},
+    "receivedCompletedTerminations": {"type": ["string", "null"]}
+  },
+  "required": []
+}

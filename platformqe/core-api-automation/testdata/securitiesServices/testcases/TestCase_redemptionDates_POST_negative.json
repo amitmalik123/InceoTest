@@ -1,0 +1,320 @@
+[
+    {
+        "test_id": "TC001",
+        "service_name": "securitiesServices",
+        "workflow_mode": "parallel",
+        "test_name": "POST /redemptionDates [negative: missing required field fundCIK] (TC001)",
+        "protocol": "REST",
+        "test_type": [
+            "Negative",
+            "Validation"
+        ],
+        "mainURL": "{{base_url}}",
+        "endpoint": "/redemptionDates",
+        "method": "POST",
+        "headers_additional": {
+            "Content-Type": "application/json"
+        },
+        "payload": "securitiesServices/payloads/Payload_missing_fundCIK_redemptionDates_POST.json",
+        "expected_status": "400",
+        "expected_response": null,
+        "ignore_fields": [],
+        "extract_values": [
+            {
+                "from": "response",
+                "key": "title",
+                "assign_to": "error_title"
+            },
+            {
+                "from": "response",
+                "key": "status",
+                "assign_to": "error_status"
+            }
+        ],
+        "validate": {
+            "performance": {
+                "max_response_time_ms": 600
+            },
+            "security": {
+                "checks": [
+                    "sql_injection",
+                    "xss"
+                ]
+            },
+            "assertions": [
+                {
+                    "actual": "{{error_status}}",
+                    "operator": "==",
+                    "expected": 400,
+                    "message": "Expected 400 when fundCIK is missing"
+                },
+                {
+                    "actual": "{{error_title}}",
+                    "operator": "==",
+                    "expected": "One or more validation errors occurred.",
+                    "message": "Expected validation error title when fundCIK is missing"
+                }
+            ]
+        },
+        "db_query": "",
+        "db_type": "",
+        "db_connection_name": "",
+        "test_summary": "TC001: Verify POST /redemptionDates returns 400 when required field fundCIK is missing.",
+        "test_scenario": "Verify that POST /redemptionDates returns 400 when fundCIK is omitted from the request body."
+    },
+    {
+        "test_id": "TC002",
+        "service_name": "securitiesServices",
+        "workflow_mode": "parallel",
+        "test_name": "POST /redemptionDates [negative: missing required field fundName] (TC002)",
+        "protocol": "REST",
+        "test_type": [
+            "Negative",
+            "Validation"
+        ],
+        "mainURL": "{{base_url}}",
+        "endpoint": "/redemptionDates",
+        "method": "POST",
+        "headers_additional": {
+            "Content-Type": "application/json"
+        },
+        "payload": "securitiesServices/payloads/Payload_missing_fundName_redemptionDates_POST.json",
+        "expected_status": "400",
+        "expected_response": null,
+        "ignore_fields": [],
+        "extract_values": [
+            {
+                "from": "response",
+                "key": "title",
+                "assign_to": "error_title"
+            },
+            {
+                "from": "response",
+                "key": "status",
+                "assign_to": "error_status"
+            }
+        ],
+        "validate": {
+            "performance": {
+                "max_response_time_ms": 600
+            },
+            "security": {
+                "checks": [
+                    "sql_injection",
+                    "xss"
+                ]
+            },
+            "assertions": [
+                {
+                    "actual": "{{error_status}}",
+                    "operator": "==",
+                    "expected": 400,
+                    "message": "Expected 400 when fundName is missing"
+                },
+                {
+                    "actual": "{{error_title}}",
+                    "operator": "==",
+                    "expected": "One or more validation errors occurred.",
+                    "message": "Expected validation error title when fundName is missing"
+                }
+            ]
+        },
+        "db_query": "",
+        "db_type": "",
+        "db_connection_name": "",
+        "test_summary": "TC002: Verify POST /redemptionDates returns 400 when required field fundName is missing.",
+        "test_scenario": "Verify that POST /redemptionDates returns 400 when fundName is omitted from the request body."
+    },
+    {
+        "test_id": "TC003",
+        "service_name": "securitiesServices",
+        "workflow_mode": "parallel",
+        "test_name": "POST /redemptionDates [negative: fundName with lowercase cik suffix stored as-is] (TC003)",
+        "protocol": "REST",
+        "test_type": [
+            "Negative",
+            "Database Validation"
+        ],
+        "mainURL": "{{base_url}}",
+        "endpoint": "/redemptionDates",
+        "method": "POST",
+        "headers_additional": {
+            "Content-Type": "application/json"
+        },
+        "payload": "securitiesServices/payloads/Payload_redemptionDates_POST_negative.json",
+        "expected_status": "200",
+        "expected_response": null,
+        "ignore_fields": [],
+        "extract_values": [
+            {
+                "from": "db_result",
+                "key": "0.db_fund_name",
+                "assign_to": "db_fund_name"
+            },
+            {
+                "from": "db_result",
+                "key": "0.db_fund_cik",
+                "assign_to": "db_fund_cik"
+            }
+        ],
+        "validate": {
+            "performance": {
+                "max_response_time_ms": 1000
+            },
+            "security": {
+                "checks": [
+                    "sql_injection",
+                    "xss"
+                ]
+            },
+            "assertions": [
+                {
+                    "actual": "{{db_fund_name}}",
+                    "operator": "contains",
+                    "expected": "(cik",
+                    "message": "Expected DB to store fund_name as-is when CIK suffix uses lowercase 'cik' (no stripping should occur)."
+                },
+                {
+                    "actual": "{{db_fund_cik}}",
+                    "operator": "==",
+                    "expected": "{{request_fund_cik}}",
+                    "message": "Expected database fund_cik to match the requested CIK value."
+                }
+            ]
+        },
+        "test_data_file": "securitiesServices/data_driven/Data_redemptionDates_POST_fundName_lowercase_cik.csv",
+        "db_type": "postgresql",
+        "db_connection_name": "securitiesServices",
+        "db_query": "securitiesServices/db_queries/Query_redemptionDates_POST.sql",
+        "test_summary": "TC003: Verify that fund names with lowercase '(cik ...)' suffix are stored in DB as-is (no stripping).",
+        "test_scenario": "The CIK stripping logic only triggers when CIK is uppercase and in parentheses. Lowercase cik should be stored verbatim."
+    },
+    {
+        "test_id": "TC004",
+        "service_name": "securitiesServices",
+        "workflow_mode": "parallel",
+        "test_name": "POST /redemptionDates [negative: fundName without parentheses CIK stored as-is] (TC004)",
+        "protocol": "REST",
+        "test_type": [
+            "Negative",
+            "Database Validation"
+        ],
+        "mainURL": "{{base_url}}",
+        "endpoint": "/redemptionDates",
+        "method": "POST",
+        "headers_additional": {
+            "Content-Type": "application/json"
+        },
+        "payload": "securitiesServices/payloads/Payload_redemptionDates_POST_negative.json",
+        "expected_status": "200",
+        "expected_response": null,
+        "ignore_fields": [],
+        "extract_values": [
+            {
+                "from": "db_result",
+                "key": "0.db_fund_name",
+                "assign_to": "db_fund_name"
+            },
+            {
+                "from": "db_result",
+                "key": "0.db_fund_cik",
+                "assign_to": "db_fund_cik"
+            }
+        ],
+        "validate": {
+            "performance": {
+                "max_response_time_ms": 1000
+            },
+            "security": {
+                "checks": [
+                    "sql_injection",
+                    "xss"
+                ]
+            },
+            "assertions": [
+                {
+                    "actual": "{{db_fund_name}}",
+                    "operator": "contains",
+                    "expected": "CIK",
+                    "message": "Expected DB to store fund_name as-is when CIK suffix has no parentheses (no stripping should occur)."
+                },
+                {
+                    "actual": "{{db_fund_cik}}",
+                    "operator": "==",
+                    "expected": "{{request_fund_cik}}",
+                    "message": "Expected database fund_cik to match the requested CIK value."
+                }
+            ]
+        },
+        "test_data_file": "securitiesServices/data_driven/Data_redemptionDates_POST_fundName_CIKsuffix_noparentheses.csv",
+        "db_type": "postgresql",
+        "db_connection_name": "securitiesServices",
+        "db_query": "securitiesServices/db_queries/Query_redemptionDates_POST.sql",
+        "test_summary": "TC004: Verify that fund names with 'CIK ...' suffix (no parentheses) are stored in DB as-is (no stripping).",
+        "test_scenario": "The CIK stripping logic only triggers when CIK is in parentheses. CIK without parentheses should be stored verbatim."
+    },
+    {
+        "test_id": "TC005",
+        "service_name": "securitiesServices",
+        "workflow_mode": "parallel",
+        "test_name": "POST /redemptionDates [negative: fundName with mixed-case (Cik ...) stored as-is] (TC005)",
+        "protocol": "REST",
+        "test_type": [
+            "Negative",
+            "Database Validation"
+        ],
+        "mainURL": "{{base_url}}",
+        "endpoint": "/redemptionDates",
+        "method": "POST",
+        "headers_additional": {
+            "Content-Type": "application/json"
+        },
+        "payload": "securitiesServices/payloads/Payload_redemptionDates_POST_negative.json",
+        "expected_status": "200",
+        "expected_response": null,
+        "ignore_fields": [],
+        "extract_values": [
+            {
+                "from": "db_result",
+                "key": "0.db_fund_name",
+                "assign_to": "db_fund_name"
+            },
+            {
+                "from": "db_result",
+                "key": "0.db_fund_cik",
+                "assign_to": "db_fund_cik"
+            }
+        ],
+        "validate": {
+            "performance": {
+                "max_response_time_ms": 1000
+            },
+            "security": {
+                "checks": [
+                    "sql_injection",
+                    "xss"
+                ]
+            },
+            "assertions": [
+                {
+                    "actual": "{{db_fund_name}}",
+                    "operator": "contains",
+                    "expected": "(Cik",
+                    "message": "Expected DB to store fund_name as-is when CIK suffix uses mixed case '(Cik ...) ' (no stripping should occur)."
+                },
+                {
+                    "actual": "{{db_fund_cik}}",
+                    "operator": "==",
+                    "expected": "{{request_fund_cik}}",
+                    "message": "Expected database fund_cik to match the requested CIK value."
+                }
+            ]
+        },
+        "test_data_file": "securitiesServices/data_driven/Data_redemptionDates_POST_fundName_CIKsuffix_mixedcase.csv",
+        "db_type": "postgresql",
+        "db_connection_name": "securitiesServices",
+        "db_query": "securitiesServices/db_queries/Query_redemptionDates_POST.sql",
+        "test_summary": "TC005: Verify that fund names with mixed-case '(Cik ...)' suffix are stored in DB as-is (no stripping).",
+        "test_scenario": "The CIK stripping logic requires uppercase 'CIK'. Mixed case '(Cik ...)' should be stored verbatim."
+    }
+]
