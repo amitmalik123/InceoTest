@@ -94,7 +94,7 @@
                 }
             ]
         },
-        "test_data_file": "MoveMoneyAPI/data_driven/Data_requests_requestId_GET.csv",
+        "test_data_file": "MoveMoneyAPI/data_driven/Data_ach_requestId_GET.csv",
         "csv_row_index": 0,
         "db_query_timing": "after_api",
         "db_queries": {
@@ -108,90 +108,11 @@
     {
         "test_id": "TC002",
         "service_name": "movemoney",
-        "workflow_mode": "parallel",
-        "test_name": "DELETE /ach/{requestId} [negative: invalid UUID format] (TC002)",
+        "workflow_mode": "sequential",
+        "test_name": "DELETE /ach/{requestId} [negative: not found returns 204] (TC002)",
         "protocol": "REST",
         "test_type": [
-            "Negative"
-        ],
-        "mainURL": "{{base_url}}",
-        "endpoint": "/ach/6cec40c7-@#b48e-4887-aec0-76c63d0e99ded",
-        "method": "DELETE",
-        "rpc_method": "",
-        "graphql_query": "",
-        "graphql_variables": "",
-        "soap_action": "",
-        "soap_envelope": "",
-        "headers_additional": {
-            "Content-Type": "application/json"
-        },
-        "payload": null,
-        "expected_status": "400",
-        "expected_response_schema": null,
-        "expected_response": "Invalid UUID format for 'requestId' parameter",
-        "ignore_fields": [],
-        "extract_values": [
-            {
-                "from": "response",
-                "key": "status",
-                "assign_to": "error_status"
-            },
-            {
-                "from": "response",
-                "key": "error",
-                "assign_to": "error_message"
-            }
-        ],
-        "validate": {
-            "performance": {
-                "max_response_time_ms": 500
-            },
-            "security": {
-                "checks": [
-                    "sql_injection",
-                    "xss"
-                ]
-            },
-            "assertions": [
-                {
-                    "actual": "{{error_status}}",
-                    "expected": 400,
-                    "operator": "==",
-                    "message": "Error status should be 400"
-                },
-                {
-                    "actual": "{{error_message}}",
-                    "expected": "",
-                    "operator": "!=",
-                    "message": "Error message should not be empty"
-                },
-                {
-                    "actual": "{{error_message}}",
-                    "expected": "UUID",
-                    "operator": "contains",
-                    "message": "Error message should mention GUID or UUID validation"
-                }
-            ],
-            "data_comparison": []
-        },
-        "test_data_file": "",
-        "db_query_timing": "after_api",
-        "db_queries": {
-            "default": "",
-            "audit_query": ""
-        },
-        "db_type": "",
-        "db_connection_name": "",
-        "test_summary": "Test TC002: DELETE /ach/{requestId} [negative: invalid UUID format] (TC002) - Verify 400 Bad Request for invalid UUID"
-    },
-    {
-        "test_id": "TC003",
-        "service_name": "movemoney",
-        "workflow_mode": "parallel",
-        "test_name": "DELETE /ach/{requestId} [negative: not found returns 204] (TC003)",
-        "protocol": "REST",
-        "test_type": [
-            "Negative"
+            "Functional"
         ],
         "mainURL": "{{base_url}}",
         "endpoint": "/ach/{{requestId}}",
@@ -223,7 +144,7 @@
             "assertions": [],
             "data_comparison": []
         },
-        "test_data_file": "MoveMoneyAPI/data_driven/Data_requests_requestId_GET.csv",
+        "test_data_file": "MoveMoneyAPI/data_driven/Data_ach_requestId_GET.csv",
         "csv_row_index": 0,
         "db_query_timing": "after_api",
         "db_queries": {
@@ -232,6 +153,6 @@
         },
         "db_type": "",
         "db_connection_name": "",
-        "test_summary": "Test TC003: DELETE /ach/{requestId} returns 204 No Content when valid UUID not found"
+        "test_summary": "Test TC002: DELETE /ach/{requestId} returns 204 No Content when valid UUID not found"
     }
 ]
