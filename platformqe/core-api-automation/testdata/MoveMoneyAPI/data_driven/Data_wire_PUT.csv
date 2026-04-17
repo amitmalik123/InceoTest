@@ -1,0 +1,4 @@
+environment,amount,requestType,status,changeState,referenceNumber,allocations,instructionId,paymentDate,purpose,version
+TSADEV,250000.00,Deposit,Draft,,20240315MMQFMP6B000201,"[{""accountId"":""123e4567-e89b-12d3-a456-426614174000"",""allocationunitType"":""Percent"",""percent"":60.00,""reason"":""DEPNonQualified""},{""accountId"":""550e8400-e29b-41d4-a716-446655440000"",""allocationunitType"":""Percent"",""percent"":40.00,""reason"":""DEPQualified""}]",,,,
+TSADEV,300000.00,Deposit,Draft,Pending,20260315MMQFMP6B000201,,,,,4
+TSADEV,300000.00,Withdrawal,Draft,Pending,,,f47ac10b-58cc-4372-a567-0e02b2c3d479,2027-04-07,Quarterly distribution to beneficiary account,4
