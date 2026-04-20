@@ -739,15 +739,18 @@ class ClientAccountsPage(BasePage):
                         except WaitTimeoutError:
                             logger.warning(f"Type list not rendering, attempting click anyway")
 
-                    # Primary strategy: role-based locator (fastest)
-                    item = container.get_by_role('listitem', name=type_name)
+                    # Primary strategy: role-based locator with onclick attribute check (most reliable)
+                    # Ensures we're clicking the actual clickable li with SubSelectCategoryClick handler
+                    item = container.locator(
+                        f'li[onclick*="SubSelectCategoryClick"]:has-text("{type_name}")'
+                    )
                     if item.count() > 0:
                         if self._wait_and_click_element(item, f"Type '{type_name}'", timeout_ms=1500):
-                            logger.info(f"✓ Type '{type_name}' selected via role locator")
+                            logger.info(f"✓ Type '{type_name}' selected via onclick locator")
                             retry.success()
                             return
                     else:
-                        logger.debug(f"Role-based locator count=0 for '{type_name}'")
+                        logger.debug(f"onclick locator count=0 for '{type_name}', trying fallback")
 
                     # Fallback 1: LI with onclick attribute (efficient & more stable)
                     clickable = ul.locator(f'li[onclick]:has-text("{type_name}")')
