@@ -9,6 +9,7 @@ from tests.bdd.steps.common_steps import *  # noqa
 from tests.bdd.steps.document_vault_steps import *  # noqa
 from tests.bdd.steps.login_steps import *  # noqa
 from tests.bdd.steps.navigation_steps import *  # noqa
+from tests.bdd.steps.RGLstep import *  # noqa
 
 # Load all scenarios from the feature file (gracefully skip if all are commented out)
 try:

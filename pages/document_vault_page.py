@@ -19,6 +19,9 @@ class DocumentVaultPage(BasePage):
 
         # New navbar top-level navigation element
         self.statements_reports_link: Locator = self.page.locator('//a[text()="Statements & Reports"]')
+        self.service_center_link: Locator = self.page.locator('//a[text()="Service Center"]')
+        self.tax_and_reporting_link: Locator = self.page.locator('//a[text()="Tax and Reporting"]')
+        self.document_vault_nav_link: Locator = self.page.locator('//a[text()="Document Vault"]')
         self.document_type_dropdown: Locator = self.form_root.locator('//span[text()="Select a document type"]')
         self.year_dropdown: Locator = self.form_root.locator('//select[@name="ddYear"]')
         self.quarter_dropdown: Locator = self.form_root.locator('//select[@name="ddQtrMonth"]')
@@ -140,6 +143,24 @@ class DocumentVaultPage(BasePage):
         raise AssertionError(
             "Client Document and Reports Vault text is not visible after clicking Statements & Reports"
         )
+
+    def navigate_to_document_vault(self, timeout: int = 30000) -> None:
+        """Navigate to Document Vault via Service Center > Tax and Reporting > Document Vault."""
+        logger.info("Navigating to Document Vault through Service Center")
+        self.click(self.service_center_link, timeout=timeout)
+        self.page.wait_for_load_state("domcontentloaded", timeout=timeout)
+        self.wait_for_all_spinners_to_disappear(timeout=timeout)
+        self._init_locators()
+        
+        self.click(self.tax_and_reporting_link, timeout=timeout)
+        self.page.wait_for_load_state("domcontentloaded", timeout=timeout)
+        self.wait_for_all_spinners_to_disappear(timeout=timeout)
+        self._init_locators()
+        
+        self.click(self.document_vault_nav_link, timeout=timeout)
+        self.page.wait_for_load_state("domcontentloaded", timeout=timeout)
+        self.wait_for_all_spinners_to_disappear(timeout=timeout)
+        logger.info("Document Vault page loaded")
 
     def _search_and_navigate_to_doc_vault(self, client_name: str, timeout: int = 30000) -> None:
         """Common navigation logic for both old and new navbar flows."""

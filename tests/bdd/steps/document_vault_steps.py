@@ -1,5 +1,5 @@
 from playwright.sync_api import Page
-from pytest_bdd import parsers, then, when
+from pytest_bdd import parsers, given, then, when
 
 from pages.document_vault_page import DocumentVaultPage
 from utils.allure_logger import get_allure_logger
@@ -7,10 +7,10 @@ from utils.allure_logger import get_allure_logger
 logger = get_allure_logger(__name__)
 
 
-@when("User clicks on the Statements and Reports")
-def click_statements_and_reports(page: Page):
+@given("navigates to Document vault")
+def navigate_to_document_vault(page: Page):
     document_vault_page = DocumentVaultPage(page)
-    document_vault_page.open_statements_and_reports_and_validate()
+    document_vault_page.navigate_to_document_vault()
 
 
 @when(parsers.parse('navigates to document vault with "{sheet_name}" , {row_number:d}'))
