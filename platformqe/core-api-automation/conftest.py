@@ -251,6 +251,18 @@ def pytest_addoption(parser):
         help="Run only test cases with this service_name value."
     )
     parser.addoption(
+        "--hook-endpoint",
+        action="store",
+        default=None,
+        help="Limit hooks to a single endpoint group (e.g., requests, instructions)."
+    )
+    parser.addoption(
+        "--skip-teardown",
+        action="store_true",
+        default=False,
+        help="Skip teardown/cleanup phase after tests complete (keeps created test data)."
+    )
+    parser.addoption(
         "--test-id",
         action="store",
         default=None,
@@ -1509,6 +1521,7 @@ def pytest_sessionstart(session):
     
     # Trigger hooks for service-specific test data setup
     service_name = session.config.getoption('--service-name', default=None)
+    hook_endpoint = session.config.getoption('--hook-endpoint', default=None)
     if service_name:
         try:
             from framework.hooks.setup import TestDataManager
@@ -1520,9 +1533,19 @@ def pytest_sessionstart(session):
                 config = get_config()
                 env = config.get('environment', 'test')
             
-            logger.info(f"Triggering hooks for service: {service_name}, environment: {env}")
-            _test_data_manager = TestDataManager(service_name, environment=env)
-            success = _test_data_manager.setup()
+            endpoint_label = hook_endpoint or "all"
+            logger.info(f"Triggering hooks for service: {service_name}, endpoint: {endpoint_label}, environment: {env}")
+            
+            success = False
+            try:
+                _test_data_manager = TestDataManager(service_name, environment=env)
+                success = _test_data_manager.setup()
+            except Exception as e:
+                logger.error(f"Setup failed for {service_name}: {type(e).__name__}: {e}", exc_info=True)
+                print(f"\n[HOOKS] ERROR: {type(e).__name__}: {e}")
+                import traceback
+                traceback.print_exc()
+                success = False
             
             # Store setup results in session config for access by fixtures
             session.config._test_data_setup_results = {
@@ -1530,6 +1553,33 @@ def pytest_sessionstart(session):
                 'service': service_name,
                 'environment': env
             }
+            
+            if not success:
+                logger.warning(f"Hooks setup returned False for {service_name}")
+            
+            # Force file system sync after hooks write CSV (fixes Docker/pipeline lag)
+            import time
+            import subprocess
+            if success:
+                try:
+                    if os.name == 'posix':  # Linux/Mac
+                        subprocess.run(['sync'], check=False, timeout=5)
+                except Exception as e:
+                    logger.debug(f"OS sync failed: {e}")
+                time.sleep(10)  # 10 second delay to ensure file system catches up in Docker/pipeline
+            
+            # Verify CSV was updated (quietly - just verify readability)
+            if success and service_name == 'movemoney':
+                try:
+                    csv_path = os.path.join(os.path.dirname(__file__), 'testdata', 'MoveMoneyAPI', 'data_driven', 'Data_instructions_instructionId_Delete.csv')
+                    if not os.path.exists(csv_path):
+                        logger.warning(f"CSV file not found: {csv_path}")
+                    else:
+                        # Quick read to verify file was written
+                        with open(csv_path, 'r', newline='', encoding='utf-8') as f:
+                            f.read(100)  # Just read first 100 chars to verify
+                except Exception as e:
+                    logger.warning(f"CSV verification failed: {e}")
             
             if success:
                 logger.info(f"Hooks completed successfully for {service_name}")
@@ -1543,22 +1593,29 @@ def pytest_sessionfinish(session, exitstatus):
     from datetime import datetime
     session_end_time = datetime.now().isoformat()
     
+    # Check if teardown is skipped
+    skip_teardown = session.config.getoption('--skip-teardown', default=True)
+    
     # Cleanup test data created by hooks
     if _test_data_manager and hasattr(session.config, '_test_data_setup_results'):
         service_name = session.config._test_data_setup_results.get('service')
-        logger.info(f"Running teardown/cleanup for {service_name}")
-        try:
-            from framework.hooks.teardown import CleanupManager
-            created_data = _test_data_manager.created_data if hasattr(_test_data_manager, 'created_data') else []
-            
-            if created_data:
-                cleanup = CleanupManager(service_name, created_data=created_data)
-                cleanup.teardown()
-                logger.info(f"Cleanup completed for {service_name}")
-            else:
-                logger.info(f"No test data to cleanup for {service_name}")
-        except Exception as e:
-            logger.warning(f"Failed to cleanup test data for {service_name}: {e}")
+        
+        if skip_teardown:
+            logger.info(f"Skipping teardown/cleanup for {service_name} (--skip-teardown flag set)")
+        else:
+            logger.info(f"Running teardown/cleanup for {service_name}")
+            try:
+                from framework.hooks.teardown import CleanupManager
+                created_data = _test_data_manager.created_data if hasattr(_test_data_manager, 'created_data') else []
+                
+                if created_data:
+                    cleanup = CleanupManager(service_name, created_data=created_data)
+                    cleanup.teardown()
+                    logger.info(f"Cleanup completed for {service_name}")
+                else:
+                    logger.info(f"No test data to cleanup for {service_name}")
+            except Exception as e:
+                logger.warning(f"Failed to cleanup test data for {service_name}: {e}")
     
     # Archive previous pytest_session.log
     archive_pytest_session_log()

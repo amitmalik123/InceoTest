@@ -1,12 +1,13 @@
 [
     {
         "test_id": "TC001",
-        "service_name": "work_item_notification",
+        "service_name": "WorkItemNotification",
         "workflow_mode": "parallel",
         "test_name": "GET /api/workitemnotification/v1/{aplid} [positive] (TC024)",
         "protocol": "REST",
         "test_type": [
-            "Functional", "Performance"
+            "Functional",
+            "Performance"
         ],
         "mainURL": "{{base_url}}",
         "endpoint": "/api/workitemnotification/v1/{{aplid}}",
@@ -24,6 +25,11 @@
         "expected_response_schema": "WorkItemNotification\\schemas\\Schema_aplid_success.json",
         "expected_response": "WorkItemNotification\\payloads\\Payload_aplid_response.json",
         "extract_values": [
+            {
+                "from": "response",
+                "key": "aplId",
+                "assign_to": "aplId"
+            }
         ],
         "validate": {
             "performance": {
@@ -35,6 +41,14 @@
                     "xss"
                 ]
             },
+            "assertions": [
+                {
+                    "actual": "{{aplId}}",
+                    "operator": "==",
+                    "expected": "AGA4JX",
+                    "message": "Verify aplId field matches expected value"
+                }
+            ],
             "data_comparison": {
                 "source": "api_response",
                 "target": "db_result",
@@ -59,12 +73,13 @@
     },
     {
         "test_id": "TC002",
-        "service_name": "work_item_notification",
+        "service_name": "WorkItemNotification",
         "workflow_mode": "parallel",
         "test_name": "GET /api/workitemnotification/v1/{aplid} [negative: ] (TC025)",
         "protocol": "REST",
         "test_type": [
-            "Negative", "Functional"
+            "Negative",
+            "Functional"
         ],
         "mainURL": "{{base_url}}",
         "endpoint": "/api/workitemnotification/v1/KKKERR",
@@ -82,6 +97,11 @@
         "expected_response_schema": "WorkItemNotification\\schemas\\Schema_aplid_error.json",
         "expected_response": "WorkItemNotification\\payloads\\Payload_aplid_response_error.json",
         "extract_values": [
+            {
+                "from": "response",
+                "key": "aplId",
+                "assign_to": "aplId"
+            }
         ],
         "validate": {
             "performance": {

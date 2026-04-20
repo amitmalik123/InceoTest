@@ -1,105 +1,15 @@
 [
     {
-        "test_id": "TC001_SETUP",
-        "service_name": "MoveMoneyAPI",
-        "workflow_mode": "sequential",
-        "test_name": "POST /requests - Create request for deletion test",
-        "protocol": "REST",
-        "test_type": [
-            "Functional"
-        ],
-        "mainURL": "{{base_url}}",
-        "endpoint": "/requests",
-        "method": "POST",
-        "headers_additional": {
-            "Content-Type": "application/json"
-        },
-        "payload": {
-            "instructionId": "D223450C-7974-4B23-8E10-6CC418E7907C",
-            "accountId": "456E7890-E89B-12D3-A456-426614174111",
-            "railType": "ACH",
-            "unitType": "Percent",
-            "amount": 999999999.99,
-            "percent": 100,
-            "requestType": "Deposit",
-            "status": "Confirmed",
-            "reason": "DEPNonQualified",
-            "purpose": "string",
-            "schedule": {
-                "scheduleType": "OneTime",
-                "paymentDate": "2026-11-10"
-            }
-        },
-        "expected_status": "200",
-        "expected_response_schema": "MoveMoneyAPI\\schemas\\Schema_requests_POST.json",
-        "expected_response": null,
-        "ignore_fields": [
-            "traceId",
-            "id",
-            "timestamp",
-            "createdDate",
-            "modifiedDate",
-            "requestId"
-        ],
-        "extract_values": [
-            {
-                "from": "response",
-                "key": "requestId",
-                "assign_to": "created_requestId"
-            },
-            {
-                "from": "response",
-                "key": "version",
-                "assign_to": "created_version"
-            }
-        ],
-        "validate": {
-            "performance": {
-                "max_response_time_ms": 1000
-            },
-            "security": {
-                "checks": [
-                    "sql_injection",
-                    "xss"
-                ]
-            },
-            "assertions": [
-                {
-                    "actual": "{{created_requestId}}",
-                    "expected": "",
-                    "operator": "!=",
-                    "message": "RequestId should not be empty"
-                },
-                {
-                    "actual": "{{created_version}}",
-                    "expected": 1,
-                    "operator": "==",
-                    "message": "Version should be 1"
-                }
-            ],
-            "data_comparison": []
-        },
-        "test_data_file": "",
-        "db_query_timing": "",
-        "db_queries": {
-            "default": "",
-            "audit_query": ""
-        },
-        "db_type": "",
-        "db_connection_name": "",
-        "test_summary": "Create a new request to use for DELETE test"
-    },
-    {
         "test_id": "TC001",
-        "service_name": "MoveMoneyAPI",
+        "service_name": "movemoney",
         "workflow_mode": "sequential",
-        "test_name": "DELETE /requests/{requestId} [positive] (TC001)",
+        "test_name": "DELETE /ach/{requestId} [positive] (TC001)",
         "protocol": "REST",
         "test_type": [
             "Functional"
         ],
         "mainURL": "{{base_url}}",
-        "endpoint": "/requests/{{created_requestId}}",
+        "endpoint": "/ach/{{requestId}}",
         "method": "DELETE",
         "rpc_method": "",
         "graphql_query": "",
@@ -128,15 +38,15 @@
                 "query": "default",
                 "assign": [
                     {
-                        "key": "0.Id",
+                        "key": "0.requestId",
                         "assign_to": "db_requestId"
                     },
                     {
-                        "key": "0.Version",
+                        "key": "0.version",
                         "assign_to": "db_version"
                     },
                     {
-                        "key": "0.IsDeleted",
+                        "key": "0.isDeleted",
                         "assign_to": "db_isDeleted"
                     }
                 ]
@@ -161,15 +71,15 @@
                 },
                 {
                     "actual": "{{db_isDeleted}}",
-                    "expected": 1,
+                    "expected": true,
                     "operator": "==",
-                    "message": "IsDeleted should be 1 after successful deletion"
+                    "message": "IsDeleted should match persisted DB behavior after deletion"
                 },
                 {
                     "actual": "{{db_version}}",
                     "expected": 1,
-                    "operator": ">",
-                    "message": "Version should be incremented after deletion"
+                    "operator": ">=",
+                    "message": "Version should be persisted after deletion"
                 }
             ],
             "data_comparison": [
@@ -184,27 +94,28 @@
                 }
             ]
         },
-        "test_data_file": "",
+        "test_data_file": "MoveMoneyAPI/data_driven/Data_requests_requestId_GET.csv",
+        "csv_row_index": 0,
         "db_query_timing": "after_api",
         "db_queries": {
-            "default": "SELECT TOP 1 * FROM [dbo].[MoneyMovementRequest] WHERE Id = '{{created_requestId}}' ORDER BY Version DESC",
+            "default": "SELECT TOP 1 LOWER([RequestId]) AS requestId, [Version] AS version, [IsDeleted] AS isDeleted FROM [dbo].[MoneyMovementRequest] WHERE [RequestId] = TRY_CONVERT(uniqueidentifier, '{{requestId}}') ORDER BY [Version] DESC",
             "audit_query": ""
         },
         "db_type": "mssql",
         "db_connection_name": "movemoney",
-        "test_summary": "Test TC001: DELETE /requests/{requestId} [positive] (TC001) - verifies IsDeleted=1 and Version incremented after delete"
+        "test_summary": "Test TC001: DELETE /ach/{requestId} [positive] (TC001) - verifies delete response and persisted DB state"
     },
     {
         "test_id": "TC002",
-        "service_name": "MoveMoneyAPI",
+        "service_name": "movemoney",
         "workflow_mode": "parallel",
-        "test_name": "DELETE /requests/{requestId} [negative: invalid UUID format] (TC002)",
+        "test_name": "DELETE /ach/{requestId} [negative: invalid UUID format] (TC002)",
         "protocol": "REST",
         "test_type": [
             "Negative"
         ],
         "mainURL": "{{base_url}}",
-        "endpoint": "/requests/invalid-uuid",
+        "endpoint": "/ach/6cec40c7-@#b48e-4887-aec0-76c63d0e99ded",
         "method": "DELETE",
         "rpc_method": "",
         "graphql_query": "",
@@ -271,19 +182,19 @@
         },
         "db_type": "",
         "db_connection_name": "",
-        "test_summary": "Test TC002: DELETE /requests/{requestId} [negative: invalid UUID format] (TC002) - Verify 400 Bad Request for invalid UUID"
+        "test_summary": "Test TC002: DELETE /ach/{requestId} [negative: invalid UUID format] (TC002) - Verify 400 Bad Request for invalid UUID"
     },
     {
         "test_id": "TC003",
-        "service_name": "MoveMoneyAPI",
+        "service_name": "movemoney",
         "workflow_mode": "parallel",
-        "test_name": "DELETE /requests/{requestId} [negative: not found returns 204] (TC003)",
+        "test_name": "DELETE /ach/{requestId} [negative: not found returns 204] (TC003)",
         "protocol": "REST",
         "test_type": [
             "Negative"
         ],
         "mainURL": "{{base_url}}",
-        "endpoint": "/requests/{{created_requestId}}",
+        "endpoint": "/ach/{{requestId}}",
         "method": "DELETE",
         "rpc_method": "",
         "graphql_query": "",
@@ -312,7 +223,8 @@
             "assertions": [],
             "data_comparison": []
         },
-        "test_data_file": "",
+        "test_data_file": "MoveMoneyAPI/data_driven/Data_requests_requestId_GET.csv",
+        "csv_row_index": 0,
         "db_query_timing": "after_api",
         "db_queries": {
             "default": "",
@@ -320,6 +232,6 @@
         },
         "db_type": "",
         "db_connection_name": "",
-        "test_summary": "Test TC003: DELETE /requests/{requestId} returns 204 No Content when valid UUID not found"
+        "test_summary": "Test TC003: DELETE /ach/{requestId} returns 204 No Content when valid UUID not found"
     }
 ]

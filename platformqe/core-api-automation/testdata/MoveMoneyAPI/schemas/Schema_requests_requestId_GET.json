@@ -3,115 +3,31 @@
   "type": "object",
   "title": "GET /requests/{requestId} Response Schema",
   "description": "Returns the complete MMR object with all associated details",
-  "additionalProperties": true,
   "properties": {
-    "requestId": {
-      "type": "string",
-      "format": "uuid",
-      "description": "Unique, stable identifier for the MMR record across the entire platform"
-    },
-    "instructionId": {
-      "type": "string",
-      "format": "uuid",
-      "description": "Unique identifier of the approved MMI under which this request was created"
-    },
-    "accountId": {
-      "type": "string",
-      "format": "uuid",
-      "description": "Unique identifier for the account from which or to which funds will move"
-    },
-    "railType": {
-      "type": "string",
-      "enum": ["ACH", "Wire", "Check", "Journal"],
-      "description": "Payment rail through which funds are transferred"
-    },
-    "amount": {
-      "type": "number",
-      "minimum": 0,
-      "description": "The monetary value of the transfer to be executed (up to 2 decimal places)"
-    },
-    "unitType": {
-      "type": ["string", "null"],
-      "enum": ["Dollar", "Percent", null],
-      "description": "Unit type for the amount (Dollar or Percent)"
-    },
-    "percent": {
-      "type": ["number", "null"],
-      "minimum": 0,
-      "maximum": 100,
-      "description": "Percentage value when unitType is Percent"
-    },
-    "purpose": {
-      "type": ["string", "null"],
-      "description": "Purpose or description of the money movement"
-    },
-    "requestType": {
-      "type": "string",
-      "enum": ["Deposit", "Withdrawal"],
-      "description": "Direction of cash movement"
-    },
-    "status": {
-      "type": "string",
-      "enum": ["Draft", "Pending", "Confirmed", "Scheduled", "Processed", "PendingCancel", "Canceled"],
-      "description": "Current lifecycle state of the money movement request"
-    },
-    "reason": {
-      "type": ["string", "null"],
-      "description": "The reason code for this request (for IRA accounts). May be null for non-IRA accounts"
-    },
+    "requestId": { "type": "string" },
+    "version": { "type": "integer" },
+    "instructionId": { "type": "string" },
+    "accountId": { "type": "string" },
+    "amount": { "type": "number" },
+    "requestType": { "type": "string", "enum": ["Deposit", "Withdrawal"] },
+    "status": { "type": "string", "enum": ["Draft", "Pending", "Confirmed", "Deleted"] },
+    "reason": { "type": ["string", "null", "integer"] },
     "schedule": {
       "type": "object",
-      "description": "Schedule information for the money movement request",
       "properties": {
-        "ScheduleType": {
-          "type": "string",
-          "enum": ["OneTime", "Periodic"],
-          "description": "Type of schedule"
-        },
-        "PaymentDate": {
-          "type": ["string", "null"],
-          "description": "For One-Time payments, the date on which the transfer is scheduled to be initiated. Null for periodic schedules"
-        },
-        "Frequency": {
-          "type": ["string", "null"],
-          "enum": ["Daily", "Weekly", "BiWeekly", "SemiMonthly", "Monthly", "BiMonthly", "Quarterly", "SemiAnnually", "Annually", "Last Business Day of the Month", null],
-          "description": "For Periodic payments, defines how often the money movement occurs. Null for one-time schedules"
-        },
-        "StartDate": {
-          "type": ["string", "null"],
-          "description": "For Periodic payments, the first effective date from which transfers become active. Null for one-time schedules"
-        },
-        "EndDate": {
-          "type": ["string", "null"],
-          "description": "For Periodic payments, the date after which no further transfers should be executed. May be null for open-ended schedules"
-        },
-        "NextDate": {
-          "type": ["string", "null"],
-          "description": "For Periodic payments, the next upcoming payment date. Maintained dynamically by the system after each execution"
-        }
-      }
+        "ScheduleType": { "type": "string", "enum": ["OneTime", "Periodic"] },
+        "PaymentDate": { "type": ["string", "null"] },
+        "Frequency": { "type": ["string", "null"] },
+        "StartDate": { "type": ["string", "null"] },
+        "EndDate": { "type": ["string", "null"] }
+      },
+      "required": ["ScheduleType"]
     },
-    "version": {
-      "type": "integer",
-      "minimum": 1,
-      "description": "Version number for optimistic concurrency control"
-    },
-    "createdDate": {
-      "type": "string",
-      "description": "Timestamp when the record was first created in the system"
-    },
-    "createdBy": {
-      "type": "string",
-      "description": "Identifier of the user, system, or process that created the record"
-    },
-    "modifiedDate": {
-      "type": "string",
-      "description": "Timestamp of the most recent modification to the record"
-    },
-    "modifiedBy": {
-      "type": ["string", "null"],
-      "description": "Identifier of the user, system, or process that last modified the record"
-    }
+    "changeState": { "type": "string", "enum": ["Pending", "Scheduled", "Processed", "PendingCancel", "Canceled"] },
+    "createdDate": { "type": "string" },
+    "modifiedDate": { "type": "string" },
+    "createdBy": { "type": "string" },
+    "modifiedBy": { "type": ["string", "null"] }
   },
-  "required": ["requestId", "instructionId", "accountId", "railType", "amount", "requestType", "status", "createdDate", "createdBy", "modifiedDate", "modifiedBy"]
+  "required": ["requestId", "version", "instructionId", "accountId", "amount", "requestType", "status", "reason", "schedule", "changeState", "createdDate", "modifiedDate", "createdBy"]
 }

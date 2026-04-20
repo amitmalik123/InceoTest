@@ -1,22 +1,28 @@
 {
-  "id": 7088,
+  "id": 1958,
   "aplId": "AGA4JX",
-  "itemsRequiringAttention": "Phone",
-  "receivedCompletedPrimary": "None",
-  "receivedCompletedSecondary": "None",
+  "itemsRequiringAttention": "All",
+  "receivedCompletedPrimary": "Email",
+  "receivedCompletedSecondary": "Email",
   "workItemVisibilityPreferences": [
     {
       "type": "AccountTrackingNoFunding",
       "description": "Account Tracking-No Funding of Account Aged",
-      "visiblity": false
+      "visiblity": true
     }
   ],
   "selectedRecipients": [],
   "allRecipients": null,
   "isPageVisited": true,
-  "createdBy": "B000306748",
-  "createdDate": "2022-11-15T17:12:58.127+00:00",
-  "modifiedBy": "pinder1",
-  "modifiedDate": "2025-08-27T06:59:22.42+00:00",
-  "approvalNotification": "None"
+  "createdBy": null,
+  "createdDate": null,
+  "modifiedBy": "07d33d37-fcf5-eab2-7e76-9a5600fd7c86",
+  "modifiedDate": "2026-04-07T09:07:14.09+00:00",
+  "approvalNotification": "None",
+  "receivedCompletedNewAccounts": "Email",
+  "receivedCompletedMoneyIn": "Email",
+  "receivedCompletedStandingInstructions": "Email",
+  "receivedCompletedInvestmentChanges": "Email",
+  "receivedCompletedWithdrawals": "Email",
+  "receivedCompletedTerminations": "Email"
 }

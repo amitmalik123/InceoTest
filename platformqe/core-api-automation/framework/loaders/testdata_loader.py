@@ -4,6 +4,7 @@ import glob
 import yaml
 import csv
 import concurrent.futures
+import datetime
 from collections import defaultdict
 from typing import List, Dict, Optional, Union
 
@@ -92,6 +93,17 @@ class TestDataLoader:
 
     def _load_csv(self, file: str) -> List[Dict]:
             logger.info(f"Loading CSV test data from: {file}")
+            
+            # Force file system read from disk (not cache) - critical for Docker/pipeline
+            import os
+            # Force file system read from disk (not cache) - critical for Docker/pipeline
+            try:
+                if os.name == 'posix':  # Linux/Mac
+                    import subprocess
+                    subprocess.run(['sync'], check=False, timeout=5)
+            except Exception as e:
+                logger.debug(f"OS cache clear (non-blocking): {e}")
+            
             try:
                 with open(file, 'r', encoding='utf-8', newline='') as f:
                     reader = csv.DictReader(f)
@@ -121,7 +133,7 @@ class TestDataLoader:
                                 value = v
                             clean_row[key] = value
                         rows.append(clean_row)
-                    logger.info(f"[DEBUG] Loaded CSV rows: {rows}")
+                    logger.info(f"Loaded {len(rows)} rows from CSV")
                     return rows
             except Exception as e:
                 logger.error(f"Error loading CSV from {file}: {e}")
