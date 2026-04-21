@@ -268,7 +268,7 @@
         "expected_response_schema": "hnebase/schemas/Schema_Permissions_groups_POST_error_missing_groupname.json",
         "expected_response": "hnebase/payloads/response_payloads/Payload_Permissions_groups_POST_response_missing_groupname_valid_ssoguid.json",
         "ignore_fields": [
-            "traceId",
+            "instance",
             "type"
         ],
         "extract_values": [],
