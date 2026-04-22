@@ -47,6 +47,8 @@ def send_email_report(build_number, job_status, reports_path, build_id, team_pro
     print(f"   Environment: {environment}")
     print(f"   Build Number: {build_number}")
     print(f"   Job Status: {job_status}")
+    branch_name = os.getenv('BUILD_SOURCEBRANCH', os.getenv('BUILD_SOURCEBRANCHNAME', 'unknown'))
+    print(f"   Branch: {branch_name}")
     
     # Parse email addresses (comma-separated strings to lists)
     to_list = [addr.strip() for addr in to_addrs.split(',') if addr.strip()]
@@ -157,6 +159,7 @@ def send_email_report(build_number, job_status, reports_path, build_id, team_pro
     <h2>API Test Report{f' - {service_name.upper()}' if service_name else ''}{f' - {environment.upper()}' if environment else ''}{f' [{test_case_filter}]' if test_case_filter else ''}</h2>
     <p><strong>Job Number:</strong> {build_number}</p>
     <p><strong>Job Status:</strong> {job_status}</p>
+    <p><strong>Branch:</strong> {branch_name}</p>
     {f'<p><strong>Test Case Filter:</strong> {test_case_filter}</p>' if test_case_filter else ''}
     <p><strong>Job URL:</strong> <a href="{build_url}">View Test Execution</a></p>
     <p><strong>Test Results:</strong> <a href="{artifacts_url}">View and Download Artifacts</a></p>
