@@ -1,0 +1,4 @@
+environment,requestId,version,amount,requestType,status,instructionId,deliveryType,chargeOvernightFee,memoLine,scheduleType,frequency,startDate,endDate,expected_status,test_scenario
+TSADEV,N/A,1,5200.00,Withdrawal,Confirmed,0259032c-b55f-4913-a566-d3d4a52690d7,Overnight,true,Q1 2026 Distribution,Periodic,Monthly,2027-04-15,2028-12-15,409,Version mismatch - stale version should return 409 Conflict
+TSADEV,@@F291-4E4E-B148-00632667F4AA,{{version_tc003}},5200.00,Withdrawal,Confirmed,0259032c-b55f-4913-a566-d3d4a52690d7,Overnight,true,Q1 2026 Distribution,Periodic,Monthly,2027-04-15,2028-12-15,400,Invalid requestId format should return 400 Bad Request
+TSADEV,N/A,{{version_tc003}},5200.00,,Confirmed,0259032c-b55f-4913-a566-d3d4a52690d7,Overnight,true,Q1 2026 Distribution,Periodic,Monthly,2027-04-15,2028-12-15,400,Missing required requestType field should return 400 Bad Request
