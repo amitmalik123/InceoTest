@@ -1,7 +1,7 @@
 [
     {
         "test_id": "TC001",
-        "service_name": "MoveMoneyAPI",
+        "service_name": "movemoney",
         "workflow_mode": "parallel",
         "test_name": "Creates a new security transfer for a given money movement transfer request. [positive] (TC001)",
         "protocol": "REST",
@@ -9,7 +9,7 @@
             "Functional"
         ],
         "mainURL": "{{base_url}}",
-        "endpoint": "/transfer/{{requestId}}/securities",
+        "endpoint": "/{{requestId}}/securities",
         "method": "POST",
         "headers_additional": {
             "Content-Type": "application/json"
@@ -145,7 +145,7 @@
     },
     {
         "test_id": "TC002",
-        "service_name": "MoveMoneyAPI",
+        "service_name": "movemoney",
         "workflow_mode": "parallel",
         "test_name": "POST /transfer/{requestId}/securities [negative: missing securityId] (TC002)",
         "protocol": "REST",
@@ -153,7 +153,7 @@
             "Functional"
         ],
         "mainURL": "{{base_url}}",
-        "endpoint": "/transfer/{{requestId}}/securities",
+        "endpoint": "/{{requestId}}/securities",
         "method": "POST",
         "headers_additional": {
             "Content-Type": "application/json"
@@ -192,7 +192,7 @@
     },
     {
         "test_id": "TC003",
-        "service_name": "MoveMoneyAPI",
+        "service_name": "movemoney",
         "workflow_mode": "parallel",
         "test_name": "POST /transfer/{requestId}/securities [negative: invalid securityId] (TC003)",
         "protocol": "REST",
@@ -200,7 +200,7 @@
             "Functional"
         ],
         "mainURL": "{{base_url}}",
-        "endpoint": "/transfer/{{requestId}}/securities",
+        "endpoint": "/{{requestId}}/securities",
         "method": "POST",
         "headers_additional": {
             "Content-Type": "application/json"
@@ -239,7 +239,7 @@
     },
     {
         "test_id": "TC004",
-        "service_name": "MoveMoneyAPI",
+        "service_name": "movemoney",
         "workflow_mode": "parallel",
         "test_name": "POST /transfer/{requestId}/securities [negative: missing securityUnitType] (TC004)",
         "protocol": "REST",
@@ -247,7 +247,7 @@
             "Functional"
         ],
         "mainURL": "{{base_url}}",
-        "endpoint": "/transfer/{{requestId}}/securities",
+        "endpoint": "/{{requestId}}/securities",
         "method": "POST",
         "headers_additional": {
             "Content-Type": "application/json"
@@ -286,7 +286,7 @@
     },
     {
         "test_id": "TC005",
-        "service_name": "MoveMoneyAPI",
+        "service_name": "movemoney",
         "workflow_mode": "parallel",
         "test_name": "POST /transfer/{requestId}/securities [negative: invalid securityUnitType] (TC005)",
         "protocol": "REST",
@@ -294,7 +294,7 @@
             "Functional"
         ],
         "mainURL": "{{base_url}}",
-        "endpoint": "/transfer/{{requestId}}/securities",
+        "endpoint": "/{{requestId}}/securities",
         "method": "POST",
         "headers_additional": {
             "Content-Type": "application/json"

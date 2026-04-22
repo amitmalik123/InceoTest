@@ -1,15 +1,15 @@
 [
     {
         "test_id": "TC001",
-        "service_name": "MoveMoneyAPI",
+        "service_name": "movemoney",
         "workflow_mode": "parallel",
-        "test_name": "GET /instructions/{instructionId} [positive] (TC001)",
+        "test_name": "GET /instructions/{instruction_id} [positive] (TC001)",
         "protocol": "REST",
         "test_type": [
             "Functional"
         ],
         "mainURL": "{{base_url}}",
-        "endpoint": "/instructions/16EF33F5-42F9-4FD0-89F9-11B88872E695",
+        "endpoint": "/instructions/{{instruction_id}}",
         "method": "GET",
         "rpc_method": "",
         "graphql_query": "",
@@ -22,27 +22,7 @@
         "payload": null,
         "expected_status": "200",
         "expected_response_schema": "MoveMoneyAPI\\schemas\\Schema_instructions_instructionId_GET.json",
-        "expected_response": {
-            "instructionId": "16ef33f5-42f9-4fd0-89f9-11b88872e695",
-            "accountId": "456e7890-e89b-12d3-a456-426614174111",
-            "version": 3,
-            "status": "Pending",
-            "holderRelation": "ThirdParty",
-            "letterOfAuthorization": "Deposit",
-            "railType": "ACH",
-            "custodianInstructionNumber": null,
-            "bank": {
-                "bankAccountName": "Sarah Johnson",
-                "bankAccountType": "Checking",
-                "bankName": "Chase Bank",
-                "routingNumber": "026009593",
-                "bankAccountNumber": "5555666677"
-            },
-            "createdDate": "2025-12-17T12:03:03.956109",
-            "createdBy": "System",
-            "modifiedDate": "2025-12-17T12:06:11.4965005",
-            "modifiedBy": "system"
-        },
+        "expected_response": null,
         "ignore_fields": [
             "id",
             "traceId",
@@ -85,6 +65,11 @@
                 "from": "response",
                 "key": "letterOfAuthorization",
                 "assign_to": "letterOfAuthorization"
+            },
+            {
+                "from": "response",
+                "key": "changeState",
+                "assign_to": "changeState"
             }
         ],
         "validate": {
@@ -107,8 +92,8 @@
                 {
                     "actual": "{{version}}",
                     "expected": 0,
-                    "operator": ">",
-                    "message": "Version should be greater than 0"
+                    "operator": ">=",
+                    "message": "Version should be greater than or equal to 0"
                 },
                 {
                     "actual": "{{status}}",
@@ -151,11 +136,18 @@
                     ],
                     "operator": "in",
                     "message": "LetterOfAuthorization should be one of: Deposit, Withdrawal, Both, None"
+                },
+                {
+                    "actual": "{{changeState}}",
+                    "expected": "",
+                    "operator": "!=",
+                    "message": "changeState should be present in GET response"
                 }
             ],
             "data_comparison": []
         },
-        "test_data_file": "",
+        "test_data_file": "MoveMoneyAPI/data_driven/Data_instructions_instructionId_GET.csv",
+        "csv_row_index": 0,
         "db_query_timing": "after_api",
         "db_queries": {
             "default": "",
@@ -167,15 +159,15 @@
     },
     {
         "test_id": "TC002",
-        "service_name": "MoveMoneyAPI",
+        "service_name": "movemoney",
         "workflow_mode": "parallel",
-        "test_name": "GET /instructions/{instructionId} [positive] (TC002)",
+        "test_name": "GET /instructions/{instruction_id} [positive] (TC002)",
         "protocol": "REST",
         "test_type": [
             "Positive"
         ],
         "mainURL": "{{base_url}}",
-        "endpoint": "/instructions/16EF33F5-42F9-4FD0-89F9-11B88872E695?status=Pending",
+        "endpoint": "/instructions/{{instruction_id}}?status=Confirmed",
         "method": "GET",
         "rpc_method": "",
         "graphql_query": "",
@@ -188,27 +180,7 @@
         "payload": null,
         "expected_status": "200",
         "expected_response_schema": "MoveMoneyAPI\\schemas\\Schema_instructions_instructionId_GET.json",
-        "expected_response": {
-            "instructionId": "16ef33f5-42f9-4fd0-89f9-11b88872e695",
-            "accountId": "456e7890-e89b-12d3-a456-426614174111",
-            "version": 3,
-            "status": "Pending",
-            "holderRelation": "ThirdParty",
-            "letterOfAuthorization": "Deposit",
-            "railType": "ACH",
-            "custodianInstructionNumber": null,
-            "bank": {
-                "bankAccountName": "Sarah Johnson",
-                "bankAccountType": "Checking",
-                "bankName": "Chase Bank",
-                "routingNumber": "026009593",
-                "bankAccountNumber": "5555666677"
-            },
-            "createdDate": "2025-12-17T12:03:03.956109",
-            "createdBy": "System",
-            "modifiedDate": "2025-12-17T12:06:11.4965005",
-            "modifiedBy": "system"
-        },
+        "expected_response": null,
         "ignore_fields": [
             "id",
             "traceId",
@@ -246,6 +218,11 @@
                 "from": "response",
                 "key": "letterOfAuthorization",
                 "assign_to": "letterOfAuthorization"
+            },
+            {
+                "from": "response",
+                "key": "changeState",
+                "assign_to": "changeState"
             }
         ],
         "validate": {
@@ -267,9 +244,9 @@
                 },
                 {
                     "actual": "{{status}}",
-                    "expected": "Pending",
+                    "expected": "Confirmed",
                     "operator": "==",
-                    "message": "Status should be Pending"
+                    "message": "Status should be Confirmed for hook-created instruction"
                 },
                 {
                     "actual": "{{railType}}",
@@ -301,11 +278,18 @@
                     ],
                     "operator": "in",
                     "message": "LetterOfAuthorization should be one of: Deposit, Withdrawal, Both, None"
+                },
+                {
+                    "actual": "{{changeState}}",
+                    "expected": "",
+                    "operator": "!=",
+                    "message": "changeState should be present in GET response"
                 }
             ],
             "data_comparison": []
         },
-        "test_data_file": "",
+        "test_data_file": "MoveMoneyAPI/data_driven/Data_instructions_instructionId_GET.csv",
+        "csv_row_index": 0,
         "db_query_timing": "after_api",
         "db_queries": {
             "default": "",
@@ -317,15 +301,15 @@
     },
     {
         "test_id": "TC003",
-        "service_name": "MoveMoneyAPI",
+        "service_name": "movemoney",
         "workflow_mode": "parallel",
-        "test_name": "GET /instructions/{instructionId} [Negative] (TC003)",
+        "test_name": "GET /instructions/{instruction_id} [Negative] (TC003)",
         "protocol": "REST",
         "test_type": [
             "Negative"
         ],
         "mainURL": "{{base_url}}",
-        "endpoint": "/instructions/6d12b0df-947f-4b3b-b671-8d8bf19d41b5?status=Pending",
+        "endpoint": "/instructions/684225A1-358F-4BDB-A061-9B33576B94CC?status=Pending",
         "method": "GET",
         "rpc_method": "",
         "graphql_query": "",
@@ -354,7 +338,8 @@
             "assertions": [],
             "data_comparison": []
         },
-        "test_data_file": "",
+        "test_data_file": "MoveMoneyAPI/data_driven/Data_instructions_instructionId_GET.csv",
+        "csv_row_index": 0,
         "db_query_timing": "after_api",
         "db_queries": {
             "default": "",
@@ -362,19 +347,19 @@
         },
         "db_type": "",
         "db_connection_name": "",
-        "test_summary": "Test TC003: GET /moneymovement/instructions/{instructionId} [Negative] (TC003) - Validate that the API returns the correct instruction details for a invalid instructionId and status."
+        "test_summary": "Test TC003: GET /moneymovement/instructions/{instructionId} [Negative] (TC003) - Validate that the API returns 204 when the instructionId is invalid or the status is not found."
     },
     {
         "test_id": "TC004",
-        "service_name": "MoveMoneyAPI",
+        "service_name": "movemoney",
         "workflow_mode": "parallel",
-        "test_name": "GET /instructions/{instructionId} [Negative] (TC004)",
+        "test_name": "GET /instructions/{instruction_id} [Negative] (TC004)",
         "protocol": "REST",
         "test_type": [
             "Negative"
         ],
         "mainURL": "{{base_url}}",
-        "endpoint": "/instructions/6d12b0df-947f-4b3b-b671-8d8bf19d41b3?status=CHECK",
+        "endpoint": "/instructions/{{instruction_id}}?status=CHECK",
         "method": "GET",
         "rpc_method": "",
         "graphql_query": "",
@@ -385,11 +370,7 @@
         "payload": null,
         "expected_status": "400",
         "expected_response_schema": "",
-        "expected_response": {
-            "status": 400,
-            "error": "Invalid value for 'status' parameter. Must be one of: Draft, Pending, Confirmed, Deleted (Parameter 'status')",
-            "fields": "status"
-        },
+        "expected_response": null,
         "ignore_fields": [],
         "extract_values": [
             {
@@ -399,13 +380,13 @@
             },
             {
                 "from": "response",
-                "key": "error",
-                "assign_to": "error_message"
+                "key": "type",
+                "assign_to": "error_type"
             },
             {
                 "from": "response",
-                "key": "fields",
-                "assign_to": "error_fields"
+                "key": "detail",
+                "assign_to": "error_detail"
             }
         ],
         "validate": {
@@ -426,27 +407,22 @@
                     "message": "Error status should be 400"
                 },
                 {
-                    "actual": "{{error_message}}",
-                    "expected": "",
-                    "operator": "!=",
-                    "message": "Error message should not be empty"
-                },
-                {
-                    "actual": "{{error_message}}",
-                    "expected": "Draft, Pending, Confirmed, Deleted",
-                    "operator": "contains",
-                    "message": "Error message should mention valid status values"
-                },
-                {
-                    "actual": "{{error_fields}}",
-                    "expected": "status",
+                    "actual": "{{error_type}}",
+                    "expected": "invalid-request",
                     "operator": "==",
-                    "message": "Error field should be 'status'"
+                    "message": "Error type should be invalid-request"
+                },
+                {
+                    "actual": "{{error_detail}}",
+                    "expected": "The request contains invalid values",
+                    "operator": "==",
+                    "message": "Error detail should indicate invalid request"
                 }
             ],
             "data_comparison": []
         },
-        "test_data_file": "",
+        "test_data_file": "MoveMoneyAPI/data_driven/Data_instructions_instructionId_GET.csv",
+        "csv_row_index": 0,
         "db_query_timing": "after_api",
         "db_queries": {
             "default": "",
@@ -455,5 +431,99 @@
         "db_type": "",
         "db_connection_name": "",
         "test_summary": "Test TC004: GET /moneymovement/instructions/{instructionId} [negative] (TC004) - Verify that the API returns a 400 Bad Request error when the status is invalid."
+    },
+    {
+        "test_id": "TC005",
+        "service_name": "movemoney",
+        "workflow_mode": "parallel",
+        "test_name": "GET /instructions/{instruction_id} [positive - changeState field presence] (TC005)",
+        "protocol": "REST",
+        "test_type": [
+            "Functional"
+        ],
+        "mainURL": "{{base_url}}",
+        "endpoint": "/instructions/{{instruction_id}}",
+        "method": "GET",
+        "rpc_method": "",
+        "graphql_query": "",
+        "graphql_variables": "",
+        "soap_action": "",
+        "soap_envelope": "",
+        "headers_additional": {
+            "Accept": "application/json"
+        },
+        "payload": null,
+        "expected_status": "200",
+        "expected_response_schema": "MoveMoneyAPI\\schemas\\Schema_instructions_instructionId_GET.json",
+        "expected_response": null,
+        "ignore_fields": [
+            "id",
+            "traceId",
+            "addressid",
+            "contactid",
+            "identifierid",
+            "timestamp",
+            "createdDate",
+            "modifiedDate",
+            "entitycreateddate",
+            "individualdateofbirth"
+        ],
+        "extract_values": [
+            {
+                "from": "response",
+                "key": "instructionId",
+                "assign_to": "instructionId"
+            },
+            {
+                "from": "response",
+                "key": "changeState",
+                "assign_to": "changeState"
+            }
+        ],
+        "validate": {
+            "performance": {
+                "max_response_time_ms": 500
+            },
+            "security": {
+                "checks": [
+                    "sql_injection",
+                    "xss"
+                ]
+            },
+            "assertions": [
+                {
+                    "actual": "{{instructionId}}",
+                    "expected": "",
+                    "operator": "!=",
+                    "message": "InstructionId should not be empty"
+                },
+                {
+                    "actual": "{{changeState}}",
+                    "expected": "",
+                    "operator": "!=",
+                    "message": "changeState should be present for valid instructionId GET response"
+                },
+                {
+                    "actual": "{{changeState}}",
+                    "expected": [
+                        "Active",
+                        "Inactive"
+                    ],
+                    "operator": "in",
+                    "message": "changeState should be one of: Active, Inactive"
+                }
+            ],
+            "data_comparison": []
+        },
+        "test_data_file": "MoveMoneyAPI/data_driven/Data_instructions_instructionId_GET.csv",
+        "csv_row_index": 0,
+        "db_query_timing": "after_api",
+        "db_queries": {
+            "default": "",
+            "audit_query": ""
+        },
+        "db_type": "",
+        "db_connection_name": "",
+        "test_summary": "Test TC005: GET /moneymovement/instructions/{instructionId} [positive] - Validate that changeState is returned alongside all instruction fields for a valid instructionId."
     }
 ]

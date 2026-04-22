@@ -1,9 +1,9 @@
 [
     {
-        "test_id": "TC001",
+        "test_id": "TC001_V1_Ready",
         "service_name": "analyticsApiServices",
         "workflow_mode": "parallel",
-        "test_name": "GET /v1/ready [positive] (TC001)",
+        "test_name": "GET /v1/ready [positive] (TC001_V1_Ready)",
         "protocol": "REST",
         "test_type": [
             "Functional"
@@ -82,14 +82,14 @@
         "db_query": "",
         "db_type": "",
         "db_connection_name": "",
-        "test_summary": "Test TC001: GET /v1/ready [positive] (TC001) - Test GET request to /v1/ready for functional scenario validation.",
+        "test_summary": "Test TC001_V1_Ready: GET /v1/ready [positive] (TC001_V1_Ready) - Test GET request to /v1/ready for functional scenario validation.",
         "test_scenario": "Test GET request to /v1/ready for functional scenario validation."
     },
     {
-        "test_id": "TC002",
+        "test_id": "TC002_V1_Ready",
         "service_name": "analyticsApiServices",
         "workflow_mode": "parallel",
-        "test_name": "GET /v1/ready [negative] (TC002)",
+        "test_name": "GET /v1/ready [negative] (TC002_V1_Ready)",
         "protocol": "REST",
         "test_type": [
             "Functional"
@@ -155,7 +155,7 @@
         "db_query": "",
         "db_type": "",
         "db_connection_name": "",
-        "test_summary": "Test TC002: GET /v1/ready [negative] (TC002) - Test GET request to /v1/read for functional scenario validation.",
+        "test_summary": "Test TC002_V1_Ready: GET /v1/ready [negative] (TC002_V1_Ready) - Test GET request to /v1/read for functional scenario validation.",
         "test_scenario": "Test GET request to /v1/read for functional scenario validation."
     }
 ]

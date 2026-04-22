@@ -1,0 +1,14 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "type": "object",
+  "title": "POST /api/workitemnotification/v1 Negative Response Schema",
+  "description": "Negative response schema for /api/workitemnotification/v1",
+  "properties": {
+    "type": { "type": "string" },
+    "title": { "type": "string" },
+    "status": { "type": "integer" },
+    "errors": { "type": "object" },
+    "traceId": { "type": "string" }
+  },
+  "required": ["type", "title", "status"]
+}

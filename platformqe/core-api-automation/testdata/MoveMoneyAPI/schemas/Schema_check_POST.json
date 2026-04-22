@@ -1,0 +1,23 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "type": "object",
+  "title": "POST /check Response Schema",
+  "description": "Response schema for POST /check - 200 Success",
+  "properties": {
+    "requestId": {
+      "type": "string",
+      "format": "uuid",
+      "description": "Unique identifier for the check deposit request"
+    },
+    "version": {
+      "type": "integer",
+      "minimum": 1,
+      "description": "Version number of the request"
+    }
+  },
+  "required": [
+    "requestId",
+    "version"
+  ],
+  "additionalProperties": false
+}
