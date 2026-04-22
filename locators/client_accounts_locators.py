@@ -61,3 +61,14 @@ RADIO_ESIGN = "input#rbEsign"
 # Dialog action buttons
 CANCEL_BUTTON = "input#btnCancel"
 CONTINUE_BUTTON_DIALOG = "input#btnContinue"
+
+# Client In Person Signing Dialog locators
+CLIENT_IN_PERSON_SIGNING_DIALOG = '[role="dialog"][aria-describedby="divConfirmation"]'
+CLIENT_IN_PERSON_SIGNING_HEADING = "div.modal-title-transition"
+CLIENT_IN_PERSON_SIGNING_BODY = "div#divConfirmation"
+CLIENT_IN_PERSON_SIGNING_PARAGRAPH = "div#divConfirmation p"
+CLIENT_IN_PERSON_SIGNING_LIST = "ul.inPersoneSigList"
+CLIENT_IN_PERSON_SIGNING_LIST_ITEMS = "ul.inPersoneSigList li.inPersoneSigMain"
+CLIENT_IN_PERSON_SIGNING_BUTTON_RETURN = "button.formButton:has-text('Return to eWealthManager')"
+CLIENT_IN_PERSON_SIGNING_BUTTON_START = "button.formButton:has-text('Start Client Signing')"
+CLIENT_IN_PERSON_SIGNING_BUTTONS = "button.formButton"

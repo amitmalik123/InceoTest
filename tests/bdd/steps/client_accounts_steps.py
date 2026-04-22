@@ -600,47 +600,47 @@ def verify_authorized_signer_esign_method_section(authenticated_page: Page):
             raise AssertionError(f"Authorized Signer eSign Method section verification failed: {e}") from e
 
 
-@when("User select Authorized Signer eSign Method")
-def user_select_authorized_signer_esign_method(authenticated_page: Page, client_accounts_page, test_context):
+@when("User select Signer eSign Method")
+def user_select_signer_esign_method(authenticated_page: Page, client_accounts_page, test_context):
     """
-    Select Authorized Signer eSign Method (SMS or Tracking Center).
+    Select Signer eSign Method from available options.
     
-    Reads 'Authorized_Signer_eSign_Method' from test data CSV and selects the appropriate radio button.
-    Valid values: 'SMS' or 'Tracking Center'
+    Reads 'Signer_eSign_Method' from test data CSV and selects the appropriate radio button.
+    Valid values: 'In Person', 'By Email', 'SMS', or 'Tracking Center'
     """
-    with allure.step("User select Authorized Signer eSign Method"):
-        logger.info(">>> STEP: User select Authorized Signer eSign Method")
+    with allure.step("User select Signer eSign Method"):
+        logger.info(">>> STEP: User select Signer eSign Method")
         
         try:
             # Step 1: Fetch the eSign method from test data
-            logger.info("  Step 1: Fetching Authorized Signer eSign Method from test data...")
+            logger.info("  Step 1: Fetching Signer eSign Method from test data...")
             test_data = test_context.get("test_data", {})
-            esign_method = test_data.get("Authorized_Signer_eSign_Method", "").strip()
+            esign_method = test_data.get("Signer_eSign_Method", "").strip()
             
             if not esign_method:
-                raise AssertionError("[FAIL] ClientAccountsPage: CSV Data Parsing — Expected: 'Authorized_Signer_eSign_Method' not empty, Actual: column is empty. Details: Test data CSV must include 'Authorized_Signer_eSign_Method' column with value 'SMS' or 'Tracking Center'. Locator: test_data['Authorized_Signer_eSign_Method'].")
+                raise AssertionError("[FAIL] ClientAccountsPage: CSV Data Parsing — Expected: 'Signer_eSign_Method' not empty, Actual: column is empty. Details: Test data CSV must include 'Signer_eSign_Method' column with value 'In Person', 'By Email', 'SMS', or 'Tracking Center'. Locator: test_data['Signer_eSign_Method'].")
             
-            valid_methods = ["SMS", "Tracking Center"]
+            valid_methods = ["In Person", "By Email", "SMS", "Tracking Center"]
             if esign_method not in valid_methods:
                 raise AssertionError(
-                    f"[FAIL] ClientAccountsPage: CSV Data Validation — Expected: value in {valid_methods}, Actual: '{esign_method}'. Details: 'Authorized_Signer_eSign_Method' must be 'SMS' or 'Tracking Center'. Locator: test_data['Authorized_Signer_eSign_Method']."
+                    f"[FAIL] ClientAccountsPage: CSV Data Validation — Expected: value in {valid_methods}, Actual: '{esign_method}'. Details: 'Signer_eSign_Method' must be one of: 'In Person', 'By Email', 'SMS', or 'Tracking Center'. Locator: test_data['Signer_eSign_Method']."
                 )
             
-            logger.info(f"  [PASS] ClientAccountsPage: CSV Data Parsed.")
+            logger.info(f"  [PASS] ClientAccountsPage: CSV Data Parsed - Method: '{esign_method}'")
             
             # Step 2: Call page object method to select the radio button
             logger.info(f"  Step 2: Selecting '{esign_method}' radio button...")
-            client_accounts_page.select_authorized_signer_esign_method(esign_method)
+            client_accounts_page.select_signer_esign_method(esign_method)
             
             # Step 3: Take screenshot for Allure reporting
             logger.info("  Step 3: Taking screenshot after selection...")
             allure.attach(
                 authenticated_page.screenshot(),
-                name=f"Authorized Signer eSign Method - {esign_method} Selected",
+                name=f"Signer eSign Method - {esign_method} Selected",
                 attachment_type=allure.attachment_type.PNG,
             )
             
-            logger.info(f"[PASS] ClientAccountsPage: Authorized Signer eSign Method Selected.")
+            logger.info(f"[PASS] ClientAccountsPage: Signer eSign Method Selected - {esign_method}.")
             
         except Exception as e:
             logger.error(f"✗ Failed to select Authorized Signer eSign Method: {e}")
@@ -1513,3 +1513,236 @@ def user_click_on_d_number(authenticated_page: Page, client_accounts_page, test_
         
         logger.info(f"[PASS] ClientAccountsPage: D-Number Click Step Completed.")
 
+
+@then("Client In Person Signing dialog should be displayed")
+def verify_client_in_person_signing_dialog_displayed(authenticated_page: Page):
+    """
+    Verify that the Client In-Person Signing dialog is displayed.
+    
+    This dialog appears after the user completes the DocuSign signing process
+    in an in-person client signature workflow. It displays information about
+    completing the signing process and provides the 'Return to eWealthManager' button.
+    
+    Validations:
+    1. Dialog with role="dialog" and aria-describedby="divConfirmation" is visible
+    2. Dialog content is accessible and ready for user interaction
+    
+    Related steps:
+    - "When User click on Return to eWealthManager button" (next step after this)
+    - "When User Finish the DocuSign process" (prerequisite - displays dialog)
+    
+    Raises:
+        AssertionError: If dialog not found or not visible
+    
+    Example feature file usage:
+        When User Finish the DocuSign process
+        Then Client In Person Signing dialog should be displayed
+        When User click on Return to eWealthManager button
+    """
+    with allure.step("Client In Person Signing dialog should be displayed"):
+        logger.info("[STEP] Verify Client In Person Signing dialog is displayed")
+        
+        try:
+            from locators.client_accounts_locators import CLIENT_IN_PERSON_SIGNING_DIALOG
+            
+            # Step 1: Wait for and verify dialog is visible
+            logger.info("Step 1: Waiting for Client In Person Signing dialog to appear...")
+            dialog_locator = authenticated_page.locator(CLIENT_IN_PERSON_SIGNING_DIALOG)
+            
+            # Wait for dialog to be attached and visible
+            dialog_locator.wait_for(state="visible", timeout=30000)
+            logger.info("✓ Client In Person Signing dialog is visible")
+            
+            # Step 2: Verify dialog is actually visible (not hidden behind other elements)
+            logger.info("Step 2: Verifying dialog is in viewport and interactive...")
+            assert dialog_locator.is_visible(), "Dialog locator reports visible but element check failed"
+            assert dialog_locator.count() >= 1, "Dialog element not found on page"
+            logger.info("✓ Dialog is present and interactive")
+            
+            # Step 3: Take screenshot for Allure reporting
+            logger.info("Step 3: Capturing screenshot for Allure report...")
+            screenshot = authenticated_page.screenshot()
+            allure.attach(
+                screenshot,
+                name="Client In Person Signing Dialog - Displayed",
+                attachment_type=allure.attachment_type.PNG
+            )
+            
+            logger.info("[PASS] ✓ Client In Person Signing dialog is displayed and ready")
+            
+        except Exception as e:
+            logger.error(f"[FAIL] Failed to verify Client In Person Signing dialog: {e}")
+            try:
+                screenshot = authenticated_page.screenshot()
+                allure.attach(
+                    screenshot,
+                    name="Client In Person Signing Dialog - Failed Verification",
+                    attachment_type=allure.attachment_type.PNG
+                )
+            except:
+                pass
+            raise AssertionError(f"Client In Person Signing dialog verification failed: {e}") from e
+
+
+@when("User click on Return to eWealthManager button")
+def user_click_on_return_to_ewealthmanager_button(authenticated_page: Page, client_accounts_page, test_context):
+    """
+    Step definition for clicking the 'Return to eWealthManager' button on the Client In-Person Signing dialog.
+
+    This button is displayed after completing the DocuSign signing process in the
+    in-person signing workflow. Clicking this button:
+    1. Closes the Client In-Personal Signing dialog
+    2. Redirects the user back to the eWealthManager main application
+
+    Pre-conditions:
+    - The "Client In Person Signing dialog should be displayed" step has been executed
+    - User has completed the DocuSign signing process
+    - The Client In-Personal Signing dialog is currently visible
+
+    Post-conditions:
+    - User is redirected to the eWealthManager main page
+    - The dialog is closed
+
+    Uses framework utilities:
+    - client_accounts_page.click_return_to_ewealthmanager(): Page object method to click button
+    - logger: Unified logging from allure_logger
+    - allure: Attach screenshots on failure for reporting
+
+    Example feature file usage:
+        Then Client In Person Signing dialog should be displayed
+        When User click on Return to eWealthManager button
+        Then User should be redirected to the eWealthManager main page
+
+    Raises:
+        PlaywrightTimeoutError: If button not found or not visible within timeout
+        AssertionError: On any step failure
+    """
+    with allure.step("User click on Return to eWealthManager button"):
+        logger.info("[STEP] User click on Return to eWealthManager button")
+
+        try:
+            # Call page object method to click the button
+            client_accounts_page.click_return_to_ewealthmanager()
+
+            # Capture screenshot after clicking button
+            screenshot = authenticated_page.screenshot()
+            allure.attach(screenshot, name="After Clicking Return to eWealthManager", attachment_type=allure.attachment_type.PNG)
+
+            logger.info("[PASS] Successfully clicked 'Return to eWealthManager' button and redirected to eWealthManager")
+
+        except Exception as e:
+            logger.error(f"Failed to click 'Return to eWealthManager' button: {e}")
+            screenshot = authenticated_page.screenshot()
+            allure.attach(screenshot, name="Failed to Click Return to eWealthManager", attachment_type=allure.attachment_type.PNG)
+            raise AssertionError(f"Failed to click 'Return to eWealthManager' button: {e}") from e
+
+
+@when('User provide client signature details')
+def user_provide_client_signature_details(authenticated_page: Page, client_accounts_page, test_context):
+    """
+    BDD step to provide client signature details in the Signer(s) Information dialog.
+    
+    This step fills in the Account Holders table with client signer information.
+    
+    Prerequisite:
+    - Signer(s) Information dialog must be displayed
+    - Test data must contain: Account_Owner, Email_Address, Phone
+    
+    Test Data Columns (from CSV):
+    - Account_Owner: Client's full name (e.g., "Carmen E Tucker")
+    - Email_Address: Client's email address
+    - Phone: Client's phone number (e.g., "925-123-4567")
+    
+    Signature:
+    - Fills the Account Holders table row 1 (signer_index=1) for the account owner
+    - Uses page object's enter_client_signer_details() method
+    
+    Returns:
+    - Nothing (updates form in-place)
+    
+    Raises:
+    - AssertionError: If fields cannot be filled or data is missing
+    
+    Example feature file usage:
+        Then Signer(s) Information dialog should be displayed
+        When User provide client signature details
+        And User select Authorized Signer Approval option
+        And Click on Continue
+    
+    Related Steps:
+    - "When User select Client Signature Method" (prerequisite - shows dialog)
+    - "And User select Authorized Signer Approval option" (next step)
+    """
+    with allure.step("User provide client signature details"):
+        logger.info("[STEP] User provide client signature details")
+
+        try:
+            # Step 1: Retrieve test data for signer details
+            logger.info("[STEP_DETAIL] Retrieving test data for signer details...")
+            test_data = test_context.get("test_data", {})
+            
+            full_name = test_data.get("Account_Owner", "")
+            email_address = test_data.get("Email_Address", "")
+            phone = test_data.get("Phone", "")
+            
+            # Validation: Ensure required fields are present
+            logger.info(f"[DATA] Account_Owner: {full_name}")
+            logger.info(f"[DATA] Email_Address: {email_address}")
+            logger.info(f"[DATA] Phone: {phone}")
+            
+            if not full_name:
+                raise AssertionError("Required test data 'Account_Owner' not found in test context")
+            if not email_address:
+                raise AssertionError("Required test data 'Email_Address' not found in test context")
+            if not phone:
+                raise AssertionError("Required test data 'Phone' not found in test context")
+            
+            # Step 2: Call page object method to enter signer details
+            logger.info("[STEP_DETAIL] Calling page object to enter signer details...")
+            result = client_accounts_page.enter_client_signer_details(
+                full_name=full_name,
+                email_address=email_address,
+                phone=phone,
+                signer_index=1  # First Account Owner
+            )
+            
+            # Validation: Verify fields were filled successfully
+            if not result.get("fields_filled"):
+                raise AssertionError(f"Failed to fill all signer details fields. Result: {result}")
+            
+            logger.info("[STEP_DETAIL] ✓ Signer details successfully entered")
+            logger.info(f"[STEP_DETAIL] ✓ Name field filled: {full_name}")
+            logger.info(f"[STEP_DETAIL] ✓ Email field filled: {email_address}")
+            logger.info(f"[STEP_DETAIL] ✓ Phone field filled: {phone}")
+            
+            # Step 3: Capture screenshot for Allure reporting
+            logger.info("[STEP_DETAIL] Capturing screenshot for Allure report...")
+            screenshot = authenticated_page.screenshot()
+            allure.attach(
+                screenshot,
+                name="Client Signature Details Provided",
+                attachment_type=allure.attachment_type.PNG
+            )
+            
+            logger.info("[PASS] ✓ Successfully provided client signature details")
+            
+        except AssertionError:
+            # Re-raise assertion errors without additional wrapping
+            logger.error(f"[FAIL] Step failed with assertion error")
+            screenshot = authenticated_page.screenshot()
+            allure.attach(
+                screenshot,
+                name="Failed: Client Signature Details",
+                attachment_type=allure.attachment_type.PNG
+            )
+            raise
+            
+        except Exception as e:
+            logger.error(f"[FAIL] Unexpected error while providing client signature details: {e}")
+            screenshot = authenticated_page.screenshot()
+            allure.attach(
+                screenshot,
+                name="Failed: Client Signature Details (Exception)",
+                attachment_type=allure.attachment_type.PNG
+            )
+            raise AssertionError(f"Failed to provide client signature details: {e}") from e

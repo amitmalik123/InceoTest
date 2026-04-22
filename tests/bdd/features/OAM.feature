@@ -105,7 +105,7 @@ Feature: E2E OAM flow for FA, SAU and OA
     And Verify Authorized Signer Approval section should be displayed on Signer(s) Information dialog
     When User select Authorized Signer Approval option
     Then Authorized Signer eSign Method section should be displayed
-    When User select Authorized Signer eSign Method
+    When User select Signer eSign Method
     Then Verify appropriate fields are displayed based on eSign Method selected
     When User fetch signers information from database
     Then Verify Authorized Signer dropdown
@@ -151,7 +151,7 @@ Feature: E2E OAM flow for FA, SAU and OA
     And Verify Authorized Signer Approval section should be displayed on Signer(s) Information dialog
     When User select Authorized Signer Approval option
     Then Authorized Signer eSign Method section should be displayed
-    When User select Authorized Signer eSign Method
+    When User select Signer eSign Method
     Then Verify appropriate fields are displayed based on eSign Method selected
     When User fetch signers information from database
     Then Verify Authorized Signer dropdown
@@ -195,7 +195,7 @@ Feature: E2E OAM flow for FA, SAU and OA
     And Verify Authorized Signer Approval section should be displayed on Signer(s) Information dialog
     When User select Authorized Signer Approval option
     Then Authorized Signer eSign Method section should be displayed
-    When User select Authorized Signer eSign Method
+    When User select Signer eSign Method
     Then Verify appropriate fields are displayed based on eSign Method selected
     When User fetch signers information from database
     Then Verify Authorized Signer dropdown
@@ -244,3 +244,48 @@ Feature: E2E OAM flow for FA, SAU and OA
     Then Verify Tracking Center Item Detail status should be "Request Canceled"
     And Verify buttons displayed "View"
     And Verify Notes description
+
+  @InDev
+  Scenario: OAM_Initiated by SAU_eSignature_With One Inperson Client Signature_Authorized Signer_NOT required
+    When User navigate to Clients menu
+    And User click on Account List
+    And User is on the Account List tab and search for Account Number
+    And User click on searched account and navigate to account wizard page
+    Then Account Number is displayed and radio button is selected
+    When User select OAM Request and Type
+    Then Verify Form Heading must be same as selected OAM Type
+    When User select Submission Type
+    Then Client Signature Not Required dialog should be displayed
+    When User select Client Signature Method
+    Then Signer(s) Information dialog should be displayed
+    And Verify Authorized Signer Approval section should be displayed on Signer(s) Information dialog
+    When User provide client signature details
+    And User select Signer eSign Method
+    And User select Authorized Signer Approval option
+    And Click on Continue
+    Then User should be redirected to the DocuSign page
+    And Verify docusign Review and continue dialog text "Please review and sign the document electronically."
+    When User confirm and Continue the docusign Review and continue dialog
+    And User add Signature 
+    Then Signature and today's date should be added on the document
+    And Verify As_authorized_by stamp presence
+    When User Finish the DocuSign process
+    Then Client In Person Signing dialog should be displayed
+    When User click on Return to eWealthManager button
+    And User navigate to Tracking Center
+    And Search the DNumber and open the item details page
+    Then Item Detail D number should be same as request submitted pop up D number
+    And Verify Tracking Center Item Detail status should be "Pending Signature(s)"
+    And Verify Advisor Alert Required value
+    And Verify buttons displayed "Cancel,View,eSignature"
+    When User login to the email and search the authorized signer email
+    Then Verify authorized signer email content
+    When User click on Review Document and submit the otp
+    Then Verify docusign Review and continue dialog text "Your Shared Access User has prepared one or more documents that are ready for you to sign electronically."
+    When User confirm and Continue the docusign Review and continue dialog
+    And User click on Sign and add signature
+    And User Finish the DocuSign process
+    Then Verify Tracking Center Item Detail status should be "Document Submitted"
+    And Verify buttons displayed "View"
+    And Verify Notes description
+    And Verify Agent Name

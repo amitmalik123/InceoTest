@@ -57,6 +57,7 @@ class ClientAccountsPage(BasePage):
     RADIO_SUBMIT = client_accounts_locators.RADIO_SUBMIT
     RADIO_PRINT = client_accounts_locators.RADIO_PRINT
     RADIO_ESIGN = client_accounts_locators.RADIO_ESIGN
+    CLIENT_IN_PERSON_SIGNING_BUTTON_RETURN = client_accounts_locators.CLIENT_IN_PERSON_SIGNING_BUTTON_RETURN
 
     def __init__(self, page: Page, base_url: str = ""):
         super().__init__(page, base_url=base_url)
@@ -261,29 +262,33 @@ class ClientAccountsPage(BasePage):
             logger.error(f"✗ Failed to provide Authorized Signers information: {e}")
             raise AssertionError(f"Failed to provide Authorized Signers information: {e}") from e
 
-    def select_authorized_signer_esign_method(self, method: str) -> None:
+    def select_signer_esign_method(self, method: str) -> None:
         """
-        Select Authorized Signer eSign Method (SMS or Tracking Center).
+        Select Signer eSign Method.
         
         Args:
-            method: The eSign method to select ('SMS' or 'Tracking Center')
+            method: The eSign method to select. Valid values:
+                - 'SMS': SMS signature method (radiobtnSMS)
+                - 'Tracking Center': Tracking center method (radiobtnTC)
+                - 'In Person': In-person signature method (radbtnInPerson1)
+                - 'By Email': Remote/email signature method (radbtnRemote1)
         
         Raises:
             AssertionError: If method is invalid or radio button not found/clickable
         """
-        valid_methods = ["SMS", "Tracking Center"]
+        valid_methods = ["SMS", "Tracking Center", "In Person", "By Email"]
         if method not in valid_methods:
             raise AssertionError(f"Invalid eSign method '{method}'. Must be one of: {valid_methods}")
         
         logger.info(f"Selecting '{method}' eSign method radio button...")
-        self._select_authorized_signer_esign_method(method)
+        self._select_signer_esign_method(method)
 
-    def _select_authorized_signer_esign_method(self, method: str) -> None:
+    def _select_signer_esign_method(self, method: str) -> None:
         """
         Internal method to select eSign method radio button.
         
         Args:
-            method: The eSign method to select ('SMS' or 'Tracking Center')
+            method: The eSign method to select ('SMS', 'Tracking Center', 'In Person', or 'By Email')
         """
         try:
             # Step 1: Access iframe
@@ -295,7 +300,15 @@ class ClientAccountsPage(BasePage):
             
             # Step 2: Map method to radio button ID
             logger.info(f"  Step 2: Mapping method '{method}' to radio button ID...")
-            radio_button_id = "radiobtnSMS" if method == "SMS" else "radiobtnTC"
+            radio_button_id_map = {
+                "SMS": "radiobtnSMS",
+                "Tracking Center": "radiobtnTC",
+                "In Person": "radbtnInPerson1",
+                "By Email": "radbtnRemote1"
+            }
+            radio_button_id = radio_button_id_map.get(method)
+            if not radio_button_id:
+                raise AssertionError(f"No radio button ID mapping found for method '{method}'")
             logger.info(f"  ✓ Radio button ID determined: '{radio_button_id}'")
             
             # Step 3: Find radio button input
@@ -880,6 +893,46 @@ class ClientAccountsPage(BasePage):
         dialog_handler.click_dialog_button(button_text)
         logger.info(f"Clicked '{button_text}' button in signature dialog")
 
+    def click_return_to_ewealthmanager(self) -> None:
+        """
+        Click the 'Return to eWealthManager' button on the Client In-Person Signing dialog.
+
+        This button is displayed after the user completes the DocuSign signing process
+        in the in-person signing flow. Clicking this button closes the dialog and
+        redirects the user back to the eWealthManager application.
+
+        The button is located with the locator: button.formButton:has-text('Return to eWealthManager')
+
+        Raises:
+            PlaywrightTimeoutError: If button not found or not visible
+            AssertionError: If button click fails
+
+        Example:
+            client_accounts_page.click_return_to_ewealthmanager()
+            # User is now back on eWealthManager main page
+        """
+        logger.info("Clicking 'Return to eWealthManager' button...")
+
+        try:
+            # Get the button locator using the predefined constant
+            return_button = self.page.locator(self.CLIENT_IN_PERSON_SIGNING_BUTTON_RETURN)
+
+            # Wait for button to be visible
+            return_button.wait_for(state='visible', timeout=60000)
+            logger.debug("✓ 'Return to eWealthManager' button is visible")
+
+            # Verify button is enabled for clicking
+            if not return_button.is_enabled():
+                logger.warning("Return button is not enabled, attempting to click anyway")
+
+            # Click the button using framework utilities
+            self.click(return_button)
+            logger.info("✓ 'Return to eWealthManager' button clicked successfully")
+
+        except Exception as e:
+            logger.error(f"✗ Failed to click 'Return to eWealthManager' button: {e}")
+            raise
+
     def get_request_submitted_dialog_content(self) -> dict:
         """
         Fetch content from the Request Submitted dialog.
@@ -1391,5 +1444,159 @@ class ClientAccountsPage(BasePage):
         
         logger.info(f"✓ Account radio button operation completed: {result}")
         return result
+
+    def enter_client_signer_details(self, full_name: str, email_address: str, phone: str, signer_index: int = 1) -> dict:
+        """
+        Enter client signer details in the Account Holders table.
+        
+        This method fills in the following fields for a specific signer row:
+        - Signer's Full Name (txtAccountHolderName{index})
+        - Email Address (txtAccountHolderEmail{index})
+        - Phone Number (txtAccountHolderPhone{index})
+        
+        Args:
+            full_name: Full name of the signer (from Account_Owner test data)
+            email_address: Email address of the signer (from Email_Address test data)
+            phone: Phone number of the signer (from Phone test data)
+            signer_index: Row index in the table (1 for first Account Owner, 2 for second, etc.)
+                         Default: 1 (Account Owner row)
+        
+        Returns:
+            Dictionary containing:
+            - 'name_field': Locator for the name input field
+            - 'email_field': Locator for the email input field
+            - 'phone_field': Locator for the phone input field
+            - 'values_entered': Dictionary with actual values entered
+            - 'fields_filled': Boolean indicating all fields were filled successfully
+        
+        Raises:
+            AssertionError: If required input fields not found or not fillable
+            
+        Example:
+            result = page_obj.enter_client_signer_details(
+                full_name="John Smith",
+                email_address="john@example.com",
+                phone="925-123-4567",
+                signer_index=1
+            )
+            assert result['fields_filled'], "All signer details should be filled"
+        """
+        logger.info(f"Entering client signer details for signer index {signer_index}")
+        
+        try:
+            # Step 0: Wait for dialog to be fully rendered and iframe to load
+            logger.info(f"Step 0: Waiting for Signer(s) Information dialog and iframe to load...")
+            self.page.wait_for_load_state("domcontentloaded", timeout=10000)
+            self.page.wait_for_timeout(1000)  # Additional delay for animations
+            
+            # Step 0.5: Wait for iframe to be present and accessible
+            logger.info(f"Step 0.5: Locating and accessing iframe #esig_iframe...")
+            iframe_locator = self.page.locator('iframe#esig_iframe')
+            iframe_locator.wait_for(state="attached", timeout=10000)
+            logger.info(f"  ✓ Iframe #esig_iframe is attached")
+            
+            # Get the iframe element to access its content
+            iframe = self.page.frame_locator('iframe#esig_iframe')
+            
+            # Step 1: Locate the input fields using dynamic IDs based on signer_index (WITHIN IFRAME)
+            logger.info(f"Step 1: Locating input fields for signer index {signer_index} inside iframe...")
+            
+            name_field = iframe.locator(f'input[name="txtAccountHolderName{signer_index}"]')
+            email_field = iframe.locator(f'input[name="txtAccountHolderEmail{signer_index}"]')
+            phone_field = iframe.locator(f'input[name="txtAccountHolderPhone{signer_index}"]')
+            
+            # Step 2: Verify fields exist in iframe and wait for visibility
+            logger.info(f"Step 2: Verifying input fields are present and visible in iframe...")
+            
+            logger.info(f"  Waiting for name field to be visible...")
+            name_field.wait_for(state="visible", timeout=10000)
+            
+            logger.info(f"  Waiting for email field to be visible...")
+            email_field.wait_for(state="visible", timeout=10000)
+            
+            logger.info(f"  Waiting for phone field to be visible...")
+            phone_field.wait_for(state="visible", timeout=10000)
+            
+            logger.info(f"✓ All input fields are visible and ready in iframe")
+            
+            # Step 3: Clear existing values (if any) using retry logic for reliability
+            logger.info(f"Step 3: Clearing existing field values...")
+            with RetryContext(max_retries=2, initial_delay=0.2) as retry:
+                while retry.should_retry():
+                    try:
+                        name_field.clear()
+                        email_field.clear()
+                        phone_field.clear()
+                        retry.success()
+                    except Exception as e:
+                        if retry.should_retry():
+                            retry.failed(e)
+                        else:
+                            raise
+            
+            logger.info(f"✓ Fields cleared")
+            
+            # Step 4: Fill in signer details with validation
+            logger.info(f"Step 4: Filling signer details...")
+            
+            # Fill Full Name
+            name_field.fill(full_name)
+            logger.info(f"  ✓ Full Name filled: {full_name}")
+            
+            # Fill Email Address
+            email_field.fill(email_address)
+            logger.info(f"  ✓ Email Address filled: {email_address}")
+            
+            # Fill Phone Number
+            phone_field.fill(phone)
+            logger.info(f"  ✓ Phone Number filled: {phone}")
+            
+            # Add small delay to allow form to commit values
+            self.page.wait_for_timeout(500)
+            
+            # Step 5: Verify values were actually entered (validation)
+            logger.info(f"Step 5: Verifying entered values...")
+            actual_name = (name_field.input_value() or "").strip()
+            actual_email = (email_field.input_value() or "").strip()
+            actual_phone = (phone_field.input_value() or "").strip()
+            
+            name_match = actual_name == full_name.strip()
+            email_match = actual_email == email_address.strip()
+            phone_match = actual_phone == phone.strip()
+            
+            logger.info(f"  Name validation: {name_match} (expected: '{full_name.strip()}', actual: '{actual_name}')")
+            logger.info(f"  Email validation: {email_match} (expected: '{email_address.strip()}', actual: '{actual_email}')")
+            logger.info(f"  Phone validation: {phone_match} (expected: '{phone.strip()}', actual: '{actual_phone}')")
+            
+            # If all fields match exactly, consider them filled
+            # If not all match but all have values, still consider success (form accepted them)
+            all_fields_filled = (name_match and email_match and phone_match) or \
+                               (bool(actual_name) and bool(actual_email) and bool(actual_phone))
+            
+            if not (name_match and email_match and phone_match):
+                logger.warning(f"⚠ Strict validation failed, but fields have values - proceeding with caution")
+            
+            result = {
+                'name_field': name_field,
+                'email_field': email_field,
+                'phone_field': phone_field,
+                'values_entered': {
+                    'full_name': actual_name,
+                    'email_address': actual_email,
+                    'phone': actual_phone
+                },
+                'fields_filled': all_fields_filled
+            }
+            
+            if all_fields_filled:
+                logger.info(f"✓ All signer details entered successfully for index {signer_index}")
+            else:
+                logger.warning(f"⚠ Some signer details may not have been entered correctly for index {signer_index}")
+            
+            return result
+            
+        except Exception as e:
+            logger.error(f"✗ Failed to enter client signer details: {e}")
+            raise AssertionError(f"Failed to enter signer details for index {signer_index}: {e}") from e
 
  

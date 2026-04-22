@@ -67,3 +67,7 @@ OTP_FIELD_NAME_PATTERN = "verification code"  # Used with get_by_role()
 ADOPT_SIGNATURE_MODAL = '[data-qa="adopt-signature-modal"]'
 ADOPT_AND_SIGN_BUTTON_TEXT = "Adopt and Sign"  # Used with get_by_role()
 ADOPT_AND_SIGN_BUTTON_DATA_QA = "adopt-submit"  # Alternative: data-qa attribute
+
+# D-Number Locators
+# Document tracking number displayed in envelope completion messages
+D_NUMBER_SPAN = '//span[starts-with(text(),"D00")]'  # XPath to match D-number spans (e.g., D003525811, D003518970)

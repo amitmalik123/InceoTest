@@ -97,7 +97,7 @@ from tests.bdd.steps.client_accounts_steps import (
     verify_authorized_signer_approval_section,
     verify_fields_for_esign_method,
     verify_authorized_signer_esign_method_section,
-    user_select_authorized_signer_esign_method,
+    user_select_signer_esign_method,
     provide_authorized_signers_information,
     verify_authorized_signer_dropdown,
     click_continue_button,
@@ -109,6 +109,9 @@ from tests.bdd.steps.client_accounts_steps import (
     verify_client_signature_not_required_dialog,
     verify_request_dialog,
     user_click_on_d_number,
+    verify_client_in_person_signing_dialog_displayed,
+    user_click_on_return_to_ewealthmanager_button,
+    user_provide_client_signature_details,
 )
 
 # DocuSign steps
@@ -173,7 +176,7 @@ __all__ = [
     "verify_authorized_signer_approval_section",
     "verify_fields_for_esign_method",
     "verify_authorized_signer_esign_method_section",
-    "user_select_authorized_signer_esign_method",
+    "user_select_signer_esign_method",
     "provide_authorized_signers_information",
     "verify_authorized_signer_dropdown",
     "click_continue_button",
@@ -185,6 +188,9 @@ __all__ = [
     "verify_client_signature_not_required_dialog",
     "verify_request_dialog",
     "user_click_on_d_number",
+    "verify_client_in_person_signing_dialog_displayed",
+    "user_click_on_return_to_ewealthmanager_button",
+    "user_provide_client_signature_details",
     # common
     "use_test_data_for_scenario",
     "use_test_data_for_user_type",

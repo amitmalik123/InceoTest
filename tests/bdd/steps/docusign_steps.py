@@ -47,11 +47,23 @@ def user_confirm_and_continue(authenticated_page: Page, test_context):
 
 @when("User Finish the DocuSign process")
 def user_finish_the_docusign_process(authenticated_page: Page, test_context):
-    """Click the Finish button to complete the DocuSign signing process
+    """Fetch D-number and click the Finish button to complete the DocuSign signing process.
+    
+    This step:
+    1. Fetches the D-number (document tracking number) from the page (REQUIRED - hard failure if not successful)
+    2. Stores it in test_context['d_number'] for later verification
+    3. Clicks the Finish button to complete DocuSign process
     
     Args:
         authenticated_page: Playwright Page object
         test_context: Test context containing the new_docusign_page object from previous step
+        
+    Uses framework utilities:
+    - docusign_page.get_d_number(): Fetches D-number using WaitContext with 60s timeout for robust element detection
+    - logger: Unified logging with Allure integration
+    
+    Raises:
+        AssertionError: If D-number cannot be fetched (hard failure - step will not proceed to Finish button)
     """
     logger.info(">>> ENTERED STEP: user_finish_the_docusign_process")
     
@@ -65,11 +77,29 @@ def user_finish_the_docusign_process(authenticated_page: Page, test_context):
         from pages.docusign_page import DocuSignPage
         docusign_page = DocuSignPage(authenticated_page)
     
-    # Click the Finish button
-    logger.info("Clicking Finish button to complete DocuSign process...")
-    docusign_page.click_finish_button(timeout=30000)
-    
-    logger.info("[PASS] DocuSignPage: DocuSign Process Finished.")
+    with allure.step("Fetch D-number and finish DocuSign process"):
+        # Step 1: Fetch D-number before finishing (HARD REQUIREMENT - must succeed)
+        # Idempotent check: Only fetch D-number once per scenario
+        if "d_number" not in test_context:
+            logger.info("Step 1: Fetching D-number from DocuSign page (REQUIRED - 60s timeout)...")
+            try:
+                d_number = docusign_page.get_d_number(timeout=60000)  # 60s timeout
+                test_context['d_number'] = d_number
+                logger.info(f"[PASS] DocuSignPage: D-Number Fetched and Stored: {d_number}")
+            except Exception as e:
+                logger.error(f"✗ FAILED to fetch D-number (HARD FAILURE): {e}")
+                screenshot = authenticated_page.screenshot()
+                allure.attach(screenshot, name="D-Number Fetch Failed", attachment_type=allure.attachment_type.PNG)
+                raise AssertionError(f"[FAIL] DocuSignPage: D-Number Fetch Required — D-number could not be fetched before completing DocuSign process. Details: {e}") from e
+        else:
+            # D-number already fetched in this scenario, skip re-fetch
+            d_number = test_context['d_number']
+            logger.info(f"Step 1: [SKIP] D-number already fetched in scenario (idempotent protection): {d_number}")
+        
+        # Step 2: Click the Finish button (only proceeds if D-number was successfully fetched)
+        logger.info("Step 2: Clicking Finish button to complete DocuSign process...")
+        docusign_page.click_finish_button(timeout=30000)
+        logger.info("[PASS] DocuSignPage: DocuSign Process Finished.")
 
 @then("User should be redirected to the DocuSign page")
 def user_should_be_redirected_to_docusign_page(authenticated_page: Page, docusign_page):

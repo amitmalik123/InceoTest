@@ -118,6 +118,67 @@ class DocuSignPage(BasePage):
             logger.error(f"Failed to submit OTP: {str(e).splitlines()[0]}")
             raise RuntimeError(f"Code is incorrect or submission failed: {e}")
 
+    def get_d_number(self, timeout: int = 60000) -> str:
+        """
+        Fetch the D-number (document tracking number) from the DocuSign page.
+        
+        Locates the span element that contains the D-number (e.g., D003525811, D003518970)
+        using the XPath pattern: //span[starts-with(text(),"D00")]
+        
+        When multiple D-number spans exist on the page, fetches the FIRST VISIBLE one.
+        
+        Args:
+            timeout: Maximum time to wait for the element in milliseconds (default: 60000ms = 60 seconds)
+            
+        Returns:
+            The D-number text (e.g., "D003525811")
+            
+        Raises:
+            AssertionError: If D-number span not found or text is empty (hard failure)
+            
+        Uses framework utilities:
+        - logger: Unified logging with Allure integration
+        - Playwright's wait_for(state="visible") for element visibility
+        
+        Example:
+            d_number = docusign_page.get_d_number()  # Waits up to 60s for first visible D-number
+            print(f"Document tracking number: {d_number}")
+        """
+        logger.info(f"Fetching D-number from DocuSign page (timeout: {timeout}ms = {timeout/1000}s)...")
+        logger.info(f"  Locator: {docusign_locators.D_NUMBER_SPAN}")
+        
+        try:
+            # Locate the D-number span using XPath and get the FIRST one
+            # Use .first to handle cases where multiple D-number spans exist on page
+            d_number_locator = self.page.locator(docusign_locators.D_NUMBER_SPAN).first
+            
+            # Step 1: Wait for first element to be visible using Playwright's built-in wait
+            # This properly handles when multiple matching elements exist (gets first visible)
+            logger.info(f"  Step 1: Waiting for first D-number span to be visible (up to {timeout/1000}s)...")
+            timeout_sec = timeout / 1000.0
+            try:
+                d_number_locator.wait_for(state="visible", timeout=timeout)
+                logger.info("  ✓ First D-number span is visible")
+            except Exception as wait_error:
+                logger.error(f"✗ D-number span did not appear within {timeout_sec}s")
+                raise AssertionError(f"D-number span (locator: {docusign_locators.D_NUMBER_SPAN}) did not appear within {timeout_sec}s: {wait_error}")
+            
+            # Step 2: Extract the D-number text
+            logger.info("  Step 2: Extracting D-number text from first visible span...")
+            d_number_text = d_number_locator.text_content()
+            
+            if not d_number_text or not d_number_text.strip():
+                raise AssertionError(f"D-number span found but text is empty. Locator: {docusign_locators.D_NUMBER_SPAN}")
+            
+            d_number = d_number_text.strip()
+            logger.info(f"  ✓ D-number extracted: {d_number}")
+            
+            return d_number
+            
+        except Exception as e:
+            logger.error(f"✗ Failed to get D-number: {e}")
+            raise AssertionError(f"Failed to fetch D-number from DocuSign page: {e}") from e
+
     def verify_docusign_page_loaded(self, timeout: int = 120000):
         """
         Wait for DocuSign page to load and take screenshot for evidence.
