@@ -176,6 +176,7 @@ class LogAnalyticsReporter:
                 "BuildNumber": os.environ.get('BUILD_BUILDNUMBER', 'local'),
                 "PipelineId": os.environ.get('SYSTEM_DEFINITIONID', 'unknown'),
                 "PipelineName": os.environ.get('BUILD_DEFINITIONNAME', 'unknown'),
+                "SourceBranch": data.get('source_branch', os.environ.get('BUILD_SOURCEBRANCHNAME', 'unknown')),
                 # Test Metrics
                 "TotalTests": total_tests,
                 "PassedTests": passed_tests,
@@ -298,6 +299,10 @@ def push_to_log_analytics() -> bool:
         # Add service name if not present
         if 'service_name' not in data:
             data['service_name'] = os.environ.get('SERVICE_NAME', 'unknown')
+        
+        # Add source branch if not present
+        if 'source_branch' not in data:
+            data['source_branch'] = os.environ.get('BUILD_SOURCEBRANCHNAME', os.environ.get('BUILD_SOURCEBRANCH', 'unknown'))
         
         # Initialize reporter
         reporter = LogAnalyticsReporter(workspace_id, shared_key)
