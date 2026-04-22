@@ -214,12 +214,6 @@ variables:
     ${{ else }}:
       value: 'N/A'
 
-  # Schedule Run Branch Control - uses SCHEDULE_RUN_BRANCH from variable group
-  # Values: 'all' (run on both branches), 'qe_platform', 'develop'
-  # Runtime expression: evaluates whether this branch is allowed to run on schedule
-  - name: isScheduleAllowed
-    value: $[or(ne(variables['Build.Reason'], 'Schedule'), eq(variables['SCHEDULE_RUN_BRANCH'], 'all'), eq(variables['SCHEDULE_RUN_BRANCH'], variables['Build.SourceBranchName']))]
-
 ###############################################################################
 # Use Common Stages Template
 ###############################################################################
@@ -241,5 +235,4 @@ stages:
       testCaseFilter: ${{ parameters.testCaseFilter }}
       scheduleTestCaseFilter: $(scheduleTestCaseFilter)
       triggerReason: '$(Build.Reason)'
-      isScheduleAllowed: $(isScheduleAllowed)
       enableScheduleDetection: true  # Enable schedule-based service detection for cron triggers

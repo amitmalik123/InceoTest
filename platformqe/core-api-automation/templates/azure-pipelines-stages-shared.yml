@@ -96,11 +96,6 @@ parameters:
     type: string
     default: 'N/A'
 
-  # Whether scheduled run is allowed on this branch (runtime expression)
-  - name: isScheduleAllowed
-    type: string
-    default: 'True'
-
   # sleept time To sync the deployment charts
   - name: deploymentsync
     displayName: 'wait to sync ArgoCd charts and deployment sucessfully'
@@ -114,7 +109,12 @@ stages:
   - stage: Initialize
     displayName: 'Initialize and Parse Service Matrix'
     # Skip scheduled runs if SCHEDULE_RUN_BRANCH doesn't match this branch
-    condition: eq(${{ parameters.isScheduleAllowed }}, true)
+    condition: |
+      or(
+        ne(variables['Build.Reason'], 'Schedule'),
+        eq(variables['SCHEDULE_RUN_BRANCH'], 'all'),
+        eq(variables['SCHEDULE_RUN_BRANCH'], variables['Build.SourceBranchName'])
+      )
     jobs:
       - job: ParseMatrix
         displayName: 'Parse Services Matrix'
