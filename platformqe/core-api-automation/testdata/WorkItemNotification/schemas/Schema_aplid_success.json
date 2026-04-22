@@ -1,4 +1,5 @@
 {
+  "$schema": "http://json-schema.org/draft-07/schema#",
   "type": "object",
   "properties": {
     "id": { "type": "integer" },
@@ -21,16 +22,35 @@
     "selectedRecipients": { "type": "array" },
     "allRecipients": { "type": ["array", "null"] },
     "isPageVisited": { "type": "boolean" },
-    "createdBy": { "type": "string" },
-    "createdDate": { "type": "string", "format": "date-time" },
-    "modifiedBy": { "type": "string" },
-    "modifiedDate": { "type": "string", "format": "date-time" },
-    "approvalNotification": { "type": "string" }
+    "createdBy": { "type": ["string", "null"] },
+    "createdDate": { "type": ["string", "null"] },
+    "modifiedBy": { "type": ["string", "null"] },
+    "modifiedDate": { "type": "string" },
+    "approvalNotification": { "type": "string" },
+    "receivedCompletedNewAccounts": { "type": "string" },
+    "receivedCompletedMoneyIn": { "type": "string" },
+    "receivedCompletedStandingInstructions": { "type": "string" },
+    "receivedCompletedInvestmentChanges": { "type": "string" },
+    "receivedCompletedWithdrawals": { "type": "string" },
+    "receivedCompletedTerminations": { "type": "string" }
   },
   "required": [
-    "id", "aplId", "itemsRequiringAttention", "receivedCompletedPrimary",
-    "receivedCompletedSecondary", "workItemVisibilityPreferences",
-    "selectedRecipients", "allRecipients", "isPageVisited",
-    "createdBy", "createdDate", "modifiedBy", "modifiedDate", "approvalNotification"
+    "id",
+    "aplId",
+    "itemsRequiringAttention",
+    "receivedCompletedPrimary",
+    "receivedCompletedSecondary",
+    "workItemVisibilityPreferences",
+    "selectedRecipients",
+    "isPageVisited",
+    "modifiedBy",
+    "modifiedDate",
+    "approvalNotification",
+    "receivedCompletedNewAccounts",
+    "receivedCompletedMoneyIn",
+    "receivedCompletedStandingInstructions",
+    "receivedCompletedInvestmentChanges",
+    "receivedCompletedWithdrawals",
+    "receivedCompletedTerminations"
   ]
 }

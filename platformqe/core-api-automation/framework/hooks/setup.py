@@ -83,7 +83,7 @@ class TestDataManager:
     def setup(self) -> bool:
         """
         Run all setup operations based on configuration.
-        
+        Supports endpoint-specific prerequisite configs (e.g., 'instructions', 'requests').
         Returns:
             True if setup completed successfully, False otherwise
         """
@@ -92,26 +92,38 @@ class TestDataManager:
             return True
         
         logger.info(f"Starting setup for service: {self.service_name}")
-        
         try:
-            # Execute prerequisite test case if configured
             prereq = self.config.prerequisite_testcase
-            if prereq and prereq.get('enabled'):
-                logger.info(f"Executing prerequisite test case")
-                result = self._execute_prerequisite_testcase()
-            else:
-                logger.info(f"No prerequisite test case configured or disabled")
             
-            logger.info(f"Setup completed for service: {self.service_name}")
+            # Check if this is a single config or multi-endpoint config
+            is_single_config = isinstance(prereq, dict) and 'testcase_file' in prereq
+            
+            if is_single_config:
+                if prereq.get('enabled'):
+                    logger.info(f"Executing single prerequisite test case")
+                    result = self._execute_prerequisite_testcase(prereq)
+            elif isinstance(prereq, dict):
+                logger.info(f"Multi-endpoint configuration detected")
+                import os
+                hook_endpoint = os.environ.get('HOOK_ENDPOINT')
+                endpoints_to_run = []
+                if hook_endpoint and hook_endpoint in prereq:
+                    endpoints_to_run = [hook_endpoint]
+                else:
+                    endpoints_to_run = [k for k, v in prereq.items() if isinstance(v, dict) and v.get('enabled')]
+                
+                for endpoint in endpoints_to_run:
+                    endpoint_config = prereq[endpoint]
+                    logger.info(f"Executing prerequisite for endpoint: {endpoint}")
+                    result = self._execute_prerequisite_testcase(endpoint_config)
+            
+            logger.info(f"[HOOKS] Setup completed for service: {self.service_name}")
             return True
-            
         except Exception as e:
-            logger.error(f"Setup failed for service {self.service_name}: {e}")
-            import traceback
-            logger.error(traceback.format_exc())
+            logger.error(f"Setup failed for service {self.service_name}: {e}", exc_info=True)
             return False
     
-    def _execute_prerequisite_testcase(self) -> Optional[Dict]:
+    def _execute_prerequisite_testcase(self, prereq_config=None) -> Optional[Dict]:
         """
         Execute a prerequisite test case (e.g., POST to create test data)
         multiple times based on 'count' config and extract values from responses.
@@ -119,7 +131,9 @@ class TestDataManager:
         Returns:
             Dictionary of extracted values from last execution, or None if failed
         """
-        prereq_config = self.config.prerequisite_testcase
+        if prereq_config is None:
+            prereq_config = self.config.prerequisite_testcase
+        self.prereq_config = prereq_config
         testcase_file = prereq_config.get('testcase_file')
         test_data_file = prereq_config.get('test_data_file')
         count = prereq_config.get('count', 1)  # Number of times to execute
@@ -142,13 +156,13 @@ class TestDataManager:
         if not all_extracted_values:
             logger.error("No prerequisite data was created")
             return None
-        
+
         # Update CSV with all extracted values
         update_csv = prereq_config.get('update_csv_file')
         if update_csv:
-            csv_columns = prereq_config.get('csv_columns', ['environment', 'id'])
+            csv_columns = prereq_config['csv_columns']  # Assumes always present in config
             self._update_csv_with_values(update_csv, all_extracted_values, csv_columns)
-        
+
         return all_extracted_values[-1]  # Return last extracted values
     
     def _execute_single_prerequisite(
@@ -163,6 +177,10 @@ class TestDataManager:
         Returns:
             Dictionary of extracted values, or None if failed
         """
+        logger.info(f"Running prerequisite testcase: {testcase_file}")
+        if test_data_file:
+            logger.info(f"Using test data file: {test_data_file}")
+        
         try:
             # Get base paths
             base_path = os.path.dirname(os.path.dirname(os.path.dirname(__file__)))
@@ -198,18 +216,15 @@ class TestDataManager:
             # Load and render payload
             payload = None
             payload_data = testcase.get('payload')
-            logger.debug(f"[HOOKS DEBUG] payload_data type: {type(payload_data)}, value: {payload_data}")
             
             if payload_data:
                 if isinstance(payload_data, dict):
                     # Payload is already a dict with template variables
-                    logger.debug(f"[HOOKS DEBUG] Payload is a dict, rendering with context")
                     payload_json_str = json.dumps(payload_data)
                     rendered_payload = render_template(payload_json_str, context)
                     payload = json.loads(rendered_payload)
                 elif isinstance(payload_data, str):
                     # Payload is a file path
-                    logger.debug(f"[HOOKS DEBUG] Payload is a file path: {payload_data}")
                     payload_path = os.path.join(testdata_path, payload_data)
                     if os.path.exists(payload_path):
                         with open(payload_path, 'r', encoding='utf-8') as f:
@@ -263,37 +278,52 @@ class TestDataManager:
             response_data = response.json() if response.text else {}
             
             extract_config = prereq_config.get('extract_from_response', {})
-            logger.debug(f"[HOOKS DEBUG] extract_config: {extract_config}")
-            logger.debug(f"[HOOKS DEBUG] extract_config is truthy: {bool(extract_config)}")
             if extract_config:
-                field = extract_config.get('field', '')
-                assign_to = extract_config.get('assign_to', field)
-                logger.debug(f"[HOOKS DEBUG] field='{field}', assign_to='{assign_to}'")
-                
-                # Handle nested fields (e.g., "data.partyId")
-                value = self._extract_value_from_response(response_data, field)
-                logger.debug(f"[HOOKS DEBUG] _extract_value_from_response returned: {value}")
-                if value:
-                    extracted_values[assign_to] = value
-                    logger.info(f"✅ Extracted {assign_to}={value}")
-                    
-                    # Track created data for cleanup
-                    self.created_data.append({
-                        'id': value,
-                        'service': self.service_name,
-                        'timestamp': datetime.now().isoformat()
-                    })
-                else:
-                    logger.warning(f"⚠️ Failed to extract '{field}' from response_data. Available keys: {list(response_data.keys())}")
-            else:
-                logger.warning(f"⚠️ extract_config is empty or not truthy: {extract_config}")
+                # Support both single field and multiple fields (as dict or list)
+                if isinstance(extract_config, dict):
+                    # Check if it's a simple field extraction or a fields array
+                    if 'fields' in extract_config:
+                        # Multiple fields in array format
+                        fields_list = extract_config.get('fields', [])
+                        for field_config in fields_list:
+                            if isinstance(field_config, dict):
+                                field = field_config.get('field', '')
+                                assign_to = field_config.get('assign_to', field)
+                                value = self._extract_value_from_response(response_data, field)
+                                if value:
+                                    extracted_values[assign_to] = value
+                                    logger.info(f"[HOOKS] Extracted {assign_to}: {value}")
+                                    self.created_data.append({
+                                        'id': value,
+                                        'service': self.service_name,
+                                        'timestamp': datetime.now().isoformat()
+                                    })
+                                else:
+                                    logger.warning(f"Failed to extract '{field}' from response. Available keys: {list(response_data.keys())}")
+                    else:
+                        # Single field format
+                        field = extract_config.get('field', '')
+                        assign_to = extract_config.get('assign_to', field)
+                        
+                        # Handle nested fields (e.g., "data.partyId")
+                        value = self._extract_value_from_response(response_data, field)
+                        if value:
+                            extracted_values[assign_to] = value
+                            logger.info(f"[HOOKS] Extracted {assign_to}: {value}")
+                            
+                            # Track created data for cleanup
+                            self.created_data.append({
+                                'id': value,
+                                'service': self.service_name,
+                                'timestamp': datetime.now().isoformat()
+                            })
+                        else:
+                            logger.warning(f"Failed to extract '{field}' from response. Available keys: {list(response_data.keys())}")
             
             return extracted_values
             
         except Exception as e:
-            logger.error(f"Failed to execute prerequisite test case: {e}")
-            import traceback
-            logger.debug(traceback.format_exc())
+            logger.error(f"Failed to execute prerequisite test case: {e}", exc_info=True)
             return None
     
     def _extract_value_from_response(self, response_data: Dict, field: str) -> Optional[Any]:
@@ -351,11 +381,13 @@ class TestDataManager:
             all_extracted_values: List of dictionaries with extracted values
             columns: List of column names for the CSV
         """
+        logger.info(f"[HOOKS] Updating CSV file: {csv_file} with {len(all_extracted_values)} entries")
+        
         testdata_path = os.path.join(
             os.path.dirname(__file__), '..', '..', 'testdata'
         )
         csv_path = os.path.join(testdata_path, csv_file)
-        
+        prereq = self.prereq_config
         try:
             # Create directory if needed
             os.makedirs(os.path.dirname(csv_path), exist_ok=True)
@@ -403,13 +435,23 @@ class TestDataManager:
                 writer = csv.DictWriter(f, fieldnames=final_columns)
                 writer.writeheader()
                 writer.writerows(existing_rows)
+                # Force flush to disk immediately (fixes Docker/pipeline sync lag)
+                f.flush()
+                os.fsync(f.fileno())
             
-            logger.info(f"Updated {csv_path} with {len(existing_rows)} entries")
+            logger.info(f"[HOOKS] CSV file updated successfully: {csv_file}")
+            
+            # Force OS-level sync to ensure file is written to disk (critical for Docker/pipeline)
+            import subprocess
+            try:
+                if os.name == 'posix':  # Linux/Mac
+                    subprocess.run(['sync'], check=False, timeout=5)
+                    logger.debug(f"OS-level sync completed")
+            except Exception as e:
+                logger.warning(f"OS sync warning (non-blocking): {e}")
             
         except Exception as e:
-            logger.error(f"Failed to update CSV {csv_file}: {e}")
-            import traceback
-            logger.error(traceback.format_exc())
+            logger.error(f"Failed to update CSV {csv_file}: {e}", exc_info=True)
     
     def restore_csv_files(self) -> None:
         """Restore CSV files to their original state."""

@@ -1,7 +1,7 @@
 [
     {
         "test_id": "TC001",
-        "service_name": "MoveMoneyAPI",
+        "service_name": "movemoney",
         "workflow_mode": "parallel",
         "test_name": "Replaces an existing security transfer for a given money movement transfer request. [positive] (TC001)",
         "protocol": "REST",
@@ -9,7 +9,7 @@
             "Functional"
         ],
         "mainURL": "{{base_url}}",
-        "endpoint": "/transfer/{{requestId}}/securities/{{securityTransferId}}",
+        "endpoint": "/{{requestId}}/securities/{{securityTransferId}}",
         "method": "PUT",
         "headers_additional": {
             "Content-Type": "application/json"
@@ -150,15 +150,15 @@
     },
     {
         "test_id": "TC002",
-        "service_name": "MoveMoneyAPI",
+        "service_name": "movemoney",
         "workflow_mode": "parallel",
-        "test_name": "PUT /transfer/{requestId}/securities/{securityTransferId} [negative: securityTransferId not found] (TC002)",
+        "test_name": "PUT /{requestId}/securities/{securityTransferId} [negative: securityTransferId not found] (TC002)",
         "protocol": "REST",
         "test_type": [
             "Negative"
         ],
         "mainURL": "{{base_url}}",
-        "endpoint": "/transfer/{{requestId}}/securities/{{securityTransferId}}",
+        "endpoint": "/{{requestId}}/securities/{{securityTransferId}}",
         "method": "PUT",
         "headers_additional": {
             "Content-Type": "application/json"
@@ -197,15 +197,15 @@
     },
     {
         "test_id": "TC003",
-        "service_name": "MoveMoneyAPI",
+        "service_name": "movemoney",
         "workflow_mode": "parallel",
-        "test_name": "PUT /transfer/{requestId}/securities/{securityTransferId} [negative: invalid securityId] (TC003)",
+        "test_name": "PUT /{requestId}/securities/{securityTransferId} [negative: invalid securityId] (TC003)",
         "protocol": "REST",
         "test_type": [
             "Negative"
         ],
         "mainURL": "{{base_url}}",
-        "endpoint": "/transfer/{{requestId}}/securities/{{securityTransferId}}",
+        "endpoint": "/{{requestId}}/securities/{{securityTransferId}}",
         "method": "PUT",
         "headers_additional": {
             "Content-Type": "application/json"
@@ -244,15 +244,15 @@
     },
     {
         "test_id": "TC004",
-        "service_name": "MoveMoneyAPI",
+        "service_name": "movemoney",
         "workflow_mode": "parallel",
-        "test_name": "PUT /transfer/{requestId}/securities/{securityTransferId} [negative: missing securityId] (TC004)",
+        "test_name": "PUT /{requestId}/securities/{securityTransferId} [negative: missing securityId] (TC004)",
         "protocol": "REST",
         "test_type": [
             "Negative"
         ],
         "mainURL": "{{base_url}}",
-        "endpoint": "/transfer/{{requestId}}/securities/{{securityTransferId}}",
+        "endpoint": "/{{requestId}}/securities/{{securityTransferId}}",
         "method": "PUT",
         "headers_additional": {
             "Content-Type": "application/json"
@@ -291,15 +291,15 @@
     },
     {
         "test_id": "TC005",
-        "service_name": "MoveMoneyAPI",
+        "service_name": "movemoney",
         "workflow_mode": "parallel",
-        "test_name": "PUT /transfer/{requestId}/securities/{securityTransferId} [negative: missing securityUnitType] (TC005)",
+        "test_name": "PUT /{requestId}/securities/{securityTransferId} [negative: missing securityUnitType] (TC005)",
         "protocol": "REST",
         "test_type": [
             "Negative"
         ],
         "mainURL": "{{base_url}}",
-        "endpoint": "/transfer/{{requestId}}/securities/{{securityTransferId}}",
+        "endpoint": "/{{requestId}}/securities/{{securityTransferId}}",
         "method": "PUT",
         "headers_additional": {
             "Content-Type": "application/json"
@@ -338,15 +338,15 @@
     },
     {
         "test_id": "TC006",
-        "service_name": "MoveMoneyAPI",
+        "service_name": "movemoney",
         "workflow_mode": "parallel",
-        "test_name": "PUT /transfer/{requestId}/securities/{securityTransferId} [negative: invalid securityUnitType] (TC006)",
+        "test_name": "PUT /{requestId}/securities/{securityTransferId} [negative: invalid securityUnitType] (TC006)",
         "protocol": "REST",
         "test_type": [
             "Negative"
         ],
         "mainURL": "{{base_url}}",
-        "endpoint": "/transfer/{{requestId}}/securities/{{securityTransferId}}",
+        "endpoint": "/{{requestId}}/securities/{{securityTransferId}}",
         "method": "PUT",
         "headers_additional": {
             "Content-Type": "application/json"
