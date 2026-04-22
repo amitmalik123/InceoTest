@@ -893,45 +893,55 @@ class ClientAccountsPage(BasePage):
         dialog_handler.click_dialog_button(button_text)
         logger.info(f"Clicked '{button_text}' button in signature dialog")
 
-    def click_return_to_ewealthmanager(self) -> None:
+    def click_form_button(self, button_text: str, timeout: int = 60000) -> None:
         """
-        Click the 'Return to eWealthManager' button on the Client In-Person Signing dialog.
+        Generic method to click a form button with specific text.
 
-        This button is displayed after the user completes the DocuSign signing process
-        in the in-person signing flow. Clicking this button closes the dialog and
-        redirects the user back to the eWealthManager application.
+        This method can be used to click any button with class 'formButton' and specific text content.
+        It validates the button is visible and enabled before clicking.
 
-        The button is located with the locator: button.formButton:has-text('Return to eWealthManager')
+        Args:
+            button_text: The exact text of the button to click (e.g., 'Return to eWealthManager', 'Start Client Signing')
+            timeout: Timeout in milliseconds for waiting for button visibility (default: 60000ms)
 
         Raises:
-            PlaywrightTimeoutError: If button not found or not visible
-            AssertionError: If button click fails
+            AssertionError: If button not found, not visible, or click fails
 
         Example:
-            client_accounts_page.click_return_to_ewealthmanager()
-            # User is now back on eWealthManager main page
+            client_accounts_page.click_form_button('Return to eWealthManager')
+            client_accounts_page.click_form_button('Start Client Signing', timeout=30000)
         """
-        logger.info("Clicking 'Return to eWealthManager' button...")
+        logger.info(f"Clicking form button with text: '{button_text}'...")
 
         try:
-            # Get the button locator using the predefined constant
-            return_button = self.page.locator(self.CLIENT_IN_PERSON_SIGNING_BUTTON_RETURN)
+            # Build the locator using button text
+            button_locator = self.page.locator(f'button.formButton:has-text("{button_text}")')
 
-            # Wait for button to be visible
-            return_button.wait_for(state='visible', timeout=60000)
-            logger.debug("✓ 'Return to eWealthManager' button is visible")
+            # STEP 1: Check if button exists
+            if button_locator.count() == 0:
+                logger.error(f"✗ Button with text '{button_text}' not found on page")
+                raise AssertionError(f"Form button '{button_text}' not found on page")
 
-            # Verify button is enabled for clicking
-            if not return_button.is_enabled():
-                logger.warning("Return button is not enabled, attempting to click anyway")
+            logger.debug(f"✓ Button '{button_text}' found on page")
 
-            # Click the button using framework utilities
-            self.click(return_button)
-            logger.info("✓ 'Return to eWealthManager' button clicked successfully")
+            # STEP 2: Wait for button to be visible
+            logger.debug(f"Waiting for button '{button_text}' to be visible...")
+            button_locator.wait_for(state='visible', timeout=timeout)
+            logger.debug(f"✓ Button '{button_text}' is visible")
 
-        except Exception as e:
-            logger.error(f"✗ Failed to click 'Return to eWealthManager' button: {e}")
+            # STEP 3: Verify button is enabled for clicking
+            if not button_locator.is_enabled():
+                logger.warning(f"Button '{button_text}' is not enabled, attempting to click anyway")
+
+            # STEP 4: Click the button using framework utilities
+            self.click(button_locator)
+            logger.info(f"✓ Button '{button_text}' clicked successfully")
+
+        except AssertionError:
             raise
+        except Exception as e:
+            logger.error(f"✗ Failed to click button '{button_text}': {e}")
+            raise AssertionError(f"Failed to click form button '{button_text}'. Details: {e}") from e
 
     def get_request_submitted_dialog_content(self) -> dict:
         """

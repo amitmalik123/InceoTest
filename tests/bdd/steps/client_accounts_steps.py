@@ -1584,56 +1584,99 @@ def verify_client_in_person_signing_dialog_displayed(authenticated_page: Page):
             raise AssertionError(f"Client In Person Signing dialog verification failed: {e}") from e
 
 
-@when("User click on Return to eWealthManager button")
-def user_click_on_return_to_ewealthmanager_button(authenticated_page: Page, client_accounts_page, test_context):
+@when(parsers.re(r'User click on "(?P<button_text>.*?)" button'))
+def user_click_on_form_button_dynamic(authenticated_page: Page, client_accounts_page, button_text: str, test_context):
     """
-    Step definition for clicking the 'Return to eWealthManager' button on the Client In-Person Signing dialog.
+    Dynamic step definition for clicking any form button with specified text.
+    
+    This step accepts the button text as a parameter from the feature file,
+    allowing it to be reused for multiple buttons.
 
-    This button is displayed after completing the DocuSign signing process in the
-    in-person signing workflow. Clicking this button:
-    1. Closes the Client In-Personal Signing dialog
-    2. Redirects the user back to the eWealthManager main application
+    Args:
+        button_text: The exact text of the button to click (e.g., 'Return to eWealthManager', 'Start Client Signing')
 
     Pre-conditions:
-    - The "Client In Person Signing dialog should be displayed" step has been executed
-    - User has completed the DocuSign signing process
-    - The Client In-Personal Signing dialog is currently visible
+    - The dialog containing the button must be displayed
+    - The button must be visible on the page
 
     Post-conditions:
-    - User is redirected to the eWealthManager main page
-    - The dialog is closed
+    - The specified button is clicked
+    - Page state changes based on button action
 
     Uses framework utilities:
-    - client_accounts_page.click_return_to_ewealthmanager(): Page object method to click button
+    - client_accounts_page.click_form_button(button_text): Page object method to click any form button
     - logger: Unified logging from allure_logger
     - allure: Attach screenshots on failure for reporting
 
     Example feature file usage:
-        Then Client In Person Signing dialog should be displayed
-        When User click on Return to eWealthManager button
-        Then User should be redirected to the eWealthManager main page
+        When User click on "Return to eWealthManager" button
+        When User click on "Start Client Signing" button
+        When User click on "Continue" button
 
     Raises:
-        PlaywrightTimeoutError: If button not found or not visible within timeout
-        AssertionError: On any step failure
+        AssertionError: If button not found or not visible
     """
-    with allure.step("User click on Return to eWealthManager button"):
+    with allure.step(f'User click on "{button_text}" button'):
+        logger.info(f"[STEP] User click on {button_text} button")
+
+        try:
+            # Call page object method to click the button with dynamic text
+            client_accounts_page.click_form_button(button_text, timeout=60000)
+
+            # Capture screenshot after clicking button
+            screenshot = authenticated_page.screenshot()
+            allure.attach(
+                screenshot,
+                name=f"After Clicking {button_text} Button",
+                attachment_type=allure.attachment_type.PNG
+            )
+
+            logger.info(f"[PASS] Successfully clicked '{button_text}' button")
+
+        except Exception as e:
+            logger.error(f"Failed to click '{button_text}' button: {e}")
+            try:
+                screenshot = authenticated_page.screenshot()
+                allure.attach(
+                    screenshot,
+                    name=f"Failed to Click {button_text} Button",
+                    attachment_type=allure.attachment_type.PNG
+                )
+            except:
+                pass
+            raise AssertionError(f"Failed to click '{button_text}' button: {e}") from e
+
+
+@when('User click on "Return to eWealthManager" button')
+def user_click_on_return_to_ewealthmanager_button(authenticated_page: Page, client_accounts_page, test_context):
+    """
+    Step definition for clicking the 'Return to eWealthManager' button on the Client In-Person Signing dialog.
+
+    This is a backward-compatibility wrapper that calls the dynamic button click function.
+
+    Raises:
+        AssertionError: If button not found or not visible
+    """
+    with allure.step('User click on "Return to eWealthManager" button'):
         logger.info("[STEP] User click on Return to eWealthManager button")
 
         try:
-            # Call page object method to click the button
+            # Call the page object method to click the button
             client_accounts_page.click_return_to_ewealthmanager()
 
             # Capture screenshot after clicking button
             screenshot = authenticated_page.screenshot()
             allure.attach(screenshot, name="After Clicking Return to eWealthManager", attachment_type=allure.attachment_type.PNG)
 
-            logger.info("[PASS] Successfully clicked 'Return to eWealthManager' button and redirected to eWealthManager")
+            logger.info("[PASS] Successfully clicked 'Return to eWealthManager' button")
 
         except Exception as e:
             logger.error(f"Failed to click 'Return to eWealthManager' button: {e}")
-            screenshot = authenticated_page.screenshot()
-            allure.attach(screenshot, name="Failed to Click Return to eWealthManager", attachment_type=allure.attachment_type.PNG)
+            try:
+                screenshot = authenticated_page.screenshot()
+                allure.attach(screenshot, name="Failed to Click Return to eWealthManager", attachment_type=allure.attachment_type.PNG)
+            except:
+                pass
             raise AssertionError(f"Failed to click 'Return to eWealthManager' button: {e}") from e
 
 

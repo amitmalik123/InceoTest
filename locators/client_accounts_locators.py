@@ -72,3 +72,7 @@ CLIENT_IN_PERSON_SIGNING_LIST_ITEMS = "ul.inPersoneSigList li.inPersoneSigMain"
 CLIENT_IN_PERSON_SIGNING_BUTTON_RETURN = "button.formButton:has-text('Return to eWealthManager')"
 CLIENT_IN_PERSON_SIGNING_BUTTON_START = "button.formButton:has-text('Start Client Signing')"
 CLIENT_IN_PERSON_SIGNING_BUTTONS = "button.formButton"
+
+# Generic form button locator - use with button text parameter
+# Example: page.locator('button.formButton:has-text("Return to eWealthManager")')
+FORM_BUTTON_SELECTOR = "button.formButton"

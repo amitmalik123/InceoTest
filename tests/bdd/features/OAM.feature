@@ -271,15 +271,10 @@ Feature: E2E OAM flow for FA, SAU and OA
     And Verify As_authorized_by stamp presence
     When User Finish the DocuSign process
     Then Client In Person Signing dialog should be displayed
-    When User click on Return to eWealthManager button
-    And User navigate to Tracking Center
-    And Search the DNumber and open the item details page
-    Then Item Detail D number should be same as request submitted pop up D number
-    And Verify Tracking Center Item Detail status should be "Pending Signature(s)"
-    And Verify Advisor Alert Required value
-    And Verify buttons displayed "Cancel,View,eSignature"
-    When User login to the email and search the authorized signer email
-    Then Verify authorized signer email content
+    When User click on "Start Client Signing" button
+    
+
+    
     When User click on Review Document and submit the otp
     Then Verify docusign Review and continue dialog text "Your Shared Access User has prepared one or more documents that are ready for you to sign electronically."
     When User confirm and Continue the docusign Review and continue dialog

@@ -110,6 +110,7 @@ from tests.bdd.steps.client_accounts_steps import (
     verify_request_dialog,
     user_click_on_d_number,
     verify_client_in_person_signing_dialog_displayed,
+    user_click_on_form_button_dynamic,
     user_click_on_return_to_ewealthmanager_button,
     user_provide_client_signature_details,
 )
@@ -123,6 +124,7 @@ from tests.bdd.steps.docusign_steps import (
     verify_docusign_review_and_continue_dialog_text,
     user_add_signature,
     verify_signature_and_date_added_on_document,
+    user_perform_in_person_client_signing,
 )
 
 # Outlook steps
@@ -189,6 +191,7 @@ __all__ = [
     "verify_request_dialog",
     "user_click_on_d_number",
     "verify_client_in_person_signing_dialog_displayed",
+    "user_click_on_form_button_dynamic",
     "user_click_on_return_to_ewealthmanager_button",
     "user_provide_client_signature_details",
     # common
@@ -218,6 +221,7 @@ __all__ = [
     "verify_docusign_review_and_continue_dialog_text",
     "user_add_signature",
     "verify_signature_and_date_added_on_document",
+    "user_perform_in_person_client_signing",
     # login
     "login_with_valid_credentials",
     "verify_redirect_to_home_page",

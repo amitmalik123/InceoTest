@@ -571,3 +571,95 @@ def user_click_review_document_and_submit_opt(authenticated_page: Page, docusign
             )
             raise
 
+
+@when("User perform in person client signing")
+def user_perform_in_person_client_signing(authenticated_page: Page, docusign_page, test_context):
+    """Perform in-person client signing by initiating OTP verification workflow.
+    
+    This step handles the in-person client signing flow where the client needs to verify
+    their identity via OTP and then sign the documents in DocuSign.
+    
+    The step calls the otp_verification method from DocuSignPage which:
+    1. Clicks Send Now to trigger OTP email
+    2. Fetches OTP from Outlook
+    3. Submits OTP to DocuSign
+    4. Completes the signing process
+    
+    This step works independently - it does NOT require a prior email login step.
+    If an outlook_email_page exists in test_context, it will be used; otherwise,
+    a new Outlook page will be created automatically by otp_verification().
+    
+    Args:
+        authenticated_page: Playwright Page object
+        docusign_page: DocuSignPage fixture for DocuSign interactions
+        test_context: Test context dictionary (outlook_email_page optional)
+        
+    Uses framework utilities:
+    - docusign_page.otp_verification(): Handles complete OTP verification and signing workflow
+    - logger: Unified logging from allure_logger
+    - allure: Attach screenshots and error details for reporting
+    
+    Example feature file usage:
+        When User perform in person client signing
+    """
+    logger.info(">>> ENTERED STEP: user_perform_in_person_client_signing")
+    
+    with allure.step("User perform in person client signing"):
+        try:
+            # Retrieve the DocuSignPage object from test_context if available
+            # Otherwise use the provided docusign_page fixture
+            page_obj = test_context.get("new_docusign_page")
+            if page_obj:
+                logger.info("[DEBUG] Using new_docusign_page from test_context")
+            else:
+                logger.info("[DEBUG] Using docusign_page fixture")
+                page_obj = docusign_page
+            
+            # Retrieve outlook_email_page if it exists in test_context
+            # This is optional - if not present, otp_verification will create a new Outlook page
+            outlook_email_page = test_context.get("outlook_email_page")
+            if outlook_email_page:
+                logger.info("[DEBUG] Found outlook_email_page in test_context - will use existing page")
+            else:
+                logger.info("[DEBUG] outlook_email_page not in test_context - otp_verification will create new page")
+            
+            logger.info("Step 1: Initiating OTP verification and signing workflow for in-person client signing...")
+            
+            # Call otp_verification which handles the complete workflow:
+            # - Click Send Now
+            # - Fetch OTP from Outlook (uses existing page if provided, or creates new one)
+            # - Submit OTP to DocuSign
+            # - Complete signing process
+            page_obj.otp_verification(outlook_page=outlook_email_page)
+            
+            logger.info("[PASS] In-person client signing workflow completed successfully")
+            
+            # Capture screenshot for Allure reporting
+            screenshot = authenticated_page.screenshot()
+            allure.attach(
+                screenshot,
+                name="In-Person Client Signing Completed",
+                attachment_type=allure.attachment_type.PNG
+            )
+            
+            logger.info("[PASS] DocuSignPage: In-Person Client Signing Completed Successfully.")
+            
+        except Exception as e:
+            logger.error(f"[FAIL] In-person client signing workflow failed: {str(e).splitlines()[0]}")
+            try:
+                screenshot = authenticated_page.screenshot()
+                allure.attach(
+                    screenshot,
+                    name="In-Person Client Signing - Failed",
+                    attachment_type=allure.attachment_type.PNG
+                )
+            except:
+                pass
+            allure.attach(
+                str(e),
+                name="In-Person Client Signing - Error Details",
+                attachment_type=allure.attachment_type.TEXT
+            )
+            raise AssertionError(f"In-person client signing workflow failed: {e}") from e
+
+
