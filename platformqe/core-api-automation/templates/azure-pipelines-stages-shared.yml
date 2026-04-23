@@ -272,6 +272,12 @@ stages:
                     "16:45")
                       SCHEDULE_SERVICE="hnebase"
                       ;;
+                    "16:5"|"16:05")
+                      SCHEDULE_SERVICE="lexisnexiscipproxyservice"
+                      ;;
+                    "16:10")
+                      SCHEDULE_SERVICE="DocusignProxyservice"
+                      ;;
                     *)
                       echo "WARNING: No exact match for time ${CURRENT_HOUR}:${CURRENT_MINUTE}"
                       echo "Checking with minute tolerance (within 5 minutes)..."
@@ -310,6 +316,12 @@ stages:
                       # hnebase: 16:45 (1005 min)
                       elif [ $CURRENT_TIME_MIN -ge 1003 ] && [ $CURRENT_TIME_MIN -le 1007 ]; then
                         SCHEDULE_SERVICE="hnebase"
+                      # lexisnexiscipproxyservice: 16:05 (965 min)
+                      elif [ $CURRENT_TIME_MIN -ge 963 ] && [ $CURRENT_TIME_MIN -le 967 ]; then
+                        SCHEDULE_SERVICE="lexisnexiscipproxyservice"
+                      # DocusignProxyservice: 16:10 (970 min)
+                      elif [ $CURRENT_TIME_MIN -ge 968 ] && [ $CURRENT_TIME_MIN -le 972 ]; then
+                        SCHEDULE_SERVICE="DocusignProxyservice"
                       fi
                       ;;
                   esac

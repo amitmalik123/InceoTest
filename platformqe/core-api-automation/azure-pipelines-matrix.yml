@@ -120,6 +120,22 @@ schedules:
         - develop
     always: true
 
+  - cron: "05 16 * * *"       # 16:05 UTC -> lexisnexiscipproxyservice
+    displayName: 'LexisNexis CIP Proxy Service - Daily Test'
+    branches:
+      include:
+        - qe_platform
+        - develop
+    always: true
+
+  - cron: "10 16 * * *"       # 16:10 UTC -> DocusignProxyservice
+    displayName: 'Docusign Proxy Service - Daily Test'
+    branches:
+      include:
+        - qe_platform
+        - develop
+    always: true
+
 ###############################################################################
 # Pipeline Parameters - For Manual Execution
 ###############################################################################
