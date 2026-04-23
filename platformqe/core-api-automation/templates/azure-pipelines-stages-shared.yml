@@ -272,7 +272,7 @@ stages:
                     "16:45")
                       SCHEDULE_SERVICE="hnebase"
                       ;;
-                    "15:5"|"15:05")
+                    "16:5"|"16:05")
                       SCHEDULE_SERVICE="lexisnexiscipproxyservice"
                       ;;
                     "16:10")
@@ -316,8 +316,8 @@ stages:
                       # hnebase: 16:45 (1005 min)
                       elif [ $CURRENT_TIME_MIN -ge 1003 ] && [ $CURRENT_TIME_MIN -le 1007 ]; then
                         SCHEDULE_SERVICE="hnebase"
-                      # lexisnexiscipproxyservice: 15:05 (905 min)
-                      elif [ $CURRENT_TIME_MIN -ge 903 ] && [ $CURRENT_TIME_MIN -le 907 ]; then
+                      # lexisnexiscipproxyservice: 16:05 (965 min)
+                      elif [ $CURRENT_TIME_MIN -ge 963 ] && [ $CURRENT_TIME_MIN -le 967 ]; then
                         SCHEDULE_SERVICE="lexisnexiscipproxyservice"
                       # DocusignProxyservice: 16:10 (970 min)
                       elif [ $CURRENT_TIME_MIN -ge 968 ] && [ $CURRENT_TIME_MIN -le 972 ]; then
