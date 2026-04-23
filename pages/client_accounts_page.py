@@ -1609,4 +1609,215 @@ class ClientAccountsPage(BasePage):
             logger.error(f"✗ Failed to enter client signer details: {e}")
             raise AssertionError(f"Failed to enter signer details for index {signer_index}: {e}") from e
 
+    def get_esignature_process_complete_dialog_content(self) -> dict:
+        """
+        Extract content from the eSignature Process Complete dialog.
+        
+        Retrieves:
+        1. Dialog title (should be "eSignature Process Complete")
+        2. Dialog body text (should be "Thank you for completing your part of the eSignature process.")
+        3. Close button element reference
+        
+        This method:
+        - Uses DialogHandler to verify dialog is present
+        - Extracts title from modal-title-transition div
+        - Extracts body text using DialogHandler
+        - Locates the close button
+        
+        Returns:
+            Dictionary containing:
+            - 'title': Dialog title text (str)
+            - 'body': Dialog body text (str)
+            - 'close_button': Close button locator (Locator)
+            - 'dialog_present': Boolean indicating dialog was found
+            
+        Raises:
+            PlaywrightTimeoutError: If dialog not found or elements not visible
+            
+        Example:
+            dialog_content = page_obj.get_esignature_process_complete_dialog_content()
+            assert dialog_content['title'] == "eSignature Process Complete"
+            assert "Thank you" in dialog_content['body']
+        """
+        logger.info("Retrieving eSignature Process Complete dialog content...")
+        
+        try:
+            # Verify dialog is present using DialogHandler
+            dialog_handler = DialogHandler(self.page)
+            try:
+                logger.info("[DEBUG] Waiting for dialog to appear (timeout: 5 minutes)...")
+                dialog = dialog_handler.wait_for_dialog(timeout=300000)  # 5 minutes
+                logger.info("✓ Dialog is present")
+            except Exception as e:
+                logger.warning(f"eSignature Process Complete dialog not found: {e}")
+                return {
+                    'title': None,
+                    'body': None,
+                    'close_button': None,
+                    'dialog_present': False
+                }
+            
+            # Get dialog title from modal-title-transition div
+            logger.info("Extracting dialog title...")
+            modal_title_div = self.page.locator('div.modal-title-transition').first
+            modal_title_div.wait_for(state='visible', timeout=5000)
+            dialog_title = (modal_title_div.text_content() or "").strip()
+            logger.info(f"✓ Dialog title: '{dialog_title}'")
+            
+            # Get dialog body text using DialogHandler
+            logger.info("Extracting dialog body text...")
+            dialog_body = dialog_handler.get_dialog_text(timeout=5000)
+            logger.info(f"✓ Dialog body: '{dialog_body}'")
+            
+            # Locate close button in the dialog (multiple strategies for robustness)
+            logger.info("Locating close button...")
+            close_button_locators = [
+                self.page.locator('.close-button-container button').first,  # PRIORITY 1: Most reliable - visible close button
+                self.page.locator('button.formButton').first,  # PRIORITY 2: Class-based selector for visible button
+                self.page.locator('[role="dialog"] .close-button-set button').first,  # PRIORITY 3: Button set selector
+                self.page.locator('button[aria-label*="Close"], button[aria-label*="close"]').first,  # PRIORITY 4: Aria-label
+                self.page.locator('[role="dialog"] button.close').first,  # PRIORITY 5: Class-based
+                self.page.locator('button[title*="Close"]').first,  # PRIORITY 6: Title attribute (may be hidden titlebar button)
+            ]
+            
+            close_button = None
+            for locator in close_button_locators:
+                if locator.count() > 0:
+                    close_button = locator
+                    logger.info("✓ Close button found")
+                    break
+            
+            if not close_button:
+                logger.warning("Close button not found with any strategy")
+            
+            result = {
+                'title': dialog_title,
+                'body': dialog_body,
+                'close_button': close_button,
+                'dialog_present': True
+            }
+            
+            logger.info(f"✓ eSignature dialog content retrieved successfully")
+            return result
+            
+        except Exception as e:
+            logger.error(f"✗ Failed to retrieve eSignature dialog content: {e}")
+            raise
+
+    def get_client_in_person_signing_dialog_content(self) -> dict:
+        """
+        Extract content from the Client In-Person Signing dialog.
+        
+        Retrieves:
+        1. Dialog title (should be "Client In Person Signing")
+        2. Dialog body text (paragraphs and list items)
+        3. Buttons: "Return to eWealthManager" and "Start Client Signing"
+        
+        This method:
+        - Uses DialogHandler to verify dialog is present
+        - Extracts title from modal-title-transition div
+        - Extracts body content from #divConfirmation container
+        - Locates both action buttons
+        
+        Returns:
+            Dictionary containing:
+            - 'title': Dialog title text (str)
+            - 'body': Dialog body text (str)
+            - 'buttons': Dict with button references {'return_button': Locator, 'start_signing_button': Locator}
+            - 'dialog_present': Boolean indicating dialog was found
+            
+        Raises:
+            PlaywrightTimeoutError: If dialog not found or elements not visible
+            
+        Example:
+            dialog_content = page_obj.get_client_in_person_signing_dialog_content()
+            assert dialog_content['title'] == "Client In Person Signing"
+            assert "Thank you for completing" in dialog_content['body']
+        """
+        logger.info("Retrieving Client In-Person Signing dialog content...")
+        
+        try:
+            # Verify dialog is present using DialogHandler (wait up to 5 minutes)
+            logger.info("[DEBUG] Waiting for dialog to appear (timeout: 5 minutes)...")
+            dialog_handler = DialogHandler(self.page)
+            try:
+                logger.info("[DEBUG] Calling wait_for_dialog with 300s timeout...")
+                dialog = dialog_handler.wait_for_dialog(timeout=300000)  # 5 minutes
+                logger.info("✓ Dialog is present")
+            except Exception as e:
+                logger.warning(f"[WARN] Client In-Person Signing dialog not found after 5 minutes: {e}")
+                return {
+                    'title': None,
+                    'body': None,
+                    'buttons': {},
+                    'dialog_present': False
+                }
+            
+            # Get dialog title
+            logger.info("Extracting dialog title...")
+            modal_title_div = self.page.locator('div.modal-title-transition').first
+            modal_title_div.wait_for(state='visible', timeout=5000)
+            dialog_title = (modal_title_div.text_content() or "").strip()
+            logger.info(f"✓ Dialog title: '{dialog_title}'")
+            
+            # Get dialog body content
+            logger.info("Extracting dialog body content...")
+            confirmation_div = self.page.locator('#divConfirmation').first
+            confirmation_div.wait_for(state='visible', timeout=5000)
+            
+            # Get all text from dialog body (paragraphs, list items, etc.)
+            dialog_body = confirmation_div.text_content() or ""
+            dialog_body = (dialog_body or "").strip()
+            logger.info(f"✓ Dialog body retrieved ({len(dialog_body)} characters)")
+            
+            # Locate buttons
+            logger.info("Locating dialog buttons...")
+            buttons = {}
+            
+            # Find "Return to eWealthManager" button
+            return_button_locators = [
+                self.page.locator('button:has-text("Return to eWealthManager")').first,
+                self.page.locator('button.formButton:has-text("Return to eWealthManager")').first,
+                self.page.locator('.button-container button:has-text("Return to eWealthManager")').first,
+            ]
+            
+            for locator in return_button_locators:
+                if locator.count() > 0:
+                    buttons['return_button'] = locator
+                    logger.info("✓ 'Return to eWealthManager' button found")
+                    break
+            
+            # Find "Start Client Signing" button
+            start_signing_locators = [
+                self.page.locator('button:has-text("Start Client Signing")').first,
+                self.page.locator('button.formButton:has-text("Start Client Signing")').first,
+                self.page.locator('.button-container button:has-text("Start Client Signing")').first,
+            ]
+            
+            for locator in start_signing_locators:
+                if locator.count() > 0:
+                    buttons['start_signing_button'] = locator
+                    logger.info("✓ 'Start Client Signing' button found")
+                    break
+            
+            if not buttons.get('return_button'):
+                logger.warning("'Return to eWealthManager' button not found")
+            if not buttons.get('start_signing_button'):
+                logger.warning("'Start Client Signing' button not found")
+            
+            result = {
+                'title': dialog_title,
+                'body': dialog_body,
+                'buttons': buttons,
+                'dialog_present': True
+            }
+            
+            logger.info(f"✓ Client In-Person Signing dialog content retrieved successfully")
+            return result
+            
+        except Exception as e:
+            logger.error(f"✗ Failed to retrieve Client In-Person Signing dialog content: {e}")
+            raise
+
+
  

@@ -111,7 +111,6 @@ from tests.bdd.steps.client_accounts_steps import (
     user_click_on_d_number,
     verify_client_in_person_signing_dialog_displayed,
     user_click_on_form_button_dynamic,
-    user_click_on_return_to_ewealthmanager_button,
     user_provide_client_signature_details,
 )
 
@@ -192,7 +191,6 @@ __all__ = [
     "user_click_on_d_number",
     "verify_client_in_person_signing_dialog_displayed",
     "user_click_on_form_button_dynamic",
-    "user_click_on_return_to_ewealthmanager_button",
     "user_provide_client_signature_details",
     # common
     "use_test_data_for_scenario",

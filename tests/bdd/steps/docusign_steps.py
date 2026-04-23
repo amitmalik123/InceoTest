@@ -572,42 +572,44 @@ def user_click_review_document_and_submit_opt(authenticated_page: Page, docusign
             raise
 
 
-@when("User perform in person client signing")
+@when("User click on send now and fetch OTP from mail")
 def user_perform_in_person_client_signing(authenticated_page: Page, docusign_page, test_context):
     """Perform in-person client signing by initiating OTP verification workflow.
     
     This step handles the in-person client signing flow where the client needs to verify
-    their identity via OTP and then sign the documents in DocuSign.
+    their identity via OTP and then sign the documents in DocuSign using Playwright browser automation.
     
-    The step calls the otp_verification method from DocuSignPage which:
-    1. Clicks Send Now to trigger OTP email
-    2. Fetches OTP from Outlook
-    3. Submits OTP to DocuSign
-    4. Completes the signing process
-    
-    This step works independently - it does NOT require a prior email login step.
-    If an outlook_email_page exists in test_context, it will be used; otherwise,
-    a new Outlook page will be created automatically by otp_verification().
+    Workflow:
+    1. Click Send Now button to trigger OTP email send
+    2. Create new Outlook browser tab and login
+    3. Navigate to OTP folder to search for OTP email
+    4. Wait for and extract 6-digit OTP code from email body
+    5. Return to DocuSign and submit OTP
     
     Args:
-        authenticated_page: Playwright Page object
+        authenticated_page: Playwright Page object (current DocuSign page)
         docusign_page: DocuSignPage fixture for DocuSign interactions
-        test_context: Test context dictionary (outlook_email_page optional)
+        test_context: Test context dictionary
         
     Uses framework utilities:
-    - docusign_page.otp_verification(): Handles complete OTP verification and signing workflow
+    - OutlookPage: Playwright-based Outlook browser automation (from_config, login_outlook, get_otp_with_retry)
+    - docusign_page methods: click_send_now(), submit_otp()
+    - time module: For timing OTP retrieval
     - logger: Unified logging from allure_logger
     - allure: Attach screenshots and error details for reporting
     
     Example feature file usage:
         When User perform in person client signing
     """
+    import time
+    from pages.outlook_page import OutlookPage
+    
     logger.info(">>> ENTERED STEP: user_perform_in_person_client_signing")
     
     with allure.step("User perform in person client signing"):
+        outlook_page = None
         try:
-            # Retrieve the DocuSignPage object from test_context if available
-            # Otherwise use the provided docusign_page fixture
+            # Get the DocuSignPage object
             page_obj = test_context.get("new_docusign_page")
             if page_obj:
                 logger.info("[DEBUG] Using new_docusign_page from test_context")
@@ -615,22 +617,54 @@ def user_perform_in_person_client_signing(authenticated_page: Page, docusign_pag
                 logger.info("[DEBUG] Using docusign_page fixture")
                 page_obj = docusign_page
             
-            # Retrieve outlook_email_page if it exists in test_context
-            # This is optional - if not present, otp_verification will create a new Outlook page
-            outlook_email_page = test_context.get("outlook_email_page")
-            if outlook_email_page:
-                logger.info("[DEBUG] Found outlook_email_page in test_context - will use existing page")
-            else:
-                logger.info("[DEBUG] outlook_email_page not in test_context - otp_verification will create new page")
+            logger.info(">>> STEP 1: Click Send Now to trigger OTP email...")
+            page_obj.click_send_now()
+            logger.info("✓ Send Now clicked - OTP email triggered")
             
-            logger.info("Step 1: Initiating OTP verification and signing workflow for in-person client signing...")
+            # Record the time when OTP was sent (for filtering in Outlook)
+            otp_sent_time = time.time()
             
-            # Call otp_verification which handles the complete workflow:
-            # - Click Send Now
-            # - Fetch OTP from Outlook (uses existing page if provided, or creates new one)
-            # - Submit OTP to DocuSign
-            # - Complete signing process
-            page_obj.otp_verification(outlook_page=outlook_email_page)
+            logger.info(">>> STEP 2: Create new Outlook browser tab and login...")
+            # Initialize OutlookPage object for OTP retrieval
+            outlook_obj = OutlookPage.from_config(authenticated_page)
+            
+            # Login to Outlook and get the Outlook page
+            outlook_page = outlook_obj.login_outlook(context_message="In-person client signing OTP retrieval")
+            logger.info("✓ Successfully logged into Outlook")
+            
+            logger.info(">>> STEP 3: Search for OTP email and extract code...")
+            # Get OTP from inbox using the existing Outlook page
+            # This method waits for the OTP email and extracts the code
+            otp_code = outlook_obj.get_otp_with_retry(
+                email=None,  # Will use config from from_config
+                password=None,  # Will use config from from_config
+                timeout=120,  # 2 minutes timeout
+                refresh_interval=5,  # Check every 5 seconds
+                sent_after_epoch=otp_sent_time,
+                outlook_page=outlook_page  # Use the already-logged-in page
+            )
+            
+            if not otp_code:
+                raise RuntimeError("Failed to retrieve OTP from Outlook")
+            
+            logger.info(f"✓ OTP code retrieved: {otp_code}")
+            
+            logger.info(">>> STEP 4: Close Outlook and return to DocuSign...")
+            # Close Outlook page
+            if outlook_page:
+                try:
+                    outlook_page.close()
+                except Exception as e:
+                    logger.warning(f"Error closing Outlook page: {e}")
+                outlook_page = None
+            
+            # Bring DocuSign page to front
+            page_obj.page.bring_to_front()
+            logger.info("✓ Returned to DocuSign page")
+            
+            logger.info(">>> STEP 5: Submit OTP to DocuSign...")
+            page_obj.submit_otp(otp_code=otp_code, timeout=30000)
+            logger.info("✓ OTP submitted to DocuSign")
             
             logger.info("[PASS] In-person client signing workflow completed successfully")
             
@@ -642,7 +676,7 @@ def user_perform_in_person_client_signing(authenticated_page: Page, docusign_pag
                 attachment_type=allure.attachment_type.PNG
             )
             
-            logger.info("[PASS] DocuSignPage: In-Person Client Signing Completed Successfully.")
+            logger.info("[PASS] In-Person Client Signing Completed Successfully.")
             
         except Exception as e:
             logger.error(f"[FAIL] In-person client signing workflow failed: {str(e).splitlines()[0]}")
@@ -661,5 +695,12 @@ def user_perform_in_person_client_signing(authenticated_page: Page, docusign_pag
                 attachment_type=allure.attachment_type.TEXT
             )
             raise AssertionError(f"In-person client signing workflow failed: {e}") from e
+        finally:
+            # Ensure Outlook page is closed
+            if outlook_page:
+                try:
+                    outlook_page.close()
+                except:
+                    pass
 
 

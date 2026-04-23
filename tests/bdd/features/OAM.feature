@@ -272,15 +272,18 @@ Feature: E2E OAM flow for FA, SAU and OA
     When User Finish the DocuSign process
     Then Client In Person Signing dialog should be displayed
     When User click on "Start Client Signing" button
-    
-
-    
-    When User click on Review Document and submit the otp
+    Then User should be redirected to the DocuSign page
+    When User click on send now and fetch OTP from mail
     Then Verify docusign Review and continue dialog text "Your Shared Access User has prepared one or more documents that are ready for you to sign electronically."
     When User confirm and Continue the docusign Review and continue dialog
-    And User click on Sign and add signature
+    And User add Signature 
     And User Finish the DocuSign process
+    Then Verify eSignature Process Complete dialog should be displayed
+    When User navigate to Tracking Center
+    And Search the DNumber and open the item details page
     Then Verify Tracking Center Item Detail status should be "Document Submitted"
-    And Verify buttons displayed "View"
+    And Verify buttons displayed "View,Upload"
     And Verify Notes description
     And Verify Agent Name
+
+   

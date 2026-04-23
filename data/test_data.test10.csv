@@ -1,45 +1,13 @@
-scenario,role,Document_Creator_Role,Authorized_Signer_Role,Authorized_Signer_Role_Name,Multiple_Authorized_Signers,Agent,username,password,client_id,account_number,account_name,OAM_Request,OAM_Type,Submission_Type,Client_Signature_Method,Expected_Signer_Information_Text,Expected_Authorized_Signer_Approval_Text,Authorized_Signer_Approval_Option,Authorized_Signer_eSign_Method,Email_Address,Phone,Expected_docusign_ReviewAndContinue_Text,As_authorized_by_stamp_present,Expected_RequestPopUp_Text,Expected_Advisor_Alert_Required,Expected_AuthorizedSigner_Email_Subject,Expected_AuthorizedSigner_Email_Body,Expected_TrackingCenter_Notes,Expected_Roles,Expected_RoutingOrders
-Prod_OAM_Initiated by FA_Complete and Print ,,,,,,AG4960,AG_AG4960_T10,QAAdminUser_33a,,11786278,Heather D Brock-Hearn,Contributions,Copy for Digital Deposit,Complete and Print,,,,,,,,Please review and sign the document electronically.,No,"Ready for Signatures
+scenario,role,Document_Creator_Role,Authorized_Signer_Role,Authorized_Signer_Role_Name,Multiple_Authorized_Signers,Agent,username,password,client_id,account_number,account_name,OAM_Request,OAM_Type,Submission_Type,Client_Signature_Method,Expected_Signer_Information_Text,Expected_Authorized_Signer_Approval_Text,Authorized_Signer_Approval_Option,Signer_eSign_Method,Account_Owner,Email_Address,Phone,Expected_docusign_ReviewAndContinue_Text,As_authorized_by_stamp_present,Expected_RequestPopUp_Text,Expected_Advisor_Alert_Required,Expected_AuthorizedSigner_Email_Subject,Expected_AuthorizedSigner_Email_Body,Expected_TrackingCenter_Notes,Expected_Roles,Expected_RoutingOrders
+OAM_Initiated by SAU_eSignature_With One Inperson Client Signature_Authorized Signer_NOT required,SAU,SAU,,,,AGB8R3,SAU_AGB8R3_User2,QAAdminUser_33a,,40109456,PAULA J ALBRIGHT,Contributions,Copy for Digital Deposit,Complete and Submit,Request client electronic signature,"Signer(s) Information 
 |
-After printing and obtaining signatures, scan the signed document and upload to the Tracking Center by selecting
-|
-The Tracking Center provides one-stop access to your documents and status updates.",Yes,,,"Once completed and signed, submit document from Tracking Center upload or mail.
-|
-Document created by Val J. Tornicelli.",Advisor,1
-Prod_OAM_Initiated by SAU_Online Submit_Authorized Signer_Required_FA,SAU,SAU,FA,Kit J. Tiell & Deborah Tiell,Yes,AG4960,SAU_AGB8R3_User2,QAAdminUser_33a,,40309330,Adam L Poignon,Contributions,Copy for Digital Deposit,Complete and Submit,Proceed and submit without a client signature,"Signer(s) Information 
-|
-Please provide the advisor's or their Shared Access user's details and indicate whether they should be notified via Tracking Center or SMS.
-Once setup is complete, they'll receive an email alerting them to the pending documents and granting access through the selected notification method.","Authorized Signer Approval 
+Please complete the information for each signer and specify whether they will be signing In Person or By Email.
+For signing In Person, your client(s) are with you during the signing process. Your review and signature is required on the form before your client(s) can sign. Once completed, your client(s) may sign immediately after, or you can retrieve the form through the Tracking Center for In Person client signing at a later time.
+For signing By Email, your client(s) will receive an email notification immediately after the request form is completed. The email provides your client(s) with online access to the forms for electronic signing. Your review and signature is required on the form before the email is sent to your client(s).
+Please note that all pending DocuSign envelopes will expire within 30 days. Additionally, as noted in the Terms of Use (link located in eWealthManager site footer), you are responsible for the confidentiality and use of your log in credentials and password.  The details you provide will be used to authenticate the individual before they sign the included documents.  It is your responsibility to ensure you are collecting and entering accurate information that is legitimately that of the designated signor(s).","Authorized Signer Approval 
 |
 You are authorized to begin the signature process; approval is not required.
-Do you need approval from another authorized signer before proceeding with eSignature?",Yes,SMS,saransh.saxena@assetmark.com,925 532 9706,Please review and sign the document electronically.,No,"Request Ready for Financial Advisor Review
-|
-Your request will be sent to the Financial Advisor to review, approve and submit to AssetMark for processing.
-|
-To view your request, go to the Tracking Center and select
-|
-a copy for your records.
-|
-Click Close to return to eWealthManager.",Yes,[External] <Document_Creator_Role_Name> requested your Electronic Signature - <D Number>,"<Authorized_Signer_Role_Name>,
-
-Your Shared Access User has prepared one or more documents that are ready for you to sign electronically.","This request has been canceled. A new document will need to be created if this request is still required.
-|
-Document has been routed to Kit J. Tiell & Deborah Tiell for review and submission.
-|
-Document completed by Shared User1 and is pending review and submission.
-|
-Document created by Shared User1","Shared Access User
-|
-Advisor","1
-|
-2"
-OAM_Initiated by SAU_Online Submit_Authorized Signer_Not_Required,SAU,SAU,,,,AG4960,SAU_AGB8R3_User2,QAAdminUser_33a,,40309330,Adam L Poignon,Contributions,Copy for Digital Deposit,Complete and Submit,Proceed and submit without a client signature,"Signer(s) Information
-|
-Please provide the advisor's or their Shared Access user's details and indicate whether they should be notified via Tracking Center or SMS.
-Once setup is complete, they'll receive an email alerting them to the pending documents and granting access through the selected notification method.","Authorized Signer Approval
-|
-You are authorized to begin the signature process; approval is not required.
-Do you need approval from another authorized signer before proceeding with eSignature?",No,,,,Please review and sign the document electronically.,Yes,"Request Submitted
+Do you need approval from another authorized signer before proceeding with eSignature?",No,In Person,Test User,saransh.saxena@assetmark.com,925 532 9706,Please review and sign the document electronically.,Yes,"Request Submitted
 |
 Your request has been submitted to AssetMark for processing.
 |
@@ -47,6 +15,10 @@ To view your request, go to the Tracking Center and select
 |
 a copy for your records.
 |
-Click Close to return to eWealthManager.",No,,,"Document has been completed and routed to Operations for review and processing.
+Click Close to return to eWealthManager.",No,,,"Document has been completed by all signers and routed to Operations for review and processing.
 |
-Document created by Shared User1",Advisor,1
+Document electronically signed by Test.
+|
+Document sent to signer(s) and is pending electronic signature.
+|
+Document created by Kit J. Tiell & Deborah Tiell.",Advisor,1

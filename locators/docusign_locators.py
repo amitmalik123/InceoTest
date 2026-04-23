@@ -8,6 +8,7 @@ This module contains all locator definitions for the DocuSign signing page.
 DOCUSIGN_URL_PATTERNS = (
     "https://apps-d.docusign.com/",
     "https://www.docusign.net/",
+    "https://verify-d.docusign.net/"
 )
 # ========================================================================================
 # LOCATORS - All page element locators defined for easy maintenance

@@ -1,5 +1,5 @@
-scenario,role,Document_Creator_Role,Authorized_Signer_Role,Authorized_Signer_Role_Name,Agent,username,password,client_id,account_number,account_name,OAM_Request,OAM_Type,Submission_Type,Client_Signature_Method,Expected_Signer_Information_Text,Expected_Authorized_Signer_Approval_Text,Authorized_Signer_Approval_Option,Signer_eSign_Method,Account_Owner,Email_Address,Phone,Expected_docusign_ReviewAndContinue_Text,As_authorized_by_stamp_present,Expected_RequestPopUp_Text,Expected_Advisor_Alert_Required,Expected_AuthorizedSigner_Email_Subject,Expected_AuthorizedSigner_Email_Body,Expected_TrackingCenter_Notes,Expected_Roles,Expected_RoutingOrders
-OAM_Initiated by FA_Online Submit_Finish,,,,,AGA1G1,T11_AGA1G1_Perf,QAAdminUser_33a,,11878744,Carmen E Tucker,Account Information Change,Short-Term Cash Restriction,Complete and Submit,Proceed and submit without a client signature,,,,,,,,Please review and sign the document electronically.,No,"Request Submitted
+scenario,role,Document_Creator_Role,Authorized_Signer_Role,Authorized_Signer_Role_Name,Multiple_Authorized_Signers,Agent,username,password,client_id,account_number,account_name,OAM_Request,OAM_Type,Submission_Type,Client_Signature_Method,Expected_Signer_Information_Text,Expected_Authorized_Signer_Approval_Text,Authorized_Signer_Approval_Option,Signer_eSign_Method,Account_Owner,Email_Address,Phone,Expected_docusign_ReviewAndContinue_Text,As_authorized_by_stamp_present,Expected_RequestPopUp_Text,Expected_Advisor_Alert_Required,Expected_AuthorizedSigner_Email_Subject,Expected_AuthorizedSigner_Email_Body,Expected_TrackingCenter_Notes,Expected_Roles,Expected_RoutingOrders
+OAM_Initiated by FA_Online Submit_Finish,,,,,,AGA1G1,T11_AGA1G1_Perf,QAAdminUser_33a,,11878744,Carmen E Tucker,Account Information Change,Short-Term Cash Restriction,Complete and Submit,Proceed and submit without a client signature,,,,,,,,Please review and sign the document electronically.,No,"Request Submitted
 |
 Your request has been submitted to AssetMark for processing.
 |
@@ -8,7 +8,7 @@ To view your request, go to the Tracking Center and select
 a copy for your records.
 |
 Click Close to return to eWealthManager.",No,,,Document has been completed and routed to Operations for review and processing.,Advisor,1
-OAM_Initiated by SAU_Online Submit_Authorized Signer_Required_FA,SAU,SAU,FA,,AGA1G1,SAU_AGA1G1_T11,QAAdminUser_33a,,13222266,Carmen E Tucker,Contributions,Copy for Digital Deposit,Complete and Submit,Proceed and submit without a client signature,"Signer(s) Information 
+OAM_Initiated by SAU_Online Submit_Authorized Signer_Required_FA,SAU,SAU,FA,,,AGA1G1,SAU_AGA1G1_T11,QAAdminUser_33a,,13222266,Carmen E Tucker,Contributions,Copy for Digital Deposit,Complete and Submit,Proceed and submit without a client signature,"Signer(s) Information 
 |
 Please provide the advisor's or their Shared Access user's details and indicate whether they should be notified via Tracking Center or SMS.
 Once setup is complete, they'll receive an email alerting them to the pending documents and granting access through the selected notification method.","Authorized Signer Approval 
@@ -35,7 +35,7 @@ Document created by <SAU Name>","Shared Access User
 Advisor","1
 |
 2"
-OAM_Initiated by SAU_Online Submit_Authorized Signer_Not_Required,SAU,SAU,,,AGA1G1,SAU_AGA1G1_T11,QAAdminUser_33a,,13222266,Carmen E Tucker,Contributions,Copy for Digital Deposit,Complete and Submit,Proceed and submit without a client signature,"Signer(s) Information 
+OAM_Initiated by SAU_Online Submit_Authorized Signer_Not_Required,SAU,SAU,,,,AGA1G1,SAU_AGA1G1_T11,QAAdminUser_33a,,13222266,Carmen E Tucker,Contributions,Copy for Digital Deposit,Complete and Submit,Proceed and submit without a client signature,"Signer(s) Information 
 |
 Please provide the advisor's or their Shared Access user's details and indicate whether they should be notified via Tracking Center or SMS.
 Once setup is complete, they'll receive an email alerting them to the pending documents and granting access through the selected notification method.","Authorized Signer Approval 
@@ -54,14 +54,14 @@ Click Close to return to eWealthManager.",No,"Document has been completed and ro
 Document created by <FA Name>",,"Document has been completed and routed to Operations for review and processing.
 |
 Document created by <FA Name>",Advisor,1
-OAM_Initiated by SAU_Complete and Print,SAU,SAU,,,AGA1G1,SAU_AGA1G1_T11,QAAdminUser_33a,,13222266,Carmen E Tucker,Contributions,Copy for Digital Deposit,Complete and Print,,,,,,,,,Please review and sign the document electronically.,No,"Ready for Signatures
+OAM_Initiated by SAU_Complete and Print,SAU,SAU,,,,AGA1G1,SAU_AGA1G1_T11,QAAdminUser_33a,,13222266,Carmen E Tucker,Contributions,Copy for Digital Deposit,Complete and Print,,,,,,,,,Please review and sign the document electronically.,No,"Ready for Signatures
 |
 After printing and obtaining signatures, scan the signed document and upload to the Tracking Center by selecting
 |
 The Tracking Center provides one-stop access to your documents and status updates.",Yes,,,"Once completed and signed, submit document from Tracking Center upload or mail.
 |
 Document created by <FA Name>",Advisor,1
-OAM_Initiated by SAU_Online Submit_Authorized Signer_Required_SAU,SAU,SAU,SAU,,AGA1G1,SAU_AGA1G1_T11,QAAdminUser_33a,,13222266,Carmen E Tucker,Contributions,Copy for Digital Deposit,Complete and Submit,Proceed and submit without a client signature,"Signer(s) Information 
+OAM_Initiated by SAU_Online Submit_Authorized Signer_Required_SAU,SAU,SAU,SAU,,,AGA1G1,SAU_AGA1G1_T11,QAAdminUser_33a,,13222266,Carmen E Tucker,Contributions,Copy for Digital Deposit,Complete and Submit,Proceed and submit without a client signature,"Signer(s) Information 
 |
 Please provide the advisor's or their Shared Access user's details and indicate whether they should be notified via Tracking Center or SMS.
 Once setup is complete, they'll receive an email alerting them to the pending documents and granting access through the selected notification method.","Authorized Signer Approval 
@@ -88,7 +88,7 @@ Document created by <SAU Name>","Shared Access User
 Advisor","1
 |
 2"
-OAM_Initiated by SAU_eSignature_With One Inperson Client Signature_Authorized Signer_NOT required,SAU,SAU,,,AG8959,SAU_AG8959_04,QAAdminUser_33a,,40132450,"
+OAM_Initiated by SAU_eSignature_With One Inperson Client Signature_Authorized Signer_NOT required,SAU,SAU,,,,AG8959,SAU_AG8959_04,QAAdminUser_33a,,40132450,"
 Julio S Negrete Survivor's Trust FBO Graciela Attwater",Contributions,Copy for Digital Deposit,Complete and Submit,Request client electronic signature,"Signer(s) Information 
 |
 Please complete the information for each signer and specify whether they will be signing In Person or By Email.
@@ -105,8 +105,10 @@ To view your request, go to the Tracking Center and select
 |
 a copy for your records.
 |
-Click Close to return to eWealthManager.",No,[External] <Document_Creator_Role_Name> requested your Electronic Signature - <D Number>,"<FA Name>,
-
-Your Shared Access User has prepared one or more documents that are ready for you to sign electronically.","Document has been completed and routed to Operations for review and processing.
+Click Close to return to eWealthManager.",No,,,"Document has been completed by all signers and routed to Operations for review and processing.
+|
+Document electronically signed by Test.
+|
+Document sent to signer(s) and is pending electronic signature.
 |
 Document created by <FA Name>",Advisor,1
