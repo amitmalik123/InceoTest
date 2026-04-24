@@ -2,17 +2,15 @@
   "$schema": "http://json-schema.org/draft-07/schema#",
   "type": "object",
   "title": "GET /requests Response Schema",
-  "description": "Paginated response schema for /requests endpoint",
+  "description": "Paged response containing money movement request summaries.",
   "properties": {
     "page": {
       "type": "integer",
-      "description": "Current page number",
-      "minimum": 1
+      "description": "Current page number"
     },
     "pageSize": {
       "type": "integer",
-      "description": "Number of items per page",
-      "minimum": 1
+      "description": "Number of items per page"
     },
     "total": {
       "type": "integer",
@@ -20,81 +18,63 @@
       "minimum": 0
     },
     "items": {
-      "type": "array",
-      "description": "Array of money movement requests",
+      "type": ["array", "null"],
+      "description": "Page items containing compact representations of requests.",
       "items": {
         "type": "object",
+        "description": "Compact DTO representing a money movement request in list responses.",
         "properties": {
           "requestId": {
             "type": "string",
-            "format": "uuid"
-          },
-          "instructionId": {
-            "type": "string",
-            "format": "uuid"
-          },
-          "accountId": {
-            "type": "string",
-            "format": "uuid"
+            "format": "uuid",
+            "description": "The unique request identifier."
           },
           "railType": {
             "type": "string",
-            "enum": ["ACH", "Wire", "Check", "Journal"]
-          },
-          "amount": {
-            "type": "number",
-            "minimum": 0
+            "enum": ["ACH", "Wire", "Check", "Journal", "Transfer"]
           },
           "requestType": {
             "type": "string",
             "enum": ["Deposit", "Withdrawal"]
           },
+          "amount": {
+            "type": ["number", "string", "null"]
+          },
           "status": {
             "type": "string",
-            "enum": ["Draft", "Pending", "Confirmed", "Deleted", "Cancelled"]
+            "enum": ["Draft", "Pending", "Confirmed", "Deleted"]
           },
-          "reason": {
-            "type": ["integer", "string", "null"]
+          "changeState": {
+            "type": "string",
+            "description": "Represents the state of a request change.",
+            "enum": ["Pending", "Scheduled", "Processed", "PendingCancel", "Canceled"]
           },
-          "version": {
-            "type": "integer",
-            "minimum": 0
+          "scheduleType": {
+            "type": "string",
+            "enum": ["OneTime", "Periodic"]
           },
-          "schedule": {
-            "type": "object",
-            "properties": {
-              "scheduleType": {
-                "type": "string",
-                "enum": ["OneTime", "Periodic"]
-              },
-              "paymentDate": {
-                "type": ["string", "null"]
-              },
-              "frequency": {
-                "type": ["string", "null"]
-              },
-              "startDate": {
-                "type": ["string", "null"]
-              },
-              "endDate": {
-                "type": ["string", "null"]
-              }
-            }
+          "paymentDate": {
+            "type": ["string", "null"],
+            "description": "Payment date for one-time schedules."
           },
           "createdDate": {
-            "type": "string"
+            "type": "string",
+            "description": "Created timestamp."
           },
           "modifiedDate": {
-            "type": "string"
+            "type": "string",
+            "description": "Last modified timestamp."
           },
           "createdBy": {
-            "type": ["string", "null"]
+            "type": ["string", "null"],
+            "description": "User who created the record."
           },
           "modifiedBy": {
-            "type": ["string", "null"]
+            "type": ["string", "null"],
+            "description": "User who last modified the record."
           }
         },
-        "required": ["requestId", "instructionId", "accountId", "railType", "amount", "requestType", "status"],
+        "required": ["requestId", "railType", "requestType", "status", "changeState", "scheduleType", "createdDate", "modifiedDate"],
         "additionalProperties": true
       }
     }
