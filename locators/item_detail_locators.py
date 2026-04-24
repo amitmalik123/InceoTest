@@ -65,3 +65,8 @@ NOTES_DESCRIPTION_CELLS = "td[aria-describedby='TrackingCenterItemDetailNotesGri
 
 # Data rows in notes grid (excluding header)
 NOTES_GRID_DATA_ROWS = "tbody tr:not(:first-child)"
+
+# Finish Now button (Action button for completing DocuSign later requests)
+# Note: Uses XPath to locate link containing 'Finish Now' text
+# HTML: <a href="#"><span>Finish Now</span></a>
+FINISH_NOW_BUTTON = "//a[contains(text(),'Finish Now')]"

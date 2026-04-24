@@ -1819,5 +1819,167 @@ class ClientAccountsPage(BasePage):
             logger.error(f"✗ Failed to retrieve Client In-Person Signing dialog content: {e}")
             raise
 
+    def get_finish_later_dialog_content(self) -> dict:
+        """
+        Extract content from the Finish Later dialog.
+        
+        Retrieves:
+        1. Dialog title (should be "Finish Later")
+        2. Dialog body text (complete message text)
+        3. Buttons: "Save" and "Delete"
+        
+        This method:
+        - Uses DialogHandler to verify dialog is present
+        - Extracts title from modal-title-transition div
+        - Extracts body content from #divConfirmation container
+        - Locates both action buttons (Save and Delete)
+        
+        Returns:
+            Dictionary containing:
+            - 'title': Dialog title text (str)
+            - 'body': Dialog body text (str)
+            - 'buttons': Dict with button references {'save_button': Locator, 'delete_button': Locator}
+            - 'dialog_present': Boolean indicating dialog was found
+            
+        Raises:
+            PlaywrightTimeoutError: If dialog not found or elements not visible
+            
+        Example:
+            dialog_content = page_obj.get_finish_later_dialog_content()
+            assert dialog_content['title'] == "Finish Later"
+            assert "Select Save" in dialog_content['body']
+        """
+        logger.info("Retrieving Finish Later dialog content...")
+        
+        try:
+            # Verify dialog is present using DialogHandler (wait up to 5 minutes)
+            logger.info("[DEBUG] Waiting for Finish Later dialog to appear (timeout: 5 minutes)...")
+            dialog_handler = DialogHandler(self.page)
+            try:
+                logger.info("[DEBUG] Calling wait_for_dialog with 300s timeout...")
+                dialog = dialog_handler.wait_for_dialog(timeout=300000)  # 5 minutes
+                logger.info("✓ Finish Later dialog is present")
+            except Exception as e:
+                logger.warning(f"[WARN] Finish Later dialog not found after 5 minutes: {e}")
+                return {
+                    'title': None,
+                    'body': None,
+                    'buttons': {},
+                    'dialog_present': False
+                }
+            
+            # Get dialog title
+            logger.info("Extracting dialog title...")
+            modal_title_div = self.page.locator(client_accounts_locators.FINISH_LATER_DIALOG_TITLE).first
+            modal_title_div.wait_for(state='visible', timeout=5000)
+            dialog_title = (modal_title_div.text_content() or "").strip()
+            logger.info(f"✓ Dialog title: '{dialog_title}'")
+            
+            # Get dialog body content
+            logger.info("Extracting dialog body content...")
+            confirmation_div = self.page.locator(client_accounts_locators.FINISH_LATER_DIALOG_BODY).first
+            confirmation_div.wait_for(state='visible', timeout=5000)
+            
+            # Get all text from dialog body
+            dialog_body = confirmation_div.text_content() or ""
+            dialog_body = (dialog_body or "").strip()
+            logger.info(f"✓ Dialog body retrieved ({len(dialog_body)} characters)")
+            
+            # Locate buttons
+            logger.info("Locating dialog buttons...")
+            buttons = {}
+            
+            # Find "Save" button
+            save_button_locators = [
+                self.page.locator(client_accounts_locators.FINISH_LATER_BUTTON_SAVE).first,
+                self.page.locator('button:has-text("Save")').first,
+                self.page.locator('button.formButton:has-text("Save")').first,
+            ]
+            
+            for locator in save_button_locators:
+                if locator.count() > 0:
+                    buttons['save_button'] = locator
+                    logger.info("✓ 'Save' button found")
+                    break
+            
+            # Find "Delete" button
+            delete_button_locators = [
+                self.page.locator(client_accounts_locators.FINISH_LATER_BUTTON_DELETE).first,
+                self.page.locator('button:has-text("Delete")').first,
+                self.page.locator('button.formButton:has-text("Delete")').first,
+            ]
+            
+            for locator in delete_button_locators:
+                if locator.count() > 0:
+                    buttons['delete_button'] = locator
+                    logger.info("✓ 'Delete' button found")
+                    break
+            
+            if not buttons.get('save_button'):
+                logger.warning("'Save' button not found")
+            if not buttons.get('delete_button'):
+                logger.warning("'Delete' button not found")
+            
+            result = {
+                'title': dialog_title,
+                'body': dialog_body,
+                'buttons': buttons,
+                'dialog_present': True
+            }
+            
+            logger.info(f"✓ Finish Later dialog content retrieved successfully")
+            return result
+            
+        except Exception as e:
+            logger.error(f"✗ Failed to retrieve Finish Later dialog content: {e}")
+            raise
+
+    def click_finish_later_save_button(self, timeout: int = 60000) -> None:
+        """
+        Click the Save button in the Finish Later dialog.
+        
+        This method:
+        1. Locates the Save button using XPath selector
+        2. Waits for button to be visible
+        3. Clicks the button
+        4. Logs and returns on success
+        
+        Args:
+            timeout: Maximum time to wait for button in milliseconds (default: 60000ms = 60 seconds)
+            
+        Raises:
+            AssertionError: If Save button not found or not clickable
+            
+        Example:
+            client_accounts_page.click_finish_later_save_button()
+        """
+        logger.info("Clicking 'Save' button in Finish Later dialog...")
+        
+        try:
+            # Locate the Save button using XPath
+            save_button = self.page.locator(client_accounts_locators.FINISH_LATER_BUTTON_SAVE_XPATH)
+            
+            # Verify button is present
+            if save_button.count() == 0:
+                logger.error(f"Save button not found using XPath: {client_accounts_locators.FINISH_LATER_BUTTON_SAVE_XPATH}")
+                raise AssertionError(f"Save button not found in Finish Later dialog. Locator: {client_accounts_locators.FINISH_LATER_BUTTON_SAVE_XPATH}")
+            
+            # Wait for button to be visible
+            logger.info(f"Waiting for Save button to be visible (timeout: {timeout}ms)...")
+            save_button.wait_for(state="visible", timeout=timeout)
+            logger.info("✓ Save button is visible")
+            
+            # Click the button
+            logger.info("Clicking Save button...")
+            save_button.click()
+            logger.info("✓ Save button clicked successfully")
+            
+            # Wait for dialog to close or page state change
+            self.page.wait_for_timeout(1000)
+            logger.info("[PASS] Finish Later document saved successfully")
+            
+        except Exception as e:
+            logger.error(f"✗ Failed to click Save button: {e}")
+            raise AssertionError(f"Failed to click Save button in Finish Later dialog: {e}") from e
 
  

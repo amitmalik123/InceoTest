@@ -123,7 +123,7 @@ from tests.bdd.steps.docusign_steps import (
     verify_docusign_review_and_continue_dialog_text,
     user_add_signature,
     verify_signature_and_date_added_on_document,
-    user_perform_in_person_client_signing,
+    user_click_on_send_now_and_fetch_otp_from_mail,
 )
 
 # Outlook steps
@@ -219,7 +219,7 @@ __all__ = [
     "verify_docusign_review_and_continue_dialog_text",
     "user_add_signature",
     "verify_signature_and_date_added_on_document",
-    "user_perform_in_person_client_signing",
+    "user_click_on_send_now_and_fetch_otp_from_mail",
     # login
     "login_with_valid_credentials",
     "verify_redirect_to_home_page",

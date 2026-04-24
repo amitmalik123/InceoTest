@@ -73,6 +73,15 @@ CLIENT_IN_PERSON_SIGNING_BUTTON_RETURN = "button.formButton:has-text('Return to 
 CLIENT_IN_PERSON_SIGNING_BUTTON_START = "button.formButton:has-text('Start Client Signing')"
 CLIENT_IN_PERSON_SIGNING_BUTTONS = "button.formButton"
 
+# Finish Later Dialog locators
+FINISH_LATER_DIALOG = '[role="dialog"]'
+FINISH_LATER_DIALOG_TITLE = "div.modal-title-transition"
+FINISH_LATER_DIALOG_BODY = "div#divConfirmation"
+FINISH_LATER_DIALOG_TEXT = "div#divConfirmation p"
+FINISH_LATER_BUTTON_SAVE = "button.formButton:has-text('Save')"
+FINISH_LATER_BUTTON_SAVE_XPATH = "//button[text()='Save']"
+FINISH_LATER_BUTTON_DELETE = "button.formButton:has-text('Delete')"
+
 # Generic form button locator - use with button text parameter
 # Example: page.locator('button.formButton:has-text("Return to eWealthManager")')
 FORM_BUTTON_SELECTOR = "button.formButton"

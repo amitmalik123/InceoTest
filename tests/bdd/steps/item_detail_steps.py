@@ -2,6 +2,7 @@ import allure
 from playwright.sync_api import Page
 from pytest_bdd import parsers, then, when
 
+from locators import item_detail_locators
 from utils.allure_logger import get_allure_logger
 from utils.soft_assertions_enhanced import EnhancedSoftAssertions
 from utils.database import fetch_agent_name_by_aplid_from_db
@@ -649,6 +650,100 @@ def user_click_upload_button_and_upload_document(trackingCenter_ItemDetail_page)
                 f"Failed to complete upload and close workflow. "
                 f"Upload Button Locator: label.fileuploadbutton with text 'Upload'. "
                 f"Close Button Locator: button[role='button'][name='Close']. "
+                f"Error: {e}"
+            ) from e
+
+
+@when("User click on Finish Now button")
+def user_click_on_finish_now_button(trackingCenter_ItemDetail_page):
+    """
+    Click the Finish Now button on the Tracking Center Item Detail page.
+    
+    This step:
+    1. Calls the click_finish_now_button() page method
+    2. Captures a screenshot after clicking the button
+    3. Handles errors with comprehensive logging
+    
+    The Finish Now button HTML:
+        <a href="#"><span>Finish Now</span></a>
+    
+    Selector: XPath "//a[contains(text(),'Finish Now')]"
+    
+    Returns:
+        None
+        
+    Raises:
+        AssertionError: If Finish Now button not found or click fails
+        
+    Example:
+        When User click on Finish Now button
+    
+    Used in feature files:
+        Scenario: Complete a deferred DocuSign request
+            Given User is on Tracking Center Item Detail page with a deferred request
+            When User click on Finish Now button
+            Then User should be redirected to the DocuSign page
+    """
+    with allure.step("Click Finish Now button on Tracking Center Item Detail page"):
+        logger.info(">>> STEP: Click Finish Now button")
+        
+        try:
+            # Click the Finish Now button
+            logger.info("Step 1: Calling click_finish_now_button() page method...")
+            trackingCenter_ItemDetail_page.click_finish_now_button()
+            logger.info("✓ Finish Now button clicked successfully")
+            
+            # Capture screenshot after clicking
+            logger.info("Step 2: Capturing screenshot after Finish Now button click...")
+            screenshot = trackingCenter_ItemDetail_page.page.screenshot()
+            allure.attach(
+                screenshot,
+                name="Finish Now Button Click",
+                attachment_type=allure.attachment_type.PNG
+            )
+            logger.info("✓ Screenshot captured and attached to Allure report")
+            
+            logger.info("[PASS] Tracking Center Item Detail: Finish Now button clicked successfully.")
+            
+        except AssertionError as assert_error:
+            logger.error(f"✗ Assertion failed while clicking Finish Now button: {assert_error}")
+            
+            # Capture screenshot on failure
+            try:
+                screenshot = trackingCenter_ItemDetail_page.page.screenshot()
+                allure.attach(
+                    screenshot,
+                    name="Finish Now Button Click - FAILURE",
+                    attachment_type=allure.attachment_type.PNG
+                )
+            except Exception as screenshot_error:
+                logger.warning(f"Failed to capture screenshot on failure: {screenshot_error}")
+            
+            raise AssertionError(
+                f"[FAIL] Tracking Center Item Detail: Finish Now Button Click Failed — "
+                f"Details: Failed to click the Finish Now button on Tracking Center Item Detail page. "
+                f"Locator: {item_detail_locators.FINISH_NOW_BUTTON}. "
+                f"Error: {assert_error}"
+            ) from assert_error
+        
+        except Exception as e:
+            logger.error(f"✗ Unexpected error while clicking Finish Now button: {e}")
+            
+            # Capture screenshot on unexpected error
+            try:
+                screenshot = trackingCenter_ItemDetail_page.page.screenshot()
+                allure.attach(
+                    screenshot,
+                    name="Finish Now Button Click - ERROR",
+                    attachment_type=allure.attachment_type.PNG
+                )
+            except Exception as screenshot_error:
+                logger.warning(f"Failed to capture screenshot on error: {screenshot_error}")
+            
+            raise AssertionError(
+                f"[FAIL] Tracking Center Item Detail: Finish Now Button Click Error — "
+                f"Details: Unexpected error while clicking Finish Now button. "
+                f"Locator: {item_detail_locators.FINISH_NOW_BUTTON}. "
                 f"Error: {e}"
             ) from e
 

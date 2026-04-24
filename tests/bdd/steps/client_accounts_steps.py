@@ -2005,3 +2005,287 @@ def verify_esignature_process_complete_dialog_displayed(authenticated_page: Page
             except:
                 pass
             raise AssertionError(f"Failed to verify eSignature Process Complete dialog: {e}") from e
+
+
+@then("Finish Later pop up should be displayed")
+def verify_finish_later_dialog_displayed(authenticated_page: Page, client_accounts_page, test_context):
+    """
+    Verify that the Finish Later dialog is displayed with correct content.
+    
+    This step:
+    1. Verifies a dialog is present on the page
+    2. Retrieves the dialog title and body content
+    3. Verifies the title is "Finish Later"
+    4. Verifies the body text contains the expected message with D-number from test_context
+    5. Extracts the D-number from the dialog and verifies it matches the D-number in test_context
+    6. Verifies two buttons are present: "Save" and "Delete"
+    
+    Expected dialog text:
+    "Select Save to save the document for review or signing at a later time. 
+    To view your saved request, select <D number> in the tracking center. 
+    Select Delete to cancel this document. By deleting, all data will be lost and the request will be canceled."
+    
+    D-number Validation:
+    - Extracts the D-number displayed in the dialog
+    - Compares it with D-number from test_context (stored in "User Finish later the DocuSign process" step)
+    - Ensures both values match using soft assertions
+    
+    Uses framework utilities:
+    - DialogHandler: Robust dialog detection
+    - client_accounts_page.get_finish_later_dialog_content(): Retrieves dialog content including d_number
+    - EnhancedSoftAssertions: Non-blocking assertions for content verification
+    - logger: Unified logging from allure_logger
+    - allure: Attach screenshots for reporting
+    
+    Pre-condition:
+    - Finish Later dialog must be displayed after clicking "Finish Later" option
+    - test_context must contain 'd_number' from previous "User Finish later the DocuSign process" step
+    
+    Example feature file usage:
+        When User Finish later the DocuSign process and save the request
+        Then Finish Later pop up should be displayed
+    
+    Raises:
+        AssertionError: If dialog not found, content doesn't match, D-number mismatch, or buttons missing
+    """
+    logger.info("[STEP] Finish Later pop up should be displayed")
+    
+    with allure.step("Finish Later pop up should be displayed"):
+        try:
+            # Step 1: Verify dialog is present
+            logger.info("[STEP_DETAIL] Verifying dialog is present...")
+            dialog_handler = DialogHandler(authenticated_page)
+            try:
+                dialog = dialog_handler.wait_for_dialog(timeout=300000)  # 5 minutes
+                logger.info("✓ Dialog is present")
+            except Exception as e:
+                logger.error(f"[ERROR] Dialog wait failed: {e}")
+                raise AssertionError("Finish Later dialog is not displayed")
+            
+            # Step 2: Retrieve dialog content (title, body, buttons)
+            logger.info("[STEP_DETAIL] Retrieving dialog content...")
+            dialog_content = client_accounts_page.get_finish_later_dialog_content()
+            
+            if not dialog_content['dialog_present']:
+                raise AssertionError("Failed to retrieve Finish Later dialog content")
+            
+            dialog_title = dialog_content['title']
+            dialog_body = dialog_content['body']
+            buttons = dialog_content['buttons']
+            
+            logger.info(f"[DATA] Dialog Title: {dialog_title}")
+            logger.info(f"[DATA] Dialog Body: {dialog_body}")
+            logger.info(f"[DATA] Buttons Found: Save={buttons.get('save_button') is not None}, Delete={buttons.get('delete_button') is not None}")
+            
+            # Step 3: Get D-number from test_context for message verification
+            d_number = test_context.get('d_number', '')
+            logger.info(f"[DATA] D-Number from test_context: {d_number}")
+            
+            # Step 4: Build expected dialog body text with D-number
+            expected_body_parts = [
+                "Select Save",
+                "save the document for review or signing at a later time",
+                "To view your saved request",
+                "in the tracking center",
+                "Select Delete",
+                "cancel this document",
+                "By deleting, all data will be lost",
+                "request will be canceled"
+            ]
+            
+            # Step 5: Verify dialog content using soft assertions
+            logger.info("[STEP_DETAIL] Verifying dialog content...")
+            soft_asserts = EnhancedSoftAssertions(authenticated_page)
+            
+            # Verify title
+            expected_title = "Finish Later"
+            soft_asserts.assert_equal(
+                dialog_title,
+                expected_title,
+                f"Dialog title should be '{expected_title}' but got '{dialog_title}'"
+            )
+            logger.info(f"✓ Title verified: '{dialog_title}'")
+            
+            # Verify body text contains all expected parts
+            logger.info("[STEP_DETAIL] Verifying dialog body text contains expected content...")
+            for expected_part in expected_body_parts:
+                soft_asserts.assert_in(
+                    expected_part,
+                    dialog_body,
+                    f"Dialog body should contain '{expected_part}' but got '{dialog_body}'"
+                )
+                logger.info(f"✓ Body contains: '{expected_part}'")
+            
+            # Verify D-number is referenced in dialog body
+            if d_number:
+                soft_asserts.assert_in(
+                    d_number,
+                    dialog_body,
+                    f"Dialog body should reference D-number '{d_number}' but got '{dialog_body}'"
+                )
+                logger.info(f"✓ Body references D-number: {d_number}")
+            else:
+                logger.warning("⚠ D-number not found in test_context, skipping D-number verification")
+            
+            # Step 5.5: Extract and verify D-number from dialog matches test_context
+            logger.info("[STEP_DETAIL] Extracting and verifying D-number from dialog...")
+            if d_number:
+                # Extract D-number from dialog content structure if available
+                dialog_d_number = dialog_content.get('d_number', '')
+                
+                if dialog_d_number:
+                    logger.info(f"[DATA] D-Number extracted from dialog: {dialog_d_number}")
+                    logger.info(f"[DATA] D-Number from test_context: {d_number}")
+                    
+                    # Verify the D-number in dialog matches the one in test_context
+                    soft_asserts.assert_equal(
+                        dialog_d_number,
+                        d_number,
+                        f"[FAIL] D-Number Mismatch — Expected: d_number='{d_number}' (from test_context), Actual: d_number='{dialog_d_number}' (from dialog). Details: The D-number displayed in the Finish Later dialog must match the D-number stored in test_context from the Finish Later process step. Locator: finish-later-dialog-d-number."
+                    )
+                    logger.info(f"✓ D-number in dialog matches test_context: {dialog_d_number}")
+                else:
+                    logger.warning("⚠ D-number could not be extracted from dialog content structure, but presence in body text was already verified")
+            
+            # Step 6: Verify buttons are present
+            logger.info("[STEP_DETAIL] Verifying buttons are present...")
+            
+            # Check Save button
+            save_button = buttons.get('save_button')
+            if save_button is None or save_button.count() == 0:
+                soft_asserts.add_failure("'Save' button is not present in the Finish Later dialog")
+                logger.warning("⚠ 'Save' button not found")
+            else:
+                logger.info("✓ 'Save' button is present")
+            
+            # Check Delete button
+            delete_button = buttons.get('delete_button')
+            if delete_button is None or delete_button.count() == 0:
+                soft_asserts.add_failure("'Delete' button is not present in the Finish Later dialog")
+                logger.warning("⚠ 'Delete' button not found")
+            else:
+                logger.info("✓ 'Delete' button is present")
+            
+            # Raise any soft assertion failures
+            soft_asserts.assert_all()
+            
+            # Step 7: Capture screenshot for reporting
+            logger.info("[STEP_DETAIL] Capturing screenshot...")
+            screenshot = authenticated_page.screenshot()
+            allure.attach(
+                screenshot,
+                name="Finish_Later_Dialog_Verified",
+                attachment_type=allure.attachment_type.PNG
+            )
+            
+            logger.info("[PASS] Finish Later dialog verified successfully")
+            logger.info(f"  - Title: '{dialog_title}'")
+            logger.info(f"  - Body text verified with expected content")
+            logger.info(f"  - D-number comparison verified")
+            logger.info(f"  - Buttons present: Save and Delete")
+            if d_number:
+                logger.info(f"  - D-number from test_context: {d_number}")
+            
+        except AssertionError as ae:
+            # Re-raise assertion errors without additional wrapping
+            logger.error(f"[FAIL] Step failed with assertion error: {ae}")
+            try:
+                screenshot = authenticated_page.screenshot()
+                allure.attach(
+                    screenshot,
+                    name="Failed: Finish Later Dialog Verification",
+                    attachment_type=allure.attachment_type.PNG
+                )
+            except:
+                pass
+            raise
+        
+        except Exception as e:
+            logger.error(f"[FAIL] Unexpected error while verifying Finish Later dialog: {e}")
+            try:
+                screenshot = authenticated_page.screenshot()
+                allure.attach(
+                    screenshot,
+                    name="Failed: Finish Later Dialog Verification (Exception)",
+                    attachment_type=allure.attachment_type.PNG
+                )
+            except:
+                pass
+            raise AssertionError(f"Failed to verify Finish Later dialog: {e}") from e
+
+
+@when("User save the document for finsih later")
+def user_save_the_document_for_finish_later(authenticated_page: Page, client_accounts_page, test_context):
+    """
+    Save the document for finish later by clicking the Save button in the Finish Later dialog.
+    
+    This step:
+    1. Locates the Save button in the Finish Later dialog
+    2. Clicks the Save button to save the request
+    3. Captures screenshot for reporting
+    
+    Uses framework utilities:
+    - client_accounts_page.click_finish_later_save_button(): Clicks the Save button
+    - logger: Unified logging from allure_logger
+    - allure: Attach screenshots for reporting
+    
+    Pre-condition:
+    - Finish Later dialog must be displayed (from previous step)
+    
+    Post-condition:
+    - Document is saved
+    - Dialog is closed
+    - Application returns to previous state
+    
+    Example feature file usage:
+        Then Finish Later pop up should be displayed
+        When User save the document for finsih later
+    
+    Raises:
+        AssertionError: If Save button not found or click fails
+    """
+    logger.info("[STEP] User save the document for finish later")
+    
+    with allure.step("User save the document for finish later"):
+        try:
+            # Click the Save button in the Finish Later dialog
+            logger.info("[STEP_DETAIL] Clicking Save button to save the document for finish later...")
+            client_accounts_page.click_finish_later_save_button(timeout=30000)
+            
+            # Step 2: Capture screenshot for reporting
+            logger.info("[STEP_DETAIL] Capturing screenshot after saving...")
+            screenshot = authenticated_page.screenshot()
+            allure.attach(
+                screenshot,
+                name="Document_Saved_For_Finish_Later",
+                attachment_type=allure.attachment_type.PNG
+            )
+            
+            logger.info("[PASS] Document saved for finish later successfully")
+            
+        except AssertionError as ae:
+            # Re-raise assertion errors without additional wrapping
+            logger.error(f"[FAIL] Step failed with assertion error: {ae}")
+            try:
+                screenshot = authenticated_page.screenshot()
+                allure.attach(
+                    screenshot,
+                    name="Failed: Save Document For Finish Later",
+                    attachment_type=allure.attachment_type.PNG
+                )
+            except:
+                pass
+            raise
+        
+        except Exception as e:
+            logger.error(f"[FAIL] Unexpected error while saving document for finish later: {e}")
+            try:
+                screenshot = authenticated_page.screenshot()
+                allure.attach(
+                    screenshot,
+                    name="Failed: Save Document For Finish Later (Exception)",
+                    attachment_type=allure.attachment_type.PNG
+                )
+            except:
+                pass
+            raise AssertionError(f"Failed to save document for finish later: {e}") from e

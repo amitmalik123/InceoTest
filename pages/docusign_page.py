@@ -1188,6 +1188,119 @@ class DocuSignPage(BasePage):
             logger.error(f"✗ Failed to retrieve Date Signed value: {e}")
             raise
 
+    def click_other_actions_button(self, timeout: int = 60000) -> None:
+        """
+        Click the 'Other Actions' dropdown button in the DocuSign interface.
+        
+        This button opens a menu with options like 'Finish Later' to defer
+        the completion of the signing process.
+        
+        Args:
+            timeout: Maximum time to wait for button in milliseconds (default: 60000ms)
+            
+        Raises:
+            AssertionError: If button is not found or not clickable
+            
+        Example:
+            docusign_page.click_other_actions_button()
+        """
+        logger.info("Clicking 'Other Actions' button...")
+        
+        try:
+            # Extra stabilization wait for headless mode compatibility
+            logger.info("[DEBUG] Ensuring page stability before clicking 'Other Actions'...")
+            self.page.wait_for_load_state("networkidle", timeout=60000)
+            
+            # Use wait_for_condition for dynamic waiting
+            from utils.wait_utils import wait_for_condition
+            
+            def button_is_clickable():
+                try:
+                    button = self.page.locator(docusign_locators.OTHER_ACTIONS_BUTTON)
+                    # Check multiple conditions for headless compatibility
+                    is_visible = button.count() > 0 and button.is_visible()
+                    if is_visible:
+                        # Additional check: ensure button is enabled/not disabled
+                        is_enabled = button.evaluate("el => !el.disabled")
+                        return is_enabled
+                    return False
+                except Exception as e:
+                    logger.debug(f"[DEBUG] Checking button availability: {e}")
+                    return False
+            
+            # Convert timeout from milliseconds to seconds for wait_for_condition
+            timeout_seconds = timeout / 1000
+            poll_interval_seconds = 1.0  # 1 second polling for better headless stability
+            
+            wait_for_condition(
+                condition=button_is_clickable,
+                timeout=timeout_seconds,
+                poll_interval=poll_interval_seconds,
+                error_message=f"Other Actions button not found within {timeout}ms"
+            )
+            
+            # Click the button with explicit wait for interactivity
+            logger.info("[DEBUG] Waiting for button to be attached to DOM...")
+            button = self.page.locator(docusign_locators.OTHER_ACTIONS_BUTTON)
+            button.wait_for(state="attached", timeout=10000)
+            button.wait_for(state="visible", timeout=10000)
+            
+            logger.info("[DEBUG] Clicking 'Other Actions' button...")
+            button.click()
+            
+            logger.info("[PASS] 'Other Actions' button clicked successfully")
+            
+        except Exception as e:
+            logger.error(f"[FAIL] Failed to click 'Other Actions' button: {e}")
+            allure.attach(
+                self.page.screenshot(),
+                name="Failed_Other_Actions_Button_Click",
+                attachment_type=allure.attachment_type.PNG
+            )
+            raise AssertionError(f"Failed to click 'Other Actions' button: {e}") from e
+
+    def click_finish_later_option(self, timeout: int = 60000) -> None:
+        """
+        Click the 'Finish Later' option from the 'Other Actions' dropdown menu.
+        
+        This option allows saving the request without completing the signing process.
+        Uses dynamic waiting to account for page load delays.
+        
+        Args:
+            timeout: Maximum time to wait for option in milliseconds (default: 60000ms = 60 seconds)
+            
+        Raises:
+            AssertionError: If option is not found within timeout period
+            
+        Example:
+            docusign_page.click_finish_later_option()  # Dynamic wait up to 60s
+        """
+        logger.info(f"Clicking 'Finish Later' option (dynamic wait: {timeout}ms)...")
+        
+        try:
+            finish_later_option = self.page.locator(docusign_locators.FINISH_LATER_OPTION)
+            
+            logger.debug(f"[DEBUG] Waiting for 'Finish Later' option (max {timeout}ms)...")
+            # Wait for the element to be visible
+            finish_later_option.wait_for(state="visible", timeout=timeout)
+            
+            # Click the option
+            finish_later_option.click()
+            
+            logger.info("[PASS] 'Finish Later' option clicked successfully")
+            
+            # Wait for page to process the action
+            self.page.wait_for_timeout(500)
+            
+        except Exception as e:
+            logger.error(f"[FAIL] Failed to click 'Finish Later' option: {e}")
+            allure.attach(
+                self.page.screenshot(),
+                name="Failed_Finish_Later_Click",
+                attachment_type=allure.attachment_type.PNG
+            )
+            raise AssertionError(f"Failed to click 'Finish Later' option: {e}") from e
+
     def close(self) -> None:
         """Close the underlying DocuSign Playwright page.
 
