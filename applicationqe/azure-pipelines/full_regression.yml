@@ -1,0 +1,77 @@
+name: full-regression-$(Date:yyyyMMdd)$(Rev:.r)
+
+trigger:
+  branches:
+    include:
+      - main
+      - develop
+  paths:
+    include:
+      - config/**
+      - data/**
+      - pages/**
+      - queries/**
+      - tests/**
+      - azure-pipelines/**
+      - requirements.txt
+
+pr:
+  branches:
+    include:
+      - main
+      - develop
+  paths:
+    include:
+      - config/**
+      - data/**
+      - pages/**
+      - queries/**
+      - tests/**
+      - azure-pipelines/**
+      - requirements.txt
+
+pool:
+  vmImage: ubuntu-latest
+
+stages:
+  - template: azure-pipelines/templates/team-stage.yml
+    parameters:
+      stageName: BAW
+      teamDisplay: BAW
+      featurePath: tests/features/BAW
+
+  - template: azure-pipelines/templates/team-stage.yml
+    parameters:
+      stageName: NAW
+      teamDisplay: NAW
+      featurePath: tests/features/NAW
+
+  - template: azure-pipelines/templates/team-stage.yml
+    parameters:
+      stageName: OAM
+      teamDisplay: OAM
+      featurePath: tests/features/OAM
+
+  - template: azure-pipelines/templates/team-stage.yml
+    parameters:
+      stageName: PROPOSAL
+      teamDisplay: PROPOSAL
+      featurePath: tests/features/PROPOSAL
+
+  - template: azure-pipelines/templates/team-stage.yml
+    parameters:
+      stageName: MODEL_MANAGEMENT
+      teamDisplay: Model Management
+      featurePath: tests/features/Model Management
+
+  - template: azure-pipelines/templates/team-stage.yml
+    parameters:
+      stageName: STP_ICT
+      teamDisplay: STP-ICT
+      featurePath: tests/features/STP/STP-ICT
+
+  - template: azure-pipelines/templates/team-stage.yml
+    parameters:
+      stageName: STP_JOURNALS
+      teamDisplay: STP-JOURNALS
+      featurePath: tests/features/STP/STP-JOURNALS
