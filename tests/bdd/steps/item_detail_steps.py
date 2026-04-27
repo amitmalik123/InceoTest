@@ -191,19 +191,21 @@ def verify_notes_description(trackingCenter_ItemDetail_page, test_context):
     1. Fetches actual notes descriptions from Tracking Center Item Detail using get_notes_descriptions()
     2. Gets expected notes from test_data CSV column: Expected_TrackingCenter_Notes
     3. Splits expected notes by '|' separator if multiple descriptions provided
-    4. For each expected note containing '<FA Name>' or '<SAU Name>' placeholders:
-       - Looks up the actual FA/SAU name using fetch_agent_name_by_aplid_from_db()
-       - Replaces placeholders with fetched names
+    4. For each expected note containing '<FA Name>', '<SAU Name>', or '<OA Name>' placeholders:
+       - <FA Name>: Looks up the actual FA name using fetch_agent_name_by_aplid_from_db()
+       - <SAU Name>: Looks up the actual SAU name using fetch_agent_name_by_aplid_from_db()
+       - <OA Name>: Always replaced with fixed value "Office Admin"
     5. Compares expected (with replacements) against actual notes using soft assertions
     
     Placeholders supported:
     - <FA Name>: Replaced with Authorized Signer name (via database lookup)
     - <SAU Name>: Replaced with SAU name (via database lookup if role is SAU)
+    - <OA Name>: Always replaced with fixed value "Office Admin"
     
     Multiple descriptions can be specified separated by pipe (|) for multiple validations.
     
     Example:
-        Expected_TrackingCenter_Notes: "Document routed to <FA Name>|Document created by <SAU Name>"
+        Expected_TrackingCenter_Notes: "Document routed to <FA Name>|Document created by <SAU Name>|Reviewed by <OA Name>"
     """
     with allure.step("Verify Notes description"):
         logger.info(">>> STEP: Verify Notes description")
@@ -311,6 +313,12 @@ def verify_notes_description(trackingCenter_ItemDetail_page, test_context):
                         except Exception as e:
                             logger.warning(f"    ⚠ Error fetching SAU name: {e}")
                 
+                # Replace <OA Name> placeholder if present (always with fixed value "Office Admin")
+                if "<OA Name>" in processed_desc:
+                    logger.info("    Found '<OA Name>' placeholder - replacing with fixed value 'Office Admin'...")
+                    oa_name = "Office Admin"
+                    processed_desc = processed_desc.replace("<OA Name>", oa_name)
+                    logger.info(f"    ✓ OA name set to: '{oa_name}'")
                 # Replace <Authorized_Signer_Role_Name> placeholder if present
                 if "<Authorized_Signer_Role_Name>" in processed_desc:
                     logger.info("    Found '<Authorized_Signer_Role_Name>' placeholder - replacing with authorized signer name...")

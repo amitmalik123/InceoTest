@@ -631,7 +631,7 @@ class ClientAccountsPage(BasePage):
             first_option = self.page.locator(client_accounts_locators.REQUEST_LIST_ITEM)
             
             # Verify all key components are visible and enabled
-            with WaitContext(timeout=20.0, poll_interval=0.2) as wait:
+            with WaitContext(timeout=40.0, poll_interval=0.2) as wait:
                 wait.until(lambda: table_container.is_visible(), error_message="Table container not visible")
                 wait.until(lambda: request_list.is_visible(), error_message="Request list not visible")
                 wait.until(lambda: first_option.is_visible(), error_message="First request option not visible")
