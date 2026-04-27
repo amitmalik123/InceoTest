@@ -1,0 +1,45 @@
+name: stp-journals-$(Date:yyyyMMdd)$(Rev:.r)
+
+trigger:
+  branches:
+    include:
+      - main
+      - develop
+  paths:
+    include:
+      - data/STP/STP-JOURNALS/**
+      - config/STP/STP-JOURNALS/**
+      - tests/features/STP/STP-JOURNALS/**
+      - tests/steps/STP/STP-JOURNALS/**
+      - pages/EWM/**
+      - pages/STP/STP-JOURNALS/**
+      - queries/STP/STP-JOURNALS/**
+      - azure-pipelines/templates/**
+      - requirements.txt
+
+pr:
+  branches:
+    include:
+      - main
+      - develop
+  paths:
+    include:
+      - data/STP/STP-JOURNALS/**
+      - config/STP/STP-JOURNALS/**
+      - tests/features/STP/STP-JOURNALS/**
+      - tests/steps/STP/STP-JOURNALS/**
+      - pages/EWM/**
+      - pages/STP/STP-JOURNALS/**
+      - queries/STP/STP-JOURNALS/**
+      - azure-pipelines/templates/**
+      - requirements.txt
+
+pool:
+  vmImage: ubuntu-latest
+
+stages:
+  - template: templates/team-stage.yml
+    parameters:
+      stageName: STP_JOURNALS
+      teamDisplay: STP-JOURNALS
+      featurePath: tests/features/STP/STP-JOURNALS
