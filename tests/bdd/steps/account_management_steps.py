@@ -87,8 +87,16 @@ def navigate_to_account_wizard_and_search(
     logger.info("Clicking Account Wizard link")
     account_wizard_link = authenticated_page.locator("#clientDetailAccountDetailAnchor")
     account_wizard_link.wait_for(state="visible", timeout=15000)
-    account_wizard_link.click()
-    authenticated_page.wait_for_load_state("domcontentloaded", timeout=30000)
+    
+    # Use increased timeout (60s) for click to allow page navigation to complete
+    # Some environments (test10, slow networks) may take 30-60s for navigation
+    logger.info("Waiting for page navigation after Account Wizard click...")
+    account_wizard_link.click(timeout=60000)
+    
+    # Wait for page to fully load after navigation
+    authenticated_page.wait_for_load_state("domcontentloaded", timeout=45000)
+    authenticated_page.wait_for_load_state("networkidle", timeout=45000)
+    
     logger.info(f"Account Wizard page loaded: {authenticated_page.url}")
 
 

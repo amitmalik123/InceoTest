@@ -1,9 +1,9 @@
 import allure
 from playwright.sync_api import Page
-from pytest_bdd import parsers, then
+from pytest_bdd import parsers, then, when
 
 from utils.allure_logger import get_allure_logger
-from utils.assertions import SoftAssertions
+from utils.soft_assertions_enhanced import EnhancedSoftAssertions
 from utils.database import fetch_agent_name_by_aplid_from_db
 from utils.retry_utils import retry_until_true
 from utils.wait_utils import wait_for_url_to_match
@@ -20,6 +20,7 @@ def verify_item_detail_d_number_matches_request_submitted_pop_up_d_number(tracki
     1. Retrieves the D-number stored from the request submitted pop up
     2. Gets the D-number from the Tracking Center Item Detail
     3. Compares them to ensure they match
+    4. Updates test_context with final D-number for logging
     """
     with allure.step("Verify D number matches between request submitted pop up and Tracking Center Item Detail"):
         logger.info(">>> STEP: Verify D number matches request submitted pop up D number")
@@ -44,7 +45,11 @@ def verify_item_detail_d_number_matches_request_submitted_pop_up_d_number(tracki
             # Verify they match
             assert expected_d_number == actual_d_number, \
             f"[FAIL] TrackingCenterPage: D-Number Validation — Expected: d_number='{expected_d_number}', Actual: d_number='{actual_d_number}'. Details: D-number from request submitted dialog must match D-number displayed on Tracking Center Item Detail. Locator: tracking-center-d-number-display."
-            logger.info(f"[PASS] TrackingCenterPage: D-Number Match Verified.")
+            
+            # Update test_context with final D_Number for logging at end of scenario
+            test_context['d_number'] = actual_d_number
+            logger.info(f"✓ D-number verification passed: {actual_d_number}")
+            logger.info(f"✓ D-number stored in test_context for final logging: {actual_d_number}")
             
         except Exception as e:
             logger.error(f"✗ D-number verification failed: {e}")
@@ -90,7 +95,7 @@ def verify_tracking_center_item_detail_status(trackingCenter_ItemDetail_page, ex
                     # Step 1: Refresh the page
                     logger.info("Refreshing page...")
                     trackingCenter_ItemDetail_page.refresh_page()
-                    logger.info("[PASS] TrackingCenterPage: Page Refreshed.")
+                    logger.info("✓ Page refreshed")
                     
                     # Step 2: Get actual status from Tracking Center Item Detail
                     logger.info("Retrieving actual status from Tracking Center Item Detail...")
@@ -99,7 +104,7 @@ def verify_tracking_center_item_detail_status(trackingCenter_ItemDetail_page, ex
                     
                     # Step 3: Compare with expected status
                     if actual_status == expected_status:
-                        logger.info(f"[PASS] TrackingCenterPage: Status Match Verified.")
+                        logger.info(f"✓ Status matches! Expected: '{expected_status}', Actual: '{actual_status}'")
                         return True
                     else:
                         logger.info(f"✗ Status mismatch. Expected: '{expected_status}', Actual: '{actual_status}'. Retrying...")
@@ -119,7 +124,7 @@ def verify_tracking_center_item_detail_status(trackingCenter_ItemDetail_page, ex
                 error_message=f"[FAIL] TrackingCenterPage: Item Detail Status Validation — Expected: status='{expected_status}', Actual: status=<not-matched-after-retries>. Details: Status from Tracking Center Item Detail did not match expected value after checking for 60 seconds. Locator: [data-qa='tracking-center-status']."
             )
             
-            logger.info(f"[PASS] TrackingCenterPage: Status Verification Completed.")
+            logger.info(f"✓ Status verification passed: '{expected_status}'")
             
         except Exception as e:
             logger.error(f"✗ Status validation failed: {e}")
@@ -163,7 +168,7 @@ def verify_buttons_displayed(trackingCenter_ItemDetail_page, button_list):
                     f"[FAIL] TrackingCenterPage: Buttons Display Validation — Expected: buttons={expected_buttons}, Actual: buttons={button_texts}. Details: The following expected button(s) were not found on Tracking Center Item Detail: {missing_buttons}. Locator: [data-qa='item-detail-buttons']."
                 )
             
-            logger.info(f"[PASS] TrackingCenterPage: Button Verification Completed.")
+            logger.info(f"✓ Button verification passed: All expected buttons found {expected_buttons}")
             
             # Attach screenshot for verification
             screenshot = trackingCenter_ItemDetail_page.page.screenshot()
@@ -215,9 +220,9 @@ def verify_notes_description(trackingCenter_ItemDetail_page, test_context):
             if len(actual_descriptions) == 0:
                 raise AssertionError("No descriptions found in Notes grid")
             
-            logger.info(f"[PASS] TrackingCenterPage: Notes Descriptions Found.")
+            logger.info(f"✓ Found {len(actual_descriptions)} actual description(s) in Notes grid")
             for idx, desc in enumerate(actual_descriptions, 1):
-                logger.info(f"  Actual Description {idx}: {desc[:100]}...")  # Log first 100 chars
+                logger.info(f"  Actual Description {idx}: {desc}")
             
             # Step 2: Get expected descriptions from test data
             logger.info("Step 2: Retrieving expected notes descriptions from test_data...")
@@ -228,18 +233,18 @@ def verify_notes_description(trackingCenter_ItemDetail_page, test_context):
                 raise AssertionError("Expected_TrackingCenter_Notes not found in test data. "
                                    "Please add this column to your test data CSV.")
             
-            logger.info(f"[PASS] TrackingCenterPage: Expected Notes Retrieved from CSV.")
+            logger.info(f"✓ Expected notes (raw from CSV): {expected_descriptions_str[:100]}...")
             
             # Step 3: Parse multiple descriptions if provided (pipe-separated)
             expected_descriptions = [desc.strip() for desc in expected_descriptions_str.split('|')]
-            logger.info(f"[PASS] TrackingCenterPage: Expected Notes Parsed.")
+            logger.info(f"✓ Parsed {len(expected_descriptions)} expected description(s) after splitting by '|'")
             
             # Step 4: Get test data for placeholder replacement
             logger.info("Step 3: Preparing placeholder replacements...")
             test_data = test_context.get("test_data", {}) if test_context else {}
             agent_id = test_data.get("Agent", "")
             authorized_signer_role = test_data.get("Authorized_Signer_Role", "")
-            authorized_signer_name = test_data.get("Authorized_Signer", "")
+            authorized_signer_name = test_context.get("authorized_signer", "")
             role = test_data.get("Role", "")
             
             # Default authorized_signer_role to 'FA' if blank
@@ -313,28 +318,43 @@ def verify_notes_description(trackingCenter_ItemDetail_page, test_context):
                     oa_name = "Office Admin"
                     processed_desc = processed_desc.replace("<OA Name>", oa_name)
                     logger.info(f"    ✓ OA name set to: '{oa_name}'")
+                # Replace <Authorized_Signer_Role_Name> placeholder if present
+                if "<Authorized_Signer_Role_Name>" in processed_desc:
+                    logger.info("    Found '<Authorized_Signer_Role_Name>' placeholder - replacing with authorized signer name...")
+                    
+                    if authorized_signer_name:
+                        logger.info(f"    ✓ Replacing with: '{authorized_signer_name}'")
+                        processed_desc = processed_desc.replace("<Authorized_Signer_Role_Name>", authorized_signer_name)
+                    else:
+                        logger.warning(f"    ⚠ Authorized_Signer_Role_Name placeholder found but authorized_signer_name is empty")
                 
                 processed_expected.append(processed_desc)
                 logger.info(f"    ✓ Processed to: '{processed_desc[:80]}...'")
             
-            logger.info(f"[PASS] TrackingCenterPage: Expected Notes Processed.")
+            logger.info(f"✓ Processed all {len(processed_expected)} expected description(s)")
             
             # Step 6: Use soft assertions to verify each expected description is in actual descriptions
             logger.info("Step 5: Comparing expected vs actual descriptions using soft assertions...")
             
-            with SoftAssertions() as soft:
+            with EnhancedSoftAssertions(trackingCenter_ItemDetail_page.page) as soft:
                 for idx, expected_desc in enumerate(processed_expected, 1):
                     found = False
                     matched_actual = None
                     
+                    # Normalize expected description: replace non-breaking spaces and extra whitespace with regular spaces
+                    normalized_expected = ' '.join(expected_desc.replace('\xa0', ' ').split())
+                    
                     for actual_desc in actual_descriptions:
-                        if expected_desc in actual_desc:
+                        # Normalize actual description: replace non-breaking spaces and extra whitespace with regular spaces
+                        normalized_actual = ' '.join(actual_desc.replace('\xa0', ' ').split())
+                        
+                        if normalized_expected in normalized_actual:
                             found = True
                             matched_actual = actual_desc
                             break
                     
                     if found:
-                        logger.info(f"  [PASS] TrackingCenterPage: Notes Description Found.")
+                        logger.info(f"  ✓ Expected description {idx} found in actual notes")
                         logger.info(f"    Expected: '{expected_desc[:80]}...'")
                         if matched_actual:
                             logger.info(f"    Matched in actual: '{matched_actual[:80]}...'")
@@ -387,7 +407,7 @@ def verify_advisor_alert_required_value(trackingCenter_ItemDetail_page, test_con
             
             # Step 3: Use soft assertions to verify they match
             logger.info("Step 3: Comparing values using soft assertions...")
-            soft_assert = SoftAssertions()
+            soft_assert = EnhancedSoftAssertions(trackingCenter_ItemDetail_page.page)
             soft_assert.assert_equal(
                 actual_value,
                 expected_value,
@@ -398,7 +418,7 @@ def verify_advisor_alert_required_value(trackingCenter_ItemDetail_page, test_con
             logger.info("Step 4: Verifying soft assertions...")
             try:
                 soft_assert.assert_all()
-                logger.info(f"[PASS] TrackingCenterPage: Advisor Alert Required Verification Completed.")
+                logger.info(f"✓ Soft assertion PASSED: Advisor Alert Required value matches expected: {actual_value}")
             except Exception as soft_assert_error:
                 logger.error(f"✗ Soft assertion(s) failed: {str(soft_assert_error)}")
                 allure.attach(
@@ -439,7 +459,7 @@ def verify_redirected_to_tracking_center_item_detail_page(authenticated_page: Pa
             )
             
             current_url = authenticated_page.url
-            logger.info(f"[PASS] TrackingCenterPage: URL Redirection Verified.")
+            logger.info(f"✓ URL validation passed: {current_url}")
             
             # Step 2: Wait for page to load
             logger.info("Waiting for Tracking Center Item Detail page to load...")
@@ -515,24 +535,24 @@ def verify_agent_name(trackingCenter_ItemDetail_page, test_context):
                     name="Agent Name Verification",
                     attachment_type=allure.attachment_type.TEXT
                 )
-                logger.info(f"[PASS] TrackingCenterPage: Agent Name Field Populated.")
+                logger.info(f"✓ Agent Name field is populated: '{actual_agent_name}'")
                 return
             
             # Step 4: Concatenate expected agent name with agent ID
             logger.info("Step 4: Concatenating expected Agent Name with Agent ID...")
             expected_agent_name_with_id = f"{expected_agent_name} ({agent_id})"
-            logger.info(f"[PASS] TrackingCenterPage: Agent Name Concatenated with ID.")
+            logger.info(f"✓ Expected Agent Name with ID: '{expected_agent_name_with_id}'")
             
             # Step 5: Use soft assertions to compare actual vs expected (with ID)
             logger.info("Step 5: Comparing actual Agent Name with expected Agent Name (including ID) using soft assertions...")
             
-            with SoftAssertions() as soft:
+            with EnhancedSoftAssertions(trackingCenter_ItemDetail_page.page) as soft:
                 if actual_agent_name != expected_agent_name_with_id:
                     error_msg = (f"[FAIL] TrackingCenterPage: Agent Name Validation — Expected: agent_name='{expected_agent_name_with_id}', Actual: agent_name='{actual_agent_name}'. Details: Agent Name displayed on Tracking Center Item Detail does not match the Agent Name from database concatenated with Agent ID. Locator: //span[text()='Agent Name']/following-sibling::label.")
                     logger.error(f"  ✗ {error_msg}")
                     soft.assert_equal(actual_agent_name, expected_agent_name_with_id, error_msg)
                 else:
-                    logger.info(f"  [PASS] TrackingCenterPage: Agent Names Match Verified.")
+                    logger.info(f"  ✓ Agent Names match: '{actual_agent_name}'")
             
             # Step 6: Attach comparison results to Allure report
             comparison_result = (
@@ -639,3 +659,99 @@ def user_click_upload_button_and_upload_document(trackingCenter_ItemDetail_page)
                 f"Close Button Locator: button[role='button'][name='Close']. "
                 f"Error: {e}"
             ) from e
+
+
+@when("User cancel the request")
+def user_cancel_the_request(trackingCenter_ItemDetail_page):
+    """
+    Cancel the request from Tracking Center Item Detail page with confirmation dialog.
+    
+    This step:
+    1. Clicks the Cancel button on the Tracking Center Item Detail page
+    2. Waits for the cancel confirmation dialog to appear (jQuery UI dialog)
+    3. Clicks the 'Yes' button to confirm cancellation
+    4. Waits for dialog to close and page stabilization
+    
+    The Cancel button HTML:
+        <a href="#" class="btn btn-default" id="cancelRequest" 
+           onclick="setOmniture('Tracking Center:::Tracking Center_Details page Cancel button')">
+            Cancel
+        </a>
+    
+    The Confirmation Dialog:
+        Dialog Title: "You are about to cancel this request."
+        Dialog Buttons: Yes, No
+    
+    Selector: CSS selector "a#cancelRequest" (stable - unique ID)
+    Dialog Selector: `.ui-dialog` (jQuery UI dialog class)
+    Yes Button: Uses `get_by_text("Yes")` Playwright locator
+    
+    Returns:
+        None
+        
+    Raises:
+        AssertionError: If Cancel button not found, dialog doesn't appear, or Yes button click fails
+        
+    Example:
+        When User cancel the request
+    
+    Used in feature files:
+        Scenario: Cancel a submitted request
+            Given User is on Tracking Center Item Detail page
+            When User cancel the request
+            Then Verify user is redirected to Tracking Center page
+    """
+    with allure.step("Cancel the request and confirm in dialog"):
+        logger.info(">>> STEP: User cancel the request")
+        
+        try:
+            # Step 1: Click the Cancel button
+            logger.info("Step 1: Attempting to click Cancel button...")
+            trackingCenter_ItemDetail_page.click_cancel_button()
+            logger.info("[PASS] Cancel button clicked successfully.")
+            
+            # Attach screenshot after cancel button click
+            screenshot = trackingCenter_ItemDetail_page.page.screenshot()
+            allure.attach(
+                screenshot,
+                name="Cancel Button Clicked - Before Dialog Confirmation",
+                attachment_type=allure.attachment_type.PNG
+            )
+            
+            # Step 2: Confirm cancellation in the dialog by clicking 'Yes'
+            logger.info("Step 2: Confirming cancellation in dialog by clicking 'Yes'...")
+            trackingCenter_ItemDetail_page.confirm_cancel_dialog()
+            logger.info("[PASS] Cancel dialog confirmed successfully.")
+            
+            # Attach screenshot after dialog confirmation
+            screenshot = trackingCenter_ItemDetail_page.page.screenshot()
+            allure.attach(
+                screenshot,
+                name="Cancel Confirmed - Dialog Closed",
+                attachment_type=allure.attachment_type.PNG
+            )
+            
+            logger.info("[PASS] TrackingCenterPage: Request cancellation workflow completed.")
+            
+        except Exception as e:
+            logger.error(f"✗ Failed to cancel request: {e}")
+            
+            # Attach screenshot on failure for debugging
+            try:
+                screenshot = trackingCenter_ItemDetail_page.page.screenshot()
+                allure.attach(
+                    screenshot,
+                    name="Request Cancellation - Failure Screenshot",
+                    attachment_type=allure.attachment_type.PNG
+                )
+            except Exception:
+                pass
+            
+            raise AssertionError(
+                f"Failed to cancel request workflow. "
+                f"Step 1 - Cancel Button Locator: a#cancelRequest. "
+                f"Step 2 - Dialog Selector: .ui-dialog (jQuery UI). "
+                f"Step 2 - Yes Button Text: 'Yes'. "
+                f"Error: {e}"
+            ) from e
+

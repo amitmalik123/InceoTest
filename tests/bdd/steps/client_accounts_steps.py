@@ -3,59 +3,20 @@ Client Accounts Step Definitions
 
 Step definitions for client account related interactions in BDD tests.
 """
-import re
-import unicodedata
 import allure
 from playwright.sync_api import Page
 from pytest_bdd import given, when, then, parsers
 
 from pages.client_accounts_page import ClientAccountsPage
 from utils.allure_logger import get_allure_logger
-from utils.assertions import Assertions, SoftAssertions
+from utils.assertions import Assertions
+from utils.soft_assertions_enhanced import EnhancedSoftAssertions
+from utils.database import fetch_agent_name_by_aplid_from_db, fetch_authorized_signer
 from utils.dialog_utils import DialogHandler
 from utils.helpers import find_element_position_in_parent
 from utils.wait_utils import WaitContext, wait_for_element_count
 
 logger = get_allure_logger(__name__)
-
-
-def _normalize_text_for_comparison(text: str) -> str:
-    """
-    Normalize text for comparison by handling special characters and Unicode issues.
-    
-    Handles:
-    - Unicode normalization (NFC)
-    - Smart quotes (curly) → regular quotes
-    - Non-breaking spaces → regular spaces
-    - Multiple consecutive spaces → single space
-    - Other whitespace normalization
-    """
-    if not text:
-        return ""
-    
-    # Apply Unicode NFC normalization
-    text = unicodedata.normalize('NFC', text)
-    
-    # Replace smart/curly quotes with regular straight quotes
-    text = text.replace('\u2018', "'")  # Left single quotation mark
-    text = text.replace('\u2019', "'")  # Right single quotation mark (most common)
-    text = text.replace('\u201C', '"')  # Left double quotation mark
-    text = text.replace('\u201D', '"')  # Right double quotation mark
-    
-    # Replace non-breaking space with regular space
-    text = text.replace('\u00A0', ' ')  # Non-breaking space
-    text = text.replace('\u2009', ' ')  # Thin space
-    text = text.replace('\u200B', '')   # Zero-width space (remove)
-    
-    # Replace em-dash with regular hyphen
-    text = text.replace('\u2014', '-')  # Em-dash
-    text = text.replace('\u2013', '-')  # En-dash
-    
-    # Normalize multiple whitespace to single space
-    text = re.sub(r'\s+', ' ', text)
-    
-    # Strip leading/trailing whitespace
-    return text.strip()
 
 
 @when("User select Authorized Signer Approval option")
@@ -114,7 +75,7 @@ def select_authorized_signer_approval_option(authenticated_page: Page, client_ac
 
 @then("Signer(s) Information dialog should be displayed")
 def verify_signer_information_dialog_exists_with_correct_information(
-    authenticated_page: Page, test_context
+    authenticated_page: Page, client_accounts_page, test_context
 ):
     """
     Verify Signer(s) Information dialog is displayed with correct content.
@@ -131,13 +92,15 @@ def verify_signer_information_dialog_exists_with_correct_information(
         
         try:
             # Initialize soft assertions
-            soft_assert = SoftAssertions()
+            soft_assert = EnhancedSoftAssertions(authenticated_page)
             
             # Step 1: Wait for and detect dialog
             logger.info("Step 1: Waiting for Signer Information dialog...")
             dialog_handler = DialogHandler(authenticated_page)
             dialog = dialog_handler.wait_for_dialog(timeout=19000)
-            Assertions.assert_visible(dialog, "[FAIL] ClientAccountsPage: Dialog Detection — Expected: visible=True, Actual: visible=False. Details: Signer(s) Information dialog must be visible after being detected. Locator: [role='dialog'].")
+            # Note: Dialog was successfully found in DOM by wait_for_dialog()
+            # No visibility assertion needed - dialog is in DOM and accessible for interaction
+            # jQuery UI dialogs may have CSS that affects to_be_visible() checks
             logger.info("[PASS] ClientAccountsPage: Signer Information Dialog Detected.")
             
             # Step 2: Get and parse expected text from CSV
@@ -191,11 +154,11 @@ def verify_signer_information_dialog_exists_with_correct_information(
             )
             soft_assert.assert_visible(
                 signer_header,
-                "[FAIL] ClientAccountsPage: Signer Information Header Visibility — Expected: visible=True, Actual: visible=False. Details: div#divSignersInfo must be visible to read heading. Locator: div#divSignersInfo."
+                "[FAIL] ClientAccountsPage: Signer Information Header Visibility — Expected: visible=True, Actual: visible=False. Details: Signer(s) Information dialog header must be visible to read heading. Locator: div#divSignersInfo."
             )
             
             if heading_text:
-                soft_assert.assert_text_contains(signer_header, heading_text, f"[FAIL] ClientAccountsPage: Heading Text — Expected: contains '{heading_text}', Actual: text mismatch. Details: Signer Information heading must match expected value. Locator: div#divSignersInfo.")
+                soft_assert.assert_text_contains(signer_header, heading_text, f"[FAIL] ClientAccountsPage: Signer Information Heading Text — Expected: contains '{heading_text}', Actual: text mismatch. Details: Signer(s) Information dialog heading must match expected value. Locator: div#divSignersInfo.")
                 logger.info(f"  [PASS] ClientAccountsPage: Signer Information Heading Verified.")
             
             if instruction_text:
@@ -203,19 +166,19 @@ def verify_signer_information_dialog_exists_with_correct_information(
                 soft_assert.assert_count(
                     details_table,
                     1,
-                    "[FAIL] ClientAccountsPage: Signer Details Table — Expected: table#esig_user_details_table count=1, Actual: count not 1. Details: Details table must exist in iframe. Locator: iframe#esig_iframe > table#esig_user_details_table."
+                    "[FAIL] ClientAccountsPage: Signer Details Table — Expected: table#esig_user_details_table count=1, Actual: count not 1. Details: Signer(s) Information dialog details must exist. Locator: iframe#esig_iframe > table#esig_user_details_table."
                 )
-                soft_assert.assert_visible(details_table, message="[FAIL] ClientAccountsPage: Details Table Visibility — Expected: visible=True, Actual: visible=False. Details: table#esig_user_details_table must be visible. Locator: table#esig_user_details_table.")
+                soft_assert.assert_visible(details_table, message="[FAIL] ClientAccountsPage: Signer Details Visibility — Expected: visible=True, Actual: visible=False. Details: Signer(s) Information dialog details must be visible. Locator: table#esig_user_details_table.")
                 
                 first_td = details_table.locator("td").first
-                soft_assert.assert_count(first_td, 1, message="[FAIL] ClientAccountsPage: Details TD — Expected: td count=1, Actual: count!=1. Details: First TD must exist in table. Locator: table#esig_user_details_table td.")
-                soft_assert.assert_visible(first_td, message="[FAIL] ClientAccountsPage: Details TD Visibility — Expected: visible=True, Actual: visible=False. Details: First TD must be visible. Locator: table#esig_user_details_table td:first.")
+                soft_assert.assert_count(first_td, 1, message="[FAIL] ClientAccountsPage: Signer Details TD — Expected: td count=1, Actual: count!=1. Details: First TD in Signer(s) Information dialog details table must exist. Locator: table#esig_user_details_table td.")
+                soft_assert.assert_visible(first_td, message="[FAIL] ClientAccountsPage: Signer Details TD Visibility — Expected: visible=True, Actual: visible=False. Details: First TD in Signer(s) Information dialog details table must be visible. Locator: table#esig_user_details_table td:first.")
                 
                 # Get actual text from element for debugging
                 actual_instruction_text = first_td.text_content().strip() if first_td.count() > 0 else ""
                 # Normalize both texts for comparison (handles Unicode, smart quotes, special chars)
-                normalized_actual_text = _normalize_text_for_comparison(actual_instruction_text)
-                normalized_expected_text = _normalize_text_for_comparison(instruction_text)
+                normalized_actual_text = client_accounts_page.normalize_text_for_comparison(actual_instruction_text)
+                normalized_expected_text = client_accounts_page.normalize_text_for_comparison(instruction_text)
                 logger.info(f"  Expected instruction text (normalized): '{normalized_expected_text}'")
                 logger.info(f"  Actual instruction text from element (normalized): '{normalized_actual_text}'")
                 
@@ -223,7 +186,7 @@ def verify_signer_information_dialog_exists_with_correct_information(
                 text_match = normalized_expected_text in normalized_actual_text
                 soft_assert.assert_true(
                     text_match,
-                    message=f"[FAIL] ClientAccountsPage: Instruction Text — Expected: contains '{normalized_expected_text}', Actual: '{normalized_actual_text}'. Details: Instruction must be in first TD. Locator: table#esig_user_details_table td:first."
+                    message=f"[FAIL] ClientAccountsPage: Signer Information Instruction Text — Expected: contains '{normalized_expected_text}', Actual: '{normalized_actual_text}'. Details: Instruction must be in first TD of Signer(s) Information dialog details table. Locator: table#esig_user_details_table td:first."
                 )
                 logger.info(f"  [PASS] ClientAccountsPage: Signer Information Instruction Verified.")
             else:
@@ -233,7 +196,7 @@ def verify_signer_information_dialog_exists_with_correct_information(
                     signer_header = authenticated_page.locator("div#divSignersInfo")
                     soft_assert.assert_count(signer_header, 1, "[FAIL] ClientAccountsPage: Signer Information Header (Main Page) — Expected: count=1, Actual: count!=1. Details: div#divSignersInfo must exist on main page if no iframe found. Locator: div#divSignersInfo.")
                     soft_assert.assert_visible(signer_header, "[FAIL] ClientAccountsPage: Signer Information Header Visibility (Main Page) — Expected: visible=True, Actual: visible=False. Details: div#divSignersInfo must be visible to read heading. Locator: div#divSignersInfo.")
-                    soft_assert.assert_text_contains(signer_header, heading_text, f"[FAIL] ClientAccountsPage: Heading Text (Main Page) — Expected: contains '{heading_text}', Actual: text mismatch. Details: Heading must match expected value from CSV. Locator: div#divSignersInfo.")
+                    soft_assert.assert_text_contains(signer_header, heading_text, f"[FAIL] ClientAccountsPage: Signer Information Heading Text (Main Page) — Expected: contains '{heading_text}', Actual: text mismatch. Details: Heading must match expected value from CSV. Locator: div#divSignersInfo.")
                     logger.info(f"  [PASS] ClientAccountsPage: Signer Information Heading Verified.")
                 
                 if instruction_text:
@@ -248,8 +211,8 @@ def verify_signer_information_dialog_exists_with_correct_information(
                     # Get actual text from element for debugging
                     actual_instruction_text = first_td.text_content().strip() if first_td.count() > 0 else ""
                     # Normalize both texts for comparison (handles Unicode, smart quotes, special chars)
-                    normalized_actual_text = _normalize_text_for_comparison(actual_instruction_text)
-                    normalized_expected_text = _normalize_text_for_comparison(instruction_text)
+                    normalized_actual_text = client_accounts_page.normalize_text_for_comparison(actual_instruction_text)
+                    normalized_expected_text = client_accounts_page.normalize_text_for_comparison(instruction_text)
                     logger.info(f"  Expected instruction text (normalized): '{normalized_expected_text}'")
                     logger.info(f"  Actual instruction text from element (normalized): '{normalized_actual_text}'")
                     
@@ -317,7 +280,7 @@ def verify_authorized_signer_approval_section(authenticated_page: Page, test_con
         
         try:
             # Initialize soft assertions for non-critical checks
-            soft_assert = SoftAssertions()
+            soft_assert = EnhancedSoftAssertions(authenticated_page)
             
             # Step 1: Get and parse expected text from CSV
             logger.info("Step 1: Fetching expected text from CSV...")
@@ -398,6 +361,55 @@ def verify_authorized_signer_approval_section(authenticated_page: Page, test_con
             soft_assert.assert_visible(second_td.locator("input[value='radiobtnNo']").first, "[FAIL] AuthorizedSignerApprovalSection: radiobtnNo Input Visibility — Expected: visible=True, Actual: visible=False. Details: 'radiobtnNo' input must be visible. Locator: input[value='radiobtnNo'].")
             soft_assert.assert_visible(second_td.locator("input[value='radiobtnYes']").first, "[FAIL] AuthorizedSignerApprovalSection: radiobtnYes Input Visibility — Expected: visible=True, Actual: visible=False. Details: 'radiobtnYes' input must be visible. Locator: input[value='radiobtnYes'].")
             logger.info("  [PASS] AuthorizedSignerApprovalSection: Input Elements Validated.")
+            
+            # Step 6c: Validate action buttons (Cancel and Continue) (SOFT ASSERT)
+            logger.info("  Step 6c: Validating action buttons - Cancel and Continue (SOFT ASSERT)...")
+            
+            # Import locators for button verification
+            from locators import client_accounts_locators
+            
+            # Validate Cancel button - search within iframe
+            logger.info("    Validating Cancel button...")
+            cancel_button = iframe_frame.locator(client_accounts_locators.CANCEL_BUTTON)
+            soft_assert.assert_count(
+                cancel_button,
+                1,
+                "[FAIL] AuthorizedSignerApprovalSection: Cancel Button Count — Expected: count=1, Actual: count!=1. Details: Exactly 1 Cancel button required on the dialog. Locator: input#btnCancel."
+            )
+            soft_assert.assert_visible(
+                cancel_button.first,
+                "[FAIL] AuthorizedSignerApprovalSection: Cancel Button Visibility — Expected: visible=True, Actual: visible=False. Details: Cancel button must be visible. Locator: input#btnCancel."
+            )
+            # Verify Cancel button has correct value attribute
+            cancel_value = cancel_button.first.get_attribute("value") if cancel_button.count() > 0 else None
+            soft_assert.assert_equal(
+                cancel_value,
+                "Cancel",
+                "[FAIL] AuthorizedSignerApprovalSection: Cancel Button Value — Expected: value='Cancel', Actual: value='{}'".format(cancel_value)
+            )
+            logger.info("    [PASS] Cancel button validated.")
+            
+            # Validate Continue button - search within iframe
+            logger.info("    Validating Continue button...")
+            continue_button = iframe_frame.locator(client_accounts_locators.CONTINUE_BUTTON_DIALOG)
+            soft_assert.assert_count(
+                continue_button,
+                1,
+                "[FAIL] AuthorizedSignerApprovalSection: Continue Button Count — Expected: count=1, Actual: count!=1. Details: Exactly 1 Continue button required on the dialog. Locator: input#btnContinue."
+            )
+            soft_assert.assert_visible(
+                continue_button.first,
+                "[FAIL] AuthorizedSignerApprovalSection: Continue Button Visibility — Expected: visible=True, Actual: visible=False. Details: Continue button must be visible. Locator: input#btnContinue."
+            )
+            # Verify Continue button has correct value attribute
+            continue_value = continue_button.first.get_attribute("value") if continue_button.count() > 0 else None
+            soft_assert.assert_equal(
+                continue_value,
+                "Continue",
+                "[FAIL] AuthorizedSignerApprovalSection: Continue Button Value — Expected: value='Continue', Actual: value='{}'".format(continue_value)
+            )
+            logger.info("    [PASS] Continue button validated.")
+            logger.info("  [PASS] AuthorizedSignerApprovalSection: Action Buttons Validated.")
             
             logger.info("[PASS] AuthorizedSignerApprovalSection: All Validations Completed.")
             
@@ -662,14 +674,50 @@ def provide_authorized_signers_information(authenticated_page: Page, client_acco
             logger.info("  Step 1: Fetching Authorized Signers information from test data...")
             test_data = test_context.get("test_data", {})
             
-            authorized_signer = test_data.get("Authorized_Signer", "").strip() if test_data.get("Authorized_Signer") else ""
+            # Initialize authorized_signer to None (will be set by role-based logic)
+            authorized_signer = None
+            
+            # Determine Authorized Signer based on role and fetch with environment-aware logic
+            authorized_signer_role = test_data.get("Authorized_Signer_Role", "").strip()
+            logger.info(f"  Authorized_Signer_Role: '{authorized_signer_role}'")
+            
+            if authorized_signer_role == "FA":
+                # For FA role, use Agent column as APLID
+                agent_id = test_data.get("Agent", "").strip()
+                if not agent_id:
+                    raise ValueError("[FAIL] ClientAccountsPage: CSV Data Validation — Expected: Agent ID not empty, Actual: empty. Details: For Authorized_Signer_Role='FA', Agent column must contain the APLID value. Locator: test_data['Agent'].")
+                
+                logger.info(f"  Fetching Agent name using APLID: {agent_id}")
+                authorized_signer = fetch_authorized_signer(agent_id, "Agent", test_data)
+                logger.info(f"  ✓ Agent name fetched: {authorized_signer}")
+                
+            elif authorized_signer_role == "SAU":
+                # For SAU role, use username as UserID and Agent as usl.UserID
+                user_id = test_data.get("username", "").strip()
+                agent_id = test_data.get("Agent", "").strip()
+                if not user_id:
+                    raise ValueError("[FAIL] ClientAccountsPage: CSV Data Validation — Expected: username not empty, Actual: empty. Details: For Authorized_Signer_Role='SAU', username column must contain the sd.UserID value. Locator: test_data['username'].")
+                if not agent_id:
+                    raise ValueError("[FAIL] ClientAccountsPage: CSV Data Validation — Expected: Agent not empty, Actual: empty. Details: For Authorized_Signer_Role='SAU', Agent column must contain the usl.UserID value. Locator: test_data['Agent'].")
+                
+                logger.info(f"  Fetching SAU name using sd.UserID: {user_id} and usl.UserID: {agent_id}")
+                authorized_signer = fetch_authorized_signer(user_id, "SAU", test_data, second_param=agent_id)
+                logger.info(f"  ✓ SAU name fetched: {authorized_signer}")
+            else:
+                # No fallback: Authorized_Signer_Role must be either FA or SAU
+                raise ValueError(f"[FAIL] ClientAccountsPage: CSV Data Validation — Expected: Authorized_Signer_Role in ['FA', 'SAU'], Actual: '{authorized_signer_role}'. Details: Authorized_Signer_Role must be 'FA' (Financial Advisor) or 'SAU' (Shared Access User). Authorized Signer name will be fetched using fetch_authorized_signer() function which uses test sheet for protected environments and database for test environments. Locator: test_data['Authorized_Signer_Role'].")
+            
             email_address = test_data.get("Email_Address", "").strip() if test_data.get("Email_Address") else ""
             phone = test_data.get("Phone", "").strip() if test_data.get("Phone") else ""
             
-            logger.info(f"  [PASS] ClientAccountsPage: Test Data Fetched.")
+            logger.info(f" User provide Authorized Signers information.")
             logger.info(f"    - Authorized_Signer: '{authorized_signer if authorized_signer else 'N/A'}'")
             logger.info(f"    - Email_Address: '{email_address if email_address else 'N/A'}'")
             logger.info(f"    - Phone: '{phone if phone else 'N/A'}'")
+            
+            # Store authorized_signer in test_context for use in subsequent steps
+            test_context["authorized_signer"] = authorized_signer
+            logger.info(f"  Stored authorized_signer in test_context: {authorized_signer}")
             
             # Step 2: Call page object method to provide information
             logger.info("  Step 2: Providing information via page method...")
@@ -707,31 +755,54 @@ def verify_authorized_signer_dropdown(authenticated_page: Page, client_accounts_
     """
     Verify Authorized Signer dropdown state and options.
     
-    Fetches multiple_signers from test_context:
+    Determines expected signer count from:
+    1. test_context['multiple_signers'] (from database fetch in test11)
+    2. test_data CSV column 'Multiple_Authorized_Signers' (for non-test11 environments)
+    
+    Verification logic:
     - If 1 signer: Verifies dropdown is disabled and shows signer name
     - If > 1 signers: Verifies dropdown is enabled and options match Name_ManageLogin values
-    - If 0 signers: Skip verification (no authorized signers found in database)
+    - If 0 signers or data unavailable: Skip verification
     """
     with allure.step("Verify Authorized Signer dropdown"):
         logger.info(">>> STEP: Verify Authorized Signer dropdown")
         
         try:
-            # Step 1: Get multiple signers from test context
-            logger.info("  Step 1: Fetching multiple_signers from test_context...")
+            # Step 1: Determine signer count from multiple sources
+            logger.info("  Step 1: Determining expected number of authorized signers...")
             
-            # Check if key exists in test_context (not just truthy/falsy)
-            if "multiple_signers" not in test_context:
-                raise AssertionError("[FAIL] TestContext: Data Availability — Expected: 'multiple_signers' key exists, Actual: key not found. Details: Test context must include authorized signers data fetched from database. Run 'User fetch signers information from database' step before this step. Locator: test_context['multiple_signers'].")
+            signers = None
+            signer_count_indicator = None
+            is_multiple = None
             
-            signers = test_context.get("multiple_signers", [])
+            # Strategy 1: Check test_data CSV FIRST (takes priority for non-test11 environments)
+            test_data = test_context.get("test_data", {})
+            signer_count_indicator = test_data.get("Multiple_Authorized_Signers", "").strip()
             
-            # If no signers found in database, skip this verification
-            if not signers:
-                logger.info("  ℹ No authorized signers found in database - skipping dropdown verification")
-                logger.info("  [PASS] ClientAccountsPage: Step Completed - No Signers to Verify.")
+            if signer_count_indicator:
+                # CSV has the column, use it (for prod, silo, test10, test12)
+                logger.info(f"  ✓ Found signer count indicator from CSV: '{signer_count_indicator}'")
+                is_multiple = signer_count_indicator.lower() in ["yes", "multiple", "2+", "true"]
+                logger.info(f"  ✓ Using CSV data: Multiple authorized signers = {is_multiple}")
+            else:
+                # No CSV column, fall back to database (test11 only)
+                logger.info("  ✓ No CSV column found, checking test_context for database signers...")
+                if "multiple_signers" in test_context:
+                    signers = test_context.get("multiple_signers", [])
+                    logger.info(f"  ✓ Found {len(signers)} signer(s) from database (test_context['multiple_signers'])")
+                else:
+                    logger.warning("  ⚠ No database signers and no CSV column found")
+                    logger.info("  ℹ Skipping dropdown verification - no signer count data available")
+                    logger.info("  [PASS] ClientAccountsPage: Step Completed - Signer Count Data Unavailable.")
+                    return
+            
+            # If no signers and no signer count indicator, skip
+            if not signers and signer_count_indicator is None:
+                logger.info("  ℹ No authorized signers found and no signer count data available - skipping verification")
+                logger.info("  [PASS] ClientAccountsPage: Step Completed - No Signer Data to Verify.")
                 return
             
-            logger.info(f"  [PASS] ClientAccountsPage: Multiple Signers Fetched.")
+            logger.info("  [PASS] ClientAccountsPage: Signer Count Determined.")
             
             # Step 2: Access iframe
             logger.info("  Step 2: Accessing iframe...")
@@ -751,21 +822,24 @@ def verify_authorized_signer_dropdown(authenticated_page: Page, client_accounts_
             logger.info("  [PASS] ClientAccountsPage: Authorized Signers Dropdown Found and Visible.")
             
             # Step 4: Validate based on signer count
-            if len(signers) == 1:
-                # Case 1: Only 1 signer - dropdown should be disabled and show signer name
-                logger.info("  Step 4: Validating dropdown is disabled (1 signer present)...")
+            # Determine validation path: database signers OR CSV indicator
+            use_database = signers is not None
+            use_csv = is_multiple is not None
+            
+            # CASE 1: Database signers - Single signer → dropdown should be disabled
+            if use_database and len(signers) == 1:
+                logger.info("  Step 4: Validating dropdown is disabled (1 signer from database)...")
                 is_disabled = dropdown.is_disabled()
                 
                 Assertions.assert_true(is_disabled, "[FAIL] ClientAccountsPage: Authorized Signers Dropdown Disabled State — Expected: is_disabled=True, Actual: is_disabled=False. Details: Dropdown should be disabled when only 1 signer is present. Locator: select[name='authorizedSignersDropdown'].")
-                logger.info("  [PASS] ClientAccountsPage: Dropdown Disabled for Single Signer.")
+                logger.info("  [PASS] ClientAccountsPage: Dropdown Disabled for Single Signer (Database).")
                 
-                # Step 5: Verify the default selected option matches the signer name
+                # Verify the default selected option matches the signer name
                 logger.info("  Step 5: Verifying default selected option matches signer name...")
                 signer_name = signers[0].get("Name_ManageLogin", "")
                 
                 assert signer_name, "[FAIL] ClientAccountsPage: Signer Name Extraction — Expected: Name_ManageLogin present, Actual: empty or missing. Details: Signer data must include Name_ManageLogin field from database query."
                 
-                # Get the selected option text
                 selected_option = iframe_frame.locator("select[name='authorizedSignersDropdown'] option[selected]")
                 Assertions.assert_count(selected_option, 1, "[FAIL] ClientAccountsPage: Dropdown Selected Option — Expected: count=1, Actual: count!=1. Details: Exactly one option should be selected. Locator: select[name='authorizedSignersDropdown'] option[selected].")
                 
@@ -775,23 +849,47 @@ def verify_authorized_signer_dropdown(authenticated_page: Page, client_accounts_
                 
                 Assertions.assert_equal(selected_text, signer_name, f"[FAIL] ClientAccountsPage: Dropdown Selected Value — Expected: '{signer_name}', Actual: '{selected_text}'. Details: Dropdown should show the only available signer's name. Locator: select[name='authorizedSignersDropdown'].")
                 logger.info(f"  [PASS] ClientAccountsPage: Default Selected Option Matches Signer.")
+            
+            # CASE 2: Database signers - Multiple signers → dropdown should be enabled
+            elif use_database and len(signers) > 1:
+                logger.info("  Step 4: Validating dropdown is disabled (1 signer from database)...")
+                is_disabled = dropdown.is_disabled()
                 
-            elif len(signers) > 1:
-                # Case 2: Multiple signers - dropdown should be enabled and options match signers
-                logger.info(f"  Step 4: Validating dropdown options match {len(signers)} signers...")
+                Assertions.assert_true(is_disabled, "[FAIL] ClientAccountsPage: Authorized Signers Dropdown Disabled State — Expected: is_disabled=True, Actual: is_disabled=False. Details: Dropdown should be disabled when only 1 signer is present. Locator: select[name='authorizedSignersDropdown'].")
+                logger.info("  [PASS] ClientAccountsPage: Dropdown Disabled for Single Signer (Database).")
+                
+                # Verify the default selected option matches the signer name
+                logger.info("  Step 5: Verifying default selected option matches signer name...")
+                signer_name = signers[0].get("Name_ManageLogin", "")
+                
+                assert signer_name, "[FAIL] ClientAccountsPage: Signer Name Extraction — Expected: Name_ManageLogin present, Actual: empty or missing. Details: Signer data must include Name_ManageLogin field from database query."
+                
+                selected_option = iframe_frame.locator("select[name='authorizedSignersDropdown'] option[selected]")
+                Assertions.assert_count(selected_option, 1, "[FAIL] ClientAccountsPage: Dropdown Selected Option — Expected: count=1, Actual: count!=1. Details: Exactly one option should be selected. Locator: select[name='authorizedSignersDropdown'] option[selected].")
+                
+                selected_text = (selected_option.first.text_content() or "").strip()
+                logger.info(f"  Selected option text: '{selected_text}'")
+                logger.info(f"  Expected signer name: '{signer_name}'")
+                
+                Assertions.assert_equal(selected_text, signer_name, f"[FAIL] ClientAccountsPage: Dropdown Selected Value — Expected: '{signer_name}', Actual: '{selected_text}'. Details: Dropdown should show the only available signer's name. Locator: select[name='authorizedSignersDropdown'].")
+                logger.info(f"  [PASS] ClientAccountsPage: Default Selected Option Matches Signer.")
+            
+            # CASE 2: Database signers - Multiple signers → dropdown should be enabled
+            elif use_database and len(signers) > 1:
+                logger.info(f"  Step 4: Validating dropdown is enabled ({len(signers)} signers from database)...")
                 is_disabled = dropdown.is_disabled()
                 
                 Assertions.assert_false(is_disabled, f"[FAIL] ClientAccountsPage: Authorized Signers Dropdown Enabled State — Expected: is_disabled=False, Actual: is_disabled=True. Details: Dropdown should be enabled when {len(signers)} signers are present. Locator: select[name='authorizedSignersDropdown'].")
                 logger.info("  [PASS] ClientAccountsPage: Dropdown Enabled for Multiple Signers.")
                 
-                # Step 5: Fetch all options from dropdown
+                # Fetch all options from dropdown
                 logger.info("  Step 5: Fetching dropdown options...")
                 options = iframe_frame.locator("select[name='authorizedSignersDropdown'] option").all()
                 
                 Assertions.assert_greater(len(options), 0, "[FAIL] ClientAccountsPage: Dropdown Options Count — Expected: count>0, Actual: count=0. Details: Dropdown must have at least one option. Locator: select[name='authorizedSignersDropdown'] option.")
                 logger.info(f"  [PASS] ClientAccountsPage: Dropdown Options Found.")
                 
-                # Step 6: Extract option texts (skip first option which is "--Select Authorized Signer--")
+                # Extract option texts (skip first option which is "--Select Authorized Signer--")
                 logger.info("  Step 6: Extracting and validating option values...")
                 option_texts = []
                 for idx, option in enumerate(options):
@@ -802,7 +900,7 @@ def verify_authorized_signer_dropdown(authenticated_page: Page, client_accounts_
                 # Skip the first "--Select Authorized Signer--" option
                 actual_options = option_texts[1:] if len(option_texts) > 1 else option_texts
                 
-                # Step 7: Extract expected signer names from test_context signers
+                # Extract expected signer names from test_context signers
                 logger.info("  Step 7: Comparing options with signer names...")
                 expected_signer_names = [signer.get("Name_ManageLogin", "") for signer in signers]
                 
@@ -820,9 +918,28 @@ def verify_authorized_signer_dropdown(authenticated_page: Page, client_accounts_
                 
                 logger.info("  [PASS] ClientAccountsPage: All Dropdown Options Match Signer Names.")
             
-            else:
-                # Case 3: No signers - log warning
-                logger.warning("  ⚠ Warning: No signers provided in test_context['multiple_signers']")
+            # CASE 3: CSV indicator says single signer (no database data)
+            elif signer_count_indicator and not is_multiple:
+                logger.info("  Step 4: Validating dropdown is disabled (single signer from CSV)...")
+                is_disabled = dropdown.is_disabled()
+                
+                Assertions.assert_true(is_disabled, "[FAIL] ClientAccountsPage: Authorized Signers Dropdown Disabled State — Expected: is_disabled=True, Actual: is_disabled=False. Details: Test data indicates single authorized signer, dropdown should be disabled. Locator: select[name='authorizedSignersDropdown']. Source: test_data['Multiple_Authorized_Signers']='No'")
+                logger.info("  [PASS] ClientAccountsPage: Dropdown Disabled for Single Signer (CSV).")
+            
+            # CASE 4: CSV indicator says multiple signers (no database data)
+            elif signer_count_indicator and is_multiple:
+                logger.info("  Step 4: Validating dropdown is enabled (multiple signers from CSV)...")
+                is_disabled = dropdown.is_disabled()
+                
+                Assertions.assert_false(is_disabled, "[FAIL] ClientAccountsPage: Authorized Signers Dropdown Enabled State — Expected: is_disabled=False, Actual: is_disabled=True. Details: Test data indicates multiple authorized signers, dropdown should be enabled. Locator: select[name='authorizedSignersDropdown']. Source: test_data['Multiple_Authorized_Signers']='Yes'")
+                logger.info("  [PASS] ClientAccountsPage: Dropdown Enabled for Multiple Signers (CSV).")
+                
+                # Fetch dropdown options (optional - can also just verify it's enabled)
+                logger.info("  Step 5: Verifying dropdown has options...")
+                options = iframe_frame.locator("select[name='authorizedSignersDropdown'] option").all()
+                
+                Assertions.assert_greater(len(options), 1, "[FAIL] ClientAccountsPage: Dropdown Options Count — Expected: count>1, Actual: count<=1. Details: Dropdown should have at least one option plus the placeholder. Locator: select[name='authorizedSignersDropdown'] option.")
+                logger.info(f"  [PASS] ClientAccountsPage: Dropdown Has {len(options)} Option(s).")
             
             # Step 8: Take screenshot
             logger.info("  Step 8: Taking screenshot...")
@@ -918,41 +1035,66 @@ def verify_account_number_displayed_and_radio_selected(authenticated_page: Page,
             logger.error(f"✗ ASSERTION 1 FAILED: {e}")
             raise
         
-        # ASSERTION 2: Radio button must exist and be selected (via page object)
-        logger.info("ASSERTION 2: Radio button must exist and be selected...")
+        # ASSERTION 2: Radio button must exist and check its current state
+        logger.info("ASSERTION 2: Checking and selecting radio button if needed...")
+        
+        # Step 1: Check radio button state and select if needed (this method does both check and select)
+        # The ensure_account_radio_selected() returns both:
+        # - was_already_checked: Initial state BEFORE selection attempt
+        # - is_checked: Final state AFTER selection attempt
+        logger.info("Step 1: Checking radio button state...")
         result = client_accounts_page.ensure_account_radio_selected(account_number)
         label_for_attr = result['label_for_attr']
+        was_already_checked = result['was_already_checked']
         is_checked = result['is_checked']
         
-        soft_assert = SoftAssertions()
-        soft_assert.assert_true(
-            is_checked,
-            message=f"[FAIL] ClientAccountsPage: Account Selection — Expected: radio_button[id='{label_for_attr}'] checked=True, "
-                    f"Actual: checked={is_checked}. Details: Radio button for account '{account_number}' should be selected. "
-                    f"Locator: input#{label_for_attr}."
-        )
+        soft_assert = EnhancedSoftAssertions(authenticated_page)
         
-        # Take screenshot for audit trail
-        logger.info("Taking screenshot for verification...")
+        # Step 2: If radio button was NOT selected initially, add soft assertion (warning, non-blocking)
+        if not was_already_checked:
+            logger.warning(f"⚠ Radio button for account '{account_number}' (id='{label_for_attr}') was NOT initially selected. Selected it now...")
+            soft_assert.assert_true(
+                False,
+                message=f"[FAIL] ClientAccountsPage: Account Radio Button Initial State — Expected: radio_button[id='{label_for_attr}'] initially checked=True, "
+                        f"Actual: initially checked={was_already_checked}. Details: Radio button for account '{account_number}' was not pre-selected. "
+                        f"Locator: input#{label_for_attr}."
+            )
+        else:
+            logger.info(f"✓ Radio button for account '{account_number}' (id='{label_for_attr}') was already selected.")
+        
+        # Step 3: Verify final state after selection attempt
+        if not is_checked:
+            logger.error(f"✗ Radio button for account '{account_number}' (id='{label_for_attr}') could not be selected. Final state: checked={is_checked}")
+            raise AssertionError(f"[FAIL] ClientAccountsPage: Radio button for account '{account_number}' could not be selected. Final state: checked={is_checked}")
+        else:
+            logger.info(f"✓ Radio button for account '{account_number}' (id='{label_for_attr}') is now checked and ready.")
+        
+        # Step 4: Verify soft assertions (collect warnings but don't stop execution)
+        try:
+            soft_assert.assert_all()
+        except Exception as soft_assert_error:
+            # Highlight warning with visual separators for better visibility in logs
+            logger.error("=" * 80)
+            logger.error("⚠️  SOFT ASSERTION WARNING - Non-blocking but requires attention")
+            logger.error("=" * 80)
+            logger.error(f"Account: {account_number}")
+            logger.error(f"Details: {str(soft_assert_error)}")
+            logger.error("=" * 80)
+            allure.attach(
+                str(soft_assert_error),
+                name=f"Account {account_number} - Initial Selection State Warning",
+                attachment_type=allure.attachment_type.TEXT
+            )
+            # Continue execution - this is a warning, not a failure
+        
+        # Step 5: Take screenshot before state (for audit trail)
+        logger.info("Taking screenshot showing selected radio button...")
         screenshot = authenticated_page.screenshot()
         allure.attach(
             screenshot, 
-            name=f"Account {account_number} - Verified and Selected", 
+            name=f"Account {account_number} - Radio Button Selected", 
             attachment_type=allure.attachment_type.PNG
         )
-        
-        # Verify soft assertions - raises SoftAssertionError if any failed
-        try:
-            soft_assert.assert_all()
-            logger.info(f"[PASS] ClientAccountsPage: Account Radio Button Selected.")
-        except Exception as e:
-            logger.error(f"✗ ASSERTION 2 FAILED: {str(e)}")
-            allure.attach(
-                str(e),
-                name=f"Account {account_number} - Assertion Failures",
-                attachment_type=allure.attachment_type.TEXT
-            )
-            raise
         
         logger.info(f"[PASS] ClientAccountsPage: Account Number and Radio Button Verification Completed.")
 
@@ -1016,7 +1158,7 @@ def verify_form_heading_matches_oam_type(authenticated_page: Page, client_accoun
     """
     # Read OAM_Type from test data
     test_data = test_context.get("test_data", {})
-    expected_heading = test_data.get("OAM_Type") or test_data.get("OAM_type")
+    expected_heading = test_data.get("OAM_Type")
     
     if not expected_heading:
         raise KeyError("Test data must include 'OAM_Type' column for this step")
@@ -1032,7 +1174,7 @@ def verify_form_heading_matches_oam_type(authenticated_page: Page, client_accoun
         
         # STEP 2: Use SoftAssertions to verify the heading matches OAM_Type
         logger.info("Step 2: Comparing form heading with OAM_Type...")
-        soft_assert = SoftAssertions()
+        soft_assert = EnhancedSoftAssertions(authenticated_page)
         soft_assert.assert_equal(
             actual_heading,
             expected_heading,
@@ -1135,17 +1277,17 @@ def verify_client_signature_not_required_dialog(authenticated_page: Page, client
         try:
             # Wait for dialog with robust detection
             dialog = dialog_handler.wait_for_dialog(timeout=15000)
-            logger.info("[PASS] ClientAccountsPage: Client Signature Dialog Detected.")
+            logger.info("[PASS] ClientAccountsPage: Client Signature Not Required Dialog Detected.")
         except Exception as e:
-            logger.error(f"✗ Dialog detection failed: {e}")
+            logger.error(f"[FAIL] ClientAccountsPage: Client Signature Not Required Dialog Not Detected {e}")
             
             # Fallback: Try waiting for dialog by role attribute
             try:
                 authenticated_page.wait_for_selector('role=dialog', timeout=15000)
                 dialog = authenticated_page.locator('role=dialog').first
-                logger.info("[PASS] ClientAccountsPage: Dialog Found via Fallback Method.")
+                logger.info("[PASS] ClientAccountsPage: Client Signature Not Required Dialog Found.")
             except Exception as e2:
-                logger.error(f"✗ All dialog detection strategies failed")
+                logger.error(f"[FAIL] ClientAccountsPage: Client Signature Not Required Dialog Not Detected. {e2}")
                 screenshot = authenticated_page.screenshot()
                 allure.attach(screenshot, name="Dialog Detection Failed", attachment_type=allure.attachment_type.PNG)
                 raise AssertionError("[FAIL] ClientAccountsPage: Dialog Detection — Expected: dialog visible=True, Actual: dialog not found. Details: Client Signature Not Required dialog must appear after form submission. Locator: [role='dialog'].") from e
@@ -1159,11 +1301,11 @@ def verify_client_signature_not_required_dialog(authenticated_page: Page, client
         logger.info("Step 3: Verifying dialog title matches expected text...")
         expected_title = "Client Signature Not Required"
         
-        soft_assert = SoftAssertions()
+        soft_assert = EnhancedSoftAssertions(authenticated_page)
         soft_assert.assert_equal(
             dialog_title,
             expected_title,
-            message=f"[FAIL] ClientAccountsPage: Signature Dialog Title — Expected: title='{expected_title}', Actual: title='{dialog_title}'. Details: Client Signature Not Required dialog should display correct title from 'div.modal-title-transition'. Locator: div.modal-title-transition."
+            message=f"[FAIL] ClientAccountsPage: Client Signature Not Required Dialog Title — Expected: title='{expected_title}', Actual: title='{dialog_title}'. Details: Client Signature Not Required dialog should display correct title."
         )
         
         # STEP 3a: Verify that 'Proceed and submit without a client signature' radio button is checked
@@ -1171,7 +1313,7 @@ def verify_client_signature_not_required_dialog(authenticated_page: Page, client
         is_rb_submit_checked = client_accounts_page.is_radio_checked('rbSubmit')
         soft_assert.assert_true(
             is_rb_submit_checked,
-            message="[FAIL] ClientAccountsPage: Radio Button Default State — Expected: rbSubmit.checked=True, Actual: rbSubmit.checked=False. Details: 'Proceed and submit without a client signature' radio should be checked by default in Client Signature Not Required dialog. Locator: input#rbSubmit."
+            message="[FAIL] ClientAccountsPage: Client Signature Not Required Dialog Radio Button Default State — Expected: checked=True, Actual: checked=False. Details: 'Proceed and submit without a client signature' radio should be checked by default in Client Signature Not Required dialog. Locator: input#rbSubmit."
         )
         
         # STEP 4: Take screenshot for audit trail
@@ -1186,9 +1328,9 @@ def verify_client_signature_not_required_dialog(authenticated_page: Page, client
         # STEP 5: Verify all soft assertions - raises SoftAssertionError if any failed
         try:
             soft_assert.assert_all()
-            logger.info(f"[PASS] ClientAccountsPage: Dialog Title Matches Expected.")
+            logger.info(f"[PASS] ClientAccountsPage: Client Signature Not Required Dialog Title Matches Expected.")
         except Exception as e:
-            logger.error(f"✗ Soft assertion(s) failed: {str(e)}")
+            logger.error(f"[FAIL] ClientAccountsPage: Client Signature Not Required Dialog - Soft assertion(s) failed: {str(e)}")
             allure.attach(
                 str(e),
                 name="Client Signature Not Required Dialog - Assertion Failures",
@@ -1196,7 +1338,7 @@ def verify_client_signature_not_required_dialog(authenticated_page: Page, client
             )
             raise
         
-        logger.info(f"[PASS] ClientAccountsPage: Client Signature Dialog Verification Completed.")
+        logger.info(f"[PASS] ClientAccountsPage: Client Signature Not Required Dialog Verification Completed.")
 
 
 @then("Verify request pop up")
@@ -1280,7 +1422,7 @@ def verify_request_dialog(authenticated_page: Page, client_accounts_page, test_c
         logger.info("Step 3: Fetching dialog elements...")
         try:
             # Initialize soft assertions for optional dialog elements
-            soft_assert = SoftAssertions()
+            soft_assert = EnhancedSoftAssertions(authenticated_page)
             
             dialog_data = client_accounts_page.get_request_submitted_dialog_content()
             

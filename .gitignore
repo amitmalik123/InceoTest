@@ -96,3 +96,4 @@ reports/*.png
 .scannerwork/
 .sonar/
 sonar-project.properties.bak
+.vscode/mcp.json

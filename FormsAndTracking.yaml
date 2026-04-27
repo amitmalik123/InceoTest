@@ -44,6 +44,7 @@ parameters:
       - silo
       - prod
       - qa
+      - test10
 
   - name: marker
     displayName: "Pytest Marker to Run"
@@ -51,6 +52,12 @@ parameters:
     default: "FNT_regression"
     values:
       - FNT_regression
+      - Silo_Regression
+      - Smoke
+      - HappyPath
+      - T10_Regression
+      - SiloRegression_OneCleanUp
+      - Prod_Regression
 
   - name: workers
     displayName: "Number of Parallel Workers"

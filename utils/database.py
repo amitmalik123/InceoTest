@@ -619,14 +619,109 @@ def get_azure_db_connection(**kwargs) -> SQLDatabase:
     """
     return SQLDatabase(**kwargs)
 
-def fetch_agent_name_by_aplid_from_db(aplid: str, role: str) -> Optional[str]:
+
+def fetch_authorized_signer(
+    aplid: str, 
+    role: str, 
+    test_data: dict,
+    second_param: Optional[str] = None
+) -> str:
     """
-    Fetch user name from database by APLID/UserID based on role.
+    Fetch authorized signer name with environment-aware data source selection.
+    
+    For production, silo, and test10 environments: Returns value from test sheet (test_data)
+    For other environments (test11, test12): Queries the database
+    
+    This function implements the strategy to avoid direct database access for protected
+    environments while using test data for those environments.
+    
+    Args:
+        aplid: User identifier (APLID for Agent role, UserID for SAU role)
+        role: User role - 'Agent'/'FA' or 'SAU'/'Shared Access User'
+        test_data: Dictionary containing test data row with 'Authorized_Signer_Role_Name' column
+        second_param: (OPTIONAL) Second parameter required for SAU queries (Agent UserID)
+        
+    Returns:
+        Authorized signer name from either test sheet or database
+        
+    Raises:
+        ValueError: If authorized signer not found in test data for protected environments
+        PermissionError: If attempting database access to restricted environments (handled by fetch_agent_name_by_aplid_from_db)
+        
+    Example:
+        >>> test_data = {"Authorized_Signer_Role_Name": "John Smith", "APLID": "123456"}
+        >>> name = fetch_authorized_signer("123456", "Agent", test_data)
+        >>> print(name)  # "John Smith"
+        
+        >>> # For SAU with two parameters
+        >>> name = fetch_authorized_signer("789012", "SAU", test_data, second_param="123456")
+        >>> print(name)  # "Jane Doe"
+    """
+    try:
+        settings = _get_db_settings()
+        env = settings.env.lower()
+        
+        # Target environments where test sheet is used instead of database
+        sheet_based_envs = ["prod", "production", "silo", "test10"]
+        
+        if env in sheet_based_envs:
+            # Use test sheet value for protected environments
+            signer_name = test_data.get("Authorized_Signer_Role_Name", "").strip()
+            
+            if not signer_name:
+                raise ValueError(
+                    f"Authorized_Signer_Role_Name not found in test data for {env} environment. "
+                    f"Ensure 'Authorized_Signer_Role_Name' column is populated in test_data.{env}.csv"
+                )
+            
+            logger.info(f"Using Authorized_Signer from test sheet for {env}: {signer_name}")
+            return signer_name
+        else:
+            # Use database for other environments
+            logger.info(f"Using Authorized_Signer from database for {env}")
+            
+            # For SAU role, need to pass second_param for the query
+            if second_param:
+                signer_name = fetch_agent_name_by_aplid_from_db(
+                    aplid, 
+                    role,
+                    query_name="authorized_signer_SAU_name_ManageLogin_by_UserID",
+                    second_param=second_param
+                )
+            else:
+                signer_name = fetch_agent_name_by_aplid_from_db(aplid, role)
+            
+            if not signer_name:
+                raise ValueError(
+                    f"Authorized_Signer not found in database for {aplid} with role {role}"
+                )
+            
+            return signer_name
+            
+    except ValueError as e:
+        logger.error(f"Error fetching Authorized_Signer: {str(e)}")
+        raise
+    except Exception as e:
+        logger.error(f"Unexpected error fetching Authorized_Signer: {str(e)}")
+        raise
+
+
+def fetch_agent_name_by_aplid_from_db(
+    aplid: str, 
+    role: str, 
+    query_name: Optional[str] = None,
+    id_type: Optional[str] = None,
+    second_param: Optional[str] = None
+) -> Optional[str]:
+    """
+    Fetch user name from database by APLID/UserID based on role or custom query.
     
     Supports fetching names for both Agent and Shared Access User (SAU) roles.
     Uses the appropriate query from queries/sql_queries.yaml:
     - Agent (FA): 'agent.agent_name_by_aplid' - requires usl.UserID (APLID)
-    - SAU: 'agent.sau_name_by_aplid' - requires sd.UserID (UserID)
+    - SAU: 'agent.authorized_signer_SAU_name_ManageLogin_by_UserID' - requires sd.UserID and usl.UserID parameters
+    
+    If query_name is provided, it will be used directly instead of role-based mapping.
     
     Queries the AM database on SQL Server.
     
@@ -637,6 +732,15 @@ def fetch_agent_name_by_aplid_from_db(aplid: str, role: str) -> Optional[str]:
         role: User role (REQUIRED) - accepts:
               Agent: 'FA', 'fa', 'agent', 'Agent' 
               SAU: 'SAU', 'sau', 'shared access user', 'Shared Access User'
+        query_name: (OPTIONAL) Custom query name from queries/sql_queries.yaml.
+                   If provided, this query will be used instead of role-based mapping.
+                   Example: "agentName__by_aplid_from_agentTable"
+        id_type: (OPTIONAL) Description of the ID type for logging purposes.
+                If not provided, will be derived from role.
+                Example: "APLID", "UserID", "AccountNumber"
+        second_param: (OPTIONAL) Second parameter for queries that require multiple parameters.
+                     For SAU query 'authorized_signer_SAU_name_ManageLogin_by_UserID', this is usl.UserID (Agent ID).
+                     Query uses: sd.UserID = ? AND usl.UserID = second_param
         
     Returns:
         User name (Name_ManageLogin) or None if not found
@@ -647,15 +751,28 @@ def fetch_agent_name_by_aplid_from_db(aplid: str, role: str) -> Optional[str]:
         TypeError: If aplid or role is not provided
         
     Example:
-        >>> # Fetch Agent name using APLID
+        >>> # Fetch Agent name using APLID with role-based query selection
         >>> agent_name = fetch_agent_name_by_aplid_from_db("123456", role="Agent")
         >>> if agent_name:
         ...     print(f"Agent: {agent_name}")
         
-        >>> # Fetch SAU name using UserID
-        >>> sau_name = fetch_agent_name_by_aplid_from_db("789012", role="SAU")
+        >>> # Fetch SAU name with two parameters
+        >>> sau_name = fetch_agent_name_by_aplid_from_db(
+        ...     "789012",  # sd.UserID
+        ...     role="SAU",
+        ...     query_name="authorized_signer_SAU_name_ManageLogin_by_UserID",
+        ...     second_param="123456"  # usl.UserID
+        ... )
         >>> if sau_name:
         ...     print(f"Shared Access User: {sau_name}")
+        
+        >>> # Fetch using custom query name
+        >>> name = fetch_agent_name_by_aplid_from_db(
+        ...     "456789", 
+        ...     role="Agent", 
+        ...     query_name="customAgentQuery",
+        ...     id_type="CustomID"
+        ... )
     """
     try:
         # Step 1: Validate required parameters
@@ -671,15 +788,23 @@ def fetch_agent_name_by_aplid_from_db(aplid: str, role: str) -> Optional[str]:
         # Step 3: Get database settings
         settings = _get_db_settings()
         
-        # Step 4: Determine which query to use based on role
-        if role_normalized == "Agent":
-            query_name = "agentName__by_aplid_from_agentTable"
-            id_type = "APLID"
-        elif role_normalized == "SAU":
-            query_name = "sau_name_by_aplid"
-            id_type = "UserID"
+        # Step 4: Determine which query to use - prefer custom query_name if provided
+        if query_name:
+            logger.info(f"Using custom query name: {query_name}")
+            # If custom query_name provided, use it directly
+            if not id_type:
+                id_type = "ID"  # Default id_type for custom queries
         else:
-            raise ValueError(f"Invalid role: '{role}'. Use 'Agent'/'FA' or 'SAU'/'Shared Access User'.")
+            # Fallback to role-based query mapping
+            logger.info(f"Using role-based query mapping for role: {role_normalized}")
+            if role_normalized == "Agent":
+                query_name = "agentName__by_aplid_from_agentTable"
+                id_type = "APLID"
+            elif role_normalized == "SAU":
+                query_name = "sau_name_by_aplid"
+                id_type = "UserID"
+            else:
+                raise ValueError(f"Invalid role: '{role}'. Use 'Agent'/'FA' or 'SAU'/'Shared Access User'.")
         
         # Step 5: Get query from centralized queries file
         query = settings.database_queries.get("agent", {}).get("queries", {}).get(query_name)
@@ -699,7 +824,11 @@ def fetch_agent_name_by_aplid_from_db(aplid: str, role: str) -> Optional[str]:
         
         # Step 7: Execute parameterized query
         logger.info(f"Executing {query_name} query with {id_type}: {aplid}")
-        results = db.execute_query(query, params=(aplid,))
+        if second_param:
+            logger.info(f"  Additional parameter (second_param): {second_param}")
+            results = db.execute_query(query, params=(second_param, aplid))
+        else:
+            results = db.execute_query(query, params=(aplid,))
         
         # Step 8: Close database connection
         db.close()

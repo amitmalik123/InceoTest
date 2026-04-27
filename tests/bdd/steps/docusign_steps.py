@@ -9,7 +9,8 @@ from pytest_bdd import then, when, parsers
 from locators import docusign_locators
 from pages.docusign_page import DocuSignPage
 from utils.allure_logger import get_allure_logger
-from utils.assertions import Assertions, SoftAssertions
+from utils.assertions import Assertions
+from utils.soft_assertions_enhanced import EnhancedSoftAssertions
 
 logger = get_allure_logger(__name__)
 
@@ -39,7 +40,7 @@ def user_confirm_and_continue(authenticated_page: Page, test_context):
     
     # Click the Continue button
     logger.info("Clicking Continue button...")
-    docusign_page.click_ersd_continue_button(timeout=10000)
+    docusign_page.click_ersd_continue_button(timeout=30000)
     
     logger.info("[PASS] DocuSignPage: ERSD Consent Confirmed.")
 
@@ -66,7 +67,7 @@ def user_finish_the_docusign_process(authenticated_page: Page, test_context):
     
     # Click the Finish button
     logger.info("Clicking Finish button to complete DocuSign process...")
-    docusign_page.click_finish_button(timeout=10000)
+    docusign_page.click_finish_button(timeout=30000)
     
     logger.info("[PASS] DocuSignPage: DocuSign Process Finished.")
 
@@ -77,20 +78,20 @@ def user_should_be_redirected_to_docusign_page(authenticated_page: Page, docusig
     
     # Check if already on DocuSign page before waiting (page may have already loaded)
     current_url = authenticated_page.url
-    docusign_url_pattern = docusign_locators.DOCUSIGN_URL_PATTERN
+    docusign_url_patterns = docusign_locators.DOCUSIGN_URL_PATTERNS
     
-    if docusign_url_pattern in current_url:
+    if any(p in current_url for p in docusign_url_patterns):
         logger.info(f"[FAST PATH] Already on DocuSign page: {current_url}")
     else:
-        # Wait for DocuSign page to load (60 second timeout)
+        # Wait for DocuSign page to load (120 second timeout)
         logger.info("Waiting for DocuSign page to load...")
-        docusign_page.verify_docusign_page_loaded(timeout=60000)
+        docusign_page.verify_docusign_page_loaded(timeout=120000)
         current_url = authenticated_page.url
     
-    logger.info(f"Comparing current URL: {current_url} with pattern: {docusign_url_pattern}")
+    logger.info(f"Comparing current URL: {current_url} with patterns: {docusign_url_patterns}")
     
-    assert docusign_url_pattern in current_url, \
-        f"[FAIL] DocuSignPage: Page Redirect — Expected: URL contains '{docusign_url_pattern}', Actual: '{current_url}'. Details: Page must redirect to DocuSign signing interface. Locator: window.location.href."
+    assert any(p in current_url for p in docusign_url_patterns), \
+        f"[FAIL] DocuSignPage: Page Redirect — Expected: URL contains one of {docusign_url_patterns}, Actual: '{current_url}'. Details: Page must redirect to DocuSign signing interface. Locator: window.location.href."
     
     logger.info("[PASS] DocuSignPage: Page Redirection Verified.")
 
@@ -125,12 +126,12 @@ def verify_as_authorized_by_stamp_presence(authenticated_page: Page, docusign_pa
         stamping_locator = docusign_page.get_stamping_element(STAMPING_TEXT)
         
         # Use SoftAssertions utility to verify element count (non-blocking)
-        logger.info("Step 1: Verifying stamping presence using soft assertions...")
-        soft_assert = SoftAssertions()
+        logger.info("Step 1: Verifying As Authorized by stamping presence using soft assertions...")
+        soft_assert = EnhancedSoftAssertions(authenticated_page)
         soft_assert.assert_count(
             stamping_locator,
             expected_count=expected_count,
-            message=f"[FAIL] DocuSignPage: Stamping Presence — Expected: '{STAMPING_TEXT}' count={expected_count}, Actual: count != {expected_count}. Details: '{STAMPING_TEXT}' stamp should be {'PRESENT' if should_be_present else 'NOT PRESENT'} (As_authorized_by_stamp_present='{as_authorized_by_value}'). Locator: document-stamping-area."
+            message=f"[FAIL] DocuSignPage: As Authorized by Stamping Presence — Expected: '{STAMPING_TEXT}' count={expected_count}, Actual: count != {expected_count}. Details: '{STAMPING_TEXT}' stamp should be {'PRESENT' if should_be_present else 'NOT PRESENT'} (As_authorized_by_stamp_present='{as_authorized_by_value}'). Locator: document-stamping-area."
         )
         
         # Verify soft assertions
@@ -194,11 +195,39 @@ def verify_docusign_review_and_continue_dialog_text(authenticated_page: Page, do
     with allure.step("Verify Review and Continue dialog text"):
         logger.info(f"Expected text from test data: '{expected_text}'")
         
-        # STEP 1: Fetch the dialog text using page object method
-        logger.info("Step 1: Fetching dialog text...")
+        # STEP 1: Verify DocuSign page is loaded
+        logger.info("Step 1: Verifying DocuSign page is loaded...")
+        try:
+            page_obj.verify_docusign_page_loaded(timeout=120000)
+            logger.info("Step 1: DocuSign page loaded successfully")
+        except Exception as e:
+            logger.error(f"✗ Failed to load DocuSign page: {e}")
+            try:
+                screenshot = authenticated_page.screenshot()
+                allure.attach(screenshot, name="DocuSign Page Load Failed", attachment_type=allure.attachment_type.PNG)
+            except:
+                pass
+            raise
+        
+        # STEP 2: Verify ERSD modal is visible
+        logger.info("Step 2: Verifying ERSD modal is visible...")
+        try:
+            page_obj._verify_ersd_modal_visible(timeout=120000)
+            logger.info("Step 2: ERSD modal verified as visible")
+        except Exception as e:
+            logger.error(f"✗ ERSD modal not visible: {e}")
+            try:
+                screenshot = authenticated_page.screenshot()
+                allure.attach(screenshot, name="ERSD Modal Visibility Failed", attachment_type=allure.attachment_type.PNG)
+            except:
+                pass
+            raise
+        
+        # STEP 3: Fetch the dialog text using page object method
+        logger.info("Step 3: Fetching dialog text...")
         try:
             actual_text = page_obj.fetch_docusign_review_and_continue_dialog_text()
-            logger.info(f"Step 1: Dialog text fetched successfully: '{actual_text}'")
+            logger.info(f"Step 3: Dialog text fetched successfully: '{actual_text}'")
         except Exception as e:
             logger.error(f"✗ Failed to fetch dialog text: {e}")
             try:
@@ -208,17 +237,17 @@ def verify_docusign_review_and_continue_dialog_text(authenticated_page: Page, do
                 pass
             raise
         
-        # STEP 2: Use SoftAssertions to verify text matches expected value
-        logger.info("Step 2: Verifying dialog text using soft assertions...")
-        soft_assert = SoftAssertions()
+        # STEP 4: Use SoftAssertions to verify text matches expected value
+        logger.info("Step 4: Verifying dialog text using soft assertions...")
+        soft_assert = EnhancedSoftAssertions(authenticated_page)
         soft_assert.assert_equal(
             actual_text,
             expected_text,
             message=f"[FAIL] DocuSignPage: Review and Continue Dialog Text — Expected: '{expected_text}', Actual: '{actual_text}'. Details: Review and Continue dialog text must match expected value from test data. Locator: p[data-qa='email-message-content']."
         )
         
-        # STEP 3: Verify soft assertions
-        logger.info("Step 3: Verifying soft assertions...")
+        # STEP 5: Verify soft assertions
+        logger.info("Step 5: Verifying soft assertions...")
         try:
             soft_assert.assert_all()
             logger.info(f"[PASS] DocuSignPage: Dialog Text Verification Completed.")
@@ -231,8 +260,8 @@ def verify_docusign_review_and_continue_dialog_text(authenticated_page: Page, do
             )
             raise
         
-        # STEP 4: Take screenshot for Allure reporting
-        logger.info("Step 4: Capturing screenshot for verification...")
+        # STEP 6: Take screenshot for Allure reporting
+        logger.info("Step 6: Capturing screenshot for verification...")
         screenshot = authenticated_page.screenshot()
         allure.attach(screenshot, name="DocuSign Review and Continue Dialog - Text Verified", attachment_type=allure.attachment_type.PNG)
         
@@ -244,7 +273,7 @@ def user_add_signature(authenticated_page: Page, docusign_page):
     """Complete the DocuSign signature process: Finish -> Click Sign -> Finish
     
     Uses framework utilities:
-    - docusign_page.click_finish_button(): Clicks top right Finish button
+    - docusign_page.click_finish_button(): Clicks Finish button
     - docusign_page.click_sign_button(): Clicks Sign button/div
     - Framework logging via get_allure_logger
     """
@@ -253,11 +282,11 @@ def user_add_signature(authenticated_page: Page, docusign_page):
     
     # STEP 1: Click Finish button (first call)
     logger.info("Step 1: Clicking Finish button (initial)...")
-    docusign_page.click_finish_button(timeout=10000)
+    docusign_page.click_finish_button(timeout=30000)
     
     # STEP 2: Click on Sign button/div
     logger.info("Step 2: Clicking Sign button...")
-    docusign_page.click_sign_button(timeout=10000)
+    docusign_page.click_sign_button(timeout=30000)
     
     # Take screenshot for audit trail
     authenticated_page.wait_for_timeout(1000)
@@ -265,6 +294,55 @@ def user_add_signature(authenticated_page: Page, docusign_page):
     allure.attach(screenshot, name="Signature Process Completed", attachment_type=allure.attachment_type.PNG)
     
     logger.info("[PASS] DocuSignPage: Signature Addition Process Completed.")
+
+
+@when("User click on Sign and add signature")
+def user_click_on_sign_and_add_signature(authenticated_page: Page, docusign_page, test_context):
+    """Click on the Sign button to add signature to the document.
+    
+    Supports both single page (authenticated_page) and multi-page scenarios (new_docusign_page).
+    Calls the page object method to locate and click the Sign button/div in DocuSign.
+    
+    Uses framework utilities:
+    - docusign_page.click_sign_button(): Clicks Sign button in document
+    - Framework logging via get_allure_logger
+    
+    Example (in feature file):
+        And User click on Sign and add signature
+    """
+    logger.info(">>> ENTERED STEP: user_click_on_sign_and_add_signature")
+    
+    # Retrieve the DocuSignPage object from test_context (may be new page from Review Document link)
+    # If not found, fall back to using authenticated_page directly
+    docusign_page = test_context.get("new_docusign_page")
+    if docusign_page:
+        logger.info("[DEBUG] Using new_docusign_page from test_context")
+    else:
+        logger.info("[DEBUG] new_docusign_page not in test_context, creating default DocuSignPage")
+        from pages.docusign_page import DocuSignPage
+        docusign_page = DocuSignPage(authenticated_page)
+    
+    with allure.step("User click on Sign button and add signature"):
+        logger.info("Clicking Sign button to add signature...")
+        docusign_page.click_sign_button(timeout=30000)
+        
+        # Click the Adopt and Sign button to confirm signature
+        logger.info("Clicking Adopt and Sign button to confirm signature...")
+        docusign_page.click_adopt_and_sign(timeout=30000)
+        
+        # Wait a moment for the signature to be registered
+        authenticated_page.wait_for_timeout(1000)
+        
+        # Take screenshot for audit trail
+        logger.info("Taking screenshot after signature added...")
+        screenshot = authenticated_page.screenshot()
+        allure.attach(
+            screenshot,
+            name="Signature Added",
+            attachment_type=allure.attachment_type.PNG
+        )
+        
+        logger.info("[PASS] DocuSignPage: Sign Button Clicked and Signature Added.")
 
 
 @then("Signature and today's date should be added on the document")
@@ -313,7 +391,7 @@ def verify_signature_and_date_added_on_document(authenticated_page: Page, docusi
         
         # STEP 2: Use SoftAssertions to verify signature field is valid
         logger.info("Step 2: Verifying signature field validity using soft assertions...")
-        soft_assert = SoftAssertions()
+        soft_assert = EnhancedSoftAssertions(authenticated_page)
         
         # Assert aria-invalid is "false" (indicating the field is valid/filled)
         soft_assert.assert_equal(

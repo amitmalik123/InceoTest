@@ -23,12 +23,15 @@ class AccountDetailPage(BasePage):
         url = f"{self.base_url}{self.PAGE_PATH}"
         logger.info(f"Navigating to account detail page: {url}")
         self.page.goto(url)
-        self.account_wizard_link.wait_for(state="visible", timeout=15000)
+        # Wait for network to stabilize (important for headless mode)
+        self.page.wait_for_load_state("networkidle", timeout=30000)
+        self.account_wizard_link.wait_for(state="visible", timeout=20000)
         logger.info("Account detail page loaded, Account Wizard link visible")
 
     def click_account_wizard(self) -> None:
         logger.info("Clicking Account Wizard button on account detail page")
-        self.click(self.account_wizard_link)
+        # Pass increased timeout to click() method for headless mode compatibility
+        self.click(self.account_wizard_link, timeout=30000)
         logger.info("Account Wizard button clicked")
 
     def select_funded_radio(self) -> None:
@@ -38,15 +41,18 @@ class AccountDetailPage(BasePage):
 
     def select_move_assets_between_accounts(self) -> None:
         logger.info("Selecting Move Assets Between Accounts")
-        self.click(self.move_assets_between_accounts_list_item)
+        # Pass increased timeout to click() method for headless mode compatibility
+        self.click(self.move_assets_between_accounts_list_item, timeout=30000)
         logger.info("Move Assets Between Accounts selected")
 
     def select_roth_ira_conversion(self) -> None:
         logger.info("Selecting Roth IRA Conversion")
-        self.click(self.roth_ira_conversion_list_item)
+        # Pass increased timeout to click() method for headless mode compatibility
+        self.click(self.roth_ira_conversion_list_item, timeout=30000)
         logger.info("Roth IRA Conversion selected")
 
     def click_next(self) -> None:
         logger.info("Clicking Next button")
-        self.click(self.next_button)
+        # Pass increased timeout to click() method for headless mode compatibility
+        self.click(self.next_button, timeout=30000)
         logger.info("Next button clicked")

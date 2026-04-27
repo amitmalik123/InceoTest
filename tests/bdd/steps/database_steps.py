@@ -387,11 +387,9 @@ def user_fetch_signers_information_from_database(test_context, db_manager, authe
             logger.info("Step 0: Verifying fixtures...")
             if not test_context:
                 raise AssertionError("test_context fixture not available")
-            if not db_manager:
-                raise AssertionError("db_manager fixture not available")
             logger.info("  ✓ Required fixtures available")
             
-            # Step 1: Get username from test data
+            # Step 1: Get test data
             logger.info("Step 1: Fetching username from test_data...")
             test_data = test_context.get("test_data", {})
             logger.info(f"  test_data retrieved: {bool(test_data)}")
@@ -419,29 +417,56 @@ def user_fetch_signers_information_from_database(test_context, db_manager, authe
             
             logger.info(f"  ✓ Username: {username}")
             
-            # Step 2: Execute query using execute_query_from_yaml utility
-            logger.info("Step 2: Executing all_agents_by_id query using execute_query_from_yaml...")
-            logger.info(f"  Query parameters: UserID={username}, ExcludeUserID={username}")
+            # Step 1.5: Check environment - use test sheet for protected environments
+            from config.settings import get_settings
+            settings = get_settings()
+            env = settings.env.lower()
+            sheet_based_envs = ["prod", "production", "silo", "test10"]
             
-            from utils.database import execute_query_from_yaml
-            
-            try:
-                results = execute_query_from_yaml(
-                    query_category="agent",
-                    query_name="all_agents_by_id",
-                    params=(username, username),
-                    db_manager=db_manager
-                )
-                logger.info(f"  ✓ Query executed successfully, returned {len(results) if results else 0} rows")
-            except Exception as query_error:
-                error_msg = (
-                    f"Failed to execute all_agents_by_id query: {query_error}\n"
-                    f"Query category: 'agent'\n"
-                    f"Query name: 'all_agents_by_id'\n"
-                    f"Parameters: ({username}, {username})"
-                )
-                logger.error(error_msg)
-                raise AssertionError(error_msg) from query_error
+            if env in sheet_based_envs:
+                logger.info(f"  ℹ Environment '{env}' is sheet-based — reading signers from test data CSV instead of database")
+                
+                signer_name = test_data.get("Authorized_Signer_Role_Name", "").strip()
+                signer_role = test_data.get("Authorized_Signer_Role", "").strip()
+                agent_aplid = test_data.get("Agent", "").strip()
+                
+                if signer_name:
+                    results = [{
+                        "Name_ManageLogin": signer_name,
+                        "AgentAPLID": agent_aplid,
+                        "Role": signer_role
+                    }]
+                    logger.info(f"  ✓ Signer from test sheet: {signer_name} ({signer_role})")
+                else:
+                    results = []
+                    logger.warning(f"  ⚠ No Authorized_Signer_Role_Name in test data CSV for {env} environment")
+            else:
+                # Step 2: Execute query using execute_query_from_yaml utility (non-protected environments)
+                logger.info("Step 2: Executing all_agents_by_id query using execute_query_from_yaml...")
+                logger.info(f"  Query parameters: UserID={username}, ExcludeUserID={username}")
+                
+                if not db_manager:
+                    raise AssertionError("db_manager fixture not available")
+                
+                from utils.database import execute_query_from_yaml
+                
+                try:
+                    results = execute_query_from_yaml(
+                        query_category="agent",
+                        query_name="all_agents_by_id",
+                        params=(username, username),
+                        db_manager=db_manager
+                    )
+                    logger.info(f"  ✓ Query executed successfully, returned {len(results) if results else 0} rows")
+                except Exception as query_error:
+                    error_msg = (
+                        f"Failed to execute all_agents_by_id query: {query_error}\n"
+                        f"Query category: 'agent'\n"
+                        f"Query name: 'all_agents_by_id'\n"
+                        f"Parameters: ({username}, {username})"
+                    )
+                    logger.error(error_msg)
+                    raise AssertionError(error_msg) from query_error
             
             # Step 3: Process results
             if not results:

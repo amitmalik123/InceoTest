@@ -4,6 +4,9 @@ Client Accounts Page Object
 Page object for client account interactions and verifications.
 """
 
+import re
+import unicodedata
+
 from playwright.sync_api import Locator, Page
 
 from locators import client_accounts_locators
@@ -173,7 +176,7 @@ class ClientAccountsPage(BasePage):
             
             # Step 2: Check and handle Authorized Signers dropdown
             logger.info("  Step 2: Checking Authorized Signers dropdown...")
-            dropdown = iframe_frame.locator("select[name='authorizedSignersDropdown']")
+            dropdown = iframe_frame.locator(self.AUTHORIZED_SIGNERS_DROPDOWN)
             
             if dropdown.count() == 0:
                 raise AssertionError("Authorized Signers dropdown not found")
@@ -186,7 +189,16 @@ class ClientAccountsPage(BasePage):
                 logger.info(f"  Step 3: Dropdown is enabled. Attempting to select '{authorized_signer}'...")
                 dropdown.select_option(value=authorized_signer)
                 logger.info(f"  ✓ Option '{authorized_signer}' selected")
-                self.page.wait_for_load_state("networkidle", timeout=3000)
+                
+                # Wait for Email Address field to appear after dropdown selection
+                logger.info("  Waiting for form to update after dropdown selection...")
+                try:
+                    email_input_element = iframe_frame.locator(self.EMAIL_INPUT)
+                    with WaitContext(timeout=5.0, poll_interval=0.3) as wait:
+                        wait.until_visible(email_input_element)
+                    logger.info("  ✓ Form updated, Email Address field is now visible")
+                except WaitTimeoutError:
+                    logger.warning("  ⚠ Email Address field did not appear within timeout, continuing anyway")
             else:
                 if is_disabled:
                     logger.info("  ✓ Dropdown is disabled, skipping selection as per requirements")
@@ -196,13 +208,20 @@ class ClientAccountsPage(BasePage):
             # Step 4: Fill Email Address
             if email_address and email_address.strip():
                 logger.info("  Step 4: Filling Email Address...")
-                email_input = iframe_frame.locator("input[name='emailText']")
+                
+                # Wait for Email Address input to be visible
+                logger.info("  Waiting for Email Address input to be visible...")
+                email_input = iframe_frame.locator(self.EMAIL_INPUT)
                 
                 if email_input.count() == 0:
                     raise AssertionError("Email Address input not found")
                 
-                if not email_input.is_visible():
-                    raise AssertionError("Email Address input not visible")
+                try:
+                    with WaitContext(timeout=3.0, poll_interval=0.2) as wait:
+                        wait.until_visible(email_input)
+                    logger.info("  ✓ Email Address input is visible")
+                except WaitTimeoutError:
+                    raise AssertionError("Email Address input not visible within timeout")
                 
                 # Clear existing value first
                 email_input.clear()
@@ -214,13 +233,20 @@ class ClientAccountsPage(BasePage):
             # Step 5: Fill Phone
             if phone and phone.strip():
                 logger.info("  Step 5: Filling Phone...")
-                phone_input = iframe_frame.locator("input[name='PhoneText']")
+                
+                # Wait for Phone input to be visible
+                logger.info("  Waiting for Phone input to be visible...")
+                phone_input = iframe_frame.locator(self.PHONE_INPUT)
                 
                 if phone_input.count() == 0:
                     raise AssertionError("Phone input not found")
                 
-                if not phone_input.is_visible():
-                    raise AssertionError("Phone input not visible")
+                try:
+                    with WaitContext(timeout=3.0, poll_interval=0.2) as wait:
+                        wait.until_visible(phone_input)
+                    logger.info("  ✓ Phone input is visible")
+                except WaitTimeoutError:
+                    raise AssertionError("Phone input not visible within timeout")
                 
                 # Clear existing value first
                 phone_input.clear()
@@ -713,15 +739,18 @@ class ClientAccountsPage(BasePage):
                         except WaitTimeoutError:
                             logger.warning(f"Type list not rendering, attempting click anyway")
 
-                    # Primary strategy: role-based locator (fastest)
-                    item = container.get_by_role('listitem', name=type_name)
+                    # Primary strategy: role-based locator with onclick attribute check (most reliable)
+                    # Ensures we're clicking the actual clickable li with SubSelectCategoryClick handler
+                    item = container.locator(
+                        f'li[onclick*="SubSelectCategoryClick"]:has-text("{type_name}")'
+                    )
                     if item.count() > 0:
                         if self._wait_and_click_element(item, f"Type '{type_name}'", timeout_ms=1500):
-                            logger.info(f"✓ Type '{type_name}' selected via role locator")
+                            logger.info(f"✓ Type '{type_name}' selected via onclick locator")
                             retry.success()
                             return
                     else:
-                        logger.debug(f"Role-based locator count=0 for '{type_name}'")
+                        logger.debug(f"onclick locator count=0 for '{type_name}', trying fallback")
 
                     # Fallback 1: LI with onclick attribute (efficient & more stable)
                     clickable = ul.locator(f'li[onclick]:has-text("{type_name}")')
@@ -880,18 +909,34 @@ class ClientAccountsPage(BasePage):
         # Wait for dialog to appear and get the specific dialog locator
         dialog = dialog_handler.wait_for_dialog(timeout=10000)
         logger.info("Request Submitted dialog appeared")
+        
+        # CRITICAL FIX: Wait for dialog content to be fully rendered
+        # Dialog may exist in DOM but text rendering still in progress
+        # Add explicit waits for key content elements before extraction
+        logger.info("Waiting for dialog content to fully render...")
+        try:
+            # Wait for at least one paragraph/text content to exist in dialog
+            dialog.locator('p, div:not(:empty)').first.wait_for(state="visible", timeout=8000)
+            logger.info("Dialog content elements are visible")
+        except Exception as e:
+            logger.warning(f"Could not wait for specific content elements: {e}")
+        
+        # Add small delay for final DOM settlement (animations, etc.)
+        self.page.wait_for_timeout(1000)
 
         # Get dialog title and content using dialog_handler
-        dialog_title = dialog_handler.get_dialog_title(timeout=5000)
+        # INCREASED TIMEOUT: 5000ms → 10000ms to account for slower environments
+        dialog_title = dialog_handler.get_dialog_title(timeout=20000)
         logger.info(f"Dialog Title: {dialog_title}")
 
-        dialog_content = dialog_handler.get_dialog_text(timeout=5000)
+        dialog_content = dialog_handler.get_dialog_text(timeout=20000)
         logger.info(f"Dialog Content:\n{dialog_content}")
 
-        # Get the D-link (tracking center link) from the FIRST dialog only
+        # FIX: Use the same dialog reference instead of re-querying with different selector
+        # This ensures we're always working with the same dialog instance
         # Target: <a class="printConfirmationLink" href="...">D003525811</a>
-        d_link = self.page.locator('[role="dialog"]').first.locator('a.printConfirmationLink')
-        d_link.wait_for(state="visible", timeout=5000)
+        d_link = dialog.locator('a.printConfirmationLink')
+        d_link.wait_for(state="visible", timeout=8000)
         d_link_text = (d_link.text_content() or "").strip() if d_link.text_content() else ""
         d_link_href = d_link.get_attribute("href") or ""
         logger.info(f"D-Link Text: {d_link_text}, Href: {d_link_href}")
@@ -1239,6 +1284,54 @@ class ClientAccountsPage(BasePage):
         logger.info(f"✓ Radio button located for account '{account_number}'")
         
         return radio_button, label_for_attr
+
+    def normalize_text_for_comparison(self, text: str) -> str:
+        """
+        Normalize text for comparison by handling special characters and Unicode issues.
+        
+        Handles:
+        - Unicode normalization (NFC)
+        - Smart quotes (curly) → regular quotes
+        - Non-breaking spaces → regular spaces
+        - Multiple consecutive spaces → single space
+        - Other whitespace normalization
+        
+        Args:
+            text: Text to normalize
+            
+        Returns:
+            Normalized text string
+            
+        Example:
+            normalized = page_obj.normalize_text_for_comparison("Heading\u2019s Text")
+            # "Heading's Text"
+        """
+        if not text:
+            return ""
+        
+        # Apply Unicode NFC normalization
+        text = unicodedata.normalize('NFC', text)
+        
+        # Replace smart/curly quotes with regular straight quotes
+        text = text.replace('\u2018', "'")  # Left single quotation mark
+        text = text.replace('\u2019', "'")  # Right single quotation mark (most common)
+        text = text.replace('\u201C', '"')  # Left double quotation mark
+        text = text.replace('\u201D', '"')  # Right double quotation mark
+        
+        # Replace non-breaking space with regular space
+        text = text.replace('\u00A0', ' ')  # Non-breaking space
+        text = text.replace('\u2009', ' ')  # Thin space
+        text = text.replace('\u200B', '')   # Zero-width space (remove)
+        
+        # Replace em-dash with regular hyphen
+        text = text.replace('\u2014', '-')  # Em-dash
+        text = text.replace('\u2013', '-')  # En-dash
+        
+        # Normalize multiple whitespace to single space
+        text = re.sub(r'\s+', ' ', text)
+        
+        # Strip leading/trailing whitespace
+        return text.strip()
 
     def ensure_account_radio_selected(self, account_number: str) -> dict:
         """

@@ -100,17 +100,20 @@ def fetch_authorized_signer_email_subject_and_body_step(page: Page, test_context
                 document_creator_aplid = agent_id
             else:  # SAU or OA (both use username)
                 document_creator_aplid = username
-            
+
             document_creator_role_name = fetch_agent_name_by_aplid_from_db(document_creator_aplid, document_creator_role)
             logger.info(f"Document Creator Role Name: {document_creator_role_name}")
             
-            # For authorized signer role
-            if authorized_signer_role.upper() in ["FA", "AGENT"]:
-                authorized_signer_aplid = agent_id
-            else:  # SAU or OA (both use username)
-                authorized_signer_aplid = username
+            # Store document_creator_role_name in test_context for use in subsequent steps
+            test_context["document_creator_role_name"] = document_creator_role_name
+            logger.info(f"  Stored document_creator_role_name in test_context: {document_creator_role_name}")
             
-            authorized_signer_role_name = fetch_agent_name_by_aplid_from_db(authorized_signer_aplid, authorized_signer_role)
+            # For authorized signer role - fetch from test_context (stored by client_accounts_steps.py)
+            authorized_signer_role_name = test_context.get("authorized_signer")
+            if not authorized_signer_role_name:
+                logger.warning("Authorized signer not found in test_context. Will fetch from database...")
+            else:
+                logger.info(f"✓ Authorized signer name retrieved from test_context")
             logger.info(f"Authorized Signer Role Name: {authorized_signer_role_name}")
             
             # Replace placeholders in expected subject and body
