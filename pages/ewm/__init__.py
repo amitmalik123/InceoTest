@@ -1,2 +1,0 @@
-"""Page objects package."""
-
