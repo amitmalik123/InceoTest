@@ -1,0 +1,43 @@
+name: stp-ict-$(Date:yyyyMMdd)$(Rev:.r)
+
+trigger:
+  branches:
+    include:
+      - main
+      - develop
+  paths:
+    include:
+      - data/STP/STP-ICT/**
+      - config/STP/STP-ICT/**
+      - tests/features/STP/STP-ICT/**
+      - tests/steps/STP/STP-ICT/**
+      - pages/STP/STP-ICT/**
+      - queries/STP/STP-ICT/**
+      - azure-pipelines/templates/**
+      - requirements.txt
+
+pr:
+  branches:
+    include:
+      - main
+      - develop
+  paths:
+    include:
+      - data/STP/STP-ICT/**
+      - config/STP/STP-ICT/**
+      - tests/features/STP/STP-ICT/**
+      - tests/steps/STP/STP-ICT/**
+      - pages/STP/STP-ICT/**
+      - queries/STP/STP-ICT/**
+      - azure-pipelines/templates/**
+      - requirements.txt
+
+pool:
+  vmImage: ubuntu-latest
+
+stages:
+  - template: templates/team-stage.yml
+    parameters:
+      stageName: STP_ICT
+      teamDisplay: STP-ICT
+      featurePath: tests/features/STP/STP-ICT
