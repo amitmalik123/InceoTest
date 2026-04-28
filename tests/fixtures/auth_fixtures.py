@@ -126,6 +126,12 @@ def _get_session_file(
     return AUTH_STATE_DIR / f"{base_name}.json"
 
 
+def _is_login_failure_url(url: str) -> bool:
+    """Return True when URL indicates user is still on a failed login state."""
+    normalized = (url or "").lower()
+    return "errorcode=" in normalized or "/account/login" in normalized
+
+
 def _perform_login(
     page: Page,
     app_config: AppConfig,
@@ -158,7 +164,7 @@ def _perform_login(
 
         # Check if login successful
         current_url = page.url
-        return "login" not in current_url.lower()
+        return not _is_login_failure_url(current_url)
     except Exception as e:
         print(f"[SESSION] Login error: {e}")
         return False
@@ -207,14 +213,14 @@ def authenticated_page(browser, browser_context_args, test_data, request) -> Gen
     # Use row-specific Excel credentials by default. Keep admin login only for
     # scenarios that explicitly perform agent impersonation.
     if _scenario_uses_impersonation(request):
-        username = os.getenv("ADMIN_USERNAME") or "AG1634SSO"
+        username = os.getenv("ADMIN_USERNAME") or "AG1634_SSO"
         password = os.getenv("ADMIN_PASSWORD") or "QAAdminUser_33a"
     else:
         username = _first_non_empty_value(test_data, ("username", "UserName", "Username"))
         password = _first_non_empty_value(test_data, ("password", "Password"))
 
         if not username or not password:
-            username = os.getenv("ADMIN_USERNAME") or "AG1634SSO"
+            username = os.getenv("ADMIN_USERNAME") or "AG1634_SSO"
             password = os.getenv("ADMIN_PASSWORD") or "QAAdminUser_33a"
 
     role = test_data.get("role")  # Get role from test data
@@ -270,7 +276,7 @@ def authenticated_page(browser, browser_context_args, test_data, request) -> Gen
 
         if session_file.exists():
             # Verify session is still valid
-            if "login" not in page.url.lower():
+            if not _is_login_failure_url(page.url):
                 print("[SESSION] Session valid! Already authenticated.")
                 yield page
                 page.close()
@@ -284,7 +290,7 @@ def authenticated_page(browser, browser_context_args, test_data, request) -> Gen
                 session_file.unlink()
                 # Fall through to login block below
         # Verify session is still valid
-        if "login" not in page.url.lower():
+        if not _is_login_failure_url(page.url):
             print("[SESSION] Session valid! Already authenticated.")
             yield page
             # Save trace on failure if configured
