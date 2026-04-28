@@ -175,7 +175,7 @@
     {
         "test_id": "TC003",
         "service_name": "movemoney",
-        "workflow_mode": "sequential",
+        "workflow_mode": "parallel",
         "test_name": "TC003 - Invalid RequestId for DELETE /wire/{requestId} [Negative]",
         "protocol": "REST",
         "test_type": [
@@ -207,20 +207,98 @@
                     "actual": "4fd##$#$e25c2-6fa7-4b10-8ad6-243b06aceabb",
                     "expected": "",
                     "operator": "!=",
-                    "message": "RequestId should not be empty"
+                    "message": "Invalid RequestId should return 400 response for DELETE /wire/{requestId}"
                 }
             ],
-            "data_comparison": [
-                {
-                    "comparison_name": "API response self-compare",
-                    "source": "api_response",
-                    "target": "api_response",
-                    "fields_to_compare": [],
-                    "log_differences": true
-                }
-            ]
+            "data_comparison": []
         },
         "test_data_file": "",
         "test_summary": "Verify the API returns 400 response when an invalid RequestId is provided for DELETE /wire/{requestId}"
+    },
+    {
+        "test_id": "TC004",
+        "service_name": "movemoney",
+        "workflow_mode": "parallel",
+        "test_name": "TC004 - RequestId is syntactically malformed for DELETE /wire/{requestId} [Negative]",
+        "protocol": "REST",
+        "test_type": [
+            "Functional"
+        ],
+        "mainURL": "{{base_url}}",
+        "endpoint": "/wire/TEST12345",
+        "method": "DELETE",
+        "headers_additional": {
+            "Content-Type": "application/json"
+        },
+        "payload": null,
+        "expected_status": "400",
+        "ignore_fields": [
+            "id"
+        ],
+        "validate": {
+            "performance": {
+                "max_response_time_ms": 500
+            },
+            "security": {
+                "checks": [
+                    "sql_injection",
+                    "xss"
+                ]
+            },
+            "assertions": [
+                {
+                    "actual": "TEST12345",
+                    "expected": "",
+                    "operator": "!=",
+                    "message": "Syntactically malformed RequestId should return 400 response for DELETE /wire/{requestId}"
+                }
+            ],
+            "data_comparison": []
+        },
+        "test_data_file": "",
+        "test_summary": "Verify the API returns 400 response when a syntactically malformed RequestId is provided for DELETE /wire/{requestId}"
+    },
+    {
+        "test_id": "TC005",
+        "service_name": "movemoney",
+        "workflow_mode": "parallel",
+        "test_name": "TC005 - RequestId is out of range for DELETE /wire/{requestId} [Negative]",
+        "protocol": "REST",
+        "test_type": [
+            "Functional"
+        ],
+        "mainURL": "{{base_url}}",
+        "endpoint": "/wire/5363AAD9-154C-4D2C-90E7-00BAA40935A32145",
+        "method": "DELETE",
+        "headers_additional": {
+            "Content-Type": "application/json"
+        },
+        "payload": null,
+        "expected_status": "400",
+        "ignore_fields": [
+            "id"
+        ],
+        "validate": {
+            "performance": {
+                "max_response_time_ms": 500
+            },
+            "security": {
+                "checks": [
+                    "sql_injection",
+                    "xss"
+                ]
+            },
+            "assertions": [
+                {
+                    "actual": "5363AAD9-154C-4D2C-90E7-00BAA40935A32145",
+                    "expected": "",
+                    "operator": "!=",
+                    "message": "Out of range RequestId should return 400 response for DELETE /wire/{requestId}"
+                }
+            ],
+            "data_comparison": []
+        },
+        "test_data_file": "",
+        "test_summary": "Verify the API returns 400 response when requestId is out of range for DELETE /wire/{requestId}"
     }
 ]

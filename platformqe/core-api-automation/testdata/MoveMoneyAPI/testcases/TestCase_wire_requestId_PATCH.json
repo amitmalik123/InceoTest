@@ -1,0 +1,847 @@
+[
+    {
+        "test_id": "TC001_SETUP",
+        "service_name": "movemoney",
+        "workflow_mode": "sequential",
+        "test_name": "GET /wire/{requestId} [setup: fetch current version] (TC001_SETUP)",
+        "protocol": "REST",
+        "test_type": [
+            "Functional"
+        ],
+        "mainURL": "{{base_url}}",
+        "endpoint": "/wire/{{requestId_endpoint}}",
+        "method": "GET",
+        "rpc_method": "",
+        "graphql_query": "",
+        "graphql_variables": "",
+        "soap_action": "",
+        "soap_envelope": "",
+        "headers_additional": {
+            "Accept": "application/json"
+        },
+        "payload": null,
+        "expected_status": "200",
+        "expected_response_schema": null,
+        "expected_response": null,
+        "ignore_fields": [
+            "id"
+        ],
+        "extract_values": [
+            {
+                "from": "response",
+                "key": "version",
+                "assign_to": "currentVersion"
+            }
+        ],
+        "validate": {
+            "performance": {
+                "max_response_time_ms": 500
+            },
+            "security": {
+                "checks": [
+                    "sql_injection",
+                    "xss"
+                ]
+            },
+            "assertions": [
+                {
+                    "actual": "{{requestId_endpoint}}",
+                    "expected": "",
+                    "operator": "!=",
+                    "message": "RequestId should not be empty"
+                },
+                {
+                    "actual": "{{currentVersion}}",
+                    "expected": 0,
+                    "operator": ">",
+                    "message": "Current version should be fetched from GET response"
+                }
+            ],
+            "data_comparison": []
+        },
+        "test_data_file": "MoveMoneyAPI/data_driven/Data_wire_PATCH.csv",
+        "csv_row_index": 0,
+        "db_query_timing": "",
+        "db_queries": "",
+        "db_type": "",
+        "db_connection_name": "",
+        "test_summary": "Setup: Fetch current version of wire request da9cfb7d-75d0-4866-a7a1-96ec2a63afcc before PATCH"
+    },
+    {
+        "test_id": "TC001",
+        "service_name": "movemoney",
+        "workflow_mode": "sequential",
+        "test_name": "200 response for all valid inputs [Positive] (TC001)",
+        "protocol": "REST",
+        "test_type": [
+            "Functional"
+        ],
+        "mainURL": "{{base_url}}",
+        "endpoint": "/wire/{{requestId_endpoint}}",
+        "method": "PATCH",
+        "rpc_method": "",
+        "graphql_query": "",
+        "graphql_variables": "",
+        "soap_action": "",
+        "soap_envelope": "",
+        "headers_additional": {
+            "Content-Type": "application/json"
+        },
+        "payload": {
+            "version": "{{currentVersion|string}}",
+            "status": "{{status}}",
+            "changeState": "{{changeState}}"
+        },
+        "expected_status": "200",
+        "expected_response_schema": null,
+        "expected_response": null,
+        "ignore_fields": [
+            "id"
+        ],
+        "extract_values": [
+            {
+                "from": "response",
+                "key": "version",
+                "assign_to": "patchedVersion"
+            }
+        ],
+        "validate": {
+            "performance": {
+                "max_response_time_ms": 500
+            },
+            "security": {
+                "checks": [
+                    "sql_injection",
+                    "xss"
+                ]
+            },
+            "assertions": [
+                {
+                    "actual": "{{requestId_endpoint}}",
+                    "expected": "",
+                    "operator": "!=",
+                    "message": "RequestId should not be empty"
+                },
+                {
+                    "actual": "{{currentVersion}}",
+                    "expected": 0,
+                    "operator": ">",
+                    "message": "Current version should be greater than 0"
+                },
+                {
+                    "actual": "{{patchedVersion}}",
+                    "expected": "{{currentVersion}}",
+                    "operator": ">",
+                    "message": "Version in PATCH response should be incremented above the version sent"
+                }
+            ],
+            "data_comparison": []
+        },
+        "test_data_file": "MoveMoneyAPI/data_driven/Data_wire_PATCH.csv",
+        "csv_row_index": 1,
+        "db_query_timing": "",
+        "db_queries": "",
+        "db_type": "",
+        "db_connection_name": "",
+        "test_summary": "Verify 200 successful status update when all input fields are valid for PATCH /wire/{requestId}. Version is incremented by 1."
+    },
+    {
+        "test_id": "TC002",
+        "service_name": "movemoney",
+        "workflow_mode": "sequential",
+        "test_name": "Version mismatch - Conflict response [Negative] (TC002)",
+        "protocol": "REST",
+        "test_type": [
+            "Functional"
+        ],
+        "mainURL": "{{base_url}}",
+        "endpoint": "/wire/{{requestId_endpoint}}",
+        "method": "PATCH",
+        "rpc_method": "",
+        "graphql_query": "",
+        "graphql_variables": "",
+        "soap_action": "",
+        "soap_envelope": "",
+        "headers_additional": {
+            "Content-Type": "application/json"
+        },
+        "payload": {
+            "version": "{{currentVersion|string}}",
+            "status": "{{status}}",
+            "changeState": "{{changeState}}"
+        },
+        "expected_status": "409",
+        "expected_response_schema": null,
+        "expected_response": null,
+        "ignore_fields": [
+            "id"
+        ],
+        "extract_values": [],
+        "validate": {
+            "performance": {
+                "max_response_time_ms": 500
+            },
+            "security": {
+                "checks": [
+                    "sql_injection",
+                    "xss"
+                ]
+            },
+            "assertions": [
+                {
+                    "actual": "{{requestId_endpoint}}",
+                    "expected": "",
+                    "operator": "!=",
+                    "message": "RequestId should not be empty"
+                },
+                {
+                    "actual": "{{currentVersion}}",
+                    "expected": 0,
+                    "operator": ">",
+                    "message": "Conflict test should use a valid version value"
+                }
+            ],
+            "data_comparison": []
+        },
+        "test_data_file": "MoveMoneyAPI/data_driven/Data_wire_PATCH.csv",
+        "csv_row_index": 2,
+        "db_query_timing": "",
+        "db_queries": "",
+        "db_type": "",
+        "db_connection_name": "",
+        "test_summary": "Verify 409 Conflict response when version does not match current server version (stale version after TC001 incremented it) for PATCH /wire/{requestId}"
+    },
+    {
+        "test_id": "TC003",
+        "service_name": "movemoney",
+        "workflow_mode": "sequential",
+        "test_name": "No Content - RequestId not found [Negative] (TC003)",
+        "protocol": "REST",
+        "test_type": [
+            "Functional"
+        ],
+        "mainURL": "{{base_url}}",
+        "endpoint": "/wire/{{requestId_endpoint}}",
+        "method": "PATCH",
+        "rpc_method": "",
+        "graphql_query": "",
+        "graphql_variables": "",
+        "soap_action": "",
+        "soap_envelope": "",
+        "headers_additional": {
+            "Content-Type": "application/json"
+        },
+        "payload": {
+            "version": "{{version}}",
+            "status": "{{status}}",
+            "changeState": "{{changeState}}"
+        },
+        "expected_status": "204",
+        "expected_response_schema": null,
+        "expected_response": null,
+        "ignore_fields": [
+            "id"
+        ],
+        "extract_values": [],
+        "validate": {
+            "performance": {
+                "max_response_time_ms": 500
+            },
+            "security": {
+                "checks": [
+                    "sql_injection",
+                    "xss"
+                ]
+            },
+            "assertions": [
+                {
+                    "actual": "{{requestId_endpoint}}",
+                    "expected": "",
+                    "operator": "!=",
+                    "message": "RequestId should not be empty"
+                },
+                {
+                    "actual": "{{version}}",
+                    "expected": 0,
+                    "operator": ">",
+                    "message": "Version should be greater than 0"
+                }
+            ],
+            "data_comparison": []
+        },
+        "test_data_file": "MoveMoneyAPI/data_driven/Data_wire_PATCH.csv",
+        "csv_row_index": 3,
+        "db_query_timing": "",
+        "db_queries": "",
+        "db_type": "",
+        "db_connection_name": "",
+        "test_summary": "Verify 204 No Content response when requestId does not exist for PATCH /wire/{requestId}"
+    },
+    {
+        "test_id": "TC004_SETUP",
+        "service_name": "movemoney",
+        "workflow_mode": "sequential",
+        "test_name": "GET /wire/{requestId} [setup: refresh version after TC001] (TC004_SETUP)",
+        "protocol": "REST",
+        "test_type": [
+            "Functional"
+        ],
+        "mainURL": "{{base_url}}",
+        "endpoint": "/wire/{{requestId_endpoint}}",
+        "method": "GET",
+        "rpc_method": "",
+        "graphql_query": "",
+        "graphql_variables": "",
+        "soap_action": "",
+        "soap_envelope": "",
+        "headers_additional": {
+            "Accept": "application/json"
+        },
+        "payload": null,
+        "expected_status": "200",
+        "expected_response_schema": null,
+        "expected_response": null,
+        "ignore_fields": [
+            "id"
+        ],
+        "extract_values": [
+            {
+                "from": "response",
+                "key": "version",
+                "assign_to": "currentVersion2"
+            }
+        ],
+        "validate": {
+            "performance": {
+                "max_response_time_ms": 500
+            },
+            "security": {
+                "checks": [
+                    "sql_injection",
+                    "xss"
+                ]
+            },
+            "assertions": [
+                {
+                    "actual": "{{currentVersion2}}",
+                    "expected": 0,
+                    "operator": ">",
+                    "message": "Refreshed version should be greater than 0"
+                },
+                {
+                    "actual": "{{currentVersion2}}",
+                    "expected": "{{currentVersion}}",
+                    "operator": ">",
+                    "message": "Version after PATCH should be greater than pre-PATCH version, confirming TC001 incremented it"
+                }
+            ],
+            "data_comparison": []
+        },
+        "test_data_file": "MoveMoneyAPI/data_driven/Data_wire_PATCH.csv",
+        "csv_row_index": 4,
+        "db_query_timing": "",
+        "db_queries": "",
+        "db_type": "",
+        "db_connection_name": "",
+        "test_summary": "Refresh current version after TC001 incremented it, so TC004-TC007 can send a valid version while testing field validation"
+    },
+    {
+        "test_id": "TC004",
+        "service_name": "movemoney",
+        "workflow_mode": "sequential",
+        "test_name": "Bad Request - Invalid requestId UUID format in path [Negative] (TC004)",
+        "protocol": "REST",
+        "test_type": [
+            "Functional"
+        ],
+        "mainURL": "{{base_url}}",
+        "endpoint": "/wire/{{requestId_endpoint}}",
+        "method": "PATCH",
+        "rpc_method": "",
+        "graphql_query": "",
+        "graphql_variables": "",
+        "soap_action": "",
+        "soap_envelope": "",
+        "headers_additional": {
+            "Content-Type": "application/json"
+        },
+        "payload": {
+            "version": "{{version}}",
+            "status": "{{status}}",
+            "changeState": "{{changeState}}"
+        },
+        "expected_status": "400",
+        "expected_response_schema": null,
+        "expected_response": null,
+        "ignore_fields": [
+            "id",
+            "instance"
+        ],
+        "extract_values": [],
+        "validate": {
+            "performance": {
+                "max_response_time_ms": 500
+            },
+            "security": {
+                "checks": [
+                    "sql_injection",
+                    "xss"
+                ]
+            },
+            "assertions": [
+                {
+                    "actual": "{{requestId_endpoint}}",
+                    "expected": "",
+                    "operator": "!=",
+                    "message": "RequestId should not be empty"
+                }
+            ],
+            "data_comparison": []
+        },
+        "test_data_file": "MoveMoneyAPI/data_driven/Data_wire_PATCH.csv",
+        "csv_row_index": 5,
+        "db_query_timing": "",
+        "db_queries": "",
+        "db_type": "",
+        "db_connection_name": "",
+        "test_summary": "Verify 400 Bad Request response when requestId contains invalid UUID format (special characters) in path for PATCH /wire/{requestId}"
+    },
+    {
+        "test_id": "TC005",
+        "service_name": "movemoney",
+        "workflow_mode": "sequential",
+        "test_name": "Bad Request - Invalid status value [Negative] (TC005)",
+        "protocol": "REST",
+        "test_type": [
+            "Functional"
+        ],
+        "mainURL": "{{base_url}}",
+        "endpoint": "/wire/{{requestId_endpoint}}",
+        "method": "PATCH",
+        "rpc_method": "",
+        "graphql_query": "",
+        "graphql_variables": "",
+        "soap_action": "",
+        "soap_envelope": "",
+        "headers_additional": {
+            "Content-Type": "application/json"
+        },
+        "payload": {
+            "version": "{{currentVersion2|string}}",
+            "status": "{{status}}",
+            "changeState": "{{changeState}}"
+        },
+        "expected_status": "400",
+        "expected_response_schema": null,
+        "expected_response": {
+            "type": "invalid-request",
+            "title": "Invalid Request",
+            "status": 400,
+            "detail": "The request contains invalid values",
+            "instance": "/api/moneymovement/v1/wire/da9cfb7d-75d0-4866-a7a1-96ec2a63afcc",
+            "errors": {
+                "status": [
+                    "Must be one of: Draft, Pending, Confirmed, Deleted."
+                ]
+            }
+        },
+        "ignore_fields": [
+            "id"
+        ],
+        "extract_values": [],
+        "validate": {
+            "performance": {
+                "max_response_time_ms": 500
+            },
+            "security": {
+                "checks": [
+                    "sql_injection",
+                    "xss"
+                ]
+            },
+            "assertions": [
+                {
+                    "actual": "{{requestId_endpoint}}",
+                    "expected": "",
+                    "operator": "!=",
+                    "message": "RequestId should not be empty"
+                },
+                {
+                    "actual": "{{currentVersion2}}",
+                    "expected": 0,
+                    "operator": ">",
+                    "message": "Version should be greater than 0"
+                }
+            ],
+            "data_comparison": []
+        },
+        "test_data_file": "MoveMoneyAPI/data_driven/Data_wire_PATCH.csv",
+        "csv_row_index": 6,
+        "db_query_timing": "",
+        "db_queries": "",
+        "db_type": "",
+        "db_connection_name": "",
+        "test_summary": "Verify 400 Bad Request response when status field contains an invalid value for PATCH /wire/{requestId}"
+    },
+    {
+        "test_id": "TC006",
+        "service_name": "movemoney",
+        "workflow_mode": "sequential",
+        "test_name": "Bad Request - Invalid negative version value [Negative] (TC006)",
+        "protocol": "REST",
+        "test_type": [
+            "Functional"
+        ],
+        "mainURL": "{{base_url}}",
+        "endpoint": "/wire/{{requestId_endpoint}}",
+        "method": "PATCH",
+        "rpc_method": "",
+        "graphql_query": "",
+        "graphql_variables": "",
+        "soap_action": "",
+        "soap_envelope": "",
+        "headers_additional": {
+            "Content-Type": "application/json"
+        },
+        "payload": {
+            "version": "{{version}}",
+            "status": "{{status}}",
+            "changeState": "{{changeState}}"
+        },
+        "expected_status": "400",
+        "expected_response_schema": null,
+        "expected_response": {
+            "type": "invalid-request",
+            "title": "Invalid Request",
+            "status": 400,
+            "detail": "The request contains invalid values",
+            "instance": "/api/moneymovement/v1/wire/da9cfb7d-75d0-4866-a7a1-96ec2a63afcc",
+            "errors": {
+                "version": [
+                    "Must be a valid integer."
+                ]
+            }
+        },
+        "ignore_fields": [
+            "id"
+        ],
+        "extract_values": [],
+        "validate": {
+            "performance": {
+                "max_response_time_ms": 500
+            },
+            "security": {
+                "checks": [
+                    "sql_injection",
+                    "xss"
+                ]
+            },
+            "assertions": [
+                {
+                    "actual": "{{requestId_endpoint}}",
+                    "expected": "",
+                    "operator": "!=",
+                    "message": "RequestId should not be empty"
+                }
+            ],
+            "data_comparison": []
+        },
+        "test_data_file": "MoveMoneyAPI/data_driven/Data_wire_PATCH.csv",
+        "csv_row_index": 7,
+        "db_query_timing": "",
+        "db_queries": "",
+        "db_type": "",
+        "db_connection_name": "",
+        "test_summary": "Verify 400 Bad Request response when version is a negative value (Ex: -1). PATCH /wire/{requestId}"
+    },
+    {
+        "test_id": "TC007",
+        "service_name": "movemoney",
+        "workflow_mode": "sequential",
+        "test_name": "Bad Request - Invalid changeState value [Negative] (TC007)",
+        "protocol": "REST",
+        "test_type": [
+            "Functional"
+        ],
+        "mainURL": "{{base_url}}",
+        "endpoint": "/wire/{{requestId_endpoint}}",
+        "method": "PATCH",
+        "rpc_method": "",
+        "graphql_query": "",
+        "graphql_variables": "",
+        "soap_action": "",
+        "soap_envelope": "",
+        "headers_additional": {
+            "Content-Type": "application/json"
+        },
+        "payload": {
+            "version": "{{currentVersion2|string}}",
+            "status": "{{status}}",
+            "changeState": "{{changeState}}"
+        },
+        "expected_status": "400",
+        "expected_response_schema": null,
+        "expected_response": {
+            "type": "invalid-request",
+            "title": "Invalid Request",
+            "status": 400,
+            "detail": "The request contains invalid values",
+            "instance": "/api/moneymovement/v1/wire/da9cfb7d-75d0-4866-a7a1-96ec2a63afcc",
+            "errors": {
+                "changeState": [
+                    "Must be one of: Pending, Scheduled, Processed, PendingCancel, Canceled."
+                ]
+            }
+        },
+        "ignore_fields": [
+            "id"
+        ],
+        "extract_values": [],
+        "validate": {
+            "performance": {
+                "max_response_time_ms": 500
+            },
+            "security": {
+                "checks": [
+                    "sql_injection",
+                    "xss"
+                ]
+            },
+            "assertions": [
+                {
+                    "actual": "{{requestId_endpoint}}",
+                    "expected": "",
+                    "operator": "!=",
+                    "message": "RequestId should not be empty"
+                },
+                {
+                    "actual": "{{currentVersion2}}",
+                    "expected": 0,
+                    "operator": ">",
+                    "message": "Version should be greater than 0"
+                }
+            ],
+            "data_comparison": []
+        },
+        "test_data_file": "MoveMoneyAPI/data_driven/Data_wire_PATCH.csv",
+        "csv_row_index": 8,
+        "db_query_timing": "",
+        "db_queries": "",
+        "db_type": "",
+        "db_connection_name": "",
+        "test_summary": "Verify 400 Bad Request response when changeState field contains an invalid value for PATCH /wire/{requestId}"
+    },
+    {
+        "test_id": "TC008",
+        "service_name": "movemoney",
+        "workflow_mode": "sequential",
+        "test_name": "Bad Request - Patch on soft-deleted record [Negative] (TC008)",
+        "protocol": "REST",
+        "test_type": [
+            "Functional"
+        ],
+        "mainURL": "{{base_url}}",
+        "endpoint": "/wire/{{requestId_endpoint}}",
+        "method": "PATCH",
+        "rpc_method": "",
+        "graphql_query": "",
+        "graphql_variables": "",
+        "soap_action": "",
+        "soap_envelope": "",
+        "headers_additional": {
+            "Content-Type": "application/json"
+        },
+        "payload": {
+            "version": "{{version}}",
+            "status": "{{status}}",
+            "changeState": "{{changeState}}"
+        },
+        "expected_status": "400",
+        "expected_response_schema": null,
+        "expected_response": {
+            "type": "invalid-request",
+            "title": "Invalid Request",
+            "status": 400,
+            "detail": "The request contains invalid values",
+            "instance": "/api/moneymovement/v1/wire/337aeaad-ca40-4ffd-b466-a3e5f778497e",
+            "errors": {
+                "status": [
+                    "This request has been deleted and cannot be modified."
+                ]
+            }
+        },
+        "ignore_fields": [
+            "id",
+            "instance"
+        ],
+        "extract_values": [],
+        "validate": {
+            "performance": {
+                "max_response_time_ms": 500
+            },
+            "security": {
+                "checks": [
+                    "sql_injection",
+                    "xss"
+                ]
+            },
+            "assertions": [
+                {
+                    "actual": "{{requestId_endpoint}}",
+                    "expected": "",
+                    "operator": "!=",
+                    "message": "RequestId should not be empty"
+                }
+            ],
+            "data_comparison": []
+        },
+        "test_data_file": "MoveMoneyAPI/data_driven/Data_wire_PATCH.csv",
+        "csv_row_index": 9,
+        "db_query_timing": "",
+        "db_queries": "",
+        "db_type": "",
+        "db_connection_name": "",
+        "test_summary": "Verify 400 Bad Request response when attempting to PATCH a soft-deleted wire request (status=Deleted). Soft-deleted records are immutable."
+    },
+    {
+        "test_id": "TC009",
+        "service_name": "movemoney",
+        "workflow_mode": "sequential",
+        "test_name": "Bad Request - Missing required fields status and changeState [Negative] (TC009)",
+        "protocol": "REST",
+        "test_type": [
+            "Functional"
+        ],
+        "mainURL": "{{base_url}}",
+        "endpoint": "/wire/{{requestId_endpoint}}",
+        "method": "PATCH",
+        "rpc_method": "",
+        "graphql_query": "",
+        "graphql_variables": "",
+        "soap_action": "",
+        "soap_envelope": "",
+        "headers_additional": {
+            "Content-Type": "application/json"
+        },
+        "payload": {
+            "version": "{{version}}"
+        },
+        "expected_status": "400",
+        "expected_response_schema": null,
+        "expected_response": {
+            "type": "missing-required-fields",
+            "title": "One or more fields are missing values",
+            "status": 400,
+            "detail": "Missing Required Fields",
+            "instance": "/api/moneymovement/v1/wire/337aeaad-ca40-4ffd-b466-a3e5f778497e",
+            "errors": {
+                "status / changeState": [
+                    "At least one of status or changeState must be present in every request."
+                ]
+            }
+        },
+        "ignore_fields": [
+            "id",
+            "instance"
+        ],
+        "extract_values": [],
+        "validate": {
+            "performance": {
+                "max_response_time_ms": 500
+            },
+            "security": {
+                "checks": [
+                    "sql_injection",
+                    "xss"
+                ]
+            },
+            "assertions": [
+                {
+                    "actual": "{{requestId_endpoint}}",
+                    "expected": "",
+                    "operator": "!=",
+                    "message": "RequestId should not be empty"
+                }
+            ],
+            "data_comparison": []
+        },
+        "test_data_file": "MoveMoneyAPI/data_driven/Data_wire_PATCH.csv",
+        "csv_row_index": 10,
+        "db_query_timing": "",
+        "db_queries": "",
+        "db_type": "",
+        "db_connection_name": "",
+        "test_summary": "Verify 400 Bad Request response when PATCH request body contains only version with no status or changeState fields for PATCH /wire/{requestId}"
+    },
+    {
+        "test_id": "TC010",
+        "service_name": "movemoney",
+        "workflow_mode": "sequential",
+        "test_name": "Bad Request - Invalid non-numeric version value [Negative] (TC010)",
+        "protocol": "REST",
+        "test_type": [
+            "Functional"
+        ],
+        "mainURL": "{{base_url}}",
+        "endpoint": "/wire/{{requestId_endpoint}}",
+        "method": "PATCH",
+        "rpc_method": "",
+        "graphql_query": "",
+        "graphql_variables": "",
+        "soap_action": "",
+        "soap_envelope": "",
+        "headers_additional": {
+            "Content-Type": "application/json"
+        },
+        "payload": {
+            "version": "{{version}}",
+            "status": "{{status}}",
+            "changeState": "{{changeState}}"
+        },
+        "expected_status": "400",
+        "expected_response_schema": null,
+        "expected_response": {
+            "type": "invalid-request",
+            "title": "Invalid Request",
+            "status": 400,
+            "detail": "The request contains invalid values",
+            "instance": "/api/moneymovement/v1/wire/da9cfb7d-75d0-4866-a7a1-96ec2a63afcc",
+            "errors": {
+                "version": [
+                    "Must be a valid integer."
+                ]
+            }
+        },
+        "ignore_fields": [
+            "id"
+        ],
+        "extract_values": [],
+        "validate": {
+            "performance": {
+                "max_response_time_ms": 500
+            },
+            "security": {
+                "checks": [
+                    "sql_injection",
+                    "xss"
+                ]
+            },
+            "assertions": [
+                {
+                    "actual": "{{requestId_endpoint}}",
+                    "expected": "",
+                    "operator": "!=",
+                    "message": "RequestId should not be empty"
+                }
+            ],
+            "data_comparison": []
+        },
+        "test_data_file": "MoveMoneyAPI/data_driven/Data_wire_PATCH.csv",
+        "csv_row_index": 11,
+        "db_query_timing": "",
+        "db_queries": "",
+        "db_type": "",
+        "db_connection_name": "",
+        "test_summary": "Verify 400 Bad Request response when version is a non-numeric (Ex:'TEST'). PATCH /wire/{requestId}"
+    }
+]

@@ -54,6 +54,12 @@ stages:
       pool:
         name: ewm20-docker-build-agent-qa-dev
       steps:
+      - checkout: self
+        clean: true
+        fetchDepth: 1
+        sparseCheckoutDirectories: |
+          platformqe
+
       # Fetch database connection strings from Azure Key Vault
       - task: AzureKeyVault@2
         displayName: 'Fetch database connection strings from Azure Key Vault'

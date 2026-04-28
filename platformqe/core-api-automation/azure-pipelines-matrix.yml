@@ -22,6 +22,11 @@ pr:
     include:
       - qe_platform
       - develop
+  paths:
+    include:
+      - platformqe/**
+    exclude:
+      - applicationqe/**
 
 # Push Trigger - runs when code is pushed to branches
 trigger:
@@ -29,6 +34,11 @@ trigger:
     include:
       - qe_platform
       - develop
+  paths:
+    include:
+      - platformqe/**
+    exclude:
+      - applicationqe/**
       
 # Scheduled Triggers - Each schedule targets a specific service
 schedules:
