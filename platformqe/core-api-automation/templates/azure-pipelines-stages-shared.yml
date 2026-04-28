@@ -122,6 +122,11 @@ stages:
           name: ewm20-docker-build-agent-qa-dev
         steps:
           - checkout: ${{ parameters.repositoryAlias }}
+            clean: true
+            fetchDepth: 1
+            sparseCheckoutDirectories: |
+              platformqe
+
           - task: PowerShell@2
             displayName: 'Sleep time if triggered from deployment pipeline'
             inputs:
@@ -461,6 +466,10 @@ stages:
                 
         steps:
           - checkout: ${{ parameters.repositoryAlias }}
+            clean: true
+            fetchDepth: 1
+            sparseCheckoutDirectories: |
+              platformqe
           
           - task: Bash@3
             name: SetBuildPath
@@ -1044,6 +1053,10 @@ stages:
           executeTestsResult: $[ stageDependencies.ExecuteTests.RunTests.result ]
         steps:
           - checkout: ${{ parameters.repositoryAlias }}
+            clean: true
+            fetchDepth: 1
+            sparseCheckoutDirectories: |
+              platformqe
           
           - task: Bash@3
             displayName: 'Display Summary'
