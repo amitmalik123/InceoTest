@@ -91,6 +91,11 @@ parameters:
   - name: defaultEnvironments
     type: string
     default: 'all'
+  # Schedule-specific test case filter (branch-aware, set in calling pipeline)
+  - name: scheduleTestCaseFilter
+    type: string
+    default: 'N/A'
+
   # sleept time To sync the deployment charts
   - name: deploymentsync
     displayName: 'wait to sync ArgoCd charts and deployment sucessfully'
@@ -103,6 +108,13 @@ stages:
   ###########################################################################
   - stage: Initialize
     displayName: 'Initialize and Parse Service Matrix'
+    # Skip scheduled runs if SCHEDULE_RUN_BRANCH doesn't match this branch
+    condition: |
+      or(
+        ne(variables['Build.Reason'], 'Schedule'),
+        eq(variables['SCHEDULE_RUN_BRANCH'], 'all'),
+        eq(variables['SCHEDULE_RUN_BRANCH'], variables['Build.SourceBranchName'])
+      )
     jobs:
       - job: ParseMatrix
         displayName: 'Parse Services Matrix'
@@ -191,6 +203,7 @@ stages:
               CUSTOM_FUNC_ARGS: ${{ parameters.customFunctionalArgs }}
               CUSTOM_NONFUNC_ARGS: ${{ parameters.customNonFunctionalArgs }}
               TEST_CASE_FILTER: ${{ parameters.testCaseFilter }}
+              SCHEDULE_TEST_CASE_FILTER: ${{ parameters.scheduleTestCaseFilter }}
             inputs:
               targetType: inline
               script: |
@@ -198,7 +211,17 @@ stages:
                 echo "Using manage_matrix.py to determine services"
                 echo "=========================================="
                 
+                # For scheduled runs, use branch-specific filter if manual filter is not set
+                if [ "$BUILD_REASON" = "Schedule" ] && { [ -z "$TEST_CASE_FILTER" ] || [ "$TEST_CASE_FILTER" = "N/A" ]; }; then
+                  if [ -n "$SCHEDULE_TEST_CASE_FILTER" ] && [ "$SCHEDULE_TEST_CASE_FILTER" != "N/A" ]; then
+                    TEST_CASE_FILTER="$SCHEDULE_TEST_CASE_FILTER"
+                    echo "Using branch-specific schedule filter: $TEST_CASE_FILTER"
+                  fi
+                fi
+                
+                # Normalize filter: strip spaces around commas (e.g. "Smoke, Regression" -> "Smoke,Regression")
                 if [ -n "$TEST_CASE_FILTER" ] && [ "$TEST_CASE_FILTER" != "N/A" ]; then
+                  TEST_CASE_FILTER=$(echo "$TEST_CASE_FILTER" | sed 's/[[:space:]]*,[[:space:]]*/,/g' | sed 's/^[[:space:]]*//;s/[[:space:]]*$//')
                   echo "Test Case Filter: $TEST_CASE_FILTER (will append --test-type $TEST_CASE_FILTER to pytest)"
                 fi
                 
@@ -249,6 +272,12 @@ stages:
                     "16:45")
                       SCHEDULE_SERVICE="hnebase"
                       ;;
+                    "16:5"|"16:05")
+                      SCHEDULE_SERVICE="lexisnexiscipproxyservice"
+                      ;;
+                    "16:10")
+                      SCHEDULE_SERVICE="DocusignProxyservice"
+                      ;;
                     *)
                       echo "WARNING: No exact match for time ${CURRENT_HOUR}:${CURRENT_MINUTE}"
                       echo "Checking with minute tolerance (within 5 minutes)..."
@@ -287,6 +316,12 @@ stages:
                       # hnebase: 16:45 (1005 min)
                       elif [ $CURRENT_TIME_MIN -ge 1003 ] && [ $CURRENT_TIME_MIN -le 1007 ]; then
                         SCHEDULE_SERVICE="hnebase"
+                      # lexisnexiscipproxyservice: 16:05 (965 min)
+                      elif [ $CURRENT_TIME_MIN -ge 963 ] && [ $CURRENT_TIME_MIN -le 967 ]; then
+                        SCHEDULE_SERVICE="lexisnexiscipproxyservice"
+                      # DocusignProxyservice: 16:10 (970 min)
+                      elif [ $CURRENT_TIME_MIN -ge 968 ] && [ $CURRENT_TIME_MIN -le 972 ]; then
+                        SCHEDULE_SERVICE="DocusignProxyservice"
                       fi
                       ;;
                   esac

@@ -1,7 +1,7 @@
 [
     {
         "test_id": "TC001",
-        "service_name": "MoveMoneyAPI",
+        "service_name": "movemoney",
         "workflow_mode": "parallel",
         "test_name": "Record found and returned successfully for Deposit with Allocations [positive] (TC001)",
         "protocol": "REST",
@@ -115,7 +115,7 @@
     },
     {
         "test_id": "TC002",
-        "service_name": "MoveMoneyAPI",
+        "service_name": "movemoney",
         "workflow_mode": "parallel",
         "test_name": "Record found and returned successfully for Withdrawal [positive] (TC002)",
         "protocol": "REST",
@@ -222,7 +222,7 @@
     },
     {
         "test_id": "TC003",
-        "service_name": "MoveMoneyAPI",
+        "service_name": "movemoney",
         "workflow_mode": "parallel",
         "test_name": "The record exists but did not satisfy the status query filter. No response body is returned (TC003)",
         "protocol": "REST",
@@ -242,7 +242,7 @@
         },
         "payload": null,
         "requestId": "D9E52AB4-0784-41A9-B574-EF46CC4EC753",
-        "status": "Pending",
+        "status": "Draft",
         "expected_status": "204",
         "expected_response_schema": "",
         "expected_response": null,
@@ -294,9 +294,9 @@
     },
     {
         "test_id": "TC004",
-        "service_name": "MoveMoneyAPI",
+        "service_name": "movemoney",
         "workflow_mode": "parallel",
-        "test_name": "The requestId path parameter is not a valid UUID format, or the status query parameter contains an unrecognized enum value (TC004)",
+        "test_name": "The requestId path parameter is not a valid UUID format (TC004)",
         "protocol": "REST",
         "test_type": [
             "Functional"
@@ -316,31 +316,36 @@
         "requestId": "D9E5@#$2AB4-0784-41A9-B574-EF46CC4EC753",
         "expected_status": "400",
         "expected_response_schema": "",
-        "expected_response": null,
+        "expected_response": {
+            "type": "invalid-request",
+            "title": "Invalid Request",
+            "status": 400,
+            "detail": "The request contains invalid values",
+            "instance": "/api/moneymovement/v1/wire/D9E5@",
+            "errors": {
+                "requestId": [
+                    "Invalid UUID format for 'requestId' parameter."
+                ]
+            }
+        },
         "ignore_fields": [
             "id"
         ],
         "extract_values": [
             {
                 "from": "response",
-                "key": "",
-                "assign_to": ""
+                "key": "status",
+                "assign_to": "error_status_tc004"
             },
             {
                 "from": "response",
-                "record_count": false,
-                "array_path": "",
-                "assign_to": ""
+                "key": "type",
+                "assign_to": "error_type_tc004"
             },
             {
-                "from": "db_result",
-                "query": "",
-                "assign": [
-                    {
-                        "key": "",
-                        "assign_to": ""
-                    }
-                ]
+                "from": "response",
+                "key": "detail",
+                "assign_to": "error_detail_tc004"
             }
         ],
         "validate": {
@@ -353,7 +358,26 @@
                     "xss"
                 ]
             },
-            "assertions": [],
+            "assertions": [
+                {
+                    "actual": "{{error_status_tc004}}",
+                    "expected": 400,
+                    "operator": "==",
+                    "message": "Error status should be 400"
+                },
+                {
+                    "actual": "{{error_type_tc004}}",
+                    "expected": "invalid-request",
+                    "operator": "==",
+                    "message": "Error type should be invalid-request"
+                },
+                {
+                    "actual": "{{error_detail_tc004}}",
+                    "expected": "invalid values",
+                    "operator": "contains",
+                    "message": "Error detail should indicate invalid values"
+                }
+            ],
             "data_comparison": []
         },
         "test_data_file": "",
@@ -361,13 +385,13 @@
         "db_queries": {},
         "db_type": "",
         "db_connection_name": "",
-        "test_summary": "Test TC004: Verify GET /wire/{requestId} returns 400 response when request id  is not a valid UUID format, or the status query parameter contains an unrecognized enum value. (TC004)"
+        "test_summary": "Test TC004: Verify GET /wire/{requestId} returns 400 response when request id  is not a valid UUID format. (TC004)"
     },
     {
         "test_id": "TC005",
-        "service_name": "MoveMoneyAPI",
+        "service_name": "movemoney",
         "workflow_mode": "parallel",
-        "test_name": "Invalid Status Field (TC005)",
+        "test_name": "The status query parameter contains an unrecognized enum value(TC005)",
         "protocol": "REST",
         "test_type": [
             "Functional"
@@ -388,6 +412,102 @@
         "status": "Dra@#$ft",
         "expected_status": "400",
         "expected_response_schema": "",
+        "expected_response": {
+            "type": "invalid-request",
+            "title": "Invalid Request",
+            "status": 400,
+            "detail": "The request contains invalid values",
+            "instance": "/api/moneymovement/v1/wire/D9E52AB4-0784-41A9-B574-EF46CC4EC753",
+            "errors": {
+                "status": [
+                    "Must be one of: Draft, Pending, Confirmed, Deleted."
+                ]
+            }
+        },
+        "ignore_fields": [
+            "id"
+        ],
+        "extract_values": [
+            {
+                "from": "response",
+                "key": "status",
+                "assign_to": "error_status_tc005"
+            },
+            {
+                "from": "response",
+                "key": "type",
+                "assign_to": "error_type_tc005"
+            },
+            {
+                "from": "response",
+                "key": "detail",
+                "assign_to": "error_detail_tc005"
+            }
+        ],
+        "validate": {
+            "performance": {
+                "max_response_time_ms": 500
+            },
+            "security": {
+                "checks": [
+                    "sql_injection",
+                    "xss"
+                ]
+            },
+            "assertions": [
+                {
+                    "actual": "{{error_status_tc005}}",
+                    "expected": 400,
+                    "operator": "==",
+                    "message": "Error status should be 400"
+                },
+                {
+                    "actual": "{{error_type_tc005}}",
+                    "expected": "invalid-request",
+                    "operator": "==",
+                    "message": "Error type should be invalid-request"
+                },
+                {
+                    "actual": "{{error_detail_tc005}}",
+                    "expected": "invalid values",
+                    "operator": "contains",
+                    "message": "Error detail should indicate invalid values"
+                }
+            ],
+            "data_comparison": []
+        },
+        "test_data_file": "",
+        "db_query_timing": "after_api",
+        "db_queries": {},
+        "db_type": "",
+        "db_connection_name": "",
+        "test_summary": "Test TC005: Verify GET /wire/{requestId} returns 400 response when the status query parameter contains an unrecognized enum value. (TC005)"
+    },
+    {
+        "test_id": "TC006",
+        "service_name": "movemoney",
+        "workflow_mode": "parallel",
+        "test_name": "RequestId is not provided (TC006)",
+        "protocol": "REST",
+        "test_type": [
+            "Functional"
+        ],
+        "mainURL": "{{base_url}}",
+        "endpoint": "/wire/{{requestId}}?status={{status}}",
+        "method": "GET",
+        "rpc_method": "",
+        "graphql_query": "",
+        "graphql_variables": "",
+        "soap_action": "",
+        "soap_envelope": "",
+        "headers_additional": {
+            "Content-Type": "application/json"
+        },
+        "payload": null,
+        "requestId": "",
+        "status": "Pending",
+        "expected_status": "404",
+        "expected_response_schema": "",
         "expected_response": null,
         "ignore_fields": [
             "id"
@@ -433,6 +553,270 @@
         "db_queries": {},
         "db_type": "",
         "db_connection_name": "",
-        "test_summary": "Test TC005: Test TC004: Verify GET /wire/{requestId} returns 400 response when the status field is Invalid (TC005)"
+        "test_summary": "Test TC006: Verify GET /wire/{requestId} returns 404 response when the requestId is not provided (TC006)"
+    },
+    {
+        "test_id": "TC007",
+        "service_name": "movemoney",
+        "workflow_mode": "parallel",
+        "test_name": "204 returns when valid requestId does not match any wire request. No response body is returned (TC007)",
+        "protocol": "REST",
+        "test_type": [
+            "Functional"
+        ],
+        "mainURL": "{{base_url}}",
+        "endpoint": "/wire/{{requestId}}?status={{status}}",
+        "method": "GET",
+        "rpc_method": "",
+        "graphql_query": "",
+        "graphql_variables": "",
+        "soap_action": "",
+        "soap_envelope": "",
+        "headers_additional": {
+            "Content-Type": "application/json"
+        },
+        "payload": null,
+        "requestId": "09E9BAD5-3AD6-475E-85B6-01979F72EC09",
+        "status": "",
+        "expected_status": "204",
+        "expected_response_schema": "",
+        "expected_response": null,
+        "ignore_fields": [
+            "id"
+        ],
+        "extract_values": [
+            {
+                "from": "response",
+                "key": "",
+                "assign_to": ""
+            },
+            {
+                "from": "response",
+                "record_count": false,
+                "array_path": "",
+                "assign_to": ""
+            },
+            {
+                "from": "db_result",
+                "query": "",
+                "assign": [
+                    {
+                        "key": "",
+                        "assign_to": ""
+                    }
+                ]
+            }
+        ],
+        "validate": {
+            "performance": {
+                "max_response_time_ms": 500
+            },
+            "security": {
+                "checks": [
+                    "sql_injection",
+                    "xss"
+                ]
+            },
+            "assertions": [],
+            "data_comparison": []
+        },
+        "test_data_file": "",
+        "db_query_timing": "after_api",
+        "db_queries": {},
+        "db_type": "",
+        "db_connection_name": "",
+        "test_summary": "Test TC007: Verify GET /wire/{requestId} returns 204 response for No content when the valid requestId does not match any wire request and No response body is returned. (TC007)"
+    },
+    {
+        "test_id": "TC008",
+        "service_name": "movemoney",
+        "workflow_mode": "parallel",
+        "test_name": "400 returns for syntactically malformed requestId (TC008)",
+        "protocol": "REST",
+        "test_type": [
+            "Functional"
+        ],
+        "mainURL": "{{base_url}}",
+        "endpoint": "/wire/{{requestId}}?status={{status}}",
+        "method": "GET",
+        "rpc_method": "",
+        "graphql_query": "",
+        "graphql_variables": "",
+        "soap_action": "",
+        "soap_envelope": "",
+        "headers_additional": {
+            "Content-Type": "application/json"
+        },
+        "payload": null,
+        "requestId": "TEST12345",
+        "status": "",
+        "expected_status": "400",
+        "expected_response_schema": "",
+        "expected_response": {
+            "type": "invalid-request",
+            "title": "Invalid Request",
+            "status": 400,
+            "detail": "The request contains invalid values",
+            "instance": "/api/moneymovement/v1/wire/TEST12345",
+            "errors": {
+                "requestId": [
+                    "Invalid UUID format for 'requestId' parameter."
+                ]
+            }
+        },
+        "ignore_fields": [
+            "id"
+        ],
+        "extract_values": [
+            {
+                "from": "response",
+                "key": "status",
+                "assign_to": "error_status_tc008"
+            },
+            {
+                "from": "response",
+                "key": "type",
+                "assign_to": "error_type_tc008"
+            },
+            {
+                "from": "response",
+                "key": "detail",
+                "assign_to": "error_detail_tc008"
+            }
+        ],
+        "validate": {
+            "performance": {
+                "max_response_time_ms": 500
+            },
+            "security": {
+                "checks": [
+                    "sql_injection",
+                    "xss"
+                ]
+            },
+            "assertions": [
+                {
+                    "actual": "{{error_status_tc008}}",
+                    "expected": 400,
+                    "operator": "==",
+                    "message": "Error status should be 400"
+                },
+                {
+                    "actual": "{{error_type_tc008}}",
+                    "expected": "invalid-request",
+                    "operator": "==",
+                    "message": "Error type should be invalid-request"
+                },
+                {
+                    "actual": "{{error_detail_tc008}}",
+                    "expected": "invalid values",
+                    "operator": "contains",
+                    "message": "Error detail should indicate invalid values"
+                }
+            ],
+            "data_comparison": []
+        },
+        "test_data_file": "",
+        "db_query_timing": "after_api",
+        "db_queries": {},
+        "db_type": "",
+        "db_connection_name": "",
+        "test_summary": "Test TC008: Verify GET /wire/{requestId} returns 400 response for syntactically malformed requestId (TC008)"
+    },
+    {
+        "test_id": "TC009",
+        "service_name": "movemoney",
+        "workflow_mode": "parallel",
+        "test_name": "400 returns when requestId is out-of-range(TC009)",
+        "protocol": "REST",
+        "test_type": [
+            "Functional"
+        ],
+        "mainURL": "{{base_url}}",
+        "endpoint": "/wire/{{requestId}}?status={{status}}",
+        "method": "GET",
+        "rpc_method": "",
+        "graphql_query": "",
+        "graphql_variables": "",
+        "soap_action": "",
+        "soap_envelope": "",
+        "headers_additional": {
+            "Content-Type": "application/json"
+        },
+        "payload": null,
+        "requestId": "996D12F2-451C-4586-9423-01A0E5EFA43891",
+        "status": "",
+        "expected_status": "400",
+        "expected_response_schema": "",
+        "expected_response": {
+            "type": "invalid-request",
+            "title": "Invalid Request",
+            "status": 400,
+            "detail": "The request contains invalid values",
+            "instance": "/api/moneymovement/v1/wire/996D12F2-451C-4586-9423-01A0E5EFA43891",
+            "errors": {
+                "requestId": [
+                    "Invalid UUID format for 'requestId' parameter."
+                ]
+            }
+        },
+        "ignore_fields": [
+            "id"
+        ],
+        "extract_values": [
+            {
+                "from": "response",
+                "key": "status",
+                "assign_to": "error_status_tc009"
+            },
+            {
+                "from": "response",
+                "key": "type",
+                "assign_to": "error_type_tc009"
+            },
+            {
+                "from": "response",
+                "key": "detail",
+                "assign_to": "error_detail_tc009"
+            }
+        ],
+        "validate": {
+            "performance": {
+                "max_response_time_ms": 500
+            },
+            "security": {
+                "checks": [
+                    "sql_injection",
+                    "xss"
+                ]
+            },
+            "assertions": [
+                {
+                    "actual": "{{error_status_tc009}}",
+                    "expected": 400,
+                    "operator": "==",
+                    "message": "Error status should be 400"
+                },
+                {
+                    "actual": "{{error_type_tc009}}",
+                    "expected": "invalid-request",
+                    "operator": "==",
+                    "message": "Error type should be invalid-request"
+                },
+                {
+                    "actual": "{{error_detail_tc009}}",
+                    "expected": "invalid values",
+                    "operator": "contains",
+                    "message": "Error detail should indicate invalid values"
+                }
+            ],
+            "data_comparison": []
+        },
+        "test_data_file": "",
+        "db_query_timing": "after_api",
+        "db_queries": {},
+        "db_type": "",
+        "db_connection_name": "",
+        "test_summary": "Test TC009: Verify GET /wire/{requestId} returns 400 response when requestId is out-of-range (TC009)"
     }
 ]

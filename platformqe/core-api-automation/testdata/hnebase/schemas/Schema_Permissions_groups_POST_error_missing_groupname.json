@@ -16,5 +16,5 @@
     },
     "traceId": { "type": "string" }
   },
-  "required": ["title", "status", "type", "errors", "traceId"]
+  "required": ["title", "status", "instance", "errors"]
 }
