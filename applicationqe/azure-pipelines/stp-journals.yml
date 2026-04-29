@@ -7,15 +7,15 @@ trigger:
       - develop
   paths:
     include:
-      - data/STP/STP-JOURNALS/**
-      - config/STP/STP-JOURNALS/**
-      - tests/features/STP/STP-JOURNALS/**
-      - tests/steps/STP/STP-JOURNALS/**
-      - pages/EWM/**
-      - pages/STP/STP-JOURNALS/**
-      - queries/STP/STP-JOURNALS/**
-      - azure-pipelines/templates/**
-      - requirements.txt
+      - applicationqe/data/STP/STP-JOURNALS/**
+      - applicationqe/config/STP/STP-JOURNALS/**
+      - applicationqe/tests/features/STP/STP-JOURNALS/**
+      - applicationqe/tests/steps/STP/STP-JOURNALS/**
+      - applicationqe/pages/EWM/**
+      - applicationqe/pages/STP/STP-JOURNALS/**
+      - applicationqe/queries/STP/STP-JOURNALS/**
+      - applicationqe/azure-pipelines/templates/**
+      - applicationqe/requirements.txt
 
 pr:
   branches:
@@ -24,15 +24,15 @@ pr:
       - develop
   paths:
     include:
-      - data/STP/STP-JOURNALS/**
-      - config/STP/STP-JOURNALS/**
-      - tests/features/STP/STP-JOURNALS/**
-      - tests/steps/STP/STP-JOURNALS/**
-      - pages/EWM/**
-      - pages/STP/STP-JOURNALS/**
-      - queries/STP/STP-JOURNALS/**
-      - azure-pipelines/templates/**
-      - requirements.txt
+      - applicationqe/data/STP/STP-JOURNALS/**
+      - applicationqe/config/STP/STP-JOURNALS/**
+      - applicationqe/tests/features/STP/STP-JOURNALS/**
+      - applicationqe/tests/steps/STP/STP-JOURNALS/**
+      - applicationqe/pages/EWM/**
+      - applicationqe/pages/STP/STP-JOURNALS/**
+      - applicationqe/queries/STP/STP-JOURNALS/**
+      - applicationqe/azure-pipelines/templates/**
+      - applicationqe/requirements.txt
 
 pool:
   vmImage: ubuntu-latest
