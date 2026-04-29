@@ -98,10 +98,12 @@ stages:
         pip --version
         echo "Installing Python dependencies..."
         python -m pip install --upgrade pip setuptools wheel
+        cd qeautomation/applicationqe
         pip install -e .
       displayName: "Install Python Dependencies"
 
     - script: |
+        cd qeautomation/applicationqe
         echo "Installing Playwright browsers (Python version)..."
         if [ "${{ parameters.browser }}" = "both" ]; then
           echo "Installing both Chromium and Edge..."
@@ -118,6 +120,7 @@ stages:
       continueOnError: false
 
     - script: |
+        cd qeautomation/applicationqe
         echo "Installing Allure CLI via pip..."
         pip install allure-pytest
 
@@ -160,6 +163,9 @@ stages:
         echo "✓ CI=$CI"
         echo ""
         echo "Current working directory: $(pwd)"
+        echo "Changing to applicationqe directory..."
+        cd qeautomation/applicationqe
+        echo "New working directory: $(pwd)"
         echo "Python version: $(python --version)"
         echo ""
         
@@ -276,6 +282,7 @@ stages:
         export BUILD_ID="$(Build.BuildId)"
         export BUILD_REASON="$(Build.Reason)"
 
+        cd qeautomation/applicationqe
         python utils/influx_reporter.py
       displayName: "Push Metrics to InfluxDB"
       condition: always()
