@@ -189,7 +189,6 @@ stages:
         PYTEST_CMD="pytest $TEST_TARGET \
           -m \"$(marker)\" \
           $BROWSER_PARAM \
-          --ignore-https-errors \
           --junitxml=\"$(testResultsDir)/junit/junit-report.xml\" \
           -v \
           --video=retain-on-failure \
