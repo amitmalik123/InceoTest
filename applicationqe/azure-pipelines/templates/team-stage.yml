@@ -71,27 +71,24 @@ stages:
       clean: true
 
     # -----------------------------------------------------------------
-    # Azure Key Vault: Fetch secrets and map them to pipeline variables
+    # Azure Key Vault: DISABLED - Service connection not configured
     # -----------------------------------------------------------------
+    # To enable: Uncomment the task below after creating 'subscription_test' service connection
     # Prerequisites:
     #   1. Azure Key Vault created with secrets following naming convention: {env}-{service}-{key}
-    #      Examples: test11-azure-sql-password, test11-api-auth-token
     #   2. Service Connection 'subscription_test' created in Azure DevOps
     #   3. Service Principal granted "Key Vault Secrets User" role on the Key Vault
-    #   4. Variable group 'qa-pipelines-shared-config' contains:
-    #      - subscription_test (service connection name)
-    #      - logAnalyticsWorkspaceId
-    #      - logAnalyticsSharedKey
+    #   4. Variable group 'qa-pipelines-shared-config' contains subscription_test
     # -----------------------------------------------------------------
-    - task: AzureKeyVault@2
-      displayName: 'Fetch Secrets from Azure Key Vault'
-      inputs:
-        azureSubscription: $(subscription_test)
-        KeyVaultName: $(keyVaultName)
-        SecretsFilter: '*'
-        RunAsPreJob: true
-      # Each secret becomes a pipeline variable with the same name.
-      # E.g., Key Vault secret "test11-azure-sql-password" → $(test11-azure-sql-password)
+    # - task: AzureKeyVault@2
+    #   displayName: 'Fetch Secrets from Azure Key Vault'
+    #   inputs:
+    #     azureSubscription: $(subscription_test)
+    #     KeyVaultName: $(keyVaultName)
+    #     SecretsFilter: '*'
+    #     RunAsPreJob: true
+    #   # Each secret becomes a pipeline variable with the same name.
+    #   # E.g., Key Vault secret "test11-azure-sql-password" → $(test11-azure-sql-password)
 
     - script: |
         echo "========================================"
@@ -268,13 +265,13 @@ stages:
         WORK_ITEM_AUTH_TOKEN: $(WORK_ITEM_AUTH_TOKEN)
         PARTIES_AUTH_TOKEN: $(PARTIES_AUTH_TOKEN)
         INFLUXDB_AUTO_PUSH: 'false'  # Pipeline has its own dedicated push step
-        # ── Connection strings: AzureKeyVault@2 fetches secrets → mapped to env vars ──
-        # Python reads these via os.getenv() — no direct Key Vault API calls.
-        TRANSFER_CONNECTION_STRING: $(transfer-connection-string)
-        ACCOUNTDISTRIBUTIONS_CONNECTION_STRING: $(accoundistributions-connection-string)
-        CRM_DB_CONNECTION_STRING: $(crm-db-connection-string)
-        AM_BILLING_CONNECTION_STRING: $(am-billing-connection-string)
-        API_AUTH_TOKEN: $(test11-api-auth-token)
+        # ── Connection strings: DISABLED - Key Vault not configured ──
+        # Uncomment these after enabling Azure Key Vault integration above
+        # TRANSFER_CONNECTION_STRING: $(transfer-connection-string)
+        # ACCOUNTDISTRIBUTIONS_CONNECTION_STRING: $(accoundistributions-connection-string)
+        # CRM_DB_CONNECTION_STRING: $(crm-db-connection-string)
+        # AM_BILLING_CONNECTION_STRING: $(am-billing-connection-string)
+        # API_AUTH_TOKEN: $(test11-api-auth-token)
         INFLUXDB_URL: $(INFLUXDB_URL)
         INFLUXDB_TOKEN: $(INFLUXDB_TOKEN)
         INFLUXDB_ORG: $(INFLUXDB_ORG)
