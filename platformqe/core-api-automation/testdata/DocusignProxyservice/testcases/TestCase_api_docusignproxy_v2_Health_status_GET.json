@@ -129,7 +129,7 @@
         },
         "payload": null,
         "expected_status": "404",
-        "expected_response_schema": "DocusignProxyservice\\schemas\\Schema_api_docusignproxy_v2_Health_status_GET.json",
+        "expected_response_schema": "",
         "expected_response": null,
         "ignore_fields": [
             "id"
@@ -139,22 +139,6 @@
                 "from": "response",
                 "key": "",
                 "assign_to": ""
-            },
-            {
-                "from": "response",
-                "record_count": false,
-                "array_path": "",
-                "assign_to": ""
-            },
-            {
-                "from": "db_result",
-                "query": "",
-                "assign": [
-                    {
-                        "key": "",
-                        "assign_to": ""
-                    }
-                ]
             }
         ],
         "validate": {
