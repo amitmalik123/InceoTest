@@ -119,6 +119,8 @@ class TrackingCenterPage(BasePage):
             # STEP 2: Click search button
             logger.info(f"Step 2: Clicking search button...")
             try:
+                # Dismiss OneTrust overlay if present before clicking
+                self._dismiss_onetrust_overlay()
                 search_button.click(timeout=timeout)
                 logger.info(f"[PASS] Search button clicked")
             except Exception as e:
@@ -128,11 +130,14 @@ class TrackingCenterPage(BasePage):
             # STEP 3: Wait for table row with D-number to be visible
             logger.info(f"Step 3: Waiting for D-number table row to load (timeout: {timeout}ms)...")
             try:
-                # Convert timeout from milliseconds to seconds for WaitContext
-                timeout_sec = timeout / 1000.0 if timeout else 30.0
-                with WaitContext(timeout=timeout_sec) as wait_ctx:
-                    d_number_row_element = d_number_row
-                    assert d_number_row_element.is_visible(), f"Table row with id '{d_number}' is not visible after search"
+                # Wait for page to load search results first
+                self.page.wait_for_load_state("networkidle", timeout=timeout)
+                
+                # Dismiss overlay that may have reappeared after search
+                self._dismiss_onetrust_overlay()
+                
+                # Use wait_for which actually waits for the element to appear
+                d_number_row.wait_for(state="visible", timeout=timeout)
                 logger.info(f"[PASS] D-number table row loaded and visible: {d_number}")
             except Exception as e:
                 logger.error(f"✗ Failed to load D-number table row: {e}")
@@ -141,6 +146,7 @@ class TrackingCenterPage(BasePage):
             # STEP 4: Click on the D-number table row
             logger.info(f"Step 4: Clicking D-number table row to open item details...")
             try:
+                self._dismiss_onetrust_overlay()
                 d_number_row.click(timeout=timeout)
                 logger.info(f"[PASS] D-number table row clicked: {d_number}")
             except Exception as e:

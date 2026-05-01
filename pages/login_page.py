@@ -23,20 +23,19 @@ class LoginPage(BasePage):
         url = f"{self.base_url}{self.PAGE_PATH}"
         logger.info(f"Navigating to login page: {url}")
         self.page.goto(url)
-        # Allow All button is optional - only appears first time (no session/cookies)
-        try:
-            self.allow_all_button.wait_for(state="visible", timeout=3000)
-            logger.info("Allow All button found")
-        except Exception:
-            logger.info("Allow All button not present (session may already exist)")
+        self.page.wait_for_load_state("domcontentloaded", timeout=10000)
         logger.info("Login page loaded successfully")
 
     def accept_cookies(self) -> None:
-        logger.info("Accepting cookies")
+        logger.info("Accepting cookies / dismissing OneTrust overlay")
+        # First try the BasePage OneTrust dismissal (handles Reject All, close button, JS removal)
+        self._dismiss_onetrust_overlay()
+        
+        # Also try the Allow All button (legacy/alternative cookie consent)
         try:
             self.allow_all_button.click(timeout=2000)
         except Exception:
-            logger.info("Allow All button not available (already accepted or session exists)")
+            logger.info("Allow All button not available (already accepted or dismissed)")
 
     def enter_username(self, username: str) -> None:
         logger.info(f"Entering username: {username}")
@@ -48,9 +47,23 @@ class LoginPage(BasePage):
 
     def click_sign_in(self) -> None:
         logger.info("Clicking sign in button")
-        # Click and wait for navigation to happen
-        with self.page.expect_navigation(wait_until="networkidle", timeout=30000):
-            self.click(self.sign_in_button)
+        # Click sign in - triggers SSO redirect chain
+        self.click(self.sign_in_button)
+        
+        # Wait for SSO redirect to complete - URL should no longer contain login paths
+        # The SSO flow may land on different domains (ewealthmanager.com or ewm3.assetmark.net)
+        try:
+            self.page.wait_for_url(
+                lambda url: "login" not in url.lower().split("?")[0].split("/")[-1]
+                and "account/login" not in url.lower()
+                and "test-login.assetmark.com" not in url.lower(),
+                timeout=60000,
+                wait_until="domcontentloaded"
+            )
+        except Exception:
+            logger.warning(f"SSO redirect wait timed out. Current URL: {self.page.url}")
+            self.page.wait_for_load_state("networkidle", timeout=30000)
+        
         logger.info(f"Navigation after sign in completed. Current URL: {self.page.url}")
 
     def submit_login_form(self) -> None:

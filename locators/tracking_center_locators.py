@@ -32,6 +32,10 @@ def get_d_number_table_row_locator(page: Page, d_number: str) -> Locator:
     """
     Get locator for table row with D-number.
     
+    Uses multiple strategies:
+    1. Row with matching id attribute (tr#D003525811)
+    2. Row containing a cell with matching text content
+    
     Args:
         page: Playwright Page object
         d_number: D-number string (e.g., "D003525811")
@@ -39,4 +43,6 @@ def get_d_number_table_row_locator(page: Page, d_number: str) -> Locator:
     Returns:
         Locator for the table row matching the D-number
     """
-    return page.locator(f"tr#{d_number}")
+    # Primary: tr with id matching D-number
+    # Fallback: tr containing a td/cell with the D-number text
+    return page.locator(f"tr#{d_number}, tr:has(td:text-is('{d_number}'))").first
