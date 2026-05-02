@@ -35,7 +35,7 @@ from framework.common.logger import get_logger
 logger = get_logger(__name__)
 
 
-from locust import HttpUser, task, between, events
+from locust import HttpUser, task, between, constant_throughput, events
 import os
 import time
 import psutil
@@ -65,7 +65,20 @@ test_parameters = {}  # Store test parameters for metadata
 def get_args():
     import sys
     # Extract custom args before Locust processes them
-    custom_args = {'--folder': None, '--test_type': None, '--file': None, '--env': None}
+    custom_args = {'--folder': None, '--test_type': None, '--file': None, '--env': None, '--run_once': None, '--target_rps': None}
+    locust_users = None
+    for i, arg in enumerate(sys.argv):
+        if arg in ('-u', '--users') and i + 1 < len(sys.argv):
+            try:
+                locust_users = int(sys.argv[i + 1])
+            except (TypeError, ValueError):
+                locust_users = None
+        elif arg.startswith('--users='):
+            try:
+                locust_users = int(arg.split('=', 1)[1])
+            except (TypeError, ValueError):
+                locust_users = None
+
     new_argv = []
     skip_next = False
     for i, arg in enumerate(sys.argv):
@@ -86,6 +99,17 @@ def get_args():
     args.test_type = custom_args['--test_type'] or os.environ.get('LOCUST_TEST_TYPE', None)
     args.file = custom_args['--file'] or os.environ.get('LOCUST_FILE', None)
     args.env = custom_args['--env']
+    args.users = locust_users or int(os.environ.get('LOCUST_USERS', '1'))
+
+    run_once_raw = custom_args['--run_once'] or os.environ.get('LOCUST_RUN_ONCE', 'true')
+    args.run_once = str(run_once_raw).strip().lower() in ('true', '1', 'yes', 'y')
+
+    target_rps_raw = custom_args['--target_rps'] or os.environ.get('LOCUST_TARGET_RPS')
+    try:
+        args.target_rps = float(target_rps_raw) if target_rps_raw else None
+    except (TypeError, ValueError):
+        logger.warning(f"Invalid --target_rps value '{target_rps_raw}', using default wait_time")
+        args.target_rps = None
     
     # Set ENV_NAME from --env argument if provided, otherwise use existing environment variable or .env
     if args.env:
@@ -104,6 +128,19 @@ def get_args():
         logger.info(f"ENV_NAME already set in environment: '{os.environ.get('ENV_NAME')}'")
     
     return args
+
+def build_wait_time(args):
+    """Build Locust wait_time from optional aggregate target RPS."""
+    if args.target_rps and args.target_rps > 0 and args.users > 0:
+        per_user_rps = args.target_rps / args.users
+        logger.info(
+            f"Target aggregate RPS enabled: {args.target_rps} RPS across {args.users} users "
+            f"(~{per_user_rps:.4f} RPS/user)"
+        )
+        return constant_throughput(per_user_rps)
+
+    logger.info("No target RPS configured; using default wait_time between 1 and 3 seconds")
+    return between(1, 3)
 
 def load_testcases(folder=None, test_type=None, file=None):
     """Load testcases using framework's TestCaseLoader"""
@@ -226,6 +263,9 @@ test_parameters = {
     'test_type': args.test_type,
     'file': args.file,
     'env': args.env,
+    'run_once': args.run_once,
+    'target_rps': args.target_rps,
+    'users': args.users,
     'timestamp': datetime.now().strftime('%Y-%m-%d %H:%M:%S')
 }
 
@@ -319,7 +359,7 @@ except Exception as e:
     influx_enabled = False
 
 class APIPerformanceUser(HttpUser):
-    wait_time = between(1, 3)
+    wait_time = build_wait_time(args)
     host = api_base_url
 
     def on_start(self):
@@ -343,11 +383,13 @@ class APIPerformanceUser(HttpUser):
         
         logger.info(f"Loaded {len(TESTCASES)} testcases.")
         
-        # Run each test case only once to prevent infinite loop
-        if not hasattr(self, '_tests_executed'):
-            self._tests_executed = True
-        else:
-            return  # Skip if tests already executed
+        # Optional run-once mode preserves the legacy behavior.
+        # Set --run_once false to let each Locust user loop continuously until -t ends.
+        if args.run_once:
+            if not hasattr(self, '_tests_executed'):
+                self._tests_executed = True
+            else:
+                return  # Skip if tests already executed
         env_name = os.environ.get('ENV_NAME')
         
         for case in TESTCASES:
