@@ -9,7 +9,7 @@
             "Performance"
         ],
         "mainURL": "{{base_url}}",
-        "endpoint": "/model",
+        "endpoint": "/models",
         "method": "POST",
         "rpc_method": "",
         "graphql_query": "",
