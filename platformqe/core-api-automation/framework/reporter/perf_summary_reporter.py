@@ -123,24 +123,21 @@ _APP_INSIGHTS_SUBSCRIPTION_ENV_VAR = {
 }
 
 _APP_INSIGHTS_TENANT = "assetmark.onmicrosoft.com"
-# Final fallback when no Library variable is set (e.g. local CLI runs).
-_APP_INSIGHTS_SUBSCRIPTION_DEFAULT = "9156b16c-8a2e-4b7d-a886-e772dc017316"
 _GUID_RE = re.compile(r"^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$")
 
 
-def _resolve_subscription(env_key: str) -> str:
-    """Resolve subscription GUID for ``env_key`` from env vars.
+def _resolve_subscription(env_key: str) -> Optional[str]:
+    """Resolve subscription GUID for ``env_key`` strictly from env vars.
 
     Order of preference:
       1. ``SUBSCRIPTION_<ENV>`` (e.g. SUBSCRIPTION_DEV) sourced from the
          Azure DevOps Library variable group ``subscription_dev``.
       2. Generic ``APP_INSIGHTS_SUBSCRIPTION_ID`` override.
-      3. Baked-in default so local runs still produce a usable URL.
 
-    Values that look like an unresolved Azure DevOps macro (``$(foo)``) or
-    that are blank are skipped. Non-GUID values are accepted but logged via
-    the fallback chain so a service-connection name doesn't silently break
-    the URL -- if it doesn't match the GUID shape we drop to the default.
+    Returns ``None`` when nothing usable is provided -- callers should then
+    omit the link rather than render a stale URL. Values that look like an
+    unresolved Azure DevOps macro (``$(foo)``), are blank, or are not a
+    valid GUID are skipped.
     """
     candidates = []
     var_name = _APP_INSIGHTS_SUBSCRIPTION_ENV_VAR.get(env_key)
@@ -155,16 +152,18 @@ def _resolve_subscription(env_key: str) -> str:
             continue
         if _GUID_RE.match(val):
             return val
-    return _APP_INSIGHTS_SUBSCRIPTION_DEFAULT
+    return None
 
 
 def _app_insights_links(env: Optional[str]) -> Dict[str, Optional[str]]:
     """Return App Insights Performance + Failures portal URLs for the given env.
 
-    Returns ``{'performance': url, 'failures': url}``; values are ``None`` when
-    the env doesn't have a known cluster suffix (e.g. local CLI runs).
-    Subscription is resolved per env from the Azure DevOps Library variable
-    group (``subscription_dev`` / ``subscription_test`` / ``subscription_silo``).
+    URLs are built on the fly from the per-env subscription GUID resolved at
+    runtime from the Azure DevOps Library variable group
+    (``subscription_dev`` / ``subscription_test`` / ``subscription_silo``).
+    Returns ``{'performance': None, 'failures': None}`` whenever the
+    environment is unknown OR no subscription is available, so the report
+    never displays a stale link.
     """
     if not env:
         return {"performance": None, "failures": None}
@@ -173,6 +172,8 @@ def _app_insights_links(env: Optional[str]) -> Dict[str, Optional[str]]:
     if not suffix:
         return {"performance": None, "failures": None}
     subscription = _resolve_subscription(env_key)
+    if not subscription:
+        return {"performance": None, "failures": None}
     base = (
         f"https://portal.azure.com/#@{_APP_INSIGHTS_TENANT}"
         f"/resource/subscriptions/{subscription}"
@@ -908,8 +909,19 @@ def _main(argv: Optional[Sequence[str]] = None) -> int:
     parser.add_argument("--service-name", default=None)
     parser.add_argument("--objective", default=None)
     parser.add_argument("--azure-devops-url", default=None)
+    parser.add_argument(
+        "--subscription",
+        default=None,
+        help="Azure subscription GUID to use for App Insights links "
+             "(overrides SUBSCRIPTION_DEV/TEST/SILO env vars).",
+    )
     parser.add_argument("--output", default=None, help="Output HTML path (default: <csv-base>_executive_summary.html)")
     args = parser.parse_args(argv)
+
+    if args.subscription:
+        # Make the value visible to the resolver without changing the public
+        # generate_executive_summary signature.
+        os.environ["APP_INSIGHTS_SUBSCRIPTION_ID"] = args.subscription
 
     out = generate_executive_summary(
         csv_base=args.csv_base,
