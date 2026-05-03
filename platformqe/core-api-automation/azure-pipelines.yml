@@ -303,7 +303,18 @@ stages:
         displayName: 'Publish Framework Logs'
       - task: Bash@3
         displayName: 'Send Test Report Email'
-        condition: and(succeededOrFailed(), or(eq(variables['email_feature_enabled'], 'true'), eq(variables['email_feature_enabled'], 'True'), eq(variables['email_feature_enabled'], 'TRUE')))
+        # Email is suppressed for non-functional-only runs (perf reports are
+        # already published as build artifacts + executive summary HTML).
+        condition: >-
+          and(
+            succeededOrFailed(),
+            ne('${{ parameters.testType }}', 'non-functional'),
+            or(
+              eq(variables['email_feature_enabled'], 'true'),
+              eq(variables['email_feature_enabled'], 'True'),
+              eq(variables['email_feature_enabled'], 'TRUE')
+            )
+          )
         env:
           SMTP_SERVER: $(smtp_server)
           SMTP_PORT: $(smtp_port)
