@@ -112,8 +112,50 @@ _APP_INSIGHTS_ENV_SUFFIX = {
     "TSASILO": "silo01",
 }
 
+# Per-env subscription IDs are sourced from the Azure DevOps Library
+# variable group (subscription_dev / subscription_test / subscription_silo)
+# which the pipeline forwards as SUBSCRIPTION_DEV / SUBSCRIPTION_TEST /
+# SUBSCRIPTION_SILO env vars to the Locust step.
+_APP_INSIGHTS_SUBSCRIPTION_ENV_VAR = {
+    "TSADEV": "SUBSCRIPTION_DEV",
+    "TSATEST": "SUBSCRIPTION_TEST",
+    "TSASILO": "SUBSCRIPTION_SILO",
+}
+
 _APP_INSIGHTS_TENANT = "assetmark.onmicrosoft.com"
-_APP_INSIGHTS_SUBSCRIPTION = "9156b16c-8a2e-4b7d-a886-e772dc017316"
+# Final fallback when no Library variable is set (e.g. local CLI runs).
+_APP_INSIGHTS_SUBSCRIPTION_DEFAULT = "9156b16c-8a2e-4b7d-a886-e772dc017316"
+_GUID_RE = re.compile(r"^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$")
+
+
+def _resolve_subscription(env_key: str) -> str:
+    """Resolve subscription GUID for ``env_key`` from env vars.
+
+    Order of preference:
+      1. ``SUBSCRIPTION_<ENV>`` (e.g. SUBSCRIPTION_DEV) sourced from the
+         Azure DevOps Library variable group ``subscription_dev``.
+      2. Generic ``APP_INSIGHTS_SUBSCRIPTION_ID`` override.
+      3. Baked-in default so local runs still produce a usable URL.
+
+    Values that look like an unresolved Azure DevOps macro (``$(foo)``) or
+    that are blank are skipped. Non-GUID values are accepted but logged via
+    the fallback chain so a service-connection name doesn't silently break
+    the URL -- if it doesn't match the GUID shape we drop to the default.
+    """
+    candidates = []
+    var_name = _APP_INSIGHTS_SUBSCRIPTION_ENV_VAR.get(env_key)
+    if var_name:
+        candidates.append(os.environ.get(var_name))
+    candidates.append(os.environ.get("APP_INSIGHTS_SUBSCRIPTION_ID"))
+    for raw in candidates:
+        if not raw:
+            continue
+        val = raw.strip()
+        if not val or (val.startswith("$(") and val.endswith(")")):
+            continue
+        if _GUID_RE.match(val):
+            return val
+    return _APP_INSIGHTS_SUBSCRIPTION_DEFAULT
 
 
 def _app_insights_links(env: Optional[str]) -> Dict[str, Optional[str]]:
@@ -121,15 +163,19 @@ def _app_insights_links(env: Optional[str]) -> Dict[str, Optional[str]]:
 
     Returns ``{'performance': url, 'failures': url}``; values are ``None`` when
     the env doesn't have a known cluster suffix (e.g. local CLI runs).
+    Subscription is resolved per env from the Azure DevOps Library variable
+    group (``subscription_dev`` / ``subscription_test`` / ``subscription_silo``).
     """
     if not env:
         return {"performance": None, "failures": None}
-    suffix = _APP_INSIGHTS_ENV_SUFFIX.get(env.strip().upper())
+    env_key = env.strip().upper()
+    suffix = _APP_INSIGHTS_ENV_SUFFIX.get(env_key)
     if not suffix:
         return {"performance": None, "failures": None}
+    subscription = _resolve_subscription(env_key)
     base = (
         f"https://portal.azure.com/#@{_APP_INSIGHTS_TENANT}"
-        f"/resource/subscriptions/{_APP_INSIGHTS_SUBSCRIPTION}"
+        f"/resource/subscriptions/{subscription}"
         f"/resourceGroups/rg-aks-platform-{suffix}-ncus"
         f"/providers/Microsoft.Insights/components/appi-aks-platform-{suffix}-ncus"
     )

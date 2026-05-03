@@ -235,6 +235,11 @@ stages:
           # Library variable group. Falls back to config.<env>.yaml ->
           # performance.sla_seconds (default 1.0) inside locustfile.py.
           LOCUST_SLA_SECONDS: $(LOCUST_SLA_SECONDS)
+          # Per-env Azure subscription IDs (Library variable group). Used by
+          # the executive-summary reporter to build App Insights deep-links.
+          SUBSCRIPTION_DEV: $(subscription_dev)
+          SUBSCRIPTION_TEST: $(subscription_test)
+          SUBSCRIPTION_SILO: $(subscription_silo)
         inputs:
           targetType: inline
           script: |
@@ -265,6 +270,7 @@ stages:
             echo "Locust Command: $ARGS"
             echo "Report Directory: $report_dir"
             echo "Performance SLA (seconds): ${LOCUST_SLA_SECONDS:-<unset, will use config default>}"
+            echo "App Insights subscriptions (Library group): dev=${SUBSCRIPTION_DEV:-<unset>} test=${SUBSCRIPTION_TEST:-<unset>} silo=${SUBSCRIPTION_SILO:-<unset>}"
             echo ""
             
             # Run Locust with reports to same timestamp directory
