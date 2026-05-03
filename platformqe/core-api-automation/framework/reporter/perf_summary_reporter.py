@@ -141,6 +141,10 @@ _APP_INSIGHTS_SUBSCRIPTION_FALLBACK = {
 
 _APP_INSIGHTS_TENANT = "assetmark.onmicrosoft.com"
 _GUID_RE = re.compile(r"^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$")
+# Match a GUID anywhere inside a string. Used to extract the subscription ID
+# from Library variables that store the full service-connection display name,
+# e.g. "DEV Foundation (edb8bfd4-6c89-4044-8a23-cf9a3f7b368a)".
+_GUID_EMBED_RE = re.compile(r"[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}")
 _log = logging.getLogger(__name__)
 
 
@@ -179,17 +183,24 @@ def _resolve_subscription(env_key: str, suffix: str) -> Tuple[Optional[str], str
         if _GUID_RE.match(val):
             _log.info("[REPORT] App Insights subscription resolved from %s", source_name)
             return val, f"env:{source_name}"
-        # Non-GUID value (likely a service-connection name). Accept it but
-        # warn -- the URL will only work if Azure portal can resolve the
-        # name, otherwise the operator should put a real GUID in the
-        # Library variable group.
+        # Library variables in this project hold service-connection display
+        # values like "DEV Foundation (edb8bfd4-6c89-4044-8a23-cf9a3f7b368a)".
+        # Extract the embedded GUID if present.
+        embedded = _GUID_EMBED_RE.search(val)
+        if embedded:
+            guid = embedded.group(0)
+            _log.info(
+                "[REPORT] App Insights subscription extracted GUID %s from %s value %r",
+                guid, source_name, val,
+            )
+            return guid, f"env:{source_name} (extracted)"
+        # Non-GUID value with no embedded GUID. Last resort -- keep going so
+        # the per-env fallback at the bottom can render a working link.
         _log.warning(
-            "[REPORT] App Insights subscription source %s = %r is not a GUID. "
-            "Using it anyway; if the URL fails, set the Library variable "
-            "%s to the actual subscription GUID.",
+            "[REPORT] App Insights subscription source %s = %r has no GUID. "
+            "Set the Library variable %s to include the subscription GUID.",
             source_name, val, source_name.lower(),
         )
-        return val, f"env:{source_name} (non-GUID)"
 
     fallback = _APP_INSIGHTS_SUBSCRIPTION_FALLBACK.get(suffix)
     if fallback:
