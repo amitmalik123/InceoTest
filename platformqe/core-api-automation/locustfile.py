@@ -794,6 +794,51 @@ def on_test_stop(environment, **kwargs):
                 logger.info(f"[REPORT] Enhanced metadata written to: {metadata_file}")
             except Exception as write_error:
                 logger.error(f"[REPORT] Failed to write metadata file: {write_error}")
+
+            # Generate the custom executive summary HTML next to performance_report.html
+            try:
+                from framework.reporter.perf_summary_reporter import generate_executive_summary
+
+                # SLA threshold (seconds): env override → config → default 1.0
+                sla_seconds = 1.0
+                try:
+                    sla_env = os.environ.get('LOCUST_SLA_SECONDS')
+                    if sla_env:
+                        sla_seconds = float(sla_env)
+                    else:
+                        perf_cfg = config.get('performance', {}) if isinstance(config, dict) else {}
+                        sla_seconds = float(perf_cfg.get('sla_seconds', 1.0))
+                except (TypeError, ValueError):
+                    sla_seconds = 1.0
+
+                # Derive service / objective from first testcase if available
+                svc_name = None
+                objective_text = None
+                try:
+                    if TESTCASES:
+                        svc_name = TESTCASES[0].get('service_name')
+                        first_endpoint = TESTCASES[0].get('endpoint') or ''
+                        first_method = TESTCASES[0].get('method', 'GET')
+                        first_name = TESTCASES[0].get('test_name', first_endpoint)
+                        objective_text = (
+                            f"Evaluate the performance of {first_method} {first_endpoint} "
+                            f"({first_name}) for {svc_name or 'service'}."
+                        )
+                except Exception:
+                    pass
+
+                summary_path = generate_executive_summary(
+                    csv_base=csv_base,
+                    test_parameters=test_parameters,
+                    monitoring_data=monitoring_data,
+                    sla_seconds=sla_seconds,
+                    service_name=svc_name,
+                    objective=objective_text,
+                    azure_devops_url=os.environ.get('BUILD_BUILDURI') or os.environ.get('SYSTEM_TEAMFOUNDATIONCOLLECTIONURI'),
+                )
+                logger.info(f"[REPORT] Executive summary written to: {summary_path}")
+            except Exception as summary_error:
+                logger.error(f"[REPORT] Failed to generate executive summary: {summary_error}")
         else:
             logger.info("[REPORT] CSV reporting not enabled - metadata file not created")
     
