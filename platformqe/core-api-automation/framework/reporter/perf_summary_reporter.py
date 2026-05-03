@@ -28,6 +28,8 @@ import argparse
 import csv
 import html
 import json
+import os
+import re
 import sys
 from datetime import datetime, timezone
 from pathlib import Path
@@ -61,6 +63,45 @@ def _read_csv(path: Path) -> List[Dict[str, str]]:
         return []
     with path.open("r", encoding="utf-8", newline="") as f:
         return [row for row in csv.DictReader(f) if any((v or "").strip() for v in row.values())]
+
+
+def _normalize_azure_devops_url(raw_url: Optional[str] = None) -> Optional[str]:
+    """Return a clickable https Azure DevOps build-results URL.
+
+    Handles the three cases that show up in pipeline runs:
+      1. ``raw_url`` is already a normal https URL          -> return as-is
+      2. ``raw_url`` is the legacy ``vstfs:///Build/Build/<id>`` URI
+         -> rebuild from ``SYSTEM_COLLECTIONURI`` + ``SYSTEM_TEAMPROJECT``
+      3. ``raw_url`` is None / empty
+         -> derive entirely from env vars set by Azure DevOps:
+              SYSTEM_COLLECTIONURI  e.g. https://dev.azure.com/<org>/
+              SYSTEM_TEAMPROJECT    e.g. MyProject
+              BUILD_BUILDID         e.g. 379114
+    Returns ``None`` when nothing usable is available.
+    """
+    if raw_url and raw_url.startswith(("http://", "https://")):
+        return raw_url
+
+    collection = (os.environ.get("SYSTEM_COLLECTIONURI")
+                  or os.environ.get("SYSTEM_TEAMFOUNDATIONCOLLECTIONURI")
+                  or "").rstrip("/")
+    project = os.environ.get("SYSTEM_TEAMPROJECT") or ""
+    build_id = os.environ.get("BUILD_BUILDID") or ""
+
+    # Extract build id from a vstfs:///Build/Build/<id> uri if provided.
+    if raw_url and not build_id:
+        match = re.search(r"/Build/Build/(\d+)", raw_url)
+        if match:
+            build_id = match.group(1)
+
+    if collection and project and build_id:
+        from urllib.parse import quote
+        return f"{collection}/{quote(project)}/_build/results?buildId={build_id}&view=results"
+
+    # Fall back to whatever the caller gave us if it at least looks like a URL.
+    if raw_url and raw_url.startswith("vstfs:"):
+        return None
+    return raw_url or None
 
 
 def _parse_metadata(path: Path) -> Tuple[Dict[str, Dict[str, str]], str]:
@@ -184,7 +225,10 @@ def _build_chart_data(
     history_rows: List[Dict[str, str]],
     stats_rows: List[Dict[str, str]],
 ) -> Dict[str, Any]:
-    """Convert CSV rows into a JSON-serialisable structure for ECharts."""
+    """Convert CSV rows into a JSON-serialisable structure for ECharts.
+
+    Only emits the data needed by the 3 active charts: RPS, Response Times, Users.
+    """
     agg = [r for r in history_rows if (r.get("Name") or "").strip().lower() == "aggregated"]
 
     timestamps: List[str] = []
@@ -207,54 +251,6 @@ def _build_chart_data(
     p99 = [_safe_float(r.get("99%")) for r in agg]
     users = [_safe_int(r.get("User Count")) for r in agg]
 
-    endpoint_names: List[str] = []
-    endpoint_avg: List[float] = []
-    endpoint_p95: List[float] = []
-    endpoint_rps: List[float] = []
-    endpoint_fail_pct: List[float] = []
-    for r in stats_rows:
-        name = (r.get("Name") or "").strip()
-        if not name or name.lower() == "aggregated":
-            continue
-        endpoint_names.append(name)
-        endpoint_avg.append(round(_safe_float(r.get("Average Response Time")), 2))
-        endpoint_p95.append(round(_safe_float(r.get("95%")), 2))
-        endpoint_rps.append(round(_safe_float(r.get("Requests/s")), 2))
-        req = _safe_int(r.get("Request Count"))
-        fail = _safe_int(r.get("Failure Count"))
-        endpoint_fail_pct.append(round((fail / req * 100) if req else 0.0, 2))
-
-    total_req = sum(_safe_int(r.get("Request Count")) for r in stats_rows
-                    if (r.get("Name") or "").strip().lower() != "aggregated")
-    total_fail = sum(_safe_int(r.get("Failure Count")) for r in stats_rows
-                     if (r.get("Name") or "").strip().lower() != "aggregated")
-    total_pass = max(total_req - total_fail, 0)
-
-    # Aggregate percentile distribution curve (JMeter-style)
-    agg_row = _aggregated_row(stats_rows) or {}
-    agg_curve = _percentile_curve(agg_row)
-
-    # Per-endpoint percentile curves (top 6 most-loaded endpoints)
-    endpoint_curves: List[Dict[str, Any]] = []
-    sorted_eps = sorted(
-        [r for r in stats_rows if (r.get("Name") or "").strip().lower() != "aggregated"],
-        key=lambda r: _safe_int(r.get("Request Count")), reverse=True
-    )[:6]
-    for r in sorted_eps:
-        endpoint_curves.append({
-            "name": (r.get("Name") or "").strip(),
-            "curve": _percentile_curve(r),
-        })
-
-    # Top 10 slowest endpoints by P95
-    slowest = sorted(
-        [r for r in stats_rows if (r.get("Name") or "").strip().lower() != "aggregated"],
-        key=lambda r: _safe_float(r.get("95%")), reverse=True
-    )[:10]
-    slowest_names = [(r.get("Name") or "").strip() for r in slowest]
-    slowest_p95 = [round(_safe_float(r.get("95%")), 2) for r in slowest]
-    slowest_p99 = [round(_safe_float(r.get("99%")), 2) for r in slowest]
-
     return {
         "timestamps": timestamps,
         "rps": rps,
@@ -265,21 +261,6 @@ def _build_chart_data(
         "p95": p95,
         "p99": p99,
         "users": users,
-        "endpoints": {
-            "names": endpoint_names,
-            "avg": endpoint_avg,
-            "p95": endpoint_p95,
-            "rps": endpoint_rps,
-            "failPct": endpoint_fail_pct,
-        },
-        "slowest": {
-            "names": slowest_names,
-            "p95": slowest_p95,
-            "p99": slowest_p99,
-        },
-        "percentileCurve": agg_curve,
-        "endpointCurves": endpoint_curves,
-        "passFail": {"pass": total_pass, "fail": total_fail},
     }
 
 
@@ -434,7 +415,7 @@ code { background: #f3f4f6; padding: 2px 6px; border-radius: 4px; font-size: 12p
 
 
 def _build_charts_js(chart_data: Dict[str, Any], sla_seconds: float) -> str:
-    """Inline ECharts JS that builds 5 interactive charts."""
+    """Inline ECharts JS that builds 3 interactive time-series charts."""
     data_json = json.dumps(chart_data)
     sla_ms = sla_seconds * 1000
     return f"""
@@ -527,60 +508,6 @@ def _build_charts_js(chart_data: Dict[str, Any], sla_seconds: float) -> str:
       itemStyle: {{ color: '#7c3aed' }}, areaStyle: {{ opacity: 0.22 }} }}
   ]);
 
-  // Chart 4: Per-endpoint comparison (avg vs p95) -- horizontal bar
-  if (DATA.endpoints && DATA.endpoints.names.length) {{
-    var dom = document.getElementById('chart-endpoints');
-    if (dom) {{
-      var c = echarts.init(dom);
-      c.setOption({{
-        title: {{ text: 'Endpoint Comparison (Avg vs P95)', left: 'center',
-          textStyle: {{ fontSize: 14, fontWeight: 600 }} }},
-        tooltip: {{ trigger: 'axis', axisPointer: {{ type: 'shadow' }} }},
-        legend: {{ top: 26 }},
-        grid: {{ left: 140, right: 40, top: 60, bottom: 40 }},
-        xAxis: {{ type: 'value', name: 'ms' }},
-        yAxis: {{ type: 'category', data: DATA.endpoints.names }},
-        series: [
-          {{ name: 'Average (ms)', type: 'bar', data: DATA.endpoints.avg,
-            itemStyle: {{ color: '#2563eb' }} }},
-          {{ name: 'P95 (ms)', type: 'bar', data: DATA.endpoints.p95,
-            itemStyle: {{ color: '#f97316' }},
-            markLine: {{ symbol: 'none',
-              data: [{{ xAxis: SLA_MS, name: 'SLA',
-                lineStyle: {{ color: '#dc2626', type: 'dashed' }},
-                label: {{ formatter: 'SLA' }} }}] }} }}
-        ],
-        toolbox: {{ right: 20, feature: {{ saveAsImage: {{ name: 'endpoint_comparison' }} }} }}
-      }});
-      window.addEventListener('resize', function() {{ c.resize(); }});
-    }}
-  }}
-
-  // Chart 5: Pass/Fail donut
-  var pf = DATA.passFail || {{ pass: 0, fail: 0 }};
-  if ((pf.pass + pf.fail) > 0) {{
-    var dom2 = document.getElementById('chart-passfail');
-    if (dom2) {{
-      var c2 = echarts.init(dom2);
-      c2.setOption({{
-        title: {{ text: 'Success vs Failure', left: 'center',
-          textStyle: {{ fontSize: 14, fontWeight: 600 }} }},
-        tooltip: {{ trigger: 'item', formatter: '{{b}}: {{c}} ({{d}}%)' }},
-        legend: {{ bottom: 0 }},
-        series: [{{
-          type: 'pie', radius: ['45%', '70%'], center: ['50%', '50%'],
-          avoidLabelOverlap: false,
-          itemStyle: {{ borderRadius: 6, borderColor: '#fff', borderWidth: 2 }},
-          label: {{ show: true, formatter: '{{b}}\\n{{d}}%' }},
-          data: [
-            {{ name: 'Success', value: pf.pass, itemStyle: {{ color: '#10b981' }} }},
-            {{ name: 'Failure', value: pf.fail, itemStyle: {{ color: '#dc2626' }} }}
-          ]
-        }}]
-      }});
-      window.addEventListener('resize', function() {{ c2.resize(); }});
-    }}
-  }}
 }})();
 </script>
 """
@@ -671,7 +598,7 @@ def build_html(
     )
 
     azure_link_html = (
-        f'<a href="{html.escape(azure_devops_url)}" target="_blank">{html.escape(azure_devops_url)}</a>'
+        f'<a href="{html.escape(azure_devops_url)}" target="_blank" rel="noopener">{html.escape(azure_devops_url)}</a>'
         if azure_devops_url else "Azure DevOps link not available in this run."
     )
 
@@ -725,14 +652,6 @@ def build_html(
         meta_blocks_html += f"<div class='meta-block'><h3>Command Line Arguments</h3>{_kv_table(meta_cli)}</div>"
     if not meta_blocks_html:
         meta_blocks_html = "<p class='note'>No metadata file (_metadata.txt) found alongside CSV artifacts.</p>"
-
-    endpoint_chart_html = ""
-    if chart_data["endpoints"]["names"]:
-        endpoint_chart_html = "<div class='chart-card'><div id='chart-endpoints' class='chart'></div></div>"
-
-    passfail_chart_html = ""
-    if (chart_data["passFail"]["pass"] + chart_data["passFail"]["fail"]) > 0:
-        passfail_chart_html = "<div class='chart-card'><div id='chart-passfail' class='chart'></div></div>"
 
     raw_metadata_html = ""
     if raw_metadata:
@@ -808,13 +727,6 @@ def build_html(
     <div class="chart-card"><div id="chart-rps" class="chart"></div></div>
     <div class="chart-card"><div id="chart-resp" class="chart"></div></div>
     <div class="chart-card"><div id="chart-users" class="chart"></div></div>
-    <div class="chart-card"><div id="chart-percentile" class="chart" style="height:380px"></div></div>
-    <div class="chart-card"><div id="chart-slowest" class="chart" style="height:380px"></div></div>
-  </div>
-  <div class="chart-grid two" style="margin-top:16px;">
-    <div class="chart-card"><div id="chart-errors" class="chart"></div></div>
-    {endpoint_chart_html}
-    {passfail_chart_html}
   </div>
 
   <h3>Response Time vs SLA</h3>
@@ -878,6 +790,7 @@ def generate_executive_summary(
     azure_devops_url: Optional[str] = None,
     output_path: Optional[str] = None,
 ) -> str:
+    azure_devops_url = _normalize_azure_devops_url(azure_devops_url)
     html_content = build_html(
         csv_base=csv_base,
         test_parameters=test_parameters,

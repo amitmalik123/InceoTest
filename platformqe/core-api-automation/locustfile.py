@@ -834,7 +834,9 @@ def on_test_stop(environment, **kwargs):
                     sla_seconds=sla_seconds,
                     service_name=svc_name,
                     objective=objective_text,
-                    azure_devops_url=os.environ.get('BUILD_BUILDURI') or os.environ.get('SYSTEM_TEAMFOUNDATIONCOLLECTIONURI'),
+                    # Reporter normalizes vstfs:// URIs to real https URLs using
+                    # SYSTEM_COLLECTIONURI + SYSTEM_TEAMPROJECT + BUILD_BUILDID.
+                    azure_devops_url=os.environ.get('BUILD_BUILDURI'),
                 )
                 logger.info(f"[REPORT] Executive summary written to: {summary_path}")
             except Exception as summary_error:
