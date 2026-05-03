@@ -104,6 +104,41 @@ def _normalize_azure_devops_url(raw_url: Optional[str] = None) -> Optional[str]:
     return raw_url or None
 
 
+# Mapping from Locust --env value to the AKS cluster suffix used in the
+# Application Insights resource name (appi-aks-platform-<suffix>-ncus).
+_APP_INSIGHTS_ENV_SUFFIX = {
+    "TSADEV": "dev01",
+    "TSATEST": "test01",
+    "TSASILO": "silo01",
+}
+
+_APP_INSIGHTS_TENANT = "assetmark.onmicrosoft.com"
+_APP_INSIGHTS_SUBSCRIPTION = "9156b16c-8a2e-4b7d-a886-e772dc017316"
+
+
+def _app_insights_links(env: Optional[str]) -> Dict[str, Optional[str]]:
+    """Return App Insights Performance + Failures portal URLs for the given env.
+
+    Returns ``{'performance': url, 'failures': url}``; values are ``None`` when
+    the env doesn't have a known cluster suffix (e.g. local CLI runs).
+    """
+    if not env:
+        return {"performance": None, "failures": None}
+    suffix = _APP_INSIGHTS_ENV_SUFFIX.get(env.strip().upper())
+    if not suffix:
+        return {"performance": None, "failures": None}
+    base = (
+        f"https://portal.azure.com/#@{_APP_INSIGHTS_TENANT}"
+        f"/resource/subscriptions/{_APP_INSIGHTS_SUBSCRIPTION}"
+        f"/resourceGroups/rg-aks-platform-{suffix}-ncus"
+        f"/providers/Microsoft.Insights/components/appi-aks-platform-{suffix}-ncus"
+    )
+    return {
+        "performance": f"{base}/performance",
+        "failures": f"{base}/failures",
+    }
+
+
 def _parse_metadata(path: Path) -> Tuple[Dict[str, Dict[str, str]], str]:
     """Parse metadata.txt into sectioned dicts and also return raw content."""
     sections: Dict[str, Dict[str, str]] = {}
@@ -598,8 +633,18 @@ def build_html(
     )
 
     azure_link_html = (
-        f'<a href="{html.escape(azure_devops_url)}" target="_blank" rel="noopener">{html.escape(azure_devops_url)}</a>'
-        if azure_devops_url else "Azure DevOps link not available in this run."
+        f'<a href="{html.escape(azure_devops_url)}" target="_blank" rel="noopener">View Test Execution</a>'
+        if azure_devops_url else "<em>Azure DevOps link not available in this run.</em>"
+    )
+
+    ai_links = _app_insights_links(str(env_label) if env_label else None)
+    perf_link_html = (
+        f'<a href="{html.escape(ai_links["performance"])}" target="_blank" rel="noopener">App Insights</a>'
+        if ai_links["performance"] else "<em>Not available for this environment.</em>"
+    )
+    err_link_html = (
+        f'<a href="{html.escape(ai_links["failures"])}" target="_blank" rel="noopener">App Insights Exceptions</a>'
+        if ai_links["failures"] else "<em>Not available for this environment.</em>"
     )
 
     observations = []
@@ -694,7 +739,9 @@ def build_html(
     <li><strong>Maximum RPS achieved:</strong> approximately {rps_max:.2f}.</li>
     <li><strong>Cumulative/Average RPS achieved:</strong> approximately {rps_avg:.2f}.</li>
     <li><strong>Error rate:</strong> approximately {fail_pct:.2f}%.</li>
-    <li><strong>Azure DevOps raw results:</strong> {azure_link_html}</li>
+    <li><strong>Azure DevOps:</strong> {azure_link_html}</li>
+    <li><strong>Azure Performance Link:</strong> {perf_link_html}</li>
+    <li><strong>Azure Error Link:</strong> {err_link_html}</li>
   </ul>
 </section>
 
