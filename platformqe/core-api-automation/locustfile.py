@@ -799,17 +799,33 @@ def on_test_stop(environment, **kwargs):
             try:
                 from framework.reporter.perf_summary_reporter import generate_executive_summary
 
-                # SLA threshold (seconds): env override → config → default 1.0
+                # SLA threshold (seconds). Resolution order:
+                #   1. Env var LOCUST_SLA_SECONDS (set via Azure DevOps Library
+                #      variable group, queue-time variable, or shell export).
+                #   2. config.<env>.yaml -> performance.sla_seconds
+                #   3. Hard-coded default of 1.0 second
+                # Guards against unresolved Azure DevOps tokens (e.g. literal
+                # "$(LOCUST_SLA_SECONDS)") and empty / non-numeric values.
                 sla_seconds = 1.0
-                try:
-                    sla_env = os.environ.get('LOCUST_SLA_SECONDS')
-                    if sla_env:
+                sla_source = 'default'
+                sla_env = (os.environ.get('LOCUST_SLA_SECONDS') or '').strip()
+                env_usable = bool(sla_env) and not sla_env.startswith('$(')
+                if env_usable:
+                    try:
                         sla_seconds = float(sla_env)
-                    else:
+                        sla_source = 'env (LOCUST_SLA_SECONDS)'
+                    except (TypeError, ValueError):
+                        env_usable = False
+                if not env_usable:
+                    try:
                         perf_cfg = config.get('performance', {}) if isinstance(config, dict) else {}
-                        sla_seconds = float(perf_cfg.get('sla_seconds', 1.0))
-                except (TypeError, ValueError):
-                    sla_seconds = 1.0
+                        if 'sla_seconds' in perf_cfg:
+                            sla_seconds = float(perf_cfg['sla_seconds'])
+                            sla_source = f'config.{test_parameters.get("env","")}.yaml -> performance.sla_seconds'
+                    except (TypeError, ValueError):
+                        sla_seconds = 1.0
+                        sla_source = 'default (config value invalid)'
+                logger.info(f"[REPORT] Using SLA threshold: {sla_seconds:.2f}s (source: {sla_source})")
 
                 # Derive service / objective from first testcase if available
                 svc_name = None

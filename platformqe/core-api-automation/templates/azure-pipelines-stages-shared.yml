@@ -842,6 +842,10 @@ stages:
               INFLUX_BUCKET: $(influx_bucket)
               INFLUX_TIMEOUT: $(influx_timeout)
               INFLUX_ENABLE: $(influx_enable)
+              # Performance SLA threshold (seconds). Sourced from Azure DevOps
+              # Library variable group; falls back to '' so locustfile.py uses
+              # config.<env>.yaml -> performance.sla_seconds (default 1.0).
+              LOCUST_SLA_SECONDS: $(LOCUST_SLA_SECONDS)
             inputs:
               targetType: inline
               script: |
@@ -863,6 +867,7 @@ stages:
                 fi
                 
                 echo "Locust Arguments: $(nonFunctionalTestArgs)"
+                echo "Performance SLA (seconds): ${LOCUST_SLA_SECONDS:-<unset, will use config default>}"
                 
                 locust -f locustfile.py $(nonFunctionalTestArgs) \
                   --html="${report_dir}/performance_report.html" \

@@ -231,6 +231,10 @@ stages:
           INFLUX_ENABLE: $(influx_enable)
           LOG_LEVEL: DEBUG
           LOG_TO_CONSOLE: 'true'
+          # Performance SLA threshold (seconds). Sourced from Azure DevOps
+          # Library variable group. Falls back to config.<env>.yaml ->
+          # performance.sla_seconds (default 1.0) inside locustfile.py.
+          LOCUST_SLA_SECONDS: $(LOCUST_SLA_SECONDS)
         inputs:
           targetType: inline
           script: |
@@ -260,6 +264,7 @@ stages:
             
             echo "Locust Command: $ARGS"
             echo "Report Directory: $report_dir"
+            echo "Performance SLA (seconds): ${LOCUST_SLA_SECONDS:-<unset, will use config default>}"
             echo ""
             
             # Run Locust with reports to same timestamp directory
