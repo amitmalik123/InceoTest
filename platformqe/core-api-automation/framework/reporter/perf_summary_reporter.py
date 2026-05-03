@@ -28,6 +28,7 @@ import argparse
 import csv
 import html
 import json
+import logging
 import os
 import re
 import sys
@@ -106,10 +107,14 @@ def _normalize_azure_devops_url(raw_url: Optional[str] = None) -> Optional[str]:
 
 # Mapping from Locust --env value to the AKS cluster suffix used in the
 # Application Insights resource name (appi-aks-platform-<suffix>-ncus).
+# Accepts both the full "TSA*" names and the short forms used elsewhere.
 _APP_INSIGHTS_ENV_SUFFIX = {
     "TSADEV": "dev01",
     "TSATEST": "test01",
     "TSASILO": "silo01",
+    "DEV": "dev01",
+    "TEST": "test01",
+    "SILO": "silo01",
 }
 
 # Per-env subscription IDs are sourced from the Azure DevOps Library
@@ -120,39 +125,81 @@ _APP_INSIGHTS_SUBSCRIPTION_ENV_VAR = {
     "TSADEV": "SUBSCRIPTION_DEV",
     "TSATEST": "SUBSCRIPTION_TEST",
     "TSASILO": "SUBSCRIPTION_SILO",
+    "DEV": "SUBSCRIPTION_DEV",
+    "TEST": "SUBSCRIPTION_TEST",
+    "SILO": "SUBSCRIPTION_SILO",
+}
+
+# Last-resort fallback subscription IDs. Only used when neither the per-env
+# Library variable nor APP_INSIGHTS_SUBSCRIPTION_ID is available. Update
+# these if the AssetMark AKS subscription mapping changes.
+_APP_INSIGHTS_SUBSCRIPTION_FALLBACK = {
+    "dev01":  "9156b16c-8a2e-4b7d-a886-e772dc017316",
+    "test01": "9156b16c-8a2e-4b7d-a886-e772dc017316",
+    "silo01": "9156b16c-8a2e-4b7d-a886-e772dc017316",
 }
 
 _APP_INSIGHTS_TENANT = "assetmark.onmicrosoft.com"
 _GUID_RE = re.compile(r"^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$")
+_log = logging.getLogger(__name__)
 
 
-def _resolve_subscription(env_key: str) -> Optional[str]:
-    """Resolve subscription GUID for ``env_key`` strictly from env vars.
+def _resolve_subscription(env_key: str, suffix: str) -> Tuple[Optional[str], str]:
+    """Resolve subscription GUID for ``env_key`` and explain where it came from.
 
-    Order of preference:
-      1. ``SUBSCRIPTION_<ENV>`` (e.g. SUBSCRIPTION_DEV) sourced from the
-         Azure DevOps Library variable group ``subscription_dev``.
-      2. Generic ``APP_INSIGHTS_SUBSCRIPTION_ID`` override.
+    Resolution order:
+      1. ``SUBSCRIPTION_<ENV>`` env var (Library variable group).
+      2. Generic ``APP_INSIGHTS_SUBSCRIPTION_ID`` env var.
+      3. Per-env hardcoded fallback (so the link always renders).
 
-    Returns ``None`` when nothing usable is provided -- callers should then
-    omit the link rather than render a stale URL. Values that look like an
-    unresolved Azure DevOps macro (``$(foo)``), are blank, or are not a
-    valid GUID are skipped.
+    Returns ``(subscription, source)``. Values that are blank or look like an
+    unresolved Azure DevOps macro (``$(foo)``) are skipped. Values that look
+    like a service-connection name (non-GUID) are accepted but the source
+    string flags it so the diagnostic <!-- comment --> in the HTML makes the
+    misconfiguration obvious.
     """
-    candidates = []
     var_name = _APP_INSIGHTS_SUBSCRIPTION_ENV_VAR.get(env_key)
+    candidates: List[Tuple[str, str]] = []
     if var_name:
-        candidates.append(os.environ.get(var_name))
-    candidates.append(os.environ.get("APP_INSIGHTS_SUBSCRIPTION_ID"))
-    for raw in candidates:
-        if not raw:
-            continue
+        candidates.append((var_name, os.environ.get(var_name, "") or ""))
+    candidates.append(("APP_INSIGHTS_SUBSCRIPTION_ID", os.environ.get("APP_INSIGHTS_SUBSCRIPTION_ID", "") or ""))
+
+    for source_name, raw in candidates:
         val = raw.strip()
-        if not val or (val.startswith("$(") and val.endswith(")")):
+        if not val:
+            _log.info("[REPORT] App Insights subscription source %s is unset", source_name)
+            continue
+        if val.startswith("$(") and val.endswith(")"):
+            _log.warning(
+                "[REPORT] App Insights subscription source %s contains an unresolved "
+                "Azure DevOps macro (%r) -- check the Library variable group is linked",
+                source_name, val,
+            )
             continue
         if _GUID_RE.match(val):
-            return val
-    return None
+            _log.info("[REPORT] App Insights subscription resolved from %s", source_name)
+            return val, f"env:{source_name}"
+        # Non-GUID value (likely a service-connection name). Accept it but
+        # warn -- the URL will only work if Azure portal can resolve the
+        # name, otherwise the operator should put a real GUID in the
+        # Library variable group.
+        _log.warning(
+            "[REPORT] App Insights subscription source %s = %r is not a GUID. "
+            "Using it anyway; if the URL fails, set the Library variable "
+            "%s to the actual subscription GUID.",
+            source_name, val, source_name.lower(),
+        )
+        return val, f"env:{source_name} (non-GUID)"
+
+    fallback = _APP_INSIGHTS_SUBSCRIPTION_FALLBACK.get(suffix)
+    if fallback:
+        _log.warning(
+            "[REPORT] App Insights subscription falling back to hardcoded default for %s "
+            "-- set Library variable %s to override.",
+            suffix, (var_name or "APP_INSIGHTS_SUBSCRIPTION_ID").lower(),
+        )
+        return fallback, f"fallback:{suffix}"
+    return None, "unresolved"
 
 
 def _app_insights_links(env: Optional[str]) -> Dict[str, Optional[str]]:
@@ -161,19 +208,25 @@ def _app_insights_links(env: Optional[str]) -> Dict[str, Optional[str]]:
     URLs are built on the fly from the per-env subscription GUID resolved at
     runtime from the Azure DevOps Library variable group
     (``subscription_dev`` / ``subscription_test`` / ``subscription_silo``).
-    Returns ``{'performance': None, 'failures': None}`` whenever the
-    environment is unknown OR no subscription is available, so the report
-    never displays a stale link.
+    Falls back to a per-env hardcoded subscription so the link always
+    renders. Diagnostic info is logged at INFO/WARNING level so pipeline
+    logs make it obvious which path was taken.
     """
+    result: Dict[str, Optional[str]] = {"performance": None, "failures": None, "_diag": None}
     if not env:
-        return {"performance": None, "failures": None}
+        result["_diag"] = "env value missing"
+        _log.warning("[REPORT] App Insights links: env value is empty")
+        return result
     env_key = env.strip().upper()
     suffix = _APP_INSIGHTS_ENV_SUFFIX.get(env_key)
     if not suffix:
-        return {"performance": None, "failures": None}
-    subscription = _resolve_subscription(env_key)
+        result["_diag"] = f"unknown env={env_key!r}"
+        _log.warning("[REPORT] App Insights links: env=%r has no AKS-suffix mapping", env_key)
+        return result
+    subscription, source = _resolve_subscription(env_key, suffix)
     if not subscription:
-        return {"performance": None, "failures": None}
+        result["_diag"] = f"no subscription for env={env_key!r}"
+        return result
     base = (
         f"https://portal.azure.com/#@{_APP_INSIGHTS_TENANT}"
         f"/resource/subscriptions/{subscription}"
@@ -685,13 +738,15 @@ def build_html(
     )
 
     ai_links = _app_insights_links(str(env_label) if env_label else None)
+    ai_diag = ai_links.get("_diag") or "no subscription resolved"
+    _ai_unavailable = f'<em>Not available ({html.escape(str(ai_diag))}).</em>'
     perf_link_html = (
         f'<a href="{html.escape(ai_links["performance"])}" target="_blank" rel="noopener">App Insights</a>'
-        if ai_links["performance"] else "<em>Not available for this environment.</em>"
+        if ai_links["performance"] else _ai_unavailable
     )
     err_link_html = (
         f'<a href="{html.escape(ai_links["failures"])}" target="_blank" rel="noopener">App Insights Exceptions</a>'
-        if ai_links["failures"] else "<em>Not available for this environment.</em>"
+        if ai_links["failures"] else _ai_unavailable
     )
 
     observations = []
