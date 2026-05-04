@@ -17,5 +17,7 @@ Feature: Verify Document Vault page functionality client level
   @regression @e2e @documentvault 
   Scenario: Validation of Document Vault page functionalities Agent Level
     Given user click on clients tab
-    And navigates to Document vault 
-    Then validate all the dropdowns are enabled for user interaction
+    When navigates to Document vault 
+    And validate all the dropdowns are enabled for user interaction
+    And click documenttype dropdown and select QPR document
+    Then validate find button is enabled for user interaction

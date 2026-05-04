@@ -23,9 +23,13 @@ class DocumentVaultPage(BasePage):
         self.tax_and_reporting_link: Locator = self.page.locator('//a[text()="Tax and Reporting"]')
         self.document_vault_nav_link: Locator = self.page.locator('//a[text()="Document Vault"]')
         self.document_type_dropdown: Locator = self.form_root.locator('//span[text()="Select a document type"]')
+        self.qpr_document_type_option: Locator = self.form_root.locator(
+            '//span[text()="Quarterly Performance Reports (QPR)"]'
+        )
         self.year_dropdown: Locator = self.form_root.locator('//select[@name="ddYear"]')
         self.quarter_dropdown: Locator = self.form_root.locator('//select[@name="ddQtrMonth"]')
         self.document_dropdown: Locator = self.form_root.locator('//select[@name="ddDocument"]')
+        self.find_button: Locator = self.form_root.locator("//input[@name='btSearch']")
 
         self.clients_tab: Locator = self.form_root.locator("//a[text()='Clients']")
         self.client_list_search_input: Locator = self.form_root.locator("//input[@name='search_input']")
@@ -366,3 +370,78 @@ class DocumentVaultPage(BasePage):
                 raise AssertionError(f"{name} is not visible")
 
         logger.info("Validated all 4 dropdown controls are visible")
+
+    def select_document_type_quarterly_performance_reports(self, timeout: int = 15000) -> None:
+        """Select Quarterly Performance Reports (QPR) from the Document Type dropdown."""
+        logger.info("Selecting Document Type: Quarterly Performance Reports (QPR)")
+
+        candidates = [self.page] + list(self.page.frames)
+        document_type_select = None
+        for candidate in candidates:
+            try:
+                locator = candidate.locator('//select[@name="ddDocType"]').first
+                if self.is_visible(locator, timeout=1200):
+                    document_type_select = locator
+                    break
+            except Exception:
+                continue
+
+        if document_type_select is None:
+            raise AssertionError("Document Type select ddDocType is not visible")
+
+        self.wait_for_all_spinners_to_disappear(timeout=timeout)
+        self.wait_for_element(document_type_select, timeout=timeout)
+        logger.info("Document Type dropdown is ready, waiting 2 seconds for visibility...")
+        self.page.wait_for_timeout(2000)  # Slow down to show the dropdown
+        
+        logger.info("Clicking on Document Type dropdown...")
+        self.select_option(
+            document_type_select,
+            value="QPR",
+            timeout=timeout,
+        )
+        logger.info("Selection executed, waiting 3 seconds to show the selected value...")
+        self.page.wait_for_timeout(3000)  # Extended wait to show selected value
+        
+        self.wait_for_all_spinners_to_disappear(timeout=timeout)
+        logger.info("Additional 2 second wait for final confirmation...")
+        self.page.wait_for_timeout(2000)  # Final wait for visual confirmation
+        
+        logger.info("Document Type selected: Quarterly Performance Reports (QPR)")
+
+    def validate_find_button_enabled(self, timeout: int = 10000) -> None:
+        """Validate that the Find/Search button is enabled after document selection."""
+        logger.info("Validating Find button is enabled for user interaction")
+
+        candidates = [self.page] + list(self.page.frames)
+        find_button = None
+        for candidate in candidates:
+            try:
+                locator = candidate.locator("//input[@name='btSearch']").first
+                if self.is_visible(locator, timeout=1200):
+                    find_button = locator
+                    break
+            except Exception:
+                continue
+
+        if find_button is None:
+            raise AssertionError("Find button input[@name='btSearch'] is not visible")
+
+        # Assertion 1: Button must be visible.
+        self.wait_for_element(find_button, timeout=timeout)
+        logger.info("Find button is visible on the page")
+
+        # Assertion 2: Button must not be disabled.
+        is_disabled = find_button.evaluate("element => element.hasAttribute('disabled') || element.disabled")
+        if is_disabled:
+            raise AssertionError("Find button is disabled")
+        logger.info("Find button does not have disabled state")
+
+        # Assertion 3: Button should be interactable for user action.
+        find_button.scroll_into_view_if_needed()
+        is_enabled = find_button.is_enabled()
+        if not is_enabled:
+            raise AssertionError("Find button is not enabled for interaction")
+
+        self.page.wait_for_timeout(1000)
+        logger.info("ALL ASSERTIONS PASSED: Find button is enabled and ready for interaction")

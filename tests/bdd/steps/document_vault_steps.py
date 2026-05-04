@@ -7,6 +7,7 @@ from utils.allure_logger import get_allure_logger
 logger = get_allure_logger(__name__)
 
 
+@when("navigates to Document vault")
 @given("navigates to Document vault")
 def navigate_to_document_vault(page: Page):
     document_vault_page = DocumentVaultPage(page)
@@ -75,12 +76,19 @@ def close_all_the_expanded_headers(page: Page):
     document_vault_page.close_expanded_headers()
 
 
-@then("validate all the dropdowns are enabled for user interaction")
-@then("validate all the dropdowns are enable for user interaction")
+@when("validate all the dropdowns are enabled for user interaction")
 def validate_all_dropdowns_enabled_for_user_interaction(page: Page):
     document_vault_page = DocumentVaultPage(page)
-    try:
-        document_vault_page.validate_all_dropdowns_enabled_for_user_interaction()
-        assert True, "All dropdowns are visible"
-    except AssertionError as exc:
-        assert False, f"Dropdown visibility validation failed: {exc}"
+    document_vault_page.validate_all_dropdowns_enabled_for_user_interaction()
+
+
+@when("click documenttype dropdown and select QPR document")
+def click_documenttype_dropdown_and_select_document(page: Page):
+    document_vault_page = DocumentVaultPage(page)
+    document_vault_page.select_document_type_quarterly_performance_reports()
+
+
+@then("validate find button is enabled for user interaction")
+def validate_find_button_enabled(page: Page):
+    document_vault_page = DocumentVaultPage(page)
+    document_vault_page.validate_find_button_enabled()
