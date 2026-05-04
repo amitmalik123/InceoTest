@@ -31,13 +31,14 @@ from framework.common.html_utils import (
 
 
 def send_email_report(build_number, job_status, reports_path, build_id, team_project, collection_uri,
-                     smtp_server, smtp_port, from_addr, to_addrs, cc_addrs, bcc_addrs, subject_prefix, service_name='', environment=''):
+                     smtp_server, smtp_port, from_addr, to_addrs, cc_addrs, bcc_addrs, subject_prefix, service_name='', environment='', test_case_filter=''):
     """Send email with test report attachments.
     
     Args:
         service_name: Service being tested (e.g., 'parties', 'work_item_notification')
                      Used to route emails to service-specific teams
         environment: Environment being tested (e.g., 'TSADEV', 'TSATEST', 'TSASILO')
+        test_case_filter: Test case filter applied (e.g., 'Smoke', 'Regression')
     """
     
     # Print environment info
@@ -46,6 +47,8 @@ def send_email_report(build_number, job_status, reports_path, build_id, team_pro
     print(f"   Environment: {environment}")
     print(f"   Build Number: {build_number}")
     print(f"   Job Status: {job_status}")
+    branch_name = os.getenv('BUILD_SOURCEBRANCH', os.getenv('BUILD_SOURCEBRANCHNAME', 'unknown'))
+    print(f"   Branch: {branch_name}")
     
     # Parse email addresses (comma-separated strings to lists)
     to_list = [addr.strip() for addr in to_addrs.split(',') if addr.strip()]
@@ -76,6 +79,8 @@ def send_email_report(build_number, job_status, reports_path, build_id, team_pro
         subject += f' - {service_name.upper()}'
     if environment:
         subject += f' - {environment.upper()}'
+    if test_case_filter:
+        subject += f' [{test_case_filter}]'
     
     # Create message
     msg = MIMEMultipart()
@@ -151,9 +156,11 @@ def send_email_report(build_number, job_status, reports_path, build_id, team_pro
         </style>
     </head>
     <body>
-    <h2>API Test Report{f' - {service_name.upper()}' if service_name else ''}{f' - {environment.upper()}' if environment else ''}</h2>
+    <h2>API Test Report{f' - {service_name.upper()}' if service_name else ''}{f' - {environment.upper()}' if environment else ''}{f' [{test_case_filter}]' if test_case_filter else ''}</h2>
     <p><strong>Job Number:</strong> {build_number}</p>
     <p><strong>Job Status:</strong> {job_status}</p>
+    <p><strong>Branch:</strong> {branch_name}</p>
+    {f'<p><strong>Test Case Filter:</strong> {test_case_filter}</p>' if test_case_filter else ''}
     <p><strong>Job URL:</strong> <a href="{build_url}">View Test Execution</a></p>
     <p><strong>Test Results:</strong> <a href="{artifacts_url}">View and Download Artifacts</a></p>
     
@@ -193,6 +200,8 @@ if __name__ == '__main__':
     parser.add_argument('--service-name', default='', help='Service being tested (e.g., parties, work_item_notification)')
     # Environment being tested
     parser.add_argument('--environment', default='', help='Environment being tested (e.g., TSADEV, TSATEST, TSASILO)')
+    # Test case filter applied (e.g., Smoke, Regression)
+    parser.add_argument('--test-case-filter', default='', help='Test case filter applied (e.g., Smoke, Regression)')
     
     # Email configuration from environment variables (populated from variable group)
     parser.add_argument('--smtp-server', default=os.getenv('SMTP_SERVER', 'smtp-nonprod.corp.local'))
@@ -220,7 +229,8 @@ if __name__ == '__main__':
         args.bcc_addrs,
         args.subject_prefix,
         args.service_name,
-        args.environment
+        args.environment,
+        args.test_case_filter
     )
     
     sys.exit(exit_code)

@@ -21,12 +21,24 @@ pr:
   branches:
     include:
       - qe_platform
+      - develop
+  paths:
+    include:
+      - platformqe/**
+    exclude:
+      - applicationqe/**
 
 # Push Trigger - runs when code is pushed to branches
 trigger:
   branches:
     include:
       - qe_platform
+      - develop
+  paths:
+    include:
+      - platformqe/**
+    exclude:
+      - applicationqe/**
       
 # Scheduled Triggers - Each schedule targets a specific service
 schedules:
@@ -35,6 +47,7 @@ schedules:
     branches:
       include:
         - qe_platform
+        - develop
     always: true
   
   - cron: "15 15 * * *"      # 15:15 UTC -> movemoney
@@ -42,6 +55,7 @@ schedules:
     branches:
       include:
         - qe_platform
+        - develop
     always: true
   
   - cron: "30 15 * * *"       # 15:30 UTC -> models
@@ -49,6 +63,7 @@ schedules:
     branches:
       include:
         - qe_platform
+        - develop
     always: true
 
   - cron: "45 15 * * *"       # 15:45 UTC -> analytics
@@ -56,6 +71,7 @@ schedules:
     branches:
       include:
         - qe_platform
+        - develop
     always: true
 
   - cron: "00 16 * * *"      # 16:00 UTC -> parties
@@ -63,6 +79,7 @@ schedules:
     branches:
       include:
         - qe_platform
+        - develop
     always: true
   
   - cron: "15 16 * * *"       # 16:15 UTC -> addressservice
@@ -70,6 +87,7 @@ schedules:
     branches:
       include:
         - qe_platform
+        - develop
     always: true
 
   - cron: "30 16 * * *"       # 16:30 UTC -> securities
@@ -77,6 +95,7 @@ schedules:
     branches:
       include:
         - qe_platform
+        - develop
     always: true
 
   - cron: "45 16 * * *"       # 16:45 UTC -> hnebase
@@ -84,6 +103,7 @@ schedules:
     branches:
       include:
         - qe_platform
+        - develop
     always: true
   
   - cron: "20 15 * * *"       # 15:20 UTC -> transfer_service_validation
@@ -91,15 +111,40 @@ schedules:
     branches:
       include:
         - qe_platform
+        - develop
     always: true
 
-  - cron: "0 17 * * *"        # 17:00 UTC -> custodialintegration
+  - cron: "10 15 * * *"        # 15:10 UTC -> custodialintegration
     displayName: 'Custodial Integration - Daily Test'
     branches:
       include:
         - qe_platform
+        - develop
     always: true
 
+  - cron: "05 15 * * *"       # 15:05 UTC -> account_service
+    displayName: 'Account Service API - Daily Test'
+    branches:
+      include:
+        - qe_platform
+        - develop
+    always: true
+
+  - cron: "05 16 * * *"       # 16:05 UTC -> lexisnexiscipproxyservice
+    displayName: 'LexisNexis CIP Proxy Service - Daily Test'
+    branches:
+      include:
+        - qe_platform
+        - develop
+    always: true
+
+  - cron: "10 16 * * *"       # 16:10 UTC -> DocusignProxyservice
+    displayName: 'Docusign Proxy Service - Daily Test'
+    branches:
+      include:
+        - qe_platform
+        - develop
+    always: true
 
 ###############################################################################
 # Pipeline Parameters - For Manual Execution
@@ -132,6 +177,11 @@ parameters:
       - non-functional
       - both
   
+  - name: testCaseFilter
+    displayName: 'Test Case Filter (comma-separated, e.g. Smoke,Regression,Functional - filters by test_type tag in test cases)'
+    type: string
+    default: 'N/A'
+
   - name: overrideEnabled
     displayName: 'Override Enabled Flag (run disabled services too)'
     type: boolean
@@ -166,8 +216,29 @@ variables:
 
   - name: pythonVersion
     value: '3.10'
+
+  # Branch-to-Environment mapping via library group variables:
+  #   qe_platform -> $(ENABLED_ENVIRONMENTS_DEV)   (set to TSADEV in qa-pipelines-config)
+  #   develop     -> $(ENABLED_ENVIRONMENTS_TEST)   (set to TSATEST in qa-pipelines-config)
+  #   other       -> fallback to ENABLED_ENVIRONMENTS or 'all'
   - name: defaultEnvironments
-    value: $[coalesce(variables['ENABLED_ENVIRONMENTS'], 'all')]
+    ${{ if eq(variables['Build.SourceBranchName'], 'qe_platform') }}:
+      value: $(ENABLED_ENVIRONMENTS_DEV)
+    ${{ elseif eq(variables['Build.SourceBranchName'], 'develop') }}:
+      value: $(ENABLED_ENVIRONMENTS_TEST)
+    ${{ else }}:
+      value: $[coalesce(variables['ENABLED_ENVIRONMENTS'], 'all')]
+
+  # Schedule Test Case Filter - branch-specific filter applied during scheduled runs
+  # Supports multiple comma-separated values (e.g. 'Smoke,Regression,Functional')
+  # Use 'N/A' to run all test types without filtering
+  - name: scheduleTestCaseFilter
+    ${{ if eq(variables['Build.SourceBranchName'], 'qe_platform') }}:
+      value: 'N/A'
+    ${{ elseif eq(variables['Build.SourceBranchName'], 'develop') }}:
+      value: 'N/A'
+    ${{ else }}:
+      value: 'N/A'
 
 ###############################################################################
 # Use Common Stages Template
@@ -185,5 +256,9 @@ stages:
       customFunctionalArgs: ${{ parameters.customFunctionalArgs }}
       customNonFunctionalArgs: ${{ parameters.customNonFunctionalArgs }}
       teamsNotificationEnabled: ${{ parameters.teamsNotificationEnabled }}
+      # For scheduled runs, use the branch-specific scheduleTestCaseFilter (defined in-code)
+      # For manual/PR/Push runs, use the user-provided parameter value
+      testCaseFilter: ${{ parameters.testCaseFilter }}
+      scheduleTestCaseFilter: $(scheduleTestCaseFilter)
       triggerReason: '$(Build.Reason)'
       enableScheduleDetection: true  # Enable schedule-based service detection for cron triggers

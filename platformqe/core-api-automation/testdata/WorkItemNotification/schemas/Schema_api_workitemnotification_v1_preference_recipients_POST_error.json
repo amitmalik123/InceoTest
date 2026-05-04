@@ -1,0 +1,21 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "type": "object",
+  "properties": {
+    "type": { "type": "string" },
+    "title": { "type": "string" },
+    "status": { "type": "integer" },
+    "errors": {
+      "type": "object",
+      "properties": {
+        "AplId": {
+          "type": "array",
+          "items": { "type": "string" }
+        }
+      },
+      "additionalProperties": true
+    },
+    "traceId": { "type": "string" }
+  },
+  "required": ["type", "title", "status", "errors", "traceId"]
+}

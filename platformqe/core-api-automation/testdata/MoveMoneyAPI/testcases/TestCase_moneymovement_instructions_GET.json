@@ -1,7 +1,7 @@
 [
     {
         "test_id": "TC001",
-        "service_name": "MoveMoneyAPI",
+        "service_name": "movemoney",
         "workflow_mode": "parallel",
         "test_name": "GET /instructions [positive] (TC001)",
         "protocol": "REST",
@@ -92,7 +92,7 @@
     },
     {
         "test_id": "TC002",
-        "service_name": "MoveMoneyAPI",
+        "service_name": "movemoney",
         "workflow_mode": "parallel",
         "test_name": "GET /instructions [negative - multiple account IDs] (TC002)",
         "protocol": "REST",
@@ -192,7 +192,7 @@
     },
     {
         "test_id": "TC003",
-        "service_name": "MoveMoneyAPI",
+        "service_name": "movemoney",
         "workflow_mode": "parallel",
         "test_name": "GET /instructions [Negative] (TC003)",
         "protocol": "REST",
@@ -283,7 +283,7 @@
     },
     {
         "test_id": "TC004",
-        "service_name": "MoveMoneyAPI",
+        "service_name": "movemoney",
         "workflow_mode": "parallel",
         "test_name": "GET /instructions [Negative] (TC004)",
         "protocol": "REST",
@@ -383,7 +383,7 @@
     },
     {
         "test_id": "TC005",
-        "service_name": "MoveMoneyAPI",
+        "service_name": "movemoney",
         "workflow_mode": "parallel",
         "test_name": "GET /instructions [Negative] (TC005)",
         "protocol": "REST",
@@ -433,7 +433,7 @@
     },
     {
         "test_id": "TC006",
-        "service_name": "MoveMoneyAPI",
+        "service_name": "movemoney",
         "workflow_mode": "parallel",
         "test_name": "GET /instructions [Negative] (TC006)",
         "protocol": "REST",
@@ -533,7 +533,7 @@
     },
     {
         "test_id": "TC007",
-        "service_name": "MoveMoneyAPI",
+        "service_name": "movemoney",
         "workflow_mode": "parallel",
         "test_name": "GET /instructions [Negative] (TC007)",
         "protocol": "REST",
@@ -633,7 +633,7 @@
     },
     {
         "test_id": "TC008",
-        "service_name": "MoveMoneyAPI",
+        "service_name": "movemoney",
         "workflow_mode": "parallel",
         "test_name": "GET /instructions [positive - changeState in items] (TC008)",
         "protocol": "REST",

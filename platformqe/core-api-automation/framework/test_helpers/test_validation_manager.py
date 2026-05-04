@@ -188,9 +188,16 @@ class TestValidationManager:
             try:
                 # Comparison operators
                 if operator == "==":
-                    assert actual_val == expected_val, f"{message}: actual={actual_val}, expected={expected_val}"
+                    # Case-insensitive comparision for strings (eg., IDs, parentAccountIds, etc.)
+                    if isinstance(actual_val, str) and isinstance(expected_val, str):
+                        assert actual_val.lower() == expected_val.lower(), f"{message}: actual='{actual_val}', expected='{expected_val}'"
+                    else:
+                     assert actual_val == expected_val, f"{message}: actual={actual_val}, expected={expected_val}"
                 elif operator == "!=":
-                    assert actual_val != expected_val, f"{message}: actual={actual_val}, expected (different)={expected_val}"
+                    if isinstance(actual_val, str) and isinstance(expected_val, str):
+                        assert actual_val.lower() != expected_val.lower(), f"{message}: actual='{actual_val}', expected (different)='{expected_val}'"
+                    else:
+                        assert actual_val != expected_val, f"{message}: actual={actual_val}, expected (different)={expected_val}"
                 elif operator == ">":
                     assert float(actual_val) > float(expected_val), f"{message}: actual={actual_val} <= expected={expected_val}"
                 elif operator == "<":

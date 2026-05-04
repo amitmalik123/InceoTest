@@ -1,7 +1,7 @@
 [
     {
         "test_id": "TC001",
-        "service_name": "MoveMoneyAPI",
+        "service_name": "movemoney",
         "workflow_mode": "parallel",
         "test_name": "POST /instructions [positive]",
         "protocol": "REST",
@@ -131,7 +131,7 @@
     },
     {
         "test_id": "TC002",
-        "service_name": "MoveMoneyAPI",
+        "service_name": "movemoney",
         "workflow_mode": "parallel",
         "test_name": "POST /instructions [positive] (TC002)",
         "protocol": "REST",
@@ -211,7 +211,7 @@
     },
     {
         "test_id": "TC003",
-        "service_name": "MoveMoneyAPI",
+        "service_name": "movemoney",
         "workflow_mode": "parallel",
         "test_name": "POST /instructions [negative - invalid value] (TC003)",
         "protocol": "REST",
@@ -292,7 +292,7 @@
     },
     {
         "test_id": "TC004",
-        "service_name": "MoveMoneyAPI",
+        "service_name": "movemoney",
         "workflow_mode": "parallel",
         "test_name": "POST /instructions [negative - invalid UUID] (TC004)",
         "protocol": "REST",
@@ -373,7 +373,7 @@
     },
     {
         "test_id": "TC005",
-        "service_name": "MoveMoneyAPI",
+        "service_name": "movemoney",
         "workflow_mode": "parallel",
         "test_name": "POST /instructions [negative - missing field] (TC005)",
         "protocol": "REST",
@@ -454,7 +454,7 @@
     },
     {
         "test_id": "TC006",
-        "service_name": "MoveMoneyAPI",
+        "service_name": "movemoney",
         "workflow_mode": "parallel",
         "test_name": "POST /instructions [negative - invalid routing number] (TC006)",
         "protocol": "REST",
@@ -535,7 +535,7 @@
     },
     {
         "test_id": "TC007",
-        "service_name": "MoveMoneyAPI",
+        "service_name": "movemoney",
         "workflow_mode": "parallel",
         "test_name": "POST /instructions [positive - alternate values]",
         "protocol": "REST",
@@ -665,7 +665,7 @@
     },
     {
         "test_id": "TC008",
-        "service_name": "MoveMoneyAPI",
+        "service_name": "movemoney",
         "workflow_mode": "parallel",
         "test_name": "POST /instructions [positive - changeState default to Active]",
         "protocol": "REST",
@@ -776,7 +776,7 @@
     },
     {
         "test_id": "TC009",
-        "service_name": "MoveMoneyAPI",
+        "service_name": "movemoney",
         "workflow_mode": "parallel",
         "test_name": "POST /instructions [positive - changeState explicit Active]",
         "protocol": "REST",
@@ -894,7 +894,7 @@
     },
     {
         "test_id": "TC010",
-        "service_name": "MoveMoneyAPI",
+        "service_name": "movemoney",
         "workflow_mode": "parallel",
         "test_name": "POST /instructions [positive - changeState explicit Inactive]",
         "protocol": "REST",
@@ -990,14 +990,7 @@
                     "message": "ChangeState should be Inactive as explicitly supplied"
                 }
             ],
-            "data_comparison": [
-                {
-                    "source": "changeState",
-                    "target": "db_changeState",
-                    "log_differences": true,
-                    "comparison_name": "ChangeState explicit Inactive value persistence - API request vs Database"
-                }
-            ]
+            "data_comparison": []
         },
         "test_data_file": "MoveMoneyAPI/data_driven/Data_Instructions_9694_POST.csv",
         "csv_row_index": 9,

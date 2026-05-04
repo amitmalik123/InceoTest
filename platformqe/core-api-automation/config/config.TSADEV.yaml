@@ -113,7 +113,7 @@ db_connections:
 # API Endpoints - Multiple services and environments
 api_endpoints:
 
-  MoveMoneyAPI:
+  movemoney:
     base_url: "https://platform.dev01.assetmark.com/api/movemoney/v1"
     auth_token: "${MOVEMONEY_API_TOKEN}"   # Use your actual token or environment variable
     timeout: 30

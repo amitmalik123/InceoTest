@@ -1,0 +1,29 @@
+{
+  "amount": "{{amount}}",
+  "requestType": "{{requestType}}",
+  "status": "{{status}}",
+  "checkDepositDetails": {
+    "checkNumber": "{{checkNumber}}",
+    "checkSource": "{{checkSource}}",
+    "checkType": "{{checkType}}",
+    "checkAmount": "{{checkAmount}}",
+    "alphaAmount": "{{alphaAmount}}",
+    "checkDate": "{{checkDate}}",
+    "bankName": "{{bankName}}",
+    "bankAccountNumber": "{{bankAccountNumber}}",
+    "routingNumber": "{{routingNumber}}",
+    "remitterName": "{{remitterName}}",
+    "allocations": [
+      {
+        "accountId": "{{accountId1}}",
+        "allocationUnitType": "Amount",
+        "amount": "{{amount1}}"
+      },
+      {
+        "accountId": "{{accountId2}}",
+        "allocationUnitType": "Amount",
+        "amount": "{{amount2}}"
+      }
+    ]
+  }
+}

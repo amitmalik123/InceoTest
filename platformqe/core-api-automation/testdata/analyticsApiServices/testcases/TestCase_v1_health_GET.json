@@ -1,9 +1,9 @@
 [
     {
-        "test_id": "TC001",
+        "test_id": "TC001_Health_Check",
         "service_name": "analyticsApiServices",
         "workflow_mode": "parallel",
-        "test_name": "GET /v1/health [positive] (TC001)",
+        "test_name": "GET /v1/health [positive] (TC001_Health_Check)",
         "protocol": "REST",
         "test_type": [
             "Functional"
@@ -22,7 +22,10 @@
         "payload": null,
         "expected_status": "200",
         "expected_response_schema": "",
-        "expected_response": {  "status": "UP",  "timestamp": "2025-11-26T14:17:56.5277627Z"},
+        "expected_response": {
+            "status": "UP",
+            "timestamp": "2025-11-26T14:17:56.5277627Z"
+        },
         "ignore_fields": [
             "timestamp"
         ],
@@ -69,6 +72,7 @@
         "db_query": "",
         "db_type": "",
         "db_connection_name": "",
-        "test_summary": "Test TC001: GET /v1/health [positive] (TC001) - Test GET request to /v1/health for functional scenario validation.",
+        "test_summary": "Test TC001_Health_Check: GET /v1/health [positive] (TC001_Health_Check) - Test GET request to /v1/health for functional scenario validation.",
         "test_scenario": "Test GET request to /v1/health for functional scenario validation."
-    }]
+    }
+]

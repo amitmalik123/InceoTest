@@ -210,10 +210,6 @@ def test_api_case(case, request):
     # Create execution context with all variables (includes test_data, api_defs, and global extracted values)
     context = context_manager.create_context(case, test_data, api_defs)
     
-    # Debug logging for TC001
-    if case.get('test_id') == 'TC001':
-        logger.info(f"[DEBUG] Context before payload rendering for TC001: {context}")
-    
     # Render endpoint and method with context
     api_name = case.get('api_name', 'UserService')
     api_def = api_defs.get(api_name, {})

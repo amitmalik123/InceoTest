@@ -1,15 +1,15 @@
 [
     {
         "test_id": "TC001_SETUP",
-        "service_name": "MoveMoneyAPI",
+        "service_name": "movemoney",
         "workflow_mode": "sequential",
-        "test_name": "GET /requests/{requestId} [setup: fetch current version] (TC001_SETUP)",
+        "test_name": "GET /check/{requestId} [setup: fetch current version] (TC001_SETUP)",
         "protocol": "REST",
         "test_type": [
             "Functional"
         ],
         "mainURL": "{{base_url}}",
-        "endpoint": "/requests/{{requestId_endpoint}}",
+        "endpoint": "/check/{{requestId}}",
         "method": "GET",
         "headers_additional": {
             "Accept": "application/json"
@@ -40,7 +40,7 @@
             },
             "assertions": [
                 {
-                    "actual": "{{requestId_endpoint}}",
+                    "actual": "{{requestId}}",
                     "expected": "",
                     "operator": "!=",
                     "message": "RequestId should not be empty"
@@ -62,21 +62,25 @@
                 }
             ]
         },
-        "test_data_file": "MoveMoneyAPI/data_driven/Data_requests_requestId_PATCH.csv",
+        "test_data_file": "MoveMoneyAPI/data_driven/Data_Check_PATCH.csv",
         "csv_row_index": 0,
-        "test_summary": "Test TC001_SETUP: Fetch current request version before PATCH"
+        "db_query_timing": "",
+        "db_queries": {},
+        "db_type": "",
+        "db_connection_name": "",
+        "test_summary": "Test TC001_SETUP: Fetch current check request version before PATCH"
     },
     {
         "test_id": "TC001",
-        "service_name": "MoveMoneyAPI",
+        "service_name": "movemoney",
         "workflow_mode": "sequential",
-        "test_name": "200 response for all valid inputs. [positive] (TC001)",
+        "test_name": "Partially updates a check money movement request status and/or change state. [positive] (TC001)",
         "protocol": "REST",
         "test_type": [
             "Functional"
         ],
         "mainURL": "{{base_url}}",
-        "endpoint": "/requests/{{requestId_endpoint}}",
+        "endpoint": "/check/{{requestId}}",
         "method": "PATCH",
         "headers_additional": {
             "Content-Type": "application/json"
@@ -105,7 +109,7 @@
             },
             "assertions": [
                 {
-                    "actual": "{{requestId_endpoint}}",
+                    "actual": "{{requestId}}",
                     "expected": "",
                     "operator": "!=",
                     "message": "RequestId should not be empty"
@@ -127,21 +131,301 @@
                 }
             ]
         },
-        "test_data_file": "MoveMoneyAPI/data_driven/Data_requests_requestId_PATCH.csv",
+        "test_data_file": "MoveMoneyAPI/data_driven/Data_Check_PATCH.csv",
         "csv_row_index": 0,
-        "test_summary": "Test TC001: Verify 200 successful status update when all the input field are valid, the system increments the version number by 1 for PATCH /requests end points"
+        "db_query_timing": "",
+        "db_queries": {},
+        "db_type": "",
+        "db_connection_name": "",
+        "test_summary": "Test TC001: Verify PATCH /check/{requestId} returns 200 for valid update with correct version and valid status/changeState"
     },
     {
         "test_id": "TC002",
-        "service_name": "MoveMoneyAPI",
+        "service_name": "movemoney",
         "workflow_mode": "sequential",
-        "test_name": "version does not match and conflict occurs. [Negative] (TC002)",
+        "test_name": " No Content for given RequestId [Negative] (TC002)",
         "protocol": "REST",
         "test_type": [
-            "Negative"
+            "Functional"
         ],
         "mainURL": "{{base_url}}",
-        "endpoint": "/requests/{{requestId_endpoint}}",
+        "endpoint": "/check/{{requestId}}",
+        "method": "PATCH",
+        "headers_additional": {
+            "Content-Type": "application/json"
+        },
+        "payload": {
+            "version": "{{currentVersion}}",
+            "status": "{{status}}",
+            "changeState": "{{changeState}}"
+        },
+        "expected_status": "204",
+        "expected_response_schema": null,
+        "expected_response": null,
+        "ignore_fields": [
+            "id"
+        ],
+        "extract_values": [],
+        "validate": {
+            "performance": {
+                "max_response_time_ms": 500
+            },
+            "security": {
+                "checks": [
+                    "sql_injection",
+                    "xss"
+                ]
+            },
+            "assertions": [
+                {
+                    "actual": "{{requestId}}",
+                    "expected": "",
+                    "operator": "!=",
+                    "message": "RequestId should not be empty"
+                },
+                {
+                    "actual": "{{currentVersion}}",
+                    "expected": 0,
+                    "operator": ">",
+                    "message": "Current version should be greater than 0"
+                }
+            ],
+            "data_comparison": [
+                {
+                    "comparison_name": "API response self-compare",
+                    "source": "api_response",
+                    "target": "api_response",
+                    "fields_to_compare": [],
+                    "log_differences": true
+                }
+            ]
+        },
+        "test_data_file": "MoveMoneyAPI/data_driven/Data_Check_PATCH.csv",
+        "csv_row_index": 1,
+        "db_query_timing": "",
+        "db_queries": {},
+        "db_type": "",
+        "db_connection_name": "",
+        "test_summary": "Test TC002: Verify the API returns 204 response when there is No Content for the given RequestId for PATCH /check/{requestId}"
+    },
+    {
+        "test_id": "TC003",
+        "service_name": "movemoney",
+        "workflow_mode": "sequential",
+        "test_name": " Invalid/Missing RequestId [Negative] (TC003)",
+        "protocol": "REST",
+        "test_type": [
+            "Functional"
+        ],
+        "mainURL": "{{base_url}}",
+        "endpoint": "/check/{{requestId}}",
+        "method": "PATCH",
+        "headers_additional": {
+            "Content-Type": "application/json"
+        },
+        "payload": {
+            "version": "{{currentVersion}}",
+            "status": "{{status}}",
+            "changeState": "{{changeState}}"
+        },
+        "expected_status": "400",
+        "expected_response_schema": null,
+        "expected_response": null,
+        "ignore_fields": [
+            "id"
+        ],
+        "extract_values": [],
+        "validate": {
+            "performance": {
+                "max_response_time_ms": 500
+            },
+            "security": {
+                "checks": [
+                    "sql_injection",
+                    "xss"
+                ]
+            },
+            "assertions": [
+                {
+                    "actual": "{{requestId}}",
+                    "expected": "",
+                    "operator": "!=",
+                    "message": "RequestId should not be empty"
+                },
+                {
+                    "actual": "{{currentVersion}}",
+                    "expected": 0,
+                    "operator": ">",
+                    "message": "Current version should be greater than 0"
+                }
+            ],
+            "data_comparison": [
+                {
+                    "comparison_name": "API response self-compare",
+                    "source": "api_response",
+                    "target": "api_response",
+                    "fields_to_compare": [],
+                    "log_differences": true
+                }
+            ]
+        },
+        "test_data_file": "MoveMoneyAPI/data_driven/Data_Check_PATCH.csv",
+        "csv_row_index": 2,
+        "db_query_timing": "",
+        "db_queries": {},
+        "db_type": "",
+        "db_connection_name": "",
+        "test_summary": "Test TC003: Verify the API returns 400 response when there is Invalid/Missing RequestId for PATCH /check/{requestId}"
+    },
+    {
+        "test_id": "TC004",
+        "service_name": "movemoney",
+        "workflow_mode": "sequential",
+        "test_name": " Invalid Status [Negative] (TC004)",
+        "protocol": "REST",
+        "test_type": [
+            "Functional"
+        ],
+        "mainURL": "{{base_url}}",
+        "endpoint": "/check/{{requestId}}",
+        "method": "PATCH",
+        "headers_additional": {
+            "Content-Type": "application/json"
+        },
+        "payload": {
+            "version": "{{currentVersion}}",
+            "status": "{{status}}",
+            "changeState": "{{changeState}}"
+        },
+        "expected_status": "400",
+        "expected_response_schema": null,
+        "expected_response": null,
+        "ignore_fields": [
+            "id"
+        ],
+        "extract_values": [],
+        "validate": {
+            "performance": {
+                "max_response_time_ms": 500
+            },
+            "security": {
+                "checks": [
+                    "sql_injection",
+                    "xss"
+                ]
+            },
+            "assertions": [
+                {
+                    "actual": "{{requestId}}",
+                    "expected": "",
+                    "operator": "!=",
+                    "message": "RequestId should not be empty"
+                },
+                {
+                    "actual": "{{currentVersion}}",
+                    "expected": 0,
+                    "operator": ">",
+                    "message": "Current version should be greater than 0"
+                }
+            ],
+            "data_comparison": [
+                {
+                    "comparison_name": "API response self-compare",
+                    "source": "api_response",
+                    "target": "api_response",
+                    "fields_to_compare": [],
+                    "log_differences": true
+                }
+            ]
+        },
+        "test_data_file": "MoveMoneyAPI/data_driven/Data_Check_PATCH.csv",
+        "csv_row_index": 3,
+        "db_query_timing": "",
+        "db_queries": {},
+        "db_type": "",
+        "db_connection_name": "",
+        "test_summary": "Test TC004: Verify the API returns 400 response when there is Invalid Status for PATCH /check/{requestId}"
+    },
+    {
+        "test_id": "TC005",
+        "service_name": "movemoney",
+        "workflow_mode": "sequential",
+        "test_name": " Invalid ChangeState [Negative] (TC005)",
+        "protocol": "REST",
+        "test_type": [
+            "Functional"
+        ],
+        "mainURL": "{{base_url}}",
+        "endpoint": "/check/{{requestId}}",
+        "method": "PATCH",
+        "headers_additional": {
+            "Content-Type": "application/json"
+        },
+        "payload": {
+            "version": "{{currentVersion}}",
+            "status": "{{status}}",
+            "changeState": "{{changeState}}"
+        },
+        "expected_status": "400",
+        "expected_response_schema": null,
+        "expected_response": null,
+        "ignore_fields": [
+            "id"
+        ],
+        "extract_values": [],
+        "validate": {
+            "performance": {
+                "max_response_time_ms": 500
+            },
+            "security": {
+                "checks": [
+                    "sql_injection",
+                    "xss"
+                ]
+            },
+            "assertions": [
+                {
+                    "actual": "{{requestId}}",
+                    "expected": "",
+                    "operator": "!=",
+                    "message": "RequestId should not be empty"
+                },
+                {
+                    "actual": "{{currentVersion}}",
+                    "expected": 0,
+                    "operator": ">",
+                    "message": "Current version should be greater than 0"
+                }
+            ],
+            "data_comparison": [
+                {
+                    "comparison_name": "API response self-compare",
+                    "source": "api_response",
+                    "target": "api_response",
+                    "fields_to_compare": [],
+                    "log_differences": true
+                }
+            ]
+        },
+        "test_data_file": "MoveMoneyAPI/data_driven/Data_Check_PATCH.csv",
+        "csv_row_index": 4,
+        "db_query_timing": "",
+        "db_queries": {},
+        "db_type": "",
+        "db_connection_name": "",
+        "test_summary": "Test TC005: Verify the API returns 400 response when there is Invalid ChangeState for PATCH /check/{requestId}"
+    },
+    {
+        "test_id": "TC006",
+        "service_name": "movemoney",
+        "workflow_mode": "sequential",
+        "test_name": "Supplied version does not match current version [negative] (TC006)",
+        "protocol": "REST",
+        "test_type": [
+            "Functional"
+        ],
+        "mainURL": "{{base_url}}",
+        "endpoint": "/check/{{requestId}}",
         "method": "PATCH",
         "headers_additional": {
             "Content-Type": "application/json"
@@ -170,7 +454,7 @@
             },
             "assertions": [
                 {
-                    "actual": "{{requestId_endpoint}}",
+                    "actual": "{{requestId}}",
                     "expected": "",
                     "operator": "!=",
                     "message": "RequestId should not be empty"
@@ -179,7 +463,7 @@
                     "actual": "{{currentVersion}}",
                     "expected": 0,
                     "operator": ">",
-                    "message": "Conflict test should use a valid version value"
+                    "message": "Current version should be greater than 0"
                 }
             ],
             "data_comparison": [
@@ -192,333 +476,12 @@
                 }
             ]
         },
-        "test_data_file": "MoveMoneyAPI/data_driven/Data_requests_requestId_PATCH.csv",
-        "csv_row_index": 0,
-        "test_summary": "Test TC002: Verify 409 response when the version does not match, system returns a 409 Conflict response indicating the record has been modified for PATCH /requests end points"
-    },
-    {
-        "test_id": "TC003",
-        "service_name": "MoveMoneyAPI",
-        "workflow_mode": "sequential",
-        "test_name": "No Content - RequestId not found. [Negative] (TC003)",
-        "protocol": "REST",
-        "test_type": [
-            "Negative"
-        ],
-        "mainURL": "{{base_url}}",
-        "endpoint": "/requests/{{requestId_endpoint}}",
-        "method": "PATCH",
-        "headers_additional": {
-            "Content-Type": "application/json"
-        },
-        "payload": {
-            "version": "{{version}}",
-            "status": "{{status}}",
-            "changeState": "{{changeState}}"
-        },
-        "expected_status": "204",
-        "expected_response_schema": null,
-        "expected_response": null,
-        "ignore_fields": [
-            "id"
-        ],
-        "extract_values": [],
-        "validate": {
-            "performance": {
-                "max_response_time_ms": 500
-            },
-            "security": {
-                "checks": [
-                    "sql_injection",
-                    "xss"
-                ]
-            },
-            "assertions": [
-                {
-                    "actual": "{{requestId_endpoint}}",
-                    "expected": "",
-                    "operator": "!=",
-                    "message": "RequestId should not be empty"
-                },
-                {
-                    "actual": "{{version}}",
-                    "expected": 0,
-                    "operator": ">",
-                    "message": "Version should be greater than 0"
-                }
-            ],
-            "data_comparison": [
-                {
-                    "comparison_name": "API response self-compare",
-                    "source": "api_response",
-                    "target": "api_response",
-                    "fields_to_compare": [],
-                    "log_differences": true
-                }
-            ]
-        },
-        "test_data_file": "MoveMoneyAPI/data_driven/Data_requests_requestId_PATCH.csv",
-        "csv_row_index": 1,
-        "test_summary": "Test TC003: Verify 204 Response status when there is No Content - RequestId not found for PATCH /requests end points"
-    },
-    {
-        "test_id": "TC004",
-        "service_name": "MoveMoneyAPI",
-        "workflow_mode": "sequential",
-        "test_name": "Bad Request - Missing Status field. [Negative] (TC004)",
-        "protocol": "REST",
-        "test_type": [
-            "Negative"
-        ],
-        "mainURL": "{{base_url}}",
-        "endpoint": "/requests/{{requestId_endpoint}}",
-        "method": "PATCH",
-        "headers_additional": {
-            "Content-Type": "application/json"
-        },
-        "payload": {
-            "version": "{{version}}",
-            "status": "{{status}}",
-            "changeState": "{{changeState}}"
-        },
-        "expected_status": "400",
-        "expected_response_schema": null,
-        "expected_response": null,
-        "ignore_fields": [
-            "id"
-        ],
-        "extract_values": [],
-        "validate": {
-            "performance": {
-                "max_response_time_ms": 500
-            },
-            "security": {
-                "checks": [
-                    "sql_injection",
-                    "xss"
-                ]
-            },
-            "assertions": [
-                {
-                    "actual": "{{requestId_endpoint}}",
-                    "expected": "",
-                    "operator": "!=",
-                    "message": "RequestId should not be empty"
-                },
-                {
-                    "actual": "{{version}}",
-                    "expected": 0,
-                    "operator": ">",
-                    "message": "Version should be greater than 0"
-                }
-            ],
-            "data_comparison": [
-                {
-                    "comparison_name": "API response self-compare",
-                    "source": "api_response",
-                    "target": "api_response",
-                    "fields_to_compare": [],
-                    "log_differences": true
-                }
-            ]
-        },
-        "test_data_file": "MoveMoneyAPI/data_driven/Data_requests_requestId_PATCH.csv",
-        "csv_row_index": 2,
-        "test_summary": "Test TC004: Verify 400 response when the Status field is Missing for PATCH /requests end points"
-    },
-    {
-        "test_id": "TC005",
-        "service_name": "MoveMoneyAPI",
-        "workflow_mode": "sequential",
-        "test_name": "Invalid Status - Bad Request. [Negative] (TC005)",
-        "protocol": "REST",
-        "test_type": [
-            "Negative"
-        ],
-        "mainURL": "{{base_url}}",
-        "endpoint": "/requests/{{requestId_endpoint}}",
-        "method": "PATCH",
-        "headers_additional": {
-            "Content-Type": "application/json"
-        },
-        "payload": {
-            "version": "{{version}}",
-            "status": "{{status}}",
-            "changeState": "{{changeState}}"
-        },
-        "expected_status": "400",
-        "expected_response_schema": null,
-        "expected_response": null,
-        "ignore_fields": [
-            "id"
-        ],
-        "extract_values": [],
-        "validate": {
-            "performance": {
-                "max_response_time_ms": 500
-            },
-            "security": {
-                "checks": [
-                    "sql_injection",
-                    "xss"
-                ]
-            },
-            "assertions": [
-                {
-                    "actual": "{{requestId_endpoint}}",
-                    "expected": "",
-                    "operator": "!=",
-                    "message": "RequestId should not be empty"
-                },
-                {
-                    "actual": "{{version}}",
-                    "expected": 0,
-                    "operator": ">",
-                    "message": "Version should be greater than 0"
-                }
-            ],
-            "data_comparison": [
-                {
-                    "comparison_name": "API response self-compare",
-                    "source": "api_response",
-                    "target": "api_response",
-                    "fields_to_compare": [],
-                    "log_differences": true
-                }
-            ]
-        },
-        "test_data_file": "MoveMoneyAPI/data_driven/Data_requests_requestId_PATCH.csv",
-        "csv_row_index": 3,
-        "test_summary": "Test TC005: Verify 400 response when the Status field is Invalid for PATCH /requests end points"
-    },
-    {
-        "test_id": "TC006",
-        "service_name": "MoveMoneyAPI",
-        "workflow_mode": "sequential",
-        "test_name": "Bad Request - Missing ChangeState field. [Negative] (TC006)",
-        "protocol": "REST",
-        "test_type": [
-            "Negative"
-        ],
-        "mainURL": "{{base_url}}",
-        "endpoint": "/requests/{{requestId_endpoint}}",
-        "method": "PATCH",
-        "headers_additional": {
-            "Content-Type": "application/json"
-        },
-        "payload": {
-            "version": "{{version}}",
-            "status": "{{status}}",
-            "changeState": "{{changeState}}"
-        },
-        "expected_status": "400",
-        "expected_response_schema": null,
-        "expected_response": null,
-        "ignore_fields": [
-            "id"
-        ],
-        "extract_values": [],
-        "validate": {
-            "performance": {
-                "max_response_time_ms": 500
-            },
-            "security": {
-                "checks": [
-                    "sql_injection",
-                    "xss"
-                ]
-            },
-            "assertions": [
-                {
-                    "actual": "{{requestId_endpoint}}",
-                    "expected": "",
-                    "operator": "!=",
-                    "message": "RequestId should not be empty"
-                },
-                {
-                    "actual": "{{version}}",
-                    "expected": 0,
-                    "operator": ">",
-                    "message": "Version should be greater than 0"
-                }
-            ],
-            "data_comparison": [
-                {
-                    "comparison_name": "API response self-compare",
-                    "source": "api_response",
-                    "target": "api_response",
-                    "fields_to_compare": [],
-                    "log_differences": true
-                }
-            ]
-        },
-        "test_data_file": "MoveMoneyAPI/data_driven/Data_requests_requestId_PATCH.csv",
-        "csv_row_index": 4,
-        "test_summary": "Test TC006: Verify 400 response when the ChangeState field is Missing for PATCH /requests end points"
-    },
-    {
-        "test_id": "TC007",
-        "service_name": "MoveMoneyAPI",
-        "workflow_mode": "sequential",
-        "test_name": "Bad Request - Invalid ChangeState field. [Negative] (TC007)",
-        "protocol": "REST",
-        "test_type": [
-            "Negative"
-        ],
-        "mainURL": "{{base_url}}",
-        "endpoint": "/requests/{{requestId_endpoint}}",
-        "method": "PATCH",
-        "headers_additional": {
-            "Content-Type": "application/json"
-        },
-        "payload": {
-            "version": "{{version}}",
-            "status": "{{status}}",
-            "changeState": "{{changeState}}"
-        },
-        "expected_status": "400",
-        "expected_response_schema": null,
-        "expected_response": null,
-        "ignore_fields": [
-            "id"
-        ],
-        "extract_values": [],
-        "validate": {
-            "performance": {
-                "max_response_time_ms": 500
-            },
-            "security": {
-                "checks": [
-                    "sql_injection",
-                    "xss"
-                ]
-            },
-            "assertions": [
-                {
-                    "actual": "{{requestId_endpoint}}",
-                    "expected": "",
-                    "operator": "!=",
-                    "message": "RequestId should not be empty"
-                },
-                {
-                    "actual": "{{version}}",
-                    "expected": 0,
-                    "operator": ">",
-                    "message": "Version should be greater than 0"
-                }
-            ],
-            "data_comparison": [
-                {
-                    "comparison_name": "API response self-compare",
-                    "source": "api_response",
-                    "target": "api_response",
-                    "fields_to_compare": [],
-                    "log_differences": true
-                }
-            ]
-        },
-        "test_data_file": "MoveMoneyAPI/data_driven/Data_requests_requestId_PATCH.csv",
+        "test_data_file": "MoveMoneyAPI/data_driven/Data_Check_PATCH.csv",
         "csv_row_index": 5,
-        "test_summary": "Test TC007: Verify 400 response when the ChangeState field is Invalid for PATCH /requests end points"
+        "db_query_timing": "",
+        "db_queries": {},
+        "db_type": "",
+        "db_connection_name": "",
+        "test_summary": "Test TC006: Verify the API returns 409 response when the supplied version does not match the server's current version and Conflict happens for PATCH /check/{requestId}"
     }
 ]
