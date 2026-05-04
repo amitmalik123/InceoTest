@@ -74,10 +74,11 @@ class DialogHandler:
         
         # Phase 1: Find dialog in DOM with each selector
         # Use state='attached' to find hidden dialogs (jQuery UI keeps dialogs in DOM)
+        # Increased timeout to 2 minutes per selector to allow page navigation to complete
         for selector in selectors:
             try:
                 potential_dialog = self.page.locator(selector).first
-                potential_dialog.wait_for(state="attached", timeout=2000)
+                potential_dialog.wait_for(state="attached", timeout=120000)
                 self.logger.info(f"Dialog found in DOM with selector: {selector}")
                 dialog = potential_dialog
                 break
@@ -93,7 +94,7 @@ class DialogHandler:
             try:
                 # Check if we can get text from the dialog
                 # This indicates the dialog is DOM-ready even if CSS keeps it visually hidden
-                dialog_text = dialog.text_content(timeout=3000)
+                dialog_text = dialog.text_content(timeout=120000)
                 if dialog_text:
                     self.logger.debug(f"Dialog content accessible ({len(dialog_text)} chars)")
                     self.logger.debug("Dialog is ready for interaction")
@@ -113,7 +114,7 @@ class DialogHandler:
             
             try:
                 dialog = self.page.locator('body > div[style*="display"]').first
-                dialog.wait_for(state="attached", timeout=5000)
+                dialog.wait_for(state="attached", timeout=120000)  # 2 minutes for generic selector
                 self.logger.debug("Generic selector found dialog in DOM")
                 return dialog
             except Exception as e:

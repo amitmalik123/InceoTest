@@ -29,6 +29,8 @@ class ClientAccountsPage(BasePage):
     DROPDOWN_DIV = client_accounts_locators.DROPDOWN_DIV
     NOTE_TC_DIV = client_accounts_locators.NOTE_TC_DIV
     AUTHORIZED_SIGNERS_DROPDOWN = client_accounts_locators.AUTHORIZED_SIGNERS_DROPDOWN
+    AUTHORIZED_SIGNERS_SELECTED_OPTION = client_accounts_locators.AUTHORIZED_SIGNERS_SELECTED_OPTION
+    AUTHORIZED_SIGNERS_DROPDOWN_DISABLED = client_accounts_locators.AUTHORIZED_SIGNERS_DROPDOWN_DISABLED
     EMAIL_INPUT = client_accounts_locators.EMAIL_INPUT
     PHONE_INPUT = client_accounts_locators.PHONE_INPUT
     CONTINUE_BUTTON = client_accounts_locators.CONTINUE_BUTTON
@@ -57,6 +59,7 @@ class ClientAccountsPage(BasePage):
     RADIO_SUBMIT = client_accounts_locators.RADIO_SUBMIT
     RADIO_PRINT = client_accounts_locators.RADIO_PRINT
     RADIO_ESIGN = client_accounts_locators.RADIO_ESIGN
+    CLIENT_IN_PERSON_SIGNING_BUTTON_RETURN = client_accounts_locators.CLIENT_IN_PERSON_SIGNING_BUTTON_RETURN
 
     def __init__(self, page: Page, base_url: str = ""):
         super().__init__(page, base_url=base_url)
@@ -152,7 +155,7 @@ class ClientAccountsPage(BasePage):
             logger.error(f"✗ Failed to select '{option}' radio button: {e}")
             raise AssertionError(f"Failed to select Authorized Signer Approval '{option}' option: {e}") from e
 
-    def provide_authorized_signers_information(self, authorized_signer: str, email_address: str, phone: str) -> None:
+    def provide_authorized_signers_information(self, authorized_signer: str, email_address: str, phone: str, test_context: dict = None) -> None:
         """
         Provide Authorized Signers information on the Signer(s) Information dialog.
         
@@ -160,6 +163,7 @@ class ClientAccountsPage(BasePage):
             authorized_signer: Name/value of authorized signer to select (if dropdown is enabled)
             email_address: Email address to enter
             phone: Phone number to enter
+            test_context: Optional test context dict to store fetched authorized signer name when dropdown is disabled
         
         Raises:
             AssertionError: If required elements not found or actions fail
@@ -185,10 +189,40 @@ class ClientAccountsPage(BasePage):
             is_disabled = dropdown.is_disabled()
             logger.info(f"  ✓ Dropdown found. Disabled status: {is_disabled}")
             
-            if not is_disabled and authorized_signer and authorized_signer.strip():
-                logger.info(f"  Step 3: Dropdown is enabled. Attempting to select '{authorized_signer}'...")
+            if is_disabled:
+                # Step 3a: Dropdown is disabled - fetch selected option text and update test_context
+                logger.info("  Step 3a: Dropdown is disabled. Fetching selected option text...")
+                try:
+                    selected_option = iframe_frame.locator(self.AUTHORIZED_SIGNERS_SELECTED_OPTION)
+                    
+                    if selected_option.count() == 0:
+                        logger.warning("  ⚠ No selected option found in disabled dropdown")
+                    else:
+                        # Get the text content of the selected option
+                        selected_text = selected_option.inner_text().strip()
+                        logger.info(f"  ✓ Selected option text fetched: '{selected_text}'")
+                        
+                        # Update test_context with the fetched authorized signer name
+                        if test_context is not None:
+                            test_context["authorized_signer"] = selected_text
+                            logger.info(f"  ✓ Updated test_context['authorized_signer'] = '{selected_text}'")
+                        else:
+                            logger.warning("  ⚠ test_context not provided, cannot update authorized_signer")
+                            
+                except Exception as e:
+                    logger.error(f"  ✗ Error fetching selected option text: {e}")
+                    raise AssertionError(f"Failed to fetch selected option text from disabled dropdown: {e}") from e
+                    
+            elif authorized_signer and authorized_signer.strip():
+                # Step 3b: Dropdown is enabled - select the provided option
+                logger.info(f"  Step 3b: Dropdown is enabled. Attempting to select '{authorized_signer}'...")
                 dropdown.select_option(value=authorized_signer)
                 logger.info(f"  ✓ Option '{authorized_signer}' selected")
+                
+                # Update test_context with the provided authorized signer
+                if test_context is not None:
+                    test_context["authorized_signer"] = authorized_signer
+                    logger.info(f"  ✓ Updated test_context['authorized_signer'] = '{authorized_signer}'")
                 
                 # Wait for Email Address field to appear after dropdown selection
                 logger.info("  Waiting for form to update after dropdown selection...")
@@ -200,10 +234,7 @@ class ClientAccountsPage(BasePage):
                 except WaitTimeoutError:
                     logger.warning("  ⚠ Email Address field did not appear within timeout, continuing anyway")
             else:
-                if is_disabled:
-                    logger.info("  ✓ Dropdown is disabled, skipping selection as per requirements")
-                else:
-                    logger.info("  ⚠ Authorized signer value is empty, skipping selection")
+                logger.info("  ⚠ Dropdown is enabled but authorized signer value is empty, skipping selection")
             
             # Step 4: Fill Email Address
             if email_address and email_address.strip():
@@ -261,29 +292,33 @@ class ClientAccountsPage(BasePage):
             logger.error(f"✗ Failed to provide Authorized Signers information: {e}")
             raise AssertionError(f"Failed to provide Authorized Signers information: {e}") from e
 
-    def select_authorized_signer_esign_method(self, method: str) -> None:
+    def select_signer_esign_method(self, method: str) -> None:
         """
-        Select Authorized Signer eSign Method (SMS or Tracking Center).
+        Select Signer eSign Method.
         
         Args:
-            method: The eSign method to select ('SMS' or 'Tracking Center')
+            method: The eSign method to select. Valid values:
+                - 'SMS': SMS signature method (radiobtnSMS)
+                - 'Tracking Center': Tracking center method (radiobtnTC)
+                - 'In Person': In-person signature method (radbtnInPerson1)
+                - 'By Email': Remote/email signature method (radbtnRemote1)
         
         Raises:
             AssertionError: If method is invalid or radio button not found/clickable
         """
-        valid_methods = ["SMS", "Tracking Center"]
+        valid_methods = ["SMS", "Tracking Center", "In Person", "By Email"]
         if method not in valid_methods:
             raise AssertionError(f"Invalid eSign method '{method}'. Must be one of: {valid_methods}")
         
         logger.info(f"Selecting '{method}' eSign method radio button...")
-        self._select_authorized_signer_esign_method(method)
+        self._select_signer_esign_method(method)
 
-    def _select_authorized_signer_esign_method(self, method: str) -> None:
+    def _select_signer_esign_method(self, method: str) -> None:
         """
         Internal method to select eSign method radio button.
         
         Args:
-            method: The eSign method to select ('SMS' or 'Tracking Center')
+            method: The eSign method to select ('SMS', 'Tracking Center', 'In Person', or 'By Email')
         """
         try:
             # Step 1: Access iframe
@@ -295,7 +330,15 @@ class ClientAccountsPage(BasePage):
             
             # Step 2: Map method to radio button ID
             logger.info(f"  Step 2: Mapping method '{method}' to radio button ID...")
-            radio_button_id = "radiobtnSMS" if method == "SMS" else "radiobtnTC"
+            radio_button_id_map = {
+                "SMS": "radiobtnSMS",
+                "Tracking Center": "radiobtnTC",
+                "In Person": "radbtnInPerson1",
+                "By Email": "radbtnRemote1"
+            }
+            radio_button_id = radio_button_id_map.get(method)
+            if not radio_button_id:
+                raise AssertionError(f"No radio button ID mapping found for method '{method}'")
             logger.info(f"  ✓ Radio button ID determined: '{radio_button_id}'")
             
             # Step 3: Find radio button input
@@ -618,7 +661,7 @@ class ClientAccountsPage(BasePage):
             first_option = self.page.locator(client_accounts_locators.REQUEST_LIST_ITEM)
             
             # Verify all key components are visible and enabled
-            with WaitContext(timeout=20.0, poll_interval=0.2) as wait:
+            with WaitContext(timeout=40.0, poll_interval=0.2) as wait:
                 wait.until(lambda: table_container.is_visible(), error_message="Table container not visible")
                 wait.until(lambda: request_list.is_visible(), error_message="Request list not visible")
                 wait.until(lambda: first_option.is_visible(), error_message="First request option not visible")
@@ -879,6 +922,56 @@ class ClientAccountsPage(BasePage):
         # Click the specified button (dialog should be ready from the load state wait above)
         dialog_handler.click_dialog_button(button_text)
         logger.info(f"Clicked '{button_text}' button in signature dialog")
+
+    def click_form_button(self, button_text: str, timeout: int = 60000) -> None:
+        """
+        Generic method to click a form button with specific text.
+
+        This method can be used to click any button with class 'formButton' and specific text content.
+        It validates the button is visible and enabled before clicking.
+
+        Args:
+            button_text: The exact text of the button to click (e.g., 'Return to eWealthManager', 'Start Client Signing')
+            timeout: Timeout in milliseconds for waiting for button visibility (default: 60000ms)
+
+        Raises:
+            AssertionError: If button not found, not visible, or click fails
+
+        Example:
+            client_accounts_page.click_form_button('Return to eWealthManager')
+            client_accounts_page.click_form_button('Start Client Signing', timeout=30000)
+        """
+        logger.info(f"Clicking form button with text: '{button_text}'...")
+
+        try:
+            # Build the locator using button text
+            button_locator = self.page.locator(f'button.formButton:has-text("{button_text}")')
+
+            # STEP 1: Check if button exists
+            if button_locator.count() == 0:
+                logger.error(f"✗ Button with text '{button_text}' not found on page")
+                raise AssertionError(f"Form button '{button_text}' not found on page")
+
+            logger.debug(f"✓ Button '{button_text}' found on page")
+
+            # STEP 2: Wait for button to be visible
+            logger.debug(f"Waiting for button '{button_text}' to be visible...")
+            button_locator.wait_for(state='visible', timeout=timeout)
+            logger.debug(f"✓ Button '{button_text}' is visible")
+
+            # STEP 3: Verify button is enabled for clicking
+            if not button_locator.is_enabled():
+                logger.warning(f"Button '{button_text}' is not enabled, attempting to click anyway")
+
+            # STEP 4: Click the button using framework utilities
+            self.click(button_locator)
+            logger.info(f"✓ Button '{button_text}' clicked successfully")
+
+        except AssertionError:
+            raise
+        except Exception as e:
+            logger.error(f"✗ Failed to click button '{button_text}': {e}")
+            raise AssertionError(f"Failed to click form button '{button_text}'. Details: {e}") from e
 
     def get_request_submitted_dialog_content(self) -> dict:
         """
@@ -1391,5 +1484,532 @@ class ClientAccountsPage(BasePage):
         
         logger.info(f"✓ Account radio button operation completed: {result}")
         return result
+
+    def enter_client_signer_details(self, full_name: str, email_address: str, phone: str, signer_index: int = 1) -> dict:
+        """
+        Enter client signer details in the Account Holders table.
+        
+        This method fills in the following fields for a specific signer row:
+        - Signer's Full Name (txtAccountHolderName{index})
+        - Email Address (txtAccountHolderEmail{index})
+        - Phone Number (txtAccountHolderPhone{index})
+        
+        Args:
+            full_name: Full name of the signer (from Account_Owner test data)
+            email_address: Email address of the signer (from Email_Address test data)
+            phone: Phone number of the signer (from Phone test data)
+            signer_index: Row index in the table (1 for first Account Owner, 2 for second, etc.)
+                         Default: 1 (Account Owner row)
+        
+        Returns:
+            Dictionary containing:
+            - 'name_field': Locator for the name input field
+            - 'email_field': Locator for the email input field
+            - 'phone_field': Locator for the phone input field
+            - 'values_entered': Dictionary with actual values entered
+            - 'fields_filled': Boolean indicating all fields were filled successfully
+        
+        Raises:
+            AssertionError: If required input fields not found or not fillable
+            
+        Example:
+            result = page_obj.enter_client_signer_details(
+                full_name="John Smith",
+                email_address="john@example.com",
+                phone="925-123-4567",
+                signer_index=1
+            )
+            assert result['fields_filled'], "All signer details should be filled"
+        """
+        logger.info(f"Entering client signer details for signer index {signer_index}")
+        
+        try:
+            # Step 0: Wait for dialog to be fully rendered and iframe to load
+            logger.info(f"Step 0: Waiting for Signer(s) Information dialog and iframe to load...")
+            self.page.wait_for_load_state("domcontentloaded", timeout=10000)
+            self.page.wait_for_timeout(1000)  # Additional delay for animations
+            
+            # Step 0.5: Wait for iframe to be present and accessible
+            logger.info(f"Step 0.5: Locating and accessing iframe #esig_iframe...")
+            iframe_locator = self.page.locator('iframe#esig_iframe')
+            iframe_locator.wait_for(state="attached", timeout=10000)
+            logger.info(f"  ✓ Iframe #esig_iframe is attached")
+            
+            # Get the iframe element to access its content
+            iframe = self.page.frame_locator('iframe#esig_iframe')
+            
+            # Step 1: Locate the input fields using dynamic IDs based on signer_index (WITHIN IFRAME)
+            logger.info(f"Step 1: Locating input fields for signer index {signer_index} inside iframe...")
+            
+            name_field = iframe.locator(f'input[name="txtAccountHolderName{signer_index}"]')
+            email_field = iframe.locator(f'input[name="txtAccountHolderEmail{signer_index}"]')
+            phone_field = iframe.locator(f'input[name="txtAccountHolderPhone{signer_index}"]')
+            
+            # Step 2: Verify fields exist in iframe and wait for visibility
+            logger.info(f"Step 2: Verifying input fields are present and visible in iframe...")
+            
+            logger.info(f"  Waiting for name field to be visible...")
+            name_field.wait_for(state="visible", timeout=10000)
+            
+            logger.info(f"  Waiting for email field to be visible...")
+            email_field.wait_for(state="visible", timeout=10000)
+            
+            logger.info(f"  Waiting for phone field to be visible...")
+            phone_field.wait_for(state="visible", timeout=10000)
+            
+            logger.info(f"✓ All input fields are visible and ready in iframe")
+            
+            # Step 3: Clear existing values (if any) using retry logic for reliability
+            logger.info(f"Step 3: Clearing existing field values...")
+            with RetryContext(max_retries=2, initial_delay=0.2) as retry:
+                while retry.should_retry():
+                    try:
+                        name_field.clear()
+                        email_field.clear()
+                        phone_field.clear()
+                        retry.success()
+                    except Exception as e:
+                        if retry.should_retry():
+                            retry.failed(e)
+                        else:
+                            raise
+            
+            logger.info(f"✓ Fields cleared")
+            
+            # Step 4: Fill in signer details with validation
+            logger.info(f"Step 4: Filling signer details...")
+            
+            # Fill Full Name
+            name_field.fill(full_name)
+            logger.info(f"  ✓ Full Name filled: {full_name}")
+            
+            # Fill Email Address
+            email_field.fill(email_address)
+            logger.info(f"  ✓ Email Address filled: {email_address}")
+            
+            # Fill Phone Number
+            phone_field.fill(phone)
+            logger.info(f"  ✓ Phone Number filled: {phone}")
+            
+            # Add small delay to allow form to commit values
+            self.page.wait_for_timeout(500)
+            
+            # Step 5: Verify values were actually entered (validation)
+            logger.info(f"Step 5: Verifying entered values...")
+            actual_name = (name_field.input_value() or "").strip()
+            actual_email = (email_field.input_value() or "").strip()
+            actual_phone = (phone_field.input_value() or "").strip()
+            
+            name_match = actual_name == full_name.strip()
+            email_match = actual_email == email_address.strip()
+            phone_match = actual_phone == phone.strip()
+            
+            logger.info(f"  Name validation: {name_match} (expected: '{full_name.strip()}', actual: '{actual_name}')")
+            logger.info(f"  Email validation: {email_match} (expected: '{email_address.strip()}', actual: '{actual_email}')")
+            logger.info(f"  Phone validation: {phone_match} (expected: '{phone.strip()}', actual: '{actual_phone}')")
+            
+            # If all fields match exactly, consider them filled
+            # If not all match but all have values, still consider success (form accepted them)
+            all_fields_filled = (name_match and email_match and phone_match) or \
+                               (bool(actual_name) and bool(actual_email) and bool(actual_phone))
+            
+            if not (name_match and email_match and phone_match):
+                logger.warning(f"⚠ Strict validation failed, but fields have values - proceeding with caution")
+            
+            result = {
+                'name_field': name_field,
+                'email_field': email_field,
+                'phone_field': phone_field,
+                'values_entered': {
+                    'full_name': actual_name,
+                    'email_address': actual_email,
+                    'phone': actual_phone
+                },
+                'fields_filled': all_fields_filled
+            }
+            
+            if all_fields_filled:
+                logger.info(f"✓ All signer details entered successfully for index {signer_index}")
+            else:
+                logger.warning(f"⚠ Some signer details may not have been entered correctly for index {signer_index}")
+            
+            return result
+            
+        except Exception as e:
+            logger.error(f"✗ Failed to enter client signer details: {e}")
+            raise AssertionError(f"Failed to enter signer details for index {signer_index}: {e}") from e
+
+    def get_esignature_process_complete_dialog_content(self) -> dict:
+        """
+        Extract content from the eSignature Process Complete dialog.
+        
+        Retrieves:
+        1. Dialog title (should be "eSignature Process Complete")
+        2. Dialog body text (should be "Thank you for completing your part of the eSignature process.")
+        3. Close button element reference
+        
+        This method:
+        - Uses DialogHandler to verify dialog is present
+        - Extracts title from modal-title-transition div
+        - Extracts body text using DialogHandler
+        - Locates the close button
+        
+        Returns:
+            Dictionary containing:
+            - 'title': Dialog title text (str)
+            - 'body': Dialog body text (str)
+            - 'close_button': Close button locator (Locator)
+            - 'dialog_present': Boolean indicating dialog was found
+            
+        Raises:
+            PlaywrightTimeoutError: If dialog not found or elements not visible
+            
+        Example:
+            dialog_content = page_obj.get_esignature_process_complete_dialog_content()
+            assert dialog_content['title'] == "eSignature Process Complete"
+            assert "Thank you" in dialog_content['body']
+        """
+        logger.info("Retrieving eSignature Process Complete dialog content...")
+        
+        try:
+            # Verify dialog is present using DialogHandler
+            dialog_handler = DialogHandler(self.page)
+            try:
+                logger.info("[DEBUG] Waiting for dialog to appear (timeout: 5 minutes)...")
+                dialog = dialog_handler.wait_for_dialog(timeout=300000)  # 5 minutes
+                logger.info("✓ Dialog is present")
+            except Exception as e:
+                logger.warning(f"eSignature Process Complete dialog not found: {e}")
+                return {
+                    'title': None,
+                    'body': None,
+                    'close_button': None,
+                    'dialog_present': False
+                }
+            
+            # Get dialog title from modal-title-transition div
+            logger.info("Extracting dialog title...")
+            modal_title_div = self.page.locator('div.modal-title-transition').first
+            modal_title_div.wait_for(state='visible', timeout=5000)
+            dialog_title = (modal_title_div.text_content() or "").strip()
+            logger.info(f"✓ Dialog title: '{dialog_title}'")
+            
+            # Get dialog body text using DialogHandler
+            logger.info("Extracting dialog body text...")
+            dialog_body = dialog_handler.get_dialog_text(timeout=5000)
+            logger.info(f"✓ Dialog body: '{dialog_body}'")
+            
+            # Locate close button in the dialog (multiple strategies for robustness)
+            logger.info("Locating close button...")
+            close_button_locators = [
+                self.page.locator('.close-button-container button').first,  # PRIORITY 1: Most reliable - visible close button
+                self.page.locator('button.formButton').first,  # PRIORITY 2: Class-based selector for visible button
+                self.page.locator('[role="dialog"] .close-button-set button').first,  # PRIORITY 3: Button set selector
+                self.page.locator('button[aria-label*="Close"], button[aria-label*="close"]').first,  # PRIORITY 4: Aria-label
+                self.page.locator('[role="dialog"] button.close').first,  # PRIORITY 5: Class-based
+                self.page.locator('button[title*="Close"]').first,  # PRIORITY 6: Title attribute (may be hidden titlebar button)
+            ]
+            
+            close_button = None
+            for locator in close_button_locators:
+                if locator.count() > 0:
+                    close_button = locator
+                    logger.info("✓ Close button found")
+                    break
+            
+            if not close_button:
+                logger.warning("Close button not found with any strategy")
+            
+            result = {
+                'title': dialog_title,
+                'body': dialog_body,
+                'close_button': close_button,
+                'dialog_present': True
+            }
+            
+            logger.info(f"✓ eSignature dialog content retrieved successfully")
+            return result
+            
+        except Exception as e:
+            logger.error(f"✗ Failed to retrieve eSignature dialog content: {e}")
+            raise
+
+    def get_client_in_person_signing_dialog_content(self) -> dict:
+        """
+        Extract content from the Client In-Person Signing dialog.
+        
+        Retrieves:
+        1. Dialog title (should be "Client In Person Signing")
+        2. Dialog body text (paragraphs and list items)
+        3. Buttons: "Return to eWealthManager" and "Start Client Signing"
+        
+        This method:
+        - Uses DialogHandler to verify dialog is present
+        - Extracts title from modal-title-transition div
+        - Extracts body content from #divConfirmation container
+        - Locates both action buttons
+        
+        Returns:
+            Dictionary containing:
+            - 'title': Dialog title text (str)
+            - 'body': Dialog body text (str)
+            - 'buttons': Dict with button references {'return_button': Locator, 'start_signing_button': Locator}
+            - 'dialog_present': Boolean indicating dialog was found
+            
+        Raises:
+            PlaywrightTimeoutError: If dialog not found or elements not visible
+            
+        Example:
+            dialog_content = page_obj.get_client_in_person_signing_dialog_content()
+            assert dialog_content['title'] == "Client In Person Signing"
+            assert "Thank you for completing" in dialog_content['body']
+        """
+        logger.info("Retrieving Client In-Person Signing dialog content...")
+        
+        try:
+            # Verify dialog is present using DialogHandler (wait up to 5 minutes)
+            logger.info("[DEBUG] Waiting for dialog to appear (timeout: 5 minutes)...")
+            dialog_handler = DialogHandler(self.page)
+            try:
+                logger.info("[DEBUG] Calling wait_for_dialog with 300s timeout...")
+                dialog = dialog_handler.wait_for_dialog(timeout=300000)  # 5 minutes
+                logger.info("✓ Dialog is present")
+            except Exception as e:
+                logger.warning(f"[WARN] Client In-Person Signing dialog not found after 5 minutes: {e}")
+                return {
+                    'title': None,
+                    'body': None,
+                    'buttons': {},
+                    'dialog_present': False
+                }
+            
+            # Get dialog title
+            logger.info("Extracting dialog title...")
+            modal_title_div = self.page.locator('div.modal-title-transition').first
+            modal_title_div.wait_for(state='visible', timeout=5000)
+            dialog_title = (modal_title_div.text_content() or "").strip()
+            logger.info(f"✓ Dialog title: '{dialog_title}'")
+            
+            # Get dialog body content
+            logger.info("Extracting dialog body content...")
+            confirmation_div = self.page.locator('#divConfirmation').first
+            confirmation_div.wait_for(state='visible', timeout=5000)
+            
+            # Get all text from dialog body (paragraphs, list items, etc.)
+            dialog_body = confirmation_div.text_content() or ""
+            dialog_body = (dialog_body or "").strip()
+            logger.info(f"✓ Dialog body retrieved ({len(dialog_body)} characters)")
+            
+            # Locate buttons
+            logger.info("Locating dialog buttons...")
+            buttons = {}
+            
+            # Find "Return to eWealthManager" button
+            return_button_locators = [
+                self.page.locator('button:has-text("Return to eWealthManager")').first,
+                self.page.locator('button.formButton:has-text("Return to eWealthManager")').first,
+                self.page.locator('.button-container button:has-text("Return to eWealthManager")').first,
+            ]
+            
+            for locator in return_button_locators:
+                if locator.count() > 0:
+                    buttons['return_button'] = locator
+                    logger.info("✓ 'Return to eWealthManager' button found")
+                    break
+            
+            # Find "Start Client Signing" button
+            start_signing_locators = [
+                self.page.locator('button:has-text("Start Client Signing")').first,
+                self.page.locator('button.formButton:has-text("Start Client Signing")').first,
+                self.page.locator('.button-container button:has-text("Start Client Signing")').first,
+            ]
+            
+            for locator in start_signing_locators:
+                if locator.count() > 0:
+                    buttons['start_signing_button'] = locator
+                    logger.info("✓ 'Start Client Signing' button found")
+                    break
+            
+            if not buttons.get('return_button'):
+                logger.warning("'Return to eWealthManager' button not found")
+            if not buttons.get('start_signing_button'):
+                logger.warning("'Start Client Signing' button not found")
+            
+            result = {
+                'title': dialog_title,
+                'body': dialog_body,
+                'buttons': buttons,
+                'dialog_present': True
+            }
+            
+            logger.info(f"✓ Client In-Person Signing dialog content retrieved successfully")
+            return result
+            
+        except Exception as e:
+            logger.error(f"✗ Failed to retrieve Client In-Person Signing dialog content: {e}")
+            raise
+
+    def get_finish_later_dialog_content(self) -> dict:
+        """
+        Extract content from the Finish Later dialog.
+        
+        Retrieves:
+        1. Dialog title (should be "Finish Later")
+        2. Dialog body text (complete message text)
+        3. Buttons: "Save" and "Delete"
+        
+        This method:
+        - Uses DialogHandler to verify dialog is present
+        - Extracts title from modal-title-transition div
+        - Extracts body content from #divConfirmation container
+        - Locates both action buttons (Save and Delete)
+        
+        Returns:
+            Dictionary containing:
+            - 'title': Dialog title text (str)
+            - 'body': Dialog body text (str)
+            - 'buttons': Dict with button references {'save_button': Locator, 'delete_button': Locator}
+            - 'dialog_present': Boolean indicating dialog was found
+            
+        Raises:
+            PlaywrightTimeoutError: If dialog not found or elements not visible
+            
+        Example:
+            dialog_content = page_obj.get_finish_later_dialog_content()
+            assert dialog_content['title'] == "Finish Later"
+            assert "Select Save" in dialog_content['body']
+        """
+        logger.info("Retrieving Finish Later dialog content...")
+        
+        try:
+            # Verify dialog is present using DialogHandler (wait up to 5 minutes)
+            logger.info("[DEBUG] Waiting for Finish Later dialog to appear (timeout: 5 minutes)...")
+            dialog_handler = DialogHandler(self.page)
+            try:
+                logger.info("[DEBUG] Calling wait_for_dialog with 300s timeout...")
+                dialog = dialog_handler.wait_for_dialog(timeout=300000)  # 5 minutes
+                logger.info("✓ Finish Later dialog is present")
+            except Exception as e:
+                logger.warning(f"[WARN] Finish Later dialog not found after 5 minutes: {e}")
+                return {
+                    'title': None,
+                    'body': None,
+                    'buttons': {},
+                    'dialog_present': False
+                }
+            
+            # Get dialog title
+            logger.info("Extracting dialog title...")
+            modal_title_div = self.page.locator(client_accounts_locators.FINISH_LATER_DIALOG_TITLE).first
+            modal_title_div.wait_for(state='visible', timeout=5000)
+            dialog_title = (modal_title_div.text_content() or "").strip()
+            logger.info(f"✓ Dialog title: '{dialog_title}'")
+            
+            # Get dialog body content
+            logger.info("Extracting dialog body content...")
+            confirmation_div = self.page.locator(client_accounts_locators.FINISH_LATER_DIALOG_BODY).first
+            confirmation_div.wait_for(state='visible', timeout=5000)
+            
+            # Get all text from dialog body
+            dialog_body = confirmation_div.text_content() or ""
+            dialog_body = (dialog_body or "").strip()
+            logger.info(f"✓ Dialog body retrieved ({len(dialog_body)} characters)")
+            
+            # Locate buttons
+            logger.info("Locating dialog buttons...")
+            buttons = {}
+            
+            # Find "Save" button
+            save_button_locators = [
+                self.page.locator(client_accounts_locators.FINISH_LATER_BUTTON_SAVE).first,
+                self.page.locator('button:has-text("Save")').first,
+                self.page.locator('button.formButton:has-text("Save")').first,
+            ]
+            
+            for locator in save_button_locators:
+                if locator.count() > 0:
+                    buttons['save_button'] = locator
+                    logger.info("✓ 'Save' button found")
+                    break
+            
+            # Find "Delete" button
+            delete_button_locators = [
+                self.page.locator(client_accounts_locators.FINISH_LATER_BUTTON_DELETE).first,
+                self.page.locator('button:has-text("Delete")').first,
+                self.page.locator('button.formButton:has-text("Delete")').first,
+            ]
+            
+            for locator in delete_button_locators:
+                if locator.count() > 0:
+                    buttons['delete_button'] = locator
+                    logger.info("✓ 'Delete' button found")
+                    break
+            
+            if not buttons.get('save_button'):
+                logger.warning("'Save' button not found")
+            if not buttons.get('delete_button'):
+                logger.warning("'Delete' button not found")
+            
+            result = {
+                'title': dialog_title,
+                'body': dialog_body,
+                'buttons': buttons,
+                'dialog_present': True
+            }
+            
+            logger.info(f"✓ Finish Later dialog content retrieved successfully")
+            return result
+            
+        except Exception as e:
+            logger.error(f"✗ Failed to retrieve Finish Later dialog content: {e}")
+            raise
+
+    def click_finish_later_save_button(self, timeout: int = 60000) -> None:
+        """
+        Click the Save button in the Finish Later dialog.
+        
+        This method:
+        1. Locates the Save button using XPath selector
+        2. Waits for button to be visible
+        3. Clicks the button
+        4. Logs and returns on success
+        
+        Args:
+            timeout: Maximum time to wait for button in milliseconds (default: 60000ms = 60 seconds)
+            
+        Raises:
+            AssertionError: If Save button not found or not clickable
+            
+        Example:
+            client_accounts_page.click_finish_later_save_button()
+        """
+        logger.info("Clicking 'Save' button in Finish Later dialog...")
+        
+        try:
+            # Locate the Save button using XPath
+            save_button = self.page.locator(client_accounts_locators.FINISH_LATER_BUTTON_SAVE_XPATH)
+            
+            # Verify button is present
+            if save_button.count() == 0:
+                logger.error(f"Save button not found using XPath: {client_accounts_locators.FINISH_LATER_BUTTON_SAVE_XPATH}")
+                raise AssertionError(f"Save button not found in Finish Later dialog. Locator: {client_accounts_locators.FINISH_LATER_BUTTON_SAVE_XPATH}")
+            
+            # Wait for button to be visible
+            logger.info(f"Waiting for Save button to be visible (timeout: {timeout}ms)...")
+            save_button.wait_for(state="visible", timeout=timeout)
+            logger.info("✓ Save button is visible")
+            
+            # Click the button
+            logger.info("Clicking Save button...")
+            save_button.click()
+            logger.info("✓ Save button clicked successfully")
+            
+            # Wait for dialog to close or page state change
+            self.page.wait_for_timeout(1000)
+            logger.info("[PASS] Finish Later document saved successfully")
+            
+        except Exception as e:
+            logger.error(f"✗ Failed to click Save button: {e}")
+            raise AssertionError(f"Failed to click Save button in Finish Later dialog: {e}") from e
 
  

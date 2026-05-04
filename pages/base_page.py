@@ -47,6 +47,10 @@ class BasePage:
         self.logger.info(f"Navigating to: {full_url}")
         self.page.goto(full_url, wait_until=wait_until)
         self.logger.info(f"Navigation completed. Current URL: {self.page.url}")
+        
+        # Dismiss overlay after navigation (it may appear on new pages)
+        self.page.wait_for_timeout(500)
+        self._dismiss_onetrust_overlay()
 
     # dynamic wait method(condition based)
     def wait_for_load_state(
@@ -114,13 +118,105 @@ class BasePage:
     # Element interaction methods (all delegate to _heal_and_retry)
     # ------------------------------------------------------------------
 
+    def _dismiss_onetrust_overlay(self) -> None:
+        """
+        Dismiss OneTrust cookie consent overlay that may block other interactions.
+        Uses multiple strategies to ensure removal.
+        """
+        try:
+            # Check if overlay or consent SDK exists
+            sdk = self.page.locator("div#onetrust-consent-sdk")
+            if sdk.count() == 0:
+                return  # No OneTrust present
+            
+            overlay = self.page.locator("div.onetrust-pc-dark-filter")
+            banner = self.page.locator("div#onetrust-banner-sdk")
+            if overlay.count() == 0 and banner.count() == 0:
+                return  # SDK present but no visible overlay/banner
+            
+            self.logger.warning("OneTrust overlay detected - attempting dismissal")
+            
+            # Strategy 1: Click "Reject All" button by various selectors
+            try:
+                reject_btn = self.page.locator(
+                    "button.ot-pc-refuse-all-handler, "
+                    "button[data-onetrust-reject-all], "
+                    "button:has-text('Reject All')"
+                ).first
+                if reject_btn.is_visible(timeout=2000):
+                    self.logger.info("Found 'Reject All' button - clicking it")
+                    reject_btn.click(timeout=5000)
+                    self.page.wait_for_timeout(500)
+                    self.logger.info("OneTrust overlay dismissed via 'Reject All'")
+                    return
+            except Exception as e:
+                self.logger.warning(f"Strategy 1 (Reject All) failed: {e}")
+            
+            # Strategy 2: Click "Confirm My Choices" button
+            try:
+                confirm_btn = self.page.locator(
+                    "button.save-preference-btn-handler, "
+                    "button:has-text('Confirm My Choices')"
+                ).first
+                if confirm_btn.is_visible(timeout=2000):
+                    self.logger.info("Found 'Confirm My Choices' button - clicking it")
+                    confirm_btn.click(timeout=5000)
+                    self.page.wait_for_timeout(500)
+                    self.logger.info("OneTrust overlay dismissed via 'Confirm My Choices'")
+                    return
+            except Exception as e:
+                self.logger.warning(f"Strategy 2 (Confirm My Choices) failed: {e}")
+            
+            # Strategy 3: Click close button (X icon)
+            try:
+                close_btn = self.page.locator("button.onetrust-close-btn-handler")
+                if close_btn.count() > 0:
+                    self.logger.info("Found close button - clicking it")
+                    close_btn.first.click(timeout=5000)
+                    self.page.wait_for_timeout(500)
+                    self.logger.info("OneTrust overlay dismissed via close button")
+                    return
+            except Exception as e:
+                self.logger.warning(f"Strategy 3 (Close button) failed: {e}")
+            
+            # Strategy 4: JavaScript removal - force remove overlay and backdrop
+            try:
+                self.logger.info("Removing OneTrust overlay via JavaScript")
+                self.page.evaluate("""
+                () => {
+                    const sdk = document.querySelector('div#onetrust-consent-sdk');
+                    if (sdk) { sdk.remove(); }
+                    document.body.style.overflow = 'auto';
+                    return true;
+                }
+                """)
+                self.page.wait_for_timeout(300)
+                self.logger.info("OneTrust overlay removed via JavaScript")
+            except Exception as e:
+                self.logger.warning(f"Strategy 4 (JavaScript removal) failed: {e}")
+        except Exception as e:
+            self.logger.debug(f"OneTrust dismissal check failed: {e}")
+
     def click(self, locator: Locator, timeout: int = 10000) -> None:
-        """Click an element with wait and logging - includes auto-healing."""
+        """Click an element with wait and logging - includes auto-healing and overlay handling."""
         self.logger.info("Clicking element")
 
         def _action(loc: Locator) -> None:
+            # Dismiss overlay before attempting click
+            self._dismiss_onetrust_overlay()
+            
             loc.wait_for(state="visible", timeout=timeout)
-            loc.click()
+            try:
+                loc.click()
+            except PlaywrightTimeoutError as e:
+                # If click fails due to overlay blocking, try with force=True
+                if "intercepts pointer events" in str(e):
+                    self.logger.warning("Click blocked by overlay - retrying with force=True")
+                    self._dismiss_onetrust_overlay()  # Try dismissal again
+                    self.page.wait_for_timeout(200)
+                    loc.click(force=True)
+                else:
+                    raise
 
         self._heal_and_retry(locator, _action)
 
@@ -129,6 +225,8 @@ class BasePage:
         self.logger.info("Filling field with text")
 
         def _action(loc: Locator) -> None:
+            # Dismiss overlay before fill (fill internally clicks the element first)
+            self._dismiss_onetrust_overlay()
             loc.wait_for(state="visible", timeout=timeout)
             loc.fill(text)
 
@@ -205,6 +303,10 @@ class BasePage:
         """Refresh the current page"""
         self.logger.info("Refreshing page")
         self.page.reload()
+        
+        # Dismiss overlay after refresh (it may reappear)
+        self.page.wait_for_timeout(500)
+        self._dismiss_onetrust_overlay()
 
     def empty_field(self, locator: Locator, timeout: int = 10000) -> None:
         """Clear a field by clicking and filling with empty string, with auto-healing."""

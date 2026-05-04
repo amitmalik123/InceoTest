@@ -236,7 +236,13 @@ def browser_type_launch_args(browser_type_launch_args) -> dict:
 def browser_context_args(browser_context_args, request) -> dict:
     """
     Configure browser context with worker-specific output directories for parallel execution
-    and full-screen (no fixed viewport, maximized window).
+    and full-screen (no fixed viewport, maximized window) for headed mode or large viewport for headless.
+    
+    Viewport Resolution:
+    - Headed mode: Uses --start-maximized (no_viewport: True) — fills entire screen
+    - Headless mode: Sets viewport to 1920x1080 to match headed mode layout and UI rendering
+    
+    This ensures consistent rendering of UI elements (buttons, dropdowns, etc.) in both modes.
     """
     import os
 
@@ -249,12 +255,25 @@ def browser_context_args(browser_context_args, request) -> dict:
     else:
         record_video_dir = "reports/videos"
 
-    # Base browser context args — no_viewport allows the page to fill the window
+    # Base browser context args — use no_viewport for headed mode (will use --start-maximized)
+    # For headless mode, we need to explicitly set viewport since --start-maximized is ignored
     context_args = {
         **browser_context_args,
-        "no_viewport": True,
+        "no_viewport": True,  # Headed mode will still use --start-maximized
         "ignore_https_errors": True,
     }
+    
+    # For headless mode, Playwright ignores --start-maximized, so we need explicit viewport
+    # This ensures consistent UI rendering (e.g., top navigation, buttons, dropdowns) across both modes
+    is_headed = request.config.getoption("--headed", default=False)
+    if not is_headed:
+        # Set explicit viewport for headless mode to match typical monitor resolution
+        # This prevents responsive layout changes that hide UI elements (like dropdown arrows)
+        context_args["viewport"] = {"width": 1920, "height": 1080}
+        context_args["no_viewport"] = False
+        logger.info("Headless mode detected: Setting explicit viewport to 1920x1080 for consistent UI rendering")
+    else:
+        logger.info("Headed mode detected: Using --start-maximized with no_viewport=True")
 
     # Only set record_video_dir when --video is on or retain-on-failure
     video_option = request.config.getoption("--video", default="off")

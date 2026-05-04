@@ -2,6 +2,7 @@ import allure
 from playwright.sync_api import Page
 from pytest_bdd import parsers, then, when
 
+from locators import item_detail_locators
 from utils.allure_logger import get_allure_logger
 from utils.soft_assertions_enhanced import EnhancedSoftAssertions
 from utils.database import fetch_agent_name_by_aplid_from_db
@@ -190,19 +191,21 @@ def verify_notes_description(trackingCenter_ItemDetail_page, test_context):
     1. Fetches actual notes descriptions from Tracking Center Item Detail using get_notes_descriptions()
     2. Gets expected notes from test_data CSV column: Expected_TrackingCenter_Notes
     3. Splits expected notes by '|' separator if multiple descriptions provided
-    4. For each expected note containing '<FA Name>' or '<SAU Name>' placeholders:
-       - Looks up the actual FA/SAU name using fetch_agent_name_by_aplid_from_db()
-       - Replaces placeholders with fetched names
+    4. For each expected note containing '<FA Name>', '<SAU Name>', or '<OA Name>' placeholders:
+       - <FA Name>: Looks up the actual FA name using fetch_agent_name_by_aplid_from_db()
+       - <SAU Name>: Looks up the actual SAU name using fetch_agent_name_by_aplid_from_db()
+       - <OA Name>: Always replaced with fixed value "Office Admin"
     5. Compares expected (with replacements) against actual notes using soft assertions
     
     Placeholders supported:
     - <FA Name>: Replaced with Authorized Signer name (via database lookup)
     - <SAU Name>: Replaced with SAU name (via database lookup if role is SAU)
+    - <OA Name>: Always replaced with fixed value "Office Admin"
     
     Multiple descriptions can be specified separated by pipe (|) for multiple validations.
     
     Example:
-        Expected_TrackingCenter_Notes: "Document routed to <FA Name>|Document created by <SAU Name>"
+        Expected_TrackingCenter_Notes: "Document routed to <FA Name>|Document created by <SAU Name>|Reviewed by <OA Name>"
     """
     with allure.step("Verify Notes description"):
         logger.info(">>> STEP: Verify Notes description")
@@ -310,6 +313,12 @@ def verify_notes_description(trackingCenter_ItemDetail_page, test_context):
                         except Exception as e:
                             logger.warning(f"    ⚠ Error fetching SAU name: {e}")
                 
+                # Replace <OA Name> placeholder if present (always with fixed value "Office Admin")
+                if "<OA Name>" in processed_desc:
+                    logger.info("    Found '<OA Name>' placeholder - replacing with fixed value 'Office Admin'...")
+                    oa_name = "Office Admin"
+                    processed_desc = processed_desc.replace("<OA Name>", oa_name)
+                    logger.info(f"    ✓ OA name set to: '{oa_name}'")
                 # Replace <Authorized_Signer_Role_Name> placeholder if present
                 if "<Authorized_Signer_Role_Name>" in processed_desc:
                     logger.info("    Found '<Authorized_Signer_Role_Name>' placeholder - replacing with authorized signer name...")
@@ -649,6 +658,100 @@ def user_click_upload_button_and_upload_document(trackingCenter_ItemDetail_page)
                 f"Failed to complete upload and close workflow. "
                 f"Upload Button Locator: label.fileuploadbutton with text 'Upload'. "
                 f"Close Button Locator: button[role='button'][name='Close']. "
+                f"Error: {e}"
+            ) from e
+
+
+@when("User click on Finish Now button")
+def user_click_on_finish_now_button(trackingCenter_ItemDetail_page):
+    """
+    Click the Finish Now button on the Tracking Center Item Detail page.
+    
+    This step:
+    1. Calls the click_finish_now_button() page method
+    2. Captures a screenshot after clicking the button
+    3. Handles errors with comprehensive logging
+    
+    The Finish Now button HTML:
+        <a href="#"><span>Finish Now</span></a>
+    
+    Selector: XPath "//a[contains(text(),'Finish Now')]"
+    
+    Returns:
+        None
+        
+    Raises:
+        AssertionError: If Finish Now button not found or click fails
+        
+    Example:
+        When User click on Finish Now button
+    
+    Used in feature files:
+        Scenario: Complete a deferred DocuSign request
+            Given User is on Tracking Center Item Detail page with a deferred request
+            When User click on Finish Now button
+            Then User should be redirected to the DocuSign page
+    """
+    with allure.step("Click Finish Now button on Tracking Center Item Detail page"):
+        logger.info(">>> STEP: Click Finish Now button")
+        
+        try:
+            # Click the Finish Now button
+            logger.info("Step 1: Calling click_finish_now_button() page method...")
+            trackingCenter_ItemDetail_page.click_finish_now_button()
+            logger.info("✓ Finish Now button clicked successfully")
+            
+            # Capture screenshot after clicking
+            logger.info("Step 2: Capturing screenshot after Finish Now button click...")
+            screenshot = trackingCenter_ItemDetail_page.page.screenshot()
+            allure.attach(
+                screenshot,
+                name="Finish Now Button Click",
+                attachment_type=allure.attachment_type.PNG
+            )
+            logger.info("✓ Screenshot captured and attached to Allure report")
+            
+            logger.info("[PASS] Tracking Center Item Detail: Finish Now button clicked successfully.")
+            
+        except AssertionError as assert_error:
+            logger.error(f"✗ Assertion failed while clicking Finish Now button: {assert_error}")
+            
+            # Capture screenshot on failure
+            try:
+                screenshot = trackingCenter_ItemDetail_page.page.screenshot()
+                allure.attach(
+                    screenshot,
+                    name="Finish Now Button Click - FAILURE",
+                    attachment_type=allure.attachment_type.PNG
+                )
+            except Exception as screenshot_error:
+                logger.warning(f"Failed to capture screenshot on failure: {screenshot_error}")
+            
+            raise AssertionError(
+                f"[FAIL] Tracking Center Item Detail: Finish Now Button Click Failed — "
+                f"Details: Failed to click the Finish Now button on Tracking Center Item Detail page. "
+                f"Locator: {item_detail_locators.FINISH_NOW_BUTTON}. "
+                f"Error: {assert_error}"
+            ) from assert_error
+        
+        except Exception as e:
+            logger.error(f"✗ Unexpected error while clicking Finish Now button: {e}")
+            
+            # Capture screenshot on unexpected error
+            try:
+                screenshot = trackingCenter_ItemDetail_page.page.screenshot()
+                allure.attach(
+                    screenshot,
+                    name="Finish Now Button Click - ERROR",
+                    attachment_type=allure.attachment_type.PNG
+                )
+            except Exception as screenshot_error:
+                logger.warning(f"Failed to capture screenshot on error: {screenshot_error}")
+            
+            raise AssertionError(
+                f"[FAIL] Tracking Center Item Detail: Finish Now Button Click Error — "
+                f"Details: Unexpected error while clicking Finish Now button. "
+                f"Locator: {item_detail_locators.FINISH_NOW_BUTTON}. "
                 f"Error: {e}"
             ) from e
 

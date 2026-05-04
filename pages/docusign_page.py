@@ -118,6 +118,67 @@ class DocuSignPage(BasePage):
             logger.error(f"Failed to submit OTP: {str(e).splitlines()[0]}")
             raise RuntimeError(f"Code is incorrect or submission failed: {e}")
 
+    def get_d_number(self, timeout: int = 60000) -> str:
+        """
+        Fetch the D-number (document tracking number) from the DocuSign page.
+        
+        Locates the span element that contains the D-number (e.g., D003525811, D003518970)
+        using the XPath pattern: //span[starts-with(text(),"D00")]
+        
+        When multiple D-number spans exist on the page, fetches the FIRST VISIBLE one.
+        
+        Args:
+            timeout: Maximum time to wait for the element in milliseconds (default: 60000ms = 60 seconds)
+            
+        Returns:
+            The D-number text (e.g., "D003525811")
+            
+        Raises:
+            AssertionError: If D-number span not found or text is empty (hard failure)
+            
+        Uses framework utilities:
+        - logger: Unified logging with Allure integration
+        - Playwright's wait_for(state="visible") for element visibility
+        
+        Example:
+            d_number = docusign_page.get_d_number()  # Waits up to 60s for first visible D-number
+            print(f"Document tracking number: {d_number}")
+        """
+        logger.info(f"Fetching D-number from DocuSign page (timeout: {timeout}ms = {timeout/1000}s)...")
+        logger.info(f"  Locator: {docusign_locators.D_NUMBER_SPAN}")
+        
+        try:
+            # Locate the D-number span using XPath and get the FIRST one
+            # Use .first to handle cases where multiple D-number spans exist on page
+            d_number_locator = self.page.locator(docusign_locators.D_NUMBER_SPAN).first
+            
+            # Step 1: Wait for first element to be visible using Playwright's built-in wait
+            # This properly handles when multiple matching elements exist (gets first visible)
+            logger.info(f"  Step 1: Waiting for first D-number span to be visible (up to {timeout/1000}s)...")
+            timeout_sec = timeout / 1000.0
+            try:
+                d_number_locator.wait_for(state="visible", timeout=timeout)
+                logger.info("  ✓ First D-number span is visible")
+            except Exception as wait_error:
+                logger.error(f"✗ D-number span did not appear within {timeout_sec}s")
+                raise AssertionError(f"D-number span (locator: {docusign_locators.D_NUMBER_SPAN}) did not appear within {timeout_sec}s: {wait_error}")
+            
+            # Step 2: Extract the D-number text
+            logger.info("  Step 2: Extracting D-number text from first visible span...")
+            d_number_text = d_number_locator.text_content()
+            
+            if not d_number_text or not d_number_text.strip():
+                raise AssertionError(f"D-number span found but text is empty. Locator: {docusign_locators.D_NUMBER_SPAN}")
+            
+            d_number = d_number_text.strip()
+            logger.info(f"  ✓ D-number extracted: {d_number}")
+            
+            return d_number
+            
+        except Exception as e:
+            logger.error(f"✗ Failed to get D-number: {e}")
+            raise AssertionError(f"Failed to fetch D-number from DocuSign page: {e}") from e
+
     def verify_docusign_page_loaded(self, timeout: int = 120000):
         """
         Wait for DocuSign page to load and take screenshot for evidence.
@@ -154,13 +215,38 @@ class DocuSignPage(BasePage):
             self.page.wait_for_load_state("networkidle", timeout=timeout)
             logger.info("DocuSign page fully loaded")
         
-        # Take screenshot for evidence
-        screenshot = self.page.screenshot()
-        allure.attach(
-            screenshot,
-            name="DocuSign Page Loaded",
-            attachment_type=allure.attachment_type.PNG
-        )
+        # Take screenshot for evidence - with headless mode compatibility
+        # In headless mode, fonts may still be loading even after networkidle, so we add a delay
+        logger.info("Waiting for page rendering to complete (especially fonts)...")
+        time.sleep(1.0)  # Give fonts time to render - critical for headless mode
+        
+        try:
+            screenshot = self.page.screenshot()
+            allure.attach(
+                screenshot,
+                name="DocuSign Page Loaded",
+                attachment_type=allure.attachment_type.PNG
+            )
+            logger.info("✓ Screenshot captured successfully")
+        except Exception as e:
+            # Screenshots can fail in headless mode during font loading - don't fail the test
+            logger.warning(f"[HEADLESS_COMPAT] Screenshot capture failed (expected in some headless scenarios): {str(e)[:100]}")
+            
+            # Try once more after a short delay
+            try:
+                time.sleep(2.0)
+                screenshot = self.page.screenshot()
+                allure.attach(
+                    screenshot,
+                    name="DocuSign Page Loaded (Retry)",
+                    attachment_type=allure.attachment_type.PNG
+                )
+                logger.info("✓ Screenshot captured successfully on retry")
+            except Exception as retry_error:
+                # Log but don't fail - page is still loaded even if screenshot failed
+                logger.warning(f"[HEADLESS_COMPAT] Screenshot retry also failed, continuing anyway: {str(retry_error)[:100]}")
+                logger.info("DocuSign page loaded successfully (screenshot unavailable in this mode)")
+
 
     def _verify_ersd_modal_visible(self, timeout: int = 10000) -> bool:
         """
@@ -1126,6 +1212,119 @@ class DocuSignPage(BasePage):
         except Exception as e:
             logger.error(f"✗ Failed to retrieve Date Signed value: {e}")
             raise
+
+    def click_other_actions_button(self, timeout: int = 60000) -> None:
+        """
+        Click the 'Other Actions' dropdown button in the DocuSign interface.
+        
+        This button opens a menu with options like 'Finish Later' to defer
+        the completion of the signing process.
+        
+        Args:
+            timeout: Maximum time to wait for button in milliseconds (default: 60000ms)
+            
+        Raises:
+            AssertionError: If button is not found or not clickable
+            
+        Example:
+            docusign_page.click_other_actions_button()
+        """
+        logger.info("Clicking 'Other Actions' button...")
+        
+        try:
+            # Extra stabilization wait for headless mode compatibility
+            logger.info("[DEBUG] Ensuring page stability before clicking 'Other Actions'...")
+            self.page.wait_for_load_state("networkidle", timeout=60000)
+            
+            # Use wait_for_condition for dynamic waiting
+            from utils.wait_utils import wait_for_condition
+            
+            def button_is_clickable():
+                try:
+                    button = self.page.locator(docusign_locators.OTHER_ACTIONS_BUTTON)
+                    # Check multiple conditions for headless compatibility
+                    is_visible = button.count() > 0 and button.is_visible()
+                    if is_visible:
+                        # Additional check: ensure button is enabled/not disabled
+                        is_enabled = button.evaluate("el => !el.disabled")
+                        return is_enabled
+                    return False
+                except Exception as e:
+                    logger.debug(f"[DEBUG] Checking button availability: {e}")
+                    return False
+            
+            # Convert timeout from milliseconds to seconds for wait_for_condition
+            timeout_seconds = timeout / 1000
+            poll_interval_seconds = 1.0  # 1 second polling for better headless stability
+            
+            wait_for_condition(
+                condition=button_is_clickable,
+                timeout=timeout_seconds,
+                poll_interval=poll_interval_seconds,
+                error_message=f"Other Actions button not found within {timeout}ms"
+            )
+            
+            # Click the button with explicit wait for interactivity
+            logger.info("[DEBUG] Waiting for button to be attached to DOM...")
+            button = self.page.locator(docusign_locators.OTHER_ACTIONS_BUTTON)
+            button.wait_for(state="attached", timeout=10000)
+            button.wait_for(state="visible", timeout=10000)
+            
+            logger.info("[DEBUG] Clicking 'Other Actions' button...")
+            button.click()
+            
+            logger.info("[PASS] 'Other Actions' button clicked successfully")
+            
+        except Exception as e:
+            logger.error(f"[FAIL] Failed to click 'Other Actions' button: {e}")
+            allure.attach(
+                self.page.screenshot(),
+                name="Failed_Other_Actions_Button_Click",
+                attachment_type=allure.attachment_type.PNG
+            )
+            raise AssertionError(f"Failed to click 'Other Actions' button: {e}") from e
+
+    def click_finish_later_option(self, timeout: int = 60000) -> None:
+        """
+        Click the 'Finish Later' option from the 'Other Actions' dropdown menu.
+        
+        This option allows saving the request without completing the signing process.
+        Uses dynamic waiting to account for page load delays.
+        
+        Args:
+            timeout: Maximum time to wait for option in milliseconds (default: 60000ms = 60 seconds)
+            
+        Raises:
+            AssertionError: If option is not found within timeout period
+            
+        Example:
+            docusign_page.click_finish_later_option()  # Dynamic wait up to 60s
+        """
+        logger.info(f"Clicking 'Finish Later' option (dynamic wait: {timeout}ms)...")
+        
+        try:
+            finish_later_option = self.page.locator(docusign_locators.FINISH_LATER_OPTION)
+            
+            logger.debug(f"[DEBUG] Waiting for 'Finish Later' option (max {timeout}ms)...")
+            # Wait for the element to be visible
+            finish_later_option.wait_for(state="visible", timeout=timeout)
+            
+            # Click the option
+            finish_later_option.click()
+            
+            logger.info("[PASS] 'Finish Later' option clicked successfully")
+            
+            # Wait for page to process the action
+            self.page.wait_for_timeout(500)
+            
+        except Exception as e:
+            logger.error(f"[FAIL] Failed to click 'Finish Later' option: {e}")
+            allure.attach(
+                self.page.screenshot(),
+                name="Failed_Finish_Later_Click",
+                attachment_type=allure.attachment_type.PNG
+            )
+            raise AssertionError(f"Failed to click 'Finish Later' option: {e}") from e
 
     def close(self) -> None:
         """Close the underlying DocuSign Playwright page.

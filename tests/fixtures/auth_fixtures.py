@@ -126,11 +126,18 @@ def _perform_login(page: Page, app_config: AppConfig, test_data: dict) -> bool:
         login_page.enter_username(test_data.get("username", "default_user"))
         login_page.enter_password(test_data.get("password", "default_password"))
         login_page.click_sign_in()
-        #    login_page.submit_login_form()
 
-        # Check if login successful
+        # Check if login successful:
+        # After SSO, we may land on a different domain than home_url
+        # (e.g. ewm3.assetmark.net instead of ewealthmanager.com)
+        # Success = no longer on a login/SSO page
         current_url = page.url
-        return "login" not in current_url.lower()
+        print(f"[SESSION] Post-login URL: {current_url}")
+        
+        login_indicators = ["account/login", "ewmlogin", "test-login.assetmark.com"]
+        is_still_on_login = any(ind in current_url.lower() for ind in login_indicators)
+        
+        return not is_still_on_login
     except Exception as e:
         print(f"[SESSION] Login error: {e}")
         return False
@@ -210,8 +217,10 @@ def authenticated_page(browser, browser_context_args, test_data, request) -> Gen
         page.goto(app_config.home_url, timeout=60000)
         page.wait_for_load_state("domcontentloaded", timeout=10000)
 
-        # Verify session is still valid
-        if "login" not in page.url.lower():
+        # Verify session is still valid - check we're not on a login/SSO page
+        login_indicators = ["account/login", "ewmlogin", "test-login.assetmark.com"]
+        is_on_login = any(ind in page.url.lower() for ind in login_indicators)
+        if not is_on_login:
             print("[SESSION] Session valid! Already authenticated.")
             yield page
             # Save trace on failure if configured

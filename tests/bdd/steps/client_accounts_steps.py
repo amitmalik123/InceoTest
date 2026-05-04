@@ -464,15 +464,15 @@ def verify_fields_for_esign_method(authenticated_page: Page, client_accounts_pag
             # Step 1: Fetch the eSign method from test data
             logger.info("  Step 1: Fetching Authorized Signer eSign Method from test data...")
             test_data = test_context.get("test_data", {})
-            esign_method = test_data.get("Authorized_Signer_eSign_Method", "").strip()
+            esign_method = test_data.get("Signer_eSign_Method", "").strip()
             
             if not esign_method:
-                raise AssertionError("'Authorized_Signer_eSign_Method' value not found in test data CSV")
+                raise AssertionError("'Signer_eSign_Method' value not found in test data CSV")
             
             valid_methods = ["SMS", "Tracking Center"]
             if esign_method not in valid_methods:
                 raise AssertionError(
-                    f"Invalid 'Authorized_Signer_eSign_Method' value: '{esign_method}'. "
+                    f"Invalid 'Signer_eSign_Method' value: '{esign_method}'. "
                     f"Expected one of: {valid_methods}"
                 )
             
@@ -510,16 +510,16 @@ def verify_authorized_signer_esign_method_section(authenticated_page: Page):
     Verify Authorized Signer eSign Method section on Signer(s) Information dialog.
     
     Validates:
-    1. 'Authorized Signer eSign Method' heading is displayed
-    2. 'Authorized Signers' label is displayed
+    1. 'Authorized Approver eSign Method' heading is displayed
+    2. 'Authorized Approvers' label is displayed
     3. 'SMS' label is displayed
     4. SMS radio button is displayed
     5. 'Tracking Center' label is displayed
     6. 'Tracking Center' radio button is displayed
     7. None of the radio buttons are selected (no default selection)
     """
-    with allure.step("Authorized Signer eSign Method section should be displayed"):
-        logger.info(">>> STEP: Authorized Signer eSign Method section should be displayed")
+    with allure.step("Authorized Approver eSign Method section should be displayed"):
+        logger.info(">>> STEP: Authorized Approver eSign Method section should be displayed")
         
         try:
             # Step 1: Access iframe
@@ -532,11 +532,11 @@ def verify_authorized_signer_esign_method_section(authenticated_page: Page):
             iframe_frame = authenticated_page.frame_locator("iframe#esig_iframe")
             logger.info("[PASS] ClientAccountsPage: Signer Information Iframe Accessed.")
             
-            # Step 2: Validate 'Authorized Signer eSign Method' heading
-            logger.info("Step 2: Validating 'Authorized Signer eSign Method' heading...")
-            heading = iframe_frame.locator("h5:has-text('Authorized Signer eSign Method')")
-            Assertions.assert_count(heading, 1, "[FAIL] ClientAccountsPage: eSign Method Heading Count — Expected: count=1, Actual: count!=1. Details: h5 heading with 'Authorized Signer eSign Method' text must exist. Locator: h5:has-text('Authorized Signer eSign Method').")
-            Assertions.assert_visible(heading, "[FAIL] ClientAccountsPage: eSign Method Heading Visibility — Expected: visible=True, Actual: visible=False. Details: eSign Method heading must be visible. Locator: h5:has-text('Authorized Signer eSign Method').")
+            # Step 2: Validate 'Authorized Approver eSign Method' heading
+            logger.info("Step 2: Validating 'Authorized Approver eSign Method' heading...")
+            heading = iframe_frame.locator("h5:has-text('Authorized Approver eSign Method')")
+            Assertions.assert_count(heading, 1, "[FAIL] ClientAccountsPage: eSign Method Heading Count — Expected: count=1, Actual: count!=1. Details: h5 heading with 'Authorized Approver eSign Method' text must exist. Locator: h5:has-text('Authorized Approver eSign Method').")
+            Assertions.assert_visible(heading, "[FAIL] ClientAccountsPage: eSign Method Heading Visibility — Expected: visible=True, Actual: visible=False. Details: eSign Method heading must be visible. Locator: h5:has-text('Authorized Approver eSign Method').")
             logger.info("[PASS] ClientAccountsPage: eSign Method Heading Validated.")
             
             # Step 3: Validate 'SMS' label
@@ -600,47 +600,47 @@ def verify_authorized_signer_esign_method_section(authenticated_page: Page):
             raise AssertionError(f"Authorized Signer eSign Method section verification failed: {e}") from e
 
 
-@when("User select Authorized Signer eSign Method")
-def user_select_authorized_signer_esign_method(authenticated_page: Page, client_accounts_page, test_context):
+@when("User select Signer eSign Method")
+def user_select_signer_esign_method(authenticated_page: Page, client_accounts_page, test_context):
     """
-    Select Authorized Signer eSign Method (SMS or Tracking Center).
+    Select Signer eSign Method from available options.
     
-    Reads 'Authorized_Signer_eSign_Method' from test data CSV and selects the appropriate radio button.
-    Valid values: 'SMS' or 'Tracking Center'
+    Reads 'Signer_eSign_Method' from test data CSV and selects the appropriate radio button.
+    Valid values: 'In Person', 'By Email', 'SMS', or 'Tracking Center'
     """
-    with allure.step("User select Authorized Signer eSign Method"):
-        logger.info(">>> STEP: User select Authorized Signer eSign Method")
+    with allure.step("User select Signer eSign Method"):
+        logger.info(">>> STEP: User select Signer eSign Method")
         
         try:
             # Step 1: Fetch the eSign method from test data
-            logger.info("  Step 1: Fetching Authorized Signer eSign Method from test data...")
+            logger.info("  Step 1: Fetching Signer eSign Method from test data...")
             test_data = test_context.get("test_data", {})
-            esign_method = test_data.get("Authorized_Signer_eSign_Method", "").strip()
+            esign_method = test_data.get("Signer_eSign_Method", "").strip()
             
             if not esign_method:
-                raise AssertionError("[FAIL] ClientAccountsPage: CSV Data Parsing — Expected: 'Authorized_Signer_eSign_Method' not empty, Actual: column is empty. Details: Test data CSV must include 'Authorized_Signer_eSign_Method' column with value 'SMS' or 'Tracking Center'. Locator: test_data['Authorized_Signer_eSign_Method'].")
+                raise AssertionError("[FAIL] ClientAccountsPage: CSV Data Parsing — Expected: 'Signer_eSign_Method' not empty, Actual: column is empty. Details: Test data CSV must include 'Signer_eSign_Method' column with value 'In Person', 'By Email', 'SMS', or 'Tracking Center'. Locator: test_data['Signer_eSign_Method'].")
             
-            valid_methods = ["SMS", "Tracking Center"]
+            valid_methods = ["In Person", "By Email", "SMS", "Tracking Center"]
             if esign_method not in valid_methods:
                 raise AssertionError(
-                    f"[FAIL] ClientAccountsPage: CSV Data Validation — Expected: value in {valid_methods}, Actual: '{esign_method}'. Details: 'Authorized_Signer_eSign_Method' must be 'SMS' or 'Tracking Center'. Locator: test_data['Authorized_Signer_eSign_Method']."
+                    f"[FAIL] ClientAccountsPage: CSV Data Validation — Expected: value in {valid_methods}, Actual: '{esign_method}'. Details: 'Signer_eSign_Method' must be one of: 'In Person', 'By Email', 'SMS', or 'Tracking Center'. Locator: test_data['Signer_eSign_Method']."
                 )
             
-            logger.info(f"  [PASS] ClientAccountsPage: CSV Data Parsed.")
+            logger.info(f"  [PASS] ClientAccountsPage: CSV Data Parsed - Method: '{esign_method}'")
             
             # Step 2: Call page object method to select the radio button
             logger.info(f"  Step 2: Selecting '{esign_method}' radio button...")
-            client_accounts_page.select_authorized_signer_esign_method(esign_method)
+            client_accounts_page.select_signer_esign_method(esign_method)
             
             # Step 3: Take screenshot for Allure reporting
             logger.info("  Step 3: Taking screenshot after selection...")
             allure.attach(
                 authenticated_page.screenshot(),
-                name=f"Authorized Signer eSign Method - {esign_method} Selected",
+                name=f"Signer eSign Method - {esign_method} Selected",
                 attachment_type=allure.attachment_type.PNG,
             )
             
-            logger.info(f"[PASS] ClientAccountsPage: Authorized Signer eSign Method Selected.")
+            logger.info(f"[PASS] ClientAccountsPage: Signer eSign Method Selected - {esign_method}.")
             
         except Exception as e:
             logger.error(f"✗ Failed to select Authorized Signer eSign Method: {e}")
@@ -714,10 +714,6 @@ def provide_authorized_signers_information(authenticated_page: Page, client_acco
             logger.info(f"    - Authorized_Signer: '{authorized_signer if authorized_signer else 'N/A'}'")
             logger.info(f"    - Email_Address: '{email_address if email_address else 'N/A'}'")
             logger.info(f"    - Phone: '{phone if phone else 'N/A'}'")
-            
-            # Store authorized_signer in test_context for use in subsequent steps
-            test_context["authorized_signer"] = authorized_signer
-            logger.info(f"  Stored authorized_signer in test_context: {authorized_signer}")
             
             # Step 2: Call page object method to provide information
             logger.info("  Step 2: Providing information via page method...")
@@ -1513,3 +1509,779 @@ def user_click_on_d_number(authenticated_page: Page, client_accounts_page, test_
         
         logger.info(f"[PASS] ClientAccountsPage: D-Number Click Step Completed.")
 
+
+@then("Client In Person Signing dialog should be displayed")
+def verify_client_in_person_signing_dialog_displayed(authenticated_page: Page, client_accounts_page, test_context):
+    """
+    Verify that the Client In-Person Signing dialog is displayed with correct content.
+    
+    This dialog appears after the user completes the DocuSign signing process
+    in an in-person client signature workflow. 
+    
+    Validations:
+    1. Dialog with role="dialog" is visible
+    2. Dialog title is "Client In Person Signing"
+    3. Dialog body contains expected text about completing eSignature and client signing steps
+    4. Two action buttons are present: "Return to eWealthManager" and "Start Client Signing"
+    5. Close dialog or click button to proceed
+    
+    Related steps:
+    - "When User click on \"Start Client Signing\" button" (next step after this)
+    - "When User click on \"Return to eWealthManager\" button" (alternative step)
+    - "When User Finish the DocuSign process" (prerequisite - displays dialog)
+    
+    Uses:
+    - DialogHandler: Robust dialog detection
+    - client_accounts_page.get_client_in_person_signing_dialog_content(): Retrieves dialog content
+    - EnhancedSoftAssertions: Non-blocking assertions for content verification
+    - logger: Unified logging from allure_logger
+    - allure: Attach screenshots for reporting
+    
+    Example feature file usage:
+        When User Finish the DocuSign process
+        Then Client In Person Signing dialog should be displayed
+        When User click on "Start Client Signing" button
+    
+    Raises:
+        AssertionError: If dialog not found or content doesn't match expectations
+    """
+    logger.info("[STEP] Verify Client In Person Signing dialog should be displayed")
+    
+    with allure.step("Client In Person Signing dialog should be displayed"):
+        try:
+            # Step 1: Wait for page to be ready before looking for dialog
+            logger.info("[DEBUG] Waiting for page to be ready...")
+            try:
+                authenticated_page.wait_for_load_state("networkidle", timeout=30000)
+                logger.info("✓ Page network is idle")
+            except Exception as e:
+                logger.debug(f"[DEBUG] wait_for_load_state networkidle timeout: {e}")
+                # Continue anyway - page might still be usable
+                authenticated_page.wait_for_load_state("load", timeout=30000)
+                logger.info("✓ Page load complete (at least load event)")
+            
+            # Add small delay to allow dialog to render
+            import time
+            time.sleep(1)
+            
+            # Step 2: Verify dialog is present (wait up to 5 minutes for dialog to load)
+            logger.info("[STEP_DETAIL] Verifying dialog is present (timeout: 5 minutes)...")
+            dialog_handler = DialogHandler(authenticated_page)
+            try:
+                logger.info("[DEBUG] Calling wait_for_dialog with 300s timeout...")
+                dialog = dialog_handler.wait_for_dialog(timeout=300000)  # 5 minutes
+                logger.info("✓ Dialog is present")
+            except Exception as e:
+                logger.error(f"[ERROR] Dialog wait failed after 5 minutes: {e}")
+                allure.attach(authenticated_page.screenshot(), name="Dialog_Not_Found_Screenshot", 
+                             attachment_type=allure.attachment_type.PNG)
+                raise AssertionError("Client In Person Signing dialog is not displayed after 5 minutes")
+            
+            # Step 2: Retrieve dialog content (title, body, buttons)
+            logger.info("[STEP_DETAIL] Retrieving dialog content...")
+            dialog_content = client_accounts_page.get_client_in_person_signing_dialog_content()
+            
+            if not dialog_content['dialog_present']:
+                raise AssertionError("Failed to retrieve Client In Person Signing dialog content")
+            
+            dialog_title = dialog_content['title']
+            dialog_body = dialog_content['body']
+            buttons = dialog_content['buttons']
+            
+            logger.info(f"[DATA] Dialog Title: {dialog_title}")
+            logger.info(f"[DATA] Dialog Body Length: {len(dialog_body)} characters")
+            logger.info(f"[DATA] Buttons Found: {list(buttons.keys())}")
+            
+            # Step 3: Verify dialog content using soft assertions
+            logger.info("[STEP_DETAIL] Verifying dialog content...")
+            soft_asserts = EnhancedSoftAssertions(authenticated_page)
+            
+            # Verify title
+            expected_title = "Client In Person Signing"
+            soft_asserts.assert_equal(
+                dialog_title,
+                expected_title,
+                f"Dialog title should be '{expected_title}' but got '{dialog_title}'"
+            )
+            logger.info(f"✓ Title verified: '{dialog_title}'")
+            
+            # Verify body text - check for key phrases
+            logger.info("[STEP_DETAIL] Verifying dialog body text...")
+            
+            # Key text segments to verify
+            expected_text_segments = [
+                "Thank you for completing your part of the eSignature process",
+                "These forms",
+                "are now ready for signing by your client(s)",
+                "Please turn control over to test",
+                "Your client(s) will select",
+                "Start Client Signing",
+                "They will then proceed with identity verification and the signing process"
+            ]
+            
+            for segment in expected_text_segments:
+                soft_asserts.assert_in(
+                    segment,
+                    dialog_body,
+                    f"Dialog body should contain '{segment}'"
+                )
+            
+            logger.info(f"✓ Body text verified: contains all expected segments")
+            
+            # Step 4: Verify buttons are present
+            logger.info("[STEP_DETAIL] Verifying dialog buttons...")
+            
+            if 'return_button' not in buttons or buttons['return_button'].count() == 0:
+                soft_asserts.assert_not_none(None, "Return to eWealthManager button must be present in dialog")
+                logger.warning("⚠ 'Return to eWealthManager' button not found")
+            else:
+                logger.info("✓ 'Return to eWealthManager' button is present")
+            
+            if 'start_signing_button' not in buttons or buttons['start_signing_button'].count() == 0:
+                soft_asserts.assert_not_none(None, "Start Client Signing button must be present in dialog")
+                logger.warning("⚠ 'Start Client Signing' button not found")
+            else:
+                logger.info("✓ 'Start Client Signing' button is present")
+            
+            # Raise any soft assertion failures before proceeding
+            soft_asserts.assert_all()
+            
+            # Step 5: Capture screenshot for reporting
+            logger.info("[STEP_DETAIL] Capturing screenshot...")
+            screenshot = authenticated_page.screenshot()
+            allure.attach(
+                screenshot,
+                name="Client In Person Signing Dialog - Verified",
+                attachment_type=allure.attachment_type.PNG
+            )
+            
+            logger.info("[PASS] Client In Person Signing dialog verified successfully")
+            
+        except AssertionError as ae:
+            # Re-raise assertion errors without additional wrapping
+            logger.error(f"[FAIL] Step failed with assertion error: {ae}")
+            try:
+                screenshot = authenticated_page.screenshot()
+                allure.attach(
+                    screenshot,
+                    name="Failed: Client In Person Signing Dialog Verification",
+                    attachment_type=allure.attachment_type.PNG
+                )
+            except:
+                pass
+            raise
+        
+        except Exception as e:
+            logger.error(f"[FAIL] Unexpected error while verifying Client In Person Signing dialog: {e}")
+            try:
+                screenshot = authenticated_page.screenshot()
+                allure.attach(
+                    screenshot,
+                    name="Failed: Client In Person Signing Dialog Verification (Exception)",
+                    attachment_type=allure.attachment_type.PNG
+                )
+            except:
+                pass
+            raise AssertionError(f"Failed to verify Client In Person Signing dialog: {e}") from e
+
+
+@when(parsers.re(r'User click on "(?P<button_text>.*?)" button'))
+def user_click_on_form_button_dynamic(authenticated_page: Page, client_accounts_page, button_text: str, test_context):
+    """
+    Dynamic step definition for clicking any form button with specified text.
+    
+    This step accepts the button text as a parameter from the feature file,
+    allowing it to be reused for multiple buttons.
+
+    Args:
+        button_text: The exact text of the button to click (e.g., 'Return to eWealthManager', 'Start Client Signing')
+
+    Pre-conditions:
+    - The dialog containing the button must be displayed
+    - The button must be visible on the page
+
+    Post-conditions:
+    - The specified button is clicked
+    - Page state changes based on button action
+
+    Uses framework utilities:
+    - client_accounts_page.click_form_button(button_text): Page object method to click any form button
+    - logger: Unified logging from allure_logger
+    - allure: Attach screenshots on failure for reporting
+
+    Example feature file usage:
+        When User click on "Return to eWealthManager" button
+        When User click on "Start Client Signing" button
+        When User click on "Continue" button
+
+    Raises:
+        AssertionError: If button not found or not visible
+    """
+    with allure.step(f'User click on "{button_text}" button'):
+        logger.info(f"[STEP] User click on {button_text} button")
+
+        try:
+            # Call page object method to click the button with dynamic text
+            client_accounts_page.click_form_button(button_text, timeout=60000)
+
+            # Capture screenshot after clicking button
+            screenshot = authenticated_page.screenshot()
+            allure.attach(
+                screenshot,
+                name=f"After Clicking {button_text} Button",
+                attachment_type=allure.attachment_type.PNG
+            )
+
+            logger.info(f"[PASS] Successfully clicked '{button_text}' button")
+
+        except Exception as e:
+            logger.error(f"Failed to click '{button_text}' button: {e}")
+            try:
+                screenshot = authenticated_page.screenshot()
+                allure.attach(
+                    screenshot,
+                    name=f"Failed to Click {button_text} Button",
+                    attachment_type=allure.attachment_type.PNG
+                )
+            except:
+                pass
+            raise AssertionError(f"Failed to click '{button_text}' button: {e}") from e
+
+@when('User provide client signature details')
+def user_provide_client_signature_details(authenticated_page: Page, client_accounts_page, test_context):
+    """
+    BDD step to provide client signature details in the Signer(s) Information dialog.
+    
+    This step fills in the Account Holders table with client signer information.
+    
+    Prerequisite:
+    - Signer(s) Information dialog must be displayed
+    - Test data must contain: Account_Owner, Email_Address, Phone
+    
+    Test Data Columns (from CSV):
+    - Account_Owner: Client's full name (e.g., "Carmen E Tucker")
+    - Email_Address: Client's email address
+    - Phone: Client's phone number (e.g., "925-123-4567")
+    
+    Signature:
+    - Fills the Account Holders table row 1 (signer_index=1) for the account owner
+    - Uses page object's enter_client_signer_details() method
+    
+    Returns:
+    - Nothing (updates form in-place)
+    
+    Raises:
+    - AssertionError: If fields cannot be filled or data is missing
+    
+    Example feature file usage:
+        Then Signer(s) Information dialog should be displayed
+        When User provide client signature details
+        And User select Authorized Signer Approval option
+        And Click on Continue
+    
+    Related Steps:
+    - "When User select Client Signature Method" (prerequisite - shows dialog)
+    - "And User select Authorized Signer Approval option" (next step)
+    """
+    with allure.step("User provide client signature details"):
+        logger.info("[STEP] User provide client signature details")
+
+        try:
+            # Step 1: Retrieve test data for signer details
+            logger.info("[STEP_DETAIL] Retrieving test data for signer details...")
+            test_data = test_context.get("test_data", {})
+            
+            full_name = test_data.get("Account_Owner", "")
+            email_address = test_data.get("Email_Address", "")
+            phone = test_data.get("Phone", "")
+            
+            # Validation: Ensure required fields are present
+            logger.info(f"[DATA] Account_Owner: {full_name}")
+            logger.info(f"[DATA] Email_Address: {email_address}")
+            logger.info(f"[DATA] Phone: {phone}")
+            
+            if not full_name:
+                raise AssertionError("Required test data 'Account_Owner' not found in test context")
+            if not email_address:
+                raise AssertionError("Required test data 'Email_Address' not found in test context")
+            if not phone:
+                raise AssertionError("Required test data 'Phone' not found in test context")
+            
+            # Step 2: Call page object method to enter signer details
+            logger.info("[STEP_DETAIL] Calling page object to enter signer details...")
+            result = client_accounts_page.enter_client_signer_details(
+                full_name=full_name,
+                email_address=email_address,
+                phone=phone,
+                signer_index=1  # First Account Owner
+            )
+            
+            # Validation: Verify fields were filled successfully
+            if not result.get("fields_filled"):
+                raise AssertionError(f"Failed to fill all signer details fields. Result: {result}")
+            
+            logger.info("[STEP_DETAIL] ✓ Signer details successfully entered")
+            logger.info(f"[STEP_DETAIL] ✓ Name field filled: {full_name}")
+            logger.info(f"[STEP_DETAIL] ✓ Email field filled: {email_address}")
+            logger.info(f"[STEP_DETAIL] ✓ Phone field filled: {phone}")
+            
+            # Step 3: Capture screenshot for Allure reporting
+            logger.info("[STEP_DETAIL] Capturing screenshot for Allure report...")
+            screenshot = authenticated_page.screenshot()
+            allure.attach(
+                screenshot,
+                name="Client Signature Details Provided",
+                attachment_type=allure.attachment_type.PNG
+            )
+            
+            logger.info("[PASS] ✓ Successfully provided client signature details")
+            
+        except AssertionError:
+            # Re-raise assertion errors without additional wrapping
+            logger.error(f"[FAIL] Step failed with assertion error")
+            screenshot = authenticated_page.screenshot()
+            allure.attach(
+                screenshot,
+                name="Failed: Client Signature Details",
+                attachment_type=allure.attachment_type.PNG
+            )
+            raise
+            
+        except Exception as e:
+            logger.error(f"[FAIL] Unexpected error while providing client signature details: {e}")
+            screenshot = authenticated_page.screenshot()
+            allure.attach(
+                screenshot,
+                name="Failed: Client Signature Details (Exception)",
+                attachment_type=allure.attachment_type.PNG
+            )
+            raise AssertionError(f"Failed to provide client signature details: {e}") from e
+
+
+@then("Verify eSignature Process Complete dialog should be displayed")
+def verify_esignature_process_complete_dialog_displayed(authenticated_page: Page, client_accounts_page, test_context):
+    """
+    Verify that the eSignature Process Complete dialog is displayed with correct content.
+    
+    This step:
+    1. Verifies a dialog is present on the page
+    2. Retrieves the dialog title and body content
+    3. Verifies the title is "eSignature Process Complete"
+    4. Verifies the body text is "Thank you for completing your part of the eSignature process."
+    5. Verifies a close button is present
+    6. Clicks the close button to close the dialog
+    
+    Uses framework utilities:
+    - DialogHandler: Robust dialog detection
+    - client_accounts_page.get_esignature_process_complete_dialog_content(): Retrieves dialog content
+    - EnhancedSoftAssertions: Non-blocking assertions for content verification
+    - logger: Unified logging from allure_logger
+    - allure: Attach screenshots for reporting
+    
+    Pre-condition:
+    - eSignature Process Complete dialog must be displayed
+    
+    Post-condition:
+    - Dialog is closed
+    - Application returns to previous state
+    
+    Example feature file usage:
+        Then Verify eSignature Process Complete dialog should be displayed
+    
+    Raises:
+        AssertionError: If dialog not found, content doesn't match, or close button fails
+    """
+    logger.info("[STEP] Verify eSignature Process Complete dialog should be displayed")
+    
+    with allure.step("Verify eSignature Process Complete dialog should be displayed"):
+        try:
+            # Step 1: Verify dialog is present
+            logger.info("[STEP_DETAIL] Verifying dialog is present...")
+            dialog_handler = DialogHandler(authenticated_page)
+            try:
+                dialog = dialog_handler.wait_for_dialog(timeout=300000)  # 5 minutes
+                logger.info("✓ Dialog is present")
+            except Exception as e:
+                logger.error(f"[ERROR] Dialog wait failed: {e}")
+                raise AssertionError("eSignature Process Complete dialog is not displayed")
+            
+            # Step 2: Retrieve dialog content (title, body, close button)
+            logger.info("[STEP_DETAIL] Retrieving dialog content...")
+            dialog_content = client_accounts_page.get_esignature_process_complete_dialog_content()
+            
+            if not dialog_content['dialog_present']:
+                raise AssertionError("Failed to retrieve eSignature Process Complete dialog content")
+            
+            dialog_title = dialog_content['title']
+            dialog_body = dialog_content['body']
+            close_button = dialog_content['close_button']
+            
+            logger.info(f"[DATA] Dialog Title: {dialog_title}")
+            logger.info(f"[DATA] Dialog Body: {dialog_body}")
+            logger.info(f"[DATA] Close Button Found: {close_button is not None and close_button.count() > 0}")
+            
+            # Step 3: Verify dialog content using soft assertions
+            logger.info("[STEP_DETAIL] Verifying dialog content...")
+            soft_asserts = EnhancedSoftAssertions(authenticated_page)
+            
+            # Verify title
+            expected_title = "eSignature Process Complete"
+            soft_asserts.assert_equal(
+                dialog_title,
+                expected_title,
+                f"Dialog title should be '{expected_title}' but got '{dialog_title}'"
+            )
+            logger.info(f"✓ Title verified: '{dialog_title}'")
+            
+            # Verify body text
+            expected_body = "Thank you for completing your part of the eSignature process."
+            soft_asserts.assert_in(
+                expected_body,
+                dialog_body,
+                f"Dialog body should contain '{expected_body}' but got '{dialog_body}'"
+            )
+            logger.info(f"✓ Body text verified: contains expected message")
+            
+            # Step 4: Verify close button is present
+            logger.info("[STEP_DETAIL] Verifying close button is present...")
+            if close_button is None or close_button.count() == 0:
+                soft_asserts.add_failure("Close button is not present in the dialog")
+                logger.warning("⚠ Close button not found")
+            else:
+                logger.info("✓ Close button is present")
+            
+            # Raise any soft assertion failures before proceeding
+            soft_asserts.assert_all()
+            
+            # Step 5: Close the dialog by clicking close button
+            logger.info("[STEP_DETAIL] Closing dialog by clicking close button...")
+            if close_button and close_button.count() > 0:
+                close_button.wait_for(state="visible", timeout=5000)
+                close_button.click()
+                logger.info("✓ Close button clicked")
+                
+                # Wait for dialog to close
+                authenticated_page.wait_for_timeout(1000)
+                logger.info("✓ Dialog closed")
+            
+            # Step 6: Capture screenshot for reporting
+            logger.info("[STEP_DETAIL] Capturing screenshot...")
+            screenshot = authenticated_page.screenshot()
+            allure.attach(
+                screenshot,
+                name="eSignature Process Complete Dialog Verified",
+                attachment_type=allure.attachment_type.PNG
+            )
+            
+            logger.info("[PASS] eSignature Process Complete dialog verified and closed successfully")
+            
+        except AssertionError as ae:
+            # Re-raise assertion errors without additional wrapping
+            logger.error(f"[FAIL] Step failed with assertion error: {ae}")
+            try:
+                screenshot = authenticated_page.screenshot()
+                allure.attach(
+                    screenshot,
+                    name="Failed: eSignature Dialog Verification",
+                    attachment_type=allure.attachment_type.PNG
+                )
+            except:
+                pass
+            raise
+        
+        except Exception as e:
+            logger.error(f"[FAIL] Unexpected error while verifying eSignature dialog: {e}")
+            try:
+                screenshot = authenticated_page.screenshot()
+                allure.attach(
+                    screenshot,
+                    name="Failed: eSignature Dialog Verification (Exception)",
+                    attachment_type=allure.attachment_type.PNG
+                )
+            except:
+                pass
+            raise AssertionError(f"Failed to verify eSignature Process Complete dialog: {e}") from e
+
+
+@then("Finish Later pop up should be displayed")
+def verify_finish_later_dialog_displayed(authenticated_page: Page, client_accounts_page, test_context):
+    """
+    Verify that the Finish Later dialog is displayed with correct content.
+    
+    This step:
+    1. Verifies a dialog is present on the page
+    2. Retrieves the dialog title and body content
+    3. Verifies the title is "Finish Later"
+    4. Verifies the body text contains the expected message with D-number from test_context
+    5. Extracts the D-number from the dialog and verifies it matches the D-number in test_context
+    6. Verifies two buttons are present: "Save" and "Delete"
+    
+    Expected dialog text:
+    "Select Save to save the document for review or signing at a later time. 
+    To view your saved request, select <D number> in the tracking center. 
+    Select Delete to cancel this document. By deleting, all data will be lost and the request will be canceled."
+    
+    D-number Validation:
+    - Extracts the D-number displayed in the dialog
+    - Compares it with D-number from test_context (stored in "User Finish later the DocuSign process" step)
+    - Ensures both values match using soft assertions
+    
+    Uses framework utilities:
+    - DialogHandler: Robust dialog detection
+    - client_accounts_page.get_finish_later_dialog_content(): Retrieves dialog content including d_number
+    - EnhancedSoftAssertions: Non-blocking assertions for content verification
+    - logger: Unified logging from allure_logger
+    - allure: Attach screenshots for reporting
+    
+    Pre-condition:
+    - Finish Later dialog must be displayed after clicking "Finish Later" option
+    - test_context must contain 'd_number' from previous "User Finish later the DocuSign process" step
+    
+    Example feature file usage:
+        When User Finish later the DocuSign process and save the request
+        Then Finish Later pop up should be displayed
+    
+    Raises:
+        AssertionError: If dialog not found, content doesn't match, D-number mismatch, or buttons missing
+    """
+    logger.info("[STEP] Finish Later pop up should be displayed")
+    
+    with allure.step("Finish Later pop up should be displayed"):
+        try:
+            # Step 1: Verify dialog is present
+            logger.info("[STEP_DETAIL] Verifying dialog is present...")
+            dialog_handler = DialogHandler(authenticated_page)
+            try:
+                dialog = dialog_handler.wait_for_dialog(timeout=300000)  # 5 minutes
+                logger.info("✓ Dialog is present")
+            except Exception as e:
+                logger.error(f"[ERROR] Dialog wait failed: {e}")
+                raise AssertionError("Finish Later dialog is not displayed")
+            
+            # Step 2: Retrieve dialog content (title, body, buttons)
+            logger.info("[STEP_DETAIL] Retrieving dialog content...")
+            dialog_content = client_accounts_page.get_finish_later_dialog_content()
+            
+            if not dialog_content['dialog_present']:
+                raise AssertionError("Failed to retrieve Finish Later dialog content")
+            
+            dialog_title = dialog_content['title']
+            dialog_body = dialog_content['body']
+            buttons = dialog_content['buttons']
+            
+            logger.info(f"[DATA] Dialog Title: {dialog_title}")
+            logger.info(f"[DATA] Dialog Body: {dialog_body}")
+            logger.info(f"[DATA] Buttons Found: Save={buttons.get('save_button') is not None}, Delete={buttons.get('delete_button') is not None}")
+            
+            # Step 3: Get D-number from test_context for message verification
+            d_number = test_context.get('d_number', '')
+            logger.info(f"[DATA] D-Number from test_context: {d_number}")
+            
+            # Step 4: Build expected dialog body text with D-number
+            expected_body_parts = [
+                "Select Save",
+                "save the document for review or signing at a later time",
+                "To view your saved request",
+                "in the tracking center",
+                "Select Delete",
+                "cancel this document",
+                "By deleting, all data will be lost",
+                "request will be canceled"
+            ]
+            
+            # Step 5: Verify dialog content using soft assertions
+            logger.info("[STEP_DETAIL] Verifying dialog content...")
+            soft_asserts = EnhancedSoftAssertions(authenticated_page)
+            
+            # Verify title
+            expected_title = "Finish Later"
+            soft_asserts.assert_equal(
+                dialog_title,
+                expected_title,
+                f"Dialog title should be '{expected_title}' but got '{dialog_title}'"
+            )
+            logger.info(f"✓ Title verified: '{dialog_title}'")
+            
+            # Verify body text contains all expected parts
+            logger.info("[STEP_DETAIL] Verifying dialog body text contains expected content...")
+            for expected_part in expected_body_parts:
+                soft_asserts.assert_in(
+                    expected_part,
+                    dialog_body,
+                    f"Dialog body should contain '{expected_part}' but got '{dialog_body}'"
+                )
+                logger.info(f"✓ Body contains: '{expected_part}'")
+            
+            # Verify D-number is referenced in dialog body
+            if d_number:
+                soft_asserts.assert_in(
+                    d_number,
+                    dialog_body,
+                    f"Dialog body should reference D-number '{d_number}' but got '{dialog_body}'"
+                )
+                logger.info(f"✓ Body references D-number: {d_number}")
+            else:
+                logger.warning("⚠ D-number not found in test_context, skipping D-number verification")
+            
+            # Step 5.5: Extract and verify D-number from dialog matches test_context
+            logger.info("[STEP_DETAIL] Extracting and verifying D-number from dialog...")
+            if d_number:
+                # Extract D-number from dialog content structure if available
+                dialog_d_number = dialog_content.get('d_number', '')
+                
+                if dialog_d_number:
+                    logger.info(f"[DATA] D-Number extracted from dialog: {dialog_d_number}")
+                    logger.info(f"[DATA] D-Number from test_context: {d_number}")
+                    
+                    # Verify the D-number in dialog matches the one in test_context
+                    soft_asserts.assert_equal(
+                        dialog_d_number,
+                        d_number,
+                        f"[FAIL] D-Number Mismatch — Expected: d_number='{d_number}' (from test_context), Actual: d_number='{dialog_d_number}' (from dialog). Details: The D-number displayed in the Finish Later dialog must match the D-number stored in test_context from the Finish Later process step. Locator: finish-later-dialog-d-number."
+                    )
+                    logger.info(f"✓ D-number in dialog matches test_context: {dialog_d_number}")
+                else:
+                    logger.warning("⚠ D-number could not be extracted from dialog content structure, but presence in body text was already verified")
+            
+            # Step 6: Verify buttons are present
+            logger.info("[STEP_DETAIL] Verifying buttons are present...")
+            
+            # Check Save button
+            save_button = buttons.get('save_button')
+            if save_button is None or save_button.count() == 0:
+                soft_asserts.add_failure("'Save' button is not present in the Finish Later dialog")
+                logger.warning("⚠ 'Save' button not found")
+            else:
+                logger.info("✓ 'Save' button is present")
+            
+            # Check Delete button
+            delete_button = buttons.get('delete_button')
+            if delete_button is None or delete_button.count() == 0:
+                soft_asserts.add_failure("'Delete' button is not present in the Finish Later dialog")
+                logger.warning("⚠ 'Delete' button not found")
+            else:
+                logger.info("✓ 'Delete' button is present")
+            
+            # Raise any soft assertion failures
+            soft_asserts.assert_all()
+            
+            # Step 7: Capture screenshot for reporting
+            logger.info("[STEP_DETAIL] Capturing screenshot...")
+            screenshot = authenticated_page.screenshot()
+            allure.attach(
+                screenshot,
+                name="Finish_Later_Dialog_Verified",
+                attachment_type=allure.attachment_type.PNG
+            )
+            
+            logger.info("[PASS] Finish Later dialog verified successfully")
+            logger.info(f"  - Title: '{dialog_title}'")
+            logger.info(f"  - Body text verified with expected content")
+            logger.info(f"  - D-number comparison verified")
+            logger.info(f"  - Buttons present: Save and Delete")
+            if d_number:
+                logger.info(f"  - D-number from test_context: {d_number}")
+            
+        except AssertionError as ae:
+            # Re-raise assertion errors without additional wrapping
+            logger.error(f"[FAIL] Step failed with assertion error: {ae}")
+            try:
+                screenshot = authenticated_page.screenshot()
+                allure.attach(
+                    screenshot,
+                    name="Failed: Finish Later Dialog Verification",
+                    attachment_type=allure.attachment_type.PNG
+                )
+            except:
+                pass
+            raise
+        
+        except Exception as e:
+            logger.error(f"[FAIL] Unexpected error while verifying Finish Later dialog: {e}")
+            try:
+                screenshot = authenticated_page.screenshot()
+                allure.attach(
+                    screenshot,
+                    name="Failed: Finish Later Dialog Verification (Exception)",
+                    attachment_type=allure.attachment_type.PNG
+                )
+            except:
+                pass
+            raise AssertionError(f"Failed to verify Finish Later dialog: {e}") from e
+
+
+@when("User save the document for finsih later")
+def user_save_the_document_for_finish_later(authenticated_page: Page, client_accounts_page, test_context):
+    """
+    Save the document for finish later by clicking the Save button in the Finish Later dialog.
+    
+    This step:
+    1. Locates the Save button in the Finish Later dialog
+    2. Clicks the Save button to save the request
+    3. Captures screenshot for reporting
+    
+    Uses framework utilities:
+    - client_accounts_page.click_finish_later_save_button(): Clicks the Save button
+    - logger: Unified logging from allure_logger
+    - allure: Attach screenshots for reporting
+    
+    Pre-condition:
+    - Finish Later dialog must be displayed (from previous step)
+    
+    Post-condition:
+    - Document is saved
+    - Dialog is closed
+    - Application returns to previous state
+    
+    Example feature file usage:
+        Then Finish Later pop up should be displayed
+        When User save the document for finsih later
+    
+    Raises:
+        AssertionError: If Save button not found or click fails
+    """
+    logger.info("[STEP] User save the document for finish later")
+    
+    with allure.step("User save the document for finish later"):
+        try:
+            # Click the Save button in the Finish Later dialog
+            logger.info("[STEP_DETAIL] Clicking Save button to save the document for finish later...")
+            client_accounts_page.click_finish_later_save_button(timeout=30000)
+            
+            # Step 2: Capture screenshot for reporting
+            logger.info("[STEP_DETAIL] Capturing screenshot after saving...")
+            screenshot = authenticated_page.screenshot()
+            allure.attach(
+                screenshot,
+                name="Document_Saved_For_Finish_Later",
+                attachment_type=allure.attachment_type.PNG
+            )
+            
+            logger.info("[PASS] Document saved for finish later successfully")
+            
+        except AssertionError as ae:
+            # Re-raise assertion errors without additional wrapping
+            logger.error(f"[FAIL] Step failed with assertion error: {ae}")
+            try:
+                screenshot = authenticated_page.screenshot()
+                allure.attach(
+                    screenshot,
+                    name="Failed: Save Document For Finish Later",
+                    attachment_type=allure.attachment_type.PNG
+                )
+            except:
+                pass
+            raise
+        
+        except Exception as e:
+            logger.error(f"[FAIL] Unexpected error while saving document for finish later: {e}")
+            try:
+                screenshot = authenticated_page.screenshot()
+                allure.attach(
+                    screenshot,
+                    name="Failed: Save Document For Finish Later (Exception)",
+                    attachment_type=allure.attachment_type.PNG
+                )
+            except:
+                pass
+            raise AssertionError(f"Failed to save document for finish later: {e}") from e

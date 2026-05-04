@@ -47,11 +47,23 @@ def user_confirm_and_continue(authenticated_page: Page, test_context):
 
 @when("User Finish the DocuSign process")
 def user_finish_the_docusign_process(authenticated_page: Page, test_context):
-    """Click the Finish button to complete the DocuSign signing process
+    """Fetch D-number and click the Finish button to complete the DocuSign signing process.
+    
+    This step:
+    1. Fetches the D-number (document tracking number) from the page (REQUIRED - hard failure if not successful)
+    2. Stores it in test_context['d_number'] for later verification
+    3. Clicks the Finish button to complete DocuSign process
     
     Args:
         authenticated_page: Playwright Page object
         test_context: Test context containing the new_docusign_page object from previous step
+        
+    Uses framework utilities:
+    - docusign_page.get_d_number(): Fetches D-number using WaitContext with 60s timeout for robust element detection
+    - logger: Unified logging with Allure integration
+    
+    Raises:
+        AssertionError: If D-number cannot be fetched (hard failure - step will not proceed to Finish button)
     """
     logger.info(">>> ENTERED STEP: user_finish_the_docusign_process")
     
@@ -65,11 +77,29 @@ def user_finish_the_docusign_process(authenticated_page: Page, test_context):
         from pages.docusign_page import DocuSignPage
         docusign_page = DocuSignPage(authenticated_page)
     
-    # Click the Finish button
-    logger.info("Clicking Finish button to complete DocuSign process...")
-    docusign_page.click_finish_button(timeout=30000)
-    
-    logger.info("[PASS] DocuSignPage: DocuSign Process Finished.")
+    with allure.step("Fetch D-number and finish DocuSign process"):
+        # Step 1: Fetch D-number before finishing (HARD REQUIREMENT - must succeed)
+        # Idempotent check: Only fetch D-number once per scenario
+        if "d_number" not in test_context:
+            logger.info("Step 1: Fetching D-number from DocuSign page (REQUIRED - 60s timeout)...")
+            try:
+                d_number = docusign_page.get_d_number(timeout=60000)  # 60s timeout
+                test_context['d_number'] = d_number
+                logger.info(f"[PASS] DocuSignPage: D-Number Fetched and Stored: {d_number}")
+            except Exception as e:
+                logger.error(f"✗ FAILED to fetch D-number (HARD FAILURE): {e}")
+                screenshot = authenticated_page.screenshot()
+                allure.attach(screenshot, name="D-Number Fetch Failed", attachment_type=allure.attachment_type.PNG)
+                raise AssertionError(f"[FAIL] DocuSignPage: D-Number Fetch Required — D-number could not be fetched before completing DocuSign process. Details: {e}") from e
+        else:
+            # D-number already fetched in this scenario, skip re-fetch
+            d_number = test_context['d_number']
+            logger.info(f"Step 1: [SKIP] D-number already fetched in scenario (idempotent protection): {d_number}")
+        
+        # Step 2: Click the Finish button (only proceeds if D-number was successfully fetched)
+        logger.info("Step 2: Clicking Finish button to complete DocuSign process...")
+        docusign_page.click_finish_button(timeout=30000)
+        logger.info("[PASS] DocuSignPage: DocuSign Process Finished.")
 
 @then("User should be redirected to the DocuSign page")
 def user_should_be_redirected_to_docusign_page(authenticated_page: Page, docusign_page):
@@ -540,4 +570,233 @@ def user_click_review_document_and_submit_opt(authenticated_page: Page, docusign
                 attachment_type=allure.attachment_type.TEXT
             )
             raise
+
+
+@when("User click on send now and fetch OTP from mail")
+def user_click_on_send_now_and_fetch_otp_from_mail(authenticated_page: Page, docusign_page, test_context):
+    """Click Send Now button and fetch OTP code from email for client signing verification.
+    
+    This step handles the OTP verification workflow where the client needs to verify
+    their identity via OTP fetched from email, then submit it to DocuSign for continuing
+    the signing process using Playwright browser automation.
+    
+    Workflow:
+    1. Click Send Now button to trigger OTP email send
+    2. Create new Outlook browser tab and login
+    3. Navigate to OTP folder to search for OTP email
+    4. Wait for and extract 6-digit OTP code from email body
+    5. Return to DocuSign and submit OTP
+    
+    Args:
+        authenticated_page: Playwright Page object (current DocuSign page)
+        docusign_page: DocuSignPage fixture for DocuSign interactions
+        test_context: Test context dictionary
+        
+    Uses framework utilities:
+    - OutlookPage: Playwright-based Outlook browser automation (from_config, login_outlook, get_otp_with_retry)
+    - docusign_page methods: click_send_now(), submit_otp()
+    - time module: For timing OTP retrieval
+    - logger: Unified logging from allure_logger
+    - allure: Attach screenshots and error details for reporting
+    
+    Example feature file usage:
+        When User click on send now and fetch OTP from mail
+    """
+    import time
+    from pages.outlook_page import OutlookPage
+    
+    logger.info(">>> ENTERED STEP: user_click_on_send_now_and_fetch_otp_from_mail")
+    
+    with allure.step("User click on send now and fetch OTP from mail"):
+        outlook_page = None
+        try:
+            # Get the DocuSignPage object
+            page_obj = test_context.get("new_docusign_page")
+            if page_obj:
+                logger.info("[DEBUG] Using new_docusign_page from test_context")
+            else:
+                logger.info("[DEBUG] Using docusign_page fixture")
+                page_obj = docusign_page
+            
+            logger.info(">>> STEP 1: Click Send Now to trigger OTP email...")
+            page_obj.click_send_now()
+            logger.info("✓ Send Now clicked - OTP email triggered")
+            
+            # Record the time when OTP was sent (for filtering in Outlook)
+            otp_sent_time = time.time()
+            
+            logger.info(">>> STEP 2: Create new Outlook browser tab and login...")
+            # Initialize OutlookPage object for OTP retrieval
+            outlook_obj = OutlookPage.from_config(authenticated_page)
+            
+            # Login to Outlook and get the Outlook page
+            outlook_page = outlook_obj.login_outlook(context_message="OTP verification for client signing")
+            logger.info("✓ Successfully logged into Outlook")
+            
+            logger.info(">>> STEP 3: Search for OTP email and extract code...")
+            # Get OTP from inbox using the existing Outlook page
+            # This method waits for the OTP email and extracts the code
+            otp_code = outlook_obj.get_otp_with_retry(
+                email=None,  # Will use config from from_config
+                password=None,  # Will use config from from_config
+                timeout=120,  # 2 minutes timeout
+                refresh_interval=5,  # Check every 5 seconds
+                sent_after_epoch=otp_sent_time,
+                outlook_page=outlook_page  # Use the already-logged-in page
+            )
+            
+            if not otp_code:
+                raise RuntimeError("Failed to retrieve OTP from Outlook")
+            
+            logger.info(f"✓ OTP code retrieved: {otp_code}")
+            
+            logger.info(">>> STEP 4: Close Outlook and return to DocuSign...")
+            # Close Outlook page
+            if outlook_page:
+                try:
+                    outlook_page.close()
+                except Exception as e:
+                    logger.warning(f"Error closing Outlook page: {e}")
+                outlook_page = None
+            
+            # Bring DocuSign page to front
+            page_obj.page.bring_to_front()
+            logger.info("✓ Returned to DocuSign page")
+            
+            logger.info(">>> STEP 5: Submit OTP to DocuSign...")
+            page_obj.submit_otp(otp_code=otp_code, timeout=30000)
+            logger.info("✓ OTP submitted to DocuSign")
+            
+            logger.info("[PASS] OTP verification workflow completed successfully")
+            
+            # Capture screenshot for Allure reporting
+            screenshot = authenticated_page.screenshot()
+            allure.attach(
+                screenshot,
+                name="Send_Now_OTP_Fetch_Completed",
+                attachment_type=allure.attachment_type.PNG
+            )
+            
+            logger.info("[PASS] Send Now and Fetch OTP Completed Successfully.")
+            
+        except Exception as e:
+            logger.error(f"[FAIL] Send Now and Fetch OTP workflow failed: {str(e).splitlines()[0]}")
+            try:
+                screenshot = authenticated_page.screenshot()
+                allure.attach(
+                    screenshot,
+                    name="Send_Now_Fetch_OTP_Failed",
+                    attachment_type=allure.attachment_type.PNG
+                )
+            except:
+                pass
+            allure.attach(
+                str(e),
+                name="Send_Now_Fetch_OTP_Error_Details",
+                attachment_type=allure.attachment_type.TEXT
+            )
+            raise AssertionError(f"Send Now and Fetch OTP workflow failed: {e}") from e
+        finally:
+            # Ensure Outlook page is closed
+            if outlook_page:
+                try:
+                    outlook_page.close()
+                except:
+                    pass
+
+
+@when("User Finish later the DocuSign process")
+def user_finish_later_docusign_process(authenticated_page: Page, docusign_page, test_context):
+    """Finish later the DocuSign process and fetch D-number.
+    
+    This step defers the completion of the signing process by:
+    1. Fetching the D-number (document tracking number) from the page (REQUIRED - hard failure if not successful)
+    2. Storing it in test_context['d_number'] for later verification
+    3. Clicking the 'Other Actions' dropdown button
+    4. Selecting 'Finish Later' option from the menu
+    
+    Uses dynamic waiting (60 seconds) to account for page load delays when the menu appears.
+    
+    Args:
+        authenticated_page: Playwright Page object for screenshots
+        docusign_page: DocuSignPage fixture for DocuSign interactions
+        test_context: Test context dictionary
+        
+    Uses framework utilities:
+    - docusign_page.get_d_number(): Fetches D-number using WaitContext with 60s timeout for robust element detection
+    - docusign_page.click_other_actions_button(): Clicks the 'Other Actions' dropdown menu
+    - docusign_page.click_finish_later_option(): Clicks the 'Finish Later' option with dynamic wait
+    - logger: Unified logging from allure_logger
+    - allure: Attach screenshots for reporting
+    
+    Example (in feature file):
+        When User Finish later the DocuSign process
+    """
+    logger.info(">>> ENTERED STEP: user_finish_later_docusign_process")
+    
+    with allure.step("User Finish later the DocuSign process and fetch D-number"):
+        try:
+            # Retrieve the DocuSignPage object from test_context (may be new page from multistep flows)
+            # If not found, fall back to using docusign_page fixture
+            page_obj = test_context.get("new_docusign_page")
+            if page_obj:
+                logger.info("[DEBUG] Using new_docusign_page from test_context")
+            else:
+                logger.info("[DEBUG] Using docusign_page fixture")
+                page_obj = docusign_page
+            
+            # Step 1: Fetch D-number before finishing (HARD REQUIREMENT - must succeed)
+            # Idempotent check: Only fetch D-number once per scenario
+            if "d_number" not in test_context:
+                logger.info("STEP 1: Fetching D-number from DocuSign page (REQUIRED - 60s timeout)...")
+                try:
+                    d_number = page_obj.get_d_number(timeout=60000)  # 60s timeout
+                    test_context['d_number'] = d_number
+                    logger.info(f"[PASS] DocuSignPage: D-Number Fetched and Stored: {d_number}")
+                except Exception as e:
+                    logger.error(f"✗ FAILED to fetch D-number (HARD FAILURE): {e}")
+                    screenshot = authenticated_page.screenshot()
+                    allure.attach(screenshot, name="D-Number Fetch Failed", attachment_type=allure.attachment_type.PNG)
+                    raise AssertionError(f"[FAIL] DocuSignPage: D-Number Fetch Required — D-number could not be fetched before completing Finish Later process. Details: {e}") from e
+            else:
+                # D-number already fetched in this scenario, skip re-fetch
+                d_number = test_context['d_number']
+                logger.info(f"STEP 1: [SKIP] D-number already fetched in scenario (idempotent protection): {d_number}")
+            
+            # Step 2: Click the 'Other Actions' button to open the menu
+            logger.info("STEP 2: Clicking 'Other Actions' button...")
+            page_obj.click_other_actions_button(timeout=60000)
+            logger.info("✓ 'Other Actions' button clicked successfully")
+            
+            # Step 3: Click the 'Finish Later' option with dynamic waiting (60 seconds)
+            logger.info("STEP 3: Clicking 'Finish Later' option (dynamic wait: 60s)...")
+            page_obj.click_finish_later_option(timeout=60000)
+            logger.info("✓ 'Finish Later' option clicked successfully")
+            
+            # Take screenshot for audit trail
+            screenshot = authenticated_page.screenshot()
+            allure.attach(
+                screenshot,
+                name="Finish_Later_Completed",
+                attachment_type=allure.attachment_type.PNG
+            )
+            
+            logger.info("[PASS] DocuSignPage: Deferred completion (Finish Later) process completed successfully")
+            
+        except Exception as e:
+            logger.error(f"[FAIL] Failed to complete Finish Later process: {e}")
+            
+            # Attach screenshot for debugging
+            try:
+                screenshot = authenticated_page.screenshot()
+                allure.attach(
+                    screenshot,
+                    name="Finish_Later_Failed_Screenshot",
+                    attachment_type=allure.attachment_type.PNG
+                )
+            except Exception as screenshot_error:
+                logger.warning(f"Could not capture screenshot: {screenshot_error}")
+            
+            # Raise assertion error for test failure
+            raise AssertionError(f"Failed to complete Finish Later process: {e}") from e
 

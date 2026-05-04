@@ -81,7 +81,7 @@ This document provides a complete inventory of all signature-related functionali
   - Radio button selection in Signer Information dialog
   - Validates against valid options ["Yes", "No"]
 
-- `select_authorized_signer_esign_method(method)` - Select eSign method
+- `select_signer_esign_method(method)` - Select eSign method
   - Methods: "SMS", "Tracking Center"
   - Selects corresponding radio button
 
@@ -179,7 +179,7 @@ This document provides a complete inventory of all signature-related functionali
 - `verify_authorized_signer_esign_method_section()` - Verify eSign method section
   - BDD Step: "Then Authorized Signer eSign Method section should be displayed"
 
-- `user_select_authorized_signer_esign_method()` - Select eSign method
+- `user_select_signer_esign_method()` - Select eSign method
   - BDD Step: "When User select Authorized Signer eSign Method"
 
 - `verify_fields_for_esign_method()` - Verify method-specific fields
@@ -442,7 +442,7 @@ authorized_signer_SAU_name_ManageLogin_by_UserID: "..."
 | Add Signature | DocuSignPage | click_sign_button() + click_finish_button() | user_add_signature() |
 | Complete Signing | DocuSignPage | complete_docusign_signing_with_otp() | user_click_review_document_and_submit_opt() |
 | Select Signer | ClientAccountsPage | select_authorized_signer_approval_option() | select_authorized_signer_approval_option() |
-| Select eSign Method | ClientAccountsPage | select_authorized_signer_esign_method() | user_select_authorized_signer_esign_method() |
+| Select eSign Method | ClientAccountsPage | select_signer_esign_method() | user_select_signer_esign_method() |
 | Provide Signer Info | ClientAccountsPage | provide_authorized_signers_information() | provide_authorized_signers_information() |
 | Search Email | OutlookPage | search_authorized_signer_email() | user_login_to_the_email_and_search_the_authorized_signer_email() |
 | Fetch Email | OutlookPage | fetch_authorized_signer_email_subject_and_body() | verify_authorized_signer_email_content() |

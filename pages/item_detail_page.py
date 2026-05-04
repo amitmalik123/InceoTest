@@ -570,6 +570,78 @@ class ItemDetailPage(BasePage):
                 f"Error: {e}"
             ) from e
 
+    def click_finish_now_button(self, timeout: int = 30000) -> None:
+        """
+        Click the Finish Now button on the Tracking Center Item Detail page.
+        
+        This method:
+        1. Locates the Finish Now button using XPath
+        2. Waits for the button to be visible
+        3. Scrolls into view if needed for interactivity
+        4. Clicks the button and waits for page navigation
+        5. Waits for page stabilization after navigation
+        
+        The Finish Now button HTML:
+            <a href="#"><span>Finish Now</span></a>
+        
+        Selector Strategy: Uses XPath "//a[contains(text(),'Finish Now')]" to locate the button link
+        
+        Args:
+            timeout: Maximum time to wait for button visibility in milliseconds (default: 30000ms)
+        
+        Returns:
+            None
+            
+        Raises:
+            AssertionError: If Finish Now button not found or click fails
+            PlaywrightTimeoutError: If button visibility times out or page doesn't navigate
+            
+        Example:
+            item_detail_page.click_finish_now_button()
+        """
+        logger.info("Clicking Finish Now button on Tracking Center Item Detail page...")
+        
+        try:
+            # Step 1: Locate the Finish Now button using XPath
+            # Selector: //a[contains(text(),'Finish Now')]
+            finish_now_button = self.page.locator(item_detail_locators.FINISH_NOW_BUTTON)
+            
+            # Step 2: Wait for button to be visible in the DOM
+            logger.info(f"Waiting for Finish Now button to be visible (timeout: {timeout}ms)...")
+            finish_now_button.wait_for(state="visible", timeout=timeout)
+            logger.info("✓ Finish Now button is visible")
+            
+            # Step 3: Scroll into view to ensure it's in viewport (important for clicking)
+            logger.info("Scrolling Finish Now button into view...")
+            finish_now_button.scroll_into_view_if_needed()
+            logger.info("✓ Finish Now button scrolled into view")
+            
+            # Step 4: Click the button with page navigation wait
+            # Using click() directly without retry to avoid stale locator issues during navigation
+            # Increased timeout to 120s to allow for page navigation to complete
+            logger.info("Clicking Finish Now button...")
+            finish_now_button.click(timeout=120000)
+            logger.info("✓ Finish Now button clicked")
+            
+            # Step 5: Wait for page navigation after click
+            logger.info("Waiting for page navigation/load after Finish Now button click...")
+            self.page.wait_for_load_state("networkidle", timeout=timeout)
+            logger.info("✓ Page loaded after Finish Now button click")
+            
+            logger.info("✓ Finish Now button click completed successfully")
+            
+        except AssertionError:
+            # Re-raise assertion errors as-is
+            raise
+        except Exception as e:
+            logger.error(f"✗ Failed to interact with Finish Now button: {e}")
+            raise AssertionError(
+                f"Failed to click Finish Now button. "
+                f"Locator: {item_detail_locators.FINISH_NOW_BUTTON}. "
+                f"HTML: <a href='#'><span>Finish Now</span></a>. "
+                f"Error: {e}"
+            ) from e
+
     def confirm_cancel_dialog(self) -> None:
         """
         Confirm the cancel request by clicking 'Yes' in the confirmation dialog.

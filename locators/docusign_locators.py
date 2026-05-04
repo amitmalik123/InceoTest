@@ -8,6 +8,7 @@ This module contains all locator definitions for the DocuSign signing page.
 DOCUSIGN_URL_PATTERNS = (
     "https://apps-d.docusign.com/",
     "https://www.docusign.net/",
+    "https://verify-d.docusign.net/"
 )
 # ========================================================================================
 # LOCATORS - All page element locators defined for easy maintenance
@@ -67,3 +68,14 @@ OTP_FIELD_NAME_PATTERN = "verification code"  # Used with get_by_role()
 ADOPT_SIGNATURE_MODAL = '[data-qa="adopt-signature-modal"]'
 ADOPT_AND_SIGN_BUTTON_TEXT = "Adopt and Sign"  # Used with get_by_role()
 ADOPT_AND_SIGN_BUTTON_DATA_QA = "adopt-submit"  # Alternative: data-qa attribute
+
+# D-Number Locators
+# Document tracking number displayed in envelope completion messages
+D_NUMBER_SPAN = '//span[starts-with(text(),"D00")]'  # XPath to match D-number spans (e.g., D003525811, D003518970)
+
+# Finish Later Locators
+# ================================================
+# Used for deferred completion of signing process
+OTHER_ACTIONS_BUTTON = 'button[aria-label="Other Actions"]'  # Main dropdown menu button
+FINISH_LATER_OPTION = '//span[@data-qa="exit-text"]'  # Option text in the menu
+FINISH_LATER_BUTTON_TEXT = "Finish Later"  # Alternative text-based locator for get_by_role()

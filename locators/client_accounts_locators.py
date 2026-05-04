@@ -15,6 +15,8 @@ NOTE_TC_DIV = "div#noteTc"
 
 # Form input locators
 AUTHORIZED_SIGNERS_DROPDOWN = "select[name='authorizedSignersDropdown']"
+AUTHORIZED_SIGNERS_SELECTED_OPTION = "select[name='authorizedSignersDropdown'] option[selected]"
+AUTHORIZED_SIGNERS_DROPDOWN_DISABLED = "select[name='authorizedSignersDropdown'][disabled]"
 EMAIL_INPUT = "input[name='emailText']"
 PHONE_INPUT = "input[name='PhoneText']"
 CONTINUE_BUTTON = "input[type='submit'][value='Continue']"
@@ -61,3 +63,27 @@ RADIO_ESIGN = "input#rbEsign"
 # Dialog action buttons
 CANCEL_BUTTON = "input#btnCancel"
 CONTINUE_BUTTON_DIALOG = "input#btnContinue"
+
+# Client In Person Signing Dialog locators
+CLIENT_IN_PERSON_SIGNING_DIALOG = '[role="dialog"][aria-describedby="divConfirmation"]'
+CLIENT_IN_PERSON_SIGNING_HEADING = "div.modal-title-transition"
+CLIENT_IN_PERSON_SIGNING_BODY = "div#divConfirmation"
+CLIENT_IN_PERSON_SIGNING_PARAGRAPH = "div#divConfirmation p"
+CLIENT_IN_PERSON_SIGNING_LIST = "ul.inPersoneSigList"
+CLIENT_IN_PERSON_SIGNING_LIST_ITEMS = "ul.inPersoneSigList li.inPersoneSigMain"
+CLIENT_IN_PERSON_SIGNING_BUTTON_RETURN = "button.formButton:has-text('Return to eWealthManager')"
+CLIENT_IN_PERSON_SIGNING_BUTTON_START = "button.formButton:has-text('Start Client Signing')"
+CLIENT_IN_PERSON_SIGNING_BUTTONS = "button.formButton"
+
+# Finish Later Dialog locators
+FINISH_LATER_DIALOG = '[role="dialog"]'
+FINISH_LATER_DIALOG_TITLE = "div.modal-title-transition"
+FINISH_LATER_DIALOG_BODY = "div#divConfirmation"
+FINISH_LATER_DIALOG_TEXT = "div#divConfirmation p"
+FINISH_LATER_BUTTON_SAVE = "button.formButton:has-text('Save')"
+FINISH_LATER_BUTTON_SAVE_XPATH = "//button[text()='Save']"
+FINISH_LATER_BUTTON_DELETE = "button.formButton:has-text('Delete')"
+
+# Generic form button locator - use with button text parameter
+# Example: page.locator('button.formButton:has-text("Return to eWealthManager")')
+FORM_BUTTON_SELECTOR = "button.formButton"
