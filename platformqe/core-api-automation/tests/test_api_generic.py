@@ -157,7 +157,7 @@ def test_api_case(case, request):
     if not case.get("test_id"):
         logger.info("Skipping test execution for blank test_id.")
         return
-    
+
     # Handle testdata errors (delegate to helper)
     if case.get("__testdata_error__") or case.get("status") == "FAIL":
         config = request.getfixturevalue('config')
@@ -311,7 +311,13 @@ def test_api_case(case, request):
     
     # Log response
     _log_response_info(response, json_module, logger)
-    
+
+    # Store any DYNAMIC_UUID4-generated header values in context so extract_values
+    # can capture them via from: "request_header" (e.g. for AC4/AC5 idempotency replay)
+    if hasattr(client, 'last_generated_headers') and client.last_generated_headers:
+        context['_last_generated_headers'] = client.last_generated_headers
+        logger.debug(f"Stored generated headers in context: {list(client.last_generated_headers.keys())}")
+
     # ========== PHASE 4.5: SCRIPT EXECUTION (AFTER API, BEFORE VALUE EXTRACTION) ==========
     # Execute custom validator scripts if configured
     scripts = case.get('scripts')

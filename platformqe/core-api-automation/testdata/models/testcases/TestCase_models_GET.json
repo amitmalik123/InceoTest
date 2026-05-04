@@ -1294,7 +1294,7 @@
             "Negative"
         ],
         "mainURL": "{{base_url}}",
-        "endpoint": "/model",
+        "endpoint": "/models",
         "method": "GET",
         "rpc_method": "",
         "graphql_query": "",
@@ -1504,7 +1504,7 @@
         "next_request": {
             "test_name": "POST /model with generated OwnerId",
             "protocol": "REST",
-            "endpoint": "/model",
+            "endpoint": "/models",
             "method": "POST",
             "headers_additional": {
                 "Content-Type": "application/json"

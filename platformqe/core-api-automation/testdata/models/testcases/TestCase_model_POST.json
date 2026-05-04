@@ -66,7 +66,7 @@
             "Functional"
         ],
         "mainURL": "{{base_url}}",
-        "endpoint": "/model",
+        "endpoint": "/models",
         "method": "POST",
         "rpc_method": "",
         "graphql_query": "",
@@ -257,7 +257,7 @@
             "Negative"
         ],
         "mainURL": "{{base_url}}",
-        "endpoint": "/model",
+        "endpoint": "/models",
         "method": "POST",
         "rpc_method": "",
         "graphql_query": "",
@@ -342,7 +342,7 @@
             "Functional"
         ],
         "mainURL": "{{base_url}}",
-        "endpoint": "/model",
+        "endpoint": "/models",
         "method": "POST",
         "rpc_method": "",
         "graphql_query": "",
@@ -415,7 +415,7 @@
             "Negative"
         ],
         "mainURL": "{{base_url}}",
-        "endpoint": "/model",
+        "endpoint": "/models",
         "method": "POST",
         "rpc_method": "",
         "graphql_query": "",
@@ -479,7 +479,7 @@
             "Negative"
         ],
         "mainURL": "{{base_url}}",
-        "endpoint": "/model",
+        "endpoint": "/models",
         "method": "POST",
         "rpc_method": "",
         "graphql_query": "",
@@ -542,7 +542,7 @@
             "Functional"
         ],
         "mainURL": "{{base_url}}",
-        "endpoint": "/model",
+        "endpoint": "/models",
         "method": "POST",
         "rpc_method": "",
         "graphql_query": "",
@@ -659,7 +659,7 @@
             "Smoke"
         ],
         "mainURL": "{{base_url}}",
-        "endpoint": "/model",
+        "endpoint": "/models",
         "method": "POST",
         "headers_additional": {
             "Content-Type": "application/json"
@@ -701,7 +701,7 @@
             "Smoke"
         ],
         "mainURL": "{{base_url}}",
-        "endpoint": "/model",
+        "endpoint": "/models",
         "method": "POST",
         "headers_additional": {
             "Content-Type": "application/json"
@@ -746,7 +746,7 @@
             "Smoke"
         ],
         "mainURL": "{{base_url}}",
-        "endpoint": "/model",
+        "endpoint": "/models",
         "method": "POST",
         "headers_additional": {
             "Content-Type": "application/json"
@@ -792,7 +792,7 @@
             "Smoke"
         ],
         "mainURL": "{{base_url}}",
-        "endpoint": "/model",
+        "endpoint": "/models",
         "method": "POST",
         "headers_additional": {
             "Content-Type": "application/json"
@@ -838,7 +838,7 @@
             "Integration"
         ],
         "mainURL": "{{base_url}}",
-        "endpoint": "/model",
+        "endpoint": "/models",
         "method": "POST",
         "rpc_method": "",
         "graphql_query": "",
@@ -1000,7 +1000,7 @@
             "Data Integrity"
         ],
         "mainURL": "{{base_url}}",
-        "endpoint": "/model",
+        "endpoint": "/models",
         "method": "POST",
         "rpc_method": "",
         "graphql_query": "",
@@ -1149,5 +1149,157 @@
         "db_connection_name": "",
         "test_summary": "GET /models — Verify all 5 migrated fields read from model_version_attribute (versions.0.*) and model_attribute (models.0.metadata) is empty after POST",
         "test_scenario": "AC03: GetModelResponse MUST return investmentMins, riskProfile, custodians, metadata, benchmarks from model_version_attribute (versions.0.*), and model-level metadata (model_attribute) MUST be empty"
+    },
+    {
+        "test_id": "TC012",
+        "service_name": "models",
+        "workflow_mode": "sequential",
+        "test_name": "POST /model - Idempotency-Key missing -> 400 Bad Request (TC012)",
+        "protocol": "REST",
+        "test_type": [
+            "Negative",
+            "Functional",
+            "Security"
+        ],
+        "mainURL": "{{base_url}}",
+        "endpoint": "/models",
+        "method": "POST",
+        "rpc_method": "",
+        "graphql_query": "",
+        "graphql_variables": "",
+        "soap_action": "",
+        "soap_envelope": "",
+        "headers_additional": {
+            "Content-Type": "application/json",
+            "Idempotency-Key": null
+        },
+        "payload": {
+            "name": "string",
+            "ownerId": "3fa85f64-5717-4562-b3fc-2c963f66afa6",
+            "modelAttributes": {
+                "solutionType": "string",
+                "modelType": "string"
+            },
+            "allocations": [
+                {
+                    "entityType": "Model",
+                    "allocationName": "string",
+                    "modelId": "string",
+                    "cusip": "string",
+                    "ticker": "string",
+                    "weight": 0.5
+                }
+            ],
+            "investmentApproachId": null,
+            "benchmarkName": "string",
+            "benchmarkIsPrimary": false,
+            "custodians": [
+                "string"
+            ],
+            "investmentMins": [
+                {
+                    "type": "System",
+                    "value": 1
+                }
+            ],
+            "riskProfile": "string"
+        },
+        "expected_status": "400",
+        "expected_response_schema": "",
+        "expected_response": null,
+        "ignore_fields": [],
+        "extract_values": [],
+        "validate": {
+            "performance": {
+                "max_response_time_ms": 3000
+            },
+            "security": {
+                "checks": []
+            },
+            "assertions": [],
+            "data_comparison": {}
+        },
+        "test_data_file": "",
+        "db_query": "",
+        "db_type": "",
+        "db_connection_name": "",
+        "test_summary": "TC012: AC2 — POST /model with missing Idempotency-Key header (null -> header omitted) must return 400 Bad Request",
+        "test_scenario": "AC2: Idempotency-Key header is empty string (missing) -> API must reject with 400"
+    },
+    {
+        "test_id": "TC013",
+        "service_name": "models",
+        "workflow_mode": "sequential",
+        "test_name": "POST /model - Idempotency-Key invalid (non-UUID) -> 400 Bad Request (TC013)",
+        "protocol": "REST",
+        "test_type": [
+            "Negative",
+            "Functional",
+            "Security"
+        ],
+        "mainURL": "{{base_url}}",
+        "endpoint": "/models",
+        "method": "POST",
+        "rpc_method": "",
+        "graphql_query": "",
+        "graphql_variables": "",
+        "soap_action": "",
+        "soap_envelope": "",
+        "headers_additional": {
+            "Content-Type": "application/json",
+            "Idempotency-Key": "not-a-valid-uuid"
+        },
+        "payload": {
+            "name": "string",
+            "ownerId": "3fa85f64-5717-4562-b3fc-2c963f66afa6",
+            "modelAttributes": {
+                "solutionType": "string",
+                "modelType": "string"
+            },
+            "allocations": [
+                {
+                    "entityType": "Model",
+                    "allocationName": "string",
+                    "modelId": "string",
+                    "cusip": "string",
+                    "ticker": "string",
+                    "weight": 0.5
+                }
+            ],
+            "investmentApproachId": null,
+            "benchmarkName": "string",
+            "benchmarkIsPrimary": false,
+            "custodians": [
+                "string"
+            ],
+            "investmentMins": [
+                {
+                    "type": "System",
+                    "value": 1
+                }
+            ],
+            "riskProfile": "string"
+        },
+        "expected_status": "400",
+        "expected_response_schema": "",
+        "expected_response": null,
+        "ignore_fields": [],
+        "extract_values": [],
+        "validate": {
+            "performance": {
+                "max_response_time_ms": 3000
+            },
+            "security": {
+                "checks": []
+            },
+            "assertions": [],
+            "data_comparison": {}
+        },
+        "test_data_file": "",
+        "db_query": "",
+        "db_type": "",
+        "db_connection_name": "",
+        "test_summary": "TC013: AC2 — POST /model with invalid Idempotency-Key (non-UUID value) must return 400 Bad Request — confirms malformed key is rejected",
+        "test_scenario": "AC2: Idempotency-Key header has invalid non-UUID value -> API must reject with 400"
     }
 ]

@@ -1,0 +1,257 @@
+[
+    {
+        "test_id": "TC001",
+        "service_name": "models",
+        "workflow_mode": "sequential",
+        "test_name": "POST /model - AC3: First execution with new Idempotency-Key",
+        "protocol": "REST",
+        "test_type": [
+            "Functional"
+        ],
+        "mainURL": "{{base_url}}",
+        "endpoint": "/models",
+        "method": "POST",
+        "headers_additional": {
+            "Content-Type": "application/json"
+        },
+        "payload": "models\\payloads\\Payload_model_id_POST_request.json",
+        "expected_status": "201",
+        "extract_values": [
+            {
+                "from": "response",
+                "key": "modelId",
+                "assign_to": "idem_workflow_model_id"
+            },
+            {
+                "from": "request_header",
+                "key": "Idempotency-Key",
+                "assign_to": "captured_idem_key_post"
+            }
+        ],
+        "validate": {
+            "performance": {
+                "max_response_time_ms": null
+            }
+        },
+        "test_summary": "AC3 Step 1 (POST): POST /model with a brand-new Idempotency-Key (DYNAMIC_UUID4 from config). Expect 201. Capture the key for AC4/AC5 replay.",
+        "test_scenario": "Idempotency - AC3 first execution POST"
+    },
+    {
+        "test_id": "TC002",
+        "service_name": "models",
+        "workflow_mode": "sequential",
+        "test_name": "POST /model - AC4: Retry with same Idempotency-Key -> identical 201 returned",
+        "protocol": "REST",
+        "test_type": [
+            "Functional"
+        ],
+        "mainURL": "{{base_url}}",
+        "endpoint": "/models",
+        "method": "POST",
+        "headers_additional": {
+            "Content-Type": "application/json",
+            "Idempotency-Key": "{{captured_idem_key_post}}"
+        },
+        "payload": "models\\payloads\\Payload_model_id_POST_request.json",
+        "expected_status": "201",
+        "validate": {
+            "performance": {
+                "max_response_time_ms": null
+            }
+        },
+        "test_summary": "AC4 (POST): Retry POST /model with the SAME Idempotency-Key captured in TC001. Expect 201 with cached response. The request must NOT create a duplicate model.",
+        "test_scenario": "Idempotency - AC4 retry same key POST"
+    },
+    {
+        "test_id": "TC003",
+        "service_name": "models",
+        "workflow_mode": "sequential",
+        "test_name": "POST /model - AC5: Same Idempotency-Key with different payload -> 409 Conflict",
+        "protocol": "REST",
+        "test_type": [
+            "Negative"
+        ],
+        "mainURL": "{{base_url}}",
+        "endpoint": "/models",
+        "method": "POST",
+        "headers_additional": {
+            "Content-Type": "application/json",
+            "Idempotency-Key": "{{captured_idem_key_post}}"
+        },
+        "expected_status": "409",
+        "validate": {
+            "performance": {
+                "max_response_time_ms": null
+            }
+        },
+        "test_summary": "AC5 (POST): POST /model with the SAME Idempotency-Key from TC001 but a DIFFERENT payload. Expect 409 Conflict - key reuse with mismatched payload must be rejected.",
+        "test_scenario": "Idempotency - AC5 key reuse different payload POST",
+        "payload": {
+            "name": "Conflicting Model - Idempotency Key Reuse",
+            "ownerId": "3fa85f64-5717-4562-b3fc-2c963f66afa6",
+            "modelAttributes": {
+                "solutionType": "Conflict Type",
+                "modelType": "Conflict Model"
+            },
+            "allocations": [
+                {
+                    "entityType": "Security",
+                    "allocationName": "Conflict Allocation",
+                    "modelId": "string",
+                    "cusip": "string",
+                    "ticker": "CONFLICT",
+                    "weight": 0.9
+                }
+            ],
+            "investmentApproachId": null,
+            "benchmarkName": "Conflict Benchmark",
+            "benchmarkIsPrimary": true,
+            "custodians": [
+                "ConflictCustodian"
+            ],
+            "investmentMins": [
+                {
+                    "type": "System",
+                    "value": 99
+                }
+            ],
+            "riskProfile": "Conflict Risk Profile",
+            "versionMetadata": {
+                "conflict": "true"
+            }
+        }
+    },
+    {
+        "test_id": "TC004",
+        "service_name": "models",
+        "workflow_mode": "sequential",
+        "test_name": "PUT /allocation/{id} - AC3: First execution with new Idempotency-Key",
+        "protocol": "REST",
+        "test_type": [
+            "Functional"
+        ],
+        "mainURL": "{{base_url}}",
+        "endpoint": "/allocations/{{idem_workflow_model_id}}",
+        "method": "PUT",
+        "headers_additional": {
+            "Content-Type": "application/json"
+        },
+        "payload": {
+            "allocations": [
+                {
+                    "entityType": "Security",
+                    "allocationName": "Large Cap Equity",
+                    "modelId": "string",
+                    "cusip": "string",
+                    "ticker": "SPY",
+                    "weight": 0.6
+                },
+                {
+                    "entityType": "Security",
+                    "allocationName": "Small Cap Equity",
+                    "modelId": "string",
+                    "cusip": "string",
+                    "ticker": "IWM",
+                    "weight": 0.4
+                }
+            ]
+        },
+        "expected_status": "200",
+        "extract_values": [
+            {
+                "from": "request_header",
+                "key": "Idempotency-Key",
+                "assign_to": "captured_idem_key_put"
+            }
+        ],
+        "validate": {
+            "performance": {
+                "max_response_time_ms": null
+            }
+        },
+        "test_summary": "AC3 Step 1 (PUT): PUT /allocation/{id} with a brand-new Idempotency-Key (DYNAMIC_UUID4 from config). Expect 200. Capture the key for AC4/AC5 replay.",
+        "test_scenario": "Idempotency - AC3 first execution PUT"
+    },
+    {
+        "test_id": "TC005",
+        "service_name": "models",
+        "workflow_mode": "sequential",
+        "test_name": "PUT /allocation/{id} - AC4: Retry with same Idempotency-Key -> identical 200 returned",
+        "protocol": "REST",
+        "test_type": [
+            "Functional"
+        ],
+        "mainURL": "{{base_url}}",
+        "endpoint": "/allocations/{{idem_workflow_model_id}}",
+        "method": "PUT",
+        "headers_additional": {
+            "Content-Type": "application/json",
+            "Idempotency-Key": "{{captured_idem_key_put}}"
+        },
+        "payload": {
+            "allocations": [
+                {
+                    "entityType": "Security",
+                    "allocationName": "Large Cap Equity",
+                    "modelId": "string",
+                    "cusip": "string",
+                    "ticker": "SPY",
+                    "weight": 0.6
+                },
+                {
+                    "entityType": "Security",
+                    "allocationName": "Small Cap Equity",
+                    "modelId": "string",
+                    "cusip": "string",
+                    "ticker": "IWM",
+                    "weight": 0.4
+                }
+            ]
+        },
+        "expected_status": "200",
+        "validate": {
+            "performance": {
+                "max_response_time_ms": null
+            }
+        },
+        "test_summary": "AC4 (PUT): Retry PUT /allocation/{id} with the SAME Idempotency-Key captured in TC004. Expect 200 with cached response. The request must NOT re-execute the update.",
+        "test_scenario": "Idempotency - AC4 retry same key PUT"
+    },
+    {
+        "test_id": "TC006",
+        "service_name": "models",
+        "workflow_mode": "sequential",
+        "test_name": "PUT /allocation/{id} - AC5: Same Idempotency-Key with different payload -> 409 Conflict",
+        "protocol": "REST",
+        "test_type": [
+            "Negative"
+        ],
+        "mainURL": "{{base_url}}",
+        "endpoint": "/allocations/{{idem_workflow_model_id}}",
+        "method": "PUT",
+        "headers_additional": {
+            "Content-Type": "application/json",
+            "Idempotency-Key": "{{captured_idem_key_put}}"
+        },
+        "expected_status": "409",
+        "validate": {
+            "performance": {
+                "max_response_time_ms": null
+            }
+        },
+        "test_summary": "AC5 (PUT): PUT /allocation/{id} with the SAME Idempotency-Key from TC004 but a DIFFERENT payload. Expect 409 Conflict - key reuse with mismatched payload must be rejected.",
+        "test_scenario": "Idempotency - AC5 key reuse different payload PUT",
+        "payload": {
+            "allocations": [
+                {
+                    "entityType": "Security",
+                    "allocationName": "Conflict Allocation - AC5 Test",
+                    "modelId": "string",
+                    "cusip": "string",
+                    "ticker": "CONFLICT",
+                    "weight": 1.0
+                }
+            ]
+        }
+    }
+]

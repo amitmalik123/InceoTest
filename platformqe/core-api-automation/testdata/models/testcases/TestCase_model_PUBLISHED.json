@@ -66,7 +66,7 @@
             "Functional"
         ],
         "mainURL": "{{base_url}}",
-        "endpoint": "/model",
+        "endpoint": "/models",
         "method": "POST",
         "headers_additional": {
             "Content-Type": "application/json"
@@ -99,7 +99,7 @@
             "Functional"
         ],
         "mainURL": "{{base_url}}",
-        "endpoint": "/model/{{response_model_id}}/publish",
+        "endpoint": "/models/{{response_model_id}}/publish",
         "method": "POST",
         "headers_additional": {
             "Content-Type": "application/json"
@@ -121,7 +121,7 @@
             "Smoke"
         ],
         "mainURL": "{{base_url}}",
-        "endpoint": "/model/ca3cf9e3-974f-4333-979f-4293fbbbb650/publish",
+        "endpoint": "/models/ca3cf9e3-974f-4333-979f-4293fbbbb650/publish",
         "method": "POST",
         "headers_additional": {
             "Content-Type": "application/json"
@@ -160,7 +160,7 @@
             "Validation"
         ],
         "mainURL": "{{base_url}}",
-        "endpoint": "/model/invalid-uuid-format/publish",
+        "endpoint": "/models/invalid-uuid-format/publish",
         "method": "POST",
         "headers_additional": {
             "Content-Type": "application/json"
@@ -193,7 +193,7 @@
             "Business Logic"
         ],
         "mainURL": "{{base_url}}",
-        "endpoint": "/model/{{response_model_id}}/publish",
+        "endpoint": "/models/{{response_model_id}}/publish",
         "method": "POST",
         "headers_additional": {
             "Content-Type": "application/json"
@@ -222,7 +222,7 @@
             "Negative"
         ],
         "mainURL": "{{base_url}}",
-        "endpoint": "/model/'; DROP TABLE models; --/publish",
+        "endpoint": "/models/'; DROP TABLE models; --/publish",
         "method": "POST",
         "headers_additional": {
             "Content-Type": "application/json"
@@ -253,7 +253,7 @@
             "Negative"
         ],
         "mainURL": "{{base_url}}",
-        "endpoint": "/model/../../../etc/passwd/publish",
+        "endpoint": "/models/../../../etc/passwd/publish",
         "method": "POST",
         "headers_additional": {
             "Content-Type": "application/json"
@@ -283,7 +283,7 @@
             "Boundary"
         ],
         "mainURL": "{{base_url}}",
-        "endpoint": "/model//publish",
+        "endpoint": "/models//publish",
         "method": "POST",
         "headers_additional": {
             "Content-Type": "application/json"
@@ -313,7 +313,7 @@
             "Validation"
         ],
         "mainURL": "{{base_url}}",
-        "endpoint": "/model/<script>alert('xss')</script>/publish",
+        "endpoint": "/models/<script>alert('xss')</script>/publish",
         "method": "POST",
         "headers_additional": {
             "Content-Type": "application/json"
@@ -345,7 +345,7 @@
             "Boundary"
         ],
         "mainURL": "{{base_url}}",
-        "endpoint": "/model/null/publish",
+        "endpoint": "/models/null/publish",
         "method": "POST",
         "headers_additional": {
             "Content-Type": "application/json"
@@ -375,7 +375,7 @@
             "Boundary"
         ],
         "mainURL": "{{base_url}}",
-        "endpoint": "/model/AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA/publish",
+        "endpoint": "/models/AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA/publish",
         "method": "POST",
         "headers_additional": {
             "Content-Type": "application/json"
@@ -405,7 +405,7 @@
             "Validation"
         ],
         "mainURL": "{{base_url}}",
-        "endpoint": "/model/ca3cf9e3-974f-4333-979f-4293fbbbb650/publish",
+        "endpoint": "/models/ca3cf9e3-974f-4333-979f-4293fbbbb650/publish",
         "method": "POST",
         "headers_additional": {},
         "payload": null,
@@ -433,7 +433,7 @@
             "Validation"
         ],
         "mainURL": "{{base_url}}",
-        "endpoint": "/model/ca3cf9e3-974f-4333-979f-4293fbbbb650/publish",
+        "endpoint": "/models/ca3cf9e3-974f-4333-979f-4293fbbbb650/publish",
         "method": "POST",
         "headers_additional": {
             "Content-Type": "application/json"
@@ -466,7 +466,7 @@
             "Validation"
         ],
         "mainURL": "{{base_url}}",
-        "endpoint": "/model/12345678-1234-1234-1234-123456789012/publish",
+        "endpoint": "/models/12345678-1234-1234-1234-123456789012/publish",
         "method": "POST",
         "headers_additional": {
             "Content-Type": "application/json"
@@ -496,7 +496,7 @@
             "Validation"
         ],
         "mainURL": "{{base_url}}",
-        "endpoint": "/model/CA3CF9E3-974F-4333-979F-4293FBBBB650/publish",
+        "endpoint": "/models/CA3CF9E3-974F-4333-979F-4293FBBBB650/publish",
         "method": "POST",
         "headers_additional": {
             "Content-Type": "application/json"

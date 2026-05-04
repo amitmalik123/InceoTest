@@ -50,8 +50,21 @@ class ApiClient:
         url = f"{self.base_url}{endpoint}" if not endpoint.startswith('http') else endpoint
         
         # Merge headers: start with custom headers from config, then provided headers, then add auth
-        headers = {**self.custom_headers}
+        import uuid as _uuid
+        _generated = {}
+        headers = {}
+        for k, v in self.custom_headers.items():
+            if v == 'DYNAMIC_UUID4':
+                val = str(_uuid.uuid4())
+                _generated[k] = val
+            else:
+                val = v
+            headers[k] = val
+        # Store generated header values so extract_values can capture them (e.g. for AC4/AC5 replay)
+        self.last_generated_headers = _generated
         headers.update(kwargs.pop('headers', {}))
+        # Remove headers with None value — allows test cases to explicitly omit a config header via null
+        headers = {k: v for k, v in headers.items() if v is not None}
         
         # Add authentication token if available
         if self.auth_token:
