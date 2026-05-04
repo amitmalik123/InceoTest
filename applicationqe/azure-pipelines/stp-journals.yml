@@ -17,6 +17,9 @@ trigger:
       - applicationqe/azure-pipelines/**
       - applicationqe/requirements.txt
 
+variables:
+- group: qa-pipelines-shared-config
+
 pr:
   branches:
     include:
