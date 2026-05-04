@@ -19,44 +19,52 @@
         "headers_additional": {
             "Content-Type": "application/json",
             "Idempotency-Key":"f3c8c1c0-4b8e-4e3a-9c2d-7f6c1b8e9d52",
-            "x-user-id":"2C050478-1ED2-45A8-92BD-AC755744CECE"
+            "x-user-id":"3fa85f64-5717-4562-b3fc-2c963f66afa6"
         },
         "payload": {
             "name": "string",
             "ownerId": "3fa85f64-5717-4562-b3fc-2c963f66afa6",
             "modelAttributes": {
                 "solutionType": "string",
-                "modelType": "string"
-            },
-            "allocations": [
-                {
-                    "entityType": "Model",
-                    "allocationName": "string",
-                    "modelId": "string",
-                    "cusip": "string",
-                    "ticker": "string",
-                    "weight": 0.5
+                "modelType": "string",
+                "metadata": {
+                "additionalProp1": "string",
+                "additionalProp2": "string",
+                "additionalProp3": "string"
                 }
-            ],
-            "investmentApproachId": null,
-            "benchmarkName": "string",
-            "benchmarkIsPrimary": false,
+            },
             "custodians": [
                 "string"
             ],
             "investmentMins": [
                 {
-                    "type": "System",
-                    "value": 1
+                "type": "System",
+                "value": 0
                 }
             ],
             "riskProfile": "string",
+            "allocations": [
+                {
+                "entityType": "Security",
+                "allocationName": "string",
+                "modelId": "string",
+                "cusip": "string",
+                "ticker": "string",
+                "weight": 0
+                }
+            ],
             "versionMetadata": {
                 "additionalProp1": "string",
                 "additionalProp2": "string",
                 "additionalProp3": "string"
-            }
-        },
+            },
+            "investmentApproachId": 0,
+            "benchmarkName": "string",
+            "benchmarkIsPrimary": true,
+            "allowedAgents": [
+                "string"
+            ]
+            },
         "expected_status": "201",
         "expected_response_schema": "",
         "expected_response": null,
