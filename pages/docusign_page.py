@@ -215,13 +215,38 @@ class DocuSignPage(BasePage):
             self.page.wait_for_load_state("networkidle", timeout=timeout)
             logger.info("DocuSign page fully loaded")
         
-        # Take screenshot for evidence
-        screenshot = self.page.screenshot()
-        allure.attach(
-            screenshot,
-            name="DocuSign Page Loaded",
-            attachment_type=allure.attachment_type.PNG
-        )
+        # Take screenshot for evidence - with headless mode compatibility
+        # In headless mode, fonts may still be loading even after networkidle, so we add a delay
+        logger.info("Waiting for page rendering to complete (especially fonts)...")
+        time.sleep(1.0)  # Give fonts time to render - critical for headless mode
+        
+        try:
+            screenshot = self.page.screenshot()
+            allure.attach(
+                screenshot,
+                name="DocuSign Page Loaded",
+                attachment_type=allure.attachment_type.PNG
+            )
+            logger.info("✓ Screenshot captured successfully")
+        except Exception as e:
+            # Screenshots can fail in headless mode during font loading - don't fail the test
+            logger.warning(f"[HEADLESS_COMPAT] Screenshot capture failed (expected in some headless scenarios): {str(e)[:100]}")
+            
+            # Try once more after a short delay
+            try:
+                time.sleep(2.0)
+                screenshot = self.page.screenshot()
+                allure.attach(
+                    screenshot,
+                    name="DocuSign Page Loaded (Retry)",
+                    attachment_type=allure.attachment_type.PNG
+                )
+                logger.info("✓ Screenshot captured successfully on retry")
+            except Exception as retry_error:
+                # Log but don't fail - page is still loaded even if screenshot failed
+                logger.warning(f"[HEADLESS_COMPAT] Screenshot retry also failed, continuing anyway: {str(retry_error)[:100]}")
+                logger.info("DocuSign page loaded successfully (screenshot unavailable in this mode)")
+
 
     def _verify_ersd_modal_visible(self, timeout: int = 10000) -> bool:
         """

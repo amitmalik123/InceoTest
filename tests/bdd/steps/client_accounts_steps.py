@@ -464,15 +464,15 @@ def verify_fields_for_esign_method(authenticated_page: Page, client_accounts_pag
             # Step 1: Fetch the eSign method from test data
             logger.info("  Step 1: Fetching Authorized Signer eSign Method from test data...")
             test_data = test_context.get("test_data", {})
-            esign_method = test_data.get("Authorized_Signer_eSign_Method", "").strip()
+            esign_method = test_data.get("Signer_eSign_Method", "").strip()
             
             if not esign_method:
-                raise AssertionError("'Authorized_Signer_eSign_Method' value not found in test data CSV")
+                raise AssertionError("'Signer_eSign_Method' value not found in test data CSV")
             
             valid_methods = ["SMS", "Tracking Center"]
             if esign_method not in valid_methods:
                 raise AssertionError(
-                    f"Invalid 'Authorized_Signer_eSign_Method' value: '{esign_method}'. "
+                    f"Invalid 'Signer_eSign_Method' value: '{esign_method}'. "
                     f"Expected one of: {valid_methods}"
                 )
             
@@ -510,16 +510,16 @@ def verify_authorized_signer_esign_method_section(authenticated_page: Page):
     Verify Authorized Signer eSign Method section on Signer(s) Information dialog.
     
     Validates:
-    1. 'Authorized Signer eSign Method' heading is displayed
-    2. 'Authorized Signers' label is displayed
+    1. 'Authorized Approver eSign Method' heading is displayed
+    2. 'Authorized Approvers' label is displayed
     3. 'SMS' label is displayed
     4. SMS radio button is displayed
     5. 'Tracking Center' label is displayed
     6. 'Tracking Center' radio button is displayed
     7. None of the radio buttons are selected (no default selection)
     """
-    with allure.step("Authorized Signer eSign Method section should be displayed"):
-        logger.info(">>> STEP: Authorized Signer eSign Method section should be displayed")
+    with allure.step("Authorized Approver eSign Method section should be displayed"):
+        logger.info(">>> STEP: Authorized Approver eSign Method section should be displayed")
         
         try:
             # Step 1: Access iframe
@@ -532,11 +532,11 @@ def verify_authorized_signer_esign_method_section(authenticated_page: Page):
             iframe_frame = authenticated_page.frame_locator("iframe#esig_iframe")
             logger.info("[PASS] ClientAccountsPage: Signer Information Iframe Accessed.")
             
-            # Step 2: Validate 'Authorized Signer eSign Method' heading
-            logger.info("Step 2: Validating 'Authorized Signer eSign Method' heading...")
-            heading = iframe_frame.locator("h5:has-text('Authorized Signer eSign Method')")
-            Assertions.assert_count(heading, 1, "[FAIL] ClientAccountsPage: eSign Method Heading Count — Expected: count=1, Actual: count!=1. Details: h5 heading with 'Authorized Signer eSign Method' text must exist. Locator: h5:has-text('Authorized Signer eSign Method').")
-            Assertions.assert_visible(heading, "[FAIL] ClientAccountsPage: eSign Method Heading Visibility — Expected: visible=True, Actual: visible=False. Details: eSign Method heading must be visible. Locator: h5:has-text('Authorized Signer eSign Method').")
+            # Step 2: Validate 'Authorized Approver eSign Method' heading
+            logger.info("Step 2: Validating 'Authorized Approver eSign Method' heading...")
+            heading = iframe_frame.locator("h5:has-text('Authorized Approver eSign Method')")
+            Assertions.assert_count(heading, 1, "[FAIL] ClientAccountsPage: eSign Method Heading Count — Expected: count=1, Actual: count!=1. Details: h5 heading with 'Authorized Approver eSign Method' text must exist. Locator: h5:has-text('Authorized Approver eSign Method').")
+            Assertions.assert_visible(heading, "[FAIL] ClientAccountsPage: eSign Method Heading Visibility — Expected: visible=True, Actual: visible=False. Details: eSign Method heading must be visible. Locator: h5:has-text('Authorized Approver eSign Method').")
             logger.info("[PASS] ClientAccountsPage: eSign Method Heading Validated.")
             
             # Step 3: Validate 'SMS' label
@@ -714,10 +714,6 @@ def provide_authorized_signers_information(authenticated_page: Page, client_acco
             logger.info(f"    - Authorized_Signer: '{authorized_signer if authorized_signer else 'N/A'}'")
             logger.info(f"    - Email_Address: '{email_address if email_address else 'N/A'}'")
             logger.info(f"    - Phone: '{phone if phone else 'N/A'}'")
-            
-            # Store authorized_signer in test_context for use in subsequent steps
-            test_context["authorized_signer"] = authorized_signer
-            logger.info(f"  Stored authorized_signer in test_context: {authorized_signer}")
             
             # Step 2: Call page object method to provide information
             logger.info("  Step 2: Providing information via page method...")

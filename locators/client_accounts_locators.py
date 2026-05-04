@@ -15,6 +15,8 @@ NOTE_TC_DIV = "div#noteTc"
 
 # Form input locators
 AUTHORIZED_SIGNERS_DROPDOWN = "select[name='authorizedSignersDropdown']"
+AUTHORIZED_SIGNERS_SELECTED_OPTION = "select[name='authorizedSignersDropdown'] option[selected]"
+AUTHORIZED_SIGNERS_DROPDOWN_DISABLED = "select[name='authorizedSignersDropdown'][disabled]"
 EMAIL_INPUT = "input[name='emailText']"
 PHONE_INPUT = "input[name='PhoneText']"
 CONTINUE_BUTTON = "input[type='submit'][value='Continue']"

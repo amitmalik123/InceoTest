@@ -29,6 +29,8 @@ class ClientAccountsPage(BasePage):
     DROPDOWN_DIV = client_accounts_locators.DROPDOWN_DIV
     NOTE_TC_DIV = client_accounts_locators.NOTE_TC_DIV
     AUTHORIZED_SIGNERS_DROPDOWN = client_accounts_locators.AUTHORIZED_SIGNERS_DROPDOWN
+    AUTHORIZED_SIGNERS_SELECTED_OPTION = client_accounts_locators.AUTHORIZED_SIGNERS_SELECTED_OPTION
+    AUTHORIZED_SIGNERS_DROPDOWN_DISABLED = client_accounts_locators.AUTHORIZED_SIGNERS_DROPDOWN_DISABLED
     EMAIL_INPUT = client_accounts_locators.EMAIL_INPUT
     PHONE_INPUT = client_accounts_locators.PHONE_INPUT
     CONTINUE_BUTTON = client_accounts_locators.CONTINUE_BUTTON
@@ -153,7 +155,7 @@ class ClientAccountsPage(BasePage):
             logger.error(f"✗ Failed to select '{option}' radio button: {e}")
             raise AssertionError(f"Failed to select Authorized Signer Approval '{option}' option: {e}") from e
 
-    def provide_authorized_signers_information(self, authorized_signer: str, email_address: str, phone: str) -> None:
+    def provide_authorized_signers_information(self, authorized_signer: str, email_address: str, phone: str, test_context: dict = None) -> None:
         """
         Provide Authorized Signers information on the Signer(s) Information dialog.
         
@@ -161,6 +163,7 @@ class ClientAccountsPage(BasePage):
             authorized_signer: Name/value of authorized signer to select (if dropdown is enabled)
             email_address: Email address to enter
             phone: Phone number to enter
+            test_context: Optional test context dict to store fetched authorized signer name when dropdown is disabled
         
         Raises:
             AssertionError: If required elements not found or actions fail
@@ -186,10 +189,40 @@ class ClientAccountsPage(BasePage):
             is_disabled = dropdown.is_disabled()
             logger.info(f"  ✓ Dropdown found. Disabled status: {is_disabled}")
             
-            if not is_disabled and authorized_signer and authorized_signer.strip():
-                logger.info(f"  Step 3: Dropdown is enabled. Attempting to select '{authorized_signer}'...")
+            if is_disabled:
+                # Step 3a: Dropdown is disabled - fetch selected option text and update test_context
+                logger.info("  Step 3a: Dropdown is disabled. Fetching selected option text...")
+                try:
+                    selected_option = iframe_frame.locator(self.AUTHORIZED_SIGNERS_SELECTED_OPTION)
+                    
+                    if selected_option.count() == 0:
+                        logger.warning("  ⚠ No selected option found in disabled dropdown")
+                    else:
+                        # Get the text content of the selected option
+                        selected_text = selected_option.inner_text().strip()
+                        logger.info(f"  ✓ Selected option text fetched: '{selected_text}'")
+                        
+                        # Update test_context with the fetched authorized signer name
+                        if test_context is not None:
+                            test_context["authorized_signer"] = selected_text
+                            logger.info(f"  ✓ Updated test_context['authorized_signer'] = '{selected_text}'")
+                        else:
+                            logger.warning("  ⚠ test_context not provided, cannot update authorized_signer")
+                            
+                except Exception as e:
+                    logger.error(f"  ✗ Error fetching selected option text: {e}")
+                    raise AssertionError(f"Failed to fetch selected option text from disabled dropdown: {e}") from e
+                    
+            elif authorized_signer and authorized_signer.strip():
+                # Step 3b: Dropdown is enabled - select the provided option
+                logger.info(f"  Step 3b: Dropdown is enabled. Attempting to select '{authorized_signer}'...")
                 dropdown.select_option(value=authorized_signer)
                 logger.info(f"  ✓ Option '{authorized_signer}' selected")
+                
+                # Update test_context with the provided authorized signer
+                if test_context is not None:
+                    test_context["authorized_signer"] = authorized_signer
+                    logger.info(f"  ✓ Updated test_context['authorized_signer'] = '{authorized_signer}'")
                 
                 # Wait for Email Address field to appear after dropdown selection
                 logger.info("  Waiting for form to update after dropdown selection...")
@@ -201,10 +234,7 @@ class ClientAccountsPage(BasePage):
                 except WaitTimeoutError:
                     logger.warning("  ⚠ Email Address field did not appear within timeout, continuing anyway")
             else:
-                if is_disabled:
-                    logger.info("  ✓ Dropdown is disabled, skipping selection as per requirements")
-                else:
-                    logger.info("  ⚠ Authorized signer value is empty, skipping selection")
+                logger.info("  ⚠ Dropdown is enabled but authorized signer value is empty, skipping selection")
             
             # Step 4: Fill Email Address
             if email_address and email_address.strip():

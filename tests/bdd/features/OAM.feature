@@ -116,7 +116,7 @@ Feature: E2E OAM flow for FA, SAU and OA
     And Verify the Routing Order in database
 
 
-  @FNT_regression 
+  @smoke @FNT_regression
   Scenario: OAM_Initiated by SAU_Online Submit_Authorized Signer_Required_FA
     When User navigate to Clients menu
     And User click on Account List
@@ -275,7 +275,7 @@ Feature: E2E OAM flow for FA, SAU and OA
     And Verify buttons displayed "View"
     And Verify Notes description
 
-  @smoke @FNT_regression 
+  @FNT_regression 
   Scenario: OAM_Initiated by SAU_eSignature_With One Inperson Client Signature_Authorized Signer_NOT required
     When User navigate to Clients menu
     And User click on Account List
