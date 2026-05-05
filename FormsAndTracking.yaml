@@ -56,7 +56,6 @@ parameters:
       - Smoke
       - HappyPath
       - T10_Regression
-      - SiloRegression_OneCleanUp
       - Prod_Regression
 
   - name: workers
