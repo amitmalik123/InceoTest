@@ -7,8 +7,11 @@ Centralizes client creation and request execution logic.
 
 from typing import Dict, Any, Optional, Tuple
 import time
+import os
+from contextlib import ExitStack
 from framework.common.logger import get_logger
 from framework.loaders.config_loader import substitute_env_vars
+from framework.common.utils import normalize_path
 
 logger = get_logger(__name__)
 
@@ -182,8 +185,15 @@ class TestClientManager:
             # Extract headers_additional from case if available
             # Note: headers should already be rendered by test_api_generic.py before calling execute_request
             headers = case.get('headers_additional', {}) if case else {}
-            
-            if payload:
+
+            if isinstance(payload, dict) and payload.get('_multipart_files'):
+                response = self._execute_multipart_request(client, method, endpoint, payload, headers)
+            elif isinstance(payload, str):
+                if headers:
+                    response = client.request(method, endpoint, data=payload, headers=headers)
+                else:
+                    response = client.request(method, endpoint, data=payload)
+            elif payload:
                 if headers:
                     response = client.request(method, endpoint, json=payload, headers=headers)
                 else:
@@ -201,6 +211,76 @@ class TestClientManager:
             )
         
         return response, response_time_ms
+
+    def _execute_multipart_request(
+        self,
+        client: Any,
+        method: str,
+        endpoint: str,
+        payload: Dict,
+        headers: Dict
+    ) -> Any:
+        """
+        Execute multipart/form-data request when payload contains _multipart_files.
+        """
+        multipart_files = payload.get('_multipart_files', {})
+        form_data = {
+            key: value
+            for key, value in payload.items()
+            if key != '_multipart_files'
+        }
+
+        # Remove Content-Type so requests can generate multipart boundary.
+        request_headers = dict(headers or {})
+        request_headers.pop('Content-Type', None)
+
+        with ExitStack() as stack:
+            files = {}
+            for field_name, file_spec in multipart_files.items():
+                file_path, content_type, file_name = self._parse_file_spec(file_spec)
+                resolved_path = self._resolve_upload_file_path(file_path)
+                file_obj = stack.enter_context(open(resolved_path, 'rb'))
+                if not file_name:
+                    file_name = os.path.basename(resolved_path)
+
+                if content_type:
+                    files[field_name] = (file_name, file_obj, content_type)
+                else:
+                    files[field_name] = (file_name, file_obj)
+
+            logger.info(f"Executing multipart upload for fields: {list(files.keys())}")
+            if request_headers:
+                return client.request(method, endpoint, data=form_data, files=files, headers=request_headers)
+            return client.request(method, endpoint, data=form_data, files=files)
+
+    def _parse_file_spec(self, file_spec: Any) -> Tuple[str, Optional[str], Optional[str]]:
+        """Parse supported file spec formats into (path, content_type, filename)."""
+        if isinstance(file_spec, str):
+            return file_spec, None, None
+
+        if isinstance(file_spec, dict):
+            file_path = file_spec.get('path')
+            if not file_path:
+                raise ValueError("Multipart file spec must include 'path'.")
+            return file_path, file_spec.get('content_type'), file_spec.get('filename')
+
+        raise ValueError(f"Unsupported multipart file spec type: {type(file_spec)}")
+
+    def _resolve_upload_file_path(self, file_path: str) -> str:
+        """Resolve upload file path from absolute path, repo root, or testdata folder."""
+        normalized = normalize_path(file_path)
+
+        candidates = [normalized]
+        if not os.path.isabs(normalized):
+            candidates.append(os.path.join('testdata', normalized))
+
+        for candidate in candidates:
+            if os.path.exists(candidate):
+                return candidate
+
+        raise FileNotFoundError(
+            f"Upload file not found: {file_path}. Checked: {', '.join(candidates)}"
+        )
     
     def _create_mock_response(self) -> Any:
         """

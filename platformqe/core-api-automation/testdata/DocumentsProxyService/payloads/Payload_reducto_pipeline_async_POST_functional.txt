@@ -1,0 +1,17 @@
+{
+  "input": "{{input}}",
+  "pipeline_id": "{{pipeline_id}}",
+  "async": {
+    "priority": {{priority}},
+    "metadata": {
+      "any_key": "{{any_key}}"
+    },
+    "webhook": {
+      "mode": "{{webhook_mode}}",
+      "url": "{{webhook_url}}"
+    }
+  },
+  "settings": {
+    "document_password": "{{document_password}}"
+  }
+}
