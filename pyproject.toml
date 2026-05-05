@@ -148,11 +148,9 @@ addopts = """
 --html=reports/pytest_report.html
 --self-contained-html
 --alluredir=reports/allure-results
+--reruns=1
+--reruns-delay=1
 """
-# Note: --reruns and --reruns-delay commented out to allow --pdb debug mode
-# Uncomment for normal test runs:
- --reruns=2
- --reruns-delay=1
 asyncio_mode = "strict"
 log_cli = true
 log_cli_level = "INFO"
