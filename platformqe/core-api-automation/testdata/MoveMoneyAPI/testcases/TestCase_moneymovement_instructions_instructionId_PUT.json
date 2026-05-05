@@ -2,7 +2,7 @@
     {
         "test_id": "TC001_SETUP",
         "service_name": "movemoney",
-        "workflow_mode": "parallel",
+        "workflow_mode": "sequential",
         "test_name": "POST /instructions [positive]",
         "protocol": "REST",
         "test_type": [
@@ -150,13 +150,14 @@
             "Content-Type": "application/json"
         },
         "payload": {
-            "version": "{{version}}",
+            "version": "{{version|string}}",
             "letterOfAuthorization": "Both",
             "accountId": "123e4567-e89b-12d3-a456-426614174000",
             "status": "Draft",
             "holderRelationship": "FirstParty",
             "railType": "ACH",
             "custodianInstructionNumber": "AINS123456",
+            "changeState": "Active",
             "bank": {
                 "routingNumber": "121000248",
                 "bankAccountNumber": "1234567890",
@@ -231,7 +232,7 @@
         "test_name": "PUT /instructions/{instructionId} [Positive] (TC002)",
         "protocol": "REST",
         "test_type": [
-            "Positive"
+            "Functional"
         ],
         "mainURL": "{{base_url}}",
         "endpoint": "/instructions/{{tc001_instructionId}}",
@@ -245,13 +246,14 @@
             "Content-Type": "application/json"
         },
         "payload": {
-            "version": "{{tc001_version}}",
+            "version": "{{tc001_version|string}}",
             "letterOfAuthorization": "Both",
             "accountId": "456e7890-e89b-12d3-a456-426614174111",
             "status": "Draft",
             "holderRelationship": "FirstParty",
             "railType": "ACH",
             "custodianInstructionNumber": "AINS123456",
+            "changeState": "Active",
             "bank": {
                 "routingNumber": "121000248",
                 "bankAccountNumber": "1234567890",
@@ -339,11 +341,11 @@
     {
         "test_id": "TC003",
         "service_name": "movemoney",
-        "workflow_mode": "sequential",
+        "workflow_mode": "parallel",
         "test_name": "PUT /instructions/{instructionId} [negative: Invalid routing number] (TC003)",
         "protocol": "REST",
         "test_type": [
-            "Negative"
+            "Functional"
         ],
         "mainURL": "{{base_url}}",
         "endpoint": "/instructions/{{tc002_instructionId}}",
@@ -430,7 +432,7 @@
         "test_name": "PUT /instructions/{instructionId} [negative: Missing required field] (TC004)",
         "protocol": "REST",
         "test_type": [
-            "Negative"
+            "Functional"
         ],
         "mainURL": "{{base_url}}",
         "endpoint": "/instructions/{{tc002_instructionId}}",
@@ -516,7 +518,7 @@
         "test_name": "PUT /instructions/{instructionId} [negative: Invalid accountId] (TC005)",
         "protocol": "REST",
         "test_type": [
-            "Negative"
+            "Functional"
         ],
         "mainURL": "{{base_url}}",
         "endpoint": "/instructions/{{tc002_instructionId}}",
@@ -603,7 +605,7 @@
         "test_name": "PUT /instructions/{instructionId} [negative: invalid status] (TC006)",
         "protocol": "REST",
         "test_type": [
-            "Negative"
+            "Functional"
         ],
         "mainURL": "{{base_url}}",
         "endpoint": "/instructions/{{tc002_instructionId}}",
@@ -690,7 +692,7 @@
         "test_name": "PUT /instructions/{instructionId} [negative: invalid holderRelation] (TC007)",
         "protocol": "REST",
         "test_type": [
-            "Negative"
+            "Functional"
         ],
         "mainURL": "{{base_url}}",
         "endpoint": "/instructions/{{tc002_instructionId}}",
@@ -777,7 +779,7 @@
         "test_name": "PUT /instructions/{instructionId} [negative: invalid railType] (TC008)",
         "protocol": "REST",
         "test_type": [
-            "Negative"
+            "Functional"
         ],
         "mainURL": "{{base_url}}",
         "endpoint": "/instructions/{{tc002_instructionId}}",
@@ -864,7 +866,7 @@
         "test_name": "PUT /instructions/{instructionId} [negative: version mismatch] (TC009)",
         "protocol": "REST",
         "test_type": [
-            "Negative"
+            "Functional"
         ],
         "mainURL": "{{base_url}}",
         "endpoint": "/instructions/{{tc002_instructionId}}",
@@ -885,6 +887,7 @@
             "holderRelationship": "{{holderRelationship}}",
             "railType": "{{railType}}",
             "custodianInstructionNumber": "{{custodianInstructionNumber}}",
+            "changeState": "Active",
             "bank": {
                 "routingNumber": "{{bank_routingNumber}}",
                 "bankAccountNumber": "{{bank_bankAccountNumber}}",
@@ -964,7 +967,7 @@
             "Content-Type": "application/json"
         },
         "payload": {
-            "version": "{{tc002_version}}",
+            "version": "{{tc002_version|string}}",
             "letterOfAuthorization": "Both",
             "accountId": "3FA85F64-5717-4562-B3FC-2C963F66AFA6",
             "status": "Confirmed",
@@ -1060,5 +1063,734 @@
         "db_type": "mssql",
         "db_connection_name": "movemoney",
         "test_summary": "Test TC010: PUT /instructions/{instructionId} [positive] - Verify valid changeState is persisted and version is incremented."
+    },
+    {
+        "test_id": "TC011_SETUP",
+        "service_name": "movemoney",
+        "workflow_mode": "sequential",
+        "test_name": "POST /instructions [positive]",
+        "protocol": "REST",
+        "test_type": [
+            "Functional"
+        ],
+        "mainURL": "{{base_url}}",
+        "endpoint": "/instructions",
+        "method": "POST",
+        "headers_additional": {
+            "Content-Type": "application/json"
+        },
+        "payload": {
+            "letterOfAuthorization": "Withdrawal",
+            "accountId": "789a1234-e89b-12d3-a456-426614174222",
+            "status": "Draft",
+            "holderRelationship": "ThirdParty",
+            "railType": "Check",
+            "changeState": "Active",
+            "payee": {
+                "nameLine1": "Robert A. Williams",
+                "nameLine2": "c/o Williams Estate LLC",
+                "addressLine1": "4521 Oakwood Drive",
+                "addressLine2": "Suite 300",
+                "city": "Austin",
+                "state": "TX",
+                "zip": "78701",
+                "zipExtension": "4321",
+                "country": "US"
+            }
+        },
+        "expected_status": "200",
+        "expected_response_schema": "",
+        "expected_response": null,
+        "ignore_fields": [
+            "traceId",
+            "id",
+            "addressid",
+            "contactid",
+            "identifierid",
+            "timestamp",
+            "createdDate",
+            "modifiedDate",
+            "entitycreateddate",
+            "individualdateofbirth",
+            "instructionId"
+        ],
+        "extract_values": [
+            {
+                "from": "response",
+                "key": "instructionId",
+                "assign_to": "tc011_setup_instructionId"
+            },
+            {
+                "from": "response",
+                "key": "version",
+                "assign_to": "tc011_setup_version"
+            }
+        ],
+        "validate": {
+            "performance": {
+                "max_response_time_ms": 1000
+            },
+            "security": {
+                "checks": [
+                    "sql_injection",
+                    "xss"
+                ]
+            },
+            "assertions": [
+                {
+                    "actual": "{{tc011_setup_instructionId}}",
+                    "expected": "",
+                    "operator": "!=",
+                    "message": "InstructionId should not be empty"
+                },
+                {
+                    "actual": "{{tc011_setup_version}}",
+                    "expected": 1,
+                    "operator": "==",
+                    "message": "Version should be 1"
+                }
+            ],
+            "data_comparison": []
+        },
+        "test_data_file": "",
+        "csv_row_index": 0,
+        "db_query_timing": "after_api",
+        "db_queries": {},
+        "db_type": "mssql",
+        "db_connection_name": "movemoney",
+        "test_summary": "Verify that the API returns 200 response all the fields are valid and successful instruction creation for check railType with payee details. Extract instructionId and version for TC011 setup to be used in TC011 validation."
+    },
+    {
+        "test_id": "TC011",
+        "service_name": "movemoney",
+        "workflow_mode": "sequential",
+        "test_name": "PUT /instructions/{instructionId} [positive] (TC001)",
+        "protocol": "REST",
+        "test_type": [
+            "Functional"
+        ],
+        "mainURL": "{{base_url}}",
+        "endpoint": "/instructions/{{tc011_setup_instructionId}}",
+        "method": "PUT",
+        "rpc_method": "",
+        "graphql_query": "",
+        "graphql_variables": "",
+        "soap_action": "",
+        "soap_envelope": "",
+        "headers_additional": {
+            "Content-Type": "application/json"
+        },
+        "payload": {
+            "version": "{{tc011_setup_version|string}}",
+            "letterOfAuthorization": "Withdrawal",
+            "accountId": "789a1234-e89b-12d3-a456-426614174222",
+            "status": "Draft",
+            "holderRelationship": "FirstParty",
+            "railType": "Check",
+            "changeState": "Active",
+            "payee": {
+                "nameLine1": "Williams",
+                "nameLine2": "c/o Williams Estate LLC",
+                "addressLine1": "4521 Oakwood Drive",
+                "addressLine2": "Suite 300",
+                "city": "Austin",
+                "state": "TX",
+                "zip": "78701",
+                "zipExtension": "4321",
+                "country": "US"
+            }
+        },
+        "expected_status": "200",
+        "expected_response_schema": "",
+        "expected_response": null,
+        "ignore_fields": [
+            "traceId",
+            "timestamp",
+            "createdDate",
+            "modifiedDate",
+            "version"
+        ],
+        "extract_values": [
+            {
+                "from": "response",
+                "key": "instructionId",
+                "assign_to": "tc011_instructionId"
+            },
+            {
+                "from": "response",
+                "key": "version",
+                "assign_to": "tc011_version"
+            }
+        ],
+        "validate": {
+            "performance": {
+                "max_response_time_ms": 500
+            },
+            "security": {
+                "checks": [
+                    "sql_injection",
+                    "xss"
+                ]
+            },
+            "assertions": [
+                {
+                    "actual": "{{tc011_instructionId}}",
+                    "expected": "",
+                    "operator": "!=",
+                    "message": "InstructionId should not be empty"
+                },
+                {
+                    "actual": "{{tc011_version}}",
+                    "expected": 2,
+                    "operator": "<=",
+                    "message": "Version should be incremented after update"
+                }
+            ],
+            "data_comparison": []
+        },
+        "test_data_file": "",
+        "csv_row_index": 0,
+        "db_query_timing": "after_api",
+        "db_queries": {
+            "default": "",
+            "audit_query": ""
+        },
+        "db_type": "",
+        "db_connection_name": "",
+        "test_summary": "Test TC011: PUT /instructions/{instructionId} [positive] (TC011) - Validate the 200 successful response to update check Instruction successfully."
+    },
+    {
+        "test_id": "TC012",
+        "service_name": "movemoney",
+        "workflow_mode": "sequential",
+        "test_name": "PUT /instructions/{instructionId} [positive] (TC012)",
+        "protocol": "REST",
+        "test_type": [
+            "Functional"
+        ],
+        "mainURL": "{{base_url}}",
+        "endpoint": "/instructions/{{tc011_instructionId}}",
+        "method": "PUT",
+        "rpc_method": "",
+        "graphql_query": "",
+        "graphql_variables": "",
+        "soap_action": "",
+        "soap_envelope": "",
+        "headers_additional": {
+            "Content-Type": "application/json"
+        },
+        "payload": {
+            "version": "{{tc011_version|string}}",
+            "letterOfAuthorization": "Withdrawal",
+            "accountId": "789a1234-e89b-12d3-a456-426614174222",
+            "status": "TEST",
+            "holderRelationship": "FirstParty",
+            "railType": "Check",
+            "changeState": "Active",
+            "payee": {
+                "nameLine1": "Williams",
+                "nameLine2": "c/o Williams Estate LLC",
+                "addressLine1": "4521 Oakwood Drive",
+                "addressLine2": "Suite 300",
+                "city": "Austin",
+                "state": "TX",
+                "zip": "78701",
+                "zipExtension": "4321",
+                "country": "US"
+            }
+        },
+        "expected_status": "400",
+        "expected_response_schema": "",
+        "expected_response": {
+            "type": "invalid-request",
+            "title": "Invalid Request",
+            "status": 400,
+            "detail": "The request contains invalid values",
+            "instance": "/api/moneymovement/v1/instructions/bc84c920-d02e-4505-8c28-e2678841fced",
+            "errors": {
+                "status": [
+                    "Must be one of: Draft, Pending, Confirmed, Deleted."
+                ]
+            }
+        },
+        "ignore_fields": [
+            "traceId",
+            "timestamp",
+            "createdDate",
+            "modifiedDate",
+            "version",
+            "instance"
+        ],
+        "extract_values": [
+            {
+                "from": "response",
+                "key": "status",
+                "assign_to": "error_status"
+            },
+            {
+                "from": "response",
+                "key": "title",
+                "assign_to": "error_title"
+            },
+            {
+                "from": "response",
+                "key": "detail",
+                "assign_to": "error_detail"
+            }
+        ],
+        "validate": {
+            "performance": {
+                "max_response_time_ms": 500
+            },
+            "security": {
+                "checks": [
+                    "sql_injection",
+                    "xss"
+                ]
+            },
+            "assertions": [
+                {
+                    "actual": "{{error_status}}",
+                    "expected": 400,
+                    "operator": "==",
+                    "message": "Error status should be 400"
+                },
+                {
+                    "actual": "{{error_title}}",
+                    "expected": "",
+                    "operator": "!=",
+                    "message": "Error title should not be empty"
+                }
+            ],
+            "data_comparison": []
+        },
+        "test_data_file": "",
+        "csv_row_index": 0,
+        "db_query_timing": "after_api",
+        "db_queries": {
+            "default": "",
+            "audit_query": ""
+        },
+        "db_type": "",
+        "db_connection_name": "",
+        "test_summary": "Test TC012: PUT /instructions/{instructionId} [positive] (TC012) - Validate the 400 response for invalid update check Instruction."
+    },
+    {
+        "test_id": "TC013_SETUP",
+        "service_name": "movemoney",
+        "workflow_mode": "sequential",
+        "test_name": "POST /instructions [positive]",
+        "protocol": "REST",
+        "test_type": [
+            "Functional"
+        ],
+        "mainURL": "{{base_url}}",
+        "endpoint": "/instructions",
+        "method": "POST",
+        "headers_additional": {
+            "Content-Type": "application/json"
+        },
+        "payload": {
+            "letterOfAuthorization": "Withdrawal",
+            "accountId": "789a1234-e89b-12d3-a456-426614174222",
+            "status": "Draft",
+            "holderRelationship": "ThirdParty",
+            "railType": "Wire",
+            "changeState": "Active",
+            "bank": {
+                "routingNumber": "121000248",
+                "creditAccountNumber": "1234567890",
+                "creditAccountName": "John Smith",
+                "bankAccountNumber": "1234567890",
+                "bankAccountName": "John Smith",
+                "bankAccountType": "Checking",
+                "bankName": "Wells Fargo Bank"
+            }
+        },
+        "expected_status": "200",
+        "expected_response_schema": "",
+        "expected_response": null,
+        "ignore_fields": [
+            "traceId",
+            "id",
+            "addressid",
+            "contactid",
+            "identifierid",
+            "timestamp",
+            "createdDate",
+            "modifiedDate",
+            "entitycreateddate",
+            "individualdateofbirth",
+            "instructionId"
+        ],
+        "extract_values": [
+            {
+                "from": "response",
+                "key": "instructionId",
+                "assign_to": "tc013_setup_instructionId"
+            },
+            {
+                "from": "response",
+                "key": "version",
+                "assign_to": "tc013_setup_version"
+            }
+        ],
+        "validate": {
+            "performance": {
+                "max_response_time_ms": 1000
+            },
+            "security": {
+                "checks": [
+                    "sql_injection",
+                    "xss"
+                ]
+            },
+            "assertions": [
+                {
+                    "actual": "{{tc013_setup_instructionId}}",
+                    "expected": "",
+                    "operator": "!=",
+                    "message": "InstructionId should not be empty"
+                },
+                {
+                    "actual": "{{tc013_setup_version}}",
+                    "expected": 1,
+                    "operator": "==",
+                    "message": "Version should be 1"
+                }
+            ],
+            "data_comparison": []
+        },
+        "test_data_file": "",
+        "csv_row_index": 0,
+        "db_query_timing": "after_api",
+        "db_queries": {},
+        "db_type": "mssql",
+        "db_connection_name": "movemoney",
+        "test_summary": "Verify that the API returns 200 response all the fields are valid and successful instruction creation for wire railType with bank details. Extract instructionId and version for TC013 setup to be used in TC013 validation."
+    },
+    {
+        "test_id": "TC013",
+        "service_name": "movemoney",
+        "workflow_mode": "sequential",
+        "test_name": "PUT /instructions/{instructionId} [positive] (TC013)",
+        "protocol": "REST",
+        "test_type": [
+            "Functional"
+        ],
+        "mainURL": "{{base_url}}",
+        "endpoint": "/instructions/{{tc013_setup_instructionId}}",
+        "method": "PUT",
+        "rpc_method": "",
+        "graphql_query": "",
+        "graphql_variables": "",
+        "soap_action": "",
+        "soap_envelope": "",
+        "headers_additional": {
+            "Content-Type": "application/json"
+        },
+        "payload": {
+            "version": "{{tc013_setup_version|string}}",
+            "letterOfAuthorization": "Withdrawal",
+            "accountId": "789a1234-e89b-12d3-a456-426614174222",
+            "status": "Pending",
+            "holderRelationship": "FirstParty",
+            "railType": "Wire",
+            "changeState": "Active",
+            "bank": {
+                "routingNumber": "121000248",
+                "creditAccountNumber": "1234567890",
+                "creditAccountName": "Mark",
+                "bankAccountNumber": "1234567890",
+                "bankAccountName": "Mark",
+                "bankAccountType": "Checking",
+                "bankName": "Wells Fargo Bank"
+            }
+        },
+        "expected_status": "200",
+        "expected_response_schema": "",
+        "expected_response": null,
+        "ignore_fields": [
+            "traceId",
+            "timestamp",
+            "createdDate",
+            "modifiedDate",
+            "version"
+        ],
+        "extract_values": [
+            {
+                "from": "response",
+                "key": "instructionId",
+                "assign_to": "tc013_instructionId"
+            },
+            {
+                "from": "response",
+                "key": "version",
+                "assign_to": "tc013_version"
+            }
+        ],
+        "validate": {
+            "performance": {
+                "max_response_time_ms": 500
+            },
+            "security": {
+                "checks": [
+                    "sql_injection",
+                    "xss"
+                ]
+            },
+            "assertions": [
+                {
+                    "actual": "{{tc013_instructionId}}",
+                    "expected": "",
+                    "operator": "!=",
+                    "message": "InstructionId should not be empty"
+                },
+                {
+                    "actual": "{{tc013_version}}",
+                    "expected": 2,
+                    "operator": "<=",
+                    "message": "Version should be incremented after update"
+                }
+            ],
+            "data_comparison": []
+        },
+        "test_data_file": "",
+        "csv_row_index": 0,
+        "db_query_timing": "after_api",
+        "db_queries": {
+            "default": "",
+            "audit_query": ""
+        },
+        "db_type": "",
+        "db_connection_name": "",
+        "test_summary": "Test TC013: PUT /instructions/{instructionId} [positive] (TC013) - Validate the 200 successful response to update wire Instruction successfully."
+    },
+    {
+        "test_id": "TC014",
+        "service_name": "movemoney",
+        "workflow_mode": "sequential",
+        "test_name": "PUT /instructions/{instructionId} [Negative] (TC014)",
+        "protocol": "REST",
+        "test_type": [
+            "Functional"
+        ],
+        "mainURL": "{{base_url}}",
+        "endpoint": "/instructions/{{tc013_instructionId}}",
+        "method": "PUT",
+        "rpc_method": "",
+        "graphql_query": "",
+        "graphql_variables": "",
+        "soap_action": "",
+        "soap_envelope": "",
+        "headers_additional": {
+            "Content-Type": "application/json"
+        },
+        "payload": {
+            "version": "{{tc013_version|string}}",
+            "letterOfAuthorization": "Withdrawal",
+            "accountId": "789a1234-e89b-12d3-a456-426614174222",
+            "status": "TEST",
+            "holderRelationship": "FirstParty",
+            "railType": "Wire",
+            "changeState": "Active",
+            "bank": {
+                "routingNumber": "121000248",
+                "creditAccountNumber": "1234567890",
+                "creditAccountName": "Mark",
+                "bankAccountNumber": "1234567890",
+                "bankAccountName": "Mark",
+                "bankAccountType": "Checking",
+                "bankName": "Wells Fargo Bank"
+            }
+        },
+        "expected_status": "400",
+        "expected_response_schema": "",
+        "expected_response": {
+            "type": "invalid-request",
+            "title": "Invalid Request",
+            "status": 400,
+            "detail": "The request contains invalid values",
+            "instance": "/api/moneymovement/v1/instructions/bc84c920-d02e-4505-8c28-e2678841fced",
+            "errors": {
+                "status": [
+                    "Must be one of: Draft, Pending, Confirmed, Deleted."
+                ]
+            }
+        },
+        "ignore_fields": [
+            "traceId",
+            "timestamp",
+            "createdDate",
+            "modifiedDate",
+            "version",
+            "instance"
+        ],
+        "extract_values": [
+            {
+                "from": "response",
+                "key": "status",
+                "assign_to": "error_status"
+            },
+            {
+                "from": "response",
+                "key": "title",
+                "assign_to": "error_title"
+            },
+            {
+                "from": "response",
+                "key": "detail",
+                "assign_to": "error_detail"
+            }
+        ],
+        "validate": {
+            "performance": {
+                "max_response_time_ms": 500
+            },
+            "security": {
+                "checks": [
+                    "sql_injection",
+                    "xss"
+                ]
+            },
+            "assertions": [
+                {
+                    "actual": "{{error_status}}",
+                    "expected": 400,
+                    "operator": "==",
+                    "message": "Error status should be 400"
+                },
+                {
+                    "actual": "{{error_title}}",
+                    "expected": "",
+                    "operator": "!=",
+                    "message": "Error title should not be empty"
+                }
+            ],
+            "data_comparison": []
+        },
+        "test_data_file": "",
+        "csv_row_index": 0,
+        "db_query_timing": "after_api",
+        "db_queries": {
+            "default": "",
+            "audit_query": ""
+        },
+        "db_type": "",
+        "db_connection_name": "",
+        "test_summary": "Test TC014: PUT /instructions/{instructionId} [Negative] (TC014) - Validate the 400 response for invalid update wire Instruction."
+    },
+    {
+        "test_id": "TC015",
+        "service_name": "movemoney",
+        "workflow_mode": "sequential",
+        "test_name": "PUT /instructions/{instructionId} [Negative] (TC015)",
+        "protocol": "REST",
+        "test_type": [
+            "Functional"
+        ],
+        "mainURL": "{{base_url}}",
+        "endpoint": "/instructions/{{tc013_instructionId}}",
+        "method": "PUT",
+        "rpc_method": "",
+        "graphql_query": "",
+        "graphql_variables": "",
+        "soap_action": "",
+        "soap_envelope": "",
+        "headers_additional": {
+            "Content-Type": "application/json"
+        },
+        "payload": {
+            "version": "{{tc013_version|string}}",
+            "letterOfAuthorization": "Withdrawal",
+            "accountId": "789a1234-e89b-12d3-a456-426614174222",
+            "status": "Pending",
+            "holderRelationship": "FirstParty",
+            "changeState": "Active",
+            "bank": {
+                "routingNumber": "121000248",
+                "creditAccountNumber": "1234567890",
+                "creditAccountName": "Mark",
+                "bankAccountNumber": "1234567890",
+                "bankAccountName": "Mark",
+                "bankAccountType": "Checking",
+                "bankName": "Wells Fargo Bank"
+            }
+        },
+        "expected_status": "400",
+        "expected_response_schema": "",
+        "expected_response": {
+            "type": "missing-required-fields",
+            "title": "One or more fields are missing values",
+            "status": 400,
+            "detail": "Missing Required Fields",
+            "instance": "/api/moneymovement/v1/instructions/bc84c920-d02e-4505-8c28-e2678841fced",
+            "errors": {
+                "railType": [
+                    "This field is required."
+                ]
+            }
+        },
+        "ignore_fields": [
+            "traceId",
+            "timestamp",
+            "createdDate",
+            "modifiedDate",
+            "version",
+            "instance"
+        ],
+        "extract_values": [
+            {
+                "from": "response",
+                "key": "status",
+                "assign_to": "error_status"
+            },
+            {
+                "from": "response",
+                "key": "title",
+                "assign_to": "error_title"
+            },
+            {
+                "from": "response",
+                "key": "detail",
+                "assign_to": "error_detail"
+            }
+        ],
+        "validate": {
+            "performance": {
+                "max_response_time_ms": 500
+            },
+            "security": {
+                "checks": [
+                    "sql_injection",
+                    "xss"
+                ]
+            },
+            "assertions": [
+                {
+                    "actual": "{{error_status}}",
+                    "expected": 400,
+                    "operator": "==",
+                    "message": "Error status should be 400"
+                },
+                {
+                    "actual": "{{error_title}}",
+                    "expected": "",
+                    "operator": "!=",
+                    "message": "Error title should not be empty"
+                }
+            ],
+            "data_comparison": []
+        },
+        "test_data_file": "",
+        "csv_row_index": 0,
+        "db_query_timing": "after_api",
+        "db_queries": {
+            "default": "",
+            "audit_query": ""
+        },
+        "db_type": "",
+        "db_connection_name": "",
+        "test_summary": "Test TC015: PUT /instructions/{instructionId} [Negative] (TC015) - Validate the 400 response for missing railType required fields."
     }
 ]
