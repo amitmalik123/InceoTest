@@ -27,7 +27,7 @@ export class LoginPage {
     //Sign in with given username and password
     async signIn(username: string, password: string) {
         const env = process.env.ENVIRONMENT || process.env.Environment;
-        if (env.toLowerCase() == 'test11'){
+        if (env.toLowerCase() != 'test11'){
             await this.cookieAcceptButton.waitFor({ state: 'visible', timeout: 5000 }); //waiting because it may load slowly
             if (await this.cookieAcceptButton.isVisible()) {
                 await this.cookieAcceptButton.click();
