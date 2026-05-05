@@ -263,6 +263,13 @@ def pytest_addoption(parser):
         help="Skip teardown/cleanup phase after tests complete (keeps created test data)."
     )
     parser.addoption(
+        "--cleanup-dry-run",
+        action="store_true",
+        default=False,
+        help="Run DB cleanup in dry-run mode (logs SQL + params, executes nothing). "
+             "Sets DRY_RUN_CLEANUP=true env var consumed by CleanupManager."
+    )
+    parser.addoption(
         "--test-id",
         action="store",
         default=None,
@@ -310,6 +317,12 @@ def pytest_configure(config):
     if cli_env_name:
         os.environ['ENV_NAME'] = cli_env_name
         logger.info(f"ENV_NAME set to '{cli_env_name}' from CLI argument (--env)")
+
+    # Propagate --cleanup-dry-run to env var so CleanupManager (which runs in
+    # pytest_sessionfinish, possibly across modules) picks it up safely.
+    if config.getoption('--cleanup-dry-run', default=False):
+        os.environ['DRY_RUN_CLEANUP'] = 'true'
+        logger.warning("[CLEANUP-DB] Dry-run mode ENABLED via --cleanup-dry-run")
     
     # Configure HTML report with a stable run marker and absolute path.
     # This avoids FileNotFoundError if current working directory changes during the run.
