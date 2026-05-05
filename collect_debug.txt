@@ -1,0 +1,42 @@
+﻿Step screenshots: DISABLED (failure only)
+
+============================================================
+Step Screenshots: ENABLED on failure only
+============================================================
+
+Cleared old artifacts from reports/allure-results
+
+Cleared old artifacts from reports/videos
+
+Cleared old artifacts from reports/traces
+
+Cleared old artifacts from reports/downloads
+============================= test session starts =============================
+platform win32 -- Python 3.13.2, pytest-8.4.2, pluggy-1.6.0
+rootdir: C:\Users\Saransh.Saxena\ProdEng_ES1_PythonPlaywright\qeautomation
+configfile: pyproject.toml
+plugins: allure-pytest-2.15.3, anyio-4.13.0, asyncio-0.21.1, base-url-2.1.0, bdd-7.3.0, cov-4.1.0, html-4.1.1, metadata-3.1.1, playwright-0.4.4, rerunfailures-12.0, xdist-3.8.0
+asyncio: mode=Mode.STRICT
+
+[DEBUG] Scenario: OAM_Initiated_by_OA_Complete_And_Print
+[DEBUG] Line number: 249
+[DEBUG] Tags: {'FNT_regression', 'SiloRegression_OneCleanUp'}
+[DEBUG] Adding marker: FNT_regression to tests/bdd/test_runners/test_OAM.py::test_oam_initiated_by_oa_complete_and_print
+[DEBUG] Adding marker: SiloRegression_OneCleanUp to tests/bdd/test_runners/test_OAM.py::test_oam_initiated_by_oa_complete_and_print
+collected 1 item
+
+<Dir qeautomation>
+  <Package tests>
+    <Package bdd>
+      <Package test_runners>
+        <Module test_OAM.py>
+          <Function test_oam_initiated_by_oa_complete_and_print>
+
+OK: No flaky tests detected in this session
+
+
+Warning: No Allure result files found in reports/allure-results
+
+- generated xml file: C:\Users\Saransh.Saxena\ProdEng_ES1_PythonPlaywright\qeautomation\reports\junit\junit-report.xml -
+- Generated html report: file:///C:/Users/Saransh.Saxena/ProdEng_ES1_PythonPlaywright/qeautomation/reports/pytest_report.html -
+========================== 1 test collected in 0.11s ==========================

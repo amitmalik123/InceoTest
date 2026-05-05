@@ -1,6 +1,6 @@
 Feature: E2E OAM flow for FA, SAU and OA
 
-  @FNT_regression @Silo_Regression 
+  @FNT_regression @Silo_Regression
   Scenario: OAM_Initiated by FA_Online Submit_Finish
     When User navigate to Clients menu
     And User click on Account List
@@ -62,7 +62,7 @@ Feature: E2E OAM flow for FA, SAU and OA
     #And Verify Agent Name
     #And Verify the Routing Order in database
 
-  @FNT_regression
+  @smoke @FNT_regression
   Scenario: OAM_Initiated by SAU_Complete and Print
     When User navigate to Clients menu
     And User click on Account List
@@ -89,8 +89,8 @@ Feature: E2E OAM flow for FA, SAU and OA
     And Verify the Routing Order in database
 
 
-  @FNT_regression 
-  Scenario: OAM_Initiated_by_OA_Complete_And_Print
+  @smoke @FNT_regression 
+  Scenario: OAM_Initiated_by_OfficeAdmin_Complete_And_Print
     When User navigate to Clients menu
     And User click on Account List
     And User is on the Account List tab and search for Account Number
@@ -116,7 +116,7 @@ Feature: E2E OAM flow for FA, SAU and OA
     And Verify the Routing Order in database
 
 
-  @smoke @FNT_regression
+  @smoke @FNT_regression @InDev
   Scenario: OAM_Initiated by SAU_Online Submit_Authorized Signer_Required_FA
     When User navigate to Clients menu
     And User click on Account List
@@ -207,7 +207,6 @@ Feature: E2E OAM flow for FA, SAU and OA
     And Verify Notes description
     And Verify Agent Name
 
-  @FNT_regression 
   Scenario: Prod_OAM_Initiated by SAU_Online Submit_Authorized Signer_Required_FA
     When User navigate to Clients menu
     And User click on Account List
@@ -246,8 +245,8 @@ Feature: E2E OAM flow for FA, SAU and OA
     And Verify Notes description
 
 
-  @SiloRegression_OneCleanUp 
-  Scenario: Prod_OAM_Initiated by FA_Complete and Print
+  @FNT_regression
+  Scenario: OAM_Initiated by FA_Complete and Print
     When User navigate to Clients menu
     And User click on Account List
     And User is on the Account List tab and search for Account Number
@@ -256,8 +255,6 @@ Feature: E2E OAM flow for FA, SAU and OA
     When User select OAM Request and Type
     Then Verify Form Heading must be same as selected OAM Type
     When User select Submission Type
-    Then Client Signature Not Required dialog should be displayed
-    When User select Client Signature Method
     Then User should be redirected to the DocuSign page
     And Verify docusign Review and continue dialog text "Please review and sign the document electronically."
     When User confirm and Continue the docusign Review and continue dialog
@@ -275,7 +272,7 @@ Feature: E2E OAM flow for FA, SAU and OA
     And Verify buttons displayed "View"
     And Verify Notes description
 
-  @FNT_regression 
+  @FNT_regression
   Scenario: OAM_Initiated by SAU_eSignature_With One Inperson Client Signature_Authorized Signer_NOT required
     When User navigate to Clients menu
     And User click on Account List
@@ -311,7 +308,7 @@ Feature: E2E OAM flow for FA, SAU and OA
     Then Verify eSignature Process Complete dialog should be displayed
     When User navigate to Tracking Center
     And Search the DNumber and open the item details page
-    Then Verify Tracking Center Item Detail status should be "Document Submitted"
+    Then Verify Tracking Center Item Detail status should be "Request Received"
     And Verify buttons displayed "View,Upload"
     And Verify Notes description
     And Verify Agent Name

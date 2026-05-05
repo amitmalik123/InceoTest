@@ -720,7 +720,8 @@ def provide_authorized_signers_information(authenticated_page: Page, client_acco
             client_accounts_page.provide_authorized_signers_information(
                 authorized_signer=authorized_signer,
                 email_address=email_address,
-                phone=phone
+                phone=phone,
+                test_context=test_context
             )
             
             # Step 3: Take screenshot for Allure reporting

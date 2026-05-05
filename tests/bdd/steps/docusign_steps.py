@@ -669,18 +669,34 @@ def user_click_on_send_now_and_fetch_otp_from_mail(authenticated_page: Page, doc
             
             logger.info("[PASS] OTP verification workflow completed successfully")
             
-            # Capture screenshot for Allure reporting
-            screenshot = authenticated_page.screenshot()
-            allure.attach(
-                screenshot,
-                name="Send_Now_OTP_Fetch_Completed",
-                attachment_type=allure.attachment_type.PNG
-            )
+            # Capture screenshot for Allure reporting (with headless mode compatibility)
+            time.sleep(1.0)  # [HEADLESS_COMPAT] Pre-wait for fonts to render
+            try:
+                screenshot = authenticated_page.screenshot()
+                allure.attach(
+                    screenshot,
+                    name="Send_Now_OTP_Fetch_Completed",
+                    attachment_type=allure.attachment_type.PNG
+                )
+            except Exception as screenshot_err:
+                logger.warning(f"[HEADLESS_COMPAT] Screenshot failed on first attempt: {str(screenshot_err)[:100]}")
+                time.sleep(2.0)  # [HEADLESS_COMPAT] Extra wait for retry
+                try:
+                    screenshot = authenticated_page.screenshot()
+                    allure.attach(
+                        screenshot,
+                        name="Send_Now_OTP_Fetch_Completed",
+                        attachment_type=allure.attachment_type.PNG
+                    )
+                except:
+                    logger.warning("[HEADLESS_COMPAT] Screenshot unavailable in headless mode, continuing without screenshot")
             
             logger.info("[PASS] Send Now and Fetch OTP Completed Successfully.")
             
         except Exception as e:
             logger.error(f"[FAIL] Send Now and Fetch OTP workflow failed: {str(e).splitlines()[0]}")
+            # Capture error screenshot with headless mode compatibility
+            time.sleep(1.0)  # [HEADLESS_COMPAT] Pre-wait for fonts to render
             try:
                 screenshot = authenticated_page.screenshot()
                 allure.attach(
@@ -688,8 +704,18 @@ def user_click_on_send_now_and_fetch_otp_from_mail(authenticated_page: Page, doc
                     name="Send_Now_Fetch_OTP_Failed",
                     attachment_type=allure.attachment_type.PNG
                 )
-            except:
-                pass
+            except Exception as screenshot_err:
+                logger.warning(f"[HEADLESS_COMPAT] Error screenshot failed: {str(screenshot_err)[:100]}")
+                time.sleep(2.0)  # [HEADLESS_COMPAT] Extra wait for retry
+                try:
+                    screenshot = authenticated_page.screenshot()
+                    allure.attach(
+                        screenshot,
+                        name="Send_Now_Fetch_OTP_Failed",
+                        attachment_type=allure.attachment_type.PNG
+                    )
+                except:
+                    logger.warning("[HEADLESS_COMPAT] Error screenshot unavailable in headless mode")
             allure.attach(
                 str(e),
                 name="Send_Now_Fetch_OTP_Error_Details",

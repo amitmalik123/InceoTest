@@ -214,10 +214,20 @@ class ClientAccountsPage(BasePage):
                     raise AssertionError(f"Failed to fetch selected option text from disabled dropdown: {e}") from e
                     
             elif authorized_signer and authorized_signer.strip():
-                # Step 3b: Dropdown is enabled - select the provided option
+                # Step 3b: Dropdown is enabled - select the provided option by label (displayed text)
                 logger.info(f"  Step 3b: Dropdown is enabled. Attempting to select '{authorized_signer}'...")
-                dropdown.select_option(value=authorized_signer)
-                logger.info(f"  ✓ Option '{authorized_signer}' selected")
+                try:
+                    # Try selecting by label (displayed text) first - handles cases like "William J. Freund"
+                    dropdown.select_option(label=authorized_signer)
+                    logger.info(f"  ✓ Option '{authorized_signer}' selected by label")
+                except Exception as label_error:
+                    # Fallback: try selecting by value (for UUIDs or IDs)
+                    logger.info(f"  ⚠ Label selection failed, trying value-based selection: {str(label_error)[:80]}")
+                    try:
+                        dropdown.select_option(value=authorized_signer)
+                        logger.info(f"  ✓ Option '{authorized_signer}' selected by value")
+                    except Exception as value_error:
+                        raise AssertionError(f"Failed to select option '{authorized_signer}' by label or value: {value_error}") from value_error
                 
                 # Update test_context with the provided authorized signer
                 if test_context is not None:
