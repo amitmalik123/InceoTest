@@ -22,7 +22,7 @@
             "x-user-id":"3fa85f64-5717-4562-b3fc-2c963f66afa6"
         },
         "payload": {
-            "name": "string",
+            "name": "Perf_Automation",
             "ownerId": "3fa85f64-5717-4562-b3fc-2c963f66afa6",
             "modelAttributes": {
                 "solutionType": "string",
@@ -39,7 +39,7 @@
             "investmentMins": [
                 {
                 "type": "System",
-                "value": 0
+                "value": 1
                 }
             ],
             "riskProfile": "string",
@@ -50,7 +50,7 @@
                 "modelId": "string",
                 "cusip": "string",
                 "ticker": "string",
-                "weight": 0
+                "weight": 1
                 }
             ],
             "versionMetadata": {
@@ -58,13 +58,12 @@
                 "additionalProp2": "string",
                 "additionalProp3": "string"
             },
-            "investmentApproachId": 0,
             "benchmarkName": "string",
             "benchmarkIsPrimary": true,
             "allowedAgents": [
                 "string"
             ]
-            },
+        },
         "expected_status": "201",
         "expected_response_schema": "",
         "expected_response": null,
