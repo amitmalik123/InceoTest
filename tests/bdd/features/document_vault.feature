@@ -21,3 +21,15 @@ Feature: Verify Document Vault page functionality client level
     And validate all the dropdowns are enabled for user interaction
     And click documenttype dropdown and select QPR document
     Then validate find button is enabled for user interaction
+
+  @regression @e2e @documentvault
+  Scenario: Validate filter actions and Find button state
+    Given user click on clients tab
+    When navigates to Document vault
+    And click documenttype dropdown and select QPR document
+    Then validate find button is enabled for user interaction
+    When user clicks Select All filters
+    Then verify all filters are selected
+    When user clicks Clear All filters
+    And verify all filters are cleared
+    Then validate View selected and Save selected buttons are enabled or disabled based on filter selection

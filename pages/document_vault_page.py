@@ -78,6 +78,11 @@ class DocumentVaultPage(BasePage):
             "//h3[@aria-expanded='true']//span[contains(@class,'ui-accordion-header-icon')"
             " and not(ancestor-or-self::*[contains(@style, 'display: none')])]"
         )
+        self.all_checkboxes: Locator = self.form_root.locator('//input[@type="checkbox"]')
+        self.select_all_button: Locator = self.form_root.locator('//a[text()="Select All"]')
+        self.clear_all_button: Locator = self.form_root.locator('//a[text()="Clear All"]')
+        self.view_selected_as_one_button: Locator = self.form_root.locator('//input[@id="btSelectOneUp"]')
+        self.save_selected_button: Locator = self.form_root.locator('//input[@id="btDownloadUp"]')
         self.restore_default_button: Locator = self.form_root.locator(
             "//div[@class='button' and text()='Restore Default']"
         )
@@ -409,7 +414,7 @@ class DocumentVaultPage(BasePage):
         
         logger.info("Document Type selected: Quarterly Performance Reports (QPR)")
 
-    def validate_find_button_enabled(self, timeout: int = 10000) -> None:
+    def validate_find_button_enabled(self, timeout: int = 10000) -> bool:
         """Validate that the Find/Search button is enabled after document selection."""
         logger.info("Validating Find button is enabled for user interaction")
 
@@ -443,5 +448,124 @@ class DocumentVaultPage(BasePage):
         if not is_enabled:
             raise AssertionError("Find button is not enabled for interaction")
 
+        logger.info("Clicking Find button to load filter results")
+        find_button.click()
+        self.wait_for_all_spinners_to_disappear(timeout=timeout)
+        self.page.wait_for_timeout(2000)
+
         self.page.wait_for_timeout(1000)
         logger.info("ALL ASSERTIONS PASSED: Find button is enabled and ready for interaction")
+        return True
+
+    def click_select_all_filters(self, timeout: int = 10000) -> None:
+        """Click the Select All filters button."""
+        logger.info("Clicking Select All filters button")
+
+        # Grid actions are lower on the page; scroll first so Select All can render.
+        self.page.mouse.wheel(0, 700)
+
+        xpaths = [
+            "//a[normalize-space()='Select All']",
+            "//a[contains(normalize-space(), 'Select All')]",
+        ]
+        candidates = [self.page] + list(self.page.frames)
+
+        for candidate in candidates:
+            for xpath in xpaths:
+                try:
+                    locator = candidate.locator(xpath).first
+                    if self.is_visible(locator, timeout=1500):
+                        locator.scroll_into_view_if_needed()
+                        locator.click()
+                        logger.info("Select All filters button clicked")
+                        self.page.wait_for_timeout(1500)
+                        return
+                except Exception:
+                    continue
+
+        raise AssertionError("Select All filters button is not visible/clickable")
+
+    def verify_all_filters_selected(self, timeout: int = 10000) -> bool:
+        """Verify that all filters are selected."""
+        total_count, checked_count = self._get_filter_checkbox_state_counts(timeout=timeout)
+        logger.info(f"Verified {checked_count}/{total_count} checkboxes are selected")
+        assert checked_count == total_count, f"Not all filters selected: {checked_count}/{total_count}"
+        return True
+
+    def click_clear_all_filters(self, timeout: int = 10000) -> None:
+        """Click the Clear All filters button."""
+        logger.info("Clicking Clear All filters button")
+
+        self.page.mouse.wheel(0, 700)
+
+        xpaths = [
+            "//a[normalize-space()='Clear All']",
+            "//a[contains(normalize-space(), 'Clear All')]",
+        ]
+        candidates = [self.page] + list(self.page.frames)
+
+        for candidate in candidates:
+            for xpath in xpaths:
+                try:
+                    locator = candidate.locator(xpath).first
+                    if self.is_visible(locator, timeout=1500):
+                        locator.scroll_into_view_if_needed()
+                        locator.click()
+                        logger.info("Clear All filters button clicked")
+                        self.page.wait_for_timeout(1500)
+                        return
+                except Exception:
+                    continue
+
+        raise AssertionError("Clear All filters button is not visible/clickable")
+
+    def verify_all_filters_cleared(self, timeout: int = 10000) -> bool:
+        """Verify that all filters are cleared."""
+        total_count, checked_count = self._get_filter_checkbox_state_counts(timeout=timeout)
+        unchecked_count = total_count - checked_count
+        logger.info(f"Verified {unchecked_count}/{total_count} checkboxes are cleared")
+        assert checked_count == 0, f"Not all filters cleared: {unchecked_count}/{total_count}"
+        return True
+
+    def _get_filter_checkbox_state_counts(self, timeout: int = 10000) -> tuple[int, int]:
+        """Return (total, checked) filter checkbox counts using checker UI state."""
+        total_xpath = "//div[contains(@class,'checker')]/span"
+        checked_xpath = "//div[contains(@class,'checker')]/span[contains(@class,'checked')]"
+
+        candidates = [self.page] + list(self.page.frames)
+        for candidate in candidates:
+            try:
+                total_locator = candidate.locator(total_xpath)
+                total_count = total_locator.count()
+                if total_count > 0:
+                    checked_count = candidate.locator(checked_xpath).count()
+                    return total_count, checked_count
+            except Exception:
+                continue
+
+        raise AssertionError("No filter checkboxes found")
+
+    def validate_button_states_based_on_filter_selection(self, timeout: int = 10000) -> bool:
+        """Validate View selected as one and Save selected buttons are enabled when filters are selected."""
+        self.click_select_all_filters(timeout=timeout)
+
+        candidates = [self.page] + list(self.page.frames)
+        view_btn = None
+        save_btn = None
+        for candidate in candidates:
+            try:
+                v = candidate.locator('//input[@id="btSelectOneUp"]').first
+                s = candidate.locator('//input[@id="btDownloadUp"]').first
+                if v.count() > 0 and s.count() > 0:
+                    view_btn = v
+                    save_btn = s
+                    break
+            except Exception:
+                continue
+
+        assert view_btn is not None, "View selected button not found in any frame"
+        assert save_btn is not None, "Save selected button not found in any frame"
+        assert view_btn.is_enabled(), "View selected button not enabled"
+        assert save_btn.is_enabled(), "Save selected button not enabled"
+        logger.info("Both buttons enabled when Select All is clicked")
+        return True

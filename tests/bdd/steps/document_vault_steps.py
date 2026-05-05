@@ -91,4 +91,37 @@ def click_documenttype_dropdown_and_select_document(page: Page):
 @then("validate find button is enabled for user interaction")
 def validate_find_button_enabled(page: Page):
     document_vault_page = DocumentVaultPage(page)
-    document_vault_page.validate_find_button_enabled()
+    assert document_vault_page.validate_find_button_enabled(), "Find button should be enabled"
+
+
+@when("user clicks Select All filters")
+def user_clicks_select_all_filters(page: Page):
+    document_vault_page = DocumentVaultPage(page)
+    document_vault_page.click_select_all_filters()
+
+
+@then("verify all filters are selected")
+def verify_all_filters_selected(page: Page):
+    document_vault_page = DocumentVaultPage(page)
+    assert document_vault_page.verify_all_filters_selected(), "All filters should be selected"
+
+
+@when("user clicks Clear All filters")
+def user_clicks_clear_all_filters(page: Page):
+    document_vault_page = DocumentVaultPage(page)
+    document_vault_page.click_clear_all_filters()
+
+
+@then("verify all filters are cleared")
+@when("verify all filters are cleared")
+def verify_all_filters_cleared(page: Page):
+    document_vault_page = DocumentVaultPage(page)
+    assert document_vault_page.verify_all_filters_cleared(), "All filters should be cleared"
+
+
+@then("validate View selected and Save selected buttons are enabled or disabled based on filter selection")
+def validate_button_states_based_on_filter_selection(page: Page):
+    document_vault_page = DocumentVaultPage(page)
+    assert document_vault_page.validate_button_states_based_on_filter_selection(), (
+        "View selected and Save selected buttons should match expected state"
+    )
