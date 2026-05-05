@@ -101,6 +101,13 @@ api_endpoints:
     retry_count: ${API_RETRY_COUNT:3}
     verify: false
 
+  proxyservice:
+    base_url: "${PROXYSERVICE_BASE_URL}"  # Fetched from Azure variable group: qa-pipelines-variable-group-dev
+    auth_token: "${PROXYSERVICE_AUTH_TOKEN}"
+    timeout: ${API_TIMEOUT:30}
+    retry_count: ${API_RETRY_COUNT:3}
+    verify: false
+
   parties:
     base_url: "${PARTIES_BASE_URL}"  # Fetched from Azure variable group: qa-pipelines-variable-group-dev
     auth_token: "${PARTIES_AUTH_TOKEN}"
@@ -154,7 +161,6 @@ api_endpoints:
     timeout: ${API_TIMEOUT:30}
     retry_count: ${API_RETRY_COUNT:3}
     use_azure_auth: false  # Set to true to use Azure AD authentication
-    azure_resource: "https://management.azure.com/"
 
   analyticsApiServices:
     base_url: "${ANALYTICS_BASE_URL}"  # Fetched from Azure variable group: qa-pipelines-variable-group-dev
@@ -206,7 +212,7 @@ api_endpoints:
     azure_resource: "https://management.azure.com/"
 
 # Legacy support for api_base_url variable (used in some testcases)
-api_base_url: "https://your-parties-api-url.azurewebsites.net"  # TODO: Update with actual Parties API URL
+api_base_url: "https://platform.test01.assetmark.com/api/documentsproxy/v1"
 
 user_load: 100
 feature_flags:
