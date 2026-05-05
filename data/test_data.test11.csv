@@ -117,10 +117,17 @@ OAM_Initiated by FA_Online Submit_Finish Later,,,,,,AGA1G1,T11_AGA1G1_Perf,QAAdm
 Document has been saved and is pending review, completion and submission.
 |
 Document created by <FA Name>",Advisor,1
-OAM_Initiated_by_OA_Complete_And_Print,OA,OA,,,,AGA1FS,OFC_AGA1FS_Adminn1,QAAdminUser_33a,,40469996,Tara Leath Conforti,Contributions,Copy for Digital Deposit,Complete and Print,,,,,,,,,Please review and sign the document electronically.,No,"Ready for Signatures
+OAM_Initiated_by_OfficeAdmin_Complete_And_Print,OA,OA,,,,AGA1FS,AG7071_OA_T11,QAAdminUser_33a,,40305729,Kevin W Yeager,Account Information Change,No Spousal Consent Required,Complete and Print,,,,,,,,,Please review and sign the document electronically.,No,"Ready for Signatures
 |
 After printing and obtaining signatures, scan the signed document and upload to the Tracking Center by selecting
 |
 The Tracking Center provides one-stop access to your documents and status updates.",Yes,,,"Once completed and signed, submit document from Tracking Center upload or mail.
 |
 Document created by Office Admin",OfficeAdmin,1
+OAM_Initiated by FA_Complete and Print,FA,FA,,,,AG0176,Ag_AG0176_T11,QAAdminUser_33a,,11841529,Kass Living Trust,Contributions,Copy for Digital Deposit,Complete and Print,,,,,,,,,Please review and sign the document electronically.,No,"Ready for Signatures
+|
+After printing and obtaining signatures, scan the signed document and upload to the Tracking Center by selecting
+|
+The Tracking Center provides one-stop access to your documents and status updates.",Yes,,,"Once completed and signed, submit document from Tracking Center upload or mail.
+|
+Document created by <FA Name>",Advisor,1

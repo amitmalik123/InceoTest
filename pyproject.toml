@@ -100,24 +100,6 @@ testpaths = ["tests"]
 python_files = "test_*.py"
 python_classes = "Test*"
 python_functions = "test_*"
-addopts = """
--v
---tb=short
---strict-markers
---disable-warnings
---video=on
---screenshot=on
---tracing=retain-on-failure
---junitxml=reports/junit/junit-report.xml
---html=reports/pytest_report.html
---self-contained-html
---alluredir=reports/allure-results
-"""
-# Note: --reruns and --reruns-delay commented out to allow --pdb debug mode
-# Uncomment for normal test runs:
- --reruns=2
- --reruns-delay=1
-
 markers = [
     "smoke: Quick smoke tests for critical functionality",
     "regression: Full regression test suite",
@@ -151,8 +133,26 @@ markers = [
     "Silo_Regression: Silo Regression",
     "T10_Regression: T10 Regression",
     "Prod_Regression: Prod Regression",
-    "SiloRegression_OneCleanUp: Silo Regression with one CleanUp Scenario"
+    "SiloRegression_OneCleanUp: Silo Regression with one CleanUp Scenario",
+    "app: marks tests to run with specific app (e.g., -m app[ewm])",
 ]
+addopts = """
+-v
+--tb=short
+--strict-markers
+--disable-warnings
+--video=on
+--screenshot=on
+--tracing=retain-on-failure
+--junitxml=reports/junit/junit-report.xml
+--html=reports/pytest_report.html
+--self-contained-html
+--alluredir=reports/allure-results
+"""
+# Note: --reruns and --reruns-delay commented out to allow --pdb debug mode
+# Uncomment for normal test runs:
+ --reruns=2
+ --reruns-delay=1
 asyncio_mode = "strict"
 log_cli = true
 log_cli_level = "INFO"

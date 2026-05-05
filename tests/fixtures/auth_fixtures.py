@@ -106,6 +106,22 @@ def _get_session_file(
     return AUTH_STATE_DIR / f"{base_name}.json"
 
 
+def _dismiss_ketch_consent(page: Page) -> None:
+    """
+    Dismiss Ketch cookie consent dialog ("We value your privacy") if present.
+    This appears after SSO login on eWealthManager pages.
+    """
+    try:
+        accept_btn = page.get_by_role("button", name="Accept All")
+        if accept_btn.count() > 0 and accept_btn.first.is_visible(timeout=3000):
+            print("[SESSION] Ketch cookie consent detected - clicking 'Accept All'")
+            accept_btn.first.click(timeout=5000)
+            page.wait_for_timeout(500)
+            print("[SESSION] Ketch cookie consent dismissed")
+    except Exception:
+        pass  # No Ketch consent present, continue
+
+
 def _perform_login(page: Page, app_config: AppConfig, test_data: dict) -> bool:
     """
     Perform login using the app-specific login page.
@@ -217,6 +233,9 @@ def authenticated_page(browser, browser_context_args, test_data, request) -> Gen
         page.goto(app_config.home_url, timeout=60000)
         page.wait_for_load_state("domcontentloaded", timeout=10000)
 
+        # Dismiss Ketch cookie consent if it appears after navigation
+        _dismiss_ketch_consent(page)
+
         # Verify session is still valid - check we're not on a login/SSO page
         login_indicators = ["account/login", "ewmlogin", "test-login.assetmark.com"]
         is_on_login = any(ind in page.url.lower() for ind in login_indicators)
@@ -277,6 +296,9 @@ def authenticated_page(browser, browser_context_args, test_data, request) -> Gen
         print(f"[SESSION] Navigating to: {app_config.home_url}")
         page.goto(app_config.home_url, timeout=60000)
         page.wait_for_load_state("domcontentloaded", timeout=10000)
+
+        # Dismiss Ketch cookie consent if it appears after login
+        _dismiss_ketch_consent(page)
         print("[SESSION] Ready for test execution!")
 
         yield page

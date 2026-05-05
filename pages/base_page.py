@@ -118,11 +118,43 @@ class BasePage:
     # Element interaction methods (all delegate to _heal_and_retry)
     # ------------------------------------------------------------------
 
+    def _dismiss_ketch_overlay(self) -> None:
+        """
+        Dismiss Ketch cookie consent overlay (the "We value your privacy" dialog).
+        Clicks "Accept All" if the Ketch consent banner is visible.
+        """
+        try:
+            # Ketch consent banner uses an iframe or shadow DOM sometimes,
+            # but on this site it appears as a regular DOM element
+            accept_btn = self.page.get_by_role("button", name="Accept All")
+            if accept_btn.count() > 0 and accept_btn.first.is_visible(timeout=2000):
+                self.logger.info("Ketch cookie consent detected - clicking 'Accept All'")
+                accept_btn.first.click(timeout=5000)
+                self.page.wait_for_timeout(500)
+                self.logger.info("Ketch cookie consent dismissed via 'Accept All'")
+                return
+        except Exception:
+            pass
+        
+        try:
+            # Fallback: Try locating by exact text match
+            accept_btn = self.page.locator("button:has-text('Accept All')").first
+            if accept_btn.is_visible(timeout=1000):
+                self.logger.info("Ketch consent found via text selector - clicking")
+                accept_btn.click(timeout=5000)
+                self.page.wait_for_timeout(500)
+                self.logger.info("Ketch cookie consent dismissed")
+        except Exception:
+            pass
+
     def _dismiss_onetrust_overlay(self) -> None:
         """
-        Dismiss OneTrust cookie consent overlay that may block other interactions.
+        Dismiss cookie consent overlays (OneTrust or Ketch) that may block other interactions.
         Uses multiple strategies to ensure removal.
         """
+        # Try Ketch consent first (newer consent manager on the site)
+        self._dismiss_ketch_overlay()
+        
         try:
             # Check if overlay or consent SDK exists
             sdk = self.page.locator("div#onetrust-consent-sdk")
