@@ -26,11 +26,12 @@ export class LoginPage {
 
     //Sign in with given username and password
     async signIn(username: string, password: string) {
-        await this.cookieAcceptButton.waitFor({ state: 'visible', timeout: 5000 }); //waiting because it may load slowly
-        if (await this.cookieAcceptButton.isVisible()) {
-            await this.cookieAcceptButton.click();
+        if (env.toLowerCase() != 'test11'){
+            await this.cookieAcceptButton.waitFor({ state: 'visible', timeout: 5000 }); //waiting because it may load slowly
+            if (await this.cookieAcceptButton.isVisible()) {
+                await this.cookieAcceptButton.click();
+            }
         }
-
         await this.usernameInput.fill(username);
         await this.passwordInput.fill(password);
         await this.signInButton.click();
