@@ -12,7 +12,8 @@
         "endpoint": "/models",
         "method": "POST",
         "headers_additional": {
-            "Content-Type": "application/json"
+            "Content-Type": "application/json",
+            "x-user-id":"3fa85f64-5717-4562-b3fc-2c963f66afa6"
         },
         "payload": {
             "name": "Perf_Automation",
