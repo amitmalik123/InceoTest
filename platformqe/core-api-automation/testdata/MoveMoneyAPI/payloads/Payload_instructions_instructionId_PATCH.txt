@@ -1,0 +1,6 @@
+{
+  "version": {{ currentVersion }},
+  "status": "{{ status }}",
+  "custodialInstructionNumber": "{{ custodialInstructionNumber }}",
+  "changeState": "{{ changeState }}"
+}

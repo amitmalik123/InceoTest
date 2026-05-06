@@ -1,0 +1,12 @@
+[
+        {
+                "assetClassId": "{{random_int(1, 100)}}",
+                "assetClassName": "{{random_string(5)}}",
+                "assetTypeId": "{{random_int(1, 100)}}",
+                "assetTypeName": "{{random_string(5)}}",
+                "subAssetTypeId": "{{random_int(100000, 999999999)}}",
+                "subAssetTypeName": "{{random_string(5)}}"
+        }
+]
+
+            

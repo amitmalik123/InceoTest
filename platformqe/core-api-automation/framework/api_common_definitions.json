@@ -1,0 +1,67 @@
+{
+  "headers": {
+    "Authorization": "Bearer {{token}}",
+    "Content-Type": "application/json"
+  },
+  "custom_validations": {
+    "fields": {
+      "email": {
+        "regex": "^[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\\.[A-Za-z]{2,}$",
+        "format": "email"
+      },
+      "id": {
+        "regex": "^\\d+$",
+        "format": "integer"
+      },
+      "integer": {
+        "regex": "^\\d+$",
+        "format": "integer"
+      },
+      "number": {
+        "regex": "^-?\\d+(?:\\.\\d+)?$",
+        "format": "number"
+      },
+      "string": {
+        "regex": ".*",
+        "format": "string"
+      },
+      "boolean": {
+        "regex": "^(true|false|1|0)$",
+        "format": "boolean"
+      },
+      "datetime": {
+        "regex": "^\\d{4}-\\d{2}-\\d{2}T\\d{2}:\\d{2}:\\d{2}(?:\\.\\d+)?Z$",
+        "format": "datetime"
+      },
+      "decimal": {
+        "regex": "^-?\\d*\\.\\d+$",
+        "format": "decimal"
+      },
+      "uuid": {
+        "regex": "^00-[0-9a-fA-F]{32}-[0-9a-fA-F]{16}-01$",
+        "format": "uuid"
+      }      
+    }
+  },
+  "validate": {},
+  "common_functions": [
+    {
+      "name": "validate_user_role",
+      "args": ["admin", "user", "guest"],
+      "description": "Checks if role is one of allowed values.",
+      "type": "validation"
+    },
+    {
+      "name": "merge_headers",
+      "args": ["headers", "headers_additional"],
+      "description": "Merges common and additional headers for a request.",
+      "type": "utility"
+    },
+    {
+      "name": "extract_value",
+      "args": ["response", "key"],
+      "description": "Extracts a value from the response for workflow chaining.",
+      "type": "utility"
+    }
+  ]
+}

@@ -1,0 +1,50 @@
+{
+    "name": "Comprehensive Update - Conservative Growth Model",
+    "modelType": "Aggressive Growth",
+    "solutionType": "Balanced Portfolio",
+    "custodians": [
+        "E*TRADE",
+        "TD Ameritrade"
+    ],
+    "investmentApproachId": null,
+    "benchmark": [
+        {
+            "name": "Bloomberg Barclays Aggregate",
+            "isPrimary": false
+        }
+    ],
+    "investmentMins": [
+        {
+            "type": "System",
+            "value": 1
+        }
+    ],
+    "riskProfile": "Low Risk - Stable Returns",
+    "allocations": [
+        {
+            "entityType": "Security",
+            "allocationName": "US Treasuries",
+            "modelId": "string",
+            "cusip": "string",
+            "ticker": "TLT",
+            "weight": 0.6
+        },
+        {
+            "entityType": "Security",
+            "allocationName": "Investment Grade Bonds",
+            "modelId": "string",
+            "cusip": "string",
+            "ticker": "LQD",
+            "weight": 0.4
+        }
+    ],
+    "versionMetadata": {
+        "targetRebalanceFrequency": "Semi-Annual",
+        "category": "Income",
+        "riskLevel": "3"
+    },
+    "attrMetadata": {
+        "taxManagementEligible": "true",
+        "taxManagementRequired": "false"
+    }
+}

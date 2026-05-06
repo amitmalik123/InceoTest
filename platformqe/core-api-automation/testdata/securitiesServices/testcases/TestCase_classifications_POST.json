@@ -1,0 +1,653 @@
+[
+    {
+        "test_id": "TC001",
+        "service_name": "securitiesServices",
+        "workflow_mode": "parallel",
+        "test_name": "POST /classifications [validation: missing required field assetClassId] (TC001)",
+        "protocol": "REST",
+        "test_type": [
+            "Negative",
+            "Validation"
+        ],
+        "mainURL": "{{base_url}}",
+        "endpoint": "/classifications",
+        "method": "POST",
+        "headers_additional": {
+            "Content-Type": "application/json"
+        },
+        "payload": "securitiesServices/payloads/Payload_missing_assetClassId_classifications_POST_request.json",
+        "expected_status": "400",
+        "expected_response_schema": "",
+        "expected_response": null,
+        "ignore_fields": [],
+        "extract_values": [
+            {
+                "from": "response",
+                "key": "title",
+                "assign_to": "error_title"
+            },
+            {
+                "from": "response",
+                "key": "status",
+                "assign_to": "error_status"
+            }
+        ],
+        "validate": {
+            "performance": {
+                "max_response_time_ms": 600
+            },
+            "security": {
+                "checks": [
+                    "sql_injection",
+                    "xss"
+                ]
+            },
+            "assertions": [
+                {
+                    "actual": "{{error_status}}",
+                    "operator": "==",
+                    "expected": 400,
+                    "message": "Expected error status to be 400 for missing required field assetClassId"
+                },
+                {
+                    "actual": "{{error_title}}",
+                    "operator": "==",
+                    "expected": "One or more validation errors occurred.",
+                    "message": "Expected error title to be 'One or more validation errors occurred.'"
+                }
+            ]
+        },
+        "test_data_file": "securitiesServices/data_driven/Data_classifications_POST.csv",
+        "db_query": "",
+        "db_type": "",
+        "db_connection_name": "",
+        "test_summary": "Test TC001: Validate missing required field assetClassId returns 400 error",
+        "test_scenario": "Verify that POST /classifications returns 400 when assetClassId is missing from request body."
+    },
+    {
+        "test_id": "TC002",
+        "service_name": "securitiesServices",
+        "workflow_mode": "parallel",
+        "test_name": "POST /classifications [validation: missing required field assetClassName] (TC002)",
+        "protocol": "REST",
+        "test_type": [
+            "Negative",
+            "Validation"
+        ],
+        "mainURL": "{{base_url}}",
+        "endpoint": "/classifications",
+        "method": "POST",
+        "headers_additional": {
+            "Content-Type": "application/json"
+        },
+        "payload": "securitiesServices/payloads/Payload_missing_assetClassName_classifications_POST_request.json",
+        "expected_status": "400",
+        "expected_response_schema": "",
+        "expected_response": null,
+        "ignore_fields": [],
+        "extract_values": [
+            {
+                "from": "response",
+                "key": "title",
+                "assign_to": "error_title"
+            },
+            {
+                "from": "response",
+                "key": "status",
+                "assign_to": "error_status"
+            }
+        ],
+        "validate": {
+            "performance": {
+                "max_response_time_ms": 500
+            },
+            "security": {
+                "checks": [
+                    "sql_injection",
+                    "xss"
+                ]
+            },
+            "assertions": [
+                {
+                    "actual": "{{error_status}}",
+                    "operator": "==",
+                    "expected": 400,
+                    "message": "Expected error status to be 400 for missing assetClassName"
+                },
+                {
+                    "actual": "{{error_title}}",
+                    "operator": "==",
+                    "expected": "One or more validation errors occurred.",
+                    "message": "Expected error title to be 'One or more validation errors occurred.'"
+                }
+            ]
+        },
+        "test_data_file": "securitiesServices/data_driven/Data_classifications_POST.csv",
+        "db_query": "",
+        "db_type": "",
+        "db_connection_name": "",
+        "test_summary": "Test TC002: Validate missing required field assetClassName returns 400 error",
+        "test_scenario": "Verify that POST /classifications returns 400 when assetClassName is missing."
+    },
+    {
+        "test_id": "TC003",
+        "service_name": "securitiesServices",
+        "workflow_mode": "parallel",
+        "test_name": "POST /classifications [validation: missing required field assetTypeId] (TC003)",
+        "protocol": "REST",
+        "test_type": [
+            "Negative",
+            "Validation"
+        ],
+        "mainURL": "{{base_url}}",
+        "endpoint": "/classifications",
+        "method": "POST",
+        "headers_additional": {
+            "Content-Type": "application/json"
+        },
+        "payload": "securitiesServices/payloads/Payload_missing_assetTypeId_classifications_POST_request.json",
+        "expected_status": "400",
+        "expected_response_schema": "",
+        "expected_response": null,
+        "ignore_fields": [],
+        "extract_values": [
+            {
+                "from": "response",
+                "key": "title",
+                "assign_to": "error_title"
+            },
+            {
+                "from": "response",
+                "key": "status",
+                "assign_to": "error_status"
+            }
+        ],
+        "validate": {
+            "performance": {
+                "max_response_time_ms": 500
+            },
+            "security": {
+                "checks": [
+                    "sql_injection",
+                    "xss"
+                ]
+            },
+            "assertions": [
+                {
+                    "actual": "{{error_status}}",
+                    "operator": "==",
+                    "expected": 400,
+                    "message": "Expected error status to be 400 for missing assetTypeId"
+                },
+                {
+                    "actual": "{{error_title}}",
+                    "operator": "==",
+                    "expected": "One or more validation errors occurred.",
+                    "message": "Expected error title to be 'One or more validation errors occurred.'"
+                }
+            ]
+        },
+        "test_data_file": "securitiesServices/data_driven/Data_classifications_POST.csv",
+        "db_query": "",
+        "db_type": "",
+        "db_connection_name": "",
+        "test_summary": "Test TC003: Validate missing required field assetTypeId returns 400 error",
+        "test_scenario": "Verify that POST /classifications returns 400 when assetTypeId is missing."
+    },
+    {
+        "test_id": "TC004",
+        "service_name": "securitiesServices",
+        "workflow_mode": "parallel",
+        "test_name": "POST /classifications [validation: missing required field assetTypeName] (TC004)",
+        "protocol": "REST",
+        "test_type": [
+            "Negative",
+            "Validation"
+        ],
+        "mainURL": "{{base_url}}",
+        "endpoint": "/classifications",
+        "method": "POST",
+        "headers_additional": {
+            "Content-Type": "application/json"
+        },
+        "payload": "securitiesServices/payloads/Payload_missing_assetTypeName_classifications_POST_request.json",
+        "expected_status": "400",
+        "expected_response_schema": "",
+        "expected_response": null,
+        "ignore_fields": [],
+        "extract_values": [
+            {
+                "from": "response",
+                "key": "title",
+                "assign_to": "error_title"
+            },
+            {
+                "from": "response",
+                "key": "status",
+                "assign_to": "error_status"
+            }
+        ],
+        "validate": {
+            "performance": {
+                "max_response_time_ms": 500
+            },
+            "security": {
+                "checks": [
+                    "sql_injection",
+                    "xss"
+                ]
+            },
+            "assertions": [
+                {
+                    "actual": "{{error_status}}",
+                    "operator": "==",
+                    "expected": 400,
+                    "message": "Expected error status to be 400 for missing assetTypeName"
+                },
+                {
+                    "actual": "{{error_title}}",
+                    "operator": "==",
+                    "expected": "One or more validation errors occurred.",
+                    "message": "Expected error title to be 'One or more validation errors occurred.'"
+                }
+            ]
+        },
+        "test_data_file": "securitiesServices/data_driven/Data_classifications_POST.csv",
+        "db_query": "",
+        "db_type": "",
+        "db_connection_name": "",
+        "test_summary": "Test TC004: Validate missing required field assetTypeName returns 400 error",
+        "test_scenario": "Verify that POST /classifications returns 400 when assetTypeName is missing."
+    },
+    {
+        "test_id": "TC005",
+        "service_name": "securitiesServices",
+        "workflow_mode": "parallel",
+        "test_name": "POST /classifications [validation: missing required field subAssetTypeId] (TC005)",
+        "protocol": "REST",
+        "test_type": [
+            "Negative",
+            "Validation"
+        ],
+        "mainURL": "{{base_url}}",
+        "endpoint": "/classifications",
+        "method": "POST",
+        "headers_additional": {
+            "Content-Type": "application/json"
+        },
+        "payload": "securitiesServices/payloads/Payload_missing_subAssetTypeId_classifications_POST_request.json",
+        "expected_status": "400",
+        "expected_response_schema": "",
+        "expected_response": null,
+        "ignore_fields": [],
+        "extract_values": [
+            {
+                "from": "response",
+                "key": "title",
+                "assign_to": "error_title"
+            },
+            {
+                "from": "response",
+                "key": "status",
+                "assign_to": "error_status"
+            }
+        ],
+        "validate": {
+            "performance": {
+                "max_response_time_ms": 500
+            },
+            "security": {
+                "checks": [
+                    "sql_injection",
+                    "xss"
+                ]
+            },
+            "assertions": [
+                {
+                    "actual": "{{error_status}}",
+                    "operator": "==",
+                    "expected": 400,
+                    "message": "Expected error status to be 400 for missing subAssetTypeId"
+                },
+                {
+                    "actual": "{{error_title}}",
+                    "operator": "==",
+                    "expected": "One or more validation errors occurred.",
+                    "message": "Expected error title to be 'One or more validation errors occurred.'"
+                }
+            ]
+        },
+        "test_data_file": "securitiesServices/data_driven/Data_classifications_POST.csv",
+        "db_query": "",
+        "db_type": "",
+        "db_connection_name": "",
+        "test_summary": "Test TC005: Validate missing required field subAssetTypeId returns 400 error",
+        "test_scenario": "Verify that POST /classifications returns 400 when subAssetTypeId is missing."
+    },
+    {
+        "test_id": "TC006",
+        "service_name": "securitiesServices",
+        "workflow_mode": "parallel",
+        "test_name": "POST /classifications [validation: missing required field subAssetTypeName] (TC006)",
+        "protocol": "REST",
+        "test_type": [
+            "Negative",
+            "Validation"
+        ],
+        "mainURL": "{{base_url}}",
+        "endpoint": "/classifications",
+        "method": "POST",
+        "headers_additional": {
+            "Content-Type": "application/json"
+        },
+        "payload": "securitiesServices/payloads/Payload_missing_subAssetTypeName_classifications_POST_request.json",
+        "expected_status": "400",
+        "expected_response_schema": "",
+        "expected_response": null,
+        "ignore_fields": [],
+        "extract_values": [
+            {
+                "from": "response",
+                "key": "title",
+                "assign_to": "error_title"
+            },
+            {
+                "from": "response",
+                "key": "status",
+                "assign_to": "error_status"
+            }
+        ],
+        "validate": {
+            "performance": {
+                "max_response_time_ms": 600
+            },
+            "security": {
+                "checks": [
+                    "sql_injection",
+                    "xss"
+                ]
+            },
+            "assertions": [
+                {
+                    "actual": "{{error_status}}",
+                    "operator": "==",
+                    "expected": 400,
+                    "message": "Expected error status to be 400 for missing subAssetTypeName"
+                },
+                {
+                    "actual": "{{error_title}}",
+                    "operator": "==",
+                    "expected": "One or more validation errors occurred.",
+                    "message": "Expected error title to be 'One or more validation errors occurred.'"
+                }
+            ]
+        },
+        "test_data_file": "securitiesServices/data_driven/Data_classifications_POST.csv",
+        "db_query": "",
+        "db_type": "",
+        "db_connection_name": "",
+        "test_summary": "Test TC006: Validate missing required field subAssetTypeName returns 400 error",
+        "test_scenario": "Verify that POST /classifications returns 400 when subAssetTypeName is missing."
+    },
+    {
+        "test_id": "TC007",
+        "service_name": "securitiesServices",
+        "workflow_mode": "sequential",
+        "test_name": "POST /classifications [setup: create test classification] (TC007)",
+        "protocol": "REST",
+        "test_type": [
+            "Setup",
+            "Positive"
+        ],
+        "mainURL": "{{base_url}}",
+        "endpoint": "/classifications",
+        "method": "POST",
+        "headers_additional": {
+            "Content-Type": "application/json"
+        },
+        "payload": "securitiesServices/payloads/Payload_security_classifications_POST_request.json",
+        "expected_status": "200",
+        "expected_response_schema": "securitiesServices/schemas/Schema_classifications_POST_response.json",
+        "expected_response": null,
+        "ignore_fields": [],
+        "extract_values": [
+            {
+                "from": "request",
+                "key": "0.subAssetTypeId",
+                "assign_to": "request_subAssetTypeId"
+            },
+            {
+                "from": "response",
+                "key": "0.status",
+                "assign_to": "creation_status"
+            },
+            {
+                "from": "response",
+                "key": "0.message",
+                "assign_to": "success_message"
+            },
+            {
+                "from": "response",
+                "key": "0.classificationId",
+                "assign_to": "created_classification_id"
+            }
+        ],
+        "validate": {
+            "performance": {
+                "max_response_time_ms": 2811
+            },
+            "security": {
+                "checks": [
+                    "sql_injection",
+                    "xss"
+                ]
+            },
+            "assertions": [
+                {
+                    "actual": "{{creation_status}}",
+                    "operator": "==",
+                    "expected": "success",
+                    "message": "Expected creation status to be 'success'"
+                },
+                {
+                    "actual": "{{success_message}}",
+                    "operator": "==",
+                    "expected": "Classification created successfully",
+                    "message": "Expected success message to be 'Classification created successfully'"
+                },
+                {
+                    "actual": "{{created_classification_id}}",
+                    "operator": "!=",
+                    "expected": null,
+                    "message": "Expected created_classification_id to be not null"
+                }
+            ]
+        },
+        "test_data_file": "",
+        "db_queries": "",
+        "db_type": "",
+        "db_connection_name": "securitiesServices",
+        "test_summary": "Test TC007: Setup - Create a test classification to be retrieved by GET tests",
+        "test_scenario": "Create a classification using POST /classifications to ensure data exists for GET /classifications tests."
+    },
+    {
+        "test_id": "TC008",
+        "service_name": "securitiesServices",
+        "workflow_mode": "sequential",
+        "test_name": "POST /classifications [validation: duplicate subAssetTypeId] (TC008)",
+        "protocol": "REST",
+        "test_type": [
+            "Negative",
+            "Validation"
+        ],
+        "mainURL": "{{base_url}}",
+        "endpoint": "/classifications",
+        "method": "POST",
+        "headers_additional": {
+            "Content-Type": "application/json"
+        },
+        "payload": "securitiesServices/payloads/Payload_duplicate_subAssetTypeId_classifications_POST_request.json",
+        "expected_status": "200",
+        "expected_response_schema": "",
+        "expected_response": null,
+        "ignore_fields": [],
+        "extract_values": [
+            {
+                "from": "response",
+                "key": "0.status",
+                "assign_to": "error_result_status"
+            },
+            {
+                "from": "response",
+                "key": "0.message",
+                "assign_to": "error_message"
+            }
+        ],
+        "validate": {
+            "performance": {
+                "max_response_time_ms": 600
+            },
+            "security": {
+                "checks": [
+                    "sql_injection",
+                    "xss"
+                ]
+            },
+            "assertions": [
+                {
+                    "actual": "{{error_result_status}}",
+                    "operator": "==",
+                    "expected": "Duplicate Inserts",
+                    "message": "Expected error result status to be 'Duplicate Inserts'"
+                },
+                {
+                    "actual": "{{error_message}}",
+                    "operator": "contains",
+                    "expected": "The following were not inserted as they already existed",
+                    "message": "Expected error message to contain 'already existed'"
+                }
+            ]
+        },
+        "test_data_file": "",
+        "db_query": "",
+        "db_type": "",
+        "db_connection_name": "",
+        "test_summary": "Test TC008: Validate duplicate subAssetTypeId returns 200 error",
+        "test_scenario": "Verify that POST /classifications returns 200 when attempting to create a classification with an existing subAssetTypeId."
+    },
+    {
+        "test_id": "TC009",
+        "service_name": "securitiesServices",
+        "workflow_mode": "parallel",
+        "test_name": "POST /classifications [positive: batch classifications] (TC009)",
+        "protocol": "REST",
+        "test_type": [
+            "Functional",
+            "Positive"
+        ],
+        "mainURL": "{{base_url}}",
+        "endpoint": "/classifications",
+        "method": "POST",
+        "headers_additional": {
+            "Content-Type": "application/json"
+        },
+        "payload": "securitiesServices/payloads/Payload_security_batch_classifications_POST_request.json",
+        "expected_status": "200",
+        "expected_response_schema": "securitiesServices/schemas/Schema_classifications_POST_response.json",
+        "expected_response": null,
+        "ignore_fields": [
+            "asset_classification_id",
+            "created_by",
+            "created_date",
+            "modified_by",
+            "modified_date"
+        ],
+        "extract_values": [
+            {
+                "from": "response",
+                "key": "0.status",
+                "assign_to": "creation_status_first_classification"
+            },
+            {
+                "from": "response",
+                "key": "0.message",
+                "assign_to": "success_message_first_classification"
+            },
+            {
+                "from": "response",
+                "key": "0.classificationId",
+                "assign_to": "created_classification_id1"
+            },
+            {
+                "from": "response",
+                "key": "1.status",
+                "assign_to": "creation_status_second_classification"
+            },
+            {
+                "from": "response",
+                "key": "1.message",
+                "assign_to": "success_message_second_classification"
+            },
+            {
+                "from": "response",
+                "key": "1.classificationId",
+                "assign_to": "created_classification_id2"
+            }
+        ],
+        "validate": {
+            "performance": {
+                "max_response_time_ms": 2811
+            },
+            "security": {
+                "checks": [
+                    "sql_injection",
+                    "xss"
+                ]
+            },
+            "assertions": [
+                {
+                    "actual": "{{creation_status_first_classification}}",
+                    "operator": "==",
+                    "expected": "success",
+                    "message": "Expected creation status to be 'success'"
+                },
+                {
+                    "actual": "{{success_message_first_classification}}",
+                    "operator": "==",
+                    "expected": "Classification created successfully",
+                    "message": "Expected success message to be 'Classification created successfully'"
+                },
+                {
+                    "actual": "{{created_classification_id1}}",
+                    "operator": "!=",
+                    "expected": null,
+                    "message": "Expected created_classification_id to be not null"
+                },
+                {
+                    "actual": "{{creation_status_second_classification}}",
+                    "operator": "==",
+                    "expected": "success",
+                    "message": "Expected creation status to be 'success'"
+                },
+                {
+                    "actual": "{{success_message_second_classification}}",
+                    "operator": "==",
+                    "expected": "Classification created successfully",
+                    "message": "Expected success message to be 'Classification created successfully'"
+                },
+                {
+                    "actual": "{{created_classification_id2}}",
+                    "operator": "!=",
+                    "expected": null,
+                    "message": "Expected created_classification_id to be not null"
+                }
+            ]
+        },
+        "test_data_file": "",
+        "db_query": "",
+        "db_type": "",
+        "db_connection_name": "",
+        "test_summary": "Test TC009: Create multiple asset classifications in batch",
+        "test_scenario": "Verify that multiple asset classifications can be created in a single batch request."
+    }
+]

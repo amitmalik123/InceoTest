@@ -1,0 +1,87 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "type": "object",
+  "title": "GET /instructions Response Schema",
+  "description": "Paginated response schema for /instructions endpoint",
+  "properties": {
+    "page": {
+      "type": "integer",
+      "description": "Current page number",
+      "minimum": 1
+    },
+    "pageSize": {
+      "type": "integer",
+      "description": "Number of items per page",
+      "minimum": 1
+    },
+    "total": {
+      "type": "integer",
+      "description": "Total number of items",
+      "minimum": 0
+    },
+    "items": {
+      "type": "array",
+      "description": "Array of money movement instructions",
+      "items": {
+        "type": "object",
+        "properties": {
+          "instructionId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "accountId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "version": {
+            "type": "integer",
+            "minimum": 1
+          },
+          "status": {
+            "type": "string",
+            "enum": ["Draft", "Pending", "Confirmed", "Deleted"]
+          },
+          "holderRelation": {
+            "type": "string"
+          },
+          "letterOfAuthorization": {
+            "type": "string"
+          },
+          "railType": {
+            "type": "string",
+            "enum": ["ACH", "Wire", "Check", "Journal"]
+          },
+          "custodianInstructionNumber": {
+            "type": "string"
+          },
+          "bank": {
+            "type": "object",
+            "properties": {
+              "bankAccountName": {"type": "string"},
+              "bankAccountType": {"type": "string"},
+              "bankName": {"type": "string"},
+              "routingNumber": {"type": ["string", "integer"]},
+              "bankAccountNumber": {"type": ["string", "integer"]}
+            }
+          },
+          "createdDate": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "createdBy": {
+            "type": "string"
+          },
+          "modifiedDate": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "modifiedBy": {
+            "type": "string"
+          }
+        },
+        "required": ["instructionId", "accountId", "version", "status", "railType"]
+      }
+    }
+  },
+  "required": ["page", "pageSize", "total", "items"]
+}

@@ -1,0 +1,16 @@
+{
+    "letterOfAuthorization": "{{letterOfAuthorization}}",
+    "accountId": "{{accountId}}",
+    "status": "{{status}}",
+    "holderRelationship": "{{holderRelationship}}",
+    "railType": "{{railType}}",
+    "custodianInstructionNumber": "{{custodianInstructionNumber}}",
+    "changeState": "{{changeState}}",
+    "bank": {
+        "routingNumber": "{{bank_routingNumber}}",
+        "bankAccountNumber": "{{bank_bankAccountNumber}}",
+        "bankAccountName": "{{bank_bankAccountName}}",
+        "bankAccountType": "{{bank_bankAccountType}}",
+        "bankName": "{{bank_bankName}}"
+    }
+}

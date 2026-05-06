@@ -1,0 +1,142 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "type": "object",
+  "title": "GET /transfer/{requestId} Response Schema",
+  "description": "Returns the complete transfer request object with all associated details",
+  "additionalProperties": true,
+  "properties": {
+    "requestId": {
+      "type": "string",
+      "format": "uuid",
+      "description": "Unique identifier for the transfer request"
+    },
+    "version": {
+      "type": "integer",
+      "minimum": 1,
+      "description": "Version number for optimistic concurrency control"
+    },
+    "movementType": {
+      "type": "string",
+      "enum": ["Cash", "Security", "CashAndSecurity"],
+      "description": "Type of movement (Cash, Security, or both)"
+    },
+    "transferUnitType": {
+      "type": "string",
+      "enum": ["Full", "Partial", "Dollar", "Percent"],
+      "description": "Unit type for the transfer amount"
+    },
+    "amount": {
+      "type": "number",
+      "minimum": 0,
+      "description": "The monetary value of the transfer"
+    },
+    "amountExpectation": {
+      "type": "string",
+      "enum": ["Exact", "Approximate"],
+      "description": "Whether the amount is exact or approximate"
+    },
+    "status": {
+      "type": "string",
+      "enum": ["Draft", "Pending", "Confirmed", "Scheduled", "Processed", "PendingCancel", "Canceled"],
+      "description": "Current lifecycle state of the transfer request"
+    },
+    "reason": {
+      "type": ["string", "null"],
+      "description": "The reason code for this transfer request"
+    },
+    "fundingAccountNumber": {
+      "type": ["string", "null"],
+      "description": "Account number for funding"
+    },
+    "contraFirm": {
+      "type": ["object", "null"],
+      "description": "Contra firm details",
+      "properties": {
+        "contraFirmId": {
+          "type": "string",
+          "format": "uuid",
+          "description": "Unique identifier for the contra firm"
+        },
+        "name": {
+          "type": "string",
+          "description": "Name of the contra firm"
+        },
+        "accountNumber": {
+          "type": "string",
+          "description": "Account number at the contra firm"
+        },
+        "nameLine1": {
+          "type": "string",
+          "description": "First line of the firm name"
+        },
+        "nameLine2": {
+          "type": ["string", "null"],
+          "description": "Second line of the firm name"
+        },
+        "registrationType": {
+          "type": "string",
+          "description": "Type of account registration"
+        }
+      }
+    },
+    "allocations": {
+      "type": "array",
+      "description": "List of account allocations",
+      "items": {
+        "type": "object",
+        "properties": {
+          "allocationId": {
+            "type": "string",
+            "format": "uuid",
+            "description": "Unique identifier for the allocation"
+          },
+          "accountId": {
+            "type": "string",
+            "format": "uuid",
+            "description": "Account identifier for this allocation"
+          },
+          "allocationUnitType": {
+            "type": "string",
+            "enum": ["Dollar", "Percent"],
+            "description": "Unit type for the allocation"
+          },
+          "percent": {
+            "type": ["number", "null"],
+            "minimum": 0,
+            "maximum": 100,
+            "description": "Percentage allocation"
+          },
+          "amount": {
+            "type": ["number", "null"],
+            "minimum": 0,
+            "description": "Dollar amount allocation"
+          }
+        }
+      }
+    },
+    "securityTransfers": {
+      "type": "array",
+      "description": "List of security transfers",
+      "items": {
+        "type": "object"
+      }
+    },
+    "createdDate": {
+      "type": "string",
+      "description": "Timestamp when the record was first created"
+    },
+    "modifiedDate": {
+      "type": "string",
+      "description": "Timestamp of the most recent modification"
+    },
+    "createdBy": {
+      "type": ["string", "null"],
+      "description": "Identifier of the user who created the record"
+    },
+    "modifiedBy": {
+      "type": ["string", "null"],
+      "description": "Identifier of the user who last modified the record"
+    }
+  },
+  "required": ["requestId", "version", "movementType", "transferUnitType", "amount", "amountExpectation", "status", "createdDate", "modifiedDate"]
+}

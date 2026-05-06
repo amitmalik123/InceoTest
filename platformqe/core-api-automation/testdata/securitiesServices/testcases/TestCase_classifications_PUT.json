@@ -1,0 +1,1282 @@
+[
+    {
+        "test_id": "TC000",
+        "service_name": "securitiesServices",
+        "workflow_mode": "sequential",
+        "test_name": "POST /classifications [setup: create classification for PUT tests] (TC000)",
+        "protocol": "REST",
+        "test_type": [
+            "Setup",
+            "Positive"
+        ],
+        "mainURL": "{{base_url}}",
+        "endpoint": "/classifications",
+        "method": "POST",
+        "headers_additional": {
+            "Content-Type": "application/json"
+        },
+        "payload": "securitiesServices/payloads/Payload_security_classifications_POST_request.json",
+        "expected_status": "200",
+        "expected_response_schema": "securitiesServices/schemas/Schema_classifications_POST_response.json",
+        "expected_response": null,
+        "ignore_fields": [],
+        "extract_values": [
+            {
+                "from": "request",
+                "key": "0.subAssetTypeId",
+                "assign_to": "request_subAssetTypeId"
+            },
+            {
+                "from": "response",
+                "key": "0.status",
+                "assign_to": "creation_status"
+            },
+            {
+                "from": "response",
+                "key": "0.message",
+                "assign_to": "success_message"
+            },
+            {
+                "from": "response",
+                "key": "0.classificationId",
+                "assign_to": "created_classification_id"
+            },
+            {
+                "from": "db_result",
+                "key": "0.db_asset_class_id",
+                "assign_to": "db_asset_class_id"
+            },
+            {
+                "from": "db_result",
+                "key": "0.db_asset_class_name",
+                "assign_to": "db_asset_class_name"
+            },
+            {
+                "from": "db_result",
+                "key": "0.db_asset_type_id",
+                "assign_to": "db_asset_type_id"
+            },
+            {
+                "from": "db_result",
+                "key": "0.db_asset_type_name",
+                "assign_to": "db_asset_type_name"
+            },
+            {
+                "from": "db_result",
+                "key": "0.db_sub_asset_type_id",
+                "assign_to": "db_sub_asset_type_id"
+            },
+            {
+                "from": "db_result",
+                "key": "0.db_sub_asset_type_name",
+                "assign_to": "db_sub_asset_type_name"
+            }
+        ],
+        "validate": {
+            "performance": {
+                "max_response_time_ms": 2811
+            },
+            "security": {
+                "checks": [
+                    "sql_injection",
+                    "xss"
+                ]
+            },
+            "assertions": [
+                {
+                    "actual": "{{creation_status}}",
+                    "operator": "==",
+                    "expected": "success",
+                    "message": "Expected creation status to be 'success'"
+                },
+                {
+                    "actual": "{{success_message}}",
+                    "operator": "==",
+                    "expected": "Classification created successfully",
+                    "message": "Expected success message to be 'Classification created successfully'"
+                },
+                {
+                    "actual": "{{created_classification_id}}",
+                    "operator": "!=",
+                    "expected": null,
+                    "message": "Expected created_classification_id to be not null"
+                }
+            ]
+        },
+        "test_data_file": "",
+        "db_type": "postgresql",
+        "db_connection_name": "securitiesServices",
+        "db_query": "securitiesServices/db_queries/Query_classifications_POST.sql",
+        "test_summary": "Test TC000: Setup - Create a test classification for PUT tests",
+        "test_scenario": "Create a classification using POST /classifications to be updated by PUT tests."
+    },
+    {
+        "test_id": "TC001",
+        "service_name": "securitiesServices",
+        "workflow_mode": "sequential",
+        "test_name": "PUT /classifications [positive: update classification] (TC001)",
+        "protocol": "REST",
+        "test_type": [
+            "Functional",
+            "Positive"
+        ],
+        "mainURL": "{{base_url}}",
+        "endpoint": "/classifications",
+        "method": "PUT",
+        "headers_additional": {
+            "Content-Type": "application/json"
+        },
+        "payload": "securitiesServices/payloads/Payload_security_classifications_PUT_request.json",
+        "expected_status": "200",
+        "expected_response_schema": "securitiesServices/schemas/Schema_classifications_PUT_response.json",
+        "expected_response": null,
+        "ignore_fields": [],
+        "extract_values": [],
+        "validate": {
+            "performance": {
+                "max_response_time_ms": 2811
+            },
+            "security": {
+                "checks": [
+                    "sql_injection",
+                    "xss"
+                ]
+            },
+            "data_comparison": {
+                "source": "api_response",
+                "target": "db_result",
+                "format": "table",
+                "fields_to_compare": [
+                    {
+                        "source": "asset_class_name",
+                        "target": "db_asset_class_name"
+                    },
+                    {
+                        "source": "asset_type_name",
+                        "target": "db_asset_type_name"
+                    },
+                    {
+                        "source": "sub_asset_type_name",
+                        "target": "db_sub_asset_type_name"
+                    }
+                ],
+                "log_differences": true,
+                "comparison_name": "Verify classification data matches DB"
+            },
+            "assertions": []
+        },
+        "test_data_file": "",
+        "db_query": "securitiesServices/db_queries/Query_classifications_POST.sql",
+        "db_type": "postgresql",
+        "db_connection_name": "securitiesServices",
+        "test_summary": "Test TC001: Update an existing classification successfully",
+        "test_scenario": "Verify that PUT /classifications successfully updates an existing classification."
+    },
+    {
+        "test_id": "TC002",
+        "service_name": "securitiesServices",
+        "workflow_mode": "parallel",
+        "test_name": "PUT /classifications [validation: missing required field assetClassId] (TC002)",
+        "protocol": "REST",
+        "test_type": [
+            "Negative",
+            "Validation"
+        ],
+        "mainURL": "{{base_url}}",
+        "endpoint": "/classifications",
+        "method": "PUT",
+        "headers_additional": {
+            "Content-Type": "application/json"
+        },
+        "payload": "securitiesServices/payloads/Payload_missing_assetClassId_classifications_PUT_request.json",
+        "expected_status": "400",
+        "expected_response_schema": "",
+        "expected_response": null,
+        "ignore_fields": [],
+        "extract_values": [
+            {
+                "from": "response",
+                "key": "title",
+                "assign_to": "error_title"
+            },
+            {
+                "from": "response",
+                "key": "status",
+                "assign_to": "error_status"
+            },
+            {
+                "from": "response",
+                "key": "errors.assetClassId.0",
+                "assign_to": "assetClassId_error_message"
+            }
+        ],
+        "validate": {
+            "performance": {
+                "max_response_time_ms": 600
+            },
+            "security": {
+                "checks": [
+                    "sql_injection",
+                    "xss"
+                ]
+            },
+            "assertions": [
+                {
+                    "actual": "{{error_status}}",
+                    "operator": "==",
+                    "expected": 400,
+                    "message": "Expected error status to be 400 for missing required field assetClassId"
+                },
+                {
+                    "actual": "{{error_title}}",
+                    "operator": "==",
+                    "expected": "One or more validation errors occurred.",
+                    "message": "Expected error title to be 'One or more validation errors occurred.'"
+                },
+                {
+                    "actual": "{{assetClassId_error_message}}",
+                    "operator": "contains",
+                    "expected": "The assetClassId field is required.",
+                    "message": "Expected validation error message for missing assetClassId"
+                }
+            ]
+        },
+        "test_data_file": "",
+        "db_query": "",
+        "db_type": "",
+        "db_connection_name": "",
+        "test_summary": "Test TC002: Validate missing required field assetClassId returns 400 error",
+        "test_scenario": "Verify that PUT /classifications returns 400 when assetClassId is missing from request body."
+    },
+    {
+        "test_id": "TC003",
+        "service_name": "securitiesServices",
+        "workflow_mode": "parallel",
+        "test_name": "PUT /classifications [validation: missing required field assetClassName] (TC003)",
+        "protocol": "REST",
+        "test_type": [
+            "Negative",
+            "Validation"
+        ],
+        "mainURL": "{{base_url}}",
+        "endpoint": "/classifications",
+        "method": "PUT",
+        "headers_additional": {
+            "Content-Type": "application/json"
+        },
+        "payload": "securitiesServices/payloads/Payload_missing_assetClassName_classifications_PUT_request.json",
+        "expected_status": "400",
+        "expected_response_schema": "",
+        "expected_response": null,
+        "ignore_fields": [],
+        "extract_values": [
+            {
+                "from": "response",
+                "key": "title",
+                "assign_to": "error_title"
+            },
+            {
+                "from": "response",
+                "key": "status",
+                "assign_to": "error_status"
+            },
+            {
+                "from": "response",
+                "key": "errors.assetClassName.0",
+                "assign_to": "assetClassName_error_message"
+            }
+        ],
+        "validate": {
+            "performance": {
+                "max_response_time_ms": 500
+            },
+            "security": {
+                "checks": [
+                    "sql_injection",
+                    "xss"
+                ]
+            },
+            "assertions": [
+                {
+                    "actual": "{{error_status}}",
+                    "operator": "==",
+                    "expected": 400,
+                    "message": "Expected error status to be 400 for missing assetClassName"
+                },
+                {
+                    "actual": "{{error_title}}",
+                    "operator": "==",
+                    "expected": "One or more validation errors occurred.",
+                    "message": "Expected error title to be 'One or more validation errors occurred.'"
+                },
+                {
+                    "actual": "{{assetClassName_error_message}}",
+                    "operator": "contains",
+                    "expected": "The assetClassName field is required.",
+                    "message": "Expected validation error message for missing assetClassName"
+                }
+            ]
+        },
+        "test_data_file": "",
+        "db_query": "",
+        "db_type": "",
+        "db_connection_name": "",
+        "test_summary": "Test TC003: Validate missing required field assetClassName returns 400 error",
+        "test_scenario": "Verify that PUT /classifications returns 400 when assetClassName is missing."
+    },
+    {
+        "test_id": "TC004",
+        "service_name": "securitiesServices",
+        "workflow_mode": "parallel",
+        "test_name": "PUT /classifications [validation: missing required field assetTypeId] (TC004)",
+        "protocol": "REST",
+        "test_type": [
+            "Negative",
+            "Validation"
+        ],
+        "mainURL": "{{base_url}}",
+        "endpoint": "/classifications",
+        "method": "PUT",
+        "headers_additional": {
+            "Content-Type": "application/json"
+        },
+        "payload": "securitiesServices/payloads/Payload_missing_assetTypeId_classifications_PUT_request.json",
+        "expected_status": "400",
+        "expected_response_schema": "",
+        "expected_response": null,
+        "ignore_fields": [],
+        "extract_values": [
+            {
+                "from": "response",
+                "key": "title",
+                "assign_to": "error_title"
+            },
+            {
+                "from": "response",
+                "key": "status",
+                "assign_to": "error_status"
+            },
+            {
+                "from": "response",
+                "key": "errors.assetTypeId.0",
+                "assign_to": "assetTypeId_error_message"
+            }
+        ],
+        "validate": {
+            "performance": {
+                "max_response_time_ms": 500
+            },
+            "security": {
+                "checks": [
+                    "sql_injection",
+                    "xss"
+                ]
+            },
+            "assertions": [
+                {
+                    "actual": "{{error_status}}",
+                    "operator": "==",
+                    "expected": 400,
+                    "message": "Expected error status to be 400 for missing assetTypeId"
+                },
+                {
+                    "actual": "{{error_title}}",
+                    "operator": "==",
+                    "expected": "One or more validation errors occurred.",
+                    "message": "Expected error title to be 'One or more validation errors occurred.'"
+                },
+                {
+                    "actual": "{{assetTypeId_error_message}}",
+                    "operator": "contains",
+                    "expected": "The assetTypeId field is required.",
+                    "message": "Expected validation error message for missing assetTypeId"
+                }
+            ]
+        },
+        "test_data_file": "",
+        "db_query": "",
+        "db_type": "",
+        "db_connection_name": "",
+        "test_summary": "Test TC004: Validate missing required field assetTypeId returns 400 error",
+        "test_scenario": "Verify that PUT /classifications returns 400 when assetTypeId is missing."
+    },
+    {
+        "test_id": "TC005",
+        "service_name": "securitiesServices",
+        "workflow_mode": "parallel",
+        "test_name": "PUT /classifications [validation: missing required field assetTypeName] (TC005)",
+        "protocol": "REST",
+        "test_type": [
+            "Negative",
+            "Validation"
+        ],
+        "mainURL": "{{base_url}}",
+        "endpoint": "/classifications",
+        "method": "PUT",
+        "headers_additional": {
+            "Content-Type": "application/json"
+        },
+        "payload": "securitiesServices/payloads/Payload_missing_assetTypeName_classifications_PUT_request.json",
+        "expected_status": "400",
+        "expected_response_schema": "",
+        "expected_response": null,
+        "ignore_fields": [],
+        "extract_values": [
+            {
+                "from": "response",
+                "key": "title",
+                "assign_to": "error_title"
+            },
+            {
+                "from": "response",
+                "key": "status",
+                "assign_to": "error_status"
+            },
+            {
+                "from": "response",
+                "key": "errors.assetTypeName.0",
+                "assign_to": "assetTypeName_error_message"
+            }
+        ],
+        "validate": {
+            "performance": {
+                "max_response_time_ms": 500
+            },
+            "security": {
+                "checks": [
+                    "sql_injection",
+                    "xss"
+                ]
+            },
+            "assertions": [
+                {
+                    "actual": "{{error_status}}",
+                    "operator": "==",
+                    "expected": 400,
+                    "message": "Expected error status to be 400 for missing assetTypeName"
+                },
+                {
+                    "actual": "{{error_title}}",
+                    "operator": "==",
+                    "expected": "One or more validation errors occurred.",
+                    "message": "Expected error title to be 'One or more validation errors occurred.'"
+                },
+                {
+                    "actual": "{{assetTypeName_error_message}}",
+                    "operator": "contains",
+                    "expected": "The assetTypeName field is required.",
+                    "message": "Expected validation error message for missing assetTypeName"
+                }
+            ]
+        },
+        "test_data_file": "",
+        "db_query": "",
+        "db_type": "",
+        "db_connection_name": "",
+        "test_summary": "Test TC005: Validate missing required field assetTypeName returns 400 error",
+        "test_scenario": "Verify that PUT /classifications returns 400 when assetTypeName is missing."
+    },
+    {
+        "test_id": "TC006",
+        "service_name": "securitiesServices",
+        "workflow_mode": "parallel",
+        "test_name": "PUT /classifications [validation: missing required field subAssetTypeId] (TC006)",
+        "protocol": "REST",
+        "test_type": [
+            "Negative",
+            "Validation"
+        ],
+        "mainURL": "{{base_url}}",
+        "endpoint": "/classifications",
+        "method": "PUT",
+        "headers_additional": {
+            "Content-Type": "application/json"
+        },
+        "payload": "securitiesServices/payloads/Payload_missing_subAssetTypeId_classifications_PUT_request.json",
+        "expected_status": "400",
+        "expected_response_schema": "",
+        "expected_response": null,
+        "ignore_fields": [],
+        "extract_values": [
+            {
+                "from": "response",
+                "key": "title",
+                "assign_to": "error_title"
+            },
+            {
+                "from": "response",
+                "key": "status",
+                "assign_to": "error_status"
+            },
+            {
+                "from": "response",
+                "key": "errors.subAssetTypeId.0",
+                "assign_to": "subAssetTypeId_error_message"
+            }
+        ],
+        "validate": {
+            "performance": {
+                "max_response_time_ms": 500
+            },
+            "security": {
+                "checks": [
+                    "sql_injection",
+                    "xss"
+                ]
+            },
+            "assertions": [
+                {
+                    "actual": "{{error_status}}",
+                    "operator": "==",
+                    "expected": 400,
+                    "message": "Expected error status to be 400 for missing subAssetTypeId"
+                },
+                {
+                    "actual": "{{error_title}}",
+                    "operator": "==",
+                    "expected": "One or more validation errors occurred.",
+                    "message": "Expected error title to be 'One or more validation errors occurred.'"
+                },
+                {
+                    "actual": "{{subAssetTypeId_error_message}}",
+                    "operator": "contains",
+                    "expected": "The subAssetTypeId field is required.",
+                    "message": "Expected validation error message for missing subAssetTypeId"
+                }
+            ]
+        },
+        "test_data_file": "",
+        "db_query": "",
+        "db_type": "",
+        "db_connection_name": "",
+        "test_summary": "Test TC006: Validate missing required field subAssetTypeId returns 400 error",
+        "test_scenario": "Verify that PUT /classifications returns 400 when subAssetTypeId is missing."
+    },
+    {
+        "test_id": "TC007",
+        "service_name": "securitiesServices",
+        "workflow_mode": "parallel",
+        "test_name": "PUT /classifications [validation: missing required field subAssetTypeName] (TC007)",
+        "protocol": "REST",
+        "test_type": [
+            "Negative",
+            "Validation"
+        ],
+        "mainURL": "{{base_url}}",
+        "endpoint": "/classifications",
+        "method": "PUT",
+        "headers_additional": {
+            "Content-Type": "application/json"
+        },
+        "payload": "securitiesServices/payloads/Payload_missing_subAssetTypeName_classifications_PUT_request.json",
+        "expected_status": "400",
+        "expected_response_schema": "",
+        "expected_response": null,
+        "ignore_fields": [],
+        "extract_values": [
+            {
+                "from": "response",
+                "key": "title",
+                "assign_to": "error_title"
+            },
+            {
+                "from": "response",
+                "key": "status",
+                "assign_to": "error_status"
+            },
+            {
+                "from": "response",
+                "key": "errors.subAssetTypeName.0",
+                "assign_to": "subAssetTypeName_error_message"
+            }
+        ],
+        "validate": {
+            "performance": {
+                "max_response_time_ms": 500
+            },
+            "security": {
+                "checks": [
+                    "sql_injection",
+                    "xss"
+                ]
+            },
+            "assertions": [
+                {
+                    "actual": "{{error_status}}",
+                    "operator": "==",
+                    "expected": 400,
+                    "message": "Expected error status to be 400 for missing subAssetTypeName"
+                },
+                {
+                    "actual": "{{error_title}}",
+                    "operator": "==",
+                    "expected": "One or more validation errors occurred.",
+                    "message": "Expected error title to be 'One or more validation errors occurred.'"
+                },
+                {
+                    "actual": "{{subAssetTypeName_error_message}}",
+                    "operator": "contains",
+                    "expected": "The subAssetTypeName field is required.",
+                    "message": "Expected validation error message for missing subAssetTypeName"
+                }
+            ]
+        },
+        "test_data_file": "",
+        "db_query": "",
+        "db_type": "",
+        "db_connection_name": "",
+        "test_summary": "Test TC007: Validate missing required field subAssetTypeName returns 400 error",
+        "test_scenario": "Verify that PUT /classifications returns 400 when subAssetTypeName is missing."
+    },
+    {
+        "test_id": "TC008",
+        "service_name": "securitiesServices",
+        "workflow_mode": "parallel",
+        "test_name": "PUT /classifications [validation: empty assetClassName] (TC008)",
+        "protocol": "REST",
+        "test_type": [
+            "Negative",
+            "Validation"
+        ],
+        "mainURL": "{{base_url}}",
+        "endpoint": "/classifications",
+        "method": "PUT",
+        "headers_additional": {
+            "Content-Type": "application/json"
+        },
+        "payload": "securitiesServices/payloads/Payload_empty_assetClassName_classifications_PUT_request.json",
+        "expected_status": "400",
+        "expected_response_schema": "",
+        "expected_response": null,
+        "ignore_fields": [],
+        "extract_values": [
+            {
+                "from": "response",
+                "key": "title",
+                "assign_to": "error_title"
+            },
+            {
+                "from": "response",
+                "key": "status",
+                "assign_to": "error_status"
+            },
+            {
+                "from": "response",
+                "key": "errors.assetClassName.0",
+                "assign_to": "assetClassName_error_message"
+            }
+        ],
+        "validate": {
+            "performance": {
+                "max_response_time_ms": 500
+            },
+            "security": {
+                "checks": [
+                    "sql_injection",
+                    "xss"
+                ]
+            },
+            "assertions": [
+                {
+                    "actual": "{{error_status}}",
+                    "operator": "==",
+                    "expected": 400,
+                    "message": "Expected error status to be 400 for empty assetClassName"
+                },
+                {
+                    "actual": "{{error_title}}",
+                    "operator": "==",
+                    "expected": "One or more validation errors occurred.",
+                    "message": "Expected error title to be 'One or more validation errors occurred.'"
+                },
+                {
+                    "actual": "{{assetClassName_error_message}}",
+                    "operator": "contains",
+                    "expected": "assetClassName",
+                    "message": "Expected validation error message to reference assetClassName"
+                }
+            ]
+        },
+        "test_data_file": "",
+        "db_query": "",
+        "db_type": "",
+        "db_connection_name": "",
+        "test_summary": "Test TC008: Validate empty assetClassName returns 400 error",
+        "test_scenario": "Verify that PUT /classifications returns 400 when assetClassName is empty."
+    },
+    {
+        "test_id": "TC009",
+        "service_name": "securitiesServices",
+        "workflow_mode": "parallel",
+        "test_name": "PUT /classifications [validation: empty assetClassId] (TC009)",
+        "protocol": "REST",
+        "test_type": [
+            "Negative",
+            "Validation"
+        ],
+        "mainURL": "{{base_url}}",
+        "endpoint": "/classifications",
+        "method": "PUT",
+        "headers_additional": {
+            "Content-Type": "application/json"
+        },
+        "payload": "securitiesServices/payloads/Payload_empty_assetClassId_classifications_PUT_request.json",
+        "expected_status": "400",
+        "expected_response_schema": "",
+        "expected_response": null,
+        "ignore_fields": [],
+        "extract_values": [
+            {
+                "from": "response",
+                "key": "title",
+                "assign_to": "error_title"
+            },
+            {
+                "from": "response",
+                "key": "status",
+                "assign_to": "error_status"
+            }
+        ],
+        "validate": {
+            "performance": {
+                "max_response_time_ms": 500
+            },
+            "security": {
+                "checks": [
+                    "sql_injection",
+                    "xss"
+                ]
+            },
+            "assertions": [
+                {
+                    "actual": "{{error_status}}",
+                    "operator": "==",
+                    "expected": 400,
+                    "message": "Expected error status to be 400 for empty assetClassId"
+                },
+                {
+                    "actual": "{{error_title}}",
+                    "operator": "==",
+                    "expected": "One or more validation errors occurred.",
+                    "message": "Expected error title to be 'One or more validation errors occurred.'"
+                }
+            ]
+        },
+        "test_data_file": "",
+        "db_query": "",
+        "db_type": "",
+        "db_connection_name": "",
+        "test_summary": "Test TC009: Validate empty assetClassId returns 400 error",
+        "test_scenario": "Verify that PUT /classifications returns 400 when assetClassId is empty."
+    },
+    {
+        "test_id": "TC010",
+        "service_name": "securitiesServices",
+        "workflow_mode": "parallel",
+        "test_name": "PUT /classifications [validation: empty assetTypeName] (TC010)",
+        "protocol": "REST",
+        "test_type": [
+            "Negative",
+            "Validation"
+        ],
+        "mainURL": "{{base_url}}",
+        "endpoint": "/classifications",
+        "method": "PUT",
+        "headers_additional": {
+            "Content-Type": "application/json"
+        },
+        "payload": "securitiesServices/payloads/Payload_empty_assetTypeName_classifications_PUT_request.json",
+        "expected_status": "400",
+        "expected_response_schema": "",
+        "expected_response": null,
+        "ignore_fields": [],
+        "extract_values": [
+            {
+                "from": "response",
+                "key": "title",
+                "assign_to": "error_title"
+            },
+            {
+                "from": "response",
+                "key": "status",
+                "assign_to": "error_status"
+            },
+            {
+                "from": "response",
+                "key": "errors.assetTypeName.0",
+                "assign_to": "assetTypeName_error_message"
+            }
+        ],
+        "validate": {
+            "performance": {
+                "max_response_time_ms": 500
+            },
+            "security": {
+                "checks": [
+                    "sql_injection",
+                    "xss"
+                ]
+            },
+            "assertions": [
+                {
+                    "actual": "{{error_status}}",
+                    "operator": "==",
+                    "expected": 400,
+                    "message": "Expected error status to be 400 for empty assetTypeName"
+                },
+                {
+                    "actual": "{{error_title}}",
+                    "operator": "==",
+                    "expected": "One or more validation errors occurred.",
+                    "message": "Expected error title to be 'One or more validation errors occurred.'"
+                },
+                {
+                    "actual": "{{assetTypeName_error_message}}",
+                    "operator": "contains",
+                    "expected": "assetTypeName",
+                    "message": "Expected validation error message to reference assetTypeName"
+                }
+            ]
+        },
+        "test_data_file": "",
+        "db_query": "",
+        "db_type": "",
+        "db_connection_name": "",
+        "test_summary": "Test TC010: Validate empty assetTypeName returns 400 error",
+        "test_scenario": "Verify that PUT /classifications returns 400 when assetTypeName is empty."
+    },
+    {
+        "test_id": "TC011",
+        "service_name": "securitiesServices",
+        "workflow_mode": "parallel",
+        "test_name": "PUT /classifications [validation: empty assetTypeId] (TC011)",
+        "protocol": "REST",
+        "test_type": [
+            "Negative",
+            "Validation"
+        ],
+        "mainURL": "{{base_url}}",
+        "endpoint": "/classifications",
+        "method": "PUT",
+        "headers_additional": {
+            "Content-Type": "application/json"
+        },
+        "payload": "securitiesServices/payloads/Payload_empty_assetTypeId_classifications_PUT_request.json",
+        "expected_status": "400",
+        "expected_response_schema": "",
+        "expected_response": null,
+        "ignore_fields": [],
+        "extract_values": [
+            {
+                "from": "response",
+                "key": "title",
+                "assign_to": "error_title"
+            },
+            {
+                "from": "response",
+                "key": "status",
+                "assign_to": "error_status"
+            }
+        ],
+        "validate": {
+            "performance": {
+                "max_response_time_ms": 500
+            },
+            "security": {
+                "checks": [
+                    "sql_injection",
+                    "xss"
+                ]
+            },
+            "assertions": [
+                {
+                    "actual": "{{error_status}}",
+                    "operator": "==",
+                    "expected": 400,
+                    "message": "Expected error status to be 400 for empty assetTypeId"
+                },
+                {
+                    "actual": "{{error_title}}",
+                    "operator": "==",
+                    "expected": "One or more validation errors occurred.",
+                    "message": "Expected error title to be 'One or more validation errors occurred.'"
+                }
+            ]
+        },
+        "test_data_file": "",
+        "db_query": "",
+        "db_type": "",
+        "db_connection_name": "",
+        "test_summary": "Test TC011: Validate empty assetTypeId returns 400 error",
+        "test_scenario": "Verify that PUT /classifications returns 400 when assetTypeId is empty."
+    },
+    {
+        "test_id": "TC012",
+        "service_name": "securitiesServices",
+        "workflow_mode": "parallel",
+        "test_name": "PUT /classifications [validation: empty subAssetTypeName] (TC012)",
+        "protocol": "REST",
+        "test_type": [
+            "Negative",
+            "Validation"
+        ],
+        "mainURL": "{{base_url}}",
+        "endpoint": "/classifications",
+        "method": "PUT",
+        "headers_additional": {
+            "Content-Type": "application/json"
+        },
+        "payload": "securitiesServices/payloads/Payload_empty_subAssetTypeName_classifications_PUT_request.json",
+        "expected_status": "400",
+        "expected_response_schema": "",
+        "expected_response": null,
+        "ignore_fields": [],
+        "extract_values": [
+            {
+                "from": "response",
+                "key": "title",
+                "assign_to": "error_title"
+            },
+            {
+                "from": "response",
+                "key": "status",
+                "assign_to": "error_status"
+            },
+            {
+                "from": "response",
+                "key": "errors.subAssetTypeName.0",
+                "assign_to": "subAssetTypeName_error_message"
+            }
+        ],
+        "validate": {
+            "performance": {
+                "max_response_time_ms": 500
+            },
+            "security": {
+                "checks": [
+                    "sql_injection",
+                    "xss"
+                ]
+            },
+            "assertions": [
+                {
+                    "actual": "{{error_status}}",
+                    "operator": "==",
+                    "expected": 400,
+                    "message": "Expected error status to be 400 for empty subAssetTypeName"
+                },
+                {
+                    "actual": "{{error_title}}",
+                    "operator": "==",
+                    "expected": "One or more validation errors occurred.",
+                    "message": "Expected error title to be 'One or more validation errors occurred.'"
+                },
+                {
+                    "actual": "{{subAssetTypeName_error_message}}",
+                    "operator": "contains",
+                    "expected": "subAssetTypeName",
+                    "message": "Expected validation error message to reference subAssetTypeName"
+                }
+            ]
+        },
+        "test_data_file": "",
+        "db_query": "",
+        "db_type": "",
+        "db_connection_name": "",
+        "test_summary": "Test TC012: Validate empty subAssetTypeName returns 400 error",
+        "test_scenario": "Verify that PUT /classifications returns 400 when subAssetTypeName is empty."
+    },
+    {
+        "test_id": "TC013",
+        "service_name": "securitiesServices",
+        "workflow_mode": "parallel",
+        "test_name": "PUT /classifications [validation: empty subAssetTypeId] (TC013)",
+        "protocol": "REST",
+        "test_type": [
+            "Negative",
+            "Validation"
+        ],
+        "mainURL": "{{base_url}}",
+        "endpoint": "/classifications",
+        "method": "PUT",
+        "headers_additional": {
+            "Content-Type": "application/json"
+        },
+        "payload": "securitiesServices/payloads/Payload_empty_subAssetTypeId_classifications_PUT_request.json",
+        "expected_status": "400",
+        "expected_response_schema": "",
+        "expected_response": null,
+        "ignore_fields": [],
+        "extract_values": [
+            {
+                "from": "response",
+                "key": "title",
+                "assign_to": "error_title"
+            },
+            {
+                "from": "response",
+                "key": "status",
+                "assign_to": "error_status"
+            }
+        ],
+        "validate": {
+            "performance": {
+                "max_response_time_ms": 500
+            },
+            "security": {
+                "checks": [
+                    "sql_injection",
+                    "xss"
+                ]
+            },
+            "assertions": [
+                {
+                    "actual": "{{error_status}}",
+                    "operator": "==",
+                    "expected": 400,
+                    "message": "Expected error status to be 400 for empty subAssetTypeId"
+                },
+                {
+                    "actual": "{{error_title}}",
+                    "operator": "==",
+                    "expected": "One or more validation errors occurred.",
+                    "message": "Expected error title to be 'One or more validation errors occurred.'"
+                }
+            ]
+        },
+        "test_data_file": "",
+        "db_query": "",
+        "db_type": "",
+        "db_connection_name": "",
+        "test_summary": "Test TC013: Validate empty subAssetTypeId returns 400 error",
+        "test_scenario": "Verify that PUT /classifications returns 400 when subAssetTypeId is empty."
+    },
+    {
+        "test_id": "TC014",
+        "service_name": "securitiesServices",
+        "workflow_mode": "parallel",
+        "test_name": "PUT /classifications [validation: invalid combination of asset IDs] (TC014)",
+        "protocol": "REST",
+        "test_type": [
+            "Negative",
+            "Validation"
+        ],
+        "mainURL": "{{base_url}}",
+        "endpoint": "/classifications",
+        "method": "PUT",
+        "headers_additional": {
+            "Content-Type": "application/json"
+        },
+        "payload": "securitiesServices/payloads/Payload_invalid_combination_classifications_PUT_request.json",
+        "expected_status": "422",
+        "expected_response_schema": "",
+        "expected_response": null,
+        "ignore_fields": [],
+        "extract_values": [
+            {
+                "from": "response",
+                "key": "title",
+                "assign_to": "error_title"
+            },
+            {
+                "from": "response",
+                "key": "status",
+                "assign_to": "error_status"
+            },
+            {
+                "from": "response",
+                "key": "errors.assetClassId, assetTypeId, subAssetTypeId.0",
+                "assign_to": "invalidIds_combination_error_message"
+            }
+        ],
+        "validate": {
+            "performance": {
+                "max_response_time_ms": 500
+            },
+            "security": {
+                "checks": [
+                    "sql_injection",
+                    "xss"
+                ]
+            },
+            "assertions": [
+                {
+                    "actual": "{{error_status}}",
+                    "operator": "==",
+                    "expected": 422,
+                    "message": "Expected error status to be 422 for invalid combination of asset IDs"
+                },
+                {
+                    "actual": "{{error_title}}",
+                    "operator": "==",
+                    "expected": "Business Rule Violation",
+                    "message": "Expected error title to be present for invalid combination of asset IDs"
+                },
+                {
+                    "actual": "{{invalidIds_combination_error_message}}",
+                    "operator": "contains",
+                    "expected": "Asset Classification with the entered assetClassId, assetTypeId, subAssetTypeId combination does not exist.",
+                    "message": "Expected invalid combination error message"
+                }
+            ]
+        },
+        "test_data_file": "",
+        "db_query": "",
+        "db_type": "",
+        "db_connection_name": "",
+        "test_summary": "Test TC014: Validate invalid combination of asset IDs returns 422 error",
+        "test_scenario": "Verify that PUT /classifications returns 422 for an invalid combination of assetClassId, assetTypeId, and subAssetTypeId."
+    },
+    {
+        "test_id": "TC015",
+        "service_name": "securitiesServices",
+        "workflow_mode": "parallel",
+        "test_name": "PUT /classifications [validation: invalid combination with random assetClassId] (TC015)",
+        "protocol": "REST",
+        "test_type": [
+            "Negative",
+            "Validation"
+        ],
+        "mainURL": "{{base_url}}",
+        "endpoint": "/classifications",
+        "method": "PUT",
+        "headers_additional": {
+            "Content-Type": "application/json"
+        },
+        "payload": "securitiesServices/payloads/Payload_invalid_combination_random_assetClassId_classifications_PUT_request.json",
+        "expected_status": "422",
+        "expected_response_schema": "",
+        "expected_response": null,
+        "ignore_fields": [],
+        "extract_values": [
+            {
+                "from": "response",
+                "key": "title",
+                "assign_to": "error_title"
+            },
+            {
+                "from": "response",
+                "key": "status",
+                "assign_to": "error_status"
+            },
+            {
+                "from": "response",
+                "key": "errors.assetClassId, assetTypeId, subAssetTypeId.0",
+                "assign_to": "invalidIds_combination_error_message"
+            }
+        ],
+        "validate": {
+            "performance": {
+                "max_response_time_ms": 500
+            },
+            "security": {
+                "checks": [
+                    "sql_injection",
+                    "xss"
+                ]
+            },
+            "assertions": [
+                {
+                    "actual": "{{error_status}}",
+                    "operator": "==",
+                    "expected": 422,
+                    "message": "Expected error status to be 422 for invalid combination of asset IDs"
+                },
+                {
+                    "actual": "{{error_title}}",
+                    "operator": "==",
+                    "expected": "Business Rule Violation",
+                    "message": "Expected error title to be present for invalid combination of asset IDs"
+                },
+                {
+                    "actual": "{{invalidIds_combination_error_message}}",
+                    "operator": "==",
+                    "expected": "Asset Classification with the entered assetClassId, assetTypeId, subAssetTypeId combination does not exist.",
+                    "message": "Expected invalid combination error message"
+                }
+            ]
+        },
+        "test_data_file": "",
+        "db_query": "",
+        "db_type": "",
+        "db_connection_name": "",
+        "test_summary": "Test TC015: Validate invalid combination using random assetClassId returns 422 error",
+        "test_scenario": "Verify that PUT /classifications returns 422 when assetClassId is random and does not match the assetTypeId/subAssetTypeId combination."
+    },
+    {
+        "test_id": "TC016",
+        "service_name": "securitiesServices",
+        "workflow_mode": "parallel",
+        "test_name": "PUT /classifications [validation: invalid combination with random assetTypeId] (TC016)",
+        "protocol": "REST",
+        "test_type": [
+            "Negative",
+            "Validation"
+        ],
+        "mainURL": "{{base_url}}",
+        "endpoint": "/classifications",
+        "method": "PUT",
+        "headers_additional": {
+            "Content-Type": "application/json"
+        },
+        "payload": "securitiesServices/payloads/Payload_invalid_combination_random_assetTypeId_classifications_PUT_request.json",
+        "expected_status": "422",
+        "expected_response_schema": "",
+        "expected_response": null,
+        "ignore_fields": [],
+        "extract_values": [
+            {
+                "from": "response",
+                "key": "title",
+                "assign_to": "error_title"
+            },
+            {
+                "from": "response",
+                "key": "status",
+                "assign_to": "error_status"
+            },
+            {
+                "from": "response",
+                "key": "errors.assetClassId, assetTypeId, subAssetTypeId.0",
+                "assign_to": "invalidIds_combination_error_message"
+            }
+        ],
+        "validate": {
+            "performance": {
+                "max_response_time_ms": 500
+            },
+            "security": {
+                "checks": [
+                    "sql_injection",
+                    "xss"
+                ]
+            },
+            "assertions": [
+                {
+                    "actual": "{{error_status}}",
+                    "operator": "==",
+                    "expected": 422,
+                    "message": "Expected error status to be 422 for invalid combination of asset IDs"
+                },
+                {
+                    "actual": "{{error_title}}",
+                    "operator": "==",
+                    "expected": "Business Rule Violation",
+                    "message": "Expected error title to be present for invalid combination of asset IDs"
+                },
+                {
+                    "actual": "{{invalidIds_combination_error_message}}",
+                    "operator": "==",
+                    "expected": "Asset Classification with the entered assetClassId, assetTypeId, subAssetTypeId combination does not exist.",
+                    "message": "Expected invalid combination error message"
+                }
+            ]
+        },
+        "test_data_file": "",
+        "db_query": "",
+        "db_type": "",
+        "db_connection_name": "",
+        "test_summary": "Test TC016: Validate invalid combination using random assetTypeId returns 422 error",
+        "test_scenario": "Verify that PUT /classifications returns 422 when assetTypeId is random and does not match the assetClassId/subAssetTypeId combination."
+    }
+]

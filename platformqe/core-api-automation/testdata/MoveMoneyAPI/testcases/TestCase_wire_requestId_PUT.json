@@ -1,0 +1,2080 @@
+[
+    {
+        "test_id": "TC001_SETUP",
+        "service_name": "movemoney",
+        "workflow_mode": "sequential",
+        "test_name": "POST /wire [positive] (TC001_SETUP)",
+        "protocol": "REST",
+        "test_type": [
+            "Functional"
+        ],
+        "mainURL": "{{base_url}}",
+        "endpoint": "/wire",
+        "method": "POST",
+        "rpc_method": "",
+        "graphql_query": "",
+        "graphql_variables": "",
+        "soap_action": "",
+        "soap_envelope": "",
+        "headers_additional": {
+            "Content-Type": "application/json"
+        },
+        "payload": {
+            "amount": "{{amount}}",
+            "requestType": "{{requestType}}",
+            "status": "{{status}}",
+            "changeState": "{{changeState}}",
+            "wireWithdrawalDetails": {
+                "instructionId": "{{instructionId}}",
+                "paymentDate": "{{paymentDate}}",
+                "purpose": "{{purpose}}"
+            }
+        },
+        "expected_status": "200",
+        "expected_response_schema": "MoveMoneyAPI\\schemas\\Schema_wire_POST.json",
+        "expected_response": null,
+        "ignore_fields": [
+            "id"
+        ],
+        "extract_values": [
+            {
+                "from": "response",
+                "key": "requestId",
+                "assign_to": "requestId_setup"
+            },
+            {
+                "from": "response",
+                "key": "version",
+                "assign_to": "version_setup"
+            }
+        ],
+        "validate": {
+            "performance": {
+                "max_response_time_ms": 500
+            },
+            "security": {
+                "checks": [
+                    "sql_injection",
+                    "xss"
+                ]
+            },
+            "assertions": [
+                {
+                    "actual": "{{requestId_setup}}",
+                    "expected": "",
+                    "operator": "!=",
+                    "message": "RequestId should not be empty"
+                },
+                {
+                    "actual": "{{version_setup}}",
+                    "expected": 1,
+                    "operator": "==",
+                    "message": "Version should be 1 for new wire request"
+                }
+            ],
+            "data_comparison": []
+        },
+        "test_data_file": "MoveMoneyAPI/data_driven/Data_wire_PUT.csv",
+        "csv_row_index": 0,
+        "db_query_timing": "",
+        "db_queries": "",
+        "db_type": "",
+        "db_connection_name": "",
+        "test_summary": "Setup test: Create a new wire request to use for PUT tests"
+    },
+    {
+        "test_id": "TC001",
+        "service_name": "movemoney",
+        "workflow_mode": "sequential",
+        "test_name": "PUT /wire/{requestId} [positive] (TC001)",
+        "protocol": "REST",
+        "test_type": [
+            "Functional"
+        ],
+        "mainURL": "{{base_url}}",
+        "endpoint": "/wire/{{requestId_setup}}",
+        "method": "PUT",
+        "rpc_method": "",
+        "graphql_query": "",
+        "graphql_variables": "",
+        "soap_action": "",
+        "soap_envelope": "",
+        "headers_additional": {
+            "Content-Type": "application/json"
+        },
+        "payload": {
+            "version": "{{version_setup|string}}",
+            "amount": "{{amount}}",
+            "requestType": "{{requestType}}",
+            "status": "{{status}}",
+            "changeState": "{{changeState}}",
+            "wireWithdrawalDetails": {
+                "instructionId": "{{instructionId}}",
+                "paymentDate": "{{paymentDate}}",
+                "purpose": "{{purpose}}"
+            }
+        },
+        "expected_status": "200",
+        "expected_response_schema": "MoveMoneyAPI\\schemas\\Schema_wire_POST.json",
+        "expected_response": null,
+        "ignore_fields": [
+            "id"
+        ],
+        "extract_values": [
+            {
+                "from": "response",
+                "key": "requestId",
+                "assign_to": "requestId_tc001"
+            },
+            {
+                "from": "response",
+                "key": "version",
+                "assign_to": "version_tc001"
+            }
+        ],
+        "validate": {
+            "performance": {
+                "max_response_time_ms": 500
+            },
+            "security": {
+                "checks": [
+                    "sql_injection",
+                    "xss"
+                ]
+            },
+            "assertions": [
+                {
+                    "actual": "{{requestId_tc001}}",
+                    "expected": "",
+                    "operator": "!=",
+                    "message": "RequestId should not be empty"
+                },
+                {
+                    "actual": "{{version_tc001}}",
+                    "expected": "{{version_setup}}",
+                    "operator": ">",
+                    "message": "Version should be incremented"
+                }
+            ],
+            "data_comparison": [
+                {
+                    "comparison_name": "API response self-compare",
+                    "source": "api_response",
+                    "target": "api_response",
+                    "fields_to_compare": [],
+                    "log_differences": true
+                }
+            ]
+        },
+        "test_data_file": "MoveMoneyAPI/data_driven/Data_wire_PUT.csv",
+        "csv_row_index": 1,
+        "db_query_timing": "",
+        "db_queries": "",
+        "db_type": "",
+        "db_connection_name": "",
+        "test_summary": "Updates an existing wire request with version chaining"
+    },
+    {
+        "test_id": "TC002",
+        "service_name": "movemoney",
+        "workflow_mode": "Parallel",
+        "test_name": "No Content for PUT /wire/{requestId} [Negative] (TC002)",
+        "protocol": "REST",
+        "test_type": [
+            "Functional"
+        ],
+        "mainURL": "{{base_url}}",
+        "endpoint": "/wire/684225A1-358F-4BDB-A061-9B33576B94CC",
+        "method": "PUT",
+        "rpc_method": "",
+        "graphql_query": "",
+        "graphql_variables": "",
+        "soap_action": "",
+        "soap_envelope": "",
+        "headers_additional": {
+            "Content-Type": "application/json"
+        },
+        "payload": {
+            "amount": "{{amount}}",
+            "requestType": "{{requestType}}",
+            "status": "{{status}}",
+            "changeState": "{{changeState}}",
+            "wireDepositDetails": {
+                "referenceNumber": "{{referenceNumber}}"
+            },
+            "version": "{{version}}"
+        },
+        "expected_status": "204",
+        "expected_response_schema": null,
+        "expected_response": null,
+        "ignore_fields": [
+            "id"
+        ],
+        "extract_values": [],
+        "validate": {
+            "performance": {
+                "max_response_time_ms": 500
+            },
+            "security": {
+                "checks": [
+                    "sql_injection",
+                    "xss"
+                ]
+            },
+            "assertions": [],
+            "data_comparison": []
+        },
+        "test_data_file": "MoveMoneyAPI/data_driven/Data_wire_PUT.csv",
+        "csv_row_index": 2,
+        "db_query_timing": "",
+        "db_queries": "",
+        "db_type": "",
+        "db_connection_name": "",
+        "test_summary": "Verify the API Returns 204 Bad request response if there is No Content for PUT /wire endpoint"
+    },
+    {
+        "test_id": "TC003",
+        "service_name": "movemoney",
+        "workflow_mode": "Parallel",
+        "test_name": "Invalid RequestId for PUT /wire/{requestId} [Negative] (TC003)",
+        "protocol": "REST",
+        "test_type": [
+            "Functional"
+        ],
+        "mainURL": "{{base_url}}",
+        "endpoint": "/wire/6842@#$$#25A1-358F-4BDB-A061-9B33576B94CC",
+        "method": "PUT",
+        "rpc_method": "",
+        "graphql_query": "",
+        "graphql_variables": "",
+        "soap_action": "",
+        "soap_envelope": "",
+        "headers_additional": {
+            "Content-Type": "application/json"
+        },
+        "payload": {
+            "version": "{{version}}",
+            "amount": "{{amount}}",
+            "requestType": "{{requestType}}",
+            "status": "{{status}}",
+            "changeState": "{{changeState}}",
+            "wireWithdrawalDetails": {
+                "instructionId": "{{instructionId}}",
+                "paymentDate": "{{paymentDate}}",
+                "purpose": "{{purpose}}"
+            }
+        },
+        "expected_status": "400",
+        "expected_response_schema": null,
+        "expected_response": {
+            "type": "invalid-request",
+            "title": "Invalid Request",
+            "status": 400,
+            "detail": "The request contains invalid values",
+            "instance": "/api/moneymovement/v1/wire/6842@%23$$%2325A1-358F-4BDB-A061-9B33576B94CC",
+            "errors": {
+                "requestId": [
+                    "Invalid UUID format for 'requestId' parameter."
+                ]
+            }
+        },
+        "ignore_fields": [
+            "id",
+            "instance"
+        ],
+        "extract_values": [
+            {
+                "from": "response",
+                "key": "type",
+                "assign_to": "error_type_tc003"
+            },
+            {
+                "from": "response",
+                "key": "title",
+                "assign_to": "error_title_tc003"
+            }
+        ],
+        "validate": {
+            "performance": {
+                "max_response_time_ms": 500
+            },
+            "security": {
+                "checks": [
+                    "sql_injection",
+                    "xss"
+                ]
+            },
+            "assertions": [
+                {
+                    "actual": "{{error_type_tc003}}",
+                    "expected": "invalid-request",
+                    "operator": "==",
+                    "message": "TC003: Error type should be 'invalid-request'"
+                },
+                {
+                    "actual": "{{error_title_tc003}}",
+                    "expected": "Invalid Request",
+                    "operator": "==",
+                    "message": "TC003: Error title should be 'Invalid Request'"
+                }
+            ],
+            "data_comparison": []
+        },
+        "test_data_file": "MoveMoneyAPI/data_driven/Data_wire_PUT.csv",
+        "csv_row_index": 3,
+        "db_query_timing": "",
+        "db_queries": "",
+        "db_type": "",
+        "db_connection_name": "",
+        "test_summary": "Verify the API Returns 400 Bad request response if there is Invalid RequestId format for PUT /wire endpoint"
+    },
+    {
+        "test_id": "TC004",
+        "service_name": "movemoney",
+        "workflow_mode": "Parallel",
+        "test_name": "version is missing PUT /wire/{requestId} [Negative] (TC004)",
+        "protocol": "REST",
+        "test_type": [
+            "Functional"
+        ],
+        "mainURL": "{{base_url}}",
+        "endpoint": "/wire/0996E69C-F291-4E4E-B148-00632667F4AA",
+        "method": "PUT",
+        "rpc_method": "",
+        "graphql_query": "",
+        "graphql_variables": "",
+        "soap_action": "",
+        "soap_envelope": "",
+        "headers_additional": {
+            "Content-Type": "application/json"
+        },
+        "payload": {
+            "amount": "{{amount}}",
+            "requestType": "{{requestType}}",
+            "status": "{{status}}",
+            "changeState": "{{changeState}}",
+            "wireWithdrawalDetails": {
+                "instructionId": "{{instructionId}}",
+                "paymentDate": "{{paymentDate}}",
+                "purpose": "{{purpose}}"
+            }
+        },
+        "expected_status": "400",
+        "expected_response_schema": null,
+        "expected_response": {
+            "type": "missing-required-fields",
+            "title": "One or more fields are missing values",
+            "status": 400,
+            "detail": "Missing Required Fields",
+            "instance": "/api/moneymovement/v1/wire/0996E69C-F291-4E4E-B148-00632667F4AA",
+            "errors": {
+                "version": [
+                    "This field is required."
+                ]
+            }
+        },
+        "ignore_fields": [
+            "id"
+        ],
+        "extract_values": [
+            {
+                "from": "response",
+                "key": "type",
+                "assign_to": "error_type_tc004"
+            },
+            {
+                "from": "response",
+                "key": "title",
+                "assign_to": "error_title_tc004"
+            }
+        ],
+        "validate": {
+            "performance": {
+                "max_response_time_ms": 500
+            },
+            "security": {
+                "checks": [
+                    "sql_injection",
+                    "xss"
+                ]
+            },
+            "assertions": [
+                {
+                    "actual": "{{error_type_tc004}}",
+                    "expected": "missing-required-fields",
+                    "operator": "==",
+                    "message": "TC004: Error type should be 'missing-required-fields'"
+                },
+                {
+                    "actual": "{{error_title_tc004}}",
+                    "expected": "One or more fields are missing values",
+                    "operator": "==",
+                    "message": "TC004: Error title should be 'One or more fields are missing values'"
+                }
+            ],
+            "data_comparison": []
+        },
+        "test_data_file": "MoveMoneyAPI/data_driven/Data_wire_PUT.csv",
+        "csv_row_index": 4,
+        "db_query_timing": "",
+        "db_queries": "",
+        "db_type": "",
+        "db_connection_name": "",
+        "test_summary": "Verify the API returns 400 response for version is missing on PUT /wire endpoint"
+    },
+    {
+        "test_id": "TC005",
+        "service_name": "movemoney",
+        "workflow_mode": "Parallel",
+        "test_name": "Conflict happens when version does not match the current version for PUT /wire/{requestId} [Negative] (TC005)",
+        "protocol": "REST",
+        "test_type": [
+            "Functional"
+        ],
+        "mainURL": "{{base_url}}",
+        "endpoint": "/wire/4df7236f-a015-4493-9ba3-446057f40844",
+        "method": "PUT",
+        "rpc_method": "",
+        "graphql_query": "",
+        "graphql_variables": "",
+        "soap_action": "",
+        "soap_envelope": "",
+        "headers_additional": {
+            "Content-Type": "application/json"
+        },
+        "payload": {
+            "amount": "{{amount}}",
+            "requestType": "{{requestType}}",
+            "status": "{{status}}",
+            "changeState": "{{changeState}}",
+            "wireWithdrawalDetails": {
+                "instructionId": "{{instructionId}}",
+                "paymentDate": "{{paymentDate}}",
+                "purpose": "{{purpose}}"
+            },
+            "version": "{{version_setup|string}}"
+        },
+        "expected_status": "409",
+        "expected_response_schema": null,
+        "expected_response": null,
+        "ignore_fields": [
+            "id"
+        ],
+        "extract_values": [],
+        "validate": {
+            "performance": {
+                "max_response_time_ms": 500
+            },
+            "security": {
+                "checks": [
+                    "sql_injection",
+                    "xss"
+                ]
+            },
+            "assertions": [],
+            "data_comparison": []
+        },
+        "test_data_file": "MoveMoneyAPI/data_driven/Data_wire_PUT.csv",
+        "csv_row_index": 5,
+        "db_query_timing": "",
+        "db_queries": "",
+        "db_type": "",
+        "db_connection_name": "",
+        "test_summary": "Verify the API Returns 409 Bad Request response when the supplied version does not match the server's current version for PUT /wire endpoint"
+    },
+    {
+        "test_id": "TC006",
+        "service_name": "movemoney",
+        "workflow_mode": "Parallel",
+        "test_name": "Amount field is missing PUT /wire/{requestId} [Negative] (TC006)",
+        "protocol": "REST",
+        "test_type": [
+            "Functional"
+        ],
+        "mainURL": "{{base_url}}",
+        "endpoint": "/wire/4df7236f-a015-4493-9ba3-446057f40844",
+        "method": "PUT",
+        "rpc_method": "",
+        "graphql_query": "",
+        "graphql_variables": "",
+        "soap_action": "",
+        "soap_envelope": "",
+        "headers_additional": {
+            "Content-Type": "application/json"
+        },
+        "payload": {
+            "version": "{{version}}",
+            "amount": "{{amount}}",
+            "requestType": "{{requestType}}",
+            "status": "{{status}}",
+            "changeState": "{{changeState}}",
+            "wireWithdrawalDetails": {
+                "instructionId": "{{instructionId}}",
+                "paymentDate": "{{paymentDate}}",
+                "purpose": "{{purpose}}"
+            }
+        },
+        "expected_status": "400",
+        "expected_response_schema": null,
+        "expected_response": {
+            "type": "missing-required-fields",
+            "title": "One or more fields are missing values",
+            "status": 400,
+            "detail": "Missing Required Fields",
+            "instance": "/api/moneymovement/v1/wire/4df7236f-a015-4493-9ba3-446057f40844",
+            "errors": {
+                "amount": [
+                    "This field is required."
+                ]
+            }
+        },
+        "ignore_fields": [
+            "id"
+        ],
+        "extract_values": [
+            {
+                "from": "response",
+                "key": "type",
+                "assign_to": "error_type_tc006"
+            },
+            {
+                "from": "response",
+                "key": "title",
+                "assign_to": "error_title_tc006"
+            }
+        ],
+        "validate": {
+            "performance": {
+                "max_response_time_ms": 500
+            },
+            "security": {
+                "checks": [
+                    "sql_injection",
+                    "xss"
+                ]
+            },
+            "assertions": [
+                {
+                    "actual": "{{error_type_tc006}}",
+                    "expected": "missing-required-fields",
+                    "operator": "==",
+                    "message": "TC006: Error type should be 'missing-required-fields'"
+                },
+                {
+                    "actual": "{{error_title_tc006}}",
+                    "expected": "One or more fields are missing values",
+                    "operator": "==",
+                    "message": "TC006: Error title should be 'One or more fields are missing values'"
+                }
+            ],
+            "data_comparison": []
+        },
+        "test_data_file": "MoveMoneyAPI/data_driven/Data_wire_PUT.csv",
+        "csv_row_index": 6,
+        "db_query_timing": "",
+        "db_queries": "",
+        "db_type": "",
+        "db_connection_name": "",
+        "test_summary": "Verify the API Returns 400 Bad Request response when the amount field is missing for PUT /wire endpoint"
+    },
+    {
+        "test_id": "TC007",
+        "service_name": "movemoney",
+        "workflow_mode": "Parallel",
+        "test_name": "requestType is missing PUT /wire/{requestId} [Negative] (TC007)",
+        "protocol": "REST",
+        "test_type": [
+            "Functional"
+        ],
+        "mainURL": "{{base_url}}",
+        "endpoint": "/wire/4df7236f-a015-4493-9ba3-446057f40844",
+        "method": "PUT",
+        "rpc_method": "",
+        "graphql_query": "",
+        "graphql_variables": "",
+        "soap_action": "",
+        "soap_envelope": "",
+        "headers_additional": {
+            "Content-Type": "application/json"
+        },
+        "payload": {
+            "version": "{{version}}",
+            "amount": "{{amount}}",
+            "status": "{{status}}",
+            "changeState": "{{changeState}}",
+            "wireWithdrawalDetails": {
+                "instructionId": "{{instructionId}}",
+                "paymentDate": "{{paymentDate}}",
+                "purpose": "{{purpose}}"
+            }
+        },
+        "expected_status": "400",
+        "expected_response_schema": null,
+        "expected_response": {
+            "type": "missing-required-fields",
+            "title": "One or more fields are missing values",
+            "status": 400,
+            "detail": "Missing Required Fields",
+            "instance": "/api/moneymovement/v1/wire/4df7236f-a015-4493-9ba3-446057f40844",
+            "errors": {
+                "requestType": [
+                    "This field is required."
+                ]
+            }
+        },
+        "ignore_fields": [
+            "id"
+        ],
+        "extract_values": [
+            {
+                "from": "response",
+                "key": "type",
+                "assign_to": "error_type_tc007"
+            },
+            {
+                "from": "response",
+                "key": "title",
+                "assign_to": "error_title_tc007"
+            }
+        ],
+        "validate": {
+            "performance": {
+                "max_response_time_ms": 500
+            },
+            "security": {
+                "checks": [
+                    "sql_injection",
+                    "xss"
+                ]
+            },
+            "assertions": [
+                {
+                    "actual": "{{error_type_tc007}}",
+                    "expected": "missing-required-fields",
+                    "operator": "==",
+                    "message": "TC007: Error type should be 'missing-required-fields'"
+                },
+                {
+                    "actual": "{{error_title_tc007}}",
+                    "expected": "One or more fields are missing values",
+                    "operator": "==",
+                    "message": "TC007: Error title should be 'One or more fields are missing values'"
+                }
+            ],
+            "data_comparison": []
+        },
+        "test_data_file": "MoveMoneyAPI/data_driven/Data_wire_PUT.csv",
+        "csv_row_index": 7,
+        "db_query_timing": "",
+        "db_queries": "",
+        "db_type": "",
+        "db_connection_name": "",
+        "test_summary": "Verify the API Returns 400 Bad Request response when the requestType field is missing for PUT /wire endpoint"
+    },
+    {
+        "test_id": "TC008",
+        "service_name": "movemoney",
+        "workflow_mode": "Parallel",
+        "test_name": "status is missing PUT /wire/{requestId} [Negative] (TC008)",
+        "protocol": "REST",
+        "test_type": [
+            "Functional"
+        ],
+        "mainURL": "{{base_url}}",
+        "endpoint": "/wire/4df7236f-a015-4493-9ba3-446057f40844",
+        "method": "PUT",
+        "rpc_method": "",
+        "graphql_query": "",
+        "graphql_variables": "",
+        "soap_action": "",
+        "soap_envelope": "",
+        "headers_additional": {
+            "Content-Type": "application/json"
+        },
+        "payload": {
+            "version": "{{version}}",
+            "amount": "{{amount}}",
+            "requestType": "{{requestType}}",
+            "changeState": "{{changeState}}",
+            "wireWithdrawalDetails": {
+                "instructionId": "{{instructionId}}",
+                "paymentDate": "{{paymentDate}}",
+                "purpose": "{{purpose}}"
+            }
+        },
+        "expected_status": "400",
+        "expected_response_schema": null,
+        "expected_response": {
+            "type": "missing-required-fields",
+            "title": "One or more fields are missing values",
+            "status": 400,
+            "detail": "Missing Required Fields",
+            "instance": "/api/moneymovement/v1/wire/4df7236f-a015-4493-9ba3-446057f40844",
+            "errors": {
+                "status": [
+                    "This field is required."
+                ]
+            }
+        },
+        "ignore_fields": [
+            "id"
+        ],
+        "extract_values": [
+            {
+                "from": "response",
+                "key": "type",
+                "assign_to": "error_type_tc008"
+            },
+            {
+                "from": "response",
+                "key": "title",
+                "assign_to": "error_title_tc008"
+            }
+        ],
+        "validate": {
+            "performance": {
+                "max_response_time_ms": 500
+            },
+            "security": {
+                "checks": [
+                    "sql_injection",
+                    "xss"
+                ]
+            },
+            "assertions": [
+                {
+                    "actual": "{{error_type_tc008}}",
+                    "expected": "missing-required-fields",
+                    "operator": "==",
+                    "message": "TC008: Error type should be 'missing-required-fields'"
+                },
+                {
+                    "actual": "{{error_title_tc008}}",
+                    "expected": "One or more fields are missing values",
+                    "operator": "==",
+                    "message": "TC008: Error title should be 'One or more fields are missing values'"
+                }
+            ],
+            "data_comparison": []
+        },
+        "test_data_file": "MoveMoneyAPI/data_driven/Data_wire_PUT.csv",
+        "csv_row_index": 8,
+        "db_query_timing": "",
+        "db_queries": "",
+        "db_type": "",
+        "db_connection_name": "",
+        "test_summary": "Verify the API Returns 400 Bad Request response when the status field is missing for PUT /wire endpoint"
+    },
+    {
+        "test_id": "TC009",
+        "service_name": "movemoney",
+        "workflow_mode": "Parallel",
+        "test_name": "wireWithdrawalDetails is missing PUT /wire/{requestId} [Negative] (TC009)",
+        "protocol": "REST",
+        "test_type": [
+            "Functional"
+        ],
+        "mainURL": "{{base_url}}",
+        "endpoint": "/wire/4df7236f-a015-4493-9ba3-446057f40844",
+        "method": "PUT",
+        "rpc_method": "",
+        "graphql_query": "",
+        "graphql_variables": "",
+        "soap_action": "",
+        "soap_envelope": "",
+        "headers_additional": {
+            "Content-Type": "application/json"
+        },
+        "payload": {
+            "version": "{{version}}",
+            "amount": "{{amount}}",
+            "requestType": "{{requestType}}",
+            "status": "{{status}}",
+            "changeState": "{{changeState}}"
+        },
+        "expected_status": "400",
+        "expected_response_schema": null,
+        "expected_response": {
+            "type": "missing-required-fields",
+            "title": "One or more fields are missing values",
+            "status": 400,
+            "detail": "Missing Required Fields",
+            "instance": "/api/moneymovement/v1/wire/4df7236f-a015-4493-9ba3-446057f40844",
+            "errors": {
+                "wireDepositDetails / wireWithdrawalDetails": [
+                    "This field is required."
+                ]
+            }
+        },
+        "ignore_fields": [
+            "id"
+        ],
+        "extract_values": [
+            {
+                "from": "response",
+                "key": "type",
+                "assign_to": "error_type_tc009"
+            },
+            {
+                "from": "response",
+                "key": "title",
+                "assign_to": "error_title_tc009"
+            }
+        ],
+        "validate": {
+            "performance": {
+                "max_response_time_ms": 500
+            },
+            "security": {
+                "checks": [
+                    "sql_injection",
+                    "xss"
+                ]
+            },
+            "assertions": [
+                {
+                    "actual": "{{error_type_tc009}}",
+                    "expected": "missing-required-fields",
+                    "operator": "==",
+                    "message": "TC009: Error type should be 'missing-required-fields'"
+                },
+                {
+                    "actual": "{{error_title_tc009}}",
+                    "expected": "One or more fields are missing values",
+                    "operator": "==",
+                    "message": "TC009: Error title should be 'One or more fields are missing values'"
+                }
+            ],
+            "data_comparison": []
+        },
+        "test_data_file": "MoveMoneyAPI/data_driven/Data_wire_PUT.csv",
+        "csv_row_index": 9,
+        "db_query_timing": "",
+        "db_queries": "",
+        "db_type": "",
+        "db_connection_name": "",
+        "test_summary": "Verify the API Returns 400 Bad Request response when wireWithdrawalDetails is missing for PUT /wire endpoint"
+    },
+    {
+        "test_id": "TC010",
+        "service_name": "movemoney",
+        "workflow_mode": "Parallel",
+        "test_name": "Amount less than 0.01 for PUT /wire/{requestId} [Negative] (TC010)",
+        "protocol": "REST",
+        "test_type": [
+            "Functional"
+        ],
+        "mainURL": "{{base_url}}",
+        "endpoint": "/wire/4df7236f-a015-4493-9ba3-446057f40844",
+        "method": "PUT",
+        "rpc_method": "",
+        "graphql_query": "",
+        "graphql_variables": "",
+        "soap_action": "",
+        "soap_envelope": "",
+        "headers_additional": {
+            "Content-Type": "application/json"
+        },
+        "payload": {
+            "version": "{{version}}",
+            "amount": "{{amount}}",
+            "requestType": "{{requestType}}",
+            "status": "{{status}}",
+            "changeState": "{{changeState}}",
+            "wireWithdrawalDetails": {
+                "instructionId": "{{instructionId}}",
+                "paymentDate": "{{paymentDate}}",
+                "purpose": "{{purpose}}"
+            }
+        },
+        "expected_status": "400",
+        "expected_response_schema": null,
+        "expected_response": {
+            "type": "invalid-request",
+            "title": "Invalid Request",
+            "status": 400,
+            "detail": "The request contains invalid values",
+            "instance": "/api/moneymovement/v1/wire/4df7236f-a015-4493-9ba3-446057f40844",
+            "errors": {
+                "amount": [
+                    "Must be a positive dollar amount greater than 0.01 with up to 2 decimal places."
+                ]
+            }
+        },
+        "ignore_fields": [
+            "id"
+        ],
+        "extract_values": [
+            {
+                "from": "response",
+                "key": "type",
+                "assign_to": "error_type_tc010"
+            },
+            {
+                "from": "response",
+                "key": "title",
+                "assign_to": "error_title_tc010"
+            }
+        ],
+        "validate": {
+            "performance": {
+                "max_response_time_ms": 500
+            },
+            "security": {
+                "checks": [
+                    "sql_injection",
+                    "xss"
+                ]
+            },
+            "assertions": [
+                {
+                    "actual": "{{error_type_tc010}}",
+                    "expected": "invalid-request",
+                    "operator": "==",
+                    "message": "TC010: Error type should be 'invalid-request'"
+                },
+                {
+                    "actual": "{{error_title_tc010}}",
+                    "expected": "Invalid Request",
+                    "operator": "==",
+                    "message": "TC010: Error title should be 'Invalid Request'"
+                }
+            ],
+            "data_comparison": []
+        },
+        "test_data_file": "MoveMoneyAPI/data_driven/Data_wire_PUT.csv",
+        "csv_row_index": 10,
+        "db_query_timing": "",
+        "db_queries": "",
+        "db_type": "",
+        "db_connection_name": "",
+        "test_summary": "Verify the API Returns 400 Bad Request response when amount is less than 0.01 for PUT /wire endpoint"
+    },
+    {
+        "test_id": "TC011",
+        "service_name": "movemoney",
+        "workflow_mode": "Parallel",
+        "test_name": "Amount has more than two decimal places for PUT /wire/{requestId} [Negative] (TC011)",
+        "protocol": "REST",
+        "test_type": [
+            "Functional"
+        ],
+        "mainURL": "{{base_url}}",
+        "endpoint": "/wire/4df7236f-a015-4493-9ba3-446057f40844",
+        "method": "PUT",
+        "rpc_method": "",
+        "graphql_query": "",
+        "graphql_variables": "",
+        "soap_action": "",
+        "soap_envelope": "",
+        "headers_additional": {
+            "Content-Type": "application/json"
+        },
+        "payload": {
+            "version": "{{version}}",
+            "amount": "{{amount}}",
+            "requestType": "{{requestType}}",
+            "status": "{{status}}",
+            "changeState": "{{changeState}}",
+            "wireWithdrawalDetails": {
+                "instructionId": "{{instructionId}}",
+                "paymentDate": "{{paymentDate}}",
+                "purpose": "{{purpose}}"
+            }
+        },
+        "expected_status": "400",
+        "expected_response_schema": null,
+        "expected_response": {
+            "type": "invalid-request",
+            "title": "Invalid Request",
+            "status": 400,
+            "detail": "The request contains invalid values",
+            "instance": "/api/moneymovement/v1/wire/4df7236f-a015-4493-9ba3-446057f40844",
+            "errors": {
+                "amount": [
+                    "Must be a positive dollar amount greater than 0.01 with up to 2 decimal places."
+                ]
+            }
+        },
+        "ignore_fields": [
+            "id"
+        ],
+        "extract_values": [
+            {
+                "from": "response",
+                "key": "type",
+                "assign_to": "error_type_tc011"
+            },
+            {
+                "from": "response",
+                "key": "title",
+                "assign_to": "error_title_tc011"
+            }
+        ],
+        "validate": {
+            "performance": {
+                "max_response_time_ms": 500
+            },
+            "security": {
+                "checks": [
+                    "sql_injection",
+                    "xss"
+                ]
+            },
+            "assertions": [
+                {
+                    "actual": "{{error_type_tc011}}",
+                    "expected": "invalid-request",
+                    "operator": "==",
+                    "message": "TC011: Error type should be 'invalid-request'"
+                },
+                {
+                    "actual": "{{error_title_tc011}}",
+                    "expected": "Invalid Request",
+                    "operator": "==",
+                    "message": "TC011: Error title should be 'Invalid Request'"
+                }
+            ],
+            "data_comparison": []
+        },
+        "test_data_file": "MoveMoneyAPI/data_driven/Data_wire_PUT.csv",
+        "csv_row_index": 11,
+        "db_query_timing": "",
+        "db_queries": "",
+        "db_type": "",
+        "db_connection_name": "",
+        "test_summary": "Verify the API Returns 400 Bad Request response when amount has more than two decimal places for PUT /wire endpoint"
+    },
+    {
+        "test_id": "TC012",
+        "service_name": "movemoney",
+        "workflow_mode": "Parallel",
+        "test_name": "Version is a negative integer for PUT /wire/{requestId} [Negative] (TC012)",
+        "protocol": "REST",
+        "test_type": [
+            "Functional"
+        ],
+        "mainURL": "{{base_url}}",
+        "endpoint": "/wire/4df7236f-a015-4493-9ba3-446057f40844",
+        "method": "PUT",
+        "rpc_method": "",
+        "graphql_query": "",
+        "graphql_variables": "",
+        "soap_action": "",
+        "soap_envelope": "",
+        "headers_additional": {
+            "Content-Type": "application/json"
+        },
+        "payload": {
+            "version": "{{version}}",
+            "amount": "{{amount}}",
+            "requestType": "{{requestType}}",
+            "status": "{{status}}",
+            "changeState": "{{changeState}}",
+            "wireWithdrawalDetails": {
+                "instructionId": "{{instructionId}}",
+                "paymentDate": "{{paymentDate}}",
+                "purpose": "{{purpose}}"
+            }
+        },
+        "expected_status": "400",
+        "expected_response_schema": null,
+        "expected_response": {
+            "type": "invalid-request",
+            "title": "Invalid Request",
+            "status": 400,
+            "detail": "The request contains invalid values",
+            "instance": "/api/moneymovement/v1/wire/4df7236f-a015-4493-9ba3-446057f40844",
+            "errors": {
+                "version": [
+                    "Must be a valid integer."
+                ]
+            }
+        },
+        "ignore_fields": [
+            "id"
+        ],
+        "extract_values": [
+            {
+                "from": "response",
+                "key": "type",
+                "assign_to": "error_type_tc012"
+            },
+            {
+                "from": "response",
+                "key": "title",
+                "assign_to": "error_title_tc012"
+            }
+        ],
+        "validate": {
+            "performance": {
+                "max_response_time_ms": 500
+            },
+            "security": {
+                "checks": [
+                    "sql_injection",
+                    "xss"
+                ]
+            },
+            "assertions": [
+                {
+                    "actual": "{{error_type_tc012}}",
+                    "expected": "invalid-request",
+                    "operator": "==",
+                    "message": "TC012: Error type should be 'invalid-request'"
+                },
+                {
+                    "actual": "{{error_title_tc012}}",
+                    "expected": "Invalid Request",
+                    "operator": "==",
+                    "message": "TC012: Error title should be 'Invalid Request'"
+                }
+            ],
+            "data_comparison": []
+        },
+        "test_data_file": "MoveMoneyAPI/data_driven/Data_wire_PUT.csv",
+        "csv_row_index": 12,
+        "db_query_timing": "",
+        "db_queries": "",
+        "db_type": "",
+        "db_connection_name": "",
+        "test_summary": "Verify the API Returns 400 Bad Request response when version is a negative integer for PUT /wire endpoint"
+    },
+    {
+        "test_id": "TC013",
+        "service_name": "movemoney",
+        "workflow_mode": "Parallel",
+        "test_name": "wireDepositDetails present for Withdrawal requestType for PUT /wire/{requestId} [Negative] (TC013)",
+        "protocol": "REST",
+        "test_type": [
+            "Functional"
+        ],
+        "mainURL": "{{base_url}}",
+        "endpoint": "/wire/69b2797c-8dd4-4922-b707-7ce385378859",
+        "method": "PUT",
+        "rpc_method": "",
+        "graphql_query": "",
+        "graphql_variables": "",
+        "soap_action": "",
+        "soap_envelope": "",
+        "headers_additional": {
+            "Content-Type": "application/json"
+        },
+        "payload": {
+            "version": "{{version}}",
+            "amount": "{{amount}}",
+            "requestType": "{{requestType}}",
+            "status": "{{status}}",
+            "wireDepositDetails": {
+                "referenceNumber": "{{referenceNumber}}",
+                "allocations": "{{allocations}}"
+            }
+        },
+        "expected_status": "400",
+        "expected_response_schema": null,
+        "expected_response": {
+            "type": "missing-required-fields",
+            "title": "One or more fields are missing values",
+            "status": 400,
+            "detail": "Missing Required Fields",
+            "instance": "/api/moneymovement/v1/wire/69b2797c-8dd4-4922-b707-7ce385378859",
+            "errors": {
+                "wireWithdrawalDetails": [
+                    "This field is required."
+                ]
+            }
+        },
+        "ignore_fields": [
+            "id"
+        ],
+        "extract_values": [
+            {
+                "from": "response",
+                "key": "type",
+                "assign_to": "error_type_tc013"
+            },
+            {
+                "from": "response",
+                "key": "title",
+                "assign_to": "error_title_tc013"
+            }
+        ],
+        "validate": {
+            "performance": {
+                "max_response_time_ms": 500
+            },
+            "security": {
+                "checks": [
+                    "sql_injection",
+                    "xss"
+                ]
+            },
+            "assertions": [
+                {
+                    "actual": "{{error_type_tc013}}",
+                    "expected": "missing-required-fields",
+                    "operator": "==",
+                    "message": "TC013: Error type should be 'missing-required-fields'"
+                },
+                {
+                    "actual": "{{error_title_tc013}}",
+                    "expected": "One or more fields are missing values",
+                    "operator": "==",
+                    "message": "TC013: Error title should be 'One or more fields are missing values'"
+                }
+            ],
+            "data_comparison": []
+        },
+        "test_data_file": "MoveMoneyAPI/data_driven/Data_wire_PUT.csv",
+        "csv_row_index": 13,
+        "db_query_timing": "",
+        "db_queries": "",
+        "db_type": "",
+        "db_connection_name": "",
+        "test_summary": "Verify the API Returns 400 Bad Request response when wireDepositDetails is present for Withdrawal requestType for PUT /wire endpoint"
+    },
+    {
+        "test_id": "TC014",
+        "service_name": "movemoney",
+        "workflow_mode": "Parallel",
+        "test_name": "Version is not an integer for PUT /wire/{requestId} [Negative] (TC014)",
+        "protocol": "REST",
+        "test_type": [
+            "Functional"
+        ],
+        "mainURL": "{{base_url}}",
+        "endpoint": "/wire/4df7236f-a015-4493-9ba3-446057f40844",
+        "method": "PUT",
+        "rpc_method": "",
+        "graphql_query": "",
+        "graphql_variables": "",
+        "soap_action": "",
+        "soap_envelope": "",
+        "headers_additional": {
+            "Content-Type": "application/json"
+        },
+        "payload": {
+            "version": "{{version}}",
+            "amount": "{{amount}}",
+            "requestType": "{{requestType}}",
+            "status": "{{status}}",
+            "changeState": "{{changeState}}",
+            "wireWithdrawalDetails": {
+                "instructionId": "{{instructionId}}",
+                "paymentDate": "{{paymentDate}}",
+                "purpose": "{{purpose}}"
+            }
+        },
+        "expected_status": "400",
+        "expected_response_schema": null,
+        "expected_response": {
+            "type": "invalid-request",
+            "title": "Invalid Request",
+            "status": 400,
+            "detail": "The request contains invalid values",
+            "instance": "/api/moneymovement/v1/wire/4df7236f-a015-4493-9ba3-446057f40844",
+            "errors": {
+                "version": [
+                    "Must be a valid integer."
+                ]
+            }
+        },
+        "ignore_fields": [
+            "id"
+        ],
+        "extract_values": [
+            {
+                "from": "response",
+                "key": "type",
+                "assign_to": "error_type_tc014"
+            },
+            {
+                "from": "response",
+                "key": "title",
+                "assign_to": "error_title_tc014"
+            }
+        ],
+        "validate": {
+            "performance": {
+                "max_response_time_ms": 500
+            },
+            "security": {
+                "checks": [
+                    "sql_injection",
+                    "xss"
+                ]
+            },
+            "assertions": [
+                {
+                    "actual": "{{error_type_tc014}}",
+                    "expected": "invalid-request",
+                    "operator": "==",
+                    "message": "TC014: Error type should be 'invalid-request'"
+                },
+                {
+                    "actual": "{{error_title_tc014}}",
+                    "expected": "Invalid Request",
+                    "operator": "==",
+                    "message": "TC014: Error title should be 'Invalid Request'"
+                }
+            ],
+            "data_comparison": []
+        },
+        "test_data_file": "MoveMoneyAPI/data_driven/Data_wire_PUT.csv",
+        "csv_row_index": 14,
+        "db_query_timing": "",
+        "db_queries": "",
+        "db_type": "",
+        "db_connection_name": "",
+        "test_summary": "Verify the API Returns 400 Bad Request response when version is not an integer for PUT /wire endpoint"
+    },
+    {
+        "test_id": "TC015",
+        "service_name": "movemoney",
+        "workflow_mode": "Parallel",
+        "test_name": "requestType is not Deposit or Withdrawal for PUT /wire/{requestId} [Negative] (TC015)",
+        "protocol": "REST",
+        "test_type": [
+            "Functional"
+        ],
+        "mainURL": "{{base_url}}",
+        "endpoint": "/wire/4df7236f-a015-4493-9ba3-446057f40844",
+        "method": "PUT",
+        "rpc_method": "",
+        "graphql_query": "",
+        "graphql_variables": "",
+        "soap_action": "",
+        "soap_envelope": "",
+        "headers_additional": {
+            "Content-Type": "application/json"
+        },
+        "payload": {
+            "version": "{{version}}",
+            "amount": "{{amount}}",
+            "requestType": "{{requestType}}",
+            "status": "{{status}}",
+            "changeState": "{{changeState}}",
+            "wireWithdrawalDetails": {
+                "instructionId": "{{instructionId}}",
+                "paymentDate": "{{paymentDate}}",
+                "purpose": "{{purpose}}"
+            }
+        },
+        "expected_status": "400",
+        "expected_response_schema": null,
+        "expected_response": {
+            "type": "invalid-request",
+            "title": "Invalid Request",
+            "status": 400,
+            "detail": "The request contains invalid values",
+            "instance": "/api/moneymovement/v1/wire/4df7236f-a015-4493-9ba3-446057f40844",
+            "errors": {
+                "requestType": [
+                    "Must be one of: Deposit, Withdrawal."
+                ]
+            }
+        },
+        "ignore_fields": [
+            "id"
+        ],
+        "extract_values": [
+            {
+                "from": "response",
+                "key": "type",
+                "assign_to": "error_type_tc015"
+            },
+            {
+                "from": "response",
+                "key": "title",
+                "assign_to": "error_title_tc015"
+            }
+        ],
+        "validate": {
+            "performance": {
+                "max_response_time_ms": 500
+            },
+            "security": {
+                "checks": [
+                    "sql_injection",
+                    "xss"
+                ]
+            },
+            "assertions": [
+                {
+                    "actual": "{{error_type_tc015}}",
+                    "expected": "invalid-request",
+                    "operator": "==",
+                    "message": "TC015: Error type should be 'invalid-request'"
+                },
+                {
+                    "actual": "{{error_title_tc015}}",
+                    "expected": "Invalid Request",
+                    "operator": "==",
+                    "message": "TC015: Error title should be 'Invalid Request'"
+                }
+            ],
+            "data_comparison": []
+        },
+        "test_data_file": "MoveMoneyAPI/data_driven/Data_wire_PUT.csv",
+        "csv_row_index": 15,
+        "db_query_timing": "",
+        "db_queries": "",
+        "db_type": "",
+        "db_connection_name": "",
+        "test_summary": "Verify the API Returns 400 Bad Request response when requestType is not Deposit or Withdrawal for PUT /wire endpoint"
+    },
+    {
+        "test_id": "TC016",
+        "service_name": "movemoney",
+        "workflow_mode": "Parallel",
+        "test_name": "wireDepositDetails missing for Deposit requestType for PUT /wire/{requestId} [Negative] (TC016)",
+        "protocol": "REST",
+        "test_type": [
+            "Functional"
+        ],
+        "mainURL": "{{base_url}}",
+        "endpoint": "/wire/69b2797c-8dd4-4922-b707-7ce385378859",
+        "method": "PUT",
+        "rpc_method": "",
+        "graphql_query": "",
+        "graphql_variables": "",
+        "soap_action": "",
+        "soap_envelope": "",
+        "headers_additional": {
+            "Content-Type": "application/json"
+        },
+        "payload": {
+            "version": "{{version}}",
+            "amount": "{{amount}}",
+            "requestType": "{{requestType}}",
+            "status": "{{status}}"
+        },
+        "expected_status": "400",
+        "expected_response_schema": null,
+        "expected_response": {
+            "type": "missing-required-fields",
+            "title": "One or more fields are missing values",
+            "status": 400,
+            "detail": "Missing Required Fields",
+            "instance": "/api/moneymovement/v1/wire/69b2797c-8dd4-4922-b707-7ce385378859",
+            "errors": {
+                "wireDepositDetails / wireWithdrawalDetails": [
+                    "This field is required."
+                ]
+            }
+        },
+        "ignore_fields": [
+            "id"
+        ],
+        "extract_values": [
+            {
+                "from": "response",
+                "key": "type",
+                "assign_to": "error_type_tc016"
+            },
+            {
+                "from": "response",
+                "key": "title",
+                "assign_to": "error_title_tc016"
+            }
+        ],
+        "validate": {
+            "performance": {
+                "max_response_time_ms": 500
+            },
+            "security": {
+                "checks": [
+                    "sql_injection",
+                    "xss"
+                ]
+            },
+            "assertions": [
+                {
+                    "actual": "{{error_type_tc016}}",
+                    "expected": "missing-required-fields",
+                    "operator": "==",
+                    "message": "TC016: Error type should be 'missing-required-fields'"
+                },
+                {
+                    "actual": "{{error_title_tc016}}",
+                    "expected": "One or more fields are missing values",
+                    "operator": "==",
+                    "message": "TC016: Error title should be 'One or more fields are missing values'"
+                }
+            ],
+            "data_comparison": []
+        },
+        "test_data_file": "MoveMoneyAPI/data_driven/Data_wire_PUT.csv",
+        "csv_row_index": 16,
+        "db_query_timing": "",
+        "db_queries": "",
+        "db_type": "",
+        "db_connection_name": "",
+        "test_summary": "Verify the API Returns 400 Bad Request response when wireDepositDetails is missing for Deposit requestType for PUT /wire endpoint"
+    },
+    {
+        "test_id": "TC017",
+        "service_name": "movemoney",
+        "workflow_mode": "Parallel",
+        "test_name": "wireWithdrawalDetails present for Deposit requestType for PUT /wire/{requestId} [Negative] (TC017)",
+        "protocol": "REST",
+        "test_type": [
+            "Functional"
+        ],
+        "mainURL": "{{base_url}}",
+        "endpoint": "/wire/69b2797c-8dd4-4922-b707-7ce385378859",
+        "method": "PUT",
+        "rpc_method": "",
+        "graphql_query": "",
+        "graphql_variables": "",
+        "soap_action": "",
+        "soap_envelope": "",
+        "headers_additional": {
+            "Content-Type": "application/json"
+        },
+        "payload": {
+            "version": "{{version}}",
+            "amount": "{{amount}}",
+            "requestType": "{{requestType}}",
+            "status": "{{status}}",
+            "wireWithdrawalDetails": {
+                "instructionId": "{{instructionId}}",
+                "paymentDate": "{{paymentDate}}",
+                "purpose": "{{purpose}}"
+            }
+        },
+        "expected_status": "400",
+        "expected_response_schema": null,
+        "expected_response": {
+            "type": "missing-required-fields",
+            "title": "One or more fields are missing values",
+            "status": 400,
+            "detail": "Missing Required Fields",
+            "instance": "/api/moneymovement/v1/wire/69b2797c-8dd4-4922-b707-7ce385378859",
+            "errors": {
+                "wireDepositDetails": [
+                    "This field is required."
+                ]
+            }
+        },
+        "ignore_fields": [
+            "id"
+        ],
+        "extract_values": [
+            {
+                "from": "response",
+                "key": "type",
+                "assign_to": "error_type_tc017"
+            },
+            {
+                "from": "response",
+                "key": "title",
+                "assign_to": "error_title_tc017"
+            }
+        ],
+        "validate": {
+            "performance": {
+                "max_response_time_ms": 500
+            },
+            "security": {
+                "checks": [
+                    "sql_injection",
+                    "xss"
+                ]
+            },
+            "assertions": [
+                {
+                    "actual": "{{error_type_tc017}}",
+                    "expected": "missing-required-fields",
+                    "operator": "==",
+                    "message": "TC017: Error type should be 'missing-required-fields'"
+                },
+                {
+                    "actual": "{{error_title_tc017}}",
+                    "expected": "One or more fields are missing values",
+                    "operator": "==",
+                    "message": "TC017: Error title should be 'One or more fields are missing values'"
+                }
+            ],
+            "data_comparison": []
+        },
+        "test_data_file": "MoveMoneyAPI/data_driven/Data_wire_PUT.csv",
+        "csv_row_index": 17,
+        "db_query_timing": "",
+        "db_queries": "",
+        "db_type": "",
+        "db_connection_name": "",
+        "test_summary": "Verify the API Returns 400 Bad Request response when wireWithdrawalDetails is present for Deposit requestType for PUT /wire endpoint"
+    },
+    {
+        "test_id": "TC018",
+        "service_name": "movemoney",
+        "workflow_mode": "Parallel",
+        "test_name": "wireWithdrawalDetails.paymentDate is not in YYYY-MM-DD format for PUT /wire/{requestId} [Negative] (TC018)",
+        "protocol": "REST",
+        "test_type": [
+            "Functional"
+        ],
+        "mainURL": "{{base_url}}",
+        "endpoint": "/wire/4df7236f-a015-4493-9ba3-446057f40844",
+        "method": "PUT",
+        "rpc_method": "",
+        "graphql_query": "",
+        "graphql_variables": "",
+        "soap_action": "",
+        "soap_envelope": "",
+        "headers_additional": {
+            "Content-Type": "application/json"
+        },
+        "payload": {
+            "version": "{{version}}",
+            "amount": "{{amount}}",
+            "requestType": "{{requestType}}",
+            "status": "{{status}}",
+            "changeState": "{{changeState}}",
+            "wireWithdrawalDetails": {
+                "instructionId": "{{instructionId}}",
+                "paymentDate": "{{paymentDate}}",
+                "purpose": "{{purpose}}"
+            }
+        },
+        "expected_status": "400",
+        "expected_response_schema": null,
+        "expected_response": {
+            "type": "invalid-request",
+            "title": "Invalid Request",
+            "status": 400,
+            "detail": "The request contains invalid values",
+            "instance": "/api/moneymovement/v1/wire/4df7236f-a015-4493-9ba3-446057f40844",
+            "errors": {
+                "wireWithdrawalDetails.paymentDate": [
+                    "paymentDate must be in ISO 8601 format (YYYY-MM-DD)."
+                ]
+            }
+        },
+        "ignore_fields": [
+            "id"
+        ],
+        "extract_values": [
+            {
+                "from": "response",
+                "key": "type",
+                "assign_to": "error_type_tc018"
+            },
+            {
+                "from": "response",
+                "key": "title",
+                "assign_to": "error_title_tc018"
+            }
+        ],
+        "validate": {
+            "performance": {
+                "max_response_time_ms": 500
+            },
+            "security": {
+                "checks": [
+                    "sql_injection",
+                    "xss"
+                ]
+            },
+            "assertions": [
+                {
+                    "actual": "{{error_type_tc018}}",
+                    "expected": "invalid-request",
+                    "operator": "==",
+                    "message": "TC018: Error type should be 'invalid-request'"
+                },
+                {
+                    "actual": "{{error_title_tc018}}",
+                    "expected": "Invalid Request",
+                    "operator": "==",
+                    "message": "TC018: Error title should be 'Invalid Request'"
+                }
+            ],
+            "data_comparison": []
+        },
+        "test_data_file": "MoveMoneyAPI/data_driven/Data_wire_PUT.csv",
+        "csv_row_index": 18,
+        "db_query_timing": "",
+        "db_queries": "",
+        "db_type": "",
+        "db_connection_name": "",
+        "test_summary": "Verify the API Returns 400 Bad Request response when wireWithdrawalDetails.paymentDate is not in YYYY-MM-DD format for PUT /wire endpoint"
+    },
+    {
+        "test_id": "TC019",
+        "service_name": "movemoney",
+        "workflow_mode": "Parallel",
+        "test_name": "wireWithdrawalDetails.purpose exceeds 140 characters for PUT /wire/{requestId} [Negative] (TC019)",
+        "protocol": "REST",
+        "test_type": [
+            "Functional"
+        ],
+        "mainURL": "{{base_url}}",
+        "endpoint": "/wire/4df7236f-a015-4493-9ba3-446057f40844",
+        "method": "PUT",
+        "rpc_method": "",
+        "graphql_query": "",
+        "graphql_variables": "",
+        "soap_action": "",
+        "soap_envelope": "",
+        "headers_additional": {
+            "Content-Type": "application/json"
+        },
+        "payload": {
+            "version": "{{version}}",
+            "amount": "{{amount}}",
+            "requestType": "{{requestType}}",
+            "status": "{{status}}",
+            "changeState": "{{changeState}}",
+            "wireWithdrawalDetails": {
+                "instructionId": "{{instructionId}}",
+                "paymentDate": "{{paymentDate}}",
+                "purpose": "{{purpose}}"
+            }
+        },
+        "expected_status": "400",
+        "expected_response_schema": null,
+        "expected_response": {
+            "type": "invalid-request",
+            "title": "Invalid Request",
+            "status": 400,
+            "detail": "The request contains invalid values",
+            "instance": "/api/moneymovement/v1/wire/4df7236f-a015-4493-9ba3-446057f40844",
+            "errors": {
+                "wireWithdrawalDetails.purpose": [
+                    "Must be 140 characters or fewer."
+                ]
+            }
+        },
+        "ignore_fields": [
+            "id"
+        ],
+        "extract_values": [
+            {
+                "from": "response",
+                "key": "type",
+                "assign_to": "error_type_tc019"
+            },
+            {
+                "from": "response",
+                "key": "title",
+                "assign_to": "error_title_tc019"
+            }
+        ],
+        "validate": {
+            "performance": {
+                "max_response_time_ms": 500
+            },
+            "security": {
+                "checks": [
+                    "sql_injection",
+                    "xss"
+                ]
+            },
+            "assertions": [
+                {
+                    "actual": "{{error_type_tc019}}",
+                    "expected": "invalid-request",
+                    "operator": "==",
+                    "message": "TC019: Error type should be 'invalid-request'"
+                },
+                {
+                    "actual": "{{error_title_tc019}}",
+                    "expected": "Invalid Request",
+                    "operator": "==",
+                    "message": "TC019: Error title should be 'Invalid Request'"
+                }
+            ],
+            "data_comparison": []
+        },
+        "test_data_file": "MoveMoneyAPI/data_driven/Data_wire_PUT.csv",
+        "csv_row_index": 19,
+        "db_query_timing": "",
+        "db_queries": "",
+        "db_type": "",
+        "db_connection_name": "",
+        "test_summary": "Verify the API Returns 400 Bad Request response when wireWithdrawalDetails.purpose exceeds 140 characters for PUT /wire endpoint"
+    },
+    {
+        "test_id": "TC020",
+        "service_name": "movemoney",
+        "workflow_mode": "Parallel",
+        "test_name": "wireDepositDetails.referenceNumber exceeds 35 characters for PUT /wire/{requestId} [Negative] (TC020)",
+        "protocol": "REST",
+        "test_type": [
+            "Functional"
+        ],
+        "mainURL": "{{base_url}}",
+        "endpoint": "/wire/69b2797c-8dd4-4922-b707-7ce385378859",
+        "method": "PUT",
+        "rpc_method": "",
+        "graphql_query": "",
+        "graphql_variables": "",
+        "soap_action": "",
+        "soap_envelope": "",
+        "headers_additional": {
+            "Content-Type": "application/json"
+        },
+        "payload": {
+            "version": "{{version}}",
+            "amount": "{{amount}}",
+            "requestType": "{{requestType}}",
+            "status": "{{status}}",
+            "wireDepositDetails": {
+                "referenceNumber": "{{referenceNumber}}",
+                "allocations": "{{allocations}}"
+            }
+        },
+        "expected_status": "400",
+        "expected_response_schema": null,
+        "expected_response": {
+            "type": "invalid-request",
+            "title": "Invalid Request",
+            "status": 400,
+            "detail": "The request contains invalid values",
+            "instance": "/api/moneymovement/v1/wire/69b2797c-8dd4-4922-b707-7ce385378859",
+            "errors": {
+                "wireDepositDetails.referenceNumber": [
+                    "Must be 35 characters or fewer."
+                ]
+            }
+        },
+        "ignore_fields": [
+            "id"
+        ],
+        "extract_values": [
+            {
+                "from": "response",
+                "key": "type",
+                "assign_to": "error_type_tc020"
+            },
+            {
+                "from": "response",
+                "key": "title",
+                "assign_to": "error_title_tc020"
+            }
+        ],
+        "validate": {
+            "performance": {
+                "max_response_time_ms": 500
+            },
+            "security": {
+                "checks": [
+                    "sql_injection",
+                    "xss"
+                ]
+            },
+            "assertions": [
+                {
+                    "actual": "{{error_type_tc020}}",
+                    "expected": "invalid-request",
+                    "operator": "==",
+                    "message": "TC020: Error type should be 'invalid-request'"
+                },
+                {
+                    "actual": "{{error_title_tc020}}",
+                    "expected": "Invalid Request",
+                    "operator": "==",
+                    "message": "TC020: Error title should be 'Invalid Request'"
+                }
+            ],
+            "data_comparison": []
+        },
+        "test_data_file": "MoveMoneyAPI/data_driven/Data_wire_PUT.csv",
+        "csv_row_index": 20,
+        "db_query_timing": "",
+        "db_queries": "",
+        "db_type": "",
+        "db_connection_name": "",
+        "test_summary": "Verify the API Returns 400 Bad Request response when wireDepositDetails.referenceNumber exceeds 35 characters for PUT /wire endpoint"
+    },
+    {
+        "test_id": "TC021",
+        "service_name": "movemoney",
+        "workflow_mode": "Parallel",
+        "test_name": "wireWithdrawalDetails.instructionId is not a valid UUID for PUT /wire/{requestId} [Negative] (TC021)",
+        "protocol": "REST",
+        "test_type": [
+            "Functional"
+        ],
+        "mainURL": "{{base_url}}",
+        "endpoint": "/wire/4df7236f-a015-4493-9ba3-446057f40844",
+        "method": "PUT",
+        "rpc_method": "",
+        "graphql_query": "",
+        "graphql_variables": "",
+        "soap_action": "",
+        "soap_envelope": "",
+        "headers_additional": {
+            "Content-Type": "application/json"
+        },
+        "payload": {
+            "version": "{{version}}",
+            "amount": "{{amount}}",
+            "requestType": "{{requestType}}",
+            "status": "{{status}}",
+            "changeState": "{{changeState}}",
+            "wireWithdrawalDetails": {
+                "instructionId": "{{instructionId}}",
+                "paymentDate": "{{paymentDate}}",
+                "purpose": "{{purpose}}"
+            }
+        },
+        "expected_status": "400",
+        "expected_response_schema": null,
+        "expected_response": {
+            "type": "invalid-request",
+            "title": "Invalid Request",
+            "status": 400,
+            "detail": "The request contains invalid values",
+            "instance": "/api/moneymovement/v1/wire/4df7236f-a015-4493-9ba3-446057f40844",
+            "errors": {
+                "wireWithdrawalDetails.instructionId": [
+                    "Must be a valid UUID."
+                ]
+            }
+        },
+        "ignore_fields": [
+            "id"
+        ],
+        "extract_values": [
+            {
+                "from": "response",
+                "key": "type",
+                "assign_to": "error_type_tc021"
+            },
+            {
+                "from": "response",
+                "key": "title",
+                "assign_to": "error_title_tc021"
+            }
+        ],
+        "validate": {
+            "performance": {
+                "max_response_time_ms": 500
+            },
+            "security": {
+                "checks": [
+                    "sql_injection",
+                    "xss"
+                ]
+            },
+            "assertions": [
+                {
+                    "actual": "{{error_type_tc021}}",
+                    "expected": "invalid-request",
+                    "operator": "==",
+                    "message": "TC021: Error type should be 'invalid-request'"
+                },
+                {
+                    "actual": "{{error_title_tc021}}",
+                    "expected": "Invalid Request",
+                    "operator": "==",
+                    "message": "TC021: Error title should be 'Invalid Request'"
+                }
+            ],
+            "data_comparison": []
+        },
+        "test_data_file": "MoveMoneyAPI/data_driven/Data_wire_PUT.csv",
+        "csv_row_index": 21,
+        "db_query_timing": "",
+        "db_queries": "",
+        "db_type": "",
+        "db_connection_name": "",
+        "test_summary": "Verify the API Returns 400 Bad Request response when wireWithdrawalDetails.instructionId is not a valid UUID for PUT /wire endpoint"
+    },
+    {
+        "test_id": "TC022",
+        "service_name": "movemoney",
+        "workflow_mode": "Parallel",
+        "test_name": "Updating a request with status Deleted for PUT /wire/{requestId} [Negative] (TC022)",
+        "protocol": "REST",
+        "test_type": [
+            "Functional"
+        ],
+        "mainURL": "{{base_url}}",
+        "endpoint": "/wire/E0334FFD-ADA1-4450-87A6-03C7A0C04509",
+        "method": "PUT",
+        "rpc_method": "",
+        "graphql_query": "",
+        "graphql_variables": "",
+        "soap_action": "",
+        "soap_envelope": "",
+        "headers_additional": {
+            "Content-Type": "application/json"
+        },
+        "payload": {
+            "version": "{{version}}",
+            "amount": "{{amount}}",
+            "requestType": "{{requestType}}",
+            "status": "{{status}}",
+            "wireDepositDetails": {
+                "referenceNumber": "{{referenceNumber}}",
+                "allocations": "{{allocations}}"
+            }
+        },
+        "expected_status": "400",
+        "expected_response_schema": null,
+        "expected_response": {
+            "type": "invalid-request",
+            "title": "Invalid Request",
+            "status": 400,
+            "detail": "The request contains invalid values",
+            "instance": "/api/moneymovement/v1/wire/E0334FFD-ADA1-4450-87A6-03C7A0C04509",
+            "errors": {
+                "status": [
+                    "This request has been deleted and cannot be modified."
+                ]
+            }
+        },
+        "ignore_fields": [
+            "id"
+        ],
+        "extract_values": [
+            {
+                "from": "response",
+                "key": "type",
+                "assign_to": "error_type_tc022"
+            },
+            {
+                "from": "response",
+                "key": "title",
+                "assign_to": "error_title_tc022"
+            }
+        ],
+        "validate": {
+            "performance": {
+                "max_response_time_ms": 500
+            },
+            "security": {
+                "checks": [
+                    "sql_injection",
+                    "xss"
+                ]
+            },
+            "assertions": [
+                {
+                    "actual": "{{error_type_tc022}}",
+                    "expected": "invalid-request",
+                    "operator": "==",
+                    "message": "TC022: Error type should be 'invalid-request'"
+                },
+                {
+                    "actual": "{{error_title_tc022}}",
+                    "expected": "Invalid Request",
+                    "operator": "==",
+                    "message": "TC022: Error title should be 'Invalid Request'"
+                }
+            ],
+            "data_comparison": []
+        },
+        "test_data_file": "MoveMoneyAPI/data_driven/Data_wire_PUT.csv",
+        "csv_row_index": 22,
+        "db_query_timing": "",
+        "db_queries": "",
+        "db_type": "",
+        "db_connection_name": "",
+        "test_summary": "Verify the API Returns 400 Bad Request response when updating a request with status Deleted for PUT /wire endpoint"
+    }
+]

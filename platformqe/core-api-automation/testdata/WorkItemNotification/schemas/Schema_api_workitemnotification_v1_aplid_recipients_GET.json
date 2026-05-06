@@ -1,0 +1,58 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "type": "object",
+  "title": "GET /api/workitemnotification/v1/{aplid}/recipients Response Schema",
+  "description": "Response schema for /api/workitemnotification/v1/{aplid}/recipients",
+  "properties": {
+    "id": {"type": "integer"},
+    "aplId": {"type": "string"},
+    "itemsRequiringAttention": {"type": "string"},
+    "receivedCompletedPrimary": {"type": "string"},
+    "receivedCompletedSecondary": {"type": "string"},
+    "workItemVisibilityPreferences": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "type": {"type": "string"},
+          "description": {"type": "string"},
+          "visiblity": {"type": "boolean"}
+        },
+        "required": ["type", "description", "visiblity"]
+      }
+    },
+    "selectedRecipients": {"type": "array"},
+    "allRecipients": {"type": ["array", "null"]},
+    "isPageVisited": {"type": "boolean"},
+    "createdBy": {"type": ["string", "null"]},
+    "createdDate": {"type": ["string", "null"]},
+    "modifiedBy": {"type": ["string", "null"]},
+    "modifiedDate": {"type": "string"},
+    "approvalNotification": {"type": "string"},
+    "receivedCompletedNewAccounts": {"type": "string"},
+    "receivedCompletedMoneyIn": {"type": "string"},
+    "receivedCompletedStandingInstructions": {"type": "string"},
+    "receivedCompletedInvestmentChanges": {"type": "string"},
+    "receivedCompletedWithdrawals": {"type": "string"},
+    "receivedCompletedTerminations": {"type": "string"}
+  },
+  "required": [
+    "id",
+    "aplId",
+    "itemsRequiringAttention",
+    "receivedCompletedPrimary",
+    "receivedCompletedSecondary",
+    "workItemVisibilityPreferences",
+    "selectedRecipients",
+    "isPageVisited",
+    "modifiedBy",
+    "modifiedDate",
+    "approvalNotification",
+    "receivedCompletedNewAccounts",
+    "receivedCompletedMoneyIn",
+    "receivedCompletedStandingInstructions",
+    "receivedCompletedInvestmentChanges",
+    "receivedCompletedWithdrawals",
+    "receivedCompletedTerminations"
+  ]
+}

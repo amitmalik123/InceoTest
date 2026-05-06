@@ -1,0 +1,9 @@
+
+    {
+        "assetClassId": "",
+        "assetClassName": "{{random_string(5)}}",
+        "assetTypeId": "{{db_asset_type_id}}",
+        "assetTypeName": "{{random_string(5)}}",
+        "subAssetTypeId": "{{db_sub_asset_type_id}}",
+        "subAssetTypeName": "{{random_string(5)}}"
+    }

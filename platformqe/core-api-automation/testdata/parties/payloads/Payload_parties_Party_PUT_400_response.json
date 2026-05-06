@@ -1,0 +1,14 @@
+{
+    "type": "https://tools.ietf.org/html/rfc9110#section-15.5.1",
+    "title": "One or more validation errors occurred.",
+    "status": 400,
+    "errors": {
+        "request": [
+            "The request field is required."
+        ],
+        "$.core.individual.maritalStatus": [
+            "The JSON value could not be converted to System.Nullable`1[PartiesService.Contracts.Enums.MaritalStatus]. Path: $.core.individual.maritalStatus | LineNumber: 38 | BytePositionInLine: 31."
+        ]
+    },
+    "traceId": "00-b92d68d83882d802a763dcb27ebc6e89-8e3d50b1d637cba5-00"
+}

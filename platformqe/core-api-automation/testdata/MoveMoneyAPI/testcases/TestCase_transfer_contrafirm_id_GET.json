@@ -1,0 +1,435 @@
+[
+    {
+        "test_id": "TC001",
+        "service_name": "movemoney",
+        "workflow_mode": "parallel",
+        "test_name": "Retrieves a specific contra firm by its identifier. [positive] (TC001)",
+        "protocol": "REST",
+        "test_type": [
+            "Functional"
+        ],
+        "mainURL": "{{base_url}}",
+        "endpoint": "/transfer/contrafirm/100",
+        "method": "GET",
+        "rpc_method": "",
+        "graphql_query": "",
+        "graphql_variables": "",
+        "soap_action": "",
+        "soap_envelope": "",
+        "headers_additional": {
+            "Content-Type": "application/json"
+        },
+        "payload": null,
+        "expected_status": "200",
+        "expected_response_schema": "",
+        "expected_response": null,
+        "ignore_fields": [
+            "id"
+        ],
+        "extract_values": [
+            {
+                "from": "response",
+                "key": "contraFirm.contraFirm_ID",
+                "assign_to": "firm_id"
+            },
+            {
+                "from": "response",
+                "key": "contraFirm.firmName",
+                "assign_to": "firm_name"
+            }
+        ],
+        "validate": {
+            "performance": {
+                "max_response_time_ms": 1000
+            },
+            "security": {
+                "checks": [
+                    "sql_injection",
+                    "xss"
+                ]
+            },
+            "data_comparison": [
+                {
+                    "source": "api_response",
+                    "target": "api_response",
+                    "fields_to_compare": [
+                        {
+                            "source_field": "contraFirm.contraFirm_ID",
+                            "target_field": "contraFirm.contraFirm_ID",
+                            "operator": "=="
+                        },
+                        {
+                            "source_field": "contraFirm.firmName",
+                            "target_field": "contraFirm.firmName",
+                            "operator": "=="
+                        },
+                        {
+                            "source_field": "success",
+                            "target_field": "success",
+                            "operator": "=="
+                        }
+                    ],
+                    "log_differences": true,
+                    "comparison_name": "Verify contraFirm object structure and key fields exist"
+                }
+            ],
+            "assertions": [
+                {
+                    "actual": "{{firm_id}}",
+                    "expected": 0,
+                    "operator": ">",
+                    "message": "Firm ID should be greater than 0"
+                },
+                {
+                    "actual": "{{firm_name}}",
+                    "expected": "",
+                    "operator": "!=",
+                    "message": "Firm name should not be empty"
+                }
+            ]
+        },
+        "test_data_file": "",
+        "db_query_timing": "after_api",
+        "db_queries": {
+            "default": "",
+            "audit_query": ""
+        },
+        "db_type": "",
+        "db_connection_name": "",
+        "test_summary": "Test TC001: Retrieves a specific contra firm by its identifier. [positive] (TC001)"
+    },
+    {
+        "test_id": "TC002",
+        "service_name": "movemoney",
+        "workflow_mode": "parallel",
+        "test_name": "GET /transfer/contrafirm/{id} [negative: missing id] (TC002)",
+        "protocol": "REST",
+        "test_type": [
+            "Negative"
+        ],
+        "mainURL": "{{base_url}}",
+        "endpoint": "/transfer/contrafirm/2",
+        "method": "GET",
+        "rpc_method": "",
+        "graphql_query": "",
+        "graphql_variables": "",
+        "soap_action": "",
+        "soap_envelope": "",
+        "headers_additional": {
+            "Content-Type": "application/json"
+        },
+        "payload": null,
+        "expected_status": "200",
+        "expected_response_schema": "",
+        "expected_response": null,
+        "ignore_fields": [
+            "id"
+        ],
+        "extract_values": [],
+        "validate": {
+            "performance": {
+                "max_response_time_ms": 500
+            },
+            "security": {
+                "checks": [
+                    "sql_injection",
+                    "xss"
+                ]
+            },
+            "data_comparison": [
+                {
+                    "source": "api_response",
+                    "target": "api_response",
+                    "fields_to_compare": [
+                        {
+                            "source_field": "success",
+                            "target_field": "success",
+                            "operator": "=="
+                        },
+                        {
+                            "source_field": "contraFirm",
+                            "target_field": "contraFirm",
+                            "operator": "=="
+                        }
+                    ],
+                    "log_differences": true,
+                    "comparison_name": "Verify response structure for TC002"
+                }
+            ],
+            "assertions": []
+        },
+        "test_data_file": "",
+        "db_query_timing": "after_api",
+        "db_queries": {
+            "default": "",
+            "audit_query": ""
+        },
+        "db_type": "",
+        "db_connection_name": "",
+        "test_summary": "Test TC002: GET /transfer/contrafirm/{id} [negative: missing id] (TC002)",
+        "missing_param": "id"
+    },
+    {
+        "test_id": "TC003",
+        "service_name": "movemoney",
+        "workflow_mode": "parallel",
+        "test_name": "GET /transfer/contrafirm/{id} [negative: extra param] (TC003)",
+        "protocol": "REST",
+        "test_type": [
+            "Negative"
+        ],
+        "mainURL": "{{base_url}}",
+        "endpoint": "/transfer/contrafirm/0",
+        "method": "GET",
+        "rpc_method": "",
+        "graphql_query": "",
+        "graphql_variables": "",
+        "soap_action": "",
+        "soap_envelope": "",
+        "headers_additional": {
+            "Content-Type": "application/json"
+        },
+        "payload": null,
+        "expected_status": "204",
+        "expected_response_schema": "",
+        "expected_response": null,
+        "ignore_fields": [
+            "id"
+        ],
+        "extract_values": [],
+        "validate": {
+            "performance": {
+                "max_response_time_ms": 500
+            },
+            "security": {
+                "checks": [
+                    "sql_injection",
+                    "xss"
+                ]
+            },
+            "data_comparison": [
+                {
+                    "source": "api_response",
+                    "target": "api_response",
+                    "fields_to_compare": [],
+                    "log_differences": true,
+                    "comparison_name": "Verify 204 No Content response for TC003"
+                }
+            ],
+            "assertions": []
+        },
+        "test_data_file": "",
+        "db_query_timing": "after_api",
+        "db_queries": {
+            "default": "",
+            "audit_query": ""
+        },
+        "db_type": "",
+        "db_connection_name": "",
+        "test_summary": "Test TC003: GET /transfer/contrafirm/{id} [negative: extra param] (TC003)",
+        "extra_param": {
+            "unexpected_param": "unexpected"
+        }
+    },
+    {
+        "test_id": "TC004",
+        "service_name": "movemoney",
+        "workflow_mode": "parallel",
+        "test_name": "GET /transfer/contrafirm/{id} [negative: missing auth] (TC004)",
+        "protocol": "REST",
+        "test_type": [
+            "Negative"
+        ],
+        "mainURL": "{{base_url}}",
+        "endpoint": "/transfer/contrafirm/123456789",
+        "method": "GET",
+        "rpc_method": "",
+        "graphql_query": "",
+        "graphql_variables": "",
+        "soap_action": "",
+        "soap_envelope": "",
+        "headers_additional": {
+            "Content-Type": "application/json"
+        },
+        "payload": null,
+        "expected_status": "204",
+        "expected_response_schema": "",
+        "expected_response": null,
+        "ignore_fields": [
+            "id"
+        ],
+        "extract_values": [],
+        "validate": {
+            "performance": {
+                "max_response_time_ms": 500
+            },
+            "security": {
+                "checks": [
+                    "sql_injection",
+                    "xss"
+                ]
+            },
+            "data_comparison": [
+                {
+                    "source": "api_response",
+                    "target": "api_response",
+                    "fields_to_compare": [],
+                    "log_differences": true,
+                    "comparison_name": "Verify 204 No Content response for TC004"
+                }
+            ],
+            "assertions": []
+        },
+        "test_data_file": "",
+        "db_query_timing": "after_api",
+        "db_queries": {
+            "default": "",
+            "audit_query": ""
+        },
+        "db_type": "",
+        "db_connection_name": "",
+        "test_summary": "Test TC004: GET /transfer/contrafirm/{id} [negative: missing auth] (TC004)",
+        "no_auth": true
+    },
+    {
+        "test_id": "TC005",
+        "service_name": "movemoney",
+        "workflow_mode": "parallel",
+        "test_name": "GET /transfer/contrafirm/{id} [negative: invalid auth] (TC005)",
+        "protocol": "REST",
+        "test_type": [
+            "Negative"
+        ],
+        "mainURL": "{{base_url}}",
+        "endpoint": "/transfer/contrafirm/A",
+        "method": "GET",
+        "rpc_method": "",
+        "graphql_query": "",
+        "graphql_variables": "",
+        "soap_action": "",
+        "soap_envelope": "",
+        "headers_additional": {
+            "Content-Type": "application/json"
+        },
+        "payload": null,
+        "expected_status": "400",
+        "expected_response_schema": "",
+        "expected_response": {
+            "status": 400,
+            "error": "Invalid contra firm ID format. ID must be a valid integer.",
+            "fields": "id"
+        },
+        "ignore_fields": [
+            "id"
+        ],
+        "extract_values": [],
+        "validate": {
+            "performance": {
+                "max_response_time_ms": 500
+            },
+            "security": {
+                "checks": [
+                    "sql_injection",
+                    "xss"
+                ]
+            },
+            "data_comparison": [
+                {
+                    "source": "api_response",
+                    "target": "api_response",
+                    "fields_to_compare": [
+                        {
+                            "source_field": "status",
+                            "target_field": "status",
+                            "operator": "=="
+                        }
+                    ],
+                    "log_differences": true,
+                    "comparison_name": "Verify error response structure for TC005"
+                }
+            ],
+            "assertions": []
+        },
+        "test_data_file": "",
+        "db_query_timing": "after_api",
+        "db_queries": {
+            "default": "",
+            "audit_query": ""
+        },
+        "db_type": "",
+        "db_connection_name": "",
+        "test_summary": "Test TC005: GET /transfer/contrafirm/{id} [negative: invalid auth] (TC005)",
+        "invalid_auth": true
+    },
+    {
+        "test_id": "TC006",
+        "service_name": "movemoney",
+        "workflow_mode": "parallel",
+        "test_name": "GET /transfer/contrafirm/{id} [negative: error 500] (TC006)",
+        "protocol": "REST",
+        "test_type": [
+            "Negative"
+        ],
+        "mainURL": "{{base_url}}",
+        "endpoint": "/transfer/contrafirm/#@12",
+        "method": "GET",
+        "rpc_method": "",
+        "graphql_query": "",
+        "graphql_variables": "",
+        "soap_action": "",
+        "soap_envelope": "",
+        "headers_additional": {
+            "Content-Type": "application/json"
+        },
+        "payload": null,
+        "expected_status": "200",
+        "expected_response_schema": "",
+        "expected_response": null,
+        "ignore_fields": [
+            "id"
+        ],
+        "extract_values": [],
+        "validate": {
+            "performance": {
+                "max_response_time_ms": 1000
+            },
+            "security": {
+                "checks": [
+                    "sql_injection",
+                    "xss"
+                ]
+            },
+            "data_comparison": [
+                {
+                    "source": "api_response",
+                    "target": "api_response",
+                    "fields_to_compare": [
+                        {
+                            "source_field": "success",
+                            "target_field": "success",
+                            "operator": "=="
+                        },
+                        {
+                            "source_field": "contraFirm",
+                            "target_field": "contraFirm",
+                            "operator": "=="
+                        }
+                    ],
+                    "log_differences": true,
+                    "comparison_name": "Verify response structure for TC006"
+                }
+            ],
+            "assertions": []
+        },
+        "test_data_file": "",
+        "db_query_timing": "after_api",
+        "db_queries": {
+            "default": "",
+            "audit_query": ""
+        },
+        "db_type": "",
+        "db_connection_name": "",
+        "test_summary": "Test TC006: GET /transfer/contrafirm/{id} [negative: error 500] (TC006)",
+        "error_case": "500"
+    }
+]

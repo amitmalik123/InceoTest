@@ -1,0 +1,75 @@
+[
+    {
+        "test_id": "TC001",
+        "service_name": "movemoney",
+        "workflow_mode": "parallel",
+        "test_name": "POST /requests [positive] (TC001)",
+        "protocol": "REST",
+        "test_type": [
+            "Functional"
+        ],
+        "mainURL": "{{base_url}}",
+        "endpoint": "/ach",
+        "method": "POST",
+        "rpc_method": "",
+        "graphql_query": "",
+        "graphql_variables": "",
+        "soap_action": "",
+        "soap_envelope": "",
+        "headers_additional": {
+            "Content-Type": "application/json"
+        },
+        "payload": {
+            "instructionId": "{{instructionId}}",
+            "accountId": "{{accountId}}",
+            "amount": "{{amount}}",
+            "requestType": "{{requestType}}",
+            "status": "{{status}}",
+            "schedule": {
+                "scheduleType": "{{scheduleType}}",
+                "paymentDate": "{{paymentDate}}"
+            }
+        },
+        "expected_status": "201",
+        "expected_response_schema": "MoveMoneyAPI\\schemas\\Schema_ach_POST.json",
+        "expected_response": null,
+        "ignore_fields": [],
+        "extract_values": [
+            {
+                "from": "response",
+                "key": "requestId",
+                "assign_to": "requestId"
+            }
+        ],
+        "validate": {
+            "performance": {
+                "max_response_time_ms": 500
+            },
+            "security": {
+                "checks": [
+                    "sql_injection",
+                    "xss"
+                ]
+            },
+            "data_comparison": [],
+            "assertions": [
+                {
+                    "actual": "{{requestId}}",
+                    "expected": "",
+                    "operator": "!=",
+                    "message": "Request ID should not be empty"
+                }
+            ]
+        },
+        "test_data_file": "MoveMoneyAPI/data_driven/Data_ach_Hook_POST.csv",
+        "db_type": "",
+        "db_connection_name": "",
+        "db_query_timing": "after_api",
+        "db_queries": {
+            "default": "",
+            "audit_query": ""
+        },
+        "test_summary": "Test TC001: POST /moneymovement/requests [positive] (TC009) - Test 200 Response for One-Time Deposit via Wire with Updates to support new attributes .",
+        "test_scenario": "Test POST request to /moneymovement/requests for functional scenario validation."
+    }
+]

@@ -1,0 +1,167 @@
+[
+    {
+        "test_id": "TC001",
+        "service_name": "movemoney",
+        "workflow_mode": "parallel",
+        "test_name": "Retrieves all available contra firms for transfer operations. [positive] (TC001)",
+        "protocol": "REST",
+        "test_type": [
+            "Functional"
+        ],
+        "mainURL": "{{base_url}}",
+        "endpoint": "/transfer/contrafirm",
+        "method": "GET",
+        "rpc_method": "",
+        "graphql_query": "",
+        "graphql_variables": "",
+        "soap_action": "",
+        "soap_envelope": "",
+        "headers_additional": {
+            "Content-Type": "application/json"
+        },
+        "payload": null,
+        "expected_status": "200",
+        "expected_response_schema": "",
+        "expected_response": null,
+        "ignore_fields": [
+            "id",
+            "auditStartDateTime",
+            "rowVersion",
+            "dateVerified"
+        ],
+        "extract_values": [
+            {
+                "from": "response",
+                "record_count": true,
+                "array_path": "contraFirms",
+                "assign_to": "total_contrafirms"
+            }
+        ],
+        "validate": {
+            "performance": {
+                "max_response_time_ms": 500
+            },
+            "security": {
+                "checks": [
+                    "sql_injection",
+                    "xss"
+                ]
+            },
+            "assertions": [
+                {
+                    "actual": "{{total_contrafirms}}",
+                    "expected": 0,
+                    "operator": ">",
+                    "message": "Total contra firms should be greater than 0"
+                },
+                {
+                    "actual": "{{total_contrafirms}}",
+                    "expected": 1000,
+                    "operator": "<=",
+                    "message": "Total contra firms should be less than or equal to 1000"
+                }
+            ],
+            "data_comparison": [
+                {
+                    "source": "api_response",
+                    "target": "api_response",
+                    "compare_record_count": true,
+                    "source_array_path": "contraFirms",
+                    "target_array_path": "contraFirms",
+                    "log_differences": true,
+                    "comparison_name": "Verify contraFirms array exists and has records"
+                }
+            ]
+        },
+        "test_data_file": "",
+        "db_query_timing": "after_api",
+        "db_queries": {
+            "default": "",
+            "audit_query": ""
+        },
+        "db_type": "",
+        "db_connection_name": "",
+        "test_summary": "Test TC001: Retrieves all available contra firms for transfer operations. [positive] (TC001)"
+    },
+    {
+        "test_id": "TC002",
+        "service_name": "movemoney",
+        "workflow_mode": "parallel",
+        "test_name": "GET /transfer/contrafirm [negative: extra param] (TC002)",
+        "protocol": "REST",
+        "test_type": [
+            "Negative"
+        ],
+        "mainURL": "{{base_url}}",
+        "endpoint": "/transfer/contrafirm",
+        "method": "GET",
+        "rpc_method": "",
+        "graphql_query": "",
+        "graphql_variables": "",
+        "soap_action": "",
+        "soap_envelope": "",
+        "headers_additional": {
+            "Content-Type": "application/json"
+        },
+        "payload": null,
+        "expected_status": "200",
+        "expected_response_schema": "",
+        "expected_response": null,
+        "ignore_fields": [
+            "id",
+            "auditStartDateTime",
+            "rowVersion",
+            "dateVerified"
+        ],
+        "extract_values": [
+            {
+                "from": "response",
+                "record_count": true,
+                "array_path": "contraFirms",
+                "assign_to": "total_contrafirms"
+            }
+        ],
+        "validate": {
+            "performance": {
+                "max_response_time_ms": 500
+            },
+            "security": {
+                "checks": [
+                    "sql_injection",
+                    "xss"
+                ]
+            },
+            "assertions": [
+                {
+                    "actual": "{{total_contrafirms}}",
+                    "expected": 0,
+                    "operator": ">=",
+                    "message": "Total contra firms should be greater than or equal to 0"
+                }
+            ],
+            "data_comparison": [
+                {
+                    "source": "api_response",
+                    "target": "api_response",
+                    "compare_record_count": true,
+                    "source_array_path": "contraFirms",
+                    "target_array_path": "contraFirms",
+                    "log_differences": true,
+                    "comparison_name": "Verify contraFirms array structure"
+                }
+            ]
+        },
+        "test_data_file": "",
+        "db_query_timing": "after_api",
+        "db_queries": {
+            "default": "",
+            "audit_query": ""
+        },
+        "db_type": "",
+        "db_connection_name": "",
+        "test_summary": "Test TC002: GET /transfer/contrafirm [negative: extra param] (TC002)",
+        "extra_param": {
+            "unexpected_param": "unexpected"
+        }
+    }
+]

@@ -1,0 +1,2 @@
+SELECT Id, Status, PartyType, Version, EntityType, EntitySubType, EntityTitle, EntityCreatedDate, IndividualFirstName, IndividualMiddleName, IndividualLastName, IndividualSuffix, IndividualDateOfBirth, IndividualCitizenship, IndividualMaritalStatus, Addresses, Contacts, Identifiers, CreatedDate, UpdatedDate, CreatedBy, UpdatedBy, IsDeleted, IsDeceased, DateOfDeath, TaxIdentifierType 
+	FROM Party WHERE Id = '{{party_id}}';

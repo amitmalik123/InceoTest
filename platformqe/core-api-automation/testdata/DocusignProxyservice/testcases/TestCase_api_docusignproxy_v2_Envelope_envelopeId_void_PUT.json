@@ -1,0 +1,401 @@
+[
+    {
+        "test_id": "TC001",
+        "service_name": "DocusignProxyservice",
+        "workflow_mode": "parallel",
+        "test_name": "PUT /api/docusignproxy/v2/Envelope/{envelopeId}/void [positive] (TC001)",
+        "protocol": "REST",
+        "test_type": [
+            "Functional"
+        ],
+        "mainURL": "{{base_url}}",
+        "endpoint": "/api/docusignproxy/v2/Envelope/{{envelopeId}}/void",
+        "method": "PUT",
+        "rpc_method": "",
+        "graphql_query": "",
+        "graphql_variables": "",
+        "soap_action": "",
+        "soap_envelope": "",
+        "headers_additional": {
+            "Content-Type": "application/json"
+        },
+        "payload": {
+            "reason": "string"
+        },
+        "expected_status": "200",
+        "expected_response_schema": "DocusignProxyservice\\schemas\\Schema_api_docusignproxy_v2_Envelope_envelopeId_void_PUT.json",
+        "expected_response": null,
+        "ignore_fields": [
+            "id"
+        ],
+        "extract_values": [
+            {
+                "from": "response",
+                "key": "",
+                "assign_to": ""
+            },
+            {
+                "from": "response",
+                "record_count": false,
+                "array_path": "",
+                "assign_to": ""
+            },
+            {
+                "from": "db_result",
+                "query": "",
+                "assign": [
+                    {
+                        "key": "",
+                        "assign_to": ""
+                    }
+                ]
+            }
+        ],
+        "validate": {
+            "performance": {
+                "max_response_time_ms": 1500
+            },
+            "security": {
+                "checks": [
+                    "sql_injection",
+                    "xss"
+                ]
+            },
+             "assertions": [
+                {
+                    "actual": "{{response_envelopeId}}",
+                    "operator": "!=",
+                    "expected": null,
+                    "message": "Verify envelopeId field exists and is not null"
+                }
+            ]
+        },
+        "test_data_file": "DocusignProxyservice\\data_driven\\Data_DocusignProxyservice_PUT.csv",
+        "db_query_timing": "after_api",
+        "db_queries": {
+            "default": "",
+            "audit_query": ""
+        },
+        "db_type": "",
+        "db_connection_name": "",
+        "test_summary": "Test TC001: PUT /api/docusignproxy/v2/Envelope/{envelopeId}/void [positive] (TC001)",
+        "payload_file": "DocusignProxyservice\\payloads\\Payload_api_docusignproxy_v2_Envelope_envelopeId_void_PUT_functional.json"
+    },
+    {
+        "test_id": "TC002",
+        "service_name": "DocusignProxyservice",
+        "workflow_mode": "parallel",
+        "test_name": "PUT /api/docusignproxy/v2/Envelope/{envelopeId}/void [negative: missing envelopeId] (TC002)",
+        "protocol": "REST",
+        "test_type": [
+            "Negative"
+        ],
+        "mainURL": "{{base_url}}",
+        "endpoint": "/api/docusignproxy/v2/Envelope/{{envelopeId}}/void",
+        "method": "PUT",
+        "rpc_method": "",
+        "graphql_query": "",
+        "graphql_variables": "",
+        "soap_action": "",
+        "soap_envelope": "",
+        "headers_additional": {
+            "Content-Type": "application/json"
+        },
+        "payload": {
+            "reason": "string"
+        },
+        "expected_status": "400",
+        "expected_response_schema": "DocusignProxyservice\\schemas\\Schema_api_docusignproxy_v2_Envelope_envelopeId_void_PUT.json",
+        "expected_response": null,
+        "ignore_fields": [
+            "id"
+        ],
+        "extract_values": [
+            {
+                "from": "response",
+                "key": "",
+                "assign_to": ""
+            },
+            {
+                "from": "response",
+                "record_count": false,
+                "array_path": "",
+                "assign_to": ""
+            },
+            {
+                "from": "db_result",
+                "query": "",
+                "assign": [
+                    {
+                        "key": "",
+                        "assign_to": ""
+                    }
+                ]
+            }
+        ],
+        "validate": {
+            "performance": {
+                "max_response_time_ms": 500
+            },
+            "security": {
+                "checks": [
+                    "sql_injection",
+                    "xss"
+                ]
+            }
+        },
+        "test_data_file": "DocusignProxyservice\\data_driven\\Data_DocusignProxyservice_PUT.csv",
+        "db_query_timing": "after_api",
+        "db_queries": {
+            "default": "",
+            "audit_query": ""
+        },
+        "db_type": "",
+        "db_connection_name": "",
+        "test_summary": "Test TC002: PUT /api/docusignproxy/v2/Envelope/{envelopeId}/void [negative: missing envelopeId] (TC002)",
+        "payload_file": "DocusignProxyservice\\payloads\\Payload_api_docusignproxy_v2_Envelope_envelopeId_void_PUT_negative.json"
+    },
+    {
+        "test_id": "TC003",
+        "service_name": "DocusignProxyservice",
+        "disable_db_comparison": true,
+        "workflow_mode": "parallel",
+        "test_name": "PUT /api/docusignproxy/v2/Envelope/{envelopeId}/void [negative: extra param] (TC003)",
+        "protocol": "REST",
+        "test_type": [
+            "Negative"
+        ],
+        "mainURL": "{{base_url}}",
+        "endpoint": "/api/docusignproxy/v2/Envelope/{envelopeId}/void",
+        "method": "PUT",
+        "rpc_method": "",
+        "graphql_query": "",
+        "graphql_variables": "",
+        "soap_action": "",
+        "soap_envelope": "",
+        "headers_additional": {
+            "Content-Type": "application/json"
+        },
+        "payload": {
+            "reason": "string"
+        },
+        "expected_status": "400",
+        "expected_response_schema": "DocusignProxyservice\\schemas\\Schema_api_docusignproxy_v2_Envelope_envelopeId_void_PUT.json",
+        "expected_response": null,
+        "ignore_fields": [
+            "id"
+        ],
+        "extract_values": [
+            {
+                "from": "response",
+                "key": "",
+                "assign_to": ""
+            },
+            {
+                "from": "response",
+                "record_count": false,
+                "array_path": "",
+                "assign_to": ""
+            },
+            {
+                "from": "db_result",
+                "query": "",
+                "assign": [
+                    {
+                        "key": "",
+                        "assign_to": ""
+                    }
+                ]
+            }
+        ],
+        "validate": {
+            "performance": {
+                "max_response_time_ms": 500
+            },
+            "security": {
+                "checks": [
+                    "sql_injection",
+                    "xss"
+                ]
+            },
+            "data_comparison": [
+                {
+                    "source": "api_response",
+                    "target": "db_result",
+                    "target_query": "audit_query",
+                    "format": "table",
+                    "key_field": [
+                        {
+                            "source": "",
+                            "target": ""
+                        }
+                    ],
+                    "fields_to_compare": [
+                        {
+                            "source": "",
+                            "target": ""
+                        }
+                    ],
+                    "log_differences": true,
+                    "comparison_name": "Response vs DB comparison"
+                },
+                {
+                    "source": "api_response",
+                    "target": "db_result",
+                    "target_query": "default",
+                    "compare_record_count": false,
+                    "source_array_path": "",
+                    "target_array_path": "",
+                    "log_differences": true,
+                    "comparison_name": "Record count comparison"
+                },
+                {
+                    "source": "api_request",
+                    "target": "api_response",
+                    "format": "table",
+                    "key_field": [
+                        {
+                            "source": "",
+                            "target": ""
+                        }
+                    ],
+                    "fields_to_compare": [
+                        {
+                            "source": "",
+                            "target": ""
+                        }
+                    ],
+                    "log_differences": true,
+                    "comparison_name": "Request vs Response comparison"
+                },
+                {
+                    "source": "api_request",
+                    "target": "db_result",
+                    "target_query": "audit_query",
+                    "format": "table",
+                    "key_field": [
+                        {
+                            "source": "",
+                            "target": ""
+                        }
+                    ],
+                    "fields_to_compare": [
+                        {
+                            "source": "",
+                            "target": ""
+                        }
+                    ],
+                    "log_differences": true,
+                    "comparison_name": "Request vs DB comparison"
+                },
+                {
+                    "source": "variable_name1",
+                    "target": "variable_name2",
+                    "format": "table",
+                    "key_field": [
+                        {
+                            "source": "",
+                            "target": ""
+                        }
+                    ],
+                    "fields_to_compare": [
+                        {
+                            "source": "",
+                            "target": ""
+                        }
+                    ],
+                    "log_differences": true,
+                    "comparison_name": "Variable to Variable comparison"
+                }
+            ]
+        },
+        "test_data_file": "DocusignProxyservice\\data_driven\\Data_DocusignProxyservice_PUT.csv",
+        "db_query_timing": "after_api",
+        "db_queries": {
+            "default": "",
+            "audit_query": ""
+        },
+        "db_type": "",
+        "db_connection_name": "",
+        "test_summary": "Test TC003: PUT /api/docusignproxy/v2/Envelope/{envelopeId}/void [negative: extra param] (TC003)",
+        "path_params": {
+            "envelopeId": "b1b1533"
+        },
+        "payload_file": "DocusignProxyservice\\payloads\\Payload_api_docusignproxy_v2_Envelope_envelopeId_void_PUT_negative.json"
+    },
+    {
+        "test_id": "TC004",
+        "disable_db_comparison": true,
+        "service_name": "DocusignProxyservice",
+        "workflow_mode": "parallel",
+        "test_name": "PUT /api/docusignproxy/v2/Envelope/{envelopeId}/void [negative: invalid payload] (TC004)",
+        "protocol": "REST",
+        "test_type": [
+            "Negative"
+        ],
+        "mainURL": "{{base_url}}",
+        "endpoint": "/api/docusignproxy/v2/Envelope/{{envelopeId}}/void",
+        "method": "PUT",
+        "rpc_method": "",
+        "graphql_query": "",
+        "graphql_variables": "",
+        "soap_action": "",
+        "soap_envelope": "",
+        "headers_additional": {
+            "Content-Type": "application/json"
+        },
+        "payload": {
+            "reason": "string"
+        },
+        "expected_status": "400",
+        "expected_response_schema": "DocusignProxyservice\\schemas\\Schema_api_docusignproxy_v2_Envelope_envelopeId_void_PUT.json",
+        "expected_response": null,
+        "ignore_fields": [
+            "id"
+        ],
+        "extract_values": [
+            {
+                "from": "response",
+                "key": "",
+                "assign_to": ""
+            },
+            {
+                "from": "response",
+                "record_count": false,
+                "array_path": "",
+                "assign_to": ""
+            },
+            {
+                "from": "db_result",
+                "query": "",
+                "assign": [
+                    {
+                        "key": "",
+                        "assign_to": ""
+                    }
+                ]
+            }
+        ],
+        "validate": {
+            "performance": {
+                "max_response_time_ms": 500
+            },
+            "security": {
+                "checks": [
+                    "sql_injection",
+                    "xss"
+                ]
+            }
+        },
+        "test_data_file": "DocusignProxyservice\\data_driven\\Data_DocusignProxyservice_PUT.csv",
+        "db_query_timing": "after_api",
+        "db_queries": {
+            "default": "",
+            "audit_query": ""
+        },
+        "db_type": "",
+        "db_connection_name": "",
+        "test_summary": "Test TC004: PUT /api/docusignproxy/v2/Envelope/{envelopeId}/void [negative: invalid payload] (TC004)",
+        "payload_file": "DocusignProxyservice\\payloads\\Payload_api_docusignproxy_v2_Envelope_envelopeId_void_PUT_negative.json"
+    }
+]

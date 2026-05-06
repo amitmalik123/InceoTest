@@ -1,0 +1,422 @@
+[
+    {
+        "test_id": "TC001_perf_analytics",
+        "service_name": "analyticsApiServices",
+        "workflow_mode": "parallel",
+        "test_name": "POST /v1/analytics [positive] (TC001_perf_analytics)",
+        "protocol": "REST",
+        "test_type": [
+            "Functional",
+            "Performance"
+        ],
+        "mainURL": "{{base_url}}",
+        "endpoint": "/v1/analytics",
+        "method": "POST",
+        "rpc_method": "",
+        "graphql_query": "",
+        "graphql_variables": "",
+        "soap_action": "",
+        "soap_envelope": "",
+        "headers_additional": {
+            "Content-Type": "application/json"
+        },
+        "payload": {
+            "calculationRequest": {
+                "inputs": {
+                    "blend": [
+                        {
+                            "id": "ABSGT6",
+                            "entityType": "model",
+                            "weight": 0.1
+                        },
+                        {
+                            "id": "ACWIEX",
+                            "entityType": "model",
+                            "weight": 0.1
+                        },
+                        {
+                            "id": "ALTMF5",
+                            "entityType": "model",
+                            "weight": 0.1
+                        },
+                        {
+                            "id": "APODCF",
+                            "entityType": "model",
+                            "weight": 0.1
+                        },
+                        {
+                            "id": "B110MM",
+                            "entityType": "model",
+                            "weight": 0.1
+                        },
+                        {
+                            "id": "BBEMAG",
+                            "entityType": "model",
+                            "weight": 0.1
+                        },
+                        {
+                            "id": "CAMUNI",
+                            "entityType": "model",
+                            "weight": 0.1
+                        },
+                        {
+                            "id": "CIBCP3",
+                            "entityType": "model",
+                            "weight": 0.1
+                        },
+                        {
+                            "id": "CIBCP6",
+                            "entityType": "model",
+                            "weight": 0.1
+                        },
+                        {
+                            "id": "ETFALB",
+                            "entityType": "model",
+                            "weight": 0.1
+                        }
+                    ]
+                },
+                "calculations": [
+                    {
+                        "calculationType": "blended risk",
+                        "configurations": {
+                            "method": "ewma",
+                            "timeHorizon": 240
+                        }
+                    }
+                ]
+            }
+        },
+        "expected_status": "200",
+        "expected_response_schema": "",
+        "expected_response": null,
+        "ignore_fields": [
+            "id"
+        ],
+        "extract_values": [
+            {
+                "from": "response",
+                "key": "id",
+                "assign_to": ""
+            },
+            {
+                "from": "db_result",
+                "query": "",
+                "assign": [
+                    {
+                        "key": "",
+                        "assign_to": ""
+                    }
+                ]
+            }
+        ],
+        "validate": {
+            "performance": {
+                "max_response_time_ms": null
+            },
+            "security": {
+                "checks": [
+                    "sql_injection",
+                    "xss"
+                ]
+            },
+            "data_comparison": {
+                "source": "api_response",
+                "target": "db_result",
+                "format": "table",
+                "key_field": [
+                    "",
+                    ""
+                ],
+                "fields_to_compare": [],
+                "log_differences": true
+            }
+        },
+        "test_data_file": "",
+        "db_query": "",
+        "db_type": "",
+        "db_connection_name": "",
+        "test_summary": "Test TC001_perf_analytics: POST /v1/analytics [positive] (TC001_perf_analytics) - Test POST request to /v1/analytics for functional scenario validation.",
+        "test_scenario": "Test POST request to /v1/analytics for functional scenario validation."
+    },
+    {
+        "test_id": "TC002_perf_analytics",
+        "service_name": "analyticsApiServices",
+        "workflow_mode": "parallel",
+        "test_name": "POST /v1/analytics [positive] (TC002_perf_analytics)",
+        "protocol": "REST",
+        "test_type": [
+            "Functional",
+            "Performance"
+        ],
+        "mainURL": "{{base_url}}",
+        "endpoint": "/v1/analytics",
+        "method": "POST",
+        "rpc_method": "",
+        "graphql_query": "",
+        "graphql_variables": "",
+        "soap_action": "",
+        "soap_envelope": "",
+        "headers_additional": {
+            "Content-Type": "application/json"
+        },
+        "payload": {
+            "calculationRequest": {
+                "inputs": {
+                    "blend": [
+                        {
+                            "id": "ALFBA4",
+                            "entityType": "model",
+                            "weight": 0.125
+                        },
+                        {
+                            "id": "ALFBB3",
+                            "entityType": "model",
+                            "weight": 0.075
+                        },
+                        {
+                            "id": "AMDUST",
+                            "entityType": "model",
+                            "weight": 0.025
+                        },
+                        {
+                            "id": "AMKPMG",
+                            "entityType": "model",
+                            "weight": 0.075
+                        },
+                        {
+                            "id": "AR",
+                            "entityType": "model",
+                            "weight": 0.225
+                        },
+                        {
+                            "id": "ARISC2",
+                            "entityType": "model",
+                            "weight": 0.065
+                        },
+                        {
+                            "id": "B117MM",
+                            "entityType": "model",
+                            "weight": 0.115
+                        },
+                        {
+                            "id": "BARHYB",
+                            "entityType": "model",
+                            "weight": 0.1
+                        },
+                        {
+                            "id": "BBGPMT",
+                            "entityType": "model",
+                            "weight": 0.19
+                        },
+                        {
+                            "id": "WBCCP5",
+                            "entityType": "model",
+                            "weight": 0.005
+                        }
+                    ]
+                },
+                "calculations": [
+                    {
+                        "calculationType": "blended risk",
+                        "configurations": {
+                            "method": "ewma",
+                            "timeHorizon": 180
+                        }
+                    }
+                ]
+            }
+        },
+        "expected_status": "200",
+        "expected_response_schema": "",
+        "expected_response": null,
+        "ignore_fields": [
+            "id"
+        ],
+        "extract_values": [
+            {
+                "from": "response",
+                "key": "id",
+                "assign_to": ""
+            },
+            {
+                "from": "db_result",
+                "query": "",
+                "assign": [
+                    {
+                        "key": "",
+                        "assign_to": ""
+                    }
+                ]
+            }
+        ],
+        "validate": {
+            "performance": {
+                "max_response_time_ms": null
+            },
+            "security": {
+                "checks": [
+                    "sql_injection",
+                    "xss"
+                ]
+            },
+            "data_comparison": {
+                "source": "api_response",
+                "target": "db_result",
+                "format": "table",
+                "key_field": [
+                    "",
+                    ""
+                ],
+                "fields_to_compare": [],
+                "log_differences": true
+            }
+        },
+        "test_data_file": "",
+        "db_query": "",
+        "db_type": "",
+        "db_connection_name": "",
+        "test_summary": "Test TC002_perf_analytics: POST /v1/analytics [positive] (TC002_perf_analytics) - Test POST request to /v1/analytics for functional scenario validation.",
+        "test_scenario": "Test POST request to /v1/analytics for functional scenario validation."
+    },
+    {
+        "test_id": "TC003_perf_analytics",
+        "service_name": "analyticsApiServices",
+        "workflow_mode": "parallel",
+        "test_name": "POST /v1/analytics [positive] (TC003_perf_analytics)",
+        "protocol": "REST",
+        "test_type": [
+            "Functional",
+            "Performance"
+        ],
+        "mainURL": "{{base_url}}",
+        "endpoint": "/v1/analytics",
+        "method": "POST",
+        "rpc_method": "",
+        "graphql_query": "",
+        "graphql_variables": "",
+        "soap_action": "",
+        "soap_envelope": "",
+        "headers_additional": {
+            "Content-Type": "application/json"
+        },
+        "payload": {
+            "calculationRequest": {
+                "inputs": {
+                    "blend": [
+                        {
+                            "id": "ARISHD",
+                            "entityType": "model",
+                            "weight": 0.1
+                        },
+                        {
+                            "id": "ARISLC",
+                            "entityType": "model",
+                            "weight": 0.1
+                        },
+                        {
+                            "id": "B05IGM",
+                            "entityType": "model",
+                            "weight": 0.1
+                        },
+                        {
+                            "id": "B15MUS",
+                            "entityType": "model",
+                            "weight": 0.075
+                        },
+                        {
+                            "id": "SPPCT4",
+                            "entityType": "model",
+                            "weight": 0.125
+                        },
+                        {
+                            "id": "SPPC06",
+                            "entityType": "model",
+                            "weight": 0.1
+                        },
+                        {
+                            "id": "SFMCA1",
+                            "entityType": "model",
+                            "weight": 0.1
+                        },
+                        {
+                            "id": "PR0040",
+                            "entityType": "model",
+                            "weight": 0.1
+                        },
+                        {
+                            "id": "CBOEBW",
+                            "entityType": "model",
+                            "weight": 0.1
+                        },
+                        {
+                            "id": "ETFGLT",
+                            "entityType": "model",
+                            "weight": 0.1
+                        }
+                    ]
+                },
+                "calculations": [
+                    {
+                        "calculationType": "blended risk",
+                        "configurations": {
+                            "method": "ewma",
+                            "timeHorizon": 36
+                        }
+                    }
+                ]
+            }
+        },
+        "expected_status": "200",
+        "expected_response_schema": "",
+        "expected_response": null,
+        "ignore_fields": [
+            "id"
+        ],
+        "extract_values": [
+            {
+                "from": "response",
+                "key": "id",
+                "assign_to": ""
+            },
+            {
+                "from": "db_result",
+                "query": "",
+                "assign": [
+                    {
+                        "key": "",
+                        "assign_to": ""
+                    }
+                ]
+            }
+        ],
+        "validate": {
+            "performance": {
+                "max_response_time_ms": null
+            },
+            "security": {
+                "checks": [
+                    "sql_injection",
+                    "xss"
+                ]
+            },
+            "data_comparison": {
+                "source": "api_response",
+                "target": "db_result",
+                "format": "table",
+                "key_field": [
+                    "",
+                    ""
+                ],
+                "fields_to_compare": [],
+                "log_differences": true
+            }
+        },
+        "test_data_file": "",
+        "db_query": "",
+        "db_type": "",
+        "db_connection_name": "",
+        "test_summary": "Test TC003_perf_analytics: POST /v1/analytics [positive] (TC003_perf_analytics) - Test POST request to /v1/analytics for functional scenario validation.",
+        "test_scenario": "Test POST request to /v1/analytics for functional scenario validation."
+    }
+]

@@ -1,0 +1,12 @@
+{
+  "partyId": "3e2c1b7a-8f4a-4c2e-9b1d-7a6e2f5c9e3a",
+  "roleType": "AccountHolder",
+  "attributes": [
+    {
+      "type": "IsPrimary",
+      "value": "string"
+    }
+  ]
+}
+
+
