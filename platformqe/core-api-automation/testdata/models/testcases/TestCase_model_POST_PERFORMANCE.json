@@ -6,7 +6,7 @@
         "test_name": "POST /model - AC3: First execution with new Idempotency-Key",
         "protocol": "REST",
         "test_type": [
-            "Functional"
+            "Performance"
         ],
         "mainURL": "{{base_url}}",
         "endpoint": "/models",
