@@ -60,9 +60,19 @@ class ApiClient:
             else:
                 val = v
             headers[k] = val
+        # Merge in per-request headers (e.g. headers_additional from test case).
+        # Also substitute the DYNAMIC_UUID4 sentinel here so test cases can opt in
+        # to a freshly generated UUID4 per request.
+        request_headers = kwargs.pop('headers', {}) or {}
+        for k, v in request_headers.items():
+            if v == 'DYNAMIC_UUID4':
+                val = str(_uuid.uuid4())
+                _generated[k] = val
+                headers[k] = val
+            else:
+                headers[k] = v
         # Store generated header values so extract_values can capture them (e.g. for AC4/AC5 replay)
         self.last_generated_headers = _generated
-        headers.update(kwargs.pop('headers', {}))
         # Remove headers with None value — allows test cases to explicitly omit a config header via null
         headers = {k: v for k, v in headers.items() if v is not None}
         
