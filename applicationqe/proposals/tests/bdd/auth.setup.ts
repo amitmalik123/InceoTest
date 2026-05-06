@@ -13,9 +13,6 @@ setup('Setup - Login to Environment', async ({ page }) => {
     // Login
     await loginPage.gotoLoginPage();
     await loginPage.signIn(process.env.USER, process.env.PASS);
-    if (env.toLowerCase() == 'test11'){
-        await loginPage.signIn(process.env.USER, process.env.PASS); //have to login twice in a row on T11 with new url
-    }
 
     // Switch to correct ID if using admin account and not in prod
     
