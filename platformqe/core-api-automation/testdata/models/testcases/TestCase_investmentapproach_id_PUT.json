@@ -81,7 +81,7 @@
         "expected_response_schema": "models/schemas/Schema_updateInvApproachRequest.json",
         "expected_response": {
             "status": 200,
-            "error": "Request successful"
+            "message": "Request successful"
         },
         "ignore_fields": [
             "id"
@@ -113,7 +113,7 @@
                 },
                 {
                     "source": "api_response",
-                    "source_array_path": "error",
+                    "source_array_path": "message",
                     "target": "literal",
                     "target_literal": "Request successful",
                     "comparison_name": "Verify Message is 'Request successful'"
@@ -151,7 +151,7 @@
         "expected_response_schema": "models/schemas/Schema_updateInvApproachRequest.json",
         "expected_response": {
             "status": 200,
-            "error": "Request successful"
+            "message": "Request successful"
         },
         "ignore_fields": [
             "id"
@@ -183,7 +183,7 @@
                 },
                 {
                     "source": "api_response",
-                    "source_array_path": "error",
+                    "source_array_path": "message",
                     "target": "literal",
                     "target_literal": "Request successful",
                     "comparison_name": "Verify Message is 'Request successful'"

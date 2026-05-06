@@ -1874,7 +1874,7 @@
                 {
                     "actual": "{{tc009_title}}",
                     "operator": "==",
-                    "expected": "One or more validation errors occurred.",
+                    "expected": "Missing Required Fields",
                     "message": "Verify error title indicates validation errors occurred"
                 },
                 {

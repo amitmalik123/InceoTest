@@ -252,7 +252,7 @@
                 },
                 {
                     "source": "api_response",
-                    "source_array_path": "error",
+                    "source_array_path": "message",
                     "target": "literal",
                     "target_literal": "Request successful",
                     "comparison_name": "Verify Message is 'Request successful'"
@@ -330,7 +330,7 @@
                 },
                 {
                     "source": "api_response",
-                    "source_array_path": "error",
+                    "source_array_path": "message",
                     "target": "literal",
                     "target_literal": "Request successful",
                     "comparison_name": "Verify Message is 'Request successful'"
@@ -909,8 +909,8 @@
                     "source": "api_response",
                     "source_array_path": "type",
                     "target": "literal",
-                    "target_literal": "StateConflict",
-                    "comparison_name": "Verify Message is 'StateConflict'"
+                    "target_literal": "https://assetmark.atlassian.net/wiki/spaces/PE/pages/2303590438/Standard+Error+Codes+and+Messaging#already-exists",
+                    "comparison_name": "Verify error type is 'already-exists' URL"
                 }
             ]
         },

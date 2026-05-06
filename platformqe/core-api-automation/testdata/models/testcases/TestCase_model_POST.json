@@ -314,8 +314,8 @@
                 {
                     "actual": "{{error_title}}",
                     "operator": "==",
-                    "expected": "One or more validation errors occurred.",
-                    "message": "Expected title to be 'One or more validation errors occurred.'"
+                    "expected": "Missing Required Fields",
+                    "message": "Expected title to be 'Missing Required Fields'"
                 },
                 {
                     "actual": "{{error_status}}",

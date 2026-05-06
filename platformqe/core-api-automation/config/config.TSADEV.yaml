@@ -1,4 +1,3 @@
-
 # Azure AD Authentication Resources
 azure_ad:
   resources:
@@ -26,16 +25,12 @@ db_connections:
       database: "TrackingCenter"
       trusted_connection: true
     
+    account_service:
+      connection_string: "${ACCOUNTS_SQLDB}"
+    
     # Azure SQL Server with Entra ID (Azure AD) Password Authentication
     movemoney:
-      driver: "ODBC Driver 18 for SQL Server"
-      server: "your-server.database.windows.net"
-      database: "YourDatabase"
-      user: "your-email@domain.com" # Entra ID username
-      password: "${AZURE_SQL_PASSWORD}" # Set via environment variable or replace with actual password
-      authentication: "ActiveDirectoryPassword" # Entra ID password authentication
-      encrypt: true
-      trust_server_certificate: false
+      connection_string: "${MOVEMONEY_SQLDB}"
 
     parties:
       connection_string: "${PARTIES_SQLDB}"
@@ -44,31 +39,13 @@ db_connections:
   postgresql:
     # Removed old 'parties' Postgres connection after migration to Azure SQL
     securitiesServices:
-      host: "psql-platform-dev01-ncus.postgres.database.azure.com"
-      port: 5432
-      database: "securitieshub"
-      user: "psql-platform-dev01-ncus-securitieshub-ro"
-      password: "${POSTGRES_DB_PASSWORD:AZURE_AD}"  # Uses env var if set, otherwise Azure AD
-      sslmode: "require"
-      use_azure_auth: false  # Will auto-detect: false for password, true when password="AZURE_AD"
+      connection_string: "${SECURITIESHUB_DB}"
 
     models:
-      host: "psql-platform-dev01-ncus.postgres.database.azure.com"
-      port: 5432
-      database: "modelhub"
-      user: "psql-platform-dev01-ncus-modelhub-rw"
-      password: "${POSTGRES_DB_PASSWORD:AZURE_AD}"  # Uses env var if set, otherwise Azure AD
-      sslmode: "require"
-      use_azure_auth: false  # Will auto-detect: false for password, true when password="AZURE_AD"
+      connection_string: "${MODELHUB_DB}"
 
     hneServices:
-      host: "psql-platform-dev01-ncus.postgres.database.azure.com"
-      port: 5432
-      database: "hne"
-      user: "psql-platform-dev01-ncus-hne-rw"
-      password: "${POSTGRES_DB_PASSWORD:AZURE_AD}"  # Uses env var if set, otherwise Azure AD
-      sslmode: "require"
-      use_azure_auth: false  # Will auto-detect: false for password, true when password="AZURE_AD"
+      connection_string: "${HNE_DB}"
     
     # Example: Azure AD authentication (no password needed)
     parties_azure_ad:
@@ -103,94 +80,109 @@ db_connections:
   # InfluxDB Connections - Time-series metrics database
   influxdb:
     default:
-      url: "http://azncc03perf.corp.local:8086"
-      token: "g5gf0ukY8fPdwaWynLviDLd0wz1l5snomLbip3t2IrQkeNNkiEFYECEHlcJLwsAPvv2Gx-op4ho6QcpVsCpdGQ=="
-      org: "MF"
-      bucket: "Platform_Automation"
-      timeout: 10000  # Connection timeout in milliseconds
-      enabled: false  # Set to true to enable InfluxDB push for this environment
+      url: "${INFLUX_URL}"
+      token: "${INFLUX_TOKEN}"
+      org: "${INFLUX_ORG}"
+      bucket: "${INFLUX_BUCKET}"
+      timeout: ${INFLUX_TIMEOUT:10000}  # Connection timeout in milliseconds
+      enabled: ${INFLUX_ENABLE:false}  # Set to true to enable InfluxDB push for this environment
 
 # API Endpoints - Multiple services and environments
 api_endpoints:
 
   movemoney:
-    base_url: "https://platform.dev01.assetmark.com/api/movemoney/v1"
+    base_url: "${MOVEMONEY_BASE_URL}"  # Fetched from Azure variable group: qa-pipelines-variable-group-dev
     auth_token: "${MOVEMONEY_API_TOKEN}"   # Use your actual token or environment variable
-    timeout: 30
-    retry_count: 3
+    timeout: ${API_TIMEOUT:30}
+    retry_count: ${API_RETRY_COUNT:3}
     verify: false
 
   parties:
-    base_url: "https://platform.dev01.assetmark.com/api/parties/v1"  # Parties API endpoint
+    base_url: "${PARTIES_BASE_URL}"  # Fetched from Azure variable group: qa-pipelines-variable-group-dev
     auth_token: "${PARTIES_AUTH_TOKEN}"
-    timeout: 30
-    retry_count: 3
+    timeout: ${API_TIMEOUT:30}
+    retry_count: ${API_RETRY_COUNT:3}
     use_azure_auth: false  # Set to true to use Azure AD authentication
     azure_resource: "https://management.azure.com/"
   
   AddressService.API:
-    base_url: "https://platform.dev01.assetmark.com/api/address/v1"
+    base_url: "${ADDRESS_BASE_URL}"  # Fetched from Azure variable group: qa-pipelines-variable-group-dev
+    auth_token: "your-token-if-needed"
+    timeout: ${API_TIMEOUT:30}
+    retry_count: ${API_RETRY_COUNT:3}
+    verify: false
+
+  account_service:
+    base_url: "${ACCOUNTS_BASE_URL}"
     auth_token: "your-token-if-needed"
     timeout: 30
     retry_count: 3
     verify: false
 
+  custodialintegration:
+    base_url: "${CUSTODIAL_INTEGRATION_BASE_URL}"  # Fetched from Azure variable group: qa-pipelines-variable-group-dev
+    auth_token: "${CUSTODIALINTEGRATION_AUTH_TOKEN}"
+    timeout: ${API_TIMEOUT:30}
+    retry_count: ${API_RETRY_COUNT:3}
+    verify: false
+
   work_item_notification:
-    base_url: "https://app-workitemnotifsvc-test-test12.azurewebsites.net"
+    base_url: "${WORK_ITEM_NOTIFICATION_BASE_URL}"  # Fetched from Azure variable group: qa-pipelines-variable-group-dev
     auth_token: "${WORK_ITEM_AUTH_TOKEN}"
-    timeout: 30
-    retry_count: 3
+    timeout: ${API_TIMEOUT:30}
+    retry_count: ${API_RETRY_COUNT:3}
     use_azure_auth: false  # Set to true to use Azure AD authentication
     azure_resource: "https://management.azure.com/"  # Azure resource for token generation
 
   securitiesServices:
-    base_url: "https://platform.dev01.assetmark.com/api/security/v1/"
+    base_url: "${SECURITIES_BASE_URL}"  # Fetched from Azure variable group: qa-pipelines-variable-group-dev
     auth_token: "${SECURITY_ITEM_AUTH_TOKEN}"
-    timeout: 30
-    retry_count: 3
+    timeout: ${API_TIMEOUT:30}
+    retry_count: ${API_RETRY_COUNT:3}
     use_azure_auth: false  # Set to true to use Azure AD authentication
     azure_resource: "https://management.azure.com/"  # Azure resource for token generation
 
   models:
-    base_url: "https://platform.dev01.assetmark.com/api/models/v1"  # Models API endpoint
+    base_url: "${MODELS_BASE_URL}"  # Fetched from Azure variable group: qa-pipelines-variable-group-dev
     auth_token: null  # No Bearer token authentication
     custom_headers:
-      x-user-id: "2C050478-1ED2-45A8-92BD-AC755744CECE"
-      Idempotency-Key: "DYNAMIC_UUID4"  # Replace with actual unique key for each request
-    timeout: 30
-    retry_count: 3
+      x-user-id: "${MODELS_X_USER_ID}"  # Example of custom header with env var fallback
+      Idempotency-Key: "DYNAMIC_UUID4"
+    timeout: ${API_TIMEOUT:30}
+    retry_count: ${API_RETRY_COUNT:3}
     use_azure_auth: false  # Set to true to use Azure AD authentication
     azure_resource: "https://management.azure.com/"
 
   analyticsApiServices:
-    base_url: "https://platform.test01.assetmark.com/api/analytics"  # Parties API endpoint
+    base_url: "${ANALYTICS_BASE_URL}"  # Fetched from Azure variable group: qa-pipelines-variable-group-dev
     auth_token: "${ANALYTICS_AUTH_TOKEN}"
-    timeout: 30
-    retry_count: 3
+    timeout: ${API_TIMEOUT:30}
+    retry_count: ${API_RETRY_COUNT:3}
     use_azure_auth: false  # Set to true to use Azure AD authentication
     azure_resource: "https://management.azure.com/"
 
   hnebase:
-    base_url: "https://platform.dev01.assetmark.com/api/hne/v1/"
+    base_url: "${HNE_BASE_URL}"  # Fetched from Azure variable group: qa-pipelines-variable-group-dev
     auth_token: "${HNEBASE_AUTH_TOKEN}"
-    timeout: 30
-    retry_count: 3
+    timeout: ${API_TIMEOUT:30}
+    retry_count: ${API_RETRY_COUNT:3}
     use_azure_auth: false  # Set to true to use Azure AD authentication
     azure_resource: "https://management.azure.com/"  # Azure resource for token generation
 
-  snaps_analytics:
-    base_url: "https://platform.dev01.assetmark.com/api/calculation/v1"
-    auth_token: null  # No authentication required per Swagger spec
-    timeout: 30
-    retry_count: 3
-    verify: false
+  lexisnexiscipproxyservice:
+    base_url: "${LEXISNEXIS_BASE_URL}"
+    auth_token: "${LEXISNEXIS_CIP_AUTH_TOKEN}"
+    timeout: ${API_TIMEOUT:30}
+    retry_count: ${API_RETRY_COUNT:3}
+    use_azure_auth: false # Set to true to use Azure AD authentication
+    azure_resource: "https://management.azure.com/"
 
   # Example: Azure AD authenticated API
   azure_resource_manager:
     base_url: "https://management.azure.com"
     auth_token: "AZURE_AD"  # Placeholder - will use Azure AD token
-    timeout: 30
-    retry_count: 3
+    timeout: ${API_TIMEOUT:30}
+    retry_count: ${API_RETRY_COUNT:3}
     use_azure_auth: true  # Enable Azure AD authentication
     azure_resource: "https://management.azure.com/"
 

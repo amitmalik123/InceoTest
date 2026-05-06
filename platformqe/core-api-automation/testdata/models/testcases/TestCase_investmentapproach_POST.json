@@ -236,7 +236,7 @@
         "expected_response_schema": "",
         "expected_response": {
             "type": "https://tools.ietf.org/html/rfc4918#section-11.2",
-            "title": "One or more validation errors occurred.",
+            "title": "Missing Required Fields",
             "status": 422,
             "errors": {
                 "name": [
