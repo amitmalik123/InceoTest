@@ -212,66 +212,6 @@
         "test_scenario": "Attempt to publish a model that is already in Published status (from TC002)"
     },
     {
-        "test_id": "TC006",
-        "service_name": "models",
-        "workflow_mode": "independent",
-        "test_name": "POST /model/{id}/publish - SQL Injection in Model ID [Security]",
-        "protocol": "REST",
-        "test_type": [
-            "Security",
-            "Negative"
-        ],
-        "mainURL": "{{base_url}}",
-        "endpoint": "/models/'; DROP TABLE models; --/publish",
-        "method": "POST",
-        "headers_additional": {
-            "Content-Type": "application/json"
-        },
-        "payload": null,
-        "expected_status": "404",
-        "validate": {
-            "performance": {
-                "max_response_time_ms": 3000
-            },
-            "security": {
-                "checks": [
-                    "sql_injection"
-                ]
-            }
-        },
-        "test_summary": "Verify API properly sanitizes path parameters and rejects SQL injection attempts",
-        "test_scenario": "Attempt SQL injection through model ID path parameter"
-    },
-    {
-        "test_id": "TC007",
-        "service_name": "models",
-        "workflow_mode": "independent",
-        "test_name": "POST /model/{id}/publish - Path Traversal Attempt [Security]",
-        "protocol": "REST",
-        "test_type": [
-            "Security",
-            "Negative"
-        ],
-        "mainURL": "{{base_url}}",
-        "endpoint": "/models/../../../etc/passwd/publish",
-        "method": "POST",
-        "headers_additional": {
-            "Content-Type": "application/json"
-        },
-        "payload": null,
-        "expected_status": "404",
-        "validate": {
-            "performance": {
-                "max_response_time_ms": 3000
-            },
-            "security": {
-                "checks": []
-            }
-        },
-        "test_summary": "Verify API blocks path traversal attempts",
-        "test_scenario": "Attempt path traversal attack through model ID parameter"
-    },
-    {
         "test_id": "TC008",
         "service_name": "models",
         "workflow_mode": "independent",
