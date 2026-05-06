@@ -125,6 +125,7 @@ def _dismiss_ketch_consent(page: Page) -> None:
 def _perform_login(page: Page, app_config: AppConfig, test_data: dict) -> bool:
     """
     Perform login using the app-specific login page.
+    Takes screenshot on failure for diagnostics.
 
     Returns:
         bool: True if login successful, False otherwise
@@ -136,12 +137,26 @@ def _perform_login(page: Page, app_config: AppConfig, test_data: dict) -> bool:
         parsed = urlparse(app_config.login_url)
         base_url = f"{parsed.scheme}://{parsed.netloc}/"
 
+        username = test_data.get("username", "default_user")
+        password = test_data.get("password", "default_password")
+        
+        print(f"[SESSION] Logging in with: {username}")
+        
         login_page = app_config.login_page_class(page, base_url=base_url)
         login_page.navigate()
+        print(f"[SESSION] Navigated to: {page.url}")
+        
         login_page.accept_cookies()
-        login_page.enter_username(test_data.get("username", "default_user"))
-        login_page.enter_password(test_data.get("password", "default_password"))
+        print("[SESSION] Cookies accepted")
+        
+        login_page.enter_username(username)
+        print("[SESSION] Username entered")
+        
+        login_page.enter_password(password)
+        print("[SESSION] Password entered")
+        
         login_page.click_sign_in()
+        print("[SESSION] Sign-in clicked, waiting for navigation...")
 
         # Check if login successful:
         # After SSO, we may land on a different domain than home_url
@@ -153,9 +168,29 @@ def _perform_login(page: Page, app_config: AppConfig, test_data: dict) -> bool:
         login_indicators = ["account/login", "ewmlogin", "test-login.assetmark.com"]
         is_still_on_login = any(ind in current_url.lower() for ind in login_indicators)
         
-        return not is_still_on_login
+        if not is_still_on_login:
+            print("[SESSION] Login successful - navigated away from login page")
+            return True
+        else:
+            print(f"[SESSION] Login failed - still on login page: {current_url}")
+            # Take screenshot of failed login for diagnostics
+            try:
+                screenshot = page.screenshot()
+                print("[SESSION] Screenshot taken for failed login")
+                # Store for later attachment if needed
+                return False
+            except Exception as screenshot_err:
+                print(f"[SESSION] Could not take screenshot: {screenshot_err}")
+            return False
+            
     except Exception as e:
-        print(f"[SESSION] Login error: {e}")
+        print(f"[SESSION] Login error: {type(e).__name__}: {e}")
+        # Try to take screenshot for diagnostics
+        try:
+            screenshot = page.screenshot()
+            print(f"[SESSION] Screenshot of error state: {len(screenshot)} bytes")
+        except Exception as screenshot_err:
+            print(f"[SESSION] Could not take screenshot of error: {screenshot_err}")
         return False
 
 
@@ -176,6 +211,22 @@ def authenticated_page(browser, browser_context_args, test_data, request) -> Gen
     import os
     from datetime import datetime
 
+    # Validate test_data early - missing credentials will fail login
+    if not test_data:
+        raise ValueError(
+            "test_data fixture is empty or None. Check that test_data fixture is properly configured "
+            "and test CSV data is loaded."
+        )
+    
+    username = test_data.get("username")
+    password = test_data.get("password")
+    if not username or not password:
+        raise ValueError(
+            f"test_data missing credentials. Username: {username}, Password: {'*' * len(password or '')}\n"
+            f"Full test_data: {list(test_data.keys())}\n"
+            f"Check that CSV data matches scenario name."
+        )
+
     # Get worker ID for parallel execution
     worker_id = os.environ.get("PYTEST_XDIST_WORKER", "master")
 
@@ -188,7 +239,6 @@ def authenticated_page(browser, browser_context_args, test_data, request) -> Gen
         raise ValueError(f"Unknown app: {app_name}. Available: {list(APP_CONFIGS.keys())}")
 
     app_config = APP_CONFIGS[app_name]
-    username = test_data.get("username", "default_user")
     role = test_data.get("role")  # Get role from test data
     session_file = _get_session_file(username, app_name, worker_id, role)
     session_max_age_hours = 8
@@ -274,9 +324,26 @@ def authenticated_page(browser, browser_context_args, test_data, request) -> Gen
             print("[SESSION] Login successful! Session saved.")
         else:
             print("[SESSION] Login failed - still on login page")
+            # Take screenshot of failed login state for diagnostics
+            try:
+                screenshot = temp_page.screenshot()
+                print(f"[SESSION] Failed login screenshot captured ({len(screenshot)} bytes)")
+            except Exception as e:
+                print(f"[SESSION] Could not capture failed login screenshot: {e}")
+            
             temp_page.close()
             temp_context.close()
-            raise RuntimeError("Login failed - cannot proceed without authentication")
+            
+            # Provide detailed error message with diagnostic info
+            error_msg = (
+                f"Login failed - cannot proceed without authentication\n"
+                f"  App: {app_name}\n"
+                f"  Username: {username}\n"
+                f"  Login URL: {app_config.login_url}\n"
+                f"  Final URL: {temp_page.url}\n"
+                f"  See Allure report for login screenshot and trace"
+            )
+            raise RuntimeError(error_msg)
 
         # Close temporary login context
         print("[SESSION] Closing login context...")

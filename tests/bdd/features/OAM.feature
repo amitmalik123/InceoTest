@@ -116,7 +116,7 @@ Feature: E2E OAM flow for FA, SAU and OA
     And Verify the Routing Order in database
 
 
-  @smoke @FNT_regression
+  @smoke @FNT_regression @InDev
   Scenario: OAM_Initiated by SAU_Online Submit_Authorized Signer_Required_FA
     When User navigate to Clients menu
     And User click on Account List
@@ -348,7 +348,7 @@ Feature: E2E OAM flow for FA, SAU and OA
     And Verify Notes description
     And Verify Agent Name
 
-  @InDev
+  
   Scenario: PRODENG_33109_OAM_SAU_Online Submit_Authorized Approval_Tracking Center_Blue Banner_Trigger Advisor Mail
     When User navigate to Clients menu
     And User click on Account List

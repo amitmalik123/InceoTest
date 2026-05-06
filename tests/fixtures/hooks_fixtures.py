@@ -125,16 +125,39 @@ def pytest_bdd_step_error(
     """
     Hook that runs when a BDD step fails.
     Takes failure screenshot and closes the step context with error.
+    
+    IMPORTANT: This hook should NOT re-raise fixture initialization errors
+    that would mask the ORIGINAL step failure.
     """
-    # Get page object from pytest request fixture
+    logger = get_allure_logger(__name__)
     page = None
+    
+    # PRIORITY 1: Try to get 'authenticated_page' from funcargs FIRST
+    # This should have the already-initialized page from the test
+    # (if test made it far enough to reach a BDD step, fixture must have succeeded)
     try:
-        # Try to get 'authenticated_page' fixture from request
-        page = request.getfixturevalue("authenticated_page")
-    except Exception:
-        # If that fails, try funcargs
         if hasattr(request, "node") and hasattr(request.node, "funcargs"):
             page = request.node.funcargs.get("authenticated_page")
+            if page:
+                print("[STEP ERROR] Retrieved page from funcargs (already initialized)")
+    except Exception as e:
+        print(f"[STEP ERROR] Error getting page from funcargs: {e}")
+
+    # PRIORITY 2: Try to get 'authenticated_page' fixture from request
+    # Only if not found in funcargs
+    # Wrap in try-except to prevent auth errors from masking the step failure
+    if not page:
+        try:
+            page = request.getfixturevalue("authenticated_page")
+            print("[STEP ERROR] Retrieved page via getfixturevalue")
+        except Exception as e:
+            # Log fixture error but DON'T re-raise
+            # Re-raising would mask the original step failure
+            logger.warning(
+                f"Could not get authenticated_page for screenshot: {type(e).__name__}: {e}",
+                attach_to_allure=False
+            )
+            print(f"[STEP ERROR] Could not get authenticated_page: {type(e).__name__}: {e}")
 
     # Take failure screenshot
     if page:
@@ -145,9 +168,15 @@ def pytest_bdd_step_error(
                 name="FAILED Screenshot",
                 attachment_type=allure.attachment_type.PNG,
             )
+            print("[STEP ERROR] Screenshot attached to report")
         except Exception as e:
-            logger = get_allure_logger(__name__)
-            logger.warning(f"Failure screenshot failed: {e}", attach_to_allure=False)
+            logger.warning(
+                f"Failure screenshot failed: {type(e).__name__}: {e}",
+                attach_to_allure=False
+            )
+            print(f"[STEP ERROR] Screenshot failed: {e}")
+    else:
+        print("[STEP ERROR] No page available for screenshot")
 
     # Close the step context with exception
     step_key = f"{id(request.node)}_{step.name}"

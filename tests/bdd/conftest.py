@@ -59,13 +59,27 @@ def test_data(test_data_manager, request) -> dict:
         print(f"{'=' * 60}")
         return data
     else:
-        print("[TEST DATA] NOT FOUND - No exact match")
-        print("[TEST DATA] Available in CSV:")
-        for row in test_data_manager.get_all():
-            print(f"  - '{row.get('scenario', 'N/A')}'")
-        print("[TEST DATA] Fallback: using first row")
+        print("[TEST DATA] ❌ NOT FOUND - No exact match in CSV")
+        print(f"[TEST DATA] Scenario name: '{scenario_name}'")
+        print(f"[TEST DATA] Available scenarios in CSV:")
+        available = test_data_manager.get_scenarios()
+        for i, scenario in enumerate(available, 1):
+            print(f"  {i:2d}. '{scenario}'")
         print(f"{'=' * 60}")
-        return test_data_manager[0] if len(test_data_manager) > 0 else {}
+        
+        # IMPORTANT: Do NOT fall back to first row - that causes silent failures!
+        # Better to fail early with clear error than to use wrong credentials
+        raise ValueError(
+            f"❌ TEST DATA MISMATCH\n"
+            f"Scenario '{scenario_name}' not found in test data CSV.\n"
+            f"This will cause authentication to fail with wrong credentials.\n\n"
+            f"SOLUTIONS:\n"
+            f"1. Add a row to data/test_data.test11.csv with scenario name: '{scenario_name}'\n"
+            f"2. Remove/skip the scenario from OAM.feature\n"
+            f"3. Rename scenario in .feature file to match an existing CSV row\n\n"
+            f"Available scenarios in CSV:\n"
+            + "\n".join(f"  - '{s}'" for s in available)
+        )
 
 
 # Store test_context instances at module level to ensure persistence across steps in BDD scenarios
