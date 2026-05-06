@@ -1,0 +1,217 @@
+[
+    {
+        "test_id": "TC001",
+        "service_name": "WorkItemNotification",
+        "workflow_mode": "parallel",
+        "test_name": "POST /api/workitemnotification/v1/preference/recipients [positive] (TC001)",
+        "protocol": "REST",
+        "test_type": [
+            "Functional"
+        ],
+        "mainURL": "{{base_url}}",
+        "endpoint": "/api/workitemnotification/v1/preference/recipients",
+        "method": "POST",
+        "rpc_method": "",
+        "graphql_query": "",
+        "graphql_variables": "",
+        "soap_action": "",
+        "soap_envelope": "",
+        "headers_additional": {
+            "Content-Type": "application/json"
+        },
+        "payload": "WorkItemNotification\\payloads\\Payload_api_workitemnotification_v1_preference_recipients_POST_functional.json",
+        "expected_status": "201",
+        "expected_response_schema": "WorkItemNotification\\schemas\\Schema_api_workitemnotification_v1_preference_recipients_POST.json",
+        "expected_response": null,
+        "ignore_fields": [
+            "message",
+            "success"
+        ],
+        "extract_values": [
+            {
+                "from": "response",
+                "key": "preferenceId",
+                "assign_to": "preferenceId"
+            }
+        ],
+        "db_queries": {
+            "default": "SELECT TOP (1) [ID], [APLID], [ItemsRequiringAttentionEV], [ReceivedCompletedPrimaryEV], [ReceivedCompletedSecondaryEV], [IsPageVisited], [CreatedBy], [ModifiedBy], [ApprovalNotificationEV], CAST([CreatedDate] AS varchar(50)) AS [CreatedDate], CAST([ModifiedDate] AS varchar(50)) AS [ModifiedDate], [ReceivedCompletedNewAccountsEV], [ReceivedCompletedMoneyInEV], [ReceivedCompletedStandingInstructionsEV], [ReceivedCompletedInvestmentChangesEV], [ReceivedCompletedWithdrawalsEV], [ReceivedCompletedTerminationsEV] FROM [dbo].[NotificationPreferences] WHERE [ID] = {{preferenceId}}",
+            "audit_query": "SELECT TOP (1) [ID], [APLID], [ItemsRequiringAttentionEV], [ReceivedCompletedPrimaryEV], [ReceivedCompletedSecondaryEV], [IsPageVisited], [CreatedBy], [ModifiedBy], [ApprovalNotificationEV], CAST([CreatedDate] AS varchar(50)) AS [CreatedDate], CAST([ModifiedDate] AS varchar(50)) AS [ModifiedDate], [ReceivedCompletedNewAccountsEV], [ReceivedCompletedMoneyInEV], [ReceivedCompletedStandingInstructionsEV], [ReceivedCompletedInvestmentChangesEV], [ReceivedCompletedWithdrawalsEV], [ReceivedCompletedTerminationsEV] FROM [dbo].[NotificationPreferences] WHERE [ID] = {{preferenceId}}"
+        },
+        "validate": {
+            "performance": {
+                "max_response_time_ms": 1500
+            },
+            "security": {
+                "checks": [
+                    "sql_injection",
+                    "xss"
+                ]
+            },
+            "assertions": [
+                {
+                    "actual": "{{preferenceId}}",
+                    "operator": "!=",
+                    "expected": null,
+                    "message": "Verify preferenceId field exists and is not null"
+                }
+            ],
+            "data_comparison": [
+                {
+                    "source": "api_response",
+                    "target": "db_result",
+                    "target_query": "default",
+                    "key_field": [
+                        {
+                            "source": "preferenceId",
+                            "target": "ID"
+                        }
+                    ],
+                    "fields_to_compare": [
+                        {
+                            "source": "preferenceId",
+                            "target": "ID"
+                        }
+                    ]
+                }
+            ]
+        },
+        "test_data_file": "WorkItemNotification/data_driven/Data_preferences_workitems_recipients.csv",
+        "db_query_timing": "after_api",
+        "db_type": "mssql",
+        "db_connection_name": "work_item_notification",
+        "test_summary": "Test TC001: POST /api/workitemnotification/v1/preference/recipients [positive] (TC001)",
+        "payload_file": "WorkItemNotification\\payloads\\Payload_api_workitemnotification_v1_preference_recipients_POST_functional.json"
+    },
+    {
+        "test_id": "TC002",
+        "service_name": "WorkItemNotification",
+        "workflow_mode": "parallel",
+        "test_name": "POST /api/workitemnotification/v1/preference/recipients  (TC002)",
+        "protocol": "REST",
+        "test_type": [
+            "Negative"
+        ],
+        "mainURL": "{{base_url}}",
+        "endpoint": "/api/workitemnotification/v1/preference/recipients",
+        "method": "POST",
+        "rpc_method": "",
+        "graphql_query": "",
+        "graphql_variables": "",
+        "soap_action": "",
+        "soap_envelope": "",
+        "headers_additional": {
+            "Content-Type": "application/json"
+        },
+        "payload": "WorkItemNotification\\payloads\\Payload_api_workitemnotification_v1_preference_recipients_POST_negative.json",
+        "expected_status": "400",
+        "expected_response_schema": "WorkItemNotification\\schemas\\Schema_api_workitemnotification_v1_preference_recipients_POST_error.json",
+        "expected_response": null,
+        "ignore_fields": [
+            "id"
+        ],
+        "extract_values": [
+            {
+                "from": "response",
+                "key": "",
+                "assign_to": ""
+            },
+            {
+                "from": "response",
+                "record_count": false,
+                "array_path": "",
+                "assign_to": ""
+            },
+            {
+                "from": "db_result",
+                "query": "",
+                "assign": [
+                    {
+                        "key": "",
+                        "assign_to": ""
+                    }
+                ]
+            }
+        ],
+        "validate": {
+            "performance": {
+                "max_response_time_ms": 500
+            },
+            "security": {
+                "checks": [
+                    "sql_injection",
+                    "xss"
+                ]
+            }
+        },
+        "test_data_file": "WorkItemNotification/data_driven/Data_preferences_workitems_recipients.csv",
+        "test_summary": "Test TC002: POST /api/workitemnotification/v1/preference/recipients (TC002)",
+        "payload_file": "WorkItemNotification\\payloads\\Payload_api_workitemnotification_v1_preference_recipients_POST_negative.json"
+    },
+    {
+        "test_id": "TC003",
+        "service_name": "WorkItemNotification",
+        "workflow_mode": "parallel",
+        "test_name": "POST /api/workitemnotification/v1/preference/recipients [negative: invalid payload] (TC003)",
+        "protocol": "REST",
+        "test_type": [
+            "Negative"
+        ],
+        "mainURL": "{{base_url}}",
+        "endpoint": "/api/workitemnotification/v1/preference/recipients",
+        "method": "POST",
+        "rpc_method": "",
+        "graphql_query": "",
+        "graphql_variables": "",
+        "soap_action": "",
+        "soap_envelope": "",
+        "headers_additional": {
+            "Content-Type": "application/json"
+        },
+        "payload": "WorkItemNotification\\payloads\\Payload_api_workitemnotification_v1_preference_recipients_POST_negative.json",
+        "expected_status": "400",
+        "expected_response_schema": "WorkItemNotification\\schemas\\Schema_api_workitemnotification_v1_preference_recipients_POST_negative.json",
+        "expected_response": null,
+        "ignore_fields": [
+            "id"
+        ],
+        "extract_values": [
+            {
+                "from": "response",
+                "key": "",
+                "assign_to": ""
+            },
+            {
+                "from": "response",
+                "record_count": false,
+                "array_path": "",
+                "assign_to": ""
+            },
+            {
+                "from": "db_result",
+                "query": "",
+                "assign": [
+                    {
+                        "key": "",
+                        "assign_to": ""
+                    }
+                ]
+            }
+        ],
+        "validate": {
+            "performance": {
+                "max_response_time_ms": 500
+            },
+            "security": {
+                "checks": [
+                    "sql_injection",
+                    "xss"
+                ]
+            }
+        },
+        "test_data_file": "WorkItemNotification/data_driven/Data_preferences_workitems_recipients.csv",
+        "test_summary": "Test TC003: POST /api/workitemnotification/v1/preference/recipients [negative: invalid payload] (TC003)",
+        "invalid_payload": true,
+        "payload_file": "WorkItemNotification\\payloads\\Payload_api_workitemnotification_v1_preference_recipients_POST_negative.json"
+    }
+]

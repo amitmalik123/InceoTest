@@ -1,0 +1,83 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "type": "object",
+  "title": "GET /requests Response Schema",
+  "description": "Paged response containing money movement request summaries.",
+  "properties": {
+    "page": {
+      "type": "integer",
+      "description": "Current page number"
+    },
+    "pageSize": {
+      "type": "integer",
+      "description": "Number of items per page"
+    },
+    "total": {
+      "type": "integer",
+      "description": "Total number of items",
+      "minimum": 0
+    },
+    "items": {
+      "type": ["array", "null"],
+      "description": "Page items containing compact representations of requests.",
+      "items": {
+        "type": "object",
+        "description": "Compact DTO representing a money movement request in list responses.",
+        "properties": {
+          "requestId": {
+            "type": "string",
+            "format": "uuid",
+            "description": "The unique request identifier."
+          },
+          "railType": {
+            "type": "string",
+            "enum": ["ACH", "Wire", "Check", "Journal", "Transfer"]
+          },
+          "requestType": {
+            "type": "string",
+            "enum": ["Deposit", "Withdrawal"]
+          },
+          "amount": {
+            "type": ["number", "string", "null"]
+          },
+          "status": {
+            "type": "string",
+            "enum": ["Draft", "Pending", "Confirmed", "Deleted"]
+          },
+          "changeState": {
+            "type": "string",
+            "description": "Represents the state of a request change.",
+            "enum": ["Pending", "Scheduled", "Processed", "PendingCancel", "Canceled"]
+          },
+          "scheduleType": {
+            "type": "string",
+            "enum": ["OneTime", "Periodic"]
+          },
+          "paymentDate": {
+            "type": ["string", "null"],
+            "description": "Payment date for one-time schedules."
+          },
+          "createdDate": {
+            "type": "string",
+            "description": "Created timestamp."
+          },
+          "modifiedDate": {
+            "type": "string",
+            "description": "Last modified timestamp."
+          },
+          "createdBy": {
+            "type": ["string", "null"],
+            "description": "User who created the record."
+          },
+          "modifiedBy": {
+            "type": ["string", "null"],
+            "description": "User who last modified the record."
+          }
+        },
+        "required": ["requestId", "railType", "requestType", "status", "changeState", "scheduleType", "createdDate", "modifiedDate"],
+        "additionalProperties": true
+      }
+    }
+  },
+  "required": ["page", "pageSize", "total", "items"]
+}

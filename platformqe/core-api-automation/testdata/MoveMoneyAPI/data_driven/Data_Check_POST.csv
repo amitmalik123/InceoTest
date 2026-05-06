@@ -1,0 +1,6 @@
+test_id,environment,amount,requestType,status,checkNumber,checkSource,checkType,checkAmount,alphaAmount,checkDate,bankName,bankAccountNumber,routingNumber,remitterName,accountId1,amount1,accountId2,amount2,instructionId,deliveryType,chargeOvernightFee,memoLine,scheduleType,frequency,startDate,endDate
+TC001,TSADEV,15000.00,Deposit,Pending,4821,Physical,Personal,15000.00,Fifteen Thousand only,2026-03-28T00:00:00Z,Wells Fargo,78201934556,121000248,John Smith,a1b2c3d4-e5f6-7890-abcd-ef1234567890,10000.00,b2c3d4e5-f6a7-8901-bcde-f12345678901,5000.00,,,,,,,,
+TC002,TSADEV,15000.00,Deposit,Draft,10092,Electronic,,15000.00,Fifteen Thousand only,2026-03-30T00:00:00Z,Chase,3344556677,021000021,Sarah Johnson,,,,,,,,,,,
+TC003,TSADEV,3200.00,Withdrawal,Confirmed,,,,,,,,,,,,,,,0259032c-b55f-4913-a566-d3d4a52690d7,Overnight,true,Q1 2026 Distribution,Periodic,Monthly,2027-04-15,2028-12-15
+TC004,TSADEV,15000.00,De@###posit,Draft,10092,Electronic,,15000.00,Fifteen Thousand only,2026-03-30T00:00:00Z,Chase,3344556677,021000021,Sarah Johnson,,,,,,,,,,,
+TC005,TSADEV,15000.00,,Draft,10092,Electronic,,15000.00,Fifteen Thousand only,2026-03-30T00:00:00Z,Chase,3344556677,021000021,Sarah Johnson,,,,,,,,,,,

@@ -1,0 +1,226 @@
+[
+    {
+        "test_id": "TC001",
+        "service_name": "movemoney",
+        "workflow_mode": "sequential",
+        "test_name": "DELETE /instructions/{instructionId} [positive] (TC001)",
+        "protocol": "REST",
+        "test_type": [
+            "Functional"
+        ],
+        "mainURL": "{{base_url}}",
+        "endpoint": "/instructions/{{instruction_id}}",
+        "method": "DELETE",
+        "rpc_method": "",
+        "graphql_query": "",
+        "graphql_variables": "",
+        "soap_action": "",
+        "soap_envelope": "",
+        "headers_additional": {
+            "Content-Type": "application/json"
+        },
+        "payload": null,
+        "expected_status": "200",
+        "expected_response_schema": null,
+        "expected_response": null,
+        "ignore_fields": [
+            "traceId",
+            "timestamp"
+        ],
+        "extract_values": [
+            {
+                "from": "response",
+                "key": "instructionId",
+                "assign_to": "response_instructionId"
+            },
+            {
+                "from": "db_result",
+                "query": "default",
+                "assign": [
+                    {
+                        "key": "0.Id",
+                        "assign_to": "db_instructionId"
+                    },
+                    {
+                        "key": "0.Version",
+                        "assign_to": "db_version"
+                    },
+                    {
+                        "key": "0.IsDeleted",
+                        "assign_to": "db_isDeleted"
+                    }
+                ]
+            }
+        ],
+        "validate": {
+            "performance": {
+                "max_response_time_ms": 500
+            },
+            "security": {
+                "checks": [
+                    "sql_injection",
+                    "xss"
+                ]
+            },
+            "assertions": [
+                {
+                    "actual": "{{response_instructionId}}",
+                    "expected": "",
+                    "operator": "!=",
+                    "message": "Response instructionId should not be empty"
+                },
+                {
+                    "actual": "{{db_isDeleted}}",
+                    "expected": 1,
+                    "operator": "==",
+                    "message": "IsDeleted should be 1 after successful deletion"
+                },
+                {
+                    "actual": "{{db_version}}",
+                    "expected": 1,
+                    "operator": ">",
+                    "message": "Version should be incremented after deletion"
+                }
+            ],
+            "data_comparison": [
+                {
+                    "source": "db_result",
+                    "query": "default",
+                    "field": "0.IsDeleted",
+                    "expected_value": 1,
+                    "operator": "==",
+                    "message": "DB IsDeleted column should have value 1 after successful deletion",
+                    "comparison_name": "Verify IsDeleted flag is set to 1 in database after deletion"
+                }
+            ]
+        },
+        "test_data_file": "MoveMoneyAPI/data_driven/Data_instructions_instructionId_GET.csv",
+        "csv_row_index": 0,
+        "db_query_timing": "after_api",
+        "db_queries": {
+            "default": "SELECT TOP 1 * FROM [dbo].[MoneyMovementInstruction] WHERE Id = '{{instruction_id}}' ORDER BY Version DESC",
+            "audit_query": ""
+        },
+        "db_type": "mssql",
+        "db_connection_name": "movemoney",
+        "test_summary": "Test TC001: DELETE /instructions/{instructionId} [positive] (TC001) - verifies IsDeleted=1 and Version incremented after delete"
+    },
+    {
+        "test_id": "TC002",
+        "service_name": "movemoney",
+        "workflow_mode": "parallel",
+        "test_name": "DELETE /instructions/{instructionId} [negative: invalid UUID format] (TC002)",
+        "protocol": "REST",
+        "test_type": [
+            "Negative"
+        ],
+        "mainURL": "{{base_url}}",
+        "endpoint": "/instructions/invalid-uuid",
+        "method": "DELETE",
+        "rpc_method": "",
+        "graphql_query": "",
+        "graphql_variables": "",
+        "soap_action": "",
+        "soap_envelope": "",
+        "headers_additional": {
+            "Content-Type": "application/json"
+        },
+        "payload": null,
+        "expected_status": "400",
+        "expected_response_schema": null,
+        "expected_response": "Invalid UUID format for 'instructionId' parameter",
+        "ignore_fields": [],
+        "extract_values": [
+            {
+                "from": "response",
+                "key": "errors.instructionId.0",
+                "assign_to": "error_message"
+            }
+        ],
+        "validate": {
+            "performance": {
+                "max_response_time_ms": 500
+            },
+            "security": {
+                "checks": [
+                    "sql_injection",
+                    "xss"
+                ]
+            },
+            "assertions": [
+                {
+                    "actual": "{{error_message}}",
+                    "expected": "",
+                    "operator": "!=",
+                    "message": "Error message should not be empty"
+                },
+                {
+                    "actual": "{{error_message}}",
+                    "expected": "UUID",
+                    "operator": "contains",
+                    "message": "Error message should mention UUID validation"
+                }
+            ],
+            "data_comparison": []
+        },
+        "test_data_file": "",
+        "db_query_timing": "after_api",
+        "db_queries": {
+            "default": "",
+            "audit_query": ""
+        },
+        "db_type": "",
+        "db_connection_name": "",
+        "test_summary": "Test TC002: DELETE /instructions/{instructionId} [negative: invalid UUID format] (TC002) - Verify 400 Bad Request for invalid UUID"
+    },
+    {
+        "test_id": "TC003",
+        "service_name": "movemoney",
+        "workflow_mode": "sequential",
+        "test_name": "DELETE /instructions/{instructionId} [negative: not found returns 204] (TC003)",
+        "protocol": "REST",
+        "test_type": [
+            "Negative"
+        ],
+        "mainURL": "{{base_url}}",
+        "endpoint": "/instructions/{{instruction_id}}",
+        "method": "DELETE",
+        "rpc_method": "",
+        "graphql_query": "",
+        "graphql_variables": "",
+        "soap_action": "",
+        "soap_envelope": "",
+        "headers_additional": {
+            "Content-Type": "application/json"
+        },
+        "payload": null,
+        "expected_status": "204",
+        "expected_response_schema": null,
+        "expected_response": "",
+        "ignore_fields": [],
+        "extract_values": [],
+        "validate": {
+            "performance": {
+                "max_response_time_ms": 500
+            },
+            "security": {
+                "checks": [
+                    "sql_injection",
+                    "xss"
+                ]
+            },
+            "assertions": [],
+            "data_comparison": []
+        },
+        "test_data_file": "MoveMoneyAPI/data_driven/Data_instructions_instructionId_GET.csv",
+        "csv_row_index": 0,
+        "db_query_timing": "after_api",
+        "db_queries": {
+            "default": "",
+            "audit_query": ""
+        },
+        "db_type": "",
+        "db_connection_name": "",
+        "test_summary": "Test TC003: DELETE /instructions/{instructionId} returns 204 No Content when valid UUID not found"
+    }
+]

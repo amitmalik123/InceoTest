@@ -1,0 +1,504 @@
+[
+    {
+        "test_id": "TC001_SETUP",
+        "service_name": "movemoney",
+        "workflow_mode": "sequential",
+        "test_name": "POST /transfer [positive] (TC001_SETUP)",
+        "protocol": "REST",
+        "test_type": [
+            "Functional"
+        ],
+        "mainURL": "{{base_url}}",
+        "endpoint": "/transfer",
+        "method": "POST",
+        "rpc_method": "",
+        "graphql_query": "",
+        "graphql_variables": "",
+        "soap_action": "",
+        "soap_envelope": "",
+        "headers_additional": {
+            "Content-Type": "application/json"
+        },
+        "payload": {
+            "movementType": "{{movementType}}",
+            "transferUnitType": "{{transferUnitType}}",
+            "amount": "{{amount}}",
+            "amountExpectation": "{{amountExpectation}}",
+            "status": "{{status}}",
+            "fundingAccountNumber": "{{fundingAccountNumber}}",
+            "contraFirm": {
+                "contraFirmId": "{{contraFirmId}}",
+                "name": "{{contraFirmName}}",
+                "accountNumber": "{{contraFirmAccountNumber}}",
+                "nameLine1": "{{contraFirmNameLine1}}",
+                "nameLine2": "{{contraFirmNameLine2}}",
+                "registrationType": "{{contraFirmRegistrationType}}"
+            },
+            "allocations": "{{allocations}}",
+            "securityTransfers": "{{securityTransfers}}"
+        },
+        "expected_status": "200",
+        "expected_response_schema": "MoveMoneyAPI\\schemas\\Schema_transfer_POST.json",
+        "expected_response": null,
+        "ignore_fields": [
+            "traceId",
+            "id",
+            "addressid",
+            "contactid",
+            "identifierid",
+            "timestamp",
+            "createdDate",
+            "modifiedDate",
+            "entitycreateddate",
+            "individualdateofbirth",
+            "instructionId"
+        ],
+        "extract_values": [
+            {
+                "from": "response",
+                "key": "requestId",
+                "assign_to": "requestId_setup"
+            },
+            {
+                "from": "response",
+                "key": "version",
+                "assign_to": "version_setup"
+            }
+        ],
+        "validate": {
+            "performance": {
+                "max_response_time_ms": 1000
+            },
+            "security": {
+                "checks": [
+                    "sql_injection",
+                    "xss"
+                ]
+            },
+            "assertions": [
+                {
+                    "actual": "{{requestId_setup}}",
+                    "expected": "",
+                    "operator": "!=",
+                    "message": "RequestId should not be empty"
+                },
+                {
+                    "actual": "{{version_setup}}",
+                    "expected": 1,
+                    "operator": "==",
+                    "message": "Version should be 1 for new transfer request"
+                }
+            ],
+            "data_comparison": []
+        },
+        "test_data_file": "MoveMoneyAPI/data_driven/Data_transfer_requestId_PUT.csv",
+        "csv_row_index": 0,
+        "db_query_timing": "after_api",
+        "db_queries": "",
+        "db_type": "mssql",
+        "db_connection_name": "movemoney",
+        "test_summary": "Setup test: Create a new transfer request to use for PUT tests"
+    },
+    {
+        "test_id": "TC001",
+        "service_name": "movemoney",
+        "workflow_mode": "sequential",
+        "test_name": "PUT /transfer/{requestId} [positive] (TC001)",
+        "protocol": "REST",
+        "test_type": [
+            "Functional"
+        ],
+        "mainURL": "{{base_url}}",
+        "endpoint": "/transfer/{{requestId_setup}}",
+        "method": "PUT",
+        "rpc_method": "",
+        "graphql_query": "",
+        "graphql_variables": "",
+        "soap_action": "",
+        "soap_envelope": "",
+        "headers_additional": {
+            "Content-Type": "application/json"
+        },
+        "payload": {
+            "requestId": "{{requestId_setup}}",
+            "version": "{{version_setup}}",
+            "movementType": "{{movementType}}",
+            "transferUnitType": "{{transferUnitType}}",
+            "amount": "{{amount}}",
+            "amountExpectation": "{{amountExpectation}}",
+            "status": "{{status}}",
+            "fundingAccountNumber": "{{fundingAccountNumber}}",
+            "contraFirm": {
+                "contraFirmId": "{{contraFirmId}}",
+                "name": "{{contraFirmName}}",
+                "accountNumber": "{{contraFirmAccountNumber}}",
+                "nameLine1": "{{contraFirmNameLine1}}",
+                "nameLine2": "{{contraFirmNameLine2}}",
+                "registrationType": "{{contraFirmRegistrationType}}"
+            },
+            "allocations": "{{allocations}}",
+            "securityTransfers": "{{securityTransfers}}"
+        },
+        "expected_status": "200",
+        "expected_response_schema": "MoveMoneyAPI\\schemas\\Schema_transfer_requestId_PUT.json",
+        "expected_response": null,
+        "ignore_fields": [
+            "traceId",
+            "id",
+            "addressid",
+            "contactid",
+            "identifierid",
+            "timestamp",
+            "createdDate",
+            "modifiedDate",
+            "entitycreateddate",
+            "individualdateofbirth",
+            "instructionId"
+        ],
+        "extract_values": [
+            {
+                "from": "response",
+                "key": "requestId",
+                "assign_to": "requestId_tc001"
+            },
+            {
+                "from": "response",
+                "key": "version",
+                "assign_to": "version_tc001"
+            }
+        ],
+        "validate": {
+            "performance": {
+                "max_response_time_ms": 1000
+            },
+            "security": {
+                "checks": [
+                    "sql_injection",
+                    "xss"
+                ]
+            },
+            "assertions": [
+                {
+                    "actual": "{{requestId_tc001}}",
+                    "expected": "",
+                    "operator": "!=",
+                    "message": "RequestId should not be empty"
+                },
+                {
+                    "actual": "{{version_tc001}}",
+                    "expected": 1,
+                    "operator": ">",
+                    "message": "Version should be incremented"
+                }
+            ],
+            "data_comparison": []
+        },
+        "test_data_file": "MoveMoneyAPI/data_driven/Data_transfer_requestId_PUT.csv",
+        "csv_row_index": 1,
+        "db_query_timing": "after_api",
+        "db_queries": "",
+        "db_type": "mssql",
+        "db_connection_name": "movemoney",
+        "test_summary": "Updates an existing transfer request with version chaining"
+    },
+    {
+        "test_id": "TC002",
+        "service_name": "movemoney",
+        "workflow_mode": "sequential",
+        "test_name": "PUT /transfer/{requestId} [positive] (TC002)",
+        "protocol": "REST",
+        "test_type": [
+            "Functional"
+        ],
+        "mainURL": "{{base_url}}",
+        "endpoint": "/transfer/{{requestId_tc001}}",
+        "method": "PUT",
+        "rpc_method": "",
+        "graphql_query": "",
+        "graphql_variables": "",
+        "soap_action": "",
+        "soap_envelope": "",
+        "headers_additional": {
+            "Content-Type": "application/json"
+        },
+        "payload": {
+            "requestId": "{{requestId_tc001}}",
+            "version": "{{version_tc001}}",
+            "movementType": "{{movementType}}",
+            "transferUnitType": "{{transferUnitType}}",
+            "amount": "{{amount}}",
+            "amountExpectation": "{{amountExpectation}}",
+            "status": "{{status}}",
+            "fundingAccountNumber": "{{fundingAccountNumber}}",
+            "contraFirm": {
+                "contraFirmId": "{{contraFirmId}}",
+                "name": "{{contraFirmName}}",
+                "accountNumber": "{{contraFirmAccountNumber}}",
+                "nameLine1": "{{contraFirmNameLine1}}",
+                "nameLine2": "{{contraFirmNameLine2}}",
+                "registrationType": "{{contraFirmRegistrationType}}"
+            },
+            "allocations": "{{allocations}}",
+            "securityTransfers": "{{securityTransfers}}"
+        },
+        "expected_status": "200",
+        "expected_response_schema": "MoveMoneyAPI\\schemas\\Schema_transfer_requestId_PUT.json",
+        "expected_response": null,
+        "ignore_fields": [
+            "traceId",
+            "id",
+            "addressid",
+            "contactid",
+            "identifierid",
+            "timestamp",
+            "createdDate",
+            "modifiedDate",
+            "entitycreateddate",
+            "individualdateofbirth",
+            "instructionId"
+        ],
+        "extract_values": [
+            {
+                "from": "response",
+                "key": "requestId",
+                "assign_to": "requestId_tc002"
+            },
+            {
+                "from": "response",
+                "key": "version",
+                "assign_to": "version_tc002"
+            }
+        ],
+        "validate": {
+            "performance": {
+                "max_response_time_ms": 1000
+            },
+            "security": {
+                "checks": [
+                    "sql_injection",
+                    "xss"
+                ]
+            },
+            "assertions": [
+                {
+                    "actual": "{{requestId_tc002}}",
+                    "expected": "",
+                    "operator": "!=",
+                    "message": "RequestId should not be empty"
+                },
+                {
+                    "actual": "{{version_tc002}}",
+                    "expected": 2,
+                    "operator": ">",
+                    "message": "Version should be incremented"
+                }
+            ],
+            "data_comparison": []
+        },
+        "test_data_file": "MoveMoneyAPI/data_driven/Data_transfer_requestId_PUT.csv",
+        "csv_row_index": 2,
+        "db_query_timing": "after_api",
+        "db_queries": "",
+        "db_type": "mssql",
+        "db_connection_name": "movemoney",
+        "test_summary": "Updates transfer request with incremented amount"
+    },
+    {
+        "test_id": "TC003",
+        "service_name": "movemoney",
+        "workflow_mode": "parallel",
+        "test_name": "PUT /transfer/{requestId} [negative: Transfer Not Found] (TC003)",
+        "protocol": "REST",
+        "test_type": [
+            "Negative"
+        ],
+        "mainURL": "{{base_url}}",
+        "endpoint": "/transfer/{{requestId_endpoint}}",
+        "method": "PUT",
+        "rpc_method": "",
+        "graphql_query": "",
+        "graphql_variables": "",
+        "soap_action": "",
+        "soap_envelope": "",
+        "headers_additional": {
+            "Content-Type": "application/json"
+        },
+        "payload": {
+            "requestId": "{{requestId_endpoint}}",
+            "version": "1",
+            "movementType": "{{movementType}}",
+            "transferUnitType": "{{transferUnitType}}",
+            "amount": "{{amount}}",
+            "amountExpectation": "{{amountExpectation}}",
+            "status": "{{status}}",
+            "fundingAccountNumber": "{{fundingAccountNumber}}",
+            "contraFirm": {
+                "contraFirmId": "{{contraFirmId}}",
+                "name": "{{contraFirmName}}",
+                "accountNumber": "{{contraFirmAccountNumber}}",
+                "nameLine1": "{{contraFirmNameLine1}}",
+                "nameLine2": "{{contraFirmNameLine2}}",
+                "registrationType": "{{contraFirmRegistrationType}}"
+            },
+            "allocations": "{{allocations}}",
+            "securityTransfers": "{{securityTransfers}}"
+        },
+        "expected_status": "204",
+        "expected_response_schema": null,
+        "expected_response": null,
+        "ignore_fields": [],
+        "extract_values": [],
+        "validate": {
+            "performance": {
+                "max_response_time_ms": 1000
+            },
+            "security": {
+                "checks": [
+                    "sql_injection",
+                    "xss"
+                ]
+            },
+            "assertions": [],
+            "data_comparison": []
+        },
+        "test_data_file": "MoveMoneyAPI/data_driven/Data_transfer_requestId_PUT.csv",
+        "csv_row_index": 3,
+        "db_query_timing": "after_api",
+        "db_queries": "",
+        "db_type": "",
+        "db_connection_name": "",
+        "test_summary": "Verify that the API returns 204 No Content when transfer is not found"
+    },
+    {
+        "test_id": "TC004",
+        "service_name": "movemoney",
+        "workflow_mode": "sequential",
+        "test_name": "PUT /transfer/{requestId} [negative: Bad Request - requestId mismatch] (TC004)",
+        "protocol": "REST",
+        "test_type": [
+            "Negative"
+        ],
+        "mainURL": "{{base_url}}",
+        "endpoint": "/transfer/{{requestId_tc002}}",
+        "method": "PUT",
+        "rpc_method": "",
+        "graphql_query": "",
+        "graphql_variables": "",
+        "soap_action": "",
+        "soap_envelope": "",
+        "headers_additional": {
+            "Content-Type": "application/json"
+        },
+        "payload": {
+            "requestId": "ffffffff-ffff-ffff-ffff-ffffffffffff",
+            "version": "{{version_tc002}}",
+            "movementType": "{{movementType}}",
+            "transferUnitType": "{{transferUnitType}}",
+            "amount": "{{amount}}",
+            "amountExpectation": "{{amountExpectation}}",
+            "status": "{{status}}",
+            "fundingAccountNumber": "{{fundingAccountNumber}}",
+            "contraFirm": {
+                "contraFirmId": "{{contraFirmId}}",
+                "name": "{{contraFirmName}}",
+                "accountNumber": "{{contraFirmAccountNumber}}",
+                "nameLine1": "{{contraFirmNameLine1}}",
+                "nameLine2": "{{contraFirmNameLine2}}",
+                "registrationType": "{{contraFirmRegistrationType}}"
+            },
+            "allocations": "{{allocations}}",
+            "securityTransfers": "{{securityTransfers}}"
+        },
+        "expected_status": "400",
+        "expected_response_schema": null,
+        "expected_response": null,
+        "ignore_fields": [],
+        "extract_values": [],
+        "validate": {
+            "performance": {
+                "max_response_time_ms": 1000
+            },
+            "security": {
+                "checks": [
+                    "sql_injection",
+                    "xss"
+                ]
+            },
+            "assertions": [],
+            "data_comparison": []
+        },
+        "test_data_file": "MoveMoneyAPI/data_driven/Data_transfer_requestId_PUT.csv",
+        "csv_row_index": 4,
+        "db_query_timing": "after_api",
+        "db_queries": "",
+        "db_type": "",
+        "db_connection_name": "",
+        "test_summary": "Verify that the API returns 400 Bad Request when requestId in payload does not match endpoint"
+    },
+    {
+        "test_id": "TC005",
+        "service_name": "movemoney",
+        "workflow_mode": "sequential",
+        "test_name": "PUT /transfer/{requestId} [negative: Conflict - wrong version] (TC005)",
+        "protocol": "REST",
+        "test_type": [
+            "Negative"
+        ],
+        "mainURL": "{{base_url}}",
+        "endpoint": "/transfer/{{requestId_tc002}}",
+        "method": "PUT",
+        "rpc_method": "",
+        "graphql_query": "",
+        "graphql_variables": "",
+        "soap_action": "",
+        "soap_envelope": "",
+        "headers_additional": {
+            "Content-Type": "application/json"
+        },
+        "payload": {
+            "requestId": "{{requestId_tc002}}",
+            "version": "1",
+            "movementType": "{{movementType}}",
+            "transferUnitType": "{{transferUnitType}}",
+            "amount": "{{amount}}",
+            "amountExpectation": "{{amountExpectation}}",
+            "status": "{{status}}",
+            "fundingAccountNumber": "{{fundingAccountNumber}}",
+            "contraFirm": {
+                "contraFirmId": "{{contraFirmId}}",
+                "name": "{{contraFirmName}}",
+                "accountNumber": "{{contraFirmAccountNumber}}",
+                "nameLine1": "{{contraFirmNameLine1}}",
+                "nameLine2": "{{contraFirmNameLine2}}",
+                "registrationType": "{{contraFirmRegistrationType}}"
+            },
+            "allocations": "{{allocations}}",
+            "securityTransfers": "{{securityTransfers}}"
+        },
+        "expected_status": "409",
+        "expected_response_schema": null,
+        "expected_response": null,
+        "ignore_fields": [],
+        "extract_values": [],
+        "validate": {
+            "performance": {
+                "max_response_time_ms": 1000
+            },
+            "security": {
+                "checks": [
+                    "sql_injection",
+                    "xss"
+                ]
+            },
+            "assertions": [],
+            "data_comparison": []
+        },
+        "test_data_file": "MoveMoneyAPI/data_driven/Data_transfer_requestId_PUT.csv",
+        "csv_row_index": 5,
+        "db_query_timing": "after_api",
+        "db_queries": "",
+        "db_type": "",
+        "db_connection_name": "",
+        "test_summary": "Verify that the API returns 409 Conflict when version number does not match current version"
+    }
+]

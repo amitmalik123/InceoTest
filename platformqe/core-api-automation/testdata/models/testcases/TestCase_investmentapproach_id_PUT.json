@@ -1,0 +1,532 @@
+[
+    {
+        "test_id": "TC001",
+        "service_name": "models",
+        "workflow_mode": "sequential",
+        "test_name": "POST /investmentapproach - Create New Investment Approach (TC001)",
+        "protocol": "REST",
+        "test_type": [
+            "Positive",
+            "Setup"
+        ],
+        "mainURL": "{{base_url}}",
+        "endpoint": "/investmentapproach",
+        "method": "POST",
+        "rpc_method": "",
+        "graphql_query": "",
+        "graphql_variables": "",
+        "soap_action": "",
+        "soap_envelope": "",
+        "headers_additional": {
+            "Content-Type": "application/json"
+        },
+        "payload": {
+            "name": "{{random_string(20)}}",
+            "isActive": true
+        },
+        "expected_status": "201",
+        "expected_response_schema": "",
+        "expected_response": null,
+        "ignore_fields": [],
+        "extract_values": [
+            {
+                "from": "response",
+                "key": "id",
+                "assign_to": "first_investment_approach_id"
+            },
+            {
+                "from": "response",
+                "key": "name",
+                "assign_to": "created_investment_approach_name"
+            }
+        ],
+        "validate": {
+            "performance": {
+                "max_response_time_ms": 3000
+            },
+            "security": {
+                "checks": []
+            },
+            "assertions": [],
+            "data_comparison": []
+        },
+        "test_data_file": "",
+        "db_query_timing": "after_api",
+        "db_queries": {
+            "default": "SELECT investment_approach_id, name, is_active, modified_by, created_by FROM public.investment_approach WHERE investment_approach_id = {{first_investment_approach_id}};"
+        },
+        "db_type": "postgresql",
+        "db_connection_name": "models",
+        "test_summary": "Test TC001: Create a new investment approach with auto-generated name and extract the ID for use in subsequent tests. Validate creation in database."
+    },
+    {
+        "test_id": "TC002",
+        "service_name": "models",
+        "workflow_mode": "sequential",
+        "test_name": "Update Investment Approach - Positive Scenario (TC002)",
+        "protocol": "REST",
+        "test_type": [
+            "Functional"
+        ],
+        "mainURL": "{{base_url}}",
+        "endpoint": "/investmentapproach/{{first_investment_approach_id}}",
+        "method": "PUT",
+        "headers_additional": {
+            "Content-Type": "application/json"
+        },
+        "payload": {
+            "name": "{{data_name}}"
+        },
+        "expected_status": "200",
+        "expected_response_schema": "models/schemas/Schema_updateInvApproachRequest.json",
+        "expected_response": {
+            "status": 200,
+            "error": "Request successful"
+        },
+        "ignore_fields": [
+            "id"
+        ],
+        "extract_values": [
+            {
+                "from": "request",
+                "key": "name",
+                "assign_to": "dd_name"
+            }
+        ],
+        "validate": {
+            "performance": {
+                "max_response_time_ms": null
+            },
+            "security": {
+                "checks": [
+                    "sql_injection",
+                    "xss"
+                ]
+            },
+            "data_comparison": [
+                {
+                    "source": "api_response",
+                    "source_array_path": "status",
+                    "target": "literal",
+                    "target_literal": 200,
+                    "comparison_name": "Verify status is 200"
+                },
+                {
+                    "source": "api_response",
+                    "source_array_path": "error",
+                    "target": "literal",
+                    "target_literal": "Request successful",
+                    "comparison_name": "Verify Message is 'Request successful'"
+                }
+            ]
+        },
+        "test_data_file": "models/data_driven/Data_models_GET.csv",
+        "db_query_timing": "after_api",
+        "db_queries": {},
+        "db_type": "postgresql",
+        "db_connection_name": "models",
+        "test_summary": "Test TC002: Perform a valid PUT request to update an investment approach and verify the successful response."
+    },
+    {
+        "test_id": "TC003",
+        "service_name": "models",
+        "workflow_mode": "sequential",
+        "test_name": "Update Investment Approach with Random Data and Verify DB Changes (TC003)",
+        "protocol": "REST",
+        "test_type": [
+            "Functional",
+            "Database Validation"
+        ],
+        "mainURL": "{{base_url}}",
+        "endpoint": "/investmentapproach/{{first_investment_approach_id}}",
+        "method": "PUT",
+        "headers_additional": {
+            "Content-Type": "application/json"
+        },
+        "payload": {
+            "name": "{{random_string(20)}}",
+            "isActive": true
+        },
+        "expected_status": "200",
+        "expected_response_schema": "models/schemas/Schema_updateInvApproachRequest.json",
+        "expected_response": {
+            "status": 200,
+            "error": "Request successful"
+        },
+        "ignore_fields": [
+            "id"
+        ],
+        "extract_values": [
+            {
+                "from": "request",
+                "key": "name",
+                "assign_to": "updated_random_name"
+            }
+        ],
+        "validate": {
+            "performance": {
+                "max_response_time_ms": null
+            },
+            "security": {
+                "checks": [
+                    "sql_injection",
+                    "xss"
+                ]
+            },
+            "data_comparison": [
+                {
+                    "source": "api_response",
+                    "source_array_path": "status",
+                    "target": "literal",
+                    "target_literal": 200,
+                    "comparison_name": "Verify status is 200"
+                },
+                {
+                    "source": "api_response",
+                    "source_array_path": "error",
+                    "target": "literal",
+                    "target_literal": "Request successful",
+                    "comparison_name": "Verify Message is 'Request successful'"
+                },
+                {
+                    "source": "updated_random_name",
+                    "target": "db_result",
+                    "target_query": "default",
+                    "target_array_path": "0.name",
+                    "log_differences": true,
+                    "comparison_name": "Verify updated name in database matches request payload"
+                },
+                {
+                    "source": "db_result",
+                    "source_array_path": "0.is_active",
+                    "target": "literal",
+                    "target_literal": true,
+                    "comparison_name": "Verify isActive is true in database"
+                }
+            ]
+        },
+        "test_data_file": "",
+        "db_query_timing": "after_api",
+        "db_queries": {
+            "default": "SELECT investment_approach_id, name, is_active, modified_by FROM public.investment_approach WHERE investment_approach_id = {{first_investment_approach_id}};"
+        },
+        "db_type": "postgresql",
+        "db_connection_name": "models",
+        "test_summary": "Test TC003: Update investment approach with random name and isActive=true, then validate the changes in database"
+    },
+    {
+        "test_id": "TC004",
+        "service_name": "models",
+        "workflow_mode": "sequential",
+        "test_name": "Update Investment Approach - Negative: Invalid ID Type (TC004)",
+        "protocol": "REST",
+        "test_type": [
+            "Negative"
+        ],
+        "mainURL": "{{base_url}}",
+        "endpoint": "/investmentapproach/not_an_integer",
+        "method": "PUT",
+        "headers_additional": {
+            "Content-Type": "application/json"
+        },
+        "payload": "models/payloads/Payload_UpdateInvApproachRequest_valid.json",
+        "expected_status": "500",
+        "expected_response_schema": "models/schemas/Schema_investmentapproachid_500.json",
+        "expected_response": {
+            "title": "Unhandled Server Error",
+            "status": 500,
+            "detail": "Failed to bind parameter \"int id\" from \"not_an_integer\"."
+        },
+        "ignore_fields": [],
+        "extract_values": [],
+        "validate": {
+            "performance": {
+                "max_response_time_ms": null
+            },
+            "data_comparison": [
+                {
+                    "source": "api_response",
+                    "source_array_path": "status",
+                    "target": "literal",
+                    "target_literal": 500,
+                    "comparison_name": "Verify status is 500"
+                },
+                {
+                    "source": "api_response",
+                    "source_array_path": "title",
+                    "target": "literal",
+                    "target_literal": "Unhandled Server Error",
+                    "comparison_name": "Verify error title"
+                }
+            ]
+        },
+        "test_data_file": "",
+        "db_query": "",
+        "db_type": "",
+        "db_connection_name": "",
+        "test_summary": "Test TC004: Send a PUT request with a non-integer ID and verify that the server returns a 500 Internal Server Error."
+    },
+    {
+        "test_id": "TC005",
+        "service_name": "models",
+        "workflow_mode": "sequential",
+        "test_name": "Update Investment Approach - Negative: Unexpected Parameter (TC005)",
+        "protocol": "REST",
+        "test_type": [
+            "Negative"
+        ],
+        "mainURL": "{{base_url}}",
+        "endpoint": "/investmentapproach/123",
+        "method": "PUT",
+        "headers_additional": {
+            "Content-Type": "application/json"
+        },
+        "payload": {
+            "name": "Growth Approach",
+            "id": 123,
+            "unexpected_param": "unexpected"
+        },
+        "expected_status": "400",
+        "expected_response_schema": "models/schemas/Schema_investmentapproachid_400.json",
+        "expected_response": {
+            "title": "Invalid JSON",
+            "status": 400,
+            "detail": "Invalid JSON payload: The JSON property 'id' could not be mapped to any .NET member contained in type 'UpdateInvApproachRequest'. Check field 'id'."
+        },
+        "ignore_fields": [],
+        "extract_values": [],
+        "validate": {
+            "performance": {
+                "max_response_time_ms": null
+            },
+            "data_comparison": [
+                {
+                    "source": "api_response",
+                    "source_array_path": "status",
+                    "target": "literal",
+                    "target_literal": 400,
+                    "comparison_name": "Verify status is 400"
+                },
+                {
+                    "source": "api_response",
+                    "source_array_path": "title",
+                    "target": "literal",
+                    "target_literal": "Invalid JSON",
+                    "comparison_name": "Verify error title"
+                }
+            ]
+        },
+        "test_data_file": "",
+        "db_query": "",
+        "db_type": "",
+        "db_connection_name": "",
+        "test_summary": "Test TC005: Send a PUT request with an unexpected parameter in the payload and verify that the server returns a 400 Bad Request."
+    },
+    {
+        "test_id": "TC006",
+        "service_name": "models",
+        "workflow_mode": "sequential",
+        "test_name": "Update Investment Approach - Negative: Invalid Payload (TC006)",
+        "protocol": "REST",
+        "test_type": [
+            "Negative"
+        ],
+        "mainURL": "{{base_url}}",
+        "endpoint": "/investmentapproach/123",
+        "method": "POST",
+        "headers_additional": {
+            "Content-Type": "application/json"
+        },
+        "payload": "models/payloads/Payload_UpdateInvApproachRequest_invalid.json",
+        "expected_status": "405",
+        "expected_response_schema": "",
+        "expected_response": null,
+        "ignore_fields": [],
+        "extract_values": [],
+        "validate": {
+            "performance": {
+                "max_response_time_ms": null
+            }
+        },
+        "test_data_file": "",
+        "db_query": "",
+        "db_type": "",
+        "db_connection_name": "",
+        "test_summary": "Test TC006: Send a POST request to a PUT-only endpoint and verify that the server returns a 405 Method Not Allowed."
+    },
+    {
+        "test_id": "TC007",
+        "service_name": "models",
+        "workflow_mode": "sequential",
+        "test_name": "PUT /investmentapproach/{id} with empty payload - Bad Request error (TC007)",
+        "protocol": "REST",
+        "test_type": [
+            "Functional",
+            "Smoke"
+        ],
+        "mainURL": "{{base_url}}",
+        "endpoint": "/investmentapproach/123",
+        "method": "PUT",
+        "headers_additional": {
+            "Content-Type": "application/json"
+        },
+        "payload": "0",
+        "expected_status": "400",
+        "expected_response_schema": "",
+        "expected_response": null,
+        "ignore_fields": [],
+        "extract_values": [],
+        "validate": {
+            "performance": {
+                "max_response_time_ms": null
+            },
+            "data_comparison": [
+                {
+                    "source": "api_response",
+                    "source_array_path": "status",
+                    "target": "literal",
+                    "target_literal": 400,
+                    "comparison_name": "Verify status is 400"
+                }
+            ]
+        },
+        "test_data_file": "",
+        "db_query": "",
+        "db_type": "",
+        "db_connection_name": "",
+        "test_summary": "Test TC007: Send empty payload {} to investmentapproach endpoint, verify 400 Bad Request error"
+    },
+    {
+        "test_id": "TC008",
+        "service_name": "models",
+        "workflow_mode": "sequential",
+        "test_name": "PUT /investmentapproach/{id} with empty name field - Bad Request error (TC008)",
+        "protocol": "REST",
+        "test_type": [
+            "Functional",
+            "Smoke"
+        ],
+        "mainURL": "{{base_url}}",
+        "endpoint": "/investmentapproach/123",
+        "method": "PUT",
+        "headers_additional": {
+            "Content-Type": "application/json"
+        },
+        "payload": {
+            "name": ""
+        },
+        "expected_status": "422",
+        "expected_response_schema": "",
+        "expected_response": null,
+        "ignore_fields": [],
+        "extract_values": [],
+        "validate": {
+            "performance": {
+                "max_response_time_ms": null
+            },
+            "data_comparison": [
+                {
+                    "source": "api_response",
+                    "source_array_path": "status",
+                    "target": "literal",
+                    "target_literal": 422,
+                    "comparison_name": "Verify status is 422"
+                }
+            ]
+        },
+        "test_data_file": "",
+        "db_query": "",
+        "db_type": "",
+        "db_connection_name": "",
+        "test_summary": "Test TC008: Send payload with empty name field, verify 400 Bad Request error"
+    },
+    {
+        "test_id": "TC009",
+        "service_name": "models",
+        "workflow_mode": "sequential",
+        "test_name": "PUT /investmentapproach/{id} with invalid field - Bad Request error (TC009)",
+        "protocol": "REST",
+        "test_type": [
+            "Functional",
+            "Smoke"
+        ],
+        "mainURL": "{{base_url}}",
+        "endpoint": "/investmentapproach/{{first_investment_approach_id}}",
+        "method": "PUT",
+        "headers_additional": {
+            "Content-Type": "application/json"
+        },
+        "payload": {
+            "name": "Test Name",
+            "invalidField": 123
+        },
+        "expected_status": "400",
+        "expected_response_schema": "",
+        "expected_response": null,
+        "ignore_fields": [],
+        "extract_values": [],
+        "validate": {
+            "performance": {
+                "max_response_time_ms": null
+            },
+            "data_comparison": [
+                {
+                    "source": "api_response",
+                    "source_array_path": "status",
+                    "target": "literal",
+                    "target_literal": 400,
+                    "comparison_name": "Verify status is 400"
+                }
+            ]
+        },
+        "test_data_file": "",
+        "db_query": "",
+        "db_type": "",
+        "db_connection_name": "",
+        "test_summary": "Test TC009: Send payload with invalid field 'invalidField', verify 400 Bad Request error"
+    },
+    {
+        "test_id": "TC010",
+        "service_name": "models",
+        "workflow_mode": "sequential",
+        "test_name": "PUT /investmentapproach/{id} with invalid data type for name - Bad Request error (TC010)",
+        "protocol": "REST",
+        "test_type": [
+            "Functional",
+            "Smoke"
+        ],
+        "mainURL": "{{base_url}}",
+        "endpoint": "/investmentapproach/{{first_investment_approach_id}}",
+        "method": "PUT",
+        "headers_additional": {
+            "Content-Type": "application/json"
+        },
+        "payload": {
+            "name": 456
+        },
+        "expected_status": "400",
+        "expected_response_schema": "",
+        "expected_response": null,
+        "ignore_fields": [],
+        "extract_values": [],
+        "validate": {
+            "performance": {
+                "max_response_time_ms": null
+            },
+            "data_comparison": [
+                {
+                    "source": "api_response",
+                    "source_array_path": "status",
+                    "target": "literal",
+                    "target_literal": 400,
+                    "comparison_name": "Verify status is 400"
+                }
+            ]
+        },
+        "test_data_file": "",
+        "db_query": "",
+        "db_type": "",
+        "db_connection_name": "",
+        "test_summary": "Test TC010: Send payload with numeric value for name field (expected string), verify 400 Bad Request error"
+    }
+]

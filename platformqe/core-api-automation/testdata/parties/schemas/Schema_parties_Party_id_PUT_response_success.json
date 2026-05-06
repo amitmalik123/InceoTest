@@ -1,0 +1,18 @@
+{
+  "$schema": "http://json-schema.org/draft-04/schema#",
+  "type": "object",
+  "properties": {
+    "status": {
+      "type": "integer",
+      "format": "int32"
+    },
+    "versionNumber": {
+      "type": ["integer", "null"],
+      "format": "int32"
+    },
+    "error": {
+      "type": ["string", "null"]
+    }
+  },
+  "required": ["status"]
+}

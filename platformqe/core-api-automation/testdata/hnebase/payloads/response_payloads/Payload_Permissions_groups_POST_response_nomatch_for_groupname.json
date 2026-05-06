@@ -1,0 +1,8 @@
+{
+  "permissionGroups": [
+    {
+      "groupName": "NoMatchGroupName",
+      "permissions": "GroupName NoMatchGroupName not found."
+    }
+  ]
+}

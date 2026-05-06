@@ -1,0 +1,21 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "Invalid JSON Error Schema",
+  "type": "object",
+  "properties": {
+    "title": {
+      "type": "string",
+      "description": "Short summary of the error (e.g., 'Invalid JSON')"
+    },
+    "status": {
+      "type": "integer",
+      "description": "HTTP-like status code representing the error (e.g., 400)"
+    },
+    "detail": {
+      "type": "string",
+      "description": "Detailed description of the error cause"
+    }
+  },
+  "required": ["title", "status", "detail"],
+  "additionalProperties": false
+}

@@ -1,0 +1,44 @@
+{
+    "name": "Test Model - Null InvestmentApproach ID",
+    "ownerId": "3fa85f64-5717-4562-b3fc-2c963f66afa6",
+    "modelAttributes": {
+        "solutionType": "Balanced Growth",
+        "modelType": "Balanced"
+    },
+    "allocationDetail": [
+        {
+            "entityType": "Security",
+            "allocationName": "SPDR S&P 500 ETF Trust",
+            "modelId": "",
+            "cusip": "78462F103",
+            "ticker": "SPY",
+            "weight": 0.5
+        },
+        {
+            "entityType": "Security",
+            "allocationName": "iShares 20+ Year Treasury Bond ETF",
+            "modelId": "",
+            "cusip": "464287200",
+            "ticker": "TLT",
+            "weight": 0.5
+        }
+    ],
+    "investmentApproachId": null,
+    "benchmark": [
+        {
+            "name": "60/40 Balanced Index",
+            "isPrimary": true
+        }
+    ],
+    "custodians": [
+        "Fidelity"
+    ],
+    "investmentMins": {
+        "standard": 25000,
+        "premium": 100000
+    },
+    "riskProfile": "Moderate Risk",
+    "versionMetadata": {
+        "targetRebalanceFrequency": "Quarterly"
+    }
+}

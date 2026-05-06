@@ -1,0 +1,55 @@
+{
+  "partyRequest": {
+    "partyType": "{{req_partyType}}",
+    "status": "{{req_status}}",
+    "core": {
+      "individual": {
+        "firstName": "{{req_firstName}}",
+        "middleName": "{{req_middleName}}",
+        "lastName": "{{req_lastName}}",
+        "suffix": "{{req_suffix}}",
+        "dateOfBirth": "{{req_dateOfBirth}}",
+        "taxId": "{{req_taxId}}",
+        "citizenship": "{{req_citizenship}}",
+        "maritalStatus": "{{req_maritalStatus}}",
+        "isDeceased": "{{req_isDeceased}}",
+        "dateOfDeath": "{{req_dateOfDeath}}"
+      },
+      "entity": {
+        "type": "{{req_entityType}}",
+        "subType": "{{req_entitySubType}}",
+        "title": "{{req_entityTitle}}",
+        "taxId": "{{req_entityTaxId}}",
+        "taxidentifier": "{{req_taxidentifier}}",
+        "createdDate": "{{req_createdDate}}"
+      }
+    },
+    "addresses": [
+      {
+        "addressType": "{{req_addressType}}",
+        "line1": "{{req_addressline1}}",
+        "line2": "{{req_addressline2}}",
+        "city": "{{req_city}}",
+        "state": "{{req_state}}",
+        "zip": "{{req_zip}}",
+        "country": "{{req_country}}",
+        "priorityType": "{{req_priorityType}}"
+      }
+    ],
+    "contacts": [
+      {
+        "contactType": "{{req_contactType}}",
+        "usageType": "{{req_usageType}}",
+        "value": "{{req_value}}",
+        "priorityType": "{{req_contactPriorityType}}"
+      }
+    ],
+    "identifiers": [
+      {
+        "type": "{{req_identifierType}}",
+        "value": "{{req_identifierValue}}"
+      }
+    ],
+    "householdId": "string"
+  }
+}

@@ -1,0 +1,52 @@
+{
+  "partyType": "Individual",
+  "status": "Draft",
+  "core": {
+    "individual": {
+      "firstName": "string",
+      "middleName": "string",
+      "lastName": "string",
+      "suffix": "string",
+      "dateOfBirth": "2025-12-10T10:53:29.203Z",
+      "taxId": "string",
+      "citizenship": "Unknown",
+      "maritalStatus": "Unknown",
+      "isDeceased": true,
+      "dateOfDeath": "2025-12-10T10:53:29.203Z"
+    },
+    "entity": {
+      "type": "Business",
+      "subType": "Unknown",
+      "title": "string",
+      "taxId": "string",
+      "taxidentifier": "SSN",
+      "createdDate": "2025-12-10T10:53:29.203Z"
+    }
+  },
+  "addresses": [
+    {
+      "addressType": "Business",
+      "line1": "string",
+      "line2": "string",
+      "city": "string",
+      "state": "AL",
+      "zip": "strin",
+      "country": "AD",
+      "priorityType": "Primary"
+    }
+  ],
+  "contacts": [
+    {
+      "contactType": "Phone",
+      "usageType": "Unknown",
+      "value": "string",
+      "priorityType": "Primary"
+    }
+  ],
+  "identifiers": [
+    {
+      "type": "APL",
+      "value": "string"
+    }
+  ]
+}

@@ -1,0 +1,435 @@
+[
+    {
+        "test_id": "TC0001_1",
+        "service_name": "models",
+        "workflow_mode": "sequential",
+        "test_name": "DB_ONLY - Fetch investment_approach_id from Database",
+        "protocol": "DB_ONLY",
+        "test_type": [
+            "Functional"
+        ],
+        "mainURL": "",
+        "endpoint": "",
+        "method": "",
+        "rpc_method": "",
+        "graphql_query": "",
+        "graphql_variables": "",
+        "soap_action": "",
+        "soap_envelope": "",
+        "headers_additional": {
+            "Content-Type": "application/json"
+        },
+        "payload": null,
+        "expected_status": "",
+        "expected_response_schema": "",
+        "expected_response": "",
+        "extract_values": [
+            {
+                "from": "db_result",
+                "key": "0.investment_approach_id",
+                "assign_to": "db_investment_approach_id"
+            }
+        ],
+        "validate": {
+            "performance": {
+                "max_response_time_ms": 500
+            },
+            "security": {
+                "checks": []
+            },
+            "data_comparison": {
+                "source": "api_response",
+                "target": "db_result",
+                "format": "table",
+                "key_field": [
+                    "",
+                    ""
+                ],
+                "fields_to_compare": [],
+                "log_differences": true
+            }
+        },
+        "test_data_file": "",
+        "db_type": "postgresql",
+        "db_connection_name": "models",
+        "db_query": "SELECT investment_approach_id FROM public.investment_approach LIMIT 1",
+        "test_summary": "Step 0: Fetch valid investment_approach_id from database to use in model creation payload",
+        "test_scenario": "Retrieve investment approach ID from database for data-driven test"
+    },
+    {
+        "test_id": "TC0001_2",
+        "service_name": "models",
+        "workflow_mode": "sequential",
+        "test_name": "POST /model - Create Model for Version History Test (TC001)",
+        "protocol": "REST",
+        "test_type": [
+            "Functional"
+        ],
+        "mainURL": "{{base_url}}",
+        "endpoint": "/model",
+        "method": "POST",
+        "headers_additional": {
+            "Content-Type": "application/json"
+        },
+        "payload": "models\\payloads\\Payload_model_id_POST_request.json",
+        "expected_status": "201",
+        "expected_response_schema": "models\\schemas\\Schema_post_response copy.json",
+        "extract_values": [
+            {
+                "from": "response",
+                "key": "modelId",
+                "assign_to": "response_model_id"
+            }
+        ],
+        "validate": {
+            "performance": {
+                "max_response_time_ms": null
+            }
+        },
+        "test_summary": "Step 1: Create a new model and extract modelId for version history workflow",
+        "test_scenario": "Create initial model to test version history functionality"
+    },
+    {
+        "test_id": "TC0001_3",
+        "service_name": "models",
+        "workflow_mode": "sequential",
+        "test_name": "POST /model/{id}/publish - Second Publish (TC002)",
+        "protocol": "REST",
+        "test_type": [
+            "Functional"
+        ],
+        "mainURL": "{{base_url}}",
+        "endpoint": "/model/{{response_model_id}}/publish",
+        "method": "POST",
+        "headers_additional": {
+            "Content-Type": "application/json"
+        },
+        "payload": null,
+        "expected_status": "200",
+        "test_summary": "Step 4: Publish version 2 (v2 → Published, v1 → Archived)",
+        "test_scenario": "Second publish makes version 2 Published, version 1 becomes Archived"
+    },
+    {
+        "test_id": "TC0001_4",
+        "service_name": "models",
+        "workflow_mode": "sequential",
+        "test_name": "DELETE /model/{id} - Archive Model (TC0001_4)",
+        "protocol": "REST",
+        "test_type": [
+            "Functional"
+        ],
+        "mainURL": "{{base_url}}",
+        "endpoint": "/model/{{response_model_id}}",
+        "method": "DELETE",
+        "headers_additional": {
+            "Content-Type": "application/json"
+        },
+        "payload": null,
+        "expected_status": "200",
+        "expected_response": {
+            "status": 200,
+            "message": "Model archived successfully."
+        },
+        "validate": {
+            "performance": {
+                "max_response_time_ms": null
+            }
+        },
+        "test_summary": "Step 5: Delete (archive) the model using the extracted modelId",
+        "test_scenario": "Archive the model and validate the response message"
+    },
+    {
+        "test_id": "TC0001_5",
+        "service_name": "models",
+        "workflow_mode": "sequential",
+        "test_name": "DB_ONLY - Verify Model Archive Record in Database",
+        "protocol": "DB_ONLY",
+        "test_type": [
+            "Functional"
+        ],
+        "mainURL": "",
+        "endpoint": "",
+        "method": "",
+        "rpc_method": "",
+        "graphql_query": "",
+        "graphql_variables": "",
+        "soap_action": "",
+        "soap_envelope": "",
+        "headers_additional": {
+            "Content-Type": "application/json"
+        },
+        "payload": null,
+        "expected_status": "",
+        "expected_response_schema": "",
+        "expected_response": "",
+        "extract_values": [
+            {
+                "from": "db_result",
+                "key": "0.model_id",
+                "assign_to": "db_archived_model_id"
+            }
+        ],
+        "validate": {
+            "performance": {
+                "max_response_time_ms": 500
+            },
+            "security": {
+                "checks": []
+            },
+            "assertions": [
+                {
+                    "actual": "{{db_archived_model_id}}",
+                    "operator": "==",
+                    "expected": "{{response_model_id}}",
+                    "message": "Verify archived model_id matches the created model_id"
+                }
+            ],
+            "data_comparison": {
+                "source": "api_response",
+                "target": "db_result",
+                "format": "table",
+                "key_field": [
+                    "",
+                    ""
+                ],
+                "fields_to_compare": [],
+                "log_differences": true
+            }
+        },
+        "test_data_file": "",
+        "db_type": "postgresql",
+        "db_connection_name": "models",
+        "db_query": "SELECT model_id, version, allocation_id, archived_by, archived_date FROM public.model_archive WHERE model_id = '{{response_model_id}}'",
+        "test_summary": "Step 6: Verify that the archived model record exists in the model_archive table",
+        "test_scenario": "Validate database insertion by checking if model_id exists in public.model_archive"
+    },
+    {
+        "test_id": "TC0002_1",
+        "service_name": "models",
+        "workflow_mode": "sequential",
+        "test_name": "POST /model - Create Model for Version History Test (TC0002_1)",
+        "protocol": "REST",
+        "test_type": [
+            "Functional"
+        ],
+        "mainURL": "{{base_url}}",
+        "endpoint": "/model",
+        "method": "POST",
+        "headers_additional": {
+            "Content-Type": "application/json"
+        },
+        "payload": "models\\payloads\\Payload_model_id_POST_request.json",
+        "expected_status": "201",
+        "expected_response_schema": "models\\schemas\\Schema_post_response copy.json",
+        "extract_values": [
+            {
+                "from": "response",
+                "key": "modelId",
+                "assign_to": "response_model_id"
+            }
+        ],
+        "validate": {
+            "performance": {
+                "max_response_time_ms": null
+            }
+        },
+        "test_summary": "Step 1: Create a new model and extract modelId for version history workflow",
+        "test_scenario": "Create initial model to test version history functionality"
+    },
+    {
+        "test_id": "TC0002_2",
+        "service_name": "models",
+        "workflow_mode": "sequential",
+        "test_name": "POST /model/{id}/publish - Second Publish (TC002)",
+        "protocol": "REST",
+        "test_type": [
+            "Functional"
+        ],
+        "mainURL": "{{base_url}}",
+        "endpoint": "/model/{{response_model_id}}/publish",
+        "method": "POST",
+        "headers_additional": {
+            "Content-Type": "application/json"
+        },
+        "payload": null,
+        "expected_status": "200",
+        "test_summary": "Step 4: Publish version 2 (v2 → Published, v1 → Archived)",
+        "test_scenario": "Second publish makes version 2 Published, version 1 becomes Archived"
+    },
+    {
+        "test_id": "TC0002_3",
+        "service_name": "models",
+        "workflow_mode": "sequential",
+        "test_name": "POST /model/{id}/version - Create Version 2 (TC0002_3)",
+        "protocol": "REST",
+        "test_type": [
+            "Functional"
+        ],
+        "mainURL": "{{base_url}}",
+        "endpoint": "/model/{{response_model_id}}/version",
+        "method": "POST",
+        "headers_additional": {
+            "Content-Type": "application/json"
+        },
+        "payload": {
+            "allocations": [
+                {
+                    "entityType": "Model",
+                    "allocationName": "Version 2 Allocation",
+                    "cusip": "string",
+                    "ticker": "AAPL",
+                    "weight": 3,
+                    "modelId": "string"
+                }
+            ]
+        },
+        "expected_status": "201",
+        "test_summary": "Step 3: Create version 2 (Draft) - version 1 stays Published",
+        "test_scenario": "Create new version 2 as Draft, version 1 remains Published"
+    },
+    {
+        "test_id": "TC0002_4",
+        "service_name": "models",
+        "workflow_mode": "sequential",
+        "test_name": "DELETE /model/{id} - Archive Model (TC0002_4)",
+        "protocol": "REST",
+        "test_type": [
+            "Functional"
+        ],
+        "mainURL": "{{base_url}}",
+        "endpoint": "/model/{{response_model_id}}",
+        "method": "DELETE",
+        "headers_additional": {
+            "Content-Type": "application/json"
+        },
+        "payload": null,
+        "expected_status": "200",
+        "expected_response": {
+            "status": 200,
+            "message": "Model archived successfully."
+        },
+        "validate": {
+            "performance": {
+                "max_response_time_ms": null
+            }
+        },
+        "test_summary": "Step 5: Delete (archive) the model using the extracted modelId",
+        "test_scenario": "Archive the model and validate the response message"
+    },
+    {
+        "test_id": "TC0002_5",
+        "service_name": "models",
+        "workflow_mode": "sequential",
+        "test_name": "DB_ONLY - Verify Model Archive Record in Database",
+        "protocol": "DB_ONLY",
+        "test_type": [
+            "Functional"
+        ],
+        "mainURL": "",
+        "endpoint": "",
+        "method": "",
+        "rpc_method": "",
+        "graphql_query": "",
+        "graphql_variables": "",
+        "soap_action": "",
+        "soap_envelope": "",
+        "headers_additional": {
+            "Content-Type": "application/json"
+        },
+        "payload": null,
+        "expected_status": "",
+        "expected_response_schema": "",
+        "expected_response": "",
+        "extract_values": [
+            {
+                "from": "db_result",
+                "key": "0.model_id",
+                "assign_to": "db_archived_model_id"
+            }
+        ],
+        "validate": {
+            "performance": {
+                "max_response_time_ms": 500
+            },
+            "security": {
+                "checks": []
+            },
+            "assertions": [
+                {
+                    "actual": "{{db_archived_model_id}}",
+                    "operator": "==",
+                    "expected": "{{response_model_id}}",
+                    "message": "Verify archived model_id matches the created model_id"
+                }
+            ],
+            "data_comparison": {
+                "source": "api_response",
+                "target": "db_result",
+                "format": "table",
+                "key_field": [
+                    "",
+                    ""
+                ],
+                "fields_to_compare": [],
+                "log_differences": true
+            }
+        },
+        "test_data_file": "",
+        "db_type": "postgresql",
+        "db_connection_name": "models",
+        "db_query": "SELECT model_id, version, allocation_id, archived_by, archived_date FROM public.model_archive WHERE model_id = '{{response_model_id}}'",
+        "test_summary": "Step 6: Verify that the archived model record exists in the model_archive table",
+        "test_scenario": "Validate database insertion by checking if model_id exists in public.model_archive"
+    },
+    {
+        "test_id": "TC0002_6",
+        "service_name": "models",
+        "workflow_mode": "sequential",
+        "test_name": "POST /model/{id}/publish - Second Publish (TC002)",
+        "protocol": "REST",
+        "test_type": [
+            "Functional"
+        ],
+        "mainURL": "{{base_url}}",
+        "endpoint": "/model/{{response_model_id}}/publish",
+        "method": "POST",
+        "headers_additional": {
+            "Content-Type": "application/json"
+        },
+        "payload": null,
+        "expected_status": "200",
+        "test_summary": "Step 4: Publish version 2 (v2 → Published, v1 → Archived)",
+        "test_scenario": "Second publish makes version 2 Published, version 1 becomes Archived"
+    },
+    {
+        "test_id": "TC003",
+        "service_name": "models",
+        "workflow_mode": "independent",
+        "test_name": "DELETE /model/{id} - Negative Test: Non-existent Model ID",
+        "protocol": "REST",
+        "test_type": [
+            "Negative"
+        ],
+        "mainURL": "{{base_url}}",
+        "endpoint": "/model/99999999-9999-9999-9999-999999999999",
+        "method": "DELETE",
+        "headers_additional": {
+            "Content-Type": "application/json"
+        },
+        "payload": null,
+        "expected_status": "404",
+        "expected_response": {
+            "type": "ResourceNotFound",
+            "title": "ModelActive.NotFound",
+            "status": 404,
+            "detail": "Unable to find model 99999999-9999-9999-9999-999999999999"
+        },
+        "validate": {
+            "performance": {
+                "max_response_time_ms": null
+            }
+        },
+        "test_summary": "Negative Test: Attempt to delete a non-existent model ID",
+        "test_scenario": "Verify appropriate error response when trying to delete a model that doesn't exist"
+    }
+]

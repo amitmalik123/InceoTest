@@ -1,0 +1,348 @@
+[
+    {
+        "test_id": "TC001",
+        "service_name": "hnebase",
+        "workflow_mode": "parallel",
+        "test_name": "UserCode endpoint - Valid SSOGUID [positive] (TC001)",
+        "protocol": "REST",
+        "test_type": [
+            "Functional"
+        ],
+        "mainURL": "{{base_url}}",
+        "endpoint": "/UserCodes/{{req_ssoguid}}",
+        "method": "GET",
+        "rpc_method": "",
+        "graphql_query": "",
+        "graphql_variables": "",
+        "soap_action": "",
+        "soap_envelope": "",
+        "headers_additional": {
+            "Content-Type": "application/json"
+        },
+        "payload": null,
+        "expected_status": "200",
+        "expected_response_schema": "",
+        "expected_response": "hnebase/payloads/response_payloads/UserCodes/Payload_UserCodes_GET_response.json",
+        "ignore_fields": [],
+        "extract_values": [],
+        "validate": {
+            "performance": {
+                "max_response_time_ms": 500
+            },
+            "security": {
+                "checks": [
+                    "sql_injection",
+                    "xss"
+                ]
+            }
+        },
+        "test_data_file": "hnebase/data_driven/UserCodes/Data_UserCodes_GET_positive.csv",
+        "db_query_timing": "",
+        "db_queries": "",
+        "db_type": "",
+        "db_connection_name": "",
+        "test_summary": "Test TC001: UserCode endpoint - Valid SSOGUID [positive] (TC001)"
+    },
+    {
+        "test_id": "TC002",
+        "service_name": "hnebase",
+        "workflow_mode": "parallel",
+        "test_name": "UserCode endpoint - Invalid SSOGUID format [negative] (TC002)",
+        "protocol": "REST",
+        "test_type": [
+            "Functional",
+            "Negative"
+        ],
+        "mainURL": "{{base_url}}",
+        "endpoint": "/UserCodes/{{req_ssoguid}}",
+        "method": "GET",
+        "rpc_method": "",
+        "graphql_query": "",
+        "graphql_variables": "",
+        "soap_action": "",
+        "soap_envelope": "",
+        "headers_additional": {
+            "Content-Type": "application/json"
+        },
+        "payload": null,
+        "expected_status": "400",
+        "expected_response_schema": "",
+        "expected_response": "hnebase/payloads/response_payloads/UserCodes/Payload_UserCodes_GET_invalid_format.json",
+        "ignore_fields": [
+            "instance"
+        ],
+        "extract_values": [],
+        "validate": {
+            "performance": {
+                "max_response_time_ms": 500
+            },
+            "security": {
+                "checks": [
+                    "sql_injection",
+                    "xss"
+                ]
+            }
+        },
+        "test_data_file": "hnebase/data_driven/UserCodes/Data_UserCodes_GET_invalid_ssoguid_format.csv",
+        "db_query_timing": "",
+        "db_queries": "",
+        "db_type": "",
+        "db_connection_name": "",
+        "test_summary": "Test TC002: UserCode endpoint - Invalid SSOGUID format [negative] (TC002)"
+    },
+    {
+        "test_id": "TC003",
+        "service_name": "hnebase",
+        "workflow_mode": "parallel",
+        "test_name": "UserCode endpoint - SSOGUID not matched in db [negative] (TC003)",
+        "protocol": "REST",
+        "test_type": [
+            "Functional",
+            "Negative"
+        ],
+        "mainURL": "{{base_url}}",
+        "endpoint": "/UserCodes/{{req_ssoguid}}",
+        "method": "GET",
+        "rpc_method": "",
+        "graphql_query": "",
+        "graphql_variables": "",
+        "soap_action": "",
+        "soap_envelope": "",
+        "headers_additional": {
+            "Content-Type": "application/json"
+        },
+        "payload": null,
+        "expected_status": "404",
+        "expected_response_schema": "",
+        "expected_response": "hnebase/payloads/response_payloads/UserCodes/Payload_UserCodes_GET_noMatch_SSOGUID.json",
+        "ignore_fields": [
+            "instance"
+        ],
+        "extract_values": [],
+        "validate": {
+            "performance": {
+                "max_response_time_ms": 500
+            },
+            "security": {
+                "checks": [
+                    "sql_injection",
+                    "xss"
+                ]
+            }
+        },
+        "test_data_file": "hnebase/data_driven/UserCodes/Data_UserCodes_GET_ssoguid_nomatch.csv",
+        "db_query_timing": "",
+        "db_queries": "",
+        "db_type": "",
+        "db_connection_name": "",
+        "test_summary": "Test TC003: UserCode endpoint - SSOGUID not matched in db [negative] (TC003)"
+    },
+    {
+        "test_id": "TC004",
+        "service_name": "hnebase",
+        "workflow_mode": "parallel",
+        "test_name": "UserCode endpoint - Multiple user codes [positive] (TC004)",
+        "protocol": "REST",
+        "test_type": [
+            "Functional"
+        ],
+        "mainURL": "{{base_url}}",
+        "endpoint": "/UserCodes/{{req_ssoguid}}",
+        "method": "GET",
+        "rpc_method": "",
+        "graphql_query": "",
+        "graphql_variables": "",
+        "soap_action": "",
+        "soap_envelope": "",
+        "headers_additional": {
+            "Content-Type": "application/json"
+        },
+        "payload": null,
+        "expected_status": "200",
+        "expected_response_schema": "",
+        "expected_response": "hnebase/payloads/response_payloads/UserCodes/Payload_multiple_UserCodes_GET_response.json",
+        "ignore_fields": [],
+        "extract_values": [],
+        "validate": {
+            "performance": {
+                "max_response_time_ms": 500
+            },
+            "security": {
+                "checks": [
+                    "sql_injection",
+                    "xss"
+                ]
+            }
+        },
+        "test_data_file": "hnebase/data_driven/UserCodes/Data_UserCodes_GET_multiple_usercodes.csv",
+        "db_query_timing": "",
+        "db_queries": "",
+        "db_type": "",
+        "db_connection_name": "",
+        "test_summary": "Test TC004: UserCode endpoint - Multiple user codes [positive] (TC004)"
+    },
+    {
+        "test_id": "TC005",
+        "service_name": "hnebase",
+        "workflow_mode": "parallel",
+        "test_name": "UserCode endpoint - Unsupported HTTP Methods [negative] (TC005)",
+        "protocol": "REST",
+        "test_type": [
+            "Functional",
+            "Negative",
+            "Security"
+        ],
+        "mainURL": "{{base_url}}",
+        "endpoint": "/UserCodes/{{req_ssoguid}}",
+        "method": "{{method}}",
+        "rpc_method": "",
+        "graphql_query": "",
+        "graphql_variables": "",
+        "soap_action": "",
+        "soap_envelope": "",
+        "headers_additional": {
+            "Content-Type": "application/json"
+        },
+        "payload": null,
+        "expected_status": "405",
+        "expected_response_schema": "",
+        "expected_response": "",
+        "ignore_fields": [],
+        "extract_values": [
+            {
+                "from": "response",
+                "key": "",
+                "assign_to": ""
+            },
+            {
+                "from": "response",
+                "record_count": false,
+                "array_path": "",
+                "assign_to": ""
+            },
+            {
+                "from": "db_result",
+                "query": "",
+                "assign": [
+                    {
+                        "key": "",
+                        "assign_to": ""
+                    }
+                ]
+            }
+        ],
+        "validate": {
+            "performance": {
+                "max_response_time_ms": 500
+            },
+            "security": {
+                "checks": [
+                    "http_method_validation"
+                ]
+            },
+            "data_comparison": {
+                "source": "api_response",
+                "target": "db_result",
+                "format": "table",
+                "key_field": [
+                    "",
+                    ""
+                ],
+                "fields_to_compare": [],
+                "log_differences": true
+            }
+        },
+        "test_data_file": "hnebase/data_driven/UserCodes/Data_UserCodes_test_405.csv",
+        "db_query_timing": "",
+        "db_queries": "",
+        "db_type": "",
+        "db_connection_name": "",
+        "test_summary": "Test TC005: UserCode endpoint - Unsupported HTTP Methods [negative] (TC005)"
+    },
+    {
+        "test_id": "TC006_setup",
+        "service_name": "hnebase",
+        "workflow_mode": "sequential",
+        "test_name": "UserCode endpoint - Setup for no UserCodes test (TC006)",
+        "protocol": "REST",
+        "test_type": [
+            "Functional",
+            "EdgeCase",
+            "Database"
+        ],
+        "mainURL": "{{base_url}}",
+        "endpoint": "/UserCodes/{{req_ssoguid}}",
+        "method": "GET",
+        "rpc_method": "",
+        "graphql_query": "",
+        "graphql_variables": "",
+        "soap_action": "",
+        "soap_envelope": "",
+        "headers_additional": {
+            "Content-Type": "application/json"
+        },
+        "payload": null,
+        "expected_status": "200",
+        "expected_response_schema": "",
+        "expected_response": "hnebase/payloads/response_payloads/UserCodes/Payload_UserCodes_GET_no_usercodes.json",
+        "ignore_fields": [],
+        "validate": {
+            "performance": {
+                "max_response_time_ms": 500
+            },
+            "security": {
+                "checks": [
+                    "sql_injection",
+                    "xss"
+                ]
+            }
+        },
+        "test_data_file": "hnebase/data_driven/UserCodes/Data_UserCodes_GET_no_usercodes.csv",
+        "db_query_timing": "before_api",
+        "db_queries": {
+            "setup": [
+                "UPDATE public.entities SET details = '{\"user_roles\": [{\"role_id\": 1, \"user_id\": \"\", \"role_type_cd\": 1, \"invitation_type_cd\": 1}]}'::jsonb WHERE sso_guid = '{{req_ssoguid}}'"
+            ],
+            "verify_after_setup": [
+                "SELECT details FROM public.entities WHERE sso_guid = '{{req_ssoguid}}'"
+            ]
+        },
+        "db_type": "postgresql",
+        "db_connection_name": "hneServices",
+        "test_summary": "Test TC006 Setup: Updates user_id to empty string, then validates API returns empty array."
+    },
+    {
+        "test_id": "TC006_cleanup",
+        "service_name": "hnebase",
+        "workflow_mode": "sequential",
+        "test_name": "UserCode endpoint - Cleanup after test (TC006)",
+        "protocol": "DB_ONLY",
+        "test_type": [
+            "Database"
+        ],
+        "mainURL": "{{base_url}}",
+        "endpoint": "",
+        "method": "",
+        "rpc_method": "",
+        "graphql_query": "",
+        "graphql_variables": "",
+        "soap_action": "",
+        "soap_envelope": "",
+        "headers_additional": {},
+        "payload": null,
+        "expected_status": "",
+        "expected_response_schema": "",
+        "expected_response": "",
+        "ignore_fields": [],
+        "validate": {},
+        "test_data_file": "hnebase/data_driven/UserCodes/Data_UserCodes_GET_no_usercodes.csv",
+        "db_queries": {
+            "cleanup": [
+                "UPDATE public.entities SET details = '{\"user_roles\": [{\"role_id\": 1, \"user_id\": \"001008\", \"role_type_cd\": 1, \"invitation_type_cd\": 1}]}'::jsonb WHERE sso_guid = '{{req_ssoguid}}'"
+            ]
+        },
+        "db_type": "postgresql",
+        "db_connection_name": "hneServices",
+        "test_summary": "Test TC006 Cleanup: Restores user_id to 001008 after testing edge case."
+    }
+]
