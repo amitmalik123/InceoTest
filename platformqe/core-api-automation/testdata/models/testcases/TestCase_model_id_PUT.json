@@ -77,7 +77,7 @@
             "Integration"
         ],
         "mainURL": "{{base_url}}",
-        "endpoint": "/model",
+        "endpoint": "/models",
         "method": "POST",
         "rpc_method": "",
         "graphql_query": "",
@@ -197,7 +197,7 @@
             "Integration"
         ],
         "mainURL": "{{base_url}}",
-        "endpoint": "/model/{{tc001_model_id}}",
+        "endpoint": "/models/{{tc001_model_id}}",
         "method": "PUT",
         "rpc_method": "",
         "graphql_query": "",
@@ -363,7 +363,7 @@
             "Integration"
         ],
         "mainURL": "{{base_url}}",
-        "endpoint": "/model",
+        "endpoint": "/models",
         "method": "POST",
         "rpc_method": "",
         "graphql_query": "",
@@ -498,7 +498,7 @@
             "Integration"
         ],
         "mainURL": "{{base_url}}",
-        "endpoint": "/model/{{tc002_model_id}}",
+        "endpoint": "/models/{{tc002_model_id}}",
         "method": "PUT",
         "rpc_method": "",
         "graphql_query": "",
@@ -874,7 +874,7 @@
             "Integration"
         ],
         "mainURL": "{{base_url}}",
-        "endpoint": "/model",
+        "endpoint": "/models",
         "method": "POST",
         "rpc_method": "",
         "graphql_query": "",
@@ -1011,7 +1011,7 @@
             "Integration"
         ],
         "mainURL": "{{base_url}}",
-        "endpoint": "/model/{{tc003_model_id}}",
+        "endpoint": "/models/{{tc003_model_id}}",
         "method": "PUT",
         "rpc_method": "",
         "graphql_query": "",
@@ -1225,7 +1225,7 @@
             "Integration"
         ],
         "mainURL": "{{base_url}}",
-        "endpoint": "/model",
+        "endpoint": "/models",
         "method": "POST",
         "rpc_method": "",
         "graphql_query": "",
@@ -1345,7 +1345,7 @@
             "Integration"
         ],
         "mainURL": "{{base_url}}",
-        "endpoint": "/model/{{tc004_model_id}}",
+        "endpoint": "/models/{{tc004_model_id}}",
         "method": "PUT",
         "rpc_method": "",
         "graphql_query": "",
@@ -1613,7 +1613,7 @@
             "Negative"
         ],
         "mainURL": "{{base_url}}",
-        "endpoint": "/model/00000000-0000-0000-0000-000000000000",
+        "endpoint": "/models/00000000-0000-0000-0000-000000000000",
         "method": "PUT",
         "rpc_method": "",
         "graphql_query": "",
@@ -1656,7 +1656,7 @@
             "Negative"
         ],
         "mainURL": "{{base_url}}",
-        "endpoint": "/model/invalid-guid-format",
+        "endpoint": "/models/invalid-guid-format",
         "method": "PUT",
         "rpc_method": "",
         "graphql_query": "",
@@ -1689,7 +1689,7 @@
             "Negative"
         ],
         "mainURL": "{{base_url}}",
-        "endpoint": "/model",
+        "endpoint": "/models",
         "method": "POST",
         "rpc_method": "",
         "graphql_query": "",
@@ -1738,7 +1738,7 @@
             "Negative"
         ],
         "mainURL": "{{base_url}}",
-        "endpoint": "/model/{{tc007_model_id}}",
+        "endpoint": "/models/{{tc007_model_id}}",
         "method": "PUT",
         "rpc_method": "",
         "graphql_query": "",
@@ -1771,7 +1771,7 @@
             "Negative"
         ],
         "mainURL": "{{base_url}}",
-        "endpoint": "/model",
+        "endpoint": "/models",
         "method": "POST",
         "rpc_method": "",
         "graphql_query": "",
@@ -1820,7 +1820,7 @@
             "Negative"
         ],
         "mainURL": "{{base_url}}",
-        "endpoint": "/model/{{tc009_model_id}}",
+        "endpoint": "/models/{{tc009_model_id}}",
         "method": "PUT",
         "rpc_method": "",
         "graphql_query": "",
@@ -1874,7 +1874,7 @@
                 {
                     "actual": "{{tc009_title}}",
                     "operator": "==",
-                    "expected": "One or more validation errors occurred.",
+                    "expected": "Missing Required Fields",
                     "message": "Verify error title indicates validation errors occurred"
                 },
                 {
@@ -1909,7 +1909,7 @@
             "Smoke"
         ],
         "mainURL": "{{base_url}}",
-        "endpoint": "/model/{{tc001_model_id}}",
+        "endpoint": "/models/{{tc001_model_id}}",
         "method": "PUT",
         "headers_additional": {
             "Content-Type": "application/json"
@@ -1953,7 +1953,7 @@
             "Smoke"
         ],
         "mainURL": "{{base_url}}",
-        "endpoint": "/model/{{tc001_model_id}}",
+        "endpoint": "/models/{{tc001_model_id}}",
         "method": "PUT",
         "headers_additional": {
             "Content-Type": "application/json"
@@ -1998,7 +1998,7 @@
             "Smoke"
         ],
         "mainURL": "{{base_url}}",
-        "endpoint": "/model/{{tc001_model_id}}",
+        "endpoint": "/models/{{tc001_model_id}}",
         "method": "PUT",
         "headers_additional": {
             "Content-Type": "application/json"
@@ -2043,7 +2043,7 @@
             "Integration"
         ],
         "mainURL": "{{base_url}}",
-        "endpoint": "/model",
+        "endpoint": "/models",
         "method": "POST",
         "rpc_method": "",
         "graphql_query": "",
@@ -2093,7 +2093,7 @@
             "Integration"
         ],
         "mainURL": "{{base_url}}",
-        "endpoint": "/model/{{tc014_model_id}}",
+        "endpoint": "/models/{{tc014_model_id}}",
         "method": "PUT",
         "rpc_method": "",
         "graphql_query": "",
@@ -2284,7 +2284,7 @@
             "Data Integrity"
         ],
         "mainURL": "{{base_url}}",
-        "endpoint": "/model",
+        "endpoint": "/models",
         "method": "POST",
         "rpc_method": "",
         "graphql_query": "",
@@ -2334,7 +2334,7 @@
             "Data Integrity"
         ],
         "mainURL": "{{base_url}}",
-        "endpoint": "/model/{{tc015_model_id}}",
+        "endpoint": "/models/{{tc015_model_id}}",
         "method": "PUT",
         "rpc_method": "",
         "graphql_query": "",

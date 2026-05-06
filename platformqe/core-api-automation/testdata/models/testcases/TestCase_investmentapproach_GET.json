@@ -9,7 +9,7 @@
             "Functional"
         ],
         "mainURL": "{{base_url}}",
-        "endpoint": "/investmentapproach",
+        "endpoint": "/investment-approaches",
         "method": "POST",
         "rpc_method": "",
         "graphql_query": "",
@@ -113,7 +113,7 @@
             "Functional"
         ],
         "mainURL": "{{base_url}}",
-        "endpoint": "/investmentapproach",
+        "endpoint": "/investment-approaches",
         "method": "GET",
         "rpc_method": "",
         "graphql_query": "",
@@ -158,7 +158,7 @@
             "Functional"
         ],
         "mainURL": "{{base_url}}",
-        "endpoint": "/investmentapproach?Id={{investment_approach_id}}&IsActive=true",
+        "endpoint": "/investment-approaches?Id={{investment_approach_id}}&IsActive=true",
         "method": "GET",
         "rpc_method": "",
         "graphql_query": "",
@@ -241,7 +241,7 @@
             "Functional"
         ],
         "mainURL": "{{base_url}}",
-        "endpoint": "/investmentapproach",
+        "endpoint": "/investment-approaches",
         "method": "POST",
         "rpc_method": "",
         "graphql_query": "",
@@ -345,7 +345,7 @@
             "Functional"
         ],
         "mainURL": "{{base_url}}",
-        "endpoint": "/investmentapproach",
+        "endpoint": "/investment-approaches",
         "method": "GET",
         "rpc_method": "",
         "graphql_query": "",
@@ -390,7 +390,7 @@
             "Functional"
         ],
         "mainURL": "{{base_url}}",
-        "endpoint": "/investmentapproach?Id={{investment_approach_id}}&IsActive=false",
+        "endpoint": "/investment-approaches?Id={{investment_approach_id}}&IsActive=false",
         "method": "GET",
         "rpc_method": "",
         "graphql_query": "",
@@ -473,7 +473,7 @@
             "Functional"
         ],
         "mainURL": "{{base_url}}",
-        "endpoint": "/investmentapproach?IsActive=true",
+        "endpoint": "/investment-approaches?IsActive=true",
         "method": "GET",
         "rpc_method": "",
         "graphql_query": "",
@@ -532,7 +532,7 @@
             "Functional"
         ],
         "mainURL": "{{base_url}}",
-        "endpoint": "/investmentapproach?IsActive=false",
+        "endpoint": "/investment-approaches?IsActive=false",
         "method": "GET",
         "rpc_method": "",
         "graphql_query": "",
@@ -592,7 +592,7 @@
             "Negative"
         ],
         "mainURL": "{{base_url}}",
-        "endpoint": "/investmentapproach?IsActive=invalid",
+        "endpoint": "/investment-approaches?IsActive=invalid",
         "method": "GET",
         "rpc_method": "",
         "graphql_query": "",
@@ -638,7 +638,7 @@
             "Negative"
         ],
         "mainURL": "{{base_url}}",
-        "endpoint": "/investmentapproach?IsActive=yes",
+        "endpoint": "/investment-approaches?IsActive=yes",
         "method": "GET",
         "rpc_method": "",
         "graphql_query": "",
@@ -684,7 +684,7 @@
             "Negative"
         ],
         "mainURL": "{{base_url}}",
-        "endpoint": "/investmentapproach?IsActive=",
+        "endpoint": "/investment-approaches?IsActive=",
         "method": "GET",
         "rpc_method": "",
         "graphql_query": "",
@@ -730,7 +730,7 @@
             "Negative"
         ],
         "mainURL": "{{base_url}}",
-        "endpoint": "/investmentapproach?Id=999999999&IsActive=true",
+        "endpoint": "/investment-approaches?Id=999999999&IsActive=true",
         "method": "GET",
         "rpc_method": "",
         "graphql_query": "",

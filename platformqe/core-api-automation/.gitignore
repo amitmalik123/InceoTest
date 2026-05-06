@@ -29,6 +29,9 @@ reports/
 # Framework logs
 framework/logs/
 
+# WIP test files (local only, not ready for PR)
+testdata/**/wip/
+
 # Test outputs
 *.pytest_cache/
 
