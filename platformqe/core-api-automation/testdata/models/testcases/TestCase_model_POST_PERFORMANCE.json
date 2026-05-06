@@ -18,7 +18,7 @@
         "soap_envelope": "",
         "headers_additional": {
             "Content-Type": "application/json",
-            "Idempotency-Key":"f3c8c1c0-4b8e-4e3a-9c2d-7f6c1b8e9d52",
+            "Idempotency-Key": "DYNAMIC_UUID4",
             "x-user-id":"3fa85f64-5717-4562-b3fc-2c963f66afa6"
         },
         "payload": {
