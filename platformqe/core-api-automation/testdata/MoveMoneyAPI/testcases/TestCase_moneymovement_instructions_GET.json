@@ -1,0 +1,736 @@
+[
+    {
+        "test_id": "TC001",
+        "service_name": "movemoney",
+        "workflow_mode": "parallel",
+        "test_name": "GET /instructions [positive] (TC001)",
+        "protocol": "REST",
+        "test_type": [
+            "Functional"
+        ],
+        "mainURL": "{{base_url}}",
+        "endpoint": "/instructions?accountId={{accountId}}&status={{status}}&railTypes={{railTypes}}",
+        "method": "GET",
+        "rpc_method": "",
+        "graphql_query": "",
+        "graphql_variables": "",
+        "soap_action": "",
+        "soap_envelope": "",
+        "headers_additional": {
+            "Content-Type": "application/json"
+        },
+        "payload": null,
+        "expected_status": "200",
+        "expected_response_schema": "MoveMoneyAPI\\schemas\\Schema_instructions_GET.json",
+        "expected_response": null,
+        "ignore_fields": [
+            "id",
+            "traceId",
+            "timestamp",
+            "createdDate",
+            "modifiedDate"
+        ],
+        "extract_values": [
+            {
+                "from": "response",
+                "key": "page",
+                "assign_to": "response_page"
+            },
+            {
+                "from": "response",
+                "key": "pageSize",
+                "assign_to": "response_pageSize"
+            },
+            {
+                "from": "response",
+                "key": "total",
+                "assign_to": "response_total"
+            }
+        ],
+        "validate": {
+            "performance": {
+                "max_response_time_ms": 500
+            },
+            "security": {
+                "checks": [
+                    "sql_injection",
+                    "xss"
+                ]
+            },
+            "data_comparison": [],
+            "assertions": [
+                {
+                    "actual": "{{response_page}}",
+                    "expected": 0,
+                    "operator": ">",
+                    "message": "Page number should be greater than 0"
+                },
+                {
+                    "actual": "{{response_pageSize}}",
+                    "expected": 0,
+                    "operator": ">",
+                    "message": "Page size should be greater than 0"
+                },
+                {
+                    "actual": "{{response_total}}",
+                    "expected": 0,
+                    "operator": ">=",
+                    "message": "Total should be greater than or equal to 0"
+                }
+            ]
+        },
+        "test_data_file": "MoveMoneyAPI/data_driven/Data_instructions_GET.csv",
+        "csv_row_index": 0,
+        "db_query_timing": "after_api",
+        "db_queries": {
+            "default": "",
+            "audit_query": ""
+        },
+        "db_type": "",
+        "db_connection_name": "",
+        "test_summary": "Test TC001: GET /instructions [positive] (TC001) -  Validate that the API returns the 200 successful reponse without filters."
+    },
+    {
+        "test_id": "TC002",
+        "service_name": "movemoney",
+        "workflow_mode": "parallel",
+        "test_name": "GET /instructions [negative - multiple account IDs] (TC002)",
+        "protocol": "REST",
+        "test_type": [
+            "Negative"
+        ],
+        "mainURL": "{{base_url}}",
+        "endpoint": "/instructions?accountId={{accountId}}&status={{status}}&railTypes={{railTypes}}",
+        "method": "GET",
+        "rpc_method": "",
+        "graphql_query": "",
+        "graphql_variables": "",
+        "soap_action": "",
+        "soap_envelope": "",
+        "headers_additional": {
+            "Content-Type": "application/json"
+        },
+        "payload": null,
+        "expected_status": "400",
+        "expected_response_schema": "",
+        "expected_response": {
+            "type": "invalid-request",
+            "title": "Invalid Request",
+            "status": 400,
+            "detail": "The request contains invalid values",
+            "instance": "/api/moneymovement/v1/instructions",
+            "errors": {
+                "AccountId": [
+                    "Only a single GUID is allowed for 'AccountId' parameter. Multiple or comma-separated values are not supported."
+                ]
+            }
+        },
+        "ignore_fields": [
+            "id",
+            "traceId",
+            "timestamp"
+        ],
+        "extract_values": [
+            {
+                "from": "response",
+                "key": "status",
+                "assign_to": "error_status"
+            },
+            {
+                "from": "response",
+                "key": "type",
+                "assign_to": "error_type"
+            },
+            {
+                "from": "response",
+                "key": "detail",
+                "assign_to": "error_detail"
+            }
+        ],
+        "validate": {
+            "performance": {
+                "max_response_time_ms": 500
+            },
+            "security": {
+                "checks": [
+                    "sql_injection",
+                    "xss"
+                ]
+            },
+            "data_comparison": [],
+            "assertions": [
+                {
+                    "actual": "{{error_status}}",
+                    "expected": 400,
+                    "operator": "==",
+                    "message": "Error status should be 400"
+                },
+                {
+                    "actual": "{{error_type}}",
+                    "expected": "invalid-request",
+                    "operator": "==",
+                    "message": "Error type should be invalid-request"
+                },
+                {
+                    "actual": "{{error_detail}}",
+                    "expected": "The request contains invalid values",
+                    "operator": "==",
+                    "message": "Error detail should indicate invalid request"
+                }
+            ]
+        },
+        "test_data_file": "MoveMoneyAPI/data_driven/Data_instructions_GET.csv",
+        "csv_row_index": 1,
+        "db_query_timing": "after_api",
+        "db_queries": {
+            "default": "",
+            "audit_query": ""
+        },
+        "db_type": "",
+        "db_connection_name": "",
+        "test_summary": "Test TC002: GET /instructions [negative - multiple account IDs] (TC002) - Validate that the API returns 400 error when multiple account IDs are provided. Only a single GUID is allowed."
+    },
+    {
+        "test_id": "TC003",
+        "service_name": "movemoney",
+        "workflow_mode": "parallel",
+        "test_name": "GET /instructions [Negative] (TC003)",
+        "protocol": "REST",
+        "test_type": [
+            "Negative"
+        ],
+        "mainURL": "{{base_url}}",
+        "endpoint": "/instructions?accountId={{accountId}}&status={{status}}&railTypes={{railTypes}}",
+        "method": "GET",
+        "rpc_method": "",
+        "graphql_query": "",
+        "graphql_variables": "",
+        "soap_action": "",
+        "soap_envelope": "",
+        "headers_additional": {
+            "Content-Type": "application/json"
+        },
+        "payload": null,
+        "expected_status": "200",
+        "expected_response_schema": "",
+        "expected_response": null,
+        "ignore_fields": [
+            "id",
+            "traceId",
+            "timestamp",
+            "createdDate",
+            "modifiedDate"
+        ],
+        "extract_values": [
+            {
+                "from": "response",
+                "key": "page",
+                "assign_to": "response_page"
+            },
+            {
+                "from": "response",
+                "key": "pageSize",
+                "assign_to": "response_pageSize"
+            },
+            {
+                "from": "response",
+                "key": "total",
+                "assign_to": "response_total"
+            }
+        ],
+        "validate": {
+            "performance": {
+                "max_response_time_ms": 500
+            },
+            "security": {
+                "checks": [
+                    "sql_injection",
+                    "xss"
+                ]
+            },
+            "data_comparison": [],
+            "assertions": [
+                {
+                    "actual": "{{response_page}}",
+                    "expected": 0,
+                    "operator": ">",
+                    "message": "Page number should be greater than 0"
+                },
+                {
+                    "actual": "{{response_pageSize}}",
+                    "expected": 0,
+                    "operator": ">",
+                    "message": "Page size should be greater than 0"
+                },
+                {
+                    "actual": "{{response_total}}",
+                    "expected": 0,
+                    "operator": ">=",
+                    "message": "Total should be greater than or equal to 0"
+                }
+            ]
+        },
+        "test_data_file": "MoveMoneyAPI/data_driven/Data_instructions_GET.csv",
+        "csv_row_index": 2,
+        "db_query_timing": "after_api",
+        "db_queries": {
+            "default": "",
+            "audit_query": ""
+        },
+        "db_type": "",
+        "db_connection_name": "",
+        "test_summary": "Test TC003: GET /moneymovement/instructions [positive] (TC003) -  Validate that the API returns the 200 successful response with more than one railTypes."
+    },
+    {
+        "test_id": "TC004",
+        "service_name": "movemoney",
+        "workflow_mode": "parallel",
+        "test_name": "GET /instructions [Negative] (TC004)",
+        "protocol": "REST",
+        "test_type": [
+            "Negative"
+        ],
+        "mainURL": "{{base_url}}",
+        "endpoint": "/instructions?accountId={{accountId}}&status={{status}}&railTypes={{railTypes}}",
+        "method": "GET",
+        "rpc_method": "",
+        "graphql_query": "",
+        "graphql_variables": "",
+        "soap_action": "",
+        "soap_envelope": "",
+        "headers_additional": {
+            "Content-Type": "application/json"
+        },
+        "payload": null,
+        "expected_status": "400",
+        "expected_response_schema": "",
+        "expected_response": {
+            "type": "invalid-request",
+            "title": "Invalid Request",
+            "status": 400,
+            "detail": "The request contains invalid values",
+            "instance": "/api/moneymovement/v1/instructions",
+            "errors": {
+                "AccountId": [
+                    "Invalid UUID format for 'AccountId' parameter"
+                ]
+            }
+        },
+        "ignore_fields": [
+            "id",
+            "traceId",
+            "timestamp"
+        ],
+        "extract_values": [
+            {
+                "from": "response",
+                "key": "status",
+                "assign_to": "error_status"
+            },
+            {
+                "from": "response",
+                "key": "type",
+                "assign_to": "error_type"
+            },
+            {
+                "from": "response",
+                "key": "detail",
+                "assign_to": "error_detail"
+            }
+        ],
+        "validate": {
+            "performance": {
+                "max_response_time_ms": 500
+            },
+            "security": {
+                "checks": [
+                    "sql_injection",
+                    "xss"
+                ]
+            },
+            "data_comparison": [],
+            "assertions": [
+                {
+                    "actual": "{{error_status}}",
+                    "expected": 400,
+                    "operator": "==",
+                    "message": "Error status should be 400"
+                },
+                {
+                    "actual": "{{error_type}}",
+                    "expected": "invalid-request",
+                    "operator": "==",
+                    "message": "Error type should be invalid-request"
+                },
+                {
+                    "actual": "{{error_detail}}",
+                    "expected": "The request contains invalid values",
+                    "operator": "==",
+                    "message": "Error detail should indicate invalid request"
+                }
+            ]
+        },
+        "test_data_file": "MoveMoneyAPI/data_driven/Data_instructions_GET.csv",
+        "csv_row_index": 3,
+        "db_query_timing": "after_api",
+        "db_queries": {
+            "default": "",
+            "audit_query": ""
+        },
+        "db_type": "",
+        "db_connection_name": "",
+        "test_summary": "Test TC004: GET /moneymovement/instructions [negative] (TC004) - Validate that the API Returns the 400 reponse given invalid accountId."
+    },
+    {
+        "test_id": "TC005",
+        "service_name": "movemoney",
+        "workflow_mode": "parallel",
+        "test_name": "GET /instructions [Negative] (TC005)",
+        "protocol": "REST",
+        "test_type": [
+            "Negative"
+        ],
+        "mainURL": "{{base_url}}",
+        "endpoint": "/instructions?accountId={{accountId}}&status={{status}}&railTypes={{railTypes}}",
+        "method": "GET",
+        "rpc_method": "",
+        "graphql_query": "",
+        "graphql_variables": "",
+        "soap_action": "",
+        "soap_envelope": "",
+        "headers_additional": {
+            "Content-Type": "application/json"
+        },
+        "payload": null,
+        "expected_status": "204",
+        "expected_response_schema": "",
+        "expected_response": null,
+        "ignore_fields": [],
+        "extract_values": [],
+        "validate": {
+            "performance": {
+                "max_response_time_ms": 500
+            },
+            "security": {
+                "checks": [
+                    "sql_injection",
+                    "xss"
+                ]
+            },
+            "data_comparison": [],
+            "assertions": []
+        },
+        "test_data_file": "MoveMoneyAPI/data_driven/Data_instructions_GET.csv",
+        "csv_row_index": 4,
+        "db_query_timing": "after_api",
+        "db_queries": {
+            "default": "",
+            "audit_query": ""
+        },
+        "db_type": "",
+        "db_connection_name": "",
+        "test_summary": "Test TC005: GET /moneymovement/instructions [negative] (TC005) - Verify that the API Returns the 204 No MMI's match the provided filter."
+    },
+    {
+        "test_id": "TC006",
+        "service_name": "movemoney",
+        "workflow_mode": "parallel",
+        "test_name": "GET /instructions [Negative] (TC006)",
+        "protocol": "REST",
+        "test_type": [
+            "Negative"
+        ],
+        "mainURL": "{{base_url}}",
+        "endpoint": "/instructions?accountId={{accountId}}&status={{status}}&railTypes={{railTypes}}",
+        "method": "GET",
+        "rpc_method": "",
+        "graphql_query": "",
+        "graphql_variables": "",
+        "soap_action": "",
+        "soap_envelope": "",
+        "headers_additional": {
+            "Content-Type": "application/json"
+        },
+        "payload": null,
+        "expected_status": "400",
+        "expected_response_schema": "",
+        "expected_response": {
+            "type": "invalid-request",
+            "title": "Invalid Request",
+            "status": 400,
+            "detail": "The request contains invalid values",
+            "instance": "/api/moneymovement/v1/instructions",
+            "errors": {
+                "railTypes": [
+                    "Invalid value for 'railTypes'. Valid values are: ACH, Wire, Check, Journal, Transfer"
+                ]
+            }
+        },
+        "ignore_fields": [
+            "id",
+            "traceId",
+            "timestamp"
+        ],
+        "extract_values": [
+            {
+                "from": "response",
+                "key": "status",
+                "assign_to": "error_status"
+            },
+            {
+                "from": "response",
+                "key": "type",
+                "assign_to": "error_type"
+            },
+            {
+                "from": "response",
+                "key": "detail",
+                "assign_to": "error_detail"
+            }
+        ],
+        "validate": {
+            "performance": {
+                "max_response_time_ms": 500
+            },
+            "security": {
+                "checks": [
+                    "sql_injection",
+                    "xss"
+                ]
+            },
+            "data_comparison": [],
+            "assertions": [
+                {
+                    "actual": "{{error_status}}",
+                    "expected": 400,
+                    "operator": "==",
+                    "message": "Error status should be 400"
+                },
+                {
+                    "actual": "{{error_type}}",
+                    "expected": "invalid-request",
+                    "operator": "==",
+                    "message": "Error type should be invalid-request"
+                },
+                {
+                    "actual": "{{error_detail}}",
+                    "expected": "The request contains invalid values",
+                    "operator": "==",
+                    "message": "Error detail should indicate invalid request"
+                }
+            ]
+        },
+        "test_data_file": "MoveMoneyAPI/data_driven/Data_instructions_GET.csv",
+        "csv_row_index": 5,
+        "db_query_timing": "after_api",
+        "db_queries": {
+            "default": "",
+            "audit_query": ""
+        },
+        "db_type": "",
+        "db_connection_name": "",
+        "test_summary": "Test TC006: GET /moneymovement/instructions [negative] (TC006) - Verify that the API Validate that the API Returns the 400 reponse given invalid railTypes."
+    },
+    {
+        "test_id": "TC007",
+        "service_name": "movemoney",
+        "workflow_mode": "parallel",
+        "test_name": "GET /instructions [Negative] (TC007)",
+        "protocol": "REST",
+        "test_type": [
+            "Negative"
+        ],
+        "mainURL": "{{base_url}}",
+        "endpoint": "/instructions?accountId={{accountId}}&status={{status}}&railTypes={{railTypes}}",
+        "method": "GET",
+        "rpc_method": "",
+        "graphql_query": "",
+        "graphql_variables": "",
+        "soap_action": "",
+        "soap_envelope": "",
+        "headers_additional": {
+            "Content-Type": "application/json"
+        },
+        "payload": null,
+        "expected_status": "400",
+        "expected_response_schema": "",
+        "expected_response": {
+            "type": "invalid-request",
+            "title": "Invalid Request",
+            "status": 400,
+            "detail": "The request contains invalid values",
+            "instance": "/api/moneymovement/v1/instructions",
+            "errors": {
+                "status": [
+                    "Invalid value for 'status' parameter. Must be one of: Draft, Pending, Confirmed, Deleted"
+                ]
+            }
+        },
+        "ignore_fields": [
+            "id",
+            "traceId",
+            "timestamp"
+        ],
+        "extract_values": [
+            {
+                "from": "response",
+                "key": "status",
+                "assign_to": "error_status"
+            },
+            {
+                "from": "response",
+                "key": "type",
+                "assign_to": "error_type"
+            },
+            {
+                "from": "response",
+                "key": "detail",
+                "assign_to": "error_detail"
+            }
+        ],
+        "validate": {
+            "performance": {
+                "max_response_time_ms": 500
+            },
+            "security": {
+                "checks": [
+                    "sql_injection",
+                    "xss"
+                ]
+            },
+            "data_comparison": [],
+            "assertions": [
+                {
+                    "actual": "{{error_status}}",
+                    "expected": 400,
+                    "operator": "==",
+                    "message": "Error status should be 400"
+                },
+                {
+                    "actual": "{{error_type}}",
+                    "expected": "invalid-request",
+                    "operator": "==",
+                    "message": "Error type should be invalid-request"
+                },
+                {
+                    "actual": "{{error_detail}}",
+                    "expected": "The request contains invalid values",
+                    "operator": "==",
+                    "message": "Error detail should indicate invalid request"
+                }
+            ]
+        },
+        "test_data_file": "MoveMoneyAPI/data_driven/Data_instructions_GET.csv",
+        "csv_row_index": 6,
+        "db_query_timing": "after_api",
+        "db_queries": {
+            "default": "",
+            "audit_query": ""
+        },
+        "db_type": "",
+        "db_connection_name": "",
+        "test_summary": "Verify that the API returns 400 response given invalid status types."
+    },
+    {
+        "test_id": "TC008",
+        "service_name": "movemoney",
+        "workflow_mode": "parallel",
+        "test_name": "GET /instructions [positive - changeState in items] (TC008)",
+        "protocol": "REST",
+        "test_type": [
+            "Functional"
+        ],
+        "mainURL": "{{base_url}}",
+        "endpoint": "/instructions?accountId={{accountId}}&status={{status}}&railTypes={{railTypes}}",
+        "method": "GET",
+        "rpc_method": "",
+        "graphql_query": "",
+        "graphql_variables": "",
+        "soap_action": "",
+        "soap_envelope": "",
+        "headers_additional": {
+            "Content-Type": "application/json"
+        },
+        "payload": null,
+        "expected_status": "200",
+        "expected_response_schema": "MoveMoneyAPI\\schemas\\Schema_instructions_GET.json",
+        "expected_response": null,
+        "ignore_fields": [
+            "id",
+            "traceId",
+            "timestamp",
+            "createdDate",
+            "modifiedDate"
+        ],
+        "extract_values": [
+            {
+                "from": "response",
+                "key": "page",
+                "assign_to": "response_page"
+            },
+            {
+                "from": "response",
+                "key": "pageSize",
+                "assign_to": "response_pageSize"
+            },
+            {
+                "from": "response",
+                "key": "total",
+                "assign_to": "response_total"
+            },
+            {
+                "from": "response",
+                "key": "items.0.changeState",
+                "assign_to": "response_changeState"
+            }
+        ],
+        "validate": {
+            "performance": {
+                "max_response_time_ms": 500
+            },
+            "security": {
+                "checks": [
+                    "sql_injection",
+                    "xss"
+                ]
+            },
+            "data_comparison": [],
+            "assertions": [
+                {
+                    "actual": "{{response_page}}",
+                    "expected": 0,
+                    "operator": ">",
+                    "message": "Page number should be greater than 0"
+                },
+                {
+                    "actual": "{{response_pageSize}}",
+                    "expected": 0,
+                    "operator": ">",
+                    "message": "Page size should be greater than 0"
+                },
+                {
+                    "actual": "{{response_total}}",
+                    "expected": 0,
+                    "operator": ">=",
+                    "message": "Total should be greater than or equal to 0"
+                },
+                {
+                    "actual": "{{response_changeState}}",
+                    "expected": "",
+                    "operator": "!=",
+                    "message": "Each instruction item should include changeState"
+                }
+            ]
+        },
+        "test_data_file": "MoveMoneyAPI/data_driven/Data_instructions_GET.csv",
+        "csv_row_index": 7,
+        "db_query_timing": "after_api",
+        "db_queries": {
+            "default": "",
+            "audit_query": ""
+        },
+        "db_type": "",
+        "db_connection_name": "",
+        "test_summary": "Verify that each instruction in items includes changeState when records are returned."
+    }
+]

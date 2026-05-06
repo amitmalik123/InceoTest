@@ -1,0 +1,109 @@
+###############################################################################
+# Azure Pipeline - Callable Template for QE Automation Framework
+# File: azure-pipelines-callable.yml
+###############################################################################
+# This template can be referenced from other Azure Pipelines in the same project
+# or from external repositories. Uses azure-pipelines-stages-shared.yml template.
+#
+# Usage Example - FROM EXTERNAL REPO:
+# resources:
+#   repositories:
+#   - repository: qeautomation
+#     type: git
+#     name: ProdEng/<repo-name>
+#     ref: refs/heads/main
+#
+# stages:
+# - template: platformqe/core-api-automation/azure-pipelines-callable.yml@qeautomation
+#   parameters:
+#     repositoryAlias: 'qeautomation'  # REQUIRED: Match the repository alias above
+#     executionMode: 'manual'
+#     services: 'work_item_notification,parties'
+#     environments: 'TSADEV,TSATEST'
+#     testType: 'functional'
+#
+# Usage Example - FROM SAME REPO:
+# stages:
+# - template: platformqe/core-api-automation/azure-pipelines-callable.yml
+#   parameters:
+#     repositoryAlias: 'self'  # Use 'self' when in same repo (default)
+#     executionMode: 'manual'
+#     services: 'work_item_notification,parties'
+#     testType: 'functional'
+###############################################################################
+
+###############################################################################
+# Pipeline Parameters - For Manual Execution
+###############################################################################
+parameters:
+  - name: repositoryAlias
+    displayName: 'Repository Alias (when called from external repo)'
+    type: string
+    default: 'self'
+  
+  - name: executionMode
+    displayName: 'Execution Mode'
+    type: string
+    default: 'auto'
+    values:
+      - auto      # Automatic based on trigger (PR/Push/Schedule)
+      - manual    # Manual selection of services
+  
+  - name: services
+    displayName: 'Services to Run (comma-separated, or "all" for all enabled)'
+    type: string
+    default: 'all'
+  
+  - name: environments
+    displayName: 'Environments (comma-separated, or "all" for service defaults)'
+    type: string
+    default: 'all'
+  
+  - name: testType
+    displayName: 'Test Type'
+    type: string
+    default: 'functional'
+    values:
+      - functional
+      - non-functional
+      - both
+  
+  - name: testCaseFilter
+    displayName: 'Test Case Filter (e.g. Smoke, Regression, Business Logic - filters by test_type tag in test cases)'
+    type: string
+    default: 'N/A'
+
+  - name: overrideEnabled
+    displayName: 'Override Enabled Flag (run disabled services too)'
+    type: boolean
+    default: false
+  
+  - name: customFunctionalArgs
+    displayName: 'Custom Functional Test Args (optional - overrides services-matrix)'
+    type: string
+    default: 'N/A'
+  
+  - name: customNonFunctionalArgs
+    displayName: 'Custom Non-Functional Test Args (optional - overrides services-matrix)'
+    type: string
+    default: 'N/A'
+
+###############################################################################
+# Use Common Stages Template
+# Note: Variables groups must be defined in the calling pipeline, not here.
+# Required variable groups: 'qa-pipelines-shared-config', 'qa-pipelines-config'
+###############################################################################
+stages:
+  - template: templates/azure-pipelines-stages-shared.yml
+    parameters:
+      repositoryAlias: ${{ parameters.repositoryAlias }}
+      executionMode: ${{ parameters.executionMode }}
+      services: ${{ parameters.services }}
+      environments: ${{ parameters.environments }}
+      testType: ${{ parameters.testType }}
+      testCaseFilter: ${{ parameters.testCaseFilter }}
+      overrideEnabled: ${{ parameters.overrideEnabled }}
+      customFunctionalArgs: ${{ parameters.customFunctionalArgs }}
+      customNonFunctionalArgs: ${{ parameters.customNonFunctionalArgs }}
+      triggerReason: 'Manual'
+      enableScheduleDetection: false  # Callable template doesn't use cron schedules

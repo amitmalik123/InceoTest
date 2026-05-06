@@ -1,0 +1,6 @@
+{
+"workItemVisibilityPreferenceType": "{{workItemVisibilityPreferenceType}}",
+"agentAPLID": "{{agentAPLID}}",
+"visibility": "{{visibility}}",
+"createdBy": "{{createdBy}}"
+}

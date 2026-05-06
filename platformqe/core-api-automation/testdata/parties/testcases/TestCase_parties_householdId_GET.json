@@ -1,0 +1,847 @@
+[
+    {
+        "test_id": "TC001",
+        "service_name": "parties",
+        "workflow_mode": "parallel",
+        "test_name": "GET /parties/household/{householdId} - Valid householdId/default and query params [positive] (TC001)",
+        "protocol": "REST",
+        "test_type": [
+            "Functional"
+        ],
+        "mainURL": "{{base_url}}",
+        "endpoint": "/parties/household/{{householdId}}",
+        "method": "GET",
+        "headers_additional": {
+            "Content-Type": "application/json"
+        },
+        "query_params": {
+            "page": 1,
+            "pageSize": 50,
+            "sort": ""
+        },
+        "path_params": {
+            "householdId": "{{householdId}}"
+        },
+        "payload": null,
+        "expected_status": "200",
+        "expected_response_schema": "parties/schemas/Schema_parties_Party_householdid_GET_response.json",
+        "expected_response_headers": {
+            "content-type": "application/json*",
+            "api-supported-versions": "*",
+            "strict-transport-security": "max-age=31536000*",
+            "x-trace-id": "*"
+        },
+        "ignore_fields": [
+            "id"
+        ],
+        "extract_values": [
+            {
+                "response_field": "page",
+                "variable_name": "returned_page"
+            },
+            {
+                "response_field": "pageSize",
+                "variable_name": "returned_pageSize"
+            },
+            {
+                "response_field": "total",
+                "variable_name": "returned_total"
+            },
+            {
+                "response_field": "items[0].partyId",
+                "variable_name": "first_partyId"
+            }
+        ],
+        "validate": {
+            "response_structure": {
+                "required_fields": [
+                    "page",
+                    "pageSize",
+                    "total",
+                    "items"
+                ],
+                "items_structure": {
+                    "required_fields": [
+                        "partyId",
+                        "status",
+                        "partyType"
+                    ],
+                    "conditional_fields": [
+                        {
+                            "when": "partyType == 'Individual'",
+                            "required": [
+                                "firstName",
+                                "lastName"
+                            ]
+                        },
+                        {
+                            "when": "partyType in ['Entity', 'Trust']",
+                            "required": [
+                                "title"
+                            ]
+                        }
+                    ]
+                }
+            },
+            "pagination": {
+                "validate_page_equals": 1,
+                "validate_pageSize_equals": 50,
+                "validate_total_is_positive": true,
+                "validate_items_length_matches_pageSize": true
+            },
+            "sorting": {
+                "field": "partyId",
+                "order": "asc",
+                "validate_sort_order": true
+            },
+            "business_rules": [
+                {
+                    "rule": "Only latest version per partyId",
+                    "validation": "unique_partyIds"
+                },
+                {
+                    "rule": "All items have valid status",
+                    "validation": "status in ['DRAFT', 'CONFIRMED', 'Draft', 'Pending']"
+                },
+                {
+                    "rule": "All partyIds are non-empty GUIDs",
+                    "validation": "partyId matches UUID pattern"
+                },
+                {
+                    "rule": "Response contains at least one item",
+                    "validation": "items length > 0"
+                }
+            ],
+            "performance": {
+                "max_response_time_ms": 2000
+            },
+            "security": {
+                "checks": [
+                    "sql_injection",
+                    "xss",
+                    "sensitive_data_exposure"
+                ]
+            }
+        },
+        "test_data_file": "parties/data_driven/Data_parties_householdid_GET.csv",
+        "db_query_timing": "after_api",
+        "db_queries": {
+            "audit_query": "SELECT HouseholdId as db_id FROM [dbo].[Party] WHERE HouseholdId = '{{householdId}}';",
+            "count_query": "SELECT COUNT(DISTINCT PartyId) as party_count FROM [dbo].[Party] WHERE HouseholdId = '{{householdId}}';",
+            "version_query": "SELECT PartyId, MAX(Version) as max_version FROM [dbo].[Party] WHERE HouseholdId = '{{householdId}}' GROUP BY PartyId;"
+        },
+        "db_validations": [
+            {
+                "query": "count_query",
+                "assertion": "party_count equals response.total"
+            },
+            {
+                "query": "version_query",
+                "assertion": "all returned parties have max version from DB"
+            }
+        ],
+        "db_type": "mssql",
+        "db_connection_name": "parties",
+        "test_summary": "Validates GET /parties/household/{householdId} returns all parties for the householdId.",
+        "test_scenario": "GET /parties/household/{householdId} - Valid householdId and query params [positive] (TC001)"
+    },
+    {
+        "test_id": "TC002",
+        "service_name": "parties",
+        "workflow_mode": "parallel",
+        "test_name": "GET /parties/household/{householdId} - Valid sorting by partyId ASC (default)",
+        "protocol": "REST",
+        "test_type": [
+            "Functional"
+        ],
+        "mainURL": "{{base_url}}",
+        "endpoint": "/parties/household/{{householdId}}",
+        "method": "GET",
+        "headers_additional": {
+            "Content-Type": "application/json"
+        },
+        "query_params": {
+            "page": 1,
+            "pageSize": 50,
+            "sort": "partyId"
+        },
+        "path_params": {
+            "householdId": "{{householdId}}"
+        },
+        "payload": null,
+        "expected_status": "200",
+        "expected_response_schema": "parties/schemas/Schema_parties_Party_householdid_GET_response.json",
+        "ignore_fields": [],
+        "extract_values": [],
+        "validate": {
+            "sorting": {
+                "field": "partyId",
+                "order": "asc",
+                "validate_sort_order": true
+            },
+            "business_rules": [
+                {
+                    "rule": "Default sort is partyId ASC",
+                    "validation": "items sorted by partyId ascending"
+                },
+                {
+                    "rule": "PartyIds are in ascending order",
+                    "validation": "each partyId >= previous partyId"
+                }
+            ],
+            "performance": {
+                "max_response_time_ms": 2000
+            }
+        },
+        "test_data_file": "parties/data_driven/Data_parties_householdid_GET.csv",
+        "test_summary": "Validates sorting by partyId in ascending order (default behavior).",
+        "test_scenario": "Request with sort=partyId and verify results are ordered by partyId ASC."
+    },
+    {
+        "test_id": "TC003",
+        "service_name": "parties",
+        "workflow_mode": "parallel",
+        "test_name": "GET /parties/household/{householdId} - Default pagination (no page/pageSize specified)",
+        "protocol": "REST",
+        "test_type": [
+            "Functional"
+        ],
+        "mainURL": "{{base_url}}",
+        "endpoint": "/parties/household/{{householdId}}",
+        "method": "GET",
+        "headers_additional": {
+            "Content-Type": "application/json"
+        },
+        "query_params": {},
+        "path_params": {
+            "householdId": "{{householdId}}"
+        },
+        "payload": null,
+        "expected_status": "200",
+        "expected_response_schema": "parties/schemas/Schema_parties_Party_householdid_GET_response.json",
+        "expected_response_headers": {
+            "content-type": "application/json*",
+            "api-supported-versions": "*"
+        },
+        "ignore_fields": [],
+        "extract_values": [],
+        "validate": {
+            "pagination": {
+                "validate_page_equals": 1,
+                "validate_pageSize_equals": 50,
+                "validate_default_pagination": true
+            },
+            "business_rules": [
+                {
+                    "rule": "Default page is 1 when not specified",
+                    "validation": "response.page equals 1"
+                },
+                {
+                    "rule": "Default pageSize is 50 when not specified",
+                    "validation": "response.pageSize equals 50"
+                },
+                {
+                    "rule": "Items array length <= 50",
+                    "validation": "items.length <= 50"
+                }
+            ],
+            "performance": {
+                "max_response_time_ms": 2000
+            }
+        },
+        "test_data_file": "parties/data_driven/Data_parties_householdid_GET.csv",
+        "test_summary": "Validates default pagination values (page=1, pageSize=50) when not explicitly specified.",
+        "test_scenario": "Send GET request without query parameters and verify default pagination is applied."
+    },
+    {
+        "test_id": "TC004",
+        "service_name": "parties",
+        "workflow_mode": "parallel",
+        "test_name": "GET /parties/household/{householdId} - Verify highest version per partyId",
+        "protocol": "REST",
+        "test_type": [
+            "Functional",
+            "Data Integrity"
+        ],
+        "mainURL": "{{base_url}}",
+        "endpoint": "/parties/household/{{householdId}}",
+        "method": "GET",
+        "headers_additional": {
+            "Content-Type": "application/json"
+        },
+        "query_params": {
+            "page": 1,
+            "pageSize": 100
+        },
+        "path_params": {
+            "householdId": "{{householdId}}"
+        },
+        "payload": null,
+        "expected_status": "200",
+        "expected_response_schema": "parties/schemas/Schema_parties_Party_householdid_GET_response.json",
+        "ignore_fields": [],
+        "extract_values": [
+            {
+                "response_field": "items",
+                "variable_name": "all_parties"
+            }
+        ],
+        "validate": {
+            "business_rules": [
+                {
+                    "rule": "Only highest version per partyId returned",
+                    "validation": "each partyId appears once"
+                },
+                {
+                    "rule": "No duplicate partyIds in response",
+                    "validation": "unique partyIds count equals items length"
+                },
+                {
+                    "rule": "All versions are latest",
+                    "validation": "DB max version matches API version for each partyId"
+                }
+            ],
+            "performance": {
+                "max_response_time_ms": 2000
+            }
+        },
+        "test_data_file": "parties/data_driven/Data_parties_householdid_GET.csv",
+        "db_query_timing": "after_api",
+        "db_queries": {
+            "version_check": "SELECT PartyId, MAX(Version) as max_version, Status FROM [dbo].[Party] WHERE HouseholdId = '{{householdId}}' GROUP BY PartyId, Status;",
+            "duplicate_check": "SELECT PartyId, COUNT(*) as version_count FROM [dbo].[Party] WHERE HouseholdId = '{{householdId}}' GROUP BY PartyId HAVING COUNT(*) > 1;"
+        },
+        "db_validations": [
+            {
+                "query": "version_check",
+                "assertion": "API returns highest version for each partyId"
+            },
+            {
+                "query": "duplicate_check",
+                "assertion": "Only one version per partyId in API response"
+            }
+        ],
+        "db_type": "mssql",
+        "db_connection_name": "parties",
+        "test_summary": "Validates that API returns only the highest version number for each partyId.",
+        "test_scenario": "Request all parties and compare with DB to ensure highest versions are returned."
+    },
+    {
+        "test_id": "TC005",
+        "service_name": "parties",
+        "workflow_mode": "parallel",
+        "test_name": "GET /parties/household/{householdId} - Verify partyType conditional fields",
+        "protocol": "REST",
+        "test_type": [
+            "Functional",
+            "Data Validation"
+        ],
+        "mainURL": "{{base_url}}",
+        "endpoint": "/parties/household/{{householdId}}",
+        "method": "GET",
+        "headers_additional": {
+            "Content-Type": "application/json"
+        },
+        "query_params": {
+            "page": 1,
+            "pageSize": 50
+        },
+        "path_params": {
+            "householdId": "{{householdId}}"
+        },
+        "payload": null,
+        "expected_status": "200",
+        "expected_response_schema": "parties/schemas/Schema_parties_Party_householdid_GET_response.json",
+        "ignore_fields": [],
+        "extract_values": [],
+        "validate": {
+            "response_structure": {
+                "conditional_validation": true,
+                "rules": [
+                    {
+                        "condition": "partyType == 'Individual'",
+                        "required_fields": [
+                            "firstName",
+                            "lastName"
+                        ],
+                        "optional_fields": [
+                            "title"
+                        ]
+                    },
+                    {
+                        "condition": "partyType in ['Entity', 'Trust' , 'Business']",
+                        "required_fields": [
+                            "title"
+                        ],
+                        "optional_fields": [
+                            "firstName",
+                            "lastName"
+                        ]
+                    }
+                ]
+            },
+            "business_rules": [
+                {
+                    "rule": "Individual parties must have firstName and lastName",
+                    "validation": "all Individual items have firstName and lastName"
+                },
+                {
+                    "rule": "Entity/Trust/Business parties must have title",
+                    "validation": "all Entity/Trust/Business items have title"
+                },
+                {
+                    "rule": "All items have partyId, status, partyType",
+                    "validation": "required base fields present"
+                }
+            ],
+            "performance": {
+                "max_response_time_ms": 2000
+            }
+        },
+        "test_data_file": "parties/data_driven/Data_parties_householdid_GET.csv",
+        "test_summary": "Validates conditional field requirements based on partyType.",
+        "test_scenario": "Verify Individual parties have firstName/lastName, Entity/Trust have title."
+    },
+    {
+        "test_id": "TC006",
+        "service_name": "parties",
+        "workflow_mode": "parallel",
+        "test_name": "GET /parties/household/{householdId} - Pagination at max boundary (pageSize=100)",
+        "protocol": "REST",
+        "test_type": [
+            "Functional",
+            "Boundary"
+        ],
+        "mainURL": "{{base_url}}",
+        "endpoint": "/parties/household/{{householdId}}",
+        "method": "GET",
+        "headers_additional": {
+            "Content-Type": "application/json"
+        },
+        "query_params": {
+            "page": 1,
+            "pageSize": 100
+        },
+        "path_params": {
+            "householdId": "{{householdId}}"
+        },
+        "payload": null,
+        "expected_status": "200",
+        "expected_response_schema": "parties/schemas/Schema_parties_Party_householdid_GET_response.json",
+        "ignore_fields": [],
+        "extract_values": [],
+        "validate": {
+            "pagination": {
+                "validate_pageSize_equals": 100,
+                "validate_items_length_lte_pageSize": true,
+                "max_boundary_test": true
+            },
+            "business_rules": [
+                {
+                    "rule": "Maximum pageSize of 100 is accepted",
+                    "validation": "response.pageSize equals 100"
+                },
+                {
+                    "rule": "Items count <= 100",
+                    "validation": "items.length <= 100"
+                }
+            ],
+            "performance": {
+                "max_response_time_ms": 3000
+            }
+        },
+        "test_data_file": "parties/data_driven/Data_parties_householdid_GET.csv",
+        "test_summary": "Validates maximum allowed pageSize boundary (100).",
+        "test_scenario": "Request with pageSize=100 (maximum) and verify it's accepted and respected."
+    },
+    {
+        "test_id": "TC007",
+        "service_name": "parties",
+        "workflow_mode": "parallel",
+        "test_name": "GET /parties/household/{householdId} - 204 No Content for filter resulting in no parties",
+        "protocol": "REST",
+        "test_type": [
+            "Negative"
+        ],
+        "mainURL": "{{base_url}}",
+        "endpoint": "/parties/household/{{householdId}}?page=999&pageSize=50",
+        "method": "GET",
+        "headers_additional": {
+            "Content-Type": "application/json",
+            "Authorization": "Bearer {{access_token}}"
+        },
+        "query_params": {},
+        "path_params": {
+            "householdId": "{{householdId}}"
+        },
+        "payload": null,
+        "expected_status": "204",
+        "expected_response_schema": "",
+        "expected_response_body": null,
+        "expected_response_headers": {
+            "api-supported-versions": "*",
+            "strict-transport-security": "max-age=31536000*",
+            "x-trace-id": "*",
+            "content-length": "0"
+        },
+        "ignore_fields": [],
+        "extract_values": [],
+        "validate": {
+            "response_structure": {
+                "expected_empty_body": true,
+                "no_content_validation": true
+            },
+            "business_rules": [
+                {
+                    "rule": "204 returned when no parties match filter criteria",
+                    "validation": "response body is empty or null"
+                },
+                {
+                    "rule": "Valid householdId but no results",
+                    "validation": "status code is 204"
+                }
+            ],
+            "performance": {
+                "max_response_time_ms": 2000
+            },
+            "security": {
+                "checks": [
+                    "sql_injection",
+                    "xss"
+                ]
+            }
+        },
+        "db_queries": {
+            "verify_household_exists": "SELECT COUNT(*) as household_exists FROM [dbo].[Party] WHERE HouseholdId = '{{householdId}}';"
+        },
+        "db_validations": [
+            {
+                "query": "verify_household_exists",
+                "assertion": "household_exists > 0",
+                "description": "Household should exist even though filter returns no results"
+            }
+        ],
+        "test_data_file": "parties/data_driven/Data_parties_householdid_GET.csv",
+        "test_summary": "GET /parties/household/{householdId} with filter parameters that exclude all data should result in 204 No Content.",
+        "test_scenario": "Send GET request with filtering/query params that result in no matching parties for an existing household; expect 204 response."
+    },
+    {
+        "test_id": "TC008",
+        "service_name": "parties",
+        "workflow_mode": "parallel",
+        "test_name": "GET /parties/household/{householdId} - 204 for negative page number",
+        "protocol": "REST",
+        "test_type": [
+            "Negative"
+        ],
+        "mainURL": "{{base_url}}",
+        "endpoint": "/parties/household/99999999-9999-9999-9999-999999999999?page=1&pageSize=50",
+        "method": "GET",
+        "headers_additional": {
+            "Content-Type": "application/json"
+        },
+        "query_params": {},
+        "path_params": {
+            "householdId": "{{householdId}}"
+        },
+        "payload": null,
+        "expected_status": "204",
+        "expected_response_structure": {
+            "required_fields": [
+                "type",
+                "title",
+                "status",
+                "errors"
+            ]
+        },
+        "expected_response_body_contains": [
+            "page",
+            "validation",
+            "negative"
+        ],
+        "ignore_fields": [],
+        "extract_values": [],
+        "validate": {
+            "error_response": {
+                "validate_error_structure": true,
+                "expected_status_in_body": 204,
+                "error_message_contains": [
+                    "page",
+                    "must be positive",
+                    "greater than 0"
+                ]
+            },
+            "business_rules": [
+                {
+                    "rule": "Page number must be positive",
+                    "validation": "negative page returns 204"
+                },
+                {
+                    "rule": "Error indicates page validation failure",
+                    "validation": "error message mentions page number validation"
+                }
+            ],
+            "performance": {
+                "max_response_time_ms": 1000
+            }
+        },
+        "test_summary": "Validates 204 error when non-existent household.",
+        "test_scenario": "Request with non-existent household and verify API returns 400 validation error."
+    },
+    {
+        "test_id": "TC009",
+        "service_name": "parties",
+        "workflow_mode": "parallel",
+        "test_name": "GET /parties/household/{householdId} - 204 for non-existent householdId",
+        "protocol": "REST",
+        "test_type": [
+            "Negative"
+        ],
+        "mainURL": "{{base_url}}",
+        "endpoint": "/parties/household/00000000-0000-0000-0000-000000000000",
+        "method": "GET",
+        "headers_additional": {
+            "Content-Type": "application/json"
+        },
+        "query_params": {
+            "page": 1,
+            "pageSize": 50
+        },
+        "path_params": {},
+        "payload": null,
+        "expected_status": "400",
+        "expected_response": "Invalid household ID. Must be a valid non-empty GUID",
+        "expected_response_body": null,
+        "expected_response_headers": {
+            "content-length": "0"
+        },
+        "ignore_fields": [],
+        "extract_values": [],
+        "validate": {
+            "response_structure": {
+                "expected_empty_body": true
+            },
+            "business_rules": [
+                {
+                    "rule": "Non-existent householdId returns 400",
+                    "validation": "status is 400"
+                },
+                {
+                    "rule": "Response body is empty",
+                    "validation": "no content returned"
+                }
+            ],
+            "performance": {
+                "max_response_time_ms": 1000
+            }
+        },
+        "test_summary": "Validates 400 response when householdId is invalid.",
+        "test_scenario": "Request with non-existent householdId (all zeros GUID) and verify 204 response."
+    },
+    {
+        "test_id": "TC010_InvalidSort",
+        "service_name": "parties",
+        "workflow_mode": "parallel",
+        "test_name": "GET /parties/household/{householdId} - 400 for invalid sort field (dateOfBirth)",
+        "protocol": "REST",
+        "test_type": [
+            "Negative"
+        ],
+        "mainURL": "{{base_url}}",
+        "endpoint": "/parties/household/8818F704-E671-450D-A8A3-F7B31D5AD9A1?page=1&pageSize=50&sort=dateOfBirth",
+        "method": "GET",
+        "headers_additional": {
+            "Content-Type": "application/json"
+        },
+        "query_params": {},
+        "path_params": {
+            "householdId": "8818F704-E671-450D-A8A3-F7B31D5AD9A1"
+        },
+        "payload": null,
+        "expected_status": "400",
+        "expected_response_body": "Invalid sort parameter",
+        "expected_response_headers": {
+            "api-supported-versions": "*",
+            "content-type": "text/plain; charset=utf-8",
+            "strict-transport-security": "max-age=31536000; includeSubDomains",
+            "date": "*",
+            "request-context": "*",
+            "x-trace-id": "*"
+        },
+        "expected_response_structure": {
+            "required_fields": [
+                "type",
+                "title",
+                "status",
+                "errors"
+            ],
+            "error_structure": {
+                "status": 400,
+                "errors_is_array": true
+            }
+        },
+        "expected_response_body_contains": [
+            "sort",
+            "field",
+            "invalid",
+            "dateOfBirth"
+        ],
+        "ignore_fields": [],
+        "extract_values": [],
+        "validate": {
+            "error_response": {
+                "validate_error_structure": true,
+                "expected_status_in_body": 400,
+                "error_message_contains": [
+                    "Invalid field for sorting",
+                    "dateOfBirth"
+                ]
+            },
+            "business_rules": [
+                {
+                    "rule": "Sorting on non-summary fields returns 400",
+                    "validation": "status is 400"
+                },
+                {
+                    "rule": "Error message indicates invalid sort field",
+                    "validation": "error mentions dateOfBirth not valid"
+                },
+                {
+                    "rule": "Only summary fields allowed for sorting",
+                    "validation": "error lists valid sort fields"
+                }
+            ],
+            "performance": {
+                "max_response_time_ms": 1000
+            }
+        },
+        "test_summary": "Validates 400 error when sorting by field not in summary response (dateOfBirth).",
+        "test_scenario": "Request with sort=dateOfBirth and verify API returns 400 with appropriate error message."
+    },
+    {
+        "test_id": "TC011",
+        "service_name": "parties",
+        "workflow_mode": "parallel",
+        "test_name": "GET /parties/household/{householdId} - 400 for pageSize = 0",
+        "protocol": "REST",
+        "test_type": [
+            "Negative"
+        ],
+        "mainURL": "{{base_url}}",
+        "endpoint": "/parties/household/8818F704-E671-450D-A8A3-F7B31D5AD9A1?page=1&pageSize=0",
+        "method": "GET",
+        "headers_additional": {
+            "Content-Type": "application/json"
+        },
+        "query_params": {},
+        "path_params": {
+            "householdId": "8818F704-E671-450D-A8A3-F7B31D5AD9A1"
+        },
+        "payload": null,
+        "expected_status": "400",
+        "expected_response_structure": {
+            "required_fields": [
+                "type",
+                "title",
+                "status",
+                "errors"
+            ]
+        },
+        "expected_response_body_contains": [
+            "pageSize",
+            "validation",
+            "0"
+        ],
+        "ignore_fields": [],
+        "extract_values": [],
+        "validate": {
+            "error_response": {
+                "validate_error_structure": true,
+                "expected_status_in_body": 400,
+                "error_message_contains": [
+                    "pageSize",
+                    "between 1 and 100"
+                ]
+            },
+            "business_rules": [
+                {
+                    "rule": "pageSize must be >= 1",
+                    "validation": "pageSize 0 returns 400"
+                },
+                {
+                    "rule": "Error indicates pageSize validation failure",
+                    "validation": "error message mentions minimum pageSize"
+                }
+            ],
+            "performance": {
+                "max_response_time_ms": 1000
+            }
+        },
+        "test_summary": "Validates 400 error when pageSize is 0 (below minimum).",
+        "test_scenario": "Request with pageSize=0 and verify API returns 400 validation error."
+    },
+    {
+        "test_id": "TC012",
+        "service_name": "parties",
+        "workflow_mode": "parallel",
+        "test_name": "GET /parties/household/{householdId} - 400 for negative page number",
+        "protocol": "REST",
+        "test_type": [
+            "Negative"
+        ],
+        "mainURL": "{{base_url}}",
+        "endpoint": "/parties/household/8818F704-E671-450D-A8A3-F7B31D5AD9A1?page=-1&pageSize=50",
+        "method": "GET",
+        "headers_additional": {
+            "Content-Type": "application/json"
+        },
+        "query_params": {},
+        "path_params": {
+            "householdId": "{{householdId}}"
+        },
+        "payload": null,
+        "expected_status": "400",
+        "expected_response": "Page must be greater than 0",
+        "expected_response_structure": {
+            "required_fields": [
+                "type",
+                "title",
+                "status",
+                "errors"
+            ]
+        },
+        "expected_response_body_contains": [
+            "page",
+            "validation",
+            "negative"
+        ],
+        "ignore_fields": [],
+        "extract_values": [],
+        "validate": {
+            "error_response": {
+                "validate_error_structure": true,
+                "expected_status_in_body": 400,
+                "error_message_contains": [
+                    "page",
+                    "must be positive",
+                    "greater than 0"
+                ]
+            },
+            "business_rules": [
+                {
+                    "rule": "Page number must be positive",
+                    "validation": "negative page returns 400"
+                },
+                {
+                    "rule": "Error indicates page validation failure",
+                    "validation": "error message mentions page number validation"
+                }
+            ],
+            "performance": {
+                "max_response_time_ms": 1000
+            }
+        },
+        "test_summary": "Validates 400 error when page number is negative.",
+        "test_scenario": "Request with page=-1 and verify API returns 400 validation error."
+    }
+]

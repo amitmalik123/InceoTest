@@ -1,0 +1,15 @@
+- environment: D13
+  dataType: Positive
+  description: Test data positive
+  workItemVisibilityPreferenceType: AccountTrackingNoFunding
+  agentAPLID: AGA4JX
+  visibility: true
+  createdBy: Test
+
+- environment: D13
+  dataType: Positive
+  description: Test data positive
+  workItemVisibilityPreferenceType: AccountTrackingNoFunding
+  agentAPLID: AGA4JX
+  visibility: false
+  createdBy: Test

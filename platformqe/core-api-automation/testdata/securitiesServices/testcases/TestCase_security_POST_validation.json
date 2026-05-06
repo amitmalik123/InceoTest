@@ -1,0 +1,304 @@
+[
+    {
+        "test_id": "TC001",
+        "service_name": "securitiesServices",
+        "workflow_mode": "parallel",
+        "test_name": "POST /security [validation: CUSIP too short] (TC001)",
+        "protocol": "REST",
+        "test_type": [
+            "Negative",
+            "Validation"
+        ],
+        "mainURL": "{{base_url}}",
+        "endpoint": "/security?subAssetTypeId=51010&cusip=VCXT54&name=NEW_RECORD",
+        "method": "POST",
+        "headers_additional": {
+            "Content-Type": "application/json"
+        },
+        "payload": null,
+        "expected_status": "422",
+        "expected_response_schema": "",
+        "expected_response": null,
+        "ignore_fields": [],
+        "extract_values": [
+            {
+                "from": "response",
+                "key": "type",
+                "assign_to": "error_type"
+            },
+            {
+                "from": "response",
+                "key": "title",
+                "assign_to": "error_title"
+            },
+            {
+                "from": "response",
+                "key": "status",
+                "assign_to": "error_status"
+            },
+            {
+                "from": "response",
+                "key": "detail",
+                "assign_to": "error_detail"
+            },
+            {
+                "from": "response",
+                "key": "instance",
+                "assign_to": "error_instance"
+            },
+            {
+                "from": "response",
+                "key": "errors.cusip.0",
+                "assign_to": "cusip_error_message"
+            }
+        ],
+        "validate": {
+            "performance": {
+                "max_response_time_ms": 500
+            },
+            "security": {
+                "checks": [
+                    "sql_injection",
+                    "xss"
+                ]
+            },
+            "assertions": [
+                {
+                    "actual": "{{error_type}}",
+                    "operator": "==",
+                    "expected": "business-rule-violation",
+                    "message": "Expected error type to be 'business-rule-violation'"
+                },
+                {
+                    "actual": "{{error_title}}",
+                    "operator": "==",
+                    "expected": "Business Rule Violation",
+                    "message": "Expected error title to be 'Business Rule Violation'"
+                },
+                {
+                    "actual": "{{error_status}}",
+                    "operator": "==",
+                    "expected": 422,
+                    "message": "Expected error status to be 422"
+                },
+                {
+                    "actual": "{{error_detail}}",
+                    "operator": "==",
+                    "expected": "The request is invalid and not meeting business rules requirements",
+                    "message": "Expected detail message about business rules"
+                },
+                {
+                    "actual": "{{error_instance}}",
+                    "operator": "==",
+                    "expected": "/api/security/v1/security",
+                    "message": "Expected instance to be '/api/security/v1/security'"
+                },
+                {
+                    "actual": "{{cusip_error_message}}",
+                    "operator": "contains",
+                    "expected": "too short",
+                    "message": "Expected CUSIP error message to mention 'too short'"
+                },
+                {
+                    "actual": "{{cusip_error_message}}",
+                    "operator": "contains",
+                    "expected": "VCXT54",
+                    "message": "Expected CUSIP error message to include the invalid CUSIP value"
+                },
+                {
+                    "actual": "{{cusip_error_message}}",
+                    "operator": "contains",
+                    "expected": "9 alphanumeric characters",
+                    "message": "Expected CUSIP error message to specify the validation rule"
+                }
+            ]
+        },
+        "test_data_file": "",
+        "db_query": "",
+        "db_type": "",
+        "db_connection_name": "",
+        "test_summary": "Test TC001: Validate CUSIP too short error using assertions",
+        "test_scenario": "Extract error response fields and validate them using assertions. Checks error type, title, status, detail, instance, and CUSIP-specific error message."
+    },
+    {
+        "test_id": "TC002",
+        "service_name": "securitiesServices",
+        "workflow_mode": "parallel",
+        "test_name": "POST /security [validation: CUSIP too long] (TC002)",
+        "protocol": "REST",
+        "test_type": [
+            "Negative",
+            "Validation"
+        ],
+        "mainURL": "{{base_url}}",
+        "endpoint": "/security?subAssetTypeId=51010&cusip=VCXT54ABCD123&name=NEW_RECORD",
+        "method": "POST",
+        "headers_additional": {
+            "Content-Type": "application/json"
+        },
+        "payload": null,
+        "expected_status": "422",
+        "expected_response_schema": "",
+        "expected_response": null,
+        "ignore_fields": [],
+        "extract_values": [
+            {
+                "from": "response",
+                "key": "type",
+                "assign_to": "error_type"
+            },
+            {
+                "from": "response",
+                "key": "status",
+                "assign_to": "error_status"
+            },
+            {
+                "from": "response",
+                "key": "errors.cusip.0",
+                "assign_to": "cusip_error_message"
+            }
+        ],
+        "validate": {
+            "performance": {
+                "max_response_time_ms": 500
+            },
+            "security": {
+                "checks": [
+                    "sql_injection",
+                    "xss"
+                ]
+            },
+            "assertions": [
+                {
+                    "actual": "{{error_type}}",
+                    "operator": "==",
+                    "expected": "business-rule-violation",
+                    "message": "Expected error type to be 'business-rule-violation'"
+                },
+                {
+                    "actual": "{{error_status}}",
+                    "operator": "==",
+                    "expected": 422,
+                    "message": "Expected error status to be 422"
+                },
+                {
+                    "actual": "{{cusip_error_message}}",
+                    "operator": "contains",
+                    "expected": "too long",
+                    "message": "Expected CUSIP error message to mention 'too long'"
+                }
+            ]
+        },
+        "test_data_file": "",
+        "db_query": "",
+        "db_type": "",
+        "db_connection_name": "",
+        "test_summary": "Test TC002: Validate CUSIP too long error using assertions",
+        "test_scenario": "Validate that CUSIP longer than 9 characters returns appropriate error message."
+    },
+    {
+        "test_id": "TC003",
+        "service_name": "securitiesServices",
+        "workflow_mode": "parallel",
+        "test_name": "POST /security [validation: CUSIP with special chars] (TC003)",
+        "protocol": "REST",
+        "test_type": [
+            "Negative",
+            "Validation"
+        ],
+        "mainURL": "{{base_url}}",
+        "endpoint": "/security?subAssetTypeId=51010&name=NEW_RECORD&cusip=VCXT@#$12",
+        "method": "POST",
+        "headers_additional": {
+            "Content-Type": "application/json"
+        },
+        "payload": null,
+        "expected_status": "422",
+        "expected_response_schema": "",
+        "expected_response": null,
+        "ignore_fields": [],
+        "extract_values": [
+            {
+                "from": "response",
+                "key": "errors.cusip.0",
+                "assign_to": "cusip_error_message"
+            }
+        ],
+        "validate": {
+            "performance": {
+                "max_response_time_ms": 500
+            },
+            "security": {
+                "checks": [
+                    "sql_injection",
+                    "xss"
+                ]
+            },
+            "assertions": [
+                {
+                    "actual": "{{cusip_error_message}}",
+                    "operator": "contains",
+                    "expected": "alphanumeric",
+                    "message": "Expected CUSIP error to mention 'alphanumeric' requirement"
+                }
+            ]
+        },
+        "test_data_file": "",
+        "db_query": "",
+        "db_type": "",
+        "db_connection_name": "",
+        "test_summary": "Test TC003: Validate CUSIP special characters error",
+        "test_scenario": "Validate that CUSIP with special characters returns appropriate error."
+    },
+    {
+        "test_id": "TC004",
+        "service_name": "securitiesServices",
+        "workflow_mode": "parallel",
+        "test_name": "POST /security [positive: valid CUSIP] (TC004)",
+        "protocol": "REST",
+        "test_type": [
+            "Functional",
+            "Positive"
+        ],
+        "mainURL": "{{base_url}}",
+        "endpoint": "/security?subAssetTypeId=51010&cusip=VCXT54ABC&name=NEW_RECORD",
+        "method": "POST",
+        "headers_additional": {
+            "Content-Type": "application/json"
+        },
+        "payload": null,
+        "expected_status": "409",
+        "expected_response_schema": "",
+        "expected_response": null,
+        "ignore_fields": [
+            "id",
+            "created_at",
+            "updated_at"
+        ],
+        "extract_values": [
+            {
+                "from": "response",
+                "key": "id",
+                "assign_to": "security_id"
+            }
+        ],
+        "validate": {
+            "performance": {
+                "max_response_time_ms": 1000
+            },
+            "security": {
+                "checks": [
+                    "sql_injection",
+                    "xss"
+                ]
+            },
+            "assertions": []
+        },
+        "test_data_file": "",
+        "db_query": "",
+        "db_type": "",
+        "db_connection_name": "",
+        "test_summary": "Test TC004: Valid CUSIP acceptance test",
+        "test_scenario": "Verify that a valid 9-character alphanumeric CUSIP is accepted successfully."
+    }
+]

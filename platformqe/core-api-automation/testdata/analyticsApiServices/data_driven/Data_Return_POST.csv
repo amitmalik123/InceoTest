@@ -1,0 +1,22 @@
+environment,benchmark,calculation_type,start_date,end_date,blend_1_id,blend_1_type,blend_1_weight,blend_2_id,blend_2_type,blend_2_weight,blend_3_id,blend_3_type,blend_3_weight,blend_4_id,blend_4_type,blend_4_weight,blend_5_id,blend_5_type,blend_5_weight
+T11,SP500I,return,2024-11-30,2025-11-30,GPRRS1,model,0.7,SELAC2,model,0.3,,,,,,,,,,
+T11,SP500I | BBGPMT,return,2024-11-30,2025-11-30,GPRRS1,model,0.7,SELAC2,model,0.3,,,,,,,,,,
+T11,SP500I,return,2020-01-31,2025-11-30,NUT110,model,0.6,URISP2,model,0.4,,,,,,,,,,
+T11,SP500I,return,2019-06-30,2025-11-30,GPRRS1,model,0.5,TPSMFS,model,0.5,,,,,,,,,,
+T11,SP500I,return,2019-01-31,2025-11-30,SELAC2,model,0.8,TFMF1T,model,0.2,,,,,,,,,,
+T11,SP500I,return,2010-01-31,2025-11-30,TPRRS2,model,0.9,URISP2,model,0.1,,,,,,,,,,
+T11,SP500I,return,2019-01-31,2025-11-30,UF2SMA,model,0.3,AMDLVT,model,0.25,MSTAT6,model,0.25,ARISC4,model,0.2
+TSADEV,SP500I | BBGPMT,return,2020-11-30,2025-11-30,GPRRS1,model,0.7,SELAC2,model,0.3,,,,,,,,,,
+TSADEV,SP500I,return,2020-01-31,2025-11-30,NUT110,model,0.6,URISP2,model,0.4,,,,,,,,,,
+TSADEV,SP500I,return,2019-06-30,2025-11-30,GPRRS1,model,0.5,TPSMFS,model,0.5,,,,,,,,,,
+TSADEV,SP500I,return,2019-01-31,2025-11-30,SELAC2,model,0.8,TFMF1T,model,0.2,,,,,,,,,,
+TSADEV,SP500I,return,2019-01-31,2024-12-31,TPRRS2,model,0.9,GISI60,model,0.1,,,,,,,,,,
+TSADEV,SP500I,return,2019-01-31,2025-11-30,UF2SMA,model,0.3,AMDLVT,model,0.25,MSTAT6,model,0.25,ARISC4,model,0.2
+TSATEST,SP500I,return,2019-01-31,2025-11-30,UMA0ET,model,0.25,TPMPR5,model,0.25,ARIBU5,model,0.5,,,,,,
+TSATEST,SP500I,return,2018-12-31,2025-11-30,SUMTT4,model,0.5,TF4SME,model,0.25,TFMF5T,model,0.25,,,,,,
+TSADEV,SP500I,return,2019-01-31,2025-11-30,CCPUP5,model,1.0,,,,,,,,,,,,,,
+TSATEST,SP500I,return,2019-01-31,2025-11-30,CCPUP5,model,0.7,US2SAL,model,0.3,,,,,,,,,,
+TSATEST,SP500I,return,2020-01-31,2025-11-30,NUT110,model,0.6,URISP2,model,0.4,,,,,,,,,,
+TSATEST,SP500I,return,2019-06-30,2025-11-30,GPRRS1,model,0.5,TPSMFS,model,0.5,,,,,,,,,,
+TSADEV,SP500I,return,2019-01-31,2025-11-30,CCPUP5,model,0.7,US2SAL,model,0.3,,,,,,,,,,
+TSADEV,SP500I,return,2020-01-31,2025-11-30,NUT110,model,0.6,URISP2,model,0.4,,,,,,,,,,

@@ -1,0 +1,26 @@
+{
+  "permissionGroups": [
+    {
+      "groupName": "New Navigation",
+      "permissions": [
+        {
+          "permissionKey": "eWMNewNavigation",
+          "permissionEffect": "allow"
+        },
+        {
+          "permissionKey": "New_Navigation_View",
+          "permissionEffect": "allow"
+        }
+      ]
+    },
+    {
+      "groupName": "Morningstar",
+      "permissions": [
+        {
+          "permissionKey": "ClientCenter",
+          "permissionEffect": "notallowed"
+        }
+      ]
+    }
+  ]
+}

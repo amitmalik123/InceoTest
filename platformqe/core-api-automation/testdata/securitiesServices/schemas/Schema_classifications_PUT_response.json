@@ -1,0 +1,52 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "oneOf": [
+    {
+      "type": "object",
+      "properties": {
+        "status": {
+          "type": "string",
+          "description": "Status of the classification update"
+        },
+        "message": {
+          "type": "string",
+          "description": "Response message"
+        },
+        "classificationId": {
+          "type": "integer",
+          "description": "ID of the updated classification"
+        },
+        "data": {
+          "type": "object",
+          "description": "Additional response data"
+        }
+      },
+      "additionalProperties": true
+    },
+    {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "status": {
+            "type": "string",
+            "description": "Status of the classification update"
+          },
+          "message": {
+            "type": "string",
+            "description": "Response message"
+          },
+          "classificationId": {
+            "type": "integer",
+            "description": "ID of the updated classification"
+          },
+          "data": {
+            "type": "object",
+            "description": "Additional response data"
+          }
+        },
+        "additionalProperties": true
+      }
+    }
+  ]
+}

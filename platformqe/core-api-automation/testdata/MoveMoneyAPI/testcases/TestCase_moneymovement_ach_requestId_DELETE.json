@@ -1,0 +1,158 @@
+[
+    {
+        "test_id": "TC001",
+        "service_name": "movemoney",
+        "workflow_mode": "sequential",
+        "test_name": "DELETE /ach/{requestId} [positive] (TC001)",
+        "protocol": "REST",
+        "test_type": [
+            "Functional"
+        ],
+        "mainURL": "{{base_url}}",
+        "endpoint": "/ach/{{requestId}}",
+        "method": "DELETE",
+        "rpc_method": "",
+        "graphql_query": "",
+        "graphql_variables": "",
+        "soap_action": "",
+        "soap_envelope": "",
+        "headers_additional": {
+            "Content-Type": "application/json"
+        },
+        "payload": null,
+        "expected_status": "200",
+        "expected_response_schema": null,
+        "expected_response": null,
+        "ignore_fields": [
+            "traceId",
+            "timestamp"
+        ],
+        "extract_values": [
+            {
+                "from": "response",
+                "key": "requestId",
+                "assign_to": "response_requestId"
+            },
+            {
+                "from": "db_result",
+                "query": "default",
+                "assign": [
+                    {
+                        "key": "0.requestId",
+                        "assign_to": "db_requestId"
+                    },
+                    {
+                        "key": "0.version",
+                        "assign_to": "db_version"
+                    },
+                    {
+                        "key": "0.isDeleted",
+                        "assign_to": "db_isDeleted"
+                    }
+                ]
+            }
+        ],
+        "validate": {
+            "performance": {
+                "max_response_time_ms": 500
+            },
+            "security": {
+                "checks": [
+                    "sql_injection",
+                    "xss"
+                ]
+            },
+            "assertions": [
+                {
+                    "actual": "{{response_requestId}}",
+                    "expected": "",
+                    "operator": "!=",
+                    "message": "Response requestId should not be empty"
+                },
+                {
+                    "actual": "{{db_isDeleted}}",
+                    "expected": true,
+                    "operator": "==",
+                    "message": "IsDeleted should match persisted DB behavior after deletion"
+                },
+                {
+                    "actual": "{{db_version}}",
+                    "expected": 1,
+                    "operator": ">=",
+                    "message": "Version should be persisted after deletion"
+                }
+            ],
+            "data_comparison": [
+                {
+                    "source": "db_result",
+                    "query": "default",
+                    "field": "0.IsDeleted",
+                    "expected_value": 1,
+                    "operator": "==",
+                    "message": "DB IsDeleted column should have value 1 after successful deletion",
+                    "comparison_name": "Verify IsDeleted flag is set to 1 in database after deletion"
+                }
+            ]
+        },
+        "test_data_file": "MoveMoneyAPI/data_driven/Data_ach_requestId_GET.csv",
+        "csv_row_index": 0,
+        "db_query_timing": "after_api",
+        "db_queries": {
+            "default": "SELECT TOP 1 LOWER([RequestId]) AS requestId, [Version] AS version, [IsDeleted] AS isDeleted FROM [dbo].[MoneyMovementRequest] WHERE [RequestId] = TRY_CONVERT(uniqueidentifier, '{{requestId}}') ORDER BY [Version] DESC",
+            "audit_query": ""
+        },
+        "db_type": "mssql",
+        "db_connection_name": "movemoney",
+        "test_summary": "Test TC001: DELETE /ach/{requestId} [positive] (TC001) - verifies delete response and persisted DB state"
+    },
+    {
+        "test_id": "TC002",
+        "service_name": "movemoney",
+        "workflow_mode": "sequential",
+        "test_name": "DELETE /ach/{requestId} [negative: not found returns 204] (TC002)",
+        "protocol": "REST",
+        "test_type": [
+            "Functional"
+        ],
+        "mainURL": "{{base_url}}",
+        "endpoint": "/ach/{{requestId}}",
+        "method": "DELETE",
+        "rpc_method": "",
+        "graphql_query": "",
+        "graphql_variables": "",
+        "soap_action": "",
+        "soap_envelope": "",
+        "headers_additional": {
+            "Content-Type": "application/json"
+        },
+        "payload": null,
+        "expected_status": "204",
+        "expected_response_schema": null,
+        "expected_response": "",
+        "ignore_fields": [],
+        "extract_values": [],
+        "validate": {
+            "performance": {
+                "max_response_time_ms": 500
+            },
+            "security": {
+                "checks": [
+                    "sql_injection",
+                    "xss"
+                ]
+            },
+            "assertions": [],
+            "data_comparison": []
+        },
+        "test_data_file": "MoveMoneyAPI/data_driven/Data_ach_requestId_GET.csv",
+        "csv_row_index": 0,
+        "db_query_timing": "after_api",
+        "db_queries": {
+            "default": "",
+            "audit_query": ""
+        },
+        "db_type": "",
+        "db_connection_name": "",
+        "test_summary": "Test TC002: DELETE /ach/{requestId} returns 204 No Content when valid UUID not found"
+    }
+]

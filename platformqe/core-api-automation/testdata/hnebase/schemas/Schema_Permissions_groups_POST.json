@@ -1,0 +1,30 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "type": "object",
+  "title": "POST /Permissions/groups Response Schema",
+  "description": "Response schema for /Permissions/groups",
+  "properties": {
+    "permissionGroups": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "groupName": { "type": "string" },
+          "permissions": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "permissionKey": { "type": "string" },
+                "permissionEffect": { "type": "string" }
+              },
+              "required": ["permissionKey", "permissionEffect"]
+            }
+          }
+        },
+        "required": ["groupName", "permissions"]
+      }
+    }
+  },
+  "required": ["permissionGroups"]
+}

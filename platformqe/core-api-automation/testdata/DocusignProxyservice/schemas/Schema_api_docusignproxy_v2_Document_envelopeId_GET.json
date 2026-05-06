@@ -1,0 +1,58 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "type": "object",
+  "title": "GET /api/docusignproxy/v2/Document/{envelopeId} Response Schema",
+  "description": "Response schema for /api/docusignproxy/v2/Document/{envelopeId}",
+  "properties": {
+    "id": {
+      "type": "string",
+      "description": "Unique identifier"
+    },
+    "data": {
+      "type": "object",
+      "description": "Response data object"
+    },
+    "status": {
+      "type": "string",
+      "enum": [
+        "success",
+        "error"
+      ]
+    },
+    "message": {
+      "type": "string"
+    },
+    "timestamp": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "envelopeId": {
+      "type": "string",
+      "description": "Envelope identifier"
+    },
+    "envelopeDocuments": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "documentId": {"type": "string"},
+          "name": {"type": "string"},
+          "type": {"type": "string"},
+          "uri": {"type": "string"},
+          "order": {"type": "integer"},
+          "pages": {"type": "integer"},
+          "availableDocumentTypes": {
+            "type": "array",
+            "items": {"type": "object"}
+          },
+          "display": {"type": "string"},
+          "includeInDownload": {"type": "boolean"},
+          "signerMustAcknowledge": {"type": "string"},
+          "authoritativeCopy": {"type": "boolean"}
+        },
+        "additionalProperties": true
+      }
+    }
+  },
+  "required": []
+}

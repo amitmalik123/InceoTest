@@ -1,0 +1,17 @@
+{
+  "type": "object",
+  "properties": {
+    "type": { "type": "string" },
+    "title": { "type": "string" },
+    "status": { "type": "integer" },
+    "errors": {
+      "type": "object",
+      "additionalProperties": {
+        "type": "array",
+        "items": { "type": "string" }
+      }
+    },
+    "traceId": { "type": "string" }
+  },
+  "required": ["type", "title", "status", "errors", "traceId"]
+}

@@ -1,0 +1,21 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "Error Response Schema",
+  "type": "object",
+  "properties": {
+    "title": {
+      "type": "string",
+      "description": "Short summary of the error"
+    },
+    "status": {
+      "type": "integer",
+      "description": "HTTP-like status code representing the error"
+    },
+    "detail": {
+      "type": "string",
+      "description": "Detailed description of the error"
+    }
+  },
+  "required": ["title", "status", "detail"],
+  "additionalProperties": false
+}

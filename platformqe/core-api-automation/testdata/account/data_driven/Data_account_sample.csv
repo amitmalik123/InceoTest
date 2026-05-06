@@ -1,0 +1,4 @@
+environment,test_id,name,description,status,expected_status
+TSADEV,TC001,Sample Name 1,Sample Description 1,active,200
+TSADEV,TC002,Sample Name 2,Sample Description 2,inactive,200
+TSADEV,TC003,Invalid Name,Invalid Description,invalid_status,400

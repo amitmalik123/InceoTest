@@ -1,0 +1,284 @@
+[
+  {
+    "test_id": "TC000",
+    "service_name": "parties",
+    "workflow_mode": "sequential",
+    "test_name": "QUERY and Extract DB Values",
+    "protocol": "DB_ONLY",
+    "test_type": ["Functional", "Smoke", "Business Logic"],
+    "mainURL": "",
+    "endpoint": "",
+    "method": "",
+    "rpc_method": "",
+    "graphql_query": "",
+    "graphql_variables": "",
+    "soap_action": "",
+    "soap_envelope": "",
+    "headers_additional": {
+      "Content-Type": "application/json"
+    },
+    "payload": null,
+    "expected_status": "",
+    "expected_response_schema": "",
+    "expected_response": "",
+    "extract_values": [
+      {
+        "from": "db_result",
+        "key": "0.db_id",
+        "assign_to": "db_party_id"
+      }
+    ],
+    "validate": {
+      "business_rules": [
+        {
+          "rule": "Database query must successfully retrieve party record by Id",
+          "validation": "db_party_id is not null and not empty"
+        },
+        {
+          "rule": "Retrieved party Id must match the queried Id parameter",
+          "validation": "db_party_id equals id"
+        }
+      ],
+      "performance": {
+        "max_response_time_ms": 500
+      },
+      "security": {
+        "checks": ["sql_injection", "xss"]
+      },
+      "data_comparison": {
+        "source": "api_response",
+        "target": "db_result",
+        "format": "table",
+        "key_field": ["", ""],
+        "fields_to_compare": [],
+        "log_differences": true
+      },
+      "assertions": [
+        {
+          "actual": "{{db_party_id}}",
+          "operator": "!=",
+          "expected": "",
+          "message": "Expected db_party_id to be extracted from database"
+        }
+      ]
+    },
+    "test_data_file": "parties/data_driven/Data_parties_GET.csv",
+    "db_type": "mssql",
+    "db_connection_name": "parties",
+    "db_query": "SELECT TOP 1 Id as db_id FROM Party WHERE Id ='{{id}}';",
+    "test_summary": "Test TC000: Extract DB [positive] (TC000)"
+  },
+  {
+    "test_id": "TC001",
+    "service_name": "parties",
+    "workflow_mode": "parallel",
+    "test_name": "GET /parties/{id} [positive] (TC001)",
+    "protocol": "REST",
+    "test_type": ["Functional", "Smoke", "Business Logic"],
+    "mainURL": "{{base_url}}",
+    "endpoint": "/parties/{{id}}",
+    "method": "GET",
+    "rpc_method": "",
+    "graphql_query": "",
+    "graphql_variables": "",
+    "soap_action": "",
+    "soap_envelope": "",
+    "headers_additional": {
+      "Content-Type": "application/json"
+    },
+    "payload": null,
+    "expected_status": "200",
+    "expected_response_schema": "parties\\schemas\\Schema_parties_Party_id_GET_response_with_version.json",
+    "expected_response": "",
+    "extract_values": [],
+    "validate": {
+      "response_structure": {
+        "required_fields": ["parties", "parties[0].partyId"]
+      },
+      "business_rules": [
+        {
+          "rule": "GET party by Id must return HTTP 200 OK status",
+          "validation": "response.status equals 200"
+        },
+        {
+          "rule": "Retrieved party partyId must match the requested Id parameter",
+          "validation": "parties.0.partyId equals id"
+        },
+        {
+          "rule": "Party data consistency: API response partyId must match database Id",
+          "validation": "parties.0.partyId equals db_id"
+        },
+        {
+          "rule": "Response must contain party array with at least one party record",
+          "validation": "parties is not empty and length > 0"
+        }
+      ],
+      "performance": {
+        "max_response_time_ms": 500
+      },
+      "security": {
+        "checks": ["sql_injection", "xss"]
+      },
+      "data_comparison": {
+        "source": "api_response",
+        "target": "db_result",
+        "format": "table",
+        "key_field": ["", ""],
+        "fields_to_compare": [
+          {
+            "source": "parties.0.partyId",
+            "target": "db_id"
+          }
+        ],
+        "log_differences": true
+      }
+    },
+    "test_data_file": "parties/data_driven/Data_parties_GET.csv",
+    "db_type": "mssql",
+    "db_connection_name": "parties",
+    "db_query": "SELECT TOP 1 Id as db_id FROM Party WHERE Id ='{{id}}';",
+    "test_summary": "Test TC001: GET /parties/{id} [positive] (TC001)"
+  },
+  {
+    "test_id": "TC002",
+    "service_name": "parties",
+    "workflow_mode": "parallel",
+    "test_name": "GET /parties/{id} [negative: missing id] (TC002)",
+    "protocol": "REST",
+    "test_type": ["Negative", "Business Logic"],
+    "mainURL": "{{base_url}}",
+    "endpoint": "/parties/",
+    "method": "GET",
+    "rpc_method": "",
+    "graphql_query": "",
+    "graphql_variables": "",
+    "soap_action": "",
+    "soap_envelope": "",
+    "headers_additional": {
+      "Content-Type": "application/json"
+    },
+    "payload": null,
+    "expected_status": "405",
+    "expected_response_schema": "",
+    "expected_response": null,
+    "extract_values": [
+      {
+        "from": "response",
+        "key": "id",
+        "assign_to": ""
+      },
+      {
+        "from": "db_result",
+        "query": "",
+        "assign": [
+          {
+            "key": "",
+            "assign_to": ""
+          }
+        ]
+      }
+    ],
+    "validate": {
+      "business_rules": [
+        {
+          "rule": "GET request without required Id parameter must return HTTP 405 Method Not Allowed",
+          "validation": "response.status equals 405"
+        },
+        {
+          "rule": "API must enforce required path parameters for resource retrieval",
+          "validation": "response.status equals 405"
+        }
+      ],
+      "performance": {
+        "max_response_time_ms": 500
+      },
+      "security": {
+        "checks": ["sql_injection", "xss"]
+      },
+      "data_comparison": {
+        "source": "api_response",
+        "target": "db_result",
+        "format": "table",
+        "key_field": ["", ""],
+        "fields_to_compare": [],
+        "log_differences": true
+      }
+    },
+    "test_data_file": "parties/data_driven/Data_parties_GET.csv",
+    "db_query": "",
+    "db_type": "",
+    "test_summary": "Test TC002: GET /parties/{id} [negative: missing id] (TC002)",
+    "missing_param": "id"
+  },
+  {
+    "test_id": "TC003",
+    "service_name": "parties",
+    "workflow_mode": "parallel",
+    "test_name": "GET /parties/{id} [negative: not found] (TC003)",
+    "protocol": "REST",
+    "test_type": ["Negative", "Business Logic"],
+    "mainURL": "{{base_url}}",
+    "endpoint": "/parties/123abcf0-d6ee-43a4-959e-8c2a7babc085",
+    "method": "GET",
+    "rpc_method": "",
+    "graphql_query": "",
+    "graphql_variables": "",
+    "soap_action": "",
+    "soap_envelope": "",
+    "headers_additional": {
+      "Content-Type": "application/json"
+    },
+    "payload": null,
+    "expected_status": "204",
+    "expected_response_schema": "",
+    "expected_response": null,
+    "extract_values": [
+      {
+        "from": "response",
+        "key": "id",
+        "assign_to": ""
+      },
+      {
+        "from": "db_result",
+        "query": "",
+        "assign": [
+          {
+            "key": "",
+            "assign_to": ""
+          }
+        ]
+      }
+    ],
+    "validate": {
+      "business_rules": [
+        {
+          "rule": "GET request for non-existent party Id must return HTTP 204 No Content",
+          "validation": "response.status equals 204"
+        },
+        {
+          "rule": "API must gracefully handle requests for resources that do not exist",
+          "validation": "response.status equals 204 and response.body is empty"
+        }
+      ],
+      "performance": {
+        "max_response_time_ms": 500
+      },
+      "security": {
+        "checks": ["sql_injection", "xss"]
+      },
+      "data_comparison": {
+        "source": "api_response",
+        "target": "db_result",
+        "format": "table",
+        "key_field": ["", ""],
+        "fields_to_compare": [],
+        "log_differences": true
+      }
+    },
+    "test_data_file": "",
+    "db_query": "",
+    "db_type": "",
+    "test_summary": "Test TC003: GET /parties/{id} [negative: not found] (TC003)",
+    "not_found": true
+  }
+]

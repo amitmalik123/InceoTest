@@ -1,0 +1,16 @@
+[
+        {
+            "op": "replace",
+            "path": "/name",
+            "value": "Model-Test"
+        },
+        {
+            "op": "remove",
+            "path": "/modelType"
+        },
+        {
+            "op": "add",
+            "path": "/solutionType",
+            "value": "New-Solution-Type"
+        }
+]

@@ -1,0 +1,191 @@
+[
+    {
+        "test_id": "TC001",
+        "service_name": "work_item_notification",
+        "workflow_mode": "parallel",
+        "test_name": "POST /api/workitemnotification/v1/preferences/workitems/visibility [positive] (TC070)",
+        "protocol": "",
+        "test_type": [
+            "Functional"
+        ],
+        "mainURL": "{{base_url}}",
+        "endpoint": "/api/workitemnotification/v1/preferences/workitems/visibility",
+        "method": "POST",
+        "rpc_method": "",
+        "graphql_query": "",
+        "graphql_variables": "",
+        "soap_action": "",
+        "soap_envelope": "",
+        "headers_additional": {
+            "Content-Type": "application/json"
+        },
+        "payload": "WorkItemNotification\\payloads\\Payload_preferences_workitems_visibility_request.json",
+        "expected_status": "200",
+        "expected_response_schema": "WorkItemNotification\\schemas\\Schema_preferences_workitems_visibility_success.json",
+        "expected_response": "WorkItemNotification\\payloads\\Payload_preferences_workitems_visibility_response.json",
+        "extract_values": [
+            {
+                "from": "response",
+                "key": "success",
+                "assign_to": "success_value"
+            },
+            {
+                "from": "db_result",
+                "key": "0.APLID",
+                "assign_to": "APLID_value"
+            }            
+        ],
+        "validate": {
+            "performance": {
+                "max_response_time_ms": null
+            },
+            "security": {
+                "checks": [
+                    "sql_injection",
+                    "xss"
+                ]
+            },
+            "data_comparison": {
+                "source": "api_request",
+                "target": "db_result",
+                "format": "table",
+                "key_field": [
+                    {"source": "agentAPLID", "target": "APLID"}
+                ],
+                "fields_to_compare": [
+                    {"source": "agentAPLID", "target": "APLID"}
+                ],
+                "log_differences": true
+            }
+        },
+        "test_data_file": "WorkItemNotification\\data_driven\\Data_preferences_workitems_visibility.csv",
+        "db_query": "SELECT APLID FROM TrackingCenter.dbo.WorkItemVisibilityPreference WHERE APLID in ( '{{agentAPLID}}')",
+        "db_type": "mssql",
+        "db_connection_name": "tracking_center",
+        "test_summary": "Test TC070: POST /api/workitemnotification/v1/preferences/workitems/visibility [positive] (TC070)"
+    },
+    {
+        "test_id": "TC002",
+        "service_name": "work_item_notification",
+        "workflow_mode": "parallel",
+        "test_name": "POST /api/workitemnotification/v1/preferences/workitems/visibility [negative: extra param] (TC071)",
+        "protocol": "",
+        "test_type": [
+            "Negative"
+        ],
+        "mainURL": "{{base_url}}",
+        "endpoint": "/api/workitemnotification/v1/preferences/workitems/visibility",
+        "method": "POST",
+        "rpc_method": "",
+        "graphql_query": "",
+        "graphql_variables": "",
+        "soap_action": "",
+        "soap_envelope": "",
+        "headers_additional": {
+            "Content-Type": "application/json"
+        },
+        "payload": {
+            "workItemVisibilityPreferenceType": "string",
+            "agentAPLID": "string",
+            "visibility": true,
+            "createdBy": "string"
+        },
+        "expected_status": "400",
+        "expected_response_schema": "WorkItemNotification\\schemas\\Schema_preferences_workitems_visibility_error.json",
+        "expected_response": "WorkItemNotification\\payloads\\Payload_preferences_workitems_visibility_response_error.json",
+        "extract_values": [],
+        "validate": {
+            "performance": {
+                "max_response_time_ms": null
+            },
+            "security": {
+                "checks": [
+                    "sql_injection",
+                    "xss"
+                ]
+            },
+            "data_comparison": {
+                "source": "api_response",
+                "target": "db_result",
+                "format": "table",
+                "key_field": [
+                    "",
+                    ""
+                ],
+                "fields_to_compare": [],
+                "log_differences": true
+            },
+            "fields": {
+                "traceId": "string"
+            }
+        },
+        "test_data_file": "",
+        "db_query": "",
+        "db_type": "",
+        "test_summary": "Test TC071: POST /api/workitemnotification/v1/preferences/workitems/visibility [negative: extra param] (TC071)",
+        "extra_param": {
+            "unexpected_param": "unexpected"
+        }
+    },
+    {
+        "test_id": "TC003",
+        "service_name": "work_item_notification",
+        "workflow_mode": "parallel",
+        "test_name": "POST /api/workitemnotification/v1/preferences/workitems/visibility [negative: invalid payload] (TC072)",
+        "protocol": "",
+        "test_type": [
+            "Negative"
+        ],
+        "mainURL": "{{base_url}}",
+        "endpoint": "/api/workitemnotification/v1/preferences/workitems/visibility",
+        "method": "POST",
+        "rpc_method": "",
+        "graphql_query": "",
+        "graphql_variables": "",
+        "soap_action": "",
+        "soap_envelope": "",
+        "headers_additional": {
+            "Content-Type": "application/json"
+        },
+        "payload": {
+            "workItemVisibilityPreferenceType": "string",
+            "agentAPLID": "string",
+            "visibility": true,
+            "createdBy": "string"
+        },
+        "expected_status": "400",
+        "expected_response_schema": "WorkItemNotification\\schemas\\Schema_preferences_workitems_visibility_error.json",
+        "expected_response": "WorkItemNotification\\payloads\\Payload_preferences_workitems_visibility_response_error.json",
+        "extract_values": [],
+        "validate": {
+            "performance": {
+                "max_response_time_ms": null
+            },
+            "security": {
+                "checks": [
+                    "sql_injection",
+                    "xss"
+                ]
+            },
+            "data_comparison": {
+                "source": "api_response",
+                "target": "db_result",
+                "format": "table",
+                "key_field": [
+                    "",
+                    ""
+                ],
+                "fields_to_compare": [],
+                "log_differences": true
+            },
+            "fields": {
+                "traceId": "string"
+            }
+        },
+        "test_data_file": "",
+        "db_query": "",
+        "db_type": "",
+        "test_summary": "Test TC072: POST /api/workitemnotification/v1/preferences/workitems/visibility [negative: invalid payload] (TC072)",
+        "invalid_payload": true
+    }
+]
