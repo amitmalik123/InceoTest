@@ -9,12 +9,16 @@ setup('Setup - Login to Environment', async ({ page }) => {
     const loginPage = new LoginPage(page);
     const switchIDPage = new SwitchIDPage(page);
 
+    const env = process.env.ENVIRONMENT || process.env.Environment;
     // Login
     await loginPage.gotoLoginPage();
     await loginPage.signIn(process.env.USER, process.env.PASS);
+    if (env.toLowerCase() == 'test11'){
+        await loginPage.signIn(process.env.USER, process.env.PASS); //have to login twice in a row on T11 with new url
+    }
 
     // Switch to correct ID if using admin account and not in prod
-    const env = process.env.ENVIRONMENT || process.env.Environment;
+    
     if (process.env.userID && (env.toLowerCase() == 'test11' || env.toLowerCase() == 'test10')) {
         await switchIDPage.selectID(process.env.userID);
     }
