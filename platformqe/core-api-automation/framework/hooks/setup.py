@@ -409,6 +409,8 @@ class TestDataManager:
                 # Update existing rows with extracted values (one extracted value per row)
                 for idx, extracted in enumerate(all_extracted_values):
                     if idx < len(existing_rows):
+                        # Always update environment to match current run
+                        existing_rows[idx]['environment'] = self.environment
                         # Update only the extracted columns in this row
                         for key, value in extracted.items():
                             existing_rows[idx][key] = value

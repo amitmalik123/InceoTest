@@ -56,7 +56,7 @@ class CleanupManager:
         self.service_name = service_name
         self.config = config or get_service_hooks_config(service_name)
         self.app_config = get_config()
-        self.environment = environment or self.app_config.get('environment', 'test')
+        self.environment = environment or os.environ.get('ENV_NAME', '').strip() or self.app_config.get('environment', 'test')
         
         # Data to clean up
         self.created_data = created_data or []
@@ -92,7 +92,11 @@ class CleanupManager:
         logger.info(f"Starting teardown for service: {self.service_name}")
         
         try:
-            # Delete data created during tests (if configured)
+            # Delete data from database (if configured)
+            if self.config.cleanup_db.get('enabled'):
+                self._cleanup_db_data()
+            
+            # Delete data created during tests via API (if configured)
             if self.created_data:
                 self._delete_created_data()
             
@@ -126,6 +130,219 @@ class CleanupManager:
                     logger.info(f"Successfully deleted: {item_id}")
             except Exception as e:
                 logger.error(f"Failed to delete data {item.get('id')}: {e}")
+    
+    def _cleanup_db_data(self) -> None:
+        """
+        Clean up test data directly from the database using configured cleanup queries.
+
+        SAFETY GUARDS (all must pass before any DELETE runs):
+        1. Environment whitelist - cleanup only runs in allowed envs (e.g. never PROD)
+        2. Dry-run mode - if enabled, logs SQL + params but executes nothing
+        3. Max-deletes cap - aborts if total deletes would exceed configured limit
+        4. Pre-delete verification - per-row SELECT must confirm record exists and
+           (optionally) was created by the expected user before DELETE runs
+        5. Per-row parameterized SQL - prevents SQL injection
+        6. Only IDs returned by THIS run's POST responses are deleted (created_data),
+           which keeps concurrent runs isolated from each other
+        """
+        cleanup_config = self.config.cleanup_db
+        if not cleanup_config:
+            logger.info(f"No DB cleanup configured for service: {self.service_name}")
+            return
+
+        # ---------------- SAFETY 1: Environment whitelist ----------------
+        allowed_envs = [e.upper() for e in cleanup_config.get('allowed_environments', [])]
+        current_env = (self.environment or '').upper()
+        if allowed_envs and current_env not in allowed_envs:
+            logger.error(
+                f"[CLEANUP-DB] BLOCKED: environment '{current_env}' is not in "
+                f"allowed_environments={allowed_envs} for service '{self.service_name}'. "
+                f"Skipping DB cleanup as a safety measure."
+            )
+            return
+
+        # ---------------- SAFETY 2: Dry-run mode ----------------
+        # Allow runtime override via env var (e.g. set by --cleanup-dry-run CLI flag)
+        env_dry_run = os.environ.get('DRY_RUN_CLEANUP', '').lower() in ('1', 'true', 'yes')
+        dry_run = bool(cleanup_config.get('dry_run', False)) or env_dry_run
+        if dry_run:
+            logger.warning(
+                f"[CLEANUP-DB] DRY-RUN MODE for service '{self.service_name}'. "
+                f"SQL will be logged but NOT executed."
+            )
+
+        db_type = cleanup_config.get('db_type')
+        db_connection_name = cleanup_config.get('db_connection_name')
+        cleanup_queries = cleanup_config.get('cleanup_queries', [])
+        max_deletes = int(cleanup_config.get('max_deletes_per_run', 50))
+        expected_created_by = cleanup_config.get('expected_created_by')
+
+        if not db_type or not db_connection_name or not cleanup_queries:
+            logger.warning(f"Incomplete DB cleanup config for service: {self.service_name}")
+            return
+
+        if not self.created_data:
+            logger.info(f"No created data to clean up from DB for service: {self.service_name}")
+            return
+
+        # ---------------- SAFETY 3: Max-deletes cap (pre-check) ----------------
+        # Worst-case = (#queries) x (#created items). Abort early if grossly oversized.
+        worst_case = len(cleanup_queries) * len(self.created_data)
+        if worst_case > max_deletes:
+            logger.error(
+                f"[CLEANUP-DB] BLOCKED: worst-case deletes={worst_case} exceeds "
+                f"max_deletes_per_run={max_deletes} for service '{self.service_name}'. "
+                f"Refusing to proceed."
+            )
+            return
+
+        logger.info(
+            f"[CLEANUP-DB] Starting cleanup: service='{self.service_name}' env='{current_env}' "
+            f"items={len(self.created_data)} queries={len(cleanup_queries)} "
+            f"max_deletes={max_deletes} dry_run={dry_run}"
+        )
+
+        try:
+            from framework.clients.db_client import DatabaseClientFactory
+            db_client = DatabaseClientFactory.get_client(db_type, db_connection_name, auto_connect=True)
+
+            total_deleted = 0
+            for query_config in cleanup_queries:
+                description = query_config.get('description', 'Cleanup query')
+                query_file = query_config.get('query_file')
+                param_field = query_config.get('param_field', 'id')
+                verify_query_file = query_config.get('verify_query_file')
+
+                sql = self._load_cleanup_query(query_file)
+                if not sql:
+                    logger.warning(f"Skipping cleanup query: {description} (query not loaded)")
+                    continue
+
+                # Optional pre-delete verification SQL
+                verify_sql = self._load_cleanup_query(verify_query_file) if verify_query_file else None
+
+                logger.info(f"[CLEANUP-DB] {description}")
+
+                for item in self.created_data:
+                    param_value = item.get(param_field)
+                    if not param_value:
+                        logger.warning(f"No '{param_field}' in created_data item: {item}")
+                        continue
+
+                    # ---------------- SAFETY 4: Pre-delete verification ----------------
+                    if verify_sql and not self._verify_record_safe_to_delete(
+                        db_client, verify_sql, param_value, expected_created_by, description
+                    ):
+                        # Verification failed - skip DELETE for this ID
+                        continue
+
+                    # ---------------- SAFETY 3 (running): Cap during execution ----------------
+                    if total_deleted >= max_deletes:
+                        logger.error(
+                            f"[CLEANUP-DB] STOPPING: max_deletes_per_run={max_deletes} reached. "
+                            f"Remaining items will NOT be deleted."
+                        )
+                        return
+
+                    if dry_run:
+                        logger.warning(
+                            f"  [DRY-RUN] Would execute: {sql!r} with param=({param_value!r},)"
+                        )
+                        continue
+
+                    try:
+                        # Count parameter markers and replicate param for each
+                        param_count = sql.count('?')
+                        params = (param_value,) * param_count if param_count > 0 else (param_value,)
+                        rows_affected = db_client.execute(sql, params)
+                        total_deleted += rows_affected
+                        logger.info(
+                            f"  [{description}] ID={param_value}: {rows_affected} rows deleted"
+                        )
+                    except Exception as e:
+                        logger.error(f"  [{description}] Failed for ID={param_value}: {e}")
+
+            logger.info(
+                f"[CLEANUP-DB] Completed for {self.service_name}: "
+                f"{total_deleted} total rows deleted (dry_run={dry_run})"
+            )
+
+        except Exception as e:
+            logger.error(f"DB cleanup failed for service {self.service_name}: {e}", exc_info=True)
+
+    def _verify_record_safe_to_delete(
+        self,
+        db_client,
+        verify_sql: str,
+        param_value: Any,
+        expected_created_by: Optional[str],
+        description: str,
+    ) -> bool:
+        """
+        SAFETY 4: Run a verification SELECT to confirm a record is safe to delete.
+
+        Returns True only when:
+          - verify_sql returns at least one row matching the ID, AND
+          - if expected_created_by is set, the row's CreatedBy matches.
+
+        Any failure logs an error and returns False, which causes the DELETE to be skipped.
+        """
+        try:
+            rows = db_client.query(verify_sql, (param_value,))
+        except Exception as e:
+            logger.error(
+                f"  [{description}] Verification query failed for ID={param_value}: {e}. "
+                f"Skipping DELETE for safety."
+            )
+            return False
+
+        if not rows:
+            logger.warning(
+                f"  [{description}] Verification returned 0 rows for ID={param_value}. "
+                f"Record does not exist or does not match safety criteria. Skipping DELETE."
+            )
+            return False
+
+        if expected_created_by:
+            actual_created_by = rows[0].get('CreatedBy') or rows[0].get('createdby')
+            if actual_created_by != expected_created_by:
+                logger.error(
+                    f"  [{description}] CreatedBy mismatch for ID={param_value}: "
+                    f"expected='{expected_created_by}' actual='{actual_created_by}'. "
+                    f"Skipping DELETE for safety."
+                )
+                return False
+
+        return True
+    
+    def _load_cleanup_query(self, query_file: str) -> Optional[str]:
+        """
+        Load a SQL cleanup query from a file in the testdata directory.
+        
+        Args:
+            query_file: Relative path from testdata/ (e.g., 'parties/db_queries/Cleanup_Party_DELETE.sql')
+            
+        Returns:
+            SQL query string, or None if file not found
+        """
+        if not query_file:
+            return None
+        
+        base_path = os.path.dirname(os.path.dirname(os.path.dirname(__file__)))
+        query_path = os.path.join(base_path, 'testdata', query_file)
+        
+        if not os.path.exists(query_path):
+            logger.error(f"Cleanup query file not found: {query_path}")
+            return None
+        
+        try:
+            with open(query_path, 'r', encoding='utf-8') as f:
+                sql = f.read().strip()
+            logger.debug(f"Loaded cleanup query from: {query_file}")
+            return sql
+        except Exception as e:
+            logger.error(f"Failed to read cleanup query file {query_file}: {e}")
+            return None
     
     def _restore_csv_files(self) -> None:
         """Restore CSV files to their original state."""

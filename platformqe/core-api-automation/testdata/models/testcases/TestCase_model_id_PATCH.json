@@ -10,7 +10,7 @@
             "Setup"
         ],
         "mainURL": "{{base_url}}",
-        "endpoint": "/investmentapproach",
+        "endpoint": "/investment-approaches",
         "method": "POST",
         "rpc_method": "",
         "graphql_query": "",
@@ -74,7 +74,7 @@
             "Functional"
         ],
         "mainURL": "{{base_url}}",
-        "endpoint": "/model",
+        "endpoint": "/models",
         "method": "POST",
         "rpc_method": "",
         "graphql_query": "",
@@ -126,7 +126,7 @@
             "Functional"
         ],
         "mainURL": "{{base_url}}",
-        "endpoint": "/model/{{response_model_id}}",
+        "endpoint": "/models/{{response_model_id}}",
         "method": "PATCH",
         "rpc_method": "",
         "graphql_query": "",
@@ -210,7 +210,7 @@
             "Functional"
         ],
         "mainURL": "{{base_url}}",
-        "endpoint": "/model/{{response_model_id}}",
+        "endpoint": "/models/{{response_model_id}}",
         "method": "PATCH",
         "rpc_method": "",
         "graphql_query": "",
@@ -277,7 +277,7 @@
             "Negative"
         ],
         "mainURL": "{{base_url}}",
-        "endpoint": "/model/00000000-0000-0000-0000-000000000000",
+        "endpoint": "/models/00000000-0000-0000-0000-000000000000",
         "method": "PATCH",
         "rpc_method": "",
         "graphql_query": "",
@@ -326,7 +326,7 @@
             "Negative"
         ],
         "mainURL": "{{base_url}}",
-        "endpoint": "/model/{{response_model_id}}",
+        "endpoint": "/models/{{response_model_id}}",
         "method": "PATCH",
         "rpc_method": "",
         "graphql_query": "",
@@ -375,7 +375,7 @@
             "Negative"
         ],
         "mainURL": "{{base_url}}",
-        "endpoint": "/model/6eae4597-a268-437f-a059-b1c1c8ddad41",
+        "endpoint": "/models/6eae4597-a268-437f-a059-b1c1c8ddad41",
         "method": "PATCH",
         "rpc_method": "",
         "graphql_query": "",
@@ -423,7 +423,7 @@
             "Functional"
         ],
         "mainURL": "{{base_url}}",
-        "endpoint": "/model/{{response_model_id}}",
+        "endpoint": "/models/{{response_model_id}}",
         "method": "PATCH",
         "rpc_method": "",
         "graphql_query": "",
@@ -470,7 +470,7 @@
             "Functional"
         ],
         "mainURL": "{{base_url}}",
-        "endpoint": "/model/{{response_model_id}}",
+        "endpoint": "/models/{{response_model_id}}",
         "method": "PATCH",
         "rpc_method": "",
         "graphql_query": "",
@@ -534,7 +534,7 @@
             "Functional"
         ],
         "mainURL": "{{base_url}}",
-        "endpoint": "/model/{{response_model_id}}",
+        "endpoint": "/models/{{response_model_id}}",
         "method": "PATCH",
         "rpc_method": "",
         "graphql_query": "",
@@ -603,7 +603,7 @@
             "Functional"
         ],
         "mainURL": "{{base_url}}",
-        "endpoint": "/model/{{response_model_id}}",
+        "endpoint": "/models/{{response_model_id}}",
         "method": "PATCH",
         "rpc_method": "",
         "graphql_query": "",
@@ -675,7 +675,7 @@
             "Functional"
         ],
         "mainURL": "{{base_url}}",
-        "endpoint": "/model/{{response_model_id}}",
+        "endpoint": "/models/{{response_model_id}}",
         "method": "PATCH",
         "rpc_method": "",
         "graphql_query": "",
@@ -757,7 +757,7 @@
             "Functional"
         ],
         "mainURL": "{{base_url}}",
-        "endpoint": "/model/{{response_model_id}}",
+        "endpoint": "/models/{{response_model_id}}",
         "method": "PATCH",
         "rpc_method": "",
         "graphql_query": "",
@@ -820,7 +820,7 @@
             "Functional"
         ],
         "mainURL": "{{base_url}}",
-        "endpoint": "/model/{{response_model_id}}",
+        "endpoint": "/models/{{response_model_id}}",
         "method": "PATCH",
         "rpc_method": "",
         "graphql_query": "",
@@ -884,7 +884,7 @@
             "Functional"
         ],
         "mainURL": "{{base_url}}",
-        "endpoint": "/model/{{response_model_id}}",
+        "endpoint": "/models/{{response_model_id}}",
         "method": "PATCH",
         "rpc_method": "",
         "graphql_query": "",
@@ -953,7 +953,7 @@
             "Functional"
         ],
         "mainURL": "{{base_url}}",
-        "endpoint": "/model/{{response_model_id}}",
+        "endpoint": "/models/{{response_model_id}}",
         "method": "PATCH",
         "rpc_method": "",
         "graphql_query": "",
@@ -1033,7 +1033,7 @@
             "Functional"
         ],
         "mainURL": "{{base_url}}",
-        "endpoint": "/model/{{response_model_id}}",
+        "endpoint": "/models/{{response_model_id}}",
         "method": "PATCH",
         "rpc_method": "",
         "graphql_query": "",
@@ -1218,7 +1218,7 @@
             "Functional"
         ],
         "mainURL": "{{base_url}}",
-        "endpoint": "/model/{{response_model_id}}",
+        "endpoint": "/models/{{response_model_id}}",
         "method": "PATCH",
         "rpc_method": "",
         "graphql_query": "",
@@ -1411,7 +1411,7 @@
             "Functional"
         ],
         "mainURL": "{{base_url}}",
-        "endpoint": "/model/{{response_model_id}}",
+        "endpoint": "/models/{{response_model_id}}",
         "method": "PATCH",
         "rpc_method": "",
         "graphql_query": "",
@@ -1553,7 +1553,7 @@
             "Integration"
         ],
         "mainURL": "{{base_url}}",
-        "endpoint": "/model",
+        "endpoint": "/models",
         "method": "POST",
         "rpc_method": "",
         "graphql_query": "",
@@ -1603,7 +1603,7 @@
             "Integration"
         ],
         "mainURL": "{{base_url}}",
-        "endpoint": "/model",
+        "endpoint": "/models",
         "method": "POST",
         "rpc_method": "",
         "graphql_query": "",
@@ -1653,7 +1653,7 @@
             "Integration"
         ],
         "mainURL": "{{base_url}}",
-        "endpoint": "/model/{{tc020_model_id}}",
+        "endpoint": "/models/{{tc020_model_id}}",
         "method": "PATCH",
         "rpc_method": "",
         "graphql_query": "",
@@ -1870,7 +1870,7 @@
             "Data Integrity"
         ],
         "mainURL": "{{base_url}}",
-        "endpoint": "/model",
+        "endpoint": "/models",
         "method": "POST",
         "rpc_method": "",
         "graphql_query": "",
@@ -1920,7 +1920,7 @@
             "Data Integrity"
         ],
         "mainURL": "{{base_url}}",
-        "endpoint": "/model/{{tc023_model_id}}",
+        "endpoint": "/models/{{tc023_model_id}}",
         "method": "PATCH",
         "rpc_method": "",
         "graphql_query": "",
