@@ -2,86 +2,6 @@
     {
         "test_id": "TC001",
         "service_name": "models",
-        "workflow_mode": "sequential",
-        "test_name": "POST /model - AC3: First execution with new Idempotency-Key",
-        "protocol": "REST",
-        "test_type": [
-            "Performance"
-        ],
-        "mainURL": "{{base_url}}",
-        "endpoint": "/models",
-        "method": "POST",
-        "headers_additional": {
-            "Content-Type": "application/json",
-            "x-user-id":"3fa85f64-5717-4562-b3fc-2c963f66afa6"
-        },
-        "payload": {
-            "name": "Perf_Automation",
-            "ownerId": "3fa85f64-5717-4562-b3fc-2c963f66afa6",
-            "modelAttributes": {
-                "solutionType": "string",
-                "modelType": "string",
-                "metadata": {
-                "additionalProp1": "string",
-                "additionalProp2": "string",
-                "additionalProp3": "string"
-                }
-            },
-            "custodians": [
-                "string"
-            ],
-            "investmentMins": [
-                {
-                "type": "System",
-                "value": 1
-                }
-            ],
-            "riskProfile": "string",
-            "allocations": [
-                {
-                "entityType": "Security",
-                "allocationName": "string",
-                "modelId": "string",
-                "cusip": "string",
-                "ticker": "string",
-                "weight": 1
-                }
-            ],
-            "versionMetadata": {
-                "additionalProp1": "string",
-                "additionalProp2": "string",
-                "additionalProp3": "string"
-            },
-            "benchmarkName": "string",
-            "benchmarkIsPrimary": true,
-            "allowedAgents": [
-                "string"
-            ]
-        },
-        "expected_status": "201",
-        "extract_values": [
-            {
-                "from": "response",
-                "key": "modelId",
-                "assign_to": "idem_workflow_model_id"
-            },
-            {
-                "from": "request_header",
-                "key": "Idempotency-Key",
-                "assign_to": "captured_idem_key_post"
-            }
-        ],
-        "validate": {
-            "performance": {
-                "max_response_time_ms": null
-            }
-        },
-        "test_summary": "AC3 Step 1 (POST): POST /model with a brand-new Idempotency-Key (DYNAMIC_UUID4 from config). Expect 201. Capture the key for AC4/AC5 replay.",
-        "test_scenario": "Idempotency - AC3 first execution POST"
-    },
-    {
-        "test_id": "TC002",
-        "service_name": "models",
         "workflow_mode": "parallel",
         "test_name": "POST /model [positive] (TC001)",
         "protocol": "REST",
@@ -98,7 +18,7 @@
         "soap_envelope": "",
         "headers_additional": {
             "Content-Type": "application/json",
-            "Idempotency-Key": "{{captured_idem_key_post}}",
+            "Idempotency-Key": "DYNAMIC_UUID4",
             "x-user-id":"3fa85f64-5717-4562-b3fc-2c963f66afa6"
         },
         "payload": {
