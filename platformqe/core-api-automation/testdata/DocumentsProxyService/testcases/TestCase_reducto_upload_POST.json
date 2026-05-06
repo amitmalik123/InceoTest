@@ -1,0 +1,155 @@
+[
+    {
+        "test_id": "TC001",
+        "service_name": "proxyservice",
+        "workflow_mode": "parallel",
+        "test_name": "Proxies upload request to Reducto. [positive] (TC001)",
+        "protocol": "REST",
+        "test_type": [
+            "Functional"
+        ],
+        "mainURL": "{{base_url}}",
+        "endpoint": "/reducto/upload",
+        "method": "POST",
+        "rpc_method": "",
+        "graphql_query": "",
+        "graphql_variables": "",
+        "soap_action": "",
+        "soap_envelope": "",
+        "headers_additional": {},
+        "payload": "DocumentsProxyService/payloads/Payload_reducto_upload_POST_functional.json",
+        "expected_status": "200",
+        "expected_response_schema": "",
+        "expected_response": null,
+        "ignore_fields": [
+            "id",
+            "file_id"
+        ],
+        "extract_values": [
+            {
+                "from": "response",
+                "key": "",
+                "assign_to": ""
+            },
+            {
+                "from": "response",
+                "record_count": false,
+                "array_path": "",
+                "assign_to": ""
+            },
+            {
+                "from": "db_result",
+                "query": "",
+                "assign": [
+                    {
+                        "key": "",
+                        "assign_to": ""
+                    }
+                ]
+            }
+        ],
+        "validate": {
+            "performance": {
+                "max_response_time_ms": 2000
+            },
+            "security": {
+                "checks": [
+                    "sql_injection",
+                    "xss"
+                ]
+            },
+            "data_comparison": []
+        },
+        "test_data_file": "DocumentsProxyService/data_driven/Data_reducto_upload_POST.csv",
+        "db_query_timing": "",
+        "db_queries": {
+            "default": "",
+            "audit_query": ""
+        },
+        "db_type": "",
+        "db_connection_name": "",
+        "test_summary": "Test TC001: Verify API returns successful 200 response with file_id for Proxies upload request to Reducto. [positive] (TC001)",
+        "payload_file": "DocumentsProxyService\\payloads\\Payload_reducto_upload_POST_functional.json"
+    },
+    {
+        "test_id": "TC002",
+        "service_name": "proxyservice",
+        "workflow_mode": "parallel",
+        "test_name": "Proxies upload request to Reducto. [negative] (TC002)",
+        "protocol": "REST",
+        "test_type": [
+            "Functional"
+        ],
+        "mainURL": "{{base_url}}",
+        "endpoint": "/reducto/upload",
+        "method": "POST",
+        "rpc_method": "",
+        "graphql_query": "",
+        "graphql_variables": "",
+        "soap_action": "",
+        "soap_envelope": "",
+        "headers_additional": {},
+        "payload": "DocumentsProxyService/payloads/Payload_reducto_upload_POST_negative.json",
+        "expected_status": "400",
+        "expected_response_schema": "",
+        "expected_response": {
+            "status": 400,
+            "title": "One or more validation errors occurred.",
+            "errors": {
+                "File": [
+                    "The File field is required."
+                ]
+            }
+        },
+        "ignore_fields": [
+            "id",
+            "traceId",
+            "type"
+        ],
+        "extract_values": [
+            {
+                "from": "response",
+                "key": "",
+                "assign_to": ""
+            },
+            {
+                "from": "response",
+                "record_count": false,
+                "array_path": "",
+                "assign_to": ""
+            },
+            {
+                "from": "db_result",
+                "query": "",
+                "assign": [
+                    {
+                        "key": "",
+                        "assign_to": ""
+                    }
+                ]
+            }
+        ],
+        "validate": {
+            "performance": {
+                "max_response_time_ms": 2000
+            },
+            "security": {
+                "checks": [
+                    "sql_injection",
+                    "xss"
+                ]
+            },
+            "data_comparison": []
+        },
+        "test_data_file": "DocumentsProxyService/data_driven/Data_reducto_upload_POST.csv",
+        "db_query_timing": "",
+        "db_queries": {
+            "default": "",
+            "audit_query": ""
+        },
+        "db_type": "",
+        "db_connection_name": "",
+        "test_summary": "Test TC002: Verify API returns 400 with File field required error when no file is uploaded. [Negative] (TC002)",
+        "payload_file": "DocumentsProxyService\\payloads\\Payload_reducto_upload_POST_negative.json"
+    }
+]

@@ -1,0 +1,8 @@
+{
+  "_multipart_files": {
+    "file": {
+      "path": "{{upload_file_path}}",
+      "content_type": "{{upload_file_content_type}}"
+    }
+  }
+}

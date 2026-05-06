@@ -348,6 +348,22 @@ def test_api_case(case, request):
         context.update(extracted_vars)
         # Also update from global variables to ensure all extracted values are available
         context.update(context_manager._global_variables)
+
+        # Track created data for cleanup: if this is a POST that extracted an ID, register it
+        if method.upper() == 'POST' and response and response.status_code in (200, 201):
+            from conftest import _test_data_manager
+            if _test_data_manager is not None:
+                for ext_cfg in extract_config:
+                    if ext_cfg.get('from') == 'response' and ext_cfg.get('key') in ('partyId',):
+                        assign_to = ext_cfg.get('assign_to', ext_cfg.get('key'))
+                        created_id = extracted_vars.get(assign_to) or context.get(assign_to)
+                        if created_id:
+                            _test_data_manager.created_data.append({
+                                'id': created_id,
+                                'service': case.get('service_name', ''),
+                                'test_id': case.get('test_id', ''),
+                            })
+                            logger.info(f"[CLEANUP-TRACK] Registered created ID for cleanup: {created_id} (test: {case.get('test_id')})")
     
     # ========== PHASE 6: DATABASE QUERY (AFTER API) ==========
     if db_manager.should_execute_after(case, protocol):

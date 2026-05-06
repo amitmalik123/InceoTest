@@ -32,7 +32,7 @@ class PayloadManager:
         context: Dict, 
         method: str,
         test_data: Any = None
-    ) -> Optional[Dict]:
+    ) -> Optional[Any]:
         """
         Load payload from file, inline dict, or construct from test_data.
         
@@ -107,7 +107,7 @@ class PayloadManager:
         
         payload_field = case['payload']
         
-        if isinstance(payload_field, str) and payload_field.strip().endswith(('.json', '.xml', '.txt')):
+        if isinstance(payload_field, str) and payload_field.strip().endswith(('.json', '.xml', '.txt', '.raw')):
             return payload_field.strip()
         
         return None
@@ -153,6 +153,19 @@ class PayloadManager:
                 
                 return rendered_xml
             
+            # Handle RAW files as plain text body (render only, no JSON parsing)
+            elif file_path.endswith('.raw'):
+                from framework.common.template_utils import render_template
+                with open(file_path, 'r', encoding='utf-8') as f:
+                    raw_template = f.read()
+
+                rendered_raw = render_template(raw_template, context)
+
+                logger.info(f"Loaded RAW payload from file: {file_path}")
+                logger.debug(f"Rendered raw payload: {rendered_raw}")
+
+                return rendered_raw
+
             # Handle TXT files as Jinja2 templates (render first, then parse as JSON)
             elif file_path.endswith('.txt'):
                 from framework.common.template_utils import render_template

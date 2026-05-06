@@ -1,0 +1,3 @@
+environment,input,pipeline_id,priority,any_key,webhook_mode,webhook_url,document_password
+TSATEST_TC001,reducto://ac1d502d-0d6a-4172-b20c-a69293268372.pdf,k971hscarfjpa94wkra2tyk7h183p3tj,false,any_value,direct,https://your-server.com/webhook,optional-password
+TSATEST,invalid-input-uri,invalid-pipeline-id,false,any_value,invalid_mode,https://your-server.com/webhook,optional-password
