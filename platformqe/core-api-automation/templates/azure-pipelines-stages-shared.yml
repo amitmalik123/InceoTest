@@ -842,6 +842,16 @@ stages:
               INFLUX_BUCKET: $(influx_bucket)
               INFLUX_TIMEOUT: $(influx_timeout)
               INFLUX_ENABLE: $(influx_enable)
+              # Performance SLA threshold (seconds). Sourced from Azure DevOps
+              # Library variable group; falls back to '' so locustfile.py uses
+              # config.<env>.yaml -> performance.sla_seconds (default 1.0).
+              LOCUST_SLA_SECONDS: $(LOCUST_SLA_SECONDS)
+              # Per-env Azure subscription IDs sourced from the Library variable
+              # group. Used by the executive-summary reporter to build App
+              # Insights deep-links (Performance / Failures).
+              SUBSCRIPTION_DEV: $(subscription_dev)
+              SUBSCRIPTION_TEST: $(subscription_test)
+              SUBSCRIPTION_SILO: $(subscription_silo)
             inputs:
               targetType: inline
               script: |
@@ -863,6 +873,8 @@ stages:
                 fi
                 
                 echo "Locust Arguments: $(nonFunctionalTestArgs)"
+                echo "Performance SLA (seconds): ${LOCUST_SLA_SECONDS:-<unset, will use config default>}"
+                echo "App Insights subscriptions (Library group): dev=${SUBSCRIPTION_DEV:-<unset>} test=${SUBSCRIPTION_TEST:-<unset>} silo=${SUBSCRIPTION_SILO:-<unset>}"
                 
                 locust -f locustfile.py $(nonFunctionalTestArgs) \
                   --html="${report_dir}/performance_report.html" \
@@ -936,7 +948,17 @@ stages:
           
           - task: Bash@3
             displayName: 'Send Email Report - $(name)_$(environment)'
-            condition: and(succeededOrFailed(), or(eq(variables['email_feature_enabled'], 'true'), eq(variables['email_feature_enabled'], 'True')))
+            # Email is suppressed for non-functional-only runs (perf reports are
+            # already published as build artifacts + executive summary HTML).
+            condition: >-
+              and(
+                succeededOrFailed(),
+                ne('${{ parameters.testType }}', 'non-functional'),
+                or(
+                  eq(variables['email_feature_enabled'], 'true'),
+                  eq(variables['email_feature_enabled'], 'True')
+                )
+              )
             env:
               SMTP_SERVER: $(smtp_server)
               SMTP_PORT: $(smtp_port)

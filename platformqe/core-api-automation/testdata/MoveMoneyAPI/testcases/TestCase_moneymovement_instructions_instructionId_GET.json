@@ -359,7 +359,7 @@
             "Negative"
         ],
         "mainURL": "{{base_url}}",
-        "endpoint": "/instructions/{{instruction_id}}?status=CHECK",
+        "endpoint": "/instructions/12bdde79-b76d-4977-827e-94e317eb7191?status=CHECK",
         "method": "GET",
         "rpc_method": "",
         "graphql_query": "",
@@ -370,7 +370,21 @@
         "payload": null,
         "expected_status": "400",
         "expected_response_schema": "",
-        "expected_response": null,
+        "expected_response": {
+            "type": "invalid-request",
+            "title": "Invalid Request",
+            "status": 400,
+            "detail": "The request contains invalid values",
+            "instance": "/api/moneymovement/v1/instructions/12bdde79-b76d-4977-827e-94e317eb7191",
+            "errors": {
+                "status": [
+                    "Must be one of: Draft, Pending, Confirmed, Deleted."
+                ]
+            }
+        },
+        "expected_error_messages": [
+            "Must be one of: Draft, Pending, Confirmed, Deleted."
+        ],
         "ignore_fields": [],
         "extract_values": [
             {
@@ -387,6 +401,11 @@
                 "from": "response",
                 "key": "detail",
                 "assign_to": "error_detail"
+            },
+            {
+                "from": "response",
+                "key": "errors.status.0",
+                "assign_to": "error_message"
             }
         ],
         "validate": {
@@ -417,6 +436,12 @@
                     "expected": "The request contains invalid values",
                     "operator": "==",
                     "message": "Error detail should indicate invalid request"
+                },
+                {
+                    "actual": "{{error_message}}",
+                    "expected": "Must be one of: Draft, Pending, Confirmed, Deleted.",
+                    "operator": "==",
+                    "message": "Status error message should match allowed values"
                 }
             ],
             "data_comparison": []
@@ -525,5 +550,113 @@
         "db_type": "",
         "db_connection_name": "",
         "test_summary": "Test TC005: GET /moneymovement/instructions/{instructionId} [positive] - Validate that changeState is returned alongside all instruction fields for a valid instructionId."
+    },
+    {
+        "test_id": "TC006",
+        "service_name": "movemoney",
+        "workflow_mode": "parallel",
+        "test_name": "GET /instructions/{instruction_id} Invalid InstructionId field [Negative] (TC006)",
+        "protocol": "REST",
+        "test_type": [
+            "Negative"
+        ],
+        "mainURL": "{{base_url}}",
+        "endpoint": "/instructions/12b@#@$dde79-b76d-4977-827e-94e31@#@$7eb7191?status=Draft",
+        "method": "GET",
+        "rpc_method": "",
+        "graphql_query": "",
+        "graphql_variables": "",
+        "soap_action": "",
+        "soap_envelope": "",
+        "headers_additional": {},
+        "payload": null,
+        "expected_status": "400",
+        "expected_response_schema": "",
+        "expected_response": {
+            "type": "invalid-request",
+            "title": "Invalid Request",
+            "status": 400,
+            "detail": "The request contains invalid values",
+            "instance": "/api/moneymovement/v1/instructions/12b@",
+            "errors": {
+                "instructionId": [
+                    "Invalid UUID format for 'instructionId' parameter."
+                ]
+            }
+        },
+        "expected_error_messages": [
+            "Invalid UUID format for 'instructionId' parameter."
+        ],
+        "ignore_fields": [],
+        "extract_values": [
+            {
+                "from": "response",
+                "key": "status",
+                "assign_to": "error_status"
+            },
+            {
+                "from": "response",
+                "key": "type",
+                "assign_to": "error_type"
+            },
+            {
+                "from": "response",
+                "key": "detail",
+                "assign_to": "error_detail"
+            },
+            {
+                "from": "response",
+                "key": "errors.instructionId.0",
+                "assign_to": "error_message"
+            }
+        ],
+        "validate": {
+            "performance": {
+                "max_response_time_ms": 500
+            },
+            "security": {
+                "checks": [
+                    "sql_injection",
+                    "xss"
+                ]
+            },
+            "assertions": [
+                {
+                    "actual": "{{error_status}}",
+                    "expected": 400,
+                    "operator": "==",
+                    "message": "Error status should be 400"
+                },
+                {
+                    "actual": "{{error_type}}",
+                    "expected": "invalid-request",
+                    "operator": "==",
+                    "message": "Error type should be invalid-request"
+                },
+                {
+                    "actual": "{{error_detail}}",
+                    "expected": "The request contains invalid values",
+                    "operator": "==",
+                    "message": "Error detail should indicate invalid request"
+                },
+                {
+                    "actual": "{{error_message}}",
+                    "expected": "Invalid UUID format for 'instructionId' parameter.",
+                    "operator": "==",
+                    "message": "InstructionId error message should match expected invalid UUID error"
+                }
+            ],
+            "data_comparison": []
+        },
+        "test_data_file": "MoveMoneyAPI/data_driven/Data_instructions_instructionId_GET.csv",
+        "csv_row_index": 0,
+        "db_query_timing": "after_api",
+        "db_queries": {
+            "default": "",
+            "audit_query": ""
+        },
+        "db_type": "",
+        "db_connection_name": "",
+        "test_summary": "Test TC006: Verify that the API returns a 400 Bad Request error when the InstructionID is invalid."
     }
 ]
