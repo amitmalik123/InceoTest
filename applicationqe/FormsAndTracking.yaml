@@ -93,10 +93,10 @@ jobs:
     environment: ${{ parameters.environment }}
     marker: ${{ parameters.marker }}
     workers: ${{ parameters.workers }}
-    allureResultsDir: '$(Build.SourcesDirectory)/reports/allure-results'
-    allureReportDir: '$(Build.SourcesDirectory)/reports/allure-report'
+    allureResultsDir: '$(Build.SourcesDirectory)/applicationqe/reports/allure-results'
+    allureReportDir: '$(Build.SourcesDirectory)/applicationqe/reports/allure-report'
     allureToolsDir: '$(Build.ArtifactStagingDirectory)/allure-tools'
-    testResultsDir: '$(Build.SourcesDirectory)/reports'
+    testResultsDir: '$(Build.SourcesDirectory)/applicationqe/reports'
     # Azure Key Vault configuration
     keyVaultName: 'amkkvqapipeline-testncus'           # ← Replace with your Key Vault name
     
@@ -302,13 +302,13 @@ jobs:
 
       PYTEST_CMD="pytest $TEST_TARGET \
         $BROWSER_PARAM \
-        --junitxml=\"../$(testResultsDir)/junit/junit-report.xml\" \
+        --junitxml=\"$(testResultsDir)/junit/junit-report.xml\" \
         -v \
         --video=retain-on-failure \
         --tracing=retain-on-failure \
         --screenshot=only-on-failure \
-        --alluredir=\"../$(allureResultsDir)\" \
-        --html=\"../$(testResultsDir)/pytest-report.html\" \
+        --alluredir=\"$(allureResultsDir)\" \
+        --html=\"$(testResultsDir)/pytest-report.html\" \
         --self-contained-html"
 
       # Add parallel execution if workers > 1
