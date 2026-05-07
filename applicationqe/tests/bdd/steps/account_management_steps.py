@@ -69,7 +69,7 @@ def navigate_to_account_wizard_and_search(
     clients_page.click_clients()
     logger.info("Clicking Account List")
     clients_page.click_account_list()
-    authenticated_page.wait_for_load_state("domcontentloaded", timeout=30000)
+    authenticated_page.wait_for_load_state("domcontentloaded", timeout=120000)
     logger.info("Account List page loaded")
 
     # Step 2: Search for the client
@@ -80,22 +80,22 @@ def navigate_to_account_wizard_and_search(
     # Step 3: Select the account
     logger.info(f"Selecting account: {account_name}")
     account_list_page.select_account(account_name, client_id)
-    authenticated_page.wait_for_load_state("domcontentloaded", timeout=30000)
+    authenticated_page.wait_for_load_state("domcontentloaded", timeout=120000)
     logger.info("Account selected, on Holdings/Detail page")
 
     # Step 4: Click Account Wizard
     logger.info("Clicking Account Wizard link")
     account_wizard_link = authenticated_page.locator("#clientDetailAccountDetailAnchor")
-    account_wizard_link.wait_for(state="visible", timeout=15000)
+    account_wizard_link.wait_for(state="visible", timeout=120000)
     
-    # Use increased timeout (60s) for click to allow page navigation to complete
-    # Some environments (test10, slow networks) may take 30-60s for navigation
+    # Use increased timeout (120s) for click to allow page navigation to complete
+    # Some environments (test10, slow networks) may take 30-120s for navigation
     logger.info("Waiting for page navigation after Account Wizard click...")
-    account_wizard_link.click(timeout=60000)
+    account_wizard_link.click(timeout=120000)
     
     # Wait for page to fully load after navigation
-    authenticated_page.wait_for_load_state("domcontentloaded", timeout=45000)
-    authenticated_page.wait_for_load_state("networkidle", timeout=45000)
+    authenticated_page.wait_for_load_state("domcontentloaded", timeout=120000)
+    authenticated_page.wait_for_load_state("networkidle", timeout=120000)
     
     logger.info(f"Account Wizard page loaded: {authenticated_page.url}")
 

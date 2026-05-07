@@ -396,6 +396,7 @@ jobs:
 
   - script: |
       echo "Pushing test metrics to InfluxDB..."
+      cd applicationqe
       export ALLURE_RESULTS_DIR="$(allureResultsDir)"
       export ENVIRONMENT="$(environment)"
       export BUILD_ID="$(Build.BuildId)"
@@ -408,6 +409,7 @@ jobs:
 
   - script: |
       echo "Pushing test metrics to Azure Log Analytics..."
+      cd applicationqe
       export ALLURE_RESULTS_DIR="$(allureResultsDir)"
       export ENVIRONMENT="$(environment)"
       export BUILD_ID="$(Build.BuildId)"

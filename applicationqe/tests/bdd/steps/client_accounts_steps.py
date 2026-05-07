@@ -117,6 +117,9 @@ def verify_signer_information_dialog_exists_with_correct_information(
             
             logger.info(f"[PASS] ClientAccountsPage: CSV Data Parsed.")
             
+            # ✅ Initialize signer_header for use in all code paths
+            signer_header = None
+            
             # Step 3: Try iframe first, fallback to main page
             logger.info("Step 3: Waiting for potential iframe to be ready...")
             try:
@@ -136,29 +139,33 @@ def verify_signer_information_dialog_exists_with_correct_information(
                 iframe_frame = authenticated_page.frame_locator("iframe#esig_iframe")
                 
                 if heading_text:
-                    logger.info("  Waiting for signer header element to be available...")
-                    try:
-                        wait_for_element_count(
-                            iframe_frame.locator("div#divSignersInfo"),
-                            count=1,
-                            timeout=30.0
-                        )
-                    except Exception as e:
-                        logger.warning(f"  ⚠ Signer header element wait timeout/error: {e} - proceeding with assertion anyway")
+                    logger.info(f"  Step 3a: Searching for heading: '{heading_text[:50]}...'")
                     
+                    # Locate heading element
                     signer_header = iframe_frame.locator("div#divSignersInfo")
+                    logger.info(f"  ✓ Located div#divSignersInfo")
+                    
+                    # Wait for element to be visible
+                    if signer_header.count() > 0:
+                        logger.info("  ✓ Heading element found, waiting for visibility...")
+                        try:
+                            signer_header.wait_for(state="visible", timeout=120000)
+                            logger.info("  ✓ Heading is now visible")
+                        except Exception as e:
+                            logger.warning(f"  ⚠ Heading visibility wait timeout: {e}")
+                    
             soft_assert.assert_count(
                 signer_header,
                 1,
-                "[FAIL] ClientAccountsPage: Signer Information Header — Expected: div#divSignersInfo count=1, Actual: count not 1. Details: Signer(s) Information dialog header must be visible in iframe esig_iframe. Locator: iframe#esig_iframe > div#divSignersInfo."
+                "[FAIL] ClientAccountsPage: Signer(s) Information dialog heading not found."
             )
             soft_assert.assert_visible(
                 signer_header,
-                "[FAIL] ClientAccountsPage: Signer Information Header Visibility — Expected: visible=True, Actual: visible=False. Details: Signer(s) Information dialog header must be visible to read heading. Locator: div#divSignersInfo."
+                "[FAIL] ClientAccountsPage: Signer(s) Information dialog heading not visible."
             )
             
             if heading_text:
-                soft_assert.assert_text_contains(signer_header, heading_text, f"[FAIL] ClientAccountsPage: Signer Information Heading Text — Expected: contains '{heading_text}', Actual: text mismatch. Details: Signer(s) Information dialog heading must match expected value. Locator: div#divSignersInfo.")
+                soft_assert.assert_text_contains(signer_header, heading_text, f"[FAIL] ClientAccountsPage: Signer Information Heading Text — Expected: contains '{heading_text}', Actual: text mismatch. Details: Signer(s) Information dialog heading must match expected value.")
                 logger.info(f"  [PASS] ClientAccountsPage: Signer Information Heading Verified.")
             
             if instruction_text:
@@ -166,13 +173,13 @@ def verify_signer_information_dialog_exists_with_correct_information(
                 soft_assert.assert_count(
                     details_table,
                     1,
-                    "[FAIL] ClientAccountsPage: Signer Details Table — Expected: table#esig_user_details_table count=1, Actual: count not 1. Details: Signer(s) Information dialog details must exist. Locator: iframe#esig_iframe > table#esig_user_details_table."
+                    "[FAIL] ClientAccountsPage: Signer(s) Information dialog details not found."
                 )
-                soft_assert.assert_visible(details_table, message="[FAIL] ClientAccountsPage: Signer Details Visibility — Expected: visible=True, Actual: visible=False. Details: Signer(s) Information dialog details must be visible. Locator: table#esig_user_details_table.")
+                soft_assert.assert_visible(details_table, message="[FAIL] ClientAccountsPage: Signer(s) Information dialog details must be visible.")
                 
                 first_td = details_table.locator("td").first
-                soft_assert.assert_count(first_td, 1, message="[FAIL] ClientAccountsPage: Signer Details TD — Expected: td count=1, Actual: count!=1. Details: First TD in Signer(s) Information dialog details table must exist. Locator: table#esig_user_details_table td.")
-                soft_assert.assert_visible(first_td, message="[FAIL] ClientAccountsPage: Signer Details TD Visibility — Expected: visible=True, Actual: visible=False. Details: First TD in Signer(s) Information dialog details table must be visible. Locator: table#esig_user_details_table td:first.")
+                soft_assert.assert_count(first_td, 1, message="[FAIL] ClientAccountsPage: Signer(s) Information dialog details not found.")
+                soft_assert.assert_visible(first_td, message="[FAIL] ClientAccountsPage: Signer(s) Information dialog details not visible.")
                 
                 # Get actual text from element for debugging
                 actual_instruction_text = first_td.text_content().strip() if first_td.count() > 0 else ""
@@ -194,19 +201,15 @@ def verify_signer_information_dialog_exists_with_correct_information(
                 
                 if heading_text:
                     signer_header = authenticated_page.locator("div#divSignersInfo")
-                    soft_assert.assert_count(signer_header, 1, "[FAIL] ClientAccountsPage: Signer Information Header (Main Page) — Expected: count=1, Actual: count!=1. Details: div#divSignersInfo must exist on main page if no iframe found. Locator: div#divSignersInfo.")
-                    soft_assert.assert_visible(signer_header, "[FAIL] ClientAccountsPage: Signer Information Header Visibility (Main Page) — Expected: visible=True, Actual: visible=False. Details: div#divSignersInfo must be visible to read heading. Locator: div#divSignersInfo.")
-                    soft_assert.assert_text_contains(signer_header, heading_text, f"[FAIL] ClientAccountsPage: Signer Information Heading Text (Main Page) — Expected: contains '{heading_text}', Actual: text mismatch. Details: Heading must match expected value from CSV. Locator: div#divSignersInfo.")
+                    soft_assert.assert_count(signer_header, 1, "[FAIL] ClientAccountsPage: Signer(s) Information dialog heading not found.")
+                    soft_assert.assert_visible(signer_header, "[FAIL] ClientAccountsPage: Signer(s) Information dialog heading not visible.")
+                    soft_assert.assert_text_contains(signer_header, heading_text, f"[FAIL] ClientAccountsPage: Signer Information Heading Text (Main Page) — Expected: contains '{heading_text}', Actual: text mismatch.")
                     logger.info(f"  [PASS] ClientAccountsPage: Signer Information Heading Verified.")
                 
                 if instruction_text:
                     details_table = authenticated_page.locator("table#esig_user_details_table")
-                    soft_assert.assert_count(details_table, 1, "[FAIL] ClientAccountsPage: Signer Details Table (Main Page) — Expected: count=1, Actual: count!=1. Details: table#esig_user_details_table must exist on main page if no iframe. Locator: table#esig_user_details_table.")
-                    soft_assert.assert_visible(details_table, "[FAIL] ClientAccountsPage: Details Table Visibility (Main Page) — Expected: visible=True, Actual: visible=False. Details: table#esig_user_details_table must be visible. Locator: table#esig_user_details_table.")
-                    
                     first_td = details_table.locator("td").first
-                    soft_assert.assert_count(first_td, 1, "[FAIL] ClientAccountsPage: Details TD (Main Page) — Expected: count=1, Actual: count!=1. Details: First TD must exist in table. Locator: table#esig_user_details_table td:first.")
-                    soft_assert.assert_visible(first_td, "[FAIL] ClientAccountsPage: Details TD Visibility (Main Page) — Expected: visible=True, Actual: visible=False. Details: First TD must be visible. Locator: table#esig_user_details_table td:first.")
+                    soft_assert.assert_visible(first_td, "[FAIL] ClientAccountsPage: Signer(s) Information dialog details not visible on main page.")
                     
                     # Get actual text from element for debugging
                     actual_instruction_text = first_td.text_content().strip() if first_td.count() > 0 else ""

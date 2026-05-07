@@ -135,6 +135,17 @@ markers = [
     "Prod_Regression: Prod Regression",
     "SiloRegression_OneCleanUp: Silo Regression with one CleanUp Scenario",
     "app: marks tests to run with specific app (e.g., -m app[ewm])",
+    "S1: S1_OAM_Initiated by FA_Online Submit_Finish",
+    "S2: S2_OAM_Initiated by SAU_Online Submit_Authorized Signer_Not_Required",
+    "S3: S3_OAM_Initiated by SAU_Complete and Print",
+    "S4: S4_OAM_Initiated_by_OfficeAdmin_Complete_And_Print",
+    "S5: S5_OAM_Initiated by SAU_Online Submit_Authorized Signer_Required_FA",
+    "S6: S6_OAM_Initiated by SAU_Online Submit_Authorized Signer_Required_SAU",
+    "S7: S7_Prod_OAM_Initiated by SAU_Online Submit_Authorized Signer_Required_FA",
+    "S8: S8_OAM_Initiated by FA_Complete and Print",
+    "S9: S9_OAM_Initiated by SAU_eSignature_With One Inperson Client Signature_Authorized Signer_NOT required",
+    "S10: S10_OAM_Initiated by FA_Online Submit_Finish Later",
+    "S11: S11_PRODENG_33109_OAM_SAU_Online Submit_Authorized Approval_Tracking Center_Blue Banner_Trigger Advisor Mail",
 ]
 addopts = """
 -v

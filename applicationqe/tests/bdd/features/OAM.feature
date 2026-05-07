@@ -1,7 +1,7 @@
 Feature: E2E OAM flow for FA, SAU and OA
 
-  @FNT_regression
-  Scenario: OAM_Initiated by FA_Online Submit_Finish
+  @FNT_regression @S1
+  Scenario: S1_OAM_Initiated by FA_Online Submit_Finish 
     When User navigate to Clients menu
     And User click on Account List
     And User is on the Account List tab and search for Account Number
@@ -28,8 +28,8 @@ Feature: E2E OAM flow for FA, SAU and OA
     #And Verify Agent Name
     #And Verify the Routing Order in database
 
-  @HappyPath @FNT_regression
-  Scenario: OAM_Initiated by SAU_Online Submit_Authorized Signer_Not_Required
+  @HappyPath @FNT_regression @S2
+  Scenario: S2_OAM_Initiated by SAU_Online Submit_Authorized Signer_Not_Required
     When User navigate to Clients menu
     And User click on Account List
     And User is on the Account List tab and search for Account Number
@@ -62,8 +62,8 @@ Feature: E2E OAM flow for FA, SAU and OA
     #And Verify Agent Name
     #And Verify the Routing Order in database
 
-  @smoke @FNT_regression
-  Scenario: OAM_Initiated by SAU_Complete and Print
+  @smoke @FNT_regression @S3
+  Scenario: S3_OAM_Initiated by SAU_Complete and Print
     When User navigate to Clients menu
     And User click on Account List
     And User is on the Account List tab and search for Account Number
@@ -89,8 +89,8 @@ Feature: E2E OAM flow for FA, SAU and OA
     And Verify the Routing Order in database
 
 
-  @smoke @FNT_regression 
-  Scenario: OAM_Initiated_by_OfficeAdmin_Complete_And_Print
+  @smoke @FNT_regression @S4
+  Scenario: S4_OAM_Initiated_by_OfficeAdmin_Complete_And_Print
     When User navigate to Clients menu
     And User click on Account List
     And User is on the Account List tab and search for Account Number
@@ -116,8 +116,8 @@ Feature: E2E OAM flow for FA, SAU and OA
     And Verify the Routing Order in database
 
 
-  @smoke @FNT_regression @InDev
-  Scenario: OAM_Initiated by SAU_Online Submit_Authorized Signer_Required_FA
+  @smoke @FNT_regression @S5
+  Scenario: S5_OAM_Initiated by SAU_Online Submit_Authorized Signer_Required_FA
     When User navigate to Clients menu
     And User click on Account List
     And User is on the Account List tab and search for Account Number
@@ -162,8 +162,8 @@ Feature: E2E OAM flow for FA, SAU and OA
     And Verify Agent Name
     And Verify the Routing Order in database
 
-  @FNT_regression
-  Scenario: OAM_Initiated by SAU_Online Submit_Authorized Signer_Required_SAU
+  @FNT_regression @S6
+  Scenario: S6_OAM_Initiated by SAU_Online Submit_Authorized Signer_Required_SAU
     When User navigate to Clients menu
     And User click on Account List
     And User is on the Account List tab and search for Account Number
@@ -207,8 +207,8 @@ Feature: E2E OAM flow for FA, SAU and OA
     And Verify Notes description
     And Verify Agent Name
 
-  @Prod_Regression @Silo_Regression @T10_Regression
-  Scenario: Prod_OAM_Initiated by SAU_Online Submit_Authorized Signer_Required_FA
+  @Prod_Regression @Silo_Regression @T10_Regression @S7
+  Scenario: S7_Prod_OAM_Initiated by SAU_Online Submit_Authorized Signer_Required_FA
     When User navigate to Clients menu
     And User click on Account List
     And User is on the Account List tab and search for Account Number
@@ -246,8 +246,8 @@ Feature: E2E OAM flow for FA, SAU and OA
     And Verify Notes description
 
 
-  @FNT_regression @Prod_Regression @Silo_Regression @T10_Regression
-  Scenario: OAM_Initiated by FA_Complete and Print
+  @FNT_regression @Prod_Regression @Silo_Regression @T10_Regression @S8
+  Scenario: S8_OAM_Initiated by FA_Complete and Print
     When User navigate to Clients menu
     And User click on Account List
     And User is on the Account List tab and search for Account Number
@@ -273,8 +273,8 @@ Feature: E2E OAM flow for FA, SAU and OA
     And Verify buttons displayed "View"
     And Verify Notes description
 
-  @FNT_regression
-  Scenario: OAM_Initiated by SAU_eSignature_With One Inperson Client Signature_Authorized Signer_NOT required
+  @FNT_regression @S9
+  Scenario: S9_OAM_Initiated by SAU_eSignature_With One Inperson Client Signature_Authorized Signer_NOT required
     When User navigate to Clients menu
     And User click on Account List
     And User is on the Account List tab and search for Account Number
@@ -314,8 +314,8 @@ Feature: E2E OAM flow for FA, SAU and OA
     And Verify Notes description
     And Verify Agent Name
 
-  @FNT_regression
-  Scenario: OAM_Initiated by FA_Online Submit_Finish Later
+  @FNT_regression @S10
+  Scenario: S10_OAM_Initiated by FA_Online Submit_Finish Later
     When User navigate to Clients menu
     And User click on Account List
     And User is on the Account List tab and search for Account Number
@@ -348,8 +348,8 @@ Feature: E2E OAM flow for FA, SAU and OA
     And Verify Notes description
     And Verify Agent Name
 
-  
-  Scenario: PRODENG_33109_OAM_SAU_Online Submit_Authorized Approval_Tracking Center_Blue Banner_Trigger Advisor Mail
+  @S11
+  Scenario: S11_PRODENG_33109_OAM_SAU_Online Submit_Authorized Approval_Tracking Center_Blue Banner_Trigger Advisor Mail
     When User navigate to Clients menu
     And User click on Account List
     And User is on the Account List tab and search for Account Number
@@ -366,3 +366,7 @@ Feature: E2E OAM flow for FA, SAU and OA
     Then Authorized Signer eSign Method section should be displayed
     When User select Signer eSign Method
     Then Verify appropriate fields are displayed based on eSign Method selected
+
+
+
+  
