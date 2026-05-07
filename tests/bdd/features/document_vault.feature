@@ -33,3 +33,25 @@ Feature: Verify Document Vault page functionality client level
     When user clicks Clear All filters
     And verify all filters are cleared
     Then validate View selected and Save selected buttons are enabled or disabled based on filter selection
+
+  @regression @e2e @documentvault
+  Scenario: Validate market Value Reports
+    Given user click on clients tab
+    When navigates to Document vault
+    And click documenttype dropdown and select market value report
+    And validate the Quarter dropdown should be visible for user interaction
+    Then validate find button is enabled for user interaction
+    When user clicks Select All filters
+
+  @regression @e2e @documentvault
+  Scenario: Validate download functionality of QPR
+    Given user click on clients tab
+    When navigates to Document vault
+    And click documenttype dropdown and select QPR document
+    Then validate find button is enabled for user interaction
+    When user clicks Select All filters
+    Then the user clicks Save Selected and verifies a QPR-year-quarter ZIP download
+    And select a single document and click Save selected
+    Then user verifies a QPR-year-quarter PDF download
+
+    

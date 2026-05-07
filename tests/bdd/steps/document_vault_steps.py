@@ -5,6 +5,7 @@ from pages.document_vault_page import DocumentVaultPage
 from utils.allure_logger import get_allure_logger
 
 logger = get_allure_logger(__name__)
+# This import ensures test_context is available in all step functions that need it
 
 
 @when("navigates to Document vault")
@@ -85,7 +86,21 @@ def validate_all_dropdowns_enabled_for_user_interaction(page: Page):
 @when("click documenttype dropdown and select QPR document")
 def click_documenttype_dropdown_and_select_document(page: Page):
     document_vault_page = DocumentVaultPage(page)
-    document_vault_page.select_document_type_quarterly_performance_reports()
+    document_vault_page.select_document_type(option_value="QPR")
+
+
+@when("click documenttype dropdown and select market value report")
+def click_documenttype_dropdown_and_select_market_value_report(page: Page):
+    document_vault_page = DocumentVaultPage(page)
+    document_vault_page.select_document_type(option_label="Market Value Reports")
+
+
+@when("validate the Quarter dropdown should be visible for user interaction")
+def validate_quarter_dropdown_visible_for_user_interaction(page: Page):
+    document_vault_page = DocumentVaultPage(page)
+    assert document_vault_page.validate_quarter_dropdown_visible_for_user_interaction(), (
+        "Quarter dropdown should be visible for user interaction"
+    )
 
 
 @then("validate find button is enabled for user interaction")
@@ -125,3 +140,32 @@ def validate_button_states_based_on_filter_selection(page: Page):
     assert document_vault_page.validate_button_states_based_on_filter_selection(), (
         "View selected and Save selected buttons should match expected state"
     )
+
+
+@then("the user clicks Save Selected and verifies a QPR-year-quarter ZIP download")
+def user_clicks_save_selected_and_verify_qpr_zip(page: Page):
+    document_vault_page = DocumentVaultPage(page)
+    zip_filename = document_vault_page.validate_qpr_zip_download()
+    assert zip_filename, "ZIP download validation failed"
+    logger.info(f"ZIP download validated: {zip_filename}")
+
+
+@when("select a single document and click Save selected")
+@then("select a single document and click Save selected")
+def select_single_document_and_click_save_selected(page: Page, test_context):
+    document_vault_page = DocumentVaultPage(page)
+    document_vault_page.clear_all_and_select_first_checkbox()
+    # Capture PDF download when Save Selected is clicked
+    pdf_download_name = document_vault_page.capture_save_selected_pdf_download()
+    test_context["pdf_download_name"] = pdf_download_name
+    logger.info(f"PDF download captured and stored: {pdf_download_name}")
+
+
+@then("user verifies a QPR-year-quarter PDF download")
+def user_verifies_qpr_pdf_download(page: Page, test_context):
+    document_vault_page = DocumentVaultPage(page)
+    pdf_download_name = test_context.get("pdf_download_name", "")
+    assert pdf_download_name, "No PDF download captured in previous step"
+    is_valid = document_vault_page.validate_qpr_pdf_download(pdf_download_name)
+    assert is_valid, f"PDF validation failed for {pdf_download_name}"
+    logger.info(f"PDF download validated: {pdf_download_name}")

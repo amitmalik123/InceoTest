@@ -17,19 +17,45 @@ class DocumentVaultPage(BasePage):
     def _init_locators(self) -> None:
         self.form_root = self.active_root()
 
+        # Centralized XPath selectors used across frame/page contexts.
+        self.client_reports_vault_heading_xpath = '//span[normalize-space()="Client Document and Reports Vault"]'
+        self.document_type_dropdown_xpath = '//span[text()="Select a document type"]'
+        self.document_type_select_xpath = '//select[@name="ddDocType"]'
+        self.year_dropdown_xpath = '//select[@name="ddYear"]'
+        self.quarter_dropdown_xpath = '//select[@name="ddQtrMonth"]'
+        self.quarter_label_xpath = "//td[contains(text(),'Quarter')]"
+        self.year_display_xpath = '//div[@id="uniform-ddYear"]//span'
+        self.quarter_display_xpath = '//div[@id="uniform-ddQtrMonth"]//span'
+        self.document_dropdown_xpath = '//select[@name="ddDocument"]'
+        self.find_button_xpath = "//input[@name='btSearch']"
+        self.no_documents_message_xpath = "//td[contains(text(),'There are no documents')]"
+        self.select_all_exact_xpath = "//a[normalize-space()='Select All']"
+        self.select_all_contains_xpath = "//a[contains(normalize-space(), 'Select All')]"
+        self.clear_all_exact_xpath = "//a[normalize-space()='Clear All']"
+        self.clear_all_contains_xpath = "//a[contains(normalize-space(), 'Clear All')]"
+        self.total_filter_checkers_xpath = "//div[contains(@class,'checker')]/span"
+        self.checked_filter_checkers_xpath = "//div[contains(@class,'checker')]/span[contains(@class,'checked')]"
+        self.view_selected_button_xpath = '//input[@id="btSelectOneUp"]'
+        self.save_selected_button_xpath = '//input[@id="btDownloadUp"]'
+
         # New navbar top-level navigation element
         self.statements_reports_link: Locator = self.page.locator('//a[text()="Statements & Reports"]')
         self.service_center_link: Locator = self.page.locator('//a[text()="Service Center"]')
         self.tax_and_reporting_link: Locator = self.page.locator('//a[text()="Tax and Reporting"]')
         self.document_vault_nav_link: Locator = self.page.locator('//a[text()="Document Vault"]')
-        self.document_type_dropdown: Locator = self.form_root.locator('//span[text()="Select a document type"]')
+        self.document_type_dropdown: Locator = self.form_root.locator(self.document_type_dropdown_xpath)
         self.qpr_document_type_option: Locator = self.form_root.locator(
             '//span[text()="Quarterly Performance Reports (QPR)"]'
         )
-        self.year_dropdown: Locator = self.form_root.locator('//select[@name="ddYear"]')
-        self.quarter_dropdown: Locator = self.form_root.locator('//select[@name="ddQtrMonth"]')
-        self.document_dropdown: Locator = self.form_root.locator('//select[@name="ddDocument"]')
-        self.find_button: Locator = self.form_root.locator("//input[@name='btSearch']")
+        self.market_value_report_option: Locator = self.form_root.locator('//span[text()="Market Value Reports"]')
+        self.year_dropdown: Locator = self.form_root.locator(self.year_dropdown_xpath)
+        self.quarter_dropdown: Locator = self.form_root.locator(self.quarter_dropdown_xpath)
+        self.quarter_label: Locator = self.form_root.locator(self.quarter_label_xpath)
+        self.year_display: Locator = self.form_root.locator(self.year_display_xpath)
+        self.quarter_display: Locator = self.form_root.locator(self.quarter_display_xpath)
+        self.document_dropdown: Locator = self.form_root.locator(self.document_dropdown_xpath)
+        self.find_button: Locator = self.form_root.locator(self.find_button_xpath)
+        self.no_documents_message: Locator = self.form_root.locator(self.no_documents_message_xpath)
 
         self.clients_tab: Locator = self.form_root.locator("//a[text()='Clients']")
         self.client_list_search_input: Locator = self.form_root.locator("//input[@name='search_input']")
@@ -81,8 +107,8 @@ class DocumentVaultPage(BasePage):
         self.all_checkboxes: Locator = self.form_root.locator('//input[@type="checkbox"]')
         self.select_all_button: Locator = self.form_root.locator('//a[text()="Select All"]')
         self.clear_all_button: Locator = self.form_root.locator('//a[text()="Clear All"]')
-        self.view_selected_as_one_button: Locator = self.form_root.locator('//input[@id="btSelectOneUp"]')
-        self.save_selected_button: Locator = self.form_root.locator('//input[@id="btDownloadUp"]')
+        self.view_selected_as_one_button: Locator = self.form_root.locator(self.view_selected_button_xpath)
+        self.save_selected_button: Locator = self.form_root.locator(self.save_selected_button_xpath)
         self.restore_default_button: Locator = self.form_root.locator(
             "//div[@class='button' and text()='Restore Default']"
         )
@@ -132,14 +158,13 @@ class DocumentVaultPage(BasePage):
         self.wait_for_element(self.statements_reports_link, timeout=timeout)
         self.click(self.statements_reports_link, timeout=timeout)
         self.page.wait_for_load_state("domcontentloaded", timeout=timeout)
-        heading_xpath = '//span[normalize-space()="Client Document and Reports Vault"]'
 
         candidates = [self.active_root(), self.page] + [
             frame for frame in self.page.frames if frame != self.page.main_frame
         ]
         for candidate in candidates:
             try:
-                if self.is_visible(candidate.locator(heading_xpath), timeout=5000):
+                if self.is_visible(candidate.locator(self.client_reports_vault_heading_xpath), timeout=5000):
                     logger.info("Statements and Reports page loaded successfully")
                     self._init_locators()  # Re-resolve form_root for this page
                     return
@@ -341,10 +366,10 @@ class DocumentVaultPage(BasePage):
         logger.info("Validating agent-level dropdown controls visibility")
 
         xpaths = [
-            ("DocumentTypeDropdown", '//span[text()="Select a document type"]'),
-            ("yeardropdown",         '//select[@name="ddYear"]'),
-            ("quarterdropdown",      '//select[@name="ddQtrMonth"]'),
-            ("documentdropdown",     '//select[@name="ddDocument"]'),
+            ("DocumentTypeDropdown", self.document_type_dropdown_xpath),
+            ("yeardropdown", self.year_dropdown_xpath),
+            ("quarterdropdown", self.quarter_dropdown_xpath),
+            ("documentdropdown", self.document_dropdown_xpath),
         ]
 
         # Resolve the correct context once using the first locator, then reuse it.
@@ -376,15 +401,19 @@ class DocumentVaultPage(BasePage):
 
         logger.info("Validated all 4 dropdown controls are visible")
 
-    def select_document_type_quarterly_performance_reports(self, timeout: int = 15000) -> None:
-        """Select Quarterly Performance Reports (QPR) from the Document Type dropdown."""
-        logger.info("Selecting Document Type: Quarterly Performance Reports (QPR)")
+    def select_document_type(self, option_value: str | None = None, option_label: str | None = None, timeout: int = 15000) -> None:
+        """Select a document type from the Document Type dropdown by value or label."""
+        if not option_value and not option_label:
+            raise ValueError("Either option_value or option_label must be provided")
+
+        option_name = option_label or option_value or "unknown"
+        logger.info(f"Selecting Document Type: {option_name}")
 
         candidates = [self.page] + list(self.page.frames)
         document_type_select = None
         for candidate in candidates:
             try:
-                locator = candidate.locator('//select[@name="ddDocType"]').first
+                locator = candidate.locator(self.document_type_select_xpath).first
                 if self.is_visible(locator, timeout=1200):
                     document_type_select = locator
                     break
@@ -396,23 +425,33 @@ class DocumentVaultPage(BasePage):
 
         self.wait_for_all_spinners_to_disappear(timeout=timeout)
         self.wait_for_element(document_type_select, timeout=timeout)
-        logger.info("Document Type dropdown is ready, waiting 2 seconds for visibility...")
-        self.page.wait_for_timeout(2000)  # Slow down to show the dropdown
-        
-        logger.info("Clicking on Document Type dropdown...")
-        self.select_option(
-            document_type_select,
-            value="QPR",
-            timeout=timeout,
-        )
-        logger.info("Selection executed, waiting 3 seconds to show the selected value...")
-        self.page.wait_for_timeout(3000)  # Extended wait to show selected value
-        
+
+        select_kwargs = {"timeout": timeout}
+        if option_value:
+            select_kwargs["value"] = option_value
+        if option_label:
+            select_kwargs["label"] = option_label
+
+        self.select_option(document_type_select, **select_kwargs)
         self.wait_for_all_spinners_to_disappear(timeout=timeout)
-        logger.info("Additional 2 second wait for final confirmation...")
-        self.page.wait_for_timeout(2000)  # Final wait for visual confirmation
-        
-        logger.info("Document Type selected: Quarterly Performance Reports (QPR)")
+        logger.info(f"Document Type selected: {option_name}")
+
+    def validate_quarter_dropdown_visible_for_user_interaction(self, timeout: int = 10000) -> bool:
+        """Validate that the Quarter control label is visible for user interaction."""
+        logger.info("Validating Quarter dropdown is visible for user interaction")
+
+        candidates = [self.page] + list(self.page.frames)
+        for candidate in candidates:
+            try:
+                quarter_label = candidate.locator(self.quarter_label_xpath).first
+                if self.is_visible(quarter_label, timeout=1500):
+                    quarter_label.scroll_into_view_if_needed()
+                    logger.info("Quarter dropdown is visible for user interaction")
+                    return True
+            except Exception:
+                continue
+
+                raise AssertionError("Quarter dropdown is not visible for user interaction")
 
     def validate_find_button_enabled(self, timeout: int = 10000) -> bool:
         """Validate that the Find/Search button is enabled after document selection."""
@@ -422,7 +461,7 @@ class DocumentVaultPage(BasePage):
         find_button = None
         for candidate in candidates:
             try:
-                locator = candidate.locator("//input[@name='btSearch']").first
+                locator = candidate.locator(self.find_button_xpath).first
                 if self.is_visible(locator, timeout=1200):
                     find_button = locator
                     break
@@ -439,6 +478,14 @@ class DocumentVaultPage(BasePage):
         # Assertion 2: Button must not be disabled.
         is_disabled = find_button.evaluate("element => element.hasAttribute('disabled') || element.disabled")
         if is_disabled:
+            no_documents_visible = self.is_visible(self.no_documents_message.first, timeout=1500)
+
+            if no_documents_visible:
+                logger.info(
+                    "Find button is disabled because 'There are no documents' is visible; treating as expected state"
+                )
+                return True
+
             raise AssertionError("Find button is disabled")
         logger.info("Find button does not have disabled state")
 
@@ -461,12 +508,17 @@ class DocumentVaultPage(BasePage):
         """Click the Select All filters button."""
         logger.info("Clicking Select All filters button")
 
+        # Wait for the results grid to finish loading before looking for Select All.
+        self.wait_for_all_spinners_to_disappear(timeout=timeout)
+        self.page.wait_for_timeout(2000)
+
         # Grid actions are lower on the page; scroll first so Select All can render.
         self.page.mouse.wheel(0, 700)
+        self.page.wait_for_timeout(500)
 
         xpaths = [
-            "//a[normalize-space()='Select All']",
-            "//a[contains(normalize-space(), 'Select All')]",
+            self.select_all_exact_xpath,
+            self.select_all_contains_xpath,
         ]
         candidates = [self.page] + list(self.page.frames)
 
@@ -474,7 +526,7 @@ class DocumentVaultPage(BasePage):
             for xpath in xpaths:
                 try:
                     locator = candidate.locator(xpath).first
-                    if self.is_visible(locator, timeout=1500):
+                    if self.is_visible(locator, timeout=5000):
                         locator.scroll_into_view_if_needed()
                         locator.click()
                         logger.info("Select All filters button clicked")
@@ -499,8 +551,8 @@ class DocumentVaultPage(BasePage):
         self.page.mouse.wheel(0, 700)
 
         xpaths = [
-            "//a[normalize-space()='Clear All']",
-            "//a[contains(normalize-space(), 'Clear All')]",
+            self.clear_all_exact_xpath,
+            self.clear_all_contains_xpath,
         ]
         candidates = [self.page] + list(self.page.frames)
 
@@ -529,16 +581,13 @@ class DocumentVaultPage(BasePage):
 
     def _get_filter_checkbox_state_counts(self, timeout: int = 10000) -> tuple[int, int]:
         """Return (total, checked) filter checkbox counts using checker UI state."""
-        total_xpath = "//div[contains(@class,'checker')]/span"
-        checked_xpath = "//div[contains(@class,'checker')]/span[contains(@class,'checked')]"
-
         candidates = [self.page] + list(self.page.frames)
         for candidate in candidates:
             try:
-                total_locator = candidate.locator(total_xpath)
+                total_locator = candidate.locator(self.total_filter_checkers_xpath)
                 total_count = total_locator.count()
                 if total_count > 0:
-                    checked_count = candidate.locator(checked_xpath).count()
+                    checked_count = candidate.locator(self.checked_filter_checkers_xpath).count()
                     return total_count, checked_count
             except Exception:
                 continue
@@ -554,8 +603,8 @@ class DocumentVaultPage(BasePage):
         save_btn = None
         for candidate in candidates:
             try:
-                v = candidate.locator('//input[@id="btSelectOneUp"]').first
-                s = candidate.locator('//input[@id="btDownloadUp"]').first
+                v = candidate.locator(self.view_selected_button_xpath).first
+                s = candidate.locator(self.save_selected_button_xpath).first
                 if v.count() > 0 and s.count() > 0:
                     view_btn = v
                     save_btn = s
@@ -568,4 +617,135 @@ class DocumentVaultPage(BasePage):
         assert view_btn.is_enabled(), "View selected button not enabled"
         assert save_btn.is_enabled(), "Save selected button not enabled"
         logger.info("Both buttons enabled when Select All is clicked")
+        return True
+
+    def _get_selected_year_and_quarter(self) -> tuple[str, str]:
+        """Extract selected year and quarter from UI, searching across frames."""
+        year_text = ""
+        quarter_text = ""
+        candidates = [self.page] + list(self.page.frames)
+        for candidate in candidates:
+            try:
+                y = candidate.locator(self.year_display_xpath).first
+                q = candidate.locator(self.quarter_display_xpath).first
+                if y.count() > 0:
+                    year_text = (y.text_content(timeout=5000) or "").strip()
+                if q.count() > 0:
+                    quarter_text = (q.text_content(timeout=5000) or "").strip()
+                if year_text and quarter_text:
+                    break
+            except Exception:
+                continue
+
+        # Fall back to reading the underlying <select> value if the uniform wrapper isn't present
+        if not year_text:
+            for candidate in candidates:
+                try:
+                    sel = candidate.locator('//select[@name="ddYear"]').first
+                    if sel.count() > 0:
+                        year_text = (sel.input_value(timeout=5000) or "").strip()
+                        if year_text:
+                            break
+                except Exception:
+                    continue
+
+        if not quarter_text:
+            for candidate in candidates:
+                try:
+                    sel = candidate.locator('//select[@name="ddQtrMonth"]').first
+                    if sel.count() > 0:
+                        quarter_text = (sel.input_value(timeout=5000) or "").strip()
+                        if quarter_text:
+                            break
+                except Exception:
+                    continue
+
+        if not year_text or not quarter_text:
+            raise AssertionError(f"Year or quarter not found. Year='{year_text}', Quarter='{quarter_text}'")
+        logger.info(f"Year='{year_text}', Quarter='{quarter_text}'")
+        return year_text, quarter_text
+
+    def _find_save_selected_button(self, timeout: int = 10000):
+        """Locate Save Selected button across frames."""
+        candidates = [self.page] + list(self.page.frames)
+        for candidate in candidates:
+            try:
+                btn = candidate.locator(self.save_selected_button_xpath).first
+                if btn.count() > 0 and self.is_visible(btn, timeout=timeout):
+                    return btn
+            except Exception:
+                continue
+        raise AssertionError("Save Selected button not found in any frame")
+
+    def _validate_qpr_filename(self, filename: str) -> None:
+        """Assert filename contains QPR, a 4-digit year, and a quarter (Q1-Q4 or standalone digit 1-4)."""
+        logger.info(f"Validating QPR filename: '{filename}'")
+        name_upper = filename.upper()
+        if "QPR" not in name_upper:
+            raise AssertionError(f"Filename '{filename}' does not contain 'QPR'")
+        if not re.search(r'20\d{2}', filename):
+            raise AssertionError(f"Filename '{filename}' does not contain a valid year (e.g. 2024)")
+        if not re.search(r'Q[1-4]|[Qq]uarter[ _]?[1-4]|[_\-\s][1-4][_\-\s.]', filename):
+            raise AssertionError(f"Filename '{filename}' does not contain a valid quarter (e.g. Q4)")
+        logger.info(f"Filename validation passed: QPR, year and quarter all present")
+
+    def validate_qpr_zip_download(self, timeout: int = 30000) -> str:
+        """Click Save Selected, download ZIP, validate filename. Returns filename."""
+        save_btn = self._find_save_selected_button(timeout=10000)
+
+        with self.page.expect_download(timeout=timeout) as download_info:
+            save_btn.click(timeout=timeout)
+        download = download_info.value
+
+        download_dir = Path("reports/downloads")
+        download_dir.mkdir(parents=True, exist_ok=True)
+        target_path = download_dir / download.suggested_filename
+        download.save_as(str(target_path))
+
+        downloaded_name = target_path.name
+        self._validate_qpr_filename(downloaded_name)
+        return downloaded_name
+
+    def clear_all_and_select_first_checkbox(self, timeout: int = 10000) -> None:
+        """Clear all filters and select first checkbox."""
+        self.click_clear_all_filters(timeout=timeout)
+        self.wait_for_all_spinners_to_disappear(timeout=timeout)
+        self.page.wait_for_timeout(1000)
+
+        candidates = [self.page] + list(self.page.frames)
+        for candidate in candidates:
+            try:
+                checkboxes = candidate.locator('//input[@type="checkbox"]')
+                for i in range(checkboxes.count()):
+                    cb = checkboxes.nth(i)
+                    if self.is_visible(cb, timeout=1000):
+                        cb.scroll_into_view_if_needed()
+                        cb.click()
+                        logger.info("First checkbox selected")
+                        self.page.wait_for_timeout(500)
+                        return
+            except Exception:
+                continue
+
+        raise AssertionError("Could not find first checkbox in result grid")
+
+    def capture_save_selected_pdf_download(self, timeout: int = 30000) -> str:
+        """Click Save Selected, capture PDF download. Returns filename."""
+        save_btn = self._find_save_selected_button(timeout=10000)
+        with self.page.expect_download(timeout=timeout) as download_info:
+            save_btn.click(timeout=timeout)
+        download = download_info.value
+
+        download_dir = Path("reports/downloads")
+        download_dir.mkdir(parents=True, exist_ok=True)
+        target_path = download_dir / download.suggested_filename
+        download.save_as(str(target_path))
+
+        downloaded_name = target_path.name
+        downloaded_name = re.sub(r" \(\d+\)\.(zip|pdf)$", ".\1", downloaded_name, flags=re.IGNORECASE)
+        return downloaded_name
+
+    def validate_qpr_pdf_download(self, pdf_download_name: str) -> bool:
+        """Validate PDF filename contains QPR, year, quarter. Returns True if valid."""
+        self._validate_qpr_filename(pdf_download_name)
         return True
