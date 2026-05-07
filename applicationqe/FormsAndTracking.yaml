@@ -197,7 +197,8 @@ jobs:
       pip --version
       echo "Installing Python dependencies..."
       python -m pip install --upgrade pip setuptools wheel
-      pip install -e .
+      echo "Installing project in editable mode..."
+      cd applicationqe && pip install -e .
     displayName: "Install Python Dependencies"
 
   - script: |
@@ -262,6 +263,10 @@ jobs:
       echo "Allure Results Dir: $(allureResultsDir)"
       echo "========================================"
       echo ""
+      echo "Changing to applicationqe directory..."
+      cd applicationqe
+      echo "Current working directory: $(pwd)"
+      echo ""
       echo "Setting up environment variables..."
       export TEST_ENV="$(environment)"
       export CI=true
@@ -270,14 +275,13 @@ jobs:
       echo "✓ TEST_ENV=$TEST_ENV"
       echo "✓ CI=$CI"
       echo ""
-      echo "Current working directory: $(pwd)"
       echo "Python version: $(python --version)"
       echo ""
       # Build pytest command with parallel workers support
       # Determine test target based on marker
       if [ "$(marker)" = "all_tests" ]; then
-        TEST_TARGET="tests/ui/"
-        echo "Running ALL test files from tests/ui/"
+        TEST_TARGET="tests/"
+        echo "Running ALL test files from tests/"
       else
         TEST_TARGET="-m \"$(marker)\""
         echo "Running tests with marker: $(marker)"
@@ -298,13 +302,13 @@ jobs:
 
       PYTEST_CMD="pytest $TEST_TARGET \
         $BROWSER_PARAM \
-        --junitxml=\"$(testResultsDir)/junit/junit-report.xml\" \
+        --junitxml=\"../$(testResultsDir)/junit/junit-report.xml\" \
         -v \
         --video=retain-on-failure \
         --tracing=retain-on-failure \
         --screenshot=only-on-failure \
-        --alluredir=\"$(allureResultsDir)\" \
-        --html=\"$(testResultsDir)/pytest-report.html\" \
+        --alluredir=\"../$(allureResultsDir)\" \
+        --html=\"../$(testResultsDir)/pytest-report.html\" \
         --self-contained-html"
 
       # Add parallel execution if workers > 1
