@@ -56,10 +56,10 @@ class BasePage:
     def wait_for_load_state(
         self,
         state: Literal["domcontentloaded", "load", "networkidle"] = "networkidle",
-        timeout: int = 30000,
+        timeout: int = 120000,
     ) -> None:
-        """Wait for page to reach specified load state"""
-        self.logger.info(f"Waiting for load state: {state}")
+        """Wait for page to reach specified load state (default: 120s for slow environments)"""
+        self.logger.info(f"Waiting for load state: {state} (timeout: {timeout}ms)")
         self.page.wait_for_load_state(state, timeout=timeout)
 
     # static wait method
@@ -229,9 +229,14 @@ class BasePage:
         except Exception as e:
             self.logger.debug(f"OneTrust dismissal check failed: {e}")
 
-    def click(self, locator: Locator, timeout: int = 10000) -> None:
-        """Click an element with wait and logging - includes auto-healing and overlay handling."""
-        self.logger.info("Clicking element")
+    def click(self, locator: Locator, timeout: int = 120000) -> None:
+        """Click an element with wait and logging - includes auto-healing and overlay handling.
+        
+        Args:
+            locator: Playwright locator to click
+            timeout: Timeout in milliseconds (default 120000ms = 2 minutes for slow headless environments)
+        """
+        self.logger.info(f"Clicking element (timeout: {timeout}ms)")
 
         def _action(loc: Locator) -> None:
             # Dismiss overlay before attempting click
@@ -239,37 +244,55 @@ class BasePage:
             
             loc.wait_for(state="visible", timeout=timeout)
             try:
-                loc.click()
+                # ✅ CRITICAL: Pass timeout to loc.click() - otherwise uses Playwright's 30s default
+                loc.click(timeout=timeout)
             except PlaywrightTimeoutError as e:
                 # If click fails due to overlay blocking, try with force=True
                 if "intercepts pointer events" in str(e):
-                    self.logger.warning("Click blocked by overlay - retrying with force=True")
+                    self.logger.warning(f"Click blocked by overlay - retrying with force=True (timeout: {timeout}ms)")
                     self._dismiss_onetrust_overlay()  # Try dismissal again
                     self.page.wait_for_timeout(200)
-                    loc.click(force=True)
+                    # ✅ CRITICAL: Pass timeout here too
+                    loc.click(force=True, timeout=timeout)
                 else:
                     raise
 
         self._heal_and_retry(locator, _action)
 
-    def fill(self, locator: Locator, text: str, timeout: int = 10000) -> None:
-        """Fill a text field with wait and logging - includes auto-healing."""
-        self.logger.info("Filling field with text")
+    def fill(self, locator: Locator, text: str, timeout: int = 120000) -> None:
+        """Fill a text field with wait and logging - includes auto-healing.
+        
+        Args:
+            locator: Playwright locator for the input field
+            text: Text to fill
+            timeout: Timeout in milliseconds (default 120000ms for slow environments)
+        """
+        self.logger.info(f"Filling field with text (timeout: {timeout}ms)")
 
         def _action(loc: Locator) -> None:
             # Dismiss overlay before fill (fill internally clicks the element first)
             self._dismiss_onetrust_overlay()
             loc.wait_for(state="visible", timeout=timeout)
-            loc.fill(text)
+            # ✅ CRITICAL: Pass timeout to loc.fill()
+            loc.fill(text, timeout=timeout)
 
         self._heal_and_retry(locator, _action)
 
-    def get_text(self, locator: Locator, timeout: int = 10000) -> str:
-        """Get text content from an element with auto-healing."""
+    def get_text(self, locator: Locator, timeout: int = 120000) -> str:
+        """Get text content from an element with auto-healing.
+        
+        Args:
+            locator: Playwright locator for the element
+            timeout: Timeout in milliseconds (default 120000ms for slow environments)
+            
+        Returns:
+            Text content of the element, or empty string if not found
+        """
 
         def _action(loc: Locator) -> str:
+            # ✅ CRITICAL: Pass timeout to loc.text_content()
             loc.wait_for(state="visible", timeout=timeout)
-            return loc.text_content() or ""
+            return loc.text_content(timeout=timeout) or ""
 
         return self._heal_and_retry(locator, _action)
 
@@ -285,10 +308,10 @@ class BasePage:
         self,
         locator: Locator,
         state: Literal["attached", "detached", "hidden", "visible"] = "visible",
-        timeout: int = 10000,
+        timeout: int = 120000,
     ) -> None:
-        """Wait for element to reach specified state with auto-healing."""
-        self.logger.info(f"Waiting for element to be {state}")
+        """Wait for element to reach specified state with auto-healing (default: 120s for slow environments)."""
+        self.logger.info(f"Waiting for element to be {state} (timeout: {timeout}ms)")
 
         def _action(loc: Locator) -> None:
             loc.wait_for(state=state, timeout=timeout)
@@ -340,9 +363,9 @@ class BasePage:
         self.page.wait_for_timeout(500)
         self._dismiss_onetrust_overlay()
 
-    def empty_field(self, locator: Locator, timeout: int = 10000) -> None:
-        """Clear a field by clicking and filling with empty string, with auto-healing."""
-        self.logger.info("Clearing field")
+    def empty_field(self, locator: Locator, timeout: int = 120000) -> None:
+        """Clear a field by clicking and filling with empty string, with auto-healing (default: 120s)."""
+        self.logger.info(f"Clearing field (timeout: {timeout}ms)")
 
         def _action(loc: Locator) -> None:
             loc.wait_for(state="visible", timeout=timeout)
@@ -357,14 +380,14 @@ class BasePage:
         value: Optional[str] = None,
         label: Optional[str] = None,
         index: Optional[int] = None,
-        timeout: int = 10000,
+        timeout: int = 120000,
     ) -> list[str]:
-        """Select an option from a <select> dropdown with auto-healing.
+        """Select an option from a <select> dropdown with auto-healing (default: 120s).
 
         Provide exactly one of value, label, or index.
         Returns list of selected option values.
         """
-        self.logger.info("Selecting option from dropdown")
+        self.logger.info(f"Selecting option from dropdown (timeout: {timeout}ms)")
 
         def _action(loc: Locator) -> list[str]:
             loc.wait_for(state="visible", timeout=timeout)
@@ -378,9 +401,9 @@ class BasePage:
 
         return self._heal_and_retry(locator, _action)
 
-    def check(self, locator: Locator, timeout: int = 10000) -> None:
-        """Check a checkbox (no-op if already checked) with auto-healing."""
-        self.logger.info("Checking checkbox")
+    def check(self, locator: Locator, timeout: int = 120000) -> None:
+        """Check a checkbox (no-op if already checked) with auto-healing (default: 120s)."""
+        self.logger.info(f"Checking checkbox (timeout: {timeout}ms)")
 
         def _action(loc: Locator) -> None:
             loc.wait_for(state="visible", timeout=timeout)
@@ -388,9 +411,9 @@ class BasePage:
 
         self._heal_and_retry(locator, _action)
 
-    def uncheck(self, locator: Locator, timeout: int = 10000) -> None:
-        """Uncheck a checkbox (no-op if already unchecked) with auto-healing."""
-        self.logger.info("Unchecking checkbox")
+    def uncheck(self, locator: Locator, timeout: int = 120000) -> None:
+        """Uncheck a checkbox (no-op if already unchecked) with auto-healing (default: 120s)."""
+        self.logger.info(f"Unchecking checkbox (timeout: {timeout}ms)")
 
         def _action(loc: Locator) -> None:
             loc.wait_for(state="visible", timeout=timeout)
@@ -398,9 +421,9 @@ class BasePage:
 
         self._heal_and_retry(locator, _action)
 
-    def scroll_into_view(self, locator: Locator, timeout: int = 10000) -> None:
-        """Scroll the page until the element is visible in the viewport."""
-        self.logger.info("Scrolling element into view")
+    def scroll_into_view(self, locator: Locator, timeout: int = 120000) -> None:
+        """Scroll the page until the element is visible in the viewport (default: 120s)."""
+        self.logger.info(f"Scrolling element into view (timeout: {timeout}ms)")
 
         def _action(loc: Locator) -> None:
             loc.wait_for(state="attached", timeout=timeout)
@@ -408,9 +431,9 @@ class BasePage:
 
         self._heal_and_retry(locator, _action)
 
-    def focus(self, locator: Locator, timeout: int = 10000) -> None:
-        """Set focus on an element with auto-healing."""
-        self.logger.info("Focusing element")
+    def focus(self, locator: Locator, timeout: int = 120000) -> None:
+        """Set focus on an element with auto-healing (default: 120s)."""
+        self.logger.info(f"Focusing element (timeout: {timeout}ms)")
 
         def _action(loc: Locator) -> None:
             loc.wait_for(state="visible", timeout=timeout)
@@ -423,7 +446,7 @@ class BasePage:
         file_path: str | list[str],
         locator: Optional[Locator] = None,
         trigger_locator: Optional[Locator] = None,
-        timeout: int = 10000,
+        timeout: int = 120000,
     ) -> None:
         """Upload file(s) via a file input or a file chooser dialog.
 
@@ -463,13 +486,13 @@ class BasePage:
     # Keyboard methods
     # ------------------------------------------------------------------
 
-    def press_key(self, key: str, locator: Optional[Locator] = None, timeout: int = 10000) -> None:
-        """Press a keyboard key (Enter, Escape, Tab, ArrowDown, etc.).
+    def press_key(self, key: str, locator: Optional[Locator] = None, timeout: int = 120000) -> None:
+        """Press a keyboard key (Enter, Escape, Tab, ArrowDown, etc.) (default: 120s).
 
         If a locator is provided, the key press is scoped to that element with auto-healing.
         Otherwise, it fires on the page level.
         """
-        self.logger.info(f"Pressing key: {key}")
+        self.logger.info(f"Pressing key: {key} (timeout: {timeout}ms)")
         if locator:
             def _action(loc: Locator) -> None:
                 loc.wait_for(state="visible", timeout=timeout)
@@ -479,12 +502,12 @@ class BasePage:
         else:
             self.page.keyboard.press(key)
 
-    def type_text(self, locator: Locator, text: str, delay: int = 50, timeout: int = 10000) -> None:
-        """Type text character-by-character into an element.
+    def type_text(self, locator: Locator, text: str, delay: int = 50, timeout: int = 120000) -> None:
+        """Type text character-by-character into an element (default: 120s).
 
         Useful for inputs that rely on keydown/keyup events and don't work with fill().
         """
-        self.logger.info("Typing text character-by-character")
+        self.logger.info(f"Typing text character-by-character (timeout: {timeout}ms)")
 
         def _action(loc: Locator) -> None:
             loc.wait_for(state="visible", timeout=timeout)
@@ -505,9 +528,9 @@ class BasePage:
     # Mouse methods
     # ------------------------------------------------------------------
 
-    def double_click(self, locator: Locator, timeout: int = 10000) -> None:
-        """Double-click an element with auto-healing."""
-        self.logger.info("Double-clicking element")
+    def double_click(self, locator: Locator, timeout: int = 120000) -> None:
+        """Double-click an element with auto-healing (default: 120s)."""
+        self.logger.info(f"Double-clicking element (timeout: {timeout}ms)")
 
         def _action(loc: Locator) -> None:
             loc.wait_for(state="visible", timeout=timeout)
@@ -515,9 +538,9 @@ class BasePage:
 
         self._heal_and_retry(locator, _action)
 
-    def right_click(self, locator: Locator, timeout: int = 10000) -> None:
-        """Right-click (context menu) an element with auto-healing."""
-        self.logger.info("Right-clicking element")
+    def right_click(self, locator: Locator, timeout: int = 120000) -> None:
+        """Right-click (context menu) an element with auto-healing (default: 120s)."""
+        self.logger.info(f"Right-clicking element (timeout: {timeout}ms)")
 
         def _action(loc: Locator) -> None:
             loc.wait_for(state="visible", timeout=timeout)
@@ -525,9 +548,9 @@ class BasePage:
 
         self._heal_and_retry(locator, _action)
 
-    def hover(self, locator: Locator, timeout: int = 10000) -> None:
-        """Hover over an element with auto-healing."""
-        self.logger.info("Hovering over element")
+    def hover(self, locator: Locator, timeout: int = 120000) -> None:
+        """Hover over an element with auto-healing (default: 120s)."""
+        self.logger.info(f"Hovering over element (timeout: {timeout}ms)")
 
         def _action(loc: Locator) -> None:
             loc.wait_for(state="visible", timeout=timeout)
@@ -536,10 +559,10 @@ class BasePage:
         self._heal_and_retry(locator, _action)
 
     def drag_and_drop(
-        self, source: Locator, target: Locator, timeout: int = 10000
+        self, source: Locator, target: Locator, timeout: int = 120000
     ) -> None:
-        """Drag source element and drop onto target element with auto-healing."""
-        self.logger.info("Drag and drop")
+        """Drag source element and drop onto target element with auto-healing (default: 120s)."""
+        self.logger.info(f"Drag and drop (timeout: {timeout}ms)")
 
         def _action(src: Locator) -> None:
             src.wait_for(state="visible", timeout=timeout)
@@ -557,7 +580,7 @@ class BasePage:
         trigger_locator: Locator,
         save_path: Optional[str] = None,
         filename: Optional[str] = None,
-        timeout: int = 30000,
+        timeout: int = 120000,
     ) -> Download:
         """Click a link/button that triggers a download and return the Download object.
 

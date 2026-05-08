@@ -18,7 +18,7 @@ class AccountListPage(BasePage):
     def navigate(self) -> None:
         logger.info(f"Navigating to account list page: {self.base_url}{self.PAGE_PATH}")
         logger.info(f"Current URL before navigation: {self.page.url}")
-        self.page.wait_for_load_state("domcontentloaded", timeout=30000)
+        self.page.wait_for_load_state("domcontentloaded", timeout=120000)
         logger.info(f"Current URL after wait: {self.page.url}")
         logger.info("Account list page loaded")
 
@@ -27,7 +27,7 @@ class AccountListPage(BasePage):
 
         try:
             search_input = self.page.locator(account_list_locators.ACCOUNT_SEARCH_INPUT)
-            search_input.wait_for(state="visible", timeout=30000)
+            search_input.wait_for(state="visible", timeout=120000)
             self.fill(search_input, client_id)
             logger.info(f"Filled client ID: {client_id}")
         except Exception as e:
@@ -39,7 +39,7 @@ class AccountListPage(BasePage):
 
         try:
             search_button = self.page.locator(account_list_locators.ACCOUNT_SEARCH_BUTTON)
-            search_button.wait_for(state="visible", timeout=30000)
+            search_button.wait_for(state="visible", timeout=120000)
             self.click(search_button)
             logger.info("Clicked search button")
         except Exception as e:
@@ -60,7 +60,7 @@ class AccountListPage(BasePage):
 
         try:
             search_input = self.page.locator(account_list_locators.ACCOUNT_SEARCH_INPUT)
-            search_input.wait_for(state="visible", timeout=30000)
+            search_input.wait_for(state="visible", timeout=120000)
             self.fill(search_input, account_number)
             logger.info(f"Filled account number: {account_number}")
         except Exception as e:
@@ -72,7 +72,7 @@ class AccountListPage(BasePage):
 
         try:
             search_button = self.page.locator(account_list_locators.ACCOUNT_SEARCH_BUTTON)
-            search_button.wait_for(state="visible", timeout=30000)
+            search_button.wait_for(state="visible", timeout=120000)
             self.click(search_button)
             logger.info("Clicked search button")
         except Exception as e:

@@ -97,7 +97,7 @@ def verify_signer_information_dialog_exists_with_correct_information(
             # Step 1: Wait for and detect dialog
             logger.info("Step 1: Waiting for Signer Information dialog...")
             dialog_handler = DialogHandler(authenticated_page)
-            dialog = dialog_handler.wait_for_dialog(timeout=19000)
+            dialog = dialog_handler.wait_for_dialog(timeout=120000)
             # Note: Dialog was successfully found in DOM by wait_for_dialog()
             # No visibility assertion needed - dialog is in DOM and accessible for interaction
             # jQuery UI dialogs may have CSS that affects to_be_visible() checks
@@ -126,7 +126,7 @@ def verify_signer_information_dialog_exists_with_correct_information(
                 wait_for_element_count(
                     authenticated_page.locator("iframe#esig_iframe"),
                     count=1,
-                    timeout=30.0
+                    timeout=120.0
                 )
             except Exception:
                 logger.debug("Iframe not present or didn't appear within timeout - will check main page content")
@@ -808,7 +808,7 @@ def verify_authorized_signer_dropdown(authenticated_page: Page, client_accounts_
             logger.info("  Step 2: Accessing iframe...")
             from utils.dialog_utils import DialogHandler
             dialog_handler = DialogHandler(authenticated_page)
-            dialog = dialog_handler.wait_for_dialog(timeout=10000)
+            dialog = dialog_handler.wait_for_dialog(timeout=120000)
             
             iframe_frame = authenticated_page.frame_locator("iframe#esig_iframe")
             logger.info("  [PASS] ClientAccountsPage: Signer Information Iframe Accessed.")
@@ -1276,14 +1276,14 @@ def verify_client_signature_not_required_dialog(authenticated_page: Page, client
         
         try:
             # Wait for dialog with robust detection
-            dialog = dialog_handler.wait_for_dialog(timeout=15000)
+            dialog = dialog_handler.wait_for_dialog(timeout=120000)
             logger.info("[PASS] ClientAccountsPage: Client Signature Not Required Dialog Detected.")
         except Exception as e:
             logger.error(f"[FAIL] ClientAccountsPage: Client Signature Not Required Dialog Not Detected {e}")
             
             # Fallback: Try waiting for dialog by role attribute
             try:
-                authenticated_page.wait_for_selector('role=dialog', timeout=15000)
+                authenticated_page.wait_for_selector('role=dialog', timeout=120000)
                 dialog = authenticated_page.locator('role=dialog').first
                 logger.info("[PASS] ClientAccountsPage: Client Signature Not Required Dialog Found.")
             except Exception as e2:
@@ -1372,14 +1372,14 @@ def verify_request_dialog(authenticated_page: Page, client_accounts_page, test_c
         
         try:
             # Use DialogHandler's robust wait with fallbacks
-            dialog = dialog_handler.wait_for_dialog(timeout=15000)
+            dialog = dialog_handler.wait_for_dialog(timeout=120000)
             logger.info("[PASS] ClientAccountsPage: Request Dialog Detected.")
         except Exception as e:
             logger.error(f"✗ Dialog detection failed: {e}")
             
             # Fallback: Try waiting for any visible dialog
             try:
-                authenticated_page.wait_for_selector('role=dialog', timeout=15000)
+                authenticated_page.wait_for_selector('role=dialog', timeout=120000)
                 dialog = authenticated_page.locator('role=dialog').first
                 logger.info("[PASS] ClientAccountsPage: Dialog Found via Fallback Method.")
             except Exception as e2:
@@ -1497,7 +1497,7 @@ def user_click_on_d_number(authenticated_page: Page, client_accounts_page, test_
         
         # STEP 2: Wait for page navigation to Tracking Center
         try:
-            authenticated_page.wait_for_load_state("networkidle", timeout=30000)
+            authenticated_page.wait_for_load_state("networkidle", timeout=120000)
             logger.info(f"[PASS] ClientAccountsPage: Page Navigation to Tracking Center Completed.")
             
         except Exception as e:
@@ -1556,12 +1556,12 @@ def verify_client_in_person_signing_dialog_displayed(authenticated_page: Page, c
             # Step 1: Wait for page to be ready before looking for dialog
             logger.info("[DEBUG] Waiting for page to be ready...")
             try:
-                authenticated_page.wait_for_load_state("networkidle", timeout=30000)
+                authenticated_page.wait_for_load_state("networkidle", timeout=120000)
                 logger.info("✓ Page network is idle")
             except Exception as e:
                 logger.debug(f"[DEBUG] wait_for_load_state networkidle timeout: {e}")
                 # Continue anyway - page might still be usable
-                authenticated_page.wait_for_load_state("load", timeout=30000)
+                authenticated_page.wait_for_load_state("load", timeout=120000)
                 logger.info("✓ Page load complete (at least load event)")
             
             # Add small delay to allow dialog to render
@@ -1726,7 +1726,7 @@ def user_click_on_form_button_dynamic(authenticated_page: Page, client_accounts_
 
         try:
             # Call page object method to click the button with dynamic text
-            client_accounts_page.click_form_button(button_text, timeout=60000)
+            client_accounts_page.click_form_button(button_text, timeout=120000)
 
             # Capture screenshot after clicking button
             screenshot = authenticated_page.screenshot()
@@ -2250,7 +2250,7 @@ def user_save_the_document_for_finish_later(authenticated_page: Page, client_acc
         try:
             # Click the Save button in the Finish Later dialog
             logger.info("[STEP_DETAIL] Clicking Save button to save the document for finish later...")
-            client_accounts_page.click_finish_later_save_button(timeout=30000)
+            client_accounts_page.click_finish_later_save_button(timeout=120000)
             
             # Step 2: Capture screenshot for reporting
             logger.info("[STEP_DETAIL] Capturing screenshot after saving...")

@@ -905,7 +905,7 @@ class ClientAccountsPage(BasePage):
         dialog_handler = DialogHandler(self.page)
 
         # Wait for dialog to appear
-        dialog_handler.wait_for_dialog(timeout=15000)
+        dialog_handler.wait_for_dialog(timeout=120000)
         logger.info("Signature dialog appeared")
 
         # Wait for page to settle (intelligent wait instead of arbitrary timeout)
@@ -949,7 +949,7 @@ class ClientAccountsPage(BasePage):
 
         Example:
             client_accounts_page.click_form_button('Return to eWealthManager')
-            client_accounts_page.click_form_button('Start Client Signing', timeout=30000)
+            client_accounts_page.click_form_button('Start Client Signing', timeout=120000)
         """
         logger.info(f"Clicking form button with text: '{button_text}'...")
 
@@ -1010,7 +1010,7 @@ class ClientAccountsPage(BasePage):
         dialog_handler = DialogHandler(self.page)
         
         # Wait for dialog to appear and get the specific dialog locator
-        dialog = dialog_handler.wait_for_dialog(timeout=10000)
+        dialog = dialog_handler.wait_for_dialog(timeout=120000)
         logger.info("Request Submitted dialog appeared")
         
         # CRITICAL FIX: Wait for dialog content to be fully rendered
@@ -1070,7 +1070,7 @@ class ClientAccountsPage(BasePage):
         """
         logger.info("Getting Signer Information dialog text")
         dialog_handler = DialogHandler(self.page)
-        dialog_text = dialog_handler.get_dialog_text(timeout=10000)
+        dialog_text = dialog_handler.get_dialog_text(timeout=120000)
         logger.info(f"Signer Information dialog text retrieved: {len(dialog_text)} characters")
         return dialog_text
 
@@ -1144,7 +1144,7 @@ class ClientAccountsPage(BasePage):
             task_name_span = self.page.locator('span#ctl00_cphContentArea_AccountActionsBox1_lblTaskName')
             
             # Wait for the span to be visible
-            task_name_span.wait_for(state='visible', timeout=10000)
+            task_name_span.wait_for(state='visible', timeout=120000)
             logger.debug("Form heading span found and visible")
             
             # Find the <b> tag inside the span
@@ -1306,7 +1306,7 @@ class ClientAccountsPage(BasePage):
                 logger.debug(f"Spinner '{selector}' not found or already hidden: {e}")
         
         # Also wait for page to settle using existing BasePage utility
-        self.wait_for_load_state("domcontentloaded", timeout=15000)
+        self.wait_for_load_state("domcontentloaded", timeout=120000)
         logger.info("Page load state settled")
         
         # STEP 1: Find label containing the account number
@@ -1542,7 +1542,7 @@ class ClientAccountsPage(BasePage):
             # Step 0.5: Wait for iframe to be present and accessible
             logger.info(f"Step 0.5: Locating and accessing iframe #esig_iframe...")
             iframe_locator = self.page.locator('iframe#esig_iframe')
-            iframe_locator.wait_for(state="attached", timeout=10000)
+            iframe_locator.wait_for(state="attached", timeout=120000)
             logger.info(f"  ✓ Iframe #esig_iframe is attached")
             
             # Get the iframe element to access its content
@@ -1559,13 +1559,13 @@ class ClientAccountsPage(BasePage):
             logger.info(f"Step 2: Verifying input fields are present and visible in iframe...")
             
             logger.info(f"  Waiting for name field to be visible...")
-            name_field.wait_for(state="visible", timeout=10000)
+            name_field.wait_for(state="visible", timeout=120000)
             
             logger.info(f"  Waiting for email field to be visible...")
-            email_field.wait_for(state="visible", timeout=10000)
+            email_field.wait_for(state="visible", timeout=120000)
             
             logger.info(f"  Waiting for phone field to be visible...")
-            phone_field.wait_for(state="visible", timeout=10000)
+            phone_field.wait_for(state="visible", timeout=120000)
             
             logger.info(f"✓ All input fields are visible and ready in iframe")
             

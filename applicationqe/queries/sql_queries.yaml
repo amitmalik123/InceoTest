@@ -114,10 +114,19 @@ agent:
       and usl.UserID = ?
 
     agentName__by_aplid_from_agentTable: >
-      SELECT
-        ltrim(rtrim(FirstName)) + ' ' + ltrim(rtrim(LastName)) as "Name_ManageLogin"
-        FROM [CRM].[dbo].[Agent]
-        where APLID = ?
+      SELECT CONCAT(usd.FName, ' ',usd.LName) as "Name_ManageLogin", cv.Description--.RoleID, u.RoleTypeCD
+      FROM AM.dbo.User_SSODetails usd
+      JOIN AM.dbo.UserSSOLink usl ON usl.SSOGUID = usd.SSOGUIDID
+      JOIN AM.dbo.Users u ON u.UserID = usl.UserID
+      JOIN ADS.dbo.CodeValue cv ON cv.CodeValue_ID = usl.InvitationTypeCD
+      WHERE usl.UserID = ? and cv.Description = 'Agent'
+      GROUP BY usl.SSOGUID
+              , cv.CodeValue_ID
+              , usd.FName
+              , usd.LName
+              , usd.EmailAddress
+              , usd.PhoneNumber
+              , cv.Description
 
     authorized_signer_SAU_name_ManageLogin_by_UserID: >
       select distinct 

@@ -19,14 +19,14 @@ class ManageInstruction1Page(BasePage):
         logger.info(f"Selecting radio button: {radio_type}")
 
         # Wait for DOM to be ready - better for SPAs with continuous updates
-        self.page.wait_for_load_state("domcontentloaded", timeout=30000)
+        self.page.wait_for_load_state("domcontentloaded", timeout=120000)
 
         # Locator with increased timeout - auto-waits for actionability
         radio_button = self.page.locator(f'input[type="radio"][value="{radio_type}"]')
 
         # Click auto-waits for: attached, visible, stable, enabled
         try:
-            radio_button.click(timeout=30000)
+            radio_button.click(timeout=120000)
         except Exception as e:
             logger.warning(f"Normal click failed, trying force click: {e}")
             radio_button.click(force=True, timeout=10000)

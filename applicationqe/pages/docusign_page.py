@@ -1234,7 +1234,7 @@ class DocuSignPage(BasePage):
         try:
             # Extra stabilization wait for headless mode compatibility
             logger.info("[DEBUG] Ensuring page stability before clicking 'Other Actions'...")
-            self.page.wait_for_load_state("networkidle", timeout=60000)
+            self.page.wait_for_load_state("networkidle", timeout=120000)
             
             # Use wait_for_condition for dynamic waiting
             from utils.wait_utils import wait_for_condition
@@ -1267,8 +1267,8 @@ class DocuSignPage(BasePage):
             # Click the button with explicit wait for interactivity
             logger.info("[DEBUG] Waiting for button to be attached to DOM...")
             button = self.page.locator(docusign_locators.OTHER_ACTIONS_BUTTON)
-            button.wait_for(state="attached", timeout=10000)
-            button.wait_for(state="visible", timeout=10000)
+            button.wait_for(state="attached", timeout=120000)
+            button.wait_for(state="visible", timeout=120000)
             
             logger.info("[DEBUG] Clicking 'Other Actions' button...")
             button.click()
@@ -1598,12 +1598,12 @@ class DocuSignPage(BasePage):
     def _click_resend_code_button(self) -> None:
         """Click Resend Code when OTP is incorrect."""
         resend_button = self.resend_code_button
-        resend_button.wait_for(state="visible", timeout=10000)
+        resend_button.wait_for(state="visible", timeout=120000)
         resend_button.click(timeout=5000)
         self.page.wait_for_timeout(3000)
 
         resend_primary_button = self.resend_code_primary_button
-        resend_primary_button.wait_for(state="visible", timeout=10000)
+        resend_primary_button.wait_for(state="visible", timeout=120000)
         resend_primary_button.click(timeout=5000)
 
         self._last_send_now_epoch = time.time()

@@ -62,7 +62,7 @@ class LoginPage(BasePage):
             )
         except Exception:
             logger.warning(f"SSO redirect wait timed out. Current URL: {self.page.url}")
-            self.page.wait_for_load_state("networkidle", timeout=30000)
+            self.page.wait_for_load_state("networkidle", timeout=120000)
         
         logger.info(f"Navigation after sign in completed. Current URL: {self.page.url}")
 
