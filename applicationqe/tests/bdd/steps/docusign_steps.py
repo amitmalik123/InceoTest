@@ -108,9 +108,9 @@ def user_should_be_redirected_to_docusign_page(authenticated_page: Page, docusig
     
     # Check if already on DocuSign page before waiting (page may have already loaded)
     current_url = authenticated_page.url
-    docusign_url_patterns = docusign_locators.DOCUSIGN_URL_PATTERNS
+    docusign_keyword = docusign_locators.DOCUSIGN_URL_KEYWORD
     
-    if any(p in current_url for p in docusign_url_patterns):
+    if docusign_keyword in current_url:
         logger.info(f"[FAST PATH] Already on DocuSign page: {current_url}")
     else:
         # Wait for DocuSign page to load (120 second timeout)
@@ -118,10 +118,10 @@ def user_should_be_redirected_to_docusign_page(authenticated_page: Page, docusig
         docusign_page.verify_docusign_page_loaded(timeout=120000)
         current_url = authenticated_page.url
     
-    logger.info(f"Comparing current URL: {current_url} with patterns: {docusign_url_patterns}")
+    logger.info(f"Comparing current URL: {current_url} with keyword: '{docusign_keyword}'")
     
-    assert any(p in current_url for p in docusign_url_patterns), \
-        f"[FAIL] DocuSignPage: Page Redirect — Expected: URL contains one of {docusign_url_patterns}, Actual: '{current_url}'. Details: Page must redirect to DocuSign signing interface. Locator: window.location.href."
+    assert docusign_keyword in current_url, \
+        f"[FAIL] DocuSignPage: Page Redirect — Expected: URL contains '{docusign_keyword}', Actual: '{current_url}'. Details: Page must redirect to DocuSign signing interface. Locator: window.location.href."
     
     logger.info("[PASS] DocuSignPage: Page Redirection Verified.")
 

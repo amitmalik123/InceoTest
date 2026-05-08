@@ -836,7 +836,7 @@ def fetch_agent_name_by_aplid_from_db(
         
         # Step 9: Extract and return name
         if results and len(results) > 0:
-            user_name = results[0].get("Name_ManageLogin")
+            user_name = results[0].get("Name_ManageLogin", "").strip()
             logger.info(f"✓ {role_normalized} name found: {user_name}")
             return user_name
         else:
