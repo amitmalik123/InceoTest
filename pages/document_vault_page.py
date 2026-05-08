@@ -24,6 +24,7 @@ class DocumentVaultPage(BasePage):
         self.year_dropdown_xpath = '//select[@name="ddYear"]'
         self.quarter_dropdown_xpath = '//select[@name="ddQtrMonth"]'
         self.quarter_label_xpath = "//td[contains(text(),'Quarter')]"
+        self.document_label_xpath = "//td[contains(normalize-space(),'Document')]"
         self.year_display_xpath = '//div[@id="uniform-ddYear"]//span'
         self.quarter_display_xpath = '//div[@id="uniform-ddQtrMonth"]//span'
         self.document_dropdown_xpath = '//select[@name="ddDocument"]'
@@ -51,6 +52,7 @@ class DocumentVaultPage(BasePage):
         self.year_dropdown: Locator = self.form_root.locator(self.year_dropdown_xpath)
         self.quarter_dropdown: Locator = self.form_root.locator(self.quarter_dropdown_xpath)
         self.quarter_label: Locator = self.form_root.locator(self.quarter_label_xpath)
+        self.document_label: Locator = self.form_root.locator(self.document_label_xpath)
         self.year_display: Locator = self.form_root.locator(self.year_display_xpath)
         self.quarter_display: Locator = self.form_root.locator(self.quarter_display_xpath)
         self.document_dropdown: Locator = self.form_root.locator(self.document_dropdown_xpath)
@@ -436,22 +438,53 @@ class DocumentVaultPage(BasePage):
         self.wait_for_all_spinners_to_disappear(timeout=timeout)
         logger.info(f"Document Type selected: {option_name}")
 
+    def _get_selected_document_type_text(self) -> str:
+        """Return selected document type text from ddDocType across page/frames."""
+        candidates = [self.page] + list(self.page.frames)
+        for candidate in candidates:
+            try:
+                select = candidate.locator(self.document_type_select_xpath).first
+                if select.count() == 0:
+                    continue
+                selected_text = (select.evaluate(
+                    """
+                    element => {
+                        const selected = element.options[element.selectedIndex];
+                        return selected ? selected.text : '';
+                    }
+                    """
+                ) or "").strip()
+                if selected_text:
+                    return selected_text
+            except Exception:
+                continue
+        return ""
+
     def validate_quarter_dropdown_visible_for_user_interaction(self, timeout: int = 10000) -> bool:
-        """Validate that the Quarter control label is visible for user interaction."""
-        logger.info("Validating Quarter dropdown is visible for user interaction")
+        """Validate context-specific filter visibility using a shared implementation.
+
+        For Market Value Reports, validates Quarter visibility.
+        For AssetMark Trust Tax Documents, validates Document visibility.
+        """
+        selected_doc_type = self._get_selected_document_type_text().lower()
+        is_assetmark_trust_tax = "assetmark trust tax documents" in selected_doc_type
+
+        target_name = "Document" if is_assetmark_trust_tax else "Quarter"
+        target_xpath = self.document_label_xpath if is_assetmark_trust_tax else self.quarter_label_xpath
+        logger.info(f"Validating {target_name} control is visible for user interaction")
 
         candidates = [self.page] + list(self.page.frames)
         for candidate in candidates:
             try:
-                quarter_label = candidate.locator(self.quarter_label_xpath).first
-                if self.is_visible(quarter_label, timeout=1500):
-                    quarter_label.scroll_into_view_if_needed()
-                    logger.info("Quarter dropdown is visible for user interaction")
+                target_label = candidate.locator(target_xpath).first
+                if self.is_visible(target_label, timeout=1500):
+                    target_label.scroll_into_view_if_needed()
+                    logger.info(f"{target_name} control is visible for user interaction")
                     return True
             except Exception:
                 continue
 
-                raise AssertionError("Quarter dropdown is not visible for user interaction")
+        raise AssertionError(f"{target_name} control is not visible for user interaction")
 
     def validate_find_button_enabled(self, timeout: int = 10000) -> bool:
         """Validate that the Find/Search button is enabled after document selection."""
@@ -689,6 +722,32 @@ class DocumentVaultPage(BasePage):
             raise AssertionError(f"Filename '{filename}' does not contain a valid quarter (e.g. Q4)")
         logger.info(f"Filename validation passed: QPR, year and quarter all present")
 
+    def _validate_document_type_year_filename(self, filename: str, document_type_text: str) -> None:
+        """Assert filename contains selected document type tokens and a 4-digit year."""
+        logger.info(f"Validating document-type-year filename: '{filename}' for doc type '{document_type_text}'")
+
+        if not re.search(r'20\d{2}', filename):
+            raise AssertionError(f"Filename '{filename}' does not contain a valid year (e.g. 2024)")
+
+        normalized_filename = re.sub(r'[^A-Za-z0-9]+', ' ', filename).upper()
+        normalized_doc_type = re.sub(r'[^A-Za-z0-9]+', ' ', document_type_text).upper().strip()
+        doc_tokens = [
+            token for token in normalized_doc_type.split()
+            if len(token) > 2 and token not in {"THE", "AND", "FOR", "WITH"}
+        ]
+
+        if not doc_tokens:
+            raise AssertionError("Selected document type is empty; cannot validate filename")
+
+        matched_tokens = [token for token in doc_tokens if token in normalized_filename]
+        minimum_required_matches = 2 if len(doc_tokens) >= 2 else 1
+        if len(matched_tokens) < minimum_required_matches:
+            raise AssertionError(
+                f"Filename '{filename}' does not contain expected document type text '{document_type_text}'"
+            )
+
+        logger.info("Filename validation passed: document type and year are present")
+
     def validate_qpr_zip_download(self, timeout: int = 30000) -> str:
         """Click Save Selected, download ZIP, validate filename. Returns filename."""
         save_btn = self._find_save_selected_button(timeout=10000)
@@ -704,6 +763,24 @@ class DocumentVaultPage(BasePage):
 
         downloaded_name = target_path.name
         self._validate_qpr_filename(downloaded_name)
+        return downloaded_name
+
+    def validate_document_type_year_zip_download(self, timeout: int = 30000) -> str:
+        """Click Save Selected, download ZIP, validate selected document type and year. Returns filename."""
+        save_btn = self._find_save_selected_button(timeout=10000)
+
+        with self.page.expect_download(timeout=timeout) as download_info:
+            save_btn.click(timeout=timeout)
+        download = download_info.value
+
+        download_dir = Path("reports/downloads")
+        download_dir.mkdir(parents=True, exist_ok=True)
+        target_path = download_dir / download.suggested_filename
+        download.save_as(str(target_path))
+
+        selected_doc_type = self._get_selected_document_type_text()
+        downloaded_name = target_path.name
+        self._validate_document_type_year_filename(downloaded_name, selected_doc_type)
         return downloaded_name
 
     def clear_all_and_select_first_checkbox(self, timeout: int = 10000) -> None:
@@ -748,4 +825,10 @@ class DocumentVaultPage(BasePage):
     def validate_qpr_pdf_download(self, pdf_download_name: str) -> bool:
         """Validate PDF filename contains QPR, year, quarter. Returns True if valid."""
         self._validate_qpr_filename(pdf_download_name)
+        return True
+
+    def validate_document_type_year_pdf_download(self, pdf_download_name: str) -> bool:
+        """Validate PDF filename contains selected document type and year. Returns True if valid."""
+        selected_doc_type = self._get_selected_document_type_text()
+        self._validate_document_type_year_filename(pdf_download_name, selected_doc_type)
         return True
