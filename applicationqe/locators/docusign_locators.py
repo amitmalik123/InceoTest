@@ -4,12 +4,10 @@ Locators for DocuSign Page
 This module contains all locator definitions for the DocuSign signing page.
 """
 
-# DocuSign URL patterns (both environments)
-DOCUSIGN_URL_PATTERNS = (
-    "https://apps-d.docusign.com/",
-    "https://www.docusign.net/",
-    "https://verify-d.docusign.net/"
-)
+# DocuSign URL pattern - simple substring check
+# Matches any DocuSign domain: production, demo, staging, etc.
+# Examples: www.docusign.net, demo.docusign.net, apps-d.docusign.com, verify-d.docusign.net
+DOCUSIGN_URL_KEYWORD = "docusign"
 # ========================================================================================
 # LOCATORS - All page element locators defined for easy maintenance
 # ========================================================================================

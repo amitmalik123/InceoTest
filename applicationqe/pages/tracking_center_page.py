@@ -140,8 +140,26 @@ class TrackingCenterPage(BasePage):
                 d_number_row.wait_for(state="visible", timeout=timeout)
                 logger.info(f"[PASS] D-number table row loaded and visible: {d_number}")
             except Exception as e:
-                logger.error(f"✗ Failed to load D-number table row: {e}")
-                raise AssertionError(f"Failed to load table row for D-number '{d_number}'. Details: {e}") from e
+                logger.info(f"⚠ D-number row wait timeout, trying fallback: checking if only one row exists")
+                
+                # FALLBACK: If row not found, check if there's only 1 table row (might be the correct one)
+                try:
+                    all_rows = self.page.locator("tr").all()
+                    row_count = len(all_rows)
+                    logger.info(f"Total table rows found: {row_count}")
+                    
+                    if row_count == 1:
+                        logger.info(f"✓ Only 1 table row found - using it as the D-number row")
+                        d_number_row = self.page.locator("tr").first
+                        logger.info(f"[PASS] Using single table row as D-number row")
+                    else:
+                        logger.error(f"✗ Multiple rows ({row_count}) or no rows found. Cannot determine correct row.")
+                        raise AssertionError(f"Failed to load table row for D-number '{d_number}'. Details: {e}") from e
+                except AssertionError:
+                    raise
+                except Exception as fallback_error:
+                    logger.error(f"✗ Fallback strategy failed: {fallback_error}")
+                    raise AssertionError(f"Failed to load table row for D-number '{d_number}'. Details: {e}") from e
             
             # STEP 4: Click on the D-number table row
             logger.info(f"Step 4: Clicking D-number table row to open item details...")

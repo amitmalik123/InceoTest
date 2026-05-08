@@ -193,8 +193,9 @@ class DocuSignPage(BasePage):
         logger.info(f"[OTP_DEBUG] Page load timeout: {timeout}ms ({timeout/1000}s)")
         
         # Check if we're already on DocuSign page to avoid unnecessary waits
+        # Simple check: verify 'docusign' is in current URL (handles all subdomains/domains)
         current_url = self.page.url
-        if any(p in current_url for p in docusign_locators.DOCUSIGN_URL_PATTERNS):
+        if docusign_locators.DOCUSIGN_URL_KEYWORD in current_url:
             logger.info(f"[OTP_DEBUG] Already on DocuSign page: {current_url}")
             
             # Still wait for networkidle to ensure page is fully loaded
@@ -207,8 +208,8 @@ class DocuSignPage(BasePage):
         else:
             logger.info(f"[OTP_DEBUG] Not yet on DocuSign page. Current URL: {current_url}")
             
-            # Wait for navigation to DocuSign
-            self.page.wait_for_url(lambda url: any(p in url for p in docusign_locators.DOCUSIGN_URL_PATTERNS), timeout=timeout)
+            # Wait for navigation to DocuSign (any URL containing 'docusign')
+            self.page.wait_for_url(lambda url: docusign_locators.DOCUSIGN_URL_KEYWORD in url, timeout=timeout)
             logger.info("DocuSign page URL detected")
             
             # Wait for page to be fully loaded before taking screenshot (intelligent wait)
