@@ -88,6 +88,16 @@ parameters:
     type: string
     default: 'N/A'
 
+  - name: promotePerformanceBaseline
+    displayName: 'Promote this performance run as baseline'
+    type: boolean
+    default: false
+
+  - name: baselineReason
+    displayName: 'Baseline promotion reason'
+    type: string
+    default: 'Approved performance baseline'
+
 ###############################################################################
 # Use Common Stages Template
 # Note: Variables groups must be defined in the calling pipeline, not here.
@@ -105,5 +115,7 @@ stages:
       overrideEnabled: ${{ parameters.overrideEnabled }}
       customFunctionalArgs: ${{ parameters.customFunctionalArgs }}
       customNonFunctionalArgs: ${{ parameters.customNonFunctionalArgs }}
+      promotePerformanceBaseline: ${{ parameters.promotePerformanceBaseline }}
+      baselineReason: ${{ parameters.baselineReason }}
       triggerReason: 'Manual'
       enableScheduleDetection: false  # Callable template doesn't use cron schedules

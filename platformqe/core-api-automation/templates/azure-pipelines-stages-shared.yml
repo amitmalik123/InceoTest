@@ -73,6 +73,14 @@ parameters:
     type: string
     default: 'N/A'
 
+  - name: promotePerformanceBaseline
+    type: boolean
+    default: false
+
+  - name: baselineReason
+    type: string
+    default: 'Approved performance baseline'
+
   - name: teamsNotificationEnabled
     type: boolean
     default: false
@@ -871,6 +879,7 @@ stages:
                   mkdir -p "$report_dir"
                   echo "Created new report directory: $report_dir"
                 fi
+                echo "##vso[task.setvariable variable=REPORTS_PATH]$report_dir"
                 
                 echo "Locust Arguments: $(nonFunctionalTestArgs)"
                 echo "Performance SLA (seconds): ${LOCUST_SLA_SECONDS:-<unset, will use config default>}"
@@ -914,7 +923,7 @@ stages:
           
           - task: Bash@3
             displayName: 'Push to Log Analytics - $(name)_$(environment)'
-            condition: always()
+            condition: and(always(), or(eq(variables['testType'], 'functional'), eq(variables['testType'], 'both')))
             env:
               LOG_ANALYTICS_WORKSPACE_ID: $(logAnalyticsWorkspaceId)
               LOG_ANALYTICS_SHARED_KEY: $(logAnalyticsSharedKey)
@@ -943,6 +952,49 @@ stages:
                   echo "📊 Table created: TestResults_CL"
                 else
                   echo "⚠️ Log Analytics push failed (non-blocking)"
+                fi
+              workingDirectory: $(buildPath)
+
+          - task: Bash@3
+            displayName: 'Push Performance Results to Log Analytics - $(name)_$(environment)'
+            condition: and(succeededOrFailed(), or(eq(variables['testType'], 'non-functional'), eq(variables['testType'], 'both')))
+            env:
+              LOG_ANALYTICS_WORKSPACE_ID: $(logAnalyticsWorkspaceId)
+              LOG_ANALYTICS_SHARED_KEY: $(logAnalyticsSharedKey)
+              LOG_ANALYTICS_ENABLED: $(logAnalyticsEnabled)
+              SERVICE_NAME: $(name)
+              ENV_NAME: $(environment)
+              BASELINE_REASON: ${{ parameters.baselineReason }}
+              APPROVED_BY: $(Build.RequestedFor)
+            inputs:
+              targetType: inline
+              script: |
+                export PYTHONPATH="${PYTHONPATH}:$(pwd)"
+                echo "=========================================="
+                echo "Pushing Performance Results to Log Analytics"
+                echo "=========================================="
+                echo "Service: $(name)"
+                echo "Environment: $(environment)"
+                echo "Reports Path: $(REPORTS_PATH)"
+                echo "Baseline Promotion: ${{ parameters.promotePerformanceBaseline }}"
+
+                PROMOTE_ARGS=()
+                if [ "${{ parameters.promotePerformanceBaseline }}" = "true" ] || [ "${{ parameters.promotePerformanceBaseline }}" = "True" ]; then
+                  PROMOTE_ARGS+=(--promote-baseline --baseline-reason "$BASELINE_REASON" --approved-by "$APPROVED_BY")
+                fi
+
+                python3 framework/reporter/performance_log_analytics_reporter.py \
+                  --reports-path "$(REPORTS_PATH)" \
+                  --service-name "$(name)" \
+                  --environment "$(environment)" \
+                  "${PROMOTE_ARGS[@]}"
+
+                if [ $? -eq 0 ]; then
+                  echo "✅ Performance Log Analytics push completed"
+                  echo "⏳ Custom tables may take 5-15 minutes to appear after first ingestion"
+                  echo "📊 Tables: PerfRun_CL, PerfEndpointSummary_CL, PerfTimeSeries_CL, PerfFailure_CL, PerfBaseline_CL"
+                else
+                  echo "⚠️ Performance Log Analytics push failed (non-blocking)"
                 fi
               workingDirectory: $(buildPath)
           

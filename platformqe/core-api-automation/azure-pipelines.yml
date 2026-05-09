@@ -24,6 +24,14 @@ parameters:
   displayName: 'Non-Functional Test Arguments'
   type: string
   default: '--file testdata/WorkItemNotification/testcases/TestCase_api_workitemnotification_v1_aplid_GET.json --test_type Performance --env T12 --headless -u 5 -r 1 -t 10s'
+- name: promotePerformanceBaseline
+  displayName: 'Promote this performance run as baseline'
+  type: boolean
+  default: false
+- name: baselineReason
+  displayName: 'Baseline promotion reason'
+  type: string
+  default: 'Approved performance baseline'
 
 
 variables:
@@ -258,6 +266,7 @@ stages:
               mkdir -p "$report_dir"
               echo "Created new report directory: $report_dir"
             fi
+            echo "##vso[task.setvariable variable=REPORTS_PATH]$report_dir"
             
             # Use appropriate args based on testType
             if [ "${{ parameters.testType }}" = "non-functional" ]; then
@@ -283,6 +292,43 @@ stages:
             
             echo "Locust reports saved to: $report_dir"
             exit $LOCUST_EXIT_CODE
+          workingDirectory: $(buildPath)
+      - task: Bash@3
+        displayName: 'Push Performance Results to Log Analytics'
+        condition: and(succeededOrFailed(), or(eq('${{ parameters.testType }}', 'non-functional'), eq('${{ parameters.testType }}', 'both')))
+        env:
+          LOG_ANALYTICS_WORKSPACE_ID: $(logAnalyticsWorkspaceId)
+          LOG_ANALYTICS_SHARED_KEY: $(logAnalyticsSharedKey)
+          LOG_ANALYTICS_ENABLED: $(logAnalyticsEnabled)
+          SERVICE_NAME: $(SERVICE_NAME)
+          BASELINE_REASON: ${{ parameters.baselineReason }}
+          APPROVED_BY: $(Build.RequestedFor)
+        inputs:
+          targetType: inline
+          script: |
+            export PYTHONPATH="${PYTHONPATH}:$(pwd)"
+            echo "=========================================="
+            echo "Pushing Performance Results to Log Analytics"
+            echo "=========================================="
+            echo "Reports Path: $(REPORTS_PATH)"
+            echo "Baseline Promotion: ${{ parameters.promotePerformanceBaseline }}"
+
+            PROMOTE_ARGS=()
+            if [ "${{ parameters.promotePerformanceBaseline }}" = "true" ] || [ "${{ parameters.promotePerformanceBaseline }}" = "True" ]; then
+              PROMOTE_ARGS+=(--promote-baseline --baseline-reason "$BASELINE_REASON" --approved-by "$APPROVED_BY")
+            fi
+
+            python3 framework/reporter/performance_log_analytics_reporter.py \
+              --reports-path "$(REPORTS_PATH)" \
+              "${PROMOTE_ARGS[@]}"
+
+            if [ $? -eq 0 ]; then
+              echo "✅ Performance Log Analytics push completed"
+              echo "⏳ Custom tables may take 5-15 minutes to appear after first ingestion"
+              echo "📊 Tables: PerfRun_CL, PerfEndpointSummary_CL, PerfTimeSeries_CL, PerfFailure_CL, PerfBaseline_CL"
+            else
+              echo "⚠️ Performance Log Analytics push failed (non-blocking)"
+            fi
           workingDirectory: $(buildPath)
       - task: PublishTestResults@2
         condition: succeededOrFailed()
