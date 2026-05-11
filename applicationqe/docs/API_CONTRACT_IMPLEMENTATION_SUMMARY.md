@@ -75,7 +75,7 @@ client.validate_contract(endpoint, method, response)
 **Created Files:**
 - [API_CONTRACT_TESTING_GUIDE.md](API_CONTRACT_TESTING_GUIDE.md) - Complete guide
 - [API_CONTRACT_QUICK_REFERENCE.txt](API_CONTRACT_QUICK_REFERENCE.txt) - Quick reference
-- [api_spec_example.yaml](api_spec_example.yaml) - Sample OpenAPI spec
+- [api_spec_example.yaml](../azure-pipelines/api_spec_example.yaml) - Sample OpenAPI spec
 
 ---
 
@@ -405,7 +405,7 @@ def test_get_users(validated_api_client):
 
 1. **Create OpenAPI Specs** for your APIs
    - Document existing endpoints
-   - Use `api_spec_example.yaml` as template
+   - Use `azure-pipelines/api_spec_example.yaml` as template
 
 2. **Generate Baseline Contracts**
    ```python
@@ -442,7 +442,8 @@ DM1TestAutomation/
 │       ├── __init__.py
 │       └── test_api_contract_examples.py  # 16 example tests
 ├── contracts/                        # Contract storage (created as needed)
-├── api_spec_example.yaml            # Sample OpenAPI spec
+├── azure-pipelines/
+│   └── api_spec_example.yaml        # Sample OpenAPI spec
 ├── API_CONTRACT_TESTING_GUIDE.md    # Complete guide
 ├── API_CONTRACT_QUICK_REFERENCE.txt # Quick reference
 └── requirements.txt                  # Updated dependencies

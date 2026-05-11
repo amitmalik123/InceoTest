@@ -74,7 +74,7 @@ def test_data(test_data_manager, request) -> dict:
             f"Scenario '{scenario_name}' not found in test data CSV.\n"
             f"This will cause authentication to fail with wrong credentials.\n\n"
             f"SOLUTIONS:\n"
-            f"1. Add a row to data/test_data.test11.csv with scenario name: '{scenario_name}'\n"
+            f"1. Add a row to data/oam/test_data.test11.csv with scenario name: '{scenario_name}'\n"
             f"2. Remove/skip the scenario from OAM.feature\n"
             f"3. Rename scenario in .feature file to match an existing CSV row\n\n"
             f"Available scenarios in CSV:\n"

@@ -50,9 +50,13 @@ screenshots/
 tests/.auth/  # Authentication state files (contains session tokens)
 
 # Reports
-reports/
-allure-results/
-allure-report/
+# reports/ folder is now tracked for storing test outputs and results
+# Ignore only the auto-generated subdirectories within reports/
+reports/junit/
+reports/allure-results/
+reports/allure-report/
+reports/*.html
+reports/*.png
 
 # Environment
 .env
@@ -84,13 +88,6 @@ contracts/
 
 # AI Generated (review before installing into framework)
 ai/generated/
-
-# Test Results - consolidated in reports/
-reports/junit/
-reports/allure-results/
-reports/allure-report/
-reports/*.html
-reports/*.png
 
 # SonarQube
 .scannerwork/

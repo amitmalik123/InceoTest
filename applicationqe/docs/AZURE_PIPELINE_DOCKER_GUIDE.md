@@ -88,19 +88,19 @@ stages:
 cp azurePipeline.yaml azurePipeline-old.yaml
 
 # Use Docker-based pipeline
-cp azurePipeline-docker.yaml azurePipeline.yaml
+cp azure-pipelines/azurePipeline-docker.yaml azurePipeline.yaml
 ```
 
 **Option B: Keep Both (Recommended)**
-- Keep `FormsAndTracking.yaml` (legacy)
-- Use `azurePipeline-docker.yaml` (new)
+- Keep `azure-pipelines/FormsAndTracking.yaml` (legacy)
+- Use `azure-pipelines/azurePipeline-docker.yaml` (new)
 - Update Azure DevOps to point to new file
 
 ### Step 3: Update Azure DevOps Pipeline Settings
 
 1. Go to Azure DevOps → Pipelines
 2. Edit your pipeline
-3. Change YAML file path to: `azurePipeline-docker.yaml`
+3. Change YAML file path to: `azure-pipelines/azurePipeline-docker.yaml`
 4. Save
 
 ### Step 4: Test the Pipeline
@@ -423,7 +423,7 @@ ls -la reports/
 
 ### 2. Create Pipeline in Azure DevOps
 1. New Pipeline → Existing Azure Pipelines YAML
-2. Select: `azurePipeline-docker.yaml`
+2. Select: `azure-pipelines/azurePipeline-docker.yaml`
 3. Save & Run
 
 ### 3. Run Manual Test

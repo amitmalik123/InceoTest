@@ -6,13 +6,13 @@ All fixtures are re-exported from their specialized modules for easy importing.
 """
 
 # Assertion fixtures
-from tests.fixtures.assertion_fixtures import reset_step_screenshot_counter, soft_assert
+from fixtures.assertion_fixtures import reset_step_screenshot_counter, soft_assert
 
 # Authentication fixtures
-from tests.fixtures.auth_fixtures import authenticated_page, fresh_page
+from fixtures.auth_fixtures import authenticated_page, fresh_page
 
 # Browser fixtures
-from tests.fixtures.browser_fixtures import (
+from fixtures.browser_fixtures import (
     browser_context_args,
     browser_type_launch_args,
     multi_user_contexts,
@@ -21,13 +21,13 @@ from tests.fixtures.browser_fixtures import (
 )
 
 # Data fixtures
-from tests.fixtures.data_fixtures import excel_data_manager, test_data_manager
+from fixtures.data_fixtures import excel_data_manager, test_data_manager
 
 # Database fixtures
-from tests.fixtures.db_fixtures import db_manager
+from fixtures.db_fixtures import db_manager
 
 # Hooks (pytest-bdd lifecycle — no __all__ entry needed, just imported for side-effects)
-from tests.fixtures.hooks_fixtures import (  # noqa: F401
+from fixtures.hooks_fixtures import (  # noqa: F401
     pytest_bdd_after_scenario,
     pytest_bdd_after_step,
     pytest_bdd_before_step,
@@ -35,7 +35,7 @@ from tests.fixtures.hooks_fixtures import (  # noqa: F401
 )
 
 # Page-object fixtures
-from tests.fixtures.page_fixtures import (
+from fixtures.page_fixtures import (
     account_detail_page,
     account_list_page,
     account_management_page,

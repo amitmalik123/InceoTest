@@ -158,11 +158,11 @@ echo $env:TEST_ENV
 # - config/env.prod.yaml
 
 # Test data CSV files in data/ folder:
-# - data/test_data.test11.csv
-# - data/test_data.test12.csv
-# - data/test_data.silo.csv
-# - data/test_data.qa.csv
-# - data/test_data.prod.csv
+# - data/oam/test_data.test11.csv
+# - data/oam/test_data.test12.csv
+# - data/oam/test_data.silo.csv
+# - data/oam/test_data.qa.csv
+# - data/oam/test_data.prod.csv
 
 # Review/edit test data
 notepad data\test_data.test11.csv
@@ -532,7 +532,7 @@ pytest tests/ -v -m performance
 ### Azure Pipeline (Docker)
 
 ```yaml
-# Pipeline file: azurePipeline-docker.yaml
+# Pipeline file: azure-pipelines/azurePipeline-docker.yaml
 
 # Trigger pipeline in Azure DevOps
 # Or run locally with Docker:

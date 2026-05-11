@@ -1,0 +1,11 @@
+{
+  "timestamp": "2026-05-11T04:43:40.383655",
+  "summary": {
+    "total_healing_attempts": 0,
+    "successful_heals": 0,
+    "failed_heals": 0,
+    "success_rate": "0.00%",
+    "stored_alternatives": 0
+  },
+  "healed_locators": []
+}

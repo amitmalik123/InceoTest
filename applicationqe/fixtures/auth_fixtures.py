@@ -21,7 +21,7 @@ from playwright.sync_api import Page
 
 from config.settings import Settings, get_settings
 from pages.login_page import LoginPage
-from tests.fixtures.browser_fixtures import apply_context_listeners, apply_route_blocks
+from fixtures.browser_fixtures import apply_context_listeners, apply_route_blocks
 
 # Use centralized Settings singleton
 settings = get_settings()

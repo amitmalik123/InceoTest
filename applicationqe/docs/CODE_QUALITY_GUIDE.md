@@ -84,7 +84,7 @@ mypy --html-report reports/mypy .
 ### 5. **Pre-commit** - Git Hooks
 Automatically runs quality checks before commits.
 
-**Configuration**: `.pre-commit-config.yaml`
+**Configuration**: `azure-pipelines/.pre-commit-config.yaml`
 - Runs all formatters and linters
 - Prevents bad code from being committed
 

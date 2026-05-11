@@ -22,7 +22,7 @@ Last Updated: January 6, 2026
 - ✅ `config/` - Environment configs (test11, test12, silo, qa, prod)
 
 ### 3. Configuration Files
-- ✅ [FormsAndTracking.yaml](../FormsAndTracking.yaml) - CI/CD pipeline
+- ✅ [FormsAndTracking.yaml](../azure-pipelines/FormsAndTracking.yaml) - CI/CD pipeline
 - ✅ [pyproject.toml](../pyproject.toml) - Pytest config
 - ✅ [requirements.txt](../requirements.txt) - Dependencies
 - ✅ Environment configs (5 environments)
@@ -79,7 +79,7 @@ workers: 2 (parallel)
 4. Click "Run"
 
 **Scheduled Run:**
-- Uncomment schedule in [FormsAndTracking.yaml](../FormsAndTracking.yaml)
+- Uncomment schedule in [FormsAndTracking.yaml](../azure-pipelines/FormsAndTracking.yaml)
 - Runs daily at 12:35 PM PST on `test11` with 2 workers
 
 ### Local Testing (Before CI/CD)

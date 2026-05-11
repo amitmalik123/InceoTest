@@ -16,7 +16,7 @@ import os
 import allure
 
 from config.settings import get_settings
-from tests.fixtures.browser_fixtures import id_tracker
+from fixtures.browser_fixtures import id_tracker
 from utils.allure_logger import get_allure_logger
 
 # Global storage for active allure step contexts
