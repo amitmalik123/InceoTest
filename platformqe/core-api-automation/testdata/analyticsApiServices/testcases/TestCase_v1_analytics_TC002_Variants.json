@@ -1,0 +1,506 @@
+[
+    {
+        "test_id": "TC002_timeHorizon_6",
+        "service_name": "analyticsApiServices",
+        "workflow_mode": "parallel",
+        "test_name": "POST /v1/analytics TC002 variant - timeHorizon 6 months",
+        "protocol": "REST",
+        "test_type": [
+            "Functional"
+        ],
+        "mainURL": "{{base_url}}",
+        "endpoint": "/v1/analytics",
+        "method": "POST",
+        "headers_additional": {
+            "Content-Type": "application/json"
+        },
+        "payload": {
+            "calculationRequest": {
+                "inputs": {
+                    "blend": [
+                        {
+                            "id": "ALFBA4",
+                            "entityType": "model",
+                            "weight": 0.125
+                        },
+                        {
+                            "id": "ALFBB3",
+                            "entityType": "model",
+                            "weight": 0.075
+                        },
+                        {
+                            "id": "AMDUST",
+                            "entityType": "model",
+                            "weight": 0.025
+                        },
+                        {
+                            "id": "AMKPMG",
+                            "entityType": "model",
+                            "weight": 0.075
+                        },
+                        {
+                            "id": "AR",
+                            "entityType": "model",
+                            "weight": 0.225
+                        },
+                        {
+                            "id": "ARISC2",
+                            "entityType": "model",
+                            "weight": 0.065
+                        },
+                        {
+                            "id": "B117MM",
+                            "entityType": "model",
+                            "weight": 0.115
+                        },
+                        {
+                            "id": "BARHYB",
+                            "entityType": "model",
+                            "weight": 0.1
+                        },
+                        {
+                            "id": "BBGPMT",
+                            "entityType": "model",
+                            "weight": 0.19
+                        },
+                        {
+                            "id": "WBCCP5",
+                            "entityType": "model",
+                            "weight": 0.005
+                        }
+                    ]
+                },
+                "calculations": [
+                    {
+                        "calculationType": "blended risk",
+                        "configurations": {
+                            "method": "ewma",
+                            "timeHorizon": 6
+                        }
+                    }
+                ]
+            }
+        },
+        "expected_status": "200"
+    },
+    {
+        "test_id": "TC002_timeHorizon_12",
+        "service_name": "analyticsApiServices",
+        "workflow_mode": "parallel",
+        "test_name": "POST /v1/analytics TC002 variant - timeHorizon 12 months",
+        "protocol": "REST",
+        "test_type": [
+            "Functional"
+        ],
+        "mainURL": "{{base_url}}",
+        "endpoint": "/v1/analytics",
+        "method": "POST",
+        "headers_additional": {
+            "Content-Type": "application/json"
+        },
+        "payload": {
+            "calculationRequest": {
+                "inputs": {
+                    "blend": [
+                        {
+                            "id": "ALFBA4",
+                            "entityType": "model",
+                            "weight": 0.125
+                        },
+                        {
+                            "id": "ALFBB3",
+                            "entityType": "model",
+                            "weight": 0.075
+                        },
+                        {
+                            "id": "AMDUST",
+                            "entityType": "model",
+                            "weight": 0.025
+                        },
+                        {
+                            "id": "AMKPMG",
+                            "entityType": "model",
+                            "weight": 0.075
+                        },
+                        {
+                            "id": "AR",
+                            "entityType": "model",
+                            "weight": 0.225
+                        },
+                        {
+                            "id": "ARISC2",
+                            "entityType": "model",
+                            "weight": 0.065
+                        },
+                        {
+                            "id": "B117MM",
+                            "entityType": "model",
+                            "weight": 0.115
+                        },
+                        {
+                            "id": "BARHYB",
+                            "entityType": "model",
+                            "weight": 0.1
+                        },
+                        {
+                            "id": "BBGPMT",
+                            "entityType": "model",
+                            "weight": 0.19
+                        },
+                        {
+                            "id": "WBCCP5",
+                            "entityType": "model",
+                            "weight": 0.005
+                        }
+                    ]
+                },
+                "calculations": [
+                    {
+                        "calculationType": "blended risk",
+                        "configurations": {
+                            "method": "ewma",
+                            "timeHorizon": 12
+                        }
+                    }
+                ]
+            }
+        },
+        "expected_status": "200"
+    },
+    {
+        "test_id": "TC002_timeHorizon_36",
+        "service_name": "analyticsApiServices",
+        "workflow_mode": "parallel",
+        "test_name": "POST /v1/analytics TC002 variant - timeHorizon 36 months",
+        "protocol": "REST",
+        "test_type": [
+            "Functional"
+        ],
+        "mainURL": "{{base_url}}",
+        "endpoint": "/v1/analytics",
+        "method": "POST",
+        "headers_additional": {
+            "Content-Type": "application/json"
+        },
+        "payload": {
+            "calculationRequest": {
+                "inputs": {
+                    "blend": [
+                        {
+                            "id": "ALFBA4",
+                            "entityType": "model",
+                            "weight": 0.125
+                        },
+                        {
+                            "id": "ALFBB3",
+                            "entityType": "model",
+                            "weight": 0.075
+                        },
+                        {
+                            "id": "AMDUST",
+                            "entityType": "model",
+                            "weight": 0.025
+                        },
+                        {
+                            "id": "AMKPMG",
+                            "entityType": "model",
+                            "weight": 0.075
+                        },
+                        {
+                            "id": "AR",
+                            "entityType": "model",
+                            "weight": 0.225
+                        },
+                        {
+                            "id": "ARISC2",
+                            "entityType": "model",
+                            "weight": 0.065
+                        },
+                        {
+                            "id": "B117MM",
+                            "entityType": "model",
+                            "weight": 0.115
+                        },
+                        {
+                            "id": "BARHYB",
+                            "entityType": "model",
+                            "weight": 0.1
+                        },
+                        {
+                            "id": "BBGPMT",
+                            "entityType": "model",
+                            "weight": 0.19
+                        },
+                        {
+                            "id": "WBCCP5",
+                            "entityType": "model",
+                            "weight": 0.005
+                        }
+                    ]
+                },
+                "calculations": [
+                    {
+                        "calculationType": "blended risk",
+                        "configurations": {
+                            "method": "ewma",
+                            "timeHorizon": 36
+                        }
+                    }
+                ]
+            }
+        },
+        "expected_status": "200"
+    },
+    {
+        "test_id": "TC002_timeHorizon_60",
+        "service_name": "analyticsApiServices",
+        "workflow_mode": "parallel",
+        "test_name": "POST /v1/analytics TC002 variant - timeHorizon 60 months",
+        "protocol": "REST",
+        "test_type": [
+            "Functional"
+        ],
+        "mainURL": "{{base_url}}",
+        "endpoint": "/v1/analytics",
+        "method": "POST",
+        "headers_additional": {
+            "Content-Type": "application/json"
+        },
+        "payload": {
+            "calculationRequest": {
+                "inputs": {
+                    "blend": [
+                        {
+                            "id": "ALFBA4",
+                            "entityType": "model",
+                            "weight": 0.125
+                        },
+                        {
+                            "id": "ALFBB3",
+                            "entityType": "model",
+                            "weight": 0.075
+                        },
+                        {
+                            "id": "AMDUST",
+                            "entityType": "model",
+                            "weight": 0.025
+                        },
+                        {
+                            "id": "AMKPMG",
+                            "entityType": "model",
+                            "weight": 0.075
+                        },
+                        {
+                            "id": "AR",
+                            "entityType": "model",
+                            "weight": 0.225
+                        },
+                        {
+                            "id": "ARISC2",
+                            "entityType": "model",
+                            "weight": 0.065
+                        },
+                        {
+                            "id": "B117MM",
+                            "entityType": "model",
+                            "weight": 0.115
+                        },
+                        {
+                            "id": "BARHYB",
+                            "entityType": "model",
+                            "weight": 0.1
+                        },
+                        {
+                            "id": "BBGPMT",
+                            "entityType": "model",
+                            "weight": 0.19
+                        },
+                        {
+                            "id": "WBCCP5",
+                            "entityType": "model",
+                            "weight": 0.005
+                        }
+                    ]
+                },
+                "calculations": [
+                    {
+                        "calculationType": "blended risk",
+                        "configurations": {
+                            "method": "ewma",
+                            "timeHorizon": 60
+                        }
+                    }
+                ]
+            }
+        },
+        "expected_status": "200"
+    },
+    {
+        "test_id": "TC002_timeHorizon_120",
+        "service_name": "analyticsApiServices",
+        "workflow_mode": "parallel",
+        "test_name": "POST /v1/analytics TC002 variant - timeHorizon 120 months",
+        "protocol": "REST",
+        "test_type": [
+            "Functional"
+        ],
+        "mainURL": "{{base_url}}",
+        "endpoint": "/v1/analytics",
+        "method": "POST",
+        "headers_additional": {
+            "Content-Type": "application/json"
+        },
+        "payload": {
+            "calculationRequest": {
+                "inputs": {
+                    "blend": [
+                        {
+                            "id": "ALFBA4",
+                            "entityType": "model",
+                            "weight": 0.125
+                        },
+                        {
+                            "id": "ALFBB3",
+                            "entityType": "model",
+                            "weight": 0.075
+                        },
+                        {
+                            "id": "AMDUST",
+                            "entityType": "model",
+                            "weight": 0.025
+                        },
+                        {
+                            "id": "AMKPMG",
+                            "entityType": "model",
+                            "weight": 0.075
+                        },
+                        {
+                            "id": "AR",
+                            "entityType": "model",
+                            "weight": 0.225
+                        },
+                        {
+                            "id": "ARISC2",
+                            "entityType": "model",
+                            "weight": 0.065
+                        },
+                        {
+                            "id": "B117MM",
+                            "entityType": "model",
+                            "weight": 0.115
+                        },
+                        {
+                            "id": "BARHYB",
+                            "entityType": "model",
+                            "weight": 0.1
+                        },
+                        {
+                            "id": "BBGPMT",
+                            "entityType": "model",
+                            "weight": 0.19
+                        },
+                        {
+                            "id": "WBCCP5",
+                            "entityType": "model",
+                            "weight": 0.005
+                        }
+                    ]
+                },
+                "calculations": [
+                    {
+                        "calculationType": "blended risk",
+                        "configurations": {
+                            "method": "ewma",
+                            "timeHorizon": 120
+                        }
+                    }
+                ]
+            }
+        },
+        "expected_status": "200"
+    },
+    {
+        "test_id": "TC002_goodModels_timeHorizon_180",
+        "service_name": "analyticsApiServices",
+        "workflow_mode": "parallel",
+        "test_name": "POST /v1/analytics - TC001 models with 180 months",
+        "protocol": "REST",
+        "test_type": [
+            "Functional"
+        ],
+        "mainURL": "{{base_url}}",
+        "endpoint": "/v1/analytics",
+        "method": "POST",
+        "headers_additional": {
+            "Content-Type": "application/json"
+        },
+        "payload": {
+            "calculationRequest": {
+                "inputs": {
+                    "blend": [
+                        {
+                            "id": "ABSGT6",
+                            "entityType": "model",
+                            "weight": 0.1
+                        },
+                        {
+                            "id": "ACWIEX",
+                            "entityType": "model",
+                            "weight": 0.1
+                        },
+                        {
+                            "id": "ALTMF5",
+                            "entityType": "model",
+                            "weight": 0.1
+                        },
+                        {
+                            "id": "APODCF",
+                            "entityType": "model",
+                            "weight": 0.1
+                        },
+                        {
+                            "id": "B110MM",
+                            "entityType": "model",
+                            "weight": 0.1
+                        },
+                        {
+                            "id": "BBEMAG",
+                            "entityType": "model",
+                            "weight": 0.1
+                        },
+                        {
+                            "id": "CAMUNI",
+                            "entityType": "model",
+                            "weight": 0.1
+                        },
+                        {
+                            "id": "CIBCP3",
+                            "entityType": "model",
+                            "weight": 0.1
+                        },
+                        {
+                            "id": "CIBCP6",
+                            "entityType": "model",
+                            "weight": 0.1
+                        },
+                        {
+                            "id": "ETFALB",
+                            "entityType": "model",
+                            "weight": 0.1
+                        }
+                    ]
+                },
+                "calculations": [
+                    {
+                        "calculationType": "blended risk",
+                        "configurations": {
+                            "method": "ewma",
+                            "timeHorizon": 180
+                        }
+                    }
+                ]
+            }
+        },
+        "expected_status": "200"
+    }
+]

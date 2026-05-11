@@ -1,6 +1,6 @@
 [
     {
-        "test_id": "TC001_V2_Alpha_Beta_InfoRatio_SharpeRatio",
+        "test_id": "TC001_V2_Alpha",
         "service_name": "analyticsApiServices",
         "workflow_mode": "sequential",
         "test_name": "POST /v2/analytics - Alpha Positive (TC001)",
