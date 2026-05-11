@@ -32,6 +32,9 @@ ai/
 temp_recording*.py           # Playwright codegen recordings
 
 
+# Development utilities (one-time setup scripts)
+generate_credentials.py
+
 # Pytest
 .pytest_cache/
 .tox/
