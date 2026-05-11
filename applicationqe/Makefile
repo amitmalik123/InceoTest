@@ -167,7 +167,7 @@ type-check:
 # Security check
 security:
 	@echo "🔒 Running security checks..."
-	bandit -r . -f screen
+	bandit -r . -c config/bandit -f screen
 	@echo "✅ Security check complete!"
 
 # Run all quality checks
@@ -311,7 +311,7 @@ quality-reports:
 	flake8 --output-file=reports/flake8-report.txt --format=default pages utils config fixtures features/steps || true
 	pylint pages utils config fixtures features/steps --output-format=json --output=reports/pylint-report.json --exit-zero || true
 	mypy pages utils config fixtures --config-file=mypy.ini > reports/mypy-report.txt 2>&1 || true
-	bandit -r pages utils config fixtures -f json -o reports/bandit-report.json || true
+	bandit -r pages utils config fixtures -c config/bandit -f json -o reports/bandit-report.json || true
 	@echo "✅ Quality reports generated!"
 
 # Run SonarQube analysis (requires SONAR_HOST_URL and SONAR_TOKEN environment variables)

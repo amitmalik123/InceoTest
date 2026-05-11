@@ -106,7 +106,7 @@ git commit --no-verify
 ### 7. **Bandit** - Security Linter
 Scans code for security vulnerabilities.
 
-**Configuration**: `.bandit`
+**Configuration**: `config/bandit`
 - Detects security issues
 - Checks for common vulnerabilities
 

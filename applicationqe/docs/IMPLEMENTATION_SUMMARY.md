@@ -9,7 +9,7 @@
 | `.flake8` | Linting rules and code style checks |
 | `.pylintrc` | Advanced linting configuration |
 | `mypy.ini` | Type checking configuration |
-| `.bandit` | Security scanning configuration |
+| `config/bandit` | Security scanning configuration |
 | `.pre-commit-config.yaml` | Git hooks for automated quality checks |
 | `pyproject.toml` | Black, isort, pytest, and coverage configuration |
 | `.editorconfig` | Editor consistency settings |
