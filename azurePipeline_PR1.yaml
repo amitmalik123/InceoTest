@@ -25,7 +25,7 @@ trigger: none
 # Scheduled triggers
 # -----------------------------
 schedules:
-  - cron: "35 6 * * *" # 06:35 UTC daily (12:05 PM IST)
+  - cron: "10 10 * * *" # 10:10 UTC daily (3:40 PM IST)
     displayName: "Daily Regression"
     branches:
       include:
@@ -77,6 +77,8 @@ parameters:
       - both
 
 variables:
+- group: qa-pipelines-shared-config
+# subscription_test, logAnalyticsWorkspaceId, logAnalyticsSharedKey come from the library group above
 - name: azureSubscription
   value: 'TEST Foundation (9156b16c-8a2e-4b7d-a886-e772dc017316)'
 # -----------------------------
