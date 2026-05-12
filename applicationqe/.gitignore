@@ -49,7 +49,11 @@ playwright-report/
 traces/
 videos/
 screenshots/
-tests/.auth/  # Authentication state files (contains session tokens)
+
+# Authentication state files (contains session tokens, browser cookies, credentials)
+# All files in .auth/ are dynamically created during test execution
+tests/.auth/
+tests/.auth/*.json
 
 # Reports
 # reports/ folder is now tracked for storing test outputs and results

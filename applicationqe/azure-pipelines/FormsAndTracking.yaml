@@ -23,7 +23,7 @@ trigger: none
 # Scheduled triggers
 #-----------------------------
 schedules:
- - cron: "0 22 * * *" # 2:00 PM PST → Test11
+ - cron: "30 8 * * *" # 12:30 AM PST → Test11
    displayName: "Schedule for Test11"
    branches:
      include:
@@ -150,7 +150,8 @@ jobs:
 
   - script: |
       echo "##vso[task.setvariable variable=TEST_ENV]$(environment)"
-    displayName: "Set Test Environment Variable"
+      echo "##vso[task.setvariable variable=browser]${{ parameters.browser }}"
+    displayName: "Set Test Environment and Browser Variables"
 
   - script: |
       echo "========================================"
@@ -257,7 +258,7 @@ jobs:
       echo "========================================"
       echo "Test Marker: $(marker)"
       echo "Workers: $(workers)"
-      echo "Browser: $(browser)"
+      echo "Browser: ${{ parameters.browser }}"
       echo "Environment: $(environment)"
       echo "Build Path: $(buildPath)"
       echo "Allure Results Dir: $(allureResultsDir)"
@@ -291,13 +292,13 @@ jobs:
       BROWSER_VALUE="${{ parameters.browser }}"
       if [ "$BROWSER_VALUE" = "both" ]; then
         BROWSER_PARAM="--browser chromium --browser msedge"
-        echo "Cross-browser testing: Chromium and Microsoft Edge"
+        echo "✓ Cross-browser testing: Chromium and Microsoft Edge"
       elif [ "$BROWSER_VALUE" = "msedge" ]; then
         BROWSER_PARAM="--browser msedge"
-        echo "Browser: Microsoft Edge"
+        echo "✓ Browser: Microsoft Edge"
       else
         BROWSER_PARAM="--browser chromium"
-        echo "Browser: Chromium (default)"
+        echo "✓ Browser: Chromium (default)"
       fi
 
       PYTEST_CMD="pytest $TEST_TARGET \
