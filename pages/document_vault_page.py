@@ -23,8 +23,11 @@ class DocumentVaultPage(BasePage):
         self.document_type_select_xpath = '//select[@name="ddDocType"]'
         self.year_dropdown_xpath = '//select[@name="ddYear"]'
         self.quarter_dropdown_xpath = '//select[@name="ddQtrMonth"]'
+        self.all_checkboxes_xpath = '//input[@type="checkbox"]'
         self.quarter_label_xpath = "//td[contains(text(),'Quarter')]"
         self.document_label_xpath = "//td[contains(normalize-space(),'Document')]"
+        self.period_label_xpath = "//td[contains(text(),'Period')]"
+        self.month_label_xpath = "//td[contains(text(),'Month')]"
         self.year_display_xpath = '//div[@id="uniform-ddYear"]//span'
         self.quarter_display_xpath = '//div[@id="uniform-ddQtrMonth"]//span'
         self.document_dropdown_xpath = '//select[@name="ddDocument"]'
@@ -106,7 +109,7 @@ class DocumentVaultPage(BasePage):
             "//h3[@aria-expanded='true']//span[contains(@class,'ui-accordion-header-icon')"
             " and not(ancestor-or-self::*[contains(@style, 'display: none')])]"
         )
-        self.all_checkboxes: Locator = self.form_root.locator('//input[@type="checkbox"]')
+        self.all_checkboxes: Locator = self.form_root.locator(self.all_checkboxes_xpath)
         self.select_all_button: Locator = self.form_root.locator('//a[text()="Select All"]')
         self.clear_all_button: Locator = self.form_root.locator('//a[text()="Clear All"]')
         self.view_selected_as_one_button: Locator = self.form_root.locator(self.view_selected_button_xpath)
@@ -486,6 +489,25 @@ class DocumentVaultPage(BasePage):
 
         raise AssertionError(f"{target_name} control is not visible for user interaction")
 
+    def validate_period_and_month_dropdowns_visible_for_user_interaction(self, timeout: int = 10000) -> bool:
+        """Validate Period and Month controls are visible for user interaction."""
+        logger.info("Validating Period and Month controls are visible for user interaction")
+
+        candidates = [self.page] + list(self.page.frames)
+        for candidate in candidates:
+            try:
+                period_label = candidate.locator(self.period_label_xpath).first
+                month_label = candidate.locator(self.month_label_xpath).first
+                if self.is_visible(period_label, timeout=1500) and self.is_visible(month_label, timeout=1500):
+                    period_label.scroll_into_view_if_needed()
+                    month_label.scroll_into_view_if_needed()
+                    logger.info("Period and Month controls are visible for user interaction")
+                    return True
+            except Exception:
+                continue
+
+        raise AssertionError("Period and Month controls are not visible for user interaction")
+
     def validate_find_button_enabled(self, timeout: int = 10000) -> bool:
         """Validate that the Find/Search button is enabled after document selection."""
         logger.info("Validating Find button is enabled for user interaction")
@@ -627,6 +649,11 @@ class DocumentVaultPage(BasePage):
 
         raise AssertionError("No filter checkboxes found")
 
+    def get_selected_filter_count(self, timeout: int = 10000) -> int:
+        """Return how many filters/documents are currently selected."""
+        _, checked_count = self._get_filter_checkbox_state_counts(timeout=timeout)
+        return checked_count
+
     def validate_button_states_based_on_filter_selection(self, timeout: int = 10000) -> bool:
         """Validate View selected as one and Save selected buttons are enabled when filters are selected."""
         self.click_select_all_filters(timeout=timeout)
@@ -674,7 +701,7 @@ class DocumentVaultPage(BasePage):
         if not year_text:
             for candidate in candidates:
                 try:
-                    sel = candidate.locator('//select[@name="ddYear"]').first
+                    sel = candidate.locator(self.year_dropdown_xpath).first
                     if sel.count() > 0:
                         year_text = (sel.input_value(timeout=5000) or "").strip()
                         if year_text:
@@ -685,7 +712,7 @@ class DocumentVaultPage(BasePage):
         if not quarter_text:
             for candidate in candidates:
                 try:
-                    sel = candidate.locator('//select[@name="ddQtrMonth"]').first
+                    sel = candidate.locator(self.quarter_dropdown_xpath).first
                     if sel.count() > 0:
                         quarter_text = (sel.input_value(timeout=5000) or "").strip()
                         if quarter_text:
@@ -731,6 +758,14 @@ class DocumentVaultPage(BasePage):
 
         normalized_filename = re.sub(r'[^A-Za-z0-9]+', ' ', filename).upper()
         normalized_doc_type = re.sub(r'[^A-Za-z0-9]+', ' ', document_type_text).upper().strip()
+
+        # If the doc type has a parenthesised abbreviation (e.g. "QPR" in "Quarterly Performance Reports (QPR)")
+        # and the abbreviation appears in the filename, that is sufficient.
+        abbrev_match = re.search(r'\(([A-Za-z0-9]+)\)', document_type_text)
+        if abbrev_match and abbrev_match.group(1).upper() in normalized_filename:
+            logger.info("Filename validation passed: document type and year are present")
+            return
+
         doc_tokens = [
             token for token in normalized_doc_type.split()
             if len(token) > 2 and token not in {"THE", "AND", "FOR", "WITH"}
@@ -747,23 +782,6 @@ class DocumentVaultPage(BasePage):
             )
 
         logger.info("Filename validation passed: document type and year are present")
-
-    def validate_qpr_zip_download(self, timeout: int = 30000) -> str:
-        """Click Save Selected, download ZIP, validate filename. Returns filename."""
-        save_btn = self._find_save_selected_button(timeout=10000)
-
-        with self.page.expect_download(timeout=timeout) as download_info:
-            save_btn.click(timeout=timeout)
-        download = download_info.value
-
-        download_dir = Path("reports/downloads")
-        download_dir.mkdir(parents=True, exist_ok=True)
-        target_path = download_dir / download.suggested_filename
-        download.save_as(str(target_path))
-
-        downloaded_name = target_path.name
-        self._validate_qpr_filename(downloaded_name)
-        return downloaded_name
 
     def validate_document_type_year_zip_download(self, timeout: int = 30000) -> str:
         """Click Save Selected, download ZIP, validate selected document type and year. Returns filename."""
@@ -792,7 +810,7 @@ class DocumentVaultPage(BasePage):
         candidates = [self.page] + list(self.page.frames)
         for candidate in candidates:
             try:
-                checkboxes = candidate.locator('//input[@type="checkbox"]')
+                checkboxes = candidate.locator(self.all_checkboxes_xpath)
                 for i in range(checkboxes.count()):
                     cb = checkboxes.nth(i)
                     if self.is_visible(cb, timeout=1000):

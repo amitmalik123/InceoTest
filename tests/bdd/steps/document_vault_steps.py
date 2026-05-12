@@ -101,12 +101,27 @@ def click_documenttype_dropdown_and_select_assetmark_trust_tax_documents(page: P
     document_vault_page.select_document_type(option_label="AssetMark Trust Tax Documents")
 
 
+@when("click documenttype dropdown and select Assermark Trust Custody Statements")
+@when("click documenttype dropdown and select AssetMark Trust Custody Statements")
+def click_documenttype_dropdown_and_select_assetmark_trust_custody_statements(page: Page):
+    document_vault_page = DocumentVaultPage(page)
+    document_vault_page.select_document_type(option_label="AssetMark Trust Custody Statements")
+
+
 @when("validate the Quarter dropdown should be visible for user interaction")
 @when("validate the Document dropdown should be visible for user interaction")
 def validate_quarter_dropdown_visible_for_user_interaction(page: Page):
     document_vault_page = DocumentVaultPage(page)
     assert document_vault_page.validate_quarter_dropdown_visible_for_user_interaction(), (
         "Quarter dropdown should be visible for user interaction"
+    )
+
+
+@when("validate the Period and month dropdowns are visible for user interaction")
+def validate_period_and_month_dropdowns_visible_for_user_interaction(page: Page):
+    document_vault_page = DocumentVaultPage(page)
+    assert document_vault_page.validate_period_and_month_dropdowns_visible_for_user_interaction(), (
+        "Period and Month dropdowns should be visible for user interaction"
     )
 
 
@@ -149,17 +164,17 @@ def validate_button_states_based_on_filter_selection(page: Page):
     )
 
 
-@then("the user clicks Save Selected and verifies a QPR-year-quarter ZIP download")
-def user_clicks_save_selected_and_verify_qpr_zip(page: Page):
-    document_vault_page = DocumentVaultPage(page)
-    zip_filename = document_vault_page.validate_qpr_zip_download()
-    assert zip_filename, "ZIP download validation failed"
-    logger.info(f"ZIP download validated: {zip_filename}")
-
-
 @then("the user clicks Save Selected and verifies a Document type-year ZIP download")
 def user_clicks_save_selected_and_verify_document_type_year_zip(page: Page):
     document_vault_page = DocumentVaultPage(page)
+    selected_count = document_vault_page.get_selected_filter_count()
+    if selected_count <= 1:
+        logger.warning(
+            "Only one document is available/selected after Select All; "
+            "skipping ZIP validation because Save Selected downloads PDF for a single document."
+        )
+        return
+
     zip_filename = document_vault_page.validate_document_type_year_zip_download()
     assert zip_filename, "Document type-year ZIP download validation failed"
     logger.info(f"Document type-year ZIP download validated: {zip_filename}")

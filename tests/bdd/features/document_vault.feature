@@ -50,7 +50,7 @@ Feature: Verify Document Vault page functionality client level
     And click documenttype dropdown and select QPR document
     Then validate find button is enabled for user interaction
     When user clicks Select All filters
-    Then the user clicks Save Selected and verifies a QPR-year-quarter ZIP download
+    Then the user clicks Save Selected and verifies a Document type-year ZIP download
     And select a single document and click Save selected
     Then user verifies a QPR-year-quarter PDF download
 
@@ -60,6 +60,18 @@ Feature: Verify Document Vault page functionality client level
     When navigates to Document vault
     And click documenttype dropdown and select AssetMark Trust Tax Documents
     And validate the Document dropdown should be visible for user interaction
+    Then validate find button is enabled for user interaction
+    When user clicks Select All filters
+    Then the user clicks Save Selected and verifies a Document type-year ZIP download
+    And select a single document and click Save selected
+    Then user verifies a Document type-year PDF download
+
+  @regression @e2e @documentvault
+  Scenario: Validate download functionality of AssetMark Trust Custody Statements
+    Given user click on clients tab
+    When navigates to Document vault
+    And click documenttype dropdown and select Assermark Trust Custody Statements
+    And validate the Period and month dropdowns are visible for user interaction
     Then validate find button is enabled for user interaction
     When user clicks Select All filters
     Then the user clicks Save Selected and verifies a Document type-year ZIP download
