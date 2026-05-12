@@ -150,7 +150,6 @@ jobs:
 
   - script: |
       echo "##vso[task.setvariable variable=TEST_ENV]$(environment)"
-      echo "##vso[task.setvariable variable=browser]${{ parameters.browser }}"
     displayName: "Set Test Environment and Browser Variables"
 
   - script: |
@@ -258,7 +257,7 @@ jobs:
       echo "========================================"
       echo "Test Marker: $(marker)"
       echo "Workers: $(workers)"
-      echo "Browser: ${{ parameters.browser }}"
+      echo "Browser: $(browser)"
       echo "Environment: $(environment)"
       echo "Build Path: $(buildPath)"
       echo "Allure Results Dir: $(allureResultsDir)"
