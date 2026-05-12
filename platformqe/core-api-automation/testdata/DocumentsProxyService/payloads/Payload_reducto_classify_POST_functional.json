@@ -1,0 +1,34 @@
+{
+  "input": "{{input}}",
+  "classification_schema": [
+    {
+      "category": "invoice",
+      "criteria": [
+        "contains billing information",
+        "has itemized charges",
+        "includes payment details or amounts due"
+      ]
+    },
+    {
+      "category": "contract",
+      "criteria": [
+        "contains legal terms and conditions",
+        "includes signature lines or parties involved",
+        "references obligations or agreements"
+      ]
+    },
+    {
+      "category": "receipt",
+      "criteria": [
+        "shows a completed transaction",
+        "includes items purchased with prices",
+        "has a total amount paid"
+      ]
+    }
+  ],
+  "page_range": {
+    "start": "{{page_range_start}}",
+    "end": "{{page_range_end}}"
+  },
+  "document_metadata": "{{document_metadata}}"
+}
