@@ -1,0 +1,166 @@
+[
+    {
+        "test_id": "TC001",
+        "service_name": "proxyservice",
+        "workflow_mode": "parallel",
+        "test_name": "Proxies cancel job request to Reducto with valid job_id. [positive] (TC001)",
+        "protocol": "REST",
+        "test_type": [
+            "Functional"
+        ],
+        "mainURL": "{{base_url}}",
+        "endpoint": "/reducto/cancel/{{job_id}}",
+        "method": "POST",
+        "rpc_method": "",
+        "graphql_query": "",
+        "graphql_variables": "",
+        "soap_action": "",
+        "soap_envelope": "",
+        "headers_additional": {
+            "Content-Type": "application/json"
+        },
+        "payload": "",
+        "expected_status": "200",
+        "expected_response_schema": "",
+        "expected_response": null,
+        "assertions": [
+            {
+                "assertion_name": "Status code should be 200",
+                "source": "response.status_code",
+                "operator": "equals",
+                "expected": 200
+            }
+        ],
+        "ignore_fields": [],
+        "extract_values": [],
+        "validate": {
+            "performance": {
+                "max_response_time_ms": 10000
+            },
+            "security": {
+                "checks": [
+                    "sql_injection",
+                    "xss"
+                ]
+            },
+            "assertions": [],
+            "data_comparison": []
+        },
+        "test_data_file": "DocumentsProxyService/data_driven/Data_reducto_cancel_jobId_POST.csv",
+        "db_query_timing": "",
+        "db_queries": {
+            "default": "",
+            "audit_query": ""
+        },
+        "db_type": "",
+        "db_connection_name": "",
+        "test_summary": "Test TC001: Verify API returns 200 with null response body when cancelling a valid job_id. [positive] (TC001)",
+        "csv_row_index": 0,
+        "payload_file": ""
+    },
+    {
+        "test_id": "TC002",
+        "service_name": "proxyservice",
+        "workflow_mode": "parallel",
+        "test_name": "Cancel job request with invalid job_id returns 404 not found. [negative] (TC002)",
+        "protocol": "REST",
+        "test_type": [
+            "Functional"
+        ],
+        "mainURL": "{{base_url}}",
+        "endpoint": "/reducto/cancel/{{job_id}}",
+        "method": "POST",
+        "rpc_method": "",
+        "graphql_query": "",
+        "graphql_variables": "",
+        "soap_action": "",
+        "soap_envelope": "",
+        "headers_additional": {
+            "Content-Type": "application/json"
+        },
+        "payload": "",
+        "expected_status": "404",
+        "expected_response_schema": "",
+        "expected_response": {
+            "error": {
+                "code": 404,
+                "name": "NOT_FOUND",
+                "message": "Job '1cbcfb3f-e473-4219-b59b-93722853d259' not found"
+            },
+            "detail": "Job '1cbcfb3f-e473-4219-b59b-93722853d259' not found"
+        },
+        "assertions": [],
+        "ignore_fields": [
+            "error.message",
+            "detail"
+        ],
+        "extract_values": [
+            {
+                "from": "response",
+                "key": "error.code",
+                "assign_to": "error_code"
+            },
+            {
+                "from": "response",
+                "key": "error.name",
+                "assign_to": "error_name"
+            },
+            {
+                "from": "response",
+                "key": "detail",
+                "assign_to": "error_detail"
+            }
+        ],
+        "validate": {
+            "performance": {
+                "max_response_time_ms": 10000
+            },
+            "security": {
+                "checks": [
+                    "sql_injection",
+                    "xss"
+                ]
+            },
+            "assertions": [
+                {
+                    "actual": "{{error_code}}",
+                    "operator": "==",
+                    "expected": 404,
+                    "message": "Error code should be 404"
+                },
+                {
+                    "actual": "{{error_name}}",
+                    "operator": "==",
+                    "expected": "NOT_FOUND",
+                    "message": "Error name should be NOT_FOUND"
+                },
+                {
+                    "actual": "{{error_detail}}",
+                    "operator": "!=",
+                    "expected": null,
+                    "message": "Detail message should exist"
+                }
+            ],
+            "data_comparison": [
+                {
+                    "comparison_name": "Verify error name is NOT_FOUND",
+                    "source": "api_response",
+                    "source_array_path": "error.name",
+                    "target": "literal",
+                    "target_literal": "NOT_FOUND"
+                }
+            ]
+        },
+        "test_data_file": "DocumentsProxyService/data_driven/Data_reducto_cancel_jobId_POST.csv",
+        "db_query_timing": "",
+        "db_queries": {
+            "default": "",
+            "audit_query": ""
+        },
+        "db_type": "",
+        "db_connection_name": "",
+        "test_summary": "Test TC002: Verify API returns 404 NOT_FOUND when job_id does not exist. [negative] (TC002)",
+        "csv_row_index": 1,
+        "payload_file": ""
+    }
+]

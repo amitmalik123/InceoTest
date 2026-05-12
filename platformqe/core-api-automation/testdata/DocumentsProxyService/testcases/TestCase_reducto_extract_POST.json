@@ -1,0 +1,200 @@
+[
+    {
+        "test_id": "TC001",
+        "service_name": "proxyservice",
+        "workflow_mode": "parallel",
+        "test_name": "Proxies extract request to Reducto. [positive] (TC001)",
+        "protocol": "REST",
+        "test_type": [
+            "Functional"
+        ],
+        "mainURL": "{{base_url}}",
+        "endpoint": "/reducto/extract",
+        "method": "POST",
+        "rpc_method": "",
+        "graphql_query": "",
+        "graphql_variables": "",
+        "soap_action": "",
+        "soap_envelope": "",
+        "headers_additional": {
+            "Content-Type": "application/json"
+        },
+        "payload": "DocumentsProxyService/payloads/Payload_reducto_extract_POST_functional.json",
+        "expected_status": "200",
+        "expected_response_schema": "",
+        "expected_response": null,
+        "assertions": [],
+        "ignore_fields": [
+            "job_id",
+            "studio_link",
+            "usage",
+            "result"
+        ],
+        "extract_values": [
+            {
+                "from": "response",
+                "key": "response_type",
+                "assign_to": "extract_response_type"
+            },
+            {
+                "from": "response",
+                "key": "job_id",
+                "assign_to": "extract_job_id"
+            },
+            {
+                "from": "response",
+                "key": "studio_link",
+                "assign_to": "extract_studio_link"
+            }
+        ],
+        "validate": {
+            "performance": {
+                "max_response_time_ms": 120000
+            },
+            "security": {
+                "checks": [
+                    "sql_injection",
+                    "xss"
+                ]
+            },
+            "assertions": [
+                {
+                    "actual": "{{extract_response_type}}",
+                    "operator": "==",
+                    "expected": "extract",
+                    "message": "Response type should be extract"
+                },
+                {
+                    "actual": "{{extract_job_id}}",
+                    "operator": "!=",
+                    "expected": null,
+                    "message": "Response should contain job_id"
+                },
+                {
+                    "actual": "{{extract_studio_link}}",
+                    "operator": "!=",
+                    "expected": null,
+                    "message": "Studio link should exist"
+                }
+            ],
+            "data_comparison": [
+                {
+                    "comparison_name": "Verify response_type equals extract",
+                    "source": "api_response",
+                    "source_array_path": "response_type",
+                    "target": "literal",
+                    "target_literal": "extract"
+                }
+            ]
+        },
+        "test_data_file": "DocumentsProxyService/data_driven/Data_reducto_extract_POST.csv",
+        "db_query_timing": "",
+        "db_queries": {
+            "default": "",
+            "audit_query": ""
+        },
+        "db_type": "",
+        "db_connection_name": "",
+        "test_summary": "Test TC001: Verify API returns 200 with extract response_type and job_id for valid extract request. [positive] (TC001)",
+        "csv_row_index": 0,
+        "payload_file": "DocumentsProxyService\\payloads\\Payload_reducto_extract_POST_functional.json"
+    },
+    {
+        "test_id": "TC002",
+        "service_name": "proxyservice",
+        "workflow_mode": "parallel",
+        "test_name": "Invalid input returns 404 not found for Reducto extract request. [negative] (TC002)",
+        "protocol": "REST",
+        "test_type": [
+            "Functional"
+        ],
+        "mainURL": "{{base_url}}",
+        "endpoint": "/reducto/extract",
+        "method": "POST",
+        "rpc_method": "",
+        "graphql_query": "",
+        "graphql_variables": "",
+        "soap_action": "",
+        "soap_envelope": "",
+        "headers_additional": {
+            "Content-Type": "application/json"
+        },
+        "payload": "DocumentsProxyService/payloads/Payload_reducto_extract_POST_functional.json",
+        "expected_status": "404",
+        "expected_response_schema": "",
+        "expected_response": null,
+        "assertions": [],
+        "ignore_fields": [
+            "error.message",
+            "detail"
+        ],
+        "extract_values": [
+            {
+                "from": "response",
+                "key": "error.code",
+                "assign_to": "error_code"
+            },
+            {
+                "from": "response",
+                "key": "error.name",
+                "assign_to": "error_name"
+            },
+            {
+                "from": "response",
+                "key": "detail",
+                "assign_to": "error_detail"
+            }
+        ],
+        "validate": {
+            "performance": {
+                "max_response_time_ms": 30000
+            },
+            "security": {
+                "checks": [
+                    "sql_injection",
+                    "xss"
+                ]
+            },
+            "assertions": [
+                {
+                    "actual": "{{error_code}}",
+                    "operator": "==",
+                    "expected": 404,
+                    "message": "Error code should be 404"
+                },
+                {
+                    "actual": "{{error_name}}",
+                    "operator": "==",
+                    "expected": "NOT_FOUND",
+                    "message": "Error name should be NOT_FOUND"
+                },
+                {
+                    "actual": "{{error_detail}}",
+                    "operator": "!=",
+                    "expected": null,
+                    "message": "Detail message should exist"
+                }
+            ],
+            "data_comparison": [
+                {
+                    "comparison_name": "Verify error name is NOT_FOUND",
+                    "source": "api_response",
+                    "source_array_path": "error.name",
+                    "target": "literal",
+                    "target_literal": "NOT_FOUND"
+                }
+            ]
+        },
+        "test_data_file": "DocumentsProxyService/data_driven/Data_reducto_extract_POST.csv",
+        "db_query_timing": "",
+        "db_queries": {
+            "default": "",
+            "audit_query": ""
+        },
+        "db_type": "",
+        "db_connection_name": "",
+        "test_summary": "Test TC002: Verify API returns 404 NOT_FOUND when input document is invalid/expired for extract request. [negative] (TC002)",
+        "csv_row_index": 1,
+        "payload_file": "DocumentsProxyService\\payloads\\Payload_reducto_extract_POST_functional.json"
+    }
+]
