@@ -197,6 +197,16 @@ parameters:
     type: string
     default: 'N/A'
 
+  - name: promotePerformanceBaseline
+    displayName: 'Promote this performance run as baseline'
+    type: boolean
+    default: false
+
+  - name: baselineReason
+    displayName: 'Baseline promotion reason'
+    type: string
+    default: 'Approved performance baseline'
+
   - name: deploymentsync
     displayName: 'wait to sync ArgoCd charts and deployment sucessfully'
     type: number
@@ -255,6 +265,8 @@ stages:
       overrideEnabled: ${{ parameters.overrideEnabled }}
       customFunctionalArgs: ${{ parameters.customFunctionalArgs }}
       customNonFunctionalArgs: ${{ parameters.customNonFunctionalArgs }}
+      promotePerformanceBaseline: ${{ parameters.promotePerformanceBaseline }}
+      baselineReason: ${{ parameters.baselineReason }}
       teamsNotificationEnabled: ${{ parameters.teamsNotificationEnabled }}
       # For scheduled runs, use the branch-specific scheduleTestCaseFilter (defined in-code)
       # For manual/PR/Push runs, use the user-provided parameter value
