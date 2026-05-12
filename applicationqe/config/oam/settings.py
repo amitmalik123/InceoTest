@@ -19,7 +19,7 @@ from utils.logger import setup_logger
 
 # Load .env file from project root (if present).
 # Real env-vars (e.g. from CI/CD) take precedence; .env is never committed.
-load_dotenv(Path(__file__).resolve().parent.parent / ".env")
+load_dotenv(Path(__file__).resolve().parent.parent.parent / ".env")
 
 
 class Settings:
@@ -169,16 +169,16 @@ class Settings:
     @property
     def test_data_csv(self):
         """Get path to test data CSV file."""
-        base_path = Path(__file__).parent.parent
+        base_path = Path(__file__).parent.parent.parent
         return base_path / self.config["data"]["test_data_csv"]
 
     @property
     def test_data_excel(self):
         """Get path to test data Excel file."""
+        base_path = Path(__file__).parent.parent.parent
         excel_path = self.config.get("data", {}).get("test_data_excel")
         if not excel_path:
             return None
-        base_path = Path(__file__).parent.parent
         return base_path / excel_path
 
     @property
@@ -227,8 +227,8 @@ class Settings:
         return list(self.config.get("applications", {}).keys())
 
     def _load_queries(self):
-        """Load SQL queries from queries/sql_queries.yaml once at init time."""
-        queries_path = Path(__file__).parent.parent / "queries" / "sql_queries.yaml"
+        """Load SQL queries from queries/oam/oam_sql_queries.yaml once at init time."""
+        queries_path = Path(__file__).parent.parent.parent / "queries" / "oam" / "oam_sql_queries.yaml"
         if not queries_path.exists():
             self.logger.warning(f"Queries file not found: {queries_path}")
             return {}
@@ -238,7 +238,7 @@ class Settings:
 
     @property
     def database_queries(self):
-        """Get predefined database queries (loaded once from queries/sql_queries.yaml)."""
+        """Get predefined database queries (loaded once from queries/oam/oam_sql_queries.yaml)."""
         return self._queries
 
     # --- Outlook Email (IMAP) ---

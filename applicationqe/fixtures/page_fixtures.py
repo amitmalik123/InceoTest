@@ -9,7 +9,7 @@ The base_url is injected from Settings so pages are environment-agnostic.
 import pytest
 from playwright.sync_api import Page
 
-from config.settings import get_settings
+from config.oam.settings import get_settings
 from pages.account_detail_page import AccountDetailPage
 from pages.account_list_page import AccountListPage
 from pages.account_management_page import AccountManagementPage

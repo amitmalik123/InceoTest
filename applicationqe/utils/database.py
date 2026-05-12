@@ -15,7 +15,7 @@ logger = setup_logger(__name__)
 
 def _get_db_settings():
     """Get the centralized Settings singleton (lazy import to avoid circular deps)."""
-    from config.settings import get_settings
+    from config.oam.settings import get_settings
 
     return get_settings()
 
@@ -276,7 +276,7 @@ def execute_query_from_yaml(
     Uses db_manager for connection reuse with USE database switching.
 
     Args:
-        query_category: Category from queries/sql_queries.yaml (e.g., "transfer", "crm")
+        query_category: Category from queries/oam/oam_sql_queries.yaml (e.g., "transfer", "crm")
         query_name: Query name within the category (e.g., "transfer_audit")
         params: Optional query parameters as tuple
         db_manager: DatabaseConnectionManager that provides cached connections
@@ -304,13 +304,13 @@ def execute_query_from_yaml(
     category_config = _get_db_settings().database_queries.get(query_category, {})
 
     if not category_config:
-        raise ValueError(f"Query category '{query_category}' not found in queries/sql_queries.yaml")
+        raise ValueError(f"Query category '{query_category}' not found in queries/oam/oam_sql_queries.yaml")
 
     # Get db_type from YAML
     db_type = category_config.get("db_type")
     if not db_type:
         raise ValueError(
-            f"db_type not specified for query category '{query_category}' in queries/sql_queries.yaml. "
+            f"db_type not specified for query category '{query_category}' in queries/oam/oam_sql_queries.yaml. "
             "Add 'db_type: azure' or 'db_type: sql_server' to the category."
         )
 
@@ -327,7 +327,7 @@ def execute_query_from_yaml(
     database_name = category_config.get("database")
     if not database_name:
         raise ValueError(
-            f"database not specified for query category '{query_category}' in queries/sql_queries.yaml. "
+            f"database not specified for query category '{query_category}' in queries/oam/oam_sql_queries.yaml. "
             "Add 'database: <database_name>' to the category."
         )
 
@@ -343,7 +343,7 @@ def execute_query_from_yaml(
     else:
         raise ValueError(
             f"No vault_alias configured for query category '{query_category}' "
-            f"in queries/sql_queries.yaml. All databases must use connection strings "
+            f"in queries/oam/oam_sql_queries.yaml. All databases must use connection strings "
             f"from Key Vault. Add 'vault_alias: <alias>' to the category and configure "
             f"the corresponding entry under database.vault_databases in the env YAML."
         )
@@ -691,6 +691,10 @@ def fetch_authorized_signer(
             else:
                 signer_name = fetch_agent_name_by_aplid_from_db(aplid, role)
             
+            # Strip whitespace from database result
+            if signer_name:
+                signer_name = signer_name.strip()
+            
             if not signer_name:
                 raise ValueError(
                     f"Authorized_Signer not found in database for {aplid} with role {role}"
@@ -717,7 +721,7 @@ def fetch_agent_name_by_aplid_from_db(
     Fetch user name from database by APLID/UserID based on role or custom query.
     
     Supports fetching names for both Agent and Shared Access User (SAU) roles.
-    Uses the appropriate query from queries/sql_queries.yaml:
+    Uses the appropriate query from queries/oam/oam_sql_queries.yaml:
     - Agent (FA): 'agent.agent_name_by_aplid' - requires usl.UserID (APLID)
     - SAU: 'agent.authorized_signer_SAU_name_ManageLogin_by_UserID' - requires sd.UserID and usl.UserID parameters
     
@@ -732,7 +736,7 @@ def fetch_agent_name_by_aplid_from_db(
         role: User role (REQUIRED) - accepts:
               Agent: 'FA', 'fa', 'agent', 'Agent' 
               SAU: 'SAU', 'sau', 'shared access user', 'Shared Access User'
-        query_name: (OPTIONAL) Custom query name from queries/sql_queries.yaml.
+        query_name: (OPTIONAL) Custom query name from queries/oam/oam_sql_queries.yaml.
                    If provided, this query will be used instead of role-based mapping.
                    Example: "agentName__by_aplid_from_agentTable"
         id_type: (OPTIONAL) Description of the ID type for logging purposes.
@@ -747,7 +751,7 @@ def fetch_agent_name_by_aplid_from_db(
         
     Raises:
         PermissionError: If attempting to connect to production/silo environment
-        ValueError: If role is invalid or query not found in sql_queries.yaml
+        ValueError: If role is invalid or query not found in oam_sql_queries.yaml
         TypeError: If aplid or role is not provided
         
     Example:
@@ -811,7 +815,7 @@ def fetch_agent_name_by_aplid_from_db(
         
         if not query:
             raise ValueError(
-                f"Query 'agent.{query_name}' not found in queries/sql_queries.yaml. "
+                f"Query 'agent.{query_name}' not found in queries/oam/oam_sql_queries.yaml. "
                 f"Ensure the query is defined under 'agent: -> queries:' section."
             )
         

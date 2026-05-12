@@ -30,6 +30,6 @@ from tests.bdd.steps.item_detail_steps import *  # noqa: F401,F403
 # Load all scenarios from the feature files
 # Pytest tags from feature files (@smoke, @regression, @FA_Client_Signature, etc) are automatically available
 # Use -m flag to filter by tags: pytest tests/bdd/test_runners/test_OAM.py -m FA_Client_Signature
-scenarios("../features/OAM_FA.feature")
-scenarios("../features/OAM_OA.feature")
-scenarios("../features/OAM_SAU.feature")
+scenarios("../features/oam/OAM_FA.feature")
+scenarios("../features/oam/OAM_OA.feature")
+scenarios("../features/oam/OAM_SAU.feature")

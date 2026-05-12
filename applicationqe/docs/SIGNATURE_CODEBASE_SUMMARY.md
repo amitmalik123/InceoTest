@@ -282,7 +282,7 @@ Then Signature and today's date should be added on the document
 
 ## 5. DATABASE QUERIES FOR SIGNATURE/SIGNER DATA
 
-**File:** [queries/sql_queries.yaml](queries/sql_queries.yaml)
+**File:** [queries/oam/oam_sql_queries.yaml](queries/oam/oam_sql_queries.yaml)
 
 ### E-Signature Related Queries:
 ```yaml
@@ -474,7 +474,7 @@ authorized_signer_SAU_name_ManageLogin_by_UserID: "..."
 
 ### Utilities:
 - [utils/database.py](utils/database.py) - Database queries for signer data
-- [queries/sql_queries.yaml](queries/sql_queries.yaml) - SQL queries for DocuSign/signer data
+- [queries/oam/oam_sql_queries.yaml](queries/oam/oam_sql_queries.yaml) - SQL queries for DocuSign/signer data
 
 ---
 

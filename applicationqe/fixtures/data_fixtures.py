@@ -9,7 +9,7 @@ from typing import Dict, List, Optional
 
 import pytest
 
-from config.settings import settings
+from config.oam.settings import settings
 
 
 class TestDataManager:

@@ -87,7 +87,7 @@ class OutlookPage(BasePage):
         Raises:
             ValueError: If secret_key or encrypted credentials not found in config
         """
-        from config.settings import get_settings
+        from config.oam.settings import get_settings
         
         settings = get_settings()
         

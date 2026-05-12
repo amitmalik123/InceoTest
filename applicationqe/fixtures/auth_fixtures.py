@@ -19,7 +19,7 @@ from typing import Optional
 import pytest
 from playwright.sync_api import Page
 
-from config.settings import Settings, get_settings
+from config.oam.settings import Settings, get_settings
 from pages.login_page import LoginPage
 from fixtures.browser_fixtures import apply_context_listeners, apply_route_blocks
 

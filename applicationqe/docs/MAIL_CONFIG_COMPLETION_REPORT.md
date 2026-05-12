@@ -101,7 +101,7 @@ The new system uses a smart fallback chain:
 settings.py.__init__()
 ├─ load YAML config (env.test11.yaml)
 ├─ load mail_config.properties → parse to dict
-├─ load queries (sql_queries.yaml)
+├─ load queries (oam_sql_queries.yaml)
 └─ initialize Key Vault client
 
 settings.outlook_email.getter:

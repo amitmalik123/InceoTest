@@ -4,7 +4,8 @@
 
 ```
 queries/
-└── sql_queries.yaml          # Centralized SQL queries (all environments)
+└── oam/
+    └── oam_sql_queries.yaml   # Centralized SQL queries for OAM (all environments)
 
 config/
 ├── env.test11.yaml           # Environment-specific DB config
@@ -32,7 +33,7 @@ database:
 ```
 
 ### 2. Add Queries to Central File
-**File:** `queries/sql_queries.yaml`
+**File:** `queries/oam/oam_sql_queries.yaml`
 
 ```yaml
 transfer:
@@ -82,7 +83,7 @@ Scenario: Custom database check
 ## Adding New Queries
 
 ### Step 1: Add Query to YAML
-**File:** `queries/sql_queries.yaml`
+**File:** `queries/oam/oam_sql_queries.yaml`
 
 ```yaml
 your_category:

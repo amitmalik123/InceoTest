@@ -2,8 +2,8 @@ from typing import Dict, Optional
 
 import requests
 
-from config.api_endpoints import APIEndpoints
-from config.settings import settings
+from config.oam.api_endpoints import APIEndpoints
+from config.oam.settings import settings
 from utils.allure_logger import get_allure_logger
 
 logger = get_allure_logger(__name__)

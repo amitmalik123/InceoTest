@@ -23,7 +23,7 @@ from pathlib import Path
 import allure
 import pytest
 
-from config.settings import get_settings
+from config.oam.settings import get_settings
 
 # Import all fixtures to make them available to all tests
 from fixtures import *  # noqa: F401, F403

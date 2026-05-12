@@ -197,18 +197,18 @@ def verify_routing_order_in_database(test_context):
     try:
         # Connect to database
         db.connect()
-        from config.settings import settings
+        from config.oam.settings import settings
         logger.info(f"Connected to database")
 
         # Get query from centralized queries file
-        from config.settings import settings
+        from config.oam.settings import settings
         query = settings.database_queries.get("tracking_center", {}).get("queries", {}).get(
             "itemId_by_dnumber"
         )
         
         if not query:
             raise ValueError(
-                "Query not found: tracking_center.itemId_by_dnumber in queries/sql_queries.yaml"
+                "Query not found: tracking_center.itemId_by_dnumber in queries/oam/oam_sql_queries.yaml"
             )
 
         logger.info(f"Executing query: {query}")
@@ -247,7 +247,7 @@ def verify_routing_order_in_database(test_context):
         )
         if not query_docusign:
             raise ValueError(
-                "Query not found: tracking_center.docusign_id_by_item_id in queries/sql_queries.yaml"
+                "Query not found: tracking_center.docusign_id_by_item_id in queries/oam/oam_sql_queries.yaml"
             )
 
         logger.info(f"Executing query: {query_docusign}")
@@ -287,7 +287,7 @@ def verify_routing_order_in_database(test_context):
         )
         if not query_recipient:
             raise ValueError(
-                "Query not found: esignature_data.recipient_by_envelope_provider_id in queries/sql_queries.yaml"
+                "Query not found: esignature_data.recipient_by_envelope_provider_id in queries/oam/oam_sql_queries.yaml"
             )
 
         logger.info(f"Query: {query_recipient}")
@@ -418,7 +418,7 @@ def user_fetch_signers_information_from_database(test_context, db_manager, authe
             logger.info(f"  ✓ Username: {username}")
             
             # Step 1.5: Check environment - use test sheet for protected environments
-            from config.settings import get_settings
+            from config.oam.settings import get_settings
             settings = get_settings()
             env = settings.env.lower()
             sheet_based_envs = ["prod", "production", "silo", "test10"]

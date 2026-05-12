@@ -198,7 +198,7 @@ import pytest
 from playwright.sync_api import Page
 
 # 3. Local imports
-from config.config import Config
+from config.settings import get_settings
 from pages.base_page import BasePage
 ```
 
