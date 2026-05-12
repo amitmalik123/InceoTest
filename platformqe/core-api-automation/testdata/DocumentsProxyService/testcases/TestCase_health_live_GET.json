@@ -1,0 +1,76 @@
+[
+    {
+        "test_id": "TC001",
+        "service_name": "proxyservice",
+        "workflow_mode": "parallel",
+        "test_name": "Health live check endpoint returns healthy status. [positive] (TC001)",
+        "protocol": "REST",
+        "test_type": [
+            "Functional"
+        ],
+        "mainURL": "{{base_url}}",
+        "endpoint": "/health/live",
+        "method": "GET",
+        "rpc_method": "",
+        "graphql_query": "",
+        "graphql_variables": "",
+        "soap_action": "",
+        "soap_envelope": "",
+        "headers_additional": {
+            "Content-Type": "application/json"
+        },
+        "payload": null,
+        "expected_status": "200",
+        "expected_response_schema": "",
+        "expected_response": {
+            "status": "Healthy",
+            "checks": []
+        },
+        "assertions": [
+            {
+                "assertion_name": "Status code should be 200",
+                "source": "response.status_code",
+                "operator": "equals",
+                "expected": 200
+            }
+        ],
+        "ignore_fields": [],
+        "extract_values": [
+            {
+                "from": "response",
+                "key": "status",
+                "assign_to": "live_status"
+            }
+        ],
+        "validate": {
+            "performance": {
+                "max_response_time_ms": 5000
+            },
+            "security": {
+                "checks": [
+                    "sql_injection",
+                    "xss"
+                ]
+            },
+            "assertions": [
+                {
+                    "assertion_name": "Live status should be Healthy",
+                    "actual": "{{live_status}}",
+                    "operator": "==",
+                    "expected": "Healthy",
+                    "message": "Expected live status to be Healthy"
+                }
+            ],
+            "data_comparison": []
+        },
+        "test_data_file": "",
+        "db_query_timing": "",
+        "db_queries": {
+            "default": "",
+            "audit_query": ""
+        },
+        "db_type": "",
+        "db_connection_name": "",
+        "test_summary": "Test TC001: Verify GET /health/live returns 200 with a healthy status. [positive] (TC001)"
+    }
+]
