@@ -1,0 +1,2025 @@
+[
+    {
+        "test_id": "TC001_V2_Alpha",
+        "service_name": "analyticsApiServices",
+        "workflow_mode": "sequential",
+        "test_name": "POST /v2/analytics - Alpha Positive (TC001)",
+        "protocol": "REST",
+        "test_type": [
+            "Functional",
+            "Smoke"
+        ],
+        "mainURL": "{{base_url}}",
+        "endpoint": "/v2/analytics",
+        "method": "POST",
+        "headers_additional": {
+            "Content-Type": "application/json"
+        },
+        "payload": "analyticsApiServices/payloads/Payload_Alpha_Beta_InfoRatio_SharpeRatio_POST.txt",
+        "expected_status": "200",
+        "expected_response_schema": "",
+        "expected_response": null,
+        "ignore_fields": [],
+        "scripts": [
+            "analyticsApiServices/validators/alpha_beta_info_sharpe_validator.py"
+        ],
+        "extract_values": [
+            {
+                "from": "response",
+                "key": "ResponseCode",
+                "assign_to": "api_response_code"
+            },
+            {
+                "from": "response",
+                "key": "CalculationResults.0.CalculationType",
+                "assign_to": "api_calculation_type"
+            },
+            {
+                "from": "script_result",
+                "key": "computed_blended_cumulative_return",
+                "assign_to": "computed_blended_cumulative_return"
+            },
+            {
+                "from": "script_result",
+                "key": "computed_benchmark_cumulative_return",
+                "assign_to": "computed_benchmark_cumulative_return"
+            },
+            {
+                "from": "script_result",
+                "key": "computed_risk_free_cumulative_return",
+                "assign_to": "computed_risk_free_cumulative_return"
+            },
+            {
+                "from": "script_result",
+                "key": "excel_D58",
+                "assign_to": "excel_D58"
+            },
+            {
+                "from": "script_result",
+                "key": "excel_D59",
+                "assign_to": "excel_D59"
+            },
+            {
+                "from": "script_result",
+                "key": "excel_D60",
+                "assign_to": "excel_D60"
+            },
+            {
+                "from": "script_result",
+                "key": "excel_B63",
+                "assign_to": "excel_B63"
+            },
+            {
+                "from": "script_result",
+                "key": "excel_B64",
+                "assign_to": "excel_B64"
+            }
+        ],
+        "validate": {
+            "performance": {
+                "max_response_time_ms": null
+            },
+            "assertions": [
+                {
+                    "actual": "{{api_response_code}}",
+                    "operator": "==",
+                    "expected": 200,
+                    "message": "Verify API response code is 200"
+                }
+            ]
+        },
+        "test_data_file": "analyticsApiServices/data_driven/Data_Alpha_POST.csv",
+        "db_queries": {},
+        "db_type": "mssql",
+        "db_connection_name": "am_db",
+        "db_query_timing": "before_api",
+        "test_summary": "Positive data-driven validation for alpha calculations using script validator.",
+        "test_scenario": "Execute one reusable TC against CSV rows to validate required input completeness and output metric structure for Alpha calculations."
+    },
+    {
+        "test_id": "TC002_V2_Alpha",
+        "service_name": "analyticsApiServices",
+        "workflow_mode": "parallel",
+        "test_name": "POST /v2/analytics [negative] (TC002_V2_Alpha)",
+        "protocol": "REST",
+        "test_type": [
+            "Functional"
+        ],
+        "mainURL": "{{base_url}}",
+        "endpoint": "/v2/analytics",
+        "method": "POST",
+        "rpc_method": "",
+        "graphql_query": "",
+        "graphql_variables": "",
+        "soap_action": "",
+        "soap_envelope": "",
+        "headers_additional": {
+            "Content-Type": "application/json"
+        },
+        "payload": {},
+        "expected_status": "400",
+        "expected_response_schema": "",
+        "expected_response": null,
+        "ignore_fields": [
+            "id"
+        ],
+        "extract_values": [
+            {
+                "from": "response",
+                "key": "id",
+                "assign_to": ""
+            },
+            {
+                "from": "db_result",
+                "query": "",
+                "assign": [
+                    {
+                        "key": "",
+                        "assign_to": ""
+                    }
+                ]
+            }
+        ],
+        "validate": {
+            "performance": {
+                "max_response_time_ms": null
+            },
+            "security": {
+                "checks": [
+                    "sql_injection",
+                    "xss"
+                ]
+            },
+            "data_comparison": {
+                "source": "api_response",
+                "target": "db_result",
+                "format": "table",
+                "key_field": [
+                    "",
+                    ""
+                ],
+                "fields_to_compare": [],
+                "log_differences": true
+            }
+        },
+        "test_data_file": "",
+        "db_query": "",
+        "db_type": "",
+        "db_connection_name": "",
+        "test_summary": "Test TC002_V2_Alpha: POST /v2/analytics [negative] (TC002_V2_Alpha) - Test POST request to /v2/analytics for Missing calculationRequest object.",
+        "test_scenario": "Test POST request to /v2/analytics for Missing calculationRequest object."
+    },
+    {
+        "test_id": "TC003_V2_Alpha",
+        "service_name": "analyticsApiServices",
+        "workflow_mode": "parallel",
+        "test_name": "POST /v2/analytics [negative] (TC003_V2_Alpha)",
+        "protocol": "REST",
+        "test_type": [
+            "Functional"
+        ],
+        "mainURL": "{{base_url}}",
+        "endpoint": "/v2/analytics",
+        "method": "POST",
+        "rpc_method": "",
+        "graphql_query": "",
+        "graphql_variables": "",
+        "soap_action": "",
+        "soap_envelope": "",
+        "headers_additional": {
+            "Content-Type": "application/json"
+        },
+        "payload": {
+            "calculationRequest": {
+                "calculationRequest with incorrect data type": "This should be an object, but it's a string to test data type validation."
+            }
+        },
+        "expected_status": "400",
+        "expected_response_schema": "",
+        "expected_response": null,
+        "ignore_fields": [
+            "id"
+        ],
+        "extract_values": [
+            {
+                "from": "response",
+                "key": "id",
+                "assign_to": ""
+            },
+            {
+                "from": "db_result",
+                "query": "",
+                "assign": [
+                    {
+                        "key": "",
+                        "assign_to": ""
+                    }
+                ]
+            }
+        ],
+        "validate": {
+            "performance": {
+                "max_response_time_ms": null
+            },
+            "security": {
+                "checks": [
+                    "sql_injection",
+                    "xss"
+                ]
+            },
+            "data_comparison": {
+                "source": "api_response",
+                "target": "db_result",
+                "format": "table",
+                "key_field": [
+                    "",
+                    ""
+                ],
+                "fields_to_compare": [],
+                "log_differences": true
+            }
+        },
+        "test_data_file": "",
+        "db_query": "",
+        "db_type": "",
+        "db_connection_name": "",
+        "test_summary": "Test TC003_V2_Alpha: POST /v2/analytics [negative] (TC003_V2_Alpha) - Test POST request to /v2/analytics for calculationRequest with incorrect data type.",
+        "test_scenario": "Test POST request to /v2/analytics for calculationRequest with incorrect data type."
+    },
+    {
+        "test_id": "TC004_V2_Alpha",
+        "service_name": "analyticsApiServices",
+        "workflow_mode": "parallel",
+        "test_name": "POST /v2/analytics [negative] (TC004_V2_Alpha)",
+        "protocol": "REST",
+        "test_type": [
+            "Functional"
+        ],
+        "mainURL": "{{base_url}}",
+        "endpoint": "/v2/analytics",
+        "method": "POST",
+        "rpc_method": "",
+        "graphql_query": "",
+        "graphql_variables": "",
+        "soap_action": "",
+        "soap_envelope": "",
+        "headers_additional": {
+            "Content-Type": "application/json"
+        },
+        "payload": {
+            "calculationRequest": {
+                "inputs": {
+                    "benchmark": [
+                        "SP500I"
+                    ],
+                    "blend": [
+                        {
+                            "id": "MODA94",
+                            "entityType": "model",
+                            "weight": 0.4
+                        },
+                        {
+                            "id": "MOD877",
+                            "entityType": "model",
+                            "weight": 0.6
+                        }
+                    ]
+                },
+                "calculations": [
+                    {
+                        "calculationType": "alphaa",
+                        "configurations": {
+                            "riskFreeRate": "SBT30D",
+                            "timeHorizon": [
+                                "threeYear"
+                            ],
+                            "startDate": "2022-1-31",
+                            "endDate": "2025-12-31"
+                        }
+                    }
+                ]
+            }
+        },
+        "expected_status": "400",
+        "expected_response_schema": "",
+        "expected_response": null,
+        "ignore_fields": [
+            "id"
+        ],
+        "extract_values": [
+            {
+                "from": "response",
+                "key": "id",
+                "assign_to": ""
+            },
+            {
+                "from": "db_result",
+                "query": "",
+                "assign": [
+                    {
+                        "key": "",
+                        "assign_to": ""
+                    }
+                ]
+            }
+        ],
+        "validate": {
+            "performance": {
+                "max_response_time_ms": null
+            },
+            "security": {
+                "checks": [
+                    "sql_injection",
+                    "xss"
+                ]
+            },
+            "data_comparison": {
+                "source": "api_response",
+                "target": "db_result",
+                "format": "table",
+                "key_field": [
+                    "",
+                    ""
+                ],
+                "fields_to_compare": [],
+                "log_differences": true
+            }
+        },
+        "test_data_file": "",
+        "db_query": "",
+        "db_type": "",
+        "db_connection_name": "",
+        "test_summary": "Test TC004_V2_Alpha: POST /v2/analytics [negative] (TC004_V2_Alpha) - Test POST request to /v2/analytics for Not a valid calculation type.",
+        "test_scenario": "Test POST request to /v2/analytics for Not a valid calculation type."
+    },
+    {
+        "test_id": "TC005_V2_Alpha",
+        "service_name": "analyticsApiServices",
+        "workflow_mode": "parallel",
+        "test_name": "POST /v2/analytics [negative] (TC005_V2_Alpha)",
+        "protocol": "REST",
+        "test_type": [
+            "Functional"
+        ],
+        "mainURL": "{{base_url}}",
+        "endpoint": "/v2/analytics",
+        "method": "POST",
+        "rpc_method": "",
+        "graphql_query": "",
+        "graphql_variables": "",
+        "soap_action": "",
+        "soap_envelope": "",
+        "headers_additional": {
+            "Content-Type": "application/json"
+        },
+        "payload": {
+            "calculationRequest": {
+                "inputs": {
+                    "benchmark": [
+                        "SP500I"
+                    ],
+                    "blend": [
+                        {
+                            "id": "MODA94",
+                            "entityType": "model",
+                            "weight": 0.4
+                        },
+                        {
+                            "id": "MOD877",
+                            "entityType": "model",
+                            "weight": 0.6
+                        }
+                    ]
+                },
+                "calculations": [
+                    {
+                        "calculationType": "alpha",
+                        "configurations": {
+                            "riskFreeRate": "SBT30AA",
+                            "timeHorizon": [
+                                "threeYear"
+                            ],
+                            "startDate": "2022-1-31",
+                            "endDate": "2025-12-31"
+                        }
+                    }
+                ]
+            }
+        },
+        "expected_status": "500",
+        "expected_response_schema": "",
+        "expected_response": null,
+        "ignore_fields": [
+            "id"
+        ],
+        "extract_values": [
+            {
+                "from": "response",
+                "key": "id",
+                "assign_to": ""
+            },
+            {
+                "from": "db_result",
+                "query": "",
+                "assign": [
+                    {
+                        "key": "",
+                        "assign_to": ""
+                    }
+                ]
+            }
+        ],
+        "validate": {
+            "performance": {
+                "max_response_time_ms": null
+            },
+            "security": {
+                "checks": [
+                    "sql_injection",
+                    "xss"
+                ]
+            },
+            "data_comparison": {
+                "source": "api_response",
+                "target": "db_result",
+                "format": "table",
+                "key_field": [
+                    "",
+                    ""
+                ],
+                "fields_to_compare": [],
+                "log_differences": true
+            }
+        },
+        "test_data_file": "",
+        "db_query": "",
+        "db_type": "",
+        "db_connection_name": "",
+        "test_summary": "Test TC005_V2_Alpha: POST /v2/analytics [negative] (TC005_V2_Alpha) - Test POST request to /v2/analytics for Invalid riskFreeRate ID.",
+        "test_scenario": "Test POST request to /v2/analytics for Invalid riskFreeRate ID."
+    },
+    {
+        "test_id": "TC006_V2_Alpha",
+        "service_name": "analyticsApiServices",
+        "workflow_mode": "parallel",
+        "test_name": "POST /v2/analytics [negative] (TC006_V2_Alpha)",
+        "protocol": "REST",
+        "test_type": [
+            "Functional"
+        ],
+        "mainURL": "{{base_url}}",
+        "endpoint": "/v2/analytics",
+        "method": "POST",
+        "rpc_method": "",
+        "graphql_query": "",
+        "graphql_variables": "",
+        "soap_action": "",
+        "soap_envelope": "",
+        "headers_additional": {
+            "Content-Type": "application/json"
+        },
+        "payload": {
+            "calculationRequest": {
+                "inputs": {
+                    "benchmark": [
+                        "1235"
+                    ],
+                    "blend": [
+                        {
+                            "id": "MODA94",
+                            "entityType": "model",
+                            "weight": 0.4
+                        },
+                        {
+                            "id": "MOD877",
+                            "entityType": "model",
+                            "weight": 0.6
+                        }
+                    ]
+                },
+                "calculations": [
+                    {
+                        "calculationType": "alpha",
+                        "configurations": {
+                            "riskFreeRate": "SBT30D",
+                            "timeHorizon": [
+                                "threeYear"
+                            ],
+                            "startDate": "2022-1-31",
+                            "endDate": "2025-12-31"
+                        }
+                    }
+                ]
+            }
+        },
+        "expected_status": "500",
+        "expected_response_schema": "",
+        "expected_response": null,
+        "ignore_fields": [
+            "id"
+        ],
+        "extract_values": [
+            {
+                "from": "response",
+                "key": "id",
+                "assign_to": ""
+            },
+            {
+                "from": "db_result",
+                "query": "",
+                "assign": [
+                    {
+                        "key": "",
+                        "assign_to": ""
+                    }
+                ]
+            }
+        ],
+        "validate": {
+            "performance": {
+                "max_response_time_ms": null
+            },
+            "security": {
+                "checks": [
+                    "sql_injection",
+                    "xss"
+                ]
+            },
+            "data_comparison": {
+                "source": "api_response",
+                "target": "db_result",
+                "format": "table",
+                "key_field": [
+                    "",
+                    ""
+                ],
+                "fields_to_compare": [],
+                "log_differences": true
+            }
+        },
+        "test_data_file": "",
+        "db_query": "",
+        "db_type": "",
+        "db_connection_name": "",
+        "test_summary": "Test TC006_V2_Alpha: POST /v2/analytics [negative] (TC006_V2_Alpha) - Test POST request to /v2/analytics for Invalid Benchmark ID.",
+        "test_scenario": "Test POST request to /v2/analytics for Invalid Benchmark ID."
+    },
+    {
+        "test_id": "TC007_V2_Alpha",
+        "service_name": "analyticsApiServices",
+        "workflow_mode": "parallel",
+        "test_name": "POST /v2/analytics [negative] (TC007_V2_Alpha)",
+        "protocol": "REST",
+        "test_type": [
+            "Functional"
+        ],
+        "mainURL": "{{base_url}}",
+        "endpoint": "/v2/analytics",
+        "method": "POST",
+        "rpc_method": "",
+        "graphql_query": "",
+        "graphql_variables": "",
+        "soap_action": "",
+        "soap_envelope": "",
+        "headers_additional": {
+            "Content-Type": "application/json"
+        },
+        "payload": {
+            "calculationRequest": {
+                "inputs": {
+                    "benchmark": [
+                        "SP500I"
+                    ],
+                    "blend": [
+                        {
+                            "id": "5554",
+                            "entityType": "model",
+                            "weight": 0.4
+                        },
+                        {
+                            "id": "MOD877",
+                            "entityType": "model",
+                            "weight": 0.6
+                        }
+                    ]
+                },
+                "calculations": [
+                    {
+                        "calculationType": "alpha",
+                        "configurations": {
+                            "riskFreeRate": "SBT30D",
+                            "timeHorizon": [
+                                "threeYear"
+                            ],
+                            "startDate": "2022-1-31",
+                            "endDate": "2025-12-31"
+                        }
+                    }
+                ]
+            }
+        },
+        "expected_status": "500",
+        "expected_response_schema": "",
+        "expected_response": null,
+        "ignore_fields": [
+            "id"
+        ],
+        "extract_values": [
+            {
+                "from": "response",
+                "key": "id",
+                "assign_to": ""
+            },
+            {
+                "from": "db_result",
+                "query": "",
+                "assign": [
+                    {
+                        "key": "",
+                        "assign_to": ""
+                    }
+                ]
+            }
+        ],
+        "validate": {
+            "performance": {
+                "max_response_time_ms": null
+            },
+            "security": {
+                "checks": [
+                    "sql_injection",
+                    "xss"
+                ]
+            },
+            "data_comparison": {
+                "source": "api_response",
+                "target": "db_result",
+                "format": "table",
+                "key_field": [
+                    "",
+                    ""
+                ],
+                "fields_to_compare": [],
+                "log_differences": true
+            }
+        },
+        "test_data_file": "",
+        "db_query": "",
+        "db_type": "",
+        "db_connection_name": "",
+        "test_summary": "Test TC007_V2_Alpha: POST /v2/analytics [negative] (TC007_V2_Alpha) - Test POST request to /v2/analytics for Invalid model ID.",
+        "test_scenario": "Test POST request to /v2/analytics for Invalid model ID."
+    },
+    {
+        "test_id": "TC008_V2_Alpha",
+        "service_name": "analyticsApiServices",
+        "workflow_mode": "parallel",
+        "test_name": "POST /v2/analytics [negative] (TC008_V2_Alpha)",
+        "protocol": "REST",
+        "test_type": [
+            "Functional"
+        ],
+        "mainURL": "{{base_url}}",
+        "endpoint": "/v2/analytics",
+        "method": "POST",
+        "rpc_method": "",
+        "graphql_query": "",
+        "graphql_variables": "",
+        "soap_action": "",
+        "soap_envelope": "",
+        "headers_additional": {
+            "Content-Type": "application/json"
+        },
+        "payload": {
+            "calculationRequest": {
+                "inputs": {
+                    "benchmark": [
+                        "SP500I"
+                    ],
+                    "blend": [
+                        {
+                            "id": "MODA94",
+                            "entityType": "strategies",
+                            "weight": 0.4
+                        },
+                        {
+                            "id": "MOD877",
+                            "entityType": "model",
+                            "weight": 0.6
+                        }
+                    ]
+                },
+                "calculations": [
+                    {
+                        "calculationType": "alpha",
+                        "configurations": {
+                            "riskFreeRate": "SBT30D",
+                            "timeHorizon": [
+                                "threeYear"
+                            ],
+                            "startDate": "2022-1-31",
+                            "endDate": "2025-12-31"
+                        }
+                    }
+                ]
+            }
+        },
+        "expected_status": "400",
+        "expected_response_schema": "",
+        "expected_response": null,
+        "ignore_fields": [
+            "id"
+        ],
+        "extract_values": [
+            {
+                "from": "response",
+                "key": "id",
+                "assign_to": ""
+            },
+            {
+                "from": "db_result",
+                "query": "",
+                "assign": [
+                    {
+                        "key": "",
+                        "assign_to": ""
+                    }
+                ]
+            }
+        ],
+        "validate": {
+            "performance": {
+                "max_response_time_ms": null
+            },
+            "security": {
+                "checks": [
+                    "sql_injection",
+                    "xss"
+                ]
+            },
+            "data_comparison": {
+                "source": "api_response",
+                "target": "db_result",
+                "format": "table",
+                "key_field": [
+                    "",
+                    ""
+                ],
+                "fields_to_compare": [],
+                "log_differences": true
+            }
+        },
+        "test_data_file": "",
+        "db_query": "",
+        "db_type": "",
+        "db_connection_name": "",
+        "test_summary": "Test TC008_V2_Alpha: POST /v2/analytics [negative] (TC008_V2_Alpha) - Test POST request to /v2/analytics for at least two inputs of type model.",
+        "test_scenario": "Test POST request to /v2/analytics for at least two inputs of type model."
+    },
+    {
+        "test_id": "TC009_V2_Alpha",
+        "service_name": "analyticsApiServices",
+        "workflow_mode": "parallel",
+        "test_name": "POST /v2/analytics [negative] (TC009_V2_Alpha)",
+        "protocol": "REST",
+        "test_type": [
+            "Functional"
+        ],
+        "mainURL": "{{base_url}}",
+        "endpoint": "/v2/analytics",
+        "method": "POST",
+        "rpc_method": "",
+        "graphql_query": "",
+        "graphql_variables": "",
+        "soap_action": "",
+        "soap_envelope": "",
+        "headers_additional": {
+            "Content-Type": "application/json"
+        },
+        "payload": {
+            "calculationRequest": {
+                "inputs": {
+                    "benchmark": [
+                        "SP500I"
+                    ],
+                    "blend": [
+                        {
+                            "id": "MODA94",
+                            "entityType": "model",
+                            "weight": 0.44
+                        },
+                        {
+                            "id": "MOD877",
+                            "entityType": "model",
+                            "weight": 0.6
+                        }
+                    ]
+                },
+                "calculations": [
+                    {
+                        "calculationType": "alpha",
+                        "configurations": {
+                            "riskFreeRate": "SBT30D",
+                            "timeHorizon": [
+                                "threeYear"
+                            ],
+                            "startDate": "2022-1-31",
+                            "endDate": "2025-12-31"
+                        }
+                    }
+                ]
+            }
+        },
+        "expected_status": "400",
+        "expected_response_schema": "",
+        "expected_response": null,
+        "ignore_fields": [
+            "id"
+        ],
+        "extract_values": [
+            {
+                "from": "response",
+                "key": "id",
+                "assign_to": ""
+            },
+            {
+                "from": "db_result",
+                "query": "",
+                "assign": [
+                    {
+                        "key": "",
+                        "assign_to": ""
+                    }
+                ]
+            }
+        ],
+        "validate": {
+            "performance": {
+                "max_response_time_ms": null
+            },
+            "security": {
+                "checks": [
+                    "sql_injection",
+                    "xss"
+                ]
+            },
+            "data_comparison": {
+                "source": "api_response",
+                "target": "db_result",
+                "format": "table",
+                "key_field": [
+                    "",
+                    ""
+                ],
+                "fields_to_compare": [],
+                "log_differences": true
+            }
+        },
+        "test_data_file": "",
+        "db_query": "",
+        "db_type": "",
+        "db_connection_name": "",
+        "test_summary": "Test TC009_V2_Alpha: POST /v2/analytics [negative] (TC009_V2_Alpha) - Test POST request to /v2/analytics for The sum of all model weights must be 1.0.",
+        "test_scenario": "Test POST request to /v2/analytics for The sum of all model weights must be 1.0."
+    },
+    {
+        "test_id": "TC010_V2_Alpha",
+        "service_name": "analyticsApiServices",
+        "workflow_mode": "parallel",
+        "test_name": "POST /v2/analytics [negative] (TC010_V2_Alpha)",
+        "protocol": "REST",
+        "test_type": [
+            "Functional"
+        ],
+        "mainURL": "{{base_url}}",
+        "endpoint": "/v2/analytics",
+        "method": "POST",
+        "rpc_method": "",
+        "graphql_query": "",
+        "graphql_variables": "",
+        "soap_action": "",
+        "soap_envelope": "",
+        "headers_additional": {
+            "Content-Type": "application/json"
+        },
+        "payload": {
+            "calculationRequest": {
+                "inputs": {
+                    "benchmark": [
+                        "SP500I"
+                    ],
+                    "blend": [
+                        {
+                            "id": "MODA94",
+                            "entityType": "model",
+                            "weight": 0.4
+                        },
+                        {
+                            "id": "MOD877",
+                            "entityType": "model",
+                            "weight": 0.6
+                        }
+                    ]
+                },
+                "calculations": [
+                    {
+                        "calculationType": "alpha",
+                        "configurations": {
+                            "riskFreeRate": "SBT30D",
+                            "timeHorizon": [
+                                "threeYear",
+                                "fourYear"
+                            ],
+                            "startDate": "2022-1-31",
+                            "endDate": "2025-12-31"
+                        }
+                    }
+                ]
+            }
+        },
+        "expected_status": "400",
+        "expected_response_schema": "",
+        "expected_response": null,
+        "ignore_fields": [
+            "id"
+        ],
+        "extract_values": [
+            {
+                "from": "response",
+                "key": "id",
+                "assign_to": ""
+            },
+            {
+                "from": "db_result",
+                "query": "",
+                "assign": [
+                    {
+                        "key": "",
+                        "assign_to": ""
+                    }
+                ]
+            }
+        ],
+        "validate": {
+            "performance": {
+                "max_response_time_ms": null
+            },
+            "security": {
+                "checks": [
+                    "sql_injection",
+                    "xss"
+                ]
+            },
+            "data_comparison": {
+                "source": "api_response",
+                "target": "db_result",
+                "format": "table",
+                "key_field": [
+                    "",
+                    ""
+                ],
+                "fields_to_compare": [],
+                "log_differences": true
+            }
+        },
+        "test_data_file": "",
+        "db_query": "",
+        "db_type": "",
+        "db_connection_name": "",
+        "test_summary": "Test TC010_V2_Alpha: POST /v2/analytics [negative] (TC010_V2_Alpha) - Test POST request to /v2/analytics for Invalid value 'fourYear'. Must be one of: ytd, oneYear, threeYear, fiveYear, tenYear, twentyYear.",
+        "test_scenario": "Test POST request to /v2/analytics for Invalid value 'fourYear'. Must be one of: ytd, oneYear, threeYear, fiveYear, tenYear, twentyYear."
+    },
+    {
+        "test_id": "TC011_V2_Alpha",
+        "service_name": "analyticsApiServices",
+        "workflow_mode": "parallel",
+        "test_name": "POST /v2/analytics [negative] (TC011_V2_Alpha)",
+        "protocol": "REST",
+        "test_type": [
+            "Functional"
+        ],
+        "mainURL": "{{base_url}}",
+        "endpoint": "/v2/analytics",
+        "method": "POST",
+        "rpc_method": "",
+        "graphql_query": "",
+        "graphql_variables": "",
+        "soap_action": "",
+        "soap_envelope": "",
+        "headers_additional": {
+            "Content-Type": "application/json"
+        },
+        "payload": {
+            "calculationRequest": {
+                "inputs": {
+                    "benchmark": [
+                        "SP500I"
+                    ],
+                    "blend": [
+                        {
+                            "id": "MODA94",
+                            "entityType": "model",
+                            "weight": 0.4
+                        },
+                        {
+                            "id": "MOD877",
+                            "entityType": "model",
+                            "weight": 0.6
+                        }
+                    ]
+                },
+                "calculations": [
+                    {
+                        "calculationType": "alpha",
+                        "configurations": {
+                            "riskFreeRate": "SBT30D",
+                            "timeHorizon": [
+                                "oneYear"
+                            ],
+                            "startDate": "2022-1-31",
+                            "endDate": "2025-12-31"
+                        }
+                    }
+                ]
+            }
+        },
+        "expected_status": "500",
+        "expected_response_schema": "",
+        "expected_response": null,
+        "ignore_fields": [
+            "id"
+        ],
+        "extract_values": [
+            {
+                "from": "response",
+                "key": "id",
+                "assign_to": ""
+            },
+            {
+                "from": "db_result",
+                "query": "",
+                "assign": [
+                    {
+                        "key": "",
+                        "assign_to": ""
+                    }
+                ]
+            }
+        ],
+        "validate": {
+            "performance": {
+                "max_response_time_ms": null
+            },
+            "security": {
+                "checks": [
+                    "sql_injection",
+                    "xss"
+                ]
+            },
+            "data_comparison": {
+                "source": "api_response",
+                "target": "db_result",
+                "format": "table",
+                "key_field": [
+                    "",
+                    ""
+                ],
+                "fields_to_compare": [],
+                "log_differences": true
+            }
+        },
+        "test_data_file": "",
+        "db_query": "",
+        "db_type": "",
+        "db_connection_name": "",
+        "test_summary": "Test TC011_V2_Alpha: POST /v2/analytics [negative] (TC011_V2_Alpha) - Test POST request to /v2/analytics for Minimum 36 months of data required.",
+        "test_scenario": "Test POST request to /v2/analytics for Minimum 36 months of data required."
+    },
+    {
+        "test_id": "TC012_V2_Alpha",
+        "service_name": "analyticsApiServices",
+        "workflow_mode": "parallel",
+        "test_name": "POST /v2/analytics [negative] (TC012_V2_Alpha)",
+        "protocol": "REST",
+        "test_type": [
+            "Functional"
+        ],
+        "mainURL": "{{base_url}}",
+        "endpoint": "/v2/analytics",
+        "method": "POST",
+        "rpc_method": "",
+        "graphql_query": "",
+        "graphql_variables": "",
+        "soap_action": "",
+        "soap_envelope": "",
+        "headers_additional": {
+            "Content-Type": "application/json"
+        },
+        "payload": {
+            "calculationRequest": {
+                "inputs": {
+                    "benchmark": [
+                        "SP500I"
+                    ],
+                    "blend": [
+                        {
+                            "id": "MODA94",
+                            "entityType": "model",
+                            "weight": 0.4
+                        },
+                        {
+                            "id": "MOD877",
+                            "entityType": "model",
+                            "weight": 0.6
+                        }
+                    ]
+                },
+                "calculations": [
+                    {
+                        "calculationType": "alpha",
+                        "configurations": {
+                            "riskFreeRate": "SBT30D",
+                            "timeHorizon": [
+                                "threeYear"
+                            ],
+                            "startDate": "2015-4-31",
+                            "endDate": "2025-12-31"
+                        }
+                    }
+                ]
+            }
+        },
+        "expected_status": "400",
+        "expected_response_schema": "",
+        "expected_response": null,
+        "ignore_fields": [
+            "id"
+        ],
+        "extract_values": [
+            {
+                "from": "response",
+                "key": "id",
+                "assign_to": ""
+            },
+            {
+                "from": "db_result",
+                "query": "",
+                "assign": [
+                    {
+                        "key": "",
+                        "assign_to": ""
+                    }
+                ]
+            }
+        ],
+        "validate": {
+            "performance": {
+                "max_response_time_ms": null
+            },
+            "security": {
+                "checks": [
+                    "sql_injection",
+                    "xss"
+                ]
+            },
+            "data_comparison": {
+                "source": "api_response",
+                "target": "db_result",
+                "format": "table",
+                "key_field": [
+                    "",
+                    ""
+                ],
+                "fields_to_compare": [],
+                "log_differences": true
+            }
+        },
+        "test_data_file": "",
+        "db_query": "",
+        "db_type": "",
+        "db_connection_name": "",
+        "test_summary": "Test TC012_V2_Alpha: POST /v2/analytics [negative] (TC012_V2_Alpha) - Test POST request to /v2/analytics for Date Format: Dates must be in valid date format (yyyy-M-d).",
+        "test_scenario": "Test POST request to /v2/analytics for Date Format: Dates must be in valid date format (yyyy-M-d)."
+    },
+    {
+        "test_id": "TC013_V2_Alpha",
+        "service_name": "analyticsApiServices",
+        "workflow_mode": "parallel",
+        "test_name": "POST /v2/analytics [negative] (TC013_V2_Alpha)",
+        "protocol": "REST",
+        "test_type": [
+            "Functional"
+        ],
+        "mainURL": "{{base_url}}",
+        "endpoint": "/v2/analytics",
+        "method": "POST",
+        "rpc_method": "",
+        "graphql_query": "",
+        "graphql_variables": "",
+        "soap_action": "",
+        "soap_envelope": "",
+        "headers_additional": {
+            "Content-Type": "application/json"
+        },
+        "payload": {
+            "calculationRequest": {
+                "inputs": {
+                    "benchmark": [],
+                    "blend": [
+                        {
+                            "id": "MODA94",
+                            "entityType": "model",
+                            "weight": 0.4
+                        },
+                        {
+                            "id": "MOD877",
+                            "entityType": "model",
+                            "weight": 0.6
+                        }
+                    ]
+                },
+                "calculations": [
+                    {
+                        "calculationType": "alpha",
+                        "configurations": {
+                            "riskFreeRate": "SBT30D",
+                            "timeHorizon": [
+                                "threeYear"
+                            ],
+                            "startDate": "2022-5-31",
+                            "endDate": "2025-12-31"
+                        }
+                    }
+                ]
+            }
+        },
+        "expected_status": "500",
+        "expected_response_schema": "",
+        "expected_response": null,
+        "ignore_fields": [
+            "id"
+        ],
+        "extract_values": [
+            {
+                "from": "response",
+                "key": "id",
+                "assign_to": ""
+            },
+            {
+                "from": "db_result",
+                "query": "",
+                "assign": [
+                    {
+                        "key": "",
+                        "assign_to": ""
+                    }
+                ]
+            }
+        ],
+        "validate": {
+            "performance": {
+                "max_response_time_ms": null
+            },
+            "security": {
+                "checks": [
+                    "sql_injection",
+                    "xss"
+                ]
+            },
+            "data_comparison": {
+                "source": "api_response",
+                "target": "db_result",
+                "format": "table",
+                "key_field": [
+                    "",
+                    ""
+                ],
+                "fields_to_compare": [],
+                "log_differences": true
+            }
+        },
+        "test_data_file": "",
+        "db_query": "",
+        "db_type": "",
+        "db_connection_name": "",
+        "test_summary": "Test TC013_V2_Alpha: POST /v2/analytics [negative] (TC013_V2_Alpha) - Test POST request to /v2/analytics for No benchmarks found in context.",
+        "test_scenario": "Test POST request to /v2/analytics for No benchmarks found in context."
+    },
+    {
+        "test_id": "TC014_V2_Alpha",
+        "service_name": "analyticsApiServices",
+        "workflow_mode": "parallel",
+        "test_name": "POST /v2/analytics [negative] (TC014_V2_Alpha)",
+        "protocol": "REST",
+        "test_type": [
+            "Functional"
+        ],
+        "mainURL": "{{base_url}}",
+        "endpoint": "/v2/analytics",
+        "method": "POST",
+        "rpc_method": "",
+        "graphql_query": "",
+        "graphql_variables": "",
+        "soap_action": "",
+        "soap_envelope": "",
+        "headers_additional": {
+            "Content-Type": "application/json"
+        },
+        "payload": {
+            "calculationRequest": {
+                "inputs": {
+                    "benchmark": [
+                        "SP500I"
+                    ],
+                    "blend": [
+                        {
+                            "id": "MODA94",
+                            "entityType": "model",
+                            "weight": 0.4
+                        },
+                        {
+                            "id": "MOD877",
+                            "entityType": "model",
+                            "weight": 0.6
+                        }
+                    ]
+                },
+                "calculations": [
+                    {
+                        "calculationType": "alpha",
+                        "configurations": {
+                            "riskFreeRate": "SBT30D",
+                            "timeHorizon": [
+                                "threeYear"
+                            ],
+                            "startDate": "2022-5-31",
+                            "endDate": "2025-11-31"
+                        }
+                    }
+                ]
+            }
+        },
+        "expected_status": "400",
+        "expected_response_schema": "",
+        "expected_response": null,
+        "ignore_fields": [
+            "id"
+        ],
+        "extract_values": [
+            {
+                "from": "response",
+                "key": "id",
+                "assign_to": ""
+            },
+            {
+                "from": "db_result",
+                "query": "",
+                "assign": [
+                    {
+                        "key": "",
+                        "assign_to": ""
+                    }
+                ]
+            }
+        ],
+        "validate": {
+            "performance": {
+                "max_response_time_ms": null
+            },
+            "security": {
+                "checks": [
+                    "sql_injection",
+                    "xss"
+                ]
+            },
+            "data_comparison": {
+                "source": "api_response",
+                "target": "db_result",
+                "format": "table",
+                "key_field": [
+                    "",
+                    ""
+                ],
+                "fields_to_compare": [],
+                "log_differences": true
+            }
+        },
+        "test_data_file": "",
+        "db_query": "",
+        "db_type": "",
+        "db_connection_name": "",
+        "test_summary": "Test TC014_V2_Alpha: POST /v2/analytics [negative] (TC014_V2_Alpha) - Test POST request to /v2/analytics for Date Format: Dates must be in valid date format (yyyy-M-d).",
+        "test_scenario": "Test POST request to /v2/analytics for Date Format: Dates must be in valid date format (yyyy-M-d)."
+    },
+    {
+        "test_id": "TC015_V2_Alpha",
+        "service_name": "analyticsApiServices",
+        "workflow_mode": "parallel",
+        "test_name": "POST /v2/analytics [negative] (TC015_V2_Alpha)",
+        "protocol": "REST",
+        "test_type": [
+            "Functional"
+        ],
+        "mainURL": "{{base_url}}",
+        "endpoint": "/v2/analytics",
+        "method": "POST",
+        "rpc_method": "",
+        "graphql_query": "",
+        "graphql_variables": "",
+        "soap_action": "",
+        "soap_envelope": "",
+        "headers_additional": {
+            "Content-Type": "application/json"
+        },
+        "payload": {
+            "calculationRequest": {
+                "inputs": {
+                    "benchmark": [
+                        "SP500I"
+                    ],
+                    "blend": [
+                        {
+                            "id": "MODA94",
+                            "entityType": "model",
+                            "weight": 0.4
+                        },
+                        {
+                            "id": "MOD877",
+                            "entityType": "model",
+                            "weight": 0.6
+                        }
+                    ]
+                },
+                "calculations": [
+                    {
+                        "calculationType": "alpha",
+                        "configurations": {}
+                    }
+                ]
+            }
+        },
+        "expected_status": "400",
+        "expected_response_schema": "",
+        "expected_response": null,
+        "ignore_fields": [
+            "id"
+        ],
+        "extract_values": [
+            {
+                "from": "response",
+                "key": "id",
+                "assign_to": ""
+            },
+            {
+                "from": "db_result",
+                "query": "",
+                "assign": [
+                    {
+                        "key": "",
+                        "assign_to": ""
+                    }
+                ]
+            }
+        ],
+        "validate": {
+            "performance": {
+                "max_response_time_ms": null
+            },
+            "security": {
+                "checks": [
+                    "sql_injection",
+                    "xss"
+                ]
+            },
+            "data_comparison": {
+                "source": "api_response",
+                "target": "db_result",
+                "format": "table",
+                "key_field": [
+                    "",
+                    ""
+                ],
+                "fields_to_compare": [],
+                "log_differences": true
+            }
+        },
+        "test_data_file": "",
+        "db_query": "",
+        "db_type": "",
+        "db_connection_name": "",
+        "test_summary": "Test TC015_V2_Alpha: POST /v2/analytics [negative] (TC015_V2_Alpha) - Test POST request to /v2/analytics for Configurations: alpha calculation requires a riskFreeRate value.",
+        "test_scenario": "Test POST request to /v2/analytics for Configurations: alpha calculation requires a riskFreeRate value."
+    },
+    {
+        "test_id": "TC016_V2_Alpha",
+        "service_name": "analyticsApiServices",
+        "workflow_mode": "parallel",
+        "test_name": "POST /v2/analytics [negative] (TC016_V2_Alpha)",
+        "protocol": "REST",
+        "test_type": [
+            "Functional"
+        ],
+        "mainURL": "{{base_url}}",
+        "endpoint": "/v2/analytics",
+        "method": "POST",
+        "rpc_method": "",
+        "graphql_query": "",
+        "graphql_variables": "",
+        "soap_action": "",
+        "soap_envelope": "",
+        "headers_additional": {
+            "Content-Type": "application/json"
+        },
+        "payload": {
+            "calculationRequest": {
+                "inputs": {
+                    "benchmark": [
+                        "SP500I"
+                    ],
+                    "blend": [
+                        {
+                            "id": "MODA94",
+                            "entityType": "model",
+                            "weight": 0.4
+                        },
+                        {
+                            "id": "MOD877",
+                            "entityType": "model",
+                            "weight": 0.6
+                        }
+                    ]
+                },
+                "calculations": [
+                    {
+                        "configurations": {
+                            "riskFreeRate": "SBT30D",
+                            "timeHorizon": [
+                                "threeYear"
+                            ],
+                            "startDate": "2022-5-31",
+                            "endDate": "2025-12-31"
+                        }
+                    }
+                ]
+            }
+        },
+        "expected_status": "400",
+        "expected_response_schema": "",
+        "expected_response": null,
+        "ignore_fields": [
+            "id"
+        ],
+        "extract_values": [
+            {
+                "from": "response",
+                "key": "id",
+                "assign_to": ""
+            },
+            {
+                "from": "db_result",
+                "query": "",
+                "assign": [
+                    {
+                        "key": "",
+                        "assign_to": ""
+                    }
+                ]
+            }
+        ],
+        "validate": {
+            "performance": {
+                "max_response_time_ms": null
+            },
+            "security": {
+                "checks": [
+                    "sql_injection",
+                    "xss"
+                ]
+            },
+            "data_comparison": {
+                "source": "api_response",
+                "target": "db_result",
+                "format": "table",
+                "key_field": [
+                    "",
+                    ""
+                ],
+                "fields_to_compare": [],
+                "log_differences": true
+            }
+        },
+        "test_data_file": "",
+        "db_query": "",
+        "db_type": "",
+        "db_connection_name": "",
+        "test_summary": "Test TC016_V2_Alpha: POST /v2/analytics [negative] (TC016_V2_Alpha) - Test POST request to /v2/analytics for The CalculationType field is required.",
+        "test_scenario": "Test POST request to /v2/analytics for The CalculationType field is required."
+    },
+    {
+        "test_id": "TC017_V2_Alpha",
+        "service_name": "analyticsApiServices",
+        "workflow_mode": "parallel",
+        "test_name": "POST /v2/analytics [negative] (TC017_V2_Alpha)",
+        "protocol": "REST",
+        "test_type": [
+            "Functional"
+        ],
+        "mainURL": "{{base_url}}",
+        "endpoint": "/v2/analytics",
+        "method": "POST",
+        "rpc_method": "",
+        "graphql_query": "",
+        "graphql_variables": "",
+        "soap_action": "",
+        "soap_envelope": "",
+        "headers_additional": {
+            "Content-Type": "application/json"
+        },
+        "payload": {
+            "calculationRequest": {
+                "inputs": {
+                    "benchmark": [
+                        "SP500I"
+                    ],
+                    "blend": [
+                        {
+                            "id": "MOD877",
+                            "entityType": "model",
+                            "weight": 1
+                        }
+                    ]
+                },
+                "calculations": [
+                    {
+                        "calculationType": "alpha",
+                        "configurations": {
+                            "riskFreeRate": "SBT30D",
+                            "timeHorizon": [
+                                "threeYear"
+                            ],
+                            "startDate": "2022-5-31",
+                            "endDate": "2025-12-31"
+                        }
+                    }
+                ]
+            }
+        },
+        "expected_status": "400",
+        "expected_response_schema": "",
+        "expected_response": null,
+        "ignore_fields": [
+            "id"
+        ],
+        "extract_values": [
+            {
+                "from": "response",
+                "key": "id",
+                "assign_to": ""
+            },
+            {
+                "from": "db_result",
+                "query": "",
+                "assign": [
+                    {
+                        "key": "",
+                        "assign_to": ""
+                    }
+                ]
+            }
+        ],
+        "validate": {
+            "performance": {
+                "max_response_time_ms": null
+            },
+            "security": {
+                "checks": [
+                    "sql_injection",
+                    "xss"
+                ]
+            },
+            "data_comparison": {
+                "source": "api_response",
+                "target": "db_result",
+                "format": "table",
+                "key_field": [
+                    "",
+                    ""
+                ],
+                "fields_to_compare": [],
+                "log_differences": true
+            }
+        },
+        "test_data_file": "",
+        "db_query": "",
+        "db_type": "",
+        "db_connection_name": "",
+        "test_summary": "Test TC017_V2_Alpha: POST /v2/analytics [negative] (TC017_V2_Alpha) - Test POST request to /v2/analytics for At least two inputs of type model must be provided for blended risk score.",
+        "test_scenario": "Test POST request to /v2/analytics for At least two inputs of type model must be provided for blended risk score."
+    },
+    {
+        "test_id": "TC018_V2_Alpha",
+        "service_name": "analyticsApiServices",
+        "workflow_mode": "parallel",
+        "test_name": "POST /v2/analytics [negative] (TC018_V2_Alpha)",
+        "protocol": "REST",
+        "test_type": [
+            "Functional"
+        ],
+        "mainURL": "{{base_url}}",
+        "endpoint": "/v2/analytics",
+        "method": "POST",
+        "rpc_method": "",
+        "graphql_query": "",
+        "graphql_variables": "",
+        "soap_action": "",
+        "soap_envelope": "",
+        "headers_additional": {
+            "Content-Type": "application/json"
+        },
+        "payload": {
+            "calculationRequest": {
+                "inputs": {
+                    "benchmark": [
+                        "SP500I"
+                    ],
+                    "blend": [
+                        {
+                            "id": "MODA94",
+                            "entityType": "model",
+                            "weight": 1.0
+                        },
+                        {
+                            "id": "MOD877",
+                            "entityType": "model",
+                            "weight": 0
+                        }
+                    ]
+                },
+                "calculations": [
+                    {
+                        "calculationType": "alpha",
+                        "configurations": {
+                            "riskFreeRate": "SBT30D",
+                            "timeHorizon": [
+                                "threeYear"
+                            ],
+                            "startDate": "2022-5-31",
+                            "endDate": "2025-12-31"
+                        }
+                    }
+                ]
+            }
+        },
+        "expected_status": "400",
+        "expected_response_schema": "",
+        "expected_response": null,
+        "ignore_fields": [
+            "id"
+        ],
+        "extract_values": [
+            {
+                "from": "response",
+                "key": "id",
+                "assign_to": ""
+            },
+            {
+                "from": "db_result",
+                "query": "",
+                "assign": [
+                    {
+                        "key": "",
+                        "assign_to": ""
+                    }
+                ]
+            }
+        ],
+        "validate": {
+            "performance": {
+                "max_response_time_ms": null
+            },
+            "security": {
+                "checks": [
+                    "sql_injection",
+                    "xss"
+                ]
+            },
+            "data_comparison": {
+                "source": "api_response",
+                "target": "db_result",
+                "format": "table",
+                "key_field": [
+                    "",
+                    ""
+                ],
+                "fields_to_compare": [],
+                "log_differences": true
+            }
+        },
+        "test_data_file": "",
+        "db_query": "",
+        "db_type": "",
+        "db_connection_name": "",
+        "test_summary": "Test TC018_V2_Alpha: POST /v2/analytics [negative] (TC018_V2_Alpha) - Test POST request to /v2/analytics for The weight field is required and cannot be negative.",
+        "test_scenario": "Test POST request to /v2/analytics for The weight field is required and cannot be negative."
+    },
+    {
+        "test_id": "TC019_V2_Alpha",
+        "service_name": "analyticsApiServices",
+        "workflow_mode": "parallel",
+        "test_name": "POST /v2/analytics [negative] (TC019_V2_Alpha)",
+        "protocol": "REST",
+        "test_type": [
+            "Functional"
+        ],
+        "mainURL": "{{base_url}}",
+        "endpoint": "/v2/analytics",
+        "method": "POST",
+        "rpc_method": "",
+        "graphql_query": "",
+        "graphql_variables": "",
+        "soap_action": "",
+        "soap_envelope": "",
+        "headers_additional": {
+            "Content-Type": "application/json"
+        },
+        "payload": {
+            "calculationRequest": {
+                "inputs": {
+                    "benchmark": [
+                        "SP500I"
+                    ],
+                    "blend": [
+                        {
+                            "id": "MODA94",
+                            "entityType": "model",
+                            "weight": 0.4
+                        },
+                        {
+                            "id": "MOD877",
+                            "entityType": "model",
+                            "weight": 0.6
+                        }
+                    ]
+                },
+                "calculations": [
+                    {
+                        "calculationType": "alpha",
+                        "configurations": {
+                            "timeHorizon": [
+                                "threeYear"
+                            ],
+                            "startDate": "2022-5-31",
+                            "endDate": "2025-12-31"
+                        }
+                    }
+                ]
+            }
+        },
+        "expected_status": "400",
+        "expected_response_schema": "",
+        "expected_response": null,
+        "ignore_fields": [
+            "id"
+        ],
+        "extract_values": [
+            {
+                "from": "response",
+                "key": "id",
+                "assign_to": ""
+            },
+            {
+                "from": "db_result",
+                "query": "",
+                "assign": [
+                    {
+                        "key": "",
+                        "assign_to": ""
+                    }
+                ]
+            }
+        ],
+        "validate": {
+            "performance": {
+                "max_response_time_ms": null
+            },
+            "security": {
+                "checks": [
+                    "sql_injection",
+                    "xss"
+                ]
+            },
+            "data_comparison": {
+                "source": "api_response",
+                "target": "db_result",
+                "format": "table",
+                "key_field": [
+                    "",
+                    ""
+                ],
+                "fields_to_compare": [],
+                "log_differences": true
+            }
+        },
+        "test_data_file": "",
+        "db_query": "",
+        "db_type": "",
+        "db_connection_name": "",
+        "test_summary": "Test TC019_V2_Alpha: POST /v2/analytics [negative] (TC019_V2_Alpha) - Test POST request to /v2/analytics for alpha calculation requires a riskFreeRate value.",
+        "test_scenario": "Test POST request to /v2/analytics for alpha calculation requires a riskFreeRate value."
+    },
+    {
+        "test_id": "TC020_V2_Alpha",
+        "service_name": "analyticsApiServices",
+        "workflow_mode": "parallel",
+        "test_name": "POST /v2/analytics [negative] (TC020_V2_Alpha)",
+        "protocol": "REST",
+        "test_type": [
+            "Functional"
+        ],
+        "mainURL": "{{base_url}}",
+        "endpoint": "/v2/analytics",
+        "method": "POST",
+        "rpc_method": "",
+        "graphql_query": "",
+        "graphql_variables": "",
+        "soap_action": "",
+        "soap_envelope": "",
+        "headers_additional": {
+            "Content-Type": "application/json"
+        },
+        "payload": {
+            "calculationRequest": {
+                "inputs": {
+                    "benchmark": [
+                        "SP500I"
+                    ],
+                    "blend": []
+                },
+                "calculations": [
+                    {
+                        "calculationType": "alpha",
+                        "configurations": {
+                            "riskFreeRate": "SBT30D",
+                            "timeHorizon": [
+                                "threeYear"
+                            ],
+                            "startDate": "2022-5-31",
+                            "endDate": "2025-12-31"
+                        }
+                    }
+                ]
+            }
+        },
+        "expected_status": "500",
+        "expected_response_schema": "",
+        "expected_response": null,
+        "ignore_fields": [
+            "id"
+        ],
+        "extract_values": [
+            {
+                "from": "response",
+                "key": "id",
+                "assign_to": ""
+            },
+            {
+                "from": "db_result",
+                "query": "",
+                "assign": [
+                    {
+                        "key": "",
+                        "assign_to": ""
+                    }
+                ]
+            }
+        ],
+        "validate": {
+            "performance": {
+                "max_response_time_ms": null
+            },
+            "security": {
+                "checks": [
+                    "sql_injection",
+                    "xss"
+                ]
+            },
+            "data_comparison": {
+                "source": "api_response",
+                "target": "db_result",
+                "format": "table",
+                "key_field": [
+                    "",
+                    ""
+                ],
+                "fields_to_compare": [],
+                "log_differences": true
+            }
+        },
+        "test_data_file": "",
+        "db_query": "",
+        "db_type": "",
+        "db_connection_name": "",
+        "test_summary": "Test TC020_V2_Alpha: POST /v2/analytics [negative] (TC020_V2_Alpha) - Test POST request to /v2/analytics for Sequence contains no elements.",
+        "test_scenario": "Test POST request to /v2/analytics for Sequence contains no elements."
+    }
+]
