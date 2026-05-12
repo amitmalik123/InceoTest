@@ -8,7 +8,7 @@ from typing import Dict, Any
 
 from utils.logger import setup_logger
 from utils.allure_helpers import screenshot
-from utils.settings import settings
+from config.oam.settings import get_settings
 
 logger = setup_logger(__name__)
 

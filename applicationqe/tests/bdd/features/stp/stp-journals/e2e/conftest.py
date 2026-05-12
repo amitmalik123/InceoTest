@@ -9,7 +9,7 @@ from pages.ewm.clients_page import ClientsPage
 from pages.ewm.login_page import LoginPage
 from pages.ewm.roth_conversion_page import RothConversionPage
 from pages.ewm.tracking_center_page import TrackingCenterPage
-from utils.settings import settings
+from config.oam.settings import get_settings
 
 
 @pytest.fixture
@@ -21,7 +21,7 @@ def test_context():
 @pytest.fixture
 def test_data():
     """Load test data from CSV file configured in settings."""
-    csv_path = settings.test_data_csv
+    csv_path = get_settings().test_data_csv
     with open(csv_path, "r", encoding="utf-8-sig") as file:
         reader = csv.DictReader(file)
         return next(reader)

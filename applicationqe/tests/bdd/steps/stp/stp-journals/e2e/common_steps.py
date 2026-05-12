@@ -7,7 +7,7 @@ from playwright.sync_api import Page
 from pytest_bdd import given, then, when
 
 from utils.logger import setup_logger
-from utils.settings import settings
+from config.oam.settings import get_settings
 
 logger = setup_logger(__name__)
 
@@ -15,7 +15,7 @@ logger = setup_logger(__name__)
 @given('the test data is loaded from CSV')
 def load_test_data_from_csv(test_context):
     """Load test data from CSV file into test_context"""
-    csv_path = settings.test_data_csv
+    csv_path = get_settings().test_data_csv
     logger.info(f"Loading test data from: {csv_path}")
     
     with open(csv_path, 'r', encoding='utf-8') as file:
@@ -102,7 +102,7 @@ def load_test_data_from_csv(test_context):
 def navigate_to_login_page(page: Page, login_page):
     """Navigate to the login page"""
     logger.info("Navigating to login page")
-    login_page.navigate_to_login(settings.login_url)
+    login_page.navigate_to_login(get_settings().login_url)
     screenshot = page.screenshot()
     allure.attach(screenshot, name="Login Page", attachment_type=allure.attachment_type.PNG)
 

@@ -9,7 +9,7 @@ from typing import Dict, Any
 
 from utils.logger import setup_logger
 from utils.allure_helpers import screenshot
-from utils.settings import settings
+from utils.settings import get_settings
 import csv
 
 logger = setup_logger(__name__)
@@ -18,7 +18,7 @@ logger = setup_logger(__name__)
 def get_test_data():
     """Load test data from CSV file or return defaults"""
     try:
-        with open(settings.test_data_csv, 'r') as file:
+        with open(get_settings().test_data_csv, 'r') as file:
             reader = csv.DictReader(file)
             data = next(reader)
             # Map CSV columns to our expected structure
@@ -45,9 +45,9 @@ def get_test_data():
 def given_i_am_on_the_ewealth_manager_login_page(page: Page):
     """Navigate to the configured login page for background steps."""
     with allure.step("Navigate to configured eWealth Manager login page"):
-        page.goto(settings.login_url)
+        page.goto(get_settings().login_url)
         screenshot(page, "EWM Login Page Loaded")
-        logger.info(f"Navigated to configured login page: {settings.login_url}")
+        logger.info(f"Navigated to configured login page: {get_settings().login_url}")
 
 
 @when('I enter my credentials and handle cookie consent')
@@ -231,7 +231,7 @@ def when_navigate_to_journal_transfer_url(page: Page):
         test_data = get_test_data()
         
         # Construct journal transfer URL using base URL from settings
-        base_url = settings.base_url
+        base_url = get_settings().base_url
         # Add test data parameters if available
         client_id = test_data.get('client_id', '')
         account_name = test_data.get('account_name', '')
