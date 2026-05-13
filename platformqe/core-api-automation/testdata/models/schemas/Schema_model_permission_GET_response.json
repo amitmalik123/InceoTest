@@ -1,0 +1,46 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "type": "object",
+  "properties": {
+    "data": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "modelId": {
+            "type": "string"
+          },
+          "name": {
+            "type": "string"
+          },
+          "agents": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "allocations": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "weight": {
+                  "type": "number"
+                },
+                "modelId": {
+                  "type": ["string", "null"]
+                },
+                "allocationName": {
+                  "type": "string"
+                }
+              },
+              "required": ["weight", "modelId", "allocationName"]
+            }
+          }
+        },
+        "required": ["modelId", "name", "agents", "allocations"]
+      }
+    }
+  },
+  "required": ["data"]
+}

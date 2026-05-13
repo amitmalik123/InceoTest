@@ -927,7 +927,7 @@
         "test_id": "TC010",
         "service_name": "models",
         "workflow_mode": "sequential",
-        "test_name": "Validate snapshot_analytic table schema and data types",
+        "test_name": "Validate snapshot_analytic table schema and data types [AC6 - Snapshot Analytics Daily Refresh]",
         "protocol": "DB_ONLY",
         "test_type": [
             "Functional",
@@ -968,7 +968,7 @@
                     {
                         "source_field": "row_count",
                         "comparison": "equals",
-                        "expected_value": 4
+                        "expected_value": 5
                     },
                     {
                         "source_field": "column_name",
@@ -977,7 +977,8 @@
                             "snapshot_analytic_id",
                             "allocation_id",
                             "data",
-                            "snapshot_timestamp"
+                            "snapshot_timestamp",
+                            "as_of_date"
                         ]
                     },
                     {
@@ -999,6 +1000,11 @@
                         "source_field": "column_name=snapshot_timestamp.data_type",
                         "comparison": "equals",
                         "expected_value": "timestamp with time zone"
+                    },
+                    {
+                        "source_field": "column_name=as_of_date.data_type",
+                        "comparison": "equals",
+                        "expected_value": "timestamp with time zone"
                     }
                 ],
                 "log_differences": true
@@ -1009,7 +1015,7 @@
         "db_type": "postgresql",
         "db_connection_name": "models",
         "db_query": "SELECT column_name, data_type FROM information_schema.columns WHERE table_name = 'snapshot_analytic' ORDER BY ordinal_position;",
-        "test_summary": "Test TC010: Validate snapshot_analytic table - Verify all column names and data types match expected schema"
+        "test_summary": "Test TC010: Validate snapshot_analytic table - Verify all column names and data types match expected schema (snapshot_analytic_id integer, allocation_id integer, data jsonb, snapshot_timestamp timestamptz, as_of_date timestamptz)"
     },
     {
         "test_id": "TC011",

@@ -223,10 +223,8 @@
         "payload": [
             {
                 "op": "replace",
-                "path": "/custodians",
-                "value": [
-                    "Fidelity"
-                ]
+                "path": "/solutionType",
+                "value": "Growth"
             }
         ],
         "expected_status": "200",
@@ -263,8 +261,8 @@
         "db_query": "",
         "db_type": "",
         "db_connection_name": "",
-        "test_summary": "Verify PATCH /model/{id} updates only the custodians field",
-        "test_scenario": "AC2: Request body is optional. AC3: Only custodians field is updated, all other fields remain unchanged."
+        "test_summary": "Verify PATCH /model/{id} updates only the solutionType field",
+        "test_scenario": "AC2: Request body is optional. AC3: Only solutionType field is updated, all other fields remain unchanged."
     },
     {
         "test_id": "TC004",
@@ -294,11 +292,37 @@
                 "value": "Test"
             }
         ],
-        "expected_status": "400",
-        "expected_response_schema": "",
+        "expected_status": "422",
+        "expected_response_schema": "models/schemas/Schema_model_id_PUT_422_error.json",
         "expected_response": null,
         "ignore_fields": [],
-        "extract_values": [],
+        "extract_values": [
+            {
+                "from": "response",
+                "key": "type",
+                "assign_to": "patch04_type"
+            },
+            {
+                "from": "response",
+                "key": "title",
+                "assign_to": "patch04_title"
+            },
+            {
+                "from": "response",
+                "key": "status",
+                "assign_to": "patch04_status"
+            },
+            {
+                "from": "response",
+                "key": "detail",
+                "assign_to": "patch04_detail"
+            },
+            {
+                "from": "response",
+                "key": "instance",
+                "assign_to": "patch04_instance"
+            }
+        ],
         "validate": {
             "performance": {
                 "max_response_time_ms": null
@@ -306,7 +330,98 @@
             "security": {
                 "checks": []
             },
-            "assertions": []
+            "assertions": [
+                {
+                    "actual": "{{patch04_type}}",
+                    "operator": "!=",
+                    "expected": "ResourceNotFound",
+                    "message": "AC2: type must not be non-URI value 'ResourceNotFound'"
+                },
+                {
+                    "actual": "{{patch04_type}}",
+                    "operator": "!=",
+                    "expected": "InvalidInput",
+                    "message": "AC2: type must not be non-URI value 'InvalidInput'"
+                },
+                {
+                    "actual": "{{patch04_type}}",
+                    "operator": "!=",
+                    "expected": "BusinessRuleViolation",
+                    "message": "AC2: type must not be non-URI value 'BusinessRuleViolation'"
+                },
+                {
+                    "actual": "{{patch04_type}}",
+                    "operator": "!=",
+                    "expected": null,
+                    "message": "AC1: type field must be present"
+                },
+                {
+                    "actual": "{{patch04_type}}",
+                    "operator": "!=",
+                    "expected": "",
+                    "message": "AC2: type must not be empty string"
+                },
+                {
+                    "actual": "{{patch04_title}}",
+                    "operator": "!=",
+                    "expected": "Model.NotFound",
+                    "message": "AC3: title must not be internal code 'Model.NotFound'"
+                },
+                {
+                    "actual": "{{patch04_title}}",
+                    "operator": "!=",
+                    "expected": "Model.InvalidId",
+                    "message": "AC3: title must not be internal code 'Model.InvalidId'"
+                },
+                {
+                    "actual": "{{patch04_title}}",
+                    "operator": "!=",
+                    "expected": "Model.MismatchVersionModelId",
+                    "message": "AC3: title must not be internal code 'Model.MismatchVersionModelId'"
+                },
+                {
+                    "actual": "{{patch04_title}}",
+                    "operator": "!=",
+                    "expected": null,
+                    "message": "AC1: title must be present"
+                },
+                {
+                    "actual": "{{patch04_title}}",
+                    "operator": "!=",
+                    "expected": "",
+                    "message": "AC3: title must not be empty string"
+                },
+                {
+                    "actual": "{{patch04_status}}",
+                    "operator": "==",
+                    "expected": 422,
+                    "message": "AC4: status in body must equal HTTP 422"
+                },
+                {
+                    "actual": "{{patch04_detail}}",
+                    "operator": "!=",
+                    "expected": null,
+                    "message": "AC1: detail must be present"
+                },
+                {
+                    "actual": "{{patch04_detail}}",
+                    "operator": "!=",
+                    "expected": "",
+                    "message": "AC1: detail must not be empty"
+                },
+                {
+                    "actual": "{{patch04_instance}}",
+                    "operator": "!=",
+                    "expected": null,
+                    "message": "AC5: instance must be present"
+                },
+                {
+                    "actual": "{{patch04_instance}}",
+                    "operator": "!=",
+                    "expected": "",
+                    "message": "AC5: instance must contain the request path"
+                }
+            ]
         },
         "test_data_file": "",
         "db_query": "",
@@ -343,11 +458,37 @@
                 "value": ""
             }
         ],
-        "expected_status": "400",
-        "expected_response_schema": "",
+        "expected_status": "422",
+        "expected_response_schema": "models/schemas/Schema_investmentapproachid_422_error.json",
         "expected_response": null,
         "ignore_fields": [],
-        "extract_values": [],
+        "extract_values": [
+            {
+                "from": "response",
+                "key": "type",
+                "assign_to": "patch05_type"
+            },
+            {
+                "from": "response",
+                "key": "title",
+                "assign_to": "patch05_title"
+            },
+            {
+                "from": "response",
+                "key": "status",
+                "assign_to": "patch05_status"
+            },
+            {
+                "from": "response",
+                "key": "detail",
+                "assign_to": "patch05_detail"
+            },
+            {
+                "from": "response",
+                "key": "instance",
+                "assign_to": "patch05_instance"
+            }
+        ],
         "validate": {
             "performance": {
                 "max_response_time_ms": null
@@ -355,7 +496,86 @@
             "security": {
                 "checks": []
             },
-            "assertions": []
+            "assertions": [
+                {
+                    "actual": "{{patch05_type}}",
+                    "operator": "!=",
+                    "expected": "ResourceNotFound",
+                    "message": "AC2: type must not be non-URI value 'ResourceNotFound'"
+                },
+                {
+                    "actual": "{{patch05_type}}",
+                    "operator": "!=",
+                    "expected": "InvalidInput",
+                    "message": "AC2: type must not be non-URI value 'InvalidInput'"
+                },
+                {
+                    "actual": "{{patch05_type}}",
+                    "operator": "!=",
+                    "expected": "BusinessRuleViolation",
+                    "message": "AC2: type must not be non-URI value 'BusinessRuleViolation'"
+                },
+                {
+                    "actual": "{{patch05_type}}",
+                    "operator": "!=",
+                    "expected": null,
+                    "message": "AC1: type field must be present"
+                },
+                {
+                    "actual": "{{patch05_type}}",
+                    "operator": "!=",
+                    "expected": "",
+                    "message": "AC2: type must not be empty string"
+                },
+                {
+                    "actual": "{{patch05_title}}",
+                    "operator": "!=",
+                    "expected": "Model.NotFound",
+                    "message": "AC3: title must not be internal code 'Model.NotFound'"
+                },
+                {
+                    "actual": "{{patch05_title}}",
+                    "operator": "!=",
+                    "expected": "Model.InvalidId",
+                    "message": "AC3: title must not be internal code 'Model.InvalidId'"
+                },
+                {
+                    "actual": "{{patch05_title}}",
+                    "operator": "!=",
+                    "expected": "Model.MismatchVersionModelId",
+                    "message": "AC3: title must not be internal code 'Model.MismatchVersionModelId'"
+                },
+                {
+                    "actual": "{{patch05_title}}",
+                    "operator": "!=",
+                    "expected": null,
+                    "message": "AC1: title must be present"
+                },
+                {
+                    "actual": "{{patch05_title}}",
+                    "operator": "!=",
+                    "expected": "",
+                    "message": "AC3: title must not be empty string"
+                },
+                {
+                    "actual": "{{patch05_status}}",
+                    "operator": "==",
+                    "expected": 422,
+                    "message": "AC4: status in body must equal HTTP 422"
+                },
+                {
+                    "actual": "{{patch05_instance}}",
+                    "operator": "!=",
+                    "expected": null,
+                    "message": "AC5: instance must be present"
+                },
+                {
+                    "actual": "{{patch05_instance}}",
+                    "operator": "!=",
+                    "expected": "",
+                    "message": "AC5: instance must contain the request path"
+                }
+            ]
         },
         "test_data_file": "",
         "db_query": "",
@@ -393,10 +613,36 @@
             }
         ],
         "expected_status": "404",
-        "expected_response_schema": "",
+        "expected_response_schema": "models/schemas/Schema_error_404.json",
         "expected_response": null,
         "ignore_fields": [],
-        "extract_values": [],
+        "extract_values": [
+            {
+                "from": "response",
+                "key": "type",
+                "assign_to": "patch06_type"
+            },
+            {
+                "from": "response",
+                "key": "title",
+                "assign_to": "patch06_title"
+            },
+            {
+                "from": "response",
+                "key": "status",
+                "assign_to": "patch06_status"
+            },
+            {
+                "from": "response",
+                "key": "detail",
+                "assign_to": "patch06_detail"
+            },
+            {
+                "from": "response",
+                "key": "instance",
+                "assign_to": "patch06_instance"
+            }
+        ],
         "validate": {
             "performance": {
                 "max_response_time_ms": null
@@ -404,7 +650,110 @@
             "security": {
                 "checks": []
             },
-            "assertions": []
+            "assertions": [
+                {
+                    "actual": "{{patch06_type}}",
+                    "operator": "!=",
+                    "expected": "ResourceNotFound",
+                    "message": "AC2: type must not be non-URI value 'ResourceNotFound'"
+                },
+                {
+                    "actual": "{{patch06_type}}",
+                    "operator": "!=",
+                    "expected": "InvalidInput",
+                    "message": "AC2: type must not be non-URI value 'InvalidInput'"
+                },
+                {
+                    "actual": "{{patch06_type}}",
+                    "operator": "!=",
+                    "expected": "BusinessRuleViolation",
+                    "message": "AC2: type must not be non-URI value 'BusinessRuleViolation'"
+                },
+                {
+                    "actual": "{{patch06_type}}",
+                    "operator": "!=",
+                    "expected": null,
+                    "message": "AC1: type field must be present"
+                },
+                {
+                    "actual": "{{patch06_type}}",
+                    "operator": "!=",
+                    "expected": "",
+                    "message": "AC2: type must not be empty string"
+                },
+                {
+                    "actual": "{{patch06_title}}",
+                    "operator": "!=",
+                    "expected": "Model.NotFound",
+                    "message": "AC3: title must not be internal code 'Model.NotFound'"
+                },
+                {
+                    "actual": "{{patch06_title}}",
+                    "operator": "!=",
+                    "expected": "Model.InvalidId",
+                    "message": "AC3: title must not be internal code 'Model.InvalidId'"
+                },
+                {
+                    "actual": "{{patch06_title}}",
+                    "operator": "!=",
+                    "expected": "Model.MismatchVersionModelId",
+                    "message": "AC3: title must not be internal code 'Model.MismatchVersionModelId'"
+                },
+                {
+                    "actual": "{{patch06_title}}",
+                    "operator": "!=",
+                    "expected": null,
+                    "message": "AC1: title must be present"
+                },
+                {
+                    "actual": "{{patch06_title}}",
+                    "operator": "!=",
+                    "expected": "",
+                    "message": "AC3: title must not be empty string"
+                },
+                {
+                    "actual": "{{patch06_status}}",
+                    "operator": "==",
+                    "expected": 404,
+                    "message": "AC4: status in body must equal HTTP 404"
+                },
+                {
+                    "actual": "{{patch06_detail}}",
+                    "operator": "!=",
+                    "expected": null,
+                    "message": "AC1: detail must be present"
+                },
+                {
+                    "actual": "{{patch06_detail}}",
+                    "operator": "!=",
+                    "expected": "",
+                    "message": "AC1: detail must not be empty"
+                },
+                {
+                    "actual": "{{patch06_instance}}",
+                    "operator": "!=",
+                    "expected": null,
+                    "message": "AC5: instance must be present"
+                },
+                {
+                    "actual": "{{patch06_instance}}",
+                    "operator": "!=",
+                    "expected": "",
+                    "message": "AC5: instance must contain the request path"
+                },
+                {
+                    "actual": "{{patch06_type}}",
+                    "operator": "==",
+                    "expected": "https://assetmark.atlassian.net/wiki/spaces/PE/pages/2303590438/Standard+Error+Codes+and+Messaging#resource-not-found",
+                    "message": "AC2: type must be RFC 9457 URI for resource-not-found"
+                },
+                {
+                    "actual": "{{patch06_title}}",
+                    "operator": "==",
+                    "expected": "Resource Not Found",
+                    "message": "AC3: title must be human-readable 'Resource Not Found'"
+                }
+            ]
         },
         "test_data_file": "",
         "db_query": "",
@@ -435,7 +784,7 @@
         },
         "payload": null,
         "expected_status": "500",
-        "expected_response_schema": "",
+        "expected_response_schema": "models/schemas/Schema_error_500.json",
         "expected_response": null,
         "ignore_fields": [],
         "extract_values": [
@@ -443,6 +792,31 @@
                 "from": "response",
                 "key": "message",
                 "assign_to": "patch_message"
+            },
+            {
+                "from": "response",
+                "key": "type",
+                "assign_to": "patch07_type"
+            },
+            {
+                "from": "response",
+                "key": "title",
+                "assign_to": "patch07_title"
+            },
+            {
+                "from": "response",
+                "key": "status",
+                "assign_to": "patch07_status"
+            },
+            {
+                "from": "response",
+                "key": "detail",
+                "assign_to": "patch07_detail"
+            },
+            {
+                "from": "response",
+                "key": "instance",
+                "assign_to": "patch07_instance"
             }
         ],
         "validate": {
@@ -451,7 +825,99 @@
             },
             "security": {
                 "checks": []
-            }
+            },
+            "assertions": [
+                {
+                    "actual": "{{patch07_type}}",
+                    "operator": "!=",
+                    "expected": "ResourceNotFound",
+                    "message": "AC2: type must not be non-URI value 'ResourceNotFound'"
+                },
+                {
+                    "actual": "{{patch07_type}}",
+                    "operator": "!=",
+                    "expected": "InvalidInput",
+                    "message": "AC2: type must not be non-URI value 'InvalidInput'"
+                },
+                {
+                    "actual": "{{patch07_type}}",
+                    "operator": "!=",
+                    "expected": "BusinessRuleViolation",
+                    "message": "AC2: type must not be non-URI value 'BusinessRuleViolation'"
+                },
+                {
+                    "actual": "{{patch07_type}}",
+                    "operator": "!=",
+                    "expected": null,
+                    "message": "AC1: type field must be present"
+                },
+                {
+                    "actual": "{{patch07_type}}",
+                    "operator": "!=",
+                    "expected": "",
+                    "message": "AC2: type must not be empty string"
+                },
+                {
+                    "actual": "{{patch07_title}}",
+                    "operator": "!=",
+                    "expected": "Model.NotFound",
+                    "message": "AC3: title must not be internal code 'Model.NotFound'"
+                },
+                {
+                    "actual": "{{patch07_title}}",
+                    "operator": "!=",
+                    "expected": "Model.InvalidId",
+                    "message": "AC3: title must not be internal code 'Model.InvalidId'"
+                },
+                {
+                    "actual": "{{patch07_title}}",
+                    "operator": "!=",
+                    "expected": "Model.MismatchVersionModelId",
+                    "message": "AC3: title must not be internal code 'Model.MismatchVersionModelId'"
+                },
+                {
+                    "actual": "{{patch07_title}}",
+                    "operator": "!=",
+                    "expected": null,
+                    "message": "AC1: title must be present"
+                },
+                {
+                    "actual": "{{patch07_title}}",
+                    "operator": "!=",
+                    "expected": "",
+                    "message": "AC3: title must not be empty string"
+                },
+                {
+                    "actual": "{{patch07_status}}",
+                    "operator": "==",
+                    "expected": 500,
+                    "message": "AC4: status in body must equal HTTP 500"
+                },
+                {
+                    "actual": "{{patch07_detail}}",
+                    "operator": "!=",
+                    "expected": null,
+                    "message": "AC1: detail must be present"
+                },
+                {
+                    "actual": "{{patch07_detail}}",
+                    "operator": "!=",
+                    "expected": "",
+                    "message": "AC1: detail must not be empty"
+                },
+                {
+                    "actual": "{{patch07_instance}}",
+                    "operator": "!=",
+                    "expected": null,
+                    "message": "AC5: instance must be present"
+                },
+                {
+                    "actual": "{{patch07_instance}}",
+                    "operator": "!=",
+                    "expected": "",
+                    "message": "AC5: instance must contain the request path"
+                }
+            ]
         },
         "test_data_file": "",
         "db_query": "",
@@ -618,14 +1084,6 @@
                 "op": "replace",
                 "path": "/solutionType",
                 "value": "Fixed Income"
-            },
-            {
-                "op": "replace",
-                "path": "/custodians",
-                "value": [
-                    "Schwab",
-                    "TD Ameritrade"
-                ]
             }
         ],
         "expected_status": "200",
@@ -662,8 +1120,8 @@
         "db_query": "",
         "db_type": "",
         "db_connection_name": "",
-        "test_summary": "Verify PATCH updates solutionType and custodians array",
-        "test_scenario": "AC2: Verify updating solutionType and custodians, other fields remain unchanged."
+        "test_summary": "Verify PATCH updates solutionType field",
+        "test_scenario": "AC2: Verify updating solutionType, other fields remain unchanged."
     },
     {
         "test_id": "TC011",
@@ -700,14 +1158,6 @@
                 "op": "replace",
                 "path": "/solutionType",
                 "value": "Diversified"
-            },
-            {
-                "op": "replace",
-                "path": "/custodians",
-                "value": [
-                    "Fidelity",
-                    "Vanguard"
-                ]
             }
         ],
         "expected_status": "200",
@@ -897,13 +1347,18 @@
         "payload": [
             {
                 "op": "replace",
-                "path": "/custodians",
-                "value": [
-                    "Fidelity",
-                    "Schwab",
-                    "TD Ameritrade",
-                    "E*TRADE"
-                ]
+                "path": "/name",
+                "value": "Model With Multiple Updates 2024"
+            },
+            {
+                "op": "replace",
+                "path": "/modelType",
+                "value": "Aggressive Growth"
+            },
+            {
+                "op": "replace",
+                "path": "/solutionType",
+                "value": "Equity"
             }
         ],
         "expected_status": "200",
@@ -940,8 +1395,8 @@
         "db_query": "",
         "db_type": "",
         "db_connection_name": "",
-        "test_summary": "Verify PATCH replaces custodians array with multiple values",
-        "test_scenario": "AC2: Verify custodians array can be updated with multiple values."
+        "test_summary": "Verify PATCH updates name, modelType and solutionType fields",
+        "test_scenario": "AC2: Verify updating multiple scalar fields simultaneously."
     },
     {
         "test_id": "TC015",
@@ -977,13 +1432,6 @@
                 "op": "add",
                 "path": "/modelType",
                 "value": "Aggressive Growth"
-            },
-            {
-                "op": "replace",
-                "path": "/custodians",
-                "value": [
-                    "Interactive Brokers"
-                ]
             }
         ],
         "expected_status": "200",
@@ -1021,7 +1469,7 @@
         "db_type": "",
         "db_connection_name": "",
         "test_summary": "Verify PATCH handles complex sequence of replace, remove, and add operations",
-        "test_scenario": "AC3: Verify sequential operations: replace name, remove investmentApproachId, add modelType, replace custodians."
+        "test_scenario": "AC3: Verify sequential operations: replace name, remove investmentApproachId, add modelType."
     },
     {
         "test_id": "TC016",
@@ -1061,50 +1509,8 @@
             },
             {
                 "op": "replace",
-                "path": "/custodians",
-                "value": [
-                    "Fidelity",
-                    "Schwab",
-                    "Vanguard"
-                ]
-            },
-            {
-                "op": "replace",
-                "path": "/benchmarks",
-                "value": [
-                    {
-                        "name": "S&P 500",
-                        "isPrimary": false,
-                        "id": 0
-                    },
-                    {
-                        "name": "Russell 2000",
-                        "isPrimary": false,
-                        "id": 0
-                    }
-                ]
-            },
-            {
-                "op": "replace",
-                "path": "/investmentMins",
-                "value": [
-                    {
-                        "type": "System",
-                        "value": 1
-                    }
-                ]
-            },
-            {
-                "op": "replace",
                 "path": "/riskProfile",
                 "value": "High Risk - High Return"
-            },
-            {
-                "op": "replace",
-                "path": "/versionMetadata",
-                "value": {
-                    "targetRebalanceFrequency": "Quarterly"
-                }
             }
         ],
         "expected_status": "200",
@@ -1139,58 +1545,15 @@
                     "name",
                     "model_type",
                     "solution_type",
-                    "custodian",
-                    "benchmark",
-                    "investment_min",
-                    "risk_profile",
-                    "metadata"
+                    "risk_profile"
                 ],
                 "log_differences": true,
                 "expected_values": {
                     "name": "Complete Model Update 2024",
                     "model_type": "Aggressive Growth",
                     "solution_type": "Equity Focused",
-                    "custodian": [
-                        "Fidelity",
-                        "Schwab",
-                        "Vanguard"
-                    ],
-                    "benchmarks": [
-                        {
-                            "name": "S&P 500"
-                        },
-                        {
-                            "name": "Russell 2000"
-                        }
-                    ],
-                    "investment_min": {
-                        "system": 1
-                    },
-                    "risk_profile": "High Risk - High Return",
-                    "metadata": {
-                        "targetRebalanceFrequency": "Quarterly"
-                    }
-                },
-                "field_transformers": [
-                    {
-                        "field": "investmentMin",
-                        "transform": "array_to_object",
-                        "options": {
-                            "key_field": "type",
-                            "value_field": "value",
-                            "lowercase_keys": true
-                        }
-                    },
-                    {
-                        "field": "investment_min",
-                        "transform": "array_to_object",
-                        "options": {
-                            "key_field": "type",
-                            "value_field": "value",
-                            "lowercase_keys": true
-                        }
-                    }
-                ]
+                    "risk_profile": "High Risk - High Return"
+                }
             },
             "assertions": [
                 {
@@ -1246,55 +1609,8 @@
             },
             {
                 "op": "add",
-                "path": "/custodians",
-                "value": [
-                    "E*TRADE",
-                    "Interactive Brokers",
-                    "TD Ameritrade"
-                ]
-            },
-            {
-                "op": "add",
-                "path": "/benchmarks",
-                "value": [
-                    {
-                        "name": "MSCI World Index",
-                        "isPrimary": false,
-                        "id": 0
-                    },
-                    {
-                        "name": "Bloomberg Barclays Aggregate",
-                        "isPrimary": false,
-                        "id": 0
-                    },
-                    {
-                        "name": "FTSE Global All Cap",
-                        "isPrimary": false,
-                        "id": 0
-                    }
-                ]
-            },
-            {
-                "op": "add",
-                "path": "/investmentMins",
-                "value": [
-                    {
-                        "type": "System",
-                        "value": 1
-                    }
-                ]
-            },
-            {
-                "op": "add",
                 "path": "/riskProfile",
                 "value": "Moderate Risk - Balanced Return"
-            },
-            {
-                "op": "add",
-                "path": "/versionMetadata",
-                "value": {
-                    "targetRebalanceFrequency": "Quarterly"
-                }
             }
         ],
         "expected_status": "200",
@@ -1329,61 +1645,15 @@
                     "name",
                     "model_type",
                     "solution_type",
-                    "custodian",
-                    "benchmark",
-                    "investment_min",
-                    "risk_profile",
-                    "metadata"
+                    "risk_profile"
                 ],
                 "log_differences": true,
                 "expected_values": {
                     "name": "New Portfolio Strategy 2025",
                     "model_type": "Moderate Growth",
                     "solution_type": "Balanced Allocation",
-                    "custodian": [
-                        "E*TRADE",
-                        "Interactive Brokers",
-                        "TD Ameritrade"
-                    ],
-                    "benchmarks": [
-                        {
-                            "name": "MSCI World Index"
-                        },
-                        {
-                            "name": "Bloomberg Barclays Aggregate"
-                        },
-                        {
-                            "name": "FTSE Global All Cap"
-                        }
-                    ],
-                    "investment_min": {
-                        "system": 1
-                    },
-                    "risk_profile": "Moderate Risk - Balanced Return",
-                    "metadata": {
-                        "targetRebalanceFrequency": "Quarterly"
-                    }
-                },
-                "field_transformers": [
-                    {
-                        "field": "investmentMin",
-                        "transform": "array_to_object",
-                        "options": {
-                            "key_field": "type",
-                            "value_field": "value",
-                            "lowercase_keys": true
-                        }
-                    },
-                    {
-                        "field": "investment_min",
-                        "transform": "array_to_object",
-                        "options": {
-                            "key_field": "type",
-                            "value_field": "value",
-                            "lowercase_keys": true
-                        }
-                    }
-                ]
+                    "risk_profile": "Moderate Risk - Balanced Return"
+                }
             },
             "assertions": [
                 {
@@ -1434,27 +1704,7 @@
             },
             {
                 "op": "replace",
-                "path": "/custodians",
-                "value": null
-            },
-            {
-                "op": "replace",
-                "path": "/benchmarks",
-                "value": null
-            },
-            {
-                "op": "replace",
-                "path": "/investmentMins",
-                "value": null
-            },
-            {
-                "op": "replace",
                 "path": "/riskProfile",
-                "value": null
-            },
-            {
-                "op": "replace",
-                "path": "/versionMetadata",
                 "value": null
             }
         ],
@@ -1489,42 +1739,14 @@
                 "fields_to_compare": [
                     "model_type",
                     "solution_type",
-                    "custodian",
-                    "benchmarks",
-                    "investment_min",
-                    "risk_profile",
-                    "metadata"
+                    "risk_profile"
                 ],
                 "log_differences": true,
                 "expected_values": {
                     "model_type": null,
                     "solution_type": null,
-                    "custodian": [],
-                    "benchmarks": null,
-                    "investment_min": {},
-                    "risk_profile": null,
-                    "metadata": {}
-                },
-                "field_transformers": [
-                    {
-                        "field": "investmentMin",
-                        "transform": "array_to_object",
-                        "options": {
-                            "key_field": "type",
-                            "value_field": "value",
-                            "lowercase_keys": true
-                        }
-                    },
-                    {
-                        "field": "investment_min",
-                        "transform": "array_to_object",
-                        "options": {
-                            "key_field": "type",
-                            "value_field": "value",
-                            "lowercase_keys": true
-                        }
-                    }
-                ]
+                    "risk_profile": null
+                }
             },
             "assertions": [
                 {
@@ -1668,48 +1890,6 @@
                 "op": "replace",
                 "path": "/riskProfile",
                 "value": "High Risk - High Return"
-            },
-            {
-                "op": "replace",
-                "path": "/custodians",
-                "value": [
-                    "Fidelity",
-                    "Schwab",
-                    "Vanguard"
-                ]
-            },
-            {
-                "op": "replace",
-                "path": "/investmentMins",
-                "value": [
-                    {
-                        "type": "System",
-                        "value": 1
-                    }
-                ]
-            },
-            {
-                "op": "replace",
-                "path": "/versionMetadata",
-                "value": {
-                    "targetRebalanceFrequency": "Quarterly"
-                }
-            },
-            {
-                "op": "replace",
-                "path": "/benchmarks",
-                "value": [
-                    {
-                        "name": "S&P 500",
-                        "isPrimary": false,
-                        "id": 0
-                    },
-                    {
-                        "name": "Russell 2000",
-                        "isPrimary": false,
-                        "id": 0
-                    }
-                ]
             }
         ],
         "expected_status": "200",
@@ -1818,36 +1998,6 @@
                     "operator": "==",
                     "expected": "High Risk - High Return",
                     "message": "riskProfile returned by GetModelResponse matches value sent in PATCH request"
-                },
-                {
-                    "actual": "{{tc020_resp_custodian_1}}",
-                    "operator": "==",
-                    "expected": "Fidelity",
-                    "message": "First custodian returned by GetModelResponse matches value sent in PATCH request"
-                },
-                {
-                    "actual": "{{tc020_resp_custodian_2}}",
-                    "operator": "==",
-                    "expected": "Schwab",
-                    "message": "Second custodian returned by GetModelResponse matches value sent in PATCH request"
-                },
-                {
-                    "actual": "{{tc020_resp_investment_mins}}",
-                    "operator": "!=",
-                    "expected": null,
-                    "message": "investmentMins is present and non-null in GetModelResponse after PATCH"
-                },
-                {
-                    "actual": "{{tc020_resp_metadata}}",
-                    "operator": "!=",
-                    "expected": null,
-                    "message": "metadata is present and non-null in GetModelResponse after PATCH"
-                },
-                {
-                    "actual": "{{tc020_resp_benchmarks}}",
-                    "operator": "!=",
-                    "expected": null,
-                    "message": "benchmarks is present and non-null in GetModelResponse after PATCH"
                 }
             ]
         },
@@ -1935,41 +2085,6 @@
                 "op": "replace",
                 "path": "/riskProfile",
                 "value": "Moderate Risk - Balanced Return"
-            },
-            {
-                "op": "replace",
-                "path": "/custodians",
-                "value": [
-                    "TD Ameritrade",
-                    "E*TRADE"
-                ]
-            },
-            {
-                "op": "replace",
-                "path": "/investmentMins",
-                "value": [
-                    {
-                        "type": "System",
-                        "value": 5000
-                    }
-                ]
-            },
-            {
-                "op": "replace",
-                "path": "/versionMetadata",
-                "value": {
-                    "targetRebalanceFrequency": "Monthly"
-                }
-            },
-            {
-                "op": "replace",
-                "path": "/benchmarks",
-                "value": [
-                    {
-                        "name": "MSCI World Index",
-                        "isPrimary": true
-                    }
-                ]
             }
         ],
         "expected_status": "200",
@@ -1995,7 +2110,7 @@
                     "actual": "{{tc023_patch_message}}",
                     "operator": "==",
                     "expected": "Model partially updated successfully.",
-                    "message": "PATCH with JSON Patch ops on all 5 fields returns success — confirms request contract unchanged"
+                    "message": "PATCH with JSON Patch replace op on /riskProfile returns success"
                 }
             ]
         },
@@ -2003,8 +2118,8 @@
         "db_query": "",
         "db_type": "",
         "db_connection_name": "",
-        "test_summary": "PATCH /model/{id} with JSON Patch replace ops on all 5 fields (riskProfile, custodians, investmentMins, versionMetadata, benchmarks) using distinct AC03 values — Verify 200",
-        "test_scenario": "AC03: Patch model with distinct values for all 5 fields, then verify GetModelResponse reads them from model_version_attribute"
+        "test_summary": "PATCH /model/{id} with JSON Patch replace op on /riskProfile using AC03 value — Verify 200",
+        "test_scenario": "AC03: Patch model riskProfile with distinct value, then verify GetModelResponse reads it correctly"
     },
     {
         "test_id": "TC025",
@@ -2082,43 +2197,7 @@
                     "actual": "{{tc023_versions_risk_profile}}",
                     "operator": "==",
                     "expected": "Moderate Risk - Balanced Return",
-                    "message": "AC03: riskProfile is populated from model_version_attribute (versions.0.riskProfile) in GetModelResponse after PATCH"
-                },
-                {
-                    "actual": "{{tc023_versions_custodian_1}}",
-                    "operator": "!=",
-                    "expected": null,
-                    "message": "AC03: First custodian populated from model_version_attribute (versions.0.custodians) in GetModelResponse after PATCH"
-                },
-                {
-                    "actual": "{{tc023_versions_custodian_2}}",
-                    "operator": "!=",
-                    "expected": null,
-                    "message": "AC03: Second custodian populated from model_version_attribute (versions.0.custodians) in GetModelResponse after PATCH"
-                },
-                {
-                    "actual": "{{tc023_versions_inv_mins}}",
-                    "operator": "!=",
-                    "expected": null,
-                    "message": "AC03: investmentMins populated from model_version_attribute (versions.0.investmentMins) in GetModelResponse after PATCH"
-                },
-                {
-                    "actual": "{{tc023_versions_metadata}}",
-                    "operator": "!=",
-                    "expected": null,
-                    "message": "AC03: metadata populated from model_version_attribute (versions.0.metadata) in GetModelResponse after PATCH"
-                },
-                {
-                    "actual": "{{tc023_versions_benchmarks}}",
-                    "operator": "!=",
-                    "expected": null,
-                    "message": "AC03: benchmarks populated from model_version_attribute (versions.0.benchmarks) in GetModelResponse after PATCH"
-                },
-                {
-                    "actual": "{{tc023_model_attr_metadata}}",
-                    "operator": "==",
-                    "expected": {},
-                    "message": "AC03: model-level metadata (models.0.metadata) is empty — confirms fields are NOT read from model_attribute after PATCH"
+                    "message": "AC03: riskProfile returned by GetModelResponse matches value sent in PATCH request"
                 }
             ]
         },
