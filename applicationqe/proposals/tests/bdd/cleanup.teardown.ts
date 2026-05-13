@@ -15,6 +15,10 @@ teardown.describe('Teardown', () => {
         const portfolioEnginePage = new PortfolioEnginePage(await navigateToPortfolioEngine(page));
         //await portfolioEnginePage.deleteAllPortfolios(); // uncomment this line to do bulk cleanup, comment out remaining lines
         logger.debug('\nDeleting Test Portfolios...');
+
+        // Dismiss privacy dialog
+        await portfolioEnginePage.dismissPrivacyDialog();
+
         await Promise.race([
             portfolioEnginePage.getStartedButton.waitFor({ state: 'visible' }),
             portfolioEnginePage.managePortfoliosButton.waitFor({ state: 'visible' }),
@@ -34,6 +38,10 @@ teardown.describe('Teardown', () => {
         const portfolioEnginePageInstance = new PortfolioEnginePage(await navigateToPortfolioEngine(page));
         //await portfolioEnginePage.deleteAllPortfolios(); // uncomment this line to do bulk cleanup, comment out remaining lines
         logger.debug('\nDeleting Test Clients...');
+
+        // Dismiss privacy dialog
+        await portfolioEnginePageInstance.dismissPrivacyDialog();
+
         await deleteTestClient(portfolioEnginePageInstance, ['Guy NAWE2E', 'Guy PeE2E', 'Guy NAWTMS']);
     });
 

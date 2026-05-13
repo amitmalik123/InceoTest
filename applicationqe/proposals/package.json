@@ -12,54 +12,23 @@
     "test:bdd": "npm run bddgen && npx playwright test",
     "test:e2e": "npm run bddgen && npx playwright test --grep @e2e",
     "test:widgets": "npm run bddgen && npx playwright test --grep @widgetTests",
-    "test:smoke": "npm run bddgen && npx playwright test --grep @smoke",
-    "lint": "eslint -c .eslintrc.json . --ext .ts",
-    "lint:fix": "eslint -c .eslintrc.json . --ext .ts --fix",
-    "es": "npm run lint",
-    "es:fix": "npm run lint:fix",
-    "format": "prettier --write \"**/*.{ts,js,json,md}\"",
-    "format:check": "prettier --check \"**/*.{ts,js,json,md}\"",
-    "fmt": "npm run format",
-    "fmt:check": "npm run format:check",
-    "quality": "npm run lint && npm run format:check",
-    "prepare": "node ./scripts/prepare-husky.js",
-    "husky:install": "node ./scripts/prepare-husky.js",
-    "husky:disable": "node -e \"console.log('Set HUSKY=0 when installing in CI')\""
+    "test:smoke": "npm run bddgen && npx playwright test --grep @smoke"
   },
   "keywords": [],
   "author": "",
   "license": "ISC",
   "devDependencies": {
-    "@eslint/eslintrc": "^3.3.3",
     "@playwright/test": "^1.56.1",
     "@types/node": "^24.9.1",
     "@types/pdf-parse": "^1.1.5",
-    "@typescript-eslint/eslint-plugin": "^8.53.1",
-    "@typescript-eslint/parser": "^8.53.1",
     "allure-playwright": "^3.4.2",
     "dotenv": "^17.2.3",
-    "eslint": "^8.46.0",
-    "eslint-config-prettier": "^10.1.8",
-    "eslint-plugin-playwright": "^2.5.0",
-    "husky": "^8.0.0",
-    "lint-staged": "^14.0.0",
     "pdf-parse": "^2.4.5",
     "playwright-bdd": "^8.4.2",
-    "prettier": "^3.8.0",
     "ts-node": "^10.9.2"
   },
   "overrides": {
     "diff": "8.0.3",
     "micromatch": "4.0.8"
-  },
-  "lint-staged": {
-    "*.{ts,js}": [
-      "npm run lint:fix",
-      "git add"
-    ],
-    "*.{json,md}": [
-      "npm run format",
-      "git add"
-    ]
   }
 }

@@ -147,6 +147,9 @@ When('I generate the proposal document with all sections', async () => {
     await portfolioEnginePageInstance.continueButton.click();
     await portfolioEnginePageInstance.previewProposalButton.click();
     await portfolioEnginePageInstance.page.waitForLoadState();
+
+    // Dismiss privacy dialog if present when preview proposal opens
+    await portfolioEnginePageInstance.dismissPrivacyDialog();
 });
 
 When('I save the proposal', async () => {

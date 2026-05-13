@@ -44,8 +44,9 @@ npx playwright install --with-deps
 ### Environment Setup
 
 Configure your test environment in `config/.env.<environment>`:
+
 - `.env.test11` - Test11 environment
-- `.env.test10` - Test10 environment  
+- `.env.test10` - Test10 environment
 - `.env.silo` - Silo environment
 
 Set the `ENVIRONMENT` variable or it defaults to `test11`.
@@ -101,10 +102,11 @@ ENVIRONMENT=silo npm run test:bdd
 5. Execute with `npm run test:bdd`
 
 Example feature:
+
 ```gherkin
 @e2e
 Feature: Portfolio Creation
-  
+
   Scenario: Create a new portfolio with strategies
     Given I am on the Portfolio Engine page
     When I create a portfolio with strategies
@@ -114,6 +116,7 @@ Feature: Portfolio Creation
 ### Page Object Models
 
 Place reusable page interactions in `pages/`:
+
 - Use selectors and actions only (no assertions)
 - Keep pages focused on a single UI area
 - Export methods for common workflows
@@ -123,6 +126,7 @@ Place reusable page interactions in `pages/`:
 ### Playwright Config
 
 Main configuration in `playwright.config.ts`:
+
 - Test timeout: 30 minutes (for long-running E2E tests)
 - Expect timeout: 5 minutes
 - Projects: setup → chromium → teardown
@@ -145,11 +149,13 @@ Reports are generated in the `reports/` directory:
 Pipeline configuration: `azurePipeline.yaml`
 
 ### Manual Runs
+
 - Select environment (test11, test10, silo)
 - Specify tags to run
 - Configure thread count
 
 ### Scheduled Runs
+
 - **3:30 PM EST**: Silo environment
 - **3:45 PM EST**: Test11 environment
 - Runs: `@regression`, `@smokeTest`, `@e2e` tests
@@ -163,18 +169,6 @@ Pipeline configuration: `azurePipeline.yaml`
 - 4-space indentation for code
 - 2-space indentation for configs
 
-### Tooling (ESLint / Prettier / Husky)
-
-- ESLint: repository linting with TypeScript support and Playwright plugin. Run with `npm run lint` or `npm run es`.
-- Prettier: formatting with `npm run format` or `npm run fmt`, and check formatting with `npm run format:check` / `npm run fmt:check`.
-- Husky + lint-staged: pre-commit hooks auto-run locally to format and lint staged files. Hooks are installed via the `prepare` script. Local commands:
-  - Install hooks: `npm run husky:install`
-  - In CI do not install hooks — use `HUSKY=0 npm ci` (CI runs authoritative checks separately).
-
-Scripts added (shortcuts): `es`, `es:fix`, `fmt`, `fmt:check`, `husky:install` (see `package.json`).
-
-The repo uses `lint-staged` so on commit staged files are auto-fixed and re-staged.
-
 ### Best Practices
 
 1. Use environment variables for configuration
@@ -186,6 +180,7 @@ The repo uses `lint-staged` so on commit staged files are auto-fixed and re-stag
 ## Dependencies
 
 Key packages:
+
 - `@playwright/test` - Test framework
 - `playwright-bdd` - BDD support for Playwright
 - `allure-playwright` - Allure reporting
@@ -194,16 +189,18 @@ Key packages:
 ## Troubleshooting
 
 ### Tests fail to authenticate
+
 - Verify credentials in `config/.env.<environment>`
 - Check if setup project ran: look for `authfiles/role1.json`
 - Run setup manually: `npx playwright test --project=setup`
 
 ### Tests can't find elements
+
 - Increase timeout in `playwright.config.ts`
 - Check selectors in Page Object Models
 - Verify test environment is responsive
 
 ### BDD tests not updating
+
 - Run `npm run bddgen` after changing feature files or step definitions
 - Check `.features-gen/` for generated test files
-

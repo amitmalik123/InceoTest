@@ -11,6 +11,10 @@ Given('I am on the Portfolio Engine page', async ({ page }) => {
     const portfolioEnginePageObject = await navigateToPortfolioEngine(page);
     const portfolioEnginePageInstance = new PortfolioEnginePage(portfolioEnginePageObject);
     setPortfolioEnginePageInstance(portfolioEnginePageInstance);
+
+    // Dismiss privacy dialog immediately
+    await portfolioEnginePageInstance.dismissPrivacyDialog();
+
     try {
         await expect(
             portfolioEnginePageInstance.getStartedButton.or(portfolioEnginePageInstance.managePortfoliosButton)

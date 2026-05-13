@@ -7,6 +7,7 @@ export class LoginPage {
     readonly signInButton: Locator;
     readonly cookieAcceptButton: Locator;
     readonly privacyPolicyButton: Locator;
+    readonly rejectAllButton: Locator;
 
     constructor(page: Page) {
         this.page = page;
@@ -15,6 +16,7 @@ export class LoginPage {
         this.signInButton = page.getByRole('button', { name: 'SIGN IN' });
         this.cookieAcceptButton = page.getByRole('button', { name: 'Confirm My Choices' });
         this.privacyPolicyButton = page.getByRole('button', { name: 'I Agree' });
+        this.rejectAllButton = page.getByRole('button', { name: 'Reject All' });
     }
 
     // Navigate to login page
@@ -27,7 +29,7 @@ export class LoginPage {
     //Sign in with given username and password
     async signIn(username: string, password: string) {
         const env = process.env.ENVIRONMENT || process.env.Environment;
-        if (env.toLowerCase() != 'test11'){
+        if (env.toLowerCase() != 'test11') {
             await this.cookieAcceptButton.waitFor({ state: 'visible', timeout: 5000 }); //waiting because it may load slowly
             if (await this.cookieAcceptButton.isVisible()) {
                 await this.cookieAcceptButton.click();
@@ -48,5 +50,17 @@ export class LoginPage {
         }
         // Wait for the sign-in button to disappear (navigation completed)
         await this.signInButton.waitFor({ state: 'detached' });
+    }
+
+    // Handle privacy/cookie consent banner by clicking Reject All
+    async rejectPrivacyBanner() {
+        const env = process.env.ENVIRONMENT || process.env.Environment;
+        if (env.toLowerCase() === 'test11') {
+            try {
+                await this.rejectAllButton.click({ timeout: 10000 });
+            } catch (err) {
+                // If the button is not found or not visible, log the error but continue
+            }
+        }
     }
 }

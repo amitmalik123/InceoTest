@@ -1,4 +1,4 @@
-import { type Page, type Locator } from '@playwright/test';
+import { type Page, type Locator, type Request } from '@playwright/test';
 import path from 'path';
 import fs from 'fs';
 
@@ -8,6 +8,7 @@ export class TaxManagementServicesPage {
     // File Upload
     readonly uploadInput: Locator;
     readonly viewResultsButton: Locator;
+    readonly loadingSpinner: Locator;
 
     // Tax Rate Inputs
     readonly shortTermRateInput: Locator;
@@ -47,6 +48,7 @@ export class TaxManagementServicesPage {
             .or(page.locator('#VIEW RESULTS'))
             .or(page.locator('[aria-label="VIEW RESULTS"]'))
             .or(page.locator('[label="VIEW RESULTS"]')); // variations to handle slight differences in how the button may be labeled across environments
+        this.loadingSpinner = page.locator('[class*="LoadingImageLargeIcon"]').last(); // targets the hoverFilled overlay that blocks interactions
 
         // Tax Rate Inputs
         this.shortTermRateInput = page.locator('input#ShortTerm');
@@ -143,12 +145,94 @@ export class TaxManagementServicesPage {
     }
 
     // Methods
-    async uploadHoldingsTemplate(fileName: string = 'NEW-REVISED Sample TMS ticker file.csv'): Promise<void> {
+    async uploadHoldingsTemplate(fileName: string = 'NEW-REVISED Sample TMS ticker file.csv'): Promise<Request[]> {
         const filePath = path.resolve(__dirname, `../data/${fileName}`);
         await this.page.waitForLoadState();
         await this.uploadInput.setInputFiles(filePath);
         await this.page.waitForLoadState();
-        await this.viewResultsButton.click();
+        return await this.clickViewResultsWithRetry();
+    }
+
+    /**
+     * Click the VIEW RESULTS button and wait for all 3 TMS API requests to be initiated.
+     * Waits for: Proposal, Holdings, and overlaysetting endpoint requests
+     * Retries up to 3 times if the click fails or any API request isn't triggered.
+     * Returns all 3 API requests for assertion in step files.
+     * @throws Error if all retry attempts fail
+     */
+    private async clickViewResultsWithRetry(maxRetries: number = 3): Promise<Request[]> {
+        let lastError: Error | null = null;
+
+        for (let attempt = 1; attempt <= maxRetries; attempt++) {
+            try {
+                await this.page.waitForLoadState('networkidle');
+                
+                // Wait for any loading spinner overlay to disappear before setting up API listeners
+                // (prevents "intercepts pointer events" errors and ensures button is clickable)
+                let spinnerHidden = false;
+                const maxWaitTime = 30000; // 30 second max wait
+                const startTime = Date.now();
+                while (!spinnerHidden && Date.now() - startTime < maxWaitTime) {
+                    spinnerHidden = await this.loadingSpinner.isHidden();
+                    if (!spinnerHidden) {
+                        await this.page.waitForTimeout(100);
+                    }
+                }
+                
+                // NOW set up listeners for all 3 TMS API endpoint requests AFTER ensuring spinner won't block click
+                const proposalPromise = this.page.waitForRequest(
+                    request => request.url().includes('/api/v1/tms/Proposal/'),
+                    { timeout: 10000 }
+                );
+
+                const holdingsPromise = this.page.waitForRequest(
+                    request => request.url().includes('/api/v1/tms/Holdings/'),
+                    { timeout: 10000 }
+                );
+
+                const overlaySettingPromise = this.page.waitForRequest(
+                    request => request.url().includes('/api/v1/tms/overlaysetting/'),
+                    { timeout: 10000 }
+                );
+                
+                // Click the button
+                await this.viewResultsButton.click({ timeout: 5000 });
+
+                // Wait for any loading spinner that appears after the click to disappear
+                spinnerHidden = false;
+                const clickStartTime = Date.now();
+                while (!spinnerHidden && Date.now() - clickStartTime < maxWaitTime) {
+                    spinnerHidden = await this.loadingSpinner.isHidden();
+                    if (!spinnerHidden) {
+                        await this.page.waitForTimeout(100);
+                    }
+                }
+
+                // Wait for all 3 API requests to be initiated
+                const [proposalRequest, holdingsRequest, overlayRequest] = await Promise.all([
+                    proposalPromise,
+                    holdingsPromise,
+                    overlaySettingPromise,
+                ]);
+
+                // Return all requests for assertion in step files
+                return [proposalRequest, holdingsRequest, overlayRequest];
+            } catch (error) {
+                lastError = error as Error;
+
+                if (attempt < maxRetries) {
+                    // Log the attempt and wait before retrying
+                    console.warn(`View Results click failed (attempt ${attempt}/${maxRetries}): ${lastError.message}`);
+
+                    // Wait before retrying to allow page to stabilize
+                    await this.page.waitForTimeout(1000 * attempt);
+                } else {
+                    console.error(`View Results click failed after ${maxRetries} attempts: ${lastError.message}`);
+                }
+            }
+        }
+
+        throw new Error(`Failed to click View Results button after ${maxRetries} attempts: ${lastError?.message}`);
     }
 
     async selectTaxSensitivity(sensitivity: 'Low' | 'Medium' | 'High' | 'Very High'): Promise<void> {

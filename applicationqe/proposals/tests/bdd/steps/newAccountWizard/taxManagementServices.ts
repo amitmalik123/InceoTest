@@ -6,7 +6,30 @@ import { getTaxManagementServicesPageInstance } from '../shared/instanceManager'
 When('I upload a holdings template', async ({}) => {
     const tmsPage = getTaxManagementServicesPageInstance();
     logger.debug('\nUploading completed template');
-    await tmsPage.uploadHoldingsTemplate();
+    const [proposalRequest, holdingsRequest, overlayRequest] = await tmsPage.uploadHoldingsTemplate();
+
+    // Assert all 3 API requests were successfully initiated and completed
+    logger.debug('\nVerifying TMS API requests completed successfully');
+
+    const proposalResponse = await proposalRequest.response();
+    const holdingsResponse = await holdingsRequest.response();
+    const overlayResponse = await overlayRequest.response();
+
+    // Assert all 3 APIs returned success (2xx status codes)
+    const proposalStatus = proposalResponse?.status();
+    const holdingsStatus = holdingsResponse?.status();
+    const overlayStatus = overlayResponse?.status();
+
+    expect(proposalStatus).toBeGreaterThanOrEqual(200);
+    expect(proposalStatus).toBeLessThan(300);
+    expect(holdingsStatus).toBeGreaterThanOrEqual(200);
+    expect(holdingsStatus).toBeLessThan(300);
+    expect(overlayStatus).toBeGreaterThanOrEqual(200);
+    expect(overlayStatus).toBeLessThan(300);
+
+    logger.debug(`Proposal API returned ${proposalStatus}`);
+    logger.debug(`Holdings API returned ${holdingsStatus}`);
+    logger.debug(`Overlay Setting API returned ${overlayStatus}`);
 });
 
 Then('The UI summary should be generated', async ({}) => {
@@ -25,7 +48,12 @@ Then('The UI summary should be generated', async ({}) => {
     // Low sensitivity
     await tmsPage.page.bringToFront();
     await tmsPage.selectTaxSensitivity('Low');
-    if (process.env.Environment === 'prod' || process.env.ENVIRONMENT === 'prod' || process.env.Environment === 'silo' || process.env.ENVIRONMENT === 'silo') {
+    if (
+        process.env.Environment === 'prod' ||
+        process.env.ENVIRONMENT === 'prod' ||
+        process.env.Environment === 'silo' ||
+        process.env.ENVIRONMENT === 'silo'
+    ) {
         await expect(tmsPage.page).toHaveScreenshot('tax-sensitivity-low.prod.png', {
             mask: screenshotMaskLocators,
             fullPage: true,
@@ -50,7 +78,12 @@ Then('The UI summary should be generated', async ({}) => {
     // Medium sensitivity
     await tmsPage.page.bringToFront();
     await tmsPage.selectTaxSensitivity('Medium');
-    if (process.env.Environment === 'prod' || process.env.ENVIRONMENT === 'prod' || process.env.Environment === 'silo' || process.env.ENVIRONMENT === 'silo') {
+    if (
+        process.env.Environment === 'prod' ||
+        process.env.ENVIRONMENT === 'prod' ||
+        process.env.Environment === 'silo' ||
+        process.env.ENVIRONMENT === 'silo'
+    ) {
         await expect(tmsPage.page).toHaveScreenshot('tax-sensitivity-medium.prod.png', {
             mask: screenshotMaskLocators,
             fullPage: true,
@@ -75,7 +108,12 @@ Then('The UI summary should be generated', async ({}) => {
     // High sensitivity
     await tmsPage.page.bringToFront();
     await tmsPage.selectTaxSensitivity('High');
-    if (process.env.Environment === 'prod' || process.env.ENVIRONMENT === 'prod' || process.env.Environment === 'silo' || process.env.ENVIRONMENT === 'silo') {
+    if (
+        process.env.Environment === 'prod' ||
+        process.env.ENVIRONMENT === 'prod' ||
+        process.env.Environment === 'silo' ||
+        process.env.ENVIRONMENT === 'silo'
+    ) {
         await expect(tmsPage.page).toHaveScreenshot('tax-sensitivity-high.prod.png', {
             mask: screenshotMaskLocators,
             fullPage: true,
@@ -100,7 +138,12 @@ Then('The UI summary should be generated', async ({}) => {
     // Very High sensitivity
     await tmsPage.page.bringToFront();
     await tmsPage.selectTaxSensitivity('Very High');
-    if (process.env.Environment === 'prod' || process.env.ENVIRONMENT === 'prod' || process.env.Environment === 'silo' || process.env.ENVIRONMENT === 'silo') {
+    if (
+        process.env.Environment === 'prod' ||
+        process.env.ENVIRONMENT === 'prod' ||
+        process.env.Environment === 'silo' ||
+        process.env.ENVIRONMENT === 'silo'
+    ) {
         await expect(tmsPage.page).toHaveScreenshot('tax-sensitivity-very-high.prod.png', {
             mask: screenshotMaskLocators,
             fullPage: true,

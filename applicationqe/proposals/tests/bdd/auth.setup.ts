@@ -15,18 +15,23 @@ setup('Setup - Login to Environment', async ({ page }) => {
     await loginPage.signIn(process.env.USER, process.env.PASS);
 
     // Switch to correct ID if using admin account and not in prod
-    
+
     if (process.env.userID && (env.toLowerCase() == 'test11' || env.toLowerCase() == 'test10')) {
         await switchIDPage.selectID(process.env.userID);
     }
     await page.goto(process.env.baseURL + '/en.aspx');
     await page.waitForLoadState();
+
+    // Reject privacy/cookie consent banner if present
+    await loginPage.rejectPrivacyBanner();
+
     try {
         await expect(page.getByText(process.env.impersonationName)).toBeVisible();
     } catch (err) {
         logger.error('BDD setup: expected welcome text not visible', err);
         throw err;
     }
+
     // Save auth state
     await page.context().storageState({ path: role1AuthFile });
     logger.debug('\n===Setup Complete ===\n');

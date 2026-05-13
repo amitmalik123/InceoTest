@@ -6,6 +6,10 @@ import { logger } from '../../../../utils/logger';
 Then('the proposal document should be generated successfully', async () => {
     const portfolioEnginePageInstance = getPortfolioEnginePageInstance();
     logger.debug('\nVerifying proposal sections were generated');
+
+    // Dismiss privacy dialog if present
+    await portfolioEnginePageInstance.dismissPrivacyDialog();
+
     // Verify the proposal document is loaded
     try {
         await portfolioEnginePageInstance.coverPageHeader.click();
