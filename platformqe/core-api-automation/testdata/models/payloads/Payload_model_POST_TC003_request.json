@@ -41,5 +41,8 @@
         "additionalProp1": "value1",
         "additionalProp2": "value2",
         "additionalProp3": "value3"
-    }
+    },
+    "allowedAgents": [
+        "string"
+    ]
 }

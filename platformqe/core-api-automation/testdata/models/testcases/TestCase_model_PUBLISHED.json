@@ -128,12 +128,7 @@
         },
         "payload": null,
         "expected_status": "404",
-        "expected_response": {
-            "type": "ResourceNotFound",
-            "title": "Model.NotFound",
-            "status": 404,
-            "detail": "Unable to find model ca3cf9e3-974f-4333-979f-4293fbbbb650"
-        },
+        "expected_response": null,
         "validate": {
             "performance": {
                 "max_response_time_ms": 3000
@@ -143,8 +138,127 @@
                     "sql_injection",
                     "xss"
                 ]
-            }
+            },
+            "assertions": [
+                {
+                    "actual": "{{pub03_type}}",
+                    "operator": "!=",
+                    "expected": "ResourceNotFound",
+                    "message": "AC2: type must not be non-URI value 'ResourceNotFound'"
+                },
+                {
+                    "actual": "{{pub03_type}}",
+                    "operator": "!=",
+                    "expected": "InvalidInput",
+                    "message": "AC2: type must not be non-URI value 'InvalidInput'"
+                },
+                {
+                    "actual": "{{pub03_type}}",
+                    "operator": "!=",
+                    "expected": "BusinessRuleViolation",
+                    "message": "AC2: type must not be non-URI value 'BusinessRuleViolation'"
+                },
+                {
+                    "actual": "{{pub03_type}}",
+                    "operator": "!=",
+                    "expected": null,
+                    "message": "AC1: type field must be present"
+                },
+                {
+                    "actual": "{{pub03_type}}",
+                    "operator": "!=",
+                    "expected": "",
+                    "message": "AC2: type must not be empty string"
+                },
+                {
+                    "actual": "{{pub03_title}}",
+                    "operator": "!=",
+                    "expected": "Model.NotFound",
+                    "message": "AC3: title must not be internal code 'Model.NotFound'"
+                },
+                {
+                    "actual": "{{pub03_title}}",
+                    "operator": "!=",
+                    "expected": null,
+                    "message": "AC1: title must be present"
+                },
+                {
+                    "actual": "{{pub03_title}}",
+                    "operator": "!=",
+                    "expected": "",
+                    "message": "AC3: title must not be empty string"
+                },
+                {
+                    "actual": "{{pub03_status}}",
+                    "operator": "==",
+                    "expected": 404,
+                    "message": "AC4: status in body must equal HTTP 404"
+                },
+                {
+                    "actual": "{{pub03_detail}}",
+                    "operator": "!=",
+                    "expected": null,
+                    "message": "AC1: detail must be present"
+                },
+                {
+                    "actual": "{{pub03_detail}}",
+                    "operator": "!=",
+                    "expected": "",
+                    "message": "AC1: detail must not be empty"
+                },
+                {
+                    "actual": "{{pub03_instance}}",
+                    "operator": "!=",
+                    "expected": null,
+                    "message": "AC5: instance must be present"
+                },
+                {
+                    "actual": "{{pub03_instance}}",
+                    "operator": "!=",
+                    "expected": "",
+                    "message": "AC5: instance must contain the request path"
+                },
+                {
+                    "actual": "{{pub03_type}}",
+                    "operator": "==",
+                    "expected": "https://assetmark.atlassian.net/wiki/spaces/PE/pages/2303590438/Standard+Error+Codes+and+Messaging#resource-not-found",
+                    "message": "AC2: type must be RFC 9457 URI for resource-not-found"
+                },
+                {
+                    "actual": "{{pub03_title}}",
+                    "operator": "==",
+                    "expected": "Resource Not Found",
+                    "message": "AC3: title must be human-readable 'Resource Not Found'"
+                }
+            ]
         },
+        "extract_values": [
+            {
+                "from": "response",
+                "key": "type",
+                "assign_to": "pub03_type"
+            },
+            {
+                "from": "response",
+                "key": "title",
+                "assign_to": "pub03_title"
+            },
+            {
+                "from": "response",
+                "key": "status",
+                "assign_to": "pub03_status"
+            },
+            {
+                "from": "response",
+                "key": "detail",
+                "assign_to": "pub03_detail"
+            },
+            {
+                "from": "response",
+                "key": "instance",
+                "assign_to": "pub03_instance"
+            }
+        ],
         "test_summary": "Verify API returns 404 when trying to publish non-existent model ID",
         "test_scenario": "Attempt to publish a model with valid UUID format but non-existent model ID"
     },
@@ -453,5 +567,259 @@
         },
         "test_summary": "Verify API handles uppercase UUID (should normalize or return 404)",
         "test_scenario": "Attempt to publish with uppercase UUID"
+    },
+    {
+        "test_id": "TC016",
+        "service_name": "models",
+        "workflow_mode": "sequential",
+        "test_name": "POST /model - Create Draft model WITH allowedAgents for publish-gate positive test (TC016 Step 1)",
+        "protocol": "REST",
+        "test_type": [
+            "Functional"
+        ],
+        "mainURL": "{{base_url}}",
+        "endpoint": "/models",
+        "method": "POST",
+        "rpc_method": "",
+        "graphql_query": "",
+        "graphql_variables": "",
+        "soap_action": "",
+        "soap_envelope": "",
+        "headers_additional": {
+            "Content-Type": "application/json"
+        },
+        "payload": {
+            "name": "Test Model - Publish gate with agent_access",
+            "ownerId": "3fa85f64-5717-4562-b3fc-2c963f66afa6",
+            "modelAttributes": {
+                "solutionType": "Managed",
+                "modelType": "Strategic"
+            },
+            "allocations": [
+                {
+                    "entityType": "Security",
+                    "allocationName": "Test Allocation",
+                    "modelId": "string",
+                    "cusip": "string",
+                    "ticker": "SPY",
+                    "weight": 1.0
+                }
+            ],
+            "investmentApproachId": null,
+            "benchmarkName": "S&P 500",
+            "benchmarkIsPrimary": false,
+            "custodians": [
+                "Fidelity"
+            ],
+            "investmentMins": [
+                {
+                    "type": "System",
+                    "value": 1
+                }
+            ],
+            "riskProfile": "Moderate",
+            "versionMetadata": {
+                "additionalProp1": "publish_gate_with_agent_access"
+            },
+            "allowedAgents": [
+                "{{random_string()}}"
+            ]
+        },
+        "expected_status": "201",
+        "expected_response_schema": "",
+        "expected_response": null,
+        "ignore_fields": [],
+        "extract_values": [
+            {
+                "from": "response",
+                "key": "modelId",
+                "assign_to": "tc016_model_id"
+            },
+            {
+                "from": "request",
+                "key": "allowedAgents.0",
+                "assign_to": "tc016_agent_id"
+            }
+        ],
+        "validate": {
+            "performance": {
+                "max_response_time_ms": null
+            },
+            "security": {
+                "checks": []
+            },
+            "assertions": []
+        },
+        "test_data_file": "",
+        "db_query": "",
+        "db_type": "",
+        "db_connection_name": "",
+        "test_summary": "Step 1: POST /model with allowedAgents - Create a Draft model that has agent_access coverage, to test that publish is permitted",
+        "test_scenario": "Publish-gate AC: Create model with allowedAgents (agent_access rows present) as prerequisite for verifying publish is allowed"
+    },
+    {
+        "test_id": "TC017",
+        "service_name": "models",
+        "workflow_mode": "sequential",
+        "test_name": "POST /model/{id}/publish - Model with agent_access coverage should publish successfully [Business Rule] (TC016 Step 2)",
+        "protocol": "REST",
+        "test_type": [
+            "Functional",
+            "Business Rule"
+        ],
+        "mainURL": "{{base_url}}",
+        "endpoint": "/models/{{tc016_model_id}}/publish",
+        "method": "POST",
+        "rpc_method": "",
+        "graphql_query": "",
+        "graphql_variables": "",
+        "soap_action": "",
+        "soap_envelope": "",
+        "headers_additional": {
+            "Content-Type": "application/json"
+        },
+        "payload": null,
+        "expected_status": "200",
+        "expected_response_schema": "",
+        "expected_response": null,
+        "ignore_fields": [],
+        "extract_values": [],
+        "validate": {
+            "performance": {
+                "max_response_time_ms": 3000
+            },
+            "security": {
+                "checks": []
+            },
+            "assertions": []
+        },
+        "test_data_file": "",
+        "db_query": "",
+        "db_type": "",
+        "db_connection_name": "",
+        "test_summary": "Step 2: POST /model/{id}/publish - Verify publish succeeds (200) when agent_access coverage exists for the model. Business rule satisfied at publish time.",
+        "test_scenario": "Publish-gate AC: A model with valid agent_access coverage (allowedAgents provided in POST) must be allowed to transition to Published status"
+    },
+    {
+        "test_id": "TC018",
+        "service_name": "models",
+        "workflow_mode": "sequential",
+        "test_name": "DB_ONLY - Verify model_active.status = Published after successful publish (TC016 Step 3)",
+        "protocol": "DB_ONLY",
+        "test_type": [
+            "Functional",
+            "Database Validation"
+        ],
+        "mainURL": "",
+        "endpoint": "",
+        "method": "",
+        "rpc_method": "",
+        "graphql_query": "",
+        "graphql_variables": "",
+        "soap_action": "",
+        "soap_envelope": "",
+        "headers_additional": {
+            "Content-Type": "application/json"
+        },
+        "payload": null,
+        "expected_status": "",
+        "expected_response_schema": "",
+        "expected_response": "",
+        "extract_values": [
+            {
+                "from": "db_result",
+                "key": "0.status",
+                "assign_to": "tc018_model_status"
+            }
+        ],
+        "validate": {
+            "performance": {
+                "max_response_time_ms": 3000
+            },
+            "security": {
+                "checks": []
+            },
+            "assertions": [
+                {
+                    "actual": "{{tc018_model_status}}",
+                    "operator": "==",
+                    "expected": "Published",
+                    "message": "Publish-gate AC: model_active.status must be 'Published' after successful publish call"
+                }
+            ]
+        },
+        "test_data_file": "",
+        "db_type": "postgresql",
+        "db_connection_name": "models",
+        "db_query": "SELECT status FROM model_active WHERE model_id = '{{tc016_model_id}}'::uuid;",
+        "test_summary": "Step 3: DB_ONLY - Verify model_active.status = 'Published' after POST /model/{id}/publish succeeded",
+        "test_scenario": "Publish-gate AC: Confirm DB reflects Published status after successful publish of model with agent_access coverage"
+    },
+    {
+        "test_id": "TC019",
+        "service_name": "models",
+        "workflow_mode": "sequential",
+        "test_name": "DB_ONLY - Verify agent_access rows exist for published model (TC016 Step 4)",
+        "protocol": "DB_ONLY",
+        "test_type": [
+            "Functional",
+            "Database Validation",
+            "Data Integrity"
+        ],
+        "mainURL": "",
+        "endpoint": "",
+        "method": "",
+        "rpc_method": "",
+        "graphql_query": "",
+        "graphql_variables": "",
+        "soap_action": "",
+        "soap_envelope": "",
+        "headers_additional": {
+            "Content-Type": "application/json"
+        },
+        "payload": null,
+        "expected_status": "",
+        "expected_response_schema": "",
+        "expected_response": "",
+        "extract_values": [
+            {
+                "from": "db_result",
+                "key": "0.row_count",
+                "assign_to": "tc019_agent_row_count"
+            },
+            {
+                "from": "db_result",
+                "key": "0.agent_id",
+                "assign_to": "tc019_db_agent_id"
+            }
+        ],
+        "validate": {
+            "performance": {
+                "max_response_time_ms": 3000
+            },
+            "security": {
+                "checks": []
+            },
+            "assertions": [
+                {
+                    "actual": "{{tc019_agent_row_count}}",
+                    "operator": ">=",
+                    "expected": 1,
+                    "message": "Publish-gate AC: At least 1 agent_access row must exist for the published model"
+                },
+                {
+                    "actual": "{{tc019_db_agent_id}}",
+                    "operator": "==",
+                    "expected": "{{tc016_agent_id}}",
+                    "message": "Publish-gate AC: agent_id in agent_access must match the allowedAgents value sent during model creation"
+                }
+            ]
+        },
+        "test_data_file": "",
+        "db_type": "postgresql",
+        "db_connection_name": "models",
+        "db_query": "SELECT COUNT(*) AS \"row_count\", MIN(agent_id) AS \"agent_id\" FROM agent_access WHERE model_id = '{{tc016_model_id}}'::uuid;",
+        "test_summary": "Step 4: DB_ONLY - Verify agent_access rows exist for the published model and agent_id matches the value provided in allowedAgents during creation",
+        "test_scenario": "Publish-gate AC: Confirm agent_access table has at least 1 row for the published model, with the correct agent_id - validates agent_access coverage persisted through publish"
     }
 ]
