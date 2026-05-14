@@ -1,0 +1,44 @@
+STP Pages Migration Proposal
+
+PROBLEM STATEMENT
+-----------------
+All 58 STP page objects live in a flat unstructured folder on the ES2PlaywrightPython
+branch (pages/*.py) with no team/domain separation. The STP branch pipeline (stp.yml)
+points to applicationqe/pages/stp/ which is currently empty — blocking all test execution.
+
+PROPOSED SOLUTION
+-----------------
+Extract STP-relevant pages from ES2PlaywrightPython and place them into structured
+sub-domain folders under applicationqe/pages/stp/ on the STP branch.
+
+PAGE MAPPING
+------------
++-----------------------------+------------------------------------------+
+| Sub-domain Folder           | Pages to Migrate                         |
++-----------------------------+------------------------------------------+
+| stp/shared/                 | login, base, clients, account_list,      |
+|                             | account_detail, account_wizard, nav,     |
+|                             | tracking_center, docusign, outlook,      |
+|                             | esign_signer, api_utility, auto_healing  |
++-----------------------------+------------------------------------------+
+| stp/stp-aip/                | establish_aip_* (6 files), cancel_aip   |
++-----------------------------+------------------------------------------+
+| stp/stp-addACHIntrcutions/  | add_ach_instruction, summary, confirm    |
++-----------------------------+------------------------------------------+
+| stp/stp-contributions/      | (handled via shared + ACH pages)         |
++-----------------------------+------------------------------------------+
+| stp/stp-swp/                | swp_establish_* (4 files), withdrawal_*  |
++-----------------------------+------------------------------------------+
+| stp/stp-manageBene/         | manage_bene_* (4), add/edit/update/      |
+|                             | deceased beneficiary pages               |
++-----------------------------+------------------------------------------+
+| stp/stp-oaTradingTool/      | oa_tool_landing, oa_tool_transaction     |
++-----------------------------+------------------------------------------+
+| stp/stp-updateAddress/      | dmtool, dm_tool_* modals, dmt_address_* |
++-----------------------------+------------------------------------------+
+| stp/stp-ict/                | roth_conversion_page                     |
++-----------------------------+------------------------------------------+
+| stp/stp-journals/           | mimo_* (5 files)                         |
++-----------------------------+------------------------------------------+
+
+
