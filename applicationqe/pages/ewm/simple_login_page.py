@@ -3,13 +3,12 @@ from typing import Any
 from playwright.sync_api import Locator, Page, expect
 
 from pages.base_page import BasePage
+from config.oam.settings import get_settings
 from utils.logger import setup_logger
 
 logger = setup_logger(__name__)
 
 class LoginPage(BasePage):
-    PAGE_URL = 'https://test11.ewealthmanager.com/ewmLogin/account/login'
-
     def __init__(self, page: Page):
         super().__init__(page)
         self.allow_all_button: Locator = page.get_by_role('button', name='Allow All')
@@ -19,8 +18,9 @@ class LoginPage(BasePage):
         self.login_form: Locator = page.locator('form#form19.primary-auth-form.o-form.o-form-edit-mode')
 
     def navigate(self) -> None:
-        logger.info(f"Navigating to login page: {self.PAGE_URL}")
-        self.page.goto(self.PAGE_URL)
+        login_url = get_settings().login_url
+        logger.info(f"Navigating to login page: {login_url}")
+        self.page.goto(login_url)
         logger.info("Waiting for Allow All button")
         self.allow_all_button.wait_for(state='visible')
         logger.info("Login page loaded successfully")

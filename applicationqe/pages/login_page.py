@@ -56,7 +56,8 @@ class LoginPage(BasePage):
             self.page.wait_for_url(
                 lambda url: "login" not in url.lower().split("?")[0].split("/")[-1]
                 and "account/login" not in url.lower()
-                and "test-login.assetmark.com" not in url.lower(),
+                and "test-login.assetmark.com" not in url.lower()
+                and "login.assetmark.com" not in url.lower(),
                 timeout=60000,
                 wait_until="domcontentloaded"
             )

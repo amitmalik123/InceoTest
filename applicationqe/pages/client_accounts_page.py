@@ -71,16 +71,58 @@ class ClientAccountsPage(BasePage):
 
     def _get_esig_iframe(self):
         """
-        Get reference to eSignature iframe with safety check.
+        Get reference to eSignature iframe with safety check and wait for content to load.
+        
+        CRITICAL: The iframe element may exist in DOM but its HTML content loads asynchronously.
+        This method waits for the iframe to be present AND for its content to load.
         
         Returns:
-            FrameLocator if found, None otherwise
+            FrameLocator if found and content is loaded, None otherwise
         """
         iframe_locator = self.page.locator(client_accounts_locators.ESIG_IFRAME)
         if iframe_locator.count() == 0:
             logger.warning("🔧 iframe#esig_iframe not found")
             return None
-        return self.page.frame_locator(client_accounts_locators.ESIG_IFRAME)
+        
+        # Wait for iframe to be attached/visible
+        try:
+            iframe_locator.wait_for(state="attached", timeout=120000)
+            logger.debug("✓ iframe#esig_iframe is attached")
+        except Exception as e:
+            logger.warning(f"⚠ Timeout waiting for iframe to attach: {e}")
+            return None
+        
+        # Get frame reference
+        frame = self.page.frame_locator(client_accounts_locators.ESIG_IFRAME)
+        
+        # Wait for iframe content to load - check for ANY content element inside the iframe
+        # This ensures the iframe's HTML is fully loaded before we try to interact with it
+        try:
+            # Wait for any visible element inside iframe (button, text, input, etc)
+            # Try multiple indicators of loaded content:
+            # 1. First try button (most likely visible)
+            # 2. Then try any text
+            # 3. Finally try any element
+            logger.debug("✓ Waiting for iframe content...")
+            
+            # Try to find any button or input (common elements)
+            key_element = frame.locator("button, input, [role='button']").first
+            if key_element.count() == 0:
+                # If no buttons, look for any element with text
+                key_element = frame.locator("*:has-text('.')").first
+            if key_element.count() == 0:
+                # Final fallback - any non-empty element
+                key_element = frame.locator("div, section, form").first
+                
+            key_element.wait_for(state="attached", timeout=120000)
+            logger.debug("✓ iframe#esig_iframe content is loaded")
+            # Small delay to ensure content is fully rendered
+            self.page.wait_for_timeout(300)
+        except Exception as e:
+            logger.warning(f"⚠ Timeout waiting for iframe content to load: {e}")
+            # Continue anyway, will fail on assertion if really needed
+        
+        return frame
 
 
     def select_authorized_signer_approval_option(self, option: str) -> None:
@@ -1547,6 +1589,46 @@ class ClientAccountsPage(BasePage):
             
             # Get the iframe element to access its content
             iframe = self.page.frame_locator('iframe#esig_iframe')
+            
+            # CRITICAL: Wait for iframe content to load before accessing elements
+            # The iframe may be attached but its HTML content is still loading
+            logger.info(f"Step 0.6: Waiting for iframe content to load...")
+            try:
+                # Try multiple indicators of loaded content
+                content_loaded = False
+                
+                # Try 1: Look for a button (most common visible element)
+                try:
+                    iframe.locator("button").first.wait_for(state="attached", timeout=30000)
+                    content_loaded = True
+                except:
+                    pass
+                
+                # Try 2: Look for text
+                if not content_loaded:
+                    try:
+                        iframe.locator("*:has-text('.')").first.wait_for(state="attached", timeout=30000)
+                        content_loaded = True
+                    except:
+                        pass
+                
+                # Try 3: Look for input fields
+                if not content_loaded:
+                    try:
+                        iframe.locator("input, textarea").first.wait_for(state="attached", timeout=30000)
+                        content_loaded = True
+                    except:
+                        pass
+                
+                # Try 4: Generic element search
+                if not content_loaded:
+                    iframe.locator("div, section, form").first.wait_for(state="attached", timeout=30000)
+                
+                self.page.wait_for_timeout(300)  # Small delay for rendering
+                logger.info(f"  ✓ Iframe content is loaded and ready")
+            except Exception as e:
+                logger.warning(f"  ⚠ Timeout waiting for iframe content: {e}")
+                # Continue anyway, will fail on assertion if really needed
             
             # Step 1: Locate the input fields using dynamic IDs based on signer_index (WITHIN IFRAME)
             logger.info(f"Step 1: Locating input fields for signer index {signer_index} inside iframe...")

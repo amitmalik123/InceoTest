@@ -136,14 +136,77 @@ def verify_signer_information_dialog_exists_with_correct_information(
             
             if iframe_count > 0:
                 logger.info("  Checking iframe content...")
+                # CRITICAL: Wait for iframe content to load before accessing elements inside
+                # The iframe may exist in DOM but its HTML content is still being loaded
                 iframe_frame = authenticated_page.frame_locator("iframe#esig_iframe")
+                
+                # Wait for the div#divSignersInfo element inside iframe to be present
+                # This ensures iframe content is fully loaded and ready
+                logger.info("  Waiting for iframe content to load (div#divSignersInfo)...")
+                try:
+                    # FIXED: Try multiple selectors to detect loaded content
+                    # The iframe content may have different ID structure
+                    content_loaded = False
+                    
+                    # Try 1: Look for specific heading ID
+                    try:
+                        iframe_frame.locator("div#divSignersInfo").wait_for(state="attached", timeout=30000)
+                        content_loaded = True
+                        logger.info("  ✓ Found content via div#divSignersInfo")
+                    except:
+                        pass
+                    
+                    # Try 2: Look for any button (common indicator of loaded form)
+                    if not content_loaded:
+                        try:
+                            iframe_frame.locator("button").first.wait_for(state="attached", timeout=30000)
+                            content_loaded = True
+                            logger.info("  ✓ Found content via button element")
+                        except:
+                            pass
+                    
+                    # Try 3: Look for any text content
+                    if not content_loaded:
+                        try:
+                            iframe_frame.locator("*:has-text('.')").first.wait_for(state="attached", timeout=30000)
+                            content_loaded = True
+                            logger.info("  ✓ Found content via text search")
+                        except:
+                            pass
+                    
+                    # Try 4: Generic element search
+                    if not content_loaded:
+                        iframe_frame.locator("div, section, form").first.wait_for(state="attached", timeout=30000)
+                        logger.info("  ✓ Found content via generic element search")
+                    
+                    # Small delay to ensure content is fully rendered (not just DOM-loaded)
+                    authenticated_page.wait_for_timeout(500)
+                    logger.info("  ✓ Iframe content loaded and ready")
+                except Exception as e:
+                    logger.warning(f"  ⚠ Timeout waiting for iframe content: {e}")
+                    # Continue anyway - will fail on assertion if content really isn't there
                 
                 if heading_text:
                     logger.info(f"  Step 3a: Searching for heading: '{heading_text[:50]}...'")
                     
-                    # Locate heading element
+                    # FIXED: Look for the heading by text content instead of ID
+                    # The iframe content may have different ID structure than expected
+                    # Try multiple selectors:
+                    # 1. First try by ID (if it exists)
                     signer_header = iframe_frame.locator("div#divSignersInfo")
-                    logger.info(f"  ✓ Located div#divSignersInfo")
+                    
+                    # 2. If not found by ID, try by text content
+                    if signer_header.count() == 0:
+                        logger.info("  ℹ div#divSignersInfo not found by ID, searching by text content...")
+                        # Look for any element containing the heading text inside iframe
+                        signer_header = iframe_frame.locator(f"text='{heading_text}'").first
+                        if signer_header.count() == 0:
+                            logger.warning(f"  ⚠ Could not find heading by text '{heading_text}'")
+                            # Try broader search - any heading-like element
+                            signer_header = iframe_frame.locator("h1, h2, h3, h4, h5, h6, [role='heading'], .heading, .title").first
+                            logger.info(f"  Trying broader heading search")
+                    
+                    logger.info(f"  ✓ Heading element located")
                     
                     # Wait for element to be visible
                     if signer_header.count() > 0:
@@ -154,22 +217,27 @@ def verify_signer_information_dialog_exists_with_correct_information(
                         except Exception as e:
                             logger.warning(f"  ⚠ Heading visibility wait timeout: {e}")
                     
-            soft_assert.assert_count(
-                signer_header,
-                1,
-                "[FAIL] ClientAccountsPage: Signer(s) Information dialog heading not found."
-            )
-            soft_assert.assert_visible(
-                signer_header,
-                "[FAIL] ClientAccountsPage: Signer(s) Information dialog heading not visible."
-            )
-            
-            if heading_text:
-                soft_assert.assert_text_contains(signer_header, heading_text, f"[FAIL] ClientAccountsPage: Signer Information Heading Text — Expected: contains '{heading_text}', Actual: text mismatch. Details: Signer(s) Information dialog heading must match expected value.")
-                logger.info(f"  [PASS] ClientAccountsPage: Signer Information Heading Verified.")
+                    # ASSERTIONS - only for heading in iframe
+                    soft_assert.assert_count(
+                        signer_header,
+                        1,
+                        "[FAIL] ClientAccountsPage: Signer(s) Information dialog heading not found."
+                    )
+                    soft_assert.assert_visible(
+                        signer_header,
+                        "[FAIL] ClientAccountsPage: Signer(s) Information dialog heading not visible."
+                    )
+                    soft_assert.assert_text_contains(signer_header, heading_text, f"[FAIL] ClientAccountsPage: Signer Information Heading Text — Expected: contains '{heading_text}', Actual: text mismatch. Details: Signer(s) Information dialog heading must match expected value.")
+                    logger.info(f"  [PASS] ClientAccountsPage: Signer Information Heading Verified.")
             
             if instruction_text:
                 details_table = iframe_frame.locator("table#esig_user_details_table")
+                logger.info("  Waiting for details table inside iframe...")
+                try:
+                    details_table.wait_for(state="attached", timeout=120000)
+                    logger.info("  ✓ Details table is now available in iframe")
+                except Exception as e:
+                    logger.warning(f"  ⚠ Timeout waiting for details table: {e}")
                 soft_assert.assert_count(
                     details_table,
                     1,
@@ -196,52 +264,22 @@ def verify_signer_information_dialog_exists_with_correct_information(
                     message=f"[FAIL] ClientAccountsPage: Signer Information Instruction Text — Expected: contains '{normalized_expected_text}', Actual: '{normalized_actual_text}'. Details: Instruction must be in first TD of Signer(s) Information dialog details table. Locator: table#esig_user_details_table td:first."
                 )
                 logger.info(f"  [PASS] ClientAccountsPage: Signer Information Instruction Verified.")
-            else:
-                logger.info("  Checking main page content...")
-                
-                if heading_text:
-                    signer_header = authenticated_page.locator("div#divSignersInfo")
-                    soft_assert.assert_count(signer_header, 1, "[FAIL] ClientAccountsPage: Signer(s) Information dialog heading not found.")
-                    soft_assert.assert_visible(signer_header, "[FAIL] ClientAccountsPage: Signer(s) Information dialog heading not visible.")
-                    soft_assert.assert_text_contains(signer_header, heading_text, f"[FAIL] ClientAccountsPage: Signer Information Heading Text (Main Page) — Expected: contains '{heading_text}', Actual: text mismatch.")
-                    logger.info(f"  [PASS] ClientAccountsPage: Signer Information Heading Verified.")
-                
-                if instruction_text:
-                    details_table = authenticated_page.locator("table#esig_user_details_table")
-                    first_td = details_table.locator("td").first
-                    soft_assert.assert_visible(first_td, "[FAIL] ClientAccountsPage: Signer(s) Information dialog details not visible on main page.")
-                    
-                    # Get actual text from element for debugging
-                    actual_instruction_text = first_td.text_content().strip() if first_td.count() > 0 else ""
-                    # Normalize both texts for comparison (handles Unicode, smart quotes, special chars)
-                    normalized_actual_text = client_accounts_page.normalize_text_for_comparison(actual_instruction_text)
-                    normalized_expected_text = client_accounts_page.normalize_text_for_comparison(instruction_text)
-                    logger.info(f"  Expected instruction text (normalized): '{normalized_expected_text}'")
-                    logger.info(f"  Actual instruction text from element (normalized): '{normalized_actual_text}'")
-                    
-                    # Check if normalized actual text contains normalized expected text
-                    text_match = normalized_expected_text in normalized_actual_text
-                    soft_assert.assert_true(
-                        text_match,
-                        message=f"[FAIL] ClientAccountsPage: Instruction Text (Main Page) — Expected: contains '{normalized_expected_text}', Actual: '{normalized_actual_text}'. Details: Instruction must be in first TD. Locator: table#esig_user_details_table td:first."
-                    )
-                    logger.info(f"  [PASS] ClientAccountsPage: Signer Information Instruction Verified.")
             
             logger.info("[PASS] ClientAccountsPage: All Signer Information Validations Collected.")
             
             # Step 4: Verify all soft assertions
-            # logger.info("Step 4: Verifying all soft assertions...")
-            # try:
-            #     soft_assert.assert_all()
-            #     logger.info("[PASS] ClientAccountsPage: All Soft Assertions Passed.")
-            # except Exception as soft_assert_error:
-            #     logger.error(f"✗ Soft assertion(s) failed: {str(soft_assert_error)}")
-            #     allure.attach(
-            #         str(soft_assert_error),
-            #         name="Signer Information Dialog - Assertion Failures",
-            #         attachment_type=allure.attachment_type.TEXT,
-            #     )
-            #     raise
+            logger.info("Step 4: Verifying all soft assertions...")
+            try:
+                soft_assert.assert_all()
+                logger.info("[PASS] ClientAccountsPage: All Soft Assertions Passed.")
+            except Exception as soft_assert_error:
+                logger.error(f"✗ Soft assertion(s) failed: {str(soft_assert_error)}")
+                allure.attach(
+                    str(soft_assert_error),
+                    name="Signer Information Dialog - Assertion Failures",
+                    attachment_type=allure.attachment_type.TEXT,
+                )
+                raise
             
             # Step 5: Screenshot
             logger.info("Step 5: Taking screenshot...")

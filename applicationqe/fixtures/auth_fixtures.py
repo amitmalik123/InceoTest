@@ -165,7 +165,8 @@ def _perform_login(page: Page, app_config: AppConfig, test_data: dict) -> bool:
         current_url = page.url
         print(f"[SESSION] Post-login URL: {current_url}")
         
-        login_indicators = ["account/login", "ewmlogin", "test-login.assetmark.com"]
+        # login.assetmark.com is the Silo/prod SSO domain (Azure AD B2C / Okta)
+        login_indicators = ["account/login", "ewmlogin", "test-login.assetmark.com", "login.assetmark.com"]
         is_still_on_login = any(ind in current_url.lower() for ind in login_indicators)
         
         if not is_still_on_login:
@@ -287,7 +288,8 @@ def authenticated_page(browser, browser_context_args, test_data, request) -> Gen
         _dismiss_ketch_consent(page)
 
         # Verify session is still valid - check we're not on a login/SSO page
-        login_indicators = ["account/login", "ewmlogin", "test-login.assetmark.com"]
+        # login.assetmark.com is the Silo/prod SSO domain (Azure AD B2C / Okta)
+        login_indicators = ["account/login", "ewmlogin", "test-login.assetmark.com", "login.assetmark.com"]
         is_on_login = any(ind in page.url.lower() for ind in login_indicators)
         if not is_on_login:
             print("[SESSION] Session valid! Already authenticated.")

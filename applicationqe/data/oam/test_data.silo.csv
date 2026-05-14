@@ -1,5 +1,6 @@
 scenario,role,Document_Creator_Role,Authorized_Signer_Role,Authorized_Signer_Role_Name,Multiple_Authorized_Signers,Agent,username,password,client_id,account_number,account_name,OAM_Request,OAM_Type,Submission_Type,Client_Signature_Method,Expected_Signer_Information_Text,Expected_Authorized_Signer_Approval_Text,Authorized_Signer_Approval_Option,Signer_eSign_Method,Account_Owner,Email_Address,Phone,Expected_docusign_ReviewAndContinue_Text,As_authorized_by_stamp_present,Expected_RequestPopUp_Text,Expected_Advisor_Alert_Required,Expected_AuthorizedSigner_Email_Subject,Expected_AuthorizedSigner_Email_Body,Expected_TrackingCenter_Notes,Expected_Roles,Expected_RoutingOrders
-S8_OAM_Initiated by FA_Complete and Print,FA,FA,,,,AG0176,Ag_AG0176_T11,QAAdminUser_33a,,11841529,Kass Living Trust,Contributions,Copy for Digital Deposit,Complete and Print,,,,,,,,,Please review and sign the document electronically.,No,"Ready for Signatures
+S8_OAM_Initiated by FA_Complete and Print,FA,FA,,,,AGA06W,test12345678,Test1234t,,40360477,"
+Henry Ssassafras",Additional Account Documentation,Historical Document Retrieval,Complete and Print,,,,,,,,,Please review and sign the document electronically.,No,"Ready for Signatures
 |
 After printing and obtaining signatures, scan the signed document and upload to the Tracking Center by selecting
 |

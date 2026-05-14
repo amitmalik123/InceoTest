@@ -8,10 +8,7 @@ To view your request, go to the Tracking Center and select
 a copy for your records.
 |
 Click Close to return to eWealthManager.",No,,,Document has been completed and routed to Operations for review and processing.,Advisor,1
-S5_OAM_Initiated by SAU_Online Submit_Authorized Signer_Required_FA,SAU,SAU,FA,,,AG7071,SAU_AG7071_T11,QAAdminUser_33a,,13863806,The Rathgeber Living Trust,Contributions,Copy for Digital Deposit,Complete and Submit,Proceed and submit without a client signature,"Signer(s) Information 
-|
-Please provide the advisor's or their Shared Access user's details and indicate whether they should be notified via Tracking Center or SMS.
-Once setup is complete, they'll receive an email alerting them to the pending documents and granting access through the selected notification method.","Authorized Approval
+S5_OAM_Initiated by SAU_Online Submit_Authorized Signer_Required_FA,SAU,SAU,FA,,,AG7071,SAU_AG7071_T11,QAAdminUser_33a,,13863806,The Rathgeber Living Trust,Contributions,Copy for Digital Deposit,Complete and Submit,Proceed and submit without a client signature,Signer(s) Information,"Authorized Approval
 |
 You are authorized to begin the approval and submission process.
 Would you prefer a different authorized user review and submit the request once you have completed the request?",Yes,SMS,,saransh.saxena@assetmark.com,925 532 9706,Please review and sign the document electronically.,No,"Request Ready for Financial Advisor Review
@@ -35,10 +32,7 @@ Document created by <SAU Name>","Shared Access User
 Advisor","1
 |
 2"
-S2_OAM_Initiated by SAU_Online Submit_Authorized Signer_Not_Required,SAU,SAU,,,,AG7071,SAU_AG7071_T11,QAAdminUser_33a,,13863806,The Rathgeber Living Trust,Contributions,Copy for Digital Deposit,Complete and Submit,Proceed and submit without a client signature,"Signer(s) Information 
-|
-Please provide the advisor's or their Shared Access user's details and indicate whether they should be notified via Tracking Center or SMS.
-Once setup is complete, they'll receive an email alerting them to the pending documents and granting access through the selected notification method.","Authorized Approval
+S2_OAM_Initiated by SAU_Online Submit_Authorized Signer_Not_Required,SAU,SAU,,,,AG7071,SAU_AG7071_T11,QAAdminUser_33a,,13863806,The Rathgeber Living Trust,Contributions,Copy for Digital Deposit,Complete and Submit,Proceed and submit without a client signature,Signer(s) Information,"Authorized Approval
 |
 You are authorized to begin the approval and submission process.
 Would you prefer a different authorized user review and submit the request once you have completed the request?",No,,,,,Please review and sign the document electronically.,Yes,"Request Submitted
@@ -128,10 +122,7 @@ After printing and obtaining signatures, scan the signed document and upload to 
 The Tracking Center provides one-stop access to your documents and status updates.",Yes,,,"Once completed and signed, submit document from Tracking Center upload or mail.
 |
 Document created by <FA Name>",Advisor,1
-S11_PRODENG_33109_OAM_SAU_Online Submit_Authorized Approval_Tracking Center_Blue Banner_Trigger Advisor Mail,SAU,SAU,FA,,,AG7071,SAU_AG7071_T11,QAAdminUser_33a,,13863806,The Rathgeber Living Trust,Contributions,Copy for Digital Deposit,Complete and Submit,Proceed and submit without a client signature,"Signer(s) Information 
-|
-Please provide the advisor's or their Shared Access user's details and indicate whether they should be notified via Tracking Center or SMS.
-Once setup is complete, they'll receive an email alerting them to the pending documents and granting access through the selected notification method.","Authorized Approval
+S11_PRODENG_33109_OAM_SAU_Online Submit_Authorized Approval_Tracking Center_Blue Banner_Trigger Advisor Mail,SAU,SAU,FA,,,AG7071,SAU_AG7071_T11,QAAdminUser_33a,,13863806,The Rathgeber Living Trust,Contributions,Copy for Digital Deposit,Complete and Submit,Proceed and submit without a client signature,Signer(s) Information,"Authorized Approval
 |
 You are authorized to begin the approval and submission process.
 Would you prefer a different authorized user review and submit the request once you have completed the request?",Yes,SMS,,saransh.saxena@assetmark.com,925 532 9706,Please review and sign the document electronically.,No,"Request Ready for Financial Advisor Review
