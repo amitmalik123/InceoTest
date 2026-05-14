@@ -1,0 +1,2634 @@
+[
+    {
+        "test_id": "TC001",
+        "service_name": "movemoney",
+        "workflow_mode": "parallel",
+        "test_name": "Cash Journal â€” One-Time Transfer by Amount. [positive] (TC001)",
+        "protocol": "REST",
+        "test_type": [
+            "Functional"
+        ],
+        "mainURL": "{{base_url}}",
+        "endpoint": "/journal",
+        "method": "POST",
+        "rpc_method": "",
+        "graphql_query": "",
+        "graphql_variables": "",
+        "soap_action": "",
+        "soap_envelope": "",
+        "headers_additional": {
+            "Content-Type": "application/json"
+        },
+        "payload": "MoveMoneyAPI/payloads/Payload_journal_POST_functional.raw",
+        "expected_status": "200",
+        "expected_response_schema": null,
+        "expected_response": null,
+        "ignore_fields": [
+            "id"
+        ],
+        "extract_values": [
+            {
+                "from": "response",
+                "key": "",
+                "assign_to": ""
+            },
+            {
+                "from": "response",
+                "record_count": false,
+                "array_path": "",
+                "assign_to": ""
+            },
+            {
+                "from": "db_result",
+                "query": "",
+                "assign": [
+                    {
+                        "key": "",
+                        "assign_to": ""
+                    }
+                ]
+            }
+        ],
+        "validate": {
+            "performance": {
+                "max_response_time_ms": 2000
+            },
+            "security": {
+                "checks": [
+                    "sql_injection",
+                    "xss"
+                ]
+            },
+            "data_comparison": []
+        },
+        "test_data_file": "MoveMoneyAPI/data_driven/Data_Journal_Post.csv",
+        "csv_row_index": 0,
+        "db_query_timing": "after_api",
+        "db_queries": {
+            "default": "",
+            "audit_query": ""
+        },
+        "db_type": "",
+        "db_connection_name": "",
+        "test_summary": "Test TC001: Verify that the API returns 200 successful response when performing a cash journal one-time transfer by amount for POST/journal [positive] (TC001)",
+        "payload_file": "MoveMoneyAPI/payloads/Payload_journal_POST_functional.raw"
+    },
+    {
+        "test_id": "TC002",
+        "service_name": "movemoney",
+        "workflow_mode": "parallel",
+        "test_name": "Cash Journal â€” Recurring Periodic Transfer by Percent. [positive] (TC002)",
+        "protocol": "REST",
+        "test_type": [
+            "Functional"
+        ],
+        "mainURL": "{{base_url}}",
+        "endpoint": "/journal",
+        "method": "POST",
+        "rpc_method": "",
+        "graphql_query": "",
+        "graphql_variables": "",
+        "soap_action": "",
+        "soap_envelope": "",
+        "headers_additional": {
+            "Content-Type": "application/json"
+        },
+        "payload": "MoveMoneyAPI/payloads/Payload_journal_POST_functional.raw",
+        "expected_status": "200",
+        "expected_response_schema": null,
+        "expected_response": null,
+        "ignore_fields": [
+            "id"
+        ],
+        "extract_values": [
+            {
+                "from": "response",
+                "key": "",
+                "assign_to": ""
+            },
+            {
+                "from": "response",
+                "record_count": false,
+                "array_path": "",
+                "assign_to": ""
+            },
+            {
+                "from": "db_result",
+                "query": "",
+                "assign": [
+                    {
+                        "key": "",
+                        "assign_to": ""
+                    }
+                ]
+            }
+        ],
+        "validate": {
+            "performance": {
+                "max_response_time_ms": 2000
+            },
+            "security": {
+                "checks": [
+                    "sql_injection",
+                    "xss"
+                ]
+            },
+            "data_comparison": []
+        },
+        "test_data_file": "MoveMoneyAPI/data_driven/Data_Journal_Post.csv",
+        "csv_row_index": 1,
+        "db_query_timing": "after_api",
+        "db_queries": {
+            "default": "",
+            "audit_query": ""
+        },
+        "db_type": "",
+        "db_connection_name": "",
+        "test_summary": "Test TC002: Verify that the API returns 200 successful response when performing a cash journal recurring periodic transfer by percent for POST/journal [positive] (TC002)",
+        "payload_file": "MoveMoneyAPI/payloads/Payload_journal_POST_functional.raw"
+    },
+    {
+        "test_id": "TC003",
+        "service_name": "movemoney",
+        "workflow_mode": "parallel",
+        "test_name": "In-Kind Journal â€” Selected Security Transfer. [positive] (TC002)",
+        "protocol": "REST",
+        "test_type": [
+            "Functional"
+        ],
+        "mainURL": "{{base_url}}",
+        "endpoint": "/journal",
+        "method": "POST",
+        "rpc_method": "",
+        "graphql_query": "",
+        "graphql_variables": "",
+        "soap_action": "",
+        "soap_envelope": "",
+        "headers_additional": {
+            "Content-Type": "application/json"
+        },
+        "payload": "MoveMoneyAPI/payloads/Payload_journal_POST_functional.raw",
+        "expected_status": "200",
+        "expected_response_schema": null,
+        "expected_response": null,
+        "ignore_fields": [
+            "id"
+        ],
+        "extract_values": [
+            {
+                "from": "response",
+                "key": "",
+                "assign_to": ""
+            },
+            {
+                "from": "response",
+                "record_count": false,
+                "array_path": "",
+                "assign_to": ""
+            },
+            {
+                "from": "db_result",
+                "query": "",
+                "assign": [
+                    {
+                        "key": "",
+                        "assign_to": ""
+                    }
+                ]
+            }
+        ],
+        "validate": {
+            "performance": {
+                "max_response_time_ms": 2000
+            },
+            "security": {
+                "checks": [
+                    "sql_injection",
+                    "xss"
+                ]
+            },
+            "data_comparison": []
+        },
+        "test_data_file": "MoveMoneyAPI/data_driven/Data_Journal_Post.csv",
+        "csv_row_index": 2,
+        "db_query_timing": "after_api",
+        "db_queries": {
+            "default": "",
+            "audit_query": ""
+        },
+        "db_type": "",
+        "db_connection_name": "",
+        "test_summary": "Test TC003: Verify that the API returns 200 successful response when performing a In-Kind Journal â€” Selected Security Transfer for POST/journal [positive] (TC003)",
+        "payload_file": "MoveMoneyAPI/payloads/Payload_journal_POST_functional.raw"
+    },
+    {
+        "test_id": "TC004",
+        "service_name": "movemoney",
+        "workflow_mode": "parallel",
+        "test_name": "Missing FromAccountId [Negative] (TC004)",
+        "protocol": "REST",
+        "test_type": [
+            "Functional"
+        ],
+        "mainURL": "{{base_url}}",
+        "endpoint": "/journal",
+        "method": "POST",
+        "rpc_method": "",
+        "graphql_query": "",
+        "graphql_variables": "",
+        "soap_action": "",
+        "soap_envelope": "",
+        "headers_additional": {
+            "Content-Type": "application/json"
+        },
+        "payload": "MoveMoneyAPI/payloads/Payload_journal_POST_functional.raw",
+        "expected_status": "400",
+        "expected_response_schema": null,
+        "expected_response": {
+            "status": 400,
+            "error": "Missing required field: fromAccountId",
+            "fields": "fromAccountId"
+        },
+        "ignore_fields": [
+            "id"
+        ],
+        "extract_values": [
+            {
+                "from": "response",
+                "key": "status",
+                "assign_to": "error_status"
+            }
+        ],
+        "validate": {
+            "performance": {
+                "max_response_time_ms": 2000
+            },
+            "security": {
+                "checks": [
+                    "sql_injection",
+                    "xss"
+                ]
+            },
+            "assertions": [
+                {
+                    "actual": "{{error_status}}",
+                    "expected": 400,
+                    "operator": "==",
+                    "message": "Error status should be 400"
+                }
+            ],
+            "data_comparison": []
+        },
+        "test_data_file": "MoveMoneyAPI/data_driven/Data_Journal_Post.csv",
+        "csv_row_index": 3,
+        "db_query_timing": "after_api",
+        "db_queries": {
+            "default": "",
+            "audit_query": ""
+        },
+        "db_type": "",
+        "db_connection_name": "",
+        "test_summary": "Test TC004: Verify that the API returns 400 error response when there is a missing FromAccountId for POST/journal [negative] (TC004)",
+        "payload_file": "MoveMoneyAPI/payloads/Payload_journal_POST_functional.raw"
+    },
+    {
+        "test_id": "TC005",
+        "service_name": "movemoney",
+        "workflow_mode": "parallel",
+        "test_name": "Invalid FromAccountId [Negative] (TC005)",
+        "protocol": "REST",
+        "test_type": [
+            "Functional"
+        ],
+        "mainURL": "{{base_url}}",
+        "endpoint": "/journal",
+        "method": "POST",
+        "rpc_method": "",
+        "graphql_query": "",
+        "graphql_variables": "",
+        "soap_action": "",
+        "soap_envelope": "",
+        "headers_additional": {
+            "Content-Type": "application/json"
+        },
+        "payload": "MoveMoneyAPI/payloads/Payload_journal_POST_functional.raw",
+        "expected_status": "400",
+        "expected_response_schema": null,
+        "expected_response": {
+            "type": "invalid-request",
+            "title": "Invalid Request",
+            "status": 400,
+            "detail": "The request contains invalid values",
+            "instance": "/api/moneymovement/v1/journal",
+            "errors": {
+                "fromAccountId": [
+                    "Must be a valid UUID."
+                ]
+            }
+        },
+        "ignore_fields": [
+            "id"
+        ],
+        "extract_values": [
+            {
+                "from": "response",
+                "key": "status",
+                "assign_to": "error_status"
+            },
+            {
+                "from": "response",
+                "key": "error",
+                "assign_to": "error_message"
+            },
+            {
+                "from": "response",
+                "key": "fields",
+                "assign_to": "error_field"
+            }
+        ],
+        "validate": {
+            "performance": {
+                "max_response_time_ms": 2000
+            },
+            "security": {
+                "checks": [
+                    "sql_injection",
+                    "xss"
+                ]
+            },
+            "assertions": [
+                {
+                    "actual": "{{error_status}}",
+                    "expected": 400,
+                    "operator": "==",
+                    "message": "Error status should be 400"
+                }
+            ],
+            "data_comparison": []
+        },
+        "test_data_file": "MoveMoneyAPI/data_driven/Data_Journal_Post.csv",
+        "csv_row_index": 4,
+        "db_query_timing": "after_api",
+        "db_queries": {
+            "default": "",
+            "audit_query": ""
+        },
+        "db_type": "",
+        "db_connection_name": "",
+        "test_summary": "Test TC005: Verify that the API returns 400 error response when there is a Invalid FromAccountId for POST/journal [negative] (TC005)",
+        "payload_file": "MoveMoneyAPI/payloads/Payload_journal_POST_functional.raw"
+    },
+    {
+        "test_id": "TC006",
+        "service_name": "movemoney",
+        "workflow_mode": "parallel",
+        "test_name": "Missing ToAccountId [Negative] (TC006)",
+        "protocol": "REST",
+        "test_type": [
+            "Functional"
+        ],
+        "mainURL": "{{base_url}}",
+        "endpoint": "/journal",
+        "method": "POST",
+        "rpc_method": "",
+        "graphql_query": "",
+        "graphql_variables": "",
+        "soap_action": "",
+        "soap_envelope": "",
+        "headers_additional": {
+            "Content-Type": "application/json"
+        },
+        "payload": "MoveMoneyAPI/payloads/Payload_journal_POST_functional.raw",
+        "expected_status": "400",
+        "expected_response_schema": null,
+        "expected_response": {
+            "status": 400,
+            "error": "Missing required field: toAccountId",
+            "fields": "toAccountId"
+        },
+        "ignore_fields": [
+            "id"
+        ],
+        "extract_values": [
+            {
+                "from": "response",
+                "key": "status",
+                "assign_to": "error_status"
+            }
+        ],
+        "validate": {
+            "performance": {
+                "max_response_time_ms": 2000
+            },
+            "security": {
+                "checks": [
+                    "sql_injection",
+                    "xss"
+                ]
+            },
+            "assertions": [
+                {
+                    "actual": "{{error_status}}",
+                    "expected": 400,
+                    "operator": "==",
+                    "message": "Error status should be 400"
+                }
+            ],
+            "data_comparison": []
+        },
+        "test_data_file": "MoveMoneyAPI/data_driven/Data_Journal_Post.csv",
+        "csv_row_index": 5,
+        "db_query_timing": "after_api",
+        "db_queries": {
+            "default": "",
+            "audit_query": ""
+        },
+        "db_type": "",
+        "db_connection_name": "",
+        "test_summary": "Test TC006: Verify that the API returns 400 error response when there is a Missing ToAccountId for POST/journal [negative] (TC006)",
+        "payload_file": "MoveMoneyAPI/payloads/Payload_journal_POST_functional.raw"
+    },
+    {
+        "test_id": "TC007",
+        "service_name": "movemoney",
+        "workflow_mode": "parallel",
+        "test_name": "Invalid ToAccountId [Negative] (TC007)",
+        "protocol": "REST",
+        "test_type": [
+            "Functional"
+        ],
+        "mainURL": "{{base_url}}",
+        "endpoint": "/journal",
+        "method": "POST",
+        "rpc_method": "",
+        "graphql_query": "",
+        "graphql_variables": "",
+        "soap_action": "",
+        "soap_envelope": "",
+        "headers_additional": {
+            "Content-Type": "application/json"
+        },
+        "payload": "MoveMoneyAPI/payloads/Payload_journal_POST_functional.raw",
+        "expected_status": "400",
+        "expected_response_schema": null,
+        "expected_response": {
+            "type": "invalid-request",
+            "title": "Invalid Request",
+            "status": 400,
+            "detail": "The request contains invalid values",
+            "instance": "/api/moneymovement/v1/journal",
+            "errors": {
+                "toAccountId": [
+                    "Must be a valid UUID."
+                ]
+            }
+        },
+        "ignore_fields": [
+            "id"
+        ],
+        "extract_values": [
+            {
+                "from": "response",
+                "key": "status",
+                "assign_to": "error_status"
+            },
+            {
+                "from": "response",
+                "key": "error",
+                "assign_to": "error_message"
+            },
+            {
+                "from": "response",
+                "key": "fields",
+                "assign_to": "error_field"
+            }
+        ],
+        "validate": {
+            "performance": {
+                "max_response_time_ms": 2000
+            },
+            "security": {
+                "checks": [
+                    "sql_injection",
+                    "xss"
+                ]
+            },
+            "assertions": [
+                {
+                    "actual": "{{error_status}}",
+                    "expected": 400,
+                    "operator": "==",
+                    "message": "Error status should be 400"
+                }
+            ],
+            "data_comparison": []
+        },
+        "test_data_file": "MoveMoneyAPI/data_driven/Data_Journal_Post.csv",
+        "csv_row_index": 6,
+        "db_query_timing": "after_api",
+        "db_queries": {
+            "default": "",
+            "audit_query": ""
+        },
+        "db_type": "",
+        "db_connection_name": "",
+        "test_summary": "Test TC007: Verify that the API returns 400 error response when there is a Invalid ToAccountId for POST/journal [negative] (TC007)",
+        "payload_file": "MoveMoneyAPI/payloads/Payload_journal_POST_functional.raw"
+    },
+    {
+        "test_id": "TC008",
+        "service_name": "movemoney",
+        "workflow_mode": "parallel",
+        "test_name": "Missing Status Field [Negative] (TC008)",
+        "protocol": "REST",
+        "test_type": [
+            "Functional"
+        ],
+        "mainURL": "{{base_url}}",
+        "endpoint": "/journal",
+        "method": "POST",
+        "rpc_method": "",
+        "graphql_query": "",
+        "graphql_variables": "",
+        "soap_action": "",
+        "soap_envelope": "",
+        "headers_additional": {
+            "Content-Type": "application/json"
+        },
+        "payload": "MoveMoneyAPI/payloads/Payload_journal_POST_functional.raw",
+        "expected_status": "400",
+        "expected_response_schema": null,
+        "expected_response": {
+            "status": 400,
+            "error": "Missing required field: status",
+            "fields": "status"
+        },
+        "ignore_fields": [
+            "id"
+        ],
+        "extract_values": [
+            {
+                "from": "response",
+                "key": "status",
+                "assign_to": "error_status"
+            },
+            {
+                "from": "response",
+                "key": "error",
+                "assign_to": "error_message"
+            },
+            {
+                "from": "response",
+                "key": "fields",
+                "assign_to": "error_field"
+            }
+        ],
+        "validate": {
+            "performance": {
+                "max_response_time_ms": 2000
+            },
+            "security": {
+                "checks": [
+                    "sql_injection",
+                    "xss"
+                ]
+            },
+            "assertions": [
+                {
+                    "actual": "{{error_status}}",
+                    "expected": 400,
+                    "operator": "==",
+                    "message": "Error status should be 400"
+                },
+                {
+                    "actual": "{{error_message}}",
+                    "expected": "Missing required field: status",
+                    "operator": "==",
+                    "message": "Error message should match missing Status"
+                },
+                {
+                    "actual": "{{error_field}}",
+                    "expected": "status",
+                    "operator": "==",
+                    "message": "Error field should be status"
+                }
+            ],
+            "data_comparison": []
+        },
+        "test_data_file": "MoveMoneyAPI/data_driven/Data_Journal_Post.csv",
+        "csv_row_index": 7,
+        "db_query_timing": "after_api",
+        "db_queries": {
+            "default": "",
+            "audit_query": ""
+        },
+        "db_type": "",
+        "db_connection_name": "",
+        "test_summary": "Test TC008: Verify that the API returns 400 error response when there is a Missing Status field for POST/journal [negative] (TC008)",
+        "payload_file": "MoveMoneyAPI/payloads/Payload_journal_POST_functional.raw"
+    },
+    {
+        "test_id": "TC009",
+        "service_name": "movemoney",
+        "workflow_mode": "parallel",
+        "test_name": "Invalid Status Field [Negative] (TC009)",
+        "protocol": "REST",
+        "test_type": [
+            "Functional"
+        ],
+        "mainURL": "{{base_url}}",
+        "endpoint": "/journal",
+        "method": "POST",
+        "rpc_method": "",
+        "graphql_query": "",
+        "graphql_variables": "",
+        "soap_action": "",
+        "soap_envelope": "",
+        "headers_additional": {
+            "Content-Type": "application/json"
+        },
+        "payload": "MoveMoneyAPI/payloads/Payload_journal_POST_functional.raw",
+        "expected_status": "400",
+        "expected_response_schema": null,
+        "expected_response": {
+            "type": "invalid-request",
+            "title": "Invalid Request",
+            "status": 400,
+            "detail": "The request contains invalid values",
+            "instance": "/api/moneymovement/v1/journal",
+            "errors": {
+                "status": [
+                    "Must be one of: Draft, Pending, Confirmed, Deleted."
+                ]
+            }
+        },
+        "ignore_fields": [
+            "id"
+        ],
+        "extract_values": [
+            {
+                "from": "response",
+                "key": "status",
+                "assign_to": "error_status"
+            },
+            {
+                "from": "response",
+                "key": "error",
+                "assign_to": "error_message"
+            },
+            {
+                "from": "response",
+                "key": "fields",
+                "assign_to": "error_field"
+            }
+        ],
+        "validate": {
+            "performance": {
+                "max_response_time_ms": 2000
+            },
+            "security": {
+                "checks": [
+                    "sql_injection",
+                    "xss"
+                ]
+            },
+            "assertions": [
+                {
+                    "actual": "{{error_status}}",
+                    "expected": 400,
+                    "operator": "==",
+                    "message": "Error status should be 400"
+                }
+            ],
+            "data_comparison": []
+        },
+        "test_data_file": "MoveMoneyAPI/data_driven/Data_Journal_Post.csv",
+        "csv_row_index": 8,
+        "db_query_timing": "after_api",
+        "db_queries": {
+            "default": "",
+            "audit_query": ""
+        },
+        "db_type": "",
+        "db_connection_name": "",
+        "test_summary": "Test TC009: Verify that the API returns 400 error response when there is a Invalid Status field for POST/journal [negative] (TC009)",
+        "payload_file": "MoveMoneyAPI/payloads/Payload_journal_POST_functional.raw"
+    },
+    {
+        "test_id": "TC010",
+        "service_name": "movemoney",
+        "workflow_mode": "parallel",
+        "test_name": "Invalid closeSourceAccount Field [Negative] (TC0010)",
+        "protocol": "REST",
+        "test_type": [
+            "Functional"
+        ],
+        "mainURL": "{{base_url}}",
+        "endpoint": "/journal",
+        "method": "POST",
+        "rpc_method": "",
+        "graphql_query": "",
+        "graphql_variables": "",
+        "soap_action": "",
+        "soap_envelope": "",
+        "headers_additional": {
+            "Content-Type": "application/json"
+        },
+        "payload": "MoveMoneyAPI/payloads/Payload_journal_POST_functional.raw",
+        "expected_status": "400",
+        "expected_response_schema": null,
+        "expected_response": {
+            "type": "invalid-request",
+            "title": "Invalid Request",
+            "status": 400,
+            "detail": "The request contains invalid values",
+            "instance": "/api/moneymovement/v1/journal",
+            "errors": {
+                "closeSourceAccount": [
+                    "Must be a valid boolean value (\"true\" or \"false\")."
+                ]
+            }
+        },
+        "ignore_fields": [
+            "id"
+        ],
+        "extract_values": [
+            {
+                "from": "response",
+                "key": "status",
+                "assign_to": "error_status"
+            },
+            {
+                "from": "response",
+                "key": "error",
+                "assign_to": "error_message"
+            },
+            {
+                "from": "response",
+                "key": "fields",
+                "assign_to": "error_field"
+            }
+        ],
+        "validate": {
+            "performance": {
+                "max_response_time_ms": 2000
+            },
+            "security": {
+                "checks": [
+                    "sql_injection",
+                    "xss"
+                ]
+            },
+            "assertions": [
+                {
+                    "actual": "{{error_status}}",
+                    "expected": 400,
+                    "operator": "==",
+                    "message": "Error status should be 400"
+                }
+            ],
+            "data_comparison": []
+        },
+        "test_data_file": "MoveMoneyAPI/data_driven/Data_Journal_Post.csv",
+        "csv_row_index": 9,
+        "db_query_timing": "after_api",
+        "db_queries": {
+            "default": "",
+            "audit_query": ""
+        },
+        "db_type": "",
+        "db_connection_name": "",
+        "test_summary": "Test TC010: Verify that the API returns 400 error response when there is a Invalid closeSourceAccount field for POST/journal [negative] (TC0010)",
+        "payload_file": "MoveMoneyAPI/payloads/Payload_journal_POST_functional.raw"
+    },
+    {
+        "test_id": "TC011",
+        "service_name": "movemoney",
+        "workflow_mode": "parallel",
+        "test_name": "Invalid movementTypeOverride Field [Negative] (TC0011)",
+        "protocol": "REST",
+        "test_type": [
+            "Functional"
+        ],
+        "mainURL": "{{base_url}}",
+        "endpoint": "/journal",
+        "method": "POST",
+        "rpc_method": "",
+        "graphql_query": "",
+        "graphql_variables": "",
+        "soap_action": "",
+        "soap_envelope": "",
+        "headers_additional": {
+            "Content-Type": "application/json"
+        },
+        "payload": "MoveMoneyAPI/payloads/Payload_journal_POST_functional.raw",
+        "expected_status": "400",
+        "expected_response_schema": null,
+        "expected_response": {
+            "type": "invalid-request",
+            "title": "Invalid Request",
+            "status": 400,
+            "detail": "The request contains invalid values",
+            "instance": "/api/moneymovement/v1/journal",
+            "errors": {
+                "movementTypeOverride": [
+                    "Must be one of: Cash, InKind."
+                ]
+            }
+        },
+        "ignore_fields": [
+            "id"
+        ],
+        "extract_values": [
+            {
+                "from": "response",
+                "key": "status",
+                "assign_to": "error_status"
+            },
+            {
+                "from": "response",
+                "key": "error",
+                "assign_to": "error_message"
+            },
+            {
+                "from": "response",
+                "key": "fields",
+                "assign_to": "error_field"
+            }
+        ],
+        "validate": {
+            "performance": {
+                "max_response_time_ms": 2000
+            },
+            "security": {
+                "checks": [
+                    "sql_injection",
+                    "xss"
+                ]
+            },
+            "assertions": [
+                {
+                    "actual": "{{error_status}}",
+                    "expected": 400,
+                    "operator": "==",
+                    "message": "Error status should be 400"
+                }
+            ],
+            "data_comparison": []
+        },
+        "test_data_file": "MoveMoneyAPI/data_driven/Data_Journal_Post.csv",
+        "csv_row_index": 10,
+        "db_query_timing": "after_api",
+        "db_queries": {
+            "default": "",
+            "audit_query": ""
+        },
+        "db_type": "",
+        "db_connection_name": "",
+        "test_summary": "Test TC011: Verify that the API returns 400 error response when there is a Invalid movementTypeOverride field for POST/journal [negative] (TC0011)",
+        "payload_file": "MoveMoneyAPI/payloads/Payload_journal_POST_functional.raw"
+    },
+    {
+        "test_id": "TC012",
+        "service_name": "movemoney",
+        "workflow_mode": "parallel",
+        "test_name": "Missing journalUnitType Field [Negative] (TC012)",
+        "protocol": "REST",
+        "test_type": [
+            "Functional"
+        ],
+        "mainURL": "{{base_url}}",
+        "endpoint": "/journal",
+        "method": "POST",
+        "rpc_method": "",
+        "graphql_query": "",
+        "graphql_variables": "",
+        "soap_action": "",
+        "soap_envelope": "",
+        "headers_additional": {
+            "Content-Type": "application/json"
+        },
+        "payload": "MoveMoneyAPI/payloads/Payload_journal_POST_functional.raw",
+        "expected_status": "400",
+        "expected_response_schema": null,
+        "expected_response": {
+            "status": 400,
+            "error": "Missing required field: journalUnitType",
+            "fields": "journalUnitType"
+        },
+        "ignore_fields": [
+            "id"
+        ],
+        "extract_values": [
+            {
+                "from": "response",
+                "key": "status",
+                "assign_to": "error_status"
+            },
+            {
+                "from": "response",
+                "key": "error",
+                "assign_to": "error_message"
+            },
+            {
+                "from": "response",
+                "key": "fields",
+                "assign_to": "error_field"
+            }
+        ],
+        "validate": {
+            "performance": {
+                "max_response_time_ms": 2000
+            },
+            "security": {
+                "checks": [
+                    "sql_injection",
+                    "xss"
+                ]
+            },
+            "assertions": [
+                {
+                    "actual": "{{error_status}}",
+                    "expected": 400,
+                    "operator": "==",
+                    "message": "Error status should be 400"
+                },
+                {
+                    "actual": "{{error_message}}",
+                    "expected": "Missing required field: journalUnitType",
+                    "operator": "==",
+                    "message": "Error message should match missing journalUnitType"
+                },
+                {
+                    "actual": "{{error_field}}",
+                    "expected": "journalUnitType",
+                    "operator": "==",
+                    "message": "Error field should be journalUnitType"
+                }
+            ],
+            "data_comparison": []
+        },
+        "test_data_file": "MoveMoneyAPI/data_driven/Data_Journal_Post.csv",
+        "csv_row_index": 11,
+        "db_query_timing": "after_api",
+        "db_queries": {
+            "default": "",
+            "audit_query": ""
+        },
+        "db_type": "",
+        "db_connection_name": "",
+        "test_summary": "Test TC012: Verify that the API returns 400 error response when there is a Missing journalUnitType field for POST/journal [negative] (TC012)",
+        "payload_file": "MoveMoneyAPI/payloads/Payload_journal_POST_functional.raw"
+    },
+    {
+        "test_id": "TC013",
+        "service_name": "movemoney",
+        "workflow_mode": "parallel",
+        "test_name": "Invalid journalUnitType Field [Negative] (TC0013)",
+        "protocol": "REST",
+        "test_type": [
+            "Functional"
+        ],
+        "mainURL": "{{base_url}}",
+        "endpoint": "/journal",
+        "method": "POST",
+        "rpc_method": "",
+        "graphql_query": "",
+        "graphql_variables": "",
+        "soap_action": "",
+        "soap_envelope": "",
+        "headers_additional": {
+            "Content-Type": "application/json"
+        },
+        "payload": "MoveMoneyAPI/payloads/Payload_journal_POST_functional.raw",
+        "expected_status": "400",
+        "expected_response_schema": null,
+        "expected_response": {
+            "type": "invalid-request",
+            "title": "Invalid Request",
+            "status": 400,
+            "detail": "The request contains invalid values",
+            "instance": "/api/moneymovement/v1/journal",
+            "errors": {
+                "journalUnitType": [
+                    "Must be one of: Percent, Amount, AllRemaining, Full, Securities."
+                ]
+            }
+        },
+        "ignore_fields": [
+            "id"
+        ],
+        "extract_values": [
+            {
+                "from": "response",
+                "key": "status",
+                "assign_to": "error_status"
+            },
+            {
+                "from": "response",
+                "key": "error",
+                "assign_to": "error_message"
+            },
+            {
+                "from": "response",
+                "key": "fields",
+                "assign_to": "error_field"
+            }
+        ],
+        "validate": {
+            "performance": {
+                "max_response_time_ms": 2000
+            },
+            "security": {
+                "checks": [
+                    "sql_injection",
+                    "xss"
+                ]
+            },
+            "assertions": [
+                {
+                    "actual": "{{error_status}}",
+                    "expected": 400,
+                    "operator": "==",
+                    "message": "Error status should be 400"
+                }
+            ],
+            "data_comparison": []
+        },
+        "test_data_file": "MoveMoneyAPI/data_driven/Data_Journal_Post.csv",
+        "csv_row_index": 12,
+        "db_query_timing": "after_api",
+        "db_queries": {
+            "default": "",
+            "audit_query": ""
+        },
+        "db_type": "",
+        "db_connection_name": "",
+        "test_summary": "Test TC013: Verify that the API returns 400 error response when there is a Invalid journalUnitType field for POST/journal [negative] (TC0013)",
+        "payload_file": "MoveMoneyAPI/payloads/Payload_journal_POST_functional.raw"
+    },
+    {
+        "test_id": "TC014",
+        "service_name": "movemoney",
+        "workflow_mode": "parallel",
+        "test_name": "Missing schedule.scheduleType Field [Negative] (TC014)",
+        "protocol": "REST",
+        "test_type": [
+            "Functional"
+        ],
+        "mainURL": "{{base_url}}",
+        "endpoint": "/journal",
+        "method": "POST",
+        "rpc_method": "",
+        "graphql_query": "",
+        "graphql_variables": "",
+        "soap_action": "",
+        "soap_envelope": "",
+        "headers_additional": {
+            "Content-Type": "application/json"
+        },
+        "payload": "MoveMoneyAPI/payloads/Payload_journal_POST_functional.raw",
+        "expected_status": "400",
+        "expected_response_schema": null,
+        "expected_response": {
+            "type": "missing-required-fields",
+            "title": "One or more fields are missing values",
+            "status": 400,
+            "detail": "Missing Required Fields",
+            "instance": "/api/moneymovement/v1/journal",
+            "errors": {
+                "schedule.scheduleType": [
+                    "This field is required."
+                ]
+            }
+        },
+        "ignore_fields": [
+            "id"
+        ],
+        "extract_values": [
+            {
+                "from": "response",
+                "key": "status",
+                "assign_to": "error_status"
+            },
+            {
+                "from": "response",
+                "key": "error",
+                "assign_to": "error_message"
+            },
+            {
+                "from": "response",
+                "key": "fields",
+                "assign_to": "error_field"
+            }
+        ],
+        "validate": {
+            "performance": {
+                "max_response_time_ms": 2000
+            },
+            "security": {
+                "checks": [
+                    "sql_injection",
+                    "xss"
+                ]
+            },
+            "assertions": [
+                {
+                    "actual": "{{error_status}}",
+                    "expected": 400,
+                    "operator": "==",
+                    "message": "Error status should be 400"
+                }
+            ],
+            "data_comparison": []
+        },
+        "test_data_file": "MoveMoneyAPI/data_driven/Data_Journal_Post.csv",
+        "csv_row_index": 13,
+        "db_query_timing": "after_api",
+        "db_queries": {
+            "default": "",
+            "audit_query": ""
+        },
+        "db_type": "",
+        "db_connection_name": "",
+        "test_summary": "Test TC014: Verify that the API returns 400 error response when there is a Missing schedule.scheduleType field for POST/journal [negative] (TC014)",
+        "payload_file": "MoveMoneyAPI/payloads/Payload_journal_POST_functional.raw"
+    },
+    {
+        "test_id": "TC015",
+        "service_name": "movemoney",
+        "workflow_mode": "parallel",
+        "test_name": "Invalid schedule.scheduleType Field [Negative] (TC0015)",
+        "protocol": "REST",
+        "test_type": [
+            "Functional"
+        ],
+        "mainURL": "{{base_url}}",
+        "endpoint": "/journal",
+        "method": "POST",
+        "rpc_method": "",
+        "graphql_query": "",
+        "graphql_variables": "",
+        "soap_action": "",
+        "soap_envelope": "",
+        "headers_additional": {
+            "Content-Type": "application/json"
+        },
+        "payload": "MoveMoneyAPI/payloads/Payload_journal_POST_functional.raw",
+        "expected_status": "400",
+        "expected_response_schema": null,
+        "expected_response": {
+            "type": "invalid-request",
+            "title": "Invalid Request",
+            "status": 400,
+            "detail": "The request contains invalid values",
+            "instance": "/api/moneymovement/v1/journal",
+            "errors": {
+                "schedule.scheduleType": [
+                    "Must be one of: OneTime, Periodic."
+                ]
+            }
+        },
+        "ignore_fields": [
+            "id"
+        ],
+        "extract_values": [
+            {
+                "from": "response",
+                "key": "status",
+                "assign_to": "error_status"
+            },
+            {
+                "from": "response",
+                "key": "error",
+                "assign_to": "error_message"
+            },
+            {
+                "from": "response",
+                "key": "fields",
+                "assign_to": "error_field"
+            }
+        ],
+        "validate": {
+            "performance": {
+                "max_response_time_ms": 2000
+            },
+            "security": {
+                "checks": [
+                    "sql_injection",
+                    "xss"
+                ]
+            },
+            "assertions": [
+                {
+                    "actual": "{{error_status}}",
+                    "expected": 400,
+                    "operator": "==",
+                    "message": "Error status should be 400"
+                }
+            ],
+            "data_comparison": []
+        },
+        "test_data_file": "MoveMoneyAPI/data_driven/Data_Journal_Post.csv",
+        "csv_row_index": 14,
+        "db_query_timing": "after_api",
+        "db_queries": {
+            "default": "",
+            "audit_query": ""
+        },
+        "db_type": "",
+        "db_connection_name": "",
+        "test_summary": "Test TC015: Verify that the API returns 400 error response when there is a Invalid schedule.scheduleType field for POST/journal [negative] (TC0015)",
+        "payload_file": "MoveMoneyAPI/payloads/Payload_journal_POST_functional.raw"
+    },
+    {
+        "test_id": "TC016",
+        "service_name": "movemoney",
+        "workflow_mode": "parallel",
+        "test_name": "Missing schedule.PaymentDate Field [Negative] (TC016)",
+        "protocol": "REST",
+        "test_type": [
+            "Functional"
+        ],
+        "mainURL": "{{base_url}}",
+        "endpoint": "/journal",
+        "method": "POST",
+        "rpc_method": "",
+        "graphql_query": "",
+        "graphql_variables": "",
+        "soap_action": "",
+        "soap_envelope": "",
+        "headers_additional": {
+            "Content-Type": "application/json"
+        },
+        "payload": "MoveMoneyAPI/payloads/Payload_journal_POST_functional.raw",
+        "expected_status": "400",
+        "expected_response_schema": null,
+        "expected_response": {
+            "type": "missing-required-fields",
+            "title": "One or more fields are missing values",
+            "status": 400,
+            "detail": "Missing Required Fields",
+            "instance": "/api/moneymovement/v1/journal",
+            "errors": {
+                "schedule.paymentDate": [
+                    "This field is required."
+                ]
+            }
+        },
+        "ignore_fields": [
+            "id"
+        ],
+        "extract_values": [
+            {
+                "from": "response",
+                "key": "status",
+                "assign_to": "error_status"
+            },
+            {
+                "from": "response",
+                "key": "error",
+                "assign_to": "error_message"
+            },
+            {
+                "from": "response",
+                "key": "fields",
+                "assign_to": "error_field"
+            }
+        ],
+        "validate": {
+            "performance": {
+                "max_response_time_ms": 2000
+            },
+            "security": {
+                "checks": [
+                    "sql_injection",
+                    "xss"
+                ]
+            },
+            "assertions": [
+                {
+                    "actual": "{{error_status}}",
+                    "expected": 400,
+                    "operator": "==",
+                    "message": "Error status should be 400"
+                }
+            ],
+            "data_comparison": []
+        },
+        "test_data_file": "MoveMoneyAPI/data_driven/Data_Journal_Post.csv",
+        "csv_row_index": 15,
+        "db_query_timing": "after_api",
+        "db_queries": {
+            "default": "",
+            "audit_query": ""
+        },
+        "db_type": "",
+        "db_connection_name": "",
+        "test_summary": "Test TC016: Verify that the API returns 400 error response when there is a Missing schedule.PaymentDate field for POST/journal [negative] (TC016)",
+        "payload_file": "MoveMoneyAPI/payloads/Payload_journal_POST_functional.raw"
+    },
+    {
+        "test_id": "TC017",
+        "service_name": "movemoney",
+        "workflow_mode": "parallel",
+        "test_name": "Invalid schedule.paymentDate Field [Negative] (TC0017)",
+        "protocol": "REST",
+        "test_type": [
+            "Functional"
+        ],
+        "mainURL": "{{base_url}}",
+        "endpoint": "/journal",
+        "method": "POST",
+        "rpc_method": "",
+        "graphql_query": "",
+        "graphql_variables": "",
+        "soap_action": "",
+        "soap_envelope": "",
+        "headers_additional": {
+            "Content-Type": "application/json"
+        },
+        "payload": "MoveMoneyAPI/payloads/Payload_journal_POST_functional.raw",
+        "expected_status": "400",
+        "expected_response_schema": null,
+        "expected_response": {
+            "type": "invalid-request",
+            "title": "Invalid Request",
+            "status": 400,
+            "detail": "The request contains invalid values",
+            "instance": "/api/moneymovement/v1/journal",
+            "errors": {
+                "schedule.paymentDate": [
+                    "Must be in YYYY-MM-DD format."
+                ]
+            }
+        },
+        "ignore_fields": [
+            "id"
+        ],
+        "extract_values": [
+            {
+                "from": "response",
+                "key": "status",
+                "assign_to": "error_status"
+            },
+            {
+                "from": "response",
+                "key": "error",
+                "assign_to": "error_message"
+            },
+            {
+                "from": "response",
+                "key": "fields",
+                "assign_to": "error_field"
+            }
+        ],
+        "validate": {
+            "performance": {
+                "max_response_time_ms": 2000
+            },
+            "security": {
+                "checks": [
+                    "sql_injection",
+                    "xss"
+                ]
+            },
+            "assertions": [
+                {
+                    "actual": "{{error_status}}",
+                    "expected": 400,
+                    "operator": "==",
+                    "message": "Error status should be 400"
+                }
+            ],
+            "data_comparison": []
+        },
+        "test_data_file": "MoveMoneyAPI/data_driven/Data_Journal_Post.csv",
+        "csv_row_index": 16,
+        "db_query_timing": "after_api",
+        "db_queries": {
+            "default": "",
+            "audit_query": ""
+        },
+        "db_type": "",
+        "db_connection_name": "",
+        "test_summary": "Test TC017: Verify that the API returns 400 error response when there is a Invalid schedule.paymentDate field for POST/journal [negative] (TC0017)",
+        "payload_file": "MoveMoneyAPI/payloads/Payload_journal_POST_functional.raw"
+    },
+    {
+        "test_id": "TC018",
+        "service_name": "movemoney",
+        "workflow_mode": "parallel",
+        "test_name": "Missing securityTransfers.securityId Field [Negative] (TC018)",
+        "protocol": "REST",
+        "test_type": [
+            "Functional"
+        ],
+        "mainURL": "{{base_url}}",
+        "endpoint": "/journal",
+        "method": "POST",
+        "rpc_method": "",
+        "graphql_query": "",
+        "graphql_variables": "",
+        "soap_action": "",
+        "soap_envelope": "",
+        "headers_additional": {
+            "Content-Type": "application/json"
+        },
+        "payload": "MoveMoneyAPI/payloads/Payload_journal_POST_functional.raw",
+        "expected_status": "400",
+        "expected_response_schema": null,
+        "expected_response": {
+            "type": "missing-required-fields",
+            "title": "One or more fields are missing values",
+            "status": 400,
+            "detail": "Missing Required Fields",
+            "instance": "/api/moneymovement/v1/journal",
+            "errors": {
+                "securityTransfers": [
+                    "This field is required."
+                ]
+            }
+        },
+        "ignore_fields": [
+            "id"
+        ],
+        "extract_values": [
+            {
+                "from": "response",
+                "key": "status",
+                "assign_to": "error_status"
+            },
+            {
+                "from": "response",
+                "key": "error",
+                "assign_to": "error_message"
+            },
+            {
+                "from": "response",
+                "key": "fields",
+                "assign_to": "error_field"
+            }
+        ],
+        "validate": {
+            "performance": {
+                "max_response_time_ms": 2000
+            },
+            "security": {
+                "checks": [
+                    "sql_injection",
+                    "xss"
+                ]
+            },
+            "assertions": [
+                {
+                    "actual": "{{error_status}}",
+                    "expected": 400,
+                    "operator": "==",
+                    "message": "Error status should be 400"
+                }
+            ],
+            "data_comparison": []
+        },
+        "test_data_file": "MoveMoneyAPI/data_driven/Data_Journal_Post.csv",
+        "csv_row_index": 17,
+        "db_query_timing": "after_api",
+        "db_queries": {
+            "default": "",
+            "audit_query": ""
+        },
+        "db_type": "",
+        "db_connection_name": "",
+        "test_summary": "Test TC018: Verify that the API returns 400 error response when there is a Missing securityTransfers.securityId field for POST/journal [negative] (TC018)",
+        "payload_file": "MoveMoneyAPI/payloads/Payload_journal_POST_functional.raw"
+    },
+    {
+        "test_id": "TC019",
+        "service_name": "movemoney",
+        "workflow_mode": "parallel",
+        "test_name": "Invalid securityTransfers.securityId Field [Negative] (TC019)",
+        "protocol": "REST",
+        "test_type": [
+            "Functional"
+        ],
+        "mainURL": "{{base_url}}",
+        "endpoint": "/journal",
+        "method": "POST",
+        "rpc_method": "",
+        "graphql_query": "",
+        "graphql_variables": "",
+        "soap_action": "",
+        "soap_envelope": "",
+        "headers_additional": {
+            "Content-Type": "application/json"
+        },
+        "payload": "MoveMoneyAPI/payloads/Payload_journal_POST_functional.raw",
+        "expected_status": "400",
+        "expected_response_schema": null,
+        "expected_response": {
+            "type": "invalid-request",
+            "title": "Invalid Request",
+            "status": 400,
+            "detail": "The request contains invalid values",
+            "instance": "/api/moneymovement/v1/journal",
+            "errors": {
+                "securityTransfers[0].securityId": [
+                    "Must be a valid UUID."
+                ]
+            }
+        },
+        "ignore_fields": [
+            "id"
+        ],
+        "extract_values": [
+            {
+                "from": "response",
+                "key": "status",
+                "assign_to": "error_status"
+            },
+            {
+                "from": "response",
+                "key": "error",
+                "assign_to": "error_message"
+            },
+            {
+                "from": "response",
+                "key": "fields",
+                "assign_to": "error_field"
+            }
+        ],
+        "validate": {
+            "performance": {
+                "max_response_time_ms": 2000
+            },
+            "security": {
+                "checks": [
+                    "sql_injection",
+                    "xss"
+                ]
+            },
+            "assertions": [
+                {
+                    "actual": "{{error_status}}",
+                    "expected": 400,
+                    "operator": "==",
+                    "message": "Error status should be 400"
+                }
+            ],
+            "data_comparison": []
+        },
+        "test_data_file": "MoveMoneyAPI/data_driven/Data_Journal_Post.csv",
+        "csv_row_index": 18,
+        "db_query_timing": "after_api",
+        "db_queries": {
+            "default": "",
+            "audit_query": ""
+        },
+        "db_type": "",
+        "db_connection_name": "",
+        "test_summary": "Test TC019: Verify that the API returns 400 error response when there is a Invalid securityTransfers.securityId field for POST/journal [negative] (TC019)",
+        "payload_file": "MoveMoneyAPI/payloads/Payload_journal_POST_functional.raw"
+    },
+    {
+        "test_id": "TC020",
+        "service_name": "movemoney",
+        "workflow_mode": "parallel",
+        "test_name": "Missing securityTransfers.securityUnitType Field [Negative] (TC020)",
+        "protocol": "REST",
+        "test_type": [
+            "Functional"
+        ],
+        "mainURL": "{{base_url}}",
+        "endpoint": "/journal",
+        "method": "POST",
+        "rpc_method": "",
+        "graphql_query": "",
+        "graphql_variables": "",
+        "soap_action": "",
+        "soap_envelope": "",
+        "headers_additional": {
+            "Content-Type": "application/json"
+        },
+        "payload": "MoveMoneyAPI/payloads/Payload_journal_POST_functional.raw",
+        "expected_status": "400",
+        "expected_response_schema": null,
+        "expected_response": {
+            "type": "missing-required-fields",
+            "title": "One or more fields are missing values",
+            "status": 400,
+            "detail": "Missing Required Fields",
+            "instance": "/api/moneymovement/v1/journal",
+            "errors": {
+                "securityTransfers[0].securityUnitType": [
+                    "This field is required."
+                ]
+            }
+        },
+        "ignore_fields": [
+            "id"
+        ],
+        "extract_values": [
+            {
+                "from": "response",
+                "key": "status",
+                "assign_to": "error_status"
+            },
+            {
+                "from": "response",
+                "key": "error",
+                "assign_to": "error_message"
+            },
+            {
+                "from": "response",
+                "key": "fields",
+                "assign_to": "error_field"
+            }
+        ],
+        "validate": {
+            "performance": {
+                "max_response_time_ms": 2000
+            },
+            "security": {
+                "checks": [
+                    "sql_injection",
+                    "xss"
+                ]
+            },
+            "assertions": [
+                {
+                    "actual": "{{error_status}}",
+                    "expected": 400,
+                    "operator": "==",
+                    "message": "Error status should be 400"
+                }
+            ],
+            "data_comparison": []
+        },
+        "test_data_file": "MoveMoneyAPI/data_driven/Data_Journal_Post.csv",
+        "csv_row_index": 19,
+        "db_query_timing": "after_api",
+        "db_queries": {
+            "default": "",
+            "audit_query": ""
+        },
+        "db_type": "",
+        "db_connection_name": "",
+        "test_summary": "Test TC020: Verify that the API returns 400 error response when there is a Missing securityTransfers.securityUnitType field for POST/journal [negative] (TC020)",
+        "payload_file": "MoveMoneyAPI/payloads/Payload_journal_POST_functional.raw"
+    },
+    {
+        "test_id": "TC021",
+        "service_name": "movemoney",
+        "workflow_mode": "parallel",
+        "test_name": "Invalid securityTransfers.securityUnitType Field [Negative] (TC021)",
+        "protocol": "REST",
+        "test_type": [
+            "Functional"
+        ],
+        "mainURL": "{{base_url}}",
+        "endpoint": "/journal",
+        "method": "POST",
+        "rpc_method": "",
+        "graphql_query": "",
+        "graphql_variables": "",
+        "soap_action": "",
+        "soap_envelope": "",
+        "headers_additional": {
+            "Content-Type": "application/json"
+        },
+        "payload": "MoveMoneyAPI/payloads/Payload_journal_POST_functional.raw",
+        "expected_status": "400",
+        "expected_response_schema": null,
+        "expected_response": {
+            "type": "invalid-request",
+            "title": "Invalid Request",
+            "status": 400,
+            "detail": "The request contains invalid values",
+            "instance": "/api/moneymovement/v1/journal",
+            "errors": {
+                "securityTransfers[0].securityUnitType": [
+                    "Must be one of: Quantity, All."
+                ]
+            }
+        },
+        "ignore_fields": [
+            "id"
+        ],
+        "extract_values": [
+            {
+                "from": "response",
+                "key": "status",
+                "assign_to": "error_status"
+            },
+            {
+                "from": "response",
+                "key": "error",
+                "assign_to": "error_message"
+            },
+            {
+                "from": "response",
+                "key": "fields",
+                "assign_to": "error_field"
+            }
+        ],
+        "validate": {
+            "performance": {
+                "max_response_time_ms": 2000
+            },
+            "security": {
+                "checks": [
+                    "sql_injection",
+                    "xss"
+                ]
+            },
+            "assertions": [
+                {
+                    "actual": "{{error_status}}",
+                    "expected": 400,
+                    "operator": "==",
+                    "message": "Error status should be 400"
+                }
+            ],
+            "data_comparison": []
+        },
+        "test_data_file": "MoveMoneyAPI/data_driven/Data_Journal_Post.csv",
+        "csv_row_index": 20,
+        "db_query_timing": "after_api",
+        "db_queries": {
+            "default": "",
+            "audit_query": ""
+        },
+        "db_type": "",
+        "db_connection_name": "",
+        "test_summary": "Test TC021: Verify that the API returns 400 error response when there is a Invalid securityTransfers.securityUnitType field for POST/journal [negative] (TC021)",
+        "payload_file": "MoveMoneyAPI/payloads/Payload_journal_POST_functional.raw"
+    },
+    {
+        "test_id": "TC022",
+        "service_name": "movemoney",
+        "workflow_mode": "parallel",
+        "test_name": "In-Kind Journal â€” Optional Quantity Field. [positive] (TC022)",
+        "protocol": "REST",
+        "test_type": [
+            "Functional"
+        ],
+        "mainURL": "{{base_url}}",
+        "endpoint": "/journal",
+        "method": "POST",
+        "rpc_method": "",
+        "graphql_query": "",
+        "graphql_variables": "",
+        "soap_action": "",
+        "soap_envelope": "",
+        "headers_additional": {
+            "Content-Type": "application/json"
+        },
+        "payload": "MoveMoneyAPI/payloads/Payload_journal_POST_functional.raw",
+        "expected_status": "400",
+        "expected_response_schema": null,
+        "expected_response": {
+            "type": "missing-required-fields",
+            "title": "One or more fields are missing values",
+            "status": 400,
+            "detail": "Missing Required Fields",
+            "instance": "/api/moneymovement/v1/journal",
+            "errors": {
+                "securityTransfers": [
+                    "This field is required."
+                ]
+            }
+        },
+        "ignore_fields": [
+            "id"
+        ],
+        "extract_values": [
+            {
+                "from": "response",
+                "key": "",
+                "assign_to": ""
+            },
+            {
+                "from": "response",
+                "record_count": false,
+                "array_path": "",
+                "assign_to": ""
+            },
+            {
+                "from": "db_result",
+                "query": "",
+                "assign": [
+                    {
+                        "key": "",
+                        "assign_to": ""
+                    }
+                ]
+            }
+        ],
+        "validate": {
+            "performance": {
+                "max_response_time_ms": 2000
+            },
+            "security": {
+                "checks": [
+                    "sql_injection",
+                    "xss"
+                ]
+            },
+            "data_comparison": []
+        },
+        "test_data_file": "MoveMoneyAPI/data_driven/Data_Journal_Post.csv",
+        "csv_row_index": 21,
+        "db_query_timing": "after_api",
+        "db_queries": {
+            "default": "",
+            "audit_query": ""
+        },
+        "db_type": "",
+        "db_connection_name": "",
+        "test_summary": "Test TC022: Verify that the API returns 400 error response when there is a missing securityTransfers field for POST/journal [negative] (TC022)",
+        "payload_file": "MoveMoneyAPI/payloads/Payload_journal_POST_functional.raw"
+    },
+    {
+        "test_id": "TC023",
+        "service_name": "movemoney",
+        "workflow_mode": "parallel",
+        "test_name": "Invalid securityTransfers.quantity Field [Negative] (TC023)",
+        "protocol": "REST",
+        "test_type": [
+            "Functional"
+        ],
+        "mainURL": "{{base_url}}",
+        "endpoint": "/journal",
+        "method": "POST",
+        "rpc_method": "",
+        "graphql_query": "",
+        "graphql_variables": "",
+        "soap_action": "",
+        "soap_envelope": "",
+        "headers_additional": {
+            "Content-Type": "application/json"
+        },
+        "payload": "MoveMoneyAPI/payloads/Payload_journal_POST_functional.raw",
+        "expected_status": "400",
+        "expected_response_schema": null,
+        "expected_response": {
+            "type": "invalid-request",
+            "title": "Invalid Request",
+            "status": 400,
+            "detail": "The request contains invalid values",
+            "instance": "/api/moneymovement/v1/journal",
+            "errors": {
+                "securityTransfers[0].quantity": [
+                    "Must be a positive value."
+                ]
+            }
+        },
+        "ignore_fields": [
+            "id"
+        ],
+        "extract_values": [
+            {
+                "from": "response",
+                "key": "status",
+                "assign_to": "error_status"
+            },
+            {
+                "from": "response",
+                "key": "error",
+                "assign_to": "error_message"
+            },
+            {
+                "from": "response",
+                "key": "fields",
+                "assign_to": "error_field"
+            }
+        ],
+        "validate": {
+            "performance": {
+                "max_response_time_ms": 2000
+            },
+            "security": {
+                "checks": [
+                    "sql_injection",
+                    "xss"
+                ]
+            },
+            "assertions": [
+                {
+                    "actual": "{{error_status}}",
+                    "expected": 400,
+                    "operator": "==",
+                    "message": "Error status should be 400"
+                }
+            ],
+            "data_comparison": []
+        },
+        "test_data_file": "MoveMoneyAPI/data_driven/Data_Journal_Post.csv",
+        "csv_row_index": 22,
+        "db_query_timing": "after_api",
+        "db_queries": {
+            "default": "",
+            "audit_query": ""
+        },
+        "db_type": "",
+        "db_connection_name": "",
+        "test_summary": "Test TC023: Verify that the API returns 400 error response when there is a Invalid securityTransfers.quantity field for POST/journal [negative] (TC023)",
+        "payload_file": "MoveMoneyAPI/payloads/Payload_journal_POST_functional.raw"
+    },
+    {
+        "test_id": "TC024",
+        "service_name": "movemoney",
+        "workflow_mode": "parallel",
+        "test_name": "Missing Amount Field [Negative] (TC024)",
+        "protocol": "REST",
+        "test_type": [
+            "Functional"
+        ],
+        "mainURL": "{{base_url}}",
+        "endpoint": "/journal",
+        "method": "POST",
+        "rpc_method": "",
+        "graphql_query": "",
+        "graphql_variables": "",
+        "soap_action": "",
+        "soap_envelope": "",
+        "headers_additional": {
+            "Content-Type": "application/json"
+        },
+        "payload": "MoveMoneyAPI/payloads/Payload_journal_POST_functional.raw",
+        "expected_status": "400",
+        "expected_response_schema": null,
+        "expected_response": {
+            "type": "missing-required-fields",
+            "title": "One or more fields are missing values",
+            "status": 400,
+            "detail": "Missing Required Fields",
+            "instance": "/api/moneymovement/v1/journal",
+            "errors": {
+                "amount": [
+                    "This field is required."
+                ]
+            }
+        },
+        "ignore_fields": [
+            "id"
+        ],
+        "extract_values": [
+            {
+                "from": "response",
+                "key": "status",
+                "assign_to": "error_status"
+            },
+            {
+                "from": "response",
+                "key": "error",
+                "assign_to": "error_message"
+            },
+            {
+                "from": "response",
+                "key": "fields",
+                "assign_to": "error_field"
+            }
+        ],
+        "validate": {
+            "performance": {
+                "max_response_time_ms": 2000
+            },
+            "security": {
+                "checks": [
+                    "sql_injection",
+                    "xss"
+                ]
+            },
+            "assertions": [
+                {
+                    "actual": "{{error_status}}",
+                    "expected": 400,
+                    "operator": "==",
+                    "message": "Error status should be 400"
+                }
+            ],
+            "data_comparison": []
+        },
+        "test_data_file": "MoveMoneyAPI/data_driven/Data_Journal_Post.csv",
+        "csv_row_index": 23,
+        "db_query_timing": "after_api",
+        "db_queries": {
+            "default": "",
+            "audit_query": ""
+        },
+        "db_type": "",
+        "db_connection_name": "",
+        "test_summary": "Test TC024: Verify that the API returns 400 error response when there is a Missing Amount field for POST/journal [negative] (TC024)",
+        "payload_file": "MoveMoneyAPI/payloads/Payload_journal_POST_functional.raw"
+    },
+    {
+        "test_id": "TC025",
+        "service_name": "movemoney",
+        "workflow_mode": "parallel",
+        "test_name": "Invalid Amount Field [Negative] (TC025)",
+        "protocol": "REST",
+        "test_type": [
+            "Functional"
+        ],
+        "mainURL": "{{base_url}}",
+        "endpoint": "/journal",
+        "method": "POST",
+        "rpc_method": "",
+        "graphql_query": "",
+        "graphql_variables": "",
+        "soap_action": "",
+        "soap_envelope": "",
+        "headers_additional": {
+            "Content-Type": "application/json"
+        },
+        "payload": "MoveMoneyAPI/payloads/Payload_journal_POST_functional.raw",
+        "expected_status": "400",
+        "expected_response_schema": null,
+        "expected_response": {
+            "type": "invalid-request",
+            "title": "Invalid Request",
+            "status": 400,
+            "detail": "The request contains invalid values",
+            "instance": "/api/moneymovement/v1/journal",
+            "errors": {
+                "amount": [
+                    "Must be a positive dollar amount greater than 0.01 with up to 2 decimal places."
+                ]
+            }
+        },
+        "ignore_fields": [
+            "id"
+        ],
+        "extract_values": [
+            {
+                "from": "response",
+                "key": "status",
+                "assign_to": "error_status"
+            },
+            {
+                "from": "response",
+                "key": "error",
+                "assign_to": "error_message"
+            },
+            {
+                "from": "response",
+                "key": "fields",
+                "assign_to": "error_field"
+            }
+        ],
+        "validate": {
+            "performance": {
+                "max_response_time_ms": 2000
+            },
+            "security": {
+                "checks": [
+                    "sql_injection",
+                    "xss"
+                ]
+            },
+            "assertions": [
+                {
+                    "actual": "{{error_status}}",
+                    "expected": 400,
+                    "operator": "==",
+                    "message": "Error status should be 400"
+                }
+            ],
+            "data_comparison": []
+        },
+        "test_data_file": "MoveMoneyAPI/data_driven/Data_Journal_Post.csv",
+        "csv_row_index": 24,
+        "db_query_timing": "after_api",
+        "db_queries": {
+            "default": "",
+            "audit_query": ""
+        },
+        "db_type": "",
+        "db_connection_name": "",
+        "test_summary": "Test TC025: Verify that the API returns 400 error response when there is a Invalid Amount field for POST/journal [negative] (TC025)",
+        "payload_file": "MoveMoneyAPI/payloads/Payload_journal_POST_functional.raw"
+    },
+    {
+        "test_id": "TC026",
+        "service_name": "movemoney",
+        "workflow_mode": "parallel",
+        "test_name": "Missing Percent Field [Negative] (TC026)",
+        "protocol": "REST",
+        "test_type": [
+            "Functional"
+        ],
+        "mainURL": "{{base_url}}",
+        "endpoint": "/journal",
+        "method": "POST",
+        "rpc_method": "",
+        "graphql_query": "",
+        "graphql_variables": "",
+        "soap_action": "",
+        "soap_envelope": "",
+        "headers_additional": {
+            "Content-Type": "application/json"
+        },
+        "payload": "MoveMoneyAPI/payloads/Payload_journal_POST_functional.raw",
+        "expected_status": "400",
+        "expected_response_schema": null,
+        "expected_response": {
+            "type": "missing-required-fields",
+            "title": "One or more fields are missing values",
+            "status": 400,
+            "detail": "Missing Required Fields",
+            "instance": "/api/moneymovement/v1/journal",
+            "errors": {
+                "percent": [
+                    "This field is required."
+                ]
+            }
+        },
+        "ignore_fields": [
+            "id"
+        ],
+        "extract_values": [
+            {
+                "from": "response",
+                "key": "status",
+                "assign_to": "error_status"
+            },
+            {
+                "from": "response",
+                "key": "error",
+                "assign_to": "error_message"
+            },
+            {
+                "from": "response",
+                "key": "fields",
+                "assign_to": "error_field"
+            }
+        ],
+        "validate": {
+            "performance": {
+                "max_response_time_ms": 2000
+            },
+            "security": {
+                "checks": [
+                    "sql_injection",
+                    "xss"
+                ]
+            },
+            "assertions": [
+                {
+                    "actual": "{{error_status}}",
+                    "expected": 400,
+                    "operator": "==",
+                    "message": "Error status should be 400"
+                }
+            ],
+            "data_comparison": []
+        },
+        "test_data_file": "MoveMoneyAPI/data_driven/Data_Journal_Post.csv",
+        "csv_row_index": 25,
+        "db_query_timing": "after_api",
+        "db_queries": {
+            "default": "",
+            "audit_query": ""
+        },
+        "db_type": "",
+        "db_connection_name": "",
+        "test_summary": "Test TC026: Verify that the API returns 400 error response when there is a Missing Percent field for POST/journal [negative] (TC026)",
+        "payload_file": "MoveMoneyAPI/payloads/Payload_journal_POST_functional.raw"
+    },
+    {
+        "test_id": "TC027",
+        "service_name": "movemoney",
+        "workflow_mode": "parallel",
+        "test_name": "Invalid Percent Field [Negative] (TC027)",
+        "protocol": "REST",
+        "test_type": [
+            "Functional"
+        ],
+        "mainURL": "{{base_url}}",
+        "endpoint": "/journal",
+        "method": "POST",
+        "rpc_method": "",
+        "graphql_query": "",
+        "graphql_variables": "",
+        "soap_action": "",
+        "soap_envelope": "",
+        "headers_additional": {
+            "Content-Type": "application/json"
+        },
+        "payload": "MoveMoneyAPI/payloads/Payload_journal_POST_functional.raw",
+        "expected_status": "400",
+        "expected_response_schema": null,
+        "expected_response": {
+            "type": "invalid-request",
+            "title": "Invalid Request",
+            "status": 400,
+            "detail": "The request contains invalid values",
+            "instance": "/api/moneymovement/v1/journal",
+            "errors": {
+                "percent": [
+                    "Must be a number between 0.01 and 100 with up to 2 decimal places."
+                ]
+            }
+        },
+        "ignore_fields": [
+            "id"
+        ],
+        "extract_values": [
+            {
+                "from": "response",
+                "key": "status",
+                "assign_to": "error_status"
+            },
+            {
+                "from": "response",
+                "key": "error",
+                "assign_to": "error_message"
+            },
+            {
+                "from": "response",
+                "key": "fields",
+                "assign_to": "error_field"
+            }
+        ],
+        "validate": {
+            "performance": {
+                "max_response_time_ms": 2000
+            },
+            "security": {
+                "checks": [
+                    "sql_injection",
+                    "xss"
+                ]
+            },
+            "assertions": [
+                {
+                    "actual": "{{error_status}}",
+                    "expected": 400,
+                    "operator": "==",
+                    "message": "Error status should be 400"
+                }
+            ],
+            "data_comparison": []
+        },
+        "test_data_file": "MoveMoneyAPI/data_driven/Data_Journal_Post.csv",
+        "csv_row_index": 26,
+        "db_query_timing": "after_api",
+        "db_queries": {
+            "default": "",
+            "audit_query": ""
+        },
+        "db_type": "",
+        "db_connection_name": "",
+        "test_summary": "Test TC027: Verify that the API returns 400 error response when there is a Invalid Percent field for POST/journal [negative] (TC027)",
+        "payload_file": "MoveMoneyAPI/payloads/Payload_journal_POST_functional.raw"
+    },
+    {
+        "test_id": "TC028",
+        "service_name": "movemoney",
+        "workflow_mode": "parallel",
+        "test_name": "Missing schedule.startDate Field [Negative] (TC028)",
+        "protocol": "REST",
+        "test_type": [
+            "Functional"
+        ],
+        "mainURL": "{{base_url}}",
+        "endpoint": "/journal",
+        "method": "POST",
+        "rpc_method": "",
+        "graphql_query": "",
+        "graphql_variables": "",
+        "soap_action": "",
+        "soap_envelope": "",
+        "headers_additional": {
+            "Content-Type": "application/json"
+        },
+        "payload": "MoveMoneyAPI/payloads/Payload_journal_POST_functional.raw",
+        "expected_status": "400",
+        "expected_response_schema": null,
+        "expected_response": {
+            "type": "missing-required-fields",
+            "title": "One or more fields are missing values",
+            "status": 400,
+            "detail": "Missing Required Fields",
+            "instance": "/api/moneymovement/v1/journal",
+            "errors": {
+                "schedule.startDate": [
+                    "This field is required."
+                ]
+            }
+        },
+        "ignore_fields": [
+            "id"
+        ],
+        "extract_values": [
+            {
+                "from": "response",
+                "key": "status",
+                "assign_to": "error_status"
+            },
+            {
+                "from": "response",
+                "key": "error",
+                "assign_to": "error_message"
+            },
+            {
+                "from": "response",
+                "key": "fields",
+                "assign_to": "error_field"
+            }
+        ],
+        "validate": {
+            "performance": {
+                "max_response_time_ms": 2000
+            },
+            "security": {
+                "checks": [
+                    "sql_injection",
+                    "xss"
+                ]
+            },
+            "assertions": [
+                {
+                    "actual": "{{error_status}}",
+                    "expected": 400,
+                    "operator": "==",
+                    "message": "Error status should be 400"
+                }
+            ],
+            "data_comparison": []
+        },
+        "test_data_file": "MoveMoneyAPI/data_driven/Data_Journal_Post.csv",
+        "csv_row_index": 27,
+        "db_query_timing": "after_api",
+        "db_queries": {
+            "default": "",
+            "audit_query": ""
+        },
+        "db_type": "",
+        "db_connection_name": "",
+        "test_summary": "Test TC028: Verify that the API returns 400 error response when there is a Missing schedule.startDate field for POST/journal [negative] (TC028)",
+        "payload_file": "MoveMoneyAPI/payloads/Payload_journal_POST_functional.raw"
+    },
+    {
+        "test_id": "TC029",
+        "service_name": "movemoney",
+        "workflow_mode": "parallel",
+        "test_name": "Invalid schedule.startDate Field [Negative] (TC029)",
+        "protocol": "REST",
+        "test_type": [
+            "Functional"
+        ],
+        "mainURL": "{{base_url}}",
+        "endpoint": "/journal",
+        "method": "POST",
+        "rpc_method": "",
+        "graphql_query": "",
+        "graphql_variables": "",
+        "soap_action": "",
+        "soap_envelope": "",
+        "headers_additional": {
+            "Content-Type": "application/json"
+        },
+        "payload": "MoveMoneyAPI/payloads/Payload_journal_POST_functional.raw",
+        "expected_status": "400",
+        "expected_response_schema": null,
+        "expected_response": {
+            "type": "invalid-request",
+            "title": "Invalid Request",
+            "status": 400,
+            "detail": "The request contains invalid values",
+            "instance": "/api/moneymovement/v1/journal",
+            "errors": {
+                "schedule.startDate": [
+                    "Must be in YYYY-MM-DD format."
+                ]
+            }
+        },
+        "ignore_fields": [
+            "id"
+        ],
+        "extract_values": [
+            {
+                "from": "response",
+                "key": "status",
+                "assign_to": "error_status"
+            },
+            {
+                "from": "response",
+                "key": "error",
+                "assign_to": "error_message"
+            },
+            {
+                "from": "response",
+                "key": "fields",
+                "assign_to": "error_field"
+            }
+        ],
+        "validate": {
+            "performance": {
+                "max_response_time_ms": 2000
+            },
+            "security": {
+                "checks": [
+                    "sql_injection",
+                    "xss"
+                ]
+            },
+            "assertions": [
+                {
+                    "actual": "{{error_status}}",
+                    "expected": 400,
+                    "operator": "==",
+                    "message": "Error status should be 400"
+                }
+            ],
+            "data_comparison": []
+        },
+        "test_data_file": "MoveMoneyAPI/data_driven/Data_Journal_Post.csv",
+        "csv_row_index": 28,
+        "db_query_timing": "after_api",
+        "db_queries": {
+            "default": "",
+            "audit_query": ""
+        },
+        "db_type": "",
+        "db_connection_name": "",
+        "test_summary": "Test TC029: Verify that the API returns 400 error response when there is a Invalid schedule.startDate field for POST/journal [negative] (TC029)",
+        "payload_file": "MoveMoneyAPI/payloads/Payload_journal_POST_functional.raw"
+    },
+    {
+        "test_id": "TC030",
+        "service_name": "movemoney",
+        "workflow_mode": "parallel",
+        "test_name": "Missing schedule.frequency Field [Negative] (TC030)",
+        "protocol": "REST",
+        "test_type": [
+            "Functional"
+        ],
+        "mainURL": "{{base_url}}",
+        "endpoint": "/journal",
+        "method": "POST",
+        "rpc_method": "",
+        "graphql_query": "",
+        "graphql_variables": "",
+        "soap_action": "",
+        "soap_envelope": "",
+        "headers_additional": {
+            "Content-Type": "application/json"
+        },
+        "payload": "MoveMoneyAPI/payloads/Payload_journal_POST_functional.raw",
+        "expected_status": "400",
+        "expected_response_schema": null,
+        "expected_response": {
+            "type": "missing-required-fields",
+            "title": "One or more fields are missing values",
+            "status": 400,
+            "detail": "Missing Required Fields",
+            "instance": "/api/moneymovement/v1/journal",
+            "errors": {
+                "schedule.frequency": [
+                    "This field is required."
+                ]
+            }
+        },
+        "ignore_fields": [
+            "id"
+        ],
+        "extract_values": [
+            {
+                "from": "response",
+                "key": "status",
+                "assign_to": "error_status"
+            },
+            {
+                "from": "response",
+                "key": "error",
+                "assign_to": "error_message"
+            },
+            {
+                "from": "response",
+                "key": "fields",
+                "assign_to": "error_field"
+            }
+        ],
+        "validate": {
+            "performance": {
+                "max_response_time_ms": 2000
+            },
+            "security": {
+                "checks": [
+                    "sql_injection",
+                    "xss"
+                ]
+            },
+            "assertions": [
+                {
+                    "actual": "{{error_status}}",
+                    "expected": 400,
+                    "operator": "==",
+                    "message": "Error status should be 400"
+                }
+            ],
+            "data_comparison": []
+        },
+        "test_data_file": "MoveMoneyAPI/data_driven/Data_Journal_Post.csv",
+        "csv_row_index": 29,
+        "db_query_timing": "after_api",
+        "db_queries": {
+            "default": "",
+            "audit_query": ""
+        },
+        "db_type": "",
+        "db_connection_name": "",
+        "test_summary": "Test TC030: Verify that the API returns 400 error response when there is a Missing schedule.frequency field for POST/journal [negative] (TC030)",
+        "payload_file": "MoveMoneyAPI/payloads/Payload_journal_POST_functional.raw"
+    },
+    {
+        "test_id": "TC031",
+        "service_name": "movemoney",
+        "workflow_mode": "parallel",
+        "test_name": "Invalid schedule.Frequency Field [Negative] (TC031)",
+        "protocol": "REST",
+        "test_type": [
+            "Functional"
+        ],
+        "mainURL": "{{base_url}}",
+        "endpoint": "/journal",
+        "method": "POST",
+        "rpc_method": "",
+        "graphql_query": "",
+        "graphql_variables": "",
+        "soap_action": "",
+        "soap_envelope": "",
+        "headers_additional": {
+            "Content-Type": "application/json"
+        },
+        "payload": "MoveMoneyAPI/payloads/Payload_journal_POST_functional.raw",
+        "expected_status": "400",
+        "expected_response_schema": null,
+        "expected_response": {
+            "type": "invalid-request",
+            "title": "Invalid Request",
+            "status": 400,
+            "detail": "The request contains invalid values",
+            "instance": "/api/moneymovement/v1/journal",
+            "errors": {
+                "schedule.frequency": [
+                    "Must be one of: Annually, BiWeekly, Daily, SemiMonthly, BiMonthly, Monthly, LastBusinessDayOfTheMonth, OneTimeOnly, Quarterly, SemiAnnually, Weekly."
+                ]
+            }
+        },
+        "ignore_fields": [
+            "id"
+        ],
+        "extract_values": [
+            {
+                "from": "response",
+                "key": "status",
+                "assign_to": "error_status"
+            },
+            {
+                "from": "response",
+                "key": "error",
+                "assign_to": "error_message"
+            },
+            {
+                "from": "response",
+                "key": "fields",
+                "assign_to": "error_field"
+            }
+        ],
+        "validate": {
+            "performance": {
+                "max_response_time_ms": 2000
+            },
+            "security": {
+                "checks": [
+                    "sql_injection",
+                    "xss"
+                ]
+            },
+            "assertions": [
+                {
+                    "actual": "{{error_status}}",
+                    "expected": 400,
+                    "operator": "==",
+                    "message": "Error status should be 400"
+                }
+            ],
+            "data_comparison": []
+        },
+        "test_data_file": "MoveMoneyAPI/data_driven/Data_Journal_Post.csv",
+        "csv_row_index": 30,
+        "db_query_timing": "after_api",
+        "db_queries": {
+            "default": "",
+            "audit_query": ""
+        },
+        "db_type": "",
+        "db_connection_name": "",
+        "test_summary": "Test TC031: Verify that the API returns 400 error response when there is a Invalid schedule.Frequency field for POST/journal [negative] (TC031)",
+        "payload_file": "MoveMoneyAPI/payloads/Payload_journal_POST_functional.raw"
+    }
+]

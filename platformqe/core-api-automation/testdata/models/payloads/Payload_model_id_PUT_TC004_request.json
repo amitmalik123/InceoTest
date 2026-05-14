@@ -55,5 +55,8 @@
     "attrMetadata": {
         "taxManagementEligible": "true",
         "taxManagementRequired": "false"
-    }
+    },
+    "allowedAgents": [
+        "string"
+    ]
 }

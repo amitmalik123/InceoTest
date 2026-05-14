@@ -17,15 +17,15 @@
       "enum": [422],
       "description": "HTTP status code for Unprocessable Entity"
     },
-    "errors": {
-      "type": "object",
-      "description": "Dictionary of validation errors keyed by field name",
-      "additionalProperties": {
-        "type": "array",
-        "items": { "type": "string" }
-      }
+    "detail": {
+      "type": "string",
+      "description": "Human-readable explanation"
+    },
+    "instance": {
+      "type": "string",
+      "description": "A URI reference that identifies the specific occurrence / request path (RFC 9457 AC5)"
     }
   },
-  "required": ["type", "title", "status", "errors"],
+  "required": ["type", "title", "status", "detail", "instance"],
   "additionalProperties": false
 }
