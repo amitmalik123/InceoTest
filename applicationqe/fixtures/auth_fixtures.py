@@ -163,7 +163,9 @@ def _perform_login(page: Page, app_config: AppConfig, test_data: dict) -> bool:
         # (e.g. ewm3.assetmark.net instead of ewealthmanager.com)
         # Success = no longer on a login/SSO page
         current_url = page.url
+        page_title = page.title()
         print(f"[SESSION] Post-login URL: {current_url}")
+        print(f"[SESSION] Post-login page title: {page_title}")
         
         # login.assetmark.com is the Silo/prod SSO domain (Azure AD B2C / Okta)
         login_indicators = ["account/login", "ewmlogin", "test-login.assetmark.com", "login.assetmark.com"]
@@ -174,6 +176,15 @@ def _perform_login(page: Page, app_config: AppConfig, test_data: dict) -> bool:
             return True
         else:
             print(f"[SESSION] Login failed - still on login page: {current_url}")
+            print(f"[SESSION] Page title: {page_title}")
+            
+            # Capture page content for debugging
+            try:
+                page_text = page.inner_text()
+                print(f"[SESSION] Page text content (first 500 chars): {page_text[:500]}")
+            except Exception as e:
+                print(f"[SESSION] Could not get page text: {e}")
+            
             # Take screenshot of failed login for diagnostics
             try:
                 screenshot = page.screenshot()
@@ -326,12 +337,34 @@ def authenticated_page(browser, browser_context_args, test_data, request) -> Gen
             print("[SESSION] Login successful! Session saved.")
         else:
             print("[SESSION] Login failed - still on login page")
-            # Take screenshot of failed login state for diagnostics
+            # Take screenshot of failed login state for diagnostics and ATTACH TO ALLURE
+            screenshot_bytes = None
             try:
-                screenshot = temp_page.screenshot()
-                print(f"[SESSION] Failed login screenshot captured ({len(screenshot)} bytes)")
+                screenshot_bytes = temp_page.screenshot()
+                print(f"[SESSION] Failed login screenshot captured ({len(screenshot_bytes)} bytes)")
+                # ATTACH to Allure report
+                import allure
+                allure.attach(
+                    screenshot_bytes,
+                    name="Failed Login Screenshot",
+                    attachment_type=allure.attachment_type.PNG,
+                )
+                print("[SESSION] Screenshot attached to Allure report")
             except Exception as e:
-                print(f"[SESSION] Could not capture failed login screenshot: {e}")
+                print(f"[SESSION] Could not capture/attach failed login screenshot: {e}")
+            
+            # Also capture HTML source for debugging
+            try:
+                html_source = temp_page.content()
+                import allure
+                allure.attach(
+                    html_source,
+                    name="Failed Login Page HTML",
+                    attachment_type=allure.attachment_type.HTML,
+                )
+                print("[SESSION] HTML source attached to Allure report")
+            except Exception as e:
+                print(f"[SESSION] Could not capture HTML: {e}")
             
             temp_page.close()
             temp_context.close()
@@ -343,7 +376,7 @@ def authenticated_page(browser, browser_context_args, test_data, request) -> Gen
                 f"  Username: {username}\n"
                 f"  Login URL: {app_config.login_url}\n"
                 f"  Final URL: {temp_page.url}\n"
-                f"  See Allure report for login screenshot and trace"
+                f"  See Allure report for login screenshot and HTML source"
             )
             raise RuntimeError(error_msg)
 

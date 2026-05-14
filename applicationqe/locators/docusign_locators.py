@@ -69,7 +69,7 @@ ADOPT_AND_SIGN_BUTTON_DATA_QA = "adopt-submit"  # Alternative: data-qa attribute
 
 # D-Number Locators
 # Document tracking number displayed in envelope completion messages
-D_NUMBER_SPAN = '//span[starts-with(text(),"D00")]'  # XPath to match D-number spans (e.g., D003525811, D003518970)
+D_NUMBER_SPAN = '//span[starts-with(text(),"D0")]'  # XPath to match D-number spans (e.g., D003525811, D003518970)
 
 # Finish Later Locators
 # ================================================

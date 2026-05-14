@@ -1,5 +1,5 @@
 scenario,role,Document_Creator_Role,Authorized_Signer_Role,Authorized_Signer_Role_Name,Multiple_Authorized_Signers,Agent,username,password,client_id,account_number,account_name,OAM_Request,OAM_Type,Submission_Type,Client_Signature_Method,Expected_Signer_Information_Text,Expected_Authorized_Signer_Approval_Text,Authorized_Signer_Approval_Option,Signer_eSign_Method,Account_Owner,Email_Address,Phone,Expected_docusign_ReviewAndContinue_Text,As_authorized_by_stamp_present,Expected_RequestPopUp_Text,Expected_Advisor_Alert_Required,Expected_AuthorizedSigner_Email_Subject,Expected_AuthorizedSigner_Email_Body,Expected_TrackingCenter_Notes,Expected_Roles
-S8_OAM_Initiated by FA_Complete and Print,,,,,,AG1634,sampleagentlogin,QAAdminUser_33a,,40116288,ABC Corporation,Contributions,Copy for Digital Deposit,Complete and Print,,,,,,,,,Please review and sign the document electronically.,No,"Ready for Signatures
+S8_OAM_Initiated by FA_Complete and Print,,,,,,AG1634,sampleagentlogin,QAAdminUser_33a,,40116288,ABC Corporation,Account Information Change,Short-Term Cash Restriction,Complete and Print,,,,,,,,,Please review and sign the document electronically.,No,"Ready for Signatures
 |
 After printing and obtaining signatures, scan the signed document and upload to the Tracking Center by selecting
 |
@@ -8,10 +8,10 @@ The Tracking Center provides one-stop access to your documents and status update
 Once completed and signed, submit document from Tracking Center upload or mail.
 |
 Document created by Valued Financial Advisor.",Advisor
-S7_Prod_OAM_Initiated by SAU_Online Submit_Authorized Signer_Required_FA,SAU,SAU,FA,,,AG1634,Shared_access_ag1634,Test@wfi12345,,40116288,ABC Corporation,Account Information Change,Short-Term Cash Restriction,Complete and Submit,Proceed and submit without a client signature,Signer(s) Information,"Authorized Approval
+S7_Prod_OAM_Initiated by SAU_Online Submit_Authorized Signer_Required_FA,SAU,SAU,FA,Test Agent,Yes,AG1634,Shared_access_ag1634,Test@wfi12345,,40116288,ABC Corporation,Account Information Change,Short-Term Cash Restriction,Complete and Submit,Proceed and submit without a client signature,Signer(s) Information,"Authorized Approval
 |
 You are authorized to begin the approval and submission process.
-Would you prefer a different authorized user review and submit the request once you have completed the request?",No,,,,,Please review and sign the document electronically.,Yes,"Request Ready for Financial Advisor Review
+Would you prefer a different authorized user review and submit the request once you have completed the request?",No,,,saransh.saxena@assetmark.com,925 532 9706,Please review and sign the document electronically.,Yes,"Request Ready for Financial Advisor Review
 |
 Your request will be sent to the Financial Advisor to review, approve and submit to AssetMark for processing.
 |
@@ -21,8 +21,8 @@ a copy for your records.
 |
 Click Close to return to eWealthManager.",No,,,"This request has been canceled. A new document will need to be created if this request is still required.
 |
-Document has been routed to William J. Freund for review and submission.
+Document has been routed to Test Agent for review and submission.
 |
-Document completed by Test O'User, CFP® and is pending review and submission.
+Document completed by shared shared_access and is pending review and submission.
 |
-Document created by Test O'User, CFP®",Advisor
+Document created by shared shared_access",Advisor

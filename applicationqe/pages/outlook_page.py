@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import re
+import urllib.parse
 from dataclasses import dataclass
 from datetime import datetime, timedelta, time
 from pathlib import Path
@@ -1091,6 +1092,9 @@ class OutlookPage(BasePage):
     def click_review_document_link(self, outlook_email_page: Page) -> Page:
         """Click the 'REVIEW DOCUMENT' link in the authorized signer email.
         
+        IMPORTANT: Outlook ATP blocks external sender content, making the link href null.
+        We must click 'Show blocked content' FIRST before clicking the link.
+        
         Clicking this link opens DocuSign in a new tab/popup.
         
         Args:
@@ -1103,21 +1107,73 @@ class OutlookPage(BasePage):
             Exception: If Review Document link cannot be found or clicked
         """
         try:
-            # When clicking REVIEW DOCUMENT, DocuSign opens in a new tab
+            # Step 1: Unblock email content if ATP has blocked it
+            # When external sender content is blocked, the REVIEW DOCUMENT link href is null
+            self.logger.info("Step 1: Checking if email content is blocked by Outlook ATP...")
+            self._unblock_email_content_if_needed(outlook_email_page)
+            
+            # Step 2: Click the REVIEW DOCUMENT link
+            # Now the href should be populated with the actual DocuSign URL
             with outlook_email_page.expect_popup() as popup_info:
                 review_link = outlook_email_page.get_by_role("link", name="REVIEW DOCUMENT")
                 review_link.wait_for(state="visible", timeout=10_000)
-                self.logger.info("Clicking 'REVIEW DOCUMENT' link in authorized signer email")
+                self.logger.info("Step 2: Clicking 'REVIEW DOCUMENT' link in authorized signer email")
                 review_link.click()
             
             docusign_page = popup_info.value
-            self.logger.info("✓ successfully clicked 'REVIEW DOCUMENT' link, DocuSign page opened")
             
+            # Step 3: Wait for DocuSign page to load
+            try:
+                docusign_page.wait_for_url(lambda url: "docusign" in url.lower(), timeout=20_000)
+                self.logger.info("✓ DocuSign page loaded successfully")
+            except Exception as e:
+                self.logger.warning(f"DocuSign URL detection timeout: {e}, proceeding anyway")
+            
+            self.logger.info("✓ Successfully clicked 'REVIEW DOCUMENT' link, DocuSign page opened")
             return docusign_page
             
-        except Exception as ex:  # pragma: no cover - defensive
+        except Exception as ex:
             self.logger.error(f"Error while clicking Review Document link: {ex}")
             raise
+    
+    def _unblock_email_content_if_needed(self, outlook_email_page: Page) -> None:
+        """Click 'Show blocked content' in Outlook if ATP has blocked the email body.
+        
+        When an external sender is not in the Safe Senders list, Outlook blocks
+        embedded content and the REVIEW DOCUMENT link href becomes null.
+        Clicking 'Show blocked content' loads the real link URLs.
+        
+        Args:
+            outlook_email_page: Outlook page containing the email
+        """
+        try:
+            # Look for the "Show blocked content" button with various selector patterns
+            blocked_content_locators = [
+                outlook_email_page.get_by_role("button", name=lambda name: "show blocked content" in name.lower()),
+                outlook_email_page.locator('button:has-text("Show blocked content")'),
+                outlook_email_page.locator('button:has-text("Block content")'),
+                outlook_email_page.locator('[role="button"]:has-text("Show")'),
+            ]
+            
+            button_found = False
+            for locator in blocked_content_locators:
+                try:
+                    locator.wait_for(state="visible", timeout=3_000)
+                    self.logger.info("🔓 Found 'Show blocked content' button, clicking to unblock email...")
+                    locator.click()
+                    outlook_email_page.wait_for_timeout(2_000)  # Wait for content to load
+                    self.logger.info("✓ Email content unblocked")
+                    button_found = True
+                    break
+                except Exception:
+                    continue
+            
+            if not button_found:
+                self.logger.info("✓ No 'Show blocked content' button found - email content is not blocked")
+                
+        except Exception as e:
+            self.logger.warning(f"⚠ Could not unblock email content: {e}, proceeding anyway")
+            # Continue anyway - maybe content is already unblocked
 
     def login_and_complete_the_signing(self, search_text: str) -> None:
         """Login to Outlook and search for emails containing search_text."""
