@@ -41,6 +41,7 @@ class DocumentVaultPage(BasePage):
         self.checked_filter_checkers_xpath = "//div[contains(@class,'checker')]/span[contains(@class,'checked')]"
         self.view_selected_button_xpath = '//input[@id="btSelectOneUp"]'
         self.save_selected_button_xpath = '//input[@id="btDownloadUp"]'
+        self.tax_savings_report_option_xpath = '//span[text()="Tax Savings Report"]'
 
         # New navbar top-level navigation element
         self.statements_reports_link: Locator = self.page.locator('//a[text()="Statements & Reports"]')
@@ -507,6 +508,23 @@ class DocumentVaultPage(BasePage):
                 continue
 
         raise AssertionError("Period and Month controls are not visible for user interaction")
+
+    def validate_month_dropdown_visible_for_user_interaction(self, timeout: int = 10000) -> bool:
+        """Validate Month control is visible for user interaction."""
+        logger.info("Validating Month control is visible for user interaction")
+
+        candidates = [self.page] + list(self.page.frames)
+        for candidate in candidates:
+            try:
+                month_label = candidate.locator(self.month_label_xpath).first
+                if self.is_visible(month_label, timeout=1500):
+                    month_label.scroll_into_view_if_needed()
+                    logger.info("Month control is visible for user interaction")
+                    return True
+            except Exception:
+                continue
+
+        raise AssertionError("Month control is not visible for user interaction")
 
     def validate_find_button_enabled(self, timeout: int = 10000) -> bool:
         """Validate that the Find/Search button is enabled after document selection."""

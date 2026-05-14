@@ -108,6 +108,12 @@ def click_documenttype_dropdown_and_select_assetmark_trust_custody_statements(pa
     document_vault_page.select_document_type(option_label="AssetMark Trust Custody Statements")
 
 
+@when("click documenttype dropdown and select Tax Savings Report")
+def click_documenttype_dropdown_and_select_tax_savings_report(page: Page):
+    document_vault_page = DocumentVaultPage(page)
+    document_vault_page.select_document_type(option_label="Tax Savings Report")
+
+
 @when("validate the Quarter dropdown should be visible for user interaction")
 @when("validate the Document dropdown should be visible for user interaction")
 def validate_quarter_dropdown_visible_for_user_interaction(page: Page):
@@ -122,6 +128,14 @@ def validate_period_and_month_dropdowns_visible_for_user_interaction(page: Page)
     document_vault_page = DocumentVaultPage(page)
     assert document_vault_page.validate_period_and_month_dropdowns_visible_for_user_interaction(), (
         "Period and Month dropdowns should be visible for user interaction"
+    )
+
+
+@when("validate the month dropdown is visible for user interaction")
+def validate_month_dropdown_visible_for_user_interaction(page: Page):
+    document_vault_page = DocumentVaultPage(page)
+    assert document_vault_page.validate_month_dropdown_visible_for_user_interaction(), (
+        "Month dropdown should be visible for user interaction"
     )
 
 

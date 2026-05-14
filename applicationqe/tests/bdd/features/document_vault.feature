@@ -78,4 +78,16 @@ Feature: Verify Document Vault page functionality client level
     And select a single document and click Save selected
     Then user verifies a Document type-year PDF download
 
+  @regression @e2e @documentvault
+  Scenario: Validate download functionality of Tax Savings Report
+    Given user click on clients tab
+    When navigates to Document vault
+    And click documenttype dropdown and select Tax Savings Report
+    And validate the month dropdown is visible for user interaction
+    Then validate find button is enabled for user interaction
+    When user clicks Select All filters
+    Then the user clicks Save Selected and verifies a Document type-year ZIP download
+    And select a single document and click Save selected
+    Then user verifies a Document type-year PDF download
+
     
