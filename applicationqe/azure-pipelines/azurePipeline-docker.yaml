@@ -221,7 +221,7 @@ stages:
                 -v $(Build.SourcesDirectory)/config:/app/config:ro \
                 -v $(Build.SourcesDirectory)/data:/app/data:ro \
                 $(dockerImageLatest) \
-                pytest tests/bdd/ \
+                pytest tests/ \
                 -v \
                 $BROWSER_PARAM \
                 --html=reports/pytest_report.html \

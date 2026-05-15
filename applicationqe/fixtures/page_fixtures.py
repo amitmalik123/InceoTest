@@ -10,24 +10,24 @@ import pytest
 from playwright.sync_api import Page
 
 from config.oam.settings import get_settings
-from pages.account_detail_page import AccountDetailPage
-from pages.account_list_page import AccountListPage
-from pages.account_management_page import AccountManagementPage
-from pages.account_wizard_page import AccountWizardPage
-from pages.add_ach_instruction import AddACHInstructionPage
-from pages.api_utility_page import APIUtilityPage
-from pages.change_investments_page import ChangeInvestmentsPage
-from pages.client_accounts_page import ClientAccountsPage
-from pages.clients_page import ClientsPage
-from pages.docusign_page import DocuSignPage
-from pages.dmtool_page import DMToolPage
-from pages.login_page import LoginPage
-from pages.outlook_page import OutlookPage
-from pages.manage_instruction_1_page import ManageInstruction1Page
-from pages.manage_instruction_2_page import ManageInstruction2Page
-from pages.roth_conversion_page import RothConversionPage
-from pages.tracking_center_page import TrackingCenterPage
-from pages.item_detail_page import ItemDetailPage
+from pages.oam.account_detail_page import AccountDetailPage
+from pages.oam.account_list_page import AccountListPage
+from pages.oam.account_management_page import AccountManagementPage
+from pages.oam.account_wizard_page import AccountWizardPage
+from pages.oam.add_ach_instruction import AddACHInstructionPage
+from pages.oam.api_utility_page import APIUtilityPage
+from pages.oam.change_investments_page import ChangeInvestmentsPage
+from pages.oam.client_accounts_page import ClientAccountsPage
+from pages.oam.clients_page import ClientsPage
+from pages.oam.docusign_page import DocuSignPage
+from pages.oam.dmtool_page import DMToolPage
+from pages.oam.login_page import LoginPage
+from pages.oam.outlook_page import OutlookPage
+from pages.oam.manage_instruction_1_page import ManageInstruction1Page
+from pages.oam.manage_instruction_2_page import ManageInstruction2Page
+from pages.oam.roth_conversion_page import RothConversionPage
+from pages.oam.tracking_center_page import TrackingCenterPage
+from pages.oam.item_detail_page import ItemDetailPage
 
 # Resolve base_url once from the active environment config
 _base_url = get_settings().base_url
