@@ -11,7 +11,7 @@ class Settings:
         
         self.env = env
         self.logger = setup_logger(__name__)
-        self.config_path = Path(__file__).parent.parent / "config" / f"env.{env}.yaml"
+        self.config_path = Path(__file__).parent.parent / "config" / "stp" / f"env.{env}.yaml"
         self.config = self._load_config()
 
     def _load_config(self):

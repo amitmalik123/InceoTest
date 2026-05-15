@@ -4,51 +4,84 @@ Page Object Fixtures
 Provides fixtures for all page objects used in UI tests.
 Each fixture creates a page object instance with the current Playwright page.
 """
+from pathlib import Path
+import sys
 
 import pytest
 from playwright.sync_api import Page
 
-from pages.account_detail_page import AccountDetailPage
-from pages.account_list_page import AccountListPage
-from pages.account_wizard_page import AccountWizardPage
-from pages.add_ach_confirmation_page import AddACHConfirmationPage
-from pages.add_ach_instruction import AddACHInstructionPage
-from pages.add_ach_summary_page import AddACHSummaryPage
-from pages.api_utility_page import APIUtilityPage
-from pages.clients_page import ClientsPage
-from pages.dm_tool_address_edit_modal import DMToolAddressEditModal
-from pages.dm_tool_usps_modal import DMToolUSPSModal
-from pages.dmt_address_change_confirmation_page import DMTAddressChangeConfirmationPage
-from pages.dmtool_page import DMToolPage
-from pages.item_details_page import ItemDetailsPage
-from pages.login_page import LoginPage
-from pages.manage_instruction_1_page import ManageInstruction1Page
-from pages.manage_instruction_2_page import ManageInstruction2Page
-from pages.mimo_confirmation_page import MIMOConfirmationPage
-from pages.mimo_transaction_request_page import MIMOTransactionRequestPage
-from pages.mimo_transaction_request_page2 import MIMOTransactionRequestPage2
-from pages.mimo_transaction_summary_page import MIMOTransactionSummaryPage
-from pages.roth_conversion_page import RothConversionPage
-from pages.tracking_center_page import TrackingCenterPage
-from pages.withdrawal_signature_not_required_modal_page import WithdrawalSignatureNotRequiredModalPage
-from pages.swp_establish_landing_page import SWPEstablishLandingPage
-from pages.swp_establish_transaction_page_one import SWPEstablishTransactionPageOne
-from pages.swp_establish_transaction_page_two import SWPEstablishTransactionPageTwo
-from pages.swp_establish_confirmation_page import SWPEstablishConfirmationPage
-from pages.oa_tool_landing_page import OAToolLandingPage
-from pages.oa_tool_transaction_page import OAToolTransactionPage
-from pages.new_nav_wrapper_page import NewNavWrapperPage
-from pages.update_beneficiary_page import UpdateBeneficiaryPage
-from pages.manage_bene_detail_page import ManageBeneDetailPage
-from pages.add_beneficiary_page import AddBeneficiaryPage
-from pages.manage_bene_page import ManageBenePage
-from pages.edit_beneficiary_page import EditBeneficiaryPage
-from pages.manage_bene_esignature_page import ManageBeneESignaturePage
-from pages.manage_bene_review_page import ManageBeneReviewPage
-from pages.deceased_bene_page import DeceasedBenePage
-from pages.docusign_page import DocuSignPage
-from pages.esign_signer_information_page import ESignSignerInformationPage
+# ---------------------------------------------------------------------------
+# Path setup — hyphenated STP page dirs cannot use Python dot-notation imports
+# ---------------------------------------------------------------------------
+_APP_ROOT = Path(__file__).resolve().parents[2]  # .../applicationqe/
+_PAGE_DIRS = [
+    "pages/stp/stp-addACHIntrcutions",
+    "pages/stp/stp-updateAddress",
+    "pages/stp/stp-mimotransactionpage",
+    "pages/stp/stp-swp",
+    "pages/stp/stp-oaTradingTool",
+    "pages/stp/stp-manageBene",
+    "pages/stp/stp-aip",
+]
+for _d in _PAGE_DIRS:
+    _p = str(_APP_ROOT / _d)
+    if _p not in sys.path:
+        sys.path.insert(0, _p)
 
+# Shared pages (non-hyphenated, standard import)
+from pages.stp.shared.account_detail_page import AccountDetailPage
+from pages.stp.shared.account_list_page import AccountListPage
+from pages.stp.shared.account_wizard_page import AccountWizardPage
+from pages.stp.shared.api_utility_page import APIUtilityPage
+from pages.stp.shared.clients_page import ClientsPage
+from pages.stp.shared.docusign_page import DocuSignPage
+from pages.stp.shared.esign_signer_information_page import ESignSignerInformationPage
+from pages.stp.shared.item_details_page import ItemDetailsPage
+from pages.stp.shared.login_page import LoginPage
+from pages.stp.shared.manage_instruction_1_page import ManageInstruction1Page
+from pages.stp.shared.manage_instruction_2_page import ManageInstruction2Page
+from pages.stp.shared.new_nav_wrapper_page import NewNavWrapperPage
+from pages.stp.shared.privacy_and_security_policy_page import PrivacyAndSecurityPolicyPage
+from pages.stp.shared.supported_browsers_page import SupportedBrowsersPage
+from pages.stp.shared.terms_of_use_page import TermsOfUsePage
+from pages.stp.shared.tracking_center_page import TrackingCenterPage
+from pages.ewm.roth_conversion_page import RothConversionPage
+
+# Pages from hyphenated dirs (imported via sys.path above)
+from add_ach_confirmation_page import AddACHConfirmationPage  # stp-addACHIntrcutions
+from add_ach_instruction import AddACHInstructionPage  # stp-addACHIntrcutions
+from add_ach_summary_page import AddACHSummaryPage  # stp-addACHIntrcutions
+from dm_tool_address_edit_modal import DMToolAddressEditModal  # stp-updateAddress
+from dm_tool_usps_modal import DMToolUSPSModal  # stp-updateAddress
+from dmt_address_change_confirmation_page import DMTAddressChangeConfirmationPage  # stp-updateAddress
+from dmtool_page import DMToolPage  # stp-updateAddress
+from mimo_confirmation_page import MIMOConfirmationPage  # stp-mimotransactionpage
+from mimo_transaction_request_page import MIMOTransactionRequestPage  # stp-mimotransactionpage
+from mimo_transaction_request_page2 import MIMOTransactionRequestPage2  # stp-mimotransactionpage
+from mimo_transaction_summary_page import MIMOTransactionSummaryPage  # stp-mimotransactionpage
+from withdrawal_method_modal_page import WithdrawalMethodModalPage  # stp-swp
+from withdrawal_signature_not_required_modal_page import WithdrawalSignatureNotRequiredModalPage  # stp-swp
+from swp_establish_landing_page import SWPEstablishLandingPage  # stp-swp
+from swp_establish_transaction_page_one import SWPEstablishTransactionPageOne  # stp-swp
+from swp_establish_transaction_page_two import SWPEstablishTransactionPageTwo  # stp-swp
+from swp_establish_confirmation_page import SWPEstablishConfirmationPage  # stp-swp
+from oa_tool_landing_page import OAToolLandingPage  # stp-oaTradingTool
+from oa_tool_transaction_page import OAToolTransactionPage  # stp-oaTradingTool
+from update_beneficiary_page import UpdateBeneficiaryPage  # stp-manageBene
+from manage_bene_detail_page import ManageBeneDetailPage  # stp-manageBene
+from add_beneficiary_page import AddBeneficiaryPage  # stp-manageBene
+from manage_bene_page import ManageBenePage  # stp-manageBene
+from edit_beneficiary_page import EditBeneficiaryPage  # stp-manageBene
+from manage_bene_esignature_page import ManageBeneESignaturePage  # stp-manageBene
+from manage_bene_review_page import ManageBeneReviewPage  # stp-manageBene
+from deceased_bene_page import DeceasedBenePage  # stp-manageBene
+from cancel_aip_page import CancelAIPPage  # stp-aip
+from establish_aip_landing_page import EstablishAIPLandingPage  # stp-aip
+from establish_aip_origination_selection_page import EstablishAIPOriginationSelectionPage  # stp-aip
+from establish_aip_add_aip_page import EstablishAIPAddAIPPage  # stp-aip
+from establish_aip_summary_page import EstablishAIPSummaryPage  # stp-aip
+from establish_aip_confirmation_page import EstablishAIPConfirmationPage  # stp-aip
+from establish_aip_common_page import EstablishAIPCommonPage  # stp-aip
 
 @pytest.fixture
 def login_page(page: Page):
@@ -195,77 +228,66 @@ def withdrawal_signature_modal_page(page: Page):
 @pytest.fixture
 def withdrawal_method_modal_page(page: Page):
     """Withdrawal method modal page object fixture"""
-    from pages.withdrawal_method_modal_page import WithdrawalMethodModalPage
     return WithdrawalMethodModalPage(page)
 
 
 @pytest.fixture
 def cancel_aip_page(page: Page):
     """Cancel AIP page object fixture"""
-    from pages.cancel_aip_page import CancelAIPPage
     return CancelAIPPage(page)
 
 
 @pytest.fixture
 def establish_aip_landing_page(page: Page):
     """Establish AIP Landing Page object fixture"""
-    from pages.establish_aip_landing_page import EstablishAIPLandingPage
     return EstablishAIPLandingPage(page)
 
 
 @pytest.fixture
 def establish_aip_origination_selection_page(page: Page):
     """Establish AIP Origination Selection Page object fixture"""
-    from pages.establish_aip_origination_selection_page import EstablishAIPOriginationSelectionPage
     return EstablishAIPOriginationSelectionPage(page)
 
 
 @pytest.fixture
 def establish_aip_add_aip_page(page: Page):
     """Establish AIP Add AIP Page object fixture"""
-    from pages.establish_aip_add_aip_page import EstablishAIPAddAIPPage
     return EstablishAIPAddAIPPage(page)
 
 
 @pytest.fixture
 def establish_aip_summary_page(page: Page):
     """Establish AIP Summary Page object fixture"""
-    from pages.establish_aip_summary_page import EstablishAIPSummaryPage
     return EstablishAIPSummaryPage(page)
 
 
 @pytest.fixture
 def establish_aip_confirmation_page(page: Page):
     """Establish AIP Confirmation Page object fixture"""
-    from pages.establish_aip_confirmation_page import EstablishAIPConfirmationPage
     return EstablishAIPConfirmationPage(page)
 
 
 @pytest.fixture
 def establish_aip_common_page(page: Page):
     """Establish AIP Common Page object fixture"""
-    from pages.establish_aip_common_page import EstablishAIPCommonPage
     return EstablishAIPCommonPage(page)
 
 
 @pytest.fixture
 def supported_browsers_page(page: Page):
     """Supported Browsers Page object fixture"""
-    from pages.supported_browsers_page import SupportedBrowsersPage
     return SupportedBrowsersPage(page)
 
 
 @pytest.fixture
 def privacy_and_security_policy_page(page: Page):
     """Privacy and Security Policy Page object fixture"""
-    from pages.privacy_and_security_policy_page import PrivacyAndSecurityPolicyPage
     return PrivacyAndSecurityPolicyPage(page)
 
 
 @pytest.fixture
 def terms_of_use_page(page: Page):
     """Terms of Use Page object fixture"""
-    from pages.terms_of_use_page import TermsOfUsePage
     return TermsOfUsePage(page)
 
 

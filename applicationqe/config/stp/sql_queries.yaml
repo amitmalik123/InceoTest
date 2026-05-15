@@ -1,4 +1,4 @@
-﻿# SQL Queries - Shared across all environments
+# SQL Queries - Shared across all environments
 # Organize queries by domain/module
 # db_type: "azure" or "sql_server" - specifies which database connection to use
 

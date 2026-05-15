@@ -18,7 +18,7 @@ from pathlib import Path
 import pytest
 from playwright.sync_api import Page
 
-from pages.login_page import LoginPage
+from pages.stp.shared.login_page import LoginPage
 from utils.settings import Settings
 
 # Get environment from environment variable or use default (test11)

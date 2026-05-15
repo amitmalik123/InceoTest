@@ -5,8 +5,7 @@ Establish AIP Add AIP Page Object
 import allure
 from typing import List
 from playwright.sync_api import Locator, Page
-from pages.base_page import BasePage
-from tests.conftest import page
+from pages.stp.shared.base_page import BasePage
 from utils.allure_logger import get_allure_logger
 
 logger = get_allure_logger(__name__)
@@ -294,7 +293,7 @@ class EstablishAIPAddAIPPage(BasePage):
         Returns:
             EstablishAIPSummaryPage instance
         """
-        from pages.establish_aip_summary_page import EstablishAIPSummaryPage
+        from establish_aip_summary_page import EstablishAIPSummaryPage
         
         # Header verification
         self.signature_header.wait_for(state='visible', timeout=10000)

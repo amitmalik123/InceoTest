@@ -1,7 +1,7 @@
 from playwright.sync_api import Locator, Page
-from pages.base_page import BasePage
-from pages.establish_aip_add_aip_page import EstablishAIPAddAIPPage
-from config.settings import get_settings
+from pages.stp.shared.base_page import BasePage
+from establish_aip_add_aip_page import EstablishAIPAddAIPPage
+from utils.settings import settings
 from utils.allure_logger import get_allure_logger
 
 logger = get_allure_logger(__name__)
@@ -161,7 +161,7 @@ class EstablishAIPOriginationSelectionPage(BasePage):
     
     def get_selected_origination_text(self) -> str:
         """Get the selected origination text"""
-        if get_settings().env == 'prod':
+        if settings.env == 'prod':
             self.selected_origination_text_checked.wait_for(state='visible', timeout=5000)
             origination_text = self.get_text(self.selected_origination_text_checked)
         else:

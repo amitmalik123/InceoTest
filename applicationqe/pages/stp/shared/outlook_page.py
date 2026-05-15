@@ -9,7 +9,7 @@ import allure
 from playwright.sync_api import Page, TimeoutError as PlaywrightTimeoutError
 
 from pages.base_page import BasePage
-from config.settings import get_settings
+from utils.settings import settings
 from utils.credential_encrypter import decrypt
 from utils.allure_logger import get_allure_logger
 from utils.wait_utils import wait_for_element_count, WaitTimeoutError
@@ -68,7 +68,6 @@ class OutlookPage(BasePage):
     @classmethod
     def from_config(cls, page: Page) -> "OutlookPage":
         
-        settings = get_settings()
         
         # Get values from environment configuration (env.test11.yaml, etc.)
         secret_key = str(settings.secret_key)

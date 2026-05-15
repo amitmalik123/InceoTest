@@ -4,7 +4,7 @@ Establish AIP Summary Page Object
 
 from typing import List
 from playwright.sync_api import Locator, Page
-from pages.base_page import BasePage
+from pages.stp.shared.base_page import BasePage
 from utils.allure_logger import get_allure_logger
 
 logger = get_allure_logger(__name__)
@@ -249,7 +249,7 @@ class EstablishAIPSummaryPage(BasePage):
         Returns:
             EstablishAIPConfirmationPage instance
         """
-        from pages.establish_aip_confirmation_page import EstablishAIPConfirmationPage
+        from establish_aip_confirmation_page import EstablishAIPConfirmationPage
         
         logger.info("Clicking Submit button")
         self.submit_button.wait_for(state='visible', timeout=10000)

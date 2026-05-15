@@ -18,8 +18,9 @@ APP_ROOT = Path(__file__).resolve().parents[3]  # …/applicationqe/
 
 _STEP_DIRS = [
     "tests/steps/stp/stp-shared",
-    "tests/steps/stp/stp-aip",
-    "tests/steps/stp/stp-swp",
+    "tests/steps/stp/stp-aip/stp-cancelAip",
+    "tests/steps/stp/stp-aip/stp-establishAip",
+    "tests/steps/stp/stp-swp/stp-establishSwp",
     "tests/steps/stp/stp-addACHIntrcutions",
     "tests/steps/stp/stp-updateAddress",
     "tests/steps/stp/stp-mimotransaction",

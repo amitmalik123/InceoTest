@@ -102,7 +102,7 @@ stages:
     parameters:
       stageName: STP
       teamDisplay: STP
-      featurePath: tests/features/stp
+      featurePath: tests/Runner/STP
       environment: ${{ parameters.environment }}
       marker: ${{ parameters.marker }}
       workers: ${{ parameters.workers }}

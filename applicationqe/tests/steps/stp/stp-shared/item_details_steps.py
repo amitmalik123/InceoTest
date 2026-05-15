@@ -1,14 +1,16 @@
 ﻿import os
 import allure
 import requests
+from pathlib import Path
 from playwright.sync_api import Page
 from pytest_bdd import parsers, then, when
 from datetime import datetime
 
-from pages.item_details_page import ItemDetailsPage
-from .common_steps import extract_account_core_identifier
+from pages.stp.shared.item_details_page import ItemDetailsPage
+from common_steps import extract_account_core_identifier
 from utils.logger import setup_logger
-from tests.conftest import DOWNLOAD_PATH
+
+_DOWNLOAD_PATH = str(Path(__file__).resolve().parents[4] / "downloads" / "ACH PDF")
 
 logger = setup_logger(__name__)
 
@@ -36,7 +38,7 @@ def user_clicks_pdf_link_to_download(page: Page, item_details_page: ItemDetailsP
         logger.info("\n")
         
         # Click PDF link, switch to new window, get URL, and download via API
-        result = item_details_page.click_and_download_pdf_via_api(DOWNLOAD_PATH)
+        result = item_details_page.click_and_download_pdf_via_api(_DOWNLOAD_PATH)
         
         # Verify download was successful
         assert result["success"], f"PDF download failed: {result.get('error', 'Unknown error')}"
@@ -424,7 +426,7 @@ def validate_info_panel_contents_in_item_details_page(
         # Use the page that was navigated to by click_item_number (may be new tab or same tab)
         active_page = test_context.get('item_details_page_tab') or page
         if active_page is not page:
-            from pages.item_details_page import ItemDetailsPage as _IDP
+            from pages.stp.shared.item_details_page import ItemDetailsPage as _IDP
             item_details_page = _IDP(active_page, page_verification=False)
 
         # Get agent_id and account_number from test_context

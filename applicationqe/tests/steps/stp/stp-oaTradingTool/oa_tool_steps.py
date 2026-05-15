@@ -3,8 +3,8 @@ import json
 from playwright.sync_api import Page
 from pytest_bdd import when, then, parsers
 
-from config.settings import get_settings
-from pages.oa_tool_landing_page import OAToolLandingPage
+from utils.settings import settings
+from oa_tool_landing_page import OAToolLandingPage
 from utils.database import get_configured_ewm_db
 from utils.logger import setup_logger
 
@@ -142,7 +142,6 @@ def navigate_to_oa_tool_landing_page(page: Page, test_context: dict):
         household_id = test_context.get("household_id")
         account_id = test_context.get("account_id")
 
-        settings = get_settings()
         oa_tool_base_url = settings.config.get("external_urls", {}).get("oa_tool_base_url", "")
         if not oa_tool_base_url:
             raise ValueError("oa_tool_base_url is not configured in the environment yaml. Set external_urls.oa_tool_base_url.")
@@ -172,7 +171,6 @@ def navigate_to_oa_tool_landing_page_prod(page: Page, test_context: dict, adviso
     logger.info("")
 
     with allure.step("Navigating to OA Tool Landing page for PROD"):
-        settings = get_settings()
         oa_tool_base_url = settings.config.get("external_urls", {}).get("oa_tool_base_url", "")
         if not oa_tool_base_url:
             raise ValueError("oa_tool_base_url is not configured in the environment yaml. Set external_urls.oa_tool_base_url.")

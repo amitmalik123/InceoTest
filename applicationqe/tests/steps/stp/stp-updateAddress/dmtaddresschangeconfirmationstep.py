@@ -6,8 +6,8 @@ import allure
 from playwright.sync_api import Page
 from pytest_bdd import when, parsers
 
-from pages.dmtool_page import DMToolPage
-from pages.dmt_address_change_confirmation_page import DMTAddressChangeConfirmationPage
+from dmtool_page import DMToolPage
+from dmt_address_change_confirmation_page import DMTAddressChangeConfirmationPage
 from utils.logger import setup_logger
 
 logger = setup_logger(__name__)

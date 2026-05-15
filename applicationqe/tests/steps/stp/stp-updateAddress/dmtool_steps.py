@@ -7,11 +7,11 @@ import random
 from playwright.sync_api import Page
 from pytest_bdd import when, then, parsers
 
-from pages.dmtool_page import DMToolPage
-from pages.dm_tool_address_edit_modal import DMToolAddressEditModal
-from pages.dm_tool_usps_modal import DMToolUSPSModal
-from pages.dmt_address_change_confirmation_page import DMTAddressChangeConfirmationPage
-from pages.account_wizard_page import AccountWizardPage
+from dmtool_page import DMToolPage
+from dm_tool_address_edit_modal import DMToolAddressEditModal
+from dm_tool_usps_modal import DMToolUSPSModal
+from dmt_address_change_confirmation_page import DMTAddressChangeConfirmationPage
+from pages.stp.shared.account_wizard_page import AccountWizardPage
 from utils.address_comparison import if_two_arrays_same
 from utils.logger import setup_logger
 

@@ -8,12 +8,12 @@ import allure
 from playwright.sync_api import Page
 from pytest_bdd import when, then, parsers
 
-from config.settings import get_settings
-from pages.establish_aip_add_aip_page import EstablishAIPAddAIPPage
-from pages.establish_aip_confirmation_page import EstablishAIPConfirmationPage
-from pages.establish_aip_landing_page import EstablishAIPLandingPage
-from pages.establish_aip_origination_selection_page import EstablishAIPOriginationSelectionPage
-from pages.establish_aip_summary_page import EstablishAIPSummaryPage
+from utils.settings import settings
+from establish_aip_add_aip_page import EstablishAIPAddAIPPage
+from establish_aip_confirmation_page import EstablishAIPConfirmationPage
+from establish_aip_landing_page import EstablishAIPLandingPage
+from establish_aip_origination_selection_page import EstablishAIPOriginationSelectionPage
+from establish_aip_summary_page import EstablishAIPSummaryPage
 from utils.allure_logger import get_allure_logger
 from utils.constants.constants import Constants
 
@@ -603,7 +603,7 @@ def user_verifies_acknowledgements_section(page: Page, test_context: dict):
         # Get expected acknowledgements based on account type (IRA vs Non-IRA)
         current_role = test_context.get('current_role', '')
         if current_role == 'ira-account':
-            if get_settings().env == 'prod':
+            if settings.env == 'prod':
                 expected_acknowledgements = "|".join(Constants.get_establish_aip_disclosures_ira_prod())
             else:
                 expected_acknowledgements = "|".join(Constants.get_establish_aip_disclosures_ira())

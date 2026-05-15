@@ -6,7 +6,7 @@ import logging
 from typing import Dict, Optional
 
 import requests
-from config.api_endpoints import APIEndpoints
+from config.stp.api_endpoints import APIEndpoints
 
 logger = logging.getLogger(__name__)
 

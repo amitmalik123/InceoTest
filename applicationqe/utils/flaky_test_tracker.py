@@ -18,6 +18,7 @@ from influxdb_client import InfluxDBClient
 from influxdb_client.client.write_api import SYNCHRONOUS
 
 from utils.crypto_utils import decrypt_value
+from utils.settings import settings
 
 
 def load_influxdb_config():
@@ -56,9 +57,7 @@ class FlakyTestTracker:
         self.influx_token = influx_config["token"]
         self.influx_org = influx_config["org"]
         self.influx_bucket = influx_config["bucket"]
-        from config.settings import get_settings
-
-        self.environment = os.getenv("ENVIRONMENT", get_settings().env)
+        self.environment = os.getenv("ENVIRONMENT", settings.env)
         self.build_id = os.getenv("BUILD_ID", "local")
 
         # Track flaky tests during session

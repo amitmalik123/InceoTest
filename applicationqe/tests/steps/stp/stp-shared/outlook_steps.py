@@ -4,9 +4,9 @@ from typing import Optional, Tuple
 import allure
 from playwright.sync_api import Page, TimeoutError as PlaywrightTimeoutError
 from pytest_bdd import when, then, parsers
-from config.settings import get_settings
-from pages.docusign_page import DocuSignPage
-from pages.outlook_page import OutlookPage
+from utils.settings import settings
+from pages.stp.shared.docusign_page import DocuSignPage
+from pages.stp.shared.outlook_page import OutlookPage
 from utils.allure_logger import get_allure_logger
 from utils.database import fetch_agent_name_by_aplid_from_db
 
@@ -16,7 +16,7 @@ logger = get_allure_logger(__name__)
 def _open_outlook(ewm_page: Page) -> Tuple[Page, OutlookPage]:
     """Open Outlook in a new tab, sign in if needed, and return (email_page, outlook_page_obj)."""
     outlook_email_page = ewm_page.context.new_page()
-    outlook_email_page.goto(get_settings().outlook_url, wait_until="domcontentloaded")
+    outlook_email_page.goto(settings.outlook_url, wait_until="domcontentloaded")
     outlook_page = OutlookPage.from_config(outlook_email_page)
     if not outlook_page.handle_sign_in():
         raise RuntimeError("Outlook sign-in did not complete successfully.")

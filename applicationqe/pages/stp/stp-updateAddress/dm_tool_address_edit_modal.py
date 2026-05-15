@@ -5,11 +5,11 @@ DM Tool Address Edit Modal Page Object
 from typing import Dict, List, Optional, TYPE_CHECKING
 from playwright.sync_api import Page
 
-from pages.base_page import BasePage
+from pages.stp.shared.base_page import BasePage
 from utils.logger import setup_logger
 
 if TYPE_CHECKING:
-    from pages.dm_tool_usps_modal import DMToolUSPSModal
+    from dm_tool_usps_modal import DMToolUSPSModal
 
 logger = setup_logger(__name__)
 
@@ -511,7 +511,7 @@ class DMToolAddressEditModal(BasePage):
         Returns:
             DMToolUSPSModal instance
         """
-        from pages.dm_tool_usps_modal import DMToolUSPSModal
+        from dm_tool_usps_modal import DMToolUSPSModal
         
         logger.info("Navigating to USPS modal")
         try:

@@ -4,7 +4,8 @@ import allure
 from pathlib import Path
 from pytest_bdd import parsers, then, when
 from utils.logger import setup_logger
-from tests.conftest import DOWNLOAD_PATH
+
+_DOWNLOAD_PATH = str(Path(__file__).resolve().parents[4] / "downloads" / "ACH PDF")
 
 logger = setup_logger(__name__)
 
@@ -15,8 +16,8 @@ def verify_pdf_is_displayed(pdf_name: str, test_context: dict):
     with allure.step(f"Verify PDF is displayed as {pdf_name}"):
         logger.info("\n")
         
-        # Reuse the same DOWNLOAD_PATH constant used when saving the file
-        file_path = Path(DOWNLOAD_PATH) / f"{pdf_name}.pdf"
+        # Reuse the same _DOWNLOAD_PATH constant used when saving the file
+        file_path = Path(_DOWNLOAD_PATH) / f"{pdf_name}.pdf"
         
         logger.info(f"Looking for PDF at: {file_path}")
         
@@ -58,8 +59,8 @@ def delete_downloaded_pdf(pdf_name: str, test_context: dict):
     with allure.step(f"Delete PDF displayed as {pdf_name}"):
         logger.info("\n")
         
-        # Reuse the same DOWNLOAD_PATH constant used when saving the file
-        file_path = Path(DOWNLOAD_PATH) / f"{pdf_name}.pdf"
+        # Reuse the same _DOWNLOAD_PATH constant used when saving the file
+        file_path = Path(_DOWNLOAD_PATH) / f"{pdf_name}.pdf"
         
         logger.info(f"Looking for PDF at: {file_path}")
         

@@ -31,7 +31,7 @@ from fixtures.STP import *  # noqa: F401, F403
 from utils.allure_logger import enable_step_screenshots
 from utils.flaky_test_tracker import get_tracker
 from utils.settings import Settings
-from pages.login_page import LoginPage
+from pages.stp.shared.login_page import LoginPage
 
 # Setup logger
 logger = logging.getLogger(__name__)
@@ -62,6 +62,24 @@ def all_test_data():
         for row in reader:
             data_rows.append(row)
     return data_rows
+
+
+@pytest.fixture(scope="function")
+def test_data(all_test_data, request):
+    """Select a single test data row from CSV by role, or default to first row."""
+    role = getattr(request, "param", None)
+    if role:
+        for row in all_test_data:
+            if row.get("role") == role:
+                return row
+        raise ValueError(f"Role '{role}' not found in test data CSV")
+    return all_test_data[0] if all_test_data else {}
+
+
+@pytest.fixture
+def test_context(test_data):
+    """Context dictionary to share test data and state across BDD steps."""
+    return {"test_data": test_data}
 
 
 @pytest.fixture(scope="session", autouse=True)

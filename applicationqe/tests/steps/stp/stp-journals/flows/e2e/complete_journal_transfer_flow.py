@@ -32,7 +32,7 @@ from pages.ewm.confirmation_page import ConfirmationPage
 from pages.ewm.docusign_page import DocusignPage
 from pages.ewm.esignature_page import EsignaturePage
 from pages.ewm.tracking_center_page import TrackingCenterPage
-from pages.base_page import BasePage
+from pages.stp.shared.base_page import BasePage
 
 from validations.login_validations import LoginValidations
 from validations.journal_transfer_validations import JournalTransferLandingValidations

@@ -6,7 +6,7 @@ import allure
 from playwright.sync_api import Page
 from pytest_bdd import when, then
 
-from pages.cancel_aip_page import CancelAIPPage
+from cancel_aip_page import CancelAIPPage
 from utils.logger import setup_logger
 
 logger = setup_logger(__name__)

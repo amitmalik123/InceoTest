@@ -4,7 +4,7 @@ Establish AIP Common Page Object - Shared functionality across Establish AIP pag
 
 from typing import List
 from playwright.sync_api import Locator, Page
-from pages.base_page import BasePage
+from pages.stp.shared.base_page import BasePage
 from utils.allure_logger import get_allure_logger
 
 logger = get_allure_logger(__name__)
@@ -37,7 +37,7 @@ class EstablishAIPCommonPage(BasePage):
         Returns:
             PrivacyAndSecurityPolicyPage instance
         """
-        from pages.privacy_and_security_policy_page import PrivacyAndSecurityPolicyPage
+        from pages.stp.shared.privacy_and_security_policy_page import PrivacyAndSecurityPolicyPage
         
         logger.info("Clicking Privacy And Security Policy Link")
         self.get_bottom_hyperlinks()[0].click()
@@ -51,7 +51,7 @@ class EstablishAIPCommonPage(BasePage):
         Returns:
             TermsOfUsePage instance
         """
-        from pages.terms_of_use_page import TermsOfUsePage
+        from pages.stp.shared.terms_of_use_page import TermsOfUsePage
         
         logger.info("Clicking Terms Of Use Link")
         self.get_bottom_hyperlinks()[1].click()
@@ -65,7 +65,7 @@ class EstablishAIPCommonPage(BasePage):
         Returns:
             SupportedBrowsersPage instance
         """
-        from pages.supported_browsers_page import SupportedBrowsersPage
+        from pages.stp.shared.supported_browsers_page import SupportedBrowsersPage
         
         logger.info("Clicking Supported Browsers Link")
         self.get_bottom_hyperlinks()[2].click()

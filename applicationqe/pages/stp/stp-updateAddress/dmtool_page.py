@@ -5,15 +5,15 @@ DM Tool Page Object for Address Change functionality
 from typing import List, Optional, TYPE_CHECKING
 from playwright.sync_api import Page
 
-from pages.base_page import BasePage
+from pages.stp.shared.base_page import BasePage
 from utils.allure_logger import get_allure_logger
 
 logger = get_allure_logger(__name__)
 from utils.address_comparison import check_if_there_is_address_match
 
 if TYPE_CHECKING:
-    from pages.dm_tool_address_edit_modal import DMToolAddressEditModal
-    from pages.dmt_address_change_confirmation_page import DMTAddressChangeConfirmationPage
+    from dm_tool_address_edit_modal import DMToolAddressEditModal
+    from dmt_address_change_confirmation_page import DMTAddressChangeConfirmationPage
 
 
 
@@ -266,7 +266,7 @@ class DMToolPage(BasePage):
         Returns:
             DMTAddressChangeConfirmationPage instance
         """
-        from pages.dmt_address_change_confirmation_page import DMTAddressChangeConfirmationPage
+        from dmt_address_change_confirmation_page import DMTAddressChangeConfirmationPage
         
         logger.info("DMT: Clicking submit button")
         try:
@@ -286,7 +286,7 @@ class DMToolPage(BasePage):
     
     def navigate_to_address_change_edit_modal(self, step_name: str, log_message: str) -> 'DMToolAddressEditModal':
        
-        from pages.dm_tool_address_edit_modal import DMToolAddressEditModal
+        from dm_tool_address_edit_modal import DMToolAddressEditModal
         
         logger.info(f"{step_name}: {log_message}")
         try:
@@ -322,7 +322,7 @@ class DMToolPage(BasePage):
         Returns:
             DMToolAddressEditModal instance
         """
-        from pages.dm_tool_address_edit_modal import DMToolAddressEditModal
+        from dm_tool_address_edit_modal import DMToolAddressEditModal
         
         logger.info(f"{step_name}: {log_message}")
         try:

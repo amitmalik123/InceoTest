@@ -12,7 +12,7 @@ from typing import TYPE_CHECKING, Callable, Optional
 import allure
 from playwright.sync_api import Page, TimeoutError as PlaywrightTimeoutError
 
-from config.settings import get_settings
+from utils.settings import settings
 from pages.base_page import BasePage
 from utils.allure_logger import get_allure_logger
 from utils.helpers import get_locator_attribute
@@ -105,7 +105,6 @@ class DocuSignPage(BasePage):
         Returns:
             Encrypted email address from settings
         """
-        settings = get_settings()
         return settings.outlook_email or ""
     
     @staticmethod
@@ -115,7 +114,6 @@ class DocuSignPage(BasePage):
         Returns:
             Encrypted password from settings
         """
-        settings = get_settings()
         return settings.outlook_password or ""
     
     def submit_otp(self, otp_code: str, timeout: int = 10000) -> None:
@@ -236,7 +234,7 @@ class DocuSignPage(BasePage):
         
         # Check if we're already on DocuSign page to avoid unnecessary waits
         current_url = self.page.url
-        if any(p in current_url for p in get_settings().docusign_url_patterns):
+        if any(p in current_url for p in settings.docusign_url_patterns):
             logger.info(f"[OTP_DEBUG] Already on DocuSign page: {current_url}")
             
             # Still wait for networkidle to ensure page is fully loaded
@@ -250,7 +248,7 @@ class DocuSignPage(BasePage):
             logger.info(f"[OTP_DEBUG] Not yet on DocuSign page. Current URL: {current_url}")
             
             # Wait for navigation to DocuSign
-            self.page.wait_for_url(lambda url: any(p in url for p in get_settings().docusign_url_patterns), timeout=timeout)
+            self.page.wait_for_url(lambda url: any(p in url for p in settings.docusign_url_patterns), timeout=timeout)
             logger.info("DocuSign page URL detected")
             
             # Wait for page to be fully loaded before taking screenshot (intelligent wait)

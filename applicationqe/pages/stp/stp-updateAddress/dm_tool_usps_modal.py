@@ -5,12 +5,12 @@ DM Tool USPS Address Validation Modal Page Object
 from typing import List, TYPE_CHECKING
 from playwright.sync_api import Page
 
-from pages.base_page import BasePage
+from pages.stp.shared.base_page import BasePage
 from utils.logger import setup_logger
 from utils.address_comparison import check_if_there_is_address_match
 
 if TYPE_CHECKING:
-    from pages.dmtool_page import DMToolPage
+    from dmtool_page import DMToolPage
 
 logger = setup_logger(__name__)
 
@@ -70,7 +70,7 @@ class DMToolUSPSModal(BasePage):
         Returns:
             DMToolPage instance
         """
-        from pages.dmtool_page import DMToolPage
+        from dmtool_page import DMToolPage
         
         logger.info(f"{self.PAGE_NAME}: Clicking save")
         try:

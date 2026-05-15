@@ -3,7 +3,7 @@ Establish Automatic Investment Plan (AIP) Landing Page Object
 """
 
 from playwright.sync_api import Locator, Page
-from pages.base_page import BasePage
+from pages.stp.shared.base_page import BasePage
 from utils.allure_logger import get_allure_logger
 
 logger = get_allure_logger(__name__)
@@ -149,7 +149,7 @@ class EstablishAIPLandingPage(BasePage):
         Returns:
             EstablishAIPOriginationSelectionPage instance
         """
-        from pages.establish_aip_origination_selection_page import EstablishAIPOriginationSelectionPage
+        from establish_aip_origination_selection_page import EstablishAIPOriginationSelectionPage
         
         logger.info("Clicking on ADD button")
         

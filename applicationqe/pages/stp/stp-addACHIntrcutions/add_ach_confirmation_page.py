@@ -1,5 +1,5 @@
 from playwright.sync_api import Page
-from pages.base_page import BasePage
+from pages.stp.shared.base_page import BasePage
 from utils.logger import setup_logger
 from utils.wait_utils import wait_for_element_stable
 

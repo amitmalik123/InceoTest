@@ -2,10 +2,10 @@
 from playwright.sync_api import Page
 from pytest_bdd import then, when
 
-from pages.account_detail_page import AccountDetailPage
-from pages.account_list_page import AccountListPage
-from pages.clients_page import ClientsPage
-from pages.new_nav_wrapper_page import NewNavWrapperPage
+from pages.stp.shared.account_detail_page import AccountDetailPage
+from pages.stp.shared.account_list_page import AccountListPage
+from pages.stp.shared.clients_page import ClientsPage
+from pages.stp.shared.new_nav_wrapper_page import NewNavWrapperPage
 from utils.allure_logger import get_allure_logger
 
 logger = get_allure_logger(__name__)
@@ -148,8 +148,8 @@ def switch_to_new_iframe_for_account_list_page(page: Page, test_context, request
     Creates new AccountListPage instance with iframe context.
     """
     with allure.step("Switch to iframe context for account list page"):
-        from pages.new_nav_wrapper_page import NewNavWrapperPage
-        from pages.account_list_page import AccountListPage
+        from pages.stp.shared.new_nav_wrapper_page import NewNavWrapperPage
+        from pages.stp.shared.account_list_page import AccountListPage
         
         logger.info("Switching to new iframe for account list page")
         
