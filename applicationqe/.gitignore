@@ -1,0 +1,11 @@
+# Billing QE automation generated artifacts
+billing_qe_automation.egg-info/
+config/billing/platformrevenuedashboard/strategistgroupmodel/env.qa.local.yaml
+
+# Python cache/bytecode
+__pycache__/
+*.py[cod]
+
+# Test/runtime caches and reports
+.pytest_cache/
+reports/
