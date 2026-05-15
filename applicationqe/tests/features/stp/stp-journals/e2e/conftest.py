@@ -1,5 +1,13 @@
-import csv
-from pathlib import Path
+"""
+STP-specific pytest configuration
+
+This conftest.py provides EWM page object fixtures for STP tests only.
+Scoped to tests/features/stp/ so it doesn't affect OAM or other tests.
+
+Fixtures:
+- EWM page objects: login_page, clients_page, account_list_page, account_detail_page,
+                    roth_conversion_page, tracking_center_page
+"""
 
 import pytest
 from playwright.sync_api import Page
@@ -10,22 +18,6 @@ from pages.ewm.clients_page import ClientsPage
 from pages.ewm.login_page import LoginPage
 from pages.ewm.roth_conversion_page import RothConversionPage
 from pages.ewm.tracking_center_page import TrackingCenterPage
-from utils.settings import settings
-
-
-@pytest.fixture
-def test_context():
-    """Context to store test data and state across steps"""
-    return {}
-
-
-@pytest.fixture
-def test_data():
-    """Load test data from CSV file"""
-    csv_path = settings.test_data_csv
-    with open(csv_path, 'r') as file:
-        reader = csv.DictReader(file)
-        return next(reader)
 
 
 @pytest.fixture
@@ -62,4 +54,3 @@ def roth_conversion_page(page: Page):
 def tracking_center_page(page: Page):
     """Tracking center page object fixture"""
     return TrackingCenterPage(page)
-
