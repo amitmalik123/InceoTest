@@ -11,7 +11,7 @@ Document created by Valued Financial Advisor.",Advisor
 S7_Prod_OAM_Initiated by SAU_Online Submit_Authorized Signer_Required_FA,SAU,SAU,FA,Test Agent,Yes,AG1634,Shared_access_ag1634,Test@wfi12345,,40116288,ABC Corporation,Account Information Change,Short-Term Cash Restriction,Complete and Submit,Proceed and submit without a client signature,Signer(s) Information,"Authorized Approval
 |
 You are authorized to begin the approval and submission process.
-Would you prefer a different authorized user review and submit the request once you have completed the request?",No,,,saransh.saxena@assetmark.com,925 532 9706,Please review and sign the document electronically.,Yes,"Request Ready for Financial Advisor Review
+Would you prefer a different authorized user review and submit the request once you have completed the request?",Yes,SMS,,saransh.saxena@assetmark.com,925 532 9706,Please review and sign the document electronically.,Yes,"Request Ready for Financial Advisor Review
 |
 Your request will be sent to the Financial Advisor to review, approve and submit to AssetMark for processing.
 |
@@ -19,7 +19,7 @@ To view your request, go to the Tracking Center and select
 |
 a copy for your records.
 |
-Click Close to return to eWealthManager.",No,,,"This request has been canceled. A new document will need to be created if this request is still required.
+Click Close to return to eWealthManager.",Yes,,,"This request has been canceled. A new document will need to be created if this request is still required.
 |
 Document has been routed to Test Agent for review and submission.
 |
