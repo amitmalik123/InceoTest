@@ -1,0 +1,149 @@
+[
+    {
+        "test_id": "TC001_perf_information_ratio",
+        "service_name": "analyticsApiServices",
+        "workflow_mode": "parallel",
+        "test_name": "POST /v2/analytics [positive] Information Ratio (TC001_perf_information_ratio)",
+        "protocol": "REST",
+        "test_type": ["Functional", "Performance"],
+        "mainURL": "{{base_url}}",
+        "endpoint": "/v2/analytics",
+        "method": "POST",
+        "rpc_method": "",
+        "graphql_query": "",
+        "graphql_variables": "",
+        "soap_action": "",
+        "soap_envelope": "",
+        "headers_additional": {"Content-Type": "application/json"},
+        "payload": {
+            "calculationRequest": {
+                "inputs": {
+                    "benchmark": ["SP500I"],
+                    "blend": [
+                        {"id": "URISP6", "entityType": "model", "weight": 0.1},
+                        {"id": "AMPCS5", "entityType": "model", "weight": 0.1},
+                        {"id": "RS3SAL", "entityType": "model", "weight": 0.1},
+                        {"id": "TKTMB3", "entityType": "model", "weight": 0.1},
+                        {"id": "ULCGG6", "entityType": "model", "weight": 0.1},
+                        {"id": "UMS3YL", "entityType": "model", "weight": 0.1},
+                        {"id": "UTRVLB", "entityType": "model", "weight": 0.1},
+                        {"id": "AMFGG6", "entityType": "model", "weight": 0.1},
+                        {"id": "ASTDS2", "entityType": "model", "weight": 0.1},
+                        {"id": "GISN38", "entityType": "model", "weight": 0.1}
+                    ]
+                },
+                "calculations": [{"calculationType": "Information Ratio", "configurations": {"timeHorizon": ["threeYear", "fiveYear"], "startDate": "2015-12-30", "endDate": "2025-12-31"}}]
+            }
+        },
+        "expected_status": "200",
+        "expected_response_schema": "",
+        "expected_response": null,
+        "ignore_fields": ["id"],
+        "extract_values": [{"from": "response", "key": "id", "assign_to": ""}],
+        "validate": {"performance": {"max_response_time_ms": null}},
+        "test_data_file": "",
+        "db_query": "",
+        "db_type": "",
+        "db_connection_name": "",
+        "test_summary": "Information Ratio positive performance scenario with 10-model blend and total weight 1.0.",
+        "test_scenario": "Validate 200 response for Information Ratio calculation in performance mode."
+    },
+    {
+        "test_id": "TC002_perf_information_ratio",
+        "service_name": "analyticsApiServices",
+        "workflow_mode": "parallel",
+        "test_name": "POST /v2/analytics [positive] Information Ratio (TC002_perf_information_ratio)",
+        "protocol": "REST",
+        "test_type": ["Functional", "Performance"],
+        "mainURL": "{{base_url}}",
+        "endpoint": "/v2/analytics",
+        "method": "POST",
+        "rpc_method": "",
+        "graphql_query": "",
+        "graphql_variables": "",
+        "soap_action": "",
+        "soap_envelope": "",
+        "headers_additional": {"Content-Type": "application/json"},
+        "payload": {
+            "calculationRequest": {
+                "inputs": {
+                    "benchmark": ["SP500I"],
+                    "blend": [
+                        {"id": "GPSPS2", "entityType": "model", "weight": 0.1},
+                        {"id": "JPM5GF", "entityType": "model", "weight": 0.1},
+                        {"id": "TPMTS1", "entityType": "model", "weight": 0.1},
+                        {"id": "TRISP2", "entityType": "model", "weight": 0.1},
+                        {"id": "ABSGT6", "entityType": "model", "weight": 0.1},
+                        {"id": "GISN30", "entityType": "model", "weight": 0.1},
+                        {"id": "SUMAG3", "entityType": "model", "weight": 0.1},
+                        {"id": "TPMMA4", "entityType": "model", "weight": 0.1},
+                        {"id": "TS1TAL", "entityType": "model", "weight": 0.1},
+                        {"id": "UPMPR5", "entityType": "model", "weight": 0.1}
+                    ]
+                },
+                "calculations": [{"calculationType": "Information Ratio", "configurations": {"timeHorizon": ["threeYear", "fiveYear", "tenYear"], "startDate": "2015-12-30", "endDate": "2025-12-31"}}]
+            }
+        },
+        "expected_status": "200",
+        "expected_response_schema": "",
+        "expected_response": null,
+        "ignore_fields": ["id"],
+        "extract_values": [{"from": "response", "key": "id", "assign_to": ""}],
+        "validate": {"performance": {"max_response_time_ms": null}},
+        "test_data_file": "",
+        "db_query": "",
+        "db_type": "",
+        "db_connection_name": "",
+        "test_summary": "Information Ratio positive performance scenario with 10-model blend and total weight 1.0.",
+        "test_scenario": "Validate 200 response for Information Ratio calculation in performance mode."
+    },
+    {
+        "test_id": "TC003_perf_information_ratio",
+        "service_name": "analyticsApiServices",
+        "workflow_mode": "parallel",
+        "test_name": "POST /v2/analytics [positive] Information Ratio (TC003_perf_information_ratio)",
+        "protocol": "REST",
+        "test_type": ["Functional", "Performance"],
+        "mainURL": "{{base_url}}",
+        "endpoint": "/v2/analytics",
+        "method": "POST",
+        "rpc_method": "",
+        "graphql_query": "",
+        "graphql_variables": "",
+        "soap_action": "",
+        "soap_envelope": "",
+        "headers_additional": {"Content-Type": "application/json"},
+        "payload": {
+            "calculationRequest": {
+                "inputs": {
+                    "benchmark": ["SP500I"],
+                    "blend": [
+                        {"id": "BLKES4", "entityType": "model", "weight": 0.1},
+                        {"id": "GISI35", "entityType": "model", "weight": 0.1},
+                        {"id": "SELAC5", "entityType": "model", "weight": 0.1},
+                        {"id": "TMFBL3", "entityType": "model", "weight": 0.1},
+                        {"id": "TPM5GF", "entityType": "model", "weight": 0.1},
+                        {"id": "UPM4GF", "entityType": "model", "weight": 0.1},
+                        {"id": "AMDFA5", "entityType": "model", "weight": 0.1},
+                        {"id": "NUVMAS", "entityType": "model", "weight": 0.1},
+                        {"id": "TMFCG5", "entityType": "model", "weight": 0.1},
+                        {"id": "TSTPT3", "entityType": "model", "weight": 0.1}
+                    ]
+                },
+                "calculations": [{"calculationType": "Information Ratio", "configurations": {"timeHorizon": ["threeYear", "fiveYear", "tenYear", "twentyYear"], "startDate": "2015-12-30", "endDate": "2025-12-31"}}]
+            }
+        },
+        "expected_status": "200",
+        "expected_response_schema": "",
+        "expected_response": null,
+        "ignore_fields": ["id"],
+        "extract_values": [{"from": "response", "key": "id", "assign_to": ""}],
+        "validate": {"performance": {"max_response_time_ms": null}},
+        "test_data_file": "",
+        "db_query": "",
+        "db_type": "",
+        "db_connection_name": "",
+        "test_summary": "Information Ratio positive performance scenario with 10-model blend and total weight 1.0.",
+        "test_scenario": "Validate 200 response for Information Ratio calculation in performance mode."
+    }
+]
