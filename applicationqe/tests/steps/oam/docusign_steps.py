@@ -31,7 +31,7 @@ def user_confirm_and_continue(authenticated_page: Page, test_context):
         logger.info("[DEBUG] Using new_docusign_page from test_context")
     else:
         logger.info("[DEBUG] new_docusign_page not in test_context, creating default DocuSignPage")
-        from pages.docusign_page import DocuSignPage
+        from pages.oam.docusign_page import DocuSignPage
         docusign_page = DocuSignPage(authenticated_page)
     
     # Check the ERSD consent checkbox
@@ -74,7 +74,7 @@ def user_finish_the_docusign_process(authenticated_page: Page, test_context):
         logger.info("[DEBUG] Using new_docusign_page from test_context")
     else:
         logger.info("[DEBUG] new_docusign_page not in test_context, creating default DocuSignPage")
-        from pages.docusign_page import DocuSignPage
+        from pages.oam.docusign_page import DocuSignPage
         docusign_page = DocuSignPage(authenticated_page)
     
     with allure.step("Fetch D-number and finish DocuSign process"):
@@ -349,7 +349,7 @@ def user_click_on_sign_and_add_signature(authenticated_page: Page, docusign_page
         logger.info("[DEBUG] Using new_docusign_page from test_context")
     else:
         logger.info("[DEBUG] new_docusign_page not in test_context, creating default DocuSignPage")
-        from pages.docusign_page import DocuSignPage
+        from pages.oam.docusign_page import DocuSignPage
         docusign_page = DocuSignPage(authenticated_page)
     
     with allure.step("User click on Sign button and add signature"):
@@ -533,14 +533,14 @@ def user_click_review_document_and_submit_opt(authenticated_page: Page, docusign
             outlook_email_page.bring_to_front()
             logger.info("Brought outlook email page to foreground")
             
-            # Click the REVIEW DOCUMENT link which opens DocuSign in a new page context
-            review_link = outlook_email_page.get_by_role("link", name="REVIEW DOCUMENT")
-            review_link.wait_for(timeout=15000)
+            # Use OutlookPage method to properly handle ATP blocking and click the link
+            # This method handles: ATP unblock, link href population, Safe Links, etc.
+            from pages.oam.outlook_page import OutlookPage
             
-            # Get the new page that opens when we click the link
-            with outlook_email_page.context.expect_page() as new_page_info:
-                review_link.click()
-                new_docusign_page = new_page_info.value
+            # Create a lightweight OutlookPage wrapper (config not needed for click_review_document_link)
+            # The method handles all ATP/Safe Links issues before clicking
+            outlook_wrapper = OutlookPage(outlook_email_page, config=None)
+            new_docusign_page = outlook_wrapper.click_review_document_link(outlook_email_page)
             
             logger.info("[PASS] DocuSign page opened from email 'Review Document' link")
             
@@ -603,7 +603,7 @@ def user_click_on_send_now_and_fetch_otp_from_mail(authenticated_page: Page, doc
         When User click on send now and fetch OTP from mail
     """
     import time
-    from pages.outlook_page import OutlookPage
+    from pages.oam.outlook_page import OutlookPage
     
     logger.info(">>> ENTERED STEP: user_click_on_send_now_and_fetch_otp_from_mail")
     

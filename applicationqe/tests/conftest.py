@@ -466,7 +466,7 @@ def pytest_runtest_makereport(item, call) -> Generator:
 
     # BDD soft assertion check: suppress SoftAssertionWarning to keep test as PASSED
     if rep.when == "call" and rep.failed:
-        if rep.excinfo and hasattr(rep.excinfo, "value"):
+        if hasattr(rep, "excinfo") and rep.excinfo and hasattr(rep.excinfo, "value"):
             from utils.soft_assertions_enhanced import SoftAssertionWarning
 
             if isinstance(rep.excinfo.value, SoftAssertionWarning):

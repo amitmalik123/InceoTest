@@ -269,13 +269,45 @@ class DocuSignPage(BasePage):
         """
         logger.info("Verifying ERSD modal dialog is visible...")
         
+        # First, wait for the ERSD modal to be attached to the DOM (it might be rendering)
+        # This is critical because the modal might not exist yet when the page loads
+        logger.info(f"Waiting for ERSD modal to be present in DOM (timeout: {timeout}ms)...")
+        modal_attached = False
+        try:
+            # Strategy 0: Wait for modal to be attached to DOM using primary selector
+            dialog_primary = self.page.locator(docusign_locators.ERSD_MODAL_PRIMARY)
+            dialog_primary.wait_for(state="attached", timeout=timeout)
+            logger.info("✓ ERSD modal is now attached to DOM")
+            modal_attached = True
+        except PlaywrightTimeoutError:
+            logger.debug("Primary selector attachment timeout, trying fallback...")
+        except Exception as e:
+            logger.debug(f"Primary selector attachment failed: {e}")
+        
+        # If primary didn't attach, try fallback
+        if not modal_attached:
+            try:
+                logger.debug("Trying fallback ARIA selector for DOM attachment...")
+                dialog_fallback = self.page.locator(docusign_locators.ERSD_MODAL_ARIA)
+                dialog_fallback.wait_for(state="attached", timeout=timeout)
+                logger.info("✓ ERSD modal is now attached to DOM (via fallback)")
+                modal_attached = True
+            except PlaywrightTimeoutError:
+                logger.debug("Fallback selector attachment timeout")
+            except Exception as e:
+                logger.debug(f"Fallback selector attachment failed: {e}")
+        
+        if not modal_attached:
+            logger.warning("ERSD modal could not be attached to DOM within timeout")
+        
+        # Now verify the modal is visible
         modal_locator = None
         
         # Strategy 1: Primary - Use data-qa selector (most reliable)
         try:
-            logger.debug("Strategy 1: Checking data-qa='ersd-modal' selector...")
+            logger.debug("Strategy 1: Checking data-qa='ersd-modal' selector visibility...")
             dialog_primary = self.page.locator(docusign_locators.ERSD_MODAL_PRIMARY)
-            dialog_primary.wait_for(state="visible", timeout=3000)
+            dialog_primary.wait_for(state="visible", timeout=10000)  # Increase to 10s since it's already attached
             modal_locator = dialog_primary
             logger.info("✓ ERSD modal found using primary data-qa selector")
         except PlaywrightTimeoutError:
@@ -286,9 +318,9 @@ class DocuSignPage(BasePage):
         # Strategy 2: Fallback - Use ARIA label
         if modal_locator is None:
             try:
-                logger.debug("Strategy 2: Checking ARIA label selector...")
+                logger.debug("Strategy 2: Checking ARIA label selector visibility...")
                 dialog_fallback = self.page.locator(docusign_locators.ERSD_MODAL_ARIA)
-                dialog_fallback.wait_for(state="visible", timeout=3000)
+                dialog_fallback.wait_for(state="visible", timeout=10000)  # Increase to 10s since it's already attached
                 modal_locator = dialog_fallback
                 logger.info("✓ ERSD modal found using ARIA label selector (fallback)")
             except PlaywrightTimeoutError:

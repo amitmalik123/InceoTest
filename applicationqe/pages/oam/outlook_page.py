@@ -1003,35 +1003,100 @@ class OutlookPage(BasePage):
             raise last_error
 
     def search_authorized_signer_email(self, outlook_email_page: Page, search_text: str) -> None:
-        """Search for authorized signer email using D-number with subject and body filters.
+        """Search for authorized signer email using D-number only, then validate content.
         
-        Searches for the email containing the D-number (search_text) AND filters by:
-        - Subject: "Electronic Signature" (identifies DocuSign signing emails)
-        - Body: "ready for you to sign" (identifies active, non-voided signing requests)
+        Strategy:
+        1. Search Outlook by D-number ONLY (no subject/body filters in search)
+        2. Click first result (most likely to be correct email)
+        3. Validate the opened email:
+           - Subject must contain "Electronic Signature"
+           - Body must contain "ready for you to sign"
+        4. If validation fails, retry entire search (up to 10 times with page reload)
         
-        This ensures we get the correct active signing request email and avoid voided/cancelled emails.
+        This ensures we find emails for the correct D-number and avoid picking old test emails.
         
         Args:
             outlook_email_page: Authenticated Outlook page to search in
-            search_text: D-number to search for
-        """
-        try:
-            # Use shared helper to click Inbox and search for the D-number.
-            # Filter results by subject (Electronic Signature) and body (ready for you to sign)
-            # to ensure we get the correct active signing email for this D-number
-            self._click_inbox_search_and_select(
-                outlook_email_page,
-                search_text,
-                retries=10,
-                subject="Electronic Signature",
-                body="ready for you to sign",  # Only in active/pending emails, not voided ones
-            )
+            search_text: D-number to search for (e.g., "D003614220")
             
-            logger.info(f"Successfully searched and opened authorized signer email for D-number: {search_text}")
-
-        except Exception as ex:  # pragma: no cover - defensive
-            self.logger.error(f"Error while searching email: {ex}")
-            raise
+        Raises:
+            RuntimeError: If email cannot be found and validated after 10 retries
+        """
+        max_retries = 10
+        retry_count = 0
+        last_error = None
+        
+        while retry_count < max_retries:
+            try:
+                retry_count += 1
+                logger.info(f"Search attempt {retry_count}/{max_retries} for D-number: {search_text}")
+                
+                # Reload page before retry (except on first attempt)
+                if retry_count > 1:
+                    logger.info(f"Reloading page before retry attempt {retry_count}...")
+                    outlook_email_page.reload(wait_until="domcontentloaded")
+                    outlook_email_page.wait_for_timeout(2000)
+                
+                # Step 1: Search by D-number only (no subject/body filters)
+                self._click_inbox_search_and_select(
+                    outlook_email_page,
+                    search_text,
+                    retries=1,  # Single attempt per retry loop (we handle retries at this level)
+                    subject=None,  # Don't filter by subject in search
+                    body=None,     # Don't filter by body in search
+                )
+                
+                logger.info(f"Search returned result for D-number: {search_text}")
+                
+                # Step 2: Validate the opened email
+                logger.info("Validating email content...")
+                
+                # Validate subject contains "Electronic Signature"
+                email_subject = outlook_email_page.locator('//div[contains(@id,"SUBJECT")]/descendant::span[1]').inner_text()
+                logger.info(f"Email subject: {email_subject}")
+                
+                if "Electronic Signature" not in email_subject:
+                    raise AssertionError(
+                        f"Subject validation failed: expected 'Electronic Signature' in subject, "
+                        f"but got: '{email_subject}'"
+                    )
+                logger.info("✓ Subject validation passed")
+                
+                # Validate body contains "ready for you to sign"
+                body_container = outlook_email_page.locator('[data-test-id="mailMessageBodyContainer"]').first
+                body_container.wait_for(state="visible", timeout=10000)
+                email_body = body_container.inner_text()
+                
+                if "ready for you to sign" not in email_body.lower():
+                    raise AssertionError(
+                        f"Body validation failed: expected 'ready for you to sign' in body"
+                    )
+                logger.info("✓ Body validation passed")
+                
+                # Validate D-number is in the subject
+                if search_text not in email_subject:
+                    raise AssertionError(
+                        f"D-number validation failed: expected '{search_text}' in subject, "
+                        f"but got: '{email_subject}'"
+                    )
+                logger.info(f"✓ D-number validation passed: {search_text}")
+                
+                logger.info(f"✓ Successfully found and validated authorized signer email for D-number: {search_text}")
+                return  # Success - exit function
+                
+            except Exception as ex:
+                last_error = ex
+                logger.warning(
+                    f"Search attempt {retry_count}/{max_retries} failed: {str(ex)}\n"
+                    f"Will retry search..."
+                )
+        
+        # All retries exhausted
+        raise RuntimeError(
+            f"Failed to find and validate authorized signer email for D-number '{search_text}' "
+            f"after {max_retries} attempts.\n"
+            f"Last error: {str(last_error)}"
+        )
 
     def fetch_authorized_signer_email_subject_and_body(self, outlook_email_page: Page, d_number: str) -> tuple[str, str]:
         """Fetch and return the authorized signer email subject and body content separately.
@@ -1095,6 +1160,8 @@ class OutlookPage(BasePage):
         IMPORTANT: Outlook ATP blocks external sender content, making the link href null.
         We must click 'Show blocked content' FIRST before clicking the link.
         
+        Also handles Microsoft Safe Links (URL wrapping) and ATP warning pages.
+        
         Clicking this link opens DocuSign in a new tab/popup.
         
         Args:
@@ -1122,12 +1189,24 @@ class OutlookPage(BasePage):
             
             docusign_page = popup_info.value
             
-            # Step 3: Wait for DocuSign page to load
+            # Step 3: Handle Microsoft Safe Links and ATP warning redirects
+            # Safe Links wrap URLs, and there might be ATP warning pages before actual content
+            self.logger.info("Step 3: Handling potential Safe Links and ATP warning pages...")
+            self._handle_safe_links_redirect(docusign_page)
+            
+            # Step 4: Wait for DocuSign page to load
             try:
-                docusign_page.wait_for_url(lambda url: "docusign" in url.lower(), timeout=20_000)
-                self.logger.info("✓ DocuSign page loaded successfully")
+                docusign_page.wait_for_load_state("networkidle", timeout=30_000)
+                self.logger.info("✓ DocuSign page reached networkidle state")
             except Exception as e:
-                self.logger.warning(f"DocuSign URL detection timeout: {e}, proceeding anyway")
+                self.logger.warning(f"DocuSign networkidle timeout: {e}, proceeding anyway")
+            
+            # Verify we're on DocuSign (not ATP warning page)
+            try:
+                docusign_page.wait_for_url(lambda url: "docusign" in url.lower(), timeout=30_000)
+                self.logger.info("✓ Confirmed on DocuSign page")
+            except Exception as e:
+                self.logger.warning(f"DocuSign URL detection timeout: {e}, current URL: {docusign_page.url}")
             
             self.logger.info("✓ Successfully clicked 'REVIEW DOCUMENT' link, DocuSign page opened")
             return docusign_page
@@ -1135,6 +1214,51 @@ class OutlookPage(BasePage):
         except Exception as ex:
             self.logger.error(f"Error while clicking Review Document link: {ex}")
             raise
+    
+    def _handle_safe_links_redirect(self, page: Page) -> None:
+        """Handle Microsoft Safe Links redirect pages and ATP warnings.
+        
+        Microsoft Outlook wraps external links in Safe Links (protection.outlook.com).
+        These might show a warning page or redirect. We need to wait through any redirects
+        to reach the actual destination.
+        
+        Args:
+            page: Playwright Page to handle redirects on
+        """
+        try:
+            self.logger.info("Checking for Safe Links redirect or ATP warning pages...")
+            
+            # Wait for any redirects to complete
+            max_redirects = 5
+            redirect_count = 0
+            
+            while redirect_count < max_redirects:
+                current_url = page.url
+                
+                # If we're on Safe Links, ATP, or similar protection page, wait for redirect
+                if any(domain in current_url.lower() for domain in [
+                    "safelinks",
+                    "protection.outlook",
+                    "urldefense",
+                    "atp",
+                    "warning",
+                    "deferred"
+                ]):
+                    self.logger.info(f"Detected redirect page: {current_url[:80]}...")
+                    page.wait_for_load_state("networkidle", timeout=15_000)
+                    self.logger.info("Waiting for Safe Links redirect to complete...")
+                    page.wait_for_timeout(3_000)
+                    redirect_count += 1
+                else:
+                    # Reached actual destination
+                    self.logger.info(f"✓ Reached destination URL: {current_url[:80]}...")
+                    break
+            
+            if redirect_count >= max_redirects:
+                self.logger.warning(f"Max redirects ({max_redirects}) exceeded")
+                
+        except Exception as e:
+            self.logger.warning(f"⚠ Error handling Safe Links redirect: {e}, proceeding anyway")
     
     def _unblock_email_content_if_needed(self, outlook_email_page: Page) -> None:
         """Click 'Show blocked content' in Outlook if ATP has blocked the email body.
