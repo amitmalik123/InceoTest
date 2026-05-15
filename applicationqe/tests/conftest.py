@@ -40,6 +40,7 @@ from utils.flaky_test_tracker import get_tracker
 
 logger = get_allure_logger(__name__)
 
+
 # ==================================================================================
 # BDD-SPECIFIC FIXTURES (Merged from tests/bdd/conftest.py)
 # ==================================================================================
@@ -310,15 +311,17 @@ def pytest_sessionstart(session) -> None:
     """
     import shutil
 
+    report_dir = "reports"
+    
     dirs_to_clean = [
-        "reports/allure-results",
-        "reports/videos",
-        "reports/traces",
-        "reports/downloads",
+        f"{report_dir}/allure-results",
+        f"{report_dir}/videos",
+        f"{report_dir}/traces",
+        f"{report_dir}/downloads",
     ]
 
     files_to_clean = [
-        "reports/network_errors.log",  # Matches http_error_log in pyproject.toml
+        f"{report_dir}/network_errors.log",  # Matches http_error_log in pyproject.toml
     ]
 
     for dir_path in dirs_to_clean:
@@ -505,7 +508,7 @@ def pytest_sessionfinish(session, exitstatus) -> None:  # noqa: C901
 
     # Generate Auto-Healing Report
     try:
-        from pages.base_page import BasePage
+        from pages.oam.base_page import BasePage
 
         healing_engine = BasePage._healing_engine
         if healing_engine:

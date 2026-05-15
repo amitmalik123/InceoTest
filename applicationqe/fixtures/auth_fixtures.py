@@ -20,7 +20,7 @@ import pytest
 from playwright.sync_api import Page
 
 from config.oam.settings import Settings, get_settings
-from pages.login_page import LoginPage
+from pages.oam.login_page import LoginPage
 from fixtures.browser_fixtures import apply_context_listeners, apply_route_blocks
 
 # Use centralized Settings singleton
@@ -411,7 +411,13 @@ def authenticated_page(browser, browser_context_args, test_data, request) -> Gen
 
 
 def _stop_tracing(context, tracing_option: str, request) -> None:
-    """Stop tracing and save the trace file based on the tracing option."""
+    """
+    Stop tracing and save the trace file based on the tracing option.
+    
+    Report Directory:
+    - OAM tests: traces stored in reports/oam/traces
+    - Other tests: traces stored in reports/traces
+    """
     if tracing_option == "off":
         return
 
