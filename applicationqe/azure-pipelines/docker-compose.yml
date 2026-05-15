@@ -138,7 +138,7 @@ services:
       - ./config:/app/config:ro
       - ./data:/app/data:ro
     command: >
-      pytest tests/bdd/
+      pytest tests/
       -v
       --browser=chromium
       --alluredir=reports/allure-results

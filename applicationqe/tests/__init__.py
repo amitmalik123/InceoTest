@@ -2,9 +2,16 @@
 Tests Package
 
 This package contains all test modules organized by type:
-- bdd/ - Behavior-Driven Development tests using pytest-bdd
+
+BDD Tests (using pytest-bdd):
+- features/ - Gherkin feature files (.feature)
+- steps/ - Step definitions implementing feature steps
+- test_runners/ - Pytest test files that execute scenarios
+- bdd/conftest.py - BDD-specific fixtures and configuration
+
+Other test types:
 - api/ - API integration tests
-- fixtures/ - Test fixtures and utilities
+- fixtures/ - Test fixtures and utilities (shared by all tests)
 
 All test fixtures are automatically discovered from conftest.py files.
 """
