@@ -1,0 +1,43 @@
+name: naw-$(Date:yyyyMMdd)$(Rev:.r)
+
+trigger:
+  branches:
+    include:
+      - main
+      - develop
+  paths:
+    include:
+      - data/NAW/**
+      - config/NAW/**
+      - tests/features/NAW/**
+      - tests/steps/NAW/**
+      - pages/NAW/**
+      - queries/NAW/**
+      - azure-pipelines/templates/**
+      - requirements.txt
+
+pr:
+  branches:
+    include:
+      - main
+      - develop
+  paths:
+    include:
+      - data/NAW/**
+      - config/NAW/**
+      - tests/features/NAW/**
+      - tests/steps/NAW/**
+      - pages/NAW/**
+      - queries/NAW/**
+      - azure-pipelines/templates/**
+      - requirements.txt
+
+pool:
+  vmImage: ubuntu-latest
+
+stages:
+  - template: templates/team-stage.yml
+    parameters:
+      stageName: NAW
+      teamDisplay: NAW
+      featurePath: tests/features/NAW

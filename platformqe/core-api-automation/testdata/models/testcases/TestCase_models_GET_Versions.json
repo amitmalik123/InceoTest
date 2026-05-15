@@ -1895,7 +1895,7 @@
             "Negative"
         ],
         "mainURL": "{{base_url}}",
-        "endpoint": "/model",
+        "endpoint": "/models",
         "method": "GET",
         "rpc_method": "",
         "graphql_query": "",
