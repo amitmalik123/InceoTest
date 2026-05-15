@@ -30,15 +30,69 @@ from pathlib import Path
 
 import allure
 import pytest
+from playwright.sync_api import Page
 
 from config.oam.settings import get_settings
 
 # Import all fixtures to make them available to all tests
-from fixtures import *  # noqa: F401, F403
+try:
+    from fixtures import *  # noqa: F401, F403
+except ImportError:
+    pass  # fixtures module not found, that's ok
+
 from utils.allure_logger import enable_step_screenshots, get_allure_logger
 from utils.flaky_test_tracker import get_tracker
 
 logger = get_allure_logger(__name__)
+
+
+# ==================================================================================
+# EWM PAGE OBJECT FIXTURES (for STP e2e tests)
+# ==================================================================================
+# These fixtures are used by tests/steps/stp/stp-journals/e2e/ tests
+# Imported from pages.ewm module
+
+try:
+    from pages.ewm.account_detail_page import AccountDetailPage
+    from pages.ewm.account_list_page import AccountListPage
+    from pages.ewm.clients_page import ClientsPage
+    from pages.ewm.login_page import LoginPage
+    from pages.ewm.roth_conversion_page import RothConversionPage
+    from pages.ewm.tracking_center_page import TrackingCenterPage
+
+    @pytest.fixture
+    def login_page(page: Page):
+        """Login page object fixture"""
+        return LoginPage(page)
+
+    @pytest.fixture
+    def clients_page(page: Page):
+        """Clients page object fixture"""
+        return ClientsPage(page)
+
+    @pytest.fixture
+    def account_list_page(page: Page):
+        """Account list page object fixture"""
+        return AccountListPage(page)
+
+    @pytest.fixture
+    def account_detail_page(page: Page):
+        """Account detail page object fixture"""
+        return AccountDetailPage(page)
+
+    @pytest.fixture
+    def roth_conversion_page(page: Page):
+        """Roth conversion page object fixture"""
+        return RothConversionPage(page)
+
+    @pytest.fixture
+    def tracking_center_page(page: Page):
+        """Tracking center page object fixture"""
+        return TrackingCenterPage(page)
+
+except ImportError:
+    # EWM pages not available - some test environments may not have all modules
+    pass
 
 
 # ==================================================================================
