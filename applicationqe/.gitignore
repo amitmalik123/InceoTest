@@ -88,6 +88,9 @@ PROMPTS_LOG.md
 # Markdown files (documentation/notes - not for version control)
 *.md
 
+# Old test output files (encoding issues, not for version control)
+*.txt
+
 # Contracts (generated/temporary)
 contracts/
 
