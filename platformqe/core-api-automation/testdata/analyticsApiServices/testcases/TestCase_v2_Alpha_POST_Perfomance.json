@@ -1,0 +1,200 @@
+[
+    {
+        "test_id": "TC001_perf_alpha",
+        "service_name": "analyticsApiServices",
+        "workflow_mode": "parallel",
+        "test_name": "POST /v2/analytics [positive] Alpha (TC001_perf_alpha)",
+        "protocol": "REST",
+        "test_type": [
+            "Functional",
+            "Performance"
+        ],
+        "mainURL": "{{base_url}}",
+        "endpoint": "/v2/analytics",
+        "method": "POST",
+        "rpc_method": "",
+        "graphql_query": "",
+        "graphql_variables": "",
+        "soap_action": "",
+        "soap_envelope": "",
+        "headers_additional": {
+            "Content-Type": "application/json"
+        },
+        "payload": {
+            "calculationRequest": {
+                "inputs": {
+                    "benchmark": [
+                        "SP500I"
+                    ],
+                    "blend": [
+                        {"id": "GPRRS1", "entityType": "model", "weight": 0.1},
+                        {"id": "UF2SMA", "entityType": "model", "weight": 0.1},
+                        {"id": "UMA0ET", "entityType": "model", "weight": 0.1},
+                        {"id": "NUT110", "entityType": "model", "weight": 0.1},
+                        {"id": "SELAC2", "entityType": "model", "weight": 0.1},
+                        {"id": "TPRRS2", "entityType": "model", "weight": 0.1},
+                        {"id": "TPSMFS", "entityType": "model", "weight": 0.1},
+                        {"id": "AMDLVT", "entityType": "model", "weight": 0.1},
+                        {"id": "TPMPR5", "entityType": "model", "weight": 0.1},
+                        {"id": "URISP2", "entityType": "model", "weight": 0.1}
+                    ]
+                },
+                "calculations": [
+                    {
+                        "calculationType": "alpha",
+                        "configurations": {
+                            "riskFreeRate": "SBT30D",
+                            "timeHorizon": ["threeYear", "fiveYear"],
+                            "startDate": "2015-12-30",
+                            "endDate": "2025-12-31"
+                        }
+                    }
+                ]
+            }
+        },
+        "expected_status": "200",
+        "expected_response_schema": "",
+        "expected_response": null,
+        "ignore_fields": ["id"],
+        "extract_values": [{"from": "response", "key": "id", "assign_to": ""}],
+        "validate": {"performance": {"max_response_time_ms": null}},
+        "test_data_file": "",
+        "db_query": "",
+        "db_type": "",
+        "db_connection_name": "",
+        "test_summary": "Alpha positive performance scenario with 10-model blend and total weight 1.0.",
+        "test_scenario": "Validate 200 response for alpha calculation in performance mode."
+    },
+    {
+        "test_id": "TC002_perf_alpha",
+        "service_name": "analyticsApiServices",
+        "workflow_mode": "parallel",
+        "test_name": "POST /v2/analytics [positive] Alpha (TC002_perf_alpha)",
+        "protocol": "REST",
+        "test_type": [
+            "Functional",
+            "Performance"
+        ],
+        "mainURL": "{{base_url}}",
+        "endpoint": "/v2/analytics",
+        "method": "POST",
+        "rpc_method": "",
+        "graphql_query": "",
+        "graphql_variables": "",
+        "soap_action": "",
+        "soap_envelope": "",
+        "headers_additional": {
+            "Content-Type": "application/json"
+        },
+        "payload": {
+            "calculationRequest": {
+                "inputs": {
+                    "benchmark": [
+                        "SP500I"
+                    ],
+                    "blend": [
+                        {"id": "TFMF1T", "entityType": "model", "weight": 0.1},
+                        {"id": "GISI60", "entityType": "model", "weight": 0.1},
+                        {"id": "GISN44", "entityType": "model", "weight": 0.1},
+                        {"id": "MSTAT6", "entityType": "model", "weight": 0.1},
+                        {"id": "ARIBU5", "entityType": "model", "weight": 0.1},
+                        {"id": "GISN39", "entityType": "model", "weight": 0.1},
+                        {"id": "TMDFA1", "entityType": "model", "weight": 0.1},
+                        {"id": "WBCCP1", "entityType": "model", "weight": 0.1},
+                        {"id": "ARISC4", "entityType": "model", "weight": 0.1},
+                        {"id": "GISI38", "entityType": "model", "weight": 0.1}
+                    ]
+                },
+                "calculations": [
+                    {
+                        "calculationType": "alpha",
+                        "configurations": {
+                            "riskFreeRate": "SBT30D",
+                            "timeHorizon": ["threeYear", "fiveYear", "tenYear"],
+                            "startDate": "2015-12-30",
+                            "endDate": "2025-12-31"
+                        }
+                    }
+                ]
+            }
+        },
+        "expected_status": "200",
+        "expected_response_schema": "",
+        "expected_response": null,
+        "ignore_fields": ["id"],
+        "extract_values": [{"from": "response", "key": "id", "assign_to": ""}],
+        "validate": {"performance": {"max_response_time_ms": null}},
+        "test_data_file": "",
+        "db_query": "",
+        "db_type": "",
+        "db_connection_name": "",
+        "test_summary": "Alpha positive performance scenario with 10-model blend and total weight 1.0.",
+        "test_scenario": "Validate 200 response for alpha calculation in performance mode."
+    },
+    {
+        "test_id": "TC003_perf_alpha",
+        "service_name": "analyticsApiServices",
+        "workflow_mode": "parallel",
+        "test_name": "POST /v2/analytics [positive] Alpha (TC003_perf_alpha)",
+        "protocol": "REST",
+        "test_type": [
+            "Functional",
+            "Performance"
+        ],
+        "mainURL": "{{base_url}}",
+        "endpoint": "/v2/analytics",
+        "method": "POST",
+        "rpc_method": "",
+        "graphql_query": "",
+        "graphql_variables": "",
+        "soap_action": "",
+        "soap_envelope": "",
+        "headers_additional": {
+            "Content-Type": "application/json"
+        },
+        "payload": {
+            "calculationRequest": {
+                "inputs": {
+                    "benchmark": [
+                        "SP500I"
+                    ],
+                    "blend": [
+                        {"id": "JPM2GT", "entityType": "model", "weight": 0.1},
+                        {"id": "SUMTT4", "entityType": "model", "weight": 0.1},
+                        {"id": "TF4SME", "entityType": "model", "weight": 0.1},
+                        {"id": "TFMF5T", "entityType": "model", "weight": 0.1},
+                        {"id": "TPM4GF", "entityType": "model", "weight": 0.1},
+                        {"id": "NUM7CA", "entityType": "model", "weight": 0.1},
+                        {"id": "RS4SAL", "entityType": "model", "weight": 0.1},
+                        {"id": "TS1GSR", "entityType": "model", "weight": 0.1},
+                        {"id": "US2SAL", "entityType": "model", "weight": 0.1},
+                        {"id": "AMFTE2", "entityType": "model", "weight": 0.1}
+                    ]
+                },
+                "calculations": [
+                    {
+                        "calculationType": "alpha",
+                        "configurations": {
+                            "riskFreeRate": "SBT30D",
+                            "timeHorizon": ["threeYear", "fiveYear", "tenYear", "twentyYear"],
+                            "startDate": "2015-12-30",
+                            "endDate": "2025-12-31"
+                        }
+                    }
+                ]
+            }
+        },
+        "expected_status": "200",
+        "expected_response_schema": "",
+        "expected_response": null,
+        "ignore_fields": ["id"],
+        "extract_values": [{"from": "response", "key": "id", "assign_to": ""}],
+        "validate": {"performance": {"max_response_time_ms": null}},
+        "test_data_file": "",
+        "db_query": "",
+        "db_type": "",
+        "db_connection_name": "",
+        "test_summary": "Alpha positive performance scenario with 10-model blend and total weight 1.0.",
+        "test_scenario": "Validate 200 response for alpha calculation in performance mode."
+    }
+]
