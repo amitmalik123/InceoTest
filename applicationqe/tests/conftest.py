@@ -276,10 +276,34 @@ def pytest_addoption(parser) -> None:
 
 def pytest_configure(config) -> None:
     """Register custom markers and configure retry behavior"""
+    # Application and environment markers
     config.addinivalue_line("markers", "env(name): mark test to run only on specific environment")
-    config.addinivalue_line(
-        "markers", "app(name): mark test to run with specific application (default: ewm)"
-    )
+    config.addinivalue_line("markers", "app(name): mark test to run with specific application (default: ewm)")
+    
+    # Environment-specific markers
+    config.addinivalue_line("markers", "test11: mark test to run only on test11 environment")
+    config.addinivalue_line("markers", "test12: mark test to run only on test12 environment")
+    config.addinivalue_line("markers", "silo: mark test to run only on silo environment")
+    config.addinivalue_line("markers", "prod: mark test to run only on prod environment")
+    
+    # Test category markers
+    config.addinivalue_line("markers", "smoke: mark test as smoke test")
+    config.addinivalue_line("markers", "FNT_regression: mark test as FNT regression test")
+    config.addinivalue_line("markers", "HappyPath: mark test as happy path test")
+    config.addinivalue_line("markers", "slow: mark test as slow")
+    
+    # Scenario/Test case markers (S1-S11)
+    for i in range(1, 12):
+        config.addinivalue_line("markers", f"S{i}: mark test as scenario S{i}")
+    
+    # Regression markers
+    config.addinivalue_line("markers", "T10_Regression: mark test as T10 regression")
+    config.addinivalue_line("markers", "Silo_Regression: mark test as Silo regression")
+    config.addinivalue_line("markers", "Prod_Regression: mark test as Prod regression")
+    
+    # Execution control markers
+    config.addinivalue_line("markers", "serial: mark test to run serially (not in parallel)")
+    config.addinivalue_line("markers", "xdist_group(name): mark test with xdist group for parallel execution")
 
     # Configure step screenshots - Priority: CLI > ENV VAR > CONFIG FILE
     settings_instance = get_settings()

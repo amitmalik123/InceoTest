@@ -1218,47 +1218,44 @@ class OutlookPage(BasePage):
     def _handle_safe_links_redirect(self, page: Page) -> None:
         """Handle Microsoft Safe Links redirect pages and ATP warnings.
         
-        Microsoft Outlook wraps external links in Safe Links (protection.outlook.com).
-        These might show a warning page or redirect. We need to wait through any redirects
-        to reach the actual destination.
+        Detects if we're stuck on a Safe Links error page (url=null) and closes it.
+        Otherwise waits for any redirects to complete.
         
         Args:
             page: Playwright Page to handle redirects on
         """
         try:
-            self.logger.info("Checking for Safe Links redirect or ATP warning pages...")
+            self.logger.info("Checking for Safe Links issues...")
             
-            # Wait for any redirects to complete
-            max_redirects = 5
-            redirect_count = 0
+            # Wait a moment for page to load
+            page.wait_for_timeout(2000)
             
-            while redirect_count < max_redirects:
-                current_url = page.url
-                
-                # If we're on Safe Links, ATP, or similar protection page, wait for redirect
-                if any(domain in current_url.lower() for domain in [
-                    "safelinks",
-                    "protection.outlook",
-                    "urldefense",
-                    "atp",
-                    "warning",
-                    "deferred"
-                ]):
-                    self.logger.info(f"Detected redirect page: {current_url[:80]}...")
-                    page.wait_for_load_state("networkidle", timeout=15_000)
-                    self.logger.info("Waiting for Safe Links redirect to complete...")
-                    page.wait_for_timeout(3_000)
-                    redirect_count += 1
-                else:
-                    # Reached actual destination
-                    self.logger.info(f"✓ Reached destination URL: {current_url[:80]}...")
-                    break
+            current_url = page.url
+            self.logger.info(f"Current URL after click: {current_url[:100]}...")
             
-            if redirect_count >= max_redirects:
-                self.logger.warning(f"Max redirects ({max_redirects}) exceeded")
+            # Check if we're stuck on Safe Links error page (url=null, cordid=null)
+            if "safelink.html" in current_url and "url=null" in current_url:
+                self.logger.error(
+                    "Stuck on Safe Links error page (url=null). "
+                    "Review Document link href was not populated properly. Closing this tab."
+                )
+                try:
+                    page.close()
+                except:
+                    pass
+                raise RuntimeError(
+                    "Safe Links error: Review Document link href is null. "
+                    "ATP unblock may not have fully loaded the link. Retrying..."
+                )
+            
+            # If we're on safe links but with a valid URL, wait for redirect
+            if "safelink.html" in current_url or "protection.outlook" in current_url:
+                self.logger.info("On Safe Links page, waiting for redirect...")
+                page.wait_for_load_state("networkidle", timeout=15000)
+                self.logger.info(f"✓ Redirected to: {page.url[:100]}...")
                 
         except Exception as e:
-            self.logger.warning(f"⚠ Error handling Safe Links redirect: {e}, proceeding anyway")
+            self.logger.warning(f"⚠ Error handling Safe Links: {e}, proceeding anyway")
     
     def _unblock_email_content_if_needed(self, outlook_email_page: Page) -> None:
         """Click 'Show blocked content' in Outlook if ATP has blocked the email body.

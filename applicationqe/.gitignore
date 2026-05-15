@@ -85,6 +85,9 @@ Thumbs.db
 logs/
 PROMPTS_LOG.md
 
+# Markdown files (documentation/notes - not for version control)
+*.md
+
 # Contracts (generated/temporary)
 contracts/
 
