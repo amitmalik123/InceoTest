@@ -1,0 +1,85 @@
+﻿# SQL Queries - Shared across all environments
+# Organize queries by domain/module
+# db_type: "azure" or "sql_server" - specifies which database connection to use
+
+# Transfer Related Queries
+transfer:
+  db_type: "azure"  # Uses Azure SQL Database
+  queries:
+    transfer_audit: "SELECT status, * FROM [dbo].[TransferInfoAudit]"
+    transfer_by_id: "SELECT * FROM [dbo].[TransferInfo] WHERE TransferInfo_ID = ?"
+    transfer_by_account: "SELECT * FROM [dbo].[TransferInfo] WHERE AccountNumber = ?"
+    recent_transfers: "SELECT TOP 100 * FROM [dbo].[TransferInfoAudit] ORDER BY AuditStart DESC"
+
+# Account Related Queries (AM_Billing database)
+account:
+  account_details: "SELECT * FROM [dbo].[Account] WHERE AccountNumber = ?"
+  account_by_client: "SELECT * FROM [dbo].[Account] WHERE ClientID = ?"
+  household_id_by_account: "SELECT FamilyID FROM [dbo].[Account] WHERE AccountNo = ('{account_number}')"
+
+# Roth Conversion Queries
+roth_conversion:
+  db_type: "azure"  # Uses Azure SQL Database
+  queries:
+    conversion_audit: "SELECT * FROM [dbo].[TransferInfoAudit] WHERE TransferType = 'Roth Conversion'"
+    conversion_by_account: "SELECT * FROM [dbo].[TransferInfoAudit] WHERE SourceAccount = ? OR DestinationAccount = ?"
+
+# CRM/Billing Queries (SQL Server database)
+crm:
+  db_type: "sql_server"  # Uses SQL Server (non-Azure)
+  queries:
+    retirement_billing_client: "SELECT * FROM [CRM].[dbo].[RetirementBillingClient]"
+    billing_client_by_id: "SELECT * FROM [CRM].[dbo].[RetirementBillingClient] WHERE ClientID = ?"
+
+# Instance Audit Queries
+instance_audit:
+  audit_by_reference_and_step: |
+    SELECT ier.ReferenceID, ia.* 
+    FROM [dbo].[InstanceAudit] ia
+    JOIN [dbo].[InstanceExternalReference] ier ON ia.InstanceID = ier.InstanceID
+    WHERE ier.ReferenceID IN ('{item_number}') 
+    AND ia.StepID = '{step_id}'
+  external_reference_by_id: "SELECT * FROM InstanceExternalReference WHERE ReferenceID='{item_number}'"
+  audit_by_instance_id: |
+    SELECT * FROM InstanceAudit 
+    WHERE InstanceID = ({instance_id}) 
+    ORDER BY InstanceAudit.CreatedDate
+  instance_status_by_id: "SELECT * FROM instance WHERE id IN ({instance_id})"
+
+# Example parameterized queries
+# Use ? for parameters, pass as tuple to execute_query(query, params=(value1, value2))
+
+# Agent / SAU Lookup Queries
+agent:
+  db_type: "sql_server"
+  queries:
+    agentName__by_aplid_from_agentTable: >
+      SELECT
+        ltrim(rtrim(FirstName)) + ' ' + ltrim(rtrim(LastName)) as "Name_ManageLogin"
+        FROM [CRM].[dbo].[Agent]
+        where APLID = ?
+
+    sau_name_by_aplid: >
+      select distinct
+             ltrim(rtrim(sd.FName)) + ' ' + ltrim(rtrim(sd.LName)) "Name_ManageLogin"
+      from AM..Users u
+      join AM..UserSSOLink usl on u.UserID = usl.UserID
+      join AM..User_SSODetails sd on usl.SSOGUID = sd.SSOGUIDID
+      join ADS..CodeValue cv on usl.InvitationTypeCD = cv.CodeValue_ID
+      left join AM..User_Contact uc on u.UserID = uc.UserID
+      join crm..agent ag on usl.userid = ag.aplid
+      where cv.[Description] in ('Shared Access User')
+      and sd.UserID = ?
+
+    authorized_signer_SAU_name_ManageLogin_by_UserID: >
+      select distinct
+             ltrim(rtrim(sd.FName)) + ' ' + ltrim(rtrim(sd.LName)) "Name_ManageLogin"
+      from AM..Users u
+      join AM..UserSSOLink usl on u.UserID = usl.UserID
+      join AM..User_SSODetails sd on usl.SSOGUID = sd.SSOGUIDID
+      join ADS..CodeValue cv on usl.InvitationTypeCD = cv.CodeValue_ID
+      left join AM..User_Contact uc on u.UserID = uc.UserID
+      join crm..agent ag on usl.userid = ag.aplid
+      where cv.[Description] in ('Shared Access User')
+      and usl.UserID = ?
+      and sd.UserID != ?
