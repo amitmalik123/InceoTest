@@ -1,5 +1,6 @@
 from playwright.sync_api import Locator, Page
 
+from locators import clients_locators
 from pages.base_page import BasePage
 from utils.allure_logger import get_allure_logger
 
@@ -11,9 +12,9 @@ class ClientsPage(BasePage):
 
     def __init__(self, page: Page, base_url: str = ""):
         super().__init__(page, base_url=base_url)
-        # More specific locator to avoid "Learn More" link
-        self.clients_link: Locator = page.get_by_role("link", name="Clients", exact=True)
-        self.account_list_link: Locator = page.get_by_role("link", name="Account List", exact=True)
+        locators = clients_locators.initialize_locators(page)
+        self.clients_link: Locator = locators["clients_link"]
+        self.account_list_link: Locator = locators["account_list_link"]
 
     def navigate(self) -> None:
         logger.info(f"ClientsPage navigate - Current URL: {self.page.url}")

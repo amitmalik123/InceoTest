@@ -3,6 +3,7 @@ import re
 from playwright.sync_api import Locator, Page
 
 from config.settings import get_settings
+from locators import tms_locators
 from pages.base_page import BasePage
 from utils.allure_logger import get_allure_logger
 
@@ -12,26 +13,18 @@ logger = get_allure_logger(__name__)
 class TMSPage(BasePage):
     def __init__(self, page: Page):
         super().__init__(page)
-        self.clients_tab: Locator = page.locator("//a[text()='Clients']")
-        self.account_list_link: Locator = page.locator("//a[text()='Account List']")
-        self.search_input: Locator = page.locator("//input[@name='search_input']")
-        self.search_button: Locator = page.locator("//button[@type='submit']")
-        self.account_information_link: Locator = page.locator('//a[text()="Account Information"]')
-        self.tax_management_service_link: Locator = page.locator("//a[text()='Tax Management Service']")
-        self.account_name_header: Locator = page.locator(
-            "//div[@class='account-information-content']//h1/strong"
-        )
-        self.account_number_header: Locator = page.locator(
-            "//div[@class='account-information-content']//h1[contains(text(),'Account')]"
-        )
-        self.loading_spinner: Locator = page.locator(
-            "//div[contains(@class,'loading-indicator-component__spinner')]"
-        )
-        self.loading_indicator: Locator = page.locator(
-            "//*[contains(@class, 'loading-indication-component')"
-            " and contains(@class, 'isVisible')]"
-        )
-        self.loading_modal: Locator = page.locator("#loadingImageModal")
+        locators = tms_locators.initialize_locators(page)
+        self.clients_tab: Locator = locators["clients_tab"]
+        self.account_list_link: Locator = locators["account_list_link"]
+        self.search_input: Locator = locators["search_input"]
+        self.search_button: Locator = locators["search_button"]
+        self.account_information_link: Locator = locators["account_information_link"]
+        self.tax_management_service_link: Locator = locators["tax_management_service_link"]
+        self.account_name_header: Locator = locators["account_name_header"]
+        self.account_number_header: Locator = locators["account_number_header"]
+        self.loading_spinner: Locator = locators["loading_spinner"]
+        self.loading_indicator: Locator = locators["loading_indicator"]
+        self.loading_modal: Locator = locators["loading_modal"]
 
     def _account_number_locator(self, account_number: str) -> Locator:
         return self.page.locator(f"//td[normalize-space()='{account_number}']")

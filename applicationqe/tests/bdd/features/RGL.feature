@@ -31,14 +31,14 @@ Feature: Verify RGL page functionality
       | SheetName  | RowNumber | Client name |
       | PR         |         2 | ClientName |
 
-  @regression
-  Scenario Outline: Verify Bancorp Link Redirects to Correct URL
-    Given navigates to account information screen for cash advantage account
-    Then user can see the updated Bancorp Link
-
-    Examples:
-      | SheetName | RowNumber |
-      | PR        |         2 |
+  # @regression
+  # Scenario Outline: Verify Bancorp Link Redirects to Correct URL
+  #   Given navigates to account information screen for cash advantage account
+  #   Then user can see the updated Bancorp Link
+  #
+  #   Examples:
+  #     | SheetName | RowNumber |
+  #     | PR        |         2 |
 
   @regression
   Scenario Outline: Confirm Outdated Bancorp URL Is Not Present

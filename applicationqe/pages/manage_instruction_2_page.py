@@ -1,5 +1,6 @@
 from playwright.sync_api import Locator, Page
 
+from locators import manage_instruction_2_locators
 from pages.base_page import BasePage
 from utils.allure_logger import get_allure_logger
 
@@ -10,7 +11,8 @@ class ManageInstruction2Page(BasePage):
 
     def __init__(self, page: Page):
         super().__init__(page)
-        self.add_button: Locator = page.get_by_role("button", name="Add")
+        locators = manage_instruction_2_locators.initialize_locators(page)
+        self.add_button: Locator = locators["add_button"]
 
     def click_add_button(self) -> None:
         """Click the Add button"""

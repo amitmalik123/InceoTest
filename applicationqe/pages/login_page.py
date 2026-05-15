@@ -1,5 +1,6 @@
 from playwright.sync_api import Locator, Page
 
+from locators import login_locators
 from pages.base_page import BasePage
 from utils.allure_logger import get_allure_logger
 
@@ -11,13 +12,12 @@ class LoginPage(BasePage):
 
     def __init__(self, page: Page, base_url: str = ""):
         super().__init__(page, base_url=base_url)
-        self.allow_all_button: Locator = page.get_by_role("button", name="Allow All")
-        self.username_input_field: Locator = page.get_by_label("Username")
-        self.password_input_field: Locator = page.get_by_label("Password")
-        self.sign_in_button: Locator = page.get_by_role("button", name="SIGN IN")
-        self.login_form: Locator = page.locator(
-            "form#form19.primary-auth-form.o-form.o-form-edit-mode"
-        )
+        locators = login_locators.initialize_locators(page)
+        self.allow_all_button: Locator = locators["allow_all_button"]
+        self.username_input_field: Locator = locators["username_input_field"]
+        self.password_input_field: Locator = locators["password_input_field"]
+        self.sign_in_button: Locator = locators["sign_in_button"]
+        self.login_form: Locator = locators["login_form"]
 
     def navigate(self) -> None:
         url = f"{self.base_url}{self.PAGE_PATH}"

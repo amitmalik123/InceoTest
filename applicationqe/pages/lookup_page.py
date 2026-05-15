@@ -1,5 +1,6 @@
 from playwright.sync_api import Locator, Page
 
+from locators import lookup_locators
 from pages.base_page import BasePage
 from utils.allure_logger import get_allure_logger
 
@@ -9,22 +10,13 @@ logger = get_allure_logger(__name__)
 class LookupPage(BasePage):
     def __init__(self, page: Page):
         super().__init__(page)
-        self.switch_id_link: Locator = page.locator("//ul[@id='userMenu']/li/a[text()='Switch ID']")
-        self.lookup_user_id_input: Locator = page.locator(
-            "//input[@name='ctl00$cphContentArea$txtLookUp']"
-            " | //input[@id='ctl00_cphContentArea_txtLookUp']"
-            " | //input[contains(@name,'txtLookUp')]"
-            " | //input[contains(@id,'txtLookUp')]"
-        ).first
-        self.find_button: Locator = page.locator(
-            "#ctl00_cphContentArea_btnLookUp, "
-            "button[id*='btnLookUp'], "
-            "input[id*='btnLookUp'], "
-            "button:has-text('Find')"
-        ).first
-        self.results_row: Locator = page.locator("//td[text()='Agent']/parent::tr")
-        self.sso_user_link: Locator = page.locator("//td[text()='Agent']/parent::tr/td[6]/a[1]")
-        self.name_user_link: Locator = page.locator("//td[text()='Agent']/parent::tr/td[2]/a[1]")
+        locators = lookup_locators.initialize_locators(page)
+        self.switch_id_link: Locator = locators["switch_id_link"]
+        self.lookup_user_id_input: Locator = locators["lookup_user_id_input"]
+        self.find_button: Locator = locators["find_button"]
+        self.results_row: Locator = locators["results_row"]
+        self.sso_user_link: Locator = locators["sso_user_link"]
+        self.name_user_link: Locator = locators["name_user_link"]
 
     def open_switch_id(self, timeout: int = 10000) -> None:
         logger.info("Opening Switch ID lookup")

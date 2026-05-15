@@ -1,0 +1,47 @@
+2026-05-15 04:20:03 - tests.fixtures.data_fixtures - INFO - [SESSION SCOPE] Loading Excel data from: C:\PythonPlaywright\applicationqe\data\Test11_data.xlsx
+2026-05-15 04:20:03 - tests.fixtures.data_fixtures - INFO - [SESSION SCOPE] Loaded sheets: ['TOAR', 'TOBI_E2E', 'Shell', 'RD', 'TMS', 'TDAtoSWB', 'NAF', 'FLXGSA', 'FAACT', 'NAW', 'ENAX', 'DAF', 'ARMS', 'Cheetah', 'General', 'TCN', 'eSignature', 'TOBI', 'Econ', 'SPPC', 'Withdrawal', 'ESIGSS', 'NBTEFF', 'TLH', 'PR']
+2026-05-15 04:20:03 - tests.fixtures.data_fixtures - INFO - [SESSION SCOPE] Sheet 'TOAR': 0 rows
+2026-05-15 04:20:03 - tests.fixtures.data_fixtures - INFO - [SESSION SCOPE] Sheet 'TOBI_E2E': 0 rows
+2026-05-15 04:20:03 - tests.fixtures.data_fixtures - INFO - [SESSION SCOPE] Sheet 'Shell': 0 rows
+2026-05-15 04:20:03 - tests.fixtures.data_fixtures - INFO - [SESSION SCOPE] Sheet 'RD': 0 rows
+2026-05-15 04:20:03 - tests.fixtures.data_fixtures - INFO - [SESSION SCOPE] Sheet 'TMS': 0 rows
+2026-05-15 04:20:03 - tests.fixtures.data_fixtures - INFO - [SESSION SCOPE] Sheet 'TDAtoSWB': 0 rows
+2026-05-15 04:20:03 - tests.fixtures.data_fixtures - INFO - [SESSION SCOPE] Sheet 'NAF': 0 rows
+2026-05-15 04:20:03 - tests.fixtures.data_fixtures - INFO - [SESSION SCOPE] Sheet 'FLXGSA': 0 rows
+2026-05-15 04:20:03 - tests.fixtures.data_fixtures - INFO - [SESSION SCOPE] Sheet 'FAACT': 0 rows
+2026-05-15 04:20:03 - tests.fixtures.data_fixtures - INFO - [SESSION SCOPE] Sheet 'NAW': 0 rows
+2026-05-15 04:20:03 - tests.fixtures.data_fixtures - INFO - [SESSION SCOPE] Sheet 'ENAX': 0 rows
+2026-05-15 04:20:03 - tests.fixtures.data_fixtures - INFO - [SESSION SCOPE] Sheet 'DAF': 0 rows
+2026-05-15 04:20:03 - tests.fixtures.data_fixtures - INFO - [SESSION SCOPE] Sheet 'ARMS': 0 rows
+2026-05-15 04:20:03 - tests.fixtures.data_fixtures - INFO - [SESSION SCOPE] Sheet 'Cheetah': 0 rows
+2026-05-15 04:20:03 - tests.fixtures.data_fixtures - INFO - [SESSION SCOPE] Sheet 'General': 0 rows
+2026-05-15 04:20:03 - tests.fixtures.data_fixtures - INFO - [SESSION SCOPE] Sheet 'TCN': 0 rows
+2026-05-15 04:20:03 - tests.fixtures.data_fixtures - INFO - [SESSION SCOPE] Sheet 'eSignature': 0 rows
+2026-05-15 04:20:03 - tests.fixtures.data_fixtures - INFO - [SESSION SCOPE] Sheet 'TOBI': 0 rows
+2026-05-15 04:20:03 - tests.fixtures.data_fixtures - INFO - [SESSION SCOPE] Sheet 'Econ': 0 rows
+2026-05-15 04:20:03 - tests.fixtures.data_fixtures - INFO - [SESSION SCOPE] Sheet 'SPPC': 0 rows
+2026-05-15 04:20:03 - tests.fixtures.data_fixtures - INFO - [SESSION SCOPE] Sheet 'Withdrawal': 0 rows
+2026-05-15 04:20:03 - tests.fixtures.data_fixtures - INFO - [SESSION SCOPE] Sheet 'ESIGSS': 0 rows
+2026-05-15 04:20:03 - tests.fixtures.data_fixtures - INFO - [SESSION SCOPE] Sheet 'NBTEFF': 0 rows
+2026-05-15 04:20:03 - tests.fixtures.data_fixtures - INFO - [SESSION SCOPE] Sheet 'TLH': 0 rows
+2026-05-15 04:20:03 - tests.fixtures.data_fixtures - INFO - [SESSION SCOPE] Sheet 'PR': 1 rows
+2026-05-15 04:20:03 - tests.fixtures.data_fixtures - INFO - [SESSION SCOPE] Loaded 1 Excel-backed test data row(s) from sheets: ['TOAR', 'TOBI_E2E', 'Shell', 'RD', 'TMS', 'TDAtoSWB', 'NAF', 'FLXGSA', 'FAACT', 'NAW', 'ENAX', 'DAF', 'ARMS', 'Cheetah', 'General', 'TCN', 'eSignature', 'TOBI', 'Econ', 'SPPC', 'Withdrawal', 'ESIGSS', 'NBTEFF', 'TLH', 'PR']
+2026-05-15 04:20:03 - tests.fixtures.data_fixtures - INFO - [SESSION SCOPE] Available scenarios: []
+2026-05-15 04:20:03 - tests.fixtures.data_fixtures - INFO - [SESSION SCOPE] Available user types: []
+
+============================================================
+[TEST DATA] Scenario: 'Validation of Document Vault page functionalities Agent Level'
+[TEST DATA] NOT FOUND - No matching Excel example or scenario row
+[TEST DATA] Fallback: using first available test data row
+============================================================
+
+============================================================
+[SESSION] App: ewm
+[SESSION] Worker: master
+[SESSION] Role: None
+[SESSION] Username: AG1634_SSO
+[SESSION] Session file: AG1634_SSO.json
+============================================================
+[SESSION] Loading saved session...
+[SESSION] Navigating to: https://test11.ewealthmanager.com/en.aspx
+[SESSION] Session valid! Already authenticated.

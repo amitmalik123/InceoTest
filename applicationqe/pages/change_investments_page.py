@@ -1,17 +1,6 @@
-"""
-Change Investments Page Object.
-
-Handles the full E2E flow:
-  Holdings page -> Account Wizard -> Change Investments (ICT Source Account)
-  -> Investment Selection -> destination validation
-
-Locator strategy: Playwright-recommended APIs first (get_by_role,
-get_by_text), with CSS ID fallbacks commented for reference.
-DOM evidence captured on 2026-02-26 from test11 environment.
-"""
-
 from playwright.sync_api import Locator, Page
 
+from locators import change_investments_locators
 from pages.base_page import BasePage
 from utils.allure_logger import get_allure_logger
 
@@ -25,52 +14,19 @@ class ChangeInvestmentsPage(BasePage):
 
     def __init__(self, page: Page, base_url: str = ""):
         super().__init__(page, base_url=base_url)
-
-        # -- Holdings page: Account Wizard link --
-        # Two "Account Wizard" links exist (nav menu + account detail).
-        # Use the specific account-detail one via CSS ID.
-        self.account_wizard_link: Locator = page.locator("#clientDetailAccountDetailAnchor")
-
-        # -- Account Wizard page: Client Management section --
-        self.change_investments_link: Locator = page.get_by_role(
-            "link", name="Change Investments", exact=True
-        )
-        # alt: page.locator("#ctl00_cphContentArea_lnkChangeInvestments")
-
-        # -- ICT Source Account page (/ISCT/AcctSelection/SelectAccount) --
-        self.next_button: Locator = page.get_by_role("button", name="Next")
-        # alt: page.locator("#nextButton")
-        self.back_button: Locator = page.get_by_role("button", name="Back")
-        # alt: page.locator("#backButton")
-
-        # Investment-action modal (#InvestmentActionModal)
-        self.investment_action_modal: Locator = page.locator("#InvestmentActionModal")
-        self.radio_destination_investment: Locator = page.locator(
-            "input[name='action'][value='DestinationInvestment']"
-        )
-        self.radio_modify_allocations: Locator = page.locator(
-            "input[name='action'][value='ModifyAllocations']"
-        )
-        self.modal_ok_button: Locator = self.investment_action_modal.get_by_role(
-            "button", name="OK"
-        )
-        # alt: page.locator("#InvestmentActionModal .btn-transition-primary")
-        self.modal_cancel_button: Locator = self.investment_action_modal.get_by_role(
-            "button", name="Cancel"
-        )
-
-        # -- ICT wizard step-tabs --
-        self.step_investment_selection: Locator = page.get_by_text(
-            "Investment Selection", exact=True
-        )
-        # alt: page.locator("span.ictLink[data-href='/ISCT/ModifyInvestment']")
-        self.step_account_number: Locator = page.get_by_text("Account Number", exact=True)
-        # alt: page.locator("span.ictLink[data-href='/ISCT/AcctNumber']")
-
-        # -- Completion modal --
-        self.completion_modal: Locator = page.locator(
-            "#eSigConfirmModal, .modal:has-text('Investment Change Completed')"
-        )
+        locators = change_investments_locators.initialize_locators(page)
+        self.account_wizard_link: Locator = locators["account_wizard_link"]
+        self.change_investments_link: Locator = locators["change_investments_link"]
+        self.next_button: Locator = locators["next_button"]
+        self.back_button: Locator = locators["back_button"]
+        self.investment_action_modal: Locator = locators["investment_action_modal"]
+        self.radio_destination_investment: Locator = locators["radio_destination_investment"]
+        self.radio_modify_allocations: Locator = locators["radio_modify_allocations"]
+        self.modal_ok_button: Locator = locators["modal_ok_button"]
+        self.modal_cancel_button: Locator = locators["modal_cancel_button"]
+        self.step_investment_selection: Locator = locators["step_investment_selection"]
+        self.step_account_number: Locator = locators["step_account_number"]
+        self.completion_modal: Locator = locators["completion_modal"]
 
     # ------------------------------------------------------------------
     # Navigation / Holdings

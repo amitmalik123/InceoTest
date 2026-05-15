@@ -3,6 +3,7 @@ from pathlib import Path
 from playwright.sync_api import Locator, Page
 
 from config.settings import get_settings
+from locators import rgl_locators
 from pages.base_page import BasePage
 from utils.allure_logger import get_allure_logger
 
@@ -27,96 +28,60 @@ class RGLPage(BasePage):
         self.form_root = self.active_root()
         
         # Navigation links
-        self.clients_tab: Locator = self.form_root.locator("a:has-text('Clients')")
-        self.gain_loss_link: Locator = self.form_root.locator("a:has-text('Gain/Loss')")
-        self.account_information_link: Locator = self.form_root.locator("a:has-text('Account Information')")
-        self.account_list_link: Locator = self.form_root.locator("a:has-text('Account List')")
+        self.clients_tab: Locator = self.form_root.locator(rgl_locators.CLIENTS_TAB)
+        self.gain_loss_link: Locator = self.form_root.locator(rgl_locators.GAIN_LOSS_LINK)
+        self.account_information_link: Locator = self.form_root.locator(
+            rgl_locators.ACCOUNT_INFORMATION_LINK
+        )
+        self.account_list_link: Locator = self.form_root.locator(rgl_locators.ACCOUNT_LIST_LINK)
         
         # Buttons and inputs
-        self.search_button: Locator = self.form_root.locator("button:has-text('Search'), [class*='search'][class*='button']")
+        self.search_button: Locator = self.form_root.locator(rgl_locators.SEARCH_BUTTON)
         
         # Search input by name attribute
-        self.client_list_search_input: Locator = self.form_root.locator("input[name='search_input']")
+        self.client_list_search_input: Locator = self.form_root.locator(
+            rgl_locators.CLIENT_LIST_SEARCH_INPUT
+        )
         
         # Additional locators
         self.cash_advantage_checkbox: Locator = self.page.locator(
-            "//*[@id='filter-3']//label[normalize-space(.)='Cash Advantage']"
-            "/preceding-sibling::a[contains(@class,'ui-genworthcheckbox')]"
+            rgl_locators.CASH_ADVANTAGE_CHECKBOX
         )
-        self.apply_button: Locator = self.page.locator(
-            "//*[@id='filter-3']//div[@class='button save' and normalize-space(.)='Apply']"
-        )
-        self.first_account_row: Locator = self.page.locator(
-            "(//*[@id='AccountListGrid']//td[@aria-describedby='AccountListGrid_accountAccordianArrow'])[1]"
-        )
+        self.cash_advantage_label: Locator = self.page.locator(rgl_locators.CASH_ADVANTAGE_LABEL)
+        self.apply_button: Locator = self.page.locator(rgl_locators.APPLY_BUTTON)
+        self.first_account_row: Locator = self.page.locator(rgl_locators.FIRST_ACCOUNT_ROW)
         self.first_non_cash_advantage_account_row: Locator = self.page.locator(
-            "(//*[@id='AccountListGrid']//tr[not(.//td[contains(normalize-space(),'Cash Advantage')])]"
-            "//td[@aria-describedby='AccountListGrid_accountAccordianArrow'])[1]"
+            rgl_locators.FIRST_NON_CASH_ADVANTAGE_ACCOUNT_ROW
         )
-        self.learn_more_about_link: Locator = self.page.locator(
-            "//a[text()='Learn more about additional account information']"
-        )
+        self.learn_more_about_link: Locator = self.page.locator(rgl_locators.LEARN_MORE_ABOUT_LINK)
         self.cash_advantage_account: Locator = self.form_root.locator(
-            "//td[contains(normalize-space(), 'Cash Advantage')]"
+            rgl_locators.CASH_ADVANTAGE_ACCOUNT
         )
-        self.mouse_over_date: Locator = self.form_root.locator(
-            "//input[@name='GetSessionstickyValue']//parent::div"
+        self.mouse_over_date: Locator = self.form_root.locator(rgl_locators.MOUSE_OVER_DATE)
+        self.all_option: Locator = self.form_root.locator(rgl_locators.ALL_OPTION)
+        self.solution_types_dropdown: Locator = self.form_root.locator(
+            rgl_locators.SOLUTION_TYPES_DROPDOWN
         )
-        self.all_option: Locator = self.form_root.locator(
-            "//div[@class='ui-genworthdropdownpanel-dropdownContent']//div[text()='All']"
-        )
-        self.solution_types_dropdown: Locator = self.form_root.locator("//span[text()='Solution Types']")
-        self.list_of_headers: Locator = self.form_root.locator(
-            "//*[@role='tab' and not(ancestor-or-self::*[contains(@style, 'display: none')])]/a"
-        )
-        self.header_expander: Locator = self.form_root.locator(
-            "//div[@aria-disabled='false']//h3[@aria-expanded='false']"
-            "//span[@class='ui-accordion-header-icon ui-icon ui-icon-triangle-1-e'"
-            " and not(ancestor-or-self::*[contains(@style, 'display: none')])]"
-        )
-        self.proceeds_list: Locator = self.form_root.locator(
-            "//h3[@aria-expanded='true']//parent::div[@role='tablist']"
-            "//div//div//table//tr//td[contains(@aria-describedby,'proceeds')]"
-        )
-        self.cost_basis_list: Locator = self.form_root.locator(
-            "//h3[@aria-expanded='true']//parent::div[@role='tablist']"
-            "//div//div//table//tr//td[contains(@aria-describedby,'costBasis')]"
-        )
-        self.gain_loss_list: Locator = self.form_root.locator(
-            "//h3[@aria-expanded='true']//parent::div[@role='tablist']"
-            "//div//div//table//tr//td[contains(@aria-describedby,'gainLoss')]"
-        )
-        self.income_list: Locator = self.form_root.locator(
-            "//h3[@aria-expanded='true']//parent::div[@role='tablist']"
-            "//div//div//table//tr//td[contains(@aria-describedby,'income')]"
-        )
-        self.expanded_header: Locator = self.form_root.locator(
-            "//h3[@aria-expanded='true']//span[contains(@class,'ui-accordion-header-icon')"
-            " and not(ancestor-or-self::*[contains(@style, 'display: none')])]"
-        )
-        self.print_button: Locator = self.form_root.locator("//div[text()='Print']")
-        self.download_button: Locator = self.form_root.locator("//div[text()='Download']")
-        self.csv_link: Locator = self.form_root.locator("//a[@href='#CSV']")
-        self.xls_link: Locator = self.form_root.locator("//a[@href='#XLS']")
-        self.individual_dropdown: Locator = self.form_root.locator("//span[@class='selectBox-arrow']")
-        self.individual_account: Locator = self.form_root.locator("(//div[text()='eSig Test 4 Individual'])[1]")
-        self.net_investment: Locator = self.form_root.locator(
-            "//div[@class='ui-jqgrid-bdiv']//div//table//tbody//tr//following-sibling::tr"
-            "//td[@class='null ui-td-notsort ui-td-netInvestment']"
-        )
-        self.client_names: Locator = self.form_root.locator(
-            "//div[@class='ui-jqgrid-bdiv']//div//table//tbody//tr//following-sibling::tr"
-            "//td[@class='null ui-td-notsort ui-td-clientName']"
-        )
-        self.net_column: Locator = self.page.locator("//th[@id='ClientListGrid_netInvestment']")
+        self.list_of_headers: Locator = self.form_root.locator(rgl_locators.LIST_OF_HEADERS)
+        self.header_expander: Locator = self.form_root.locator(rgl_locators.HEADER_EXPANDER)
+        self.proceeds_list: Locator = self.form_root.locator(rgl_locators.PROCEEDS_LIST)
+        self.cost_basis_list: Locator = self.form_root.locator(rgl_locators.COST_BASIS_LIST)
+        self.gain_loss_list: Locator = self.form_root.locator(rgl_locators.GAIN_LOSS_LIST)
+        self.income_list: Locator = self.form_root.locator(rgl_locators.INCOME_LIST)
+        self.expanded_header: Locator = self.form_root.locator(rgl_locators.EXPANDED_HEADER)
+        self.print_button: Locator = self.form_root.locator(rgl_locators.PRINT_BUTTON)
+        self.download_button: Locator = self.form_root.locator(rgl_locators.DOWNLOAD_BUTTON)
+        self.csv_link: Locator = self.form_root.locator(rgl_locators.CSV_LINK)
+        self.xls_link: Locator = self.form_root.locator(rgl_locators.XLS_LINK)
+        self.individual_dropdown: Locator = self.form_root.locator(rgl_locators.INDIVIDUAL_DROPDOWN)
+        self.individual_account: Locator = self.form_root.locator(rgl_locators.INDIVIDUAL_ACCOUNT)
+        self.net_investment: Locator = self.form_root.locator(rgl_locators.NET_INVESTMENT)
+        self.client_names: Locator = self.form_root.locator(rgl_locators.CLIENT_NAMES)
+        self.net_column: Locator = self.page.locator(rgl_locators.NET_COLUMN)
         # Loading indicators - search in iframe context
-        self.loading_spinner: Locator = self.form_root.locator(
-            "//div[contains(@class,'loading-indicator-component__spinner')]"
-        )
-        self.loading_indicator: Locator = self.form_root.locator(
-            "//*[contains(@class, 'loading-indication-component') and contains(@class, 'isVisible')]"
-        )
-        self.loading_modal: Locator = self.form_root.locator("#loadingImageModal")
+        self.loading_spinner: Locator = self.form_root.locator(rgl_locators.LOADING_SPINNER)
+        self.loading_indicator: Locator = self.form_root.locator(rgl_locators.LOADING_INDICATOR)
+        self.loading_modal: Locator = self.form_root.locator(rgl_locators.LOADING_MODAL)
 
     def _client_name_locator(self, client_name: str) -> Locator:
         # Client name appears in search results inside the iframe
@@ -130,6 +95,12 @@ class RGLPage(BasePage):
         if any(token in checkbox_class for token in ["checked", "selected", "active"]):
             return True
         return False
+
+    def _toggle_cash_advantage(self, timeout: int = 30000) -> None:
+        # The underlying toggle can be hidden while the label remains visible/clickable.
+        self.wait_for_element(self.cash_advantage_label, timeout=timeout)
+        self.cash_advantage_label.scroll_into_view_if_needed()
+        self.click(self.cash_advantage_label, timeout=timeout)
 
     def wait_for_all_spinners_to_disappear(self, timeout: int = 30000) -> None:
         logger.info("Waiting for loading indicators to disappear")
@@ -196,14 +167,14 @@ class RGLPage(BasePage):
         self.wait_for_element(self.solution_types_dropdown, timeout=timeout)
         self.solution_types_dropdown.hover()
         self.page.wait_for_timeout(1000)
-        self.wait_for_element(self.cash_advantage_checkbox, timeout=timeout)
-        self.cash_advantage_checkbox.scroll_into_view_if_needed()
+        self.wait_for_element(self.cash_advantage_checkbox, state="attached", timeout=timeout)
+        self.cash_advantage_label.scroll_into_view_if_needed()
         self.page.wait_for_timeout(2000)
-        self.cash_advantage_checkbox.click(timeout=timeout)
+        self._toggle_cash_advantage(timeout=timeout)
         self.page.wait_for_timeout(500)
         if not self._is_cash_advantage_selected():
             logger.info("Cash Advantage checkbox toggled off; selecting again before Apply")
-            self.cash_advantage_checkbox.click(timeout=timeout)
+            self._toggle_cash_advantage(timeout=timeout)
             self.page.wait_for_timeout(500)
         self.apply_button.wait_for(state="visible", timeout=timeout)
         self.apply_button.click(timeout=timeout)
@@ -231,12 +202,12 @@ class RGLPage(BasePage):
         self.wait_for_element(self.solution_types_dropdown, timeout=timeout)
         self.solution_types_dropdown.hover()
         self.page.wait_for_timeout(1000)
-        self.wait_for_element(self.cash_advantage_checkbox, timeout=timeout)
-        self.cash_advantage_checkbox.scroll_into_view_if_needed()
+        self.wait_for_element(self.cash_advantage_checkbox, state="attached", timeout=timeout)
+        self.cash_advantage_label.scroll_into_view_if_needed()
         self.page.wait_for_timeout(1000)
         if self._is_cash_advantage_selected():
             logger.info("Cash Advantage checkbox is selected; unselecting for non-cash account flow")
-            self.cash_advantage_checkbox.click(timeout=timeout)
+            self._toggle_cash_advantage(timeout=timeout)
             self.page.wait_for_timeout(500)
         self.apply_button.wait_for(state="visible", timeout=timeout)
         self.apply_button.click(timeout=timeout)
@@ -258,6 +229,15 @@ class RGLPage(BasePage):
             self.click(self.learn_more_about_link, timeout=timeout)
         new_page = new_page_info.value
         new_page.wait_for_load_state("domcontentloaded", timeout=timeout)
+
+        try:
+            new_page.wait_for_url("**talea.thebancorp.com/**", timeout=15000)
+        except Exception:
+            # One retry in the same tab for transient navigation failures.
+            if (new_page.url or "").startswith("chrome-error://"):
+                new_page.reload(wait_until="domcontentloaded", timeout=timeout)
+                new_page.wait_for_url("**talea.thebancorp.com/**", timeout=15000)
+
         current_url = new_page.url
         expected_url = "https://talea.thebancorp.com/"
         if not current_url.startswith(expected_url):
@@ -273,6 +253,13 @@ class RGLPage(BasePage):
             self.click(self.learn_more_about_link, timeout=timeout)
         new_page = new_page_info.value
         new_page.wait_for_load_state("domcontentloaded", timeout=timeout)
+
+        if (new_page.url or "").startswith("chrome-error://"):
+            try:
+                new_page.reload(wait_until="domcontentloaded", timeout=timeout)
+            except Exception:
+                pass
+
         current_url = new_page.url
         outdated_url = "https://cashadvantageadvisors.ebanking-services.com/eAM/Credential/Index?appId=beb&brand=cashadvantageadvisors"
         if current_url == outdated_url or current_url.startswith(outdated_url):
@@ -344,7 +331,18 @@ class RGLPage(BasePage):
     def _load_expected_headers(self, properties_path: str) -> list[str]:
         props_file = Path(properties_path)
         if not props_file.exists():
-            raise FileNotFoundError(f"Properties file not found: {properties_path}")
+            app_root = Path(__file__).resolve().parents[1]
+            candidates = [
+                app_root / properties_path,
+                app_root / Path(properties_path).name,
+                app_root / "tests" / "bdd" / "resources" / Path(properties_path).name,
+            ]
+            for candidate in candidates:
+                if candidate.exists():
+                    props_file = candidate
+                    break
+            else:
+                raise FileNotFoundError(f"Properties file not found: {properties_path}")
 
         expected = []
         for line in props_file.read_text(encoding="utf-8").splitlines():
@@ -383,12 +381,14 @@ class RGLPage(BasePage):
             expander.click(timeout=max(timeout, 20000))
             self.page.wait_for_timeout(1000)
 
-            cost_basis_cells = self.cost_basis_list.all()
-            proceeds_cells = self.proceeds_list.all()
-            gain_loss_cells = self.gain_loss_list.all()
-            income_cells = self.income_list.all()
+            cost_basis_texts = [text.strip() for text in self.cost_basis_list.all_inner_texts()]
+            proceeds_texts = [text.strip() for text in self.proceeds_list.all_inner_texts()]
+            gain_loss_texts = [text.strip() for text in self.gain_loss_list.all_inner_texts()]
+            income_texts = [text.strip() for text in self.income_list.all_inner_texts()]
 
-            if cost_basis_cells:
+            row_count = min(len(cost_basis_texts), len(proceeds_texts), len(gain_loss_texts))
+
+            if row_count > 0:
                 sum_cost_basis = 0.0
                 sum_proceeds = 0.0
                 sum_gain_loss = 0.0
@@ -397,10 +397,10 @@ class RGLPage(BasePage):
                 last_proceed = 0.0
                 last_cost_basis = 0.0
 
-                for row_index, cost_cell in enumerate(cost_basis_cells):
-                    cost_text = (cost_cell.text_content() or "").strip()
-                    proceeds_text = (proceeds_cells[row_index].text_content() or "").strip()
-                    gain_loss_text = (gain_loss_cells[row_index].text_content() or "").strip()
+                for row_index in range(row_count):
+                    cost_text = cost_basis_texts[row_index]
+                    proceeds_text = proceeds_texts[row_index]
+                    gain_loss_text = gain_loss_texts[row_index]
 
                     if not cost_text or not proceeds_text or not gain_loss_text:
                         continue
@@ -410,7 +410,7 @@ class RGLPage(BasePage):
                     gain_loss = self._parse_currency(gain_loss_text)
                     calculated_gain_loss = proceeds - cost_basis
 
-                    if row_index < len(cost_basis_cells) - 1:
+                    if row_index < row_count - 1:
                         sum_cost_basis += cost_basis
                         sum_proceeds += proceeds
                         sum_gain_loss += gain_loss
@@ -425,7 +425,7 @@ class RGLPage(BasePage):
                             calculated_gain_loss,
                         )
 
-                    if row_index == len(cost_basis_cells) - 1:
+                    if row_index == row_count - 1:
                         last_displayed_gain_loss = self._round_2(gain_loss)
                         last_calculated_gain_loss = self._round_2(calculated_gain_loss)
                         last_proceed = self._round_2(proceeds)
@@ -466,9 +466,11 @@ class RGLPage(BasePage):
                 last_proceed = 0.0
                 last_income = 0.0
 
-                for row_index, proceeds_cell in enumerate(proceeds_cells):
-                    proceeds_text = (proceeds_cell.text_content() or "").strip()
-                    income_text = (income_cells[row_index].text_content() or "").strip()
+                row_count = min(len(proceeds_texts), len(income_texts))
+
+                for row_index in range(row_count):
+                    proceeds_text = proceeds_texts[row_index]
+                    income_text = income_texts[row_index]
 
                     if not proceeds_text or not income_text:
                         continue
@@ -484,11 +486,11 @@ class RGLPage(BasePage):
                             income,
                         )
 
-                    if row_index < len(proceeds_cells) - 1:
+                    if row_index < row_count - 1:
                         sum_proceeds += proceeds
                         sum_income += income
 
-                    if row_index == len(proceeds_cells) - 1:
+                    if row_index == row_count - 1:
                         last_proceed = self._round_2(proceeds)
                         last_income = self._round_2(income)
 

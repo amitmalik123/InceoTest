@@ -1,5 +1,6 @@
 from playwright.sync_api import Locator, Page, expect
 
+from locators import roth_conversion_locators
 from pages.base_page import BasePage
 from utils.allure_logger import get_allure_logger
 
@@ -12,26 +13,16 @@ class RothConversionPage(BasePage):
     def __init__(self, page: Page, base_url: str = ""):
         super().__init__(page, base_url=base_url)
         self.destination_account_paragraph: Locator = None  # Will be set dynamically
-        self.destination_account_div: Locator = page.locator("div.css-1z0509q")
-        self.convert_portion_span: Locator = page.get_by_text("Convert a Portion of the Account")
-        self.portion_radio_input: Locator = page.locator(
-            "input.PrivateSwitchBase-input.css-1m9pwf3[name='radio-buttons-group'][value='portion']"
-        )
-        # Use more reliable selector for amount input - by type and class instead of dynamic ID
-        self.amount_input_field: Locator = page.locator(
-            'input[type="text"].MuiInputBase-input.MuiOutlinedInput-input.MuiInputBase-inputAdornedStart'
-        )
-        # Federal withholding
-        self.do_not_withhold_span: Locator = page.get_by_text("Do not withhold")
-        self.do_not_withhold_radio_input: Locator = page.locator(
-            "input.PrivateSwitchBase-input.css-1m9pwf3[name='radio-buttons-group'][value='do_not_withhold']"
-        )
-        # State withholding - will use same locators but access with .nth(1)
-        self.str_message_paragraph: Locator = page.get_by_text(
-            "Your request will require additional review to ensure the existing source and/or destination account is still eligible due to recent actions on the account(s). Please refer to the Tracking Center for any additional requirements and an updated status."
-        )
-        self.str_button: Locator = page.get_by_role("button", name="SUBMIT TO REVIEW")
-        self.next_button: Locator = page.get_by_role("button", name="Next")
+        locators = roth_conversion_locators.initialize_locators(page)
+        self.destination_account_div: Locator = locators["destination_account_div"]
+        self.convert_portion_span: Locator = locators["convert_portion_span"]
+        self.portion_radio_input: Locator = locators["portion_radio_input"]
+        self.amount_input_field: Locator = locators["amount_input_field"]
+        self.do_not_withhold_span: Locator = locators["do_not_withhold_span"]
+        self.do_not_withhold_radio_input: Locator = locators["do_not_withhold_radio_input"]
+        self.str_message_paragraph: Locator = locators["str_message_paragraph"]
+        self.str_button: Locator = locators["str_button"]
+        self.next_button: Locator = locators["next_button"]
 
     def navigate(self) -> None:
         url = f"{self.base_url}{self.PAGE_PATH}"

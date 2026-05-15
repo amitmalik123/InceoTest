@@ -1,0 +1,32 @@
+INFO     tests.bdd.steps.RGLstep:allure_logger.py:120 Ensuring Clients tab is clicked before RGL navigation
+INFO     pages.document_vault_page:allure_logger.py:120 Navigating to Document Vault through Service Center
+INFO     DocumentVaultPage:base_page.py:192 Clicking element
+INFO     DocumentVaultPage:base_page.py:192 Clicking element
+INFO     DocumentVaultPage:base_page.py:192 Clicking element
+INFO     pages.document_vault_page:allure_logger.py:120 Document Vault page loaded
+INFO     pages.document_vault_page:allure_logger.py:120 Selecting Document Type: AssetMark Trust Tax Documents
+INFO     DocumentVaultPage:base_page.py:234 Waiting for element to be visible
+INFO     DocumentVaultPage:base_page.py:306 Selecting option from dropdown
+WARNING  tests.fixtures.browser_fixtures:browser_fixtures.py:203 [PAGE ERROR] Cannot read properties of undefined (reading 'removeChild')
+INFO     pages.document_vault_page:allure_logger.py:120 Document Type selected: AssetMark Trust Tax Documents
+INFO     pages.document_vault_page:allure_logger.py:120 Validating Document control is visible for user interaction
+INFO     pages.document_vault_page:allure_logger.py:120 Document control is visible for user interaction
+INFO     pages.document_vault_page:allure_logger.py:120 Validating Find button is enabled for user interaction
+INFO     DocumentVaultPage:base_page.py:234 Waiting for element to be visible
+INFO     pages.document_vault_page:allure_logger.py:120 Find button is visible on the page
+INFO     pages.document_vault_page:allure_logger.py:120 Find button does not have disabled state
+INFO     pages.document_vault_page:allure_logger.py:120 Clicking Find button to load filter results
+WARNING  tests.fixtures.browser_fixtures:browser_fixtures.py:203 [PAGE ERROR] Cannot read properties of undefined (reading 'removeChild')
+INFO     pages.document_vault_page:allure_logger.py:120 ALL ASSERTIONS PASSED: Find button is enabled and ready for interaction
+INFO     pages.document_vault_page:allure_logger.py:120 Clicking Select All filters button
+INFO     pages.document_vault_page:allure_logger.py:120 Select All filters button clicked
+INFO     pages.document_vault_page:allure_logger.py:120 Validating document-type-year filename: 'AssetMark Trust Tax Documents2025.zip' for doc type 'AssetMark Trust Tax Documents'
+INFO     pages.document_vault_page:allure_logger.py:120 Filename validation passed: document type and year are present
+INFO     tests.bdd.steps.document_vault_steps:allure_logger.py:120 Document type-year ZIP download validated: AssetMark Trust Tax Documents2025.zip
+INFO     pages.document_vault_page:allure_logger.py:120 Clicking Clear All filters button
+INFO     pages.document_vault_page:allure_logger.py:120 Clear All filters button clicked
+INFO     pages.document_vault_page:allure_logger.py:120 First checkbox selected (fallback)
+INFO     tests.bdd.steps.document_vault_steps:allure_logger.py:120 PDF download captured and stored: eSig Test 4 Individual-AssetMark Trust Tax Document-1099 Pending Letter-9999978-2025.pdf
+INFO     pages.document_vault_page:allure_logger.py:120 Validating document-type-year filename: 'eSig Test 4 Individual-AssetMark Trust Tax Document-1099 Pending Letter-9999978-2025.pdf' for doc type 'AssetMark Trust Tax Documents'
+INFO     pages.document_vault_page:allure_logger.py:120 Filename validation passed: document type and year are present
+INFO     tests.bdd.steps.document_vault_steps:allure_logger.py:120 Document type-year PDF download validated: eSig Test 4 Individual-AssetMark Trust Tax Document-1099 Pending Letter-9999978-2025.pdf

@@ -1,5 +1,6 @@
 from playwright.sync_api import Locator, Page
 
+from locators import navbar_login_locators
 from pages.base_page import BasePage
 from utils.allure_logger import get_allure_logger
 
@@ -17,15 +18,10 @@ class NavbarLoginPage(BasePage):
 
     def _init_locators(self) -> None:
         """Initialize locators for the current page object reference."""
-        self.username_input: Locator = self.page.locator(
-            "input#okta-signin-username[name='username'][type='text'][aria-required='true']"
-        )
-        self.password_input: Locator = self.page.locator(
-            "input#okta-signin-password[name='password'][type='password'][aria-required='true']"
-        )
-        self.sign_in_button: Locator = self.page.locator(
-            "input#okta-signin-submit[type='submit'][value='Sign In']"
-        )
+        locators = navbar_login_locators.initialize_locators(self.page)
+        self.username_input: Locator = locators["username_input"]
+        self.password_input: Locator = locators["password_input"]
+        self.sign_in_button: Locator = locators["sign_in_button"]
 
     def _switch_to_latest_open_page(self) -> bool:
         """Switch to latest open page in context if current page gets closed."""

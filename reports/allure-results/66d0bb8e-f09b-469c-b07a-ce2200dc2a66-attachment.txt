@@ -1,0 +1,1 @@
+Find button does not have disabled state

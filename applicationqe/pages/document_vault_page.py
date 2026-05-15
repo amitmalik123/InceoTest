@@ -3,6 +3,7 @@ from pathlib import Path
 
 from playwright.sync_api import Locator, Page
 
+from locators import document_vault_locators
 from pages.base_page import BasePage
 from utils.allure_logger import get_allure_logger
 
@@ -18,41 +19,51 @@ class DocumentVaultPage(BasePage):
         self.form_root = self.active_root()
 
         # Centralized XPath selectors used across frame/page contexts.
-        self.client_reports_vault_heading_xpath = '//span[normalize-space()="Client Document and Reports Vault"]'
-        self.document_type_dropdown_xpath = '//span[text()="Select a document type"]'
-        self.document_type_select_xpath = '//select[@name="ddDocType"]'
-        self.year_dropdown_xpath = '//select[@name="ddYear"]'
-        self.quarter_dropdown_xpath = '//select[@name="ddQtrMonth"]'
-        self.all_checkboxes_xpath = '//input[@type="checkbox"]'
-        self.quarter_label_xpath = "//td[contains(text(),'Quarter')]"
-        self.document_label_xpath = "//td[contains(normalize-space(),'Document')]"
-        self.period_label_xpath = "//td[contains(text(),'Period')]"
-        self.month_label_xpath = "//td[contains(text(),'Month')]"
-        self.year_display_xpath = '//div[@id="uniform-ddYear"]//span'
-        self.quarter_display_xpath = '//div[@id="uniform-ddQtrMonth"]//span'
-        self.document_dropdown_xpath = '//select[@name="ddDocument"]'
-        self.find_button_xpath = "//input[@name='btSearch']"
-        self.no_documents_message_xpath = "//td[contains(text(),'There are no documents')]"
-        self.select_all_exact_xpath = "//a[normalize-space()='Select All']"
-        self.select_all_contains_xpath = "//a[contains(normalize-space(), 'Select All')]"
-        self.clear_all_exact_xpath = "//a[normalize-space()='Clear All']"
-        self.clear_all_contains_xpath = "//a[contains(normalize-space(), 'Clear All')]"
-        self.total_filter_checkers_xpath = "//div[contains(@class,'checker')]/span"
-        self.checked_filter_checkers_xpath = "//div[contains(@class,'checker')]/span[contains(@class,'checked')]"
-        self.view_selected_button_xpath = '//input[@id="btSelectOneUp"]'
-        self.save_selected_button_xpath = '//input[@id="btDownloadUp"]'
-        self.tax_savings_report_option_xpath = '//span[text()="Tax Savings Report"]'
+        self.client_reports_vault_heading_xpath = document_vault_locators.CLIENT_REPORTS_VAULT_HEADING
+        self.document_type_dropdown_xpath = document_vault_locators.DOCUMENT_TYPE_DROPDOWN
+        self.document_type_select_xpath = document_vault_locators.DOCUMENT_TYPE_SELECT
+        self.year_dropdown_xpath = document_vault_locators.YEAR_DROPDOWN
+        self.quarter_dropdown_xpath = document_vault_locators.QUARTER_DROPDOWN
+        self.all_checkboxes_xpath = document_vault_locators.ALL_CHECKBOXES
+        self.quarter_label_xpath = document_vault_locators.QUARTER_LABEL
+        self.document_label_xpath = document_vault_locators.DOCUMENT_LABEL
+        self.period_label_xpath = document_vault_locators.PERIOD_LABEL
+        self.month_label_xpath = document_vault_locators.MONTH_LABEL
+        self.year_display_xpath = document_vault_locators.YEAR_DISPLAY
+        self.quarter_display_xpath = document_vault_locators.QUARTER_DISPLAY
+        self.document_dropdown_xpath = document_vault_locators.DOCUMENT_DROPDOWN
+        self.find_button_xpath = document_vault_locators.FIND_BUTTON
+        self.no_documents_message_xpath = document_vault_locators.NO_DOCUMENTS_MESSAGE
+        self.select_all_exact_xpath = document_vault_locators.SELECT_ALL_EXACT
+        self.select_all_contains_xpath = document_vault_locators.SELECT_ALL_CONTAINS
+        self.clear_all_exact_xpath = document_vault_locators.CLEAR_ALL_EXACT
+        self.clear_all_contains_xpath = document_vault_locators.CLEAR_ALL_CONTAINS
+        self.total_filter_checkers_xpath = document_vault_locators.TOTAL_FILTER_CHECKERS
+        self.checked_filter_checkers_xpath = document_vault_locators.CHECKED_FILTER_CHECKERS
+        self.view_selected_button_xpath = document_vault_locators.VIEW_SELECTED_BUTTON
+        self.save_selected_button_xpath = document_vault_locators.SAVE_SELECTED_BUTTON
+        self.tax_savings_report_option_xpath = document_vault_locators.TAX_SAVINGS_REPORT_OPTION
 
         # New navbar top-level navigation element
-        self.statements_reports_link: Locator = self.page.locator('//a[text()="Statements & Reports"]')
-        self.service_center_link: Locator = self.page.locator('//a[text()="Service Center"]')
-        self.tax_and_reporting_link: Locator = self.page.locator('//a[text()="Tax and Reporting"]')
-        self.document_vault_nav_link: Locator = self.page.locator('//a[text()="Document Vault"]')
+        self.statements_reports_link: Locator = self.page.locator(
+            document_vault_locators.STATEMENTS_REPORTS_LINK
+        )
+        self.service_center_link: Locator = self.page.locator(
+            document_vault_locators.SERVICE_CENTER_LINK
+        )
+        self.tax_and_reporting_link: Locator = self.page.locator(
+            document_vault_locators.TAX_AND_REPORTING_LINK
+        )
+        self.document_vault_nav_link: Locator = self.page.locator(
+            document_vault_locators.DOCUMENT_VAULT_NAV_LINK
+        )
         self.document_type_dropdown: Locator = self.form_root.locator(self.document_type_dropdown_xpath)
         self.qpr_document_type_option: Locator = self.form_root.locator(
-            '//span[text()="Quarterly Performance Reports (QPR)"]'
+            document_vault_locators.QPR_DOCUMENT_TYPE_OPTION
         )
-        self.market_value_report_option: Locator = self.form_root.locator('//span[text()="Market Value Reports"]')
+        self.market_value_report_option: Locator = self.form_root.locator(
+            document_vault_locators.MARKET_VALUE_REPORT_OPTION
+        )
         self.year_dropdown: Locator = self.form_root.locator(self.year_dropdown_xpath)
         self.quarter_dropdown: Locator = self.form_root.locator(self.quarter_dropdown_xpath)
         self.quarter_label: Locator = self.form_root.locator(self.quarter_label_xpath)
@@ -63,23 +74,25 @@ class DocumentVaultPage(BasePage):
         self.find_button: Locator = self.form_root.locator(self.find_button_xpath)
         self.no_documents_message: Locator = self.form_root.locator(self.no_documents_message_xpath)
 
-        self.clients_tab: Locator = self.form_root.locator("//a[text()='Clients']")
-        self.client_list_search_input: Locator = self.form_root.locator("//input[@name='search_input']")
-        self.search_button: Locator = self.form_root.locator("//button[@class='searchbutton']")
-        self.document_vault_link: Locator = self.form_root.locator("//li//a[text()='Document Vault']")
+        self.clients_tab: Locator = self.form_root.locator(document_vault_locators.CLIENTS_TAB)
+        self.client_list_search_input: Locator = self.form_root.locator(
+            document_vault_locators.CLIENT_LIST_SEARCH_INPUT
+        )
+        self.search_button: Locator = self.form_root.locator(document_vault_locators.SEARCH_BUTTON)
+        self.document_vault_link: Locator = self.form_root.locator(
+            document_vault_locators.DOCUMENT_VAULT_LINK
+        )
         self.document_vault_dropdown: Locator = self.form_root.locator(
-            "//div[@class='ui-genworthdropdownpanel-buttonContent']"
+            document_vault_locators.DOCUMENT_VAULT_DROPDOWN
         )
         self.date_filter_all_option: Locator = self.form_root.locator(
-            "//div[@class='ui-genworthdropdownpanel-dropdownContent']//div[text()='All']"
+            document_vault_locators.DATE_FILTER_ALL_OPTION
         )
         self.list_of_headers: Locator = self.form_root.locator(
-            "//*[@role='tab' and not(ancestor-or-self::*[contains(@style, 'display: none')])]/a"
+            document_vault_locators.LIST_OF_HEADERS
         )
         self.header_expander: Locator = self.form_root.locator(
-            "//div[@aria-disabled='false']//h3[@aria-expanded='false']"
-            "//span[@class='ui-accordion-header-icon ui-icon ui-icon-triangle-1-e'"
-            " and not(ancestor-or-self::*[contains(@style, 'display: none')])]"
+            document_vault_locators.HEADER_EXPANDER
         )
         self.select_all_checkbox: Locator = self.form_root.locator(
             "(//h3[@aria-expanded='true']//ancestor::div[contains(@class,'statementsgridwrapper')]"
@@ -107,8 +120,7 @@ class DocumentVaultPage(BasePage):
             "//h3[@aria-expanded='true']/a"
         )
         self.expanded_header: Locator = self.form_root.locator(
-            "//h3[@aria-expanded='true']//span[contains(@class,'ui-accordion-header-icon')"
-            " and not(ancestor-or-self::*[contains(@style, 'display: none')])]"
+            document_vault_locators.EXPANDED_HEADER
         )
         self.all_checkboxes: Locator = self.form_root.locator(self.all_checkboxes_xpath)
         self.select_all_button: Locator = self.form_root.locator('//a[text()="Select All"]')
@@ -548,8 +560,16 @@ class DocumentVaultPage(BasePage):
         self.wait_for_element(find_button, timeout=timeout)
         logger.info("Find button is visible on the page")
 
-        # Assertion 2: Button must not be disabled.
-        is_disabled = find_button.evaluate("element => element.hasAttribute('disabled') || element.disabled")
+        # Assertion 2: Button must not be disabled — poll until enabled or timeout.
+        poll_interval_ms = 500
+        elapsed_ms = 0
+        is_disabled = True
+        while is_disabled and elapsed_ms < timeout:
+            is_disabled = find_button.evaluate("element => element.hasAttribute('disabled') || element.disabled")
+            if is_disabled:
+                self.page.wait_for_timeout(poll_interval_ms)
+                elapsed_ms += poll_interval_ms
+
         if is_disabled:
             no_documents_visible = self.is_visible(self.no_documents_message.first, timeout=1500)
 
@@ -825,6 +845,19 @@ class DocumentVaultPage(BasePage):
         self.wait_for_all_spinners_to_disappear(timeout=timeout)
         self.page.wait_for_timeout(1000)
 
+        # Try the specific document-row checkbox first (avoids picking filter checkboxes).
+        try:
+            cb = self.first_checkbox.first
+            if self.is_visible(cb, timeout=3000):
+                cb.scroll_into_view_if_needed()
+                cb.click()
+                logger.info("First document checkbox selected")
+                self.page.wait_for_timeout(500)
+                return
+        except Exception:
+            pass
+
+        # Fallback: broad search across frames.
         candidates = [self.page] + list(self.page.frames)
         for candidate in candidates:
             try:
@@ -834,7 +867,7 @@ class DocumentVaultPage(BasePage):
                     if self.is_visible(cb, timeout=1000):
                         cb.scroll_into_view_if_needed()
                         cb.click()
-                        logger.info("First checkbox selected")
+                        logger.info("First checkbox selected (fallback)")
                         self.page.wait_for_timeout(500)
                         return
             except Exception:

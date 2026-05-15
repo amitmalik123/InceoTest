@@ -1,0 +1,24 @@
+2026-05-15 04:22:14 - tests.bdd.steps.RGLstep - INFO - Ensuring Clients tab is clicked before RGL navigation
+2026-05-15 04:22:19 - pages.document_vault_page - INFO - Navigating to Document Vault through Service Center
+2026-05-15 04:22:30 - pages.document_vault_page - INFO - Document Vault page loaded
+2026-05-15 04:22:33 - pages.document_vault_page - INFO - Selecting Document Type: AssetMark Trust Tax Documents
+2026-05-15 04:22:36 - pages.document_vault_page - INFO - Document Type selected: AssetMark Trust Tax Documents
+2026-05-15 04:22:40 - pages.document_vault_page - INFO - Validating Document control is visible for user interaction
+2026-05-15 04:22:43 - pages.document_vault_page - INFO - Document control is visible for user interaction
+2026-05-15 04:22:46 - pages.document_vault_page - INFO - Validating Find button is enabled for user interaction
+2026-05-15 04:22:49 - pages.document_vault_page - INFO - Find button is visible on the page
+2026-05-15 04:22:49 - pages.document_vault_page - INFO - Find button does not have disabled state
+2026-05-15 04:22:49 - pages.document_vault_page - INFO - Clicking Find button to load filter results
+2026-05-15 04:22:52 - pages.document_vault_page - INFO - ALL ASSERTIONS PASSED: Find button is enabled and ready for interaction
+2026-05-15 04:22:56 - pages.document_vault_page - INFO - Clicking Select All filters button
+2026-05-15 04:23:19 - pages.document_vault_page - INFO - Select All filters button clicked
+2026-05-15 04:23:25 - pages.document_vault_page - INFO - Validating document-type-year filename: 'AssetMark Trust Tax Documents2025.zip' for doc type 'AssetMark Trust Tax Documents'
+2026-05-15 04:23:25 - pages.document_vault_page - INFO - Filename validation passed: document type and year are present
+2026-05-15 04:23:25 - tests.bdd.steps.document_vault_steps - INFO - Document type-year ZIP download validated: AssetMark Trust Tax Documents2025.zip
+2026-05-15 04:23:28 - pages.document_vault_page - INFO - Clicking Clear All filters button
+2026-05-15 04:23:35 - pages.document_vault_page - INFO - Clear All filters button clicked
+2026-05-15 04:23:40 - pages.document_vault_page - INFO - First checkbox selected (fallback)
+2026-05-15 04:23:41 - tests.bdd.steps.document_vault_steps - INFO - PDF download captured and stored: eSig Test 4 Individual-AssetMark Trust Tax Document-1099 Pending Letter-9999978-2025.pdf
+2026-05-15 04:23:45 - pages.document_vault_page - INFO - Validating document-type-year filename: 'eSig Test 4 Individual-AssetMark Trust Tax Document-1099 Pending Letter-9999978-2025.pdf' for doc type 'AssetMark Trust Tax Documents'
+2026-05-15 04:23:45 - pages.document_vault_page - INFO - Filename validation passed: document type and year are present
+2026-05-15 04:23:45 - tests.bdd.steps.document_vault_steps - INFO - Document type-year PDF download validated: eSig Test 4 Individual-AssetMark Trust Tax Document-1099 Pending Letter-9999978-2025.pdf

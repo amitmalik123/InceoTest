@@ -2,6 +2,7 @@ from typing import List
 
 from playwright.sync_api import Page
 
+from locators import add_ach_instruction_locators
 from pages.base_page import BasePage
 from utils.allure_logger import get_allure_logger
 
@@ -11,26 +12,19 @@ logger = get_allure_logger(__name__)
 class AddACHInstructionPage(BasePage):
     def __init__(self, page: Page):
         super().__init__(page)
-        self.routing_number = page.locator('input[maxlength="9"][inputmode="numeric"]')
-        self.bank_account_number = page.locator('[aria-label="Bank-AccountNumber"] input')
-        self.confirm_bank_account_number = page.locator(
-            '[aria-label="Confirm-BankAccount-Number"] input'
-        )
-        self.verify_button = page.locator("span:text('Verify')")
-        self.bank_name_display = page.locator("span:text('Bank Name') + span")
-        self.name_on_bank_account = page.locator(
-            '[aria-label="Bank-Account-OwnerName"] textarea[aria-invalid]'
-        )
-        self.additional_bank_account_owner_name = page.get_by_placeholder(
-            "Additional Bank Account Owner Name"
-        )
-        self.checking_radio = page.get_by_role("radio", name="Checking")
-        self.savings_radio = page.get_by_role("radio", name="Savings")
-        self.investment_account_checkbox = page.get_by_test_id("checkbox").locator(
-            "input[type='checkbox']"
-        )
-        self.account_name_list = page.get_by_test_id("account-details").locator("span").first
-        self.next_button = page.get_by_role("button", name="Next")
+        locators = add_ach_instruction_locators.initialize_locators(page)
+        self.routing_number = locators["routing_number"]
+        self.bank_account_number = locators["bank_account_number"]
+        self.confirm_bank_account_number = locators["confirm_bank_account_number"]
+        self.verify_button = locators["verify_button"]
+        self.bank_name_display = locators["bank_name_display"]
+        self.name_on_bank_account = locators["name_on_bank_account"]
+        self.additional_bank_account_owner_name = locators["additional_bank_account_owner_name"]
+        self.checking_radio = locators["checking_radio"]
+        self.savings_radio = locators["savings_radio"]
+        self.investment_account_checkbox = locators["investment_account_checkbox"]
+        self.account_name_list = locators["account_name_list"]
+        self.next_button = locators["next_button"]
 
     def client_household(self, household_header: str):
         return self.page.locator(f"span:text('{household_header}')")
