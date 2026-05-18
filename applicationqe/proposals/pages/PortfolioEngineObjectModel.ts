@@ -1074,7 +1074,8 @@ export class PortfolioEnginePage {
      * Dismiss the OneTrust privacy consent dialog (test11 only)
      */
     async dismissPrivacyDialog(): Promise<void> {
-        if (process.env.ENVIRONMENT === "test11") {
+        const env = process.env.ENVIRONMENT || process.env.Environment;
+        if (env.toLowerCase() != "test10") {
             try {
                 await this.privacyDialogRejectAllButton.click({
                     timeout: 10000,
