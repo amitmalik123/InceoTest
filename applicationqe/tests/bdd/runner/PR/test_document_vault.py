@@ -13,6 +13,6 @@ from tests.bdd.steps.PR.RGLstep import *  # noqa
 
 # Load all scenarios from the feature file (gracefully skip if all are commented out)
 try:
-    scenarios("../features/PR/document_vault.feature")
+    scenarios("../../features/PR/document_vault.feature")
 except NoScenariosFound:
     pass

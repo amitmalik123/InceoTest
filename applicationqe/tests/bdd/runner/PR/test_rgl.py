@@ -10,4 +10,4 @@ from tests.bdd.steps.PR.navigation_steps import *  # noqa
 from tests.bdd.steps.PR.RGLstep import *  # noqa
 
 # Load all scenarios from the feature file
-scenarios("../features/PR/RGL.feature")
+scenarios("../../features/PR/RGL.feature")

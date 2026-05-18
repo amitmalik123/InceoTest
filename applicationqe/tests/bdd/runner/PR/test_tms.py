@@ -10,4 +10,4 @@ from tests.bdd.steps.PR.navigation_steps import *  # noqa
 from tests.bdd.steps.PR.TMSstep import *  # noqa
 
 # Load all scenarios from the feature file
-scenarios("../features/PR/TMS.feature")
+scenarios("../../features/PR/TMS.feature")

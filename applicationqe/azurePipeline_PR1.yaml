@@ -263,28 +263,28 @@ jobs:
       # Build pytest command with parallel workers support
       # Determine test target based on marker
       if [ "$(marker)" = "rgl" ]; then
-        TEST_TARGET="tests/bdd/test_runners/test_rgl.py"
+        TEST_TARGET="tests/bdd/runner/PR/test_rgl.py"
         echo "Running RGL feature tests"
       elif [ "$(marker)" = "tms" ]; then
-        TEST_TARGET="tests/bdd/test_runners/test_tms.py"
+        TEST_TARGET="tests/bdd/runner/PR/test_tms.py"
         echo "Running TMS feature tests"
       elif [ "$(marker)" = "document_vault" ]; then
-        TEST_TARGET="tests/bdd/test_runners/test_document_vault.py"
+        TEST_TARGET="tests/bdd/runner/PR/test_document_vault.py"
         echo "Running Document Vault feature tests"
       elif [ "$(marker)" = "rgl_tms" ]; then
-        TEST_TARGET="tests/bdd/test_runners/test_rgl.py tests/bdd/test_runners/test_tms.py"
+        TEST_TARGET="tests/bdd/runner/PR/test_rgl.py tests/bdd/runner/PR/test_tms.py"
         echo "Running RGL and TMS feature tests"
       elif [ "$(marker)" = "rgl_document_vault" ]; then
-        TEST_TARGET="tests/bdd/test_runners/test_rgl.py tests/bdd/test_runners/test_document_vault.py"
+        TEST_TARGET="tests/bdd/runner/PR/test_rgl.py tests/bdd/runner/PR/test_document_vault.py"
         echo "Running RGL and Document Vault feature tests"
       elif [ "$(marker)" = "tms_document_vault" ]; then
-        TEST_TARGET="tests/bdd/test_runners/test_tms.py tests/bdd/test_runners/test_document_vault.py"
+        TEST_TARGET="tests/bdd/runner/PR/test_tms.py tests/bdd/runner/PR/test_document_vault.py"
         echo "Running TMS and Document Vault feature tests"
       elif [ "$(marker)" = "rgl_tms_document_vault" ]; then
-        TEST_TARGET="tests/bdd/test_runners/test_rgl.py tests/bdd/test_runners/test_tms.py tests/bdd/test_runners/test_document_vault.py"
+        TEST_TARGET="tests/bdd/runner/PR/test_rgl.py tests/bdd/runner/PR/test_tms.py tests/bdd/runner/PR/test_document_vault.py"
         echo "Running RGL, TMS, and Document Vault feature tests"
       else
-        TEST_TARGET="tests/bdd/test_runners/test_rgl.py tests/bdd/test_runners/test_tms.py tests/bdd/test_runners/test_document_vault.py"
+        TEST_TARGET="tests/bdd/runner/PR/test_rgl.py tests/bdd/runner/PR/test_tms.py tests/bdd/runner/PR/test_document_vault.py"
         echo "Running default feature set: RGL, TMS, and Document Vault"
       fi
 
