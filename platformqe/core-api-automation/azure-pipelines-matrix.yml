@@ -215,7 +215,7 @@ parameters:
   - name: slackNotificationEnabled
     displayName: 'Enable Slack Result Notification'
     type: boolean
-    default: true
+    default: false
 
 ###############################################################################
 # Global Variables
