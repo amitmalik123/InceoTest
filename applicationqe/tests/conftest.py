@@ -257,7 +257,7 @@ def pytest_sessionfinish(session, exitstatus) -> None:  # noqa: C901
 
     # Generate Auto-Healing Report
     try:
-        from pages.base_page import BasePage
+        from pages.PR.base_page import BasePage
 
         healing_engine = BasePage._healing_engine
         if healing_engine:

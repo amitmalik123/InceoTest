@@ -2,8 +2,8 @@ from playwright.sync_api import Page
 from pytest_bdd import given, parsers, then, when
 
 from config.settings import get_settings
-from pages.clients_page import ClientsPage
-from pages.lookup_page import LookupPage
+from pages.PR.clients_page import ClientsPage
+from pages.PR.lookup_page import LookupPage
 from utils.allure_logger import get_allure_logger
 
 logger = get_allure_logger(__name__)
@@ -194,7 +194,7 @@ def login_application(authenticated_page: Page, test_context: dict):
     The authenticated_page fixture yields a fresh unauthenticated page for
     @newNavBar scenarios - NavbarLoginPage handles the actual login.
     """
-    from pages.navbar_login_page import NavbarLoginPage
+    from pages.PR.navbar_login_page import NavbarLoginPage
 
     test_data = test_context.get("test_data", {})
     username = test_data.get("username") or test_data.get("UserName")

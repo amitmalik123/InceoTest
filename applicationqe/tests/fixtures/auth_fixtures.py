@@ -21,7 +21,7 @@ from playwright.sync_api import Page
 from playwright.sync_api import TimeoutError as PlaywrightTimeoutError
 
 from config.settings import Settings, get_settings
-from pages.login_page import LoginPage
+from pages.PR.login_page import LoginPage
 from tests.fixtures.browser_fixtures import apply_context_listeners, apply_route_blocks
 
 # Use centralized Settings singleton

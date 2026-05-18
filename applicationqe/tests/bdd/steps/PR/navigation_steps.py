@@ -1,7 +1,7 @@
 from playwright.sync_api import Page
 from pytest_bdd import then, when
 
-from pages.clients_page import ClientsPage
+from pages.PR.clients_page import ClientsPage
 from utils.allure_logger import get_allure_logger
 from utils.assertions import Assertions
 
