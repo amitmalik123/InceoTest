@@ -7,7 +7,7 @@ from pytest_bdd import parsers, then, when
 from datetime import datetime
 
 from pages.stp.shared.item_details_page import ItemDetailsPage
-from common_steps import extract_account_core_identifier
+from .common_steps import extract_account_core_identifier
 from utils.logger import setup_logger
 
 _DOWNLOAD_PATH = str(Path(__file__).resolve().parents[4] / "downloads" / "ACH PDF")

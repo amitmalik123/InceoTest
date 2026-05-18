@@ -3,8 +3,8 @@ import allure
 from playwright.sync_api import Page
 from pytest_bdd import parsers, then, when
 
-from add_ach_instruction import AddACHInstructionPage
-from common_steps import format_household_name, get_detail, extract_account_core_identifier
+from pages.stp.stp_addACHIntrcutions.add_ach_instruction import AddACHInstructionPage
+from tests.steps.stp.stp_shared.common_steps import format_household_name, get_detail, extract_account_core_identifier
 from utils.allure_logger import get_allure_logger
 from utils.api_response_utils import (
     get_values_from_household_api_open_accounts,

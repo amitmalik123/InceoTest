@@ -9,11 +9,11 @@ from playwright.sync_api import Page
 from pytest_bdd import when, then, parsers
 
 from utils.settings import settings
-from establish_aip_add_aip_page import EstablishAIPAddAIPPage
-from establish_aip_confirmation_page import EstablishAIPConfirmationPage
-from establish_aip_landing_page import EstablishAIPLandingPage
-from establish_aip_origination_selection_page import EstablishAIPOriginationSelectionPage
-from establish_aip_summary_page import EstablishAIPSummaryPage
+from pages.stp.stp_aip.establish_aip_add_aip_page import EstablishAIPAddAIPPage
+from pages.stp.stp_aip.establish_aip_confirmation_page import EstablishAIPConfirmationPage
+from pages.stp.stp_aip.establish_aip_landing_page import EstablishAIPLandingPage
+from pages.stp.stp_aip.establish_aip_origination_selection_page import EstablishAIPOriginationSelectionPage
+from pages.stp.stp_aip.establish_aip_summary_page import EstablishAIPSummaryPage
 from utils.allure_logger import get_allure_logger
 from utils.constants.constants import Constants
 

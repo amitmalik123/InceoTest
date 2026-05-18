@@ -1,4 +1,4 @@
-from pathlib import Path
+﻿from pathlib import Path
 import sys
 import pytest
 from pytest_bdd import scenarios
@@ -6,12 +6,12 @@ from pytest_bdd import scenarios
 APP_ROOT = Path(__file__).resolve().parents[3]
 
 _STEP_DIRS = [
-    'tests/steps/stp/stp-shared',
-    'tests/steps/stp/stp-manageBene',
-    'tests/steps/stp/stp-addACHIntrcutions',
-    'tests/steps/stp/stp-mimotransaction',
-    'tests/steps/stp/stp-oaTradingTool',
-    'tests/steps/stp/stp-ict',
+    'tests/steps/stp/stp_shared',
+    'tests/steps/stp/stp_manageBene',
+    'tests/steps/stp/stp_addACHIntrcutions',
+    'tests/steps/stp/stp_mimotransaction',
+    'tests/steps/stp/stp_oaTradingTool',
+    'tests/steps/stp/stp_ict',
 ]
 for _d in _STEP_DIRS:
     sys.path.insert(0, str(APP_ROOT / _d))
@@ -35,4 +35,4 @@ from test_roth_conversion_steps import *  # noqa: F401,F403,E402
 from tracking_center_steps import *  # noqa: F401,F403,E402
 
 _FEATURES = APP_ROOT / 'tests/features/stp'
-scenarios(str(_FEATURES / 'stp-manageBene/Manage_bene.feature'))
+scenarios(str(_FEATURES / 'stp_manageBene/Manage_bene.feature'))
