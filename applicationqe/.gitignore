@@ -9,3 +9,7 @@ __pycache__/
 # Test/runtime caches and reports
 .pytest_cache/
 reports/
+allure-results/
+
+# VS Code workspace settings
+.vscode/
