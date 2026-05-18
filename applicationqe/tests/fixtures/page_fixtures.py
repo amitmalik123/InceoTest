@@ -5,9 +5,9 @@ from playwright.sync_api import Page
 
 from config.settings import get_settings
 from pages.clients_page import ClientsPage
-from pages.document_vault_page import DocumentVaultPage
 from pages.login_page import LoginPage
 from pages.navbar_login_page import NavbarLoginPage
+from pages.PR.document_vault_page import DocumentVaultPage
 from pages.tracking_center_page import TrackingCenterPage
 
 # Resolve base_url once from the active environment config

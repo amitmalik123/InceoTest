@@ -35,7 +35,10 @@ class Settings:
         """
         self.env = env
         self.logger = setup_logger(__name__)
-        self.config_path = Path(__file__).parent / f"env.{env}.yaml"
+        config_root = Path(__file__).parent
+        self.config_path = config_root / "PR" / f"env.{env}.yaml"
+        if not self.config_path.exists():
+            self.config_path = config_root / f"env.{env}.yaml"
         self.config = self._load_config()
         self._queries = self._load_queries()
 

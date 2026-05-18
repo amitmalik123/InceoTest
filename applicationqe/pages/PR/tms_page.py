@@ -3,7 +3,7 @@ import re
 from playwright.sync_api import Locator, Page
 
 from config.settings import get_settings
-from locators import tms_locators
+from locators.PR import tms_locators
 from pages.base_page import BasePage
 from utils.allure_logger import get_allure_logger
 
