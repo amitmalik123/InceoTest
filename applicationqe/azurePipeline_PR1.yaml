@@ -25,10 +25,12 @@ trigger: none
 # Scheduled triggers
 # -----------------------------
 schedules:
-  - cron: "0 7 * * *" # 07:00 UTC daily (12:30 PM IST)
+  - cron: "10 15 * * *" # 15:10 UTC daily (8:40 PM IST)
     displayName: "Daily Regression"
     branches:
       include:
+        - main
+        - develop
         - PortfolioReporting
     always: true
 
