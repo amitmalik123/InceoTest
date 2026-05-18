@@ -4,16 +4,16 @@ import sys
 from pytest_bdd import scenarios
 
 
-# Resolve repo root from tests/features/stp/stp_journals/e2e
+# Resolve repo root from tests/features/stp/stp-journals/e2e
 REPO_ROOT = Path(__file__).resolve().parents[5]
-STP_JOURNALS_ROOT = REPO_ROOT / "tests" / "steps" / "stp" / "stp_journals"
-STEP_DIR = REPO_ROOT / "tests" / "steps" / "stp" / "stp_journals" / "e2e"
+STP_JOURNALS_ROOT = REPO_ROOT / "tests" / "steps" / "stp" / "stp-journals"
+STEP_DIR = REPO_ROOT / "tests" / "steps" / "stp" / "stp-journals" / "e2e"
 
 sys.path.insert(0, str(REPO_ROOT))
 sys.path.insert(0, str(STP_JOURNALS_ROOT))
 sys.path.insert(0, str(STEP_DIR))
 
-# Import all ES3 stp_journals step functions into this module namespace so
+# Import all ES3 stp-journals step functions into this module namespace so
 # pytest-bdd can resolve step definitions for generated scenarios.
 from account_steps import *  # noqa: F401,F403
 from account_wizard_steps import *  # noqa: F401,F403

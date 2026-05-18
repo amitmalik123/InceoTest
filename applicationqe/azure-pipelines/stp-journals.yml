@@ -1,4 +1,4 @@
-﻿name: stp_journals-$(Date:yyyyMMdd)$(Rev:.r)
+name: stp-journals-$(Date:yyyyMMdd)$(Rev:.r)
 
 trigger:
   branches:
@@ -7,13 +7,13 @@ trigger:
       - develop
   paths:
     include:
-      - applicationqe/data/stp/stp_journals/**
-      - applicationqe/config/stp/stp_journals/**
-      - applicationqe/tests/features/stp/stp_journals/**
-      - applicationqe/tests/steps/stp/stp_journals/**
+      - applicationqe/data/stp/stp-journals/**
+      - applicationqe/config/stp/stp-journals/**
+      - applicationqe/tests/features/stp/stp-journals/**
+      - applicationqe/tests/steps/stp/stp-journals/**
       - applicationqe/pages/**
-      - applicationqe/pages/stp/stp_journals/**
-      - applicationqe/queries/stp/stp_journals/**
+      - applicationqe/pages/stp/stp-journals/**
+      - applicationqe/queries/stp/stp-journals/**
       - applicationqe/azure-pipelines/**
       - applicationqe/requirements.txt
 
@@ -27,13 +27,13 @@ pr:
       - develop
   paths:
     include:
-      - applicationqe/data/stp/stp_journals/**
-      - applicationqe/config/stp/stp_journals/**
-      - applicationqe/tests/features/stp/stp_journals/**
-      - applicationqe/tests/steps/stp/stp_journals/**
+      - applicationqe/data/stp/stp-journals/**
+      - applicationqe/config/stp/stp-journals/**
+      - applicationqe/tests/features/stp/stp-journals/**
+      - applicationqe/tests/steps/stp/stp-journals/**
       - applicationqe/pages/**
-      - applicationqe/pages/stp/stp_journals/**
-      - applicationqe/queries/stp/stp_journals/**
+      - applicationqe/pages/stp/stp-journals/**
+      - applicationqe/queries/stp/stp-journals/**
       - applicationqe/azure-pipelines/**
       - applicationqe/requirements.txt
 
@@ -87,8 +87,8 @@ stages:
   - template: templates/team-stage.yml
     parameters:
       stageName: STP_JOURNALS
-      teamDisplay: stp_JOURNALS
-      featurePath: tests/features/stp/stp_journals
+      teamDisplay: STP-JOURNALS
+      featurePath: tests/features/stp/stp-journals
       environment: ${{ parameters.environment }}
       marker: ${{ parameters.marker }}
       workers: ${{ parameters.workers }}

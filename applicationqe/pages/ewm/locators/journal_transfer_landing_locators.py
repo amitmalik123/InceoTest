@@ -13,7 +13,7 @@ def _load_test_data(scenario_name: str = "journal_portion_transfer_standard1") -
         Path(__file__).resolve().parents[3]
         / "data"
         / "stp"
-        / "stp_journals"
+        / "stp-journals"
         / "journal_transfer_test_data.json"
     )
     with open(data_file, "r") as handle:
