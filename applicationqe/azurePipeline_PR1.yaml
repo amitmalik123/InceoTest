@@ -52,12 +52,15 @@ parameters:
   - name: marker
     displayName: "Pytest Marker to Run"
     type: string
-    default: "rgl"
+    default: "rgl_tms_document_vault"
     values:
       - rgl
       - tms
+      - document_vault
       - rgl_tms
-      - regression
+      - rgl_document_vault
+      - tms_document_vault
+      - rgl_tms_document_vault
 
   - name: workers
     displayName: "Number of Parallel Workers"
@@ -265,13 +268,24 @@ jobs:
       elif [ "$(marker)" = "tms" ]; then
         TEST_TARGET="tests/bdd/test_runners/test_tms.py"
         echo "Running TMS feature tests"
+      elif [ "$(marker)" = "document_vault" ]; then
+        TEST_TARGET="tests/bdd/test_runners/test_document_vault.py"
+        echo "Running Document Vault feature tests"
       elif [ "$(marker)" = "rgl_tms" ]; then
         TEST_TARGET="tests/bdd/test_runners/test_rgl.py tests/bdd/test_runners/test_tms.py"
         echo "Running RGL and TMS feature tests"
+      elif [ "$(marker)" = "rgl_document_vault" ]; then
+        TEST_TARGET="tests/bdd/test_runners/test_rgl.py tests/bdd/test_runners/test_document_vault.py"
+        echo "Running RGL and Document Vault feature tests"
+      elif [ "$(marker)" = "tms_document_vault" ]; then
+        TEST_TARGET="tests/bdd/test_runners/test_tms.py tests/bdd/test_runners/test_document_vault.py"
+        echo "Running TMS and Document Vault feature tests"
+      elif [ "$(marker)" = "rgl_tms_document_vault" ]; then
+        TEST_TARGET="tests/bdd/test_runners/test_rgl.py tests/bdd/test_runners/test_tms.py tests/bdd/test_runners/test_document_vault.py"
+        echo "Running RGL, TMS, and Document Vault feature tests"
       else
-        # For any marker (including regression), use pytest marker filtering
-        TEST_TARGET="tests/bdd/test_runners -m \"$(marker)\""
-        echo "Running tests with marker: $(marker)"
+        TEST_TARGET="tests/bdd/test_runners/test_rgl.py tests/bdd/test_runners/test_tms.py tests/bdd/test_runners/test_document_vault.py"
+        echo "Running default feature set: RGL, TMS, and Document Vault"
       fi
 
       # Determine browser parameter
