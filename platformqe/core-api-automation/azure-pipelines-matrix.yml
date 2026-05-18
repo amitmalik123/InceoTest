@@ -212,10 +212,10 @@ parameters:
     type: number
     default: 0
 
-  - name: teamsNotificationEnabled
-    displayName: 'Enable Teams Result Notification'
+  - name: slackNotificationEnabled
+    displayName: 'Enable Slack Result Notification'
     type: boolean
-    default: false
+    default: true
 
 ###############################################################################
 # Global Variables
@@ -267,9 +267,7 @@ stages:
       customNonFunctionalArgs: ${{ parameters.customNonFunctionalArgs }}
       promotePerformanceBaseline: ${{ parameters.promotePerformanceBaseline }}
       baselineReason: ${{ parameters.baselineReason }}
-      teamsNotificationEnabled: ${{ parameters.teamsNotificationEnabled }}
-      # For scheduled runs, use the branch-specific scheduleTestCaseFilter (defined in-code)
-      # For manual/PR/Push runs, use the user-provided parameter value
+      slackNotificationEnabled: ${{ parameters.slackNotificationEnabled }}
       testCaseFilter: ${{ parameters.testCaseFilter }}
       scheduleTestCaseFilter: $(scheduleTestCaseFilter)
       triggerReason: '$(Build.Reason)'
