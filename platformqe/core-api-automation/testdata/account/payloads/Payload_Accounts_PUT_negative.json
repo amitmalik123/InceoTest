@@ -1,7 +1,0 @@
-{
-  "id": "{{resource_id}}",
-  "name": "Updated Name",
-  "description": "Updated Description",
-  "status": "active",
-  "updatedBy": "{{user_id}}"
-}

@@ -278,12 +278,18 @@ stages:
         export INFLUXDB_ORG="${INFLUXDB_ORG}"
         export INFLUXDB_BUCKET="${INFLUXDB_BUCKET}"
         export ALLURE_RESULTS_DIR="$(allureResultsDir)"
+        export JUNIT_XML_PATH="$(testResultsDir)/junit/junit-report.xml"
         export ENVIRONMENT="$(environment)"
         export BUILD_ID="$(Build.BuildId)"
         export BUILD_REASON="$(Build.Reason)"
+        export TEAM_NAME="${{ parameters.teamDisplay }}"
+        export STAGE_NAME="${{ parameters.stageName }}"
 
         cd applicationqe
-        python utils/influx_reporter.py
+        python utils/influx_reporter.py \
+          --allure-dir "$(allureResultsDir)" \
+          --junit "$(testResultsDir)/junit/junit-report.xml" \
+          --run-name "${{ parameters.teamDisplay }}:${{ parameters.stageName }}"
       displayName: "Push Metrics to InfluxDB"
       condition: always()
       continueOnError: true

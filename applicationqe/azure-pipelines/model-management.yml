@@ -7,12 +7,12 @@ trigger:
       - develop
   paths:
     include:
-      - 'data/Model Management/**'
+      - 'data/model-management/wrappermodel/**'
       - 'config/Model Management/**'
-      - 'tests/features/Model Management/**'
-      - 'tests/steps/Model Management/**'
-      - 'pages/Model Management/**'
-      - 'queries/Model Management/**'
+      - 'tests/features/model-management/WrapperModel/**'
+      - 'tests/steps/model-management/wrappermodel/**'
+      - 'pages/model-management/wrappermodel**'
+      - 'queries/model-management/**'
       - azure-pipelines/templates/**
       - requirements.txt
 
@@ -23,12 +23,12 @@ pr:
       - develop
   paths:
     include:
-      - 'data/Model Management/**'
+      - 'data/model-management/wrappermodel/**'
       - 'config/Model Management/**'
-      - 'tests/features/Model Management/**'
-      - 'tests/steps/Model Management/**'
-      - 'pages/Model Management/**'
-      - 'queries/Model Management/**'
+      - 'tests/features/model-management/WrapperModel/**'
+      - 'tests/steps/model-management/wrappermodel/**'
+      - 'pages/model-management/wrappermodel**'
+      - 'queries/model-management/**'
       - azure-pipelines/templates/**
       - requirements.txt
 
@@ -40,4 +40,4 @@ stages:
     parameters:
       stageName: MODEL_MANAGEMENT
       teamDisplay: Model Management
-      featurePath: tests/features/Model Management
+      featurePath: tests/features/model-management/WrapperModel

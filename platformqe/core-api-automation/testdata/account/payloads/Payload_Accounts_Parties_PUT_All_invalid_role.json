@@ -1,9 +1,0 @@
-{
-    "Parties": [
-        {
-            "partyId": "{{setupPartyId1}}",
-            "roleType": "INVALIDROLE",
-            "attributes": []
-        }
-    ]
-}
