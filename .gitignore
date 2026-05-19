@@ -101,3 +101,6 @@ reports/*.png
 .scannerwork/
 .sonar/
 sonar-project.properties.bak
+
+.github/*
+/github
