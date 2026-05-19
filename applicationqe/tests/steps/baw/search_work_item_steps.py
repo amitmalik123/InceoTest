@@ -2,7 +2,7 @@
 
 from pytest_bdd import when
 
-from applicationqe.pages.baw.search_work_item_page import SearchWorkItemPage
+from pages.baw.search_work_item_page import SearchWorkItemPage
 from utils.allure_logger import get_allure_logger
 from utils.assertions import Assertions
 

@@ -2,7 +2,7 @@
 
 from pytest_bdd import given
 
-from applicationqe.pages.baw.baw_login_page import BawLoginPage
+from pages.baw.baw_login_page import BawLoginPage
 from utils.allure_logger import get_allure_logger
 
 logger = get_allure_logger(__name__)

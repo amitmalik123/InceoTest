@@ -404,7 +404,7 @@ def step_user_fills_additional_account_information(
         account_setup_page.page.wait_for_load_state("domcontentloaded", timeout=10000)
         account_setup_page.wait_for_loading_data()
         account_setup_page.page.wait_for_timeout(2000)
-        logger.info("G£ô SDBA account fields filled and page stabilized")
+        logger.info("SDBA account fields filled and page stabilized")
 
     account_setup_page.notSavedError()
         

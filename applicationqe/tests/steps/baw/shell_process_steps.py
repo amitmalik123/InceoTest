@@ -2,9 +2,9 @@
 
 from pytest_bdd import parsers, then, when
 
-from applicationqe.pages.baw.baw_dashboard_page import BawDashboardPage
-from applicationqe.pages.baw.naa_coach_page import NAACoachPage
-from applicationqe.pages.baw.shell_process_page import ShellProcessPage
+from pages.baw.baw_dashboard_page import BawDashboardPage
+from pages.baw.naa_coach_page import NAACoachPage
+from pages.baw.shell_process_page import ShellProcessPage
 from tests.steps.naw.construct_portfolio_step import ConstructPortfolioStep
 from utils.allure_logger import get_allure_logger
 from utils.assertions import Assertions

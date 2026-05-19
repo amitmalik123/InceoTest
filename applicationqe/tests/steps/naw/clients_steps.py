@@ -2,7 +2,7 @@ from playwright.sync_api import Page
 from pytest_bdd import when
 
 # Reuse all existing common steps for client scenarios.
-from applicationqe.tests.steps.common_steps import *  # noqa: F401,F403
+from tests.steps.common_steps import *  # noqa: F401,F403
 from utils.allure_logger import get_allure_logger
 
 logger = get_allure_logger(__name__)

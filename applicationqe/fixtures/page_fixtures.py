@@ -18,16 +18,16 @@ from pages.ewm.construct_portfolio_page import ConstructPortfolioPage
 from pages.ewm.create_documents_page import CreateDocumentsPage
 from pages.ewm.dashboard_page import DashboardPage
 from pages.ewm.fees_page import FeesPage
-from applicationqe.pages.baw.naa_coach_page import NAACoachPage
+from pages.baw.naa_coach_page import NAACoachPage
 from pages.ewm.navbar_login_page import NavbarLoginPage
 from pages.ewm.portfolio_details_page import PortfolioDetailsPage
 from pages.ewm.review_all_accounts_page import ReviewAllAccountsPage
 from pages.tracking_center_page import TrackingCenterPage
 from pages.ewm.view_documents_page import ViewDocumentsPage
-from applicationqe.pages.baw.baw_dashboard_page import BawDashboardPage
-from applicationqe.pages.baw.baw_login_page import BawLoginPage
-from applicationqe.pages.baw.search_work_item_page import SearchWorkItemPage
-from applicationqe.pages.baw.shell_process_page import ShellProcessPage
+from pages.baw.baw_dashboard_page import BawDashboardPage
+from pages.baw.baw_login_page import BawLoginPage
+from pages.baw.search_work_item_page import SearchWorkItemPage
+from pages.baw.shell_process_page import ShellProcessPage
 from pages.ewm.lookup_page import LookupPage
 from pages.ewm.account_approval_page import AccountApprovalPage
 

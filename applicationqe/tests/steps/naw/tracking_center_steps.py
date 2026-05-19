@@ -1,7 +1,7 @@
 from playwright.sync_api import Page
 from pytest_bdd import parsers, when
 
-from applicationqe.pages.baw.naa_coach_page import NAACoachPage
+from pages.baw.naa_coach_page import NAACoachPage
 from pages.tracking_center_page import TrackingCenterPage
 from utils.allure_logger import get_allure_logger
 

@@ -5,7 +5,7 @@ Test module for retain account feature using BDD approach
 from pytest_bdd import scenarios
 
 # Import step definitions
-from applicationqe.tests.steps.common_steps import *  # noqa
+from tests.steps.common_steps import *  # noqa
 from tests.steps.naw.navbar_common_steps import *  # noqa
 from tests.steps.naw.dashboard_steps import *  # noqa
 from tests.steps.naw.clients_steps import *  # noqa

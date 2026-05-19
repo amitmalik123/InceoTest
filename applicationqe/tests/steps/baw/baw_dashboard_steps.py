@@ -2,8 +2,8 @@
 
 from pytest_bdd import parsers, when
 
-from applicationqe.pages.baw.baw_dashboard_page import BawDashboardPage
-from applicationqe.pages.baw.naa_coach_page import NAACoachPage
+from pages.baw.baw_dashboard_page import BawDashboardPage
+from pages.baw.naa_coach_page import NAACoachPage
 from utils.allure_logger import get_allure_logger
 
 logger = get_allure_logger(__name__)

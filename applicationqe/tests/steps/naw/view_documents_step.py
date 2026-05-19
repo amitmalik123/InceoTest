@@ -6,7 +6,7 @@ from pytest_bdd import parsers, then, when
 from playwright.sync_api import Locator, Page
 
 from pages.ewm.view_documents_page import ViewDocumentsPage
-from applicationqe.pages.ewm.docusign_page import DocuSignPage
+from pages.ewm.docusign_page import DocuSignPage
 from tests.steps.naw.construct_portfolio_step import ConstructPortfolioStep
 from utils.allure_logger import get_allure_logger
 from utils.assertions import Assertions
@@ -252,7 +252,7 @@ def step_user_does_internal_admin_esignature(test_context, view_documents_page: 
 @when("User does the agent esignature from outlook using tracking number")
 def step_user_does_agent_esignature_from_outlook(test_context, view_documents_page: ViewDocumentsPage):
     with logger.step("Agent eSignature from Outlook using tracking number", page=view_documents_page.page):
-        from applicationqe.pages.ewm.docusign_page import DocuSignPage
+        from pages.ewm.docusign_page import DocuSignPage
 
         step_helper = ViewDocumentsStep(test_context, view_documents_page)
         step_helper.get_reg_type_and_custodian()

@@ -2,7 +2,7 @@
 
 from pytest_bdd import parsers, when
 
-from applicationqe.pages.ewm.docusign_page import DocuSignPage
+from pages.ewm.docusign_page import DocuSignPage
 from pages.ewm.view_documents_page import ViewDocumentsPage
 from tests.steps.naw.construct_portfolio_step import ConstructPortfolioStep
 from utils.allure_logger import get_allure_logger

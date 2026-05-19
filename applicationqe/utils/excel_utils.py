@@ -1126,7 +1126,7 @@ class ExcelUtils:
         # Fetch nNumber from DocuSignPage class variable
         n_val = "NA"
         try:
-            from applicationqe.pages.ewm.docusign_page import DocuSignPage
+            from pages.ewm.docusign_page import DocuSignPage
             n_val = (DocuSignPage.nNumber or "NA").strip() or "NA"
             # Reset class variable so the next test doesn't inherit a stale value
             DocuSignPage.nNumber = ""
