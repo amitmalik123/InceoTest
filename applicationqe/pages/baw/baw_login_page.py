@@ -116,3 +116,30 @@ class BawLoginPage(BasePage):
             self.click_signin()
             
             logger.info("BAW login completed successfully")
+
+    def perform_login(self, test_data: dict) -> bool:
+        """
+        Complete BAW login flow: navigate -> enter creds -> sign in.
+
+        Reads 'BawUserName' and 'BawUserPassword' columns from test_data.
+
+        Args:
+            test_data: dict from Excel row containing 'BawUserName' and 'BawUserPassword'
+
+        Returns:
+            bool: True if login successful, False otherwise
+        """
+        try:
+            username = str(test_data.get("BawUserName", "")).strip()
+            password = str(test_data.get("BawUserPassword", "")).strip()
+            if not username or not password:
+                logger.error("BAW credentials (BawUserName/BawUserPassword) not found in test data")
+                return False
+            self.navigate_to_baw()
+            self.enter_username(username)
+            self.enter_password(password)
+            self.click_signin()
+            return "login" not in self.page.url.lower()
+        except Exception as e:
+            logger.error(f"BAW login failed: {e}")
+            return False

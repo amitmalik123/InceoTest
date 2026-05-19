@@ -1,6 +1,7 @@
 """Shell Process Page - BAW Work Item actions"""
 
-from typing import Dict, Optional
+import re
+from typing import TYPE_CHECKING, Dict, Optional
 
 from playwright.sync_api import Locator, Page
 
@@ -8,6 +9,9 @@ from pages.base_page import BasePage
 from utils.allure_logger import get_allure_logger
 from utils.assertions import Assertions
 from utils.wait_utils import WaitContext
+
+if TYPE_CHECKING:
+    from pages.baw.transfer_attributes_page import TransferAttributesPage
 
 logger = get_allure_logger(__name__)
 
@@ -37,6 +41,12 @@ class ShellProcessPage(BasePage):
         self.baw_loading_spinner: Locator = page.locator("img[src*='loading_msg.gif']")
         self.internal_status_label: Locator = page.locator("label#combo_Label")
         self.internal_status_dropdown: Locator = page.locator("select#combo")
+        self.custodial_account: Locator = page.get_by_role("textbox", name="Custodial Account")
+        self.update_transfer_details_button: Locator = page.get_by_role("button", name="Update Transfer details")
+        self.notes_table: Locator = page.locator("//table[@id='Table4']")
+        self.internal_status: Locator = page.get_by_role("combobox", name="Internal Status")
+        self.custodian_acc: Locator = page.locator('td.LabelFontStyle').filter(has_text='Custodian Acc #').locator('xpath=following-sibling::td').first
+        self.add_update_button: Locator = page.get_by_role("button", name=re.compile(r"Add.?Update OA"))
 
     def switch_to_shell_process_page(self, source_page: Optional[Page] = None) -> None:
         """Switch to Shell Process page and reinitialize this page object."""
@@ -381,3 +391,63 @@ class ShellProcessPage(BasePage):
             logger.info("BAW loading spinner has disappeared")
         except Exception as e:
             logger.warning(f"BAW loading spinner did not disappear within {disappear_timeout}ms: {e}")
+
+    def enter_custodial_account_value(self, account: str):
+        """Enter the custodial account number."""
+        self.fill(self.custodial_account, account)
+        self.tab_out()
+        logger.info(f"Enter the custodial account number: {account}")
+
+    def click_update_transfer_details_button(self) -> "TransferAttributesPage":
+        """Click on update transfer details button and switch to TransferAttributes tab.
+
+        Returns:
+            TransferAttributesPage for the new tab
+        """
+        from pages.baw.transfer_attributes_page import TransferAttributesPage
+
+        Assertions.assert_true(self.update_transfer_details_button.is_visible(timeout=10000), "Update Transfer details button is not visible")
+        logger.info("Validated Update Transfer Details button is visible")
+        with self.page.context.expect_page() as new_page_info:
+            self.click(self.update_transfer_details_button)
+
+        transfer_page = new_page_info.value
+        transfer_page.wait_for_load_state("domcontentloaded", timeout=30000)
+        transfer_page.bring_to_front()
+        logger.info(f"Switched to TransferAttributes tab: {transfer_page.url}")
+        return TransferAttributesPage(transfer_page)
+
+    def validate_notes_history(self, expected_text: str = "") -> str:
+        """Switch to Shell Process page, reload, and validate notes history content."""
+        self.page.bring_to_front()
+        self.baw_spinner_loader(appear_timeout=15000, disappear_timeout=60000)
+        self.page.reload()
+        self.baw_spinner_loader(appear_timeout=5000, disappear_timeout=30000)
+
+        if expected_text:
+            notes_content = self.get_text(self.notes_table, timeout=10000)
+            Assertions.assert_true(expected_text in notes_content, f"Notes history does not contain expected text: '{expected_text}'")
+            logger.info(f"Validated notes history contains expected text: '{expected_text}'")
+
+        return self.get_text(self.notes_table, timeout=10000).strip()
+
+    def update_internal_status(self, value: str):
+        """Select internal status value from combobox."""
+        try:
+            self.page.wait_for_load_state("domcontentloaded", timeout=60000)
+        except Exception:
+            pass
+        self.wait_for_loading_data()
+        self.select_option(self.internal_status, value, timeout=30000)
+        logger.info(f"Internal status has been updated to: {value}")
+
+    def fetch_custodian_account(self) -> str:
+        """Get the custodian account number text."""
+        return self.get_text(self.custodian_acc, timeout=10000).strip()
+
+    def clickAddUpdateButton(self):
+        """Click Add/Update OA button and accept the alert."""
+        self.accept_alert()
+        self.click(self.add_update_button, timeout=20000)
+        self.wait_for_timeout(5000)
+        logger.info("Clicked on Update OA button and accepted alert")

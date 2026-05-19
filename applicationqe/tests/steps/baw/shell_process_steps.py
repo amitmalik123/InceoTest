@@ -143,6 +143,56 @@ def step_click_on_select_button_for_tms(shell_process_page: ShellProcessPage, bu
             logger.info("Skipped TMS Add step because TMS not eligible")
 
 
+@when("Enter Custodial Account value")
+def step_enter_custodial_account_value(shell_process_page: ShellProcessPage, test_context):
+    """Enter custodial account number in Shell Process page."""
+    data = test_context.get("test_data", {})
+    account_number = (data.get("AccountNumber", "") or "").strip()
+    if not account_number:
+        raise ValueError("AccountNumber not found in test data")
+    shell_process_page.enter_custodial_account_value(account_number)
+
+
+@then("Click on update transfer button")
+def step_click_on_update_transfer_button(shell_process_page: ShellProcessPage, test_context):
+    """Click update transfer details button and store transfer page in context."""
+    transfer_page = shell_process_page.click_update_transfer_details_button()
+    test_context["transferAttributes"] = transfer_page
+
+
+@then(parsers.parse('Validate notes history section "{msg}"'))
+def step_validate_notes_history_section(shell_process_page: ShellProcessPage, msg: str):
+    """Validate notes history contains expected text."""
+    text = shell_process_page.validate_notes_history(expected_text=msg)
+    Assertions.assert_true(
+        msg.lower() in text.lower(),
+        f"Expected text '{msg}' not found in notes history. Actual text: '{text}'"
+    )
+    logger.info(f"Validated notes history step contains '{msg}'")
+
+
+@when(parsers.parse('Update internal status "{status}"'))
+def step_update_internal_status(shell_process_page: ShellProcessPage, status: str):
+    """Update internal status field in Shell Process page."""
+    shell_process_page.update_internal_status(status)
+
+
+@when("User fetches custodian account")
+def step_fetch_custodian_account(shell_process_page: ShellProcessPage, test_context):
+    """Fetch custodian account from Shell Process page."""
+    shell_custodian_acc = shell_process_page.fetch_custodian_account()
+    test_context["shell_custodian_acc"] = shell_custodian_acc
+
+
+@when("click on Update OA button")
+def step_click_update_oa_button(shell_process_page: ShellProcessPage, test_context):
+    """Click Add/Update OA button and store CreateOAPage in context."""
+    from pages.baw.create_oa_page import CreateOAPage
+    shell_process_page.clickAddUpdateButton()
+    shell_process_page.page.wait_for_load_state("load", timeout=30000)
+    test_context["create_oa_page"] = CreateOAPage(shell_process_page.page)
+
+
 @when("Close the workitem")
 def step_close_the_workitem(shell_process_page: ShellProcessPage):
     """On Shell Process page, set Internal Status to Close-Other and close the work item."""
