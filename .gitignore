@@ -2,6 +2,15 @@
 /allure-results/
 /authfiles/
 /test-results/
-
+auth_states/
+reports//PROPOSAL
+.pytest_cache
+*__pycache__/
 # Managed in applicationqe/proposals/.gitignore
 .playwright-mcp
+
+venv/
+
+applicationqe/reports/*
+
+.github
