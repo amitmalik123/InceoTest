@@ -25,7 +25,7 @@ trigger: none
 # Scheduled triggers
 # -----------------------------
 schedules:
-  - cron: "05 14 * * *" # 14:05 UTC daily (7:35 PM IST)
+  - cron: "38 14 * * *" # 14:38 UTC daily (8:08 PM IST)
     displayName: "Daily Regression"
     branches:
       include:
@@ -413,6 +413,10 @@ jobs:
       export ENVIRONMENT="$(environment)"
       export BUILD_ID="$(Build.BuildId)"
       export BUILD_REASON="$(Build.Reason)"
+      export INFLUXDB_URL="$(influx_url)"
+      export INFLUXDB_TOKEN="$(influx_token)"
+      export INFLUXDB_ORG="$(influx_org)"
+      export INFLUXDB_BUCKET="$(influx_bucket)"
 
       python utils/influx_reporter.py
     displayName: "Push Metrics to InfluxDB"
