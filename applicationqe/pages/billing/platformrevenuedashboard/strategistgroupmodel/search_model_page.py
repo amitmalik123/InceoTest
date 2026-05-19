@@ -55,15 +55,11 @@ class SearchModelPage(BasePage):
         except Exception:
             pass
         
-        # Set the search value using type instead of fill to handle input limitations
+        # Set the search value
         search_input.click()
-        search_input.clear()  # Ensure field is clear
+        search_input.clear()
         self.page.wait_for_timeout(100)
-        
-        # Type the value character by character with small delays to ensure it captures
-        for char in model_value:
-            search_input.type(char, delay=50)
-        
+        search_input.fill(model_value)
         self.page.wait_for_timeout(200)
 
         # Verify search input value is actually set before clicking search
@@ -72,15 +68,25 @@ class SearchModelPage(BasePage):
         
         if input_value != model_value:
             logger.warning(
-                "Search input value mismatch: expected '%s', got '%s'. Clearing and trying fill() method.",
+                "Search input value mismatch: expected '%s', got '%s'. Retrying with clear + fill.",
                 model_value,
                 input_value
             )
-            search_input.fill("")
-            self.page.wait_for_timeout(100)
+            search_input.clear()
+            self.page.wait_for_timeout(200)
             search_input.fill(model_value)
+            self.page.wait_for_timeout(200)
             input_value = search_input.input_value()
-            logger.info("After fill(): set '%s', got '%s'", model_value, input_value)
+            logger.info("After retry fill(): set '%s', got '%s'", model_value, input_value)
+
+            if input_value != model_value:
+                # Last resort: use type() for character-by-character input
+                search_input.clear()
+                self.page.wait_for_timeout(200)
+                search_input.type(model_value, delay=80)
+                self.page.wait_for_timeout(200)
+                input_value = search_input.input_value()
+                logger.info("After type() fallback: set '%s', got '%s'", model_value, input_value)
 
         search_button = self.page.get_by_role("button", name="Search")
         expect(search_button).to_be_visible(timeout=10000)
