@@ -25,7 +25,7 @@ trigger: none
 # Scheduled triggers
 # -----------------------------
 schedules:
-  - cron: "15 15 * * *" # 15:15 UTC daily (8:45 PM IST)
+  - cron: "21 15 * * *" # 15:21 UTC daily (8:51 PM IST)
     displayName: "Daily Regression"
     branches:
       include:
@@ -95,14 +95,14 @@ jobs:
   timeoutInMinutes: 45
 
   variables:
-    buildPath: '$(Build.SourcesDirectory)'
+    buildPath: '$(Build.SourcesDirectory)/applicationqe'
     environment: ${{ parameters.environment }}
     marker: ${{ parameters.marker }}
     workers: ${{ parameters.workers }}
-    allureResultsDir: '$(Build.SourcesDirectory)/reports/allure-results'        
-    allureReportDir: '$(Build.SourcesDirectory)/reports/allure-report'
+    allureResultsDir: '$(buildPath)/reports/allure-results'
+    allureReportDir: '$(buildPath)/reports/allure-report'
     allureToolsDir: '$(Build.ArtifactStagingDirectory)/allure-tools'
-    testResultsDir: '$(Build.SourcesDirectory)/reports'
+    testResultsDir: '$(buildPath)/reports'
     # Azure Key Vault configuration
     keyVaultName: 'amkkvqapipeline-testncus'           # – Replace with your Key Vault name
 
@@ -180,6 +180,7 @@ jobs:
     displayName: "Setup Python 3.10"
 
   - script: |
+      cd "$(buildPath)"
       python --version
       pip --version
       echo "Installing Python dependencies..."
@@ -246,6 +247,7 @@ jobs:
   #   displayName: "Install and Verify Allure CLI"
 
   - script: |
+      cd "$(buildPath)"
       mkdir -p "$(allureResultsDir)"
       mkdir -p "$(testResultsDir)"
       echo "========================================"
@@ -417,7 +419,7 @@ jobs:
       export INFLUXDB_TOKEN="$(influx_token)"
       export INFLUXDB_ORG="$(influx_org)"
       export INFLUXDB_BUCKET="$(influx_bucket)"
-      REPORTER_PATH="$(Build.SourcesDirectory)/utils/influx_reporter.py"
+      REPORTER_PATH="$(buildPath)/utils/influx_reporter.py"
       if [ ! -f "$REPORTER_PATH" ]; then
         echo "##vso[task.logissue type=warning]influx_reporter.py not found at $REPORTER_PATH. Skipping push."
         exit 0
@@ -436,7 +438,7 @@ jobs:
       export BUILD_REASON="$(Build.Reason)"
       export AZURE_LOG_WORKSPACE_ID="$(logAnalyticsWorkspaceId)"
       export AZURE_LOG_SHARED_KEY="$(logAnalyticsSharedKey)"
-      REPORTER_PATH="$(Build.SourcesDirectory)/utils/azure_analytics_reporter.py"
+      REPORTER_PATH="$(buildPath)/utils/azure_analytics_reporter.py"
       if [ ! -f "$REPORTER_PATH" ]; then
         echo "##vso[task.logissue type=warning]azure_analytics_reporter.py not found at $REPORTER_PATH. Skipping push."
         exit 0
