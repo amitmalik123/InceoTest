@@ -318,6 +318,8 @@ jobs:
       TEST_RESULTS_DIR: $(testResultsDir)
       WORK_ITEM_AUTH_TOKEN: $(WORK_ITEM_AUTH_TOKEN)
       PARTIES_AUTH_TOKEN: $(PARTIES_AUTH_TOKEN)
+      BILLING_USERNAME: $(BILLING_USERNAME)
+      BILLING_PASSWORD: $(BILLING_PASSWORD)
       INFLUXDB_AUTO_PUSH: 'false'
       AM_BILLING_CONNECTION_STRING: $(am-billing-connection-string)
       API_AUTH_TOKEN: $(test11-api-auth-token)
