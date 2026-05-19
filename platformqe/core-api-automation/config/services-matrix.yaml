@@ -210,7 +210,7 @@ services:
     enabled: true
     runOnPR: false
     runOnPush: false
-    runOnSchedule: false
+    runOnSchedule: true
     testType: functional
     environments:
     - T10
