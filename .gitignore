@@ -44,6 +44,9 @@ htmlcov/
 coverage.xml
 *.cover
 
+# MyPy
+.mypy_cache/
+
 # Playwright
 test-results/
 playwright-report/
@@ -101,6 +104,8 @@ reports/*.png
 .scannerwork/
 .sonar/
 sonar-project.properties.bak
+
+.playwright-mcp/
 
 .github/*
 /github

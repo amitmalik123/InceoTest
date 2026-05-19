@@ -7,9 +7,9 @@ from pytest_bdd import scenario
 
 # Import commonly used step definitions so scenario steps can be resolved
 from tests.bdd.steps.account_steps import *  # noqa: F401, F403
+from tests.bdd.steps.Adhesion.global_search_steps import *  # noqa: F401, F403
 from tests.bdd.steps.common_steps import *  # noqa: F401, F403
 from tests.bdd.steps.data_steps import *  # noqa: F401, F403
-from tests.bdd.steps.global_search_steps import *  # noqa: F401, F403
 from tests.bdd.steps.login_steps import *  # noqa: F401, F403
 from tests.bdd.steps.navigation_steps import *  # noqa: F401, F403
 
@@ -25,6 +25,6 @@ from tests.bdd.steps.navigation_steps import *  # noqa: F401, F403
         ),
     ],
 )
-@scenario("../features/global_search.feature", "Global Search")
+@scenario("../../features/Adhesion/global_search.feature", "Global Search")
 def test_global_search(auth_file):
     """Test the global search workflow."""

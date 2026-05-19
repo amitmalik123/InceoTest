@@ -48,8 +48,18 @@ class GlobalNavigationPage(BasePage):
 
         # Global search bar
         self.global_search_input: Locator = page.locator("input#global-search")
+        # Search results dropdown container
         self.global_search_results: Locator = page.locator("div#search-results")
-        self.global_search_clients_results: Locator = page.locator("table#clients-results")
+        # Clients section within search results
+        self.global_search_clients_section: Locator = page.locator(
+            "div#search-results generic:has-text('CLIENTS')"
+        )
+        self.global_search_clients_table: Locator = page.locator("table#clients-results")
+        # Accounts section within search results
+        self.global_search_accounts_section: Locator = page.locator(
+            "div#search-results generic:has-text('ACCOUNTS')"
+        )
+        self.global_search_accounts_table: Locator = page.locator("table#accounts-results")
         self.global_search_accounts_results: Locator = page.locator(
             "table#accounts-results tbody tr"
         )
