@@ -10,6 +10,7 @@ This file contains all fixtures used across SGM tests:
 
 import csv
 import logging
+import os
 import re
 from collections.abc import Generator
 from datetime import datetime
@@ -44,11 +45,16 @@ def browser_type_launch_args(pytestconfig):
     except Exception:
         headless_requested = False
 
-    # Default to headed for easier local debugging unless explicitly headless.
+    # In CI environments (no display), always default to headless.
+    # Locally, default to headed for easier debugging.
+    is_ci = os.getenv("CI", "").lower() in ("true", "1", "yes")
+
     if headless_requested:
         headless_mode = True
     elif headed_requested:
         headless_mode = False
+    elif is_ci:
+        headless_mode = True
     else:
         headless_mode = False
 
