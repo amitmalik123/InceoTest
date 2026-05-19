@@ -284,8 +284,12 @@ jobs:
       PYTEST_CMD="pytest $TEST_TARGET \
         -m \"$(marker)\" \
         $BROWSER_PARAM \
+        -o \"addopts=\" \
         --junitxml=\"$(testResultsDir)/junit/junit-report.xml\" \
         -v \
+        --tb=short \
+        --strict-markers \
+        --disable-warnings \
         --video=retain-on-failure \
         --tracing=retain-on-failure \
         --screenshot=only-on-failure \
