@@ -25,7 +25,7 @@ trigger: none
 # Scheduled triggers
 # -----------------------------
 schedules:
-  - cron: "40 13 * * *" # 13:40 UTC daily (7:10 PM IST)
+  - cron: "05 14 * * *" # 14:05 UTC daily (7:35 PM IST)
     displayName: "Daily Regression"
     branches:
       include:
@@ -184,8 +184,18 @@ jobs:
       pip --version
       echo "Installing Python dependencies..."
       python -m pip install --upgrade pip setuptools wheel
-      pip install -e .
+      
+      echo "Installing project dependencies with optimized settings..."
+      pip install \
+        --default-timeout=1000 \
+        --retries 5 \
+        --no-cache-dir \
+        --upgrade-strategy eager \
+        -e .
+      
+      echo "Dependencies installed successfully!"
     displayName: "Install Python Dependencies"
+    continueOnError: false
 
   - script: |
       echo "Installing Playwright browsers (Python version)..."
