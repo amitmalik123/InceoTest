@@ -372,6 +372,15 @@ jobs:
       export AZURE_LOG_WORKSPACE_ID="$(logAnalyticsWorkspaceId)"
       export AZURE_LOG_SHARED_KEY="$(logAnalyticsSharedKey)"
 
+      echo "  ALLURE_RESULTS_DIR: $ALLURE_RESULTS_DIR"
+      echo "  ENVIRONMENT: $ENVIRONMENT"
+      echo "  BUILD_ID: $BUILD_ID"
+      echo "  WORKSPACE_ID set: $(if [ -n \"$AZURE_LOG_WORKSPACE_ID\" ]; then echo YES; else echo NO; fi)"
+      echo "  SHARED_KEY set: $(if [ -n \"$AZURE_LOG_SHARED_KEY\" ]; then echo YES; else echo NO; fi)"
+      echo "  Allure result files:"
+      ls -la "$ALLURE_RESULTS_DIR"/*-result.json 2>/dev/null | wc -l
+      echo ""
+
       python utils/azure_analytics_reporter.py
     displayName: "Push Metrics to Azure Log Analytics"
     condition: always()

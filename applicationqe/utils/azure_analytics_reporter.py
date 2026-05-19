@@ -172,10 +172,13 @@ def main():
         sys.exit(0)
 
     # Build the log entry
+    # Field names map to Azure Log Analytics _CL table columns.
+    # String fields get _s suffix, numeric get _d, datetime get _t.
+    # Grafana dashboard filters on project_name_s, so the field must be "project_name".
     log_entry = [
         {
             "team": "Billing",
-            "project": PROJECT_NAME,
+            "project_name": PROJECT_NAME,
             "feature": "Strategist Group Model",
             "environment": environment,
             "build_id": build_id,
