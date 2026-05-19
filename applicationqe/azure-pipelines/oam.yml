@@ -7,12 +7,12 @@ trigger:
       - develop
   paths:
     include:
-      - data/OAM/**
-      - config/OAM/**
-      - tests/features/OAM/**
-      - tests/steps/OAM/**
-      - pages/OAM/**
-      - queries/OAM/**
+      - data/oam/**
+      - config/oam/**
+      - tests/features/oam/**
+      - tests/steps/oam/**
+      - pages/oam/**
+      - queries/oam/**
       - azure-pipelines/templates/**
       - requirements.txt
 
@@ -23,12 +23,12 @@ pr:
       - develop
   paths:
     include:
-      - data/OAM/**
-      - config/OAM/**
-      - tests/features/OAM/**
-      - tests/steps/OAM/**
-      - pages/OAM/**
-      - queries/OAM/**
+      - data/oam/**
+      - config/oam/**
+      - tests/features/oam/**
+      - tests/steps/oam/**
+      - pages/oam/**
+      - queries/oam/**
       - azure-pipelines/templates/**
       - requirements.txt
 
@@ -40,4 +40,4 @@ stages:
     parameters:
       stageName: OAM
       teamDisplay: OAM
-      featurePath: tests/features/OAM
+      featurePath: tests/features/oam
