@@ -25,7 +25,7 @@ trigger: none
 # Scheduled triggers
 # -----------------------------
 schedules:
-  - cron: "34 15 * * *" # 15:34 UTC daily (9:04 PM IST)
+  - cron: "37 15 * * *" # 15:37 UTC daily (9:07 PM IST)
     displayName: "Daily Regression"
     branches:
       include:
