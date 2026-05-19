@@ -234,46 +234,34 @@ jobs:
     displayName: "Install and Verify Allure CLI"
 
   - script: |
-      mkdir -p "$(allureResultsDir)"
-      mkdir -p "$(testResultsDir)/junit"
+      mkdir -p "$ALLURE_RESULTS_DIR"
+      mkdir -p "$TEST_RESULTS_DIR/junit"
       echo "========================================"
       echo "PYTEST EXECUTION START"
       echo "========================================"
       echo "Team: Billing Platform Revenue Dashboard"
-      echo "Feature Path: $(featurePath)"
-      echo "Test Marker: $(marker)"
-      echo "Workers: $(workers)"
-      echo "Browser: ${{ parameters.browser }}"
-      echo "Environment: $(environment)"
-      echo "Build Path: $(buildPath)"
-      echo "Allure Results Dir: $(allureResultsDir)"
+      echo "Feature Path: $FEATURE_PATH"
+      echo "Test Marker: $TEST_MARKER"
+      echo "Workers: $TEST_WORKERS"
+      echo "Browser: $TEST_BROWSER"
+      echo "Environment: $TEST_ENV"
+      echo "Allure Results Dir: $ALLURE_RESULTS_DIR"
       echo "========================================"
       echo ""
       echo "Changing to applicationqe directory..."
       cd applicationqe
       echo "Current working directory: $(pwd)"
       echo ""
-      echo "Setting up environment variables..."
-      export TEST_ENV="$(environment)"
       export CI=true
       export PYTHONUNBUFFERED=1
-      export ALLURE_RESULTS_DIR="$(allureResultsDir)"
-      echo "✓ TEST_ENV=$TEST_ENV"
-      echo "✓ CI=$CI"
-      echo ""
       echo "Python version: $(python --version)"
       echo ""
 
-      # Determine test target
-      TEST_TARGET="$(featurePath)"
-      echo "Running tests from: $TEST_TARGET with marker: $(marker)"
-
       # Determine browser parameter
-      BROWSER_VALUE="${{ parameters.browser }}"
-      if [ "$BROWSER_VALUE" = "both" ]; then
+      if [ "$TEST_BROWSER" = "both" ]; then
         BROWSER_PARAM="--browser chromium --browser msedge"
         echo "✓ Cross-browser testing: Chromium and Microsoft Edge"
-      elif [ "$BROWSER_VALUE" = "msedge" ]; then
+      elif [ "$TEST_BROWSER" = "msedge" ]; then
         BROWSER_PARAM="--browser msedge"
         echo "✓ Browser: Microsoft Edge"
       else
@@ -281,11 +269,11 @@ jobs:
         echo "✓ Browser: Chromium (default)"
       fi
 
-      PYTEST_CMD="pytest $TEST_TARGET \
-        -m \"$(marker)\" \
+      PYTEST_CMD="pytest $FEATURE_PATH \
+        -m $TEST_MARKER \
         $BROWSER_PARAM \
-        -o \"addopts=\" \
-        --junitxml=\"$(testResultsDir)/junit/junit-report.xml\" \
+        -o addopts= \
+        --junitxml=$TEST_RESULTS_DIR/junit/junit-report.xml \
         -v \
         --tb=short \
         --strict-markers \
@@ -293,15 +281,14 @@ jobs:
         --video=retain-on-failure \
         --tracing=retain-on-failure \
         --screenshot=only-on-failure \
-        --alluredir=\"$(allureResultsDir)\" \
-        --html=\"$(testResultsDir)/pytest-report.html\" \
+        --alluredir=$ALLURE_RESULTS_DIR \
+        --html=$TEST_RESULTS_DIR/pytest-report.html \
         --self-contained-html"
 
       # Add parallel execution if workers > 1
-      WORKERS_VALUE="$(workers)"
-      if [ "$WORKERS_VALUE" = "auto" ] || [ "$WORKERS_VALUE" -gt "1" ] 2>/dev/null; then
-        PYTEST_CMD="$PYTEST_CMD -n $WORKERS_VALUE --dist loadscope"
-        echo "Parallel execution enabled: $WORKERS_VALUE workers with loadscope distribution"
+      if [ "$TEST_WORKERS" = "auto" ] || [ "$TEST_WORKERS" -gt "1" ] 2>/dev/null; then
+        PYTEST_CMD="$PYTEST_CMD -n $TEST_WORKERS --dist loadscope"
+        echo "Parallel execution enabled: $TEST_WORKERS workers with loadscope distribution"
       else
         echo "Sequential execution (single worker)"
       fi
@@ -317,14 +304,18 @@ jobs:
       echo "##vso[task.setvariable variable=TEST_EXIT_CODE]${TEST_EXIT_CODE:-0}"
       echo ""
       echo "Checking for generated reports..."
-      echo "Listing Allure results:"
-      ls -la $(allureResultsDir) 2>/dev/null || echo "Allure results directory not found"
-      echo ""
-      echo "Listing test results:"
-      ls -la $(testResultsDir) 2>/dev/null || echo "Test results directory not found"
+      ls -la $ALLURE_RESULTS_DIR 2>/dev/null || echo "Allure results directory not found"
+      ls -la $TEST_RESULTS_DIR 2>/dev/null || echo "Test results directory not found"
     displayName: "Run Pytest BDD Tests with Allure"
     continueOnError: true
     env:
+      FEATURE_PATH: $(featurePath)
+      TEST_MARKER: $(marker)
+      TEST_WORKERS: $(workers)
+      TEST_BROWSER: ${{ parameters.browser }}
+      TEST_ENV: $(environment)
+      ALLURE_RESULTS_DIR: $(allureResultsDir)
+      TEST_RESULTS_DIR: $(testResultsDir)
       WORK_ITEM_AUTH_TOKEN: $(WORK_ITEM_AUTH_TOKEN)
       PARTIES_AUTH_TOKEN: $(PARTIES_AUTH_TOKEN)
       INFLUXDB_AUTO_PUSH: 'false'
