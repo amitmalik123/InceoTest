@@ -108,4 +108,6 @@ sonar-project.properties.bak
 .playwright-mcp/
 
 .github/*
-/github
+/.github
+/.vscode
+/.settings
