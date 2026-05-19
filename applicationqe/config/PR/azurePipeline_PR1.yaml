@@ -25,7 +25,7 @@ trigger: none
 # Scheduled triggers
 # -----------------------------
 schedules:
-  - cron: "38 14 * * *" # 14:38 UTC daily (8:08 PM IST)
+  - cron: "15 15 * * *" # 15:15 UTC daily (8:45 PM IST)
     displayName: "Daily Regression"
     branches:
       include:
@@ -417,8 +417,13 @@ jobs:
       export INFLUXDB_TOKEN="$(influx_token)"
       export INFLUXDB_ORG="$(influx_org)"
       export INFLUXDB_BUCKET="$(influx_bucket)"
+      REPORTER_PATH="$(Build.SourcesDirectory)/utils/influx_reporter.py"
+      if [ ! -f "$REPORTER_PATH" ]; then
+        echo "##vso[task.logissue type=warning]influx_reporter.py not found at $REPORTER_PATH. Skipping push."
+        exit 0
+      fi
 
-      python utils/influx_reporter.py
+      python "$REPORTER_PATH"
     displayName: "Push Metrics to InfluxDB"
     condition: always()
     continueOnError: true
@@ -431,8 +436,13 @@ jobs:
       export BUILD_REASON="$(Build.Reason)"
       export AZURE_LOG_WORKSPACE_ID="$(logAnalyticsWorkspaceId)"
       export AZURE_LOG_SHARED_KEY="$(logAnalyticsSharedKey)"
+      REPORTER_PATH="$(Build.SourcesDirectory)/utils/azure_analytics_reporter.py"
+      if [ ! -f "$REPORTER_PATH" ]; then
+        echo "##vso[task.logissue type=warning]azure_analytics_reporter.py not found at $REPORTER_PATH. Skipping push."
+        exit 0
+      fi
 
-      python utils/azure_analytics_reporter.py
+      python "$REPORTER_PATH"
     displayName: "Push Metrics to Azure Log Analytics"
     condition: always()
     continueOnError: true
