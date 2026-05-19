@@ -25,7 +25,6 @@ from tests.steps.data_steps import *  # noqa: F401, F403
 from tests.steps.database_steps import *  # noqa: F401, F403
 from tests.steps.login_steps import *  # noqa: F401, F403
 from tests.steps.navigation_steps import *  # noqa: F401, F403
-from tests.steps.tracking_center_steps import *  # noqa: F401, F403
 
 
 @pytest.mark.app("adhesion")

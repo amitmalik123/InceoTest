@@ -56,45 +56,15 @@ from tests.steps.database_steps import (
 # Login steps
 from tests.steps.login_steps import login_with_valid_credentials, verify_redirect_to_home_page
 
-# Manage instruction steps
-from tests.steps.manage_instruction_steps import (
-    click_next_button_on_add_ach_page,
-    click_on_add_button,
-    enter_valid_ains_page_details,
-    fetch_client_household_api_values,
-    fetch_household_id,
-    select_radio_and_click_on_next,
-    validate_household_heading,
-)
-
 # Navigation steps
 from tests.steps.navigation_steps import (
-    click_on_account_list,
     click_searched_account_and_navigate_to_wizard,
-    navigate_to_clients_menu,
     verify_account_list_page_loaded,
     verify_account_list_page_loaded_and_search,
     verify_account_wizard_page_is_loaded,
 )
 
-# Roth conversion steps
-from tests.steps.roth_conversion_steps import (
-    click_next_on_conversion_details,
-    click_next_on_destination_selection,
-    enter_conversion_amount,
-    handle_str_review_or_proceed,
-    select_convert_portion_option,
-    select_destination_account,
-    select_do_not_withhold_taxes,
-    verify_destination_account_correct,
-)
-
-# Tracking center steps
-from tests.steps.tracking_center_steps import (
-    navigate_to_tracking_center,
-    verify_roth_conversion_entry_exists,
-    verify_text_in_tracking_details,
-)
+# Account wizard steps (removed references to deleted ACH/Roth modules)
 
 __all__ = [
     # account
@@ -134,32 +104,9 @@ __all__ = [
     # login
     "login_with_valid_credentials",
     "verify_redirect_to_home_page",
-    # manage instruction
-    "select_radio_and_click_on_next",
-    "click_on_add_button",
-    "fetch_household_id",
-    "fetch_client_household_api_values",
-    "enter_valid_ains_page_details",
-    "validate_household_heading",
-    "click_next_button_on_add_ach_page",
     # navigation
-    "navigate_to_clients_menu",
-    "click_on_account_list",
     "verify_account_list_page_loaded",
     "verify_account_list_page_loaded_and_search",
     "click_searched_account_and_navigate_to_wizard",
     "verify_account_wizard_page_is_loaded",
-    # roth conversion
-    "select_destination_account",
-    "verify_destination_account_correct",
-    "click_next_on_destination_selection",
-    "select_convert_portion_option",
-    "enter_conversion_amount",
-    "select_do_not_withhold_taxes",
-    "click_next_on_conversion_details",
-    "handle_str_review_or_proceed",
-    # tracking center
-    "navigate_to_tracking_center",
-    "verify_roth_conversion_entry_exists",
-    "verify_text_in_tracking_details",
 ]
