@@ -28,8 +28,10 @@ def _get_example_row_data(request, excel_data_manager) -> dict | None:
     callspec = getattr(request.node, "callspec", None)
     example_params = getattr(callspec, "params", {}) or {}
 
-    sheet_name = example_params.get("SheetName") or example_params.get("sheet_name")
-    row_number = example_params.get("RowNumber") or example_params.get("row_number")
+    # Pytest-bdd params may vary by casing/spacing in Examples headers.
+    normalized = {str(k).strip().lower().replace(" ", ""): v for k, v in example_params.items()}
+    sheet_name = normalized.get("sheetname") or normalized.get("sheet_name")
+    row_number = normalized.get("rownumber") or normalized.get("row_number")
 
     if sheet_name in (None, "") or row_number in (None, ""):
         return None

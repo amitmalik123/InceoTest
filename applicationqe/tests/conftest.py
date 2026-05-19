@@ -25,8 +25,14 @@ import pytest
 
 from config.settings import get_settings
 
-# Import all fixtures to make them available to all tests
-from tests.fixtures import *  # noqa: F401, F403
+# Import all fixture modules explicitly to ensure registration.
+from tests.fixtures.assertion_fixtures import *  # noqa: F401, F403
+from tests.fixtures.auth_fixtures import *  # noqa: F401, F403
+from tests.fixtures.browser_fixtures import *  # noqa: F401, F403
+from tests.fixtures.data_fixtures import *  # noqa: F401, F403
+from tests.fixtures.db_fixtures import *  # noqa: F401, F403
+from tests.fixtures.hooks_fixtures import *  # noqa: F401, F403
+from tests.fixtures.page_fixtures import *  # noqa: F401, F403
 from utils.allure_logger import enable_step_screenshots
 from utils.flaky_test_tracker import get_tracker
 

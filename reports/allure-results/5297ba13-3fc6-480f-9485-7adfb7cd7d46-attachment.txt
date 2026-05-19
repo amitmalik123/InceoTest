@@ -1,1 +1,0 @@
-Filename validation passed: QPR, year and quarter all present

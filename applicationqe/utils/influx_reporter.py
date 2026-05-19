@@ -18,10 +18,16 @@ from utils.crypto_utils import decrypt_value
 
 def load_influxdb_config():
     """Load InfluxDB configuration from config file or environment variables"""
-    config_path = Path(__file__).parent.parent / "config" / "influxdb_config.json"
+    config_root = Path(__file__).parent.parent / "config"
+    config_candidates = [
+        config_root / "PR" / "influxdb_config.json",
+        config_root / "influxdb_config.json",
+    ]
 
     # Try to load from config file first
-    if config_path.exists():
+    for config_path in config_candidates:
+        if not config_path.exists():
+            continue
         try:
             with open(config_path, "r") as f:
                 config = json.load(f)
@@ -34,7 +40,7 @@ def load_influxdb_config():
                     "auto_push": config.get("auto_push", False),
                 }
         except Exception as e:
-            print(f"⚠️  Error loading InfluxDB config file: {e}")
+            print(f"⚠️  Error loading InfluxDB config file '{config_path}': {e}")
 
     # Fall back to environment variables
     return {

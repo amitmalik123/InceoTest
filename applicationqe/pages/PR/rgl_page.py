@@ -97,10 +97,9 @@ class RGLPage(BasePage):
         return False
 
     def _toggle_cash_advantage(self, timeout: int = 30000) -> None:
-        # The underlying toggle can be hidden while the label remains visible/clickable.
-        self.wait_for_element(self.cash_advantage_label, timeout=timeout)
-        self.cash_advantage_label.scroll_into_view_if_needed()
-        self.click(self.cash_advantage_label, timeout=timeout)
+        # The checkbox anchor is the stable interaction target; the label wrapper can stay hidden.
+        self.wait_for_element(self.cash_advantage_checkbox, state="attached", timeout=timeout)
+        self.cash_advantage_checkbox.evaluate("element => element.click()")
 
     def wait_for_all_spinners_to_disappear(self, timeout: int = 30000) -> None:
         logger.info("Waiting for loading indicators to disappear")
@@ -168,7 +167,6 @@ class RGLPage(BasePage):
         self.solution_types_dropdown.hover()
         self.page.wait_for_timeout(1000)
         self.wait_for_element(self.cash_advantage_checkbox, state="attached", timeout=timeout)
-        self.cash_advantage_label.scroll_into_view_if_needed()
         self.page.wait_for_timeout(2000)
         self._toggle_cash_advantage(timeout=timeout)
         self.page.wait_for_timeout(500)
@@ -203,7 +201,6 @@ class RGLPage(BasePage):
         self.solution_types_dropdown.hover()
         self.page.wait_for_timeout(1000)
         self.wait_for_element(self.cash_advantage_checkbox, state="attached", timeout=timeout)
-        self.cash_advantage_label.scroll_into_view_if_needed()
         self.page.wait_for_timeout(1000)
         if self._is_cash_advantage_selected():
             logger.info("Cash Advantage checkbox is selected; unselecting for non-cash account flow")

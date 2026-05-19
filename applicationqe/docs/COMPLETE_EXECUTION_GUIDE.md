@@ -532,7 +532,7 @@ pytest tests/ -v -m performance
 ### Azure Pipeline (Docker)
 
 ```yaml
-# Pipeline file: azurePipeline-docker.yaml
+# Pipeline file: config/PR/azurePipeline-docker.yaml
 
 # Trigger pipeline in Azure DevOps
 # Or run locally with Docker:

@@ -34,10 +34,10 @@ class ClientsPage(BasePage):
 
     def click_clients(self) -> None:
         logger.info("Clicking Clients link")
-        self.click(self.clients_link)  # Use BasePage.click() for auto-healing
-        self.page.wait_for_url(lambda url: "/clients" in url.lower(), timeout=15000)
-        self.page.wait_for_load_state("domcontentloaded", timeout=15000)
-        self.page.wait_for_timeout(3000)
+        self.click(self.clients_link, timeout=3000)  # Use BasePage.click() for auto-healing
+        self.page.wait_for_url(lambda url: "/clients" in url.lower(), timeout=5000)
+        self.page.wait_for_load_state("domcontentloaded", timeout=5000)
+        self.page.wait_for_timeout(500)
         logger.info("Clients link clicked and clients page loaded")
 
     def click_account_list(self) -> None:

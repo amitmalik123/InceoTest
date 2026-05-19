@@ -218,13 +218,9 @@ def click_clients_tab(authenticated_page: Page):
     Used in new navbar scenario flows.
     """
     logger.info("Clicking on the Clients tab")
-    # Manual-equivalent stabilization: wait for app page to settle before clicking Clients.
-    authenticated_page.wait_for_load_state("domcontentloaded", timeout=30000)
-    authenticated_page.wait_for_url(
-        lambda url: "app." in url.lower() and "signinCallback" not in url,
-        timeout=60000,
-    )
-    authenticated_page.wait_for_timeout(2000)
+    # Keep the stabilization short so the click happens as soon as the tab is visible.
+    authenticated_page.wait_for_load_state("domcontentloaded", timeout=5000)
+    authenticated_page.wait_for_timeout(250)
     settings = get_settings()
     base_url = settings.base_url
     clients_page = ClientsPage(authenticated_page, base_url=base_url)

@@ -20,16 +20,23 @@ from utils.crypto_utils import decrypt_value
 
 def load_azure_analytics_config():
     """Load Azure Log Analytics configuration from config file or environment variables"""
-    config_path = Path(__file__).parent.parent / "config" / "azure_analytics_config.json"
+    config_root = Path(__file__).parent.parent / "config"
+    config_candidates = [
+        config_root / "PR" / "azure_analytics_config.json",
+        config_root / "azure_analytics_config.json",
+    ]
 
     # Try to load from config file first
     config = {}
-    if config_path.exists():
+    for config_path in config_candidates:
+        if not config_path.exists():
+            continue
         try:
             with open(config_path, "r") as f:
                 config = json.load(f)
+            break
         except Exception as e:
-            print(f"Warning: Error loading Azure Analytics config file: {e}")
+            print(f"Warning: Error loading Azure Analytics config file '{config_path}': {e}")
 
     # Decrypt shared_key separately so a decryption failure doesn't lose other config values
     shared_key = ""

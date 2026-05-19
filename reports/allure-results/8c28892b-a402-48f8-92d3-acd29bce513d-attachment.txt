@@ -1,1 +1,0 @@
-Validated all 4 dropdown controls are visible

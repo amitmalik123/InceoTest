@@ -7,6 +7,7 @@ Base Page class with common functionality for all page objects
 import logging
 import os
 import re
+from pathlib import Path
 from typing import Any, Callable, Literal, Optional
 
 import allure
@@ -34,7 +35,8 @@ class BasePage:
 
         # Initialize healing engine once
         if BasePage._healing_engine is None:
-            BasePage._healing_engine = AutoHealingEngine("locator_mappings.json")
+            mappings_path = Path(__file__).resolve().parents[2] / "config" / "PR" / "locator_mappings.json"
+            BasePage._healing_engine = AutoHealingEngine(str(mappings_path))
             self.logger.info("Auto-healing engine initialized")
 
     def active_root(self):

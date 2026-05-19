@@ -1,1 +1,0 @@
-Validating Document control is visible for user interaction

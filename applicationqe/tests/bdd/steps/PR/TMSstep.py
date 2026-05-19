@@ -23,16 +23,16 @@ def given_user_clicks_clients_tab_for_tms(page: Page):
     last_error = None
     for clients_tab in locator_candidates:
         try:
-            clients_tab.wait_for(state="visible", timeout=10000)
-            clients_tab.scroll_into_view_if_needed(timeout=3000)
-            clients_tab.click(timeout=8000)
+            clients_tab.wait_for(state="visible", timeout=3000)
+            clients_tab.scroll_into_view_if_needed(timeout=1000)
+            clients_tab.click(timeout=3000)
             page.wait_for_load_state("domcontentloaded", timeout=15000)
             logger.info("Clients tab clicked successfully")
             return
         except Exception as exc:
             last_error = exc
             try:
-                clients_tab.click(timeout=8000, force=True)
+                clients_tab.click(timeout=3000, force=True)
                 page.wait_for_load_state("domcontentloaded", timeout=15000)
                 logger.info("Clients tab clicked successfully (force click fallback)")
                 return

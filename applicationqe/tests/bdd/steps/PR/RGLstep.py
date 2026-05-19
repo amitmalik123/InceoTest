@@ -5,6 +5,8 @@ RGL verification steps for page elements and content validation
 from playwright.sync_api import Page
 from pytest_bdd import parsers, given, then, when
 
+from config.settings import get_settings
+from pages.PR.clients_page import ClientsPage
 from pages.PR.rgl_page import RGLPage
 from utils.allure_logger import get_allure_logger
 
@@ -22,6 +24,39 @@ def _get_excel_value(row_data: dict, keys: list[str], field_label: str) -> str:
 def _click_clients_tab_and_wait(page: Page):
 	"""Open Clients tab before navigating to RGL page."""
 	logger.info("Ensuring Clients tab is clicked before RGL navigation")
+	if page.is_closed():
+		raise AssertionError(
+			"Cannot click Clients tab because the browser page is already closed. "
+			"Do not close the browser while the test is running."
+		)
+
+	current_url = page.url or ""
+	if current_url.startswith("about:blank"):
+		settings = get_settings()
+		home_url = settings.get_app_config("ewm").get("home_url", settings.base_url)
+		logger.info(f"Recovered from about:blank before clicking Clients, opening {home_url}")
+		page.goto(home_url, timeout=30000)
+		page.wait_for_load_state("domcontentloaded", timeout=30000)
+
+	# Keep the pre-click wait short so visible Clients tab clicks do not stall.
+	page.wait_for_load_state("domcontentloaded", timeout=5000)
+
+	current_url = page.url or ""
+	if page.is_closed() or current_url.startswith("about:blank"):
+		raise AssertionError(
+			"Page is not ready after login/navigation (closed or about:blank). "
+			"Login/redirect did not complete successfully."
+		)
+	page.wait_for_timeout(250)
+
+	settings = get_settings()
+	clients_page = ClientsPage(page, base_url=settings.base_url)
+	try:
+		clients_page.click_clients()
+		return
+	except Exception as exc:
+		logger.info(f"ClientsPage.click_clients() fallback engaged: {exc}")
+
 	locator_candidates = [
 		page.get_by_role("link", name="Clients").first,
 		page.locator("//a[normalize-space()='Clients']").first,

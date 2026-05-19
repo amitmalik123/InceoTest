@@ -1,1 +1,0 @@
-Validating Find button is enabled for user interaction
