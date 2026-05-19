@@ -648,42 +648,36 @@ class PortfolioEnginePage(BasePage):
                 widget.click()
 
     def delete_portfolio(self, names: List[str] | None = None) -> None:
-        """Delete specific portfolios by name via API."""
+        """Delete specific portfolios by name via API.
+        Raises on API or network failure so callers can handle it.
+        """
         names = names or []
         if not names:
             logger.info("No portfolio names provided for deletion")
             return
-        try:
-            # Get base URL from current page URL (use .origin equivalent)
-            from urllib.parse import urlparse
-            parsed = urlparse(self.page.url)  # url is a property, not a method
-            base_url = f"{parsed.scheme}://{parsed.netloc}"
-            logger.info(f"Extracted base_url: {base_url}")
-            logger.info(f"Current page URL: {self.page.url}")
-            
-            # Fetch portfolios
-            logger.info(f"Fetching portfolios from API: {base_url}/api/pe/v2/portfolios")
-            resp = self.page.request.get(f"{base_url}/api/pe/v2/portfolios")
-            logger.info(f"Portfolio fetch response status: {resp.status}")
-            
-            if resp.ok:
-                data = resp.json()
-                portfolios = data if isinstance(data, list) else [data]
-                logger.info(f"Found {len(portfolios)} total portfolios, looking for: {names}")
-                
-                for p in portfolios:
-                    if p.get("name") in names:
-                        logger.info(f"Deleting portfolio: {p['name']} (ID: {p['id']})")
-                        del_resp = self.page.request.delete(f"{base_url}/api/pe/v2/portfolio/{p['id']}")
-                        logger.info(f"Delete response status: {del_resp.status}")
-                        if del_resp.ok:
-                            logger.info(f"Successfully deleted portfolio: {p['name']}")
-                        else:
-                            logger.warn(f"Delete failed for {p['name']}: {del_resp.status}")
-            else:
-                logger.warn(f"Portfolio fetch failed: {resp.status}")
-        except Exception as e:
-            logger.error(f"Error in delete_portfolio: {e}")
+
+        from urllib.parse import urlparse
+        parsed = urlparse(self.page.url)
+        base_url = f"{parsed.scheme}://{parsed.netloc}"
+        logger.info(f"Fetching portfolios from API: {base_url}/api/pe/v2/portfolios")
+
+        resp = self.page.request.get(f"{base_url}/api/pe/v2/portfolios")
+        logger.info(f"Portfolio fetch response status: {resp.status}")
+        if not resp.ok:
+            raise RuntimeError(f"Portfolio fetch failed: {resp.status}")
+
+        data = resp.json()
+        portfolios = data if isinstance(data, list) else [data]
+        logger.info(f"Found {len(portfolios)} total portfolios, looking for: {names}")
+
+        for p in portfolios:
+            if p.get("name") in names:
+                logger.info(f"Deleting portfolio: {p['name']} (ID: {p['id']})")
+                del_resp = self.page.request.delete(f"{base_url}/api/pe/v2/portfolio/{p['id']}")
+                if del_resp.ok:
+                    logger.info(f"Successfully deleted portfolio: {p['name']}")
+                else:
+                    logger.warning(f"Delete failed for {p['name']}: {del_resp.status}")
 
     def delete_all_portfolios(self) -> None:
         """Delete all old portfolios (created before 2025) via API."""

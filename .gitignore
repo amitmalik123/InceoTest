@@ -13,4 +13,10 @@ venv/
 
 applicationqe/reports/*
 
+# Auth session state files — contain cookies/tokens, never commit
+applicationqe/tests/.auth/
+
 .github
+/reports
+/tests
+MIGRATION_PLAN.md

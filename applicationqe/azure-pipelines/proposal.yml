@@ -40,4 +40,4 @@ stages:
     parameters:
       stageName: PROPOSAL
       teamDisplay: PROPOSAL
-      featurePath: tests/features/PROPOSAL
+      featurePath: tests/runners/PROPOSAL

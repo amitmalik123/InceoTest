@@ -81,7 +81,11 @@ class EwmPage(BasePage):
 
     def delete_client(self) -> None:
         """
-        Click the delete client link. Must be called after selecting a client.
+        Click the delete client link, accept the JS confirm dialog,
+        and wait for the redirect to the empty-client confirmation page.
+        Must be called after selecting a client.
         """
-        logger.debug(f"Clicking delete client link")
+        logger.debug("Clicking delete client link")
+        self.page.once("dialog", lambda dialog: dialog.accept())
         self.delete_client_link.click()
+        self.delete_confirmation_text.wait_for(state="visible")
