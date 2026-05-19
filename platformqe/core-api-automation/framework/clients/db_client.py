@@ -1,7 +1,7 @@
 """
 Enhanced Database Client Module
 Supports multiple database types, servers, and connection pooling
-Supports: MSSQL, PostgreSQL, CosmosDB, MongoDB, SQLite
+Supports: MSSQL, PostgreSQL, CosmosDB, MongoDB, SQLite, Snowflake
 """
 
 import pyodbc
@@ -47,6 +47,25 @@ try:
 except ImportError:
     INFLUX_AVAILABLE = False
     logger.warning("influxdb-client not installed. InfluxDB support disabled.")
+
+try:
+    import platform as _platform
+    import sys as _sys
+    if _sys.platform == 'win32':
+        # Workaround: snowflake-connector-python calls platform.libc_ver() which
+        # tries to open sys.executable as a binary — this fails with Microsoft Store
+        # Python (stub executables). libc_ver is a Linux/glibc concept and always
+        # returns ('', '') on Windows, so the patch is semantically correct.
+        _platform.libc_ver = lambda executable=_sys.executable, lib='', version='', chunksize=16384: ('', '')
+    import snowflake.connector
+    from cryptography.hazmat.primitives.serialization import (
+        load_pem_private_key, Encoding, PrivateFormat, NoEncryption
+    )
+    from cryptography.hazmat.backends import default_backend
+    SNOWFLAKE_AVAILABLE = True
+except ImportError:
+    SNOWFLAKE_AVAILABLE = False
+    logger.warning("snowflake-connector-python not installed. Snowflake support disabled.")
 
 
 def parse_adonet_connection_string(conn_str: str) -> Dict[str, str]:
@@ -854,6 +873,127 @@ class InfluxDBClient(DatabaseClient):
             logger.info(f"InfluxDB connection closed: {self.connection_name or 'default'}")
 
 
+class SnowflakeClient(DatabaseClient):
+    """Snowflake Client — private key supplied via SNOWFLAKE_PRIVATE_KEY env var (PEM content)"""
+
+    def __init__(self, connection_name: str = None, config: Dict = None):
+        if not SNOWFLAKE_AVAILABLE:
+            raise ImportError(
+                "snowflake-connector-python and cryptography are required. "
+                "Install with: pip install snowflake-connector-python cryptography"
+            )
+        super().__init__(connection_name, config)
+        self.account   = config.get('account')    if config else None
+        self.user      = config.get('user')        if config else None
+        self.database  = config.get('database')    if config else None
+        self.schema    = config.get('schema')      if config else None
+        self.warehouse = config.get('warehouse')   if config else None
+        self.role      = (config.get('role') or None) if config else None
+
+    def _load_private_key_bytes(self) -> bytes:
+        """
+        Load RSA private key and return DER bytes for Snowflake connector.
+
+        Resolution order:
+          1. SNOWFLAKE_PRIVATE_KEY_PATH env var  — path to a .pem / .p8 file on disk
+          2. SNOWFLAKE_PRIVATE_KEY env var       — raw PEM content as a string
+        """
+        # --- Option 1: file path ---
+        key_path = os.environ.get('SNOWFLAKE_PRIVATE_KEY_PATH', '').strip()
+        if key_path:
+            if not os.path.exists(key_path):
+                raise FileNotFoundError(
+                    f"SNOWFLAKE_PRIVATE_KEY_PATH points to a file that does not exist: '{key_path}'"
+                )
+            with open(key_path, 'rb') as f:
+                pem_bytes = f.read()
+            logger.info(f"Snowflake: loaded private key from file: {key_path}")
+        else:
+            # --- Option 2: raw PEM content in env var ---
+            pem_content = os.environ.get('SNOWFLAKE_PRIVATE_KEY', '').strip()
+            if not pem_content:
+                raise ValueError(
+                    "No Snowflake private key found. Set either:\n"
+                    "  SNOWFLAKE_PRIVATE_KEY_PATH  — path to a .pem / .p8 file\n"
+                    "  SNOWFLAKE_PRIVATE_KEY       — raw PEM content as a string"
+                )
+            # Normalise: env vars sometimes store literal \n instead of real newlines
+            pem_content = pem_content.replace('\\n', '\n')
+            if not pem_content.startswith('-----'):
+                raise ValueError("SNOWFLAKE_PRIVATE_KEY does not appear to be valid PEM content.")
+            pem_bytes = pem_content.encode()
+            logger.info("Snowflake: loaded private key from SNOWFLAKE_PRIVATE_KEY env var")
+
+        private_key = load_pem_private_key(
+            pem_bytes,
+            password=None,
+            backend=default_backend()
+        )
+        return private_key.private_bytes(
+            encoding=Encoding.DER,
+            format=PrivateFormat.PKCS8,
+            encryption_algorithm=NoEncryption()
+        )
+
+    def connect(self):
+        """Establish Snowflake connection using private key authentication."""
+        try:
+            private_key_bytes = self._load_private_key_bytes()
+            connect_kwargs = dict(
+                account=self.account,
+                user=self.user,
+                private_key=private_key_bytes,
+                database=self.database,
+                schema=self.schema,
+                warehouse=self.warehouse,
+            )
+            if self.role:
+                connect_kwargs['role'] = self.role
+            self.conn = snowflake.connector.connect(**connect_kwargs)
+            self._is_connected = True
+            logger.info(f"Connected to Snowflake: {self.connection_name} (account={self.account})")
+        except Exception as e:
+            logger.error(f"Failed to connect to Snowflake: {e}")
+            raise
+
+    def query(self, sql: str, params: tuple = None) -> List[Dict]:
+        """Execute SELECT query and return results as list of dicts."""
+        if not self._is_connected:
+            self.connect()
+        try:
+            cursor = self.conn.cursor(snowflake.connector.DictCursor)
+            cursor.execute(sql, params)
+            results = [dict(row) for row in cursor.fetchall()]
+            cursor.close()
+            logger.info(f"Snowflake query executed successfully. Rows returned: {len(results)}")
+            return results
+        except Exception as e:
+            logger.error(f"Snowflake query failed: {e}")
+            raise
+
+    def execute(self, sql: str, params: tuple = None) -> int:
+        """Execute non-query statement."""
+        if not self._is_connected:
+            self.connect()
+        try:
+            cursor = self.conn.cursor()
+            cursor.execute(sql, params)
+            rows_affected = cursor.rowcount
+            cursor.close()
+            logger.info(f"Snowflake execute completed. Rows affected: {rows_affected}")
+            return rows_affected
+        except Exception as e:
+            logger.error(f"Snowflake execute failed: {e}")
+            raise
+
+    def close(self):
+        """Close Snowflake connection."""
+        if self.conn:
+            self.conn.close()
+            self._is_connected = False
+            logger.info(f"Snowflake connection closed: {self.connection_name or 'default'}")
+
+
 class DatabaseClientFactory:
     """
     Factory class to create and manage multiple database connections
@@ -943,6 +1083,8 @@ class DatabaseClientFactory:
             client = CosmosDBClient(connection_name=connection_name, config=db_config)
         elif db_type.lower() == 'influxdb':
             client = InfluxDBClient(connection_name=connection_name, config=db_config)
+        elif db_type.lower() == 'snowflake':
+            client = SnowflakeClient(connection_name=connection_name, config=db_config)
         else:
             raise ValueError(f"Unsupported database type: {db_type}")
         
