@@ -81,7 +81,7 @@ parameters:
     type: string
     default: 'Approved performance baseline'
 
-  - name: teamsNotificationEnabled
+  - name: slackNotificationEnabled
     type: boolean
     default: false
   
@@ -1170,14 +1170,16 @@ stages:
                   echo "✅ Pipeline execution completed successfully"
                 fi
           - task: DownloadBuildArtifacts@1
-            displayName: 'Download Build Artifacts for Teams Summary'
+            displayName: 'Download Build Artifacts for Notification'
             condition: succeededOrFailed()
             inputs:
               buildType: 'current'
               downloadType: 'all'
               downloadPath: '$(Pipeline.Workspace)/teams-summary'
-          - ${{ if eq(parameters.teamsNotificationEnabled, true) }}:
-            - template: qe-teams-summary-notification.yml
+          
+          # Slack Workflow Notification
+          - ${{ if eq(parameters.slackNotificationEnabled, true) }}:
+            - template: qe-slack-workflow-notification.yml
               parameters:
-                teamswebhookurl: $(TEAMS_WEBHOOK_URL)
+                slackWorkflowWebhookUrl: $(SLACK_WORKFLOW_WEBHOOK_URL)
                 serviceNames: ${{ parameters.services }}
