@@ -67,9 +67,8 @@ allure-report/
 config/influxdb_config.json
 
 # IDE
-# .vscode/ is NOT ignored — we commit .vscode/mcp.json for MCP server config
-.vscode/*
-!.vscode/mcp.json
+.vscode/
+.settings/
 .idea/
 *.swp
 *.swo
