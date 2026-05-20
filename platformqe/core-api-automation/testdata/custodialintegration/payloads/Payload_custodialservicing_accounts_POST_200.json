@@ -1,0 +1,19 @@
+{
+  "requestType": "BeneficiaryChange",
+  "accounts": [
+    {
+      "accountId": "{{accountId}}",
+      "parties": [
+        {
+          "partyId": "{{created_party_id}}",
+          "action": "Add"
+        }
+      ]
+    }
+  ],
+  "metaData": {
+    "additionalProp1": "string",
+    "additionalProp2": "string",
+    "additionalProp3": "string"
+  }
+}
