@@ -1,0 +1,141 @@
+[
+    {
+        "test_id": "TC001_CREATE_PARTY(INDIVIDUAL)",
+        "service_name": "parties",
+        "workflow_mode": "sequential",
+        "test_name": "POST /parties - Create a new individual party (TC001)",
+        "protocol": "REST",
+        "test_type": [
+            "Functional"
+        ],
+        "mainURL": "${PARTIES_BASE_URL}",
+        "endpoint": "/parties",
+        "method": "POST",
+        "headers_additional": {
+            "Content-Type": "application/json"
+        },
+        "payload": "custodialintegration/payloads/Payload_parties_POST_Individual.json",
+        "expected_status": "201",
+        "expected_response_schema": "",
+        "expected_response": null,
+        "ignore_fields": [],
+        "extract_values": [
+            {
+                "from": "response",
+                "key": "partyId",
+                "assign_to": "created_party_id"
+            }
+        ],
+        "validate": {
+            "performance": {
+                "max_response_time_ms": 5000
+            },
+            "security": {
+                "checks": [
+                    "sql_injection",
+                    "xss"
+                ]
+            },
+            "data_comparison": []
+        },
+        "test_data_file": "custodialintegration/data_driven/Data_parties_individual.csv",
+        "csv_row_index": 0,
+        "test_summary": "Test TC001_CREATE_PARTY: Create a new individual party and extract partyId for chained calls"
+    },
+    {
+        "test_id": "TC002_ATTACH_PARTY_TO_ACCOUNT",
+        "service_name": "account_service",
+        "workflow_mode": "sequential",
+        "test_name": "POST /accounts/{accountId}/parties - Attach created party to existing account (TC002)",
+        "protocol": "REST",
+        "test_type": [
+            "Functional"
+        ],
+        "mainURL": "${ACCOUNTS_BASE_URL}",
+        "endpoint": "/accounts/{{accountId}}/parties",
+        "method": "POST",
+        "headers_additional": {
+            "Content-Type": "application/json"
+        },
+        "payload": "custodialintegration/payloads/Payload_accounts_parties_POST.json",
+        "expected_status": "201",
+        "expected_response_schema": "",
+        "expected_response": null,
+        "ignore_fields": [],
+        "extract_values": [],
+        "validate": {
+            "performance": {
+                "max_response_time_ms": 5000
+            },
+            "security": {
+                "checks": [
+                    "sql_injection",
+                    "xss"
+                ]
+            },
+            "data_comparison": []
+        },
+        "test_data_file": "custodialintegration/data_driven/Data_parties_individual.csv",
+        "csv_row_index": 0,
+        "test_summary": "Test TC002_ATTACH_PARTY_TO_ACCOUNT: Attach the newly created party to an existing accountId"
+    },
+    {
+        "test_id": "TC003_CUSTODIAL_SERVICING",
+        "service_name": "custodialintegration",
+        "workflow_mode": "sequential",
+        "test_name": "POST /custodialservicing/accounts - Custodial servicing request using chained accountId+partyId (TC003)",
+        "protocol": "REST",
+        "test_type": [
+            "Functional"
+        ],
+        "mainURL": "{{base_url}}",
+        "endpoint": "/custodialservicing/accounts",
+        "method": "POST",
+        "headers_additional": {
+            "Content-Type": "application/json"
+        },
+        "payload": "custodialintegration/payloads/Payload_custodialservicing_accounts_POST_200.json",
+        "expected_status": "202",
+        "expected_response_schema": "",
+        "expected_response": null,
+        "ignore_fields": [
+            "id"
+        ],
+        "extract_values": [],
+        "validate": {
+            "performance": {
+                "max_response_time_ms": 5000
+            },
+            "security": {
+                "checks": [
+                    "sql_injection",
+                    "xss"
+                ]
+            },
+            "data_comparison": [
+                {
+                    "source": "api_request",
+                    "target": "api_response",
+                    "format": "table",
+                    "key_field": [
+                        {
+                            "source": "",
+                            "target": ""
+                        }
+                    ],
+                    "fields_to_compare": [
+                        {
+                            "source": "",
+                            "target": ""
+                        }
+                    ],
+                    "log_differences": true,
+                    "comparison_name": "Request vs Response comparison"
+                }
+            ]
+        },
+        "test_data_file": "custodialintegration/data_driven/Data_parties_individual.csv",
+        "csv_row_index": 0,
+        "test_summary": "Test TC003_CUSTODIAL_SERVICING: Final custodialintegrationService POST using accountId from CSV and partyId chained from TC001"
+    }
+]

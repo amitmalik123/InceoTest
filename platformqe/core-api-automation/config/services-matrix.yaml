@@ -205,6 +205,22 @@ services:
     - distributions
     - account
     priority: 2
+  documentsproxy:
+    displayName: Documents Proxy Service
+    enabled: true
+    runOnPR: false
+    runOnPush: false
+    runOnSchedule: true
+    testType: functional
+    environments:
+    - TSADEV
+    - TSATEST
+    functionalTestArgs: --service-name documentsproxy --env {environment}
+    nonFunctionalTestArgs: --file testdata/DocumentsProxyService/testcases/TestCase_reducto_upload_POST.json --test_type Performance --env {environment} --headless -u 5 -r 1 -t 15s
+    tags:
+    - documents
+    - proxy
+    priority: 2
   DocusignProxyservice:
     displayName: Docusign Proxy Service
     enabled: true

@@ -1,7 +1,7 @@
 [
     {
         "test_id": "TC001",
-        "service_name": "proxyservice",
+        "service_name": "documentsproxy",
         "workflow_mode": "parallel",
         "test_name": "Health live check endpoint returns healthy status. [positive] (TC001)",
         "protocol": "REST",

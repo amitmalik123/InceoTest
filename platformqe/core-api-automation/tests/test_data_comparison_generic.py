@@ -903,12 +903,14 @@ class TestGenericDataComparison:
         
         print(f"\nCounting records in source {source_table}...")
         source_result = source_client.query(source_count_query)
-        source_count = source_result[0]['total']
+        source_row = {k.lower(): v for k, v in source_result[0].items()}
+        source_count = source_row['total']
         print(f"✓ Source count: {source_count:,}")
         
         print(f"\nCounting records in target {target_table}...")
         target_result = target_client.query(target_count_query)
-        target_count = target_result[0]['total']
+        target_row = {k.lower(): v for k, v in target_result[0].items()}
+        target_count = target_row['total']
         print(f"✓ Target count: {target_count:,}")
         
         # Compare counts
