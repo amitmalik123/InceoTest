@@ -6,7 +6,7 @@ This package contains all test modules organized by type:
 BDD Tests (using pytest-bdd):
 - features/ - Gherkin feature files (.feature)
 - steps/ - Step definitions implementing feature steps
-- test_runners/ - Pytest test files that execute scenarios
+- runners/ - Pytest test files that execute scenarios
 - bdd/conftest.py - BDD-specific fixtures and configuration
 
 Other test types:

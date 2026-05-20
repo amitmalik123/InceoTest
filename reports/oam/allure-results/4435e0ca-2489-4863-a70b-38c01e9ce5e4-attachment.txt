@@ -1,1 +1,0 @@
-Allow All button not available (already accepted or dismissed)

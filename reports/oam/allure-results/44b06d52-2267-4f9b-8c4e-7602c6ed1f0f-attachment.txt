@@ -1,1 +1,0 @@
-✓ Page reached networkidle after click

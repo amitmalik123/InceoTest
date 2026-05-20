@@ -1,1 +1,0 @@
-Clicking element (timeout: 120000ms)

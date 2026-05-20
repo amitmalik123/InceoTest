@@ -1,4 +1,0 @@
-Could not wait for specific content elements: Locator.wait_for: Timeout 8000ms exceeded.
-Call log:
-  - waiting for locator(".ui-dialog").first.locator("p, div:not(:empty)").first to be visible
-    20 × locator resolved to hidden <div class="ui-dialog-titlebar ui-corner-all ui-widget-header ui-helper-clearfix ui-draggable-handle">…</div>

@@ -1,1 +1,0 @@
-✓ Checkbox found using primary data-qa selector

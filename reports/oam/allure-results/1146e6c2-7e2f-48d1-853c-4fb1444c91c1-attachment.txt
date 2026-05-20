@@ -1,1 +1,0 @@
->>> ENTERED STEP: verify_as_authorized_by_stamp_presence

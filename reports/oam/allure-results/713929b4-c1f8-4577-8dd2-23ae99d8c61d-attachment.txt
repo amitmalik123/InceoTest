@@ -1,1 +1,0 @@
-✓ Form heading text retrieved: 'Historical Document Retrieval'

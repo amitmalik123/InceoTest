@@ -1,1 +1,0 @@
-✓ Signature dialog title retrieved: 'Client Signature Not Required'

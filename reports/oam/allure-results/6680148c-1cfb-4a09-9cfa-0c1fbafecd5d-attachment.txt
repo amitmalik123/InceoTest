@@ -1,1 +1,0 @@
-Strategy 2: Using full page CSS selector

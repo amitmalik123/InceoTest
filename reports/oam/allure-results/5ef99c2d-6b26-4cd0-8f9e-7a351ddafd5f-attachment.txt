@@ -1,1 +1,0 @@
->>> STEP: Clicking ERSD Continue button (dynamic wait: 30000ms)

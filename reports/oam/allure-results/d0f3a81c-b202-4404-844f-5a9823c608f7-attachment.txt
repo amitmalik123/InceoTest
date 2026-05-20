@@ -1,1 +1,0 @@
-✓ Checkbox clicked via label element

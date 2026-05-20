@@ -1,1 +1,0 @@
-Expected buttons from feature file: ['View']

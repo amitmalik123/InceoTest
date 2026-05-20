@@ -1,1 +1,0 @@
-Radio button current state - checked: True

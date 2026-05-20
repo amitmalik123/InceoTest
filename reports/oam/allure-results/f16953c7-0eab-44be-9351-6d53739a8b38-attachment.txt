@@ -1,1 +1,0 @@
->>> ENTERED STEP: user_select_submission_type

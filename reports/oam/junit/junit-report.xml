@@ -1,1 +1,0 @@
-<?xml version="1.0" encoding="utf-8"?><testsuites name="pytest tests"><testsuite name="pytest" errors="0" failures="0" skipped="0" tests="1" time="73.275" timestamp="2026-05-20T04:24:51.947827-07:00" hostname="avd-qa-p-08"><testcase classname="tests.test_runners.test_OAM" name="test_s1_oam_initiated_by_fa_online_submit_finish" time="73.098" /></testsuite></testsuites>

@@ -1,1 +1,0 @@
-Getting stamping element locator for: 'As authorized by'

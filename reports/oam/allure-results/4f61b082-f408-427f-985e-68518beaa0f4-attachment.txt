@@ -1,1 +1,0 @@
-Actual form heading text: 'Historical Document Retrieval'

@@ -1,1 +1,0 @@
->>> STEP: Verify Tracking Center Item Detail status should be "Document Submitted"
