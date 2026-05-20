@@ -7,7 +7,7 @@ pool:
 trigger: none
 
 schedules:
-  - cron: "00 10 * * *" # 10:00 UTC daily (3:30 PM IST)
+  - cron: "00 07 * * *" # 07:00 UTC daily (12:30 PM IST)
     displayName: "Daily Regression"
     branches:
       include:

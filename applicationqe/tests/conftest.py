@@ -459,3 +459,20 @@ def pytest_sessionfinish(session, exitstatus) -> None:  # noqa: C901
             print("\nInfluxDB auto-push disabled (set 'auto_push': true in influxdb_config.json to enable)")
     except Exception as e:
         print(f"\nWARNING: Failed to push metrics to InfluxDB: {e}")
+
+
+@pytest.fixture(scope="session")
+def browser_context_args(browser_context_args):
+    """Configure browser context to ignore HTTPS errors for test environments"""
+    return {
+        **browser_context_args,
+        "ignore_https_errors": True,
+    }
+
+
+@pytest.fixture(scope="session")
+def vcr_config():
+    """VCR configuration for recording HTTP interactions"""
+    return {
+        "filter_headers": ["authorization"],
+    }
