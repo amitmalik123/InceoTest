@@ -18,7 +18,7 @@ from utils.crypto_utils import decrypt_value
 
 def load_influxdb_config():
     """Load InfluxDB configuration from config file or environment variables"""
-    config_path = Path(__file__).parent.parent / "config" / "influxdb_config.json"
+    config_path = Path(__file__).parent.parent / "config" / "oam" / "influxdb_config.json"
 
     # Try to load from config file first
     if config_path.exists():

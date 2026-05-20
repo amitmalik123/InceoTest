@@ -20,7 +20,7 @@ from utils.crypto_utils import decrypt_value
 
 def load_azure_analytics_config():
     """Load Azure Log Analytics configuration from config file or environment variables"""
-    config_path = Path(__file__).parent.parent / "config" / "azure_analytics_config.json"
+    config_path = Path(__file__).parent.parent / "config" / "oam" / "azure_analytics_config.json"
 
     # Try to load from config file first
     config = {}
