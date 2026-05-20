@@ -1,7 +1,7 @@
 from playwright.sync_api import Locator, Page, expect
 
-from locators.PR import tracking_center_locators
-from pages.PR.base_page import BasePage
+from locators.PortfolioReporting import tracking_center_locators
+from pages.PortfolioReporting.base_page import BasePage
 from utils.allure_logger import get_allure_logger
 
 logger = get_allure_logger(__name__)

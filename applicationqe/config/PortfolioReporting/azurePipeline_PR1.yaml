@@ -25,7 +25,7 @@ trigger: none
 # Scheduled triggers
 # -----------------------------
 schedules:
-  - cron: "50 15 * * *" # 15:50 UTC daily (9:20 PM IST)
+  - cron: "33 09 * * *" # 09:33 UTC daily (3:03 PM IST)
     displayName: "Daily Regression"
     branches:
       include:
@@ -57,6 +57,7 @@ parameters:
       - rgl
       - tms
       - document_vault
+      - document_vault_agent_level
       - rgl_tms
       - rgl_document_vault
       - tms_document_vault
@@ -99,10 +100,10 @@ jobs:
     environment: ${{ parameters.environment }}
     marker: ${{ parameters.marker }}
     workers: ${{ parameters.workers }}
-    allureResultsDir: '$(buildPath)/reports/allure-results'
-    allureReportDir: '$(buildPath)/reports/allure-report'
+    allureResultsDir: '$(buildPath)/reports/PortfolioReporting/allure-results'
+    allureReportDir: '$(buildPath)/reports/PortfolioReporting/allure-report'
     allureToolsDir: '$(Build.ArtifactStagingDirectory)/allure-tools'
-    testResultsDir: '$(buildPath)/reports'
+    testResultsDir: '$(buildPath)/reports/PortfolioReporting'
     # Azure Key Vault configuration
     keyVaultName: 'amkkvqapipeline-testncus'           # – Replace with your Key Vault name
 
@@ -276,28 +277,31 @@ jobs:
       # Build pytest command with parallel workers support
       # Determine test target based on marker
       if [ "$(marker)" = "rgl" ]; then
-        TEST_TARGET="tests/bdd/runner/PR/test_rgl.py"
+        TEST_TARGET="tests/bdd/runner/PortfolioReporting/test_rgl.py"
         echo "Running RGL feature tests"
       elif [ "$(marker)" = "tms" ]; then
-        TEST_TARGET="tests/bdd/runner/PR/test_tms.py"
+        TEST_TARGET="tests/bdd/runner/PortfolioReporting/test_tms.py"
         echo "Running TMS feature tests"
       elif [ "$(marker)" = "document_vault" ]; then
-        TEST_TARGET="tests/bdd/runner/PR/test_document_vault.py"
+        TEST_TARGET="tests/bdd/runner/PortfolioReporting/test_document_vault.py"
         echo "Running Document Vault feature tests"
+      elif [ "$(marker)" = "document_vault_agent_level" ]; then
+        TEST_TARGET="tests/bdd/runner/PortfolioReporting/test_document_vault.py::test_validation_of_document_vault_page_functionalities_agent_level"
+        echo "Running Document Vault Agent Level scenario"
       elif [ "$(marker)" = "rgl_tms" ]; then
-        TEST_TARGET="tests/bdd/runner/PR/test_rgl.py tests/bdd/runner/PR/test_tms.py"
+        TEST_TARGET="tests/bdd/runner/PortfolioReporting/test_rgl.py tests/bdd/runner/PortfolioReporting/test_tms.py"
         echo "Running RGL and TMS feature tests"
       elif [ "$(marker)" = "rgl_document_vault" ]; then
-        TEST_TARGET="tests/bdd/runner/PR/test_rgl.py tests/bdd/runner/PR/test_document_vault.py"
+        TEST_TARGET="tests/bdd/runner/PortfolioReporting/test_rgl.py tests/bdd/runner/PortfolioReporting/test_document_vault.py"
         echo "Running RGL and Document Vault feature tests"
       elif [ "$(marker)" = "tms_document_vault" ]; then
-        TEST_TARGET="tests/bdd/runner/PR/test_tms.py tests/bdd/runner/PR/test_document_vault.py"
+        TEST_TARGET="tests/bdd/runner/PortfolioReporting/test_tms.py tests/bdd/runner/PortfolioReporting/test_document_vault.py"
         echo "Running TMS and Document Vault feature tests"
       elif [ "$(marker)" = "rgl_tms_document_vault" ]; then
-        TEST_TARGET="tests/bdd/runner/PR/test_rgl.py tests/bdd/runner/PR/test_tms.py tests/bdd/runner/PR/test_document_vault.py"
+        TEST_TARGET="tests/bdd/runner/PortfolioReporting/test_rgl.py tests/bdd/runner/PortfolioReporting/test_tms.py tests/bdd/runner/PortfolioReporting/test_document_vault.py"
         echo "Running RGL, TMS, and Document Vault feature tests"
       else
-        TEST_TARGET="tests/bdd/runner/PR/test_rgl.py tests/bdd/runner/PR/test_tms.py tests/bdd/runner/PR/test_document_vault.py"
+        TEST_TARGET="tests/bdd/runner/PortfolioReporting/test_rgl.py tests/bdd/runner/PortfolioReporting/test_tms.py tests/bdd/runner/PortfolioReporting/test_document_vault.py"
         echo "Running default feature set: RGL, TMS, and Document Vault"
       fi
 

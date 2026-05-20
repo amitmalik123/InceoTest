@@ -58,4 +58,4 @@ RUN mkdir -p reports/allure-results reports/screenshots testResults
 RUN chmod -R 755 /app
 
 # Default command - can be overridden in docker-compose or docker run
-CMD ["pytest", "tests/bdd/runner/PR", "-v", "--browser=chromium"]
+CMD ["pytest", "tests/bdd/runner/PortfolioReporting", "-v", "--browser=chromium"]

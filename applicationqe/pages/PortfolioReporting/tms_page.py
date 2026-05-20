@@ -3,8 +3,8 @@ import re
 from playwright.sync_api import Locator, Page
 
 from config.settings import get_settings
-from locators.PR import tms_locators
-from pages.PR.base_page import BasePage
+from locators.PortfolioReporting import tms_locators
+from pages.PortfolioReporting.base_page import BasePage
 from utils.allure_logger import get_allure_logger
 
 logger = get_allure_logger(__name__)

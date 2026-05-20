@@ -5,7 +5,7 @@ TMS verification steps for navigation and page element validation
 from playwright.sync_api import Page
 from pytest_bdd import given, parsers, then, when
 
-from pages.PR.tms_page import TMSPage
+from pages.PortfolioReporting.tms_page import TMSPage
 from utils.allure_logger import get_allure_logger
 
 logger = get_allure_logger(__name__)

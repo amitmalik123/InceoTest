@@ -22,7 +22,7 @@ def load_azure_analytics_config():
     """Load Azure Log Analytics configuration from config file or environment variables"""
     config_root = Path(__file__).parent.parent / "config"
     config_candidates = [
-        config_root / "PR" / "azure_analytics_config.json",
+        config_root / "PortfolioReporting" / "azure_analytics_config.json",
         config_root / "azure_analytics_config.json",
     ]
 

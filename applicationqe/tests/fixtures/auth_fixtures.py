@@ -21,7 +21,7 @@ from playwright.sync_api import Page
 from playwright.sync_api import TimeoutError as PlaywrightTimeoutError
 
 from config.settings import Settings, get_settings
-from pages.PR.login_page import LoginPage
+from pages.PortfolioReporting.login_page import LoginPage
 from tests.fixtures.browser_fixtures import apply_context_listeners, apply_route_blocks
 
 # Use centralized Settings singleton
@@ -373,7 +373,7 @@ def _stop_tracing(context, tracing_option: str, request) -> None:
         failed = getattr(getattr(request.node, "rep_setup", None), "failed", False)
 
     if tracing_option == "on" or (tracing_option == "retain-on-failure" and failed):
-        trace_dir = Path("reports/traces")
+        trace_dir = Path("reports/PortfolioReporting/traces")
         trace_dir.mkdir(parents=True, exist_ok=True)
         trace_path = trace_dir / f"{request.node.name}.zip"
         try:

@@ -102,10 +102,10 @@ addopts = """
 --video=on
 --screenshot=on
 --tracing=retain-on-failure
---junitxml=reports/junit/junit-report.xml
---html=reports/pytest_report.html
+--junitxml=reports/PortfolioReporting/junit/junit-report.xml
+--html=reports/PortfolioReporting/pytest_report.html
 --self-contained-html
---alluredir=reports/allure-results
+--alluredir=reports/PortfolioReporting/allure-results
 """
 # Note: --reruns and --reruns-delay commented out to allow --pdb debug mode
 # Uncomment for normal test runs:

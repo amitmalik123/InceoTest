@@ -20,7 +20,7 @@ def load_influxdb_config():
     """Load InfluxDB configuration from config file or environment variables"""
     config_root = Path(__file__).parent.parent / "config"
     config_candidates = [
-        config_root / "PR" / "influxdb_config.json",
+        config_root / "PortfolioReporting" / "influxdb_config.json",
         config_root / "influxdb_config.json",
     ]
 

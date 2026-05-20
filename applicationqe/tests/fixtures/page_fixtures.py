@@ -4,11 +4,11 @@ import pytest
 from playwright.sync_api import Page
 
 from config.settings import get_settings
-from pages.PR.clients_page import ClientsPage
-from pages.PR.document_vault_page import DocumentVaultPage
-from pages.PR.login_page import LoginPage
-from pages.PR.navbar_login_page import NavbarLoginPage
-from pages.PR.tracking_center_page import TrackingCenterPage
+from pages.PortfolioReporting.clients_page import ClientsPage
+from pages.PortfolioReporting.document_vault_page import DocumentVaultPage
+from pages.PortfolioReporting.login_page import LoginPage
+from pages.PortfolioReporting.navbar_login_page import NavbarLoginPage
+from pages.PortfolioReporting.tracking_center_page import TrackingCenterPage
 
 # Resolve base_url once from the active environment config
 _base_url = get_settings().base_url

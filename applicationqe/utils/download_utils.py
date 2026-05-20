@@ -20,12 +20,12 @@ class DownloadManager:
     Manage file downloads and validation.
 
     Example:
-        manager = DownloadManager(page, download_dir="downloads")
+        manager = DownloadManager(page, download_dir="reports/PortfolioReporting/downloads")
         download = manager.trigger_download(lambda: page.click("#download-btn"))
         manager.validate_download(download, expected_extension=".pdf")
     """
 
-    def __init__(self, page: Page, download_dir: str = "downloads"):
+    def __init__(self, page: Page, download_dir: str = "reports/PortfolioReporting/downloads"):
         self.page = page
         self.download_dir = Path(download_dir)
         self.download_dir.mkdir(parents=True, exist_ok=True)

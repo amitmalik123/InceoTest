@@ -17,11 +17,16 @@ Fixture Organization:
 
 import os
 import subprocess
+import sys
 from collections.abc import Generator
 from pathlib import Path
 
 import allure
 import pytest
+
+APP_ROOT = Path(__file__).resolve().parent.parent
+if str(APP_ROOT) not in sys.path:
+    sys.path.insert(0, str(APP_ROOT))
 
 from config.settings import get_settings
 
@@ -81,14 +86,14 @@ def pytest_sessionstart(session) -> None:
     import shutil
 
     dirs_to_clean = [
-        "reports/allure-results",
-        "reports/videos",
-        "reports/traces",
-        "reports/downloads",
+        "reports/PortfolioReporting/allure-results",
+        "reports/PortfolioReporting/videos",
+        "reports/PortfolioReporting/traces",
+        "reports/PortfolioReporting/downloads",
     ]
 
     files_to_clean = [
-        "reports/network_errors.log",  # Matches http_error_log in pyproject.toml
+        "reports/PortfolioReporting/network_errors.log",  # Matches http_error_log in pyproject.toml
     ]
 
     for dir_path in dirs_to_clean:
@@ -263,7 +268,7 @@ def pytest_sessionfinish(session, exitstatus) -> None:  # noqa: C901
 
     # Generate Auto-Healing Report
     try:
-        from pages.PR.base_page import BasePage
+        from pages.PortfolioReporting.base_page import BasePage
 
         healing_engine = BasePage._healing_engine
         if healing_engine:
@@ -298,7 +303,7 @@ def pytest_sessionfinish(session, exitstatus) -> None:  # noqa: C901
                 )
 
             # Save to reports directory
-            reports_dir = Path("reports")
+            reports_dir = Path("reports/PortfolioReporting")
             reports_dir.mkdir(exist_ok=True)
 
             healing_report_path = reports_dir / "auto_healing_report.json"

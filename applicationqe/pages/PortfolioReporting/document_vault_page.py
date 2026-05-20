@@ -3,8 +3,8 @@ from pathlib import Path
 
 from playwright.sync_api import Locator, Page
 
-from locators.PR import document_vault_locators
-from pages.PR.base_page import BasePage
+from locators.PortfolioReporting import document_vault_locators
+from pages.PortfolioReporting.base_page import BasePage
 from utils.allure_logger import get_allure_logger
 
 logger = get_allure_logger(__name__)
@@ -295,7 +295,7 @@ class DocumentVaultPage(BasePage):
             trigger_click.click(timeout=timeout)
         download = download_info.value
 
-        download_dir = Path("reports/downloads")
+        download_dir = Path("reports/PortfolioReporting/downloads")
         download_dir.mkdir(parents=True, exist_ok=True)
         target_path = download_dir / download.suggested_filename
         download.save_as(str(target_path))
@@ -829,7 +829,7 @@ class DocumentVaultPage(BasePage):
             save_btn.click(timeout=timeout)
         download = download_info.value
 
-        download_dir = Path("reports/downloads")
+        download_dir = Path("reports/PortfolioReporting/downloads")
         download_dir.mkdir(parents=True, exist_ok=True)
         target_path = download_dir / download.suggested_filename
         download.save_as(str(target_path))
@@ -882,7 +882,7 @@ class DocumentVaultPage(BasePage):
             save_btn.click(timeout=timeout)
         download = download_info.value
 
-        download_dir = Path("reports/downloads")
+        download_dir = Path("reports/PortfolioReporting/downloads")
         download_dir.mkdir(parents=True, exist_ok=True)
         target_path = download_dir / download.suggested_filename
         download.save_as(str(target_path))

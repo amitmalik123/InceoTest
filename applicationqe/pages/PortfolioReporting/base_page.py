@@ -35,7 +35,7 @@ class BasePage:
 
         # Initialize healing engine once
         if BasePage._healing_engine is None:
-            mappings_path = Path(__file__).resolve().parents[2] / "config" / "PR" / "locator_mappings.json"
+            mappings_path = Path(__file__).resolve().parents[2] / "config" / "PortfolioReporting" / "locator_mappings.json"
             BasePage._healing_engine = AutoHealingEngine(str(mappings_path))
             self.logger.info("Auto-healing engine initialized")
 
@@ -502,14 +502,14 @@ class BasePage:
     ) -> Download:
         """Click a link/button that triggers a download and return the Download object.
 
-        Files are saved to ``reports/downloads/`` by default (cleaned at session start).
+        Files are saved to ``reports/PortfolioReporting/downloads/`` by default (cleaned at session start).
         Pass *save_path* to override the full destination, or *filename* to override
         just the file name within the default downloads folder.
 
         Args:
             trigger_locator: Element that initiates the download.
             save_path: Optional full path to save the file (takes priority over *filename*).
-            filename: Optional custom file name (used inside ``reports/downloads/``).
+            filename: Optional custom file name (used inside ``reports/PortfolioReporting/downloads/``).
                       Defaults to the browser-suggested filename.
             timeout: Max wait for the download to start.
 
@@ -525,7 +525,7 @@ class BasePage:
         self.logger.info(f"Download started: {download.suggested_filename}")
 
         name = filename or download.suggested_filename
-        dest = save_path or f"reports/downloads/{name}"
+        dest = save_path or f"reports/PortfolioReporting/downloads/{name}"
         os.makedirs(os.path.dirname(dest), exist_ok=True)
         download.save_as(dest)
         self.logger.info(f"Download saved to: {dest}")

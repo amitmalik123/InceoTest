@@ -36,7 +36,7 @@ class Settings:
         self.env = env
         self.logger = setup_logger(__name__)
         config_root = Path(__file__).parent
-        self.config_path = config_root / "PR" / f"env.{env}.yaml"
+        self.config_path = config_root / "PortfolioReporting" / f"env.{env}.yaml"
         if not self.config_path.exists():
             self.config_path = config_root / f"env.{env}.yaml"
         self.config = self._load_config()

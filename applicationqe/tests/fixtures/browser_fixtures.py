@@ -237,9 +237,9 @@ def browser_context_args(browser_context_args, request) -> dict:
 
     # Make output directories worker-specific to avoid conflicts
     if worker_id != "master":
-        record_video_dir = f"reports/videos/{worker_id}"
+        record_video_dir = f"reports/PortfolioReporting/videos/{worker_id}"
     else:
-        record_video_dir = "reports/videos"
+        record_video_dir = "reports/PortfolioReporting/videos"
 
     # Base browser context args — no_viewport allows the page to fill the window
     context_args = {

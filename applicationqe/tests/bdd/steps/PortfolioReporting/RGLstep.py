@@ -6,8 +6,8 @@ from playwright.sync_api import Page
 from pytest_bdd import parsers, given, then, when
 
 from config.settings import get_settings
-from pages.PR.clients_page import ClientsPage
-from pages.PR.rgl_page import RGLPage
+from pages.PortfolioReporting.clients_page import ClientsPage
+from pages.PortfolioReporting.rgl_page import RGLPage
 from utils.allure_logger import get_allure_logger
 
 logger = get_allure_logger(__name__)
