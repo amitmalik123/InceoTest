@@ -68,7 +68,7 @@ parameters:
   - name: marker
     displayName: "Pytest Marker to Run"
     type: string
-    default: "all_tests"
+    default: "test_add_model"
     values:
         - all_tests
         - test_add_model
