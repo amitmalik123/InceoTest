@@ -98,6 +98,7 @@ reports/allure-results/
 reports/allure-report/
 reports/*.html
 reports/*.png
+reports/
 
 # SonarQube
 .scannerwork/
