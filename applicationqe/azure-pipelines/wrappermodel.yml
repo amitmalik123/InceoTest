@@ -1,0 +1,497 @@
+
+pool:
+#  name: 'ewm20-docker-build-agent-qa-dev'
+  name: 'ubuntu2204-qa'
+
+# -----------------------------
+# CI Trigger — model-management paths only
+# -----------------------------
+
+trigger:
+  branches:
+    include:
+      - main
+      - develop
+  paths:
+    include:
+    
+      - 'applicationqe/data/model-management/wrappermodel/**'
+      - 'applicationqe/config/model-management/wrappermodel/**'
+      - 'applicationqe/tests/features/model-management/WrapperModel/**'
+      - 'applicationqe/tests/steps/model-management/wrappermodel/**'
+      - 'applicationqe/pages/model-management/wrappermodel**'
+      - 'applicationqe/queries/model-management/**'
+      - 'applicationqe/azure-pipelines/templates/**'
+      - 'applicationqe/requirements.txt'
+
+pr:
+  branches:
+    include:
+      - main
+      - develop
+  paths:
+    include:
+      - 'applicationqe/data/model-management/wrappermodel/**'
+      - 'applicationqe/config/model-management/wrappermodel/**'
+      - 'applicationqe/tests/features/model-management/WrapperModel/**'
+      - 'applicationqe/tests/steps/model-management/wrappermodel/**'
+      - 'applicationqe/pages/model-management/wrappermodel**'
+      - 'applicationqe/queries/model-management/**'
+      - 'applicationqe/azure-pipelines/templates/**'
+      - 'applicationqe/requirements.txt'
+
+# -----------------------------
+# Scheduled triggers
+# -----------------------------
+#schedules:
+#  - cron: "35 20 * * *" # 12:35 PM PST → Test11
+#    displayName: "Schedule for Test11"
+#    branches:
+#      include:
+#        - main
+#    always: true
+
+# -----------------------------
+# Parameters for Manual Runs
+# -----------------------------
+parameters:
+  - name: environment
+    displayName: "Target Environment (manual run)"
+    type: string
+    default: "test01"
+    values:
+      - test01
+      - silo
+      - prod
+ 
+
+  - name: marker
+    displayName: "Pytest Marker to Run"
+    type: string
+    default: "all_tests"
+    values:
+      - test_add_model
+
+  - name: workers
+    displayName: "Number of Parallel Workers"
+    type: string
+    default: "1"
+    values:
+      - "1"
+      - "2"
+      - "4"
+      - "auto"
+
+  - name: browser
+    displayName: "Browser to Test"
+    type: string
+    default: "chromium"
+    values:
+      - chromium
+      - msedge
+      - both
+
+variables:
+- group: qa-pipelines-shared-config
+# subscription_test comes from the library group above
+# -----------------------------
+# Job Section
+# -----------------------------
+jobs:
+- job: RunPytestBDDTests
+  displayName: "Run Python Playwright BDD Tests"
+  timeoutInMinutes: 45
+
+  variables:
+    buildPath: '$(Build.SourcesDirectory)'
+    environment: ${{ parameters.environment }}
+    marker: ${{ parameters.marker }}
+    workers: ${{ parameters.workers }}
+    allureResultsDir: '$(Build.SourcesDirectory)/reports/allure-results'
+    allureReportDir: '$(Build.SourcesDirectory)/reports/allure-report'
+    allureToolsDir: '$(Build.ArtifactStagingDirectory)/allure-tools'
+    testResultsDir: '$(Build.SourcesDirectory)/reports'
+    # Azure Key Vault configuration
+    keyVaultName: 'amkkvqapipeline-testncus'           # ← Replace with your Key Vault name
+   
+  steps:
+  - checkout: self
+    clean: true
+
+  # -----------------------------------------------------------------
+  # Azure Key Vault: Fetch secrets and map them to pipeline variables
+  # -----------------------------------------------------------------
+  # Prerequisites:
+  #   1. Create an Azure Key Vault in your Azure subscription
+  #   2. Store secrets with naming convention: {env}-{service}-{key}
+  #      Examples:
+  #        test11-azure-sql-username
+  #        test11-azure-sql-password
+  #        test11-sql-server-username
+  #        test11-sql-server-password
+  #        test11-api-auth-token
+  #        common-sonar-token
+  #        common-influxdb-token
+  #   3. Create a Service Connection in Azure DevOps:
+  #      Project Settings → Service connections → New → Azure Resource Manager
+  #   4. Grant the Service Connection's Service Principal "Key Vault Secrets User"
+  #      role on the Key Vault (Access policies or RBAC)
+  #   5. Update 'keyVaultName' and 'azureSubscription' variables above
+  # -----------------------------------------------------------------
+  - task: AzureKeyVault@2
+    displayName: 'Fetch Secrets from Azure Key Vault'
+    inputs:
+      azureSubscription: $(subscription_test)
+      KeyVaultName: $(keyVaultName)
+      SecretsFilter: '*'
+      RunAsPreJob: true
+    # Each secret becomes a pipeline variable with the same name.
+    # E.g., Key Vault secret "test11-azure-sql-password" → $(test11-azure-sql-password)
+
+  - script: |
+      echo "Determining environment and test settings dynamically..."
+      if [ "$(Build.Reason)" = "Manual" ]; then
+        echo "##vso[task.setvariable variable=environment]${{ parameters.environment }}"
+        echo "##vso[task.setvariable variable=marker]${{ parameters.marker }}"
+        echo "##vso[task.setvariable variable=workers]${{ parameters.workers }}"
+      else
+        echo "##vso[task.setvariable variable=environment]test11"
+        echo "##vso[task.setvariable variable=marker]all_tests"
+        echo "##vso[task.setvariable variable=workers]2"
+      fi
+    displayName: "Set Environment Variables Dynamically"
+
+  - script: |
+      echo "##vso[task.setvariable variable=TEST_ENV]$(environment)"
+    displayName: "Set Test Environment Variable"
+
+  - script: |
+      echo "Resolving API Auth Token for environment: $(environment)..."
+      case "$(environment)" in
+        test10) API_TOKEN="$(test10-api-auth-token)" ;;
+        test11) API_TOKEN="$(test11-api-auth-token)" ;;
+        test12) API_TOKEN="$(test12-api-auth-token)" ;;
+        silo)   API_TOKEN="$(silo-api-auth-token)" ;;
+        prod)   API_TOKEN="$(prod-api-auth-token)" ;;
+        qa)     API_TOKEN="$(qa-api-auth-token)" ;;
+        *)      echo "##vso[task.logissue type=warning]Unknown environment '$(environment)' — API token may be empty"; API_TOKEN="" ;;
+      esac
+      echo "##vso[task.setvariable variable=RESOLVED_API_AUTH_TOKEN;issecret=true]$API_TOKEN"
+    displayName: "Resolve API Auth Token by Environment"
+
+  - script: |
+      echo "========================================"
+      echo "Pipeline Variables and Parameters"
+      echo "========================================"
+      echo "Parameters:"
+      echo "  Environment: ${{ parameters.environment }}"
+      echo "  Marker: ${{ parameters.marker }}"
+      echo "  Workers: ${{ parameters.workers }}"
+      echo "  Browser: ${{ parameters.browser }}"
+      echo ""
+      echo "Runtime Variables:"
+      echo "  Environment: $(environment)"
+      echo "  Marker: $(marker)"
+      echo "  Workers: $(workers)"
+      echo ""
+      echo "Build Variables:"
+      echo "  Build ID: $(Build.BuildId)"
+      echo "  Build Reason: $(Build.Reason)"
+      echo "  Source Branch: $(Build.SourceBranch)"
+      echo "  Source Directory: $(Build.SourcesDirectory)"
+      echo ""
+      echo "Directory Variables:"
+      echo "  Build Path: $(buildPath)"
+      echo "  Allure Results Dir: $(allureResultsDir)"
+      echo "  Allure Report Dir: $(allureReportDir)"
+      echo "  Allure Tools Dir: $(allureToolsDir)"
+      echo "  Test Results Dir: $(testResultsDir)"
+      echo ""
+      echo "Azure Log Analytics:"
+      echo "  Workspace ID: $(logAnalyticsWorkspaceId)"
+      echo "  Shared Key: [SET]"
+      echo "========================================"
+    displayName: "Print Pipeline Variables"
+
+  - task: UsePythonVersion@0
+    inputs:
+      versionSpec: "3.10"
+      addToPath: true
+    displayName: "Setup Python 3.10"
+
+  - script: |
+      python --version
+      pip --version
+      echo "Installing Python dependencies..."
+      python -m pip install --upgrade pip setuptools wheel
+      pip install -e $(Build.SourcesDirectory)/applicationqe
+    displayName: "Install Python Dependencies"
+
+  - script: |
+      echo "Installing Playwright browsers (Python version)..."
+      if [ "${{ parameters.browser }}" = "both" ]; then
+        echo "Installing both Chromium and Edge..."
+        python -m playwright install chromium msedge
+      elif [ "${{ parameters.browser }}" = "msedge" ]; then
+        echo "Installing Microsoft Edge..."
+        python -m playwright install msedge
+      else
+        echo "Installing Chromium (default)..."
+        python -m playwright install chromium
+      fi
+      echo "Browser installation complete!"
+    displayName: "Install Playwright Browsers (Python)"
+    continueOnError: false
+  # - script: playwright install chromium --with-deps
+  #   displayName: "Install Playwright Browsers"
+  #   continueOnError: false
+
+  - script: |
+      echo "Installing Allure CLI via pip..."
+      pip install allure-pytest
+
+      echo "Installing Allure CLI binary (standalone)..."
+      mkdir -p $(allureToolsDir)
+
+      # Download and install Allure commandline
+      wget -q https://github.com/allure-framework/allure2/releases/download/2.25.0/allure-2.25.0.tgz
+      tar -xzf allure-2.25.0.tgz -C $(allureToolsDir)
+
+      echo "Adding Allure CLI to PATH..."
+      export PATH="$(allureToolsDir)/allure-2.25.0/bin:$PATH"
+      echo "##vso[task.prependpath]$(allureToolsDir)/allure-2.25.0/bin"
+
+      echo "Verifying Allure CLI installation..."
+      allure --version
+    displayName: "Install and Verify Allure CLI"
+
+  # - script: |
+  #     echo "Installing Allure CLI..."
+  #     sudo apt-get update
+  #     sudo apt-get install -y default-jre
+  #     wget https://github.com/allure-framework/allure2/releases/download/2.24.1/allure-2.24.1.tgz -O /tmp/allure.tgz
+  #     sudo tar -zxvf /tmp/allure.tgz -C /opt/
+  #     sudo ln -s /opt/allure-2.24.1/bin/allure /usr/bin/allure
+  #     allure --version
+  #   displayName: "Install and Verify Allure CLI"
+
+  - script: |
+      mkdir -p "$(allureResultsDir)"
+      mkdir -p "$(testResultsDir)"
+      echo "========================================"
+      echo "PYTEST EXECUTION START"
+      echo "========================================"
+      echo "Test Marker: $(marker)"
+      echo "Workers: $(workers)"
+      echo "Browser: $(browser)"
+      echo "Environment: $(environment)"
+      echo "Build Path: $(buildPath)"
+      echo "Allure Results Dir: $(allureResultsDir)"
+      echo "========================================"
+      echo ""
+      echo "Setting up environment variables..."
+      export TEST_ENV="$(environment)"
+      export CI=true
+      export PYTHONUNBUFFERED=1
+      export ALLURE_RESULTS_DIR="$(allureResultsDir)"
+      echo "✓ TEST_ENV=$TEST_ENV"
+      echo "✓ CI=$CI"
+      echo ""
+      echo "Current working directory: $(pwd)"
+      echo "Python version: $(python --version)"
+      echo ""
+      # Run all feature files under model-management
+      # To target a specific marker, change all_tests to a specific marker value
+      if [ "$(marker)" = "all_tests" ]; then
+        TEST_TARGET="tests/features/model-management/"
+        MARKER_FLAG=""
+        echo "Running ALL feature files under model-management"
+      else
+        TEST_TARGET="tests/features/model-management/"
+        MARKER_FLAG="-m $(marker)"
+        echo "Running feature files with marker: $(marker)"
+      fi
+
+      # Determine browser parameter
+      BROWSER_VALUE="${{ parameters.browser }}"
+      if [ "$BROWSER_VALUE" = "both" ]; then
+        BROWSER_PARAM="--browser chromium --browser msedge"
+        echo "Cross-browser testing: Chromium and Microsoft Edge"
+      elif [ "$BROWSER_VALUE" = "msedge" ]; then
+        BROWSER_PARAM="--browser msedge"
+        echo "Browser: Microsoft Edge"
+      else
+        BROWSER_PARAM="--browser chromium"
+        echo "Browser: Chromium (default)"
+      fi
+
+      PYTEST_CMD="pytest $TEST_TARGET $MARKER_FLAG \
+        $BROWSER_PARAM \
+        --junitxml=\"$(testResultsDir)/junit/junit-report.xml\" \
+        -v -s \
+        --video=retain-on-failure \
+        --tracing=retain-on-failure \
+        --screenshot=only-on-failure \
+        --alluredir=\"$(allureResultsDir)\" \
+        --html=\"$(testResultsDir)/pytest-report.html\" \
+        --self-contained-html \
+        --override-ini=\"addopts=\" \
+        -p no:cacheprovider"
+
+      # Add parallel execution if workers > 1
+      WORKERS_VALUE="$(workers)"
+      if [ "$WORKERS_VALUE" = "auto" ] || [ "$WORKERS_VALUE" -gt "1" ] 2>/dev/null; then
+        PYTEST_CMD="$PYTEST_CMD -n $WORKERS_VALUE --dist loadscope"
+        echo "Parallel execution enabled: $WORKERS_VALUE workers with loadscope distribution"
+      else
+        echo "Sequential execution (single worker)"
+      fi
+
+      echo "Executing: $PYTEST_CMD"
+      echo "========================================"
+      echo ""
+      eval $PYTEST_CMD 2>&1 || TEST_EXIT_CODE=$? || true
+      echo ""
+      echo "========================================"
+      echo "Test Execution Exit Code: ${TEST_EXIT_CODE:-0}"
+      echo "========================================"
+      echo "##vso[task.setvariable variable=TEST_EXIT_CODE]${TEST_EXIT_CODE:-0}"
+      echo ""
+      echo "Checking for generated reports..."
+      echo "Listing Allure results:"
+      ls -la $(allureResultsDir) 2>/dev/null || echo "Allure results directory not found"
+      echo ""
+      echo "Listing test results:"
+      ls -la $(testResultsDir) 2>/dev/null || echo "Test results directory not found"
+    displayName: "Run Pytest BDD Tests with Allure"
+    continueOnError: true
+    workingDirectory: $(Build.SourcesDirectory)/applicationqe
+    env:
+      WORK_ITEM_AUTH_TOKEN: $(WORK_ITEM_AUTH_TOKEN)
+      PARTIES_AUTH_TOKEN: $(PARTIES_AUTH_TOKEN)
+      INFLUXDB_AUTO_PUSH: 'false'  # Pipeline has its own dedicated push step
+      # ── Connection strings: AzureKeyVault@2 fetches secrets → mapped to env vars ──
+      # Python reads these via os.getenv() — no direct Key Vault API calls.
+      TRANSFER_CONNECTION_STRING: $(transfer-connection-string)
+      ACCOUNTDISTRIBUTIONS_CONNECTION_STRING: $(accoundistributions-connection-string)
+      CRM_DB_CONNECTION_STRING: $(crm-db-connection-string)
+      AM_BILLING_CONNECTION_STRING: $(am-billing-connection-string)
+      API_AUTH_TOKEN: $(RESOLVED_API_AUTH_TOKEN)
+
+  - script: |
+      echo "Checking Allure Results Directory..."
+      echo "Results Dir: $(allureResultsDir)"
+      ls -la $(allureResultsDir) 2>/dev/null || echo "Results dir not found"
+    displayName: "Debug Allure Results Directory"
+    condition: always()
+
+  - script: |
+      mkdir -p "$(allureReportDir)"
+      echo "Allure Report Directory created: $(allureReportDir)"
+    displayName: "Create Allure Report Directory"
+
+  - script: |
+      echo "Checking for Allure results..."
+      SRC_DIR="$(allureResultsDir)"
+      REPORT_DIR="$(allureReportDir)"
+
+      if [ ! -d "$SRC_DIR" ] || [ -z "$(ls -A "$SRC_DIR" 2>/dev/null)" ]; then
+        echo "##vso[task.logissue type=warning]No Allure results found in $SRC_DIR. Report generation skipped."
+        exit 0
+      fi
+
+      echo "Generating Allure report from: $SRC_DIR"
+      allure generate "$SRC_DIR" --clean -o "$REPORT_DIR" --single-file
+      echo "Report generated at: $REPORT_DIR"
+      ls -la "$REPORT_DIR" 2>/dev/null || echo "Report dir not found"
+    displayName: "Generate Allure Report"
+    condition: always()
+
+  - script: |
+      echo "Verifying report directories before publish..."
+      echo "Results Dir: $(allureResultsDir)"
+      echo "Report Dir: $(allureReportDir)"
+      ls -la $(allureResultsDir) 2>/dev/null || echo "Results dir not found"
+      ls -la $(allureReportDir) 2>/dev/null || echo "Report dir not found"
+    displayName: "Verify Report Paths"
+    condition: always()
+
+  # - script: |
+  #     echo "SonarQube analysis commented out"
+  #     # sonar-scanner command would go here
+  #   displayName: "Run SonarQube Analysis"
+  #   condition: succeededOrFailed()
+
+  - script: |
+      echo "Pushing test metrics to InfluxDB..."
+      export ALLURE_RESULTS_DIR="$(allureResultsDir)"
+      export ENVIRONMENT="$(environment)"
+      export BUILD_ID="$(Build.BuildId)"
+      export BUILD_REASON="$(Build.Reason)"
+      export INFLUXDB_URL="http://azncc03perf.corp.local:8086"
+      export INFLUXDB_ORG="MF"
+      export INFLUXDB_BUCKET="AutomationData"
+      export INFLUXDB_TOKEN="g5gf0ukY8fPdwaWynLviDLd0wz1l5snomLbip3t2IrQkeNNkiEFYECEHlcJLwsAPvv2Gx-op4ho6QcpVsCpdGQ=="
+      export PROJECT_NAME="ModelManagement_SMI"
+
+      python utils/influx_reporter.py
+    displayName: "Push Metrics to InfluxDB"
+    condition: always()
+    continueOnError: true
+    workingDirectory: $(Build.SourcesDirectory)/applicationqe
+
+  - script: |
+      echo "Pushing test metrics to Azure Log Analytics..."
+      export ALLURE_RESULTS_DIR="$(allureResultsDir)"
+      export ENVIRONMENT="$(environment)"
+      export BUILD_ID="$(Build.BuildId)"
+      export BUILD_REASON="$(Build.Reason)"
+      export PROJECT_NAME="ModelManagement_SMI"
+
+      python utils/azure_analytics_reporter.py
+    displayName: "Push Metrics to Azure Log Analytics"
+    condition: always()
+    continueOnError: true
+    workingDirectory: $(Build.SourcesDirectory)/applicationqe
+    env:
+      AZURE_LOG_WORKSPACE_ID: $(logAnalyticsWorkspaceId)
+      AZURE_LOG_SHARED_KEY: $(logAnalyticsSharedKey)
+
+  - task: PublishBuildArtifacts@1
+    displayName: "Publish Test Results Directory"
+    inputs:
+      PathtoPublish: '$(testResultsDir)'
+      ArtifactName: 'TestResults'
+      publishLocation: 'Container'
+    condition: always()
+    continueOnError: true
+
+  - task: PublishTestResults@2
+    displayName: "Publish JUnit Test Results to Azure Pipelines"
+    inputs:
+      testResultsFormat: 'JUnit'
+      testResultsFiles: '$(testResultsDir)/junit/junit-report.xml'
+      mergeTestResults: true
+      failTaskOnFailedTests: false
+      publishRunAttachments: true
+    condition: always()
+    continueOnError: true
+
+  - script: |
+      echo "✓ Test Execution Complete"
+      echo "Reports are available in the build artifacts:"
+      echo "  - Pytest HTML Report: PytestReport"
+      echo "  - Allure Report: AllureReport"
+      echo "  - Allure Results Data: AllureResults"
+      echo "  - Test Results Directory: TestResults"
+      echo "  - Auto-Healing Report: AutoHealingReport"
+      echo "  - Test Results: Available in the Tests tab of this pipeline"
+    displayName: "Print Test Report Summary"
+    condition: always()
+
+stages:
+  - template: templates/wrappermodel.yml
+    parameters:
+      stageName: MODEL_MANAGEMENT
+      teamDisplay: Model Management
+      featurePath: tests/features/model-management/WrapperModel
