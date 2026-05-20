@@ -454,15 +454,16 @@ jobs:
       export ENVIRONMENT="$(environment)"
       export BUILD_ID="$(Build.BuildId)"
       export BUILD_REASON="$(Build.Reason)"
-      export AZURE_LOG_WORKSPACE_ID="$(logAnalyticsWorkspaceId)"
-      export AZURE_LOG_SHARED_KEY="$(logAnalyticsSharedKey)"
       export PROJECT_NAME="ModelManagement_SMI"
-  
+
       python utils/azure_analytics_reporter.py
     displayName: "Push Metrics to Azure Log Analytics"
     condition: always()
     continueOnError: true
     workingDirectory: $(Build.SourcesDirectory)/applicationqe
+    env:
+      AZURE_LOG_WORKSPACE_ID: $(logAnalyticsWorkspaceId)
+      AZURE_LOG_SHARED_KEY: $(logAnalyticsSharedKey)
 
   - task: PublishBuildArtifacts@1
     displayName: "Publish Test Results Directory"
