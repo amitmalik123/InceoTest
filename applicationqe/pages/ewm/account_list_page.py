@@ -106,37 +106,84 @@ class AccountListPage(BasePage):
             self.page.screenshot(path=f"reports/account_list_failed_{client_id}.png")
             raise Exception(f"Unable to search for client {client_id} - all strategies failed")
 
+    def search_account(self, account_number: str) -> None:
+        """Fill the search input with account_number and click GO. Used by ICT steps."""
+        logger.info(f"Searching for account number: {account_number}")
+        self.page.wait_for_load_state('networkidle', timeout=30000)
+        search_input = self.page.locator(
+            "input#client_search_input, input[id*='client_search_input'], "
+            "input[name*='search'], input[placeholder*='Search']"
+        ).first
+        search_input.fill(account_number)
+        go_button = self.page.locator("#searchbutton").first
+        go_button.click()
+        logger.info(f"GO clicked — searching for: {account_number}")
+        # Wait for any Kendo grid loading mask to appear then disappear
+        try:
+            self.page.wait_for_selector('.k-loading-mask', state='visible', timeout=5000)
+            logger.info("Grid loading mask appeared")
+            self.page.wait_for_selector('.k-loading-mask', state='hidden', timeout=30000)
+            logger.info("Grid loading mask disappeared — results ready")
+        except Exception:
+            # No loading mask (fast response or different indicator), fall back to networkidle
+            self.page.wait_for_load_state('networkidle', timeout=30000)
+            logger.info("Search results loaded (networkidle)")
+        # Diagnostic: log iframes present and save screenshot
+        try:
+            frames = self.page.frames
+            logger.info(f"Frames on page after search: {[f.url for f in frames]}")
+            self.page.screenshot(path="reports/account_list_after_search.png")
+            logger.info("Screenshot saved: reports/account_list_after_search.png")
+        except Exception as diag_e:
+            logger.warning(f"Diagnostic info failed: {diag_e}")
+
     def select_account(self, account_name: str, client_id: str = None) -> None:
         logger.info(f"Selecting account: {account_name} (Client ID: {client_id})")
-        
-        # Strategy 1: Try to find by both account name and client ID in the same row
-        if client_id:
+
+        # Try on each frame (main page + any iframes)
+        frames_to_try = [self.page] + list(self.page.frames)
+        logger.info(f"Will search across {len(frames_to_try)} frame(s)")
+
+        for frame_idx, frame in enumerate(frames_to_try):
+            frame_url = getattr(frame, 'url', 'main')
+            logger.info(f"Trying frame {frame_idx}: {frame_url}")
+
+            # Strategy A: link with account name
             try:
-                # Find the row that contains the client ID
-                row = self.page.locator(f"tr:has-text('{client_id}')")
-                logger.info(f"Found row with client ID: {client_id}")
-                
-                # Within that row, click the cell with the account name
-                account_cell = row.locator(f"td:has-text('{account_name}')").first
-                account_cell.click()
-                logger.info(f"{account_name} account selected from client {client_id} row")
+                el = frame.locator(f"a:has-text('{account_name}')").first
+                el.wait_for(state='visible', timeout=5000)
+                el.click()
+                logger.info(f"Account selected via link in frame {frame_idx}")
                 return
-            except Exception as e:
-                logger.warning(f"Strategy 1 failed: {e}. Trying alternative approach.")
-        
-        # Strategy 2: Fallback - use role gridcell with account name
+            except Exception:
+                pass
+
+            # Strategy B: td cell with account name
+            try:
+                el = frame.locator(f"td:has-text('{account_name}')").first
+                el.wait_for(state='visible', timeout=5000)
+                el.click()
+                logger.info(f"Account selected via td in frame {frame_idx}")
+                return
+            except Exception:
+                pass
+
+            # Strategy C: any element with the text
+            try:
+                el = frame.get_by_text(account_name, exact=False).first
+                el.wait_for(state='visible', timeout=5000)
+                el.click()
+                logger.info(f"Account selected via text match in frame {frame_idx}")
+                return
+            except Exception:
+                pass
+
+        # Last resort: log page content snippet for debugging
         try:
-            logger.info("Strategy 2: Using role gridcell selector")
-            account_cell = self.page.get_by_role("gridcell", name=account_name).first
-            account_cell.click()
-            logger.info(f"{account_name} account selected using gridcell role")
-            return
-        except Exception as e:
-            logger.warning(f"Strategy 2 failed: {e}. Trying final approach.")
-        
-        # Strategy 3: Final fallback - get first occurrence
-        logger.info("Strategy 3: Using first occurrence of account name")
-        account_cell = self.page.get_by_text(account_name).first
-        account_cell.click()
-        logger.info(f"{account_name} account selected (first occurrence)")
+            content_snippet = self.page.content()[:3000]
+            logger.error(f"Could not find account. Page content snippet:\n{content_snippet}")
+        except Exception:
+            pass
+
+        raise Exception(f"Could not find and click account '{account_name}' in any frame")
 

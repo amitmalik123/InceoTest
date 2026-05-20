@@ -24,7 +24,8 @@ class Settings:
         if explicit_config:
             self.config_path = Path(explicit_config)
         else:
-            team_config = repo_root / "config" / "stp" / "stp-journals" / f"env.{env}.yaml"
+            team = os.getenv("TEST_TEAM", "stp-journals")
+            team_config = repo_root / "config" / "stp" / team / f"env.{env}.yaml"
             root_config = repo_root / "config" / f"env.{env}.yaml"
             self.config_path = team_config if team_config.exists() else root_config
         self.config = self._load_config()

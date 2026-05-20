@@ -19,6 +19,7 @@ class AccountDetailPage(BasePage):
         # Use specific ID to avoid ambiguity with the header
         self.roth_ira_conversion_list_item: Locator = page.locator('#lstSubCategory5')
         self.next_button: Locator = page.get_by_role('button', name='Next')
+        self.change_investment_link: Locator = page.get_by_text('Change Investments')
 
     def navigate(self) -> None:
         logger.info(f"Navigating to account detail page: {self.PAGE_URL}")
@@ -26,10 +27,22 @@ class AccountDetailPage(BasePage):
         self.account_wizard_link.wait_for(state='visible', timeout=15000)
         logger.info("Account detail page loaded, Account Wizard link visible")
 
+    def wait_for_account_detail_loaded(self) -> None:
+        logger.info("Waiting for Account Detail page to load")
+        self.page.wait_for_load_state('networkidle', timeout=30000)
+        if 'AccountsAnalysis/Clients/AccountDetail' not in self.page.url:
+            raise Exception(f"Expected Account Detail page URL, but got: {self.page.url}")
+        self.account_wizard_link.wait_for(state='visible', timeout=15000)
+        logger.info("Account Detail page verified")
+
     def click_account_wizard(self) -> None:
         logger.info("Clicking Account Wizard button on account detail page")
         self.account_wizard_link.click()
-        logger.info("Account Wizard button clicked")
+        try:
+            self.change_investment_link.wait_for(state='visible', timeout=15000)
+        except Exception:
+            self.page.wait_for_load_state('networkidle', timeout=30000)
+        logger.info("Account Wizard button clicked and next screen is ready")
 
     def select_funded_radio(self) -> None:
         logger.info("Selecting Funded radio button")
@@ -50,4 +63,9 @@ class AccountDetailPage(BasePage):
         logger.info("Clicking Next button")
         self.next_button.click()
         logger.info("Next button clicked")
+
+    def click_change_investment(self) -> None:
+        logger.info("Clicking Change Investments link")
+        self.change_investment_link.click()
+        logger.info("Change Investments clicked")
 
