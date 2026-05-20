@@ -232,11 +232,7 @@ jobs:
       pip --version
       echo "Installing Python dependencies..."
       python -m pip install --upgrade pip setuptools wheel
-<<<<<<< Updated upstream
-      pip install -e .
-=======
       pip install -e $(Build.SourcesDirectory)/applicationqe
->>>>>>> Stashed changes
     displayName: "Install Python Dependencies"
 
   - script: |
