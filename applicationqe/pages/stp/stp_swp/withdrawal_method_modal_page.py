@@ -8,6 +8,7 @@ during withdrawal request flow when SLOA options are available.
 from playwright.sync_api import FrameLocator, Locator, Page
 
 from pages.stp.shared.base_page import BasePage
+from pages.stp.stp_swp.locators.withdrawal_method_modal_locators import WithdrawalMethodModalLocators
 from utils.logger import setup_logger
 
 logger = setup_logger(__name__)
@@ -18,26 +19,27 @@ class WithdrawalMethodModalPage(BasePage):
     
     def __init__(self, page: Page, frame: FrameLocator = None):
         super().__init__(page)
+        loc = WithdrawalMethodModalLocators
         
         # Get the iframe context if not provided
         if frame is None:
-            self.frame = page.frame_locator("#esig_iframe")
+            self.frame = page.frame_locator(loc.IFRAME)
         else:
             self.frame = frame
         
         # Modal header
-        self.modal_header = self.frame.locator("//div[@class='modal-title-transition' and text()='Withdrawal Method']")
+        self.modal_header = self.frame.locator(loc.MODAL_HEADER)
         
         # Radio buttons for withdrawal methods
-        self.ach_radio = self.frame.locator("#rbAch")
-        self.wire_radio = self.frame.locator("#rbWire")
-        self.check_radio = self.frame.locator("#rbCheck")
+        self.ach_radio = self.frame.locator(loc.ACH_RADIO)
+        self.wire_radio = self.frame.locator(loc.WIRE_RADIO)
+        self.check_radio = self.frame.locator(loc.CHECK_RADIO)
         
         # Continue button
-        self.continue_button = self.frame.locator("#btnContinue")
+        self.continue_button = self.frame.locator(loc.CONTINUE_BUTTON)
         
         # Selected instructions table
-        self.selected_instructions_table = self.frame.locator("//span[@class='checked']//parent::div//following-sibling::table")
+        self.selected_instructions_table = self.frame.locator(loc.SELECTED_INSTRUCTIONS_TABLE)
     
     def wait_for_modal_visible(self, timeout: int = 20000):
         """Wait for withdrawal method modal to be visible"""

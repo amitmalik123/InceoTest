@@ -2,6 +2,7 @@ from typing import Union
 from playwright.sync_api import Locator, Page, FrameLocator
 
 from pages.stp.shared.base_page import BasePage
+from pages.stp.stp_manageBene.locators.manage_bene_locators import ManageBeneLocators
 from utils.allure_logger import get_allure_logger
 
 logger = get_allure_logger(__name__)
@@ -12,26 +13,25 @@ class ManageBenePage(BasePage):
 
     def __init__(self, context: Union[Page, FrameLocator]):
         super().__init__(context)
+        loc = ManageBeneLocators
         # Use specific ID to avoid ambiguity with the main menu Account Wizard link
-        self.account_wizard_link: Locator = context.locator("#clientDetailAccountDetailAnchor")
-        self.funded_radio_input: Locator = context.locator(
-            "input#ctl00_cphContentArea_rdlAccountList_1[type='radio']"
-        )
+        self.account_wizard_link: Locator = context.locator(loc.ACCOUNT_WIZARD_LINK)
+        self.funded_radio_input: Locator = context.locator(loc.FUNDED_RADIO_INPUT)
         self.move_assets_between_accounts_list_item: Locator = context.get_by_text(
-            "Move Assets Between Accounts"
+            loc.MOVE_ASSETS_TEXT
         )
         # Use specific ID to avoid ambiguity with the header
-        self.roth_ira_conversion_list_item: Locator = context.locator("#lstSubCategory5")
-        self.next_button: Locator = context.get_by_role("button", name="Next")
-        self.manage_account_button = context.locator("div.actionButtons").get_by_role("button", name="Manage Account")
-        self.manage_beneficiaries_link: Locator = context.locator("#ctl00_cphContentArea_lnkManageBeneficiary")
+        self.roth_ira_conversion_list_item: Locator = context.locator(loc.ROTH_IRA_CONVERSION)
+        self.next_button: Locator = context.get_by_role("button", name=loc.NEXT_BUTTON)
+        self.manage_account_button = context.locator(loc.MANAGE_ACCOUNT_CONTAINER).get_by_role("button", name=loc.MANAGE_ACCOUNT_BUTTON)
+        self.manage_beneficiaries_link: Locator = context.locator(loc.MANAGE_BENEFICIARIES_LINK)
         
         # ==================== Beneficiary Card List ====================
-        self.beneficiary_cards: Locator = context.locator("div.MuiCard-root:has(p.MuiTypography-body1)")
-        self.first_beneficiary_card: Locator = context.locator("div.MuiCard-root:has(p.MuiTypography-body1)").first
-        self.first_beneficiary_name: Locator = context.locator("div.MuiCard-root:has(p.MuiTypography-body1) p.MuiTypography-body1").first
-        self.first_beneficiary_ssn: Locator = context.locator("div.MuiCard-root:has(p.MuiTypography-body1) p.MuiTypography-body1").nth(1)
-        self.beneficiary_card_expand_button: Locator = context.locator("div.MuiCard-root svg.MuiSvgIcon-root").first
+        self.beneficiary_cards: Locator = context.locator(loc.BENEFICIARY_CARDS)
+        self.first_beneficiary_card: Locator = context.locator(loc.FIRST_BENEFICIARY_CARD).first
+        self.first_beneficiary_name: Locator = context.locator(loc.FIRST_BENEFICIARY_NAME).first
+        self.first_beneficiary_ssn: Locator = context.locator(loc.FIRST_BENEFICIARY_SSN).nth(1)
+        self.beneficiary_card_expand_button: Locator = context.locator(loc.BENEFICIARY_CARD_EXPAND_BUTTON).first
 
 
     def navigate(self) -> None:

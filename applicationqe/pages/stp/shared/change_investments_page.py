@@ -13,6 +13,7 @@ DOM evidence captured on 2026-02-26 from test11 environment.
 from playwright.sync_api import Locator, Page
 
 from pages.stp.shared.base_page import BasePage
+from pages.stp.shared.locators.change_investments_locators import ChangeInvestmentsLocators
 from utils.allure_logger import get_allure_logger
 
 logger = get_allure_logger(__name__)
@@ -25,52 +26,51 @@ class ChangeInvestmentsPage(BasePage):
 
     def __init__(self, page: Page, base_url: str = ""):
         super().__init__(page, base_url=base_url)
+        loc = ChangeInvestmentsLocators
 
         # -- Holdings page: Account Wizard link --
         # Two "Account Wizard" links exist (nav menu + account detail).
         # Use the specific account-detail one via CSS ID.
-        self.account_wizard_link: Locator = page.locator("#clientDetailAccountDetailAnchor")
+        self.account_wizard_link: Locator = page.locator(loc.ACCOUNT_WIZARD_LINK)
 
         # -- Account Wizard page: Client Management section --
         self.change_investments_link: Locator = page.get_by_role(
-            "link", name="Change Investments", exact=True
+            "link", name=loc.CHANGE_INVESTMENTS_LINK, exact=True
         )
         # alt: page.locator("#ctl00_cphContentArea_lnkChangeInvestments")
 
         # -- ICT Source Account page (/ISCT/AcctSelection/SelectAccount) --
-        self.next_button: Locator = page.get_by_role("button", name="Next")
+        self.next_button: Locator = page.get_by_role("button", name=loc.NEXT_BUTTON)
         # alt: page.locator("#nextButton")
-        self.back_button: Locator = page.get_by_role("button", name="Back")
+        self.back_button: Locator = page.get_by_role("button", name=loc.BACK_BUTTON)
         # alt: page.locator("#backButton")
 
         # Investment-action modal (#InvestmentActionModal)
-        self.investment_action_modal: Locator = page.locator("#InvestmentActionModal")
+        self.investment_action_modal: Locator = page.locator(loc.INVESTMENT_ACTION_MODAL)
         self.radio_destination_investment: Locator = page.locator(
-            "input[name='action'][value='DestinationInvestment']"
+            loc.RADIO_DESTINATION_INVESTMENT
         )
         self.radio_modify_allocations: Locator = page.locator(
-            "input[name='action'][value='ModifyAllocations']"
+            loc.RADIO_MODIFY_ALLOCATIONS
         )
         self.modal_ok_button: Locator = self.investment_action_modal.get_by_role(
-            "button", name="OK"
+            "button", name=loc.MODAL_OK_BUTTON
         )
         # alt: page.locator("#InvestmentActionModal .btn-transition-primary")
         self.modal_cancel_button: Locator = self.investment_action_modal.get_by_role(
-            "button", name="Cancel"
+            "button", name=loc.MODAL_CANCEL_BUTTON
         )
 
         # -- ICT wizard step-tabs --
         self.step_investment_selection: Locator = page.get_by_text(
-            "Investment Selection", exact=True
+            loc.STEP_INVESTMENT_SELECTION, exact=True
         )
         # alt: page.locator("span.ictLink[data-href='/ISCT/ModifyInvestment']")
-        self.step_account_number: Locator = page.get_by_text("Account Number", exact=True)
+        self.step_account_number: Locator = page.get_by_text(loc.STEP_ACCOUNT_NUMBER, exact=True)
         # alt: page.locator("span.ictLink[data-href='/ISCT/AcctNumber']")
 
         # -- Completion modal --
-        self.completion_modal: Locator = page.locator(
-            "#eSigConfirmModal, .modal:has-text('Investment Change Completed')"
-        )
+        self.completion_modal: Locator = page.locator(loc.COMPLETION_MODAL)
 
     # ------------------------------------------------------------------
     # Navigation / Holdings

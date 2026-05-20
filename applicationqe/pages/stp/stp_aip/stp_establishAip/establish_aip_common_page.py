@@ -5,6 +5,7 @@ Establish AIP Common Page Object - Shared functionality across Establish AIP pag
 from typing import List
 from playwright.sync_api import Locator, Page
 from pages.stp.shared.base_page import BasePage
+from pages.stp.stp_aip.stp_establishAip.locators.establish_aip_common_locators import EstablishAIPCommonLocators
 from utils.allure_logger import get_allure_logger
 
 logger = get_allure_logger(__name__)
@@ -17,12 +18,13 @@ class EstablishAIPCommonPage(BasePage):
     
     def __init__(self, page: Page):
         super().__init__(page)
+        loc = EstablishAIPCommonLocators
         
         # Bottom hyperlinks
-        self.privacy_security_link = page.locator("//div[text()='Privacy and Security Policy']")
-        self.terms_of_use_link = page.locator("//div[text()='Terms of Use']")
-        self.supported_browsers_link = page.locator("//div[text()='Supported Browsers']")
-        self.bottom_hyperlinks_container = page.locator("//div[text()='Privacy and Security Policy']//parent::div//div")
+        self.privacy_security_link = page.locator(loc.PRIVACY_SECURITY_LINK)
+        self.terms_of_use_link = page.locator(loc.TERMS_OF_USE_LINK)
+        self.supported_browsers_link = page.locator(loc.SUPPORTED_BROWSERS_LINK)
+        self.bottom_hyperlinks_container = page.locator(loc.BOTTOM_HYPERLINKS_CONTAINER)
     
     def get_bottom_hyperlinks(self) -> List:
         """Get all bottom hyperlinks"""

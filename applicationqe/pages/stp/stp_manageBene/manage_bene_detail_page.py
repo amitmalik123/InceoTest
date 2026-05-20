@@ -2,6 +2,7 @@ from typing import Union, List, Optional
 from playwright.sync_api import Locator, Page, FrameLocator, expect
 
 from pages.stp.shared.base_page import BasePage
+from pages.stp.stp_manageBene.locators.manage_bene_detail_locators import ManageBeneDetailLocators
 from utils.allure_logger import get_allure_logger
 
 logger = get_allure_logger(__name__)
@@ -15,29 +16,28 @@ class ManageBeneDetailPage(BasePage):
 
     def __init__(self, context: Union[Page, FrameLocator]):
         super().__init__(context)
+        loc = ManageBeneDetailLocators
         
-        self.beneficiaries_section = context.locator("button:has-text('Manage Beneficiaries')")
-        self.add_beneficiary_button: Locator = context.locator("button[aria-label='Add']")
-        self.notification_locator: Locator = context.locator('div[role="alert"]')
+        self.beneficiaries_section = context.locator(loc.BENEFICIARIES_SECTION)
+        self.add_beneficiary_button: Locator = context.locator(loc.ADD_BENEFICIARY_BUTTON)
+        self.notification_locator: Locator = context.locator(loc.NOTIFICATION_LOCATOR)
         
-        self.account_holder_heading: Locator = context.locator("//div[contains(@class,'MuiBox-root')]//h1[contains(@class,'MuiTypography-h5')]")
+        self.account_holder_heading: Locator = context.locator(loc.ACCOUNT_HOLDER_HEADING)
         
-        self.account_cards: Locator = context.locator("div.MuiCard-root")
-        self.contingent_empty_state: Locator = context.locator(
-            "//span[normalize-space(text())='Contingent']/ancestor::div[contains(@class,'MuiBox-root')]/following-sibling::div//span[contains(@class,'MuiTypography-emptyStateText')]"
-        )
-        self.account_card_title: Locator = context.locator("span.MuiTypography-h5.MuiCardHeader-title")
-        self.primary_beneficiary_name: Locator = context.locator("span.MuiTypography-cardTextPrimary")
+        self.account_cards: Locator = context.locator(loc.ACCOUNT_CARDS)
+        self.contingent_empty_state: Locator = context.locator(loc.CONTINGENT_EMPTY_STATE)
+        self.account_card_title: Locator = context.locator(loc.ACCOUNT_CARD_TITLE)
+        self.primary_beneficiary_name: Locator = context.locator(loc.PRIMARY_BENEFICIARY_NAME)
         
-        self.contingent_empty: Locator = context.locator("//span[contains(text(),'No contingent beneficiaries')]")
-        self.account_title_with_contingent_empty: Locator = context.locator("//span[contains(text(),'No contingent beneficiaries')]/../../../../..//div/span[contains(text(),'Cleve')]")
-        self.beneficiary_cards: Locator = context.locator("span.MuiTypography-cardTextPrimary")
+        self.contingent_empty: Locator = context.locator(loc.CONTINGENT_EMPTY)
+        self.account_title_with_contingent_empty: Locator = context.locator(loc.ACCOUNT_TITLE_WITH_CONTINGENT_EMPTY)
+        self.beneficiary_cards: Locator = context.locator(loc.BENEFICIARY_CARDS)
         
-        self.signature_options_section: Locator = context.locator("span.MuiTypography-h5:has-text('Signature Options')")
-        self.electronic_signature_radio: Locator = context.locator("input[type='radio'][value='Obtain Electronic Client Signature(s)']")
-        self.physical_signature_radio: Locator = context.locator("input[type='radio'][value='Print to Obtain Physical Client Signature(s)']")
-        self.continue_to_esignature_button: Locator = context.locator("button:has-text('Continue to e-Signature Details')")
-        self.continue_to_review_button: Locator = context.locator("button:has-text('Continue to Review')")
+        self.signature_options_section: Locator = context.locator(loc.SIGNATURE_OPTIONS_SECTION)
+        self.electronic_signature_radio: Locator = context.locator(loc.ELECTRONIC_SIGNATURE_RADIO)
+        self.physical_signature_radio: Locator = context.locator(loc.PHYSICAL_SIGNATURE_RADIO)
+        self.continue_to_esignature_button: Locator = context.locator(loc.CONTINUE_TO_ESIGNATURE_BUTTON)
+        self.continue_to_review_button: Locator = context.locator(loc.CONTINUE_TO_REVIEW_BUTTON)
 
     def wait_for_page_load(self) -> None:
         """Wait for the Manage Beneficiaries page to load."""

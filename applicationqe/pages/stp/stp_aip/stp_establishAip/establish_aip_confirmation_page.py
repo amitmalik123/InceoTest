@@ -4,6 +4,7 @@ Establish AIP Confirmation Page Object
 
 from playwright.sync_api import Locator, Page
 from pages.stp.shared.base_page import BasePage
+from pages.stp.stp_aip.stp_establishAip.locators.establish_aip_confirmation_locators import EstablishAIPConfirmationLocators
 from utils.allure_logger import get_allure_logger
 
 logger = get_allure_logger(__name__)
@@ -16,44 +17,45 @@ class EstablishAIPConfirmationPage(BasePage):
     
     def __init__(self, page: Page, page_verification: bool = True):
         super().__init__(page)
+        loc = EstablishAIPConfirmationLocators
         
         # Submission modal
-        self.submission_modal = page.locator("//span[@data-testid='Loader-Header-Text' and contains(text(),'Your submission is in progress')]")
+        self.submission_modal = page.locator(loc.SUBMISSION_MODAL)
         
         # Success banner
-        self.success_banner = page.locator("//span[@data-testid='submitted_successfully']")
+        self.success_banner = page.locator(loc.SUCCESS_BANNER)
         
         # Request Summary section
-        self.request_summary_header = page.locator("//h3[@aria-label='confirmation-screen-table-title' and text()='Request Summary']")
-        self.status_label = page.locator("//h3[@aria-label='status-label-banner']")
-        self.status_value = page.locator("//span[@aria-label='status-value']")
-        self.submission_datetime_label = page.locator("//h3[@aria-label='submission-time-label']")
-        self.submission_datetime_value = page.locator("//span[@aria-label='submission-time-value']")
-        self.submitted_by_label = page.locator("//h3[@aria-label='submitted-by-label']")
-        self.submitted_by_value = page.locator("//span[@aria-label='submitted-by-value']")
-        self.item_number_label = page.locator("//h3[@aria-label='a-item-label']")
-        self.item_number_value = page.locator("//a[@aria-label='a-item-value']")
+        self.request_summary_header = page.locator(loc.REQUEST_SUMMARY_HEADER)
+        self.status_label = page.locator(loc.STATUS_LABEL)
+        self.status_value = page.locator(loc.STATUS_VALUE)
+        self.submission_datetime_label = page.locator(loc.SUBMISSION_DATETIME_LABEL)
+        self.submission_datetime_value = page.locator(loc.SUBMISSION_DATETIME_VALUE)
+        self.submitted_by_label = page.locator(loc.SUBMITTED_BY_LABEL)
+        self.submitted_by_value = page.locator(loc.SUBMITTED_BY_VALUE)
+        self.item_number_label = page.locator(loc.ITEM_NUMBER_LABEL)
+        self.item_number_value = page.locator(loc.ITEM_NUMBER_VALUE)
         
         # Request Details section
-        self.request_details_header = page.locator("//h3[@aria-label='confirmation-screen-table-title' and text()='Request Details']")
-        self.request_type_value = page.locator("//div[text()='Request Type']/ancestor::div[@class='sc-bkSUFG cgfiCj']/div[@class='sc-fAGzit kDocXN']")
-        self.delivery_method_value = page.locator("//div[text()='Delivery Method']/ancestor::div[@class='sc-bkSUFG cgfiCj']/div[@class='sc-fAGzit kDocXN']")
-        self.origination_value = page.locator("//div[text()='Origination']/ancestor::div[@class='sc-bkSUFG cgfiCj']/div[@class='sc-fAGzit kDocXN']")
-        self.frequency_value = page.locator("//div[text()='Frequency']/ancestor::div[@class='sc-bkSUFG cgfiCj']/div[@class='sc-fAGzit kDocXN']")
-        self.amount_value = page.locator("//div[text()='Amount']/ancestor::div[@class='sc-bkSUFG cgfiCj']/div[@class='sc-fAGzit kDocXN']")
-        self.start_date_value = page.locator("//div[text()='Start Date']/ancestor::div[@class='sc-bkSUFG cgfiCj']/div[@class='sc-fAGzit kDocXN']")
-        self.end_date_value = page.locator("//div[text()='End Date']/ancestor::div[@class='sc-bkSUFG cgfiCj']/div[@class='sc-fAGzit kDocXN']")
+        self.request_details_header = page.locator(loc.REQUEST_DETAILS_HEADER)
+        self.request_type_value = page.locator(loc.REQUEST_TYPE_VALUE)
+        self.delivery_method_value = page.locator(loc.DELIVERY_METHOD_VALUE)
+        self.origination_value = page.locator(loc.ORIGINATION_VALUE)
+        self.frequency_value = page.locator(loc.FREQUENCY_VALUE)
+        self.amount_value = page.locator(loc.AMOUNT_VALUE)
+        self.start_date_value = page.locator(loc.START_DATE_VALUE)
+        self.end_date_value = page.locator(loc.END_DATE_VALUE)
         
         # Account Information
-        self.account_info_label = page.locator("//span[text()='Account Information']")
-        self.account_info_text = page.locator("//span[text()='Account Information']/following-sibling::div")
+        self.account_info_label = page.locator(loc.ACCOUNT_INFO_LABEL)
+        self.account_info_text = page.locator(loc.ACCOUNT_INFO_TEXT)
         
         # Close button
-        self.close_button = page.locator("//button[contains(@class,'MuiButton-containedPrimary') and normalize-space()='Close']")
+        self.close_button = page.locator(loc.CLOSE_BUTTON)
         
         # Loading indicators
-        self.spinner_loading = page.locator("div[class='App']>div>div>div>span")
-        self.loading_overlay = page.locator("//div[contains(@class,'loading')]")
+        self.spinner_loading = page.locator(loc.SPINNER_LOADING)
+        self.loading_overlay = page.locator(loc.LOADING_OVERLAY)
         
         # Wait for submission modal to disappear first
         self.wait_for_submission_modal_to_disappear()

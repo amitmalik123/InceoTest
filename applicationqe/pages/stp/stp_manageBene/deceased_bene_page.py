@@ -3,6 +3,7 @@ from typing import Union
 from playwright.sync_api import Locator, Page, FrameLocator
 
 from pages.stp.shared.base_page import BasePage
+from pages.stp.stp_manageBene.locators.deceased_bene_locators import DeceasedBeneLocators
 from utils.allure_logger import get_allure_logger
 
 logger = get_allure_logger(__name__)
@@ -22,26 +23,18 @@ class DeceasedBenePage(BasePage):
 
     def __init__(self, context: Union[Page, FrameLocator]):
         super().__init__(context)
+        loc = DeceasedBeneLocators
 
         # ── Warning banner ────────────────────────────────────────────────────
-        self.not_eligible_banner: Locator = context.locator(
-            "p.MuiTypography-body1:has-text('Deceased Account(s) Not Eligible')"
-        )
-        self.not_eligible_banner_subtext: Locator = context.locator(
-            "p.MuiTypography-body1:has-text('Please contact your Relationship Manager')"
-        )
+        self.not_eligible_banner: Locator = context.locator(loc.NOT_ELIGIBLE_BANNER)
+        self.not_eligible_banner_subtext: Locator = context.locator(loc.NOT_ELIGIBLE_BANNER_SUBTEXT)
 
         # ── Account card ──────────────────────────────────────────────────────
-        # The card that holds the deceased account holder name + (Deceased) span
-        self.deceased_account_card: Locator = context.locator(
-            ".MuiCard-root:has(span:has-text('Deceased'))"
-        )
+        self.deceased_account_card: Locator = context.locator(loc.DECEASED_ACCOUNT_CARD)
         # "(Deceased)" label inside the card
-        self.deceased_label: Locator = context.locator("span:has-text('(Deceased)')")
+        self.deceased_label: Locator = context.locator(loc.DECEASED_LABEL)
         # "Not Eligible" chip on the card
-        self.not_eligible_chip: Locator = context.locator(
-            ".MuiChip-root:has(.MuiChip-label:has-text('Not Eligible'))"
-        )
+        self.not_eligible_chip: Locator = context.locator(loc.NOT_ELIGIBLE_CHIP)
 
     # ── Verification helpers ──────────────────────────────────────────────────
 

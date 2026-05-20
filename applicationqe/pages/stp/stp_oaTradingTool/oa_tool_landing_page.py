@@ -1,5 +1,6 @@
 from playwright.sync_api import Page
 from pages.stp.shared.base_page import BasePage
+from pages.stp.stp_oaTradingTool.locators.oa_tool_landing_locators import OAToolLandingLocators
 from utils.logger import setup_logger
 
 logger = setup_logger(__name__)
@@ -10,36 +11,37 @@ class OAToolLandingPage(BasePage):
     
     def __init__(self, page: Page, page_verification: bool = True):
         super().__init__(page)
+        loc = OAToolLandingLocators
         
         # Account Information
-        self.client_household = page.locator("//span[text()='Account Information']//parent::div//parent::div/following-sibling::div/child::div")
-        self.market_value_amount = page.locator("//span[text()='Market Value']/parent::div//following-sibling::span")
-        self.cash_available_amount = page.locator("//span[text()='Cash Available']/parent::div//following-sibling::span")
-        self.restricted_cash_amount = page.locator("//span[text()='Restricted Cash']/parent::div//following-sibling::span")
+        self.client_household = page.locator(loc.CLIENT_HOUSEHOLD)
+        self.market_value_amount = page.locator(loc.MARKET_VALUE_AMOUNT)
+        self.cash_available_amount = page.locator(loc.CASH_AVAILABLE_AMOUNT)
+        self.restricted_cash_amount = page.locator(loc.RESTRICTED_CASH_AMOUNT)
         
         # Info icons
-        self.market_value_info_icon = page.locator("//span[text()='Market Value']/following-sibling::button")
-        self.cash_available_info_icon = page.locator("//span[text()='Cash Available']/following-sibling::button")
-        self.restricted_cash_info_icon = page.locator("//span[text()='Restricted Cash']/following-sibling::button")
+        self.market_value_info_icon = page.locator(loc.MARKET_VALUE_INFO_ICON)
+        self.cash_available_info_icon = page.locator(loc.CASH_AVAILABLE_INFO_ICON)
+        self.restricted_cash_info_icon = page.locator(loc.RESTRICTED_CASH_INFO_ICON)
         
         # Info popups
-        self.market_value_info_popup = page.locator("(//span[text()='Market Value']/parent::div/parent::div/parent::div)[1]")
-        self.cash_available_info_popup = page.locator("(//span[text()='Cash Available']/parent::div/parent::div/parent::div)[1]")
-        self.restricted_cash_info_popup = page.locator("(//span[text()='Restricted Cash']/parent::div/parent::div/parent::div)[1]")
+        self.market_value_info_popup = page.locator(loc.MARKET_VALUE_INFO_POPUP)
+        self.cash_available_info_popup = page.locator(loc.CASH_AVAILABLE_INFO_POPUP)
+        self.restricted_cash_info_popup = page.locator(loc.RESTRICTED_CASH_INFO_POPUP)
         
         # Other elements
-        self.request_type_container = page.locator("//div[@id='request-type-container']")
-        self.advisor_id = page.locator("//p[contains(text(),'Advisor ID')] | //div[contains(text(),'Advisor ID')]")
-        self.disabled_radio_buttons1 = page.locator("(//button[@tabindex='-1'])[1]")
-        self.disabled_radio_buttons2 = page.locator("(//button[@tabindex='-1'])[2]")
-        self.next_button = page.locator("//span[text()='Next']")
-        self.button_otw = page.locator("//p[contains(text(),'One Time Withdrawal')]")
-        self.bottom_hyperlinks = page.locator("(//div[contains(text(),'Privacy and Security')] //parent::div//div) | (//p[contains(text(),'Privacy and Security')] //parent::a/parent::div//child::a)")
-        self.assetmark_bottom_heading = page.locator("p[class*='Copyright-module__desktopText']")
-        self.assetmark_image = page.locator("img[alt='AssetMark']")
+        self.request_type_container = page.locator(loc.REQUEST_TYPE_CONTAINER)
+        self.advisor_id = page.locator(loc.ADVISOR_ID)
+        self.disabled_radio_buttons1 = page.locator(loc.DISABLED_RADIO_BUTTONS1)
+        self.disabled_radio_buttons2 = page.locator(loc.DISABLED_RADIO_BUTTONS2)
+        self.next_button = page.locator(loc.NEXT_BUTTON)
+        self.button_otw = page.locator(loc.BUTTON_OTW)
+        self.bottom_hyperlinks = page.locator(loc.BOTTOM_HYPERLINKS)
+        self.assetmark_bottom_heading = page.locator(loc.ASSETMARK_BOTTOM_HEADING)
+        self.assetmark_image = page.locator(loc.ASSETMARK_IMAGE)
         
         if page_verification:
-            is_visible = page.locator("//span[text()='Trading and Account Management'] | //p[text()='Trading and Account Management']").is_visible(timeout=45000)
+            is_visible = page.locator(loc.PAGE_TITLE).is_visible(timeout=45000)
             if is_visible:
                 logger.info(f"{self.PAGE_NAME} verification : {self.PAGE_NAME} verification is PASSED")
             else:

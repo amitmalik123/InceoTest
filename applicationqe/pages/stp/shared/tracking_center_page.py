@@ -1,6 +1,7 @@
 from playwright.sync_api import Locator, Page, expect
 
 from pages.stp.shared.base_page import BasePage
+from pages.stp.shared.locators.tracking_center_locators import TrackingCenterLocators
 from utils.allure_logger import get_allure_logger
 
 logger = get_allure_logger(__name__)
@@ -11,29 +12,30 @@ class TrackingCenterPage(BasePage):
 
     def __init__(self, page: Page):
         super().__init__(page)
-        self.roth_str_label: Locator = page.get_by_text("Roth Conversion")
-        self.logout_link: Locator = page.get_by_role("link", name="Logout")
-        self.bodycontent_div: Locator = page.locator("div#BodyContent")
+        loc = TrackingCenterLocators
+        self.roth_str_label: Locator = page.get_by_text(loc.ROTH_STR_LABEL_TEXT)
+        self.logout_link: Locator = page.get_by_role("link", name=loc.LOGOUT_LINK)
+        self.bodycontent_div: Locator = page.locator(loc.BODY_CONTENT)
         
         # Tracking center navigation and search locators (used in tracking_center_steps.py)
-        self.tracking_center_link: Locator = page.locator("//ul[@id='mainMenu']//a[contains(text(),'Tracking Center')]")
-        self.loading_spinner_modal: Locator = page.locator("//*[@id='loadingImageModal' and contains(@style,'block')]")
-        self.search_input: Locator = page.locator("#client_search_input")
-        self.search_button: Locator = page.locator("#searchbutton")
+        self.tracking_center_link: Locator = page.locator(loc.TRACKING_CENTER_LINK)
+        self.loading_spinner_modal: Locator = page.locator(loc.LOADING_SPINNER_MODAL)
+        self.search_input: Locator = page.locator(loc.SEARCH_INPUT)
+        self.search_button: Locator = page.locator(loc.SEARCH_BUTTON)
         
         # Item details locators (used in tracking_center_steps.py)
-        self.address_text_detail: Locator = page.locator("//table[@id='TrackingCenterItemDetailNotesGrid']/tbody/tr[2]/td[4]")
-        self.view_button: Locator = page.locator("//a[text()='View']")
-        self.view_documents_header: Locator = page.locator("//div[@class='modal-title' and text()='View Documents']")
-        self.pdf_list_table: Locator = page.locator("//div[@class='modal-body']//div[@id='PDFListTable']")
-        self.document_links: Locator = page.locator("//div[@id='PDFListTable']//a[@name='pdfDetails']")
-        self.esignature_button: Locator = page.locator('#resendRequest')
+        self.address_text_detail: Locator = page.locator(loc.ADDRESS_TEXT_DETAIL)
+        self.view_button: Locator = page.locator(loc.VIEW_BUTTON)
+        self.view_documents_header: Locator = page.locator(loc.VIEW_DOCUMENTS_HEADER)
+        self.pdf_list_table: Locator = page.locator(loc.PDF_LIST_TABLE)
+        self.document_links: Locator = page.locator(loc.DOCUMENT_LINKS)
+        self.esignature_button: Locator = page.locator(loc.ESIGNATURE_BUTTON)
 
         # Electronic Signature Management modal
-        self.esign_mgmt_dialog: Locator = page.locator('[aria-describedby="resendDialog"]')
-        self.esign_mgmt_title: Locator = page.locator('#resendDialog').locator('xpath=preceding-sibling::div[contains(@class,"ui-dialog-titlebar")]//span[contains(@class,"ui-dialog-title")]')
-        self.esign_mgmt_content: Locator = page.locator('#resendDialog')
-        self.esign_resend_button: Locator = page.locator('#btnResendReminder1')
+        self.esign_mgmt_dialog: Locator = page.locator(loc.ESIGN_MGMT_DIALOG)
+        self.esign_mgmt_title: Locator = page.locator(loc.ESIGN_MGMT_CONTENT).locator(loc.ESIGN_MGMT_TITLE_XPATH)
+        self.esign_mgmt_content: Locator = page.locator(loc.ESIGN_MGMT_CONTENT)
+        self.esign_resend_button: Locator = page.locator(loc.ESIGN_RESEND_BUTTON)
     
     def get_account_src_label(self, expected: str) -> Locator:
         """Get account source label locator by expected text"""

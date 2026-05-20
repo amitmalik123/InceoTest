@@ -1,6 +1,7 @@
 from playwright.sync_api import Locator, Page
 
 from pages.stp.shared.base_page import BasePage
+from pages.stp.stp_mimotransactionpage.locators.mimo_transaction_request_locators import MIMOTransactionRequestLocators
 from utils.logger import setup_logger
 
 logger = setup_logger(__name__)
@@ -11,12 +12,12 @@ class MIMOTransactionRequestPage(BasePage):
     
     def __init__(self, page: Page):
         super().__init__(page)
-        self.header_item: Locator = page.locator("//h1[.='Transaction request']")
-        self.next_button: Locator = page.locator("//button[text()='Next']")
-        self.cancel_button: Locator = page.locator("//button[contains(text(),'Cancel')]")
-        self.instructions_on_file_heading: Locator = page.locator("//h3[text()='Instructions on file']")
-        # self.instructions_on_file_heading: Locator = page.locator("//h3[.='Instructions on file']")
-        self.instructions_message: Locator = page.locator("//div[@aria-label='swp-cancel-info-instruction-message']")
+        loc = MIMOTransactionRequestLocators
+        self.header_item: Locator = page.locator(loc.HEADER_ITEM)
+        self.next_button: Locator = page.locator(loc.NEXT_BUTTON)
+        self.cancel_button: Locator = page.locator(loc.CANCEL_BUTTON)
+        self.instructions_on_file_heading: Locator = page.locator(loc.INSTRUCTIONS_ON_FILE_HEADING)
+        self.instructions_message: Locator = page.locator(loc.INSTRUCTIONS_MESSAGE)
     
     def wait_for_page_load(self):
         """Wait for MIMO Transaction Request Page to load"""

@@ -6,6 +6,7 @@ import allure
 from typing import List
 from playwright.sync_api import Locator, Page
 from pages.stp.shared.base_page import BasePage
+from pages.stp.stp_aip.stp_establishAip.locators.establish_aip_add_aip_locators import EstablishAIPAddAIPLocators
 from utils.allure_logger import get_allure_logger
 
 logger = get_allure_logger(__name__)
@@ -24,38 +25,39 @@ class EstablishAIPAddAIPPage(BasePage):
     
     def __init__(self, page: Page, page_verification: bool = True):
         super().__init__(page)
+        loc = EstablishAIPAddAIPLocators
         
         # Header elements
-        self.header = page.locator("//p[text()='Manage Automatic Investment Plans']")
-        self.add_aip_title = page.locator("//span[text()='Add Automatic Investment Plan (AIP)']")
+        self.header = page.locator(loc.HEADER)
+        self.add_aip_title = page.locator(loc.ADD_AIP_TITLE)
         
         # Contribution
-        self.contribution_amount_input = page.locator("//div[@class='sc-iA-DsXs khArdT']/descendant::input[@type='text']")
+        self.contribution_amount_input = page.locator(loc.CONTRIBUTION_AMOUNT_INPUT)
         
         # Calendar icon buttons
-        self.start_date_calendar_btn = page.locator("(//button[.//*[name()='svg' and @data-testid='CalendarIcon']])[1]")
-        self.end_date_calendar_btn = page.locator("(//button[.//*[name()='svg' and @data-testid='CalendarIcon']])[2]")
+        self.start_date_calendar_btn = page.locator(loc.START_DATE_CALENDAR_BTN)
+        self.end_date_calendar_btn = page.locator(loc.END_DATE_CALENDAR_BTN)
         
         # Date picker days
-        self.enabled_days = page.locator("//button[contains(@class,'MuiPickersDay-root') and not(contains(@class,'Mui-disabled'))]")
-        self.disabled_days = page.locator("//button[contains(@class,'MuiPickersDay-root') and contains(@class,'Mui-disabled')]")
+        self.enabled_days = page.locator(loc.ENABLED_DAYS)
+        self.disabled_days = page.locator(loc.DISABLED_DAYS)
         
         # Date picker controls
-        self.next_month_arrow = page.locator("//button[@title='Next month' and not(@disabled)]")
-        self.date_picker_popup = page.locator("//div[contains(@class,'MuiDateCalendar-root')]")
+        self.next_month_arrow = page.locator(loc.NEXT_MONTH_ARROW)
+        self.date_picker_popup = page.locator(loc.DATE_PICKER_POPUP)
         
         # Signature options
-        self.signature_header = page.locator("//span[@class='sc-etVdmn fElJWm']")
-        self.signature_option_labels = page.locator("//div[@class='sc-cDvQBt EZYBk']/label/span[text()]")
-        self.next_button = page.locator("//button[@type='button' and text()='NEXT']")
+        self.signature_header = page.locator(loc.SIGNATURE_HEADER)
+        self.signature_option_labels = page.locator(loc.SIGNATURE_OPTION_LABELS)
+        self.next_button = page.locator(loc.NEXT_BUTTON)
         
         # Account Information section
-        self.account_info_label = page.locator("//span[text()='Account Information']")
-        self.account_info_text = page.locator("//span[text()='Account Information']/ancestor::div[contains(@class,'MuiCardHeader-root')]//span[contains(@class,'MuiCardHeader-subheader')]")
+        self.account_info_label = page.locator(loc.ACCOUNT_INFO_LABEL)
+        self.account_info_text = page.locator(loc.ACCOUNT_INFO_TEXT)
         
         # Loading indicators
-        self.spinner_loading = page.locator("div[class='App']>div>div>div>span")
-        self.loading_overlay = page.locator("//div[contains(@class,'loading')]")
+        self.spinner_loading = page.locator(loc.SPINNER_LOADING)
+        self.loading_overlay = page.locator(loc.LOADING_OVERLAY)
         
         # Wait for page load
         self.wait_for_page_load(page_verification)

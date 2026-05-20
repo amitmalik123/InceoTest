@@ -1,6 +1,7 @@
 from playwright.sync_api import Locator, Page, expect
 
 from pages.stp.shared.base_page import BasePage
+from pages.stp.shared.locators.manage_instruction_1_locators import ManageInstruction1Locators
 from utils.allure_logger import get_allure_logger
 
 logger = get_allure_logger(__name__)
@@ -10,11 +11,11 @@ class ManageInstruction1Page(BasePage):
 
     def __init__(self, page: Page):
         super().__init__(page)
-
-        self.next_button: Locator = page.get_by_role('button', name='NEXT')
-        self.closed_on_date: Locator = page.locator("//span[contains(text(), 'Closed On:')]/following-sibling::label")
-        self.status: Locator = page.locator("//span[contains(text(), 'Status: ')]/following-sibling::label")
-        self.description: Locator = page.locator("//span[contains(text(), 'Description: ')]/following-sibling::label")
+        loc = ManageInstruction1Locators
+        self.next_button: Locator = page.get_by_role('button', name=loc.NEXT_BUTTON)
+        self.closed_on_date: Locator = page.locator(loc.CLOSED_ON_DATE)
+        self.status: Locator = page.locator(loc.STATUS)
+        self.description: Locator = page.locator(loc.DESCRIPTION)
 
 
     def select_radio_button(self, radio_type: str) -> None:

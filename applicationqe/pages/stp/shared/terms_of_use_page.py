@@ -4,6 +4,7 @@ Terms of Use Page Object
 
 from playwright.sync_api import Locator, Page
 from pages.stp.shared.base_page import BasePage
+from pages.stp.shared.locators.terms_of_use_locators import TermsOfUseLocators
 from utils.allure_logger import get_allure_logger
 
 logger = get_allure_logger(__name__)
@@ -16,10 +17,10 @@ class TermsOfUsePage(BasePage):
     
     def __init__(self, page: Page, page_verification: bool = True):
         super().__init__(page)
-        
+        loc = TermsOfUseLocators
         # Page elements
-        self.page_header = page.locator("//h1[text()='Terms of Use'] | //h1[contains(text(),'Terms')]")
-        self.close_button = page.locator("//button[@aria-label='close-button']")
+        self.page_header = page.locator(loc.PAGE_HEADER)
+        self.close_button = page.locator(loc.CLOSE_BUTTON)
         
         # Page verification
         if page_verification:

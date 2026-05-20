@@ -2,6 +2,7 @@ from typing import Union, List, Optional
 from playwright.sync_api import Locator, Page, FrameLocator
 
 from pages.stp.shared.base_page import BasePage
+from pages.stp.stp_manageBene.locators.update_beneficiary_locators import UpdateBeneficiaryLocators
 from utils.allure_logger import get_allure_logger
 
 logger = get_allure_logger(__name__)
@@ -16,60 +17,59 @@ class UpdateBeneficiaryPage(BasePage):
 
     def __init__(self, context: Union[Page, FrameLocator]):
         super().__init__(context)
+        loc = UpdateBeneficiaryLocators
         
         # ==================== Header Elements ====================
-        self.back_button: Locator = context.locator("button:has-text('Manage Beneficiaries')")
-        self.client_name: Locator = context.locator("h1.MuiTypography-h5")
-        self.client_account_number: Locator = context.locator("h6.MuiTypography-subtitle2")
+        self.back_button: Locator = context.locator(loc.BACK_BUTTON)
+        self.client_name: Locator = context.locator(loc.CLIENT_NAME)
+        self.client_account_number: Locator = context.locator(loc.CLIENT_ACCOUNT_NUMBER)
         
         # ==================== Stepper ====================
-        self.stepper_container: Locator = context.locator("div.MuiStepper-root")
-        self.step_1_update_beneficiaries: Locator = context.locator("span.MuiStepLabel-label:has-text('Update Beneficiaries')")
-        self.step_2_esignature_details: Locator = context.locator("span.MuiStepLabel-label:has-text('e-Signature Details')")
-        self.step_3_review: Locator = context.locator("span.MuiStepLabel-label:has-text('Review')")
+        self.stepper_container: Locator = context.locator(loc.STEPPER_CONTAINER)
+        self.step_1_update_beneficiaries: Locator = context.locator(loc.STEP_1_UPDATE_BENEFICIARIES)
+        self.step_2_esignature_details: Locator = context.locator(loc.STEP_2_ESIGNATURE_DETAILS)
+        self.step_3_review: Locator = context.locator(loc.STEP_3_REVIEW)
         
         # ==================== Beneficiaries Section ====================
-        self.beneficiaries_card: Locator = context.locator("div.MuiCard-root:has(span:has-text('Beneficiaries'))")
-        self.add_button: Locator = context.locator("button[aria-label='Add']")
+        self.beneficiaries_card: Locator = context.locator(loc.BENEFICIARIES_CARD)
+        self.add_button: Locator = context.locator(loc.ADD_BUTTON)
         
         # ==================== Account Cards ====================
-        self.account_cards: Locator = context.locator("div.MuiCard-root:nth-child(n+2)")
-        self.account_card_title: Locator = context.locator("span.MuiCardHeader-title")
+        self.account_cards: Locator = context.locator(loc.ACCOUNT_CARDS)
+        self.account_card_title: Locator = context.locator(loc.ACCOUNT_CARD_TITLE)
         
         # ==================== Primary Beneficiaries Section ====================
-        self.primary_section_header: Locator = context.locator("span.MuiTypography-cardHeaderTitle:has-text('Primary')")
-        self.primary_beneficiary_name: Locator = context.locator("span.MuiTypography-cardTextPrimary")
-        self.primary_beneficiary_relation: Locator = context.locator("span.MuiTypography-cardTextSecondary")
+        self.primary_section_header: Locator = context.locator(loc.PRIMARY_SECTION_HEADER)
+        self.primary_beneficiary_name: Locator = context.locator(loc.PRIMARY_BENEFICIARY_NAME)
+        self.primary_beneficiary_relation: Locator = context.locator(loc.PRIMARY_BENEFICIARY_RELATION)
         
         # ==================== Contingent Beneficiaries Section ====================
-        self.contingent_section_header: Locator = context.locator("span.MuiTypography-cardHeaderTitle:has-text('Contingent')")
-        self.contingent_beneficiary_name: Locator = context.locator("span.MuiTypography-cardTextPrimary:not(:has-text('Primary'))")
-        self.contingent_empty_state: Locator = context.locator("span.MuiTypography-emptyStateText:has-text('No contingent')")
+        self.contingent_section_header: Locator = context.locator(loc.CONTINGENT_SECTION_HEADER)
+        self.contingent_beneficiary_name: Locator = context.locator(loc.CONTINGENT_BENEFICIARY_NAME)
+        self.contingent_empty_state: Locator = context.locator(loc.CONTINGENT_EMPTY_STATE)
         
         # ==================== Beneficiary Action Buttons ====================
-        self.edit_beneficiary_button: Locator = context.locator("button[aria-label*='Edit']")
-        self.delete_beneficiary_button: Locator = context.locator("button[aria-label*='Delete']")
+        self.edit_beneficiary_button: Locator = context.locator(loc.EDIT_BENEFICIARY_BUTTON)
+        self.delete_beneficiary_button: Locator = context.locator(loc.DELETE_BENEFICIARY_BUTTON)
         
         # ==================== Allocation Fields ====================
-        self.allocation_input: Locator = context.locator("input[type='number'][min='0'][max='100']")
-        self.allocation_percentage_symbol: Locator = context.locator("p.MuiTypography-body1:has-text('%')")
-        self.allocate_equally_button: Locator = context.locator("button:has-text('Allocate Equally')")
-        self.total_allocation: Locator = context.locator("p.MuiTypography-body1:has-text('Total:')")
+        self.allocation_input: Locator = context.locator(loc.ALLOCATION_INPUT)
+        self.allocation_percentage_symbol: Locator = context.locator(loc.ALLOCATION_PERCENTAGE_SYMBOL)
+        self.allocate_equally_button: Locator = context.locator(loc.ALLOCATE_EQUALLY_BUTTON)
+        self.total_allocation: Locator = context.locator(loc.TOTAL_ALLOCATION)
         
         # ==================== Signature Options Section ====================
-        self.signature_options_card: Locator = context.locator("div.MuiCard-root:has(span:has-text('Signature Options'))")
-        self.signature_options_label: Locator = context.locator("span.MuiTypography-h5:has-text('Signature Options')")
-        self.electronic_signature_radio: Locator = context.locator("input[value='Obtain Electronic Client Signature(s)']")
-        self.physical_signature_radio: Locator = context.locator("input[value='Print to Obtain Physical Client Signature(s)']")
-        self.signature_client_required_text: Locator = context.locator("span.MuiCardHeader-subheader:has-text('required')")
+        self.signature_options_card: Locator = context.locator(loc.SIGNATURE_OPTIONS_CARD)
+        self.signature_options_label: Locator = context.locator(loc.SIGNATURE_OPTIONS_LABEL)
+        self.electronic_signature_radio: Locator = context.locator(loc.ELECTRONIC_SIGNATURE_RADIO)
+        self.physical_signature_radio: Locator = context.locator(loc.PHYSICAL_SIGNATURE_RADIO)
+        self.signature_client_required_text: Locator = context.locator(loc.SIGNATURE_CLIENT_REQUIRED_TEXT)
         
         # ==================== Bottom Action Button ====================
-        self.continue_button: Locator = context.locator("button:has-text('Continue to e-Signature Details')")
+        self.continue_button: Locator = context.locator(loc.CONTINUE_BUTTON)
 
         # ==================== Single-Account Section Playwright Locators ====================
-        # All account section cards (nested inside the outer "Beneficiaries" card)
-        # Using the specific CSS class from the HTML structure: css-1q9j4sc
-        self.account_sections: Locator = context.locator("div.MuiCard-root.css-1q9j4sc")
+        self.account_sections: Locator = context.locator(loc.ACCOUNT_SECTIONS)
 
     # ==================== Navigation & Wait Methods ====================
     def wait_for_page_load(self) -> None:

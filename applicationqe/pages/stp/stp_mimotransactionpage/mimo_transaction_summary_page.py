@@ -2,6 +2,7 @@ from typing import Dict
 from playwright.sync_api import Locator, Page
 
 from pages.stp.shared.base_page import BasePage
+from pages.stp.stp_mimotransactionpage.locators.mimo_transaction_summary_locators import MIMOTransactionSummaryLocators
 from utils.logger import setup_logger
 
 logger = setup_logger(__name__)
@@ -12,37 +13,38 @@ class MIMOTransactionSummaryPage(BasePage):
     
     def __init__(self, page: Page):
         super().__init__(page)
+        loc = MIMOTransactionSummaryLocators
         
-        self.transaction_summary_title: Locator = page.locator("//h3[@class='section-title' and text()='Transaction summary']")
+        self.transaction_summary_title: Locator = page.locator(loc.TRANSACTION_SUMMARY_TITLE)
         
-        self.back_button: Locator = page.locator("//button[@data-testid='back-button']")
-        self.submit_button: Locator = page.locator("//button[@data-testid='submit-button']")
-        self.submit_to_review_button: Locator = page.locator("//button[@data-testid='submit-to-review-button']")
-        self.submit_or_submit_for_review: Locator = page.locator("//button[contains(@data-testid,'submit')]")
-        self.esign_and_submit: Locator = page.locator("//button[text()='E-Sign and Submit']")
+        self.back_button: Locator = page.locator(loc.BACK_BUTTON)
+        self.submit_button: Locator = page.locator(loc.SUBMIT_BUTTON)
+        self.submit_to_review_button: Locator = page.locator(loc.SUBMIT_TO_REVIEW_BUTTON)
+        self.submit_or_submit_for_review: Locator = page.locator(loc.SUBMIT_OR_SUBMIT_FOR_REVIEW)
+        self.esign_and_submit: Locator = page.locator(loc.ESIGN_AND_SUBMIT)
         
-        self.account_info: Locator = page.locator("//section[@aria-label='account-info-section']//ul//li")
+        self.account_info: Locator = page.locator(loc.ACCOUNT_INFO)
         
-        self.disclosures_title: Locator = page.locator("//span[text()='Acknowledgements and Agreements']")
+        self.disclosures_title: Locator = page.locator(loc.DISCLOSURES_TITLE)
 
-        self.disclosures_title_contribution: Locator = page.locator("//h3[text()='ACKNOWLEDGEMENTS AND AGREEMENTS']")
-        self.disclosures_list_contribution: Locator = page.locator("//p[@aria-label='disclaimer-text']//following-sibling::ul")
+        self.disclosures_title_contribution: Locator = page.locator(loc.DISCLOSURES_TITLE_CONTRIBUTION)
+        self.disclosures_list_contribution: Locator = page.locator(loc.DISCLOSURES_LIST_CONTRIBUTION)
 
-        self.disclaimer_text: Locator = page.locator("//*[text()='Upon completion of this request, I certify that:']")
-        self.disclosures_list: Locator = page.locator("//h4[text()='Upon completion of this request, I certify that:']/parent::div/child::ul")
+        self.disclaimer_text: Locator = page.locator(loc.DISCLAIMER_TEXT)
+        self.disclosures_list: Locator = page.locator(loc.DISCLOSURES_LIST)
         
-        self.disclosures_title_cancel: Locator = page.locator("//section[@aria-label='swp-cancel-disclosure-note-section']//h3")
-        self.disclaimer_text_cancel: Locator = page.locator("//section[@aria-label='swp-cancel-disclosure-note-section']//h3//following-sibling::p")
-        self.disclosures_list_cancel: Locator = page.locator("//section[@aria-label='swp-cancel-disclosure-note-section']//h3//following-sibling::ul")
+        self.disclosures_title_cancel: Locator = page.locator(loc.DISCLOSURES_TITLE_CANCEL)
+        self.disclaimer_text_cancel: Locator = page.locator(loc.DISCLAIMER_TEXT_CANCEL)
+        self.disclosures_list_cancel: Locator = page.locator(loc.DISCLOSURES_LIST_CANCEL)
         
-        self.request_details_label: Locator = page.locator("//h3[@aria-label = 'category-group-name' and text()='Request Details']")
-        self.destination_label: Locator = page.locator("//h3[@aria-label = 'category-group-name' and text()='Destination']")
-        self.bank_name_header: Locator = page.locator("//h4[@aria-label = 'category-group-item-name' and text()='Bank Name']")
-        self.account_number_header: Locator = page.locator("//h4[@aria-label = 'category-group-item-name' and text()='Account Number']")
+        self.request_details_label: Locator = page.locator(loc.REQUEST_DETAILS_LABEL)
+        self.destination_label: Locator = page.locator(loc.DESTINATION_LABEL)
+        self.bank_name_header: Locator = page.locator(loc.BANK_NAME_HEADER)
+        self.account_number_header: Locator = page.locator(loc.ACCOUNT_NUMBER_HEADER)
         
-        self.bottom_error: Locator = page.locator("//div[@aria-label='review-error']")
+        self.bottom_error: Locator = page.locator(loc.BOTTOM_ERROR)
         
-        self.loading_spinner: Locator = page.locator("//div[@data-testid='loading-spinner']")
+        self.loading_spinner: Locator = page.locator(loc.LOADING_SPINNER)
     
     def get_request_header(self) -> str:
         """Get the REQUEST DETAILS heading text"""

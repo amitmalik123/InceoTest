@@ -3,6 +3,7 @@ from datetime import datetime
 from playwright.sync_api import Locator, Page, FrameLocator
 
 from pages.stp.shared.base_page import BasePage
+from pages.stp.stp_manageBene.locators.add_beneficiary_locators import AddBeneficiaryLocators
 from utils.allure_logger import get_allure_logger
 
 logger = get_allure_logger(__name__)
@@ -12,72 +13,61 @@ class AddBeneficiaryPage(BasePage):
 
     def __init__(self, context: Union[Page, FrameLocator]):
         super().__init__(context)
+        loc = AddBeneficiaryLocators
         
-        self.dont_save_button: Locator = context.get_by_role("button", name="Don't Save")
-        self.save_button: Locator = context.locator("button.MuiButton-containedPrimary:has-text('Save')")
+        self.dont_save_button: Locator = context.get_by_role("button", name=loc.DONT_SAVE_BUTTON)
+        self.save_button: Locator = context.locator(loc.SAVE_BUTTON)
         
-        self.add_beneficiary_title: Locator = context.locator("span.MuiTypography-root:has-text('Add a Beneficiary')")
+        self.add_beneficiary_title: Locator = context.locator(loc.ADD_BENEFICIARY_TITLE)
         
-        self.beneficiary_dropdown: Locator = context.locator("div[role='combobox']").first
-        self.beneficiary_dropdown_menu: Locator = context.locator("ul[role='listbox']")
+        self.beneficiary_dropdown: Locator = context.locator(loc.BENEFICIARY_DROPDOWN).first
+        self.beneficiary_dropdown_menu: Locator = context.locator(loc.BENEFICIARY_DROPDOWN_MENU)
         
-        self.beneficiary_heading: Locator = context.locator("p.MuiTypography-root:text-is('Beneficiary')")
+        self.beneficiary_heading: Locator = context.locator(loc.BENEFICIARY_HEADING)
         
-        self.first_name_input: Locator = context.locator("xpath=//p[text()='First Name']/following-sibling::div//input")
-        self.last_name_input: Locator = context.locator("xpath=//p[text()='Last Name']/following-sibling::div//input")
-        self.ssn_input: Locator = context.locator("xpath=//p[contains(text(), 'Social Security Number') or contains(text(), 'SSN')]/following-sibling::div//input")
-        self.dob_input: Locator = context.locator("xpath=//p[contains(text(), 'Date of Birth') or contains(text(), 'DOB')]/following-sibling::div//input")
+        self.first_name_input: Locator = context.locator(loc.FIRST_NAME_INPUT)
+        self.last_name_input: Locator = context.locator(loc.LAST_NAME_INPUT)
+        self.ssn_input: Locator = context.locator(loc.SSN_INPUT)
+        self.dob_input: Locator = context.locator(loc.DOB_INPUT)
         
-        self.name_input: Locator = context.locator("xpath=//p[text()='Name']/following-sibling::div//input")
-        self.date_of_trust_input: Locator = context.locator("xpath=//p[contains(text(), 'Date of Trust')]/following-sibling::div//input")
+        self.name_input: Locator = context.locator(loc.NAME_INPUT)
+        self.date_of_trust_input: Locator = context.locator(loc.DATE_OF_TRUST_INPUT)
         
-        self.taxIdDropdown: Locator = context.locator("xpath=//p[normalize-space()='Tax ID (Optional)']/following-sibling::div//div[@role='combobox']")
-        self.taxIdInput: Locator = context.locator("xpath=//p[normalize-space()='Tax ID (Optional)']/following-sibling::div//input[@type='text']")
+        self.taxIdDropdown: Locator = context.locator(loc.TAX_ID_DROPDOWN)
+        self.taxIdInput: Locator = context.locator(loc.TAX_ID_INPUT)
         
-        self.tinInput: Locator = context.locator("xpath=//p[contains(text(), 'Taxpayer Identification (TIN)')]/following-sibling::div//input[@type='text']")
+        self.tinInput: Locator = context.locator(loc.TIN_INPUT)
         
-        self.spouse_radio: Locator = context.locator("input[type='radio'][value='Spouse']")
-        self.non_spouse_radio: Locator = context.locator("input[type='radio'][value='Non-Spouse']")
-        self.trust_radio: Locator = context.locator("input[type='radio'][value='Trust']")
-        self.entity_radio: Locator = context.locator("input[type='radio'][value='Entity']")
+        self.spouse_radio: Locator = context.locator(loc.SPOUSE_RADIO)
+        self.non_spouse_radio: Locator = context.locator(loc.NON_SPOUSE_RADIO)
+        self.trust_radio: Locator = context.locator(loc.TRUST_RADIO)
+        self.entity_radio: Locator = context.locator(loc.ENTITY_RADIO)
         
-        self.account_selection_box: Locator = context.locator("div[class*='AccountSelection']")
-        self.account_checkboxes: Locator = context.locator(
-            "//p[normalize-space()='Add Beneficiary to Account(s)']"
-            "/ancestor::div[contains(@class,'MuiBox-root')]"
-            "//div[contains(@class,'MuiCard-root')]"
-            "//input[@type='checkbox']"
-        )
-        self.per_stirpes_checkbox: Locator = context.locator(
-            "input.PrivateSwitchBase-input[type='checkbox'][data-indeterminate='false']"
-        ).first
-        self.first_account_checkbox: Locator = context.locator(
-            "(//p[normalize-space()='Add Beneficiary to Account(s)']"
-            "/parent::div"
-            "//div[contains(@class,'MuiCardContent-root')]"
-            "//input[@type='checkbox'])[1]"
-        )
-        self.account_boxes: Locator = context.locator("div[class*='account-box']")
+        self.account_selection_box: Locator = context.locator(loc.ACCOUNT_SELECTION_BOX)
+        self.account_checkboxes: Locator = context.locator(loc.ACCOUNT_CHECKBOXES)
+        self.per_stirpes_checkbox: Locator = context.locator(loc.PER_STIRPES_CHECKBOX).first
+        self.first_account_checkbox: Locator = context.locator(loc.FIRST_ACCOUNT_CHECKBOX)
+        self.account_boxes: Locator = context.locator(loc.ACCOUNT_BOXES)
         
-        self.modal_header: Locator = context.locator("h2:has-text('Add Beneficiary')")
+        self.modal_header: Locator = context.locator(loc.MODAL_HEADER)
         
-        self.error_messages: Locator = context.locator("div[class*='error-message'], span[class*='error']")
+        self.error_messages: Locator = context.locator(loc.ERROR_MESSAGES)
         
-        self.first_name_error: Locator = context.locator("//p[text()='First Name']/ancestor::div[contains(@class,'MuiBox-root')]//p[contains(@class,'MuiTypography-body1') and text()='Please enter a first name.']")
-        self.last_name_error: Locator = context.locator("//p[text()='Last Name']/ancestor::div[contains(@class,'MuiBox-root')]//p[contains(@class,'MuiTypography-body1') and text()='Please enter a last name.']")
-        self.name_error: Locator = context.locator("//p[text()='Name']/ancestor::div[contains(@class,'MuiBox-root')]//p[contains(@class,'MuiTypography-body1') and text()='Please enter a name.']")
-        self.account_selection_error: Locator = context.locator("//p[normalize-space()='Add Beneficiary to Account(s)']/ancestor::div[contains(@class,'MuiBox-root')]/div[contains(@class,'MuiBox-root')]/p")
+        self.first_name_error: Locator = context.locator(loc.FIRST_NAME_ERROR)
+        self.last_name_error: Locator = context.locator(loc.LAST_NAME_ERROR)
+        self.name_error: Locator = context.locator(loc.NAME_ERROR)
+        self.account_selection_error: Locator = context.locator(loc.ACCOUNT_SELECTION_ERROR)
         
-        self.confirmation_modal: Locator = context.locator("div[role='dialog']")
-        self.confirm_button: Locator = context.locator("button[class*='confirm']")
+        self.confirmation_modal: Locator = context.locator(loc.CONFIRMATION_MODAL)
+        self.confirm_button: Locator = context.locator(loc.CONFIRM_BUTTON)
         
-        self.tooltip: Locator = context.locator("div[role='tooltip']")
+        self.tooltip: Locator = context.locator(loc.TOOLTIP)
         
-        self.calendar_icon_button: Locator = context.get_by_role("button", name="Choose date")
-        self.calendar_grid: Locator = context.locator("div[role='grid']")
-        self.calendar_month_label: Locator = context.locator("div.MuiPickersCalendarHeader-label")
-        self.calendar_next_month_button: Locator = context.locator("button[aria-label='Next month']")
-        self.calendar_previous_month_button: Locator = context.locator("button[aria-label='Previous month']")
+        self.calendar_icon_button: Locator = context.get_by_role("button", name=loc.CALENDAR_CHOOSE_DATE)
+        self.calendar_grid: Locator = context.locator(loc.CALENDAR_GRID)
+        self.calendar_month_label: Locator = context.locator(loc.CALENDAR_MONTH_LABEL)
+        self.calendar_next_month_button: Locator = context.locator(loc.CALENDAR_NEXT_MONTH_BUTTON)
+        self.calendar_previous_month_button: Locator = context.locator(loc.CALENDAR_PREVIOUS_MONTH_BUTTON)
         self.calendar_date_buttons: Locator = context.locator("button[role='gridcell']")
 
     def click_dont_save_button(self) -> None:

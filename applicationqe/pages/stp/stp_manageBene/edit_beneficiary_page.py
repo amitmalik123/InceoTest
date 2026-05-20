@@ -4,6 +4,7 @@ from typing import Union
 from playwright.sync_api import Locator, Page, FrameLocator
 
 from pages.stp.shared.base_page import BasePage
+from pages.stp.stp_manageBene.locators.edit_beneficiary_locators import EditBeneficiaryLocators
 from utils.allure_logger import get_allure_logger
 
 logger = get_allure_logger(__name__)
@@ -13,62 +14,28 @@ class EditBeneficiaryPage(BasePage):
 
     def __init__(self, context: Union[Page, FrameLocator]):
         super().__init__(context)
+        loc = EditBeneficiaryLocators
 
-        self.page_title: Locator = context.locator(
-            "span.MuiTypography-root.MuiCardHeader-title:has-text('Edit Beneficiary')"
-        )
+        self.page_title: Locator = context.locator(loc.PAGE_TITLE)
 
-        self.dont_save_button: Locator = context.get_by_role("button", name="Don't Save")
-        self.save_button: Locator = context.locator(
-            "button.MuiButton-containedPrimary:has-text('Save')"
-        )
+        self.dont_save_button: Locator = context.get_by_role("button", name=loc.DONT_SAVE_BUTTON)
+        self.save_button: Locator = context.locator(loc.SAVE_BUTTON)
 
-        self.beneficiary_combobox: Locator = context.locator(
-            "xpath=//p[normalize-space(text())='Beneficiary']/following-sibling::div//div[@role='combobox']"
-        )
-        self.first_name_input: Locator = context.locator(
-            "xpath=//p[normalize-space(text())='First Name']/following-sibling::div//input"
-        )
-        self.middle_name_input: Locator = context.locator(
-            "xpath=//p[contains(text(),'Middle Name')]/following-sibling::div//input"
-        )
-        self.last_name_input: Locator = context.locator(
-            "xpath=//p[normalize-space(text())='Last Name']/following-sibling::div//input"
-        )
-        self.ssn_input: Locator = context.locator(
-            "xpath=//p[contains(text(),'Social Security Number')]/following-sibling::div//input"
-        )
-        self.dob_input: Locator = context.locator(
-            "input[placeholder='MM/DD/YYYY']"
-        )
+        self.beneficiary_combobox: Locator = context.locator(loc.BENEFICIARY_COMBOBOX)
+        self.first_name_input: Locator = context.locator(loc.FIRST_NAME_INPUT)
+        self.middle_name_input: Locator = context.locator(loc.MIDDLE_NAME_INPUT)
+        self.last_name_input: Locator = context.locator(loc.LAST_NAME_INPUT)
+        self.ssn_input: Locator = context.locator(loc.SSN_INPUT)
+        self.dob_input: Locator = context.locator(loc.DOB_INPUT)
 
-        self.relationship_radio_group: Locator = context.locator(
-            "xpath=//p[contains(text(),'Relationship to Account Holder')]"
-            "/following-sibling::div//div[@role='radiogroup']"
-        )
+        self.relationship_radio_group: Locator = context.locator(loc.RELATIONSHIP_RADIO_GROUP)
 
-        # Custom Request checkbox — MUI places the <input type="checkbox"> inside a sibling
-        # <span class="MuiCheckbox-root"> next to the div that holds the label text.
-        # XPath axis: text div → parent (label content div) → parent (row wrapper) → span → input
-        self.custom_request_label: Locator = context.locator(
-            "xpath=//div[normalize-space(text())='Custom Request']"
-        ).first
-        self.custom_request_checkbox: Locator = context.locator(
-            "xpath=//div[normalize-space(text())='Custom Request']"
-            "/parent::div"
-            "/parent::div"
-            "/span[contains(@class,'MuiCheckbox-root')]"
-            "//input[@type='checkbox']"
-        )
+        # Custom Request checkbox
+        self.custom_request_label: Locator = context.locator(loc.CUSTOM_REQUEST_LABEL).first
+        self.custom_request_checkbox: Locator = context.locator(loc.CUSTOM_REQUEST_CHECKBOX)
 
         # File input inside the Supporting Documentation section
-        self.supporting_docs_file_input: Locator = context.locator(
-            "xpath=(//h6[contains(text(),'Supporting Documentation')]"
-            "/ancestor::div[1]//input[@type='file'])"
-            " | "
-            "(//p[contains(text(),'Supporting Documentation')]"
-            "/ancestor::div[1]//input[@type='file'])"
-        ).first
+        self.supporting_docs_file_input: Locator = context.locator(loc.SUPPORTING_DOCS_FILE_INPUT).first
 
     def is_edit_form_visible(self) -> bool:
         try:

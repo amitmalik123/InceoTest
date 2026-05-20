@@ -1,5 +1,6 @@
 from playwright.sync_api import Page
 from pages.stp.shared.base_page import BasePage
+from pages.stp.stp_addACHIntrcutions.locators.add_ach_confirmation_locators import AddACHConfirmationLocators
 from utils.logger import setup_logger
 from utils.wait_utils import wait_for_element_stable
 
@@ -11,18 +12,19 @@ class AddACHConfirmationPage(BasePage):
     
     def __init__(self, page: Page, page_verification: bool = True):
         super().__init__(page)
+        loc = AddACHConfirmationLocators
         
         # Locators
-        self.confirmation_header = page.locator("//span[text()='Request Confirmation']")
-        self.confirmation_details_list = page.locator("//h3[@aria-label]/following-sibling::span")
-        self.single_investment_account = page.locator("//li[@class]")
-        self.investment_accounts_list = page.locator("//ol")
-        self.close_button = page.locator("//button[text()='Close']")
-        self.subheader_household = page.locator("//span[text()='Client Household']/following-sibling::div")
-        self.subheader_advisor_id = page.locator("//span[text()='Advisor ID']/following-sibling::div")
-        self.request_banner = page.locator("//div[@aria-label='confirmation-screen-status']")
-        self.information_banner = page.locator("//button[@aria-label='info']/parent::p/parent::div")
-        self.item_number = page.locator("//h3[text()='Item number:']/following-sibling::a")
+        self.confirmation_header = page.locator(loc.CONFIRMATION_HEADER)
+        self.confirmation_details_list = page.locator(loc.CONFIRMATION_DETAILS_LIST)
+        self.single_investment_account = page.locator(loc.SINGLE_INVESTMENT_ACCOUNT)
+        self.investment_accounts_list = page.locator(loc.INVESTMENT_ACCOUNTS_LIST)
+        self.close_button = page.locator(loc.CLOSE_BUTTON)
+        self.subheader_household = page.locator(loc.SUBHEADER_HOUSEHOLD)
+        self.subheader_advisor_id = page.locator(loc.SUBHEADER_ADVISOR_ID)
+        self.request_banner = page.locator(loc.REQUEST_BANNER)
+        self.information_banner = page.locator(loc.INFORMATION_BANNER)
+        self.item_number = page.locator(loc.ITEM_NUMBER)
         
         # Page verification
         if page_verification:

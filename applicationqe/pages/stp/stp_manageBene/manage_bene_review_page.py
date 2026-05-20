@@ -3,6 +3,7 @@ from typing import Union
 from playwright.sync_api import FrameLocator, Locator, Page
 
 from pages.stp.shared.base_page import BasePage
+from pages.stp.stp_manageBene.locators.manage_bene_review_locators import ManageBeneReviewLocators
 from utils.allure_logger import get_allure_logger
 
 logger = get_allure_logger(__name__)
@@ -13,47 +14,34 @@ class ManageBeneReviewPage(BasePage):
     def __init__(self, context: Union[Page, FrameLocator]):
         super().__init__(context)
         self._ctx = context
+        loc = ManageBeneReviewLocators
 
-        self.review_beneficiaries_heading: Locator = context.get_by_text("Review Beneficiaries", exact=True)
-        self.review_esignature_heading: Locator = context.get_by_text("Review e-Signature Details", exact=True)
-        self.acknowledgements_heading: Locator = context.get_by_text("Acknowledgements and Agreements", exact=True)
+        self.review_beneficiaries_heading: Locator = context.get_by_text(loc.REVIEW_BENEFICIARIES_HEADING, exact=True)
+        self.review_esignature_heading: Locator = context.get_by_text(loc.REVIEW_ESIGNATURE_HEADING, exact=True)
+        self.acknowledgements_heading: Locator = context.get_by_text(loc.ACKNOWLEDGEMENTS_HEADING, exact=True)
 
-        self.account_title: Locator = context.locator("span.MuiTypography-h5.MuiCardHeader-title").nth(1)
+        self.account_title: Locator = context.locator(loc.ACCOUNT_TITLE).nth(1)
 
-        self.primary_section_header: Locator = context.get_by_text("Primary", exact=True)
-        self.contingent_section_header: Locator = context.get_by_text("Contingent", exact=True)
+        self.primary_section_header: Locator = context.get_by_text(loc.PRIMARY_SECTION_HEADER, exact=True)
+        self.contingent_section_header: Locator = context.get_by_text(loc.CONTINGENT_SECTION_HEADER, exact=True)
 
-        self.primary_beneficiary_names: Locator = context.locator(
-            "span.MuiTypography-cardTextPrimary"
-        )
-        self.primary_beneficiary_relationships: Locator = context.locator(
-            "span.MuiTypography-cardTextSecondary"
-        )
-        self.beneficiary_allocations: Locator = context.locator(
-            "p.MuiTypography-body2"
-        )
+        self.primary_beneficiary_names: Locator = context.locator(loc.PRIMARY_BENEFICIARY_NAMES)
+        self.primary_beneficiary_relationships: Locator = context.locator(loc.PRIMARY_BENEFICIARY_RELATIONSHIPS)
+        self.beneficiary_allocations: Locator = context.locator(loc.BENEFICIARY_ALLOCATIONS)
 
-        self.added_chips: Locator = context.locator(
-            "span.MuiChip-label:has-text('ADDED')"
-        )
+        self.added_chips: Locator = context.locator(loc.ADDED_CHIPS)
 
-        self.signers_label: Locator = context.get_by_text("Signers", exact=True)
-        self.signer_name: Locator = context.locator(
-            "p.MuiTypography-body1.css-1apsuvt"
-        )
-        self.signer_details: Locator = context.locator(
-            "p.MuiTypography-body1.css-10lu4jp"
-        )
+        self.signers_label: Locator = context.get_by_text(loc.SIGNERS_LABEL, exact=True)
+        self.signer_name: Locator = context.locator(loc.SIGNER_NAME)
+        self.signer_details: Locator = context.locator(loc.SIGNER_DETAILS)
 
-        self.acknowledgements_content: Locator = context.locator(
-            "div.MuiCardContent-root p"
-        ).first
+        self.acknowledgements_content: Locator = context.locator(loc.ACKNOWLEDGEMENTS_CONTENT).first
 
         self.back_to_esignature_button: Locator = context.get_by_role(
-            "button", name="Back to e-Signature Details"
+            "button", name=loc.BACK_TO_ESIGNATURE_BUTTON
         )
         self.submit_to_advisor_button: Locator = context.get_by_role(
-            "button", name="Submit"
+            "button", name=loc.SUBMIT_TO_ADVISOR_BUTTON
         )
 
     def wait_for_page_load(self, timeout: int = 15000) -> None:

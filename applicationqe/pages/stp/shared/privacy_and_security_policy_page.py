@@ -4,6 +4,7 @@ Privacy and Security Policy Page Object
 
 from playwright.sync_api import Locator, Page
 from pages.stp.shared.base_page import BasePage
+from pages.stp.shared.locators.privacy_and_security_policy_locators import PrivacyAndSecurityPolicyLocators
 from utils.allure_logger import get_allure_logger
 
 logger = get_allure_logger(__name__)
@@ -16,10 +17,10 @@ class PrivacyAndSecurityPolicyPage(BasePage):
     
     def __init__(self, page: Page, page_verification: bool = True):
         super().__init__(page)
-        
+        loc = PrivacyAndSecurityPolicyLocators
         # Page elements
-        self.page_header = page.locator("//h1[text()='Privacy and Security Policy'] | //h1[contains(text(),'Privacy')]")
-        self.close_button = page.locator("//button[@aria-label='close-button']")
+        self.page_header = page.locator(loc.PAGE_HEADER)
+        self.close_button = page.locator(loc.CLOSE_BUTTON)
         
         # Page verification
         if page_verification:

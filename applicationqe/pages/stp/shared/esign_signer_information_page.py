@@ -1,6 +1,7 @@
 from playwright.sync_api import FrameLocator, Locator, Page
 
 from pages.stp.shared.base_page import BasePage
+from pages.stp.shared.locators.esign_signer_information_locators import ESignSignerInformationLocators
 from utils.allure_logger import get_allure_logger
 
 logger = get_allure_logger(__name__)
@@ -11,32 +12,28 @@ class ESignSignerInformationPage(BasePage):
 
     def __init__(self, page: Page, frame: FrameLocator = None):
         super().__init__(page)
+        loc = ESignSignerInformationLocators
+        self.frame: FrameLocator = frame if frame is not None else page.frame_locator(loc.IFRAME)
 
-        self.frame: FrameLocator = frame if frame is not None else page.frame_locator("#esig_iframe")
+        self.page_title: Locator = self.frame.locator(loc.PAGE_TITLE)
 
-        self.page_title: Locator = self.frame.locator(
-            "//div[contains(text(),'Signer') and contains(text(),'Information')]"
-        )
-
-        self._first_signer_row: Locator = self.frame.locator(
-            "//tr[td[contains(normalize-space(),'Account Owner')]]"
-        ).first
+        self._first_signer_row: Locator = self.frame.locator(loc.FIRST_SIGNER_ROW).first
 
         self.first_signer_name_input: Locator = self._first_signer_row.locator(
-            "input[type='text']"
+            loc.TEXT_INPUT
         ).nth(0)
         self.first_signer_email_input: Locator = self._first_signer_row.locator(
-            "input[type='text']"
+            loc.TEXT_INPUT
         ).nth(1)
         self.first_signer_phone_input: Locator = self._first_signer_row.locator(
-            "input[type='text']"
+            loc.TEXT_INPUT
         ).nth(2)
 
         self.first_signer_in_person_radio: Locator = self._first_signer_row.locator(
-            "input[type='radio']"
+            loc.RADIO_INPUT
         ).nth(0)
         self.first_signer_by_email_radio: Locator = self._first_signer_row.locator(
-            "input[type='radio']"
+            loc.RADIO_INPUT
         ).nth(1)
 
         self.continue_button: Locator = self.frame.locator("#btnContinue")

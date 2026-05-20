@@ -6,6 +6,7 @@ Contains summary sections like Request Details, QUALIFIED INFORMATION, etc.
 from typing import Dict, List
 from playwright.sync_api import Page
 from pages.stp.shared.base_page import BasePage
+from pages.stp.stp_mimotransactionpage.locators.mimo_summary_locators import MIMOSummaryLocators
 from utils.logger import setup_logger
 
 logger = setup_logger(__name__)
@@ -17,19 +18,18 @@ class MIMOSummaryPage(BasePage):
     def __init__(self, page: Page):
         super().__init__(page)
         self.page = page
+        loc = MIMOSummaryLocators
         
         # Main page identifier
-        self.transaction_summary_title = page.locator("//h3[@class='section-title' and text()='Transaction summary']")
+        self.transaction_summary_title = page.locator(loc.TRANSACTION_SUMMARY_TITLE)
         
         # Submit buttons
-        self.submit_button = page.locator("//button[@data-testid='submit-button']")
-        self.submit_review_button = page.locator("//button[@data-testid='submit-to-review-button']")
-        self.back_button = page.locator("//button[@data-testid='back-button']")
+        self.submit_button = page.locator(loc.SUBMIT_BUTTON)
+        self.submit_review_button = page.locator(loc.SUBMIT_REVIEW_BUTTON)
+        self.back_button = page.locator(loc.BACK_BUTTON)
         
         # Qualified Information section locators
-        self.qualified_info_values = page.locator(
-            "//h3[text()='QUALIFIED INFORMATION']//parent::div//div[@aria-label='category-group-item']//h4[@aria-label='category-group-item-value']"
-        )
+        self.qualified_info_values = page.locator(loc.QUALIFIED_INFO_VALUES)
         
         logger.info("MIMO Summary Page initialized")
 

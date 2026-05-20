@@ -3,6 +3,7 @@ from typing import List
 from playwright.sync_api import Page
 
 from pages.stp.shared.base_page import BasePage
+from pages.stp.stp_addACHIntrcutions.locators.add_ach_instruction_locators import AddACHInstructionLocators
 from utils.allure_logger import get_allure_logger
 
 logger = get_allure_logger(__name__)
@@ -11,41 +12,42 @@ logger = get_allure_logger(__name__)
 class AddACHInstructionPage(BasePage):
     def __init__(self, page: Page):
         super().__init__(page)
+        loc = AddACHInstructionLocators
         # Input fields
-        self.routing_number = page.locator('input[maxlength="9"][inputmode="numeric"]')
-        self.bank_account_number = page.locator('[aria-label="Bank-AccountNumber"] input')
+        self.routing_number = page.locator(loc.ROUTING_NUMBER)
+        self.bank_account_number = page.locator(loc.BANK_ACCOUNT_NUMBER)
         self.confirm_bank_account_number = page.locator(
-            '[aria-label="Confirm-BankAccount-Number"] input'
+            loc.CONFIRM_BANK_ACCOUNT_NUMBER
         )
-        self.verify_button = page.locator("span:text('Verify')")
-        self.bank_name_display = page.locator("span:text('Bank Name') + span")
+        self.verify_button = page.locator(loc.VERIFY_BUTTON)
+        self.bank_name_display = page.locator(loc.BANK_NAME_DISPLAY)
         self.name_on_bank_account = page.locator(
-            '[aria-label="Bank-Account-OwnerName"] textarea[aria-invalid]'
+            loc.NAME_ON_BANK_ACCOUNT
         )
         self.additional_bank_account_owner_name = page.get_by_placeholder(
-            "Additional Bank Account Owner Name"
+            loc.ADDITIONAL_BANK_ACCOUNT_OWNER_NAME_PLACEHOLDER
         )
         
         # Buttons
-        self.verify_button = page.locator("span:text('Verify')")
-        self.next_button = page.get_by_role("button", name="Next")
+        self.verify_button = page.locator(loc.VERIFY_BUTTON)
+        self.next_button = page.get_by_role("button", name=loc.NEXT_BUTTON)
         
         # Display elements
-        self.bank_name_display = page.locator("span:text('Bank Name') + span")
-        self.account_name_list = page.get_by_test_id("account-details").locator("span").first
+        self.bank_name_display = page.locator(loc.BANK_NAME_DISPLAY)
+        self.account_name_list = page.get_by_test_id(loc.ACCOUNT_NAME_LIST_TESTID).locator(loc.ACCOUNT_NAME_SPAN).first
         
         # Radio buttons - Account Type
-        self.checking_radio = page.get_by_role("radio", name="Checking")
-        self.savings_radio = page.get_by_role("radio", name="Savings")
+        self.checking_radio = page.get_by_role("radio", name=loc.CHECKING_RADIO)
+        self.savings_radio = page.get_by_role("radio", name=loc.SAVINGS_RADIO)
         
         # Radio buttons - Party Type
-        self.first_party_radio = page.get_by_role("radio", name="1st Party")
-        self.third_party_radio = page.get_by_role("radio", name="3rd Party")
+        self.first_party_radio = page.get_by_role("radio", name=loc.FIRST_PARTY_RADIO)
+        self.third_party_radio = page.get_by_role("radio", name=loc.THIRD_PARTY_RADIO)
         
         # Checkboxes
-        self.certify_checkbox = page.locator("input[name='certifyCheckbox']")
-        self.investment_account_checkbox = page.get_by_test_id("checkbox").locator(
-            "input[type='checkbox']"
+        self.certify_checkbox = page.locator(loc.CERTIFY_CHECKBOX)
+        self.investment_account_checkbox = page.get_by_test_id(loc.INVESTMENT_ACCOUNT_CHECKBOX_TESTID).locator(
+            loc.INVESTMENT_ACCOUNT_CHECKBOX_INPUT
         )
 
     def client_household(self, household_header: str):

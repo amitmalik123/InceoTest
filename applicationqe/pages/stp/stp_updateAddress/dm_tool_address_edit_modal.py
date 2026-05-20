@@ -6,6 +6,7 @@ from typing import Dict, List, Optional, TYPE_CHECKING
 from playwright.sync_api import Page
 
 from pages.stp.shared.base_page import BasePage
+from pages.stp.stp_updateAddress.locators.dm_tool_address_edit_modal_locators import DMToolAddressEditModalLocators
 from utils.logger import setup_logger
 
 if TYPE_CHECKING:
@@ -21,49 +22,50 @@ class DMToolAddressEditModal(BasePage):
     
     def __init__(self, page: Page):
         super().__init__(page)
+        loc = DMToolAddressEditModalLocators
         
         # Modal elements
-        self.modal_title = "//h2[contains(text(),'Edit Address')]"
-        self.modal_container = "//div[@role='dialog']"
-        self.modal_title_text = "//div[@data-testid='form-name']//h2"
-        self.place_to_click_outside = "//div[@data-testid='form-name']//h2"
-        self.no_po_text = ".form-warning h3"
+        self.modal_title = loc.MODAL_TITLE
+        self.modal_container = loc.MODAL_CONTAINER
+        self.modal_title_text = loc.MODAL_TITLE_TEXT
+        self.place_to_click_outside = loc.PLACE_TO_CLICK_OUTSIDE
+        self.no_po_text = loc.NO_PO_TEXT
         
         # Div sections (matching Java)
-        self.address_line_div = "//div[@data-testid='addressLine1Div']"
-        self.address_line_optional_div = "//div[@data-testid='addressLine2Div']"
-        self.city_div = "//div[@data-testid='cityDiv']"
-        self.state_div = "//div[@aria-label='form-select-item']"
-        self.zip_div = "//div[@data-testid='zipCodeDiv']"
-        self.extension_div = "//div[@data-testid='extensionDiv']"
+        self.address_line_div = loc.ADDRESS_LINE_DIV
+        self.address_line_optional_div = loc.ADDRESS_LINE_OPTIONAL_DIV
+        self.city_div = loc.CITY_DIV
+        self.state_div = loc.STATE_DIV
+        self.zip_div = loc.ZIP_DIV
+        self.extension_div = loc.EXTENSION_DIV
         
         # Form input fields (matching Java implementation)
-        self.street_input = "//div[@aria-label='form-input-item']//input[@name='addressLine1']"
-        self.street2_input = "//div[@aria-label='form-input-item']//input[@name='addressLine2']"
-        self.city_input = "//div[@aria-label='form-input-item']//input[@name='city']"
-        self.state_dropdown = "//div[@aria-label='form-select-item']//select"
-        self.zip_input = "//div[@aria-label='form-input-item']//input[@name='zipCode']"
-        self.zip_extension_input = "//div[@aria-label='form-input-item']//input[@name='extension']"
+        self.street_input = loc.STREET_INPUT
+        self.street2_input = loc.STREET2_INPUT
+        self.city_input = loc.CITY_INPUT
+        self.state_dropdown = loc.STATE_DROPDOWN
+        self.zip_input = loc.ZIP_INPUT
+        self.zip_extension_input = loc.ZIP_EXTENSION_INPUT
         
         # Label texts (matching Java)
-        self.address_line_text = "//div[@aria-label='form-input-item']//label[@for='addressLine1']"
-        self.address_line_optional_text = "//div[@aria-label='form-input-item']//label[@for='addressLine2']"
-        self.city_text = "//div[@aria-label='form-input-item']//label[@for='city']"
-        self.state_text = "//div[@aria-label='form-select-item']//label[@for='state']"
-        self.zip_text = "//div[@aria-label='form-input-item']//label[@for='zipCode']"
-        self.extension_text = "[for='extension']"
+        self.address_line_text = loc.ADDRESS_LINE_TEXT
+        self.address_line_optional_text = loc.ADDRESS_LINE_OPTIONAL_TEXT
+        self.city_text = loc.CITY_TEXT
+        self.state_text = loc.STATE_TEXT
+        self.zip_text = loc.ZIP_TEXT
+        self.extension_text = loc.EXTENSION_TEXT
         
         # PO Box checkbox (matching Java)
-        self.po_box_checkbox = "//span[@aria-label='checkbox']"
-        self.po_box_checkbox_ios = "[type='checkbox']"
+        self.po_box_checkbox = loc.PO_BOX_CHECKBOX
+        self.po_box_checkbox_ios = loc.PO_BOX_CHECKBOX_IOS
         
         # Error message elements (matching Java)
-        self.update_error_text = "//span[@aria-label='error-message']"
+        self.update_error_text = loc.UPDATE_ERROR_TEXT
         
         # Action buttons (matching Java)
-        self.next_button = "//div[@role='presentation']/div[3]//form//button[2]"
-        self.cancel_button = "//div[@role='presentation']/div[3]//form//button[1]"
-        self.back_button = "//button[text()='Back']"
+        self.next_button = loc.NEXT_BUTTON
+        self.cancel_button = loc.CANCEL_BUTTON
+        self.back_button = loc.BACK_BUTTON
         
         # Static test data (matching Java)
         self.RANDOM_ADDRESS = "300 Memorial Drive"

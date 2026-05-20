@@ -1,6 +1,7 @@
 from playwright.sync_api import Locator, Page
 
 from pages.stp.shared.base_page import BasePage
+from pages.stp.stp_mimotransactionpage.locators.mimo_confirmation_locators import MIMOConfirmationLocators
 from utils.logger import setup_logger
 
 logger = setup_logger(__name__)
@@ -11,62 +12,52 @@ class MIMOConfirmationPage(BasePage):
     
     def __init__(self, page: Page):
         super().__init__(page)
+        loc = MIMOConfirmationLocators
         
         # Page elements
-        self.page_title: Locator = page.locator("//h2[@aria-label='confirmation-screen-title']")
-        self.status_completed: Locator = page.locator("//div[@aria-label='confirmation-screen-status-completed']")
-        self.confirmation_screen_status: Locator = page.locator("//div[@aria-label='confirmation-screen-status']")
+        self.page_title: Locator = page.locator(loc.PAGE_TITLE)
+        self.status_completed: Locator = page.locator(loc.STATUS_COMPLETED)
+        self.confirmation_screen_status: Locator = page.locator(loc.CONFIRMATION_SCREEN_STATUS)
         
         # Account Information
-        self.account_info_section: Locator = page.locator("//div[@aria-label='confirmation-screen-account-information']")
-        self.account_name: Locator = page.locator("//p[@aria-label='acc-name']")
-        self.account_number: Locator = page.locator("//p[@aria-label='acc-number']")
-        self.account_strategy: Locator = page.locator("//p[@aria-label='acc-strategy']")
-        self.advisor_id: Locator = page.locator("//p[@aria-label='advisor-id']")
+        self.account_info_section: Locator = page.locator(loc.ACCOUNT_INFO_SECTION)
+        self.account_name: Locator = page.locator(loc.ACCOUNT_NAME)
+        self.account_number: Locator = page.locator(loc.ACCOUNT_NUMBER)
+        self.account_strategy: Locator = page.locator(loc.ACCOUNT_STRATEGY)
+        self.advisor_id: Locator = page.locator(loc.ADVISOR_ID)
         
         # Transaction Summary section
-        self.status_section: Locator = page.locator("//div[@aria-label='confirmation-screen-status-completed']")
-        self.status_section_label: Locator = self.status_section.locator("h3[aria-label='status-label']")
-        self.status_section_text: Locator = self.status_section.locator("p[aria-label='status-value']")
+        self.status_section: Locator = page.locator(loc.STATUS_SECTION)
+        self.status_section_label: Locator = self.status_section.locator(loc.STATUS_SECTION_LABEL)
+        self.status_section_text: Locator = self.status_section.locator(loc.STATUS_SECTION_TEXT)
 
+        self.date_section: Locator = page.locator(loc.DATE_SECTION)
+        self.date_section_label: Locator = self.date_section.locator(loc.DATE_SECTION_LABEL)
+        self.date_section_text: Locator = self.date_section.locator(loc.DATE_SECTION_TEXT)
 
-        self.date_section: Locator = page.locator("//div[@aria-label='confirmation-screen-submitted-date']")
-        self.date_section_label: Locator = self.date_section.locator("h3[aria-label='submission-time-label']")
-        self.date_section_text: Locator = self.date_section.locator("p[aria-label='submission-time-value']")
+        self.submitted_by_section: Locator = page.locator(loc.SUBMITTED_BY_SECTION)
+        self.submitted_by_section_label: Locator = self.submitted_by_section.locator(loc.SUBMITTED_BY_SECTION_LABEL)
+        self.submitted_by_section_text: Locator = self.submitted_by_section.locator(loc.SUBMITTED_BY_SECTION_TEXT)
 
-        self.submitted_by_section: Locator = page.locator("//div[@aria-label='confirmation-screen-submitted-by']")
-        self.submitted_by_section_label: Locator = self.submitted_by_section.locator("h3[aria-label='submitted-by-label']")
-        self.submitted_by_section_text: Locator = self.submitted_by_section.locator("p[aria-label='submitted-by-value']")
+        self.item_number_section: Locator = page.locator(loc.ITEM_NUMBER_SECTION)
 
-        self.item_number_section: Locator = page.locator("//div[@aria-label='confirmation-screen-a-item-number']")
+        # Request Details
+        self.request_details_section: Locator = page.locator(loc.REQUEST_DETAILS_SECTION)
+        self.request_type_container: Locator = page.locator(loc.REQUEST_TYPE_CONTAINER)
+        self.request_type_title: Locator = self.request_type_container.locator(loc.REQUEST_TYPE_TITLE)
+        self.request_type_value: Locator = self.request_type_container.locator(loc.REQUEST_TYPE_VALUE)
 
-        # Request Details - individual locators replaced by dynamic helper _get_confirmation_field_value()
-        self.request_details_section: Locator = page.locator("//div[@aria-label='request-details-section']")
-        self.request_type_container: Locator = page.locator("//div[@aria-label='confirmation-screen-request-type']")
-        # Child elements - use xpath= prefix for XPath expressions
-        self.request_type_title: Locator = self.request_type_container.locator("xpath=.//h3[@aria-label='request-type-label']")
-        self.request_type_value: Locator = self.request_type_container.locator("xpath=.//p[@aria-label='request-type-value']")
-
-        self.delivery_method: Locator = page.locator("//div[@aria-label='confirmation-screen-delivery-method']")
-        self.frequency: Locator = page.locator("//div[@aria-label='confirmation-screen-frequency']")
-        self.amount: Locator = page.locator("//h3[text()='Request Details']//following-sibling::div//div[@aria-label='confirmation-screen-account-number']")
+        self.delivery_method: Locator = page.locator(loc.DELIVERY_METHOD)
+        self.frequency: Locator = page.locator(loc.FREQUENCY)
+        self.amount: Locator = page.locator(loc.AMOUNT)
         
         # Contribution specific
-        self.contribution_amount: Locator = page.locator("//div[@aria-label='confirmation-screen-contribution-amount']")
-        self.contribution_date: Locator = page.locator("//div[@aria-label='confirmation-screen-summary-date']")
-        self.contribution_reason: Locator = page.locator("//div[@aria-label='confirmation-screen-contribution-reason']")
+        self.contribution_amount: Locator = page.locator(loc.CONTRIBUTION_AMOUNT)
+        self.contribution_date: Locator = page.locator(loc.CONTRIBUTION_DATE)
+        self.contribution_reason: Locator = page.locator(loc.CONTRIBUTION_REASON)
         
         # Destination section
-        self.destination_section: Locator = page.locator("//div[@aria-label='destination-section']")
-        self.bank_name: Locator = page.locator("//div[@aria-label='confirmation-screen-bank-name']")
-        self.bank_account_number: Locator = page.locator("//div[@aria-label='confirmation-screen-account-number']")
-        
-        # QUALIFIED INFORMATION section
-        self.distribution_reason: Locator = page.locator("//div[@aria-label='confirmation-screen-distribution-reason']")
-        self.federal_tax_withholding: Locator = page.locator("(//div[@aria-label='confirmation-screen-federal-tax-rate'])[1]")
-        self.state_tax_withholding: Locator = page.locator("//div[@aria-label='confirmation-screen-state-tax-rate']")
-        self.state_of_residence: Locator = page.locator("//div[@aria-label='confirmation-screen-state-of-residence']")
-        self.net_distribution_amount: Locator = page.locator("(//div[@aria-label='confirmation-screen-federal-tax-rate'])[2]")
+        self.destination_section: Locator = page.locator(loc.DESTINATION_SECTION)
         
         # Buttons
         self.print_button: Locator = page.locator("//button[@aria-label='print-link-button']")

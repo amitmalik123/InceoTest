@@ -1,6 +1,7 @@
 from playwright.sync_api import Locator, Page
 
 from pages.stp.shared.base_page import BasePage
+from pages.stp.stp_swp.locators.swp_establish_landing_locators import SWPEstablishLandingLocators
 from utils.logger import setup_logger
 
 logger = setup_logger(__name__)
@@ -11,56 +12,57 @@ class SWPEstablishLandingPage(BasePage):
 
     def __init__(self, page: Page):
         super().__init__(page)
+        loc = SWPEstablishLandingLocators
         
         # Header elements
-        self.swp_establish_header: Locator = page.locator("//p[text()='Systematic Withdrawal Plan']")
-        self.swp_establish_subheader: Locator = page.locator("//p[text()='Establish']")
-        self.advisor_id_text: Locator = page.locator("//p[text()='Advisor ID']")
-        self.advisor_id_value: Locator = page.locator("//span[contains(text(),'AG')]")
+        self.swp_establish_header: Locator = page.locator(loc.SWP_ESTABLISH_HEADER)
+        self.swp_establish_subheader: Locator = page.locator(loc.SWP_ESTABLISH_SUBHEADER)
+        self.advisor_id_text: Locator = page.locator(loc.ADVISOR_ID_TEXT)
+        self.advisor_id_value: Locator = page.locator(loc.ADVISOR_ID_VALUE)
         
         # Footer elements
-        self.privacy_security_link: Locator = page.locator("//div[text()='Privacy and Security Policy']")
-        self.terms_of_use_link: Locator = page.locator("//div[text()='Terms of Use']")
-        self.supported_browsers_link: Locator = page.locator("//div[text()='Supported Browsers']")
-        self.as_copyrights: Locator = page.locator("//div[@class='sc-jxOSlx epJOzn']")
+        self.privacy_security_link: Locator = page.locator(loc.PRIVACY_SECURITY_LINK)
+        self.terms_of_use_link: Locator = page.locator(loc.TERMS_OF_USE_LINK)
+        self.supported_browsers_link: Locator = page.locator(loc.SUPPORTED_BROWSERS_LINK)
+        self.as_copyrights: Locator = page.locator(loc.AS_COPYRIGHTS)
         
         # Action buttons
-        self.add_button: Locator = page.locator("//button[text()='ADD +']")
-        self.cancel_button: Locator = page.locator("(//button[text()='Cancel'])[1]")
+        self.add_button: Locator = page.locator(loc.ADD_BUTTON)
+        self.cancel_button: Locator = page.locator(loc.CANCEL_BUTTON)
         
         # Account Information section
-        self.account_information_header: Locator = page.locator("//span[text()='Account Information']")
-        self.account_info: Locator = page.locator("//span[@class='MuiTypography-root MuiTypography-body1 MuiCardHeader-subheader css-1cnfykm']")
-        self.market_value: Locator = page.locator("//div[@class='MuiGrid-root MuiGrid-container MuiGrid-item MuiGrid-grid-xs-12 css-bcrxyx'][1]")
-        self.cash_available: Locator = page.locator("//div[@class='MuiGrid-root MuiGrid-container MuiGrid-item MuiGrid-grid-xs-12 css-bcrxyx'][2]")
-        self.tooltip_btn: Locator = page.locator("//div[@class='sc-kzqdkY bHJfVD']")
-        self.tooltip: Locator = page.locator("//div[@role='tooltip']")
+        self.account_information_header: Locator = page.locator(loc.ACCOUNT_INFORMATION_HEADER)
+        self.account_info: Locator = page.locator(loc.ACCOUNT_INFO)
+        self.market_value: Locator = page.locator(loc.MARKET_VALUE)
+        self.cash_available: Locator = page.locator(loc.CASH_AVAILABLE)
+        self.tooltip_btn: Locator = page.locator(loc.TOOLTIP_BTN)
+        self.tooltip: Locator = page.locator(loc.TOOLTIP)
         
         # SWP Plans section
-        self.swp_plan_header: Locator = page.locator("//span[@class='MuiTypography-root MuiTypography-h5 MuiCardHeader-title css-1od5tcn']")
-        self.swp_subheader: Locator = page.locator("//span[contains(@class,'css-pj59b1')]")
-        self.no_active_swp: Locator = page.locator("//div[@class='sc-bOhtcR dOwMgM MuiBox-root css-0']")
-        self.active_swp: Locator = page.locator("//div[@class='sc-BQMaI dsCHCa MuiBox-root css-0']")
+        self.swp_plan_header: Locator = page.locator(loc.SWP_PLAN_HEADER)
+        self.swp_subheader: Locator = page.locator(loc.SWP_SUBHEADER)
+        self.no_active_swp: Locator = page.locator(loc.NO_ACTIVE_SWP)
+        self.active_swp: Locator = page.locator(loc.ACTIVE_SWP)
         
         # Error messages
-        self.error_close_button: Locator = page.locator("//button[text()='Close']")
-        self.deceased_error_heading: Locator = page.locator("//span[text()='Unclaimed asset or deceased accounts not eligible.']")
-        self.deceased_error_subheading: Locator = page.locator("//div[text()='Unclaimed asset or deceased accounts are not eligible. Please contact your Relationship Manager with any questions or email us at ']")
+        self.error_close_button: Locator = page.locator(loc.ERROR_CLOSE_BUTTON)
+        self.deceased_error_heading: Locator = page.locator(loc.DECEASED_ERROR_HEADING)
+        self.deceased_error_subheading: Locator = page.locator(loc.DECEASED_ERROR_SUBHEADING)
         
         # Oops message
-        self.oops_message: Locator = page.locator("//div[@class='sc-dSCufp kVspaA']")
-        self.reload_btn: Locator = page.locator("//button[contains(text(), 'Reload') and contains(@class, 'MuiButton-containedPrimary')]")
+        self.oops_message: Locator = page.locator(loc.OOPS_MESSAGE)
+        self.reload_btn: Locator = page.locator(loc.RELOAD_BTN)
         
         # Discard dialog
-        self.yes_exit_btn: Locator = page.locator("//button[contains(text(), 'YES, EXIT') and contains(@class, 'MuiButton-containedPrimary')]")
-        self.no_stay_btn: Locator = page.locator("//button[text()='NO, STAY']")
-        self.discard_message: Locator = page.locator("//h3[contains(@class, 'MuiTypography-h3')]")
-        self.discard_message_subheader: Locator = page.locator("//h5[contains(@class, 'MuiTypography-h5')]")
+        self.yes_exit_btn: Locator = page.locator(loc.YES_EXIT_BTN)
+        self.no_stay_btn: Locator = page.locator(loc.NO_STAY_BTN)
+        self.discard_message: Locator = page.locator(loc.DISCARD_MESSAGE)
+        self.discard_message_subheader: Locator = page.locator(loc.DISCARD_MESSAGE_SUBHEADER)
         
         # Simple view elements - Check
-        self.check_label: Locator = page.locator("//p[text()='Check']/parent::div")
-        self.click_on_check: Locator = page.locator("//p[text()='Check'][1]")
-        self.detail_view_check: Locator = page.locator("//div[@class='sc-epqpcT bKDNff MuiBox-root css-0']")
+        self.check_label: Locator = page.locator(loc.CHECK_LABEL)
+        self.click_on_check: Locator = page.locator(loc.CLICK_ON_CHECK)
+        self.detail_view_check: Locator = page.locator(loc.DETAIL_VIEW_CHECK)
 
     def verify_page_loaded(self) -> bool:
         """Verify SWP Establish Landing Page is loaded"""

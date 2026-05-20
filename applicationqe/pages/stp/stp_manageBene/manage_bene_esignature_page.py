@@ -3,6 +3,7 @@ from typing import Union
 from playwright.sync_api import FrameLocator, Locator, Page
 
 from pages.stp.shared.base_page import BasePage
+from pages.stp.stp_manageBene.locators.manage_bene_esignature_locators import ManageBeneESignatureLocators
 from utils.allure_logger import get_allure_logger
 
 logger = get_allure_logger(__name__)
@@ -13,26 +14,27 @@ class ManageBeneESignaturePage(BasePage):
     def __init__(self, context: Union[Page, FrameLocator]):
         super().__init__(context)
         self._ctx = context
+        loc = ManageBeneESignatureLocators
 
-        self.page_heading: Locator = context.get_by_text("e-Signature Details", exact=True)
-        self.any_party_subheading: Locator = context.get_by_text("Any 1 party must sign", exact=True)
+        self.page_heading: Locator = context.get_by_text(loc.PAGE_HEADING, exact=True)
+        self.any_party_subheading: Locator = context.get_by_text(loc.ANY_PARTY_SUBHEADING, exact=True)
 
-        self.account_holder_dropdown: Locator = context.get_by_role("combobox")
-        self.account_holder_native_input: Locator = context.locator("input.MuiSelect-nativeInput")
+        self.account_holder_dropdown: Locator = context.get_by_role(loc.ACCOUNT_HOLDER_DROPDOWN)
+        self.account_holder_native_input: Locator = context.locator(loc.ACCOUNT_HOLDER_NATIVE_INPUT)
 
-        self.email_input: Locator = context.get_by_role("textbox").nth(0)
-        self.phone_input: Locator = context.get_by_role("textbox").nth(1)
+        self.email_input: Locator = context.get_by_role("textbox").nth(loc.EMAIL_INPUT_INDEX)
+        self.phone_input: Locator = context.get_by_role("textbox").nth(loc.PHONE_INPUT_INDEX)
 
-        self.by_email_radio: Locator = context.get_by_label("By Email")
-        self.in_person_radio: Locator = context.get_by_label("In Person")
+        self.by_email_radio: Locator = context.get_by_label(loc.BY_EMAIL_RADIO_LABEL)
+        self.in_person_radio: Locator = context.get_by_label(loc.IN_PERSON_RADIO_LABEL)
 
-        self.certify_checkbox: Locator = context.get_by_role("checkbox")
+        self.certify_checkbox: Locator = context.get_by_role(loc.CERTIFY_CHECKBOX_ROLE)
 
         self.back_to_beneficiaries_button: Locator = context.get_by_role(
-            "button", name="Back to Beneficiaries"
+            "button", name=loc.BACK_TO_BENEFICIARIES_BUTTON
         )
         self.continue_to_review_button: Locator = context.get_by_role(
-            "button", name="Continue to Review"
+            "button", name=loc.CONTINUE_TO_REVIEW_BUTTON
         )
 
     def wait_for_page_load(self, timeout: int = 15000) -> None:

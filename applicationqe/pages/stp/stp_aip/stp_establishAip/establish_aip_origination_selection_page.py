@@ -1,6 +1,7 @@
 from playwright.sync_api import Locator, Page
 from pages.stp.shared.base_page import BasePage
 from establish_aip_add_aip_page import EstablishAIPAddAIPPage
+from pages.stp.stp_aip.stp_establishAip.locators.establish_aip_origination_selection_locators import EstablishAIPOriginationSelectionLocators
 from utils.settings import settings
 from utils.allure_logger import get_allure_logger
 
@@ -14,38 +15,38 @@ class EstablishAIPOriginationSelectionPage(BasePage):
     
     def __init__(self, page: Page, page_verification: bool = True):
         super().__init__(page)
+        loc = EstablishAIPOriginationSelectionLocators
 
-        self.header = page.locator("//p[text()='Manage Automatic Investment Plans']")
-        self.title_section = page.locator("//span[normalize-space()='Add Automatic Investment Plan (AIP)']")
+        self.header = page.locator(loc.HEADER)
+        self.title_section = page.locator(loc.TITLE_SECTION)
 
-        self.next_button = page.locator("//button[@type='button' and normalize-space(.)='NEXT']")
+        self.next_button = page.locator(loc.NEXT_BUTTON)
 
-        self.sub_header = page.locator("//*[normalize-space()='Select the origination for the new automatic investment plan.']")
-        self.origination_label = page.locator("//span[normalize-space()='Origination *'] | //span[normalize-space()='Origination']/span[normalize-space()='*']")
-        self.origination_help_text = page.locator("//*[normalize-space()='Select which ACH Instructions on file to be used for the new automatic investment plan.']")
-        self.info_note_text = page.locator("//div[text()=' In order to proceed with adding an AIP with new bank instructions, please Add ACH Instructions in the Account Wizard to add the bank before proceeding.']")
+        self.sub_header = page.locator(loc.SUB_HEADER)
+        self.origination_label = page.locator(loc.ORIGINATION_LABEL)
+        self.origination_help_text = page.locator(loc.ORIGINATION_HELP_TEXT)
+        self.info_note_text = page.locator(loc.INFO_NOTE_TEXT)
 
-        self.account_info_label = page.locator("//span[text()='Account Information']")
-        self.account_info_text = page.locator("//span[text()='Account Information']/ancestor::div[contains(@class,'MuiCardHeader-root')]//span[contains(@class,'MuiCardHeader-subheader')]")
+        self.account_info_label = page.locator(loc.ACCOUNT_INFO_LABEL)
+        self.account_info_text = page.locator(loc.ACCOUNT_INFO_TEXT)
 
-        self.selected_origination_text = page.locator("(//div[@role='radiogroup']/child::ul/child::li[1]/descendant::p[contains(@class,'MuiTypography-root MuiTypography-body1')])[1]")
+        self.selected_origination_text = page.locator(loc.SELECTED_ORIGINATION_TEXT)
         self.selected_origination_text_checked = page.locator(
-            "(//div[@role='radiogroup']//span[contains(@class,'Mui-checked')]"
-            "/ancestor::li[1]//p[contains(@class,'MuiTypography-body1')])[1]"
+            loc.SELECTED_ORIGINATION_TEXT_CHECKED
         )
 
-        self.view_details_link = page.locator("(//div[@data-testid='view-details-link'])[1]")
-        self.instruction_details_modal_header = page.locator("//h2[text()='Instruction Details']")
-        self.modal_close_icon_button = page.locator("//h2[text()='Instruction Details']/following-sibling::button")
-        self.modal_close_button = page.locator("//button[normalize-space()='Close']")
-        self.mui_dialog_overlay = page.locator("//div[contains(@class,'MuiDialog-container')]")
+        self.view_details_link = page.locator(loc.VIEW_DETAILS_LINK)
+        self.instruction_details_modal_header = page.locator(loc.INSTRUCTION_DETAILS_MODAL_HEADER)
+        self.modal_close_icon_button = page.locator(loc.MODAL_CLOSE_ICON_BUTTON)
+        self.modal_close_button = page.locator(loc.MODAL_CLOSE_BUTTON)
+        self.mui_dialog_overlay = page.locator(loc.MUI_DIALOG_OVERLAY)
 
-        self.spinner_loading = page.locator("div[class='App']>div>div>div>span")
-        self.loading_overlay = page.locator("//div[contains(@class,'loading')]")
+        self.spinner_loading = page.locator(loc.SPINNER_LOADING)
+        self.loading_overlay = page.locator(loc.LOADING_OVERLAY)
 
-        self.first_radio_button = page.locator("(//span[contains(@class, 'MuiRadio-root')])[2]")
-        self.first_radio_button_fallback = page.locator("(//label[.//input[@type='radio']])[1]")
-        self.checked_radio_selected = page.locator("//input[@type='radio' and @checked]")
+        self.first_radio_button = page.locator(loc.FIRST_RADIO_BUTTON)
+        self.first_radio_button_fallback = page.locator(loc.FIRST_RADIO_BUTTON_FALLBACK)
+        self.checked_radio_selected = page.locator(loc.CHECKED_RADIO_SELECTED)
 
         self.wait_for_page_load(page_verification)
     

@@ -1,6 +1,7 @@
 from playwright.sync_api import Locator, Page
 
 from pages.stp.shared.base_page import BasePage
+from pages.stp.shared.locators.clients_locators import ClientsLocators
 from utils.allure_logger import get_allure_logger
 
 logger = get_allure_logger(__name__)
@@ -12,17 +13,18 @@ class ClientsPage(BasePage):
 
     def __init__(self, page: Page):
         super().__init__(page)
+        loc = ClientsLocators
         # More specific locator to avoid "Learn More" link
-        self.clients_link: Locator = page.get_by_role("link", name="Clients", exact=True)
-        self.account_list_link: Locator = page.get_by_role("link", name="Account List", exact=True)
-        self.accounts_link_new_nav = page.get_by_role("link", name="Accounts")
+        self.clients_link: Locator = page.get_by_role("link", name=loc.CLIENTS_LINK, exact=True)
+        self.account_list_link: Locator = page.get_by_role("link", name=loc.ACCOUNT_LIST_LINK, exact=True)
+        self.accounts_link_new_nav = page.get_by_role("link", name=loc.ACCOUNTS_LINK_NEW_NAV)
         
         # Client navigation locators (used in common_steps.py)
-        self.clients_tab_link: Locator = page.locator("//*[@id='mainMenuWrapper']//li/a[@href='/AccountsAnalysis/Clients/ClientList']")
-        self.loading_spinner: Locator = page.locator("#theLoadingImage")
-        self.first_result_client_name: Locator = page.locator("//td[contains(@class,'clientName')]").first
-        self.client_info_tab: Locator = page.get_by_role('link', name='Client Information')
-        self.mailing_address_section: Locator = page.locator("//div[@aria-label='mailing-address-section'] | //section[contains(@class,'mailing-address')]")
+        self.clients_tab_link: Locator = page.locator(loc.CLIENTS_TAB_LINK)
+        self.loading_spinner: Locator = page.locator(loc.LOADING_SPINNER)
+        self.first_result_client_name: Locator = page.locator(loc.FIRST_RESULT_CLIENT_NAME).first
+        self.client_info_tab: Locator = page.get_by_role('link', name=loc.CLIENT_INFO_TAB)
+        self.mailing_address_section: Locator = page.locator(loc.MAILING_ADDRESS_SECTION)
 
     def navigate(self) -> None:
         logger.info(f"ClientsPage navigate - Current URL: {self.page.url}")

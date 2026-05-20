@@ -4,6 +4,7 @@ Cancel Automatic Investment Plan (AIP) Page Object
 
 from playwright.sync_api import Locator, Page
 from pages.stp.shared.base_page import BasePage
+from pages.stp.stp_aip.stp_cancelAip.locators.cancel_aip_locators import CancelAIPLocators
 from utils.logger import setup_logger
 
 logger = setup_logger(__name__)
@@ -16,39 +17,40 @@ class CancelAIPPage(BasePage):
     
     def __init__(self, page: Page):
         super().__init__(page)
+        loc = CancelAIPLocators
         
         # Landing Page elements
-        self.landing_page_title = page.locator("//span[text()='Automatic Investment Plans (AIP)']")
-        self.select_aip = page.locator("//div[@class='sc-dAbbOL dLmiyp']/descendant::li[1]")
-        self.delete_button = page.locator("//button[text()='Delete']")
-        self.next_button = page.locator("//button[text()='NEXT']")
-        self.cancel_button = page.locator("//button[text()='Cancel']")
+        self.landing_page_title = page.locator(loc.LANDING_PAGE_TITLE)
+        self.select_aip = page.locator(loc.SELECT_AIP)
+        self.delete_button = page.locator(loc.DELETE_BUTTON)
+        self.next_button = page.locator(loc.NEXT_BUTTON)
+        self.cancel_button = page.locator(loc.CANCEL_BUTTON)
         
         # Selection Page elements
-        self.selection_page_title = page.locator("//span[text() = 'Delete Automatic Investment Plan (AIP)']")
-        self.end_date_selection = page.locator("//p[normalize-space()='Immediately (By Next Business Day)']")
-        self.future_end_selection = page.locator("//p[text()='Future End Date: ']")
-        self.calendar_field = page.locator("//button[@aria-label='Choose date']")
+        self.selection_page_title = page.locator(loc.SELECTION_PAGE_TITLE)
+        self.end_date_selection = page.locator(loc.END_DATE_SELECTION)
+        self.future_end_selection = page.locator(loc.FUTURE_END_SELECTION)
+        self.calendar_field = page.locator(loc.CALENDAR_FIELD)
         
         # Signature Options
-        self.not_obtain_signature_radio = page.locator("//span[starts-with(text(),'Do Not Obtain Client Signature')]")
-        self.select_esign = page.locator("//span[normalize-space()='Obtain Electronic Client Signature(s)']")
-        self.select_print = page.locator("//span[normalize-space()='Print to Obtain Physical Client Signature(s)']")
+        self.not_obtain_signature_radio = page.locator(loc.NOT_OBTAIN_SIGNATURE_RADIO)
+        self.select_esign = page.locator(loc.SELECT_ESIGN)
+        self.select_print = page.locator(loc.SELECT_PRINT)
         
         # Summary Page elements
-        self.submit_button = page.locator("//button[text()='Submit']")
-        self.summary_submit_button = page.locator("//button[normalize-space()='Submit']")
-        self.print_button = page.locator("//button[text()='Complete and Print']")
-        self.esign_button = page.locator("//button[text()='E-Sign and Submit']")
-        self.submit_review_button = page.locator("//button[normalize-space()='Submit For Review']")
-        self.submit_to_advisor = page.locator("//button[text()='SUBMIT TO ADVISOR']")
+        self.submit_button = page.locator(loc.SUBMIT_BUTTON)
+        self.summary_submit_button = page.locator(loc.SUMMARY_SUBMIT_BUTTON)
+        self.print_button = page.locator(loc.PRINT_BUTTON)
+        self.esign_button = page.locator(loc.ESIGN_BUTTON)
+        self.submit_review_button = page.locator(loc.SUBMIT_REVIEW_BUTTON)
+        self.submit_to_advisor = page.locator(loc.SUBMIT_TO_ADVISOR)
         
         # Confirmation Page elements
-        self.item_number_link = page.locator("//h3[@aria-label='a-item-label']/following-sibling::a")
-        self.item_number_text = page.locator("//h3[text()='Item number:']/parent::div/a")
+        self.item_number_link = page.locator(loc.ITEM_NUMBER_LINK)
+        self.item_number_text = page.locator(loc.ITEM_NUMBER_TEXT)
         
         # Loading indicators
-        self.spinner_loading = page.locator("div[class='App']>div>div>div>span")
+        self.spinner_loading = page.locator(loc.SPINNER_LOADING)
     
     def wait_for_page_load(self) -> None:
         """Wait for Cancel AIP page to load"""

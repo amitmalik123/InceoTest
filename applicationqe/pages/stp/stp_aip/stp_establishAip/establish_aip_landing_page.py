@@ -4,6 +4,7 @@ Establish Automatic Investment Plan (AIP) Landing Page Object
 
 from playwright.sync_api import Locator, Page
 from pages.stp.shared.base_page import BasePage
+from pages.stp.stp_aip.stp_establishAip.locators.establish_aip_landing_locators import EstablishAIPLandingLocators
 from utils.allure_logger import get_allure_logger
 
 logger = get_allure_logger(__name__)
@@ -16,30 +17,31 @@ class EstablishAIPLandingPage(BasePage):
     
     def __init__(self, page: Page):
         super().__init__(page)
+        loc = EstablishAIPLandingLocators
         
         # Header elements
-        self.header = page.locator("//p[text()='Manage Automatic Investment Plans']")
-        self.title_section = page.locator("//span[text()='Automatic Investment Plans (AIP)']")
+        self.header = page.locator(loc.HEADER)
+        self.title_section = page.locator(loc.TITLE_SECTION)
         
         # Landing Page Action Buttons
-        self.add_button = page.locator("//div[contains(@class,'MuiCardHeader-action')]/button")
-        self.cancel_button = page.locator("//button[text()='Cancel']")
-        self.next_button = page.locator("//button[text()='NEXT']")
+        self.add_button = page.locator(loc.ADD_BUTTON)
+        self.cancel_button = page.locator(loc.CANCEL_BUTTON)
+        self.next_button = page.locator(loc.NEXT_BUTTON)
         
         # Account Information section
-        self.account_info_label = page.locator("//span[text()='Account Information']")
-        self.account_info_text = page.locator("//span[text()='Account Information']/ancestor::div[contains(@class,'MuiCardHeader-root')]//span[contains(@class,'MuiCardHeader-subheader')]")
-        self.market_value = page.locator("//div[contains(text(),'Market Value')]/following-sibling::div")
-        self.cash_available = page.locator("//div[contains(text(),'Cash Available')]/following-sibling::div")
+        self.account_info_label = page.locator(loc.ACCOUNT_INFO_LABEL)
+        self.account_info_text = page.locator(loc.ACCOUNT_INFO_TEXT)
+        self.market_value = page.locator(loc.MARKET_VALUE)
+        self.cash_available = page.locator(loc.CASH_AVAILABLE)
         
         # AIP Plans section
-        self.select_aip = page.locator("//div/li[1]")
-        self.hard_stop_message = page.locator("//p[text()='No automatic investment plans found on file.']")
-        self.active_aip_list = page.locator("//div[contains(@class,'aip-list')]")
+        self.select_aip = page.locator(loc.SELECT_AIP)
+        self.hard_stop_message = page.locator(loc.HARD_STOP_MESSAGE)
+        self.active_aip_list = page.locator(loc.ACTIVE_AIP_LIST)
         
         # Loading indicators
-        self.spinner_loading = page.locator("div[class='App']>div>div>div>span")
-        self.loading_overlay = page.locator("//div[contains(@class,'loading')]")
+        self.spinner_loading = page.locator(loc.SPINNER_LOADING)
+        self.loading_overlay = page.locator(loc.LOADING_OVERLAY)
     
     def wait_for_page_load(self, page_verification: bool = True) -> None:
         """Wait for Establish AIP Landing Page to load

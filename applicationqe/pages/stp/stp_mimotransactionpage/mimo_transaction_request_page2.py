@@ -1,6 +1,7 @@
 from playwright.sync_api import Locator, Page
 
 from pages.stp.shared.base_page import BasePage
+from pages.stp.stp_mimotransactionpage.locators.mimo_transaction_request_2_locators import MIMOTransactionRequest2Locators
 from utils.logger import setup_logger
 
 logger = setup_logger(__name__)
@@ -11,93 +12,84 @@ class MIMOTransactionRequestPage2(BasePage):
 
     def __init__(self, page: Page):
         super().__init__(page)
+        loc = MIMOTransactionRequest2Locators
 
-        self.cash_section = "//section[@aria-label='cash-info-section']"
-        self.contribution_amount_section = "//div[contains(@data-testid,'contribution-amount')]"
-        self.contribution_date_section = "//div[contains(@aria-label,'Contribution-input-container')]"
+        # Raw string section base paths (used in f-strings in methods)
+        self.cash_section = loc.CASH_SECTION
+        self.contribution_amount_section = loc.CONTRIBUTION_AMOUNT_SECTION
+        self.contribution_date_section = loc.CONTRIBUTION_DATE_SECTION
 
-        self.current_year_title: Locator = page.locator("//h3[normalize-space()='CURRENT YEAR']")
-        self.contribution_limit_current: Locator = page.locator("//h3[text()='CURRENT YEAR']//following-sibling::h4[text()='Contribution Limit: ']")
-        self.contributed_current: Locator = page.locator("//h3[text()='CURRENT YEAR']//following-sibling::h4/..//following-sibling::div[2]//child::div//h4[text()='Contributed']")
-        self.remaining_current: Locator = page.locator("//h3[text()='CURRENT YEAR']//following-sibling::h4/..//following-sibling::div[2]//child::div//h4[text()='Remaining']")
-        self.current_remaining_value: Locator = page.locator("//h3[text()='CURRENT YEAR']//following-sibling::h4/..//following-sibling::div[2]//child::div//following-sibling::div")
+        self.current_year_title: Locator = page.locator(loc.CURRENT_YEAR_TITLE)
+        self.contribution_limit_current: Locator = page.locator(loc.CONTRIBUTION_LIMIT_CURRENT)
+        self.contributed_current: Locator = page.locator(loc.CONTRIBUTED_CURRENT)
+        self.remaining_current: Locator = page.locator(loc.REMAINING_CURRENT)
+        self.current_remaining_value: Locator = page.locator(loc.CURRENT_REMAINING_VALUE)
 
-        self.prior_year_title: Locator = page.locator("//h3[normalize-space()='PRIOR YEAR']")
-        self.contribution_limit_prior: Locator = page.locator("//h3[text()='PRIOR YEAR']//following-sibling::h4[text()='Contribution Limit: ']")
-        self.contributed_prior: Locator = page.locator("//h3[text()='PRIOR YEAR']//following-sibling::h4/..//following-sibling::div[2]//child::div//h4[text()='Contributed']")
-        self.remaining_prior: Locator = page.locator("//h3[text()='PRIOR YEAR']//following-sibling::h4/..//following-sibling::div[2]//child::div//h4[text()='Remaining']")
-        self.prior_remaining_value: Locator = page.locator("//h3[text()='PRIOR YEAR']//following-sibling::h4/..//following-sibling::div[2]//child::div//following-sibling::div")
+        self.prior_year_title: Locator = page.locator(loc.PRIOR_YEAR_TITLE)
+        self.contribution_limit_prior: Locator = page.locator(loc.CONTRIBUTION_LIMIT_PRIOR)
+        self.contributed_prior: Locator = page.locator(loc.CONTRIBUTED_PRIOR)
+        self.remaining_prior: Locator = page.locator(loc.REMAINING_PRIOR)
+        self.prior_remaining_value: Locator = page.locator(loc.PRIOR_REMAINING_VALUE)
 
-        self.market_value_label: Locator = page.locator(f"{self.cash_section}//div[1]/div[1]/p")
-        self.market_value: Locator = page.locator(f"{self.cash_section}//p[@aria-label='money-value'][1]")
-        self.cash_value_label: Locator = page.locator("//div[2]/div[1]/p")
-        self.cash_value: Locator = page.locator("//body[1]/div[1]/div[1]/div[1]/div[1]/div[1]/div[1]/div[1]/section[2]/div[2]/div[2]/p[1]")
+        self.market_value_label: Locator = page.locator(loc.MARKET_VALUE_LABEL)
+        self.market_value: Locator = page.locator(loc.MARKET_VALUE)
+        self.cash_value_label: Locator = page.locator(loc.CASH_VALUE_LABEL)
+        self.cash_value: Locator = page.locator(loc.CASH_VALUE)
 
-        self.cash_input: Locator = page.locator("//input[contains(@name,'AmountInput')]")
-        self.contribution_date_input: Locator = page.locator("//input[@class='MuiInputBase-input MuiInput-input MuiInputBase-inputAdornedEnd']")
-        self.check_memo_input: Locator = page.locator("//input[@name='checkMemoInput']")
+        self.cash_input: Locator = page.locator(loc.CASH_INPUT)
+        self.contribution_date_input: Locator = page.locator(loc.CONTRIBUTION_DATE_INPUT)
+        self.check_memo_input: Locator = page.locator(loc.CHECK_MEMO_INPUT)
 
-        # self.do_not_withhold_span: Locator = page.get_by_text("Do not withhold")
-        self.federal_section: Locator = page.locator("//div[@aria-label='federal-tax-withholding-options']")
-        self.do_not_withhold_input: Locator = self.federal_section.locator("input[value='do-not-withhold']")
+        self.federal_section: Locator = page.locator(loc.FEDERAL_SECTION)
+        self.do_not_withhold_input: Locator = self.federal_section.locator(loc.DO_NOT_WITHHOLD_RELATIVE)
 
         # Locator for "Do Not Withhold" radio (Federal Tax)
-        self.do_not_withhold_radio_input: Locator = page.locator(
-            "//div[@aria-label='federal-tax-withholding-options']//input[@value='do-not-withhold']"
-        )
+        self.do_not_withhold_radio_input: Locator = page.locator(loc.DO_NOT_WITHHOLD_RADIO_INPUT)
 
-        self.acknowledgement_checkbox: Locator = page.locator(
-            "//p[contains(text(), 'I elect not to have federal income tax withheld')]/preceding-sibling::div[@aria-label='checkbox']" 
-        )
+        self.acknowledgement_checkbox: Locator = page.locator(loc.ACKNOWLEDGEMENT_CHECKBOX)
 
-        self.withhold_rate_radio: Locator = (self.federal_section.locator("input[value='withhold']"))
-        self.federal_withholding_input: Locator = (self.federal_section.locator("input[@aria-label='federal-withholding' or @name='federalTaxWithholding']"))
+        self.withhold_rate_radio: Locator = self.federal_section.locator(loc.WITHHOLD_RATE_RELATIVE)
+        self.federal_withholding_input: Locator = self.federal_section.locator(loc.FEDERAL_WITHHOLDING_RELATIVE)
 
-
-        self.state_section: Locator = page.locator(
-            "//div[@aria-label='state-tax-withholding']"
-        )
+        self.state_section: Locator = page.locator(loc.STATE_SECTION)
 
         # Do Not Withhold radio (first radio)
         self.state_do_not_withhold_radio: Locator = (
-            self.state_section.locator("input[name='state-tax-withholding-option']").first
+            self.state_section.locator(loc.STATE_TAX_OPTION_RADIO).first
         )
 
         self.state_acknowledgement_checkbox: Locator = (
-            self.state_section.locator("div[aria-label='checkbox']")
+            self.state_section.locator(loc.STATE_ACKNOWLEDGEMENT_CHECKBOX)
         )
 
         # State "Withhold at rate" radio (2nd radio)
         self.state_withhold_rate_radio: Locator = (
-            self.state_section.locator("input[name='state-tax-withholding-option']").nth(1)
+            self.state_section.locator(loc.STATE_TAX_OPTION_RADIO).nth(1)
         )
 
         # State withholding percentage input
         self.state_withholding_input: Locator = (
-            self.state_section.locator("input[@aria-label='percentage-input']")
+            self.state_section.locator(loc.STATE_PERCENTAGE_INPUT)
         )
 
         # Locator for distribution reason dropdown
-        self.distribution_reason_dropdown: Locator = page.locator(
-            "//div[contains(@aria-label,'-reason-selector')]//div[@aria-label='form-select-input']"
-        )
+        self.distribution_reason_dropdown: Locator = page.locator(loc.DISTRIBUTION_REASON_DROPDOWN)
 
         # Locator for all dropdown options
-        self.distribution_reason_options: Locator = page.locator("//li[@aria-label='dropdown-menu-item']")
-        self.distribution_reason_options_first: Locator = page.locator("//li[@aria-label='dropdown-menu-item'][1]")
+        self.distribution_reason_options: Locator = page.locator(loc.DISTRIBUTION_REASON_OPTIONS)
+        self.distribution_reason_options_first: Locator = page.locator(loc.DISTRIBUTION_REASON_OPTIONS_FIRST)
 
-        self.distribution_reason_label: Locator = page.locator("//label[@aria-label='form-select-item-label']")
-        self.selected_distribution_reason: Locator = page.locator("//div[@aria-label='form-select-input']//div[1]")
+        self.distribution_reason_label: Locator = page.locator(loc.DISTRIBUTION_REASON_LABEL)
+        self.selected_distribution_reason: Locator = page.locator(loc.SELECTED_DISTRIBUTION_REASON)
 
+        self.next_button: Locator = page.locator(loc.NEXT_BUTTON)
+        self.proceed_button: Locator = page.locator(loc.PROCEED_BUTTON)
+        self.cancel_button: Locator = page.locator(loc.CANCEL_BUTTON)
+        self.calendar_button: Locator = page.locator(loc.CALENDAR_BUTTON)
+        self.change_contribution_date_button: Locator = page.locator(loc.CHANGE_CONTRIBUTION_DATE_BUTTON)
 
-        self.next_button: Locator = page.locator("//button[@data-testid='next-button']")
-        self.proceed_button: Locator = page.locator("//button[@data-testid='proceed-button']")
-        self.cancel_button: Locator = page.locator("//button[@data-testid='back-button']")
-        self.calendar_button: Locator = page.locator("//div[@class='MuiInputAdornment-root MuiInputAdornment-positionEnd']//button")
-        self.change_contribution_date_button: Locator = page.locator("//button[@aria-label='change date']")
-
-        self.important_notes_block: Locator = page.locator(".MuiCollapse-entered")
-        self.important_notes_message: Locator = page.locator("//div[@class='MuiAccordion-region']")
+        self.important_notes_block: Locator = page.locator(loc.IMPORTANT_NOTES_BLOCK)
+        self.important_notes_message: Locator = page.locator(loc.IMPORTANT_NOTES_MESSAGE)
 
         self.contribution_amount_error: Locator = page.locator(f"{self.contribution_amount_section}/div/div/span")
         self.amount_error_message: Locator = page.locator("//span[contains(text(),'The contribution amount exceeds the allowable limi')]")

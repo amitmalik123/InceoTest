@@ -4,6 +4,7 @@ Supported Browsers Page Object
 
 from playwright.sync_api import Locator, Page
 from pages.stp.shared.base_page import BasePage
+from pages.stp.shared.locators.supported_browsers_locators import SupportedBrowsersLocators
 from utils.allure_logger import get_allure_logger
 
 logger = get_allure_logger(__name__)
@@ -16,10 +17,10 @@ class SupportedBrowsersPage(BasePage):
     
     def __init__(self, page: Page, page_verification: bool = True):
         super().__init__(page)
-        
+        loc = SupportedBrowsersLocators
         # Page elements
-        self.page_header = page.locator("//h1[text()='Supported Browsers']")
-        self.close_button = page.locator("//button[@aria-label='close-button']")
+        self.page_header = page.locator(loc.PAGE_HEADER)
+        self.close_button = page.locator(loc.CLOSE_BUTTON)
         
         # Page verification
         if page_verification:

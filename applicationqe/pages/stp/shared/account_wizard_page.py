@@ -2,6 +2,7 @@
 from playwright.sync_api import Locator, Page
 
 from pages.stp.shared.base_page import BasePage
+from pages.stp.shared.locators.account_wizard_locators import AccountWizardLocators
 from utils.allure_logger import get_allure_logger
 
 logger = get_allure_logger(__name__)
@@ -14,14 +15,15 @@ class AccountWizardPage(BasePage):
 
     def __init__(self, page: Page):
         super().__init__(page)
-        self.account_wizard_link: Locator = page.get_by_role('link', name='Account Wizard')
-        self.account_wizard_header: Locator = page.get_by_role('heading', name='Account Wizard')
-        self.selected_account_label: Locator = page.locator('div.radio:has(span.checked) + label')
-        self.complete_and_submit_btn: Locator = page.locator('#OnlineSubmitbutton')
-        self.address_change_link: Locator = page.locator('#ctl00_cphContentArea_lnkAddressChange')
-        self.next_button: Locator = page.locator("//input[@value='Next']")
-        self.loading_modal: Locator = page.locator("#loadingImageModal")
-        self.add_ach_link: Locator = page.get_by_role('link', name='Add ACH Instructions and/or Standing Letter of Authorization')
+        loc = AccountWizardLocators
+        self.account_wizard_link: Locator = page.get_by_role('link', name=loc.ACCOUNT_WIZARD_LINK)
+        self.account_wizard_header: Locator = page.get_by_role('heading', name=loc.ACCOUNT_WIZARD_HEADING)
+        self.selected_account_label: Locator = page.locator(loc.SELECTED_ACCOUNT_LABEL)
+        self.complete_and_submit_btn: Locator = page.locator(loc.COMPLETE_AND_SUBMIT_BTN)
+        self.address_change_link: Locator = page.locator(loc.ADDRESS_CHANGE_LINK)
+        self.next_button: Locator = page.locator(loc.NEXT_BUTTON)
+        self.loading_modal: Locator = page.locator(loc.LOADING_MODAL)
+        self.add_ach_link: Locator = page.get_by_role('link', name=loc.ADD_ACH_LINK)
     
     def get_account_label_locator(self, account_number: str) -> Locator:
         """Get locator for account label by account number"""

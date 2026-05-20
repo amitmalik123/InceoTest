@@ -2,6 +2,7 @@ import os
 import requests
 from playwright.sync_api import Page
 from pages.stp.shared.base_page import BasePage
+from pages.stp.shared.locators.item_details_locators import ItemDetailsLocators
 from utils.logger import setup_logger
 
 logger = setup_logger(__name__)
@@ -12,32 +13,33 @@ class ItemDetailsPage(BasePage):
     
     def __init__(self, page: Page, page_verification: bool = True):
         super().__init__(page)
+        loc = ItemDetailsLocators
         
-        self.page_label = page.locator("//div[@id='genworth-breadcrumb']//a[contains(text(),'Item Detail')]")
-        self.description = page.locator("//div[@class='description']/span")
-        self.item_number = page.locator("//div[@class='item-number']//span[@class='value']")
-        self.name = page.locator("//div[@class='name']//span[@class='value']")
-        self.status = page.locator("//span[contains(text(),'AGA1TO')]/parent::div//child::span[3]")
-        self.closed_on_date = page.locator("//span[contains(text(), 'Closed On:')]/following-sibling::label")
-        self.status_label = page.locator("//span[contains(text(), 'Status: ')]/following-sibling::label")
-        self.description_label = page.locator("//span[contains(text(), 'Description: ')]/following-sibling::label")
+        self.page_label = page.locator(loc.PAGE_LABEL)
+        self.description = page.locator(loc.DESCRIPTION)
+        self.item_number = page.locator(loc.ITEM_NUMBER)
+        self.name = page.locator(loc.NAME)
+        self.status = page.locator(loc.STATUS)
+        self.closed_on_date = page.locator(loc.CLOSED_ON_DATE)
+        self.status_label = page.locator(loc.STATUS_LABEL)
+        self.description_label = page.locator(loc.DESCRIPTION_LABEL)
         
-        self.description_info = page.locator("//table[@id='TrackingCenterItemDetailNotesGrid']//tr//td[contains(@class, 'description')]")
-        self.description_notes = page.locator("//table[@id='TrackingCenterItemDetailNotesGrid']")
-        self.created_by = page.locator("//table[@id='TrackingCenterItemDetailNotesGrid']")
-        self.time_stamps = page.locator("//table[@id='TrackingCenterItemDetailNotesGrid']//tr//td[contains(@class, 'createdOn')]")
+        self.description_info = page.locator(loc.DESCRIPTION_INFO)
+        self.description_notes = page.locator(loc.DESCRIPTION_NOTES)
+        self.created_by = page.locator(loc.DESCRIPTION_NOTES)
+        self.time_stamps = page.locator(loc.TIME_STAMPS)
         
         # Item details locators (for validation)
-        self.item_details_t11 = page.locator("//article//label")
+        self.item_details_t11 = page.locator(loc.ITEM_DETAILS_T11)
         
-        self.tracking_center_tab = page.locator("//div[@class]/a[text()='Tracking Center']")
+        self.tracking_center_tab = page.locator(loc.TRACKING_CENTER_TAB)
         
         # View Documents elements
-        self.view_button = page.locator("//a[text()='View']")
-        self.view_documents_header_popup = page.locator("//div[@class='modal-title' and text()='View Documents']")
-        self.view_documents_pdf_list_table = page.locator("//div[@class='modal-body']//div[@id='PDFListTable']")
-        self.view_documents_file_links = page.locator("//div[@id='PDFListTable']//a[@name='pdfDetails']")
-        self.close_button = page.locator("//div[@class='modal-footer']//button[contains(text(),'Close') and @aria-hidden='true']")
+        self.view_button = page.locator(loc.VIEW_BUTTON)
+        self.view_documents_header_popup = page.locator(loc.VIEW_DOCUMENTS_HEADER)
+        self.view_documents_pdf_list_table = page.locator(loc.VIEW_DOCUMENTS_PDF_LIST)
+        self.view_documents_file_links = page.locator(loc.VIEW_DOCUMENTS_FILE_LINKS)
+        self.close_button = page.locator(loc.CLOSE_BUTTON)
         
         if page_verification:
             self._verify_page_loaded()

@@ -2,6 +2,7 @@ from typing import Union
 from playwright.sync_api import Locator, Page, FrameLocator
 
 from pages.stp.shared.base_page import BasePage
+from pages.stp.shared.locators.account_list_locators import AccountListLocators
 from utils.allure_logger import get_allure_logger
 
 logger = get_allure_logger(__name__)
@@ -12,9 +13,10 @@ class AccountListPage(BasePage):
 
     def __init__(self, context: Union[Page, FrameLocator]):
         super().__init__(context)
+        loc = AccountListLocators
         # Search locators - work with both Page and FrameLocator
-        self.search_input: Locator = context.locator("#client_search_input")
-        self.search_button: Locator = context.locator("form.client_search button#searchbutton")
+        self.search_input: Locator = context.locator(loc.SEARCH_INPUT)
+        self.search_button: Locator = context.locator(loc.SEARCH_BUTTON)
     
     def get_row_by_client_id(self, client_id: str) -> Locator:
         """Get row locator by client ID"""

@@ -1,5 +1,6 @@
 from playwright.sync_api import Page
 from pages.stp.shared.base_page import BasePage
+from pages.stp.stp_addACHIntrcutions.locators.add_ach_summary_locators import AddACHSummaryLocators
 from utils.logger import setup_logger
 
 logger = setup_logger(__name__)
@@ -8,42 +9,41 @@ logger = setup_logger(__name__)
 class AddACHSummaryPage(BasePage):
     def __init__(self, page: Page):
         super().__init__(page)
+        loc = AddACHSummaryLocators
         
         # Headers
-        self.request_summary_header = page.locator("//p[contains(text(),'Request Summary')]")
-        self.request_summary_subheader = page.locator("//p[contains(text(),'Please review the details')]")
+        self.request_summary_header = page.locator(loc.REQUEST_SUMMARY_HEADER)
+        self.request_summary_subheader = page.locator(loc.REQUEST_SUMMARY_SUBHEADER)
         
         # Summary block elements
-        self.summary_block_list = page.locator(
-            "xpath=//p[text()=':']/following-sibling::p"
-        )
-        self.summary_labels = page.locator("//div[@class='MuiGrid-root']//p[1]")
-        self.summary_values = page.locator("//div[@class='MuiGrid-root']//p[2]")
+        self.summary_block_list = page.locator(loc.SUMMARY_BLOCK_LIST)
+        self.summary_labels = page.locator(loc.SUMMARY_LABELS)
+        self.summary_values = page.locator(loc.SUMMARY_VALUES)
         
         # Investment accounts
-        self.investment_accounts_single = page.locator("//p[text()=':']/following-sibling::div/child::p")
-        self.investment_accounts_multi = page.locator("//p[text()=':']/following-sibling::div/child::ol")
+        self.investment_accounts_single = page.locator(loc.INVESTMENT_ACCOUNTS_SINGLE)
+        self.investment_accounts_multi = page.locator(loc.INVESTMENT_ACCOUNTS_MULTI)
         
         # Alerts
-        self.advisor_alert = page.locator("//div[contains(@class,'MuiAlert')]//div[contains(@class,'message')]")
+        self.advisor_alert = page.locator(loc.ADVISOR_ALERT)
         
         # SLOA options
-        self.sloa_text = page.get_by_test_id("SLOA-value")
+        self.sloa_text = page.get_by_test_id(loc.SLOA_TEXT_TESTID)
         
         # Disclosure/Agreements section
-        self.agreements_title = page.locator("//span[text()='Acknowledgements and Agreements']")
-        self.agreements_subheader = page.locator("//h4[text()='Upon completion of this request, I certify that:']")
-        self.agreements_bullets = page.locator("//*[contains(text(),'Upon completion of this ')]/parent::div/child::ul")
+        self.agreements_title = page.locator(loc.AGREEMENTS_TITLE)
+        self.agreements_subheader = page.locator(loc.AGREEMENTS_SUBHEADER)
+        self.agreements_bullets = page.locator(loc.AGREEMENTS_BULLETS)
         
         # Buttons
-        self.submit_button = page.get_by_role("button", name="Submit")
-        self.submit_button_alt = page.locator("button:has-text('Submit')")
+        self.submit_button = page.get_by_role("button", name=loc.SUBMIT_BUTTON)
+        self.submit_button_alt = page.locator(loc.SUBMIT_BUTTON_ALT)
         
         # Loading indicators
-        self.spinner_locator = page.locator("div[class*='css-8jl1ua'], div[role='progressbar'], svg[class*='MuiCircularProgress']")
+        self.spinner_locator = page.locator(loc.SPINNER)
         
         # Numbering patterns for account validation
-        self.numbered_pattern = page.locator("p:has-text('1.')")
+        self.numbered_pattern = page.locator(loc.NUMBERED_PATTERN)
     
     def get_numbered_pattern_locator(self):
         """Helper method to get numbered pattern locator"""
