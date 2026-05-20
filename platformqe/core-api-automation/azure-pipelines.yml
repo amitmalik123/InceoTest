@@ -141,6 +141,8 @@ stages:
           ACCOUNTDISTRIBUTIONS_BASE_URL: $(accountdistributions_base_url)
           TRANSFER_SERVICE_VALIDATION_BASE_URL: $(transfer_service_validation_base_url)
           CUSTODIAL_INTEGRATION_BASE_URL: $(custodial_integration_base_url)
+          DOCUMENTSPROXY_BASE_URL: $(documentsproxy_base_url)
+          DOCUMENTSPROXY_AUTH_TOKEN: $(documentsproxy_auth_token)
           API_TIMEOUT: $(api_timeout)
           API_RETRY_COUNT: $(api_retry_count)
           LOG_LEVEL: DEBUG
@@ -229,6 +231,8 @@ stages:
           ACCOUNTDISTRIBUTIONS_BASE_URL: $(accountdistributions_base_url)
           TRANSFER_SERVICE_VALIDATION_BASE_URL: $(transfer_service_validation_base_url)
           CUSTODIAL_INTEGRATION_BASE_URL: $(custodial_integration_base_url)
+          DOCUMENTSPROXY_BASE_URL: $(documentsproxy_base_url)
+          DOCUMENTSPROXY_AUTH_TOKEN: $(documentsproxy_auth_token)
           API_TIMEOUT: $(api_timeout)
           API_RETRY_COUNT: $(api_retry_count)
           INFLUX_URL: $(influx_url)

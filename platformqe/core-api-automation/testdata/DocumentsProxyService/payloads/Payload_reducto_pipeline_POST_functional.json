@@ -1,0 +1,7 @@
+{
+  "input": "{{input}}",
+  "pipeline_id": "{{pipeline_id}}",
+  "settings": {
+    "document_password": null
+  }
+}

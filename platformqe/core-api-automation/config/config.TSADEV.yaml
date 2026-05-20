@@ -188,6 +188,13 @@ api_endpoints:
     use_azure_auth: false  # Set to true to use Azure AD authentication
     azure_resource: "https://management.azure.com/"  # Azure resource for token generation
 
+  documentsproxy:
+    base_url: "${DOCUMENTSPROXY_BASE_URL}"
+    auth_token: "${DOCUMENTSPROXY_AUTH_TOKEN}"
+    timeout: 120  # Reducto pipeline can take up to 2 min; do not use API_TIMEOUT override here
+    retry_count: ${API_RETRY_COUNT:3}
+    verify: false
+
   lexisnexiscipproxyservice:
     base_url: "${LEXISNEXIS_BASE_URL}"
     auth_token: "${LEXISNEXIS_CIP_AUTH_TOKEN}"
