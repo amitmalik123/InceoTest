@@ -1,7 +1,6 @@
 pool:
 #  name: 'ewm20-docker-build-agent-qa-dev'
   name: 'ubuntu2204-qa'
-  timeoutInMinutes: 10
 
 # -----------------------------
 # CI Trigger — model-management paths only
