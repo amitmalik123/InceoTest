@@ -232,7 +232,11 @@ jobs:
       pip --version
       echo "Installing Python dependencies..."
       python -m pip install --upgrade pip setuptools wheel
+<<<<<<< Updated upstream
       pip install -e .
+=======
+      pip install -e $(Build.SourcesDirectory)/applicationqe
+>>>>>>> Stashed changes
     displayName: "Install Python Dependencies"
 
   - script: |
@@ -373,6 +377,10 @@ jobs:
       ls -la $(testResultsDir) 2>/dev/null || echo "Test results directory not found"
     displayName: "Run Pytest BDD Tests with Allure"
     continueOnError: true
+<<<<<<< Updated upstream
+=======
+    workingDirectory: $(Build.SourcesDirectory)/applicationqe
+>>>>>>> Stashed changes
     env:
       WORK_ITEM_AUTH_TOKEN: $(WORK_ITEM_AUTH_TOKEN)
       PARTIES_AUTH_TOKEN: $(PARTIES_AUTH_TOKEN)
@@ -440,6 +448,10 @@ jobs:
     displayName: "Push Metrics to InfluxDB"
     condition: always()
     continueOnError: true
+<<<<<<< Updated upstream
+=======
+    workingDirectory: $(Build.SourcesDirectory)/applicationqe
+>>>>>>> Stashed changes
 
   - script: |
       echo "Pushing test metrics to Azure Log Analytics..."
