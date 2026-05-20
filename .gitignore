@@ -3,7 +3,6 @@
 /authfiles/
 /test-results/
 auth_states/
-reports//PROPOSAL
 .pytest_cache
 *__pycache__/
 # Managed in applicationqe/proposals/.gitignore
@@ -11,12 +10,21 @@ reports//PROPOSAL
 
 venv/
 
-applicationqe/reports/*
+applicationqe/reports/allure-results/
+applicationqe/reports/allure-report/
+applicationqe/reports/excelreport/
+applicationqe/reports/junit
+applicationqe/reports/videos
+applicationqe/reports/auto_healing_report.json
+applicationqe/reports/http_errors.log
+applicationqe/reports/pytest_report.html
+applicationqe/test-results/
+applicationqe/tests/.auth/  # Authentication state files (contains session tokens)
 
 # Auth session state files — contain cookies/tokens, never commit
 applicationqe/tests/.auth/
 
 .github
-/reports
-/tests
-MIGRATION_PLAN.md
+
+# Ignore all Python package init files (match any depth)
+__init__.py
