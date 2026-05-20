@@ -1,31 +1,13 @@
 name: PortfolioReporting_Daily_Regression_$(Date:yyyyMMdd)$(Rev:.r)
 
 pool:
-#  name: 'ewm20-docker-build-agent-qa-dev'
   name: 'ubuntu2204-qa'
   timeoutInMinutes: 10
 
 trigger: none
-# -----------------------------
-# CI Trigger - Run on every commit
-# -----------------------------
-# trigger:
-#   branches:
-#     include:
-#       - main
-#       - develop
-#       # - '*'  # Uncomment to trigger on ALL branches
-#   paths:
-#     exclude:
-#       - docs/**
-#       - README.md
-#       - '*.md'
 
-# -----------------------------
-# Scheduled triggers
-# -----------------------------
 schedules:
-  - cron: "33 09 * * *" # 09:33 UTC daily (3:03 PM IST)
+  - cron: "00 10 * * *" # 10:00 UTC daily (3:30 PM IST)
     displayName: "Daily Regression"
     branches:
       include:
@@ -34,9 +16,6 @@ schedules:
         - PortfolioReporting
     always: true
 
-# -----------------------------
-# Parameters for Manual Runs
-# -----------------------------
 parameters:
   - name: environment
     displayName: "Target Environment (manual run)"
@@ -84,12 +63,8 @@ parameters:
 
 variables:
 - group: qa-pipelines-shared-config
-# subscription_test, logAnalyticsWorkspaceId, logAnalyticsSharedKey come from the library group above
 - name: azureSubscription
   value: 'TEST Foundation (9156b16c-8a2e-4b7d-a886-e772dc017316)'
-# -----------------------------
-# Job Section
-# -----------------------------
 jobs:
 - job: RunPytestBDDTests
   displayName: "Run Python Playwright BDD Tests"
@@ -104,7 +79,6 @@ jobs:
     allureReportDir: '$(buildPath)/reports/PortfolioReporting/allure-report'
     allureToolsDir: '$(Build.ArtifactStagingDirectory)/allure-tools'
     testResultsDir: '$(buildPath)/reports/PortfolioReporting'
-    # Azure Key Vault configuration
     keyVaultName: 'amkkvqapipeline-testncus'           # – Replace with your Key Vault name
 
 
@@ -112,9 +86,6 @@ jobs:
   - checkout: self
     clean: true
 
-  # -----------------------------------------------------------------
-  # Azure Key Vault: Fetch secrets and map them to pipeline variables
-  # -----------------------------------------------------------------
   - task: AzureKeyVault@2
     displayName: 'Fetch Secrets from Azure Key Vault'
     inputs:
@@ -214,10 +185,6 @@ jobs:
       echo "Browser installation complete!"
     displayName: "Install Playwright Browsers (Python)"
     continueOnError: false
-  # - script: playwright install chromium --with-deps
-  #   displayName: "Install Playwright Browsers"
-  #   continueOnError: false
-
   - script: |
       echo "Installing Allure CLI via pip..."
       pip install allure-pytest
@@ -225,7 +192,6 @@ jobs:
       echo "Installing Allure CLI binary (standalone)..."
       mkdir -p $(allureToolsDir)
 
-      # Download and install Allure commandline
       wget -q https://github.com/allure-framework/allure2/releases/download/2.25.0/allure-2.25.0.tgz
       tar -xzf allure-2.25.0.tgz -C $(allureToolsDir)
 
@@ -236,16 +202,6 @@ jobs:
       echo "Verifying Allure CLI installation..."
       allure --version
     displayName: "Install and Verify Allure CLI"
-
-  # - script: |
-  #     echo "Installing Allure CLI..."
-  #     sudo apt-get update
-  #     sudo apt-get install -y default-jre
-  #     wget https://github.com/allure-framework/allure2/releases/download/2.24.1/allure-2.24.1.tgz -O /tmp/allure.tgz
-  #     sudo tar -zxvf /tmp/allure.tgz -C /opt/
-  #     sudo ln -s /opt/allure-2.24.1/bin/allure /usr/bin/allure
-  #     allure --version
-  #   displayName: "Install and Verify Allure CLI"
 
   - script: |
       cd "$(buildPath)"
@@ -274,8 +230,6 @@ jobs:
       echo "Current working directory: $(pwd)"
       echo "Python version: $(python --version)"
       echo ""
-      # Build pytest command with parallel workers support
-      # Determine test target based on marker
       if [ "$(marker)" = "rgl" ]; then
         TEST_TARGET="tests/bdd/runner/PortfolioReporting/test_rgl.py"
         echo "Running RGL feature tests"
@@ -305,7 +259,6 @@ jobs:
         echo "Running default feature set: RGL, TMS, and Document Vault"
       fi
 
-      # Determine browser parameter
       BROWSER_VALUE="${{ parameters.browser }}"
       if [ "$BROWSER_VALUE" = "both" ]; then
         BROWSER_PARAM="--browser chromium --browser msedge"
@@ -331,7 +284,6 @@ jobs:
         --html=\"$(testResultsDir)/pytest-report.html\" \
         --self-contained-html"
 
-      # Add parallel execution if workers > 1
       WORKERS_VALUE="$(workers)"
       if [ "$WORKERS_VALUE" = "auto" ] || [ "$WORKERS_VALUE" -gt "1" ] 2>/dev/null; then
         PYTEST_CMD="$PYTEST_CMD -n $WORKERS_VALUE --dist loadscope"
@@ -367,8 +319,6 @@ jobs:
       WORK_ITEM_AUTH_TOKEN: $(WORK_ITEM_AUTH_TOKEN)
       PARTIES_AUTH_TOKEN: $(PARTIES_AUTH_TOKEN)
       INFLUXDB_AUTO_PUSH: 'false'  # Pipeline has its own dedicated push step   
-      # – Connection strings: AzureKeyVault@2 fetches secrets – mapped to env vars –
-      # Python reads these via os.getenv() – no direct Key Vault API calls.   
       TRANSFER_CONNECTION_STRING: $(transfer-connection-string)
       ACCOUNTDISTRIBUTIONS_CONNECTION_STRING: $(accoundistributions-connection-string)
       CRM_DB_CONNECTION_STRING: $(crm-db-connection-string)
@@ -412,12 +362,6 @@ jobs:
       ls -la $(allureReportDir) 2>/dev/null || echo "Report dir not found"      
     displayName: "Verify Report Paths"
     condition: always()
-
-  # - script: |
-  #     echo "SonarQube analysis commented out"
-  #     # sonar-scanner command would go here
-  #   displayName: "Run SonarQube Analysis"
-  #   condition: succeededOrFailed()
 
   - script: |
       echo "Pushing test metrics to InfluxDB..."
