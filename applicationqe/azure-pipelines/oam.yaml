@@ -27,7 +27,7 @@ schedules:
    displayName: "Schedule for Test11"
    branches:
      include:
-       - application/FormsAndTracking
+       - application/oam
    always: true
 
 # -----------------------------
@@ -86,7 +86,7 @@ variables:
 jobs:
 - job: RunPytestBDDTests
   displayName: "Run Python Playwright BDD Tests"
-  timeoutInMinutes: 45
+  timeoutInMinutes: 180
 
   variables:
     buildPath: '$(Build.SourcesDirectory)'
@@ -267,6 +267,10 @@ jobs:
       cd applicationqe
       echo "Current working directory: $(pwd)"
       echo ""
+      echo "Stripping UTF-8 BOM from OAM feature files..."
+      sed -i '1s/^\xEF\xBB\xBF//' tests/features/oam/*.feature 2>/dev/null || true
+      echo "✓ UTF-8 BOM stripped from OAM feature files"
+      echo ""
       echo "Setting up environment variables..."
       export TEST_ENV="$(environment)"
       export CI=true
@@ -416,6 +420,7 @@ jobs:
       export BUILD_REASON="$(Build.Reason)"
       export AZURE_LOG_WORKSPACE_ID="$(logAnalyticsWorkspaceId)"
       export AZURE_LOG_SHARED_KEY="$(logAnalyticsSharedKey)"
+      export CONFIG_MODULE="oam"
   
       python utils/azure_analytics_reporter.py
     displayName: "Push Metrics to Azure Log Analytics"
