@@ -13,7 +13,9 @@ class CreateFeesPage(BasePage):
     def enter_fee(self, fee_type: str, fee_value: str) -> None:
         """Enter fee based on type: 'flat' fills the flat fee input, 'tiered' selects from dropdown."""
         logger.info(f"Entering fee — type: {fee_type}, value: {fee_value}")
+        logger.info(f"Current URL before wait: {self.page.url}")
         self.page.wait_for_load_state('networkidle', timeout=30000)
+        logger.info(f"Current URL after networkidle: {self.page.url}")
         # Save HTML for diagnostics on first use
         try:
             with open('reports/create_fees_page.html', 'w', encoding='utf-8') as f:

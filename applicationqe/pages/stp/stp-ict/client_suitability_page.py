@@ -15,14 +15,18 @@ class ClientSuitabilityPage(BasePage):
 
     def answer_question(self, question: int, answer: int) -> None:
         """Select a radio option for a given question (1-3) and answer (1-4)."""
-        # Step 1: Click the Uniform.js span wrapper to update visual state
-        span_selector = f"span:has(input[name='{question}'][value='{answer}'])"
+        input_selector = f"input[type='radio'][name='{question}'][value='{answer}']"
+
+        # Step 1: Playwright force-click on the native radio input.
+        # force=True bypasses visibility/actionability checks and dispatches a full
+        # mouse event chain (mousedown, mouseup, click) that Uniform.js intercepts.
         try:
-            self.page.locator(span_selector).click(timeout=5000)
+            self.page.locator(input_selector).click(force=True, timeout=5000)
         except Exception:
             pass
 
-        # Step 2: Use jQuery trigger if available, else native events
+        # Step 2: Also set checked via jQuery and fire change/click events so the
+        # page's validation counter is incremented regardless of Uniform state.
         self.page.evaluate("""
             ([name, value]) => {
                 const target = document.querySelector(
@@ -53,8 +57,16 @@ class ClientSuitabilityPage(BasePage):
             if (window.$ && $.uniform) {
                 $.uniform.update(':radio');
             }
+            // Re-fire change on every checked radio so the page's counter
+            // is incremented even if Uniform's update didn't trigger it.
+            document.querySelectorAll('input[type="radio"]:checked').forEach(function(el) {
+                el.dispatchEvent(new Event('change', {bubbles: true}));
+                if (window.$ || window.jQuery) {
+                    (window.$ || window.jQuery)(el).trigger('change');
+                }
+            });
         """)
-        self.page.wait_for_timeout(800)
+        self.page.wait_for_timeout(1200)
         logger.info("All suitability questions answered")
 
     def click_next(self) -> None:
@@ -68,16 +80,13 @@ class ClientSuitabilityPage(BasePage):
             next_btn.click()
             logger.info("Next button clicked (enabled)")
         except Exception:
-            logger.warning("Next button still disabled — submitting form via JS")
-            # Force form submission — radio inputs ARE checked, server will accept
+            logger.warning("Next button still disabled — force-enabling and clicking via JS")
             self.page.evaluate("""
                 const btn = document.getElementById('nextButton');
-                if (btn && btn.form) {
-                    btn.form.submit();
-                } else if (btn) {
+                if (btn) {
                     btn.removeAttribute('disabled');
                     btn.click();
                 }
             """)
-            logger.info("Form submitted via JS")
+            logger.info("Next button force-clicked via JS")
         self.page.wait_for_load_state('networkidle', timeout=30000)

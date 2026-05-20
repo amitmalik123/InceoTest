@@ -22,19 +22,24 @@ def browser_context_args(browser_context_args, tmp_path_factory):
         "record_video_size": {"width": 1280, "height": 720},
     }
 
+import sys
+sys.path.insert(0, os.path.abspath(
+    os.path.join(os.path.dirname(__file__), '../../../../pages/stp/stp-ict')
+))
+
 from pages.ewm.account_detail_page import AccountDetailPage
 from pages.ewm.account_list_page import AccountListPage
-from pages.ewm.client_suitability_page import ClientSuitabilityPage
 from pages.ewm.clients_page import ClientsPage
-from pages.ewm.ict_account_number_page import AccountNumberPage
-from pages.ewm.ict_create_fees_page import CreateFeesPage
-from pages.ewm.ict_create_forms_page import CreateFormsPage
-from pages.ewm.ict_docusign_page import DocuSignPage
-from pages.ewm.ict_login_page import LoginPage
-from pages.ewm.ict_select_destination_page import SelectDestinationPage
-from pages.ewm.ict_select_source_account_page import SelectSourceAccountPage
-from pages.ewm.ict_summary_page import ICTSummaryPage
-from pages.ewm.ict_tracking_center_page import TrackingCenterPage
+from client_suitability_page import ClientSuitabilityPage
+from ict_account_number_page import AccountNumberPage
+from ict_create_fees_page import CreateFeesPage
+from ict_create_forms_page import CreateFormsPage
+from ict_docusign_page import DocuSignPage
+from ict_login_page import LoginPage
+from ict_select_destination_page import SelectDestinationPage
+from ict_select_source_account_page import SelectSourceAccountPage
+from ict_summary_page import ICTSummaryPage
+from ict_tracking_center_page import TrackingCenterPage
 from utils.settings import settings
 
 
