@@ -662,6 +662,17 @@ The framework provides unified database client support through `DatabaseClientFa
 - **MongoDB** - NoSQL document database
 - **CosmosDB** - Azure managed NoSQL database
 - **InfluxDB** - Time-series database for metrics and monitoring
+- **Snowflake** - Cloud data warehouse with RSA private key authentication
+
+### Snowflake Connection Support
+
+**Authentication** uses RSA private key pairs. Set one of the following environment variables:
+
+| Variable | Description |
+|---|---|
+| `SNOWFLAKE_PRIVATE_KEY_PATH` | Path to a `.pem` / `.p8` file on disk (recommended for local by adding to .env file example SNOWFLAKE_PRIVATE_KEY_PATH=C:\keys\snowflake_rsa_dev.pem) |
+| `SNOWFLAKE_PRIVATE_KEY` | Raw PEM content as a string (use Azure secrets for CI/CD pipelines) |
+
 
 ### PostgreSQL Connection Helper
 
