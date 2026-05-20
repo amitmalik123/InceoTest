@@ -236,6 +236,8 @@ def build_baseline_records(
             "ServiceName": record.get("ServiceName", "unknown"),
             "ScenarioName": record.get("ScenarioName", "unknown"),
             "Endpoint": record.get("Endpoint", "Aggregated"),
+            "BaseEndpoint": record.get("BaseEndpoint", record.get("Endpoint", "Aggregated")),
+            "TestCaseId": record.get("TestCaseId", ""),
             "Method": record.get("Method", ""),
             "RequestName": record.get("RequestName", record.get("ScenarioName", "Aggregated")),
             "LoadProfile": record.get("LoadProfile", "1x"),
@@ -366,6 +368,8 @@ def _build_common_fields(
     spawn_rate = _first_number(command_args.get("spawn_rate (-r)"), _optional_env("LOCUST_SPAWN_RATE"))
     run_time_seconds = _parse_duration_seconds(command_args.get("run_time (-t)") or _optional_env("LOCUST_RUN_TIME"))
     target_rps = _first_number(test_params.get("target_rps"), _optional_env("LOCUST_TARGET_RPS"))
+    sla_ms = _resolve_sla_ms(test_params)
+    app_insights_perf_url, app_insights_error_url = _resolve_app_insights_urls(environment_name)
     return {
         "RunId": run_id,
         "ExecutionTimestamp": generated_at,
@@ -379,6 +383,9 @@ def _build_common_fields(
         "SpawnRate": spawn_rate,
         "RunTimeSeconds": run_time_seconds,
         "TargetRps": target_rps,
+        "SlaMs": sla_ms,
+        "AppInsightsPerfUrl": app_insights_perf_url or "",
+        "AppInsightsErrorUrl": app_insights_error_url or "",
         "BuildId": _optional_env("BUILD_BUILDID") or "local",
         "BuildNumber": _optional_env("BUILD_BUILDNUMBER") or "local",
         "PipelineId": _optional_env("SYSTEM_DEFINITIONID") or "unknown",
@@ -400,6 +407,8 @@ def _build_run_record(
     record.update(_metrics_from_stats_row(aggregate_row))
     record.update({
         "Endpoint": "Aggregated",
+        "BaseEndpoint": "Aggregated",
+        "TestCaseId": "",
         "Method": aggregate_row.get("Type", ""),
         "RequestName": aggregate_row.get("Name", "Aggregated") or "Aggregated",
         "BaselineStatus": STATUS_NO_BASELINE,
@@ -420,10 +429,14 @@ def _build_run_record(
 def _build_endpoint_record(common: Dict[str, Any], row: Dict[str, str]) -> Dict[str, Any]:
     record = dict(common)
     record.update(_metrics_from_stats_row(row))
+    full_name = row.get("Name", "unknown") or "unknown"
+    base_endpoint, test_case_id = _split_endpoint_name(full_name)
     record.update({
-        "Endpoint": row.get("Name", "unknown") or "unknown",
+        "Endpoint": full_name,
+        "BaseEndpoint": base_endpoint or full_name,
+        "TestCaseId": test_case_id,
         "Method": row.get("Type", ""),
-        "RequestName": row.get("Name", "unknown") or "unknown",
+        "RequestName": full_name,
         "BaselineStatus": STATUS_NO_BASELINE,
     })
     record["BaselineId"] = _baseline_id(record)
@@ -431,6 +444,8 @@ def _build_endpoint_record(common: Dict[str, Any], row: Dict[str, str]) -> Dict[
 
 
 def _build_timeseries_record(common: Dict[str, Any], row: Dict[str, str]) -> Dict[str, Any]:
+    full_name = row.get("Name", "Aggregated") or "Aggregated"
+    base_endpoint, test_case_id = _split_endpoint_name(full_name)
     record = {
         "RunId": common["RunId"],
         "Environment": common["Environment"],
@@ -441,9 +456,11 @@ def _build_timeseries_record(common: Dict[str, Any], row: Dict[str, str]) -> Dic
         "BuildNumber": common["BuildNumber"],
         "Timestamp": _timestamp_from_epoch(row.get("Timestamp")),
         "Users": _safe_float(row.get("User Count"), 0.0),
-        "Endpoint": row.get("Name", "Aggregated") or "Aggregated",
+        "Endpoint": full_name,
+        "BaseEndpoint": base_endpoint or full_name,
+        "TestCaseId": test_case_id,
         "Method": row.get("Type", ""),
-        "RequestName": row.get("Name", "Aggregated") or "Aggregated",
+        "RequestName": full_name,
         "RequestsPerSecond": _safe_float(row.get("Requests/s"), 0.0),
         "FailuresPerSecond": _safe_float(row.get("Failures/s"), 0.0),
         "P50ResponseTimeMs": _safe_float(row.get("50%"), 0.0),
@@ -483,6 +500,7 @@ def _failure_record(common: Dict[str, Any], row: Dict[str, str], failure_type: s
     name = row.get("Name") or row.get("Request Name") or "unknown"
     method = row.get("Method") or row.get("Type") or ""
     error = row.get("Error") or row.get("Exception") or row.get("Traceback") or ""
+    base_endpoint, test_case_id = _split_endpoint_name(name)
     return {
         "RunId": common["RunId"],
         "Environment": common["Environment"],
@@ -491,6 +509,8 @@ def _failure_record(common: Dict[str, Any], row: Dict[str, str], failure_type: s
         "BuildId": common["BuildId"],
         "BuildNumber": common["BuildNumber"],
         "Endpoint": name,
+        "BaseEndpoint": base_endpoint or name,
+        "TestCaseId": test_case_id,
         "Method": method,
         "RequestName": name,
         "FailureType": failure_type,
@@ -630,13 +650,48 @@ def _load_multiplier_from_profile(load_profile: str) -> float:
     return 1.0
 
 
+# Pattern: trailing parenthesised test-case identifier such as `(TC001_perf_beta)`.
+_TC_SUFFIX_RE = re.compile(r"\s*\(\s*(TC[A-Za-z0-9_\-.]+)\s*\)\s*$", re.IGNORECASE)
+# Pattern: METHOD followed by a URL path beginning with `/` (e.g. `POST /v2/analytics`).
+_METHOD_URL_RE = re.compile(r"^(\S+\s+/\S*)")
+
+
+def _split_endpoint_name(full_name: Optional[str]) -> tuple:
+    """Split a Locust request name into (base_endpoint, test_case_id).
+
+    Examples:
+        'POST /v2/analytics [positive] Beta (TC001_perf_beta)' -> ('POST /v2/analytics', 'TC001_perf_beta')
+        'GET /api/users'                                       -> ('GET /api/users', '')
+        'MyTask (TC042)'                                       -> ('MyTask', 'TC042')
+    """
+    if not full_name:
+        return "", ""
+    name = full_name.strip()
+    test_case_id = ""
+    suffix_match = _TC_SUFFIX_RE.search(name)
+    if suffix_match:
+        test_case_id = suffix_match.group(1)
+        name = _TC_SUFFIX_RE.sub("", name).strip()
+    base_match = _METHOD_URL_RE.match(name)
+    base = base_match.group(1).strip() if base_match else name
+    return base, test_case_id
+
+
 def _baseline_id(record: Dict[str, Any]) -> str:
+    # Baseline key intentionally uses BaseEndpoint (when present) so that multiple test
+    # cases under the same route share a single baseline.
+    endpoint_key = (
+        record.get("BaseEndpoint")
+        or record.get("Endpoint")
+        or record.get("RequestName")
+        or "Aggregated"
+    )
     return _clean_id(
         "_".join([
             str(record.get("ServiceName", "unknown")),
             str(record.get("Environment", "unknown")),
             str(record.get("Method", "")),
-            str(record.get("Endpoint", record.get("RequestName", "Aggregated"))),
+            str(endpoint_key),
             str(record.get("LoadProfile", "1x")),
         ])
     )
@@ -659,6 +714,34 @@ def _optional_env(name: str) -> Optional[str]:
     if not value or re.fullmatch(r"\$\([^)]+\)", value):
         return None
     return value
+
+
+def _resolve_sla_ms(test_params: Dict[str, str]) -> float:
+    """Resolve the latency SLA in milliseconds.
+
+    Order: env LOCUST_SLA_SECONDS -> metadata test_params['sla_seconds'] -> 1000.0 ms.
+    Mirrors the resolution used by locustfile.py / perf_summary_reporter.
+    """
+    raw = _optional_env("LOCUST_SLA_SECONDS")
+    if raw is None:
+        raw = (test_params or {}).get("sla_seconds")
+    try:
+        if raw is not None and str(raw).strip() != "":
+            return float(raw) * 1000.0
+    except (TypeError, ValueError):
+        pass
+    return 1000.0
+
+
+def _resolve_app_insights_urls(environment_name: Optional[str]) -> tuple:
+    """Resolve (performance_url, failures_url) for the given env, or (None, None)."""
+    try:
+        from framework.reporter.perf_summary_reporter import _app_insights_links  # type: ignore
+        links = _app_insights_links(environment_name) or {}
+        return links.get("performance"), links.get("failures")
+    except Exception as exc:  # pragma: no cover - best effort
+        logger.info("[Performance Log Analytics] App Insights URL resolution skipped: %s", exc)
+        return None, None
 
 
 def _path_to_string(path: Path) -> str:

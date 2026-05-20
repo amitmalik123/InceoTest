@@ -742,6 +742,42 @@ def on_test_stop(environment, **kwargs):
                    f"Network Sent: {bytes_sent:.2f} MB, Recv: {bytes_recv:.2f} MB, "
                    f"CPU Avg: {cpu_percent:.1f}%")
         
+        # Enrich test_parameters with sla_seconds & service_name so the
+        # Azure Log Analytics reporter can populate PerfRun_CL.SlaMs_d /
+        # PerfRun_CL.ServiceName without having to re-resolve them.
+        # Resolution order for SLA: env LOCUST_SLA_SECONDS -> config
+        # performance.sla_seconds -> testcase sla_seconds -> default 1.0s.
+        try:
+            sla_for_meta = None
+            sla_env_meta = (os.environ.get('LOCUST_SLA_SECONDS') or '').strip()
+            if sla_env_meta and not sla_env_meta.startswith('$('):
+                try:
+                    sla_for_meta = float(sla_env_meta)
+                except (TypeError, ValueError):
+                    sla_for_meta = None
+            if sla_for_meta is None:
+                try:
+                    perf_cfg = config.get('performance', {}) if isinstance(config, dict) else {}
+                    if 'sla_seconds' in perf_cfg:
+                        sla_for_meta = float(perf_cfg['sla_seconds'])
+                except (TypeError, ValueError):
+                    sla_for_meta = None
+            if sla_for_meta is None and TESTCASES:
+                tc_sla = TESTCASES[0].get('sla_seconds')
+                if tc_sla is not None:
+                    try:
+                        sla_for_meta = float(tc_sla)
+                    except (TypeError, ValueError):
+                        sla_for_meta = None
+            if sla_for_meta is None:
+                sla_for_meta = 1.0
+            test_parameters['sla_seconds'] = sla_for_meta
+
+            if TESTCASES and TESTCASES[0].get('service_name'):
+                test_parameters.setdefault('service_name', TESTCASES[0].get('service_name'))
+        except Exception as enrich_error:
+            logger.warning(f"[REPORT] Failed to enrich test_parameters for metadata: {enrich_error}")
+
         # Add monitoring data and test parameters to CSV stats
         stats = environment.stats
         stats.monitoring_data = monitoring_data
