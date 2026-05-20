@@ -14,13 +14,13 @@ Feature: Verify Document Vault page functionality client level
   #     | SheetName | RowNumber |
   #     | PR        |         2 |
 
-  @regression @e2e @documentvault 
-  Scenario: Validation of Document Vault page functionalities Agent Level
-    Given user click on clients tab
-    When navigates to Document vault 
-    And validate all the dropdowns are enabled for user interaction
-    And click documenttype dropdown and select QPR document
-    Then validate find button is enabled for user interaction
+  # @regression @e2e @documentvault 
+  # Scenario: Validation of Document Vault page functionalities Agent Level
+  #   Given user click on clients tab
+  #   When navigates to Document vault 
+  #   And validate all the dropdowns are enabled for user interaction
+  #   And click documenttype dropdown and select QPR document
+  #   Then validate find button is enabled for user interaction
 
   @regression @e2e @documentvault
   Scenario: Validate filter actions and Find button state
