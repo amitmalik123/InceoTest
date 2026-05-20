@@ -456,6 +456,7 @@ jobs:
     displayName: "Push Metrics to Azure Log Analytics"
     condition: always()
     continueOnError: true
+    workingDirectory: $(Build.SourcesDirectory)/applicationqe
 
   - task: PublishBuildArtifacts@1
     displayName: "Publish Test Results Directory"
