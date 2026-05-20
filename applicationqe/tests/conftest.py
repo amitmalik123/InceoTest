@@ -26,11 +26,22 @@ def test_environment(request):
     return request.config.getoption("--env")
 
 @pytest.fixture(scope="session")
+def browser_type_launch_args(browser_type_launch_args):
+    """Launch browser in headed mode with a maximized window."""
+    return {
+        **browser_type_launch_args,
+        "headless": False,
+        "args": ["--start-maximized"],
+    }
+
+
+@pytest.fixture(scope="session")
 def browser_context_args(browser_context_args):
-    """Configure browser context to ignore HTTPS errors for test environments"""
+    """Configure browser context to ignore HTTPS errors and use a maximized viewport."""
     return {
         **browser_context_args,
         "ignore_https_errors": True,
+        "no_viewport": True,
     }
 
 
@@ -49,8 +60,8 @@ def maximize_window_and_login(browser):
     page.set_viewport_size({"width": 1920, "height": 1080})  # Maximize window
 
     # Use default credentials
-    username = os.getenv("DEFAULT_USERNAME", "sampleadvisorlogin")
-    password = os.getenv("DEFAULT_PASSWORD", "amkF1n@nc23S")
+    username = os.getenv("DEFAULT_USERNAME", "T11_AG8959_Perf")
+    password = os.getenv("DEFAULT_PASSWORD", "QAAdminUser_33a")
 
     # Navigate to login page and perform login
     login_page = LoginPage(page)

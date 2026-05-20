@@ -65,6 +65,16 @@ def models_list_has_key_columns(page: Page, models_page: ModelsPage):
     models_page.assert_models_list_includes_key_business_columns()
 
 
+@then("the drafts tab is available")
+def drafts_tab_is_available(page: Page, models_page: ModelsPage):
+    models_page.assert_drafts_tab_visible()
+
+
+@then("the models list displays published model data")
+def models_list_displays_published_data(page: Page, models_page: ModelsPage):
+    models_page.assert_models_list_has_data()
+
+
 @when("the user starts a new model")
 @when("the user creates a new model")
 def user_starts_new_model(page: Page, models_page: ModelsPage, test_context: dict):
@@ -105,6 +115,31 @@ def model_can_be_published(page: Page, models_page: ModelsPage):
 @given("the user opens the most recently updated draft model")
 def user_opens_most_recent_draft(page: Page, models_page: ModelsPage):
     models_page.open_most_recent_draft_model()
+
+
+@given("the user opens a draft model with at least 3 strategies")
+def user_opens_draft_with_three_strategies(page: Page, models_page: ModelsPage):
+    models_page.open_first_draft_model_with_multiple_strategies()
+
+
+@when("the user removes one strategy from the model")
+def user_removes_one_strategy(page: Page, models_page: ModelsPage):
+    models_page.remove_strategy_from_investment_widget()
+
+
+@then("the save draft button is disabled")
+def save_draft_button_disabled(page: Page, models_page: ModelsPage):
+    models_page.assert_save_draft_button_disabled()
+
+
+@when("the user adjusts all holdings to total 100 percent")
+def user_adjusts_holdings_to_100(page: Page, models_page: ModelsPage):
+    models_page.adjust_remaining_allocation_to_100()
+
+
+@then("no validation errors are displayed")
+def no_validation_errors_displayed(page: Page, models_page: ModelsPage):
+    models_page.assert_no_validation_errors()
 
 
 @when("the user updates the model name")

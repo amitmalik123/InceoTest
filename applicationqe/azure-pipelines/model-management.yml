@@ -8,7 +8,7 @@ trigger:
   paths:
     include:
       - 'data/model-management/wrappermodel/**'
-      - 'config/Model Management/**'
+      - 'config/model-management/**'
       - 'tests/features/model-management/WrapperModel/**'
       - 'tests/steps/model-management/wrappermodel/**'
       - 'pages/model-management/wrappermodel**'
@@ -24,7 +24,7 @@ pr:
   paths:
     include:
       - 'data/model-management/wrappermodel/**'
-      - 'config/Model Management/**'
+      - 'config/model-management/**'
       - 'tests/features/model-management/WrapperModel/**'
       - 'tests/steps/model-management/wrappermodel/**'
       - 'pages/model-management/wrappermodel**'

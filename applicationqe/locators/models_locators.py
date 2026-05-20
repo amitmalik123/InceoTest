@@ -48,7 +48,10 @@ class ModelsLocators:
 
     @staticmethod
     def add_strategies_button(page: Page) -> Locator:
-        return page.locator("button:has-text('Add Strategies'), button:has-text('Add')").first
+        return page.locator(
+            "[role='dialog'] button:has-text('Add Strategies'), "
+            "[role='dialog'] button:has-text('Add strategies')"
+        ).first
 
     @staticmethod
     def strategy_checkboxes(page: Page) -> Locator:
@@ -88,11 +91,20 @@ class ModelsLocators:
 
     @staticmethod
     def save_draft_button(page: Page) -> Locator:
-        return page.locator("button:has-text('Save Draft'), button:has-text('Save draft')").first
+        return page.locator(
+            "button:has-text('Save Draft'), "
+            "button:has-text('Save draft'), "
+            "button:has-text('Save as a draft'), "
+            "button:has-text('Save As A Draft')"
+        ).first
 
     @staticmethod
     def publish_model_button(page: Page) -> Locator:
-        return page.locator("button:has-text('Publish Model'), button:has-text('Publish')").first
+        # Use exact-ish matching to avoid hitting 'Continue to Publish' or 'Published'.
+        return page.locator(
+            "button:has-text('Publish Model'), "
+            "button:has-text('Publish model')"
+        ).first
 
     @staticmethod
     def asset_class_allocation_widget(page: Page) -> Locator:
@@ -116,7 +128,13 @@ class ModelsLocators:
 
     @staticmethod
     def model_published_successfully_text(page: Page) -> Locator:
-        return page.locator("text='Model published successfully', text='Published successfully'").first
+        return page.locator(
+            "text='Model published successfully', "
+            "text='Published successfully', "
+            "text='Model Published Successfully', "
+            "text='Model is now published', "
+            "text='Model has been published'"
+        ).first
 
     @staticmethod
     def edit_model_button(page: Page) -> Locator:
