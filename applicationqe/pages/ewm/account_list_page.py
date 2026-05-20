@@ -103,7 +103,7 @@ class AccountListPage(BasePage):
         else:
             logger.error("All search strategies failed!")
             # Take another screenshot after attempts
-            self.page.screenshot(path=f\"reports/oam/screenshots/account_list_failed_{client_id}.png\")
+            self.page.screenshot(path=f"reports/oam/screenshots/account_list_failed_{client_id}.png")
             raise Exception(f"Unable to search for client {client_id} - all strategies failed")
 
     def select_account(self, account_name: str, client_id: str = None) -> None:
