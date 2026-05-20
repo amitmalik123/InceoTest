@@ -70,7 +70,8 @@ parameters:
     type: string
     default: "all_tests"
     values:
-      - test_add_model
+        - all_tests
+        - test_add_model
 
   - name: workers
     displayName: "Number of Parallel Workers"
