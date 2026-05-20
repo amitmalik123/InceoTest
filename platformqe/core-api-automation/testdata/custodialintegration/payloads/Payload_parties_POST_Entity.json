@@ -1,0 +1,48 @@
+{
+  "partyType": "Trust",
+  "status": "Draft",
+  "core": {
+    "individual": null,
+    "entity": {
+      "type": "Business",
+      "subType": "Unknown",
+      "title": "{{ random_string(6) }} Solution",
+      "taxId": "{{ random_numeric(9) }}",
+      "taxIdentifier": "SSN",
+      "createdDate": "{{ random_date('-30y', 'today', '%Y-%m-%d') }}"
+    }
+  },
+  "addresses": [
+    {
+      "addressType": "Residence",
+      "line1": "{{ random_int(1, 30) }} street",
+      "line2": "{{ random_int(1, 100) }}th avenue",
+      "city": "{{ alternate('Phoenix', 'Tucson', 'Mesa') }}",
+      "state": "AZ",
+      "zip": "{{ alternate('85001', '85002', '85003') }}",
+      "country": "US",
+      "priorityType": "Primary"
+    }
+  ],
+  "contacts": [
+    {
+      "contactType": "Phone",
+      "usageType":"{{ alternate('Unknown', 'Personal', 'Work', 'Business', 'DayTime', 'Home', 'Cellular') }}",
+      "value": "{{ random_numeric(10) }}",
+      "priorityType": "Primary"
+    },
+    {
+      "contactType": "Email",
+      "usageType":"{{ alternate('Unknown', 'Personal', 'Work', 'Business', 'DayTime', 'Home', 'Cellular') }}",
+      "value": "{{ random_email() }}",
+      "priorityType": "Secondary"
+    }
+  ],
+  "identifiers": [
+    {
+      "type": "APL",
+      "value": "string"
+    }
+  ],
+  "householdId": "string"
+}
