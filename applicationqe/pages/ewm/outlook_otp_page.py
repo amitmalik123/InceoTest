@@ -807,8 +807,8 @@ class OutlookOTPPage(BasePage):
                     subject_text = None
                     if self.email_subject.count() > 0:
                         subject_text = self.email_subject.first.text_content()
-                    os.makedirs("reports/screenshots", exist_ok=True)
-                    screenshot_path = f"reports/screenshots/outlook_email_empty_{int(time.time())}.png"
+                    os.makedirs("reports/oam/screenshots", exist_ok=True)
+                    screenshot_path = f"reports/oam/screenshots/outlook_email_empty_{int(time.time())}.png"
                     self.page.screenshot(path=screenshot_path, full_page=True)
                     logger.info(
                         f"Saved Outlook email debug screenshot: {screenshot_path} (subject={subject_text})"
@@ -940,8 +940,8 @@ class OutlookOTPPage(BasePage):
 
             logger.error("OTP folder not found or not clickable")
             try:
-                os.makedirs("reports/screenshots", exist_ok=True)
-                screenshot_path = f"reports/screenshots/otp_folder_not_found_{int(time.time())}.png"
+                os.makedirs("reports/oam/screenshots", exist_ok=True)
+                screenshot_path = f"reports/oam/screenshots/otp_folder_not_found_{int(time.time())}.png"
                 self.page.screenshot(path=screenshot_path, full_page=True)
                 logger.info(f"Screenshot saved: {screenshot_path}")
             except Exception:
@@ -951,8 +951,8 @@ class OutlookOTPPage(BasePage):
         except Exception as e:
             logger.error(f"Error navigating to OTP folder: {e}")
             try:
-                os.makedirs("reports/screenshots", exist_ok=True)
-                screenshot_path = f"reports/screenshots/otp_folder_navigation_exception_{int(time.time())}.png"
+                os.makedirs("reports/oam/screenshots", exist_ok=True)
+                screenshot_path = f"reports/oam/screenshots/otp_folder_navigation_exception_{int(time.time())}.png"
                 self.page.screenshot(path=screenshot_path, full_page=True)
                 logger.info(f"Screenshot saved: {screenshot_path}")
             except Exception:
@@ -1142,8 +1142,8 @@ class OutlookOTPPage(BasePage):
                     if not self.navigate_to_otp_folder():
                         logger.error("OTP folder could not be re-opened after reload")
                         try:
-                            os.makedirs("reports/screenshots", exist_ok=True)
-                            screenshot_path = f"reports/screenshots/otp_folder_lost_after_reload_{int(time.time())}.png"
+                            os.makedirs("reports/oam/screenshots", exist_ok=True)
+                            screenshot_path = f"reports/oam/screenshots/otp_folder_lost_after_reload_{int(time.time())}.png"
                             self.page.screenshot(path=screenshot_path, full_page=True)
                             logger.info(f"Screenshot saved: {screenshot_path}")
                         except Exception:

@@ -116,10 +116,10 @@ def _load_route_blocking_config() -> tuple[bool, set[str], Path]:
         section = config.get("tool", {}).get("route-blocking", {})
         enabled = section.get("enabled", True)
         domains = {d.strip().lower() for d in section.get("allowed_domains", [])}
-        log_path = Path(section.get("http_error_log", "reports/http_errors.log"))
+        log_path = Path(section.get("http_error_log", "reports/oam/network_errors.log"))
         return enabled, domains, log_path
     except (FileNotFoundError, tomllib.TOMLDecodeError):
-        return False, set(), Path("reports/http_errors.log")
+        return False, set(), Path("reports/oam/network_errors.log")
 
 
 def _is_allowed(url: str, allowed_domains: set[str]) -> bool:
@@ -251,9 +251,9 @@ def browser_context_args(browser_context_args, request) -> dict:
 
     # Make output directories worker-specific to avoid conflicts
     if worker_id != "master":
-        record_video_dir = f"reports/videos/{worker_id}"
+        record_video_dir = f"reports/oam/videos/{worker_id}"
     else:
-        record_video_dir = "reports/videos"
+        record_video_dir = "reports/oam/videos"
 
     # Base browser context args — use no_viewport for headed mode (will use --start-maximized)
     # For headless mode, we need to explicitly set viewport since --start-maximized is ignored

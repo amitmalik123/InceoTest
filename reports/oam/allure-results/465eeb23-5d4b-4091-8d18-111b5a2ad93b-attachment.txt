@@ -1,0 +1,1 @@
+✓ Dialog text fetched: 'Please review and sign the document electronically.'

@@ -1,0 +1,1 @@
+Navigation after sign in completed. Current URL: https://test.tenant1.ewm3.assetmark.net/#session_state=33d9f491-d801-4625-b980-e65ccb1501fc&iss=https%3A%2F%2Ftest.tenant1.auth.ewm3.assetmark.net%2Frealms%2FeWM&code=2af146a1-a724-40dc-b889-1be058e190b7.33d9f491-d801-4625-b980-e65ccb1501fc.77f37c57-7149-4c49-ae3e-0b7e408a1877

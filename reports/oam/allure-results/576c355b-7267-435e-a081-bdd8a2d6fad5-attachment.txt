@@ -1,0 +1,1 @@
+Handling signature dialog with option: Proceed and submit without a client signature, button: Continue

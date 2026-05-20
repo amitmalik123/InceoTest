@@ -1,0 +1,1 @@
+✓ Type 'Historical Document Retrieval' selected via onclick locator

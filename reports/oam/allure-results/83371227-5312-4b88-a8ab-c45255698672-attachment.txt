@@ -1,0 +1,1 @@
+Skipping hidden button with text: Close

@@ -160,7 +160,7 @@ class ConfirmationPage(BasePage):
         if not filename:
             filename = f"confirmation_{self.get_timestamp()}.png"
             
-        screenshot_path = f"reports/screenshots/{filename}"
+        screenshot_path = f"reports/oam/screenshots/{filename}"
         self.page.screenshot(path=screenshot_path, full_page=True)
         self.logger.info(f"Confirmation screenshot saved: {screenshot_path}")
         return screenshot_path

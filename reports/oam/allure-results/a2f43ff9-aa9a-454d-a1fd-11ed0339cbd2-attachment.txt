@@ -1,0 +1,1 @@
+Clicking Account Wizard button on account detail page

@@ -1,0 +1,1 @@
+✓ VERIFIED: Continue button is enabled

@@ -1,0 +1,2 @@
+Dialog Content:
+Request Submitted CloseRequest SubmittedYour request has been submitted to AssetMark for processing.To view your request, go to the Tracking Center and select D003616140.Print or Download a copy for your records.Click Close to return to eWealthManager.Close

@@ -1,0 +1,1 @@
+✓ Modal content (message text) is visible

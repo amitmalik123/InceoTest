@@ -339,13 +339,17 @@ def pytest_sessionstart(session) -> None:
     """
     import shutil
 
-    report_dir = "reports"
+    report_dir = "reports/oam"
     
     dirs_to_clean = [
         f"{report_dir}/allure-results",
+        f"{report_dir}/allure-report",
         f"{report_dir}/videos",
         f"{report_dir}/traces",
+        f"{report_dir}/screenshots",
+        f"{report_dir}/debug_screenshots",
         f"{report_dir}/downloads",
+        f"{report_dir}/junit",
     ]
 
     files_to_clean = [
@@ -571,8 +575,8 @@ def pytest_sessionfinish(session, exitstatus) -> None:  # noqa: C901
                 )
 
             # Save to reports directory
-            reports_dir = Path("reports")
-            reports_dir.mkdir(exist_ok=True)
+            reports_dir = Path("reports/oam")
+            reports_dir.mkdir(parents=True, exist_ok=True)
 
             healing_report_path = reports_dir / "auto_healing_report.json"
             with open(healing_report_path, "w") as f:

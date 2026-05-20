@@ -152,10 +152,10 @@ addopts = """
 --video=on
 --screenshot=on
 --tracing=retain-on-failure
---junitxml=reports/junit/junit-report.xml
---html=reports/pytest_report.html
+--junitxml=reports/oam/junit/junit-report.xml
+--html=reports/oam/pytest_report.html
 --self-contained-html
---alluredir=reports/allure-results
+--alluredir=reports/oam/allure-results
 --reruns=1
 --reruns-delay=1
 """
@@ -211,7 +211,7 @@ exclude_lines = [
 # Subdomains are automatically included (e.g., app.assetmark.com matches assetmark.com).
 # Set enabled = false to disable and allow all traffic.
 enabled = false
-http_error_log = "reports/network_errors.log"
+http_error_log = "reports/oam/network_errors.log"
 allowed_domains = [
     # ===== Core AssetMark =====
     "assetmark.com",

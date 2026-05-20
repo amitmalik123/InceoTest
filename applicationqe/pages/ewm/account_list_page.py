@@ -25,7 +25,7 @@ class AccountListPage(BasePage):
         logger.info(f"Searching for client: {client_id}")
         
         # Take screenshot for debugging
-        screenshot_path = f"reports/account_list_debug_{client_id}.png"
+        screenshot_path = f"reports/oam/screenshots/account_list_debug_{client_id}.png"
         self.page.screenshot(path=screenshot_path)
         logger.info(f"Screenshot saved: {screenshot_path}")
         
@@ -103,7 +103,7 @@ class AccountListPage(BasePage):
         else:
             logger.error("All search strategies failed!")
             # Take another screenshot after attempts
-            self.page.screenshot(path=f"reports/account_list_failed_{client_id}.png")
+            self.page.screenshot(path=f\"reports/oam/screenshots/account_list_failed_{client_id}.png\")
             raise Exception(f"Unable to search for client {client_id} - all strategies failed")
 
     def select_account(self, account_name: str, client_id: str = None) -> None:

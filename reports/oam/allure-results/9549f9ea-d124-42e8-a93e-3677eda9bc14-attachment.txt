@@ -1,0 +1,1 @@
+[PASS] ClientAccountsPage: D-Number Click Step Completed.

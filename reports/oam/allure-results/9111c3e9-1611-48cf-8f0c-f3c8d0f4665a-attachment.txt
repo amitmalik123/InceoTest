@@ -1,0 +1,1 @@
+✓ Button verification passed: All expected buttons found ['View']

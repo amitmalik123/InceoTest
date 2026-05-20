@@ -1,0 +1,1 @@
+>>> ENTERED STEP: user_should_be_redirected_to_docusign_page

@@ -1,0 +1,1 @@
+>>> ENTERED STEP: user_confirm_and_continue

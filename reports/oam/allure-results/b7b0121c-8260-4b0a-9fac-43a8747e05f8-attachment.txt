@@ -1,0 +1,1 @@
+  ✓ First D-number span is visible

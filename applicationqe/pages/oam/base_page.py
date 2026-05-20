@@ -607,7 +607,7 @@ class BasePage:
         self.logger.info(f"Download started: {download.suggested_filename}")
 
         name = filename or download.suggested_filename
-        dest = save_path or f"reports/downloads/{name}"
+        dest = save_path or f"reports/oam/downloads/{name}"
         os.makedirs(os.path.dirname(dest), exist_ok=True)
         download.save_as(dest)
         self.logger.info(f"Download saved to: {dest}")

@@ -41,10 +41,10 @@ stages:
       marker: ${{ parameters.marker }}
       workers: ${{ parameters.workers }}
       browser: ${{ parameters.browser }}
-      allureResultsDir: '$(Build.SourcesDirectory)/reports/${{ parameters.stageName }}/allure-results'
-      allureReportDir: '$(Build.SourcesDirectory)/reports/${{ parameters.stageName }}/allure-report'
+      allureResultsDir: '$(Build.SourcesDirectory)/reports/oam/allure-results'
+      allureReportDir: '$(Build.SourcesDirectory)/reports/oam/allure-report'
       allureToolsDir: '$(Build.ArtifactStagingDirectory)/allure-tools'
-      testResultsDir: '$(Build.SourcesDirectory)/reports/${{ parameters.stageName }}'
+      testResultsDir: '$(Build.SourcesDirectory)/reports/oam'
       INFLUXDB_URL: 'http://azncc03perf.corp.local:8086'
       INFLUXDB_ORG: 'MF'
       INFLUXDB_BUCKET: 'AutomationData'
@@ -297,7 +297,7 @@ stages:
       displayName: "Publish Test Results Directory"
       inputs:
         PathtoPublish: '$(testResultsDir)'
-        ArtifactName: 'TestResults-${{ parameters.stageName }}'
+        ArtifactName: 'TestResults-oam'
         publishLocation: 'Container'
       condition: always()
       continueOnError: true

@@ -1,0 +1,1 @@
+Total number of VISIBLE and INTERACTIVE buttons: 1

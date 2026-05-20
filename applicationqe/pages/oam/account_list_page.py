@@ -33,7 +33,7 @@ class AccountListPage(BasePage):
         except Exception as e:
             logger.error(f"Search input not found: {e}")
             self.page.screenshot(
-                path=f"reports/account_list_search_input_not_found_{client_id}.png"
+                path=f"reports/oam/screenshots/account_list_search_input_not_found_{client_id}.png"
             )
             raise Exception(f"Search input not found for client {client_id}")
 
@@ -45,11 +45,11 @@ class AccountListPage(BasePage):
         except Exception as e:
             logger.error(f"Search button not found or not clickable: {e}")
             self.page.screenshot(
-                path=f"reports/account_list_search_button_not_found_{client_id}.png"
+                path=f"reports/oam/screenshots/account_list_search_button_not_found_{client_id}.png"
             )
             raise Exception(f"Search button not found or not clickable for client {client_id}")
 
-        after_path = f"reports/account_list_after_search_{client_id}.png"
+        after_path = f"reports/oam/screenshots/account_list_after_search_{client_id}.png"
         self.page.screenshot(path=after_path)
         logger.info(f"Screenshot saved: {after_path}")
 
@@ -66,7 +66,7 @@ class AccountListPage(BasePage):
         except Exception as e:
             logger.error(f"Search input not found: {e}")
             self.page.screenshot(
-                path=f"reports/account_list_search_input_not_found_{account_number}.png"
+                path=f"reports/oam/screenshots/account_list_search_input_not_found_{account_number}.png"
             )
             raise Exception(f"Search input not found for account {account_number}")
 
@@ -78,11 +78,11 @@ class AccountListPage(BasePage):
         except Exception as e:
             logger.error(f"Search button not found or not clickable: {e}")
             self.page.screenshot(
-                path=f"reports/account_list_search_button_not_found_{account_number}.png"
+                path=f"reports/oam/screenshots/account_list_search_button_not_found_{account_number}.png"
             )
             raise Exception(f"Search button not found or not clickable for account {account_number}")
 
-        after_path = f"reports/account_list_after_search_{account_number}.png"
+        after_path = f"reports/oam/screenshots/account_list_after_search_{account_number}.png"
         self.page.screenshot(path=after_path)
         logger.info(f"Screenshot saved: {after_path}")
 

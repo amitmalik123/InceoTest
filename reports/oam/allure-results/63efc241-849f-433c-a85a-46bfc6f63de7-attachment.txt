@@ -1,0 +1,1 @@
+>>> STEP: Verify buttons displayed "View"

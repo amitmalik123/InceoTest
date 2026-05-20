@@ -1,0 +1,1 @@
+>>> STEP: Checking ERSD consent checkbox (dynamic wait: 10000ms)

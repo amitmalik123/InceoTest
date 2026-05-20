@@ -1,0 +1,1 @@
+>>> STEP: Verify user is redirected to Tracking Center Item Detail page

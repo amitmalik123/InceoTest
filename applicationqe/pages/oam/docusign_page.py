@@ -1683,8 +1683,8 @@ class DocuSignPage(BasePage):
             raise RuntimeError("Send Now button not found or not visible")
         except Exception as e:
             try:
-                os.makedirs("reports/screenshots", exist_ok=True)
-                screenshot_path = f"reports/screenshots/send_now_missing_{int(time.time())}.png"
+                os.makedirs("reports/oam/screenshots", exist_ok=True)
+                screenshot_path = f"reports/oam/screenshots/send_now_missing_{int(time.time())}.png"
                 self.page.screenshot(path=screenshot_path, full_page=True)
                 logger.error(f"Send Now button FAILED - screenshot saved: {screenshot_path}")
                 logger.error(f"Current URL: {self.page.url}")

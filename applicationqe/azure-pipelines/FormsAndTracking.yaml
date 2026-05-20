@@ -93,10 +93,10 @@ jobs:
     environment: ${{ parameters.environment }}
     marker: ${{ parameters.marker }}
     workers: ${{ parameters.workers }}
-    allureResultsDir: '$(Build.SourcesDirectory)/applicationqe/reports/allure-results'
-    allureReportDir: '$(Build.SourcesDirectory)/applicationqe/reports/allure-report'
+    allureResultsDir: '$(Build.SourcesDirectory)/applicationqe/reports/oam/allure-results'
+    allureReportDir: '$(Build.SourcesDirectory)/applicationqe/reports/oam/allure-report'
     allureToolsDir: '$(Build.ArtifactStagingDirectory)/allure-tools'
-    testResultsDir: '$(Build.SourcesDirectory)/applicationqe/reports'
+    testResultsDir: '$(Build.SourcesDirectory)/applicationqe/reports/oam'
     # Azure Key Vault configuration
     keyVaultName: 'amkkvqapipeline-testncus'           # ← Replace with your Key Vault name
     
