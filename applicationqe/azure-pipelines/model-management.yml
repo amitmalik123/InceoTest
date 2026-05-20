@@ -436,6 +436,11 @@ jobs:
       export ENVIRONMENT="$(environment)"
       export BUILD_ID="$(Build.BuildId)"
       export BUILD_REASON="$(Build.Reason)"
+      export INFLUXDB_URL="http://azncc03perf.corp.local:8086"
+      export INFLUXDB_ORG="MF"
+      export INFLUXDB_BUCKET="AutomationData"
+      export INFLUXDB_TOKEN="g5gf0ukY8fPdwaWynLviDLd0wz1l5snomLbip3t2IrQkeNNkiEFYECEHlcJLwsAPvv2Gx-op4ho6QcpVsCpdGQ=="
+      export PROJECT_NAME="model-management"
 
       python utils/influx_reporter.py
     displayName: "Push Metrics to InfluxDB"
