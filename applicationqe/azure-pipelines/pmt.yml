@@ -1,0 +1,43 @@
+name: pmt-$(Date:yyyyMMdd)$(Rev:.r)
+
+trigger:
+  branches:
+    include:
+      - main
+      - develop
+  paths:
+    include:
+      - data/pmt/**
+      - config/pmt/**
+      - tests/features/pmt/**
+      - tests/steps/pmt/**
+      - pages/pmt/**
+      - queries/pmt/**
+      - azure-pipelines/templates/**
+      - requirements.txt
+
+pr:
+  branches:
+    include:
+      - main
+      - develop
+  paths:
+    include:
+      - data/pmt/**
+      - config/pmt/**
+      - tests/features/pmt/**
+      - tests/steps/pmt/**
+      - pages/pmt/**
+      - queries/pmt/**
+      - azure-pipelines/templates/**
+      - requirements.txt
+
+pool:
+  vmImage: ubuntu-latest
+
+stages:
+  - template: templates/team-stage.yml
+    parameters:
+      stageName: PMT
+      teamDisplay: PMT
+      featurePath: tests/features/pmt
