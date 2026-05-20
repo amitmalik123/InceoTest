@@ -440,7 +440,7 @@ jobs:
       export INFLUXDB_ORG="MF"
       export INFLUXDB_BUCKET="AutomationData"
       export INFLUXDB_TOKEN="g5gf0ukY8fPdwaWynLviDLd0wz1l5snomLbip3t2IrQkeNNkiEFYECEHlcJLwsAPvv2Gx-op4ho6QcpVsCpdGQ=="
-      export PROJECT_NAME="model-management"
+      export PROJECT_NAME="ModelManagement_SMI"
 
       python utils/influx_reporter.py
     displayName: "Push Metrics to InfluxDB"
