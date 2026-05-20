@@ -2,7 +2,7 @@
 from pathlib import Path
 from pytest_bdd import when, then, given, parsers
 from utils.allure_logger import get_allure_logger
-from utils.constants.constants import BeneAccountUrls
+from utils.stp.constants.constants import BeneAccountUrls
 
 logger = get_allure_logger(__name__)
 

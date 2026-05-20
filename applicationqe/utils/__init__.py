@@ -10,7 +10,7 @@ Examples:
 """
 
 # API utilities
-from config.stp.api_endpoints import APIEndpoints
+from config.stp.stp_moneyin_moneyout.api_endpoints import APIEndpoints
 from utils.api_request_utils import APIClient
 from utils.api_response_utils import (
     get_values_from_household_api_open_accounts,

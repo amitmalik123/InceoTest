@@ -12,7 +12,7 @@ DOM evidence captured on 2026-02-26 from test11 environment.
 
 from playwright.sync_api import Locator, Page
 
-from pages.base_page import BasePage
+from pages.stp.shared.base_page import BasePage
 from utils.allure_logger import get_allure_logger
 
 logger = get_allure_logger(__name__)

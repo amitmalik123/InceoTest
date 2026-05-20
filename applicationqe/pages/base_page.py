@@ -1,3 +1,6 @@
+
+
+
 """
 Base Page class with common functionality for all page objects.
 """
@@ -85,6 +88,7 @@ class BasePage:
 
     def __init__(self, page: Page, base_url: Optional[str] = None):
         self.page = page
+        self.context = page  # alias so pages can use either self.page or self.context
         self.base_url = base_url or ""
         self.logger = logging.getLogger(self.__class__.__name__)
 

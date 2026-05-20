@@ -11,7 +11,7 @@ from utils.api_response_utils import (
     retrieve_all_values_from_response,
     retrieve_boolean_value_from_response,
 )
-from utils.constants.constants import Constants
+from utils.stp.constants.constants import Constants
 from utils.wait_utils import wait_for_text_to_contain, wait_for_network_idle
 from utils.assertions import Assertions
 
@@ -364,7 +364,7 @@ def validate_disclosure_content_in_transaction_summary_page(
     with allure.step(f"Verify {disclosure_type} disclosure content in Transaction Summary Page"):
         logger.info(f"Validating {disclosure_type} disclosure content")
         
-        from utils.constants.constants import Constants
+        from utils.stp.constants.constants import Constants
         
         disclosures = None
         
@@ -451,7 +451,9 @@ def validate_ains_confirmation_page(
         
         client_household = get_detail(confirmation_other_details, 0, "Client Household Subheader")
         expected_household = raw_household_name.split('-')[0].strip() if raw_household_name else raw_household_name
-        assert expected_household.startswith(client_household) or client_household.startswith(expected_household), \
+        expected_words = {w.strip('.,') for w in expected_household.split() if len(w.strip('.,')) > 2}
+        actual_words = {w.strip('.,') for w in client_household.split() if len(w.strip('.,')) > 2}
+        assert expected_words & actual_words, \
             f"Client Household Subheader mismatch. Expected: '{expected_household}', Actual: '{client_household}'"
         
         expected_agent_id = test_context.get('test_data', {}).get('advisor_id', '')

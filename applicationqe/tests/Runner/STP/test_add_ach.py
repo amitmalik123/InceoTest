@@ -42,11 +42,11 @@ from tests.steps.stp.stp_shared.tracking_center_steps import *  # noqa: F401,F40
 # ---------------------------------------------------------------------------
 _FEATURES = APP_ROOT / "tests/features/stp"
 
-scenarios(str(_FEATURES / "stp_addACHIntrcutions/add_ACH.feature"))
+# scenarios(str(_FEATURES / "stp_addACHIntrcutions/add_ACH.feature"))
 # scenarios(str(_FEATURES / "stp_contributions/Contribution.feature"))
 # scenarios(str(_FEATURES / "stp_withdrawals/Withdrawal.feature"))
 # scenarios(str(_FEATURES / "stp_swp/stp_establishSwp/SWP.feature"))
-# scenarios(str(_FEATURES / "stp_aip/stp_cancelAip/AIP.feature"))
+scenarios(str(_FEATURES / "stp_aip/stp_cancelAip/AIP.feature"))
 # scenarios(str(_FEATURES / "stp_updateAddress/Address_change.feature"))
 # scenarios(str(_FEATURES / "stp_aip/stp_establishAip/EstablishAIP.feature"))
 # scenarios(str(_FEATURES / "stp_oaTradingTool/OA_tool.feature"))

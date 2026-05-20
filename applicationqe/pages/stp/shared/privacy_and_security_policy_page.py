@@ -3,7 +3,7 @@ Privacy and Security Policy Page Object
 """
 
 from playwright.sync_api import Locator, Page
-from pages.base_page import BasePage
+from pages.stp.shared.base_page import BasePage
 from utils.allure_logger import get_allure_logger
 
 logger = get_allure_logger(__name__)

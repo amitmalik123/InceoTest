@@ -2,7 +2,7 @@ from typing import Dict, Optional
 
 import requests
 
-from config.stp.api_endpoints import APIEndpoints
+from config.stp.stp_moneyin_moneyout.api_endpoints import APIEndpoints
 from utils.allure_logger import get_allure_logger
 from utils.settings import settings
 

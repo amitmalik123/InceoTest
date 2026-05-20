@@ -13,7 +13,7 @@ import allure
 from playwright.sync_api import Page, TimeoutError as PlaywrightTimeoutError
 
 from utils.settings import settings
-from pages.base_page import BasePage
+from pages.stp.shared.base_page import BasePage
 from utils.allure_logger import get_allure_logger
 from utils.helpers import get_locator_attribute
 from utils.wait_utils import wait_for_condition, WaitTimeoutError

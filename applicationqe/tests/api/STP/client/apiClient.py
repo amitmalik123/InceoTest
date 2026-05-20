@@ -1,7 +1,7 @@
 import requests
 from typing import Optional, Dict, Any
 from utils.settings import settings
-from config.stp.api_endpoints import APIEndpoints
+from config.stp.stp_moneyin_moneyout.api_endpoints import APIEndpoints
 
 
 class ApiClient:

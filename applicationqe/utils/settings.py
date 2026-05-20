@@ -11,7 +11,7 @@ class Settings:
         
         self.env = env
         self.logger = setup_logger(__name__)
-        self.config_path = Path(__file__).parent.parent / "config" / "stp" / f"env.{env}.yaml"
+        self.config_path = Path(__file__).parent.parent / "config" / "stp" / "stp_moneyin_moneyout" / f"env.{env}.yaml"
         self.config = self._load_config()
 
     def _load_config(self):
@@ -239,7 +239,7 @@ class Settings:
         Get predefined database queries from queries/sql_queries.yaml.
         This is a centralized location for all SQL queries shared across environments.
         """
-        queries_path = Path(__file__).parent.parent / "queries" / "sql_queries.yaml"
+        queries_path = Path(__file__).parent.parent / "queries" / "stp" / "stp_moneyin_moneyout" / "sql_queries.yaml"
         if not queries_path.exists():
             self.logger.warning(f"Queries file not found: {queries_path}")
             return {}

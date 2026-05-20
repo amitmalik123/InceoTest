@@ -8,7 +8,7 @@ from typing import Optional
 import allure
 from playwright.sync_api import Page, TimeoutError as PlaywrightTimeoutError
 
-from pages.base_page import BasePage
+from pages.stp.shared.base_page import BasePage
 from utils.settings import settings
 from utils.credential_encrypter import decrypt
 from utils.allure_logger import get_allure_logger

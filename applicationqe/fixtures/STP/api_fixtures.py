@@ -1,7 +1,7 @@
 
 import pytest
 
-from tests.api.STP.services.beneficiaryHouseholdService import BeneficiaryHouseholdService
+from tests.api.stp.services.beneficiaryHouseholdService import BeneficiaryHouseholdService
 
 
 @pytest.fixture

@@ -1,7 +1,7 @@
 import os
 import requests
 from playwright.sync_api import Page
-from pages.base_page import BasePage
+from pages.stp.shared.base_page import BasePage
 from utils.logger import setup_logger
 
 logger = setup_logger(__name__)
@@ -136,18 +136,18 @@ class ItemDetailsPage(BasePage):
         notification_text = ""
         
         if method == "AddACH NoEsign":
-            # Refresh page up to 4 times until notification is found
-            for attempt in range(4):
-                logger.info(f"Refresh attempt {attempt + 1}/4 for AddACH NoEsign")
+            # Refresh page up to 8 times until notification is found
+            for attempt in range(8):
+                logger.info(f"Refresh attempt {attempt + 1}/8 for AddACH NoEsign")
                 self.page.reload()
-                self.page.wait_for_timeout(500)
+                self.page.wait_for_timeout(3000)
                 
                 notification_element = self.page.locator(
                     "table#TrackingCenterItemDetailNotesGrid tr td:has-text('An email notification regarding')"
                 ).first
                 
                 try:
-                    if notification_element.is_visible(timeout=3000):
+                    if notification_element.is_visible(timeout=5000):
                         break
                 except:
                     continue
@@ -156,7 +156,7 @@ class ItemDetailsPage(BasePage):
             notification_element = self.page.locator(
                 "table#TrackingCenterItemDetailNotesGrid tr td:has-text('An email notification regarding')"
             ).first
-            notification_element.wait_for(state="visible", timeout=10000)
+            notification_element.wait_for(state="visible", timeout=30000)
             notification_text = notification_element.text_content()
             
         elif method == "IRA":

@@ -27,7 +27,7 @@ from playwright.sync_api import Page
 import csv
 
 # Import all fixtures to make them available to all tests
-from fixtures.STP import *  # noqa: F401, F403
+from fixtures.stp import *  # noqa: F401, F403
 from utils.allure_logger import enable_step_screenshots
 from utils.flaky_test_tracker import get_tracker
 from utils.settings import Settings

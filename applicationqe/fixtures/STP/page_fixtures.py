@@ -22,6 +22,8 @@ _PAGE_DIRS = [
     "pages/stp/stp_oaTradingTool",
     "pages/stp/stp_manageBene",
     "pages/stp/stp_aip",
+    "pages/stp/stp_aip/stp_cancelAip",
+    "pages/stp/stp_aip/stp_establishAip",
 ]
 for _d in _PAGE_DIRS:
     _p = str(_APP_ROOT / _d)

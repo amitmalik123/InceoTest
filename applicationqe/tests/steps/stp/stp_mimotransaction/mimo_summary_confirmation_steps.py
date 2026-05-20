@@ -5,7 +5,7 @@ from pytest_bdd import when, then, parsers
 
 from mimo_transaction_summary_page import MIMOTransactionSummaryPage
 from mimo_confirmation_page import MIMOConfirmationPage
-from utils.constants.constants import Constants
+from utils.stp.constants.constants import Constants
 from utils.logger import setup_logger
 from datetime import datetime
 from zoneinfo import ZoneInfo

@@ -7,7 +7,7 @@ These steps handle database queries and validation for BDD scenarios.
 import allure
 from pytest_bdd import parsers, then, when
 
-from utils.constants.constants import Constants
+from utils.stp.constants.constants import Constants
 from utils.database import get_azure_db_connection, get_configured_azure_db, get_configured_ewm_db
 from utils.settings import settings
 
