@@ -8,7 +8,6 @@ Tracks:
 - Flaky test history
 """
 
-<<<<<<< HEAD
 import json
 import os
 from datetime import datetime
@@ -38,7 +37,7 @@ def load_influxdb_config():
                     "bucket": config.get("influxdb_bucket", "test-results"),
                 }
         except Exception as e:
-            print(f"ΓÜá∩╕Å  Error loading InfluxDB config file: {e}")
+            print(f"⚠️  Error loading InfluxDB config file: {e}")
 
     # Fall back to environment variables
     return {
@@ -59,18 +58,6 @@ class FlakyTestTracker:
         self.influx_org = influx_config["org"]
         self.influx_bucket = influx_config["bucket"]
         self.environment = os.getenv("ENVIRONMENT", settings.env)
-=======
-import os
-from datetime import datetime
-from typing import Dict, Optional
-
-
-class FlakyTestTracker:
-    """Track and report flaky tests."""
-
-    def __init__(self):
-        self.environment = os.getenv("ENVIRONMENT", os.getenv("TEST_ENV", "test11"))
->>>>>>> 7a228f8045f20942a4490c9ac3f8553bb22255bd
         self.build_id = os.getenv("BUILD_ID", "local")
 
         # Track flaky tests during session
@@ -100,11 +87,7 @@ class FlakyTestTracker:
             "build_id": self.build_id,
         }
 
-<<<<<<< HEAD
-        print("\nΓÜá∩╕Å  FLAKY TEST DETECTED:")
-=======
         print("\n⚠️  FLAKY TEST DETECTED:")
->>>>>>> 7a228f8045f20942a4490c9ac3f8553bb22255bd
         print(f"   Test: {test_name}")
         print(f"   Attempts: {total_attempts} (failed: {failed_attempts})")
         print(f"   Final Status: {final_status}")
@@ -112,7 +95,6 @@ class FlakyTestTracker:
         if error_message:
             print(f"   Error: {error_message[:100]}...")
 
-<<<<<<< HEAD
     def create_influx_points(self) -> List[str]:
         """Create InfluxDB line protocol points for flaky tests"""
         points = []
@@ -152,11 +134,11 @@ class FlakyTestTracker:
     def push_to_influxdb(self) -> bool:
         """Push flaky test metrics to InfluxDB"""
         if not self.flaky_tests:
-            print("Γ£ô No flaky tests detected in this run")
+            print("✔ No flaky tests detected in this run")
             return True
 
         if not self.influx_token:
-            print("ΓÜá∩╕Å  INFLUXDB_TOKEN not set. Skipping flaky test tracking.")
+            print("⚠️  INFLUXDB_TOKEN not set. Skipping flaky test tracking.")
             return False
 
         try:
@@ -167,20 +149,18 @@ class FlakyTestTracker:
             write_api = client.write_api(write_options=SYNCHRONOUS)
             points = self.create_influx_points()
 
-            print(f"\n≡ƒôè Pushing {len(points)} flaky test metric(s) to InfluxDB...")
+            print(f"\n📈 Pushing {len(points)} flaky test metric(s) to InfluxDB...")
             for point in points:
                 write_api.write(bucket=self.influx_bucket, record=point)
 
             client.close()
-            print("Γ£ô Successfully pushed flaky test metrics to InfluxDB")
+            print("✔ Successfully pushed flaky test metrics to InfluxDB")
             return True
 
         except Exception as e:
-            print(f"Γ¥î Error pushing flaky tests to InfluxDB: {e}")
+            print(f"✖ Error pushing flaky tests to InfluxDB: {e}")
             return False
 
-=======
->>>>>>> 7a228f8045f20942a4490c9ac3f8553bb22255bd
     def get_flaky_summary(self) -> Dict:
         """Get summary of flaky tests in current session"""
         return {
