@@ -69,7 +69,9 @@ parameters:
       - chromium
       - msedge
       - both
-
+variables:
+  - group: 'qa-pipelines-shared-config'
+  - group: 'qa-pipelines-config'
 
 stages:
   - template: templates/team-stage-salesforce.yml
@@ -81,4 +83,6 @@ stages:
       marker: ${{ parameters.marker }}
       workers: ${{ parameters.workers }}
       browser: ${{ parameters.browser }}
+      azureSubscription: $(subscription_dev)
+      keyVaultName: $(key_vault_dev)
       

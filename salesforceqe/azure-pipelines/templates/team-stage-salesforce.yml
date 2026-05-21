@@ -21,6 +21,10 @@ parameters:
   - name: browser
     type: string
     default: 'chromium'
+  - name: azureSubscription
+    type: string
+  - name: keyVaultName
+    type: string
 
 stages:
 - stage: ${{ parameters.stageName }}
@@ -317,8 +321,8 @@ stages:
     - task: AzureKeyVault@2
       displayName: 'Fetch Secrets from Azure Key Vault'
       inputs:
-        azureSubscription: $(azureSubscription)
-        KeyVaultName: $(keyVaultName)
+        azureSubscription: '${{ parameters.azureSubscription }}'
+        KeyVaultName: '${{ parameters.keyVaultName }}'
         SecretsFilter: '*'
         RunAsPreJob: true
       # Each secret becomes a pipeline variable with the same name.
