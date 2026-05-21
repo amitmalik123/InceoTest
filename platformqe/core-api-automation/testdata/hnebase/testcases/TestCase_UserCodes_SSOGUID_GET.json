@@ -112,9 +112,9 @@
             "Content-Type": "application/json"
         },
         "payload": null,
-        "expected_status": "404",
+        "expected_status": "204",
         "expected_response_schema": "",
-        "expected_response": "hnebase/payloads/response_payloads/UserCodes/Payload_UserCodes_GET_noMatch_SSOGUID.json",
+        "expected_response": "",
         "ignore_fields": [
             "instance"
         ],

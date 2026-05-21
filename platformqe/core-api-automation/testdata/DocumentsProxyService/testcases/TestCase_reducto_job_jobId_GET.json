@@ -1,0 +1,348 @@
+[
+    {
+        "test_id": "TC001SETUP_UPLOAD",
+        "service_name": "documentsproxy",
+        "workflow_mode": "sequential",
+        "test_name": "Setup: Upload file to Reducto and extract file_id. [setup] (TC001SETUP_UPLOAD)",
+        "protocol": "REST",
+        "test_type": [
+            "Functional"
+        ],
+        "mainURL": "{{base_url}}",
+        "endpoint": "/reducto/upload",
+        "method": "POST",
+        "rpc_method": "",
+        "graphql_query": "",
+        "graphql_variables": "",
+        "soap_action": "",
+        "soap_envelope": "",
+        "headers_additional": {},
+        "payload": "DocumentsProxyService/payloads/Payload_reducto_upload_POST_functional.json",
+        "expected_status": "200",
+        "expected_response_schema": "",
+        "expected_response": null,
+        "assertions": [
+            {
+                "assertion_name": "Status code should be 200",
+                "source": "response.status_code",
+                "operator": "equals",
+                "expected": 200
+            },
+            {
+                "assertion_name": "Response should contain file_id",
+                "source": "response.body.file_id",
+                "operator": "exists",
+                "expected": true
+            }
+        ],
+        "ignore_fields": [
+            "presigned_url"
+        ],
+        "extract_values": [
+            {
+                "from": "response",
+                "key": "file_id",
+                "assign_to": "fileId"
+            },
+            {
+                "from": "response",
+                "record_count": false,
+                "array_path": "",
+                "assign_to": ""
+            },
+            {
+                "from": "db_result",
+                "query": "",
+                "assign": [
+                    {
+                        "key": "",
+                        "assign_to": ""
+                    }
+                ]
+            }
+        ],
+        "validate": {
+            "performance": {
+                "max_response_time_ms": 2000
+            },
+            "security": {
+                "checks": [
+                    "sql_injection",
+                    "xss"
+                ]
+            },
+            "data_comparison": [
+                {
+                    "comparison_name": "TC001SETUP_UPLOAD data comparison marker",
+                    "source": "literal",
+                    "source_literal": "enabled",
+                    "target": "literal",
+                    "target_literal": "enabled"
+                }
+            ]
+        },
+        "test_data_file": "DocumentsProxyService/data_driven/Data_reducto_upload_POST.csv",
+        "db_query_timing": "",
+        "db_queries": {
+            "default": "",
+            "audit_query": ""
+        },
+        "db_type": "",
+        "db_connection_name": "",
+        "test_summary": "Setup TC001SETUP_UPLOAD: Upload file to Reducto and extract file_id."
+    },
+    {
+        "test_id": "TC001SETUP",
+        "service_name": "documentsproxy",
+        "workflow_mode": "sequential",
+        "test_name": "Setup: Create reducto async pipeline job and extract job_id. [setup] (TC001SETUP)",
+        "protocol": "REST",
+        "test_type": [
+            "Functional"
+        ],
+        "mainURL": "{{base_url}}",
+        "endpoint": "/reducto/pipeline_async",
+        "method": "POST",
+        "rpc_method": "",
+        "graphql_query": "",
+        "graphql_variables": "",
+        "soap_action": "",
+        "soap_envelope": "",
+        "headers_additional": {
+            "Content-Type": "application/json"
+        },
+        "payload": "DocumentsProxyService/payloads/Payload_reducto_pipeline_async_POST_with_fileid.json",
+        "expected_status": "200",
+        "expected_response_schema": "",
+        "expected_response": null,
+        "assertions": [
+            {
+                "assertion_name": "Status code should be 200",
+                "source": "response.status_code",
+                "operator": "equals",
+                "expected": 200
+            },
+            {
+                "assertion_name": "Response should contain job_id",
+                "source": "response.body.job_id",
+                "operator": "exists",
+                "expected": true
+            }
+        ],
+        "ignore_fields": [
+            "id"
+        ],
+        "extract_values": [
+            {
+                "from": "response",
+                "key": "job_id",
+                "assign_to": "jobId"
+            },
+            {
+                "from": "response",
+                "record_count": false,
+                "array_path": "",
+                "assign_to": ""
+            },
+            {
+                "from": "db_result",
+                "query": "",
+                "assign": [
+                    {
+                        "key": "",
+                        "assign_to": ""
+                    }
+                ]
+            }
+        ],
+        "validate": {
+            "performance": {
+                "max_response_time_ms": 2000
+            },
+            "security": {
+                "checks": [
+                    "sql_injection",
+                    "xss"
+                ]
+            },
+            "data_comparison": [
+                {
+                    "comparison_name": "TC001SETUP data comparison marker",
+                    "source": "literal",
+                    "source_literal": "enabled",
+                    "target": "literal",
+                    "target_literal": "enabled"
+                }
+            ]
+        },
+        "test_data_file": "",
+        "db_query_timing": "",
+        "db_queries": {
+            "default": "",
+            "audit_query": ""
+        },
+        "db_type": "",
+        "db_connection_name": "",
+        "test_summary": "Setup TC001SETUP: Create reducto async pipeline job and extract job_id."
+    },
+    {
+        "test_id": "TC001",
+        "service_name": "documentsproxy",
+        "workflow_mode": "sequential",
+        "test_name": "Get job status from Reducto using job_id. [positive] (TC001)",
+        "protocol": "REST",
+        "test_type": [
+            "Functional"
+        ],
+        "mainURL": "{{base_url}}",
+        "endpoint": "/reducto/job/{{jobId}}",
+        "method": "GET",
+        "rpc_method": "",
+        "graphql_query": "",
+        "graphql_variables": "",
+        "soap_action": "",
+        "soap_envelope": "",
+        "headers_additional": {
+            "Content-Type": "application/json"
+        },
+        "payload": null,
+        "expected_status": "200",
+        "expected_response_schema": "",
+        "expected_response": null,
+        "ignore_fields": [
+            "id"
+        ],
+        "extract_values": [
+            {
+                "from": "response",
+                "key": "",
+                "assign_to": ""
+            },
+            {
+                "from": "response",
+                "record_count": false,
+                "array_path": "",
+                "assign_to": ""
+            },
+            {
+                "from": "db_result",
+                "query": "",
+                "assign": [
+                    {
+                        "key": "",
+                        "assign_to": ""
+                    }
+                ]
+            }
+        ],
+        "validate": {
+            "performance": {
+                "max_response_time_ms": 500
+            },
+            "security": {
+                "checks": [
+                    "sql_injection",
+                    "xss"
+                ]
+            },
+            "data_comparison": [
+                {
+                    "comparison_name": "TC001 data comparison marker",
+                    "source": "literal",
+                    "source_literal": "enabled",
+                    "target": "literal",
+                    "target_literal": "enabled"
+                }
+            ]
+        },
+        "test_data_file": "",
+        "db_query_timing": "",
+        "db_queries": {
+            "default": "",
+            "audit_query": ""
+        },
+        "db_type": "",
+        "db_connection_name": "",
+        "test_summary": "Test TC001: Proxies get job request to Reducto. [positive] (TC001)"
+    },
+    {
+        "test_id": "TC002",
+        "service_name": "documentsproxy",
+        "workflow_mode": "sequential",
+        "test_name": "Get job status from Reducto using job_id. [negative] (TC002)",
+        "protocol": "REST",
+        "test_type": [
+            "Negative"
+        ],
+        "mainURL": "{{base_url}}",
+        "endpoint": "/reducto/job/00000000-0000-0000-0000-000000000000",
+        "method": "GET",
+        "rpc_method": "",
+        "graphql_query": "",
+        "graphql_variables": "",
+        "soap_action": "",
+        "soap_envelope": "",
+        "headers_additional": {
+            "Content-Type": "application/json"
+        },
+        "payload": null,
+        "expected_status": "404",
+        "expected_response_schema": "",
+        "expected_response": null,
+        "ignore_fields": [
+            "id"
+        ],
+        "extract_values": [
+            {
+                "from": "response",
+                "key": "",
+                "assign_to": ""
+            },
+            {
+                "from": "response",
+                "record_count": false,
+                "array_path": "",
+                "assign_to": ""
+            },
+            {
+                "from": "db_result",
+                "query": "",
+                "assign": [
+                    {
+                        "key": "",
+                        "assign_to": ""
+                    }
+                ]
+            }
+        ],
+        "validate": {
+            "performance": {
+                "max_response_time_ms": 500
+            },
+            "security": {
+                "checks": [
+                    "sql_injection",
+                    "xss"
+                ]
+            },
+            "data_comparison": [
+                {
+                    "comparison_name": "TC001 data comparison marker",
+                    "source": "literal",
+                    "source_literal": "enabled",
+                    "target": "literal",
+                    "target_literal": "enabled"
+                }
+            ]
+        },
+        "test_data_file": "",
+        "db_query_timing": "",
+        "db_queries": {
+            "default": "",
+            "audit_query": ""
+        },
+        "db_type": "",
+        "db_connection_name": "",
+        "test_summary": "Test TC002: Proxies return 404 response for invalid job_id. [Negative] (TC002)"
+    }
+]

@@ -5,7 +5,9 @@
   "properties": {
     "type": {
       "type": "string",
-      "enum": ["StateConflict"],
+      "enum": [
+        "https://assetmark.atlassian.net/wiki/spaces/PE/pages/2303590438/Standard+Error+Codes+and+Messaging#already-exists"
+      ],
       "description": "Error type identifier"
     },
     "title": {
@@ -14,14 +16,26 @@
     },
     "status": {
       "type": "integer",
-      "enum": [409],
+      "enum": [
+        409
+      ],
       "description": "HTTP status code for conflict"
     },
     "detail": {
       "type": "string",
       "description": "Detailed error message"
+    },
+    "instance": {
+      "type": "string",
+      "description": "A URI reference that identifies the specific occurrence / request path (RFC 9457 AC5)"
     }
   },
-  "required": ["type", "title", "status", "detail"],
+  "required": [
+    "type",
+    "title",
+    "status",
+    "detail",
+    "instance"
+  ],
   "additionalProperties": false
 }

@@ -1,0 +1,48 @@
+{
+  "partyType": "Trust",
+  "status": "Draft",
+  "core": {
+    "individual": null,
+    "entity": {
+      "type": "Business",
+      "subType": "Unknown",
+      "title": "Exit Solution {{ random_string(6) }}",
+      "taxId": "{{ random_numeric(9) }}",
+      "taxIdentifier": "SSN",
+      "createdDate": "{{ random_date('-30y', 'today', '%Y-%m-%d') }}"
+    }
+  },
+  "addresses": [
+    {
+      "addressType": "Residence",
+      "line1": "{{ random_int(1, 9999) }} {{ random_lastname() }} street",
+      "line2": "{{ random_int(1, 100) }}th avenue",
+      "city": "{{ random_firstname() }}ville",
+      "state": "AL",
+      "zip": "{{ random_numeric(5) }}",
+      "country": "US",
+      "priorityType": "Primary"
+    }
+  ],
+  "contacts": [
+    {
+      "contactType": "Phone",
+      "usageType": "Business",
+      "value": "{{ random_numeric(10) }}",
+      "priorityType": "Primary"
+    },
+    {
+      "contactType": "Email",
+      "usageType": "Work",
+      "value": "{{ random_email() }}",
+      "priorityType": "Secondary"
+    }
+  ],
+  "identifiers": [
+    {
+      "type": "APL",
+      "value": "{{ random_string(10) }}"
+    }
+  ],
+  "householdId": "{{ random_string(12) }}"
+}

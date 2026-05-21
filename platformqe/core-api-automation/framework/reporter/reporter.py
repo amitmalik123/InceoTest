@@ -9,9 +9,41 @@ from framework.common.logger import get_logger
 logger = get_logger(__name__)
 
 
-def _encode_banner_image():
-    """Encode the API Test Banner image as base64 for embedding in HTML reports"""
+def _encode_banner_image(is_data_comparison: bool = False):
+    """Encode report banner as base64 for embedding in HTML reports."""
     try:
+        if is_data_comparison:
+            svg_banner = """
+<svg xmlns='http://www.w3.org/2000/svg' width='1600' height='220' viewBox='0 0 1600 220'>
+    <defs>
+        <linearGradient id='bg' x1='0' y1='0' x2='1' y2='1'>
+            <stop offset='0%' stop-color='#0f172a'/>
+            <stop offset='60%' stop-color='#1e293b'/>
+            <stop offset='100%' stop-color='#334155'/>
+        </linearGradient>
+        <linearGradient id='accent' x1='0' y1='0' x2='1' y2='0'>
+            <stop offset='0%' stop-color='#06b6d4'/>
+            <stop offset='100%' stop-color='#22d3ee'/>
+        </linearGradient>
+    </defs>
+    <rect width='1600' height='220' fill='url(#bg)'/>
+    <rect x='0' y='0' width='1600' height='10' fill='url(#accent)'/>
+    <g opacity='0.18' fill='#38bdf8'>
+        <circle cx='1450' cy='60' r='42'/>
+        <circle cx='1520' cy='120' r='28'/>
+        <circle cx='1400' cy='150' r='22'/>
+    </g>
+    <text x='70' y='102' font-family='Segoe UI, Arial, sans-serif' font-size='54' font-weight='700' fill='#e2e8f0'>
+        Database Test Execution Report
+    </text>
+    <text x='72' y='150' font-family='Segoe UI, Arial, sans-serif' font-size='28' fill='#94a3b8'>
+        Data Comparison Validation Dashboard
+    </text>
+</svg>
+"""
+            encoded_svg = base64.b64encode(svg_banner.encode('utf-8')).decode('utf-8')
+            return f'data:image/svg+xml;base64,{encoded_svg}'
+
         banner_path = os.path.join(os.path.dirname(os.path.dirname(__file__)), 'resources', 'APITestBanner.png')
         if os.path.exists(banner_path):
             with open(banner_path, 'rb') as img_file:
@@ -171,10 +203,12 @@ class Reporter:
             html.append('<div class="container mt-5">')
             
             # Add banner image if available
-            banner_data = _encode_banner_image()
+            is_data_comparison = 'data_comparison' in str(self.report_dir).lower()
+            banner_data = _encode_banner_image(is_data_comparison)
             if banner_data:
                 html.append('<div class="banner-container">')
-                html.append(f'<img src="{banner_data}" alt="API Test Automation Banner"/>')
+                banner_alt = 'Database Test Execution Report' if is_data_comparison else 'API Test Automation Banner'
+                html.append(f'<img src="{banner_data}" alt="{banner_alt}"/>')
                 html.append('</div>')
             
             # html.append('<h2 class="mb-4">API Test Results Report</h2>')

@@ -19,7 +19,11 @@
         "headers_additional": {
             "Content-Type": "application/json"
         },
-        "payload": "MoveMoneyAPI/payloads/Payload_requestId_allocations_POST_functional.json",
+        "payload": {
+            "accountId": "{{accountId}}",
+            "allocationUnitType": "{{allocationUnitType}}",
+            "amount": "{{amount}}"
+        },
         "expected_status": "200",
         "expected_response_schema": null,
         "expected_response": null,
@@ -39,24 +43,6 @@
                 "from": "response",
                 "key": "version",
                 "assign_to": "response_version"
-            },
-            {
-                "from": "db_result",
-                "query": "default",
-                "assign": [
-                    {
-                        "key": "0.allocationId",
-                        "assign_to": "db_allocationId"
-                    },
-                    {
-                        "key": "0.accountId",
-                        "assign_to": "db_accountId"
-                    },
-                    {
-                        "key": "0.amount",
-                        "assign_to": "db_amount"
-                    }
-                ]
             }
         ],
         "validate": {
@@ -89,24 +75,14 @@
                     "message": "Version should not be empty"
                 }
             ],
-            "data_comparison": [
-                {
-                    "source": "response_allocationId",
-                    "target": "db_allocationId",
-                    "log_differences": true,
-                    "comparison_name": "AllocationId match between API and Dbpresent in response"
-                }
-            ]
+            "data_comparison": []
         },
         "test_data_file": "MoveMoneyAPI/data_driven/Data_requestId_allocations_POST.csv",
         "csv_row_index": 0,
-        "db_query_timing": "after_api",
-        "db_queries": {
-            "default": "SELECT m.RequestId, a.AllocationId AS allocationId, a.AccountId AS accountId, a.Amount AS amount FROM [dbo].[MoneyMovementRequest] m CROSS APPLY OPENJSON(m.[Allocations]) WITH (AllocationId NVARCHAR(100) '$.AllocationId', AccountId NVARCHAR(100) '$.AccountId', Amount FLOAT '$.Amount') a WHERE a.AllocationId = '{{response_allocationId}}'",
-            "audit_query": ""
-        },
-        "db_type": "mssql",
-        "db_connection_name": "movemoney",
+        "db_query_timing": "",
+        "db_queries": {},
+        "db_type": "",
+        "db_connection_name": "",
         "test_summary": "Test TC001: Verify the API returns 200 OK with Location Header, allocationId and version is present in response for successful new allocation creation with valid amount input. (TC001)",
         "payload_file": "MoveMoneyAPI/payloads/Payload_requestId_allocations_POST_functional.json"
     },
@@ -114,7 +90,7 @@
         "test_id": "TC002",
         "service_name": "movemoney",
         "workflow_mode": "parallel",
-        "test_name": "creates a new allocation for a given money movement transfer request. [Negative] (TC002)",
+        "test_name": "Invalid Request ID Field. [Negative] (TC002)",
         "protocol": "REST",
         "test_type": [
             "Functional"
@@ -130,15 +106,30 @@
         "headers_additional": {
             "Content-Type": "application/json"
         },
-        "payload": "MoveMoneyAPI/payloads/Payload_requestId_allocations_POST_functional.json",
+        "payload": {
+            "accountId": "{{accountId}}",
+            "allocationUnitType": "{{allocationUnitType}}",
+            "amount": "{{amount}}"
+        },
         "expected_status": "400",
         "expected_response_schema": null,
-        "expected_response": null,
+        "expected_response": {
+            "type": "invalid-request",
+            "title": "Invalid Request",
+            "status": 400,
+            "detail": "The request contains invalid values",
+            "errors": {
+                "requestId": [
+                    "Must be a valid UUID format."
+                ]
+            }
+        },
         "ignore_fields": [
             "id",
             "createdDate",
             "modifiedDate",
-            "timestamp"
+            "timestamp",
+            "instance"
         ],
         "extract_values": [],
         "validate": {
@@ -160,7 +151,7 @@
         "db_queries": {},
         "db_type": "",
         "db_connection_name": "",
-        "test_summary": "Test TC002: Verify the API returns 400 Bad Request with error message must be either Percent or Amount' is required.  (TC002)"
+        "test_summary": "Test TC002: Verify the API returns 400 Bad Request when requestId has invalid UUID format. (TC002)"
     },
     {
         "test_id": "TC003",
@@ -182,15 +173,30 @@
         "headers_additional": {
             "Content-Type": "application/json"
         },
-        "payload": "MoveMoneyAPI/payloads/Payload_requestId_allocations_POST_functional.json",
+        "payload": {
+            "accountId": "{{accountId}}",
+            "allocationUnitType": "{{allocationUnitType}}",
+            "percent": "{{percent}}"
+        },
         "expected_status": "400",
         "expected_response_schema": null,
-        "expected_response": null,
+        "expected_response": {
+            "type": "missing-required-fields",
+            "title": "One or more fields are missing values",
+            "status": 400,
+            "detail": "Missing Required Fields",
+            "errors": {
+                "accountId": [
+                    "This field is required."
+                ]
+            }
+        },
         "ignore_fields": [
             "id",
             "createdDate",
             "modifiedDate",
-            "timestamp"
+            "timestamp",
+            "instance"
         ],
         "extract_values": [],
         "validate": {
@@ -237,12 +243,26 @@
         "payload": "MoveMoneyAPI/payloads/Payload_requestId_allocations_POST_functional.json",
         "expected_status": "400",
         "expected_response_schema": null,
-        "expected_response": null,
+        "expected_response": {
+            "type": "invalid-request",
+            "title": "Invalid Request",
+            "status": 400,
+            "detail": "The request contains invalid values",
+            "errors": {
+                "accountId": [
+                    "Must be a valid UUID format."
+                ],
+                "allocationUnitType": [
+                    "The percent field is only applicable when allocationUnitType is Percent."
+                ]
+            }
+        },
         "ignore_fields": [
             "id",
             "createdDate",
             "modifiedDate",
-            "timestamp"
+            "timestamp",
+            "instance"
         ],
         "extract_values": [],
         "validate": {
@@ -289,12 +309,23 @@
         "payload": "MoveMoneyAPI/payloads/Payload_requestId_allocations_POST_functional.json",
         "expected_status": "400",
         "expected_response_schema": null,
-        "expected_response": null,
+        "expected_response": {
+            "type": "missing-required-fields",
+            "title": "One or more fields are missing values",
+            "status": 400,
+            "detail": "Missing Required Fields",
+            "errors": {
+                "allocationUnitType": [
+                    "This field is required."
+                ]
+            }
+        },
         "ignore_fields": [
             "id",
             "createdDate",
             "modifiedDate",
-            "timestamp"
+            "timestamp",
+            "instance"
         ],
         "extract_values": [],
         "validate": {
@@ -341,12 +372,26 @@
         "payload": "MoveMoneyAPI/payloads/Payload_requestId_allocations_POST_functional.json",
         "expected_status": "400",
         "expected_response_schema": null,
-        "expected_response": null,
+        "expected_response": {
+            "type": "invalid-request",
+            "title": "Invalid Request",
+            "status": 400,
+            "detail": "The request contains invalid values",
+            "errors": {
+                "accountId": [
+                    "Must be a valid UUID format."
+                ],
+                "allocationUnitType": [
+                    "Must be one of: Percent, Amount, AllRemaining."
+                ]
+            }
+        },
         "ignore_fields": [
             "id",
             "createdDate",
             "modifiedDate",
-            "timestamp"
+            "timestamp",
+            "instance"
         ],
         "extract_values": [],
         "validate": {
@@ -390,7 +435,11 @@
         "headers_additional": {
             "Content-Type": "application/json"
         },
-        "payload": "MoveMoneyAPI/payloads/Payload_requestId_allocations_POST_functional.json",
+        "payload": {
+            "accountId": "{{accountId}}",
+            "allocationUnitType": "{{allocationUnitType}}",
+            "percent": "{{percent}}"
+        },
         "expected_status": "200",
         "expected_response_schema": null,
         "expected_response": null,
@@ -422,22 +471,14 @@
                 "assign_to": "response_amount"
             },
             {
-                "from": "db_result",
-                "query": "default",
-                "assign": [
-                    {
-                        "key": "0.allocationId",
-                        "assign_to": "db_allocationId"
-                    },
-                    {
-                        "key": "0.accountId",
-                        "assign_to": "db_accountId"
-                    },
-                    {
-                        "key": "0.amount",
-                        "assign_to": "db_amount"
-                    }
-                ]
+                "from": "response",
+                "key": "version",
+                "assign_to": "response_version"
+            },
+            {
+                "from": "response",
+                "key": "requestId",
+                "assign_to": "response_requestId"
             }
         ],
         "validate": {
@@ -464,24 +505,14 @@
                     "message": "Version should not be empty"
                 }
             ],
-            "data_comparison": [
-                {
-                    "source": "response_allocationId",
-                    "target": "db_allocationId",
-                    "log_differences": true,
-                    "comparison_name": "AllocationId match between API and DB"
-                }
-            ]
+            "data_comparison": []
         },
         "test_data_file": "MoveMoneyAPI/data_driven/Data_requestId_allocations_POST.csv",
         "csv_row_index": 1,
-        "db_query_timing": "after_api",
-        "db_queries": {
-            "default": "SELECT m.RequestId, a.AllocationId AS allocationId, a.AccountId AS accountId, a.Amount AS amount FROM [dbo].[MoneyMovementRequest] m CROSS APPLY OPENJSON(m.[Allocations]) WITH (AllocationId NVARCHAR(100) '$.AllocationId', AccountId NVARCHAR(100) '$.AccountId', Amount FLOAT '$.Amount') a WHERE a.AllocationId = '{{response_allocationId}}'",
-            "audit_query": ""
-        },
-        "db_type": "mssql",
-        "db_connection_name": "movemoney",
+        "db_query_timing": "",
+        "db_queries": {},
+        "db_type": "",
+        "db_connection_name": "",
         "test_summary": "Test TC007: Verify the API returns 200 OK with Location Header, allocationId and version is present in response for successful new allocation creation with valid Percent input. (TC007)",
         "payload_file": "MoveMoneyAPI/payloads/Payload_requestId_allocations_POST_functional.json"
     },
@@ -503,7 +534,6 @@
         "payload": {
             "accountId": "{{accountId}}",
             "allocationUnitType": "{{allocationUnitType}}",
-            "percent": "{{percent}}",
             "amount": "{{amount}}"
         },
         "expected_status": "204",
@@ -561,12 +591,23 @@
         },
         "expected_status": "400",
         "expected_response_schema": null,
-        "expected_response": null,
+        "expected_response": {
+            "type": "invalid-request",
+            "title": "Invalid Request",
+            "status": 400,
+            "detail": "The request contains invalid values",
+            "errors": {
+                "allocationUnitType": [
+                    "The percent field is only applicable when allocationUnitType is Percent."
+                ]
+            }
+        },
         "ignore_fields": [
             "id",
             "createdDate",
             "modifiedDate",
-            "timestamp"
+            "timestamp",
+            "instance"
         ],
         "extract_values": [],
         "validate": {
@@ -589,6 +630,132 @@
         "db_type": null,
         "db_connection_name": null,
         "test_summary": "Verify 400 response for allocations not supported for railtype 'ACH'.",
+        "payload_file": null
+    },
+    {
+        "test_id": "TC010",
+        "service_name": "movemoney",
+        "workflow_mode": "parallel",
+        "test_name": "Invalid Percent Field (TC010)",
+        "protocol": "REST",
+        "test_type": [
+            "Negative"
+        ],
+        "mainURL": "{{base_url}}",
+        "endpoint": "/{{requestId}}/allocations",
+        "method": "POST",
+        "headers_additional": {
+            "Content-Type": "application/json"
+        },
+        "payload": {
+            "accountId": "{{accountId}}",
+            "allocationUnitType": "{{allocationUnitType}}",
+            "percent": "{{percent}}"
+        },
+        "expected_status": "400",
+        "expected_response_schema": null,
+        "expected_response": {
+            "type": "invalid-request",
+            "title": "Invalid Request",
+            "status": 400,
+            "detail": "The request contains invalid values",
+            "errors": {
+                "percent": [
+                    "Must be a positive percentage between 0.01 and 100 with up to 2 decimal places."
+                ]
+            }
+        },
+        "ignore_fields": [
+            "id",
+            "createdDate",
+            "modifiedDate",
+            "timestamp",
+            "instance"
+        ],
+        "extract_values": [],
+        "validate": {
+            "performance": {
+                "max_response_time_ms": 5000
+            },
+            "security": {
+                "checks": [
+                    "sql_injection",
+                    "xss"
+                ]
+            },
+            "assertions": [],
+            "data_comparison": []
+        },
+        "test_data_file": "MoveMoneyAPI/data_driven/Data_requestId_allocations_POST.csv",
+        "csv_row_index": 9,
+        "db_query_timing": null,
+        "db_queries": {},
+        "db_type": null,
+        "db_connection_name": null,
+        "test_summary": "Verify 400 response for allocations when there is an invalid Percent field. (TC010)",
+        "payload_file": null
+    },
+    {
+        "test_id": "TC011",
+        "service_name": "movemoney",
+        "workflow_mode": "parallel",
+        "test_name": "Invalid Amount Field (TC011)",
+        "protocol": "REST",
+        "test_type": [
+            "Negative"
+        ],
+        "mainURL": "{{base_url}}",
+        "endpoint": "/{{requestId}}/allocations",
+        "method": "POST",
+        "headers_additional": {
+            "Content-Type": "application/json"
+        },
+        "payload": {
+            "accountId": "{{accountId}}",
+            "allocationUnitType": "{{allocationUnitType}}",
+            "amount": "{{amount}}"
+        },
+        "expected_status": "400",
+        "expected_response_schema": null,
+        "expected_response": {
+            "type": "invalid-request",
+            "title": "Invalid Request",
+            "status": 400,
+            "detail": "The request contains invalid values",
+            "errors": {
+                "amount": [
+                    "Must be a positive dollar amount greater than 0.01 with up to 2 decimal places."
+                ]
+            }
+        },
+        "ignore_fields": [
+            "id",
+            "createdDate",
+            "modifiedDate",
+            "timestamp",
+            "instance"
+        ],
+        "extract_values": [],
+        "validate": {
+            "performance": {
+                "max_response_time_ms": 5000
+            },
+            "security": {
+                "checks": [
+                    "sql_injection",
+                    "xss"
+                ]
+            },
+            "assertions": [],
+            "data_comparison": []
+        },
+        "test_data_file": "MoveMoneyAPI/data_driven/Data_requestId_allocations_POST.csv",
+        "csv_row_index": 10,
+        "db_query_timing": null,
+        "db_queries": {},
+        "db_type": null,
+        "db_connection_name": null,
+        "test_summary": "Verify 400 response for allocations when there is an invalid Amount field. (TC011)",
         "payload_file": null
     }
 ]

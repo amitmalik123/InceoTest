@@ -1,0 +1,564 @@
+[
+    {
+        "test_id": "TC000",
+        "service_name": "models",
+        "workflow_mode": "sequential",
+        "test_name": "DB_ONLY - Fetch one accessible permission record for current x-user-id (TC000)",
+        "protocol": "DB_ONLY",
+        "test_type": [
+            "Functional",
+            "Database Validation"
+        ],
+        "mainURL": "",
+        "endpoint": "",
+        "method": "",
+        "rpc_method": "",
+        "graphql_query": "",
+        "graphql_variables": "",
+        "soap_action": "",
+        "soap_envelope": "",
+        "headers_additional": {
+            "Content-Type": "application/json"
+        },
+        "payload": null,
+        "expected_status": "",
+        "expected_response_schema": "",
+        "expected_response": "",
+        "extract_values": [
+            {
+                "from": "db_result",
+                "key": "0.model_id",
+                "assign_to": "perm_model_id"
+            },
+            {
+                "from": "db_result",
+                "key": "0.agent_id",
+                "assign_to": "perm_agent_id"
+            }
+        ],
+        "validate": {
+            "performance": {
+                "max_response_time_ms": 500
+            },
+            "security": {
+                "checks": []
+            },
+            "assertions": [
+                {
+                    "actual": "{{perm_model_id}}",
+                    "operator": "!=",
+                    "expected": null,
+                    "message": "Verify at least one permission record exists in agent_access for the current x-user-id"
+                },
+                {
+                    "actual": "{{perm_agent_id}}",
+                    "operator": "!=",
+                    "expected": null,
+                    "message": "Verify a valid agent_id is available to drive the filtered GET call"
+                }
+            ]
+        },
+        "test_data_file": "",
+        "db_type": "postgresql",
+        "db_connection_name": "models",
+        "db_query": "SELECT aa.model_id AS \"model_id\", aa.agent_id AS \"agent_id\" FROM agent_access aa ORDER BY aa.agent_access_id DESC LIMIT 1;",
+        "test_summary": "Step 0: Fetch one accessible model_id and agent_id from agent_access for the current x-user-id to drive the GET permission tests",
+        "test_scenario": "Use an existing permission row from agent_access rather than creating or publishing new models"
+    },
+    {
+        "test_id": "TC001",
+        "service_name": "models",
+        "workflow_mode": "sequential",
+        "test_name": "POST /model - Create model with allowedAgents for permission GET test setup (TC001 Setup)",
+        "protocol": "REST",
+        "test_type": [
+            "Functional"
+        ],
+        "mainURL": "{{base_url}}",
+        "endpoint": "/models",
+        "method": "POST",
+        "rpc_method": "",
+        "graphql_query": "",
+        "graphql_variables": "",
+        "soap_action": "",
+        "soap_envelope": "",
+        "headers_additional": {
+            "Content-Type": "application/json"
+        },
+        "payload": {
+            "name": "Test Model - permission GET setup",
+            "ownerId": "3fa85f64-5717-4562-b3fc-2c963f66afa6",
+            "modelAttributes": {
+                "solutionType": "Managed",
+                "modelType": "Strategic"
+            },
+            "allocations": [
+                {
+                    "entityType": "Security",
+                    "allocationName": "Test Allocation",
+                    "modelId": "string",
+                    "cusip": "string",
+                    "ticker": "SPY",
+                    "weight": 1.0
+                }
+            ],
+            "investmentApproachId": null,
+            "benchmarkName": "S&P 500",
+            "benchmarkIsPrimary": false,
+            "custodians": [
+                "Fidelity"
+            ],
+            "investmentMins": [
+                {
+                    "type": "System",
+                    "value": 1
+                }
+            ],
+            "riskProfile": "Moderate",
+            "versionMetadata": {
+                "additionalProp1": "permission_get_setup"
+            },
+            "allowedAgents": [
+                "{{random_string()}}"
+            ]
+        },
+        "expected_status": "201",
+        "expected_response_schema": "",
+        "expected_response": null,
+        "ignore_fields": [],
+        "extract_values": [
+            {
+                "from": "response",
+                "key": "modelId",
+                "assign_to": "perm_setup_model_id"
+            },
+            {
+                "from": "request",
+                "key": "allowedAgents.0",
+                "assign_to": "perm_setup_agent_id"
+            }
+        ],
+        "validate": {
+            "performance": {
+                "max_response_time_ms": null
+            },
+            "security": {
+                "checks": []
+            },
+            "assertions": [
+                {
+                    "actual": "{{perm_setup_model_id}}",
+                    "operator": "!=",
+                    "expected": null,
+                    "message": "Setup: Verify model created successfully for permission GET test"
+                }
+            ]
+        },
+        "test_data_file": "",
+        "db_query": "",
+        "db_type": "",
+        "db_connection_name": "",
+        "test_summary": "Setup: POST /model with allowedAgents to create agent_access data — prerequisite for GET /models/permissions to return 200",
+        "test_scenario": "Create draft model with allowedAgents so the permission endpoint has data to return"
+    },
+    {
+        "test_id": "TC002",
+        "service_name": "models",
+        "workflow_mode": "sequential",
+        "test_name": "POST /models/{id}/publish - Publish model created in TC001 setup (TC002 Setup)",
+        "protocol": "REST",
+        "test_type": [
+            "Functional"
+        ],
+        "mainURL": "{{base_url}}",
+        "endpoint": "/models/{{perm_setup_model_id}}/publish",
+        "method": "POST",
+        "rpc_method": "",
+        "graphql_query": "",
+        "graphql_variables": "",
+        "soap_action": "",
+        "soap_envelope": "",
+        "headers_additional": {
+            "Content-Type": "application/json"
+        },
+        "payload": null,
+        "expected_status": "200",
+        "expected_response_schema": "",
+        "expected_response": null,
+        "ignore_fields": [],
+        "extract_values": [],
+        "validate": {
+            "performance": {
+                "max_response_time_ms": 3000
+            },
+            "security": {
+                "checks": []
+            },
+            "assertions": [
+                {
+                    "actual": "{{perm_setup_model_id}}",
+                    "operator": "!=",
+                    "expected": null,
+                    "message": "Setup: Verify model_id is available before attempting publish"
+                }
+            ]
+        },
+        "test_data_file": "",
+        "db_query": "",
+        "db_type": "",
+        "db_connection_name": "",
+        "test_summary": "Setup Step 2: Publish the draft model created in TC001 so it appears in GET /models/permissions results (endpoint returns Published models only)",
+        "test_scenario": "Publish model with allowedAgents coverage so GET /models/permissions returns 200 with data for that model"
+    },
+    {
+        "test_id": "TC003",
+        "service_name": "models",
+        "workflow_mode": "sequential",
+        "test_name": "GET /models/permissions?agentId={agent_id} - Return permission data grouped by model_id (TC003)",
+        "protocol": "REST",
+        "test_type": [
+            "Functional",
+            "Positive",
+            "Database Validation"
+        ],
+        "mainURL": "{{base_url}}",
+        "endpoint": "/models/permissions?agentId={{perm_setup_agent_id}}",
+        "method": "GET",
+        "rpc_method": "",
+        "graphql_query": "",
+        "graphql_variables": "",
+        "soap_action": "",
+        "soap_envelope": "",
+        "headers_additional": {
+            "Content-Type": "application/json"
+        },
+        "payload": null,
+        "expected_status": "200",
+        "expected_response_schema": "models\\schemas\\Schema_model_permission_GET_response.json",
+        "expected_response": null,
+        "ignore_fields": [],
+        "extract_values": [
+            {
+                "from": "response",
+                "key": "data.0.modelId",
+                "assign_to": "perm_response_model_id"
+            },
+            {
+                "from": "response",
+                "key": "data.0.agents",
+                "assign_to": "perm_response_agents"
+            },
+            {
+                "from": "response",
+                "key": "data.0.allocations",
+                "assign_to": "perm_response_allocations"
+            }
+        ],
+        "validate": {
+            "performance": {
+                "max_response_time_ms": 3000
+            },
+            "security": {
+                "checks": []
+            },
+            "assertions": [
+                {
+                    "actual": "{{perm_response_model_id}}",
+                    "operator": "!=",
+                    "expected": null,
+                    "message": "Verify GET /model/permission returns grouped data with a modelId"
+                },
+                {
+                    "actual": "{{perm_response_agents}}",
+                    "operator": "!=",
+                    "expected": null,
+                    "message": "Verify each permission group includes an agents list"
+                },
+                {
+                    "actual": "{{perm_response_allocations}}",
+                    "operator": "!=",
+                    "expected": null,
+                    "message": "Verify each permission group includes allocation data"
+                }
+            ],
+            "data_comparison": [
+                {
+                    "source": "db",
+                    "target": "api",
+                    "compare_type": "count",
+                    "source_path": "db_results",
+                    "target_path": "data",
+                    "message": "Verify the number of grouped model_id permission records matches agent_access for the current x-user-id"
+                },
+                {
+                    "source": "db",
+                    "target": "api",
+                    "compare_type": "field",
+                    "source_path": "db_results.*.model_id",
+                    "target_path": "data.*.modelId",
+                    "message": "Verify GET /model/permission groups results by model_id"
+                }
+            ]
+        },
+        "test_data_file": "",
+        "db_query_timing": "after_api",
+        "db_queries": {
+            "default": "SELECT aa.model_id AS \"model_id\" FROM agent_access aa GROUP BY aa.model_id ORDER BY aa.model_id;",
+            "audit_query": ""
+        },
+        "db_type": "postgresql",
+        "db_connection_name": "models",
+        "test_summary": "Verify GET /models/permissions returns 200 and groups permission data by model_id with agent and allocation lists",
+        "test_scenario": "Endpoint availability and grouped response structure for permission data sourced from existing access records"
+    },
+    {
+        "test_id": "TC004",
+        "service_name": "models",
+        "workflow_mode": "sequential",
+        "test_name": "GET /models/permissions?agent_id={agent_id} - Return only models associated with the provided agent_id (TC004)",
+        "protocol": "REST",
+        "test_type": [
+            "Functional",
+            "Positive",
+            "Filter Validation",
+            "Database Validation"
+        ],
+        "mainURL": "{{base_url}}",
+        "endpoint": "/models/permissions?agentId={{perm_setup_agent_id}}",
+        "method": "GET",
+        "rpc_method": "",
+        "graphql_query": "",
+        "graphql_variables": "",
+        "soap_action": "",
+        "soap_envelope": "",
+        "headers_additional": {
+            "Content-Type": "application/json"
+        },
+        "payload": null,
+        "expected_status": "200",
+        "expected_response_schema": "models\\schemas\\Schema_model_permission_GET_response.json",
+        "expected_response": null,
+        "ignore_fields": [],
+        "extract_values": [
+            {
+                "from": "response",
+                "key": "data.0.modelId",
+                "assign_to": "perm_filtered_model_id"
+            },
+            {
+                "from": "response",
+                "key": "data.0.agents",
+                "assign_to": "perm_filtered_agents"
+            }
+        ],
+        "validate": {
+            "performance": {
+                "max_response_time_ms": 3000
+            },
+            "security": {
+                "checks": []
+            },
+            "assertions": [
+                {
+                    "actual": "{{perm_filtered_model_id}}",
+                    "operator": "!=",
+                    "expected": null,
+                    "message": "Verify filtering by agent_id still returns at least one associated model"
+                },
+                {
+                    "actual": "{{perm_filtered_agents}}",
+                    "operator": "!=",
+                    "expected": null,
+                    "message": "Verify the filtered response keeps the grouped agent list structure"
+                }
+            ],
+            "data_comparison": [
+                {
+                    "source": "db",
+                    "target": "api",
+                    "compare_type": "count",
+                    "source_path": "db_results",
+                    "target_path": "data",
+                    "message": "Verify the number of models returned by the agent_id filter matches agent_access for that agent"
+                },
+                {
+                    "source": "db",
+                    "target": "api",
+                    "compare_type": "field",
+                    "source_path": "db_results.*.model_id",
+                    "target_path": "data.*.modelId",
+                    "message": "Verify GET /model/permission?agent_id returns only models associated with the provided agent_id"
+                }
+            ]
+        },
+        "test_data_file": "",
+        "db_query_timing": "after_api",
+        "db_queries": {
+            "default": "SELECT aa.model_id AS \"model_id\" FROM agent_access aa WHERE aa.agent_id = '{{perm_setup_agent_id}}' GROUP BY aa.model_id ORDER BY aa.model_id;",
+            "audit_query": ""
+        },
+        "db_type": "postgresql",
+        "db_connection_name": "models",
+        "test_summary": "Verify the optional agent_id filter returns only models associated with the supplied agent_id",
+        "test_scenario": "Filtered permission lookup by agent_id using existing agent_access data for the current x-user-id"
+    },
+    {
+        "test_id": "TC005",
+        "service_name": "models",
+        "workflow_mode": "independent",
+        "test_name": "GET /models/permissions - Missing x-user-id header returns 401 [Negative, Security] (TC005)",
+        "protocol": "REST",
+        "test_type": [
+            "Negative",
+            "Security",
+            "Error Handling"
+        ],
+        "mainURL": "{{base_url}}",
+        "endpoint": "/models/permissions",
+        "method": "GET",
+        "rpc_method": "",
+        "graphql_query": "",
+        "graphql_variables": "",
+        "soap_action": "",
+        "soap_envelope": "",
+        "headers_additional": {
+            "Content-Type": "application/json",
+            "x-user-id": ""
+        },
+        "payload": null,
+        "expected_status": "401",
+        "expected_response_schema": "models/schemas/Schema_error_401.json",
+        "expected_response": null,
+        "ignore_fields": [],
+        "extract_values": [
+            {
+                "from": "response",
+                "key": "type",
+                "assign_to": "perm05_type"
+            },
+            {
+                "from": "response",
+                "key": "title",
+                "assign_to": "perm05_title"
+            },
+            {
+                "from": "response",
+                "key": "status",
+                "assign_to": "perm05_status"
+            },
+            {
+                "from": "response",
+                "key": "detail",
+                "assign_to": "perm05_detail"
+            },
+            {
+                "from": "response",
+                "key": "instance",
+                "assign_to": "perm05_instance"
+            }
+        ],
+        "validate": {
+            "performance": {
+                "max_response_time_ms": 3000
+            },
+            "security": {
+                "checks": []
+            },
+            "assertions": [
+                {
+                    "actual": "{{perm05_type}}",
+                    "operator": "!=",
+                    "expected": "ResourceNotFound",
+                    "message": "AC2: type must not be non-URI value 'ResourceNotFound'"
+                },
+                {
+                    "actual": "{{perm05_type}}",
+                    "operator": "!=",
+                    "expected": "InvalidInput",
+                    "message": "AC2: type must not be non-URI value 'InvalidInput'"
+                },
+                {
+                    "actual": "{{perm05_type}}",
+                    "operator": "!=",
+                    "expected": "BusinessRuleViolation",
+                    "message": "AC2: type must not be non-URI value 'BusinessRuleViolation'"
+                },
+                {
+                    "actual": "{{perm05_type}}",
+                    "operator": "!=",
+                    "expected": null,
+                    "message": "AC1: type field must be present"
+                },
+                {
+                    "actual": "{{perm05_type}}",
+                    "operator": "!=",
+                    "expected": "",
+                    "message": "AC2: type must not be empty string"
+                },
+                {
+                    "actual": "{{perm05_title}}",
+                    "operator": "!=",
+                    "expected": "Model.NotFound",
+                    "message": "AC3: title must not be internal code 'Model.NotFound'"
+                },
+                {
+                    "actual": "{{perm05_title}}",
+                    "operator": "!=",
+                    "expected": "Model.InvalidId",
+                    "message": "AC3: title must not be internal code 'Model.InvalidId'"
+                },
+                {
+                    "actual": "{{perm05_title}}",
+                    "operator": "!=",
+                    "expected": "Model.MismatchVersionModelId",
+                    "message": "AC3: title must not be internal code 'Model.MismatchVersionModelId'"
+                },
+                {
+                    "actual": "{{perm05_title}}",
+                    "operator": "!=",
+                    "expected": null,
+                    "message": "AC1: title must be present"
+                },
+                {
+                    "actual": "{{perm05_title}}",
+                    "operator": "!=",
+                    "expected": "",
+                    "message": "AC3: title must not be empty string"
+                },
+                {
+                    "actual": "{{perm05_status}}",
+                    "operator": "==",
+                    "expected": 401,
+                    "message": "AC4: status in body must equal HTTP 401"
+                },
+                {
+                    "actual": "{{perm05_detail}}",
+                    "operator": "!=",
+                    "expected": null,
+                    "message": "AC1: detail must be present"
+                },
+                {
+                    "actual": "{{perm05_detail}}",
+                    "operator": "!=",
+                    "expected": "",
+                    "message": "AC1: detail must not be empty"
+                },
+                {
+                    "actual": "{{perm05_instance}}",
+                    "operator": "!=",
+                    "expected": null,
+                    "message": "AC5: instance must be present"
+                },
+                {
+                    "actual": "{{perm05_instance}}",
+                    "operator": "!=",
+                    "expected": "",
+                    "message": "AC5: instance must contain the request path"
+                }
+            ]
+        },
+        "test_data_file": "",
+        "test_summary": "Corner case: Verify API returns 401 Unauthorized when x-user-id header is missing or empty",
+        "test_scenario": "Security edge case for permission endpoint authorization header handling"
+    }
+]

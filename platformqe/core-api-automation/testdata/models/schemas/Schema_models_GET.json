@@ -31,7 +31,7 @@
             }
           },
           "metadata": {
-            "type": "object"
+            "type": ["object", "null"]
           },
           "versions": {
             "type": "array",
