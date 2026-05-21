@@ -5,6 +5,7 @@ trigger:
     include:
       - main
       - develop
+      - WM_MM_UI
   paths:
     include:
       - applicationqe/data/model-management/wrappermodel/**
@@ -24,6 +25,7 @@ pr:
     include:
       - main
       - develop
+      - WM_MM_UI
   paths:
     include:
       - applicationqe/data/model-management/wrappermodel/**
