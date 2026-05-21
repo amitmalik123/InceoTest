@@ -1,4 +1,4 @@
-﻿"""
+"""
 Centralized logging configuration for the test framework.
 """
 
