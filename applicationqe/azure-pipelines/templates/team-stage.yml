@@ -21,6 +21,11 @@ parameters:
   - name: browser
     type: string
     default: 'chromium'
+  - name: configDir
+    type: string
+    default: 'stp/stp-journals'
+    # Path under config/ to the team's env YAML files.
+    # Examples: 'stp/stp-journals', 'stp/stp-ict', 'stp/stp-fees'
 
 stages:
 - stage: ${{ parameters.stageName }}
@@ -195,6 +200,7 @@ stages:
         echo ""
         echo "Setting up environment variables..."
         export TEST_ENV="$(environment)"
+        export TEST_CONFIG_PATH="config/${{ parameters.configDir }}/env.$(environment).yaml"
         export CI=true
         export PYTHONUNBUFFERED=1
         export ALLURE_RESULTS_DIR="$(allureResultsDir)"
