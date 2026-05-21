@@ -15,31 +15,38 @@ class ClientSuitabilityPage(BasePage):
 
     def answer_question(self, question: int, answer: int) -> None:
         """Select a radio option for a given question (1-3) and answer (1-4)."""
-        input_selector = f"input[type='radio'][name='{question}'][value='{answer}']"
-
-        # Step 1: Playwright force-click on the native radio input.
-        # force=True bypasses visibility/actionability checks and dispatches a full
-        # mouse event chain (mousedown, mouseup, click) that Uniform.js intercepts.
-        try:
-            self.page.locator(input_selector).click(force=True, timeout=5000)
-        except Exception:
-            pass
-
-        # Step 2: Also set checked via jQuery and fire change/click events so the
-        # page's validation counter is incremented regardless of Uniform state.
+        # Click the Uniform.js wrapper element (parent of native radio) via native DOM click.
+        # This mirrors the approach used by ict_select_destination_page (el.click() on the
+        # Uniform wrapper), which reliably triggers Uniform's event handlers, updates the
+        # visual 'checked' class, and increments the page's answer counter.
         self.page.evaluate("""
             ([name, value]) => {
-                const target = document.querySelector(
+                const input = document.querySelector(
                     `input[type="radio"][name="${name}"][value="${value}"]`
                 );
-                if (!target) return;
-                target.checked = true;
-                if (window.$ || window.jQuery) {
-                    const jq = window.$ || window.jQuery;
-                    jq(target).prop('checked', true).trigger('change').trigger('click');
+                if (!input) return;
+
+                // 1. Click the Uniform.js visual wrapper (div/span.radio) if present.
+                const wrapper = input.closest('.radio')
+                    || input.closest('div[class*="radio"]')
+                    || input.closest('span[class*="radio"]');
+                if (wrapper) {
+                    wrapper.click();
                 } else {
-                    target.dispatchEvent(new MouseEvent('click', {bubbles: true, cancelable: true}));
-                    target.dispatchEvent(new Event('change', {bubbles: true}));
+                    // 2. Fall back to clicking associated <label> or the input itself.
+                    const label = input.id
+                        ? document.querySelector(`label[for="${input.id}"]`)
+                        : null;
+                    (label || input).click();
+                }
+
+                // 3. Belt-and-suspenders: also set .checked and fire change events.
+                input.checked = true;
+                if (window.$ || window.jQuery) {
+                    (window.$ || window.jQuery)(input)
+                        .prop('checked', true).trigger('change').trigger('click');
+                } else {
+                    input.dispatchEvent(new Event('change', {bubbles: true}));
                 }
             }
         """, [str(question), str(answer)])
@@ -52,21 +59,8 @@ class ClientSuitabilityPage(BasePage):
         self.answer_question(1, q1)
         self.answer_question(2, q2)
         self.answer_question(3, q3)
-        # Force Uniform.js to refresh all radio state (triggers validation counter)
-        self.page.evaluate("""
-            if (window.$ && $.uniform) {
-                $.uniform.update(':radio');
-            }
-            // Re-fire change on every checked radio so the page's counter
-            // is incremented even if Uniform's update didn't trigger it.
-            document.querySelectorAll('input[type="radio"]:checked').forEach(function(el) {
-                el.dispatchEvent(new Event('change', {bubbles: true}));
-                if (window.$ || window.jQuery) {
-                    (window.$ || window.jQuery)(el).trigger('change');
-                }
-            });
-        """)
-        self.page.wait_for_timeout(1200)
+        # Allow Uniform.js to propagate state and for the Next button to enable.
+        self.page.wait_for_timeout(1000)
         logger.info("All suitability questions answered")
 
     def click_next(self) -> None:
@@ -75,7 +69,7 @@ class ClientSuitabilityPage(BasePage):
         try:
             self.page.wait_for_function(
                 "document.getElementById('nextButton') && !document.getElementById('nextButton').disabled",
-                timeout=10000,
+                timeout=15000,
             )
             next_btn.click()
             logger.info("Next button clicked (enabled)")
@@ -89,4 +83,30 @@ class ClientSuitabilityPage(BasePage):
                 }
             """)
             logger.info("Next button force-clicked via JS")
+
+        # Wait for navigation away from the Suitability page.
+        # If Playwright's click triggered the handler but no navigation happened, retry
+        # with a native DOM click (same as how ict_select_destination_page handles radios).
+        try:
+            self.page.wait_for_url(
+                lambda url: '/Suitability' not in url,
+                timeout=10000,
+            )
+            logger.info(f"Navigated to: {self.page.url}")
+        except Exception:
+            logger.warning(
+                f"No navigation after Next click (URL: {self.page.url}). "
+                "Retrying with native JS click."
+            )
+            self.page.evaluate("document.getElementById('nextButton').click()")
+            try:
+                self.page.wait_for_url(
+                    lambda url: '/Suitability' not in url,
+                    timeout=10000,
+                )
+                logger.info(f"Navigated after JS click: {self.page.url}")
+            except Exception:
+                logger.warning(f"Still on Suitability after JS click: {self.page.url}")
+                self.page.screenshot(path='reports/suitability_stuck.png')
+
         self.page.wait_for_load_state('networkidle', timeout=30000)
