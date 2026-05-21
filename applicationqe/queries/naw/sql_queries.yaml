@@ -1,0 +1,90 @@
+# SQL Queries - Shared across all environments
+# Organize queries by domain/module
+
+# Transfer Related Queries
+transfer:
+  transfer_audit: "SELECT status, * FROM [dbo].[TransferInfoAudit]"
+  transfer_by_id: "SELECT * FROM [dbo].[TransferInfo] WHERE TransferInfo_ID = ?"
+  transfer_by_account: "SELECT * FROM [dbo].[TransferInfo] WHERE AccountNumber = ?"
+  recent_transfers: "SELECT TOP 100 * FROM [dbo].[TransferInfoAudit] ORDER BY AuditStart DESC"
+
+# Account Related Queries
+account:
+  account_details: "SELECT * FROM [dbo].[Account] WHERE AccountNumber = ?"
+  account_by_client: "SELECT * FROM [dbo].[Account] WHERE ClientID = ?"
+
+# Roth Conversion Queries
+roth_conversion:
+  conversion_audit: "SELECT * FROM [dbo].[TransferInfoAudit] WHERE TransferType = 'Roth Conversion'"
+  conversion_by_account: "SELECT * FROM [dbo].[TransferInfoAudit] WHERE SourceAccount = ? OR DestinationAccount = ?"
+
+# CRM/Billing Queries (SQL Server database)
+crm:
+  retirement_billing_client: "SELECT * FROM [CRM].[dbo].[RetirementBillingClient]"
+  billing_client_by_id: "SELECT * FROM [CRM].[dbo].[RetirementBillingClient] WHERE ClientID = ?"
+
+# Agent Details Queries (for NAW module)
+agent:
+  # Check if agent is sub-advisory
+  is_sub_advisory: |
+    SELECT [IsSubAdvisory] 
+    FROM [CRM].[dbo].[Agent]
+    WHERE Channel IN ('ADG', 'IPG')
+    AND (IsSubAdvisory IN ('0', '1') OR IsSubAdvisory IS NULL)
+    AND APLID = ?
+  
+  # Get user role for agent
+  user_role: |
+    SELECT DISTINCT usl.UserID AS AgentAPLID, cv.[Description] AS UserRole, sd.UserId AS UserId
+    FROM AM..Users u
+    JOIN AM..UserSSOLink usl ON u.UserID = usl.UserID
+    JOIN AM..User_SSODetails sd ON usl.SSOGUID = sd.SSOGUIDID
+    JOIN ADS..CodeValue cv ON usl.InvitationTypeCD = cv.CodeValue_ID
+    LEFT JOIN AM..User_Contact uc ON u.UserID = uc.UserID
+    JOIN crm..Agent ag ON usl.UserID = ag.APLID
+    WHERE usl.IsDeleted = 0
+    AND cv.[Description] IN ('Agent','Shared Access User','Office Admin')
+    AND u.RoleID = 6
+    AND usl.UserId = ?
+    ORDER BY usl.UserID, cv.[Description], sd.UserID
+  
+  # Get agent channel (ADG, IPG, etc.)
+  agent_channel: |
+    SELECT DISTINCT crm.[Channel] AS [Agent Channel]
+    FROM [AM_Billing].[dbo].[Account] a WITH(NOLOCK)
+    LEFT OUTER JOIN [AM_Billing].[dbo].[tblClient] c WITH(NOLOCK) ON a.[FamilyID] = c.[FamilyID]
+    LEFT OUTER JOIN [AM_Billing].[dbo].[tblAgents] ag WITH(NOLOCK) ON c.[AgentRecID] = ag.[RecID]
+    LEFT OUTER JOIN [crm].[dbo].[agent] crm WITH(NOLOCK) ON ag.[APLID] = crm.[APLID]
+    WHERE a.[TerminationDate] IS NULL
+    AND ag.[APLID] = ?
+  
+  # Check e-signature eligibility
+  esignature_eligible: |
+    SELECT IsEsignatureEligible, eSigMinSigners, *
+    FROM [Platform].[dbo].[AccountTypeCustodian] ac
+    JOIN [Platform].[dbo].[AccountType] at ON at.id = ac.accounttypeid
+    WHERE ac.isactive = 1
+    AND ac.Custodian_ID = ?
+    AND ac.IsSelectableOnWebsite = 1
+    AND at.Description LIKE ?
+    ORDER BY at.id
+  
+  # Get agent signed by name
+  signed_by_name: |
+    SELECT DISTINCT sd.UserID, LTRIM(RTRIM(sd.FName)) + ' ' + LTRIM(RTRIM(sd.LName)) AS Name_ManageLogin
+    FROM AM..Users u
+    JOIN AM..UserSSOLink usl ON u.UserID = usl.UserID
+    JOIN AM..User_SSODetails sd ON usl.SSOGUID = sd.SSOGUIDID
+    JOIN ADS..CodeValue cv ON usl.InvitationTypeCD = cv.CodeValue_ID
+    LEFT JOIN AM..User_Contact uc ON u.UserID = uc.UserID
+    WHERE cv.Description IN ('Agent', 'Shared Access User', 'Office Admin')
+    AND usl.UserID = ?
+  
+  # Get agent authorized by name
+  authorized_by_name: |
+    SELECT SortName
+    FROM am..users
+    WHERE userid = ?
+
+# Example parameterized queries
+# Use ? for parameters, pass as tuple to execute_query(query, params=(value1, value2))
