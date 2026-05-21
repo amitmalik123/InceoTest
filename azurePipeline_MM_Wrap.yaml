@@ -1,0 +1,91 @@
+name: wrappermodel-$(Date:yyyyMMdd)$(Rev:.r)
+
+trigger:
+  branches:
+    include:
+      - main
+      - develop
+      - WM_MM_UI
+  paths:
+    include:
+      - applicationqe/data/model-management/wrappermodel/**
+      - applicationqe/config/model-management/wrappermodel/**
+      - applicationqe/tests/features/model-management/WrapperModel/**
+      - applicationqe/tests/steps/model-management/wrappermodel/**
+      - applicationqe/pages/model-management/wrappermodel/**
+      - applicationqe/queries/model-management/**
+      - applicationqe/azure-pipelines/templates/**
+      - applicationqe/requirements.txt
+
+variables:
+- group: qa-pipelines-shared-config
+
+pr:
+  branches:
+    include:
+      - main
+      - develop
+      - WM_MM_UI
+  paths:
+    include:
+      - applicationqe/data/model-management/wrappermodel/**
+      - applicationqe/config/model-management/wrappermodel/**
+      - applicationqe/tests/features/model-management/WrapperModel/**
+      - applicationqe/tests/steps/model-management/wrappermodel/**
+      - applicationqe/pages/model-management/wrappermodel/**
+      - applicationqe/queries/model-management/**
+      - applicationqe/azure-pipelines/templates/**
+      - applicationqe/requirements.txt
+
+# -----------------------------
+# Parameters for Manual Runs
+# -----------------------------
+parameters:
+  - name: environment
+    displayName: "Target Environment"
+    type: string    
+    default: "test01"
+    values:
+      - test01
+      - silo
+      - prod      
+
+  - name: marker
+    displayName: "Pytest Marker to Run"
+    type: string
+    default: "smoke"
+    values:
+      - smoke
+      - regression
+      - e2e
+ 
+  - name: workers
+    displayName: "Number of Parallel Workers"
+    type: string
+    default: "1"
+    values:
+      - "1"
+      - "2"
+      - "3"
+      - "4"
+      - "auto"
+
+  - name: browser
+    displayName: "Browser to Test"
+    type: string
+    default: "chromium"
+    values:
+      - chromium
+      - msedge
+      - both
+
+stages:
+  - template: templates/team-stage.yml
+    parameters:
+      stageName: WrapperModel
+      teamDisplay: WrapperModel
+      featurePath: tests/features//model-management/WrapperModel/
+      environment: ${{ parameters.environment }}
+      marker: ${{ parameters.marker }}
+      workers: ${{ parameters.workers }}
+      browser: ${{ parameters.browser }}
