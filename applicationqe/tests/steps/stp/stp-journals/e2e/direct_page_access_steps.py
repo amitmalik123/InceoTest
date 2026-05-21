@@ -116,7 +116,7 @@ def take_verification_screenshot(page: Page, test_context):
     page_name = test_context.get('current_page', 'unknown')
     
     with allure.step(f"Take screenshot of {page_name} page"):
-        screenshot_path = f"reports/oam/screenshots/{page_name}_verification.png"
+        screenshot_path = f"reports/screenshots/{page_name}_verification.png"
         page.screenshot(path=screenshot_path, full_page=True)
         
         # Attach to allure report
