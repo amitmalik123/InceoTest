@@ -1361,7 +1361,33 @@
         "ignore_fields": [
             "id"
         ],
-        "extract_values": [],
+        "extract_values": [
+            {
+                "from": "response",
+                "key": "type",
+                "assign_to": "mget10_type"
+            },
+            {
+                "from": "response",
+                "key": "title",
+                "assign_to": "mget10_title"
+            },
+            {
+                "from": "response",
+                "key": "status",
+                "assign_to": "mget10_status"
+            },
+            {
+                "from": "response",
+                "key": "detail",
+                "assign_to": "mget10_detail"
+            },
+            {
+                "from": "response",
+                "key": "instance",
+                "assign_to": "mget10_instance"
+            }
+        ],
         "validate": {
             "performance": {
                 "max_response_time_ms": null
@@ -1372,7 +1398,99 @@
                     "xss"
                 ]
             },
-            "data_comparison": []
+            "data_comparison": [],
+            "assertions": [
+                {
+                    "actual": "{{mget10_type}}",
+                    "operator": "!=",
+                    "expected": "ResourceNotFound",
+                    "message": "AC2: type must not be non-URI value 'ResourceNotFound'"
+                },
+                {
+                    "actual": "{{mget10_type}}",
+                    "operator": "!=",
+                    "expected": "InvalidInput",
+                    "message": "AC2: type must not be non-URI value 'InvalidInput'"
+                },
+                {
+                    "actual": "{{mget10_type}}",
+                    "operator": "!=",
+                    "expected": "BusinessRuleViolation",
+                    "message": "AC2: type must not be non-URI value 'BusinessRuleViolation'"
+                },
+                {
+                    "actual": "{{mget10_type}}",
+                    "operator": "!=",
+                    "expected": null,
+                    "message": "AC1: type field must be present"
+                },
+                {
+                    "actual": "{{mget10_type}}",
+                    "operator": "!=",
+                    "expected": "",
+                    "message": "AC2: type must not be empty string"
+                },
+                {
+                    "actual": "{{mget10_title}}",
+                    "operator": "!=",
+                    "expected": "Model.NotFound",
+                    "message": "AC3: title must not be internal code 'Model.NotFound'"
+                },
+                {
+                    "actual": "{{mget10_title}}",
+                    "operator": "!=",
+                    "expected": "Model.InvalidId",
+                    "message": "AC3: title must not be internal code 'Model.InvalidId'"
+                },
+                {
+                    "actual": "{{mget10_title}}",
+                    "operator": "!=",
+                    "expected": "Model.MismatchVersionModelId",
+                    "message": "AC3: title must not be internal code 'Model.MismatchVersionModelId'"
+                },
+                {
+                    "actual": "{{mget10_title}}",
+                    "operator": "!=",
+                    "expected": null,
+                    "message": "AC1: title must be present"
+                },
+                {
+                    "actual": "{{mget10_title}}",
+                    "operator": "!=",
+                    "expected": "",
+                    "message": "AC3: title must not be empty string"
+                },
+                {
+                    "actual": "{{mget10_status}}",
+                    "operator": "==",
+                    "expected": 500,
+                    "message": "AC4: status in body must equal HTTP 500"
+                },
+                {
+                    "actual": "{{mget10_detail}}",
+                    "operator": "!=",
+                    "expected": null,
+                    "message": "AC1: detail must be present"
+                },
+                {
+                    "actual": "{{mget10_detail}}",
+                    "operator": "!=",
+                    "expected": "",
+                    "message": "AC1: detail must not be empty"
+                },
+                {
+                    "actual": "{{mget10_instance}}",
+                    "operator": "!=",
+                    "expected": null,
+                    "message": "AC5: instance must be present"
+                },
+                {
+                    "actual": "{{mget10_instance}}",
+                    "operator": "!=",
+                    "expected": "",
+                    "message": "AC5: instance must contain the request path"
+                }
+            ]
         },
         "test_data_file": "",
         "db_query_timing": "after_api",

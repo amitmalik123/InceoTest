@@ -235,11 +235,29 @@
         "payload": null,
         "expected_status": "400",
         "expected_response_schema": "",
-        "expected_response": null,
+        "expected_response": {
+            "type": "invalid-request",
+            "title": "Invalid Request",
+            "status": 400,
+            "detail": "The request contains invalid values",
+            "instance": "/api/moneymovement/v1/check/357cd9d6-69b7-4053-b7b1-56445bba6e5c",
+            "errors": {
+                "status": [
+                    "Must be one of: Draft, Pending, Confirmed, Deleted."
+                ]
+            }
+        },
+        "expected_error_message": "Must be one of: Draft, Pending, Confirmed, Deleted.",
         "ignore_fields": [
             "id"
         ],
-        "extract_values": [],
+        "extract_values": [
+            {
+                "from": "response",
+                "key": "errors.status.0",
+                "assign_to": "error_message_tc004"
+            }
+        ],
         "validate": {
             "performance": {
                 "max_response_time_ms": 500
@@ -272,6 +290,18 @@
                     "expected": "",
                     "operator": "!=",
                     "message": "RequestId should not be empty"
+                },
+                {
+                    "actual": "{{error_message_tc004}}",
+                    "expected": "",
+                    "operator": "!=",
+                    "message": "Error message should not be empty"
+                },
+                {
+                    "actual": "{{error_message_tc004}}",
+                    "expected": "{{expected_error_message}}",
+                    "operator": "==",
+                    "message": "Status error message should match expected invalid value error"
                 }
             ]
         },
@@ -306,11 +336,29 @@
         "payload": null,
         "expected_status": "400",
         "expected_response_schema": "",
-        "expected_response": null,
+        "expected_response": {
+            "type": "invalid-request",
+            "title": "Invalid Request",
+            "status": 400,
+            "detail": "The request contains invalid values",
+            "instance": "/api/moneymovement/v1/check/357c@$@$@",
+            "errors": {
+                "requestId": [
+                    "Must be a valid UUID."
+                ]
+            }
+        },
+        "expected_error_message": "Must be a valid UUID.",
         "ignore_fields": [
             "id"
         ],
-        "extract_values": [],
+        "extract_values": [
+            {
+                "from": "response",
+                "key": "errors.requestId.0",
+                "assign_to": "error_message_tc005"
+            }
+        ],
         "validate": {
             "performance": {
                 "max_response_time_ms": 500
@@ -343,6 +391,18 @@
                     "expected": "",
                     "operator": "!=",
                     "message": "RequestId should not be empty"
+                },
+                {
+                    "actual": "{{error_message_tc005}}",
+                    "expected": "",
+                    "operator": "!=",
+                    "message": "Error message should not be empty"
+                },
+                {
+                    "actual": "{{error_message_tc005}}",
+                    "expected": "{{expected_error_message}}",
+                    "operator": "==",
+                    "message": "RequestId error message should match expected invalid UUID error"
                 }
             ]
         },

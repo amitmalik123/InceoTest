@@ -2,10 +2,10 @@
   "requestType": "BeneficiaryChange",
   "accounts": [
     {
-      "accountId": "a68b01d9-2128-4aa5-9dd9-ceddbe0e75e9",
+      "accountId": "{{valid_account_id}}",
       "parties": [
         {
-          "partyId": "9497b4e0-302a-402e-a974-db6beaa12188",
+          "partyId": "{{valid_party_id}}",
           "action": "Add"
         }
       ]

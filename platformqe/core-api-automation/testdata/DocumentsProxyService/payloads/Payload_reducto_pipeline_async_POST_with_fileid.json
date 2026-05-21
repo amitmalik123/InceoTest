@@ -1,0 +1,17 @@
+{
+  "input": "{{fileId}}",
+  "pipeline_id": "k971hscarfjpa94wkra2tyk7h183p3tj",
+  "async": {
+    "priority": false,
+    "metadata": {
+      "any_key": "any_value"
+    },
+    "webhook": {
+      "mode": "direct",
+      "url": "https://your-server.com/webhook"
+    }
+  },
+  "settings": {
+    "document_password": "optional-password"
+  }
+}

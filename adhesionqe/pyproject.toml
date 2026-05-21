@@ -1,0 +1,190 @@
+[build-system]
+requires = ["setuptools>=61.0", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "ui-automation-framework"
+version = "1.0.0"
+description = "A Playwright-based Python BDD automation framework using pytest-bdd and Page Object Model."
+requires-python = ">=3.8"
+dependencies = [
+    # Browser automation
+    "playwright>=1.42.0",
+
+    # Core testing framework
+    "pytest>=8.0.0,<9.0.0",
+    "pytest-playwright==0.4.4",
+    "pytest-asyncio==0.21.1",
+    "pytest-html>=4.1.1",
+    "pytest-xdist>=3.5.0",
+    "pytest-rerunfailures>=12.0",
+
+    # BDD support
+    "pytest-bdd>=7.3.0",
+    "gherkin-official>=27.0.0",
+
+    # Reporting
+    "allure-pytest>=2.13.0",
+
+    # Configuration
+    "pyyaml>=6.0",
+
+    # API Contract Testing
+    "jsonschema>=4.20.0",
+    "openapi-spec-validator>=0.7.1",
+    "prance>=23.6.21.0",
+
+    # Database
+    "pyodbc>=5.0.0",
+
+    # HTTP Requests
+    "requests>=2.31.0",
+
+    # Environment (.env) file support
+    "python-dotenv>=1.0.0",
+
+    # Azure Key Vault
+    "azure-identity>=1.15.0",
+    "azure-keyvault-secrets>=4.8.0",
+
+    # PDF Testing
+    "PyPDF2>=3.0.0",
+
+    # Performance Monitoring (optional)
+    "influxdb-client>=1.38.0"
+]
+
+[tool.setuptools.packages.find]
+# Only include actual Python packages (directories with __init__.py)
+include = ["pages*", "utils*", "tests*"]
+# Exclude data/config directories that aren't Python packages
+exclude = ["data*", "config*", "queries*", "docs*", "reports*", "scripts*"]
+
+[tool.setuptools.package-data]
+# Include non-Python files within packages
+"*" = ["*.yaml", "*.json", "*.csv", "*.sql"]
+
+[project.optional-dependencies]
+dev = [
+    # Code formatting
+    "black==24.3.0",
+    "autopep8==2.0.4",
+    "isort==5.13.2",
+
+    # Linting
+    "flake8==7.0.0",
+    "flake8-bugbear==24.2.6",
+    "flake8-comprehensions==3.14.0",
+    "flake8-docstrings==1.7.0",
+    "flake8-simplify==0.21.0",
+    "pylint>=3.0.0",
+
+    # Type checking
+    "mypy==1.9.0",
+
+    # Security
+    "bandit==1.7.7",
+
+    # Code coverage
+    "pytest-cov==4.1.0",
+    "coverage[toml]==7.4.4",
+
+    # Pre-commit hooks
+    "pre-commit==3.6.2"
+]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+python_files = "test_*.py"
+python_classes = "Test*"
+python_functions = "test_*"
+addopts = """
+-v
+--tb=short
+--strict-markers
+--disable-warnings
+--video=on
+--screenshot=on
+--tracing=retain-on-failure
+--junitxml=reports/junit/junit-report.xml
+--html=reports/pytest_report.html
+--self-contained-html
+--alluredir=reports/allure-results
+"""
+# Note: --reruns and --reruns-delay commented out to allow --pdb debug mode
+# Uncomment for normal test runs:
+# --reruns=2
+# --reruns-delay=1
+
+markers = [
+    "smoke: Quick smoke tests for critical functionality",
+    "regression: Full regression test suite",
+    "roth_conversion: Roth IRA conversion related tests",
+    "add_ach: Add ACH instructions related tests",
+    "ach: ACH functionality tests",
+    "login: Login functionality tests",
+    "navigation: Navigation and menu tests",
+    "account: Account management tests",
+    "wizard: Account wizard flow tests",
+    "change_investments: Change Investments flow tests",
+    "account_management: Account Management flow tests",
+    "suspension: Account Suspension tests",
+    "docusign: DocuSign integration tests",
+    "conversion: Asset conversion tests",
+    "investment: Investment management tests",
+    "tracking: Tracking center tests",
+    "e2e: End-to-end workflow tests",
+    "critical: Critical path tests",
+    "slow: Tests that take longer to execute",
+    "skip_ci: Skip in CI environment",
+    "test11: Tests for test11 environment",
+    "test12: Tests for test12 environment",
+    "silo: Tests for silo environment",
+    "prod: Tests for production environment",
+    "performance: Performance monitoring tests",
+    "lighthouse: Lighthouse audit tests",
+    "global_search: Global search functionality tests",
+    "apro: APro proposal workflow tests",
+    "proposal: Proposal creation and management tests",
+    "happypath: Happy path scenario tests",
+    "smartfilter: Smart filter functionality tests",
+    "exportbutton: Smart filter pages export button functionality tests",
+]
+asyncio_mode = "strict"
+log_cli = true
+log_cli_level = "INFO"
+log_cli_format = "%(asctime)s [%(levelname)8s] %(message)s"
+log_cli_date_format = "%Y-%m-%d %H:%M:%S"
+timeout = 300
+timeout_method = "thread"
+
+[tool.black]
+line-length = 100
+target-version = ["py38", "py39", "py310", "py311"]
+
+[tool.mypy]
+python_version = "3.8"
+warn_return_any = true
+warn_unused_configs = true
+disallow_untyped_defs = false
+
+[tool.pylint.messages_control]
+disable = [
+    "C0111",  # missing-docstring
+    "C0103",  # invalid-name
+    "R0913",  # too-many-arguments
+    "R0914",  # too-many-locals
+    "W0212",  # protected-access
+]
+
+[tool.pylint.format]
+max-line-length = 100
+
+[tool.isort]
+profile = "black"
+line_length = 100
+
+[tool.flake8]
+max-line-length = 100
+exclude = [".git", "__pycache__", "build", "dist", ".eggs", "*.egg"]
+ignore = ["E203", "W503"]

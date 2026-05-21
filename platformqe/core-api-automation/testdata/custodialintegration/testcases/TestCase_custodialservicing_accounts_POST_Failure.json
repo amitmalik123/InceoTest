@@ -1,0 +1,763 @@
+[
+    {
+        "test_id": "TC001",
+        "service_name": "custodialintegration",
+        "workflow_mode": "parallel",
+        "test_name": "POST /custodialservicing/accounts [negative: extra param] (TC001)",
+        "protocol": "REST",
+        "test_type": [
+            "Negative"
+        ],
+        "mainURL": "{{base_url}}",
+        "endpoint": "/custodialservicing/accounts",
+        "method": "POST",
+        "rpc_method": "",
+        "graphql_query": "",
+        "graphql_variables": "",
+        "soap_action": "",
+        "soap_envelope": "",
+        "headers_additional": {
+            "Content-Type": "application/json"
+        },
+        "payload": {
+            "requestType": "BeneficiaryChange",
+            "accounts": [
+                {
+                    "accountId": "123{{accountId}}",
+                    "parties": [
+                        {
+                            "partyId": "123{{partyId}}",
+                            "action": "{{action}}"
+                        }
+                    ]
+                }
+            ],
+            "metaData": {
+                "additionalProp1": "string",
+                "additionalProp2": "string",
+                "additionalProp3": "string"
+            }
+        },
+        "expected_status": "400",
+        "expected_response_schema": "",
+        "expected_response": null,
+        "ignore_fields": [
+            "id"
+        ],
+        "extract_values": [
+            {
+                "from": "response",
+                "key": "",
+                "assign_to": ""
+            },
+            {
+                "from": "response",
+                "record_count": false,
+                "array_path": "",
+                "assign_to": ""
+            }
+        ],
+        "validate": {
+            "performance": {
+                "max_response_time_ms": 500
+            },
+            "security": {
+                "checks": [
+                    "sql_injection",
+                    "xss"
+                ]
+            },
+            "data_comparison": [
+                {
+                    "source": "api_request",
+                    "target": "api_response",
+                    "format": "table",
+                    "key_field": [
+                        {
+                            "source": "",
+                            "target": ""
+                        }
+                    ],
+                    "fields_to_compare": [
+                        {
+                            "source": "",
+                            "target": ""
+                        }
+                    ],
+                    "log_differences": true,
+                    "comparison_name": "Request vs Response comparison"
+                }
+            ]
+        },
+        "test_data_file": "custodialintegration/data_driven/Data_parties_entity.csv",
+        "csv_row_index": 1,
+        "test_summary": "Test TC001: POST /custodialservicing/accounts [negative: extra param] (TC001)",
+        "extra_param": {
+            "unexpected_param": "unexpected"
+        }
+    },
+    {
+        "test_id": "TC002",
+        "service_name": "custodialintegration",
+        "workflow_mode": "parallel",
+        "test_name": "POST /custodialservicing/accounts [negative: invalid payload] (TC002)(removed AccountId section from the payload)",
+        "protocol": "REST",
+        "test_type": [
+            "Negative"
+        ],
+        "mainURL": "{{base_url}}",
+        "endpoint": "/custodialservicing/accounts",
+        "method": "POST",
+        "rpc_method": "",
+        "graphql_query": "",
+        "graphql_variables": "",
+        "soap_action": "",
+        "soap_envelope": "",
+        "headers_additional": {
+            "Content-Type": "application/json"
+        },
+        "payload": {
+            "requestType": "BeneficiaryChange",
+            "accounts": [
+                {
+                    "parties": [
+                        {
+                            "partyId": "{{partyId}}",
+                            "action": "{{action}}"
+                        }
+                    ]
+                }
+            ],
+            "metaData": {
+                "additionalProp1": "string",
+                "additionalProp2": "string",
+                "additionalProp3": "string"
+            }
+        },
+        "expected_status": "400",
+        "expected_response_schema": "",
+        "expected_response": null,
+        "ignore_fields": [
+            "id"
+        ],
+        "extract_values": [
+            {
+                "from": "response",
+                "key": "",
+                "assign_to": ""
+            },
+            {
+                "from": "response",
+                "record_count": false,
+                "array_path": "",
+                "assign_to": ""
+            }
+        ],
+        "validate": {
+            "performance": {
+                "max_response_time_ms": 500
+            },
+            "security": {
+                "checks": [
+                    "sql_injection",
+                    "xss"
+                ]
+            },
+            "data_comparison": [
+                {
+                    "source": "api_request",
+                    "target": "api_response",
+                    "format": "table",
+                    "key_field": [
+                        {
+                            "source": "",
+                            "target": ""
+                        }
+                    ],
+                    "fields_to_compare": [
+                        {
+                            "source": "",
+                            "target": ""
+                        }
+                    ],
+                    "log_differences": true,
+                    "comparison_name": "Request vs Response comparison"
+                }
+            ]
+        },
+        "test_data_file": "custodialintegration/data_driven/Data_parties_entity.csv",
+        "csv_row_index": 2,
+        "test_summary": "Test TC002: POST /custodialservicing/accounts [negative: invalid payload] (TC002)(removed AccountId section from the payload)",
+        "invalid_payload": true
+    },
+    {
+        "test_id": "TC003",
+        "service_name": "custodialintegration",
+        "workflow_mode": "parallel",
+        "test_name": "POST /custodialservicing/accounts [negative: invalid payload] (TC003)(removed partyId section from the payload)",
+        "protocol": "REST",
+        "test_type": [
+            "Negative"
+        ],
+        "mainURL": "{{base_url}}",
+        "endpoint": "/custodialservicing/accounts",
+        "method": "POST",
+        "rpc_method": "",
+        "graphql_query": "",
+        "graphql_variables": "",
+        "soap_action": "",
+        "soap_envelope": "",
+        "headers_additional": {
+            "Content-Type": "application/json"
+        },
+        "payload": {
+            "requestType": "BeneficiaryChange",
+            "accounts": [
+                {
+                    "accountId": "{{accountId}}",
+                    "parties": [
+                        {
+                            "partyId": "{{partyId}}",
+                            "action": "{{action}}"
+                        }
+                    ]
+                }
+            ],
+            "metaData": {
+                "additionalProp1": "string",
+                "additionalProp2": "string",
+                "additionalProp3": "string"
+            }
+        },
+        "expected_status": "400",
+        "expected_response_schema": "",
+        "expected_response": null,
+        "ignore_fields": [
+            "id"
+        ],
+        "extract_values": [
+            {
+                "from": "response",
+                "key": "",
+                "assign_to": ""
+            },
+            {
+                "from": "response",
+                "record_count": false,
+                "array_path": "",
+                "assign_to": ""
+            }
+        ],
+        "validate": {
+            "performance": {
+                "max_response_time_ms": 500
+            },
+            "security": {
+                "checks": [
+                    "sql_injection",
+                    "xss"
+                ]
+            },
+            "data_comparison": [
+                {
+                    "source": "api_request",
+                    "target": "api_response",
+                    "format": "table",
+                    "key_field": [
+                        {
+                            "source": "",
+                            "target": ""
+                        }
+                    ],
+                    "fields_to_compare": [
+                        {
+                            "source": "",
+                            "target": ""
+                        }
+                    ],
+                    "log_differences": true,
+                    "comparison_name": "Request vs Response comparison"
+                }
+            ]
+        },
+        "test_data_file": "custodialintegration/data_driven/Data_parties_entity.csv",
+        "csv_row_index": 3,
+        "test_summary": "Test TC003: POST /custodialservicing/accounts [negative: invalid payload] (TC003)(removed partyId section from the payload)",
+        "no_auth": true
+    },
+    {
+        "test_id": "TC004",
+        "service_name": "custodialintegration",
+        "workflow_mode": "parallel",
+        "test_name": "POST /custodialservicing/accounts [negative: invalid payload] (TC004)(removed action section from the payload)",
+        "protocol": "REST",
+        "test_type": [
+            "Negative"
+        ],
+        "mainURL": "{{base_url}}",
+        "endpoint": "/custodialservicing/accounts",
+        "method": "POST",
+        "rpc_method": "",
+        "graphql_query": "",
+        "graphql_variables": "",
+        "soap_action": "",
+        "soap_envelope": "",
+        "headers_additional": {
+            "Content-Type": "application/json"
+        },
+        "payload": {
+            "requestType": "BeneficiaryChange",
+            "accounts": [
+                {
+                    "accountId": "{{accountId}}",
+                    "parties": [
+                        {
+                            "partyId": "{{partyId}}",
+                            "action": "{{action}}"
+                        }
+                    ]
+                }
+            ],
+            "metaData": {
+                "additionalProp1": "string",
+                "additionalProp2": "string",
+                "additionalProp3": "string"
+            }
+        },
+        "expected_status": "400",
+        "expected_response_schema": "",
+        "expected_response": null,
+        "ignore_fields": [
+            "id"
+        ],
+        "extract_values": [
+            {
+                "from": "response",
+                "key": "",
+                "assign_to": ""
+            },
+            {
+                "from": "response",
+                "record_count": false,
+                "array_path": "",
+                "assign_to": ""
+            }
+        ],
+        "validate": {
+            "performance": {
+                "max_response_time_ms": 500
+            },
+            "security": {
+                "checks": [
+                    "sql_injection",
+                    "xss"
+                ]
+            },
+            "data_comparison": [
+                {
+                    "source": "api_request",
+                    "target": "api_response",
+                    "format": "table",
+                    "key_field": [
+                        {
+                            "source": "",
+                            "target": ""
+                        }
+                    ],
+                    "fields_to_compare": [
+                        {
+                            "source": "",
+                            "target": ""
+                        }
+                    ],
+                    "log_differences": true,
+                    "comparison_name": "Request vs Response comparison"
+                }
+            ]
+        },
+        "test_data_file": "custodialintegration/data_driven/Data_parties_entity.csv",
+        "csv_row_index": 4,
+        "test_summary": "Test TC004: POST /custodialservicing/accounts [negative: invalid payload] (TC004)(removed action section from the payload)",
+        "no_auth": true
+    },
+    {
+        "test_id": "TC005",
+        "service_name": "custodialintegration",
+        "workflow_mode": "parallel",
+        "test_name": "POST /custodialservicing/accounts [negative: Trailing whitespace-accountId] (TC005)",
+        "protocol": "REST",
+        "test_type": [
+            "Negative"
+        ],
+        "mainURL": "{{base_url}}",
+        "endpoint": "/custodialservicing/accounts",
+        "method": "POST",
+        "rpc_method": "",
+        "graphql_query": "",
+        "graphql_variables": "",
+        "soap_action": "",
+        "soap_envelope": "",
+        "headers_additional": {
+            "Content-Type": "application/json"
+        },
+        "payload": {
+            "requestType": "BeneficiaryChange",
+            "accounts": [
+                {
+                    "accountId": "{{accountId}}",
+                    "parties": [
+                        {
+                            "partyId": "{{partyId}}",
+                            "action": " "
+                        }
+                    ]
+                }
+            ],
+            "metaData": {
+                "additionalProp1": "string",
+                "additionalProp2": "string",
+                "additionalProp3": "string"
+            }
+        },
+        "expected_status": "400",
+        "expected_response_schema": "",
+        "expected_response": null,
+        "ignore_fields": [
+            "id"
+        ],
+        "extract_values": [
+            {
+                "from": "response",
+                "key": "",
+                "assign_to": ""
+            },
+            {
+                "from": "response",
+                "record_count": false,
+                "array_path": "",
+                "assign_to": ""
+            }
+        ],
+        "validate": {
+            "performance": {
+                "max_response_time_ms": 500
+            },
+            "security": {
+                "checks": [
+                    "sql_injection",
+                    "xss"
+                ]
+            },
+            "data_comparison": [
+                {
+                    "source": "api_request",
+                    "target": "api_response",
+                    "format": "table",
+                    "key_field": [
+                        {
+                            "source": "",
+                            "target": ""
+                        }
+                    ],
+                    "fields_to_compare": [
+                        {
+                            "source": "",
+                            "target": ""
+                        }
+                    ],
+                    "log_differences": true,
+                    "comparison_name": "Request vs Response comparison"
+                }
+            ]
+        },
+        "test_data_file": "custodialintegration/data_driven/Data_parties_entity.csv",
+        "csv_row_index": 5,
+        "test_summary": "Test TC005: POST /custodialservicing/accounts [negative: Trailing whitespace-accountId] (TC005)",
+        "error_case": "500"
+    },
+    {
+        "test_id": "TC006",
+        "service_name": "custodialintegration",
+        "workflow_mode": "parallel",
+        "test_name": "POST /custodialservicing/accounts [negative: Sending duplicate request] (TC006)",
+        "protocol": "REST",
+        "test_type": [
+            "Negative"
+        ],
+        "mainURL": "{{base_url}}",
+        "endpoint": "/custodialservicing/accounts",
+        "method": "POST",
+        "rpc_method": "",
+        "graphql_query": "",
+        "graphql_variables": "",
+        "soap_action": "",
+        "soap_envelope": "",
+        "headers_additional": {
+            "Content-Type": "application/json"
+        },
+        "payload": {
+            "requestType": "BeneficiaryChange",
+            "accounts": [
+                {
+                    "accountId": "{{accountId}}",
+                    "parties": [
+                        {
+                            "partyId": "{{partyId}}",
+                            "action": "{{action}}"
+                        }
+                    ]
+                }
+            ],
+            "metaData": {
+                "additionalProp1": "string",
+                "additionalProp2": "string",
+                "additionalProp3": "string"
+            }
+        },
+        "expected_status": "202",
+        "expected_response_schema": "",
+        "expected_response": null,
+        "ignore_fields": [
+            "id"
+        ],
+        "extract_values": [
+            {
+                "from": "response",
+                "key": "",
+                "assign_to": ""
+            },
+            {
+                "from": "response",
+                "record_count": false,
+                "array_path": "",
+                "assign_to": ""
+            }
+        ],
+        "validate": {
+            "performance": {
+                "max_response_time_ms": 600
+            },
+            "security": {
+                "checks": [
+                    "sql_injection",
+                    "xss"
+                ]
+            },
+            "data_comparison": [
+                {
+                    "source": "api_request",
+                    "target": "api_response",
+                    "format": "table",
+                    "key_field": [
+                        {
+                            "source": "",
+                            "target": ""
+                        }
+                    ],
+                    "fields_to_compare": [
+                        {
+                            "source": "",
+                            "target": ""
+                        }
+                    ],
+                    "log_differences": true,
+                    "comparison_name": "Request vs Response comparison"
+                }
+            ]
+        },
+        "test_data_file": "custodialintegration/data_driven/Data_parties_entity.csv",
+        "csv_row_index": 6,
+        "test_summary": "Test TC006: POST /custodialservicing/accounts [negative: Sending duplicate request] (TC006)",
+        "invalid_auth": true
+    },
+    {
+        "test_id": "TC007",
+        "service_name": "custodialintegration",
+        "workflow_mode": "parallel",
+        "test_name": "POST /custodialservicing/accounts [negative: Missing Account Association Data] (TC007)",
+        "protocol": "REST",
+        "test_type": [
+            "Negative"
+        ],
+        "mainURL": "{{base_url}}",
+        "endpoint": "/custodialservicing/accounts",
+        "method": "POST",
+        "rpc_method": "",
+        "graphql_query": "",
+        "graphql_variables": "",
+        "soap_action": "",
+        "soap_envelope": "",
+        "headers_additional": {
+            "Content-Type": "application/json"
+        },
+        "payload": {
+            "requestType": "BeneficiaryChange",
+            "accounts": [
+                {
+                    "accountId": "{{accountId}}",
+                    "parties": [
+                        {
+                            "partyId": "{{partyId}}",
+                            "action": "{{action}}"
+                        }
+                    ]
+                }
+            ],
+            "metaData": {
+                "additionalProp1": "string",
+                "additionalProp2": "string",
+                "additionalProp3": "string"
+            }
+        },
+        "expected_status": "202",
+        "expected_response_schema": "",
+        "expected_response": null,
+        "ignore_fields": [
+            "id"
+        ],
+        "extract_values": [
+            {
+                "from": "response",
+                "key": "",
+                "assign_to": ""
+            },
+            {
+                "from": "response",
+                "record_count": false,
+                "array_path": "",
+                "assign_to": ""
+            }
+        ],
+        "validate": {
+            "performance": {
+                "max_response_time_ms": 500
+            },
+            "security": {
+                "checks": [
+                    "sql_injection",
+                    "xss"
+                ]
+            },
+            "data_comparison": [
+                {
+                    "source": "api_request",
+                    "target": "api_response",
+                    "format": "table",
+                    "key_field": [
+                        {
+                            "source": "",
+                            "target": ""
+                        }
+                    ],
+                    "fields_to_compare": [
+                        {
+                            "source": "",
+                            "target": ""
+                        }
+                    ],
+                    "log_differences": true,
+                    "comparison_name": "Request vs Response comparison"
+                }
+            ]
+        },
+        "test_data_file": "custodialintegration/data_driven/Data_parties_entity.csv",
+        "csv_row_index": 7,
+        "test_summary": "Test TC007: POST /custodialservicing/accounts [negative: Missing Account Association Data] (TC007)",
+        "not_found": true
+    },
+    {
+        "test_id": "TC008",
+        "service_name": "custodialintegration",
+        "workflow_mode": "parallel",
+        "test_name": "POST /custodialservicing/accounts [negative: AccountId with same TaxID ] (TC008)",
+        "protocol": "REST",
+        "test_type": [
+            "Negative"
+        ],
+        "mainURL": "{{base_url}}",
+        "endpoint": "/custodialservicing/accounts",
+        "method": "POST",
+        "rpc_method": "",
+        "graphql_query": "",
+        "graphql_variables": "",
+        "soap_action": "",
+        "soap_envelope": "",
+        "headers_additional": {
+            "Content-Type": "application/json"
+        },
+        "payload": {
+            "requestType": "BeneficiaryChange",
+            "accounts": [
+                {
+                    "accountId": "{{accountId}}",
+                    "parties": [
+                        {
+                            "partyId": "{{partyId}}",
+                            "action": "{{action}}"
+                        }
+                    ]
+                }
+            ],
+            "metaData": {
+                "additionalProp1": "string",
+                "additionalProp2": "string",
+                "additionalProp3": "string"
+            }
+        },
+        "expected_status": "202",
+        "expected_response_schema": "",
+        "expected_response": null,
+        "ignore_fields": [
+            "id"
+        ],
+        "extract_values": [
+            {
+                "from": "response",
+                "key": "",
+                "assign_to": ""
+            },
+            {
+                "from": "response",
+                "record_count": false,
+                "array_path": "",
+                "assign_to": ""
+            }
+        ],
+        "validate": {
+            "performance": {
+                "max_response_time_ms": 500
+            },
+            "security": {
+                "checks": [
+                    "sql_injection",
+                    "xss"
+                ]
+            },
+            "data_comparison": [
+                {
+                    "source": "api_request",
+                    "target": "api_response",
+                    "format": "table",
+                    "key_field": [
+                        {
+                            "source": "",
+                            "target": ""
+                        }
+                    ],
+                    "fields_to_compare": [
+                        {
+                            "source": "",
+                            "target": ""
+                        }
+                    ],
+                    "log_differences": true,
+                    "comparison_name": "Request vs Response comparison"
+                }
+            ]
+        },
+        "test_data_file": "custodialintegration/data_driven/Data_parties_entity.csv",
+        "csv_row_index": 8,
+        "test_summary": "Test TC008: POST /custodialservicing/accounts [negative: AccountId with same TaxID] (TC008)",
+        "not_found": true
+    }
+]

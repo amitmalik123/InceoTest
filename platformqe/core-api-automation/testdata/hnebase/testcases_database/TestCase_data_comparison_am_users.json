@@ -1,0 +1,88 @@
+{
+    "test_suite": "Data Comparison - Users Table",
+    "description": "Compare MSSQL [dbo].[Users] with PostgreSQL ingestion.am_users using generic framework",
+    "test_cases": [
+        {
+            "id": "TC001",
+            "name": "Compare Total User Records Count",
+            "type": "data_count_comparison",
+            "enabled": true,
+            "source_database": "mssql",
+            "target_database": "postgresql",
+            "source_connection": "am_database",
+            "target_connection": "hneServices",
+            "source_table": "[dbo].[Users]",
+            "target_table": "ingestion.am_users"
+        },
+        {
+            "id": "TC002",
+            "name": "Compare User AG1624",
+            "type": "data_comparison_single",
+            "enabled": true,
+            "source_database": "mssql",
+            "target_database": "postgresql",
+            "source_connection": "am_database",
+            "target_connection": "hneServices",
+            "source_table": "[dbo].[Users]",
+            "target_table": "ingestion.am_users",
+            "identifier_field": "userid",
+            "userid": "AG1624",
+            "column_mapping": {
+                "UserID": "user_id",
+                "RoleID": "role_id",
+                "Active": "active",
+                "BDID": "bd_id",
+                "AdvisorID": "advisor_id",
+                "AgentID": "agent_id",
+                "LName": "l_name",
+                "FName": "f_name",
+                "Company": "company",
+                "SortName": "sort_name",
+                "Siebel_ID": "siebel_id",
+                "RoleTypeCD": "role_type_cd",
+                "OSJID": "osj_id"
+            },
+            "comparison_options": {
+                "trim_whitespace": true,
+                "ignore_case": false,
+                "handle_boolean_mapping": true
+            }
+        },
+        {
+            "id": "TC003",
+            "name": "Compare All User Records (Batched)",
+            "type": "data_comparison_all",
+            "enabled": true,
+            "source_database": "mssql",
+            "target_database": "postgresql",
+            "source_connection": "am_database",
+            "target_connection": "hneServices",
+            "source_table": "[dbo].[Users]",
+            "target_table": "ingestion.am_users",
+            "identifier_column": "UserID",
+            "batch_size": 10000,
+            "max_batches": null,
+            "column_mapping": {
+                "UserID": "user_id",
+                "RoleID": "role_id",
+                "Active": "active",
+                "BDID": "bd_id",
+                "AdvisorID": "advisor_id",
+                "AgentID": "agent_id",
+                "LName": "l_name",
+                "FName": "f_name",
+                "Company": "company",
+                "SortName": "sort_name",
+                "Siebel_ID": "siebel_id",
+                "RoleTypeCD": "role_type_cd",
+                "OSJID": "osj_id"
+            },
+            "comparison_options": {
+                "trim_whitespace": true,
+                "ignore_case": false,
+                "handle_boolean_mapping": true
+            }
+        }
+
+    ]
+}

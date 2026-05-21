@@ -9,7 +9,7 @@ from typing import Dict, List, Any, Optional
 from framework.common.logger import get_logger
 from framework.common.template_utils import render_template, render_hybrid
 from framework.common.common_functions import extract_value
-from framework.common.utils import random_string, random_email, random_firstname, random_lastname, random_int, random_numeric
+from framework.common.utils import random_string, random_email, random_firstname, random_lastname, random_int, random_numeric, random_date, random_float, alternate
 
 logger = get_logger(__name__)
 
@@ -65,6 +65,9 @@ class TestContextManager:
         context['random_email'] = random_email
         context['random_firstname'] = random_firstname
         context['random_lastname'] = random_lastname
+        context['random_date'] = random_date
+        context['random_float'] = random_float
+        context['alternate'] = alternate
         
         # Add extracted values from previous test cases (chaining)
         context.update(self._global_variables)
