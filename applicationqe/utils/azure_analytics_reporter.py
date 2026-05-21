@@ -105,7 +105,7 @@ class AllureToAzureAnalytics:
 
         for json_file in json_files:
             try:
-                with open(json_file, "r") as f:
+                with open(json_file, "r", encoding="utf-8") as f:
                     test_data = json.load(f)
                     test_name = test_data.get("name", "")
 
@@ -138,7 +138,7 @@ class AllureToAzureAnalytics:
         # Read containers
         for json_file in glob.glob(os.path.join(self.allure_results_dir, "*-container.json")):
             try:
-                with open(json_file, "r") as f:
+                with open(json_file, "r", encoding="utf-8") as f:
                     results["containers"].append(json.load(f))
             except Exception as e:
                 print(f"Error reading {json_file}: {e}")
@@ -146,7 +146,7 @@ class AllureToAzureAnalytics:
         # Read groups
         for json_file in glob.glob(os.path.join(self.allure_results_dir, "groups.json")):
             try:
-                with open(json_file, "r") as f:
+                with open(json_file, "r", encoding="utf-8") as f:
                     results["groups"].append(json.load(f))
             except Exception as e:
                 print(f"Error reading {json_file}: {e}")

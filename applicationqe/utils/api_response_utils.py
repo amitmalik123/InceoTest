@@ -1,7 +1,6 @@
 import json
 import logging
-from dataclasses import dataclass
-from dataclasses import field as dataclass_field
+from dataclasses import dataclass, field
 from datetime import datetime
 from pathlib import Path
 from typing import Any, Dict, List, Optional
@@ -18,9 +17,7 @@ def get_values_from_household_api_open_accounts(field_name: str) -> List[str]:
     return paths
 
 
-def retrieve_all_values_from_response(  # noqa: C901
-    response: Any, json_paths: List[str]
-) -> List[Any]:
+def retrieve_all_values_from_response(response: Any, json_paths: List[str]) -> List[Any]:
     values = []
 
     if hasattr(response, "json"):
@@ -51,14 +48,13 @@ def retrieve_all_values_from_response(  # noqa: C901
     return values
 
 
-def retrieve_boolean_value_from_response(response: Any, json_path: str) -> bool:  # noqa: C901
+def retrieve_boolean_value_from_response(response: Any, json_path: str) -> bool:
     if hasattr(response, "json"):
         data = response.json()
     elif isinstance(response, dict):
         data = response
     else:
         raise ValueError("Response must be a requests.Response object or dict")
-
     try:
         value = data
         parts = json_path.replace("[", ".").replace("]", "").split(".")
@@ -68,7 +64,6 @@ def retrieve_boolean_value_from_response(response: Any, json_path: str) -> bool:
                 value = value[int(part)]
             else:
                 value = value.get(part) if isinstance(value, dict) else None
-
             if value is None:
                 return False
 
@@ -87,11 +82,11 @@ def retrieve_boolean_value_from_response(response: Any, json_path: str) -> bool:
 @dataclass
 class ContractValidationResult:
     is_valid: bool
-    errors: List[str] = dataclass_field(default_factory=list)
-    warnings: List[str] = dataclass_field(default_factory=list)
+    errors: List[str] = field(default_factory=list)
+    warnings: List[str] = field(default_factory=list)
     endpoint: Optional[str] = None
     method: Optional[str] = None
-    timestamp: str = dataclass_field(default_factory=lambda: datetime.now().isoformat())
+    timestamp: str = field(default_factory=lambda: datetime.now().isoformat())
 
     def add_error(self, error: str):
         self.errors.append(error)
@@ -129,13 +124,10 @@ class JSONSchemaValidator:
         if allow_additional_properties is None:
             allow_additional_properties = not self.strict
 
-        if (
-            not allow_additional_properties
-            and schema.get("type") == "object"
-            and "additionalProperties" not in schema
-        ):
-            schema = schema.copy()
-            schema["additionalProperties"] = False
+        if not allow_additional_properties and schema.get("type") == "object":
+            if "additionalProperties" not in schema:
+                schema = schema.copy()
+                schema["additionalProperties"] = False
 
         try:
             jsonschema.validate(instance=data, schema=schema)
@@ -173,7 +165,11 @@ class JSONSchemaValidator:
 
         return result
 
+<<<<<<< HEAD
     def create_schema_from_example(self, example: Dict) -> Dict:  # noqa: C901
+=======
+    def create_schema_from_example(self, example: Dict) -> Dict:
+>>>>>>> develop
         def infer_type(value: Any) -> Dict:
             if value is None:
                 return {"type": "null"}
@@ -218,7 +214,11 @@ class OpenAPIValidator:
 
         try:
             if spec_path.endswith((".yaml", ".yml")):
+<<<<<<< HEAD
                 import yaml  # type: ignore[import-untyped]
+=======
+                import yaml
+>>>>>>> develop
 
                 with open(spec_path, "r") as f:
                     self.spec = yaml.safe_load(f)
@@ -375,6 +375,7 @@ class ContractTester:
         old_props = old_schema.get("properties", {})
         new_props = new_schema.get("properties", {})
 
+<<<<<<< HEAD
         for prop_name, old_prop in old_props.items():
             if prop_name in new_props:
                 old_type = old_prop.get("type")
@@ -384,6 +385,15 @@ class ContractTester:
                     breaking_changes.append(
                         f"Type change for '{prop_name}': {old_type} -> {new_type}"
                     )
+=======
+        for field, old_prop in old_props.items():
+            if field in new_props:
+                old_type = old_prop.get("type")
+                new_type = new_props[field].get("type")
+
+                if old_type != new_type:
+                    breaking_changes.append(f"Type change for '{field}': {old_type} -> {new_type}")
+>>>>>>> develop
 
         return breaking_changes
 

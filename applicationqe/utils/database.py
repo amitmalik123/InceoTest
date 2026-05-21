@@ -91,6 +91,38 @@ def get_configured_db(alias: str, database: Optional[str] = None):
     return get_db_from_vault(alias=alias, database=database)
 
 
+def get_configured_azure_db():
+    """Local-compatible Azure SQL resolver from standard settings fields."""
+    _check_environment_safety()
+    s = _get_db_settings()
+
+    logger.info(f"Database connection approved for environment: '{s.env}'")
+    return AzureSQLDatabase(
+        server=s.azure_sql_server,
+        database=s.azure_sql_database,
+        username=s.azure_sql_username,
+        password=s.azure_sql_password,
+        driver=s.azure_sql_driver,
+        authentication=s.azure_sql_authentication,
+    )
+
+
+def get_configured_sql_server():
+    """Local-compatible SQL Server resolver from standard settings fields."""
+    _check_environment_safety()
+    s = _get_db_settings()
+
+    logger.info(f"SQL Server connection approved for environment: '{s.env}'")
+    return AzureSQLDatabase(
+        server=s.sql_server_host,
+        database=s.sql_server_database,
+        username=s.sql_server_username,
+        password=s.sql_server_password,
+        driver=s.sql_server_driver,
+        authentication=None,
+    )
+
+
 # ---------------------------------------------------------------------------
 # Key Vault connection-string support
 # ---------------------------------------------------------------------------
@@ -607,6 +639,39 @@ class SQLDatabase(DatabaseConnection):
             self.connection.rollback()
             self.logger.error(f"Error executing non-query: {str(e)}")
             raise
+
+
+class AzureSQLDatabase(SQLDatabase):
+    """Backward-compatible local class that returns pyodbc rows for execute_query."""
+
+    def execute_query(self, query: str, params: Optional[tuple] = None) -> list:
+        """Execute SELECT query and return pyodbc row objects for legacy callers."""
+        if not self.connection:
+            self.connect()
+
+        with RetryContext(max_retries=2, initial_delay=1.0, exponential_base=2.0) as retry:
+            while retry.should_retry():
+                try:
+                    if params:
+                        self.cursor.execute(query, params)
+                    else:
+                        self.cursor.execute(query)
+
+                    results = self.cursor.fetchall()
+                    self.logger.info(f"Query executed successfully. Rows returned: {len(results)}")
+                    retry.success()
+                    return results
+
+                except pyodbc.OperationalError as e:
+                    self.logger.warning(f"Transient query error: {str(e)}. Reconnecting...")
+                    self.close()
+                    self.connect()
+                    retry.failed(e)
+                except pyodbc.Error as e:
+                    self.logger.error(f"Error executing query: {str(e)}")
+                    raise
+
+        return []
 
 
 # Convenience functions

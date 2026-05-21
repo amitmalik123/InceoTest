@@ -29,6 +29,10 @@ dependencies = [
     # Configuration
     "pyyaml>=6.0",
 
+    # Excel/Data handling
+    "pandas>=2.0.0",
+    "openpyxl>=3.1.2",
+
     # API Contract Testing
     "jsonschema>=4.20.0",
     "openapi-spec-validator>=0.7.1",
@@ -50,14 +54,14 @@ dependencies = [
     "influxdb-client>=1.38.0",
 
     # Encryption (used by analytics reporters)
-    "cryptography>=41.0.0"
+    "cryptography>=46.0.0"
 ]
 
 [tool.setuptools.packages.find]
 # Only include actual Python packages (directories with __init__.py)
-include = ["pages*", "utils*", "tests*"]
-# Exclude data/config directories that aren't Python packages
-exclude = ["data*", "config*", "queries*", "docs*", "reports*", "scripts*"]
+include = ["pages*", "utils*", "tests*", "config*", "fixtures*"]
+# Exclude data directories that aren't Python packages
+exclude = ["data*", "queries*", "docs*", "reports*", "scripts*"]
 
 [tool.setuptools.package-data]
 # Include non-Python files within packages
@@ -121,6 +125,7 @@ markers = [
     "regression: Full regression test suite",
     "roth_conversion: Roth IRA conversion related tests",
     "add_ach: Add ACH instructions related tests",
+    "Regression: Full regression test suite (capitalized alias)",
     "ach: ACH functionality tests",
     "login: Login functionality tests",
     "navigation: Navigation and menu tests",
@@ -148,7 +153,24 @@ markers = [
     "SMI_ExecutiveAgent: Check login functionality for executive agent",
     "SMI_AdminAgent: Check login functionality for admin agent",
     "SMI_Rebalance: Navigate to Reallocations menu as internal agent",
-
+    "NAW: WFI Regression- NAW tests",
+    "smokeTest11: NAW smoke tests for test11 environment",
+    "prodSmoke: Production smoke tests",
+    "navbar: Navbar flow tests",
+    "TrackingCenterESign: Tracking Center eSign tests",
+    "internal_admin: Internal Admin scenarios that skip auto-login",
+    "GNW_Ind_401k: NAW GNW Individual 401(k) tests",
+    "OnlineBD: NAW GNW LLC OnlineBD Approval tests",
+    "retainAccount: Retain account tests",
+    "ewm: EWM tests",
+    "newAccountWizard: New Account Wizard feature",
+    "portfolioEngine: Portfolio Engine feature",
+    "widgetTests: Widget tests",
+    "TMS: Tax Management Services",
+    "bdd: BDD tests",
+    "integration: Integration tests",
+    "ui: UI tests",
+    "api: API tests",
 ]
 asyncio_mode = "strict"
 log_cli = true
@@ -185,7 +207,7 @@ profile = "black"
 line_length = 100
 
 [tool.coverage.run]
-source = ["pages", "utils", "config"]
+source = ["pages", "utils", "config", "fixtures"]
 omit = ["*/tests/*", "*/__pycache__/*", "*/generated/*"]
 
 [tool.coverage.report]
@@ -196,6 +218,9 @@ exclude_lines = [
     "raise NotImplementedError",
     "pragma: no cover",
 ]
+
+[tool.downloads]
+download_dir = "reports/downloads"
 
 [tool.route-blocking]
 # Allow only requests to these domains; abort everything else.
@@ -209,9 +234,20 @@ allowed_domains = [
     "assetmark.net",
     "docusign.net",
     "docusign.com",
+    "akamaihd.net",
     "azure.com",
     "outlook.com",
+    "outlook.office.com",
+    "outlook.cloud.microsoft",
+    "office.net",
+    "office365.com",
+    "microsoftonline.com",
+    "microsoft.com",
+    "msftauth.net",
+    "msauth.net",
+    "live.com",
     "azncc03perf.corp",
+    "corp.local",
 ]
 
 [tool.id-capture]

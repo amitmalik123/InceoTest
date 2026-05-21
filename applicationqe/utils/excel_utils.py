@@ -3,6 +3,8 @@ Excel utility module for comprehensive Excel file operations.
 """
 
 import os
+import platform
+from datetime import datetime
 from pathlib import Path
 from typing import Any, List, Optional, Union
 
@@ -17,10 +19,25 @@ from utils.logger import setup_logger
 class ExcelUtils:
     """Comprehensive utility class for Excel file operations."""
 
+    # --- Test Execution Report ---
+    _REPORT_COLUMNS = [
+        "Test Case Id", "Title", "Last Run", "Run By", "B#",
+        "hrcNumber", "nNumber", "parentBNumber", "activationNumber",
+        "Status", "Feature", "Cause Of Failure",
+        "Environment", "Start Time", "End Time", "Total Time",
+    ]
+    _BORDER = Border(*(Side(style="thin"),) * 4)
+    _HDR_STYLE = {"font": Font(bold=True, size=11, color="FFFFFF"),
+                  "fill": PatternFill("solid", fgColor="4472C4"),
+                  "alignment": Alignment(horizontal="center", vertical="center", wrap_text=True)}
+    _PASS_STYLE = {"fill": PatternFill("solid", fgColor="C6EFCE"), "font": Font(size=11, color="006100")}
+    _FAIL_STYLE = {"fill": PatternFill("solid", fgColor="FFC7CE"), "font": Font(size=11, color="9C0006")}
+
     def __init__(self):
         self.logger = setup_logger(__name__)
         self.workbook = None
         self.file_path = None
+        self.test_results: List[dict] = []
 
     def create_workbook(self, file_path: str, sheet_names: Optional[List[str]] = None) -> bool:
         """
@@ -1074,3 +1091,7 @@ def get_cell_value(file_path: str, sheet_name: str, cell: str) -> Any:
 def set_cell_value(file_path: str, sheet_name: str, cell: str, value: Any) -> bool:
     """Set value to a specific cell."""
     return ExcelUtils().write_cell(file_path, sheet_name, cell, value)
+
+
+# Shared instance for test execution report (used by conftest.py)
+excel_report = ExcelUtils()

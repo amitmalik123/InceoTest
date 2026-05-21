@@ -9,6 +9,8 @@ Note: Specialized utilities are in dedicated modules:
 
 import os
 from datetime import datetime
+import random
+import string
 from typing import Any, Dict
 
 
@@ -65,3 +67,18 @@ def generate_test_data(template: Dict[str, Any]) -> Dict[str, Any]:
     # - Add timestamps: data['created_at'] = get_timestamp()
     # - Randomize values: data['email'] = f"test_{random.randint(1000,9999)}@test.com"
     return template.copy()
+
+
+def random_number(length: int = 6) -> str:
+    """Generate a random numeric string of given length."""
+    return "".join(random.choices(string.digits, k=length))
+
+
+def random_alpha(length: int = 5) -> str:
+    """Generate a random alphabetic string of given length."""
+    return "".join(random.choices(string.ascii_lowercase, k=length))
+
+
+def random_alphanumeric(length: int = 8) -> str:
+    """Generate a random alphanumeric string of given length."""
+    return "".join(random.choices(string.ascii_letters + string.digits, k=length))

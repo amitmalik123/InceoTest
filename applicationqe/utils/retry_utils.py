@@ -247,3 +247,54 @@ def retry_until_true(
             time.sleep(delay)
 
     raise RetryError(f"{error_message} (after {max_attempts} attempts)")
+
+
+class RetryableAction:
+    """
+    Wrapper for retryable actions with fluent API.
+
+    Example:
+        action = RetryableAction(lambda: page.click("#button"))
+        action.with_retries(3).with_delay(1.0).execute()
+    """
+
+    def __init__(self, action: Callable):
+        self.action = action
+        self.max_retries = 3
+        self.delay = 1.0
+        self.exceptions = (Exception,)
+        self.on_retry: Optional[Callable] = None
+
+    def with_retries(self, count: int) -> "RetryableAction":
+        """Set number of retries"""
+        self.max_retries = count
+        return self
+
+    def with_delay(self, delay: float) -> "RetryableAction":
+        """Set delay between retries"""
+        self.delay = delay
+        return self
+
+    def on_exceptions(self, *exceptions: Type[Exception]) -> "RetryableAction":
+        """Set exceptions to catch"""
+        self.exceptions = exceptions
+        return self
+
+    def on_retry_callback(self, callback: Callable) -> "RetryableAction":
+        """Set callback to call on each retry"""
+        self.on_retry = callback
+        return self
+
+    def execute(self) -> Any:
+        """Execute the action with retries"""
+        decorator = exponential_backoff(
+            max_retries=self.max_retries, initial_delay=self.delay, exceptions=self.exceptions
+        )
+
+        @decorator
+        def wrapped_action():
+            if self.on_retry:
+                self.on_retry()
+            return self.action()
+
+        return wrapped_action()

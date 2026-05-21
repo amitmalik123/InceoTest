@@ -15,6 +15,31 @@ if TYPE_CHECKING:
 logger = logging.getLogger(__name__)
 
 
+
+def _normalize_text(value: str) -> str:
+    """Normalize whitespace for resilient text checks."""
+    return " ".join((value or "").split())
+
+
+def assert_pdf_text(
+    pdf_text: str,
+    expected_text: str,
+    unexpected_text: str = "",
+) -> None:
+    """Assert expected/unexpected text using case-insensitive contains checks."""
+    normalized_pdf = _normalize_text(pdf_text).lower()
+
+    if expected_text:
+        expected_tokens = [token.strip() for token in expected_text.split("||") if token.strip()]
+        for token in expected_tokens:
+            assert token.lower() in normalized_pdf, f"Expected text not found in PDF: {token}"
+
+    if unexpected_text:
+        unexpected_tokens = [token.strip() for token in unexpected_text.split("||") if token.strip()]
+        for token in unexpected_tokens:
+            assert token.lower() not in normalized_pdf, f"Unexpected text found in PDF: {token}"
+
+
 class PDFValidator:
     """
     PDF file validation and content extraction.

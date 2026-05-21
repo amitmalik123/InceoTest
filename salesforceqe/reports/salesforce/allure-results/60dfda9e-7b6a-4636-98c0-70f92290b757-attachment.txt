@@ -1,0 +1,3 @@
+2026-05-13 15:12:17 - test_lead_conversion_bdd - INFO - Lead: Automation VLMGZ is created and ready for conversion tests.
+2026-05-13 15:12:18 - test_lead_conversion_bdd - INFO - Attempting to convert Lead with missing Broker Dealer Account and CRD Advisor: 87068, 31285
+2026-05-13 15:14:25 - test_lead_conversion_bdd - INFO - Lead Conversion validation errors are verified.
