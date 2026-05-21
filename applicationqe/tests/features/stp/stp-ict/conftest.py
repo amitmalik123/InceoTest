@@ -23,6 +23,9 @@ def browser_context_args(browser_context_args, tmp_path_factory):
     }
 
 import sys
+# Add tests/features/stp/stp-ict/ so that 'from validations.xxx' in page objects
+# resolves to the validations/ sub-package that lives alongside this conftest.
+sys.path.insert(0, os.path.abspath(os.path.dirname(__file__)))
 sys.path.insert(0, os.path.abspath(
     os.path.join(os.path.dirname(__file__), '../../../../pages/stp/stp-ict')
 ))
