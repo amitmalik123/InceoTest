@@ -145,6 +145,14 @@ markers = [
     "lighthouse: Lighthouse audit tests",
     "retainAccount: Retain account tests",
     "ewm: EWM tests",
+    "newAccountWizard: New Account Wizard feature",
+    "portfolioEngine: Portfolio Engine feature",
+    "widgetTests: Widget tests",
+    "TMS: Tax Management Services",
+    "bdd: BDD tests",
+    "integration: Integration tests",
+    "ui: UI tests",
+    "api: API tests",
 ]
 asyncio_mode = "strict"
 log_cli = true

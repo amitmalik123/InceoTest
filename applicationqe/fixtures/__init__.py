@@ -56,6 +56,13 @@ from fixtures.page_fixtures import (
     tracking_center_page,
     view_documents_page,
     lookup_page,
+    # PROPOSAL pages
+    ewm_page,
+    proposal_login_page,
+    new_account_wizard_page,
+    portfolio_engine_page,
+    switch_id_page,
+    tax_management_services_page,
 )
 
 __all__ = [
@@ -102,4 +109,11 @@ __all__ = [
     "search_work_item_page",
     "naa_coach_page",
     "lookup_page",
+    # PROPOSAL pages
+    "ewm_page",
+    "proposal_login_page",
+    "new_account_wizard_page",
+    "portfolio_engine_page",
+    "switch_id_page",
+    "tax_management_services_page",
 ]

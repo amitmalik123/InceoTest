@@ -31,6 +31,18 @@ from pages.baw.shell_process_page import ShellProcessPage
 from pages.ewm.lookup_page import LookupPage
 from pages.ewm.account_approval_page import AccountApprovalPage
 
+# PROPOSAL pages
+from pages.PROPOSAL.ewm_page import EwmPage
+from pages.PROPOSAL.login_page import LoginPage as ProposalLoginPage
+from pages.PROPOSAL.new_account_wizard_page import NewAccountWizardPage
+from pages.PROPOSAL.portfolio_engine_page import PortfolioEnginePage
+from pages.PROPOSAL.switch_id_page import SwitchIDPage
+from pages.PROPOSAL.tax_management_services_page import TaxManagementServicesPage
+
+
+# ---------------------------------------------------------------------------
+# EWM / BAW page fixtures
+# ---------------------------------------------------------------------------
 
 @pytest.fixture
 def navbar_login_page(page: Page):
@@ -127,7 +139,8 @@ def shell_process_page(page: Page):
 def search_work_item_page(page: Page):
     """Search work item page object fixture"""
     return SearchWorkItemPage(page)
-    
+
+
 @pytest.fixture
 def naa_coach_page(page: Page):
     """NAA coach page object fixture"""
@@ -144,3 +157,43 @@ def lookup_page(page: Page):
 def account_approval_page(page: Page):
     """Account Approval page object fixture"""
     return AccountApprovalPage(page)
+
+
+# ---------------------------------------------------------------------------
+# PROPOSAL page fixtures
+# ---------------------------------------------------------------------------
+
+@pytest.fixture
+def ewm_page(page: Page):
+    """EWM main page object fixture (PROPOSAL)"""
+    return EwmPage(page)
+
+
+@pytest.fixture
+def proposal_login_page(page: Page):
+    """Login page object fixture (PROPOSAL)"""
+    return ProposalLoginPage(page)
+
+
+@pytest.fixture
+def new_account_wizard_page(page: Page):
+    """New Account Wizard page object fixture (PROPOSAL)"""
+    return NewAccountWizardPage(page)
+
+
+@pytest.fixture
+def portfolio_engine_page(page: Page):
+    """Portfolio Engine page object fixture (PROPOSAL)"""
+    return PortfolioEnginePage(page)
+
+
+@pytest.fixture
+def switch_id_page(page: Page):
+    """Switch ID page object fixture (PROPOSAL)"""
+    return SwitchIDPage(page)
+
+
+@pytest.fixture
+def tax_management_services_page(page: Page):
+    """Tax Management Services page object fixture (PROPOSAL)"""
+    return TaxManagementServicesPage(page)
