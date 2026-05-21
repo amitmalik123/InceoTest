@@ -80,11 +80,11 @@ parameters:
       - both
 
 stages:
-  - template: templates/team-stage.yml
+  - template: applicationqe/azure-pipelines/templates/team-stage.yml
     parameters:
       stageName: WrapperModel
       teamDisplay: WrapperModel
-      featurePath: tests/features//model-management/WrapperModel/
+      featurePath: tests/features/model-management/WrapperModel/
       environment: ${{ parameters.environment }}
       marker: ${{ parameters.marker }}
       workers: ${{ parameters.workers }}
