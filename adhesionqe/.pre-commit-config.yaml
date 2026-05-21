@@ -68,7 +68,7 @@ repos:
     rev: 1.7.8
     hooks:
       - id: bandit
-        args: ["-c", "config/bandit"]
+        args: ["-c", ".bandit"]
         exclude: ^(tests/|venv/)
 
   # Remove unused imports

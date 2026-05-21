@@ -19,16 +19,16 @@ trigger: none
 #       - README.md
 #       - '*.md'
 
-#-----------------------------
+# -----------------------------
 # Scheduled triggers
-#-----------------------------
-schedules:
- - cron: "30 8 * * *" # 12:30 AM PST → Test11
-   displayName: "Schedule for Test11"
-   branches:
-     include:
-       - application/oam
-   always: true
+# -----------------------------
+#schedules:
+#  - cron: "35 20 * * *" # 12:35 PM PST → Test11
+#    displayName: "Schedule for Test11"
+#    branches:
+#      include:
+#        - main
+#    always: true
 
 # -----------------------------
 # Parameters for Manual Runs
@@ -44,19 +44,15 @@ parameters:
       - silo
       - prod
       - qa
-      - test10
 
   - name: marker
     displayName: "Pytest Marker to Run"
     type: string
-    default: "FNT_regression"
+    default: "add_ach"
     values:
-      - FNT_regression
-      - Silo_Regression
-      - Smoke
-      - HappyPath
-      - T10_Regression
-      - Prod_Regression
+      - add_ach
+      - roth_conversion
+      - all_tests
 
   - name: workers
     displayName: "Number of Parallel Workers"
@@ -78,25 +74,28 @@ parameters:
       - both
 
 variables:
-- group: qa-pipelines-shared-config
-# subscription_test comes from the library group above
+  azureSubscription: 'TEST Foundation (9156b16c-8a2e-4b7d-a886-e772dc017316)-Core'  # ← Replace with your Azure DevOps service connection name
 # -----------------------------
 # Job Section
 # -----------------------------
 jobs:
 - job: RunPytestBDDTests
   displayName: "Run Python Playwright BDD Tests"
-  timeoutInMinutes: 180
+  timeoutInMinutes: 45
 
   variables:
     buildPath: '$(Build.SourcesDirectory)'
     environment: ${{ parameters.environment }}
     marker: ${{ parameters.marker }}
     workers: ${{ parameters.workers }}
-    allureResultsDir: '$(Build.SourcesDirectory)/applicationqe/reports/oam/allure-results'
-    allureReportDir: '$(Build.SourcesDirectory)/applicationqe/reports/oam/allure-report'
+    allureResultsDir: '$(Build.SourcesDirectory)/reports/allure-results'
+    allureReportDir: '$(Build.SourcesDirectory)/reports/allure-report'
     allureToolsDir: '$(Build.ArtifactStagingDirectory)/allure-tools'
-    testResultsDir: '$(Build.SourcesDirectory)/applicationqe/reports/oam'
+    testResultsDir: '$(Build.SourcesDirectory)/reports'
+    INFLUXDB_URL: 'http://azncc03perf.corp.local:8086'
+    INFLUXDB_ORG: 'MF'
+    INFLUXDB_BUCKET: 'AutomationData'
+    INFLUXDB_TOKEN: 'g5gf0ukY8fPdwaWynLviDLd0wz1l5snomLbip3t2IrQkeNNkiEFYECEHlcJLwsAPvv2Gx-op4ho6QcpVsCpdGQ=='
     # Azure Key Vault configuration
     keyVaultName: 'amkkvqapipeline-testncus'           # ← Replace with your Key Vault name
 
@@ -128,7 +127,7 @@ jobs:
   - task: AzureKeyVault@2
     displayName: 'Fetch Secrets from Azure Key Vault'
     inputs:
-      azureSubscription: $(subscription_test)
+      azureSubscription: $(azureSubscription)
       KeyVaultName: $(keyVaultName)
       SecretsFilter: '*'
       RunAsPreJob: true
@@ -143,14 +142,16 @@ jobs:
         echo "##vso[task.setvariable variable=workers]${{ parameters.workers }}"
       else
         echo "##vso[task.setvariable variable=environment]test11"
-        echo "##vso[task.setvariable variable=marker]FNT_regression"
+        echo "##vso[task.setvariable variable=marker]roth_conversion"
         echo "##vso[task.setvariable variable=workers]2"
       fi
     displayName: "Set Environment Variables Dynamically"
 
   - script: |
       echo "##vso[task.setvariable variable=TEST_ENV]$(environment)"
-    displayName: "Set Test Environment and Browser Variables"
+      # Key Vault URL for the Python AzureKeyVaultClient (utils/azure_key_vault.py)
+      echo "##vso[task.setvariable variable=AZURE_KEY_VAULT_URL]https://$(keyVaultName).vault.azure.net/"
+    displayName: "Set Playwright & Key Vault Environment Variables"
 
   - script: |
       echo "========================================"
@@ -179,10 +180,6 @@ jobs:
       echo "  Allure Report Dir: $(allureReportDir)"
       echo "  Allure Tools Dir: $(allureToolsDir)"
       echo "  Test Results Dir: $(testResultsDir)"
-      echo ""
-      echo "Azure Log Analytics:"
-      echo "  Workspace ID: $(logAnalyticsWorkspaceId)"
-      echo "  Shared Key: [SET]"
       echo "========================================"
     displayName: "Print Pipeline Variables"
 
@@ -197,8 +194,7 @@ jobs:
       pip --version
       echo "Installing Python dependencies..."
       python -m pip install --upgrade pip setuptools wheel
-      echo "Installing project in editable mode..."
-      cd applicationqe && pip install -e .
+      pip install -e .
     displayName: "Install Python Dependencies"
 
   - script: |
@@ -263,14 +259,6 @@ jobs:
       echo "Allure Results Dir: $(allureResultsDir)"
       echo "========================================"
       echo ""
-      echo "Changing to applicationqe directory..."
-      cd applicationqe
-      echo "Current working directory: $(pwd)"
-      echo ""
-      echo "Stripping UTF-8 BOM from OAM feature files..."
-      sed -i '1s/^\xEF\xBB\xBF//' tests/features/oam/*.feature 2>/dev/null || true
-      echo "✓ UTF-8 BOM stripped from OAM feature files"
-      echo ""
       echo "Setting up environment variables..."
       export TEST_ENV="$(environment)"
       export CI=true
@@ -279,13 +267,14 @@ jobs:
       echo "✓ TEST_ENV=$TEST_ENV"
       echo "✓ CI=$CI"
       echo ""
+      echo "Current working directory: $(pwd)"
       echo "Python version: $(python --version)"
       echo ""
       # Build pytest command with parallel workers support
       # Determine test target based on marker
       if [ "$(marker)" = "all_tests" ]; then
-        TEST_TARGET="tests/"
-        echo "Running ALL test files from tests/"
+        TEST_TARGET="tests/ui/"
+        echo "Running ALL test files from tests/ui/"
       else
         TEST_TARGET="-m \"$(marker)\""
         echo "Running tests with marker: $(marker)"
@@ -295,13 +284,13 @@ jobs:
       BROWSER_VALUE="${{ parameters.browser }}"
       if [ "$BROWSER_VALUE" = "both" ]; then
         BROWSER_PARAM="--browser chromium --browser msedge"
-        echo "✓ Cross-browser testing: Chromium and Microsoft Edge"
+        echo "Cross-browser testing: Chromium and Microsoft Edge"
       elif [ "$BROWSER_VALUE" = "msedge" ]; then
         BROWSER_PARAM="--browser msedge"
-        echo "✓ Browser: Microsoft Edge"
+        echo "Browser: Microsoft Edge"
       else
         BROWSER_PARAM="--browser chromium"
-        echo "✓ Browser: Chromium (default)"
+        echo "Browser: Chromium (default)"
       fi
 
       PYTEST_CMD="pytest $TEST_TARGET \
@@ -345,7 +334,12 @@ jobs:
     env:
       WORK_ITEM_AUTH_TOKEN: $(WORK_ITEM_AUTH_TOKEN)
       PARTIES_AUTH_TOKEN: $(PARTIES_AUTH_TOKEN)
-      INFLUXDB_AUTO_PUSH: 'false'  # Pipeline has its own dedicated push step
+      INFLUXDB_URL: $(INFLUXDB_URL)
+      INFLUXDB_TOKEN: $(INFLUXDB_TOKEN)
+      INFLUXDB_ORG: $(INFLUXDB_ORG)
+      INFLUXDB_BUCKET: $(INFLUXDB_BUCKET)
+      # Azure Key Vault env vars for Python AzureKeyVaultClient
+      AZURE_KEY_VAULT_URL: https://$(keyVaultName).vault.azure.net/
       # ── Connection strings: AzureKeyVault@2 fetches secrets → mapped to env vars ──
       # Python reads these via os.getenv() — no direct Key Vault API calls.
       TRANSFER_CONNECTION_STRING: $(transfer-connection-string)
@@ -400,7 +394,10 @@ jobs:
 
   - script: |
       echo "Pushing test metrics to InfluxDB..."
-      cd applicationqe
+      export INFLUXDB_URL="${INFLUXDB_URL}"
+      export INFLUXDB_TOKEN="${INFLUXDB_TOKEN}"
+      export INFLUXDB_ORG="${INFLUXDB_ORG}"
+      export INFLUXDB_BUCKET="${INFLUXDB_BUCKET}"
       export ALLURE_RESULTS_DIR="$(allureResultsDir)"
       export ENVIRONMENT="$(environment)"
       export BUILD_ID="$(Build.BuildId)"
@@ -410,22 +407,11 @@ jobs:
     displayName: "Push Metrics to InfluxDB"
     condition: always()
     continueOnError: true
-
-  - script: |
-      echo "Pushing test metrics to Azure Log Analytics..."
-      cd applicationqe
-      export ALLURE_RESULTS_DIR="$(allureResultsDir)"
-      export ENVIRONMENT="$(environment)"
-      export BUILD_ID="$(Build.BuildId)"
-      export BUILD_REASON="$(Build.Reason)"
-      export AZURE_LOG_WORKSPACE_ID="$(logAnalyticsWorkspaceId)"
-      export AZURE_LOG_SHARED_KEY="$(logAnalyticsSharedKey)"
-      export CONFIG_MODULE="oam"
-  
-      python utils/azure_analytics_reporter.py
-    displayName: "Push Metrics to Azure Log Analytics"
-    condition: always()
-    continueOnError: true
+    env:
+      INFLUXDB_URL: $(INFLUXDB_URL)
+      INFLUXDB_TOKEN: $(INFLUXDB_TOKEN)
+      INFLUXDB_ORG: $(INFLUXDB_ORG)
+      INFLUXDB_BUCKET: $(INFLUXDB_BUCKET)
 
   - task: PublishBuildArtifacts@1
     displayName: "Publish Test Results Directory"
@@ -444,6 +430,39 @@ jobs:
       mergeTestResults: true
       failTaskOnFailedTests: false
       publishRunAttachments: true
+    condition: always()
+    continueOnError: true
+
+  - task: PublishBuildArtifacts@1
+    displayName: "Publish Pytest HTML Report"
+    inputs:
+      PathtoPublish: '$(testResultsDir)'
+      ArtifactName: 'PytestReport'
+      publishLocation: 'Container'
+    condition: always()
+
+  - task: PublishBuildArtifacts@1
+    displayName: "Publish Allure Report"
+    inputs:
+      PathtoPublish: '$(allureReportDir)'
+      ArtifactName: 'AllureReport'
+      publishLocation: 'Container'
+    condition: always()
+
+  - task: PublishBuildArtifacts@1
+    displayName: "Publish Allure Results Data"
+    inputs:
+      PathtoPublish: '$(allureResultsDir)'
+      ArtifactName: 'AllureResults'
+      publishLocation: 'Container'
+    condition: always()
+
+  - task: PublishBuildArtifacts@1
+    displayName: "Publish Auto-Healing Report"
+    inputs:
+      PathtoPublish: '$(testResultsDir)/auto_healing_report.json'
+      ArtifactName: 'AutoHealingReport'
+      publishLocation: 'Container'
     condition: always()
     continueOnError: true
 

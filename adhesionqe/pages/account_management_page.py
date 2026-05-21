@@ -16,8 +16,7 @@ DOM evidence: Not yet captured — locators below are best-guess placeholders.
 
 from playwright.sync_api import Locator, Page
 
-from locators import account_management_locators
-from pages.oam.base_page import BasePage
+from pages.base_page import BasePage
 from utils.allure_logger import get_allure_logger
 
 logger = get_allure_logger(__name__)
@@ -30,17 +29,47 @@ class AccountManagementPage(BasePage):
 
     def __init__(self, page: Page, base_url: str = ""):
         super().__init__(page, base_url=base_url)
-        locators = account_management_locators.initialize_locators(page)
-        self.account_management_link: Locator = locators["account_management_link"]
-        self.request_dropdown: Locator = locators["request_dropdown"]
-        self.type_dropdown: Locator = locators["type_dropdown"]
-        self.complete_and_print_button: Locator = locators["complete_and_print_button"]
-        self.docusign_continue_button: Locator = locators["docusign_continue_button"]
-        self.docusign_finish_button: Locator = locators["docusign_finish_button"]
-        self.tracking_id_element: Locator = locators["tracking_id_element"]
-        self.close_button: Locator = locators["close_button"]
-        self.upload_pdf_input: Locator = locators["upload_pdf_input"]
-        self.upload_button: Locator = locators["upload_button"]
+
+        # -- Account Wizard: Account Management section --
+        # TODO: Replace with real locators after flow recorder capture
+        self.account_management_link: Locator = page.get_by_role(
+            "link", name="Account Information change"
+        )  # TODO: verify exact link text from DOM
+
+        # -- Request / Type selection --
+        self.request_dropdown: Locator = page.locator(
+            "#ctl00_cphContentArea_ddlRequest"
+        )  # TODO: verify real ID from DOM
+        self.type_dropdown: Locator = page.locator(
+            "#ctl00_cphContentArea_ddlType"
+        )  # TODO: verify real ID from DOM
+
+        # -- Complete and Print button --
+        self.complete_and_print_button: Locator = page.get_by_role(
+            "button", name="Complete and Print"
+        )  # TODO: could be link or button — verify from DOM
+
+        # -- DocuSign page (redirects to docusign.net in same tab) --
+        self.docusign_continue_button: Locator = page.get_by_role(
+            "button", name="Continue"
+        )  # TODO: verify from DocuSign DOM
+        self.docusign_finish_button: Locator = page.get_by_role(
+            "button", name="Finish"
+        )  # TODO: could be "Continue & Finish" single button
+
+        # -- Post-DocuSign: Tracking ID & Close --
+        self.tracking_id_element: Locator = page.locator(
+            "#trackingId, .tracking-id, [data-tracking-id]"
+        )  # TODO: verify from DOM — might be text, span, or link
+        self.close_button: Locator = page.get_by_role(
+            "button", name="Close"
+        )  # TODO: verify from DOM
+
+        # -- Tracking Center: PDF Upload --
+        self.upload_pdf_input: Locator = page.locator("input[type='file']")  # TODO: verify from DOM
+        self.upload_button: Locator = page.get_by_role(
+            "button", name="Upload"
+        )  # TODO: verify from DOM
 
     # ------------------------------------------------------------------
     # Navigation to Account Management
@@ -61,12 +90,12 @@ class AccountManagementPage(BasePage):
         # Strategy: try role-based first, then dropdown, then text
         try:
             request_link = self.page.get_by_role("link", name=request_name, exact=True)
-            request_link.wait_for(state="visible", timeout=120000)
+            request_link.wait_for(state="visible", timeout=15000)
             self.click(request_link)
             logger.info(f"Clicked request: '{request_name}'")
         except Exception:
             logger.info("Role-based click failed, trying dropdown selection")
-            self.request_dropdown.wait_for(state="visible", timeout=120000)
+            self.request_dropdown.wait_for(state="visible", timeout=15000)
             self.request_dropdown.select_option(label=request_name)
             logger.info(f"Selected request from dropdown: '{request_name}'")
 
@@ -75,12 +104,12 @@ class AccountManagementPage(BasePage):
         # Select the type
         try:
             type_link = self.page.get_by_role("link", name=type_name, exact=True)
-            type_link.wait_for(state="visible", timeout=120000)
+            type_link.wait_for(state="visible", timeout=15000)
             self.click(type_link)
             logger.info(f"Clicked type: '{type_name}'")
         except Exception:
             logger.info("Role-based click failed, trying dropdown selection")
-            self.type_dropdown.wait_for(state="visible", timeout=120000)
+            self.type_dropdown.wait_for(state="visible", timeout=15000)
             self.type_dropdown.select_option(label=type_name)
             logger.info(f"Selected type from dropdown: '{type_name}'")
 
@@ -94,7 +123,7 @@ class AccountManagementPage(BasePage):
     def click_complete_and_print(self) -> None:
         """Click the 'Complete and Print' button."""
         logger.info("Clicking 'Complete and Print' button")
-        self.complete_and_print_button.wait_for(state="visible", timeout=120000)
+        self.complete_and_print_button.wait_for(state="visible", timeout=15000)
         self.click(self.complete_and_print_button)
         self.page.wait_for_load_state("domcontentloaded", timeout=60000)
         logger.info(f"'Complete and Print' clicked — URL: {self.page.url}")
@@ -112,7 +141,7 @@ class AccountManagementPage(BasePage):
 
         # Wait for URL to contain docusign or for the page to load
         try:
-            self.page.wait_for_url("**/docusign**", timeout=120000)
+            self.page.wait_for_url("**/docusign**", timeout=30000)
             logger.info(f"DocuSign page loaded: {self.page.url}")
         except Exception:
             logger.info(
@@ -126,17 +155,17 @@ class AccountManagementPage(BasePage):
         # Try "Continue & Finish" as a single button first
         try:
             continue_finish = self.page.get_by_role("button", name="Continue & Finish")
-            continue_finish.wait_for(state="visible", timeout=120000)
+            continue_finish.wait_for(state="visible", timeout=10000)
             self.click(continue_finish)
             logger.info("Clicked 'Continue & Finish' button")
         except Exception:
             # Fall back to separate Continue then Finish
             logger.info("Single button not found, trying separate buttons")
             try:
-                self.docusign_continue_button.wait_for(state="visible", timeout=120000)
+                self.docusign_continue_button.wait_for(state="visible", timeout=10000)
                 self.click(self.docusign_continue_button)
                 self.page.wait_for_timeout(2000)
-                self.docusign_finish_button.wait_for(state="visible", timeout=120000)
+                self.docusign_finish_button.wait_for(state="visible", timeout=10000)
                 self.click(self.docusign_finish_button)
                 logger.info("Clicked Continue and then Finish")
             except Exception:
@@ -145,7 +174,7 @@ class AccountManagementPage(BasePage):
                     "button:has-text('Finish'), button:has-text('Continue'), "
                     "a:has-text('Finish'), input[value*='Finish']"
                 ).first
-                fallback.wait_for(state="visible", timeout=120000)
+                fallback.wait_for(state="visible", timeout=10000)
                 self.click(fallback)
                 logger.info("Clicked fallback finish/continue element")
 
@@ -165,11 +194,11 @@ class AccountManagementPage(BasePage):
             The tracking ID text.
         """
         logger.info("Fetching tracking ID...")
-        self.page.wait_for_load_state("domcontentloaded", timeout=120000)
+        self.page.wait_for_load_state("domcontentloaded", timeout=30000)
 
         # Strategy 1: specific locator
         try:
-            self.tracking_id_element.wait_for(state="visible", timeout=120000)
+            self.tracking_id_element.wait_for(state="visible", timeout=10000)
             tracking_id = self.get_text(self.tracking_id_element)
             if tracking_id:
                 logger.info(f"Tracking ID found: {tracking_id}")
@@ -195,9 +224,9 @@ class AccountManagementPage(BasePage):
     def click_close_button(self) -> None:
         """Click the Close button after fetching the tracking ID."""
         logger.info("Clicking Close button")
-        self.close_button.wait_for(state="visible", timeout=120000)
+        self.close_button.wait_for(state="visible", timeout=15000)
         self.click(self.close_button)
-        self.page.wait_for_load_state("domcontentloaded", timeout=120000)
+        self.page.wait_for_load_state("domcontentloaded", timeout=30000)
         logger.info("Close button clicked")
 
     # ------------------------------------------------------------------
@@ -225,7 +254,7 @@ class AccountManagementPage(BasePage):
 
         # Look for file input on the page
         try:
-            self.upload_pdf_input.wait_for(state="attached", timeout=120000)
+            self.upload_pdf_input.wait_for(state="attached", timeout=15000)
             self.upload_pdf_input.set_input_files(file_path)
             logger.info("PDF file set on input element")
         except Exception:
@@ -240,7 +269,7 @@ class AccountManagementPage(BasePage):
         try:
             self.upload_button.wait_for(state="visible", timeout=5000)
             self.click(self.upload_button)
-            self.page.wait_for_load_state("domcontentloaded", timeout=120000)
+            self.page.wait_for_load_state("domcontentloaded", timeout=30000)
             logger.info("Upload button clicked")
         except Exception:
             logger.info("No explicit upload button found — file may auto-upload")

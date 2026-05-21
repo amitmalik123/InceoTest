@@ -52,7 +52,7 @@ docker-compose*.yml
 # CI/CD
 .github/
 .gitlab-ci.yml
-azure-pipelines/oam.yaml
+azurePipeline.yaml
 
 # Documentation (optional - uncomment if you want to exclude)
 # *.md

@@ -2,8 +2,7 @@ from typing import Optional
 
 from playwright.sync_api import Locator, Page
 
-from pages.oam.base_page import BasePage
-from locators import account_wizard_locators
+from pages.base_page import BasePage
 from utils.allure_logger import get_allure_logger
 
 logger = get_allure_logger(__name__)
@@ -14,11 +13,12 @@ class AccountWizardPage(BasePage):
 
     def __init__(self, page: Page, base_url: str = ""):
         super().__init__(page, base_url=base_url)
-        locators = account_wizard_locators.initialize_locators(page)
-        self.account_wizard_link: Locator = locators["account_wizard_link"]
-        self.account_wizard_header: Locator = locators["account_wizard_header"]
-        self.selected_account_label: Locator = locators["selected_account_label"]
-        self.client_name: Locator = locators["client_name"]
+        self.account_wizard_link: Locator = page.get_by_role("link", name="Account Wizard")
+        self.account_wizard_header: Locator = page.get_by_role("heading", name="Account Wizard")
+        self.selected_account_label: Locator = page.locator("div.radio:has(span.checked) + label")
+        self.client_name: Locator = page.locator(
+            "[data-testid='client-name'], .client-name, h2.client-name"
+        )
 
     def navigate(self) -> None:
         logger.info(f"AccountWizardPage navigate - Current URL: {self.page.url}")
@@ -26,22 +26,22 @@ class AccountWizardPage(BasePage):
 
         if self.PAGE_PATH in self.page.url:
             logger.info("Already on account wizard page")
-            self.page.wait_for_load_state("domcontentloaded", timeout=120000)
+            self.page.wait_for_load_state("domcontentloaded", timeout=30000)
         else:
             logger.info(f"Navigating to: {url}")
-            self.page.goto(url, wait_until="networkidle", timeout=120000)
+            self.page.goto(url, wait_until="networkidle", timeout=30000)
         logger.info("Account wizard page ready")
 
     def click_account_wizard(self) -> None:
         logger.info("Clicking Account Wizard link")
-        self.account_wizard_link.wait_for(state="visible", timeout=120000)
-        self.click(self.account_wizard_link, timeout=120000)
+        self.account_wizard_link.wait_for(state="visible", timeout=10000)
+        self.click(self.account_wizard_link)
         logger.info("Account Wizard link clicked")
 
     def verify_account_wizard_page_loaded(self, expected_client_name: Optional[str] = None) -> None:
         logger.info("Verifying Account Wizard page is loaded")
 
-        self.account_wizard_header.wait_for(state="visible", timeout=120000)
+        self.account_wizard_header.wait_for(state="visible", timeout=10000)
         header_text = self.get_text(self.account_wizard_header)
 
         if header_text and "Account Wizard" in header_text:
@@ -52,7 +52,7 @@ class AccountWizardPage(BasePage):
             )
 
         if expected_client_name:
-            self.client_name.wait_for(state="visible", timeout=120000)
+            self.client_name.wait_for(state="visible", timeout=10000)
             client_name_text = self.get_text(self.client_name)
             logger.info(f"Client name displayed: {client_name_text}")
 
@@ -74,10 +74,10 @@ class AccountWizardPage(BasePage):
         add_ach_link = self.page.get_by_role(
             "link", name="Add ACH Instructions and/or Standing Letter of Authorization"
         )
-        add_ach_link.wait_for(state="visible", timeout=120000)
+        add_ach_link.wait_for(state="visible", timeout=30000)
         self.click(add_ach_link)
 
         # Wait for navigation/modal to load
-        self.page.wait_for_load_state("domcontentloaded", timeout=120000)
+        self.page.wait_for_load_state("domcontentloaded", timeout=30000)
 
         logger.info("Add ACH Instructions link clicked")
