@@ -18,7 +18,24 @@ from utils.crypto_utils import decrypt_value
 
 def load_influxdb_config():
     """Load InfluxDB configuration from config file or environment variables"""
-    config_path = Path(__file__).parent.parent / "config" / "oam" / "influxdb_config.json"
+    # CONFIG_MODULE determines the project subfolder under config/ (e.g., "oam", "naw", "crm")
+    # Tries CONFIG_MODULE env var first, then falls back to checking available configs
+    config_module = os.getenv("CONFIG_MODULE")
+    
+    # If CONFIG_MODULE not set, try multiple known modules in priority order
+    if not config_module:
+        config_dir = Path(__file__).parent.parent / "config"
+        # Try these modules in order of preference for applicationqe
+        for module in ["oam", "naw", "crm"]:
+            potential_path = config_dir / module / "influxdb_config.json"
+            if potential_path.exists():
+                config_module = module
+                break
+        # If none found, default to "oam"
+        if not config_module:
+            config_module = "oam"
+    
+    config_path = Path(__file__).parent.parent / "config" / config_module / "influxdb_config.json"
 
     # Try to load from config file first
     if config_path.exists():
