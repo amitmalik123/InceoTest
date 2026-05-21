@@ -63,6 +63,7 @@ stages:
 
     - task: AzureKeyVault@2
       displayName: 'Fetch Secrets from Azure Key Vault'
+      condition: and(succeeded(), ne(variables['keyVaultName'], ''))
       inputs:
         azureSubscription: $(azureSubscription)
         KeyVaultName: $(keyVaultName)
