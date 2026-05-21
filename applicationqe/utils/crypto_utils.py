@@ -1,7 +1,7 @@
 """
 Utility for encrypting/decrypting sensitive config values using Fernet symmetric encryption.
 
-The encryption key is derived from a passphrase stored in the INFLUXDB_KEY environment variable.
+The encryption key is derived from a passphrase stored in the ENCRYPTION_KEY environment variable.
 If not set, a default machine-scoped key is used (suitable for internal/corp environments).
 """
 
@@ -11,15 +11,15 @@ import os
 
 from cryptography.fernet import Fernet
 
-# Default passphrase - override via INFLUXDB_KEY env var for extra security
-_DEFAULT_PASSPHRASE = "prodeng-automation-influx-2026"
+# Default passphrase - override via ENCRYPTION_KEY env var for extra security
+_DEFAULT_PASSPHRASE = "prodeng-automation-2026"
 
 ENCRYPTED_PREFIX = "ENC:"
 
 
 def _get_fernet() -> Fernet:
     """Derive a Fernet key from a passphrase."""
-    passphrase = os.getenv("INFLUXDB_KEY", _DEFAULT_PASSPHRASE)
+    passphrase = os.getenv("ENCRYPTION_KEY", _DEFAULT_PASSPHRASE)
     key = base64.urlsafe_b64encode(hashlib.sha256(passphrase.encode()).digest())
     return Fernet(key)
 

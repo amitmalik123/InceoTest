@@ -9,6 +9,8 @@ Examples:
     from utils import AutoHealingEngine, get_configured_db
 """
 
+# API utilities
+from utils.api_constants import APIEndpoints
 from utils.api_request_utils import APIClient
 from utils.api_response_utils import (
     get_values_from_household_api_open_accounts,
@@ -23,7 +25,13 @@ from utils.assertions import Assertions, SoftAssertionError, SoftAssertions, ver
 from utils.auto_healing import AutoHealingEngine
 
 # Database utilities
-from utils.database import SQLDatabase, get_configured_db, get_db_from_vault
+from utils.database import (
+    AzureSQLDatabase,
+    SQLDatabase,
+    get_configured_azure_db,
+    get_configured_db,
+    get_db_from_vault,
+)
 
 # Flaky test tracking
 from utils.flaky_test_tracker import FlakyTestTracker, get_tracker
@@ -35,6 +43,13 @@ from utils.logger import setup_logger
 
 # Outlook email utilities
 from utils.outlook_utils import OutlookClient, OutlookEmail
+from utils.lighthouse_runner import LighthouseRunner
+
+# Performance monitoring
+from utils.performance_monitor import PerformanceBudget, PerformanceMonitor
+
+# Outlook email utilities
+from utils.outlook_utils import OutlookOTPPage
 
 # Storage utilities
 from utils.storage_utils import (
@@ -58,11 +73,18 @@ __all__ = [
     "get_configured_db",
     "get_db_from_vault",
     "SQLDatabase",
+    "get_configured_azure_db",
+    "AzureSQLDatabase",
     # API
+    "APIEndpoints",
     "APIClient",
     "get_values_from_household_api_open_accounts",
     "retrieve_all_values_from_response",
     "retrieve_boolean_value_from_response",
+    # Performance
+    "PerformanceMonitor",
+    "PerformanceBudget",
+    "LighthouseRunner",
     # Flaky tests
     "get_tracker",
     "FlakyTestTracker",
@@ -76,6 +98,5 @@ __all__ = [
     "ensure_directory_exists",
     "generate_test_data",
     # Outlook
-    "OutlookClient",
-    "OutlookEmail",
+    "OutlookOTPPage",
 ]

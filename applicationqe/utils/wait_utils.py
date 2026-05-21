@@ -312,10 +312,10 @@ def wait_for_network_idle(page: Page, timeout: float = 120.0, idle_time: float =
         wait_for_network_idle(page, timeout=10.0)
     """
     try:
-        page.wait_for_load_state("networkidle", timeout=timeout * 1000)
+        page.wait_for_load_state("domcontentloaded", timeout=timeout * 1000)
         return True
     except Exception as e:
-        logger.warning(f"Network idle wait failed: {e}")
+        logger.warning(f"Network idle wait failed: {str(e).splitlines()[0]}")
         return False
 
 

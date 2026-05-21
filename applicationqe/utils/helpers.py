@@ -3,18 +3,14 @@ Utility functions for test automation - Generic helpers.
 
 Note: Specialized utilities are in dedicated modules:
 - JSON operations: json_utils.py (JSONUtils class)
-- CSV operations: csv_utils.py (CSVUtils class)
 - Locator operations: pages/base_page.py (BasePage.empty_field())
 """
 
-import logging
 import os
 from datetime import datetime
-from typing import Any, Dict, Optional
-
-from playwright.sync_api import Locator
-
-logger = logging.getLogger(__name__)
+import random
+import string
+from typing import Any, Dict
 
 
 def get_timestamp(format: str = "%Y%m%d_%H%M%S") -> str:
@@ -173,3 +169,50 @@ def get_locator_attribute(
     except Exception as e:
         logger.error(f"✗ Failed to get attribute '{attribute_name}' from {element_name}: {e}")
         raise
+def random_number(length: int = 6) -> str:
+    """Generate a random numeric string of given length.
+
+    Args:
+        length: Number of digits (default: 6)
+
+    Returns:
+        Random numeric string
+
+    Example:
+        >>> random_number()       # e.g. '482019'
+        >>> random_number(10)     # e.g. '7391042856'
+    """
+    return "".join(random.choices(string.digits, k=length))
+
+
+def random_alpha(length: int = 5) -> str:
+    """Generate a random alphabetic string of given length.
+
+    Args:
+        length: Number of characters (default: 5)
+
+    Returns:
+        Random lowercase alphabetic string
+
+    Example:
+        >>> random_alpha()        # e.g. 'kxmqt'
+        >>> random_alpha(8)       # e.g. 'bwjflrpa'
+    """
+    return "".join(random.choices(string.ascii_lowercase, k=length))
+
+
+def random_alphanumeric(length: int = 8) -> str:
+    """Generate a random alphanumeric string of given length.
+
+    Args:
+        length: Number of characters (default: 8)
+
+    Returns:
+        Random alphanumeric string
+
+    Example:
+        >>> random_alphanumeric()     # e.g. 'k3Xm9Qt2'
+        >>> random_alphanumeric(12)   # e.g. 'bW4jFl8rPa1z'
+    """
+    return "".join(random.choices(string.ascii_letters + string.digits, k=length))
+

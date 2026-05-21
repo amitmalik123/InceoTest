@@ -39,10 +39,10 @@ class JSONUtils:
             self.logger.error(f"File not found: {file_path}")
             raise
         except json.JSONDecodeError as e:
-            self.logger.error(f"Invalid JSON in file {file_path}: {str(e)}")
+            self.logger.error(f"Invalid JSON in file {file_path}: {str(e).splitlines()[0]}")
             raise
         except Exception as e:
-            self.logger.error(f"Error reading JSON file {file_path}: {str(e)}")
+            self.logger.error(f"Error reading JSON file {file_path}: {str(e).splitlines()[0]}")
             raise
 
     def write_json(
@@ -77,7 +77,7 @@ class JSONUtils:
                 self.logger.info(f"Successfully wrote JSON to: {file_path}")
             return True
         except Exception as e:
-            self.logger.error(f"Error writing JSON file {file_path}: {str(e)}")
+            self.logger.error(f"Error writing JSON file {file_path}: {str(e).splitlines()[0]}")
             raise
 
     def append_to_json_array(
@@ -114,7 +114,7 @@ class JSONUtils:
             self.logger.info(f"Successfully appended data to: {file_path}")
             return True
         except Exception as e:
-            self.logger.error(f"Error appending to JSON file {file_path}: {str(e)}")
+            self.logger.error(f"Error appending to JSON file {file_path}: {str(e).splitlines()[0]}")
             raise
 
     def update_json(
@@ -150,7 +150,7 @@ class JSONUtils:
             self.logger.info(f"Successfully updated JSON file: {file_path}")
             return True
         except Exception as e:
-            self.logger.error(f"Error updating JSON file {file_path}: {str(e)}")
+            self.logger.error(f"Error updating JSON file {file_path}: {str(e).splitlines()[0]}")
             raise
 
     def get_value(
@@ -186,7 +186,7 @@ class JSONUtils:
             self.logger.info(f"Retrieved value for '{key_path}' from {file_path}")
             return data
         except Exception as e:
-            self.logger.error(f"Error getting value from {file_path}: {str(e)}")
+            self.logger.error(f"Error getting value from {file_path}: {str(e).splitlines()[0]}")
             return default
 
     def set_value(self, file_path: str, key_path: str, value: Any, encoding: str = "utf-8") -> bool:
@@ -221,7 +221,7 @@ class JSONUtils:
             self.logger.info(f"Set value for '{key_path}' in {file_path}")
             return True
         except Exception as e:
-            self.logger.error(f"Error setting value in {file_path}: {str(e)}")
+            self.logger.error(f"Error setting value in {file_path}: {str(e).splitlines()[0]}")
             raise
 
     def delete_key(self, file_path: str, key_path: str, encoding: str = "utf-8") -> bool:
@@ -258,7 +258,7 @@ class JSONUtils:
                 self.logger.warning(f"Key '{keys[-1]}' not found")
                 return False
         except Exception as e:
-            self.logger.error(f"Error deleting key from {file_path}: {str(e)}")
+            self.logger.error(f"Error deleting key from {file_path}: {str(e).splitlines()[0]}")
             raise
 
     def validate_json(self, file_path: str, encoding: str = "utf-8") -> bool:
@@ -308,7 +308,7 @@ class JSONUtils:
             self.logger.info(f"Successfully merged {len(file_paths)} files to {output_path}")
             return True
         except Exception as e:
-            self.logger.error(f"Error merging JSON files: {str(e)}")
+            self.logger.error(f"Error merging JSON files: {str(e).splitlines()[0]}")
             raise
 
     def pretty_print_json(self, file_path: str, indent: int = 4, encoding: str = "utf-8") -> str:
@@ -328,7 +328,7 @@ class JSONUtils:
             pretty_json = json.dumps(data, indent=indent, ensure_ascii=False)
             return pretty_json
         except Exception as e:
-            self.logger.error(f"Error pretty printing JSON: {str(e)}")
+            self.logger.error(f"Error pretty printing JSON: {str(e).splitlines()[0]}")
             raise
 
     def minify_json(self, file_path: str, encoding: str = "utf-8") -> bool:
@@ -351,7 +351,7 @@ class JSONUtils:
             self.logger.info(f"Successfully minified JSON file: {file_path}")
             return True
         except Exception as e:
-            self.logger.error(f"Error minifying JSON file: {str(e)}")
+            self.logger.error(f"Error minifying JSON file: {str(e).splitlines()[0]}")
             raise
 
     def search_json(self, file_path: str, search_key: str, encoding: str = "utf-8") -> List[Any]:
@@ -372,7 +372,7 @@ class JSONUtils:
             self.logger.info(f"Found {len(results)} occurrences of '{search_key}'")
             return results
         except Exception as e:
-            self.logger.error(f"Error searching JSON file: {str(e)}")
+            self.logger.error(f"Error searching JSON file: {str(e).splitlines()[0]}")
             raise
 
     def filter_json_array(
@@ -409,7 +409,7 @@ class JSONUtils:
             self.logger.info(f"Filtered {len(data)} items to {len(filtered_data)} items")
             return filtered_data
         except Exception as e:
-            self.logger.error(f"Error filtering JSON array: {str(e)}")
+            self.logger.error(f"Error filtering JSON array: {str(e).splitlines()[0]}")
             raise
 
     def convert_to_json_string(self, data: Union[Dict, List], indent: Optional[int] = None) -> str:
@@ -427,7 +427,7 @@ class JSONUtils:
             json_str = json.dumps(data, indent=indent, ensure_ascii=False)
             return json_str
         except Exception as e:
-            self.logger.error(f"Error converting to JSON string: {str(e)}")
+            self.logger.error(f"Error converting to JSON string: {str(e).splitlines()[0]}")
             raise
 
     def parse_json_string(self, json_str: str) -> Union[Dict, List]:
@@ -444,7 +444,7 @@ class JSONUtils:
             data = json.loads(json_str)
             return data
         except json.JSONDecodeError as e:
-            self.logger.error(f"Error parsing JSON string: {str(e)}")
+            self.logger.error(f"Error parsing JSON string: {str(e).splitlines()[0]}")
             raise
 
     def compare_json_files(
@@ -473,7 +473,7 @@ class JSONUtils:
             self.logger.info(f"Compared {file_path1} and {file_path2}")
             return result
         except Exception as e:
-            self.logger.error(f"Error comparing JSON files: {str(e)}")
+            self.logger.error(f"Error comparing JSON files: {str(e).splitlines()[0]}")
             raise
 
     def backup_json(self, file_path: str, backup_suffix: str = ".backup") -> str:
@@ -494,7 +494,7 @@ class JSONUtils:
             self.logger.info(f"Created backup: {backup_path}")
             return backup_path
         except Exception as e:
-            self.logger.error(f"Error creating backup: {str(e)}")
+            self.logger.error(f"Error creating backup: {str(e).splitlines()[0]}")
             raise
 
     # Helper methods

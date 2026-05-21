@@ -1,2 +1,24 @@
+# Test artifacts at workspace root
+/allure-results/
+/authfiles/
+/test-results/
+auth_states/
+reports//PROPOSAL
+.pytest_cache
+*__pycache__/
+# Managed in applicationqe/proposals/.gitignore
+.playwright-mcp
+
+venv/
+
+applicationqe/reports/*
+
+# Auth session state files — contain cookies/tokens, never commit
+applicationqe/tests/.auth/
+
+.github
+/reports
+/tests
+MIGRATION_PLAN.md
 applicationqe/tests/.auth/SAU_AG7071_T11.json
 applicationqe/reports/auto_healing_report.json

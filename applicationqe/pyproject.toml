@@ -29,6 +29,10 @@ dependencies = [
     # Configuration
     "pyyaml>=6.0",
 
+    # Excel/Data handling
+    "pandas>=2.0.0",
+    "openpyxl>=3.1.2",
+
     # API Contract Testing
     "jsonschema>=4.20.0",
     "openapi-spec-validator>=0.7.1",
@@ -58,6 +62,18 @@ dependencies = [
 
 [tool.setuptools]
 packages = ["config", "pages", "utils", "tests", "fixtures"]
+    # Encryption utilities
+    "cryptography>=46.0.0",
+
+    # PDF Testing
+    "PyPDF2>=3.0.0",
+]
+
+[tool.setuptools.packages.find]
+# Only include actual Python packages (directories with __init__.py)
+include = ["pages*", "utils*", "tests*", "config*", "fixtures*"]
+# Exclude data/config directories that aren't Python packages
+exclude = ["data*", "queries*", "docs*", "reports*", "scripts*"]
 
 [tool.setuptools.package-data]
 # Include non-Python files within packages
@@ -144,6 +160,10 @@ markers = [
     "S10: S10_OAM_Initiated by FA_Online Submit_Finish Later",
     "S11: S11_PRODENG_33109_OAM_SAU_Online Submit_Authorized Approval_Tracking Center_Blue Banner_Trigger Advisor Mail",
 ]
+pythonpath = ["."]
+python_files = "test_*.py"
+python_classes = "Test*"
+python_functions = "test_*"
 addopts = """
 -v
 --tb=short
@@ -159,6 +179,56 @@ addopts = """
 --reruns=1
 --reruns-delay=1
 """
+--junitxml=reports/junit/junit-report.xml
+--html=reports/pytest_report.html
+--self-contained-html
+--alluredir=reports/allure-results
+"""
+# Note: --reruns and --reruns-delay commented out to allow --pdb debug mode
+# Uncomment for normal test runs:
+# --reruns=2
+# --reruns-delay=1
+
+markers = [
+    "smoke: Quick smoke tests for critical functionality",
+    "regression: Full regression test suite",
+    "Regression: Full regression test suite (capitalized alias)",
+    "ach: ACH functionality tests",
+    "login: Login functionality tests",
+    "navigation: Navigation and menu tests",
+    "account: Account management tests",
+    "wizard: Account wizard flow tests",
+    "conversion: Asset conversion tests",
+    "tracking: Tracking center tests",
+    "e2e: End-to-end workflow tests",
+    "critical: Critical path tests",
+    "slow: Tests that take longer to execute",
+    "skip_ci: Skip in CI environment",
+    "test11: Tests for test11 environment",
+    "test12: Tests for test12 environment",
+    "silo: Tests for silo environment",
+    "NAW: WFI Regression- NAW tests",
+    "smokeTest11: NAW smoke tests for test11 environment",
+    "prodSmoke: Production smoke tests",
+    "navbar: Navbar flow tests",
+    "TrackingCenterESign: Tracking Center eSign tests",
+    "internal_admin: Internal Admin scenarios that skip auto-login",
+    "GNW_Ind_401k: NAW GNW Individual 401(k) tests",
+    "OnlineBD: NAW GNW LLC OnlineBD Approval tests",
+    "prod: Tests for production environment",
+    "performance: Performance monitoring tests",
+    "lighthouse: Lighthouse audit tests",
+    "retainAccount: Retain account tests",
+    "ewm: EWM tests",
+    "newAccountWizard: New Account Wizard feature",
+    "portfolioEngine: Portfolio Engine feature",
+    "widgetTests: Widget tests",
+    "TMS: Tax Management Services",
+    "bdd: BDD tests",
+    "integration: Integration tests",
+    "ui: UI tests",
+    "api: API tests",
+]
 asyncio_mode = "strict"
 log_cli = true
 log_cli_level = "INFO"
@@ -194,7 +264,7 @@ profile = "black"
 line_length = 100
 
 [tool.coverage.run]
-source = ["pages", "utils", "config"]
+source = ["pages", "utils", "config", "fixtures"]
 omit = ["*/tests/*", "*/__pycache__/*", "*/generated/*"]
 
 [tool.coverage.report]
@@ -205,6 +275,9 @@ exclude_lines = [
     "raise NotImplementedError",
     "pragma: no cover",
 ]
+
+[tool.downloads]
+download_dir = "reports/downloads"
 
 [tool.route-blocking]
 # Allow only requests to these domains; abort everything else.

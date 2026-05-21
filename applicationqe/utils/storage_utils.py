@@ -73,7 +73,7 @@ class LocalStorageManager:
                 return json.loads(value)
             except json.JSONDecodeError:
                 logger.warning(f"Failed to parse localStorage['{key}'] as JSON")
-                return None
+                return value
         return None
 
     def remove_item(self, key: str) -> None:
@@ -171,7 +171,7 @@ class SessionStorageManager:
                 return json.loads(value)
             except json.JSONDecodeError:
                 logger.warning(f"Failed to parse sessionStorage['{key}'] as JSON")
-                return None
+                return value
         return None
 
     def remove_item(self, key: str) -> None:

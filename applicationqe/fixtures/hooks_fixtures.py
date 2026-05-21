@@ -11,6 +11,14 @@ These hooks integrate pytest-bdd with Allure reporting and screenshot capture.
 """
 
 import contextlib
+"""pytest-bdd hooks aligned to base fixture layout.
+
+Provides BDD step lifecycle hooks with Allure step wrapping and screenshot
+capture while preserving local screenshot configuration behavior.
+"""
+
+import contextlib
+import inspect
 import os
 
 import allure
@@ -28,56 +36,105 @@ def pytest_bdd_before_step(request, feature, scenario, step, step_func) -> None:
     Hook that runs BEFORE each BDD step executes.
     Starts an Allure step context that will wrap the entire step execution.
     """
+from config.settings import get_settings
+from fixtures.browser_fixtures import id_tracker
+from utils.allure_logger import get_allure_logger, get_step_screenshot_config
+
+_active_allure_steps: dict[str, object] = {}
+
+
+def _resolve_page_from_request(request):
+    """Resolve a Playwright page from pytest request fixtures when available."""
+    page = None
+
+    try:
+        page = request.getfixturevalue("page")
+    except Exception:
+        pass
+
+    if page is None:
+        try:
+            page = request.getfixturevalue("authenticated_page")
+        except Exception:
+            pass
+
+    if page is None and hasattr(request, "node") and hasattr(request.node, "funcargs"):
+        funcargs = request.node.funcargs
+        page = funcargs.get("page") or funcargs.get("authenticated_page")
+
+        if page is None:
+            for fixture_value in funcargs.values():
+                candidate_page = getattr(fixture_value, "page", None)
+                if candidate_page is not None and hasattr(candidate_page, "screenshot"):
+                    page = candidate_page
+                    break
+
+    return page
+
+
+def _step_uses_custom_logger(step_func) -> bool:
+    """Detect whether step function already wraps actions with logger.step(...)."""
+    try:
+        candidate_funcs = [inspect.unwrap(step_func), step_func]
+    except Exception:
+        candidate_funcs = [step_func]
+
+    for candidate in candidate_funcs:
+        try:
+            source = inspect.getsource(candidate)
+            if "logger.step(" in source:
+                return True
+        except Exception:
+            continue
+
+    return False
+
+
+def pytest_bdd_before_step(request, feature, scenario, step, step_func) -> None:
+    """Start an Allure step context before each BDD step executes."""
     step_name = f"{step.keyword} {step.name}"
 
     # Set scenario name on the ID tracker (idempotent within the same scenario)
     id_tracker.set_scenario(scenario.name)
 
-    # Create and enter allure step context
     allure_step_context = allure.step(step_name)
     allure_step_context.__enter__()
 
-    # Store it keyed by request node id + step name for retrieval in after_step
     step_key = f"{id(request.node)}_{step.name}"
     _active_allure_steps[step_key] = allure_step_context
 
 
 def pytest_bdd_after_step(request, feature, scenario, step, step_func) -> None:
-    """
-    Hook that runs AFTER each BDD step completes.
-    Takes screenshot and closes the Allure step context.
-    """
-    # Check screenshot setting from config/env var
+    """Capture step screenshot when enabled and close Allure step context."""
     settings_instance = get_settings()
+    config = get_step_screenshot_config()
+
     screenshot_enabled = (
         os.getenv("SCREENSHOT_EACH_STEP", "").lower() in ("true", "1", "yes", "on")
         or settings_instance.screenshot_each_step
+        or config.enabled
     )
 
-    # Get page object from pytest request fixture
-    page = None
-    try:
-        # Try to get 'authenticated_page' fixture from request
-        page = request.getfixturevalue("authenticated_page")
-    except Exception:
-        # If that fails, try funcargs
-        if hasattr(request, "node") and hasattr(request.node, "funcargs"):
-            page = request.node.funcargs.get("authenticated_page")
+    page = _resolve_page_from_request(request)
 
-    # Take screenshot BEFORE closing the step context (so it's inside the step)
-    if page and screenshot_enabled:
+    # Avoid duplicate screenshots when step function already uses logger.step(..., page=...)
+    has_custom_step_screenshot = _step_uses_custom_logger(step_func)
+
+    if page and screenshot_enabled and not has_custom_step_screenshot:
         try:
+            config.step_counter += 1
             screenshot = page.screenshot()
+            step_name = f"{step.keyword} {step.name}"
+            screenshot_name = f"Step {config.step_counter} ✓ {step_name}"
             allure.attach(
                 screenshot,
-                name="Screenshot",
+                name=screenshot_name,
                 attachment_type=allure.attachment_type.PNG,
             )
-        except Exception as e:
+        except Exception as exc:
             logger = get_allure_logger(__name__)
-            logger.warning(f"Screenshot failed: {e}", attach_to_allure=False)
+            logger.warning(f"Could not capture screenshot: {exc}", attach_to_allure=False)
 
-    # Now close the allure step context
     step_key = f"{id(request.node)}_{step.name}"
     if step_key in _active_allure_steps:
         allure_step_context = _active_allure_steps.pop(step_key)
@@ -122,45 +179,11 @@ def pytest_bdd_after_step(request, feature, scenario, step, step_func) -> None:
 def pytest_bdd_step_error(
     request, feature, scenario, step, step_func, step_func_args, exception
 ) -> None:
-    """
-    Hook that runs when a BDD step fails.
-    Takes failure screenshot and closes the step context with error.
-    
-    IMPORTANT: This hook should NOT re-raise fixture initialization errors
-    that would mask the ORIGINAL step failure.
-    """
-    logger = get_allure_logger(__name__)
-    page = None
-    
-    # PRIORITY 1: Try to get 'authenticated_page' from funcargs FIRST
-    # This should have the already-initialized page from the test
-    # (if test made it far enough to reach a BDD step, fixture must have succeeded)
-    try:
-        if hasattr(request, "node") and hasattr(request.node, "funcargs"):
-            page = request.node.funcargs.get("authenticated_page")
-            if page:
-                print("[STEP ERROR] Retrieved page from funcargs (already initialized)")
-    except Exception as e:
-        print(f"[STEP ERROR] Error getting page from funcargs: {e}")
+    """Capture failure screenshot and close Allure step context with error."""
+    page = _resolve_page_from_request(request)
+    has_custom_step_screenshot = _step_uses_custom_logger(step_func)
 
-    # PRIORITY 2: Try to get 'authenticated_page' fixture from request
-    # Only if not found in funcargs
-    # Wrap in try-except to prevent auth errors from masking the step failure
-    if not page:
-        try:
-            page = request.getfixturevalue("authenticated_page")
-            print("[STEP ERROR] Retrieved page via getfixturevalue")
-        except Exception as e:
-            # Log fixture error but DON'T re-raise
-            # Re-raising would mask the original step failure
-            logger.warning(
-                f"Could not get authenticated_page for screenshot: {type(e).__name__}: {e}",
-                attach_to_allure=False
-            )
-            print(f"[STEP ERROR] Could not get authenticated_page: {type(e).__name__}: {e}")
-
-    # Take failure screenshot
-    if page:
+    if page and not has_custom_step_screenshot:
         try:
             screenshot = page.screenshot()
             allure.attach(
@@ -168,17 +191,10 @@ def pytest_bdd_step_error(
                 name="FAILED Screenshot",
                 attachment_type=allure.attachment_type.PNG,
             )
-            print("[STEP ERROR] Screenshot attached to report")
-        except Exception as e:
-            logger.warning(
-                f"Failure screenshot failed: {type(e).__name__}: {e}",
-                attach_to_allure=False
-            )
-            print(f"[STEP ERROR] Screenshot failed: {e}")
-    else:
-        print("[STEP ERROR] No page available for screenshot")
+        except Exception as exc:
+            logger = get_allure_logger(__name__)
+            logger.warning(f"Failure screenshot failed: {exc}", attach_to_allure=False)
 
-    # Close the step context with exception
     step_key = f"{id(request.node)}_{step.name}"
     if step_key in _active_allure_steps:
         allure_step_context = _active_allure_steps.pop(step_key)

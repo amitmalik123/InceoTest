@@ -29,12 +29,18 @@ import pytest
 
 logger = logging.getLogger(__name__)
 
+# Worker ID for parallel execution isolation
+_WORKER_ID = os.environ.get("PYTEST_XDIST_WORKER", "master")
+
+# Path to pyproject.toml (repo root)
+_PYPROJECT_PATH = Path(__file__).resolve().parent.parent.parent / "pyproject.toml"
+
 # ---------------------------------------------------------------------------
 # ID Tracker – captures IDs from responses and page content
 # ---------------------------------------------------------------------------
 
-# Log file for captured IDs (same as network errors log directory)
-_ID_LOG_PATH = Path("reports/network_errors.log")
+# Log file for captured IDs — worker-isolated for parallel execution
+_ID_LOG_PATH = Path(f"reports/network_errors_{_WORKER_ID}.log")
 
 
 def _load_id_capture_config() -> tuple[bool, re.Pattern | None]:
@@ -104,9 +110,6 @@ def _write_to_id_log(line: str) -> None:
 # Singleton tracker – shared with hooks_fixtures
 id_tracker = IdTracker()
 
-# Path to pyproject.toml (repo root)
-_PYPROJECT_PATH = Path(__file__).resolve().parent.parent.parent / "pyproject.toml"
-
 
 def _load_route_blocking_config() -> tuple[bool, set[str], Path]:
     """Load route-blocking config from pyproject.toml [tool.route-blocking]."""
@@ -116,10 +119,12 @@ def _load_route_blocking_config() -> tuple[bool, set[str], Path]:
         section = config.get("tool", {}).get("route-blocking", {})
         enabled = section.get("enabled", True)
         domains = {d.strip().lower() for d in section.get("allowed_domains", [])}
-        log_path = Path(section.get("http_error_log", "reports/oam/network_errors.log"))
+        base_log = Path(section.get("http_error_log", "reports/http_errors.log"))
+        # Worker-isolate the log file for parallel execution
+        log_path = base_log.with_stem(f"{base_log.stem}_{_WORKER_ID}")
         return enabled, domains, log_path
     except (FileNotFoundError, tomllib.TOMLDecodeError):
-        return False, set(), Path("reports/oam/network_errors.log")
+        return False, set(), Path(f"reports/http_errors_{_WORKER_ID}.log")
 
 
 def _is_allowed(url: str, allowed_domains: set[str]) -> bool:
@@ -140,13 +145,14 @@ def apply_route_blocks(context) -> None:
     if not enabled or not allowed_domains:
         return
 
-    def _handle_route(route):
-        if _is_allowed(route.request.url, allowed_domains):
-            route.continue_()
-        else:
-            route.abort()
+    # def _handle_route(route):
+    #     if _is_allowed(route.request.url, allowed_domains):
+    #         route.continue_()
+    #     else:
+    #         logger.warning(f"[ROUTE BLOCKED] {route.request.url}")
+    #         route.abort()
 
-    context.route("**/*", _handle_route)
+    # context.route("**/*", _handle_route)
 
 
 # HTTP error log file path — loaded from pyproject.toml
@@ -172,10 +178,6 @@ def apply_context_listeners(context) -> None:
             line = f"[HTTP {response.status}] {response.request.method} {response.url}"
             logger.warning(line)
             _write_to_log(line)
-        elif response.status >= 300:
-            line = f"[HTTP {response.status}] {response.request.method} {response.url} (redirect)"
-            logger.info(line)
-        #    _write_to_log(line)
 
         # Scan response body for IDs (if id-capture is enabled)
         if _ID_CAPTURE_ENABLED:
@@ -199,14 +201,6 @@ def apply_context_listeners(context) -> None:
                 _write_to_log(line)
 
         def _on_pageerror(error):
-            error_str = str(error)
-            
-            # Skip jQuery/$ not defined errors - these are page-level issues
-            # that don't affect test execution in headless mode
-            if "$ is not defined" in error_str or "jQuery is not defined" in error_str:
-                logger.debug(f"[PAGE ERROR - SUPPRESSED] {error_str}")
-                return
-            
             line = f"[PAGE ERROR] {error}"
             logger.warning(line)
             _write_to_log(line)
@@ -227,55 +221,56 @@ def _write_to_log(line: str) -> None:
 
 
 @pytest.fixture(scope="session")
-def browser_type_launch_args(browser_type_launch_args) -> dict:
-    """Launch browser maximized so it fills the full screen."""
-    return {**browser_type_launch_args, "args": ["--start-maximized"]}
+def browser_type_launch_args(browser_type_launch_args):
+    """Launch browser in full-screen/maximized mode."""
+    from utils.download_utils import _get_default_download_dir
+
+    base_download_dir = _get_default_download_dir()
+    downloads_path = Path.cwd() / base_download_dir / _WORKER_ID
+    downloads_path.mkdir(parents=True, exist_ok=True)
+
+    launch_args = {
+        **browser_type_launch_args,
+        "downloads_path": str(downloads_path),
+        "args": [
+            "--disable-blink-features=AutomationControlled",
+            "--disable-popup-blocking",
+            "--disable-pdf-viewer",
+            "--always-open-pdf-externally",
+            "--disable-features=ChromePDFViewer",
+            "--disable-gpu",
+            "--ignore-certificate-errors",
+            "--disable-extensions",
+            "--no-sandbox",
+            # Required for Linux CI / Docker environments where /dev/shm is limited
+            "--disable-dev-shm-usage",
+        ],
+    }
+    return launch_args
 
 
 @pytest.fixture(scope="session")
 def browser_context_args(browser_context_args, request) -> dict:
-    """
-    Configure browser context with worker-specific output directories for parallel execution
-    and full-screen (no fixed viewport, maximized window) for headed mode or large viewport for headless.
-    
-    Viewport Resolution:
-    - Headed mode: Uses --start-maximized (no_viewport: True) — fills entire screen
-    - Headless mode: Sets viewport to 1920x1080 to match headed mode layout and UI rendering
-    
-    This ensures consistent rendering of UI elements (buttons, dropdowns, etc.) in both modes.
-    """
+    """Configure browser context with worker-specific output directories."""
     import os
 
-    # Get worker ID for parallel execution
     worker_id = os.environ.get("PYTEST_XDIST_WORKER", "master")
-
-    # Make output directories worker-specific to avoid conflicts
     if worker_id != "master":
-        record_video_dir = f"reports/oam/videos/{worker_id}"
+        record_video_dir = f"reports/videos/{worker_id}"
     else:
-        record_video_dir = "reports/oam/videos"
+        record_video_dir = "reports/videos"
 
-    # Base browser context args — use no_viewport for headed mode (will use --start-maximized)
-    # For headless mode, we need to explicitly set viewport since --start-maximized is ignored
+    device_viewport = {
+        "width": 1920,
+        "height": 1080,
+    }
+
     context_args = {
         **browser_context_args,
-        "no_viewport": True,  # Headed mode will still use --start-maximized
         "ignore_https_errors": True,
     }
-    
-    # For headless mode, Playwright ignores --start-maximized, so we need explicit viewport
-    # This ensures consistent UI rendering (e.g., top navigation, buttons, dropdowns) across both modes
-    is_headed = request.config.getoption("--headed", default=False)
-    if not is_headed:
-        # Set explicit viewport for headless mode to match typical monitor resolution
-        # This prevents responsive layout changes that hide UI elements (like dropdown arrows)
-        context_args["viewport"] = {"width": 1920, "height": 1080}
-        context_args["no_viewport"] = False
-        logger.info("Headless mode detected: Setting explicit viewport to 1920x1080 for consistent UI rendering")
-    else:
-        logger.info("Headed mode detected: Using --start-maximized with no_viewport=True")
+    context_args["accept_downloads"] = True
 
-    # Only set record_video_dir when --video is on or retain-on-failure
     video_option = request.config.getoption("--video", default="off")
     if video_option in ("on", "retain-on-failure"):
         context_args["record_video_dir"] = record_video_dir
@@ -285,18 +280,7 @@ def browser_context_args(browser_context_args, request) -> dict:
 
 @pytest.fixture
 def new_context(browser) -> Generator[Callable, None, None]:
-    """
-    Create additional browser contexts for multi-session scenarios.
-
-    Usage:
-        def test_multi_user(authenticated_page, new_context):
-            # First user (default page)
-            authenticated_page.goto("/dashboard")
-
-            # Second user (new context)
-            admin_page = new_context().new_page()
-            admin_page.goto("/admin")
-    """
+    """Create additional browser contexts for multi-session scenarios."""
     contexts = []
 
     def _create_context(**kwargs):
@@ -307,29 +291,13 @@ def new_context(browser) -> Generator[Callable, None, None]:
 
     yield _create_context
 
-    # Cleanup all created contexts
     for ctx in contexts:
         ctx.close()
 
 
 @pytest.fixture
 def new_page(context) -> Generator[Callable, None, None]:
-    """
-    Create additional pages within the same context for multi-tab scenarios.
-
-    Usage:
-        def test_multi_tab(authenticated_page, new_page):
-            # Main tab
-            authenticated_page.goto("/accounts")
-
-            # Second tab (same session/cookies)
-            tab2 = new_page()
-            tab2.goto("/reports")
-
-            # Work with both tabs
-            assert authenticated_page.url.endswith("/accounts")
-            assert tab2.url.endswith("/reports")
-    """
+    """Create additional pages within the same context for multi-tab scenarios."""
     pages = []
 
     def _create_page():
@@ -339,34 +307,19 @@ def new_page(context) -> Generator[Callable, None, None]:
 
     yield _create_page
 
-    # Cleanup all created pages
     for pg in pages:
         pg.close()
 
 
 @pytest.fixture
 def multi_user_contexts(browser) -> Generator[dict, None, None]:
-    """
-    Pre-configured contexts for multi-user testing.
-
-    Returns dict with 'admin' and 'user' contexts.
-
-    Usage:
-        def test_admin_vs_user(multi_user_contexts):
-            admin_page = multi_user_contexts['admin'].new_page()
-            user_page = multi_user_contexts['user'].new_page()
-
-            # Different sessions, different cookies
-            admin_page.goto("/admin/dashboard")
-            user_page.goto("/user/dashboard")
-    """
+    """Pre-configured contexts for multi-user testing."""
     contexts = {
-        "admin": browser.new_context(ignore_https_errors=True, storage_state=None),  # Fresh session
-        "user": browser.new_context(ignore_https_errors=True, storage_state=None),  # Fresh session
+        "admin": browser.new_context(ignore_https_errors=True, storage_state=None),
+        "user": browser.new_context(ignore_https_errors=True, storage_state=None),
     }
 
     yield contexts
 
-    # Cleanup
     for ctx in contexts.values():
         ctx.close()

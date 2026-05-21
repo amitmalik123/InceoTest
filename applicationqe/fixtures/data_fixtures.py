@@ -10,6 +10,7 @@ from typing import Dict, List, Optional
 import pytest
 
 from config.oam.settings import settings
+from config.settings import settings
 
 
 class TestDataManager:
@@ -19,9 +20,30 @@ class TestDataManager:
     Query by ANY field, filter multiple rows, and easily access test data.
     """
 
-    def __init__(self, data_rows: List[Dict[str, str]]):
-        """Initialize with all CSV rows"""
-        self._data = data_rows
+    def __init__(self, sheet_data: Dict[str, List[Dict[str, str]]]):
+        """Initialize with all Excel sheet rows."""
+        self._sheet_data = sheet_data
+        self._data = [row for rows in sheet_data.values() for row in rows]
+
+    def get_row_by_number(self, sheet_name: str, row_number: int) -> Dict[str, str]:
+        """Get row by Excel row number (1-based, row 1 is header)."""
+        if sheet_name not in self._sheet_data:
+            raise ValueError(
+                f"Sheet '{sheet_name}' not found. Available: {list(self._sheet_data.keys())}"
+            )
+
+        if row_number <= 1:
+            raise ValueError("RowNumber must be > 1 because row 1 is the header row")
+
+        row_index = row_number - 2  # Convert Excel row number to 0-based data index
+        rows = self._sheet_data[sheet_name]
+        if row_index >= len(rows):
+            raise IndexError(
+                f"RowNumber {row_number} out of range for sheet '{sheet_name}'. "
+                f"Sheet has {len(rows)} data row(s)."
+            )
+
+        return rows[row_index]
 
     def get_by(self, **criteria) -> Optional[Dict[str, str]]:
         """
@@ -70,12 +92,12 @@ class TestDataManager:
     def get_scenarios(self) -> List[str]:
         """Get list of unique test scenarios"""
         return list(
-            {row.get("scenario", "") for row in self._data if row.get("scenario")}
+            {row.get("test_scenario", "") for row in self._data if row.get("test_scenario")}
         )
 
     def get_user_types(self) -> List[str]:
         """Get list of unique user types"""
-        return list({row.get("role", "") for row in self._data if row.get("role")})
+        return list({row.get("user_type", "") for row in self._data if row.get("user_type")})
 
     def __len__(self):
         """Return number of data rows"""
@@ -113,19 +135,21 @@ def test_data_manager() -> TestDataManager:
     from utils.logger import setup_logger
 
     logger = setup_logger(__name__)
-    csv_path = settings.test_data_csv
-    logger.info(f"[SESSION SCOPE] Loading test data from: {csv_path}")
+    excel_path = settings.test_data_excel
+    if not excel_path or not excel_path.exists():
+        raise FileNotFoundError(
+            f"Excel test data file not found: {excel_path}. "
+            "Add 'test_data_excel' to data section in env config."
+        )
 
-    # Open CSV with latin-1 encoding to handle Windows-1252 special characters
-    # (e.g., smart quotes created by Excel on Windows)
-    with open(csv_path, "r", encoding="latin-1") as file:
-        reader = csv.DictReader(file)
-        data_rows = list(reader)
-
-    logger.info(f"[SESSION SCOPE] Loaded {len(data_rows)} test data row(s)")
+    logger.info(f"[SESSION SCOPE] Loading test data from: {excel_path}")
+    excel_manager = ExcelDataManager(str(excel_path))
+    sheet_data = {sheet: excel_manager.get_sheet(sheet) for sheet in excel_manager.sheet_names}
 
     # Show available scenarios and user types
-    manager = TestDataManager(data_rows)
+    manager = TestDataManager(sheet_data)
+    logger.info(f"[SESSION SCOPE] Loaded {len(manager.get_all())} test data row(s)")
+    logger.info(f"[SESSION SCOPE] Available sheets: {list(sheet_data.keys())}")
     logger.info(f"[SESSION SCOPE] Available scenarios: {manager.get_scenarios()}")
     logger.info(f"[SESSION SCOPE] Available user types: {manager.get_user_types()}")
 
@@ -167,6 +191,25 @@ class ExcelDataManager:
         if sheet_name not in self._sheets:
             raise ValueError(f"Sheet '{sheet_name}' not found. Available: {self.sheet_names}")
         return self._sheets[sheet_name]
+
+    def get_row_by_number(self, sheet_name: str, row_number: int) -> Dict:
+        """Get row by Excel row number (1-based, row 1 is header)."""
+        if sheet_name not in self._sheets:
+            raise ValueError(
+                f"Sheet '{sheet_name}' not found. Available: {list(self._sheets.keys())}"
+            )
+
+        if row_number <= 1:
+            raise ValueError("RowNumber must be > 1 because row 1 is the header row")
+
+        row_index = row_number - 2  # Convert Excel row number to 0-based data index
+        rows = self._sheets[sheet_name]
+        if row_index >= len(rows):
+            raise IndexError(
+                f"RowNumber {row_number} out of range for sheet '{sheet_name}'. "
+                f"Sheet has {len(rows)} data row(s)."
+            )
+        return rows[row_index]
 
     def get_row(self, sheet_name: str, index: int = 0) -> Dict:
         """Get a specific row from a sheet by index."""

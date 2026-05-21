@@ -20,7 +20,21 @@ from utils.crypto_utils import decrypt_value
 
 def load_azure_analytics_config():
     """Load Azure Log Analytics configuration from config file or environment variables"""
-    config_path = Path(__file__).parent.parent / "config" / "oam" / "azure_analytics_config.json"
+    # CONFIG_MODULE determines the project subfolder under config/ (e.g., "oam", "naw", "crm")
+    # Tries CONFIG_MODULE env var first, then falls back to checking available configs
+    config_module = os.getenv("CONFIG_MODULE")
+    
+    # If CONFIG_MODULE not set, try multiple known modules in priority order
+    if not config_module:
+        config_dir = Path(__file__).parent.parent / "config"
+        # Try these modules in order of preference for applicationqe
+        for module in ["oam", "naw", "crm"]:
+            potential_path = config_dir / module / "azure_analytics_config.json"
+            if potential_path.exists():
+                config_module = module
+                break
+    
+    config_path = Path(__file__).parent.parent / "config" / config_module / "azure_analytics_config.json"
 
     # Try to load from config file first
     config = {}
@@ -105,7 +119,7 @@ class AllureToAzureAnalytics:
 
         for json_file in json_files:
             try:
-                with open(json_file, "r") as f:
+                with open(json_file, "r", encoding="utf-8") as f:
                     test_data = json.load(f)
                     test_name = test_data.get("name", "")
 
@@ -138,7 +152,7 @@ class AllureToAzureAnalytics:
         # Read containers
         for json_file in glob.glob(os.path.join(self.allure_results_dir, "*-container.json")):
             try:
-                with open(json_file, "r") as f:
+                with open(json_file, "r", encoding="utf-8") as f:
                     results["containers"].append(json.load(f))
             except Exception as e:
                 print(f"Error reading {json_file}: {e}")
@@ -146,7 +160,7 @@ class AllureToAzureAnalytics:
         # Read groups
         for json_file in glob.glob(os.path.join(self.allure_results_dir, "groups.json")):
             try:
-                with open(json_file, "r") as f:
+                with open(json_file, "r", encoding="utf-8") as f:
                     results["groups"].append(json.load(f))
             except Exception as e:
                 print(f"Error reading {json_file}: {e}")

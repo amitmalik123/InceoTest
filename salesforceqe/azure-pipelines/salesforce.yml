@@ -1,0 +1,84 @@
+name: salesforce-$(Date:yyyyMMdd)$(Rev:.r)
+
+trigger:
+  branches:
+    include:
+      - develop
+      - salesforcefeature
+  paths:
+    include:
+      - salesforceqe/data/salesforce/**
+      - salesforceqe/config/salesforce/**
+      - salesforceqe/tests/features/salesforce/**
+      - salesforceqe/tests/steps/salesforce/**
+      - salesforceqe/pages/salesforce/**
+      - salesforceqe/azure-pipelines/templates/**
+      - salesforceqe/requirements.txt
+
+pr:
+  branches:
+    include:
+      - develop
+  paths:
+    include:
+      - salesforceqe/data/salesforce/**
+      - salesforceqe/config/salesforce/**
+      - salesforceqe/tests/features/salesforce/**
+      - salesforceqe/tests/steps/salesforce/**
+      - salesforceqe/pages/salesforce/**
+      - salesforceqe/azure-pipelines/templates/**
+      - salesforceqe/requirements.txt
+
+# -----------------------------
+# Parameters for Manual Runs
+# -----------------------------
+parameters:
+  - name: environment
+    displayName: "Target Environment"
+    type: string    
+    default: "FSCQA"
+    values:
+      - FSCQA
+      - FSCUAT
+      - PROD      
+
+  - name: marker
+    displayName: "Pytest Marker to Run"
+    type: string
+    default: "smoke"
+    values:
+      - smoke
+      - regression
+
+  - name: workers
+    displayName: "Number of Parallel Workers"
+    type: string
+    default: "1"
+    values:
+      - "1"
+      - "2"
+      - "3"
+      - "4"
+      - "auto"
+
+  - name: browser
+    displayName: "Browser to Test"
+    type: string
+    default: "chromium"
+    values:
+      - chromium
+      - msedge
+      - both
+
+
+stages:
+  - template: templates/team-stage-salesforce.yml
+    parameters:
+      stageName: salesforce
+      teamDisplay: salesforce
+      featurePath: tests/steps/salesforce
+      environment: ${{ parameters.environment }}
+      marker: ${{ parameters.marker }}
+      workers: ${{ parameters.workers }}
+      browser: ${{ parameters.browser }}
+      
