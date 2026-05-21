@@ -1,0 +1,37 @@
+{
+    "name": "Permission Lookup Model {{random_string()}}",
+    "ownerId": "3fa85f64-5717-4562-b3fc-2c963f66afa6",
+    "modelAttributes": {
+        "solutionType": "Managed",
+        "modelType": "Strategic"
+    },
+    "allocations": [
+        {
+            "entityType": "Security",
+            "allocationName": "Permission Allocation {{random_string()}}",
+            "modelId": "GPRRS1",
+            "cusip": "78462F103",
+            "ticker": "SPY",
+            "weight": 100.0
+        }
+    ],
+    "investmentApproachId": null,
+    "benchmarkName": "S&P 500",
+    "benchmarkIsPrimary": false,
+    "custodians": [
+        "Fidelity"
+    ],
+    "investmentMins": [
+        {
+            "type": "System",
+            "value": 1
+        }
+    ],
+    "riskProfile": "Moderate",
+    "versionMetadata": {
+        "additionalProp1": "model_permission_lookup"
+    },
+    "allowedAgents": [
+        "{{random_string()}}"
+    ]
+}

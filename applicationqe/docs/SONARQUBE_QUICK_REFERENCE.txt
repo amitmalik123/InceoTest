@@ -1,0 +1,327 @@
+================================================================================
+                    SONARQUBE QUICK REFERENCE
+================================================================================
+
+📋 QUICK START COMMANDS
+
+Windows PowerShell:
+-------------------
+# Run SonarQube analysis with parameters
+.\run_sonar_analysis.ps1 -SonarHost "http://sonarqube.com" -SonarToken "your-token"
+
+# Local development (localhost:9000)
+.\run_sonar_analysis.ps1 -Local -SonarToken "your-token"
+
+# Skip tests (use existing reports)
+.\run_sonar_analysis.ps1 -SkipTests
+
+# Custom project key
+.\run_sonar_analysis.ps1 -ProjectKey "custom-key"
+
+
+Makefile (Linux/Mac/WSL):
+--------------------------
+make sonar              # Full SonarQube analysis
+make sonar-local        # Local SonarQube server (localhost:9000)
+make test-coverage      # Run tests with coverage only
+make quality-reports    # Generate quality reports only
+
+
+Manual Commands:
+----------------
+# 1. Generate quality reports
+mkdir -p reports
+flake8 --output-file=reports/flake8-report.txt pages utils config fixtures
+mypy pages utils config fixtures > reports/mypy-report.txt
+bandit -r pages utils config fixtures -f json -o reports/bandit-report.json
+
+# 2. Run tests with coverage
+pytest tests/ \
+  --cov=pages --cov=utils --cov=config --cov=fixtures \
+  --cov-report=xml:reports/coverage.xml \
+  --junitxml=reports/junit.xml
+
+# 3. Run SonarScanner
+sonar-scanner \
+  -Dsonar.projectKey=python-playwright-automation \
+  -Dsonar.host.url=$SONAR_HOST_URL \
+  -Dsonar.login=$SONAR_TOKEN
+
+
+================================================================================
+🔧 ENVIRONMENT SETUP
+================================================================================
+
+Required Environment Variables:
+--------------------------------
+SONAR_HOST_URL        Your SonarQube server URL (e.g., http://sonarqube.com)
+SONAR_TOKEN           Authentication token from SonarQube
+
+Windows PowerShell:
+-------------------
+$env:SONAR_HOST_URL = "http://localhost:9000"
+$env:SONAR_TOKEN = "squ_xxxxxxxxxxxxx"
+
+Linux/Mac Bash:
+---------------
+export SONAR_HOST_URL="http://localhost:9000"
+export SONAR_TOKEN="squ_xxxxxxxxxxxxx"
+
+
+================================================================================
+🐳 LOCAL SONARQUBE SERVER
+================================================================================
+
+Docker Setup:
+-------------
+# Start SonarQube container
+docker run -d --name sonarqube -p 9000:9000 sonarqube:latest
+
+# Access SonarQube
+http://localhost:9000
+Default credentials: admin/admin
+
+# Stop SonarQube
+docker stop sonarqube
+
+# Remove SonarQube
+docker rm sonarqube
+
+
+================================================================================
+📊 GENERATED REPORTS
+================================================================================
+
+Location: reports/
+
+Coverage Reports:
+-----------------
+reports/coverage.xml           - XML coverage for SonarQube
+reports/htmlcov/index.html     - HTML coverage report
+
+Quality Reports:
+----------------
+reports/flake8-report.txt      - Flake8 linting results
+reports/mypy-report.txt        - Type checking results
+reports/bandit-report.json     - Security analysis
+
+Test Reports:
+-------------
+reports/junit.xml              - JUnit test results
+
+
+================================================================================
+🔄 CI/CD PIPELINE INTEGRATION
+================================================================================
+
+GitHub Actions:
+---------------
+File: .github/workflows/sonarqube-analysis.yml
+
+Required Secrets:
+- SONAR_TOKEN          SonarQube authentication token
+- SONAR_HOST_URL       SonarQube server URL
+
+
+GitLab CI:
+----------
+File: .gitlab-ci.yml
+
+Required Variables:
+- SONAR_TOKEN          SonarQube authentication token
+- SONAR_HOST_URL       SonarQube server URL
+
+
+Azure DevOps:
+-------------
+File: azure-pipelines.yml
+
+Required:
+- Service Connection named "SonarQube-Connection"
+- Variable: SONAR_TOKEN
+
+
+Jenkins:
+--------
+Required Plugins:
+- SonarQube Scanner
+- SonarQube Quality Gate
+
+Configure in Jenkins:
+- SonarQube servers in global configuration
+- SonarScanner tool installation
+
+
+================================================================================
+⚙️ CONFIGURATION FILES
+================================================================================
+
+sonar-project.properties:
+--------------------------
+Main SonarQube configuration file
+- Project settings
+- Source/test paths
+- Exclusions
+- Report paths
+- Quality settings
+
+Key Properties:
+sonar.projectKey              Unique project identifier
+sonar.sources                 Source code directories
+sonar.tests                   Test directories
+sonar.python.coverage.reportPaths    Coverage XML path
+sonar.python.xunit.reportPath        JUnit XML path
+
+
+================================================================================
+📈 QUALITY GATES
+================================================================================
+
+Default Conditions:
+-------------------
+Coverage                      >= 80%
+Duplicated Lines             < 3%
+Maintainability Rating       A
+Reliability Rating           A
+Security Rating              A
+Security Hotspots Reviewed   100%
+
+
+Custom Quality Gate:
+--------------------
+1. Login to SonarQube
+2. Go to Quality Gates
+3. Create or modify gate
+4. Add conditions:
+   - On Overall Code
+   - On New Code
+
+
+================================================================================
+🛠️ TROUBLESHOOTING
+================================================================================
+
+Common Issues:
+--------------
+
+1. SonarScanner Not Found
+   Windows:     Add C:\sonar-scanner\bin to PATH
+   Linux/Mac:   Add /opt/sonar-scanner/bin to PATH
+
+2. Authentication Failed
+   - Verify SONAR_TOKEN is correct
+   - Check token hasn't expired
+   - Regenerate token if needed
+
+3. Coverage Report Not Found
+   - Ensure pytest-cov is installed: pip install pytest-cov
+   - Run tests first to generate reports
+
+4. Quality Gate Failed
+   - Check SonarQube dashboard for issues
+   - Review coverage metrics
+   - Fix reported bugs/vulnerabilities
+
+5. Port 9000 in Use
+   Windows:     netstat -ano | findstr :9000
+   Linux/Mac:   lsof -ti:9000
+
+
+Debug Mode:
+-----------
+sonar-scanner -X -Dsonar.verbose=true
+
+
+Check Logs:
+-----------
+SonarQube Server:    $SONARQUBE_HOME/logs/sonar.log
+Scanner Work:        .scannerwork/report-task.txt
+
+
+================================================================================
+📚 QUALITY METRICS EXPLAINED
+================================================================================
+
+Bugs:
+-----
+Code that is demonstrably wrong or highly likely to cause unexpected behavior.
+Target: 0 bugs
+
+Vulnerabilities:
+----------------
+Security-related issues that can be exploited by attackers.
+Target: 0 vulnerabilities
+
+Code Smells:
+------------
+Maintainability issues in code that could make it harder to maintain.
+Target: Minimize code smells
+
+Technical Debt:
+---------------
+Estimated time to fix all code smells and maintainability issues.
+Target: Minimize technical debt
+
+Coverage:
+---------
+Percentage of code executed by tests.
+Target: >= 80%
+
+Duplications:
+-------------
+Percentage of duplicated code blocks.
+Target: < 3%
+
+
+================================================================================
+🎯 BEST PRACTICES
+================================================================================
+
+1. Run Locally First
+   Test SonarQube analysis locally before pushing to CI/CD
+
+2. Fix Issues Early
+   Address bugs and vulnerabilities immediately
+
+3. Monitor Coverage
+   Maintain >= 80% code coverage
+
+4. Regular Reviews
+   Review SonarQube dashboard regularly
+
+5. Quality Gates
+   Ensure all quality gates pass before merging
+
+6. Security Hotspots
+   Review and fix security hotspots
+
+7. Technical Debt
+   Monitor and reduce technical debt over time
+
+8. Clean Code
+   Follow SonarQube recommendations
+
+
+================================================================================
+🔗 USEFUL LINKS
+================================================================================
+
+SonarQube Documentation:   https://docs.sonarqube.org/
+SonarScanner CLI:          https://docs.sonarqube.org/latest/analysis/scan/sonarscanner/
+Python Analysis:           https://docs.sonarqube.org/latest/analysis/languages/python/
+Quality Gates:             https://docs.sonarqube.org/latest/user-guide/quality-gates/
+Security Rules:            https://rules.sonarsource.com/python/type/Security%20Hotspot
+Community Forum:           https://community.sonarsource.com/
+
+
+================================================================================
+📞 QUICK HELP
+================================================================================
+
+View this guide:           cat SONARQUBE_QUICK_REFERENCE.txt
+Detailed guide:            See SONARQUBE_GUIDE.md
+SonarQube Dashboard:       http://your-sonarqube-url/dashboard?id=python-playwright-automation
+
+For detailed documentation, see SONARQUBE_GUIDE.md
+
+================================================================================

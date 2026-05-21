@@ -1,0 +1,48 @@
+{
+  "partyType": "Trust",
+  "status": "Draft",
+  "core": {
+    "individual": null,
+    "entity": {
+      "type": "Business",
+      "subType": "Unknown",
+      "title": "Solution {{ random_string(6) }}",
+      "taxId": "{{ random_numeric(9) }}",
+      "taxIdentifier": "SSN",
+      "createdDate": "{{ random_date('-30y', 'today', '%Y-%m-%d') }}"
+    }
+  },
+  "addresses": [
+    {
+      "addressType": "Residence",
+      "line1": "{{ random_int(1, 30) }} street",
+      "line2": "{{ random_int(1, 100) }}th avenue",
+      "city": "Phoenix",
+      "state": "AZ",
+      "zip": "85001",
+      "country": "US",
+      "priorityType": "Primary"
+    }
+  ],
+  "contacts": [
+    {
+      "contactType": "Phone",
+      "usageType":"{{ alternate('Unknown', 'Personal', 'Work', 'Business', 'DayTime', 'Home', 'Cellular') }}",
+      "value": "{{ random_numeric(10) }}",
+      "priorityType": "Primary"
+    },
+    {
+      "contactType": "Email",
+      "usageType":"{{ alternate('Unknown', 'Personal', 'Work', 'Business', 'DayTime', 'Home', 'Cellular') }}",
+      "value": "{{ random_email() }}",
+      "priorityType": "Secondary"
+    }
+  ],
+  "identifiers": [
+    {
+      "type": "APL",
+      "value": "string"
+    }
+  ],
+  "householdId": "string"
+}

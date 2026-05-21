@@ -236,6 +236,154 @@ from(bucket: "your-bucket-name")
 
 ---
 
+## Azure Log Analytics Performance History
+
+Locust CSV and metadata artifacts can be pushed to Azure Log Analytics as dedicated performance tables. These tables are separate from the functional `TestResults_CL` table so performance runs can keep BlazeMeter-style run history, endpoint history, load-profile comparisons, baseline records, and Grafana dashboards without adding sparse performance columns to functional test rows.
+
+### Tables
+
+The first successful push creates the custom tables automatically. Later pushes append records to the same tables; they do not truncate or recreate them.
+
+| Log-Type | Custom table | Purpose |
+| --- | --- | --- |
+| `PerfRun` | `PerfRun_CL` | One row per Locust execution/run. |
+| `PerfEndpointSummary` | `PerfEndpointSummary_CL` | One row per endpoint/request name per run. |
+| `PerfTimeSeries` | `PerfTimeSeries_CL` | In-run trend rows from `performance_report_stats_history.csv`. |
+| `PerfFailure` | `PerfFailure_CL` | Locust failures and exceptions. |
+| `PerfBaseline` | `PerfBaseline_CL` | Approved baseline records promoted from pipeline runs. |
+
+Custom tables may take 5-15 minutes to appear in Log Analytics after first ingestion.
+
+### Reporter Usage
+
+The performance reporter reads Locust artifacts from the latest timestamped report directory unless a path is supplied.
+
+```bash
+python3 framework/reporter/performance_log_analytics_reporter.py \
+  --reports-path reports/20260509_120000
+```
+
+Dry-run mode prints the JSON records without sending them:
+
+```bash
+python3 framework/reporter/performance_log_analytics_reporter.py \
+  --reports-path reports/20260509_120000 \
+  --dry-run
+```
+
+Required environment variables for ingestion:
+
+```bash
+LOG_ANALYTICS_WORKSPACE_ID="<workspace-id>"
+LOG_ANALYTICS_SHARED_KEY="<workspace-shared-key>"
+LOG_ANALYTICS_ENABLED="true"
+```
+
+Optional environment variables:
+
+```bash
+SERVICE_NAME="models"
+ENV_NAME="T12"
+PERF_LOAD_PROFILE="1x"
+PERF_LOAD_MULTIPLIER="1"
+PERF_LOG_ANALYTICS_TIMESERIES_ENABLED="true"
+```
+
+The reporter preserves numeric fields as JSON numbers so Log Analytics creates numeric `_d` columns such as `P95ResponseTimeMs_d`, `RequestsPerSecond_d`, and `FailureRate_d`.
+
+### Key Fields
+
+All performance tables include enough shared identity fields for filtering and joins:
+
+- `RunId`, `Environment`, `ServiceName`, `LoadProfile`, `LoadMultiplier`
+- `BuildId`, `BuildNumber`, `PipelineId`, `PipelineName`, `SourceBranch`, `CommitSha`
+- `Users`, `SpawnRate`, `RunTimeSeconds`, `TargetRps`
+
+Performance metric fields include:
+
+- `TotalRequests`, `TotalFailures`, `FailureRate`, `RequestsPerSecond`
+- `AvgResponseTimeMs`, `MinResponseTimeMs`, `MaxResponseTimeMs`
+- `P50ResponseTimeMs`, `P90ResponseTimeMs`, `P95ResponseTimeMs`, `P99ResponseTimeMs`
+
+### Azure Pipeline Integration
+
+The standalone pipeline and the shared matrix/callable template both run the performance reporter after Locust when `testType` is `non-functional` or `both`.
+
+Manual baseline promotion is controlled by pipeline parameters:
+
+```yaml
+promotePerformanceBaseline: true
+baselineReason: 'Stable T12 1x model service run'
+```
+
+When promotion is enabled, the current run is written to `PerfBaseline_CL` with `IsActive=true`, `ApprovedBy`, `ApprovedOn`, `BaselineRunId`, and the measured baseline metrics. Log Analytics is append-only, so previous baselines are not updated in place. Queries should select the latest active baseline with `arg_max(TimeGenerated, *) by BaselineId_s`.
+
+Treat each load profile as a separate baseline. For example, compare `1x` runs with `1x` baselines, `2x` runs with `2x` baselines, and `3x` runs with `3x` baselines.
+
+### Grafana Dashboard
+
+Import the dashboard JSON from:
+
+```text
+grafana/performance-log-analytics-dashboard.json
+```
+
+Replace `${AZURE_MONITOR_DS_UID}` with the Grafana Azure Monitor data source UID. The dashboard expects the Azure Monitor data source to have access to the Log Analytics workspace.
+
+Dashboard variables:
+
+- `environment`
+- `service`
+- `loadProfile`
+- `runId`
+
+Dashboard panels include:
+
+- Latest run status
+- Latest run summary
+- P95/P99 response-time history
+- Throughput history
+- 1x/2x/3x comparison
+- Endpoint baseline comparison
+- In-run response-time trend
+- Failures and exceptions
+
+Example KQL for latest active baseline:
+
+```kql
+PerfBaseline_CL
+| where Environment_s == "$environment"
+| where ServiceName_s == "$service"
+| where LoadProfile_s == "$loadProfile"
+| where IsActive_b == true
+| summarize arg_max(TimeGenerated, *) by BaselineId_s
+| project BaselineRunId_s, BaselineBuildId_s, BaselineP95Ms_d,
+          BaselineP99Ms_d, BaselineRps_d, ApprovedBy_s, ApprovedOn_t, Reason_s
+```
+
+Example KQL for current endpoint versus baseline:
+
+```kql
+let activeBaselines = PerfBaseline_CL
+| where Environment_s == "$environment"
+| where ServiceName_s == "$service"
+| where LoadProfile_s == "$loadProfile"
+| where IsActive_b == true
+| summarize arg_max(TimeGenerated, *) by BaselineId_s;
+PerfEndpointSummary_CL
+| where RunId_s == "$runId"
+| join kind=leftouter activeBaselines on BaselineId_s
+| extend P95RegressionPercent = iff(BaselineP95Ms_d > 0, ((P95ResponseTimeMs_d - BaselineP95Ms_d) / BaselineP95Ms_d) * 100.0, real(null))
+| project Endpoint_s, Method_s, P95ResponseTimeMs_d, BaselineP95Ms_d,
+          P95RegressionPercent, RequestsPerSecond_d, BaselineRps_d
+```
+
+### App Insights Relationship
+
+Application Insights remains the service-side source of truth for dependencies, exceptions, traces, and server-side request duration. The Log Analytics performance tables are the controlled test-run history: build ID, load profile, Locust-observed latency, endpoint summaries, failures, and baselines.
+
+---
+
 ## Response Validation
 
 Locust tests include comprehensive response validation using the framework's validators:

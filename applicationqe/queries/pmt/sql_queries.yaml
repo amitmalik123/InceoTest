@@ -1,0 +1,25 @@
+# SQL Queries for BAW (SDT ISC) flow
+# Format mirrors team/portfolio-mgmt-trading:queries/sql_queries.yaml.
+
+am_billing:
+  db_type: "sql_server"
+  vault_alias: "billing"
+  database: "AM_Billing"
+  # Vault connection-string env var (matches team/portfolio-mgmt-trading
+  # config/env.test11.yaml -> database.vault_databases.billing).
+  # Set AM_BILLING_CONNECTION_STRING locally in .env or via the Azure DevOps
+  # pipeline's AzureKeyVault@2 task (secret 'am-billing-connection-string').
+  env_var: "AM_BILLING_CONNECTION_STRING"
+  secret_name: "am-billing-connection-string"
+  queries:
+    sdt_isc_apl_account: >
+      SELECT TOP 1
+        C.AgentID,
+        a.AccountNo,
+        a.APLID
+      FROM AM_Billing..Account a
+      JOIN Platform..Model m ON a.ModelName = m.APLID
+      JOIN AM..Accounts C ON a.AccountNo = C.DTCNO
+      WHERE a.TerminationDate IS NULL
+        AND m.AllowSameDay = 1
+      ORDER BY NEWID()

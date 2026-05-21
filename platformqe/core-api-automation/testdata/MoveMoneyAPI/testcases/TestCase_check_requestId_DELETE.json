@@ -209,10 +209,29 @@
         },
         "payload": null,
         "expected_status": "400",
+        "expected_response": {
+            "type": "invalid-request",
+            "title": "Invalid Request",
+            "status": 400,
+            "detail": "The request contains invalid values",
+            "instance": "/api/moneymovement/v1/check/4fd",
+            "errors": {
+                "requestId": [
+                    "Must be a valid UUID format."
+                ]
+            }
+        },
+        "expected_error_message": "Must be a valid UUID format.",
         "ignore_fields": [
             "id"
         ],
-        "extract_values": [],
+        "extract_values": [
+            {
+                "from": "response",
+                "key": "errors.requestId.0",
+                "assign_to": "error_message_tc003"
+            }
+        ],
         "validate": {
             "performance": {
                 "max_response_time_ms": 500
@@ -229,6 +248,18 @@
                     "expected": "",
                     "operator": "!=",
                     "message": "Invalid RequestId should return 400 response for DELETE /check/{requestId}"
+                },
+                {
+                    "actual": "{{error_message_tc003}}",
+                    "expected": "",
+                    "operator": "!=",
+                    "message": "Error message should not be empty"
+                },
+                {
+                    "actual": "{{error_message_tc003}}",
+                    "expected": "{{expected_error_message}}",
+                    "operator": "==",
+                    "message": "RequestId error message should match expected invalid UUID error"
                 }
             ],
             "data_comparison": []

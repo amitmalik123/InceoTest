@@ -1,0 +1,1130 @@
+[
+  {
+    "test_id": "TC000",
+    "service_name": "custodialintegration",
+    "workflow_mode": "sequential",
+    "test_name": "DB_ONLY - Fetch valid accountId from Accounts database (TC000)",
+    "protocol": "DB_ONLY",
+    "test_type": ["setup"],
+    "mainURL": "",
+    "endpoint": "",
+    "method": "",
+    "headers_additional": {},
+    "payload": null,
+    "expected_status": "",
+    "expected_response_schema": "",
+    "expected_response": null,
+    "extract_values": [
+      {
+        "from": "db_result",
+        "key": "0.valid_account_id",
+        "assign_to": "valid_account_id"
+      }
+    ],
+    "validate": {},
+    "test_data_file": "",
+    "db_type": "mssql",
+    "db_connection_name": "account_service",
+    "db_query": "WITH Latest AS (SELECT Id, ROW_NUMBER() OVER (PARTITION BY Id ORDER BY Version DESC) AS rn FROM dbo.Account WHERE IsDeleted=0) SELECT TOP 1 LOWER(CAST(a.Id AS varchar(36))) AS valid_account_id FROM Latest l JOIN dbo.Account a ON l.Id=a.Id AND l.rn=1 WHERE a.ChangeState='Funded' AND a.Status='Confirmed' AND a.IsDeleted=0 ORDER BY a.Id",
+    "test_summary": "Setup TC000: Fetch a valid accountId from Accounts DB (latest Funded/Confirmed version)"
+  },
+  {
+    "test_id": "TC000b",
+    "service_name": "custodialintegration",
+    "workflow_mode": "sequential",
+    "test_name": "DB_ONLY - Fetch second valid accountId from Accounts database (TC000b)",
+    "protocol": "DB_ONLY",
+    "test_type": ["setup"],
+    "mainURL": "",
+    "endpoint": "",
+    "method": "",
+    "headers_additional": {},
+    "payload": null,
+    "expected_status": "",
+    "expected_response_schema": "",
+    "expected_response": null,
+    "extract_values": [
+      {
+        "from": "db_result",
+        "key": "0.valid_account_id_2",
+        "assign_to": "valid_account_id_2"
+      }
+    ],
+    "validate": {},
+    "test_data_file": "",
+    "db_type": "mssql",
+    "db_connection_name": "account_service",
+    "db_query": "WITH Latest AS (SELECT Id, ROW_NUMBER() OVER (PARTITION BY Id ORDER BY Version DESC) AS rn FROM dbo.Account WHERE IsDeleted=0) SELECT TOP 1 LOWER(CAST(a.Id AS varchar(36))) AS valid_account_id_2 FROM Latest l JOIN dbo.Account a ON l.Id=a.Id AND l.rn=1 WHERE a.ChangeState='Funded' AND a.Status='Confirmed' AND a.IsDeleted=0 AND LOWER(CAST(a.Id AS varchar(36))) != '{{valid_account_id}}' ORDER BY a.Id",
+    "test_summary": "Setup TC000b: Fetch a second valid accountId for multi-account test cases"
+  },
+  {
+    "test_id": "TC000c",
+    "service_name": "custodialintegration",
+    "workflow_mode": "sequential",
+    "test_name": "DB_ONLY - Fetch valid partyId from Parties database (TC000c)",
+    "protocol": "DB_ONLY",
+    "test_type": ["setup"],
+    "mainURL": "",
+    "endpoint": "",
+    "method": "",
+    "headers_additional": {},
+    "payload": null,
+    "expected_status": "",
+    "expected_response_schema": "",
+    "expected_response": null,
+    "extract_values": [
+      {
+        "from": "db_result",
+        "key": "0.valid_party_id",
+        "assign_to": "valid_party_id"
+      }
+    ],
+    "validate": {},
+    "test_data_file": "",
+    "db_type": "mssql",
+    "db_connection_name": "parties",
+    "db_query": "SELECT TOP 1 LOWER(CAST(Id AS varchar(36))) AS valid_party_id FROM dbo.Party WHERE IsDeleted=0 AND Status='Confirmed' ORDER BY Id",
+    "test_summary": "Setup TC000c: Fetch a valid partyId from Parties DB"
+  },
+  {
+    "test_id": "TC000d",
+    "service_name": "custodialintegration",
+    "workflow_mode": "sequential",
+    "test_name": "DB_ONLY - Fetch second valid partyId from Parties database (TC000d)",
+    "protocol": "DB_ONLY",
+    "test_type": ["setup"],
+    "mainURL": "",
+    "endpoint": "",
+    "method": "",
+    "headers_additional": {},
+    "payload": null,
+    "expected_status": "",
+    "expected_response_schema": "",
+    "expected_response": null,
+    "extract_values": [
+      {
+        "from": "db_result",
+        "key": "0.valid_party_id_2",
+        "assign_to": "valid_party_id_2"
+      }
+    ],
+    "validate": {},
+    "test_data_file": "",
+    "db_type": "mssql",
+    "db_connection_name": "parties",
+    "db_query": "SELECT TOP 1 LOWER(CAST(Id AS varchar(36))) AS valid_party_id_2 FROM dbo.Party WHERE IsDeleted=0 AND Status='Confirmed' AND LOWER(CAST(Id AS varchar(36))) != '{{valid_party_id}}' ORDER BY Id",
+    "test_summary": "Setup TC000d: Fetch a second valid partyId from Parties DB"
+  },
+  {
+    "test_id": "TC001",
+    "service_name": "custodialintegration",
+    "workflow_mode": "parallel",
+    "test_name": "Beneficiary Change - Happy path: valid payload returns 202 Accepted [positive] (TC001)",
+    "protocol": "REST",
+    "test_type": ["Functional"],
+    "mainURL": "{{base_url}}",
+    "endpoint": "/custodialservicing/accounts",
+    "method": "POST",
+    "rpc_method": "",
+    "graphql_query": "",
+    "graphql_variables": "",
+    "soap_action": "",
+    "soap_envelope": "",
+    "headers_additional": {
+      "Content-Type": "application/json"
+    },
+    "payload": "custodialintegration\\payloads\\Payload_custodialservicing_accounts_POST_functional.json",
+    "expected_status": "202",
+    "expected_response_schema": "custodialintegration\\schemas\\Schema_custodialservicing_accounts_POST.json",
+    "expected_response": null,
+    "ignore_fields": ["id"],
+    "extract_values": [
+      {
+        "from": "response",
+        "key": "accepted",
+        "assign_to": "accepted_flag"
+      },
+      {
+        "from": "response",
+        "key": "message",
+        "assign_to": "response_message"
+      },
+      {
+        "from": "response",
+        "key": "correlationId",
+        "assign_to": "correlation_id"
+      }
+    ],
+    "validate": {
+      "performance": {
+        "max_response_time_ms": 500
+      },
+      "security": {
+        "checks": ["sql_injection", "xss"]
+      },
+      "assertions": [
+        {
+          "actual": "{{accepted_flag}}",
+          "operator": "==",
+          "expected": true,
+          "message": "Expected 'accepted' to be true"
+        },
+        {
+          "actual": "{{response_message}}",
+          "operator": "==",
+          "expected": "Request accepted for processing.",
+          "message": "Expected message to be 'Request accepted for processing.'"
+        },
+        {
+          "actual": "{{correlation_id}}",
+          "operator": "!=",
+          "expected": "",
+          "message": "Expected correlationId to be non-empty"
+        }
+      ]
+    },
+    "test_data_file": "",
+    "test_summary": "Test TC001: Happy path - Valid Beneficiary Change payload with multiple accounts and parties returns 202 Accepted"
+  },
+  {
+    "test_id": "TC002",
+    "service_name": "custodialintegration",
+    "workflow_mode": "parallel",
+    "test_name": "Beneficiary Change - Invalid requestType enum returns 400 [negative: invalid requestType] (TC002)",
+    "protocol": "REST",
+    "test_type": ["Negative"],
+    "mainURL": "{{base_url}}",
+    "endpoint": "/custodialservicing/accounts",
+    "method": "POST",
+    "rpc_method": "",
+    "graphql_query": "",
+    "graphql_variables": "",
+    "soap_action": "",
+    "soap_envelope": "",
+    "headers_additional": {
+      "Content-Type": "application/json"
+    },
+    "payload": "custodialintegration\\payloads\\Payload_custodialservicing_accounts_POST_invalid_requesttype.json",
+    "expected_status": "400",
+    "expected_response_schema": "custodialintegration\\schemas\\Schema_custodialservicing_accounts_POST_error.json",
+    "expected_response": null,
+    "ignore_fields": [],
+    "extract_values": [
+      {
+        "from": "response",
+        "key": "error",
+        "assign_to": "error_message"
+      }
+    ],
+    "validate": {
+      "performance": {
+        "max_response_time_ms": 500
+      },
+      "security": {
+        "checks": ["sql_injection", "xss"]
+      },
+      "assertions": [
+        {
+          "actual": "{{error_message}}",
+          "operator": "==",
+          "expected": "Request validation failed.",
+          "message": "Expected error message to be 'Request validation failed.'"
+        }
+      ]
+    },
+    "test_data_file": "",
+    "test_summary": "Test TC002: Negative - Invalid requestType value should return 400 with error message: Invalid requestType value. Expected 'Beneficiary Change'."
+  },
+  {
+    "test_id": "TC003",
+    "service_name": "custodialintegration",
+    "workflow_mode": "parallel",
+    "test_name": "Beneficiary Change - Invalid accountId (not a UUID) returns 400 [negative: invalid accountId] (TC003)",
+    "protocol": "REST",
+    "test_type": ["Negative"],
+    "mainURL": "{{base_url}}",
+    "endpoint": "/custodialservicing/accounts",
+    "method": "POST",
+    "rpc_method": "",
+    "graphql_query": "",
+    "graphql_variables": "",
+    "soap_action": "",
+    "soap_envelope": "",
+    "headers_additional": {
+      "Content-Type": "application/json"
+    },
+    "payload": "custodialintegration\\payloads\\Payload_custodialservicing_accounts_POST_invalid_accountid.json",
+    "expected_status": "400",
+    "expected_response_schema": "custodialintegration\\schemas\\Schema_custodialservicing_accounts_POST_error.json",
+    "expected_response": null,
+    "ignore_fields": [],
+    "extract_values": [
+      {
+        "from": "response",
+        "key": "error",
+        "assign_to": "error_message"
+      }
+    ],
+    "validate": {
+      "performance": {
+        "max_response_time_ms": 500
+      },
+      "security": {
+        "checks": ["sql_injection", "xss"]
+      },
+      "assertions": [
+        {
+          "actual": "{{error_message}}",
+          "operator": "==",
+          "expected": "Request validation failed.",
+          "message": "Expected error message to be 'Request validation failed.'"
+        }
+      ]
+    },
+    "test_data_file": "",
+    "test_summary": "Test TC003: Negative - Invalid accountId (not a valid UUID) should return 400 Bad Request"
+  },
+  {
+    "test_id": "TC004",
+    "service_name": "custodialintegration",
+    "workflow_mode": "parallel",
+    "test_name": "Beneficiary Change - Invalid partyId (not a UUID) returns 400 [negative: invalid partyId] (TC004)",
+    "protocol": "REST",
+    "test_type": ["Negative"],
+    "mainURL": "{{base_url}}",
+    "endpoint": "/custodialservicing/accounts",
+    "method": "POST",
+    "rpc_method": "",
+    "graphql_query": "",
+    "graphql_variables": "",
+    "soap_action": "",
+    "soap_envelope": "",
+    "headers_additional": {
+      "Content-Type": "application/json"
+    },
+    "payload": "custodialintegration\\payloads\\Payload_custodialservicing_accounts_POST_invalid_partyid.json",
+    "expected_status": "400",
+    "expected_response_schema": "custodialintegration\\schemas\\Schema_custodialservicing_accounts_POST_error.json",
+    "expected_response": null,
+    "ignore_fields": [],
+    "extract_values": [
+      {
+        "from": "response",
+        "key": "error",
+        "assign_to": "error_message"
+      }
+    ],
+    "validate": {
+      "performance": {
+        "max_response_time_ms": 500
+      },
+      "security": {
+        "checks": ["sql_injection", "xss"]
+      },
+      "assertions": [
+        {
+          "actual": "{{error_message}}",
+          "operator": "==",
+          "expected": "Request validation failed.",
+          "message": "Expected error message to be 'Request validation failed.'"
+        }
+      ]
+    },
+    "test_data_file": "",
+    "test_summary": "Test TC004: Negative - Invalid partyId (not a valid UUID) should return 400 Bad Request"
+  },
+  {
+    "test_id": "TC005",
+    "service_name": "custodialintegration",
+    "workflow_mode": "parallel",
+    "test_name": "Beneficiary Change - Invalid action enum returns 400 [negative: invalid action] (TC005)",
+    "protocol": "REST",
+    "test_type": ["Negative"],
+    "mainURL": "{{base_url}}",
+    "endpoint": "/custodialservicing/accounts",
+    "method": "POST",
+    "rpc_method": "",
+    "graphql_query": "",
+    "graphql_variables": "",
+    "soap_action": "",
+    "soap_envelope": "",
+    "headers_additional": {
+      "Content-Type": "application/json"
+    },
+    "payload": "custodialintegration\\payloads\\Payload_custodialservicing_accounts_POST_invalid_action.json",
+    "expected_status": "400",
+    "expected_response_schema": "custodialintegration\\schemas\\Schema_custodialservicing_accounts_POST_error.json",
+    "expected_response": null,
+    "ignore_fields": [],
+    "extract_values": [
+      {
+        "from": "response",
+        "key": "error",
+        "assign_to": "error_message"
+      }
+    ],
+    "validate": {
+      "performance": {
+        "max_response_time_ms": 500
+      },
+      "security": {
+        "checks": ["sql_injection", "xss"]
+      },
+      "assertions": [
+        {
+          "actual": "{{error_message}}",
+          "operator": "==",
+          "expected": "Request validation failed.",
+          "message": "Expected error message to be 'Request validation failed.'"
+        }
+      ]
+    },
+    "test_data_file": "",
+    "test_summary": "Test TC005: Negative - Invalid action value should return 400 with error message: Invalid action value. Expected 'Add', 'Update', or 'Remove'."
+  },
+  {
+    "test_id": "TC006",
+    "service_name": "custodialintegration",
+    "workflow_mode": "parallel",
+    "test_name": "Beneficiary Change - Missing requestType field returns 400 [negative: missing requestType] (TC006)",
+    "protocol": "REST",
+    "test_type": ["Negative"],
+    "mainURL": "{{base_url}}",
+    "endpoint": "/custodialservicing/accounts",
+    "method": "POST",
+    "rpc_method": "",
+    "graphql_query": "",
+    "graphql_variables": "",
+    "soap_action": "",
+    "soap_envelope": "",
+    "headers_additional": {
+      "Content-Type": "application/json"
+    },
+    "payload": "custodialintegration\\payloads\\Payload_custodialservicing_accounts_POST_missing_requesttype.json",
+    "expected_status": "400",
+    "expected_response_schema": "custodialintegration\\schemas\\Schema_custodialservicing_accounts_POST_error.json",
+    "expected_response": null,
+    "ignore_fields": [],
+    "extract_values": [
+      {
+        "from": "response",
+        "key": "error",
+        "assign_to": "error_message"
+      }
+    ],
+    "validate": {
+      "performance": {
+        "max_response_time_ms": 500
+      },
+      "security": {
+        "checks": ["sql_injection", "xss"]
+      },
+      "assertions": [
+        {
+          "actual": "{{error_message}}",
+          "operator": "==",
+          "expected": "Request validation failed.",
+          "message": "Expected error message to be 'Request validation failed.'"
+        }
+      ]
+    },
+    "test_data_file": "",
+    "test_summary": "Test TC006: Negative - Missing requestType field should return 400 Bad Request"
+  },
+  {
+    "test_id": "TC007",
+    "service_name": "custodialintegration",
+    "workflow_mode": "parallel",
+    "test_name": "Beneficiary Change - Missing accounts array returns 400 [negative: missing accounts] (TC007)",
+    "protocol": "REST",
+    "test_type": ["Negative"],
+    "mainURL": "{{base_url}}",
+    "endpoint": "/custodialservicing/accounts",
+    "method": "POST",
+    "rpc_method": "",
+    "graphql_query": "",
+    "graphql_variables": "",
+    "soap_action": "",
+    "soap_envelope": "",
+    "headers_additional": {
+      "Content-Type": "application/json"
+    },
+    "payload": "custodialintegration\\payloads\\Payload_custodialservicing_accounts_POST_missing_accounts.json",
+    "expected_status": "400",
+    "expected_response_schema": "custodialintegration\\schemas\\Schema_custodialservicing_accounts_POST_error.json",
+    "expected_response": null,
+    "ignore_fields": [],
+    "extract_values": [
+      {
+        "from": "response",
+        "key": "error",
+        "assign_to": "error_message"
+      }
+    ],
+    "validate": {
+      "performance": {
+        "max_response_time_ms": 500
+      },
+      "security": {
+        "checks": ["sql_injection", "xss"]
+      },
+      "assertions": [
+        {
+          "actual": "{{error_message}}",
+          "operator": "==",
+          "expected": "Request validation failed.",
+          "message": "Expected error message to be 'Request validation failed.'"
+        }
+      ]
+    },
+    "test_data_file": "",
+    "test_summary": "Test TC007: Negative - Missing accounts array should return 400 Bad Request"
+  },
+  {
+    "test_id": "TC008",
+    "service_name": "custodialintegration",
+    "workflow_mode": "parallel",
+    "test_name": "Beneficiary Change - Missing parties array in account returns 400 [negative: missing parties] (TC008)",
+    "protocol": "REST",
+    "test_type": ["Negative"],
+    "mainURL": "{{base_url}}",
+    "endpoint": "/custodialservicing/accounts",
+    "method": "POST",
+    "rpc_method": "",
+    "graphql_query": "",
+    "graphql_variables": "",
+    "soap_action": "",
+    "soap_envelope": "",
+    "headers_additional": {
+      "Content-Type": "application/json"
+    },
+    "payload": "custodialintegration\\payloads\\Payload_custodialservicing_accounts_POST_missing_parties.json",
+    "expected_status": "400",
+    "expected_response_schema": "custodialintegration\\schemas\\Schema_custodialservicing_accounts_POST_error.json",
+    "expected_response": null,
+    "ignore_fields": [],
+    "extract_values": [
+      {
+        "from": "response",
+        "key": "error",
+        "assign_to": "error_message"
+      }
+    ],
+    "validate": {
+      "performance": {
+        "max_response_time_ms": 500
+      },
+      "security": {
+        "checks": ["sql_injection", "xss"]
+      },
+      "assertions": [
+        {
+          "actual": "{{error_message}}",
+          "operator": "==",
+          "expected": "Request validation failed.",
+          "message": "Expected error message to be 'Request validation failed.'"
+        }
+      ]
+    },
+    "test_data_file": "",
+    "test_summary": "Test TC008: Negative - Missing parties array within an account object should return 400 Bad Request"
+  },
+  {
+    "test_id": "TC009",
+    "service_name": "custodialintegration",
+    "workflow_mode": "parallel",
+    "test_name": "Beneficiary Change - Empty accounts array returns 400 [negative: empty accounts] (TC009)",
+    "protocol": "REST",
+    "test_type": ["Negative"],
+    "mainURL": "{{base_url}}",
+    "endpoint": "/custodialservicing/accounts",
+    "method": "POST",
+    "rpc_method": "",
+    "graphql_query": "",
+    "graphql_variables": "",
+    "soap_action": "",
+    "soap_envelope": "",
+    "headers_additional": {
+      "Content-Type": "application/json"
+    },
+    "payload": "custodialintegration\\payloads\\Payload_custodialservicing_accounts_POST_empty_accounts.json",
+    "expected_status": "400",
+    "expected_response_schema": "custodialintegration\\schemas\\Schema_custodialservicing_accounts_POST_error.json",
+    "expected_response": null,
+    "ignore_fields": [],
+    "extract_values": [
+      {
+        "from": "response",
+        "key": "error",
+        "assign_to": "error_message"
+      }
+    ],
+    "validate": {
+      "performance": {
+        "max_response_time_ms": 500
+      },
+      "security": {
+        "checks": ["sql_injection", "xss"]
+      },
+      "assertions": [
+        {
+          "actual": "{{error_message}}",
+          "operator": "==",
+          "expected": "Request validation failed.",
+          "message": "Expected error message to be 'Request validation failed.'"
+        }
+      ]
+    },
+    "test_data_file": "",
+    "test_summary": "Test TC009: Negative - Empty accounts array should return 400 Bad Request"
+  },
+  {
+    "test_id": "TC010",
+    "service_name": "custodialintegration",
+    "workflow_mode": "parallel",
+    "test_name": "Beneficiary Change - AccountId not found in DB returns 404 [negative: account not found] (TC010)",
+    "protocol": "REST",
+    "test_type": ["Negative"],
+    "mainURL": "{{base_url}}",
+    "endpoint": "/custodialservicing/accounts",
+    "method": "POST",
+    "rpc_method": "",
+    "graphql_query": "",
+    "graphql_variables": "",
+    "soap_action": "",
+    "soap_envelope": "",
+    "headers_additional": {
+      "Content-Type": "application/json"
+    },
+    "payload": "custodialintegration\\payloads\\Payload_custodialservicing_accounts_POST_notfound_account.json",
+    "expected_status": "404",
+    "expected_response_schema": "custodialintegration\\schemas\\Schema_custodialservicing_accounts_POST_error.json",
+    "expected_response": null,
+    "ignore_fields": [],
+    "extract_values": [
+      {
+        "from": "response",
+        "key": "error",
+        "assign_to": "error_message"
+      }
+    ],
+    "validate": {
+      "performance": {
+        "max_response_time_ms": 15000
+      },
+      "security": {
+        "checks": ["sql_injection", "xss"]
+      },
+      "assertions": [
+        {
+          "actual": "{{error_message}}",
+          "operator": "==",
+          "expected": "One or more accounts or parties were not found in the internal databases.",
+          "message": "Expected error message for not found resources"
+        }
+      ]
+    },
+    "test_data_file": "",
+    "test_summary": "Test TC010: Negative - Non-existent accountId should return 404 with error message: Account ID [accountId] not found."
+  },
+  {
+    "test_id": "TC011",
+    "service_name": "custodialintegration",
+    "workflow_mode": "parallel",
+    "test_name": "Beneficiary Change - PartyId not found in DB returns 404 [negative: party not found] (TC011)",
+    "protocol": "REST",
+    "test_type": ["Negative"],
+    "mainURL": "{{base_url}}",
+    "endpoint": "/custodialservicing/accounts",
+    "method": "POST",
+    "rpc_method": "",
+    "graphql_query": "",
+    "graphql_variables": "",
+    "soap_action": "",
+    "soap_envelope": "",
+    "headers_additional": {
+      "Content-Type": "application/json"
+    },
+    "payload": "custodialintegration\\payloads\\Payload_custodialservicing_accounts_POST_notfound_party.json",
+    "expected_status": "404",
+    "expected_response_schema": "custodialintegration\\schemas\\Schema_custodialservicing_accounts_POST_error.json",
+    "expected_response": null,
+    "ignore_fields": [],
+    "extract_values": [
+      {
+        "from": "response",
+        "key": "error",
+        "assign_to": "error_message"
+      }
+    ],
+    "validate": {
+      "performance": {
+        "max_response_time_ms": 500
+      },
+      "security": {
+        "checks": ["sql_injection", "xss"]
+      },
+      "assertions": [
+        {
+          "actual": "{{error_message}}",
+          "operator": "==",
+          "expected": "One or more accounts or parties were not found in the internal databases.",
+          "message": "Expected error message for not found resources"
+        }
+      ]
+    },
+    "test_data_file": "",
+    "test_summary": "Test TC011: Negative - Non-existent partyId should return 404 with error message: Party ID [partyId] not found.",
+    "not_found": true
+  },
+  {
+    "test_id": "TC012",
+    "service_name": "custodialintegration",
+    "workflow_mode": "parallel",
+    "test_name": "Beneficiary Change - Single account single party Add action returns 202 [positive] (TC012)",
+    "protocol": "REST",
+    "test_type": ["Functional"],
+    "mainURL": "{{base_url}}",
+    "endpoint": "/custodialservicing/accounts",
+    "method": "POST",
+    "rpc_method": "",
+    "graphql_query": "",
+    "graphql_variables": "",
+    "soap_action": "",
+    "soap_envelope": "",
+    "headers_additional": {
+      "Content-Type": "application/json"
+    },
+    "payload": "custodialintegration\\payloads\\Payload_custodialservicing_accounts_POST_single_account.json",
+    "expected_status": "202",
+    "expected_response_schema": "custodialintegration\\schemas\\Schema_custodialservicing_accounts_POST.json",
+    "expected_response": null,
+    "ignore_fields": ["id"],
+    "extract_values": [
+      {
+        "from": "response",
+        "key": "accepted",
+        "assign_to": "accepted_flag"
+      },
+      {
+        "from": "response",
+        "key": "message",
+        "assign_to": "response_message"
+      },
+      {
+        "from": "response",
+        "key": "correlationId",
+        "assign_to": "correlation_id"
+      }
+    ],
+    "validate": {
+      "performance": {
+        "max_response_time_ms": 500
+      },
+      "security": {
+        "checks": ["sql_injection", "xss"]
+      },
+      "assertions": [
+        {
+          "actual": "{{accepted_flag}}",
+          "operator": "==",
+          "expected": true,
+          "message": "Expected 'accepted' to be true"
+        },
+        {
+          "actual": "{{response_message}}",
+          "operator": "==",
+          "expected": "Request accepted for processing.",
+          "message": "Expected message to be 'Request accepted for processing.'"
+        },
+        {
+          "actual": "{{correlation_id}}",
+          "operator": "!=",
+          "expected": "",
+          "message": "Expected correlationId to be non-empty"
+        }
+      ]
+    },
+    "test_data_file": "",
+    "test_summary": "Test TC012: Happy path - Single account with one party (Add action) returns 202 Accepted"
+  },
+  {
+    "test_id": "TC013",
+    "service_name": "custodialintegration",
+    "workflow_mode": "parallel",
+    "test_name": "Beneficiary Change - Multiple accounts mixed actions (Add/Update/Remove) returns 202 [positive] (TC013)",
+    "protocol": "REST",
+    "test_type": ["Functional"],
+    "mainURL": "{{base_url}}",
+    "endpoint": "/custodialservicing/accounts",
+    "method": "POST",
+    "rpc_method": "",
+    "graphql_query": "",
+    "graphql_variables": "",
+    "soap_action": "",
+    "soap_envelope": "",
+    "headers_additional": {
+      "Content-Type": "application/json"
+    },
+    "payload": "custodialintegration\\payloads\\Payload_custodialservicing_accounts_POST_mixed_actions.json",
+    "expected_status": "202",
+    "expected_response_schema": "custodialintegration\\schemas\\Schema_custodialservicing_accounts_POST.json",
+    "expected_response": null,
+    "ignore_fields": ["id"],
+    "extract_values": [
+      {
+        "from": "response",
+        "key": "accepted",
+        "assign_to": "accepted_flag"
+      },
+      {
+        "from": "response",
+        "key": "message",
+        "assign_to": "response_message"
+      },
+      {
+        "from": "response",
+        "key": "correlationId",
+        "assign_to": "correlation_id"
+      }
+    ],
+    "validate": {
+      "performance": {
+        "max_response_time_ms": 500
+      },
+      "security": {
+        "checks": ["sql_injection", "xss"]
+      },
+      "assertions": [
+        {
+          "actual": "{{accepted_flag}}",
+          "operator": "==",
+          "expected": true,
+          "message": "Expected 'accepted' to be true"
+        },
+        {
+          "actual": "{{response_message}}",
+          "operator": "==",
+          "expected": "Request accepted for processing.",
+          "message": "Expected message to be 'Request accepted for processing.'"
+        },
+        {
+          "actual": "{{correlation_id}}",
+          "operator": "!=",
+          "expected": "",
+          "message": "Expected correlationId to be non-empty"
+        }
+      ]
+    },
+    "test_data_file": "",
+    "test_summary": "Test TC013: Happy path - Multiple accounts with mixed party actions (Add, Update, Remove) returns 202 Accepted"
+  },
+  {
+    "test_id": "TC014",
+    "service_name": "custodialintegration",
+    "workflow_mode": "parallel",
+    "test_name": "Beneficiary Change - Lowercase action values accepted returns 202 [positive: case insensitive] (TC014)",
+    "protocol": "REST",
+    "test_type": ["Functional"],
+    "mainURL": "{{base_url}}",
+    "endpoint": "/custodialservicing/accounts",
+    "method": "POST",
+    "headers_additional": {
+      "Content-Type": "application/json"
+    },
+    "payload": "custodialintegration\\payloads\\Payload_custodialservicing_accounts_POST_invalid_action_case.json",
+    "expected_status": "202",
+    "expected_response_schema": "custodialintegration\\schemas\\Schema_custodialservicing_accounts_POST.json",
+    "expected_response": null,
+    "ignore_fields": ["id"],
+    "extract_values": [
+      {
+        "from": "response",
+        "key": "accepted",
+        "assign_to": "accepted_flag"
+      },
+      {
+        "from": "response",
+        "key": "message",
+        "assign_to": "response_message"
+      },
+      {
+        "from": "response",
+        "key": "correlationId",
+        "assign_to": "correlation_id"
+      }
+    ],
+    "validate": {
+      "performance": {
+        "max_response_time_ms": 500
+      },
+      "security": {
+        "checks": ["sql_injection", "xss"]
+      },
+      "assertions": [
+        {
+          "actual": "{{accepted_flag}}",
+          "operator": "==",
+          "expected": true,
+          "message": "Expected 'accepted' to be true"
+        },
+        {
+          "actual": "{{response_message}}",
+          "operator": "==",
+          "expected": "Request accepted for processing.",
+          "message": "Expected message to be 'Request accepted for processing.'"
+        },
+        {
+          "actual": "{{correlation_id}}",
+          "operator": "!=",
+          "expected": "",
+          "message": "Expected correlationId to be non-empty"
+        }
+      ]
+    },
+    "test_data_file": "",
+    "test_summary": "Test TC014: Positive - Lowercase action values are accepted (API is case-insensitive)"
+  },
+  {
+    "test_id": "TC015",
+    "service_name": "custodialintegration",
+    "workflow_mode": "parallel",
+    "test_name": "Beneficiary Change - Invalid metaData type returns 400 [negative: invalid metaData] (TC015)",
+    "protocol": "REST",
+    "test_type": ["Negative"],
+    "mainURL": "{{base_url}}",
+    "endpoint": "/custodialservicing/accounts",
+    "method": "POST",
+    "headers_additional": {
+      "Content-Type": "application/json"
+    },
+    "payload": "custodialintegration\\payloads\\Payload_custodialservicing_accounts_POST_invalid_metadata.json",
+    "expected_status": "400",
+    "expected_response_schema": "custodialintegration\\schemas\\Schema_custodialservicing_accounts_POST_error.json",
+    "expected_response": null,
+    "ignore_fields": [],
+    "extract_values": [
+      {
+        "from": "response",
+        "key": "error",
+        "assign_to": "error_message"
+      }
+    ],
+    "validate": {
+      "performance": {
+        "max_response_time_ms": 500
+      },
+      "security": {
+        "checks": ["sql_injection", "xss"]
+      },
+      "assertions": [
+        {
+          "actual": "{{error_message}}",
+          "operator": "==",
+          "expected": "Request validation failed.",
+          "message": "Expected error message to be 'Request validation failed.'"
+        }
+      ]
+    },
+    "test_data_file": "",
+    "test_summary": "Test TC015: Negative - metaData as array or with non-string values should return 400 Bad Request"
+  },
+  {
+    "test_id": "TC016",
+    "service_name": "custodialintegration",
+    "workflow_mode": "parallel",
+    "test_name": "Beneficiary Change - Empty parties array returns 400 [negative: empty parties] (TC016)",
+    "protocol": "REST",
+    "test_type": ["Negative"],
+    "mainURL": "{{base_url}}",
+    "endpoint": "/custodialservicing/accounts",
+    "method": "POST",
+    "headers_additional": {
+      "Content-Type": "application/json"
+    },
+    "payload": "custodialintegration\\payloads\\Payload_custodialservicing_accounts_POST_empty_parties.json",
+    "expected_status": "400",
+    "expected_response_schema": "custodialintegration\\schemas\\Schema_custodialservicing_accounts_POST_error.json",
+    "expected_response": null,
+    "ignore_fields": [],
+    "extract_values": [
+      {
+        "from": "response",
+        "key": "error",
+        "assign_to": "error_message"
+      }
+    ],
+    "validate": {
+      "performance": {
+        "max_response_time_ms": 500
+      },
+      "security": {
+        "checks": ["sql_injection", "xss"]
+      },
+      "assertions": [
+        {
+          "actual": "{{error_message}}",
+          "operator": "==",
+          "expected": "Request validation failed.",
+          "message": "Expected error message to be 'Request validation failed.'"
+        }
+      ]
+    },
+    "test_data_file": "",
+    "test_summary": "Test TC016: Negative - Empty parties array should return 400 Bad Request"
+  },
+  {
+    "test_id": "TC017",
+    "service_name": "custodialintegration",
+    "workflow_mode": "parallel",
+    "test_name": "Beneficiary Change - Multiple schema errors in one request returns 400 [negative: multiple errors] (TC017)",
+    "protocol": "REST",
+    "test_type": ["Negative"],
+    "mainURL": "{{base_url}}",
+    "endpoint": "/custodialservicing/accounts",
+    "method": "POST",
+    "headers_additional": {
+      "Content-Type": "application/json"
+    },
+    "payload": "custodialintegration\\payloads\\Payload_custodialservicing_accounts_POST_multiple_errors.json",
+    "expected_status": "400",
+    "expected_response_schema": "custodialintegration\\schemas\\Schema_custodialservicing_accounts_POST_error.json",
+    "expected_response": null,
+    "ignore_fields": [],
+    "extract_values": [
+      {
+        "from": "response",
+        "key": "error",
+        "assign_to": "error_message"
+      }
+    ],
+    "validate": {
+      "performance": {
+        "max_response_time_ms": 500
+      },
+      "security": {
+        "checks": ["sql_injection", "xss"]
+      },
+      "assertions": [
+        {
+          "actual": "{{error_message}}",
+          "operator": "==",
+          "expected": "Request validation failed.",
+          "message": "Expected error message to be 'Request validation failed.'"
+        }
+      ]
+    },
+    "test_data_file": "",
+    "test_summary": "Test TC017: Negative - Multiple invalid fields should return 400 with all errors reported"
+  },
+  {
+    "test_id": "TC018",
+    "service_name": "custodialintegration",
+    "workflow_mode": "parallel",
+    "test_name": "Beneficiary Change - Missing metaData returns 400 [negative: missing metaData] (TC018)",
+    "protocol": "REST",
+    "test_type": ["Negative"],
+    "mainURL": "{{base_url}}",
+    "endpoint": "/custodialservicing/accounts",
+    "method": "POST",
+    "headers_additional": {
+      "Content-Type": "application/json"
+    },
+    "payload": "custodialintegration\\payloads\\Payload_custodialservicing_accounts_POST_no_metadata.json",
+    "expected_status": "400",
+    "expected_response_schema": "custodialintegration\\schemas\\Schema_custodialservicing_accounts_POST_error.json",
+    "expected_response": null,
+    "ignore_fields": [],
+    "extract_values": [
+      {
+        "from": "response",
+        "key": "error",
+        "assign_to": "error_message"
+      }
+    ],
+    "validate": {
+      "performance": {
+        "max_response_time_ms": 500
+      },
+      "security": {
+        "checks": ["sql_injection", "xss"]
+      },
+      "assertions": [
+        {
+          "actual": "{{error_message}}",
+          "operator": "==",
+          "expected": "Request validation failed.",
+          "message": "Expected error message to be 'Request validation failed.'"
+        }
+      ]
+    },
+    "test_data_file": "",
+    "test_summary": "Test TC018: Negative - Missing metaData field should return 400 Bad Request"
+  },
+  {
+    "test_id": "TC019",
+    "service_name": "custodialintegration",
+    "workflow_mode": "parallel",
+    "test_name": "Beneficiary Change - Large valid payload returns 202 and meets performance [positive: large payload] (TC019)",
+    "protocol": "REST",
+    "test_type": ["Functional"],
+    "mainURL": "{{base_url}}",
+    "endpoint": "/custodialservicing/accounts",
+    "method": "POST",
+    "headers_additional": {
+      "Content-Type": "application/json"
+    },
+    "payload": "custodialintegration\\payloads\\Payload_custodialservicing_accounts_POST_large.json",
+    "expected_status": "202",
+    "expected_response_schema": "custodialintegration\\schemas\\Schema_custodialservicing_accounts_POST.json",
+    "expected_response": null,
+    "ignore_fields": ["id"],
+    "extract_values": [
+      {
+        "from": "response",
+        "key": "accepted",
+        "assign_to": "accepted_flag"
+      },
+      {
+        "from": "response",
+        "key": "message",
+        "assign_to": "response_message"
+      },
+      {
+        "from": "response",
+        "key": "correlationId",
+        "assign_to": "correlation_id"
+      }
+    ],
+    "validate": {
+      "performance": {
+        "max_response_time_ms": 500
+      },
+      "security": {
+        "checks": ["sql_injection", "xss"]
+      },
+      "assertions": [
+        {
+          "actual": "{{accepted_flag}}",
+          "operator": "==",
+          "expected": true,
+          "message": "Expected 'accepted' to be true"
+        },
+        {
+          "actual": "{{response_message}}",
+          "operator": "==",
+          "expected": "Request accepted for processing.",
+          "message": "Expected message to be 'Request accepted for processing.'"
+        },
+        {
+          "actual": "{{correlation_id}}",
+          "operator": "!=",
+          "expected": "",
+          "message": "Expected correlationId to be non-empty"
+        }
+      ]
+    },
+    "test_data_file": "",
+    "test_summary": "Test TC019: Positive - Large valid payload returns 202 and meets performance criteria"
+  }
+]

@@ -21,6 +21,12 @@ parameters:
   - name: browser
     type: string
     default: 'chromium'
+  - name: keyVaultName
+    type: string
+    default: ''
+  - name: azureSubscription
+    type: string
+    default: ''
 
 stages:
 - stage: ${{ parameters.stageName }}
@@ -48,11 +54,20 @@ stages:
       INFLUXDB_URL: 'http://azncc03perf.corp.local:8086'
       INFLUXDB_ORG: 'MF'
       INFLUXDB_BUCKET: 'AutomationData'
-      INFLUXDB_TOKEN: 'g5gf0ukY8fPdwaWynLviDLd0wz1l5snomLbip3t2IrQkeNNkiEFYECEHlcJLwsAPvv2Gx-op4ho6QcpVsCpdGQ=='
+      keyVaultName: ${{ parameters.keyVaultName }}
+      azureSubscription: ${{ parameters.azureSubscription }}
    
     steps:
     - checkout: self
       clean: true
+
+    - task: AzureKeyVault@2
+      displayName: 'Fetch Secrets from Azure Key Vault'
+      inputs:
+        azureSubscription: $(azureSubscription)
+        KeyVaultName: $(keyVaultName)
+        SecretsFilter: '*'
+        RunAsPreJob: true
 
     - script: |
         echo "========================================"
@@ -61,8 +76,13 @@ stages:
         echo "Determining environment and test settings dynamically..."
         if [ "$(Build.Reason)" = "Manual" ]; then
           echo "##vso[task.setvariable variable=environment]${{ parameters.environment }}"
-          echo "##vso[task.setvariable variable=marker]${{ parameters.marker }}"
           echo "##vso[task.setvariable variable=workers]${{ parameters.workers }}"
+          if [ "${{ parameters.environment }}" = "prod" ]; then
+            echo "##vso[task.setvariable variable=marker]prod"
+            echo "Prod environment detected: marker forced to 'prod'"
+          else
+            echo "##vso[task.setvariable variable=marker]${{ parameters.marker }}"
+          fi
         else
           echo "##vso[task.setvariable variable=environment]${{ parameters.environment }}"
           echo "##vso[task.setvariable variable=marker]${{ parameters.marker }}"
@@ -72,6 +92,7 @@ stages:
 
     - script: |
         echo "##vso[task.setvariable variable=TEST_ENV]$(environment)"
+        echo "##vso[task.setvariable variable=AZURE_KEY_VAULT_URL]https://$(keyVaultName).vault.azure.net/"
       displayName: "Set Playwright Environment Variables"
 
     - script: |
@@ -198,6 +219,12 @@ stages:
           --html=\"$(testResultsDir)/pytest-report.html\" \
           --self-contained-html"
 
+        # Disable reruns for prod to avoid unintended side effects
+        if [ "$(environment)" = "prod" ]; then
+          PYTEST_CMD="$PYTEST_CMD --reruns 0"
+          echo "Prod execution: reruns disabled"
+        fi
+
         # Add parallel execution if workers > 1
         WORKERS_VALUE="$(workers)"
         if [ "$WORKERS_VALUE" = "auto" ] || [ "$WORKERS_VALUE" -gt "1" ] 2>/dev/null; then
@@ -228,6 +255,9 @@ stages:
       env:
         WORK_ITEM_AUTH_TOKEN: $(WORK_ITEM_AUTH_TOKEN)
         PARTIES_AUTH_TOKEN: $(PARTIES_AUTH_TOKEN)
+        INFLUXDB_AUTO_PUSH: 'false'
+        TEST_ENV: $(environment)
+        AZURE_KEY_VAULT_URL: $(AZURE_KEY_VAULT_URL)
         INFLUXDB_URL: $(INFLUXDB_URL)
         INFLUXDB_TOKEN: $(INFLUXDB_TOKEN)
         INFLUXDB_ORG: $(INFLUXDB_ORG)
@@ -273,10 +303,6 @@ stages:
 
     - script: |
         echo "Pushing test metrics to InfluxDB..."
-        export INFLUXDB_URL="${INFLUXDB_URL}"
-        export INFLUXDB_TOKEN="${INFLUXDB_TOKEN}"
-        export INFLUXDB_ORG="${INFLUXDB_ORG}"
-        export INFLUXDB_BUCKET="${INFLUXDB_BUCKET}"
         export ALLURE_RESULTS_DIR="$(allureResultsDir)"
         export JUNIT_XML_PATH="$(testResultsDir)/junit/junit-report.xml"
         export ENVIRONMENT="$(environment)"

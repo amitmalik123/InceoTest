@@ -1,0 +1,17 @@
+{
+  "requestType": "BeneficiaryChange",
+  "accounts": [
+    {
+      "accountId": "{{valid_account_id}}",
+      "parties": [
+        {
+          "partyId": "{{valid_party_id}}",
+          "action": "add"
+        }
+      ]
+    }
+  ],
+  "metaData": {
+    "ItemNumber": "D12345678"
+  }
+}
