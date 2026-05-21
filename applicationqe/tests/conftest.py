@@ -66,10 +66,13 @@ def test_environment(request):
 
 @pytest.fixture(scope="session")
 def browser_type_launch_args(browser_type_launch_args):
-    """Launch browser in headed mode with a maximized window."""
+    """Launch browser in headed mode locally, headless in CI/CD pipeline."""
+    # Use headless mode in CI environments (where there's no display server)
+    is_ci = os.getenv("CI", "").lower() in ("true", "1", "yes", "on")
+    headless_mode = is_ci
     return {
         **browser_type_launch_args,
-        "headless": False,
+        "headless": headless_mode,
         "args": [
             "--start-maximized",
             "--disable-features=Translate",  # Disable translation prompts
