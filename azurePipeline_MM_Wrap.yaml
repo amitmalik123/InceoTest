@@ -53,11 +53,12 @@ parameters:
   - name: marker
     displayName: "Pytest Marker to Run"
     type: string
-    default: "smoke"
+    default: "e2e"
     values:
-      - smoke
-      - regression
       - e2e
+      - critical
+      - regression
+      - test_add_model
  
   - name: workers
     displayName: "Number of Parallel Workers"
