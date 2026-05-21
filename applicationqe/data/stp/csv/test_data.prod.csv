@@ -1,0 +1,11 @@
+﻿scenario,role,username,password,client_id,account_name,destination_account,account_number,conversion_amount,routing_number,ach_option,advisor_id,expected_description
+Add ACH - Non IRA,non-ira,ssoAGAYDZTest,2023Spring123!,40102168,Assetmark Inc.,40102168,40102168,1000,121000358,Yes,AG8959,Bank/Payee Instructions - Add
+ACH Withdrawal IRA,ACH-withdrawl-ira,test12345678,Test1234t,40360477,Henry,40360477,40360477,1000,121000358,Yes,AGA06W,Bank/Payee Instructions - Add
+Check Withdrawal IRA,withdrawl-ira,test12345678,Test1234t,40360477,Henry,40360477,40360477,1000,121000358,Yes,AGA06W,Bank/Payee Instructions - Add
+Contribution IRA,contribution-ira,test12345678,Test1234t,40360477,Henry,40360477,40360477,1000,121000358,Yes,AGA06W,Bank/Payee Instructions - Add
+Cancel SWP ACH IRA,cancel-swp-ira-account,test12345678,Test1234t,40360477,Henry,40360477,40360477,1000,121000358,Yes,AGA06W,Bank/Payee Instructions - Add
+Cancel AIP IRA,cancel-swp-ira,test12345678,Test1234t,40360477,Henry,40360477,40360477,1000,121000358,Yes,AGA06W,Bank/Payee Instructions - Add
+Establish AIP IRA,ira-account,test12345678,Test1234t,40360477,Henry,40360477,40360477,1000,121000358,Yes,AGA06W,Bank/Payee Instructions - Add
+Address Change,address,test12345678,Test1234t,40360477,Henry,40360477,40360477,1000,121000358,Yes,AGA06W,Bank/Payee Instructions - Add
+Manage Beneficiary,manage_bene,PROD_AG8959_Perf,QAAdminUser_33a,40108642,Core Markets,40108641,40108642,1000,121000358,Yes,AG8959,Bank/Payee Instructions - Add
+oa_tool,oa-ira,sampleagentlogin,QAAdminUser_33a,19304359,DM Test SWB,19304359,19304359,1000,121000358,Yes,AG8959,Bank/Payee Instructions - Add

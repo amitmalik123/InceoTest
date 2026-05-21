@@ -1,0 +1,186 @@
+services:
+  # Base test service - test11 environment
+  playwright-test11:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: dm1-playwright-test11
+    environment:
+      - TEST_ENV=test11
+      - PYTHONUNBUFFERED=1
+    volumes:
+      # Mount test results and reports to local machine
+      - ./reports:/app/reports
+      - ./testResults:/app/testResults
+      # Mount config files (in case you want to update without rebuild)
+      - ./config:/app/config:ro
+      # Mount test data
+      - ./data:/app/data:ro
+    command: >
+      pytest tests/
+      -v
+      --browser=chromium
+      --html=reports/pytest_report.html
+      --self-contained-html
+      --alluredir=reports/allure-results
+    networks:
+      - test-network
+
+  # Test12 environment
+  playwright-test12:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: dm1-playwright-test12
+    environment:
+      - TEST_ENV=test12
+      - PYTHONUNBUFFERED=1
+    volumes:
+      - ./reports:/app/reports
+      - ./testResults:/app/testResults
+      - ./config:/app/config:ro
+      - ./data:/app/data:ro
+    command: >
+      pytest tests/
+      -v
+      --browser=chromium
+      --html=reports/pytest_report.html
+      --self-contained-html
+      --alluredir=reports/allure-results
+    networks:
+      - test-network
+
+  # QA environment
+  playwright-qa:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: dm1-playwright-qa
+    environment:
+      - TEST_ENV=qa
+      - PYTHONUNBUFFERED=1
+    volumes:
+      - ./reports:/app/reports
+      - ./testResults:/app/testResults
+      - ./config:/app/config:ro
+      - ./data:/app/data:ro
+    command: >
+      pytest tests/
+      -v
+      --browser=chromium
+      --html=reports/pytest_report.html
+      --self-contained-html
+      --alluredir=reports/allure-results
+    networks:
+      - test-network
+
+  # Parallel execution service
+  playwright-parallel:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: dm1-playwright-parallel
+    environment:
+      - TEST_ENV=test11
+      - PYTHONUNBUFFERED=1
+    volumes:
+      - ./reports:/app/reports
+      - ./testResults:/app/testResults
+      - ./config:/app/config:ro
+      - ./data:/app/data:ro
+    command: >
+      pytest tests/
+      -v
+      -n 4
+      --browser=chromium
+      --html=reports/pytest_report.html
+      --self-contained-html
+      --alluredir=reports/allure-results
+    networks:
+      - test-network
+
+  # UI tests only
+  playwright-ui-only:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: dm1-playwright-ui
+    environment:
+      - TEST_ENV=test11
+      - PYTHONUNBUFFERED=1
+    volumes:
+      - ./reports:/app/reports
+      - ./testResults:/app/testResults
+      - ./config:/app/config:ro
+      - ./data:/app/data:ro
+    command: >
+      pytest tests/ui/
+      -v
+      --browser=chromium
+      --html=reports/pytest_report.html
+      --self-contained-html
+    networks:
+      - test-network
+
+  # BDD tests only
+  playwright-bdd-only:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: dm1-playwright-bdd
+    environment:
+      - TEST_ENV=test11
+      - PYTHONUNBUFFERED=1
+    volumes:
+      - ./reports:/app/reports
+      - ./testResults:/app/testResults
+      - ./config:/app/config:ro
+      - ./data:/app/data:ro
+    command: >
+      pytest tests/
+      -v
+      --browser=chromium
+      --alluredir=reports/allure-results
+    networks:
+      - test-network
+
+  # API tests only (no browser needed)
+  playwright-api-only:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: dm1-playwright-api
+    environment:
+      - TEST_ENV=test11
+      - PYTHONUNBUFFERED=1
+    volumes:
+      - ./reports:/app/reports
+      - ./testResults:/app/testResults
+      - ./config:/app/config:ro
+      - ./data:/app/data:ro
+    command: >
+      pytest tests/api/
+      -v
+      --html=reports/api_report.html
+      --self-contained-html
+    networks:
+      - test-network
+
+  # Allure report service
+  allure:
+    image: frankescobar/allure-docker-service:latest
+    container_name: dm1-allure
+    environment:
+      - CHECK_RESULTS_EVERY_SECONDS=3
+      - KEEP_HISTORY=1
+    ports:
+      - "5050:5050"
+    volumes:
+      - ./reports/allure-results:/app/allure-results
+      - ./reports/allure-report:/app/allure-report
+    networks:
+      - test-network
+
+networks:
+  test-network:
+    driver: bridge

@@ -10,9 +10,12 @@ from typing import Any, Callable, List, Optional
 
 import allure
 from playwright.sync_api import Locator, Page, expect
+
 from playwright.sync_api import TimeoutError as PlaywrightTimeoutError
 
-logger = logging.getLogger(__name__)
+from utils.allure_logger import get_allure_logger
+
+logger = get_allure_logger(__name__)
 
 
 class AssertionError(Exception):
@@ -69,8 +72,18 @@ class SoftAssertions:
         """
         if self.errors:
             error_summary = f"\n{len(self.errors)} soft assertion(s) failed:\n"
-            error_summary += "\n".join(f"  {i+1}. {err}" for i, err in enumerate(self.errors))
+            error_summary += "\n".join(
+                f"  {i + 1}. {err}" for i, err in enumerate(self.errors)
+            )
+
             logger.error(error_summary)
+
+            allure.attach(
+                error_summary,
+                name="Soft Assertions Summary",
+                attachment_type=allure.attachment_type.TEXT,
+            )
+
             raise SoftAssertionError(error_summary)
 
     def assert_equal(self, actual: Any, expected: Any, message: Optional[str] = None):

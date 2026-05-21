@@ -1,4 +1,3 @@
-
 services:
   # Base test service - test11 environment
   playwright-test11:

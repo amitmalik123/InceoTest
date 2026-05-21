@@ -2,8 +2,8 @@
 # No agent dependencies required - everything runs in Docker!
 
 pool:
- # vmImage: 'ewm20-docker-build-agent-inc-dev'  #microsoft hosted agent works - Docker handles all dependencies
-  name: 'ewm20-docker-build-agent-inc-dev'  # Self-hosted agent pool with Docker support
+  # vmImage: 'ewm20-docker-build-agent-inc-dev'  #microsoft hosted agent works - Docker handles all dependencies
+  name: "ewm20-docker-build-agent-inc-dev" # Self-hosted agent pool with Docker support
   timeoutInMinutes: 60
 
 trigger: none
@@ -68,18 +68,18 @@ parameters:
 # -----------------------------
 variables:
   - name: dockerImage
-    value: 'dm1-playwright:$(Build.BuildId)'
+    value: "dm1-playwright:$(Build.BuildId)"
   - name: dockerImageLatest
-    value: 'dm1-playwright:latest'
+    value: "dm1-playwright:latest"
   - name: reportsDir
-    value: '$(Build.SourcesDirectory)/reports'
+    value: "$(Build.SourcesDirectory)/reports"
   - name: testResultsDir
-    value: '$(Build.SourcesDirectory)/testResults'
+    value: "$(Build.SourcesDirectory)/testResults"
   # Azure Key Vault configuration
   - name: keyVaultName
-    value: 'amkkvqapipeline-testncus'           # ← Replace with your Key Vault name
+    value: "amkkvqapipeline-testncus" # ← Replace with your Key Vault name
   - name: azureSubscription
-    value: 'TEST Foundation (9156b16c-8a2e-4b7d-a886-e772dc017316)-Core'       # ← Replace with your Azure DevOps service connection name
+    value: "TEST Foundation (9156b16c-8a2e-4b7d-a886-e772dc017316)-Core" # ← Replace with your Azure DevOps service connection name
 
 # -----------------------------
 # Stages
@@ -87,21 +87,21 @@ variables:
 stages:
   # Stage 1: Build Docker Image and Run Tests (Same Agent)
   - stage: BuildAndTest
-    displayName: 'Build Docker Image and Run Tests'
+    displayName: "Build Docker Image and Run Tests"
     jobs:
       - job: BuildAndExecuteTests
-        displayName: 'Build Image & Execute Tests - ${{ parameters.environment }} - ${{ parameters.testType }}'
+        displayName: "Build Image & Execute Tests - ${{ parameters.environment }} - ${{ parameters.testType }}"
         steps:
           - checkout: self
             clean: true
 
           # Fetch secrets from Azure Key Vault
           - task: AzureKeyVault@2
-            displayName: 'Fetch Secrets from Azure Key Vault'
+            displayName: "Fetch Secrets from Azure Key Vault"
             inputs:
-              azureSubscription: '$(azureSubscription)'
-              KeyVaultName: '$(keyVaultName)'
-              SecretsFilter: '*'
+              azureSubscription: "$(azureSubscription)"
+              KeyVaultName: "$(keyVaultName)"
+              SecretsFilter: "*"
               RunAsPreJob: false
 
           # Print Pipeline Variables
@@ -128,7 +128,7 @@ stages:
               echo "Reports Dir: $(reportsDir)"
               echo "Test Results Dir: $(testResultsDir)"
               echo "========================================"
-            displayName: 'Print Pipeline Variables'
+            displayName: "Print Pipeline Variables"
 
           # Build Docker Image
           - script: |
@@ -137,7 +137,7 @@ stages:
               echo "========================================"
               docker build -t $(dockerImage) -t $(dockerImageLatest) -f $(Build.SourcesDirectory)/Dockerfile $(Build.SourcesDirectory)
               echo "Build completed successfully!"
-            displayName: 'Build Docker Image'
+            displayName: "Build Docker Image"
 
           - script: |
               echo "========================================"
@@ -147,7 +147,7 @@ stages:
               echo ""
               echo "Using image for tests: $(dockerImageLatest)"
               echo "========================================"
-            displayName: 'Verify Docker Image Built'
+            displayName: "Verify Docker Image Built"
 
           - script: |
               echo "Creating directories for reports..."
@@ -155,14 +155,14 @@ stages:
               mkdir -p $(testResultsDir)
               chmod -R 777 $(reportsDir)
               chmod -R 777 $(testResultsDir)
-            displayName: 'Prepare Report Directories'
+            displayName: "Prepare Report Directories"
 
           - script: |
               echo "Environment: ${{ parameters.environment }}"
               echo "Test Type: ${{ parameters.testType }}"
               echo "Workers: ${{ parameters.workers }}"
               echo "Build ID: $(Build.BuildId)"
-            displayName: 'Print Test Configuration'
+            displayName: "Print Test Configuration"
 
           # Run All Tests
           - script: |
@@ -194,7 +194,7 @@ stages:
                 --self-contained-html \
                 --junitxml=testResults/junit-report.xml \
                 --alluredir=reports/allure-results
-            displayName: 'Run All Tests in Docker'
+            displayName: "Run All Tests in Docker"
             condition: eq('${{ parameters.testType }}', 'all')
             continueOnError: true
 
@@ -228,7 +228,7 @@ stages:
                 --self-contained-html \
                 --junitxml=testResults/junit-report.xml \
                 --alluredir=reports/allure-results
-            displayName: 'Run BDD Tests in Docker'
+            displayName: "Run BDD Tests in Docker"
             condition: eq('${{ parameters.testType }}', 'bdd')
             continueOnError: true
 
@@ -252,7 +252,7 @@ stages:
                 --html=reports/api_report.html \
                 --self-contained-html \
                 --junitxml=testResults/junit-report.xml
-            displayName: 'Run API Tests in Docker'
+            displayName: "Run API Tests in Docker"
             condition: eq('${{ parameters.testType }}', 'api')
             continueOnError: true
 
@@ -287,28 +287,28 @@ stages:
                 --self-contained-html \
                 --junitxml=testResults/junit-report.xml \
                 --alluredir=reports/allure-results
-            displayName: 'Run Tests in Parallel in Docker'
+            displayName: "Run Tests in Parallel in Docker"
             condition: eq('${{ parameters.testType }}', 'parallel')
             continueOnError: true
 
           # Publish Test Results
           - task: PublishTestResults@2
-            displayName: 'Publish JUnit Test Results'
+            displayName: "Publish JUnit Test Results"
             condition: always()
             inputs:
-              testResultsFormat: 'JUnit'
-              testResultsFiles: '$(testResultsDir)/junit-report.xml'
+              testResultsFormat: "JUnit"
+              testResultsFiles: "$(testResultsDir)/junit-report.xml"
               failTaskOnFailedTests: false
-              testRunTitle: 'Playwright Tests - ${{ parameters.environment }} - ${{ parameters.testType }}'
+              testRunTitle: "Playwright Tests - ${{ parameters.environment }} - ${{ parameters.testType }}"
 
           # Publish HTML Report
           - task: PublishBuildArtifacts@1
-            displayName: 'Publish HTML Report'
+            displayName: "Publish HTML Report"
             condition: always()
             inputs:
-              PathtoPublish: '$(reportsDir)/pytest_report.html'
-              ArtifactName: 'pytest-html-report'
-              publishLocation: 'Container'
+              PathtoPublish: "$(reportsDir)/pytest_report.html"
+              ArtifactName: "pytest-html-report"
+              publishLocation: "Container"
 
           # Generate Allure Report (Allure is installed in Docker image)
           - script: |
@@ -332,38 +332,38 @@ stages:
 
               echo "Report generated at: $REPORT_DIR"
               ls -la "$REPORT_DIR" 2>/dev/null || echo "Report dir not found"
-            displayName: 'Generate Allure Report'
+            displayName: "Generate Allure Report"
             condition: always()
 
           # Publish Allure Report
           - task: PublishBuildArtifacts@1
-            displayName: 'Publish Allure Report'
+            displayName: "Publish Allure Report"
             condition: always()
             inputs:
-              PathtoPublish: '$(reportsDir)/allure-report'
-              ArtifactName: 'AllureReport'
-              publishLocation: 'Container'
+              PathtoPublish: "$(reportsDir)/allure-report"
+              ArtifactName: "AllureReport"
+              publishLocation: "Container"
 
           # Publish Allure Results (raw data)
           - task: PublishBuildArtifacts@1
-            displayName: 'Publish Allure Results Data'
+            displayName: "Publish Allure Results Data"
             condition: always()
             inputs:
-              PathtoPublish: '$(reportsDir)/allure-results'
-              ArtifactName: 'AllureResults'
-              publishLocation: 'Container'
+              PathtoPublish: "$(reportsDir)/allure-results"
+              ArtifactName: "AllureResults"
+              publishLocation: "Container"
 
   # Stage 2: Cleanup (Optional)
   - stage: Cleanup
-    displayName: 'Cleanup Docker Resources'
+    displayName: "Cleanup Docker Resources"
     dependsOn: BuildAndTest
     condition: always()
     jobs:
       - job: CleanupDocker
-        displayName: 'Clean Up Docker Images'
+        displayName: "Clean Up Docker Images"
         steps:
           - script: |
               echo "Cleaning up Docker images..."
               docker image prune -f
               docker container prune -f
-            displayName: 'Docker Cleanup'
+            displayName: "Docker Cleanup"

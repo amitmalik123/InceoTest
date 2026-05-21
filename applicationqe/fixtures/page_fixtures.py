@@ -265,30 +265,25 @@ def view_documents_page(page: Page):
     """View documents page object fixture"""
     return ViewDocumentsPage(page)
 
-
 @pytest.fixture
 def tracking_center_page(page: Page):
     """Tracking center page object fixture"""
     return TrackingCenterPage(page)
-
 
 @pytest.fixture
 def baw_login_page(page: Page):
     """BAW login page object fixture"""
     return BawLoginPage(page)
 
-
 @pytest.fixture
 def baw_dashboard_page(page: Page):
     """BAW dashboard page object fixture"""
     return BawDashboardPage(page)
 
-
 @pytest.fixture
 def shell_process_page(page: Page):
     """Shell process page object fixture"""
     return ShellProcessPage(page)
-
 
 @pytest.fixture
 def search_work_item_page(page: Page):

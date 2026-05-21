@@ -99,7 +99,7 @@ jobs:
     testResultsDir: '$(Build.SourcesDirectory)/applicationqe/reports/oam'
     # Azure Key Vault configuration
     keyVaultName: 'amkkvqapipeline-testncus'           # ← Replace with your Key Vault name
-    
+
 
   steps:
   - checkout: self

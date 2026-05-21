@@ -1,4 +1,4 @@
-"""
+﻿"""
 Utilities Package
 
 Centralized utilities for test automation framework.
@@ -6,7 +6,7 @@ Import commonly used utilities directly from the utils package.
 
 Examples:
     from utils import setup_logger, settings, Assertions, SoftAssertions
-    from utils import AutoHealingEngine, get_configured_db
+    from utils import AutoHealingEngine, get_configured_azure_db
 """
 
 # API utilities
@@ -38,12 +38,13 @@ from utils.flaky_test_tracker import FlakyTestTracker, get_tracker
 
 # Helpers
 from utils.helpers import ensure_directory_exists, generate_test_data, get_timestamp
+from utils.lighthouse_runner import LighthouseRunner
+
 # Logger utilities
 from utils.logger import setup_logger
 
-# Outlook email utilities
-from utils.outlook_utils import OutlookClient, OutlookEmail
-from utils.lighthouse_runner import LighthouseRunner
+# Settings and configuration
+from utils.settings import Settings, settings
 
 # Performance monitoring
 from utils.performance_monitor import PerformanceBudget, PerformanceMonitor
@@ -62,6 +63,9 @@ from utils.storage_utils import (
 __all__ = [
     # Logger
     "setup_logger",
+    # Settings
+    "Settings",
+    "settings",
     # Assertions
     "Assertions",
     "SoftAssertionError",

@@ -216,3 +216,19 @@ def random_alphanumeric(length: int = 8) -> str:
     """
     return "".join(random.choices(string.ascii_letters + string.digits, k=length))
 
+
+def get_locator_attribute(locator, attribute_name: str, element_name: str = "element", timeout: int = 10000):
+    """
+    Get an attribute value from a Playwright locator.
+
+    Args:
+        locator: Playwright Locator object
+        attribute_name: HTML attribute to retrieve (e.g. 'value', 'class', 'aria-invalid')
+        element_name: Human-readable name for logging purposes
+        timeout: Maximum time to wait in milliseconds (default: 10000)
+
+    Returns:
+        Attribute value as string, or None if not found
+    """
+    return locator.get_attribute(attribute_name, timeout=timeout)
+

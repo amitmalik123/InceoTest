@@ -513,3 +513,144 @@ class WaitContext:
         return self.until(
             lambda: text in locator.inner_text(), error_message=f"Text '{text}' not found"
         )
+
+
+def wait_for_element_stable(
+    locator: Locator,
+    timeout: float = 15.0,
+    check_animations: bool = True,
+    check_enabled: bool = False,
+) -> Locator:
+    """
+    Wait for a Playwright locator to be fully stable (attached, visible, animations done).
+
+    Args:
+        locator: Playwright Locator to wait on
+        timeout: Maximum time in seconds
+        check_animations: Whether to wait for CSS animations to finish
+        check_enabled: Whether to also wait for the element to be enabled
+
+    Returns:
+        The same locator once stable
+    """
+    logger.debug(f"Waiting for element to be stable: {locator}")
+
+    try:
+        locator.wait_for(state="attached", timeout=timeout * 1000)
+
+        wait_for_condition(
+            lambda: locator.is_visible(),
+            timeout=timeout,
+            poll_interval=0.5,
+            error_message="Element not visible after being attached",
+        )
+
+        if check_animations:
+            wait_for_condition(
+                lambda: locator.evaluate("el => el.getAnimations().length === 0"),
+                timeout=5.0,
+                poll_interval=0.3,
+                error_message="Element animations did not complete",
+            )
+
+        if check_enabled:
+            wait_for_condition(
+                lambda: locator.is_enabled(),
+                timeout=timeout,
+                poll_interval=0.5,
+                error_message="Element not enabled",
+            )
+
+        logger.info("Element is stable and ready for interaction")
+        return locator
+
+    except Exception as e:
+        logger.error(f"Element stability check failed: {str(e)}")
+        raise WaitTimeoutError(f"Element did not become stable: {str(e)}")
+
+
+def wait_for_spa_ready(page: Page, timeout: float = 30.0) -> bool:
+    """
+    Wait for a Single Page Application to finish loading.
+
+    Checks DOM load state, network idle, and common loading spinner selectors.
+
+    Args:
+        page: Playwright Page
+        timeout: Maximum time in seconds
+
+    Returns:
+        True if ready, False if a non-critical check failed
+    """
+    logger.debug("Waiting for SPA to be ready")
+
+    try:
+        page.wait_for_load_state("domcontentloaded", timeout=timeout * 1000)
+        wait_for_network_idle(page, timeout=timeout)
+
+        common_loading_selectors = [
+            "[data-testid='loading-spinner']",
+            ".loading-spinner",
+            ".spinner",
+            "[aria-busy='true']",
+            ".loader",
+        ]
+
+        for selector in common_loading_selectors:
+            loader = page.locator(selector)
+            if loader.count() > 0:
+                wait_for_condition(
+                    lambda: not loader.is_visible(),
+                    timeout=10.0,
+                    poll_interval=0.5,
+                    error_message=f"Loading indicator {selector} did not disappear",
+                )
+
+        logger.info("SPA is ready for interaction")
+        return True
+
+    except Exception as e:
+        logger.warning(f"SPA ready check encountered issue: {e}")
+        return False
+
+
+def wait_for_dynamic_element(
+    page: Page,
+    selector: str,
+    max_attempts: int = 5,
+    attempt_timeout: float = 5.0,
+    wait_between_attempts: float = 1.0,
+) -> Locator:
+    """
+    Retry locating and stabilising a dynamically rendered element.
+
+    Args:
+        page: Playwright Page
+        selector: CSS/XPath selector
+        max_attempts: Number of retries before raising
+        attempt_timeout: Per-attempt timeout in seconds
+        wait_between_attempts: Sleep between retries in seconds
+
+    Returns:
+        Stable Playwright Locator
+    """
+    logger.debug(f"Waiting for dynamic element: {selector} (max attempts: {max_attempts})")
+    last_error = None
+
+    for attempt in range(1, max_attempts + 1):
+        try:
+            locator = page.locator(selector).first
+            wait_for_element_stable(locator, timeout=attempt_timeout)
+            logger.info(f"Dynamic element found and stable on attempt {attempt}")
+            return locator
+        except Exception as e:
+            last_error = e
+            logger.debug(f"Attempt {attempt}/{max_attempts} failed: {str(e)}")
+            if attempt < max_attempts:
+                time.sleep(wait_between_attempts)
+                wait_for_network_idle(page, timeout=5.0)
+
+    raise WaitTimeoutError(
+        f"Element '{selector}' did not become stable after {max_attempts} attempts. "
+        f"Last error: {last_error}"
+    )

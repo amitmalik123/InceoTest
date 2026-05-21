@@ -92,7 +92,7 @@ test-ui:
 	pytest tests/ui/ -v --html=reports/ui_tests_report.html --self-contained-html
 
 test-bdd:
-	pytest tests/bdd/ -v --html=reports/bdd_tests_report.html --self-contained-html
+	pytest tests/ -v --html=reports/bdd_tests_report.html --self-contained-html
 
 test-api:
 	pytest tests/api/ -v --html=reports/api_tests_report.html --self-contained-html
