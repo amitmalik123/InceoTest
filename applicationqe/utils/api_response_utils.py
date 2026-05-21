@@ -1,4 +1,4 @@
-﻿import json
+import json
 import logging
 from dataclasses import dataclass, field
 from datetime import datetime
@@ -98,7 +98,7 @@ class ContractValidationResult:
         self.warnings.append(warning)
 
     def __str__(self) -> str:
-        status = "VALID" if self.is_valid else "INVALID"
+        status = "✓ VALID" if self.is_valid else "✗ INVALID"
         result = [f"{status} - {self.method} {self.endpoint}"]
 
         if self.errors:

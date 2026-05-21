@@ -1,4 +1,4 @@
-﻿"""
+"""
 BDD Step Screenshot Hook - Automatic screenshots after each step (optional)
 
 This module provides:
@@ -64,7 +64,7 @@ def pytest_configure(config):
 
     # Print configuration
     print(f"\n{'=' * 60}")
-    print("≡ƒô╕ Screenshot Configuration:")
+    print("📸 Screenshot Configuration:")
     print(f"  - After each step: {_config.screenshot_each_step}")
     print(f"  - On failure: {_config.screenshot_on_failure}")
     print(f"{'=' * 60}\n")
@@ -118,7 +118,7 @@ def take_step_screenshot(
         _config.step_counter += 1
 
         # Create descriptive name
-        status = "FAILED" if step_failed else "PASSED"
+        status = "❌ FAILED" if step_failed else "✓"
         screenshot_name = f"Step {_config.step_counter} [{step_type.upper()}] {status} {step_name}"
 
         # Take and attach screenshot

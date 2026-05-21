@@ -1,4 +1,4 @@
-﻿"""
+"""
 DOM Inspector & Locator Generator for Playwright.
 
 Navigates to any page in the authenticated app and produces a structured
@@ -36,7 +36,7 @@ from typing import Any
 
 from playwright.sync_api import Locator, Page
 
-# ΓöÇΓöÇ Locator suggestion dataclass ΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇ
+# ── Locator suggestion dataclass ──────────────────────────────────────────────
 
 
 @dataclass
@@ -56,7 +56,7 @@ class ElementInfo:
     section: str = ""  # "button", "link", "input", "select", etc.
 
 
-# ΓöÇΓöÇ Rank table  (lower = better, mirrors Playwright docs) ΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇ
+# ── Rank table  (lower = better, mirrors Playwright docs) ────────────────────
 
 _RANK = {
     "get_by_role": 1,
@@ -77,7 +77,7 @@ def _escape(s: str) -> str:
     return s.replace("\\", "\\\\").replace("'", "\\'")
 
 
-# ΓöÇΓöÇ Core inspector ΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇ
+# ── Core inspector ────────────────────────────────────────────────────────────
 
 
 class DOMInspector:
@@ -89,7 +89,7 @@ class DOMInspector:
     def __init__(self, page: Page):
         self.page = page
 
-    # ΓöÇΓöÇ public API ΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇ
+    # ── public API ────────────────────────────────────────────────────────
 
     def inspect(self) -> dict[str, Any]:
         """
@@ -136,7 +136,7 @@ class DOMInspector:
             )
         return "\n".join(lines)
 
-    # ΓöÇΓöÇ private: element inspectors ΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇ
+    # ── private: element inspectors ───────────────────────────────────────
 
     def _inspect_buttons(self) -> list[dict]:
         results = []
@@ -197,7 +197,7 @@ class DOMInspector:
                 pass  # nosec B110
         return results
 
-    # ΓöÇΓöÇ private: locator generation per element ΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇ
+    # ── private: locator generation per element ───────────────────────────
 
     def _build_element_info(self, loc: Locator, section: str) -> ElementInfo | None:
         """Build an ElementInfo with ranked locator suggestions."""
@@ -227,7 +227,7 @@ class DOMInspector:
 
         suggestions: list[LocatorSuggestion] = []
 
-        # ΓöÇΓöÇ 1. get_by_role  (rank 1) ΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇ
+        # ── 1. get_by_role  (rank 1) ──────────────────────────────────────
         role = self._tag_to_role(tag, el_type, attrs)
         if role:
             name_param = acc_name or text or attrs.get("value", "")
@@ -241,7 +241,7 @@ class DOMInspector:
                     )
                 )
 
-        # ΓöÇΓöÇ 2. get_by_label  (rank 1) ΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇ
+        # ── 2. get_by_label  (rank 1) ────────────────────────────────────
         if label_text and section in ("input", "select", "radio/checkbox"):
             safe = _escape(label_text[:80])
             suggestions.append(
@@ -252,7 +252,7 @@ class DOMInspector:
                 )
             )
 
-        # ΓöÇΓöÇ 3. get_by_placeholder  (rank 2) ΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇ
+        # ── 3. get_by_placeholder  (rank 2) ──────────────────────────────
         placeholder = attrs.get("placeholder", "")
         if placeholder:
             safe = _escape(placeholder[:80])
@@ -264,7 +264,7 @@ class DOMInspector:
                 )
             )
 
-        # ΓöÇΓöÇ 4. get_by_text  (rank 2) ΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇ
+        # ── 4. get_by_text  (rank 2) ─────────────────────────────────────
         if text and len(text) > 1 and section in ("link", "button"):
             safe = _escape(text[:80])
             suggestions.append(
@@ -275,7 +275,7 @@ class DOMInspector:
                 )
             )
 
-        # ΓöÇΓöÇ 5. get_by_test_id  (rank 3) ΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇ
+        # ── 5. get_by_test_id  (rank 3) ──────────────────────────────────
         test_id = attrs.get("data-testid", "") or attrs.get("data-test-id", "")
         if test_id:
             safe = _escape(test_id)
@@ -287,7 +287,7 @@ class DOMInspector:
                 )
             )
 
-        # ΓöÇΓöÇ 6. CSS ID selector  (rank 4) ΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇ
+        # ── 6. CSS ID selector  (rank 4) ─────────────────────────────────
         el_id = attrs.get("id", "")
         if el_id:
             suggestions.append(
@@ -298,7 +298,7 @@ class DOMInspector:
                 )
             )
 
-        # ΓöÇΓöÇ 7. aria-label selector  (rank 2 - like get_by_label) ΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇ
+        # ── 7. aria-label selector  (rank 2 - like get_by_label) ─────────
         aria_label = attrs.get("aria-label", "")
         if aria_label and not label_text:
             safe = _escape(aria_label[:80])

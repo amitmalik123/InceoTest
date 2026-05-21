@@ -1,5 +1,5 @@
-﻿"""
-Flaky Test Tracker - Detects and reports flaky tests to InfluxDB
+"""
+Flaky Test Tracker - Detects and reports flaky tests
 
 Tracks:
 - Tests that pass after retries (flaky)
@@ -8,6 +8,7 @@ Tracks:
 - Flaky test history
 """
 
+<<<<<<< HEAD
 import json
 import os
 from datetime import datetime
@@ -58,6 +59,18 @@ class FlakyTestTracker:
         self.influx_org = influx_config["org"]
         self.influx_bucket = influx_config["bucket"]
         self.environment = os.getenv("ENVIRONMENT", settings.env)
+=======
+import os
+from datetime import datetime
+from typing import Dict, Optional
+
+
+class FlakyTestTracker:
+    """Track and report flaky tests."""
+
+    def __init__(self):
+        self.environment = os.getenv("ENVIRONMENT", os.getenv("TEST_ENV", "test11"))
+>>>>>>> 7a228f8045f20942a4490c9ac3f8553bb22255bd
         self.build_id = os.getenv("BUILD_ID", "local")
 
         # Track flaky tests during session
@@ -87,7 +100,11 @@ class FlakyTestTracker:
             "build_id": self.build_id,
         }
 
+<<<<<<< HEAD
         print("\nΓÜá∩╕Å  FLAKY TEST DETECTED:")
+=======
+        print("\n⚠️  FLAKY TEST DETECTED:")
+>>>>>>> 7a228f8045f20942a4490c9ac3f8553bb22255bd
         print(f"   Test: {test_name}")
         print(f"   Attempts: {total_attempts} (failed: {failed_attempts})")
         print(f"   Final Status: {final_status}")
@@ -95,6 +112,7 @@ class FlakyTestTracker:
         if error_message:
             print(f"   Error: {error_message[:100]}...")
 
+<<<<<<< HEAD
     def create_influx_points(self) -> List[str]:
         """Create InfluxDB line protocol points for flaky tests"""
         points = []
@@ -161,6 +179,8 @@ class FlakyTestTracker:
             print(f"Γ¥î Error pushing flaky tests to InfluxDB: {e}")
             return False
 
+=======
+>>>>>>> 7a228f8045f20942a4490c9ac3f8553bb22255bd
     def get_flaky_summary(self) -> Dict:
         """Get summary of flaky tests in current session"""
         return {

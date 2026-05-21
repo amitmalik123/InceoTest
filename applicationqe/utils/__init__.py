@@ -10,7 +10,7 @@ Examples:
 """
 
 # API utilities
-from config.stp.stp_moneyin_moneyout.api_endpoints import APIEndpoints
+from utils.api_constants import APIEndpoints
 from utils.api_request_utils import APIClient
 from utils.api_response_utils import (
     get_values_from_household_api_open_accounts,
@@ -19,13 +19,19 @@ from utils.api_response_utils import (
 )
 
 # Assertion utilities
-from utils.assertions import Assertions, SoftAssertions, verify_all
+from utils.assertions import Assertions, SoftAssertionError, SoftAssertions, verify_all
 
 # Auto-healing functionality
 from utils.auto_healing import AutoHealingEngine
 
 # Database utilities
-from utils.database import AzureSQLDatabase, get_configured_azure_db
+from utils.database import (
+    AzureSQLDatabase,
+    SQLDatabase,
+    get_configured_azure_db,
+    get_configured_db,
+    get_db_from_vault,
+)
 
 # Flaky test tracking
 from utils.flaky_test_tracker import FlakyTestTracker, get_tracker
@@ -39,6 +45,12 @@ from utils.logger import setup_logger
 
 # Settings and configuration
 from utils.settings import Settings, settings
+
+# Performance monitoring
+from utils.performance_monitor import PerformanceBudget, PerformanceMonitor
+
+# Outlook email utilities
+from utils.outlook_utils import OutlookOTPPage
 
 # Storage utilities
 from utils.storage_utils import (
@@ -56,11 +68,15 @@ __all__ = [
     "settings",
     # Assertions
     "Assertions",
+    "SoftAssertionError",
     "SoftAssertions",
     "verify_all",
     # Auto-healing
     "AutoHealingEngine",
     # Database
+    "get_configured_db",
+    "get_db_from_vault",
+    "SQLDatabase",
     "get_configured_azure_db",
     "AzureSQLDatabase",
     # API
@@ -69,6 +85,10 @@ __all__ = [
     "get_values_from_household_api_open_accounts",
     "retrieve_all_values_from_response",
     "retrieve_boolean_value_from_response",
+    # Performance
+    "PerformanceMonitor",
+    "PerformanceBudget",
+    "LighthouseRunner",
     # Flaky tests
     "get_tracker",
     "FlakyTestTracker",
@@ -81,4 +101,6 @@ __all__ = [
     "get_timestamp",
     "ensure_directory_exists",
     "generate_test_data",
+    # Outlook
+    "OutlookOTPPage",
 ]

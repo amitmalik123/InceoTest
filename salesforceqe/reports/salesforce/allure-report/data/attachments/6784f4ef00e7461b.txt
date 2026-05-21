@@ -1,0 +1,3 @@
+[32mINFO    [0m test_lead_conversion_bdd:test_lead_conversion_bdd.py:21 Lead: Automation VLMGZ is created and ready for conversion tests.
+[32mINFO    [0m test_lead_conversion_bdd:test_lead_conversion_bdd.py:27 Attempting to convert Lead with missing Broker Dealer Account and CRD Advisor: 87068, 31285
+[32mINFO    [0m test_lead_conversion_bdd:test_lead_conversion_bdd.py:38 Lead Conversion validation errors are verified.

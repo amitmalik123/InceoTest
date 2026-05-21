@@ -1,4 +1,4 @@
-﻿"""
+"""
 Browser Storage Management Utilities
 
 Provides utilities for managing localStorage, sessionStorage, and cookies.

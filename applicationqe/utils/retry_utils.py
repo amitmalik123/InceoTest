@@ -1,4 +1,4 @@
-﻿"""
+"""
 Retry Decorators and Utilities
 
 Provides retry mechanisms with exponential backoff, jitter, and custom retry logic.
@@ -53,7 +53,7 @@ def exponential_backoff(
                 try:
                     result = func(*args, **kwargs)
                     if retry_count > 0:
-                        logger.info(f"[OK] {func.__name__} succeeded after {retry_count} retries")
+                        logger.info(f"✓ {func.__name__} succeeded after {retry_count} retries")
                     return result
 
                 except exceptions as e:
@@ -62,7 +62,7 @@ def exponential_backoff(
 
                     if retry_count > max_retries:
                         logger.error(
-                            f"Γ£ù {func.__name__} failed after {max_retries} retries. "
+                            f"✗ {func.__name__} failed after {max_retries} retries. "
                             f"Last error: {str(e)}"
                         )
                         raise RetryError(f"Failed after {max_retries} retries: {str(e)}") from e
@@ -75,7 +75,7 @@ def exponential_backoff(
                         delay = delay * (0.5 + random.random())
 
                     logger.warning(
-                        f"Γƒ│ {func.__name__} attempt {retry_count}/{max_retries} failed: {str(e)}. "
+                        f"⟳ {func.__name__} attempt {retry_count}/{max_retries} failed: {str(e)}. "
                         f"Retrying in {delay:.2f}s..."
                     )
 

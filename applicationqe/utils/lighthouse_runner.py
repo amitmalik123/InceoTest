@@ -1,4 +1,4 @@
-﻿"""
+"""
 Lighthouse Integration for Playwright Tests
 
 Provides automated Lighthouse audits for performance, accessibility,
@@ -196,7 +196,7 @@ class LighthouseRunner:
             logger.error("Lighthouse audit timed out")
             return {}
         except Exception as e:
-            logger.error(f"Error running Lighthouse: {e}")
+            logger.error(f"Error running Lighthouse: {str(e).splitlines()[0]}")
             return {}
 
     def extract_scores(self, audit_result: Dict) -> Optional[LighthouseScore]:
@@ -222,7 +222,7 @@ class LighthouseRunner:
                 ),
             )
         except Exception as e:
-            logger.error(f"Failed to extract scores: {e}")
+            logger.error(f"Failed to extract scores: {str(e).splitlines()[0]}")
             return None
 
     def extract_metrics(self, audit_result: Dict) -> Optional[LighthouseMetrics]:
@@ -253,7 +253,7 @@ class LighthouseRunner:
                 time_to_interactive=audits.get("interactive", {}).get("numericValue", 0),
             )
         except Exception as e:
-            logger.error(f"Failed to extract metrics: {e}")
+            logger.error(f"Failed to extract metrics: {str(e).splitlines()[0]}")
             return None
 
     def validate_budget(self, scores: LighthouseScore) -> bool:
@@ -274,7 +274,7 @@ class LighthouseRunner:
                 logger.warning(f"  - {message}")
             return False
 
-        logger.info("[OK] All Lighthouse scores meet budget requirements")
+        logger.info("✓ All Lighthouse scores meet budget requirements")
         return True
 
     def generate_report(
@@ -292,15 +292,15 @@ class LighthouseRunner:
             Formatted report string
         """
         report = f"""
-ΓòöΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòù
-Γòæ                        LIGHTHOUSE AUDIT REPORT                           Γòæ
-ΓòÜΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓò¥
+╔══════════════════════════════════════════════════════════════════════════╗
+║                        LIGHTHOUSE AUDIT REPORT                           ║
+╚══════════════════════════════════════════════════════════════════════════╝
 
 URL: {url}
 
-ΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇ
+───────────────────────────────────────────────────────────────────────────
 SCORES
-ΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇ
+───────────────────────────────────────────────────────────────────────────
 Performance:                      {scores.performance:.1f}/100
 Accessibility:                    {scores.accessibility:.1f}/100
 Best Practices:                   {scores.best_practices:.1f}/100
@@ -312,9 +312,9 @@ SEO:                              {scores.seo:.1f}/100
 
         if metrics:
             report += f"""
-ΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇ
+───────────────────────────────────────────────────────────────────────────
 PERFORMANCE METRICS
-ΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇ
+───────────────────────────────────────────────────────────────────────────
 First Contentful Paint:           {metrics.first_contentful_paint:.0f} ms
 Largest Contentful Paint:         {metrics.largest_contentful_paint:.0f} ms
 Total Blocking Time:              {metrics.total_blocking_time:.0f} ms
@@ -325,18 +325,18 @@ Time to Interactive:              {metrics.time_to_interactive:.0f} ms
 
         violations = self.budget.validate(scores)
         report += """
-ΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇ
+───────────────────────────────────────────────────────────────────────────
 BUDGET VALIDATION
-ΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇ
+───────────────────────────────────────────────────────────────────────────
 """
 
         if violations:
-            report += "Status: Γ£ù BUDGET VIOLATIONS DETECTED\n\n"
+            report += "Status: ✗ BUDGET VIOLATIONS DETECTED\n\n"
             for violation in violations.values():
                 report += f"  - {violation}\n"
         else:
-            report += "Status: Γ£ô ALL SCORES MEET BUDGET\n"
+            report += "Status: ✓ ALL SCORES MEET BUDGET\n"
 
-        report += "\nΓòÜΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓò¥\n"
+        report += "\n╚══════════════════════════════════════════════════════════════════════════╝\n"
 
         return report

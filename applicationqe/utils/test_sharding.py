@@ -1,4 +1,4 @@
-﻿"""
+"""
 Test sharding configuration for distributed test execution.
 
 This module provides utilities for sharding tests across multiple machines

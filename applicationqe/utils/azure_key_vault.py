@@ -1,4 +1,4 @@
-﻿"""
+"""
 Azure Key Vault Client
 
 Provides secure secret retrieval from Azure Key Vault with:
@@ -11,7 +11,7 @@ Secret naming convention:
     e.g. test11-azure-sql-password, test11-api-auth-token
 
 Required environment variables (set in .env or CI/CD):
-    AZURE_KEY_VAULT_URL  ΓÇô e.g. https://my-vault.vault.azure.net/
+    AZURE_KEY_VAULT_URL  – e.g. https://my-vault.vault.azure.net/
 
 For CI/CD (service principal), also set:
     AZURE_TENANT_ID, AZURE_CLIENT_ID, AZURE_CLIENT_SECRET
@@ -59,7 +59,7 @@ class AzureKeyVaultClient:
 
         if not self._vault_url:
             self._available = False
-            logger.info("AZURE_KEY_VAULT_URL not set ΓÇô Key Vault disabled (using YAML fallback)")
+            logger.info("AZURE_KEY_VAULT_URL not set – Key Vault disabled (using YAML fallback)")
             return
 
         try:
@@ -154,7 +154,7 @@ def _get_default_client() -> AzureKeyVaultClient:
 
 def get_secret(secret_name: str, default: Optional[str] = None) -> Optional[str]:
     """
-    Convenience function ΓÇô fetches a secret using the module-level client.
+    Convenience function – fetches a secret using the module-level client.
 
     Usage:
         from utils.azure_key_vault import get_secret

@@ -6,7 +6,6 @@ This conftest.py contains ONLY:
 - Global test infrastructure
 
 Fixture Organization:
-- API fixtures: tests/fixtures/api_fixtures.py
 - Page object fixtures: tests/fixtures/page_fixtures.py
 - Test data fixtures: tests/fixtures/data_fixtures.py
 - Database fixtures: tests/fixtures/db_fixtures.py
@@ -18,6 +17,7 @@ Fixture Organization:
 
 import os
 import subprocess
+from collections.abc import Generator
 from pathlib import Path
 import logging
 
@@ -26,9 +26,11 @@ import pytest
 from playwright.sync_api import Page
 import csv
 
-# Import all fixtures to make them available to all tests
+# Import all STP fixtures to make them available to all tests
 from fixtures.stp import *  # noqa: F401, F403
+from config.settings import get_settings
 from utils.allure_logger import enable_step_screenshots
+from utils.excel_utils import excel_report
 from utils.flaky_test_tracker import get_tracker
 from utils.settings import Settings
 from pages.stp.shared.login_page import LoginPage
@@ -197,7 +199,7 @@ def setup_all_sessions(browser, all_test_data, request):
 
 
 # Pytest configuration hooks
-def pytest_addoption(parser):
+def pytest_addoption(parser) -> None:
     """Add custom command-line options"""
     parser.addoption(
         "--screenshot-each-step",
@@ -207,7 +209,7 @@ def pytest_addoption(parser):
     )
 
 
-def pytest_configure(config):
+def pytest_configure(config) -> None:
     """Register custom markers and configure retry behavior"""
     config.addinivalue_line("markers", "env(name): mark test to run only on specific environment")
     config.addinivalue_line("markers", "performance: mark test for performance monitoring")
@@ -217,13 +219,12 @@ def pytest_configure(config):
     config.addinivalue_line("markers", "critical: mark test as critical")
     config.addinivalue_line("markers", "FullRegression: mark test for full regression")
     config.addinivalue_line("markers", "CancelSWP: mark test for Cancel SWP flow")
-   
     config.addinivalue_line(
         "markers", "app(name): mark test to run with specific application (default: ewm)"
     )
 
     # Configure step screenshots - Priority: CLI > ENV VAR > CONFIG FILE
-    settings_instance = Settings()
+    settings_instance = get_settings()
     screenshot_each_step = (
         config.getoption("--screenshot-each-step", default=False)
         or os.getenv("SCREENSHOT_EACH_STEP", "").lower() in ("true", "1", "yes", "on")
@@ -245,30 +246,60 @@ def pytest_configure(config):
         config.option.reruns_delay = 1  # 1 second delay between retries
 
 
-def pytest_sessionstart(session):
+def pytest_sessionstart(session) -> None:
     """
     Hook that runs before test session starts.
-    Clears old Allure results to ensure fresh report for each run.
+    Clears old Allure results, videos, and traces to ensure fresh artifacts for each run.
+    Only the controller (or single-process run) performs cleanup — workers skip it.
     """
+    # In xdist, workers skip cleanup to avoid racing with other workers
+    if hasattr(session.config, "workerinput"):
+        return
+
     import shutil
 
-    allure_results_dir = "reports/allure-results"
+    from utils.download_utils import _get_default_download_dir
 
-    if os.path.exists(allure_results_dir):
-        try:
-            for item in os.listdir(allure_results_dir):
-                item_path = os.path.join(allure_results_dir, item)
-                if os.path.isfile(item_path):
-                    os.remove(item_path)
-                elif os.path.isdir(item_path):
-                    shutil.rmtree(item_path)
-            print(f"\nCleared old Allure results from {allure_results_dir}")
-        except Exception as e:
-            print(f"\nWarning: Failed to clear Allure results: {e}")
-    else:
-        
-        os.makedirs(allure_results_dir, exist_ok=True)
-        print(f"\nCreated Allure results directory: {allure_results_dir}")
+    dirs_to_clean = [
+        "reports/allure-results",
+        "reports/videos",
+        "reports/traces",
+        _get_default_download_dir(),
+    ]
+
+    files_to_clean = [
+        "reports/network_errors_*.log",  # Worker-isolated log files
+    ]
+
+    # Reset Excel report collector for this session
+    excel_report.clear_test_results()
+
+    for dir_path in dirs_to_clean:
+        if os.path.exists(dir_path):
+            try:
+                for item in os.listdir(dir_path):
+                    item_path = os.path.join(dir_path, item)
+                    if os.path.isfile(item_path):
+                        os.remove(item_path)
+                    elif os.path.isdir(item_path):
+                        shutil.rmtree(item_path)
+                print(f"\nCleared old artifacts from {dir_path}")
+            except Exception as e:
+                print(f"\nWarning: Failed to clear {dir_path}: {e}")
+        else:
+            os.makedirs(dir_path, exist_ok=True)
+            print(f"\nCreated directory: {dir_path}")
+
+    for file_pattern in files_to_clean:
+        import glob as _glob
+
+        matched = _glob.glob(file_pattern)
+        for file_path in matched:
+            try:
+                os.remove(file_path)
+                print(f"\nCleared old log: {file_path}")
+            except Exception as e:
+                print(f"\nWarning: Failed to clear {file_path}: {e}")
 
 
 def pytest_bdd_apply_tag(tag, function):
@@ -285,7 +316,7 @@ def pytest_bdd_apply_tag(tag, function):
     return None  # let pytest-bdd handle all other tags normally
 
 
-def pytest_collection_modifyitems(config, items):
+def pytest_collection_modifyitems(config, items) -> None:  # noqa: C901
     """
     Consolidated hook for test collection modification.
 
@@ -296,7 +327,8 @@ def pytest_collection_modifyitems(config, items):
     - Slow test detection
     - PROD scenario execution order (@prod_order_N tags)
     """
-    current_env = os.getenv("TEST_ENV", "test11")
+    current_env = get_settings().env
+    available_apps = set(get_settings().get_available_apps())
 
 
     for item in items:
@@ -304,6 +336,15 @@ def pytest_collection_modifyitems(config, items):
         item.execution_count = 0
         item.failed_count = 0
         item.start_time = None
+
+        # 1b. Auto-map feature file tags to @pytest.mark.app()
+        # If a scenario is tagged @crm, @ewm, etc. and that tag matches
+        # a configured app name, add the app marker automatically.
+        if not item.get_closest_marker("app"):
+            for mark in item.iter_markers():
+                if mark.name in available_apps:
+                    item.add_marker(pytest.mark.app(mark.name))
+                    break
 
         # 2. Add environment markers
         if current_env == "test11":
@@ -337,9 +378,8 @@ def pytest_collection_modifyitems(config, items):
                 item.add_marker(pytest.mark.xdist_group(group))
 
         # 4. Mark slow tests (parametrized tests with many parameters)
-        if hasattr(item, "callspec") and item.callspec:
-            if len(item.callspec.params) > 5:
-                item.add_marker(pytest.mark.slow)
+        if hasattr(item, "callspec") and item.callspec and len(item.callspec.params) > 5:
+            item.add_marker(pytest.mark.slow)
 
     # 5. Sort PROD scenarios by @prod_order_N tag
     prod_items = [i for i in items if any(m.name == "prod" for m in i.iter_markers())]
@@ -348,7 +388,7 @@ def pytest_collection_modifyitems(config, items):
     items[:] = non_prod_items + prod_items
 
 
-def pytest_runtest_setup(item):
+def pytest_runtest_setup(item) -> None:
     """Called before each test execution (including retries)"""
     from datetime import datetime
 
@@ -753,7 +793,7 @@ def performance_budget():
 
 # Pytest hooks for screenshot on failure and flaky test detection
 @pytest.hookimpl(tryfirst=True, hookwrapper=True)
-def pytest_runtest_makereport(item, call):
+def pytest_runtest_makereport(item, call) -> Generator:
     """
     Pytest hook to:
     1. Capture screenshot on test failure (Allure report)
@@ -794,8 +834,11 @@ def pytest_runtest_makereport(item, call):
     outcome = yield
     rep = outcome.get_result()
 
-    # Only take screenshot on failure or error
-    if rep.when == "call" and rep.failed and "page" in item.funcargs:
+    # Store report on node so fixtures can check pass/fail status (used by _stop_tracing)
+    setattr(item, f"rep_{rep.when}", rep)
+
+    # Only take screenshot on failure or error (including setup failures)
+    if rep.failed and rep.when in ("call", "setup") and "page" in item.funcargs:
         page = item.funcargs["page"]
         try:
             # Take screenshot and attach to Allure
@@ -808,18 +851,144 @@ def pytest_runtest_makereport(item, call):
         except Exception as e:
             print(f"Failed to capture screenshot: {e}")
 
+    # Collect data for Excel report (only on the final call phase outcome)
+    if rep.when == "call":
+        excel_report.collect_result_from_item(item, rep)
 
-def pytest_sessionfinish(session, exitstatus):  # noqa: C901
+    # In xdist workers, serialize collected results to per-worker file for merge
+    if rep.when == "call" and os.environ.get("PYTEST_XDIST_WORKER"):
+        _flush_worker_results()
+        _flush_worker_flaky_data()
+
+
+def _flush_worker_results() -> None:
+    """Write current worker's collected Excel results to a per-worker JSON file."""
+    import json
+
+    worker_id = os.environ.get("PYTEST_XDIST_WORKER", "master")
+    worker_file = Path(f"reports/excel_results_{worker_id}.json")
+    worker_file.parent.mkdir(parents=True, exist_ok=True)
+    try:
+        results = excel_report.test_results
+        if results:
+            with open(worker_file, "w", encoding="utf-8") as f:
+                json.dump(results, f, default=str)
+    except Exception:
+        pass
+
+
+def _flush_worker_flaky_data() -> None:
+    """Write current worker's flaky test data to a per-worker JSON file."""
+    import json
+
+    worker_id = os.environ.get("PYTEST_XDIST_WORKER", "master")
+    tracker = get_tracker()
+    if not tracker.flaky_tests:
+        return
+    worker_file = Path(f"reports/flaky_results_{worker_id}.json")
+    worker_file.parent.mkdir(parents=True, exist_ok=True)
+    try:
+        with open(worker_file, "w", encoding="utf-8") as f:
+            json.dump(tracker.flaky_tests, f, default=str)
+    except Exception:
+        pass
+
+
+def _merge_worker_files() -> None:
+    """Merge worker-isolated log/data files into canonical files after parallel runs.
+
+    Each worker writes to ``<name>_gw0.log``, ``<name>_gw1.log``, etc.
+    This function appends all worker fragments into the canonical file
+    and removes the fragments. Called once by the controller in ``pytest_sessionfinish``.
+    """
+    import glob as _glob
+
+    merge_specs = [
+        # (canonical_path, glob_pattern)
+        ("reports/network_errors.log", "reports/network_errors_*.log"),
+        ("reports/http_errors.log", "reports/http_errors_*.log"),
+    ]
+
+    for canonical, pattern in merge_specs:
+        worker_files = sorted(_glob.glob(pattern))
+        if not worker_files:
+            continue
+
+        canonical_path = Path(canonical)
+        canonical_path.parent.mkdir(parents=True, exist_ok=True)
+        with open(canonical_path, "a", encoding="utf-8") as out:
+            for wf in worker_files:
+                try:
+                    with open(wf, "r", encoding="utf-8") as inp:
+                        out.write(inp.read())
+                    os.remove(wf)
+                except Exception as e:
+                    print(f"Warning: Failed to merge {wf}: {e}")
+
+
+def _merge_worker_excel_results() -> None:
+    """Merge per-worker Excel result JSON files into the controller's excel_report."""
+    import glob as _glob
+    import json
+
+    worker_files = sorted(_glob.glob("reports/excel_results_*.json"))
+    for wf in worker_files:
+        try:
+            with open(wf, "r", encoding="utf-8") as f:
+                results = json.load(f)
+            if results:
+                excel_report.test_results.extend(results)
+            os.remove(wf)
+        except Exception as e:
+            print(f"Warning: Failed to merge Excel results from {wf}: {e}")
+
+
+def _merge_worker_flaky_results() -> None:
+    """Merge per-worker flaky test JSON files into the controller's tracker."""
+    import glob as _glob
+    import json
+
+    tracker = get_tracker()
+    worker_files = sorted(_glob.glob("reports/flaky_results_*.json"))
+    for wf in worker_files:
+        try:
+            with open(wf, "r", encoding="utf-8") as f:
+                data = json.load(f)
+            if data:
+                tracker.flaky_tests.update(data)
+            os.remove(wf)
+        except Exception as e:
+            print(f"Warning: Failed to merge flaky results from {wf}: {e}")
+
+
+def pytest_sessionfinish(session, exitstatus) -> None:  # noqa: C901
     """
     Hook that runs after all tests complete.
-    Automatically generates Allure HTML report from JSON results
-    and pushes flaky test metrics to InfluxDB.
-    Also generates auto-healing report.
+    Automatically generates Allure HTML report from JSON results.
+    Also generates auto-healing report and flaky test summary.
+    Only runs on the controller (or single-process run) — workers skip it.
     """
+    # In xdist, workers skip report generation to avoid racing/duplicates
+    if hasattr(session.config, "workerinput"):
+        return
+
+    # Merge worker-isolated files (xdist parallel support)
+    _merge_worker_files()
+    _merge_worker_excel_results()
+    _merge_worker_flaky_results()
+
     import json
     import platform
     import shutil
     from datetime import datetime
+
+    # Generate Excel Report
+    try:
+        report_path = excel_report.generate_excel_report()
+        if report_path:
+            print(f"Excel Report: {report_path.absolute()}")
+    except Exception as e:
+        print(f"\nWARNING: Failed to generate Excel report: {e}\n")
 
     # Generate Auto-Healing Report
     try:

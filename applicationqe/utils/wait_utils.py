@@ -1,4 +1,4 @@
-﻿"""
+"""
 Custom Wait Utilities
 
 Provides flexible waiting mechanisms beyond standard Playwright waits.
@@ -25,7 +25,27 @@ def wait_for_condition(
     poll_interval: float = 0.5,
     error_message: str = "Condition not met within timeout",
 ) -> bool:
-   
+    """
+    Wait for a custom condition to be true.
+
+    Args:
+        condition: Callable that returns boolean
+        timeout: Maximum time to wait in seconds
+        poll_interval: Time between condition checks
+        error_message: Error message if timeout
+
+    Returns:
+        True if condition met
+
+    Raises:
+        WaitTimeoutError: If condition not met within timeout
+
+    Example:
+        wait_for_condition(
+            lambda: page.locator("#count").inner_text() == "10",
+            timeout=10.0
+        )
+    """
     start_time = time.time()
     last_exception = None
 
@@ -57,7 +77,26 @@ def wait_for_value(
     poll_interval: float = 0.5,
     error_message: Optional[str] = None,
 ) -> T:
-   
+    """
+    Wait for a value to match expected value.
+
+    Args:
+        getter: Callable that returns a value
+        expected_value: Expected value to match
+        timeout: Maximum time to wait
+        poll_interval: Time between checks
+        error_message: Custom error message
+
+    Returns:
+        The expected value
+
+    Example:
+        count = wait_for_value(
+            lambda: int(page.locator("#count").inner_text()),
+            expected_value=100,
+            timeout=10.0
+        )
+    """
     if error_message is None:
         error_message = f"Value did not match {expected_value}"
 
@@ -72,7 +111,21 @@ def wait_for_value(
 def wait_for_element_count(
     locator: Locator, count: int, timeout: float = 30.0, poll_interval: float = 0.5
 ) -> bool:
-   
+    """
+    Wait for specific number of elements.
+
+    Args:
+        locator: Playwright locator
+        count: Expected element count
+        timeout: Maximum time to wait
+        poll_interval: Time between checks
+
+    Returns:
+        True if count matches
+
+    Example:
+        wait_for_element_count(page.locator(".item"), count=5)
+    """
     return wait_for_condition(
         lambda: locator.count() == count,
         timeout=timeout,
@@ -84,7 +137,21 @@ def wait_for_element_count(
 def wait_for_text_to_contain(
     locator: Locator, text: str, timeout: float = 30.0, case_sensitive: bool = True
 ) -> bool:
-    
+    """
+    Wait for element text to contain specific text.
+
+    Args:
+        locator: Playwright locator
+        text: Text to wait for
+        timeout: Maximum time to wait
+        case_sensitive: Case-sensitive comparison
+
+    Returns:
+        True if text found
+
+    Example:
+        wait_for_text_to_contain(page.locator("#status"), "Success")
+    """
 
     def condition():
         actual_text = locator.inner_text()
@@ -100,7 +167,20 @@ def wait_for_text_to_contain(
 def wait_for_text_to_change(
     locator: Locator, initial_text: Optional[str] = None, timeout: float = 30.0
 ) -> str:
-   
+    """
+    Wait for element text to change from initial value.
+
+    Args:
+        locator: Playwright locator
+        initial_text: Initial text (if None, will be fetched)
+        timeout: Maximum time to wait
+
+    Returns:
+        New text value
+
+    Example:
+        new_text = wait_for_text_to_change(page.locator("#counter"))
+    """
     if initial_text is None:
         initial_text = locator.inner_text()
 
@@ -115,7 +195,21 @@ def wait_for_text_to_change(
 def wait_for_attribute_value(
     locator: Locator, attribute: str, value: str, timeout: float = 30.0
 ) -> bool:
-   
+    """
+    Wait for element attribute to have specific value.
+
+    Args:
+        locator: Playwright locator
+        attribute: Attribute name
+        value: Expected attribute value
+        timeout: Maximum time to wait
+
+    Returns:
+        True if attribute matches
+
+    Example:
+        wait_for_attribute_value(page.locator("#input"), "disabled", "true")
+    """
     return wait_for_condition(
         lambda: locator.get_attribute(attribute) == value,
         timeout=timeout,
@@ -124,7 +218,20 @@ def wait_for_attribute_value(
 
 
 def wait_for_class_to_contain(locator: Locator, class_name: str, timeout: float = 30.0) -> bool:
-   
+    """
+    Wait for element to have specific CSS class.
+
+    Args:
+        locator: Playwright locator
+        class_name: CSS class name to wait for
+        timeout: Maximum time to wait
+
+    Returns:
+        True if class found
+
+    Example:
+        wait_for_class_to_contain(page.locator("#button"), "active")
+    """
 
     def condition():
         class_attr = locator.get_attribute("class") or ""
@@ -138,7 +245,22 @@ def wait_for_class_to_contain(locator: Locator, class_name: str, timeout: float 
 def wait_for_url_to_match(
     page: Page, pattern: str, timeout: float = 30.0, exact: bool = False
 ) -> bool:
-   
+    """
+    Wait for page URL to match pattern.
+
+    Args:
+        page: Playwright page
+        pattern: URL pattern to match
+        timeout: Maximum time to wait
+        exact: Exact match vs contains
+
+    Returns:
+        True if URL matches
+
+    Example:
+        wait_for_url_to_match(page, "/dashboard", timeout=10.0)
+    """
+
     def condition():
         current_url = page.url
         if exact:
@@ -151,25 +273,70 @@ def wait_for_url_to_match(
 
 
 def wait_for_download(page: Page, trigger_action: Callable, timeout: float = 30.0) -> Any:
-   
+    """
+    Wait for download to start.
+
+    Args:
+        page: Playwright page
+        trigger_action: Action that triggers download
+        timeout: Maximum time to wait
+
+    Returns:
+        Download object
+
+    Example:
+        download = wait_for_download(
+            page,
+            lambda: page.click("#download-btn"),
+            timeout=10.0
+        )
+    """
     with page.expect_download(timeout=timeout * 1000) as download_info:
         trigger_action()
     return download_info.value
 
 
 def wait_for_network_idle(page: Page, timeout: float = 30.0, idle_time: float = 0.5) -> bool:
-    
+    """
+    Wait for network to be idle (no requests for specified time).
+
+    Args:
+        page: Playwright page
+        timeout: Maximum time to wait
+        idle_time: Time with no requests to consider idle
+
+    Returns:
+        True when network is idle
+
+    Example:
+        wait_for_network_idle(page, timeout=10.0)
+    """
     try:
-        page.wait_for_load_state("networkidle", timeout=timeout * 1000)
+        page.wait_for_load_state("domcontentloaded", timeout=timeout * 1000)
         return True
     except Exception as e:
-        logger.warning(f"Network idle wait failed: {e}")
+        logger.warning(f"Network idle wait failed: {str(e).splitlines()[0]}")
         return False
 
 
 def wait_for_console_message(
     page: Page, text_pattern: str, timeout: float = 30.0, message_type: Optional[str] = None
 ) -> bool:
+    """
+    Wait for console message matching pattern.
+
+    Args:
+        page: Playwright page
+        text_pattern: Text pattern to match
+        timeout: Maximum time to wait
+        message_type: Filter by type (log, error, warning)
+
+    Returns:
+        True if message found
+
+    Example:
+        wait_for_console_message(page, "API call successful", timeout=5.0)
+    """
     message_found = False
 
     def on_console(msg):
@@ -193,6 +360,14 @@ def wait_for_console_message(
 
 
 class WaitContext:
+    """
+    Context manager for custom waits with automatic cleanup.
+
+    Example:
+        with WaitContext(timeout=10.0, poll_interval=0.5) as wait:
+            wait.until(lambda: element.is_visible())
+            wait.until_text_contains(locator, "Complete")
+    """
 
     def __init__(self, timeout: float = 30.0, poll_interval: float = 0.5):
         self.timeout = timeout
@@ -230,134 +405,3 @@ class WaitContext:
         return self.until(
             lambda: text in locator.inner_text(), error_message=f"Text '{text}' not found"
         )
-
-
-def wait_for_element_stable(
-    locator: Locator,
-    timeout: float = 15.0,
-    check_animations: bool = True,
-    check_enabled: bool = False,
-) -> Locator:
-    logger.debug(f"Waiting for element to be stable: {locator}")
-    
-    try:
-        # Stage 1: Wait for attached to DOM
-        logger.debug("Stage 1: Waiting for element to be attached to DOM")
-        locator.wait_for(state="attached", timeout=timeout * 1000)
-        
-        # Stage 2: Wait for visible
-        logger.debug("Stage 2: Waiting for element to be visible")
-        wait_for_condition(
-            lambda: locator.is_visible(),
-            timeout=timeout,
-            poll_interval=0.5,
-            error_message="Element not visible after being attached"
-        )
-        
-        # Stage 3: Wait for animations to complete (if requested)
-        if check_animations:
-            logger.debug("Stage 3: Waiting for animations to complete")
-            wait_for_condition(
-                lambda: locator.evaluate("el => el.getAnimations().length === 0"),
-                timeout=5.0,  # Shorter timeout for animations
-                poll_interval=0.3,
-                error_message="Element animations did not complete"
-            )
-        
-        # Stage 4: Wait for enabled (if requested)
-        if check_enabled:
-            logger.debug("Stage 4: Waiting for element to be enabled")
-            wait_for_condition(
-                lambda: locator.is_enabled(),
-                timeout=timeout,
-                poll_interval=0.5,
-                error_message="Element not enabled"
-            )
-        
-        logger.info(f"Element is stable and ready for interaction")
-        return locator
-        
-    except Exception as e:
-        logger.error(f"Element stability check failed: {str(e)}")
-        raise WaitTimeoutError(f"Element did not become stable: {str(e)}")
-
-
-def wait_for_spa_ready(page: Page, timeout: float = 30.0) -> bool:
-    
-    logger.debug("Waiting for SPA to be ready")
-    
-    try:
-        # Stage 1: DOM content loaded
-        logger.debug("Stage 1: Waiting for DOM content loaded")
-        page.wait_for_load_state("domcontentloaded", timeout=timeout * 1000)
-        
-        # Stage 2: Network idle
-        logger.debug("Stage 2: Waiting for network idle")
-        wait_for_network_idle(page, timeout=timeout)
-        
-        # Stage 3: Check for common loading indicators
-        logger.debug("Stage 3: Checking for loading indicators")
-        common_loading_selectors = [
-            "[data-testid='loading-spinner']",
-            ".loading-spinner",
-            ".spinner",
-            "[aria-busy='true']",
-            ".loader"
-        ]
-        
-        for selector in common_loading_selectors:
-            loader = page.locator(selector)
-            if loader.count() > 0:
-                logger.debug(f"Found loading indicator: {selector}, waiting for it to disappear")
-                wait_for_condition(
-                    lambda: not loader.is_visible(),
-                    timeout=10.0,
-                    poll_interval=0.5,
-                    error_message=f"Loading indicator {selector} did not disappear"
-                )
-        
-        logger.info("SPA is ready for interaction")
-        return True
-        
-    except Exception as e:
-        logger.warning(f"SPA ready check encountered issue: {e}")
-        return False
-
-
-def wait_for_dynamic_element(
-    page: Page, 
-    selector: str, 
-    max_attempts: int = 5,
-    attempt_timeout: float = 5.0,
-    wait_between_attempts: float = 1.0
-) -> Locator:
-    logger.debug(f"Waiting for dynamic element: {selector} (max attempts: {max_attempts})")
-    last_error = None
-    
-    for attempt in range(1, max_attempts + 1):
-        try:
-            logger.debug(f"Attempt {attempt}/{max_attempts}")
-            locator = page.locator(selector).first
-            
-            # Use the stable wait
-            wait_for_element_stable(locator, timeout=attempt_timeout)
-            
-            logger.info(f"Dynamic element found and stable on attempt {attempt}")
-            return locator
-            
-        except Exception as e:
-            last_error = e
-            logger.debug(f"Attempt {attempt} failed: {str(e)}")
-            
-            if attempt < max_attempts:
-                logger.debug(f"Waiting {wait_between_attempts}s before retry")
-                time.sleep(wait_between_attempts)
-                
-                # Re-check network idle between attempts
-                wait_for_network_idle(page, timeout=5.0)
-            else:
-                logger.error(f"All {max_attempts} attempts failed")
-    
-    error_msg = f"Element '{selector}' did not become stable after {max_attempts} attempts. Last error: {last_error}"
-    raise WaitTimeoutError(error_msg)
-

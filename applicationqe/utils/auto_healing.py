@@ -1,4 +1,4 @@
-﻿"""
+"""
 Auto-Healing Engine for Playwright Test Automation
 
 This module provides self-healing capabilities for locators when elements cannot be found.
@@ -249,7 +249,7 @@ class AutoHealingEngine:
                 with open(self.storage_path, "r") as f:
                     return json.load(f)
             except Exception as e:
-                logger.warning(f"Failed to load locator storage: {e}")
+                logger.warning(f"Failed to load locator storage: {str(e).splitlines()[0]}")
         return {}
 
     def _save_storage(self):
@@ -258,7 +258,7 @@ class AutoHealingEngine:
             with open(self.storage_path, "w") as f:
                 json.dump(self.locator_storage, indent=2, fp=f)
         except Exception as e:
-            logger.error(f"Failed to save locator storage: {e}")
+            logger.error(f"Failed to save locator storage: {str(e).splitlines()[0]}")
 
     def _get_locator_key(self, selector: str, page_url: str = "") -> str:
         """Generate unique key for locator"""

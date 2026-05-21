@@ -1,4 +1,4 @@
-﻿"""
+"""
 PDF Testing Utilities
 
 Provides utilities for PDF file validation and content extraction.
@@ -13,6 +13,30 @@ if TYPE_CHECKING:
     from PyPDF2 import PdfReader
 
 logger = logging.getLogger(__name__)
+
+
+def _normalize_text(value: str) -> str:
+    """Normalize whitespace for resilient text checks."""
+    return " ".join((value or "").split())
+
+
+def assert_pdf_text(
+    pdf_text: str,
+    expected_text: str,
+    unexpected_text: str = "",
+) -> None:
+    """Assert expected/unexpected text using case-insensitive contains checks."""
+    normalized_pdf = _normalize_text(pdf_text).lower()
+
+    if expected_text:
+        expected_tokens = [token.strip() for token in expected_text.split("||") if token.strip()]
+        for token in expected_tokens:
+            assert token.lower() in normalized_pdf, f"Expected text not found in PDF: {token}"
+
+    if unexpected_text:
+        unexpected_tokens = [token.strip() for token in unexpected_text.split("||") if token.strip()]
+        for token in unexpected_tokens:
+            assert token.lower() not in normalized_pdf, f"Unexpected text found in PDF: {token}"
 
 
 class PDFValidator:
@@ -94,15 +118,15 @@ class PDFValidator:
             assert (
                 actual_count == expected_count
             ), f"Page count mismatch: expected {expected_count}, got {actual_count}"
-            logger.info(f"[OK] Page count matches: {expected_count}")
+            logger.info(f"✓ Page count matches: {expected_count}")
 
         if min_pages is not None:
             assert actual_count >= min_pages, f"Too few pages: {actual_count} < {min_pages}"
-            logger.debug(f"[OK] Page count >= {min_pages}")
+            logger.debug(f"✓ Page count >= {min_pages}")
 
         if max_pages is not None:
             assert actual_count <= max_pages, f"Too many pages: {actual_count} > {max_pages}"
-            logger.debug(f"[OK] Page count <= {max_pages}")
+            logger.debug(f"✓ Page count <= {max_pages}")
 
         return True
 
@@ -181,7 +205,7 @@ class PDFValidator:
 
         assert expected_text in actual_text, f"Text '{expected_text}' not found in PDF"
 
-        logger.info(f"[OK] PDF contains text: '{expected_text}'")
+        logger.info(f"✓ PDF contains text: '{expected_text}'")
         return True
 
     def assert_text_not_contains(
@@ -196,7 +220,7 @@ class PDFValidator:
 
         assert unwanted_text not in actual_text, f"Unwanted text '{unwanted_text}' found in PDF"
 
-        logger.info(f"[OK] PDF does not contain: '{unwanted_text}'")
+        logger.info(f"✓ PDF does not contain: '{unwanted_text}'")
         return True
 
     def search_text(self, search_text: str, case_sensitive: bool = False) -> List[int]:
@@ -269,21 +293,21 @@ class PDFValidator:
             assert expected_title in str(
                 actual_title
             ), f"Title mismatch: expected '{expected_title}', got '{actual_title}'"
-            logger.debug(f"[OK] PDF title matches")
+            logger.debug(f"✓ PDF title matches")
 
         if expected_author:
             actual_author = metadata.get("/Author") or metadata.get("author", "")
             assert expected_author in str(
                 actual_author
             ), f"Author mismatch: expected '{expected_author}', got '{actual_author}'"
-            logger.debug(f"[OK] PDF author matches")
+            logger.debug(f"✓ PDF author matches")
 
         if expected_creator:
             actual_creator = metadata.get("/Creator") or metadata.get("creator", "")
             assert expected_creator in str(
                 actual_creator
             ), f"Creator mismatch: expected '{expected_creator}', got '{actual_creator}'"
-            logger.debug(f"[OK] PDF creator matches")
+            logger.debug(f"✓ PDF creator matches")
 
         return True
 
@@ -350,13 +374,13 @@ class PDFValidator:
             assert (
                 actual_size <= max_size_mb
             ), f"PDF too large: {actual_size:.2f}MB > {max_size_mb}MB"
-            logger.debug(f"[OK] PDF size <= {max_size_mb}MB")
+            logger.debug(f"✓ PDF size <= {max_size_mb}MB")
 
         if min_size_mb is not None:
             assert (
                 actual_size >= min_size_mb
             ), f"PDF too small: {actual_size:.2f}MB < {min_size_mb}MB"
-            logger.debug(f"[OK] PDF size >= {min_size_mb}MB")
+            logger.debug(f"✓ PDF size >= {min_size_mb}MB")
 
         return True
 
@@ -365,9 +389,9 @@ class PDFValidator:
         metadata = self.get_metadata()
 
         report = f"""
-ΓòöΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòù
-Γòæ                        PDF VALIDATION REPORT                             Γòæ
-ΓòÜΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓò¥
+╔══════════════════════════════════════════════════════════════════════════╗
+║                        PDF VALIDATION REPORT                             ║
+╚══════════════════════════════════════════════════════════════════════════╝
 
 File: {self.pdf_path.name}
 Path: {self.pdf_path}
@@ -381,6 +405,6 @@ METADATA:
   Creator: {metadata.get('/Creator', 'N/A')}
   Producer: {metadata.get('/Producer', 'N/A')}
 
-ΓòÜΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓò¥
+╚══════════════════════════════════════════════════════════════════════════╝
 """
         return report

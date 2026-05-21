@@ -1,4 +1,4 @@
-﻿"""
+"""
 API Client utility for making HTTP requests with contract validation support
 """
 
@@ -180,7 +180,17 @@ class APIClient:
     def validate_contract(
         self, endpoint: str, method: str, response: Optional[requests.Response] = None
     ) -> bool:
-        
+        """
+        Validate response against contract.
+
+        Args:
+            endpoint: API endpoint
+            method: HTTP method
+            response: Response to validate (uses last response if not provided)
+
+        Returns:
+            True if valid, False otherwise
+        """
         if not self.contract_validator:
             logger.warning("No contract validator configured")
             return True
