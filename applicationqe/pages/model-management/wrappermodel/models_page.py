@@ -780,7 +780,17 @@ class ModelsPage(BasePage):
 
         results = self.page.evaluate(script, {"perStrategy": per_strategy, "remainder": remainder})
         logger.info(f"Allocation values set: {results}")
-        self.page.wait_for_timeout(1000)
+        
+        # Wait for React to process changes and enable Save Draft button
+        self.page.wait_for_timeout(2000)
+        
+        # Explicitly wait for Save Draft button to become visible and enabled
+        try:
+            self.save_draft_button.wait_for(state="visible", timeout=10000)
+            logger.info("Save Draft button is now visible after allocation")
+        except Exception as e:
+            logger.warning(f"Save Draft button not immediately visible after allocation: {e}")
+            # Continue anyway - fallback save handling will attempt to save
 
     def modify_allocation_percentages(self) -> list[int]:
         """Randomize allocations for all existing strategies so total equals 100%."""

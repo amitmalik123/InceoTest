@@ -1,0 +1,9 @@
+{
+  "d61a6ef3375cd2544355b80220887133": {
+    "original": "<Locator frame=<Frame name= url='https://app.test01.assetmark.com/models'> selector='internal:label=\"Username\"i'>",
+    "selector": "<Locator frame=<Frame name= url='https://app.test01.assetmark.com/models'> selector='a >> nth=0'>",
+    "strategy": "similar_element",
+    "timestamp": 1779396338.2776296,
+    "success_count": 27
+  }
+}

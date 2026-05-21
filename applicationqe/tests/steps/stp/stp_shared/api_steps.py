@@ -8,7 +8,7 @@ import requests
 from pytest_bdd import parsers, then, when
 
 from pages.stp.shared.api_utility_page import APIUtilityPage
-from tests.api.stp.services.beneficiaryHouseholdService import BeneficiaryHouseholdService
+from tests.api.STP.services.beneficiaryHouseholdService import BeneficiaryHouseholdService
 from utils.allure_logger import get_allure_logger
 from utils.api_request_utils import APIClient
 
@@ -607,4 +607,5 @@ def send_beneficiary_household_api_request(household_id, depth, test_context, be
         name=f"Beneficiary Household Response - {household_id} (Depth: {depth})",
         attachment_type=allure.attachment_type.JSON
     )
+
 

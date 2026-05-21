@@ -19,13 +19,13 @@ import os
 import subprocess
 from collections.abc import Generator
 from pathlib import Path
-<<<<<<< HEAD
+
 import sys
 import getpass
 import os
-=======
+
 import logging
->>>>>>> origin/develop
+
 
 import allure
 import pytest
@@ -33,7 +33,7 @@ from playwright.sync_api import Page
 import csv
 
 # Import all STP fixtures to make them available to all tests
-from fixtures.stp import *  # noqa: F401, F403
+from fixtures.STP import *  # noqa: F401, F403
 from config.settings import get_settings
 from utils.allure_logger import enable_step_screenshots
 from utils.excel_utils import excel_report
@@ -59,15 +59,6 @@ DOWNLOAD_PATH = str(_PROJECT_ROOT / "downloads" / "ACH PDF")
 
 AUTH_STATE_DIR = Path("tests/.auth")
 
-def pytest_addoption(parser):
-    """Add a custom --env option to specify the test environment."""
-    parser.addoption(
-        "--env",
-        action="store",
-        default="test11",
-        help="Specify the test environment (e.g., test01, test11, prod). Default is test11."
-    )
-
 @pytest.fixture(scope="session")
 def test_environment(request):
     """Provide the test environment as a fixture."""
@@ -79,15 +70,14 @@ def browser_type_launch_args(browser_type_launch_args):
     return {
         **browser_type_launch_args,
         "headless": False,
-        "args": ["--start-maximized"],
+        "args": [
+            "--start-maximized",
+            "--disable-features=Translate",  # Disable translation prompts
+        ],
     }
 
 
 @pytest.fixture(scope="session")
-<<<<<<< HEAD
-def browser_context_args(browser_context_args):
-    """Configure browser context to ignore HTTPS errors and use a maximized viewport."""
-=======
 def all_test_data():
     """Load ALL test data rows from CSV (one row per role/user)"""
     csv_path = settings.test_data_csv
@@ -234,6 +224,12 @@ def setup_all_sessions(browser, all_test_data, request):
 # Pytest configuration hooks
 def pytest_addoption(parser) -> None:
     """Add custom command-line options"""
+    parser.addoption(
+        "--env",
+        action="store",
+        default="test11",
+        help="Specify the test environment (e.g., test01, test11, prod). Default is test11.",
+    )
     parser.addoption(
         "--screenshot-each-step",
         action="store_true",
@@ -433,7 +429,7 @@ def pytest_runtest_setup(item) -> None:
 @pytest.fixture(scope="session")
 def browser_type_launch_args(browser_type_launch_args):
     """Configure browser launch arguments to disable PDF viewer"""
->>>>>>> origin/develop
+
     return {
         **browser_type_launch_args,
         "args": [
@@ -450,9 +446,9 @@ def browser_context_args(browser_context_args, request):
     context_args = {
         **browser_context_args,
         "ignore_https_errors": True,
-<<<<<<< HEAD
+
         "no_viewport": True,
-=======
+
         "accept_downloads": True,
         "viewport": {"width": 1920, "height": 1080},
     }
@@ -489,7 +485,7 @@ def download_handler(page: Page):
     yield {
         "download_path": DOWNLOAD_PATH,
         "downloads": downloads
->>>>>>> origin/develop
+
     }
 
 
@@ -657,6 +653,22 @@ def page(context, browser, test_context, request):
         except Exception as e:
             print(f"[SESSION] Login error: {e}")
 
+        # Maximize window if running in headed mode
+        try:
+            # For Chromium/Chrome, the --start-maximized flag handles this
+            # For additional safety, we can also try to maximize via JavaScript
+            is_headless = page.context.browser._impl._launch_args.get("headless", True)
+            if not is_headless:
+                print("[SESSION] Running in HEADED mode - window should be maximized")
+                # Attempt to maximize window size (works with no_viewport: True)
+                viewport_size = page.viewport_size
+                if viewport_size:
+                    print(f"[SESSION] Viewport size: {viewport_size['width']}x{viewport_size['height']}")
+                else:
+                    print("[SESSION] Viewport is unrestricted (no_viewport: True)")
+        except Exception as e:
+            print(f"[SESSION] Could not check viewport: {e}")
+
         yield page
 
         page.close()
@@ -679,8 +691,21 @@ def fresh_page(browser):
             fresh_page.goto("/login")
             # No session - test login flow
     """
-    context = browser.new_context(ignore_https_errors=True)
+    context = browser.new_context(ignore_https_errors=True, no_viewport=True)
     page = context.new_page()
+
+    # Log window state
+    try:
+        is_headless = browser._impl._launch_args.get("headless", True)
+        if not is_headless:
+            print("[FRESH_PAGE] Running in HEADED mode - window should be maximized")
+            viewport_size = page.viewport_size
+            if viewport_size:
+                print(f"[FRESH_PAGE] Viewport size: {viewport_size['width']}x{viewport_size['height']}")
+            else:
+                print("[FRESH_PAGE] Viewport is unrestricted (no_viewport: True)")
+    except Exception as e:
+        print(f"[FRESH_PAGE] Could not check viewport: {e}")
 
     yield page
 
@@ -1272,7 +1297,7 @@ def _navigate_with_fallback(page, url: str, username: str, password: str,
 @pytest.fixture
 def vcr_config():
     """VCR configuration for recording HTTP interactions"""
-<<<<<<< HEAD
+
     return {
         "filter_headers": ['authorization'],
     }
@@ -1299,6 +1324,6 @@ def maximize_window_and_login(browser):
     # Wait for successful login
     page.wait_for_url("**/en.aspx", timeout=30000)
     return page
-=======
+
     return {"filter_headers": ["authorization"]}
->>>>>>> origin/develop
+
