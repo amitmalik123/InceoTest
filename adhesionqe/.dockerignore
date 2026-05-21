@@ -1,0 +1,82 @@
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+*.egg-info/
+dist/
+build/
+.venv/
+venv/
+ENV/
+env/
+
+# Testing
+.pytest_cache/
+.mypy_cache/
+.coverage
+htmlcov/
+.tox/
+*.log
+
+# Reports and Results
+reports/
+testResults/
+allure-results/
+allure-report/
+*.html
+*.xml
+screenshots/
+traces/
+videos/
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+.DS_Store
+
+# Git
+.git/
+.gitignore
+.gitattributes
+
+# Docker
+.dockerignore
+Dockerfile
+docker-compose*.yml
+
+# CI/CD
+.github/
+.gitlab-ci.yml
+azurePipeline.yaml
+
+# Documentation (optional - uncomment if you want to exclude)
+# *.md
+# docs/
+
+# Auth files
+tests/.auth/
+.auth/
+*.session
+*.cookies
+
+# Temporary files
+tmp/
+temp/
+*.tmp
+
+# Node modules (for Allure)
+node_modules/
+package-lock.json
+
+# OS files
+Thumbs.db
+.DS_Store
+
+# Backup files
+*.bak
+*.backup

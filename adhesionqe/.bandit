@@ -1,0 +1,16 @@
+# Bandit configuration (YAML format)
+exclude_dirs:
+  - '/venv/'
+  - '/.venv/'
+  - '/tests/'
+  - '/allure-results/'
+  - '/reports/'
+  - '/traces/'
+  - '/screenshots/'
+  - '/videos/'
+  - '/__pycache__/'
+
+skips:
+  - 'B101'
+  - 'B601'
+  - 'B602'
