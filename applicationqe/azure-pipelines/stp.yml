@@ -1,0 +1,111 @@
+name: stp-$(Date:yyyyMMdd)$(Rev:.r)
+
+trigger:
+  branches:
+    include:
+      - main
+      - develop
+      - STP
+  paths:
+    include:
+      - applicationqe/data/stp/**
+      - applicationqe/config/stp/**
+      - applicationqe/tests/features/stp/**
+      - applicationqe/tests/steps/stp/**
+      - applicationqe/pages/stp/**
+      - applicationqe/queries/stp/**
+      - applicationqe/azure-pipelines/stp.yml
+      - applicationqe/azure-pipelines/templates/**
+      - applicationqe/requirements.txt
+
+pr:
+  branches:
+    include:
+      - main
+      - develop
+      - STP
+  paths:
+    include:
+      - applicationqe/data/stp/**
+      - applicationqe/config/stp/**
+      - applicationqe/tests/features/stp/**
+      - applicationqe/tests/steps/stp/**
+      - applicationqe/pages/stp/**
+      - applicationqe/queries/stp/**
+      - applicationqe/azure-pipelines/stp.yml
+      - applicationqe/azure-pipelines/templates/**
+      - applicationqe/requirements.txt
+
+# -----------------------------
+# Scheduled Trigger - Daily Run
+# -----------------------------
+schedules:
+  - cron: "05 12 * * *"
+    displayName: "Daily STP Smoke - test11"
+    branches:
+      include:
+        - STP
+    always: true
+
+variables:
+  - group: qa-pipelines-shared-config
+
+# -----------------------------
+# Parameters for Manual Runs
+# -----------------------------
+parameters:
+  - name: environment
+    displayName: "Target Environment"
+    type: string
+    default: "test11"
+    values:
+      - test11
+      - test12
+      - silo
+      - prod
+      - qa
+
+  - name: marker
+    displayName: "Pytest Marker to Run"
+    type: string
+    default: "smoke"
+    values:
+      - smoke
+      - regression
+      - e2e
+      - add_ach
+      - manage_bene
+      - roth_conversion
+
+  - name: workers
+    displayName: "Number of Parallel Workers"
+    type: string
+    default: "1"
+    values:
+      - "1"
+      - "2"
+      - "3"
+      - "4"
+      - "auto"
+
+  - name: browser
+    displayName: "Browser to Test"
+    type: string
+    default: "chromium"
+    values:
+      - chromium
+      - msedge
+      - both
+
+stages:
+  - template: templates/team-stage.yml
+    parameters:
+      stageName: STP
+      teamDisplay: STP
+      featurePath: tests/Runner/STP
+      environment: ${{ parameters.environment }}
+      marker: ${{ parameters.marker }}
+      workers: ${{ parameters.workers }}
+      browser: ${{ parameters.browser }}
+      keyVaultName: 'amkkvqapipeline-testncus'
+      azureSubscription: 'TEST Foundation (9156b16c-8a2e-4b7d-a886-e772dc017316)'
