@@ -38,20 +38,5 @@ def setup_logger(name=__name__, level=logging.INFO):
     return logger
 
 
-# Alias for backward compatibility
-def get_logger(name=__name__, level=logging.INFO):
-    """
-    Get a logger instance (alias for setup_logger).
-
-    Args:
-        name: Logger name (typically __name__ from calling module)
-        level: Logging level (default: INFO)
-
-    Returns:
-        logging.Logger: Configured logger instance
-    """
-    return setup_logger(name, level)
-
-
 # Create a default logger for the framework
 default_logger = setup_logger("test_framework")
