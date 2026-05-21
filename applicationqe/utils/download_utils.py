@@ -512,8 +512,6 @@ class DownloadManager:
         logger.info(f"Cleaned up {count} files from {self.download_dir}")
         return count
 
-<<<<<<< HEAD
-=======
     def close_popup_pages(self, keep_index: int = 0) -> None:
         """
         Close popup pages and return focus to the main page.
@@ -536,7 +534,6 @@ class DownloadManager:
         except Exception as e:
             logger.warning(f"Error closing popup pages: {str(e).splitlines()[0]}")
 
->>>>>>> 7a228f8045f20942a4490c9ac3f8553bb22255bd
     def get_file_size_mb(self, filepath: Path) -> float:
         """Get file size in MB"""
         size_bytes = filepath.stat().st_size
@@ -565,17 +562,9 @@ class DownloadManager:
                 import jsonschema
 
                 jsonschema.validate(instance=content, schema=schema)
-<<<<<<< HEAD
-                logger.debug("[OK] JSON schema validated")
-            except ImportError:
-                logger.warning("jsonschema library not installed, skipping schema validation")
-
-        logger.info(f"[OK] JSON file validated: {filepath.name}")
-=======
                 logger.debug("✓ JSON schema validated")
             except ImportError:
                 logger.warning("jsonschema library not installed, skipping schema validation")
 
         logger.info(f"✓ JSON file validated: {filepath.name}")
->>>>>>> 7a228f8045f20942a4490c9ac3f8553bb22255bd
         return content
