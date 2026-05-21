@@ -15,19 +15,13 @@ from typing import Any, Dict, List
 
 import requests
 
-try:
-    from utils.crypto_utils import decrypt_value
-except ImportError:
-    def decrypt_value(value: str) -> str:
-        """Fallback when crypto_utils is not available."""
-        return value
+from utils.crypto_utils import decrypt_value
 
 
 def load_azure_analytics_config():
     """Load Azure Log Analytics configuration from config file or environment variables"""
-    config_module = os.getenv(
-        "CONFIG_MODULE", "billing/platformrevenuedashboard/strategistgroupmodel"
-    )
+    # CONFIG_MODULE determines the project subfolder under config/ (e.g., "naw", "crm")
+    config_module = os.getenv("CONFIG_MODULE", "naw")
     config_path = Path(__file__).parent.parent / "config" / config_module / "azure_analytics_config.json"
 
     # Try to load from config file first
@@ -47,7 +41,7 @@ def load_azure_analytics_config():
         except Exception:
             print("Warning: Could not decrypt shared_key from config, falling back to env var")
 
-    # Build final config: config file values -> environment variable overrides -> defaults
+    # Build final config: config file values → environment variable overrides → defaults
     default_project = os.getenv(
         "BUILD_REPOSITORY_NAME", os.getenv("SYSTEM_TEAMPROJECT", "unknown")
     )
@@ -113,7 +107,7 @@ class AllureToAzureAnalytics:
 
         for json_file in json_files:
             try:
-                with open(json_file, "r") as f:
+                with open(json_file, "r", encoding="utf-8") as f:
                     test_data = json.load(f)
                     test_name = test_data.get("name", "")
 
@@ -146,7 +140,7 @@ class AllureToAzureAnalytics:
         # Read containers
         for json_file in glob.glob(os.path.join(self.allure_results_dir, "*-container.json")):
             try:
-                with open(json_file, "r") as f:
+                with open(json_file, "r", encoding="utf-8") as f:
                     results["containers"].append(json.load(f))
             except Exception as e:
                 print(f"Error reading {json_file}: {e}")
@@ -154,7 +148,7 @@ class AllureToAzureAnalytics:
         # Read groups
         for json_file in glob.glob(os.path.join(self.allure_results_dir, "groups.json")):
             try:
-                with open(json_file, "r") as f:
+                with open(json_file, "r", encoding="utf-8") as f:
                     results["groups"].append(json.load(f))
             except Exception as e:
                 print(f"Error reading {json_file}: {e}")

@@ -12,7 +12,7 @@ import os
 from cryptography.fernet import Fernet
 
 # Default passphrase - override via ENCRYPTION_KEY env var for extra security
-_DEFAULT_PASSPHRASE = "prodeng-automation-influx-2026"
+_DEFAULT_PASSPHRASE = "prodeng-automation-2026"
 
 ENCRYPTED_PREFIX = "ENC:"
 
