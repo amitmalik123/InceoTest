@@ -1,0 +1,3 @@
+family_name,manager_type_code,program_name,is_uma_custom,has_minimum,standard_discount_eligible,discount_package,row8_value,style_code,style_description,manager_style_description,row13_value,row14_value,research_group,schedule_group
+TestMan15thMay,MA,MSA,Yes,Yes,Yes,Mutual Funds (Only),Multiple Strategy Eligible,Test,test Description,test manager Description,Advisor Managed Portfolios,AMP,Test RG,Test SG
+TestMan15thMay_1,MA,MSA,Yes,Yes,Yes,Mutual Funds (Only),Multiple Strategy Eligible,Test,test Description,test manager Description,Advisor Managed Portfolios,AMP,Test RG,Test SG
