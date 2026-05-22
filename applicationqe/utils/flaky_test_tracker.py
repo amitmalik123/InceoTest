@@ -17,6 +17,8 @@ from typing import Dict, List, Optional
 from influxdb_client import InfluxDBClient
 from influxdb_client.client.write_api import SYNCHRONOUS
 
+from utils.crypto_utils import decrypt_value
+
 
 def load_influxdb_config():
     """Load InfluxDB configuration from config file or environment variables"""
@@ -35,7 +37,7 @@ def load_influxdb_config():
                 config = json.load(f)
                 return {
                     "url": config.get("influxdb_url", "http://localhost:8086"),
-                    "token": config.get("influxdb_token", ""),
+                    "token": decrypt_value(config.get("influxdb_token", "")),
                     "org": config.get("influxdb_org", "default"),
                     "bucket": config.get("influxdb_bucket", "test-results"),
                 }
@@ -60,9 +62,16 @@ class FlakyTestTracker:
         self.influx_token = influx_config["token"]
         self.influx_org = influx_config["org"]
         self.influx_bucket = influx_config["bucket"]
-        from config.PortfolioReporting.settings import get_settings
+        try:
+            from utils.settings import settings
 
-        self.environment = os.getenv("ENVIRONMENT", get_settings().env)
+            default_env = settings.env
+        except Exception:
+            from config.PortfolioReporting.settings import get_settings
+
+            default_env = get_settings().env
+
+        self.environment = os.getenv("ENVIRONMENT", default_env)
         self.build_id = os.getenv("BUILD_ID", "local")
 
         # Track flaky tests during session

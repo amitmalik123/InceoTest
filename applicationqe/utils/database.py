@@ -24,6 +24,44 @@ def _get_db_settings():
 RESTRICTED_ENVS = ["prod", "production", "silo"]
 
 
+def _is_running_in_pipeline() -> bool:
+    """
+    Detect whether the code is running inside an Azure DevOps pipeline.
+    """
+    return bool(os.getenv("SYSTEM_TEAMFOUNDATIONCOLLECTIONURI"))
+
+
+def _parse_connection_string(conn_str: str) -> dict:
+    """
+    Parse an ADO.NET / ODBC-style connection string into a normalized dict.
+    """
+    key_map = {
+        "server": "server",
+        "data source": "server",
+        "database": "database",
+        "initial catalog": "database",
+        "user id": "username",
+        "uid": "username",
+        "user": "username",
+        "password": "password",
+        "pwd": "password",
+        "authentication": "authentication",
+        "driver": "driver",
+    }
+
+    result: dict = {}
+    for part in conn_str.split(";"):
+        part = part.strip()
+        if "=" not in part:
+            continue
+        raw_key, _, value = part.partition("=")
+        normalized = key_map.get(raw_key.strip().lower())
+        if normalized:
+            result[normalized] = value.strip()
+
+    return result
+
+
 def _check_environment_safety():
     """
     Check if database connection is allowed for current environment.
@@ -268,25 +306,27 @@ def execute_query_from_yaml(
     query_category: str,
     query_name: str,
     params: Optional[tuple] = None,
+    azure_db=None,
+    sql_server_db=None,
     db_manager=None,
 ) -> list:
     """
     Execute a database query from the centralized YAML queries file.
     Automatically selects the correct database connection based on db_type in YAML.
-    Uses db_manager for connection reuse with USE database switching.
 
     Args:
         query_category: Category from queries/sql_queries.yaml (e.g., "transfer", "crm")
         query_name: Query name within the category (e.g., "transfer_audit")
         params: Optional query parameters as tuple
-        db_manager: DatabaseConnectionManager that provides cached connections
-                    with USE database switching
+        azure_db: Optional pre-connected Azure DB fixture (legacy/develop flow)
+        sql_server_db: Optional pre-connected SQL Server fixture (legacy/develop flow)
+        db_manager: Optional DatabaseConnectionManager for cached vault connections
 
     Returns:
         List of query results
 
     Raises:
-        ValueError: If query not found, db_type/database not specified, or db_manager missing
+        ValueError: If query/db_type missing or no valid connection path can be resolved
         PermissionError: If attempting to connect to production/silo environment
 
     Example:
@@ -295,12 +335,6 @@ def execute_query_from_yaml(
             db_manager=db_manager
         )
     """
-    if not db_manager:
-        raise ValueError(
-            "db_manager is required. Pass the db_manager fixture from the step definition."
-        )
-
-    # Get query configuration from YAML
     category_config = _get_db_settings().database_queries.get(query_category, {})
 
     if not category_config:
@@ -323,41 +357,71 @@ def execute_query_from_yaml(
             f"Available queries: {available_queries}"
         )
 
-    # Get database name from query config
-    database_name = category_config.get("database")
-    if not database_name:
-        raise ValueError(
-            f"database not specified for query category '{query_category}' in queries/sql_queries.yaml. "
-            "Add 'database: <database_name>' to the category."
-        )
+    db = None
+    connection_created = False
 
-    # Prefer vault connection-string if vault_alias is configured
-    db: SQLDatabase | None = None
+    database_name = category_config.get("database")
     vault_alias = category_config.get("vault_alias")
-    if vault_alias:
+
+    if db_manager and vault_alias and database_name:
         db = db_manager.get_vault_db(alias=vault_alias, database=database_name)
         logger.info(
             f"Using vault connection-string (alias='{vault_alias}') "
             f"for: {query_category}.{query_name}"
         )
     else:
+        try:
+            if db_type == "azure":
+                if azure_db:
+                    db = azure_db
+                    logger.info(
+                        f"Using Azure SQL connection (fixture) for: {query_category}.{query_name}"
+                    )
+                else:
+                    db = get_configured_azure_db()
+                    db.connect()
+                    connection_created = True
+                    logger.info(f"Created Azure SQL connection for: {query_category}.{query_name}")
+            elif db_type == "sql_server":
+                if sql_server_db:
+                    db = sql_server_db
+                    logger.info(
+                        f"Using SQL Server connection (fixture) for: {query_category}.{query_name}"
+                    )
+                else:
+                    db = get_configured_sql_server()
+                    db.connect()
+                    connection_created = True
+                    logger.info(
+                        f"Created SQL Server connection for: {query_category}.{query_name}"
+                    )
+            else:
+                raise ValueError(
+                    f"Invalid db_type '{db_type}' for category '{query_category}'. "
+                    "Use 'azure' or 'sql_server'."
+                )
+
+            logger.info(f"Executing query on {db.database} @ {db.server}")
+            logger.info(f"Query: {query}")
+            results = db.execute_query(query, params)
+            logger.info(f"Query executed successfully. Rows returned: {len(results)}")
+            return results
+        finally:
+            if connection_created and db:
+                db.close()
+                logger.info("Database connection closed")
+
+    if db is None:
         raise ValueError(
-            f"No vault_alias configured for query category '{query_category}' "
-            f"in queries/sql_queries.yaml. All databases must use connection strings "
-            f"from Key Vault. Add 'vault_alias: <alias>' to the category and configure "
-            f"the corresponding entry under database.vault_databases in the env YAML."
+            f"Could not resolve database connection for category '{query_category}'. "
+            "Provide db_manager with vault_alias+database in YAML, or use db_type with fixtures."
         )
 
-    # Log connection details
-    assert db is not None, f"No database connection resolved for '{query_category}'"
     logger.info(f"Executing query on {db.database} @ {db.server}")
     logger.info(f"Query: {query}")
-
-    # Execute query
     results = db.execute_query(query, params)
     logger.info(f"Query executed successfully. Rows returned: {len(results)}")
     logger.info(f"Query output data: {results}")
-
     return results
 
 
@@ -608,13 +672,323 @@ class SQLDatabase(DatabaseConnection):
             self.logger.error(f"Error executing non-query: {str(e)}")
             raise
 
+    def execute_query_and_get_first_value(self, query: str, column_name: str, params=None):
+        """
+        Execute a SELECT query and return first value from the specified column.
+        """
+        results = self.execute_query(query, params)
+        if not results:
+            self.logger.warning("No results found for query")
+            return None
+
+        first_row = results[0]
+        if isinstance(first_row, dict):
+            value = first_row.get(column_name)
+        else:
+            columns = [column[0] for column in self.cursor.description]
+            if column_name not in columns:
+                raise ValueError(
+                    f"Column '{column_name}' not found in query results. Available columns: {columns}"
+                )
+            value = first_row[columns.index(column_name)]
+
+        self.logger.info(f"Query completed on {column_name}: {value}")
+        return str(value) if value is not None else None
+
+    def execute_select_query_and_get_string_list(
+        self,
+        query: str,
+        column_name: str,
+        records_count=None,
+        params=None,
+    ) -> list:
+        """
+        Execute a SELECT query and return a list of string values from specified column.
+        """
+        results = self.execute_query(query, params)
+        if not results:
+            self.logger.warning("No results found for query")
+            return []
+
+        list_of_values = []
+        counter = 0
+        for row in results:
+            if isinstance(row, dict):
+                value = row.get(column_name)
+            else:
+                columns = [column[0] for column in self.cursor.description]
+                if column_name not in columns:
+                    raise ValueError(
+                        f"Column '{column_name}' not found in query results. Available columns: {columns}"
+                    )
+                value = row[columns.index(column_name)]
+            list_of_values.append(str(value) if value is not None else "")
+            counter += 1
+            if records_count is not None and counter == records_count:
+                break
+
+        self.logger.info(f"Query completed on {column_name}. Retrieved {len(list_of_values)} values")
+        return list_of_values
+
+
+class AzureSQLDatabase(SQLDatabase):
+    """Backward-compatible class that returns pyodbc rows for execute_query."""
+
+    def __init__(
+        self,
+        server: Optional[str] = None,
+        database: Optional[str] = None,
+        username: Optional[str] = None,
+        password: Optional[str] = None,
+        driver: str = "{ODBC Driver 17 for SQL Server}",
+        authentication: Optional[str] = None,
+        encrypt: bool = True,
+        trust_server_certificate: bool = False,
+    ):
+        super().__init__(server, database, username, password, driver, authentication)
+        self.encrypt = encrypt
+        self.trust_server_certificate = trust_server_certificate
+
+    def execute_query(self, query: str, params=None) -> list:
+        """Execute SELECT query and return pyodbc row objects for legacy callers."""
+        if not self.connection:
+            self.connect()
+
+        with RetryContext(max_retries=2, initial_delay=1.0, exponential_base=2.0) as retry:
+            while retry.should_retry():
+                try:
+                    if params:
+                        self.cursor.execute(query, params)
+                    else:
+                        self.cursor.execute(query)
+
+                    results = self.cursor.fetchall()
+                    self.logger.info(f"Query executed successfully. Rows returned: {len(results)}")
+                    retry.success()
+                    return results
+                except pyodbc.OperationalError as e:
+                    self.logger.warning(f"Transient query error: {str(e)}. Reconnecting...")
+                    self.close()
+                    self.connect()
+                    retry.failed(e)
+                except pyodbc.Error as e:
+                    self.logger.error(f"Error executing query: {str(e)}")
+                    raise
+
+        return []
+
 
 # Convenience functions
+def get_configured_azure_db():
+    """Local-compatible Azure SQL resolver from standard settings fields."""
+    _check_environment_safety()
+    s = _get_db_settings()
+
+    logger.info(f"Database connection approved for environment: '{s.env}'")
+    return AzureSQLDatabase(
+        server=s.azure_sql_server,
+        database=s.azure_sql_database,
+        username=s.azure_sql_username,
+        password=s.azure_sql_password,
+        driver=s.azure_sql_driver,
+        authentication=s.azure_sql_authentication,
+    )
+
+
+def get_configured_sql_server():
+    """Local-compatible SQL Server resolver from standard settings fields."""
+    _check_environment_safety()
+    s = _get_db_settings()
+
+    logger.info(f"SQL Server connection approved for environment: '{s.env}'")
+    return AzureSQLDatabase(
+        server=s.sql_server_host,
+        database=s.sql_server_database,
+        username=s.sql_server_username,
+        password=s.sql_server_password,
+        driver=s.sql_server_driver,
+        authentication=None,
+    )
+
+
+def get_configured_ewm_db():
+    """
+    Get configured EWM database using pipeline env var or local settings.
+    """
+    s = _get_db_settings()
+
+    env_lower = s.env.lower()
+    if env_lower in RESTRICTED_ENVS:
+        error_msg = (
+            f"DATABASE CONNECTION BLOCKED: Cannot connect to '{s.env}' environment.\n"
+            f"Direct database connections are only allowed for test environments (test*, qa, dev).\n"
+            f"Production/Silo database access must be done through approved processes only."
+        )
+        logger.error(error_msg)
+        raise PermissionError(error_msg)
+
+    if not env_lower.startswith("test") and env_lower not in ["qa", "dev", "development"]:
+        logger.warning(
+            f"Connecting to EWM database in non-test environment: '{s.env}'. Ensure this is intentional."
+        )
+
+    if _is_running_in_pipeline():
+        conn_str = os.getenv("AM_BILLING_CONNECTION_STRING", "")
+        if not conn_str:
+            raise EnvironmentError(
+                "AM_BILLING_CONNECTION_STRING env var is not set. "
+                "Ensure Azure Key Vault task mapped the secret."
+            )
+        parsed = _parse_connection_string(conn_str)
+        logger.info("[Pipeline] EWM DB credentials loaded from AM_BILLING_CONNECTION_STRING")
+        return AzureSQLDatabase(
+            server=parsed.get("server"),
+            database=parsed.get("database"),
+            username=parsed.get("username"),
+            password=parsed.get("password"),
+            driver=parsed.get("driver", "{ODBC Driver 17 for SQL Server}"),
+            authentication=parsed.get("authentication"),
+            encrypt=True,
+            trust_server_certificate=True,
+        )
+
+    logger.info(f"[Local] EWM database connection approved for environment: '{s.env}'")
+    return AzureSQLDatabase(
+        server=s.ewm_hostname,
+        database=s.ewm_database,
+        username=s.ewm_username,
+        password=s.ewm_password,
+        driver="{ODBC Driver 17 for SQL Server}",
+        authentication=None,
+        encrypt=True,
+        trust_server_certificate=True,
+    )
+
+
 def get_azure_db_connection(**kwargs) -> SQLDatabase:
     """
-    Get an Azure SQL Database connection.
+    Get an Azure SQL Database connection for MaintenanceWorkflow database.
 
     Returns:
-        SQLDatabase instance
+        AzureSQLDatabase instance
     """
-    return SQLDatabase(**kwargs)
+    if _is_running_in_pipeline() and not any(
+        k in kwargs for k in ["server", "username", "password"]
+    ):
+        conn_str = os.getenv("MAINTENANCEWORKFLOW_DB_CONNECTION_STRING", "")
+        if conn_str:
+            parsed = _parse_connection_string(conn_str)
+            logger.info(
+                "[Pipeline] Azure DB credentials loaded from MAINTENANCEWORKFLOW_DB_CONNECTION_STRING"
+            )
+            username = parsed.get("username", "")
+            driver = parsed.get(
+                "driver",
+                "{ODBC Driver 18 for SQL Server}" if "@" in username else "{ODBC Driver 17 for SQL Server}",
+            )
+            authentication = parsed.get(
+                "authentication", "ActiveDirectoryPassword" if "@" in username else None
+            )
+            return AzureSQLDatabase(
+                server=parsed.get("server"),
+                database=parsed.get("database"),
+                username=username,
+                password=parsed.get("password"),
+                driver=driver,
+                authentication=authentication,
+            )
+        raise EnvironmentError(
+            "MAINTENANCEWORKFLOW_DB_CONNECTION_STRING env var is not set. "
+            "Ensure Azure Key Vault task mapped the secret."
+        )
+
+    if not any(k in kwargs for k in ["server", "username", "password"]):
+        try:
+            s = _get_db_settings()
+            azure_config = s.config.get("database", {}).get("azure", {})
+            if azure_config:
+                kwargs.setdefault("server", azure_config.get("hostname"))
+                kwargs.setdefault("username", azure_config.get("username"))
+                kwargs.setdefault("password", azure_config.get("password"))
+                kwargs.setdefault("database", azure_config.get("database", "EWMProcessCenter"))
+                username = kwargs.get("username")
+                if username and "@" in username:
+                    kwargs.setdefault("driver", "{ODBC Driver 18 for SQL Server}")
+                    kwargs.setdefault("authentication", "ActiveDirectoryPassword")
+            logger.info("[Local] Azure DB credentials loaded from settings (database.azure)")
+        except Exception:
+            pass
+
+    return AzureSQLDatabase(**kwargs)
+
+
+def _normalize_role(role: str) -> str:
+    """Normalize role input to 'Agent' or 'SAU'."""
+    role_lower = role.strip().lower()
+    if role_lower in ("fa", "agent"):
+        return "Agent"
+    if role_lower in ("sau", "shared access user"):
+        return "SAU"
+    raise ValueError(
+        f"Invalid role: '{role}'. Use 'Agent'/'FA' or 'SAU'/'Shared Access User'."
+    )
+
+
+def fetch_agent_name_by_aplid_from_db(
+    aplid: str,
+    role: str,
+    query_name=None,
+    id_type=None,
+    second_param=None,
+):
+    """
+    Fetch user name from EWM database by APLID/UserID based on role.
+    """
+    if not aplid:
+        raise TypeError("aplid is required and cannot be empty")
+    if not role:
+        raise TypeError("role is required and cannot be empty")
+
+    role_normalized = _normalize_role(role)
+
+    if query_name:
+        id_type = id_type or "ID"
+    else:
+        if role_normalized == "Agent":
+            query_name = "agentName__by_aplid_from_agentTable"
+            id_type = "APLID"
+        else:
+            query_name = "sau_name_by_aplid"
+            id_type = "UserID"
+
+    query = _get_db_settings().database_queries.get("agent", {}).get("queries", {}).get(query_name)
+    if not query:
+        raise ValueError(
+            f"Query 'agent.{query_name}' not found in queries/sql_queries.yaml. "
+            "Ensure it is defined under 'agent: -> queries:'."
+        )
+
+    db = get_configured_ewm_db()
+    db.connect()
+    try:
+        params = (second_param, aplid) if second_param else (aplid,)
+        results = db.execute_query(query, params=params)
+    finally:
+        db.close()
+
+    if results:
+        row = results[0]
+        try:
+            name = row.Name_ManageLogin
+        except AttributeError:
+            columns = [col[0] for col in db.cursor.description] if db.cursor else []
+            if isinstance(row, dict):
+                name = row.get("Name_ManageLogin")
+            else:
+                idx = columns.index("Name_ManageLogin") if "Name_ManageLogin" in columns else 0
+                name = row[idx]
+        logger.info(f"{role_normalized} name found for {id_type} {aplid}: {name}")
+        return name
+
+    logger.warning(f"No {role_normalized} found for {id_type}: {aplid}")
+    return None
