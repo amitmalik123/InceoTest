@@ -26,8 +26,6 @@ parameters:
     default: ''
   - name: azureSubscription
     type: string
-  - name: keyVaultName
-    type: string
     default: ''
 
 stages:
@@ -66,8 +64,8 @@ stages:
     - task: AzureKeyVault@2
       displayName: 'Fetch Secrets from Azure Key Vault'
       inputs:
-        azureSubscription: '${{ parameters.azureSubscription }}'
-        KeyVaultName: '${{ parameters.keyVaultName }}'
+        azureSubscription: $(azureSubscription)
+        KeyVaultName: $(keyVaultName)
         SecretsFilter: '*'
         RunAsPreJob: true
 
