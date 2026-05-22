@@ -1,0 +1,8 @@
+scenario,role,username,password,client_id,account_name,destination_account,account_number,conversion_amount,routing_number,ach_option,advisor_id,expected_description
+Successfully login and navigate to Account List,non-ira,AG1634SSO,QAAdminUser_33a,13222266,"Carmen E Tucker, Individual",13443983,13443983,1000,121000358,Yes,AGA1G1,Bank/Payee Instructions - Add
+Successfully complete Add ACH flow,ira,T11_AGA1G1_Perf,QAAdminUser_33a,13454189,"Brian Chabrunn",13443983,13443983,1000,121000358,Yes,AGA1G1,Bank/Payee Instructions - Add
+cancel-swp-ira,T11_AGA1TO_Perf,QAAdminUser_33a,40007734,"Levi J Ascher, Individual TOD",40007734,40007734,1000,121000358,Yes,AGA1TO,Bank/Payee Instructions - Add
+swp-ira,T11_AG8959_Perf,QAAdminUser_33a,13879837,"Howard Hom, Rollover IRA",13879837,13879837,1000,121000358,Yes,AG8959,Bank/Payee Instructions - Add
+address,T11_AGA1G1_Perf,QAAdminUser_33a,13222266,"Carmen E Tucker",13443983,13443983,1000,121000358,Yes,AGA1G1,Bank/Payee Instructions - Add
+Successfully change investments on a client account,non-ira,T11_AGA1G1_Perf,QAAdminUser_33a,13222266,"Carmen E Tucker, Individual",13443983,13443983,1000,121000358,Yes,AGA1G1,Change Investments
+Successfully complete account suspension via complete and print with DocuSign,non-ira,T11_AGA1G1_Perf,QAAdminUser_33a,13222266,"Carmen E Tucker, Individual",13443983,13443983,1000,121000358,Yes,AGA1G1,Account Information change - Account Suspension
