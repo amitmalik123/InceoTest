@@ -3,7 +3,7 @@
     "original": "<Locator frame=<Frame name= url='https://app.test01.assetmark.com/models'> selector='internal:label=\"Username\"i'>",
     "selector": "<Locator frame=<Frame name= url='https://app.test01.assetmark.com/models'> selector='a >> nth=0'>",
     "strategy": "similar_element",
-    "timestamp": 1779396338.2776296,
-    "success_count": 27
+    "timestamp": 1779455412.5061147,
+    "success_count": 40
   }
 }
