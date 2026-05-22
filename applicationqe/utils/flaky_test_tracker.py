@@ -60,7 +60,7 @@ class FlakyTestTracker:
         self.influx_token = influx_config["token"]
         self.influx_org = influx_config["org"]
         self.influx_bucket = influx_config["bucket"]
-        from config.settings import get_settings
+        from config.PortfolioReporting.settings import get_settings
 
         self.environment = os.getenv("ENVIRONMENT", get_settings().env)
         self.build_id = os.getenv("BUILD_ID", "local")

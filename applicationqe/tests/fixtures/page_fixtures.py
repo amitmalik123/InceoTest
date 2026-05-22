@@ -3,7 +3,7 @@
 import pytest
 from playwright.sync_api import Page
 
-from config.settings import get_settings
+from config.PortfolioReporting.settings import get_settings
 from pages.PortfolioReporting.clients_page import ClientsPage
 from pages.PortfolioReporting.document_vault_page import DocumentVaultPage
 from pages.PortfolioReporting.login_page import LoginPage

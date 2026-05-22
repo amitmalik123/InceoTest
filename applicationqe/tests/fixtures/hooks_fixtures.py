@@ -15,7 +15,7 @@ import os
 
 import allure
 
-from config.settings import get_settings
+from config.PortfolioReporting.settings import get_settings
 from tests.fixtures.browser_fixtures import id_tracker
 from utils.allure_logger import get_allure_logger, get_step_screenshot_config
 

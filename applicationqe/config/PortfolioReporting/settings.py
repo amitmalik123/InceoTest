@@ -2,11 +2,11 @@
 Settings module to load and provide access to configuration from YAML files.
 
 Usage:
-    from config.settings import get_settings
+    from config.PortfolioReporting.settings import get_settings
     settings = get_settings()          # lazily created, cached singleton
 
     # or (backward-compatible, triggers __getattr__ on first access):
-    from config.settings import settings
+    from config.PortfolioReporting.settings import settings
 """
 
 import os
@@ -17,9 +17,10 @@ from dotenv import load_dotenv
 
 from utils.logger import setup_logger
 
-# Load .env file from project root (if present).
+# Load .env file from applicationqe root (if present).
 # Real env-vars (e.g. from CI/CD) take precedence; .env is never committed.
-load_dotenv(Path(__file__).resolve().parent.parent / ".env")
+PROJECT_ROOT = Path(__file__).resolve().parents[2]
+load_dotenv(PROJECT_ROOT / ".env")
 
 
 class Settings:
@@ -36,9 +37,9 @@ class Settings:
         self.env = env
         self.logger = setup_logger(__name__)
         config_root = Path(__file__).parent
-        self.config_path = config_root / "PortfolioReporting" / f"env.{env}.yaml"
+        self.config_path = config_root / f"env.{env}.yaml"
         if not self.config_path.exists():
-            self.config_path = config_root / f"env.{env}.yaml"
+            self.config_path = config_root.parent / f"env.{env}.yaml"
         self.config = self._load_config()
         self._queries = self._load_queries()
 
@@ -46,7 +47,7 @@ class Settings:
         """Fetch a connection string from environment variable.
 
         Resolution:
-        1. Pipeline: AzureKeyVault@2 fetches secrets → env vars.
+        1. Pipeline: AzureKeyVault@2 fetches secrets -> env vars.
         2. Local: same env vars set in .env file.
 
         Args:
@@ -95,7 +96,7 @@ class Settings:
 
         The pipeline's ``AzureKeyVault@2`` task fetches the Key Vault secret
         and injects it as the specified ``env_var``. Python never calls Key
-        Vault directly — it just reads ``os.getenv(env_var)``.
+        Vault directly - it just reads ``os.getenv(env_var)``.
 
         Args:
             alias: Short alias for the database (e.g. 'crm', 'billing').
@@ -140,8 +141,7 @@ class Settings:
     @property
     def test_data_csv(self):
         """Get path to test data CSV file."""
-        base_path = Path(__file__).parent.parent
-        return base_path / self.config["data"]["test_data_csv"]
+        return PROJECT_ROOT / self.config["data"]["test_data_csv"]
 
     @property
     def test_data_excel(self):
@@ -149,8 +149,7 @@ class Settings:
         excel_path = self.config.get("data", {}).get("test_data_excel")
         if not excel_path:
             return None
-        base_path = Path(__file__).parent.parent
-        return base_path / excel_path
+        return PROJECT_ROOT / excel_path
 
     @property
     def screenshot_each_step(self):
@@ -159,7 +158,7 @@ class Settings:
 
     @property
     def api_auth_token(self):
-        """Get API authorization token (env var → YAML fallback)."""
+        """Get API authorization token (env var -> YAML fallback)."""
         return os.getenv(f"{self.env.upper()}_API_AUTH_TOKEN") or os.getenv("API_AUTH_TOKEN") or self.config.get("api", {}).get("auth_token", "")
 
     @property
@@ -199,7 +198,7 @@ class Settings:
 
     def _load_queries(self):
         """Load SQL queries from queries/sql_queries.yaml once at init time."""
-        queries_path = Path(__file__).parent.parent / "queries" / "sql_queries.yaml"
+        queries_path = PROJECT_ROOT / "queries" / "sql_queries.yaml"
         if not queries_path.exists():
             self.logger.warning(f"Queries file not found: {queries_path}")
             return {}
@@ -216,12 +215,12 @@ class Settings:
 
     @property
     def outlook_email(self):
-        """Get Outlook email address (YAML → env-var fallback)."""
+        """Get Outlook email address (YAML -> env-var fallback)."""
         return self.config.get("outlook", {}).get("email", "") or os.getenv("OUTLOOK_EMAIL", "")
 
     @property
     def outlook_password(self):
-        """Get Outlook password / app-password (env var → YAML fallback)."""
+        """Get Outlook password / app-password (env var -> YAML fallback)."""
         return os.getenv("OUTLOOK_PASSWORD", "") or self.config.get("outlook", {}).get("password", "")
 
     @property
@@ -236,7 +235,7 @@ class Settings:
 
 
 # ---------------------------------------------------------------------------
-# Lazy singleton – environment resolved ONCE from TEST_ENV env-var
+# Lazy singleton - environment resolved ONCE from TEST_ENV env-var
 # ---------------------------------------------------------------------------
 _settings_instance = None
 
@@ -265,7 +264,7 @@ def get_settings() -> Settings:
 
 
 def __getattr__(name: str):
-    """PEP 562 – allow ``from config.settings import settings``."""
+    """PEP 562 - allow ``from config.PortfolioReporting.settings import settings``."""
     if name == "settings":
         return get_settings()
     raise AttributeError(f"module {__name__!r} has no attribute {name!r}")

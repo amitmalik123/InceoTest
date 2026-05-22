@@ -2,7 +2,7 @@ from pathlib import Path
 
 from playwright.sync_api import Locator, Page
 
-from config.settings import get_settings
+from config.PortfolioReporting.settings import get_settings
 from locators.PortfolioReporting import rgl_locators
 from pages.PortfolioReporting.base_page import BasePage
 from utils.allure_logger import get_allure_logger

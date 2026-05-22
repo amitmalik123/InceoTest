@@ -18,7 +18,7 @@ from typing import Dict, Optional
 import pytest
 import requests
 
-from config.settings import get_settings
+from config.PortfolioReporting.settings import get_settings
 from utils.logger import setup_logger
 
 logger = setup_logger(__name__)

@@ -15,7 +15,7 @@ logger = setup_logger(__name__)
 
 def _get_db_settings():
     """Get the centralized Settings singleton (lazy import to avoid circular deps)."""
-    from config.settings import get_settings
+    from config.PortfolioReporting.settings import get_settings
 
     return get_settings()
 

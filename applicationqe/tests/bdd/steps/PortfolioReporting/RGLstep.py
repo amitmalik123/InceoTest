@@ -5,7 +5,7 @@ RGL verification steps for page elements and content validation
 from playwright.sync_api import Page
 from pytest_bdd import parsers, given, then, when
 
-from config.settings import get_settings
+from config.PortfolioReporting.settings import get_settings
 from pages.PortfolioReporting.clients_page import ClientsPage
 from pages.PortfolioReporting.rgl_page import RGLPage
 from utils.allure_logger import get_allure_logger

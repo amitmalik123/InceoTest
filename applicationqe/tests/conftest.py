@@ -28,7 +28,7 @@ APP_ROOT = Path(__file__).resolve().parent.parent
 if str(APP_ROOT) not in sys.path:
     sys.path.insert(0, str(APP_ROOT))
 
-from config.settings import get_settings
+from config.PortfolioReporting.settings import get_settings
 
 # Import all fixture modules explicitly to ensure registration.
 from tests.fixtures.assertion_fixtures import *  # noqa: F401, F403

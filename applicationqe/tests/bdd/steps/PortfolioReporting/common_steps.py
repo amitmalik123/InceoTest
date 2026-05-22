@@ -1,7 +1,7 @@
 from playwright.sync_api import Page
 from pytest_bdd import given, parsers, then, when
 
-from config.settings import get_settings
+from config.PortfolioReporting.settings import get_settings
 from pages.PortfolioReporting.clients_page import ClientsPage
 from pages.PortfolioReporting.lookup_page import LookupPage
 from utils.allure_logger import get_allure_logger
