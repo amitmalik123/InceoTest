@@ -43,10 +43,23 @@ class LoginPage(BasePage):
 
     def accept_cookies(self) -> None:
         logger.info("Accepting cookies")
-        try:
-            self.allow_all_button.click(timeout=2000)
-        except Exception:
-            logger.info("Allow All button not available (already accepted or session exists)")
+        candidates = [
+            self.allow_all_button,
+            self.page.get_by_role("button", name="Accept all"),
+            self.page.get_by_role("button", name="Accept All"),
+            self.page.get_by_role("button", name="Accept All Cookies"),
+            self.page.locator("button:has-text('Accept all')"),
+            self.page.locator("button:has-text('Accept All')"),
+            self.page.locator("#onetrust-accept-btn-handler"),
+        ]
+        for candidate in candidates:
+            try:
+                candidate.first.click(timeout=1500)
+                logger.info("Accepted privacy popup")
+                return
+            except Exception:
+                continue
+        logger.info("Allow All button not available (already accepted or session exists)")
 
     def enter_username(self, username: str) -> None:
         logger.info(f"Entering username: {username}")

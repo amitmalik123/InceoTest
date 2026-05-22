@@ -105,10 +105,10 @@ class ModelsPage(BasePage):
             )
 
     def _dismiss_accept_all_popup(self) -> None:
-        """Click 'Accept All' consent popup if it appears after navigation. Non-fatal."""
+        """Dismiss privacy consent popup if it appears after navigation. Non-fatal."""
         candidates = [
-            "button:has-text('Accept All')",
             "button:has-text('Accept all')",
+            "button:has-text('Accept All')",
             "button:has-text('Accept All Cookies')",
             "button:has-text('Accept Cookies')",
             "button:has-text('Accept')",
@@ -125,6 +125,42 @@ class ModelsPage(BasePage):
             except Exception:
                 continue
 
+    def _dismiss_sidebar_navigation_tour(self) -> None:
+        """Dismiss sidebar tour popup by clicking Next/Finish if it appears."""
+        try:
+            header = self.page.get_by_text("Sidebar Navigation", exact=False)
+            if header.count() == 0:
+                return
+            if not header.first.is_visible(timeout=2000):
+                return
+        except Exception:
+            return
+
+        logger.info("Sidebar Navigation popup detected; completing tour")
+
+        # Walk through tour steps safely: click Next while available, then Finish.
+        for _ in range(8):
+            try:
+                finish_btn = self.page.get_by_role("button", name="Finish", exact=False).first
+                if finish_btn.is_visible(timeout=800):
+                    finish_btn.click()
+                    self.page.wait_for_timeout(300)
+                    logger.info("Sidebar Navigation tour finished")
+                    return
+            except Exception:
+                pass
+
+            try:
+                next_btn = self.page.get_by_role("button", name="Next", exact=False).first
+                if next_btn.is_visible(timeout=800):
+                    next_btn.click()
+                    self.page.wait_for_timeout(250)
+                    continue
+            except Exception:
+                pass
+
+            break
+
     def navigate(self) -> None:
         logger.info(f"Navigating to models page: {self.PAGE_URL}")
         if not self.page.url.startswith(self.PAGE_URL):
@@ -134,6 +170,8 @@ class ModelsPage(BasePage):
         self.page.wait_for_load_state("domcontentloaded", timeout=15000)
         # Dismiss 'Accept All' consent popup that may appear on first load.
         self._dismiss_accept_all_popup()
+        # Dismiss optional guided tour popup if shown.
+        self._dismiss_sidebar_navigation_tour()
         try:
             self.published_tab.wait_for(state="visible", timeout=20000)
         except Exception:
