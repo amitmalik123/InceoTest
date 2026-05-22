@@ -83,6 +83,6 @@ stages:
       marker: ${{ parameters.marker }}
       workers: ${{ parameters.workers }}
       browser: ${{ parameters.browser }}
-      azureSubscription: $(subscription_dev)
-      keyVaultName: $(key_vault_dev)
+      azureSubscription: 'DEV Foundation (edb8bfd4-6c89-4044-8a23-cf9a3f7b368a)'
+      keyVaultName: 'amkkvqapipeline-devncus'
       
