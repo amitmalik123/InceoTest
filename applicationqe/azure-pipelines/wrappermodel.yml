@@ -89,5 +89,5 @@ stages:
       marker: ${{ parameters.marker }}
       workers: ${{ parameters.workers }}
       browser: ${{ parameters.browser }}
-      azureSubscription: $(subscription_dev)
-      keyVaultName: $(key_vault_dev)
+      keyVaultName: 'amkkvqapipeline-testncus'
+      azureSubscription: 'TEST Foundation (9156b16c-8a2e-4b7d-a886-e772dc017316)'
