@@ -17,6 +17,9 @@ trigger:
       - applicationqe/azure-pipelines/templates/**
       - applicationqe/requirements.txt
 
+variables:
+- group: qa-pipelines-shared-config
+
 pr:
   branches:
     include:
@@ -86,5 +89,3 @@ stages:
       marker: ${{ parameters.marker }}
       workers: ${{ parameters.workers }}
       browser: ${{ parameters.browser }}
-      keyVaultName: 'amkkvqapipeline-testncus'
-      azureSubscription: 'TEST Foundation (9156b16c-8a2e-4b7d-a886-e772dc017316)'
