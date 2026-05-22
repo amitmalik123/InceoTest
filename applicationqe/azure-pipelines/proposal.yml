@@ -7,12 +7,12 @@ trigger:
       - develop
   paths:
     include:
-      - data/PROPOSAL/**
-      - config/PROPOSAL/**
-      - tests/features/PROPOSAL/**
-      - tests/steps/PROPOSAL/**
-      - pages/PROPOSAL/**
-      - queries/PROPOSAL/**
+      - data/proposal/**
+      - config/proposal/**
+      - tests/features/proposal/**
+      - tests/steps/proposal/**
+      - pages/proposal/**
+      - queries/proposal/**
       - azure-pipelines/templates/**
       - requirements.txt
 
@@ -23,12 +23,12 @@ pr:
       - develop
   paths:
     include:
-      - data/PROPOSAL/**
-      - config/PROPOSAL/**
-      - tests/features/PROPOSAL/**
-      - tests/steps/PROPOSAL/**
-      - pages/PROPOSAL/**
-      - queries/PROPOSAL/**
+      - data/proposal/**
+      - config/proposal/**
+      - tests/features/proposal/**
+      - tests/steps/proposal/**
+      - pages/proposal/**
+      - queries/proposal/**
       - azure-pipelines/templates/**
       - requirements.txt
 
@@ -40,4 +40,4 @@ stages:
     parameters:
       stageName: PROPOSAL
       teamDisplay: PROPOSAL
-      featurePath: tests/runners/PROPOSAL
+      featurePath: tests/runners/proposal
