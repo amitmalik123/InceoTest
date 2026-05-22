@@ -1,0 +1,32 @@
+test_id,environment,fromAccountId,toAccountId,status,movementTypeOverride,journalUnitType,amount,closeSourceAccount,reason,scheduleType,paymentDate,percent,frequency,startDate,securityId,securityUnitType,quantity
+TC001,TSADEV,123e4567-e89b-12d3-a456-426614174001,123e4567-e89b-12d3-a456-426614174002,DRAFT,CASH,AMOUNT,500.00,false,Rebalancing - quarterly cash sweep,OneTime,2026-06-15,,,,,,
+TC002,TSADEV,123e4567-e89b-12d3-a456-426614174001,123e4567-e89b-12d3-a456-426614174002,DRAFT,CASH,AMOUNT,500.00,false,Rebalancing - quarterly cash sweep,OneTime,2026-06-15,,,,,,
+TC003,TSADEV,789e0123-f45b-67c8-d901-234567890abc,789e0123-f45b-67c8-d901-234567890def,DRAFT,InKind,SECURITIES,,false,Account migration - selected in-kind transfer,OneTime,2026-06-15,,,,aabbccdd-1122-3344-5566-778899aabbcc,ALL,1
+TC004,TSADEV,,789e0123-f45b-67c8-d901-234567890def,DRAFT,InKind,SECURITIES,,false,Account migration - selected in-kind transfer,OneTime,2026-06-15,,,,aabbccdd-1122-3344-5566-778899aabbcc,ALL,1
+TC005,TSADEV,@##@,789e0123-f45b-67c8-d901-234567890def,DRAFT,InKind,SECURITIES,,false,Account migration - selected in-kind transfer,OneTime,2026-06-15,,,,aabbccdd-1122-3344-5566-778899aabbcc,ALL,1
+TC006,TSADEV,789e0123-f45b-67c8-d901-234567890abc,,DRAFT,InKind,SECURITIES,,false,Account migration - selected in-kind transfer,OneTime,2026-06-15,,,,aabbccdd-1122-3344-5566-778899aabbcc,ALL,1
+TC007,TSADEV,789e0123-f45b-67c8-d901-234567890abc,@#$,DRAFT,InKind,SECURITIES,,false,Account migration - selected in-kind transfer,OneTime,2026-06-15,,,,aabbccdd-1122-3344-5566-778899aabbcc,ALL,1
+TC008,TSADEV,789e0123-f45b-67c8-d901-234567890abc,789e0123-f45b-67c8-d901-234567890def,,InKind,SECURITIES,,false,Account migration - selected in-kind transfer,OneTime,2026-06-15,,,,aabbccdd-1122-3344-5566-778899aabbcc,ALL,1
+TC009,TSADEV,789e0123-f45b-67c8-d901-234567890abc,789e0123-f45b-67c8-d901-234567890def,@#$,InKind,SECURITIES,,false,Account migration - selected in-kind transfer,OneTime,2026-06-15,,,,aabbccdd-1122-3344-5566-778899aabbcc,ALL,1
+TC010,TSADEV,789e0123-f45b-67c8-d901-234567890abc,789e0123-f45b-67c8-d901-234567890def,DRAFT,InKind,SECURITIES,,fa@#$lse,Account migration - selected in-kind transfer,OneTime,2026-06-15,,,,aabbccdd-1122-3344-5566-778899aabbcc,ALL,1
+TC011,TSADEV,789e0123-f45b-67c8-d901-234567890abc,789e0123-f45b-67c8-d901-234567890def,DRAFT,InK@#$ind,SECURITIES,,false,Account migration - selected in-kind transfer,OneTime,2026-06-15,,,,aabbccdd-1122-3344-5566-778899aabbcc,ALL,1
+TC012,TSADEV,789e0123-f45b-67c8-d901-234567890abc,789e0123-f45b-67c8-d901-234567890def,DRAFT,InKind,,,false,Account migration - selected in-kind transfer,OneTime,2026-06-15,,,,aabbccdd-1122-3344-5566-778899aabbcc,ALL,1
+TC013,TSADEV,789e0123-f45b-67c8-d901-234567890abc,789e0123-f45b-67c8-d901-234567890def,DRAFT,InKind,SECU@#$RITIES,,false,Account migration - selected in-kind transfer,OneTime,2026-06-15,,,,aabbccdd-1122-3344-5566-778899aabbcc,ALL,1
+TC014,TSADEV,789e0123-f45b-67c8-d901-234567890abc,789e0123-f45b-67c8-d901-234567890def,DRAFT,InKind,SECURITIES,,false,Account migration - selected in-kind transfer,,2026-06-15,,,,aabbccdd-1122-3344-5566-778899aabbcc,ALL,1
+TC015,TSADEV,789e0123-f45b-67c8-d901-234567890abc,789e0123-f45b-67c8-d901-234567890def,DRAFT,InKind,SECURITIES,,false,Account migration - selected in-kind transfer,One@#$Time,2026-06-15,,,,aabbccdd-1122-3344-5566-778899aabbcc,ALL,1
+TC016,TSADEV,789e0123-f45b-67c8-d901-234567890abc,789e0123-f45b-67c8-d901-234567890def,DRAFT,InKind,SECURITIES,,false,Account migration - selected in-kind transfer,OneTime,,,,,aabbccdd-1122-3344-5566-778899aabbcc,ALL,1
+TC017,TSADEV,789e0123-f45b-67c8-d901-234567890abc,789e0123-f45b-67c8-d901-234567890def,DRAFT,InKind,SECURITIES,,false,Account migration - selected in-kind transfer,OneTime,202@#$6-06-15,,,,aabbccdd-1122-3344-5566-778899aabbcc,ALL,1
+TC018,TSADEV,789e0123-f45b-67c8-d901-234567890abc,789e0123-f45b-67c8-d901-234567890def,DRAFT,InKind,SECURITIES,,false,Account migration - selected in-kind transfer,OneTime,2026-06-15,,,,,ALL,1
+TC019,TSADEV,789e0123-f45b-67c8-d901-234567890abc,789e0123-f45b-67c8-d901-234567890def,DRAFT,InKind,SECURITIES,,false,Account migration - selected in-kind transfer,OneTime,2026-06-15,,,,@#$,ALL,1
+TC020,TSADEV,789e0123-f45b-67c8-d901-234567890abc,789e0123-f45b-67c8-d901-234567890def,DRAFT,InKind,SECURITIES,,false,Account migration - selected in-kind transfer,OneTime,2026-06-15,,,,aabbccdd-1122-3344-5566-778899aabbcc,,1
+TC021,TSADEV,789e0123-f45b-67c8-d901-234567890abc,789e0123-f45b-67c8-d901-234567890def,DRAFT,InKind,SECURITIES,,false,Account migration - selected in-kind transfer,OneTime,2026-06-15,,,,aabbccdd-1122-3344-5566-778899aabbcc,@#$,1
+TC022,TSADEV,789e0123-f45b-67c8-d901-234567890abc,789e0123-f45b-67c8-d901-234567890def,DRAFT,InKind,SECURITIES,,false,Account migration - selected in-kind transfer,OneTime,2026-06-15,,,,,,
+TC023,TSADEV,789e0123-f45b-67c8-d901-234567890abc,789e0123-f45b-67c8-d901-234567890def,DRAFT,InKind,SECURITIES,,false,Account migration - selected in-kind transfer,OneTime,2026-06-15,,,,aabbccdd-1122-3344-5566-778899aabbcc,ALL,0
+TC024,TSADEV,123e4567-e89b-12d3-a456-426614174001,123e4567-e89b-12d3-a456-426614174002,DRAFT,CASH,AMOUNT,,false,Rebalancing - quarterly cash sweep,OneTime,2026-06-15,,,,,,
+TC025,TSADEV,123e4567-e89b-12d3-a456-426614174001,123e4567-e89b-12d3-a456-426614174002,DRAFT,CASH,AMOUNT,@#,false,Rebalancing - quarterly cash sweep,OneTime,2026-06-15,,,,,,
+TC026,TSADEV,550e8400-e29b-41d4-a716-446655440010,550e8400-e29b-41d4-a716-446655440011,PENDING,CASH,PERCENT,,false,Monthly fee sweep,PERIODIC,2027-01-04,,MONTHLY,2027-01-04,,,
+TC027,TSADEV,550e8400-e29b-41d4-a716-446655440010,550e8400-e29b-41d4-a716-446655440011,PENDING,CASH,PERCENT,,false,Monthly fee sweep,PERIODIC,2027-01-04,@#$,MONTHLY,2027-01-04,,,
+TC028,TSADEV,550e8400-e29b-41d4-a716-446655440010,550e8400-e29b-41d4-a716-446655440011,PENDING,CASH,PERCENT,,false,Monthly fee sweep,PERIODIC,2027-01-04,10.00,MONTHLY,,,,
+TC029,TSADEV,550e8400-e29b-41d4-a716-446655440010,550e8400-e29b-41d4-a716-446655440011,PENDING,CASH,PERCENT,,false,Monthly fee sweep,PERIODIC,2027-01-04,10.00,MONTHLY,202@#7-01-04,,,
+TC030,TSADEV,550e8400-e29b-41d4-a716-446655440010,550e8400-e29b-41d4-a716-446655440011,PENDING,CASH,PERCENT,,false,Monthly fee sweep,PERIODIC,2027-01-04,10.00,,2027-01-04,,,
+TC031,TSADEV,550e8400-e29b-41d4-a716-446655440010,550e8400-e29b-41d4-a716-446655440011,PENDING,CASH,PERCENT,,false,Monthly fee sweep,PERIODIC,2027-01-04,10.00,@#$,2027-01-04,,,

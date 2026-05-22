@@ -1,0 +1,82 @@
+[
+    {
+        "test_id": "TC001",
+        "service_name": "documentsproxy",
+        "workflow_mode": "parallel",
+        "test_name": "Proxies jobs listing request to Reducto. [positive] (TC001)",
+        "protocol": "REST",
+        "test_type": [
+            "Functional"
+        ],
+        "mainURL": "{{base_url}}",
+        "endpoint": "/reducto/jobs",
+        "method": "GET",
+        "rpc_method": "",
+        "graphql_query": "",
+        "graphql_variables": "",
+        "soap_action": "",
+        "soap_envelope": "",
+        "headers_additional": {
+            "Content-Type": "application/json"
+        },
+        "payload": null,
+        "expected_status": "200",
+        "expected_response_schema": "",
+        "expected_response": null,
+        "ignore_fields": [
+            "id"
+        ],
+        "extract_values": [
+            {
+                "from": "response",
+                "key": "",
+                "assign_to": ""
+            },
+            {
+                "from": "response",
+                "record_count": false,
+                "array_path": "",
+                "assign_to": ""
+            },
+            {
+                "from": "db_result",
+                "query": "",
+                "assign": [
+                    {
+                        "key": "",
+                        "assign_to": ""
+                    }
+                ]
+            }
+        ],
+        "validate": {
+            "performance": {
+                "max_response_time_ms": 2000
+            },
+            "security": {
+                "checks": [
+                    "sql_injection",
+                    "xss"
+                ]
+            },
+            "data_comparison": [
+                {
+                    "comparison_name": "TC001 data comparison marker",
+                    "source": "literal",
+                    "source_literal": "enabled",
+                    "target": "literal",
+                    "target_literal": "enabled"
+                }
+            ]
+        },
+        "test_data_file": "",
+        "db_query_timing": "",
+        "db_queries": {
+            "default": "",
+            "audit_query": ""
+        },
+        "db_type": "",
+        "db_connection_name": "",
+        "test_summary": "Test TC001: Proxies jobs listing request to Reducto. [positive] (TC001)"
+    }
+]

@@ -49,5 +49,8 @@
         "additionalProp1": "security_value1",
         "additionalProp2": "security_value2",
         "additionalProp3": "security_value3"
-    }
+    },
+    "allowedAgents": [
+        "string"
+    ]
 }

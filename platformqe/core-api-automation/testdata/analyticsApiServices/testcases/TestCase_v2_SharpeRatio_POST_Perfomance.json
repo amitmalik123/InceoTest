@@ -1,0 +1,149 @@
+[
+    {
+        "test_id": "TC001_perf_sharpe_ratio",
+        "service_name": "analyticsApiServices",
+        "workflow_mode": "parallel",
+        "test_name": "POST /v2/analytics [positive] Sharpe Ratio (TC001_perf_sharpe_ratio)",
+        "protocol": "REST",
+        "test_type": ["Functional", "Performance"],
+        "mainURL": "{{base_url}}",
+        "endpoint": "/v2/analytics",
+        "method": "POST",
+        "rpc_method": "",
+        "graphql_query": "",
+        "graphql_variables": "",
+        "soap_action": "",
+        "soap_envelope": "",
+        "headers_additional": {"Content-Type": "application/json"},
+        "payload": {
+            "calculationRequest": {
+                "inputs": {
+                    "benchmark": ["SP500I"],
+                    "blend": [
+                        {"id": "TRITS6", "entityType": "model", "weight": 0.1},
+                        {"id": "UKTBL3", "entityType": "model", "weight": 0.1},
+                        {"id": "USTMG3", "entityType": "model", "weight": 0.1},
+                        {"id": "USTPT2", "entityType": "model", "weight": 0.1},
+                        {"id": "AMFBL3", "entityType": "model", "weight": 0.1},
+                        {"id": "AMFCG6", "entityType": "model", "weight": 0.1},
+                        {"id": "UMS4VG", "entityType": "model", "weight": 0.1},
+                        {"id": "AMDIAT", "entityType": "model", "weight": 0.1},
+                        {"id": "TPM1GF", "entityType": "model", "weight": 0.1},
+                        {"id": "UCM5DC", "entityType": "model", "weight": 0.1}
+                    ]
+                },
+                "calculations": [{"calculationType": "Sharpe Ratio", "configurations": {"riskFreeRate": "SBT30D", "timeHorizon": ["threeYear", "fiveYear"], "startDate": "2015-12-30", "endDate": "2025-12-31"}}]
+            }
+        },
+        "expected_status": "200",
+        "expected_response_schema": "",
+        "expected_response": null,
+        "ignore_fields": ["id"],
+        "extract_values": [{"from": "response", "key": "id", "assign_to": ""}],
+        "validate": {"performance": {"max_response_time_ms": null}},
+        "test_data_file": "",
+        "db_query": "",
+        "db_type": "",
+        "db_connection_name": "",
+        "test_summary": "Sharpe Ratio positive performance scenario with 10-model blend and total weight 1.0.",
+        "test_scenario": "Validate 200 response for Sharpe Ratio calculation in performance mode."
+    },
+    {
+        "test_id": "TC002_perf_sharpe_ratio",
+        "service_name": "analyticsApiServices",
+        "workflow_mode": "parallel",
+        "test_name": "POST /v2/analytics [positive] Sharpe Ratio (TC002_perf_sharpe_ratio)",
+        "protocol": "REST",
+        "test_type": ["Functional", "Performance"],
+        "mainURL": "{{base_url}}",
+        "endpoint": "/v2/analytics",
+        "method": "POST",
+        "rpc_method": "",
+        "graphql_query": "",
+        "graphql_variables": "",
+        "soap_action": "",
+        "soap_envelope": "",
+        "headers_additional": {"Content-Type": "application/json"},
+        "payload": {
+            "calculationRequest": {
+                "inputs": {
+                    "benchmark": ["SP500I"],
+                    "blend": [
+                        {"id": "UEKMM6", "entityType": "model", "weight": 0.1},
+                        {"id": "UNATL", "entityType": "model", "weight": 0.1},
+                        {"id": "UPUAR5", "entityType": "model", "weight": 0.1},
+                        {"id": "GISI53", "entityType": "model", "weight": 0.1},
+                        {"id": "JPMPR5", "entityType": "model", "weight": 0.1},
+                        {"id": "TFETA2", "entityType": "model", "weight": 0.1},
+                        {"id": "UMFPR1", "entityType": "model", "weight": 0.1},
+                        {"id": "TFMF4T", "entityType": "model", "weight": 0.1},
+                        {"id": "TMS6VA", "entityType": "model", "weight": 0.1},
+                        {"id": "GMS4YF", "entityType": "model", "weight": 0.1}
+                    ]
+                },
+                "calculations": [{"calculationType": "Sharpe Ratio", "configurations": {"riskFreeRate": "SBT30D", "timeHorizon": ["threeYear", "fiveYear", "tenYear"], "startDate": "2015-12-30", "endDate": "2025-12-31"}}]
+            }
+        },
+        "expected_status": "200",
+        "expected_response_schema": "",
+        "expected_response": null,
+        "ignore_fields": ["id"],
+        "extract_values": [{"from": "response", "key": "id", "assign_to": ""}],
+        "validate": {"performance": {"max_response_time_ms": null}},
+        "test_data_file": "",
+        "db_query": "",
+        "db_type": "",
+        "db_connection_name": "",
+        "test_summary": "Sharpe Ratio positive performance scenario with 10-model blend and total weight 1.0.",
+        "test_scenario": "Validate 200 response for Sharpe Ratio calculation in performance mode."
+    },
+    {
+        "test_id": "TC003_perf_sharpe_ratio",
+        "service_name": "analyticsApiServices",
+        "workflow_mode": "parallel",
+        "test_name": "POST /v2/analytics [positive] Sharpe Ratio (TC003_perf_sharpe_ratio)",
+        "protocol": "REST",
+        "test_type": ["Functional", "Performance"],
+        "mainURL": "{{base_url}}",
+        "endpoint": "/v2/analytics",
+        "method": "POST",
+        "rpc_method": "",
+        "graphql_query": "",
+        "graphql_variables": "",
+        "soap_action": "",
+        "soap_envelope": "",
+        "headers_additional": {"Content-Type": "application/json"},
+        "payload": {
+            "calculationRequest": {
+                "inputs": {
+                    "benchmark": ["SP500I"],
+                    "blend": [
+                        {"id": "SSELA5", "entityType": "model", "weight": 0.1},
+                        {"id": "UKTBL4", "entityType": "model", "weight": 0.1},
+                        {"id": "UPMTS2", "entityType": "model", "weight": 0.1},
+                        {"id": "SELMA4", "entityType": "model", "weight": 0.1},
+                        {"id": "GISI49", "entityType": "model", "weight": 0.1},
+                        {"id": "NFETA1", "entityType": "model", "weight": 0.1},
+                        {"id": "SUMTM6", "entityType": "model", "weight": 0.1},
+                        {"id": "TMFGI4", "entityType": "model", "weight": 0.1},
+                        {"id": "TMFTE2", "entityType": "model", "weight": 0.1},
+                        {"id": "UORIE6", "entityType": "model", "weight": 0.1}
+                    ]
+                },
+                "calculations": [{"calculationType": "Sharpe Ratio", "configurations": {"riskFreeRate": "SBT30D", "timeHorizon": ["threeYear", "fiveYear", "tenYear", "twentyYear"], "startDate": "2015-12-30", "endDate": "2025-12-31"}}]
+            }
+        },
+        "expected_status": "200",
+        "expected_response_schema": "",
+        "expected_response": null,
+        "ignore_fields": ["id"],
+        "extract_values": [{"from": "response", "key": "id", "assign_to": ""}],
+        "validate": {"performance": {"max_response_time_ms": null}},
+        "test_data_file": "",
+        "db_query": "",
+        "db_type": "",
+        "db_connection_name": "",
+        "test_summary": "Sharpe Ratio positive performance scenario with 10-model blend and total weight 1.0.",
+        "test_scenario": "Validate 200 response for Sharpe Ratio calculation in performance mode."
+    }
+]

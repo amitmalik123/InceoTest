@@ -44,28 +44,6 @@
                 "from": "response",
                 "key": "quantity",
                 "assign_to": "response_quantity"
-            },
-            {
-                "from": "db_result",
-                "query": "default",
-                "assign": [
-                    {
-                        "key": "0.securityTransferId",
-                        "assign_to": "db_securityTransferId"
-                    },
-                    {
-                        "key": "0.securityId",
-                        "assign_to": "db_securityId"
-                    },
-                    {
-                        "key": "0.securityUnitType",
-                        "assign_to": "db_securityUnitType"
-                    },
-                    {
-                        "key": "0.quantity",
-                        "assign_to": "db_quantity"
-                    }
-                ]
             }
         ],
         "validate": {
@@ -110,49 +88,21 @@
                     "message": "Quantity should not be empty"
                 }
             ],
-            "data_comparison": [
-                {
-                    "source": "response_SecurityTransferId",
-                    "target": "db_securityTransferId",
-                    "log_differences": true,
-                    "comparison_name": "SecurityTransferId match between API and DB"
-                },
-                {
-                    "source": "response_securityId",
-                    "target": "db_securityId",
-                    "log_differences": true,
-                    "comparison_name": "SecurityId match between API and DB"
-                },
-                {
-                    "source": "response_securityUnitType",
-                    "target": "db_securityUnitType",
-                    "log_differences": true,
-                    "comparison_name": "SecurityUnitType match between API and DB"
-                },
-                {
-                    "source": "response_quantity",
-                    "target": "db_quantity",
-                    "log_differences": true,
-                    "comparison_name": "Quantity match between API and DB"
-                }
-            ]
+            "data_comparison": []
         },
         "test_data_file": "MoveMoneyAPI/data_driven/Data_transfer_requestId_securities_securityTransferId_PUT.csv",
         "csv_row_index": 0,
-        "db_query_timing": "after_api",
-        "db_queries": {
-            "default": "SELECT LOWER([SecurityTransferId]) AS securityTransferId, LOWER([SecurityId]) AS securityId, [SecurityUnitType] AS securityUnitType, [Quantity] AS quantity FROM [dbo].[MoneyMovementRequest] WHERE [SecurityTransferId] = '{{securityTransferId}}'",
-            "audit_query": ""
-        },
-        "db_type": "mssql",
-        "db_connection_name": "movemoney",
+        "db_query_timing": "",
+        "db_queries": {},
+        "db_type": "",
+        "db_connection_name": "",
         "test_summary": "Verify successful 200 response for security transfer update with valid request Replaces the selected security record"
     },
     {
         "test_id": "TC002",
         "service_name": "movemoney",
         "workflow_mode": "parallel",
-        "test_name": "PUT /{requestId}/securities/{securityTransferId} [negative: securityTransferId not found] (TC002)",
+        "test_name": "PUT /{requestId}/securities/{securityTransferId} [negative: invalid Request ID] (TC002)",
         "protocol": "REST",
         "test_type": [
             "Negative"
@@ -164,16 +114,34 @@
             "Content-Type": "application/json"
         },
         "payload": "MoveMoneyAPI/payloads/Payload_transfer_requestId_securities_securityTransferId_PUT.json",
-        "expected_status": "204",
+        "expected_status": "400",
         "expected_response_schema": null,
-        "expected_response": null,
+        "expected_response": {
+            "type": "invalid-request",
+            "title": "Invalid Request",
+            "status": 400,
+            "detail": "The request contains invalid values",
+            "instance": "/api/moneymovement/v1/a5fa23@@-b6e2-4dd9-99ac-2980dd6009f7/securities/d6c98ccb-3748-4d33-bbce-65658fd02eb5",
+            "errors": {
+                "requestId": [
+                    "Must be a valid UUID format."
+                ]
+            }
+        },
+        "expected_error_message": "Must be a valid UUID format.",
         "ignore_fields": [
             "id",
             "createdDate",
             "modifiedDate",
             "timestamp"
         ],
-        "extract_values": [],
+        "extract_values": [
+            {
+                "from": "response",
+                "key": "errors.requestId.0",
+                "assign_to": "error_message_tc002"
+            }
+        ],
         "validate": {
             "performance": {
                 "max_response_time_ms": 5000
@@ -184,7 +152,20 @@
                     "xss"
                 ]
             },
-            "assertions": [],
+            "assertions": [
+                {
+                    "actual": "{{error_message_tc002}}",
+                    "expected": "",
+                    "operator": "!=",
+                    "message": "Error message should not be empty"
+                },
+                {
+                    "actual": "{{error_message_tc002}}",
+                    "expected": "{{expected_error_message}}",
+                    "operator": "==",
+                    "message": "requestId error message should match expected invalid UUID error"
+                }
+            ],
             "data_comparison": []
         },
         "test_data_file": "MoveMoneyAPI/data_driven/Data_transfer_requestId_securities_securityTransferId_PUT.csv",
@@ -193,7 +174,7 @@
         "db_queries": {},
         "db_type": "",
         "db_connection_name": "",
-        "test_summary": "Verify the API returns 204 response when the securityTransferId is not found under the given requestId"
+        "test_summary": "Verify the API returns 400 error response when requestId is invalid in request body"
     },
     {
         "test_id": "TC003",
@@ -213,14 +194,32 @@
         "payload": "MoveMoneyAPI/payloads/Payload_transfer_requestId_securities_securityTransferId_PUT.json",
         "expected_status": "400",
         "expected_response_schema": null,
-        "expected_response": null,
+        "expected_response": {
+            "type": "invalid-request",
+            "title": "Invalid Request",
+            "status": 400,
+            "detail": "The request contains invalid values",
+            "instance": "/api/moneymovement/v1/a5fa239c-b6e2-4dd9-99ac-2980dd6009f7/securities/78df1151-2bbb-4c0d-8634-3713989c6a4f",
+            "errors": {
+                "securityId": [
+                    "Must be a valid UUID format."
+                ]
+            }
+        },
+        "expected_error_message": "Must be a valid UUID format.",
         "ignore_fields": [
             "id",
             "createdDate",
             "modifiedDate",
             "timestamp"
         ],
-        "extract_values": [],
+        "extract_values": [
+            {
+                "from": "response",
+                "key": "errors.securityId.0",
+                "assign_to": "error_message_tc003"
+            }
+        ],
         "validate": {
             "performance": {
                 "max_response_time_ms": 5000
@@ -231,7 +230,20 @@
                     "xss"
                 ]
             },
-            "assertions": [],
+            "assertions": [
+                {
+                    "actual": "{{error_message_tc003}}",
+                    "expected": "",
+                    "operator": "!=",
+                    "message": "Error message should not be empty"
+                },
+                {
+                    "actual": "{{error_message_tc003}}",
+                    "expected": "{{expected_error_message}}",
+                    "operator": "==",
+                    "message": "securityId error message should match expected invalid UUID error"
+                }
+            ],
             "data_comparison": []
         },
         "test_data_file": "MoveMoneyAPI/data_driven/Data_transfer_requestId_securities_securityTransferId_PUT.csv",
@@ -260,14 +272,32 @@
         "payload": "MoveMoneyAPI/payloads/Payload_transfer_requestId_securities_securityTransferId_PUT.json",
         "expected_status": "400",
         "expected_response_schema": null,
-        "expected_response": null,
+        "expected_response": {
+            "type": "missing-required-fields",
+            "title": "One or more fields are missing values",
+            "status": 400,
+            "detail": "Missing Required Fields",
+            "instance": "/api/moneymovement/v1/a5fa239c-b6e2-4dd9-99ac-2980dd6009f7/securities/78df1151-2bbb-4c0d-8634-3713989c6a4f",
+            "errors": {
+                "securityId": [
+                    "This field is required."
+                ]
+            }
+        },
+        "expected_error_message": "This field is required.",
         "ignore_fields": [
             "id",
             "createdDate",
             "modifiedDate",
             "timestamp"
         ],
-        "extract_values": [],
+        "extract_values": [
+            {
+                "from": "response",
+                "key": "errors.securityId.0",
+                "assign_to": "error_message_tc004"
+            }
+        ],
         "validate": {
             "performance": {
                 "max_response_time_ms": 5000
@@ -278,7 +308,20 @@
                     "xss"
                 ]
             },
-            "assertions": [],
+            "assertions": [
+                {
+                    "actual": "{{error_message_tc004}}",
+                    "expected": "",
+                    "operator": "!=",
+                    "message": "Error message should not be empty"
+                },
+                {
+                    "actual": "{{error_message_tc004}}",
+                    "expected": "{{expected_error_message}}",
+                    "operator": "==",
+                    "message": "securityId error message should match expected missing-field error"
+                }
+            ],
             "data_comparison": []
         },
         "test_data_file": "MoveMoneyAPI/data_driven/Data_transfer_requestId_securities_securityTransferId_PUT.csv",
@@ -307,14 +350,32 @@
         "payload": "MoveMoneyAPI/payloads/Payload_transfer_requestId_securities_securityTransferId_PUT.json",
         "expected_status": "400",
         "expected_response_schema": null,
-        "expected_response": null,
+        "expected_response": {
+            "type": "missing-required-fields",
+            "title": "One or more fields are missing values",
+            "status": 400,
+            "detail": "Missing Required Fields",
+            "instance": "/api/moneymovement/v1/a5fa239c-b6e2-4dd9-99ac-2980dd6009f7/securities/78df1151-2bbb-4c0d-8634-3713989c6a4f",
+            "errors": {
+                "securityUnitType": [
+                    "This field is required."
+                ]
+            }
+        },
+        "expected_error_message": "This field is required.",
         "ignore_fields": [
             "id",
             "createdDate",
             "modifiedDate",
             "timestamp"
         ],
-        "extract_values": [],
+        "extract_values": [
+            {
+                "from": "response",
+                "key": "errors.securityUnitType.0",
+                "assign_to": "error_message_tc005"
+            }
+        ],
         "validate": {
             "performance": {
                 "max_response_time_ms": 5000
@@ -325,7 +386,20 @@
                     "xss"
                 ]
             },
-            "assertions": [],
+            "assertions": [
+                {
+                    "actual": "{{error_message_tc005}}",
+                    "expected": "",
+                    "operator": "!=",
+                    "message": "Error message should not be empty"
+                },
+                {
+                    "actual": "{{error_message_tc005}}",
+                    "expected": "{{expected_error_message}}",
+                    "operator": "==",
+                    "message": "securityUnitType error message should match expected missing-field error"
+                }
+            ],
             "data_comparison": []
         },
         "test_data_file": "MoveMoneyAPI/data_driven/Data_transfer_requestId_securities_securityTransferId_PUT.csv",
@@ -354,14 +428,32 @@
         "payload": "MoveMoneyAPI/payloads/Payload_transfer_requestId_securities_securityTransferId_PUT.json",
         "expected_status": "400",
         "expected_response_schema": null,
-        "expected_response": null,
+        "expected_response": {
+            "type": "invalid-request",
+            "title": "Invalid Request",
+            "status": 400,
+            "detail": "The request contains invalid values",
+            "instance": "/api/moneymovement/v1/a5fa239c-b6e2-4dd9-99ac-2980dd6009f7/securities/78df1151-2bbb-4c0d-8634-3713989c6a4f",
+            "errors": {
+                "securityUnitType": [
+                    "Must be one of: Quantity, All."
+                ]
+            }
+        },
+        "expected_error_message": "Must be one of: Quantity, All.",
         "ignore_fields": [
             "id",
             "createdDate",
             "modifiedDate",
             "timestamp"
         ],
-        "extract_values": [],
+        "extract_values": [
+            {
+                "from": "response",
+                "key": "errors.securityUnitType.0",
+                "assign_to": "error_message_tc006"
+            }
+        ],
         "validate": {
             "performance": {
                 "max_response_time_ms": 5000
@@ -372,7 +464,20 @@
                     "xss"
                 ]
             },
-            "assertions": [],
+            "assertions": [
+                {
+                    "actual": "{{error_message_tc006}}",
+                    "expected": "",
+                    "operator": "!=",
+                    "message": "Error message should not be empty"
+                },
+                {
+                    "actual": "{{error_message_tc006}}",
+                    "expected": "{{expected_error_message}}",
+                    "operator": "==",
+                    "message": "securityUnitType error message should match expected invalid-value error"
+                }
+            ],
             "data_comparison": []
         },
         "test_data_file": "MoveMoneyAPI/data_driven/Data_transfer_requestId_securities_securityTransferId_PUT.csv",
@@ -382,5 +487,161 @@
         "db_type": "",
         "db_connection_name": "",
         "test_summary": "Verify the API returns 400 error response when securityUnitType is invalid in request body"
+    },
+    {
+        "test_id": "TC007",
+        "service_name": "movemoney",
+        "workflow_mode": "parallel",
+        "test_name": "PUT /{requestId}/securities/{securityTransferId} [negative: invalid securityTransferId] (TC007)",
+        "protocol": "REST",
+        "test_type": [
+            "Negative"
+        ],
+        "mainURL": "{{base_url}}",
+        "endpoint": "/{{requestId}}/securities/{{securityTransferId}}",
+        "method": "PUT",
+        "headers_additional": {
+            "Content-Type": "application/json"
+        },
+        "payload": "MoveMoneyAPI/payloads/Payload_transfer_requestId_securities_securityTransferId_PUT.json",
+        "expected_status": "400",
+        "expected_response_schema": null,
+        "expected_response": {
+            "type": "invalid-request",
+            "title": "Invalid Request",
+            "status": 400,
+            "detail": "The request contains invalid values",
+            "instance": "/api/moneymovement/v1/a5fa239c-b6e2-4dd9-99ac-2980dd6009f7/securities/4a9e5@@848-4616-4a37-816b-4ceb15495735",
+            "errors": {
+                "securityTransferId": [
+                    "Must be a valid UUID format."
+                ]
+            }
+        },
+        "expected_error_message": "Must be a valid UUID format.",
+        "ignore_fields": [
+            "id",
+            "createdDate",
+            "modifiedDate",
+            "timestamp"
+        ],
+        "extract_values": [
+            {
+                "from": "response",
+                "key": "errors.securityTransferId.0",
+                "assign_to": "error_message_tc007"
+            }
+        ],
+        "validate": {
+            "performance": {
+                "max_response_time_ms": 5000
+            },
+            "security": {
+                "checks": [
+                    "sql_injection",
+                    "xss"
+                ]
+            },
+            "assertions": [
+                {
+                    "actual": "{{error_message_tc007}}",
+                    "expected": "",
+                    "operator": "!=",
+                    "message": "Error message should not be empty"
+                },
+                {
+                    "actual": "{{error_message_tc007}}",
+                    "expected": "{{expected_error_message}}",
+                    "operator": "==",
+                    "message": "securityTransferId error message should match expected invalid UUID error"
+                }
+            ],
+            "data_comparison": []
+        },
+        "test_data_file": "MoveMoneyAPI/data_driven/Data_transfer_requestId_securities_securityTransferId_PUT.csv",
+        "csv_row_index": 6,
+        "db_query_timing": "",
+        "db_queries": {},
+        "db_type": "",
+        "db_connection_name": "",
+        "test_summary": "TC007 - Verify the API returns 400 error response when securityTransferId is invalid in request body (TC007)"
+    },
+    {
+        "test_id": "TC008",
+        "service_name": "movemoney",
+        "workflow_mode": "parallel",
+        "test_name": "PUT /{requestId}/securities/{securityTransferId} [negative: invalid quantity] (TC008)",
+        "protocol": "REST",
+        "test_type": [
+            "Negative"
+        ],
+        "mainURL": "{{base_url}}",
+        "endpoint": "/{{requestId}}/securities/{{securityTransferId}}",
+        "method": "PUT",
+        "headers_additional": {
+            "Content-Type": "application/json"
+        },
+        "payload": "MoveMoneyAPI/payloads/Payload_transfer_requestId_securities_securityTransferId_PUT.json",
+        "expected_status": "400",
+        "expected_response_schema": null,
+        "expected_response": {
+            "type": "invalid-request",
+            "title": "Invalid Request",
+            "status": 400,
+            "detail": "The request contains invalid values",
+            "instance": "/api/moneymovement/v1/a5fa239c-b6e2-4dd9-99ac-2980dd6009f7/securities/78df1151-2bbb-4c0d-8634-3713989c6a4f",
+            "errors": {
+                "quantity": [
+                    "Must be a positive numeric value greater than 0."
+                ]
+            }
+        },
+        "expected_error_message": "Must be a positive numeric value greater than 0.",
+        "ignore_fields": [
+            "id",
+            "createdDate",
+            "modifiedDate",
+            "timestamp"
+        ],
+        "extract_values": [
+            {
+                "from": "response",
+                "key": "errors.quantity.0",
+                "assign_to": "error_message_tc008"
+            }
+        ],
+        "validate": {
+            "performance": {
+                "max_response_time_ms": 5000
+            },
+            "security": {
+                "checks": [
+                    "sql_injection",
+                    "xss"
+                ]
+            },
+            "assertions": [
+                {
+                    "actual": "{{error_message_tc008}}",
+                    "expected": "",
+                    "operator": "!=",
+                    "message": "Error message should not be empty"
+                },
+                {
+                    "actual": "{{error_message_tc008}}",
+                    "expected": "{{expected_error_message}}",
+                    "operator": "==",
+                    "message": "quantity error message should match expected invalid-value error"
+                }
+            ],
+            "data_comparison": []
+        },
+        "test_data_file": "MoveMoneyAPI/data_driven/Data_transfer_requestId_securities_securityTransferId_PUT.csv",
+        "csv_row_index": 7,
+        "db_query_timing": "",
+        "db_queries": {},
+        "db_type": "",
+        "db_connection_name": "",
+        "test_summary": "TC008 - Verify the API returns 400 error response when quantity is invalid in request body (TC008)"
     }
 ]

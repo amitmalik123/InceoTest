@@ -1,0 +1,14 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "RFC 9457 — 501 Not Implemented",
+  "description": "Validates the RFC 9457 Problem Details structure for 501 Not Implemented responses. All five fields (type, title, status, detail, instance) are required. Can be reused by any test case that expects a 501 error response.",
+  "type": "object",
+  "required": ["type", "title", "status", "detail", "instance"],
+  "properties": {
+    "type":     { "type": "string",  "description": "URI reference identifying the problem type" },
+    "title":    { "type": "string",  "description": "Short, human-readable summary of the problem" },
+    "status":   { "type": "integer", "enum": [501], "description": "HTTP status code — must be 501 in the body (AC4)" },
+    "detail":   { "type": "string",  "description": "Human-readable explanation of this occurrence" },
+    "instance": { "type": "string",  "description": "URI reference / request path that identifies this occurrence (AC5)" }
+  }
+}

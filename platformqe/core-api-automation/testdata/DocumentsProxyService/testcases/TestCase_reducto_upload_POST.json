@@ -1,7 +1,7 @@
 [
     {
         "test_id": "TC001",
-        "service_name": "proxyservice",
+        "service_name": "documentsproxy",
         "workflow_mode": "parallel",
         "test_name": "Proxies upload request to Reducto. [positive] (TC001)",
         "protocol": "REST",
@@ -73,7 +73,7 @@
     },
     {
         "test_id": "TC002",
-        "service_name": "proxyservice",
+        "service_name": "documentsproxy",
         "workflow_mode": "parallel",
         "test_name": "Proxies upload request to Reducto. [negative] (TC002)",
         "protocol": "REST",

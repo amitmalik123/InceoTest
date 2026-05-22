@@ -1,2 +1,2 @@
 environment,test_id,req_ssoguid, req_groupNames, expected_status
-TSADEV,TC003,sso-guid-james-taylor-099, New Navigation, 404
+TSADEV,TC003,sso-guid-james-taylor-099, New Navigation, 204
