@@ -89,3 +89,5 @@ stages:
       marker: ${{ parameters.marker }}
       workers: ${{ parameters.workers }}
       browser: ${{ parameters.browser }}
+      azureSubscription: $(subscription_dev)
+      keyVaultName: $(key_vault_dev)
