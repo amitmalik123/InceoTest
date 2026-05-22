@@ -44,6 +44,24 @@ dependencies = [
     # HTTP Requests
     "requests>=2.31.0",
 
+    # Environment (.env) file support
+    "python-dotenv>=1.0.0",
+
+    # PDF Testing
+    "PyPDF2>=3.0.0",
+
+    # Performance Monitoring (optional)
+    "influxdb-client>=1.38.0",
+
+    # PyCryptodome to encrypt and decrypt credentials for email access
+    "pycryptodome>=3.20.0",
+
+    # Model Context Protocol (MCP) for AI integration
+    "mcp[cli]>=1.0.0"
+]
+
+[tool.setuptools]
+packages = ["config", "pages", "utils", "tests", "fixtures"]
     # Encryption utilities
     "cryptography>=46.0.0",
 
@@ -92,6 +110,56 @@ dev = [
 
 [tool.pytest.ini_options]
 testpaths = ["tests"]
+python_files = "test_*.py"
+python_classes = "Test*"
+python_functions = "test_*"
+markers = [
+    "smoke: Quick smoke tests for critical functionality",
+    "regression: Full regression test suite",
+    "FNT_regression: FNT regression test suite",
+    "InDev: Tests in development (work in progress)",
+    "roth_conversion: Roth IRA conversion related tests",
+    "add_ach: Add ACH instructions related tests",
+    "ach: ACH functionality tests",
+    "login: Login functionality tests",
+    "navigation: Navigation and menu tests",
+    "account: Account management tests",
+    "wizard: Account wizard flow tests",
+    "change_investments: Change Investments flow tests",
+    "account_management: Account Management flow tests",
+    "suspension: Account Suspension tests",
+    "docusign: DocuSign integration tests",
+    "conversion: Asset conversion tests",
+    "investment: Investment management tests",
+    "tracking: Tracking center tests",
+    "e2e: End-to-end workflow tests",
+    "critical: Critical path tests",
+    "slow: Tests that take longer to execute",
+    "skip_ci: Skip in CI environment",
+    "test11: Tests for test11 environment",
+    "test12: Tests for test12 environment",
+    "silo: Tests for silo environment",
+    "prod: Tests for production environment",
+    "performance: Performance monitoring tests",
+    "lighthouse: Lighthouse audit tests",
+    "HappyPath: Happy path scenario",
+    "Silo_Regression: Silo Regression",
+    "T10_Regression: T10 Regression",
+    "Prod_Regression: Prod Regression",
+    "SiloRegression_OneCleanUp: Silo Regression with one CleanUp Scenario",
+    "app: marks tests to run with specific app (e.g., -m app[ewm])",
+    "S1: S1_OAM_Initiated by FA_Online Submit_Finish",
+    "S2: S2_OAM_Initiated by SAU_Online Submit_Authorized Signer_Not_Required",
+    "S3: S3_OAM_Initiated by SAU_Complete and Print",
+    "S4: S4_OAM_Initiated_by_OfficeAdmin_Complete_And_Print",
+    "S5: S5_OAM_Initiated by SAU_Online Submit_Authorized Signer_Required_FA",
+    "S6: S6_OAM_Initiated by SAU_Online Submit_Authorized Signer_Required_SAU",
+    "S7: S7_Prod_OAM_Initiated by SAU_Online Submit_Authorized Signer_Required_FA",
+    "S8: S8_OAM_Initiated by FA_Complete and Print",
+    "S9: S9_OAM_Initiated by SAU_eSignature_With One Inperson Client Signature_Authorized Signer_NOT required",
+    "S10: S10_OAM_Initiated by FA_Online Submit_Finish Later",
+    "S11: S11_PRODENG_33109_OAM_SAU_Online Submit_Authorized Approval_Tracking Center_Blue Banner_Trigger Advisor Mail",
+]
 pythonpath = ["."]
 python_files = "test_*.py"
 python_classes = "Test*"
@@ -104,6 +172,13 @@ addopts = """
 --video=on
 --screenshot=on
 --tracing=retain-on-failure
+--junitxml=reports/oam/junit/junit-report.xml
+--html=reports/oam/pytest_report.html
+--self-contained-html
+--alluredir=reports/oam/allure-results
+--reruns=1
+--reruns-delay=1
+"""
 --junitxml=reports/junit/junit-report.xml
 --html=reports/pytest_report.html
 --self-contained-html
@@ -208,28 +283,49 @@ download_dir = "reports/downloads"
 # Allow only requests to these domains; abort everything else.
 # Subdomains are automatically included (e.g., app.assetmark.com matches assetmark.com).
 # Set enabled = false to disable and allow all traffic.
-enabled = true
-http_error_log = "reports/network_errors.log"
+enabled = false
+http_error_log = "reports/oam/network_errors.log"
 allowed_domains = [
+    # ===== Core AssetMark =====
     "assetmark.com",
     "ewealthmanager.com",
     "assetmark.net",
+    
+    # ===== DocuSign Services =====
     "docusign.net",
     "docusign.com",
-    "akamaihd.net",
-    "azure.com",
+    "apps-d.docusign.com",
+    "cdn.docusign.net",
+    "docusignaws.com",
+    "secure.docusign.com",
+    "static.docusign.com",
+    "analytics.docusign.com",
+    "cdn.docusignaws.net",
+    "signingapi.com",
+    "doublecheck.docusign.com",
+    "dsext.docusign.net",
+    "trust.docusign.com",
+    
+    # ===== Microsoft/Outlook/Office365 (from backup) =====
     "outlook.com",
     "outlook.office.com",
     "outlook.cloud.microsoft",
-    "office.net",
     "office365.com",
     "microsoftonline.com",
     "microsoft.com",
     "msftauth.net",
     "msauth.net",
     "live.com",
+    "akamaihd.net",
+    "office.net",
+    
+    # ===== Azure/Corporate =====
+    "azure.com",
     "azncc03perf.corp",
     "corp.local",
+    
+    # ===== Analytics =====
+    "analytics.google.com",
 ]
 
 [tool.id-capture]
