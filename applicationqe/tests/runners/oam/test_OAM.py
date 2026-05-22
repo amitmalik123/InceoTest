@@ -30,6 +30,20 @@ from tests.steps.oam.item_detail_steps import *  # noqa: F401,F403
 # Load all scenarios from the feature files
 # Pytest tags from feature files (@smoke, @regression, @FA_Client_Signature, etc) are automatically available
 # Use -m flag to filter by tags: pytest tests/runners/oam/test_OAM.py -m FA_Client_Signature
-scenarios("../../features/oam/OAM_FA.feature")
-scenarios("../../features/oam/OAM_OA.feature")
-scenarios("../../features/oam/OAM_SAU.feature")
+
+# Financial Advisor (FA) Feature Files
+scenarios("../../features/oam/OAM_FA_OnlineSubmit.feature")
+scenarios("../../features/oam/OAM_FA_CompletePrint.feature")
+scenarios("../../features/oam/OAM_FA_FinishLater.feature")
+
+# Operations & Admin (OA) Feature Files
+scenarios("../../features/oam/OAM_OA_CompleteAndPrint.feature")
+
+# Self-Service Users (SAU) Feature Files
+scenarios("../../features/oam/OAM_SAU_OnlineSubmit_SignerNotRequired.feature")
+scenarios("../../features/oam/OAM_SAU_OnlineSubmit_AuthSignRequriedFA.feature")
+scenarios("../../features/oam/OAM_SAU_OnlineSubmit_AuthSignRequriedSAU.feature")
+scenarios("../../features/oam/OAM_SAU_CompleteAndPrint.feature")
+scenarios("../../features/oam/OAM_SAU_OneInperson.feature")
+scenarios("../../features/oam/OAM_SAU_BlueBanner.feature")
+scenarios("../../features/oam/OAM_SAU_Prod_OnlineSubmit_AUthSignerFA.feature")
