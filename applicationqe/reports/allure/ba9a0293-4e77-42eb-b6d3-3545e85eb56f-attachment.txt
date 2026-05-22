@@ -1,6 +1,0 @@
-
-[conftest] Navigating to 'https://app.test01.assetmark.com/models' …
-[conftest] Landed on: https://test-login.assetmark.com/
-[conftest] SSO detected → logging in as 'T11_AG8959_Perf'
-[conftest] Dismissed popup via selector: "button:has-text('Accept All')"
-[conftest] Login OK. URL: https://app.test01.assetmark.com/models

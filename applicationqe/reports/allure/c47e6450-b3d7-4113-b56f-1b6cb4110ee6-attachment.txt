@@ -1,1 +1,0 @@
-[33mWARNING [0m models_page:allure_logger.py:18 Save Draft button not visible; attempting fallback save handling

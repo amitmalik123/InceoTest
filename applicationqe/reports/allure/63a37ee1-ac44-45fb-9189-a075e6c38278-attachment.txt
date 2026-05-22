@@ -1,2 +1,0 @@
-[33mWARNING [0m models_page:allure_logger.py:18 Save Draft button not visible; attempting fallback save handling
-[33mWARNING [0m models_page:allure_logger.py:18 Holdings label not found; validating publish-review data via allocation rows instead

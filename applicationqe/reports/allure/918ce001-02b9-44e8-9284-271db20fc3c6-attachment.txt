@@ -1,6 +1,0 @@
-[33mWARNING [0m models_page:allure_logger.py:18 Investment widget not found on first model: Page.wait_for_selector: Timeout 10000ms exceeded.
-Call log:
-  - waiting for locator("[role='gridcell'] input[type='text']") to be visible
-
-[33mWARNING [0m models_page:allure_logger.py:18 Model 1 has only 0 strategies (< 3). Searching for another
-[33mWARNING [0m models_page:allure_logger.py:18 Save Draft button not visible; attempting fallback save handling
