@@ -1,0 +1,96 @@
+2026-05-20 16:45:11 - common_steps - INFO - Loading test data from: C:\Users\anil.rokkala\git\develop3\qeautomation\applicationqe\data\stp\stp-ict\test_data.test11.csv
+2026-05-20 16:45:11 - common_steps - INFO - Loaded test data: ['scenario', 'role', 'username', 'password', 'client_id', 'account_name', 'destination_account', 'account_number', 'conversion_amount', 'routing_number', 'ach_option', 'advisor_id', 'expected_description', 'Suitability_q1_answer', 'Suitability_q2_answer', 'Suitability_q3_answer', 'fee_type', 'fee_value']
+2026-05-20 16:45:13 - common_steps - INFO - Navigating to login page
+2026-05-20 16:45:13 - ict_login_page - INFO - Navigating to login page: https://test11.ewealthmanager.com/ewmLogin/account/login
+2026-05-20 16:45:16 - ict_login_page - INFO - Waiting for Allow All button (optional cookie consent)
+2026-05-20 16:45:26 - ict_login_page - INFO - Allow All button not present — skipping cookie consent
+2026-05-20 16:45:26 - ict_login_page - INFO - Login page loaded successfully
+2026-05-20 16:45:26 - login_steps - INFO - Logging in with test credentials
+2026-05-20 16:45:26 - ict_login_page - INFO - Accepting cookies (if present)
+2026-05-20 16:45:26 - ict_login_page - INFO - Entering username: T11_AGA1G1_Perf
+2026-05-20 16:45:26 - ict_login_page - INFO - Entering password
+2026-05-20 16:45:26 - ict_login_page - INFO - Clicking sign in button
+2026-05-20 16:45:35 - ict_login_page - INFO - Navigation after sign in completed. Current URL: https://test.tenant1.ewm3.assetmark.net/dashboard
+2026-05-20 16:45:35 - ict_login_page - INFO - Form submission triggered by sign-in button
+2026-05-20 16:45:35 - ict_login_page - INFO - Final login URL: https://test.tenant1.ewm3.assetmark.net/dashboard
+2026-05-20 16:45:36 - login_steps - INFO - Successfully logged in and redirected to home page
+2026-05-20 16:45:36 - navigation_steps - INFO - Navigating to clients menu
+2026-05-20 16:45:36 - pages.ewm.clients_page - INFO - ClientsPage navigate - Current URL: https://test.tenant1.ewm3.assetmark.net/dashboard
+2026-05-20 16:45:36 - pages.ewm.clients_page - INFO - Navigating to: https://test11.ewealthmanager.com/en.aspx
+2026-05-20 16:45:42 - pages.ewm.clients_page - INFO - Waiting for Clients link to be visible
+2026-05-20 16:45:42 - pages.ewm.clients_page - INFO - Clients page ready
+2026-05-20 16:45:42 - pages.ewm.clients_page - INFO - Clicking Clients link
+2026-05-20 16:45:43 - pages.ewm.clients_page - INFO - Clients link clicked
+2026-05-20 16:45:44 - navigation_steps - INFO - Clicking Account List
+2026-05-20 16:45:44 - pages.ewm.clients_page - INFO - Clicking Account List link
+2026-05-20 16:45:48 - pages.ewm.clients_page - INFO - Account List link clicked
+2026-05-20 16:45:51 - navigation_steps - INFO - Account list page loaded. Current URL: https://test11.ewealthmanager.com/AccountsAnalysis/Clients/AccountList
+2026-05-20 16:45:51 - common_steps - INFO - Searching for account number: 13222266
+2026-05-20 16:45:51 - pages.ewm.account_list_page - INFO - Searching for account number: 13222266
+2026-05-20 16:45:52 - pages.ewm.account_list_page - INFO - GO clicked — searching for: 13222266
+2026-05-20 16:45:57 - pages.ewm.account_list_page - INFO - Search results loaded (networkidle)
+2026-05-20 16:45:57 - pages.ewm.account_list_page - INFO - Frames on page after search: ['https://test11.ewealthmanager.com/AccountsAnalysis/Clients/AccountList', 'https://assetmark--test.sandbox.my.site.com/ESWMessagingforInAppa1750811126655/assets/htdocs/sitecontext.min.html?parent_domain=https%3A%2F%2Ftest11.ewealthmanager.com']
+2026-05-20 16:45:57 - pages.ewm.account_list_page - INFO - Screenshot saved: reports/account_list_after_search.png
+2026-05-20 16:45:57 - account_steps - INFO - Selecting account: Carmen E Tucker, Individual
+2026-05-20 16:45:57 - pages.ewm.account_list_page - INFO - Selecting account: Carmen E Tucker, Individual (Client ID: 13222266)
+2026-05-20 16:45:57 - pages.ewm.account_list_page - INFO - Will search across 3 frame(s)
+2026-05-20 16:45:57 - pages.ewm.account_list_page - INFO - Trying frame 0: https://test11.ewealthmanager.com/AccountsAnalysis/Clients/AccountList
+2026-05-20 16:46:03 - pages.ewm.account_list_page - INFO - Account selected via td in frame 0
+2026-05-20 16:46:03 - pages.ewm.account_detail_page - INFO - Waiting for Account Detail page to load
+2026-05-20 16:46:05 - pages.ewm.account_detail_page - INFO - Account Detail page verified
+2026-05-20 16:46:05 - account_steps - INFO - Account Detail page loaded
+2026-05-20 16:46:05 - account_wizard_steps - INFO - Clicking Account Wizard
+2026-05-20 16:46:05 - pages.ewm.account_detail_page - INFO - Clicking Account Wizard button on account detail page
+2026-05-20 16:46:08 - pages.ewm.account_detail_page - INFO - Account Wizard button clicked and next screen is ready
+2026-05-20 16:46:08 - account_wizard_steps - INFO - Clicking on Change Investments
+2026-05-20 16:46:08 - pages.ewm.account_detail_page - INFO - Clicking Change Investments link
+2026-05-20 16:46:10 - pages.ewm.account_detail_page - INFO - Change Investments clicked
+2026-05-20 16:46:13 - account_wizard_steps - INFO - Select Source Account page ready. URL: https://test11.ewealthmanager.com/ISCT/AcctSelection/SelectAccount?BngClientID=C68238&SelectedAccID=AH49T9
+2026-05-20 16:46:13 - account_wizard_steps - INFO - Selecting source account: 13222266
+2026-05-20 16:46:13 - ict_select_source_account_page - INFO - Selecting source account checkbox for account 13222266
+2026-05-20 16:46:13 - ict_select_source_account_page - INFO - Found label for account 13222266
+2026-05-20 16:46:13 - ict_select_source_account_page - INFO - Clicked checker span for account 13222266
+2026-05-20 16:46:13 - ict_select_source_account_page - INFO - Force-checked hidden input for account 13222266
+2026-05-20 16:46:13 - ict_select_source_account_page - INFO - Next button enabled after checkbox selection
+2026-05-20 16:46:13 - ict_select_source_account_page - INFO - Clicking Next button on Select Source Account page
+2026-05-20 16:46:13 - ict_select_source_account_page - INFO - Next button clicked
+2026-05-20 16:46:13 - select_destination_steps - INFO - Clicking Select Destination Investments dropdown
+2026-05-20 16:46:13 - ict_select_destination_page - INFO - Clicking Select Destination Investments dropdown
+2026-05-20 16:46:13 - ict_select_destination_page - INFO - Waiting for navigation away from SelectAccount page
+2026-05-20 16:46:17 - ict_select_destination_page - INFO - Select Destination Investments dropdown opened
+2026-05-20 16:46:17 - select_destination_steps - INFO - Selecting New Investment
+2026-05-20 16:46:17 - ict_select_destination_page - INFO - Selecting New Investment
+2026-05-20 16:46:17 - ict_select_destination_page - INFO - New Investment selected
+2026-05-20 16:46:17 - select_destination_steps - INFO - Selecting Single Strategy Account under Open Design
+2026-05-20 16:46:17 - ict_select_destination_page - INFO - Selecting Single Strategy Account under Open Design
+2026-05-20 16:46:17 - ict_select_destination_page - INFO - Single Strategy Account selected
+2026-05-20 16:46:17 - select_destination_steps - INFO - Choosing model in Choose a New Investment: AssetMark Asset Builder, Profile 2, Conservative
+2026-05-20 16:46:17 - ict_select_destination_page - INFO - Choosing new investment model: AssetMark Asset Builder, Profile 2, Conservative
+2026-05-20 16:46:49 - ict_select_destination_page - INFO - Selected model 'AssetMark Asset Builder, Profile 2, Conservative' via text link
+2026-05-20 16:46:49 - ict_select_destination_page - INFO - Saved post-model-selection diagnostics to reports/
+2026-05-20 16:46:49 - select_destination_steps - INFO - Clicking OK on Select Destination
+2026-05-20 16:46:49 - ict_select_destination_page - INFO - Clicking OK button
+2026-05-20 16:46:49 - ict_select_destination_page - INFO - OK button clicked
+2026-05-20 16:46:49 - select_destination_steps - INFO - Selecting 100% radio button
+2026-05-20 16:46:49 - ict_select_destination_page - INFO - Selecting 100% radio button
+2026-05-20 16:46:50 - ict_select_destination_page - INFO - 100%radio button selected
+2026-05-20 16:46:50 - select_destination_steps - INFO - Clicking Next on Select Destination
+2026-05-20 16:46:50 - ict_select_destination_page - INFO - Clicking Next button on Select Destination page
+2026-05-20 16:46:50 - ict_select_destination_page - INFO - Next button clicked
+2026-05-20 16:46:50 - account_number_steps - INFO - Account number option from test data: retain
+2026-05-20 16:46:51 - ict_account_number_page - INFO - Retain Account Number selected by default — verifying and clicking Next
+2026-05-20 16:46:51 - ict_account_number_page - INFO - Clicking Next button on Account Number page
+2026-05-20 16:46:52 - ict_account_number_page - INFO - Next button clicked
+2026-05-20 16:46:52 - client_suitability_steps - INFO - Answering suitability questions: Q1=1, Q2=1, Q3=1
+2026-05-20 16:46:52 - client_suitability_page - INFO - Answering suitability questions: Q1=1, Q2=1, Q3=1
+2026-05-20 16:46:54 - client_suitability_page - INFO - Q1: selected option 1
+2026-05-20 16:46:54 - client_suitability_page - INFO - Q2: selected option 1
+2026-05-20 16:46:54 - client_suitability_page - INFO - Q3: selected option 1
+2026-05-20 16:46:55 - client_suitability_page - INFO - All suitability questions answered
+2026-05-20 16:46:55 - client_suitability_steps - INFO - Clicking Next on Client Suitability page
+2026-05-20 16:46:55 - client_suitability_page - INFO - Clicking Next button on Client Suitability page
+2026-05-20 16:47:00 - client_suitability_page - INFO - Next button clicked (enabled)
+2026-05-20 16:47:01 - create_fees_steps - INFO - Fee type: flat, value: 0.75
+2026-05-20 16:47:01 - ict_create_fees_page - INFO - Entering fee — type: flat, value: 0.75
+2026-05-20 16:47:01 - ict_create_fees_page - INFO - Current URL before wait: https://test11.ewealthmanager.com/ISCT/ClientSuitability/Suitability
+2026-05-20 16:47:01 - ict_create_fees_page - INFO - Current URL after networkidle: https://test11.ewealthmanager.com/ISCT/ClientSuitability/Suitability
