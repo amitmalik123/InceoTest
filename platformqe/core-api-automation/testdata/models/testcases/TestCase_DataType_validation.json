@@ -1,0 +1,1126 @@
+[
+    {
+        "test_id": "TC001",
+        "service_name": "models",
+        "workflow_mode": "sequential",
+        "test_name": "Validate allocation table schema and data types",
+        "protocol": "DB_ONLY",
+        "test_type": [
+            "Functional",
+            "Database Validation",
+            "Schema Validation"
+        ],
+        "mainURL": "",
+        "endpoint": "",
+        "method": "",
+        "rpc_method": "",
+        "graphql_query": "",
+        "graphql_variables": "",
+        "soap_action": "",
+        "soap_envelope": "",
+        "headers_additional": {
+            "Content-Type": "application/json"
+        },
+        "payload": null,
+        "expected_status": "",
+        "expected_response_schema": "",
+        "expected_response": "",
+        "extract_values": [],
+        "validate": {
+            "performance": {
+                "max_response_time_ms": null
+            },
+            "security": {
+                "checks": []
+            },
+            "data_comparison": {
+                "source": "db_result",
+                "target": null,
+                "format": "table",
+                "key_field": [
+                    "column_name"
+                ],
+                "fields_to_compare": [
+                    {
+                        "source_field": "row_count",
+                        "comparison": "equals",
+                        "expected_value": 6
+                    },
+                    {
+                        "source_field": "column_name",
+                        "comparison": "contains_all",
+                        "expected_value": [
+                            "allocation_id",
+                            "allocation_detail",
+                            "created_by",
+                            "created_date",
+                            "modified_by",
+                            "modified_date"
+                        ]
+                    },
+                    {
+                        "source_field": "column_name=allocation_id.data_type",
+                        "comparison": "equals",
+                        "expected_value": "integer"
+                    },
+                    {
+                        "source_field": "column_name=allocation_detail.data_type",
+                        "comparison": "equals",
+                        "expected_value": "jsonb"
+                    },
+                    {
+                        "source_field": "column_name=created_by.data_type",
+                        "comparison": "equals",
+                        "expected_value": "uuid"
+                    },
+                    {
+                        "source_field": "column_name=created_date.data_type",
+                        "comparison": "equals",
+                        "expected_value": "timestamp with time zone"
+                    },
+                    {
+                        "source_field": "column_name=modified_by.data_type",
+                        "comparison": "equals",
+                        "expected_value": "uuid"
+                    },
+                    {
+                        "source_field": "column_name=modified_date.data_type",
+                        "comparison": "equals",
+                        "expected_value": "timestamp with time zone"
+                    }
+                ],
+                "log_differences": true
+            },
+            "assertions": []
+        },
+        "test_data_file": "",
+        "db_type": "postgresql",
+        "db_connection_name": "models",
+        "db_query": "SELECT column_name, data_type FROM information_schema.columns WHERE table_name = 'allocation' ORDER BY ordinal_position;",
+        "test_summary": "Test TC001: Validate allocation table - Verify all column names and data types match expected schema"
+    },
+    {
+        "test_id": "TC002",
+        "service_name": "models",
+        "workflow_mode": "sequential",
+        "test_name": "Validate benchmark table schema and data types",
+        "protocol": "DB_ONLY",
+        "test_type": [
+            "Functional",
+            "Database Validation",
+            "Schema Validation"
+        ],
+        "mainURL": "",
+        "endpoint": "",
+        "method": "",
+        "rpc_method": "",
+        "graphql_query": "",
+        "graphql_variables": "",
+        "soap_action": "",
+        "soap_envelope": "",
+        "headers_additional": {
+            "Content-Type": "application/json"
+        },
+        "payload": null,
+        "expected_status": "",
+        "expected_response_schema": "",
+        "expected_response": "",
+        "extract_values": [],
+        "validate": {
+            "performance": {
+                "max_response_time_ms": null
+            },
+            "security": {
+                "checks": []
+            },
+            "data_comparison": {
+                "source": "db_result",
+                "target": null,
+                "format": "table",
+                "key_field": [
+                    "column_name"
+                ],
+                "fields_to_compare": [
+                    {
+                        "source_field": "row_count",
+                        "comparison": "equals",
+                        "expected_value": 9
+                    },
+                    {
+                        "source_field": "column_name",
+                        "comparison": "contains_all",
+                        "expected_value": [
+                            "benchmark_id",
+                            "code",
+                            "name",
+                            "is_blended",
+                            "is_active",
+                            "created_by",
+                            "created_date",
+                            "modified_by",
+                            "modified_date"
+                        ]
+                    },
+                    {
+                        "source_field": "column_name=benchmark_id.data_type",
+                        "comparison": "equals",
+                        "expected_value": "integer"
+                    },
+                    {
+                        "source_field": "column_name=code.data_type",
+                        "comparison": "equals",
+                        "expected_value": "character varying"
+                    },
+                    {
+                        "source_field": "column_name=name.data_type",
+                        "comparison": "equals",
+                        "expected_value": "character varying"
+                    },
+                    {
+                        "source_field": "column_name=is_blended.data_type",
+                        "comparison": "equals",
+                        "expected_value": "boolean"
+                    },
+                    {
+                        "source_field": "column_name=is_active.data_type",
+                        "comparison": "equals",
+                        "expected_value": "boolean"
+                    },
+                    {
+                        "source_field": "column_name=created_by.data_type",
+                        "comparison": "equals",
+                        "expected_value": "uuid"
+                    },
+                    {
+                        "source_field": "column_name=created_date.data_type",
+                        "comparison": "equals",
+                        "expected_value": "timestamp with time zone"
+                    },
+                    {
+                        "source_field": "column_name=modified_by.data_type",
+                        "comparison": "equals",
+                        "expected_value": "uuid"
+                    },
+                    {
+                        "source_field": "column_name=modified_date.data_type",
+                        "comparison": "equals",
+                        "expected_value": "timestamp with time zone"
+                    }
+                ],
+                "log_differences": true
+            },
+            "assertions": []
+        },
+        "test_data_file": "",
+        "db_type": "postgresql",
+        "db_connection_name": "models",
+        "db_query": "SELECT column_name, data_type FROM information_schema.columns WHERE table_name = 'benchmark' ORDER BY ordinal_position;",
+        "test_summary": "Test TC002: Validate benchmark table - Verify all column names and data types match expected schema"
+    },
+    {
+        "test_id": "TC003",
+        "service_name": "models",
+        "workflow_mode": "sequential",
+        "test_name": "Validate investment_approach table schema and data types",
+        "protocol": "DB_ONLY",
+        "test_type": [
+            "Functional",
+            "Database Validation",
+            "Schema Validation"
+        ],
+        "mainURL": "",
+        "endpoint": "",
+        "method": "",
+        "rpc_method": "",
+        "graphql_query": "",
+        "graphql_variables": "",
+        "soap_action": "",
+        "soap_envelope": "",
+        "headers_additional": {
+            "Content-Type": "application/json"
+        },
+        "payload": null,
+        "expected_status": "",
+        "expected_response_schema": "",
+        "expected_response": "",
+        "extract_values": [],
+        "validate": {
+            "performance": {
+                "max_response_time_ms": null
+            },
+            "security": {
+                "checks": []
+            },
+            "data_comparison": {
+                "source": "db_result",
+                "target": null,
+                "format": "table",
+                "key_field": [
+                    "column_name"
+                ],
+                "fields_to_compare": [
+                    {
+                        "source_field": "row_count",
+                        "comparison": "equals",
+                        "expected_value": 4
+                    },
+                    {
+                        "source_field": "column_name",
+                        "comparison": "contains_all",
+                        "expected_value": [
+                            "investment_approach_id",
+                            "name",
+                            "is_active",
+                            "modified_by"
+                        ]
+                    },
+                    {
+                        "source_field": "column_name=investment_approach_id.data_type",
+                        "comparison": "equals",
+                        "expected_value": "integer"
+                    },
+                    {
+                        "source_field": "column_name=name.data_type",
+                        "comparison": "equals",
+                        "expected_value": "character varying"
+                    },
+                    {
+                        "source_field": "column_name=is_active.data_type",
+                        "comparison": "equals",
+                        "expected_value": "boolean"
+                    },
+                    {
+                        "source_field": "column_name=modified_by.data_type",
+                        "comparison": "equals",
+                        "expected_value": "uuid"
+                    }
+                ],
+                "log_differences": true
+            },
+            "assertions": []
+        },
+        "test_data_file": "",
+        "db_type": "postgresql",
+        "db_connection_name": "models",
+        "db_query": "SELECT column_name, data_type FROM information_schema.columns WHERE table_name = 'investment_approach' ORDER BY ordinal_position;",
+        "test_summary": "Test TC003: Validate investment_approach table - Verify all column names and data types match expected schema"
+    },
+    {
+        "test_id": "TC004",
+        "service_name": "models",
+        "workflow_mode": "sequential",
+        "test_name": "Validate model table schema and data types",
+        "protocol": "DB_ONLY",
+        "test_type": [
+            "Functional",
+            "Database Validation",
+            "Schema Validation"
+        ],
+        "mainURL": "",
+        "endpoint": "",
+        "method": "",
+        "rpc_method": "",
+        "graphql_query": "",
+        "graphql_variables": "",
+        "soap_action": "",
+        "soap_envelope": "",
+        "headers_additional": {
+            "Content-Type": "application/json"
+        },
+        "payload": null,
+        "expected_status": "",
+        "expected_response_schema": "",
+        "expected_response": "",
+        "extract_values": [],
+        "validate": {
+            "performance": {
+                "max_response_time_ms": null
+            },
+            "security": {
+                "checks": []
+            },
+            "data_comparison": {
+                "source": "db_result",
+                "target": null,
+                "format": "table",
+                "key_field": [
+                    "column_name"
+                ],
+                "fields_to_compare": [
+                    {
+                        "source_field": "row_count",
+                        "comparison": "equals",
+                        "expected_value": 7
+                    },
+                    {
+                        "source_field": "column_name",
+                        "comparison": "contains_all",
+                        "expected_value": [
+                            "model_id",
+                            "name",
+                            "created_by",
+                            "created_date",
+                            "modified_by",
+                            "modified_date",
+                            "owner_id"
+                        ]
+                    },
+                    {
+                        "source_field": "column_name=model_id.data_type",
+                        "comparison": "equals",
+                        "expected_value": "uuid"
+                    },
+                    {
+                        "source_field": "column_name=name.data_type",
+                        "comparison": "equals",
+                        "expected_value": "character varying"
+                    },
+                    {
+                        "source_field": "column_name=created_by.data_type",
+                        "comparison": "equals",
+                        "expected_value": "uuid"
+                    },
+                    {
+                        "source_field": "column_name=created_date.data_type",
+                        "comparison": "equals",
+                        "expected_value": "timestamp with time zone"
+                    },
+                    {
+                        "source_field": "column_name=modified_by.data_type",
+                        "comparison": "equals",
+                        "expected_value": "uuid"
+                    },
+                    {
+                        "source_field": "column_name=modified_date.data_type",
+                        "comparison": "equals",
+                        "expected_value": "timestamp with time zone"
+                    },
+                    {
+                        "source_field": "column_name=owner_id.data_type",
+                        "comparison": "equals",
+                        "expected_value": "uuid"
+                    }
+                ],
+                "log_differences": true
+            },
+            "assertions": []
+        },
+        "test_data_file": "",
+        "db_type": "postgresql",
+        "db_connection_name": "models",
+        "db_query": "SELECT column_name, data_type FROM information_schema.columns WHERE table_name = 'model' ORDER BY ordinal_position;",
+        "test_summary": "Test TC004: Validate model table - Verify all column names and data types match expected schema"
+    },
+    {
+        "test_id": "TC005",
+        "service_name": "models",
+        "workflow_mode": "sequential",
+        "test_name": "Validate model_active table schema and data types",
+        "protocol": "DB_ONLY",
+        "test_type": [
+            "Functional",
+            "Database Validation",
+            "Schema Validation"
+        ],
+        "mainURL": "",
+        "endpoint": "",
+        "method": "",
+        "rpc_method": "",
+        "graphql_query": "",
+        "graphql_variables": "",
+        "soap_action": "",
+        "soap_envelope": "",
+        "headers_additional": {
+            "Content-Type": "application/json"
+        },
+        "payload": null,
+        "expected_status": "",
+        "expected_response_schema": "",
+        "expected_response": "",
+        "extract_values": [],
+        "validate": {
+            "performance": {
+                "max_response_time_ms": null
+            },
+            "security": {
+                "checks": []
+            },
+            "data_comparison": {
+                "source": "db_result",
+                "target": null,
+                "format": "table",
+                "key_field": [
+                    "column_name"
+                ],
+                "fields_to_compare": [
+                    {
+                        "source_field": "row_count",
+                        "comparison": "equals",
+                        "expected_value": 9
+                    },
+                    {
+                        "source_field": "column_name",
+                        "comparison": "contains_all",
+                        "expected_value": [
+                            "model_active_id",
+                            "model_id",
+                            "version",
+                            "status",
+                            "allocation_id",
+                            "created_by",
+                            "created_date",
+                            "modified_by",
+                            "modified_date"
+                        ]
+                    },
+                    {
+                        "source_field": "column_name=model_active_id.data_type",
+                        "comparison": "equals",
+                        "expected_value": "integer"
+                    },
+                    {
+                        "source_field": "column_name=model_id.data_type",
+                        "comparison": "equals",
+                        "expected_value": "uuid"
+                    },
+                    {
+                        "source_field": "column_name=version.data_type",
+                        "comparison": "equals",
+                        "expected_value": "smallint"
+                    },
+                    {
+                        "source_field": "column_name=status.data_type",
+                        "comparison": "equals",
+                        "expected_value": "USER-DEFINED"
+                    },
+                    {
+                        "source_field": "column_name=allocation_id.data_type",
+                        "comparison": "equals",
+                        "expected_value": "integer"
+                    },
+                    {
+                        "source_field": "column_name=created_by.data_type",
+                        "comparison": "equals",
+                        "expected_value": "uuid"
+                    },
+                    {
+                        "source_field": "column_name=created_date.data_type",
+                        "comparison": "equals",
+                        "expected_value": "timestamp with time zone"
+                    },
+                    {
+                        "source_field": "column_name=modified_by.data_type",
+                        "comparison": "equals",
+                        "expected_value": "uuid"
+                    },
+                    {
+                        "source_field": "column_name=modified_date.data_type",
+                        "comparison": "equals",
+                        "expected_value": "timestamp with time zone"
+                    }
+                ],
+                "log_differences": true
+            },
+            "assertions": []
+        },
+        "test_data_file": "",
+        "db_type": "postgresql",
+        "db_connection_name": "models",
+        "db_query": "SELECT column_name, data_type FROM information_schema.columns WHERE table_name = 'model_active' ORDER BY ordinal_position;",
+        "test_summary": "Test TC005: Validate model_active table - Verify all column names and data types match expected schema (note: status is USER-DEFINED enum type)"
+    },
+    {
+        "test_id": "TC006",
+        "service_name": "models",
+        "workflow_mode": "sequential",
+        "test_name": "Validate model_archive table schema and data types",
+        "protocol": "DB_ONLY",
+        "test_type": [
+            "Functional",
+            "Database Validation",
+            "Schema Validation"
+        ],
+        "mainURL": "",
+        "endpoint": "",
+        "method": "",
+        "rpc_method": "",
+        "graphql_query": "",
+        "graphql_variables": "",
+        "soap_action": "",
+        "soap_envelope": "",
+        "headers_additional": {
+            "Content-Type": "application/json"
+        },
+        "payload": null,
+        "expected_status": "",
+        "expected_response_schema": "",
+        "expected_response": "",
+        "extract_values": [],
+        "validate": {
+            "performance": {
+                "max_response_time_ms": null
+            },
+            "security": {
+                "checks": []
+            },
+            "data_comparison": {
+                "source": "db_result",
+                "target": null,
+                "format": "table",
+                "key_field": [
+                    "column_name"
+                ],
+                "fields_to_compare": [
+                    {
+                        "source_field": "row_count",
+                        "comparison": "equals",
+                        "expected_value": 5
+                    },
+                    {
+                        "source_field": "column_name",
+                        "comparison": "contains_all",
+                        "expected_value": [
+                            "model_id",
+                            "version",
+                            "allocation_id",
+                            "archived_by",
+                            "archived_date"
+                        ]
+                    },
+                    {
+                        "source_field": "column_name=model_id.data_type",
+                        "comparison": "equals",
+                        "expected_value": "uuid"
+                    },
+                    {
+                        "source_field": "column_name=version.data_type",
+                        "comparison": "equals",
+                        "expected_value": "smallint"
+                    },
+                    {
+                        "source_field": "column_name=allocation_id.data_type",
+                        "comparison": "equals",
+                        "expected_value": "integer"
+                    },
+                    {
+                        "source_field": "column_name=archived_by.data_type",
+                        "comparison": "equals",
+                        "expected_value": "uuid"
+                    },
+                    {
+                        "source_field": "column_name=archived_date.data_type",
+                        "comparison": "equals",
+                        "expected_value": "timestamp with time zone"
+                    }
+                ],
+                "log_differences": true
+            },
+            "assertions": []
+        },
+        "test_data_file": "",
+        "db_type": "postgresql",
+        "db_connection_name": "models",
+        "db_query": "SELECT column_name, data_type FROM information_schema.columns WHERE table_name = 'model_archive' ORDER BY ordinal_position;",
+        "test_summary": "Test TC006: Validate model_archive table - Verify all column names and data types match expected schema"
+    },
+    {
+        "test_id": "TC007",
+        "service_name": "models",
+        "workflow_mode": "sequential",
+        "test_name": "Validate model_attribute table schema and data types",
+        "protocol": "DB_ONLY",
+        "test_type": [
+            "Functional",
+            "Database Validation",
+            "Schema Validation"
+        ],
+        "mainURL": "",
+        "endpoint": "",
+        "method": "",
+        "rpc_method": "",
+        "graphql_query": "",
+        "graphql_variables": "",
+        "soap_action": "",
+        "soap_envelope": "",
+        "headers_additional": {
+            "Content-Type": "application/json"
+        },
+        "payload": null,
+        "expected_status": "",
+        "expected_response_schema": "",
+        "expected_response": "",
+        "extract_values": [],
+        "validate": {
+            "performance": {
+                "max_response_time_ms": null
+            },
+            "security": {
+                "checks": []
+            },
+            "data_comparison": {
+                "source": "db_result",
+                "target": null,
+                "format": "table",
+                "key_field": [
+                    "column_name"
+                ],
+                "fields_to_compare": [
+                    {
+                        "source_field": "row_count",
+                        "comparison": "equals",
+                        "expected_value": 4
+                    },
+                    {
+                        "source_field": "column_name",
+                        "comparison": "contains_all",
+                        "expected_value": [
+                            "model_id",
+                            "solution_type",
+                            "investment_approach_id",
+                            "model_type"
+                        ]
+                    },
+                    {
+                        "source_field": "column_name=model_id.data_type",
+                        "comparison": "equals",
+                        "expected_value": "uuid"
+                    },
+                    {
+                        "source_field": "column_name=solution_type.data_type",
+                        "comparison": "equals",
+                        "expected_value": "character varying"
+                    },
+                    {
+                        "source_field": "column_name=investment_approach_id.data_type",
+                        "comparison": "equals",
+                        "expected_value": "integer"
+                    },
+                    {
+                        "source_field": "column_name=model_type.data_type",
+                        "comparison": "equals",
+                        "expected_value": "character varying"
+                    }
+                ],
+                "log_differences": true
+            },
+            "assertions": []
+        },
+        "test_data_file": "",
+        "db_type": "postgresql",
+        "db_connection_name": "models",
+        "db_query": "SELECT column_name, data_type FROM information_schema.columns WHERE table_name = 'model_attribute' ORDER BY ordinal_position;",
+        "test_summary": "Test TC007: Validate model_attribute table - Verify all column names and data types match expected schema (note: version-specific fields moved to model_version_attribute)"
+    },
+    {
+        "test_id": "TC008",
+        "service_name": "models",
+        "workflow_mode": "sequential",
+        "test_name": "Validate model_benchmark table schema and data types",
+        "protocol": "DB_ONLY",
+        "test_type": [
+            "Functional",
+            "Database Validation",
+            "Schema Validation"
+        ],
+        "mainURL": "",
+        "endpoint": "",
+        "method": "",
+        "rpc_method": "",
+        "graphql_query": "",
+        "graphql_variables": "",
+        "soap_action": "",
+        "soap_envelope": "",
+        "headers_additional": {
+            "Content-Type": "application/json"
+        },
+        "payload": null,
+        "expected_status": "",
+        "expected_response_schema": "",
+        "expected_response": "",
+        "extract_values": [],
+        "validate": {
+            "performance": {
+                "max_response_time_ms": null
+            },
+            "security": {
+                "checks": []
+            },
+            "data_comparison": {
+                "source": "db_result",
+                "target": null,
+                "format": "table",
+                "key_field": [
+                    "column_name"
+                ],
+                "fields_to_compare": [
+                    {
+                        "source_field": "row_count",
+                        "comparison": "equals",
+                        "expected_value": 4
+                    },
+                    {
+                        "source_field": "column_name",
+                        "comparison": "contains_all",
+                        "expected_value": [
+                            "model_benchmark_id",
+                            "model_id",
+                            "name",
+                            "is_primary"
+                        ]
+                    },
+                    {
+                        "source_field": "column_name=model_benchmark_id.data_type",
+                        "comparison": "equals",
+                        "expected_value": "integer"
+                    },
+                    {
+                        "source_field": "column_name=model_id.data_type",
+                        "comparison": "equals",
+                        "expected_value": "uuid"
+                    },
+                    {
+                        "source_field": "column_name=name.data_type",
+                        "comparison": "equals",
+                        "expected_value": "character varying"
+                    },
+                    {
+                        "source_field": "column_name=is_primary.data_type",
+                        "comparison": "equals",
+                        "expected_value": "boolean"
+                    }
+                ],
+                "log_differences": true
+            },
+            "assertions": []
+        },
+        "test_data_file": "",
+        "db_type": "postgresql",
+        "db_connection_name": "models",
+        "db_query": "SELECT column_name, data_type FROM information_schema.columns WHERE table_name = 'model_benchmark' ORDER BY ordinal_position;",
+        "test_summary": "Test TC008: Validate model_benchmark table - Verify all column names and data types match expected schema"
+    },
+    {
+        "test_id": "TC009",
+        "service_name": "models",
+        "workflow_mode": "sequential",
+        "test_name": "Validate record_version table schema and data types",
+        "protocol": "DB_ONLY",
+        "test_type": [
+            "Functional",
+            "Database Validation",
+            "Schema Validation"
+        ],
+        "mainURL": "",
+        "endpoint": "",
+        "method": "",
+        "rpc_method": "",
+        "graphql_query": "",
+        "graphql_variables": "",
+        "soap_action": "",
+        "soap_envelope": "",
+        "headers_additional": {
+            "Content-Type": "application/json"
+        },
+        "payload": null,
+        "expected_status": "",
+        "expected_response_schema": "",
+        "expected_response": "",
+        "extract_values": [],
+        "validate": {
+            "performance": {
+                "max_response_time_ms": null
+            },
+            "security": {
+                "checks": []
+            },
+            "data_comparison": {
+                "source": "db_result",
+                "target": null,
+                "format": "table",
+                "key_field": [
+                    "column_name"
+                ],
+                "fields_to_compare": [
+                    {
+                        "source_field": "row_count",
+                        "comparison": "equals",
+                        "expected_value": 10
+                    },
+                    {
+                        "source_field": "column_name",
+                        "comparison": "contains_all",
+                        "expected_value": [
+                            "id",
+                            "record_id",
+                            "old_record_id",
+                            "op",
+                            "ts",
+                            "table_oid",
+                            "table_schema",
+                            "table_name",
+                            "record",
+                            "old_record"
+                        ]
+                    },
+                    {
+                        "source_field": "column_name=id.data_type",
+                        "comparison": "equals",
+                        "expected_value": "bigint"
+                    },
+                    {
+                        "source_field": "column_name=record_id.data_type",
+                        "comparison": "equals",
+                        "expected_value": "uuid"
+                    },
+                    {
+                        "source_field": "column_name=old_record_id.data_type",
+                        "comparison": "equals",
+                        "expected_value": "uuid"
+                    },
+                    {
+                        "source_field": "column_name=op.data_type",
+                        "comparison": "equals",
+                        "expected_value": "USER-DEFINED"
+                    },
+                    {
+                        "source_field": "column_name=ts.data_type",
+                        "comparison": "equals",
+                        "expected_value": "timestamp with time zone"
+                    },
+                    {
+                        "source_field": "column_name=table_oid.data_type",
+                        "comparison": "equals",
+                        "expected_value": "oid"
+                    },
+                    {
+                        "source_field": "column_name=table_schema.data_type",
+                        "comparison": "equals",
+                        "expected_value": "name"
+                    },
+                    {
+                        "source_field": "column_name=table_name.data_type",
+                        "comparison": "equals",
+                        "expected_value": "name"
+                    },
+                    {
+                        "source_field": "column_name=record.data_type",
+                        "comparison": "equals",
+                        "expected_value": "jsonb"
+                    },
+                    {
+                        "source_field": "column_name=old_record.data_type",
+                        "comparison": "equals",
+                        "expected_value": "jsonb"
+                    }
+                ],
+                "log_differences": true
+            },
+            "assertions": []
+        },
+        "test_data_file": "",
+        "db_type": "postgresql",
+        "db_connection_name": "models",
+        "db_query": "SELECT column_name, data_type FROM information_schema.columns WHERE table_name = 'record_version' ORDER BY ordinal_position;",
+        "test_summary": "Test TC009: Validate record_version table - Verify all column names and data types match expected schema (note: op is USER-DEFINED enum type)"
+    },
+    {
+        "test_id": "TC010",
+        "service_name": "models",
+        "workflow_mode": "sequential",
+        "test_name": "Validate snapshot_analytic table schema and data types [AC6 - Snapshot Analytics Daily Refresh]",
+        "protocol": "DB_ONLY",
+        "test_type": [
+            "Functional",
+            "Database Validation",
+            "Schema Validation"
+        ],
+        "mainURL": "",
+        "endpoint": "",
+        "method": "",
+        "rpc_method": "",
+        "graphql_query": "",
+        "graphql_variables": "",
+        "soap_action": "",
+        "soap_envelope": "",
+        "headers_additional": {
+            "Content-Type": "application/json"
+        },
+        "payload": null,
+        "expected_status": "",
+        "expected_response_schema": "",
+        "expected_response": "",
+        "extract_values": [],
+        "validate": {
+            "performance": {
+                "max_response_time_ms": null
+            },
+            "security": {
+                "checks": []
+            },
+            "data_comparison": {
+                "source": "db_result",
+                "target": null,
+                "format": "table",
+                "key_field": [
+                    "column_name"
+                ],
+                "fields_to_compare": [
+                    {
+                        "source_field": "row_count",
+                        "comparison": "equals",
+                        "expected_value": 5
+                    },
+                    {
+                        "source_field": "column_name",
+                        "comparison": "contains_all",
+                        "expected_value": [
+                            "snapshot_analytic_id",
+                            "allocation_id",
+                            "data",
+                            "snapshot_timestamp",
+                            "as_of_date"
+                        ]
+                    },
+                    {
+                        "source_field": "column_name=snapshot_analytic_id.data_type",
+                        "comparison": "equals",
+                        "expected_value": "integer"
+                    },
+                    {
+                        "source_field": "column_name=allocation_id.data_type",
+                        "comparison": "equals",
+                        "expected_value": "integer"
+                    },
+                    {
+                        "source_field": "column_name=data.data_type",
+                        "comparison": "equals",
+                        "expected_value": "jsonb"
+                    },
+                    {
+                        "source_field": "column_name=snapshot_timestamp.data_type",
+                        "comparison": "equals",
+                        "expected_value": "timestamp with time zone"
+                    },
+                    {
+                        "source_field": "column_name=as_of_date.data_type",
+                        "comparison": "equals",
+                        "expected_value": "timestamp with time zone"
+                    }
+                ],
+                "log_differences": true
+            },
+            "assertions": []
+        },
+        "test_data_file": "",
+        "db_type": "postgresql",
+        "db_connection_name": "models",
+        "db_query": "SELECT column_name, data_type FROM information_schema.columns WHERE table_name = 'snapshot_analytic' ORDER BY ordinal_position;",
+        "test_summary": "Test TC010: Validate snapshot_analytic table - Verify all column names and data types match expected schema (snapshot_analytic_id integer, allocation_id integer, data jsonb, snapshot_timestamp timestamptz, as_of_date timestamptz)"
+    },
+    {
+        "test_id": "TC011",
+        "service_name": "models",
+        "workflow_mode": "sequential",
+        "test_name": "Validate model_version_attribute table schema and data types",
+        "protocol": "DB_ONLY",
+        "test_type": [
+            "Functional",
+            "Database Validation",
+            "Schema Validation"
+        ],
+        "mainURL": "",
+        "endpoint": "",
+        "method": "",
+        "rpc_method": "",
+        "graphql_query": "",
+        "graphql_variables": "",
+        "soap_action": "",
+        "soap_envelope": "",
+        "headers_additional": {
+            "Content-Type": "application/json"
+        },
+        "payload": null,
+        "expected_status": "",
+        "expected_response_schema": "",
+        "expected_response": "",
+        "extract_values": [],
+        "validate": {
+            "performance": {
+                "max_response_time_ms": null
+            },
+            "security": {
+                "checks": []
+            },
+            "data_comparison": {
+                "source": "db_result",
+                "target": null,
+                "format": "table",
+                "key_field": [
+                    "column_name"
+                ],
+                "fields_to_compare": [
+                    {
+                        "source_field": "row_count",
+                        "comparison": "equals",
+                        "expected_value": 7
+                    },
+                    {
+                        "source_field": "column_name",
+                        "comparison": "contains_all",
+                        "expected_value": [
+                            "model_id",
+                            "version",
+                            "custodians",
+                            "investment_mins",
+                            "risk_profile",
+                            "metadata",
+                            "benchmarks"
+                        ]
+                    },
+                    {
+                        "source_field": "column_name=model_id.data_type",
+                        "comparison": "equals",
+                        "expected_value": "uuid"
+                    },
+                    {
+                        "source_field": "column_name=version.data_type",
+                        "comparison": "equals",
+                        "expected_value": "smallint"
+                    },
+                    {
+                        "source_field": "column_name=custodian.data_type",
+                        "comparison": "equals",
+                        "expected_value": "ARRAY"
+                    },
+                    {
+                        "source_field": "column_name=investment_min.data_type",
+                        "comparison": "equals",
+                        "expected_value": "jsonb"
+                    },
+                    {
+                        "source_field": "column_name=risk_profile.data_type",
+                        "comparison": "equals",
+                        "expected_value": "character varying"
+                    },
+                    {
+                        "source_field": "column_name=metadata.data_type",
+                        "comparison": "equals",
+                        "expected_value": "jsonb"
+                    },
+                    {
+                        "source_field": "column_name=benchmarks.data_type",
+                        "comparison": "equals",
+                        "expected_value": "jsonb"
+                    }
+                ],
+                "log_differences": true
+            },
+            "assertions": []
+        },
+        "test_data_file": "",
+        "db_type": "postgresql",
+        "db_connection_name": "models",
+        "db_query": "SELECT column_name, data_type FROM information_schema.columns WHERE table_name = 'model_version_attribute' ORDER BY ordinal_position;",
+        "test_summary": "Test TC011: Validate model_version_attribute table - Verify all column names and data types match expected schema (note: version-specific attributes including custodian, investment_min, risk_profile, metadata, and benchmarks)"
+    }
+]

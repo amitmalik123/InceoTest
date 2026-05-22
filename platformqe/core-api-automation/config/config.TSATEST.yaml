@@ -1,0 +1,224 @@
+
+# Azure AD Authentication Resources
+azure_ad:
+  resources:
+    # Database resources
+    postgresql: "https://ossrdbms-aad.database.windows.net"
+    mysql: "https://ossrdbms-aad.database.windows.net"
+    mssql: "https://database.windows.net/"
+    
+    # Azure services
+    resource_manager: "https://management.azure.com/"
+    key_vault: "https://vault.azure.net"
+    storage: "https://storage.azure.com/"
+    
+    # Default resource for database operations
+    default_database: "https://ossrdbms-aad.database.windows.net"
+
+
+# Database connection strings - Enhanced to support multiple connections
+db_connections:
+  # MSSQL Connections - Multiple servers and databases
+  mssql:
+    tracking_center:
+      connection_string: "${TRACKING_CENTER_SQLDB}"
+
+    platform_db:
+      connection_string: "${PLATFORM_DB_SQLDB}"
+
+    account_service:
+      connection_string: "${ACCOUNTS_SQLDB}"
+
+    am_db:
+      connection_string: "${AM_DB_SQLDB}"    
+    
+    # Azure SQL Server with Entra ID (Azure AD) Password Authentication
+    movemoney:
+      connection_string: "${MOVEMONEY_SQLDB}"
+
+    parties:
+      connection_string: "${PARTIES_SQLDB}"
+  
+  # PostgreSQL Connections - Multiple servers and databases
+  postgresql:
+    # Removed old 'parties' Postgres connection after migration to Azure SQL
+    securitiesServices:
+      connection_string: "${SECURITIESHUB_DB}"
+
+    models:
+      connection_string: "${MODELHUB_DB}"
+
+    hneServices:
+      connection_string: "${HNE_DB}"
+    
+    # Example: Azure AD authentication (no password needed)
+    parties_azure_ad:
+      host: "psql-custodialdataops-dev01-ncus.postgres.database.azure.com"
+      port: 5432
+      database: "parties"
+      user: "psql-custodialdataops-dev01-ncus-parties-rw"
+      password: "${POSTGRES_DB_PASSWORD:AZURE_AD}"  # Uses env var if set, otherwise Azure AD
+      sslmode: "require"
+      use_azure_auth: false  # Will auto-detect: false for password, true when password="AZURE_AD"
+  
+  # CosmosDB Connections - Multiple accounts and databases
+  cosmosdb:
+    primary:
+      endpoint: "https://cosmos-primary-dev.documents.azure.com:443/"
+      key: "${COSMOS_PRIMARY_KEY}"
+      database: "main_db"
+      container: "default_container"
+  
+  # MongoDB Connections - Multiple clusters and databases
+  mongodb:
+    main_cluster:
+      connection_string: "mongodb://${MONGO_USER}:${MONGO_PASSWORD}@mongo-main-dev.azure.com:27017/main_db?authSource=admin"
+      database: "main_db"
+      collection: "default_collection"
+  
+  # SQLite Connections - Multiple local databases
+  sqlite:
+    test_users:
+      path: "testdata/users.db"
+  
+  # InfluxDB Connections - Time-series metrics database
+  influxdb:
+    default:
+      url: "${INFLUX_URL}"
+      token: "${INFLUX_TOKEN}"
+      org: "${INFLUX_ORG}"
+      bucket: "${INFLUX_BUCKET}"
+      timeout: ${INFLUX_TIMEOUT:10000}  # Connection timeout in milliseconds
+      enabled: ${INFLUX_ENABLE:false}  # Set to true to enable InfluxDB push for this environment
+
+# API Endpoints - Multiple services and environments
+api_endpoints:
+
+  movemoney:
+    base_url: "${MOVEMONEY_BASE_URL}"  # Fetched from Azure variable group: qa-pipelines-variable-group-dev
+    auth_token: "${MOVEMONEY_API_TOKEN}"   # Use your actual token or environment variable
+    timeout: ${API_TIMEOUT:30}
+    retry_count: ${API_RETRY_COUNT:3}
+    verify: false
+
+  documentsproxy:
+    base_url: "${DOCUMENTSPROXY_BASE_URL}"
+    auth_token: "${DOCUMENTSPROXY_AUTH_TOKEN}"
+    timeout: 120  # Reducto pipeline can take up to 2 min; do not use API_TIMEOUT override here
+    retry_count: ${API_RETRY_COUNT:3}
+    verify: false
+
+  parties:
+    base_url: "${PARTIES_BASE_URL}"  # Fetched from Azure variable group: qa-pipelines-variable-group-dev
+    auth_token: "${PARTIES_AUTH_TOKEN}"
+    timeout: ${API_TIMEOUT:30}
+    retry_count: ${API_RETRY_COUNT:3}
+    use_azure_auth: false  # Set to true to use Azure AD authentication
+    azure_resource: "https://management.azure.com/"
+  
+  AddressService.API:
+    base_url: "${ADDRESS_BASE_URL}"  # Fetched from Azure variable group: qa-pipelines-variable-group-dev
+    auth_token: "your-token-if-needed"
+    timeout: ${API_TIMEOUT:30}
+    retry_count: ${API_RETRY_COUNT:3}
+    verify: false
+
+  account_service:
+    base_url: "${ACCOUNTS_BASE_URL}"
+    auth_token: "your-token-if-needed"
+    timeout: 30
+    retry_count: 3
+    verify: false
+
+  custodialintegration:
+    base_url: "${CUSTODIAL_INTEGRATION_BASE_URL}"  # Fetched from Azure variable group: qa-pipelines-variable-group-dev
+    auth_token: "${CUSTODIALINTEGRATION_AUTH_TOKEN}"
+    timeout: ${API_TIMEOUT:30}
+    retry_count: ${API_RETRY_COUNT:3}
+    verify: false
+
+  work_item_notification:
+    base_url: "${WORK_ITEM_NOTIFICATION_BASE_URL}"  # Fetched from Azure variable group: qa-pipelines-variable-group-dev
+    auth_token: "${WORK_ITEM_AUTH_TOKEN}"
+    timeout: ${API_TIMEOUT:30}
+    retry_count: ${API_RETRY_COUNT:3}
+    use_azure_auth: false  # Set to true to use Azure AD authentication
+    azure_resource: "https://management.azure.com/"  # Azure resource for token generation
+
+  securitiesServices:
+    base_url: "${SECURITIES_BASE_URL}"  # Fetched from Azure variable group: qa-pipelines-variable-group-dev
+    auth_token: "${SECURITY_ITEM_AUTH_TOKEN}"
+    timeout: ${API_TIMEOUT:30}
+    retry_count: ${API_RETRY_COUNT:3}
+    use_azure_auth: false  # Set to true to use Azure AD authentication
+    azure_resource: "https://management.azure.com/"  # Azure resource for token generation
+
+  models:
+    base_url: "${MODELS_BASE_URL}"  # Fetched from Azure variable group: qa-pipelines-variable-group-dev
+    auth_token: null  # No Bearer token authentication
+    custom_headers:
+      x-user-id: "${MODELS_X_USER_ID}"  # Example of custom header with env var fallback
+      Idempotency-Key: "DYNAMIC_UUID4"
+    timeout: ${API_TIMEOUT:30}
+    retry_count: ${API_RETRY_COUNT:3}
+    use_azure_auth: false  # Set to true to use Azure AD authentication
+
+  analyticsApiServices:
+    base_url: "${ANALYTICS_BASE_URL}"  # Fetched from Azure variable group: qa-pipelines-variable-group-dev
+    auth_token: "${ANALYTICS_AUTH_TOKEN}"
+    timeout: ${API_TIMEOUT:30}
+    retry_count: ${API_RETRY_COUNT:3}
+    use_azure_auth: false  # Set to true to use Azure AD authentication
+    azure_resource: "https://management.azure.com/"
+
+  strategies:
+    base_url: "${STRATEGIES_BASE_URL}"  # Fetched from Azure variable group: qa-pipelines-variable-group-test
+    auth_token: "${STRATEGIES_AUTH_TOKEN}"
+    timeout: ${API_TIMEOUT:30}
+    retry_count: ${API_RETRY_COUNT:3}
+    use_azure_auth: false  # Set to true to use Azure AD authentication
+    azure_resource: "https://management.azure.com/"  # Azure resource for token generation
+
+  wrapToken:
+    base_url: "${WRAPTOKEN_BASE_URL}"  # Fetched from Azure variable group: qa-pipelines-variable-group-test
+    auth_token: "${WRAPTOKEN_AUTH_TOKEN}"
+    timeout: ${API_TIMEOUT:30}
+    retry_count: ${API_RETRY_COUNT:3}
+    use_azure_auth: false  # Set to true to use Azure AD authentication
+    azure_resource: "https://management.azure.com/"  # Azure resource for token generation
+
+  hnebase:
+    base_url: "${HNE_BASE_URL}"  # Fetched from Azure variable group: qa-pipelines-variable-group-dev
+    auth_token: "${HNEBASE_AUTH_TOKEN}"
+    timeout: ${API_TIMEOUT:30}
+    retry_count: ${API_RETRY_COUNT:3}
+    use_azure_auth: false  # Set to true to use Azure AD authentication
+    azure_resource: "https://management.azure.com/"  # Azure resource for token generation
+
+  lexisnexiscipproxyservice:
+    base_url: "${LEXISNEXIS_BASE_URL}"
+    auth_token: "${LEXISNEXIS_CIP_AUTH_TOKEN}"
+    timeout: ${API_TIMEOUT:30}
+    retry_count: ${API_RETRY_COUNT:3}
+    use_azure_auth: false # Set to true to use Azure AD authentication
+    azure_resource: "https://management.azure.com/"
+
+  # Example: Azure AD authenticated API
+  azure_resource_manager:
+    base_url: "https://management.azure.com"
+    auth_token: "AZURE_AD"  # Placeholder - will use Azure AD token
+    timeout: ${API_TIMEOUT:30}
+    retry_count: ${API_RETRY_COUNT:3}
+    use_azure_auth: true  # Enable Azure AD authentication
+    azure_resource: "https://management.azure.com/"
+
+# Legacy support for api_base_url variable (used in some testcases)
+api_base_url: "https://platform.test01.assetmark.com/api/documentsproxy/v1"
+
+user_load: 100
+feature_flags:
+  enable_feature_x: true
+
+  # Synced from .env
+env_name: "TSATEST"
+appinsights_instrumentation_key: "your_instrumentation_key_here"

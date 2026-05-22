@@ -1,0 +1,96 @@
+name: stp-journals-$(Date:yyyyMMdd)$(Rev:.r)
+
+trigger:
+  branches:
+    include:
+      - main
+      - develop
+  paths:
+    include:
+      - applicationqe/data/stp/stp-journals/**
+      - applicationqe/config/stp/stp-journals/**
+      - applicationqe/tests/features/stp/stp-journals/**
+      - applicationqe/tests/steps/stp/stp-journals/**
+      - applicationqe/pages/**
+      - applicationqe/pages/stp/stp-journals/**
+      - applicationqe/queries/stp/stp-journals/**
+      - applicationqe/azure-pipelines/**
+      - applicationqe/requirements.txt
+
+variables:
+- group: qa-pipelines-shared-config
+
+pr:
+  branches:
+    include:
+      - main
+      - develop
+  paths:
+    include:
+      - applicationqe/data/stp/stp-journals/**
+      - applicationqe/config/stp/stp-journals/**
+      - applicationqe/tests/features/stp/stp-journals/**
+      - applicationqe/tests/steps/stp/stp-journals/**
+      - applicationqe/pages/**
+      - applicationqe/pages/stp/stp-journals/**
+      - applicationqe/queries/stp/stp-journals/**
+      - applicationqe/azure-pipelines/**
+      - applicationqe/requirements.txt
+      
+
+# -----------------------------
+# Parameters for Manual Runs
+# -----------------------------
+parameters:
+  - name: environment
+    displayName: "Target Environment"
+    type: string    
+    default: "test11"
+    values:
+      - test11
+      - test12
+      - silo
+      - prod
+      - qa
+
+  - name: marker
+    displayName: "Pytest Marker to Run"
+    type: string
+    default: "smoke"
+    values:
+      - journal_transfer
+      - journal_transfer_smoke
+      - smoke
+      - regression
+      - e2e
+ 
+  - name: workers
+    displayName: "Number of Parallel Workers"
+    type: string
+    default: "1"
+    values:
+      - "1"
+      - "2"
+      - "3"
+      - "4"
+      - "auto"
+
+  - name: browser
+    displayName: "Browser to Test"
+    type: string
+    default: "chromium"
+    values:
+      - chromium
+      - msedge
+      - both
+
+stages:
+  - template: templates/team-stage.yml
+    parameters:
+      stageName: STP_JOURNALS
+      teamDisplay: STP-JOURNALS
+      featurePath: tests/features/stp/stp-journals
+      environment: ${{ parameters.environment }}
+      marker: ${{ parameters.marker }}
+      workers: ${{ parameters.workers }}
+      browser: ${{ parameters.browser }}

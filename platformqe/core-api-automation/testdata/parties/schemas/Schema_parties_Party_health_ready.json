@@ -1,0 +1,38 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "Party Service Health Check Response",
+  "description": "Schema for validating /health/ready endpoint - checks BETAConnectivity, DatabaseConnectivity, and ValidationServiceConnectivity",
+  "type": "object",
+  "properties": {
+    "status": {
+      "type": "string",
+      "enum": ["Healthy", "Unhealthy"],
+      "description": "Overall health status - Healthy if all checks pass, Unhealthy if any fail"
+    },
+    "checks": {
+      "type": "array",
+      "minItems": 3,
+      "items": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string",
+            "enum": ["BETAConnectivity", "DatabaseConnectivity", "ValidationServiceConnectivity"],
+            "description": "Name of the dependency check without spaces"
+          },
+          "status": {
+            "type": "string",
+            "enum": ["Healthy", "Unhealthy"],
+            "description": "Status of individual check"
+          },
+          "description": {
+            "type": "string",
+            "description": "Healthy when check passes, or error details (HTTP codes, error messages) when check fails"
+          }
+        },
+        "required": ["name", "status", "description"]
+      }
+    }
+  },
+  "required": ["status", "checks"]
+}

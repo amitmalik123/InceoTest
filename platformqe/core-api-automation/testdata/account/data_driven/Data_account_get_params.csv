@@ -1,0 +1,5 @@
+environment,test_id,resource_id,expected status,AccountClassification,PartyRoleType,PartyId
+TSADEV,TC001,12345,200,Household,AccountHolder,
+TSADEV,TC002,23456,200,Registration,Trustee,
+TSADEV,TC003,34567,200,Account,Custodian,
+TSADEV,TC004,45678,200,Sleeve,AuthorizedAgents,

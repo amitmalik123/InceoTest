@@ -1,0 +1,33 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "type": "object",
+  "title": "GET /requests/{requestId} Response Schema",
+  "description": "Returns the complete MMR object with all associated details",
+  "properties": {
+    "requestId": { "type": "string" },
+    "version": { "type": "integer" },
+    "instructionId": { "type": "string" },
+    "accountId": { "type": "string" },
+    "amount": { "type": "number" },
+    "requestType": { "type": "string", "enum": ["Deposit", "Withdrawal"] },
+    "status": { "type": "string", "enum": ["Draft", "Pending", "Confirmed", "Deleted"] },
+    "reason": { "type": ["string", "null", "integer"] },
+    "schedule": {
+      "type": "object",
+      "properties": {
+        "ScheduleType": { "type": "string", "enum": ["OneTime", "Periodic"] },
+        "PaymentDate": { "type": ["string", "null"] },
+        "Frequency": { "type": ["string", "null"] },
+        "StartDate": { "type": ["string", "null"] },
+        "EndDate": { "type": ["string", "null"] }
+      },
+      "required": ["ScheduleType"]
+    },
+    "changeState": { "type": "string", "enum": ["Pending", "Scheduled", "Processed", "PendingCancel", "Canceled"] },
+    "createdDate": { "type": "string" },
+    "modifiedDate": { "type": "string" },
+    "createdBy": { "type": "string" },
+    "modifiedBy": { "type": ["string", "null"] }
+  },
+  "required": ["requestId", "version", "instructionId", "accountId", "amount", "requestType", "status", "reason", "schedule", "changeState", "createdDate", "modifiedDate", "createdBy"]
+}

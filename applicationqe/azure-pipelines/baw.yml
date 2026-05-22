@@ -1,0 +1,43 @@
+name: baw-$(Date:yyyyMMdd)$(Rev:.r)
+
+trigger:
+  branches:
+    include:
+      - main
+      - develop
+  paths:
+    include:
+      - data/BAW/**
+      - config/BAW/**
+      - tests/features/BAW/**
+      - tests/steps/BAW/**
+      - pages/BAW/**
+      - queries/BAW/**
+      - azure-pipelines/templates/**
+      - requirements.txt
+
+pr:
+  branches:
+    include:
+      - main
+      - develop
+  paths:
+    include:
+      - data/BAW/**
+      - config/BAW/**
+      - tests/features/BAW/**
+      - tests/steps/BAW/**
+      - pages/BAW/**
+      - queries/BAW/**
+      - azure-pipelines/templates/**
+      - requirements.txt
+
+pool:
+  vmImage: ubuntu-latest
+
+stages:
+  - template: templates/team-stage.yml
+    parameters:
+      stageName: BAW
+      teamDisplay: BAW
+      featurePath: tests/features/BAW

@@ -1,0 +1,616 @@
+[
+  {
+    "test_id": "TC000",
+    "service_name": "parties",
+    "workflow_mode": "sequential",
+    "test_name": "POST /parties [positive] (TC000)",
+    "protocol": "REST",
+    "test_type": ["Functional", "Smoke", "Business Logic"],
+    "mainURL": "{{base_url}}",
+    "endpoint": "/parties",
+    "method": "POST",
+    "headers_additional": {
+      "Content-Type": "application/json"
+    },
+    "payload": {
+      "partyRequest": {
+        "partyType": "Individual",
+        "status": "Draft",
+        "core": {
+          "individual": {
+            "firstName": "John",
+            "middleName": "A",
+            "lastName": "Doe",
+            "suffix": "Jr.",
+            "dateOfBirth": "2025-12-05",
+            "taxId": "123456789",
+            "citizenship": "Unknown",
+            "maritalStatus": "Single",
+            "isDeceased": false,
+            "dateOfDeath": "2025-12-05"
+          },
+          "entity": {
+            "type": "Business",
+            "subType": "Unknown",
+            "title": "string",
+            "taxId": "string",
+            "taxidentifier": "SSN",
+            "createdDate": "2026-01-19"
+          }
+        },
+        "addresses": [
+          {
+            "addressType": "Mailing",
+            "line1": "123 Main S",
+            "line2": "Apt 4Ba",
+            "city": "San Francisco",
+            "state": "CA",
+            "zip": "94105",
+            "country": "US",
+            "priorityType": "Primary"
+          }
+        ],
+        "contacts": [
+          {
+            "contactType": "Email",
+            "usageType": "Personal",
+            "value": "john.doe@example.com",
+            "priorityType": "Primary"
+          }
+        ],
+        "identifiers": [
+          {
+            "type": "BETA",
+            "value": "123-45-6789"
+          }
+        ],
+        "householdId": "string"
+      }
+    },
+    "expected_status": "201",
+    "expected_response_schema": "parties\\schemas\\Schema_parties_Party_POST_response_success.json",
+    "expected_response": "",
+    "extract_values": [
+      {
+        "from": "response",
+        "key": "partyId",
+        "assign_to": "response_party_id"
+      },
+      {
+        "from": "db_result",
+        "query": "",
+        "assign": [
+          {
+            "key": "",
+            "assign_to": ""
+          }
+        ]
+      }
+    ],
+    "validate": {
+      "response_structure": {
+        "required_fields": ["partyId"]
+      },
+      "business_rules": [
+        {
+          "rule": "Party creation must return HTTP 201 Created status",
+          "validation": "response.status equals 201"
+        },
+        {
+          "rule": "Created party must have a valid GUID as partyId",
+          "validation": "response_party_id is not null and not empty"
+        },
+        {
+          "rule": "Party creation is prerequisite for subsequent PUT operations",
+          "validation": "response_party_id is not null"
+        }
+      ],
+      "performance": {
+        "max_response_time_ms": 1000
+      },
+      "security": {
+        "checks": ["sql_injection", "xss"]
+      },
+      "data_comparison": {
+        "source": "api_response",
+        "target": "db_result",
+        "format": "table",
+        "key_field": ["", ""],
+        "fields_to_compare": [],
+        "log_differences": true
+      },
+      "assertions": [
+        {
+          "actual": "{{response_party_id}}",
+          "operator": "!=",
+          "expected": "",
+          "message": "Expected response_party_id to be non-empty after POST"
+        }
+      ]
+    },
+    "test_data_file": "",
+    "db_query": "",
+    "db_type": "",
+    "test_summary": "Test TC000: POST /Party [positive] (TC000)"
+  },
+  {
+    "test_id": "TC001",
+    "service_name": "parties",
+    "workflow_mode": "sequential",
+    "test_name": "Replaces party information with complete replacement and version tracking [positive] (TC001)",
+    "protocol": "REST",
+    "test_type": ["Functional", "Smoke", "Business Logic"],
+    "mainURL": "{{base_url}}",
+    "endpoint": "/parties/{{response_party_id}}",
+    "method": "PUT",
+    "headers_additional": {
+      "Content-Type": "application/json",
+      "version": "1"
+    },
+    "payload": {
+      "partyRequest": {
+        "partyType": "Individual",
+        "status": "Draft",
+        "core": {
+          "individual": {
+            "firstName": "John",
+            "middleName": "A",
+            "lastName": "Doe",
+            "suffix": "Jr.",
+            "dateOfBirth": "2025-12-05",
+            "taxId": "123456789",
+            "citizenship": "Unknown",
+            "maritalStatus": "Single",
+            "isDeceased": false,
+            "dateOfDeath": "2025-12-05"
+          },
+          "entity": {
+            "type": "Business",
+            "subType": "Unknown",
+            "title": "string",
+            "taxId": "string",
+            "taxidentifier": "SSN",
+            "createdDate": "2026-01-19"
+          }
+        },
+        "addresses": [
+          {
+            "addressType": "Mailing",
+            "line1": "123 Main S",
+            "line2": "Apt 4Ba",
+            "city": "San Francisco",
+            "state": "CA",
+            "zip": "94105",
+            "country": "US",
+            "priorityType": "Primary"
+          }
+        ],
+        "contacts": [
+          {
+            "contactType": "Email",
+            "usageType": "Personal",
+            "value": "john.doe@example.com",
+            "priorityType": "Primary"
+          }
+        ],
+        "identifiers": [
+          {
+            "type": "BETA",
+            "value": "123-45-6789"
+          }
+        ],
+        "householdId": "string"
+      }
+    },
+    "expected_status": "200",
+    "expected_response_schema": "parties/schemas/Schema_parties_Party_id_PUT_response_success.json",
+    "expected_response": "",
+    "ignore_fields": ["id"],
+    "extract_values": [
+      {
+        "from": "response",
+        "key": "id",
+        "assign_to": null
+      },
+      {
+        "from": "response",
+        "key": "versionNumber",
+        "assign_to": "updated_version"
+      },
+      {
+        "from": "db_result",
+        "query": null,
+        "assign": []
+      }
+    ],
+    "validate": {
+      "response_structure": {
+        "required_fields": ["versionNumber"]
+      },
+      "business_rules": [
+        {
+          "rule": "PUT operation must return HTTP 200 OK for successful update",
+          "validation": "response.status equals 200"
+        },
+        {
+          "rule": "Version header is required for optimistic concurrency control",
+          "validation": "request.headers.version is not null"
+        },
+        {
+          "rule": "Party information must be completely replaced with provided data",
+          "validation": "response reflects all updated fields from request payload"
+        },
+        {
+          "rule": "Version must increment after successful PUT operation",
+          "validation": "response.version > request.headers.version"
+        },
+        {
+          "rule": "PUT response must include the newly incremented versionNumber",
+          "validation": "response.versionNumber equals 2"
+        }
+      ],
+      "performance": {
+        "max_response_time_ms": 500
+      },
+      "security": {
+        "checks": ["sql_injection", "xss"]
+      },
+      "data_comparison": {
+        "source": "api_response",
+        "target": "db_result",
+        "format": "table",
+        "key_field": [],
+        "fields_to_compare": [],
+        "log_differences": true
+      },
+      "assertions": [
+        {
+          "actual": "{{updated_version}}",
+          "operator": "==",
+          "expected": 2,
+          "message": "Expected versionNumber to be 2 after PUT with version 1"
+        }
+      ]
+    },
+    "test_data_file": "",
+    "db_query": "",
+    "db_type": "",
+    "db_connection_name": "",
+    "test_summary": "Test TC001: Replaces party information with complete replacement and version tracking [positive] (TC001) - Test PUT request to /parties/{id} for functional scenario validation.",
+    "test_scenario": "Test PUT request to /parties/{id} for functional scenario validation."
+  },
+  {
+    "test_id": "TC002",
+    "service_name": "parties",
+    "workflow_mode": "sequential",
+    "test_name": "PUT /parties/{id} [negative: extra param] (TC002)",
+    "protocol": "REST",
+    "test_type": ["Negative"],
+    "mainURL": "{{base_url}}",
+    "endpoint": "/parties/{{response_party_id}}",
+    "method": "PUT",
+    "rpc_method": "",
+    "graphql_query": "",
+    "graphql_variables": "",
+    "soap_action": "",
+    "soap_envelope": "",
+    "headers_additional": {
+      "Content-Type": "application/json",
+      "version": "0"
+    },
+    "payload": {
+      "partyRequest": {
+        "partyType": "Individual",
+        "status": "Draft",
+        "core": {
+          "individual": {
+            "firstName": "string",
+            "middleName": "string",
+            "lastName": "string",
+            "suffix": "string",
+            "dateOfBirth": "2025-12-10",
+            "taxId": "string",
+            "citizenship": "Unknown",
+            "maritalStatus": "Unknown",
+            "isDeceased": true,
+            "dateOfDeath": "2025-12-10"
+          },
+          "entity": {
+            "type": "Business",
+            "subType": "Unknown",
+            "title": "string",
+            "taxId": "string",
+            "taxidentifier": "SSN",
+            "createdDate": "2025-12-10"
+          }
+        },
+        "addresses": [
+          {
+            "addressType": "Business",
+            "line1": "string",
+            "line2": "string",
+            "city": "string",
+            "state": "AL",
+            "zip": "strin",
+            "country": "AD",
+            "priorityType": "Primary"
+          }
+        ],
+        "contacts": [
+          {
+            "contactType": "Phone",
+            "usageType": "Unknown",
+            "value": "string",
+            "priorityType": "Primary"
+          }
+        ],
+        "identifiers": [
+          {
+            "type": "APL",
+            "value": "string"
+          }
+        ],
+        "householdId": "string"
+      }
+    },
+    "expected_status": "400",
+    "expected_response_schema": "",
+    "expected_response": "Missing or invalid version header",
+    "ignore_fields": ["id"],
+    "extract_values": [
+      {
+        "from": "response",
+        "key": "id",
+        "assign_to": ""
+      },
+      {
+        "from": "db_result",
+        "query": "",
+        "assign": [
+          {
+            "key": "",
+            "assign_to": ""
+          }
+        ]
+      }
+    ],
+    "validate": {
+      "business_rules": [
+        {
+          "rule": "PUT request with missing or invalid version header must return HTTP 400 Bad Request",
+          "validation": "response.status equals 400"
+        },
+        {
+          "rule": "Version header validation is mandatory for all PUT operations",
+          "validation": "response.message contains 'Missing or invalid version header'"
+        },
+        {
+          "rule": "API must enforce optimistic concurrency control through version validation",
+          "validation": "response.status equals 400 when version is invalid"
+        }
+      ],
+      "performance": {
+        "max_response_time_ms": 500
+      },
+      "security": {
+        "checks": ["sql_injection", "xss"]
+      },
+      "data_comparison": {
+        "source": "api_response",
+        "target": "db_result",
+        "format": "table",
+        "key_field": ["", ""],
+        "fields_to_compare": [],
+        "log_differences": true
+      },
+      "assertions": []
+    },
+    "test_data_file": "",
+    "db_query": "",
+    "db_type": "",
+    "db_connection_name": "",
+    "test_summary": "Test TC002: PUT /parties/{id} [negative: extra param] (TC002) - Test PUT request to /parties/{id} for negative scenario validation.",
+    "extra_param": {
+      "unexpected_param": "unexpected"
+    },
+    "test_scenario": "Test PUT request to /parties/{id} for negative scenario validation."
+  },
+  {
+    "test_id": "TC003",
+    "service_name": "parties",
+    "workflow_mode": "parallel",
+    "test_name": "PUT /parties/{id} [negative: no content for invalid PartyId] (TC003)",
+    "protocol": "REST",
+    "test_type": ["Negative"],
+    "mainURL": "{{base_url}}",
+    "endpoint": "/parties/693adaf0-d6ee-43a4-959e-8c2a7babc085",
+    "method": "PUT",
+    "headers_additional": {
+      "Content-Type": "application/json",
+      "version": "4"
+    },
+    "payload": null,
+    "expected_status": "400",
+    "expected_response": "",
+    "expected_response_schema": "parties/schemas/Schema_parties_Party_id_400_response.json",
+    "ignore_fields": ["traceId"],
+    "extract_values": [
+      {
+        "from": "response",
+        "key": "id",
+        "assign_to": ""
+      }
+    ],
+    "validate": {
+      "business_rules": [
+        {
+          "rule": "PUT request for non-existent party Id must return HTTP 400 Bad Request",
+          "validation": "response.status equals 400"
+        },
+        {
+          "rule": "API must validate PartyId existence before processing PUT request",
+          "validation": "response.status equals 400"
+        },
+        {
+          "rule": "Error response must match expected schema for 400 errors",
+          "validation": "response conforms to Schema_parties_Party_id_400_response"
+        }
+      ],
+      "performance": {
+        "max_response_time_ms": 500
+      },
+      "security": {
+        "checks": ["sql_injection", "xss"]
+      },
+      "data_comparison": {
+        "source": "api_response",
+        "target": "db_result",
+        "format": "table",
+        "key_field": ["", ""],
+        "fields_to_compare": [],
+        "log_differences": true
+      },
+      "assertions": []
+    },
+    "test_data_file": "",
+    "db_query": "",
+    "db_type": "",
+    "db_connection_name": "",
+    "test_summary": "TC003 validates that PUT /parties/{invalid_id} returns a 200 response with status 204 and a descriptive error when the PartyId does not exist.",
+    "test_scenario": "Negative scenario where PartyId is invalid. API should not return 500 but instead return status 204 inside a 200 response."
+  },
+  {
+    "test_id": "TC004",
+    "service_name": "parties",
+    "workflow_mode": "parallel",
+    "test_name": "PUT /parties/{id} [negative: invalid payload] (TC004)",
+    "protocol": "REST",
+    "test_type": ["Negative"],
+    "mainURL": "{{base_url}}",
+    "endpoint": "/parties/1c449f2e-9c86-4488-b3d6-e00abf4fa21c",
+    "method": "PUT",
+    "rpc_method": "",
+    "graphql_query": "",
+    "graphql_variables": "",
+    "soap_action": "",
+    "soap_envelope": "",
+    "headers_additional": {
+      "Content-Type": "application/json",
+      "version": "0"
+    },
+    "payload": {
+      "partyRequest": {
+        "partyType": "Individual",
+        "status": "Draft",
+        "core": {
+          "individual": {
+            "firstName": "string",
+            "middleName": "string",
+            "lastName": "string",
+            "suffix": "string",
+            "dateOfBirth": "2025-12-10",
+            "taxId": "string",
+            "citizenship": "Unknown",
+            "maritalStatus": "Unknown",
+            "isDeceased": true,
+            "dateOfDeath": "2025-12-10"
+          },
+          "entity": {
+            "type": "Business",
+            "subType": "Unknown",
+            "title": "string",
+            "taxId": "string",
+            "taxidentifier": "SSN",
+            "createdDate": "2025-12-10"
+          }
+        },
+        "addresses": [
+          {
+            "addressType": "Business",
+            "line1": "string",
+            "line2": "string",
+            "city": "string",
+            "state": "AL",
+            "zip": "strin",
+            "country": "AD",
+            "priorityType": "Primary"
+          }
+        ],
+        "contacts": [
+          {
+            "contactType": "Phone",
+            "usageType": "Unknown",
+            "value": "string",
+            "priorityType": "Primary"
+          }
+        ],
+        "identifiers": [
+          {
+            "type": "",
+            "value": "string"
+          }
+        ],
+        "householdId": "string"
+      }
+    },
+    "expected_status": "400",
+    "expected_response_schema": "",
+    "expected_response": "Missing or invalid version header",
+    "ignore_fields": ["traceId"],
+    "extract_values": [
+      {
+        "from": "response",
+        "key": "id",
+        "assign_to": ""
+      },
+      {
+        "from": "db_result",
+        "query": "",
+        "assign": [
+          {
+            "key": "",
+            "assign_to": ""
+          }
+        ]
+      }
+    ],
+    "validate": {
+      "business_rules": [
+        {
+          "rule": "PUT request with missing or invalid version header must return HTTP 400 Bad Request",
+          "validation": "response.status equals 400"
+        },
+        {
+          "rule": "Version header validation is mandatory for all PUT operations",
+          "validation": "response.message contains 'Missing or invalid version header'"
+        },
+        {
+          "rule": "API must enforce optimistic concurrency control through version validation",
+          "validation": "response.status equals 400 when version is invalid"
+        }
+      ],
+      "performance": {
+        "max_response_time_ms": 500
+      },
+      "security": {
+        "checks": ["sql_injection", "xss"]
+      },
+      "data_comparison": {
+        "source": "api_response",
+        "target": "db_result",
+        "format": "table",
+        "key_field": ["", ""],
+        "fields_to_compare": [],
+        "log_differences": true
+      },
+      "assertions": []
+    },
+    "test_data_file": "",
+    "db_query": "",
+    "db_type": "",
+    "db_connection_name": "",
+    "test_summary": "Test TC004: PUT /parties/{id} [negative: invalid payload] (TC004) - Verify that the API returns a 400 Bad Request error when invalid data is provided in the PUT request to /parties/{id}.",
+    "invalid_payload": true,
+    "test_scenario": "Verify that the API returns a 400 Bad Request error when invalid data is provided in the PUT request to /parties/{id}."
+  }
+]

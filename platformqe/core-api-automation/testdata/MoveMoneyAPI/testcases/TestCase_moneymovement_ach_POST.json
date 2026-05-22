@@ -1,0 +1,2518 @@
+[
+    {
+        "test_id": "TC001",
+        "service_name": "movemoney",
+        "workflow_mode": "parallel",
+        "test_name": "POST /ach [positive] (TC001)",
+        "protocol": "REST",
+        "test_type": [
+            "Functional",
+            "Database",
+            "Performance",
+            "Security",
+            "Regression"
+        ],
+        "mainURL": "{{base_url}}",
+        "endpoint": "/ach",
+        "method": "POST",
+        "rpc_method": "",
+        "graphql_query": "",
+        "graphql_variables": "",
+        "soap_action": "",
+        "soap_envelope": "",
+        "headers_additional": {
+            "Content-Type": "application/json"
+        },
+        "payload": {
+            "instructionId": "{{instructionId}}",
+            "accountId": "{{accountId}}",
+            "railType": "{{railType}}",
+            "unitType": "{{unitType}}",
+            "amount": "{{amount}}",
+            "percent": "{{percent}}",
+            "requestType": "{{requestType}}",
+            "status": "{{status}}",
+            "reason": "{{reason}}",
+            "purpose": "{{purpose}}",
+            "schedule": {
+                "scheduleType": "{{scheduleType}}",
+                "paymentDate": "{{paymentDate}}"
+            }
+        },
+        "expected_status": "201",
+        "expected_response_schema": "MoveMoneyAPI\\schemas\\Schema_ach_POST.json",
+        "expected_response": null,
+        "ignore_fields": [
+            "traceId",
+            "id",
+            "timestamp",
+            "createdDate",
+            "modifiedDate"
+        ],
+        "extract_values": [
+            {
+                "from": "response",
+                "key": "requestId",
+                "assign_to": "requestId"
+            },
+            {
+                "from": "response",
+                "key": "version",
+                "assign_to": "version"
+            },
+            {
+                "from": "db_result",
+                "query": "default",
+                "assign": [
+                    {
+                        "key": "0.requestId",
+                        "assign_to": "db_requestId"
+                    },
+                    {
+                        "key": "0.version",
+                        "assign_to": "db_version"
+                    }
+                ]
+            }
+        ],
+        "validate": {
+            "performance": {
+                "max_response_time_ms": 1000
+            },
+            "security": {
+                "checks": [
+                    "sql_injection",
+                    "xss"
+                ]
+            },
+            "assertions": [
+                {
+                    "actual": "{{requestId}}",
+                    "expected": "",
+                    "operator": "!=",
+                    "message": "Request ID should not be empty"
+                },
+                {
+                    "actual": "{{version}}",
+                    "expected": 1,
+                    "operator": "==",
+                    "message": "Version should be 1"
+                }
+            ],
+            "data_comparison": [
+                {
+                    "source": "requestId",
+                    "target": "db_requestId",
+                    "log_differences": true,
+                    "comparison_name": "RequestId match between API and DB"
+                },
+                {
+                    "source": "version",
+                    "target": "db_version",
+                    "log_differences": true,
+                    "comparison_name": "Version match between API and DB"
+                }
+            ]
+        },
+        "test_data_file": "MoveMoneyAPI/data_driven/Data_ach_POST.csv",
+        "csv_row_index": 0,
+        "db_query_timing": "after_api",
+        "db_queries": {
+            "default": "SELECT LOWER([RequestId]) AS requestId, [Version] AS version, [Status] AS status FROM [dbo].[MoneyMovementRequest] WHERE [RequestId] = '{{requestId}}'",
+            "audit_query": ""
+        },
+        "db_type": "mssql",
+        "db_connection_name": "movemoney",
+        "test_summary": "Test TC001: POST /ach [positive] (TC001) - Test 201 Response for One-Time Deposit via ACH with full validation (API + Database + Schema + Headers + Security).",
+        "test_scenario": "Test POST request to /ach for functional scenario validation."
+    },
+    {
+        "test_id": "TC002",
+        "service_name": "movemoney",
+        "workflow_mode": "parallel",
+        "test_name": "POST /ach [positive] (TC002)",
+        "protocol": "REST",
+        "test_type": [
+            "Functional"
+        ],
+        "mainURL": "{{base_url}}",
+        "endpoint": "/ach",
+        "method": "POST",
+        "rpc_method": "",
+        "graphql_query": "",
+        "graphql_variables": "",
+        "soap_action": "",
+        "soap_envelope": "",
+        "headers_additional": {
+            "Content-Type": "application/json"
+        },
+        "payload": {
+            "instructionId": "{{instructionId}}",
+            "accountId": "{{accountId}}",
+            "railType": "{{railType}}",
+            "amount": "{{amount}}",
+            "requestType": "{{requestType}}",
+            "status": "{{status}}",
+            "reason": "{{reason}}",
+            "schedule": {
+                "scheduleType": "{{scheduleType}}",
+                "paymentDate": "{{paymentDate}}"
+            }
+        },
+        "expected_status": "400",
+        "expected_response_schema": "",
+        "expected_response": {
+            "type": "invalid-request",
+            "title": "Invalid Request",
+            "status": 400,
+            "detail": "The request contains invalid values",
+            "instance": "/api/moneymovement/v1/ach",
+            "errors": {
+                "amount": [
+                    "Amount must be between 0.01 and 999,999,999.99."
+                ]
+            }
+        },
+        "ignore_fields": [
+            "instance"
+        ],
+        "extract_values": [
+            {
+                "from": "response",
+                "key": "status",
+                "assign_to": "resp_status"
+            }
+        ],
+        "validate": {
+            "performance": {
+                "max_response_time_ms": 500
+            },
+            "security": {
+                "checks": [
+                    "sql_injection",
+                    "xss"
+                ]
+            },
+            "data_comparison": [],
+            "assertions": [
+                {
+                    "actual": "{{resp_status}}",
+                    "expected": 400,
+                    "operator": "==",
+                    "message": "Response body status field should be 400"
+                }
+            ]
+        },
+        "test_data_file": "MoveMoneyAPI/data_driven/Data_ach_POST.csv",
+        "csv_row_index": 1,
+        "db_type": "",
+        "db_connection_name": "",
+        "test_summary": "Test TC002: POST /moneymovement/requests [negative] (TC002) - Verify that the API returns a 400 Bad Request error when the field Amount must be between 0.01 - 999999999.99.",
+        "test_scenario": "Verify that the API returns a 400 Bad Request error when invalid data is provided in the POST request to /moneymovement/requests.",
+        "db_query_timing": "after_api",
+        "db_queries": {
+            "default": "",
+            "audit_query": ""
+        }
+    },
+    {
+        "test_id": "TC003",
+        "service_name": "movemoney",
+        "workflow_mode": "parallel",
+        "test_name": "POST /ach [Negative] (TC003)",
+        "protocol": "REST",
+        "test_type": [
+            "Functional"
+        ],
+        "mainURL": "{{base_url}}",
+        "endpoint": "/ach",
+        "method": "POST",
+        "rpc_method": "",
+        "graphql_query": "",
+        "graphql_variables": "",
+        "soap_action": "",
+        "soap_envelope": "",
+        "headers_additional": {
+            "Content-Type": "application/json"
+        },
+        "payload": {
+            "instructionId": "{{instructionId}}",
+            "accountId": "{{accountId}}",
+            "railType": "{{railType}}",
+            "amount": "{{amount}}",
+            "requestType": "{{requestType}}",
+            "status": "{{status}}",
+            "reason": "{{reason}}",
+            "schedule": {
+                "scheduleType": "{{scheduleType}}",
+                "paymentDate": "{{paymentDate}}"
+            }
+        },
+        "expected_status": "400",
+        "expected_response_schema": "",
+        "expected_response": {
+            "type": "invalid-request",
+            "title": "Invalid Request",
+            "status": 400,
+            "detail": "The request contains invalid values",
+            "instance": "/api/moneymovement/v1/ach",
+            "errors": {
+                "amount": [
+                    "Amount cannot have more than 2 decimal places."
+                ]
+            }
+        },
+        "ignore_fields": [
+            "instance"
+        ],
+        "extract_values": [
+            {
+                "from": "response",
+                "key": "status",
+                "assign_to": "resp_status"
+            }
+        ],
+        "validate": {
+            "performance": {
+                "max_response_time_ms": 500
+            },
+            "security": {
+                "checks": [
+                    "sql_injection",
+                    "xss"
+                ]
+            },
+            "data_comparison": [],
+            "assertions": [
+                {
+                    "actual": "{{resp_status}}",
+                    "expected": 400,
+                    "operator": "==",
+                    "message": "Response body status field should be 400"
+                }
+            ]
+        },
+        "test_data_file": "MoveMoneyAPI/data_driven/Data_ach_POST.csv",
+        "csv_row_index": 2,
+        "db_type": "",
+        "db_connection_name": "",
+        "test_summary": "Test TC003: POST /moneymovement/requests [negative] (TC003) - Verify that the API returns a 400 Bad Request error when Amount must have at most 2 decimal places.",
+        "test_scenario": "Verify that the API returns a 400 Bad Request error when invalid data is provided in the POST request to /moneymovement/requests.",
+        "db_query_timing": "after_api",
+        "db_queries": {
+            "default": "",
+            "audit_query": ""
+        }
+    },
+    {
+        "test_id": "TC004",
+        "service_name": "movemoney",
+        "workflow_mode": "parallel",
+        "test_name": "POST /ach [Negative] (TC004)",
+        "protocol": "REST",
+        "test_type": [
+            "Functional"
+        ],
+        "mainURL": "{{base_url}}",
+        "endpoint": "/ach",
+        "method": "POST",
+        "rpc_method": "",
+        "graphql_query": "",
+        "graphql_variables": "",
+        "soap_action": "",
+        "soap_envelope": "",
+        "headers_additional": {
+            "Content-Type": "application/json"
+        },
+        "payload": {
+            "instructionId": "{{instructionId}}",
+            "accountId": "{{accountId}}",
+            "railType": "{{railType}}",
+            "amount": "{{amount}}",
+            "requestType": "{{requestType}}",
+            "status": "{{status}}",
+            "reason": "{{reason}}",
+            "schedule": {
+                "scheduleType": "{{scheduleType}}",
+                "paymentDate": "{{paymentDate}}"
+            }
+        },
+        "expected_status": "400",
+        "expected_response_schema": "",
+        "expected_response": {
+            "type": "invalid-request",
+            "title": "Invalid Request",
+            "status": 400,
+            "detail": "The request contains invalid values",
+            "instance": "/api/moneymovement/v1/ach",
+            "errors": {
+                "status": [
+                    "Must be one of: Draft, Pending, Confirmed, Deleted"
+                ]
+            }
+        },
+        "ignore_fields": [
+            "instance"
+        ],
+        "extract_values": [
+            {
+                "from": "response",
+                "key": "status",
+                "assign_to": "resp_status"
+            }
+        ],
+        "validate": {
+            "performance": {
+                "max_response_time_ms": 500
+            },
+            "security": {
+                "checks": [
+                    "sql_injection",
+                    "xss"
+                ]
+            },
+            "data_comparison": [],
+            "assertions": [
+                {
+                    "actual": "{{resp_status}}",
+                    "expected": 400,
+                    "operator": "==",
+                    "message": "Response body status field should be 400"
+                }
+            ]
+        },
+        "test_data_file": "MoveMoneyAPI/data_driven/Data_ach_POST.csv",
+        "csv_row_index": 3,
+        "db_type": "",
+        "db_connection_name": "",
+        "test_summary": "Test TC004: POST /moneymovement/requests [negative] (TC004) - Verify that the API returns a 400 Bad Request error when Invalid value for 'status'.",
+        "test_scenario": "Verify that the API returns a 400 Bad Request error when invalid data is provided in the POST request to /moneymovement/requests.",
+        "db_query_timing": "after_api",
+        "db_queries": {
+            "default": "",
+            "audit_query": ""
+        }
+    },
+    {
+        "test_id": "TC005",
+        "service_name": "movemoney",
+        "workflow_mode": "parallel",
+        "test_name": "POST /ach [Negative] (TC005)",
+        "protocol": "REST",
+        "test_type": [
+            "Functional"
+        ],
+        "mainURL": "{{base_url}}",
+        "endpoint": "/ach",
+        "method": "POST",
+        "rpc_method": "",
+        "graphql_query": "",
+        "graphql_variables": "",
+        "soap_action": "",
+        "soap_envelope": "",
+        "headers_additional": {
+            "Content-Type": "application/json"
+        },
+        "payload": {
+            "instructionId": "{{instructionId}}",
+            "accountId": "{{accountId}}",
+            "railType": "{{railType}}",
+            "amount": "{{amount}}",
+            "requestType": "{{requestType}}",
+            "status": "{{status}}",
+            "reason": "{{reason}}",
+            "schedule": {
+                "scheduleType": "{{scheduleType}}",
+                "paymentDate": "{{paymentDate}}"
+            }
+        },
+        "expected_status": "400",
+        "expected_response_schema": "",
+        "expected_response": {
+            "type": "invalid-request",
+            "title": "Invalid Request",
+            "status": 400,
+            "detail": "The request contains invalid values",
+            "instance": "/api/moneymovement/v1/ach",
+            "errors": {
+                "accountId": [
+                    "Must be a valid UUID format."
+                ]
+            }
+        },
+        "ignore_fields": [
+            "instance"
+        ],
+        "extract_values": [
+            {
+                "from": "response",
+                "key": "status",
+                "assign_to": "resp_status"
+            }
+        ],
+        "validate": {
+            "performance": {
+                "max_response_time_ms": 500
+            },
+            "security": {
+                "checks": [
+                    "sql_injection",
+                    "xss"
+                ]
+            },
+            "data_comparison": [],
+            "assertions": [
+                {
+                    "actual": "{{resp_status}}",
+                    "expected": 400,
+                    "operator": "==",
+                    "message": "Response body status field should be 400"
+                }
+            ]
+        },
+        "test_data_file": "MoveMoneyAPI/data_driven/Data_ach_POST.csv",
+        "csv_row_index": 4,
+        "db_type": "",
+        "db_connection_name": "",
+        "test_summary": "Test TC005: POST /moneymovement/requests [negative] (TC005) - Verify that the API returns a 400 Bad Request error when Invalid GUID format for 'accountId'",
+        "test_scenario": "Verify that the API returns a 400 Bad Request error when invalid data is provided in the POST request to /moneymovement/requests.",
+        "db_query_timing": "after_api",
+        "db_queries": {
+            "default": "",
+            "audit_query": ""
+        }
+    },
+    {
+        "test_id": "TC006",
+        "service_name": "movemoney",
+        "workflow_mode": "parallel",
+        "test_name": "POST /ach [Negative] (TC006)",
+        "protocol": "REST",
+        "test_type": [
+            "Functional"
+        ],
+        "mainURL": "{{base_url}}",
+        "endpoint": "/ach",
+        "method": "POST",
+        "rpc_method": "",
+        "graphql_query": "",
+        "graphql_variables": "",
+        "soap_action": "",
+        "soap_envelope": "",
+        "headers_additional": {
+            "Content-Type": "application/json"
+        },
+        "payload": {
+            "instructionId": "{{instructionId}}",
+            "accountId": "{{accountId}}",
+            "railType": "{{railType}}",
+            "amount": "{{amount}}",
+            "requestType": "{{requestType}}",
+            "status": "{{status}}",
+            "reason": "{{reason}}",
+            "schedule": {
+                "scheduleType": "{{scheduleType}}",
+                "paymentDate": "{{paymentDate}}"
+            }
+        },
+        "expected_status": "400",
+        "expected_response_schema": "",
+        "expected_response": {
+            "type": "invalid-request",
+            "title": "Invalid Request",
+            "status": 400,
+            "detail": "The request contains invalid values",
+            "instance": "/api/moneymovement/v1/ach",
+            "errors": {
+                "instructionId": [
+                    "Must be a valid UUID format."
+                ]
+            }
+        },
+        "ignore_fields": [
+            "instance"
+        ],
+        "extract_values": [
+            {
+                "from": "response",
+                "key": "status",
+                "assign_to": "resp_status"
+            }
+        ],
+        "validate": {
+            "performance": {
+                "max_response_time_ms": 500
+            },
+            "security": {
+                "checks": [
+                    "sql_injection",
+                    "xss"
+                ]
+            },
+            "data_comparison": [],
+            "assertions": [
+                {
+                    "actual": "{{resp_status}}",
+                    "expected": 400,
+                    "operator": "==",
+                    "message": "Response body status field should be 400"
+                }
+            ]
+        },
+        "test_data_file": "MoveMoneyAPI/data_driven/Data_ach_POST.csv",
+        "csv_row_index": 5,
+        "db_type": "",
+        "db_connection_name": "",
+        "test_summary": "Test TC006: POST /moneymovement/requests [negative] (TC006) - Verify that the API returns a 400 Bad Request error when Invalid GUID format for 'InstructionId'",
+        "test_scenario": "Verify that the API returns a 400 Bad Request error when invalid data is provided in the POST request to /moneymovement/requests.",
+        "db_query_timing": "after_api",
+        "db_queries": {
+            "default": "",
+            "audit_query": ""
+        }
+    },
+    {
+        "test_id": "TC007",
+        "service_name": "movemoney",
+        "workflow_mode": "parallel",
+        "test_name": "POST /ach [changeState default] (TC007)",
+        "protocol": "REST",
+        "test_type": [
+            "Functional",
+            "Database",
+            "Regression"
+        ],
+        "mainURL": "{{base_url}}",
+        "endpoint": "/ach",
+        "method": "POST",
+        "rpc_method": "",
+        "graphql_query": "",
+        "graphql_variables": "",
+        "soap_action": "",
+        "soap_envelope": "",
+        "headers_additional": {
+            "Content-Type": "application/json"
+        },
+        "payload": {
+            "instructionId": "{{instructionId}}",
+            "accountId": "{{accountId}}",
+            "railType": "{{railType}}",
+            "unitType": "{{unitType}}",
+            "amount": "{{amount}}",
+            "percent": "{{percent}}",
+            "requestType": "{{requestType}}",
+            "status": "{{status}}",
+            "reason": "{{reason}}",
+            "purpose": "{{purpose}}",
+            "schedule": {
+                "scheduleType": "{{scheduleType}}",
+                "paymentDate": "{{paymentDate}}"
+            },
+            "changeState": "{{changeState}}"
+        },
+        "expected_status": "201",
+        "expected_response_schema": "MoveMoneyAPI\\schemas\\Schema_ach_POST.json",
+        "expected_response": null,
+        "ignore_fields": [
+            "traceId",
+            "id",
+            "timestamp",
+            "createdDate",
+            "modifiedDate"
+        ],
+        "extract_values": [
+            {
+                "from": "response",
+                "key": "requestId",
+                "assign_to": "requestId"
+            },
+            {
+                "from": "db_result",
+                "query": "default",
+                "assign": [
+                    {
+                        "key": "0.requestId",
+                        "assign_to": "db_requestId"
+                    },
+                    {
+                        "key": "0.changeState",
+                        "assign_to": "db_changeState"
+                    }
+                ]
+            }
+        ],
+        "validate": {
+            "performance": {
+                "max_response_time_ms": 1000
+            },
+            "security": {
+                "checks": [
+                    "sql_injection",
+                    "xss"
+                ]
+            },
+            "assertions": [
+                {
+                    "actual": "{{db_changeState}}",
+                    "expected": "Pending",
+                    "operator": "==",
+                    "message": "changeState should default to Pending when omitted in POST request"
+                }
+            ],
+            "data_comparison": [
+                {
+                    "source": "requestId",
+                    "target": "db_requestId",
+                    "log_differences": true,
+                    "comparison_name": "RequestId match between API and DB"
+                }
+            ]
+        },
+        "test_data_file": "MoveMoneyAPI/data_driven/Data_ach_POST.csv",
+        "csv_row_index": 6,
+        "db_query_timing": "after_api",
+        "db_queries": {
+            "default": "SELECT LOWER([RequestId]) AS requestId, [ChangeState] AS changeState FROM [dbo].[MoneyMovementRequest] WHERE [RequestId] = TRY_CONVERT(uniqueidentifier, '{{requestId}}')"
+        },
+        "db_type": "mssql",
+        "db_connection_name": "movemoney",
+        "test_summary": "Test TC007: POST /ach [changeState default] (TC010) - Verify changeState defaults to Pending when omitted from request.",
+        "test_scenario": "Test POST request to /ach to validate default changeState behavior."
+    },
+    {
+        "test_id": "TC008",
+        "service_name": "movemoney",
+        "workflow_mode": "parallel",
+        "test_name": "POST /ach [changeState=Scheduled] (TC008)",
+        "protocol": "REST",
+        "test_type": [
+            "Functional",
+            "Database",
+            "Regression"
+        ],
+        "mainURL": "{{base_url}}",
+        "endpoint": "/ach",
+        "method": "POST",
+        "rpc_method": "",
+        "graphql_query": "",
+        "graphql_variables": "",
+        "soap_action": "",
+        "soap_envelope": "",
+        "headers_additional": {
+            "Content-Type": "application/json"
+        },
+        "payload": {
+            "instructionId": "{{instructionId}}",
+            "accountId": "{{accountId}}",
+            "railType": "{{railType}}",
+            "unitType": "{{unitType}}",
+            "amount": "{{amount}}",
+            "percent": "{{percent}}",
+            "requestType": "{{requestType}}",
+            "status": "{{status}}",
+            "reason": "{{reason}}",
+            "purpose": "{{purpose}}",
+            "changeState": "{{changeState}}",
+            "schedule": {
+                "scheduleType": "{{scheduleType}}",
+                "paymentDate": "{{paymentDate}}"
+            }
+        },
+        "expected_status": "201",
+        "expected_response_schema": "MoveMoneyAPI\\schemas\\Schema_ach_POST.json",
+        "expected_response": null,
+        "ignore_fields": [
+            "traceId",
+            "id",
+            "timestamp",
+            "createdDate",
+            "modifiedDate"
+        ],
+        "extract_values": [
+            {
+                "from": "response",
+                "key": "requestId",
+                "assign_to": "requestId"
+            },
+            {
+                "from": "db_result",
+                "query": "default",
+                "assign": [
+                    {
+                        "key": "0.requestId",
+                        "assign_to": "db_requestId"
+                    },
+                    {
+                        "key": "0.changeState",
+                        "assign_to": "db_changeState"
+                    }
+                ]
+            }
+        ],
+        "validate": {
+            "performance": {
+                "max_response_time_ms": 1000
+            },
+            "security": {
+                "checks": [
+                    "sql_injection",
+                    "xss"
+                ]
+            },
+            "assertions": [
+                {
+                    "actual": "{{db_changeState}}",
+                    "expected": "Scheduled",
+                    "operator": "==",
+                    "message": "changeState should persist as Scheduled when explicitly provided in POST request"
+                }
+            ],
+            "data_comparison": [
+                {
+                    "source": "requestId",
+                    "target": "db_requestId",
+                    "log_differences": true,
+                    "comparison_name": "RequestId match between API and DB"
+                }
+            ]
+        },
+        "test_data_file": "MoveMoneyAPI/data_driven/Data_ach_POST.csv",
+        "csv_row_index": 7,
+        "db_query_timing": "after_api",
+        "db_queries": {
+            "default": "SELECT LOWER([RequestId]) AS requestId, [ChangeState] AS changeState FROM [dbo].[MoneyMovementRequest] WHERE [RequestId] = TRY_CONVERT(uniqueidentifier, '{{requestId}}')"
+        },
+        "db_type": "mssql",
+        "db_connection_name": "movemoney",
+        "test_summary": "Test TC008: POST /ach [changeState=Scheduled] (TC011) - Verify changeState persists as Scheduled when explicitly provided.",
+        "test_scenario": "Test POST request to /ach to validate explicit changeState=Scheduled."
+    },
+    {
+        "test_id": "TC009",
+        "service_name": "movemoney",
+        "workflow_mode": "parallel",
+        "test_name": "POST /ach [changeState=Processed] (TC009)",
+        "protocol": "REST",
+        "test_type": [
+            "Functional",
+            "Database",
+            "Regression"
+        ],
+        "mainURL": "{{base_url}}",
+        "endpoint": "/ach",
+        "method": "POST",
+        "rpc_method": "",
+        "graphql_query": "",
+        "graphql_variables": "",
+        "soap_action": "",
+        "soap_envelope": "",
+        "headers_additional": {
+            "Content-Type": "application/json"
+        },
+        "payload": {
+            "instructionId": "{{instructionId}}",
+            "accountId": "{{accountId}}",
+            "railType": "{{railType}}",
+            "unitType": "{{unitType}}",
+            "amount": "{{amount}}",
+            "percent": "{{percent}}",
+            "requestType": "{{requestType}}",
+            "status": "{{status}}",
+            "reason": "{{reason}}",
+            "purpose": "{{purpose}}",
+            "changeState": "{{changeState}}",
+            "schedule": {
+                "scheduleType": "{{scheduleType}}",
+                "paymentDate": "{{paymentDate}}"
+            }
+        },
+        "expected_status": "201",
+        "expected_response_schema": "MoveMoneyAPI\\schemas\\Schema_ach_POST.json",
+        "expected_response": null,
+        "ignore_fields": [
+            "traceId",
+            "id",
+            "timestamp",
+            "createdDate",
+            "modifiedDate"
+        ],
+        "extract_values": [
+            {
+                "from": "response",
+                "key": "requestId",
+                "assign_to": "requestId"
+            },
+            {
+                "from": "db_result",
+                "query": "default",
+                "assign": [
+                    {
+                        "key": "0.requestId",
+                        "assign_to": "db_requestId"
+                    },
+                    {
+                        "key": "0.changeState",
+                        "assign_to": "db_changeState"
+                    }
+                ]
+            }
+        ],
+        "validate": {
+            "performance": {
+                "max_response_time_ms": 1000
+            },
+            "security": {
+                "checks": [
+                    "sql_injection",
+                    "xss"
+                ]
+            },
+            "assertions": [
+                {
+                    "actual": "{{db_changeState}}",
+                    "expected": "Processed",
+                    "operator": "==",
+                    "message": "changeState should persist as Processed when explicitly provided in POST request"
+                }
+            ],
+            "data_comparison": [
+                {
+                    "source": "requestId",
+                    "target": "db_requestId",
+                    "log_differences": true,
+                    "comparison_name": "RequestId match between API and DB"
+                }
+            ]
+        },
+        "test_data_file": "MoveMoneyAPI/data_driven/Data_ach_POST.csv",
+        "csv_row_index": 8,
+        "db_query_timing": "after_api",
+        "db_queries": {
+            "default": "SELECT LOWER([RequestId]) AS requestId, [ChangeState] AS changeState FROM [dbo].[MoneyMovementRequest] WHERE [RequestId] = TRY_CONVERT(uniqueidentifier, '{{requestId}}')"
+        },
+        "db_type": "mssql",
+        "db_connection_name": "movemoney",
+        "test_summary": "Test TC009: POST /ach [changeState=Processed] (TC012) - Verify changeState persists as Processed when explicitly provided.",
+        "test_scenario": "Test POST request to /ach to validate explicit changeState=Processed."
+    },
+    {
+        "test_id": "TC010",
+        "service_name": "movemoney",
+        "workflow_mode": "parallel",
+        "test_name": "POST /ach [changeState=Pending] (TC010)",
+        "protocol": "REST",
+        "test_type": [
+            "Functional",
+            "Database",
+            "Regression"
+        ],
+        "mainURL": "{{base_url}}",
+        "endpoint": "/ach",
+        "method": "POST",
+        "rpc_method": "",
+        "graphql_query": "",
+        "graphql_variables": "",
+        "soap_action": "",
+        "soap_envelope": "",
+        "headers_additional": {
+            "Content-Type": "application/json"
+        },
+        "payload": {
+            "instructionId": "{{instructionId}}",
+            "accountId": "{{accountId}}",
+            "railType": "{{railType}}",
+            "unitType": "{{unitType}}",
+            "amount": "{{amount}}",
+            "percent": "{{percent}}",
+            "requestType": "{{requestType}}",
+            "status": "{{status}}",
+            "reason": "{{reason}}",
+            "purpose": "{{purpose}}",
+            "changeState": "{{changeState}}",
+            "schedule": {
+                "scheduleType": "{{scheduleType}}",
+                "paymentDate": "{{paymentDate}}"
+            }
+        },
+        "expected_status": "201",
+        "expected_response_schema": "MoveMoneyAPI\\schemas\\Schema_ach_POST.json",
+        "expected_response": null,
+        "ignore_fields": [
+            "traceId",
+            "id",
+            "timestamp",
+            "createdDate",
+            "modifiedDate"
+        ],
+        "extract_values": [
+            {
+                "from": "response",
+                "key": "requestId",
+                "assign_to": "requestId"
+            },
+            {
+                "from": "db_result",
+                "query": "default",
+                "assign": [
+                    {
+                        "key": "0.requestId",
+                        "assign_to": "db_requestId"
+                    },
+                    {
+                        "key": "0.changeState",
+                        "assign_to": "db_changeState"
+                    }
+                ]
+            }
+        ],
+        "validate": {
+            "performance": {
+                "max_response_time_ms": 1000
+            },
+            "security": {
+                "checks": [
+                    "sql_injection",
+                    "xss"
+                ]
+            },
+            "assertions": [
+                {
+                    "actual": "{{db_changeState}}",
+                    "expected": "Pending",
+                    "operator": "==",
+                    "message": "changeState should persist as Pending when explicitly provided in POST request"
+                }
+            ],
+            "data_comparison": [
+                {
+                    "source": "requestId",
+                    "target": "db_requestId",
+                    "log_differences": true,
+                    "comparison_name": "RequestId match between API and DB"
+                }
+            ]
+        },
+        "test_data_file": "MoveMoneyAPI/data_driven/Data_ach_POST.csv",
+        "csv_row_index": 9,
+        "db_query_timing": "after_api",
+        "db_queries": {
+            "default": "SELECT LOWER([RequestId]) AS requestId, [ChangeState] AS changeState FROM [dbo].[MoneyMovementRequest] WHERE [RequestId] = TRY_CONVERT(uniqueidentifier, '{{requestId}}')"
+        },
+        "db_type": "mssql",
+        "db_connection_name": "movemoney",
+        "test_summary": "Test TC010: POST /ach [changeState=Pending] (TC013) - Verify changeState persists as Pending when explicitly provided.",
+        "test_scenario": "Test POST request to /ach to validate explicit changeState=Pending."
+    },
+    {
+        "test_id": "TC011",
+        "service_name": "movemoney",
+        "workflow_mode": "parallel",
+        "test_name": "POST /ach [changeState=PendingCancel] (TC011)",
+        "protocol": "REST",
+        "test_type": [
+            "Functional",
+            "Database",
+            "Regression"
+        ],
+        "mainURL": "{{base_url}}",
+        "endpoint": "/ach",
+        "method": "POST",
+        "rpc_method": "",
+        "graphql_query": "",
+        "graphql_variables": "",
+        "soap_action": "",
+        "soap_envelope": "",
+        "headers_additional": {
+            "Content-Type": "application/json"
+        },
+        "payload": {
+            "instructionId": "{{instructionId}}",
+            "accountId": "{{accountId}}",
+            "railType": "{{railType}}",
+            "unitType": "{{unitType}}",
+            "amount": "{{amount}}",
+            "percent": "{{percent}}",
+            "requestType": "{{requestType}}",
+            "status": "{{status}}",
+            "reason": "{{reason}}",
+            "purpose": "{{purpose}}",
+            "changeState": "{{changeState}}",
+            "schedule": {
+                "scheduleType": "{{scheduleType}}",
+                "paymentDate": "{{paymentDate}}"
+            }
+        },
+        "expected_status": "201",
+        "expected_response_schema": "MoveMoneyAPI\\schemas\\Schema_ach_POST.json",
+        "expected_response": null,
+        "ignore_fields": [
+            "traceId",
+            "id",
+            "timestamp",
+            "createdDate",
+            "modifiedDate"
+        ],
+        "extract_values": [
+            {
+                "from": "response",
+                "key": "requestId",
+                "assign_to": "requestId"
+            },
+            {
+                "from": "db_result",
+                "query": "default",
+                "assign": [
+                    {
+                        "key": "0.requestId",
+                        "assign_to": "db_requestId"
+                    },
+                    {
+                        "key": "0.changeState",
+                        "assign_to": "db_changeState"
+                    }
+                ]
+            }
+        ],
+        "validate": {
+            "performance": {
+                "max_response_time_ms": 1000
+            },
+            "security": {
+                "checks": [
+                    "sql_injection",
+                    "xss"
+                ]
+            },
+            "assertions": [
+                {
+                    "actual": "{{db_changeState}}",
+                    "expected": "PendingCancel",
+                    "operator": "==",
+                    "message": "changeState should persist as PendingCancel when explicitly provided in POST request"
+                }
+            ],
+            "data_comparison": [
+                {
+                    "source": "requestId",
+                    "target": "db_requestId",
+                    "log_differences": true,
+                    "comparison_name": "RequestId match between API and DB"
+                }
+            ]
+        },
+        "test_data_file": "MoveMoneyAPI/data_driven/Data_ach_POST.csv",
+        "csv_row_index": 10,
+        "db_query_timing": "after_api",
+        "db_queries": {
+            "default": "SELECT LOWER([RequestId]) AS requestId, [ChangeState] AS changeState FROM [dbo].[MoneyMovementRequest] WHERE [RequestId] = TRY_CONVERT(uniqueidentifier, '{{requestId}}')"
+        },
+        "db_type": "mssql",
+        "db_connection_name": "movemoney",
+        "test_summary": "Test TC011: POST /moneymovement/requests [changeState=PendingCancel] (TC014) - Verify changeState persists as PendingCancel when explicitly provided.",
+        "test_scenario": "Test POST request to /moneymovement/requests to validate explicit changeState=PendingCancel."
+    },
+    {
+        "test_id": "TC012",
+        "service_name": "movemoney",
+        "workflow_mode": "parallel",
+        "test_name": "POST /ach [changeState=Canceled] (TC012)",
+        "protocol": "REST",
+        "test_type": [
+            "Functional",
+            "Database",
+            "Regression"
+        ],
+        "mainURL": "{{base_url}}",
+        "endpoint": "/ach",
+        "method": "POST",
+        "rpc_method": "",
+        "graphql_query": "",
+        "graphql_variables": "",
+        "soap_action": "",
+        "soap_envelope": "",
+        "headers_additional": {
+            "Content-Type": "application/json"
+        },
+        "payload": {
+            "instructionId": "{{instructionId}}",
+            "accountId": "{{accountId}}",
+            "railType": "{{railType}}",
+            "unitType": "{{unitType}}",
+            "amount": "{{amount}}",
+            "percent": "{{percent}}",
+            "requestType": "{{requestType}}",
+            "status": "{{status}}",
+            "reason": "{{reason}}",
+            "purpose": "{{purpose}}",
+            "schedule": {
+                "scheduleType": "{{scheduleType}}",
+                "paymentDate": "{{paymentDate}}"
+            },
+            "changeState": "{{changeState}}"
+        },
+        "expected_status": "201",
+        "expected_response_schema": "MoveMoneyAPI\\schemas\\Schema_ach_POST.json",
+        "expected_response": null,
+        "ignore_fields": [
+            "traceId",
+            "id",
+            "timestamp",
+            "createdDate",
+            "modifiedDate"
+        ],
+        "extract_values": [
+            {
+                "from": "response",
+                "key": "requestId",
+                "assign_to": "requestId"
+            },
+            {
+                "from": "db_result",
+                "query": "default",
+                "assign": [
+                    {
+                        "key": "0.requestId",
+                        "assign_to": "db_requestId"
+                    },
+                    {
+                        "key": "0.changeState",
+                        "assign_to": "db_changeState"
+                    }
+                ]
+            }
+        ],
+        "validate": {
+            "performance": {
+                "max_response_time_ms": 1000
+            },
+            "security": {
+                "checks": [
+                    "sql_injection",
+                    "xss"
+                ]
+            },
+            "assertions": [
+                {
+                    "actual": "{{db_changeState}}",
+                    "expected": "Canceled",
+                    "operator": "==",
+                    "message": "changeState should persist as Canceled when explicitly provided in POST request"
+                }
+            ],
+            "data_comparison": [
+                {
+                    "source": "requestId",
+                    "target": "db_requestId",
+                    "log_differences": true,
+                    "comparison_name": "RequestId match between API and DB"
+                }
+            ]
+        },
+        "test_data_file": "MoveMoneyAPI/data_driven/Data_ach_POST.csv",
+        "csv_row_index": 11,
+        "db_query_timing": "after_api",
+        "db_queries": {
+            "default": "SELECT LOWER([RequestId]) AS requestId, [ChangeState] AS changeState FROM [dbo].[MoneyMovementRequest] WHERE [RequestId] = TRY_CONVERT(uniqueidentifier, '{{requestId}}')"
+        },
+        "db_type": "mssql",
+        "db_connection_name": "movemoney",
+        "test_summary": "Test TC012: POST /moneymovement/requests [changeState=Canceled] (TC015) - Verify changeState persists as Canceled when explicitly provided.",
+        "test_scenario": "Test POST request to /moneymovement/requests to validate explicit changeState=Canceled."
+    },
+    {
+        "test_id": "TC013",
+        "service_name": "movemoney",
+        "workflow_mode": "parallel",
+        "test_name": "POST /ach [AC1: Valid Request Without Removed Fields] (TC013)",
+        "protocol": "REST",
+        "test_type": [
+            "Functional",
+            "Database",
+            "Regression"
+        ],
+        "mainURL": "{{base_url}}",
+        "endpoint": "/ach",
+        "method": "POST",
+        "headers_additional": {
+            "Content-Type": "application/json"
+        },
+        "payload": {
+            "instructionId": "{{instructionId}}",
+            "accountId": "{{accountId}}",
+            "amount": "{{amount}}",
+            "requestType": "{{requestType}}",
+            "status": "{{status}}",
+            "reason": "{{reason}}",
+            "schedule": {
+                "scheduleType": "{{scheduleType}}",
+                "paymentDate": "{{paymentDate}}"
+            }
+        },
+        "expected_status": "201",
+        "expected_response_schema": "MoveMoneyAPI\\schemas\\Schema_ach_POST.json",
+        "expected_response": null,
+        "ignore_fields": [
+            "traceId",
+            "id",
+            "timestamp",
+            "createdDate",
+            "modifiedDate"
+        ],
+        "extract_values": [
+            {
+                "from": "response",
+                "key": "requestId",
+                "assign_to": "requestId"
+            }
+        ],
+        "validate": {
+            "performance": {
+                "max_response_time_ms": 1000
+            },
+            "security": {
+                "checks": [
+                    "sql_injection",
+                    "xss"
+                ]
+            },
+            "assertions": [],
+            "data_comparison": []
+        },
+        "test_data_file": "MoveMoneyAPI/data_driven/Data_ach_POST.csv",
+        "csv_row_index": 12,
+        "db_query_timing": "after_api",
+        "db_queries": {
+            "default": "",
+            "audit_query": ""
+        },
+        "db_type": "",
+        "db_connection_name": "",
+        "test_summary": "Test TC013: POST /ach [AC1] - Valid request without railType, unitType, percent, or purpose. API should default these fields and return 201.",
+        "test_scenario": "Test POST /ach omitting railType, unitType, percent, and purpose. Validate defaults in DB."
+    },
+    {
+        "test_id": "TC014",
+        "service_name": "movemoney",
+        "workflow_mode": "parallel",
+        "test_name": "POST /ach [Negative] (TC014)",
+        "protocol": "REST",
+        "test_type": [
+            "Functional"
+        ],
+        "mainURL": "{{base_url}}",
+        "endpoint": "/ach",
+        "method": "POST",
+        "rpc_method": "",
+        "graphql_query": "",
+        "graphql_variables": "",
+        "soap_action": "",
+        "soap_envelope": "",
+        "headers_additional": {
+            "Content-Type": "application/json"
+        },
+        "payload": {
+            "instructionId": "{{instructionId}}",
+            "amount": "{{amount}}",
+            "requestType": "{{requestType}}",
+            "status": "{{status}}",
+            "schedule": {
+                "scheduleType": "{{scheduleType}}",
+                "paymentDate": "{{paymentDate}}"
+            }
+        },
+        "expected_status": "400",
+        "expected_response_schema": "",
+        "expected_response": {
+            "type": "missing-required-fields",
+            "title": "One or more fields are missing values",
+            "status": 400,
+            "detail": "Missing Required Fields",
+            "instance": "/api/moneymovement/v1/ach",
+            "errors": {
+                "accountId": [
+                    "This field is required."
+                ]
+            }
+        },
+        "ignore_fields": [
+            "instance"
+        ],
+        "extract_values": [
+            {
+                "from": "response",
+                "key": "status",
+                "assign_to": "resp_status"
+            }
+        ],
+        "validate": {
+            "performance": {
+                "max_response_time_ms": 500
+            },
+            "security": {
+                "checks": [
+                    "sql_injection",
+                    "xss"
+                ]
+            },
+            "data_comparison": [],
+            "assertions": [
+                {
+                    "actual": "{{resp_status}}",
+                    "expected": 400,
+                    "operator": "==",
+                    "message": "Response body status field should be 400"
+                }
+            ]
+        },
+        "test_data_file": "MoveMoneyAPI/data_driven/Data_ach_POST.csv",
+        "csv_row_index": 13,
+        "db_type": "",
+        "db_connection_name": "",
+        "test_summary": "Test TC014: POST /ach [Negative] - Verify 400 when accountId is missing from request.",
+        "test_scenario": "Verify that the API returns a 400 Bad Request when accountId is not provided.",
+        "db_query_timing": "after_api",
+        "db_queries": {
+            "default": "",
+            "audit_query": ""
+        }
+    },
+    {
+        "test_id": "TC015",
+        "service_name": "movemoney",
+        "workflow_mode": "parallel",
+        "test_name": "POST /ach [Negative] (TC015)",
+        "protocol": "REST",
+        "test_type": [
+            "Functional"
+        ],
+        "mainURL": "{{base_url}}",
+        "endpoint": "/ach",
+        "method": "POST",
+        "rpc_method": "",
+        "graphql_query": "",
+        "graphql_variables": "",
+        "soap_action": "",
+        "soap_envelope": "",
+        "headers_additional": {
+            "Content-Type": "application/json"
+        },
+        "payload": {
+            "accountId": "{{accountId}}",
+            "amount": "{{amount}}",
+            "requestType": "{{requestType}}",
+            "status": "{{status}}",
+            "schedule": {
+                "scheduleType": "{{scheduleType}}",
+                "paymentDate": "{{paymentDate}}"
+            }
+        },
+        "expected_status": "400",
+        "expected_response_schema": "",
+        "expected_response": {
+            "type": "missing-required-fields",
+            "title": "One or more fields are missing values",
+            "status": 400,
+            "detail": "Missing Required Fields",
+            "instance": "/api/moneymovement/v1/ach",
+            "errors": {
+                "instructionId": [
+                    "This field is required."
+                ]
+            }
+        },
+        "ignore_fields": [
+            "instance"
+        ],
+        "extract_values": [
+            {
+                "from": "response",
+                "key": "status",
+                "assign_to": "resp_status"
+            }
+        ],
+        "validate": {
+            "performance": {
+                "max_response_time_ms": 500
+            },
+            "security": {
+                "checks": [
+                    "sql_injection",
+                    "xss"
+                ]
+            },
+            "data_comparison": [],
+            "assertions": [
+                {
+                    "actual": "{{resp_status}}",
+                    "expected": 400,
+                    "operator": "==",
+                    "message": "Response body status field should be 400"
+                }
+            ]
+        },
+        "test_data_file": "MoveMoneyAPI/data_driven/Data_ach_POST.csv",
+        "csv_row_index": 14,
+        "db_type": "",
+        "db_connection_name": "",
+        "test_summary": "Test TC015: POST /ach [Negative] - Verify 400 when instructionId is missing from request.",
+        "test_scenario": "Verify that the API returns a 400 Bad Request when instructionId is not provided.",
+        "db_query_timing": "after_api",
+        "db_queries": {
+            "default": "",
+            "audit_query": ""
+        }
+    },
+    {
+        "test_id": "TC016",
+        "service_name": "movemoney",
+        "workflow_mode": "parallel",
+        "test_name": "POST /ach [Negative] (TC016)",
+        "protocol": "REST",
+        "test_type": [
+            "Functional"
+        ],
+        "mainURL": "{{base_url}}",
+        "endpoint": "/ach",
+        "method": "POST",
+        "rpc_method": "",
+        "graphql_query": "",
+        "graphql_variables": "",
+        "soap_action": "",
+        "soap_envelope": "",
+        "headers_additional": {
+            "Content-Type": "application/json"
+        },
+        "payload": {
+            "instructionId": "{{instructionId}}",
+            "accountId": "{{accountId}}",
+            "amount": "{{amount}}",
+            "status": "{{status}}",
+            "schedule": {
+                "scheduleType": "{{scheduleType}}",
+                "paymentDate": "{{paymentDate}}"
+            }
+        },
+        "expected_status": "400",
+        "expected_response_schema": "",
+        "expected_response": {
+            "type": "missing-required-fields",
+            "title": "One or more fields are missing values",
+            "status": 400,
+            "detail": "Missing Required Fields",
+            "instance": "/api/moneymovement/v1/ach",
+            "errors": {
+                "requestType": [
+                    "This field is required."
+                ]
+            }
+        },
+        "ignore_fields": [
+            "instance"
+        ],
+        "extract_values": [
+            {
+                "from": "response",
+                "key": "status",
+                "assign_to": "resp_status"
+            }
+        ],
+        "validate": {
+            "performance": {
+                "max_response_time_ms": 500
+            },
+            "security": {
+                "checks": [
+                    "sql_injection",
+                    "xss"
+                ]
+            },
+            "data_comparison": [],
+            "assertions": [
+                {
+                    "actual": "{{resp_status}}",
+                    "expected": 400,
+                    "operator": "==",
+                    "message": "Response body status field should be 400"
+                }
+            ]
+        },
+        "test_data_file": "MoveMoneyAPI/data_driven/Data_ach_POST.csv",
+        "csv_row_index": 15,
+        "db_type": "",
+        "db_connection_name": "",
+        "test_summary": "Test TC016: POST /ach [Negative] - Verify 400 when requestType is missing from request.",
+        "test_scenario": "Verify that the API returns a 400 Bad Request when requestType is not provided.",
+        "db_query_timing": "after_api",
+        "db_queries": {
+            "default": "",
+            "audit_query": ""
+        }
+    },
+    {
+        "test_id": "TC017",
+        "service_name": "movemoney",
+        "workflow_mode": "parallel",
+        "test_name": "POST /ach [Negative] (TC017)",
+        "protocol": "REST",
+        "test_type": [
+            "Functional"
+        ],
+        "mainURL": "{{base_url}}",
+        "endpoint": "/ach",
+        "method": "POST",
+        "rpc_method": "",
+        "graphql_query": "",
+        "graphql_variables": "",
+        "soap_action": "",
+        "soap_envelope": "",
+        "headers_additional": {
+            "Content-Type": "application/json"
+        },
+        "payload": {
+            "instructionId": "{{instructionId}}",
+            "accountId": "{{accountId}}",
+            "amount": "{{amount}}",
+            "requestType": "{{requestType}}",
+            "schedule": {
+                "scheduleType": "{{scheduleType}}",
+                "paymentDate": "{{paymentDate}}"
+            }
+        },
+        "expected_status": "400",
+        "expected_response_schema": "",
+        "expected_response": {
+            "type": "missing-required-fields",
+            "title": "One or more fields are missing values",
+            "status": 400,
+            "detail": "Missing Required Fields",
+            "instance": "/api/moneymovement/v1/ach",
+            "errors": {
+                "status": [
+                    "This field is required."
+                ]
+            }
+        },
+        "ignore_fields": [
+            "instance"
+        ],
+        "extract_values": [
+            {
+                "from": "response",
+                "key": "status",
+                "assign_to": "resp_status"
+            }
+        ],
+        "validate": {
+            "performance": {
+                "max_response_time_ms": 500
+            },
+            "security": {
+                "checks": [
+                    "sql_injection",
+                    "xss"
+                ]
+            },
+            "data_comparison": [],
+            "assertions": [
+                {
+                    "actual": "{{resp_status}}",
+                    "expected": 400,
+                    "operator": "==",
+                    "message": "Response body status field should be 400"
+                }
+            ]
+        },
+        "test_data_file": "MoveMoneyAPI/data_driven/Data_ach_POST.csv",
+        "csv_row_index": 16,
+        "db_type": "",
+        "db_connection_name": "",
+        "test_summary": "Test TC017: POST /ach [Negative] - Verify 400 when status is missing from request.",
+        "test_scenario": "Verify that the API returns a 400 Bad Request when status is not provided.",
+        "db_query_timing": "after_api",
+        "db_queries": {
+            "default": "",
+            "audit_query": ""
+        }
+    },
+    {
+        "test_id": "TC018",
+        "service_name": "movemoney",
+        "workflow_mode": "parallel",
+        "test_name": "POST /ach [Negative] (TC018)",
+        "protocol": "REST",
+        "test_type": [
+            "Functional"
+        ],
+        "mainURL": "{{base_url}}",
+        "endpoint": "/ach",
+        "method": "POST",
+        "rpc_method": "",
+        "graphql_query": "",
+        "graphql_variables": "",
+        "soap_action": "",
+        "soap_envelope": "",
+        "headers_additional": {
+            "Content-Type": "application/json"
+        },
+        "payload": {
+            "instructionId": "{{instructionId}}",
+            "accountId": "{{accountId}}",
+            "requestType": "{{requestType}}",
+            "status": "{{status}}",
+            "schedule": {
+                "scheduleType": "{{scheduleType}}",
+                "paymentDate": "{{paymentDate}}"
+            }
+        },
+        "expected_status": "400",
+        "expected_response_schema": "",
+        "expected_response": {
+            "type": "missing-required-fields",
+            "title": "One or more fields are missing values",
+            "status": 400,
+            "detail": "Missing Required Fields",
+            "instance": "/api/moneymovement/v1/ach",
+            "errors": {
+                "amount": [
+                    "This field is required."
+                ]
+            }
+        },
+        "ignore_fields": [
+            "instance"
+        ],
+        "extract_values": [
+            {
+                "from": "response",
+                "key": "status",
+                "assign_to": "resp_status"
+            }
+        ],
+        "validate": {
+            "performance": {
+                "max_response_time_ms": 500
+            },
+            "security": {
+                "checks": [
+                    "sql_injection",
+                    "xss"
+                ]
+            },
+            "data_comparison": [],
+            "assertions": [
+                {
+                    "actual": "{{resp_status}}",
+                    "expected": 400,
+                    "operator": "==",
+                    "message": "Response body status field should be 400"
+                }
+            ]
+        },
+        "test_data_file": "MoveMoneyAPI/data_driven/Data_ach_POST.csv",
+        "csv_row_index": 17,
+        "db_type": "",
+        "db_connection_name": "",
+        "test_summary": "Test TC018: POST /ach [Negative] - Verify 400 when amount is missing from request.",
+        "test_scenario": "Verify that the API returns a 400 Bad Request when amount is not provided.",
+        "db_query_timing": "after_api",
+        "db_queries": {
+            "default": "",
+            "audit_query": ""
+        }
+    },
+    {
+        "test_id": "TC019",
+        "service_name": "movemoney",
+        "workflow_mode": "parallel",
+        "test_name": "POST /ach [Negative] (TC019)",
+        "protocol": "REST",
+        "test_type": [
+            "Functional"
+        ],
+        "mainURL": "{{base_url}}",
+        "endpoint": "/ach",
+        "method": "POST",
+        "rpc_method": "",
+        "graphql_query": "",
+        "graphql_variables": "",
+        "soap_action": "",
+        "soap_envelope": "",
+        "headers_additional": {
+            "Content-Type": "application/json"
+        },
+        "payload": {
+            "instructionId": "{{instructionId}}",
+            "accountId": "{{accountId}}",
+            "amount": "{{amount}}",
+            "requestType": "{{requestType}}",
+            "status": "{{status}}",
+            "schedule": {
+                "scheduleType": "{{scheduleType}}",
+                "paymentDate": "{{paymentDate}}"
+            }
+        },
+        "expected_status": "400",
+        "expected_response_schema": "",
+        "expected_response": {
+            "type": "invalid-request",
+            "title": "Invalid Request",
+            "status": 400,
+            "detail": "The request contains invalid values",
+            "instance": "/api/moneymovement/v1/ach",
+            "errors": {
+                "requestType": [
+                    "Must be one of: Deposit, Withdrawal"
+                ]
+            }
+        },
+        "ignore_fields": [
+            "instance"
+        ],
+        "extract_values": [
+            {
+                "from": "response",
+                "key": "status",
+                "assign_to": "resp_status"
+            }
+        ],
+        "validate": {
+            "performance": {
+                "max_response_time_ms": 500
+            },
+            "security": {
+                "checks": [
+                    "sql_injection",
+                    "xss"
+                ]
+            },
+            "data_comparison": [],
+            "assertions": [
+                {
+                    "actual": "{{resp_status}}",
+                    "expected": 400,
+                    "operator": "==",
+                    "message": "Response body status field should be 400"
+                }
+            ]
+        },
+        "test_data_file": "MoveMoneyAPI/data_driven/Data_ach_POST.csv",
+        "csv_row_index": 18,
+        "db_type": "",
+        "db_connection_name": "",
+        "test_summary": "Test TC019: POST /ach [Negative] - Verify 400 when requestType has an invalid enum value.",
+        "test_scenario": "Verify that the API returns a 400 Bad Request when requestType is not Deposit or Withdrawal.",
+        "db_query_timing": "after_api",
+        "db_queries": {
+            "default": "",
+            "audit_query": ""
+        }
+    },
+    {
+        "test_id": "TC020",
+        "service_name": "movemoney",
+        "workflow_mode": "parallel",
+        "test_name": "POST /ach [Negative] (TC020)",
+        "protocol": "REST",
+        "test_type": [
+            "Functional"
+        ],
+        "mainURL": "{{base_url}}",
+        "endpoint": "/ach",
+        "method": "POST",
+        "rpc_method": "",
+        "graphql_query": "",
+        "graphql_variables": "",
+        "soap_action": "",
+        "soap_envelope": "",
+        "headers_additional": {
+            "Content-Type": "application/json"
+        },
+        "payload": {
+            "instructionId": "{{instructionId}}",
+            "accountId": "{{accountId}}",
+            "amount": "{{amount}}",
+            "requestType": "{{requestType}}",
+            "status": "{{status}}",
+            "schedule": {
+                "scheduleType": "{{scheduleType}}",
+                "paymentDate": "{{paymentDate}}"
+            }
+        },
+        "expected_status": "400",
+        "expected_response_schema": "",
+        "expected_response": {
+            "type": "missing-required-fields",
+            "title": "One or more fields are missing values",
+            "status": 400,
+            "detail": "Missing Required Fields",
+            "instance": "/api/moneymovement/v1/ach",
+            "errors": {
+                "model": [
+                    "Request body is required."
+                ]
+            }
+        },
+        "ignore_fields": [
+            "instance"
+        ],
+        "extract_values": [
+            {
+                "from": "response",
+                "key": "status",
+                "assign_to": "resp_status"
+            }
+        ],
+        "validate": {
+            "performance": {
+                "max_response_time_ms": 500
+            },
+            "security": {
+                "checks": [
+                    "sql_injection",
+                    "xss"
+                ]
+            },
+            "data_comparison": [],
+            "assertions": [
+                {
+                    "actual": "{{resp_status}}",
+                    "expected": 400,
+                    "operator": "==",
+                    "message": "Response body status field should be 400"
+                }
+            ]
+        },
+        "test_data_file": "MoveMoneyAPI/data_driven/Data_ach_POST.csv",
+        "csv_row_index": 19,
+        "db_type": "",
+        "db_connection_name": "",
+        "test_summary": "Test TC020: POST /ach [Negative] - Verify 400 when amount is a non-numeric value.",
+        "test_scenario": "Verify that the API returns a 400 Bad Request when amount cannot be parsed as a decimal.",
+        "db_query_timing": "after_api",
+        "db_queries": {
+            "default": "",
+            "audit_query": ""
+        }
+    },
+    {
+        "test_id": "TC021",
+        "service_name": "movemoney",
+        "workflow_mode": "parallel",
+        "test_name": "POST /ach [negative - amount exceeds max limit] (TC021)",
+        "protocol": "REST",
+        "test_type": [
+            "Functional",
+            "Database",
+            "Regression"
+        ],
+        "mainURL": "{{base_url}}",
+        "endpoint": "/ach",
+        "method": "POST",
+        "rpc_method": "",
+        "graphql_query": "",
+        "graphql_variables": "",
+        "soap_action": "",
+        "soap_envelope": "",
+        "headers_additional": {
+            "Content-Type": "application/json"
+        },
+        "payload": {
+            "instructionId": "{{instructionId}}",
+            "accountId": "{{accountId}}",
+            "unitType": "{{unitType}}",
+            "amount": "{{amount}}",
+            "requestType": "{{requestType}}",
+            "status": "{{status}}",
+            "schedule": {
+                "scheduleType": "{{scheduleType}}",
+                "paymentDate": "{{paymentDate}}"
+            }
+        },
+        "expected_status": "400",
+        "expected_response_schema": null,
+        "expected_response": {
+            "type": "invalid-request",
+            "title": "Invalid Request",
+            "status": 400,
+            "detail": "The request contains invalid values",
+            "instance": "/api/moneymovement/v1/ach",
+            "errors": {
+                "amount": [
+                    "Amount must be between 0.01 and 999,999,999.99."
+                ]
+            }
+        },
+        "ignore_fields": [
+            "traceId",
+            "id",
+            "timestamp",
+            "createdDate",
+            "modifiedDate"
+        ],
+        "extract_values": [],
+        "validate": {
+            "performance": {
+                "max_response_time_ms": 500
+            },
+            "security": {
+                "checks": [
+                    "sql_injection",
+                    "xss"
+                ]
+            },
+            "data_comparison": [],
+            "assertions": []
+        },
+        "test_data_file": "MoveMoneyAPI/data_driven/Data_ach_POST.csv",
+        "csv_row_index": 20,
+        "db_type": "",
+        "db_connection_name": "",
+        "test_summary": "Test TC021: POST /ach [Negative] - Verify 400 when amount exceeds the maximum allowed value of 999,999,999.99 for PATCH /ach end points.",
+        "test_scenario": "Verify that the API returns a 400 Bad Request when amount > 9999999 and unitType is Amount.",
+        "db_query_timing": "after_api",
+        "db_queries": {
+            "default": "",
+            "audit_query": ""
+        }
+    },
+    {
+        "test_id": "TC022",
+        "service_name": "movemoney",
+        "workflow_mode": "parallel",
+        "test_name": "POST /ach [Negative] (TC022)",
+        "protocol": "REST",
+        "test_type": [
+            "Functional"
+        ],
+        "mainURL": "{{base_url}}",
+        "endpoint": "/ach",
+        "method": "POST",
+        "rpc_method": "",
+        "graphql_query": "",
+        "graphql_variables": "",
+        "soap_action": "",
+        "soap_envelope": "",
+        "headers_additional": {
+            "Content-Type": "application/json"
+        },
+        "payload": {
+            "instructionId": "{{instructionId}}",
+            "accountId": "{{accountId}}",
+            "amount": "{{amount}}",
+            "requestType": "{{requestType}}",
+            "status": "{{status}}",
+            "schedule": {
+                "scheduleType": "{{scheduleType}}"
+            }
+        },
+        "expected_status": "400",
+        "expected_response_schema": "",
+        "expected_response": {
+            "type": "invalid-request",
+            "title": "Invalid Request",
+            "status": 400,
+            "detail": "The request contains invalid values",
+            "instance": "/api/moneymovement/v1/ach",
+            "errors": {
+                "schedule.paymentDate": [
+                    "This field is required for OneTime schedules."
+                ]
+            }
+        },
+        "ignore_fields": [
+            "instance"
+        ],
+        "extract_values": [
+            {
+                "from": "response",
+                "key": "status",
+                "assign_to": "resp_status"
+            }
+        ],
+        "validate": {
+            "performance": {
+                "max_response_time_ms": 500
+            },
+            "security": {
+                "checks": [
+                    "sql_injection",
+                    "xss"
+                ]
+            },
+            "data_comparison": [],
+            "assertions": [
+                {
+                    "actual": "{{resp_status}}",
+                    "expected": 400,
+                    "operator": "==",
+                    "message": "Response body status field should be 400"
+                }
+            ]
+        },
+        "test_data_file": "MoveMoneyAPI/data_driven/Data_ach_POST.csv",
+        "csv_row_index": 21,
+        "db_type": "",
+        "db_connection_name": "",
+        "test_summary": "Test TC022: POST /ach [Negative] - Verify 400 when schedule.paymentDate is missing for a OneTime schedule.",
+        "test_scenario": "Verify that the API returns a 400 Bad Request when paymentDate is omitted from a OneTime schedule.",
+        "db_query_timing": "after_api",
+        "db_queries": {
+            "default": "",
+            "audit_query": ""
+        }
+    },
+    {
+        "test_id": "TC023",
+        "service_name": "movemoney",
+        "workflow_mode": "parallel",
+        "test_name": "POST /ach [Negative] (TC023)",
+        "protocol": "REST",
+        "test_type": [
+            "Functional"
+        ],
+        "mainURL": "{{base_url}}",
+        "endpoint": "/ach",
+        "method": "POST",
+        "rpc_method": "",
+        "graphql_query": "",
+        "graphql_variables": "",
+        "soap_action": "",
+        "soap_envelope": "",
+        "headers_additional": {
+            "Content-Type": "application/json"
+        },
+        "payload": {
+            "instructionId": "{{instructionId}}",
+            "accountId": "{{accountId}}",
+            "amount": "{{amount}}",
+            "requestType": "{{requestType}}",
+            "status": "{{status}}",
+            "schedule": {
+                "scheduleType": "{{scheduleType}}",
+                "paymentDate": "{{paymentDate}}",
+                "frequency": "{{frequency}}"
+            }
+        },
+        "expected_status": "400",
+        "expected_response_schema": "",
+        "expected_response": {
+            "type": "invalid-request",
+            "title": "Invalid Request",
+            "status": 400,
+            "detail": "The request contains invalid values",
+            "instance": "/api/moneymovement/v1/ach",
+            "errors": {
+                "schedule.paymentDate": [
+                    "This field should not be provided for Periodic schedules."
+                ],
+                "schedule.frequency": [
+                    "Must be a valid frequency value."
+                ],
+                "schedule.startDate": [
+                    "This field is required for Periodic schedules."
+                ],
+                "schedule.endDate": [
+                    "This field is required for Periodic schedules."
+                ]
+            }
+        },
+        "ignore_fields": [
+            "instance"
+        ],
+        "extract_values": [
+            {
+                "from": "response",
+                "key": "status",
+                "assign_to": "resp_status"
+            }
+        ],
+        "validate": {
+            "performance": {
+                "max_response_time_ms": 500
+            },
+            "security": {
+                "checks": [
+                    "sql_injection",
+                    "xss"
+                ]
+            },
+            "data_comparison": [],
+            "assertions": [
+                {
+                    "actual": "{{resp_status}}",
+                    "expected": 400,
+                    "operator": "==",
+                    "message": "Response body status field should be 400"
+                }
+            ]
+        },
+        "test_data_file": "MoveMoneyAPI/data_driven/Data_ach_POST.csv",
+        "csv_row_index": 22,
+        "db_type": "",
+        "db_connection_name": "",
+        "test_summary": "Test TC023: POST /ach [Negative] - Verify 400 when schedule.frequency has an invalid value.",
+        "test_scenario": "Verify that the API returns a 400 Bad Request when schedule.frequency is not a recognised frequency value.",
+        "db_query_timing": "after_api",
+        "db_queries": {
+            "default": "",
+            "audit_query": ""
+        }
+    },
+    {
+        "test_id": "TC024",
+        "service_name": "movemoney",
+        "workflow_mode": "parallel",
+        "test_name": "POST /ach [Negative] (TC024)",
+        "protocol": "REST",
+        "test_type": [
+            "Functional"
+        ],
+        "mainURL": "{{base_url}}",
+        "endpoint": "/ach",
+        "method": "POST",
+        "rpc_method": "",
+        "graphql_query": "",
+        "graphql_variables": "",
+        "soap_action": "",
+        "soap_envelope": "",
+        "headers_additional": {
+            "Content-Type": "application/json"
+        },
+        "payload": {
+            "instructionId": "{{instructionId}}",
+            "accountId": "{{accountId}}",
+            "amount": "{{amount}}",
+            "requestType": "{{requestType}}",
+            "status": "{{status}}",
+            "schedule": {
+                "scheduleType": "{{scheduleType}}",
+                "paymentDate": "{{paymentDate}}"
+            }
+        },
+        "expected_status": "400",
+        "expected_response_schema": "",
+        "expected_response": {
+            "type": "invalid-request",
+            "title": "Invalid Request",
+            "status": 400,
+            "detail": "The request contains invalid values",
+            "instance": "/api/moneymovement/v1/ach",
+            "errors": {
+                "schedule.paymentDate": [
+                    "This field should not be provided for Periodic schedules."
+                ],
+                "schedule.frequency": [
+                    "This field is required for Periodic schedules."
+                ],
+                "schedule.startDate": [
+                    "This field is required for Periodic schedules."
+                ],
+                "schedule.endDate": [
+                    "This field is required for Periodic schedules."
+                ]
+            }
+        },
+        "ignore_fields": [
+            "instance"
+        ],
+        "extract_values": [
+            {
+                "from": "response",
+                "key": "status",
+                "assign_to": "resp_status"
+            }
+        ],
+        "validate": {
+            "performance": {
+                "max_response_time_ms": 500
+            },
+            "security": {
+                "checks": [
+                    "sql_injection",
+                    "xss"
+                ]
+            },
+            "data_comparison": [],
+            "assertions": [
+                {
+                    "actual": "{{resp_status}}",
+                    "expected": 400,
+                    "operator": "==",
+                    "message": "Response body status field should be 400"
+                }
+            ]
+        },
+        "test_data_file": "MoveMoneyAPI/data_driven/Data_ach_POST.csv",
+        "csv_row_index": 23,
+        "db_type": "",
+        "db_connection_name": "",
+        "test_summary": "Test TC024: POST /ach [Negative] - Verify 400 when schedule.frequency is missing for a Periodic schedule.",
+        "test_scenario": "Verify that the API returns a 400 Bad Request when frequency is omitted from a Periodic schedule.",
+        "db_query_timing": "after_api",
+        "db_queries": {
+            "default": "",
+            "audit_query": ""
+        }
+    },
+    {
+        "test_id": "TC025",
+        "service_name": "movemoney",
+        "workflow_mode": "parallel",
+        "test_name": "POST /ach [Negative] (TC025)",
+        "protocol": "REST",
+        "test_type": [
+            "Functional"
+        ],
+        "mainURL": "{{base_url}}",
+        "endpoint": "/ach",
+        "method": "POST",
+        "rpc_method": "",
+        "graphql_query": "",
+        "graphql_variables": "",
+        "soap_action": "",
+        "soap_envelope": "",
+        "headers_additional": {
+            "Content-Type": "application/json"
+        },
+        "payload": {
+            "instructionId": "{{instructionId}}",
+            "accountId": "{{accountId}}",
+            "amount": "{{amount}}",
+            "requestType": "{{requestType}}",
+            "status": "{{status}}",
+            "schedule": {
+                "paymentDate": "{{paymentDate}}"
+            }
+        },
+        "expected_status": "400",
+        "expected_response_schema": "",
+        "expected_response": {
+            "type": "invalid-request",
+            "title": "Invalid Request",
+            "status": 400,
+            "detail": "The request contains invalid values",
+            "instance": "/api/moneymovement/v1/ach",
+            "errors": {
+                "schedule.scheduleType": [
+                    "This field is required when schedule is provided."
+                ]
+            }
+        },
+        "ignore_fields": [
+            "instance"
+        ],
+        "extract_values": [
+            {
+                "from": "response",
+                "key": "status",
+                "assign_to": "resp_status"
+            }
+        ],
+        "validate": {
+            "performance": {
+                "max_response_time_ms": 500
+            },
+            "security": {
+                "checks": [
+                    "sql_injection",
+                    "xss"
+                ]
+            },
+            "data_comparison": [],
+            "assertions": [
+                {
+                    "actual": "{{resp_status}}",
+                    "expected": 400,
+                    "operator": "==",
+                    "message": "Response body status field should be 400"
+                }
+            ]
+        },
+        "test_data_file": "MoveMoneyAPI/data_driven/Data_ach_POST.csv",
+        "csv_row_index": 24,
+        "db_type": "",
+        "db_connection_name": "",
+        "test_summary": "Test TC025: POST /ach [Negative] - Verify 400 when schedule.scheduleType is missing while schedule object is provided.",
+        "test_scenario": "Verify that the API returns a 400 Bad Request when scheduleType is omitted from the schedule object.",
+        "db_query_timing": "after_api",
+        "db_queries": {
+            "default": "",
+            "audit_query": ""
+        }
+    },
+    {
+        "test_id": "TC026",
+        "service_name": "movemoney",
+        "workflow_mode": "parallel",
+        "test_name": "POST /ach [Negative] (TC026)",
+        "protocol": "REST",
+        "test_type": [
+            "Functional"
+        ],
+        "mainURL": "{{base_url}}",
+        "endpoint": "/ach",
+        "method": "POST",
+        "rpc_method": "",
+        "graphql_query": "",
+        "graphql_variables": "",
+        "soap_action": "",
+        "soap_envelope": "",
+        "headers_additional": {
+            "Content-Type": "application/json"
+        },
+        "payload": {
+            "instructionId": "{{instructionId}}",
+            "accountId": "{{accountId}}",
+            "amount": "{{amount}}",
+            "requestType": "{{requestType}}",
+            "status": "{{status}}",
+            "schedule": {
+                "scheduleType": "{{scheduleType}}",
+                "paymentDate": "{{paymentDate}}"
+            }
+        },
+        "expected_status": "400",
+        "expected_response_schema": "",
+        "expected_response": {
+            "type": "invalid-request",
+            "title": "Invalid Request",
+            "status": 400,
+            "detail": "The request contains invalid values",
+            "instance": "/api/moneymovement/v1/ach",
+            "errors": {
+                "schedule.scheduleType": [
+                    "Must be one of: OneTime, Periodic"
+                ]
+            }
+        },
+        "ignore_fields": [
+            "instance"
+        ],
+        "extract_values": [
+            {
+                "from": "response",
+                "key": "status",
+                "assign_to": "resp_status"
+            }
+        ],
+        "validate": {
+            "performance": {
+                "max_response_time_ms": 500
+            },
+            "security": {
+                "checks": [
+                    "sql_injection",
+                    "xss"
+                ]
+            },
+            "data_comparison": [],
+            "assertions": [
+                {
+                    "actual": "{{resp_status}}",
+                    "expected": 400,
+                    "operator": "==",
+                    "message": "Response body status field should be 400"
+                }
+            ]
+        },
+        "test_data_file": "MoveMoneyAPI/data_driven/Data_ach_POST.csv",
+        "csv_row_index": 25,
+        "db_type": "",
+        "db_connection_name": "",
+        "test_summary": "Test TC026: POST /ach [Negative] - Verify 400 when schedule.scheduleType has an invalid enum value.",
+        "test_scenario": "Verify that the API returns a 400 Bad Request when scheduleType is not OneTime or Periodic.",
+        "db_query_timing": "after_api",
+        "db_queries": {
+            "default": "",
+            "audit_query": ""
+        }
+    },
+    {
+        "test_id": "TC027",
+        "service_name": "movemoney",
+        "workflow_mode": "parallel",
+        "test_name": "POST /ach [Negative] (TC027)",
+        "protocol": "REST",
+        "test_type": [
+            "Functional"
+        ],
+        "mainURL": "{{base_url}}",
+        "endpoint": "/ach",
+        "method": "POST",
+        "rpc_method": "",
+        "graphql_query": "",
+        "graphql_variables": "",
+        "soap_action": "",
+        "soap_envelope": "",
+        "headers_additional": {
+            "Content-Type": "application/json"
+        },
+        "payload": {
+            "instructionId": "{{instructionId}}",
+            "accountId": "{{accountId}}",
+            "amount": "{{amount}}",
+            "requestType": "{{requestType}}",
+            "status": "{{status}}",
+            "reason": "{{reason}}",
+            "schedule": {
+                "scheduleType": "{{scheduleType}}",
+                "paymentDate": "{{paymentDate}}"
+            }
+        },
+        "expected_status": "400",
+        "expected_response_schema": "",
+        "expected_response": {
+            "type": "invalid-request",
+            "title": "Invalid Request",
+            "status": 400,
+            "detail": "The request contains invalid values",
+            "instance": "/api/moneymovement/v1/ach",
+            "errors": {
+                "reason": [
+                    "Must be a valid Reason code."
+                ]
+            }
+        },
+        "ignore_fields": [
+            "instance"
+        ],
+        "extract_values": [
+            {
+                "from": "response",
+                "key": "status",
+                "assign_to": "resp_status"
+            }
+        ],
+        "validate": {
+            "performance": {
+                "max_response_time_ms": 500
+            },
+            "security": {
+                "checks": [
+                    "sql_injection",
+                    "xss"
+                ]
+            },
+            "data_comparison": [],
+            "assertions": [
+                {
+                    "actual": "{{resp_status}}",
+                    "expected": 400,
+                    "operator": "==",
+                    "message": "Response body status field should be 400"
+                }
+            ]
+        },
+        "test_data_file": "MoveMoneyAPI/data_driven/Data_ach_POST.csv",
+        "csv_row_index": 26,
+        "db_type": "",
+        "db_connection_name": "",
+        "test_summary": "Test TC027: POST /ach [Negative] - Verify 400 when reason contains an invalid reason code.",
+        "test_scenario": "Verify that the API returns a 400 Bad Request when reason is not a valid reason code.",
+        "db_query_timing": "after_api",
+        "db_queries": {
+            "default": "",
+            "audit_query": ""
+        }
+    }
+]

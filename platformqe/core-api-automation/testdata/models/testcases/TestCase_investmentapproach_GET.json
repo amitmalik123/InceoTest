@@ -1,0 +1,768 @@
+[
+    {
+        "test_id": "TC001",
+        "service_name": "models",
+        "workflow_mode": "parallel",
+        "test_name": "POST /investmentapproach [positive] (TC001)",
+        "protocol": "REST",
+        "test_type": [
+            "Functional"
+        ],
+        "mainURL": "{{base_url}}",
+        "endpoint": "/investment-approaches",
+        "method": "POST",
+        "rpc_method": "",
+        "graphql_query": "",
+        "graphql_variables": "",
+        "soap_action": "",
+        "soap_envelope": "",
+        "headers_additional": {
+            "Content-Type": "application/json"
+        },
+        "payload": {
+            "name": "{{random_string()}}",
+            "isActive": true
+        },
+        "expected_status": "201",
+        "expected_response_schema": "models/schemas/Schema_investmentapproach_POST_response.json",
+        "expected_response": null,
+        "ignore_fields": [
+            "id"
+        ],
+        "extract_values": [
+            {
+                "from": "response",
+                "key": "id",
+                "assign_to": "investment_approach_id"
+            },
+            {
+                "from": "response",
+                "key": "name",
+                "assign_to": "response_name"
+            },
+            {
+                "from": "response",
+                "record_count": false,
+                "array_path": "",
+                "assign_to": ""
+            },
+            {
+                "from": "db_result",
+                "query": "",
+                "assign": [
+                    {
+                        "key": "",
+                        "assign_to": ""
+                    }
+                ]
+            }
+        ],
+        "validate": {
+            "performance": {
+                "max_response_time_ms": 500
+            },
+            "security": {
+                "checks": [
+                    "sql_injection",
+                    "xss"
+                ]
+            },
+            "data_comparison": [
+                {
+                    "source": "api_request",
+                    "target": "api_response",
+                    "format": "table",
+                    "key_field": [
+                        {
+                            "source": "",
+                            "target": ""
+                        }
+                    ],
+                    "fields_to_compare": [
+                        {
+                            "source": "name",
+                            "target": "name"
+                        },
+                        {
+                            "source": "isActive",
+                            "target": "isActive"
+                        }
+                    ],
+                    "log_differences": true,
+                    "comparison_name": "Request vs Response comparison - Validate name matches"
+                }
+            ]
+        },
+        "test_data_file": "",
+        "db_query_timing": "after_api",
+        "db_queries": {
+            "default": "",
+            "audit_query": ""
+        },
+        "db_type": "",
+        "db_connection_name": "",
+        "test_summary": "Test TC001: POST /investmentapproach [positive] (TC001)"
+    },
+    {
+        "test_id": "TC002",
+        "service_name": "models",
+        "workflow_mode": "sequential",
+        "test_name": "GET /investmentapproach - Get all [positive] (TC002)",
+        "protocol": "REST",
+        "test_type": [
+            "Functional"
+        ],
+        "mainURL": "{{base_url}}",
+        "endpoint": "/investment-approaches",
+        "method": "GET",
+        "rpc_method": "",
+        "graphql_query": "",
+        "graphql_variables": "",
+        "soap_action": "",
+        "soap_envelope": "",
+        "headers_additional": {
+            "Content-Type": "application/json"
+        },
+        "payload": null,
+        "expected_status": "200",
+        "expected_response_schema": "models/schemas/Schema_investmentapproach_GET_response.json",
+        "expected_response": null,
+        "ignore_fields": [],
+        "extract_values": [],
+        "validate": {
+            "performance": {
+                "max_response_time_ms": 500
+            },
+            "security": {
+                "checks": []
+            },
+            "data_comparison": []
+        },
+        "test_data_file": "",
+        "db_query_timing": "after_api",
+        "db_queries": {
+            "default": "",
+            "audit_query": ""
+        },
+        "db_type": "",
+        "db_connection_name": "",
+        "test_summary": "Test TC002: GET /investmentapproach - Retrieve all investment approaches without filters"
+    },
+    {
+        "test_id": "TC003",
+        "service_name": "models",
+        "workflow_mode": "sequential",
+        "test_name": "GET /investmentapproach - Filter by ID and IsActive [positive] (TC003)",
+        "protocol": "REST",
+        "test_type": [
+            "Functional"
+        ],
+        "mainURL": "{{base_url}}",
+        "endpoint": "/investment-approaches?Id={{investment_approach_id}}&IsActive=true",
+        "method": "GET",
+        "rpc_method": "",
+        "graphql_query": "",
+        "graphql_variables": "",
+        "soap_action": "",
+        "soap_envelope": "",
+        "headers_additional": {
+            "Content-Type": "application/json"
+        },
+        "payload": null,
+        "expected_status": "200",
+        "expected_response_schema": "models/schemas/Schema_investmentapproach_GET_response.json",
+        "expected_response": null,
+        "ignore_fields": [
+            "modifiedBy"
+        ],
+        "extract_values": [
+            {
+                "from": "response",
+                "key": "0.id",
+                "assign_to": "tc003_response_id"
+            },
+            {
+                "from": "response",
+                "key": "0.name",
+                "assign_to": "tc003_response_name"
+            },
+            {
+                "from": "response",
+                "key": "0.isActive",
+                "assign_to": "tc003_response_isActive"
+            }
+        ],
+        "validate": {
+            "performance": {
+                "max_response_time_ms": 500
+            },
+            "security": {
+                "checks": []
+            },
+            "assertions": [
+                {
+                    "actual": "{{tc003_response_id}}",
+                    "operator": "==",
+                    "expected": "{{investment_approach_id}}",
+                    "message": "Verify the returned ID matches the requested investment_approach_id from TC001"
+                },
+                {
+                    "actual": "{{tc003_response_name}}",
+                    "operator": "==",
+                    "expected": "{{response_name}}",
+                    "message": "Verify the returned name matches the name from TC001"
+                },
+                {
+                    "actual": "{{tc003_response_isActive}}",
+                    "operator": "==",
+                    "expected": true,
+                    "message": "Verify isActive is true as requested in filter"
+                }
+            ],
+            "data_comparison": []
+        },
+        "test_data_file": "",
+        "db_query_timing": "after_api",
+        "db_queries": {
+            "default": "",
+            "audit_query": ""
+        },
+        "db_type": "",
+        "db_connection_name": "",
+        "test_summary": "Test TC003: GET /investmentapproach - Filter by specific ID and IsActive=true, verify response matches TC001 data"
+    },
+    {
+        "test_id": "TC004",
+        "service_name": "models",
+        "workflow_mode": "parallel",
+        "test_name": "POST /investmentapproach [positive] (TC004)",
+        "protocol": "REST",
+        "test_type": [
+            "Functional"
+        ],
+        "mainURL": "{{base_url}}",
+        "endpoint": "/investment-approaches",
+        "method": "POST",
+        "rpc_method": "",
+        "graphql_query": "",
+        "graphql_variables": "",
+        "soap_action": "",
+        "soap_envelope": "",
+        "headers_additional": {
+            "Content-Type": "application/json"
+        },
+        "payload": {
+            "name": "{{random_string()}}",
+            "isActive": false
+        },
+        "expected_status": "201",
+        "expected_response_schema": "models/schemas/Schema_investmentapproach_POST_response.json",
+        "expected_response": null,
+        "ignore_fields": [
+            "id"
+        ],
+        "extract_values": [
+            {
+                "from": "response",
+                "key": "id",
+                "assign_to": "investment_approach_id"
+            },
+            {
+                "from": "response",
+                "key": "name",
+                "assign_to": "response_name"
+            },
+            {
+                "from": "response",
+                "record_count": false,
+                "array_path": "",
+                "assign_to": ""
+            },
+            {
+                "from": "db_result",
+                "query": "",
+                "assign": [
+                    {
+                        "key": "",
+                        "assign_to": ""
+                    }
+                ]
+            }
+        ],
+        "validate": {
+            "performance": {
+                "max_response_time_ms": 500
+            },
+            "security": {
+                "checks": [
+                    "sql_injection",
+                    "xss"
+                ]
+            },
+            "data_comparison": [
+                {
+                    "source": "api_request",
+                    "target": "api_response",
+                    "format": "table",
+                    "key_field": [
+                        {
+                            "source": "",
+                            "target": ""
+                        }
+                    ],
+                    "fields_to_compare": [
+                        {
+                            "source": "name",
+                            "target": "name"
+                        },
+                        {
+                            "source": "isActive",
+                            "target": "isActive"
+                        }
+                    ],
+                    "log_differences": true,
+                    "comparison_name": "Request vs Response comparison - Validate name matches"
+                }
+            ]
+        },
+        "test_data_file": "",
+        "db_query_timing": "after_api",
+        "db_queries": {
+            "default": "",
+            "audit_query": ""
+        },
+        "db_type": "",
+        "db_connection_name": "",
+        "test_summary": "Test TC004: POST /investmentapproach [positive] (TC004)"
+    },
+    {
+        "test_id": "TC005",
+        "service_name": "models",
+        "workflow_mode": "sequential",
+        "test_name": "GET /investmentapproach - Get all including inactive [positive] (TC005)",
+        "protocol": "REST",
+        "test_type": [
+            "Functional"
+        ],
+        "mainURL": "{{base_url}}",
+        "endpoint": "/investment-approaches",
+        "method": "GET",
+        "rpc_method": "",
+        "graphql_query": "",
+        "graphql_variables": "",
+        "soap_action": "",
+        "soap_envelope": "",
+        "headers_additional": {
+            "Content-Type": "application/json"
+        },
+        "payload": null,
+        "expected_status": "200",
+        "expected_response_schema": "models/schemas/Schema_investmentapproach_GET_response.json",
+        "expected_response": null,
+        "ignore_fields": [],
+        "extract_values": [],
+        "validate": {
+            "performance": {
+                "max_response_time_ms": 500
+            },
+            "security": {
+                "checks": []
+            },
+            "data_comparison": []
+        },
+        "test_data_file": "",
+        "db_query_timing": "after_api",
+        "db_queries": {
+            "default": "",
+            "audit_query": ""
+        },
+        "db_type": "",
+        "db_connection_name": "",
+        "test_summary": "Test TC005: GET /investmentapproach - Retrieve all investment approaches including inactive one from TC004"
+    },
+    {
+        "test_id": "TC006",
+        "service_name": "models",
+        "workflow_mode": "sequential",
+        "test_name": "GET /investmentapproach - Filter by ID and IsActive=false [positive] (TC006)",
+        "protocol": "REST",
+        "test_type": [
+            "Functional"
+        ],
+        "mainURL": "{{base_url}}",
+        "endpoint": "/investment-approaches?Id={{investment_approach_id}}&IsActive=false",
+        "method": "GET",
+        "rpc_method": "",
+        "graphql_query": "",
+        "graphql_variables": "",
+        "soap_action": "",
+        "soap_envelope": "",
+        "headers_additional": {
+            "Content-Type": "application/json"
+        },
+        "payload": null,
+        "expected_status": "200",
+        "expected_response_schema": "models/schemas/Schema_investmentapproach_GET_response.json",
+        "expected_response": null,
+        "ignore_fields": [
+            "modifiedBy"
+        ],
+        "extract_values": [
+            {
+                "from": "response",
+                "key": "0.id",
+                "assign_to": "tc006_response_id"
+            },
+            {
+                "from": "response",
+                "key": "0.name",
+                "assign_to": "tc006_response_name"
+            },
+            {
+                "from": "response",
+                "key": "0.isActive",
+                "assign_to": "tc006_response_isActive"
+            }
+        ],
+        "validate": {
+            "performance": {
+                "max_response_time_ms": 500
+            },
+            "security": {
+                "checks": []
+            },
+            "assertions": [
+                {
+                    "actual": "{{tc006_response_id}}",
+                    "operator": "==",
+                    "expected": "{{investment_approach_id}}",
+                    "message": "Verify the returned ID matches the requested investment_approach_id from TC004"
+                },
+                {
+                    "actual": "{{tc006_response_name}}",
+                    "operator": "==",
+                    "expected": "{{response_name}}",
+                    "message": "Verify the returned name matches the name from TC004"
+                },
+                {
+                    "actual": "{{tc006_response_isActive}}",
+                    "operator": "==",
+                    "expected": false,
+                    "message": "Verify isActive is false as requested in filter and set in TC004"
+                }
+            ],
+            "data_comparison": []
+        },
+        "test_data_file": "",
+        "db_query_timing": "after_api",
+        "db_queries": {
+            "default": "",
+            "audit_query": ""
+        },
+        "db_type": "",
+        "db_connection_name": "",
+        "test_summary": "Test TC006: GET /investmentapproach - Filter by specific ID and IsActive=false, verify response matches TC004 data"
+    },
+    {
+        "test_id": "TC007",
+        "service_name": "models",
+        "workflow_mode": "parallel",
+        "test_name": "GET /investmentapproach - Filter by IsActive=true only [positive] (TC007)",
+        "protocol": "REST",
+        "test_type": [
+            "Functional"
+        ],
+        "mainURL": "{{base_url}}",
+        "endpoint": "/investment-approaches?IsActive=true",
+        "method": "GET",
+        "rpc_method": "",
+        "graphql_query": "",
+        "graphql_variables": "",
+        "soap_action": "",
+        "soap_envelope": "",
+        "headers_additional": {
+            "Content-Type": "application/json"
+        },
+        "payload": null,
+        "expected_status": "200",
+        "expected_response_schema": "models/schemas/Schema_investmentapproach_GET_response.json",
+        "expected_response": [
+            {
+                "isActive": true
+            }
+        ],
+        "ignore_fields": [
+            "modifiedBy",
+            "id",
+            "name"
+        ],
+        "extract_values": [],
+        "validate": {
+            "performance": {
+                "max_response_time_ms": 500
+            },
+            "security": {
+                "checks": []
+            },
+            "fields": [
+                {
+                    "field": "isActive",
+                    "expected_value": true
+                }
+            ],
+            "data_comparison": []
+        },
+        "test_data_file": "",
+        "db_query_timing": "after_api",
+        "db_queries": {
+            "default": "",
+            "audit_query": ""
+        },
+        "db_type": "",
+        "db_connection_name": "",
+        "test_summary": "Test TC007: GET /investmentapproach - Filter by IsActive=true only, validate response contains only active items"
+    },
+    {
+        "test_id": "TC008",
+        "service_name": "models",
+        "workflow_mode": "parallel",
+        "test_name": "GET /investmentapproach - Filter by IsActive=false only [positive] (TC008)",
+        "protocol": "REST",
+        "test_type": [
+            "Functional"
+        ],
+        "mainURL": "{{base_url}}",
+        "endpoint": "/investment-approaches?IsActive=false",
+        "method": "GET",
+        "rpc_method": "",
+        "graphql_query": "",
+        "graphql_variables": "",
+        "soap_action": "",
+        "soap_envelope": "",
+        "headers_additional": {
+            "Content-Type": "application/json"
+        },
+        "payload": null,
+        "expected_status": "200",
+        "expected_response_schema": "models/schemas/Schema_investmentapproach_GET_response.json",
+        "expected_response": [
+            {
+                "isActive": false
+            }
+        ],
+        "ignore_fields": [
+            "modifiedBy",
+            "id",
+            "name"
+        ],
+        "extract_values": [],
+        "validate": {
+            "performance": {
+                "max_response_time_ms": 500
+            },
+            "security": {
+                "checks": []
+            },
+            "fields": [
+                {
+                    "field": "isActive",
+                    "expected_value": false
+                }
+            ],
+            "data_comparison": []
+        },
+        "test_data_file": "",
+        "db_query_timing": "after_api",
+        "db_queries": {
+            "default": "",
+            "audit_query": ""
+        },
+        "db_type": "",
+        "db_connection_name": "",
+        "test_summary": "Test TC008: GET /investmentapproach - Filter by IsActive=false only, validate response contains only inactive items"
+    },
+    {
+        "test_id": "TC009",
+        "service_name": "models",
+        "workflow_mode": "parallel",
+        "test_name": "GET /investmentapproach - Invalid IsActive value [negative] (TC009)",
+        "protocol": "REST",
+        "test_type": [
+            "Functional",
+            "Negative"
+        ],
+        "mainURL": "{{base_url}}",
+        "endpoint": "/investment-approaches?IsActive=invalid",
+        "method": "GET",
+        "rpc_method": "",
+        "graphql_query": "",
+        "graphql_variables": "",
+        "soap_action": "",
+        "soap_envelope": "",
+        "headers_additional": {
+            "Content-Type": "application/json"
+        },
+        "payload": null,
+        "expected_status": "500",
+        "expected_response_schema": "",
+        "expected_response": null,
+        "ignore_fields": [],
+        "extract_values": [],
+        "validate": {
+            "performance": {
+                "max_response_time_ms": 500
+            },
+            "security": {
+                "checks": []
+            },
+            "data_comparison": []
+        },
+        "test_data_file": "",
+        "db_query_timing": "after_api",
+        "db_queries": {
+            "default": "",
+            "audit_query": ""
+        },
+        "db_type": "",
+        "db_connection_name": "",
+        "test_summary": "Test TC009: GET /investmentapproach - Invalid IsActive value should return 500 Internal Server Error"
+    },
+    {
+        "test_id": "TC010",
+        "service_name": "models",
+        "workflow_mode": "parallel",
+        "test_name": "GET /investmentapproach - String instead of boolean [negative] (TC010)",
+        "protocol": "REST",
+        "test_type": [
+            "Functional",
+            "Negative"
+        ],
+        "mainURL": "{{base_url}}",
+        "endpoint": "/investment-approaches?IsActive=yes",
+        "method": "GET",
+        "rpc_method": "",
+        "graphql_query": "",
+        "graphql_variables": "",
+        "soap_action": "",
+        "soap_envelope": "",
+        "headers_additional": {
+            "Content-Type": "application/json"
+        },
+        "payload": null,
+        "expected_status": "500",
+        "expected_response_schema": "",
+        "expected_response": null,
+        "ignore_fields": [],
+        "extract_values": [],
+        "validate": {
+            "performance": {
+                "max_response_time_ms": 500
+            },
+            "security": {
+                "checks": []
+            },
+            "data_comparison": []
+        },
+        "test_data_file": "",
+        "db_query_timing": "after_api",
+        "db_queries": {
+            "default": "",
+            "audit_query": ""
+        },
+        "db_type": "",
+        "db_connection_name": "",
+        "test_summary": "Test TC010: GET /investmentapproach - String value for boolean filter should return 500 Internal Server Error"
+    },
+    {
+        "test_id": "TC011",
+        "service_name": "models",
+        "workflow_mode": "parallel",
+        "test_name": "GET /investmentapproach - Empty filter value [negative] (TC011)",
+        "protocol": "REST",
+        "test_type": [
+            "Functional",
+            "Negative"
+        ],
+        "mainURL": "{{base_url}}",
+        "endpoint": "/investment-approaches?IsActive=",
+        "method": "GET",
+        "rpc_method": "",
+        "graphql_query": "",
+        "graphql_variables": "",
+        "soap_action": "",
+        "soap_envelope": "",
+        "headers_additional": {
+            "Content-Type": "application/json"
+        },
+        "payload": null,
+        "expected_status": "500",
+        "expected_response_schema": "",
+        "expected_response": null,
+        "ignore_fields": [],
+        "extract_values": [],
+        "validate": {
+            "performance": {
+                "max_response_time_ms": 500
+            },
+            "security": {
+                "checks": []
+            },
+            "data_comparison": []
+        },
+        "test_data_file": "",
+        "db_query_timing": "after_api",
+        "db_queries": {
+            "default": "",
+            "audit_query": ""
+        },
+        "db_type": "",
+        "db_connection_name": "",
+        "test_summary": "Test TC011: GET /investmentapproach - Empty filter value should return 500 Internal Server Error"
+    },
+    {
+        "test_id": "TC012",
+        "service_name": "models",
+        "workflow_mode": "parallel",
+        "test_name": "GET /investmentapproach - Non-existent ID [negative] (TC012)",
+        "protocol": "REST",
+        "test_type": [
+            "Functional",
+            "Negative"
+        ],
+        "mainURL": "{{base_url}}",
+        "endpoint": "/investment-approaches?Id=999999999&IsActive=true",
+        "method": "GET",
+        "rpc_method": "",
+        "graphql_query": "",
+        "graphql_variables": "",
+        "soap_action": "",
+        "soap_envelope": "",
+        "headers_additional": {
+            "Content-Type": "application/json"
+        },
+        "payload": null,
+        "expected_status": "204",
+        "expected_response_schema": "",
+        "expected_response": [],
+        "ignore_fields": [],
+        "extract_values": [],
+        "validate": {
+            "performance": {
+                "max_response_time_ms": 500
+            },
+            "security": {
+                "checks": []
+            },
+            "data_comparison": []
+        },
+        "test_data_file": "",
+        "db_query_timing": "after_api",
+        "db_queries": {
+            "default": "",
+            "audit_query": ""
+        },
+        "db_type": "",
+        "db_connection_name": "",
+        "test_summary": "Test TC012: GET /investmentapproach - Non-existent ID should return empty array"
+    }
+]

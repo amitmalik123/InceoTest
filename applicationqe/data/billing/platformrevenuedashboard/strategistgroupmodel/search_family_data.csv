@@ -1,0 +1,2 @@
+case_id,full_name_all,partial_name_all,missing_name_all,partial_name_pending,partial_name_rejected,missing_name_rejected
+SearchMatrix01,Test_Model,Test,ZZZ_NOT_PRESENT_ALL,Test,TEST_6,ZZZ_NOT_PRESENT_REJECTED

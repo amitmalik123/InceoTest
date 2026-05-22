@@ -1,0 +1,73 @@
+{
+  "requestType": "BeneficiaryChange",
+  "accounts": [
+    {
+      "accountId": "{{valid_account_id}}",
+      "parties": [
+        { "partyId": "{{valid_party_id}}", "action": "Add" },
+        { "partyId": "{{valid_party_id_2}}", "action": "Update" }
+      ]
+    },
+    {
+      "accountId": "{{valid_account_id_2}}",
+      "parties": [
+        { "partyId": "{{valid_party_id_2}}", "action": "Remove" },
+        { "partyId": "{{valid_party_id}}", "action": "Add" }
+      ]
+    },
+    {
+      "accountId": "{{valid_account_id}}",
+      "parties": [
+        { "partyId": "{{valid_party_id_2}}", "action": "Remove" },
+        { "partyId": "{{valid_party_id}}", "action": "Update" }
+      ]
+    },
+    {
+      "accountId": "{{valid_account_id_2}}",
+      "parties": [
+        { "partyId": "{{valid_party_id}}", "action": "Update" }
+      ]
+    },
+    {
+      "accountId": "{{valid_account_id}}",
+      "parties": [
+        { "partyId": "{{valid_party_id}}", "action": "Remove" }
+      ]
+    },
+    {
+      "accountId": "{{valid_account_id_2}}",
+      "parties": [
+        { "partyId": "{{valid_party_id_2}}", "action": "Add" }
+      ]
+    },
+    {
+      "accountId": "{{valid_account_id}}",
+      "parties": [
+        { "partyId": "{{valid_party_id_2}}", "action": "Add" }
+      ]
+    },
+    {
+      "accountId": "{{valid_account_id_2}}",
+      "parties": [
+        { "partyId": "{{valid_party_id}}", "action": "Update" }
+      ]
+    },
+    {
+      "accountId": "{{valid_account_id}}",
+      "parties": [
+        { "partyId": "{{valid_party_id}}", "action": "Add" },
+        { "partyId": "{{valid_party_id_2}}", "action": "Update" }
+      ]
+    },
+    {
+      "accountId": "{{valid_account_id_2}}",
+      "parties": [
+        { "partyId": "{{valid_party_id_2}}", "action": "Remove" },
+        { "partyId": "{{valid_party_id}}", "action": "Add" }
+      ]
+    }
+  ],
+  "metaData": {
+    "ItemNumber": "D12345678"
+  }
+}

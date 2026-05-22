@@ -1,0 +1,169 @@
+[
+    {
+        "test_id": "TC001",
+        "service_name": "DocusignProxyservice",
+        "workflow_mode": "parallel",
+        "test_name": "GET /api/docusignproxy/v2/Health/status [positive] (TC001)",
+        "protocol": "REST",
+        "test_type": [
+            "Functional"
+        ],
+        "mainURL": "{{base_url}}",
+        "endpoint": "/api/docusignproxy/v2/Health/status",
+        "method": "GET",
+        "rpc_method": "",
+        "graphql_query": "",
+        "graphql_variables": "",
+        "soap_action": "",
+        "soap_envelope": "",
+        "headers_additional": {
+            "Content-Type": "application/json"
+        },
+        "payload": null,
+        "expected_status": "200",
+        "expected_response_schema": "DocusignProxyservice\\schemas\\Schema_api_docusignproxy_v2_Health_status_GET.json",
+        "expected_response": null,
+        "ignore_fields": [
+            "id"
+        ],
+        "extract_values": [
+            {
+                "from": "response",
+                "key": "0.status",
+                "assign_to": "response_docusignstatus"
+            },
+            {
+                "from": "response",
+                "key": "0.description",
+                "assign_to": "response_docusigndescription"
+            },
+            {
+                "from": "response",
+                "key": "1.status",
+                "assign_to": "response_MemoryCache_status"
+            },
+            {
+                "from": "response",
+                "key": "1.description",
+                "assign_to": "response_MemoryCache_description"
+            },
+            {
+                "from": "db_result",
+                "query": "",
+                "assign": [
+                    {
+                        "key": "",
+                        "assign_to": ""
+                    }
+                ]
+            }
+        ],
+        "validate": {
+            "performance": {
+                "max_response_time_ms": 2000
+            },
+            "security": {
+                "checks": [
+                    "sql_injection",
+                    "xss"
+                ]
+            },
+            "assertions": [
+                {
+                    "actual": "{{response_docusignstatus}}",
+                    "operator": "==",
+                    "expected": "Healthy",
+                    "message": "Verify docuSignstatus field is Healthy"
+                },
+                {
+                    "actual": "{{response_docusigndescription}}",
+                    "operator": "==",
+                    "expected": null,
+                    "message": "Verify docuSign description is null"
+                },
+                {
+                    "actual": "{{response_MemoryCache_status}}",
+                    "operator": "==",
+                    "expected": "Healthy",
+                    "message": "Verify MemoryCache status is Healthy"
+                },
+                {
+                    "actual": "{{response_MemoryCache_description}}",
+                    "operator": "==",
+                    "expected": null,
+                    "message": "Verify MemoryCache description is null"
+                }
+            ],
+            "data_comparison": []
+        },
+        "test_data_file": "",
+        "db_query_timing": "after_api",
+        "db_queries": {
+            "default": "",
+            "audit_query": ""
+        },
+        "db_type": "",
+        "db_connection_name": "",
+        "test_summary": "Test TC001: GET /api/docusignproxy/v2/Health/status [positive] (TC001)"
+    },
+    {
+        "test_id": "TC002",
+        "disable_db_comparison": true,
+        "service_name": "DocusignProxyservice",
+        "workflow_mode": "parallel",
+        "test_name": "GET /api/docusignproxy/v2/Health/status [negative: extra param] (TC002)",
+        "protocol": "REST",
+        "test_type": [
+            "Negative"
+        ],
+        "mainURL": "{{base_url}}",
+        "endpoint": "/api/docusignproxy/v2/Healthyyyty/status?unexpected_param=unexpected",
+        "method": "GET",
+        "rpc_method": "",
+        "graphql_query": "",
+        "graphql_variables": "",
+        "soap_action": "",
+        "soap_envelope": "",
+        "headers_additional": {
+            "Accept": "application/xml"
+        },
+        "payload": null,
+        "expected_status": "404",
+        "expected_response_schema": "",
+        "expected_response": null,
+        "ignore_fields": [
+            "id"
+        ],
+        "extract_values": [
+            {
+                "from": "response",
+                "key": "",
+                "assign_to": ""
+            }
+        ],
+        "validate": {
+            "performance": {
+                "max_response_time_ms": 1000
+            },
+            "security": {
+                "checks": [
+                    "sql_injection",
+                    "xss"
+                ]
+            },
+            "data_comparison": []
+        },
+        "test_data_file": "",
+        "db_query_timing": "after_api",
+        "db_queries": {
+            "default": "",
+            "audit_query": ""
+        },
+        "db_type": "",
+        "db_connection_name": "",
+        "test_summary": "Test TC002: GET /api/docusignproxy/v2/Health/status [negative: extra param] (TC002)",
+        "extra_param": {
+            "unexpected_param": "jjqtyfdgdf"
+        }
+    }
+]

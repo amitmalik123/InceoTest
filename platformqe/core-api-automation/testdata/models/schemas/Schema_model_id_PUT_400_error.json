@@ -1,0 +1,41 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "Invalid JSON Error Response",
+  "type": "object",
+  "properties": {
+    "title": {
+      "type": "string",
+      "enum": [
+        "Invalid JSON"
+      ],
+      "description": "Short description of the error"
+    },
+    "status": {
+      "type": "integer",
+      "enum": [
+        400
+      ],
+      "description": "HTTP status code indicating a bad request"
+    },
+    "detail": {
+      "type": "string",
+      "description": "Detailed error message explaining the invalid JSON payload"
+    },
+    "type": {
+      "type": "string",
+      "description": "A URI reference identifying the problem type (RFC 9457 AC2)"
+    },
+    "instance": {
+      "type": "string",
+      "description": "A URI reference that identifies the specific occurrence / request path (RFC 9457 AC5)"
+    }
+  },
+  "required": [
+    "title",
+    "status",
+    "detail",
+    "type",
+    "instance"
+  ],
+  "additionalProperties": true
+}

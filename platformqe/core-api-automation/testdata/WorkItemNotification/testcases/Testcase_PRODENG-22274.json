@@ -1,0 +1,65 @@
+[
+    {
+        "test_id": "PRODENG-22274",
+        "service_name": "WorkItemNotification",
+        "workflow_mode": "sequential",
+        "test_name": "Validate all EV columns are 1 in NotificationPreferences",
+        "protocol": "DB_ONLY",
+        "test_type": "Functional",
+        "mainURL": "",
+        "endpoint": "",
+        "method": "",
+        "rpc_method": "",
+        "graphql_query": "",
+        "graphql_variables": "",
+        "soap_action": "",
+        "soap_envelope": "",
+        "headers_additional": {
+            "Content-Type": "application/json"
+        },
+        "payload": null,
+        "expected_status": "",
+        "expected_response_schema": "",
+        "expected_response": "",
+        "extract_values": [
+            {
+                "from": "db_result",
+                "key": "all_ev_1_count",
+                "assign_to": "all_ev_1_count_value"
+            }
+        ],
+        "validate": {
+            "performance": {
+                "max_response_time_ms": null
+            },
+            "security": {
+                "checks": [
+                    [
+                        "sql_injection"
+                    ]
+                ]
+            },
+            "data_comparison": {
+                "source": "db_result",
+                "target": null,
+                "format": "table",
+                "key_field": [
+                    "all_ev_1_count"
+                ],
+                "fields_to_compare": [
+                    {
+                        "source_field": "all_ev_1_count",
+                        "comparison": "greater_than",
+                        "expected_value": 0
+                    }
+                ],
+                "log_differences": true
+            }
+        },
+        "test_data_file": "",
+        "db_type": "mssql",
+        "db_connection_name": "work_item_notification",
+        "db_query": "SELECT COUNT(*) as all_ev_1_count FROM NotificationPreferences WHERE ReceivedCompletedNewAccountsEV = 1 AND ReceivedCompletedMoneyInEV = 1 AND ReceivedCompletedStandingInstructionsEV = 1 AND ReceivedCompletedInvestmentChangesEV = 1 AND ReceivedCompletedWithdrawalsEV = 1 AND ReceivedCompletedTerminationsEV = 1",
+        "test_summary": "Test PRODENG-22274: Validate all EV columns are 1 in NotificationPreferences"
+    }
+]

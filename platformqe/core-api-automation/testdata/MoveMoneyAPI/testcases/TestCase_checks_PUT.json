@@ -1,0 +1,2182 @@
+[
+    {
+        "test_id": "TC001_SETUP",
+        "service_name": "movemoney",
+        "workflow_mode": "sequential",
+        "test_name": "POST /check [positive] (TC001_SETUP)",
+        "protocol": "REST",
+        "test_type": [
+            "Functional"
+        ],
+        "mainURL": "{{base_url}}",
+        "endpoint": "/check",
+        "method": "POST",
+        "rpc_method": "",
+        "graphql_query": "",
+        "graphql_variables": "",
+        "soap_action": "",
+        "soap_envelope": "",
+        "headers_additional": {
+            "Content-Type": "application/json"
+        },
+        "payload": {
+            "amount": "15000.00",
+            "requestType": "Deposit",
+            "status": "Confirmed",
+            "checkDepositDetails": {
+                "checkNumber": "4821",
+                "checkSource": "Physical",
+                "checkType": "Personal",
+                "checkAmount": 15000.0,
+                "alphaAmount": "Fifteen Thousand only",
+                "checkDate": "2026-03-28T00:00:00Z",
+                "bankName": "Wells Fargo",
+                "bankAccountNumber": "78201934556",
+                "routingNumber": "121000248",
+                "remitterName": "John Smith",
+                "allocations": [
+                    {
+                        "accountId": "a1b2c3d4-e5f6-7890-abcd-ef1234567890",
+                        "allocationUnitType": "Amount",
+                        "amount": 10000.0
+                    },
+                    {
+                        "accountId": "b2c3d4e5-f6a7-8901-bcde-f12345678901",
+                        "allocationUnitType": "Amount",
+                        "amount": 5000.0
+                    }
+                ]
+            }
+        },
+        "expected_status": "200",
+        "expected_response_schema": "",
+        "expected_response": null,
+        "ignore_fields": [
+            "id"
+        ],
+        "extract_values": [
+            {
+                "from": "response",
+                "key": "requestId",
+                "assign_to": "requestId_setup"
+            },
+            {
+                "from": "response",
+                "key": "version",
+                "assign_to": "version_setup"
+            }
+        ],
+        "validate": {
+            "performance": {
+                "max_response_time_ms": 500
+            },
+            "security": {
+                "checks": [
+                    "sql_injection",
+                    "xss"
+                ]
+            },
+            "assertions": [
+                {
+                    "actual": "{{requestId_setup}}",
+                    "expected": "",
+                    "operator": "!=",
+                    "message": "RequestId should not be empty"
+                },
+                {
+                    "actual": "{{version_setup}}",
+                    "expected": 1,
+                    "operator": "==",
+                    "message": "Version should be 1 for new check request"
+                }
+            ],
+            "data_comparison": []
+        },
+        "test_data_file": "",
+        "csv_row_index": 0,
+        "db_query_timing": "",
+        "db_queries": "",
+        "db_type": "",
+        "db_connection_name": "",
+        "test_summary": "Setup test: Create a new check request to use for PUT Deposit"
+    },
+    {
+        "test_id": "TC001",
+        "service_name": "movemoney",
+        "workflow_mode": "sequential",
+        "test_name": "PUT /check/{requestId} [positive] (TC001)",
+        "protocol": "REST",
+        "test_type": [
+            "Functional"
+        ],
+        "mainURL": "{{base_url}}",
+        "endpoint": "/check/{{requestId_setup}}",
+        "method": "PUT",
+        "rpc_method": "",
+        "graphql_query": "",
+        "graphql_variables": "",
+        "soap_action": "",
+        "soap_envelope": "",
+        "headers_additional": {
+            "Content-Type": "application/json"
+        },
+        "payload": {
+            "amount": "15000.00",
+            "requestType": "Deposit",
+            "status": "Confirmed",
+            "version": "{{version_setup}}",
+            "checkDepositDetails": {
+                "checkNumber": "4821",
+                "checkSource": "Physical",
+                "checkType": "Personal",
+                "checkAmount": 15000.0,
+                "checkDate": "2026-03-28T00:00:00Z",
+                "bankName": "Wells Fargo",
+                "bankAccountNumber": "78201934556",
+                "routingNumber": "121000248",
+                "remitterName": "John Smith",
+                "alphaAmount": "Fifteen Thousand only",
+                "allocations": [
+                    {
+                        "accountId": "a1b2c3d4-e5f6-7890-abcd-ef1234567890",
+                        "allocationUnitType": "percent",
+                        "percent": 60.0
+                    },
+                    {
+                        "accountId": "b2c3d4e5-f6a7-8901-bcde-f12345678901",
+                        "allocationUnitType": "percent",
+                        "percent": 40.0
+                    }
+                ]
+            }
+        },
+        "expected_status": "200",
+        "expected_response_schema": "MoveMoneyAPI\\schemas\\Schema_check_PUT.json",
+        "expected_response": null,
+        "ignore_fields": [
+            "id"
+        ],
+        "extract_values": [
+            {
+                "from": "response",
+                "key": "requestId",
+                "assign_to": "requestId_tc001"
+            },
+            {
+                "from": "response",
+                "key": "version",
+                "assign_to": "version_tc001"
+            }
+        ],
+        "validate": {
+            "performance": {
+                "max_response_time_ms": 500
+            },
+            "security": {
+                "checks": [
+                    "sql_injection",
+                    "xss"
+                ]
+            },
+            "assertions": [
+                {
+                    "actual": "{{requestId_tc001}}",
+                    "expected": "",
+                    "operator": "!=",
+                    "message": "RequestId should not be empty"
+                },
+                {
+                    "actual": "{{version_tc001}}",
+                    "expected": "{{version_setup}}",
+                    "operator": ">",
+                    "message": "Version should be incremented"
+                }
+            ],
+            "data_comparison": []
+        },
+        "test_data_file": "",
+        "csv_row_index": 0,
+        "db_query_timing": "",
+        "db_queries": {},
+        "db_type": "",
+        "db_connection_name": "",
+        "test_summary": "Updates an existing check request with version chaining and verifies updated fields are returned in API response for check deposit"
+    },
+    {
+        "test_id": "TC002",
+        "service_name": "movemoney",
+        "workflow_mode": "sequential",
+        "test_name": "PUT /check/{requestId} [positive] (TC002)",
+        "protocol": "REST",
+        "test_type": [
+            "Functional"
+        ],
+        "mainURL": "{{base_url}}",
+        "endpoint": "/check/{{requestId_tc001}}",
+        "method": "PUT",
+        "rpc_method": "",
+        "graphql_query": "",
+        "graphql_variables": "",
+        "soap_action": "",
+        "soap_envelope": "",
+        "headers_additional": {
+            "Content-Type": "application/json"
+        },
+        "payload": {
+            "amount": "2750.00",
+            "requestType": "Deposit",
+            "status": "Confirmed",
+            "version": "{{version_tc001}}",
+            "checkDepositDetails": {
+                "checkNumber": "10092",
+                "checkSource": "Electronic",
+                "checkAmount": 2750.0,
+                "checkDate": "2026-03-30T00:00:00Z",
+                "bankName": "Bank of America",
+                "bankAccountNumber": "4455667788",
+                "routingNumber": "026009593",
+                "remitterName": "Sarah Johnson",
+                "alphaAmount": "Two Thousand Seven Hundred Fifty only",
+                "allocations": [
+                    {
+                        "accountId": "a1b2c3d4-e5f6-7890-abcd-ef1234567890",
+                        "allocationUnitType": "percent",
+                        "percent": 100.0
+                    }
+                ]
+            }
+        },
+        "expected_status": "200",
+        "expected_response_schema": null,
+        "expected_response": null,
+        "ignore_fields": [
+            "id"
+        ],
+        "extract_values": [
+            {
+                "from": "response",
+                "key": "requestId",
+                "assign_to": "requestId_tc002"
+            },
+            {
+                "from": "response",
+                "key": "version",
+                "assign_to": "version_tc002"
+            }
+        ],
+        "validate": {
+            "performance": {
+                "max_response_time_ms": 500
+            },
+            "security": {
+                "checks": [
+                    "sql_injection",
+                    "xss"
+                ]
+            },
+            "assertions": [
+                {
+                    "actual": "{{requestId_tc002}}",
+                    "expected": "",
+                    "operator": "!=",
+                    "message": "RequestId should not be empty"
+                },
+                {
+                    "actual": "{{version_tc002}}",
+                    "expected": "{{version_tc001}}",
+                    "operator": ">",
+                    "message": "Version should be incremented after amount correction"
+                }
+            ],
+            "data_comparison": []
+        },
+        "test_data_file": "",
+        "csv_row_index": 0,
+        "db_query_timing": "",
+        "db_queries": {},
+        "db_type": "",
+        "db_connection_name": "",
+        "test_summary": "Verify the API Returns 200 OK response to update a check request with all required fields for Deposit amount correction only no allocations"
+    },
+    {
+        "test_id": "TC003_SETUP",
+        "service_name": "movemoney",
+        "workflow_mode": "sequential",
+        "test_name": "POST /check [positive] (TC003_SETUP)",
+        "protocol": "REST",
+        "test_type": [
+            "Functional"
+        ],
+        "mainURL": "{{base_url}}",
+        "endpoint": "/check",
+        "method": "POST",
+        "rpc_method": "",
+        "graphql_query": "",
+        "graphql_variables": "",
+        "soap_action": "",
+        "soap_envelope": "",
+        "headers_additional": {
+            "Content-Type": "application/json"
+        },
+        "payload": {
+            "amount": "3200.00",
+            "requestType": "Withdrawal",
+            "status": "Confirmed",
+            "checkWithdrawalDetails": {
+                "instructionId": "0259032c-b55f-4913-a566-d3d4a52690d7",
+                "deliveryType": "Overnight",
+                "chargeOvernightFee": true,
+                "memoLine": "Q1 2026 Distribution",
+                "schedule": {
+                    "scheduleType": "Periodic",
+                    "frequency": "Monthly",
+                    "startDate": "2027-04-15",
+                    "endDate": "2028-12-15"
+                }
+            }
+        },
+        "expected_status": "200",
+        "expected_response_schema": "",
+        "expected_response": null,
+        "ignore_fields": [
+            "id"
+        ],
+        "extract_values": [
+            {
+                "from": "response",
+                "key": "requestId",
+                "assign_to": "requestId_tc003_setup"
+            },
+            {
+                "from": "response",
+                "key": "version",
+                "assign_to": "version_tc003_setup"
+            }
+        ],
+        "validate": {
+            "performance": {
+                "max_response_time_ms": 500
+            },
+            "security": {
+                "checks": [
+                    "sql_injection",
+                    "xss"
+                ]
+            },
+            "assertions": [
+                {
+                    "actual": "{{requestId_tc003_setup}}",
+                    "expected": "",
+                    "operator": "!=",
+                    "message": "RequestId should not be empty"
+                },
+                {
+                    "actual": "{{version_tc003_setup}}",
+                    "expected": 1,
+                    "operator": "==",
+                    "message": "Version should be 1 for new check request"
+                }
+            ],
+            "data_comparison": []
+        },
+        "test_data_file": "",
+        "csv_row_index": 0,
+        "db_query_timing": "",
+        "db_queries": "",
+        "db_type": "",
+        "db_connection_name": "",
+        "test_summary": "Setup test: Create a new check request to use for PUT Withdrawal"
+    },
+    {
+        "test_id": "TC003",
+        "service_name": "movemoney",
+        "workflow_mode": "sequential",
+        "test_name": "PUT /check/{requestId_tc003_setup} [positive] (TC003)",
+        "protocol": "REST",
+        "test_type": [
+            "Functional"
+        ],
+        "mainURL": "{{base_url}}",
+        "endpoint": "/check/{{requestId_tc003_setup}}",
+        "method": "PUT",
+        "rpc_method": "",
+        "graphql_query": "",
+        "graphql_variables": "",
+        "soap_action": "",
+        "soap_envelope": "",
+        "headers_additional": {
+            "Content-Type": "application/json"
+        },
+        "payload": {
+            "version": "{{version_tc003_setup}}",
+            "amount": "5200.00",
+            "requestType": "Withdrawal",
+            "status": "Confirmed",
+            "checkWithdrawalDetails": {
+                "instructionId": "0259032c-b55f-4913-a566-d3d4a52690d7",
+                "deliveryType": "Overnight",
+                "chargeOvernightFee": true,
+                "memoLine": "Q1 2026 Distribution",
+                "schedule": {
+                    "scheduleType": "Periodic",
+                    "frequency": "Monthly",
+                    "startDate": "2027-04-15",
+                    "endDate": "2028-12-15"
+                }
+            }
+        },
+        "expected_status": "200",
+        "expected_response_schema": "MoveMoneyAPI\\schemas\\Schema_check_PUT.json",
+        "expected_response": null,
+        "ignore_fields": [
+            "id"
+        ],
+        "extract_values": [
+            {
+                "from": "response",
+                "key": "requestId",
+                "assign_to": "requestId_tc003"
+            },
+            {
+                "from": "response",
+                "key": "version",
+                "assign_to": "version_tc003"
+            }
+        ],
+        "validate": {
+            "performance": {
+                "max_response_time_ms": 500
+            },
+            "security": {
+                "checks": [
+                    "sql_injection",
+                    "xss"
+                ]
+            },
+            "assertions": [
+                {
+                    "actual": "{{requestId_tc003}}",
+                    "expected": "",
+                    "operator": "!=",
+                    "message": "RequestId should not be empty"
+                },
+                {
+                    "actual": "{{version_tc003}}",
+                    "expected": "{{version_tc003_setup}}",
+                    "operator": ">",
+                    "message": "Version should be incremented"
+                }
+            ],
+            "data_comparison": []
+        },
+        "test_data_file": "",
+        "csv_row_index": 0,
+        "db_query_timing": "",
+        "db_queries": {},
+        "db_type": "",
+        "db_connection_name": "",
+        "test_summary": "Updates an existing check request with version chaining and verifies updated fields are returned in API response for check withdrawal"
+    },
+    {
+        "test_id": "TC004",
+        "service_name": "movemoney",
+        "workflow_mode": "sequential",
+        "test_name": "Invalid RequestId for PUT /check/{requestId} [Negative] (TC003)",
+        "protocol": "REST",
+        "test_type": [
+            "Functional"
+        ],
+        "mainURL": "{{base_url}}",
+        "endpoint": "/check/{{requestId_tc003}}",
+        "method": "PUT",
+        "rpc_method": "",
+        "graphql_query": "",
+        "graphql_variables": "",
+        "soap_action": "",
+        "soap_envelope": "",
+        "headers_additional": {
+            "Content-Type": "application/json"
+        },
+        "payload": {
+            "version": "{{version}}",
+            "amount": "{{amount}}",
+            "requestType": "{{requestType}}",
+            "status": "{{status}}",
+            "checkWithdrawalDetails": {
+                "instructionId": "{{instructionId}}",
+                "deliveryType": "{{deliveryType}}",
+                "chargeOvernightFee": "{{chargeOvernightFee}}",
+                "memoLine": "{{memoLine}}",
+                "schedule": {
+                    "scheduleType": "{{scheduleType}}",
+                    "frequency": "{{frequency}}",
+                    "startDate": "{{startDate}}",
+                    "endDate": "{{endDate}}"
+                }
+            }
+        },
+        "expected_status": "409",
+        "expected_response_schema": null,
+        "expected_response": null,
+        "ignore_fields": [
+            "id"
+        ],
+        "extract_values": [],
+        "validate": {
+            "performance": {
+                "max_response_time_ms": 500
+            },
+            "security": {
+                "checks": [
+                    "sql_injection",
+                    "xss"
+                ]
+            },
+            "assertions": [],
+            "data_comparison": []
+        },
+        "test_data_file": "MoveMoneyAPI/data_driven/Data_checks_PUT.csv",
+        "csv_row_index": 0,
+        "db_query_timing": "",
+        "db_queries": "",
+        "db_type": "",
+        "db_connection_name": "",
+        "test_summary": "Verify the API Returns 409 response if there is a version mismatch"
+    },
+    {
+        "test_id": "TC005",
+        "service_name": "movemoney",
+        "workflow_mode": "sequential",
+        "test_name": "Invalid RequestId for PUT /check/{requestId} [Negative] (TC005)",
+        "protocol": "REST",
+        "test_type": [
+            "Functional"
+        ],
+        "mainURL": "{{base_url}}",
+        "endpoint": "/check/4425@@80D5-CA20-4358-8A33-EC1F5C924B8A",
+        "method": "PUT",
+        "rpc_method": "",
+        "graphql_query": "",
+        "graphql_variables": "",
+        "soap_action": "",
+        "soap_envelope": "",
+        "headers_additional": {
+            "Content-Type": "application/json"
+        },
+        "payload": {
+            "version": "{{version_tc003}}",
+            "amount": "5200.00",
+            "requestType": "Withdrawal",
+            "status": "Confirmed",
+            "checkWithdrawalDetails": {
+                "instructionId": "0259032c-b55f-4913-a566-d3d4a52690d7",
+                "deliveryType": "Overnight",
+                "chargeOvernightFee": true,
+                "memoLine": "Q1 2026 Distribution",
+                "schedule": {
+                    "scheduleType": "Periodic",
+                    "frequency": "Monthly",
+                    "startDate": "2027-04-15",
+                    "endDate": "2028-12-15"
+                }
+            }
+        },
+        "expected_status": "400",
+        "expected_response_schema": null,
+        "expected_response": {
+            "type": "invalid-request",
+            "title": "Invalid Request",
+            "status": 400,
+            "detail": "The request contains invalid values",
+            "instance": "/api/moneymovement/v1/check/4425@@80D5-CA20-4358-8A33-EC1F5C924B8A",
+            "errors": {
+                "requestId": [
+                    "Must be a valid UUID format."
+                ]
+            }
+        },
+        "expected_error_message": "Must be a valid UUID format.",
+        "ignore_fields": [
+            "id"
+        ],
+        "extract_values": [
+            {
+                "from": "response",
+                "key": "errors.requestId.0",
+                "assign_to": "error_message_tc005"
+            }
+        ],
+        "validate": {
+            "performance": {
+                "max_response_time_ms": 500
+            },
+            "security": {
+                "checks": [
+                    "sql_injection",
+                    "xss"
+                ]
+            },
+            "assertions": [
+                {
+                    "actual": "{{error_message_tc005}}",
+                    "expected": "",
+                    "operator": "!=",
+                    "message": "Error message should not be empty"
+                },
+                {
+                    "actual": "{{error_message_tc005}}",
+                    "expected": "{{expected_error_message}}",
+                    "operator": "==",
+                    "message": "RequestId error message should match expected invalid UUID error"
+                }
+            ],
+            "data_comparison": []
+        },
+        "test_data_file": "",
+        "csv_row_index": 0,
+        "db_query_timing": "",
+        "db_queries": "",
+        "db_type": "",
+        "db_connection_name": "",
+        "test_summary": "Verify the API returns 400 response for invalid requestId on PUT /check endpoint"
+    },
+    {
+        "test_id": "TC006",
+        "service_name": "movemoney",
+        "workflow_mode": "sequential",
+        "test_name": "Missing required fields for PUT /check/{requestId} [Negative] (TC006)",
+        "protocol": "REST",
+        "test_type": [
+            "Functional"
+        ],
+        "mainURL": "{{base_url}}",
+        "endpoint": "/check/{{requestId_tc003}}",
+        "method": "PUT",
+        "rpc_method": "",
+        "graphql_query": "",
+        "graphql_variables": "",
+        "soap_action": "",
+        "soap_envelope": "",
+        "headers_additional": {
+            "Content-Type": "application/json"
+        },
+        "payload": {
+            "version": "{{version}}",
+            "amount": "{{amount}}",
+            "requestType": "{{requestType}}",
+            "status": "{{status}}",
+            "checkWithdrawalDetails": {
+                "instructionId": "{{instructionId}}",
+                "deliveryType": "{{deliveryType}}",
+                "chargeOvernightFee": "{{chargeOvernightFee}}",
+                "memoLine": "{{memoLine}}",
+                "schedule": {
+                    "scheduleType": "{{scheduleType}}",
+                    "frequency": "{{frequency}}",
+                    "startDate": "{{startDate}}",
+                    "endDate": "{{endDate}}"
+                }
+            }
+        },
+        "expected_status": "400",
+        "expected_response_schema": null,
+        "expected_response": null,
+        "ignore_fields": [
+            "id"
+        ],
+        "extract_values": [],
+        "validate": {
+            "performance": {
+                "max_response_time_ms": 500
+            },
+            "security": {
+                "checks": [
+                    "sql_injection",
+                    "xss"
+                ]
+            },
+            "assertions": [],
+            "data_comparison": []
+        },
+        "test_data_file": "MoveMoneyAPI/data_driven/Data_checks_PUT.csv",
+        "csv_row_index": 2,
+        "db_query_timing": "",
+        "db_queries": "",
+        "db_type": "",
+        "db_connection_name": "",
+        "test_summary": "Verify the API Returns 400 Bad Request response for missing required fields for PUT /check endpoint"
+    },
+    {
+        "test_id": "TC007",
+        "service_name": "movemoney",
+        "workflow_mode": "sequential",
+        "test_name": "Invalid RequestType for PUT /check/{requestId} [Negative] (TC007)",
+        "protocol": "REST",
+        "test_type": [
+            "Functional"
+        ],
+        "mainURL": "{{base_url}}",
+        "endpoint": "/check/442580D5-CA20-4358-8A33-EC1F5C924B8A",
+        "method": "PUT",
+        "rpc_method": "",
+        "graphql_query": "",
+        "graphql_variables": "",
+        "soap_action": "",
+        "soap_envelope": "",
+        "headers_additional": {
+            "Content-Type": "application/json"
+        },
+        "payload": {
+            "version": 1,
+            "amount": "5200.00",
+            "requestType": "Withd@#rawal",
+            "status": "Confirmed",
+            "checkWithdrawalDetails": {
+                "instructionId": "0259032c-b55f-4913-a566-d3d4a52690d7",
+                "deliveryType": "Overnight",
+                "chargeOvernightFee": true,
+                "memoLine": "Q1 2026 Distribution",
+                "schedule": {
+                    "scheduleType": "Periodic",
+                    "frequency": "Monthly",
+                    "startDate": "2027-04-15",
+                    "endDate": "2028-12-15"
+                }
+            }
+        },
+        "expected_status": "400",
+        "expected_response_schema": null,
+        "expected_response": {
+            "type": "invalid-request",
+            "title": "Invalid Request",
+            "status": 400,
+            "detail": "The request contains invalid values",
+            "instance": "/api/moneymovement/v1/check/442580D5-CA20-4358-8A33-EC1F5C924B8A",
+            "errors": {
+                "requestType": [
+                    "Must be one of: Deposit, Withdrawal."
+                ]
+            }
+        },
+        "expected_error_message": "Must be one of: Deposit, Withdrawal.",
+        "ignore_fields": [
+            "id"
+        ],
+        "extract_values": [
+            {
+                "from": "response",
+                "key": "errors.requestType.0",
+                "assign_to": "error_message_tc007"
+            }
+        ],
+        "validate": {
+            "performance": {
+                "max_response_time_ms": 500
+            },
+            "security": {
+                "checks": [
+                    "sql_injection",
+                    "xss"
+                ]
+            },
+            "assertions": [
+                {
+                    "actual": "{{error_message_tc007}}",
+                    "expected": "",
+                    "operator": "!=",
+                    "message": "Error message should not be empty"
+                },
+                {
+                    "actual": "{{error_message_tc007}}",
+                    "expected": "{{expected_error_message}}",
+                    "operator": "==",
+                    "message": "RequestType error message should match expected invalid value error"
+                }
+            ],
+            "data_comparison": []
+        },
+        "test_data_file": "",
+        "csv_row_index": 0,
+        "db_query_timing": "",
+        "db_queries": "",
+        "db_type": "",
+        "db_connection_name": "",
+        "test_summary": "Verify the API returns 400 response for invalid RequestType on PUT /check endpoint (TC007)"
+    },
+    {
+        "test_id": "TC008",
+        "service_name": "movemoney",
+        "workflow_mode": "sequential",
+        "test_name": "Invalid Status for PUT /check/{requestId} [Negative] (TC008)",
+        "protocol": "REST",
+        "test_type": [
+            "Functional"
+        ],
+        "mainURL": "{{base_url}}",
+        "endpoint": "/check/442580D5-CA20-4358-8A33-EC1F5C924B8A",
+        "method": "PUT",
+        "rpc_method": "",
+        "graphql_query": "",
+        "graphql_variables": "",
+        "soap_action": "",
+        "soap_envelope": "",
+        "headers_additional": {
+            "Content-Type": "application/json"
+        },
+        "payload": {
+            "version": 1,
+            "amount": "5200.00",
+            "requestType": "Withdrawal",
+            "status": "Confi@##rmed",
+            "checkWithdrawalDetails": {
+                "instructionId": "0259032c-b55f-4913-a566-d3d4a52690d7",
+                "deliveryType": "Overnight",
+                "chargeOvernightFee": true,
+                "memoLine": "Q1 2026 Distribution",
+                "schedule": {
+                    "scheduleType": "Periodic",
+                    "frequency": "Monthly",
+                    "startDate": "2027-04-15",
+                    "endDate": "2028-12-15"
+                }
+            }
+        },
+        "expected_status": "400",
+        "expected_response_schema": null,
+        "expected_response": {
+            "type": "invalid-request",
+            "title": "Invalid Request",
+            "status": 400,
+            "detail": "The request contains invalid values",
+            "instance": "/api/moneymovement/v1/check/442580D5-CA20-4358-8A33-EC1F5C924B8A",
+            "errors": {
+                "status": [
+                    "Must be one of: Draft, Pending, Confirmed, Deleted."
+                ]
+            }
+        },
+        "expected_error_message": "Must be one of: Draft, Pending, Confirmed, Deleted.",
+        "ignore_fields": [
+            "id"
+        ],
+        "extract_values": [
+            {
+                "from": "response",
+                "key": "errors.status.0",
+                "assign_to": "error_message_tc008"
+            }
+        ],
+        "validate": {
+            "performance": {
+                "max_response_time_ms": 500
+            },
+            "security": {
+                "checks": [
+                    "sql_injection",
+                    "xss"
+                ]
+            },
+            "assertions": [
+                {
+                    "actual": "{{error_message_tc008}}",
+                    "expected": "",
+                    "operator": "!=",
+                    "message": "Error message should not be empty"
+                },
+                {
+                    "actual": "{{error_message_tc008}}",
+                    "expected": "{{expected_error_message}}",
+                    "operator": "==",
+                    "message": "Status error message should match expected invalid value error"
+                }
+            ],
+            "data_comparison": []
+        },
+        "test_data_file": "",
+        "csv_row_index": 0,
+        "db_query_timing": "",
+        "db_queries": "",
+        "db_type": "",
+        "db_connection_name": "",
+        "test_summary": "Verify the API returns 400 response for invalid Status on PUT /check endpoint (TC008)"
+    },
+    {
+        "test_id": "TC009",
+        "service_name": "movemoney",
+        "workflow_mode": "sequential",
+        "test_name": "Invalid checkDepositDetails.checkSource for PUT /check/{requestId} [Negative] (TC009)",
+        "protocol": "REST",
+        "test_type": [
+            "Functional"
+        ],
+        "mainURL": "{{base_url}}",
+        "endpoint": "/check/442580D5-CA20-4358-8A33-EC1F5C924B8A",
+        "method": "PUT",
+        "rpc_method": "",
+        "graphql_query": "",
+        "graphql_variables": "",
+        "soap_action": "",
+        "soap_envelope": "",
+        "headers_additional": {
+            "Content-Type": "application/json"
+        },
+        "payload": {
+            "Version": 1,
+            "amount": "15000.00",
+            "requestType": "Deposit",
+            "status": "Pending",
+            "checkDepositDetails": {
+                "checkNumber": "4821",
+                "checkSource": "Ph@#ysical",
+                "checkType": "Personal",
+                "checkAmount": 15000.0,
+                "alphaAmount": "Fifteen Thousand only",
+                "checkDate": "2026-03-28T00:00:00Z",
+                "bankName": "Wells Fargo",
+                "bankAccountNumber": "78201934556",
+                "routingNumber": "121000248",
+                "remitterName": "John Smith",
+                "allocations": [
+                    {
+                        "accountId": "a1b2c3d4-e5f6-7890-abcd-ef1234567890",
+                        "allocationUnitType": "Amount",
+                        "amount": 10000.0
+                    },
+                    {
+                        "accountId": "b2c3d4e5-f6a7-8901-bcde-f12345678901",
+                        "allocationUnitType": "Amount",
+                        "amount": 5000.0
+                    }
+                ]
+            }
+        },
+        "expected_status": "400",
+        "expected_response_schema": null,
+        "expected_response": {
+            "type": "invalid-request",
+            "title": "Invalid Request",
+            "status": 400,
+            "detail": "The request contains invalid values",
+            "instance": "/api/moneymovement/v1/check/442580D5-CA20-4358-8A33-EC1F5C924B8A",
+            "errors": {
+                "checkDepositDetails.checkSource": [
+                    "Must be one of: Physical, Electronic."
+                ]
+            }
+        },
+        "expected_error_message": "Must be one of: Physical, Electronic.",
+        "ignore_fields": [
+            "id"
+        ],
+        "extract_values": [
+            {
+                "from": "response",
+                "key": "errors",
+                "assign_to": "error_response_field_tc009"
+            }
+        ],
+        "validate": {
+            "performance": {
+                "max_response_time_ms": 500
+            },
+            "security": {
+                "checks": [
+                    "sql_injection",
+                    "xss"
+                ]
+            },
+            "assertions": [
+                {
+                    "actual": "{{error_response_field_tc009}}",
+                    "expected": "",
+                    "operator": "!=",
+                    "message": "Error response field should not be empty"
+                }
+            ],
+            "data_comparison": []
+        },
+        "test_data_file": "",
+        "csv_row_index": 0,
+        "db_query_timing": "",
+        "db_queries": "",
+        "db_type": "",
+        "db_connection_name": "",
+        "test_summary": "Verify the API returns 400 response for invalid checkDepositDetails.checkSource on PUT /check endpoint (TC009)"
+    },
+    {
+        "test_id": "TC010",
+        "service_name": "movemoney",
+        "workflow_mode": "sequential",
+        "test_name": "Invalid checkDepositDetails.checkType for PUT /check/{requestId} [Negative] (TC010)",
+        "protocol": "REST",
+        "test_type": [
+            "Functional"
+        ],
+        "mainURL": "{{base_url}}",
+        "endpoint": "/check/442580D5-CA20-4358-8A33-EC1F5C924B8A",
+        "method": "PUT",
+        "rpc_method": "",
+        "graphql_query": "",
+        "graphql_variables": "",
+        "soap_action": "",
+        "soap_envelope": "",
+        "headers_additional": {
+            "Content-Type": "application/json"
+        },
+        "payload": {
+            "Version": 1,
+            "amount": "15000.00",
+            "requestType": "Deposit",
+            "status": "Pending",
+            "checkDepositDetails": {
+                "checkNumber": "4821",
+                "checkSource": "Physical",
+                "checkType": "Pers@#$onal",
+                "checkAmount": 15000.0,
+                "alphaAmount": "Fifteen Thousand only",
+                "checkDate": "2026-03-28T00:00:00Z",
+                "bankName": "Wells Fargo",
+                "bankAccountNumber": "78201934556",
+                "routingNumber": "121000248",
+                "remitterName": "John Smith",
+                "allocations": [
+                    {
+                        "accountId": "a1b2c3d4-e5f6-7890-abcd-ef1234567890",
+                        "allocationUnitType": "Amount",
+                        "amount": 10000.0
+                    },
+                    {
+                        "accountId": "b2c3d4e5-f6a7-8901-bcde-f12345678901",
+                        "allocationUnitType": "Amount",
+                        "amount": 5000.0
+                    }
+                ]
+            }
+        },
+        "expected_status": "400",
+        "expected_response_schema": null,
+        "expected_response": {
+            "type": "invalid-request",
+            "title": "Invalid Request",
+            "status": 400,
+            "detail": "The request contains invalid values",
+            "instance": "/api/moneymovement/v1/check/442580D5-CA20-4358-8A33-EC1F5C924B8A",
+            "errors": {
+                "checkDepositDetails.checkType": [
+                    "Must be one of: Personal, ThirdParty."
+                ]
+            }
+        },
+        "expected_error_message": "Must be one of: Personal, ThirdParty.",
+        "ignore_fields": [
+            "id"
+        ],
+        "extract_values": [
+            {
+                "from": "response",
+                "key": "errors",
+                "assign_to": "error_response_field_tc010"
+            }
+        ],
+        "validate": {
+            "performance": {
+                "max_response_time_ms": 500
+            },
+            "security": {
+                "checks": [
+                    "sql_injection",
+                    "xss"
+                ]
+            },
+            "assertions": [
+                {
+                    "actual": "{{error_response_field_tc010}}",
+                    "expected": "",
+                    "operator": "!=",
+                    "message": "Error response field should not be empty"
+                }
+            ],
+            "data_comparison": []
+        },
+        "test_data_file": "",
+        "csv_row_index": 0,
+        "db_query_timing": "",
+        "db_queries": "",
+        "db_type": "",
+        "db_connection_name": "",
+        "test_summary": "Verify the API returns 400 response for invalid checkDepositDetails.checkType on PUT /check endpoint (TC010)"
+    },
+    {
+        "test_id": "TC011",
+        "service_name": "movemoney",
+        "workflow_mode": "sequential",
+        "test_name": "Invalid checkDepositDetails.checkAmount for PUT /check/{requestId} [Negative] (TC011)",
+        "protocol": "REST",
+        "test_type": [
+            "Functional"
+        ],
+        "mainURL": "{{base_url}}",
+        "endpoint": "/check/442580D5-CA20-4358-8A33-EC1F5C924B8A",
+        "method": "PUT",
+        "rpc_method": "",
+        "graphql_query": "",
+        "graphql_variables": "",
+        "soap_action": "",
+        "soap_envelope": "",
+        "headers_additional": {
+            "Content-Type": "application/json"
+        },
+        "payload": {
+            "Version": 1,
+            "amount": "15000.00",
+            "requestType": "Deposit",
+            "status": "Pending",
+            "checkDepositDetails": {
+                "checkNumber": "4821",
+                "checkSource": "Physical",
+                "checkType": "Personal",
+                "checkAmount": 0,
+                "alphaAmount": "Fifteen Thousand only",
+                "checkDate": "2026-03-28T00:00:00Z",
+                "bankName": "Wells Fargo",
+                "bankAccountNumber": "78201934556",
+                "routingNumber": "121000248",
+                "remitterName": "John Smith",
+                "allocations": [
+                    {
+                        "accountId": "a1b2c3d4-e5f6-7890-abcd-ef1234567890",
+                        "allocationUnitType": "Amount",
+                        "amount": 10000.0
+                    },
+                    {
+                        "accountId": "b2c3d4e5-f6a7-8901-bcde-f12345678901",
+                        "allocationUnitType": "Amount",
+                        "amount": 5000.0
+                    }
+                ]
+            }
+        },
+        "expected_status": "400",
+        "expected_response_schema": null,
+        "expected_response": {
+            "type": "invalid-request",
+            "title": "Invalid Request",
+            "status": 400,
+            "detail": "The request contains invalid values",
+            "instance": "/api/moneymovement/v1/check/442580D5-CA20-4358-8A33-EC1F5C924B8A",
+            "errors": {
+                "checkDepositDetails.checkAmount": [
+                    "Must be a positive dollar amount greater than 0.01 with up to 2 decimal places."
+                ]
+            }
+        },
+        "expected_error_message": "Must be a positive dollar amount greater than 0.01 with up to 2 decimal places.",
+        "ignore_fields": [
+            "id"
+        ],
+        "extract_values": [
+            {
+                "from": "response",
+                "key": "errors",
+                "assign_to": "error_response_field_tc011"
+            }
+        ],
+        "validate": {
+            "performance": {
+                "max_response_time_ms": 500
+            },
+            "security": {
+                "checks": [
+                    "sql_injection",
+                    "xss"
+                ]
+            },
+            "assertions": [
+                {
+                    "actual": "{{error_response_field_tc011}}",
+                    "expected": "",
+                    "operator": "!=",
+                    "message": "Error response field should not be empty"
+                }
+            ],
+            "data_comparison": []
+        },
+        "test_data_file": "",
+        "csv_row_index": 0,
+        "db_query_timing": "",
+        "db_queries": "",
+        "db_type": "",
+        "db_connection_name": "",
+        "test_summary": "Verify the API returns 400 response for invalid checkDepositDetails.checkAmount on PUT /check endpoint (TC011)"
+    },
+    {
+        "test_id": "TC012",
+        "service_name": "movemoney",
+        "workflow_mode": "sequential",
+        "test_name": "Invalid checkDepositDetails.checkDate for PUT /check/{requestId} [Negative] (TC012)",
+        "protocol": "REST",
+        "test_type": [
+            "Functional"
+        ],
+        "mainURL": "{{base_url}}",
+        "endpoint": "/check/442580D5-CA20-4358-8A33-EC1F5C924B8A",
+        "method": "PUT",
+        "rpc_method": "",
+        "graphql_query": "",
+        "graphql_variables": "",
+        "soap_action": "",
+        "soap_envelope": "",
+        "headers_additional": {
+            "Content-Type": "application/json"
+        },
+        "payload": {
+            "Version": 1,
+            "amount": "15000.00",
+            "requestType": "Deposit",
+            "status": "Pending",
+            "checkDepositDetails": {
+                "checkNumber": "4821",
+                "checkSource": "Physical",
+                "checkType": "Personal",
+                "checkAmount": 15000.0,
+                "alphaAmount": "Fifteen Thousand only",
+                "checkDate": "1",
+                "bankName": "Wells Fargo",
+                "bankAccountNumber": "78201934556",
+                "routingNumber": "121000248",
+                "remitterName": "John Smith",
+                "allocations": [
+                    {
+                        "accountId": "a1b2c3d4-e5f6-7890-abcd-ef1234567890",
+                        "allocationUnitType": "Amount",
+                        "amount": 10000.0
+                    },
+                    {
+                        "accountId": "b2c3d4e5-f6a7-8901-bcde-f12345678901",
+                        "allocationUnitType": "Amount",
+                        "amount": 5000.0
+                    }
+                ]
+            }
+        },
+        "expected_status": "400",
+        "expected_response_schema": null,
+        "expected_response": {
+            "type": "invalid-request",
+            "title": "Invalid Request",
+            "status": 400,
+            "detail": "The request contains invalid values",
+            "instance": "/api/moneymovement/v1/check/442580D5-CA20-4358-8A33-EC1F5C924B8A",
+            "errors": {
+                "checkDepositDetails.checkDate": [
+                    "Must be a valid date value."
+                ]
+            }
+        },
+        "expected_error_message": "Must be a valid date value.",
+        "ignore_fields": [
+            "id"
+        ],
+        "extract_values": [
+            {
+                "from": "response",
+                "key": "errors",
+                "assign_to": "error_response_field_tc012"
+            }
+        ],
+        "validate": {
+            "performance": {
+                "max_response_time_ms": 500
+            },
+            "security": {
+                "checks": [
+                    "sql_injection",
+                    "xss"
+                ]
+            },
+            "assertions": [
+                {
+                    "actual": "{{error_response_field_tc012}}",
+                    "expected": "",
+                    "operator": "!=",
+                    "message": "Error response field should not be empty"
+                }
+            ],
+            "data_comparison": []
+        },
+        "test_data_file": "",
+        "csv_row_index": 0,
+        "db_query_timing": "",
+        "db_queries": "",
+        "db_type": "",
+        "db_connection_name": "",
+        "test_summary": "Verify the API returns 400 response for invalid checkDepositDetails.checkDate on PUT /check endpoint (TC012)"
+    },
+    {
+        "test_id": "TC013",
+        "service_name": "movemoney",
+        "workflow_mode": "sequential",
+        "test_name": "Invalid checkDepositDetails.alphaAmount for PUT /check/{requestId} [Negative] (TC013)",
+        "protocol": "REST",
+        "test_type": [
+            "Functional"
+        ],
+        "mainURL": "{{base_url}}",
+        "endpoint": "/check/442580D5-CA20-4358-8A33-EC1F5C924B8A",
+        "method": "PUT",
+        "rpc_method": "",
+        "graphql_query": "",
+        "graphql_variables": "",
+        "soap_action": "",
+        "soap_envelope": "",
+        "headers_additional": {
+            "Content-Type": "application/json"
+        },
+        "payload": {
+            "Version": 1,
+            "amount": "15000.00",
+            "requestType": "Deposit",
+            "status": "Pending",
+            "checkDepositDetails": {
+                "checkNumber": "4821",
+                "checkSource": "Physical",
+                "checkType": "Personal",
+                "checkAmount": 15000.0,
+                "alphaAmount": "Fifteen Thousand on@#@$$ly",
+                "checkDate": "2026-03-28T00:00:00Z",
+                "bankName": "Wells Fargo",
+                "bankAccountNumber": "78201934556",
+                "routingNumber": "121000248",
+                "remitterName": "John Smith",
+                "allocations": [
+                    {
+                        "accountId": "a1b2c3d4-e5f6-7890-abcd-ef1234567890",
+                        "allocationUnitType": "Amount",
+                        "amount": 10000.0
+                    },
+                    {
+                        "accountId": "b2c3d4e5-f6a7-8901-bcde-f12345678901",
+                        "allocationUnitType": "Amount",
+                        "amount": 5000.0
+                    }
+                ]
+            }
+        },
+        "expected_status": "400",
+        "expected_response_schema": null,
+        "expected_response": {
+            "type": "invalid-request",
+            "title": "Invalid Request",
+            "status": 400,
+            "detail": "The request contains invalid values",
+            "instance": "/api/moneymovement/v1/check/442580D5-CA20-4358-8A33-EC1F5C924B8A",
+            "errors": {
+                "checkDepositDetails.alphaAmount": [
+                    "Must be a valid alpha amount string."
+                ]
+            }
+        },
+        "expected_error_message": "Must be a valid date value.",
+        "ignore_fields": [
+            "id"
+        ],
+        "extract_values": [
+            {
+                "from": "response",
+                "key": "errors",
+                "assign_to": "error_response_field_tc013"
+            }
+        ],
+        "validate": {
+            "performance": {
+                "max_response_time_ms": 500
+            },
+            "security": {
+                "checks": [
+                    "sql_injection",
+                    "xss"
+                ]
+            },
+            "assertions": [
+                {
+                    "actual": "{{error_response_field_tc013}}",
+                    "expected": "",
+                    "operator": "!=",
+                    "message": "Error response field should not be empty"
+                }
+            ],
+            "data_comparison": []
+        },
+        "test_data_file": "",
+        "csv_row_index": 0,
+        "db_query_timing": "",
+        "db_queries": "",
+        "db_type": "",
+        "db_connection_name": "",
+        "test_summary": "Verify the API returns 400 response for invalid checkDepositDetails.alphaAmount on PUT /check endpoint (TC013)"
+    },
+    {
+        "test_id": "TC014",
+        "service_name": "movemoney",
+        "workflow_mode": "sequential",
+        "test_name": "Invalid checkDepositDetails.allocations.accountId for PUT /check/{requestId} [Negative] (TC014)",
+        "protocol": "REST",
+        "test_type": [
+            "Functional"
+        ],
+        "mainURL": "{{base_url}}",
+        "endpoint": "/check/442580D5-CA20-4358-8A33-EC1F5C924B8A",
+        "method": "PUT",
+        "rpc_method": "",
+        "graphql_query": "",
+        "graphql_variables": "",
+        "soap_action": "",
+        "soap_envelope": "",
+        "headers_additional": {
+            "Content-Type": "application/json"
+        },
+        "payload": {
+            "Version": 1,
+            "amount": "15000.00",
+            "requestType": "Deposit",
+            "status": "Pending",
+            "checkDepositDetails": {
+                "checkNumber": "4821",
+                "checkSource": "Physical",
+                "checkType": "Personal",
+                "checkAmount": 15000.0,
+                "alphaAmount": "Fifteen Thousand only",
+                "checkDate": "2026-03-28T00:00:00Z",
+                "bankName": "Wells Fargo",
+                "bankAccountNumber": "78201934556",
+                "routingNumber": "121000248",
+                "remitterName": "John Smith",
+                "allocations": [
+                    {
+                        "accountId": "a1@##b2c3d4-e5f6-7890-abcd-ef1234567890",
+                        "allocationUnitType": "Amount",
+                        "amount": 10000.0
+                    },
+                    {
+                        "accountId": "b2c3d4e5-f6a7-8901-bcde-f12345678901",
+                        "allocationUnitType": "Amount",
+                        "amount": 5000.0
+                    }
+                ]
+            }
+        },
+        "expected_status": "400",
+        "expected_response_schema": null,
+        "expected_response": {
+            "type": "invalid-request",
+            "title": "Invalid Request",
+            "status": 400,
+            "detail": "The request contains invalid values",
+            "instance": "/api/moneymovement/v1/check/442580D5-CA20-4358-8A33-EC1F5C924B8A",
+            "errors": {
+                "checkDepositDetails.allocations[0].accountId": [
+                    "Must be a valid UUID format."
+                ]
+            }
+        },
+        "expected_error_message": "Must be a valid UUID format.",
+        "ignore_fields": [
+            "id"
+        ],
+        "extract_values": [
+            {
+                "from": "response",
+                "key": "errors",
+                "assign_to": "error_response_field_tc014"
+            }
+        ],
+        "validate": {
+            "performance": {
+                "max_response_time_ms": 500
+            },
+            "security": {
+                "checks": [
+                    "sql_injection",
+                    "xss"
+                ]
+            },
+            "assertions": [
+                {
+                    "actual": "{{error_response_field_tc014}}",
+                    "expected": "",
+                    "operator": "!=",
+                    "message": "Error response field should not be empty"
+                }
+            ],
+            "data_comparison": []
+        },
+        "test_data_file": "",
+        "csv_row_index": 0,
+        "db_query_timing": "",
+        "db_queries": "",
+        "db_type": "",
+        "db_connection_name": "",
+        "test_summary": "Verify the API returns 400 response for invalid checkDepositDetails.allocations.accountId on PUT /check endpoint (TC014)"
+    },
+    {
+        "test_id": "TC015",
+        "service_name": "movemoney",
+        "workflow_mode": "sequential",
+        "test_name": "Invalid checkDepositDetails.allocations.allocationUnitType for PUT /check/{requestId} [Negative] (TC015)",
+        "protocol": "REST",
+        "test_type": [
+            "Functional"
+        ],
+        "mainURL": "{{base_url}}",
+        "endpoint": "/check/442580D5-CA20-4358-8A33-EC1F5C924B8A",
+        "method": "PUT",
+        "rpc_method": "",
+        "graphql_query": "",
+        "graphql_variables": "",
+        "soap_action": "",
+        "soap_envelope": "",
+        "headers_additional": {
+            "Content-Type": "application/json"
+        },
+        "payload": {
+            "Version": 1,
+            "amount": "15000.00",
+            "requestType": "Deposit",
+            "status": "Pending",
+            "checkDepositDetails": {
+                "checkNumber": "4821",
+                "checkSource": "Physical",
+                "checkType": "Personal",
+                "checkAmount": 15000.0,
+                "alphaAmount": "Fifteen Thousand only",
+                "checkDate": "2026-03-28T00:00:00Z",
+                "bankName": "Wells Fargo",
+                "bankAccountNumber": "78201934556",
+                "routingNumber": "121000248",
+                "remitterName": "John Smith",
+                "allocations": [
+                    {
+                        "accountId": "a1b2c3d4-e5f6-7890-abcd-ef1234567890",
+                        "allocationUnitType": "Amo@##$$unt",
+                        "amount": 10000.0
+                    },
+                    {
+                        "accountId": "b2c3d4e5-f6a7-8901-bcde-f12345678901",
+                        "allocationUnitType": "Amount",
+                        "amount": 5000.0
+                    }
+                ]
+            }
+        },
+        "expected_status": "400",
+        "expected_response_schema": null,
+        "expected_response": {
+            "type": "invalid-request",
+            "title": "Invalid Request",
+            "status": 400,
+            "detail": "The request contains invalid values",
+            "instance": "/api/moneymovement/v1/check/442580D5-CA20-4358-8A33-EC1F5C924B8A",
+            "errors": {
+                "checkDepositDetails.allocations[0].allocationUnitType": [
+                    "Must be one of: Amount, Percent."
+                ]
+            }
+        },
+        "expected_error_message": "Must be one of: Amount, Percent.",
+        "ignore_fields": [
+            "id"
+        ],
+        "extract_values": [
+            {
+                "from": "response",
+                "key": "errors",
+                "assign_to": "error_response_field_tc015"
+            }
+        ],
+        "validate": {
+            "performance": {
+                "max_response_time_ms": 500
+            },
+            "security": {
+                "checks": [
+                    "sql_injection",
+                    "xss"
+                ]
+            },
+            "assertions": [
+                {
+                    "actual": "{{error_response_field_tc015}}",
+                    "expected": "",
+                    "operator": "!=",
+                    "message": "Error response field should not be empty"
+                }
+            ],
+            "data_comparison": []
+        },
+        "test_data_file": "",
+        "csv_row_index": 0,
+        "db_query_timing": "",
+        "db_queries": "",
+        "db_type": "",
+        "db_connection_name": "",
+        "test_summary": "Verify the API returns 400 response for invalid checkDepositDetails.allocations.allocationUnitType on PUT /check endpoint (TC015)"
+    },
+    {
+        "test_id": "TC016",
+        "service_name": "movemoney",
+        "workflow_mode": "sequential",
+        "test_name": "Invalid checkDepositDetails.allocations.amount for PUT /check/{requestId} [Negative] (TC016)",
+        "protocol": "REST",
+        "test_type": [
+            "Functional"
+        ],
+        "mainURL": "{{base_url}}",
+        "endpoint": "/check/442580D5-CA20-4358-8A33-EC1F5C924B8A",
+        "method": "PUT",
+        "rpc_method": "",
+        "graphql_query": "",
+        "graphql_variables": "",
+        "soap_action": "",
+        "soap_envelope": "",
+        "headers_additional": {
+            "Content-Type": "application/json"
+        },
+        "payload": {
+            "Version": 1,
+            "amount": "15000.00",
+            "requestType": "Deposit",
+            "status": "Pending",
+            "checkDepositDetails": {
+                "checkNumber": "4821",
+                "checkSource": "Physical",
+                "checkType": "Personal",
+                "checkAmount": 15000.0,
+                "alphaAmount": "Fifteen Thousand only",
+                "checkDate": "2026-03-28T00:00:00Z",
+                "bankName": "Wells Fargo",
+                "bankAccountNumber": "78201934556",
+                "routingNumber": "121000248",
+                "remitterName": "John Smith",
+                "allocations": [
+                    {
+                        "accountId": "a1b2c3d4-e5f6-7890-abcd-ef1234567890",
+                        "allocationUnitType": "Amount",
+                        "amount": 0
+                    },
+                    {
+                        "accountId": "b2c3d4e5-f6a7-8901-bcde-f12345678901",
+                        "allocationUnitType": "Amount",
+                        "amount": 5000.0
+                    }
+                ]
+            }
+        },
+        "expected_status": "400",
+        "expected_response_schema": null,
+        "expected_response": {
+            "type": "invalid-request",
+            "title": "Invalid Request",
+            "status": 400,
+            "detail": "The request contains invalid values",
+            "instance": "/api/moneymovement/v1/check/442580D5-CA20-4358-8A33-EC1F5C924B8A",
+            "errors": {
+                "checkDepositDetails.allocations[0].amount": [
+                    "Must be a positive dollar amount greater than 0.01 with up to 2 decimal places."
+                ]
+            }
+        },
+        "expected_error_message": "Must be a positive dollar amount greater than 0.01 with up to 2 decimal places.",
+        "ignore_fields": [
+            "id"
+        ],
+        "extract_values": [
+            {
+                "from": "response",
+                "key": "errors",
+                "assign_to": "error_response_field_tc016"
+            }
+        ],
+        "validate": {
+            "performance": {
+                "max_response_time_ms": 500
+            },
+            "security": {
+                "checks": [
+                    "sql_injection",
+                    "xss"
+                ]
+            },
+            "assertions": [
+                {
+                    "actual": "{{error_response_field_tc016}}",
+                    "expected": "",
+                    "operator": "!=",
+                    "message": "Error response field should not be empty"
+                }
+            ],
+            "data_comparison": []
+        },
+        "test_data_file": "",
+        "csv_row_index": 0,
+        "db_query_timing": "",
+        "db_queries": "",
+        "db_type": "",
+        "db_connection_name": "",
+        "test_summary": "Verify the API returns 400 response for invalid checkDepositDetails.allocations.amount on PUT /check endpoint (TC016)"
+    },
+    {
+        "test_id": "TC017",
+        "service_name": "movemoney",
+        "workflow_mode": "sequential",
+        "test_name": "Invalid checkWithdrawalDetails.instructionId for PUT /check/{requestId} [Negative] (TC017)",
+        "protocol": "REST",
+        "test_type": [
+            "Functional"
+        ],
+        "mainURL": "{{base_url}}",
+        "endpoint": "/check/442580D5-CA20-4358-8A33-EC1F5C924B8A",
+        "method": "PUT",
+        "rpc_method": "",
+        "graphql_query": "",
+        "graphql_variables": "",
+        "soap_action": "",
+        "soap_envelope": "",
+        "headers_additional": {
+            "Content-Type": "application/json"
+        },
+        "payload": {
+            "version": 1,
+            "amount": "5200.00",
+            "requestType": "Withdrawal",
+            "status": "Confirmed",
+            "checkWithdrawalDetails": {
+                "instructionId": "0259032c-b55f-4913-a566-d3d4a@#@#52690d7",
+                "deliveryType": "Overnight",
+                "chargeOvernightFee": true,
+                "memoLine": "Q1 2026 Distribution",
+                "schedule": {
+                    "scheduleType": "Periodic",
+                    "frequency": "Monthly",
+                    "startDate": "2027-04-15",
+                    "endDate": "2028-12-15"
+                }
+            }
+        },
+        "expected_status": "400",
+        "expected_response_schema": null,
+        "expected_response": {
+            "type": "invalid-request",
+            "title": "Invalid Request",
+            "status": 400,
+            "detail": "The request contains invalid values",
+            "instance": "/api/moneymovement/v1/check/442580D5-CA20-4358-8A33-EC1F5C924B8A",
+            "errors": {
+                "checkWithdrawalDetails.instructionId": [
+                    "Must be a valid UUID format."
+                ]
+            }
+        },
+        "expected_error_message": "Must be a valid UUID format.",
+        "ignore_fields": [
+            "id"
+        ],
+        "extract_values": [
+            {
+                "from": "response",
+                "key": "errors",
+                "assign_to": "error_response_field_tc017"
+            }
+        ],
+        "validate": {
+            "performance": {
+                "max_response_time_ms": 500
+            },
+            "security": {
+                "checks": [
+                    "sql_injection",
+                    "xss"
+                ]
+            },
+            "assertions": [
+                {
+                    "actual": "{{error_response_field_tc017}}",
+                    "expected": "",
+                    "operator": "!=",
+                    "message": "Error response field should not be empty"
+                }
+            ],
+            "data_comparison": []
+        },
+        "test_data_file": "",
+        "csv_row_index": 0,
+        "db_query_timing": "",
+        "db_queries": "",
+        "db_type": "",
+        "db_connection_name": "",
+        "test_summary": "Verify the API returns 400 response for invalid checkWithdrawalDetails.instructionId on PUT /check endpoint (TC017)"
+    },
+    {
+        "test_id": "TC018",
+        "service_name": "movemoney",
+        "workflow_mode": "sequential",
+        "test_name": "Invalid checkWithdrawalDetails.deliveryType for PUT /check/{requestId} [Negative] (TC018)",
+        "protocol": "REST",
+        "test_type": [
+            "Functional"
+        ],
+        "mainURL": "{{base_url}}",
+        "endpoint": "/check/442580D5-CA20-4358-8A33-EC1F5C924B8A",
+        "method": "PUT",
+        "rpc_method": "",
+        "graphql_query": "",
+        "graphql_variables": "",
+        "soap_action": "",
+        "soap_envelope": "",
+        "headers_additional": {
+            "Content-Type": "application/json"
+        },
+        "payload": {
+            "version": 1,
+            "amount": "5200.00",
+            "requestType": "Withdrawal",
+            "status": "Confirmed",
+            "checkWithdrawalDetails": {
+                "instructionId": "0259032c-b55f-4913-a566-d3d4a52690d7",
+                "deliveryType": "Over@#@$night",
+                "chargeOvernightFee": true,
+                "memoLine": "Q1 2026 Distribution",
+                "schedule": {
+                    "scheduleType": "Periodic",
+                    "frequency": "Monthly",
+                    "startDate": "2027-04-15",
+                    "endDate": "2028-12-15"
+                }
+            }
+        },
+        "expected_status": "400",
+        "expected_response_schema": null,
+        "expected_response": {
+            "type": "invalid-request",
+            "title": "Invalid Request",
+            "status": 400,
+            "detail": "The request contains invalid values",
+            "instance": "/api/moneymovement/v1/check/442580D5-CA20-4358-8A33-EC1F5C924B8A",
+            "errors": {
+                "checkWithdrawalDetails.deliveryType": [
+                    "Must be one of: Overnight, RegularMail."
+                ]
+            }
+        },
+        "expected_error_message": "Must be one of: Overnight, RegularMail.",
+        "ignore_fields": [
+            "id"
+        ],
+        "extract_values": [
+            {
+                "from": "response",
+                "key": "errors",
+                "assign_to": "error_response_field_tc018"
+            }
+        ],
+        "validate": {
+            "performance": {
+                "max_response_time_ms": 500
+            },
+            "security": {
+                "checks": [
+                    "sql_injection",
+                    "xss"
+                ]
+            },
+            "assertions": [
+                {
+                    "actual": "{{error_response_field_tc018}}",
+                    "expected": "",
+                    "operator": "!=",
+                    "message": "Error response field should not be empty"
+                }
+            ],
+            "data_comparison": []
+        },
+        "test_data_file": "",
+        "csv_row_index": 0,
+        "db_query_timing": "",
+        "db_queries": "",
+        "db_type": "",
+        "db_connection_name": "",
+        "test_summary": "Verify the API returns 400 response for invalid checkWithdrawalDetails.deliveryType on PUT /check endpoint (TC018)"
+    },
+    {
+        "test_id": "TC019",
+        "service_name": "movemoney",
+        "workflow_mode": "sequential",
+        "test_name": "Invalid checkWithdrawalDetails.schedule.scheduleType for PUT /check/{requestId} [Negative] (TC019)",
+        "protocol": "REST",
+        "test_type": [
+            "Functional"
+        ],
+        "mainURL": "{{base_url}}",
+        "endpoint": "/check/442580D5-CA20-4358-8A33-EC1F5C924B8A",
+        "method": "PUT",
+        "rpc_method": "",
+        "graphql_query": "",
+        "graphql_variables": "",
+        "soap_action": "",
+        "soap_envelope": "",
+        "headers_additional": {
+            "Content-Type": "application/json"
+        },
+        "payload": {
+            "version": 1,
+            "amount": "5200.00",
+            "requestType": "Withdrawal",
+            "status": "Confirmed",
+            "checkWithdrawalDetails": {
+                "instructionId": "0259032c-b55f-4913-a566-d3d4a52690d7",
+                "deliveryType": "Overnight",
+                "chargeOvernightFee": true,
+                "memoLine": "Q1 2026 Distribution",
+                "schedule": {
+                    "scheduleType": "Peri@#$odic",
+                    "frequency": "Monthly",
+                    "startDate": "2027-04-15",
+                    "endDate": "2028-12-15"
+                }
+            }
+        },
+        "expected_status": "400",
+        "expected_response_schema": null,
+        "expected_response": {
+            "type": "invalid-request",
+            "title": "Invalid Request",
+            "status": 400,
+            "detail": "The request contains invalid values",
+            "instance": "/api/moneymovement/v1/check/442580D5-CA20-4358-8A33-EC1F5C924B8A",
+            "errors": {
+                "checkWithdrawalDetails.schedule.scheduleType": [
+                    "Must be one of: OneTime, Periodic."
+                ]
+            }
+        },
+        "expected_error_message": "Must be one of: OneTime, Periodic.",
+        "ignore_fields": [
+            "id"
+        ],
+        "extract_values": [
+            {
+                "from": "response",
+                "key": "errors",
+                "assign_to": "error_response_field_tc019"
+            }
+        ],
+        "validate": {
+            "performance": {
+                "max_response_time_ms": 500
+            },
+            "security": {
+                "checks": [
+                    "sql_injection",
+                    "xss"
+                ]
+            },
+            "assertions": [
+                {
+                    "actual": "{{error_response_field_tc019}}",
+                    "expected": "",
+                    "operator": "!=",
+                    "message": "Error response field should not be empty"
+                }
+            ],
+            "data_comparison": []
+        },
+        "test_data_file": "",
+        "csv_row_index": 0,
+        "db_query_timing": "",
+        "db_queries": "",
+        "db_type": "",
+        "db_connection_name": "",
+        "test_summary": "Verify the API returns 400 response for invalid checkWithdrawalDetails.schedule.scheduleType on PUT /check endpoint (TC019)"
+    },
+    {
+        "test_id": "TC020",
+        "service_name": "movemoney",
+        "workflow_mode": "sequential",
+        "test_name": "Invalid checkWithdrawalDetails.schedule.paymentDate for PUT /check/{requestId} [Negative] (TC020)",
+        "protocol": "REST",
+        "test_type": [
+            "Functional"
+        ],
+        "mainURL": "{{base_url}}",
+        "endpoint": "/check/442580D5-CA20-4358-8A33-EC1F5C924B8A",
+        "method": "PUT",
+        "rpc_method": "",
+        "graphql_query": "",
+        "graphql_variables": "",
+        "soap_action": "",
+        "soap_envelope": "",
+        "headers_additional": {
+            "Content-Type": "application/json"
+        },
+        "payload": {
+            "version": 1,
+            "amount": "5200.00",
+            "requestType": "Withdrawal",
+            "status": "Confirmed",
+            "checkWithdrawalDetails": {
+                "instructionId": "0259032c-b55f-4913-a566-d3d4a52690d7",
+                "deliveryType": "Overnight",
+                "chargeOvernightFee": true,
+                "memoLine": "Q1 2026 Distribution",
+                "schedule": {
+                    "scheduleType": "Periodic",
+                    "frequency": "Monthly",
+                    "startDate": "2",
+                    "endDate": "2028-12-15"
+                }
+            }
+        },
+        "expected_status": "400",
+        "expected_response_schema": null,
+        "expected_response": {
+            "type": "invalid-request",
+            "title": "Invalid Request",
+            "status": 400,
+            "detail": "The request contains invalid values",
+            "instance": "/api/moneymovement/v1/check/442580D5-CA20-4358-8A33-EC1F5C924B8A",
+            "errors": {
+                "checkWithdrawalDetails.schedule.startDate": [
+                    "Must be a valid date value."
+                ]
+            }
+        },
+        "expected_error_message": "Must be a valid date value.",
+        "ignore_fields": [
+            "id"
+        ],
+        "extract_values": [
+            {
+                "from": "response",
+                "key": "errors",
+                "assign_to": "error_response_field_tc020"
+            }
+        ],
+        "validate": {
+            "performance": {
+                "max_response_time_ms": 500
+            },
+            "security": {
+                "checks": [
+                    "sql_injection",
+                    "xss"
+                ]
+            },
+            "assertions": [
+                {
+                    "actual": "{{error_response_field_tc020}}",
+                    "expected": "",
+                    "operator": "!=",
+                    "message": "Error response field should not be empty"
+                }
+            ],
+            "data_comparison": []
+        },
+        "test_data_file": "",
+        "csv_row_index": 0,
+        "db_query_timing": "",
+        "db_queries": "",
+        "db_type": "",
+        "db_connection_name": "",
+        "test_summary": "Verify the API returns 400 response for invalid checkWithdrawalDetails.schedule.paymentDate on PUT /check endpoint (TC020)"
+    },
+    {
+        "test_id": "TC021",
+        "service_name": "movemoney",
+        "workflow_mode": "sequential",
+        "test_name": "Invalid checkWithdrawalDetails.schedule.frequency for PUT /check/{requestId} [Negative] (TC021)",
+        "protocol": "REST",
+        "test_type": [
+            "Functional"
+        ],
+        "mainURL": "{{base_url}}",
+        "endpoint": "/check/442580D5-CA20-4358-8A33-EC1F5C924B8A",
+        "method": "PUT",
+        "rpc_method": "",
+        "graphql_query": "",
+        "graphql_variables": "",
+        "soap_action": "",
+        "soap_envelope": "",
+        "headers_additional": {
+            "Content-Type": "application/json"
+        },
+        "payload": {
+            "version": 1,
+            "amount": "5200.00",
+            "requestType": "Withdrawal",
+            "status": "Confirmed",
+            "checkWithdrawalDetails": {
+                "instructionId": "0259032c-b55f-4913-a566-d3d4a52690d7",
+                "deliveryType": "Overnight",
+                "chargeOvernightFee": true,
+                "memoLine": "Q1 2026 Distribution",
+                "schedule": {
+                    "scheduleType": "Periodic",
+                    "frequency": "Mont@#$hly",
+                    "startDate": "2027-04-15",
+                    "endDate": "2028-12-15"
+                }
+            }
+        },
+        "expected_status": "400",
+        "expected_response_schema": null,
+        "expected_response": {
+  "type": "invalid-request",
+  "title": "Invalid Request",
+  "status": 400,
+  "detail": "The request contains invalid values",
+  "instance": "/api/moneymovement/v1/check/442580D5-CA20-4358-8A33-EC1F5C924B8A",
+  "errors": {
+    "checkWithdrawalDetails.schedule.frequency": [
+      "Must be a valid frequency value."
+    ]
+  }
+},
+        "expected_error_message": "Must be a valid frequency value.",
+        "ignore_fields": [
+            "id"
+        ],
+        "extract_values": [
+            {
+                "from": "response",
+                "key": "errors",
+                "assign_to": "error_response_field_tc021"
+            }
+        ],
+        "validate": {
+            "performance": {
+                "max_response_time_ms": 500
+            },
+            "security": {
+                "checks": [
+                    "sql_injection",
+                    "xss"
+                ]
+            },
+            "assertions": [
+                {
+                    "actual": "{{error_response_field_tc021}}",
+                    "expected": "",
+                    "operator": "!=",
+                    "message": "Error response field should not be empty"
+                }
+            ],
+            "data_comparison": []
+        },
+        "test_data_file": "",
+        "csv_row_index": 0,
+        "db_query_timing": "",
+        "db_queries": "",
+        "db_type": "",
+        "db_connection_name": "",
+        "test_summary": "Verify the API returns 400 response for invalid checkWithdrawalDetails.schedule.frequency on PUT /check endpoint (TC021)"
+    }
+]

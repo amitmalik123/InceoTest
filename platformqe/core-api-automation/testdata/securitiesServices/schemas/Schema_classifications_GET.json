@@ -1,0 +1,61 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "type": "array",
+  "items": {
+    "type": "object",
+    "required": [
+      "assetClass",
+      "assetType",
+      "subAssetType"
+    ],
+    "properties": {
+      "assetClass": {
+        "type": "object",
+        "required": ["id", "name"],
+        "properties": {
+          "id": {
+            "type": "integer",
+            "description": "Unique identifier for the asset class"
+          },
+          "name": {
+            "type": ["string", "null"],
+            "description": "Name of the asset class"
+          }
+        },
+        "additionalProperties": false
+      },
+      "assetType": {
+        "type": "object",
+        "required": ["id", "name"],
+        "properties": {
+          "id": {
+            "type": "integer",
+            "description": "Unique identifier for the asset type"
+          },
+          "name": {
+            "type": ["string", "null"],
+            "description": "Name of the asset type"
+          }
+        },
+        "additionalProperties": false
+      },
+      "subAssetType": {
+        "type": "object",
+        "required": ["id", "name"],
+        "properties": {
+          "id": {
+            "type": "integer",
+            "description": "Unique identifier for the sub-asset type"
+          },
+          "name": {
+            "type": ["string", "null"],
+            "description": "Name of the sub-asset type"
+          }
+        },
+        "additionalProperties": false
+      }
+    },
+    "additionalProperties": false
+  },
+  "description": "Array of Asset Classification DTOs containing asset class, type, and sub-type hierarchies"
+}

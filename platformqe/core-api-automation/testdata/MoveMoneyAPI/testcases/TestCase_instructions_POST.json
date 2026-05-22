@@ -1,0 +1,132 @@
+[
+    {
+        "test_id": "TC001",
+        "service_name": "movemoney",
+        "workflow_mode": "parallel",
+        "test_name": "POST /instructions [positive]",
+        "protocol": "REST",
+        "test_type": [
+            "Functional",
+            "Performance",
+            "Security",
+            "Database"
+        ],
+        "mainURL": "{{base_url}}",
+        "endpoint": "/instructions",
+        "method": "POST",
+        "headers_additional": {
+            "Content-Type": "application/json"
+        },
+        "payload": {
+            "letterOfAuthorization": "{{letterOfAuthorization}}",
+            "accountId": "{{accountId}}",
+            "status": "{{status}}",
+            "holderRelationship": "{{holderRelationship}}",
+            "railType": "{{railType}}",
+            "custodianInstructionNumber": "{{custodianInstructionNumber}}",
+            "changeState": "{{changeState}}",
+            "bank": {
+                "routingNumber": "{{bank_routingNumber}}",
+                "bankAccountNumber": "{{bank_bankAccountNumber}}",
+                "bankAccountName": "{{bank_bankAccountName}}",
+                "bankAccountType": "{{bank_bankAccountType}}",
+                "bankName": "{{bank_bankName}}"
+            }
+        },
+        "expected_status": "200",
+        "expected_response_schema": "",
+        "expected_response": null,
+        "ignore_fields": [
+            "traceId",
+            "id",
+            "addressid",
+            "contactid",
+            "identifierid",
+            "timestamp",
+            "createdDate",
+            "modifiedDate",
+            "entitycreateddate",
+            "individualdateofbirth",
+            "instructionId"
+        ],
+        "extract_values": [
+            {
+                "from": "response",
+                "key": "instructionId",
+                "assign_to": "instructionId"
+            },
+            {
+                "from": "response",
+                "key": "version",
+                "assign_to": "version"
+            },
+            {
+                "from": "db_result",
+                "query": "default",
+                "assign": [
+                    {
+                        "key": "0.instructionId",
+                        "assign_to": "db_instructionId"
+                    },
+                    {
+                        "key": "0.version",
+                        "assign_to": "db_version"
+                    },
+                    {
+                        "key": "0.status",
+                        "assign_to": "db_status"
+                    }
+                ]
+            }
+        ],
+        "validate": {
+            "performance": {
+                "max_response_time_ms": 1000
+            },
+            "security": {
+                "checks": [
+                    "sql_injection",
+                    "xss"
+                ]
+            },
+            "assertions": [
+                {
+                    "actual": "{{instructionId}}",
+                    "expected": "",
+                    "operator": "!=",
+                    "message": "InstructionId should not be empty"
+                },
+                {
+                    "actual": "{{version}}",
+                    "expected": 1,
+                    "operator": "==",
+                    "message": "Version should be 1"
+                }
+            ],
+            "data_comparison": [
+                {
+                    "source": "instructionId",
+                    "target": "db_instructionId",
+                    "log_differences": true,
+                    "comparison_name": "InstructionId match between API and DB"
+                },
+                {
+                    "source": "version",
+                    "target": "db_version",
+                    "log_differences": true,
+                    "comparison_name": "Version match between API and DB"
+                }
+            ]
+        },
+        "test_data_file": "MoveMoneyAPI/data_driven/Data_instructions_Hook_POST.csv",
+        "csv_row_index": 0,
+        "db_query_timing": "after_api",
+        "db_queries": {
+            "default": "SELECT LOWER([Id]) AS instructionId, [Version] AS version, [Status] AS status FROM [dbo].[MoneyMovementInstruction] WHERE [Id] = '{{instructionId}}'",
+            "audit_query": ""
+        },
+        "db_type": "mssql",
+        "db_connection_name": "movemoney",
+        "test_summary": "Verify that the API returns 200 response all the fields are valid and successful instruction creation with full validation (API + Database + Schema + Headers + Security)"
+    }
+]

@@ -1,0 +1,415 @@
+[
+    {
+        "test_id": "TC000",
+        "service_name": "models",
+        "workflow_mode": "sequential",
+        "test_name": "DB_ONLY - Fetch investment_approach_id from Database",
+        "protocol": "DB_ONLY",
+        "test_type": [
+            "Functional"
+        ],
+        "mainURL": "",
+        "endpoint": "",
+        "method": "",
+        "rpc_method": "",
+        "graphql_query": "",
+        "graphql_variables": "",
+        "soap_action": "",
+        "soap_envelope": "",
+        "headers_additional": {
+            "Content-Type": "application/json"
+        },
+        "payload": null,
+        "expected_status": "",
+        "expected_response_schema": "",
+        "expected_response": "",
+        "extract_values": [
+            {
+                "from": "db_result",
+                "key": "0.investment_approach_id",
+                "assign_to": "db_investment_approach_id"
+            }
+        ],
+        "validate": {
+            "performance": {
+                "max_response_time_ms": 500
+            },
+            "security": {
+                "checks": []
+            },
+            "data_comparison": {
+                "source": "api_response",
+                "target": "db_result",
+                "format": "table",
+                "key_field": [
+                    "",
+                    ""
+                ],
+                "fields_to_compare": [],
+                "log_differences": true
+            }
+        },
+        "test_data_file": "",
+        "db_type": "postgresql",
+        "db_connection_name": "models",
+        "db_query": "SELECT investment_approach_id FROM public.investment_approach LIMIT 1",
+        "test_summary": "Step 0: Fetch valid investment_approach_id from database to use in model creation payload",
+        "test_scenario": "Retrieve investment approach ID from database for data-driven test"
+    },
+    {
+        "test_id": "TC001",
+        "service_name": "models",
+        "workflow_mode": "sequential",
+        "test_name": "POST /model - Create Model for Version History Test (TC001)",
+        "protocol": "REST",
+        "test_type": [
+            "Functional"
+        ],
+        "mainURL": "{{base_url}}",
+        "endpoint": "/models",
+        "method": "POST",
+        "headers_additional": {
+            "Content-Type": "application/json"
+        },
+        "payload": "models\\payloads\\Payload_model_id_POST_request.json",
+        "expected_status": "201",
+        "expected_response_schema": "models\\schemas\\Schema_post_response copy.json",
+        "extract_values": [
+            {
+                "from": "response",
+                "key": "modelId",
+                "assign_to": "response_model_id"
+            }
+        ],
+        "validate": {
+            "performance": {
+                "max_response_time_ms": null
+            }
+        },
+        "test_summary": "Step 1: Create a new model and extract modelId for version history workflow",
+        "test_scenario": "Create initial model to test version history functionality"
+    },
+    {
+        "test_id": "TC002",
+        "service_name": "models",
+        "workflow_mode": "sequential",
+        "test_name": "POST /model/{id}/publish - First Publish (TC002)",
+        "protocol": "REST",
+        "test_type": [
+            "Functional"
+        ],
+        "mainURL": "{{base_url}}",
+        "endpoint": "/models/{{response_model_id}}/publish",
+        "method": "POST",
+        "headers_additional": {
+            "Content-Type": "application/json"
+        },
+        "payload": null,
+        "expected_status": "200",
+        "test_summary": "Step 2: Publish the model (creates version 1 - Published)",
+        "test_scenario": "First publish creates version 1 with Published status and version number = 1"
+    },
+    {
+        "test_id": "TC003",
+        "service_name": "models",
+        "workflow_mode": "sequential",
+        "test_name": "POST /model/{id}/version - Create Version 2 (TC003)",
+        "protocol": "REST",
+        "test_type": [
+            "Functional"
+        ],
+        "mainURL": "{{base_url}}",
+        "endpoint": "/models/{{response_model_id}}/version",
+        "method": "POST",
+        "headers_additional": {
+            "Content-Type": "application/json"
+        },
+        "payload": {
+            "allocations": [
+                {
+                    "entityType": "Model",
+                    "allocationName": "Version 2 Allocation",
+                    "cusip": "string",
+                    "ticker": "AAPL",
+                    "weight": 3,
+                    "modelId": "string"
+                }
+            ]
+        },
+        "expected_status": "201",
+        "test_summary": "Step 3: Create version 2 (Draft) - version 1 stays Published",
+        "test_scenario": "Create new version 2 as Draft, version 1 remains Published"
+    },
+    {
+        "test_id": "TC004",
+        "service_name": "models",
+        "workflow_mode": "sequential",
+        "test_name": "POST /model/{id}/publish - Second Publish (TC004)",
+        "protocol": "REST",
+        "test_type": [
+            "Functional"
+        ],
+        "mainURL": "{{base_url}}",
+        "endpoint": "/models/{{response_model_id}}/publish",
+        "method": "POST",
+        "headers_additional": {
+            "Content-Type": "application/json"
+        },
+        "payload": null,
+        "expected_status": "200",
+        "test_summary": "Step 4: Publish version 2 (v2 → Published, v1 → Archived)",
+        "test_scenario": "Second publish makes version 2 Published, version 1 becomes Archived"
+    },
+    {
+        "test_id": "TC005",
+        "service_name": "models",
+        "workflow_mode": "sequential",
+        "test_name": "POST /model/{id}/version - Create Version 3 (TC005)",
+        "protocol": "REST",
+        "test_type": [
+            "Functional"
+        ],
+        "mainURL": "{{base_url}}",
+        "endpoint": "/models/{{response_model_id}}/version",
+        "method": "POST",
+        "headers_additional": {
+            "Content-Type": "application/json"
+        },
+        "payload": {
+            "allocations": [
+                {
+                    "entityType": "Model",
+                    "allocationName": "Version 2 Allocation",
+                    "cusip": "string",
+                    "ticker": "AAPL",
+                    "weight": 3,
+                    "modelId": "string"
+                }
+            ]
+        },
+        "expected_status": "201",
+        "test_summary": "Step 5: Create version 3 (Draft) - v2 stays Published, v1 stays Archived",
+        "test_scenario": "Create version 3 as Draft, version 2 remains Published, version 1 remains Archived"
+    },
+    {
+        "test_id": "TC006",
+        "service_name": "models",
+        "workflow_mode": "sequential",
+        "test_name": "POST /model/{id}/publish - Third Publish (TC006)",
+        "protocol": "REST",
+        "test_type": [
+            "Functional"
+        ],
+        "mainURL": "{{base_url}}",
+        "endpoint": "/models/{{response_model_id}}/publish",
+        "method": "POST",
+        "headers_additional": {
+            "Content-Type": "application/json"
+        },
+        "payload": null,
+        "expected_status": "200",
+        "test_summary": "Step 6: Publish version 3 (v3 → Published, v2 → Archived, v1 → Archived)",
+        "test_scenario": "Third publish makes version 3 Published, version 2 becomes Archived, version 1 remains Archived"
+    },
+    {
+        "test_id": "TC007",
+        "service_name": "models",
+        "workflow_mode": "sequential",
+        "test_name": "POST /model/{id}/version - Create Version 4 (TC007)",
+        "protocol": "REST",
+        "test_type": [
+            "Functional"
+        ],
+        "mainURL": "{{base_url}}",
+        "endpoint": "/models/{{response_model_id}}/version",
+        "method": "POST",
+        "headers_additional": {
+            "Content-Type": "application/json"
+        },
+        "payload": {
+            "allocations": [
+                {
+                    "entityType": "Security",
+                    "allocationName": "Version 2 Allocation",
+                    "cusip": "string",
+                    "ticker": "AAPL",
+                    "weight": 3,
+                    "modelId": "string"
+                }
+            ]
+        },
+        "expected_status": "201",
+        "test_summary": "Step 7: Create version 4 (Draft) - final state achieved",
+        "test_scenario": "Create version 4 as Draft, version 3 remains Published, versions 1 and 2 remain Archived"
+    },
+    {
+        "test_id": "TC008",
+        "service_name": "models",
+        "workflow_mode": "sequential",
+        "test_name": "GET /model/{id}/version-history - Validate All Version Statuses (TC008)",
+        "protocol": "REST",
+        "test_type": [
+            "Functional"
+        ],
+        "mainURL": "{{base_url}}",
+        "endpoint": "/models/{{response_model_id}}/version-history",
+        "method": "GET",
+        "headers_additional": {
+            "Content-Type": "application/json"
+        },
+        "payload": null,
+        "expected_status": "200",
+        "extract_values": [
+            {
+                "from": "response",
+                "key": "versions.0.status",
+                "assign_to": "version_4_status"
+            },
+            {
+                "from": "response",
+                "key": "versions.1.status",
+                "assign_to": "version_3_status"
+            },
+            {
+                "from": "response",
+                "key": "versions.2.status",
+                "assign_to": "version_2_status"
+            },
+            {
+                "from": "response",
+                "key": "versions.3.status",
+                "assign_to": "version_1_status"
+            },
+            {
+                "from": "response",
+                "key": "versions.0.version",
+                "assign_to": "version_4_number"
+            },
+            {
+                "from": "response",
+                "key": "versions.1.version",
+                "assign_to": "version_3_number"
+            },
+            {
+                "from": "response",
+                "key": "versions.2.version",
+                "assign_to": "version_2_number"
+            },
+            {
+                "from": "response",
+                "key": "versions.3.version",
+                "assign_to": "version_1_number"
+            }
+        ],
+        "validate": {
+            "performance": {
+                "max_response_time_ms": null
+            },
+            "assertions": [
+                {
+                    "actual": "{{version_4_number}}",
+                    "operator": "==",
+                    "expected": 4,
+                    "message": "Expected version 4 to exist"
+                },
+                {
+                    "actual": "{{version_4_status}}",
+                    "operator": "==",
+                    "expected": "Draft",
+                    "message": "Expected version 4 status to be 'Draft'"
+                },
+                {
+                    "actual": "{{version_3_number}}",
+                    "operator": "==",
+                    "expected": 3,
+                    "message": "Expected version 3 to exist"
+                },
+                {
+                    "actual": "{{version_3_status}}",
+                    "operator": "==",
+                    "expected": "Published",
+                    "message": "Expected version 3 status to be 'Published'"
+                },
+                {
+                    "actual": "{{version_2_number}}",
+                    "operator": "==",
+                    "expected": 2,
+                    "message": "Expected version 2 to exist"
+                },
+                {
+                    "actual": "{{version_2_status}}",
+                    "operator": "==",
+                    "expected": "Archived",
+                    "message": "Expected version 2 status to be 'Archived'"
+                },
+                {
+                    "actual": "{{version_1_number}}",
+                    "operator": "==",
+                    "expected": 1,
+                    "message": "Expected version 1 to exist"
+                },
+                {
+                    "actual": "{{version_1_status}}",
+                    "operator": "==",
+                    "expected": "Archived",
+                    "message": "Expected version 1 status to be 'Archived'"
+                }
+            ]
+        },
+        "test_summary": "Step 8: Retrieve version history and validate all version statuses",
+        "test_scenario": "Validate that version 1 is Archived, version 2 is Archived, version 3 is Published, and version 4 is Draft"
+    },
+    {
+        "test_id": "TC009",
+        "service_name": "models",
+        "workflow_mode": "sequential",
+        "test_name": "GET /model/{id}/version-history - Non-existent Model ID (TC009)",
+        "protocol": "REST",
+        "test_type": [
+            "Negative",
+            "Functional"
+        ],
+        "mainURL": "{{base_url}}",
+        "endpoint": "/models/ca3cf9e3-974f-4333-979f-4293fbbbb650/version-history",
+        "method": "GET",
+        "headers_additional": {
+            "Content-Type": "application/json"
+        },
+        "payload": null,
+        "expected_status": "204",
+        "validate": {
+            "performance": {
+                "max_response_time_ms": null
+            }
+        },
+        "test_summary": "Step 9: Validate version history endpoint returns 204 No Content for non-existent model ID",
+        "test_scenario": "Test version history endpoint with hardcoded non-existent model ID to verify proper 204 response"
+    },
+    {
+        "test_id": "TC010",
+        "service_name": "models",
+        "workflow_mode": "sequential",
+        "test_name": "GET /model/{id}/version-history - Validate Response Schema (TC010)",
+        "protocol": "REST",
+        "test_type": [
+            "Functional",
+            "Schema Validation"
+        ],
+        "mainURL": "{{base_url}}",
+        "endpoint": "/models/{{response_model_id}}/version-history",
+        "method": "GET",
+        "headers_additional": {
+            "Content-Type": "application/json"
+        },
+        "payload": null,
+        "expected_status": "200",
+        "expected_response_schema": "models\\schemas\\Schema_get_versionhistory_response.json",
+        "validate": {
+            "performance": {
+                "max_response_time_ms": null
+            }
+        },
+        "test_summary": "Step 10: Validate version history response schema matches expected structure",
+        "test_scenario": "Verify that the version history endpoint returns data conforming to the defined JSON schema"
+    }
+]

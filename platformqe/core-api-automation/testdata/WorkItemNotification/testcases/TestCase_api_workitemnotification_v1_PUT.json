@@ -1,0 +1,247 @@
+[
+    {
+        "test_id": "TC001",
+        "service_name": "WorkItemNotification",
+        "workflow_mode": "parallel",
+        "test_name": "PUT /api/workitemnotification/v1 [positive] (TC001)",
+        "protocol": "REST",
+        "test_type": [
+            "Functional"
+        ],
+        "mainURL": "{{base_url}}",
+        "endpoint": "/api/workitemnotification/v1",
+        "method": "PUT",
+        "rpc_method": "",
+        "graphql_query": "",
+        "graphql_variables": "",
+        "soap_action": "",
+        "soap_envelope": "",
+        "headers_additional": {
+            "Content-Type": "application/json"
+        },
+        "payload": "WorkItemNotification\\payloads\\Payload_api_workitemnotification_v1_PUT_functional.json",
+        "expected_status": "200",
+        "expected_response_schema": "WorkItemNotification\\schemas\\Schema_api_workitemnotification_v1_PUT.json",
+        "expected_response": null,
+        "ignore_fields": [
+            "message"
+        ],
+        "extract_values": [
+            {
+                "from": "response",
+                "key": "preferenceId",
+                "assign_to": "preferenceId"
+            },
+            {
+                "from": "response",
+                "key": "success",
+                "assign_to": "success"
+            }
+        ],
+        "validate": {
+            "performance": {
+                "max_response_time_ms": 500
+            },
+            "security": {
+                "checks": [
+                    "sql_injection",
+                    "xss"
+                ]
+            },
+            "assertions": [
+                {
+                    "actual": "{{preferenceId}}",
+                    "operator": "!=",
+                    "expected": null,
+                    "message": "Verify preferenceId field exists and is not null"
+                },
+                {
+                    "actual": "{{success}}",
+                    "operator": "==",
+                    "expected": true,
+                    "message": "Verify success field is true"
+                }
+            ],
+            "data_comparison": [
+                {
+                    "source": "api_response",
+                    "target": "db_result",
+                    "target_query": "audit_query",
+                    "format": "table",
+                    "key_field": [
+                        {
+                            "source": "preferenceId",
+                            "target": "ID"
+                        }
+                    ],
+                    "fields_to_compare": [
+                        {
+                            "source": "preferenceId",
+                            "target": "ID"
+                        }
+                    ],
+                    "log_differences": true,
+                    "comparison_name": "Response vs DB comparison"
+                }
+            ]
+        },
+        "test_data_file": "WorkItemNotification\\data_driven\\Data_api_PUT_workitems.csv",
+        "db_query_timing": "after_api",
+        "db_queries": {
+            "default": "SELECT [ID], [APLID], [ItemsRequiringAttentionEV], [ReceivedCompletedPrimaryEV], [ReceivedCompletedSecondaryEV], [IsPageVisited], [CreatedBy], [ModifiedBy], [ApprovalNotificationEV], CAST([CreatedDate] AS VARCHAR(30)) AS CreatedDate, CAST([ModifiedDate] AS VARCHAR(30)) AS ModifiedDate, [ReceivedCompletedNewAccountsEV], [ReceivedCompletedMoneyInEV], [ReceivedCompletedStandingInstructionsEV], [ReceivedCompletedInvestmentChangesEV], [ReceivedCompletedWithdrawalsEV], [ReceivedCompletedTerminationsEV] FROM [dbo].[NotificationPreferences] WHERE id = '{{preferenceId}}'",
+            "audit_query": "SELECT [ID], [APLID], [ItemsRequiringAttentionEV], [ReceivedCompletedPrimaryEV], [ReceivedCompletedSecondaryEV], [IsPageVisited], [CreatedBy], [ModifiedBy], [ApprovalNotificationEV], CAST([CreatedDate] AS VARCHAR(30)) AS CreatedDate, CAST([ModifiedDate] AS VARCHAR(30)) AS ModifiedDate, [ReceivedCompletedNewAccountsEV], [ReceivedCompletedMoneyInEV], [ReceivedCompletedStandingInstructionsEV], [ReceivedCompletedInvestmentChangesEV], [ReceivedCompletedWithdrawalsEV], [ReceivedCompletedTerminationsEV] FROM [dbo].[NotificationPreferences] WHERE id = '{{preferenceId}}'"
+        },
+        "db_type": "mssql",
+        "db_connection_name": "work_item_notification",
+        "test_summary": "Test TC001: PUT /api/workitemnotification/v1 [positive] (TC001)",
+        "payload_file": "WorkItemNotification\\payloads\\Payload_api_workitemnotification_v1_PUT_functional.json"
+    },
+    {
+        "test_id": "TC002",
+        "service_name": "WorkItemNotification",
+        "workflow_mode": "parallel",
+        "test_name": "PUT /api/workitemnotification/v1 [negative: extra param] (TC002)",
+        "protocol": "REST",
+        "test_type": [
+            "Negative"
+        ],
+        "mainURL": "{{base_url}}",
+        "endpoint": "/api/workitemnotification/v1",
+        "method": "PUT",
+        "rpc_method": "",
+        "graphql_query": "",
+        "graphql_variables": "",
+        "soap_action": "",
+        "soap_envelope": "",
+        "headers_additional": {
+            "Content-Type": "application/json"
+        },
+        "payload": "WorkItemNotification\\payloads\\Payload_api_workitemnotification_v1_PUT_negative.json",
+        "expected_status": "400",
+        "expected_response_schema": "WorkItemNotification\\schemas\\Schema_api_workitemnotification_v1_PUT_error.json",
+        "expected_response": null,
+        "ignore_fields": [
+            "id"
+        ],
+        "extract_values": [
+            {
+                "from": "response",
+                "key": "",
+                "assign_to": ""
+            },
+            {
+                "from": "response",
+                "record_count": false,
+                "array_path": "",
+                "assign_to": ""
+            },
+            {
+                "from": "db_result",
+                "query": "",
+                "assign": [
+                    {
+                        "key": "",
+                        "assign_to": ""
+                    }
+                ]
+            }
+        ],
+        "validate": {
+            "performance": {
+                "max_response_time_ms": 500
+            },
+            "security": {
+                "checks": [
+                    "sql_injection",
+                    "xss"
+                ]
+            }
+        },
+        "test_data_file": "",
+        "db_query_timing": "after_api",
+        "db_queries": {
+            "default": "",
+            "audit_query": ""
+        },
+        "db_type": "",
+        "db_connection_name": "",
+        "test_summary": "Test TC002: PUT /api/workitemnotification/v1 [negative: extra param] (TC002)",
+        "extra_param": {
+            "unexpected_param": "unexpected"
+        },
+        "payload_file": "WorkItemNotification\\payloads\\Payload_api_workitemnotification_v1_PUT_negative.json"
+    },
+    {
+        "test_id": "TC003",
+        "service_name": "WorkItemNotification",
+        "workflow_mode": "parallel",
+        "test_name": "PUT /api/workitemnotification/v1 [negative: invalid payload] (TC003)",
+        "protocol": "REST",
+        "test_type": [
+            "Negative"
+        ],
+        "mainURL": "{{base_url}}",
+        "endpoint": "/api/workitemnotification/v1",
+        "method": "PUT",
+        "rpc_method": "",
+        "graphql_query": "",
+        "graphql_variables": "",
+        "soap_action": "",
+        "soap_envelope": "",
+        "headers_additional": {
+            "Content-Type": "application/json"
+        },
+        "payload": "WorkItemNotification\\payloads\\Payload_api_workitemnotification_v1_PUT_negative.json",
+        "expected_status": "400",
+        "expected_response_schema": "WorkItemNotification\\schemas\\Schema_api_workitemnotification_v1_PUT_error.json",
+        "expected_response": null,
+        "ignore_fields": [
+            "id"
+        ],
+        "extract_values": [
+            {
+                "from": "response",
+                "key": "",
+                "assign_to": ""
+            },
+            {
+                "from": "response",
+                "record_count": false,
+                "array_path": "",
+                "assign_to": ""
+            },
+            {
+                "from": "db_result",
+                "query": "",
+                "assign": [
+                    {
+                        "key": "",
+                        "assign_to": ""
+                    }
+                ]
+            }
+        ],
+        "validate": {
+            "performance": {
+                "max_response_time_ms": 500
+            },
+            "security": {
+                "checks": [
+                    "sql_injection",
+                    "xss"
+                ]
+            }
+        },
+        "test_data_file": "",
+        "db_query_timing": "after_api",
+        "db_queries": {
+            "default": "",
+            "audit_query": ""
+        },
+        "db_type": "",
+        "db_connection_name": "",
+        "test_summary": "Test TC003: PUT /api/workitemnotification/v1 [negative: invalid payload] (TC003)",
+        "invalid_payload": true,
+        "payload_file": "WorkItemNotification\\payloads\\Payload_api_workitemnotification_v1_PUT_negative.json"
+    }
+]

@@ -1,0 +1,41 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "type": "object",
+  "title": "POST /security Response Schema",
+  "description": "Response schema for /security",
+  "properties": {
+    "securityId": {
+      "type": "integer"
+    },
+    "cusip": {
+      "type": ["string", "null"]
+    },
+    "ticker": {
+      "type": ["string", "null"]
+    },
+    "name": {
+      "type": "string"
+    },
+    "createdBy": {
+      "type": "string"
+    },
+    "createdDate": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "assetClass": {
+      "type": "string"
+    },
+    "assetType": {
+      "type": "string"
+    },
+    "subAssetType": {
+      "type": "string"
+    }
+  },
+  "required": [
+    "securityId",
+    "name",
+    "createdDate"
+  ]
+}

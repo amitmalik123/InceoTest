@@ -1,0 +1,199 @@
+[
+    {
+        "test_id": "TC001",
+        "service_name": "securitiesServices",
+        "workflow_mode": "sequential",
+        "test_name": "GET /classifications [validation: retrieve all classifications and validate response structure] (TC002)",
+        "protocol": "REST",
+        "test_type": [
+            "Functional",
+            "Validation"
+        ],
+        "mainURL": "{{base_url}}",
+        "endpoint": "/classifications",
+        "method": "GET",
+        "headers_additional": {
+            "Content-Type": "application/json"
+        },
+        "payload": null,
+        "expected_status": "200",
+        "expected_response_schema": "securitiesServices\\schemas\\Schema_classifications_GET.json",
+        "expected_response": null,
+        "ignore_fields": [],
+        "extract_values": [
+            {
+                "from": "response",
+                "key": "0.assetClass.id",
+                "assign_to": "asset_class_id"
+            },
+            {
+                "from": "response",
+                "key": "0.assetClass.name",
+                "assign_to": "asset_class_name"
+            },
+            {
+                "from": "response",
+                "key": "0.assetType.id",
+                "assign_to": "asset_type_id"
+            },
+            {
+                "from": "response",
+                "key": "0.assetType.name",
+                "assign_to": "asset_type_name"
+            },
+            {
+                "from": "response",
+                "key": "0.subAssetType.id",
+                "assign_to": "sub_asset_type_id"
+            },
+            {
+                "from": "response",
+                "key": "0.subAssetType.name",
+                "assign_to": "sub_asset_type_name"
+            }
+        ],
+        "validate": {
+            "performance": {
+                "max_response_time_ms": 650
+            },
+            "security": {
+                "checks": [
+                    "sql_injection",
+                    "xss"
+                ]
+            },
+            "assertions": [
+                {
+                    "actual": "{{asset_class_id}}",
+                    "operator": "!=",
+                    "expected": null,
+                    "message": "Expected asset class ID to be present"
+                },
+                {
+                    "actual": "{{asset_class_name}}",
+                    "operator": "!=",
+                    "expected": null,
+                    "message": "Expected asset class name to be present"
+                },
+                {
+                    "actual": "{{asset_type_id}}",
+                    "operator": "!=",
+                    "expected": null,
+                    "message": "Expected asset type ID to be present"
+                },
+                {
+                    "actual": "{{asset_type_name}}",
+                    "operator": "!=",
+                    "expected": null,
+                    "message": "Expected asset type name to be present"
+                },
+                {
+                    "actual": "{{sub_asset_type_id}}",
+                    "operator": "!=",
+                    "expected": null,
+                    "message": "Expected sub asset type ID to be present"
+                },
+                {
+                    "actual": "{{sub_asset_type_name}}",
+                    "operator": "!=",
+                    "expected": null,
+                    "message": "Expected sub asset type name to be present"
+                }
+            ]
+        },
+        "test_data_file": "",
+        "db_query": "",
+        "db_type": "",
+        "db_connection_name": "",
+        "test_summary": "Test TC001: Validate response structure contains all required nested fields",
+        "test_scenario": "Verify that each classification contains properly structured assetClass, assetType, and subAssetType objects with id and name."
+    },
+    {
+        "test_id": "TC002",
+        "service_name": "securitiesServices",
+        "workflow_mode": "sequential",
+        "test_name": "GET /classifications [validation: retrieve all classifications and validate response] (TC002)",
+        "protocol": "REST",
+        "test_type": [
+            "Functional",
+            "Validation"
+        ],
+        "mainURL": "{{base_url}}",
+        "endpoint": "/classifications",
+        "method": "GET",
+        "headers_additional": {
+            "Content-Type": "application/json"
+        },
+        "payload": null,
+        "expected_status": "200",
+        "expected_response_schema": "securitiesServices\\schemas\\Schema_classifications_GET.json",
+        "expected_response": null,
+        "ignore_fields": [],
+        "extract_values": [],
+        "validate": {
+            "performance": {
+                "max_response_time_ms": 650
+            },
+            "security": {
+                "checks": [
+                    "sql_injection",
+                    "xss"
+                ]
+            },
+            "data_comparison": [
+                {
+                    "source": "api_response",
+                    "target": "db_result",
+                    "target_query": "default",
+                    "format": "table",
+                    "source_array_path": "",
+                    "key_field": [],
+                    "fields_to_compare": [
+                        {
+                            "source": "assetClass.id",
+                            "target": "db_asset_class_id"
+                        },
+                        {
+                            "source": "assetClass.name",
+                            "target": "db_asset_class_name"
+                        },
+                        {
+                            "source": "assetClass.id",
+                            "target": "db_asset_class_id"
+                        },
+                        {
+                            "source": "assetClass.name",
+                            "target": "db_asset_class_name"
+                        },
+                        {
+                            "source": "assetType.id",
+                            "target": "db_asset_type_id"
+                        },
+                        {
+                            "source": "assetType.name",
+                            "target": "db_asset_type_name"
+                        },
+                        {
+                            "source": "subAssetType.id",
+                            "target": "db_sub_asset_type_id"
+                        },
+                        {
+                            "source": "subAssetType.name",
+                            "target": "db_sub_asset_type_name"
+                        }
+                    ],
+                    "log_differences": true,
+                    "comparison_name": "Verify Response API vs DB field values"
+                }
+            ]
+        },
+        "test_data_file": "",
+        "db_queries": {
+            "default": "securitiesServices/db_queries/Query_classifications_GET.sql"
+        },
+        "db_type": "postgresql",
+        "db_connection_name": "securitiesServices",
+        "test_summary": "Test TC002: Validate classifications count from API matches database count",
+        "test_scenario": "Verify data integrity by comparing the number of classifications returned by API"
+    }
+]

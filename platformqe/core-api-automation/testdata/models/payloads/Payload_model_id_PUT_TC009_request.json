@@ -1,0 +1,28 @@
+{
+    "name": "Test Model - Invalid Allocation Weight",
+    "allocations": [
+        {
+            "entityType": "Security",
+            "allocationName": "SPDR S&P 500 ETF Trust",
+            "modelId": "",
+            "cusip": "78462F103",
+            "ticker": "SPY",
+            "weight": 1.5
+        }
+    ],
+    "investmentApproachId": null,
+    "benchmark": [
+        {
+            "name": "60/40 Balanced Index",
+            "isPrimary": true
+        }
+    ],
+    "custodians": [
+        "Fidelity"
+    ],
+    "investmentMins": {
+        "standard": 25000
+    },
+    "riskProfile": "Moderate Risk",
+    "versionMetadata": {}
+}

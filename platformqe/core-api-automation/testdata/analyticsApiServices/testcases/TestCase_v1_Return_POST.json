@@ -1,0 +1,648 @@
+[
+    {
+        "test_id": "TC001_V1_Return",
+        "service_name": "analyticsApiServices",
+        "workflow_mode": "sequential",
+        "test_name": "POST /v1/analytics - Risk vs Return Calculation (TC001_V1_Return)",
+        "protocol": "REST",
+        "test_type": [
+            "Functional",
+            "Smoke"
+        ],
+        "mainURL": "{{base_url}}",
+        "endpoint": "/v1/analytics",
+        "method": "POST",
+        "headers_additional": {
+            "Content-Type": "application/json"
+        },
+        "payload": "analyticsApiServices/payloads/Payload_RiskVsReturn_POST.txt",
+        "expected_status": "200",
+        "expected_response_schema": "",
+        "expected_response": null,
+        "ignore_fields": [],
+        "scripts": [
+            "analyticsApiServices/validators/return_validator.py"
+        ],
+        "extract_values": [
+            {
+                "from": "response",
+                "key": "calculationResults.0.calculationType",
+                "assign_to": "api_calculation_type"
+            },
+            {
+                "from": "response",
+                "key": "calculationResults.0.result.0.cumulativeReturn",
+                "assign_to": "blend_cumulative_return"
+            },
+            {
+                "from": "response",
+                "key": "calculationResults.0.result.0.annualizedReturn",
+                "assign_to": "blend_annualized_return"
+            },
+            {
+                "from": "response",
+                "key": "calculationResults.0.result.0.blend.0.id",
+                "assign_to": "blend_model_1_id"
+            },
+            {
+                "from": "response",
+                "key": "calculationResults.0.result.0.blend.0.entityType",
+                "assign_to": "blend_model_1_entity_type"
+            },
+            {
+                "from": "response",
+                "key": "calculationResults.0.result.0.blend.0.cumulativeReturn",
+                "assign_to": "blend_model_1_cumulative_return"
+            },
+            {
+                "from": "response",
+                "key": "calculationResults.0.result.0.blend.0.annualizedReturn",
+                "assign_to": "blend_model_1_annualized_return"
+            },
+            {
+                "from": "response",
+                "key": "calculationResults.0.result.1.id",
+                "assign_to": "benchmark_id"
+            },
+            {
+                "from": "response",
+                "key": "calculationResults.0.result.1.entityType",
+                "assign_to": "benchmark_entity_type"
+            },
+            {
+                "from": "response",
+                "key": "calculationResults.0.result.1.cumulativeReturn",
+                "assign_to": "benchmark_cumulative_return"
+            },
+            {
+                "from": "response",
+                "key": "calculationResults.0.result.1.annualizedReturn",
+                "assign_to": "benchmark_annualized_return"
+            },
+            {
+                "from": "script_result",
+                "key": "computed_model_1_cumulative",
+                "assign_to": "computed_model_1_cumulative"
+            },
+            {
+                "from": "script_result",
+                "key": "computed_model_1_annualized",
+                "assign_to": "computed_model_1_annualized"
+            },
+            {
+                "from": "script_result",
+                "key": "computed_blend_cumulative",
+                "assign_to": "computed_blend_cumulative"
+            },
+            {
+                "from": "script_result",
+                "key": "computed_blend_annualized",
+                "assign_to": "computed_blend_annualized"
+            },
+            {
+                "from": "script_result",
+                "key": "computed_benchmark_cumulative",
+                "assign_to": "computed_benchmark_cumulative"
+            },
+            {
+                "from": "script_result",
+                "key": "computed_benchmark_annualized",
+                "assign_to": "computed_benchmark_annualized"
+            }
+        ],
+        "validate": {
+            "performance": {
+                "max_response_time_ms": null
+            },
+            "assertions": [
+                {
+                    "actual": "{{api_calculation_type}}",
+                    "operator": "==",
+                    "expected": "return",
+                    "message": "Verify correct calculation type is 'return'"
+                },
+                {
+                    "actual": "{{blend_model_1_cumulative_return}}",
+                    "operator": "==",
+                    "expected": "{{computed_model_1_cumulative}}",
+                    "tolerance": 0.0001,
+                    "message": "API vs Computed: Blend Model 1 Cumulative Return"
+                },
+                {
+                    "actual": "{{blend_model_1_annualized_return}}",
+                    "operator": "==",
+                    "expected": "{{computed_model_1_annualized}}",
+                    "tolerance": 0.0001,
+                    "message": "API vs Computed: Blend Model 1 Annualized Return"
+                },
+                {
+                    "actual": "{{blend_cumulative_return}}",
+                    "operator": "==",
+                    "expected": "{{computed_blend_cumulative}}",
+                    "tolerance": 0.0001,
+                    "message": "API vs Computed: Blended Portfolio Cumulative Return"
+                },
+                {
+                    "actual": "{{blend_annualized_return}}",
+                    "operator": "==",
+                    "expected": "{{computed_blend_annualized}}",
+                    "tolerance": 0.0001,
+                    "message": "API vs Computed: Blended Portfolio Annualized Return"
+                },
+                {
+                    "actual": "{{benchmark_cumulative_return}}",
+                    "operator": "==",
+                    "expected": "{{computed_benchmark_cumulative}}",
+                    "tolerance": 0.0001,
+                    "message": "API vs Computed: Benchmark Cumulative Return"
+                },
+                {
+                    "actual": "{{benchmark_annualized_return}}",
+                    "operator": "==",
+                    "expected": "{{computed_benchmark_annualized}}",
+                    "tolerance": 0.0001,
+                    "message": "API vs Computed: Benchmark Annualized Return"
+                },
+                {
+                    "actual": "{{benchmark_entity_type}}",
+                    "operator": "==",
+                    "expected": "benchmark",
+                    "message": "Verify benchmark entity type is 'benchmark'"
+                },
+                {
+                    "actual": "{{blend_model_1_entity_type}}",
+                    "operator": "==",
+                    "expected": "model",
+                    "message": "Verify first blend model entity type is 'model'"
+                }
+            ]
+        },
+        "test_data_file": "analyticsApiServices/data_driven/Data_Return_POST.csv",
+        "db_queries": {},
+        "db_type": "mssql",
+        "db_connection_name": "am_db",
+        "db_query_timing": "before_api",
+        "test_summary": "Test Risk vs Return API calculation. Validates risk score, return score, and sharpe ratio calculations for blended portfolios.",
+        "test_scenario": "Validate risk vs return API response contains correct risk metrics, return calculations, and sharpe ratio for model blends."
+    },
+    {
+        "test_id": "TC002_V1_Return",
+        "service_name": "analyticsApiServices",
+        "workflow_mode": "parallel",
+        "test_name": "POST /v1/analytics [negative] (TC002_V1_Return) - Single Model Error",
+        "protocol": "REST",
+        "test_type": [
+            "Functional"
+        ],
+        "mainURL": "{{base_url}}",
+        "endpoint": "/v1/analytics",
+        "method": "POST",
+        "headers_additional": {
+            "Content-Type": "application/json"
+        },
+        "payload": {
+            "calculationRequest": {
+                "inputs": {
+                    "benchmark": [
+                        "B15USC"
+                    ],
+                    "blend": [
+                        {
+                            "id": "GPRRS1",
+                            "entityType": "model",
+                            "weight": 1.0
+                        }
+                    ]
+                },
+                "calculations": [
+                    {
+                        "calculationType": "Return",
+                        "configurations": {
+                            "startDate": "2022-02-01",
+                            "endDate": "2026-02-01"
+                        }
+                    }
+                ]
+            }
+        },
+        "expected_status": "400",
+        "expected_response": null,
+        "test_summary": "Validate that the API returns 400 when only one model is provided for blended risk."
+    },
+    {
+        "test_id": "TC003_V1_Return",
+        "service_name": "analyticsApiServices",
+        "workflow_mode": "parallel",
+        "test_name": "POST /v1/analytics [negative] (TC003_V1_Return) - Weight < 1.0",
+        "protocol": "REST",
+        "test_type": [
+            "Functional"
+        ],
+        "mainURL": "{{base_url}}",
+        "endpoint": "/v1/analytics",
+        "method": "POST",
+        "headers_additional": {
+            "Content-Type": "application/json"
+        },
+        "payload": {
+            "calculationRequest": {
+                "inputs": {
+                    "benchmark": [
+                        "SP500I"
+                    ],
+                    "blend": [
+                        {
+                            "id": "UF2SMA",
+                            "entityType": "model",
+                            "weight": 0.4
+                        },
+                        {
+                            "id": "UMA0ET",
+                            "entityType": "model",
+                            "weight": 0.3
+                        }
+                    ]
+                },
+                "calculations": [
+                    {
+                        "calculationType": "Return",
+                        "configurations": {
+                            "startDate": "2022-02-01",
+                            "endDate": "2026-02-01"
+                        }
+                    }
+                ]
+            }
+        },
+        "expected_status": "400",
+        "expected_response": null,
+        "test_summary": "Validate that the API returns 400 when the total sum of model weights is less than 1.0."
+    },
+    {
+        "test_id": "TC004_V1_Return",
+        "service_name": "analyticsApiServices",
+        "workflow_mode": "parallel",
+        "test_name": "POST /v1/analytics [negative] (TC004_V1_Return) - Weight > 1.0",
+        "protocol": "REST",
+        "test_type": [
+            "Functional"
+        ],
+        "mainURL": "{{base_url}}",
+        "endpoint": "/v1/analytics",
+        "method": "POST",
+        "headers_additional": {
+            "Content-Type": "application/json"
+        },
+        "payload": {
+            "calculationRequest": {
+                "inputs": {
+                    "benchmark": [
+                        "B15USC"
+                    ],
+                    "blend": [
+                        {
+                            "id": "NUT110",
+                            "entityType": "model",
+                            "weight": 0.6
+                        },
+                        {
+                            "id": "SELAC2",
+                            "entityType": "model",
+                            "weight": 0.6
+                        }
+                    ]
+                },
+                "calculations": [
+                    {
+                        "calculationType": "Return",
+                        "configurations": {
+                            "startDate": "2022-02-01",
+                            "endDate": "2026-02-01"
+                        }
+                    }
+                ]
+            }
+        },
+        "expected_status": "400",
+        "expected_response": null,
+        "test_summary": "Validate that the API returns 400 when the total sum of model weights is greater than 1.0."
+    },
+    {
+        "test_id": "TC005_V1_Return",
+        "service_name": "analyticsApiServices",
+        "workflow_mode": "parallel",
+        "test_name": "POST /v1/analytics [negative] (TC005_V1_Return) - Invalid Logic",
+        "protocol": "REST",
+        "test_type": [
+            "Functional"
+        ],
+        "mainURL": "{{base_url}}",
+        "endpoint": "/v1/analytics",
+        "method": "POST",
+        "headers_additional": {
+            "Content-Type": "application/json"
+        },
+        "payload": {
+            "calculationRequest": {
+                "inputs": {
+                    "blend": [
+                        {
+                            "id": "TPRRS2",
+                            "entityType": "model",
+                            "weight": 0.5
+                        },
+                        {
+                            "id": "TPSMFS",
+                            "entityType": "model",
+                            "weight": 0.5
+                        }
+                    ]
+                },
+                "calculations": [
+                    {
+                        "calculationType": "Return",
+                        "configurations": {
+                            "startDate": "2022-02-01",
+                            "endDate": "2026-02-01"
+                        }
+                    }
+                ]
+            }
+        },
+        "expected_status": "400",
+        "expected_response": null,
+        "test_summary": "TPSMFS does not have performance data. Please ensure there is performance data for the time period requested."
+    },
+    {
+        "test_id": "TC006_V1_Return",
+        "service_name": "analyticsApiServices",
+        "workflow_mode": "parallel",
+        "test_name": "POST /v1/analytics [negative] (TC006_V1_Return) - Invalid calculation type",
+        "protocol": "REST",
+        "test_type": [
+            "Functional"
+        ],
+        "mainURL": "{{base_url}}",
+        "endpoint": "/v1/analytics",
+        "method": "POST",
+        "headers_additional": {
+            "Content-Type": "application/json"
+        },
+        "payload": {
+            "calculationRequest": {
+                "inputs": {
+                    "benchmark": [
+                        "B15USC"
+                    ],
+                    "blend": [
+                        {
+                            "id": "GPRRS1",
+                            "entityType": "model",
+                            "weight": 0.55
+                        },
+                        {
+                            "id": "UF2SMA",
+                            "entityType": "model",
+                            "weight": 0.45
+                        }
+                    ]
+                },
+                "calculations": [
+                    {
+                        "calculationType": "cumulative_returns time series",
+                        "configurations": {
+                            "startDate": "2022-02-01",
+                            "endDate": "2026-02-01"
+                        }
+                    }
+                ]
+            }
+        },
+        "expected_status": "400",
+        "expected_response": null,
+        "test_summary": "Calculation Type: Must be blended risk, asset allocation, Return, return, volatility, or fees"
+    },
+    {
+        "test_id": "TC007_V1_Return",
+        "service_name": "analyticsApiServices",
+        "workflow_mode": "parallel",
+        "test_name": "POST /v1/analytics [negative] (TC007_V1_Return) - Duplicate ID",
+        "protocol": "REST",
+        "test_type": [
+            "Functional"
+        ],
+        "mainURL": "{{base_url}}",
+        "endpoint": "/v1/analytics",
+        "method": "POST",
+        "headers_additional": {
+            "Content-Type": "application/json"
+        },
+        "payload": {
+            "calculationRequest": {
+                "inputs": {
+                    "benchmark": [
+                        "B15USC"
+                    ],
+                    "blend": [
+                        {
+                            "id": "GPRRS1",
+                            "entityType": "model",
+                            "weight": 0.55
+                        },
+                        {
+                            "id": "GPRRS1",
+                            "entityType": "model",
+                            "weight": 0.45
+                        }
+                    ]
+                },
+                "calculations": [
+                    {
+                        "calculationType": "Return",
+                        "configurations": {
+                            "startDate": "2022-02-01",
+                            "endDate": "2026-02-01"
+                        }
+                    }
+                ]
+            }
+        },
+        "expected_status": "400",
+        "expected_response": null,
+        "test_summary": "ID: There is a duplicate id in the request. Please ensure all ids are unique."
+    },
+    {
+        "test_id": "TC008_V1_Return",
+        "service_name": "analyticsApiServices",
+        "workflow_mode": "parallel",
+        "test_name": "POST /v1/analytics [negative] (TC008_V1_Return) - Benchmark IDs were not found",
+        "protocol": "REST",
+        "test_type": [
+            "Functional"
+        ],
+        "mainURL": "{{base_url}}",
+        "endpoint": "/v1/analytics",
+        "method": "POST",
+        "headers_additional": {
+            "Content-Type": "application/json"
+        },
+        "payload": {
+            "calculationRequest": {
+                "inputs": {
+                    "benchmark": [
+                        "BUSC"
+                    ],
+                    "blend": [
+                        {
+                            "id": "GPRRS1",
+                            "entityType": "model",
+                            "weight": 0.55
+                        },
+                        {
+                            "id": "UF2SMA",
+                            "entityType": "model",
+                            "weight": 0.45
+                        }
+                    ]
+                },
+                "calculations": [
+                    {
+                        "calculationType": "Return",
+                        "configurations": {
+                            "startDate": "2022-02-01",
+                            "endDate": "2026-02-01"
+                        }
+                    }
+                ]
+            }
+        },
+        "expected_status": "400",
+        "expected_response": null,
+        "test_summary": "Benchmark IDs BUSC were not found"
+    },
+    {
+        "test_id": "TC009_V1_Return",
+        "service_name": "analyticsApiServices",
+        "workflow_mode": "parallel",
+        "test_name": "POST /v1/analytics [negative] (TC009_V1_Return) - The end date is required",
+        "protocol": "REST",
+        "test_type": [
+            "Functional"
+        ],
+        "mainURL": "{{base_url}}",
+        "endpoint": "/v1/analytics",
+        "method": "POST",
+        "headers_additional": {
+            "Content-Type": "application/json"
+        },
+        "payload": {
+            "calculationRequest": {
+                "inputs": {
+                    "benchmark": [
+                        "B15USC"
+                    ],
+                    "blend": [
+                        {
+                            "id": "GPRRS1",
+                            "entityType": "model",
+                            "weight": 0.55
+                        },
+                        {
+                            "id": "UF2SMA",
+                            "entityType": "model",
+                            "weight": 0.45
+                        }
+                    ]
+                },
+                "calculations": [
+                    {
+                        "calculationType": "Return",
+                        "configurations": {}
+                    }
+                ]
+            }
+        },
+        "expected_status": "400",
+        "expected_response": null,
+        "test_summary": "The end date is required"
+    },
+    {
+        "test_id": "TC010_V1_Return",
+        "service_name": "analyticsApiServices",
+        "workflow_mode": "parallel",
+        "test_name": "POST /v1/analytics [negative] (TC010_V1_Return) - Sequence contains no elements",
+        "protocol": "REST",
+        "test_type": [
+            "Functional"
+        ],
+        "mainURL": "{{base_url}}",
+        "endpoint": "/v1/analytics",
+        "method": "POST",
+        "headers_additional": {
+            "Content-Type": "application/json"
+        },
+        "payload": {
+            "calculationRequest": {
+                "inputs": {
+                    "benchmark": [
+                        "B15USC"
+                    ],
+                    "blend": []
+                },
+                "calculations": [
+                    {
+                        "calculationType": "Return",
+                        "configurations": {
+                            "startDate": "2022-02-01",
+                            "endDate": "2026-02-01"
+                        }
+                    }
+                ]
+            }
+        },
+        "expected_status": "400",
+        "expected_response": null,
+        "test_summary": "Sequence contains no elements"
+    },
+    {
+        "test_id": "TC011_V1_Return",
+        "service_name": "analyticsApiServices",
+        "workflow_mode": "parallel",
+        "test_name": "POST /v1/analytics [negative] (TC011_V1_Return) - At least one calculation is required",
+        "protocol": "REST",
+        "test_type": [
+            "Functional"
+        ],
+        "mainURL": "{{base_url}}",
+        "endpoint": "/v1/analytics",
+        "method": "POST",
+        "headers_additional": {
+            "Content-Type": "application/json"
+        },
+        "payload": {
+            "calculationRequest": {
+                "inputs": {
+                    "benchmark": [
+                        "B15USC"
+                    ],
+                    "blend": [
+                        {
+                            "id": "GPRRS1",
+                            "entityType": "model",
+                            "weight": 0.55
+                        },
+                        {
+                            "id": "UF2SMA",
+                            "entityType": "model",
+                            "weight": 0.45
+                        }
+                    ]
+                },
+                "calculations": []
+            }
+        },
+        "expected_status": "500",
+        "expected_response": null,
+        "test_summary": "At least one calculation is required"
+    }
+]

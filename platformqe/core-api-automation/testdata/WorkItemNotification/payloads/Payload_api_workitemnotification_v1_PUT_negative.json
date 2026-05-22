@@ -1,0 +1,18 @@
+{
+ 
+"aplId": "SM223356",
+"itemsRequiringAttention": "Email",
+ 
+"receivedCompletedSecondary": "None",
+"approvalNotification": "None",
+"receivedCompletedNewAccounts": "None",
+"receivedCompletedMoneyIn": "None",
+"receivedCompletedStandingInstructions": "Email",
+"receivedCompletedInvestmentChanges": "Email",
+"receivedCompletedWithdrawals": "None",
+"receivedCompletedTerminations": "Email",
+"createdBy": "WorkItemNotificationService",
+"id": 37953,
+"modifiedBy": "TEST"
+ 
+}

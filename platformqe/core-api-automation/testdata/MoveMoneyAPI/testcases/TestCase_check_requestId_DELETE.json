@@ -1,0 +1,274 @@
+[
+    {
+        "test_id": "TC001_SETUP",
+        "service_name": "movemoney",
+        "workflow_mode": "sequential",
+        "test_name": "TC001_SETUP - POST /check - Create withdrawal check request for delete flow",
+        "protocol": "REST",
+        "test_type": [
+            "Functional"
+        ],
+        "mainURL": "{{base_url}}",
+        "endpoint": "/check",
+        "method": "POST",
+        "headers_additional": {
+            "Content-Type": "application/json"
+        },
+        "payload": {
+            "amount": "3200.00",
+            "requestType": "Withdrawal",
+            "status": "Confirmed",
+            "checkWithdrawalDetails": {
+                "instructionId": "0259032c-b55f-4913-a566-d3d4a52690d7",
+                "deliveryType": "Overnight",
+                "chargeOvernightFee": true,
+                "memoLine": "Q1 2026 Distribution",
+                "schedule": {
+                    "scheduleType": "Periodic",
+                    "frequency": "Monthly",
+                    "startDate": "2027-04-15",
+                    "endDate": "2028-12-15"
+                }
+            }
+        },
+        "expected_status": "200",
+        "ignore_fields": [
+            "id",
+            "createdDate",
+            "modifiedDate",
+            "timestamp"
+        ],
+        "extract_values": [
+            {
+                "from": "response",
+                "key": "requestId",
+                "assign_to": "requestId_setup"
+            }
+        ],
+        "validate": {
+            "performance": {
+                "max_response_time_ms": 5000
+            },
+            "security": {
+                "checks": [
+                    "sql_injection",
+                    "xss"
+                ]
+            },
+            "assertions": [
+                {
+                    "actual": "{{requestId_setup}}",
+                    "expected": "",
+                    "operator": "!=",
+                    "message": "RequestId should not be empty"
+                }
+            ],
+            "data_comparison": [
+                {
+                    "comparison_name": "API response self-compare",
+                    "source": "api_response",
+                    "target": "api_response",
+                    "fields_to_compare": [],
+                    "log_differences": true
+                }
+            ]
+        },
+        "test_data_file": "",
+        "db_query_timing": "",
+        "db_queries": {},
+        "db_type": "",
+        "db_connection_name": "",
+        "test_summary": "TC001_SETUP creates a check withdrawal request and prepares data for delete validation"
+    },
+    {
+        "test_id": "TC001",
+        "service_name": "movemoney",
+        "workflow_mode": "sequential",
+        "test_name": "TC001 - DELETE /check/{requestId} [positive] - Delete check request",
+        "protocol": "REST",
+        "test_type": [
+            "Functional"
+        ],
+        "mainURL": "{{base_url}}",
+        "endpoint": "/check/{{requestId_setup}}",
+        "method": "DELETE",
+        "headers_additional": {
+            "Content-Type": "application/json"
+        },
+        "payload": null,
+        "expected_status": "200",
+        "ignore_fields": [
+            "id"
+        ],
+        "extract_values": [],
+        "validate": {
+            "performance": {
+                "max_response_time_ms": 500
+            },
+            "security": {
+                "checks": [
+                    "sql_injection",
+                    "xss"
+                ]
+            },
+            "assertions": [
+                {
+                    "actual": "{{requestId_setup}}",
+                    "expected": "",
+                    "operator": "!=",
+                    "message": "RequestId should not be empty"
+                }
+            ],
+            "data_comparison": [
+                {
+                    "comparison_name": "API response self-compare",
+                    "source": "api_response",
+                    "target": "api_response",
+                    "fields_to_compare": [],
+                    "log_differences": true
+                }
+            ]
+        },
+        "test_data_file": "",
+        "db_query_timing": "",
+        "db_queries": {},
+        "db_type": "",
+        "db_connection_name": "",
+        "test_summary": "Verify the API returns 200 response when the record successfully gets deleted for DELETE /check/{requestId}"
+    },
+    {
+        "test_id": "TC002",
+        "service_name": "movemoney",
+        "workflow_mode": "sequential",
+        "test_name": "TC002 - No Content for DELETE /check/{requestId} [Negative]",
+        "protocol": "REST",
+        "test_type": [
+            "Functional"
+        ],
+        "mainURL": "{{base_url}}",
+        "endpoint": "/check/{{requestId_setup}}",
+        "method": "DELETE",
+        "headers_additional": {
+            "Content-Type": "application/json"
+        },
+        "payload": null,
+        "expected_status": "204",
+        "ignore_fields": [
+            "id"
+        ],
+        "extract_values": [],
+        "validate": {
+            "performance": {
+                "max_response_time_ms": 500
+            },
+            "security": {
+                "checks": [
+                    "sql_injection",
+                    "xss"
+                ]
+            },
+            "assertions": [
+                {
+                    "actual": "{{requestId_setup}}",
+                    "expected": "",
+                    "operator": "!=",
+                    "message": "RequestId should not be empty"
+                }
+            ],
+            "data_comparison": [
+                {
+                    "comparison_name": "API response self-compare",
+                    "source": "api_response",
+                    "target": "api_response",
+                    "fields_to_compare": [],
+                    "log_differences": true
+                }
+            ]
+        },
+        "test_data_file": "",
+        "db_query_timing": "",
+        "db_queries": {},
+        "db_type": "",
+        "db_connection_name": "",
+        "test_summary": "Verify the API returns 204 response when the record successfully gets deleted and there is No Content for DELETE /check/{requestId}"
+    },
+    {
+        "test_id": "TC003",
+        "service_name": "movemoney",
+        "workflow_mode": "parallel",
+        "test_name": "TC003 - Invalid RequestId for DELETE /check/{requestId} [Negative]",
+        "protocol": "REST",
+        "test_type": [
+            "Functional"
+        ],
+        "mainURL": "{{base_url}}",
+        "endpoint": "/check/4fd##$#$e25c2-6fa7-4b10-8ad6-243b06aceabb",
+        "method": "DELETE",
+        "headers_additional": {
+            "Content-Type": "application/json"
+        },
+        "payload": null,
+        "expected_status": "400",
+        "expected_response": {
+            "type": "invalid-request",
+            "title": "Invalid Request",
+            "status": 400,
+            "detail": "The request contains invalid values",
+            "instance": "/api/moneymovement/v1/check/4fd",
+            "errors": {
+                "requestId": [
+                    "Must be a valid UUID format."
+                ]
+            }
+        },
+        "expected_error_message": "Must be a valid UUID format.",
+        "ignore_fields": [
+            "id"
+        ],
+        "extract_values": [
+            {
+                "from": "response",
+                "key": "errors.requestId.0",
+                "assign_to": "error_message_tc003"
+            }
+        ],
+        "validate": {
+            "performance": {
+                "max_response_time_ms": 500
+            },
+            "security": {
+                "checks": [
+                    "sql_injection",
+                    "xss"
+                ]
+            },
+            "assertions": [
+                {
+                    "actual": "4fd##$#$e25c2-6fa7-4b10-8ad6-243b06aceabb",
+                    "expected": "",
+                    "operator": "!=",
+                    "message": "Invalid RequestId should return 400 response for DELETE /check/{requestId}"
+                },
+                {
+                    "actual": "{{error_message_tc003}}",
+                    "expected": "",
+                    "operator": "!=",
+                    "message": "Error message should not be empty"
+                },
+                {
+                    "actual": "{{error_message_tc003}}",
+                    "expected": "{{expected_error_message}}",
+                    "operator": "==",
+                    "message": "RequestId error message should match expected invalid UUID error"
+                }
+            ],
+            "data_comparison": []
+        },
+        "test_data_file": "",
+        "db_query_timing": "",
+        "db_queries": {},
+        "db_type": "",
+        "db_connection_name": "",
+        "test_summary": "Verify the API returns 400 response when an invalid RequestId is provided for DELETE /check/{requestId}"
+    }
+]

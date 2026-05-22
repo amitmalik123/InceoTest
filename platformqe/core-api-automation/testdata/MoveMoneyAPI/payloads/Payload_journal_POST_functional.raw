@@ -1,0 +1,29 @@
+{
+  "fromAccountId": "{{fromAccountId}}",
+  "toAccountId": "{{toAccountId}}",
+  "status": "{{status}}",
+  "movementTypeOverride": "{{movementTypeOverride}}",
+  "journalUnitType": "{{journalUnitType}}",
+{% if amount %}
+  "amount": "{{amount}}",
+{% endif %}
+{% if percent %}
+  "percent": "{{percent}}",
+{% endif %}
+  "closeSourceAccount": "{{closeSourceAccount if closeSourceAccount else 'false'}}",
+  "reason": "{{reason}}",
+  "schedule": {
+    "scheduleType": "{{scheduleType}}",
+    "paymentDate": "{{paymentDate}}"{% if frequency %},
+    "frequency": "{{frequency}}"{% endif %}{% if startDate %},
+    "startDate": "{{startDate}}"{% endif %}
+  }{% if securityId %},
+  "securityTransfers": [
+    {
+      "securityId": "{{securityId}}",
+      "securityUnitType": "{{securityUnitType}}",
+      "quantity": {% if quantity and quantity|lower != 'null' %}"{{quantity}}"{% else %}null{% endif %}
+    }
+  ]
+{% endif %}
+}

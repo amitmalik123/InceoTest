@@ -67,7 +67,7 @@ dmypy.json
 logs/
 framework/logs/
 /reports
-reports/proposal
+reports/PROPOSAL
 applicationqe/reports/*
 
 # ─── Test output ──────────────────────────────────────────────────────────────

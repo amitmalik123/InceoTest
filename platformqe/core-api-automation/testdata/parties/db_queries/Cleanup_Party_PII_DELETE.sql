@@ -1,0 +1,1 @@
+DELETE FROM "PII" WHERE "Id" IN (SELECT "PIIId" FROM "Party" WHERE "Id" = ?);

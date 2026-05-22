@@ -17,8 +17,12 @@ allure-pytest>=2.13.0
 # Configuration
 pyyaml>=6.0
 
+# Encryption utilities
+cryptography>=42.0.0
+
 # Excel data support
 openpyxl>=3.1.0
+pandas>=2.0.0
 
 # InfluxDB metrics
 influxdb-client>=1.38.0

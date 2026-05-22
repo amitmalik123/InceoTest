@@ -1,0 +1,4335 @@
+[
+    {
+        "test_id": "TC001",
+        "service_name": "movemoney",
+        "workflow_mode": "parallel",
+        "test_name": "Check Deposit - Physical Check with Allocations [positive] (TC001)",
+        "protocol": "REST",
+        "test_type": [
+            "Functional"
+        ],
+        "mainURL": "{{base_url}}",
+        "endpoint": "/check",
+        "method": "POST",
+        "rpc_method": "",
+        "graphql_query": "",
+        "graphql_variables": "",
+        "soap_action": "",
+        "soap_envelope": "",
+        "headers_additional": {
+            "Content-Type": "application/json"
+        },
+        "payload": {
+            "amount": "{{amount}}",
+            "requestType": "{{requestType}}",
+            "status": "{{status}}",
+            "checkDepositDetails": {
+                "checkNumber": "{{checkNumber}}",
+                "checkSource": "{{checkSource}}",
+                "checkType": "{{checkType}}",
+                "checkAmount": "{{checkAmount}}",
+                "checkDate": "{{checkDate}}",
+                "bankName": "{{bankName}}",
+                "bankAccountNumber": "{{bankAccountNumber}}",
+                "routingNumber": "{{routingNumber}}",
+                "remitterName": "{{remitterName}}",
+                "alphaAmount": "{{alphaAmount}}",
+                "allocations": [
+                    {
+                        "accountId": "{{accountId1}}",
+                        "allocationUnitType": "{{allocationUnitType1}}",
+                        "amount": "{{amount1}}"
+                    },
+                    {
+                        "accountId": "{{accountId2}}",
+                        "allocationUnitType": "{{allocationUnitType2}}",
+                        "amount": "{{amount2}}"
+                    }
+                ]
+            }
+        },
+        "expected_status": "200",
+        "expected_response_schema": "MoveMoneyAPI/schemas/Schema_check_POST.json",
+        "expected_response": null,
+        "ignore_fields": [
+            "id",
+            "instance"
+        ],
+        "extract_values": [
+            {
+                "from": "response",
+                "key": "requestId",
+                "assign_to": "requestId"
+            },
+            {
+                "from": "response",
+                "key": "version",
+                "assign_to": "version"
+            }
+        ],
+        "validate": {
+            "performance": {
+                "max_response_time_ms": 500
+            },
+            "security": {
+                "checks": [
+                    "sql_injection",
+                    "xss"
+                ]
+            },
+            "assertions": [
+                {
+                    "actual": "{{requestId}}",
+                    "expected": "",
+                    "operator": "!=",
+                    "message": "Request ID should not be empty"
+                },
+                {
+                    "actual": "{{version}}",
+                    "expected": 1,
+                    "operator": "==",
+                    "message": "Version should be 1"
+                }
+            ],
+            "data_comparison": [
+                {
+                    "source": "api_response",
+                    "target": "db_result",
+                    "fields_to_compare": [
+                        {
+                            "source": "requestId",
+                            "target": "requestId"
+                        },
+                        {
+                            "source": "version",
+                            "target": "version"
+                        }
+                    ],
+                    "log_differences": true,
+                    "comparison_name": "API Response vs DB MoneyMovementRequest"
+                }
+            ]
+        },
+        "test_data_file": "MoveMoneyAPI/data_driven/Data_Check_POST.csv",
+        "csv_row_index": 0,
+        "db_query_timing": "after_api",
+        "db_queries": {
+            "default": "SELECT LOWER(CAST([RequestId] AS VARCHAR(36))) AS requestId, [Version] AS version, CAST([Amount] AS VARCHAR(20)) AS amount, [RequestType] AS requestType, [Status] AS status FROM [dbo].[MoneyMovementRequest] WHERE LOWER(CAST([RequestId] AS VARCHAR(36))) = LOWER('{{requestId}}')",
+            "audit_query": ""
+        },
+        "db_type": "mssql",
+        "db_connection_name": "movemoney",
+        "test_summary": "Verify 200 for valid deposit with physical check and amount-based allocations"
+    },
+    {
+        "test_id": "TC002",
+        "service_name": "movemoney",
+        "workflow_mode": "parallel",
+        "test_name": "Check Deposit - Electronic Check with No Allocations [positive] (TC002)",
+        "protocol": "REST",
+        "test_type": [
+            "Functional"
+        ],
+        "mainURL": "{{base_url}}",
+        "endpoint": "/check",
+        "method": "POST",
+        "rpc_method": "",
+        "graphql_query": "",
+        "graphql_variables": "",
+        "soap_action": "",
+        "soap_envelope": "",
+        "headers_additional": {
+            "Content-Type": "application/json"
+        },
+        "payload": {
+            "amount": "{{amount}}",
+            "requestType": "{{requestType}}",
+            "status": "{{status}}",
+            "checkDepositDetails": {
+                "checkNumber": "{{checkNumber}}",
+                "checkSource": "{{checkSource}}",
+                "checkAmount": "{{checkAmount}}",
+                "alphaAmount": "{{alphaAmount}}",
+                "checkDate": "{{checkDate}}",
+                "bankName": "{{bankName}}",
+                "bankAccountNumber": "{{bankAccountNumber}}",
+                "routingNumber": "{{routingNumber}}",
+                "remitterName": "{{remitterName}}",
+                "allocations": [
+                    {
+                        "accountId": "{{accountId1}}",
+                        "allocationUnitType": "{{allocationUnitType1}}",
+                        "amount": "{{amount1}}"
+                    },
+                    {
+                        "accountId": "{{accountId2}}",
+                        "allocationUnitType": "{{allocationUnitType2}}",
+                        "amount": "{{amount2}}"
+                    }
+                ]
+            }
+        },
+        "expected_status": "200",
+        "expected_response_schema": "MoveMoneyAPI/schemas/Schema_check_POST.json",
+        "expected_response": null,
+        "ignore_fields": [
+            "id",
+            "instance"
+        ],
+        "extract_values": [
+            {
+                "from": "response",
+                "key": "requestId",
+                "assign_to": "requestId"
+            },
+            {
+                "from": "response",
+                "key": "version",
+                "assign_to": "version"
+            }
+        ],
+        "validate": {
+            "performance": {
+                "max_response_time_ms": 500
+            },
+            "security": {
+                "checks": [
+                    "sql_injection",
+                    "xss"
+                ]
+            },
+            "assertions": [
+                {
+                    "actual": "{{requestId}}",
+                    "expected": "",
+                    "operator": "!=",
+                    "message": "Request ID should not be empty"
+                },
+                {
+                    "actual": "{{version}}",
+                    "expected": 1,
+                    "operator": "==",
+                    "message": "Version should be 1"
+                }
+            ],
+            "data_comparison": [
+                {
+                    "source": "api_response",
+                    "target": "db_result",
+                    "fields_to_compare": [
+                        {
+                            "source": "requestId",
+                            "target": "requestId"
+                        },
+                        {
+                            "source": "version",
+                            "target": "version"
+                        }
+                    ],
+                    "log_differences": true,
+                    "comparison_name": "API Response vs DB MoneyMovementRequest"
+                }
+            ]
+        },
+        "test_data_file": "MoveMoneyAPI/data_driven/Data_Check_POST.csv",
+        "csv_row_index": 1,
+        "db_query_timing": "after_api",
+        "db_queries": {
+            "default": "SELECT LOWER(CAST([RequestId] AS VARCHAR(36))) AS requestId, [Version] AS version, CAST([Amount] AS VARCHAR(20)) AS amount, [RequestType] AS requestType, [Status] AS status FROM [dbo].[MoneyMovementRequest] WHERE LOWER(CAST([RequestId] AS VARCHAR(36))) = LOWER('{{requestId}}')",
+            "audit_query": ""
+        },
+        "db_type": "mssql",
+        "db_connection_name": "movemoney",
+        "test_summary": "Verify 200 for valid electronic deposit without allocations"
+    },
+    {
+        "test_id": "TC003",
+        "service_name": "movemoney",
+        "workflow_mode": "parallel",
+        "test_name": "Check Withdrawal - Overnight Delivery with Periodic Schedule [positive] (TC003)",
+        "protocol": "REST",
+        "test_type": [
+            "Functional"
+        ],
+        "mainURL": "{{base_url}}",
+        "endpoint": "/check",
+        "method": "POST",
+        "rpc_method": "",
+        "graphql_query": "",
+        "graphql_variables": "",
+        "soap_action": "",
+        "soap_envelope": "",
+        "headers_additional": {
+            "Content-Type": "application/json"
+        },
+        "payload": {
+            "amount": "{{amount}}",
+            "requestType": "{{requestType}}",
+            "status": "{{status}}",
+            "checkWithdrawalDetails": {
+                "instructionId": "{{instructionId}}",
+                "deliveryType": "{{deliveryType}}",
+                "chargeOvernightFee": true,
+                "memoLine": "{{memoLine}}",
+                "schedule": {
+                    "scheduleType": "{{scheduleType}}",
+                    "frequency": "{{frequency}}",
+                    "startDate": "{{startDate}}",
+                    "endDate": "{{endDate}}"
+                }
+            }
+        },
+        "expected_status": "200",
+        "expected_response_schema": "MoveMoneyAPI/schemas/Schema_check_POST.json",
+        "expected_response": null,
+        "ignore_fields": [
+            "id",
+            "instance"
+        ],
+        "extract_values": [
+            {
+                "from": "response",
+                "key": "requestId",
+                "assign_to": "requestId"
+            },
+            {
+                "from": "response",
+                "key": "version",
+                "assign_to": "version"
+            }
+        ],
+        "validate": {
+            "performance": {
+                "max_response_time_ms": 500
+            },
+            "security": {
+                "checks": [
+                    "sql_injection",
+                    "xss"
+                ]
+            },
+            "assertions": [
+                {
+                    "actual": "{{requestId}}",
+                    "expected": "",
+                    "operator": "!=",
+                    "message": "Request ID should not be empty"
+                },
+                {
+                    "actual": "{{version}}",
+                    "expected": 1,
+                    "operator": "==",
+                    "message": "Version should be 1"
+                }
+            ],
+            "data_comparison": [
+                {
+                    "source": "api_response",
+                    "target": "db_result",
+                    "fields_to_compare": [
+                        {
+                            "source": "requestId",
+                            "target": "requestId"
+                        },
+                        {
+                            "source": "version",
+                            "target": "version"
+                        }
+                    ],
+                    "log_differences": true,
+                    "comparison_name": "API Response vs DB MoneyMovementRequest"
+                }
+            ]
+        },
+        "test_data_file": "MoveMoneyAPI/data_driven/Data_Check_POST.csv",
+        "csv_row_index": 2,
+        "db_query_timing": "after_api",
+        "db_queries": {
+            "default": "SELECT LOWER(CAST([RequestId] AS VARCHAR(36))) AS requestId, [Version] AS version, CAST([Amount] AS VARCHAR(20)) AS amount, [RequestType] AS requestType, [Status] AS status FROM [dbo].[MoneyMovementRequest] WHERE LOWER(CAST([RequestId] AS VARCHAR(36))) = LOWER('{{requestId}}')",
+            "audit_query": ""
+        },
+        "db_type": "mssql",
+        "db_connection_name": "movemoney",
+        "test_summary": "Verify 200 for valid withdrawal with overnight delivery, Confirmed status and periodic schedule"
+    },
+    {
+        "test_id": "TC004",
+        "service_name": "movemoney",
+        "workflow_mode": "parallel",
+        "test_name": "Invalid Fields in Request Body [Negative] (TC004)",
+        "protocol": "REST",
+        "test_type": [
+            "Functional"
+        ],
+        "mainURL": "{{base_url}}",
+        "endpoint": "/check",
+        "method": "POST",
+        "rpc_method": "",
+        "graphql_query": "",
+        "graphql_variables": "",
+        "soap_action": "",
+        "soap_envelope": "",
+        "headers_additional": {
+            "Content-Type": "application/json"
+        },
+        "payload": {
+            "amount": "{{amount}}",
+            "requestType": "{{requestType}}",
+            "status": "{{status}}",
+            "checkDepositDetails": {
+                "checkNumber": "{{checkNumber}}",
+                "checkSource": "{{checkSource}}",
+                "checkType": "{{checkType}}",
+                "checkAmount": "{{checkAmount}}",
+                "checkDate": "{{checkDate}}",
+                "bankName": "{{bankName}}",
+                "bankAccountNumber": "{{bankAccountNumber}}",
+                "routingNumber": "{{routingNumber}}",
+                "remitterName": "{{remitterName}}",
+                "alphaAmount": "{{alphaAmount}}",
+                "allocations": [
+                    {
+                        "accountId": "{{accountId1}}",
+                        "allocationUnitType": "{{allocationUnitType1}}",
+                        "amount": "{{amount1}}"
+                    },
+                    {
+                        "accountId": "{{accountId2}}",
+                        "allocationUnitType": "{{allocationUnitType2}}",
+                        "amount": "{{amount2}}"
+                    }
+                ]
+            }
+        },
+        "expected_status": "400",
+        "expected_response_schema": "",
+        "expected_response": {
+            "type": "invalid-request",
+            "title": "Invalid Request",
+            "status": 400,
+            "detail": "The request contains invalid values",
+            "instance": "/api/moneymovement/v1/check",
+            "errors": {
+                "requestType": [
+                    "Must be one of: Deposit, Withdrawal."
+                ]
+            }
+        },
+        "ignore_fields": [
+            "id",
+            "instance"
+        ],
+        "extract_values": [
+            {
+                "from": "response",
+                "key": "type",
+                "assign_to": "error_type"
+            },
+            {
+                "from": "response",
+                "key": "status",
+                "assign_to": "error_status"
+            },
+            {
+                "from": "response",
+                "key": "detail",
+                "assign_to": "error_detail"
+            }
+        ],
+        "validate": {
+            "performance": {
+                "max_response_time_ms": 2000
+            },
+            "security": {
+                "checks": [
+                    "sql_injection",
+                    "xss"
+                ]
+            },
+            "assertions": [
+                {
+                    "actual": "{{error_type}}",
+                    "expected": "invalid-request",
+                    "operator": "==",
+                    "message": "Error type should be 'invalid-request'"
+                },
+                {
+                    "actual": "{{error_status}}",
+                    "expected": 400,
+                    "operator": "==",
+                    "message": "Error status should be 400"
+                },
+                {
+                    "actual": "{{error_detail}}",
+                    "expected": "The request contains invalid values",
+                    "operator": "==",
+                    "message": "Error detail should be 'The request contains invalid values'"
+                }
+            ],
+            "data_comparison": []
+        },
+        "test_data_file": "MoveMoneyAPI/data_driven/Data_Check_POST.csv",
+        "csv_row_index": 3,
+        "db_query_timing": "",
+        "db_queries": {},
+        "db_type": "",
+        "db_connection_name": "",
+        "test_summary": "Verify 400 when invalid field values are sent in POST /check request body"
+    },
+    {
+        "test_id": "TC005",
+        "service_name": "movemoney",
+        "workflow_mode": "parallel",
+        "test_name": "Missing Fields in Request Body [Negative] (TC005)",
+        "protocol": "REST",
+        "test_type": [
+            "Functional"
+        ],
+        "mainURL": "{{base_url}}",
+        "endpoint": "/check",
+        "method": "POST",
+        "rpc_method": "",
+        "graphql_query": "",
+        "graphql_variables": "",
+        "soap_action": "",
+        "soap_envelope": "",
+        "headers_additional": {
+            "Content-Type": "application/json"
+        },
+        "payload": {
+            "amount": "{{amount}}",
+            "requestType": "{{requestType}}",
+            "status": "{{status}}",
+            "checkDepositDetails": {
+                "checkNumber": "{{checkNumber}}",
+                "checkSource": "{{checkSource}}",
+                "checkType": "{{checkType}}",
+                "checkAmount": "{{checkAmount}}",
+                "checkDate": "{{checkDate}}",
+                "bankName": "{{bankName}}",
+                "bankAccountNumber": "{{bankAccountNumber}}",
+                "routingNumber": "{{routingNumber}}",
+                "remitterName": "{{remitterName}}",
+                "alphaAmount": "{{alphaAmount}}",
+                "allocations": [
+                    {
+                        "accountId": "{{accountId1}}",
+                        "allocationUnitType": "{{allocationUnitType1}}",
+                        "amount": "{{amount1}}"
+                    },
+                    {
+                        "accountId": "{{accountId2}}",
+                        "allocationUnitType": "{{allocationUnitType2}}",
+                        "amount": "{{amount2}}"
+                    }
+                ]
+            }
+        },
+        "expected_status": "400",
+        "expected_response_schema": "",
+        "expected_response": {
+            "type": "missing-required-fields",
+            "title": "One or more fields are missing values",
+            "status": 400,
+            "detail": "Missing Required Fields",
+            "instance": "/api/moneymovement/v1/check",
+            "errors": {
+                "requestType": [
+                    "This field is required."
+                ]
+            }
+        },
+        "ignore_fields": [
+            "id",
+            "instance"
+        ],
+        "extract_values": [
+            {
+                "from": "response",
+                "key": "type",
+                "assign_to": "error_type"
+            },
+            {
+                "from": "response",
+                "key": "status",
+                "assign_to": "error_status"
+            },
+            {
+                "from": "response",
+                "key": "detail",
+                "assign_to": "error_detail"
+            }
+        ],
+        "validate": {
+            "performance": {
+                "max_response_time_ms": 2000
+            },
+            "security": {
+                "checks": [
+                    "sql_injection",
+                    "xss"
+                ]
+            },
+            "assertions": [
+                {
+                    "actual": "{{error_type}}",
+                    "expected": "missing-required-fields",
+                    "operator": "==",
+                    "message": "Error type should be 'missing-required-fields'"
+                },
+                {
+                    "actual": "{{error_status}}",
+                    "expected": 400,
+                    "operator": "==",
+                    "message": "Error status should be 400"
+                },
+                {
+                    "actual": "{{error_detail}}",
+                    "expected": "Missing Required Fields",
+                    "operator": "==",
+                    "message": "Error detail should be 'Missing Required Fields'"
+                }
+            ],
+            "data_comparison": []
+        },
+        "test_data_file": "MoveMoneyAPI/data_driven/Data_Check_POST.csv",
+        "csv_row_index": 4,
+        "db_query_timing": "",
+        "db_queries": {},
+        "db_type": "",
+        "db_connection_name": "",
+        "test_summary": "Verify 400 when required fields are missing from POST /check request body"
+    },
+    {
+        "test_id": "TC006",
+        "service_name": "movemoney",
+        "workflow_mode": "parallel",
+        "test_name": "400 - Missing amount [Negative] (TC006)",
+        "protocol": "REST",
+        "test_type": [
+            "Functional"
+        ],
+        "mainURL": "{{base_url}}",
+        "endpoint": "/check",
+        "method": "POST",
+        "rpc_method": "",
+        "graphql_query": "",
+        "graphql_variables": "",
+        "soap_action": "",
+        "soap_envelope": "",
+        "headers_additional": {
+            "Content-Type": "application/json"
+        },
+        "payload": {
+            "requestType": "{{requestType}}",
+            "status": "{{status}}",
+            "checkDepositDetails": {
+                "checkNumber": "{{checkNumber}}",
+                "checkSource": "{{checkSource}}",
+                "checkType": "{{checkType}}",
+                "checkAmount": "{{checkAmount}}",
+                "checkDate": "{{checkDate}}",
+                "bankName": "{{bankName}}",
+                "bankAccountNumber": "{{bankAccountNumber}}",
+                "routingNumber": "{{routingNumber}}",
+                "remitterName": "{{remitterName}}",
+                "alphaAmount": "{{alphaAmount}}",
+                "allocations": [
+                    {
+                        "accountId": "{{accountId1}}",
+                        "allocationUnitType": "{{allocationUnitType1}}",
+                        "amount": "{{amount1}}"
+                    },
+                    {
+                        "accountId": "{{accountId2}}",
+                        "allocationUnitType": "{{allocationUnitType2}}",
+                        "amount": "{{amount2}}"
+                    }
+                ]
+            }
+        },
+        "expected_status": "400",
+        "expected_response_schema": "",
+        "expected_response": {
+            "type": "missing-required-fields",
+            "title": "One or more fields are missing values",
+            "status": 400,
+            "detail": "Missing Required Fields",
+            "instance": "/api/moneymovement/v1/check",
+            "errors": {
+                "amount": [
+                    "This field is required."
+                ]
+            }
+        },
+        "ignore_fields": [
+            "id",
+            "instance"
+        ],
+        "extract_values": [
+            {
+                "from": "response",
+                "key": "type",
+                "assign_to": "error_type"
+            },
+            {
+                "from": "response",
+                "key": "status",
+                "assign_to": "error_status"
+            },
+            {
+                "from": "response",
+                "key": "detail",
+                "assign_to": "error_detail"
+            }
+        ],
+        "validate": {
+            "performance": {
+                "max_response_time_ms": 2000
+            },
+            "security": {
+                "checks": [
+                    "sql_injection",
+                    "xss"
+                ]
+            },
+            "assertions": [
+                {
+                    "actual": "{{error_type}}",
+                    "expected": "missing-required-fields",
+                    "operator": "==",
+                    "message": "Error type should be 'missing-required-fields'"
+                },
+                {
+                    "actual": "{{error_status}}",
+                    "expected": 400,
+                    "operator": "==",
+                    "message": "Error status should be 400"
+                },
+                {
+                    "actual": "{{error_detail}}",
+                    "expected": "Missing Required Fields",
+                    "operator": "==",
+                    "message": "Error detail should be 'Missing Required Fields'"
+                }
+            ],
+            "data_comparison": []
+        },
+        "test_data_file": "MoveMoneyAPI/data_driven/Data_Check_POST.csv",
+        "csv_row_index": 5,
+        "db_query_timing": "",
+        "db_queries": {},
+        "db_type": "",
+        "db_connection_name": "",
+        "test_summary": "Verify 400 when 'amount' is absent"
+    },
+    {
+        "test_id": "TC007",
+        "service_name": "movemoney",
+        "workflow_mode": "parallel",
+        "test_name": "400 - Missing requestType [Negative] (TC007)",
+        "protocol": "REST",
+        "test_type": [
+            "Functional"
+        ],
+        "mainURL": "{{base_url}}",
+        "endpoint": "/check",
+        "method": "POST",
+        "rpc_method": "",
+        "graphql_query": "",
+        "graphql_variables": "",
+        "soap_action": "",
+        "soap_envelope": "",
+        "headers_additional": {
+            "Content-Type": "application/json"
+        },
+        "payload": {
+            "amount": "{{amount}}",
+            "status": "{{status}}",
+            "checkDepositDetails": {
+                "checkNumber": "{{checkNumber}}",
+                "checkSource": "{{checkSource}}",
+                "checkType": "{{checkType}}",
+                "checkAmount": "{{checkAmount}}",
+                "checkDate": "{{checkDate}}",
+                "bankName": "{{bankName}}",
+                "bankAccountNumber": "{{bankAccountNumber}}",
+                "routingNumber": "{{routingNumber}}",
+                "remitterName": "{{remitterName}}",
+                "alphaAmount": "{{alphaAmount}}",
+                "allocations": [
+                    {
+                        "accountId": "{{accountId1}}",
+                        "allocationUnitType": "{{allocationUnitType1}}",
+                        "amount": "{{amount1}}"
+                    },
+                    {
+                        "accountId": "{{accountId2}}",
+                        "allocationUnitType": "{{allocationUnitType2}}",
+                        "amount": "{{amount2}}"
+                    }
+                ]
+            }
+        },
+        "expected_status": "400",
+        "expected_response_schema": "",
+        "expected_response": {
+            "type": "missing-required-fields",
+            "title": "One or more fields are missing values",
+            "status": 400,
+            "detail": "Missing Required Fields",
+            "instance": "/api/moneymovement/v1/check",
+            "errors": {
+                "requestType": [
+                    "This field is required."
+                ]
+            }
+        },
+        "ignore_fields": [
+            "id",
+            "instance"
+        ],
+        "extract_values": [
+            {
+                "from": "response",
+                "key": "type",
+                "assign_to": "error_type"
+            },
+            {
+                "from": "response",
+                "key": "status",
+                "assign_to": "error_status"
+            },
+            {
+                "from": "response",
+                "key": "detail",
+                "assign_to": "error_detail"
+            }
+        ],
+        "validate": {
+            "performance": {
+                "max_response_time_ms": 2000
+            },
+            "security": {
+                "checks": [
+                    "sql_injection",
+                    "xss"
+                ]
+            },
+            "assertions": [
+                {
+                    "actual": "{{error_type}}",
+                    "expected": "missing-required-fields",
+                    "operator": "==",
+                    "message": "Error type should be 'missing-required-fields'"
+                },
+                {
+                    "actual": "{{error_status}}",
+                    "expected": 400,
+                    "operator": "==",
+                    "message": "Error status should be 400"
+                },
+                {
+                    "actual": "{{error_detail}}",
+                    "expected": "Missing Required Fields",
+                    "operator": "==",
+                    "message": "Error detail should be 'Missing Required Fields'"
+                }
+            ],
+            "data_comparison": []
+        },
+        "test_data_file": "MoveMoneyAPI/data_driven/Data_Check_POST.csv",
+        "csv_row_index": 6,
+        "db_query_timing": "",
+        "db_queries": {},
+        "db_type": "",
+        "db_connection_name": "",
+        "test_summary": "Verify 400 when 'requestType' is absent"
+    },
+    {
+        "test_id": "TC008",
+        "service_name": "movemoney",
+        "workflow_mode": "parallel",
+        "test_name": "400 - Missing status [Negative] (TC008)",
+        "protocol": "REST",
+        "test_type": [
+            "Functional"
+        ],
+        "mainURL": "{{base_url}}",
+        "endpoint": "/check",
+        "method": "POST",
+        "rpc_method": "",
+        "graphql_query": "",
+        "graphql_variables": "",
+        "soap_action": "",
+        "soap_envelope": "",
+        "headers_additional": {
+            "Content-Type": "application/json"
+        },
+        "payload": {
+            "amount": "{{amount}}",
+            "requestType": "{{requestType}}",
+            "checkDepositDetails": {
+                "checkNumber": "{{checkNumber}}",
+                "checkSource": "{{checkSource}}",
+                "checkType": "{{checkType}}",
+                "checkAmount": "{{checkAmount}}",
+                "checkDate": "{{checkDate}}",
+                "bankName": "{{bankName}}",
+                "bankAccountNumber": "{{bankAccountNumber}}",
+                "routingNumber": "{{routingNumber}}",
+                "remitterName": "{{remitterName}}",
+                "alphaAmount": "{{alphaAmount}}",
+                "allocations": [
+                    {
+                        "accountId": "{{accountId1}}",
+                        "allocationUnitType": "{{allocationUnitType1}}",
+                        "amount": "{{amount1}}"
+                    },
+                    {
+                        "accountId": "{{accountId2}}",
+                        "allocationUnitType": "{{allocationUnitType2}}",
+                        "amount": "{{amount2}}"
+                    }
+                ]
+            }
+        },
+        "expected_status": "400",
+        "expected_response_schema": "",
+        "expected_response": {
+            "type": "missing-required-fields",
+            "title": "One or more fields are missing values",
+            "status": 400,
+            "detail": "Missing Required Fields",
+            "instance": "/api/moneymovement/v1/check",
+            "errors": {
+                "status": [
+                    "This field is required."
+                ]
+            }
+        },
+        "ignore_fields": [
+            "id",
+            "instance"
+        ],
+        "extract_values": [
+            {
+                "from": "response",
+                "key": "type",
+                "assign_to": "error_type"
+            },
+            {
+                "from": "response",
+                "key": "status",
+                "assign_to": "error_status"
+            },
+            {
+                "from": "response",
+                "key": "detail",
+                "assign_to": "error_detail"
+            }
+        ],
+        "validate": {
+            "performance": {
+                "max_response_time_ms": 2000
+            },
+            "security": {
+                "checks": [
+                    "sql_injection",
+                    "xss"
+                ]
+            },
+            "assertions": [
+                {
+                    "actual": "{{error_type}}",
+                    "expected": "missing-required-fields",
+                    "operator": "==",
+                    "message": "Error type should be 'missing-required-fields'"
+                },
+                {
+                    "actual": "{{error_status}}",
+                    "expected": 400,
+                    "operator": "==",
+                    "message": "Error status should be 400"
+                },
+                {
+                    "actual": "{{error_detail}}",
+                    "expected": "Missing Required Fields",
+                    "operator": "==",
+                    "message": "Error detail should be 'Missing Required Fields'"
+                }
+            ],
+            "data_comparison": []
+        },
+        "test_data_file": "MoveMoneyAPI/data_driven/Data_Check_POST.csv",
+        "csv_row_index": 7,
+        "db_query_timing": "",
+        "db_queries": {},
+        "db_type": "",
+        "db_connection_name": "",
+        "test_summary": "Verify 400 when 'status' is absent"
+    },
+    {
+        "test_id": "TC009",
+        "service_name": "movemoney",
+        "workflow_mode": "parallel",
+        "test_name": "400 - Missing checkDepositDetails when requestType=Deposit [Negative] (TC009)",
+        "protocol": "REST",
+        "test_type": [
+            "Functional"
+        ],
+        "mainURL": "{{base_url}}",
+        "endpoint": "/check",
+        "method": "POST",
+        "rpc_method": "",
+        "graphql_query": "",
+        "graphql_variables": "",
+        "soap_action": "",
+        "soap_envelope": "",
+        "headers_additional": {
+            "Content-Type": "application/json"
+        },
+        "payload": {
+            "amount": "{{amount}}",
+            "requestType": "{{requestType}}",
+            "status": "{{status}}"
+        },
+        "expected_status": "400",
+        "expected_response_schema": "",
+        "expected_response": {
+            "type": "missing-required-fields",
+            "title": "One or more fields are missing values",
+            "status": 400,
+            "detail": "Missing Required Fields",
+            "instance": "/api/moneymovement/v1/check",
+            "errors": {
+                "checkDepositDetails": [
+                    "This field is required."
+                ]
+            }
+        },
+        "ignore_fields": [
+            "id",
+            "instance"
+        ],
+        "extract_values": [
+            {
+                "from": "response",
+                "key": "type",
+                "assign_to": "error_type"
+            },
+            {
+                "from": "response",
+                "key": "status",
+                "assign_to": "error_status"
+            },
+            {
+                "from": "response",
+                "key": "detail",
+                "assign_to": "error_detail"
+            }
+        ],
+        "validate": {
+            "performance": {
+                "max_response_time_ms": 2000
+            },
+            "security": {
+                "checks": [
+                    "sql_injection",
+                    "xss"
+                ]
+            },
+            "assertions": [
+                {
+                    "actual": "{{error_type}}",
+                    "expected": "missing-required-fields",
+                    "operator": "==",
+                    "message": "Error type should be 'missing-required-fields'"
+                },
+                {
+                    "actual": "{{error_status}}",
+                    "expected": 400,
+                    "operator": "==",
+                    "message": "Error status should be 400"
+                },
+                {
+                    "actual": "{{error_detail}}",
+                    "expected": "Missing Required Fields",
+                    "operator": "==",
+                    "message": "Error detail should be 'Missing Required Fields'"
+                }
+            ],
+            "data_comparison": []
+        },
+        "test_data_file": "MoveMoneyAPI/data_driven/Data_Check_POST.csv",
+        "csv_row_index": 8,
+        "db_query_timing": "",
+        "db_queries": {},
+        "db_type": "",
+        "db_connection_name": "",
+        "test_summary": "Verify 400 when 'checkDepositDetails' absent for Deposit"
+    },
+    {
+        "test_id": "TC010",
+        "service_name": "movemoney",
+        "workflow_mode": "parallel",
+        "test_name": "400 - Missing checkDepositDetails.allocations [Negative] (TC010)",
+        "protocol": "REST",
+        "test_type": [
+            "Functional"
+        ],
+        "mainURL": "{{base_url}}",
+        "endpoint": "/check",
+        "method": "POST",
+        "rpc_method": "",
+        "graphql_query": "",
+        "graphql_variables": "",
+        "soap_action": "",
+        "soap_envelope": "",
+        "headers_additional": {
+            "Content-Type": "application/json"
+        },
+        "payload": {
+            "amount": "{{amount}}",
+            "requestType": "{{requestType}}",
+            "status": "{{status}}",
+            "checkDepositDetails": {
+                "checkNumber": "{{checkNumber}}",
+                "checkSource": "{{checkSource}}",
+                "checkType": "{{checkType}}",
+                "checkAmount": "{{checkAmount}}",
+                "checkDate": "{{checkDate}}",
+                "bankName": "{{bankName}}",
+                "bankAccountNumber": "{{bankAccountNumber}}",
+                "routingNumber": "{{routingNumber}}",
+                "remitterName": "{{remitterName}}",
+                "alphaAmount": "{{alphaAmount}}"
+            }
+        },
+        "expected_status": "400",
+        "expected_response_schema": "",
+        "expected_response": {
+            "type": "missing-required-fields",
+            "title": "One or more fields are missing values",
+            "status": 400,
+            "detail": "Missing Required Fields",
+            "instance": "/api/moneymovement/v1/check",
+            "errors": {
+                "checkDepositDetails.allocations": [
+                    "This field is required."
+                ]
+            }
+        },
+        "ignore_fields": [
+            "id",
+            "instance"
+        ],
+        "extract_values": [
+            {
+                "from": "response",
+                "key": "type",
+                "assign_to": "error_type"
+            },
+            {
+                "from": "response",
+                "key": "status",
+                "assign_to": "error_status"
+            },
+            {
+                "from": "response",
+                "key": "detail",
+                "assign_to": "error_detail"
+            }
+        ],
+        "validate": {
+            "performance": {
+                "max_response_time_ms": 2000
+            },
+            "security": {
+                "checks": [
+                    "sql_injection",
+                    "xss"
+                ]
+            },
+            "assertions": [
+                {
+                    "actual": "{{error_type}}",
+                    "expected": "missing-required-fields",
+                    "operator": "==",
+                    "message": "Error type should be 'missing-required-fields'"
+                },
+                {
+                    "actual": "{{error_status}}",
+                    "expected": 400,
+                    "operator": "==",
+                    "message": "Error status should be 400"
+                },
+                {
+                    "actual": "{{error_detail}}",
+                    "expected": "Missing Required Fields",
+                    "operator": "==",
+                    "message": "Error detail should be 'Missing Required Fields'"
+                }
+            ],
+            "data_comparison": []
+        },
+        "test_data_file": "MoveMoneyAPI/data_driven/Data_Check_POST.csv",
+        "csv_row_index": 9,
+        "db_query_timing": "",
+        "db_queries": {},
+        "db_type": "",
+        "db_connection_name": "",
+        "test_summary": "Verify 400 when allocations array absent"
+    },
+    {
+        "test_id": "TC011",
+        "service_name": "movemoney",
+        "workflow_mode": "parallel",
+        "test_name": "400 - Missing allocations[].accountId [Negative] (TC011)",
+        "protocol": "REST",
+        "test_type": [
+            "Functional"
+        ],
+        "mainURL": "{{base_url}}",
+        "endpoint": "/check",
+        "method": "POST",
+        "rpc_method": "",
+        "graphql_query": "",
+        "graphql_variables": "",
+        "soap_action": "",
+        "soap_envelope": "",
+        "headers_additional": {
+            "Content-Type": "application/json"
+        },
+        "payload": {
+            "amount": "{{amount}}",
+            "requestType": "{{requestType}}",
+            "status": "{{status}}",
+            "checkDepositDetails": {
+                "checkNumber": "{{checkNumber}}",
+                "checkSource": "{{checkSource}}",
+                "checkType": "{{checkType}}",
+                "checkAmount": "{{checkAmount}}",
+                "checkDate": "{{checkDate}}",
+                "bankName": "{{bankName}}",
+                "bankAccountNumber": "{{bankAccountNumber}}",
+                "routingNumber": "{{routingNumber}}",
+                "remitterName": "{{remitterName}}",
+                "alphaAmount": "{{alphaAmount}}",
+                "allocations": [
+                    {
+                        "allocationUnitType": "{{allocationUnitType1}}",
+                        "amount": "{{amount1}}"
+                    },
+                    {
+                        "accountId": "{{accountId2}}",
+                        "allocationUnitType": "{{allocationUnitType2}}",
+                        "amount": "{{amount2}}"
+                    }
+                ]
+            }
+        },
+        "expected_status": "400",
+        "expected_response_schema": "",
+        "expected_response": {
+            "type": "missing-required-fields",
+            "title": "One or more fields are missing values",
+            "status": 400,
+            "detail": "Missing Required Fields",
+            "instance": "/api/moneymovement/v1/check",
+            "errors": {
+                "checkDepositDetails.allocations[0].accountId": [
+                    "This field is required."
+                ]
+            }
+        },
+        "ignore_fields": [
+            "id",
+            "instance"
+        ],
+        "extract_values": [
+            {
+                "from": "response",
+                "key": "type",
+                "assign_to": "error_type"
+            },
+            {
+                "from": "response",
+                "key": "status",
+                "assign_to": "error_status"
+            },
+            {
+                "from": "response",
+                "key": "detail",
+                "assign_to": "error_detail"
+            }
+        ],
+        "validate": {
+            "performance": {
+                "max_response_time_ms": 2000
+            },
+            "security": {
+                "checks": [
+                    "sql_injection",
+                    "xss"
+                ]
+            },
+            "assertions": [
+                {
+                    "actual": "{{error_type}}",
+                    "expected": "missing-required-fields",
+                    "operator": "==",
+                    "message": "Error type should be 'missing-required-fields'"
+                },
+                {
+                    "actual": "{{error_status}}",
+                    "expected": 400,
+                    "operator": "==",
+                    "message": "Error status should be 400"
+                },
+                {
+                    "actual": "{{error_detail}}",
+                    "expected": "Missing Required Fields",
+                    "operator": "==",
+                    "message": "Error detail should be 'Missing Required Fields'"
+                }
+            ],
+            "data_comparison": []
+        },
+        "test_data_file": "MoveMoneyAPI/data_driven/Data_Check_POST.csv",
+        "csv_row_index": 10,
+        "db_query_timing": "",
+        "db_queries": {},
+        "db_type": "",
+        "db_connection_name": "",
+        "test_summary": "Verify 400 when accountId absent on allocation"
+    },
+    {
+        "test_id": "TC012",
+        "service_name": "movemoney",
+        "workflow_mode": "parallel",
+        "test_name": "400 - Missing allocations[].allocationUnitType [Negative] (TC012)",
+        "protocol": "REST",
+        "test_type": [
+            "Functional"
+        ],
+        "mainURL": "{{base_url}}",
+        "endpoint": "/check",
+        "method": "POST",
+        "rpc_method": "",
+        "graphql_query": "",
+        "graphql_variables": "",
+        "soap_action": "",
+        "soap_envelope": "",
+        "headers_additional": {
+            "Content-Type": "application/json"
+        },
+        "payload": {
+            "amount": "{{amount}}",
+            "requestType": "{{requestType}}",
+            "status": "{{status}}",
+            "checkDepositDetails": {
+                "checkNumber": "{{checkNumber}}",
+                "checkSource": "{{checkSource}}",
+                "checkType": "{{checkType}}",
+                "checkAmount": "{{checkAmount}}",
+                "checkDate": "{{checkDate}}",
+                "bankName": "{{bankName}}",
+                "bankAccountNumber": "{{bankAccountNumber}}",
+                "routingNumber": "{{routingNumber}}",
+                "remitterName": "{{remitterName}}",
+                "alphaAmount": "{{alphaAmount}}",
+                "allocations": [
+                    {
+                        "accountId": "{{accountId1}}",
+                        "amount": "{{amount1}}"
+                    },
+                    {
+                        "accountId": "{{accountId2}}",
+                        "allocationUnitType": "{{allocationUnitType2}}",
+                        "amount": "{{amount2}}"
+                    }
+                ]
+            }
+        },
+        "expected_status": "400",
+        "expected_response_schema": "",
+        "expected_response": {
+            "type": "missing-required-fields",
+            "title": "One or more fields are missing values",
+            "status": 400,
+            "detail": "Missing Required Fields",
+            "instance": "/api/moneymovement/v1/check",
+            "errors": {
+                "checkDepositDetails.allocations[0].allocationUnitType": [
+                    "This field is required."
+                ]
+            }
+        },
+        "ignore_fields": [
+            "id",
+            "instance"
+        ],
+        "extract_values": [
+            {
+                "from": "response",
+                "key": "type",
+                "assign_to": "error_type"
+            },
+            {
+                "from": "response",
+                "key": "status",
+                "assign_to": "error_status"
+            },
+            {
+                "from": "response",
+                "key": "detail",
+                "assign_to": "error_detail"
+            }
+        ],
+        "validate": {
+            "performance": {
+                "max_response_time_ms": 2000
+            },
+            "security": {
+                "checks": [
+                    "sql_injection",
+                    "xss"
+                ]
+            },
+            "assertions": [
+                {
+                    "actual": "{{error_type}}",
+                    "expected": "missing-required-fields",
+                    "operator": "==",
+                    "message": "Error type should be 'missing-required-fields'"
+                },
+                {
+                    "actual": "{{error_status}}",
+                    "expected": 400,
+                    "operator": "==",
+                    "message": "Error status should be 400"
+                },
+                {
+                    "actual": "{{error_detail}}",
+                    "expected": "Missing Required Fields",
+                    "operator": "==",
+                    "message": "Error detail should be 'Missing Required Fields'"
+                }
+            ],
+            "data_comparison": []
+        },
+        "test_data_file": "MoveMoneyAPI/data_driven/Data_Check_POST.csv",
+        "csv_row_index": 11,
+        "db_query_timing": "",
+        "db_queries": {},
+        "db_type": "",
+        "db_connection_name": "",
+        "test_summary": "Verify 400 when allocationUnitType absent on allocation"
+    },
+    {
+        "test_id": "TC013",
+        "service_name": "movemoney",
+        "workflow_mode": "parallel",
+        "test_name": "400 - Missing allocations[].amount when allocationUnitType=Amount [Negative] (TC013)",
+        "protocol": "REST",
+        "test_type": [
+            "Functional"
+        ],
+        "mainURL": "{{base_url}}",
+        "endpoint": "/check",
+        "method": "POST",
+        "rpc_method": "",
+        "graphql_query": "",
+        "graphql_variables": "",
+        "soap_action": "",
+        "soap_envelope": "",
+        "headers_additional": {
+            "Content-Type": "application/json"
+        },
+        "payload": {
+            "amount": "{{amount}}",
+            "requestType": "{{requestType}}",
+            "status": "{{status}}",
+            "checkDepositDetails": {
+                "checkNumber": "{{checkNumber}}",
+                "checkSource": "{{checkSource}}",
+                "checkType": "{{checkType}}",
+                "checkAmount": "{{checkAmount}}",
+                "checkDate": "{{checkDate}}",
+                "bankName": "{{bankName}}",
+                "bankAccountNumber": "{{bankAccountNumber}}",
+                "routingNumber": "{{routingNumber}}",
+                "remitterName": "{{remitterName}}",
+                "alphaAmount": "{{alphaAmount}}",
+                "allocations": [
+                    {
+                        "accountId": "{{accountId1}}",
+                        "allocationUnitType": "{{allocationUnitType1}}"
+                    }
+                ]
+            }
+        },
+        "expected_status": "400",
+        "expected_response_schema": "",
+        "expected_response": {
+            "type": "missing-required-fields",
+            "title": "One or more fields are missing values",
+            "status": 400,
+            "detail": "Missing Required Fields",
+            "instance": "/api/moneymovement/v1/check",
+            "errors": {
+                "checkDepositDetails.allocations[0].amount": [
+                    "This field is required."
+                ]
+            }
+        },
+        "ignore_fields": [
+            "id",
+            "instance"
+        ],
+        "extract_values": [
+            {
+                "from": "response",
+                "key": "type",
+                "assign_to": "error_type"
+            },
+            {
+                "from": "response",
+                "key": "status",
+                "assign_to": "error_status"
+            },
+            {
+                "from": "response",
+                "key": "detail",
+                "assign_to": "error_detail"
+            }
+        ],
+        "validate": {
+            "performance": {
+                "max_response_time_ms": 2000
+            },
+            "security": {
+                "checks": [
+                    "sql_injection",
+                    "xss"
+                ]
+            },
+            "assertions": [
+                {
+                    "actual": "{{error_type}}",
+                    "expected": "missing-required-fields",
+                    "operator": "==",
+                    "message": "Error type should be 'missing-required-fields'"
+                },
+                {
+                    "actual": "{{error_status}}",
+                    "expected": 400,
+                    "operator": "==",
+                    "message": "Error status should be 400"
+                },
+                {
+                    "actual": "{{error_detail}}",
+                    "expected": "Missing Required Fields",
+                    "operator": "==",
+                    "message": "Error detail should be 'Missing Required Fields'"
+                }
+            ],
+            "data_comparison": []
+        },
+        "test_data_file": "MoveMoneyAPI/data_driven/Data_Check_POST.csv",
+        "csv_row_index": 12,
+        "db_query_timing": "",
+        "db_queries": {},
+        "db_type": "",
+        "db_connection_name": "",
+        "test_summary": "Verify 400 when amount absent and allocationUnitType=Amount"
+    },
+    {
+        "test_id": "TC014",
+        "service_name": "movemoney",
+        "workflow_mode": "parallel",
+        "test_name": "400 - Missing allocations[].percent when allocationUnitType=Percent [Negative] (TC014)",
+        "protocol": "REST",
+        "test_type": [
+            "Functional"
+        ],
+        "mainURL": "{{base_url}}",
+        "endpoint": "/check",
+        "method": "POST",
+        "rpc_method": "",
+        "graphql_query": "",
+        "graphql_variables": "",
+        "soap_action": "",
+        "soap_envelope": "",
+        "headers_additional": {
+            "Content-Type": "application/json"
+        },
+        "payload": {
+            "amount": "{{amount}}",
+            "requestType": "{{requestType}}",
+            "status": "{{status}}",
+            "checkDepositDetails": {
+                "checkNumber": "{{checkNumber}}",
+                "checkSource": "{{checkSource}}",
+                "checkType": "{{checkType}}",
+                "checkAmount": "{{checkAmount}}",
+                "checkDate": "{{checkDate}}",
+                "bankName": "{{bankName}}",
+                "bankAccountNumber": "{{bankAccountNumber}}",
+                "routingNumber": "{{routingNumber}}",
+                "remitterName": "{{remitterName}}",
+                "alphaAmount": "{{alphaAmount}}",
+                "allocations": [
+                    {
+                        "accountId": "{{accountId1}}",
+                        "allocationUnitType": "{{allocationUnitType1}}"
+                    }
+                ]
+            }
+        },
+        "expected_status": "400",
+        "expected_response_schema": "",
+        "expected_response": {
+            "type": "missing-required-fields",
+            "title": "One or more fields are missing values",
+            "status": 400,
+            "detail": "Missing Required Fields",
+            "instance": "/api/moneymovement/v1/check",
+            "errors": {
+                "checkDepositDetails.allocations[0].percent": [
+                    "This field is required."
+                ]
+            }
+        },
+        "ignore_fields": [
+            "id",
+            "instance"
+        ],
+        "extract_values": [
+            {
+                "from": "response",
+                "key": "type",
+                "assign_to": "error_type"
+            },
+            {
+                "from": "response",
+                "key": "status",
+                "assign_to": "error_status"
+            },
+            {
+                "from": "response",
+                "key": "detail",
+                "assign_to": "error_detail"
+            }
+        ],
+        "validate": {
+            "performance": {
+                "max_response_time_ms": 2000
+            },
+            "security": {
+                "checks": [
+                    "sql_injection",
+                    "xss"
+                ]
+            },
+            "assertions": [
+                {
+                    "actual": "{{error_type}}",
+                    "expected": "missing-required-fields",
+                    "operator": "==",
+                    "message": "Error type should be 'missing-required-fields'"
+                },
+                {
+                    "actual": "{{error_status}}",
+                    "expected": 400,
+                    "operator": "==",
+                    "message": "Error status should be 400"
+                },
+                {
+                    "actual": "{{error_detail}}",
+                    "expected": "Missing Required Fields",
+                    "operator": "==",
+                    "message": "Error detail should be 'Missing Required Fields'"
+                }
+            ],
+            "data_comparison": []
+        },
+        "test_data_file": "MoveMoneyAPI/data_driven/Data_Check_POST.csv",
+        "csv_row_index": 13,
+        "db_query_timing": "",
+        "db_queries": {},
+        "db_type": "",
+        "db_connection_name": "",
+        "test_summary": "Verify 400 when percent absent and allocationUnitType=Percent"
+    },
+    {
+        "test_id": "TC015",
+        "service_name": "movemoney",
+        "workflow_mode": "parallel",
+        "test_name": "400 - Missing checkWithdrawalDetails when requestType=Withdrawal [Negative] (TC015)",
+        "protocol": "REST",
+        "test_type": [
+            "Functional"
+        ],
+        "mainURL": "{{base_url}}",
+        "endpoint": "/check",
+        "method": "POST",
+        "rpc_method": "",
+        "graphql_query": "",
+        "graphql_variables": "",
+        "soap_action": "",
+        "soap_envelope": "",
+        "headers_additional": {
+            "Content-Type": "application/json"
+        },
+        "payload": {
+            "amount": "{{amount}}",
+            "requestType": "{{requestType}}",
+            "status": "{{status}}"
+        },
+        "expected_status": "400",
+        "expected_response_schema": "",
+        "expected_response": {
+            "type": "missing-required-fields",
+            "title": "One or more fields are missing values",
+            "status": 400,
+            "detail": "Missing Required Fields",
+            "instance": "/api/moneymovement/v1/check",
+            "errors": {
+                "checkWithdrawalDetails": [
+                    "This field is required."
+                ]
+            }
+        },
+        "ignore_fields": [
+            "id",
+            "instance"
+        ],
+        "extract_values": [
+            {
+                "from": "response",
+                "key": "type",
+                "assign_to": "error_type"
+            },
+            {
+                "from": "response",
+                "key": "status",
+                "assign_to": "error_status"
+            },
+            {
+                "from": "response",
+                "key": "detail",
+                "assign_to": "error_detail"
+            }
+        ],
+        "validate": {
+            "performance": {
+                "max_response_time_ms": 2000
+            },
+            "security": {
+                "checks": [
+                    "sql_injection",
+                    "xss"
+                ]
+            },
+            "assertions": [
+                {
+                    "actual": "{{error_type}}",
+                    "expected": "missing-required-fields",
+                    "operator": "==",
+                    "message": "Error type should be 'missing-required-fields'"
+                },
+                {
+                    "actual": "{{error_status}}",
+                    "expected": 400,
+                    "operator": "==",
+                    "message": "Error status should be 400"
+                },
+                {
+                    "actual": "{{error_detail}}",
+                    "expected": "Missing Required Fields",
+                    "operator": "==",
+                    "message": "Error detail should be 'Missing Required Fields'"
+                }
+            ],
+            "data_comparison": []
+        },
+        "test_data_file": "MoveMoneyAPI/data_driven/Data_Check_POST.csv",
+        "csv_row_index": 14,
+        "db_query_timing": "",
+        "db_queries": {},
+        "db_type": "",
+        "db_connection_name": "",
+        "test_summary": "Verify 400 when checkWithdrawalDetails absent for Withdrawal"
+    },
+    {
+        "test_id": "TC016",
+        "service_name": "movemoney",
+        "workflow_mode": "parallel",
+        "test_name": "400 - Missing checkWithdrawalDetails.instructionId [Negative] (TC016)",
+        "protocol": "REST",
+        "test_type": [
+            "Functional"
+        ],
+        "mainURL": "{{base_url}}",
+        "endpoint": "/check",
+        "method": "POST",
+        "rpc_method": "",
+        "graphql_query": "",
+        "graphql_variables": "",
+        "soap_action": "",
+        "soap_envelope": "",
+        "headers_additional": {
+            "Content-Type": "application/json"
+        },
+        "payload": {
+            "amount": "{{amount}}",
+            "requestType": "{{requestType}}",
+            "status": "{{status}}",
+            "checkWithdrawalDetails": {
+                "deliveryType": "{{deliveryType}}",
+                "chargeOvernightFee": true,
+                "memoLine": "{{memoLine}}",
+                "schedule": {
+                    "scheduleType": "{{scheduleType}}",
+                    "frequency": "{{frequency}}",
+                    "startDate": "{{startDate}}",
+                    "endDate": "{{endDate}}"
+                }
+            }
+        },
+        "expected_status": "400",
+        "expected_response_schema": "",
+        "expected_response": {
+            "type": "missing-required-fields",
+            "title": "One or more fields are missing values",
+            "status": 400,
+            "detail": "Missing Required Fields",
+            "instance": "/api/moneymovement/v1/check",
+            "errors": {
+                "checkWithdrawalDetails.instructionId": [
+                    "This field is required."
+                ]
+            }
+        },
+        "ignore_fields": [
+            "id",
+            "instance"
+        ],
+        "extract_values": [
+            {
+                "from": "response",
+                "key": "type",
+                "assign_to": "error_type"
+            },
+            {
+                "from": "response",
+                "key": "status",
+                "assign_to": "error_status"
+            },
+            {
+                "from": "response",
+                "key": "detail",
+                "assign_to": "error_detail"
+            }
+        ],
+        "validate": {
+            "performance": {
+                "max_response_time_ms": 2000
+            },
+            "security": {
+                "checks": [
+                    "sql_injection",
+                    "xss"
+                ]
+            },
+            "assertions": [
+                {
+                    "actual": "{{error_type}}",
+                    "expected": "missing-required-fields",
+                    "operator": "==",
+                    "message": "Error type should be 'missing-required-fields'"
+                },
+                {
+                    "actual": "{{error_status}}",
+                    "expected": 400,
+                    "operator": "==",
+                    "message": "Error status should be 400"
+                },
+                {
+                    "actual": "{{error_detail}}",
+                    "expected": "Missing Required Fields",
+                    "operator": "==",
+                    "message": "Error detail should be 'Missing Required Fields'"
+                }
+            ],
+            "data_comparison": []
+        },
+        "test_data_file": "MoveMoneyAPI/data_driven/Data_Check_POST.csv",
+        "csv_row_index": 15,
+        "db_query_timing": "",
+        "db_queries": {},
+        "db_type": "",
+        "db_connection_name": "",
+        "test_summary": "Verify 400 when instructionId absent"
+    },
+    {
+        "test_id": "TC017",
+        "service_name": "movemoney",
+        "workflow_mode": "parallel",
+        "test_name": "400 - Missing checkWithdrawalDetails.deliveryType [Negative] (TC017)",
+        "protocol": "REST",
+        "test_type": [
+            "Functional"
+        ],
+        "mainURL": "{{base_url}}",
+        "endpoint": "/check",
+        "method": "POST",
+        "rpc_method": "",
+        "graphql_query": "",
+        "graphql_variables": "",
+        "soap_action": "",
+        "soap_envelope": "",
+        "headers_additional": {
+            "Content-Type": "application/json"
+        },
+        "payload": {
+            "amount": "{{amount}}",
+            "requestType": "{{requestType}}",
+            "status": "{{status}}",
+            "checkWithdrawalDetails": {
+                "instructionId": "{{instructionId}}",
+                "chargeOvernightFee": true,
+                "memoLine": "{{memoLine}}",
+                "schedule": {
+                    "scheduleType": "{{scheduleType}}",
+                    "frequency": "{{frequency}}",
+                    "startDate": "{{startDate}}",
+                    "endDate": "{{endDate}}"
+                }
+            }
+        },
+        "expected_status": "400",
+        "expected_response_schema": "",
+        "expected_response": {
+            "type": "missing-required-fields",
+            "title": "One or more fields are missing values",
+            "status": 400,
+            "detail": "Missing Required Fields",
+            "instance": "/api/moneymovement/v1/check",
+            "errors": {
+                "checkWithdrawalDetails.deliveryType": [
+                    "This field is required."
+                ]
+            }
+        },
+        "ignore_fields": [
+            "id",
+            "instance"
+        ],
+        "extract_values": [
+            {
+                "from": "response",
+                "key": "type",
+                "assign_to": "error_type"
+            },
+            {
+                "from": "response",
+                "key": "status",
+                "assign_to": "error_status"
+            },
+            {
+                "from": "response",
+                "key": "detail",
+                "assign_to": "error_detail"
+            }
+        ],
+        "validate": {
+            "performance": {
+                "max_response_time_ms": 2000
+            },
+            "security": {
+                "checks": [
+                    "sql_injection",
+                    "xss"
+                ]
+            },
+            "assertions": [
+                {
+                    "actual": "{{error_type}}",
+                    "expected": "missing-required-fields",
+                    "operator": "==",
+                    "message": "Error type should be 'missing-required-fields'"
+                },
+                {
+                    "actual": "{{error_status}}",
+                    "expected": 400,
+                    "operator": "==",
+                    "message": "Error status should be 400"
+                },
+                {
+                    "actual": "{{error_detail}}",
+                    "expected": "Missing Required Fields",
+                    "operator": "==",
+                    "message": "Error detail should be 'Missing Required Fields'"
+                }
+            ],
+            "data_comparison": []
+        },
+        "test_data_file": "MoveMoneyAPI/data_driven/Data_Check_POST.csv",
+        "csv_row_index": 16,
+        "db_query_timing": "",
+        "db_queries": {},
+        "db_type": "",
+        "db_connection_name": "",
+        "test_summary": "Verify 400 when deliveryType absent"
+    },
+    {
+        "test_id": "TC018",
+        "service_name": "movemoney",
+        "workflow_mode": "parallel",
+        "test_name": "400 - Missing checkWithdrawalDetails.schedule [Negative] (TC018)",
+        "protocol": "REST",
+        "test_type": [
+            "Functional"
+        ],
+        "mainURL": "{{base_url}}",
+        "endpoint": "/check",
+        "method": "POST",
+        "rpc_method": "",
+        "graphql_query": "",
+        "graphql_variables": "",
+        "soap_action": "",
+        "soap_envelope": "",
+        "headers_additional": {
+            "Content-Type": "application/json"
+        },
+        "payload": {
+            "amount": "{{amount}}",
+            "requestType": "{{requestType}}",
+            "status": "{{status}}",
+            "checkWithdrawalDetails": {
+                "instructionId": "{{instructionId}}",
+                "deliveryType": "{{deliveryType}}",
+                "chargeOvernightFee": true,
+                "memoLine": "{{memoLine}}"
+            }
+        },
+        "expected_status": "400",
+        "expected_response_schema": "",
+        "expected_response": {
+            "type": "missing-required-fields",
+            "title": "One or more fields are missing values",
+            "status": 400,
+            "detail": "Missing Required Fields",
+            "instance": "/api/moneymovement/v1/check",
+            "errors": {
+                "checkWithdrawalDetails.schedule": [
+                    "This field is required."
+                ]
+            }
+        },
+        "ignore_fields": [
+            "id",
+            "instance"
+        ],
+        "extract_values": [
+            {
+                "from": "response",
+                "key": "type",
+                "assign_to": "error_type"
+            },
+            {
+                "from": "response",
+                "key": "status",
+                "assign_to": "error_status"
+            },
+            {
+                "from": "response",
+                "key": "detail",
+                "assign_to": "error_detail"
+            }
+        ],
+        "validate": {
+            "performance": {
+                "max_response_time_ms": 2000
+            },
+            "security": {
+                "checks": [
+                    "sql_injection",
+                    "xss"
+                ]
+            },
+            "assertions": [
+                {
+                    "actual": "{{error_type}}",
+                    "expected": "missing-required-fields",
+                    "operator": "==",
+                    "message": "Error type should be 'missing-required-fields'"
+                },
+                {
+                    "actual": "{{error_status}}",
+                    "expected": 400,
+                    "operator": "==",
+                    "message": "Error status should be 400"
+                },
+                {
+                    "actual": "{{error_detail}}",
+                    "expected": "Missing Required Fields",
+                    "operator": "==",
+                    "message": "Error detail should be 'Missing Required Fields'"
+                }
+            ],
+            "data_comparison": []
+        },
+        "test_data_file": "MoveMoneyAPI/data_driven/Data_Check_POST.csv",
+        "csv_row_index": 17,
+        "db_query_timing": "",
+        "db_queries": {},
+        "db_type": "",
+        "db_connection_name": "",
+        "test_summary": "Verify 400 when schedule object absent"
+    },
+    {
+        "test_id": "TC019",
+        "service_name": "movemoney",
+        "workflow_mode": "parallel",
+        "test_name": "400 - Missing schedule.scheduleType [Negative] (TC019)",
+        "protocol": "REST",
+        "test_type": [
+            "Functional"
+        ],
+        "mainURL": "{{base_url}}",
+        "endpoint": "/check",
+        "method": "POST",
+        "rpc_method": "",
+        "graphql_query": "",
+        "graphql_variables": "",
+        "soap_action": "",
+        "soap_envelope": "",
+        "headers_additional": {
+            "Content-Type": "application/json"
+        },
+        "payload": {
+            "amount": "{{amount}}",
+            "requestType": "{{requestType}}",
+            "status": "{{status}}",
+            "checkWithdrawalDetails": {
+                "instructionId": "{{instructionId}}",
+                "deliveryType": "{{deliveryType}}",
+                "chargeOvernightFee": true,
+                "memoLine": "{{memoLine}}",
+                "schedule": {
+                    "frequency": "{{frequency}}",
+                    "startDate": "{{startDate}}",
+                    "endDate": "{{endDate}}"
+                }
+            }
+        },
+        "expected_status": "400",
+        "expected_response_schema": "",
+        "expected_response": {
+            "type": "missing-required-fields",
+            "title": "One or more fields are missing values",
+            "status": 400,
+            "detail": "Missing Required Fields",
+            "instance": "/api/moneymovement/v1/check",
+            "errors": {
+                "checkWithdrawalDetails.schedule.scheduleType": [
+                    "This field is required."
+                ]
+            }
+        },
+        "ignore_fields": [
+            "id",
+            "instance"
+        ],
+        "extract_values": [
+            {
+                "from": "response",
+                "key": "type",
+                "assign_to": "error_type"
+            },
+            {
+                "from": "response",
+                "key": "status",
+                "assign_to": "error_status"
+            },
+            {
+                "from": "response",
+                "key": "detail",
+                "assign_to": "error_detail"
+            }
+        ],
+        "validate": {
+            "performance": {
+                "max_response_time_ms": 2000
+            },
+            "security": {
+                "checks": [
+                    "sql_injection",
+                    "xss"
+                ]
+            },
+            "assertions": [
+                {
+                    "actual": "{{error_type}}",
+                    "expected": "missing-required-fields",
+                    "operator": "==",
+                    "message": "Error type should be 'missing-required-fields'"
+                },
+                {
+                    "actual": "{{error_status}}",
+                    "expected": 400,
+                    "operator": "==",
+                    "message": "Error status should be 400"
+                },
+                {
+                    "actual": "{{error_detail}}",
+                    "expected": "Missing Required Fields",
+                    "operator": "==",
+                    "message": "Error detail should be 'Missing Required Fields'"
+                }
+            ],
+            "data_comparison": []
+        },
+        "test_data_file": "MoveMoneyAPI/data_driven/Data_Check_POST.csv",
+        "csv_row_index": 18,
+        "db_query_timing": "",
+        "db_queries": {},
+        "db_type": "",
+        "db_connection_name": "",
+        "test_summary": "Verify 400 when scheduleType absent"
+    },
+    {
+        "test_id": "TC020",
+        "service_name": "movemoney",
+        "workflow_mode": "parallel",
+        "test_name": "400 - Missing schedule.paymentDate when scheduleType=OneTime [Negative] (TC020)",
+        "protocol": "REST",
+        "test_type": [
+            "Functional"
+        ],
+        "mainURL": "{{base_url}}",
+        "endpoint": "/check",
+        "method": "POST",
+        "rpc_method": "",
+        "graphql_query": "",
+        "graphql_variables": "",
+        "soap_action": "",
+        "soap_envelope": "",
+        "headers_additional": {
+            "Content-Type": "application/json"
+        },
+        "payload": {
+            "amount": "{{amount}}",
+            "requestType": "{{requestType}}",
+            "status": "{{status}}",
+            "checkWithdrawalDetails": {
+                "instructionId": "{{instructionId}}",
+                "deliveryType": "{{deliveryType}}",
+                "chargeOvernightFee": true,
+                "memoLine": "{{memoLine}}",
+                "schedule": {
+                    "scheduleType": "{{scheduleType}}"
+                }
+            }
+        },
+        "expected_status": "400",
+        "expected_response_schema": "",
+        "expected_response": {
+            "type": "missing-required-fields",
+            "title": "One or more fields are missing values",
+            "status": 400,
+            "detail": "Missing Required Fields",
+            "instance": "/api/moneymovement/v1/check",
+            "errors": {
+                "checkWithdrawalDetails.schedule.paymentDate": [
+                    "This field is required."
+                ]
+            }
+        },
+        "ignore_fields": [
+            "id",
+            "instance"
+        ],
+        "extract_values": [
+            {
+                "from": "response",
+                "key": "type",
+                "assign_to": "error_type"
+            },
+            {
+                "from": "response",
+                "key": "status",
+                "assign_to": "error_status"
+            },
+            {
+                "from": "response",
+                "key": "detail",
+                "assign_to": "error_detail"
+            }
+        ],
+        "validate": {
+            "performance": {
+                "max_response_time_ms": 2000
+            },
+            "security": {
+                "checks": [
+                    "sql_injection",
+                    "xss"
+                ]
+            },
+            "assertions": [
+                {
+                    "actual": "{{error_type}}",
+                    "expected": "missing-required-fields",
+                    "operator": "==",
+                    "message": "Error type should be 'missing-required-fields'"
+                },
+                {
+                    "actual": "{{error_status}}",
+                    "expected": 400,
+                    "operator": "==",
+                    "message": "Error status should be 400"
+                },
+                {
+                    "actual": "{{error_detail}}",
+                    "expected": "Missing Required Fields",
+                    "operator": "==",
+                    "message": "Error detail should be 'Missing Required Fields'"
+                }
+            ],
+            "data_comparison": []
+        },
+        "test_data_file": "MoveMoneyAPI/data_driven/Data_Check_POST.csv",
+        "csv_row_index": 19,
+        "db_query_timing": "",
+        "db_queries": {},
+        "db_type": "",
+        "db_connection_name": "",
+        "test_summary": "Verify 400 when paymentDate absent and scheduleType=OneTime"
+    },
+    {
+        "test_id": "TC021",
+        "service_name": "movemoney",
+        "workflow_mode": "parallel",
+        "test_name": "400 - Missing schedule.frequency when scheduleType=Periodic [Negative] (TC021)",
+        "protocol": "REST",
+        "test_type": [
+            "Functional"
+        ],
+        "mainURL": "{{base_url}}",
+        "endpoint": "/check",
+        "method": "POST",
+        "rpc_method": "",
+        "graphql_query": "",
+        "graphql_variables": "",
+        "soap_action": "",
+        "soap_envelope": "",
+        "headers_additional": {
+            "Content-Type": "application/json"
+        },
+        "payload": {
+            "amount": "{{amount}}",
+            "requestType": "{{requestType}}",
+            "status": "{{status}}",
+            "checkWithdrawalDetails": {
+                "instructionId": "{{instructionId}}",
+                "deliveryType": "{{deliveryType}}",
+                "chargeOvernightFee": true,
+                "memoLine": "{{memoLine}}",
+                "schedule": {
+                    "scheduleType": "{{scheduleType}}"
+                }
+            }
+        },
+        "expected_status": "400",
+        "expected_response_schema": "",
+        "expected_response": {
+            "type": "missing-required-fields",
+            "title": "One or more fields are missing values",
+            "status": 400,
+            "detail": "Missing Required Fields",
+            "instance": "/api/moneymovement/v1/check",
+            "errors": {
+                "checkWithdrawalDetails.schedule.frequency": [
+                    "This field is required."
+                ]
+            }
+        },
+        "ignore_fields": [
+            "id",
+            "instance"
+        ],
+        "extract_values": [
+            {
+                "from": "response",
+                "key": "type",
+                "assign_to": "error_type"
+            },
+            {
+                "from": "response",
+                "key": "status",
+                "assign_to": "error_status"
+            },
+            {
+                "from": "response",
+                "key": "detail",
+                "assign_to": "error_detail"
+            }
+        ],
+        "validate": {
+            "performance": {
+                "max_response_time_ms": 2000
+            },
+            "security": {
+                "checks": [
+                    "sql_injection",
+                    "xss"
+                ]
+            },
+            "assertions": [
+                {
+                    "actual": "{{error_type}}",
+                    "expected": "missing-required-fields",
+                    "operator": "==",
+                    "message": "Error type should be 'missing-required-fields'"
+                },
+                {
+                    "actual": "{{error_status}}",
+                    "expected": 400,
+                    "operator": "==",
+                    "message": "Error status should be 400"
+                },
+                {
+                    "actual": "{{error_detail}}",
+                    "expected": "Missing Required Fields",
+                    "operator": "==",
+                    "message": "Error detail should be 'Missing Required Fields'"
+                }
+            ],
+            "data_comparison": []
+        },
+        "test_data_file": "MoveMoneyAPI/data_driven/Data_Check_POST.csv",
+        "csv_row_index": 20,
+        "db_query_timing": "",
+        "db_queries": {},
+        "db_type": "",
+        "db_connection_name": "",
+        "test_summary": "Verify 400 when frequency absent and scheduleType=Periodic"
+    },
+    {
+        "test_id": "TC022",
+        "service_name": "movemoney",
+        "workflow_mode": "parallel",
+        "test_name": "400 - Invalid requestType value [Negative] (TC022)",
+        "protocol": "REST",
+        "test_type": [
+            "Functional"
+        ],
+        "mainURL": "{{base_url}}",
+        "endpoint": "/check",
+        "method": "POST",
+        "rpc_method": "",
+        "graphql_query": "",
+        "graphql_variables": "",
+        "soap_action": "",
+        "soap_envelope": "",
+        "headers_additional": {
+            "Content-Type": "application/json"
+        },
+        "payload": {
+            "amount": "{{amount}}",
+            "requestType": "{{requestType}}",
+            "status": "{{status}}",
+            "checkDepositDetails": {
+                "checkNumber": "{{checkNumber}}",
+                "checkSource": "{{checkSource}}",
+                "checkType": "{{checkType}}",
+                "checkAmount": "{{checkAmount}}",
+                "checkDate": "{{checkDate}}",
+                "bankName": "{{bankName}}",
+                "bankAccountNumber": "{{bankAccountNumber}}",
+                "routingNumber": "{{routingNumber}}",
+                "remitterName": "{{remitterName}}",
+                "alphaAmount": "{{alphaAmount}}",
+                "allocations": [
+                    {
+                        "accountId": "{{accountId1}}",
+                        "allocationUnitType": "{{allocationUnitType1}}",
+                        "amount": "{{amount1}}"
+                    },
+                    {
+                        "accountId": "{{accountId2}}",
+                        "allocationUnitType": "{{allocationUnitType2}}",
+                        "amount": "{{amount2}}"
+                    }
+                ]
+            }
+        },
+        "expected_status": "400",
+        "expected_response_schema": "",
+        "expected_response": {
+            "type": "invalid-request",
+            "title": "Invalid Request",
+            "status": 400,
+            "detail": "The request contains invalid values",
+            "instance": "/api/moneymovement/v1/check",
+            "errors": {
+                "requestType": [
+                    "Must be one of: Deposit, Withdrawal."
+                ]
+            }
+        },
+        "ignore_fields": [
+            "id",
+            "instance"
+        ],
+        "extract_values": [
+            {
+                "from": "response",
+                "key": "type",
+                "assign_to": "error_type"
+            },
+            {
+                "from": "response",
+                "key": "status",
+                "assign_to": "error_status"
+            },
+            {
+                "from": "response",
+                "key": "detail",
+                "assign_to": "error_detail"
+            }
+        ],
+        "validate": {
+            "performance": {
+                "max_response_time_ms": 2000
+            },
+            "security": {
+                "checks": [
+                    "sql_injection",
+                    "xss"
+                ]
+            },
+            "assertions": [
+                {
+                    "actual": "{{error_type}}",
+                    "expected": "invalid-request",
+                    "operator": "==",
+                    "message": "Error type should be 'invalid-request'"
+                },
+                {
+                    "actual": "{{error_status}}",
+                    "expected": 400,
+                    "operator": "==",
+                    "message": "Error status should be 400"
+                },
+                {
+                    "actual": "{{error_detail}}",
+                    "expected": "The request contains invalid values",
+                    "operator": "==",
+                    "message": "Error detail should be 'The request contains invalid values'"
+                }
+            ],
+            "data_comparison": []
+        },
+        "test_data_file": "MoveMoneyAPI/data_driven/Data_Check_POST.csv",
+        "csv_row_index": 21,
+        "db_query_timing": "",
+        "db_queries": {},
+        "db_type": "",
+        "db_connection_name": "",
+        "test_summary": "Verify 400 when requestType is invalid"
+    },
+    {
+        "test_id": "TC023",
+        "service_name": "movemoney",
+        "workflow_mode": "parallel",
+        "test_name": "400 - Invalid status value [Negative] (TC023)",
+        "protocol": "REST",
+        "test_type": [
+            "Functional"
+        ],
+        "mainURL": "{{base_url}}",
+        "endpoint": "/check",
+        "method": "POST",
+        "rpc_method": "",
+        "graphql_query": "",
+        "graphql_variables": "",
+        "soap_action": "",
+        "soap_envelope": "",
+        "headers_additional": {
+            "Content-Type": "application/json"
+        },
+        "payload": {
+            "amount": "{{amount}}",
+            "requestType": "{{requestType}}",
+            "status": "{{status}}",
+            "checkDepositDetails": {
+                "checkNumber": "{{checkNumber}}",
+                "checkSource": "{{checkSource}}",
+                "checkType": "{{checkType}}",
+                "checkAmount": "{{checkAmount}}",
+                "checkDate": "{{checkDate}}",
+                "bankName": "{{bankName}}",
+                "bankAccountNumber": "{{bankAccountNumber}}",
+                "routingNumber": "{{routingNumber}}",
+                "remitterName": "{{remitterName}}",
+                "alphaAmount": "{{alphaAmount}}",
+                "allocations": [
+                    {
+                        "accountId": "{{accountId1}}",
+                        "allocationUnitType": "{{allocationUnitType1}}",
+                        "amount": "{{amount1}}"
+                    },
+                    {
+                        "accountId": "{{accountId2}}",
+                        "allocationUnitType": "{{allocationUnitType2}}",
+                        "amount": "{{amount2}}"
+                    }
+                ]
+            }
+        },
+        "expected_status": "400",
+        "expected_response_schema": "",
+        "expected_response": {
+            "type": "invalid-request",
+            "title": "Invalid Request",
+            "status": 400,
+            "detail": "The request contains invalid values",
+            "instance": "/api/moneymovement/v1/check",
+            "errors": {
+                "status": [
+                    "Must be one of: Draft, Pending, Confirmed, Deleted."
+                ]
+            }
+        },
+        "ignore_fields": [
+            "id",
+            "instance"
+        ],
+        "extract_values": [
+            {
+                "from": "response",
+                "key": "type",
+                "assign_to": "error_type"
+            },
+            {
+                "from": "response",
+                "key": "status",
+                "assign_to": "error_status"
+            },
+            {
+                "from": "response",
+                "key": "detail",
+                "assign_to": "error_detail"
+            }
+        ],
+        "validate": {
+            "performance": {
+                "max_response_time_ms": 2000
+            },
+            "security": {
+                "checks": [
+                    "sql_injection",
+                    "xss"
+                ]
+            },
+            "assertions": [
+                {
+                    "actual": "{{error_type}}",
+                    "expected": "invalid-request",
+                    "operator": "==",
+                    "message": "Error type should be 'invalid-request'"
+                },
+                {
+                    "actual": "{{error_status}}",
+                    "expected": 400,
+                    "operator": "==",
+                    "message": "Error status should be 400"
+                },
+                {
+                    "actual": "{{error_detail}}",
+                    "expected": "The request contains invalid values",
+                    "operator": "==",
+                    "message": "Error detail should be 'The request contains invalid values'"
+                }
+            ],
+            "data_comparison": []
+        },
+        "test_data_file": "MoveMoneyAPI/data_driven/Data_Check_POST.csv",
+        "csv_row_index": 22,
+        "db_query_timing": "",
+        "db_queries": {},
+        "db_type": "",
+        "db_connection_name": "",
+        "test_summary": "Verify 400 when status is invalid"
+    },
+    {
+        "test_id": "TC024",
+        "service_name": "movemoney",
+        "workflow_mode": "parallel",
+        "test_name": "400 - Invalid checkDepositDetails.checkSource [Negative] (TC024)",
+        "protocol": "REST",
+        "test_type": [
+            "Functional"
+        ],
+        "mainURL": "{{base_url}}",
+        "endpoint": "/check",
+        "method": "POST",
+        "rpc_method": "",
+        "graphql_query": "",
+        "graphql_variables": "",
+        "soap_action": "",
+        "soap_envelope": "",
+        "headers_additional": {
+            "Content-Type": "application/json"
+        },
+        "payload": {
+            "amount": "{{amount}}",
+            "requestType": "{{requestType}}",
+            "status": "{{status}}",
+            "checkDepositDetails": {
+                "checkNumber": "{{checkNumber}}",
+                "checkSource": "{{checkSource}}",
+                "checkType": "{{checkType}}",
+                "checkAmount": "{{checkAmount}}",
+                "checkDate": "{{checkDate}}",
+                "bankName": "{{bankName}}",
+                "bankAccountNumber": "{{bankAccountNumber}}",
+                "routingNumber": "{{routingNumber}}",
+                "remitterName": "{{remitterName}}",
+                "alphaAmount": "{{alphaAmount}}",
+                "allocations": [
+                    {
+                        "accountId": "{{accountId1}}",
+                        "allocationUnitType": "{{allocationUnitType1}}",
+                        "amount": "{{amount1}}"
+                    },
+                    {
+                        "accountId": "{{accountId2}}",
+                        "allocationUnitType": "{{allocationUnitType2}}",
+                        "amount": "{{amount2}}"
+                    }
+                ]
+            }
+        },
+        "expected_status": "400",
+        "expected_response_schema": "",
+        "expected_response": {
+            "type": "invalid-request",
+            "title": "Invalid Request",
+            "status": 400,
+            "detail": "The request contains invalid values",
+            "instance": "/api/moneymovement/v1/check",
+            "errors": {
+                "checkDepositDetails.checkSource": [
+                    "Must be one of: Physical, Electronic."
+                ]
+            }
+        },
+        "ignore_fields": [
+            "id",
+            "instance"
+        ],
+        "extract_values": [
+            {
+                "from": "response",
+                "key": "type",
+                "assign_to": "error_type"
+            },
+            {
+                "from": "response",
+                "key": "status",
+                "assign_to": "error_status"
+            },
+            {
+                "from": "response",
+                "key": "detail",
+                "assign_to": "error_detail"
+            }
+        ],
+        "validate": {
+            "performance": {
+                "max_response_time_ms": 2000
+            },
+            "security": {
+                "checks": [
+                    "sql_injection",
+                    "xss"
+                ]
+            },
+            "assertions": [
+                {
+                    "actual": "{{error_type}}",
+                    "expected": "invalid-request",
+                    "operator": "==",
+                    "message": "Error type should be 'invalid-request'"
+                },
+                {
+                    "actual": "{{error_status}}",
+                    "expected": 400,
+                    "operator": "==",
+                    "message": "Error status should be 400"
+                },
+                {
+                    "actual": "{{error_detail}}",
+                    "expected": "The request contains invalid values",
+                    "operator": "==",
+                    "message": "Error detail should be 'The request contains invalid values'"
+                }
+            ],
+            "data_comparison": []
+        },
+        "test_data_file": "MoveMoneyAPI/data_driven/Data_Check_POST.csv",
+        "csv_row_index": 23,
+        "db_query_timing": "",
+        "db_queries": {},
+        "db_type": "",
+        "db_connection_name": "",
+        "test_summary": "Verify 400 when checkSource is invalid"
+    },
+    {
+        "test_id": "TC025",
+        "service_name": "movemoney",
+        "workflow_mode": "parallel",
+        "test_name": "400 - Invalid checkDepositDetails.checkType [Negative] (TC025)",
+        "protocol": "REST",
+        "test_type": [
+            "Functional"
+        ],
+        "mainURL": "{{base_url}}",
+        "endpoint": "/check",
+        "method": "POST",
+        "rpc_method": "",
+        "graphql_query": "",
+        "graphql_variables": "",
+        "soap_action": "",
+        "soap_envelope": "",
+        "headers_additional": {
+            "Content-Type": "application/json"
+        },
+        "payload": {
+            "amount": "{{amount}}",
+            "requestType": "{{requestType}}",
+            "status": "{{status}}",
+            "checkDepositDetails": {
+                "checkNumber": "{{checkNumber}}",
+                "checkSource": "{{checkSource}}",
+                "checkType": "{{checkType}}",
+                "checkAmount": "{{checkAmount}}",
+                "checkDate": "{{checkDate}}",
+                "bankName": "{{bankName}}",
+                "bankAccountNumber": "{{bankAccountNumber}}",
+                "routingNumber": "{{routingNumber}}",
+                "remitterName": "{{remitterName}}",
+                "alphaAmount": "{{alphaAmount}}",
+                "allocations": [
+                    {
+                        "accountId": "{{accountId1}}",
+                        "allocationUnitType": "{{allocationUnitType1}}",
+                        "amount": "{{amount1}}"
+                    },
+                    {
+                        "accountId": "{{accountId2}}",
+                        "allocationUnitType": "{{allocationUnitType2}}",
+                        "amount": "{{amount2}}"
+                    }
+                ]
+            }
+        },
+        "expected_status": "400",
+        "expected_response_schema": "",
+        "expected_response": {
+            "type": "invalid-request",
+            "title": "Invalid Request",
+            "status": 400,
+            "detail": "The request contains invalid values",
+            "instance": "/api/moneymovement/v1/check",
+            "errors": {
+                "checkDepositDetails.checkType": [
+                    "Must be one of: Personal, ThirdParty."
+                ]
+            }
+        },
+        "ignore_fields": [
+            "id",
+            "instance"
+        ],
+        "extract_values": [
+            {
+                "from": "response",
+                "key": "type",
+                "assign_to": "error_type"
+            },
+            {
+                "from": "response",
+                "key": "status",
+                "assign_to": "error_status"
+            },
+            {
+                "from": "response",
+                "key": "detail",
+                "assign_to": "error_detail"
+            }
+        ],
+        "validate": {
+            "performance": {
+                "max_response_time_ms": 2000
+            },
+            "security": {
+                "checks": [
+                    "sql_injection",
+                    "xss"
+                ]
+            },
+            "assertions": [
+                {
+                    "actual": "{{error_type}}",
+                    "expected": "invalid-request",
+                    "operator": "==",
+                    "message": "Error type should be 'invalid-request'"
+                },
+                {
+                    "actual": "{{error_status}}",
+                    "expected": 400,
+                    "operator": "==",
+                    "message": "Error status should be 400"
+                },
+                {
+                    "actual": "{{error_detail}}",
+                    "expected": "The request contains invalid values",
+                    "operator": "==",
+                    "message": "Error detail should be 'The request contains invalid values'"
+                }
+            ],
+            "data_comparison": []
+        },
+        "test_data_file": "MoveMoneyAPI/data_driven/Data_Check_POST.csv",
+        "csv_row_index": 24,
+        "db_query_timing": "",
+        "db_queries": {},
+        "db_type": "",
+        "db_connection_name": "",
+        "test_summary": "Verify 400 when checkType is invalid"
+    },
+    {
+        "test_id": "TC026",
+        "service_name": "movemoney",
+        "workflow_mode": "parallel",
+        "test_name": "400 - Invalid checkDepositDetails.checkAmount (negative) [Negative] (TC026)",
+        "protocol": "REST",
+        "test_type": [
+            "Functional"
+        ],
+        "mainURL": "{{base_url}}",
+        "endpoint": "/check",
+        "method": "POST",
+        "rpc_method": "",
+        "graphql_query": "",
+        "graphql_variables": "",
+        "soap_action": "",
+        "soap_envelope": "",
+        "headers_additional": {
+            "Content-Type": "application/json"
+        },
+        "payload": {
+            "amount": "{{amount}}",
+            "requestType": "{{requestType}}",
+            "status": "{{status}}",
+            "checkDepositDetails": {
+                "checkNumber": "{{checkNumber}}",
+                "checkSource": "{{checkSource}}",
+                "checkType": "{{checkType}}",
+                "checkAmount": "{{checkAmount}}",
+                "checkDate": "{{checkDate}}",
+                "bankName": "{{bankName}}",
+                "bankAccountNumber": "{{bankAccountNumber}}",
+                "routingNumber": "{{routingNumber}}",
+                "remitterName": "{{remitterName}}",
+                "alphaAmount": "{{alphaAmount}}",
+                "allocations": [
+                    {
+                        "accountId": "{{accountId1}}",
+                        "allocationUnitType": "{{allocationUnitType1}}",
+                        "amount": "{{amount1}}"
+                    },
+                    {
+                        "accountId": "{{accountId2}}",
+                        "allocationUnitType": "{{allocationUnitType2}}",
+                        "amount": "{{amount2}}"
+                    }
+                ]
+            }
+        },
+        "expected_status": "400",
+        "expected_response_schema": "",
+        "expected_response": {
+            "type": "invalid-request",
+            "title": "Invalid Request",
+            "status": 400,
+            "detail": "The request contains invalid values",
+            "instance": "/api/moneymovement/v1/check",
+            "errors": {
+                "checkDepositDetails.checkAmount": [
+                    "Must be a positive dollar amount greater than 0.01 with up to 2 decimal places."
+                ]
+            }
+        },
+        "ignore_fields": [
+            "id",
+            "instance"
+        ],
+        "extract_values": [
+            {
+                "from": "response",
+                "key": "type",
+                "assign_to": "error_type"
+            },
+            {
+                "from": "response",
+                "key": "status",
+                "assign_to": "error_status"
+            },
+            {
+                "from": "response",
+                "key": "detail",
+                "assign_to": "error_detail"
+            }
+        ],
+        "validate": {
+            "performance": {
+                "max_response_time_ms": 2000
+            },
+            "security": {
+                "checks": [
+                    "sql_injection",
+                    "xss"
+                ]
+            },
+            "assertions": [
+                {
+                    "actual": "{{error_type}}",
+                    "expected": "invalid-request",
+                    "operator": "==",
+                    "message": "Error type should be 'invalid-request'"
+                },
+                {
+                    "actual": "{{error_status}}",
+                    "expected": 400,
+                    "operator": "==",
+                    "message": "Error status should be 400"
+                },
+                {
+                    "actual": "{{error_detail}}",
+                    "expected": "The request contains invalid values",
+                    "operator": "==",
+                    "message": "Error detail should be 'The request contains invalid values'"
+                }
+            ],
+            "data_comparison": []
+        },
+        "test_data_file": "MoveMoneyAPI/data_driven/Data_Check_POST.csv",
+        "csv_row_index": 25,
+        "db_query_timing": "",
+        "db_queries": {},
+        "db_type": "",
+        "db_connection_name": "",
+        "test_summary": "Verify 400 when checkAmount is negative"
+    },
+    {
+        "test_id": "TC027",
+        "service_name": "movemoney",
+        "workflow_mode": "parallel",
+        "test_name": "400 - Invalid checkDepositDetails.checkDate format [Negative] (TC027)",
+        "protocol": "REST",
+        "test_type": [
+            "Functional"
+        ],
+        "mainURL": "{{base_url}}",
+        "endpoint": "/check",
+        "method": "POST",
+        "rpc_method": "",
+        "graphql_query": "",
+        "graphql_variables": "",
+        "soap_action": "",
+        "soap_envelope": "",
+        "headers_additional": {
+            "Content-Type": "application/json"
+        },
+        "payload": {
+            "amount": "{{amount}}",
+            "requestType": "{{requestType}}",
+            "status": "{{status}}",
+            "checkDepositDetails": {
+                "checkNumber": "{{checkNumber}}",
+                "checkSource": "{{checkSource}}",
+                "checkType": "{{checkType}}",
+                "checkAmount": "{{checkAmount}}",
+                "checkDate": "{{checkDate}}",
+                "bankName": "{{bankName}}",
+                "bankAccountNumber": "{{bankAccountNumber}}",
+                "routingNumber": "{{routingNumber}}",
+                "remitterName": "{{remitterName}}",
+                "alphaAmount": "{{alphaAmount}}",
+                "allocations": [
+                    {
+                        "accountId": "{{accountId1}}",
+                        "allocationUnitType": "{{allocationUnitType1}}",
+                        "amount": "{{amount1}}"
+                    },
+                    {
+                        "accountId": "{{accountId2}}",
+                        "allocationUnitType": "{{allocationUnitType2}}",
+                        "amount": "{{amount2}}"
+                    }
+                ]
+            }
+        },
+        "expected_status": "400",
+        "expected_response_schema": "",
+        "expected_response": {
+            "type": "invalid-request",
+            "title": "Invalid Request",
+            "status": 400,
+            "detail": "The request contains invalid values",
+            "instance": "/api/moneymovement/v1/check",
+            "errors": {
+                "checkDepositDetails.checkDate": [
+                    "Must be a valid date value."
+                ]
+            }
+        },
+        "ignore_fields": [
+            "id",
+            "instance"
+        ],
+        "extract_values": [
+            {
+                "from": "response",
+                "key": "type",
+                "assign_to": "error_type"
+            },
+            {
+                "from": "response",
+                "key": "status",
+                "assign_to": "error_status"
+            },
+            {
+                "from": "response",
+                "key": "detail",
+                "assign_to": "error_detail"
+            }
+        ],
+        "validate": {
+            "performance": {
+                "max_response_time_ms": 2000
+            },
+            "security": {
+                "checks": [
+                    "sql_injection",
+                    "xss"
+                ]
+            },
+            "assertions": [
+                {
+                    "actual": "{{error_type}}",
+                    "expected": "invalid-request",
+                    "operator": "==",
+                    "message": "Error type should be 'invalid-request'"
+                },
+                {
+                    "actual": "{{error_status}}",
+                    "expected": 400,
+                    "operator": "==",
+                    "message": "Error status should be 400"
+                },
+                {
+                    "actual": "{{error_detail}}",
+                    "expected": "The request contains invalid values",
+                    "operator": "==",
+                    "message": "Error detail should be 'The request contains invalid values'"
+                }
+            ],
+            "data_comparison": []
+        },
+        "test_data_file": "MoveMoneyAPI/data_driven/Data_Check_POST.csv",
+        "csv_row_index": 26,
+        "db_query_timing": "",
+        "db_queries": {},
+        "db_type": "",
+        "db_connection_name": "",
+        "test_summary": "Verify 400 when checkDate format is invalid"
+    },
+    {
+        "test_id": "TC028",
+        "service_name": "movemoney",
+        "workflow_mode": "parallel",
+        "test_name": "400 - Invalid checkDepositDetails.alphaAmount [Negative] (TC028)",
+        "protocol": "REST",
+        "test_type": [
+            "Functional"
+        ],
+        "mainURL": "{{base_url}}",
+        "endpoint": "/check",
+        "method": "POST",
+        "rpc_method": "",
+        "graphql_query": "",
+        "graphql_variables": "",
+        "soap_action": "",
+        "soap_envelope": "",
+        "headers_additional": {
+            "Content-Type": "application/json"
+        },
+        "payload": {
+            "amount": "{{amount}}",
+            "requestType": "{{requestType}}",
+            "status": "{{status}}",
+            "checkDepositDetails": {
+                "checkNumber": "{{checkNumber}}",
+                "checkSource": "{{checkSource}}",
+                "checkType": "{{checkType}}",
+                "checkAmount": "{{checkAmount}}",
+                "checkDate": "{{checkDate}}",
+                "bankName": "{{bankName}}",
+                "bankAccountNumber": "{{bankAccountNumber}}",
+                "routingNumber": "{{routingNumber}}",
+                "remitterName": "{{remitterName}}",
+                "alphaAmount": "{{alphaAmount}}",
+                "allocations": [
+                    {
+                        "accountId": "{{accountId1}}",
+                        "allocationUnitType": "{{allocationUnitType1}}",
+                        "amount": "{{amount1}}"
+                    },
+                    {
+                        "accountId": "{{accountId2}}",
+                        "allocationUnitType": "{{allocationUnitType2}}",
+                        "amount": "{{amount2}}"
+                    }
+                ]
+            }
+        },
+        "expected_status": "400",
+        "expected_response_schema": "",
+        "expected_response": {
+            "type": "invalid-request",
+            "title": "Invalid Request",
+            "status": 400,
+            "detail": "The request contains invalid values",
+            "instance": "/api/moneymovement/v1/check",
+            "errors": {
+                "checkDepositDetails.alphaAmount": [
+                    "Must be a valid alpha amount string."
+                ]
+            }
+        },
+        "ignore_fields": [
+            "id",
+            "instance"
+        ],
+        "extract_values": [
+            {
+                "from": "response",
+                "key": "type",
+                "assign_to": "error_type"
+            },
+            {
+                "from": "response",
+                "key": "status",
+                "assign_to": "error_status"
+            },
+            {
+                "from": "response",
+                "key": "detail",
+                "assign_to": "error_detail"
+            }
+        ],
+        "validate": {
+            "performance": {
+                "max_response_time_ms": 2000
+            },
+            "security": {
+                "checks": [
+                    "sql_injection",
+                    "xss"
+                ]
+            },
+            "assertions": [
+                {
+                    "actual": "{{error_type}}",
+                    "expected": "invalid-request",
+                    "operator": "==",
+                    "message": "Error type should be 'invalid-request'"
+                },
+                {
+                    "actual": "{{error_status}}",
+                    "expected": 400,
+                    "operator": "==",
+                    "message": "Error status should be 400"
+                },
+                {
+                    "actual": "{{error_detail}}",
+                    "expected": "The request contains invalid values",
+                    "operator": "==",
+                    "message": "Error detail should be 'The request contains invalid values'"
+                }
+            ],
+            "data_comparison": []
+        },
+        "test_data_file": "MoveMoneyAPI/data_driven/Data_Check_POST.csv",
+        "csv_row_index": 27,
+        "db_query_timing": "",
+        "db_queries": {},
+        "db_type": "",
+        "db_connection_name": "",
+        "test_summary": "Verify 400 when alphaAmount is invalid"
+    },
+    {
+        "test_id": "TC029",
+        "service_name": "movemoney",
+        "workflow_mode": "parallel",
+        "test_name": "400 - Invalid allocations[].accountId (not UUID) [Negative] (TC029)",
+        "protocol": "REST",
+        "test_type": [
+            "Functional"
+        ],
+        "mainURL": "{{base_url}}",
+        "endpoint": "/check",
+        "method": "POST",
+        "rpc_method": "",
+        "graphql_query": "",
+        "graphql_variables": "",
+        "soap_action": "",
+        "soap_envelope": "",
+        "headers_additional": {
+            "Content-Type": "application/json"
+        },
+        "payload": {
+            "amount": "{{amount}}",
+            "requestType": "{{requestType}}",
+            "status": "{{status}}",
+            "checkDepositDetails": {
+                "checkNumber": "{{checkNumber}}",
+                "checkSource": "{{checkSource}}",
+                "checkType": "{{checkType}}",
+                "checkAmount": "{{checkAmount}}",
+                "checkDate": "{{checkDate}}",
+                "bankName": "{{bankName}}",
+                "bankAccountNumber": "{{bankAccountNumber}}",
+                "routingNumber": "{{routingNumber}}",
+                "remitterName": "{{remitterName}}",
+                "alphaAmount": "{{alphaAmount}}",
+                "allocations": [
+                    {
+                        "accountId": "{{accountId1}}",
+                        "allocationUnitType": "{{allocationUnitType1}}",
+                        "amount": "{{amount1}}"
+                    },
+                    {
+                        "accountId": "{{accountId2}}",
+                        "allocationUnitType": "{{allocationUnitType2}}",
+                        "amount": "{{amount2}}"
+                    }
+                ]
+            }
+        },
+        "expected_status": "400",
+        "expected_response_schema": "",
+        "expected_response": {
+            "type": "invalid-request",
+            "title": "Invalid Request",
+            "status": 400,
+            "detail": "The request contains invalid values",
+            "instance": "/api/moneymovement/v1/check",
+            "errors": {
+                "checkDepositDetails.allocations[0].accountId": [
+                    "Must be a valid UUID format."
+                ]
+            }
+        },
+        "ignore_fields": [
+            "id",
+            "instance"
+        ],
+        "extract_values": [
+            {
+                "from": "response",
+                "key": "type",
+                "assign_to": "error_type"
+            },
+            {
+                "from": "response",
+                "key": "status",
+                "assign_to": "error_status"
+            },
+            {
+                "from": "response",
+                "key": "detail",
+                "assign_to": "error_detail"
+            }
+        ],
+        "validate": {
+            "performance": {
+                "max_response_time_ms": 2000
+            },
+            "security": {
+                "checks": [
+                    "sql_injection",
+                    "xss"
+                ]
+            },
+            "assertions": [
+                {
+                    "actual": "{{error_type}}",
+                    "expected": "invalid-request",
+                    "operator": "==",
+                    "message": "Error type should be 'invalid-request'"
+                },
+                {
+                    "actual": "{{error_status}}",
+                    "expected": 400,
+                    "operator": "==",
+                    "message": "Error status should be 400"
+                },
+                {
+                    "actual": "{{error_detail}}",
+                    "expected": "The request contains invalid values",
+                    "operator": "==",
+                    "message": "Error detail should be 'The request contains invalid values'"
+                }
+            ],
+            "data_comparison": []
+        },
+        "test_data_file": "MoveMoneyAPI/data_driven/Data_Check_POST.csv",
+        "csv_row_index": 28,
+        "db_query_timing": "",
+        "db_queries": {},
+        "db_type": "",
+        "db_connection_name": "",
+        "test_summary": "Verify 400 when allocations accountId is not a valid UUID"
+    },
+    {
+        "test_id": "TC030",
+        "service_name": "movemoney",
+        "workflow_mode": "parallel",
+        "test_name": "400 - Invalid allocations[].allocationUnitType [Negative] (TC030)",
+        "protocol": "REST",
+        "test_type": [
+            "Functional"
+        ],
+        "mainURL": "{{base_url}}",
+        "endpoint": "/check",
+        "method": "POST",
+        "rpc_method": "",
+        "graphql_query": "",
+        "graphql_variables": "",
+        "soap_action": "",
+        "soap_envelope": "",
+        "headers_additional": {
+            "Content-Type": "application/json"
+        },
+        "payload": {
+            "amount": "{{amount}}",
+            "requestType": "{{requestType}}",
+            "status": "{{status}}",
+            "checkDepositDetails": {
+                "checkNumber": "{{checkNumber}}",
+                "checkSource": "{{checkSource}}",
+                "checkType": "{{checkType}}",
+                "checkAmount": "{{checkAmount}}",
+                "checkDate": "{{checkDate}}",
+                "bankName": "{{bankName}}",
+                "bankAccountNumber": "{{bankAccountNumber}}",
+                "routingNumber": "{{routingNumber}}",
+                "remitterName": "{{remitterName}}",
+                "alphaAmount": "{{alphaAmount}}",
+                "allocations": [
+                    {
+                        "accountId": "{{accountId1}}",
+                        "allocationUnitType": "{{allocationUnitType1}}",
+                        "amount": "{{amount1}}"
+                    },
+                    {
+                        "accountId": "{{accountId2}}",
+                        "allocationUnitType": "{{allocationUnitType2}}",
+                        "amount": "{{amount2}}"
+                    }
+                ]
+            }
+        },
+        "expected_status": "400",
+        "expected_response_schema": "",
+        "expected_response": {
+            "type": "invalid-request",
+            "title": "Invalid Request",
+            "status": 400,
+            "detail": "The request contains invalid values",
+            "instance": "/api/moneymovement/v1/check",
+            "errors": {
+                "checkDepositDetails.allocations[0].allocationUnitType": [
+                    "Must be one of: Amount, Percent."
+                ]
+            }
+        },
+        "ignore_fields": [
+            "id",
+            "instance"
+        ],
+        "extract_values": [
+            {
+                "from": "response",
+                "key": "type",
+                "assign_to": "error_type"
+            },
+            {
+                "from": "response",
+                "key": "status",
+                "assign_to": "error_status"
+            },
+            {
+                "from": "response",
+                "key": "detail",
+                "assign_to": "error_detail"
+            }
+        ],
+        "validate": {
+            "performance": {
+                "max_response_time_ms": 2000
+            },
+            "security": {
+                "checks": [
+                    "sql_injection",
+                    "xss"
+                ]
+            },
+            "assertions": [
+                {
+                    "actual": "{{error_type}}",
+                    "expected": "invalid-request",
+                    "operator": "==",
+                    "message": "Error type should be 'invalid-request'"
+                },
+                {
+                    "actual": "{{error_status}}",
+                    "expected": 400,
+                    "operator": "==",
+                    "message": "Error status should be 400"
+                },
+                {
+                    "actual": "{{error_detail}}",
+                    "expected": "The request contains invalid values",
+                    "operator": "==",
+                    "message": "Error detail should be 'The request contains invalid values'"
+                }
+            ],
+            "data_comparison": []
+        },
+        "test_data_file": "MoveMoneyAPI/data_driven/Data_Check_POST.csv",
+        "csv_row_index": 29,
+        "db_query_timing": "",
+        "db_queries": {},
+        "db_type": "",
+        "db_connection_name": "",
+        "test_summary": "Verify 400 when allocationUnitType is invalid"
+    },
+    {
+        "test_id": "TC031",
+        "service_name": "movemoney",
+        "workflow_mode": "parallel",
+        "test_name": "400 - Invalid allocations[].amount (negative) [Negative] (TC031)",
+        "protocol": "REST",
+        "test_type": [
+            "Functional"
+        ],
+        "mainURL": "{{base_url}}",
+        "endpoint": "/check",
+        "method": "POST",
+        "rpc_method": "",
+        "graphql_query": "",
+        "graphql_variables": "",
+        "soap_action": "",
+        "soap_envelope": "",
+        "headers_additional": {
+            "Content-Type": "application/json"
+        },
+        "payload": {
+            "amount": "{{amount}}",
+            "requestType": "{{requestType}}",
+            "status": "{{status}}",
+            "checkDepositDetails": {
+                "checkNumber": "{{checkNumber}}",
+                "checkSource": "{{checkSource}}",
+                "checkType": "{{checkType}}",
+                "checkAmount": "{{checkAmount}}",
+                "checkDate": "{{checkDate}}",
+                "bankName": "{{bankName}}",
+                "bankAccountNumber": "{{bankAccountNumber}}",
+                "routingNumber": "{{routingNumber}}",
+                "remitterName": "{{remitterName}}",
+                "alphaAmount": "{{alphaAmount}}",
+                "allocations": [
+                    {
+                        "accountId": "{{accountId1}}",
+                        "allocationUnitType": "{{allocationUnitType1}}",
+                        "amount": "{{amount1}}"
+                    }
+                ]
+            }
+        },
+        "expected_status": "400",
+        "expected_response_schema": "",
+        "expected_response": {
+            "type": "invalid-request",
+            "title": "Invalid Request",
+            "status": 400,
+            "detail": "The request contains invalid values",
+            "instance": "/api/moneymovement/v1/check",
+            "errors": {
+                "checkDepositDetails.allocations[0].amount": [
+                    "Must be a positive dollar amount greater than 0.01 with up to 2 decimal places."
+                ]
+            }
+        },
+        "ignore_fields": [
+            "id",
+            "instance"
+        ],
+        "extract_values": [
+            {
+                "from": "response",
+                "key": "type",
+                "assign_to": "error_type"
+            },
+            {
+                "from": "response",
+                "key": "status",
+                "assign_to": "error_status"
+            },
+            {
+                "from": "response",
+                "key": "detail",
+                "assign_to": "error_detail"
+            }
+        ],
+        "validate": {
+            "performance": {
+                "max_response_time_ms": 2000
+            },
+            "security": {
+                "checks": [
+                    "sql_injection",
+                    "xss"
+                ]
+            },
+            "assertions": [
+                {
+                    "actual": "{{error_type}}",
+                    "expected": "invalid-request",
+                    "operator": "==",
+                    "message": "Error type should be 'invalid-request'"
+                },
+                {
+                    "actual": "{{error_status}}",
+                    "expected": 400,
+                    "operator": "==",
+                    "message": "Error status should be 400"
+                },
+                {
+                    "actual": "{{error_detail}}",
+                    "expected": "The request contains invalid values",
+                    "operator": "==",
+                    "message": "Error detail should be 'The request contains invalid values'"
+                }
+            ],
+            "data_comparison": []
+        },
+        "test_data_file": "MoveMoneyAPI/data_driven/Data_Check_POST.csv",
+        "csv_row_index": 30,
+        "db_query_timing": "",
+        "db_queries": {},
+        "db_type": "",
+        "db_connection_name": "",
+        "test_summary": "Verify 400 when allocation amount is negative"
+    },
+    {
+        "test_id": "TC032",
+        "service_name": "movemoney",
+        "workflow_mode": "parallel",
+        "test_name": "400 - Invalid allocations[].percent (> 100) [Negative] (TC032)",
+        "protocol": "REST",
+        "test_type": [
+            "Functional"
+        ],
+        "mainURL": "{{base_url}}",
+        "endpoint": "/check",
+        "method": "POST",
+        "rpc_method": "",
+        "graphql_query": "",
+        "graphql_variables": "",
+        "soap_action": "",
+        "soap_envelope": "",
+        "headers_additional": {
+            "Content-Type": "application/json"
+        },
+        "payload": {
+            "amount": "{{amount}}",
+            "requestType": "{{requestType}}",
+            "status": "{{status}}",
+            "checkDepositDetails": {
+                "checkNumber": "{{checkNumber}}",
+                "checkSource": "{{checkSource}}",
+                "checkType": "{{checkType}}",
+                "checkAmount": "{{checkAmount}}",
+                "checkDate": "{{checkDate}}",
+                "bankName": "{{bankName}}",
+                "bankAccountNumber": "{{bankAccountNumber}}",
+                "routingNumber": "{{routingNumber}}",
+                "remitterName": "{{remitterName}}",
+                "alphaAmount": "{{alphaAmount}}",
+                "allocations": [
+                    {
+                        "accountId": "{{accountId1}}",
+                        "allocationUnitType": "{{allocationUnitType1}}",
+                        "percent": "{{percent1}}"
+                    }
+                ]
+            }
+        },
+        "expected_status": "400",
+        "expected_response_schema": "",
+        "expected_response": {
+            "type": "invalid-request",
+            "title": "Invalid Request",
+            "status": 400,
+            "detail": "The request contains invalid values",
+            "instance": "/api/moneymovement/v1/check",
+            "errors": {
+                "checkDepositDetails.allocations[0].percent": [
+                    "Must be a number between 0.01 and 100 with up to 2 decimal places."
+                ]
+            }
+        },
+        "ignore_fields": [
+            "id",
+            "instance"
+        ],
+        "extract_values": [
+            {
+                "from": "response",
+                "key": "type",
+                "assign_to": "error_type"
+            },
+            {
+                "from": "response",
+                "key": "status",
+                "assign_to": "error_status"
+            },
+            {
+                "from": "response",
+                "key": "detail",
+                "assign_to": "error_detail"
+            }
+        ],
+        "validate": {
+            "performance": {
+                "max_response_time_ms": 2000
+            },
+            "security": {
+                "checks": [
+                    "sql_injection",
+                    "xss"
+                ]
+            },
+            "assertions": [
+                {
+                    "actual": "{{error_type}}",
+                    "expected": "invalid-request",
+                    "operator": "==",
+                    "message": "Error type should be 'invalid-request'"
+                },
+                {
+                    "actual": "{{error_status}}",
+                    "expected": 400,
+                    "operator": "==",
+                    "message": "Error status should be 400"
+                },
+                {
+                    "actual": "{{error_detail}}",
+                    "expected": "The request contains invalid values",
+                    "operator": "==",
+                    "message": "Error detail should be 'The request contains invalid values'"
+                }
+            ],
+            "data_comparison": []
+        },
+        "test_data_file": "MoveMoneyAPI/data_driven/Data_Check_POST.csv",
+        "csv_row_index": 31,
+        "db_query_timing": "",
+        "db_queries": {},
+        "db_type": "",
+        "db_connection_name": "",
+        "test_summary": "Verify 400 when allocation percent exceeds 100"
+    },
+    {
+        "test_id": "TC033",
+        "service_name": "movemoney",
+        "workflow_mode": "parallel",
+        "test_name": "400 - Invalid checkWithdrawalDetails.instructionId (not UUID) [Negative] (TC033)",
+        "protocol": "REST",
+        "test_type": [
+            "Functional"
+        ],
+        "mainURL": "{{base_url}}",
+        "endpoint": "/check",
+        "method": "POST",
+        "rpc_method": "",
+        "graphql_query": "",
+        "graphql_variables": "",
+        "soap_action": "",
+        "soap_envelope": "",
+        "headers_additional": {
+            "Content-Type": "application/json"
+        },
+        "payload": {
+            "amount": "{{amount}}",
+            "requestType": "{{requestType}}",
+            "status": "{{status}}",
+            "checkWithdrawalDetails": {
+                "instructionId": "{{instructionId}}",
+                "deliveryType": "{{deliveryType}}",
+                "chargeOvernightFee": true,
+                "memoLine": "{{memoLine}}",
+                "schedule": {
+                    "scheduleType": "{{scheduleType}}",
+                    "frequency": "{{frequency}}",
+                    "startDate": "{{startDate}}",
+                    "endDate": "{{endDate}}"
+                }
+            }
+        },
+        "expected_status": "400",
+        "expected_response_schema": "",
+        "expected_response": {
+            "type": "invalid-request",
+            "title": "Invalid Request",
+            "status": 400,
+            "detail": "The request contains invalid values",
+            "instance": "/api/moneymovement/v1/check",
+            "errors": {
+                "checkWithdrawalDetails.instructionId": [
+                    "Must be a valid UUID format."
+                ]
+            }
+        },
+        "ignore_fields": [
+            "id",
+            "instance"
+        ],
+        "extract_values": [
+            {
+                "from": "response",
+                "key": "type",
+                "assign_to": "error_type"
+            },
+            {
+                "from": "response",
+                "key": "status",
+                "assign_to": "error_status"
+            },
+            {
+                "from": "response",
+                "key": "detail",
+                "assign_to": "error_detail"
+            }
+        ],
+        "validate": {
+            "performance": {
+                "max_response_time_ms": 2000
+            },
+            "security": {
+                "checks": [
+                    "sql_injection",
+                    "xss"
+                ]
+            },
+            "assertions": [
+                {
+                    "actual": "{{error_type}}",
+                    "expected": "invalid-request",
+                    "operator": "==",
+                    "message": "Error type should be 'invalid-request'"
+                },
+                {
+                    "actual": "{{error_status}}",
+                    "expected": 400,
+                    "operator": "==",
+                    "message": "Error status should be 400"
+                },
+                {
+                    "actual": "{{error_detail}}",
+                    "expected": "The request contains invalid values",
+                    "operator": "==",
+                    "message": "Error detail should be 'The request contains invalid values'"
+                }
+            ],
+            "data_comparison": []
+        },
+        "test_data_file": "MoveMoneyAPI/data_driven/Data_Check_POST.csv",
+        "csv_row_index": 32,
+        "db_query_timing": "",
+        "db_queries": {},
+        "db_type": "",
+        "db_connection_name": "",
+        "test_summary": "Verify 400 when instructionId is not a valid UUID"
+    },
+    {
+        "test_id": "TC034",
+        "service_name": "movemoney",
+        "workflow_mode": "parallel",
+        "test_name": "400 - Invalid checkWithdrawalDetails.deliveryType [Negative] (TC034)",
+        "protocol": "REST",
+        "test_type": [
+            "Functional"
+        ],
+        "mainURL": "{{base_url}}",
+        "endpoint": "/check",
+        "method": "POST",
+        "rpc_method": "",
+        "graphql_query": "",
+        "graphql_variables": "",
+        "soap_action": "",
+        "soap_envelope": "",
+        "headers_additional": {
+            "Content-Type": "application/json"
+        },
+        "payload": {
+            "amount": "{{amount}}",
+            "requestType": "{{requestType}}",
+            "status": "{{status}}",
+            "checkWithdrawalDetails": {
+                "instructionId": "{{instructionId}}",
+                "deliveryType": "{{deliveryType}}",
+                "chargeOvernightFee": true,
+                "memoLine": "{{memoLine}}",
+                "schedule": {
+                    "scheduleType": "{{scheduleType}}",
+                    "frequency": "{{frequency}}",
+                    "startDate": "{{startDate}}",
+                    "endDate": "{{endDate}}"
+                }
+            }
+        },
+        "expected_status": "400",
+        "expected_response_schema": "",
+        "expected_response": {
+            "type": "invalid-request",
+            "title": "Invalid Request",
+            "status": 400,
+            "detail": "The request contains invalid values",
+            "instance": "/api/moneymovement/v1/check",
+            "errors": {
+                "checkWithdrawalDetails.deliveryType": [
+                    "Must be one of: Overnight, RegularMail."
+                ]
+            }
+        },
+        "ignore_fields": [
+            "id",
+            "instance"
+        ],
+        "extract_values": [
+            {
+                "from": "response",
+                "key": "type",
+                "assign_to": "error_type"
+            },
+            {
+                "from": "response",
+                "key": "status",
+                "assign_to": "error_status"
+            },
+            {
+                "from": "response",
+                "key": "detail",
+                "assign_to": "error_detail"
+            }
+        ],
+        "validate": {
+            "performance": {
+                "max_response_time_ms": 2000
+            },
+            "security": {
+                "checks": [
+                    "sql_injection",
+                    "xss"
+                ]
+            },
+            "assertions": [
+                {
+                    "actual": "{{error_type}}",
+                    "expected": "invalid-request",
+                    "operator": "==",
+                    "message": "Error type should be 'invalid-request'"
+                },
+                {
+                    "actual": "{{error_status}}",
+                    "expected": 400,
+                    "operator": "==",
+                    "message": "Error status should be 400"
+                },
+                {
+                    "actual": "{{error_detail}}",
+                    "expected": "The request contains invalid values",
+                    "operator": "==",
+                    "message": "Error detail should be 'The request contains invalid values'"
+                }
+            ],
+            "data_comparison": []
+        },
+        "test_data_file": "MoveMoneyAPI/data_driven/Data_Check_POST.csv",
+        "csv_row_index": 33,
+        "db_query_timing": "",
+        "db_queries": {},
+        "db_type": "",
+        "db_connection_name": "",
+        "test_summary": "Verify 400 when deliveryType is invalid"
+    },
+    {
+        "test_id": "TC035",
+        "service_name": "movemoney",
+        "workflow_mode": "parallel",
+        "test_name": "400 - Invalid schedule.scheduleType [Negative] (TC035)",
+        "protocol": "REST",
+        "test_type": [
+            "Functional"
+        ],
+        "mainURL": "{{base_url}}",
+        "endpoint": "/check",
+        "method": "POST",
+        "rpc_method": "",
+        "graphql_query": "",
+        "graphql_variables": "",
+        "soap_action": "",
+        "soap_envelope": "",
+        "headers_additional": {
+            "Content-Type": "application/json"
+        },
+        "payload": {
+            "amount": "{{amount}}",
+            "requestType": "{{requestType}}",
+            "status": "{{status}}",
+            "checkWithdrawalDetails": {
+                "instructionId": "{{instructionId}}",
+                "deliveryType": "{{deliveryType}}",
+                "chargeOvernightFee": true,
+                "memoLine": "{{memoLine}}",
+                "schedule": {
+                    "scheduleType": "{{scheduleType}}",
+                    "frequency": "{{frequency}}",
+                    "startDate": "{{startDate}}",
+                    "endDate": "{{endDate}}"
+                }
+            }
+        },
+        "expected_status": "400",
+        "expected_response_schema": "",
+        "expected_response": {
+            "type": "invalid-request",
+            "title": "Invalid Request",
+            "status": 400,
+            "detail": "The request contains invalid values",
+            "instance": "/api/moneymovement/v1/check",
+            "errors": {
+                "checkWithdrawalDetails.schedule.scheduleType": [
+                    "Must be one of: OneTime, Periodic."
+                ]
+            }
+        },
+        "ignore_fields": [
+            "id",
+            "instance"
+        ],
+        "extract_values": [
+            {
+                "from": "response",
+                "key": "type",
+                "assign_to": "error_type"
+            },
+            {
+                "from": "response",
+                "key": "status",
+                "assign_to": "error_status"
+            },
+            {
+                "from": "response",
+                "key": "detail",
+                "assign_to": "error_detail"
+            }
+        ],
+        "validate": {
+            "performance": {
+                "max_response_time_ms": 2000
+            },
+            "security": {
+                "checks": [
+                    "sql_injection",
+                    "xss"
+                ]
+            },
+            "assertions": [
+                {
+                    "actual": "{{error_type}}",
+                    "expected": "invalid-request",
+                    "operator": "==",
+                    "message": "Error type should be 'invalid-request'"
+                },
+                {
+                    "actual": "{{error_status}}",
+                    "expected": 400,
+                    "operator": "==",
+                    "message": "Error status should be 400"
+                },
+                {
+                    "actual": "{{error_detail}}",
+                    "expected": "The request contains invalid values",
+                    "operator": "==",
+                    "message": "Error detail should be 'The request contains invalid values'"
+                }
+            ],
+            "data_comparison": []
+        },
+        "test_data_file": "MoveMoneyAPI/data_driven/Data_Check_POST.csv",
+        "csv_row_index": 34,
+        "db_query_timing": "",
+        "db_queries": {},
+        "db_type": "",
+        "db_connection_name": "",
+        "test_summary": "Verify 400 when scheduleType is invalid"
+    },
+    {
+        "test_id": "TC036",
+        "service_name": "movemoney",
+        "workflow_mode": "parallel",
+        "test_name": "400 - Invalid schedule.paymentDate format [Negative] (TC036)",
+        "protocol": "REST",
+        "test_type": [
+            "Functional"
+        ],
+        "mainURL": "{{base_url}}",
+        "endpoint": "/check",
+        "method": "POST",
+        "rpc_method": "",
+        "graphql_query": "",
+        "graphql_variables": "",
+        "soap_action": "",
+        "soap_envelope": "",
+        "headers_additional": {
+            "Content-Type": "application/json"
+        },
+        "payload": {
+            "amount": "{{amount}}",
+            "requestType": "{{requestType}}",
+            "status": "{{status}}",
+            "checkWithdrawalDetails": {
+                "instructionId": "{{instructionId}}",
+                "deliveryType": "{{deliveryType}}",
+                "chargeOvernightFee": true,
+                "memoLine": "{{memoLine}}",
+                "schedule": {
+                    "scheduleType": "{{scheduleType}}",
+                    "paymentDate": "{{paymentDate}}"
+                }
+            }
+        },
+        "expected_status": "400",
+        "expected_response_schema": "",
+        "expected_response": {
+            "type": "invalid-request",
+            "title": "Invalid Request",
+            "status": 400,
+            "detail": "The request contains invalid values",
+            "instance": "/api/moneymovement/v1/check",
+            "errors": {
+                "checkWithdrawalDetails.schedule.paymentDate": [
+                    "Must be a valid date value."
+                ]
+            }
+        },
+        "ignore_fields": [
+            "id",
+            "instance"
+        ],
+        "extract_values": [
+            {
+                "from": "response",
+                "key": "type",
+                "assign_to": "error_type"
+            },
+            {
+                "from": "response",
+                "key": "status",
+                "assign_to": "error_status"
+            },
+            {
+                "from": "response",
+                "key": "detail",
+                "assign_to": "error_detail"
+            }
+        ],
+        "validate": {
+            "performance": {
+                "max_response_time_ms": 2000
+            },
+            "security": {
+                "checks": [
+                    "sql_injection",
+                    "xss"
+                ]
+            },
+            "assertions": [
+                {
+                    "actual": "{{error_type}}",
+                    "expected": "invalid-request",
+                    "operator": "==",
+                    "message": "Error type should be 'invalid-request'"
+                },
+                {
+                    "actual": "{{error_status}}",
+                    "expected": 400,
+                    "operator": "==",
+                    "message": "Error status should be 400"
+                },
+                {
+                    "actual": "{{error_detail}}",
+                    "expected": "The request contains invalid values",
+                    "operator": "==",
+                    "message": "Error detail should be 'The request contains invalid values'"
+                }
+            ],
+            "data_comparison": []
+        },
+        "test_data_file": "MoveMoneyAPI/data_driven/Data_Check_POST.csv",
+        "csv_row_index": 35,
+        "db_query_timing": "",
+        "db_queries": {},
+        "db_type": "",
+        "db_connection_name": "",
+        "test_summary": "Verify 400 when paymentDate format is invalid"
+    },
+    {
+        "test_id": "TC037",
+        "service_name": "movemoney",
+        "workflow_mode": "parallel",
+        "test_name": "400 - Invalid schedule.frequency value [Negative] (TC037)",
+        "protocol": "REST",
+        "test_type": [
+            "Functional"
+        ],
+        "mainURL": "{{base_url}}",
+        "endpoint": "/check",
+        "method": "POST",
+        "rpc_method": "",
+        "graphql_query": "",
+        "graphql_variables": "",
+        "soap_action": "",
+        "soap_envelope": "",
+        "headers_additional": {
+            "Content-Type": "application/json"
+        },
+        "payload": {
+            "amount": "{{amount}}",
+            "requestType": "{{requestType}}",
+            "status": "{{status}}",
+            "checkWithdrawalDetails": {
+                "instructionId": "{{instructionId}}",
+                "deliveryType": "{{deliveryType}}",
+                "chargeOvernightFee": true,
+                "memoLine": "{{memoLine}}",
+                "schedule": {
+                    "scheduleType": "{{scheduleType}}",
+                    "frequency": "{{frequency}}",
+                    "startDate": "{{startDate}}",
+                    "endDate": "{{endDate}}"
+                }
+            }
+        },
+        "expected_status": "400",
+        "expected_response_schema": "",
+        "expected_response": {
+            "type": "invalid-request",
+            "title": "Invalid Request",
+            "status": 400,
+            "detail": "The request contains invalid values",
+            "instance": "/api/moneymovement/v1/check",
+            "errors": {
+                "checkWithdrawalDetails.schedule.frequency": [
+                    "Must be a valid frequency value."
+                ]
+            }
+        },
+        "ignore_fields": [
+            "id",
+            "instance"
+        ],
+        "extract_values": [
+            {
+                "from": "response",
+                "key": "type",
+                "assign_to": "error_type"
+            },
+            {
+                "from": "response",
+                "key": "status",
+                "assign_to": "error_status"
+            },
+            {
+                "from": "response",
+                "key": "detail",
+                "assign_to": "error_detail"
+            }
+        ],
+        "validate": {
+            "performance": {
+                "max_response_time_ms": 2000
+            },
+            "security": {
+                "checks": [
+                    "sql_injection",
+                    "xss"
+                ]
+            },
+            "assertions": [
+                {
+                    "actual": "{{error_type}}",
+                    "expected": "invalid-request",
+                    "operator": "==",
+                    "message": "Error type should be 'invalid-request'"
+                },
+                {
+                    "actual": "{{error_status}}",
+                    "expected": 400,
+                    "operator": "==",
+                    "message": "Error status should be 400"
+                },
+                {
+                    "actual": "{{error_detail}}",
+                    "expected": "The request contains invalid values",
+                    "operator": "==",
+                    "message": "Error detail should be 'The request contains invalid values'"
+                }
+            ],
+            "data_comparison": []
+        },
+        "test_data_file": "MoveMoneyAPI/data_driven/Data_Check_POST.csv",
+        "csv_row_index": 36,
+        "db_query_timing": "",
+        "db_queries": {},
+        "db_type": "",
+        "db_connection_name": "",
+        "test_summary": "Verify 400 when schedule.frequency is invalid"
+    }
+]

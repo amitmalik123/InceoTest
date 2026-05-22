@@ -1,0 +1,1398 @@
+[
+    {
+        "test_id": "TC001",
+        "service_name": "movemoney",
+        "workflow_mode": "parallel",
+        "test_name": "Incoming Wire Deposit with Allocations. [positive] (TC001)",
+        "protocol": "REST",
+        "test_type": [
+            "Functional"
+        ],
+        "mainURL": "{{base_url}}",
+        "endpoint": "/wire",
+        "method": "POST",
+        "rpc_method": "",
+        "graphql_query": "",
+        "graphql_variables": "",
+        "soap_action": "",
+        "soap_envelope": "",
+        "headers_additional": {
+            "Content-Type": "application/json"
+        },
+        "payload": {
+            "amount": "{{amount}}",
+            "requestType": "{{requestType}}",
+            "status": "{{status}}",
+            "wireDepositDetails": {
+                "referenceNumber": "{{referenceNumber}}",
+                "allocations": "{{allocations}}"
+            }
+        },
+        "expected_status": "200",
+        "expected_response_schema": "MoveMoneyAPI\\schemas\\Schema_wire_POST.json",
+        "expected_response": {
+            "version": 1
+        },
+        "ignore_fields": [
+            "id",
+            "requestId"
+        ],
+        "extract_values": [
+            {
+                "from": "response",
+                "key": "requestId",
+                "assign_to": "requestId"
+            },
+            {
+                "from": "response",
+                "key": "version",
+                "assign_to": "version"
+            },
+            {
+                "from": "response",
+                "key": "requestId",
+                "assign_to": "response_requestId"
+            },
+            {
+                "from": "response",
+                "key": "version",
+                "assign_to": "response_version"
+            }
+        ],
+        "validate": {
+            "performance": {
+                "max_response_time_ms": 500
+            },
+            "security": {
+                "checks": [
+                    "sql_injection",
+                    "xss"
+                ]
+            },
+            "assertions": [
+                {
+                    "actual": "{{requestId}}",
+                    "expected": "",
+                    "operator": "!=",
+                    "message": "Request ID should not be empty"
+                },
+                {
+                    "actual": "{{version}}",
+                    "expected": 1,
+                    "operator": "==",
+                    "message": "Version should be 1"
+                }
+            ],
+            "data_comparison": [
+                {
+                    "source": "requestId",
+                    "target": "response_requestId",
+                    "log_differences": true,
+                    "comparison_name": "RequestId consistency check"
+                },
+                {
+                    "source": "version",
+                    "target": "response_version",
+                    "log_differences": true,
+                    "comparison_name": "Version consistency check"
+                }
+            ]
+        },
+        "test_data_file": "MoveMoneyAPI/data_driven/Data_wire_POST.csv",
+        "csv_row_index": 0,
+        "db_query_timing": "after_api",
+        "db_queries": {
+            "default": "",
+            "audit_query": ""
+        },
+        "db_type": "",
+        "db_connection_name": "",
+        "test_summary": "Test TC001: Verify POST /wire endpoint returns 200 successful response when the Incoming Wire Deposit with Allocations is created successfully and Returns requestId and version.. [positive] (TC001)"
+    },
+    {
+        "test_id": "TC002",
+        "service_name": "movemoney",
+        "workflow_mode": "parallel",
+        "test_name": "Outgoing Wire Withdrawal. [positive] (TC002)",
+        "protocol": "REST",
+        "test_type": [
+            "Functional"
+        ],
+        "mainURL": "{{base_url}}",
+        "endpoint": "/wire",
+        "method": "POST",
+        "rpc_method": "",
+        "graphql_query": "",
+        "graphql_variables": "",
+        "soap_action": "",
+        "soap_envelope": "",
+        "headers_additional": {
+            "Content-Type": "application/json"
+        },
+        "payload": {
+            "amount": "{{amount}}",
+            "requestType": "{{requestType}}",
+            "status": "{{status}}",
+            "changeState": "{{changeState}}",
+            "wireWithdrawalDetails": {
+                "instructionId": "{{instructionId}}",
+                "paymentDate": "{{paymentDate}}",
+                "purpose": "{{purpose}}"
+            }
+        },
+        "expected_status": "200",
+        "expected_response_schema": "MoveMoneyAPI\\schemas\\Schema_wire_POST.json",
+        "expected_response": {
+            "version": 1
+        },
+        "ignore_fields": [
+            "id",
+            "requestId"
+        ],
+        "extract_values": [
+            {
+                "from": "response",
+                "key": "requestId",
+                "assign_to": "requestId"
+            },
+            {
+                "from": "response",
+                "key": "version",
+                "assign_to": "version"
+            },
+            {
+                "from": "response",
+                "key": "requestId",
+                "assign_to": "response_requestId"
+            },
+            {
+                "from": "response",
+                "key": "version",
+                "assign_to": "response_version"
+            }
+        ],
+        "validate": {
+            "performance": {
+                "max_response_time_ms": 500
+            },
+            "security": {
+                "checks": [
+                    "sql_injection",
+                    "xss"
+                ]
+            },
+            "assertions": [
+                {
+                    "actual": "{{requestId}}",
+                    "expected": "",
+                    "operator": "!=",
+                    "message": "Request ID should not be empty"
+                },
+                {
+                    "actual": "{{version}}",
+                    "expected": 1,
+                    "operator": "==",
+                    "message": "Version should be 1"
+                }
+            ],
+            "data_comparison": [
+                {
+                    "source": "requestId",
+                    "target": "response_requestId",
+                    "log_differences": true,
+                    "comparison_name": "RequestId consistency check"
+                },
+                {
+                    "source": "version",
+                    "target": "response_version",
+                    "log_differences": true,
+                    "comparison_name": "Version consistency check"
+                }
+            ]
+        },
+        "test_data_file": "MoveMoneyAPI/data_driven/Data_wire_POST.csv",
+        "csv_row_index": 1,
+        "db_query_timing": "after_api",
+        "db_queries": {
+            "default": "",
+            "audit_query": ""
+        },
+        "db_type": "",
+        "db_connection_name": "",
+        "test_summary": "Test TC002: Verify POST /wire endpoint returns 200 successful response when the Outgoing Wire Withdrawal is created successfully and Returns requestId and version. [positive] (TC002)"
+    },
+    {
+        "test_id": "TC003",
+        "service_name": "movemoney",
+        "workflow_mode": "parallel",
+        "test_name": " when one or more fields are missing and for Invalid Request type. [negative] (TC003)",
+        "protocol": "REST",
+        "test_type": [
+            "Functional"
+        ],
+        "mainURL": "{{base_url}}",
+        "endpoint": "/wire",
+        "method": "POST",
+        "rpc_method": "",
+        "graphql_query": "",
+        "graphql_variables": "",
+        "soap_action": "",
+        "soap_envelope": "",
+        "headers_additional": {
+            "Content-Type": "application/json"
+        },
+        "payload": {
+            "amount": "{{amount}}",
+            "status": "{{status}}",
+            "wireDepositDetails": {
+                "referenceNumber": "{{referenceNumber}}",
+                "allocations": "{{allocations}}"
+            }
+        },
+        "expected_status": "400",
+        "expected_response_schema": null,
+        "expected_response": {
+            "type": "missing-required-fields",
+            "title": "One or more fields are missing values",
+            "status": 400,
+            "detail": "Missing Required Fields",
+            "instance": "/api/moneymovement/v1/wire",
+            "errors": {
+                "requestType": [
+                    "This field is required."
+                ]
+            }
+        },
+        "ignore_fields": [
+            "id"
+        ],
+        "extract_values": [],
+        "validate": {
+            "performance": {
+                "max_response_time_ms": 500
+            },
+            "security": {
+                "checks": [
+                    "sql_injection",
+                    "xss"
+                ]
+            },
+            "assertions": [],
+            "data_comparison": []
+        },
+        "test_data_file": "MoveMoneyAPI/data_driven/Data_wire_POST.csv",
+        "csv_row_index": 2,
+        "db_query_timing": "after_api",
+        "db_queries": {
+            "default": "",
+            "audit_query": ""
+        },
+        "db_type": "",
+        "db_connection_name": "",
+        "test_summary": "Test TC003: Verify POST /wire endpoint returns 400 response when requestType is missing in wire deposit payload. [negative] (TC003)"
+    },
+    {
+        "test_id": "TC004",
+        "service_name": "movemoney",
+        "workflow_mode": "parallel",
+        "test_name": "Invalid Request type with special characters in requestType. [negative] (TC004)",
+        "protocol": "REST",
+        "test_type": [
+            "Functional"
+        ],
+        "mainURL": "{{base_url}}",
+        "endpoint": "/wire",
+        "method": "POST",
+        "rpc_method": "",
+        "graphql_query": "",
+        "graphql_variables": "",
+        "soap_action": "",
+        "soap_envelope": "",
+        "headers_additional": {
+            "Content-Type": "application/json"
+        },
+        "payload": {
+            "amount": "{{amount}}",
+            "requestType": "{{requestType}}",
+            "status": "{{status}}",
+            "changeState": "{{changeState}}",
+            "wireWithdrawalDetails": {
+                "instructionId": "{{instructionId}}",
+                "paymentDate": "{{paymentDate}}",
+                "purpose": "{{purpose}}"
+            }
+        },
+        "expected_status": "400",
+        "expected_response_schema": null,
+        "expected_response": {
+            "type": "invalid-request",
+            "title": "Invalid Request",
+            "status": 400,
+            "detail": "The request contains invalid values",
+            "instance": "/api/moneymovement/v1/wire",
+            "errors": {
+                "requestType": [
+                    "Must be one of: Deposit, Withdrawal."
+                ]
+            }
+        },
+        "ignore_fields": [
+            "id"
+        ],
+        "extract_values": [],
+        "validate": {
+            "performance": {
+                "max_response_time_ms": 500
+            },
+            "security": {
+                "checks": [
+                    "sql_injection",
+                    "xss"
+                ]
+            },
+            "assertions": [],
+            "data_comparison": []
+        },
+        "test_data_file": "MoveMoneyAPI/data_driven/Data_wire_POST.csv",
+        "csv_row_index": 3,
+        "db_query_timing": "after_api",
+        "db_queries": {
+            "default": "",
+            "audit_query": ""
+        },
+        "db_type": "",
+        "db_connection_name": "",
+        "test_summary": "Test TC004: Verify POST /wire endpoint returns 400 response when requestType contains invalid special characters (Depo@#@$sit) in wire deposit payload. [negative] (TC004)"
+    },
+    {
+        "test_id": "TC005",
+        "service_name": "movemoney",
+        "workflow_mode": "parallel",
+        "test_name": " when Amount Field is missing in wire deposit payload. [negative] (TC005)",
+        "protocol": "REST",
+        "test_type": [
+            "Functional"
+        ],
+        "mainURL": "{{base_url}}",
+        "endpoint": "/wire",
+        "method": "POST",
+        "rpc_method": "",
+        "graphql_query": "",
+        "graphql_variables": "",
+        "soap_action": "",
+        "soap_envelope": "",
+        "headers_additional": {
+            "Content-Type": "application/json"
+        },
+        "payload": {
+            "amount": "{{amount}}",
+            "status": "{{status}}",
+            "wireDepositDetails": {
+                "referenceNumber": "{{referenceNumber}}",
+                "allocations": "{{allocations}}"
+            }
+        },
+        "expected_status": "400",
+        "expected_response_schema": null,
+        "expected_response": {
+            "type": "missing-required-fields",
+            "title": "One or more fields are missing values",
+            "status": 400,
+            "detail": "Missing Required Fields",
+            "instance": "/api/moneymovement/v1/wire",
+            "errors": {
+                "amount": [
+                    "This field is required."
+                ],
+                "requestType": [
+                    "This field is required."
+                ]
+            }
+        },
+        "ignore_fields": [
+            "id"
+        ],
+        "extract_values": [],
+        "validate": {
+            "performance": {
+                "max_response_time_ms": 500
+            },
+            "security": {
+                "checks": [
+                    "sql_injection",
+                    "xss"
+                ]
+            },
+            "assertions": [],
+            "data_comparison": []
+        },
+        "test_data_file": "MoveMoneyAPI/data_driven/Data_wire_POST.csv",
+        "csv_row_index": 4,
+        "db_query_timing": "after_api",
+        "db_queries": {
+            "default": "",
+            "audit_query": ""
+        },
+        "db_type": "",
+        "db_connection_name": "",
+        "test_summary": "Test TC005: Verify POST /wire endpoint returns 400 response when Amount Field is missing in wire deposit payload. [negative] (TC005)"
+    },
+    {
+        "test_id": "TC006",
+        "service_name": "movemoney",
+        "workflow_mode": "parallel",
+        "test_name": " when Amount Field is Invalid in wire deposit payload. [negative] (TC006)",
+        "protocol": "REST",
+        "test_type": [
+            "Functional"
+        ],
+        "mainURL": "{{base_url}}",
+        "endpoint": "/wire",
+        "method": "POST",
+        "rpc_method": "",
+        "graphql_query": "",
+        "graphql_variables": "",
+        "soap_action": "",
+        "soap_envelope": "",
+        "headers_additional": {
+            "Content-Type": "application/json"
+        },
+        "payload": {
+            "amount": "{{amount}}",
+            "status": "{{status}}",
+            "wireDepositDetails": {
+                "referenceNumber": "{{referenceNumber}}",
+                "allocations": "{{allocations}}"
+            }
+        },
+        "expected_status": "400",
+        "expected_response_schema": null,
+        "expected_response": {
+            "type": "missing-required-fields",
+            "title": "One or more fields are missing values",
+            "status": 400,
+            "detail": "Missing Required Fields",
+            "instance": "/api/moneymovement/v1/wire",
+            "errors": {
+                "requestType": [
+                    "This field is required."
+                ]
+            }
+        },
+        "ignore_fields": [
+            "id"
+        ],
+        "extract_values": [],
+        "validate": {
+            "performance": {
+                "max_response_time_ms": 500
+            },
+            "security": {
+                "checks": [
+                    "sql_injection",
+                    "xss"
+                ]
+            },
+            "assertions": [],
+            "data_comparison": []
+        },
+        "test_data_file": "MoveMoneyAPI/data_driven/Data_wire_POST.csv",
+        "csv_row_index": 5,
+        "db_query_timing": "after_api",
+        "db_queries": {
+            "default": "",
+            "audit_query": ""
+        },
+        "db_type": "",
+        "db_connection_name": "",
+        "test_summary": "Test TC006: Verify POST /wire endpoint returns 400 response when Amount Field is Invalid in wire deposit payload. [negative] (TC006)"
+    },
+    {
+        "test_id": "TC007",
+        "service_name": "movemoney",
+        "workflow_mode": "parallel",
+        "test_name": " when ChangeState Field is Invalid in wire withdrawal payload. [negative] (TC007)",
+        "protocol": "REST",
+        "test_type": [
+            "Functional"
+        ],
+        "mainURL": "{{base_url}}",
+        "endpoint": "/wire",
+        "method": "POST",
+        "rpc_method": "",
+        "graphql_query": "",
+        "graphql_variables": "",
+        "soap_action": "",
+        "soap_envelope": "",
+        "headers_additional": {
+            "Content-Type": "application/json"
+        },
+        "payload": {
+            "amount": "{{amount}}",
+            "requestType": "{{requestType}}",
+            "status": "{{status}}",
+            "changeState": "{{changeState}}",
+            "wireWithdrawalDetails": {
+                "instructionId": "{{instructionId}}",
+                "paymentDate": "{{paymentDate}}",
+                "purpose": "{{purpose}}"
+            }
+        },
+        "expected_status": "400",
+        "expected_response_schema": null,
+        "expected_response": {
+            "type": "invalid-request",
+            "title": "Invalid Request",
+            "status": 400,
+            "detail": "The request contains invalid values",
+            "instance": "/api/moneymovement/v1/wire",
+            "errors": {
+                "changeState": [
+                    "Must be one of: Pending, Scheduled, Processed, PendingCancel, Canceled"
+                ]
+            }
+        },
+        "ignore_fields": [
+            "id"
+        ],
+        "extract_values": [],
+        "validate": {
+            "performance": {
+                "max_response_time_ms": 500
+            },
+            "security": {
+                "checks": [
+                    "sql_injection",
+                    "xss"
+                ]
+            },
+            "assertions": [],
+            "data_comparison": []
+        },
+        "test_data_file": "MoveMoneyAPI/data_driven/Data_wire_POST.csv",
+        "csv_row_index": 6,
+        "db_query_timing": "after_api",
+        "db_queries": {
+            "default": "",
+            "audit_query": ""
+        },
+        "db_type": "",
+        "db_connection_name": "",
+        "test_summary": "Test TC007: Verify POST /wire endpoint returns 400 response when ChangeState Field is Invalid in wire withdrawal payload. [negative] (TC007)"
+    },
+    {
+        "test_id": "TC008",
+        "service_name": "movemoney",
+        "workflow_mode": "parallel",
+        "test_name": " when InstructionId Field is Missing in wire withdrawal payload. [negative] (TC008)",
+        "protocol": "REST",
+        "test_type": [
+            "Functional"
+        ],
+        "mainURL": "{{base_url}}",
+        "endpoint": "/wire",
+        "method": "POST",
+        "rpc_method": "",
+        "graphql_query": "",
+        "graphql_variables": "",
+        "soap_action": "",
+        "soap_envelope": "",
+        "headers_additional": {
+            "Content-Type": "application/json"
+        },
+        "payload": {
+            "amount": "{{amount}}",
+            "requestType": "{{requestType}}",
+            "status": "{{status}}",
+            "changeState": "{{changeState}}",
+            "wireWithdrawalDetails": {
+                "instructionId": "{{instructionId}}",
+                "paymentDate": "{{paymentDate}}",
+                "purpose": "{{purpose}}"
+            }
+        },
+        "expected_status": "400",
+        "expected_response_schema": null,
+        "expected_response": {
+            "type": "missing-required-fields",
+            "title": "One or more fields are missing values",
+            "status": 400,
+            "detail": "Missing Required Fields",
+            "instance": "/api/moneymovement/v1/wire",
+            "errors": {
+                "wireWithdrawalDetails.instructionId": [
+                    "This field is required."
+                ]
+            }
+        },
+        "ignore_fields": [
+            "id"
+        ],
+        "extract_values": [],
+        "validate": {
+            "performance": {
+                "max_response_time_ms": 500
+            },
+            "security": {
+                "checks": [
+                    "sql_injection",
+                    "xss"
+                ]
+            },
+            "assertions": [],
+            "data_comparison": []
+        },
+        "test_data_file": "MoveMoneyAPI/data_driven/Data_wire_POST.csv",
+        "csv_row_index": 7,
+        "db_query_timing": "after_api",
+        "db_queries": {
+            "default": "",
+            "audit_query": ""
+        },
+        "db_type": "",
+        "db_connection_name": "",
+        "test_summary": "Test TC008: Verify POST /wire endpoint returns 400 response when InstructionId Field is Missing in wire withdrawal payload. [negative] (TC008)"
+    },
+    {
+        "test_id": "TC009",
+        "service_name": "movemoney",
+        "workflow_mode": "parallel",
+        "test_name": " when InstructionId Field is Invalid in wire withdrawal payload. [negative] (TC009)",
+        "protocol": "REST",
+        "test_type": [
+            "Functional"
+        ],
+        "mainURL": "{{base_url}}",
+        "endpoint": "/wire",
+        "method": "POST",
+        "rpc_method": "",
+        "graphql_query": "",
+        "graphql_variables": "",
+        "soap_action": "",
+        "soap_envelope": "",
+        "headers_additional": {
+            "Content-Type": "application/json"
+        },
+        "payload": {
+            "amount": "{{amount}}",
+            "requestType": "{{requestType}}",
+            "status": "{{status}}",
+            "changeState": "{{changeState}}",
+            "wireWithdrawalDetails": {
+                "instructionId": "{{instructionId}}",
+                "paymentDate": "{{paymentDate}}",
+                "purpose": "{{purpose}}"
+            }
+        },
+        "expected_status": "400",
+        "expected_response_schema": null,
+        "expected_response": {
+            "type": "invalid-request",
+            "title": "Invalid Request",
+            "status": 400,
+            "detail": "The request contains invalid values",
+            "instance": "/api/moneymovement/v1/wire",
+            "errors": {
+                "wireWithdrawalDetails.instructionId": [
+                    "Must be a valid UUID."
+                ]
+            }
+        },
+        "ignore_fields": [
+            "id"
+        ],
+        "extract_values": [],
+        "validate": {
+            "performance": {
+                "max_response_time_ms": 500
+            },
+            "security": {
+                "checks": [
+                    "sql_injection",
+                    "xss"
+                ]
+            },
+            "assertions": [],
+            "data_comparison": []
+        },
+        "test_data_file": "MoveMoneyAPI/data_driven/Data_wire_POST.csv",
+        "csv_row_index": 8,
+        "db_query_timing": "after_api",
+        "db_queries": {
+            "default": "",
+            "audit_query": ""
+        },
+        "db_type": "",
+        "db_connection_name": "",
+        "test_summary": "Test TC009: Verify POST /wire endpoint returns 400 response when InstructionId Field is Invalid in wire withdrawal payload. [negative] (TC009)"
+    },
+    {
+        "test_id": "TC010",
+        "service_name": "movemoney",
+        "workflow_mode": "parallel",
+        "test_name": " when Payment date Field is Invalid in wire withdrawal payload. [negative] (TC010)",
+        "protocol": "REST",
+        "test_type": [
+            "Functional"
+        ],
+        "mainURL": "{{base_url}}",
+        "endpoint": "/wire",
+        "method": "POST",
+        "rpc_method": "",
+        "graphql_query": "",
+        "graphql_variables": "",
+        "soap_action": "",
+        "soap_envelope": "",
+        "headers_additional": {
+            "Content-Type": "application/json"
+        },
+        "payload": {
+            "amount": "{{amount}}",
+            "requestType": "{{requestType}}",
+            "status": "{{status}}",
+            "changeState": "{{changeState}}",
+            "wireWithdrawalDetails": {
+                "instructionId": "{{instructionId}}",
+                "paymentDate": "{{paymentDate}}",
+                "purpose": "{{purpose}}"
+            }
+        },
+        "expected_status": "400",
+        "expected_response_schema": null,
+        "expected_response": {
+            "type": "invalid-request",
+            "title": "Invalid Request",
+            "status": 400,
+            "detail": "The request contains invalid values",
+            "instance": "/api/moneymovement/v1/wire",
+            "errors": {
+                "wireWithdrawalDetails.paymentDate": [
+                    "paymentDate must be in ISO 8601 format (YYYY-MM-DD)."
+                ]
+            }
+        },
+        "ignore_fields": [
+            "id"
+        ],
+        "extract_values": [],
+        "validate": {
+            "performance": {
+                "max_response_time_ms": 500
+            },
+            "security": {
+                "checks": [
+                    "sql_injection",
+                    "xss"
+                ]
+            },
+            "assertions": [],
+            "data_comparison": []
+        },
+        "test_data_file": "MoveMoneyAPI/data_driven/Data_wire_POST.csv",
+        "csv_row_index": 9,
+        "db_query_timing": "after_api",
+        "db_queries": {
+            "default": "",
+            "audit_query": ""
+        },
+        "db_type": "",
+        "db_connection_name": "",
+        "test_summary": "Test TC010: Verify POST /wire endpoint returns 400 response when Payment date Field is Invalid in wire withdrawal payload. [negative] (TC010)"
+    },
+    {
+        "test_id": "TC011",
+        "service_name": "movemoney",
+        "workflow_mode": "parallel",
+        "test_name": " when Payment date Field is Missing in wire withdrawal payload. [negative] (TC011)",
+        "protocol": "REST",
+        "test_type": [
+            "Functional"
+        ],
+        "mainURL": "{{base_url}}",
+        "endpoint": "/wire",
+        "method": "POST",
+        "rpc_method": "",
+        "graphql_query": "",
+        "graphql_variables": "",
+        "soap_action": "",
+        "soap_envelope": "",
+        "headers_additional": {
+            "Content-Type": "application/json"
+        },
+        "payload": {
+            "amount": "{{amount}}",
+            "requestType": "{{requestType}}",
+            "status": "{{status}}",
+            "changeState": "{{changeState}}",
+            "wireWithdrawalDetails": {
+                "instructionId": "{{instructionId}}",
+                "paymentDate": "{{paymentDate}}",
+                "purpose": "{{purpose}}"
+            }
+        },
+        "expected_status": "400",
+        "expected_response_schema": null,
+        "expected_response": {
+            "type": "missing-required-fields",
+            "title": "One or more fields are missing values",
+            "status": 400,
+            "detail": "Missing Required Fields",
+            "instance": "/api/moneymovement/v1/wire",
+            "errors": {
+                "wireWithdrawalDetails.paymentDate": [
+                    "This field is required."
+                ]
+            }
+        },
+        "ignore_fields": [
+            "id"
+        ],
+        "extract_values": [],
+        "validate": {
+            "performance": {
+                "max_response_time_ms": 500
+            },
+            "security": {
+                "checks": [
+                    "sql_injection",
+                    "xss"
+                ]
+            },
+            "assertions": [],
+            "data_comparison": []
+        },
+        "test_data_file": "MoveMoneyAPI/data_driven/Data_wire_POST.csv",
+        "csv_row_index": 10,
+        "db_query_timing": "after_api",
+        "db_queries": {
+            "default": "",
+            "audit_query": ""
+        },
+        "db_type": "",
+        "db_connection_name": "",
+        "test_summary": "Test TC011: Verify POST /wire endpoint returns 400 response when Payment date Field is Missing in wire withdrawal payload. [negative] (TC011)"
+    },
+    {
+        "test_id": "TC012",
+        "service_name": "movemoney",
+        "workflow_mode": "parallel",
+        "test_name": " when Status Field is Missing in wire withdrawal payload. [negative] (TC012)",
+        "protocol": "REST",
+        "test_type": [
+            "Functional"
+        ],
+        "mainURL": "{{base_url}}",
+        "endpoint": "/wire",
+        "method": "POST",
+        "rpc_method": "",
+        "graphql_query": "",
+        "graphql_variables": "",
+        "soap_action": "",
+        "soap_envelope": "",
+        "headers_additional": {
+            "Content-Type": "application/json"
+        },
+        "payload": {
+            "amount": "{{amount}}",
+            "requestType": "{{requestType}}",
+            "status": "{{status}}",
+            "changeState": "{{changeState}}",
+            "wireWithdrawalDetails": {
+                "instructionId": "{{instructionId}}",
+                "paymentDate": "{{paymentDate}}",
+                "purpose": "{{purpose}}"
+            }
+        },
+        "expected_status": "400",
+        "expected_response_schema": null,
+        "expected_response": {
+            "type": "missing-required-fields",
+            "title": "One or more fields are missing values",
+            "status": 400,
+            "detail": "Missing Required Fields",
+            "instance": "/api/moneymovement/v1/wire",
+            "errors": {
+                "status": [
+                    "This field is required."
+                ]
+            }
+        },
+        "ignore_fields": [
+            "id"
+        ],
+        "extract_values": [],
+        "validate": {
+            "performance": {
+                "max_response_time_ms": 500
+            },
+            "security": {
+                "checks": [
+                    "sql_injection",
+                    "xss"
+                ]
+            },
+            "assertions": [],
+            "data_comparison": []
+        },
+        "test_data_file": "MoveMoneyAPI/data_driven/Data_wire_POST.csv",
+        "csv_row_index": 11,
+        "db_query_timing": "after_api",
+        "db_queries": {
+            "default": "",
+            "audit_query": ""
+        },
+        "db_type": "",
+        "db_connection_name": "",
+        "test_summary": "Test TC012: Verify POST /wire endpoint returns 400 response when Status Field is Missing in wire withdrawal payload. [negative] (TC012)"
+    },
+    {
+        "test_id": "TC013",
+        "service_name": "movemoney",
+        "workflow_mode": "parallel",
+        "test_name": " when Status Field is Invalid in wire withdrawal payload. [negative] (TC013)",
+        "protocol": "REST",
+        "test_type": [
+            "Functional"
+        ],
+        "mainURL": "{{base_url}}",
+        "endpoint": "/wire",
+        "method": "POST",
+        "rpc_method": "",
+        "graphql_query": "",
+        "graphql_variables": "",
+        "soap_action": "",
+        "soap_envelope": "",
+        "headers_additional": {
+            "Content-Type": "application/json"
+        },
+        "payload": {
+            "amount": "{{amount}}",
+            "requestType": "{{requestType}}",
+            "status": "{{status}}",
+            "changeState": "{{changeState}}",
+            "wireWithdrawalDetails": {
+                "instructionId": "{{instructionId}}",
+                "paymentDate": "{{paymentDate}}",
+                "purpose": "{{purpose}}"
+            }
+        },
+        "expected_status": "400",
+        "expected_response_schema": null,
+        "expected_response": {
+            "type": "invalid-request",
+            "title": "Invalid Request",
+            "status": 400,
+            "detail": "The request contains invalid values",
+            "instance": "/api/moneymovement/v1/wire",
+            "errors": {
+                "status": [
+                    "Must be one of: Draft, Pending, Confirmed, Deleted."
+                ]
+            }
+        },
+        "ignore_fields": [
+            "id"
+        ],
+        "extract_values": [],
+        "validate": {
+            "performance": {
+                "max_response_time_ms": 500
+            },
+            "security": {
+                "checks": [
+                    "sql_injection",
+                    "xss"
+                ]
+            },
+            "assertions": [],
+            "data_comparison": []
+        },
+        "test_data_file": "MoveMoneyAPI/data_driven/Data_wire_POST.csv",
+        "csv_row_index": 12,
+        "db_query_timing": "after_api",
+        "db_queries": {
+            "default": "",
+            "audit_query": ""
+        },
+        "db_type": "",
+        "db_connection_name": "",
+        "test_summary": "Test TC013: Verify POST /wire endpoint returns 400 response when Status Field is Invalid in wire withdrawal payload. [negative] (TC013)"
+    },
+    {
+        "test_id": "TC014",
+        "service_name": "movemoney",
+        "workflow_mode": "parallel",
+        "test_name": " when wireWithdrawalDetails purpose field must not exceed 140 characters in wire withdrawal payload. [negative] (TC014)",
+        "protocol": "REST",
+        "test_type": [
+            "Functional"
+        ],
+        "mainURL": "{{base_url}}",
+        "endpoint": "/wire",
+        "method": "POST",
+        "rpc_method": "",
+        "graphql_query": "",
+        "graphql_variables": "",
+        "soap_action": "",
+        "soap_envelope": "",
+        "headers_additional": {
+            "Content-Type": "application/json"
+        },
+        "payload": {
+            "amount": "{{amount}}",
+            "requestType": "{{requestType}}",
+            "status": "{{status}}",
+            "changeState": "{{changeState}}",
+            "wireWithdrawalDetails": {
+                "instructionId": "{{instructionId}}",
+                "paymentDate": "{{paymentDate}}",
+                "purpose": "{{purpose}}"
+            }
+        },
+        "expected_status": "400",
+        "expected_response_schema": null,
+        "expected_response": {
+            "type": "invalid-request",
+            "title": "Invalid Request",
+            "status": 400,
+            "detail": "The request contains invalid values",
+            "instance": "/api/moneymovement/v1/wire",
+            "errors": {
+                "wireWithdrawalDetails.purpose": [
+                    "Must not exceed 140 characters."
+                ]
+            }
+        },
+        "ignore_fields": [
+            "id"
+        ],
+        "extract_values": [],
+        "validate": {
+            "performance": {
+                "max_response_time_ms": 500
+            },
+            "security": {
+                "checks": [
+                    "sql_injection",
+                    "xss"
+                ]
+            },
+            "assertions": [],
+            "data_comparison": []
+        },
+        "test_data_file": "MoveMoneyAPI/data_driven/Data_wire_POST.csv",
+        "csv_row_index": 13,
+        "db_query_timing": "after_api",
+        "db_queries": {
+            "default": "",
+            "audit_query": ""
+        },
+        "db_type": "",
+        "db_connection_name": "",
+        "test_summary": "Test TC014: Verify POST /wire endpoint returns 400 response when wireWithdrawalDetails purpose field must be within the limit and must not exceed 140 characters in wire withdrawal payload. [negative] (TC014)"
+    },
+    {
+        "test_id": "TC015",
+        "service_name": "movemoney",
+        "workflow_mode": "parallel",
+        "test_name": " when ReferenceNumber field must be within the limit and must not exceed 35 characters in wire deposit payload. [negative] (TC015)",
+        "protocol": "REST",
+        "test_type": [
+            "Functional"
+        ],
+        "mainURL": "{{base_url}}",
+        "endpoint": "/wire",
+        "method": "POST",
+        "rpc_method": "",
+        "graphql_query": "",
+        "graphql_variables": "",
+        "soap_action": "",
+        "soap_envelope": "",
+        "headers_additional": {
+            "Content-Type": "application/json"
+        },
+        "payload": {
+            "amount": "{{amount}}",
+            "requestType": "{{requestType}}",
+            "status": "{{status}}",
+            "wireDepositDetails": {
+                "referenceNumber": "{{referenceNumber}}",
+                "allocations": "{{allocations}}"
+            }
+        },
+        "expected_status": "400",
+        "expected_response_schema": null,
+        "expected_response": {
+            "type": "invalid-request",
+            "title": "Invalid Request",
+            "status": 400,
+            "detail": "The request contains invalid values",
+            "instance": "/api/moneymovement/v1/wire",
+            "errors": {
+                "wireDepositDetails.referenceNumber": [
+                    "Must be 35 characters or fewer."
+                ]
+            }
+        },
+        "ignore_fields": [
+            "id"
+        ],
+        "extract_values": [],
+        "validate": {
+            "performance": {
+                "max_response_time_ms": 500
+            },
+            "security": {
+                "checks": [
+                    "sql_injection",
+                    "xss"
+                ]
+            },
+            "assertions": [],
+            "data_comparison": []
+        },
+        "test_data_file": "MoveMoneyAPI/data_driven/Data_wire_POST.csv",
+        "csv_row_index": 14,
+        "db_query_timing": "after_api",
+        "db_queries": {
+            "default": "",
+            "audit_query": ""
+        },
+        "db_type": "",
+        "db_connection_name": "",
+        "test_summary": "Test TC015: Verify POST /wire endpoint returns 400 response when wireDepositDetails referenceNumber exceeds 35 characters in wire deposit payload. [negative] (TC015)"
+    },
+    {
+        "test_id": "TC016",
+        "service_name": "movemoney",
+        "workflow_mode": "parallel",
+        "test_name": " when Percent field is invalid in wire deposit payload. [negative] (TC016)",
+        "protocol": "REST",
+        "test_type": [
+            "Functional"
+        ],
+        "mainURL": "{{base_url}}",
+        "endpoint": "/wire",
+        "method": "POST",
+        "rpc_method": "",
+        "graphql_query": "",
+        "graphql_variables": "",
+        "soap_action": "",
+        "soap_envelope": "",
+        "headers_additional": {
+            "Content-Type": "application/json"
+        },
+        "payload": {
+            "amount": "{{amount}}",
+            "requestType": "{{requestType}}",
+            "status": "{{status}}",
+            "wireDepositDetails": {
+                "referenceNumber": "{{referenceNumber}}",
+                "allocations": "{{allocations}}"
+            }
+        },
+        "expected_status": "400",
+        "expected_response_schema": null,
+        "expected_response": {
+            "type": "invalid-request",
+            "title": "Invalid Request",
+            "status": 400,
+            "detail": "The request contains invalid values",
+            "instance": "/api/moneymovement/v1/wire",
+            "errors": {
+                "amount": [
+                    "Must be a valid decimal number."
+                ],
+                "requestType": [
+                    "Must be one of: Deposit, Withdrawal."
+                ],
+                "status": [
+                    "Must be one of: Draft, Pending, Confirmed, Deleted."
+                ]
+            }
+        },
+        "ignore_fields": [
+            "id"
+        ],
+        "extract_values": [],
+        "validate": {
+            "performance": {
+                "max_response_time_ms": 500
+            },
+            "security": {
+                "checks": [
+                    "sql_injection",
+                    "xss"
+                ]
+            },
+            "assertions": [],
+            "data_comparison": []
+        },
+        "test_data_file": "MoveMoneyAPI/data_driven/Data_wire_POST.csv",
+        "csv_row_index": 15,
+        "db_query_timing": "after_api",
+        "db_queries": {
+            "default": "",
+            "audit_query": ""
+        },
+        "db_type": "",
+        "db_connection_name": "",
+        "test_summary": "Test TC016: Verify POST /wire endpoint returns 400 response when wireDepositDetails Percent field is Invalid for Post Wire Request. [negative] (TC016)"
+    },
+    {
+        "test_id": "TC017",
+        "service_name": "movemoney",
+        "workflow_mode": "parallel",
+        "test_name": " when there are multiple invalid values in wire deposit payload. [negative] (TC017)",
+        "protocol": "REST",
+        "test_type": [
+            "Functional"
+        ],
+        "mainURL": "{{base_url}}",
+        "endpoint": "/wire",
+        "method": "POST",
+        "rpc_method": "",
+        "graphql_query": "",
+        "graphql_variables": "",
+        "soap_action": "",
+        "soap_envelope": "",
+        "headers_additional": {
+            "Content-Type": "application/json"
+        },
+        "payload": {
+            "amount": "{{amount}}",
+            "requestType": "{{requestType}}",
+            "status": "{{status}}",
+            "wireDepositDetails": {
+                "referenceNumber": "{{referenceNumber}}",
+                "allocations": "{{allocations}}"
+            }
+        },
+        "expected_status": "400",
+        "expected_response_schema": null,
+        "expected_response": {
+            "type": "invalid-request",
+            "title": "Invalid Request",
+            "status": 400,
+            "detail": "The request contains invalid values",
+            "instance": "/api/moneymovement/v1/wire",
+            "errors": {
+                "amount": [
+                    "Must be a valid decimal number."
+                ],
+                "requestType": [
+                    "Must be one of: Deposit, Withdrawal."
+                ],
+                "status": [
+                    "Must be one of: Draft, Pending, Confirmed, Deleted."
+                ]
+            }
+        },
+        "ignore_fields": [
+            "id"
+        ],
+        "extract_values": [],
+        "validate": {
+            "performance": {
+                "max_response_time_ms": 500
+            },
+            "security": {
+                "checks": [
+                    "sql_injection",
+                    "xss"
+                ]
+            },
+            "assertions": [],
+            "data_comparison": []
+        },
+        "test_data_file": "MoveMoneyAPI/data_driven/Data_wire_POST.csv",
+        "csv_row_index": 16,
+        "db_query_timing": "after_api",
+        "db_queries": {
+            "default": "",
+            "audit_query": ""
+        },
+        "db_type": "",
+        "db_connection_name": "",
+        "test_summary": "Test TC017: Verify POST /wire endpoint returns 400 response when there is multiple invalid values for Post Wire Request. [negative] (TC017)"
+    },
+    {
+        "test_id": "TC018",
+        "service_name": "movemoney",
+        "workflow_mode": "parallel",
+        "test_name": " when there are multiple missing values in wire withdrawal deposit payload. [negative] (TC018)",
+        "protocol": "REST",
+        "test_type": [
+            "Functional"
+        ],
+        "mainURL": "{{base_url}}",
+        "endpoint": "/wire",
+        "method": "POST",
+        "rpc_method": "",
+        "graphql_query": "",
+        "graphql_variables": "",
+        "soap_action": "",
+        "soap_envelope": "",
+        "headers_additional": {
+            "Content-Type": "application/json"
+        },
+        "payload": {
+            "amount": "{{amount}}",
+            "requestType": "{{requestType}}",
+            "status": "{{status}}",
+            "changeState": "{{changeState}}",
+            "wireWithdrawalDetails": {
+                "instructionId": "{{instructionId}}",
+                "paymentDate": "{{paymentDate}}",
+                "purpose": "{{purpose}}"
+            }
+        },
+        "expected_status": "400",
+        "expected_response_schema": null,
+        "expected_response": {
+            "type": "missing-required-fields",
+            "title": "One or more fields are missing values",
+            "status": 400,
+            "detail": "Missing Required Fields",
+            "instance": "/api/moneymovement/v1/wire",
+            "errors": {
+                "amount": [
+                    "This field is required."
+                ],
+                "requestType": [
+                    "This field is required."
+                ],
+                "status": [
+                    "This field is required."
+                ]
+            }
+        },
+        "ignore_fields": [
+            "id"
+        ],
+        "extract_values": [],
+        "validate": {
+            "performance": {
+                "max_response_time_ms": 500
+            },
+            "security": {
+                "checks": [
+                    "sql_injection",
+                    "xss"
+                ]
+            },
+            "assertions": [],
+            "data_comparison": []
+        },
+        "test_data_file": "MoveMoneyAPI/data_driven/Data_wire_POST.csv",
+        "csv_row_index": 17,
+        "db_query_timing": "after_api",
+        "db_queries": {
+            "default": "",
+            "audit_query": ""
+        },
+        "db_type": "",
+        "db_connection_name": "",
+        "test_summary": "Test TC018: Verify POST /wire endpoint returns 400 response when there is multiple Missing values for Post withdrawal Wire Request. [negative] (TC018)"
+    }
+]

@@ -1,0 +1,30 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "type": "array",
+  "items": {
+    "type": "object",
+    "required": [
+      "status",
+      "message"
+    ],
+    "properties": {
+      "status": {
+        "type": "string",
+        "description": "Status of the classification operation"
+      },
+      "message": {
+        "type": "string",
+        "description": "Response message"
+      },
+      "classificationId": {
+        "type": "integer",
+        "description": "ID of the created classification (present on success)"
+      },
+      "data": {
+        "type": "object",
+        "description": "Additional data (present on duplicate/error)"
+      }
+    },
+    "additionalProperties": false
+  }
+}

@@ -1,0 +1,4823 @@
+[
+    {
+        "test_id": "TC001",
+        "service_name": "movemoney",
+        "workflow_mode": "parallel",
+        "test_name": "POST /instructions [positive]",
+        "protocol": "REST",
+        "test_type": [
+            "Functional",
+            "Performance",
+            "Security",
+            "Database"
+        ],
+        "mainURL": "{{base_url}}",
+        "endpoint": "/instructions",
+        "method": "POST",
+        "headers_additional": {
+            "Content-Type": "application/json"
+        },
+        "payload": {
+            "letterOfAuthorization": "{{letterOfAuthorization}}",
+            "accountId": "{{accountId}}",
+            "status": "{{status}}",
+            "holderRelationship": "{{holderRelationship}}",
+            "railType": "{{railType}}",
+            "custodianInstructionNumber": "{{custodianInstructionNumber}}",
+            "changeState": "{{changeState}}",
+            "bank": {
+                "routingNumber": "{{bank_routingNumber}}",
+                "bankAccountNumber": "{{bank_bankAccountNumber}}",
+                "bankAccountName": "{{bank_bankAccountName}}",
+                "bankAccountType": "{{bank_bankAccountType}}",
+                "bankName": "{{bank_bankName}}"
+            }
+        },
+        "expected_status": "200",
+        "expected_response_schema": "MoveMoneyAPI/schemas/Schema_instructions_POST.json",
+        "expected_response": null,
+        "ignore_fields": [
+            "traceId",
+            "id",
+            "addressid",
+            "contactid",
+            "identifierid",
+            "timestamp",
+            "createdDate",
+            "modifiedDate",
+            "entitycreateddate",
+            "individualdateofbirth",
+            "instructionId"
+        ],
+        "extract_values": [
+            {
+                "from": "response",
+                "key": "instructionId",
+                "assign_to": "instructionId"
+            },
+            {
+                "from": "response",
+                "key": "version",
+                "assign_to": "version"
+            },
+            {
+                "from": "db_result",
+                "query": "default",
+                "assign": [
+                    {
+                        "key": "0.instructionId",
+                        "assign_to": "db_instructionId"
+                    },
+                    {
+                        "key": "0.version",
+                        "assign_to": "db_version"
+                    },
+                    {
+                        "key": "0.status",
+                        "assign_to": "db_status"
+                    }
+                ]
+            }
+        ],
+        "validate": {
+            "performance": {
+                "max_response_time_ms": 1000
+            },
+            "security": {
+                "checks": [
+                    "sql_injection",
+                    "xss"
+                ]
+            },
+            "assertions": [
+                {
+                    "actual": "{{instructionId}}",
+                    "expected": "",
+                    "operator": "!=",
+                    "message": "InstructionId should not be empty"
+                },
+                {
+                    "actual": "{{version}}",
+                    "expected": 1,
+                    "operator": "==",
+                    "message": "Version should be 1"
+                }
+            ],
+            "data_comparison": [
+                {
+                    "source": "instructionId",
+                    "target": "db_instructionId",
+                    "log_differences": true,
+                    "comparison_name": "InstructionId match between API and DB"
+                },
+                {
+                    "source": "version",
+                    "target": "db_version",
+                    "log_differences": true,
+                    "comparison_name": "Version match between API and DB"
+                }
+            ]
+        },
+        "test_data_file": "MoveMoneyAPI/data_driven/Data_Instructions_9694_POST.csv",
+        "csv_row_index": 0,
+        "db_query_timing": "after_api",
+        "db_queries": {
+            "default": "SELECT LOWER([Id]) AS instructionId, [Version] AS version, [Status] AS status FROM [dbo].[MoneyMovementInstruction] WHERE [Id] = '{{instructionId}}'",
+            "audit_query": ""
+        },
+        "db_type": "mssql",
+        "db_connection_name": "movemoney",
+        "test_summary": "Verify that the API returns 200 response all the fields are valid and successful instruction creation with full validation (API + Database + Schema + Headers + Security)"
+    },
+    {
+        "test_id": "TC002",
+        "service_name": "movemoney",
+        "workflow_mode": "parallel",
+        "test_name": "POST /instructions [Negative] (TC002)",
+        "protocol": "REST",
+        "test_type": [
+            "Functional"
+        ],
+        "mainURL": "{{base_url}}",
+        "endpoint": "/instructions",
+        "method": "POST",
+        "rpc_method": "",
+        "graphql_query": "",
+        "graphql_variables": "",
+        "soap_action": "",
+        "soap_envelope": "",
+        "headers_additional": {
+            "Content-Type": "application/json"
+        },
+        "payload": {
+            "letterOfAuthorization": "{{letterOfAuthorization}}",
+            "accountId": "{{accountId}}",
+            "status": "{{status}}",
+            "holderRelationship": "{{holderRelationship}}",
+            "railType": "{{railType}}",
+            "custodianInstructionNumber": "{{custodianInstructionNumber}}",
+            "changeState": "{{changeState}}",
+            "bank": {
+                "routingNumber": "{{bank_routingNumber}}",
+                "bankAccountNumber": "{{bank_bankAccountNumber}}",
+                "bankAccountName": "{{bank_bankAccountName}}",
+                "bankAccountType": "{{bank_bankAccountType}}",
+                "bankName": "{{bank_bankName}}"
+            }
+        },
+        "expected_status": "400",
+        "expected_response_schema": "",
+        "expected_response": {
+            "type": "missing-required-fields",
+            "title": "One or more fields are missing values",
+            "status": 400,
+            "detail": "Missing Required Fields",
+            "instance": "/api/moneymovement/v1/instructions",
+            "errors": {
+                "letterOfAuthorization": [
+                    "This field is required."
+                ]
+            }
+        },
+        "ignore_fields": [
+            "id",
+            "traceId",
+            "timestamp"
+        ],
+        "extract_values": [],
+        "validate": {
+            "performance": {
+                "max_response_time_ms": 500
+            },
+            "security": {
+                "checks": [
+                    "sql_injection",
+                    "xss"
+                ]
+            },
+            "assertions": [],
+            "data_comparison": []
+        },
+        "test_data_file": "MoveMoneyAPI/data_driven/Data_Instructions_9694_POST.csv",
+        "csv_row_index": 1,
+        "db_query_timing": "after_api",
+        "db_queries": {
+            "default": "",
+            "audit_query": ""
+        },
+        "db_type": "",
+        "db_connection_name": "",
+        "test_summary": "Verify theat the API returns a 400 Bad Request error when the required parameter 'letterOfAuthorization' is missing from the POST request to /moneymovement/instructions."
+    },
+    {
+        "test_id": "TC003",
+        "service_name": "movemoney",
+        "workflow_mode": "parallel",
+        "test_name": "POST /instructions [negative - invalid value] (TC003)",
+        "protocol": "REST",
+        "test_type": [
+            "Functional"
+        ],
+        "mainURL": "{{base_url}}",
+        "endpoint": "/instructions",
+        "method": "POST",
+        "rpc_method": "",
+        "graphql_query": "",
+        "graphql_variables": "",
+        "soap_action": "",
+        "soap_envelope": "",
+        "headers_additional": {
+            "Content-Type": "application/json"
+        },
+        "payload": {
+            "letterOfAuthorization": "{{letterOfAuthorization}}",
+            "accountId": "{{accountId}}",
+            "status": "{{status}}",
+            "holderRelationship": "{{holderRelationship}}",
+            "railType": "{{railType}}",
+            "custodianInstructionNumber": "{{custodianInstructionNumber}}",
+            "changeState": "{{changeState}}",
+            "bank": {
+                "routingNumber": "{{bank_routingNumber}}",
+                "bankAccountNumber": "{{bank_bankAccountNumber}}",
+                "bankAccountName": "{{bank_bankAccountName}}",
+                "bankAccountType": "{{bank_bankAccountType}}",
+                "bankName": "{{bank_bankName}}"
+            }
+        },
+        "expected_status": "400",
+        "expected_response_schema": "",
+        "expected_response": {
+            "type": "invalid-request",
+            "title": "Invalid Request",
+            "status": 400,
+            "detail": "The request contains invalid values",
+            "instance": "/api/moneymovement/v1/instructions",
+            "errors": {
+                "status": [
+                    "Must be one of: Draft, Pending, Confirmed, Deleted."
+                ]
+            }
+        },
+        "ignore_fields": [
+            "id",
+            "traceId",
+            "timestamp",
+            "errors"
+        ],
+        "extract_values": [],
+        "validate": {
+            "performance": {
+                "max_response_time_ms": 500
+            },
+            "security": {
+                "checks": [
+                    "sql_injection",
+                    "xss"
+                ]
+            },
+            "assertions": [],
+            "data_comparison": []
+        },
+        "test_data_file": "MoveMoneyAPI/data_driven/Data_Instructions_9694_POST.csv",
+        "csv_row_index": 2,
+        "db_query_timing": "after_api",
+        "db_queries": {
+            "default": "",
+            "audit_query": ""
+        },
+        "db_type": "",
+        "db_connection_name": "",
+        "test_summary": "Verify the API returns 422 when letterOfAuthorization has an invalid value"
+    },
+    {
+        "test_id": "TC004",
+        "service_name": "movemoney",
+        "workflow_mode": "parallel",
+        "test_name": "POST /instructions [negative - invalid UUID] (TC004)",
+        "protocol": "REST",
+        "test_type": [
+            "Functional"
+        ],
+        "mainURL": "{{base_url}}",
+        "endpoint": "/instructions",
+        "method": "POST",
+        "rpc_method": "",
+        "graphql_query": "",
+        "graphql_variables": "",
+        "soap_action": "",
+        "soap_envelope": "",
+        "headers_additional": {
+            "Content-Type": "application/json"
+        },
+        "payload": {
+            "letterOfAuthorization": "{{letterOfAuthorization}}",
+            "accountId": "{{accountId}}",
+            "status": "{{status}}",
+            "holderRelationship": "{{holderRelationship}}",
+            "railType": "{{railType}}",
+            "custodianInstructionNumber": "{{custodianInstructionNumber}}",
+            "changeState": "{{changeState}}",
+            "bank": {
+                "routingNumber": "{{bank_routingNumber}}",
+                "bankAccountNumber": "{{bank_bankAccountNumber}}",
+                "bankAccountName": "{{bank_bankAccountName}}",
+                "bankAccountType": "{{bank_bankAccountType}}",
+                "bankName": "{{bank_bankName}}"
+            }
+        },
+        "expected_status": "400",
+        "expected_response_schema": "",
+        "expected_response": {
+            "type": "invalid-request",
+            "title": "Invalid Request",
+            "status": 400,
+            "detail": "The request contains invalid values",
+            "instance": "/api/moneymovement/v1/instructions",
+            "errors": {
+                "accountId": [
+                    "Invalid UUID format for 'accountId' parameter."
+                ]
+            }
+        },
+        "ignore_fields": [
+            "id",
+            "traceId",
+            "timestamp",
+            "errors"
+        ],
+        "extract_values": [],
+        "validate": {
+            "performance": {
+                "max_response_time_ms": 500
+            },
+            "security": {
+                "checks": [
+                    "sql_injection",
+                    "xss"
+                ]
+            },
+            "assertions": [],
+            "data_comparison": []
+        },
+        "test_data_file": "MoveMoneyAPI/data_driven/Data_Instructions_9694_POST.csv",
+        "csv_row_index": 3,
+        "db_query_timing": "after_api",
+        "db_queries": {
+            "default": "",
+            "audit_query": ""
+        },
+        "db_type": "",
+        "db_connection_name": "",
+        "test_summary": "Verify the API returns 400 when accountId has invalid UUID format"
+    },
+    {
+        "test_id": "TC005",
+        "service_name": "movemoney",
+        "workflow_mode": "parallel",
+        "test_name": "POST /instructions [negative - missing field] (TC005)",
+        "protocol": "REST",
+        "test_type": [
+            "Functional"
+        ],
+        "mainURL": "{{base_url}}",
+        "endpoint": "/instructions",
+        "method": "POST",
+        "rpc_method": "",
+        "graphql_query": "",
+        "graphql_variables": "",
+        "soap_action": "",
+        "soap_envelope": "",
+        "headers_additional": {
+            "Content-Type": "application/json"
+        },
+        "payload": {
+            "letterOfAuthorization": "{{letterOfAuthorization}}",
+            "accountId": "{{accountId}}",
+            "status": "{{status}}",
+            "holderRelationship": "{{holderRelationship}}",
+            "railType": "{{railType}}",
+            "custodianInstructionNumber": "{{custodianInstructionNumber}}",
+            "changeState": "{{changeState}}",
+            "bank": {
+                "routingNumber": "{{bank_routingNumber}}",
+                "bankAccountNumber": "{{bank_bankAccountNumber}}",
+                "bankAccountName": "{{bank_bankAccountName}}",
+                "bankAccountType": "{{bank_bankAccountType}}",
+                "bankName": "{{bank_bankName}}"
+            }
+        },
+        "expected_status": "400",
+        "expected_response_schema": "",
+        "expected_response": {
+            "type": "missing-required-fields",
+            "title": "One or more fields are missing values",
+            "status": 400,
+            "detail": "Missing Required Fields",
+            "instance": "/api/moneymovement/v1/instructions",
+            "errors": {
+                "railType": [
+                    "Missing required field: railType"
+                ]
+            }
+        },
+        "ignore_fields": [
+            "id",
+            "traceId",
+            "timestamp",
+            "errors"
+        ],
+        "extract_values": [],
+        "validate": {
+            "performance": {
+                "max_response_time_ms": 500
+            },
+            "security": {
+                "checks": [
+                    "sql_injection",
+                    "xss"
+                ]
+            },
+            "assertions": [],
+            "data_comparison": []
+        },
+        "test_data_file": "MoveMoneyAPI/data_driven/Data_Instructions_9694_POST.csv",
+        "csv_row_index": 4,
+        "db_query_timing": "after_api",
+        "db_queries": {
+            "default": "",
+            "audit_query": ""
+        },
+        "db_type": "",
+        "db_connection_name": "",
+        "test_summary": "Verify the API returns 400 when railType is missing"
+    },
+    {
+        "test_id": "TC006",
+        "service_name": "movemoney",
+        "workflow_mode": "parallel",
+        "test_name": "POST /instructions [negative - invalid routing number] (TC006)",
+        "protocol": "REST",
+        "test_type": [
+            "Functional"
+        ],
+        "mainURL": "{{base_url}}",
+        "endpoint": "/instructions",
+        "method": "POST",
+        "rpc_method": "",
+        "graphql_query": "",
+        "graphql_variables": "",
+        "soap_action": "",
+        "soap_envelope": "",
+        "headers_additional": {
+            "Content-Type": "application/json"
+        },
+        "payload": {
+            "letterOfAuthorization": "{{letterOfAuthorization}}",
+            "accountId": "{{accountId}}",
+            "status": "{{status}}",
+            "holderRelationship": "{{holderRelationship}}",
+            "railType": "{{railType}}",
+            "custodianInstructionNumber": "{{custodianInstructionNumber}}",
+            "changeState": "{{changeState}}",
+            "bank": {
+                "routingNumber": "{{bank_routingNumber}}",
+                "bankAccountNumber": "{{bank_bankAccountNumber}}",
+                "bankAccountName": "{{bank_bankAccountName}}",
+                "bankAccountType": "{{bank_bankAccountType}}",
+                "bankName": "{{bank_bankName}}"
+            }
+        },
+        "expected_status": "400",
+        "expected_response_schema": "",
+        "expected_response": {
+            "type": "invalid-request",
+            "title": "Invalid Request",
+            "status": 400,
+            "detail": "The request contains invalid values",
+            "instance": "/api/moneymovement/v1/instructions",
+            "errors": {
+                "bank.routingNumber": [
+                    "Must be exactly 9 digits."
+                ]
+            }
+        },
+        "ignore_fields": [
+            "id",
+            "traceId",
+            "timestamp",
+            "errors"
+        ],
+        "extract_values": [],
+        "validate": {
+            "performance": {
+                "max_response_time_ms": 500
+            },
+            "security": {
+                "checks": [
+                    "sql_injection",
+                    "xss"
+                ]
+            },
+            "assertions": [],
+            "data_comparison": []
+        },
+        "test_data_file": "MoveMoneyAPI/data_driven/Data_Instructions_9694_POST.csv",
+        "csv_row_index": 5,
+        "db_query_timing": "after_api",
+        "db_queries": {
+            "default": "",
+            "audit_query": ""
+        },
+        "db_type": "",
+        "db_connection_name": "",
+        "test_summary": "Verify the API returns 422 when routing number is invalid"
+    },
+    {
+        "test_id": "TC007",
+        "service_name": "movemoney",
+        "workflow_mode": "parallel",
+        "test_name": "POST /instructions [positive - alternate values]",
+        "protocol": "REST",
+        "test_type": [
+            "Functional",
+            "Performance",
+            "Security",
+            "Database"
+        ],
+        "mainURL": "{{base_url}}",
+        "endpoint": "/instructions",
+        "method": "POST",
+        "headers_additional": {
+            "Content-Type": "application/json"
+        },
+        "payload": {
+            "letterOfAuthorization": "{{letterOfAuthorization}}",
+            "accountId": "{{accountId}}",
+            "status": "{{status}}",
+            "holderRelationship": "{{holderRelationship}}",
+            "railType": "{{railType}}",
+            "custodianInstructionNumber": "{{custodianInstructionNumber}}",
+            "changeState": "{{changeState}}",
+            "bank": {
+                "routingNumber": "{{bank_routingNumber}}",
+                "bankAccountNumber": "{{bank_bankAccountNumber}}",
+                "bankAccountName": "{{bank_bankAccountName}}",
+                "bankAccountType": "{{bank_bankAccountType}}",
+                "bankName": "{{bank_bankName}}"
+            }
+        },
+        "expected_status": "200",
+        "expected_response_schema": "MoveMoneyAPI/schemas/Schema_instructions_POST.json",
+        "expected_response": null,
+        "ignore_fields": [
+            "traceId",
+            "id",
+            "addressid",
+            "contactid",
+            "identifierid",
+            "timestamp",
+            "createdDate",
+            "modifiedDate",
+            "entitycreateddate",
+            "individualdateofbirth",
+            "instructionId"
+        ],
+        "extract_values": [
+            {
+                "from": "response",
+                "key": "instructionId",
+                "assign_to": "instructionId"
+            },
+            {
+                "from": "response",
+                "key": "version",
+                "assign_to": "version"
+            },
+            {
+                "from": "db_result",
+                "query": "default",
+                "assign": [
+                    {
+                        "key": "0.instructionId",
+                        "assign_to": "db_instructionId"
+                    },
+                    {
+                        "key": "0.version",
+                        "assign_to": "db_version"
+                    },
+                    {
+                        "key": "0.status",
+                        "assign_to": "db_status"
+                    }
+                ]
+            }
+        ],
+        "validate": {
+            "performance": {
+                "max_response_time_ms": 1000
+            },
+            "security": {
+                "checks": [
+                    "sql_injection",
+                    "xss"
+                ]
+            },
+            "assertions": [
+                {
+                    "actual": "{{instructionId}}",
+                    "expected": "",
+                    "operator": "!=",
+                    "message": "InstructionId should not be empty"
+                },
+                {
+                    "actual": "{{version}}",
+                    "expected": 1,
+                    "operator": "==",
+                    "message": "Version should be 1"
+                }
+            ],
+            "data_comparison": [
+                {
+                    "source": "instructionId",
+                    "target": "db_instructionId",
+                    "log_differences": true,
+                    "comparison_name": "InstructionId match between API and DB"
+                },
+                {
+                    "source": "version",
+                    "target": "db_version",
+                    "log_differences": true,
+                    "comparison_name": "Version match between API and DB"
+                }
+            ]
+        },
+        "test_data_file": "MoveMoneyAPI/data_driven/Data_Instructions_9694_POST.csv",
+        "csv_row_index": 6,
+        "db_query_timing": "after_api",
+        "db_queries": {
+            "default": "SELECT LOWER([Id]) AS instructionId, [Version] AS version, [Status] AS status FROM [dbo].[MoneyMovementInstruction] WHERE [Id] = '{{instructionId}}'",
+            "audit_query": ""
+        },
+        "db_type": "mssql",
+        "db_connection_name": "movemoney",
+        "test_summary": "Verify that the API returns 200 response with different enum values and successful instruction creation"
+    },
+    {
+        "test_id": "TC008",
+        "service_name": "movemoney",
+        "workflow_mode": "parallel",
+        "test_name": "POST /instructions [positive - changeState default to Active]",
+        "protocol": "REST",
+        "test_type": [
+            "Functional",
+            "Database"
+        ],
+        "mainURL": "{{base_url}}",
+        "endpoint": "/instructions",
+        "method": "POST",
+        "headers_additional": {
+            "Content-Type": "application/json"
+        },
+        "payload": {
+            "letterOfAuthorization": "{{letterOfAuthorization}}",
+            "accountId": "{{accountId}}",
+            "status": "{{status}}",
+            "holderRelationship": "{{holderRelationship}}",
+            "railType": "{{railType}}",
+            "custodianInstructionNumber": "{{custodianInstructionNumber}}",
+            "changeState": "{{changeState}}",
+            "bank": {
+                "routingNumber": "{{bank_routingNumber}}",
+                "bankAccountNumber": "{{bank_bankAccountNumber}}",
+                "bankAccountName": "{{bank_bankAccountName}}",
+                "bankAccountType": "{{bank_bankAccountType}}",
+                "bankName": "{{bank_bankName}}"
+            }
+        },
+        "expected_status": "200",
+        "expected_response_schema": "MoveMoneyAPI/schemas/Schema_instructions_POST.json",
+        "expected_response": null,
+        "ignore_fields": [
+            "traceId",
+            "id",
+            "addressid",
+            "contactid",
+            "identifierid",
+            "timestamp",
+            "createdDate",
+            "modifiedDate",
+            "entitycreateddate",
+            "individualdateofbirth",
+            "instructionId"
+        ],
+        "extract_values": [
+            {
+                "from": "response",
+                "key": "instructionId",
+                "assign_to": "instructionId"
+            },
+            {
+                "from": "response",
+                "key": "version",
+                "assign_to": "version"
+            },
+            {
+                "from": "db_result",
+                "query": "default",
+                "assign": [
+                    {
+                        "key": "0.instructionId",
+                        "assign_to": "db_instructionId"
+                    },
+                    {
+                        "key": "0.changeState",
+                        "assign_to": "db_changeState"
+                    }
+                ]
+            }
+        ],
+        "validate": {
+            "performance": {
+                "max_response_time_ms": 500
+            },
+            "security": {
+                "checks": [
+                    "sql_injection",
+                    "xss"
+                ]
+            },
+            "assertions": [
+                {
+                    "actual": "{{instructionId}}",
+                    "expected": "",
+                    "operator": "!=",
+                    "message": "InstructionId should not be empty"
+                },
+                {
+                    "actual": "{{db_changeState}}",
+                    "expected": "Active",
+                    "operator": "==",
+                    "message": "ChangeState should default to Active when not supplied"
+                }
+            ],
+            "data_comparison": []
+        },
+        "test_data_file": "MoveMoneyAPI/data_driven/Data_Instructions_9694_POST.csv",
+        "csv_row_index": 7,
+        "db_query_timing": "after_api",
+        "db_queries": {
+            "default": "SELECT LOWER([Id]) AS instructionId, [ChangeState] AS changeState FROM [dbo].[MoneyMovementInstruction] WHERE [Id] = '{{instructionId}}'",
+            "audit_query": ""
+        },
+        "db_type": "mssql",
+        "db_connection_name": "movemoney",
+        "test_summary": "Verify that when changeState is not supplied, the system defaults it to Active"
+    },
+    {
+        "test_id": "TC009",
+        "service_name": "movemoney",
+        "workflow_mode": "parallel",
+        "test_name": "POST /instructions [positive - changeState explicit Active]",
+        "protocol": "REST",
+        "test_type": [
+            "Functional",
+            "Database"
+        ],
+        "mainURL": "{{base_url}}",
+        "endpoint": "/instructions",
+        "method": "POST",
+        "headers_additional": {
+            "Content-Type": "application/json"
+        },
+        "payload": {
+            "letterOfAuthorization": "{{letterOfAuthorization}}",
+            "accountId": "{{accountId}}",
+            "status": "{{status}}",
+            "holderRelationship": "{{holderRelationship}}",
+            "railType": "{{railType}}",
+            "custodianInstructionNumber": "{{custodianInstructionNumber}}",
+            "changeState": "{{changeState}}",
+            "bank": {
+                "routingNumber": "{{bank_routingNumber}}",
+                "bankAccountNumber": "{{bank_bankAccountNumber}}",
+                "bankAccountName": "{{bank_bankAccountName}}",
+                "bankAccountType": "{{bank_bankAccountType}}",
+                "bankName": "{{bank_bankName}}"
+            }
+        },
+        "expected_status": "200",
+        "expected_response_schema": "MoveMoneyAPI/schemas/Schema_instructions_POST.json",
+        "expected_response": null,
+        "ignore_fields": [
+            "traceId",
+            "id",
+            "addressid",
+            "contactid",
+            "identifierid",
+            "timestamp",
+            "createdDate",
+            "modifiedDate",
+            "entitycreateddate",
+            "individualdateofbirth",
+            "instructionId"
+        ],
+        "extract_values": [
+            {
+                "from": "response",
+                "key": "instructionId",
+                "assign_to": "instructionId"
+            },
+            {
+                "from": "response",
+                "key": "version",
+                "assign_to": "version"
+            },
+            {
+                "from": "db_result",
+                "query": "default",
+                "assign": [
+                    {
+                        "key": "0.instructionId",
+                        "assign_to": "db_instructionId"
+                    },
+                    {
+                        "key": "0.changeState",
+                        "assign_to": "db_changeState"
+                    }
+                ]
+            }
+        ],
+        "validate": {
+            "performance": {
+                "max_response_time_ms": 1000
+            },
+            "security": {
+                "checks": [
+                    "sql_injection",
+                    "xss"
+                ]
+            },
+            "assertions": [
+                {
+                    "actual": "{{instructionId}}",
+                    "expected": "",
+                    "operator": "!=",
+                    "message": "InstructionId should not be empty"
+                },
+                {
+                    "actual": "{{db_changeState}}",
+                    "expected": "Active",
+                    "operator": "==",
+                    "message": "ChangeState should be Active as explicitly supplied"
+                }
+            ],
+            "data_comparison": []
+        },
+        "test_data_file": "MoveMoneyAPI/data_driven/Data_Instructions_9694_POST.csv",
+        "csv_row_index": 8,
+        "db_query_timing": "after_api",
+        "db_queries": {
+            "default": "SELECT LOWER([Id]) AS instructionId, [ChangeState] AS changeState FROM [dbo].[MoneyMovementInstruction] WHERE [Id] = '{{instructionId}}'",
+            "audit_query": ""
+        },
+        "db_type": "mssql",
+        "db_connection_name": "movemoney",
+        "test_summary": "Verify that when changeState is explicitly supplied as Active, the system persists the provided value"
+    },
+    {
+        "test_id": "TC010",
+        "service_name": "movemoney",
+        "workflow_mode": "parallel",
+        "test_name": "POST /instructions [positive - changeState explicit Inactive]",
+        "protocol": "REST",
+        "test_type": [
+            "Functional",
+            "Database"
+        ],
+        "mainURL": "{{base_url}}",
+        "endpoint": "/instructions",
+        "method": "POST",
+        "headers_additional": {
+            "Content-Type": "application/json"
+        },
+        "payload": {
+            "letterOfAuthorization": "{{letterOfAuthorization}}",
+            "accountId": "{{accountId}}",
+            "status": "{{status}}",
+            "holderRelationship": "{{holderRelationship}}",
+            "railType": "{{railType}}",
+            "custodianInstructionNumber": "{{custodianInstructionNumber}}",
+            "changeState": "{{changeState}}",
+            "bank": {
+                "routingNumber": "{{bank_routingNumber}}",
+                "bankAccountNumber": "{{bank_bankAccountNumber}}",
+                "bankAccountName": "{{bank_bankAccountName}}",
+                "bankAccountType": "{{bank_bankAccountType}}",
+                "bankName": "{{bank_bankName}}"
+            }
+        },
+        "expected_status": "200",
+        "expected_response_schema": "MoveMoneyAPI/schemas/Schema_instructions_POST.json",
+        "expected_response": null,
+        "ignore_fields": [
+            "traceId",
+            "id",
+            "addressid",
+            "contactid",
+            "identifierid",
+            "timestamp",
+            "createdDate",
+            "modifiedDate",
+            "entitycreateddate",
+            "individualdateofbirth",
+            "instructionId"
+        ],
+        "extract_values": [
+            {
+                "from": "response",
+                "key": "instructionId",
+                "assign_to": "instructionId"
+            },
+            {
+                "from": "response",
+                "key": "version",
+                "assign_to": "version"
+            },
+            {
+                "from": "db_result",
+                "query": "default",
+                "assign": [
+                    {
+                        "key": "0.instructionId",
+                        "assign_to": "db_instructionId"
+                    },
+                    {
+                        "key": "0.changeState",
+                        "assign_to": "db_changeState"
+                    }
+                ]
+            }
+        ],
+        "validate": {
+            "performance": {
+                "max_response_time_ms": 1000
+            },
+            "security": {
+                "checks": [
+                    "sql_injection",
+                    "xss"
+                ]
+            },
+            "assertions": [
+                {
+                    "actual": "{{instructionId}}",
+                    "expected": "",
+                    "operator": "!=",
+                    "message": "InstructionId should not be empty"
+                },
+                {
+                    "actual": "{{db_changeState}}",
+                    "expected": "Inactive",
+                    "operator": "==",
+                    "message": "ChangeState should be Inactive as explicitly supplied"
+                }
+            ],
+            "data_comparison": []
+        },
+        "test_data_file": "MoveMoneyAPI/data_driven/Data_Instructions_9694_POST.csv",
+        "csv_row_index": 9,
+        "db_query_timing": "after_api",
+        "db_queries": {
+            "default": "SELECT LOWER([Id]) AS instructionId, [ChangeState] AS changeState FROM [dbo].[MoneyMovementInstruction] WHERE [Id] = '{{instructionId}}'",
+            "audit_query": ""
+        },
+        "db_type": "mssql",
+        "db_connection_name": "movemoney",
+        "test_summary": "Verify that when changeState is explicitly supplied as Inactive, the system persists the provided value"
+    },
+    {
+        "test_id": "TC011",
+        "service_name": "movemoney",
+        "workflow_mode": "parallel",
+        "test_name": "POST /instructions [positive]",
+        "protocol": "REST",
+        "test_type": [
+            "Functional"
+        ],
+        "mainURL": "{{base_url}}",
+        "endpoint": "/instructions",
+        "method": "POST",
+        "headers_additional": {
+            "Content-Type": "application/json"
+        },
+        "payload": {
+            "letterOfAuthorization": "Withdrawal",
+            "accountId": "789a1234-e89b-12d3-a456-426614174222",
+            "status": "Draft",
+            "holderRelationship": "ThirdParty",
+            "railType": "Check",
+            "changeState": "Active",
+            "payee": {
+                "nameLine1": "Robert A. Williams",
+                "nameLine2": "c/o Williams Estate LLC",
+                "addressLine1": "4521 Oakwood Drive",
+                "addressLine2": "Suite 300",
+                "city": "Austin",
+                "state": "TX",
+                "zip": "78701",
+                "zipExtension": "4321",
+                "country": "US"
+            }
+        },
+        "expected_status": "200",
+        "expected_response_schema": "",
+        "expected_response": null,
+        "ignore_fields": [
+            "traceId",
+            "id",
+            "addressid",
+            "contactid",
+            "identifierid",
+            "timestamp",
+            "createdDate",
+            "modifiedDate",
+            "entitycreateddate",
+            "individualdateofbirth",
+            "instructionId"
+        ],
+        "extract_values": [
+            {
+                "from": "response",
+                "key": "instructionId",
+                "assign_to": "tc011_instructionId"
+            },
+            {
+                "from": "response",
+                "key": "version",
+                "assign_to": "tc011_version"
+            }
+        ],
+        "validate": {
+            "performance": {
+                "max_response_time_ms": 1000
+            },
+            "security": {
+                "checks": [
+                    "sql_injection",
+                    "xss"
+                ]
+            },
+            "assertions": [
+                {
+                    "actual": "{{tc011_instructionId}}",
+                    "expected": "",
+                    "operator": "!=",
+                    "message": "InstructionId should not be empty"
+                },
+                {
+                    "actual": "{{tc011_version}}",
+                    "expected": 1,
+                    "operator": "==",
+                    "message": "Version should be 1"
+                }
+            ],
+            "data_comparison": []
+        },
+        "test_data_file": "",
+        "csv_row_index": 0,
+        "db_query_timing": "after_api",
+        "db_queries": {},
+        "db_type": "mssql",
+        "db_connection_name": "movemoney",
+        "test_summary": "Verify that the API returns 200 response all the fields are valid and successful instruction creation for check railType with payee details."
+    },
+    {
+        "test_id": "TC012",
+        "service_name": "movemoney",
+        "workflow_mode": "parallel",
+        "test_name": "POST /instructions/{instructionId} [positive] (TC012)",
+        "protocol": "REST",
+        "test_type": [
+            "Functional"
+        ],
+        "mainURL": "{{base_url}}",
+        "endpoint": "/instructions",
+        "method": "POST",
+        "rpc_method": "",
+        "graphql_query": "",
+        "graphql_variables": "",
+        "soap_action": "",
+        "soap_envelope": "",
+        "headers_additional": {
+            "Content-Type": "application/json"
+        },
+        "payload": {
+            "letterOfAuthorization": "Withdrawal",
+            "accountId": "789a1234-e89b-12d3-a456-426614174222",
+            "status": "TEST",
+            "holderRelationship": "FirstParty",
+            "railType": "Check",
+            "changeState": "Active",
+            "payee": {
+                "nameLine1": "Williams",
+                "nameLine2": "c/o Williams Estate LLC",
+                "addressLine1": "4521 Oakwood Drive",
+                "addressLine2": "Suite 300",
+                "city": "Austin",
+                "state": "TX",
+                "zip": "78701",
+                "zipExtension": "4321",
+                "country": "US"
+            }
+        },
+        "expected_status": "400",
+        "expected_response_schema": "",
+        "expected_response": {
+            "type": "invalid-request",
+            "title": "Invalid Request",
+            "status": 400,
+            "detail": "The request contains invalid values",
+            "instance": "/api/moneymovement/v1/instructions",
+            "errors": {
+                "status": [
+                    "Must be one of: Draft, Pending, Confirmed, Deleted."
+                ]
+            }
+        },
+        "ignore_fields": [
+            "traceId",
+            "timestamp",
+            "createdDate",
+            "modifiedDate",
+            "version",
+            "instance"
+        ],
+        "extract_values": [
+            {
+                "from": "response",
+                "key": "status",
+                "assign_to": "error_status"
+            },
+            {
+                "from": "response",
+                "key": "title",
+                "assign_to": "error_title"
+            },
+            {
+                "from": "response",
+                "key": "detail",
+                "assign_to": "error_detail"
+            }
+        ],
+        "validate": {
+            "performance": {
+                "max_response_time_ms": 500
+            },
+            "security": {
+                "checks": [
+                    "sql_injection",
+                    "xss"
+                ]
+            },
+            "assertions": [
+                {
+                    "actual": "{{error_status}}",
+                    "expected": 400,
+                    "operator": "==",
+                    "message": "Error status should be 400"
+                },
+                {
+                    "actual": "{{error_title}}",
+                    "expected": "",
+                    "operator": "!=",
+                    "message": "Error title should not be empty"
+                }
+            ],
+            "data_comparison": []
+        },
+        "test_data_file": "",
+        "csv_row_index": 0,
+        "db_query_timing": "after_api",
+        "db_queries": {
+            "default": "",
+            "audit_query": ""
+        },
+        "db_type": "",
+        "db_connection_name": "",
+        "test_summary": "Test TC012: POST /instructions(TC012) - Validate the 400 response for invalid update check Instruction."
+    },
+    {
+        "test_id": "TC013",
+        "service_name": "movemoney",
+        "workflow_mode": "parallel",
+        "test_name": "POST /instructions [positive]",
+        "protocol": "REST",
+        "test_type": [
+            "Functional"
+        ],
+        "mainURL": "{{base_url}}",
+        "endpoint": "/instructions",
+        "method": "POST",
+        "headers_additional": {
+            "Content-Type": "application/json"
+        },
+        "payload": {
+            "letterOfAuthorization": "Withdrawal",
+            "accountId": "789a1234-e89b-12d3-a456-426614174222",
+            "status": "Draft",
+            "holderRelationship": "ThirdParty",
+            "railType": "Wire",
+            "changeState": "Active",
+            "bank": {
+                "routingNumber": "121000248",
+                "creditAccountNumber": "1234567890",
+                "creditAccountName": "John Smith",
+                "bankAccountNumber": "1234567890",
+                "bankAccountName": "John Smith",
+                "bankAccountType": "Checking",
+                "bankName": "Wells Fargo Bank"
+            }
+        },
+        "expected_status": "200",
+        "expected_response_schema": "",
+        "expected_response": null,
+        "ignore_fields": [
+            "traceId",
+            "id",
+            "addressid",
+            "contactid",
+            "identifierid",
+            "timestamp",
+            "createdDate",
+            "modifiedDate",
+            "entitycreateddate",
+            "individualdateofbirth",
+            "instructionId"
+        ],
+        "extract_values": [
+            {
+                "from": "response",
+                "key": "instructionId",
+                "assign_to": "tc013_instructionId"
+            },
+            {
+                "from": "response",
+                "key": "version",
+                "assign_to": "tc013_version"
+            }
+        ],
+        "validate": {
+            "performance": {
+                "max_response_time_ms": 1000
+            },
+            "security": {
+                "checks": [
+                    "sql_injection",
+                    "xss"
+                ]
+            },
+            "assertions": [
+                {
+                    "actual": "{{tc013_instructionId}}",
+                    "expected": "",
+                    "operator": "!=",
+                    "message": "InstructionId should not be empty"
+                },
+                {
+                    "actual": "{{tc013_version}}",
+                    "expected": 1,
+                    "operator": "==",
+                    "message": "Version should be 1"
+                }
+            ],
+            "data_comparison": []
+        },
+        "test_data_file": "",
+        "csv_row_index": 0,
+        "db_query_timing": "after_api",
+        "db_queries": {},
+        "db_type": "mssql",
+        "db_connection_name": "movemoney",
+        "test_summary": "Verify that the API returns 200 response all the fields are valid and successful instruction creation for wire railType with bank details."
+    },
+    {
+        "test_id": "TC014",
+        "service_name": "movemoney",
+        "workflow_mode": "sequential",
+        "test_name": "POST /instructions/{instructionId} [Negative] (TC014)",
+        "protocol": "REST",
+        "test_type": [
+            "Functional"
+        ],
+        "mainURL": "{{base_url}}",
+        "endpoint": "/instructions",
+        "method": "POST",
+        "rpc_method": "",
+        "graphql_query": "",
+        "graphql_variables": "",
+        "soap_action": "",
+        "soap_envelope": "",
+        "headers_additional": {
+            "Content-Type": "application/json"
+        },
+        "payload": {
+            "letterOfAuthorization": "Withdrawal",
+            "accountId": "789a1234-e89b-12d3-a456-426614174222",
+            "status": "TEST",
+            "holderRelationship": "FirstParty",
+            "railType": "Wire",
+            "changeState": "Active",
+            "bank": {
+                "routingNumber": "121000248",
+                "creditAccountNumber": "1234567890",
+                "creditAccountName": "Mark",
+                "bankAccountNumber": "1234567890",
+                "bankAccountName": "Mark",
+                "bankAccountType": "Checking",
+                "bankName": "Wells Fargo Bank"
+            }
+        },
+        "expected_status": "400",
+        "expected_response_schema": "",
+        "expected_response": {
+            "type": "invalid-request",
+            "title": "Invalid Request",
+            "status": 400,
+            "detail": "The request contains invalid values",
+            "instance": "/api/moneymovement/v1/instructions",
+            "errors": {
+                "status": [
+                    "Must be one of: Draft, Pending, Confirmed, Deleted."
+                ]
+            }
+        },
+        "ignore_fields": [
+            "traceId",
+            "timestamp",
+            "createdDate",
+            "modifiedDate",
+            "version",
+            "instance"
+        ],
+        "extract_values": [
+            {
+                "from": "response",
+                "key": "status",
+                "assign_to": "error_status"
+            },
+            {
+                "from": "response",
+                "key": "title",
+                "assign_to": "error_title"
+            },
+            {
+                "from": "response",
+                "key": "detail",
+                "assign_to": "error_detail"
+            }
+        ],
+        "validate": {
+            "performance": {
+                "max_response_time_ms": 500
+            },
+            "security": {
+                "checks": [
+                    "sql_injection",
+                    "xss"
+                ]
+            },
+            "assertions": [
+                {
+                    "actual": "{{error_status}}",
+                    "expected": 400,
+                    "operator": "==",
+                    "message": "Error status should be 400"
+                },
+                {
+                    "actual": "{{error_title}}",
+                    "expected": "",
+                    "operator": "!=",
+                    "message": "Error title should not be empty"
+                }
+            ],
+            "data_comparison": []
+        },
+        "test_data_file": "",
+        "csv_row_index": 0,
+        "db_query_timing": "after_api",
+        "db_queries": {
+            "default": "",
+            "audit_query": ""
+        },
+        "db_type": "",
+        "db_connection_name": "",
+        "test_summary": "Test TC014: POST /instructions (TC014) - Validate the 400 response for invalid update wire Instruction."
+    },
+    {
+        "test_id": "TC015",
+        "service_name": "movemoney",
+        "workflow_mode": "parallel",
+        "test_name": "POST /instructions/{instructionId} [Negative] (TC015)",
+        "protocol": "REST",
+        "test_type": [
+            "Functional"
+        ],
+        "mainURL": "{{base_url}}",
+        "endpoint": "/instructions",
+        "method": "POST",
+        "rpc_method": "",
+        "graphql_query": "",
+        "graphql_variables": "",
+        "soap_action": "",
+        "soap_envelope": "",
+        "headers_additional": {
+            "Content-Type": "application/json"
+        },
+        "payload": {
+            "letterOfAuthorization": "Withdrawal",
+            "accountId": "789a1234-e89b-12d3-a456-426614174222",
+            "status": "Pending",
+            "holderRelationship": "FirstParty",
+            "changeState": "Active",
+            "bank": {
+                "routingNumber": "121000248",
+                "creditAccountNumber": "1234567890",
+                "creditAccountName": "Mark",
+                "bankAccountNumber": "1234567890",
+                "bankAccountName": "Mark",
+                "bankAccountType": "Checking",
+                "bankName": "Wells Fargo Bank"
+            }
+        },
+        "expected_status": "400",
+        "expected_response_schema": "",
+        "expected_response": {
+            "type": "missing-required-fields",
+            "title": "One or more fields are missing values",
+            "status": 400,
+            "detail": "Missing Required Fields",
+            "instance": "/api/moneymovement/v1/instructions",
+            "errors": {
+                "railType": [
+                    "This field is required."
+                ]
+            }
+        },
+        "ignore_fields": [
+            "traceId",
+            "timestamp",
+            "createdDate",
+            "modifiedDate",
+            "version",
+            "instance"
+        ],
+        "extract_values": [
+            {
+                "from": "response",
+                "key": "status",
+                "assign_to": "error_status"
+            },
+            {
+                "from": "response",
+                "key": "title",
+                "assign_to": "error_title"
+            },
+            {
+                "from": "response",
+                "key": "detail",
+                "assign_to": "error_detail"
+            }
+        ],
+        "validate": {
+            "performance": {
+                "max_response_time_ms": 500
+            },
+            "security": {
+                "checks": [
+                    "sql_injection",
+                    "xss"
+                ]
+            },
+            "assertions": [
+                {
+                    "actual": "{{error_status}}",
+                    "expected": 400,
+                    "operator": "==",
+                    "message": "Error status should be 400"
+                },
+                {
+                    "actual": "{{error_title}}",
+                    "expected": "",
+                    "operator": "!=",
+                    "message": "Error title should not be empty"
+                }
+            ],
+            "data_comparison": []
+        },
+        "test_data_file": "",
+        "csv_row_index": 0,
+        "db_query_timing": "after_api",
+        "db_queries": {
+            "default": "",
+            "audit_query": ""
+        },
+        "db_type": "",
+        "db_connection_name": "",
+        "test_summary": "Test TC015: POST /instructions [Negative] (TC015) - Validate the 400 response for missing railType required fields."
+    },
+    {
+        "test_id": "TC016",
+        "service_name": "movemoney",
+        "workflow_mode": "parallel",
+        "test_name": "POST /instructions [negative - missing accountId] (TC016)",
+        "protocol": "REST",
+        "test_type": [
+            "Functional"
+        ],
+        "mainURL": "{{base_url}}",
+        "endpoint": "/instructions",
+        "method": "POST",
+        "headers_additional": {
+            "Content-Type": "application/json"
+        },
+        "payload": {
+            "letterOfAuthorization": "Deposit",
+            "status": "Draft",
+            "holderRelationship": "FirstParty",
+            "railType": "ACH",
+            "changeState": "Active",
+            "bank": {
+                "routingNumber": "121000248",
+                "bankAccountNumber": "1234567890",
+                "bankAccountName": "John Smith",
+                "bankAccountType": "Checking",
+                "bankName": "Bank of America"
+            }
+        },
+        "expected_status": "400",
+        "expected_response_schema": "",
+        "expected_response": {
+            "type": "missing-required-fields",
+            "title": "One or more fields are missing values",
+            "status": 400,
+            "detail": "Missing Required Fields",
+            "instance": "/api/moneymovement/v1/instructions",
+            "errors": {
+                "accountId": [
+                    "This field is required."
+                ]
+            }
+        },
+        "ignore_fields": [
+            "id",
+            "traceId",
+            "timestamp",
+            "instance"
+        ],
+        "extract_values": [
+            {
+                "from": "response",
+                "key": "status",
+                "assign_to": "error_status"
+            },
+            {
+                "from": "response",
+                "key": "title",
+                "assign_to": "error_title"
+            },
+            {
+                "from": "response",
+                "key": "detail",
+                "assign_to": "error_detail"
+            }
+        ],
+        "validate": {
+            "performance": {
+                "max_response_time_ms": 500
+            },
+            "security": {
+                "checks": [
+                    "sql_injection",
+                    "xss"
+                ]
+            },
+            "assertions": [
+                {
+                    "actual": "{{error_status}}",
+                    "expected": 400,
+                    "operator": "==",
+                    "message": "Error status should be 400"
+                },
+                {
+                    "actual": "{{error_title}}",
+                    "expected": "",
+                    "operator": "!=",
+                    "message": "Error title should not be empty"
+                },
+                {
+                    "actual": "{{error_detail}}",
+                    "expected": "Missing Required Fields",
+                    "operator": "==",
+                    "message": "Error detail should indicate missing required fields"
+                }
+            ],
+            "data_comparison": []
+        },
+        "test_data_file": "",
+        "csv_row_index": 0,
+        "db_query_timing": "after_api",
+        "db_queries": {
+            "default": "",
+            "audit_query": ""
+        },
+        "db_type": "",
+        "db_connection_name": "",
+        "test_summary": "Verify 400 missing-required-fields when accountId is absent from POST /instructions."
+    },
+    {
+        "test_id": "TC017",
+        "service_name": "movemoney",
+        "workflow_mode": "parallel",
+        "test_name": "POST /instructions [negative - missing status] (TC017)",
+        "protocol": "REST",
+        "test_type": [
+            "Functional"
+        ],
+        "mainURL": "{{base_url}}",
+        "endpoint": "/instructions",
+        "method": "POST",
+        "headers_additional": {
+            "Content-Type": "application/json"
+        },
+        "payload": {
+            "letterOfAuthorization": "Deposit",
+            "accountId": "123e4567-e89b-12d3-a456-426614174000",
+            "holderRelationship": "FirstParty",
+            "railType": "ACH",
+            "changeState": "Active",
+            "bank": {
+                "routingNumber": "121000248",
+                "bankAccountNumber": "1234567890",
+                "bankAccountName": "John Smith",
+                "bankAccountType": "Checking",
+                "bankName": "Bank of America"
+            }
+        },
+        "expected_status": "400",
+        "expected_response_schema": "",
+        "expected_response": {
+            "type": "missing-required-fields",
+            "title": "One or more fields are missing values",
+            "status": 400,
+            "detail": "Missing Required Fields",
+            "instance": "/api/moneymovement/v1/instructions",
+            "errors": {
+                "status": [
+                    "This field is required."
+                ]
+            }
+        },
+        "ignore_fields": [
+            "id",
+            "traceId",
+            "timestamp",
+            "instance"
+        ],
+        "extract_values": [
+            {
+                "from": "response",
+                "key": "status",
+                "assign_to": "error_status"
+            },
+            {
+                "from": "response",
+                "key": "title",
+                "assign_to": "error_title"
+            },
+            {
+                "from": "response",
+                "key": "detail",
+                "assign_to": "error_detail"
+            }
+        ],
+        "validate": {
+            "performance": {
+                "max_response_time_ms": 500
+            },
+            "security": {
+                "checks": [
+                    "sql_injection",
+                    "xss"
+                ]
+            },
+            "assertions": [
+                {
+                    "actual": "{{error_status}}",
+                    "expected": 400,
+                    "operator": "==",
+                    "message": "Error status should be 400"
+                },
+                {
+                    "actual": "{{error_title}}",
+                    "expected": "",
+                    "operator": "!=",
+                    "message": "Error title should not be empty"
+                },
+                {
+                    "actual": "{{error_detail}}",
+                    "expected": "Missing Required Fields",
+                    "operator": "==",
+                    "message": "Error detail should indicate missing required fields"
+                }
+            ],
+            "data_comparison": []
+        },
+        "test_data_file": "",
+        "csv_row_index": 0,
+        "db_query_timing": "after_api",
+        "db_queries": {
+            "default": "",
+            "audit_query": ""
+        },
+        "db_type": "",
+        "db_connection_name": "",
+        "test_summary": "Verify 400 missing-required-fields when status is absent from POST /instructions."
+    },
+    {
+        "test_id": "TC018",
+        "service_name": "movemoney",
+        "workflow_mode": "parallel",
+        "test_name": "POST /instructions [negative - missing holderRelationship] (TC018)",
+        "protocol": "REST",
+        "test_type": [
+            "Functional"
+        ],
+        "mainURL": "{{base_url}}",
+        "endpoint": "/instructions",
+        "method": "POST",
+        "headers_additional": {
+            "Content-Type": "application/json"
+        },
+        "payload": {
+            "letterOfAuthorization": "Deposit",
+            "accountId": "123e4567-e89b-12d3-a456-426614174000",
+            "status": "Draft",
+            "railType": "ACH",
+            "changeState": "Active",
+            "bank": {
+                "routingNumber": "121000248",
+                "bankAccountNumber": "1234567890",
+                "bankAccountName": "John Smith",
+                "bankAccountType": "Checking",
+                "bankName": "Bank of America"
+            }
+        },
+        "expected_status": "400",
+        "expected_response_schema": "",
+        "expected_response": {
+            "type": "missing-required-fields",
+            "title": "One or more fields are missing values",
+            "status": 400,
+            "detail": "Missing Required Fields",
+            "instance": "/api/moneymovement/v1/instructions",
+            "errors": {
+                "holderRelationship": [
+                    "This field is required."
+                ]
+            }
+        },
+        "ignore_fields": [
+            "id",
+            "traceId",
+            "timestamp",
+            "instance"
+        ],
+        "extract_values": [
+            {
+                "from": "response",
+                "key": "status",
+                "assign_to": "error_status"
+            },
+            {
+                "from": "response",
+                "key": "title",
+                "assign_to": "error_title"
+            },
+            {
+                "from": "response",
+                "key": "detail",
+                "assign_to": "error_detail"
+            }
+        ],
+        "validate": {
+            "performance": {
+                "max_response_time_ms": 500
+            },
+            "security": {
+                "checks": [
+                    "sql_injection",
+                    "xss"
+                ]
+            },
+            "assertions": [
+                {
+                    "actual": "{{error_status}}",
+                    "expected": 400,
+                    "operator": "==",
+                    "message": "Error status should be 400"
+                },
+                {
+                    "actual": "{{error_title}}",
+                    "expected": "",
+                    "operator": "!=",
+                    "message": "Error title should not be empty"
+                },
+                {
+                    "actual": "{{error_detail}}",
+                    "expected": "Missing Required Fields",
+                    "operator": "==",
+                    "message": "Error detail should indicate missing required fields"
+                }
+            ],
+            "data_comparison": []
+        },
+        "test_data_file": "",
+        "csv_row_index": 0,
+        "db_query_timing": "after_api",
+        "db_queries": {
+            "default": "",
+            "audit_query": ""
+        },
+        "db_type": "",
+        "db_connection_name": "",
+        "test_summary": "Verify 400 missing-required-fields when holderRelationship is absent from POST /instructions."
+    },
+    {
+        "test_id": "TC019",
+        "service_name": "movemoney",
+        "workflow_mode": "parallel",
+        "test_name": "POST /instructions [negative - missing changeState] (TC019)",
+        "protocol": "REST",
+        "test_type": [
+            "Functional"
+        ],
+        "mainURL": "{{base_url}}",
+        "endpoint": "/instructions",
+        "method": "POST",
+        "headers_additional": {
+            "Content-Type": "application/json"
+        },
+        "payload": {
+            "letterOfAuthorization": "Deposit",
+            "accountId": "123e4567-e89b-12d3-a456-426614174000",
+            "status": "Draft",
+            "holderRelationship": "FirstParty",
+            "railType": "ACH",
+            "bank": {
+                "routingNumber": "121000248",
+                "bankAccountNumber": "1234567890",
+                "bankAccountName": "John Smith",
+                "bankAccountType": "Checking",
+                "bankName": "Bank of America"
+            }
+        },
+        "expected_status": "400",
+        "expected_response_schema": "",
+        "expected_response": {
+            "type": "missing-required-fields",
+            "title": "One or more fields are missing values",
+            "status": 400,
+            "detail": "Missing Required Fields",
+            "instance": "/api/moneymovement/v1/instructions",
+            "errors": {
+                "changeState": [
+                    "This field is required."
+                ]
+            }
+        },
+        "ignore_fields": [
+            "id",
+            "traceId",
+            "timestamp",
+            "instance"
+        ],
+        "extract_values": [
+            {
+                "from": "response",
+                "key": "status",
+                "assign_to": "error_status"
+            },
+            {
+                "from": "response",
+                "key": "title",
+                "assign_to": "error_title"
+            },
+            {
+                "from": "response",
+                "key": "detail",
+                "assign_to": "error_detail"
+            }
+        ],
+        "validate": {
+            "performance": {
+                "max_response_time_ms": 500
+            },
+            "security": {
+                "checks": [
+                    "sql_injection",
+                    "xss"
+                ]
+            },
+            "assertions": [
+                {
+                    "actual": "{{error_status}}",
+                    "expected": 400,
+                    "operator": "==",
+                    "message": "Error status should be 400"
+                },
+                {
+                    "actual": "{{error_title}}",
+                    "expected": "",
+                    "operator": "!=",
+                    "message": "Error title should not be empty"
+                },
+                {
+                    "actual": "{{error_detail}}",
+                    "expected": "Missing Required Fields",
+                    "operator": "==",
+                    "message": "Error detail should indicate missing required fields"
+                }
+            ],
+            "data_comparison": []
+        },
+        "test_data_file": "",
+        "csv_row_index": 0,
+        "db_query_timing": "after_api",
+        "db_queries": {
+            "default": "",
+            "audit_query": ""
+        },
+        "db_type": "",
+        "db_connection_name": "",
+        "test_summary": "Verify 400 missing-required-fields when changeState is absent from POST /instructions."
+    },
+    {
+        "test_id": "TC020",
+        "service_name": "movemoney",
+        "workflow_mode": "parallel",
+        "test_name": "POST /instructions [negative - missing bank.routingNumber ACH] (TC020)",
+        "protocol": "REST",
+        "test_type": [
+            "Functional"
+        ],
+        "mainURL": "{{base_url}}",
+        "endpoint": "/instructions",
+        "method": "POST",
+        "headers_additional": {
+            "Content-Type": "application/json"
+        },
+        "payload": {
+            "letterOfAuthorization": "Deposit",
+            "accountId": "123e4567-e89b-12d3-a456-426614174000",
+            "status": "Draft",
+            "holderRelationship": "FirstParty",
+            "railType": "ACH",
+            "changeState": "Active",
+            "bank": {
+                "bankAccountNumber": "1234567890",
+                "bankAccountName": "John Smith",
+                "bankAccountType": "Checking",
+                "bankName": "Bank of America"
+            }
+        },
+        "expected_status": "400",
+        "expected_response_schema": "",
+        "expected_response": {
+            "type": "missing-required-fields",
+            "title": "One or more fields are missing values",
+            "status": 400,
+            "detail": "Missing Required Fields",
+            "instance": "/api/moneymovement/v1/instructions",
+            "errors": {
+                "bank.routingNumber": [
+                    "This field is required."
+                ]
+            }
+        },
+        "ignore_fields": [
+            "id",
+            "traceId",
+            "timestamp",
+            "instance"
+        ],
+        "extract_values": [
+            {
+                "from": "response",
+                "key": "status",
+                "assign_to": "error_status"
+            },
+            {
+                "from": "response",
+                "key": "title",
+                "assign_to": "error_title"
+            },
+            {
+                "from": "response",
+                "key": "detail",
+                "assign_to": "error_detail"
+            }
+        ],
+        "validate": {
+            "performance": {
+                "max_response_time_ms": 500
+            },
+            "security": {
+                "checks": [
+                    "sql_injection",
+                    "xss"
+                ]
+            },
+            "assertions": [
+                {
+                    "actual": "{{error_status}}",
+                    "expected": 400,
+                    "operator": "==",
+                    "message": "Error status should be 400"
+                },
+                {
+                    "actual": "{{error_title}}",
+                    "expected": "",
+                    "operator": "!=",
+                    "message": "Error title should not be empty"
+                },
+                {
+                    "actual": "{{error_detail}}",
+                    "expected": "Missing Required Fields",
+                    "operator": "==",
+                    "message": "Error detail should indicate missing required fields"
+                }
+            ],
+            "data_comparison": []
+        },
+        "test_data_file": "",
+        "csv_row_index": 0,
+        "db_query_timing": "after_api",
+        "db_queries": {
+            "default": "",
+            "audit_query": ""
+        },
+        "db_type": "",
+        "db_connection_name": "",
+        "test_summary": "Verify 400 missing-required-fields when bank.routingNumber is absent for ACH railType in POST /instructions."
+    },
+    {
+        "test_id": "TC021",
+        "service_name": "movemoney",
+        "workflow_mode": "parallel",
+        "test_name": "POST /instructions [negative - missing bank.bankAccountNumber ACH] (TC021)",
+        "protocol": "REST",
+        "test_type": [
+            "Functional"
+        ],
+        "mainURL": "{{base_url}}",
+        "endpoint": "/instructions",
+        "method": "POST",
+        "headers_additional": {
+            "Content-Type": "application/json"
+        },
+        "payload": {
+            "letterOfAuthorization": "Deposit",
+            "accountId": "123e4567-e89b-12d3-a456-426614174000",
+            "status": "Draft",
+            "holderRelationship": "FirstParty",
+            "railType": "ACH",
+            "changeState": "Active",
+            "bank": {
+                "routingNumber": "121000248",
+                "bankAccountName": "John Smith",
+                "bankAccountType": "Checking",
+                "bankName": "Bank of America"
+            }
+        },
+        "expected_status": "400",
+        "expected_response_schema": "",
+        "expected_response": {
+            "type": "missing-required-fields",
+            "title": "One or more fields are missing values",
+            "status": 400,
+            "detail": "Missing Required Fields",
+            "instance": "/api/moneymovement/v1/instructions",
+            "errors": {
+                "bank.bankAccountNumber": [
+                    "This field is required."
+                ]
+            }
+        },
+        "ignore_fields": [
+            "id",
+            "traceId",
+            "timestamp",
+            "instance"
+        ],
+        "extract_values": [
+            {
+                "from": "response",
+                "key": "status",
+                "assign_to": "error_status"
+            },
+            {
+                "from": "response",
+                "key": "title",
+                "assign_to": "error_title"
+            },
+            {
+                "from": "response",
+                "key": "detail",
+                "assign_to": "error_detail"
+            }
+        ],
+        "validate": {
+            "performance": {
+                "max_response_time_ms": 500
+            },
+            "security": {
+                "checks": [
+                    "sql_injection",
+                    "xss"
+                ]
+            },
+            "assertions": [
+                {
+                    "actual": "{{error_status}}",
+                    "expected": 400,
+                    "operator": "==",
+                    "message": "Error status should be 400"
+                },
+                {
+                    "actual": "{{error_title}}",
+                    "expected": "",
+                    "operator": "!=",
+                    "message": "Error title should not be empty"
+                },
+                {
+                    "actual": "{{error_detail}}",
+                    "expected": "Missing Required Fields",
+                    "operator": "==",
+                    "message": "Error detail should indicate missing required fields"
+                }
+            ],
+            "data_comparison": []
+        },
+        "test_data_file": "",
+        "csv_row_index": 0,
+        "db_query_timing": "after_api",
+        "db_queries": {
+            "default": "",
+            "audit_query": ""
+        },
+        "db_type": "",
+        "db_connection_name": "",
+        "test_summary": "Verify 400 missing-required-fields when bank.bankAccountNumber is absent for ACH railType in POST /instructions."
+    },
+    {
+        "test_id": "TC022",
+        "service_name": "movemoney",
+        "workflow_mode": "parallel",
+        "test_name": "POST /instructions [negative - missing bank.bankAccountName ACH] (TC022)",
+        "protocol": "REST",
+        "test_type": [
+            "Functional"
+        ],
+        "mainURL": "{{base_url}}",
+        "endpoint": "/instructions",
+        "method": "POST",
+        "headers_additional": {
+            "Content-Type": "application/json"
+        },
+        "payload": {
+            "letterOfAuthorization": "Deposit",
+            "accountId": "123e4567-e89b-12d3-a456-426614174000",
+            "status": "Draft",
+            "holderRelationship": "FirstParty",
+            "railType": "ACH",
+            "changeState": "Active",
+            "bank": {
+                "routingNumber": "121000248",
+                "bankAccountNumber": "1234567890",
+                "bankAccountType": "Checking",
+                "bankName": "Bank of America"
+            }
+        },
+        "expected_status": "400",
+        "expected_response_schema": "",
+        "expected_response": {
+            "type": "missing-required-fields",
+            "title": "One or more fields are missing values",
+            "status": 400,
+            "detail": "Missing Required Fields",
+            "instance": "/api/moneymovement/v1/instructions",
+            "errors": {
+                "bank.bankAccountName": [
+                    "This field is required."
+                ]
+            }
+        },
+        "ignore_fields": [
+            "id",
+            "traceId",
+            "timestamp",
+            "instance"
+        ],
+        "extract_values": [
+            {
+                "from": "response",
+                "key": "status",
+                "assign_to": "error_status"
+            },
+            {
+                "from": "response",
+                "key": "title",
+                "assign_to": "error_title"
+            },
+            {
+                "from": "response",
+                "key": "detail",
+                "assign_to": "error_detail"
+            }
+        ],
+        "validate": {
+            "performance": {
+                "max_response_time_ms": 500
+            },
+            "security": {
+                "checks": [
+                    "sql_injection",
+                    "xss"
+                ]
+            },
+            "assertions": [
+                {
+                    "actual": "{{error_status}}",
+                    "expected": 400,
+                    "operator": "==",
+                    "message": "Error status should be 400"
+                },
+                {
+                    "actual": "{{error_title}}",
+                    "expected": "",
+                    "operator": "!=",
+                    "message": "Error title should not be empty"
+                },
+                {
+                    "actual": "{{error_detail}}",
+                    "expected": "Missing Required Fields",
+                    "operator": "==",
+                    "message": "Error detail should indicate missing required fields"
+                }
+            ],
+            "data_comparison": []
+        },
+        "test_data_file": "",
+        "csv_row_index": 0,
+        "db_query_timing": "after_api",
+        "db_queries": {
+            "default": "",
+            "audit_query": ""
+        },
+        "db_type": "",
+        "db_connection_name": "",
+        "test_summary": "Verify 400 missing-required-fields when bank.bankAccountName is absent for ACH railType in POST /instructions."
+    },
+    {
+        "test_id": "TC023",
+        "service_name": "movemoney",
+        "workflow_mode": "parallel",
+        "test_name": "POST /instructions [negative - missing bank.bankAccountType ACH] (TC023)",
+        "protocol": "REST",
+        "test_type": [
+            "Functional"
+        ],
+        "mainURL": "{{base_url}}",
+        "endpoint": "/instructions",
+        "method": "POST",
+        "headers_additional": {
+            "Content-Type": "application/json"
+        },
+        "payload": {
+            "letterOfAuthorization": "Deposit",
+            "accountId": "123e4567-e89b-12d3-a456-426614174000",
+            "status": "Draft",
+            "holderRelationship": "FirstParty",
+            "railType": "ACH",
+            "changeState": "Active",
+            "bank": {
+                "routingNumber": "121000248",
+                "bankAccountNumber": "1234567890",
+                "bankAccountName": "John Smith",
+                "bankName": "Bank of America"
+            }
+        },
+        "expected_status": "400",
+        "expected_response_schema": "",
+        "expected_response": {
+            "type": "missing-required-fields",
+            "title": "One or more fields are missing values",
+            "status": 400,
+            "detail": "Missing Required Fields",
+            "instance": "/api/moneymovement/v1/instructions",
+            "errors": {
+                "bank.bankAccountType": [
+                    "This field is required."
+                ]
+            }
+        },
+        "ignore_fields": [
+            "id",
+            "traceId",
+            "timestamp",
+            "instance"
+        ],
+        "extract_values": [
+            {
+                "from": "response",
+                "key": "status",
+                "assign_to": "error_status"
+            },
+            {
+                "from": "response",
+                "key": "title",
+                "assign_to": "error_title"
+            },
+            {
+                "from": "response",
+                "key": "detail",
+                "assign_to": "error_detail"
+            }
+        ],
+        "validate": {
+            "performance": {
+                "max_response_time_ms": 500
+            },
+            "security": {
+                "checks": [
+                    "sql_injection",
+                    "xss"
+                ]
+            },
+            "assertions": [
+                {
+                    "actual": "{{error_status}}",
+                    "expected": 400,
+                    "operator": "==",
+                    "message": "Error status should be 400"
+                },
+                {
+                    "actual": "{{error_title}}",
+                    "expected": "",
+                    "operator": "!=",
+                    "message": "Error title should not be empty"
+                },
+                {
+                    "actual": "{{error_detail}}",
+                    "expected": "Missing Required Fields",
+                    "operator": "==",
+                    "message": "Error detail should indicate missing required fields"
+                }
+            ],
+            "data_comparison": []
+        },
+        "test_data_file": "",
+        "csv_row_index": 0,
+        "db_query_timing": "after_api",
+        "db_queries": {
+            "default": "",
+            "audit_query": ""
+        },
+        "db_type": "",
+        "db_connection_name": "",
+        "test_summary": "Verify 400 missing-required-fields when bank.bankAccountType is absent for ACH railType in POST /instructions."
+    },
+    {
+        "test_id": "TC024",
+        "service_name": "movemoney",
+        "workflow_mode": "parallel",
+        "test_name": "POST /instructions [negative - missing bank.routingNumber Wire] (TC024)",
+        "protocol": "REST",
+        "test_type": [
+            "Functional"
+        ],
+        "mainURL": "{{base_url}}",
+        "endpoint": "/instructions",
+        "method": "POST",
+        "headers_additional": {
+            "Content-Type": "application/json"
+        },
+        "payload": {
+            "letterOfAuthorization": "Withdrawal",
+            "accountId": "123e4567-e89b-12d3-a456-426614174000",
+            "status": "Draft",
+            "holderRelationship": "FirstParty",
+            "railType": "Wire",
+            "changeState": "Active",
+            "bank": {
+                "bankAccountNumber": "1234567890",
+                "bankAccountName": "John Smith",
+                "bankAccountType": "Checking",
+                "bankName": "Wells Fargo Bank"
+            }
+        },
+        "expected_status": "400",
+        "expected_response_schema": "",
+        "expected_response": {
+            "type": "missing-required-fields",
+            "title": "One or more fields are missing values",
+            "status": 400,
+            "detail": "Missing Required Fields",
+            "instance": "/api/moneymovement/v1/instructions",
+            "errors": {
+                "bank.routingNumber": [
+                    "This field is required."
+                ]
+            }
+        },
+        "ignore_fields": [
+            "id",
+            "traceId",
+            "timestamp",
+            "instance"
+        ],
+        "extract_values": [
+            {
+                "from": "response",
+                "key": "status",
+                "assign_to": "error_status"
+            },
+            {
+                "from": "response",
+                "key": "title",
+                "assign_to": "error_title"
+            },
+            {
+                "from": "response",
+                "key": "detail",
+                "assign_to": "error_detail"
+            }
+        ],
+        "validate": {
+            "performance": {
+                "max_response_time_ms": 500
+            },
+            "security": {
+                "checks": [
+                    "sql_injection",
+                    "xss"
+                ]
+            },
+            "assertions": [
+                {
+                    "actual": "{{error_status}}",
+                    "expected": 400,
+                    "operator": "==",
+                    "message": "Error status should be 400"
+                },
+                {
+                    "actual": "{{error_title}}",
+                    "expected": "",
+                    "operator": "!=",
+                    "message": "Error title should not be empty"
+                },
+                {
+                    "actual": "{{error_detail}}",
+                    "expected": "Missing Required Fields",
+                    "operator": "==",
+                    "message": "Error detail should indicate missing required fields"
+                }
+            ],
+            "data_comparison": []
+        },
+        "test_data_file": "",
+        "csv_row_index": 0,
+        "db_query_timing": "after_api",
+        "db_queries": {
+            "default": "",
+            "audit_query": ""
+        },
+        "db_type": "",
+        "db_connection_name": "",
+        "test_summary": "Verify 400 missing-required-fields when bank.routingNumber is absent for Wire railType in POST /instructions."
+    },
+    {
+        "test_id": "TC025",
+        "service_name": "movemoney",
+        "workflow_mode": "parallel",
+        "test_name": "POST /instructions [negative - missing bank.bankAccountNumber Wire] (TC025)",
+        "protocol": "REST",
+        "test_type": [
+            "Functional"
+        ],
+        "mainURL": "{{base_url}}",
+        "endpoint": "/instructions",
+        "method": "POST",
+        "headers_additional": {
+            "Content-Type": "application/json"
+        },
+        "payload": {
+            "letterOfAuthorization": "Withdrawal",
+            "accountId": "123e4567-e89b-12d3-a456-426614174000",
+            "status": "Draft",
+            "holderRelationship": "FirstParty",
+            "railType": "Wire",
+            "changeState": "Active",
+            "bank": {
+                "routingNumber": "121000248",
+                "bankAccountName": "John Smith",
+                "bankAccountType": "Checking",
+                "bankName": "Wells Fargo Bank"
+            }
+        },
+        "expected_status": "400",
+        "expected_response_schema": "",
+        "expected_response": {
+            "type": "missing-required-fields",
+            "title": "One or more fields are missing values",
+            "status": 400,
+            "detail": "Missing Required Fields",
+            "instance": "/api/moneymovement/v1/instructions",
+            "errors": {
+                "bank.bankAccountNumber": [
+                    "This field is required."
+                ]
+            }
+        },
+        "ignore_fields": [
+            "id",
+            "traceId",
+            "timestamp",
+            "instance"
+        ],
+        "extract_values": [
+            {
+                "from": "response",
+                "key": "status",
+                "assign_to": "error_status"
+            },
+            {
+                "from": "response",
+                "key": "title",
+                "assign_to": "error_title"
+            },
+            {
+                "from": "response",
+                "key": "detail",
+                "assign_to": "error_detail"
+            }
+        ],
+        "validate": {
+            "performance": {
+                "max_response_time_ms": 500
+            },
+            "security": {
+                "checks": [
+                    "sql_injection",
+                    "xss"
+                ]
+            },
+            "assertions": [
+                {
+                    "actual": "{{error_status}}",
+                    "expected": 400,
+                    "operator": "==",
+                    "message": "Error status should be 400"
+                },
+                {
+                    "actual": "{{error_title}}",
+                    "expected": "",
+                    "operator": "!=",
+                    "message": "Error title should not be empty"
+                },
+                {
+                    "actual": "{{error_detail}}",
+                    "expected": "Missing Required Fields",
+                    "operator": "==",
+                    "message": "Error detail should indicate missing required fields"
+                }
+            ],
+            "data_comparison": []
+        },
+        "test_data_file": "",
+        "csv_row_index": 0,
+        "db_query_timing": "after_api",
+        "db_queries": {
+            "default": "",
+            "audit_query": ""
+        },
+        "db_type": "",
+        "db_connection_name": "",
+        "test_summary": "Verify 400 missing-required-fields when bank.bankAccountNumber is absent for Wire railType in POST /instructions."
+    },
+    {
+        "test_id": "TC026",
+        "service_name": "movemoney",
+        "workflow_mode": "parallel",
+        "test_name": "POST /instructions [negative - missing bank.bankAccountName Wire] (TC026)",
+        "protocol": "REST",
+        "test_type": [
+            "Functional"
+        ],
+        "mainURL": "{{base_url}}",
+        "endpoint": "/instructions",
+        "method": "POST",
+        "headers_additional": {
+            "Content-Type": "application/json"
+        },
+        "payload": {
+            "letterOfAuthorization": "Withdrawal",
+            "accountId": "123e4567-e89b-12d3-a456-426614174000",
+            "status": "Draft",
+            "holderRelationship": "FirstParty",
+            "railType": "Wire",
+            "changeState": "Active",
+            "bank": {
+                "routingNumber": "121000248",
+                "bankAccountNumber": "1234567890",
+                "bankAccountType": "Checking",
+                "bankName": "Wells Fargo Bank"
+            }
+        },
+        "expected_status": "400",
+        "expected_response_schema": "",
+        "expected_response": {
+            "type": "missing-required-fields",
+            "title": "One or more fields are missing values",
+            "status": 400,
+            "detail": "Missing Required Fields",
+            "instance": "/api/moneymovement/v1/instructions",
+            "errors": {
+                "bank.bankAccountName": [
+                    "This field is required."
+                ]
+            }
+        },
+        "ignore_fields": [
+            "id",
+            "traceId",
+            "timestamp",
+            "instance"
+        ],
+        "extract_values": [
+            {
+                "from": "response",
+                "key": "status",
+                "assign_to": "error_status"
+            },
+            {
+                "from": "response",
+                "key": "title",
+                "assign_to": "error_title"
+            },
+            {
+                "from": "response",
+                "key": "detail",
+                "assign_to": "error_detail"
+            }
+        ],
+        "validate": {
+            "performance": {
+                "max_response_time_ms": 500
+            },
+            "security": {
+                "checks": [
+                    "sql_injection",
+                    "xss"
+                ]
+            },
+            "assertions": [
+                {
+                    "actual": "{{error_status}}",
+                    "expected": 400,
+                    "operator": "==",
+                    "message": "Error status should be 400"
+                },
+                {
+                    "actual": "{{error_title}}",
+                    "expected": "",
+                    "operator": "!=",
+                    "message": "Error title should not be empty"
+                },
+                {
+                    "actual": "{{error_detail}}",
+                    "expected": "Missing Required Fields",
+                    "operator": "==",
+                    "message": "Error detail should indicate missing required fields"
+                }
+            ],
+            "data_comparison": []
+        },
+        "test_data_file": "",
+        "csv_row_index": 0,
+        "db_query_timing": "after_api",
+        "db_queries": {
+            "default": "",
+            "audit_query": ""
+        },
+        "db_type": "",
+        "db_connection_name": "",
+        "test_summary": "Verify 400 missing-required-fields when bank.bankAccountName is absent for Wire railType in POST /instructions."
+    },
+    {
+        "test_id": "TC027",
+        "service_name": "movemoney",
+        "workflow_mode": "parallel",
+        "test_name": "POST /instructions [negative - missing payee.nameLine1 Check] (TC027)",
+        "protocol": "REST",
+        "test_type": [
+            "Functional"
+        ],
+        "mainURL": "{{base_url}}",
+        "endpoint": "/instructions",
+        "method": "POST",
+        "headers_additional": {
+            "Content-Type": "application/json"
+        },
+        "payload": {
+            "letterOfAuthorization": "Withdrawal",
+            "accountId": "789a1234-e89b-12d3-a456-426614174222",
+            "status": "Draft",
+            "holderRelationship": "ThirdParty",
+            "railType": "Check",
+            "changeState": "Active",
+            "payee": {
+                "addressLine1": "4521 Oakwood Drive",
+                "city": "Austin",
+                "state": "TX",
+                "zip": "78701",
+                "country": "US"
+            }
+        },
+        "expected_status": "400",
+        "expected_response_schema": "",
+        "expected_response": {
+            "type": "missing-required-fields",
+            "title": "One or more fields are missing values",
+            "status": 400,
+            "detail": "Missing Required Fields",
+            "instance": "/api/moneymovement/v1/instructions",
+            "errors": {
+                "payee.nameLine1": [
+                    "This field is required."
+                ]
+            }
+        },
+        "ignore_fields": [
+            "id",
+            "traceId",
+            "timestamp",
+            "instance"
+        ],
+        "extract_values": [
+            {
+                "from": "response",
+                "key": "status",
+                "assign_to": "error_status"
+            },
+            {
+                "from": "response",
+                "key": "title",
+                "assign_to": "error_title"
+            },
+            {
+                "from": "response",
+                "key": "detail",
+                "assign_to": "error_detail"
+            }
+        ],
+        "validate": {
+            "performance": {
+                "max_response_time_ms": 500
+            },
+            "security": {
+                "checks": [
+                    "sql_injection",
+                    "xss"
+                ]
+            },
+            "assertions": [
+                {
+                    "actual": "{{error_status}}",
+                    "expected": 400,
+                    "operator": "==",
+                    "message": "Error status should be 400"
+                },
+                {
+                    "actual": "{{error_title}}",
+                    "expected": "",
+                    "operator": "!=",
+                    "message": "Error title should not be empty"
+                },
+                {
+                    "actual": "{{error_detail}}",
+                    "expected": "Missing Required Fields",
+                    "operator": "==",
+                    "message": "Error detail should indicate missing required fields"
+                }
+            ],
+            "data_comparison": []
+        },
+        "test_data_file": "",
+        "csv_row_index": 0,
+        "db_query_timing": "after_api",
+        "db_queries": {
+            "default": "",
+            "audit_query": ""
+        },
+        "db_type": "",
+        "db_connection_name": "",
+        "test_summary": "Verify 400 missing-required-fields when payee.nameLine1 is absent for Check railType in POST /instructions."
+    },
+    {
+        "test_id": "TC028",
+        "service_name": "movemoney",
+        "workflow_mode": "parallel",
+        "test_name": "POST /instructions [negative - missing payee.addressLine1 Check] (TC028)",
+        "protocol": "REST",
+        "test_type": [
+            "Functional"
+        ],
+        "mainURL": "{{base_url}}",
+        "endpoint": "/instructions",
+        "method": "POST",
+        "headers_additional": {
+            "Content-Type": "application/json"
+        },
+        "payload": {
+            "letterOfAuthorization": "Withdrawal",
+            "accountId": "789a1234-e89b-12d3-a456-426614174222",
+            "status": "Draft",
+            "holderRelationship": "ThirdParty",
+            "railType": "Check",
+            "changeState": "Active",
+            "payee": {
+                "nameLine1": "Robert Williams",
+                "city": "Austin",
+                "state": "TX",
+                "zip": "78701",
+                "country": "US"
+            }
+        },
+        "expected_status": "400",
+        "expected_response_schema": "",
+        "expected_response": {
+            "type": "missing-required-fields",
+            "title": "One or more fields are missing values",
+            "status": 400,
+            "detail": "Missing Required Fields",
+            "instance": "/api/moneymovement/v1/instructions",
+            "errors": {
+                "payee.addressLine1": [
+                    "This field is required."
+                ]
+            }
+        },
+        "ignore_fields": [
+            "id",
+            "traceId",
+            "timestamp",
+            "instance"
+        ],
+        "extract_values": [
+            {
+                "from": "response",
+                "key": "status",
+                "assign_to": "error_status"
+            },
+            {
+                "from": "response",
+                "key": "title",
+                "assign_to": "error_title"
+            },
+            {
+                "from": "response",
+                "key": "detail",
+                "assign_to": "error_detail"
+            }
+        ],
+        "validate": {
+            "performance": {
+                "max_response_time_ms": 500
+            },
+            "security": {
+                "checks": [
+                    "sql_injection",
+                    "xss"
+                ]
+            },
+            "assertions": [
+                {
+                    "actual": "{{error_status}}",
+                    "expected": 400,
+                    "operator": "==",
+                    "message": "Error status should be 400"
+                },
+                {
+                    "actual": "{{error_title}}",
+                    "expected": "",
+                    "operator": "!=",
+                    "message": "Error title should not be empty"
+                },
+                {
+                    "actual": "{{error_detail}}",
+                    "expected": "Missing Required Fields",
+                    "operator": "==",
+                    "message": "Error detail should indicate missing required fields"
+                }
+            ],
+            "data_comparison": []
+        },
+        "test_data_file": "",
+        "csv_row_index": 0,
+        "db_query_timing": "after_api",
+        "db_queries": {
+            "default": "",
+            "audit_query": ""
+        },
+        "db_type": "",
+        "db_connection_name": "",
+        "test_summary": "Verify 400 missing-required-fields when payee.addressLine1 is absent for Check railType in POST /instructions."
+    },
+    {
+        "test_id": "TC029",
+        "service_name": "movemoney",
+        "workflow_mode": "parallel",
+        "test_name": "POST /instructions [negative - missing payee.city Check] (TC029)",
+        "protocol": "REST",
+        "test_type": [
+            "Functional"
+        ],
+        "mainURL": "{{base_url}}",
+        "endpoint": "/instructions",
+        "method": "POST",
+        "headers_additional": {
+            "Content-Type": "application/json"
+        },
+        "payload": {
+            "letterOfAuthorization": "Withdrawal",
+            "accountId": "789a1234-e89b-12d3-a456-426614174222",
+            "status": "Draft",
+            "holderRelationship": "ThirdParty",
+            "railType": "Check",
+            "changeState": "Active",
+            "payee": {
+                "nameLine1": "Robert Williams",
+                "addressLine1": "4521 Oakwood Drive",
+                "state": "TX",
+                "zip": "78701",
+                "country": "US"
+            }
+        },
+        "expected_status": "400",
+        "expected_response_schema": "",
+        "expected_response": {
+            "type": "missing-required-fields",
+            "title": "One or more fields are missing values",
+            "status": 400,
+            "detail": "Missing Required Fields",
+            "instance": "/api/moneymovement/v1/instructions",
+            "errors": {
+                "payee.city": [
+                    "This field is required."
+                ]
+            }
+        },
+        "ignore_fields": [
+            "id",
+            "traceId",
+            "timestamp",
+            "instance"
+        ],
+        "extract_values": [
+            {
+                "from": "response",
+                "key": "status",
+                "assign_to": "error_status"
+            },
+            {
+                "from": "response",
+                "key": "title",
+                "assign_to": "error_title"
+            },
+            {
+                "from": "response",
+                "key": "detail",
+                "assign_to": "error_detail"
+            }
+        ],
+        "validate": {
+            "performance": {
+                "max_response_time_ms": 500
+            },
+            "security": {
+                "checks": [
+                    "sql_injection",
+                    "xss"
+                ]
+            },
+            "assertions": [
+                {
+                    "actual": "{{error_status}}",
+                    "expected": 400,
+                    "operator": "==",
+                    "message": "Error status should be 400"
+                },
+                {
+                    "actual": "{{error_title}}",
+                    "expected": "",
+                    "operator": "!=",
+                    "message": "Error title should not be empty"
+                },
+                {
+                    "actual": "{{error_detail}}",
+                    "expected": "Missing Required Fields",
+                    "operator": "==",
+                    "message": "Error detail should indicate missing required fields"
+                }
+            ],
+            "data_comparison": []
+        },
+        "test_data_file": "",
+        "csv_row_index": 0,
+        "db_query_timing": "after_api",
+        "db_queries": {
+            "default": "",
+            "audit_query": ""
+        },
+        "db_type": "",
+        "db_connection_name": "",
+        "test_summary": "Verify 400 missing-required-fields when payee.city is absent for Check railType in POST /instructions."
+    },
+    {
+        "test_id": "TC030",
+        "service_name": "movemoney",
+        "workflow_mode": "parallel",
+        "test_name": "POST /instructions [negative - missing payee.state Check] (TC030)",
+        "protocol": "REST",
+        "test_type": [
+            "Functional"
+        ],
+        "mainURL": "{{base_url}}",
+        "endpoint": "/instructions",
+        "method": "POST",
+        "headers_additional": {
+            "Content-Type": "application/json"
+        },
+        "payload": {
+            "letterOfAuthorization": "Withdrawal",
+            "accountId": "789a1234-e89b-12d3-a456-426614174222",
+            "status": "Draft",
+            "holderRelationship": "ThirdParty",
+            "railType": "Check",
+            "changeState": "Active",
+            "payee": {
+                "nameLine1": "Robert Williams",
+                "addressLine1": "4521 Oakwood Drive",
+                "city": "Austin",
+                "zip": "78701",
+                "country": "US"
+            }
+        },
+        "expected_status": "400",
+        "expected_response_schema": "",
+        "expected_response": {
+            "type": "missing-required-fields",
+            "title": "One or more fields are missing values",
+            "status": 400,
+            "detail": "Missing Required Fields",
+            "instance": "/api/moneymovement/v1/instructions",
+            "errors": {
+                "payee.state": [
+                    "This field is required."
+                ]
+            }
+        },
+        "ignore_fields": [
+            "id",
+            "traceId",
+            "timestamp",
+            "instance"
+        ],
+        "extract_values": [
+            {
+                "from": "response",
+                "key": "status",
+                "assign_to": "error_status"
+            },
+            {
+                "from": "response",
+                "key": "title",
+                "assign_to": "error_title"
+            },
+            {
+                "from": "response",
+                "key": "detail",
+                "assign_to": "error_detail"
+            }
+        ],
+        "validate": {
+            "performance": {
+                "max_response_time_ms": 500
+            },
+            "security": {
+                "checks": [
+                    "sql_injection",
+                    "xss"
+                ]
+            },
+            "assertions": [
+                {
+                    "actual": "{{error_status}}",
+                    "expected": 400,
+                    "operator": "==",
+                    "message": "Error status should be 400"
+                },
+                {
+                    "actual": "{{error_title}}",
+                    "expected": "",
+                    "operator": "!=",
+                    "message": "Error title should not be empty"
+                },
+                {
+                    "actual": "{{error_detail}}",
+                    "expected": "Missing Required Fields",
+                    "operator": "==",
+                    "message": "Error detail should indicate missing required fields"
+                }
+            ],
+            "data_comparison": []
+        },
+        "test_data_file": "",
+        "csv_row_index": 0,
+        "db_query_timing": "after_api",
+        "db_queries": {
+            "default": "",
+            "audit_query": ""
+        },
+        "db_type": "",
+        "db_connection_name": "",
+        "test_summary": "Verify 400 missing-required-fields when payee.state is absent for Check railType in POST /instructions."
+    },
+    {
+        "test_id": "TC031",
+        "service_name": "movemoney",
+        "workflow_mode": "parallel",
+        "test_name": "POST /instructions [negative - missing payee.zip Check] (TC031)",
+        "protocol": "REST",
+        "test_type": [
+            "Functional"
+        ],
+        "mainURL": "{{base_url}}",
+        "endpoint": "/instructions",
+        "method": "POST",
+        "headers_additional": {
+            "Content-Type": "application/json"
+        },
+        "payload": {
+            "letterOfAuthorization": "Withdrawal",
+            "accountId": "789a1234-e89b-12d3-a456-426614174222",
+            "status": "Draft",
+            "holderRelationship": "ThirdParty",
+            "railType": "Check",
+            "changeState": "Active",
+            "payee": {
+                "nameLine1": "Robert Williams",
+                "addressLine1": "4521 Oakwood Drive",
+                "city": "Austin",
+                "state": "TX",
+                "country": "US"
+            }
+        },
+        "expected_status": "400",
+        "expected_response_schema": "",
+        "expected_response": {
+            "type": "missing-required-fields",
+            "title": "One or more fields are missing values",
+            "status": 400,
+            "detail": "Missing Required Fields",
+            "instance": "/api/moneymovement/v1/instructions",
+            "errors": {
+                "payee.zip": [
+                    "This field is required."
+                ]
+            }
+        },
+        "ignore_fields": [
+            "id",
+            "traceId",
+            "timestamp",
+            "instance"
+        ],
+        "extract_values": [
+            {
+                "from": "response",
+                "key": "status",
+                "assign_to": "error_status"
+            },
+            {
+                "from": "response",
+                "key": "title",
+                "assign_to": "error_title"
+            },
+            {
+                "from": "response",
+                "key": "detail",
+                "assign_to": "error_detail"
+            }
+        ],
+        "validate": {
+            "performance": {
+                "max_response_time_ms": 500
+            },
+            "security": {
+                "checks": [
+                    "sql_injection",
+                    "xss"
+                ]
+            },
+            "assertions": [
+                {
+                    "actual": "{{error_status}}",
+                    "expected": 400,
+                    "operator": "==",
+                    "message": "Error status should be 400"
+                },
+                {
+                    "actual": "{{error_title}}",
+                    "expected": "",
+                    "operator": "!=",
+                    "message": "Error title should not be empty"
+                },
+                {
+                    "actual": "{{error_detail}}",
+                    "expected": "Missing Required Fields",
+                    "operator": "==",
+                    "message": "Error detail should indicate missing required fields"
+                }
+            ],
+            "data_comparison": []
+        },
+        "test_data_file": "",
+        "csv_row_index": 0,
+        "db_query_timing": "after_api",
+        "db_queries": {
+            "default": "",
+            "audit_query": ""
+        },
+        "db_type": "",
+        "db_connection_name": "",
+        "test_summary": "Verify 400 missing-required-fields when payee.zip is absent for Check railType in POST /instructions."
+    },
+    {
+        "test_id": "TC032",
+        "service_name": "movemoney",
+        "workflow_mode": "parallel",
+        "test_name": "POST /instructions [negative - missing payee.country Check] (TC032)",
+        "protocol": "REST",
+        "test_type": [
+            "Functional"
+        ],
+        "mainURL": "{{base_url}}",
+        "endpoint": "/instructions",
+        "method": "POST",
+        "headers_additional": {
+            "Content-Type": "application/json"
+        },
+        "payload": {
+            "letterOfAuthorization": "Withdrawal",
+            "accountId": "789a1234-e89b-12d3-a456-426614174222",
+            "status": "Draft",
+            "holderRelationship": "ThirdParty",
+            "railType": "Check",
+            "changeState": "Active",
+            "payee": {
+                "nameLine1": "Robert Williams",
+                "addressLine1": "4521 Oakwood Drive",
+                "city": "Austin",
+                "state": "TX",
+                "zip": "78701"
+            }
+        },
+        "expected_status": "400",
+        "expected_response_schema": "",
+        "expected_response": {
+            "type": "missing-required-fields",
+            "title": "One or more fields are missing values",
+            "status": 400,
+            "detail": "Missing Required Fields",
+            "instance": "/api/moneymovement/v1/instructions",
+            "errors": {
+                "payee.country": [
+                    "This field is required."
+                ]
+            }
+        },
+        "ignore_fields": [
+            "id",
+            "traceId",
+            "timestamp",
+            "instance"
+        ],
+        "extract_values": [
+            {
+                "from": "response",
+                "key": "status",
+                "assign_to": "error_status"
+            },
+            {
+                "from": "response",
+                "key": "title",
+                "assign_to": "error_title"
+            },
+            {
+                "from": "response",
+                "key": "detail",
+                "assign_to": "error_detail"
+            }
+        ],
+        "validate": {
+            "performance": {
+                "max_response_time_ms": 500
+            },
+            "security": {
+                "checks": [
+                    "sql_injection",
+                    "xss"
+                ]
+            },
+            "assertions": [
+                {
+                    "actual": "{{error_status}}",
+                    "expected": 400,
+                    "operator": "==",
+                    "message": "Error status should be 400"
+                },
+                {
+                    "actual": "{{error_title}}",
+                    "expected": "",
+                    "operator": "!=",
+                    "message": "Error title should not be empty"
+                },
+                {
+                    "actual": "{{error_detail}}",
+                    "expected": "Missing Required Fields",
+                    "operator": "==",
+                    "message": "Error detail should indicate missing required fields"
+                }
+            ],
+            "data_comparison": []
+        },
+        "test_data_file": "",
+        "csv_row_index": 0,
+        "db_query_timing": "after_api",
+        "db_queries": {
+            "default": "",
+            "audit_query": ""
+        },
+        "db_type": "",
+        "db_connection_name": "",
+        "test_summary": "Verify 400 missing-required-fields when payee.country is absent for Check railType in POST /instructions."
+    },
+    {
+        "test_id": "TC033",
+        "service_name": "movemoney",
+        "workflow_mode": "parallel",
+        "test_name": "POST /instructions [negative - invalid accountId UUID format] (TC033)",
+        "protocol": "REST",
+        "test_type": [
+            "Functional"
+        ],
+        "mainURL": "{{base_url}}",
+        "endpoint": "/instructions",
+        "method": "POST",
+        "headers_additional": {
+            "Content-Type": "application/json"
+        },
+        "payload": {
+            "letterOfAuthorization": "Deposit",
+            "accountId": "not-a-valid-uuid-format",
+            "status": "Draft",
+            "holderRelationship": "FirstParty",
+            "railType": "ACH",
+            "changeState": "Active",
+            "bank": {
+                "routingNumber": "121000248",
+                "bankAccountNumber": "1234567890",
+                "bankAccountName": "John Smith",
+                "bankAccountType": "Checking",
+                "bankName": "Bank of America"
+            }
+        },
+        "expected_status": "400",
+        "expected_response_schema": "",
+        "expected_response": {
+            "type": "invalid-request",
+            "title": "Invalid Request",
+            "status": 400,
+            "detail": "The request contains invalid values",
+            "instance": "/api/moneymovement/v1/instructions",
+            "errors": {
+                "accountId": [
+                    "Must be a valid UUID format."
+                ]
+            }
+        },
+        "ignore_fields": [
+            "id",
+            "traceId",
+            "timestamp",
+            "instance"
+        ],
+        "extract_values": [
+            {
+                "from": "response",
+                "key": "status",
+                "assign_to": "error_status"
+            },
+            {
+                "from": "response",
+                "key": "title",
+                "assign_to": "error_title"
+            },
+            {
+                "from": "response",
+                "key": "detail",
+                "assign_to": "error_detail"
+            }
+        ],
+        "validate": {
+            "performance": {
+                "max_response_time_ms": 500
+            },
+            "security": {
+                "checks": [
+                    "sql_injection",
+                    "xss"
+                ]
+            },
+            "assertions": [
+                {
+                    "actual": "{{error_status}}",
+                    "expected": 400,
+                    "operator": "==",
+                    "message": "Error status should be 400"
+                },
+                {
+                    "actual": "{{error_title}}",
+                    "expected": "",
+                    "operator": "!=",
+                    "message": "Error title should not be empty"
+                },
+                {
+                    "actual": "{{error_detail}}",
+                    "expected": "The request contains invalid values",
+                    "operator": "==",
+                    "message": "Error detail should indicate invalid request"
+                }
+            ],
+            "data_comparison": []
+        },
+        "test_data_file": "",
+        "csv_row_index": 0,
+        "db_query_timing": "after_api",
+        "db_queries": {
+            "default": "",
+            "audit_query": ""
+        },
+        "db_type": "",
+        "db_connection_name": "",
+        "test_summary": "Verify 400 invalid-request when accountId is not a valid UUID format in POST /instructions."
+    },
+    {
+        "test_id": "TC034",
+        "service_name": "movemoney",
+        "workflow_mode": "parallel",
+        "test_name": "POST /instructions [negative - invalid status enum] (TC034)",
+        "protocol": "REST",
+        "test_type": [
+            "Functional"
+        ],
+        "mainURL": "{{base_url}}",
+        "endpoint": "/instructions",
+        "method": "POST",
+        "headers_additional": {
+            "Content-Type": "application/json"
+        },
+        "payload": {
+            "letterOfAuthorization": "Deposit",
+            "accountId": "123e4567-e89b-12d3-a456-426614174000",
+            "status": "INVALID_STATUS",
+            "holderRelationship": "FirstParty",
+            "railType": "ACH",
+            "changeState": "Active",
+            "bank": {
+                "routingNumber": "121000248",
+                "bankAccountNumber": "1234567890",
+                "bankAccountName": "John Smith",
+                "bankAccountType": "Checking",
+                "bankName": "Bank of America"
+            }
+        },
+        "expected_status": "400",
+        "expected_response_schema": "",
+        "expected_response": {
+            "type": "invalid-request",
+            "title": "Invalid Request",
+            "status": 400,
+            "detail": "The request contains invalid values",
+            "instance": "/api/moneymovement/v1/instructions",
+            "errors": {
+                "status": [
+                    "Must be one of: Draft, Pending, Confirmed, Deleted."
+                ]
+            }
+        },
+        "ignore_fields": [
+            "id",
+            "traceId",
+            "timestamp",
+            "instance"
+        ],
+        "extract_values": [
+            {
+                "from": "response",
+                "key": "status",
+                "assign_to": "error_status"
+            },
+            {
+                "from": "response",
+                "key": "title",
+                "assign_to": "error_title"
+            },
+            {
+                "from": "response",
+                "key": "detail",
+                "assign_to": "error_detail"
+            }
+        ],
+        "validate": {
+            "performance": {
+                "max_response_time_ms": 500
+            },
+            "security": {
+                "checks": [
+                    "sql_injection",
+                    "xss"
+                ]
+            },
+            "assertions": [
+                {
+                    "actual": "{{error_status}}",
+                    "expected": 400,
+                    "operator": "==",
+                    "message": "Error status should be 400"
+                },
+                {
+                    "actual": "{{error_title}}",
+                    "expected": "",
+                    "operator": "!=",
+                    "message": "Error title should not be empty"
+                },
+                {
+                    "actual": "{{error_detail}}",
+                    "expected": "The request contains invalid values",
+                    "operator": "==",
+                    "message": "Error detail should indicate invalid request"
+                }
+            ],
+            "data_comparison": []
+        },
+        "test_data_file": "",
+        "csv_row_index": 0,
+        "db_query_timing": "after_api",
+        "db_queries": {
+            "default": "",
+            "audit_query": ""
+        },
+        "db_type": "",
+        "db_connection_name": "",
+        "test_summary": "Verify 400 invalid-request when status value is not in allowed enum [Draft, Pending, Confirmed, Deleted] in POST /instructions."
+    },
+    {
+        "test_id": "TC035",
+        "service_name": "movemoney",
+        "workflow_mode": "parallel",
+        "test_name": "POST /instructions [negative - invalid letterOfAuthorization enum] (TC035)",
+        "protocol": "REST",
+        "test_type": [
+            "Functional"
+        ],
+        "mainURL": "{{base_url}}",
+        "endpoint": "/instructions",
+        "method": "POST",
+        "headers_additional": {
+            "Content-Type": "application/json"
+        },
+        "payload": {
+            "letterOfAuthorization": "INVALID_LOA",
+            "accountId": "123e4567-e89b-12d3-a456-426614174000",
+            "status": "Draft",
+            "holderRelationship": "FirstParty",
+            "railType": "ACH",
+            "changeState": "Active",
+            "bank": {
+                "routingNumber": "121000248",
+                "bankAccountNumber": "1234567890",
+                "bankAccountName": "John Smith",
+                "bankAccountType": "Checking",
+                "bankName": "Bank of America"
+            }
+        },
+        "expected_status": "400",
+        "expected_response_schema": "",
+        "expected_response": {
+            "type": "invalid-request",
+            "title": "Invalid Request",
+            "status": 400,
+            "detail": "The request contains invalid values",
+            "instance": "/api/moneymovement/v1/instructions",
+            "errors": {
+                "letterOfAuthorization": [
+                    "Must be one of: Deposit, Withdrawal, Both, None."
+                ]
+            }
+        },
+        "ignore_fields": [
+            "id",
+            "traceId",
+            "timestamp",
+            "instance"
+        ],
+        "extract_values": [
+            {
+                "from": "response",
+                "key": "status",
+                "assign_to": "error_status"
+            },
+            {
+                "from": "response",
+                "key": "title",
+                "assign_to": "error_title"
+            },
+            {
+                "from": "response",
+                "key": "detail",
+                "assign_to": "error_detail"
+            }
+        ],
+        "validate": {
+            "performance": {
+                "max_response_time_ms": 500
+            },
+            "security": {
+                "checks": [
+                    "sql_injection",
+                    "xss"
+                ]
+            },
+            "assertions": [
+                {
+                    "actual": "{{error_status}}",
+                    "expected": 400,
+                    "operator": "==",
+                    "message": "Error status should be 400"
+                },
+                {
+                    "actual": "{{error_title}}",
+                    "expected": "",
+                    "operator": "!=",
+                    "message": "Error title should not be empty"
+                },
+                {
+                    "actual": "{{error_detail}}",
+                    "expected": "The request contains invalid values",
+                    "operator": "==",
+                    "message": "Error detail should indicate invalid request"
+                }
+            ],
+            "data_comparison": []
+        },
+        "test_data_file": "",
+        "csv_row_index": 0,
+        "db_query_timing": "after_api",
+        "db_queries": {
+            "default": "",
+            "audit_query": ""
+        },
+        "db_type": "",
+        "db_connection_name": "",
+        "test_summary": "Verify 400 invalid-request when letterOfAuthorization value is not in allowed enum [Deposit, Withdrawal, Both, None] in POST /instructions."
+    },
+    {
+        "test_id": "TC036",
+        "service_name": "movemoney",
+        "workflow_mode": "parallel",
+        "test_name": "POST /instructions [negative - invalid changeState enum] (TC036)",
+        "protocol": "REST",
+        "test_type": [
+            "Functional"
+        ],
+        "mainURL": "{{base_url}}",
+        "endpoint": "/instructions",
+        "method": "POST",
+        "headers_additional": {
+            "Content-Type": "application/json"
+        },
+        "payload": {
+            "letterOfAuthorization": "Deposit",
+            "accountId": "123e4567-e89b-12d3-a456-426614174000",
+            "status": "Draft",
+            "holderRelationship": "FirstParty",
+            "railType": "ACH",
+            "changeState": "INVALID_STATE",
+            "bank": {
+                "routingNumber": "121000248",
+                "bankAccountNumber": "1234567890",
+                "bankAccountName": "John Smith",
+                "bankAccountType": "Checking",
+                "bankName": "Bank of America"
+            }
+        },
+        "expected_status": "400",
+        "expected_response_schema": "",
+        "expected_response": {
+            "type": "invalid-request",
+            "title": "Invalid Request",
+            "status": 400,
+            "detail": "The request contains invalid values",
+            "instance": "/api/moneymovement/v1/instructions",
+            "errors": {
+                "changeState": [
+                    "Must be one of: Active, Inactive."
+                ]
+            }
+        },
+        "ignore_fields": [
+            "id",
+            "traceId",
+            "timestamp",
+            "instance"
+        ],
+        "extract_values": [
+            {
+                "from": "response",
+                "key": "status",
+                "assign_to": "error_status"
+            },
+            {
+                "from": "response",
+                "key": "title",
+                "assign_to": "error_title"
+            },
+            {
+                "from": "response",
+                "key": "detail",
+                "assign_to": "error_detail"
+            }
+        ],
+        "validate": {
+            "performance": {
+                "max_response_time_ms": 500
+            },
+            "security": {
+                "checks": [
+                    "sql_injection",
+                    "xss"
+                ]
+            },
+            "assertions": [
+                {
+                    "actual": "{{error_status}}",
+                    "expected": 400,
+                    "operator": "==",
+                    "message": "Error status should be 400"
+                },
+                {
+                    "actual": "{{error_title}}",
+                    "expected": "",
+                    "operator": "!=",
+                    "message": "Error title should not be empty"
+                },
+                {
+                    "actual": "{{error_detail}}",
+                    "expected": "The request contains invalid values",
+                    "operator": "==",
+                    "message": "Error detail should indicate invalid request"
+                }
+            ],
+            "data_comparison": []
+        },
+        "test_data_file": "",
+        "csv_row_index": 0,
+        "db_query_timing": "after_api",
+        "db_queries": {
+            "default": "",
+            "audit_query": ""
+        },
+        "db_type": "",
+        "db_connection_name": "",
+        "test_summary": "Verify 400 invalid-request when changeState value is not in allowed enum [Active, Inactive] in POST /instructions."
+    },
+    {
+        "test_id": "TC037",
+        "service_name": "movemoney",
+        "workflow_mode": "parallel",
+        "test_name": "POST /instructions [negative - invalid holderRelationship enum] (TC037)",
+        "protocol": "REST",
+        "test_type": [
+            "Functional"
+        ],
+        "mainURL": "{{base_url}}",
+        "endpoint": "/instructions",
+        "method": "POST",
+        "headers_additional": {
+            "Content-Type": "application/json"
+        },
+        "payload": {
+            "letterOfAuthorization": "Deposit",
+            "accountId": "123e4567-e89b-12d3-a456-426614174000",
+            "status": "Draft",
+            "holderRelationship": "INVALID_RELATIONSHIP",
+            "railType": "ACH",
+            "changeState": "Active",
+            "bank": {
+                "routingNumber": "121000248",
+                "bankAccountNumber": "1234567890",
+                "bankAccountName": "John Smith",
+                "bankAccountType": "Checking",
+                "bankName": "Bank of America"
+            }
+        },
+        "expected_status": "400",
+        "expected_response_schema": "",
+        "expected_response": {
+            "type": "invalid-request",
+            "title": "Invalid Request",
+            "status": 400,
+            "detail": "The request contains invalid values",
+            "instance": "/api/moneymovement/v1/instructions",
+            "errors": {
+                "holderRelationship": [
+                    "Must be one of: First Party, Third Party."
+                ]
+            }
+        },
+        "ignore_fields": [
+            "id",
+            "traceId",
+            "timestamp",
+            "instance"
+        ],
+        "extract_values": [
+            {
+                "from": "response",
+                "key": "status",
+                "assign_to": "error_status"
+            },
+            {
+                "from": "response",
+                "key": "title",
+                "assign_to": "error_title"
+            },
+            {
+                "from": "response",
+                "key": "detail",
+                "assign_to": "error_detail"
+            }
+        ],
+        "validate": {
+            "performance": {
+                "max_response_time_ms": 500
+            },
+            "security": {
+                "checks": [
+                    "sql_injection",
+                    "xss"
+                ]
+            },
+            "assertions": [
+                {
+                    "actual": "{{error_status}}",
+                    "expected": 400,
+                    "operator": "==",
+                    "message": "Error status should be 400"
+                },
+                {
+                    "actual": "{{error_title}}",
+                    "expected": "",
+                    "operator": "!=",
+                    "message": "Error title should not be empty"
+                },
+                {
+                    "actual": "{{error_detail}}",
+                    "expected": "The request contains invalid values",
+                    "operator": "==",
+                    "message": "Error detail should indicate invalid request"
+                }
+            ],
+            "data_comparison": []
+        },
+        "test_data_file": "",
+        "csv_row_index": 0,
+        "db_query_timing": "after_api",
+        "db_queries": {
+            "default": "",
+            "audit_query": ""
+        },
+        "db_type": "",
+        "db_connection_name": "",
+        "test_summary": "Verify 400 invalid-request when holderRelationship value is not in allowed enum [First Party, Third Party] in POST /instructions."
+    },
+    {
+        "test_id": "TC038",
+        "service_name": "movemoney",
+        "workflow_mode": "parallel",
+        "test_name": "POST /instructions [negative - invalid railType enum] (TC038)",
+        "protocol": "REST",
+        "test_type": [
+            "Functional"
+        ],
+        "mainURL": "{{base_url}}",
+        "endpoint": "/instructions",
+        "method": "POST",
+        "headers_additional": {
+            "Content-Type": "application/json"
+        },
+        "payload": {
+            "letterOfAuthorization": "Deposit",
+            "accountId": "123e4567-e89b-12d3-a456-426614174000",
+            "status": "Draft",
+            "holderRelationship": "FirstParty",
+            "railType": "INVALID_RAIL",
+            "changeState": "Active",
+            "bank": {
+                "routingNumber": "121000248",
+                "bankAccountNumber": "1234567890",
+                "bankAccountName": "John Smith",
+                "bankAccountType": "Checking",
+                "bankName": "Bank of America"
+            }
+        },
+        "expected_status": "400",
+        "expected_response_schema": "",
+        "expected_response": {
+            "type": "invalid-request",
+            "title": "Invalid Request",
+            "status": 400,
+            "detail": "The request contains invalid values",
+            "instance": "/api/moneymovement/v1/instructions",
+            "errors": {
+                "railType": [
+                    "Must be one of: ACH, Wire, Check."
+                ]
+            }
+        },
+        "ignore_fields": [
+            "id",
+            "traceId",
+            "timestamp",
+            "instance"
+        ],
+        "extract_values": [
+            {
+                "from": "response",
+                "key": "status",
+                "assign_to": "error_status"
+            },
+            {
+                "from": "response",
+                "key": "title",
+                "assign_to": "error_title"
+            },
+            {
+                "from": "response",
+                "key": "detail",
+                "assign_to": "error_detail"
+            }
+        ],
+        "validate": {
+            "performance": {
+                "max_response_time_ms": 500
+            },
+            "security": {
+                "checks": [
+                    "sql_injection",
+                    "xss"
+                ]
+            },
+            "assertions": [
+                {
+                    "actual": "{{error_status}}",
+                    "expected": 400,
+                    "operator": "==",
+                    "message": "Error status should be 400"
+                },
+                {
+                    "actual": "{{error_title}}",
+                    "expected": "",
+                    "operator": "!=",
+                    "message": "Error title should not be empty"
+                },
+                {
+                    "actual": "{{error_detail}}",
+                    "expected": "The request contains invalid values",
+                    "operator": "==",
+                    "message": "Error detail should indicate invalid request"
+                }
+            ],
+            "data_comparison": []
+        },
+        "test_data_file": "",
+        "csv_row_index": 0,
+        "db_query_timing": "after_api",
+        "db_queries": {
+            "default": "",
+            "audit_query": ""
+        },
+        "db_type": "",
+        "db_connection_name": "",
+        "test_summary": "Verify 400 invalid-request when railType value is not in allowed enum [ACH, Wire, Check] in POST /instructions."
+    },
+    {
+        "test_id": "TC039",
+        "service_name": "movemoney",
+        "workflow_mode": "parallel",
+        "test_name": "POST /instructions [negative - invalid bank.routingNumber ACH not 9 digits] (TC039)",
+        "protocol": "REST",
+        "test_type": [
+            "Functional"
+        ],
+        "mainURL": "{{base_url}}",
+        "endpoint": "/instructions",
+        "method": "POST",
+        "headers_additional": {
+            "Content-Type": "application/json"
+        },
+        "payload": {
+            "letterOfAuthorization": "Deposit",
+            "accountId": "123e4567-e89b-12d3-a456-426614174000",
+            "status": "Draft",
+            "holderRelationship": "FirstParty",
+            "railType": "ACH",
+            "changeState": "Active",
+            "bank": {
+                "routingNumber": "12345",
+                "bankAccountNumber": "1234567890",
+                "bankAccountName": "John Smith",
+                "bankAccountType": "Checking",
+                "bankName": "Bank of America"
+            }
+        },
+        "expected_status": "400",
+        "expected_response_schema": "",
+        "expected_response": {
+            "type": "invalid-request",
+            "title": "Invalid Request",
+            "status": 400,
+            "detail": "The request contains invalid values",
+            "instance": "/api/moneymovement/v1/instructions",
+            "errors": {
+                "bank.routingNumber": [
+                    "Must be exactly 9 digits."
+                ]
+            }
+        },
+        "ignore_fields": [
+            "id",
+            "traceId",
+            "timestamp",
+            "instance"
+        ],
+        "extract_values": [
+            {
+                "from": "response",
+                "key": "status",
+                "assign_to": "error_status"
+            },
+            {
+                "from": "response",
+                "key": "title",
+                "assign_to": "error_title"
+            },
+            {
+                "from": "response",
+                "key": "detail",
+                "assign_to": "error_detail"
+            }
+        ],
+        "validate": {
+            "performance": {
+                "max_response_time_ms": 500
+            },
+            "security": {
+                "checks": [
+                    "sql_injection",
+                    "xss"
+                ]
+            },
+            "assertions": [
+                {
+                    "actual": "{{error_status}}",
+                    "expected": 400,
+                    "operator": "==",
+                    "message": "Error status should be 400"
+                },
+                {
+                    "actual": "{{error_title}}",
+                    "expected": "",
+                    "operator": "!=",
+                    "message": "Error title should not be empty"
+                },
+                {
+                    "actual": "{{error_detail}}",
+                    "expected": "The request contains invalid values",
+                    "operator": "==",
+                    "message": "Error detail should indicate invalid request"
+                }
+            ],
+            "data_comparison": []
+        },
+        "test_data_file": "",
+        "csv_row_index": 0,
+        "db_query_timing": "after_api",
+        "db_queries": {
+            "default": "",
+            "audit_query": ""
+        },
+        "db_type": "",
+        "db_connection_name": "",
+        "test_summary": "Verify 400 invalid-request when bank.routingNumber is not exactly 9 digits for ACH railType in POST /instructions."
+    },
+    {
+        "test_id": "TC040",
+        "service_name": "movemoney",
+        "workflow_mode": "parallel",
+        "test_name": "POST /instructions [negative - invalid bank.bankAccountType ACH enum] (TC040)",
+        "protocol": "REST",
+        "test_type": [
+            "Functional"
+        ],
+        "mainURL": "{{base_url}}",
+        "endpoint": "/instructions",
+        "method": "POST",
+        "headers_additional": {
+            "Content-Type": "application/json"
+        },
+        "payload": {
+            "letterOfAuthorization": "Deposit",
+            "accountId": "123e4567-e89b-12d3-a456-426614174000",
+            "status": "Draft",
+            "holderRelationship": "FirstParty",
+            "railType": "ACH",
+            "changeState": "Active",
+            "bank": {
+                "routingNumber": "121000248",
+                "bankAccountNumber": "1234567890",
+                "bankAccountName": "John Smith",
+                "bankAccountType": "Investment",
+                "bankName": "Bank of America"
+            }
+        },
+        "expected_status": "400",
+        "expected_response_schema": "",
+        "expected_response": {
+            "type": "invalid-request",
+            "title": "Invalid Request",
+            "status": 400,
+            "detail": "The request contains invalid values",
+            "instance": "/api/moneymovement/v1/instructions",
+            "errors": {
+                "bank.bankAccountType": [
+                    "Must be one of: Checking, Savings."
+                ]
+            }
+        },
+        "ignore_fields": [
+            "id",
+            "traceId",
+            "timestamp",
+            "instance"
+        ],
+        "extract_values": [
+            {
+                "from": "response",
+                "key": "status",
+                "assign_to": "error_status"
+            },
+            {
+                "from": "response",
+                "key": "title",
+                "assign_to": "error_title"
+            },
+            {
+                "from": "response",
+                "key": "detail",
+                "assign_to": "error_detail"
+            }
+        ],
+        "validate": {
+            "performance": {
+                "max_response_time_ms": 500
+            },
+            "security": {
+                "checks": [
+                    "sql_injection",
+                    "xss"
+                ]
+            },
+            "assertions": [
+                {
+                    "actual": "{{error_status}}",
+                    "expected": 400,
+                    "operator": "==",
+                    "message": "Error status should be 400"
+                },
+                {
+                    "actual": "{{error_title}}",
+                    "expected": "",
+                    "operator": "!=",
+                    "message": "Error title should not be empty"
+                },
+                {
+                    "actual": "{{error_detail}}",
+                    "expected": "The request contains invalid values",
+                    "operator": "==",
+                    "message": "Error detail should indicate invalid request"
+                }
+            ],
+            "data_comparison": []
+        },
+        "test_data_file": "",
+        "csv_row_index": 0,
+        "db_query_timing": "after_api",
+        "db_queries": {
+            "default": "",
+            "audit_query": ""
+        },
+        "db_type": "",
+        "db_connection_name": "",
+        "test_summary": "Verify 400 invalid-request when bank.bankAccountType value is not in allowed enum [Checking, Savings] for ACH railType in POST /instructions."
+    },
+    {
+        "test_id": "TC041",
+        "service_name": "movemoney",
+        "workflow_mode": "parallel",
+        "test_name": "POST /instructions [negative - invalid bank.routingNumber Wire not 9 digits] (TC041)",
+        "protocol": "REST",
+        "test_type": [
+            "Functional"
+        ],
+        "mainURL": "{{base_url}}",
+        "endpoint": "/instructions",
+        "method": "POST",
+        "headers_additional": {
+            "Content-Type": "application/json"
+        },
+        "payload": {
+            "letterOfAuthorization": "Withdrawal",
+            "accountId": "789a1234-e89b-12d3-a456-426614174222",
+            "status": "Draft",
+            "holderRelationship": "FirstParty",
+            "railType": "Wire",
+            "changeState": "Active",
+            "bank": {
+                "routingNumber": "12345",
+                "bankAccountNumber": "1234567890",
+                "bankAccountName": "John Smith",
+                "bankAccountType": "Checking",
+                "bankName": "Wells Fargo Bank"
+            }
+        },
+        "expected_status": "400",
+        "expected_response_schema": "",
+        "expected_response": {
+            "type": "invalid-request",
+            "title": "Invalid Request",
+            "status": 400,
+            "detail": "The request contains invalid values",
+            "instance": "/api/moneymovement/v1/instructions",
+            "errors": {
+                "bank.routingNumber": [
+                    "Must be exactly 9 digits."
+                ]
+            }
+        },
+        "ignore_fields": [
+            "id",
+            "traceId",
+            "timestamp",
+            "instance"
+        ],
+        "extract_values": [
+            {
+                "from": "response",
+                "key": "status",
+                "assign_to": "error_status"
+            },
+            {
+                "from": "response",
+                "key": "title",
+                "assign_to": "error_title"
+            },
+            {
+                "from": "response",
+                "key": "detail",
+                "assign_to": "error_detail"
+            }
+        ],
+        "validate": {
+            "performance": {
+                "max_response_time_ms": 500
+            },
+            "security": {
+                "checks": [
+                    "sql_injection",
+                    "xss"
+                ]
+            },
+            "assertions": [
+                {
+                    "actual": "{{error_status}}",
+                    "expected": 400,
+                    "operator": "==",
+                    "message": "Error status should be 400"
+                },
+                {
+                    "actual": "{{error_title}}",
+                    "expected": "",
+                    "operator": "!=",
+                    "message": "Error title should not be empty"
+                },
+                {
+                    "actual": "{{error_detail}}",
+                    "expected": "The request contains invalid values",
+                    "operator": "==",
+                    "message": "Error detail should indicate invalid request"
+                }
+            ],
+            "data_comparison": []
+        },
+        "test_data_file": "",
+        "csv_row_index": 0,
+        "db_query_timing": "after_api",
+        "db_queries": {
+            "default": "",
+            "audit_query": ""
+        },
+        "db_type": "",
+        "db_connection_name": "",
+        "test_summary": "Verify 400 invalid-request when bank.routingNumber is not exactly 9 digits for Wire railType in POST /instructions."
+    },
+    {
+        "test_id": "TC042",
+        "service_name": "movemoney",
+        "workflow_mode": "parallel",
+        "test_name": "POST /instructions [negative - invalid payee.zip format Check] (TC042)",
+        "protocol": "REST",
+        "test_type": [
+            "Functional"
+        ],
+        "mainURL": "{{base_url}}",
+        "endpoint": "/instructions",
+        "method": "POST",
+        "headers_additional": {
+            "Content-Type": "application/json"
+        },
+        "payload": {
+            "letterOfAuthorization": "Withdrawal",
+            "accountId": "789a1234-e89b-12d3-a456-426614174222",
+            "status": "Draft",
+            "holderRelationship": "ThirdParty",
+            "railType": "Check",
+            "changeState": "Active",
+            "payee": {
+                "nameLine1": "Robert Williams",
+                "addressLine1": "4521 Oakwood Drive",
+                "city": "Austin",
+                "state": "TX",
+                "zip": "7870",
+                "country": "US"
+            }
+        },
+        "expected_status": "400",
+        "expected_response_schema": "",
+        "expected_response": {
+            "type": "invalid-request",
+            "title": "Invalid Request",
+            "status": 400,
+            "detail": "The request contains invalid values",
+            "instance": "/api/moneymovement/v1/instructions",
+            "errors": {
+                "payee.zip": [
+                    "Must be a 5-digit ZIP code."
+                ]
+            }
+        },
+        "ignore_fields": [
+            "id",
+            "traceId",
+            "timestamp",
+            "instance"
+        ],
+        "extract_values": [
+            {
+                "from": "response",
+                "key": "status",
+                "assign_to": "error_status"
+            },
+            {
+                "from": "response",
+                "key": "title",
+                "assign_to": "error_title"
+            },
+            {
+                "from": "response",
+                "key": "detail",
+                "assign_to": "error_detail"
+            }
+        ],
+        "validate": {
+            "performance": {
+                "max_response_time_ms": 500
+            },
+            "security": {
+                "checks": [
+                    "sql_injection",
+                    "xss"
+                ]
+            },
+            "assertions": [
+                {
+                    "actual": "{{error_status}}",
+                    "expected": 400,
+                    "operator": "==",
+                    "message": "Error status should be 400"
+                },
+                {
+                    "actual": "{{error_title}}",
+                    "expected": "",
+                    "operator": "!=",
+                    "message": "Error title should not be empty"
+                },
+                {
+                    "actual": "{{error_detail}}",
+                    "expected": "The request contains invalid values",
+                    "operator": "==",
+                    "message": "Error detail should indicate invalid request"
+                }
+            ],
+            "data_comparison": []
+        },
+        "test_data_file": "",
+        "csv_row_index": 0,
+        "db_query_timing": "after_api",
+        "db_queries": {
+            "default": "",
+            "audit_query": ""
+        },
+        "db_type": "",
+        "db_connection_name": "",
+        "test_summary": "Verify 400 invalid-request when payee.zip does not match 5-digit format for Check railType in POST /instructions."
+    },
+    {
+        "test_id": "TC043",
+        "service_name": "movemoney",
+        "workflow_mode": "parallel",
+        "test_name": "POST /instructions [negative - invalid payee.zipExtension format Check] (TC043)",
+        "protocol": "REST",
+        "test_type": [
+            "Functional"
+        ],
+        "mainURL": "{{base_url}}",
+        "endpoint": "/instructions",
+        "method": "POST",
+        "headers_additional": {
+            "Content-Type": "application/json"
+        },
+        "payload": {
+            "letterOfAuthorization": "Withdrawal",
+            "accountId": "789a1234-e89b-12d3-a456-426614174222",
+            "status": "Draft",
+            "holderRelationship": "ThirdParty",
+            "railType": "Check",
+            "changeState": "Active",
+            "payee": {
+                "nameLine1": "Robert Williams",
+                "addressLine1": "4521 Oakwood Drive",
+                "city": "Austin",
+                "state": "TX",
+                "zip": "78701",
+                "zipExtension": "43",
+                "country": "US"
+            }
+        },
+        "expected_status": "400",
+        "expected_response_schema": "",
+        "expected_response": {
+            "type": "invalid-request",
+            "title": "Invalid Request",
+            "status": 400,
+            "detail": "The request contains invalid values",
+            "instance": "/api/moneymovement/v1/instructions",
+            "errors": {
+                "payee.zipExtension": [
+                    "Must be a 4-digit ZIP extension."
+                ]
+            }
+        },
+        "ignore_fields": [
+            "id",
+            "traceId",
+            "timestamp",
+            "instance"
+        ],
+        "extract_values": [
+            {
+                "from": "response",
+                "key": "status",
+                "assign_to": "error_status"
+            },
+            {
+                "from": "response",
+                "key": "title",
+                "assign_to": "error_title"
+            },
+            {
+                "from": "response",
+                "key": "detail",
+                "assign_to": "error_detail"
+            }
+        ],
+        "validate": {
+            "performance": {
+                "max_response_time_ms": 500
+            },
+            "security": {
+                "checks": [
+                    "sql_injection",
+                    "xss"
+                ]
+            },
+            "assertions": [
+                {
+                    "actual": "{{error_status}}",
+                    "expected": 400,
+                    "operator": "==",
+                    "message": "Error status should be 400"
+                },
+                {
+                    "actual": "{{error_title}}",
+                    "expected": "",
+                    "operator": "!=",
+                    "message": "Error title should not be empty"
+                },
+                {
+                    "actual": "{{error_detail}}",
+                    "expected": "The request contains invalid values",
+                    "operator": "==",
+                    "message": "Error detail should indicate invalid request"
+                }
+            ],
+            "data_comparison": []
+        },
+        "test_data_file": "",
+        "csv_row_index": 0,
+        "db_query_timing": "after_api",
+        "db_queries": {
+            "default": "",
+            "audit_query": ""
+        },
+        "db_type": "",
+        "db_connection_name": "",
+        "test_summary": "Verify 400 invalid-request when payee.zipExtension does not match 4-digit format for Check railType in POST /instructions."
+    },
+    {
+        "test_id": "TC044",
+        "service_name": "movemoney",
+        "workflow_mode": "parallel",
+        "test_name": "POST /instructions [negative - invalid payee.state Check] (TC044)",
+        "protocol": "REST",
+        "test_type": [
+            "Functional"
+        ],
+        "mainURL": "{{base_url}}",
+        "endpoint": "/instructions",
+        "method": "POST",
+        "headers_additional": {
+            "Content-Type": "application/json"
+        },
+        "payload": {
+            "letterOfAuthorization": "Withdrawal",
+            "accountId": "789a1234-e89b-12d3-a456-426614174222",
+            "status": "Draft",
+            "holderRelationship": "ThirdParty",
+            "railType": "Check",
+            "changeState": "Active",
+            "payee": {
+                "nameLine1": "Robert Williams",
+                "addressLine1": "4521 Oakwood Drive",
+                "city": "Austin",
+                "state": "INVALID_STATE_CODE",
+                "zip": "78701",
+                "country": "US"
+            }
+        },
+        "expected_status": "400",
+        "expected_response_schema": "",
+        "expected_response": {
+            "type": "invalid-request",
+            "title": "Invalid Request",
+            "status": 400,
+            "detail": "The request contains invalid values",
+            "instance": "/api/moneymovement/v1/instructions",
+            "errors": {
+                "payee.state": [
+                    "Must match the state list. (ISO 3166 - Alpha 2)"
+                ]
+            }
+        },
+        "ignore_fields": [
+            "id",
+            "traceId",
+            "timestamp",
+            "instance"
+        ],
+        "extract_values": [
+            {
+                "from": "response",
+                "key": "status",
+                "assign_to": "error_status"
+            },
+            {
+                "from": "response",
+                "key": "title",
+                "assign_to": "error_title"
+            },
+            {
+                "from": "response",
+                "key": "detail",
+                "assign_to": "error_detail"
+            }
+        ],
+        "validate": {
+            "performance": {
+                "max_response_time_ms": 500
+            },
+            "security": {
+                "checks": [
+                    "sql_injection",
+                    "xss"
+                ]
+            },
+            "assertions": [
+                {
+                    "actual": "{{error_status}}",
+                    "expected": 400,
+                    "operator": "==",
+                    "message": "Error status should be 400"
+                },
+                {
+                    "actual": "{{error_title}}",
+                    "expected": "",
+                    "operator": "!=",
+                    "message": "Error title should not be empty"
+                },
+                {
+                    "actual": "{{error_detail}}",
+                    "expected": "The request contains invalid values",
+                    "operator": "==",
+                    "message": "Error detail should indicate invalid request"
+                }
+            ],
+            "data_comparison": []
+        },
+        "test_data_file": "",
+        "csv_row_index": 0,
+        "db_query_timing": "after_api",
+        "db_queries": {
+            "default": "",
+            "audit_query": ""
+        },
+        "db_type": "",
+        "db_connection_name": "",
+        "test_summary": "Verify 400 invalid-request when payee.state is not a valid ISO 3166 Alpha-2 state code for Check railType in POST /instructions."
+    },
+    {
+        "test_id": "TC045",
+        "service_name": "movemoney",
+        "workflow_mode": "parallel",
+        "test_name": "POST /instructions [negative - invalid payee.country Check] (TC045)",
+        "protocol": "REST",
+        "test_type": [
+            "Functional"
+        ],
+        "mainURL": "{{base_url}}",
+        "endpoint": "/instructions",
+        "method": "POST",
+        "headers_additional": {
+            "Content-Type": "application/json"
+        },
+        "payload": {
+            "letterOfAuthorization": "Withdrawal",
+            "accountId": "789a1234-e89b-12d3-a456-426614174222",
+            "status": "Draft",
+            "holderRelationship": "ThirdParty",
+            "railType": "Check",
+            "changeState": "Active",
+            "payee": {
+                "nameLine1": "Robert Williams",
+                "addressLine1": "4521 Oakwood Drive",
+                "city": "Austin",
+                "state": "TX",
+                "zip": "78701",
+                "country": "INVALID_COUNTRY"
+            }
+        },
+        "expected_status": "400",
+        "expected_response_schema": "",
+        "expected_response": {
+            "type": "invalid-request",
+            "title": "Invalid Request",
+            "status": 400,
+            "detail": "The request contains invalid values",
+            "instance": "/api/moneymovement/v1/instructions",
+            "errors": {
+                "payee.country": [
+                    "Must match the country list. (ISO 3166 - Alpha 2)"
+                ]
+            }
+        },
+        "ignore_fields": [
+            "id",
+            "traceId",
+            "timestamp",
+            "instance"
+        ],
+        "extract_values": [
+            {
+                "from": "response",
+                "key": "status",
+                "assign_to": "error_status"
+            },
+            {
+                "from": "response",
+                "key": "title",
+                "assign_to": "error_title"
+            },
+            {
+                "from": "response",
+                "key": "detail",
+                "assign_to": "error_detail"
+            }
+        ],
+        "validate": {
+            "performance": {
+                "max_response_time_ms": 500
+            },
+            "security": {
+                "checks": [
+                    "sql_injection",
+                    "xss"
+                ]
+            },
+            "assertions": [
+                {
+                    "actual": "{{error_status}}",
+                    "expected": 400,
+                    "operator": "==",
+                    "message": "Error status should be 400"
+                },
+                {
+                    "actual": "{{error_title}}",
+                    "expected": "",
+                    "operator": "!=",
+                    "message": "Error title should not be empty"
+                },
+                {
+                    "actual": "{{error_detail}}",
+                    "expected": "The request contains invalid values",
+                    "operator": "==",
+                    "message": "Error detail should indicate invalid request"
+                }
+            ],
+            "data_comparison": []
+        },
+        "test_data_file": "",
+        "csv_row_index": 0,
+        "db_query_timing": "after_api",
+        "db_queries": {
+            "default": "",
+            "audit_query": ""
+        },
+        "db_type": "",
+        "db_connection_name": "",
+        "test_summary": "Verify 400 invalid-request when payee.country is not a valid ISO 3166 Alpha-2 country code for Check railType in POST /instructions."
+    }
+]

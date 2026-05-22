@@ -1,0 +1,27 @@
+"""Locators for Establish AIP Origination Selection Page elements."""
+
+
+class EstablishAIPOriginationSelectionLocators:
+    """Raw selector strings for the Establish AIP Origination Selection page."""
+
+    HEADER = "//p[text()='Manage Automatic Investment Plans']"
+    TITLE_SECTION = "//span[normalize-space()='Add Automatic Investment Plan (AIP)']"
+    NEXT_BUTTON = "//button[@type='button' and normalize-space(.)='NEXT']"
+    SUB_HEADER = "//*[normalize-space()='Select the origination for the new automatic investment plan.']"
+    ORIGINATION_LABEL = "//span[normalize-space()='Origination *'] | //span[normalize-space()='Origination']/span[normalize-space()='*']"
+    ORIGINATION_HELP_TEXT = "//*[normalize-space()='Select which ACH Instructions on file to be used for the new automatic investment plan.']"
+    INFO_NOTE_TEXT = "//div[text()=' In order to proceed with adding an AIP with new bank instructions, please Add ACH Instructions in the Account Wizard to add the bank before proceeding.']"
+    ACCOUNT_INFO_LABEL = "//span[text()='Account Information']"
+    ACCOUNT_INFO_TEXT = "//span[text()='Account Information']/ancestor::div[contains(@class,'MuiCardHeader-root')]//span[contains(@class,'MuiCardHeader-subheader')]"
+    SELECTED_ORIGINATION_TEXT = "(//div[@role='radiogroup']/child::ul/child::li[1]/descendant::p[contains(@class,'MuiTypography-root MuiTypography-body1')])[1]"
+    SELECTED_ORIGINATION_TEXT_CHECKED = "(//div[@role='radiogroup']//span[contains(@class,'Mui-checked')]/ancestor::li[1]//p[contains(@class,'MuiTypography-body1')])[1]"
+    VIEW_DETAILS_LINK = "(//div[@data-testid='view-details-link'])[1]"
+    INSTRUCTION_DETAILS_MODAL_HEADER = "//h2[text()='Instruction Details']"
+    MODAL_CLOSE_ICON_BUTTON = "//h2[text()='Instruction Details']/following-sibling::button"
+    MODAL_CLOSE_BUTTON = "//button[normalize-space()='Close']"
+    MUI_DIALOG_OVERLAY = "//div[contains(@class,'MuiDialog-container')]"
+    SPINNER_LOADING = "div[class='App']>div>div>div>span"
+    LOADING_OVERLAY = "//div[contains(@class,'loading')]"
+    FIRST_RADIO_BUTTON = "(//span[contains(@class, 'MuiRadio-root')])[2]"
+    FIRST_RADIO_BUTTON_FALLBACK = "(//label[.//input[@type='radio']])[1]"
+    CHECKED_RADIO_SELECTED = "//input[@type='radio' and @checked]"

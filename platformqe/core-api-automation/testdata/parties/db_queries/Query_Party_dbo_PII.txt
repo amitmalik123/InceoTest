@@ -1,0 +1,8 @@
+SELECT TOP (1000) [Id]
+      ,[TaxIdentifier]
+      ,[CreatedDate]
+      ,[UpdatedDate]
+      ,[CreatedBy]
+      ,[UpdatedBy]
+      ,[IsDeleted]
+  FROM [dbo].[PII]

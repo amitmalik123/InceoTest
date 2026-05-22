@@ -1,0 +1,97 @@
+[32mINFO    [0m common_steps:common_steps.py:18 Loading test data from: C:\Users\anil.rokkala\git\develop3\qeautomation\applicationqe\data\stp\stp-ict\test_data.test11.csv
+[32mINFO    [0m common_steps:common_steps.py:24 Loaded test data: ['scenario', 'role', 'username', 'password', 'client_id', 'account_name', 'destination_account', 'account_number', 'conversion_amount', 'routing_number', 'ach_option', 'advisor_id', 'expected_description', 'Suitability_q1_answer', 'Suitability_q2_answer', 'Suitability_q3_answer', 'fee_type', 'fee_value']
+[32mINFO    [0m common_steps:common_steps.py:31 Navigating to login page
+[32mINFO    [0m pages.stp.stp_ict.ict_login_page:ict_login_page.py:23 Navigating to login page: https://test11.ewealthmanager.com/ewmLogin/account/login
+[32mINFO    [0m pages.stp.stp_ict.ict_login_page:ict_login_page.py:25 Waiting for Allow All button (optional cookie consent)
+[32mINFO    [0m pages.stp.stp_ict.ict_login_page:ict_login_page.py:31 Allow All button not present — skipping cookie consent
+[32mINFO    [0m pages.stp.stp_ict.ict_login_page:ict_login_page.py:32 Login page loaded successfully
+[32mINFO    [0m login_steps:login_steps.py:14 Logging in with test credentials
+[32mINFO    [0m pages.stp.stp_ict.ict_login_page:ict_login_page.py:35 Accepting cookies (if present)
+[32mINFO    [0m pages.stp.stp_ict.ict_login_page:ict_login_page.py:40 Entering username: T11_AGA1G1_Perf
+[32mINFO    [0m pages.stp.stp_ict.ict_login_page:ict_login_page.py:44 Entering password
+[32mINFO    [0m pages.stp.stp_ict.ict_login_page:ict_login_page.py:48 Clicking sign in button
+[32mINFO    [0m pages.stp.stp_ict.ict_login_page:ict_login_page.py:64 Navigation after sign in completed. Current URL: https://test.tenant1.ewm3.assetmark.net/dashboard
+[32mINFO    [0m pages.stp.stp_ict.ict_login_page:ict_login_page.py:67 Form submission triggered by sign-in button
+[32mINFO    [0m pages.stp.stp_ict.ict_login_page:ict_login_page.py:70 Final login URL: https://test.tenant1.ewm3.assetmark.net/dashboard
+[32mINFO    [0m login_steps:login_steps.py:30 Successfully logged in and redirected to home page
+[32mINFO    [0m navigation_steps:navigation_steps.py:14 Navigating to clients menu
+[32mINFO    [0m pages.ewm.clients_page:clients_page.py:19 ClientsPage navigate - Current URL: https://test.tenant1.ewm3.assetmark.net/dashboard
+[32mINFO    [0m pages.ewm.clients_page:clients_page.py:25 Navigating to: https://test11.ewealthmanager.com/en.aspx
+[32mINFO    [0m pages.ewm.clients_page:clients_page.py:27 Waiting for Clients link to be visible
+[32mINFO    [0m pages.ewm.clients_page:clients_page.py:29 Clients page ready
+[32mINFO    [0m pages.ewm.clients_page:clients_page.py:32 Clicking Clients link
+[32mINFO    [0m pages.ewm.clients_page:clients_page.py:34 Clients link clicked
+[32mINFO    [0m navigation_steps:navigation_steps.py:24 Clicking Account List
+[32mINFO    [0m pages.ewm.clients_page:clients_page.py:37 Clicking Account List link
+[32mINFO    [0m pages.ewm.clients_page:clients_page.py:39 Account List link clicked
+[32mINFO    [0m navigation_steps:navigation_steps.py:34 Account list page loaded. Current URL: https://test11.ewealthmanager.com/AccountsAnalysis/Clients/AccountList
+[32mINFO    [0m common_steps:common_steps.py:68 Searching for account number: 13222266
+[32mINFO    [0m pages.ewm.account_list_page:account_list_page.py:111 Searching for account number: 13222266
+[32mINFO    [0m pages.ewm.account_list_page:account_list_page.py:120 GO clicked — searching for: 13222266
+[32mINFO    [0m pages.ewm.account_list_page:account_list_page.py:130 Search results loaded (networkidle)
+[32mINFO    [0m pages.ewm.account_list_page:account_list_page.py:134 Frames on page after search: ['https://test11.ewealthmanager.com/AccountsAnalysis/Clients/AccountList', 'https://assetmark--test.sandbox.my.site.com/ESWMessagingforInAppa1750811126655/assets/htdocs/sitecontext.min.html?parent_domain=https%3A%2F%2Ftest11.ewealthmanager.com']
+[32mINFO    [0m pages.ewm.account_list_page:account_list_page.py:136 Screenshot saved: reports/account_list_after_search.png
+[32mINFO    [0m account_steps:account_steps.py:44 Selecting account: Carmen E Tucker, Individual
+[32mINFO    [0m pages.ewm.account_list_page:account_list_page.py:141 Selecting account: Carmen E Tucker, Individual (Client ID: 13222266)
+[32mINFO    [0m pages.ewm.account_list_page:account_list_page.py:145 Will search across 3 frame(s)
+[32mINFO    [0m pages.ewm.account_list_page:account_list_page.py:149 Trying frame 0: https://test11.ewealthmanager.com/AccountsAnalysis/Clients/AccountList
+[32mINFO    [0m pages.ewm.account_list_page:account_list_page.py:166 Account selected via td in frame 0
+[32mINFO    [0m pages.ewm.account_detail_page:account_detail_page.py:31 Waiting for Account Detail page to load
+[32mINFO    [0m pages.ewm.account_detail_page:account_detail_page.py:36 Account Detail page verified
+[32mINFO    [0m account_steps:account_steps.py:67 Account Detail page loaded
+[32mINFO    [0m account_wizard_steps:account_wizard_steps.py:14 Clicking Account Wizard
+[32mINFO    [0m pages.ewm.account_detail_page:account_detail_page.py:39 Clicking Account Wizard button on account detail page
+[32mINFO    [0m pages.ewm.account_detail_page:account_detail_page.py:45 Account Wizard button clicked and next screen is ready
+[32mINFO    [0m account_wizard_steps:account_wizard_steps.py:59 Clicking on Change Investments
+[32mINFO    [0m pages.ewm.account_detail_page:account_detail_page.py:68 Clicking Change Investments link
+[32mINFO    [0m pages.ewm.account_detail_page:account_detail_page.py:70 Change Investments clicked
+[32mINFO    [0m account_wizard_steps:account_wizard_steps.py:74 Select Source Account page ready. URL: https://test11.ewealthmanager.com/ISCT/AcctSelection/SelectAccount?BngClientID=C68238&SelectedAccID=AH49T9
+[32mINFO    [0m account_wizard_steps:account_wizard_steps.py:81 Selecting source account: 13222266
+[32mINFO    [0m pages.stp.stp_ict.ict_select_source_account_page:ict_select_source_account_page.py:26 Selecting source account checkbox for account 13222266
+[32mINFO    [0m pages.stp.stp_ict.ict_select_source_account_page:ict_select_source_account_page.py:33 Found label for account 13222266
+[32mINFO    [0m pages.stp.stp_ict.ict_select_source_account_page:ict_select_source_account_page.py:39 Clicked checker span for account 13222266
+[32mINFO    [0m pages.stp.stp_ict.ict_select_source_account_page:ict_select_source_account_page.py:50 Force-checked hidden input for account 13222266
+[32mINFO    [0m pages.stp.stp_ict.ict_select_source_account_page:ict_select_source_account_page.py:60 Next button enabled after checkbox selection
+[32mINFO    [0m pages.stp.stp_ict.ict_select_source_account_page:ict_select_source_account_page.py:65 Clicking Next button on Select Source Account page
+[32mINFO    [0m pages.stp.stp_ict.ict_select_source_account_page:ict_select_source_account_page.py:75 Next button clicked
+[32mINFO    [0m select_destination_steps:select_destination_steps.py:14 Clicking Select Destination Investments dropdown
+[32mINFO    [0m pages.stp.stp_ict.ict_select_destination_page:ict_select_destination_page.py:38 Clicking Select Destination Investments dropdown
+[32mINFO    [0m pages.stp.stp_ict.ict_select_destination_page:ict_select_destination_page.py:42 Waiting for navigation away from SelectAccount page
+[32mINFO    [0m pages.stp.stp_ict.ict_select_destination_page:ict_select_destination_page.py:98 Select Destination Investments dropdown opened
+[32mINFO    [0m select_destination_steps:select_destination_steps.py:23 Selecting New Investment
+[32mINFO    [0m pages.stp.stp_ict.ict_select_destination_page:ict_select_destination_page.py:101 Selecting New Investment
+[32mINFO    [0m pages.stp.stp_ict.ict_select_destination_page:ict_select_destination_page.py:121 New Investment selected
+[32mINFO    [0m select_destination_steps:select_destination_steps.py:32 Selecting Single Strategy Account under Open Design
+[32mINFO    [0m pages.stp.stp_ict.ict_select_destination_page:ict_select_destination_page.py:124 Selecting Single Strategy Account under Open Design
+[32mINFO    [0m pages.stp.stp_ict.ict_select_destination_page:ict_select_destination_page.py:128 Single Strategy Account selected
+[32mINFO    [0m select_destination_steps:select_destination_steps.py:41 Choosing model in Choose a New Investment: AssetMark Asset Builder, Profile 2, Conservative
+[32mINFO    [0m pages.stp.stp_ict.ict_select_destination_page:ict_select_destination_page.py:131 Choosing new investment model: AssetMark Asset Builder, Profile 2, Conservative
+[32mINFO    [0m pages.stp.stp_ict.ict_select_destination_page:ict_select_destination_page.py:144 Selected model 'AssetMark Asset Builder, Profile 2, Conservative' via text link
+[32mINFO    [0m pages.stp.stp_ict.ict_select_destination_page:ict_select_destination_page.py:149 Saved post-model-selection diagnostics to reports/
+[32mINFO    [0m select_destination_steps:select_destination_steps.py:50 Clicking OK on Select Destination
+[32mINFO    [0m pages.stp.stp_ict.ict_select_destination_page:ict_select_destination_page.py:154 Clicking OK button
+[32mINFO    [0m pages.stp.stp_ict.ict_select_destination_page:ict_select_destination_page.py:156 OK button clicked
+[32mINFO    [0m select_destination_steps:select_destination_steps.py:59 Selecting 100% radio button
+[32mINFO    [0m pages.stp.stp_ict.ict_select_destination_page:ict_select_destination_page.py:159 Selecting 100% radio button
+[32mINFO    [0m pages.stp.stp_ict.ict_select_destination_page:ict_select_destination_page.py:164 100%radio button selected
+[32mINFO    [0m select_destination_steps:select_destination_steps.py:68 Clicking Next on Select Destination
+[32mINFO    [0m pages.stp.stp_ict.ict_select_destination_page:ict_select_destination_page.py:167 Clicking Next button on Select Destination page
+[32mINFO    [0m pages.stp.stp_ict.ict_select_destination_page:ict_select_destination_page.py:169 Next button clicked
+[32mINFO    [0m account_number_steps:account_number_steps.py:15 Account number option from test data: retain
+[32mINFO    [0m pages.stp.stp_ict.ict_account_number_page:ict_account_number_page.py:32 Retain Account Number selected by default — verifying and clicking Next
+[32mINFO    [0m pages.stp.stp_ict.ict_account_number_page:ict_account_number_page.py:45 Clicking Next button on Account Number page
+[32mINFO    [0m pages.stp.stp_ict.ict_account_number_page:ict_account_number_page.py:47 Next button clicked
+[32mINFO    [0m client_suitability_steps:client_suitability_steps.py:18 Answering suitability questions: Q1=1, Q2=1, Q3=1
+[32mINFO    [0m pages.stp.stp_ict.client_suitability_page:client_suitability_page.py:50 Answering suitability questions: Q1=1, Q2=1, Q3=1
+[32mINFO    [0m pages.stp.stp_ict.client_suitability_page:client_suitability_page.py:46 Q1: selected option 1
+[32mINFO    [0m pages.stp.stp_ict.client_suitability_page:client_suitability_page.py:46 Q2: selected option 1
+[32mINFO    [0m pages.stp.stp_ict.client_suitability_page:client_suitability_page.py:46 Q3: selected option 1
+[32mINFO    [0m pages.stp.stp_ict.client_suitability_page:client_suitability_page.py:70 All suitability questions answered
+[32mINFO    [0m client_suitability_steps:client_suitability_steps.py:28 Clicking Next on Client Suitability page
+[32mINFO    [0m pages.stp.stp_ict.client_suitability_page:client_suitability_page.py:73 Clicking Next button on Client Suitability page
+[33mWARNING [0m pages.stp.stp_ict.client_suitability_page:client_suitability_page.py:83 Next button still disabled — force-enabling and clicking via JS
+[32mINFO    [0m pages.stp.stp_ict.client_suitability_page:client_suitability_page.py:91 Next button force-clicked via JS
+[32mINFO    [0m create_fees_steps:create_fees_steps.py:16 Fee type: flat, value: 0.75
+[32mINFO    [0m pages.stp.stp_ict.ict_create_fees_page:ict_create_fees_page.py:15 Entering fee — type: flat, value: 0.75
+[32mINFO    [0m pages.stp.stp_ict.ict_create_fees_page:ict_create_fees_page.py:16 Current URL before wait: https://test11.ewealthmanager.com/ISCT/ClientSuitability/Suitability
+[32mINFO    [0m pages.stp.stp_ict.ict_create_fees_page:ict_create_fees_page.py:18 Current URL after networkidle: https://test11.ewealthmanager.com/ISCT/ClientSuitability/Suitability

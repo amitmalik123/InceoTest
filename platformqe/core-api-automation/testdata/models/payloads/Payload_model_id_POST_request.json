@@ -1,0 +1,40 @@
+{
+    "name": "string",
+    "ownerId": "3fa85f64-5717-4562-b3fc-2c963f66afa6",
+    "modelAttributes": {
+        "solutionType": "string",
+        "modelType": "string"
+    },
+    "allocations": [
+        {
+            "entityType": "Security",
+            "allocationName": "string",
+            "modelId": "string",
+            "cusip": "string",
+            "ticker": "string",
+            "weight": 0.5
+        }
+    ],
+    "investmentApproachId": null,
+    "benchmarkName": "string",
+    "benchmarkIsPrimary": false,
+    "custodians": [
+        "string",
+        "string2"
+    ],
+    "investmentMins": [
+        {
+            "type": "System",
+            "value": 1
+        }
+    ],
+    "riskProfile": "string",
+    "versionMetadata": {
+        "additionalProp1": "string",
+        "additionalProp2": "string",
+        "additionalProp3": "string"
+    },
+    "allowedAgents": [
+        "string"
+    ]
+}

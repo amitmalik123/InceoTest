@@ -1,0 +1,3 @@
+environment,payload_subAssetTypeId,payload_duplicate_cusip,payload_subAssetTypeId_invalid
+TSADEV,41010,BT3606380,1401
+TSATEST,41010,BT3606380,1401

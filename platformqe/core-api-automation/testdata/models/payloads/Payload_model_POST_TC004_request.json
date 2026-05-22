@@ -1,0 +1,56 @@
+{
+    "name": "Test Model with Security EntityType",
+    "ownerId": "3fa85f64-5717-4562-b3fc-2c963f66afa6",
+    "modelAttributes": {
+        "solutionType": "Direct Investment",
+        "modelType": "Tactical"
+    },
+    "allocations": [
+        {
+            "entityType": "Security",
+            "allocationName": "Apple Inc Stock",
+            "modelId": "",
+            "cusip": "",
+            "ticker": "AAPL",
+            "weight": 0.35
+        },
+        {
+            "entityType": "Security",
+            "allocationName": "Microsoft Corp Stock",
+            "modelId": "",
+            "cusip": "",
+            "ticker": "MSFT",
+            "weight": 0.4
+        },
+        {
+            "entityType": "Security",
+            "allocationName": "Amazon.com Inc Stock",
+            "modelId": "",
+            "cusip": "",
+            "ticker": "AMZN",
+            "weight": 0.25
+        }
+    ],
+    "investmentApproachId": null,
+    "benchmarkName": "NASDAQ Composite",
+    "benchmarkIsPrimary": false,
+    "custodians": [
+        "TD Ameritrade",
+        "Charles Schwab"
+    ],
+    "investmentMins": [
+        {
+            "type": "System",
+            "value": 5000
+        }
+    ],
+    "riskProfile": "Aggressive",
+    "versionMetadata": {
+        "additionalProp1": "security_value1",
+        "additionalProp2": "security_value2",
+        "additionalProp3": "security_value3"
+    },
+    "allowedAgents": [
+        "string"
+    ]
+}
