@@ -54,6 +54,7 @@ stages:
       INFLUXDB_URL: 'http://azncc03perf.corp.local:8086'
       INFLUXDB_ORG: 'MF'
       INFLUXDB_BUCKET: 'AutomationData'
+      azureSubscription: ${{ parameters.azureSubscription }}
       keyVaultName: ${{ parameters.keyVaultName }}
       group: qa-pipelines-shared-config
    
