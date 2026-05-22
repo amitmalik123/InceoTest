@@ -1,0 +1,315 @@
+###############################################################################
+# Slack Workflow Builder Notification Template for QE Automation Framework
+# File: templates/qe-slack-workflow-notification.yml
+###############################################################################
+# This template sends test execution summaries to Slack Workflow Builder
+# via webhook. Designed to work WITHOUT requiring admin approval.
+# 
+# Prerequisites:
+#   1. Create a Workflow in Slack (Workflow Builder → Create → Webhook trigger)
+#   2. Add variables matching the payload below
+#   3. Add "Send a message" step with your desired formatting
+#   4. Copy the workflow webhook URL
+#   5. Add to Azure DevOps variable: SLACK_WORKFLOW_WEBHOOK_URL
+#
+# Usage:
+#   - template: qe-slack-workflow-notification.yml
+#     parameters:
+#       slackWorkflowWebhookUrl: $(SLACK_WORKFLOW_WEBHOOK_URL)
+#       serviceNames: 'all'  # or specific service name
+###############################################################################
+
+parameters:
+  slackWorkflowWebhookUrl: ''
+  serviceNames: ''
+
+steps:
+  - task: PowerShell@2
+    displayName: 'Send Test Results to Slack Workflow'
+    condition: always()
+    inputs:
+      targetType: 'inline'
+      script: |
+        $webhookUrl = "${{ parameters.slackWorkflowWebhookUrl }}"
+        if ([string]::IsNullOrWhiteSpace($webhookUrl)) {
+          Write-Host "##vso[task.logissue type=warning]SLACK_WORKFLOW_WEBHOOK_URL is empty. Skipping Slack notification."
+          exit 0
+        }
+
+        $status = "$(Agent.JobStatus)"
+        $pipelineName = "$(Build.DefinitionName)"
+        $buildNumber = "$(Build.BuildNumber)"
+        $requestedServices = "${{ parameters.serviceNames }}"
+        $testTabUrl = "$(System.TeamFoundationCollectionUri)$(System.TeamProject)/_build/results?buildId=$(Build.BuildId)&view=ms.vss-test-web.build-test-results-tab"
+        $buildUrl = "$(System.TeamFoundationCollectionUri)$(System.TeamProject)/_build/results?buildId=$(Build.BuildId)"
+        $executionTimestamp = (Get-Date).ToUniversalTime().ToString("yyyy-MM-dd HH:mm:ss 'UTC'")
+
+        Write-Host "=========================================="
+        Write-Host "Slack Workflow Notification - Data Collection"
+        Write-Host "=========================================="
+
+        $totalExecuted = 0
+        $failedCount = 0
+        $passedCount = 0
+        $summaryFound = $false
+        $detectedServices = New-Object System.Collections.Generic.HashSet[string]
+
+        $searchRoots = @("$(Pipeline.Workspace)/teams-summary", "$(Build.SourcesDirectory)") |
+          Where-Object { -not [string]::IsNullOrWhiteSpace($_) -and (Test-Path -LiteralPath $_) }
+
+        $summaryFiles = @()
+        foreach ($root in $searchRoots) {
+          $summaryFiles += Get-ChildItem -Path $root -Filter 'test_results_summary.json' -Recurse -File -ErrorAction SilentlyContinue
+        }
+        $summaryFiles = $summaryFiles | Sort-Object -Property FullName -Unique
+        Write-Host "Found $($summaryFiles.Count) test_results_summary.json file(s)"
+
+        # Filter by service name if specified
+        if (-not [string]::IsNullOrWhiteSpace($requestedServices) -and $requestedServices -ne 'all') {
+          Write-Host "Filtering artifacts for requested service: $requestedServices"
+          $summaryFiles = $summaryFiles | Where-Object {
+            $_.FullName -match "test-reports-$([regex]::Escape($requestedServices))-" -or
+            $_.FullName -like "*$requestedServices*"
+          }
+          Write-Host "Filtered to $($summaryFiles.Count) matching file(s) for service: $requestedServices"
+        }
+
+        # Deduplicate - keep only the most recent run per service
+        Write-Host "Filtering to only the latest run artifacts per service..."
+        $latestFiles = @()
+        $filesByService = @{}
+        
+        foreach ($file in $summaryFiles) {
+          $pathMatch = $file.FullName -match 'test-reports-([^-]+)'
+          if ($pathMatch) {
+            $serviceName = $Matches[1]
+            if (-not $filesByService.ContainsKey($serviceName)) {
+              $filesByService[$serviceName] = @()
+            }
+            $filesByService[$serviceName] += $file
+          } else {
+            $latestFiles += $file
+          }
+        }
+        
+        foreach ($service in $filesByService.Keys) {
+          $serviceFiles = $filesByService[$service] | Sort-Object -Property FullName -Descending
+          if ($serviceFiles.Count -gt 0) {
+            Write-Host "Service '$service': Using latest: $($serviceFiles[0].FullName)"
+            $latestFiles += $serviceFiles[0]
+          }
+        }
+        
+        $summaryFiles = $latestFiles
+        Write-Host "After deduplication: Using $($summaryFiles.Count) latest file(s)"
+
+        # Parse summary JSON files
+        foreach ($summaryFile in $summaryFiles) {
+          try {
+            $summaryJson = Get-Content -LiteralPath $summaryFile.FullName -Raw | ConvertFrom-Json
+            if ($null -ne $summaryJson.summary) {
+              $s = $summaryJson.summary
+              $sTotal   = [int]($s.total)
+              $sPassed  = [int]($s.passed)
+              $sFailed  = [int]($s.failed)
+              $sSkipped = if ($null -ne $s.skipped) { [int]($s.skipped) } else { 0 }
+              $totalExecuted += [Math]::Max(0, ($sTotal - $sSkipped))
+              $passedCount   += $sPassed
+              $failedCount   += $sFailed
+              $summaryFound   = $true
+              Write-Host "Parsed: $($summaryFile.FullName) - total=$sTotal passed=$sPassed failed=$sFailed"
+
+              if ($null -ne $summaryJson.service_name -and -not [string]::IsNullOrWhiteSpace([string]$summaryJson.service_name)) {
+                [void]$detectedServices.Add([string]$summaryJson.service_name)
+              }
+            }
+          } catch {
+            Write-Host "##vso[task.logissue type=warning]Failed to parse $($summaryFile.FullName): $_"
+          }
+        }
+
+        # Fallback to JUnit XML if needed
+        $zeroFromSummary = ($totalExecuted -eq 0 -and $passedCount -eq 0 -and $failedCount -eq 0)
+        if ((-not $summaryFound) -or $zeroFromSummary) {
+          if (-not $summaryFound) {
+            Write-Host "No summary JSON found - falling back to JUnit XML"
+          } else {
+            Write-Host "Summary totals are zero - validating via JUnit XML"
+          }
+
+          $junitFiles = @()
+          foreach ($root in $searchRoots) {
+            $junitFiles += Get-ChildItem -Path $root -Recurse -File -ErrorAction SilentlyContinue |
+              Where-Object {
+                ($_.Name -like 'junit_report*.xml') -or
+                ($_.Name -eq 'junit-report.xml') -or
+                ($_.Name -eq 'junit.xml')
+              }
+          }
+          $junitFiles = $junitFiles | Sort-Object -Property FullName -Unique
+          
+          if (-not [string]::IsNullOrWhiteSpace($requestedServices) -and $requestedServices -ne 'all') {
+            $junitFiles = $junitFiles | Where-Object {
+              $_.FullName -match "test-reports-$([regex]::Escape($requestedServices))-" -or
+              $_.FullName -like "*$requestedServices*"
+            }
+          }
+          
+          # Deduplicate JUnit files
+          $latestJunitFiles = @()
+          $junitFilesByService = @{}
+          
+          foreach ($file in $junitFiles) {
+            $pathMatch = $file.FullName -match 'test-reports-([^-]+)'
+            if ($pathMatch) {
+              $serviceName = $Matches[1]
+              if (-not $junitFilesByService.ContainsKey($serviceName)) {
+                $junitFilesByService[$serviceName] = @()
+              }
+              $junitFilesByService[$serviceName] += $file
+            } else {
+              $latestJunitFiles += $file
+            }
+          }
+          
+          foreach ($service in $junitFilesByService.Keys) {
+            $serviceFiles = $junitFilesByService[$service] | Sort-Object -Property FullName -Descending
+            if ($serviceFiles.Count -gt 0) {
+              $latestJunitFiles += $serviceFiles[0]
+            }
+          }
+          
+          $junitFiles = $latestJunitFiles
+          Write-Host "After JUnit deduplication: Using $($junitFiles.Count) file(s)"
+
+          if ($junitFiles.Count -gt 0) {
+            $tests = 0
+            $failedTestCases = 0
+            $skipped = 0
+
+            foreach ($junitFile in $junitFiles) {
+              try {
+                [xml]$junitXml = Get-Content -LiteralPath $junitFile.FullName
+
+                $testCaseNodes = $junitXml.SelectNodes("//*[local-name()='testcase']")
+                $fileTests = $testCaseNodes.Count
+                $tests += $fileTests
+
+                foreach ($testCase in $testCaseNodes) {
+                  $hasFailure = $null -ne ($testCase.SelectSingleNode("*[local-name()='failure']"))
+                  $hasError = $null -ne ($testCase.SelectSingleNode("*[local-name()='error']"))
+                  $hasSkipped = $null -ne ($testCase.SelectSingleNode("*[local-name()='skipped']"))
+
+                  if ($hasSkipped) { $skipped += 1 }
+                  if ($hasFailure -or $hasError) { $failedTestCases += 1 }
+                }
+
+                if ($fileTests -eq 0) {
+                  $suiteNodes = $junitXml.SelectNodes("//*[local-name()='testsuite']")
+                  foreach ($suite in $suiteNodes) {
+                    $suiteTests = [int]($suite.GetAttribute("tests") | ForEach-Object { if ($_ -eq "") { "0" } else { $_ } })
+                    $suiteFailures = [int]($suite.GetAttribute("failures") | ForEach-Object { if ($_ -eq "") { "0" } else { $_ } })
+                    $suiteErrors = [int]($suite.GetAttribute("errors") | ForEach-Object { if ($_ -eq "") { "0" } else { $_ } })
+                    $suiteSkipped = [int]($suite.GetAttribute("skipped") | ForEach-Object { if ($_ -eq "") { "0" } else { $_ } })
+
+                    $tests += $suiteTests
+                    $failedTestCases += ($suiteFailures + $suiteErrors)
+                    $skipped += $suiteSkipped
+                  }
+                }
+
+                if ($junitFile.FullName -match 'test-reports-([^-]+)-') {
+                  [void]$detectedServices.Add($matches[1])
+                }
+              } catch {
+                Write-Host "##vso[task.logissue type=warning]Failed to parse JUnit $($junitFile.FullName): $_"
+              }
+            }
+
+            $failedCount = $failedTestCases
+            $totalExecuted = [Math]::Max(0, ($tests - $skipped))
+            $passedCount = [Math]::Max(0, ($totalExecuted - $failedCount))
+            Write-Host "JUnit totals: executed=$totalExecuted passed=$passedCount failed=$failedCount"
+          }
+        }
+
+        # Determine service display
+        $servicesDisplay = "N/A"
+        if (-not [string]::IsNullOrWhiteSpace($requestedServices) -and $requestedServices -ne 'all') {
+          $servicesDisplay = $requestedServices
+        } elseif ($detectedServices.Count -gt 0) {
+          $servicesDisplay = ($detectedServices | Sort-Object) -join ', '
+        }
+
+        # Calculate pass rate
+        $passRate = if ($totalExecuted -gt 0) {
+          [math]::Round(($passedCount / $totalExecuted) * 100, 1)
+        } else {
+          0
+        }
+
+        # Determine status emoji and text
+        $statusEmoji = ":white_check_mark:"
+        $statusText = "Succeeded"
+        
+        if ($status -match 'Failed') {
+          $statusEmoji = ":x:"
+          $statusText = "Failed"
+        } elseif ($status -match 'PartiallySucceeded') {
+          $statusEmoji = ":warning:"
+          $statusText = "Partially Succeeded"
+        } elseif ($status -match 'Canceled') {
+          $statusEmoji = ":no_entry_sign:"
+          $statusText = "Canceled"
+        }
+
+        # Build simplified payload for Workflow Builder
+        # Note: All values must be strings for Workflow Builder compatibility
+        $workflowPayload = @{
+          pipeline_name = $pipelineName
+          build_number = $buildNumber
+          status = "$statusEmoji $statusText"
+          status_text = $statusText
+          status_emoji = $statusEmoji
+          services = $servicesDisplay
+          total_executed = [string]$totalExecuted
+          passed = [string]$passedCount
+          failed = [string]$failedCount
+          pass_rate = [string]$passRate
+          timestamp = $executionTimestamp
+          test_results_url = $testTabUrl
+          build_url = $buildUrl
+        }
+
+        $body = $workflowPayload | ConvertTo-Json -Depth 5 -Compress
+
+        Write-Host "=========================================="
+        Write-Host "Sending to Slack Workflow"
+        Write-Host "=========================================="
+        Write-Host "Pipeline: $pipelineName"
+        Write-Host "Build: $buildNumber"
+        Write-Host "Status: $statusText"
+        Write-Host "Services: $servicesDisplay"
+        Write-Host "Total Executed: $totalExecuted"
+        Write-Host "Passed: $passedCount"
+        Write-Host "Failed: $failedCount"
+        Write-Host "Pass Rate: $passRate%"
+        Write-Host "=========================================="
+
+        try {
+          $response = Invoke-RestMethod -Uri $webhookUrl -Method Post -Body $body -ContentType 'application/json; charset=utf-8'
+          Write-Host "✅ Slack Workflow notification sent successfully"
+          Write-Host "Response: $response"
+        } catch {
+          Write-Host "##vso[task.logissue type=error]Failed to send Slack Workflow notification: $_"
+          Write-Host "Status Code: $($_.Exception.Response.StatusCode.value__)"
+          Write-Host "Status Description: $($_.Exception.Response.StatusDescription)"
+          
+          if ($_.Exception.Response) {
+            $reader = New-Object System.IO.StreamReader($_.Exception.Response.GetResponseStream())
+            $responseBody = $reader.ReadToEnd()
+            Write-Host "Response Body: $responseBody"
+          }
+          
+          exit 1
+        }

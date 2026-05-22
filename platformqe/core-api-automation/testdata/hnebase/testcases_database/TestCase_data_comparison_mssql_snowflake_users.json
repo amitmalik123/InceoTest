@@ -1,0 +1,40 @@
+{
+    "test_suite": "Data Comparison - Snowflake PROCESSED.AM_DBO.USERS vs MSSQL [dbo].[Users]",
+    "description": "Compare MSSQL am_database [dbo].[Users] with Snowflake PROCESSED.AM_DBO.USERS using generic framework",
+    "test_cases": [
+        {
+            "id": "TC001",
+            "name": "Compare User AG1624 (MSSQL vs Snowflake)",
+            "type": "data_comparison_single",
+            "enabled": true,
+            "source_database": "mssql",
+            "target_database": "snowflake",
+            "source_connection": "am_database",
+            "target_connection": "dev_processed",
+            "source_table": "[dbo].[Users]",
+            "target_table": "PROCESSED.AM_DBO.USERS",
+            "identifier_field": "USERID",
+            "USERID": "AG1624",
+            "column_mapping": {
+                "UserID": "USERID",
+                "RoleID": "ROLEID",
+                "Active": "ACTIVE",
+                "BDID": "BDID",
+                "AdvisorID": "ADVISORID",
+                "AgentID": "AGENTID",
+                "LName": "LNAME",
+                "FName": "FNAME",
+                "Company": "COMPANY",
+                "SortName": "SORTNAME",
+                "Siebel_ID": "SIEBEL_ID",
+                "RoleTypeCD": "ROLETYPECD",
+                "OSJID": "OSJID"
+            },
+            "comparison_options": {
+                "trim_whitespace": true,
+                "ignore_case": false,
+                "handle_boolean_mapping": true
+            }
+        }
+    ]
+}

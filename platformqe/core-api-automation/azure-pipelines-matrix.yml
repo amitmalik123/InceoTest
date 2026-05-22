@@ -197,13 +197,23 @@ parameters:
     type: string
     default: 'N/A'
 
+  - name: promotePerformanceBaseline
+    displayName: 'Promote this performance run as baseline'
+    type: boolean
+    default: false
+
+  - name: baselineReason
+    displayName: 'Baseline promotion reason'
+    type: string
+    default: 'Approved performance baseline'
+
   - name: deploymentsync
     displayName: 'wait to sync ArgoCd charts and deployment sucessfully'
     type: number
     default: 0
 
-  - name: teamsNotificationEnabled
-    displayName: 'Enable Teams Result Notification'
+  - name: slackNotificationEnabled
+    displayName: 'Enable Slack Result Notification'
     type: boolean
     default: false
 
@@ -255,9 +265,9 @@ stages:
       overrideEnabled: ${{ parameters.overrideEnabled }}
       customFunctionalArgs: ${{ parameters.customFunctionalArgs }}
       customNonFunctionalArgs: ${{ parameters.customNonFunctionalArgs }}
-      teamsNotificationEnabled: ${{ parameters.teamsNotificationEnabled }}
-      # For scheduled runs, use the branch-specific scheduleTestCaseFilter (defined in-code)
-      # For manual/PR/Push runs, use the user-provided parameter value
+      promotePerformanceBaseline: ${{ parameters.promotePerformanceBaseline }}
+      baselineReason: ${{ parameters.baselineReason }}
+      slackNotificationEnabled: ${{ parameters.slackNotificationEnabled }}
       testCaseFilter: ${{ parameters.testCaseFilter }}
       scheduleTestCaseFilter: $(scheduleTestCaseFilter)
       triggerReason: '$(Build.Reason)'

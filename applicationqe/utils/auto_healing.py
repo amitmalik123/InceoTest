@@ -70,7 +70,7 @@ class RoleStrategy(HealingStrategy):
             # Try common roles
             roles = ["button", "link", "textbox", "checkbox", "radio", "heading"]
             for role in roles:
-                locators = page.get_by_role(role)
+                locators = page.get_by_role(role)  # type: ignore[arg-type]
                 if locators.count() > 0:
                     # Try to match by comparing with original selector
                     for i in range(min(5, locators.count())):  # Check first 5
@@ -157,36 +157,6 @@ class TestIdStrategy(HealingStrategy):
         return None
 
 
-class SimilarElementStrategy(HealingStrategy):
-    """Find similar elements by tag and attributes"""
-
-    def __init__(self):
-        super().__init__("similar_element")
-
-    def find_element(self, page: Page, original_selector: str) -> Optional[Locator]:
-        """Find by similar element structure"""
-        try:
-            # Extract tag name if present
-            tag = self._extract_tag(original_selector)
-            if tag:
-                # Find all elements with same tag
-                similar = page.locator(tag)
-                if similar.count() > 0:
-                    logger.info(f"Found similar elements with tag: {tag}")
-                    return similar.first
-        except Exception as e:
-            logger.debug(f"SimilarElementStrategy failed: {e}")
-        return None
-
-    def _extract_tag(self, selector: str) -> Optional[str]:
-        """Extract HTML tag from selector"""
-        common_tags = ["button", "input", "a", "div", "span", "select", "textarea"]
-        for tag in common_tags:
-            if tag in selector.lower():
-                return tag
-        return None
-
-
 class XPathToCSS:
     """Convert XPath selectors to CSS"""
 
@@ -237,7 +207,6 @@ class AutoHealingEngine:
             PlaceholderStrategy(),
             RoleStrategy(),
             TextContentStrategy(),
-            SimilarElementStrategy(),
         ]
         self.locator_storage = self._load_storage()
         self.healing_stats = {"total_heals": 0, "successful_heals": 0, "failed_heals": 0}
@@ -249,7 +218,7 @@ class AutoHealingEngine:
                 with open(self.storage_path, "r") as f:
                     return json.load(f)
             except Exception as e:
-                logger.warning(f"Failed to load locator storage: {str(e).splitlines()[0]}")
+                logger.warning(f"Failed to load locator storage: {e}")
         return {}
 
     def _save_storage(self):
@@ -258,14 +227,14 @@ class AutoHealingEngine:
             with open(self.storage_path, "w") as f:
                 json.dump(self.locator_storage, indent=2, fp=f)
         except Exception as e:
-            logger.error(f"Failed to save locator storage: {str(e).splitlines()[0]}")
+            logger.error(f"Failed to save locator storage: {e}")
 
     def _get_locator_key(self, selector: str, page_url: str = "") -> str:
         """Generate unique key for locator"""
         key_str = f"{page_url}::{selector}"
         return hashlib.md5(key_str.encode(), usedforsecurity=False).hexdigest()
 
-    def find_element(
+    def find_element(  # noqa: C901
         self, page: Page, selector: str, max_retries: int = 3
     ) -> Tuple[Optional[Locator], bool]:
         """

@@ -1,4 +1,4 @@
-# locators/journal_transfer_landing_locators.py
+﻿# locators/journal_transfer_landing_locators.py
 
 """
 Locators for Journal Transfer page

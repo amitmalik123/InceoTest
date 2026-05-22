@@ -82,7 +82,12 @@ class TestResultCollector:
                 "data_comparisons": {"total": 0, "passed": 0, "failed": 0},
                 "contract_checks": {"total": 0, "passed": 0, "failed": 0},
                 "security_checks": {"total": 0, "passed": 0, "failed": 0},
-                "performance_checks": {"total": 0, "passed": 0, "failed": 0}
+                "performance_checks": {"total": 0, "passed": 0, "failed": 0},
+                "db_row_checks": {"total": 0, "passed": 0, "failed": 0},
+                "db_column_checks": {"total": 0, "passed": 0, "failed": 0},
+                "db_count_checks": {"total": 0, "passed": 0, "failed": 0},
+                "db_missing_source": {"total": 0, "passed": 0, "failed": 0},
+                "db_missing_target": {"total": 0, "passed": 0, "failed": 0}
             },
             # Individual validation details for UI display
             "validation_details": {
@@ -90,7 +95,12 @@ class TestResultCollector:
                 "data_comparisons": [],  # List of {"comparison_name": str, "status": "PASS"|"FAIL"|"SKIP"|"NA"}
                 "contract_checks": [],  # List of {"check_name": str, "status": "PASS"|"FAIL"|"SKIP"|"NA"}
                 "security_checks": [],  # List of {"check_name": str, "status": "PASS"|"FAIL"|"SKIP"|"NA"}
-                "performance_checks": []  # List of {"check_name": str, "status": "PASS"|"FAIL"|"SKIP"|"NA"}
+                "performance_checks": [],  # List of {"check_name": str, "status": "PASS"|"FAIL"|"SKIP"|"NA"}
+                "db_row_checks": [],
+                "db_column_checks": [],
+                "db_count_checks": [],
+                "db_missing_source": [],
+                "db_missing_target": []
             }
         }
         
@@ -164,7 +174,12 @@ class TestResultCollector:
                 "assertions": {"total": 0, "passed": 0, "failed": 0},
                 "data_comparisons": {"total": 0, "passed": 0, "failed": 0},
                 "contract_checks": {"total": 0, "passed": 0, "failed": 0},
-                "security_checks": {"total": 0, "passed": 0, "failed": 0}
+                "security_checks": {"total": 0, "passed": 0, "failed": 0},
+                "db_row_checks": {"total": 0, "passed": 0, "failed": 0},
+                "db_column_checks": {"total": 0, "passed": 0, "failed": 0},
+                "db_count_checks": {"total": 0, "passed": 0, "failed": 0},
+                "db_missing_source": {"total": 0, "passed": 0, "failed": 0},
+                "db_missing_target": {"total": 0, "passed": 0, "failed": 0}
             }
         
         if validator_type in result["validation_stats"]:
@@ -196,7 +211,12 @@ class TestResultCollector:
                 "assertions": [],
                 "data_comparisons": [],
                 "contract_checks": [],
-                "security_checks": []
+                "security_checks": [],
+                "db_row_checks": [],
+                "db_column_checks": [],
+                "db_count_checks": [],
+                "db_missing_source": [],
+                "db_missing_target": []
             }
         
         if validator_type in result["validation_details"]:
@@ -339,6 +359,11 @@ def aggregate_validation_stats(collector=None):
         - performance: Performance validation counts
         - data_comparison: Data comparison validation counts
         - assertions: Assertion validation counts
+        - row_match: Row-level comparison counts
+        - column_match: Column-level comparison counts
+        - count_check: Source/target count validation counts
+        - missing_source: Missing-source row counts
+        - missing_target: Missing-target row counts
         
     Example:
         >>> stats = aggregate_validation_stats()
@@ -353,7 +378,12 @@ def aggregate_validation_stats(collector=None):
         'security': {'total': 0, 'passed': 0, 'failed': 0},
         'performance': {'total': 0, 'passed': 0, 'failed': 0},
         'data_comparison': {'total': 0, 'passed': 0, 'failed': 0},
-        'assertions': {'total': 0, 'passed': 0, 'failed': 0}
+        'assertions': {'total': 0, 'passed': 0, 'failed': 0},
+        'row_match': {'total': 0, 'passed': 0, 'failed': 0},
+        'column_match': {'total': 0, 'passed': 0, 'failed': 0},
+        'count_check': {'total': 0, 'passed': 0, 'failed': 0},
+        'missing_source': {'total': 0, 'passed': 0, 'failed': 0},
+        'missing_target': {'total': 0, 'passed': 0, 'failed': 0}
     }
     
     for result in collector.get_results():
@@ -366,7 +396,12 @@ def aggregate_validation_stats(collector=None):
             ('security_checks', 'security'),
             ('performance_checks', 'performance'),
             ('data_comparisons', 'data_comparison'),
-            ('assertions', 'assertions')
+            ('assertions', 'assertions'),
+            ('db_row_checks', 'row_match'),
+            ('db_column_checks', 'column_match'),
+            ('db_count_checks', 'count_check'),
+            ('db_missing_source', 'missing_source'),
+            ('db_missing_target', 'missing_target')
         ]
         
         for source_key, dest_key in key_mappings:

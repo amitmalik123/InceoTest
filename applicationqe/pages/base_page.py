@@ -32,6 +32,7 @@ class BasePage:
 
     def __init__(self, page: Page, base_url: Optional[str] = None, home_url: Optional[str] = None):
         self.page = page
+        self.context = page  # alias so pages can use either self.page or self.context
         # Accept either base_url or home_url; both refer to the application root URL.
         self.base_url = base_url or home_url or ""
         self.home_url = self.base_url

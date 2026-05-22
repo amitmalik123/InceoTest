@@ -73,7 +73,6 @@ class AllureLogger:
             level: Logging level (default: INFO)
         """
         self.logger = logging.getLogger(name)
-        self.logger.setLevel(level)
 
         # Let records flow to root so pytest log capture/log_cli and Allure stdlog can see them.
         self.logger.propagate = True
@@ -189,7 +188,6 @@ class AllureLogger:
             page: Playwright Page object (optional, for auto-screenshot)
             log: Whether to also log to console (default: True)
             auto_screenshot: Whether to auto-screenshot after step (default: True)
-            screenshot: Alias for auto_screenshot (backward compatibility)
 
         Usage:
             # Without auto-screenshot
@@ -202,9 +200,6 @@ class AllureLogger:
                 # Screenshot automatically taken at end
         """
         global _screenshot_config
-
-        if screenshot is not None:
-            auto_screenshot = screenshot
 
         if log:
             self.info(f"Step: {title}", attach_to_allure=False)

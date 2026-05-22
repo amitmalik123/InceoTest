@@ -397,9 +397,19 @@
             "Content-Type": "application/json"
         },
         "payload": null,
-        "expected_status": "200",
-        "test_summary": "Step 4: Publish version 2 (v2 → Published, v1 → Archived)",
-        "test_scenario": "Second publish makes version 2 Published, version 1 becomes Archived"
+        "expected_status": "422",
+        "expected_response_schema": "models/schemas/Schema_model_id_PUT_422_error.json",
+        "expected_response": {
+            "type": "https://assetmark.atlassian.net/wiki/spaces/PE/pages/2303590438/Standard+Error+Codes+and+Messaging#invalid-request",
+            "title": "Invalid Request",
+            "status": 422,
+            "detail": "Allowed agents must exist before publishing model."
+        },
+        "ignore_fields": [
+            "instance"
+        ],
+        "test_summary": "Step 4: Attempt to publish archived model - expects 422 (Allowed agents must exist before publishing)",
+        "test_scenario": "Publishing an archived model without allowed agents returns 422 Invalid Request"
     },
     {
         "test_id": "TC003",
@@ -419,17 +429,153 @@
         "payload": null,
         "expected_status": "404",
         "expected_response": {
-            "type": "ResourceNotFound",
-            "title": "ModelActive.NotFound",
+            "type": "https://assetmark.atlassian.net/wiki/spaces/PE/pages/2303590438/Standard+Error+Codes+and+Messaging#resource-not-found",
+            "title": "Resource Not Found",
             "status": 404,
-            "detail": "Unable to find model 99999999-9999-9999-9999-999999999999"
+            "detail": "Unable to find model 99999999-9999-9999-9999-999999999999",
+            "instance": "/api/models/v1/models/99999999-9999-9999-9999-999999999999"
         },
+        "ignore_fields": [
+            "instance"
+        ],
         "validate": {
             "performance": {
                 "max_response_time_ms": null
-            }
+            },
+            "assertions": [
+                {
+                    "actual": "{{del03_type}}",
+                    "operator": "!=",
+                    "expected": "ResourceNotFound",
+                    "message": "AC2: type must not be non-URI value 'ResourceNotFound'"
+                },
+                {
+                    "actual": "{{del03_type}}",
+                    "operator": "!=",
+                    "expected": "InvalidInput",
+                    "message": "AC2: type must not be non-URI value 'InvalidInput'"
+                },
+                {
+                    "actual": "{{del03_type}}",
+                    "operator": "!=",
+                    "expected": "BusinessRuleViolation",
+                    "message": "AC2: type must not be non-URI value 'BusinessRuleViolation'"
+                },
+                {
+                    "actual": "{{del03_type}}",
+                    "operator": "!=",
+                    "expected": null,
+                    "message": "AC1: type field must be present"
+                },
+                {
+                    "actual": "{{del03_type}}",
+                    "operator": "!=",
+                    "expected": "",
+                    "message": "AC2: type must not be empty string"
+                },
+                {
+                    "actual": "{{del03_title}}",
+                    "operator": "!=",
+                    "expected": "Model.NotFound",
+                    "message": "AC3: title must not be internal code 'Model.NotFound'"
+                },
+                {
+                    "actual": "{{del03_title}}",
+                    "operator": "!=",
+                    "expected": "Model.InvalidId",
+                    "message": "AC3: title must not be internal code 'Model.InvalidId'"
+                },
+                {
+                    "actual": "{{del03_title}}",
+                    "operator": "!=",
+                    "expected": "Model.MismatchVersionModelId",
+                    "message": "AC3: title must not be internal code 'Model.MismatchVersionModelId'"
+                },
+                {
+                    "actual": "{{del03_title}}",
+                    "operator": "!=",
+                    "expected": null,
+                    "message": "AC1: title must be present"
+                },
+                {
+                    "actual": "{{del03_title}}",
+                    "operator": "!=",
+                    "expected": "",
+                    "message": "AC3: title must not be empty string"
+                },
+                {
+                    "actual": "{{del03_status}}",
+                    "operator": "==",
+                    "expected": 404,
+                    "message": "AC4: status in body must equal HTTP 404"
+                },
+                {
+                    "actual": "{{del03_detail}}",
+                    "operator": "!=",
+                    "expected": null,
+                    "message": "AC1: detail must be present"
+                },
+                {
+                    "actual": "{{del03_detail}}",
+                    "operator": "!=",
+                    "expected": "",
+                    "message": "AC1: detail must not be empty"
+                },
+                {
+                    "actual": "{{del03_instance}}",
+                    "operator": "!=",
+                    "expected": null,
+                    "message": "AC5: instance must be present"
+                },
+                {
+                    "actual": "{{del03_instance}}",
+                    "operator": "!=",
+                    "expected": "",
+                    "message": "AC5: instance must contain the request path"
+                },
+                {
+                    "actual": "{{del03_type}}",
+                    "operator": "==",
+                    "expected": "https://assetmark.atlassian.net/wiki/spaces/PE/pages/2303590438/Standard+Error+Codes+and+Messaging#resource-not-found",
+                    "message": "AC2: type must be RFC 9457 URI for resource-not-found"
+                },
+                {
+                    "actual": "{{del03_title}}",
+                    "operator": "==",
+                    "expected": "Resource Not Found",
+                    "message": "AC3: title must be human-readable 'Resource Not Found'"
+                }
+            ]
         },
         "test_summary": "Negative Test: Attempt to delete a non-existent model ID",
-        "test_scenario": "Verify appropriate error response when trying to delete a model that doesn't exist"
+        "test_scenario": "Verify appropriate error response when trying to delete a model that doesn't exist",
+        "expected_response_schema": "models/schemas/Schema_error_404.json",
+        "extract_values": [
+            {
+                "from": "response",
+                "key": "type",
+                "assign_to": "del03_type"
+            },
+            {
+                "from": "response",
+                "key": "title",
+                "assign_to": "del03_title"
+            },
+            {
+                "from": "response",
+                "key": "status",
+                "assign_to": "del03_status"
+            },
+            {
+                "from": "response",
+                "key": "detail",
+                "assign_to": "del03_detail"
+            },
+            {
+                "from": "response",
+                "key": "instance",
+                "assign_to": "del03_instance"
+            }
+        ]
     }
 ]

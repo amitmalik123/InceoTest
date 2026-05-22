@@ -18,10 +18,16 @@ from utils.crypto_utils import decrypt_value
 
 def load_influxdb_config():
     """Load InfluxDB configuration from config file or environment variables"""
-    config_path = Path(__file__).parent.parent / "config" / "influxdb_config.json"
+    config_root = Path(__file__).parent.parent / "config"
+    config_candidates = [
+        config_root / "influxdb_config.json",
+        config_root / "PortfolioReporting" / "influxdb_config.json",
+    ]
 
     # Try to load from config file first
-    if config_path.exists():
+    for config_path in config_candidates:
+        if not config_path.exists():
+            continue
         try:
             with open(config_path, "r") as f:
                 config = json.load(f)
@@ -34,7 +40,7 @@ def load_influxdb_config():
                     "auto_push": config.get("auto_push", False),
                 }
         except Exception as e:
-            print(f"⚠️  Error loading InfluxDB config file: {e}")
+            print(f"⚠️  Error loading InfluxDB config file '{config_path}': {e}")
 
     # Fall back to environment variables
     return {
@@ -228,7 +234,15 @@ class AllureToInfluxDB:
         """Create InfluxDB line protocol points from metrics"""
         timestamp = int(datetime.now().timestamp() * 1e9)  # nanoseconds
 
-        tags = f'build_id={self.build_id},environment={self.environment},build_reason={self.build_reason},project_name={self.project_name}'
+        def _escape_tag(val: str) -> str:
+            return val.replace(",", r"\,").replace(" ", r"\ ").replace("=", r"\=")
+
+        tags = (
+            f"build_id={_escape_tag(self.build_id)},"
+            f"environment={_escape_tag(self.environment)},"
+            f"build_reason={_escape_tag(self.build_reason)},"
+            f"project_name={_escape_tag(self.project_name)}"
+        )
 
         # Main test execution metrics
         points = [
@@ -240,7 +254,7 @@ class AllureToInfluxDB:
             f'flaky={metrics["flaky"]}i,'
             f'retried={metrics["retried"]}i,'
             f'pass_rate={metrics["pass_rate"]:.2f},'
-            f'total_duration={int(metrics["total_duration"])}i '
+            f'total_duration={int(round(metrics["total_duration"]))}i '
             f"{timestamp}"
         ]
 

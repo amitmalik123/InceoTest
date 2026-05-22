@@ -993,22 +993,6 @@ class OutlookClient:
             return None
         return email_obj.body_html if prefer_html else email_obj.body_text
 
-"""Outlook OTP Page Object for Playwright-based email automation"""
-
-import time
-import os
-import re
-import email as pyemail
-from typing import Optional
-from configparser import ConfigParser
-from playwright.sync_api import Page, Locator, expect
-from pages.base_page import BasePage
-from utils.allure_logger import get_allure_logger
-from utils.encryption_utility import EncryptionUtility
-from utils.email_utils import IMAPEmailClient
-
-logger = get_allure_logger(__name__)
-
 
 class OutlookOTPPage(BasePage):
     """

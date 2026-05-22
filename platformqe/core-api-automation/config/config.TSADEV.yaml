@@ -20,10 +20,13 @@ db_connections:
   # MSSQL Connections - Multiple servers and databases
   mssql:
     tracking_center:
-      driver: "ODBC Driver 17 for SQL Server"
-      server: "t12ewmdba"
-      database: "TrackingCenter"
-      trusted_connection: true
+      connection_string: "${TRACKING_CENTER_SQLDB}"
+
+    platform_db:
+      connection_string: "${PLATFORM_DB_SQLDB}"
+
+    am_db:
+      connection_string: "${AM_DB_SQLDB}"    
     
     account_service:
       connection_string: "${ACCOUNTS_SQLDB}"
@@ -161,6 +164,22 @@ api_endpoints:
     use_azure_auth: false  # Set to true to use Azure AD authentication
     azure_resource: "https://management.azure.com/"
 
+  strategies:
+    base_url: "${STRATEGIES_BASE_URL}"  # Fetched from Azure variable group: qa-pipelines-variable-group-test
+    auth_token: "${STRATEGIES_AUTH_TOKEN}"
+    timeout: ${API_TIMEOUT:30}
+    retry_count: ${API_RETRY_COUNT:3}
+    use_azure_auth: false  # Set to true to use Azure AD authentication
+    azure_resource: "https://management.azure.com/"  # Azure resource for token generation
+
+  wrapToken:
+    base_url: "${WRAPTOKEN_BASE_URL}"  # Fetched from Azure variable group: qa-pipelines-variable-group-test
+    auth_token: "${WRAPTOKEN_AUTH_TOKEN}"
+    timeout: ${API_TIMEOUT:30}
+    retry_count: ${API_RETRY_COUNT:3}
+    use_azure_auth: false  # Set to true to use Azure AD authentication
+    azure_resource: "https://management.azure.com/"  # Azure resource for token generation
+
   hnebase:
     base_url: "${HNE_BASE_URL}"  # Fetched from Azure variable group: qa-pipelines-variable-group-dev
     auth_token: "${HNEBASE_AUTH_TOKEN}"
@@ -168,6 +187,13 @@ api_endpoints:
     retry_count: ${API_RETRY_COUNT:3}
     use_azure_auth: false  # Set to true to use Azure AD authentication
     azure_resource: "https://management.azure.com/"  # Azure resource for token generation
+
+  documentsproxy:
+    base_url: "${DOCUMENTSPROXY_BASE_URL}"
+    auth_token: "${DOCUMENTSPROXY_AUTH_TOKEN}"
+    timeout: 120  # Reducto pipeline can take up to 2 min; do not use API_TIMEOUT override here
+    retry_count: ${API_RETRY_COUNT:3}
+    verify: false
 
   lexisnexiscipproxyservice:
     base_url: "${LEXISNEXIS_BASE_URL}"
@@ -194,5 +220,5 @@ feature_flags:
   enable_feature_x: true
 
   # Synced from .env
-env_name: "TSADEV"
+env_name: "TSATEST"
 appinsights_instrumentation_key: "your_instrumentation_key_here"

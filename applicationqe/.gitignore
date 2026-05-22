@@ -1,0 +1,108 @@
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+build/
+develop-eggs/
+dist/
+downloads/
+eggs/
+.eggs/
+lib/
+lib64/
+parts/
+sdist/
+var/
+wheels/
+*.egg-info/
+.installed.cfg
+*.egg
+MANIFEST
+venv/
+ENV/
+env/
+sandbox/
+scripts/
+ai/
+
+# Temporary - Work in Progress (remove from .gitignore once stable)
+temp_recording*.py           # Playwright codegen recordings
+
+
+# Development utilities (one-time setup scripts)
+generate_credentials.py
+
+# Pytest
+.pytest_cache/
+.tox/
+htmlcov/
+.coverage
+.coverage.*
+coverage.xml
+*.cover
+
+# Playwright
+test-results/
+playwright-report/
+traces/
+videos/
+screenshots/
+
+# Authentication state files (contains session tokens, browser cookies, credentials)
+# All files in .auth/ are dynamically created during test execution
+tests/.auth/
+tests/.auth/*.json
+
+# Reports
+# reports/ folder is now tracked for storing test outputs and results
+# Ignore only the auto-generated subdirectories within reports/
+reports/junit/
+reports/allure-results/
+reports/allure-report/
+reports/*.html
+reports/*.png
+
+# Environment
+.env
+
+# IDE
+# .vscode/ is NOT ignored — we commit .vscode/mcp.json for MCP server config
+.vscode/*
+!.vscode/mcp.json
+.idea/
+*.swp
+*.swo
+*~
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Logs
+*.log
+logs/
+PROMPTS_LOG.md
+
+# Markdown files (documentation/notes - not for version control)
+*.md
+
+# Old test output files (encoding issues, not for version control)
+*.txt
+
+# Contracts (generated/temporary)
+contracts/
+
+# ChromaDB (local vector database - not for version control)
+.chromadb/
+.chromadb_backup_*/
+
+# AI Generated (review before installing into framework)
+ai/generated/
+
+# SonarQube
+.scannerwork/
+.sonar/
+sonar-project.properties.bak
+.vscode/mcp.json

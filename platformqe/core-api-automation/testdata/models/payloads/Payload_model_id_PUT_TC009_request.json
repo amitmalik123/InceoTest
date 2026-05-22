@@ -1,37 +1,28 @@
 {
-    "name": "string",
-    "modelType": "string",
-    "solutionType": "string",
-    "custodians": [
-        "string"
+    "name": "Test Model - Invalid Allocation Weight",
+    "allocations": [
+        {
+            "entityType": "Security",
+            "allocationName": "SPDR S&P 500 ETF Trust",
+            "modelId": "",
+            "cusip": "78462F103",
+            "ticker": "SPY",
+            "weight": 1.5
+        }
     ],
     "investmentApproachId": null,
     "benchmark": [
         {
-            "name": "string",
+            "name": "60/40 Balanced Index",
             "isPrimary": true
         }
     ],
-    "investmentMins": [
-        {
-            "type": "System",
-            "value": 2
-        }
+    "custodians": [
+        "Fidelity"
     ],
-    "riskProfile": "string",
-    "allocations": [
-        {
-            "entityType": "Security",
-            "allocationName": "string",
-            "modelId": "string",
-            "cusip": "string",
-            "ticker": "string",
-            "weight": 0
-        }
-    ],
-    "versionMetadata": {
-        "additionalProp1": "string",
-        "additionalProp2": "string",
-        "additionalProp3": "string"
-    }
+    "investmentMins": {
+        "standard": 25000
+    },
+    "riskProfile": "Moderate Risk",
+    "versionMetadata": {}
 }

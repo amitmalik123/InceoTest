@@ -101,10 +101,10 @@ api_endpoints:
     retry_count: ${API_RETRY_COUNT:3}
     verify: false
 
-  proxyservice:
-    base_url: "${PROXYSERVICE_BASE_URL}"  # Fetched from Azure variable group: qa-pipelines-variable-group-dev
-    auth_token: "${PROXYSERVICE_AUTH_TOKEN}"
-    timeout: ${API_TIMEOUT:30}
+  documentsproxy:
+    base_url: "${DOCUMENTSPROXY_BASE_URL}"
+    auth_token: "${DOCUMENTSPROXY_AUTH_TOKEN}"
+    timeout: 120  # Reducto pipeline can take up to 2 min; do not use API_TIMEOUT override here
     retry_count: ${API_RETRY_COUNT:3}
     verify: false
 

@@ -1,0 +1,26 @@
+"""Locators for OA Tool Landing Page elements."""
+
+
+class OAToolLandingLocators:
+    """Raw selector strings for the OA Tool Landing page."""
+
+    CLIENT_HOUSEHOLD = "//span[text()='Account Information']//parent::div//parent::div/following-sibling::div/child::div"
+    MARKET_VALUE_AMOUNT = "//span[text()='Market Value']/parent::div//following-sibling::span"
+    CASH_AVAILABLE_AMOUNT = "//span[text()='Cash Available']/parent::div//following-sibling::span"
+    RESTRICTED_CASH_AMOUNT = "//span[text()='Restricted Cash']/parent::div//following-sibling::span"
+    MARKET_VALUE_INFO_ICON = "//span[text()='Market Value']/following-sibling::button"
+    CASH_AVAILABLE_INFO_ICON = "//span[text()='Cash Available']/following-sibling::button"
+    RESTRICTED_CASH_INFO_ICON = "//span[text()='Restricted Cash']/following-sibling::button"
+    MARKET_VALUE_INFO_POPUP = "(//span[text()='Market Value']/parent::div/parent::div/parent::div)[1]"
+    CASH_AVAILABLE_INFO_POPUP = "(//span[text()='Cash Available']/parent::div/parent::div/parent::div)[1]"
+    RESTRICTED_CASH_INFO_POPUP = "(//span[text()='Restricted Cash']/parent::div/parent::div/parent::div)[1]"
+    REQUEST_TYPE_CONTAINER = "//div[@id='request-type-container']"
+    ADVISOR_ID = "//p[contains(text(),'Advisor ID')] | //div[contains(text(),'Advisor ID')]"
+    DISABLED_RADIO_BUTTONS1 = "(//button[@tabindex='-1'])[1]"
+    DISABLED_RADIO_BUTTONS2 = "(//button[@tabindex='-1'])[2]"
+    NEXT_BUTTON = "//span[text()='Next']"
+    BUTTON_OTW = "//p[contains(text(),'One Time Withdrawal')]"
+    BOTTOM_HYPERLINKS = "(//div[contains(text(),'Privacy and Security')] //parent::div//div) | (//p[contains(text(),'Privacy and Security')] //parent::a/parent::div//child::a)"
+    ASSETMARK_BOTTOM_HEADING = "p[class*='Copyright-module__desktopText']"
+    ASSETMARK_IMAGE = "img[alt='AssetMark']"
+    PAGE_TITLE = "//span[text()='Trading and Account Management'] | //p[text()='Trading and Account Management']"

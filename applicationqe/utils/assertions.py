@@ -5,12 +5,10 @@ Provides both hard and soft assertion capabilities for test validation.
 Hard assertions fail immediately, while soft assertions collect all failures.
 """
 
-import logging
 from typing import Any, Callable, List, Optional
 
 import allure
 from playwright.sync_api import Locator, Page, expect
-from playwright.sync_api import TimeoutError as PlaywrightTimeoutError
 
 from utils.allure_logger import get_allure_logger
 
@@ -326,20 +324,10 @@ class Assertions:
     """
     Hard assertions that fail immediately.
     Wrapper around standard assertions with better error messages.
-    Logs every assertion result to Allure as 'Assertion Passed/Failed'.
 
     Example:
         Assertions.assert_equal(actual, expected, "Values should match")
-        Assertions.assert_equals("Client name", expected="John", actual="John")
     """
-
-    @staticmethod
-    def _log(message: str, passed: bool) -> None:
-        status = "Passed" if passed else "Failed"
-        step_title = f"Assertion {status}:  '{message}'"
-        (logger.info if passed else logger.error)(step_title)
-        with allure.step(step_title):
-            pass
 
     @staticmethod
     def assert_equal(actual: Any, expected: Any, message: Optional[str] = None):
@@ -351,63 +339,54 @@ class Assertions:
     def assert_not_equal(actual: Any, expected: Any, message: Optional[str] = None):
         """Assert two values are not equal"""
         msg = message or f"Expected values to be different, but both are '{actual}'"
-        Assertions._log(msg, actual != expected)
         assert actual != expected, msg
 
     @staticmethod
     def assert_true(condition: bool, message: Optional[str] = None):
         """Assert condition is True"""
         msg = message or "Expected condition to be True, but was False"
-        Assertions._log(msg, bool(condition))
-        assert condition, msg
+        assert condition is True, msg
 
     @staticmethod
     def assert_false(condition: bool, message: Optional[str] = None):
         """Assert condition is False"""
         msg = message or "Expected condition to be False, but was True"
-        Assertions._log(msg, not condition)
-        assert not condition, msg
+        assert condition is False, msg
 
     @staticmethod
     def assert_in(item: Any, container: Any, message: Optional[str] = None):
         """Assert item is in container"""
         msg = message or f"Expected '{item}' to be in '{container}'"
-        Assertions._log(msg, item in container)
         assert item in container, msg
 
     @staticmethod
     def assert_not_in(item: Any, container: Any, message: Optional[str] = None):
         """Assert item is not in container"""
         msg = message or f"Expected '{item}' to not be in '{container}'"
-        Assertions._log(msg, item not in container)
         assert item not in container, msg
 
     @staticmethod
     def assert_greater(actual: Any, expected: Any, message: Optional[str] = None):
         """Assert actual > expected"""
         msg = message or f"Expected {actual} > {expected}"
-        Assertions._log(msg, actual > expected)
         assert actual > expected, msg
 
     @staticmethod
     def assert_less(actual: Any, expected: Any, message: Optional[str] = None):
         """Assert actual < expected"""
         msg = message or f"Expected {actual} < {expected}"
-        Assertions._log(msg, actual < expected)
         assert actual < expected, msg
 
     @staticmethod
     def assert_is_none(value: Any, message: Optional[str] = None):
         """Assert value is None"""
         msg = message or f"Expected None, but got '{value}'"
-        Assertions._log(msg, value is None)
         assert value is None, msg
 
     @staticmethod
     def assert_is_not_none(value: Any, message: Optional[str] = None):
         """Assert value is not None"""
         msg = message or "Expected value to not be None"
-        Assertions._log(msg, value is not None)
         assert value is not None, msg
 
     @staticmethod
@@ -419,8 +398,8 @@ class Assertions:
             contains = substring in text
         else:
             contains = substring.lower() in text.lower()
+
         msg = message or f"Expected '{text}' to contain '{substring}'"
-        Assertions._log(msg, contains)
         assert contains, msg
 
     @staticmethod
@@ -428,59 +407,7 @@ class Assertions:
         """Assert container has expected length"""
         actual_length = len(container)
         msg = message or f"Expected length {expected_length}, but got {actual_length}"
-        Assertions._log(msg, actual_length == expected_length)
         assert actual_length == expected_length, msg
-
-    @staticmethod
-    def assert_equals(message: str = "", expected: Any = None, actual: Any = None) -> None:
-        """Assert expected == actual (case-insensitive for strings). Java AssertService style."""
-        exp, act = str(expected).strip(), str(actual).strip()
-        match = exp.lower() == act.lower()
-        detail = f"{message} : Actual = '{act}', Expected = '{exp}'" if message else f"'{exp}'(expected) {'==' if match else '!='} '{act}'(actual)"
-        Assertions._log(detail, match)
-        assert match, detail
-
-    @staticmethod
-    def fail(message: str) -> None:
-        Assertions._log(message, False)
-        assert False, message
-
-    @staticmethod
-    def assert_element_text(locator: Locator, expected_text: str, exact: bool = False) -> bool:
-        actual_text = (locator.text_content() or "").strip()
-        if exact:
-            result = actual_text == expected_text
-        else:
-            result = expected_text.lower() in actual_text.lower()
-        msg = f"Expected text '{expected_text}' not found. Got: '{actual_text}'"
-        Assertions._log(msg, result)
-        assert result, msg
-        return True
-
-    @staticmethod
-    def assert_element_visible(locator: Locator, should_be_visible: bool = True, timeout: int = 5000) -> bool:
-        try:
-            locator.wait_for(state="visible", timeout=timeout)
-            is_visible = True
-        except PlaywrightTimeoutError:
-            is_visible = False
-        msg = f"Element visibility: expected visible={should_be_visible}, got={is_visible}"
-        Assertions._log(msg, is_visible == should_be_visible)
-        assert is_visible == should_be_visible, msg
-        return True
-
-    @staticmethod
-    def assert_page_loaded(required_elements: list) -> bool:
-        all_visible = True
-        for locator in required_elements:
-            try:
-                locator.wait_for(state="visible", timeout=5000)
-            except PlaywrightTimeoutError:
-                all_visible = False
-        msg = "Not all required page elements loaded"
-        Assertions._log(msg, all_visible)
-        assert all_visible, msg
-        return True
 
     # Playwright-specific hard assertions (using Playwright's expect)
     @staticmethod

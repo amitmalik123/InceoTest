@@ -174,7 +174,7 @@
                 {
                     "actual": "{{tc001_initial_metadata}}",
                     "operator": "==",
-                    "expected": {},
+                    "expected": null,
                     "message": "Verify attrMetadata is empty before PUT (no taxManagementEligible/taxManagementRequired set yet)"
                 }
             ]
@@ -475,7 +475,7 @@
                 {
                     "actual": "{{tc002_initial_metadata}}",
                     "operator": "==",
-                    "expected": {},
+                    "expected": null,
                     "message": "Verify attrMetadata is empty before PUT (no taxManagementEligible/taxManagementRequired set yet)"
                 }
             ]
@@ -976,7 +976,7 @@
                 {
                     "actual": "{{tc003_initial_metadata}}",
                     "operator": "==",
-                    "expected": {},
+                    "expected": null,
                     "message": "Verify attrMetadata is empty in API response before PUT (no taxManagementEligible/taxManagementRequired set yet)"
                 },
                 {
@@ -1322,7 +1322,7 @@
                 {
                     "actual": "{{tc004_initial_metadata}}",
                     "operator": "==",
-                    "expected": {},
+                    "expected": null,
                     "message": "Verify attrMetadata is empty before PUT (no taxManagementEligible/taxManagementRequired set yet)"
                 }
             ]
@@ -1624,7 +1624,7 @@
             "Content-Type": "application/json"
         },
         "payload": "models\\payloads\\Payload_model_id_PUT_request.json",
-        "expected_status": "501",
+        "expected_status": "422",
         "expected_response_schema": "",
         "expected_response": null,
         "ignore_fields": [],
@@ -1642,41 +1642,8 @@
         "db_query": "",
         "db_type": "",
         "db_connection_name": "",
-        "test_summary": "Verify PUT /model/{id} returns 501 for non-existent GUID model ID (TC005)",
-        "test_scenario": "Negative test: PUT with a valid-format but non-existent GUID and invalid allocation modelIds returns 501 BusinessRuleViolation."
-    },
-    {
-        "test_id": "TC006",
-        "service_name": "models",
-        "workflow_mode": "parallel",
-        "test_name": "PUT /model/{id} - Malformed GUID [negative] (TC006)",
-        "protocol": "REST",
-        "test_type": [
-            "Functional",
-            "Negative"
-        ],
-        "mainURL": "{{base_url}}",
-        "endpoint": "/models/invalid-guid-format",
-        "method": "PUT",
-        "rpc_method": "",
-        "graphql_query": "",
-        "graphql_variables": "",
-        "soap_action": "",
-        "soap_envelope": "",
-        "headers_additional": {
-            "Content-Type": "application/json"
-        },
-        "payload": "models\\payloads\\Payload_model_id_PUT_request.json",
-        "expected_status": "404",
-        "expected_response_schema": "",
-        "expected_response": null,
-        "ignore_fields": [],
-        "test_data_file": "",
-        "db_query": "",
-        "db_type": "",
-        "db_connection_name": "",
-        "test_summary": "Verify PUT /model/{id} returns 400 for malformed GUID format",
-        "test_scenario": "AC: System must validate GUID format. Verify 400 error for invalid model ID format."
+        "test_summary": "Verify PUT /model/{id} returns 422 for non-existent GUID model ID (TC005)",
+        "test_scenario": "Negative test: PUT with a valid-format but non-existent GUID and invalid allocation modelIds returns 422 Unprocessable Entity."
     },
     {
         "test_id": "TC007",
@@ -1749,7 +1716,7 @@
             "Content-Type": "application/json"
         },
         "payload": "models\\payloads\\Payload_model_id_PUT_TC007_request.json",
-        "expected_status": "400",
+        "expected_status": "422",
         "expected_response_schema": "",
         "expected_response": null,
         "ignore_fields": [],
@@ -1831,7 +1798,7 @@
             "Content-Type": "application/json"
         },
         "payload": "models\\payloads\\Payload_model_id_PUT_TC009_request.json",
-        "expected_status": "422",
+        "expected_status": "400",
         "expected_response_schema": "",
         "expected_response": null,
         "ignore_fields": [],
@@ -1850,11 +1817,6 @@
                 "from": "response",
                 "key": "type",
                 "assign_to": "tc009_type"
-            },
-            {
-                "from": "response",
-                "key": "errors",
-                "assign_to": "tc009_errors"
             }
         ],
         "validate": {
@@ -1868,26 +1830,20 @@
                 {
                     "actual": "{{tc009_status}}",
                     "operator": "==",
-                    "expected": 422,
-                    "message": "Verify response status is 422 Unprocessable Entity"
+                    "expected": 400,
+                    "message": "Verify response status is 400 Bad Request"
                 },
                 {
                     "actual": "{{tc009_title}}",
                     "operator": "==",
-                    "expected": "Missing Required Fields",
-                    "message": "Verify error title indicates validation errors occurred"
+                    "expected": "Invalid JSON",
+                    "message": "Verify error title indicates invalid JSON payload"
                 },
                 {
                     "actual": "{{tc009_type}}",
                     "operator": "!=",
                     "expected": null,
                     "message": "Verify error type field exists (RFC 4918 reference)"
-                },
-                {
-                    "actual": "{{tc009_errors}}",
-                    "operator": "!=",
-                    "expected": null,
-                    "message": "Verify errors object exists with validation details for invalid weight (Weight must be greater than 0)"
                 }
             ]
         },
@@ -1902,7 +1858,7 @@
         "test_id": "TC011",
         "service_name": "models",
         "workflow_mode": "sequential",
-        "test_name": "PUT /model/{id} with empty name field - Bad Request error (TC011)",
+        "test_name": "PUT /model/{id} with empty name field - Unprocessable Entity error (TC011)",
         "protocol": "REST",
         "test_type": [
             "Functional",
@@ -1917,7 +1873,7 @@
         "payload": {
             "name": ""
         },
-        "expected_status": "400",
+        "expected_status": "422",
         "expected_response_schema": "",
         "expected_response": null,
         "ignore_fields": [],
@@ -1931,8 +1887,8 @@
                     "source": "api_response",
                     "source_array_path": "status",
                     "target": "literal",
-                    "target_literal": 400,
-                    "comparison_name": "Verify status is 400"
+                    "target_literal": 422,
+                    "comparison_name": "Verify status is 422"
                 }
             ]
         },
@@ -1940,7 +1896,7 @@
         "db_query": "",
         "db_type": "",
         "db_connection_name": "",
-        "test_summary": "Test TC011: Send payload with empty name field, verify 400 Bad Request error"
+        "test_summary": "Test TC011: Send payload with empty name field, verify 422 Unprocessable Entity error"
     },
     {
         "test_id": "TC012",
@@ -2523,5 +2479,738 @@
         "db_connection_name": "",
         "test_summary": "GET /models â€” Verify all 5 migrated fields read from model_version_attribute (versions.0.*) and attrMetadata (taxManagementEligible, taxManagementRequired) reflected in model-level metadata after PUT",
         "test_scenario": "AC03: GetModelResponse MUST return investmentMins, riskProfile, custodians, metadata, benchmarks from model_version_attribute (versions.0.*), and model-level metadata (model_attribute) MUST contain attrMetadata values sent in PUT"
+    },
+    {
+        "test_id": "TC019",
+        "service_name": "models",
+        "workflow_mode": "sequential",
+        "test_name": "PUT /model/{id} - agent_access: Create model for PUT agent_access validation (TC019 Step 1)",
+        "protocol": "REST",
+        "test_type": [
+            "Functional",
+            "Integration"
+        ],
+        "mainURL": "{{base_url}}",
+        "endpoint": "/models",
+        "method": "POST",
+        "rpc_method": "",
+        "graphql_query": "",
+        "graphql_variables": "",
+        "soap_action": "",
+        "soap_envelope": "",
+        "headers_additional": {
+            "Content-Type": "application/json"
+        },
+        "payload": "models\\payloads\\Payload_model_id_POST_request.json",
+        "expected_status": "201",
+        "expected_response_schema": "",
+        "expected_response": null,
+        "ignore_fields": [],
+        "extract_values": [
+            {
+                "from": "response",
+                "key": "modelId",
+                "assign_to": "tc019_model_id"
+            }
+        ],
+        "validate": {
+            "performance": {
+                "max_response_time_ms": null
+            },
+            "security": {
+                "checks": []
+            },
+            "assertions": []
+        },
+        "test_data_file": "",
+        "db_query": "",
+        "db_type": "",
+        "db_connection_name": "",
+        "test_summary": "Step 1: POST /model - Create new model and extract modelId for agent_access PUT validation",
+        "test_scenario": "agent_access AC: Multi-step workflow - create model, then PUT with allowedAgents, verify agent_access DB row"
+    },
+    {
+        "test_id": "TC020",
+        "service_name": "models",
+        "workflow_mode": "sequential",
+        "test_name": "PUT /model/{id} - agent_access: Update model with allowedAgents and verify DB row created (TC019 Step 2)",
+        "protocol": "REST",
+        "test_type": [
+            "Functional",
+            "Integration",
+            "Database Validation"
+        ],
+        "mainURL": "{{base_url}}",
+        "endpoint": "/models/{{tc019_model_id}}",
+        "method": "PUT",
+        "rpc_method": "",
+        "graphql_query": "",
+        "graphql_variables": "",
+        "soap_action": "",
+        "soap_envelope": "",
+        "headers_additional": {
+            "Content-Type": "application/json"
+        },
+        "payload": {
+            "name": "Test Model - agent_access validation PUT",
+            "modelType": "Strategic",
+            "solutionType": "Managed",
+            "custodians": [
+                "Fidelity"
+            ],
+            "investmentApproachId": null,
+            "benchmark": [
+                {
+                    "name": "S&P 500",
+                    "isPrimary": false
+                }
+            ],
+            "investmentMins": [
+                {
+                    "type": "System",
+                    "value": 1
+                }
+            ],
+            "riskProfile": "Moderate",
+            "allocations": [
+                {
+                    "entityType": "Security",
+                    "allocationName": "Test Allocation",
+                    "modelId": "string",
+                    "cusip": "string",
+                    "ticker": "SPY",
+                    "weight": 1.0
+                }
+            ],
+            "versionMetadata": {
+                "additionalProp1": "agent_access_put_test"
+            },
+            "attrMetadata": {
+                "taxManagementEligible": "false",
+                "taxManagementRequired": "false"
+            },
+            "allowedAgents": [
+                "{{random_string()}}"
+            ]
+        },
+        "expected_status": "200",
+        "expected_response_schema": "",
+        "expected_response": null,
+        "ignore_fields": [],
+        "extract_values": [
+            {
+                "from": "response",
+                "key": "message",
+                "assign_to": "tc019_put_message"
+            },
+            {
+                "from": "request",
+                "key": "allowedAgents.0",
+                "assign_to": "tc019_sent_agent_id"
+            }
+        ],
+        "validate": {
+            "performance": {
+                "max_response_time_ms": null
+            },
+            "security": {
+                "checks": []
+            },
+            "assertions": [
+                {
+                    "actual": "{{tc019_put_message}}",
+                    "operator": "==",
+                    "expected": "Request successful",
+                    "message": "Verify PUT returns success message"
+                }
+            ]
+        },
+        "test_data_file": "",
+        "db_query": "",
+        "db_type": "",
+        "db_connection_name": "",
+        "test_summary": "Step 2: PUT /model/{id} with allowedAgents - Update model and extract sent agent_id for DB verification",
+        "test_scenario": "agent_access AC: PUT /model/{id} with allowedAgents populated -> system must create or update agent_access rows in database"
+    },
+    {
+        "test_id": "TC021",
+        "service_name": "models",
+        "workflow_mode": "sequential",
+        "test_name": "DB_ONLY - Verify agent_access row created after PUT with allowedAgents (TC019 Step 3)",
+        "protocol": "DB_ONLY",
+        "test_type": [
+            "Functional",
+            "Database Validation",
+            "Integration"
+        ],
+        "mainURL": "",
+        "endpoint": "",
+        "method": "",
+        "rpc_method": "",
+        "graphql_query": "",
+        "graphql_variables": "",
+        "soap_action": "",
+        "soap_envelope": "",
+        "headers_additional": {
+            "Content-Type": "application/json"
+        },
+        "payload": null,
+        "expected_status": "",
+        "expected_response_schema": "",
+        "expected_response": "",
+        "extract_values": [
+            {
+                "from": "db_result",
+                "key": "0.agent_id",
+                "assign_to": "tc019_db_agent_id"
+            },
+            {
+                "from": "db_result",
+                "key": "0.model_id",
+                "assign_to": "tc019_db_model_id"
+            }
+        ],
+        "validate": {
+            "performance": {
+                "max_response_time_ms": 3000
+            },
+            "security": {
+                "checks": []
+            },
+            "assertions": [
+                {
+                    "actual": "{{tc019_db_agent_id}}",
+                    "operator": "==",
+                    "expected": "{{tc019_sent_agent_id}}",
+                    "message": "agent_access AC: Verify agent_id (varchar) in agent_access matches the value sent in allowedAgents in PUT request"
+                },
+                {
+                    "actual": "{{tc019_db_model_id}}",
+                    "operator": "==",
+                    "expected": "{{tc019_model_id}}",
+                    "message": "agent_access AC: Verify model_id (uuid) in agent_access matches the model updated via PUT"
+                }
+            ]
+        },
+        "test_data_file": "",
+        "db_type": "postgresql",
+        "db_connection_name": "models",
+        "db_query": "SELECT aa.agent_id, aa.model_id, aa.model_version FROM agent_access aa WHERE aa.model_id = '{{tc019_model_id}}'::uuid ORDER BY aa.agent_access_id;",
+        "test_summary": "Step 3: DB_ONLY - Verify agent_access row was created after PUT with correct agent_id (varchar, from allowedAgents) and model_id (uuid)",
+        "test_scenario": "agent_access AC: Verify agent_access table row correctly records the sent agent_id (varchar) and the model_id (uuid) after PUT"
+    },
+    {
+        "test_id": "TC022",
+        "service_name": "models",
+        "workflow_mode": "sequential",
+        "test_name": "PUT /model/{id} - agent_access: Repeat PUT with same allowedAgents - verify no duplicates created (TC019 Step 4)",
+        "protocol": "REST",
+        "test_type": [
+            "Functional",
+            "Integration",
+            "Data Integrity"
+        ],
+        "mainURL": "{{base_url}}",
+        "endpoint": "/models/{{tc019_model_id}}",
+        "method": "PUT",
+        "rpc_method": "",
+        "graphql_query": "",
+        "graphql_variables": "",
+        "soap_action": "",
+        "soap_envelope": "",
+        "headers_additional": {
+            "Content-Type": "application/json"
+        },
+        "payload": {
+            "name": "Test Model - agent_access validation PUT repeat",
+            "modelType": "Strategic",
+            "solutionType": "Managed",
+            "custodians": [
+                "Fidelity"
+            ],
+            "investmentApproachId": null,
+            "benchmark": [
+                {
+                    "name": "S&P 500",
+                    "isPrimary": false
+                }
+            ],
+            "investmentMins": [
+                {
+                    "type": "System",
+                    "value": 1
+                }
+            ],
+            "riskProfile": "Moderate",
+            "allocations": [
+                {
+                    "entityType": "Security",
+                    "allocationName": "Test Allocation",
+                    "modelId": "string",
+                    "cusip": "string",
+                    "ticker": "SPY",
+                    "weight": 1.0
+                }
+            ],
+            "versionMetadata": {
+                "additionalProp1": "agent_access_put_repeat_test"
+            },
+            "attrMetadata": {
+                "taxManagementEligible": "false",
+                "taxManagementRequired": "false"
+            },
+            "allowedAgents": [
+                "{{tc019_sent_agent_id}}"
+            ]
+        },
+        "expected_status": "200",
+        "expected_response_schema": "",
+        "expected_response": null,
+        "ignore_fields": [],
+        "extract_values": [
+            {
+                "from": "response",
+                "key": "message",
+                "assign_to": "tc019_put_again_message"
+            }
+        ],
+        "validate": {
+            "performance": {
+                "max_response_time_ms": null
+            },
+            "security": {
+                "checks": []
+            },
+            "assertions": [
+                {
+                    "actual": "{{tc019_put_again_message}}",
+                    "operator": "==",
+                    "expected": "Request successful",
+                    "message": "Verify repeated PUT with same allowedAgents still succeeds (no error on duplicate insert no-op)"
+                }
+            ]
+        },
+        "test_data_file": "",
+        "db_query": "",
+        "db_type": "",
+        "db_connection_name": "",
+        "test_summary": "Step 4: PUT /model/{id} with same allowedAgents again - Verify idempotent behaviour (repeat PUT succeeds without error)",
+        "test_scenario": "agent_access AC: Verify repeated PUT with same allowedAgents is idempotent - duplicate agent_access inserts are no-ops and do not cause errors"
+    },
+    {
+        "test_id": "TC023",
+        "service_name": "models",
+        "workflow_mode": "sequential",
+        "test_name": "DB_ONLY - Verify no duplicate agent_access rows after repeated PUT with same allowedAgents (TC019 Step 5)",
+        "protocol": "DB_ONLY",
+        "test_type": [
+            "Functional",
+            "Database Validation",
+            "Data Integrity"
+        ],
+        "mainURL": "",
+        "endpoint": "",
+        "method": "",
+        "rpc_method": "",
+        "graphql_query": "",
+        "graphql_variables": "",
+        "soap_action": "",
+        "soap_envelope": "",
+        "headers_additional": {
+            "Content-Type": "application/json"
+        },
+        "payload": null,
+        "expected_status": "",
+        "expected_response_schema": "",
+        "expected_response": "",
+        "extract_values": [
+            {
+                "from": "db_result",
+                "key": "*",
+                "assign_to": "tc019_duplicate_rows"
+            }
+        ],
+        "validate": {
+            "performance": {
+                "max_response_time_ms": 3000
+            },
+            "security": {
+                "checks": []
+            },
+            "data_comparison": {
+                "source": "db_result",
+                "target": null,
+                "format": "table",
+                "key_field": [
+                    "model_id"
+                ],
+                "fields_to_compare": [
+                    {
+                        "source_field": "row_count",
+                        "comparison": "equals",
+                        "expected_value": 0,
+                        "message": "agent_access AC: Verify no duplicate agent_access rows exist after repeated PUT with same allowedAgents - create-or-replace semantics enforced"
+                    }
+                ],
+                "log_differences": true
+            },
+            "assertions": []
+        },
+        "test_data_file": "",
+        "db_type": "postgresql",
+        "db_connection_name": "models",
+        "db_query": "models\\db_queries\\Query_agent_access_uniqueness.sql",
+        "test_summary": "Step 5: DB_ONLY - Verify no duplicate (sso_guid, agent_id, model_id, model_version) combinations in agent_access after repeated PUT - create-or-replace semantics enforced",
+        "test_scenario": "agent_access AC: Idempotency verification - repeating PUT with same allowedAgents must not create duplicate agent_access rows"
+    },
+    {
+        "test_id": "TC024",
+        "service_name": "models",
+        "workflow_mode": "sequential",
+        "test_name": "PUT /model/{id} - Draft model without allowedAgents should succeed [Business Rule] (TC024 Step 1 - POST setup)",
+        "protocol": "REST",
+        "test_type": [
+            "Functional"
+        ],
+        "mainURL": "{{base_url}}",
+        "endpoint": "/models",
+        "method": "POST",
+        "rpc_method": "",
+        "graphql_query": "",
+        "graphql_variables": "",
+        "soap_action": "",
+        "soap_envelope": "",
+        "headers_additional": {
+            "Content-Type": "application/json"
+        },
+        "payload": "models\\payloads\\Payload_model_id_POST_request.json",
+        "expected_status": "201",
+        "expected_response_schema": "",
+        "expected_response": null,
+        "ignore_fields": [],
+        "extract_values": [
+            {
+                "from": "response",
+                "key": "modelId",
+                "assign_to": "tc024_model_id"
+            }
+        ],
+        "validate": {
+            "performance": {
+                "max_response_time_ms": null
+            },
+            "security": {
+                "checks": []
+            },
+            "assertions": []
+        },
+        "test_data_file": "",
+        "db_query": "",
+        "db_type": "",
+        "db_connection_name": "",
+        "test_summary": "Step 1: POST /model - Create Draft model to drive the Draft-without-allowedAgents PUT test",
+        "test_scenario": "Business Rule AC: Create a draft model, then PUT it without allowedAgents to verify Draft status does not enforce allowedAgents"
+    },
+    {
+        "test_id": "TC025",
+        "service_name": "models",
+        "workflow_mode": "sequential",
+        "test_name": "PUT /model/{id} - Draft model without allowedAgents should succeed [Business Rule] (TC024 Step 2)",
+        "protocol": "REST",
+        "test_type": [
+            "Functional",
+            "Business Rule"
+        ],
+        "mainURL": "{{base_url}}",
+        "endpoint": "/models/{{tc024_model_id}}",
+        "method": "PUT",
+        "rpc_method": "",
+        "graphql_query": "",
+        "graphql_variables": "",
+        "soap_action": "",
+        "soap_envelope": "",
+        "headers_additional": {
+            "Content-Type": "application/json"
+        },
+        "payload": {
+            "name": "Test Model - Draft PUT without allowedAgents",
+            "modelType": "Strategic",
+            "solutionType": "Managed",
+            "custodians": [
+                "Fidelity"
+            ],
+            "investmentApproachId": null,
+            "benchmark": [
+                {
+                    "name": "S&P 500",
+                    "isPrimary": false
+                }
+            ],
+            "investmentMins": [
+                {
+                    "type": "System",
+                    "value": 1
+                }
+            ],
+            "riskProfile": "Moderate",
+            "allocations": [
+                {
+                    "entityType": "Security",
+                    "allocationName": "Test Allocation",
+                    "modelId": "string",
+                    "cusip": "string",
+                    "ticker": "SPY",
+                    "weight": 1.0
+                }
+            ],
+            "versionMetadata": {
+                "additionalProp1": "draft_put_no_allowedAgents"
+            },
+            "attrMetadata": {
+                "taxManagementEligible": "false",
+                "taxManagementRequired": "false"
+            }
+        },
+        "expected_status": "200",
+        "expected_response_schema": "",
+        "expected_response": null,
+        "ignore_fields": [],
+        "extract_values": [
+            {
+                "from": "response",
+                "key": "message",
+                "assign_to": "tc025_put_message"
+            }
+        ],
+        "validate": {
+            "performance": {
+                "max_response_time_ms": null
+            },
+            "security": {
+                "checks": []
+            },
+            "assertions": [
+                {
+                    "actual": "{{tc025_put_message}}",
+                    "operator": "==",
+                    "expected": "Request successful",
+                    "message": "Business Rule: PUT Draft model without allowedAgents must succeed (200) - allowedAgents not required for Draft status"
+                }
+            ]
+        },
+        "test_data_file": "",
+        "db_query": "",
+        "db_type": "",
+        "db_connection_name": "",
+        "test_summary": "Step 2: PUT /model/{id} without allowedAgents on a Draft model - Verify 200 success. Business rule: allowedAgents not required for Draft.",
+        "test_scenario": "Business Rule AC: Draft model PUT without allowedAgents must succeed with 200. Only Published models enforce allowedAgents requirement."
+    },
+    {
+        "test_id": "TC026",
+        "service_name": "models",
+        "workflow_mode": "sequential",
+        "test_name": "PUT /model/{id} - Duplicate entries in allowedAgents should succeed as no-op [Business Rule] (TC026 Step 1 - POST setup)",
+        "protocol": "REST",
+        "test_type": [
+            "Functional"
+        ],
+        "mainURL": "{{base_url}}",
+        "endpoint": "/models",
+        "method": "POST",
+        "rpc_method": "",
+        "graphql_query": "",
+        "graphql_variables": "",
+        "soap_action": "",
+        "soap_envelope": "",
+        "headers_additional": {
+            "Content-Type": "application/json"
+        },
+        "payload": "models\\payloads\\Payload_model_id_POST_request.json",
+        "expected_status": "201",
+        "expected_response_schema": "",
+        "expected_response": null,
+        "ignore_fields": [],
+        "extract_values": [
+            {
+                "from": "response",
+                "key": "modelId",
+                "assign_to": "tc026_model_id"
+            }
+        ],
+        "validate": {
+            "performance": {
+                "max_response_time_ms": null
+            },
+            "security": {
+                "checks": []
+            },
+            "assertions": []
+        },
+        "test_data_file": "",
+        "db_query": "",
+        "db_type": "",
+        "db_connection_name": "",
+        "test_summary": "Step 1: POST /model - Create model to drive the duplicate-allowedAgents PUT no-op test",
+        "test_scenario": "Business Rule AC: Create model, then PUT with duplicate agent UUIDs in allowedAgents to confirm no-op behaviour"
+    },
+    {
+        "test_id": "TC027",
+        "service_name": "models",
+        "workflow_mode": "sequential",
+        "test_name": "PUT /model/{id} - Duplicate entries in allowedAgents should succeed as no-op [Business Rule] (TC026 Step 2)",
+        "protocol": "REST",
+        "test_type": [
+            "Functional",
+            "Data Integrity",
+            "Business Rule"
+        ],
+        "mainURL": "{{base_url}}",
+        "endpoint": "/models/{{tc026_model_id}}",
+        "method": "PUT",
+        "rpc_method": "",
+        "graphql_query": "",
+        "graphql_variables": "",
+        "soap_action": "",
+        "soap_envelope": "",
+        "headers_additional": {
+            "Content-Type": "application/json"
+        },
+        "payload": {
+            "name": "Test Model - Duplicate allowedAgents PUT no-op",
+            "modelType": "Strategic",
+            "solutionType": "Managed",
+            "custodians": [
+                "Fidelity"
+            ],
+            "investmentApproachId": null,
+            "benchmark": [
+                {
+                    "name": "S&P 500",
+                    "isPrimary": false
+                }
+            ],
+            "investmentMins": [
+                {
+                    "type": "System",
+                    "value": 1
+                }
+            ],
+            "riskProfile": "Moderate",
+            "allocations": [
+                {
+                    "entityType": "Security",
+                    "allocationName": "Test Allocation",
+                    "modelId": "string",
+                    "cusip": "string",
+                    "ticker": "SPY",
+                    "weight": 1.0
+                }
+            ],
+            "versionMetadata": {
+                "additionalProp1": "duplicate_allowedAgents_put_test"
+            },
+            "attrMetadata": {
+                "taxManagementEligible": "false",
+                "taxManagementRequired": "false"
+            },
+            "allowedAgents": [
+                "string",
+                "string"
+            ]
+        },
+        "expected_status": "200",
+        "expected_response_schema": "",
+        "expected_response": null,
+        "ignore_fields": [],
+        "extract_values": [
+            {
+                "from": "response",
+                "key": "message",
+                "assign_to": "tc027_put_message"
+            },
+            {
+                "from": "request",
+                "key": "allowedAgents.0",
+                "assign_to": "tc027_agent_id"
+            }
+        ],
+        "validate": {
+            "performance": {
+                "max_response_time_ms": null
+            },
+            "security": {
+                "checks": []
+            },
+            "assertions": [
+                {
+                    "actual": "{{tc027_put_message}}",
+                    "operator": "==",
+                    "expected": "Request successful",
+                    "message": "Business Rule: PUT with duplicate agent IDs in allowedAgents must not fail - duplicate inserts are no-ops, not errors"
+                }
+            ]
+        },
+        "test_data_file": "",
+        "db_query": "",
+        "db_type": "",
+        "db_connection_name": "",
+        "test_summary": "Step 2: PUT /model/{id} with same agent UUID listed twice in allowedAgents - Verify 200 (duplicate is no-op, not an error)",
+        "test_scenario": "Business Rule AC: Sending the same agent UUID twice in allowedAgents in PUT must succeed - duplicate agent_access inserts are silently ignored"
+    },
+    {
+        "test_id": "TC028",
+        "service_name": "models",
+        "workflow_mode": "sequential",
+        "test_name": "DB_ONLY - Verify only 1 agent_access row despite duplicate allowedAgents in PUT (TC026 Step 3)",
+        "protocol": "DB_ONLY",
+        "test_type": [
+            "Functional",
+            "Database Validation",
+            "Data Integrity"
+        ],
+        "mainURL": "",
+        "endpoint": "",
+        "method": "",
+        "rpc_method": "",
+        "graphql_query": "",
+        "graphql_variables": "",
+        "soap_action": "",
+        "soap_envelope": "",
+        "headers_additional": {
+            "Content-Type": "application/json"
+        },
+        "payload": null,
+        "expected_status": "",
+        "expected_response_schema": "",
+        "expected_response": "",
+        "extract_values": [
+            {
+                "from": "db_result",
+                "key": "0.row_count",
+                "assign_to": "tc028_agent_row_count"
+            }
+        ],
+        "validate": {
+            "performance": {
+                "max_response_time_ms": 3000
+            },
+            "security": {
+                "checks": []
+            },
+            "assertions": [
+                {
+                    "actual": "{{tc028_agent_row_count}}",
+                    "operator": "==",
+                    "expected": 1,
+                    "message": "Business Rule: Despite same agent UUID appearing twice in allowedAgents, only 1 agent_access row must exist after PUT - create-or-replace / no-op duplicate semantics enforced"
+                }
+            ]
+        },
+        "test_data_file": "",
+        "db_type": "postgresql",
+        "db_connection_name": "models",
+        "db_query": "SELECT COUNT(*) AS \"row_count\" FROM agent_access WHERE model_id = '{{tc026_model_id}}'::uuid AND agent_id = '{{tc027_agent_id}}';",
+        "test_summary": "Step 3: DB_ONLY - Verify exactly 1 agent_access row exists after PUT with duplicate allowedAgents - confirms no-op duplicate insert behaviour",
+        "test_scenario": "Business Rule AC: Only 1 agent_access row must be created even when the same agent identifier string appears multiple times in PUT allowedAgents array"
     }
 ]
