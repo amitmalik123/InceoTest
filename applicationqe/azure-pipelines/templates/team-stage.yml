@@ -26,6 +26,8 @@ parameters:
     default: ''
   - name: azureSubscription
     type: string
+  - name: keyVaultName
+    type: string
     default: ''
 
 stages:
@@ -339,6 +341,16 @@ stages:
         testRunTitle: '${{ parameters.teamDisplay }} Tests'
       condition: always()
       continueOnError: true
+
+    - task: AzureKeyVault@2
+      displayName: 'Fetch Secrets from Azure Key Vault'
+      inputs:
+        azureSubscription: '${{ parameters.azureSubscription }}'
+        KeyVaultName: '${{ parameters.keyVaultName }}'
+        SecretsFilter: '*'
+        RunAsPreJob: true
+      # Each secret becomes a pipeline variable with the same name.
+      # E.g., Key Vault secret "test11-azure-sql-password" -> $(test11-azure-sql-password)
 
     - script: |
         echo "========================================"
