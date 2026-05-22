@@ -65,8 +65,8 @@ stages:
     - task: AzureKeyVault@2
       displayName: 'Fetch Secrets from Azure Key Vault'
       inputs:
-        azureSubscription: 'subscription_test'
-        KeyVaultName: $(keyVaultName)
+        azureSubscription: $(subscription_test)
+        KeyVaultName: '${{ parameters.keyVaultName }}'
         SecretsFilter: '*'
         RunAsPreJob: true
 
