@@ -55,7 +55,6 @@ pytest-bdd>=7.3.0
 
 # Code Coverage & SonarQube
 pytest-cov==4.1.0
-pytest-html>=4.1.1
 pytest-playwright==0.4.4
 pytest-xdist>=3.5.0
 python-dotenv>=1.0.0

@@ -182,12 +182,12 @@ from pages.ewm.lookup_page import LookupPage
 from pages.ewm.account_approval_page import AccountApprovalPage
 
 # PROPOSAL pages
-from pages.PROPOSAL.ewm_page import EwmPage
-from pages.PROPOSAL.login_page import LoginPage as ProposalLoginPage
-from pages.PROPOSAL.new_account_wizard_page import NewAccountWizardPage
-from pages.PROPOSAL.portfolio_engine_page import PortfolioEnginePage
-from pages.PROPOSAL.switch_id_page import SwitchIDPage
-from pages.PROPOSAL.tax_management_services_page import TaxManagementServicesPage
+from pages.proposal.ewm_page import EwmPage
+from pages.proposal.login_page import LoginPage as ProposalLoginPage
+from pages.proposal.new_account_wizard_page import NewAccountWizardPage
+from pages.proposal.portfolio_engine_page import PortfolioEnginePage
+from pages.proposal.switch_id_page import SwitchIDPage
+from pages.proposal.tax_management_services_page import TaxManagementServicesPage
 
 
 # ---------------------------------------------------------------------------
