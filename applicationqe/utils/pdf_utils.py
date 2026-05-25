@@ -15,6 +15,7 @@ if TYPE_CHECKING:
 logger = logging.getLogger(__name__)
 
 
+
 def _normalize_text(value: str) -> str:
     """Normalize whitespace for resilient text checks."""
     return " ".join((value or "").split())

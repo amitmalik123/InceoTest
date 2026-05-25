@@ -77,7 +77,7 @@ class MailHogClient:
             return messages
 
         except requests.RequestException as e:
-            logger.error(f"Failed to get messages from MailHog: {str(e).splitlines()[0]}")
+            logger.error(f"Failed to get messages from MailHog: {e}")
             return []
 
     def _parse_mailhog_message(self, item: Dict) -> EmailMessage:
@@ -103,7 +103,7 @@ class MailHogClient:
             response.raise_for_status()
             return self._parse_mailhog_message(response.json())
         except requests.RequestException as e:
-            logger.error(f"Failed to get message {message_id}: {str(e).splitlines()[0]}")
+            logger.error(f"Failed to get message {message_id}: {e}")
             return None
 
     def delete_message(self, message_id: str) -> bool:
@@ -114,7 +114,7 @@ class MailHogClient:
             logger.debug(f"Deleted message: {message_id}")
             return True
         except requests.RequestException as e:
-            logger.error(f"Failed to delete message: {str(e).splitlines()[0]}")
+            logger.error(f"Failed to delete message: {e}")
             return False
 
     def delete_all_messages(self) -> bool:
@@ -125,7 +125,7 @@ class MailHogClient:
             logger.info("All messages deleted from MailHog")
             return True
         except requests.RequestException as e:
-            logger.error(f"Failed to delete all messages: {str(e).splitlines()[0]}")
+            logger.error(f"Failed to delete all messages: {e}")
             return False
 
     def wait_for_email(
@@ -280,7 +280,7 @@ class MailtrapClient:
             return messages
 
         except requests.RequestException as e:
-            logger.error(f"Failed to get messages from Mailtrap: {str(e).splitlines()[0]}")
+            logger.error(f"Failed to get messages from Mailtrap: {e}")
             return []
 
     def delete_all_messages(self) -> bool:
@@ -293,7 +293,7 @@ class MailtrapClient:
             logger.info("Mailtrap inbox cleaned")
             return True
         except requests.RequestException as e:
-            logger.error(f"Failed to clean inbox: {str(e).splitlines()[0]}")
+            logger.error(f"Failed to clean inbox: {e}")
             return False
 
     def wait_for_email(
@@ -373,7 +373,7 @@ class IMAPEmailClient:
             return True
 
         except Exception as e:
-            logger.error(f"Failed to connect to IMAP: {str(e).splitlines()[0]}")
+            logger.error(f"Failed to connect to IMAP: {e}")
             return False
 
     def disconnect(self):
@@ -384,7 +384,7 @@ class IMAPEmailClient:
                 self.connection.logout()
                 logger.info("Disconnected from IMAP server")
             except Exception as e:
-                logger.warning(f"Error disconnecting: {str(e).splitlines()[0]}")
+                logger.warning(f"Error disconnecting: {e}")
 
     def search_emails(
         self,

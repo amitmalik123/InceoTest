@@ -67,5 +67,17 @@ pyyaml>=6.0
 requests>=2.31.0
 sentence-transformers>=3.0.0
 
+# InfluxDB metrics
+influxdb-client>=1.38.0
+
+# HTTP client and encryption (used by analytics reporters)
+requests>=2.31.0
+cryptography>=41.0.0
+
+# Development tools (optional)
+black>=24.2.0
+flake8>=7.0.0
+mypy>=1.8.0
+pytest-cov>=4.1.0
 # TOML parsing (backport for Python <3.11)
 tomli>=2.0.0;python_version<"3.11"

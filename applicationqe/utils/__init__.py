@@ -50,7 +50,7 @@ from utils.settings import Settings, settings
 from utils.performance_monitor import PerformanceBudget, PerformanceMonitor
 
 # Outlook email utilities
-from utils.outlook_utils import OutlookOTPPage
+from utils.outlook_utils import OutlookClient, OutlookEmail, OutlookOTPPage
 
 # Storage utilities
 from utils.storage_utils import (
@@ -102,5 +102,7 @@ __all__ = [
     "ensure_directory_exists",
     "generate_test_data",
     # Outlook
+    "OutlookClient",
+    "OutlookEmail",
     "OutlookOTPPage",
 ]

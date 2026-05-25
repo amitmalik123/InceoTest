@@ -62,16 +62,9 @@ class FlakyTestTracker:
         self.influx_token = influx_config["token"]
         self.influx_org = influx_config["org"]
         self.influx_bucket = influx_config["bucket"]
-        try:
-            from utils.settings import settings
+        from config.settings import get_settings
 
-            default_env = settings.env
-        except Exception:
-            from config.PortfolioReporting.settings import get_settings
-
-            default_env = get_settings().env
-
-        self.environment = os.getenv("ENVIRONMENT", default_env)
+        self.environment = os.getenv("ENVIRONMENT", get_settings().env)
         self.build_id = os.getenv("BUILD_ID", "local")
 
         # Track flaky tests during session
