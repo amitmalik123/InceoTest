@@ -1,0 +1,159 @@
+# SQL Queries - Shared across all environments
+# Organize queries by domain/module
+# db_type: "azure" or "sql_server" - specifies which database connection to use
+
+# Transfer Related Queries
+transfer:
+  db_type: "azure"  # Uses Azure SQL Database
+  vault_alias: "transfer"  # maps to vault_databases.transfer for connection-string auth
+  database: "Transfer"  # Database name on the server
+  queries:
+    transfer_audit: "SELECT top 2 * FROM [dbo].[TransferInfoAudit]"
+    transfer_by_id: "SELECT * FROM [dbo].[TransferInfo] WHERE TransferInfo_ID = ?"
+    transfer_by_account: "SELECT * FROM [dbo].[TransferInfo] WHERE AccountNumber = ?"
+    recent_transfers: "SELECT TOP 100 * FROM [dbo].[TransferInfoAudit] ORDER BY AuditStart DESC"
+
+# Roth Conversion Queries
+account_distributions:
+  db_type: "azure"  # Uses Azure SQL Database
+  vault_alias: "accountdistributions"  # maps to vault_databases.accountdistributions for connection-string auth
+  database: "AccountDistributions"  # Database name on the server
+  queries:
+    Amount_Lookup: "SELECT TOP 2 * FROM [dbo].[AmountTypeLookup]"
+    conversion_by_account: "SELECT * FROM [dbo].[TransferInfoAudit] WHERE SourceAccount = ? OR DestinationAccount = ?"
+
+# CRM/Billing Queries (SQL Server database)
+crm:
+  db_type: "sql_server"  # Uses SQL Server (non-Azure)
+  vault_alias: "crm"  # maps to vault_databases.crm for connection-string auth
+  database: "CRM"  # Database name on the server
+  queries:
+    retirement_billing_client: "SELECT top 2 * FROM [CRM].[dbo].[RetirementBillingClient]"
+    billing_client_by_id: "SELECT * FROM [CRM].[dbo].[RetirementBillingClient] WHERE ClientID = ?"
+
+# Account Related Queries
+am_billing:
+  db_type: "sql_server"  # Uses Azure SQL Database
+  vault_alias: "billing"  # maps to vault_databases.billing for connection-string auth
+  database: "AM_Billing"  # Database name on the server
+  queries:
+    account_details: "select top 2 * from [AM_Billing].[dbo].[Account]"
+    account_by_client: "SELECT * FROM [dbo].[Account] WHERE ClientID = ?"
+
+# Example parameterized queries
+# Use ? for parameters, pass as tuple to execute_query(query, params=(value1, value2))
+# Agent Related Queries
+agent:
+  db_type: "sql_server"  # Uses SQL Server database
+  vault_alias: "crm"  # maps to vault_databases.crm for connection-string auth
+  database: "CRM"  # Database name on the server
+  queries:
+    agent_details_by_id: >
+      select distinct  usl.UserID AgentAPLID,
+             cv.[Description] "Role",
+             sd.UserID,
+             ltrim(rtrim(sd.FName)) + ' ' + ltrim(rtrim(sd.LName)) "Name_ManageLogin"
+      from AM..Users u
+      join AM..UserSSOLink usl on u.UserID = usl.UserID
+      join AM..User_SSODetails sd on usl.SSOGUID = sd.SSOGUIDID
+      join ADS..CodeValue cv on usl.InvitationTypeCD = cv.CodeValue_ID
+      left join AM..User_Contact uc on u.UserID = uc.UserID
+      join crm..agent ag on usl.userid = ag.aplid
+      where cv.[Description] in ('Agent')
+      and usl.UserID = ?
+
+    all_agents_by_id: >
+      select distinct  usl.UserID AgentAPLID,
+             cv.[Description] "Role",
+             sd.UserID,
+             ltrim(rtrim(sd.FName)) + ' ' + ltrim(rtrim(sd.LName)) "Name_ManageLogin"
+      from AM..Users u
+      join AM..UserSSOLink usl on u.UserID = usl.UserID
+      join AM..User_SSODetails sd on usl.SSOGUID = sd.SSOGUIDID
+      join ADS..CodeValue cv on usl.InvitationTypeCD = cv.CodeValue_ID
+      left join AM..User_Contact uc on u.UserID = uc.UserID
+      join crm..agent ag on usl.userid = ag.aplid
+      where cv.[Description] in ('Agent','Shared Access User')
+      and usl.UserID = ?
+      and sd.UserID != ?
+
+    agent_name_by_aplid: >
+      select distinct 
+             ltrim(rtrim(sd.FName)) + ' ' + ltrim(rtrim(sd.LName)) "Name_ManageLogin"
+      from AM..Users u
+      join AM..UserSSOLink usl on u.UserID = usl.UserID
+      join AM..User_SSODetails sd on usl.SSOGUID = sd.SSOGUIDID
+      join ADS..CodeValue cv on usl.InvitationTypeCD = cv.CodeValue_ID
+      left join AM..User_Contact uc on u.UserID = uc.UserID
+      join crm..agent ag on usl.userid = ag.aplid
+      where cv.[Description] in ('Agent')
+      and usl.UserID = ?
+
+    sau_name_by_aplid: >
+      select distinct 
+             ltrim(rtrim(sd.FName)) + ' ' + ltrim(rtrim(sd.LName)) "Name_ManageLogin"
+      from AM..Users u
+      join AM..UserSSOLink usl on u.UserID = usl.UserID
+      join AM..User_SSODetails sd on usl.SSOGUID = sd.SSOGUIDID
+      join ADS..CodeValue cv on usl.InvitationTypeCD = cv.CodeValue_ID
+      left join AM..User_Contact uc on u.UserID = uc.UserID
+      join crm..agent ag on usl.userid = ag.aplid
+      where cv.[Description] in ('Shared Access User')
+      and sd.UserID = ?
+
+    sau_name_by_UserID: >
+      select distinct 
+             ltrim(rtrim(sd.FName)) + ' ' + ltrim(rtrim(sd.LName)) "Name_ManageLogin"
+      from AM..Users u
+      join AM..UserSSOLink usl on u.UserID = usl.UserID
+      join AM..User_SSODetails sd on usl.SSOGUID = sd.SSOGUIDID
+      join ADS..CodeValue cv on usl.InvitationTypeCD = cv.CodeValue_ID
+      left join AM..User_Contact uc on u.UserID = uc.UserID
+      join crm..agent ag on usl.userid = ag.aplid
+      where cv.[Description] in ('Shared Access User')
+      and usl.UserID = ?
+
+    agentName__by_aplid_from_agentTable: >
+      SELECT CONCAT(usd.FName, ' ',usd.LName) as "Name_ManageLogin", cv.Description
+      FROM AM.dbo.User_SSODetails usd
+      JOIN AM.dbo.UserSSOLink usl ON usl.SSOGUID = usd.SSOGUIDID
+      JOIN AM.dbo.Users u ON u.UserID = usl.UserID
+      JOIN ADS.dbo.CodeValue cv ON cv.CodeValue_ID = usl.InvitationTypeCD
+      WHERE usl.UserID = ? and cv.Description = 'Agent'
+      GROUP BY usl.SSOGUID
+              , cv.CodeValue_ID
+              , usd.FName
+              , usd.LName
+              , usd.EmailAddress
+              , usd.PhoneNumber
+              , cv.Description
+
+    authorized_signer_SAU_name_ManageLogin_by_UserID: >
+      select distinct 
+             ltrim(rtrim(sd.FName)) + ' ' + ltrim(rtrim(sd.LName)) "Name_ManageLogin"
+      from AM..Users u
+      join AM..UserSSOLink usl on u.UserID = usl.UserID
+      join AM..User_SSODetails sd on usl.SSOGUID = sd.SSOGUIDID
+      join ADS..CodeValue cv on usl.InvitationTypeCD = cv.CodeValue_ID
+      left join AM..User_Contact uc on u.UserID = uc.UserID
+      join crm..agent ag on usl.userid = ag.aplid
+      where cv.[Description] in ('Shared Access User')
+      and usl.UserID = ?
+      and sd.UserID != ?
+
+# Tracking Center Related Queries
+tracking_center:
+  db_type: "sql_server"  # Uses SQL Server database
+  vault_alias: "crm"  # maps to vault_databases.crm for connection-string auth
+  database: "tracking center"  # Database name on the server
+  queries:
+    itemId_by_dnumber: "SELECT ItemId FROM trackingcenter..item WHERE externalid = ?"
+    docusign_id_by_item_id: "SELECT DocuSignID FROM trackingcenter..envelope WHERE itemid = ?"
+
+# E-Signature Data Queries
+esignature_data:
+  db_type: "sql_server"  # Uses SQL Server database
+  vault_alias: "crm"  # maps to vault_databases.crm for connection-string auth
+  database: "esignaturedata"  # Database name on the server
+  queries:
+    recipient_by_envelope_provider_id: "SELECT Role, RoutingOrder FROM esignaturedata.dbo.recipient WHERE envelopeproviderid = CAST(? AS UNIQUEIDENTIFIER)"

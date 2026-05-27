@@ -118,7 +118,7 @@ def take_step_screenshot(
         _config.step_counter += 1
 
         # Create descriptive name
-        status = "❌ FAILED" if step_failed else "✓"
+        status = "FAILED" if step_failed else "PASSED"
         screenshot_name = f"Step {_config.step_counter} [{step_type.upper()}] {status} {step_name}"
 
         # Take and attach screenshot

@@ -36,6 +36,7 @@ pr:
       - applicationqe/queries/stp/stp-journals/**
       - applicationqe/azure-pipelines/**
       - applicationqe/requirements.txt
+      
 
 # -----------------------------
 # Parameters for Manual Runs

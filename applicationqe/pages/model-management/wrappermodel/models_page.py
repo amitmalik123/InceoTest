@@ -1,11 +1,19 @@
 import re
 import random
+import sys
 import time
 from datetime import datetime
+from pathlib import Path
 
 from playwright.sync_api import Locator, Page, expect
 
-from locators.models_locators import ModelsLocators
+try:
+    from locators.models_locators import ModelsLocators
+except ModuleNotFoundError:
+    _LOCATORS_DIR = Path(__file__).resolve().parents[3] / "locators" / "model-management" / "wrappermodel"
+    if str(_LOCATORS_DIR) not in sys.path:
+        sys.path.insert(0, str(_LOCATORS_DIR))
+    from models_locators import ModelsLocators
 from pages.base_page import BasePage
 from utils.allure_logger import get_allure_logger
 
@@ -125,6 +133,21 @@ class ModelsPage(BasePage):
             except Exception:
                 continue
 
+    def _maximize_window(self) -> None:
+        """Expand the headed browser window to the available screen size."""
+        try:
+            self.page.bring_to_front()
+            self.page.evaluate(
+                """
+                () => {
+                    window.moveTo(0, 0);
+                    window.resizeTo(screen.availWidth, screen.availHeight);
+                }
+                """
+            )
+        except Exception:
+            logger.debug("Unable to maximize browser window; continuing with current size")
+
     def _dismiss_sidebar_navigation_tour(self) -> None:
         """Dismiss sidebar tour popup by clicking Next/Finish if it appears."""
         try:
@@ -163,6 +186,7 @@ class ModelsPage(BasePage):
 
     def navigate(self) -> None:
         logger.info(f"Navigating to models page: {self.PAGE_URL}")
+        self._maximize_window()
         if not self.page.url.startswith(self.PAGE_URL):
             self.page.goto(self.PAGE_URL, wait_until="domcontentloaded", timeout=60000)
         # Skip immediately if auth redirect occurred — do not attempt programmatic login.

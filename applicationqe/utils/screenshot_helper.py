@@ -27,9 +27,9 @@ def take_screenshot(page: Page, name: str, full_page: bool = True,
     if path:
         screenshot_dir = Path(path)
     else:
-        # Default to reports/screenshots directory
+        # Default to reports/oam/screenshots directory
         base_dir = Path(__file__).parent.parent
-        screenshot_dir = base_dir / "reports" / "screenshots"
+        screenshot_dir = base_dir / "reports" / "oam" / "screenshots"
     
     screenshot_dir.mkdir(parents=True, exist_ok=True)
     

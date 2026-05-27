@@ -251,6 +251,8 @@ def get_settings() -> Settings:
     global _settings_instance
     if _settings_instance is None:
         env = os.getenv("TEST_ENV")
+        if env == "test":
+            env = "test01"
         if not env:
             raise RuntimeError(
                 "TEST_ENV is not set. "

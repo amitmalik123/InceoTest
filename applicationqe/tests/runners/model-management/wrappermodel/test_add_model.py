@@ -9,6 +9,8 @@ Scenarios covered:
 import os
 import sys
 
+os.environ.setdefault("TEST_ENV", "test01")
+
 # Ensure the application root is in PYTHONPATH.
 sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), "..", "..", "..", "..")))
 
@@ -39,6 +41,18 @@ MODELS_PAGE_DIR = os.path.abspath(
         "wrappermodel",
     )
 )
+WRAPPERMODEL_ROOT_DIR = os.path.abspath(
+    os.path.join(
+        os.path.dirname(__file__),
+        "..",
+        "..",
+        "..",
+        "features",
+        "model-management",
+        "WrapperModel",
+    )
+)
+sys.path.insert(0, WRAPPERMODEL_ROOT_DIR)
 sys.path.insert(0, MODELS_PAGE_DIR)
 
 import pytest

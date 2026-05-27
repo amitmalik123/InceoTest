@@ -50,7 +50,10 @@ from utils.settings import Settings, settings
 from utils.performance_monitor import PerformanceBudget, PerformanceMonitor
 
 # Outlook email utilities
-from utils.outlook_utils import OutlookOTPPage
+try:
+    from utils.outlook_utils import OutlookOTPPage
+except ImportError:
+    OutlookOTPPage = None
 
 # Storage utilities
 from utils.storage_utils import (

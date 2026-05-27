@@ -19,14 +19,12 @@ import sys
 from playwright.sync_api import Page, expect
 from pytest_bdd import given, then, when
 
-try:
-    from pages.models_page import ModelsPage
-except ModuleNotFoundError:
-    models_page_dir = (
-        Path(__file__).resolve().parents[4] / "pages" / "model-management" / "wrappermodel"
-    )
+models_page_dir = (
+    Path(__file__).resolve().parents[4] / "pages" / "model-management" / "wrappermodel"
+)
+if str(models_page_dir) not in sys.path:
     sys.path.insert(0, str(models_page_dir))
-    from models_page import ModelsPage
+from models_page import ModelsPage
 from utils.allure_logger import get_allure_logger
 
 logger = get_allure_logger(__name__)
