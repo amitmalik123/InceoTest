@@ -5,7 +5,12 @@ class ESignSignerInformationLocators:
     """Raw selector strings for the eSign Signer Information iframe page."""
 
     IFRAME = "#esig_iframe"
-    PAGE_TITLE = "//div[contains(text(),'Signer') and contains(text(),'Information')]"
+    PAGE_TITLE = (
+        "//div[contains(text(),'Signer') and contains(text(),'Information')]"
+        " | //b[normalize-space()='Authorization']"
+        " | //strong[normalize-space()='Authorization']"
+        " | //*[normalize-space()='Authorization' and (self::b or self::strong or self::h3 or self::h4 or self::div)]"
+    )
     FIRST_SIGNER_ROW = "//tr[td[contains(normalize-space(),'Account Owner')]]"
     TEXT_INPUT = "input[type='text']"
     RADIO_INPUT = "input[type='radio']"

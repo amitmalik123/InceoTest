@@ -36,8 +36,9 @@ class AccountDetailPage(BasePage):
     def click_account_wizard(self) -> None:
         logger.info("Clicking Account Wizard button on account detail page")
         self.account_wizard_link.wait_for(state="visible", timeout=60000)
-        self.account_wizard_link.click(timeout=60000)
+        self.account_wizard_link.click()
         self.page.wait_for_load_state("networkidle", timeout=120000)
+        self.dismiss_cookie_banner()
         logger.info("Account Wizard button clicked and page loaded")
 
     def click_manage_account(self) -> None:
