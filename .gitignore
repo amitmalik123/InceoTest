@@ -126,4 +126,4 @@ write_*.py
 
 # ─── Local run scripts ────────────────────────────────────────────────────────
 run_tests.bat
-
+.gitignore
