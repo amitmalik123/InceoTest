@@ -19,7 +19,7 @@ from typing import Optional
 import pytest
 from playwright.sync_api import Page
 
-from config.oam.settings import Settings, get_settings
+from config.settings import Settings, get_settings
 from pages.oam.login_page import LoginPage
 import os
 

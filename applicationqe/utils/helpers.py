@@ -7,9 +7,14 @@ Note: Specialized utilities are in dedicated modules:
 - Locator operations: pages/base_page.py (BasePage.empty_field())
 """
 
+from __future__ import annotations
+
 import os
 from datetime import datetime
-from typing import Any, Dict
+from typing import TYPE_CHECKING, Any, Dict, Optional
+
+if TYPE_CHECKING:
+    from playwright.sync_api import Locator
 
 
 def get_timestamp(format: str = "%Y%m%d_%H%M%S") -> str:

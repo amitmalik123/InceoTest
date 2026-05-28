@@ -61,6 +61,8 @@ from email.header import decode_header
 from email.utils import parsedate_to_datetime
 from typing import Any, List, Optional, Pattern, Union
 
+from configparser import ConfigParser
+
 logger = logging.getLogger(__name__)
 
 # Default IMAP settings for Outlook / Office 365
@@ -992,6 +994,11 @@ class OutlookClient:
         if not email_obj:
             return None
         return email_obj.body_html if prefer_html else email_obj.body_text
+
+
+# Lazy import to avoid circular dependency (pages.base_page imports from utils)
+from pages.base_page import BasePage  # noqa: E402
+from playwright.sync_api import Locator, Page  # noqa: E402
 
 
 class OutlookOTPPage(BasePage):

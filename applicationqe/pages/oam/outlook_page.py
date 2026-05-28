@@ -10,7 +10,7 @@ from typing import TYPE_CHECKING, Optional
 import allure
 from playwright.sync_api import Page, TimeoutError as PlaywrightTimeoutError
 
-from locators import outlook_locators
+from locators.oam import outlook_locators
 from pages.oam.base_page import BasePage
 from utils.credential_encrypter import decrypt
 from utils.allure_logger import get_allure_logger
@@ -88,7 +88,7 @@ class OutlookPage(BasePage):
         Raises:
             ValueError: If secret_key or encrypted credentials not found in config
         """
-        from config.oam.settings import get_settings
+        from config.settings import get_settings
         
         settings = get_settings()
         

@@ -16,7 +16,7 @@ DOM evidence: Not yet captured — locators below are best-guess placeholders.
 
 from playwright.sync_api import Locator, Page
 
-from locators import account_management_locators
+from locators.oam import account_management_locators
 from pages.oam.base_page import BasePage
 from utils.allure_logger import get_allure_logger
 

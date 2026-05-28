@@ -1,4 +1,3 @@
-
 @retainAccount
 Feature: retain account in NAW
 

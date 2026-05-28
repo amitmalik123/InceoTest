@@ -2,7 +2,7 @@ from typing import Optional
 
 from playwright.sync_api import Page
 
-from locators import account_list_locators
+from locators.oam import account_list_locators
 from pages.oam.base_page import BasePage
 from utils.allure_logger import get_allure_logger
 

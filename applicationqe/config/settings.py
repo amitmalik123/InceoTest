@@ -15,32 +15,32 @@ from pathlib import Path
 import yaml  # type: ignore
 from dotenv import load_dotenv
 
-from utils.logger import setup_logger
-
-# Load .env file from project root (if present).
-# Real env-vars (e.g. from CI/CD) take precedence; .env is never committed.
-# Check applicationqe/ first, then repo root (one level up from applicationqe/).
+# Load .env BEFORE any local imports (utils/__init__ reads TEST_ENV at import time).
 _config_dir = Path(__file__).resolve().parent
 _app_root = _config_dir.parent  # applicationqe/
 _repo_root = _app_root.parent   # qeautomation/
 load_dotenv(_app_root / ".env")
 load_dotenv(_repo_root / ".env")
 
+from utils.logger import setup_logger
+
 
 class Settings:
     """Load and provide access to configuration settings."""
 
-    def __init__(self, env: str):
+    def __init__(self, env: str, app: str = ""):
         """
         Initialize settings by loading configuration from YAML file.
 
         Args:
             env: Environment name (test11, test12, silo, prod, qa, etc.).
+            app: Application/squad name (proposal, baw, naw, stp, etc.).
                  Always use ``get_settings()`` instead of calling this directly.
         """
         self.env = env
+        self.app = app
         self.logger = setup_logger(__name__)
-        self.config_path = Path(__file__).parent / "proposal" / f"env.{env}.yaml"
+        self.config_path = Path(__file__).parent / app / f"env.{env}.yaml"
         self.config = self._load_config()
         self._queries = self._load_queries()
 
@@ -272,7 +272,14 @@ def get_settings() -> Settings:
                 "Add TEST_ENV=<env-name> to the .env file in the project root, "
                 "or export it as an environment variable."
             )
-        _settings_instance = Settings(env=env)
+        app = os.getenv("TEST_APP", "")
+        if not app:
+            raise RuntimeError(
+                "TEST_APP is not set. "
+                "Add TEST_APP=<app-name> (e.g. proposal, baw, naw, stp) to .env "
+                "or export it as an environment variable."
+            )
+        _settings_instance = Settings(env=env, app=app)
     return _settings_instance
 
 

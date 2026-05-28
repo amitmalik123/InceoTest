@@ -7,12 +7,12 @@ trigger:
       - develop
   paths:
     include:
-      - data/NAW/**
-      - config/NAW/**
-      - tests/features/NAW/**
-      - tests/steps/NAW/**
-      - pages/NAW/**
-      - queries/NAW/**
+      - data/naw/**
+      - config/naw/**
+      - tests/features/naw/**
+      - tests/steps/naw/**
+      - pages/ewm/**
+      - queries/naw/**
       - azure-pipelines/templates/**
       - requirements.txt
 
@@ -23,12 +23,12 @@ pr:
       - develop
   paths:
     include:
-      - data/NAW/**
-      - config/NAW/**
-      - tests/features/NAW/**
-      - tests/steps/NAW/**
-      - pages/NAW/**
-      - queries/NAW/**
+      - data/naw/**
+      - config/naw/**
+      - tests/features/naw/**
+      - tests/steps/naw/**
+      - pages/ewm/**
+      - queries/naw/**
       - azure-pipelines/templates/**
       - requirements.txt
 
@@ -38,6 +38,6 @@ pool:
 stages:
   - template: templates/team-stage.yml
     parameters:
-      stageName: NAW
+      stageName: naw
       teamDisplay: NAW
-      featurePath: tests/features/NAW
+      featurePath: tests/features/naw
