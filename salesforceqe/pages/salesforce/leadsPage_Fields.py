@@ -4,10 +4,17 @@ class LeadsPage_Fields():
     
     def __init__(self, Page):
         self.page = Page
-        self.page.newButton = self.page.get_by_role("button", name="New")
+        #self.page.newButton = self.page.get_by_role("button", name="New")
+        self.page.newButton = self.page.locator("li[data-target-selection-name='sfdc:StandardButton.Lead.New']")
+        # Salesforce renders the "New" action twice (visible action bar + hidden overflow menu).
+        # Target the inner clickable anchor/button and filter to the visible instance.
+        # self.page.newButton = self.page.locator(
+        #     "li[data-target-selection-name='sfdc:StandardButton.Lead.New'] a, "
+        #     "li[data-target-selection-name='sfdc:StandardButton.Lead.New'] button"
+        # ).locator("visible=true").first
         self.page.firstNameInput = self.page.locator("input[name='firstName']")
         self.page.lastNameInput = self.page.locator("input[name='lastName']")
-        self.page.emailInput = self.page.locator("input[name='Personal_Email__c']")
+        self.page.emailInput = self.page.locator("input[name='Email']")
         self.page.phoneInput = self.page.locator("input[name='Phone']")
         #self.page.companyInput = self.page.locator("input[name='Company']")
         #self.page.addressInformationHeader = self.page.locator("h3>[title='Address Information']")
@@ -17,9 +24,9 @@ class LeadsPage_Fields():
         self.page.provinceInput = self.page.locator("input[name='province']")
         self.page.postalCodeInput = self.page.locator("input[name='postalCode']")
         self.page.countryInput = self.page.locator("input[name='country']") 
-        self.page.brokerDealerAccountInput = self.page.locator("input[aria-label='Broker Dealer Account'][role='combobox']")
-        self.page.advisorFirmAccountInput = self.page.locator("input[aria-label='Advisor Firm Account'][role='combobox']")
-        self.page.affiliatedNetworkAccountInput = self.page.locator("input[aria-label='Affiliated Network Account'][role='combobox']")
+        self.page.brokerDealerAccountInput = self.page.locator("input[aria-label='Broker Dealer'][role='combobox']")
+        self.page.advisorFirmAccountInput = self.page.locator("input[aria-label='Advisor Firm'][role='combobox']")
+        self.page.affiliatedNetworkAccountInput = self.page.locator("input[aria-label='Affiliated Network'][role='combobox']")
         #self.page.crdFirmInput = self.page.locator("input[name='CRD_Firm__c']")
         # Fall back to aria-label match in case the API name differs (e.g. CRD_Advisor_Number__c)
         self.page.crdAdvisorInput = self.page.locator("input[name='CRD_Advisor__c']")
@@ -33,6 +40,9 @@ class LeadsPage_Fields():
 
 
     def verify_Standard_Fields(self):
+        # Wait for list view actions bar to fully render before clicking New
+        self.page.newButton.wait_for(state="visible", timeout=50000)
+        self.page.newButton.scroll_into_view_if_needed()
         self.page.newButton.click()
         expect(self.page.firstNameInput).to_be_visible()
         expect(self.page.lastNameInput).to_be_visible()

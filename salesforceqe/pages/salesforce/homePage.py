@@ -31,5 +31,18 @@ class Homepage:
      
     def access_leads_tab(self):
         self.page.showNavigationMenuButton.click()
-        self.page.leadsTab.click()
         self.page.wait_for_timeout(2000)
+        self.page.leadsTab.click()
+        self.page.wait_for_timeout(3000)
+        self.page.locator("a[title='Leads']").click()
+        self.page.wait_for_timeout(3000)
+        # tabCount = self.page.locator("div[aria-label='Workspaces'] a[role='tab']").count()
+        # if tabCount >= 2:
+        #     self.page.keyboard.press("Shift+W")
+        #     self.page.get_by_role("button", name="Close All").click()
+        #     self.page.wait_for_timeout(10000)
+        #     self.page.locator("a[title='Leads']").click()
+        # else:
+        #     self.page.keyboard.press("Shift+W")
+        #     self.page.wait_for_timeout(2000)
+        #     self.page.locator("a[title='Leads']").click()
