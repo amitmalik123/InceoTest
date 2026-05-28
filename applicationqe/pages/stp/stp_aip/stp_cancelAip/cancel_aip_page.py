@@ -184,9 +184,10 @@ class CancelAIPPage(BasePage):
     def click_next_button(self) -> None:
         """Click the Next button"""
         logger.info("Clicking Next button")
-        self.next_button.wait_for(state='visible', timeout=10000)
-        self.page.evaluate("window.scrollBy(0, 950)")
-        self.next_button.click()
+        self.next_button.wait_for(state='visible', timeout=30000)
+        self.dismiss_cookie_banner()
+        self.next_button.scroll_into_view_if_needed()
+        self.next_button.evaluate("el => el.click()")
         self.page.wait_for_timeout(2000)
         logger.info("Next button clicked")
     

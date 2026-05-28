@@ -15,7 +15,7 @@ class OAToolLandingLocators:
     CASH_AVAILABLE_INFO_POPUP = "(//span[text()='Cash Available']/parent::div/parent::div/parent::div)[1]"
     RESTRICTED_CASH_INFO_POPUP = "(//span[text()='Restricted Cash']/parent::div/parent::div/parent::div)[1]"
     REQUEST_TYPE_CONTAINER = "//div[@id='request-type-container']"
-    ADVISOR_ID = "//p[contains(text(),'Advisor ID')] | //div[contains(text(),'Advisor ID')]"
+    ADVISOR_ID = "//p[contains(text(),'Advisor ID')]/parent::div"
     DISABLED_RADIO_BUTTONS1 = "(//button[@tabindex='-1'])[1]"
     DISABLED_RADIO_BUTTONS2 = "(//button[@tabindex='-1'])[2]"
     NEXT_BUTTON = "//span[text()='Next']"

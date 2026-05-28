@@ -227,7 +227,7 @@ class AccountWizardPage(BasePage):
 
     def click_next_btn_for_swp(self):
         """Click Next button for SWP Establish - returns SWPEstablishLandingPage"""
-        from pages.swp_establish_landing_page import SWPEstablishLandingPage
+        from pages.stp.stp_swp.swp_establish_landing_page import SWPEstablishLandingPage
         
         logger.info("Clicking Next button for SWP")
         self.next_button.wait_for(state='visible', timeout=10000)
