@@ -1,6 +1,6 @@
 from playwright.sync_api import Locator, Page
 
-from locators import account_detail_locators
+from locators.oam import account_detail_locators
 from pages.oam.base_page import BasePage
 from utils.allure_logger import get_allure_logger
 

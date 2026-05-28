@@ -9,7 +9,7 @@ from typing import Dict, List, Optional
 
 import pytest
 
-from config.oam.settings import settings
+from config.settings import settings
 from config.settings import settings
 
 

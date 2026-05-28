@@ -7,7 +7,7 @@ Locators are organized by functional area for easy maintenance.
 
 from playwright.sync_api import Locator, Page, expect
 from pages.oam.base_page import BasePage
-from locators import item_detail_locators
+from locators.oam import item_detail_locators
 from utils.allure_logger import get_allure_logger
 from utils.retry_utils import retry_until_true, RetryError
 from utils.dialog_utils import DialogHandler

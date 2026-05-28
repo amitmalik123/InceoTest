@@ -197,11 +197,11 @@ def verify_routing_order_in_database(test_context):
     try:
         # Connect to database
         db.connect()
-        from config.oam.settings import settings
+        from config.settings import settings
         logger.info(f"Connected to database")
 
         # Get query from centralized queries file
-        from config.oam.settings import settings
+        from config.settings import settings
         query = settings.database_queries.get("tracking_center", {}).get("queries", {}).get(
             "itemId_by_dnumber"
         )
@@ -418,7 +418,7 @@ def user_fetch_signers_information_from_database(test_context, db_manager, authe
             logger.info(f"  ✓ Username: {username}")
             
             # Step 1.5: Check environment - use test sheet for protected environments
-            from config.oam.settings import get_settings
+            from config.settings import get_settings
             settings = get_settings()
             env = settings.env.lower()
             sheet_based_envs = ["prod", "production", "silo", "test10"]

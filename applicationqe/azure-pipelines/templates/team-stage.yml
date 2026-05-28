@@ -1,6 +1,6 @@
 # Team Stage Template
 # Reusable template for all team pipelines with advanced features from azurePipeline_ES3.yaml
-# Includes: Allure reporting, InfluxDB metrics, parallel execution, cross-browser testing
+# Includes: Allure reporting, Azure Log Analytics, parallel execution, cross-browser testing
 
 parameters:
   - name: stageName
@@ -51,9 +51,6 @@ stages:
       allureReportDir: '$(Build.SourcesDirectory)/reports/${{ parameters.stageName }}/allure-report'
       allureToolsDir: '$(Build.ArtifactStagingDirectory)/allure-tools'
       testResultsDir: '$(Build.SourcesDirectory)/reports/${{ parameters.stageName }}'
-      INFLUXDB_URL: 'http://azncc03perf.corp.local:8086'
-      INFLUXDB_ORG: 'MF'
-      INFLUXDB_BUCKET: 'AutomationData'
       keyVaultName: ${{ parameters.keyVaultName }}
       azureSubscription: ${{ parameters.azureSubscription }}
    
@@ -92,6 +89,7 @@ stages:
 
     - script: |
         echo "##vso[task.setvariable variable=TEST_ENV]$(environment)"
+        echo "##vso[task.setvariable variable=TEST_APP]${{ parameters.stageName }}"
         echo "##vso[task.setvariable variable=AZURE_KEY_VAULT_URL]https://$(keyVaultName).vault.azure.net/"
       displayName: "Set Playwright Environment Variables"
 
@@ -255,13 +253,8 @@ stages:
       env:
         WORK_ITEM_AUTH_TOKEN: $(WORK_ITEM_AUTH_TOKEN)
         PARTIES_AUTH_TOKEN: $(PARTIES_AUTH_TOKEN)
-        INFLUXDB_AUTO_PUSH: 'false'
         TEST_ENV: $(environment)
         AZURE_KEY_VAULT_URL: $(AZURE_KEY_VAULT_URL)
-        INFLUXDB_URL: $(INFLUXDB_URL)
-        INFLUXDB_TOKEN: $(INFLUXDB_TOKEN)
-        INFLUXDB_ORG: $(INFLUXDB_ORG)
-        INFLUXDB_BUCKET: $(INFLUXDB_BUCKET)
 
     - script: |
         echo "Checking Allure Results Directory..."
@@ -302,22 +295,19 @@ stages:
       condition: always()
 
     - script: |
-        echo "Pushing test metrics to InfluxDB..."
+        echo "Pushing test metrics to Azure Log Analytics..."
         export ALLURE_RESULTS_DIR="$(allureResultsDir)"
         export ENVIRONMENT="$(environment)"
+        export TEST_APP="${{ parameters.stageName }}"
         export BUILD_ID="$(Build.BuildId)"
         export BUILD_REASON="$(Build.Reason)"
+        export AZURE_LOG_WORKSPACE_ID="$(logAnalyticsWorkspaceId)"
+        export AZURE_LOG_SHARED_KEY="$(logAnalyticsSharedKey)"
 
-        cd applicationqe
-        python utils/influx_reporter.py
-      displayName: "Push Metrics to InfluxDB"
+        python applicationqe/utils/azure_analytics_reporter.py
+      displayName: "Push Metrics to Azure Log Analytics"
       condition: always()
       continueOnError: true
-      env:
-        INFLUXDB_URL: $(INFLUXDB_URL)
-        INFLUXDB_TOKEN: $(INFLUXDB_TOKEN)
-        INFLUXDB_ORG: $(INFLUXDB_ORG)
-        INFLUXDB_BUCKET: $(INFLUXDB_BUCKET)
 
     - task: PublishBuildArtifacts@1
       displayName: "Publish Test Results Directory"
