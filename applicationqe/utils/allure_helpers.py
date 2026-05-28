@@ -20,7 +20,7 @@ def screenshot(page: Page, name: str = "Screenshot"):
     """Capture a screenshot and attach it to the Allure report."""
     img = page.screenshot()
     allure.attach(img, name=name, attachment_type=allure.attachment_type.PNG)
-    print(f"  📸 {name}")
+    print(f"  [screenshot] {name}")
 
 
 def _run_assertion(page: Page, step_label: str, assertion_fn):
@@ -28,7 +28,7 @@ def _run_assertion(page: Page, step_label: str, assertion_fn):
     with allure.step(step_label):
         try:
             assertion_fn()
-            print(f"  ✓ {step_label}")
+            print(f"  [PASS] {step_label}")
         except Exception:
             screenshot(page, f"FAIL - {step_label}")
             raise
