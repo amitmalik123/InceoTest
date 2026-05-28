@@ -1,6 +1,6 @@
 # Team Stage Template
 # Reusable template for all team pipelines with advanced features from azurePipeline_ES3.yaml
-# Includes: Allure reporting, InfluxDB metrics, parallel execution, cross-browser testing
+# Includes: Allure reporting, Azure Log Analytics metrics, parallel execution, cross-browser testing
 
 parameters:
   - name: stageName
@@ -62,14 +62,6 @@ stages:
       value: '$(Build.SourcesDirectory)/reports/${{ parameters.stageName }}'
     - name: keyVaultName
       value: 'amkkvqapipeline-testncus'  # Azure Key Vault name
-    - name: INFLUXDB_URL
-      value: 'http://azncc03perf.corp.local:8086'
-    - name: INFLUXDB_ORG
-      value: 'MF'
-    - name: INFLUXDB_BUCKET
-      value: 'AutomationData'
-    - name: INFLUXDB_TOKEN
-      value: 'g5gf0ukY8fPdwaWynLviDLd0wz1l5snomLbip3t2IrQkeNNkiEFYECEHlcJLwsAPvv2Gx-op4ho6QcpVsCpdGQ=='
    
     steps:
     - checkout: self
@@ -273,7 +265,6 @@ stages:
       env:
         WORK_ITEM_AUTH_TOKEN: $(WORK_ITEM_AUTH_TOKEN)
         PARTIES_AUTH_TOKEN: $(PARTIES_AUTH_TOKEN)
-        INFLUXDB_AUTO_PUSH: 'false'  # Pipeline has its own dedicated push step
         # ── Connection strings: AzureKeyVault@2 fetches secrets → mapped to env vars ──
         # Python reads these via os.getenv() — no direct Key Vault API calls.
         TRANSFER_CONNECTION_STRING: $(transfer-connection-string)
@@ -281,10 +272,6 @@ stages:
         CRM_DB_CONNECTION_STRING: $(crm-db-connection-string)
         AM_BILLING_CONNECTION_STRING: $(am-billing-connection-string)
         API_AUTH_TOKEN: $(test11-api-auth-token)
-        INFLUXDB_URL: $(INFLUXDB_URL)
-        INFLUXDB_TOKEN: $(INFLUXDB_TOKEN)
-        INFLUXDB_ORG: $(INFLUXDB_ORG)
-        INFLUXDB_BUCKET: $(INFLUXDB_BUCKET)
 
     - script: |
         echo "Checking Allure Results Directory..."
@@ -323,28 +310,6 @@ stages:
         ls -la $(allureReportDir) 2>/dev/null || echo "Report dir not found"
       displayName: "Verify Report Paths"
       condition: always()
-
-    - script: |
-        echo "Pushing test metrics to InfluxDB..."
-        export INFLUXDB_URL="${INFLUXDB_URL}"
-        export INFLUXDB_TOKEN="${INFLUXDB_TOKEN}"
-        export INFLUXDB_ORG="${INFLUXDB_ORG}"
-        export INFLUXDB_BUCKET="${INFLUXDB_BUCKET}"
-        export ALLURE_RESULTS_DIR="$(allureResultsDir)"
-        export ENVIRONMENT="$(environment)"
-        export BUILD_ID="$(Build.BuildId)"
-        export BUILD_REASON="$(Build.Reason)"
-
-        cd applicationqe
-        python utils/influx_reporter.py
-      displayName: "Push Metrics to InfluxDB"
-      condition: always()
-      continueOnError: true
-      env:
-        INFLUXDB_URL: $(INFLUXDB_URL)
-        INFLUXDB_TOKEN: $(INFLUXDB_TOKEN)
-        INFLUXDB_ORG: $(INFLUXDB_ORG)
-        INFLUXDB_BUCKET: $(INFLUXDB_BUCKET)
 
     - script: |
         echo "Pushing test metrics to Azure Log Analytics..."
