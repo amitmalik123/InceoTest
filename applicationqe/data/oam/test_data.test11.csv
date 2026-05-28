@@ -1,0 +1,172 @@
+test_scenario,user_type,Document_Creator_Role,Authorized_Signer_Role,Authorized_Signer_Role_Name,Multiple_Authorized_Signers,Agent,username,password,client_id,account_number,account_name,OAM_Request,OAM_Type,Submission_Type,Client_Signature_Method,Expected_Signer_Information_Text,Expected_Authorized_Signer_Approval_Text,Authorized_Signer_Approval_Option,Signer_eSign_Method,Account_Owner,Email_Address,Phone,Expected_docusign_ReviewAndContinue_Text,As_authorized_by_stamp_present,Expected_RequestPopUp_Text,Expected_Advisor_Alert_Required,Expected_AuthorizedSigner_Email_Subject,Expected_AuthorizedSigner_Email_Body,Expected_TrackingCenter_Notes,Expected_Roles,Expected_RoutingOrders
+S1_OAM_Initiated by FA_Online Submit_Finish,,,,,,AGA1G1,T11_AGA1G1_Perf,QAAdminUser_33a,,11878744,Carmen E Tucker,Additional Account Documentation,Historical Document Retrieval,Complete and Submit,Proceed and submit without a client signature,,,,,,,,Please review and sign the document electronically.,No,"Request Submitted
+|
+Your request has been submitted to AssetMark for processing.
+|
+To view your request, go to the Tracking Center and select
+|
+a copy for your records.
+|
+Click Close to return to eWealthManager.",No,,,Document has been completed and routed to Operations for review and processing.,Advisor,1
+S5_OAM_Initiated by SAU_Online Submit_Authorized Signer_Required_FA,SAU,SAU,FA,,,AG7071,SAU_AG7071_T11,QAAdminUser_33a,,13337806,Mary S. McGovern Revocable Trust,Contributions,Copy for Digital Deposit,Complete and Submit,Proceed and submit without a client signature,Signer(s) Information,"Authorized Approval
+|
+You are authorized to begin the approval and submission process.
+Would you prefer a different authorized user review and submit the request once you have completed the request?",Yes,SMS,,saransh.saxena@assetmark.com,925 532 9706,Please review and sign the document electronically.,No,"Request Ready for Financial Advisor Review
+|
+Your request will be sent to the Financial Advisor to review, approve and submit to AssetMark for processing.
+|
+To view your request, go to the Tracking Center and select
+|
+a copy for your records.
+|
+Click Close to return to eWealthManager.",Yes,[External] <Document_Creator_Role_Name> requested your Electronic Signature - <D Number>,"<Authorized_Signer_Role_Name>,
+
+Your Shared Access User has prepared one or more documents that are ready for you to sign electronically.","Document has been completed and routed to Operations for review and processing.
+|
+Document has been routed to <FA Name> for review and submission.
+|
+Document completed by <SAU Name> and is pending review and submission.
+|
+Document created by <SAU Name>","Shared Access User
+|
+Advisor","1
+|
+2"
+S2_OAM_Initiated by SAU_Online Submit_Authorized Signer_Not_Required,SAU,SAU,,,,AG7071,SAU_AG7071_T11,QAAdminUser_33a,,13337806,Mary S. McGovern Revocable Trust,Contributions,Copy for Digital Deposit,Complete and Submit,Proceed and submit without a client signature,Signer(s) Information,"Authorized Approval
+|
+You are authorized to begin the approval and submission process.
+Would you prefer a different authorized user review and submit the request once you have completed the request?",No,,,,,Please review and sign the document electronically.,Yes,"Request Submitted
+|
+Your request has been submitted to AssetMark for processing.
+|
+To view your request, go to the Tracking Center and select
+|
+a copy for your records.
+|
+Click Close to return to eWealthManager.",No,"Document has been completed and routed to Operations for review and processing.
+|
+Document created by <FA Name>",,"Document has been completed and routed to Operations for review and processing.
+|
+Document created by <FA Name>",Advisor,1
+S3_OAM_Initiated by SAU_Complete and Print,SAU,SAU,,,,AG7071,SAU_AG7071_T11,QAAdminUser_33a,,13337806,Mary S. McGovern Revocable Trust,Contributions,Copy for Digital Deposit,Complete and Print,,,,,,,,,Please review and sign the document electronically.,No,"Ready for Signatures
+|
+After printing and obtaining signatures, scan the signed document and upload to the Tracking Center by selecting
+|
+The Tracking Center provides one-stop access to your documents and status updates.",Yes,,,"Once completed and signed, submit document from Tracking Center upload or mail.
+|
+Document created by <FA Name>",Advisor,1
+S6_OAM_Initiated by SAU_Online Submit_Authorized Signer_Required_SAU,SAU,SAU,SAU,,,AG7071,SAU_AG7071_T11,QAAdminUser_33a,,13337806,Mary S. McGovern Revocable Trust,Contributions,Copy for Digital Deposit,Complete and Submit,Proceed and submit without a client signature,Signer(s) Information,"Authorized Approval
+|
+You are authorized to begin the approval and submission process.
+Would you prefer a different authorized user review and submit the request once you have completed the request?",Yes,SMS,,saransh.saxena@assetmark.com,925 532 9706,Please review and sign the document electronically.,No,"Request Ready for Shared Access User Review
+|
+Your request will be sent to the Shared Access User to review, approve and submit to AssetMark for processing.
+|
+To view your request, go to the Tracking Center and select
+|
+a copy for your records.
+|
+Click Close to return to eWealthManager.",Yes,[External] <Document_Creator_Role_Name> requested your Electronic Signature - <D Number>,"<Authorized_Signer_Role_Name>,
+
+Your Shared Access User has prepared one or more documents that are ready for you to sign electronically.","Document has been completed and routed to Operations for review and processing.
+|
+Document has been routed to <Authorized_Signer_Role_Name> for review and submission.
+|
+Document completed by <SAU Name> and is pending review and submission.
+|
+Document created by <SAU Name>","Shared Access User
+|
+Advisor","1
+|
+2"
+S9_OAM_Initiated by SAU_eSignature_With One Inperson Client Signature_Authorized Signer_NOT required,SAU,SAU,,,,AG8959,SAU_AG8959_04,QAAdminUser_33a,,40132450,"
+Julio S Negrete Survivor's Trust FBO Graciela Attwater",Contributions,Copy for Digital Deposit,Complete and Submit,Request client electronic signature,"Signer(s) Information 
+|
+Please complete the information for each signer and specify whether they will be signing In Person or By Email.
+For signing In Person, your client(s) are with you during the signing process. Your review and signature is required on the form before your client(s) can sign. Once completed, your client(s) may sign immediately after, or you can retrieve the form through the Tracking Center for In Person client signing at a later time.
+For signing By Email, your client(s) will receive an email notification immediately after the request form is completed. The email provides your client(s) with online access to the forms for electronic signing. Your review and signature is required on the form before the email is sent to your client(s).
+Please note that all pending DocuSign envelopes will expire within 30 days. Additionally, as noted in the Terms of Use (link located in eWealthManager site footer), you are responsible for the confidentiality and use of your log in credentials and password.  The details you provide will be used to authenticate the individual before they sign the included documents.  It is your responsibility to ensure you are collecting and entering accurate information that is legitimately that of the designated signor(s).","Authorized Approval
+|
+You are authorized to begin the approval and submission process.
+Would you prefer a different authorized user review and submit the request once you have completed the request?",No,In Person,Test User,saransh.saxena@assetmark.com,925 532 9706,Please review and sign the document electronically.,Yes,"Request Submitted
+|
+Your request has been submitted to AssetMark for processing.
+|
+To view your request, go to the Tracking Center and select
+|
+a copy for your records.
+|
+Click Close to return to eWealthManager.",No,,,"Document has been completed by all signers and routed to Operations for review and processing.
+|
+Document electronically signed by Test.
+|
+Document sent to signer(s) and is pending electronic signature.
+|
+Document created by <FA Name>",Advisor,1
+S10_OAM_Initiated by FA_Online Submit_Finish Later,,,,,,AGA1G1,T11_AGA1G1_Perf,QAAdminUser_33a,,11878744,Carmen E Tucker,Additional Account Documentation,Historical Document Retrieval,Complete and Submit,Proceed and submit without a client signature,,,,,,,,Please review and sign the document electronically.,No,,No,,,"Document has been completed and routed to Operations for review and processing.
+|
+Document has been saved and is pending review, completion and submission.
+|
+Document created by <FA Name>",Advisor,1
+S4_OAM_Initiated_by_OfficeAdmin_Complete_And_Print,OA,OA,,,,AGA1FS,AG7071_OA_T11,QAAdminUser_33a,,40305729,Kevin W Yeager,Account Information Change,No Spousal Consent Required,Complete and Print,,,,,,,,,Please review and sign the document electronically.,No,"Ready for Signatures
+|
+After printing and obtaining signatures, scan the signed document and upload to the Tracking Center by selecting
+|
+The Tracking Center provides one-stop access to your documents and status updates.",Yes,,,"Once completed and signed, submit document from Tracking Center upload or mail.
+|
+Document created by Office Admin",OfficeAdmin,1
+S8_OAM_Initiated by FA_Complete and Print,FA,FA,,,,AG0176,Ag_AG0176_T11,QAAdminUser_33a,,11841529,Kass Living Trust,Account Information Change,Short-Term Cash Restriction,Complete and Print,,,,,,,,,Please review and sign the document electronically.,No,"Ready for Signatures
+|
+After printing and obtaining signatures, scan the signed document and upload to the Tracking Center by selecting
+|
+The Tracking Center provides one-stop access to your documents and status updates.",Yes,,,"Once completed and signed, submit document from Tracking Center upload or mail.
+|
+Document created by <FA Name>",Advisor,1
+S11_PRODENG_33109_OAM_SAU_Online Submit_Authorized Approval_Tracking Center_Blue Banner_Trigger Advisor Mail,SAU,SAU,FA,,,AG7071,SAU_AG7071_T11,QAAdminUser_33a,,13337806,Mary S. McGovern Revocable Trust,Contributions,Copy for Digital Deposit,Complete and Submit,Proceed and submit without a client signature,Signer(s) Information,"Authorized Approval
+|
+You are authorized to begin the approval and submission process.
+Would you prefer a different authorized user review and submit the request once you have completed the request?",Yes,SMS,,saransh.saxena@assetmark.com,925 532 9706,Please review and sign the document electronically.,No,"Request Ready for Financial Advisor Review
+|
+Your request will be sent to the Financial Advisor to review, approve and submit to AssetMark for processing.
+|
+To view your request, go to the Tracking Center and select
+|
+a copy for your records.
+|
+Click Close to return to eWealthManager.",Yes,[External] <Document_Creator_Role_Name> requested your Electronic Signature - <D Number>,"<Authorized_Signer_Role_Name>,
+
+Your Shared Access User has prepared one or more documents that are ready for you to sign electronically.","Document has been completed and routed to Operations for review and processing.
+|
+Document has been routed to <FA Name> for review and submission.
+|
+Document completed by <SAU Name> and is pending review and submission.
+|
+Document created by <SAU Name>","Shared Access User
+|
+Advisor","1
+|
+2"
+S7_Prod_OAM_Initiated by SAU_Online Submit_Authorized Signer_Required_FA,SAU,SAU,FA,,,AG7071,SAU_AG7071_T11,QAAdminUser_33a,,13337806,Mary S. McGovern Revocable Trust,Account Information Change,Short-Term Cash Restriction,Complete and Submit,Proceed and submit without a client signature,Signer(s) Information,"Authorized Approval
+|
+You are authorized to begin the approval and submission process.
+Would you prefer a different authorized user review and submit the request once you have completed the request?",Yes,SMS,,saransh.saxena@assetmark.com,925 532 9706,Please review and sign the document electronically.,No,"Request Ready for Financial Advisor Review
+|
+Your request will be sent to the Financial Advisor to review, approve and submit to AssetMark for processing.
+|
+To view your request, go to the Tracking Center and select
+|
+a copy for your records.
+|
+Click Close to return to eWealthManager.",Yes,[External] <Document_Creator_Role_Name> requested your Electronic Signature - <D Number>,"<Authorized_Signer_Role_Name>,
+
+Your Shared Access User has prepared one or more documents that are ready for you to sign electronically.","Document has been completed and routed to Operations for review and processing.
+|
+Document has been routed to <FA Name> for review and submission.
+|
+Document completed by <SAU Name> and is pending review and submission.
+|
+Document created by <SAU Name>","Shared Access User
+|
+Advisor","1
+|
+2"

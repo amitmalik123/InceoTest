@@ -1,4 +1,5 @@
-﻿"""
+#!/usr/bin/env python3
+"""
 InfluxDB Reporter: Parses Allure JSON results and pushes metrics to InfluxDB
 """
 
@@ -17,10 +18,16 @@ from utils.crypto_utils import decrypt_value
 
 def load_influxdb_config():
     """Load InfluxDB configuration from config file or environment variables"""
-    config_path = Path(__file__).parent.parent / "config" / "influxdb_config.json"
+    config_root = Path(__file__).parent.parent / "config"
+    config_candidates = [
+        config_root / "influxdb_config.json",
+        config_root / "PortfolioReporting" / "influxdb_config.json",
+    ]
 
     # Try to load from config file first
-    if config_path.exists():
+    for config_path in config_candidates:
+        if not config_path.exists():
+            continue
         try:
             with open(config_path, "r") as f:
                 config = json.load(f)
@@ -33,7 +40,7 @@ def load_influxdb_config():
                     "auto_push": config.get("auto_push", False),
                 }
         except Exception as e:
-            print(f"ΓÜá∩╕Å  Error loading InfluxDB config file: {e}")
+            print(f"⚠️  Error loading InfluxDB config file '{config_path}': {e}")
 
     # Fall back to environment variables
     return {
@@ -87,12 +94,12 @@ class AllureToInfluxDB:
         results = {"tests": [], "containers": [], "groups": []}
 
         if not os.path.exists(self.allure_results_dir):
-            print(f"ΓÜá∩╕Å  Allure results directory not found: {self.allure_results_dir}")
+            print(f"⚠️  Allure results directory not found: {self.allure_results_dir}")
             return results
 
         # Read test results - track by test name to use only the latest result
         json_files = glob.glob(os.path.join(self.allure_results_dir, "*-result.json"))
-        print(f"≡ƒôé Found {len(json_files)} total test result files")
+        print(f"📂 Found {len(json_files)} total test result files")
 
         # Dictionary to store latest result for each test (by test name)
         latest_results = {}
@@ -121,7 +128,7 @@ class AllureToInfluxDB:
         results["tests"] = list(latest_results.values())
         duplicate_count = len(json_files) - len(results["tests"])
         print(
-            f"ΓÜá∩╕Å  Deduplicated to {len(results['tests'])} unique test(s) by name (skipped {duplicate_count} duplicates/retries)"
+            f"⚠️  Deduplicated to {len(results['tests'])} unique test(s) by name (skipped {duplicate_count} duplicates/retries)"
         )
 
         # Print unique tests
@@ -182,12 +189,12 @@ class AllureToInfluxDB:
                 metrics["passed"] += 1
                 if is_flaky:
                     metrics["flaky"] += 1
-                    test_details.append(f"  Γ£ô {test_name} [PASSED - FLAKY]")
+                    test_details.append(f"  ✓ {test_name} [PASSED - FLAKY]")
                 else:
-                    test_details.append(f"  Γ£ô {test_name} [PASSED]")
+                    test_details.append(f"  ✓ {test_name} [PASSED]")
             elif status in ("failed", "broken"):
                 metrics["failed"] += 1
-                test_details.append(f"  Γ£ù {test_name} [{status.upper()}]")
+                test_details.append(f"  ✗ {test_name} [{status.upper()}]")
             elif status == "skipped":
                 metrics["skipped"] += 1
                 test_details.append(f"  - {test_name} [SKIPPED]")
@@ -214,8 +221,8 @@ class AllureToInfluxDB:
             metrics["pass_rate"] = (metrics["passed"] / testable_total) * 100
 
         # Debug: Show status distribution
-        print(f"\n≡ƒöì Raw Status Distribution: {status_counts}")
-        print("\n≡ƒôï Test Details:")
+        print(f"\n🔍 Raw Status Distribution: {status_counts}")
+        print("\n📋 Test Details:")
         for detail in test_details:
             print(detail)
 
@@ -276,7 +283,7 @@ class AllureToInfluxDB:
     def push_to_influxdb(self, points: List[str]) -> bool:
         """Push metrics to InfluxDB"""
         if not self.influx_token:
-            print("ΓÜá∩╕Å  INFLUXDB_TOKEN not set. Skipping InfluxDB push.")
+            print("⚠️  INFLUXDB_TOKEN not set. Skipping InfluxDB push.")
             return False
 
         try:
@@ -286,23 +293,23 @@ class AllureToInfluxDB:
 
             write_api = client.write_api(write_options=SYNCHRONOUS)
 
-            print(f"≡ƒôè Pushing {len(points)} metric(s) to InfluxDB ({self.influx_url})...")
+            print(f"📊 Pushing {len(points)} metric(s) to InfluxDB ({self.influx_url})...")
             for point in points:
                 print(f"  - {point[:80]}...")
                 write_api.write(bucket=self.influx_bucket, record=point)
 
             client.close()
-            print("Γ£ô Successfully pushed metrics to InfluxDB")
+            print("✓ Successfully pushed metrics to InfluxDB")
             return True
 
         except Exception as e:
-            print(f"Γ¥î Error pushing to InfluxDB: {e}")
+            print(f"❌ Error pushing to InfluxDB: {e}")
             return False
 
     def run(self):
         """Main execution"""
         print("=" * 70)
-        print("≡ƒÜÇ Allure to InfluxDB Reporter")
+        print("🚀 Allure to InfluxDB Reporter")
         print("=" * 70)
         print(f"InfluxDB URL: {self.influx_url}")
         print(f"Allure Results Dir: {self.allure_results_dir}")
@@ -313,14 +320,14 @@ class AllureToInfluxDB:
         # Read Allure results
         results = self.read_allure_results()
         if not results["tests"]:
-            print("ΓÜá∩╕Å  No test results found. Skipping InfluxDB push.")
+            print("⚠️  No test results found. Skipping InfluxDB push.")
             return
 
-        print(f"≡ƒôé Found {len(results['tests'])} test result(s)")
+        print(f"📂 Found {len(results['tests'])} test result(s)")
 
         # Calculate metrics
         metrics = self.calculate_metrics(results)
-        print("\n≡ƒôê Test Execution Metrics:")
+        print("\n📈 Test Execution Metrics:")
         print(f"  Total Tests: {metrics['total']}")
         print(f"  Passed: {metrics['passed']}")
         print(f"  Failed: {metrics['failed']}")
@@ -329,7 +336,7 @@ class AllureToInfluxDB:
         print(f"  Pass Rate: {metrics['pass_rate']:.2f}%")
         print(f"  Total Duration: {metrics['total_duration']}s")
 
-        print("\nΓÜá∩╕Å  Test Quality Metrics:")
+        print("\n⚠️  Test Quality Metrics:")
         if metrics["total"] > 0:
             flaky_rate = (metrics["flaky"] / metrics["total"]) * 100
             print(f"  Flaky Rate: {flaky_rate:.2f}%")
@@ -340,7 +347,7 @@ class AllureToInfluxDB:
         # Get artifact URLs
         artifact_urls = self.get_artifact_urls()
         if artifact_urls:
-            print("\n≡ƒöù Pipeline Artifacts:")
+            print("\n🔗 Pipeline Artifacts:")
             for name, url in artifact_urls.items():
                 print(f"  {name}: {url[:80]}...")
         print()

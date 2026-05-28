@@ -73,12 +73,11 @@ class AllureLogger:
             level: Logging level (default: INFO)
         """
         self.logger = logging.getLogger(name)
-        self.logger.setLevel(level)
 
         # Let records flow to root so pytest log capture/log_cli and Allure stdlog can see them.
         self.logger.propagate = True
 
-        # Fallback handler for non-pytest contexts where root has no handlers configured.
+        # Only configure if not already configured
         root_logger = logging.getLogger()
         if not root_logger.handlers and not self.logger.handlers:
             handler = logging.StreamHandler()
@@ -105,13 +104,13 @@ class AllureLogger:
         if attach_to_allure:
             allure.attach(msg, name="Debug", attachment_type=allure.attachment_type.TEXT)
 
-    def info(self, msg: str, attach_to_allure: bool = False) -> None:
+    def info(self, msg: str, attach_to_allure: bool = True) -> None:
         """
         Log info message.
 
         Args:
             msg: Message to log
-            attach_to_allure: If True, also attach to Allure report (default: False)
+            attach_to_allure: If True, also attach to Allure report (default: True)
 
         Output:
             - Console/log file: Always
@@ -139,7 +138,7 @@ class AllureLogger:
         """
         self.logger.warning(msg)
         if attach_to_allure:
-            allure.attach(msg, name="⚠️ Warning", attachment_type=allure.attachment_type.TEXT)
+            allure.attach(msg, name="Warning", attachment_type=allure.attachment_type.TEXT)
 
     def error(self, msg: str, attach_to_allure: bool = True) -> None:
         """
@@ -155,7 +154,7 @@ class AllureLogger:
         """
         self.logger.error(msg)
         if attach_to_allure:
-            allure.attach(msg, name="❌ Error", attachment_type=allure.attachment_type.TEXT)
+            allure.attach(msg, name="Error", attachment_type=allure.attachment_type.TEXT)
 
     def critical(self, msg: str, attach_to_allure: bool = True) -> None:
         """
@@ -173,7 +172,6 @@ class AllureLogger:
         if attach_to_allure:
             allure.attach(msg, name="🔥 Critical", attachment_type=allure.attachment_type.TEXT)
 
-    @contextmanager
     def step(
         self,
         title: str,
@@ -190,7 +188,6 @@ class AllureLogger:
             page: Playwright Page object (optional, for auto-screenshot)
             log: Whether to also log to console (default: True)
             auto_screenshot: Whether to auto-screenshot after step (default: True)
-            screenshot: Alias for auto_screenshot (backward compatibility)
 
         Usage:
             # Without auto-screenshot
@@ -203,9 +200,6 @@ class AllureLogger:
                 # Screenshot automatically taken at end
         """
         global _screenshot_config
-
-        if screenshot is not None:
-            auto_screenshot = screenshot
 
         if log:
             self.info(f"Step: {title}", attach_to_allure=False)
@@ -222,7 +216,7 @@ class AllureLogger:
             if page and auto_screenshot and _screenshot_config.should_screenshot(step_failed):
                 try:
                     _screenshot_config.step_counter += 1
-                    status = "❌ FAILED" if step_failed else "✓"
+                    status = "FAILED" if step_failed else "PASSED"
                     screenshot_name = f"Step {_screenshot_config.step_counter} {status} {title}"
                     self.attach_screenshot(page, screenshot_name)
                 except Exception as screenshot_error:
@@ -279,13 +273,7 @@ class AllureLogger:
 
     def attach_summary_table(self, data: dict, name: str = "Summary",
                              columns: tuple[str, str] = ("Field", "Value")) -> None:
-        """Attach a key-value summary as an ASCII log table + HTML attachment.
-
-        Args:
-            data: Dictionary of label→value pairs to display.
-            name: Attachment name shown in Allure.
-            columns: Custom column headers (default: Field, Value).
-        """
+        """Attach a key-value summary as an ASCII log table + HTML attachment."""
         rows = [[str(k), str(v)] for k, v in data.items()]
         self.info(f"\n{'=' * 10} {name} {'=' * 10}\n{self._build_ascii_table(list(columns), rows)}")
         html_rows = [[f"<b>{k}</b>", str(v)] for k, v in data.items()]
@@ -293,17 +281,7 @@ class AllureLogger:
 
     def attach_checklist_table(self, title: str, items: list[tuple[str, bool]], name: str = "Checklist",
                                columns: tuple[str, str, str] = ("#", "Document Name", "Status")) -> str:
-        """Attach a pass/fail checklist as an ASCII log table + HTML attachment.
-
-        Args:
-            title: Heading displayed above the table.
-            items: List of (label, passed) tuples.
-            name: Attachment name shown in Allure.
-            columns: Custom column headers (default: #, Document Name, Status).
-
-        Returns:
-            Summary string like '3/11 items found'.
-        """
+        """Attach a pass/fail checklist as an ASCII log table + HTML attachment."""
         found = sum(1 for _, ok in items if ok)
         summary = f"{found}/{len(items)} items found"
         ascii_rows = [[str(i), label, "[+] Present" if ok else "[-] Not Found"] for i, (label, ok) in enumerate(items, 1)]
