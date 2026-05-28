@@ -26,7 +26,7 @@ except ImportError:
 def load_azure_analytics_config():
     """Load Azure Log Analytics configuration from config file or environment variables"""
     config_module = os.getenv(
-        "CONFIG_MODULE", "billing/platformrevenuedashboard/strategistgroupmodel"
+        "CONFIG_MODULE", "platformrevenuedashboard/strategistgroupmodel"
     )
     config_path = Path(__file__).parent.parent / "config" / config_module / "azure_analytics_config.json"
 

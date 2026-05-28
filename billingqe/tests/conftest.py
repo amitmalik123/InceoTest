@@ -17,10 +17,10 @@ from playwright.sync_api import Page
 
 # ── sys.path: billingqe root + all step/page dirs ────────────────────────────
 _REPO_ROOT = Path(__file__).resolve().parent.parent  # billingqe/
-_COMMON_STEP_DIR = _REPO_ROOT / "tests" / "steps" / "billing" / "platformrevenuedashboard"
+_COMMON_STEP_DIR = _REPO_ROOT / "tests" / "steps" / "platformrevenuedashboard"
 _SGM_STEP_DIR = _COMMON_STEP_DIR / "strategistgroupmodel"
 _SGM_PAGE_DIR = (
-    _REPO_ROOT / "pages" / "billing" / "platformrevenuedashboard" / "strategistgroupmodel"
+    _REPO_ROOT / "pages" / "platformrevenuedashboard" / "strategistgroupmodel"
 )
 
 _REPO_ROOT_STR = str(_REPO_ROOT)

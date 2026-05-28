@@ -87,7 +87,7 @@ stages:
             displayName: Install dependencies
 
           - script: |
-              pytest tests/runners/billing/platformrevenuedashboard/strategistgroupmodel/ \
+              pytest tests/runners/platformrevenuedashboard/strategistgroupmodel/ \
                 -m regression \
                 -v \
                 --tb=short
@@ -105,7 +105,7 @@ stages:
 
           - task: PublishBuildArtifacts@1
             inputs:
-              pathtoPublish: 'reports/billing'
+              pathtoPublish: 'reports/platformrevenuedashboard'
               artifactName: billing-test-reports
             condition: always()
 ```
@@ -131,12 +131,12 @@ trigger:
       - develop
   paths:
     include:
-      - billingqe/data/billing/**
-      - billingqe/config/billing/**
-      - billingqe/tests/runners/billing/**
-      - billingqe/tests/features/billing/**
-      - billingqe/tests/steps/billing/**
-      - billingqe/pages/billing/**
+      - billingqe/data/**
+      - billingqe/config/**
+      - billingqe/tests/runners/**
+      - billingqe/tests/features/**
+      - billingqe/tests/steps/**
+      - billingqe/pages/**
       - billingqe/fixtures/**
       - billingqe/pytest.ini
       - billingqe/requirements.txt
@@ -195,7 +195,7 @@ The pipeline publishes two artifacts after every run:
 
 | Artifact | Contents | Location |
 |----------|---------|----------|
-| `billing-test-reports` | HTML report, Allure results, pytest.log | `reports/billing/` |
+| `billing-test-reports` | HTML report, Allure results, pytest.log | `reports/` |
 | Test Results (Azure tab) | JUnit XML parsed by DevOps | `reports/**/junit.xml` |
 
 To download artifacts: **Pipeline run** → **Artifacts** → `billing-test-reports`.
@@ -238,7 +238,7 @@ schedules:
 
 When new runner files or features are added:
 
-1. **No pipeline changes needed** if the new tests share the `regression` marker and live under `tests/runners/billing/`
+1. **No pipeline changes needed** if the new tests share the `regression` marker and live under `tests/runners/`
 2. **Add path trigger** (if CI trigger is enabled) to include the new data/config/feature paths
 3. **Increase `timeoutInMinutes`** if the new tests significantly extend the run duration
 4. **Update artifact paths** if new report directories are added

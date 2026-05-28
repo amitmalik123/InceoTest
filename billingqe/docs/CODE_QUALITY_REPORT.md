@@ -60,7 +60,7 @@ black .
 black --check .
 
 # Format a specific file
-black pages/billing/platformrevenuedashboard/strategistgroupmodel/create_family_page.py
+black pages/platformrevenuedashboard/strategistgroupmodel/create_family_page.py
 ```
 
 ### Linting (`flake8`)
@@ -127,7 +127,7 @@ sonar.projectName=Billing QE Automation
 sonar.sources=pages,fixtures,utils
 sonar.tests=tests
 sonar.python.coverage.reportPaths=reports/coverage.xml
-sonar.python.xunit.reportPath=reports/billing/platformrevenuedashboard/strategistgroupmodel/junit.xml
+sonar.python.xunit.reportPath=reports/platformrevenuedashboard/strategistgroupmodel/junit.xml
 sonar.exclusions=reports/**,**/__pycache__/**,**/*.pyc
 ```
 

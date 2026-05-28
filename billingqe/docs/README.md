@@ -41,22 +41,20 @@ billingqe/
 │   ├── prd_sgm.yml           # Billing team pipeline
 │   └── templates/            # Shared stage templates
 ├── config/
-│   └── billing/
-│       └── platformrevenuedashboard/
-│           └── strategistgroupmodel/
-│               ├── env.qa.yaml          # Base QA environment config
-│               └── env.qa.local.yaml    # Local overrides (git-ignored)
+│   └── platformrevenuedashboard/
+│       └── strategistgroupmodel/
+│           ├── env.qa.yaml          # Base QA environment config
+│           └── env.qa.local.yaml    # Local overrides (git-ignored)
 ├── data/
-│   └── billing/
-│       └── platformrevenuedashboard/
-│           └── strategistgroupmodel/
-│               ├── create_family_data.csv
-│               ├── approve_reject_family_data.csv
-│               ├── edit_family_data.csv
-│               ├── search_family_data.csv
-│               ├── approve_reject_model_data.csv
-│               ├── edit_model_data.csv
-│               └── search_model_data.csv
+│   └── platformrevenuedashboard/
+│       └── strategistgroupmodel/
+│           ├── create_family_data.csv
+│           ├── approve_reject_family_data.csv
+│           ├── edit_family_data.csv
+│           ├── search_family_data.csv
+│           ├── approve_reject_model_data.csv
+│           ├── edit_model_data.csv
+│           └── search_model_data.csv
 ├── docs/                     # This documentation folder
 ├── fixtures/                 # Modular pytest fixtures
 │   ├── assertion_fixtures.py
@@ -67,53 +65,49 @@ billingqe/
 │   ├── hooks_fixtures.py
 │   └── page_fixtures.py
 ├── pages/
-│   └── billing/
-│       └── platformrevenuedashboard/
-│           ├── common/
-│           │   ├── base_page.py
-│           │   ├── login_page.py
-│           │   └── navigation_page.py
-│           └── strategistgroupmodel/
-│               ├── approve_reject_family_page.py
-│               ├── approve_reject_model_page.py
-│               ├── create_family_page.py
-│               ├── edit_family_page.py
-│               ├── edit_model_page.py
-│               ├── login_page.py
-│               ├── navigation_page.py
-│               └── search_model_page.py
+│   └── platformrevenuedashboard/
+│       ├── common/
+│       │   ├── base_page.py
+│       │   ├── login_page.py
+│       │   └── navigation_page.py
+│       └── strategistgroupmodel/
+│           ├── approve_reject_family_page.py
+│           ├── approve_reject_model_page.py
+│           ├── create_family_page.py
+│           ├── edit_family_page.py
+│           ├── edit_model_page.py
+│           ├── login_page.py
+│           ├── navigation_page.py
+│           └── search_model_page.py
 ├── tests/
 │   ├── conftest.py           # Single consolidated conftest
 │   ├── features/
-│   │   └── billing/
-│   │       └── platformrevenuedashboard/
-│   │           └── strategistgroupmodel/
-│   │               ├── create_family.feature
-│   │               ├── approve_reject_family.feature
-│   │               ├── edit_family.feature
-│   │               ├── search_family.feature
-│   │               ├── approve_reject_model.feature
-│   │               ├── edit_model.feature
-│   │               └── search_model.feature
+│   │   └── platformrevenuedashboard/
+│   │       └── strategistgroupmodel/
+│   │           ├── create_family.feature
+│   │           ├── approve_reject_family.feature
+│   │           ├── edit_family.feature
+│   │           ├── search_family.feature
+│   │           ├── approve_reject_model.feature
+│   │           ├── edit_model.feature
+│   │           └── search_model.feature
 │   ├── runners/
-│   │   └── billing/
-│   │       └── platformrevenuedashboard/
-│   │           └── strategistgroupmodel/
-│   │               ├── test_create_family_bdd_runner.py
-│   │               ├── test_approve_reject_family_bdd_runner.py
-│   │               ├── test_edit_family_bdd_runner.py
-│   │               ├── test_search_family_bdd_runner.py
-│   │               ├── test_approve_reject_model_bdd_runner.py
-│   │               ├── test_edit_model_bdd_runner.py
-│   │               └── test_search_model_bdd_runner.py
+│   │   └── platformrevenuedashboard/
+│   │       └── strategistgroupmodel/
+│   │           ├── test_create_family_bdd_runner.py
+│   │           ├── test_approve_reject_family_bdd_runner.py
+│   │           ├── test_edit_family_bdd_runner.py
+│   │           ├── test_search_family_bdd_runner.py
+│   │           ├── test_approve_reject_model_bdd_runner.py
+│   │           ├── test_edit_model_bdd_runner.py
+│   │           └── test_search_model_bdd_runner.py
 │   └── steps/
-│       └── billing/
-│           └── platformrevenuedashboard/
-│               ├── revenue_dashboard_common_steps.py
-│               └── strategistgroupmodel/
-│                   ├── common_steps.py
-│                   ├── create_family_steps.py
-│                   ├── approve_reject_family_steps.py
+│       └── platformrevenuedashboard/
+│           ├── revenue_dashboard_common_steps.py
+│           └── strategistgroupmodel/
+│               ├── common_steps.py
+│               ├── create_family_steps.py
+│               ├── approve_reject_family_steps.py
 │                   ├── edit_family_steps.py
 │                   ├── search_family_steps.py
 │                   ├── approve_reject_model_steps.py
@@ -140,12 +134,12 @@ pip install -r requirements.txt
 playwright install chromium
 
 # 4. Copy and configure credentials
-cp config/billing/platformrevenuedashboard/strategistgroupmodel/env.qa.yaml \
-   config/billing/platformrevenuedashboard/strategistgroupmodel/env.qa.local.yaml
+cp config/platformrevenuedashboard/strategistgroupmodel/env.qa.yaml \
+   config/platformrevenuedashboard/strategistgroupmodel/env.qa.local.yaml
 # Edit env.qa.local.yaml to add username/password
 
 # 5. Run a specific suite
-pytest tests/runners/billing/platformrevenuedashboard/strategistgroupmodel/test_search_family_bdd_runner.py -v
+pytest tests/runners/platformrevenuedashboard/strategistgroupmodel/test_search_family_bdd_runner.py -v
 
 # 6. Run the full SGM suite
 pytest tests/runners/ -m "regression" -v
@@ -187,7 +181,7 @@ pytest tests/runners/ -m "regression" -v
 After each test run, reports are generated in:
 
 ```
-reports/billing/platformrevenuedashboard/strategistgroupmodel/
+reports/platformrevenuedashboard/strategistgroupmodel/
 ├── allure-results/     # Raw Allure data
 ├── pytest_report.html  # Self-contained HTML report
 └── pytest.log          # Detailed debug log
@@ -195,7 +189,7 @@ reports/billing/platformrevenuedashboard/strategistgroupmodel/
 
 To open the Allure report:
 ```bash
-allure serve reports/billing/platformrevenuedashboard/strategistgroupmodel/allure-results
+allure serve reports/platformrevenuedashboard/strategistgroupmodel/allure-results
 ```
 
 ---

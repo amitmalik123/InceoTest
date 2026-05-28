@@ -8,7 +8,7 @@ from pathlib import Path
 
 logger = logging.getLogger(__name__)
 
-_SCREENSHOT_ROOT = Path("reports/billing/platformrevenuedashboard/strategistgroupmodel/screenshots")
+_SCREENSHOT_ROOT = Path("reports/platformrevenuedashboard/strategistgroupmodel/screenshots")
 
 
 def _capture_failure_screenshot(page, scenario_name: str, step_name: str) -> None:

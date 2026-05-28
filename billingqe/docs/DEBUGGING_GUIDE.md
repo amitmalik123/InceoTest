@@ -172,7 +172,7 @@ self.page.pause()   # Opens Playwright Inspector
 Screenshots are saved automatically on step failure:
 
 ```
-reports/billing/platformrevenuedashboard/strategistgroupmodel/screenshots/
+reports/platformrevenuedashboard/strategistgroupmodel/screenshots/
 FAIL_Create_Model_Family_w_When_the_user_fills_in_20260527_092314.png
 ```
 
@@ -192,7 +192,7 @@ The DEBUG log file at `reports/.../pytest.log` contains the full trace including
 
 ```bash
 # Tail the log during a run
-Get-Content reports/billing/platformrevenuedashboard/strategistgroupmodel/pytest.log -Wait -Tail 50
+Get-Content reports/platformrevenuedashboard/strategistgroupmodel/pytest.log -Wait -Tail 50
 
 # Search for a specific failure
 Select-String -Path reports/.../pytest.log -Pattern "FAIL|ERROR|TimeoutError"

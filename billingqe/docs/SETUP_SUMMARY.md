@@ -73,8 +73,8 @@ playwright install-deps chromium
 ### Step 5 — Configure credentials
 
 ```bash
-cp config/billing/platformrevenuedashboard/strategistgroupmodel/env.qa.yaml \
-   config/billing/platformrevenuedashboard/strategistgroupmodel/env.qa.local.yaml
+cp config/platformrevenuedashboard/strategistgroupmodel/env.qa.yaml \
+   config/platformrevenuedashboard/strategistgroupmodel/env.qa.local.yaml
 
 # Edit env.qa.local.yaml and fill in username + password
 ```
@@ -117,7 +117,7 @@ All dependencies are pinned in `requirements.txt`:
 ## Credential Setup
 
 ```yaml
-# config/billing/platformrevenuedashboard/strategistgroupmodel/env.qa.local.yaml
+# config/platformrevenuedashboard/strategistgroupmodel/env.qa.local.yaml
 application:
   base_url: "https://app-billing-ui-test.azurewebsites.net/"
 
@@ -177,7 +177,7 @@ pytest tests/runners/ --collect-only -q
 pytest tests/runners/ --co --tb=short
 
 # 3. Run a single fast smoke test
-pytest tests/runners/billing/platformrevenuedashboard/strategistgroupmodel/test_search_family_bdd_runner.py -v
+pytest tests/runners/platformrevenuedashboard/strategistgroupmodel/test_search_family_bdd_runner.py -v
 ```
 
 ---
@@ -190,7 +190,7 @@ pytest tests/runners/billing/platformrevenuedashboard/strategistgroupmodel/test_
 | `playwright._impl._errors.Error: Executable doesn't exist` | Chromium not installed | Run `playwright install chromium` |
 | `ValueError: Missing credentials` | No local YAML or env vars | Create `env.qa.local.yaml` or export env vars |
 | `StepDefinitionNotFoundError` | Step text mismatch or import missing | Check `tests/conftest.py` imports all step modules |
-| `FileNotFoundError: ...search_family_data.csv` | Data file missing | Ensure CSV files exist in `data/billing/.../strategistgroupmodel/` |
+| `FileNotFoundError: ...search_family_data.csv` | Data file missing | Ensure CSV files exist in `data/.../strategistgroupmodel/` |
 | Tests collected from `applicationqe` | Stale `.pyc` bytecode | Delete all `__pycache__` dirs and re-run |
 | `PluginValidationError` for BDD hook | Hook arg name mismatch | Hook function signatures must match pytest-bdd hookspec exactly |
 

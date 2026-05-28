@@ -45,7 +45,7 @@ pytest tests/runners/ -v
 
 ### A specific runner file
 ```bash
-pytest tests/runners/billing/platformrevenuedashboard/strategistgroupmodel/test_search_family_bdd_runner.py -v
+pytest tests/runners/platformrevenuedashboard/strategistgroupmodel/test_search_family_bdd_runner.py -v
 ```
 
 ### All tests with a specific marker
@@ -93,7 +93,7 @@ See [TAG_USAGE_GUIDE.md](TAG_USAGE_GUIDE.md) for the complete marker reference.
 Each test scenario is parametrized by a CSV file. One CSV row = one test case.
 
 ```
-data/billing/platformrevenuedashboard/strategistgroupmodel/
+data/platformrevenuedashboard/strategistgroupmodel/
 ├── create_family_data.csv          → test_create_family_bdd_runner.py
 ├── approve_reject_family_data.csv  → test_approve_reject_family_bdd_runner.py
 ├── edit_family_data.csv            → test_edit_family_bdd_runner.py
@@ -166,7 +166,7 @@ Non-family tests are not reordered — they run in discovery order.
 
 ## Reports and Logs
 
-All reports are generated automatically at `reports/billing/platformrevenuedashboard/strategistgroupmodel/`:
+All reports are generated automatically at `reports/platformrevenuedashboard/strategistgroupmodel/`:
 
 ### HTML Report
 Self-contained report with test results, durations, and pass/fail breakdown:
@@ -179,7 +179,7 @@ Open in any browser — no server needed.
 Interactive report with step breakdown, screenshots, and trends:
 ```bash
 # View current run
-allure serve reports/billing/platformrevenuedashboard/strategistgroupmodel/allure-results
+allure serve reports/platformrevenuedashboard/strategistgroupmodel/allure-results
 
 # Generate static HTML
 allure generate reports/.../allure-results -o reports/.../allure-html --clean

@@ -23,7 +23,6 @@ DEFAULT_DRIVER = "{ODBC Driver 17 for SQL Server}"
 DEFAULT_CONFIG_PATH = (
     Path(__file__).resolve().parent.parent
     / "config"
-    / "billing"
     / "platformrevenuedashboard"
     / "strategistgroupmodel"
     / "env.qa.yaml"
@@ -32,7 +31,6 @@ DEFAULT_LOCAL_CONFIG_PATH = DEFAULT_CONFIG_PATH.with_name("env.qa.local.yaml")
 DEFAULT_SQL_QUERIES_PATH = (
     Path(__file__).resolve().parent.parent
     / "queries"
-    / "billing"
     / "platformrevenuedashboard"
     / "strategistgroupmodel"
     / "sgm_sql_queries.yaml"

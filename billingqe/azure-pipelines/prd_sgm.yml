@@ -16,12 +16,12 @@ trigger: none
 #       - feature/billingqe
 #   paths:
 #     include:
-#       - applicationqe/data/billing/**
-#       - applicationqe/config/billing/**
-#       - applicationqe/tests/features/billing/**
-#       - applicationqe/tests/steps/billing/**
-#       - applicationqe/pages/billing/**
-#       - applicationqe/queries/billing/**
+#       - applicationqe/data/**
+#       - applicationqe/config/**
+#       - applicationqe/tests/features/**
+#       - applicationqe/tests/steps/**
+#       - applicationqe/pages/**
+#       - applicationqe/queries/**
 #       - applicationqe/fixtures/billing_fixture.py
 #       - applicationqe/pages/base_page.py
 #       - applicationqe/pytest.ini
@@ -105,11 +105,11 @@ jobs:
     environment: ${{ parameters.environment }}
     marker: ${{ parameters.marker }}
     workers: ${{ parameters.workers }}
-    featurePath: 'tests/features/billing/platformrevenuedashboard/strategistgroupmodel'
-    allureResultsDir: '$(Build.SourcesDirectory)/applicationqe/reports/billing/platformrevenuedashboard/strategistgroupmodel/allure-results'
-    allureReportDir: '$(Build.SourcesDirectory)/applicationqe/reports/billing/platformrevenuedashboard/strategistgroupmodel/allure-report'
+    featurePath: 'tests/features/platformrevenuedashboard/strategistgroupmodel'
+    allureResultsDir: '$(Build.SourcesDirectory)/applicationqe/reports/platformrevenuedashboard/strategistgroupmodel/allure-results'
+    allureReportDir: '$(Build.SourcesDirectory)/applicationqe/reports/platformrevenuedashboard/strategistgroupmodel/allure-report'
     allureToolsDir: '$(Build.ArtifactStagingDirectory)/allure-tools'
-    testResultsDir: '$(Build.SourcesDirectory)/applicationqe/reports/billing/platformrevenuedashboard/strategistgroupmodel'
+    testResultsDir: '$(Build.SourcesDirectory)/applicationqe/reports/platformrevenuedashboard/strategistgroupmodel'
     # Azure Key Vault configuration
     keyVaultName: 'amkkvqapipeline-testncus'
 
@@ -371,7 +371,7 @@ jobs:
       export BUILD_REASON="$(Build.Reason)"
       export AZURE_LOG_WORKSPACE_ID="$(logAnalyticsWorkspaceId)"
       export AZURE_LOG_SHARED_KEY="$(logAnalyticsSharedKey)"
-      export CONFIG_MODULE="billing/platformrevenuedashboard/strategistgroupmodel"
+      export CONFIG_MODULE="platformrevenuedashboard/strategistgroupmodel"
 
       python utils/azure_analytics_reporter.py
     displayName: "Push Metrics to Azure Log Analytics"

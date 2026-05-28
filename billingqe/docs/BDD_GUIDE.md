@@ -71,7 +71,7 @@ Feature: <Module Name>
 All Billing SGM `.feature` files live in:
 
 ```
-tests/features/billing/platformrevenuedashboard/strategistgroupmodel/
+tests/features/platformrevenuedashboard/strategistgroupmodel/
 ├── create_family.feature
 ├── approve_reject_family.feature
 ├── edit_family.feature
@@ -94,7 +94,7 @@ tests/features/billing/platformrevenuedashboard/strategistgroupmodel/
 Step definitions are Python functions decorated with `@given`, `@when`, or `@then`. They live in:
 
 ```
-tests/steps/billing/platformrevenuedashboard/
+tests/steps/platformrevenuedashboard/
 ├── revenue_dashboard_common_steps.py      # Login, navigate, submit, logout
 └── strategistgroupmodel/
     ├── common_steps.py                    # SGM-level re-exports
@@ -142,7 +142,7 @@ def fill_family_form(create_family_page, create_family_data_row, datatable):
 Runner files live in `tests/runners/` and glue everything together:
 
 ```python
-# tests/runners/billing/platformrevenuedashboard/strategistgroupmodel/test_create_family_bdd_runner.py
+# tests/runners/platformrevenuedashboard/strategistgroupmodel/test_create_family_bdd_runner.py
 
 REPO_ROOT = Path(__file__).resolve().parents[5]
 FEATURE_DIR = REPO_ROOT / "tests" / "features" / "billing" / "platformrevenuedashboard" / "strategistgroupmodel"
@@ -186,11 +186,11 @@ def test_create_model_family_with_valid_data(create_family_data_row):
 
 ## Adding a New Feature
 
-1. Create a new `.feature` file in `tests/features/billing/platformrevenuedashboard/strategistgroupmodel/`
-2. Create a new `*_steps.py` in `tests/steps/billing/platformrevenuedashboard/strategistgroupmodel/`
-3. Create a new page object in `pages/billing/platformrevenuedashboard/strategistgroupmodel/`
-4. Create a new `test_*_bdd_runner.py` in `tests/runners/billing/platformrevenuedashboard/strategistgroupmodel/`
-5. Add a CSV data file in `data/billing/platformrevenuedashboard/strategistgroupmodel/`
+1. Create a new `.feature` file in `tests/features/platformrevenuedashboard/strategistgroupmodel/`
+2. Create a new `*_steps.py` in `tests/steps/platformrevenuedashboard/strategistgroupmodel/`
+3. Create a new page object in `pages/platformrevenuedashboard/strategistgroupmodel/`
+4. Create a new `test_*_bdd_runner.py` in `tests/runners/platformrevenuedashboard/strategistgroupmodel/`
+5. Add a CSV data file in `data/platformrevenuedashboard/strategistgroupmodel/`
 6. Import the step file and add the page-object fixture in `tests/conftest.py`
 7. Register any new markers in `pytest.ini`
 

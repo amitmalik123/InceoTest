@@ -31,7 +31,7 @@ Config and credentials are separated into YAML files so URLs and credentials can
 ## Configuration Files
 
 ```
-config/billing/platformrevenuedashboard/strategistgroupmodel/
+config/platformrevenuedashboard/strategistgroupmodel/
 ├── env.qa.yaml           ← Base URL (committed to source control)
 └── env.qa.local.yaml     ← Credentials (git-ignored, local only)
 ```
@@ -70,8 +70,8 @@ Create this file locally and **never commit it**. It is listed in `.gitignore`.
 
 ```bash
 # Copy base config and add credentials
-cp config/billing/platformrevenuedashboard/strategistgroupmodel/env.qa.yaml \
-   config/billing/platformrevenuedashboard/strategistgroupmodel/env.qa.local.yaml
+cp config/platformrevenuedashboard/strategistgroupmodel/env.qa.yaml \
+   config/platformrevenuedashboard/strategistgroupmodel/env.qa.local.yaml
 
 # Edit env.qa.local.yaml with your actual credentials
 ```
@@ -121,7 +121,7 @@ To support additional environments (e.g., staging, prod), add a new YAML file:
 
 ```bash
 # Staging example
-cp config/billing/.../env.qa.yaml config/billing/.../env.staging.yaml
+cp config/.../env.qa.yaml config/.../env.staging.yaml
 # Edit base_url to staging URL
 ```
 

@@ -67,7 +67,7 @@ Feature: Create Model Family
 
 Feature files live in:
 ```
-tests/features/billing/platformrevenuedashboard/strategistgroupmodel/
+tests/features/platformrevenuedashboard/strategistgroupmodel/
 ```
 
 ### Layer 2 — BDD Runners (`tests/runners/`)
@@ -90,7 +90,7 @@ def test_create_model_family_with_valid_data(create_family_data_row):
 
 Runner files live in:
 ```
-tests/runners/billing/platformrevenuedashboard/strategistgroupmodel/
+tests/runners/platformrevenuedashboard/strategistgroupmodel/
 ```
 
 ### Layer 3 — Step Definitions (`tests/steps/`)
@@ -110,7 +110,7 @@ Steps are split into:
 
 ### Layer 4 — Page Object Model (`pages/`)
 
-Each page object encapsulates all Playwright interactions for a given UI page or section. Page objects inherit from `BasePage` (located in `pages/billing/platformrevenuedashboard/common/base_page.py`).
+Each page object encapsulates all Playwright interactions for a given UI page or section. Page objects inherit from `BasePage` (located in `pages/platformrevenuedashboard/common/base_page.py`).
 
 ```python
 class CreateFamilyPage(BasePage):
@@ -124,7 +124,7 @@ class CreateFamilyPage(BasePage):
 
 Page objects for SGM live in:
 ```
-pages/billing/platformrevenuedashboard/
+pages/platformrevenuedashboard/
 ├── common/
 │   ├── base_page.py          # Shared Playwright helpers
 │   ├── login_page.py         # Azure AD login flow
@@ -146,11 +146,11 @@ pages/billing/platformrevenuedashboard/
 
 ```
 billingqe/
-├── config/billing/platformrevenuedashboard/strategistgroupmodel/
+├── config/platformrevenuedashboard/strategistgroupmodel/
 │   ├── env.qa.yaml           # Base URLs (committed)
 │   └── env.qa.local.yaml     # Credentials (git-ignored, local only)
 │
-├── data/billing/platformrevenuedashboard/strategistgroupmodel/
+├── data/platformrevenuedashboard/strategistgroupmodel/
 │   └── *.csv                 # One CSV per scenario/feature
 │
 ├── fixtures/
@@ -162,7 +162,7 @@ billingqe/
 │   ├── page_fixtures.py      # Page fixture placeholder
 │   └── db_fixtures.py        # DB fixture placeholder
 │
-├── pages/billing/platformrevenuedashboard/
+├── pages/platformrevenuedashboard/
 │   ├── common/base_page.py   # navigate_to, click, fill, wait helpers
 │   ├── common/login_page.py  # Azure AD multi-step sign-in + logout
 │   └── strategistgroupmodel/ # One page object per UI section
@@ -325,7 +325,7 @@ Example (`create_family_data.csv`):
 
 To serve the Allure dashboard locally:
 ```bash
-allure serve reports/billing/platformrevenuedashboard/strategistgroupmodel/allure-results
+allure serve reports/platformrevenuedashboard/strategistgroupmodel/allure-results
 ```
 
 ---
