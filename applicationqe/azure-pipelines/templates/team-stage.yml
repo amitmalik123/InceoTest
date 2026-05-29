@@ -1,6 +1,6 @@
 # Team Stage Template
 # Reusable template for all team pipelines with advanced features from azurePipeline_ES3.yaml
-# Includes: Allure reporting, Azure Log Analytics, parallel execution, cross-browser testing
+# Includes: Allure reporting, Azure Log Analytics metrics, parallel execution, cross-browser testing
 
 parameters:
   - name: stageName
@@ -21,12 +21,13 @@ parameters:
   - name: browser
     type: string
     default: 'chromium'
-  - name: keyVaultName
+  - name: configDir
     type: string
     default: ''
-  - name: azureSubscription
-    type: string
-    default: ''
+    # Path under config/ to the team's env YAML files.
+    # If empty (default), auto-derived from featurePath by stripping
+    # 'tests/features/' prefix, lowercasing, and replacing spaces with hyphens.
+    # Override only for non-standard layouts, e.g. configDir: 'stp/stp-fees'
 
 stages:
 - stage: ${{ parameters.stageName }}
@@ -42,44 +43,64 @@ stages:
     timeoutInMinutes: 45
 
     variables:
-      buildPath: '$(Build.SourcesDirectory)'
-      environment: ${{ parameters.environment }}
-      marker: ${{ parameters.marker }}
-      workers: ${{ parameters.workers }}
-      browser: ${{ parameters.browser }}
-      allureResultsDir: '$(Build.SourcesDirectory)/reports/${{ parameters.stageName }}/allure-results'
-      allureReportDir: '$(Build.SourcesDirectory)/reports/${{ parameters.stageName }}/allure-report'
-      allureToolsDir: '$(Build.ArtifactStagingDirectory)/allure-tools'
-      testResultsDir: '$(Build.SourcesDirectory)/reports/${{ parameters.stageName }}'
-      keyVaultName: ${{ parameters.keyVaultName }}
-      azureSubscription: ${{ parameters.azureSubscription }}
+    - group: qa-pipelines-shared-config  # Azure subscription, Log Analytics credentials
+    - name: buildPath
+      value: '$(Build.SourcesDirectory)'
+    - name: environment
+      value: ${{ parameters.environment }}
+    - name: marker
+      value: ${{ parameters.marker }}
+    - name: workers
+      value: ${{ parameters.workers }}
+    - name: browser
+      value: ${{ parameters.browser }}
+    - name: allureResultsDir
+      value: '$(Build.SourcesDirectory)/reports/${{ parameters.stageName }}/allure-results'
+    - name: allureReportDir
+      value: '$(Build.SourcesDirectory)/reports/${{ parameters.stageName }}/allure-report'
+    - name: allureToolsDir
+      value: '$(Build.ArtifactStagingDirectory)/allure-tools'
+    - name: testResultsDir
+      value: '$(Build.SourcesDirectory)/reports/${{ parameters.stageName }}'
+    - name: keyVaultName
+      value: 'amkkvqapipeline-testncus'  # Azure Key Vault name
    
     steps:
     - checkout: self
       clean: true
 
+    # -----------------------------------------------------------------
+    # Azure Key Vault: Fetch secrets and map them to pipeline variables
+    # -----------------------------------------------------------------
+    # Prerequisites:
+    #   1. Azure Key Vault created with secrets following naming convention: {env}-{service}-{key}
+    #      Examples: test11-azure-sql-password, test11-api-auth-token
+    #   2. Service Connection 'subscription_test' created in Azure DevOps
+    #   3. Service Principal granted "Key Vault Secrets User" role on the Key Vault
+    #   4. Variable group 'qa-pipelines-shared-config' contains:
+    #      - subscription_test (service connection name)
+    #      - logAnalyticsWorkspaceId
+    #      - logAnalyticsSharedKey
+    # -----------------------------------------------------------------
     - task: AzureKeyVault@2
       displayName: 'Fetch Secrets from Azure Key Vault'
       inputs:
-        azureSubscription: $(azureSubscription)
+        azureSubscription: $(subscription_test)
         KeyVaultName: $(keyVaultName)
         SecretsFilter: '*'
-        RunAsPreJob: true
+        RunAsPreJob: false
+      # Each secret becomes a pipeline variable with the same name.
+      # E.g., Key Vault secret "test11-azure-sql-password" → $(test11-azure-sql-password)
 
     - script: |
         echo "========================================"
         echo "TEAM: ${{ parameters.teamDisplay }}"
-        echo "========================================"
+        echo "======================================="
         echo "Determining environment and test settings dynamically..."
         if [ "$(Build.Reason)" = "Manual" ]; then
           echo "##vso[task.setvariable variable=environment]${{ parameters.environment }}"
+          echo "##vso[task.setvariable variable=marker]${{ parameters.marker }}"
           echo "##vso[task.setvariable variable=workers]${{ parameters.workers }}"
-          if [ "${{ parameters.environment }}" = "prod" ]; then
-            echo "##vso[task.setvariable variable=marker]prod"
-            echo "Prod environment detected: marker forced to 'prod'"
-          else
-            echo "##vso[task.setvariable variable=marker]${{ parameters.marker }}"
-          fi
         else
           echo "##vso[task.setvariable variable=environment]${{ parameters.environment }}"
           echo "##vso[task.setvariable variable=marker]${{ parameters.marker }}"
@@ -89,8 +110,6 @@ stages:
 
     - script: |
         echo "##vso[task.setvariable variable=TEST_ENV]$(environment)"
-        echo "##vso[task.setvariable variable=TEST_APP]${{ parameters.stageName }}"
-        echo "##vso[task.setvariable variable=AZURE_KEY_VAULT_URL]https://$(keyVaultName).vault.azure.net/"
       displayName: "Set Playwright Environment Variables"
 
     - script: |
@@ -175,6 +194,14 @@ stages:
         echo ""
         echo "Setting up environment variables..."
         export TEST_ENV="$(environment)"
+        # Derive configDir from featurePath when not explicitly provided:
+        #   strip 'tests/features/' prefix → lowercase → spaces to hyphens
+        _CONFIG_DIR="${{ parameters.configDir }}"
+        if [ -z "$_CONFIG_DIR" ]; then
+          _CONFIG_DIR=$(echo "${{ parameters.featurePath }}" | sed 's|tests/features/||' | tr '[:upper:]' '[:lower:]' | tr ' ' '-')
+          echo "Derived configDir: $_CONFIG_DIR"
+        fi
+        export TEST_CONFIG_PATH="config/${_CONFIG_DIR}/env.$(environment).yaml"
         export CI=true
         export PYTHONUNBUFFERED=1
         export ALLURE_RESULTS_DIR="$(allureResultsDir)"
@@ -217,12 +244,6 @@ stages:
           --html=\"$(testResultsDir)/pytest-report.html\" \
           --self-contained-html"
 
-        # Disable reruns for prod to avoid unintended side effects
-        if [ "$(environment)" = "prod" ]; then
-          PYTEST_CMD="$PYTEST_CMD --reruns 0"
-          echo "Prod execution: reruns disabled"
-        fi
-
         # Add parallel execution if workers > 1
         WORKERS_VALUE="$(workers)"
         if [ "$WORKERS_VALUE" = "auto" ] || [ "$WORKERS_VALUE" -gt "1" ] 2>/dev/null; then
@@ -253,8 +274,13 @@ stages:
       env:
         WORK_ITEM_AUTH_TOKEN: $(WORK_ITEM_AUTH_TOKEN)
         PARTIES_AUTH_TOKEN: $(PARTIES_AUTH_TOKEN)
-        TEST_ENV: $(environment)
-        AZURE_KEY_VAULT_URL: $(AZURE_KEY_VAULT_URL)
+        # ── Connection strings: AzureKeyVault@2 fetches secrets → mapped to env vars ──
+        # Python reads these via os.getenv() — no direct Key Vault API calls.
+        TRANSFER_CONNECTION_STRING: $(transfer-connection-string)
+        ACCOUNTDISTRIBUTIONS_CONNECTION_STRING: $(accoundistributions-connection-string)
+        CRM_DB_CONNECTION_STRING: $(crm-db-connection-string)
+        AM_BILLING_CONNECTION_STRING: $(am-billing-connection-string)
+        API_AUTH_TOKEN: $(test11-api-auth-token)
 
     - script: |
         echo "Checking Allure Results Directory..."
@@ -296,18 +322,21 @@ stages:
 
     - script: |
         echo "Pushing test metrics to Azure Log Analytics..."
+        cd applicationqe
         export ALLURE_RESULTS_DIR="$(allureResultsDir)"
         export ENVIRONMENT="$(environment)"
-        export TEST_APP="${{ parameters.stageName }}"
         export BUILD_ID="$(Build.BuildId)"
         export BUILD_REASON="$(Build.Reason)"
         export AZURE_LOG_WORKSPACE_ID="$(logAnalyticsWorkspaceId)"
         export AZURE_LOG_SHARED_KEY="$(logAnalyticsSharedKey)"
-
-        python applicationqe/utils/azure_analytics_reporter.py
+        
+        python utils/azure_analytics_reporter.py
       displayName: "Push Metrics to Azure Log Analytics"
       condition: always()
       continueOnError: true
+      env:
+        AZURE_LOG_WORKSPACE_ID: $(logAnalyticsWorkspaceId)
+        AZURE_LOG_SHARED_KEY: $(logAnalyticsSharedKey)
 
     - task: PublishBuildArtifacts@1
       displayName: "Publish Test Results Directory"

@@ -68,10 +68,10 @@ stages:
     parameters:
       stageName: STP_ICT
       teamDisplay: STP-ICT
-      featurePath: tests/features/STP/STP-ICT
+      featurePath: tests/features/stp/stp-ict
 
   - template: azure-pipelines/templates/team-stage.yml
     parameters:
       stageName: STP_JOURNALS
       teamDisplay: STP-JOURNALS
-      featurePath: tests/features/STP/STP-JOURNALS
+      featurePath: tests/features/stp/stp-journals
