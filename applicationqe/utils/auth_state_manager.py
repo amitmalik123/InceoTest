@@ -5,7 +5,7 @@ import json
 import os
 from pathlib import Path
 from playwright.sync_api import Browser, BrowserContext, Page
-from pages.login_page import LoginPage
+from pages.ewm.login_page import LoginPage
 from utils.settings import Settings
 
 class AuthStateManager:
