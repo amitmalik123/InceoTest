@@ -120,7 +120,7 @@ class RGLPage(BasePage):
     def navigate_to_gain_loss_page(self, client_name: str, timeout: int = 30000) -> None:
         logger.info("Navigating to Gain/Loss page")
         current_url = self.page.url or ""
-        if current_url.startswith("about:blank"):
+        if current_url.startswith("about:blank") or "test-login.assetmark.com" in current_url.lower():
             settings = get_settings()
             home_url = settings.get_app_config("ewm").get("home_url", settings.base_url)
             logger.info(f"Recovered from about:blank before RGL navigation, opening {home_url}")
@@ -153,7 +153,9 @@ class RGLPage(BasePage):
         # Now re-init - active_root() will correctly find the client detail content iframe
         self._init_locators()
         self.wait_for_element(self.gain_loss_link, timeout=timeout)
-        self.click(self.gain_loss_link, timeout=timeout)
+        # This link triggers redirects that can keep the implicit click navigation wait open.
+        self.gain_loss_link.click(timeout=timeout, no_wait_after=True)
+        self.page.wait_for_load_state("domcontentloaded", timeout=timeout)
         self.wait_for_all_spinners_to_disappear(timeout=timeout)
         logger.info("Gain/Loss page displayed")
 
