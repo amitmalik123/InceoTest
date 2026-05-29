@@ -1,0 +1,1 @@
+family_exists_by_name: "SELECT * FROM Family WHERE FamilyName = ?"

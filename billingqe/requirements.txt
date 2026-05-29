@@ -1,0 +1,33 @@
+# Core testing framework
+pytest>=8.0.0,<9.0.0
+pytest-playwright==0.4.4
+pytest-asyncio==0.21.1
+pytest-html>=4.1.1
+pytest-xdist>=3.5.0
+
+# BDD support
+pytest-bdd>=7.0.0
+
+# Browser automation
+playwright>=1.42.0
+
+# Reporting
+allure-pytest>=2.13.0
+
+# Configuration
+pyyaml>=6.0
+
+# Encryption utilities
+cryptography>=42.0.0
+
+# Excel data support
+openpyxl>=3.1.0
+
+# InfluxDB metrics
+influxdb-client>=1.38.0
+
+# Development tools (optional)
+black>=24.2.0
+flake8>=7.0.0
+mypy>=1.8.0
+pytest-cov>=4.1.0
