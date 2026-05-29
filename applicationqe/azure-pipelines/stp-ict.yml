@@ -1,5 +1,4 @@
 name: stp-ict-$(Date:yyyyMMdd)$(Rev:.r)
-
 trigger:
   branches:
     include:
@@ -7,15 +6,17 @@ trigger:
       - develop
   paths:
     include:
-      - data/stp/stp-ict/**
-      - config/stp/stp-ict/**
-      - tests/features/stp/stp-ict/**
-      - tests/steps/stp/stp-ict/**
-      - pages/stp/stp-ict/**
-      - queries/stp/stp-ict/**
-      - azure-pipelines/templates/**
-      - requirements.txt
-
+      - applicationqe/data/stp/stp-ict/**
+      - applicationqe/config/stp/stp-ict/**
+      - applicationqe/tests/features/stp/stp-ict/**
+      - applicationqe/tests/steps/stp/stp-ict/**
+      - applicationqe/pages/**
+      - applicationqe/pages/stp/stp-ict/**
+      - applicationqe/queries/stp/stp-ict/**
+      - applicationqe/azure-pipelines/**
+      - applicationqe/requirements.txt
+variables:
+- group: qa-pipelines-shared-config
 pr:
   branches:
     include:
@@ -23,21 +24,62 @@ pr:
       - develop
   paths:
     include:
-      - data/stp/stp-ict/**
-      - config/stp/stp-ict/**
-      - tests/features/stp/stp-ict/**
-      - tests/steps/stp/stp-ict/**
-      - pages/stp/stp-ict/**
-      - queries/stp/stp-ict/**
-      - azure-pipelines/templates/**
-      - requirements.txt
-
-pool:
-  vmImage: ubuntu-latest
-
+      - applicationqe/data/stp/stp-ict/**
+      - applicationqe/config/stp/stp-ict/**
+      - applicationqe/tests/features/stp/stp-ict/**
+      - applicationqe/tests/steps/stp/stp-ict/**
+      - applicationqe/pages/**
+      - applicationqe/pages/stp/stp-ict/**
+      - applicationqe/queries/stp/stp-ict/**
+      - applicationqe/azure-pipelines/**
+      - applicationqe/requirements.txt
+# -----------------------------
+# Parameters for Manual Runs
+# -----------------------------
+parameters:
+  - name: environment
+    displayName: "Target Environment"
+    type: string
+    default: "test11"
+    values:
+      - test11
+      - test12
+      - silo
+      - prod
+      - qa
+  - name: marker
+    displayName: "Pytest Marker to Run"
+    type: string
+    default: "smoke"
+    values:
+      - smoke
+      - regression
+      - e2e
+  - name: workers
+    displayName: "Number of Parallel Workers"
+    type: string
+    default: "1"
+    values:
+      - "1"
+      - "2"
+      - "3"
+      - "4"
+      - "auto"
+  - name: browser
+    displayName: "Browser to Test"
+    type: string
+    default: "chromium"
+    values:
+      - chromium
+      - msedge
+      - both
 stages:
   - template: templates/team-stage.yml
     parameters:
       stageName: STP_ICT
       teamDisplay: STP-ICT
       featurePath: tests/features/stp/stp-ict
+      environment: ${{ parameters.environment }}
+      marker: ${{ parameters.marker }}
+      workers: ${{ parameters.workers }}
+      browser: ${{ parameters.browser }}
