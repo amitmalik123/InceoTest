@@ -21,6 +21,10 @@ parameters:
   - name: browser
     type: string
     default: 'chromium'
+  - name: azureSubscription
+    type: string
+  - name: keyVaultName
+    type: string
 
 stages:
 - stage: ${{ parameters.stageName }}
@@ -45,14 +49,23 @@ stages:
       allureReportDir: '$(Build.SourcesDirectory)/reports/${{ parameters.stageName }}/allure-report'
       allureToolsDir: '$(Build.ArtifactStagingDirectory)/allure-tools'
       testResultsDir: '$(Build.SourcesDirectory)/reports/${{ parameters.stageName }}'
-      INFLUXDB_URL: 'http://azncc03perf.corp.local:8086'
-      INFLUXDB_ORG: 'MF'
-      INFLUXDB_BUCKET: 'AutomationData'
-      INFLUXDB_TOKEN: 'g5gf0ukY8fPdwaWynLviDLd0wz1l5snomLbip3t2IrQkeNNkiEFYECEHlcJLwsAPvv2Gx-op4ho6QcpVsCpdGQ=='
-   
+
     steps:
     - checkout: self
       clean: true
+
+    # -----------------------------------------------------------------
+    # Azure Key Vault: Fetch secrets and map them to pipeline variables
+    # -----------------------------------------------------------------
+    - task: AzureKeyVault@2
+      displayName: 'Fetch Secrets from Azure Key Vault'
+      inputs:
+        azureSubscription: ${{ parameters.azureSubscription }}
+        KeyVaultName: ${{ parameters.keyVaultName }}
+        SecretsFilter: '*'
+        RunAsPreJob: true
+      # Each secret becomes a pipeline variable with the same name.
+      # E.g., Key Vault secret "test11-azure-sql-password" → $(test11-azure-sql-password)
 
     - script: |
         echo "========================================"
@@ -228,10 +241,8 @@ stages:
       env:
         WORK_ITEM_AUTH_TOKEN: $(WORK_ITEM_AUTH_TOKEN)
         PARTIES_AUTH_TOKEN: $(PARTIES_AUTH_TOKEN)
-        INFLUXDB_URL: $(INFLUXDB_URL)
-        INFLUXDB_TOKEN: $(INFLUXDB_TOKEN)
-        INFLUXDB_ORG: $(INFLUXDB_ORG)
-        INFLUXDB_BUCKET: $(INFLUXDB_BUCKET)
+        TEST_ENV: $(environment)
+        AZURE_KEY_VAULT_URL: $(AZURE_KEY_VAULT_URL)
 
     - script: |
         echo "Checking Allure Results Directory..."
@@ -272,26 +283,20 @@ stages:
       condition: always()
 
     - script: |
-        echo "Pushing test metrics to InfluxDB..."
-        export INFLUXDB_URL="${INFLUXDB_URL}"
-        export INFLUXDB_TOKEN="${INFLUXDB_TOKEN}"
-        export INFLUXDB_ORG="${INFLUXDB_ORG}"
-        export INFLUXDB_BUCKET="${INFLUXDB_BUCKET}"
+        echo "Pushing test metrics to Azure Log Analytics..."
         export ALLURE_RESULTS_DIR="$(allureResultsDir)"
         export ENVIRONMENT="$(environment)"
+        export TEST_APP="${{ parameters.stageName }}"
         export BUILD_ID="$(Build.BuildId)"
         export BUILD_REASON="$(Build.Reason)"
+        export AZURE_LOG_WORKSPACE_ID="$(logAnalyticsWorkspaceId)"
+        export AZURE_LOG_SHARED_KEY="$(logAnalyticsSharedKey)"
 
         cd salesforceqe
-        python utils/influx_reporter.py
-      displayName: "Push Metrics to InfluxDB"
+        python utils/azure_analytics_reporter.py
+      displayName: "Push Metrics to Azure Log Analytics"
       condition: always()
       continueOnError: true
-      env:
-        INFLUXDB_URL: $(INFLUXDB_URL)
-        INFLUXDB_TOKEN: $(INFLUXDB_TOKEN)
-        INFLUXDB_ORG: $(INFLUXDB_ORG)
-        INFLUXDB_BUCKET: $(INFLUXDB_BUCKET)
 
     - task: PublishBuildArtifacts@1
       displayName: "Publish Test Results Directory"

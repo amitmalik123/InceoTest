@@ -22,6 +22,7 @@ pr:
   branches:
     include:
       - develop
+      - salesforcefeature
   paths:
     include:
       - salesforceqe/data/salesforce/**
@@ -84,4 +85,10 @@ stages:
       marker: ${{ parameters.marker }}
       workers: ${{ parameters.workers }}
       browser: ${{ parameters.browser }}
+      # Service-connection name must be a compile-time literal (no $(...) macros)
+      # so Azure DevOps can authorize it at pipeline queue time.
+      azureSubscription: 'TEST Foundation (9156b16c-8a2e-4b7d-a886-e772dc017316)'  # ← Replace with your Azure DevOps service connection name
+      keyVaultName: 'amkkvqapipeline-testncus'                                          # ← Replace with your Key Vault name
+
+      
       
