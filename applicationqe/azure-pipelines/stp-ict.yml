@@ -7,12 +7,12 @@ trigger:
       - develop
   paths:
     include:
-      - data/STP/STP-ICT/**
-      - config/STP/STP-ICT/**
-      - tests/features/STP/STP-ICT/**
-      - tests/steps/STP/STP-ICT/**
-      - pages/STP/STP-ICT/**
-      - queries/STP/STP-ICT/**
+      - data/stp/stp-ict/**
+      - config/stp/stp-ict/**
+      - tests/features/stp/stp-ict/**
+      - tests/steps/stp/stp-ict/**
+      - pages/stp/stp-ict/**
+      - queries/stp/stp-ict/**
       - azure-pipelines/templates/**
       - requirements.txt
 
@@ -23,12 +23,12 @@ pr:
       - develop
   paths:
     include:
-      - data/STP/STP-ICT/**
-      - config/STP/STP-ICT/**
-      - tests/features/STP/STP-ICT/**
-      - tests/steps/STP/STP-ICT/**
-      - pages/STP/STP-ICT/**
-      - queries/STP/STP-ICT/**
+      - data/stp/stp-ict/**
+      - config/stp/stp-ict/**
+      - tests/features/stp/stp-ict/**
+      - tests/steps/stp/stp-ict/**
+      - pages/stp/stp-ict/**
+      - queries/stp/stp-ict/**
       - azure-pipelines/templates/**
       - requirements.txt
 
@@ -40,4 +40,4 @@ stages:
     parameters:
       stageName: STP_ICT
       teamDisplay: STP-ICT
-      featurePath: tests/features/STP/STP-ICT
+      featurePath: tests/features/stp/stp-ict

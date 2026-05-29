@@ -23,9 +23,11 @@ parameters:
     default: 'chromium'
   - name: configDir
     type: string
-    default: 'stp/stp-journals'
+    default: ''
     # Path under config/ to the team's env YAML files.
-    # Examples: 'stp/stp-journals', 'stp/stp-ict', 'stp/stp-fees'
+    # If empty (default), auto-derived from featurePath by stripping
+    # 'tests/features/' prefix, lowercasing, and replacing spaces with hyphens.
+    # Override only for non-standard layouts, e.g. configDir: 'stp/stp-fees'
 
 stages:
 - stage: ${{ parameters.stageName }}
@@ -192,7 +194,14 @@ stages:
         echo ""
         echo "Setting up environment variables..."
         export TEST_ENV="$(environment)"
-        export TEST_CONFIG_PATH="config/${{ parameters.configDir }}/env.$(environment).yaml"
+        # Derive configDir from featurePath when not explicitly provided:
+        #   strip 'tests/features/' prefix → lowercase → spaces to hyphens
+        _CONFIG_DIR="${{ parameters.configDir }}"
+        if [ -z "$_CONFIG_DIR" ]; then
+          _CONFIG_DIR=$(echo "${{ parameters.featurePath }}" | sed 's|tests/features/||' | tr '[:upper:]' '[:lower:]' | tr ' ' '-')
+          echo "Derived configDir: $_CONFIG_DIR"
+        fi
+        export TEST_CONFIG_PATH="config/${_CONFIG_DIR}/env.$(environment).yaml"
         export CI=true
         export PYTHONUNBUFFERED=1
         export ALLURE_RESULTS_DIR="$(allureResultsDir)"
