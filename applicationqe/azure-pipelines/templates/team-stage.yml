@@ -88,7 +88,7 @@ stages:
         azureSubscription: $(subscription_test)
         KeyVaultName: $(keyVaultName)
         SecretsFilter: '*'
-        RunAsPreJob: true
+        RunAsPreJob: false
       # Each secret becomes a pipeline variable with the same name.
       # E.g., Key Vault secret "test11-azure-sql-password" → $(test11-azure-sql-password)
 
