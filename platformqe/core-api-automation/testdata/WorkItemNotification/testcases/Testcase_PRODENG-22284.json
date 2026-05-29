@@ -1,0 +1,67 @@
+[
+    {
+        "test_id": "PRODENG-22284",
+        "service_name": "WorkItemNotification",
+        "workflow_mode": "sequential",
+        "test_name": "Validate distinct_names in EmailNotificationGroupEnum",
+        "protocol": "DB_ONLY",
+        "test_type": [
+            "Functional"
+        ],
+        "mainURL": "",
+        "endpoint": "",
+        "method": "",
+        "rpc_method": "",
+        "graphql_query": "",
+        "graphql_variables": "",
+        "soap_action": "",
+        "soap_envelope": "",
+        "headers_additional": {
+            "Content-Type": "application/json"
+        },
+        "payload": null,
+        "expected_status": "",
+        "expected_response_schema": "",
+        "expected_response": "",
+        "extract_values": [
+            {
+                "from": "db_result",
+                "key": "distinct_names",
+                "assign_to": "distinct_names_value"
+            }
+        ],
+        "validate": {
+            "performance": {
+                "max_response_time_ms": null
+            },
+            "security": {
+                "checks": [
+                    [
+                        "sql_injection"
+                    ]
+                ]
+            },
+            "data_comparison": {
+                "source": "db_result",
+                "target": null,
+                "format": "table",
+                "key_field": [
+                    "distinct_names"
+                ],
+                "fields_to_compare": [
+                    {
+                        "source_field": "distinct_names",
+                        "comparison": "equals",
+                        "expected_value": 6
+                    }
+                ],
+                "log_differences": true
+            }
+        },
+        "test_data_file": "",
+        "db_type": "mssql",
+        "db_connection_name": "work_item_notification",
+        "db_query": "SELECT COUNT(DISTINCT [Name]) as distinct_names FROM EmailNotificationGroupEnum WHERE CreatedBy='PRODENG-22284'",
+        "test_summary": "Test PRODENG-22284: Validate the count of distinct names in EmailNotificationGroupEnum where CreatedBy='PRODENG-22284'"
+    }
+]

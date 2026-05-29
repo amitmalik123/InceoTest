@@ -66,7 +66,7 @@
             "Functional"
         ],
         "mainURL": "{{base_url}}",
-        "endpoint": "/model",
+        "endpoint": "/models",
         "method": "POST",
         "headers_additional": {
             "Content-Type": "application/json"
@@ -99,7 +99,7 @@
             "Functional"
         ],
         "mainURL": "{{base_url}}",
-        "endpoint": "/model/{{response_model_id}}/publish",
+        "endpoint": "/models/{{response_model_id}}/publish",
         "method": "POST",
         "headers_additional": {
             "Content-Type": "application/json"
@@ -119,7 +119,7 @@
             "Functional"
         ],
         "mainURL": "{{base_url}}",
-        "endpoint": "/model/{{response_model_id}}/version",
+        "endpoint": "/models/{{response_model_id}}/version",
         "method": "POST",
         "headers_additional": {
             "Content-Type": "application/json"
@@ -152,7 +152,7 @@
             "Smoke"
         ],
         "mainURL": "{{base_url}}",
-        "endpoint": "/model/ca3cf9e3-974f-4333-979f-4293fbbbb650/version",
+        "endpoint": "/models/ca3cf9e3-974f-4333-979f-4293fbbbb650/version",
         "method": "POST",
         "headers_additional": {
             "Content-Type": "application/json"
@@ -170,12 +170,7 @@
             ]
         },
         "expected_status": "404",
-        "expected_response": {
-            "type": "ResourceNotFound",
-            "title": "Model.NotFound",
-            "status": 404,
-            "detail": "Unable to find model"
-        },
+        "expected_response": null,
         "validate": {
             "performance": {
                 "max_response_time_ms": 3000
@@ -185,10 +180,142 @@
                     "sql_injection",
                     "xss"
                 ]
-            }
+            },
+            "assertions": [
+                {
+                    "actual": "{{vpost04_type}}",
+                    "operator": "!=",
+                    "expected": "ResourceNotFound",
+                    "message": "AC2: type must not be non-URI value 'ResourceNotFound'"
+                },
+                {
+                    "actual": "{{vpost04_type}}",
+                    "operator": "!=",
+                    "expected": "InvalidInput",
+                    "message": "AC2: type must not be non-URI value 'InvalidInput'"
+                },
+                {
+                    "actual": "{{vpost04_type}}",
+                    "operator": "!=",
+                    "expected": "BusinessRuleViolation",
+                    "message": "AC2: type must not be non-URI value 'BusinessRuleViolation'"
+                },
+                {
+                    "actual": "{{vpost04_type}}",
+                    "operator": "!=",
+                    "expected": null,
+                    "message": "AC1: type field must be present"
+                },
+                {
+                    "actual": "{{vpost04_type}}",
+                    "operator": "!=",
+                    "expected": "",
+                    "message": "AC2: type must not be empty string"
+                },
+                {
+                    "actual": "{{vpost04_title}}",
+                    "operator": "!=",
+                    "expected": "Model.NotFound",
+                    "message": "AC3: title must not be internal code 'Model.NotFound'"
+                },
+                {
+                    "actual": "{{vpost04_title}}",
+                    "operator": "!=",
+                    "expected": "Model.InvalidId",
+                    "message": "AC3: title must not be internal code 'Model.InvalidId'"
+                },
+                {
+                    "actual": "{{vpost04_title}}",
+                    "operator": "!=",
+                    "expected": "Model.MismatchVersionModelId",
+                    "message": "AC3: title must not be internal code 'Model.MismatchVersionModelId'"
+                },
+                {
+                    "actual": "{{vpost04_title}}",
+                    "operator": "!=",
+                    "expected": null,
+                    "message": "AC1: title must be present"
+                },
+                {
+                    "actual": "{{vpost04_title}}",
+                    "operator": "!=",
+                    "expected": "",
+                    "message": "AC3: title must not be empty string"
+                },
+                {
+                    "actual": "{{vpost04_status}}",
+                    "operator": "==",
+                    "expected": 404,
+                    "message": "AC4: status in body must equal HTTP 404"
+                },
+                {
+                    "actual": "{{vpost04_detail}}",
+                    "operator": "!=",
+                    "expected": null,
+                    "message": "AC1: detail must be present"
+                },
+                {
+                    "actual": "{{vpost04_detail}}",
+                    "operator": "!=",
+                    "expected": "",
+                    "message": "AC1: detail must not be empty"
+                },
+                {
+                    "actual": "{{vpost04_instance}}",
+                    "operator": "!=",
+                    "expected": null,
+                    "message": "AC5: instance must be present"
+                },
+                {
+                    "actual": "{{vpost04_instance}}",
+                    "operator": "!=",
+                    "expected": "",
+                    "message": "AC5: instance must contain the request path"
+                },
+                {
+                    "actual": "{{vpost04_type}}",
+                    "operator": "==",
+                    "expected": "https://assetmark.atlassian.net/wiki/spaces/PE/pages/2303590438/Standard+Error+Codes+and+Messaging#resource-not-found",
+                    "message": "AC2: type must be RFC 9457 URI for resource-not-found"
+                },
+                {
+                    "actual": "{{vpost04_title}}",
+                    "operator": "==",
+                    "expected": "Resource Not Found",
+                    "message": "AC3: title must be human-readable 'Resource Not Found'"
+                }
+            ]
         },
         "test_summary": "Verify API returns 404 when creating version for non-existent model ID",
-        "test_scenario": "Attempt to create version for a valid UUID format but non-existent model ID"
+        "test_scenario": "Attempt to create version for a valid UUID format but non-existent model ID",
+        "expected_response_schema": "models/schemas/Schema_error_404.json",
+        "extract_values": [
+            {
+                "from": "response",
+                "key": "type",
+                "assign_to": "vpost04_type"
+            },
+            {
+                "from": "response",
+                "key": "title",
+                "assign_to": "vpost04_title"
+            },
+            {
+                "from": "response",
+                "key": "status",
+                "assign_to": "vpost04_status"
+            },
+            {
+                "from": "response",
+                "key": "detail",
+                "assign_to": "vpost04_detail"
+            },
+            {
+                "from": "response",
+                "key": "instance",
+                "assign_to": "vpost04_instance"
+            }
+        ]
     },
     {
         "test_id": "TC005",
@@ -202,7 +329,7 @@
             "Validation"
         ],
         "mainURL": "{{base_url}}",
-        "endpoint": "/model/invalid-uuid-format/version",
+        "endpoint": "/models/invalid-uuid-format/version",
         "method": "POST",
         "headers_additional": {
             "Content-Type": "application/json"
@@ -229,10 +356,142 @@
                     "sql_injection",
                     "xss"
                 ]
-            }
+            },
+            "assertions": [
+                {
+                    "actual": "{{vpost05_type}}",
+                    "operator": "!=",
+                    "expected": "ResourceNotFound",
+                    "message": "AC2: type must not be non-URI value 'ResourceNotFound'"
+                },
+                {
+                    "actual": "{{vpost05_type}}",
+                    "operator": "!=",
+                    "expected": "InvalidInput",
+                    "message": "AC2: type must not be non-URI value 'InvalidInput'"
+                },
+                {
+                    "actual": "{{vpost05_type}}",
+                    "operator": "!=",
+                    "expected": "BusinessRuleViolation",
+                    "message": "AC2: type must not be non-URI value 'BusinessRuleViolation'"
+                },
+                {
+                    "actual": "{{vpost05_type}}",
+                    "operator": "!=",
+                    "expected": null,
+                    "message": "AC1: type field must be present"
+                },
+                {
+                    "actual": "{{vpost05_type}}",
+                    "operator": "!=",
+                    "expected": "",
+                    "message": "AC2: type must not be empty string"
+                },
+                {
+                    "actual": "{{vpost05_title}}",
+                    "operator": "!=",
+                    "expected": "Model.NotFound",
+                    "message": "AC3: title must not be internal code 'Model.NotFound'"
+                },
+                {
+                    "actual": "{{vpost05_title}}",
+                    "operator": "!=",
+                    "expected": "Model.InvalidId",
+                    "message": "AC3: title must not be internal code 'Model.InvalidId'"
+                },
+                {
+                    "actual": "{{vpost05_title}}",
+                    "operator": "!=",
+                    "expected": "Model.MismatchVersionModelId",
+                    "message": "AC3: title must not be internal code 'Model.MismatchVersionModelId'"
+                },
+                {
+                    "actual": "{{vpost05_title}}",
+                    "operator": "!=",
+                    "expected": null,
+                    "message": "AC1: title must be present"
+                },
+                {
+                    "actual": "{{vpost05_title}}",
+                    "operator": "!=",
+                    "expected": "",
+                    "message": "AC3: title must not be empty string"
+                },
+                {
+                    "actual": "{{vpost05_status}}",
+                    "operator": "==",
+                    "expected": 404,
+                    "message": "AC4: status in body must equal HTTP 404"
+                },
+                {
+                    "actual": "{{vpost05_detail}}",
+                    "operator": "!=",
+                    "expected": null,
+                    "message": "AC1: detail must be present"
+                },
+                {
+                    "actual": "{{vpost05_detail}}",
+                    "operator": "!=",
+                    "expected": "",
+                    "message": "AC1: detail must not be empty"
+                },
+                {
+                    "actual": "{{vpost05_instance}}",
+                    "operator": "!=",
+                    "expected": null,
+                    "message": "AC5: instance must be present"
+                },
+                {
+                    "actual": "{{vpost05_instance}}",
+                    "operator": "!=",
+                    "expected": "",
+                    "message": "AC5: instance must contain the request path"
+                },
+                {
+                    "actual": "{{vpost05_type}}",
+                    "operator": "==",
+                    "expected": "https://assetmark.atlassian.net/wiki/spaces/PE/pages/2303590438/Standard+Error+Codes+and+Messaging#resource-not-found",
+                    "message": "AC2: type must be RFC 9457 URI for resource-not-found"
+                },
+                {
+                    "actual": "{{vpost05_title}}",
+                    "operator": "==",
+                    "expected": "Resource Not Found",
+                    "message": "AC3: title must be human-readable 'Resource Not Found'"
+                }
+            ]
         },
         "test_summary": "Verify API returns 400 when model ID is not a valid UUID format",
-        "test_scenario": "Attempt to create version with invalid UUID format in path parameter"
+        "test_scenario": "Attempt to create version with invalid UUID format in path parameter",
+        "expected_response_schema": "models/schemas/Schema_error_404.json",
+        "extract_values": [
+            {
+                "from": "response",
+                "key": "type",
+                "assign_to": "vpost05_type"
+            },
+            {
+                "from": "response",
+                "key": "title",
+                "assign_to": "vpost05_title"
+            },
+            {
+                "from": "response",
+                "key": "status",
+                "assign_to": "vpost05_status"
+            },
+            {
+                "from": "response",
+                "key": "detail",
+                "assign_to": "vpost05_detail"
+            },
+            {
+                "from": "response",
+                "key": "instance",
+                "assign_to": "vpost05_instance"
+            }
+        ]
     },
     {
         "test_id": "TC006",
@@ -246,7 +505,7 @@
             "Validation"
         ],
         "mainURL": "{{base_url}}",
-        "endpoint": "/model/{{response_model_id}}/version",
+        "endpoint": "/models/{{response_model_id}}/version",
         "method": "POST",
         "headers_additional": {
             "Content-Type": "application/json"
@@ -259,10 +518,130 @@
             },
             "security": {
                 "checks": []
-            }
+            },
+            "assertions": [
+                {
+                    "actual": "{{vpost06_type}}",
+                    "operator": "!=",
+                    "expected": "ResourceNotFound",
+                    "message": "AC2: type must not be non-URI value 'ResourceNotFound'"
+                },
+                {
+                    "actual": "{{vpost06_type}}",
+                    "operator": "!=",
+                    "expected": "InvalidInput",
+                    "message": "AC2: type must not be non-URI value 'InvalidInput'"
+                },
+                {
+                    "actual": "{{vpost06_type}}",
+                    "operator": "!=",
+                    "expected": "BusinessRuleViolation",
+                    "message": "AC2: type must not be non-URI value 'BusinessRuleViolation'"
+                },
+                {
+                    "actual": "{{vpost06_type}}",
+                    "operator": "!=",
+                    "expected": null,
+                    "message": "AC1: type field must be present"
+                },
+                {
+                    "actual": "{{vpost06_type}}",
+                    "operator": "!=",
+                    "expected": "",
+                    "message": "AC2: type must not be empty string"
+                },
+                {
+                    "actual": "{{vpost06_title}}",
+                    "operator": "!=",
+                    "expected": "Model.NotFound",
+                    "message": "AC3: title must not be internal code 'Model.NotFound'"
+                },
+                {
+                    "actual": "{{vpost06_title}}",
+                    "operator": "!=",
+                    "expected": "Model.InvalidId",
+                    "message": "AC3: title must not be internal code 'Model.InvalidId'"
+                },
+                {
+                    "actual": "{{vpost06_title}}",
+                    "operator": "!=",
+                    "expected": "Model.MismatchVersionModelId",
+                    "message": "AC3: title must not be internal code 'Model.MismatchVersionModelId'"
+                },
+                {
+                    "actual": "{{vpost06_title}}",
+                    "operator": "!=",
+                    "expected": null,
+                    "message": "AC1: title must be present"
+                },
+                {
+                    "actual": "{{vpost06_title}}",
+                    "operator": "!=",
+                    "expected": "",
+                    "message": "AC3: title must not be empty string"
+                },
+                {
+                    "actual": "{{vpost06_status}}",
+                    "operator": "==",
+                    "expected": 500,
+                    "message": "AC4: status in body must equal HTTP 500"
+                },
+                {
+                    "actual": "{{vpost06_detail}}",
+                    "operator": "!=",
+                    "expected": null,
+                    "message": "AC1: detail must be present"
+                },
+                {
+                    "actual": "{{vpost06_detail}}",
+                    "operator": "!=",
+                    "expected": "",
+                    "message": "AC1: detail must not be empty"
+                },
+                {
+                    "actual": "{{vpost06_instance}}",
+                    "operator": "!=",
+                    "expected": null,
+                    "message": "AC5: instance must be present"
+                },
+                {
+                    "actual": "{{vpost06_instance}}",
+                    "operator": "!=",
+                    "expected": "",
+                    "message": "AC5: instance must contain the request path"
+                }
+            ]
         },
         "test_summary": "Verify API returns 400 when payload is empty",
-        "test_scenario": "Attempt to create version with empty JSON payload"
+        "test_scenario": "Attempt to create version with empty JSON payload",
+        "expected_response_schema": "models/schemas/Schema_error_500.json",
+        "extract_values": [
+            {
+                "from": "response",
+                "key": "type",
+                "assign_to": "vpost06_type"
+            },
+            {
+                "from": "response",
+                "key": "title",
+                "assign_to": "vpost06_title"
+            },
+            {
+                "from": "response",
+                "key": "status",
+                "assign_to": "vpost06_status"
+            },
+            {
+                "from": "response",
+                "key": "detail",
+                "assign_to": "vpost06_detail"
+            },
+            {
+                "from": "response",
+                "key": "instance",
+                "assign_to": "vpost06_instance"
+            }
+        ]
     },
     {
         "test_id": "TC007",
@@ -276,7 +655,7 @@
             "Validation"
         ],
         "mainURL": "{{base_url}}",
-        "endpoint": "/model/{{response_model_id}}/version",
+        "endpoint": "/models/{{response_model_id}}/version",
         "method": "POST",
         "headers_additional": {
             "Content-Type": "application/json"
@@ -289,10 +668,130 @@
             },
             "security": {
                 "checks": []
-            }
+            },
+            "assertions": [
+                {
+                    "actual": "{{vpost07_type}}",
+                    "operator": "!=",
+                    "expected": "ResourceNotFound",
+                    "message": "AC2: type must not be non-URI value 'ResourceNotFound'"
+                },
+                {
+                    "actual": "{{vpost07_type}}",
+                    "operator": "!=",
+                    "expected": "InvalidInput",
+                    "message": "AC2: type must not be non-URI value 'InvalidInput'"
+                },
+                {
+                    "actual": "{{vpost07_type}}",
+                    "operator": "!=",
+                    "expected": "BusinessRuleViolation",
+                    "message": "AC2: type must not be non-URI value 'BusinessRuleViolation'"
+                },
+                {
+                    "actual": "{{vpost07_type}}",
+                    "operator": "!=",
+                    "expected": null,
+                    "message": "AC1: type field must be present"
+                },
+                {
+                    "actual": "{{vpost07_type}}",
+                    "operator": "!=",
+                    "expected": "",
+                    "message": "AC2: type must not be empty string"
+                },
+                {
+                    "actual": "{{vpost07_title}}",
+                    "operator": "!=",
+                    "expected": "Model.NotFound",
+                    "message": "AC3: title must not be internal code 'Model.NotFound'"
+                },
+                {
+                    "actual": "{{vpost07_title}}",
+                    "operator": "!=",
+                    "expected": "Model.InvalidId",
+                    "message": "AC3: title must not be internal code 'Model.InvalidId'"
+                },
+                {
+                    "actual": "{{vpost07_title}}",
+                    "operator": "!=",
+                    "expected": "Model.MismatchVersionModelId",
+                    "message": "AC3: title must not be internal code 'Model.MismatchVersionModelId'"
+                },
+                {
+                    "actual": "{{vpost07_title}}",
+                    "operator": "!=",
+                    "expected": null,
+                    "message": "AC1: title must be present"
+                },
+                {
+                    "actual": "{{vpost07_title}}",
+                    "operator": "!=",
+                    "expected": "",
+                    "message": "AC3: title must not be empty string"
+                },
+                {
+                    "actual": "{{vpost07_status}}",
+                    "operator": "==",
+                    "expected": 500,
+                    "message": "AC4: status in body must equal HTTP 500"
+                },
+                {
+                    "actual": "{{vpost07_detail}}",
+                    "operator": "!=",
+                    "expected": null,
+                    "message": "AC1: detail must be present"
+                },
+                {
+                    "actual": "{{vpost07_detail}}",
+                    "operator": "!=",
+                    "expected": "",
+                    "message": "AC1: detail must not be empty"
+                },
+                {
+                    "actual": "{{vpost07_instance}}",
+                    "operator": "!=",
+                    "expected": null,
+                    "message": "AC5: instance must be present"
+                },
+                {
+                    "actual": "{{vpost07_instance}}",
+                    "operator": "!=",
+                    "expected": "",
+                    "message": "AC5: instance must contain the request path"
+                }
+            ]
         },
         "test_summary": "Verify API returns 400 when no payload is provided",
-        "test_scenario": "Attempt to create version without payload body"
+        "test_scenario": "Attempt to create version without payload body",
+        "expected_response_schema": "models/schemas/Schema_error_500.json",
+        "extract_values": [
+            {
+                "from": "response",
+                "key": "type",
+                "assign_to": "vpost07_type"
+            },
+            {
+                "from": "response",
+                "key": "title",
+                "assign_to": "vpost07_title"
+            },
+            {
+                "from": "response",
+                "key": "status",
+                "assign_to": "vpost07_status"
+            },
+            {
+                "from": "response",
+                "key": "detail",
+                "assign_to": "vpost07_detail"
+            },
+            {
+                "from": "response",
+                "key": "instance",
+                "assign_to": "vpost07_instance"
+            }
+        ]
     },
     {
         "test_id": "TC008",
@@ -306,7 +805,7 @@
             "Validation"
         ],
         "mainURL": "{{base_url}}",
-        "endpoint": "/model/{{response_model_id}}/version",
+        "endpoint": "/models/{{response_model_id}}/version",
         "method": "POST",
         "headers_additional": {
             "Content-Type": "application/json"
@@ -325,10 +824,130 @@
             },
             "security": {
                 "checks": []
-            }
+            },
+            "assertions": [
+                {
+                    "actual": "{{vpost08_type}}",
+                    "operator": "!=",
+                    "expected": "ResourceNotFound",
+                    "message": "AC2: type must not be non-URI value 'ResourceNotFound'"
+                },
+                {
+                    "actual": "{{vpost08_type}}",
+                    "operator": "!=",
+                    "expected": "InvalidInput",
+                    "message": "AC2: type must not be non-URI value 'InvalidInput'"
+                },
+                {
+                    "actual": "{{vpost08_type}}",
+                    "operator": "!=",
+                    "expected": "BusinessRuleViolation",
+                    "message": "AC2: type must not be non-URI value 'BusinessRuleViolation'"
+                },
+                {
+                    "actual": "{{vpost08_type}}",
+                    "operator": "!=",
+                    "expected": null,
+                    "message": "AC1: type field must be present"
+                },
+                {
+                    "actual": "{{vpost08_type}}",
+                    "operator": "!=",
+                    "expected": "",
+                    "message": "AC2: type must not be empty string"
+                },
+                {
+                    "actual": "{{vpost08_title}}",
+                    "operator": "!=",
+                    "expected": "Model.NotFound",
+                    "message": "AC3: title must not be internal code 'Model.NotFound'"
+                },
+                {
+                    "actual": "{{vpost08_title}}",
+                    "operator": "!=",
+                    "expected": "Model.InvalidId",
+                    "message": "AC3: title must not be internal code 'Model.InvalidId'"
+                },
+                {
+                    "actual": "{{vpost08_title}}",
+                    "operator": "!=",
+                    "expected": "Model.MismatchVersionModelId",
+                    "message": "AC3: title must not be internal code 'Model.MismatchVersionModelId'"
+                },
+                {
+                    "actual": "{{vpost08_title}}",
+                    "operator": "!=",
+                    "expected": null,
+                    "message": "AC1: title must be present"
+                },
+                {
+                    "actual": "{{vpost08_title}}",
+                    "operator": "!=",
+                    "expected": "",
+                    "message": "AC3: title must not be empty string"
+                },
+                {
+                    "actual": "{{vpost08_status}}",
+                    "operator": "==",
+                    "expected": 400,
+                    "message": "AC4: status in body must equal HTTP 400"
+                },
+                {
+                    "actual": "{{vpost08_detail}}",
+                    "operator": "!=",
+                    "expected": null,
+                    "message": "AC1: detail must be present"
+                },
+                {
+                    "actual": "{{vpost08_detail}}",
+                    "operator": "!=",
+                    "expected": "",
+                    "message": "AC1: detail must not be empty"
+                },
+                {
+                    "actual": "{{vpost08_instance}}",
+                    "operator": "!=",
+                    "expected": null,
+                    "message": "AC5: instance must be present"
+                },
+                {
+                    "actual": "{{vpost08_instance}}",
+                    "operator": "!=",
+                    "expected": "",
+                    "message": "AC5: instance must contain the request path"
+                }
+            ]
         },
         "test_summary": "Verify API returns 400 when allocation is missing required fields",
-        "test_scenario": "Attempt to create version with incomplete allocation (only entityType provided)"
+        "test_scenario": "Attempt to create version with incomplete allocation (only entityType provided)",
+        "expected_response_schema": "models/schemas/Schema_error_400.json",
+        "extract_values": [
+            {
+                "from": "response",
+                "key": "type",
+                "assign_to": "vpost08_type"
+            },
+            {
+                "from": "response",
+                "key": "title",
+                "assign_to": "vpost08_title"
+            },
+            {
+                "from": "response",
+                "key": "status",
+                "assign_to": "vpost08_status"
+            },
+            {
+                "from": "response",
+                "key": "detail",
+                "assign_to": "vpost08_detail"
+            },
+            {
+                "from": "response",
+                "key": "instance",
+                "assign_to": "vpost08_instance"
+            }
+        ]
     },
     {
         "test_id": "TC009",
@@ -343,7 +962,7 @@
             "Boundary"
         ],
         "mainURL": "{{base_url}}",
-        "endpoint": "/model/{{response_model_id}}/version",
+        "endpoint": "/models/{{response_model_id}}/version",
         "method": "POST",
         "headers_additional": {
             "Content-Type": "application/json"
@@ -367,9 +986,88 @@
             },
             "security": {
                 "checks": []
-            }
+            },
+            "assertions": [
+                {
+                    "actual": "{{vpost09_type}}",
+                    "operator": "!=",
+                    "expected": "ResourceNotFound",
+                    "message": "AC2: type must not be non-URI 'ResourceNotFound'"
+                },
+                {
+                    "actual": "{{vpost09_type}}",
+                    "operator": "!=",
+                    "expected": "InvalidInput",
+                    "message": "AC2: type must not be non-URI 'InvalidInput'"
+                },
+                {
+                    "actual": "{{vpost09_type}}",
+                    "operator": "!=",
+                    "expected": null,
+                    "message": "AC1: type field must be present"
+                },
+                {
+                    "actual": "{{vpost09_type}}",
+                    "operator": "!=",
+                    "expected": "",
+                    "message": "AC2: type must not be empty string"
+                },
+                {
+                    "actual": "{{vpost09_title}}",
+                    "operator": "!=",
+                    "expected": null,
+                    "message": "AC1: title must be present"
+                },
+                {
+                    "actual": "{{vpost09_title}}",
+                    "operator": "!=",
+                    "expected": "",
+                    "message": "AC3: title must not be empty string"
+                },
+                {
+                    "actual": "{{vpost09_status}}",
+                    "operator": "==",
+                    "expected": 422,
+                    "message": "AC4: status in body must equal HTTP 422"
+                },
+                {
+                    "actual": "{{vpost09_instance}}",
+                    "operator": "!=",
+                    "expected": null,
+                    "message": "AC5: instance must be present"
+                },
+                {
+                    "actual": "{{vpost09_instance}}",
+                    "operator": "!=",
+                    "expected": "",
+                    "message": "AC5: instance must contain the request path"
+                }
+            ]
         },
         "test_summary": "Verify API returns 400 when allocation weight is negative",
-        "test_scenario": "Attempt to create version with negative weight value"
+        "test_scenario": "Attempt to create version with negative weight value",
+        "expected_response_schema": "models/schemas/Schema_investmentapproachid_422_error.json",
+        "extract_values": [
+            {
+                "from": "response",
+                "key": "type",
+                "assign_to": "vpost09_type"
+            },
+            {
+                "from": "response",
+                "key": "title",
+                "assign_to": "vpost09_title"
+            },
+            {
+                "from": "response",
+                "key": "status",
+                "assign_to": "vpost09_status"
+            },
+            {
+                "from": "response",
+                "key": "instance",
+                "assign_to": "vpost09_instance"
+            }
+        ]
     }
 ]

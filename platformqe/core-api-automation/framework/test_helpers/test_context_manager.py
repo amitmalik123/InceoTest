@@ -9,7 +9,7 @@ from typing import Dict, List, Any, Optional
 from framework.common.logger import get_logger
 from framework.common.template_utils import render_template, render_hybrid
 from framework.common.common_functions import extract_value
-from framework.common.utils import random_string, random_email, random_firstname, random_lastname, random_int, random_numeric
+from framework.common.utils import random_string, random_email, random_firstname, random_lastname, random_int, random_numeric, random_date, random_float, alternate
 
 logger = get_logger(__name__)
 
@@ -65,6 +65,9 @@ class TestContextManager:
         context['random_email'] = random_email
         context['random_firstname'] = random_firstname
         context['random_lastname'] = random_lastname
+        context['random_date'] = random_date
+        context['random_float'] = random_float
+        context['alternate'] = alternate
         
         # Add extracted values from previous test cases (chaining)
         context.update(self._global_variables)
@@ -182,6 +185,24 @@ class TestContextManager:
                 source_type = 'api_request'
             
             # Handle script_result source type - extract from script execution results
+            if source_type == 'request_header':
+                # Extract from headers generated during the API request (e.g. DYNAMIC_UUID4 expansions)
+                generated_headers = temp_context.get('_last_generated_headers', {})
+                if not generated_headers:
+                    logger.debug("No _last_generated_headers in context, skipping request_header extraction")
+                    continue
+                key = extract.get('key')
+                assign_to = extract.get('assign_to')
+                if key and assign_to:
+                    value = generated_headers.get(key)
+                    if value is not None:
+                        extracted[assign_to] = value
+                        self._global_variables[assign_to] = value
+                        logger.debug(f"Extracted '{assign_to}' = '{value}' from request_header")
+                    else:
+                        logger.warning(f"Header key '{key}' not found in _last_generated_headers: {list(generated_headers.keys())}")
+                continue  # Move to next extract config
+
             if source_type == 'script_result':
                 # Script results should be in context under 'script_result' key
                 script_result = temp_context.get('script_result', {})

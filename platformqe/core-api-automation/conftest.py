@@ -30,6 +30,7 @@ urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
 
 # Module-level logger (reused throughout to avoid duplicate get_logger calls)
 logger = get_logger(__name__)
+_IS_DATA_COMPARISON_REPORT = False
 
 
 # ============================================================================
@@ -44,9 +45,58 @@ def get_env_name():
     """
     return os.environ.get('ENV_NAME', 'N/A')
 
-def _encode_banner_image():
-    """Encode the API Test Banner image as base64 for embedding in HTML reports"""
+
+def is_data_comparison_run(config) -> bool:
+    """Detect if current pytest invocation is for data comparison tests."""
     try:
+        invocation_args = [str(arg).lower() for arg in getattr(config, 'args', [])]
+        if any('test_data_comparison_generic.py' in arg for arg in invocation_args):
+            return True
+
+        testcase_file = config.getoption('--testcase-file', default=None)
+        if testcase_file and 'testcase_data_comparison' in str(testcase_file).lower():
+            return True
+    except Exception:
+        return False
+
+    return False
+
+
+def _encode_banner_image(is_data_comparison: bool = False):
+    """Encode the appropriate banner image as base64 for embedding in HTML reports."""
+    try:
+        if is_data_comparison:
+            svg_banner = """
+<svg xmlns='http://www.w3.org/2000/svg' width='1600' height='220' viewBox='0 0 1600 220'>
+    <defs>
+        <linearGradient id='bg' x1='0' y1='0' x2='1' y2='1'>
+            <stop offset='0%' stop-color='#0f172a'/>
+            <stop offset='60%' stop-color='#1e293b'/>
+            <stop offset='100%' stop-color='#334155'/>
+        </linearGradient>
+        <linearGradient id='accent' x1='0' y1='0' x2='1' y2='0'>
+            <stop offset='0%' stop-color='#06b6d4'/>
+            <stop offset='100%' stop-color='#22d3ee'/>
+        </linearGradient>
+    </defs>
+    <rect width='1600' height='220' fill='url(#bg)'/>
+    <rect x='0' y='0' width='1600' height='10' fill='url(#accent)'/>
+    <g opacity='0.18' fill='#38bdf8'>
+        <circle cx='1450' cy='60' r='42'/>
+        <circle cx='1520' cy='120' r='28'/>
+        <circle cx='1400' cy='150' r='22'/>
+    </g>
+    <text x='70' y='102' font-family='Segoe UI, Arial, sans-serif' font-size='54' font-weight='700' fill='#e2e8f0'>
+        Database Test Execution Report
+    </text>
+    <text x='72' y='150' font-family='Segoe UI, Arial, sans-serif' font-size='28' fill='#94a3b8'>
+        Data Comparison Validation Dashboard
+    </text>
+</svg>
+"""
+            encoded_svg = base64.b64encode(svg_banner.encode('utf-8')).decode('utf-8')
+            return f'data:image/svg+xml;base64,{encoded_svg}'
+
         banner_path = os.path.join('framework', 'resources', 'APITestBanner.png')
         if os.path.exists(banner_path):
             with open(banner_path, 'rb') as img_file:
@@ -263,6 +313,13 @@ def pytest_addoption(parser):
         help="Skip teardown/cleanup phase after tests complete (keeps created test data)."
     )
     parser.addoption(
+        "--cleanup-dry-run",
+        action="store_true",
+        default=False,
+        help="Run DB cleanup in dry-run mode (logs SQL + params, executes nothing). "
+             "Sets DRY_RUN_CLEANUP=true env var consumed by CleanupManager."
+    )
+    parser.addoption(
         "--test-id",
         action="store",
         default=None,
@@ -300,30 +357,41 @@ def pytest_configure(config):
     Also auto-fixes UTF-8 BOM in testcase files to prevent collection failures.
     """
     import os
+    global _IS_DATA_COMPARISON_REPORT
     from framework.common.bom_utils import fix_testcase_file
     
     # Auto-fix UTF-8 BOM in testcase files
     testcase_file = config.getoption('--testcase-file', default=None)
     fix_testcase_file(testcase_file)
-    
+
+    _IS_DATA_COMPARISON_REPORT = is_data_comparison_run(config)
+
     cli_env_name = config.getoption("--env")
     if cli_env_name:
         os.environ['ENV_NAME'] = cli_env_name
         logger.info(f"ENV_NAME set to '{cli_env_name}' from CLI argument (--env)")
+
+    # Propagate --cleanup-dry-run to env var so CleanupManager (which runs in
+    # pytest_sessionfinish, possibly across modules) picks it up safely.
+    if config.getoption('--cleanup-dry-run', default=False):
+        os.environ['DRY_RUN_CLEANUP'] = 'true'
+        logger.warning("[CLEANUP-DB] Dry-run mode ENABLED via --cleanup-dry-run")
     
     # Configure HTML report with a stable run marker and absolute path.
     # This avoids FileNotFoundError if current working directory changes during the run.
     project_root = Path(__file__).resolve().parent
     timestamp = os.environ.get("PYTEST_RUN_TIMESTAMP") or datetime.now().strftime("%Y%m%d_%H%M%S")
     os.environ["PYTEST_RUN_TIMESTAMP"] = timestamp
-    reports_dir = project_root / "reports" / timestamp
+    report_root = project_root / "reports" / "data_comparison" if _IS_DATA_COMPARISON_REPORT else project_root / "reports"
+    reports_dir = report_root / timestamp
     
     # Ensure directory exists before pytest-html tries to write
     reports_dir.mkdir(parents=True, exist_ok=True)
     
     # Set HTML report path if not already specified
     if not config.getoption("--html", default=None):
-        html_report_path = reports_dir / f"pytest_report_{timestamp}.html"
+        report_prefix = "data_comparison_pytest_report" if _IS_DATA_COMPARISON_REPORT else "pytest_report"
+        html_report_path = reports_dir / f"{report_prefix}_{timestamp}.html"
         config.option.htmlpath = str(html_report_path.resolve())
     
     logger.info('Test session is starting')
@@ -362,15 +430,51 @@ def pytest_html_results_summary(prefix, summary, postfix, session):
     xpassed = len(terminalreporter.stats.get('xpassed', []))
     
     total = passed + failed + skipped + errors + xfailed + xpassed
-    
+
+    is_data_comparison = is_data_comparison_run(session.config)
+
+    def _get_test_outcome_counts(test_name_fragment: str):
+        matched_passed = [rep for rep in terminalreporter.stats.get('passed', []) if test_name_fragment in getattr(rep, 'nodeid', '')]
+        matched_failed = [rep for rep in terminalreporter.stats.get('failed', []) if test_name_fragment in getattr(rep, 'nodeid', '')]
+        matched_skipped = [rep for rep in terminalreporter.stats.get('skipped', []) if test_name_fragment in getattr(rep, 'nodeid', '')]
+        return {
+            'total': len(matched_passed) + len(matched_failed) + len(matched_skipped),
+            'passed': len(matched_passed),
+            'failed': len(matched_failed),
+            'skipped': len(matched_skipped)
+        }
+
     # Get validation statistics using shared utility
     result_collector = TestResultCollector()
     consolidated_validations = aggregate_validation_stats(result_collector)
-    
+
+    single_record_stats = _get_test_outcome_counts('test_compare_single_record')
+    sample_record_stats = _get_test_outcome_counts('test_compare_all_records')
+    count_comparison_stats = _get_test_outcome_counts('test_compare_counts')
+
+    execution_validation_stats = {
+        'total': total,
+        'passed': passed,
+        'failed': failed
+    }
+
     # Calculate totals for all validations
-    total_validations = sum(v['total'] for v in consolidated_validations.values())
-    total_validations_passed = sum(v['passed'] for v in consolidated_validations.values())
-    total_validations_failed = sum(v['failed'] for v in consolidated_validations.values())
+    if is_data_comparison:
+        db_validation_groups = [
+            consolidated_validations['row_match'],
+            consolidated_validations['column_match'],
+            consolidated_validations['count_check'],
+            consolidated_validations['missing_source'],
+            consolidated_validations['missing_target'],
+            consolidated_validations['assertions']
+        ]
+        total_validations = sum(v['total'] for v in db_validation_groups)
+        total_validations_passed = sum(v['passed'] for v in db_validation_groups)
+        total_validations_failed = sum(v['failed'] for v in db_validation_groups)
+    else:
+        total_validations = sum(v['total'] for v in consolidated_validations.values())
+        total_validations_passed = sum(v['passed'] for v in consolidated_validations.values())
+        total_validations_failed = sum(v['failed'] for v in consolidated_validations.values())
     total_validations_skipped = 0  # Currently no skipped validations
     
     # Build service and endpoint level statistics
@@ -443,16 +547,148 @@ def pytest_html_results_summary(prefix, summary, postfix, session):
         border_color = "#ef4444"
     
     # Get banner image as base64
-    banner_data = _encode_banner_image()
+    banner_data = _encode_banner_image(is_data_comparison_run(session.config))
     banner_html = ''
     if banner_data:
+        banner_alt = "Database Test Execution Report" if is_data_comparison_run(session.config) else "API Test Automation Banner"
         banner_html = f'''
         <!-- Banner Image -->
         <div style="width: 100%; margin: 0 0 25px 0; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); padding: 0; box-shadow: 0 4px 15px rgba(0,0,0,0.1); overflow: hidden;">
-            <img src="{banner_data}" alt="API Test Automation Banner" style="width: 100%; height: auto; display: block;"/>
+            <img src="{banner_data}" alt="{banner_alt}" style="width: 100%; height: auto; display: block;"/>
         </div>
         '''
     
+    if is_data_comparison:
+        validation_summary_title = 'Database Validation Summary'
+        validation_distribution_title = 'Database Validation Distribution'
+        validation_summary_rows = f'''
+                                <tr style="border-bottom: 1px solid #e5e7eb; transition: all 0.3s;" onmouseover="this.style.background='#f9fafb'" onmouseout="this.style.background='white'">
+                                    <td style="padding: 8px 10px; font-weight: 600; color: #1f2937; font-size: 0.85em;">🧾 Row Match</td>
+                                    <td style="padding: 8px; text-align: center; font-weight: 700; color: #6366f1; font-size: 0.9em;">{consolidated_validations['row_match']['total']}</td>
+                                    <td style="padding: 8px; text-align: center; font-weight: 700; color: #10b981; font-size: 0.9em;">{consolidated_validations['row_match']['passed']}</td>
+                                    <td style="padding: 8px; text-align: center; font-weight: 700; color: #ef4444; font-size: 0.9em;">{consolidated_validations['row_match']['failed']}</td>
+                                    <td style="padding: 8px; text-align: center; font-weight: 700; color: {'#10b981' if consolidated_validations['row_match']['total'] > 0 and consolidated_validations['row_match']['failed'] == 0 else '#ef4444'}; font-size: 0.85em; background: {'#d1fae5' if consolidated_validations['row_match']['total'] > 0 and consolidated_validations['row_match']['failed'] == 0 else '#fecaca'}; border-radius: 4px;">
+                                        {(consolidated_validations['row_match']['passed'] / consolidated_validations['row_match']['total'] * 100) if consolidated_validations['row_match']['total'] > 0 else 0:.0f}%
+                                    </td>
+                                </tr>
+                                <tr style="border-bottom: 1px solid #e5e7eb; transition: all 0.3s;" onmouseover="this.style.background='#f9fafb'" onmouseout="this.style.background='white'">
+                                    <td style="padding: 8px 10px; font-weight: 600; color: #1f2937; font-size: 0.85em;">🔢 Column Match</td>
+                                    <td style="padding: 8px; text-align: center; font-weight: 700; color: #6366f1; font-size: 0.9em;">{consolidated_validations['column_match']['total']}</td>
+                                    <td style="padding: 8px; text-align: center; font-weight: 700; color: #10b981; font-size: 0.9em;">{consolidated_validations['column_match']['passed']}</td>
+                                    <td style="padding: 8px; text-align: center; font-weight: 700; color: #ef4444; font-size: 0.9em;">{consolidated_validations['column_match']['failed']}</td>
+                                    <td style="padding: 8px; text-align: center; font-weight: 700; color: {'#10b981' if consolidated_validations['column_match']['total'] > 0 and consolidated_validations['column_match']['failed'] == 0 else '#ef4444'}; font-size: 0.85em; background: {'#d1fae5' if consolidated_validations['column_match']['total'] > 0 and consolidated_validations['column_match']['failed'] == 0 else '#fecaca'}; border-radius: 4px;">
+                                        {(consolidated_validations['column_match']['passed'] / consolidated_validations['column_match']['total'] * 100) if consolidated_validations['column_match']['total'] > 0 else 0:.0f}%
+                                    </td>
+                                </tr>
+                                <tr style="border-bottom: 1px solid #e5e7eb; transition: all 0.3s;" onmouseover="this.style.background='#f9fafb'" onmouseout="this.style.background='white'">
+                                    <td style="padding: 8px 10px; font-weight: 600; color: #1f2937; font-size: 0.85em;">📊 Count Check</td>
+                                    <td style="padding: 8px; text-align: center; font-weight: 700; color: #6366f1; font-size: 0.9em;">{consolidated_validations['count_check']['total']}</td>
+                                    <td style="padding: 8px; text-align: center; font-weight: 700; color: #10b981; font-size: 0.9em;">{consolidated_validations['count_check']['passed']}</td>
+                                    <td style="padding: 8px; text-align: center; font-weight: 700; color: #ef4444; font-size: 0.9em;">{consolidated_validations['count_check']['failed']}</td>
+                                    <td style="padding: 8px; text-align: center; font-weight: 700; color: {'#10b981' if consolidated_validations['count_check']['total'] > 0 and consolidated_validations['count_check']['failed'] == 0 else '#ef4444'}; font-size: 0.85em; background: {'#d1fae5' if consolidated_validations['count_check']['total'] > 0 and consolidated_validations['count_check']['failed'] == 0 else '#fecaca'}; border-radius: 4px;">
+                                        {(consolidated_validations['count_check']['passed'] / consolidated_validations['count_check']['total'] * 100) if consolidated_validations['count_check']['total'] > 0 else 0:.0f}%
+                                    </td>
+                                </tr>
+                                <tr style="border-bottom: 2px solid #d1d5db; transition: all 0.3s;" onmouseover="this.style.background='#f9fafb'" onmouseout="this.style.background='white'">
+                                    <td style="padding: 8px 10px; font-weight: 600; color: #1f2937; font-size: 0.85em;">📥 Missing in Source</td>
+                                    <td style="padding: 8px; text-align: center; font-weight: 700; color: #6366f1; font-size: 0.9em;">{consolidated_validations['missing_source']['total']}</td>
+                                    <td style="padding: 8px; text-align: center; font-weight: 700; color: #10b981; font-size: 0.9em;">{consolidated_validations['missing_source']['passed']}</td>
+                                    <td style="padding: 8px; text-align: center; font-weight: 700; color: #ef4444; font-size: 0.9em;">{consolidated_validations['missing_source']['failed']}</td>
+                                    <td style="padding: 8px; text-align: center; font-weight: 700; color: {'#10b981' if consolidated_validations['missing_source']['total'] > 0 and consolidated_validations['missing_source']['failed'] == 0 else '#ef4444'}; font-size: 0.85em; background: {'#d1fae5' if consolidated_validations['missing_source']['total'] > 0 and consolidated_validations['missing_source']['failed'] == 0 else '#fecaca'}; border-radius: 4px;">
+                                        {(consolidated_validations['missing_source']['passed'] / consolidated_validations['missing_source']['total'] * 100) if consolidated_validations['missing_source']['total'] > 0 else 0:.0f}%
+                                    </td>
+                                </tr>
+                                <tr style="border-bottom: 2px solid #d1d5db; transition: all 0.3s;" onmouseover="this.style.background='#f9fafb'" onmouseout="this.style.background='white'">
+                                    <td style="padding: 8px 10px; font-weight: 600; color: #1f2937; font-size: 0.85em;">📤 Missing in Target</td>
+                                    <td style="padding: 8px; text-align: center; font-weight: 700; color: #6366f1; font-size: 0.9em;">{consolidated_validations['missing_target']['total']}</td>
+                                    <td style="padding: 8px; text-align: center; font-weight: 700; color: #10b981; font-size: 0.9em;">{consolidated_validations['missing_target']['passed']}</td>
+                                    <td style="padding: 8px; text-align: center; font-weight: 700; color: #ef4444; font-size: 0.9em;">{consolidated_validations['missing_target']['failed']}</td>
+                                    <td style="padding: 8px; text-align: center; font-weight: 700; color: {'#10b981' if consolidated_validations['missing_target']['total'] > 0 and consolidated_validations['missing_target']['failed'] == 0 else '#ef4444'}; font-size: 0.85em; background: {'#d1fae5' if consolidated_validations['missing_target']['total'] > 0 and consolidated_validations['missing_target']['failed'] == 0 else '#fecaca'}; border-radius: 4px;">
+                                        {(consolidated_validations['missing_target']['passed'] / consolidated_validations['missing_target']['total'] * 100) if consolidated_validations['missing_target']['total'] > 0 else 0:.0f}%
+                                    </td>
+                                </tr>
+                                <tr style="border-bottom: 2px solid #d1d5db; transition: all 0.3s;" onmouseover="this.style.background='#f9fafb'" onmouseout="this.style.background='white'">
+                                    <td style="padding: 8px 10px; font-weight: 600; color: #1f2937; font-size: 0.85em;">✓ Comparison Assertions</td>
+                                    <td style="padding: 8px; text-align: center; font-weight: 700; color: #6366f1; font-size: 0.9em;">{consolidated_validations['assertions']['total']}</td>
+                                    <td style="padding: 8px; text-align: center; font-weight: 700; color: #10b981; font-size: 0.9em;">{consolidated_validations['assertions']['passed']}</td>
+                                    <td style="padding: 8px; text-align: center; font-weight: 700; color: #ef4444; font-size: 0.9em;">{consolidated_validations['assertions']['failed']}</td>
+                                    <td style="padding: 8px; text-align: center; font-weight: 700; color: {'#10b981' if consolidated_validations['assertions']['total'] > 0 and consolidated_validations['assertions']['failed'] == 0 else '#ef4444'}; font-size: 0.85em; background: {'#d1fae5' if consolidated_validations['assertions']['total'] > 0 and consolidated_validations['assertions']['failed'] == 0 else '#fecaca'}; border-radius: 4px;">
+                                        {(consolidated_validations['assertions']['passed'] / consolidated_validations['assertions']['total'] * 100) if consolidated_validations['assertions']['total'] > 0 else 0:.0f}%
+                                    </td>
+                                </tr>
+        '''
+        validation_chart_labels = "['Row Match', 'Column Match', 'Count Check', 'Missing Source', 'Missing Target', 'Assertions']"
+        validation_chart_passed = f"[{consolidated_validations['row_match']['passed']}, {consolidated_validations['column_match']['passed']}, {consolidated_validations['count_check']['passed']}, {consolidated_validations['missing_source']['passed']}, {consolidated_validations['missing_target']['passed']}, {consolidated_validations['assertions']['passed']}]"
+        validation_chart_failed = f"[{consolidated_validations['row_match']['failed']}, {consolidated_validations['column_match']['failed']}, {consolidated_validations['count_check']['failed']}, {consolidated_validations['missing_source']['failed']}, {consolidated_validations['missing_target']['failed']}, {consolidated_validations['assertions']['failed']}]"
+    else:
+        validation_summary_title = 'Validation Scenarios Summary'
+        validation_distribution_title = 'Validation Distribution'
+        validation_summary_rows = f'''
+                                <!-- Status Code Row -->
+                                <tr style="border-bottom: 1px solid #e5e7eb; transition: all 0.3s;" onmouseover="this.style.background='#f9fafb'" onmouseout="this.style.background='white'">
+                                    <td style="padding: 8px 10px; font-weight: 600; color: #1f2937; font-size: 0.85em;">🔢 Status</td>
+                                    <td style="padding: 8px; text-align: center; font-weight: 700; color: #6366f1; font-size: 0.9em;">{consolidated_validations['status_code']['total']}</td>
+                                    <td style="padding: 8px; text-align: center; font-weight: 700; color: #10b981; font-size: 0.9em;">{consolidated_validations['status_code']['passed']}</td>
+                                    <td style="padding: 8px; text-align: center; font-weight: 700; color: #ef4444; font-size: 0.9em;">{consolidated_validations['status_code']['failed']}</td>
+                                    <td style="padding: 8px; text-align: center; font-weight: 700; color: {'#10b981' if consolidated_validations['status_code']['total'] > 0 and consolidated_validations['status_code']['failed'] == 0 else '#ef4444'}; font-size: 0.85em; background: {'#d1fae5' if consolidated_validations['status_code']['total'] > 0 and consolidated_validations['status_code']['failed'] == 0 else '#fecaca'}; border-radius: 4px;">
+                                        {(consolidated_validations['status_code']['passed'] / consolidated_validations['status_code']['total'] * 100) if consolidated_validations['status_code']['total'] > 0 else 0:.0f}%
+                                    </td>
+                                </tr>
+                                <!-- Contract Row -->
+                                <tr style="border-bottom: 1px solid #e5e7eb; transition: all 0.3s;" onmouseover="this.style.background='#f9fafb'" onmouseout="this.style.background='white'">
+                                    <td style="padding: 8px 10px; font-weight: 600; color: #1f2937; font-size: 0.85em;">📋 Contract</td>
+                                    <td style="padding: 8px; text-align: center; font-weight: 700; color: #6366f1; font-size: 0.9em;">{consolidated_validations['contract']['total']}</td>
+                                    <td style="padding: 8px; text-align: center; font-weight: 700; color: #10b981; font-size: 0.9em;">{consolidated_validations['contract']['passed']}</td>
+                                    <td style="padding: 8px; text-align: center; font-weight: 700; color: #ef4444; font-size: 0.9em;">{consolidated_validations['contract']['failed']}</td>
+                                    <td style="padding: 8px; text-align: center; font-weight: 700; color: {'#10b981' if consolidated_validations['contract']['total'] > 0 and consolidated_validations['contract']['failed'] == 0 else '#ef4444'}; font-size: 0.85em; background: {'#d1fae5' if consolidated_validations['contract']['total'] > 0 and consolidated_validations['contract']['failed'] == 0 else '#fecaca'}; border-radius: 4px;">
+                                        {(consolidated_validations['contract']['passed'] / consolidated_validations['contract']['total'] * 100) if consolidated_validations['contract']['total'] > 0 else 0:.0f}%
+                                    </td>
+                                </tr>
+                                <!-- Security Row -->
+                                <tr style="border-bottom: 1px solid #e5e7eb; transition: all 0.3s;" onmouseover="this.style.background='#f9fafb'" onmouseout="this.style.background='white'">
+                                    <td style="padding: 8px 10px; font-weight: 600; color: #1f2937; font-size: 0.85em;">🔒 Security</td>
+                                    <td style="padding: 8px; text-align: center; font-weight: 700; color: #6366f1; font-size: 0.9em;">{consolidated_validations['security']['total']}</td>
+                                    <td style="padding: 8px; text-align: center; font-weight: 700; color: #10b981; font-size: 0.9em;">{consolidated_validations['security']['passed']}</td>
+                                    <td style="padding: 8px; text-align: center; font-weight: 700; color: #ef4444; font-size: 0.9em;">{consolidated_validations['security']['failed']}</td>
+                                    <td style="padding: 8px; text-align: center; font-weight: 700; color: {'#10b981' if consolidated_validations['security']['total'] > 0 and consolidated_validations['security']['failed'] == 0 else '#ef4444'}; font-size: 0.85em; background: {'#d1fae5' if consolidated_validations['security']['total'] > 0 and consolidated_validations['security']['failed'] == 0 else '#fecaca'}; border-radius: 4px;">
+                                        {(consolidated_validations['security']['passed'] / consolidated_validations['security']['total'] * 100) if consolidated_validations['security']['total'] > 0 else 0:.0f}%
+                                    </td>
+                                </tr>
+                                <!-- Performance Row -->
+                                <tr style="border-bottom: 1px solid #e5e7eb; transition: all 0.3s;" onmouseover="this.style.background='#f9fafb'" onmouseout="this.style.background='white'">
+                                    <td style="padding: 8px 10px; font-weight: 600; color: #1f2937; font-size: 0.85em;">⚡ Perf</td>
+                                    <td style="padding: 8px; text-align: center; font-weight: 700; color: #6366f1; font-size: 0.9em;">{consolidated_validations['performance']['total']}</td>
+                                    <td style="padding: 8px; text-align: center; font-weight: 700; color: #10b981; font-size: 0.9em;">{consolidated_validations['performance']['passed']}</td>
+                                    <td style="padding: 8px; text-align: center; font-weight: 700; color: #ef4444; font-size: 0.9em;">{consolidated_validations['performance']['failed']}</td>
+                                    <td style="padding: 8px; text-align: center; font-weight: 700; color: {'#10b981' if consolidated_validations['performance']['total'] > 0 and consolidated_validations['performance']['failed'] == 0 else '#ef4444'}; font-size: 0.85em; background: {'#d1fae5' if consolidated_validations['performance']['total'] > 0 and consolidated_validations['performance']['failed'] == 0 else '#fecaca'}; border-radius: 4px;">
+                                        {(consolidated_validations['performance']['passed'] / consolidated_validations['performance']['total'] * 100) if consolidated_validations['performance']['total'] > 0 else 0:.0f}%
+                                    </td>
+                                </tr>
+                                <!-- Data Comparison Row -->
+                                <tr style="border-bottom: 1px solid #e5e7eb; transition: all 0.3s;" onmouseover="this.style.background='#f9fafb'" onmouseout="this.style.background='white'">
+                                    <td style="padding: 8px 10px; font-weight: 600; color: #1f2937; font-size: 0.85em;">🔄 Data Asserts</td>
+                                    <td style="padding: 8px; text-align: center; font-weight: 700; color: #6366f1; font-size: 0.9em;">{consolidated_validations['data_comparison']['total']}</td>
+                                    <td style="padding: 8px; text-align: center; font-weight: 700; color: #10b981; font-size: 0.9em;">{consolidated_validations['data_comparison']['passed']}</td>
+                                    <td style="padding: 8px; text-align: center; font-weight: 700; color: #ef4444; font-size: 0.9em;">{consolidated_validations['data_comparison']['failed']}</td>
+                                    <td style="padding: 8px; text-align: center; font-weight: 700; color: {'#10b981' if consolidated_validations['data_comparison']['total'] > 0 and consolidated_validations['data_comparison']['failed'] == 0 else '#ef4444'}; font-size: 0.85em; background: {'#d1fae5' if consolidated_validations['data_comparison']['total'] > 0 and consolidated_validations['data_comparison']['failed'] == 0 else '#fecaca'}; border-radius: 4px;">
+                                        {(consolidated_validations['data_comparison']['passed'] / consolidated_validations['data_comparison']['total'] * 100) if consolidated_validations['data_comparison']['total'] > 0 else 0:.0f}%
+                                    </td>
+                                </tr>
+                                <!-- Assertions Row -->
+                                <tr style="border-bottom: 2px solid #d1d5db; transition: all 0.3s;" onmouseover="this.style.background='#f9fafb'" onmouseout="this.style.background='white'">
+                                    <td style="padding: 8px 10px; font-weight: 600; color: #1f2937; font-size: 0.85em;">✓ Other Asserts</td>
+                                    <td style="padding: 8px; text-align: center; font-weight: 700; color: #6366f1; font-size: 0.9em;">{consolidated_validations['assertions']['total']}</td>
+                                    <td style="padding: 8px; text-align: center; font-weight: 700; color: #10b981; font-size: 0.9em;">{consolidated_validations['assertions']['passed']}</td>
+                                    <td style="padding: 8px; text-align: center; font-weight: 700; color: #ef4444; font-size: 0.9em;">{consolidated_validations['assertions']['failed']}</td>
+                                    <td style="padding: 8px; text-align: center; font-weight: 700; color: {'#10b981' if consolidated_validations['assertions']['total'] > 0 and consolidated_validations['assertions']['failed'] == 0 else '#ef4444'}; font-size: 0.85em; background: {'#d1fae5' if consolidated_validations['assertions']['total'] > 0 and consolidated_validations['assertions']['failed'] == 0 else '#fecaca'}; border-radius: 4px;">
+                                        {(consolidated_validations['assertions']['passed'] / consolidated_validations['assertions']['total'] * 100) if consolidated_validations['assertions']['total'] > 0 else 0:.0f}%
+                                    </td>
+                                </tr>
+        '''
+        validation_chart_labels = "['Status Code', 'Contract', 'Security', 'Performance', 'Data Compare', 'Assertions']"
+        validation_chart_passed = f"[{consolidated_validations['status_code']['passed']}, {consolidated_validations['contract']['passed']}, {consolidated_validations['security']['passed']}, {consolidated_validations['performance']['passed']}, {consolidated_validations['data_comparison']['passed']}, {consolidated_validations['assertions']['passed']}]"
+        validation_chart_failed = f"[{consolidated_validations['status_code']['failed']}, {consolidated_validations['contract']['failed']}, {consolidated_validations['security']['failed']}, {consolidated_validations['performance']['failed']}, {consolidated_validations['data_comparison']['failed']}, {consolidated_validations['assertions']['failed']}]"
+
     # Create professional leadership dashboard-style summary
     custom_summary = f'''
     <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
@@ -481,10 +717,10 @@ def pytest_html_results_summary(prefix, summary, postfix, session):
             <!-- Main Dashboard Grid: Service Stats on Left, Summary Widgets on Right -->
             <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-bottom: 15px;">
                 
-                <!-- LEFT COLUMN: Service & Endpoint Statistics (Moved Up) -->
+                <!-- LEFT COLUMN: Service/Database Statistics (Moved Up) -->
                 <div style="background: white; padding: 15px; border-radius: 8px; box-shadow: 0 2px 10px rgba(0,0,0,0.06); border: 1px solid #e5e7eb;">
                     <h3 style="margin: 0 0 12px 0; color: #312e81; font-size: 1em; font-weight: 700; display: flex; align-items: center; padding-bottom: 8px; border-bottom: 2px solid #e5e7eb;">
-                        <span style="margin-right: 8px; font-size: 0.9em;">🔧</span> Service & Endpoint Statistics
+                        <span style="margin-right: 8px; font-size: 0.9em;">🔧</span> {'Database Statistics' if is_data_comparison else 'Service & Endpoint Statistics'}
                     </h3>
                     <div style="max-height: 600px; overflow-y: auto; overflow-x: hidden;">
                         {{SERVICE_ENDPOINT_STATS_PLACEHOLDER}}
@@ -556,7 +792,7 @@ def pytest_html_results_summary(prefix, summary, postfix, session):
                             <!-- Validation Scenarios Summary Table -->
                             <div>
                         <h3 style="margin: 0 0 12px 0; color: #312e81; font-size: 1em; font-weight: 700; display: flex; align-items: center; border-bottom: 2px solid #f59e0b; padding-bottom: 8px;">
-                            <span style="margin-right: 8px; font-size: 0.9em;">🔍</span> Validation Scenarios Summary
+                            <span style="margin-right: 8px; font-size: 0.9em;">🔍</span> {validation_summary_title}
                         </h3>
                         
                         <table style="width: 100%; border-collapse: collapse; background: white; border-radius: 8px; overflow: hidden;">
@@ -570,71 +806,7 @@ def pytest_html_results_summary(prefix, summary, postfix, session):
                                 </tr>
                             </thead>
                             <tbody>
-                                <!-- Status Code Row -->
-                                <tr style="border-bottom: 1px solid #e5e7eb; transition: all 0.3s;" onmouseover="this.style.background='#f9fafb'" onmouseout="this.style.background='white'">
-                                    <td style="padding: 8px 10px; font-weight: 600; color: #1f2937; font-size: 0.85em;">🔢 Status</td>
-                                    <td style="padding: 8px; text-align: center; font-weight: 700; color: #6366f1; font-size: 0.9em;">{consolidated_validations['status_code']['total']}</td>
-                                    <td style="padding: 8px; text-align: center; font-weight: 700; color: #10b981; font-size: 0.9em;">{consolidated_validations['status_code']['passed']}</td>
-                                    <td style="padding: 8px; text-align: center; font-weight: 700; color: #ef4444; font-size: 0.9em;">{consolidated_validations['status_code']['failed']}</td>
-                                    <td style="padding: 8px; text-align: center; font-weight: 700; color: {'#10b981' if consolidated_validations['status_code']['total'] > 0 and consolidated_validations['status_code']['failed'] == 0 else '#ef4444'}; font-size: 0.85em; background: {'#d1fae5' if consolidated_validations['status_code']['total'] > 0 and consolidated_validations['status_code']['failed'] == 0 else '#fecaca'}; border-radius: 4px;">
-                                        {(consolidated_validations['status_code']['passed'] / consolidated_validations['status_code']['total'] * 100) if consolidated_validations['status_code']['total'] > 0 else 0:.0f}%
-                                    </td>
-                                </tr>
-                                
-                                <!-- Contract Row -->
-                                <tr style="border-bottom: 1px solid #e5e7eb; transition: all 0.3s;" onmouseover="this.style.background='#f9fafb'" onmouseout="this.style.background='white'">
-                                    <td style="padding: 8px 10px; font-weight: 600; color: #1f2937; font-size: 0.85em;">📋 Contract</td>
-                                    <td style="padding: 8px; text-align: center; font-weight: 700; color: #6366f1; font-size: 0.9em;">{consolidated_validations['contract']['total']}</td>
-                                    <td style="padding: 8px; text-align: center; font-weight: 700; color: #10b981; font-size: 0.9em;">{consolidated_validations['contract']['passed']}</td>
-                                    <td style="padding: 8px; text-align: center; font-weight: 700; color: #ef4444; font-size: 0.9em;">{consolidated_validations['contract']['failed']}</td>
-                                    <td style="padding: 8px; text-align: center; font-weight: 700; color: {'#10b981' if consolidated_validations['contract']['total'] > 0 and consolidated_validations['contract']['failed'] == 0 else '#ef4444'}; font-size: 0.85em; background: {'#d1fae5' if consolidated_validations['contract']['total'] > 0 and consolidated_validations['contract']['failed'] == 0 else '#fecaca'}; border-radius: 4px;">
-                                        {(consolidated_validations['contract']['passed'] / consolidated_validations['contract']['total'] * 100) if consolidated_validations['contract']['total'] > 0 else 0:.0f}%
-                                    </td>
-                                </tr>
-                                
-                                <!-- Security Row -->
-                                <tr style="border-bottom: 1px solid #e5e7eb; transition: all 0.3s;" onmouseover="this.style.background='#f9fafb'" onmouseout="this.style.background='white'">
-                                    <td style="padding: 8px 10px; font-weight: 600; color: #1f2937; font-size: 0.85em;">🔒 Security</td>
-                                    <td style="padding: 8px; text-align: center; font-weight: 700; color: #6366f1; font-size: 0.9em;">{consolidated_validations['security']['total']}</td>
-                                    <td style="padding: 8px; text-align: center; font-weight: 700; color: #10b981; font-size: 0.9em;">{consolidated_validations['security']['passed']}</td>
-                                    <td style="padding: 8px; text-align: center; font-weight: 700; color: #ef4444; font-size: 0.9em;">{consolidated_validations['security']['failed']}</td>
-                                    <td style="padding: 8px; text-align: center; font-weight: 700; color: {'#10b981' if consolidated_validations['security']['total'] > 0 and consolidated_validations['security']['failed'] == 0 else '#ef4444'}; font-size: 0.85em; background: {'#d1fae5' if consolidated_validations['security']['total'] > 0 and consolidated_validations['security']['failed'] == 0 else '#fecaca'}; border-radius: 4px;">
-                                        {(consolidated_validations['security']['passed'] / consolidated_validations['security']['total'] * 100) if consolidated_validations['security']['total'] > 0 else 0:.0f}%
-                                    </td>
-                                </tr>
-                                
-                                <!-- Performance Row -->
-                                <tr style="border-bottom: 1px solid #e5e7eb; transition: all 0.3s;" onmouseover="this.style.background='#f9fafb'" onmouseout="this.style.background='white'">
-                                    <td style="padding: 8px 10px; font-weight: 600; color: #1f2937; font-size: 0.85em;">⚡ Perf</td>
-                                    <td style="padding: 8px; text-align: center; font-weight: 700; color: #6366f1; font-size: 0.9em;">{consolidated_validations['performance']['total']}</td>
-                                    <td style="padding: 8px; text-align: center; font-weight: 700; color: #10b981; font-size: 0.9em;">{consolidated_validations['performance']['passed']}</td>
-                                    <td style="padding: 8px; text-align: center; font-weight: 700; color: #ef4444; font-size: 0.9em;">{consolidated_validations['performance']['failed']}</td>
-                                    <td style="padding: 8px; text-align: center; font-weight: 700; color: {'#10b981' if consolidated_validations['performance']['total'] > 0 and consolidated_validations['performance']['failed'] == 0 else '#ef4444'}; font-size: 0.85em; background: {'#d1fae5' if consolidated_validations['performance']['total'] > 0 and consolidated_validations['performance']['failed'] == 0 else '#fecaca'}; border-radius: 4px;">
-                                        {(consolidated_validations['performance']['passed'] / consolidated_validations['performance']['total'] * 100) if consolidated_validations['performance']['total'] > 0 else 0:.0f}%
-                                    </td>
-                                </tr>
-                                
-                                <!-- Data Comparison Row -->
-                                <tr style="border-bottom: 1px solid #e5e7eb; transition: all 0.3s;" onmouseover="this.style.background='#f9fafb'" onmouseout="this.style.background='white'">
-                                    <td style="padding: 8px 10px; font-weight: 600; color: #1f2937; font-size: 0.85em;">🔄 Data Asserts</td>
-                                    <td style="padding: 8px; text-align: center; font-weight: 700; color: #6366f1; font-size: 0.9em;">{consolidated_validations['data_comparison']['total']}</td>
-                                    <td style="padding: 8px; text-align: center; font-weight: 700; color: #10b981; font-size: 0.9em;">{consolidated_validations['data_comparison']['passed']}</td>
-                                    <td style="padding: 8px; text-align: center; font-weight: 700; color: #ef4444; font-size: 0.9em;">{consolidated_validations['data_comparison']['failed']}</td>
-                                    <td style="padding: 8px; text-align: center; font-weight: 700; color: {'#10b981' if consolidated_validations['data_comparison']['total'] > 0 and consolidated_validations['data_comparison']['failed'] == 0 else '#ef4444'}; font-size: 0.85em; background: {'#d1fae5' if consolidated_validations['data_comparison']['total'] > 0 and consolidated_validations['data_comparison']['failed'] == 0 else '#fecaca'}; border-radius: 4px;">
-                                        {(consolidated_validations['data_comparison']['passed'] / consolidated_validations['data_comparison']['total'] * 100) if consolidated_validations['data_comparison']['total'] > 0 else 0:.0f}%
-                                    </td>
-                                </tr>
-                                
-                                <!-- Assertions Row -->
-                                <tr style="border-bottom: 2px solid #d1d5db; transition: all 0.3s;" onmouseover="this.style.background='#f9fafb'" onmouseout="this.style.background='white'">
-                                    <td style="padding: 8px 10px; font-weight: 600; color: #1f2937; font-size: 0.85em;">✓ Other Asserts</td>
-                                    <td style="padding: 8px; text-align: center; font-weight: 700; color: #6366f1; font-size: 0.9em;">{consolidated_validations['assertions']['total']}</td>
-                                    <td style="padding: 8px; text-align: center; font-weight: 700; color: #10b981; font-size: 0.9em;">{consolidated_validations['assertions']['passed']}</td>
-                                    <td style="padding: 8px; text-align: center; font-weight: 700; color: #ef4444; font-size: 0.9em;">{consolidated_validations['assertions']['failed']}</td>
-                                    <td style="padding: 8px; text-align: center; font-weight: 700; color: {'#10b981' if consolidated_validations['assertions']['total'] > 0 and consolidated_validations['assertions']['failed'] == 0 else '#ef4444'}; font-size: 0.85em; background: {'#d1fae5' if consolidated_validations['assertions']['total'] > 0 and consolidated_validations['assertions']['failed'] == 0 else '#fecaca'}; border-radius: 4px;">
-                                        {(consolidated_validations['assertions']['passed'] / consolidated_validations['assertions']['total'] * 100) if consolidated_validations['assertions']['total'] > 0 else 0:.0f}%
-                                    </td>
-                                </tr>
+                                {validation_summary_rows}
                                 
                                 <!-- TOTAL Row -->
                                 <tr style="background: linear-gradient(135deg, #f3f4f6 0%, #e5e7eb 100%); font-weight: 800; border-top: 3px solid #6366f1;">
@@ -653,7 +825,7 @@ def pytest_html_results_summary(prefix, summary, postfix, session):
                             <!-- Bar Chart - Validation Results -->
                             <div>
                         <h4 style="margin: 0 0 12px 0; color: #312e81; font-size: 1em; font-weight: 700; text-align: center; border-bottom: 2px solid #f59e0b; padding-bottom: 8px;">
-                            <span style="font-size: 0.9em;">📊</span> Validation Distribution
+                            <span style="font-size: 0.9em;">📊</span> {validation_distribution_title}
                         </h4>
                         <div style="width: 100%; margin: auto;">
                             <canvas id="validationBarChart"></canvas>
@@ -723,32 +895,18 @@ def pytest_html_results_summary(prefix, summary, postfix, session):
                 new Chart(ctxBar, {{
                     type: 'bar',
                     data: {{
-                        labels: ['Status Code', 'Contract', 'Security', 'Performance', 'Data Compare', 'Assertions'],
+                        labels: {validation_chart_labels},
                         datasets: [
                             {{
                                 label: 'Passed',
-                                data: [
-                                    {consolidated_validations['status_code']['passed']},
-                                    {consolidated_validations['contract']['passed']},
-                                    {consolidated_validations['security']['passed']},
-                                    {consolidated_validations['performance']['passed']},
-                                    {consolidated_validations['data_comparison']['passed']},
-                                    {consolidated_validations['assertions']['passed']}
-                                ],
+                                data: {validation_chart_passed},
                                 backgroundColor: 'rgba(16, 185, 129, 0.8)',
                                 borderColor: 'rgba(16, 185, 129, 1)',
                                 borderWidth: 2
                             }},
                             {{
                                 label: 'Failed',
-                                data: [
-                                    {consolidated_validations['status_code']['failed']},
-                                    {consolidated_validations['contract']['failed']},
-                                    {consolidated_validations['security']['failed']},
-                                    {consolidated_validations['performance']['failed']},
-                                    {consolidated_validations['data_comparison']['failed']},
-                                    {consolidated_validations['assertions']['failed']}
-                                ],
+                                data: {validation_chart_failed},
                                 backgroundColor: 'rgba(239, 68, 68, 0.8)',
                                 borderColor: 'rgba(239, 68, 68, 1)',
                                 borderWidth: 2
@@ -953,11 +1111,15 @@ def pytest_html_results_table_header(cells):
     cells.insert(3, '<th>Environment</th>')
     cells.insert(4, '<th>Test Type</th>')
     cells.insert(5, '<th>Iteration</th>')
-    cells.insert(6, '<th>Method</th>')
-    cells.insert(7, '<th>Base URL</th>')
-    cells.insert(8, '<th>Endpoint</th>')
-    cells.insert(9, '<th>Validations</th>')
-    cells.insert(10, '<th>Test Summary</th>')
+    if _IS_DATA_COMPARISON_REPORT:
+        cells.insert(6, '<th>Validations</th>')
+        cells.insert(7, '<th>Test Summary</th>')
+    else:
+        cells.insert(6, '<th>Method</th>')
+        cells.insert(7, '<th>Base URL</th>')
+        cells.insert(8, '<th>Endpoint</th>')
+        cells.insert(9, '<th>Validations</th>')
+        cells.insert(10, '<th>Test Summary</th>')
 
 
 def pytest_html_results_table_row(report, cells):
@@ -965,31 +1127,71 @@ def pytest_html_results_table_row(report, cells):
     try:
         # Extract metadata from test item
         test_case = getattr(report, 'test_case', {})
-        
+
+        if not isinstance(test_case, dict):
+            test_case = {}
+
+        if not test_case.get('test_id'):
+            nodeid = getattr(report, 'nodeid', '').lower()
+            expected_types = set()
+
+            if 'test_compare_single_record' in nodeid:
+                expected_types = {'data_comparison_single', 'data_comparison'}
+            elif 'test_compare_all_records' in nodeid:
+                expected_types = {'data_comparison_all', 'data_comparison_sample'}
+            elif 'test_compare_counts' in nodeid:
+                expected_types = {'data_count_comparison', 'count_comparison', 'data_comparison_count'}
+
+            if expected_types:
+                from framework.test_helpers.test_result_collector import TestResultCollector
+                result_collector = TestResultCollector()
+                results = result_collector.get_results()
+
+                matched_result = None
+                for result in results:
+                    result_types = result.get('type', [])
+                    if isinstance(result_types, str):
+                        result_types = [result_types]
+
+                    normalized_types = {str(result_type).lower() for result_type in result_types}
+
+                    if normalized_types.intersection(expected_types):
+                        matched_result = result
+
+                if matched_result:
+                    inferred_case = {
+                        'test_id': matched_result.get('test_id'),
+                        'service_name': matched_result.get('service_name'),
+                        'test_type': matched_result.get('type', []),
+                        'method': matched_result.get('method'),
+                        'endpoint': matched_result.get('endpoint'),
+                        'test_summary': matched_result.get('test_summary') or matched_result.get('summary')
+                    }
+                    test_case = {**test_case, **{key: value for key, value in inferred_case.items() if value not in [None, '']}}
+
         test_id = test_case.get('test_id', 'N/A')
         service_name = test_case.get('service_name', 'N/A')
-        
+
         # Get ENV_NAME from environment variable
         env_name = get_env_name()
-        
+
         test_type = test_case.get('test_type', 'N/A')
         if isinstance(test_type, list):
             test_type = ', '.join(test_type)
         iteration = test_case.get('iteration', 1)
+
         method = test_case.get('method', 'N/A')
         endpoint = test_case.get('endpoint', 'N/A')
-        
-        # Get base URL - prefer resolved_base_url (set during test execution)
         base_url = test_case.get('resolved_base_url', test_case.get('base_url', test_case.get('mainURL', 'N/A')))
-        
+
         # Get test summary and append failure reason if test failed
         test_summary = test_case.get('test_summary', 'N/A')
-        
+
         # If test failed, append the failure reason/error to the summary
         if report.when == "call" and report.outcome == "failed":
             from framework.test_helpers.test_result_collector import TestResultCollector
             result_collector = TestResultCollector()
-            
+
             # Find matching result entry for this test
             for result in result_collector.get_results():
                 if result.get('test_id') == test_id:
@@ -998,35 +1200,35 @@ def pytest_html_results_table_row(report, cells):
                         # Add error message to summary with visual separation
                         test_summary = f"{test_summary}<br><br><div style='background:#fee; border-left:3px solid #f00; padding:8px; margin-top:8px;'><b style='color:#c00;'>❌ Failure:</b><br>{error_msg}</div>"
                     break
-        
+
         # Format validations from validate field
         validate = test_case.get('validate', {})
         validations_html = '<ul style="text-align:left; margin:5px; padding-left:20px; font-size:0.9em;">'
         validation_count = 0
-        
+
         # Expected status
         if test_case.get('expected_status'):
             validations_html += f'<li><b>Status Code:</b> {test_case.get("expected_status")}</li>'
             validation_count += 1
-        
+
         # Performance validation
         if validate.get('performance', {}).get('max_response_time_ms'):
             max_time = validate['performance']['max_response_time_ms']
             validations_html += f'<li><b>Response Time:</b> &lt; {max_time}ms</li>'
             validation_count += 1
-        
+
         # Security checks
         if validate.get('security', {}).get('checks'):
             checks = validate['security']['checks']
             validations_html += f'<li><b>Security:</b> {", ".join(checks)}</li>'
             validation_count += 1
-        
+
         # Schema validation
         if test_case.get('expected_response_schema'):
             schema = test_case['expected_response_schema'].split('\\')[-1] if '\\' in test_case['expected_response_schema'] else test_case['expected_response_schema']
             validations_html += f'<li><b>Schema:</b> {schema}</li>'
             validation_count += 1
-        
+
         # Data comparison - support both array and single dict format
         data_comp = validate.get('data_comparison')
         if data_comp:
@@ -1038,21 +1240,21 @@ def pytest_html_results_table_row(report, cells):
                 # Legacy single dict format
                 validations_html += f'<li><b>Data Compare:</b> {data_comp.get("source")} vs {data_comp.get("target")}</li>'
                 validation_count += 1
-        
+
         validations_html += '</ul>'
-        
+
         # Add validation statistics (for both passed and failed tests)
         if report.when == "call":
             from framework.test_helpers.test_result_collector import TestResultCollector
             result_collector = TestResultCollector()
-            
+
             # Find matching result entry
             validation_stats = None
             for result in result_collector.get_results():
                 if result.get('test_id') == test_id:
                     validation_stats = result.get('validation_stats', {})
                     break
-            
+
             if validation_stats:
                 # Add stats summary with clearer labels
                 contract_stats = validation_stats.get('contract_checks', {'total': 0, 'passed': 0, 'failed': 0})
@@ -1060,29 +1262,28 @@ def pytest_html_results_table_row(report, cells):
                 performance_stats = validation_stats.get('performance_checks', {'total': 0, 'passed': 0, 'failed': 0})
                 assertion_stats = validation_stats.get('assertions', {'total': 0, 'passed': 0, 'failed': 0})
                 comparison_stats = validation_stats.get('data_comparisons', {'total': 0, 'passed': 0, 'failed': 0})
-                
+
                 # Get detailed validation results
                 validation_details = None
                 for result in result_collector.get_results():
                     if result.get('test_id') == test_id:
                         validation_details = result.get('validation_details', {})
                         break
-                
+
                 # Build stats HTML with detailed table for each validator type
                 stats_items = []
-                
+
                 # Helper function to create status icon
                 def get_status_icon(status):
                     icons = {'PASS': '✅', 'FAIL': '❌', 'SKIP': '⚠️', 'NA': '➖'}
                     return icons.get(status, '❓')
-                
+
                 # Contract checks with details
                 if contract_stats['total'] > 0:
                     status_icon = '✅' if contract_stats['failed'] == 0 else '❌'
                     stats_items.append(f"<li><b>Contract Results:</b> {status_icon} {contract_stats['passed']}/{contract_stats['total']}")
-                    
+
                     if validation_details and validation_details.get('contract_checks'):
-                        # Show table directly (expanded by default for visibility)
                         stats_items.append(f"<table style='margin-left:20px; margin-top:5px; border-collapse:collapse; font-size:0.85em; width:95%;'>")
                         stats_items.append("<tr style='background-color:#f0f0f0;'><th style='padding:3px 8px; text-align:left;'>Check</th><th style='padding:3px 8px;'>Status</th></tr>")
                         for detail in validation_details['contract_checks']:
@@ -1091,15 +1292,15 @@ def pytest_html_results_table_row(report, cells):
                             icon = get_status_icon(check_status)
                             stats_items.append(f"<tr><td style='padding:3px 8px;'>{check_name}</td><td style='padding:3px 8px; text-align:center;'>{icon}</td></tr>")
                         stats_items.append("</table>")
-                    
+
                     stats_items.append("</li>")
                     validation_count += 1
-                
+
                 # Security checks with details
                 if security_stats['total'] > 0:
                     status_icon = '✅' if security_stats['failed'] == 0 else '❌'
                     stats_items.append(f"<li><b>Security Results:</b> {status_icon} {security_stats['passed']}/{security_stats['total']}")
-                    
+
                     if validation_details and validation_details.get('security_checks'):
                         stats_items.append(f"<table style='margin-left:20px; margin-top:5px; border-collapse:collapse; font-size:0.85em; width:95%;'>")
                         stats_items.append("<tr style='background-color:#f0f0f0;'><th style='padding:3px 8px; text-align:left;'>Check</th><th style='padding:3px 8px;'>Status</th></tr>")
@@ -1109,15 +1310,15 @@ def pytest_html_results_table_row(report, cells):
                             icon = get_status_icon(check_status)
                             stats_items.append(f"<tr><td style='padding:3px 8px;'>{check_name}</td><td style='padding:3px 8px; text-align:center;'>{icon}</td></tr>")
                         stats_items.append("</table>")
-                    
+
                     stats_items.append("</li>")
                     validation_count += 1
-                
+
                 # Performance checks with details
                 if performance_stats['total'] > 0:
                     status_icon = '✅' if performance_stats['failed'] == 0 else '❌'
                     stats_items.append(f"<li><b>Performance Results:</b> {status_icon} {performance_stats['passed']}/{performance_stats['total']}")
-                    
+
                     if validation_details and validation_details.get('performance_checks'):
                         stats_items.append(f"<table style='margin-left:20px; margin-top:5px; border-collapse:collapse; font-size:0.85em; width:95%;'>")
                         stats_items.append("<tr style='background-color:#f0f0f0;'><th style='padding:3px 8px; text-align:left;'>Check</th><th style='padding:3px 8px;'>Status</th></tr>")
@@ -1127,15 +1328,15 @@ def pytest_html_results_table_row(report, cells):
                             icon = get_status_icon(check_status)
                             stats_items.append(f"<tr><td style='padding:3px 8px;'>{check_name}</td><td style='padding:3px 8px; text-align:center;'>{icon}</td></tr>")
                         stats_items.append("</table>")
-                    
+
                     stats_items.append("</li>")
                     validation_count += 1
-                
+
                 # Assertions with details
                 if assertion_stats['total'] > 0:
                     status_icon = '✅' if assertion_stats['failed'] == 0 else '❌'
                     stats_items.append(f"<li><b>Assertions Results:</b> {status_icon} {assertion_stats['passed']}/{assertion_stats['total']}")
-                    
+
                     if validation_details and validation_details.get('assertions'):
                         stats_items.append(f"<table style='margin-left:20px; margin-top:5px; border-collapse:collapse; font-size:0.85em; width:95%;'>")
                         stats_items.append("<tr style='background-color:#f0f0f0;'><th style='padding:3px 8px; text-align:left;'>Assertion</th><th style='padding:3px 8px;'>Status</th></tr>")
@@ -1143,19 +1344,18 @@ def pytest_html_results_table_row(report, cells):
                             message = detail.get('message', 'Unknown assertion')
                             assertion_status = detail.get('status', 'NA')
                             icon = get_status_icon(assertion_status)
-                            # Truncate long messages for display
                             display_message = message if len(message) <= 60 else message[:57] + '...'
                             stats_items.append(f"<tr><td style='padding:3px 8px;'>{display_message}</td><td style='padding:3px 8px; text-align:center;'>{icon}</td></tr>")
                         stats_items.append("</table>")
-                    
+
                     stats_items.append("</li>")
                     validation_count += 1
-                
+
                 # Data comparisons with details
                 if comparison_stats['total'] > 0:
                     status_icon = '✅' if comparison_stats['failed'] == 0 else '❌'
                     stats_items.append(f"<li><b>Data Compare Results:</b> {status_icon} {comparison_stats['passed']}/{comparison_stats['total']}")
-                    
+
                     if validation_details and validation_details.get('data_comparisons'):
                         stats_items.append(f"<table style='margin-left:20px; margin-top:5px; border-collapse:collapse; font-size:0.85em; width:95%;'>")
                         stats_items.append("<tr style='background-color:#f0f0f0;'><th style='padding:3px 8px; text-align:left;'>Comparison</th><th style='padding:3px 8px;'>Status</th></tr>")
@@ -1165,28 +1365,32 @@ def pytest_html_results_table_row(report, cells):
                             icon = get_status_icon(comparison_status)
                             stats_items.append(f"<tr><td style='padding:3px 8px;'>{comparison_name}</td><td style='padding:3px 8px; text-align:center;'>{icon}</td></tr>")
                         stats_items.append("</table>")
-                    
+
                     stats_items.append("</li>")
                     validation_count += 1
-                
+
                 # Insert stats before closing </ul>
                 if stats_items:
                     validations_html = validations_html.replace('</ul>', ''.join(stats_items) + '</ul>')
-        
+
         if validation_count == 0:
             validations_html = 'N/A'
-        
-        # Insert custom cells (swapped base_url and endpoint order)
+
+        # Insert custom cells
         cells.insert(1, f'<td>{test_id}</td>')
         cells.insert(2, f'<td>{service_name}</td>')
         cells.insert(3, f'<td><b>{env_name}</b></td>')
         cells.insert(4, f'<td>{test_type}</td>')
         cells.insert(5, f'<td>{iteration}</td>')
-        cells.insert(6, f'<td><b>{method}</b></td>')
-        cells.insert(7, f'<td style="height: 30px !important; max-height: 30px !important; overflow-y: auto !important; overflow-x: hidden !important; word-wrap: break-word; padding: 8px;">{base_url}</td>')
-        cells.insert(8, f'<td style="height: 30px !important; max-height: 30px !important; overflow-y: auto !important; overflow-x: hidden !important; word-wrap: break-word; padding: 8px;">{endpoint}</td>')
-        cells.insert(9, f'<td style="width: 300px; height: 30px !important; max-height: 30px !important; overflow-y: auto !important; overflow-x: hidden !important; padding: 10px; background: linear-gradient(to bottom, #ffffff 0%, #f8f9fa 100%); box-shadow: inset 0 1px 3px rgba(0,0,0,0.05); word-wrap: break-word; white-space: normal;">{validations_html}</td>')
-        cells.insert(10, f'<td class="col-summary" style="width: 400px; max-width: 400px; height: 30px !important; max-height: 30px !important; overflow-y: auto !important; word-wrap: break-word; white-space: normal; padding: 10px;">{test_summary}</td>')
+        if _IS_DATA_COMPARISON_REPORT:
+            cells.insert(6, f'<td style="width: 300px; height: 30px !important; max-height: 30px !important; overflow-y: auto !important; overflow-x: hidden !important; padding: 10px; background: linear-gradient(to bottom, #ffffff 0%, #f8f9fa 100%); box-shadow: inset 0 1px 3px rgba(0,0,0,0.05); word-wrap: break-word; white-space: normal;">{validations_html}</td>')
+            cells.insert(7, f'<td class="col-summary" style="width: 400px; max-width: 400px; height: 30px !important; max-height: 30px !important; overflow-y: auto !important; word-wrap: break-word; white-space: normal; padding: 10px;">{test_summary}</td>')
+        else:
+            cells.insert(6, f'<td><b>{method}</b></td>')
+            cells.insert(7, f'<td style="height: 30px !important; max-height: 30px !important; overflow-y: auto !important; overflow-x: hidden !important; word-wrap: break-word; padding: 8px;">{base_url}</td>')
+            cells.insert(8, f'<td style="height: 30px !important; max-height: 30px !important; overflow-y: auto !important; overflow-x: hidden !important; word-wrap: break-word; padding: 8px;">{endpoint}</td>')
+            cells.insert(9, f'<td style="width: 300px; height: 30px !important; max-height: 30px !important; overflow-y: auto !important; overflow-x: hidden !important; padding: 10px; background: linear-gradient(to bottom, #ffffff 0%, #f8f9fa 100%); box-shadow: inset 0 1px 3px rgba(0,0,0,0.05); word-wrap: break-word; white-space: normal;">{validations_html}</td>')
+            cells.insert(10, f'<td class="col-summary" style="width: 400px; max-width: 400px; height: 30px !important; max-height: 30px !important; overflow-y: auto !important; word-wrap: break-word; white-space: normal; padding: 10px;">{test_summary}</td>')
     except Exception as e:
         # Fallback if metadata not available
         env_name = get_env_name()
@@ -1195,11 +1399,15 @@ def pytest_html_results_table_row(report, cells):
         cells.insert(3, f'<td>{env_name}</td>')
         cells.insert(4, '<td>N/A</td>')
         cells.insert(5, '<td>N/A</td>')
-        cells.insert(6, '<td>N/A</td>')
-        cells.insert(7, '<td>N/A</td>')
-        cells.insert(8, '<td>N/A</td>')
-        cells.insert(9, '<td>N/A</td>')
-        cells.insert(10, f'<td>Error: {str(e)}</td>')
+        if _IS_DATA_COMPARISON_REPORT:
+            cells.insert(6, '<td>N/A</td>')
+            cells.insert(7, f'<td>Error: {str(e)}</td>')
+        else:
+            cells.insert(6, '<td>N/A</td>')
+            cells.insert(7, '<td>N/A</td>')
+            cells.insert(8, '<td>N/A</td>')
+            cells.insert(9, '<td>N/A</td>')
+            cells.insert(10, f'<td>Error: {str(e)}</td>')
 
 
 def _filter_log_content(log_content, outcome):
@@ -1512,13 +1720,18 @@ session_start_time = None
 session_end_time = None
 _test_data_manager = None  # Global manager for test data setup/teardown
 
+
+def _get_report_dir_for_session(session):
+    return 'reports/data_comparison' if is_data_comparison_run(session.config) else 'reports'
+
+
 def pytest_sessionstart(session):
     global reporter_instance, session_start_time, _test_data_manager
     from datetime import datetime
     session_start_time = datetime.now().isoformat()
     if reporter_instance is None:
-        reporter_instance = Reporter()
-    
+        reporter_instance = Reporter(report_dir=_get_report_dir_for_session(session))
+
     # Trigger hooks for service-specific test data setup
     service_name = session.config.getoption('--service-name', default=None)
     hook_endpoint = session.config.getoption('--hook-endpoint', default=None)
@@ -1630,7 +1843,7 @@ def pytest_sessionfinish(session, exitstatus):
     
     # Write all reports at the end of the session (from tests/conftest.py)
     if reporter_instance is None:
-        reporter_instance = Reporter()
+        reporter_instance = Reporter(report_dir=_get_report_dir_for_session(session))
     reporter_instance.write_custom(pytest_results, timestamped=True)
     reporter_instance.write_json(pytest_results, timestamped=True)
     reporter_instance.write_junit_xml(pytest_results, timestamped=True)
@@ -1648,7 +1861,7 @@ def pytest_sessionfinish(session, exitstatus):
         # the in-memory singleton. We must persist the data to disk.
         import json
         from framework.reporter.reporter import Reporter
-        temp_reporter = Reporter()
+        temp_reporter = Reporter(report_dir=_get_report_dir_for_session(session))
         test_summary_path = temp_reporter._resolve_path('test_results_summary.json')
         
         # Prepare data for JSON serialization

@@ -40,6 +40,10 @@ class HooksConfig:
     # Dict with: enabled, count, testcase_file, test_data_file, extract_from_response, update_csv_file, csv_columns
     prerequisite_testcase: Dict[str, Any] = field(default_factory=dict)
     
+    # Database cleanup configuration for teardown
+    # Dict with: enabled, db_type, db_connection_name, cleanup_queries (list of query configs)
+    cleanup_db: Dict[str, Any] = field(default_factory=dict)
+    
     @classmethod
     def from_service_name(cls, service_name: str) -> 'HooksConfig':
         """
@@ -72,6 +76,34 @@ SERVICE_DEFAULTS: Dict[str, Dict] = {
             },
             'update_csv_file': 'parties/data_driven/Data_parties_GET.csv',
             'csv_columns': ['environment', 'id']
+        },
+        # Database cleanup after test execution
+        # SAFETY: Multiple guards prevent accidental data loss
+        'cleanup_db': {
+            'enabled': True,
+            'db_type': 'mssql',
+            'db_connection_name': 'parties',
+            # SAFETY 1: Environment whitelist - cleanup ONLY runs in these envs.
+            # Add 'PROD' here ONLY after explicit security review. Compared case-insensitively.
+            'allowed_environments': ['TSADEV', 'TSATEST'],
+            # SAFETY 2: Dry-run mode - logs the SQL + parameters but does NOT execute DELETEs.
+            # Override at runtime with --cleanup-dry-run CLI flag or DRY_RUN_CLEANUP=true env var.
+            'dry_run': False,
+            # SAFETY 3: Hard cap on total rows that can be deleted in one run.
+            # If exceeded the entire cleanup is aborted.
+            'max_deletes_per_run': 50,
+            # SAFETY 4: Optional CreatedBy marker. If set, verification query must confirm
+            # the record was created by this user before delete. Helps avoid touching
+            # records created by other test runs or real users.
+            'expected_created_by': None,  # e.g. 'platform-qe-automation'
+            'cleanup_queries': [
+                {
+                    'description': 'Delete test party and associated PII records',
+                    'query_file': 'parties/db_queries/Cleanup_Party_DELETE.sql',
+                    'param_field': 'id',
+                    'verify_query_file': 'parties/db_queries/Verify_Party_Exists.sql',
+                }
+            ]
         }
     },
     'movemoney': {
@@ -145,6 +177,7 @@ def get_service_hooks_config(service_name: str) -> HooksConfig:
         defaults = SERVICE_DEFAULTS[service_name]
         hooks_config.max_records = defaults.get('max_records', 10)
         hooks_config.prerequisite_testcase = defaults.get('prerequisite_testcase', {})
+        hooks_config.cleanup_db = defaults.get('cleanup_db', {})
         logger.debug(f"[HOOKS CONFIG] Loaded config for service: {service_name}")
         
         # Log endpoint-specific configurations

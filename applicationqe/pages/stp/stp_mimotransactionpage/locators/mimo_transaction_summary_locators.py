@@ -1,0 +1,27 @@
+"""Locators for MIMO Transaction Summary Page elements."""
+
+
+class MIMOTransactionSummaryLocators:
+    """Raw selector strings for the MIMO Transaction Summary page."""
+
+    TRANSACTION_SUMMARY_TITLE = "//h3[@class='section-title' and text()='Transaction summary']"
+    BACK_BUTTON = "//button[@data-testid='back-button']"
+    SUBMIT_BUTTON = "//button[@data-testid='submit-button']"
+    SUBMIT_TO_REVIEW_BUTTON = "//button[@data-testid='submit-to-review-button']"
+    SUBMIT_OR_SUBMIT_FOR_REVIEW = "//button[contains(@data-testid,'submit')]"
+    ESIGN_AND_SUBMIT = "//button[text()='E-Sign and Submit']"
+    ACCOUNT_INFO = "//section[@aria-label='account-info-section']//ul//li"
+    DISCLOSURES_TITLE = "//span[text()='Acknowledgements and Agreements']"
+    DISCLOSURES_TITLE_CONTRIBUTION = "//h3[text()='ACKNOWLEDGEMENTS AND AGREEMENTS']"
+    DISCLOSURES_LIST_CONTRIBUTION = "//p[@aria-label='disclaimer-text']//following-sibling::ul"
+    DISCLAIMER_TEXT = "//*[text()='Upon completion of this request, I certify that:']"
+    DISCLOSURES_LIST = "//h4[text()='Upon completion of this request, I certify that:']/parent::div/child::ul"
+    DISCLOSURES_TITLE_CANCEL = "//section[@aria-label='swp-cancel-disclosure-note-section']//h3"
+    DISCLAIMER_TEXT_CANCEL = "//section[@aria-label='swp-cancel-disclosure-note-section']//h3//following-sibling::p"
+    DISCLOSURES_LIST_CANCEL = "//section[@aria-label='swp-cancel-disclosure-note-section']//h3//following-sibling::ul"
+    REQUEST_DETAILS_LABEL = "//h3[@aria-label = 'category-group-name' and text()='Request Details']"
+    DESTINATION_LABEL = "//h3[@aria-label = 'category-group-name' and text()='Destination']"
+    BANK_NAME_HEADER = "//h4[@aria-label = 'category-group-item-name' and text()='Bank Name']"
+    ACCOUNT_NUMBER_HEADER = "//h4[@aria-label = 'category-group-item-name' and text()='Account Number']"
+    BOTTOM_ERROR = "//div[@aria-label='review-error']"
+    LOADING_SPINNER = "//div[@data-testid='loading-spinner']"

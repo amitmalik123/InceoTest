@@ -1,264 +1,290 @@
-"""Settings loader — reads environment configuration from a YAML file.
-
-Path resolution (only one env var needed):
-  1. TEST_CONFIG_PATH  — explicit path set by CI pipeline or local .env
-                         e.g. config/stp/stp-journals/env.test11.yaml
-  2. RuntimeError with clear instructions if not set.
-
-Local .env (add one line for your team):
-    TEST_CONFIG_PATH=config/stp/stp-journals/env.test11.yaml
-
-CI: team-stage.yml sets TEST_CONFIG_PATH automatically from the configDir parameter:
-    TEST_CONFIG_PATH=config/{configDir}/env.{environment}.yaml
 """
+Settings module to load and provide access to configuration from YAML files.
+
+Usage:
+    from config.settings import get_settings
+    settings = get_settings()          # lazily created, cached singleton
+
+    # or (backward-compatible, triggers __getattr__ on first access):
+    from config.settings import settings
+"""
+
 import os
 from pathlib import Path
 
-import yaml
+import yaml  # type: ignore
 from dotenv import load_dotenv
+
+# Load .env BEFORE any local imports (utils/__init__ reads TEST_ENV at import time).
+_config_dir = Path(__file__).resolve().parent
+_app_root = _config_dir.parent  # applicationqe/
+_repo_root = _app_root.parent   # qeautomation/
+load_dotenv(_app_root / ".env")
+load_dotenv(_repo_root / ".env")
 
 from utils.logger import setup_logger
 
-_REPO_ROOT = Path(__file__).resolve().parent.parent  # applicationqe/
-
-# Load .env from applicationqe root for local dev. CI env-vars always take precedence.
-load_dotenv(_REPO_ROOT / ".env")
-
-
-def _resolve_config_path() -> Path:
-    """Resolve config YAML path from TEST_CONFIG_PATH. Fails fast with clear instructions."""
-    path = os.getenv("TEST_CONFIG_PATH")
-    if path:
-        return _REPO_ROOT / path
-    raise RuntimeError(
-        "\n"
-        "Cannot load config — TEST_CONFIG_PATH is not set.\n"
-        "\n"
-        "Add one of the following to your .env file:\n"
-        "  TEST_CONFIG_PATH=config/stp/stp-journals/env.test11.yaml\n"
-        "  TEST_CONFIG_PATH=config/stp/stp-ict/env.test11.yaml\n"
-        "\n"
-        "Or pass it on the command line:\n"
-        "  TEST_CONFIG_PATH=config/stp/stp-ict/env.test11.yaml pytest tests/...\n"
-        "\n"
-        "In CI, team-stage.yml sets this automatically via the configDir parameter.\n"
-    )
-
 
 class Settings:
-    """Loads and exposes environment configuration from a team YAML file."""
+    """Load and provide access to configuration settings."""
 
-    def __init__(self, config_path: Path):
-        self.config_path = config_path
-        self.config_dir  = config_path.parent
-        # derive env name from filename: env.test11.yaml → "test11"
-        self.env = config_path.stem.split(".")[-1]
+    def __init__(self, env: str, app: str = ""):
+        """
+        Initialize settings by loading configuration from YAML file.
+
+        Args:
+            env: Environment name (test11, test12, silo, prod, qa, etc.).
+            app: Application/squad name (proposal, baw, naw, stp, etc.).
+                 Always use ``get_settings()`` instead of calling this directly.
+        """
+        self.env = env
+        self.app = app
         self.logger = setup_logger(__name__)
+        self.config_path = Path(__file__).parent / app / f"env.{env}.yaml"
         self.config = self._load_config()
-        self._mail_config = self._load_mail_config()
         self._queries = self._load_queries()
 
-    # ── loaders ───────────────────────────────────────────────────────────────
-
-    def _load_config(self) -> dict:
-        if not self.config_path.exists():
-            raise FileNotFoundError(
-                f"Config file not found: {self.config_path}\n"
-                "Verify TEST_CONFIG_PATH points to an existing YAML file."
-            )
-        with open(self.config_path, "r") as f:
-            return yaml.safe_load(f)
-
-    def _load_mail_config(self) -> dict:
-        """Load mail_config.properties from the same folder as the env YAML, if present."""
-        mail_path = self.config_dir / "mail_config.properties"
-        cfg = {}
-        if not mail_path.exists():
-            return cfg
-        try:
-            with open(mail_path, "r") as f:
-                for line in f:
-                    line = line.strip()
-                    if not line or line.startswith("#") or "=" not in line:
-                        continue
-                    k, v = line.split("=", 1)
-                    cfg[k.strip()] = v.strip()
-        except Exception as e:
-            self.logger.error(f"Error loading mail config: {e}")
-        return cfg
-
-    def _load_queries(self) -> dict:
-        """Load SQL queries from queries/sql_queries.yaml (repo-level, shared across teams)."""
-        queries_path = _REPO_ROOT / "queries" / "sql_queries.yaml"
-        if not queries_path.exists():
-            self.logger.warning(f"Queries file not found: {queries_path}")
-            return {}
-        with open(queries_path, "r") as f:
-            return yaml.safe_load(f) or {}
-
-    # ── application ───────────────────────────────────────────────────────────
-
-    @property
-    def base_url(self) -> str:
-        return self.config["application"]["base_url"]
-
-    @property
-    def login_url(self) -> str:
-        return self.config["application"].get("login_url", self.base_url)
-
-    @property
-    def timeout(self) -> int:
-        return self.config["application"]["timeout"]
-
-    # ── browser ───────────────────────────────────────────────────────────────
-
-    @property
-    def browser_type(self) -> str:
-        return self.config["browser"]["browser_type"]
-
-    @property
-    def headless(self) -> bool:
-        return self.config["browser"]["headless"]
-
-    @property
-    def viewport(self) -> dict:
-        return self.config["browser"]["viewport"]
-
-    @property
-    def browser_args(self) -> list:
-        return self.config["browser"].get("args", [])
-
-    # ── data ──────────────────────────────────────────────────────────────────
-
-    @property
-    def test_data_csv(self) -> Path:
-        return _REPO_ROOT / self.config["data"]["test_data_csv"]
-
-    @property
-    def test_data_excel(self):
-        p = self.config.get("data", {}).get("test_data_excel")
-        return (_REPO_ROOT / p) if p else None
-
-    # ── reporting ─────────────────────────────────────────────────────────────
-
-    @property
-    def allure_results_dir(self) -> Path:
-        return _REPO_ROOT / self.config["reporting"]["allure_results"]
-
-    # ── test ──────────────────────────────────────────────────────────────────
-
-    @property
-    def screenshot_each_step(self) -> bool:
-        return self.config.get("test", {}).get("screenshot_each_step", False)
-
-    # ── api ───────────────────────────────────────────────────────────────────
-
-    @property
-    def api_auth_token(self) -> str:
-        return (
-            os.getenv(f"{self.env.upper()}_API_AUTH_TOKEN")
-            or os.getenv("API_AUTH_TOKEN")
-            or self.config.get("api", {}).get("auth_token", "")
-        )
-
-    # ── database / vault ──────────────────────────────────────────────────────
-
-    @property
-    def database_config(self) -> dict:
-        return self.config.get("database", {})
-
-    @property
-    def vault_databases(self) -> dict:
-        return self.config.get("database", {}).get("vault_databases", {})
-
-    @property
-    def database_queries(self) -> dict:
-        return self._queries
-
     def get_vault_connection_string(self, secret_name: str) -> str | None:
-        """Fetch a connection string from the environment variable mapped from Key Vault."""
+        """Fetch a connection string from environment variable.
+
+        Resolution:
+        1. Pipeline: AzureKeyVault@2 fetches secrets → env vars.
+        2. Local: same env vars set in .env file.
+
+        Args:
+            secret_name: Secret name (e.g. 'crm-db-connection-string').
+                         Converted to env var: CRM_DB_CONNECTION_STRING.
+
+        Returns:
+            The connection string value, or None if unavailable.
+        """
         env_var = secret_name.upper().replace("-", "_")
         value = os.getenv(env_var)
         if value:
             self.logger.info(f"Connection string resolved from env var: {env_var}")
         return value
 
+    def get_connection_string_from_env(self, env_var: str) -> str | None:
+        """Read a connection string directly from an environment variable.
+
+        This is the cleanest approach when the pipeline or ``.env`` file
+        sets a specific env-var name.
+
+        Args:
+            env_var: Environment variable name, e.g. 'CRM_DB_CONNECTION_STRING'.
+
+        Returns:
+            The connection string value, or None.
+        """
+        value = os.getenv(env_var)
+        if value:
+            self.logger.info(f"Connection string resolved from env var: {env_var}")
+        return value
+
     def get_vault_db_config(self, alias: str) -> dict:
-        """Get vault database config by alias from the YAML vault_databases section."""
-        if alias not in self.vault_databases:
+        """Get a database configuration by its alias from YAML.
+
+        Reads the ``database.vault_databases.<alias>`` section from the
+        environment YAML file::
+
+            vault_databases:
+              crm:
+                env_var: CRM_DB_CONNECTION_STRING
+                secret_name: crm-db-connection-string
+              billing:
+                env_var: AM_BILLING_CONNECTION_STRING
+                secret_name: am-billing-connection-string
+
+        The pipeline's ``AzureKeyVault@2`` task fetches the Key Vault secret
+        and injects it as the specified ``env_var``. Python never calls Key
+        Vault directly — it just reads ``os.getenv(env_var)``.
+
+        Args:
+            alias: Short alias for the database (e.g. 'crm', 'billing').
+
+        Returns:
+            dict with ``env_var``, ``secret_name``, and optionally ``driver``.
+
+        Raises:
+            ValueError: If the alias is not defined in the YAML.
+        """
+        vault_dbs = self.config.get("database", {}).get("vault_databases", {})
+        if alias not in vault_dbs:
+            available = list(vault_dbs.keys())
             raise ValueError(
-                f"Vault DB alias '{alias}' not found in config. "
-                f"Available: {list(self.vault_databases)}"
+                f"Vault database alias '{alias}' not found in config. " f"Available: {available}"
             )
-        return self.vault_databases[alias]
+        return vault_dbs[alias]
 
-    # ── outlook / mail ────────────────────────────────────────────────────────
+    def _load_config(self):
+        """Load configuration from YAML file."""
+        if not self.config_path.exists():
+            raise FileNotFoundError(f"Configuration file not found: {self.config_path}")
 
-    @property
-    def outlook_email(self) -> str:
-        from utils.crypto_utils import decrypt_value
-        raw = self._mail_config.get("outlook.email", "")
-        if raw:
-            try:
-                return decrypt_value(raw)
-            except Exception:
-                pass
-        return os.getenv("OUTLOOK_EMAIL") or self.config.get("outlook", {}).get("email", "")
+        with open(self.config_path, "r") as file:
+            return yaml.safe_load(file)
 
     @property
-    def outlook_password(self) -> str:
-        from utils.crypto_utils import decrypt_value
-        raw = self._mail_config.get("outlook.password", "")
-        if raw:
-            try:
-                return decrypt_value(raw)
-            except Exception:
-                pass
-        return (
-            os.getenv("OUTLOOK_PASSWORD")
-            or self.config.get("outlook", {}).get("password", "")
-        )
+    def base_url(self):
+        """Get base URL for the application."""
+        return self.config["application"]["base_url"]
 
     @property
-    def outlook_imap_server(self) -> str:
-        return (
-            self._mail_config.get("outlook.imap_server")
-            or os.getenv("OUTLOOK_IMAP_SERVER")
-            or self.config.get("outlook", {}).get("imap_server", "outlook.office365.com")
-        )
+    def login_url(self):
+        """Get login URL for the application."""
+        return self.config["application"].get("login_url", self.base_url)
 
     @property
-    def outlook_imap_port(self) -> int:
-        raw = self._mail_config.get("outlook.imap_port") or os.getenv("OUTLOOK_IMAP_PORT")
-        if raw:
-            try:
-                return int(raw)
-            except ValueError:
-                pass
+    def timeout(self):
+        """Get default timeout in milliseconds."""
+        return self.config["application"]["timeout"]
+
+    @property
+    def test_data_csv(self):
+        """Get path to test data CSV file."""
+        base_path = Path(__file__).parent.parent
+        return base_path / self.config["data"]["test_data_csv"]
+
+    @property
+    def test_data_excel(self):
+        """Get path to test data Excel file."""
+        excel_path = self.config.get("data", {}).get("test_data_excel")
+        if not excel_path:
+            return None
+        base_path = Path(__file__).parent.parent
+        return base_path / excel_path
+
+    @property
+    def screenshot_each_step(self):
+        """Check if screenshots should be taken after each BDD step."""
+        return self.config.get("test", {}).get("screenshot_each_step", False)
+
+    @property
+    def api_auth_token(self):
+        """Get API authorization token (env var → YAML fallback)."""
+        return os.getenv(f"{self.env.upper()}_API_AUTH_TOKEN") or os.getenv("API_AUTH_TOKEN") or self.config.get("api", {}).get("auth_token", "")
+
+    @property
+    def database_config(self):
+        """Get database configuration."""
+        return self.config.get("database", {})
+
+    @property
+    def vault_databases(self) -> dict:
+        """Get all configured vault database aliases."""
+        return self.config.get("database", {}).get("vault_databases", {})
+
+    def get_app_config(self, app_name: str) -> dict:
+        """
+        Get configuration for a specific application.
+
+        Args:
+            app_name: Application name (ewm, crm, etc.)
+
+        Returns:
+            dict: Application configuration of the specified app.
+
+        Raises:
+            ValueError: If application not found in config
+        """
+        apps = self.config.get("applications", {})
+        if app_name not in apps:
+            available = list(apps.keys())
+            raise ValueError(
+                f"Application '{app_name}' not found in config. Available: {available}"
+            )
+        return apps[app_name]
+
+    def get_available_apps(self) -> list:
+        """Get list of all configured applications."""
+        return list(self.config.get("applications", {}).keys())
+
+    def _load_queries(self):
+        """Load SQL queries from queries/naw/sql_queries.yaml once at init time."""
+        queries_path = Path(__file__).parent.parent / "queries" / "naw" / "sql_queries.yaml"
+        if not queries_path.exists():
+            self.logger.warning(f"Queries file not found: {queries_path}")
+            return {}
+
+        with open(queries_path, "r") as file:
+            return yaml.safe_load(file) or {}
+
+    @property
+    def database_queries(self):
+        """Get predefined database queries (loaded once from queries/sql_queries.yaml)."""
+        return self._queries
+
+    # --- Outlook Email (IMAP) ---
+
+    @property
+    def internal_admin_username(self):
+        """Get Internal Admin username for the current environment."""
+        return self.config.get("internal_admin", {}).get("username", "")
+
+    @property
+    def internal_admin_password(self):
+        """Get Internal Admin password for the current environment."""
+        return self.config.get("internal_admin", {}).get("password", "")
+
+    @property
+    def outlook_email(self):
+        """Get Outlook email address (YAML → env-var fallback)."""
+        return self.config.get("outlook", {}).get("email", "") or os.getenv("OUTLOOK_EMAIL", "")
+
+    @property
+    def outlook_password(self):
+        """Get Outlook password / app-password (env var → YAML fallback)."""
+        return os.getenv("OUTLOOK_PASSWORD", "") or self.config.get("outlook", {}).get("password", "")
+
+    @property
+    def outlook_imap_server(self):
+        """Get Outlook IMAP server. Defaults to outlook.office365.com."""
+        return self.config.get("outlook", {}).get("imap_server", "outlook.office365.com")
+
+    @property
+    def outlook_imap_port(self):
+        """Get Outlook IMAP port. Defaults to 993."""
         return self.config.get("outlook", {}).get("imap_port", 993)
 
-    # ── encryption ────────────────────────────────────────────────────────────
 
-    @property
-    def secret_key(self) -> str:
-        return self.config.get("secret_key", "") or os.getenv("ENCRYPTION_SECRET_KEY", "")
-
-
-# ── Lazy singleton ─────────────────────────────────────────────────────────────
-
-_instance: "Settings | None" = None
+# ---------------------------------------------------------------------------
+# Lazy singleton – environment resolved ONCE from TEST_ENV env-var
+# ---------------------------------------------------------------------------
+_settings_instance = None
 
 
 def get_settings() -> Settings:
-    """Return the lazily-created Settings singleton (created once per process)."""
-    global _instance
-    if _instance is None:
-        _instance = Settings(_resolve_config_path())
-    return _instance
+    """Return the lazily-initialised, environment-aware Settings singleton.
+
+    The environment is read from the ``TEST_ENV`` env-var which should be
+    set in the project-root ``.env`` file (or exported by CI/CD).
+    The instance is created on first call and cached for the process lifetime.
+
+    Raises:
+        RuntimeError: If ``TEST_ENV`` is not set anywhere.
+    """
+    global _settings_instance
+    if _settings_instance is None:
+        env = os.getenv("TEST_ENV")
+        if not env:
+            raise RuntimeError(
+                "TEST_ENV is not set. "
+                "Add TEST_ENV=<env-name> to the .env file in the project root, "
+                "or export it as an environment variable."
+            )
+        app = os.getenv("TEST_APP", "")
+        if not app:
+            raise RuntimeError(
+                "TEST_APP is not set. "
+                "Add TEST_APP=<app-name> (e.g. proposal, baw, naw, stp) to .env "
+                "or export it as an environment variable."
+            )
+        _settings_instance = Settings(env=env, app=app)
+    return _settings_instance
 
 
 def __getattr__(name: str):
-    """PEP 562 — allows: from config.settings import settings"""
+    """PEP 562 – allow ``from config.settings import settings``."""
     if name == "settings":
         return get_settings()
     raise AttributeError(f"module {__name__!r} has no attribute {name!r}")

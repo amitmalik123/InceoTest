@@ -1,0 +1,25 @@
+# Generated test artifacts
+allure-report/
+allure-results/
+assets/
+report.html
+reports/
+
+# Python
+__pycache__/
+*.py[cod]
+*.egg-info/
+.pytest_cache/
+.coverage
+htmlcov/
+
+# Playwright
+playwright-report/
+test-results/
+.auth/
+
+# IDE / OS
+.vscode/
+.idea/
+.DS_Store
+Thumbs.db

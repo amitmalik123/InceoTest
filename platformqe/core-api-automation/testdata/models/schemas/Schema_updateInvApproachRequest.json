@@ -7,11 +7,11 @@
       "type": "integer",
       "description": "HTTP-like status code"
     },
-    "error": {
+    "message": {
       "type": "string",
       "description": "Message describing the result"
     }
   },
-  "required": ["status", "error"],
+  "required": ["status", "message"],
   "additionalProperties": false
 }

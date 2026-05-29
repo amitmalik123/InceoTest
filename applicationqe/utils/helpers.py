@@ -7,14 +7,14 @@ Note: Specialized utilities are in dedicated modules:
 - Locator operations: pages/base_page.py (BasePage.empty_field())
 """
 
-import logging
+from __future__ import annotations
+
 import os
 from datetime import datetime
-from typing import Any, Dict, Optional
+from typing import TYPE_CHECKING, Any, Dict, Optional
 
-from playwright.sync_api import Locator
-
-logger = logging.getLogger(__name__)
+if TYPE_CHECKING:
+    from playwright.sync_api import Locator
 
 
 def get_timestamp(format: str = "%Y%m%d_%H%M%S") -> str:
@@ -173,3 +173,17 @@ def get_locator_attribute(
     except Exception as e:
         logger.error(f"✗ Failed to get attribute '{attribute_name}' from {element_name}: {e}")
         raise
+def random_number(length: int = 6) -> str:
+    """Generate a random numeric string of given length."""
+    return "".join(random.choices(string.digits, k=length))
+
+
+def random_alpha(length: int = 5) -> str:
+    """Generate a random alphabetic string of given length."""
+    return "".join(random.choices(string.ascii_lowercase, k=length))
+
+
+def random_alphanumeric(length: int = 8) -> str:
+    """Generate a random alphanumeric string of given length."""
+    return "".join(random.choices(string.ascii_letters + string.digits, k=length))
+

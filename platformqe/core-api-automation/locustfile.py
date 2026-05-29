@@ -35,7 +35,7 @@ from framework.common.logger import get_logger
 logger = get_logger(__name__)
 
 
-from locust import HttpUser, task, between, events
+from locust import HttpUser, task, between, constant_throughput, events
 import os
 import time
 import psutil
@@ -65,7 +65,20 @@ test_parameters = {}  # Store test parameters for metadata
 def get_args():
     import sys
     # Extract custom args before Locust processes them
-    custom_args = {'--folder': None, '--test_type': None, '--file': None, '--env': None}
+    custom_args = {'--folder': None, '--test_type': None, '--file': None, '--env': None, '--run_once': None, '--target_rps': None}
+    locust_users = None
+    for i, arg in enumerate(sys.argv):
+        if arg in ('-u', '--users') and i + 1 < len(sys.argv):
+            try:
+                locust_users = int(sys.argv[i + 1])
+            except (TypeError, ValueError):
+                locust_users = None
+        elif arg.startswith('--users='):
+            try:
+                locust_users = int(arg.split('=', 1)[1])
+            except (TypeError, ValueError):
+                locust_users = None
+
     new_argv = []
     skip_next = False
     for i, arg in enumerate(sys.argv):
@@ -86,6 +99,17 @@ def get_args():
     args.test_type = custom_args['--test_type'] or os.environ.get('LOCUST_TEST_TYPE', None)
     args.file = custom_args['--file'] or os.environ.get('LOCUST_FILE', None)
     args.env = custom_args['--env']
+    args.users = locust_users or int(os.environ.get('LOCUST_USERS', '1'))
+
+    run_once_raw = custom_args['--run_once'] or os.environ.get('LOCUST_RUN_ONCE', 'true')
+    args.run_once = str(run_once_raw).strip().lower() in ('true', '1', 'yes', 'y')
+
+    target_rps_raw = custom_args['--target_rps'] or os.environ.get('LOCUST_TARGET_RPS')
+    try:
+        args.target_rps = float(target_rps_raw) if target_rps_raw else None
+    except (TypeError, ValueError):
+        logger.warning(f"Invalid --target_rps value '{target_rps_raw}', using default wait_time")
+        args.target_rps = None
     
     # Set ENV_NAME from --env argument if provided, otherwise use existing environment variable or .env
     if args.env:
@@ -104,6 +128,19 @@ def get_args():
         logger.info(f"ENV_NAME already set in environment: '{os.environ.get('ENV_NAME')}'")
     
     return args
+
+def build_wait_time(args):
+    """Build Locust wait_time from optional aggregate target RPS."""
+    if args.target_rps and args.target_rps > 0 and args.users > 0:
+        per_user_rps = args.target_rps / args.users
+        logger.info(
+            f"Target aggregate RPS enabled: {args.target_rps} RPS across {args.users} users "
+            f"(~{per_user_rps:.4f} RPS/user)"
+        )
+        return constant_throughput(per_user_rps)
+
+    logger.info("No target RPS configured; using default wait_time between 1 and 3 seconds")
+    return between(1, 3)
 
 def load_testcases(folder=None, test_type=None, file=None):
     """Load testcases using framework's TestCaseLoader"""
@@ -226,6 +263,9 @@ test_parameters = {
     'test_type': args.test_type,
     'file': args.file,
     'env': args.env,
+    'run_once': args.run_once,
+    'target_rps': args.target_rps,
+    'users': args.users,
     'timestamp': datetime.now().strftime('%Y-%m-%d %H:%M:%S')
 }
 
@@ -319,7 +359,7 @@ except Exception as e:
     influx_enabled = False
 
 class APIPerformanceUser(HttpUser):
-    wait_time = between(1, 3)
+    wait_time = build_wait_time(args)
     host = api_base_url
 
     def on_start(self):
@@ -343,11 +383,13 @@ class APIPerformanceUser(HttpUser):
         
         logger.info(f"Loaded {len(TESTCASES)} testcases.")
         
-        # Run each test case only once to prevent infinite loop
-        if not hasattr(self, '_tests_executed'):
-            self._tests_executed = True
-        else:
-            return  # Skip if tests already executed
+        # Optional run-once mode preserves the legacy behavior.
+        # Set --run_once false to let each Locust user loop continuously until -t ends.
+        if args.run_once:
+            if not hasattr(self, '_tests_executed'):
+                self._tests_executed = True
+            else:
+                return  # Skip if tests already executed
         env_name = os.environ.get('ENV_NAME')
         
         for case in TESTCASES:
@@ -700,6 +742,42 @@ def on_test_stop(environment, **kwargs):
                    f"Network Sent: {bytes_sent:.2f} MB, Recv: {bytes_recv:.2f} MB, "
                    f"CPU Avg: {cpu_percent:.1f}%")
         
+        # Enrich test_parameters with sla_seconds & service_name so the
+        # Azure Log Analytics reporter can populate PerfRun_CL.SlaMs_d /
+        # PerfRun_CL.ServiceName without having to re-resolve them.
+        # Resolution order for SLA: env LOCUST_SLA_SECONDS -> config
+        # performance.sla_seconds -> testcase sla_seconds -> default 1.0s.
+        try:
+            sla_for_meta = None
+            sla_env_meta = (os.environ.get('LOCUST_SLA_SECONDS') or '').strip()
+            if sla_env_meta and not sla_env_meta.startswith('$('):
+                try:
+                    sla_for_meta = float(sla_env_meta)
+                except (TypeError, ValueError):
+                    sla_for_meta = None
+            if sla_for_meta is None:
+                try:
+                    perf_cfg = config.get('performance', {}) if isinstance(config, dict) else {}
+                    if 'sla_seconds' in perf_cfg:
+                        sla_for_meta = float(perf_cfg['sla_seconds'])
+                except (TypeError, ValueError):
+                    sla_for_meta = None
+            if sla_for_meta is None and TESTCASES:
+                tc_sla = TESTCASES[0].get('sla_seconds')
+                if tc_sla is not None:
+                    try:
+                        sla_for_meta = float(tc_sla)
+                    except (TypeError, ValueError):
+                        sla_for_meta = None
+            if sla_for_meta is None:
+                sla_for_meta = 1.0
+            test_parameters['sla_seconds'] = sla_for_meta
+
+            if TESTCASES and TESTCASES[0].get('service_name'):
+                test_parameters.setdefault('service_name', TESTCASES[0].get('service_name'))
+        except Exception as enrich_error:
+            logger.warning(f"[REPORT] Failed to enrich test_parameters for metadata: {enrich_error}")
+
         # Add monitoring data and test parameters to CSV stats
         stats = environment.stats
         stats.monitoring_data = monitoring_data
@@ -752,6 +830,69 @@ def on_test_stop(environment, **kwargs):
                 logger.info(f"[REPORT] Enhanced metadata written to: {metadata_file}")
             except Exception as write_error:
                 logger.error(f"[REPORT] Failed to write metadata file: {write_error}")
+
+            # Generate the custom executive summary HTML next to performance_report.html
+            try:
+                from framework.reporter.perf_summary_reporter import generate_executive_summary
+
+                # SLA threshold (seconds). Resolution order:
+                #   1. Env var LOCUST_SLA_SECONDS (set via Azure DevOps Library
+                #      variable group, queue-time variable, or shell export).
+                #   2. config.<env>.yaml -> performance.sla_seconds
+                #   3. Hard-coded default of 1.0 second
+                # Guards against unresolved Azure DevOps tokens (e.g. literal
+                # "$(LOCUST_SLA_SECONDS)") and empty / non-numeric values.
+                sla_seconds = 1.0
+                sla_source = 'default'
+                sla_env = (os.environ.get('LOCUST_SLA_SECONDS') or '').strip()
+                env_usable = bool(sla_env) and not sla_env.startswith('$(')
+                if env_usable:
+                    try:
+                        sla_seconds = float(sla_env)
+                        sla_source = 'env (LOCUST_SLA_SECONDS)'
+                    except (TypeError, ValueError):
+                        env_usable = False
+                if not env_usable:
+                    try:
+                        perf_cfg = config.get('performance', {}) if isinstance(config, dict) else {}
+                        if 'sla_seconds' in perf_cfg:
+                            sla_seconds = float(perf_cfg['sla_seconds'])
+                            sla_source = f'config.{test_parameters.get("env","")}.yaml -> performance.sla_seconds'
+                    except (TypeError, ValueError):
+                        sla_seconds = 1.0
+                        sla_source = 'default (config value invalid)'
+                logger.info(f"[REPORT] Using SLA threshold: {sla_seconds:.2f}s (source: {sla_source})")
+
+                # Derive service / objective from first testcase if available
+                svc_name = None
+                objective_text = None
+                try:
+                    if TESTCASES:
+                        svc_name = TESTCASES[0].get('service_name')
+                        first_endpoint = TESTCASES[0].get('endpoint') or ''
+                        first_method = TESTCASES[0].get('method', 'GET')
+                        first_name = TESTCASES[0].get('test_name', first_endpoint)
+                        objective_text = (
+                            f"Evaluate the performance of {first_method} {first_endpoint} "
+                            f"({first_name}) for {svc_name or 'service'}."
+                        )
+                except Exception:
+                    pass
+
+                summary_path = generate_executive_summary(
+                    csv_base=csv_base,
+                    test_parameters=test_parameters,
+                    monitoring_data=monitoring_data,
+                    sla_seconds=sla_seconds,
+                    service_name=svc_name,
+                    objective=objective_text,
+                    # Reporter normalizes vstfs:// URIs to real https URLs using
+                    # SYSTEM_COLLECTIONURI + SYSTEM_TEAMPROJECT + BUILD_BUILDID.
+                    azure_devops_url=os.environ.get('BUILD_BUILDURI'),
+                )
+                logger.info(f"[REPORT] Executive summary written to: {summary_path}")
+            except Exception as summary_error:
+                logger.error(f"[REPORT] Failed to generate executive summary: {summary_error}")
         else:
             logger.info("[REPORT] CSV reporting not enabled - metadata file not created")
     

@@ -1,0 +1,415 @@
+"""
+Authentication and Session Management Fixtures
+
+This module contains:
+- AppConfig class for multi-application configuration
+- Session file management (_get_session_file)
+- Login execution logic (_perform_login)
+- authenticated_page fixture (main auth fixture)
+- page fixture (backward compatible)
+- fresh_page fixture (for login testing)
+
+These fixtures handle authentication state persistence and multi-app support.
+"""
+
+from collections.abc import Generator
+from pathlib import Path
+from typing import Optional
+
+import pytest
+from playwright.sync_api import Page
+from playwright.sync_api import TimeoutError as PlaywrightTimeoutError
+
+from config.PortfolioReporting.settings import Settings, get_settings
+from pages.PortfolioReporting.login_page import LoginPage
+from tests.fixtures.browser_fixtures import apply_context_listeners, apply_route_blocks
+
+# Use centralized Settings singleton
+settings = get_settings()
+
+# Authentication state directory
+AUTH_STATE_DIR = Path("tests/.auth")
+
+
+# Session Storage Configuration
+class AppConfig:
+    """Configuration for different applications loaded from YAML config"""
+
+    def __init__(
+        self, name: str, login_url: str, home_url: str, login_page_class, timeout: int = 30000
+    ):
+        self.name = name
+        self.login_url = login_url
+        self.home_url = home_url
+        self.login_page_class = login_page_class
+        self.timeout = timeout
+
+
+def _load_app_configs(settings_obj: Settings) -> dict:
+    """
+    Load application configurations from YAML config files.
+
+    Returns:
+        dict: Dictionary of AppConfig objects keyed by app name
+    """
+    import importlib
+
+    app_configs = {}
+
+    # Get all configured apps from YAML
+    for app_name in settings_obj.get_available_apps():
+        app_data = settings_obj.get_app_config(app_name)
+
+        # Dynamically import the login page class
+        login_page_class_name = app_data.get("login_page_class", "LoginPage")
+        try:
+            # Import from pages module
+            pages_module = importlib.import_module("pages")
+            login_page_class = getattr(pages_module, login_page_class_name)
+        except (ImportError, AttributeError):
+            # Fallback to LoginPage if class not found
+            login_page_class = LoginPage
+            print(f"Warning: Could not import {login_page_class_name}, using LoginPage")
+
+        app_configs[app_name] = AppConfig(
+            name=app_data["name"],
+            login_url=app_data["login_url"],
+            home_url=app_data["home_url"],
+            login_page_class=login_page_class,
+            timeout=app_data.get("timeout", 30000),
+        )
+
+    return app_configs
+
+
+# Load application configurations from YAML
+APP_CONFIGS = _load_app_configs(settings)
+
+
+def _first_non_empty_value(data: dict, keys: tuple[str, ...]) -> str | None:
+    """Return the first non-empty value found for any of the provided keys."""
+    for key in keys:
+        value = data.get(key)
+        if value is not None and str(value).strip() != "":
+            return str(value).strip()
+    return None
+
+
+def _scenario_uses_impersonation(request) -> bool:
+    """Detect scenarios that must keep admin login before impersonation."""
+    scenario = getattr(getattr(request.node, "obj", None), "__scenario__", None)
+    for step in getattr(scenario, "steps", []) or []:
+        step_text = getattr(step, "name", None) or getattr(step, "step_name", None) or str(step)
+        if "impersonate into an agent" in str(step_text).lower():
+            return True
+    return False
+
+
+def _get_session_file(
+    username: str, app_name: str, worker_id: str, role: Optional[str] = None
+) -> Path:
+    """
+    Generate session file path based on role, username, app, and worker.
+    Format: {role}_{app_name}_{username}_{worker_id}.json
+    """
+    # Build session file name with role prefix if available
+
+    # if role:
+    #     base_name = f"{role}_{app_name}_{username}"
+    # else:
+    #     base_name = f"{app_name}_{username}"
+
+    base_name = f"{username}"
+
+    if worker_id != "master":
+        return AUTH_STATE_DIR / f"{base_name}_{worker_id}.json"
+    return AUTH_STATE_DIR / f"{base_name}.json"
+
+
+def _is_login_failure_url(url: str) -> bool:
+    """Return True when URL indicates user is still on a failed login state."""
+    normalized = (url or "").lower()
+    return "errorcode=" in normalized or "/account/login" in normalized
+
+
+def _perform_login(
+    page: Page,
+    app_config: AppConfig,
+    test_data: dict,
+    username: str | None = None,
+    password: str | None = None,
+) -> bool:
+    """
+    Perform login using the app-specific login page.
+
+    Returns:
+        bool: True if login successful, False otherwise
+    """
+    try:
+        # Derive base_url from login_url (strip the path portion)
+        from urllib.parse import urlparse
+
+        parsed = urlparse(app_config.login_url)
+        base_url = f"{parsed.scheme}://{parsed.netloc}/"
+
+        login_page = app_config.login_page_class(page, base_url=base_url)
+        login_page.navigate()
+        login_page.accept_cookies()
+        resolved_username = username or test_data.get("username", "default_user")
+        resolved_password = password or test_data.get("password", "default_password")
+        login_page.enter_username(resolved_username)
+        login_page.enter_password(resolved_password)
+        login_page.click_sign_in()
+        #    login_page.submit_login_form()
+
+        # Check if login successful
+        current_url = page.url
+        return not _is_login_failure_url(current_url)
+    except Exception as e:
+        print(f"[SESSION] Login error: {e}")
+        return False
+
+
+@pytest.fixture
+def authenticated_page(browser, browser_context_args, test_data, request) -> Generator[Page, None, None]:
+    """
+    Flexible authenticated page fixture supporting multiple applications.
+
+    Usage:
+        @pytest.mark.app("ewm")  # Default app
+        def test_ewm(authenticated_page):
+            authenticated_page.goto("/accounts")
+
+        @pytest.mark.app("app2")  # Different app
+        def test_app2(authenticated_page):
+            authenticated_page.goto("/dashboard")
+    """
+    import os
+    from datetime import datetime
+
+    # Get worker ID for parallel execution
+    worker_id = os.environ.get("PYTEST_XDIST_WORKER", "master")
+
+    # Get app from marker or use default
+    app_marker = request.node.get_closest_marker("app")
+    app_name = app_marker.args[0] if app_marker else "ewm"
+
+    # Bypass framework auto-login for newNavBar scenarios - login is handled
+    # manually in the 'Login application' step using NavbarLoginPage.
+    if request.node.get_closest_marker("newNavBar"):
+        print("[SESSION] newNavBar scenario detected - skipping framework auto-login")
+        temp_context = browser.new_context(ignore_https_errors=True)
+        temp_page = temp_context.new_page()
+        yield temp_page
+        temp_page.close()
+        temp_context.close()
+        return
+
+    # Get app configuration
+    if app_name not in APP_CONFIGS:
+        raise ValueError(f"Unknown app: {app_name}. Available: {list(APP_CONFIGS.keys())}")
+
+    app_config = APP_CONFIGS[app_name]
+    # Use row-specific Excel credentials by default. Keep admin login only for
+    # scenarios that explicitly perform agent impersonation.
+    if _scenario_uses_impersonation(request):
+        username = os.getenv("ADMIN_USERNAME") or "AG1634_SSO"
+        password = os.getenv("ADMIN_PASSWORD") or "QAAdminUser_33a"
+    else:
+        username = _first_non_empty_value(test_data, ("username", "UserName", "Username"))
+        password = _first_non_empty_value(test_data, ("password", "Password"))
+
+        if not username or not password:
+            username = os.getenv("ADMIN_USERNAME") or "AG1634_SSO"
+            password = os.getenv("ADMIN_PASSWORD") or "QAAdminUser_33a"
+
+    role = test_data.get("role")  # Get role from test data
+    session_file = _get_session_file(username, app_name, worker_id, role)
+    session_max_age_hours = 8
+
+    # Build context args: inherit video/viewport/recording settings from browser_context_args
+    # but exclude record_video_dir for the temporary login context
+    base_ctx_args = {k: v for k, v in browser_context_args.items()}
+
+    # Read tracing config from pytest CLI options
+    tracing_option = request.config.getoption("--tracing", default="off")
+    capture_trace = tracing_option in ("on", "retain-on-failure")
+
+    print(f"\n{'=' * 60}")
+    print(f"[SESSION] App: {app_name}")
+    print(f"[SESSION] Worker: {worker_id}")
+    print(f"[SESSION] Role: {role}")
+    print(f"[SESSION] Username: {username}")
+    print(f"[SESSION] Session file: {session_file.name}")
+    print(f"{'=' * 60}")
+
+    # Check if session is too old
+    if session_file.exists():
+        file_age = datetime.now() - datetime.fromtimestamp(session_file.stat().st_mtime)
+        file_age_hours = file_age.total_seconds() / 3600
+
+        if file_age_hours > session_max_age_hours:
+            print(f"[SESSION] Session too old ({file_age_hours:.1f}h), deleting...")
+            session_file.unlink()
+
+    # Try to load existing session
+    if session_file.exists():
+        print("[SESSION] Loading saved session...")
+        context = browser.new_context(storage_state=str(session_file), **base_ctx_args)
+        apply_route_blocks(context)
+        apply_context_listeners(context)
+        if capture_trace:
+            context.tracing.start(screenshots=True, snapshots=True, sources=True)
+        page = context.new_page()
+
+        # Navigate to home URL to activate session
+        print(f"[SESSION] Navigating to: {app_config.home_url}")
+        try:
+            page.goto(app_config.home_url, wait_until="domcontentloaded", timeout=30000)
+            page.wait_for_load_state("domcontentloaded", timeout=10000)
+        except PlaywrightTimeoutError:
+            print("[SESSION] Saved session navigation timed out, deleting stale session and re-authenticating...")
+            page.close()
+            context.close()
+            if session_file.exists():
+                session_file.unlink()
+
+        if session_file.exists():
+            # Verify session is still valid
+            if not _is_login_failure_url(page.url):
+                print("[SESSION] Session valid! Already authenticated.")
+                yield page
+                page.close()
+                context.close()
+                return
+            else:
+                # Session expired - close this context and delete session file
+                print("[SESSION] Session expired, deleting and re-authenticating...")
+                page.close()
+                context.close()
+                session_file.unlink()
+                # Fall through to login block below
+        # Verify session is still valid
+        if not _is_login_failure_url(page.url):
+            print("[SESSION] Session valid! Already authenticated.")
+            yield page
+            # Save trace on failure if configured
+            _stop_tracing(context, tracing_option, request)
+            page.close()
+            context.close()
+            return
+        else:
+            # Session expired - close this context and delete session file
+            print("[SESSION] Session expired, deleting and re-authenticating...")
+            if capture_trace:
+                context.tracing.stop()  # discard trace from expired session attempt
+            page.close()
+            context.close()
+            session_file.unlink()
+            # Fall through to login block below
+
+    # No session or expired - perform login in TEMPORARY context
+    if not session_file.exists():
+        print(f"[SESSION] No valid session, logging in to {app_name}...")
+
+        # Create temporary context for login (no video/trace needed)
+        temp_context = browser.new_context(ignore_https_errors=True)
+        temp_page = temp_context.new_page()
+
+        login_success = _perform_login(
+            temp_page,
+            app_config,
+            test_data,
+            username=username,
+            password=password,
+        )
+
+        if login_success:
+            # Save session from login context
+            AUTH_STATE_DIR.mkdir(parents=True, exist_ok=True)
+            temp_context.storage_state(path=str(session_file))
+            print("[SESSION] Login successful! Session saved.")
+        else:
+            print("[SESSION] Login failed - still on login page")
+            temp_page.close()
+            temp_context.close()
+            raise RuntimeError("Login failed - cannot proceed without authentication")
+
+        # Close temporary login context
+        print("[SESSION] Closing login context...")
+        temp_page.close()
+        temp_context.close()
+
+        # Create NEW context with saved session and full recording settings
+        print("[SESSION] Creating new context with saved session...")
+        context = browser.new_context(storage_state=str(session_file), **base_ctx_args)
+        apply_route_blocks(context)
+        apply_context_listeners(context)
+        if capture_trace:
+            context.tracing.start(screenshots=True, snapshots=True, sources=True)
+        page = context.new_page()
+
+        # Navigate to home page
+        print(f"[SESSION] Navigating to: {app_config.home_url}")
+        page.goto(app_config.home_url, wait_until="domcontentloaded", timeout=30000)
+        page.wait_for_load_state("domcontentloaded", timeout=10000)
+        print("[SESSION] Ready for test execution!")
+
+        yield page
+
+        _stop_tracing(context, tracing_option, request)
+        page.close()
+        context.close()
+
+
+def _stop_tracing(context, tracing_option: str, request) -> None:
+    """Stop tracing and save the trace file based on the tracing option."""
+    if tracing_option == "off":
+        return
+
+    failed = request.node.rep_call.failed if hasattr(request.node, "rep_call") else False
+    # Also check for setup failure
+    if not failed:
+        failed = getattr(getattr(request.node, "rep_setup", None), "failed", False)
+
+    if tracing_option == "on" or (tracing_option == "retain-on-failure" and failed):
+        trace_dir = Path("reports/PortfolioReporting/traces")
+        trace_dir.mkdir(parents=True, exist_ok=True)
+        trace_path = trace_dir / f"{request.node.name}.zip"
+        try:
+            context.tracing.stop(path=str(trace_path))
+            print(f"[TRACE] Saved: {trace_path}")
+        except Exception as e:
+            print(f"[TRACE] Failed to save: {e}")
+    else:
+        try:
+            context.tracing.stop()  # Stop without saving
+        except Exception:
+            pass
+
+
+@pytest.fixture
+def fresh_page(browser, browser_context_args) -> Generator[Page, None, None]:
+    """
+    Provides a fresh page WITHOUT authentication.
+    Use this when you need to test login flow or unauthenticated access.
+
+    Usage:
+        def test_login(fresh_page):
+            fresh_page.goto("/login")
+            # No session - test login flow
+    """
+    context = browser.new_context(**browser_context_args)
+    apply_route_blocks(context)
+    apply_context_listeners(context)
+    page = context.new_page()
+
+    yield page
+
+    context.close()
+
+
+@pytest.fixture
+def page(authenticated_page: Page) -> Page:
+    """Backwards-compatible page fixture bound to authenticated session."""
+    return authenticated_page

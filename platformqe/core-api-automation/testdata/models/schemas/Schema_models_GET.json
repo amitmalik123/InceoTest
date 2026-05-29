@@ -31,7 +31,7 @@
             }
           },
           "metadata": {
-            "type": "object"
+            "type": ["object", "null"]
           },
           "versions": {
             "type": "array",
@@ -73,8 +73,30 @@
                       "type": "array",
                       "items": {}
                     },
-                    "tenYearReturn": { "type": "number" },
-                    "tenYearVolatility": { "type": "number" }
+                    "tenYearReturn": {
+                      "oneOf": [
+                        { "type": "number" },
+                        {
+                          "type": "object",
+                          "properties": {
+                            "annualized": { "type": "number" },
+                            "cumulative": { "type": "number" }
+                          }
+                        }
+                      ]
+                    },
+                    "tenYearVolatility": {
+                      "oneOf": [
+                        { "type": "number" },
+                        {
+                          "type": "object",
+                          "properties": {
+                            "annualized": { "type": "number" },
+                            "cumulative": { "type": "number" }
+                          }
+                        }
+                      ]
+                    }
                   }
                 },
                 "version": { "type": "integer" },

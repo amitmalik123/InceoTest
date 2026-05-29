@@ -10,7 +10,7 @@
             "Setup"
         ],
         "mainURL": "{{base_url}}",
-        "endpoint": "/investmentapproach",
+        "endpoint": "/investment-approaches",
         "method": "POST",
         "rpc_method": "",
         "graphql_query": "",
@@ -69,7 +69,7 @@
             "Functional"
         ],
         "mainURL": "{{base_url}}",
-        "endpoint": "/investmentapproach/{{first_investment_approach_id}}",
+        "endpoint": "/investment-approaches/{{first_investment_approach_id}}",
         "method": "PUT",
         "headers_additional": {
             "Content-Type": "application/json"
@@ -81,7 +81,7 @@
         "expected_response_schema": "models/schemas/Schema_updateInvApproachRequest.json",
         "expected_response": {
             "status": 200,
-            "error": "Request successful"
+            "message": "Request successful"
         },
         "ignore_fields": [
             "id"
@@ -113,7 +113,7 @@
                 },
                 {
                     "source": "api_response",
-                    "source_array_path": "error",
+                    "source_array_path": "message",
                     "target": "literal",
                     "target_literal": "Request successful",
                     "comparison_name": "Verify Message is 'Request successful'"
@@ -138,7 +138,7 @@
             "Database Validation"
         ],
         "mainURL": "{{base_url}}",
-        "endpoint": "/investmentapproach/{{first_investment_approach_id}}",
+        "endpoint": "/investment-approaches/{{first_investment_approach_id}}",
         "method": "PUT",
         "headers_additional": {
             "Content-Type": "application/json"
@@ -151,7 +151,7 @@
         "expected_response_schema": "models/schemas/Schema_updateInvApproachRequest.json",
         "expected_response": {
             "status": 200,
-            "error": "Request successful"
+            "message": "Request successful"
         },
         "ignore_fields": [
             "id"
@@ -183,7 +183,7 @@
                 },
                 {
                     "source": "api_response",
-                    "source_array_path": "error",
+                    "source_array_path": "message",
                     "target": "literal",
                     "target_literal": "Request successful",
                     "comparison_name": "Verify Message is 'Request successful'"
@@ -224,7 +224,7 @@
             "Negative"
         ],
         "mainURL": "{{base_url}}",
-        "endpoint": "/investmentapproach/not_an_integer",
+        "endpoint": "/investment-approaches/not_an_integer",
         "method": "PUT",
         "headers_additional": {
             "Content-Type": "application/json"
@@ -233,12 +233,42 @@
         "expected_status": "500",
         "expected_response_schema": "models/schemas/Schema_investmentapproachid_500.json",
         "expected_response": {
-            "title": "Unhandled Server Error",
+            "type": "https://assetmark.atlassian.net/wiki/spaces/PE/pages/2303590438/Standard+Error+Codes+and+Messaging#server-error",
+            "title": "Internal Server Error",
             "status": 500,
-            "detail": "Failed to bind parameter \"int id\" from \"not_an_integer\"."
+            "detail": "An unexpected error occurred. Please try again later.",
+            "instance": "/api/models/v1/investment-approaches/not_an_integer"
         },
-        "ignore_fields": [],
-        "extract_values": [],
+        "ignore_fields": [
+            "instance"
+        ],
+        "extract_values": [
+            {
+                "from": "response",
+                "key": "type",
+                "assign_to": "iaput04_type"
+            },
+            {
+                "from": "response",
+                "key": "title",
+                "assign_to": "iaput04_title"
+            },
+            {
+                "from": "response",
+                "key": "status",
+                "assign_to": "iaput04_status"
+            },
+            {
+                "from": "response",
+                "key": "detail",
+                "assign_to": "iaput04_detail"
+            },
+            {
+                "from": "response",
+                "key": "instance",
+                "assign_to": "iaput04_instance"
+            }
+        ],
         "validate": {
             "performance": {
                 "max_response_time_ms": null
@@ -255,8 +285,100 @@
                     "source": "api_response",
                     "source_array_path": "title",
                     "target": "literal",
-                    "target_literal": "Unhandled Server Error",
+                    "target_literal": "Internal Server Error",
                     "comparison_name": "Verify error title"
+                }
+            ],
+            "assertions": [
+                {
+                    "actual": "{{iaput04_type}}",
+                    "operator": "!=",
+                    "expected": "ResourceNotFound",
+                    "message": "AC2: type must not be non-URI value 'ResourceNotFound'"
+                },
+                {
+                    "actual": "{{iaput04_type}}",
+                    "operator": "!=",
+                    "expected": "InvalidInput",
+                    "message": "AC2: type must not be non-URI value 'InvalidInput'"
+                },
+                {
+                    "actual": "{{iaput04_type}}",
+                    "operator": "!=",
+                    "expected": "BusinessRuleViolation",
+                    "message": "AC2: type must not be non-URI value 'BusinessRuleViolation'"
+                },
+                {
+                    "actual": "{{iaput04_type}}",
+                    "operator": "!=",
+                    "expected": null,
+                    "message": "AC1: type field must be present"
+                },
+                {
+                    "actual": "{{iaput04_type}}",
+                    "operator": "!=",
+                    "expected": "",
+                    "message": "AC2: type must not be empty string"
+                },
+                {
+                    "actual": "{{iaput04_title}}",
+                    "operator": "!=",
+                    "expected": "Model.NotFound",
+                    "message": "AC3: title must not be internal code 'Model.NotFound'"
+                },
+                {
+                    "actual": "{{iaput04_title}}",
+                    "operator": "!=",
+                    "expected": "Model.InvalidId",
+                    "message": "AC3: title must not be internal code 'Model.InvalidId'"
+                },
+                {
+                    "actual": "{{iaput04_title}}",
+                    "operator": "!=",
+                    "expected": "Model.MismatchVersionModelId",
+                    "message": "AC3: title must not be internal code 'Model.MismatchVersionModelId'"
+                },
+                {
+                    "actual": "{{iaput04_title}}",
+                    "operator": "!=",
+                    "expected": null,
+                    "message": "AC1: title must be present"
+                },
+                {
+                    "actual": "{{iaput04_title}}",
+                    "operator": "!=",
+                    "expected": "",
+                    "message": "AC3: title must not be empty string"
+                },
+                {
+                    "actual": "{{iaput04_status}}",
+                    "operator": "==",
+                    "expected": 500,
+                    "message": "AC4: status in body must equal HTTP 500"
+                },
+                {
+                    "actual": "{{iaput04_detail}}",
+                    "operator": "!=",
+                    "expected": null,
+                    "message": "AC1: detail must be present"
+                },
+                {
+                    "actual": "{{iaput04_detail}}",
+                    "operator": "!=",
+                    "expected": "",
+                    "message": "AC1: detail must not be empty"
+                },
+                {
+                    "actual": "{{iaput04_instance}}",
+                    "operator": "!=",
+                    "expected": null,
+                    "message": "AC5: instance must be present"
+                },
+                {
+                    "actual": "{{iaput04_instance}}",
+                    "operator": "!=",
+                    "expected": "",
+                    "message": "AC5: instance must contain the request path"
                 }
             ]
         },
@@ -276,7 +398,7 @@
             "Negative"
         ],
         "mainURL": "{{base_url}}",
-        "endpoint": "/investmentapproach/123",
+        "endpoint": "/investment-approaches/123",
         "method": "PUT",
         "headers_additional": {
             "Content-Type": "application/json"
@@ -289,12 +411,42 @@
         "expected_status": "400",
         "expected_response_schema": "models/schemas/Schema_investmentapproachid_400.json",
         "expected_response": {
+            "type": "https://assetmark.atlassian.net/wiki/spaces/PE/pages/2303590438/Standard+Error+Codes+and+Messaging#invalid-json",
             "title": "Invalid JSON",
             "status": 400,
-            "detail": "Invalid JSON payload: The JSON property 'id' could not be mapped to any .NET member contained in type 'UpdateInvApproachRequest'. Check field 'id'."
+            "detail": "Invalid JSON payload: The JSON property 'id' could not be mapped to any .NET member contained in type 'UpdateInvApproachRequest'. Check field 'id'.",
+            "instance": "/api/models/v1/investment-approaches/123"
         },
-        "ignore_fields": [],
-        "extract_values": [],
+        "ignore_fields": [
+            "instance"
+        ],
+        "extract_values": [
+            {
+                "from": "response",
+                "key": "type",
+                "assign_to": "iaput05_type"
+            },
+            {
+                "from": "response",
+                "key": "title",
+                "assign_to": "iaput05_title"
+            },
+            {
+                "from": "response",
+                "key": "status",
+                "assign_to": "iaput05_status"
+            },
+            {
+                "from": "response",
+                "key": "detail",
+                "assign_to": "iaput05_detail"
+            },
+            {
+                "from": "response",
+                "key": "instance",
+                "assign_to": "iaput05_instance"
+            }
+        ],
         "validate": {
             "performance": {
                 "max_response_time_ms": null
@@ -314,6 +466,98 @@
                     "target_literal": "Invalid JSON",
                     "comparison_name": "Verify error title"
                 }
+            ],
+            "assertions": [
+                {
+                    "actual": "{{iaput05_type}}",
+                    "operator": "!=",
+                    "expected": "ResourceNotFound",
+                    "message": "AC2: type must not be non-URI value 'ResourceNotFound'"
+                },
+                {
+                    "actual": "{{iaput05_type}}",
+                    "operator": "!=",
+                    "expected": "InvalidInput",
+                    "message": "AC2: type must not be non-URI value 'InvalidInput'"
+                },
+                {
+                    "actual": "{{iaput05_type}}",
+                    "operator": "!=",
+                    "expected": "BusinessRuleViolation",
+                    "message": "AC2: type must not be non-URI value 'BusinessRuleViolation'"
+                },
+                {
+                    "actual": "{{iaput05_type}}",
+                    "operator": "!=",
+                    "expected": null,
+                    "message": "AC1: type field must be present"
+                },
+                {
+                    "actual": "{{iaput05_type}}",
+                    "operator": "!=",
+                    "expected": "",
+                    "message": "AC2: type must not be empty string"
+                },
+                {
+                    "actual": "{{iaput05_title}}",
+                    "operator": "!=",
+                    "expected": "Model.NotFound",
+                    "message": "AC3: title must not be internal code 'Model.NotFound'"
+                },
+                {
+                    "actual": "{{iaput05_title}}",
+                    "operator": "!=",
+                    "expected": "Model.InvalidId",
+                    "message": "AC3: title must not be internal code 'Model.InvalidId'"
+                },
+                {
+                    "actual": "{{iaput05_title}}",
+                    "operator": "!=",
+                    "expected": "Model.MismatchVersionModelId",
+                    "message": "AC3: title must not be internal code 'Model.MismatchVersionModelId'"
+                },
+                {
+                    "actual": "{{iaput05_title}}",
+                    "operator": "!=",
+                    "expected": null,
+                    "message": "AC1: title must be present"
+                },
+                {
+                    "actual": "{{iaput05_title}}",
+                    "operator": "!=",
+                    "expected": "",
+                    "message": "AC3: title must not be empty string"
+                },
+                {
+                    "actual": "{{iaput05_status}}",
+                    "operator": "==",
+                    "expected": 400,
+                    "message": "AC4: status in body must equal HTTP 400"
+                },
+                {
+                    "actual": "{{iaput05_detail}}",
+                    "operator": "!=",
+                    "expected": null,
+                    "message": "AC1: detail must be present"
+                },
+                {
+                    "actual": "{{iaput05_detail}}",
+                    "operator": "!=",
+                    "expected": "",
+                    "message": "AC1: detail must not be empty"
+                },
+                {
+                    "actual": "{{iaput05_instance}}",
+                    "operator": "!=",
+                    "expected": null,
+                    "message": "AC5: instance must be present"
+                },
+                {
+                    "actual": "{{iaput05_instance}}",
+                    "operator": "!=",
+                    "expected": "",
+                    "message": "AC5: instance must contain the request path"
+                }
             ]
         },
         "test_data_file": "",
@@ -326,33 +570,151 @@
         "test_id": "TC006",
         "service_name": "models",
         "workflow_mode": "sequential",
-        "test_name": "Update Investment Approach - Negative: Invalid Payload (TC006)",
+        "test_name": "Update Investment Approach - Negative: Invalid Payload POST to /investment-approaches (TC006)",
         "protocol": "REST",
         "test_type": [
             "Negative"
         ],
         "mainURL": "{{base_url}}",
-        "endpoint": "/investmentapproach/123",
+        "endpoint": "/investment-approaches",
         "method": "POST",
         "headers_additional": {
             "Content-Type": "application/json"
         },
         "payload": "models/payloads/Payload_UpdateInvApproachRequest_invalid.json",
-        "expected_status": "405",
-        "expected_response_schema": "",
+        "expected_status": "400",
+        "expected_response_schema": "models/schemas/Schema_investmentapproachid_400.json",
         "expected_response": null,
         "ignore_fields": [],
-        "extract_values": [],
+        "extract_values": [
+            {
+                "from": "response",
+                "key": "type",
+                "assign_to": "iaput06_type"
+            },
+            {
+                "from": "response",
+                "key": "title",
+                "assign_to": "iaput06_title"
+            },
+            {
+                "from": "response",
+                "key": "status",
+                "assign_to": "iaput06_status"
+            },
+            {
+                "from": "response",
+                "key": "detail",
+                "assign_to": "iaput06_detail"
+            },
+            {
+                "from": "response",
+                "key": "instance",
+                "assign_to": "iaput06_instance"
+            }
+        ],
         "validate": {
             "performance": {
                 "max_response_time_ms": null
-            }
+            },
+            "assertions": [
+                {
+                    "actual": "{{iaput06_type}}",
+                    "operator": "!=",
+                    "expected": "ResourceNotFound",
+                    "message": "AC2: type must not be non-URI value 'ResourceNotFound'"
+                },
+                {
+                    "actual": "{{iaput06_type}}",
+                    "operator": "!=",
+                    "expected": "InvalidInput",
+                    "message": "AC2: type must not be non-URI value 'InvalidInput'"
+                },
+                {
+                    "actual": "{{iaput06_type}}",
+                    "operator": "!=",
+                    "expected": "BusinessRuleViolation",
+                    "message": "AC2: type must not be non-URI value 'BusinessRuleViolation'"
+                },
+                {
+                    "actual": "{{iaput06_type}}",
+                    "operator": "!=",
+                    "expected": null,
+                    "message": "AC1: type field must be present"
+                },
+                {
+                    "actual": "{{iaput06_type}}",
+                    "operator": "!=",
+                    "expected": "",
+                    "message": "AC2: type must not be empty string"
+                },
+                {
+                    "actual": "{{iaput06_title}}",
+                    "operator": "!=",
+                    "expected": "Model.NotFound",
+                    "message": "AC3: title must not be internal code 'Model.NotFound'"
+                },
+                {
+                    "actual": "{{iaput06_title}}",
+                    "operator": "!=",
+                    "expected": "Model.InvalidId",
+                    "message": "AC3: title must not be internal code 'Model.InvalidId'"
+                },
+                {
+                    "actual": "{{iaput06_title}}",
+                    "operator": "!=",
+                    "expected": "Model.MismatchVersionModelId",
+                    "message": "AC3: title must not be internal code 'Model.MismatchVersionModelId'"
+                },
+                {
+                    "actual": "{{iaput06_title}}",
+                    "operator": "!=",
+                    "expected": null,
+                    "message": "AC1: title must be present"
+                },
+                {
+                    "actual": "{{iaput06_title}}",
+                    "operator": "!=",
+                    "expected": "",
+                    "message": "AC3: title must not be empty string"
+                },
+                {
+                    "actual": "{{iaput06_status}}",
+                    "operator": "==",
+                    "expected": 400,
+                    "message": "AC4: status in body must equal HTTP 400"
+                },
+                {
+                    "actual": "{{iaput06_detail}}",
+                    "operator": "!=",
+                    "expected": null,
+                    "message": "AC1: detail must be present"
+                },
+                {
+                    "actual": "{{iaput06_detail}}",
+                    "operator": "!=",
+                    "expected": "",
+                    "message": "AC1: detail must not be empty"
+                },
+                {
+                    "actual": "{{iaput06_instance}}",
+                    "operator": "!=",
+                    "expected": null,
+                    "message": "AC5: instance must be present"
+                },
+                {
+                    "actual": "{{iaput06_instance}}",
+                    "operator": "!=",
+                    "expected": "",
+                    "message": "AC5: instance must contain the request path"
+                }
+            ]
         },
         "test_data_file": "",
         "db_query": "",
         "db_type": "",
         "db_connection_name": "",
-        "test_summary": "Test TC006: Send a POST request to a PUT-only endpoint and verify that the server returns a 405 Method Not Allowed."
+        "test_summary": "Test TC006: Send a POST request with an invalid payload to /investment-approaches and verify that the server returns a 400 Bad Request."
     },
     {
         "test_id": "TC007",
@@ -365,17 +727,43 @@
             "Smoke"
         ],
         "mainURL": "{{base_url}}",
-        "endpoint": "/investmentapproach/123",
+        "endpoint": "/investment-approaches/123",
         "method": "PUT",
         "headers_additional": {
             "Content-Type": "application/json"
         },
         "payload": "0",
         "expected_status": "400",
-        "expected_response_schema": "",
+        "expected_response_schema": "models/schemas/Schema_error_400.json",
         "expected_response": null,
         "ignore_fields": [],
-        "extract_values": [],
+        "extract_values": [
+            {
+                "from": "response",
+                "key": "type",
+                "assign_to": "iaput07_type"
+            },
+            {
+                "from": "response",
+                "key": "title",
+                "assign_to": "iaput07_title"
+            },
+            {
+                "from": "response",
+                "key": "status",
+                "assign_to": "iaput07_status"
+            },
+            {
+                "from": "response",
+                "key": "detail",
+                "assign_to": "iaput07_detail"
+            },
+            {
+                "from": "response",
+                "key": "instance",
+                "assign_to": "iaput07_instance"
+            }
+        ],
         "validate": {
             "performance": {
                 "max_response_time_ms": null
@@ -387,6 +775,98 @@
                     "target": "literal",
                     "target_literal": 400,
                     "comparison_name": "Verify status is 400"
+                }
+            ],
+            "assertions": [
+                {
+                    "actual": "{{iaput07_type}}",
+                    "operator": "!=",
+                    "expected": "ResourceNotFound",
+                    "message": "AC2: type must not be non-URI value 'ResourceNotFound'"
+                },
+                {
+                    "actual": "{{iaput07_type}}",
+                    "operator": "!=",
+                    "expected": "InvalidInput",
+                    "message": "AC2: type must not be non-URI value 'InvalidInput'"
+                },
+                {
+                    "actual": "{{iaput07_type}}",
+                    "operator": "!=",
+                    "expected": "BusinessRuleViolation",
+                    "message": "AC2: type must not be non-URI value 'BusinessRuleViolation'"
+                },
+                {
+                    "actual": "{{iaput07_type}}",
+                    "operator": "!=",
+                    "expected": null,
+                    "message": "AC1: type field must be present"
+                },
+                {
+                    "actual": "{{iaput07_type}}",
+                    "operator": "!=",
+                    "expected": "",
+                    "message": "AC2: type must not be empty string"
+                },
+                {
+                    "actual": "{{iaput07_title}}",
+                    "operator": "!=",
+                    "expected": "Model.NotFound",
+                    "message": "AC3: title must not be internal code 'Model.NotFound'"
+                },
+                {
+                    "actual": "{{iaput07_title}}",
+                    "operator": "!=",
+                    "expected": "Model.InvalidId",
+                    "message": "AC3: title must not be internal code 'Model.InvalidId'"
+                },
+                {
+                    "actual": "{{iaput07_title}}",
+                    "operator": "!=",
+                    "expected": "Model.MismatchVersionModelId",
+                    "message": "AC3: title must not be internal code 'Model.MismatchVersionModelId'"
+                },
+                {
+                    "actual": "{{iaput07_title}}",
+                    "operator": "!=",
+                    "expected": null,
+                    "message": "AC1: title must be present"
+                },
+                {
+                    "actual": "{{iaput07_title}}",
+                    "operator": "!=",
+                    "expected": "",
+                    "message": "AC3: title must not be empty string"
+                },
+                {
+                    "actual": "{{iaput07_status}}",
+                    "operator": "==",
+                    "expected": 400,
+                    "message": "AC4: status in body must equal HTTP 400"
+                },
+                {
+                    "actual": "{{iaput07_detail}}",
+                    "operator": "!=",
+                    "expected": null,
+                    "message": "AC1: detail must be present"
+                },
+                {
+                    "actual": "{{iaput07_detail}}",
+                    "operator": "!=",
+                    "expected": "",
+                    "message": "AC1: detail must not be empty"
+                },
+                {
+                    "actual": "{{iaput07_instance}}",
+                    "operator": "!=",
+                    "expected": null,
+                    "message": "AC5: instance must be present"
+                },
+                {
+                    "actual": "{{iaput07_instance}}",
+                    "operator": "!=",
+                    "expected": "",
+                    "message": "AC5: instance must contain the request path"
                 }
             ]
         },
@@ -407,7 +887,7 @@
             "Smoke"
         ],
         "mainURL": "{{base_url}}",
-        "endpoint": "/investmentapproach/123",
+        "endpoint": "/investment-approaches/123",
         "method": "PUT",
         "headers_additional": {
             "Content-Type": "application/json"
@@ -416,10 +896,31 @@
             "name": ""
         },
         "expected_status": "422",
-        "expected_response_schema": "",
+        "expected_response_schema": "models/schemas/Schema_investmentapproachid_422_error.json",
         "expected_response": null,
         "ignore_fields": [],
-        "extract_values": [],
+        "extract_values": [
+            {
+                "from": "response",
+                "key": "type",
+                "assign_to": "iaput08_type"
+            },
+            {
+                "from": "response",
+                "key": "title",
+                "assign_to": "iaput08_title"
+            },
+            {
+                "from": "response",
+                "key": "status",
+                "assign_to": "iaput08_status"
+            },
+            {
+                "from": "response",
+                "key": "instance",
+                "assign_to": "iaput08_instance"
+            }
+        ],
         "validate": {
             "performance": {
                 "max_response_time_ms": null
@@ -431,6 +932,62 @@
                     "target": "literal",
                     "target_literal": 422,
                     "comparison_name": "Verify status is 422"
+                }
+            ],
+            "assertions": [
+                {
+                    "actual": "{{iaput08_type}}",
+                    "operator": "!=",
+                    "expected": "ResourceNotFound",
+                    "message": "AC2: type must not be non-URI 'ResourceNotFound'"
+                },
+                {
+                    "actual": "{{iaput08_type}}",
+                    "operator": "!=",
+                    "expected": "InvalidInput",
+                    "message": "AC2: type must not be non-URI 'InvalidInput'"
+                },
+                {
+                    "actual": "{{iaput08_type}}",
+                    "operator": "!=",
+                    "expected": null,
+                    "message": "AC1: type field must be present"
+                },
+                {
+                    "actual": "{{iaput08_type}}",
+                    "operator": "!=",
+                    "expected": "",
+                    "message": "AC2: type must not be empty string"
+                },
+                {
+                    "actual": "{{iaput08_title}}",
+                    "operator": "!=",
+                    "expected": null,
+                    "message": "AC1: title must be present"
+                },
+                {
+                    "actual": "{{iaput08_title}}",
+                    "operator": "!=",
+                    "expected": "",
+                    "message": "AC3: title must not be empty string"
+                },
+                {
+                    "actual": "{{iaput08_status}}",
+                    "operator": "==",
+                    "expected": 422,
+                    "message": "AC4: status in body must equal HTTP 422"
+                },
+                {
+                    "actual": "{{iaput08_instance}}",
+                    "operator": "!=",
+                    "expected": null,
+                    "message": "AC5: instance must be present"
+                },
+                {
+                    "actual": "{{iaput08_instance}}",
+                    "operator": "!=",
+                    "expected": "",
+                    "message": "AC5: instance must contain the request path"
                 }
             ]
         },
@@ -451,7 +1008,7 @@
             "Smoke"
         ],
         "mainURL": "{{base_url}}",
-        "endpoint": "/investmentapproach/{{first_investment_approach_id}}",
+        "endpoint": "/investment-approaches/{{first_investment_approach_id}}",
         "method": "PUT",
         "headers_additional": {
             "Content-Type": "application/json"
@@ -461,10 +1018,36 @@
             "invalidField": 123
         },
         "expected_status": "400",
-        "expected_response_schema": "",
+        "expected_response_schema": "models/schemas/Schema_error_400.json",
         "expected_response": null,
         "ignore_fields": [],
-        "extract_values": [],
+        "extract_values": [
+            {
+                "from": "response",
+                "key": "type",
+                "assign_to": "iaput09_type"
+            },
+            {
+                "from": "response",
+                "key": "title",
+                "assign_to": "iaput09_title"
+            },
+            {
+                "from": "response",
+                "key": "status",
+                "assign_to": "iaput09_status"
+            },
+            {
+                "from": "response",
+                "key": "detail",
+                "assign_to": "iaput09_detail"
+            },
+            {
+                "from": "response",
+                "key": "instance",
+                "assign_to": "iaput09_instance"
+            }
+        ],
         "validate": {
             "performance": {
                 "max_response_time_ms": null
@@ -476,6 +1059,98 @@
                     "target": "literal",
                     "target_literal": 400,
                     "comparison_name": "Verify status is 400"
+                }
+            ],
+            "assertions": [
+                {
+                    "actual": "{{iaput09_type}}",
+                    "operator": "!=",
+                    "expected": "ResourceNotFound",
+                    "message": "AC2: type must not be non-URI value 'ResourceNotFound'"
+                },
+                {
+                    "actual": "{{iaput09_type}}",
+                    "operator": "!=",
+                    "expected": "InvalidInput",
+                    "message": "AC2: type must not be non-URI value 'InvalidInput'"
+                },
+                {
+                    "actual": "{{iaput09_type}}",
+                    "operator": "!=",
+                    "expected": "BusinessRuleViolation",
+                    "message": "AC2: type must not be non-URI value 'BusinessRuleViolation'"
+                },
+                {
+                    "actual": "{{iaput09_type}}",
+                    "operator": "!=",
+                    "expected": null,
+                    "message": "AC1: type field must be present"
+                },
+                {
+                    "actual": "{{iaput09_type}}",
+                    "operator": "!=",
+                    "expected": "",
+                    "message": "AC2: type must not be empty string"
+                },
+                {
+                    "actual": "{{iaput09_title}}",
+                    "operator": "!=",
+                    "expected": "Model.NotFound",
+                    "message": "AC3: title must not be internal code 'Model.NotFound'"
+                },
+                {
+                    "actual": "{{iaput09_title}}",
+                    "operator": "!=",
+                    "expected": "Model.InvalidId",
+                    "message": "AC3: title must not be internal code 'Model.InvalidId'"
+                },
+                {
+                    "actual": "{{iaput09_title}}",
+                    "operator": "!=",
+                    "expected": "Model.MismatchVersionModelId",
+                    "message": "AC3: title must not be internal code 'Model.MismatchVersionModelId'"
+                },
+                {
+                    "actual": "{{iaput09_title}}",
+                    "operator": "!=",
+                    "expected": null,
+                    "message": "AC1: title must be present"
+                },
+                {
+                    "actual": "{{iaput09_title}}",
+                    "operator": "!=",
+                    "expected": "",
+                    "message": "AC3: title must not be empty string"
+                },
+                {
+                    "actual": "{{iaput09_status}}",
+                    "operator": "==",
+                    "expected": 400,
+                    "message": "AC4: status in body must equal HTTP 400"
+                },
+                {
+                    "actual": "{{iaput09_detail}}",
+                    "operator": "!=",
+                    "expected": null,
+                    "message": "AC1: detail must be present"
+                },
+                {
+                    "actual": "{{iaput09_detail}}",
+                    "operator": "!=",
+                    "expected": "",
+                    "message": "AC1: detail must not be empty"
+                },
+                {
+                    "actual": "{{iaput09_instance}}",
+                    "operator": "!=",
+                    "expected": null,
+                    "message": "AC5: instance must be present"
+                },
+                {
+                    "actual": "{{iaput09_instance}}",
+                    "operator": "!=",
+                    "expected": "",
+                    "message": "AC5: instance must contain the request path"
                 }
             ]
         },
@@ -496,7 +1171,7 @@
             "Smoke"
         ],
         "mainURL": "{{base_url}}",
-        "endpoint": "/investmentapproach/{{first_investment_approach_id}}",
+        "endpoint": "/investment-approaches/{{first_investment_approach_id}}",
         "method": "PUT",
         "headers_additional": {
             "Content-Type": "application/json"
@@ -505,10 +1180,36 @@
             "name": 456
         },
         "expected_status": "400",
-        "expected_response_schema": "",
+        "expected_response_schema": "models/schemas/Schema_error_400.json",
         "expected_response": null,
         "ignore_fields": [],
-        "extract_values": [],
+        "extract_values": [
+            {
+                "from": "response",
+                "key": "type",
+                "assign_to": "iaput10_type"
+            },
+            {
+                "from": "response",
+                "key": "title",
+                "assign_to": "iaput10_title"
+            },
+            {
+                "from": "response",
+                "key": "status",
+                "assign_to": "iaput10_status"
+            },
+            {
+                "from": "response",
+                "key": "detail",
+                "assign_to": "iaput10_detail"
+            },
+            {
+                "from": "response",
+                "key": "instance",
+                "assign_to": "iaput10_instance"
+            }
+        ],
         "validate": {
             "performance": {
                 "max_response_time_ms": null
@@ -520,6 +1221,98 @@
                     "target": "literal",
                     "target_literal": 400,
                     "comparison_name": "Verify status is 400"
+                }
+            ],
+            "assertions": [
+                {
+                    "actual": "{{iaput10_type}}",
+                    "operator": "!=",
+                    "expected": "ResourceNotFound",
+                    "message": "AC2: type must not be non-URI value 'ResourceNotFound'"
+                },
+                {
+                    "actual": "{{iaput10_type}}",
+                    "operator": "!=",
+                    "expected": "InvalidInput",
+                    "message": "AC2: type must not be non-URI value 'InvalidInput'"
+                },
+                {
+                    "actual": "{{iaput10_type}}",
+                    "operator": "!=",
+                    "expected": "BusinessRuleViolation",
+                    "message": "AC2: type must not be non-URI value 'BusinessRuleViolation'"
+                },
+                {
+                    "actual": "{{iaput10_type}}",
+                    "operator": "!=",
+                    "expected": null,
+                    "message": "AC1: type field must be present"
+                },
+                {
+                    "actual": "{{iaput10_type}}",
+                    "operator": "!=",
+                    "expected": "",
+                    "message": "AC2: type must not be empty string"
+                },
+                {
+                    "actual": "{{iaput10_title}}",
+                    "operator": "!=",
+                    "expected": "Model.NotFound",
+                    "message": "AC3: title must not be internal code 'Model.NotFound'"
+                },
+                {
+                    "actual": "{{iaput10_title}}",
+                    "operator": "!=",
+                    "expected": "Model.InvalidId",
+                    "message": "AC3: title must not be internal code 'Model.InvalidId'"
+                },
+                {
+                    "actual": "{{iaput10_title}}",
+                    "operator": "!=",
+                    "expected": "Model.MismatchVersionModelId",
+                    "message": "AC3: title must not be internal code 'Model.MismatchVersionModelId'"
+                },
+                {
+                    "actual": "{{iaput10_title}}",
+                    "operator": "!=",
+                    "expected": null,
+                    "message": "AC1: title must be present"
+                },
+                {
+                    "actual": "{{iaput10_title}}",
+                    "operator": "!=",
+                    "expected": "",
+                    "message": "AC3: title must not be empty string"
+                },
+                {
+                    "actual": "{{iaput10_status}}",
+                    "operator": "==",
+                    "expected": 400,
+                    "message": "AC4: status in body must equal HTTP 400"
+                },
+                {
+                    "actual": "{{iaput10_detail}}",
+                    "operator": "!=",
+                    "expected": null,
+                    "message": "AC1: detail must be present"
+                },
+                {
+                    "actual": "{{iaput10_detail}}",
+                    "operator": "!=",
+                    "expected": "",
+                    "message": "AC1: detail must not be empty"
+                },
+                {
+                    "actual": "{{iaput10_instance}}",
+                    "operator": "!=",
+                    "expected": null,
+                    "message": "AC5: instance must be present"
+                },
+                {
+                    "actual": "{{iaput10_instance}}",
+                    "operator": "!=",
+                    "expected": "",
+                    "message": "AC5: instance must contain the request path"
                 }
             ]
         },

@@ -37,6 +37,30 @@ def random_lastname():
     """Generate a random last name."""
     return faker.last_name()
 
+def random_date(start_date='-30y', end_date='today', pattern='%Y-%m-%d'):
+    """Generate a random date string between start_date and end_date."""
+    return faker.date_between(start_date=start_date, end_date=end_date).strftime(pattern)
+
+def random_float(min_value=0.0, max_value=100.0, decimals=2):
+    """Generate a random float within the specified range, rounded to ``decimals`` places."""
+    return round(random.uniform(min_value, max_value), decimals)
+
+# Internal counters for alternate() so each unique set of choices keeps its own cycle position.
+_alternate_counters: dict = {}
+
+def alternate(*choices):
+    """Return one of ``choices`` cyclically.
+
+    Each call with the same set of choices advances to the next option, wrapping
+    around at the end. e.g. alternate('A', 'B') yields 'A', 'B', 'A', 'B', ...
+    """
+    if not choices:
+        raise ValueError("alternate() requires at least one choice")
+    key = tuple(choices)
+    idx = _alternate_counters.get(key, 0)
+    _alternate_counters[key] = idx + 1
+    return choices[idx % len(choices)]
+
 def get_composite_key(item, key_field):
     """
     Generate composite key from single field or list of fields.

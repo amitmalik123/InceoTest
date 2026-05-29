@@ -1,47 +1,37 @@
 {
-    "ownerId": "3fa85f64-5717-4562-b3fc-2c963f66afa6",
-    "modelAttributes": {
-        "solutionType": "Conservative Fixed Income",
-        "modelType": "Conservative"
-    },
-    "allocations": [
-        {
-            "entityType": "Security",
-            "allocationName": "iShares 20+ Year Treasury Bond ETF",
-            "modelId": "",
-            "cusip": "464287200",
-            "ticker": "TLT",
-            "weight": 0.6
-        },
-        {
-            "entityType": "Security",
-            "allocationName": "iShares iBoxx Investment Grade Corporate Bond ETF",
-            "modelId": "",
-            "cusip": "464288778",
-            "ticker": "LQD",
-            "weight": 0.4
-        }
+    "name": "string",
+    "modelType": "string",
+    "solutionType": "string",
+    "custodians": [
+        "string"
     ],
     "investmentApproachId": null,
     "benchmark": [
         {
-            "name": "Bloomberg Barclays US Aggregate Bond Index",
-            "isPrimary": false
+            "name": "string",
+            "isPrimary": true
         }
-    ],
-    "custodians": [
-        "Fidelity",
-        "Charles Schwab"
     ],
     "investmentMins": [
         {
             "type": "System",
-            "value": 4
+            "value": 2
         }
     ],
-    "riskProfile": "Low Risk - Stable Income",
+    "riskProfile": "string",
+    "allocations": [
+        {
+            "entityType": "Security",
+            "allocationName": "string",
+            "modelId": "string",
+            "cusip": "string",
+            "ticker": "string",
+            "weight": 0
+        }
+    ],
     "versionMetadata": {
-        "targetRebalanceFrequency": "Quarterly",
-        "taxManaged": "false"
+        "additionalProp1": "string",
+        "additionalProp2": "string",
+        "additionalProp3": "string"
     }
 }

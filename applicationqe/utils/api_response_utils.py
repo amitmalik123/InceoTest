@@ -51,14 +51,13 @@ def retrieve_all_values_from_response(  # noqa: C901
     return values
 
 
-def retrieve_boolean_value_from_response(response: Any, json_path: str) -> bool:  # noqa: C901
+def retrieve_boolean_value_from_response(response: Any, json_path: str) -> bool:
     if hasattr(response, "json"):
         data = response.json()
     elif isinstance(response, dict):
         data = response
     else:
         raise ValueError("Response must be a requests.Response object or dict")
-
     try:
         value = data
         parts = json_path.replace("[", ".").replace("]", "").split(".")
@@ -68,7 +67,6 @@ def retrieve_boolean_value_from_response(response: Any, json_path: str) -> bool:
                 value = value[int(part)]
             else:
                 value = value.get(part) if isinstance(value, dict) else None
-
             if value is None:
                 return False
 
@@ -129,13 +127,10 @@ class JSONSchemaValidator:
         if allow_additional_properties is None:
             allow_additional_properties = not self.strict
 
-        if (
-            not allow_additional_properties
-            and schema.get("type") == "object"
-            and "additionalProperties" not in schema
-        ):
-            schema = schema.copy()
-            schema["additionalProperties"] = False
+        if not allow_additional_properties and schema.get("type") == "object":
+            if "additionalProperties" not in schema:
+                schema = schema.copy()
+                schema["additionalProperties"] = False
 
         try:
             jsonschema.validate(instance=data, schema=schema)

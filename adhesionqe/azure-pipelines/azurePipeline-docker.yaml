@@ -1,0 +1,369 @@
+# Azure Pipeline - Docker-Based Test Execution
+# No agent dependencies required - everything runs in Docker!
+
+pool:
+  # vmImage: 'ewm20-docker-build-agent-inc-dev'  #microsoft hosted agent works - Docker handles all dependencies
+  name: "ewm20-docker-build-agent-inc-dev" # Self-hosted agent pool with Docker support
+  timeoutInMinutes: 60
+
+trigger: none
+
+# -----------------------------
+# Scheduled triggers
+# -----------------------------
+#schedules:
+#  - cron: "35 20 * * *" # 12:35 PM PST → Test11
+#    displayName: "Nightly Test11 Run"
+#    branches:
+#      include:
+#        - main
+#    always: true
+
+# -----------------------------
+# Parameters for Manual Runs
+# -----------------------------
+parameters:
+  - name: environment
+    displayName: "Target Environment"
+    type: string
+    default: "test11"
+    values:
+      - test11
+      - test12
+      - qa
+      - prod
+
+  - name: testType
+    displayName: "Test Type to Run"
+    type: string
+    default: "all"
+    values:
+      - all
+      - bdd
+      - api
+      - parallel
+
+  - name: workers
+    displayName: "Number of Parallel Workers (for parallel mode)"
+    type: string
+    default: "4"
+    values:
+      - "1"
+      - "2"
+      - "4"
+      - "8"
+      - "auto"
+
+  - name: browser
+    displayName: "Browser to Test"
+    type: string
+    default: "chromium"
+    values:
+      - chromium
+      - msedge
+      - both
+
+# -----------------------------
+# Variables
+# -----------------------------
+variables:
+  - name: dockerImage
+    value: "dm1-playwright:$(Build.BuildId)"
+  - name: dockerImageLatest
+    value: "dm1-playwright:latest"
+  - name: reportsDir
+    value: "$(Build.SourcesDirectory)/reports"
+  - name: testResultsDir
+    value: "$(Build.SourcesDirectory)/testResults"
+  # Azure Key Vault configuration
+  - name: keyVaultName
+    value: "amkkvqapipeline-testncus" # ← Replace with your Key Vault name
+  - name: azureSubscription
+    value: "TEST Foundation (9156b16c-8a2e-4b7d-a886-e772dc017316)-Core" # ← Replace with your Azure DevOps service connection name
+
+# -----------------------------
+# Stages
+# -----------------------------
+stages:
+  # Stage 1: Build Docker Image and Run Tests (Same Agent)
+  - stage: BuildAndTest
+    displayName: "Build Docker Image and Run Tests"
+    jobs:
+      - job: BuildAndExecuteTests
+        displayName: "Build Image & Execute Tests - ${{ parameters.environment }} - ${{ parameters.testType }}"
+        steps:
+          - checkout: self
+            clean: true
+
+          # Fetch secrets from Azure Key Vault
+          - task: AzureKeyVault@2
+            displayName: "Fetch Secrets from Azure Key Vault"
+            inputs:
+              azureSubscription: "$(azureSubscription)"
+              KeyVaultName: "$(keyVaultName)"
+              SecretsFilter: "*"
+              RunAsPreJob: false
+
+          # Print Pipeline Variables
+          - script: |
+              echo "========================================"
+              echo "Pipeline Variables and Parameters"
+              echo "========================================"
+              echo "Environment: ${{ parameters.environment }}"
+              echo "Test Type: ${{ parameters.testType }}"
+              echo "Workers: ${{ parameters.workers }}"
+              echo "Browser: ${{ parameters.browser }}"
+              echo ""
+              echo "Build Variables:"
+              echo "Build ID: $(Build.BuildId)"
+              echo "Build Reason: $(Build.Reason)"
+              echo "Source Branch: $(Build.SourceBranch)"
+              echo "Source Directory: $(Build.SourcesDirectory)"
+              echo ""
+              echo "Docker Variables:"
+              echo "Docker Image: $(dockerImage)"
+              echo "Docker Image Latest: $(dockerImageLatest)"
+              echo ""
+              echo "Directory Variables:"
+              echo "Reports Dir: $(reportsDir)"
+              echo "Test Results Dir: $(testResultsDir)"
+              echo "========================================"
+            displayName: "Print Pipeline Variables"
+
+          # Build Docker Image
+          - script: |
+              echo "========================================"
+              echo "Building Docker Image..."
+              echo "========================================"
+              docker build -t $(dockerImage) -t $(dockerImageLatest) -f $(Build.SourcesDirectory)/Dockerfile $(Build.SourcesDirectory)
+              echo "Build completed successfully!"
+            displayName: "Build Docker Image"
+
+          - script: |
+              echo "========================================"
+              echo "Docker Images Built Successfully:"
+              echo "========================================"
+              docker images dm1-playwright --format "table {{.Repository}}\t{{.Tag}}\t{{.Size}}\t{{.CreatedAt}}"
+              echo ""
+              echo "Using image for tests: $(dockerImageLatest)"
+              echo "========================================"
+            displayName: "Verify Docker Image Built"
+
+          - script: |
+              echo "Creating directories for reports..."
+              mkdir -p $(reportsDir)/allure-results
+              mkdir -p $(testResultsDir)
+              chmod -R 777 $(reportsDir)
+              chmod -R 777 $(testResultsDir)
+            displayName: "Prepare Report Directories"
+
+          - script: |
+              echo "Environment: ${{ parameters.environment }}"
+              echo "Test Type: ${{ parameters.testType }}"
+              echo "Workers: ${{ parameters.workers }}"
+              echo "Build ID: $(Build.BuildId)"
+            displayName: "Print Test Configuration"
+
+          # Run All Tests
+          - script: |
+              # Determine browser parameter
+              if [ "${{ parameters.browser }}" = "both" ]; then
+                BROWSER_PARAM="--browser chromium --browser msedge"
+              else
+                BROWSER_PARAM="--browser ${{ parameters.browser }}"
+              fi
+
+              docker run --rm \
+                -e TEST_ENV=${{ parameters.environment }} \
+                -e PYTHONUNBUFFERED=1 \
+                -e AZURE_KEY_VAULT_URL=https://$(keyVaultName).vault.azure.net/ \
+                -e CRM_DB_CONNECTION_STRING=$(crm-db-connection-string) \
+                -e AM_BILLING_CONNECTION_STRING=$(am-billing-connection-string) \
+                -e TRANSFER_CONNECTION_STRING=$(transfer-connection-string) \
+                -e ACCOUNTDISTRIBUTIONS_CONNECTION_STRING=$(accoundistributions-connection-string) \
+                -e API_AUTH_TOKEN=$(test11-api-auth-token) \
+                -v $(reportsDir):/app/reports \
+                -v $(testResultsDir):/app/testResults \
+                -v $(Build.SourcesDirectory)/config:/app/config:ro \
+                -v $(Build.SourcesDirectory)/data:/app/data:ro \
+                $(dockerImageLatest) \
+                pytest tests/ \
+                -v \
+                $BROWSER_PARAM \
+                --html=reports/pytest_report.html \
+                --self-contained-html \
+                --junitxml=testResults/junit-report.xml \
+                --alluredir=reports/allure-results
+            displayName: "Run All Tests in Docker"
+            condition: eq('${{ parameters.testType }}', 'all')
+            continueOnError: true
+
+          # Run BDD Tests Only
+          - script: |
+              # Determine browser parameter
+              if [ "${{ parameters.browser }}" = "both" ]; then
+                BROWSER_PARAM="--browser chromium --browser msedge"
+              else
+                BROWSER_PARAM="--browser ${{ parameters.browser }}"
+              fi
+
+              docker run --rm \
+                -e TEST_ENV=${{ parameters.environment }} \
+                -e PYTHONUNBUFFERED=1 \
+                -e AZURE_KEY_VAULT_URL=https://$(keyVaultName).vault.azure.net/ \
+                -e CRM_DB_CONNECTION_STRING=$(crm-db-connection-string) \
+                -e AM_BILLING_CONNECTION_STRING=$(am-billing-connection-string) \
+                -e TRANSFER_CONNECTION_STRING=$(transfer-connection-string) \
+                -e ACCOUNTDISTRIBUTIONS_CONNECTION_STRING=$(accoundistributions-connection-string) \
+                -e API_AUTH_TOKEN=$(test11-api-auth-token) \
+                -v $(reportsDir):/app/reports \
+                -v $(testResultsDir):/app/testResults \
+                -v $(Build.SourcesDirectory)/config:/app/config:ro \
+                -v $(Build.SourcesDirectory)/data:/app/data:ro \
+                $(dockerImageLatest) \
+                pytest tests/ \
+                -v \
+                $BROWSER_PARAM \
+                --html=reports/pytest_report.html \
+                --self-contained-html \
+                --junitxml=testResults/junit-report.xml \
+                --alluredir=reports/allure-results
+            displayName: "Run BDD Tests in Docker"
+            condition: eq('${{ parameters.testType }}', 'bdd')
+            continueOnError: true
+
+          # Run API Tests Only
+          - script: |
+              docker run --rm \
+                -e TEST_ENV=${{ parameters.environment }} \
+                -e PYTHONUNBUFFERED=1 \
+                -e AZURE_KEY_VAULT_URL=https://$(keyVaultName).vault.azure.net/ \
+                -e CRM_DB_CONNECTION_STRING=$(crm-db-connection-string) \
+                -e AM_BILLING_CONNECTION_STRING=$(am-billing-connection-string) \
+                -e TRANSFER_CONNECTION_STRING=$(transfer-connection-string) \
+                -e ACCOUNTDISTRIBUTIONS_CONNECTION_STRING=$(accoundistributions-connection-string) \
+                -e API_AUTH_TOKEN=$(test11-api-auth-token) \
+                -v $(reportsDir):/app/reports \
+                -v $(testResultsDir):/app/testResults \
+                -v $(Build.SourcesDirectory)/config:/app/config:ro \
+                $(dockerImageLatest) \
+                pytest tests/api/ \
+                -v \
+                --html=reports/api_report.html \
+                --self-contained-html \
+                --junitxml=testResults/junit-report.xml
+            displayName: "Run API Tests in Docker"
+            condition: eq('${{ parameters.testType }}', 'api')
+            continueOnError: true
+
+          # Run Parallel Tests
+          - script: |
+              # Determine browser parameter
+              if [ "${{ parameters.browser }}" = "both" ]; then
+                BROWSER_PARAM="--browser chromium --browser msedge"
+              else
+                BROWSER_PARAM="--browser ${{ parameters.browser }}"
+              fi
+
+              docker run --rm \
+                -e TEST_ENV=${{ parameters.environment }} \
+                -e PYTHONUNBUFFERED=1 \
+                -e AZURE_KEY_VAULT_URL=https://$(keyVaultName).vault.azure.net/ \
+                -e CRM_DB_CONNECTION_STRING=$(crm-db-connection-string) \
+                -e AM_BILLING_CONNECTION_STRING=$(am-billing-connection-string) \
+                -e TRANSFER_CONNECTION_STRING=$(transfer-connection-string) \
+                -e ACCOUNTDISTRIBUTIONS_CONNECTION_STRING=$(accoundistributions-connection-string) \
+                -e API_AUTH_TOKEN=$(test11-api-auth-token) \
+                -v $(reportsDir):/app/reports \
+                -v $(testResultsDir):/app/testResults \
+                -v $(Build.SourcesDirectory)/config:/app/config:ro \
+                -v $(Build.SourcesDirectory)/data:/app/data:ro \
+                $(dockerImageLatest) \
+                pytest tests/ \
+                -v \
+                -n ${{ parameters.workers }} \
+                $BROWSER_PARAM \
+                --html=reports/pytest_report.html \
+                --self-contained-html \
+                --junitxml=testResults/junit-report.xml \
+                --alluredir=reports/allure-results
+            displayName: "Run Tests in Parallel in Docker"
+            condition: eq('${{ parameters.testType }}', 'parallel')
+            continueOnError: true
+
+          # Publish Test Results
+          - task: PublishTestResults@2
+            displayName: "Publish JUnit Test Results"
+            condition: always()
+            inputs:
+              testResultsFormat: "JUnit"
+              testResultsFiles: "$(testResultsDir)/junit-report.xml"
+              failTaskOnFailedTests: false
+              testRunTitle: "Playwright Tests - ${{ parameters.environment }} - ${{ parameters.testType }}"
+
+          # Publish HTML Report
+          - task: PublishBuildArtifacts@1
+            displayName: "Publish HTML Report"
+            condition: always()
+            inputs:
+              PathtoPublish: "$(reportsDir)/pytest_report.html"
+              ArtifactName: "pytest-html-report"
+              publishLocation: "Container"
+
+          # Generate Allure Report (Allure is installed in Docker image)
+          - script: |
+              echo "Checking for Allure results..."
+              SRC_DIR="$(reportsDir)/allure-results"
+              REPORT_DIR="$(reportsDir)/allure-report"
+
+              if [ ! -d "$SRC_DIR" ] || [ -z "$(ls -A "$SRC_DIR" 2>/dev/null)" ]; then
+                echo "##vso[task.logissue type=warning]No Allure results found in $SRC_DIR. Report generation skipped."
+                exit 0
+              fi
+
+              echo "Generating Allure report from: $SRC_DIR"
+              mkdir -p "$REPORT_DIR"
+
+              # Run Allure in Docker container (where it's installed)
+              docker run --rm \
+                -v $(reportsDir):/app/reports \
+                $(dockerImageLatest) \
+                allure generate /app/reports/allure-results --clean -o /app/reports/allure-report --single-file
+
+              echo "Report generated at: $REPORT_DIR"
+              ls -la "$REPORT_DIR" 2>/dev/null || echo "Report dir not found"
+            displayName: "Generate Allure Report"
+            condition: always()
+
+          # Publish Allure Report
+          - task: PublishBuildArtifacts@1
+            displayName: "Publish Allure Report"
+            condition: always()
+            inputs:
+              PathtoPublish: "$(reportsDir)/allure-report"
+              ArtifactName: "AllureReport"
+              publishLocation: "Container"
+
+          # Publish Allure Results (raw data)
+          - task: PublishBuildArtifacts@1
+            displayName: "Publish Allure Results Data"
+            condition: always()
+            inputs:
+              PathtoPublish: "$(reportsDir)/allure-results"
+              ArtifactName: "AllureResults"
+              publishLocation: "Container"
+
+  # Stage 2: Cleanup (Optional)
+  - stage: Cleanup
+    displayName: "Cleanup Docker Resources"
+    dependsOn: BuildAndTest
+    condition: always()
+    jobs:
+      - job: CleanupDocker
+        displayName: "Clean Up Docker Images"
+        steps:
+          - script: |
+              echo "Cleaning up Docker images..."
+              docker image prune -f
+              docker container prune -f
+            displayName: "Docker Cleanup"

@@ -73,7 +73,15 @@ parameters:
     type: string
     default: 'N/A'
 
-  - name: teamsNotificationEnabled
+  - name: promotePerformanceBaseline
+    type: boolean
+    default: false
+
+  - name: baselineReason
+    type: string
+    default: 'Approved performance baseline'
+
+  - name: slackNotificationEnabled
     type: boolean
     default: false
   
@@ -122,6 +130,11 @@ stages:
           name: ewm20-docker-build-agent-qa-dev
         steps:
           - checkout: ${{ parameters.repositoryAlias }}
+            clean: true
+            fetchDepth: 1
+            sparseCheckoutDirectories: |
+              platformqe
+
           - task: PowerShell@2
             displayName: 'Sleep time if triggered from deployment pipeline'
             inputs:
@@ -461,6 +474,10 @@ stages:
                 
         steps:
           - checkout: ${{ parameters.repositoryAlias }}
+            clean: true
+            fetchDepth: 1
+            sparseCheckoutDirectories: |
+              platformqe
           
           - task: Bash@3
             name: SetBuildPath
@@ -833,6 +850,16 @@ stages:
               INFLUX_BUCKET: $(influx_bucket)
               INFLUX_TIMEOUT: $(influx_timeout)
               INFLUX_ENABLE: $(influx_enable)
+              # Performance SLA threshold (seconds). Sourced from Azure DevOps
+              # Library variable group; falls back to '' so locustfile.py uses
+              # config.<env>.yaml -> performance.sla_seconds (default 1.0).
+              LOCUST_SLA_SECONDS: $(LOCUST_SLA_SECONDS)
+              # Per-env Azure subscription IDs sourced from the Library variable
+              # group. Used by the executive-summary reporter to build App
+              # Insights deep-links (Performance / Failures).
+              SUBSCRIPTION_DEV: $(subscription_dev)
+              SUBSCRIPTION_TEST: $(subscription_test)
+              SUBSCRIPTION_SILO: $(subscription_silo)
             inputs:
               targetType: inline
               script: |
@@ -852,8 +879,11 @@ stages:
                   mkdir -p "$report_dir"
                   echo "Created new report directory: $report_dir"
                 fi
+                echo "##vso[task.setvariable variable=REPORTS_PATH]$report_dir"
                 
                 echo "Locust Arguments: $(nonFunctionalTestArgs)"
+                echo "Performance SLA (seconds): ${LOCUST_SLA_SECONDS:-<unset, will use config default>}"
+                echo "App Insights subscriptions (Library group): dev=${SUBSCRIPTION_DEV:-<unset>} test=${SUBSCRIPTION_TEST:-<unset>} silo=${SUBSCRIPTION_SILO:-<unset>}"
                 
                 locust -f locustfile.py $(nonFunctionalTestArgs) \
                   --html="${report_dir}/performance_report.html" \
@@ -893,7 +923,7 @@ stages:
           
           - task: Bash@3
             displayName: 'Push to Log Analytics - $(name)_$(environment)'
-            condition: always()
+            condition: and(always(), or(eq(variables['testType'], 'functional'), eq(variables['testType'], 'both')))
             env:
               LOG_ANALYTICS_WORKSPACE_ID: $(logAnalyticsWorkspaceId)
               LOG_ANALYTICS_SHARED_KEY: $(logAnalyticsSharedKey)
@@ -924,10 +954,63 @@ stages:
                   echo "⚠️ Log Analytics push failed (non-blocking)"
                 fi
               workingDirectory: $(buildPath)
+
+          - task: Bash@3
+            displayName: 'Push Performance Results to Log Analytics - $(name)_$(environment)'
+            condition: and(succeededOrFailed(), or(eq(variables['testType'], 'non-functional'), eq(variables['testType'], 'both')))
+            env:
+              LOG_ANALYTICS_WORKSPACE_ID: $(logAnalyticsWorkspaceId)
+              LOG_ANALYTICS_SHARED_KEY: $(logAnalyticsSharedKey)
+              LOG_ANALYTICS_ENABLED: $(logAnalyticsEnabled)
+              SERVICE_NAME: $(name)
+              ENV_NAME: $(environment)
+              BASELINE_REASON: ${{ parameters.baselineReason }}
+              APPROVED_BY: $(Build.RequestedFor)
+            inputs:
+              targetType: inline
+              script: |
+                export PYTHONPATH="${PYTHONPATH}:$(pwd)"
+                echo "=========================================="
+                echo "Pushing Performance Results to Log Analytics"
+                echo "=========================================="
+                echo "Service: $(name)"
+                echo "Environment: $(environment)"
+                echo "Reports Path: $(REPORTS_PATH)"
+                echo "Baseline Promotion: ${{ parameters.promotePerformanceBaseline }}"
+
+                PROMOTE_ARGS=()
+                if [ "${{ parameters.promotePerformanceBaseline }}" = "true" ] || [ "${{ parameters.promotePerformanceBaseline }}" = "True" ]; then
+                  PROMOTE_ARGS+=(--promote-baseline --baseline-reason "$BASELINE_REASON" --approved-by "$APPROVED_BY")
+                fi
+
+                python3 framework/reporter/performance_log_analytics_reporter.py \
+                  --reports-path "$(REPORTS_PATH)" \
+                  --service-name "$(name)" \
+                  --environment "$(environment)" \
+                  "${PROMOTE_ARGS[@]}"
+
+                if [ $? -eq 0 ]; then
+                  echo "✅ Performance Log Analytics push completed"
+                  echo "⏳ Custom tables may take 5-15 minutes to appear after first ingestion"
+                  echo "📊 Tables: PerfRun_CL, PerfEndpointSummary_CL, PerfTimeSeries_CL, PerfFailure_CL, PerfBaseline_CL"
+                else
+                  echo "⚠️ Performance Log Analytics push failed (non-blocking)"
+                fi
+              workingDirectory: $(buildPath)
           
           - task: Bash@3
             displayName: 'Send Email Report - $(name)_$(environment)'
-            condition: and(succeededOrFailed(), or(eq(variables['email_feature_enabled'], 'true'), eq(variables['email_feature_enabled'], 'True')))
+            # Email is suppressed for non-functional-only runs (perf reports are
+            # already published as build artifacts + executive summary HTML).
+            condition: >-
+              and(
+                succeededOrFailed(),
+                ne('${{ parameters.testType }}', 'non-functional'),
+                or(
+                  eq(variables['email_feature_enabled'], 'true'),
+                  eq(variables['email_feature_enabled'], 'True')
+                )
+              )
             env:
               SMTP_SERVER: $(smtp_server)
               SMTP_PORT: $(smtp_port)
@@ -1044,6 +1127,10 @@ stages:
           executeTestsResult: $[ stageDependencies.ExecuteTests.RunTests.result ]
         steps:
           - checkout: ${{ parameters.repositoryAlias }}
+            clean: true
+            fetchDepth: 1
+            sparseCheckoutDirectories: |
+              platformqe
           
           - task: Bash@3
             displayName: 'Display Summary'
@@ -1083,14 +1170,16 @@ stages:
                   echo "✅ Pipeline execution completed successfully"
                 fi
           - task: DownloadBuildArtifacts@1
-            displayName: 'Download Build Artifacts for Teams Summary'
+            displayName: 'Download Build Artifacts for Notification'
             condition: succeededOrFailed()
             inputs:
               buildType: 'current'
               downloadType: 'all'
               downloadPath: '$(Pipeline.Workspace)/teams-summary'
-          - ${{ if eq(parameters.teamsNotificationEnabled, true) }}:
-            - template: qe-teams-summary-notification.yml
+          
+          # Slack Workflow Notification
+          - ${{ if eq(parameters.slackNotificationEnabled, true) }}:
+            - template: qe-slack-workflow-notification.yml
               parameters:
-                teamswebhookurl: $(TEAMS_WEBHOOK_URL)
+                slackWorkflowWebhookUrl: $(SLACK_WORKFLOW_WEBHOOK_URL)
                 serviceNames: ${{ parameters.services }}

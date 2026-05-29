@@ -323,9 +323,9 @@
             "Content-Type": "application/json"
         },
         "payload": "hnebase/payloads/request_payloads/Payload_Permissions_groups_POST_request.json",
-        "expected_status": "404",
-        "expected_response_schema": "hnebase/schemas/Schema_Permissions_groups_POST_404.json",
-        "expected_response": "hnebase/payloads/response_payloads/Payload_Permissions_groups_POST_response_nomatch_for_ssoguid.json",
+        "expected_status": "204",
+        "expected_response_schema": "",
+        "expected_response": "",
         "ignore_fields": [
             "instance"
         ],

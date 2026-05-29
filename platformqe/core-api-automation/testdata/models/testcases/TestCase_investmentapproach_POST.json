@@ -9,7 +9,7 @@
             "Functional"
         ],
         "mainURL": "{{base_url}}",
-        "endpoint": "/investmentapproach",
+        "endpoint": "/investment-approaches",
         "method": "POST",
         "rpc_method": "",
         "graphql_query": "",
@@ -113,7 +113,7 @@
             "Functional"
         ],
         "mainURL": "{{base_url}}",
-        "endpoint": "/investmentapproach",
+        "endpoint": "/investment-approaches",
         "method": "POST",
         "rpc_method": "",
         "graphql_query": "",
@@ -218,7 +218,7 @@
             "Functional"
         ],
         "mainURL": "{{base_url}}",
-        "endpoint": "/investmentapproach",
+        "endpoint": "/investment-approaches",
         "method": "POST",
         "rpc_method": "",
         "graphql_query": "",
@@ -233,19 +233,43 @@
             "isActive": true
         },
         "expected_status": "422",
-        "expected_response_schema": "",
+        "expected_response_schema": "models/schemas/Schema_investmentapproachid_422_error.json",
         "expected_response": {
-            "type": "https://tools.ietf.org/html/rfc4918#section-11.2",
-            "title": "One or more validation errors occurred.",
+            "type": "https://assetmark.atlassian.net/wiki/spaces/PE/pages/2303590438/Standard+Error+Codes+and+Messaging#missing-required-fields",
+            "title": "Missing Required Fields",
             "status": 422,
+            "instance": "/api/models/v1/investment-approaches",
             "errors": {
                 "name": [
                     "Name is required"
                 ]
             }
         },
-        "ignore_fields": [],
-        "extract_values": [],
+        "ignore_fields": [
+            "instance"
+        ],
+        "extract_values": [
+            {
+                "from": "response",
+                "key": "type",
+                "assign_to": "iapost03_type"
+            },
+            {
+                "from": "response",
+                "key": "title",
+                "assign_to": "iapost03_title"
+            },
+            {
+                "from": "response",
+                "key": "status",
+                "assign_to": "iapost03_status"
+            },
+            {
+                "from": "response",
+                "key": "instance",
+                "assign_to": "iapost03_instance"
+            }
+        ],
         "validate": {
             "performance": {
                 "max_response_time_ms": 500
@@ -253,7 +277,63 @@
             "security": {
                 "checks": []
             },
-            "data_comparison": []
+            "data_comparison": [],
+            "assertions": [
+                {
+                    "actual": "{{iapost03_type}}",
+                    "operator": "!=",
+                    "expected": "ResourceNotFound",
+                    "message": "AC2: type must not be non-URI 'ResourceNotFound'"
+                },
+                {
+                    "actual": "{{iapost03_type}}",
+                    "operator": "!=",
+                    "expected": "InvalidInput",
+                    "message": "AC2: type must not be non-URI 'InvalidInput'"
+                },
+                {
+                    "actual": "{{iapost03_type}}",
+                    "operator": "!=",
+                    "expected": null,
+                    "message": "AC1: type field must be present"
+                },
+                {
+                    "actual": "{{iapost03_type}}",
+                    "operator": "!=",
+                    "expected": "",
+                    "message": "AC2: type must not be empty string"
+                },
+                {
+                    "actual": "{{iapost03_title}}",
+                    "operator": "!=",
+                    "expected": null,
+                    "message": "AC1: title must be present"
+                },
+                {
+                    "actual": "{{iapost03_title}}",
+                    "operator": "!=",
+                    "expected": "",
+                    "message": "AC3: title must not be empty string"
+                },
+                {
+                    "actual": "{{iapost03_status}}",
+                    "operator": "==",
+                    "expected": 422,
+                    "message": "AC4: status in body must equal HTTP 422"
+                },
+                {
+                    "actual": "{{iapost03_instance}}",
+                    "operator": "!=",
+                    "expected": null,
+                    "message": "AC5: instance must be present"
+                },
+                {
+                    "actual": "{{iapost03_instance}}",
+                    "operator": "!=",
+                    "expected": "",
+                    "message": "AC5: instance must contain the request path"
+                }
+            ]
         },
         "test_data_file": "",
         "db_query_timing": "after_api",
@@ -276,7 +356,7 @@
             "Functional"
         ],
         "mainURL": "{{base_url}}",
-        "endpoint": "/investmentapproach",
+        "endpoint": "/investment-approaches",
         "method": "POST",
         "rpc_method": "",
         "graphql_query": "",
@@ -290,17 +370,45 @@
             "name": "{{response_name}}",
             "isActive": true
         },
-        "expected_status": "501",
-        "expected_response_schema": "",
+        "expected_status": "409",
+        "expected_response_schema": "models/schemas/Schema_model_id_PUT_409_error.json",
         "expected_response": {
-            "type": "ConstraintViolation",
-            "title": "Database.Constraint",
-            "status": 501
+            "type": "https://assetmark.atlassian.net/wiki/spaces/PE/pages/2303590438/Standard+Error+Codes+and+Messaging#already-exists",
+            "title": "Already Exists",
+            "status": 409,
+            "instance": "/api/models/v1/investment-approaches"
         },
         "ignore_fields": [
-            "detail"
+            "detail",
+            "instance"
         ],
-        "extract_values": [],
+        "extract_values": [
+            {
+                "from": "response",
+                "key": "type",
+                "assign_to": "iapost04_type"
+            },
+            {
+                "from": "response",
+                "key": "title",
+                "assign_to": "iapost04_title"
+            },
+            {
+                "from": "response",
+                "key": "status",
+                "assign_to": "iapost04_status"
+            },
+            {
+                "from": "response",
+                "key": "detail",
+                "assign_to": "iapost04_detail"
+            },
+            {
+                "from": "response",
+                "key": "instance",
+                "assign_to": "iapost04_instance"
+            }
+        ],
         "validate": {
             "performance": {
                 "max_response_time_ms": 500
@@ -308,7 +416,99 @@
             "security": {
                 "checks": []
             },
-            "data_comparison": []
+            "data_comparison": [],
+            "assertions": [
+                {
+                    "actual": "{{iapost04_type}}",
+                    "operator": "!=",
+                    "expected": "ResourceNotFound",
+                    "message": "AC2: type must not be non-URI value 'ResourceNotFound'"
+                },
+                {
+                    "actual": "{{iapost04_type}}",
+                    "operator": "!=",
+                    "expected": "InvalidInput",
+                    "message": "AC2: type must not be non-URI value 'InvalidInput'"
+                },
+                {
+                    "actual": "{{iapost04_type}}",
+                    "operator": "!=",
+                    "expected": "BusinessRuleViolation",
+                    "message": "AC2: type must not be non-URI value 'BusinessRuleViolation'"
+                },
+                {
+                    "actual": "{{iapost04_type}}",
+                    "operator": "!=",
+                    "expected": null,
+                    "message": "AC1: type field must be present"
+                },
+                {
+                    "actual": "{{iapost04_type}}",
+                    "operator": "!=",
+                    "expected": "",
+                    "message": "AC2: type must not be empty string"
+                },
+                {
+                    "actual": "{{iapost04_title}}",
+                    "operator": "!=",
+                    "expected": "Model.NotFound",
+                    "message": "AC3: title must not be internal code 'Model.NotFound'"
+                },
+                {
+                    "actual": "{{iapost04_title}}",
+                    "operator": "!=",
+                    "expected": "Model.InvalidId",
+                    "message": "AC3: title must not be internal code 'Model.InvalidId'"
+                },
+                {
+                    "actual": "{{iapost04_title}}",
+                    "operator": "!=",
+                    "expected": "Model.MismatchVersionModelId",
+                    "message": "AC3: title must not be internal code 'Model.MismatchVersionModelId'"
+                },
+                {
+                    "actual": "{{iapost04_title}}",
+                    "operator": "!=",
+                    "expected": null,
+                    "message": "AC1: title must be present"
+                },
+                {
+                    "actual": "{{iapost04_title}}",
+                    "operator": "!=",
+                    "expected": "",
+                    "message": "AC3: title must not be empty string"
+                },
+                {
+                    "actual": "{{iapost04_status}}",
+                    "operator": "==",
+                    "expected": 409,
+                    "message": "AC4: status in body must equal HTTP 409"
+                },
+                {
+                    "actual": "{{iapost04_detail}}",
+                    "operator": "!=",
+                    "expected": null,
+                    "message": "AC1: detail must be present"
+                },
+                {
+                    "actual": "{{iapost04_detail}}",
+                    "operator": "!=",
+                    "expected": "",
+                    "message": "AC1: detail must not be empty"
+                },
+                {
+                    "actual": "{{iapost04_instance}}",
+                    "operator": "!=",
+                    "expected": null,
+                    "message": "AC5: instance must be present"
+                },
+                {
+                    "actual": "{{iapost04_instance}}",
+                    "operator": "!=",
+                    "expected": "",
+                    "message": "AC5: instance must contain the request path"
+                }
+            ]
         },
         "test_data_file": "",
         "db_query_timing": "after_api",
@@ -318,7 +518,7 @@
         },
         "db_type": "",
         "db_connection_name": "",
-        "test_summary": "Test TC004: POST /investmentapproach [negative] - Duplicate name should return 501"
+        "test_summary": "Test TC004: POST /investmentapproach [negative] - Duplicate name should return 409"
     },
     {
         "test_id": "TC005",
@@ -331,7 +531,7 @@
             "Functional"
         ],
         "mainURL": "{{base_url}}",
-        "endpoint": "/investmentapproach",
+        "endpoint": "/investment-approaches",
         "method": "POST",
         "rpc_method": "",
         "graphql_query": "",
@@ -345,14 +545,44 @@
             "isActive": false
         },
         "expected_status": "400",
-        "expected_response_schema": "",
+        "expected_response_schema": "models/schemas/Schema_error_400.json",
         "expected_response": {
+            "type": "https://assetmark.atlassian.net/wiki/spaces/PE/pages/2303590438/Standard+Error+Codes+and+Messaging#invalid-json",
             "title": "Invalid JSON",
             "status": 400,
-            "detail": "Invalid JSON payload: JSON deserialization for type 'CreateInvApproachRequest' was missing required properties including: 'name'."
+            "detail": "Invalid JSON payload: JSON deserialization for type 'CreateInvApproachRequest' was missing required properties including: 'name'.",
+            "instance": "/api/models/v1/investment-approaches"
         },
-        "ignore_fields": [],
-        "extract_values": [],
+        "ignore_fields": [
+            "instance"
+        ],
+        "extract_values": [
+            {
+                "from": "response",
+                "key": "type",
+                "assign_to": "iapost05_type"
+            },
+            {
+                "from": "response",
+                "key": "title",
+                "assign_to": "iapost05_title"
+            },
+            {
+                "from": "response",
+                "key": "status",
+                "assign_to": "iapost05_status"
+            },
+            {
+                "from": "response",
+                "key": "detail",
+                "assign_to": "iapost05_detail"
+            },
+            {
+                "from": "response",
+                "key": "instance",
+                "assign_to": "iapost05_instance"
+            }
+        ],
         "validate": {
             "performance": {
                 "max_response_time_ms": 500
@@ -360,7 +590,99 @@
             "security": {
                 "checks": []
             },
-            "data_comparison": []
+            "data_comparison": [],
+            "assertions": [
+                {
+                    "actual": "{{iapost05_type}}",
+                    "operator": "!=",
+                    "expected": "ResourceNotFound",
+                    "message": "AC2: type must not be non-URI value 'ResourceNotFound'"
+                },
+                {
+                    "actual": "{{iapost05_type}}",
+                    "operator": "!=",
+                    "expected": "InvalidInput",
+                    "message": "AC2: type must not be non-URI value 'InvalidInput'"
+                },
+                {
+                    "actual": "{{iapost05_type}}",
+                    "operator": "!=",
+                    "expected": "BusinessRuleViolation",
+                    "message": "AC2: type must not be non-URI value 'BusinessRuleViolation'"
+                },
+                {
+                    "actual": "{{iapost05_type}}",
+                    "operator": "!=",
+                    "expected": null,
+                    "message": "AC1: type field must be present"
+                },
+                {
+                    "actual": "{{iapost05_type}}",
+                    "operator": "!=",
+                    "expected": "",
+                    "message": "AC2: type must not be empty string"
+                },
+                {
+                    "actual": "{{iapost05_title}}",
+                    "operator": "!=",
+                    "expected": "Model.NotFound",
+                    "message": "AC3: title must not be internal code 'Model.NotFound'"
+                },
+                {
+                    "actual": "{{iapost05_title}}",
+                    "operator": "!=",
+                    "expected": "Model.InvalidId",
+                    "message": "AC3: title must not be internal code 'Model.InvalidId'"
+                },
+                {
+                    "actual": "{{iapost05_title}}",
+                    "operator": "!=",
+                    "expected": "Model.MismatchVersionModelId",
+                    "message": "AC3: title must not be internal code 'Model.MismatchVersionModelId'"
+                },
+                {
+                    "actual": "{{iapost05_title}}",
+                    "operator": "!=",
+                    "expected": null,
+                    "message": "AC1: title must be present"
+                },
+                {
+                    "actual": "{{iapost05_title}}",
+                    "operator": "!=",
+                    "expected": "",
+                    "message": "AC3: title must not be empty string"
+                },
+                {
+                    "actual": "{{iapost05_status}}",
+                    "operator": "==",
+                    "expected": 400,
+                    "message": "AC4: status in body must equal HTTP 400"
+                },
+                {
+                    "actual": "{{iapost05_detail}}",
+                    "operator": "!=",
+                    "expected": null,
+                    "message": "AC1: detail must be present"
+                },
+                {
+                    "actual": "{{iapost05_detail}}",
+                    "operator": "!=",
+                    "expected": "",
+                    "message": "AC1: detail must not be empty"
+                },
+                {
+                    "actual": "{{iapost05_instance}}",
+                    "operator": "!=",
+                    "expected": null,
+                    "message": "AC5: instance must be present"
+                },
+                {
+                    "actual": "{{iapost05_instance}}",
+                    "operator": "!=",
+                    "expected": "",
+                    "message": "AC5: instance must contain the request path"
+                }
+            ]
         },
         "test_data_file": "",
         "db_query_timing": "after_api",
@@ -383,7 +705,7 @@
             "Functional"
         ],
         "mainURL": "{{base_url}}",
-        "endpoint": "/investmentapproach",
+        "endpoint": "/investment-approaches",
         "method": "POST",
         "rpc_method": "",
         "graphql_query": "",
@@ -398,14 +720,44 @@
             "isActive": false
         },
         "expected_status": "400",
-        "expected_response_schema": "",
+        "expected_response_schema": "models/schemas/Schema_error_400.json",
         "expected_response": {
+            "type": "https://assetmark.atlassian.net/wiki/spaces/PE/pages/2303590438/Standard+Error+Codes+and+Messaging#invalid-json",
             "title": "Invalid JSON",
             "status": 400,
-            "detail": "Invalid JSON payload: The JSON value could not be converted to System.String. Check field 'name'."
+            "detail": "Invalid JSON payload: The JSON value could not be converted to System.String. Check field 'name'.",
+            "instance": "/api/models/v1/investment-approaches"
         },
-        "ignore_fields": [],
-        "extract_values": [],
+        "ignore_fields": [
+            "instance"
+        ],
+        "extract_values": [
+            {
+                "from": "response",
+                "key": "type",
+                "assign_to": "iapost06_type"
+            },
+            {
+                "from": "response",
+                "key": "title",
+                "assign_to": "iapost06_title"
+            },
+            {
+                "from": "response",
+                "key": "status",
+                "assign_to": "iapost06_status"
+            },
+            {
+                "from": "response",
+                "key": "detail",
+                "assign_to": "iapost06_detail"
+            },
+            {
+                "from": "response",
+                "key": "instance",
+                "assign_to": "iapost06_instance"
+            }
+        ],
         "validate": {
             "performance": {
                 "max_response_time_ms": 500
@@ -413,7 +765,99 @@
             "security": {
                 "checks": []
             },
-            "data_comparison": []
+            "data_comparison": [],
+            "assertions": [
+                {
+                    "actual": "{{iapost06_type}}",
+                    "operator": "!=",
+                    "expected": "ResourceNotFound",
+                    "message": "AC2: type must not be non-URI value 'ResourceNotFound'"
+                },
+                {
+                    "actual": "{{iapost06_type}}",
+                    "operator": "!=",
+                    "expected": "InvalidInput",
+                    "message": "AC2: type must not be non-URI value 'InvalidInput'"
+                },
+                {
+                    "actual": "{{iapost06_type}}",
+                    "operator": "!=",
+                    "expected": "BusinessRuleViolation",
+                    "message": "AC2: type must not be non-URI value 'BusinessRuleViolation'"
+                },
+                {
+                    "actual": "{{iapost06_type}}",
+                    "operator": "!=",
+                    "expected": null,
+                    "message": "AC1: type field must be present"
+                },
+                {
+                    "actual": "{{iapost06_type}}",
+                    "operator": "!=",
+                    "expected": "",
+                    "message": "AC2: type must not be empty string"
+                },
+                {
+                    "actual": "{{iapost06_title}}",
+                    "operator": "!=",
+                    "expected": "Model.NotFound",
+                    "message": "AC3: title must not be internal code 'Model.NotFound'"
+                },
+                {
+                    "actual": "{{iapost06_title}}",
+                    "operator": "!=",
+                    "expected": "Model.InvalidId",
+                    "message": "AC3: title must not be internal code 'Model.InvalidId'"
+                },
+                {
+                    "actual": "{{iapost06_title}}",
+                    "operator": "!=",
+                    "expected": "Model.MismatchVersionModelId",
+                    "message": "AC3: title must not be internal code 'Model.MismatchVersionModelId'"
+                },
+                {
+                    "actual": "{{iapost06_title}}",
+                    "operator": "!=",
+                    "expected": null,
+                    "message": "AC1: title must be present"
+                },
+                {
+                    "actual": "{{iapost06_title}}",
+                    "operator": "!=",
+                    "expected": "",
+                    "message": "AC3: title must not be empty string"
+                },
+                {
+                    "actual": "{{iapost06_status}}",
+                    "operator": "==",
+                    "expected": 400,
+                    "message": "AC4: status in body must equal HTTP 400"
+                },
+                {
+                    "actual": "{{iapost06_detail}}",
+                    "operator": "!=",
+                    "expected": null,
+                    "message": "AC1: detail must be present"
+                },
+                {
+                    "actual": "{{iapost06_detail}}",
+                    "operator": "!=",
+                    "expected": "",
+                    "message": "AC1: detail must not be empty"
+                },
+                {
+                    "actual": "{{iapost06_instance}}",
+                    "operator": "!=",
+                    "expected": null,
+                    "message": "AC5: instance must be present"
+                },
+                {
+                    "actual": "{{iapost06_instance}}",
+                    "operator": "!=",
+                    "expected": "",
+                    "message": "AC5: instance must contain the request path"
+                }
+            ]
         },
         "test_data_file": "",
         "db_query_timing": "after_api",

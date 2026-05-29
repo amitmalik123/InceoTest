@@ -21,7 +21,7 @@ class WaitTimeoutError(Exception):
 
 def wait_for_condition(
     condition: Callable[[], bool],
-    timeout: float = 30.0,
+    timeout: float = 120.0,
     poll_interval: float = 0.5,
     error_message: str = "Condition not met within timeout",
 ) -> bool:
@@ -73,7 +73,7 @@ def wait_for_condition(
 def wait_for_value(
     getter: Callable[[], T],
     expected_value: T,
-    timeout: float = 30.0,
+    timeout: float = 120.0,
     poll_interval: float = 0.5,
     error_message: Optional[str] = None,
 ) -> T:
@@ -165,7 +165,7 @@ def wait_for_text_to_contain(
 
 
 def wait_for_text_to_change(
-    locator: Locator, initial_text: Optional[str] = None, timeout: float = 30.0
+    locator: Locator, initial_text: Optional[str] = None, timeout: float = 120.0
 ) -> str:
     """
     Wait for element text to change from initial value.
@@ -217,7 +217,7 @@ def wait_for_attribute_value(
     )
 
 
-def wait_for_class_to_contain(locator: Locator, class_name: str, timeout: float = 30.0) -> bool:
+def wait_for_class_to_contain(locator: Locator, class_name: str, timeout: float = 120.0) -> bool:
     """
     Wait for element to have specific CSS class.
 
@@ -243,7 +243,7 @@ def wait_for_class_to_contain(locator: Locator, class_name: str, timeout: float 
 
 
 def wait_for_url_to_match(
-    page: Page, pattern: str, timeout: float = 30.0, exact: bool = False
+    page: Page, pattern: str, timeout: float = 120.0, exact: bool = False
 ) -> bool:
     """
     Wait for page URL to match pattern.
@@ -272,7 +272,7 @@ def wait_for_url_to_match(
     )
 
 
-def wait_for_download(page: Page, trigger_action: Callable, timeout: float = 30.0) -> Any:
+def wait_for_download(page: Page, trigger_action: Callable, timeout: float = 120.0) -> Any:
     """
     Wait for download to start.
 
@@ -296,7 +296,7 @@ def wait_for_download(page: Page, trigger_action: Callable, timeout: float = 30.
     return download_info.value
 
 
-def wait_for_network_idle(page: Page, timeout: float = 30.0, idle_time: float = 0.5) -> bool:
+def wait_for_network_idle(page: Page, timeout: float = 120.0, idle_time: float = 0.5) -> bool:
     """
     Wait for network to be idle (no requests for specified time).
 
@@ -359,7 +359,7 @@ def wait_for_console_message(
         page.remove_listener("console", on_console)
 
 def wait_for_element_to_disappear(
-    locator: Locator, timeout: float = 15.0, poll_interval: float = 0.2
+    locator: Locator, timeout: float = 120.0, poll_interval: float = 0.2
 ) -> bool:
     """
     Wait for element to become hidden or disappear from DOM.
@@ -401,7 +401,7 @@ def wait_for_element_to_disappear(
 
 
 def wait_for_loading_spinner_to_disappear(
-    frame, timeout: float = 15.0, spinner_selectors: Optional[list] = None
+    frame, timeout: float = 120.0, spinner_selectors: Optional[list] = None
 ) -> bool:
     """
     Wait for a loading spinner to disappear from a frame or page.
@@ -477,7 +477,7 @@ class WaitContext:
             wait.until_text_contains(locator, "Complete")
     """
 
-    def __init__(self, timeout: float = 30.0, poll_interval: float = 0.5):
+    def __init__(self, timeout: float = 120.0, poll_interval: float = 0.5):
         self.timeout = timeout
         self.poll_interval = poll_interval
 

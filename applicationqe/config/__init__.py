@@ -1,3 +1,13 @@
-# config is a Python package.
-# Do NOT import the settings singleton here — it would crash any import
-# that happens before TEST_CONFIG_PATH is set.
+"""Configuration package.
+
+Usage:
+    from config.settings import get_settings
+    settings = get_settings()
+"""
+
+from config.settings import Settings, get_settings  # noqa: F401
+
+__all__ = [
+    "Settings",
+    "get_settings",
+]

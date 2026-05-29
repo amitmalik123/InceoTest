@@ -31,7 +31,7 @@ pr:
       - requirements.txt
 
 pool:
-  vmImage: ubuntu-latest
+  name: ubuntu2204-qa
 
 stages:
   - template: azure-pipelines/templates/team-stage.yml
@@ -62,7 +62,7 @@ stages:
     parameters:
       stageName: MODEL_MANAGEMENT
       teamDisplay: Model Management
-      featurePath: tests/features/Model Management
+      featurePath: tests/features/model-management
 
   - template: azure-pipelines/templates/team-stage.yml
     parameters:

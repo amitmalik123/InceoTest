@@ -221,7 +221,7 @@
                         "calculationType": "blended risk",
                         "configurations": {
                             "method": "ewma",
-                            "timeHorizon": 180
+                            "timeHorizon": 120
                         }
                     }
                 ]

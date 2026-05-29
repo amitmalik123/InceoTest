@@ -66,7 +66,7 @@
             "Functional"
         ],
         "mainURL": "{{base_url}}",
-        "endpoint": "/model",
+        "endpoint": "/models",
         "method": "POST",
         "rpc_method": "",
         "graphql_query": "",
@@ -257,7 +257,7 @@
             "Negative"
         ],
         "mainURL": "{{base_url}}",
-        "endpoint": "/model",
+        "endpoint": "/models",
         "method": "POST",
         "rpc_method": "",
         "graphql_query": "",
@@ -314,8 +314,8 @@
                 {
                     "actual": "{{error_title}}",
                     "operator": "==",
-                    "expected": "One or more validation errors occurred.",
-                    "message": "Expected title to be 'One or more validation errors occurred.'"
+                    "expected": "Missing Required Fields",
+                    "message": "Expected title to be 'Missing Required Fields'"
                 },
                 {
                     "actual": "{{error_status}}",
@@ -342,7 +342,7 @@
             "Functional"
         ],
         "mainURL": "{{base_url}}",
-        "endpoint": "/model",
+        "endpoint": "/models",
         "method": "POST",
         "rpc_method": "",
         "graphql_query": "",
@@ -415,7 +415,7 @@
             "Negative"
         ],
         "mainURL": "{{base_url}}",
-        "endpoint": "/model",
+        "endpoint": "/models",
         "method": "POST",
         "rpc_method": "",
         "graphql_query": "",
@@ -479,7 +479,7 @@
             "Negative"
         ],
         "mainURL": "{{base_url}}",
-        "endpoint": "/model",
+        "endpoint": "/models",
         "method": "POST",
         "rpc_method": "",
         "graphql_query": "",
@@ -542,7 +542,7 @@
             "Functional"
         ],
         "mainURL": "{{base_url}}",
-        "endpoint": "/model",
+        "endpoint": "/models",
         "method": "POST",
         "rpc_method": "",
         "graphql_query": "",
@@ -659,7 +659,7 @@
             "Smoke"
         ],
         "mainURL": "{{base_url}}",
-        "endpoint": "/model",
+        "endpoint": "/models",
         "method": "POST",
         "headers_additional": {
             "Content-Type": "application/json"
@@ -701,7 +701,7 @@
             "Smoke"
         ],
         "mainURL": "{{base_url}}",
-        "endpoint": "/model",
+        "endpoint": "/models",
         "method": "POST",
         "headers_additional": {
             "Content-Type": "application/json"
@@ -746,7 +746,7 @@
             "Smoke"
         ],
         "mainURL": "{{base_url}}",
-        "endpoint": "/model",
+        "endpoint": "/models",
         "method": "POST",
         "headers_additional": {
             "Content-Type": "application/json"
@@ -792,7 +792,7 @@
             "Smoke"
         ],
         "mainURL": "{{base_url}}",
-        "endpoint": "/model",
+        "endpoint": "/models",
         "method": "POST",
         "headers_additional": {
             "Content-Type": "application/json"
@@ -838,7 +838,7 @@
             "Integration"
         ],
         "mainURL": "{{base_url}}",
-        "endpoint": "/model",
+        "endpoint": "/models",
         "method": "POST",
         "rpc_method": "",
         "graphql_query": "",
@@ -1000,7 +1000,7 @@
             "Data Integrity"
         ],
         "mainURL": "{{base_url}}",
-        "endpoint": "/model",
+        "endpoint": "/models",
         "method": "POST",
         "rpc_method": "",
         "graphql_query": "",
@@ -1138,7 +1138,7 @@
                 {
                     "actual": "{{tc010_model_attr_metadata}}",
                     "operator": "==",
-                    "expected": {},
+                    "expected": null,
                     "message": "AC03: model-level metadata (models.0.metadata) is empty — confirms fields are NOT read from model_attribute after POST"
                 }
             ]
@@ -1149,5 +1149,632 @@
         "db_connection_name": "",
         "test_summary": "GET /models — Verify all 5 migrated fields read from model_version_attribute (versions.0.*) and model_attribute (models.0.metadata) is empty after POST",
         "test_scenario": "AC03: GetModelResponse MUST return investmentMins, riskProfile, custodians, metadata, benchmarks from model_version_attribute (versions.0.*), and model-level metadata (model_attribute) MUST be empty"
+    },
+    {
+        "test_id": "TC012",
+        "service_name": "models",
+        "workflow_mode": "sequential",
+        "test_name": "POST /model - Idempotency-Key missing -> 400 Bad Request (TC012)",
+        "protocol": "REST",
+        "test_type": [
+            "Negative",
+            "Functional",
+            "Security"
+        ],
+        "mainURL": "{{base_url}}",
+        "endpoint": "/models",
+        "method": "POST",
+        "rpc_method": "",
+        "graphql_query": "",
+        "graphql_variables": "",
+        "soap_action": "",
+        "soap_envelope": "",
+        "headers_additional": {
+            "Content-Type": "application/json",
+            "Idempotency-Key": null
+        },
+        "payload": {
+            "name": "string",
+            "ownerId": "3fa85f64-5717-4562-b3fc-2c963f66afa6",
+            "modelAttributes": {
+                "solutionType": "string",
+                "modelType": "string"
+            },
+            "allocations": [
+                {
+                    "entityType": "Model",
+                    "allocationName": "string",
+                    "modelId": "string",
+                    "cusip": "string",
+                    "ticker": "string",
+                    "weight": 0.5
+                }
+            ],
+            "investmentApproachId": null,
+            "benchmarkName": "string",
+            "benchmarkIsPrimary": false,
+            "custodians": [
+                "string"
+            ],
+            "investmentMins": [
+                {
+                    "type": "System",
+                    "value": 1
+                }
+            ],
+            "riskProfile": "string"
+        },
+        "expected_status": "400",
+        "expected_response_schema": "",
+        "expected_response": null,
+        "ignore_fields": [],
+        "extract_values": [],
+        "validate": {
+            "performance": {
+                "max_response_time_ms": 3000
+            },
+            "security": {
+                "checks": []
+            },
+            "assertions": [],
+            "data_comparison": {}
+        },
+        "test_data_file": "",
+        "db_query": "",
+        "db_type": "",
+        "db_connection_name": "",
+        "test_summary": "TC012: AC2 — POST /model with missing Idempotency-Key header (null -> header omitted) must return 400 Bad Request",
+        "test_scenario": "AC2: Idempotency-Key header is empty string (missing) -> API must reject with 400"
+    },
+    {
+        "test_id": "TC013",
+        "service_name": "models",
+        "workflow_mode": "sequential",
+        "test_name": "POST /model - Idempotency-Key invalid (non-UUID) -> 400 Bad Request (TC013)",
+        "protocol": "REST",
+        "test_type": [
+            "Negative",
+            "Functional",
+            "Security"
+        ],
+        "mainURL": "{{base_url}}",
+        "endpoint": "/models",
+        "method": "POST",
+        "rpc_method": "",
+        "graphql_query": "",
+        "graphql_variables": "",
+        "soap_action": "",
+        "soap_envelope": "",
+        "headers_additional": {
+            "Content-Type": "application/json",
+            "Idempotency-Key": "not-a-valid-uuid"
+        },
+        "payload": {
+            "name": "string",
+            "ownerId": "3fa85f64-5717-4562-b3fc-2c963f66afa6",
+            "modelAttributes": {
+                "solutionType": "string",
+                "modelType": "string"
+            },
+            "allocations": [
+                {
+                    "entityType": "Model",
+                    "allocationName": "string",
+                    "modelId": "string",
+                    "cusip": "string",
+                    "ticker": "string",
+                    "weight": 0.5
+                }
+            ],
+            "investmentApproachId": null,
+            "benchmarkName": "string",
+            "benchmarkIsPrimary": false,
+            "custodians": [
+                "string"
+            ],
+            "investmentMins": [
+                {
+                    "type": "System",
+                    "value": 1
+                }
+            ],
+            "riskProfile": "string"
+        },
+        "expected_status": "400",
+        "expected_response_schema": "",
+        "expected_response": null,
+        "ignore_fields": [],
+        "extract_values": [],
+        "validate": {
+            "performance": {
+                "max_response_time_ms": 3000
+            },
+            "security": {
+                "checks": []
+            },
+            "assertions": [],
+            "data_comparison": {}
+        },
+        "test_data_file": "",
+        "db_query": "",
+        "db_type": "",
+        "db_connection_name": "",
+        "test_summary": "TC013: AC2 — POST /model with invalid Idempotency-Key (non-UUID value) must return 400 Bad Request — confirms malformed key is rejected",
+        "test_scenario": "AC2: Idempotency-Key header has invalid non-UUID value -> API must reject with 400"
+    },
+    {
+        "test_id": "TC014",
+        "service_name": "models",
+        "workflow_mode": "sequential",
+        "test_name": "POST /model - agent_access: Create model with allowedAgents and verify DB row created (TC012 Step 1)",
+        "protocol": "REST",
+        "test_type": [
+            "Functional",
+            "Integration",
+            "Database Validation"
+        ],
+        "mainURL": "{{base_url}}",
+        "endpoint": "/models",
+        "method": "POST",
+        "rpc_method": "",
+        "graphql_query": "",
+        "graphql_variables": "",
+        "soap_action": "",
+        "soap_envelope": "",
+        "headers_additional": {
+            "Content-Type": "application/json"
+        },
+        "payload": {
+            "name": "Test Model - agent_access validation POST",
+            "ownerId": "3fa85f64-5717-4562-b3fc-2c963f66afa6",
+            "modelAttributes": {
+                "solutionType": "Managed",
+                "modelType": "Strategic"
+            },
+            "allocations": [
+                {
+                    "entityType": "Security",
+                    "allocationName": "Test Allocation",
+                    "modelId": "string",
+                    "cusip": "string",
+                    "ticker": "SPY",
+                    "weight": 1.0
+                }
+            ],
+            "investmentApproachId": null,
+            "benchmarkName": "S&P 500",
+            "benchmarkIsPrimary": false,
+            "custodians": [
+                "Fidelity"
+            ],
+            "investmentMins": [
+                {
+                    "type": "System",
+                    "value": 1
+                }
+            ],
+            "riskProfile": "Moderate",
+            "versionMetadata": {
+                "additionalProp1": "agent_access_test"
+            },
+            "allowedAgents": [
+                "{{random_string()}}"
+            ]
+        },
+        "expected_status": "201",
+        "expected_response_schema": "",
+        "expected_response": null,
+        "ignore_fields": [],
+        "extract_values": [
+            {
+                "from": "response",
+                "key": "modelId",
+                "assign_to": "tc012_model_id"
+            },
+            {
+                "from": "request",
+                "key": "allowedAgents.0",
+                "assign_to": "tc012_sent_agent_id"
+            }
+        ],
+        "validate": {
+            "performance": {
+                "max_response_time_ms": null
+            },
+            "security": {
+                "checks": []
+            },
+            "assertions": [
+                {
+                    "actual": "{{tc012_model_id}}",
+                    "operator": "!=",
+                    "expected": null,
+                    "message": "agent_access AC: Verify model was created successfully and modelId is returned"
+                }
+            ]
+        },
+        "test_data_file": "",
+        "db_query": "",
+        "db_type": "",
+        "db_connection_name": "",
+        "test_summary": "Step 1: POST /model with allowedAgents — Create model and extract modelId and sent agent_id for DB verification",
+        "test_scenario": "agent_access AC: POST /model with allowedAgents populated → system must create corresponding agent_access rows in database"
+    },
+    {
+        "test_id": "TC015",
+        "service_name": "models",
+        "workflow_mode": "sequential",
+        "test_name": "DB_ONLY - Verify agent_access row created after POST with allowedAgents (TC012 Step 2)",
+        "protocol": "DB_ONLY",
+        "test_type": [
+            "Functional",
+            "Database Validation",
+            "Integration"
+        ],
+        "mainURL": "",
+        "endpoint": "",
+        "method": "",
+        "rpc_method": "",
+        "graphql_query": "",
+        "graphql_variables": "",
+        "soap_action": "",
+        "soap_envelope": "",
+        "headers_additional": {
+            "Content-Type": "application/json"
+        },
+        "payload": null,
+        "expected_status": "",
+        "expected_response_schema": "",
+        "expected_response": "",
+        "extract_values": [
+            {
+                "from": "db_result",
+                "key": "0.agent_id",
+                "assign_to": "tc012_db_agent_id"
+            },
+            {
+                "from": "db_result",
+                "key": "0.model_id",
+                "assign_to": "tc012_db_model_id"
+            }
+        ],
+        "validate": {
+            "performance": {
+                "max_response_time_ms": 3000
+            },
+            "security": {
+                "checks": []
+            },
+            "assertions": [
+                {
+                    "actual": "{{tc012_db_agent_id}}",
+                    "operator": "==",
+                    "expected": "{{tc012_sent_agent_id}}",
+                    "message": "agent_access AC: Verify agent_id in agent_access matches the value sent in allowedAgents payload"
+                },
+                {
+                    "actual": "{{tc012_db_model_id}}",
+                    "operator": "==",
+                    "expected": "{{tc012_model_id}}",
+                    "message": "agent_access AC: Verify model_id in agent_access matches the created modelId"
+                }
+            ]
+        },
+        "test_data_file": "",
+        "db_type": "postgresql",
+        "db_connection_name": "models",
+        "db_query": "SELECT aa.agent_id, aa.model_id, aa.model_version FROM agent_access aa WHERE aa.model_id = '{{tc012_model_id}}'::uuid ORDER BY aa.agent_access_id;",
+        "test_summary": "Step 2: DB_ONLY - Verify agent_access row was created with correct agent_id (from allowedAgents) and model_id after POST",
+        "test_scenario": "agent_access AC: Verify agent_access table row correctly records the sent agent_id and the created model_id"
+    },
+    {
+        "test_id": "TC016",
+        "service_name": "models",
+        "workflow_mode": "sequential",
+        "test_name": "DB_ONLY - Verify no duplicate agent_access rows exist across the table (TC013)",
+        "protocol": "DB_ONLY",
+        "test_type": [
+            "Functional",
+            "Database Validation",
+            "Data Integrity"
+        ],
+        "mainURL": "",
+        "endpoint": "",
+        "method": "",
+        "rpc_method": "",
+        "graphql_query": "",
+        "graphql_variables": "",
+        "soap_action": "",
+        "soap_envelope": "",
+        "headers_additional": {
+            "Content-Type": "application/json"
+        },
+        "payload": null,
+        "expected_status": "",
+        "expected_response_schema": "",
+        "expected_response": "",
+        "extract_values": [
+            {
+                "from": "db_result",
+                "key": "*",
+                "assign_to": "tc013_duplicate_rows"
+            }
+        ],
+        "validate": {
+            "performance": {
+                "max_response_time_ms": 3000
+            },
+            "security": {
+                "checks": []
+            },
+            "data_comparison": {
+                "source": "db_result",
+                "target": null,
+                "format": "table",
+                "key_field": [
+                    "model_id"
+                ],
+                "fields_to_compare": [
+                    {
+                        "source_field": "row_count",
+                        "comparison": "equals",
+                        "expected_value": 0,
+                        "message": "agent_access AC: Verify no duplicate (sso_guid, agent_id, model_id, model_version) combinations exist — create-or-replace semantics enforced"
+                    }
+                ],
+                "log_differences": true
+            },
+            "assertions": []
+        },
+        "test_data_file": "",
+        "db_type": "postgresql",
+        "db_connection_name": "models",
+        "db_query": "models\\db_queries\\Query_agent_access_uniqueness.sql",
+        "test_summary": "DB_ONLY: Verify no duplicate agent_access rows exist — create-or-replace semantics enforced (no duplicate sso_guid + agent_id + model_id + model_version combinations)",
+        "test_scenario": "agent_access AC: Idempotency / no-op re-insert enforcement — duplicate allowedAgents must not create duplicate agent_access rows"
+    },
+    {
+        "test_id": "TC017",
+        "service_name": "models",
+        "workflow_mode": "independent",
+        "test_name": "POST /model - Draft model without allowedAgents should succeed [Business Rule] (TC015)",
+        "protocol": "REST",
+        "test_type": [
+            "Functional",
+            "Business Rule"
+        ],
+        "mainURL": "{{base_url}}",
+        "endpoint": "/models",
+        "method": "POST",
+        "rpc_method": "",
+        "graphql_query": "",
+        "graphql_variables": "",
+        "soap_action": "",
+        "soap_envelope": "",
+        "headers_additional": {
+            "Content-Type": "application/json"
+        },
+        "payload": {
+            "name": "Test Model - Draft without allowedAgents",
+            "ownerId": "3fa85f64-5717-4562-b3fc-2c963f66afa6",
+            "modelAttributes": {
+                "solutionType": "Managed",
+                "modelType": "Strategic"
+            },
+            "allocations": [
+                {
+                    "entityType": "Security",
+                    "allocationName": "Test Allocation",
+                    "modelId": "string",
+                    "cusip": "string",
+                    "ticker": "SPY",
+                    "weight": 1.0
+                }
+            ],
+            "investmentApproachId": null,
+            "benchmarkName": "S&P 500",
+            "benchmarkIsPrimary": false,
+            "custodians": [
+                "Fidelity"
+            ],
+            "investmentMins": [
+                {
+                    "type": "System",
+                    "value": 1
+                }
+            ],
+            "riskProfile": "Moderate",
+            "versionMetadata": {
+                "additionalProp1": "draft_no_allowedAgents_test"
+            }
+        },
+        "expected_status": "201",
+        "expected_response_schema": "",
+        "expected_response": null,
+        "ignore_fields": [],
+        "extract_values": [
+            {
+                "from": "response",
+                "key": "modelId",
+                "assign_to": "tc015_model_id"
+            }
+        ],
+        "validate": {
+            "performance": {
+                "max_response_time_ms": null
+            },
+            "security": {
+                "checks": []
+            },
+            "assertions": [
+                {
+                    "actual": "{{tc015_model_id}}",
+                    "operator": "!=",
+                    "expected": null,
+                    "message": "Business Rule: Draft model POST without allowedAgents must succeed (201) - allowedAgents is not required for Draft status"
+                }
+            ]
+        },
+        "test_data_file": "",
+        "db_query": "",
+        "db_type": "",
+        "db_connection_name": "",
+        "test_summary": "POST /model without allowedAgents - Verify Draft model creation succeeds (201). Business rule: allowedAgents not required for Draft status, only for Published.",
+        "test_scenario": "Business Rule AC: Draft model without allowedAgents must succeed with 201. Only Published models enforce allowedAgents requirement."
+    },
+    {
+        "test_id": "TC018",
+        "service_name": "models",
+        "workflow_mode": "sequential",
+        "test_name": "POST /model - Duplicate entries in allowedAgents should succeed as no-op [Business Rule] (TC016 Step 1)",
+        "protocol": "REST",
+        "test_type": [
+            "Functional",
+            "Data Integrity",
+            "Business Rule"
+        ],
+        "mainURL": "{{base_url}}",
+        "endpoint": "/models",
+        "method": "POST",
+        "rpc_method": "",
+        "graphql_query": "",
+        "graphql_variables": "",
+        "soap_action": "",
+        "soap_envelope": "",
+        "headers_additional": {
+            "Content-Type": "application/json"
+        },
+        "payload": {
+            "name": "Test Model - Duplicate allowedAgents no-op POST",
+            "ownerId": "3fa85f64-5717-4562-b3fc-2c963f66afa6",
+            "modelAttributes": {
+                "solutionType": "Managed",
+                "modelType": "Strategic"
+            },
+            "allocations": [
+                {
+                    "entityType": "Security",
+                    "allocationName": "Test Allocation",
+                    "modelId": "string",
+                    "cusip": "string",
+                    "ticker": "SPY",
+                    "weight": 1.0
+                }
+            ],
+            "investmentApproachId": null,
+            "benchmarkName": "S&P 500",
+            "benchmarkIsPrimary": false,
+            "custodians": [
+                "Fidelity"
+            ],
+            "investmentMins": [
+                {
+                    "type": "System",
+                    "value": 1
+                }
+            ],
+            "riskProfile": "Moderate",
+            "versionMetadata": {
+                "additionalProp1": "duplicate_allowedAgents_test"
+            },
+            "allowedAgents": [
+                "string",
+                "string"
+            ]
+        },
+        "expected_status": "201",
+        "expected_response_schema": "",
+        "expected_response": null,
+        "ignore_fields": [],
+        "extract_values": [
+            {
+                "from": "response",
+                "key": "modelId",
+                "assign_to": "tc016_model_id"
+            },
+            {
+                "from": "request",
+                "key": "allowedAgents.0",
+                "assign_to": "tc016_agent_id"
+            }
+        ],
+        "validate": {
+            "performance": {
+                "max_response_time_ms": null
+            },
+            "security": {
+                "checks": []
+            },
+            "assertions": [
+                {
+                    "actual": "{{tc016_model_id}}",
+                    "operator": "!=",
+                    "expected": null,
+                    "message": "Business Rule: POST with duplicate agent IDs in allowedAgents must not fail - duplicate inserts are no-ops, not errors"
+                }
+            ]
+        },
+        "test_data_file": "",
+        "db_query": "",
+        "db_type": "",
+        "db_connection_name": "",
+        "test_summary": "Step 1: POST /model with same agent UUID listed twice in allowedAgents - Verify 201 and extract modelId (duplicate should be no-op, not failure)",
+        "test_scenario": "Business Rule AC: Sending the same agent UUID twice in allowedAgents array must succeed - duplicate agent_access inserts are silently ignored (create-or-replace semantics)"
+    },
+    {
+        "test_id": "TC019",
+        "service_name": "models",
+        "workflow_mode": "sequential",
+        "test_name": "DB_ONLY - Verify only 1 agent_access row created despite duplicate allowedAgents in POST (TC016 Step 2)",
+        "protocol": "DB_ONLY",
+        "test_type": [
+            "Functional",
+            "Database Validation",
+            "Data Integrity"
+        ],
+        "mainURL": "",
+        "endpoint": "",
+        "method": "",
+        "rpc_method": "",
+        "graphql_query": "",
+        "graphql_variables": "",
+        "soap_action": "",
+        "soap_envelope": "",
+        "headers_additional": {
+            "Content-Type": "application/json"
+        },
+        "payload": null,
+        "expected_status": "",
+        "expected_response_schema": "",
+        "expected_response": "",
+        "extract_values": [
+            {
+                "from": "db_result",
+                "key": "0.row_count",
+                "assign_to": "tc017_agent_row_count"
+            }
+        ],
+        "validate": {
+            "performance": {
+                "max_response_time_ms": 3000
+            },
+            "security": {
+                "checks": []
+            },
+            "assertions": [
+                {
+                    "actual": "{{tc017_agent_row_count}}",
+                    "operator": "==",
+                    "expected": 1,
+                    "message": "Business Rule: Despite same agent UUID appearing twice in allowedAgents, only 1 agent_access row must exist - create-or-replace / no-op duplicate semantics enforced"
+                }
+            ]
+        },
+        "test_data_file": "",
+        "db_type": "postgresql",
+        "db_connection_name": "models",
+        "db_query": "SELECT COUNT(*) AS \"row_count\" FROM agent_access WHERE model_id = '{{tc016_model_id}}'::uuid AND agent_id = '{{tc016_agent_id}}';",
+        "test_summary": "Step 2: DB_ONLY - Verify exactly 1 agent_access row for the model after POST with duplicate allowedAgents - confirms no-op duplicate insert behaviour",
+        "test_scenario": "Business Rule AC: Only 1 agent_access row must be created even when the same agent identifier string appears multiple times in allowedAgents array"
     }
 ]
