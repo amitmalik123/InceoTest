@@ -62,18 +62,6 @@ dependencies = [
 
 [tool.setuptools]
 packages = ["config", "pages", "utils", "tests", "fixtures"]
-    # Encryption utilities
-    "cryptography>=46.0.0",
-
-    # PDF Testing
-    "PyPDF2>=3.0.0",
-
-    # Performance Monitoring (optional)
-    "influxdb-client>=1.38.0",
-
-    # Encryption (used by analytics reporters)
-    "cryptography>=46.0.0"
-]
 
 [tool.setuptools.packages.find]
 # Only include actual Python packages (directories with __init__.py)
