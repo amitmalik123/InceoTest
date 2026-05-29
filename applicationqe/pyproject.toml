@@ -106,9 +106,33 @@ testpaths = ["tests"]
 python_files = "test_*.py"
 python_classes = "Test*"
 python_functions = "test_*"
+pythonpath = ["."]
+addopts = """
+-v
+--tb=short
+--strict-markers
+--disable-warnings
+--video=on
+--screenshot=on
+--tracing=retain-on-failure
+--junitxml=reports/junit/junit-report.xml
+--html=reports/pytest_report.html
+--self-contained-html
+--alluredir=reports/allure-results
+--reruns=1
+--reruns-delay=1
+"""
+asyncio_mode = "strict"
+log_cli = true
+log_cli_level = "INFO"
+log_cli_format = "%(asctime)s [%(levelname)8s] %(message)s"
+log_cli_date_format = "%Y-%m-%d %H:%M:%S"
+timeout = 300
+timeout_method = "thread"
 markers = [
     "smoke: Quick smoke tests for critical functionality",
     "regression: Full regression test suite",
+    "Regression: Full regression test suite (capitalized alias)",
     "FNT_regression: FNT regression test suite",
     "InDev: Tests in development (work in progress)",
     "roth_conversion: Roth IRA conversion related tests",
@@ -152,64 +176,6 @@ markers = [
     "S9: S9_OAM_Initiated by SAU_eSignature_With One Inperson Client Signature_Authorized Signer_NOT required",
     "S10: S10_OAM_Initiated by FA_Online Submit_Finish Later",
     "S11: S11_PRODENG_33109_OAM_SAU_Online Submit_Authorized Approval_Tracking Center_Blue Banner_Trigger Advisor Mail",
-]
-pythonpath = ["."]
-python_files = "test_*.py"
-python_classes = "Test*"
-python_functions = "test_*"
-addopts = """
--v
---tb=short
---strict-markers
---disable-warnings
---video=on
---screenshot=on
---tracing=retain-on-failure
---junitxml=reports/oam/junit/junit-report.xml
---html=reports/oam/pytest_report.html
---self-contained-html
---alluredir=reports/oam/allure-results
---reruns=1
---reruns-delay=1
-"""
---junitxml=reports/junit/junit-report.xml
---html=reports/pytest_report.html
---self-contained-html
---alluredir=reports/allure-results
-"""
-# Note: --reruns and --reruns-delay commented out to allow --pdb debug mode
-# Uncomment for normal test runs:
-# --reruns=2
-# --reruns-delay=1
-
-markers = [
-    "smoke: Quick smoke tests for critical functionality",
-    "regression: Full regression test suite",
-    "roth_conversion: Roth IRA conversion related tests",
-    "add_ach: Add ACH instructions related tests",
-    "Regression: Full regression test suite (capitalized alias)",
-    "ach: ACH functionality tests",
-    "login: Login functionality tests",
-    "navigation: Navigation and menu tests",
-    "account: Account management tests",
-    "wizard: Account wizard flow tests",
-    "change_investments: Change Investments flow tests",
-    "account_management: Account Management flow tests",
-    "suspension: Account Suspension tests",
-    "docusign: DocuSign integration tests",
-    "conversion: Asset conversion tests",
-    "investment: Investment management tests",
-    "tracking: Tracking center tests",
-    "e2e: End-to-end workflow tests",
-    "critical: Critical path tests",
-    "slow: Tests that take longer to execute",
-    "skip_ci: Skip in CI environment",
-    "test11: Tests for test11 environment",
-    "test12: Tests for test12 environment",
-    "silo: Tests for silo environment",
-    "prod: Tests for production environment",
-    "performance: Performance monitoring tests",
-    "lighthouse: Lighthouse audit tests",
     "SMI_InternalAgent: Check login functionality for internal agent",
     "SMI_ExternalAgent: Check login functionality for external agent",
     "SMI_ExecutiveAgent: Check login functionality for executive agent",
@@ -233,14 +199,9 @@ markers = [
     "integration: Integration tests",
     "ui: UI tests",
     "api: API tests",
+    "journal_transfer: STP Journals transfer tests",
+    "journal_transfer_smoke: STP Journals transfer smoke tests",
 ]
-asyncio_mode = "strict"
-log_cli = true
-log_cli_level = "INFO"
-log_cli_format = "%(asctime)s [%(levelname)8s] %(message)s"
-log_cli_date_format = "%Y-%m-%d %H:%M:%S"
-timeout = 300
-timeout_method = "thread"
 
 [tool.black]
 line-length = 100
