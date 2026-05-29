@@ -61,7 +61,6 @@ dependencies = [
 ]
 
 [tool.setuptools]
-packages = ["config", "pages", "utils", "tests", "fixtures"]
 
 [tool.setuptools.packages.find]
 # Only include actual Python packages (directories with __init__.py)
