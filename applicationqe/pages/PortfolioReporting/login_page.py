@@ -1,3 +1,5 @@
+import os
+
 from playwright.sync_api import Locator, Page
 
 from locators.PortfolioReporting import login_locators
@@ -20,7 +22,16 @@ class LoginPage(BasePage):
         self.login_form: Locator = locators["login_form"]
 
     def navigate(self) -> None:
-        url = f"{self.base_url}{self.PAGE_PATH}"
+        base_url = (self.base_url or "").strip()
+        page_path = self.PAGE_PATH.lstrip("/")
+
+        if base_url.startswith("http"):
+            url = f"{base_url.rstrip('/')}/{page_path}"
+        else:
+            # Fallback keeps login flow usable when base_url is not supplied.
+            env = os.getenv("TEST_ENV", "test11")
+            url = f"https://{env}.ewealthmanager.com/{page_path}"
+
         logger.info(f"Navigating to login page: {url}")
         self.page.goto(url)
         # Allow All button is optional - only appears first time (no session/cookies)
