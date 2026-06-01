@@ -1,5 +1,5 @@
 @NAW
-Feature: WFI Regression- NAW
+Feature: NAW Core Account Opening
 
   @smokeTest11 @Regression
   Scenario Outline: NAW_Agent_NewAccount_GNW_LLC_BAW_Activation
@@ -56,7 +56,7 @@ Feature: WFI Regression- NAW
       | SheetName | RowNumber |
       | NAW       | 2         |
 
-   @smokeTest11 @prodSmoke @Regression
+  @smokeTest11 @prodSmoke @Regression
   Scenario Outline: NAW_Agent_NewAccount_Fidelity_Trust_BAW_Activation
     When User is on Account Wizard tab and click on go button for New Client creation
     When User navigates to client profile page and enter required information
@@ -109,6 +109,7 @@ Feature: WFI Regression- NAW
     # Then User validate the activated account and switch to eWM
     # Then Navigate to tracking center page
     # When User search item number and fetch description "after activation"
+
     Examples:
       | SheetName | RowNumber |
       | NAW       | 3         |
@@ -164,7 +165,7 @@ Feature: WFI Regression- NAW
     When Click on "Add" button under account number association for tms
     When User does the activate account
     Then User validate the activated account and switch to eWM
-  
+
     Examples:
       | SheetName | RowNumber |
       | NAW       | 4         |
@@ -219,7 +220,7 @@ Feature: WFI Regression- NAW
     # Then Navigate to tracking center page
     # When User search item number and fetch description "after activation"
 
-    Examples: 
+    Examples:
       | SheetName | RowNumber |
       | NAW       |        5  |
 
@@ -271,7 +272,7 @@ Feature: WFI Regression- NAW
     When User does the activate account
     Then User validate the activated account and switch to eWM
 
-    Examples: 
+    Examples:
       | SheetName | RowNumber |
       | NAW       |        6  |
 
@@ -322,6 +323,7 @@ Feature: WFI Regression- NAW
     When Click on "Add" button under account number association for tms
     When User does the activate account
     Then User validate the activated account and switch to eWM
-    Examples: 
+
+    Examples:
       | SheetName | RowNumber |
       | NAW       |        7  |

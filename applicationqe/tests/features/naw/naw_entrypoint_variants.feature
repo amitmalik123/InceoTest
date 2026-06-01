@@ -1,5 +1,5 @@
 @NAW
-Feature: WFI Regression- NAW
+Feature: NAW Entry Point Variants
 
   @navbar
   Scenario Outline: navbar_NAW_Agent_NewAccount_GNW_LLC_navbar
@@ -53,7 +53,7 @@ Feature: WFI Regression- NAW
     When User does the activate account
     Then User validate the activated account and switch to eWM
 
-    Examples: 
+    Examples:
       | SheetName | RowNumber |
       | NAW       |        2  |
 
@@ -87,6 +87,7 @@ Feature: WFI Regression- NAW
     When User wait for "30" seconds
     Then Navigate to tracking center page
     When User search item number and fetch description "before activation"
+
     Examples:
       | SheetName | RowNumber |
       | NAW       | 3         |
@@ -121,6 +122,7 @@ Feature: WFI Regression- NAW
     When User wait for "30" seconds
     Then Navigate to tracking center page
     When User search item number and fetch description "before activation"
+
     Examples:
       | SheetName | RowNumber |
       | NAW       | 4         |
@@ -152,7 +154,7 @@ Feature: WFI Regression- NAW
     Then Navigate to tracking center page
     When User search item number and fetch description "before activation"
 
-    Examples: 
+    Examples:
       | SheetName | RowNumber |
       | NAW       |        5  |
 
@@ -183,7 +185,7 @@ Feature: WFI Regression- NAW
     Then Navigate to tracking center page
     When User search item number and fetch description "before activation"
 
-    Examples: 
+    Examples:
       | SheetName | RowNumber |
       | NAW       |        6  |
 
@@ -213,6 +215,7 @@ Feature: WFI Regression- NAW
     When User wait for "30" seconds
     Then Navigate to tracking center page
     When User search item number and fetch description "before activation"
-    Examples: 
+
+    Examples:
       | SheetName | RowNumber |
       | NAW       |        7  |

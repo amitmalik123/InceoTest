@@ -1,5 +1,5 @@
 @retainAccount
-Feature: retain account in NAW
+Feature: NAW Document Options
 
   Scenario Outline: PRODENG-28727_NAW_Agent_NewAccount_TDA_retain_account
     When User is on Account Wizard tab and click on go button for New Client creation
@@ -20,12 +20,11 @@ Feature: retain account in NAW
     When User downloads the Accounts Establishment document
     Then Validate retain account in downloaded document
 
-    Examples: 
-      | SheetName | RowNumber | retainAccount |
-      | retainAccount       |        2  | Yes           |
-      | retainAccount       |        2  | No            |
+    Examples:
+      | SheetName     | RowNumber | retainAccount |
+      | retainAccount |        2  | Yes           |
+      | retainAccount |        2  | No            |
 
- 
   Scenario Outline: PRODENG-28727_NAW_Agent_NewAccount_Fidelity_retain_account
     When User is on Account Wizard tab and click on go button for New Client creation
     And User navigates to client profile page and enter required information
@@ -45,7 +44,7 @@ Feature: retain account in NAW
     When User downloads the Accounts Establishment document
     Then Validate retain account in downloaded document
 
-    Examples: 
-      | SheetName | RowNumber | retainAccount |
-      | retainAccount       |       3  | Yes           |
-      | retainAccount       |       3  | No            |
+    Examples:
+      | SheetName     | RowNumber | retainAccount |
+      | retainAccount |       3   | Yes           |
+      | retainAccount |       3   | No            |

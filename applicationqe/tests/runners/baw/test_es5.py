@@ -30,5 +30,7 @@ from tests.steps.baw.create_oa_step import *  # noqa
 from tests.steps.baw.journal_utility_step import *  # noqa
 # Add other step files as needed
 
-# Load all scenarios from the feature file
-scenarios("../../features/baw/BAW.feature")
+# Load all scenarios from the feature files
+scenarios("../../features/baw/baw_transfer_records.feature")
+scenarios("../../features/baw/baw_shell_journal.feature")
+scenarios("../../features/baw/baw_account_activation.feature")
