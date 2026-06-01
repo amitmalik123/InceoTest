@@ -325,6 +325,12 @@ stages:
     - script: |
         echo "Pushing test metrics to Azure Log Analytics..."
         cd applicationqe
+        _CONFIG_DIR="${{ parameters.configDir }}"
+        if [ -z "$_CONFIG_DIR" ]; then
+          _CONFIG_DIR=$(echo "${{ parameters.featurePath }}" | sed 's|tests/features/||' | tr '[:upper:]' '[:lower:]' | tr ' ' '-')
+        fi
+        export TEST_APP="$_CONFIG_DIR"
+        echo "✓ TEST_APP=$TEST_APP"
         export ALLURE_RESULTS_DIR="$(allureResultsDir)"
         export ENVIRONMENT="$(environment)"
         export BUILD_ID="$(Build.BuildId)"
