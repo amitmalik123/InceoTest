@@ -119,8 +119,6 @@ def _perform_login(page: Page, app_config: AppConfig, test_data: dict) -> bool:
         # For Internal Admin scenarios, use environment config credentials instead of Excel
         user_role = (test_data.get("UserRole") or test_data.get("userRole") or "").strip()
         if user_role.lower() in ("internal admin", "internaladmin", "internal_admin"):
-            from config.settings import get_settings
-            settings = get_settings()
             username = settings.internal_admin_username
             password = settings.internal_admin_password
         else:
@@ -199,8 +197,6 @@ def authenticated_page(browser, browser_context_args, test_context, request) -> 
     # For Internal Admin scenarios, use environment config credentials
     user_role = (test_data.get("UserRole") or test_data.get("userRole") or "").strip()
     if user_role.lower() in ("internal admin", "internaladmin", "internal_admin"):
-        from config.settings import get_settings
-        settings = get_settings()
         username = settings.internal_admin_username
     else:
         username = (test_data.get("username") or test_data.get("UserName") or "").strip()
