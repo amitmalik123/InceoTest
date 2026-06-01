@@ -202,6 +202,8 @@ stages:
           echo "Derived configDir: $_CONFIG_DIR"
         fi
         export TEST_CONFIG_PATH="config/${_CONFIG_DIR}/env.$(environment).yaml"
+        export TEST_APP="$_CONFIG_DIR"
+        echo "✓ TEST_APP=$TEST_APP"
         export CI=true
         export PYTHONUNBUFFERED=1
         export ALLURE_RESULTS_DIR="$(allureResultsDir)"
