@@ -40,9 +40,10 @@ class ManageInstruction1Page(BasePage):
     def click_next_button(self) -> None:
         """Click the Next button"""
         logger.info("Clicking Next button")
-
-        # Click auto-waits for: attached, visible, stable, enabled
-        self.next_button.click(timeout=30000)
+        self.next_button.wait_for(state="visible", timeout=30000)
+        self.dismiss_cookie_banner()
+        # JS click bypasses any Ketch/OneTrust overlay intercepting pointer events
+        self.next_button.evaluate("el => el.click()")
         logger.info("Next button clicked")
 
     def get_household_id(self) -> str:

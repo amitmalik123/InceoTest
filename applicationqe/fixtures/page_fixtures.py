@@ -3,207 +3,92 @@ Page Object Fixtures
 
 Provides fixtures for all page objects used in UI tests.
 Each fixture creates a page object instance with the current Playwright page.
-The base_url is injected from Settings so pages are environment-agnostic.
-Page Object Fixtures
-
-Provides fixtures for all page objects used in UI tests.
-Each fixture creates a page object instance with the current Playwright page.
-
-This file is the base-branch location and contains local fixtures directly,
-so local customizations are preserved while using base folder structure.
 """
+from pathlib import Path
+import sys
 
 import pytest
 from playwright.sync_api import Page
 
-from config.oam.settings import get_settings
-from pages.oam.account_detail_page import AccountDetailPage
-from pages.oam.account_list_page import AccountListPage
-from pages.oam.account_management_page import AccountManagementPage
-from pages.oam.account_wizard_page import AccountWizardPage
-from pages.oam.add_ach_instruction import AddACHInstructionPage
-from pages.oam.api_utility_page import APIUtilityPage
-from pages.oam.change_investments_page import ChangeInvestmentsPage
-from pages.oam.client_accounts_page import ClientAccountsPage
-from pages.oam.clients_page import ClientsPage
-from pages.oam.docusign_page import DocuSignPage
-from pages.oam.dmtool_page import DMToolPage
-from pages.oam.login_page import LoginPage
-from pages.oam.outlook_page import OutlookPage
-from pages.oam.manage_instruction_1_page import ManageInstruction1Page
-from pages.oam.manage_instruction_2_page import ManageInstruction2Page
-from pages.oam.roth_conversion_page import RothConversionPage
-from pages.oam.tracking_center_page import TrackingCenterPage
-from pages.oam.item_detail_page import ItemDetailPage
+# ---------------------------------------------------------------------------
+# Path setup — hyphenated STP page dirs cannot use Python dot-notation imports
+# ---------------------------------------------------------------------------
+_APP_ROOT = Path(__file__).resolve().parents[2]  # .../applicationqe/
+_PAGE_DIRS = [
+    "pages/stp/stp_addACHIntrcutions",
+    "pages/stp/stp_updateAddress",
+    "pages/stp/stp_mimotransactionpage",
+    "pages/stp/stp_swp",
+    "pages/stp/stp_oaTradingTool",
+    "pages/stp/stp_manageBene",
+    "pages/stp/stp_aip",
+    "pages/stp/stp_aip/stp_cancelAip",
+    "pages/stp/stp_aip/stp_establishAip",
+]
+for _d in _PAGE_DIRS:
+    _p = str(_APP_ROOT / _d)
+    if _p not in sys.path:
+        sys.path.insert(0, _p)
 
-# Resolve base_url once from the active environment config
-_base_url = get_settings().base_url
+# Shared pages (non-hyphenated, standard import)
+from pages.stp.shared.account_detail_page import AccountDetailPage
+from pages.stp.shared.account_list_page import AccountListPage
+from pages.stp.shared.account_wizard_page import AccountWizardPage
+from pages.stp.shared.api_utility_page import APIUtilityPage
+from pages.stp.shared.clients_page import ClientsPage
+from pages.stp.shared.docusign_page import DocuSignPage
+from pages.stp.shared.esign_signer_information_page import ESignSignerInformationPage
+from pages.stp.shared.item_details_page import ItemDetailsPage
+from pages.stp.shared.login_page import LoginPage
+from pages.stp.shared.manage_instruction_1_page import ManageInstruction1Page
+from pages.stp.shared.manage_instruction_2_page import ManageInstruction2Page
+from pages.stp.shared.new_nav_wrapper_page import NewNavWrapperPage
+from pages.stp.shared.privacy_and_security_policy_page import PrivacyAndSecurityPolicyPage
+from pages.stp.shared.supported_browsers_page import SupportedBrowsersPage
+from pages.stp.shared.terms_of_use_page import TermsOfUsePage
+from pages.stp.shared.tracking_center_page import TrackingCenterPage
+from pages.ewm.roth_conversion_page import RothConversionPage
 
+# Pages from hyphenated dirs (imported via sys.path above)
+from add_ach_confirmation_page import AddACHConfirmationPage  # stp_addACHIntrcutions
+from add_ach_instruction import AddACHInstructionPage  # stp_addACHIntrcutions
+from add_ach_summary_page import AddACHSummaryPage  # stp_addACHIntrcutions
+from dm_tool_address_edit_modal import DMToolAddressEditModal  # stp_updateAddress
+from dm_tool_usps_modal import DMToolUSPSModal  # stp_updateAddress
+from dmt_address_change_confirmation_page import DMTAddressChangeConfirmationPage  # stp_updateAddress
+from dmtool_page import DMToolPage  # stp_updateAddress
+from mimo_confirmation_page import MIMOConfirmationPage  # stp_mimotransactionpage
+from mimo_transaction_request_page import MIMOTransactionRequestPage  # stp_mimotransactionpage
+from mimo_transaction_request_page2 import MIMOTransactionRequestPage2  # stp_mimotransactionpage
+from mimo_transaction_summary_page import MIMOTransactionSummaryPage  # stp_mimotransactionpage
+from withdrawal_method_modal_page import WithdrawalMethodModalPage  # stp_swp
+from withdrawal_signature_not_required_modal_page import WithdrawalSignatureNotRequiredModalPage  # stp_swp
+from swp_establish_landing_page import SWPEstablishLandingPage  # stp_swp
+from swp_establish_transaction_page_one import SWPEstablishTransactionPageOne  # stp_swp
+from swp_establish_transaction_page_two import SWPEstablishTransactionPageTwo  # stp_swp
+from swp_establish_confirmation_page import SWPEstablishConfirmationPage  # stp_swp
+from oa_tool_landing_page import OAToolLandingPage  # stp_oaTradingTool
+from oa_tool_transaction_page import OAToolTransactionPage  # stp_oaTradingTool
+from update_beneficiary_page import UpdateBeneficiaryPage  # stp_manageBene
+from manage_bene_detail_page import ManageBeneDetailPage  # stp_manageBene
+from add_beneficiary_page import AddBeneficiaryPage  # stp_manageBene
+from manage_bene_page import ManageBenePage  # stp_manageBene
+from edit_beneficiary_page import EditBeneficiaryPage  # stp_manageBene
+from manage_bene_esignature_page import ManageBeneESignaturePage  # stp_manageBene
+from manage_bene_review_page import ManageBeneReviewPage  # stp_manageBene
+from deceased_bene_page import DeceasedBenePage  # stp_manageBene
+from cancel_aip_page import CancelAIPPage  # stp_aip
+from establish_aip_landing_page import EstablishAIPLandingPage  # stp_aip
+from establish_aip_origination_selection_page import EstablishAIPOriginationSelectionPage  # stp_aip
+from establish_aip_add_aip_page import EstablishAIPAddAIPPage  # stp_aip
+from establish_aip_summary_page import EstablishAIPSummaryPage  # stp_aip
+from establish_aip_confirmation_page import EstablishAIPConfirmationPage  # stp_aip
+from establish_aip_common_page import EstablishAIPCommonPage  # stp_aip
 
 @pytest.fixture
-def login_page(authenticated_page: Page) -> LoginPage:
+def login_page(page: Page):
     """Login page object fixture"""
-    return LoginPage(authenticated_page, base_url=_base_url)
-
-
-@pytest.fixture
-def clients_page(authenticated_page: Page) -> ClientsPage:
-    """Clients page object fixture"""
-    return ClientsPage(authenticated_page, base_url=_base_url)
-
-
-@pytest.fixture
-def client_accounts_page(authenticated_page: Page) -> ClientAccountsPage:
-    """Client accounts page object fixture"""
-    return ClientAccountsPage(authenticated_page, base_url=_base_url)
-
-
-@pytest.fixture
-def dmtool_page(authenticated_page: Page) -> DMToolPage:
-    """DMTool page object fixture"""
-    return DMToolPage(authenticated_page)
-
-
-@pytest.fixture
-def docusign_page(authenticated_page: Page) -> DocuSignPage:
-    """DocuSign page object fixture"""
-    return DocuSignPage(authenticated_page, base_url=_base_url)
-
-
-@pytest.fixture
-def account_list_page(authenticated_page: Page) -> AccountListPage:
-    """Account list page object fixture"""
-    return AccountListPage(authenticated_page, base_url=_base_url)
-
-
-@pytest.fixture
-def api_utility_page() -> APIUtilityPage:
-    """
-    API utility page object fixture.
-
-    Note: This doesn't require a browser page as it's for API operations.
-    """
-    return APIUtilityPage()
-
-
-@pytest.fixture
-def account_detail_page(authenticated_page: Page) -> AccountDetailPage:
-    """Account detail page object fixture"""
-    return AccountDetailPage(authenticated_page, base_url=_base_url)
-
-
-@pytest.fixture
-def account_wizard_page(authenticated_page: Page) -> AccountWizardPage:
-    """Account wizard page object fixture"""
-    return AccountWizardPage(authenticated_page, base_url=_base_url)
-
-
-@pytest.fixture
-def manage_instruction_1_page(authenticated_page: Page) -> ManageInstruction1Page:
-    """Manage instruction 1 page object fixture"""
-    return ManageInstruction1Page(authenticated_page)
-
-
-@pytest.fixture
-def manage_instruction_2_page(authenticated_page: Page) -> ManageInstruction2Page:
-    """Manage instruction 2 page object fixture"""
-    return ManageInstruction2Page(authenticated_page)
-
-
-@pytest.fixture
-def add_ach_instruction_page(authenticated_page: Page) -> AddACHInstructionPage:
-    """Add ACH instruction page object fixture"""
-    return AddACHInstructionPage(authenticated_page)
-
-
-@pytest.fixture
-def roth_conversion_page(authenticated_page: Page) -> RothConversionPage:
-    """Roth conversion page object fixture"""
-    return RothConversionPage(authenticated_page, base_url=_base_url)
-
-
-@pytest.fixture
-def change_investments_page(authenticated_page: Page) -> ChangeInvestmentsPage:
-    """Change investments page object fixture"""
-    return ChangeInvestmentsPage(authenticated_page, base_url=_base_url)
-
-
-@pytest.fixture
-def account_management_page(authenticated_page: Page) -> AccountManagementPage:
-    """Account management page object fixture"""
-    return AccountManagementPage(authenticated_page, base_url=_base_url)
-
-
-@pytest.fixture
-def tracking_center_page(authenticated_page: Page) -> TrackingCenterPage:
-    """Tracking center page object fixture"""
-    return TrackingCenterPage(authenticated_page, base_url=_base_url)
-
-
-@pytest.fixture
-def tracking_center_item_detail_page(authenticated_page: Page) -> ItemDetailPage:
-    """Tracking center item detail page object fixture"""
-    return ItemDetailPage(authenticated_page, base_url=_base_url)
-
-
-@pytest.fixture
-def trackingCenter_ItemDetail_page(authenticated_page: Page) -> ItemDetailPage:
-    """Tracking center item detail page object fixture (camelCase alias)"""
-    return ItemDetailPage(authenticated_page, base_url=_base_url)
-
-
-@pytest.fixture
-def outlook_page(authenticated_page: Page) -> OutlookPage:
-    """Outlook page object fixture for email-based workflows.
-    
-    This fixture creates an OutlookPage instance initialized from configuration,
-    used for OTP retrieval and email-based signing workflows.
-    """
-    return OutlookPage.from_config(authenticated_page)
-from pages.ewm.account_setup_page import AccountSetupPage
-from pages.ewm.account_wizard_page import AccountWizardPage
-from pages.ewm.client_profile_page import ClientProfilePage
-from pages.clients_page import ClientsPage
-from pages.ewm.construct_portfolio_page import ConstructPortfolioPage
-from pages.ewm.create_documents_page import CreateDocumentsPage
-from pages.ewm.dashboard_page import DashboardPage
-from pages.ewm.fees_page import FeesPage
-from pages.baw.naa_coach_page import NAACoachPage
-from pages.ewm.navbar_login_page import NavbarLoginPage
-from pages.ewm.portfolio_details_page import PortfolioDetailsPage
-from pages.ewm.review_all_accounts_page import ReviewAllAccountsPage
-from pages.tracking_center_page import TrackingCenterPage
-from pages.ewm.view_documents_page import ViewDocumentsPage
-from pages.baw.baw_dashboard_page import BawDashboardPage
-from pages.baw.baw_login_page import BawLoginPage
-from pages.baw.search_work_item_page import SearchWorkItemPage
-from pages.baw.shell_process_page import ShellProcessPage
-from pages.ewm.lookup_page import LookupPage
-from pages.ewm.account_approval_page import AccountApprovalPage
-
-# PROPOSAL pages
-from pages.proposal.ewm_page import EwmPage
-from pages.proposal.login_page import LoginPage as ProposalLoginPage
-from pages.proposal.new_account_wizard_page import NewAccountWizardPage
-from pages.proposal.portfolio_engine_page import PortfolioEnginePage
-from pages.proposal.switch_id_page import SwitchIDPage
-from pages.proposal.tax_management_services_page import TaxManagementServicesPage
-
-
-# ---------------------------------------------------------------------------
-# EWM / BAW page fixtures
-# ---------------------------------------------------------------------------
-
-@pytest.fixture
-def navbar_login_page(page: Page):
-    """Temporary navbar login page object fixture"""
-    return NavbarLoginPage(page)
-
-
-@pytest.fixture
-def dashboard_page(page: Page):
-    """Dashboard page object fixture"""
-    return DashboardPage(page)
+    return LoginPage(page)
 
 
 @pytest.fixture
@@ -213,137 +98,304 @@ def clients_page(page: Page):
 
 
 @pytest.fixture
+def dm_tool_page(page: Page):
+    """DMTool page object fixture"""
+    return DMToolPage(page)
+
+
+@pytest.fixture
+def dm_tool_address_edit_modal(page: Page):
+    """DMTool Address Edit Modal page object fixture"""
+    return DMToolAddressEditModal(page)
+
+
+@pytest.fixture
+def dm_tool_usps_modal(page: Page):
+    """DMTool USPS Modal page object fixture"""
+    return DMToolUSPSModal(page)
+
+
+@pytest.fixture
+def dmt_address_change_confirmation_page(page: Page):
+    """DMT Address Change Confirmation page object fixture"""
+    return DMTAddressChangeConfirmationPage(page)
+
+
+@pytest.fixture
+def account_list_page(page: Page):
+    """Account list page object fixture"""
+    return AccountListPage(page)
+
+
+@pytest.fixture
+def api_utility_page():
+    """
+    API utility page object fixture.
+
+    Note: This doesn't require a browser page as it's for API operations.
+    """
+    return APIUtilityPage()
+
+
+@pytest.fixture
+def account_detail_page(page: Page):
+    """Account detail page object fixture"""
+    return AccountDetailPage(page)
+
+
+@pytest.fixture
 def account_wizard_page(page: Page):
     """Account wizard page object fixture"""
     return AccountWizardPage(page)
 
 
 @pytest.fixture
-def client_profile_page(page: Page):
-    """Client profile page object fixture"""
-    return ClientProfilePage(page)
+def manage_instruction_1_page(page: Page):
+    """Manage instruction 1 page object fixture"""
+    return ManageInstruction1Page(page)
 
 
 @pytest.fixture
-def construct_portfolio_page(page: Page):
-    """Construct portfolio page object fixture"""
-    return ConstructPortfolioPage(page)
+def manage_instruction_2_page(page: Page):
+    """Manage instruction 2 page object fixture"""
+    return ManageInstruction2Page(page)
 
 
 @pytest.fixture
-def fees_page(page: Page):
-    """Fees page object fixture"""
-    return FeesPage(page)
+def add_ach_instruction_page(page: Page):
+    """Add ACH instruction page object fixture"""
+    return AddACHInstructionPage(page)
 
 
 @pytest.fixture
-def portfolio_details_page(page: Page):
-    """Portfolio details page object fixture"""
-    return PortfolioDetailsPage(page)
+def roth_conversion_page(page: Page):
+    """Roth conversion page object fixture"""
+    return RothConversionPage(page)
 
-
-@pytest.fixture
-def account_setup_page(page: Page):
-    """Account setup page object fixture"""
-    return AccountSetupPage(page)
-
-
-@pytest.fixture
-def review_all_accounts_page(page: Page):
-    """Review all accounts page object fixture"""
-    return ReviewAllAccountsPage(page)
-
-
-@pytest.fixture
-def create_documents_page(page: Page):
-    """Create documents page object fixture"""
-    return CreateDocumentsPage(page)
-
-
-@pytest.fixture
-def view_documents_page(page: Page):
-    """View documents page object fixture"""
-    return ViewDocumentsPage(page)
 
 @pytest.fixture
 def tracking_center_page(page: Page):
     """Tracking center page object fixture"""
     return TrackingCenterPage(page)
 
-@pytest.fixture
-def baw_login_page(page: Page):
-    """BAW login page object fixture"""
-    return BawLoginPage(page)
 
 @pytest.fixture
-def baw_dashboard_page(page: Page):
-    """BAW dashboard page object fixture"""
-    return BawDashboardPage(page)
-
-@pytest.fixture
-def shell_process_page(page: Page):
-    """Shell process page object fixture"""
-    return ShellProcessPage(page)
-
-@pytest.fixture
-def search_work_item_page(page: Page):
-    """Search work item page object fixture"""
-    return SearchWorkItemPage(page)
+def add_ach_summary_page(page: Page):
+    """Add ACH summary page object fixture"""
+    return AddACHSummaryPage(page)
 
 
 @pytest.fixture
-def naa_coach_page(page: Page):
-    """NAA coach page object fixture"""
-    return NAACoachPage(page)
+def add_ach_confirmation_page(page: Page):
+    """Add ACH confirmation page object fixture"""
+    return AddACHConfirmationPage(page)
 
 
 @pytest.fixture
-def lookup_page(page: Page):
-    """Lookup page object fixture"""
-    return LookupPage(page)
+def item_details_page(page: Page):
+    """Item details page object fixture"""
+    return ItemDetailsPage(page, page_verification=False)
 
 
 @pytest.fixture
-def account_approval_page(page: Page):
-    """Account Approval page object fixture"""
-    return AccountApprovalPage(page)
-
-
-# ---------------------------------------------------------------------------
-# PROPOSAL page fixtures
-# ---------------------------------------------------------------------------
-
-@pytest.fixture
-def ewm_page(page: Page):
-    """EWM main page object fixture (PROPOSAL)"""
-    return EwmPage(page)
+def mimo_transaction_page(page: Page):
+    """MIMO transaction request page object fixture"""
+    return MIMOTransactionRequestPage(page)
 
 
 @pytest.fixture
-def proposal_login_page(page: Page):
-    """Login page object fixture (PROPOSAL)"""
-    return ProposalLoginPage(page)
+def mimo_transaction_page2(page: Page):
+    """MIMO transaction request page 2 object fixture"""
+    return MIMOTransactionRequestPage2(page)
 
 
 @pytest.fixture
-def new_account_wizard_page(page: Page):
-    """New Account Wizard page object fixture (PROPOSAL)"""
-    return NewAccountWizardPage(page)
+def mimo_summary_page(page: Page):
+    """MIMO transaction summary page object fixture"""
+    return MIMOTransactionSummaryPage(page)
 
 
 @pytest.fixture
-def portfolio_engine_page(page: Page):
-    """Portfolio Engine page object fixture (PROPOSAL)"""
-    return PortfolioEnginePage(page)
+def mimo_confirmation_page(page: Page):
+    """MIMO confirmation page object fixture"""
+    return MIMOConfirmationPage(page)
 
 
 @pytest.fixture
-def switch_id_page(page: Page):
-    """Switch ID page object fixture (PROPOSAL)"""
-    return SwitchIDPage(page)
+def withdrawal_signature_modal_page(page: Page):
+    """Withdrawal signature not required modal page object fixture"""
+    return WithdrawalSignatureNotRequiredModalPage(page)
 
 
 @pytest.fixture
-def tax_management_services_page(page: Page):
-    """Tax Management Services page object fixture (PROPOSAL)"""
-    return TaxManagementServicesPage(page)
+def withdrawal_method_modal_page(page: Page):
+    """Withdrawal method modal page object fixture"""
+    return WithdrawalMethodModalPage(page)
+
+
+@pytest.fixture
+def cancel_aip_page(page: Page):
+    """Cancel AIP page object fixture"""
+    return CancelAIPPage(page)
+
+
+@pytest.fixture
+def establish_aip_landing_page(page: Page):
+    """Establish AIP Landing Page object fixture"""
+    return EstablishAIPLandingPage(page)
+
+
+@pytest.fixture
+def establish_aip_origination_selection_page(page: Page):
+    """Establish AIP Origination Selection Page object fixture"""
+    return EstablishAIPOriginationSelectionPage(page)
+
+
+@pytest.fixture
+def establish_aip_add_aip_page(page: Page):
+    """Establish AIP Add AIP Page object fixture"""
+    return EstablishAIPAddAIPPage(page)
+
+
+@pytest.fixture
+def establish_aip_summary_page(page: Page):
+    """Establish AIP Summary Page object fixture"""
+    return EstablishAIPSummaryPage(page)
+
+
+@pytest.fixture
+def establish_aip_confirmation_page(page: Page):
+    """Establish AIP Confirmation Page object fixture"""
+    return EstablishAIPConfirmationPage(page)
+
+
+@pytest.fixture
+def establish_aip_common_page(page: Page):
+    """Establish AIP Common Page object fixture"""
+    return EstablishAIPCommonPage(page)
+
+
+@pytest.fixture
+def supported_browsers_page(page: Page):
+    """Supported Browsers Page object fixture"""
+    return SupportedBrowsersPage(page)
+
+
+@pytest.fixture
+def privacy_and_security_policy_page(page: Page):
+    """Privacy and Security Policy Page object fixture"""
+    return PrivacyAndSecurityPolicyPage(page)
+
+
+@pytest.fixture
+def terms_of_use_page(page: Page):
+    """Terms of Use Page object fixture"""
+    return TermsOfUsePage(page)
+
+
+@pytest.fixture
+def swp_establish_landing_page(page: Page):
+    """SWP Establish Landing Page object fixture"""
+    return SWPEstablishLandingPage(page)
+
+
+@pytest.fixture
+def swp_establish_transaction_page_one(page: Page):
+    """SWP Establish Transaction Page One object fixture"""
+    return SWPEstablishTransactionPageOne(page)
+
+
+@pytest.fixture
+def swp_establish_transaction_page_two(page: Page):
+    """SWP Establish Transaction Page Two object fixture"""
+    return SWPEstablishTransactionPageTwo(page)
+
+
+@pytest.fixture
+def swp_establish_confirmation_page(page: Page):
+    """SWP Establish Confirmation Page object fixture"""
+    return SWPEstablishConfirmationPage(page)
+
+
+@pytest.fixture
+def oa_tool_landing_page(page: Page):
+    """OA Tool Landing Page object fixture"""
+    return OAToolLandingPage(page)
+
+
+@pytest.fixture
+def oa_tool_transaction_page(page: Page):
+    """OA Tool Transaction Page object fixture"""
+    return OAToolTransactionPage(page)
+
+
+@pytest.fixture
+def new_nav_wrapper_page(page: Page):
+    """New Nav Wrapper Page object fixture for iframe handling"""
+    return NewNavWrapperPage(page)
+
+
+@pytest.fixture
+def update_beneficiary_page(page: Page):
+    """Update/Manage Beneficiaries page object fixture"""
+    return UpdateBeneficiaryPage(page)
+
+
+@pytest.fixture
+def add_beneficiary_page(page: Page):
+    """Add Beneficiary modal page object fixture"""
+    return AddBeneficiaryPage(page)
+
+
+@pytest.fixture
+def manage_bene_detail_page(page: Page):
+    """Manage Beneficiary Detail page object fixture"""
+    return ManageBeneDetailPage(page)
+
+
+@pytest.fixture
+def add_beneficiary_buttons_page(page: Page):
+    """Add Beneficiary buttons page object fixture (Save/Don't Save)"""
+    return AddBeneficiaryPage(page)
+
+
+@pytest.fixture
+def manage_bene_page(page: Page):
+    """Manage Beneficiaries page object fixture"""
+    return ManageBenePage(page)
+
+
+@pytest.fixture
+def edit_beneficiary_page(page: Page):
+    """Edit Beneficiary inline form page object fixture"""
+    return EditBeneficiaryPage(page)
+
+
+@pytest.fixture
+def manage_bene_esignature_page(page: Page):
+    """Manage Beneficiary e-Signature Details page object fixture"""
+    return ManageBeneESignaturePage(page)
+
+
+@pytest.fixture
+def manage_bene_review_page(page: Page):
+    """Manage Beneficiary Review page object fixture"""
+    return ManageBeneReviewPage(page)
+
+
+@pytest.fixture
+def deceased_bene_page(page: Page):
+    """Deceased account Manage Beneficiaries landing page object fixture"""
+    return DeceasedBenePage(page)
+
+
+@pytest.fixture
+def esign_signer_information_page(page: Page):
+    """eSign Signer Information page object fixture (inside #esig_iframe)"""
+    return ESignSignerInformationPage(page)
+
+
+@pytest.fixture
+def docusign_page(page: Page):
+    """DocuSign page object fixture"""
+    return DocuSignPage(page)

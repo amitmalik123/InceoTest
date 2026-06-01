@@ -8,3 +8,4 @@ from tests.api.stp.services.beneficiaryHouseholdService import BeneficiaryHouseh
 def beneficiary_household_service():
     """Beneficiary Household service object fixture"""
     return BeneficiaryHouseholdService()
+

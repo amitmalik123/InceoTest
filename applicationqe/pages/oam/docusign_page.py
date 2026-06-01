@@ -12,9 +12,9 @@ from typing import TYPE_CHECKING, Callable, Optional
 import allure
 from playwright.sync_api import Page, TimeoutError as PlaywrightTimeoutError
 
-from config.oam.settings import get_settings
+from config.settings import get_settings
 from pages.oam.base_page import BasePage
-from locators import docusign_locators
+from locators.oam import docusign_locators
 from utils.allure_logger import get_allure_logger
 from utils.helpers import get_locator_attribute
 from utils.wait_utils import wait_for_condition, WaitTimeoutError

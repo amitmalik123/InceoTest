@@ -162,12 +162,8 @@ class EstablishAIPOriginationSelectionPage(BasePage):
     
     def get_selected_origination_text(self) -> str:
         """Get the selected origination text"""
-        if settings.env == 'prod':
-            self.selected_origination_text_checked.wait_for(state='visible', timeout=5000)
-            origination_text = self.get_text(self.selected_origination_text_checked)
-        else:
-            self.selected_origination_text.wait_for(state='visible', timeout=5000)
-            origination_text = self.get_text(self.selected_origination_text)
+        self.selected_origination_text_checked.wait_for(state='visible', timeout=5000)
+        origination_text = self.get_text(self.selected_origination_text_checked)
         logger.info(f"Retrieved selected origination text: {origination_text}")
         return origination_text
     

@@ -41,12 +41,9 @@ class ESignSignerInformationPage(BasePage):
     def verify_signer_information_page(self, timeout: int = 20000) -> None:
         """Assert the Signer(s) Information page is visible inside the iframe."""
         logger.info("Verifying Signer(s) Information page is loaded inside esig_iframe")
-        self.page_title.wait_for(state="visible", timeout=timeout)
-        title_text = self.page_title.inner_text()
-        assert "Signer" in title_text and "Information" in title_text, (
-            f"Expected 'Signer(s) Information' title, got: '{title_text}'"
-        )
-        logger.info(f"[OK] Signer Information page loaded — title: '{title_text.strip()}'")
+        # Wait for either the legacy title or the new "Authorization" heading
+        self.page_title.first.wait_for(state="visible", timeout=timeout)
+        logger.info("[OK] Signer Information / Authorization page loaded")
 
     def enter_signer_full_name(self, name: str) -> None:
         """Fill the Signer's Full Name field for the first signer row."""

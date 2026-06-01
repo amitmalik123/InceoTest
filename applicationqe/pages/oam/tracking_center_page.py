@@ -1,6 +1,6 @@
 from playwright.sync_api import Locator, Page, expect
 
-from locators import tracking_center_locators
+from locators.oam import tracking_center_locators
 from pages.oam.base_page import BasePage
 from utils.allure_logger import get_allure_logger
 from utils.wait_utils import WaitContext, wait_for_url_to_match, wait_for_loading_spinner_to_disappear

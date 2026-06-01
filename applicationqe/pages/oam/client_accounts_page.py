@@ -9,7 +9,7 @@ import unicodedata
 
 from playwright.sync_api import Locator, Page
 
-from locators import client_accounts_locators
+from locators.oam import client_accounts_locators
 from pages.oam.base_page import BasePage
 from utils.allure_logger import get_allure_logger
 from utils.dialog_utils import DialogHandler

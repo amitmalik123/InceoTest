@@ -11,7 +11,7 @@ import pytest
 from playwright.sync_api import Page
 
 # ---------------------------------------------------------------------------
-# Path setup - hyphenated STP page dirs cannot use Python dot-notation imports
+# Path setup — hyphenated STP page dirs cannot use Python dot-notation imports
 # ---------------------------------------------------------------------------
 _APP_ROOT = Path(__file__).resolve().parents[2]  # .../applicationqe/
 _PAGE_DIRS = [
