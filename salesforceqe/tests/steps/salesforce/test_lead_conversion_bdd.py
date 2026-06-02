@@ -24,9 +24,9 @@ def step_ensure_lead_exists(lead_happy_path, test_data, session_state):
 @when("I attempt to convert the Lead with missing Broker Dealer Account and CRD Advisor")
 def step_attempt_lead_conversion(lead_validation, test_data):
     """Attempt to convert the Lead with missing Broker Dealer Account and CRD Advisor"""
-    logger.info(f"Attempting to convert Lead with missing Broker Dealer Account and CRD Advisor: {test_data['CRD_Firm']}, {test_data['CRD_Advisor']}")  
+    logger.info(f"Attempting to convert Lead with missing Broker Dealer Account and CRD Advisor: {test_data['CRD_Advisor']}")  
     lead_validation.validation_On_Lead_Conversion(
-        test_data["CRD_Firm"], test_data["CRD_Advisor"]
+        test_data["CRD_Advisor"]
     )
 
 

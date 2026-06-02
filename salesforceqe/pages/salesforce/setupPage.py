@@ -12,6 +12,7 @@ class Setup:
             newPage = popup_info.value
             newPage.wait_for_load_state()
             newPage.locator("input[title='Search Setup']").fill(userName)
+            self.page.wait_for_timeout(3000)
             newPage.get_by_role("link", name=userName).click()
             newPage.frame_locator("div.content > iframe").locator("td#topButtonRow > input:nth-child(4)").click()
             time.sleep(2)
