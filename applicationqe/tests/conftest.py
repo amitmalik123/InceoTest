@@ -507,8 +507,6 @@ def pytest_sessionfinish(session, exitstatus) -> None:  # noqa: C901
             print("\nInfluxDB auto-push disabled (set 'auto_push': true in influxdb_config.json to enable)")
     except Exception as e:
         print(f"\nWARNING: Failed to push metrics to InfluxDB: {e}")
-            except Exception as e:
-                print(f"\nWarning: Failed to clear {file_path}: {e}")
 
 
 def pytest_collection_modifyitems(config, items) -> None:  # noqa: C901

@@ -37,10 +37,23 @@ MODELS_PAGE_DIR = os.path.abspath(
         "..",
         "..",
         "pages",
-        "model-management",
+        "model_management",
         "wrappermodel",
     )
 )
+if not os.path.exists(os.path.join(MODELS_PAGE_DIR, "models_page.py")):
+    MODELS_PAGE_DIR = os.path.abspath(
+        os.path.join(
+            os.path.dirname(__file__),
+            "..",
+            "..",
+            "..",
+            "..",
+            "pages",
+            "model-management",
+            "wrappermodel",
+        )
+    )
 WRAPPERMODEL_ROOT_DIR = os.path.abspath(
     os.path.join(
         os.path.dirname(__file__),
@@ -59,14 +72,28 @@ import pytest
 from pytest_bdd import scenarios
 from playwright.sync_api import Page
 from models_page import ModelsPage
+from wrappermodel_credentials import resolve_wrappermodel_credentials
 
 
 @pytest.fixture
 def test_context() -> dict:
+    runtime_env = os.getenv("TEST_ENV", "")
+    requested_username = os.getenv("WRAPPERMODEL_TEST_USERNAME") or os.getenv("DEFAULT_USERNAME")
+    selected = resolve_wrappermodel_credentials(runtime_env, requested_username=requested_username)
+
+    # Allow explicit password override for temporary/local runs.
+    password_override = os.getenv("WRAPPERMODEL_TEST_PASSWORD") or os.getenv("DEFAULT_PASSWORD")
+    if password_override:
+        selected["password"] = password_override
+
     return {
         "test_data": {
-            "username": os.getenv("DEFAULT_USERNAME", "T11_AG8959_Perf"),
-            "password": os.getenv("DEFAULT_PASSWORD", "QAAdminUser_33a"),
+            "username": selected["username"],
+            "password": selected["password"],
+            "aplid": selected["aplid"],
+            "environment": selected["environment"],
+            # Some shared steps use client_id naming.
+            "client_id": selected["aplid"],
             "role": "internal_admin",
         }
     }

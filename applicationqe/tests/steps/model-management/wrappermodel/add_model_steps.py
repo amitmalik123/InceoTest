@@ -20,8 +20,12 @@ from playwright.sync_api import Page, expect
 from pytest_bdd import given, then, when
 
 models_page_dir = (
-    Path(__file__).resolve().parents[4] / "pages" / "model-management" / "wrappermodel"
+    Path(__file__).resolve().parents[4] / "pages" / "model_management" / "wrappermodel"
 )
+if not (models_page_dir / "models_page.py").exists():
+    models_page_dir = (
+        Path(__file__).resolve().parents[4] / "pages" / "model-management" / "wrappermodel"
+    )
 if str(models_page_dir) not in sys.path:
     sys.path.insert(0, str(models_page_dir))
 from models_page import ModelsPage
