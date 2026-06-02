@@ -61,7 +61,7 @@ def load_azure_analytics_config():
         "workspace_id": os.getenv("AZURE_LOG_WORKSPACE_ID", config.get("workspace_id", "")),
         "shared_key": os.getenv("AZURE_LOG_SHARED_KEY", "") or shared_key,
         "log_type": os.getenv("AZURE_LOG_TYPE", config.get("log_type", "TestExecution")),
-        "project_name": os.getenv("PROJECT_NAME", config.get("project_name", "")) or default_project,
+        "project_name": config.get("project_name", "") or os.getenv("PROJECT_NAME", default_project),
         "auto_push": os.getenv("AZURE_ANALYTICS_AUTO_PUSH", str(config.get("auto_push", False))).lower()
         in ("true", "1"),
     }

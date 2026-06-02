@@ -641,7 +641,10 @@ def pytest_runtest_makereport(item, call) -> Generator:
 
     # Collect data for Excel report (only on the final call phase outcome)
     if rep.when == "call":
-        excel_report.collect_result_from_item(item, rep)
+        try:
+            excel_report.collect_result_from_item(item, rep)
+        except Exception:
+            pass
 
     # In xdist workers, serialize collected results to per-worker file for merge
     if rep.when == "call" and os.environ.get("PYTEST_XDIST_WORKER"):

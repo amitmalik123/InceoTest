@@ -2,6 +2,6 @@
   "workspace_id": "YOUR_WORKSPACE_ID",
   "shared_key": "ENC:YOUR_ENCRYPTED_SHARED_KEY",
   "log_type": "Application_testExecution",
-  "project_name": "stp",
+  "project_name": "stp-journals",
   "auto_push": true
 }
