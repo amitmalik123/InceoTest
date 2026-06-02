@@ -1,0 +1,9 @@
+family_name,manager_type_code,program_name,is_uma_custom,has_minimum,standard_discount_eligible,discount_package,product_name,create_style_code,style_code,style_description,manager_style_description,category,option,research_group,schedule_group
+Advisor As Strategist - American Wealth Core Tactical Allocation (TC)_5,MA,SSA,No,No,No,,Advisor As Strategist,,AWMCT,American Wealth Management ETF Core,American Wealth Core Tactical Allocation (TC),,,AAS,AAS
+Advisor As Strategist - American Wealth Core Tactical Allocation (TC)_2,MA,SSA,No,No,No,,Advisor As Strategist,,AWMCT,American Wealth Management ETF Core,American Wealth Core Tactical Allocation (TC),,,AAS,AAS
+Multiple Strategy Eligible - No Strategist Windham_1,MA,MSA,Yes,No,No,,Multiple Strategy Eligible,,NOWIN,No Strategist,No Strategist Windham,,,TERMINATED STRATEGIST,TERMINATED
+Multiple Strategy Eligible - No Strategist Windham_2,MA,MSA,Yes,No,No,,Multiple Strategy Eligible,,NOWIN,No Strategist,No Strategist Windham,,,TERMINATED STRATEGIST,TERMINATED
+AMP - Advisor Managed Portfolio_1,MA,AMP,No,No,No,,AMP,,AMP,Advisor Managed AMP,Advisor Managed Portfolio,Advisor Managed Portfolios,AMP,AMP,AMP
+AMP - Advisor Managed Portfolio_2,MA,AMP,No,No,No,,AMP,,AMP,Advisor Managed AMP,Advisor Managed Portfolio,Advisor Managed Portfolios,AMP,AMP,AMP
+Managed Models - GPS Mutual Funds- SDBA_2,MA,SDBA,No,No,No,,SDBA,,PROMF-SDBA,Proprietary Mutual Fund-SDBA,GPS Mutual Funds,,,GPS SOLUTIONS,PROMF-SDBA
+Managed Models - GPS Mutual Funds- SDBA_3,MA,SDBA,No,No,No,,SDBA,,PROMF-SDBA,Proprietary Mutual Fund-SDBA,GPS Mutual Funds,,,GPS SOLUTIONS,PROMF-SDBA

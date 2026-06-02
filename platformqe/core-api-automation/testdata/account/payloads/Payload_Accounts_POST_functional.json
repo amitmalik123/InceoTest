@@ -1,0 +1,83 @@
+{
+
+
+  "TC001": {
+    "request": {
+      "ParentAccountId": null,
+      "Status": "Initiated",
+      "Version": 0,
+      "AccountClassification": "Household",
+      "AccountType": "Personal",
+      "AccountSubType": "BankorTrustCompanyNonTaxable",
+      "DisplayName": "Test Household 2",
+      "SortName": "Test, Household 2",
+      "OpenDate": "2025-12-01T00:00:00",
+      "TerminationDate": null,
+      "RiskTolerance": "Moderate",
+      "CustodialAuthorization": "Managed",
+      "ManagingPlatform": "Internal",
+      "Parties": [
+        {
+          "PartyId": "6e7f8a9b-0c1d-2e3f-4a5b-6c7d8e9f0a1b",
+          "RoleType": "PrimaryBeneficiary",
+          "Attributes": [
+            {
+              "Type": "IsMailingAddress",
+              "Value": "String"
+            }
+          ]
+        }
+      ],
+      "Identifiers": [
+        {
+          "Type": "APL",
+          "Value": "HH-243211"
+        }
+      ],
+      "CreatedDate": "2025-12-02T04:55:52.594Z",
+      "ModifiedDate": "2025-12-02T04:55:52.594Z",
+      "CreatedBy": "string",
+      "ModifiedBy": "string"
+    }
+  },
+  "TC002": {
+    "request": {
+      "ParentAccountId": "5996124b-ee46-4bf8-8908-036cc81dbe64",
+      "Status": "Active",
+      "Version": 1,
+      "AccountClassification": "Registration",
+      "AccountType": "Corporate",
+      "AccountSubType": "BrokerageTaxable",
+      "DisplayName": "Test Registration 1",
+      "SortName": "Test, Registration 1",
+      "OpenDate": "2025-11-15T00:00:00",
+      "TerminationDate": null,
+      "RiskTolerance": "Low",
+      "CustodialAuthorization": "Self",
+      "ManagingPlatform": "External",
+      "Parties": [
+        {
+          "PartyId": "7f8a9b0c-1d2e-3f4a-5b6c-7d8e9f0a1b2c",
+          "RoleType": "AccountHolder",
+          "Attributes": [
+            {
+              "Type": "IsAuthorizedSigner",
+              "Value": "Yes"
+            }
+          ]
+        }
+      ],
+      "Identifiers": [
+        {
+          "Type": "REG",
+          "Value": "REG-987654"
+        }
+      ],
+      "CreatedDate": "2025-11-16T10:30:00.000Z",
+      "ModifiedDate": "2025-11-16T10:30:00.000Z",
+      "CreatedBy": "admin_user",
+      "ModifiedBy": "admin_user"
+    }
+  }
+
+}
