@@ -43,17 +43,12 @@ from utils.lighthouse_runner import LighthouseRunner
 # Logger utilities
 from utils.logger import setup_logger
 
-# Settings and configuration
-from utils.settings import Settings, settings
-
 # Performance monitoring
 from utils.performance_monitor import PerformanceBudget, PerformanceMonitor
 
 # Outlook email utilities
-try:
-    from utils.outlook_utils import OutlookOTPPage
-except ImportError:
-    OutlookOTPPage = None
+from utils.outlook_utils import OutlookClient, OutlookEmail  # noqa: F401
+# OutlookOTPPage imported lazily to avoid circular dependency with pages.base_page
 
 # Storage utilities
 from utils.storage_utils import (
@@ -105,5 +100,7 @@ __all__ = [
     "ensure_directory_exists",
     "generate_test_data",
     # Outlook
+    "OutlookClient",
+    "OutlookEmail",
     "OutlookOTPPage",
 ]

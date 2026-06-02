@@ -1,4 +1,4 @@
-﻿from tests.api.stp.models.beneficiaryHouseholdModel import BeneficiaryHouseholdModel
+from tests.api.stp.models.beneficiaryHouseholdModel import BeneficiaryHouseholdModel
 from config.stp.stp_moneyin_moneyout.api_endpoints import APIEndpoints
 from utils.settings import settings
 from utils.allure_logger import get_allure_logger

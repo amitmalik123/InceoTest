@@ -9,32 +9,18 @@ import hashlib
 import hmac
 import json
 import os
+import re
 from datetime import datetime, timezone
 from pathlib import Path
 from typing import Any, Dict, List
 
 import requests
 
-from utils.crypto_utils import decrypt_value
-
 
 def load_azure_analytics_config():
     """Load Azure Log Analytics configuration from config file or environment variables"""
-    # CONFIG_MODULE determines the project subfolder under config/ (e.g., "oam", "naw", "crm")
-    # Tries CONFIG_MODULE env var first, then falls back to checking available configs
-    config_module = os.getenv("CONFIG_MODULE")
-    
-    # If CONFIG_MODULE not set, try multiple known modules in priority order
-    if not config_module:
-        config_dir = Path(__file__).parent.parent / "config"
-        # Try these modules in order of preference for applicationqe
-        for module in ["oam", "naw", "crm"]:
-            potential_path = config_dir / module / "azure_analytics_config.json"
-            if potential_path.exists():
-                config_module = module
-                break
-    
-    config_path = Path(__file__).parent.parent / "config" / config_module / "azure_analytics_config.json"
+    app = os.getenv("TEST_APP", "")
+    config_path = Path(__file__).parent.parent / "config" / app / "azure_analytics_config.json"
 
     # Try to load from config file first
     config = {}
@@ -45,21 +31,13 @@ def load_azure_analytics_config():
         except Exception as e:
             print(f"Warning: Error loading Azure Analytics config file: {e}")
 
-    # Decrypt shared_key separately so a decryption failure doesn't lose other config values
-    shared_key = ""
-    if config.get("shared_key"):
-        try:
-            shared_key = decrypt_value(config["shared_key"])
-        except Exception:
-            print("Warning: Could not decrypt shared_key from config, falling back to env var")
-
     # Build final config: config file values → environment variable overrides → defaults
     default_project = os.getenv(
         "BUILD_REPOSITORY_NAME", os.getenv("SYSTEM_TEAMPROJECT", "unknown")
     )
     return {
         "workspace_id": os.getenv("AZURE_LOG_WORKSPACE_ID", config.get("workspace_id", "")),
-        "shared_key": os.getenv("AZURE_LOG_SHARED_KEY", "") or shared_key,
+        "shared_key": os.getenv("AZURE_LOG_SHARED_KEY", ""),
         "log_type": os.getenv("AZURE_LOG_TYPE", config.get("log_type", "TestExecution")),
         "project_name": config.get("project_name", "") or os.getenv("PROJECT_NAME", default_project),
         "auto_push": os.getenv("AZURE_ANALYTICS_AUTO_PUSH", str(config.get("auto_push", False))).lower()
@@ -69,6 +47,97 @@ def load_azure_analytics_config():
 
 class AllureToAzureAnalytics:
     """Convert Allure test results to Azure Log Analytics custom logs"""
+
+    @staticmethod
+    def _derive_trigger_type(build_reason: str) -> str:
+        """Normalize Azure DevOps build reasons into stable trigger categories."""
+        reason = (build_reason or "").strip().lower()
+
+        reason_to_trigger = {
+            "schedule": "Scheduled",
+            "manual": "Manual",
+            "individualci": "CI",
+            "batchedci": "CI",
+            "pullrequest": "PR",
+            "resourcetrigger": "ResourceTrigger",
+            "buildcompletion": "BuildCompletion",
+            "validateshelveset": "ValidateShelveset",
+            "checkinshelveset": "CheckinShelveset",
+        }
+
+        return reason_to_trigger.get(reason, build_reason or "Unknown")
+
+    @staticmethod
+    def _derive_feature_tag() -> str:
+        """Extract one or more feature tags from matching .feature files."""
+        features_root = Path(__file__).parent.parent / "tests" / "features"
+        if not features_root.exists():
+            return "unknown"
+
+        # Marker can be passed from pipeline/env. Use it to identify the relevant feature file.
+        marker = (
+            os.getenv("MARKER")
+            or os.getenv("PYTEST_MARKER")
+            or os.getenv("TEST_MARKER")
+            or ""
+        ).strip()
+
+        def read_file_tags(feature_file: Path) -> tuple[list[str], list[str]]:
+            """Return (top_level_tags, all_tags_before_first_feature_block)."""
+            top_level_tags: list[str] = []
+            all_tags: list[str] = []
+            before_feature = True
+
+            with open(feature_file, "r", encoding="utf-8") as f:
+                for raw_line in f:
+                    stripped = raw_line.strip()
+                    if not stripped:
+                        continue
+                    if stripped.lower().startswith("feature:"):
+                        before_feature = False
+                        continue
+                    if stripped.startswith("@"):
+                        tags = [t.lstrip("@").lower() for t in stripped.split() if t.startswith("@")]
+                        all_tags.extend(tags)
+                        if before_feature:
+                            top_level_tags.extend(tags)
+
+            return top_level_tags, all_tags
+
+        feature_files = sorted(features_root.rglob("*.feature"))
+        if not feature_files:
+            return "unknown"
+
+        selected_files: list[Path] = []
+        normalized_marker = marker.lstrip("@").lower()
+
+        if normalized_marker:
+            for feature_file in feature_files:
+                try:
+                    _, all_tags = read_file_tags(feature_file)
+                    if normalized_marker in all_tags:
+                        selected_files.append(feature_file)
+                except Exception as e:
+                    print(f"Warning: Could not read feature file {feature_file}: {e}")
+
+        # If marker doesn't map to any file tags, include all feature files for broader suites.
+        if not selected_files:
+            selected_files = feature_files
+
+        feature_tags: list[str] = []
+        for selected_file in selected_files:
+            try:
+                top_level_tags, all_tags = read_file_tags(selected_file)
+                chosen_tag = top_level_tags[0] if top_level_tags else (all_tags[0] if all_tags else "")
+                if chosen_tag and chosen_tag not in feature_tags:
+                    feature_tags.append(chosen_tag)
+            except Exception as e:
+                print(f"Warning: Could not read feature file {selected_file}: {e}")
+
+        if feature_tags:
+            return ",".join(feature_tags)
+
+        return "unknown"
 
     def __init__(self):
         analytics_config = load_azure_analytics_config()
@@ -80,6 +149,9 @@ class AllureToAzureAnalytics:
         self.allure_results_dir = os.getenv("ALLURE_RESULTS_DIR", "./target/allure-results")
         self.build_id = os.getenv("BUILD_ID", "local")
         self.build_reason = os.getenv("BUILD_REASON", "Manual")
+        self.trigger_type = self._derive_trigger_type(self.build_reason)
+        self.feature = self._derive_feature_tag()
+        self.project_name = f"{self.project_name}_{self.trigger_type}"
         self.environment = os.getenv("ENVIRONMENT", "test11")
 
         # Azure Pipelines variables for artifact links
@@ -179,7 +251,7 @@ class AllureToAzureAnalytics:
             "flaky": 0,
             "retried": 0,
             "total_duration": 0,
-            "pass_rate": 0,
+            "pass_rate": 0.0,
         }
 
         status_counts = {}
@@ -239,59 +311,137 @@ class AllureToAzureAnalytics:
 
         return metrics
 
+    @staticmethod
+    def _extract_feature_from_test(test: Dict[str, Any]) -> str:
+        """Extract feature name from Allure test metadata."""
+        description = test.get("description", "")
+
+        # Example: ...\tests\features\naw\NAW.feature: Scenario Name
+        match = re.search(
+            r"[/\\]tests[/\\]features(?:[/\\][^/\\:]+)*[/\\]([^/\\:]+)\.feature",
+            description,
+            re.IGNORECASE,
+        )
+        if match:
+            return match.group(1).lower()
+
+        return "unknown"
+
+    def calculate_metrics_by_feature(self, results: Dict[str, Any]) -> Dict[str, Dict[str, Any]]:
+        """Calculate test metrics grouped by feature file."""
+        tests = results.get("tests", [])
+        metrics_by_feature: Dict[str, Dict[str, Any]] = {}
+
+        for test in tests:
+            feature_name = self._extract_feature_from_test(test)
+
+            if feature_name not in metrics_by_feature:
+                metrics_by_feature[feature_name] = {
+                    "total": 0,
+                    "passed": 0,
+                    "failed": 0,
+                    "skipped": 0,
+                    "flaky": 0,
+                    "retried": 0,
+                    "total_duration": 0,
+                    "pass_rate": 0.0,
+                }
+
+            feature_metrics = metrics_by_feature[feature_name]
+            feature_metrics["total"] += 1
+
+            status = test.get("status", "unknown")
+            status_details = test.get("statusDetails", {})
+
+            if status == "passed":
+                feature_metrics["passed"] += 1
+                if status_details.get("flaky", False):
+                    feature_metrics["flaky"] += 1
+            elif status in ("failed", "broken"):
+                feature_metrics["failed"] += 1
+            elif status == "skipped":
+                feature_metrics["skipped"] += 1
+
+            if test.get("historyId", ""):
+                feature_metrics["retried"] += 1
+
+            duration = test.get("stop", 0) - test.get("start", 0)
+            feature_metrics["total_duration"] += duration
+
+        for feature_metrics in metrics_by_feature.values():
+            feature_metrics["total_duration"] = int(feature_metrics["total_duration"] / 1000)
+            testable_total = feature_metrics["total"] - feature_metrics["skipped"]
+            if testable_total > 0:
+                feature_metrics["pass_rate"] = round(
+                    (feature_metrics["passed"] / testable_total) * 100, 2
+                )
+
+        return metrics_by_feature
+
     def create_log_entries(
-        self, metrics: Dict[str, Any], artifact_urls: Dict[str, str]
+        self,
+        metrics: Dict[str, Any],
+        metrics_by_feature: Dict[str, Dict[str, Any]],
+        artifact_urls: Dict[str, str],
     ) -> List[Dict[str, Any]]:
         """Create Azure Log Analytics log entries from metrics"""
         timestamp = datetime.now(timezone.utc).isoformat()
 
-        # Common tags/dimensions
-        tags = {
-            "build_id": self.build_id,
-            "environment": self.environment,
-            "build_reason": self.build_reason,
-            "project_name": self.project_name,
-        }
+        entries: List[Dict[str, Any]] = []
 
-        # Main test execution entry
-        execution_entry = {
-            "TimeGenerated": timestamp,
-            "log_type": "test_execution",
-            **tags,
-            "total": metrics["total"],
-            "passed": metrics["passed"],
-            "failed": metrics["failed"],
-            "skipped": metrics["skipped"],
-            "flaky": metrics["flaky"],
-            "retried": metrics["retried"],
-            "pass_rate": metrics["pass_rate"],
-            "total_duration": metrics["total_duration"],
-        }
+        grouped_metrics = metrics_by_feature or {self.feature: metrics}
 
-        entries = [execution_entry]
-
-        # Test quality entry
-        if metrics["total"] > 0:
-            flaky_rate = round((metrics["flaky"] / metrics["total"]) * 100, 2)
-            retry_rate = round((metrics["retried"] / metrics["total"]) * 100, 2)
-
-            quality_entry = {
-                "TimeGenerated": timestamp,
-                "log_type": "test_quality",
-                **tags,
-                "flaky_count": metrics["flaky"],
-                "flaky_rate": flaky_rate,
-                "retried_count": metrics["retried"],
-                "retry_rate": retry_rate,
+        for feature_name, feature_metrics in grouped_metrics.items():
+            tags = {
+                "build_id": self.build_id,
+                "environment": self.environment,
+                "build_reason": self.build_reason,
+                "trigger_type": self.trigger_type,
+                "feature": feature_name,
+                "project_name": self.project_name,
             }
-            entries.append(quality_entry)
+
+            execution_entry = {
+                "TimeGenerated": timestamp,
+                "log_type": "test_execution",
+                **tags,
+                "total": feature_metrics["total"],
+                "passed": feature_metrics["passed"],
+                "failed": feature_metrics["failed"],
+                "skipped": feature_metrics["skipped"],
+                "flaky": feature_metrics["flaky"],
+                "retried": feature_metrics["retried"],
+                "pass_rate": feature_metrics["pass_rate"],
+                "total_duration": feature_metrics["total_duration"],
+            }
+            entries.append(execution_entry)
+
+            if feature_metrics["total"] > 0:
+                flaky_rate = round((feature_metrics["flaky"] / feature_metrics["total"]) * 100, 2)
+                retry_rate = round((feature_metrics["retried"] / feature_metrics["total"]) * 100, 2)
+
+                quality_entry = {
+                    "TimeGenerated": timestamp,
+                    "log_type": "test_quality",
+                    **tags,
+                    "flaky_count": feature_metrics["flaky"],
+                    "flaky_rate": flaky_rate,
+                    "retried_count": feature_metrics["retried"],
+                    "retry_rate": retry_rate,
+                }
+                entries.append(quality_entry)
 
         # Artifact URLs entry
         if artifact_urls:
             artifact_entry = {
                 "TimeGenerated": timestamp,
                 "log_type": "test_artifacts",
-                **tags,
+                "build_id": self.build_id,
+                "environment": self.environment,
+                "build_reason": self.build_reason,
+                "trigger_type": self.trigger_type,
+                "feature": self.feature,
+                "project_name": self.project_name,
             }
             for name, url in artifact_urls.items():
                 artifact_entry[name] = url
@@ -355,6 +505,8 @@ class AllureToAzureAnalytics:
         print("=" * 70)
         print(f"Workspace ID: {self.workspace_id}")
         print(f"Log Type: {self.log_type}")
+        print(f"Trigger Type: {self.trigger_type}")
+        print(f"Feature: {self.feature}")
         print(f"Allure Results Dir: {self.allure_results_dir}")
         print(f"Environment: {self.environment}")
         print(f"Build ID: {self.build_id}")
@@ -370,6 +522,7 @@ class AllureToAzureAnalytics:
 
         # Calculate metrics
         metrics = self.calculate_metrics(results)
+        metrics_by_feature = self.calculate_metrics_by_feature(results)
         print("\nTest Execution Metrics:")
         print(f"  Total Tests: {metrics['total']}")
         print(f"  Passed: {metrics['passed']}")
@@ -378,6 +531,15 @@ class AllureToAzureAnalytics:
         print(f"  Flaky Tests: {metrics['flaky']}")
         print(f"  Pass Rate: {metrics['pass_rate']:.2f}%")
         print(f"  Total Duration: {metrics['total_duration']}s")
+
+        if metrics_by_feature:
+            print("\nFeature-wise Metrics:")
+            for feature_name, feature_metrics in metrics_by_feature.items():
+                print(
+                    f"  {feature_name}: total={feature_metrics['total']}, "
+                    f"passed={feature_metrics['passed']}, failed={feature_metrics['failed']}, "
+                    f"skipped={feature_metrics['skipped']}"
+                )
 
         print("\nTest Quality Metrics:")
         if metrics["total"] > 0:
@@ -396,7 +558,7 @@ class AllureToAzureAnalytics:
         print()
 
         # Create and push entries
-        entries = self.create_log_entries(metrics, artifact_urls)
+        entries = self.create_log_entries(metrics, metrics_by_feature, artifact_urls)
         self.push_to_azure_analytics(entries)
         print("=" * 70)
 

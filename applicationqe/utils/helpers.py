@@ -7,9 +7,14 @@ Note: Specialized utilities are in dedicated modules:
 - Locator operations: pages/base_page.py (BasePage.empty_field())
 """
 
+from __future__ import annotations
+
 import os
 from datetime import datetime
-from typing import Any, Dict
+from typing import TYPE_CHECKING, Any, Dict, Optional
+
+if TYPE_CHECKING:
+    from playwright.sync_api import Locator
 
 
 def get_timestamp(format: str = "%Y%m%d_%H%M%S") -> str:
@@ -169,65 +174,16 @@ def get_locator_attribute(
         logger.error(f"✗ Failed to get attribute '{attribute_name}' from {element_name}: {e}")
         raise
 def random_number(length: int = 6) -> str:
-    """Generate a random numeric string of given length.
-
-    Args:
-        length: Number of digits (default: 6)
-
-    Returns:
-        Random numeric string
-
-    Example:
-        >>> random_number()       # e.g. '482019'
-        >>> random_number(10)     # e.g. '7391042856'
-    """
+    """Generate a random numeric string of given length."""
     return "".join(random.choices(string.digits, k=length))
 
 
 def random_alpha(length: int = 5) -> str:
-    """Generate a random alphabetic string of given length.
-
-    Args:
-        length: Number of characters (default: 5)
-
-    Returns:
-        Random lowercase alphabetic string
-
-    Example:
-        >>> random_alpha()        # e.g. 'kxmqt'
-        >>> random_alpha(8)       # e.g. 'bwjflrpa'
-    """
+    """Generate a random alphabetic string of given length."""
     return "".join(random.choices(string.ascii_lowercase, k=length))
 
 
 def random_alphanumeric(length: int = 8) -> str:
-    """Generate a random alphanumeric string of given length.
-
-    Args:
-        length: Number of characters (default: 8)
-
-    Returns:
-        Random alphanumeric string
-
-    Example:
-        >>> random_alphanumeric()     # e.g. 'k3Xm9Qt2'
-        >>> random_alphanumeric(12)   # e.g. 'bW4jFl8rPa1z'
-    """
+    """Generate a random alphanumeric string of given length."""
     return "".join(random.choices(string.ascii_letters + string.digits, k=length))
-
-
-def get_locator_attribute(locator, attribute_name: str, element_name: str = "element", timeout: int = 10000):
-    """
-    Get an attribute value from a Playwright locator.
-
-    Args:
-        locator: Playwright Locator object
-        attribute_name: HTML attribute to retrieve (e.g. 'value', 'class', 'aria-invalid')
-        element_name: Human-readable name for logging purposes
-        timeout: Maximum time to wait in milliseconds (default: 10000)
-
-    Returns:
-        Attribute value as string, or None if not found
-    """
-    return locator.get_attribute(attribute_name, timeout=timeout)
 

@@ -55,14 +55,8 @@ screenshots/
 tests/.auth/
 tests/.auth/*.json
 
-# Reports
-# reports/ folder is now tracked for storing test outputs and results
-# Ignore only the auto-generated subdirectories within reports/
-reports/junit/
-reports/allure-results/
-reports/allure-report/
-reports/*.html
-reports/*.png
+# Reports — all generated, never commit
+reports/
 
 # Environment
 .env
@@ -106,3 +100,5 @@ ai/generated/
 .sonar/
 sonar-project.properties.bak
 .vscode/mcp.json
+
+reports/auto_healing_report.json

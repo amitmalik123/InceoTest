@@ -1,21 +1,15 @@
 from playwright.sync_api import Page
 from pytest_bdd import then, when
 
-<<<<<<<< HEAD:applicationqe/tests/steps/oam/navigation_steps.py
 from pages.oam.account_detail_page import AccountDetailPage
 from pages.oam.account_list_page import AccountListPage
 from pages.oam.clients_page import ClientsPage
-========
-from pages.account_detail_page import AccountDetailPage
-from pages.account_list_page import AccountListPage
->>>>>>>> develop:adhesionqe/tests/steps/navigation_steps.py
 from utils.allure_logger import get_allure_logger
 from utils.assertions import Assertions
 
 logger = get_allure_logger(__name__)
 
 
-<<<<<<<< HEAD:applicationqe/tests/steps/oam/navigation_steps.py
 @when("I navigate to Clients menu")
 def navigate_to_clients_menu(authenticated_page: Page, clients_page: ClientsPage, soft_assert):
     """Navigate to clients menu and verify page is ready"""
@@ -79,8 +73,6 @@ def click_on_account_list(authenticated_page: Page, clients_page: ClientsPage, s
     logger.info(f"Account List page loaded - URL: {authenticated_page.url}")
 
 
-========
->>>>>>>> develop:adhesionqe/tests/steps/navigation_steps.py
 @then("I should see the Account List page")
 def verify_account_list_page_loaded(authenticated_page: Page):
     """Verify Account List page is loaded"""

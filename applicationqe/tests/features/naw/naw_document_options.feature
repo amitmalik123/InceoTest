@@ -1,4 +1,3 @@
-
 @retainAccount
 Feature: NAW Document Options
 

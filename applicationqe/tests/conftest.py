@@ -306,7 +306,7 @@ def pytest_sessionfinish(session, exitstatus) -> None:  # noqa: C901
     """
     Hook that runs after all tests complete.
     Automatically generates Allure HTML report from JSON results
-    and pushes flaky test metrics to InfluxDB.
+    and pushes flaky test metrics.
     Also generates auto-healing report.
     """
     import json
@@ -375,7 +375,7 @@ def pytest_sessionfinish(session, exitstatus) -> None:  # noqa: C901
     except Exception as e:
         print(f"\nWARNING: Failed to generate auto-healing report: {e}\n")
 
-    # Push flaky test metrics to InfluxDB
+    # Push flaky test metrics
     try:
         tracker = get_tracker()
         summary = tracker.get_flaky_summary()
@@ -390,9 +390,6 @@ def pytest_sessionfinish(session, exitstatus) -> None:  # noqa: C901
                     f"  - {test['name']}: {test['failed']}/{test['attempts']} failures → {test['status']}"
                 )
             print(f"{'=' * 60}\n")
-
-            # Push to InfluxDB
-            tracker.push_to_influxdb()
         else:
             print("\nOK: No flaky tests detected in this session\n")
     except Exception as e:
@@ -494,19 +491,6 @@ def pytest_sessionfinish(session, exitstatus) -> None:  # noqa: C901
         print("\nWarning: Allure report generation timed out (>60s)")
     except Exception as e:
         print(f"\nWarning: Error generating Allure report: {e}")
-
-    # Auto-push test execution metrics to InfluxDB (controlled by config toggle)
-    try:
-        from utils.influx_reporter import AllureToInfluxDB
-
-        reporter = AllureToInfluxDB()
-        if reporter.auto_push:
-            reporter.allure_results_dir = allure_results_dir
-            reporter.run()
-        else:
-            print("\nInfluxDB auto-push disabled (set 'auto_push': true in influxdb_config.json to enable)")
-    except Exception as e:
-        print(f"\nWARNING: Failed to push metrics to InfluxDB: {e}")
 
 
 def pytest_collection_modifyitems(config, items) -> None:  # noqa: C901
