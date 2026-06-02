@@ -9,8 +9,7 @@ from typing import Dict, List, Optional
 
 import pytest
 
-from config.settings import settings
-from config.settings import settings
+from config.settings import get_settings
 
 
 class TestDataManager:
@@ -135,6 +134,7 @@ def test_data_manager() -> TestDataManager:
     from utils.logger import setup_logger
 
     logger = setup_logger(__name__)
+    settings = get_settings()
     excel_path = settings.test_data_excel
     if not excel_path or not excel_path.exists():
         raise FileNotFoundError(
@@ -243,6 +243,7 @@ def excel_data_manager() -> ExcelDataManager:
 
     logger = setup_logger(__name__)
 
+    settings = get_settings()
     excel_path = settings.test_data_excel
     if not excel_path or not excel_path.exists():
         raise FileNotFoundError(

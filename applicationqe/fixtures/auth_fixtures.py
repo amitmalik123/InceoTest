@@ -31,9 +31,6 @@ from config.settings import Settings, get_settings
 from pages.login_page import LoginPage
 from fixtures.browser_fixtures import apply_context_listeners, apply_route_blocks
 
-# Use centralized Settings singleton
-settings = get_settings()
-
 # Authentication state directory
 AUTH_STATE_DIR = Path("tests/.auth")
 
@@ -89,9 +86,6 @@ def _load_app_configs(settings_obj: Settings) -> dict:
     return app_configs
 
 
-# Load application configurations from YAML
-APP_CONFIGS = _load_app_configs(settings)
-
 def _get_session_file(
     username: str, app_name: str, worker_id: str, role: Optional[str] = None
 ) -> Path:
@@ -125,8 +119,6 @@ def _perform_login(page: Page, app_config: AppConfig, test_data: dict) -> bool:
         # For Internal Admin scenarios, use environment config credentials instead of Excel
         user_role = (test_data.get("UserRole") or test_data.get("userRole") or "").strip()
         if user_role.lower() in ("internal admin", "internaladmin", "internal_admin"):
-            from config.settings import get_settings
-            settings = get_settings()
             username = settings.internal_admin_username
             password = settings.internal_admin_password
         else:
@@ -193,18 +185,18 @@ def authenticated_page(browser, browser_context_args, test_context, request) -> 
     app_marker = request.node.get_closest_marker("app")
     app_name = app_marker.args[0] if app_marker else "ewm"
 
-    # Get app configuration
-    if app_name not in APP_CONFIGS:
-        raise ValueError(f"Unknown app: {app_name}. Available: {list(APP_CONFIGS.keys())}")
+    # Get app configuration (deferred to avoid import-time env var requirement)
+    settings = get_settings()
+    app_configs = _load_app_configs(settings)
+    if app_name not in app_configs:
+        raise ValueError(f"Unknown app: {app_name}. Available: {list(app_configs.keys())}")
 
-    app_config = APP_CONFIGS[app_name]
+    app_config = app_configs[app_name]
     test_data = test_context.get("test_data", {})
 
     # For Internal Admin scenarios, use environment config credentials
     user_role = (test_data.get("UserRole") or test_data.get("userRole") or "").strip()
     if user_role.lower() in ("internal admin", "internaladmin", "internal_admin"):
-        from config.settings import get_settings
-        settings = get_settings()
         username = settings.internal_admin_username
     else:
         username = (test_data.get("username") or test_data.get("UserName") or "").strip()
