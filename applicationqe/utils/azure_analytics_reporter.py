@@ -151,7 +151,6 @@ class AllureToAzureAnalytics:
         self.build_reason = os.getenv("BUILD_REASON", "Manual")
         self.trigger_type = self._derive_trigger_type(self.build_reason)
         self.feature = self._derive_feature_tag()
-        self.project_name = f"{self.project_name}_{self.trigger_type}"
         self.environment = os.getenv("ENVIRONMENT", "test11")
 
         # Azure Pipelines variables for artifact links
@@ -397,6 +396,7 @@ class AllureToAzureAnalytics:
                 "environment": self.environment,
                 "build_reason": self.build_reason,
                 "trigger_type": self.trigger_type,
+                "triggerType": self.trigger_type,
                 "feature": feature_name,
                 "project_name": self.project_name,
             }
@@ -440,6 +440,7 @@ class AllureToAzureAnalytics:
                 "environment": self.environment,
                 "build_reason": self.build_reason,
                 "trigger_type": self.trigger_type,
+                "triggerType": self.trigger_type,
                 "feature": self.feature,
                 "project_name": self.project_name,
             }
