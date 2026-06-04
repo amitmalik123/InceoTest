@@ -5,6 +5,7 @@ trigger:
     include:
       - main
       - develop
+      - ES4_featureBranch
   paths:
     include:
       - applicationqe/data/naw/**
@@ -22,6 +23,7 @@ pr:
     include:
       - main
       - develop
+      - ES4_featureBranch
   paths:
     include:
       - applicationqe/data/naw/**
