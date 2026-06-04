@@ -1,10 +1,10 @@
-﻿import re
+import re
 import allure
 from playwright.sync_api import Page
 from pytest_bdd import when, then, parsers
 
-from mimo_transaction_summary_page import MIMOTransactionSummaryPage
-from mimo_confirmation_page import MIMOConfirmationPage
+from pages.stp.stp_mimotransactionpage.mimo_transaction_summary_page import MIMOTransactionSummaryPage
+from pages.stp.stp_mimotransactionpage.mimo_confirmation_page import MIMOConfirmationPage
 from utils.stp.constants.constants import Constants
 from utils.logger import setup_logger
 from datetime import datetime

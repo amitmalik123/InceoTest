@@ -1,4 +1,4 @@
-﻿from playwright.sync_api import Page
+from playwright.sync_api import Page
 from pytest_bdd import then, when
 
 from utils.allure_logger import get_allure_logger

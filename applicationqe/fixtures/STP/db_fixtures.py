@@ -7,7 +7,7 @@ Provides fixtures for database connection management with lazy initialization.
 import pytest
 
 from utils.allure_logger import get_allure_logger
-from utils.database import get_configured_azure_db, get_configured_sql_server
+from utils.stp.database import get_configured_azure_db, get_configured_sql_server
 
 
 class DatabaseConnectionManager:

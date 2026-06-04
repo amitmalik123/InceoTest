@@ -1,10 +1,11 @@
-﻿"""
+"""
 API validation step definitions for BDD tests
 """
 
 import allure
 import json
 import requests
+from datetime import datetime, timedelta
 from pytest_bdd import parsers, then, when
 
 from pages.stp.shared.api_utility_page import APIUtilityPage
@@ -166,9 +167,6 @@ def add_request_headers_for_api(api_name: str, test_context: dict):
 @when(parsers.parse('User should design request body for "{meth}" and accType "{acctype}"'))
 def design_request_body_cancel_swp(meth, acctype, test_context):
     """Design and store the request body for Cancel SWP based on withdrawal method."""
-    from datetime import datetime, timedelta
-    import allure
-
     logger.info(f"Designing request body for method '{meth}' and account type '{acctype}'")
 
     test_data = test_context.get("test_data", {})
@@ -200,9 +198,6 @@ def design_request_body_cancel_swp(meth, acctype, test_context):
 @when(parsers.parse('User should design request body for state as "{state}" and postal code as "{code}" by updateAccountForBeta for SWP Establish'))
 def design_request_body_update_account_beta(state: str, code: str, test_context: dict):
     """Design and store the request body for updateAccountForBeta endpoint"""
-    import json
-    import allure
-    
     logger.info(f"Designing request body for updateAccountForBeta: state={state}, postal_code={code}")
     
     test_data = test_context.get("test_data", {})
@@ -289,8 +284,6 @@ def add_body_for_get_withdrawal_instruction_by_account(accountAddress, test_cont
 @when(parsers.parse('User should post the response for "{endpoint_name}" endpoint'))
 @then(parsers.parse('User should post the response for "{endpoint_name}" endpoint'))
 def post_response_for_endpoint(endpoint_name, test_context):
-    import allure
-
     logger.info(f"Posting to endpoint: {endpoint_name}")
 
     api_client_key = f"{endpoint_name.lower()}_api_client"
@@ -346,8 +339,6 @@ def post_response_for_endpoint(endpoint_name, test_context):
 @then('User should verify the response body to confirm creation of instruction')
 def verify_creation_of_instruction(test_context):
     """Verify response body contains a creation status of 'SUCCESS' or 'FAILURE'."""
-    import allure
-
     response = test_context.get("last_api_response")
     if response is None:
         raise RuntimeError("No last_api_response found in test_context; ensure a request was made before verification")
@@ -370,8 +361,6 @@ def verify_creation_of_instruction(test_context):
 @then(parsers.parse('User should verify status code {code:d}'))
 def verify_status_code(code: int, test_context: dict):
     """Verify last API response status code equals expected code."""
-    import allure
-
     response = test_context.get("last_api_response")
     if response is None:
         raise RuntimeError("No last_api_response found in test_context; ensure a request was made before verification")
@@ -390,7 +379,6 @@ def add_body_parameters_for_create_periodic_aip(test_context: dict):
     # Get or create API client
     client: APIClient = test_context.get("cancel_swp_api_client")
     if not client:
-        from utils.api_request_utils import APIClient
         client = APIClient(session=requests.Session(), base_url="")
     
     # Design the CreatePeriodicAIP request body

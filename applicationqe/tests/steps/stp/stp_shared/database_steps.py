@@ -1,4 +1,4 @@
-﻿"""
+"""
 Database Step Definitions
 
 These steps handle database queries and validation for BDD scenarios.
@@ -8,12 +8,12 @@ import allure
 from pytest_bdd import parsers, then, when
 
 from utils.stp.constants.constants import Constants
-from utils.database import get_azure_db_connection, get_configured_azure_db, get_configured_ewm_db
+from utils.stp.database import get_azure_db_connection, get_configured_azure_db, get_configured_ewm_db
 from utils.settings import settings
 
 
 from utils.allure_logger import get_allure_logger
-from utils.database import execute_query_from_yaml
+from utils.stp.database import execute_query_from_yaml
 
 logger = get_allure_logger(__name__)
 
@@ -33,15 +33,28 @@ def execute_azure_db_query_with_item_number_for_ains(test_context, expected_note
         query = query_template.format(item_number=item_number, step_id=step_id)
         
         logger.info(f"Executing DB query for stepID: {step_id}")
+        logger.info(f"[DEBUG] Item number from context: {item_number!r}")
+        logger.info(f"[DEBUG] Query template: {query_template!r}")
+        logger.info(f"[DEBUG] Final query: {query!r}")
        
         try:
             with get_azure_db_connection() as db:
                 results = db.execute_query(query)
+
+                logger.info(f"[DEBUG] Total rows returned: {len(results)}")
+
+                if not results:
+                    logger.info(f"[DEBUG] NO ROWS returned for item_number={item_number!r} step_id={step_id!r}")
+                    raise AssertionError(f"No DB rows found for item_number={item_number!r} and step_id={step_id!r}")
             
                 first_row = results[0]
-            
                 columns = [column[0] for column in db.cursor.description]
                 logger.info(f"Available columns: {columns}")
+
+                # Log full row for debugging
+                row_dict = dict(zip(columns, first_row))
+                for col, val in row_dict.items():
+                    logger.info(f"[DEBUG] {col}: {val!r}")
             
                 notes_index = columns.index('Notes')
                 actual_note = first_row[notes_index]

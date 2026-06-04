@@ -1,8 +1,8 @@
-﻿import allure
+import allure
 from playwright.sync_api import Page
 from pytest_bdd import parsers, then, when
 
-from withdrawal_signature_not_required_modal_page import WithdrawalSignatureNotRequiredModalPage
+from pages.stp.stp_swp.withdrawal_signature_not_required_modal_page import WithdrawalSignatureNotRequiredModalPage
 from utils.allure_logger import get_allure_logger
 
 logger = get_allure_logger(__name__)

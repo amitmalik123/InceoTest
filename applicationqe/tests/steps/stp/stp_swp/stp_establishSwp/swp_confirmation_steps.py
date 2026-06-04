@@ -1,8 +1,8 @@
-﻿import allure
+import allure
 from playwright.sync_api import Page
 from pytest_bdd import parsers, then, when
 
-from swp_establish_confirmation_page import SWPEstablishConfirmationPage
+from pages.stp.stp_swp.swp_establish_confirmation_page import SWPEstablishConfirmationPage
 from utils.logger import setup_logger
 
 logger = setup_logger(__name__)

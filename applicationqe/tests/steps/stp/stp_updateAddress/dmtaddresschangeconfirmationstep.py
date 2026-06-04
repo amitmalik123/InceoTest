@@ -1,4 +1,4 @@
-﻿"""
+"""
 DMT Address Change Confirmation Step Definitions
 """
 
@@ -6,8 +6,8 @@ import allure
 from playwright.sync_api import Page
 from pytest_bdd import when, parsers
 
-from dmtool_page import DMToolPage
-from dmt_address_change_confirmation_page import DMTAddressChangeConfirmationPage
+from pages.stp.stp_updateAddress.dmtool_page import DMToolPage
+from pages.stp.stp_updateAddress.dmt_address_change_confirmation_page import DMTAddressChangeConfirmationPage
 from utils.logger import setup_logger
 
 logger = setup_logger(__name__)

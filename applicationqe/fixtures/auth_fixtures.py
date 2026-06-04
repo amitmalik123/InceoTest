@@ -15,12 +15,6 @@ These fixtures handle authentication state persistence and multi-app support.
 from collections.abc import Generator
 from pathlib import Path
 from typing import Optional
-
-import pytest
-from playwright.sync_api import Page
-
-from config.oam.settings import Settings, get_settings
-from pages.oam.login_page import LoginPage
 import os
 
 import pytest
@@ -91,6 +85,8 @@ def _load_app_configs(settings_obj: Settings) -> dict:
 
 # Load application configurations from YAML
 APP_CONFIGS = _load_app_configs(settings)
+
+
 
 def _get_session_file(
     username: str, app_name: str, worker_id: str, role: Optional[str] = None

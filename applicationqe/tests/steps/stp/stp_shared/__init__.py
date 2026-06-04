@@ -1,4 +1,4 @@
-﻿"""
+"""
 Step definitions package for BDD tests
 Imports all step definition modules to make them discoverable by pytest-bdd
 """
