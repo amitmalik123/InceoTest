@@ -16,7 +16,8 @@ trigger:
       - applicationqe/queries/naw/**
       - applicationqe/azure-pipelines/templates/**
       - applicationqe/requirements.txt
-
+variables:
+- group: qa-pipelines-shared-config
 pr:
   branches:
     include:
