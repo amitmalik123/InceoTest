@@ -5,35 +5,76 @@ trigger:
     include:
       - main
       - develop
+      - ES4_featureBranch
   paths:
     include:
-      - data/naw/**
-      - config/naw/**
-      - tests/features/naw/**
-      - tests/steps/naw/**
-      - pages/ewm/**
-      - queries/naw/**
-      - azure-pipelines/templates/**
-      - requirements.txt
+      - applicationqe/data/naw/**
+      - applicationqe/config/naw/**
+      - applicationqe/tests/features/naw/**
+      - applicationqe/tests/steps/naw/**
+      - applicationqe/pages/ewm/**
+      - applicationqe/queries/naw/**
+      - applicationqe/azure-pipelines/templates/**
+      - applicationqe/requirements.txt
 
 pr:
   branches:
     include:
       - main
       - develop
+      - ES4_featureBranch
   paths:
     include:
-      - data/naw/**
-      - config/naw/**
-      - tests/features/naw/**
-      - tests/steps/naw/**
-      - pages/ewm/**
-      - queries/naw/**
-      - azure-pipelines/templates/**
-      - requirements.txt
+      - applicationqe/data/naw/**
+      - applicationqe/config/naw/**
+      - applicationqe/tests/features/naw/**
+      - applicationqe/tests/steps/naw/**
+      - applicationqe/pages/ewm/**
+      - applicationqe/queries/naw/**
+      - applicationqe/azure-pipelines/templates/**
+      - applicationqe/requirements.txt
 
-pool:
-  vmImage: ubuntu-latest
+parameters:
+  - name: environment
+    displayName: "Target Environment"
+    type: string
+    default: "test11"
+    values:
+      - test10
+      - test11   
+      - silo
+      - prod
+
+  - name: marker
+    displayName: "Pytest Marker to Run"
+    type: string
+    default: "prodSmoke"
+    values:
+      - NAW
+      - prodSmoke
+      - Regression
+      - retainAccount
+      - TrackingCenterESign
+      - GNW_Ind_401k
+
+  - name: workers
+    displayName: "Number of Parallel Workers"
+    type: string
+    default: "1"
+    values:
+      - "1"
+      - "2"
+      - "4"
+      - "auto"
+
+  - name: browser
+    displayName: "Browser to Test"
+    type: string
+    default: "chromium"
+    values:
+      - chromium
+      - msedge
+      - both
 
 stages:
   - template: templates/team-stage.yml
@@ -41,3 +82,7 @@ stages:
       stageName: naw
       teamDisplay: NAW
       featurePath: tests/features/naw
+      environment: ${{ parameters.environment }}
+      marker: ${{ parameters.marker }}
+      workers: ${{ parameters.workers }}
+      browser: ${{ parameters.browser }}

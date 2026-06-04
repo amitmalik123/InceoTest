@@ -20,4 +20,4 @@ from tests.steps.naw.create_documents_step import *  # noqa
 from tests.steps.naw.view_documents_step import *  # noqa
 
 # Load all scenarios from the feature file
-scenarios("../../features/naw/retainAccount.feature")
+scenarios("../../features/naw/naw_document_options.feature")
