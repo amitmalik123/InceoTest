@@ -12,6 +12,8 @@ from __future__ import annotations
 import os
 from datetime import datetime
 from typing import TYPE_CHECKING, Any, Dict, Optional
+import random
+import string
 
 if TYPE_CHECKING:
     from playwright.sync_api import Locator
