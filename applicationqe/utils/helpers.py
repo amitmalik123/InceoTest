@@ -19,6 +19,8 @@ if TYPE_CHECKING:
     
 import random
 import string
+
+
 def get_timestamp(format: str = "%Y%m%d_%H%M%S") -> str:
     """
     Get current timestamp as string.
