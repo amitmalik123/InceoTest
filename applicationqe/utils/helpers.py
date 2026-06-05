@@ -11,15 +11,12 @@ from __future__ import annotations
 
 import os
 from datetime import datetime
-
 from typing import TYPE_CHECKING, Any, Dict, Optional
 
 if TYPE_CHECKING:
     from playwright.sync_api import Locator
 import random
 import string
-
-
 
 
 def get_timestamp(format: str = "%Y%m%d_%H%M%S") -> str:
