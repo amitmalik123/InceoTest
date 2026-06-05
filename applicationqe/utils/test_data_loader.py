@@ -1,4 +1,4 @@
-﻿"""
+"""
 Test Data Loader Utility
 Handles loading and processing of test data for journal transfer tests.
 """
