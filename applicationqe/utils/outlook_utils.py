@@ -3,7 +3,7 @@ Outlook Email Utility
 
 Reads Outlook / Office 365 emails and extracts data based on subject, sender, etc.
 
-Uses IMAP with username + password. No extra dependencies — only Python's built-in
+Uses IMAP with username + password. No extra dependencies ΓÇö only Python's built-in
 ``imaplib`` and ``email`` modules.
 
 Works with Outlook.com, Office 365, Hotmail, and on-prem Exchange (IMAP enabled).
@@ -60,6 +60,12 @@ from datetime import datetime, timedelta, timezone
 from email.header import decode_header
 from email.utils import parsedate_to_datetime
 from typing import Any, List, Optional, Pattern, Union
+from configparser import ConfigParser
+from playwright.sync_api import Page, Locator, expect
+from pages.base_page import BasePage
+from utils.allure_logger import get_allure_logger
+from utils.encryption_utility import EncryptionUtility
+from utils.email_utils import IMAPEmailClient
 
 logger = logging.getLogger(__name__)
 
@@ -119,7 +125,7 @@ class OutlookClient:
     Connects to Outlook / Office 365 over IMAP-SSL and provides methods to
     search, fetch, and extract data from emails.
 
-    No extra dependencies required — uses Python's built-in ``imaplib`` and
+    No extra dependencies required ΓÇö uses Python's built-in ``imaplib`` and
     ``email`` modules only.
 
     Args:
@@ -432,7 +438,7 @@ class OutlookClient:
         return text.strip()
 
     # ------------------------------------------------------------------
-    # Public API – Fetch emails
+    # Public API ΓÇô Fetch emails
     # ------------------------------------------------------------------
     def get_emails_by_subject(
         self,
@@ -720,7 +726,7 @@ class OutlookClient:
         return None
 
     # ------------------------------------------------------------------
-    # Public API – Extract data from emails
+    # Public API ΓÇô Extract data from emails
     # ------------------------------------------------------------------
     def extract_pattern_from_email(
         self,
@@ -931,7 +937,7 @@ class OutlookClient:
         """
         One-shot: find the latest email by subject and extract data via regex.
 
-        This is the most common workflow for test automation — trigger an
+        This is the most common workflow for test automation ΓÇö trigger an
         action, then call this to grab an OTP, link, or confirmation text.
 
         Args:

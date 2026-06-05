@@ -6,9 +6,19 @@ Provides utilities for handling and validating file downloads.
 
 import hashlib
 import logging
+import os
+import re
+import shutil
+import sys
 import time
+from datetime import datetime, timedelta
 from pathlib import Path
 from typing import Callable, List, Optional
+
+if sys.version_info >= (3, 11):
+    import tomllib
+else:
+    import tomli as tomllib
 
 from playwright.sync_api import Download, Page
 
@@ -42,9 +52,11 @@ class DownloadManager:
         manager.validate_download(download, expected_extension=".pdf")
     """
 
-    def __init__(self, page: Page, download_dir: str = "downloads"):
+    def __init__(self, page: Page, download_dir: str = _DEFAULT_DOWNLOAD_DIR):
         self.page = page
-        self.download_dir = Path(download_dir)
+        # Resolve to absolute path so it matches the browser launch downloads_path
+        # regardless of which directory pytest is invoked from (local, headed, pipeline)
+        self.download_dir = Path(download_dir).resolve()
         self.download_dir.mkdir(parents=True, exist_ok=True)
 
     def trigger_download(self, action: Callable, timeout: float = 30.0) -> Download:
@@ -302,7 +314,7 @@ class DownloadManager:
             assert (
                 actual_filename == expected_filename
             ), f"Filename mismatch: expected '{expected_filename}', got '{actual_filename}'"
-            logger.debug(f"[OK] Filename matches: {expected_filename}")
+            logger.debug(f"✓ Filename matches: {expected_filename}")
 
         # Validate extension
         if expected_extension:
@@ -312,7 +324,7 @@ class DownloadManager:
             assert (
                 actual_extension == expected_extension
             ), f"Extension mismatch: expected '{expected_extension}', got '{actual_extension}'"
-            logger.debug(f"[OK] Extension matches: {expected_extension}")
+            logger.debug(f"✓ Extension matches: {expected_extension}")
 
         # Validate file size
         if save and filepath.exists():
