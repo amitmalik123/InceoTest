@@ -9,7 +9,7 @@ class MIMOTransactionSummaryLocators:
     SUBMIT_BUTTON = "//button[@data-testid='submit-button']"
     SUBMIT_TO_REVIEW_BUTTON = "//button[@data-testid='submit-to-review-button']"
     SUBMIT_OR_SUBMIT_FOR_REVIEW = "//button[contains(@data-testid,'submit')]"
-    ESIGN_AND_SUBMIT = "//button[text()='E-Sign and Submit']"
+    ESIGN_AND_SUBMIT = "//button[text()='E-Sign and Submit' or text()='E-SIGN AND SUBMIT' or text()='E-sign and Submit']"
     ACCOUNT_INFO = "//section[@aria-label='account-info-section']//ul//li"
     DISCLOSURES_TITLE = "//span[text()='Acknowledgements and Agreements']"
     DISCLOSURES_TITLE_CONTRIBUTION = "//h3[text()='ACKNOWLEDGEMENTS AND AGREEMENTS']"

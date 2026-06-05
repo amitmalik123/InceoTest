@@ -513,3 +513,48 @@ class WaitContext:
         return self.until(
             lambda: text in locator.inner_text(), error_message=f"Text '{text}' not found"
         )
+
+def wait_for_element_stable(
+    locator: Locator,
+    timeout: float = 15.0,
+    check_animations: bool = True,
+    check_enabled: bool = False,
+) -> Locator:
+    logger.debug(f"Waiting for element to be stable: {locator}")
+    
+    try:
+        logger.debug("Stage 1: Waiting for element to be attached to DOM")
+        locator.wait_for(state="attached", timeout=timeout * 1000)
+        
+        logger.debug("Stage 2: Waiting for element to be visible")
+        wait_for_condition(
+            lambda: locator.is_visible(),
+            timeout=timeout,
+            poll_interval=0.5,
+            error_message="Element not visible after being attached"
+        )
+        
+        if check_animations:
+            logger.debug("Stage 3: Waiting for animations to complete")
+            wait_for_condition(
+                lambda: locator.evaluate("el => el.getAnimations().length === 0"),
+                timeout=5.0,
+                poll_interval=0.3,
+                error_message="Element animations did not complete"
+            )
+        
+        if check_enabled:
+            logger.debug("Stage 4: Waiting for element to be enabled")
+            wait_for_condition(
+                lambda: locator.is_enabled(),
+                timeout=timeout,
+                poll_interval=0.5,
+                error_message="Element not enabled"
+            )
+        
+        logger.info(f"Element is stable and ready for interaction")
+        return locator
+        
+    except Exception as e:
+        logger.error(f"Element stability check failed: {str(e)}")
+        raise WaitTimeoutError(f"Element did not become stable: {str(e)}")

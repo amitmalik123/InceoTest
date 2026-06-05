@@ -4,33 +4,10 @@ Page Object Fixtures
 Provides fixtures for all page objects used in UI tests.
 Each fixture creates a page object instance with the current Playwright page.
 """
-from pathlib import Path
-import sys
-
 import pytest
 from playwright.sync_api import Page
 
-# ---------------------------------------------------------------------------
-# Path setup — hyphenated STP page dirs cannot use Python dot-notation imports
-# ---------------------------------------------------------------------------
-_APP_ROOT = Path(__file__).resolve().parents[2]  # .../applicationqe/
-_PAGE_DIRS = [
-    "pages/stp/stp_addACHIntrcutions",
-    "pages/stp/stp_updateAddress",
-    "pages/stp/stp_mimotransactionpage",
-    "pages/stp/stp_swp",
-    "pages/stp/stp_oaTradingTool",
-    "pages/stp/stp_manageBene",
-    "pages/stp/stp_aip",
-    "pages/stp/stp_aip/stp_cancelAip",
-    "pages/stp/stp_aip/stp_establishAip",
-]
-for _d in _PAGE_DIRS:
-    _p = str(_APP_ROOT / _d)
-    if _p not in sys.path:
-        sys.path.insert(0, _p)
-
-# Shared pages (non-hyphenated, standard import)
+# Shared pages
 from pages.stp.shared.account_detail_page import AccountDetailPage
 from pages.stp.shared.account_list_page import AccountListPage
 from pages.stp.shared.account_wizard_page import AccountWizardPage
@@ -49,41 +26,53 @@ from pages.stp.shared.terms_of_use_page import TermsOfUsePage
 from pages.stp.shared.tracking_center_page import TrackingCenterPage
 from pages.ewm.roth_conversion_page import RothConversionPage
 
-# Pages from hyphenated dirs (imported via sys.path above)
-from add_ach_confirmation_page import AddACHConfirmationPage  # stp_addACHIntrcutions
-from add_ach_instruction import AddACHInstructionPage  # stp_addACHIntrcutions
-from add_ach_summary_page import AddACHSummaryPage  # stp_addACHIntrcutions
-from dm_tool_address_edit_modal import DMToolAddressEditModal  # stp_updateAddress
-from dm_tool_usps_modal import DMToolUSPSModal  # stp_updateAddress
-from dmt_address_change_confirmation_page import DMTAddressChangeConfirmationPage  # stp_updateAddress
-from dmtool_page import DMToolPage  # stp_updateAddress
-from mimo_confirmation_page import MIMOConfirmationPage  # stp_mimotransactionpage
-from mimo_transaction_request_page import MIMOTransactionRequestPage  # stp_mimotransactionpage
-from mimo_transaction_request_page2 import MIMOTransactionRequestPage2  # stp_mimotransactionpage
-from mimo_transaction_summary_page import MIMOTransactionSummaryPage  # stp_mimotransactionpage
-from withdrawal_method_modal_page import WithdrawalMethodModalPage  # stp_swp
-from withdrawal_signature_not_required_modal_page import WithdrawalSignatureNotRequiredModalPage  # stp_swp
-from swp_establish_landing_page import SWPEstablishLandingPage  # stp_swp
-from swp_establish_transaction_page_one import SWPEstablishTransactionPageOne  # stp_swp
-from swp_establish_transaction_page_two import SWPEstablishTransactionPageTwo  # stp_swp
-from swp_establish_confirmation_page import SWPEstablishConfirmationPage  # stp_swp
-from oa_tool_landing_page import OAToolLandingPage  # stp_oaTradingTool
-from oa_tool_transaction_page import OAToolTransactionPage  # stp_oaTradingTool
-from update_beneficiary_page import UpdateBeneficiaryPage  # stp_manageBene
-from manage_bene_detail_page import ManageBeneDetailPage  # stp_manageBene
-from add_beneficiary_page import AddBeneficiaryPage  # stp_manageBene
-from manage_bene_page import ManageBenePage  # stp_manageBene
-from edit_beneficiary_page import EditBeneficiaryPage  # stp_manageBene
-from manage_bene_esignature_page import ManageBeneESignaturePage  # stp_manageBene
-from manage_bene_review_page import ManageBeneReviewPage  # stp_manageBene
-from deceased_bene_page import DeceasedBenePage  # stp_manageBene
-from cancel_aip_page import CancelAIPPage  # stp_aip
-from establish_aip_landing_page import EstablishAIPLandingPage  # stp_aip
-from establish_aip_origination_selection_page import EstablishAIPOriginationSelectionPage  # stp_aip
-from establish_aip_add_aip_page import EstablishAIPAddAIPPage  # stp_aip
-from establish_aip_summary_page import EstablishAIPSummaryPage  # stp_aip
-from establish_aip_confirmation_page import EstablishAIPConfirmationPage  # stp_aip
-from establish_aip_common_page import EstablishAIPCommonPage  # stp_aip
+# stp_addACHIntrcutions pages
+from pages.stp.stp_addACHIntrcutions.add_ach_confirmation_page import AddACHConfirmationPage
+from pages.stp.stp_addACHIntrcutions.add_ach_instruction import AddACHInstructionPage
+from pages.stp.stp_addACHIntrcutions.add_ach_summary_page import AddACHSummaryPage
+
+# stp_updateAddress pages
+from pages.stp.stp_updateAddress.dm_tool_address_edit_modal import DMToolAddressEditModal
+from pages.stp.stp_updateAddress.dm_tool_usps_modal import DMToolUSPSModal
+from pages.stp.stp_updateAddress.dmt_address_change_confirmation_page import DMTAddressChangeConfirmationPage
+from pages.stp.stp_updateAddress.dmtool_page import DMToolPage
+
+# stp_mimotransactionpage pages
+from pages.stp.stp_mimotransactionpage.mimo_confirmation_page import MIMOConfirmationPage
+from pages.stp.stp_mimotransactionpage.mimo_transaction_request_page import MIMOTransactionRequestPage
+from pages.stp.stp_mimotransactionpage.mimo_transaction_request_page2 import MIMOTransactionRequestPage2
+from pages.stp.stp_mimotransactionpage.mimo_transaction_summary_page import MIMOTransactionSummaryPage
+
+# stp_swp pages
+from pages.stp.stp_swp.withdrawal_method_modal_page import WithdrawalMethodModalPage
+from pages.stp.stp_swp.withdrawal_signature_not_required_modal_page import WithdrawalSignatureNotRequiredModalPage
+from pages.stp.stp_swp.swp_establish_landing_page import SWPEstablishLandingPage
+from pages.stp.stp_swp.swp_establish_transaction_page_one import SWPEstablishTransactionPageOne
+from pages.stp.stp_swp.swp_establish_transaction_page_two import SWPEstablishTransactionPageTwo
+from pages.stp.stp_swp.swp_establish_confirmation_page import SWPEstablishConfirmationPage
+
+# stp_oaTradingTool pages
+from pages.stp.stp_oaTradingTool.oa_tool_landing_page import OAToolLandingPage
+from pages.stp.stp_oaTradingTool.oa_tool_transaction_page import OAToolTransactionPage
+
+# stp_manageBene pages
+from pages.stp.stp_manageBene.update_beneficiary_page import UpdateBeneficiaryPage
+from pages.stp.stp_manageBene.manage_bene_detail_page import ManageBeneDetailPage
+from pages.stp.stp_manageBene.add_beneficiary_page import AddBeneficiaryPage
+from pages.stp.stp_manageBene.manage_bene_page import ManageBenePage
+from pages.stp.stp_manageBene.edit_beneficiary_page import EditBeneficiaryPage
+from pages.stp.stp_manageBene.manage_bene_esignature_page import ManageBeneESignaturePage
+from pages.stp.stp_manageBene.manage_bene_review_page import ManageBeneReviewPage
+from pages.stp.stp_manageBene.deceased_bene_page import DeceasedBenePage
+
+# stp_aip pages
+from pages.stp.stp_aip.stp_cancelAip.cancel_aip_page import CancelAIPPage
+from pages.stp.stp_aip.stp_establishAip.establish_aip_landing_page import EstablishAIPLandingPage
+from pages.stp.stp_aip.stp_establishAip.establish_aip_origination_selection_page import EstablishAIPOriginationSelectionPage
+from pages.stp.stp_aip.stp_establishAip.establish_aip_add_aip_page import EstablishAIPAddAIPPage
+from pages.stp.stp_aip.stp_establishAip.establish_aip_summary_page import EstablishAIPSummaryPage
+from pages.stp.stp_aip.stp_establishAip.establish_aip_confirmation_page import EstablishAIPConfirmationPage
+from pages.stp.stp_aip.stp_establishAip.establish_aip_common_page import EstablishAIPCommonPage
 
 @pytest.fixture
 def login_page(page: Page):

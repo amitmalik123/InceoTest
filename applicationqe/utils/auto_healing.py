@@ -157,6 +157,36 @@ class TestIdStrategy(HealingStrategy):
         return None
 
 
+class SimilarElementStrategy(HealingStrategy):
+    """Find similar elements by tag and attributes"""
+
+    def __init__(self):
+        super().__init__("similar_element")
+
+    def find_element(self, page: Page, original_selector: str) -> Optional[Locator]:
+        """Find by similar element structure"""
+        try:
+            # Extract tag name if present
+            tag = self._extract_tag(original_selector)
+            if tag:
+                # Find all elements with same tag
+                similar = page.locator(tag)
+                if similar.count() > 0:
+                    logger.info(f"Found similar elements with tag: {tag}")
+                    return similar.first
+        except Exception as e:
+            logger.debug(f"SimilarElementStrategy failed: {e}")
+        return None
+
+    def _extract_tag(self, selector: str) -> Optional[str]:
+        """Extract HTML tag from selector"""
+        common_tags = ["button", "input", "a", "div", "span", "select", "textarea"]
+        for tag in common_tags:
+            if tag in selector.lower():
+                return tag
+        return None
+
+
 class XPathToCSS:
     """Convert XPath selectors to CSS"""
 

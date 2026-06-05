@@ -1,4 +1,4 @@
-﻿"""
+"""
 Step definitions for Add Beneficiary feature.
 Handles all user interactions on the Add Beneficiary form and modal.
 """

@@ -1,11 +1,11 @@
-﻿import allure
+import allure
 import json
 from playwright.sync_api import Page
 from pytest_bdd import when, then, parsers
 
 from utils.settings import settings
-from oa_tool_landing_page import OAToolLandingPage
-from utils.database import get_configured_ewm_db
+from pages.stp.stp_oaTradingTool.oa_tool_landing_page import OAToolLandingPage
+from utils.stp.database import get_configured_ewm_db
 from utils.logger import setup_logger
 
 logger = setup_logger(__name__)
@@ -242,7 +242,6 @@ def get_access_token(page: Page, test_context: dict):
         "() => window.sessionStorage.getItem('oidc.user:https://test.tenant1.auth.ewm3.assetmark.net/realms/eWM:eWMAuth')"
     )
     
-    import json
     token_obj = json.loads(token)
     access_token = token_obj["access_token"]
     

@@ -1,4 +1,4 @@
-"""
+﻿"""
 DM Tool Address Change Confirmation Page Object
 """
 
@@ -6,7 +6,6 @@ from typing import Dict, List, Optional
 from playwright.sync_api import Page
 
 from pages.stp.shared.base_page import BasePage
-from pages.stp.stp_updateAddress.locators.dmt_address_change_confirmation_locators import DMTAddressChangeConfirmationLocators
 from utils.logger import setup_logger
 from utils.address_comparison import compare_address_arrays, get_current_date
 
@@ -20,38 +19,43 @@ class DMTAddressChangeConfirmationPage(BasePage):
     
     def __init__(self, page: Page):
         super().__init__(page)
-        loc = DMTAddressChangeConfirmationLocators
         
-        self.header_text = loc.HEADER_TEXT
-        self.close_button = loc.CLOSE_BUTTON
-        self.household_label = loc.HOUSEHOLD_LABEL
-        self.household_data = loc.HOUSEHOLD_DATA
-        self.household_advisor_label = loc.HOUSEHOLD_ADVISOR_LABEL
-        self.household_advisor_data = loc.HOUSEHOLD_ADVISOR_DATA
-        self.custodian_label = loc.CUSTODIAN_LABEL
-        self.custodian_data = loc.CUSTODIAN_DATA
-        self.updated_successfully_text = loc.UPDATED_SUCCESSFULLY_TEXT
-        self.important_notes_label = loc.IMPORTANT_NOTES_LABEL
-        self.important_notes_data = loc.IMPORTANT_NOTES_DATA
-        self.status_label = loc.STATUS_LABEL
-        self.status_data = loc.STATUS_DATA
-        self.submitted_by_label = loc.SUBMITTED_BY_LABEL
-        self.submitted_by_data = loc.SUBMITTED_BY_DATA
-        self.submission_date_label = loc.SUBMISSION_DATE_LABEL
-        self.submission_date_data = loc.SUBMISSION_DATE_DATA
-        self.item_number_label = loc.ITEM_NUMBER_LABEL
-        self.item_number_link = loc.ITEM_NUMBER_LINK
-        self.updated_information_label = loc.UPDATED_INFORMATION_LABEL
-        self.previous_information_label = loc.PREVIOUS_INFORMATION_LABEL
-        self.legal_address_label = loc.LEGAL_ADDRESS_LABEL
-        self.legal_address_data = loc.LEGAL_ADDRESS_DATA
-        self.mailing_address_label = loc.MAILING_ADDRESS_LABEL
-        self.mailing_address_data = loc.MAILING_ADDRESS_DATA
-        self.previous_legal_address_label = loc.PREVIOUS_LEGAL_ADDRESS_LABEL
-        self.previous_legal_address_data = loc.PREVIOUS_LEGAL_ADDRESS_DATA
-        self.previous_mailing_address_label = loc.PREVIOUS_MAILING_ADDRESS_LABEL
-        self.previous_mailing_address_data = loc.PREVIOUS_MAILING_ADDRESS_DATA
-        self.print_button = loc.PRINT_BUTTON
+        HEADER_SECTION = "//div[@aria-label='confirmation-screen-header']"
+        FOOTER_SECTION = "//div[@aria-label='confirmation-screen-buttons']"
+        HOUSEHOLD_SECTION = "//div[@aria-label='confirmation-screen-account-information']"
+        IMPORTANT_SECTION = "//div[@role='presentation']/div[3]/div/div[2]/div[3]"
+        SUMMARY_SECTION = "//div[@aria-label='confirmation-screen-summary']"
+        
+        self.header_text = f"{HEADER_SECTION}//h2"
+        self.close_button = f"{FOOTER_SECTION}//button"
+        self.household_label = f"({HOUSEHOLD_SECTION}//h3)[1]"
+        self.household_data = f"({HOUSEHOLD_SECTION}//p)[1]"
+        self.household_advisor_label = f"({HOUSEHOLD_SECTION}//h3)[2]"
+        self.household_advisor_data = f"({HOUSEHOLD_SECTION}//p)[2]"
+        self.custodian_label = f"({HOUSEHOLD_SECTION}//h3)[3]"
+        self.custodian_data = f"({HOUSEHOLD_SECTION}//p)[3]"
+        self.updated_successfully_text = "//div[3]//h3[.='Address updated successfully']"
+        self.important_notes_label = f"{IMPORTANT_SECTION}//h3"
+        self.important_notes_data = f"{IMPORTANT_SECTION}//p"
+        self.status_label = f"{SUMMARY_SECTION}//div[@aria-label='confirmation-screen-status-completed']//h3[.='Status']"
+        self.status_data = f"{SUMMARY_SECTION}//div[@aria-label='confirmation-screen-status-completed']//p"
+        self.submitted_by_label = f"{SUMMARY_SECTION}//div[@aria-label='confirmation-screen-submitted-by']//h3[.='Submitted by']"
+        self.submitted_by_data = f"{SUMMARY_SECTION}//div[@aria-label='confirmation-screen-submitted-by']//p"
+        self.submission_date_label = f"{SUMMARY_SECTION}//div[@aria-label='confirmation-screen-submitted-date']//h3[.='Submission date and time']"
+        self.submission_date_data = f"{SUMMARY_SECTION}//div[@aria-label='confirmation-screen-submitted-date']//p"
+        self.item_number_label = f"{SUMMARY_SECTION}//div[@aria-label='confirmation-screen-item-number']//h3[.='Item number']"
+        self.item_number_link = f"{SUMMARY_SECTION}//div[@aria-label='confirmation-screen-item-number']//a"
+        self.updated_information_label = f"{SUMMARY_SECTION}//h3[.='Updated Information']"
+        self.previous_information_label = f"{SUMMARY_SECTION}//h3[.='Previous Information']"
+        self.legal_address_label = f"{SUMMARY_SECTION}//div[@aria-label='confirmation-screen-updated-legal']//h3[.='Legal Address']"
+        self.legal_address_data = f"{SUMMARY_SECTION}//div[@aria-label='confirmation-screen-updated-legal']//p"
+        self.mailing_address_label = f"{SUMMARY_SECTION}//div[@aria-label='confirmation-screen-updated-mailing']//h3[.='Mailing Address']"
+        self.mailing_address_data = f"{SUMMARY_SECTION}//div[@aria-label='confirmation-screen-updated-mailing']//p"
+        self.previous_legal_address_label = f"{SUMMARY_SECTION}//div[@aria-label='confirmation-screen-previous-legal']//h3[.='Legal Address']"
+        self.previous_legal_address_data = f"{SUMMARY_SECTION}//div[@aria-label='confirmation-screen-previous-legal']//p"
+        self.previous_mailing_address_label = f"{SUMMARY_SECTION}//div[@aria-label='confirmation-screen-previous-mailing']//h3[.='Mailing Address']"
+        self.previous_mailing_address_data = f"{SUMMARY_SECTION}//div[@aria-label='confirmation-screen-previous-mailing']//p"
+        self.print_button = f"{HEADER_SECTION}//button"
         
     def wait_for_page_load(self) -> None:
         logger.info("Waiting for Address Change Confirmation page to load")

@@ -1,4 +1,4 @@
-# pages/base_page.py
+﻿# pages/base_page.py
 
 """
 Base Page class with common functionality for all page objects
@@ -83,7 +83,7 @@ class BasePage:
         except Exception:
             pass
 
-        # Ketch privacy banner — click "Accept All" if present
+        # Ketch privacy banner â€” click "Accept All" if present
         try:
             ketch_btn = self.page.locator("#ketch-banner-button-primary")
             if ketch_btn.count() > 0:
@@ -123,7 +123,7 @@ class BasePage:
             locator.click()
         except (PlaywrightError, PlaywrightTimeoutError, Exception) as e:
             self.logger.warning(f"Click failed with original locator: {e}")
-            self.logger.info("🔧 Auto-healing: Trying alternative strategies...")
+            self.logger.info("ðŸ”§ Auto-healing: Trying alternative strategies...")
 
             # Extract the name/text from original get_by_role locator
             selector_str = str(locator)
@@ -189,7 +189,7 @@ class BasePage:
             return locator.text_content() or ""
         except (PlaywrightError, PlaywrightTimeoutError, Exception) as e:
             self.logger.warning(f"get_text failed with original locator: {e}")
-            self.logger.info("🔧 Auto-healing: Trying alternative strategies...")
+            self.logger.info("ðŸ”§ Auto-healing: Trying alternative strategies...")
 
             selector_str = str(locator)
 

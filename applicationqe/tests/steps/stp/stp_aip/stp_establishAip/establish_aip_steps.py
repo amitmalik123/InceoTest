@@ -1,4 +1,4 @@
-﻿"""
+"""
 Establish Automatic Investment Plan (AIP) step definitions
 """
 

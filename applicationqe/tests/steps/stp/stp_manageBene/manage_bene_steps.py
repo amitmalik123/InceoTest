@@ -1,4 +1,4 @@
-﻿import allure
+import allure
 from pathlib import Path
 from pytest_bdd import when, then, given, parsers
 from utils.allure_logger import get_allure_logger

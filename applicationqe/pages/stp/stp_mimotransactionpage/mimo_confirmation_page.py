@@ -55,7 +55,18 @@ class MIMOConfirmationPage(BasePage):
         self.contribution_amount: Locator = page.locator(loc.CONTRIBUTION_AMOUNT)
         self.contribution_date: Locator = page.locator(loc.CONTRIBUTION_DATE)
         self.contribution_reason: Locator = page.locator(loc.CONTRIBUTION_REASON)
-        
+
+        # Withdrawal / Qualified Information specific
+        self.distribution_reason: Locator = page.locator(loc.DISTRIBUTION_REASON)
+        self.federal_tax_withholding: Locator = page.locator(loc.FEDERAL_TAX_WITHHOLDING)
+        self.state_tax_withholding: Locator = page.locator(loc.STATE_TAX_WITHHOLDING)
+        self.state_of_residence: Locator = page.locator(loc.STATE_OF_RESIDENCE)
+        self.net_distribution_amount: Locator = page.locator(loc.NET_DISTRIBUTION_AMOUNT)
+
+        # Bank / Destination
+        self.bank_name: Locator = page.locator(loc.BANK_NAME)
+        self.bank_account_number: Locator = page.locator(loc.BANK_ACCOUNT_NUMBER)
+
         # Destination section
         self.destination_section: Locator = page.locator(loc.DESTINATION_SECTION)
         

@@ -1,6 +1,6 @@
 from playwright.sync_api import Locator, Page
 from pages.stp.shared.base_page import BasePage
-from establish_aip_add_aip_page import EstablishAIPAddAIPPage
+from pages.stp.stp_aip.stp_establishAip.establish_aip_add_aip_page import EstablishAIPAddAIPPage
 from pages.stp.stp_aip.stp_establishAip.locators.establish_aip_origination_selection_locators import EstablishAIPOriginationSelectionLocators
 from utils.settings import settings
 from utils.allure_logger import get_allure_logger

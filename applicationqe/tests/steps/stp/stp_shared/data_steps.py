@@ -1,4 +1,4 @@
-﻿"""Test Data Step Definitions
+"""Test Data Step Definitions
 
 Steps for loading and accessing test data from external sources (Excel, CSV, etc.).
 Excel file is loaded once at session scope via excel_data_manager fixture.

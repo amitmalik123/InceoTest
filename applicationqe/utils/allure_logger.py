@@ -172,6 +172,7 @@ class AllureLogger:
         if attach_to_allure:
             allure.attach(msg, name="🔥 Critical", attachment_type=allure.attachment_type.TEXT)
 
+    @contextmanager
     def step(
         self,
         title: str,

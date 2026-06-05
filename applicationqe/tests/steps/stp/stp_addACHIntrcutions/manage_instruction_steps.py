@@ -1,5 +1,6 @@
-﻿import random
+import random
 import allure
+from datetime import datetime
 from playwright.sync_api import Page
 from pytest_bdd import parsers, then, when
 
@@ -364,8 +365,6 @@ def validate_disclosure_content_in_transaction_summary_page(
     with allure.step(f"Verify {disclosure_type} disclosure content in Transaction Summary Page"):
         logger.info(f"Validating {disclosure_type} disclosure content")
         
-        from utils.stp.constants.constants import Constants
-        
         disclosures = None
         
         if disclosure_type == "Withdrawal_ACH":
@@ -436,8 +435,6 @@ def validate_ains_confirmation_page(
     """Validate AINS confirmation page details"""
     with allure.step(f"Validate AINS confirmation page for {sloa_sub_option}, {account_selection}, role={role}"):
         logger.info(f"Validating AINS confirmation page: {sloa_sub_option}, {account_selection}, role={role}")
-        
-        from datetime import datetime
         
         add_ach_confirmation_page = test_context.get('add_ach_confirmation_page')
         raw_household_name = (

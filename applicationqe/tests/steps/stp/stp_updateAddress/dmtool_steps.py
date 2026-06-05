@@ -1,4 +1,4 @@
-﻿"""
+"""
 DM Tool Address Change Step Definitions
 """
 
@@ -7,10 +7,10 @@ import random
 from playwright.sync_api import Page
 from pytest_bdd import when, then, parsers
 
-from dmtool_page import DMToolPage
-from dm_tool_address_edit_modal import DMToolAddressEditModal
-from dm_tool_usps_modal import DMToolUSPSModal
-from dmt_address_change_confirmation_page import DMTAddressChangeConfirmationPage
+from pages.stp.stp_updateAddress.dmtool_page import DMToolPage
+from pages.stp.stp_updateAddress.dm_tool_address_edit_modal import DMToolAddressEditModal
+from pages.stp.stp_updateAddress.dm_tool_usps_modal import DMToolUSPSModal
+from pages.stp.stp_updateAddress.dmt_address_change_confirmation_page import DMTAddressChangeConfirmationPage
 from pages.stp.shared.account_wizard_page import AccountWizardPage
 from utils.address_comparison import if_two_arrays_same
 from utils.logger import setup_logger
@@ -47,7 +47,6 @@ def fill_required_data_and_click_save(page: Page,
     with allure.step("Fill all required data and click Save"):
         logger.info("Step: Fill all required data and click Save")
         
-        import random
         random_number = random.randint(1, 9999)
         
         dm_tool_address_edit_modal.populate_all_address_change_inputs(
@@ -122,7 +121,6 @@ def verify_address_changes_and_submit(page: Page, dm_tool_page: DMToolPage, test
         if test.lower() == "checkbox" or test.lower() == "mailing":
             mailing_before = test_context.get('mailing_address_before', [])
             
-            from utils.address_comparison import if_two_arrays_same
             addresses_same = if_two_arrays_same(mailing_before, mailing_after)
             
             assert not addresses_same, "Mailing address did not change"
@@ -131,7 +129,6 @@ def verify_address_changes_and_submit(page: Page, dm_tool_page: DMToolPage, test
         if test.lower() == "checkbox" or test.lower() == "legal":
             legal_before = test_context.get('legal_address_before', [])
             
-            from utils.address_comparison import if_two_arrays_same
             addresses_same = if_two_arrays_same(legal_before, legal_after)
             
             assert not addresses_same, "Legal address did not change"
