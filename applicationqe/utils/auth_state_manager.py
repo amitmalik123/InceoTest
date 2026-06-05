@@ -1,4 +1,4 @@
-﻿"""
+"""
 Authentication State Management - Save and reuse login sessions
 """
 import json
@@ -46,7 +46,7 @@ class AuthStateManager:
             auth_file = self.get_auth_state_path(username)
             context.storage_state(path=str(auth_file))
             
-            print(f"Γ£à Authentication state saved for {username}: {auth_file}")
+            print(f"✅ Authentication state saved for {username}: {auth_file}")
             return str(auth_file)
             
         finally:
@@ -63,7 +63,7 @@ class AuthStateManager:
         
         # Create context with saved auth state
         context = browser.new_context(storage_state=str(auth_file))
-        print(f"Γ£à Loaded authentication state for {username}")
+        print(f"✅ Loaded authentication state for {username}")
         return context
 
 # Usage in conftest.py as fixtures
