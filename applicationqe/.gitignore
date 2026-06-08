@@ -42,6 +42,10 @@ htmlcov/
 .coverage.*
 coverage.xml
 *.cover
+junit.xml
+
+# Type Checking
+.mypy_cache/
 
 # Playwright
 test-results/
@@ -49,14 +53,18 @@ playwright-report/
 traces/
 videos/
 screenshots/
+*.webm
 
 # Authentication state files (contains session tokens, browser cookies, credentials)
 # All files in .auth/ are dynamically created during test execution
 tests/.auth/
-tests/.auth/*.json
 
 # Reports — all generated, never commit
-reports/
+reports/**
+!reports/**/
+!reports/**/.gitkeep
+allure-results/
+allure-report/
 
 # Environment
 .env
@@ -92,13 +100,7 @@ contracts/
 .chromadb/
 .chromadb_backup_*/
 
-# AI Generated (review before installing into framework)
-ai/generated/
-
 # SonarQube
 .scannerwork/
 .sonar/
 sonar-project.properties.bak
-.vscode/mcp.json
-
-reports/auto_healing_report.json

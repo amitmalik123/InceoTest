@@ -35,7 +35,9 @@ htmlcov/
 # =============================================================================
 # Reports & Test Artifacts
 # =============================================================================
-reports/
+reports/**
+!reports/**/
+!reports/**/.gitkeep
 allure-results/
 allure-report/
 junit.xml
