@@ -27,7 +27,7 @@ class LeadsPage_ValidationErrors():
         self.page.covCancelButton = self.page.locator("footer.slds-modal__footer lightning-button:nth-child(1)")
 
 
-    def validation_Errors_with_Different_Account_Types(self, firstName, lastName, email):
+    def validation_Errors_for_Mandatory_Fields(self, firstName, lastName, email):
         self.page.saveButton.click()
         self.page.wait_for_timeout(2000)
         expect(self.page.lastNameError).to_contain_text("Complete this field.")

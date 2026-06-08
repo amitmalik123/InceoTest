@@ -93,7 +93,7 @@ def step_try_save_empty_lead():
 @then("validation errors should be displayed for mandatory fields")
 def step_verify_mandatory_field_errors(lead_validation, test_data):
     """Verify that validation errors are displayed for mandatory fields."""
-    lead_validation.validation_Errors_with_Different_Account_Types(
+    lead_validation.validation_Errors_for_Mandatory_Fields(
         test_data["firstName"], test_data["lastName"], test_data["email"]
     )
     logger.info("Validation errors are displayed for mandatory fields.")
