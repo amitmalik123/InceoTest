@@ -1,4 +1,4 @@
-﻿"""
+"""
 BDD step definitions for Change Investments E2E flow.
 
 Steps cover:

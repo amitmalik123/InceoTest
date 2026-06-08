@@ -73,7 +73,7 @@ class ExcelUtils:
             self.logger.info(f"Created new workbook: {file_path}")
             return True
         except Exception as e:
-            self.logger.error(f"Error creating workbook: {str(e)}")
+            self.logger.error(f"Error creating workbook: {str(e).splitlines()[0]}")
             raise
 
     def load_workbook(self, file_path: str, data_only: bool = False) -> Workbook:
@@ -96,7 +96,7 @@ class ExcelUtils:
             self.logger.error(f"File not found: {file_path}")
             raise
         except Exception as e:
-            self.logger.error(f"Error loading workbook: {str(e)}")
+            self.logger.error(f"Error loading workbook: {str(e).splitlines()[0]}")
             raise
 
     def save_workbook(self, file_path: Optional[str] = None) -> bool:
@@ -121,7 +121,7 @@ class ExcelUtils:
             self.logger.info(f"Saved workbook: {save_path}")
             return True
         except Exception as e:
-            self.logger.error(f"Error saving workbook: {str(e)}")
+            self.logger.error(f"Error saving workbook: {str(e).splitlines()[0]}")
             raise
 
     def close_workbook(self) -> bool:
@@ -139,7 +139,7 @@ class ExcelUtils:
                 self.logger.info("Closed workbook")
             return True
         except Exception as e:
-            self.logger.error(f"Error closing workbook: {str(e)}")
+            self.logger.error(f"Error closing workbook: {str(e).splitlines()[0]}")
             raise
 
     def read_sheet(
@@ -178,7 +178,7 @@ class ExcelUtils:
                 self.logger.info(f"Read {len(data)} rows from sheet: {sheet.title}")
                 return data
         except Exception as e:
-            self.logger.error(f"Error reading sheet: {str(e)}")
+            self.logger.error(f"Error reading sheet: {str(e).splitlines()[0]}")
             raise
 
     def write_sheet(
@@ -244,7 +244,7 @@ class ExcelUtils:
             self.logger.info(f"Wrote {len(data)} rows to sheet: {sheet_name}")
             return True
         except Exception as e:
-            self.logger.error(f"Error writing sheet: {str(e)}")
+            self.logger.error(f"Error writing sheet: {str(e).splitlines()[0]}")
             raise
 
     def read_cell(self, file_path: str, sheet_name: str, cell: str) -> Any:
@@ -267,7 +267,7 @@ class ExcelUtils:
             self.logger.info(f"Read cell {cell} from {sheet_name}: {value}")
             return value
         except Exception as e:
-            self.logger.error(f"Error reading cell: {str(e)}")
+            self.logger.error(f"Error reading cell: {str(e).splitlines()[0]}")
             raise
 
     def write_cell(self, file_path: str, sheet_name: str, cell: str, value: Any) -> bool:
@@ -292,7 +292,7 @@ class ExcelUtils:
             self.logger.info(f"Wrote value to cell {cell} in {sheet_name}")
             return True
         except Exception as e:
-            self.logger.error(f"Error writing cell: {str(e)}")
+            self.logger.error(f"Error writing cell: {str(e).splitlines()[0]}")
             raise
 
     def read_range(
@@ -323,7 +323,7 @@ class ExcelUtils:
             self.logger.info(f"Read range {start_cell}:{end_cell} from {sheet_name}")
             return data
         except Exception as e:
-            self.logger.error(f"Error reading range: {str(e)}")
+            self.logger.error(f"Error reading range: {str(e).splitlines()[0]}")
             raise
 
     def append_row(self, file_path: str, sheet_name: str, row_data: List[Any]) -> bool:
@@ -347,7 +347,7 @@ class ExcelUtils:
             self.logger.info(f"Appended row to {sheet_name}")
             return True
         except Exception as e:
-            self.logger.error(f"Error appending row: {str(e)}")
+            self.logger.error(f"Error appending row: {str(e).splitlines()[0]}")
             raise
 
     def insert_row(
@@ -379,7 +379,7 @@ class ExcelUtils:
             self.logger.info(f"Inserted row at index {row_index} in {sheet_name}")
             return True
         except Exception as e:
-            self.logger.error(f"Error inserting row: {str(e)}")
+            self.logger.error(f"Error inserting row: {str(e).splitlines()[0]}")
             raise
 
     def delete_row(self, file_path: str, sheet_name: str, row_index: int) -> bool:
@@ -403,7 +403,7 @@ class ExcelUtils:
             self.logger.info(f"Deleted row {row_index} from {sheet_name}")
             return True
         except Exception as e:
-            self.logger.error(f"Error deleting row: {str(e)}")
+            self.logger.error(f"Error deleting row: {str(e).splitlines()[0]}")
             raise
 
     def insert_column(
@@ -435,7 +435,7 @@ class ExcelUtils:
             self.logger.info(f"Inserted column at index {col_index} in {sheet_name}")
             return True
         except Exception as e:
-            self.logger.error(f"Error inserting column: {str(e)}")
+            self.logger.error(f"Error inserting column: {str(e).splitlines()[0]}")
             raise
 
     def delete_column(self, file_path: str, sheet_name: str, col_index: int) -> bool:
@@ -459,7 +459,7 @@ class ExcelUtils:
             self.logger.info(f"Deleted column {col_index} from {sheet_name}")
             return True
         except Exception as e:
-            self.logger.error(f"Error deleting column: {str(e)}")
+            self.logger.error(f"Error deleting column: {str(e).splitlines()[0]}")
             raise
 
     def get_sheet_names(self, file_path: str) -> List[str]:
@@ -479,7 +479,7 @@ class ExcelUtils:
             self.logger.info(f"Found {len(sheet_names)} sheets")
             return sheet_names
         except Exception as e:
-            self.logger.error(f"Error getting sheet names: {str(e)}")
+            self.logger.error(f"Error getting sheet names: {str(e).splitlines()[0]}")
             raise
 
     def create_sheet(self, file_path: str, sheet_name: str, index: Optional[int] = None) -> bool:
@@ -502,7 +502,7 @@ class ExcelUtils:
             self.logger.info(f"Created sheet: {sheet_name}")
             return True
         except Exception as e:
-            self.logger.error(f"Error creating sheet: {str(e)}")
+            self.logger.error(f"Error creating sheet: {str(e).splitlines()[0]}")
             raise
 
     def delete_sheet(self, file_path: str, sheet_name: str) -> bool:
@@ -529,7 +529,7 @@ class ExcelUtils:
                 wb.close()
                 return False
         except Exception as e:
-            self.logger.error(f"Error deleting sheet: {str(e)}")
+            self.logger.error(f"Error deleting sheet: {str(e).splitlines()[0]}")
             raise
 
     def rename_sheet(self, file_path: str, old_name: str, new_name: str) -> bool:
@@ -558,7 +558,7 @@ class ExcelUtils:
                 wb.close()
                 return False
         except Exception as e:
-            self.logger.error(f"Error renaming sheet: {str(e)}")
+            self.logger.error(f"Error renaming sheet: {str(e).splitlines()[0]}")
             raise
 
     def copy_sheet(self, file_path: str, source_sheet: str, target_sheet: str) -> bool:
@@ -583,7 +583,7 @@ class ExcelUtils:
             self.logger.info(f"Copied sheet {source_sheet} to {target_sheet}")
             return True
         except Exception as e:
-            self.logger.error(f"Error copying sheet: {str(e)}")
+            self.logger.error(f"Error copying sheet: {str(e).splitlines()[0]}")
             raise
 
     def format_cell(
@@ -648,7 +648,7 @@ class ExcelUtils:
             self.logger.info(f"Formatted cell {cell} in {sheet_name}")
             return True
         except Exception as e:
-            self.logger.error(f"Error formatting cell: {str(e)}")
+            self.logger.error(f"Error formatting cell: {str(e).splitlines()[0]}")
             raise
 
     def format_range(
@@ -716,7 +716,7 @@ class ExcelUtils:
             self.logger.info(f"Formatted range {start_cell}:{end_cell} in {sheet_name}")
             return True
         except Exception as e:
-            self.logger.error(f"Error formatting range: {str(e)}")
+            self.logger.error(f"Error formatting range: {str(e).splitlines()[0]}")
             raise
 
     def merge_cells(self, file_path: str, sheet_name: str, start_cell: str, end_cell: str) -> bool:
@@ -741,7 +741,7 @@ class ExcelUtils:
             self.logger.info(f"Merged cells {start_cell}:{end_cell} in {sheet_name}")
             return True
         except Exception as e:
-            self.logger.error(f"Error merging cells: {str(e)}")
+            self.logger.error(f"Error merging cells: {str(e).splitlines()[0]}")
             raise
 
     def unmerge_cells(
@@ -768,7 +768,7 @@ class ExcelUtils:
             self.logger.info(f"Unmerged cells {start_cell}:{end_cell} in {sheet_name}")
             return True
         except Exception as e:
-            self.logger.error(f"Error unmerging cells: {str(e)}")
+            self.logger.error(f"Error unmerging cells: {str(e).splitlines()[0]}")
             raise
 
     def set_column_width(
@@ -799,7 +799,7 @@ class ExcelUtils:
             self.logger.info(f"Set column {column} width to {width} in {sheet_name}")
             return True
         except Exception as e:
-            self.logger.error(f"Error setting column width: {str(e)}")
+            self.logger.error(f"Error setting column width: {str(e).splitlines()[0]}")
             raise
 
     def set_row_height(self, file_path: str, sheet_name: str, row: int, height: float) -> bool:
@@ -824,7 +824,7 @@ class ExcelUtils:
             self.logger.info(f"Set row {row} height to {height} in {sheet_name}")
             return True
         except Exception as e:
-            self.logger.error(f"Error setting row height: {str(e)}")
+            self.logger.error(f"Error setting row height: {str(e).splitlines()[0]}")
             raise
 
     def find_value(self, file_path: str, sheet_name: str, search_value: Any) -> List[str]:
@@ -853,7 +853,7 @@ class ExcelUtils:
             self.logger.info(f"Found {len(matches)} cells with value: {search_value}")
             return matches
         except Exception as e:
-            self.logger.error(f"Error finding value: {str(e)}")
+            self.logger.error(f"Error finding value: {str(e).splitlines()[0]}")
             raise
 
     def replace_value(self, file_path: str, sheet_name: str, old_value: Any, new_value: Any) -> int:
@@ -885,7 +885,7 @@ class ExcelUtils:
             self.logger.info(f"Replaced {count} occurrences in {sheet_name}")
             return count
         except Exception as e:
-            self.logger.error(f"Error replacing value: {str(e)}")
+            self.logger.error(f"Error replacing value: {str(e).splitlines()[0]}")
             raise
 
     def get_row_count(self, file_path: str, sheet_name: str) -> int:
@@ -907,7 +907,7 @@ class ExcelUtils:
             self.logger.info(f"Sheet {sheet_name} has {row_count} rows")
             return row_count
         except Exception as e:
-            self.logger.error(f"Error getting row count: {str(e)}")
+            self.logger.error(f"Error getting row count: {str(e).splitlines()[0]}")
             raise
 
     def get_column_count(self, file_path: str, sheet_name: str) -> int:
@@ -929,49 +929,7 @@ class ExcelUtils:
             self.logger.info(f"Sheet {sheet_name} has {col_count} columns")
             return col_count
         except Exception as e:
-            self.logger.error(f"Error getting column count: {str(e)}")
-            raise
-
-    def convert_to_csv(self, file_path: str, sheet_name: str, csv_path: str) -> bool:
-        """
-        Convert an Excel sheet to CSV.
-
-        Args:
-            file_path: Path to the Excel file
-            sheet_name: Sheet name to convert
-            csv_path: Output CSV file path
-
-        Returns:
-            True if successful
-        """
-        try:
-            df = pd.read_excel(file_path, sheet_name=sheet_name)
-            df.to_csv(csv_path, index=False)
-            self.logger.info(f"Converted {sheet_name} to CSV: {csv_path}")
-            return True
-        except Exception as e:
-            self.logger.error(f"Error converting to CSV: {str(e)}")
-            raise
-
-    def convert_from_csv(self, csv_path: str, excel_path: str, sheet_name: str = "Sheet1") -> bool:
-        """
-        Convert a CSV file to Excel.
-
-        Args:
-            csv_path: Path to the CSV file
-            excel_path: Output Excel file path
-            sheet_name: Sheet name for the data
-
-        Returns:
-            True if successful
-        """
-        try:
-            df = pd.read_csv(csv_path)
-            df.to_excel(excel_path, sheet_name=sheet_name, index=False)
-            self.logger.info(f"Converted CSV to Excel: {excel_path}")
-            return True
-        except Exception as e:
-            self.logger.error(f"Error converting from CSV: {str(e)}")
+            self.logger.error(f"Error getting column count: {str(e).splitlines()[0]}")
             raise
 
     def filter_data(
@@ -1006,7 +964,7 @@ class ExcelUtils:
             self.logger.info(f"Filtered {len(df)} rows to {len(filtered_df)} rows")
             return filtered_df
         except Exception as e:
-            self.logger.error(f"Error filtering data: {str(e)}")
+            self.logger.error(f"Error filtering data: {str(e).splitlines()[0]}")
             raise
 
     def sort_data(
@@ -1039,7 +997,7 @@ class ExcelUtils:
             self.logger.info(f"Sorted data by {column} ({'asc' if ascending else 'desc'})")
             return True
         except Exception as e:
-            self.logger.error(f"Error sorting data: {str(e)}")
+            self.logger.error(f"Error sorting data: {str(e).splitlines()[0]}")
             raise
 
     def backup_file(self, file_path: str, backup_suffix: str = ".backup") -> str:
@@ -1064,8 +1022,195 @@ class ExcelUtils:
             self.logger.info(f"Created backup: {backup_path}")
             return backup_path
         except Exception as e:
-            self.logger.error(f"Error creating backup: {str(e)}")
+            self.logger.error(f"Error creating backup: {str(e).splitlines()[0]}")
             raise
+
+    def load_test_data_from_example(
+        self, test_data_manager, pytest_bdd_example: dict, sheet_file_path: Optional[str] = None
+    ) -> dict:
+        """
+        Load test data from Excel based on pytest-bdd example parameters.
+
+        Args:
+            test_data_manager: TestDataManager fixture for loading Excel data
+            pytest_bdd_example: pytest-bdd example dict with SheetName and RowNumber
+            sheet_file_path: Optional path to Excel file (if not using test_data_manager's default)
+
+        Returns:
+            Loaded test data dictionary
+
+        Raises:
+            ValueError: If SheetName or RowNumber not provided
+        """
+        sheet_name = pytest_bdd_example.get("SheetName", "")
+        row_number = int(pytest_bdd_example.get("RowNumber", 0))
+
+        if not sheet_name or row_number <= 0:
+            raise ValueError(
+                "SheetName/RowNumber not provided in Examples table for this scenario."
+            )
+
+        # Load test data using TestDataManager
+        selected_row = test_data_manager.get_row_by_number(sheet_name, row_number)
+        self.logger.info(f"Loaded test data from {sheet_name} sheet, row {row_number}")
+
+        return selected_row
+
+    # --- Test Execution Report Methods ---
+
+    def clear_test_results(self) -> None:
+        self.test_results.clear()
+        self.session_start_time = datetime.now()
+
+    def collect_result_from_item(self, item, report) -> None:
+        """Extract per-test data from a pytest item/report and store it."""
+        ctx = item.funcargs.get("test_context", {})
+        td = ctx.get("test_data", {})
+
+        # Always fetch Test Case Id directly from Excel using BDD example params
+        test_case_id = "NA"
+        try:
+            example = item.funcargs.get("_pytest_bdd_example", {})
+            sheet = example.get("SheetName", "")
+            row_num = int(example.get("RowNumber", 0))
+            if sheet and row_num > 0:
+                from config.settings import settings
+                from openpyxl import load_workbook as _lwb
+                wb = _lwb(str(settings.test_data_excel), read_only=True, data_only=True)
+                ws = wb[sheet]
+                rows = list(ws.iter_rows(values_only=True))
+                headers = [str(h).strip() for h in rows[0]]
+                row_data = dict(zip(headers, rows[row_num - 1]))
+                wb.close()
+                test_case_id = str(row_data.get("Test Case Id", "NA") or "NA").strip()
+        except Exception:
+            pass
+
+        def _v(src, key):
+            return str(src.get(key, "NA") or "NA").strip()
+
+        name = item.nodeid.rsplit("::", 1)[-1].split("[")[0]
+        if name.startswith("test_"):
+            name = name[5:]
+        title = "_".join(p.capitalize() if p.islower() else p for p in name.split("_"))
+
+        try:
+            feature = (item.funcargs.get("_pytest_bdd_example", {}).get("SheetName", "") or "").strip() or "NA"
+        except Exception:
+            feature = "NA"
+
+        cause = "NA"
+        if report.failed and report.longrepr:
+            cause = str(report.longrepr).strip()
+
+        start_time = getattr(item, "start_time", None)
+        end_time = datetime.now()
+        if start_time:
+            duration = end_time - start_time
+            total_secs = int(duration.total_seconds())
+            total_time = f"{total_secs // 60}m {total_secs % 60}s"
+        else:
+            total_time = "NA"
+
+        # Fetch hrc_number from class variable (always set during view documents step)
+        hrc_val = _v(ctx, "hrc_number")
+        if hrc_val == "NA":
+            try:
+                from tests.steps.naw.view_documents_step import ViewDocumentsStep
+                hrc_val = (ViewDocumentsStep.hrc_number or "NA").strip() or "NA"
+                # Reset class variable so the next test doesn't inherit a stale value
+                ViewDocumentsStep.hrc_number = ""
+            except Exception:
+                pass
+
+        # Fetch nNumber from DocuSignPage class variable
+        n_val = "NA"
+        try:
+            from pages.ewm.docusign_page import DocuSignPage
+            n_val = (DocuSignPage.nNumber or "NA").strip() or "NA"
+            # Reset class variable so the next test doesn't inherit a stale value
+            DocuSignPage.nNumber = ""
+        except Exception:
+            pass
+
+        self.test_results.append({
+            "Test Case Id": test_case_id, "Title": title,
+            "Last Run": datetime.now().strftime("%m/%d/%Y"),
+            "Run By": os.getenv("USERNAME", os.getenv("USER", platform.node())),
+            "B#": _v(ctx, "b_number"), "hrcNumber": hrc_val,
+            "nNumber": n_val,
+            "parentBNumber": _v(ctx, "parent_b_number"),
+            "activationNumber": _v(ctx, "activation_number"),
+            "Status": "Passed" if report.passed else "Failed",
+            "Feature": feature,
+            "Environment": os.getenv("TEST_ENV", "NA"),
+            "Start Time": start_time.strftime("%I:%M:%S %p") if start_time else "NA",
+            "End Time": end_time.strftime("%I:%M:%S %p"),
+            "Total Time": total_time,
+            "Cause Of Failure": cause,
+        })
+
+    def generate_excel_report(self, output_dir: Union[str, Path, None] = None) -> Optional[Path]:
+        """Generate Excel report from collected test results."""
+        if not self.test_results:
+            return None
+
+        out = Path(output_dir or Path("reports") / "ExcelReport")
+        out.mkdir(parents=True, exist_ok=True)
+        filepath = out / f"ExcelReport_{datetime.now().strftime('%d-%b-%y %H-%M-%S.%f')}.xlsx"
+
+        wb = Workbook()
+        ws = wb.active
+        ws.title = f"ExcelReport_{datetime.now().strftime('%d-%b-%y %H-%M-%S')}"
+
+        for ci, col in enumerate(self._REPORT_COLUMNS, 1):
+            c = ws.cell(row=1, column=ci, value=col)
+            c.font, c.fill, c.alignment, c.border = (
+                self._HDR_STYLE["font"], self._HDR_STYLE["fill"], self._HDR_STYLE["alignment"], self._BORDER
+            )
+
+        for ri, row in enumerate(self.test_results, 2):
+            for ci, col in enumerate(self._REPORT_COLUMNS, 1):
+                val = row.get(col, "NA")
+                c = ws.cell(row=ri, column=ci, value=val)
+                c.alignment = Alignment(vertical="top", wrap_text=True)
+                c.border = self._BORDER
+                if col == "Status":
+                    style = self._PASS_STYLE if val == "Passed" else self._FAIL_STYLE if val == "Failed" else {}
+                    for k, v in style.items():
+                        setattr(c, k, v)
+
+        for col_cells in ws.columns:
+            letter = col_cells[0].column_letter
+            header_len = len(str(col_cells[0].value or ""))
+            data_len = max((max(len(l) for l in str(c.value or "").split("\n")) for c in col_cells), default=8)
+            width = max(header_len + 4, data_len + 4, 15)
+            ws.column_dimensions[letter].width = min(width, 60)
+
+        # Overall Execution Time summary row (under End Time / Total Time columns)
+        summary_row = len(self.test_results) + 3
+        session_start = getattr(self, "session_start_time", None)
+        if session_start:
+            overall = datetime.now() - session_start
+            total_secs = int(overall.total_seconds())
+            hrs, rem = divmod(total_secs, 3600)
+            mins, secs = divmod(rem, 60)
+            overall_text = f"{hrs}h {mins}m {secs}s" if hrs else f"{mins}m {secs}s"
+        else:
+            overall_text = "NA"
+        end_time_col = self._REPORT_COLUMNS.index("End Time") + 1
+        total_time_col = self._REPORT_COLUMNS.index("Total Time") + 1
+        label_cell = ws.cell(row=summary_row, column=end_time_col, value="Overall Execution Time")
+        label_cell.font = Font(bold=True, size=11)
+        label_cell.border = self._BORDER
+        value_cell = ws.cell(row=summary_row, column=total_time_col, value=overall_text)
+        value_cell.font = Font(bold=True, size=11)
+        value_cell.border = self._BORDER
+
+        ws.freeze_panes = "A2"
+        wb.save(filepath)
+        self.logger.info(f"Excel Report: {filepath.absolute()}")
+        return filepath
 
 
 # Convenience functions

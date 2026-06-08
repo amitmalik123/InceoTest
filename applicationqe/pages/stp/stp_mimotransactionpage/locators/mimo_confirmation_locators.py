@@ -32,4 +32,13 @@ class MIMOConfirmationLocators:
     CONTRIBUTION_AMOUNT = "//div[@aria-label='confirmation-screen-contribution-amount']"
     CONTRIBUTION_DATE = "//div[@aria-label='confirmation-screen-summary-date']"
     CONTRIBUTION_REASON = "//div[@aria-label='confirmation-screen-contribution-reason']"
+    # Withdrawal / Qualified Information
+    DISTRIBUTION_REASON = "//div[@aria-label='confirmation-screen-distribution-reason']"
+    FEDERAL_TAX_WITHHOLDING = "(//div[@aria-label='confirmation-screen-federal-tax-rate'])[1]"
+    STATE_TAX_WITHHOLDING = "//div[@aria-label='confirmation-screen-state-tax-rate']"
+    STATE_OF_RESIDENCE = "//div[@aria-label='confirmation-screen-state-of-residence']"
+    NET_DISTRIBUTION_AMOUNT = "(//div[@aria-label='confirmation-screen-federal-tax-rate'])[2]"
+    # Destination / Bank
+    BANK_NAME = "//div[@aria-label='confirmation-screen-bank-name']"
+    BANK_ACCOUNT_NUMBER = "//div[@aria-label='confirmation-screen-account-number']"
     DESTINATION_SECTION = "//div[@aria-label='destination-section']"

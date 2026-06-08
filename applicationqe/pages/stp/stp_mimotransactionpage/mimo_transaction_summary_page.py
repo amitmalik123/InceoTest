@@ -188,8 +188,10 @@ class MIMOTransactionSummaryPage(BasePage):
     def click_esign_and_submit(self):
         """Click E-Sign and Submit button"""
         logger.info("Clicking E-Sign and Submit button")
-        self.esign_and_submit.wait_for(state='visible', timeout=10000)
-        self.esign_and_submit.click()
+        self.dismiss_cookie_banner()
+        self.esign_and_submit.wait_for(state='visible', timeout=30000)
+        self.esign_and_submit.scroll_into_view_if_needed()
+        self.esign_and_submit.evaluate("el => el.click()")
         logger.info("E-Sign and Submit clicked successfully")
     
     def click_submit_or_submit_for_review_button(self):

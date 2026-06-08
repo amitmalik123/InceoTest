@@ -1,4 +1,4 @@
-﻿import os
+import os
 import time
 import allure
 from pathlib import Path

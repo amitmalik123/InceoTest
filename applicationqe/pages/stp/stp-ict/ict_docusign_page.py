@@ -1,4 +1,4 @@
-﻿from playwright.sync_api import Page
+from playwright.sync_api import Page
 
 from pages.base_page import BasePage
 from locators.stp.stp_ict import ict_docusign_locators as docusign_locators
@@ -53,7 +53,7 @@ class DocuSignPage(BasePage):
         """Complete DocuSign signing: click ALL required signature/initial tabs then Finish."""
         logger.info("Starting sign and finish process...")
 
-        # ── 1. Click every required SignHere button ──────────────────────────
+        # -- 1. Click every required SignHere button --------------------------
         sig_buttons = self.page.locator("button[data-qa^='signature-tab-required']")
         count = sig_buttons.count()
         logger.info(f"Found {count} signature tab button(s)")
@@ -66,7 +66,7 @@ class DocuSignPage(BasePage):
             except Exception as e:
                 logger.warning(f"Signature tab {i + 1} click failed: {e}")
 
-        # ── 2. Click every required InitialHere button ────────────────────────
+        # -- 2. Click every required InitialHere button ------------------------
         init_buttons = self.page.locator("button[data-qa^='initials-tab-required']")
         count = init_buttons.count()
         logger.info(f"Found {count} initials tab button(s)")
@@ -79,14 +79,14 @@ class DocuSignPage(BasePage):
             except Exception as e:
                 logger.warning(f"Initials tab {i + 1} click failed: {e}")
 
-        # ── 3. Click Finish ───────────────────────────────────────────────────
+        # -- 3. Click Finish ---------------------------------------------------
         logger.info("Clicking Finish button...")
         finish_button = self.page.locator(docusign_locators.FINISH_BUTTON)
         self.wait_for_element(finish_button, state='visible', timeout=timeout)
         finish_button.click()
         logger.info("Finish button clicked")
 
-        # ── 4. Wait for navigation back to EWealthManager ────────────────────
+        # -- 4. Wait for navigation back to EWealthManager --------------------
         try:
             self.page.wait_for_url(lambda url: 'docusign' not in url, timeout=30000)
             logger.info(f"Navigated back from DocuSign to: {self.page.url}")

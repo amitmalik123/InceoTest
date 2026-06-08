@@ -118,12 +118,13 @@ class ItemDetailsPage(BasePage):
         size = len(elements)
         logger.info(f"Found {size} description info elements")
         
-        if size > 0:
-            notes = elements[-1].inner_text()
-            logger.info(f"First distribution notes: {notes}")
-            return notes
+        if size == 0:
+            return ""
         
-        return ""
+        # Join all description cells so assertions can find values across all note rows
+        all_notes = "\n".join(elem.inner_text() for elem in elements)
+        logger.info(f"Distribution notes (all rows): {all_notes}")
+        return all_notes
     
     def get_created_by_from_notes_section(self) -> str:
     

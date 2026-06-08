@@ -1,4 +1,4 @@
-﻿import allure
+import allure
 from playwright.sync_api import Page
 from pytest_bdd import parsers, then, when
 

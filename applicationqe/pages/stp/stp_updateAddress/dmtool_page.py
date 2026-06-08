@@ -1,4 +1,4 @@
-"""
+﻿"""
 DM Tool Page Object for Address Change functionality
 """
 
@@ -6,7 +6,6 @@ from typing import List, Optional, TYPE_CHECKING
 from playwright.sync_api import Page
 
 from pages.stp.shared.base_page import BasePage
-from pages.stp.stp_updateAddress.locators.dmtool_locators import DMToolLocators
 from utils.allure_logger import get_allure_logger
 
 logger = get_allure_logger(__name__)
@@ -25,61 +24,60 @@ class DMToolPage(BasePage):
     
     def __init__(self, page: Page):
         super().__init__(page)
-        loc = DMToolLocators
         
         # Section XPath patterns (matching Java implementation)
-        self.footer_section_xpath = loc.FOOTER_SECTION
-        self.header_section_xpath = loc.HEADER_SECTION
-        self.notes_section_xpath = loc.NOTES_SECTION
-        self.bottom_buttons_section_xpath = loc.BOTTOM_BUTTONS_SECTION
-        self.account_info_section_xpath = loc.ACCOUNT_INFO_SECTION
-        self.addresses_section_xpath = loc.ADDRESSES_SECTION
-        self.legal_address_section = loc.LEGAL_ADDRESS_SECTION
-        self.mailing_address_section = loc.MAILING_ADDRESS_SECTION
+        self.footer_section_xpath = "//footer"
+        self.header_section_xpath = "//header[@data-testid='header']"
+        self.notes_section_xpath = "//li[@aria-label='list-item']"
+        self.bottom_buttons_section_xpath = "//div[@data-testid='action-buttons']"
+        self.account_info_section_xpath = "//section[@aria-label='account-info-section']"
+        self.addresses_section_xpath = "//section[@aria-label='address-change-section']"
+        self.legal_address_section = self.addresses_section_xpath + "//div[@data-testid='legal-address-card']"
+        self.mailing_address_section = self.addresses_section_xpath + "//div[@data-testid='mailing-address-card']"
         
         # Page Locators for Address Change UI elements
-        self.table_row = loc.TABLE_ROW
-        self.important_notes_section = loc.IMPORTANT_NOTES_BULLETINS_FIRST
-        self.important_notes_bulletins_first = loc.IMPORTANT_NOTES_BULLETINS_FIRST
-        self.important_notes_bulletins_second = loc.IMPORTANT_NOTES_BULLETINS_SECOND
-        self.important_notes_bulletins_third = loc.IMPORTANT_NOTES_BULLETINS_THIRD
-        self.important_notes_bulletins_fourth = loc.IMPORTANT_NOTES_BULLETINS_FOURTH
+        self.table_row = self.account_info_section_xpath + "//tr[@aria-label='table-row']"
+        self.important_notes_section = self.notes_section_xpath + "[1]"
+        self.important_notes_bulletins_first = self.notes_section_xpath + "[1]"
+        self.important_notes_bulletins_second = self.notes_section_xpath + "[2]"
+        self.important_notes_bulletins_third = self.notes_section_xpath + "[3]"
+        self.important_notes_bulletins_fourth = self.notes_section_xpath + "[4]"
         
         # Header elements
-        self.update_addresses_text = loc.UPDATE_ADDRESSES_TEXT
-        self.advisor_id = loc.ADVISOR_ID
+        self.update_addresses_text = self.header_section_xpath + "//h1[@data-testid='header-tool-name']"
+        self.advisor_id = self.header_section_xpath + "//span[@data-testid='header-advisor-id']"
         
         # Legal Address elements
-        self.legal_address_label = loc.LEGAL_ADDRESS_LABEL
-        self.legal_address_contents = loc.LEGAL_ADDRESS_CONTENTS
-        self.legal_edit_button = loc.LEGAL_EDIT_BUTTON
+        self.legal_address_label = self.legal_address_section + "//h3[@data-testid='address-card-name']"
+        self.legal_address_contents = self.legal_address_section + "//ul/li"
+        self.legal_edit_button = self.legal_address_section + "//button[@aria-label='icon-button']//*[local-name() = 'svg']"
         
         # Mailing Address elements
-        self.mailing_address_label = loc.MAILING_ADDRESS_LABEL
-        self.mailing_address_contents = loc.MAILING_ADDRESS_CONTENTS
-        self.mailing_edit_button = loc.MAILING_EDIT_BUTTON
+        self.mailing_address_label = self.mailing_address_section + "//h3[@data-testid='address-card-name']"
+        self.mailing_address_contents = self.mailing_address_section + "//ul/li"
+        self.mailing_edit_button = self.mailing_address_section + "//button[@aria-label='icon-button']//*[local-name() = 'svg']"
         
         # Action buttons
-        self.submit_button = loc.SUBMIT_BUTTON
-        self.cancel_button = loc.CANCEL_BUTTON
+        self.submit_button = self.bottom_buttons_section_xpath + "//button[@data-testid='submit-button']"
+        self.cancel_button = self.bottom_buttons_section_xpath + "//button[@data-testid='cancel-button']"
         
         # Footer elements
-        self.assetmark_text = loc.ASSETMARK_TEXT
-        self.privacy_link = loc.PRIVACY_LINK
-        self.terms_link = loc.TERMS_LINK
-        self.supported_browsers_link = loc.SUPPORTED_BROWSERS_LINK
-        self.copyright_text = loc.COPYRIGHT_TEXT
+        self.assetmark_text = self.footer_section_xpath + "//p[@aria-label='company-name']"
+        self.privacy_link = self.footer_section_xpath + "//button[.='Privacy and Security Policy']"
+        self.terms_link = self.footer_section_xpath + "//button[.='Terms of Use']"
+        self.supported_browsers_link = self.footer_section_xpath + "//button[.='Supported Browsers']"
+        self.copyright_text = self.footer_section_xpath + "//p[@aria-label='copyright']"
         
         # Account Information elements
-        self.household_name = loc.HOUSEHOLD_NAME
-        self.account_information_label = loc.ACCOUNT_INFORMATION_LABEL
-        self.account_name_column_label = loc.ACCOUNT_NAME_COLUMN_LABEL
-        self.account_number_column_label = loc.ACCOUNT_NUMBER_COLUMN_LABEL
-        self.strategy_column_label = loc.STRATEGY_COLUMN_LABEL
-        self.status_column_label = loc.STATUS_COLUMN_LABEL
+        self.household_name = self.account_info_section_xpath + "//h3[@aria-label='household-name']"
+        self.account_information_label = self.account_info_section_xpath + "//h3[@class='section-title']"
+        self.account_name_column_label = self.account_info_section_xpath + "//th[contains(text(),'Account Name')]"
+        self.account_number_column_label = self.account_info_section_xpath + "//th[contains(text(),'Account Number')]"
+        self.strategy_column_label = self.account_info_section_xpath + "//th[contains(text(),'Strategy')]"
+        self.status_column_label = self.account_info_section_xpath + "//th[contains(text(),'Status')]"
         
         # Address section title
-        self.address_section_title = loc.ADDRESS_SECTION_TITLE
+        self.address_section_title = self.addresses_section_xpath + "//h3[@aria-label='address-change-section-title']"
         
         # Error messages
         self.no_changes_error = "//div[@data-testid='no-changes-note']"

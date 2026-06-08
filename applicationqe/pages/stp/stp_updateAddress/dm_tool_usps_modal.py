@@ -1,4 +1,4 @@
-"""
+﻿"""
 DM Tool USPS Address Validation Modal Page Object
 """
 
@@ -6,7 +6,6 @@ from typing import List, TYPE_CHECKING
 from playwright.sync_api import Page
 
 from pages.stp.shared.base_page import BasePage
-from pages.stp.stp_updateAddress.locators.dm_tool_usps_modal_locators import DMToolUSPSModalLocators
 from utils.logger import setup_logger
 from utils.address_comparison import check_if_there_is_address_match
 
@@ -23,37 +22,36 @@ class DMToolUSPSModal(BasePage):
     
     def __init__(self, page: Page):
         super().__init__(page)
-        loc = DMToolUSPSModalLocators
         
         # Modal elements
-        self.modal_title = loc.MODAL_TITLE
-        self.modal_container = loc.MODAL_CONTAINER
+        self.modal_title = "//h2[contains(text(),'Address Validation')]"
+        self.modal_container = "//div[@role='dialog' and contains(@aria-label,'usps')]"
         
         # Address display sections
-        self.original_address_section = loc.ORIGINAL_ADDRESS_SECTION
-        self.suggested_address_section = loc.SUGGESTED_ADDRESS_SECTION
+        self.original_address_section = "//div[@aria-label='original-address-section']"
+        self.suggested_address_section = "//div[@aria-label='suggested-address-section']"
         
         # Original address elements
-        self.original_address_line1 = loc.ORIGINAL_ADDRESS_LINE1
-        self.original_address_line2 = loc.ORIGINAL_ADDRESS_LINE2
-        self.original_address_city_state_zip = loc.ORIGINAL_ADDRESS_CITY_STATE_ZIP
+        self.original_address_line1 = "//div[@aria-label='original-address-section']//p[@aria-label='address-line-1']"
+        self.original_address_line2 = "//div[@aria-label='original-address-section']//p[@aria-label='address-line-2']"
+        self.original_address_city_state_zip = "//div[@aria-label='original-address-section']//p[@aria-label='address-line-city-state-zip']"
         
         # Suggested address elements
-        self.suggested_address_line1 = loc.SUGGESTED_ADDRESS_LINE1
-        self.suggested_address_line2 = loc.SUGGESTED_ADDRESS_LINE2
-        self.suggested_address_city_state_zip = loc.SUGGESTED_ADDRESS_CITY_STATE_ZIP
+        self.suggested_address_line1 = "//div[@aria-label='suggested-address-section']//p[@aria-label='address-line-1']"
+        self.suggested_address_line2 = "//div[@aria-label='suggested-address-section']//p[@aria-label='address-line-2']"
+        self.suggested_address_city_state_zip = "//div[@aria-label='suggested-address-section']//p[@aria-label='address-line-city-state-zip']"
         
         # Radio buttons for address selection
-        self.use_original_radio = loc.USE_ORIGINAL_RADIO
-        self.use_suggested_radio = loc.USE_SUGGESTED_RADIO
+        self.use_original_radio = "//input[@type='radio' and @value='original']"
+        self.use_suggested_radio = "//input[@type='radio' and @value='suggested']"
         
         # Error message
-        self.error_message = loc.ERROR_MESSAGE
+        self.error_message = "//div[@aria-label='usps-error-message']"
         
         # Action buttons
-        self.save_button = loc.SAVE_BUTTON
-        self.back_button = loc.BACK_BUTTON
-        self.cancel_button = loc.CANCEL_BUTTON
+        self.save_button = "//button[text()='Save']"
+        self.back_button = "//button[text()='Back']"
+        self.cancel_button = "//button[text()='Cancel']"
     
     def wait_for_modal_to_load(self) -> None:
         """Wait for USPS Address Validation Modal to be visible"""

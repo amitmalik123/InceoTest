@@ -1,4 +1,4 @@
-"""
+﻿"""
 Auto-Healing Base Page - Enhanced page object with self-healing capabilities
 """
 

@@ -1,10 +1,10 @@
-﻿import allure
+import allure
 from datetime import datetime, timedelta
 from playwright.sync_api import Page
 from pytest_bdd import parsers, then, when
 
-from swp_establish_transaction_page_one import SWPEstablishTransactionPageOne
-from swp_establish_transaction_page_two import SWPEstablishTransactionPageTwo
+from pages.stp.stp_swp.swp_establish_transaction_page_one import SWPEstablishTransactionPageOne
+from pages.stp.stp_swp.swp_establish_transaction_page_two import SWPEstablishTransactionPageTwo
 from utils.logger import setup_logger
 
 logger = setup_logger(__name__)

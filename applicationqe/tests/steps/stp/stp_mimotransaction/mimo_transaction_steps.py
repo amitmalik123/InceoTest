@@ -1,11 +1,11 @@
-﻿import allure
+import allure
 from playwright.sync_api import Page
 from pytest_bdd import parsers,when, then
 import pytest
 
-from mimo_transaction_request_page import MIMOTransactionRequestPage
-from mimo_transaction_request_page2 import MIMOTransactionRequestPage2
-from mimo_transaction_summary_page import MIMOTransactionSummaryPage
+from pages.stp.stp_mimotransactionpage.mimo_transaction_request_page import MIMOTransactionRequestPage
+from pages.stp.stp_mimotransactionpage.mimo_transaction_request_page2 import MIMOTransactionRequestPage2
+from pages.stp.stp_mimotransactionpage.mimo_transaction_summary_page import MIMOTransactionSummaryPage
 from utils.logger import setup_logger
 import re
 
