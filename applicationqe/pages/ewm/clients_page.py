@@ -1,6 +1,4 @@
-from typing import Any
-
-from playwright.sync_api import Locator, Page, expect
+from playwright.sync_api import Locator, Page, TimeoutError as PlaywrightTimeoutError
 
 from pages.base_page import BasePage
 from utils.logger import setup_logger
@@ -14,6 +12,7 @@ class ClientsPage(BasePage):
         super().__init__(page)
         self.clients_link: Locator = page.get_by_role('link', name='Clients')
         self.account_list_link: Locator = page.get_by_role('link', name='Account List')
+        self.add_client_button: Locator = page.get_by_role("button", name="Add a Client")
 
     def navigate(self) -> None:
         logger.info(f"ClientsPage navigate - Current URL: {self.page.url}")
@@ -37,4 +36,19 @@ class ClientsPage(BasePage):
         logger.info("Clicking Account List link")
         self.account_list_link.click()
         logger.info("Account List link clicked")
+
+    def click_add_client(self) -> None:
+        """Click the add a client button on clients page."""
+        logger.info("Clicking add a client button")
+        try:
+            self.add_client_button.wait_for(state="visible", timeout=30000)
+            self._click_element_with_strategies(self.add_client_button, "Add a Client button")
+        except PlaywrightTimeoutError:
+            logger.warning(
+                "Add a Client button did not become visible in 30s; using JS fallback on attached element"
+            )
+            self.add_client_button.first.wait_for(state="attached", timeout=10000)
+            self.add_client_button.first.evaluate("el => el.click()")
+        self.wait_for_spinner_to_disappear(timeout=30)
+        logger.info("Add a client button clicked")
 

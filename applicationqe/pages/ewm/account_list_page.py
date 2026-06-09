@@ -1,6 +1,4 @@
-from typing import Any
-
-from playwright.sync_api import Locator, Page, expect
+from playwright.sync_api import Locator, Page, TimeoutError as PlaywrightTimeoutError
 
 from pages.base_page import BasePage
 from utils.logger import setup_logger
@@ -8,135 +6,141 @@ from utils.logger import setup_logger
 logger = setup_logger(__name__)
 
 class AccountListPage(BasePage):
-    PAGE_URL = 'https://test11.ewealthmanager.com/AccountsAnalysis/Clients/AccountList'
+    PAGE_URL = "https://test11.ewealthmanager.com/AccountsAnalysis/Clients/AccountList"
+    PAGE_PATH = "AccountsAnalysis/Clients/AccountList"
 
     def __init__(self, page: Page):
         super().__init__(page)
+        self.client_search_input: Locator = page.locator("#client_search_input")
+        self.client_search_button: Locator = page.locator("form.client_search button#searchbutton")
+        # Backward-compatible aliases used in some step definitions.
+        self.search_input: Locator = self.client_search_input
+        self.search_button: Locator = self.client_search_button
+
+    def _get_client_row(self, client_id: str) -> Locator:
+        return self.page.locator(f"tr:has-text('{client_id}')")
+
+    def _get_gridcell_by_name(self, name: str) -> Locator:
+        return self.page.get_by_role("gridcell", name=name).first
+
+    def _get_element_by_text(self, text: str) -> Locator:
+        return self.page.get_by_text(text).first
 
     def navigate(self) -> None:
-        logger.info(f"Navigating to account list page: {self.PAGE_URL}")
+        logger.info(f"Navigating to account list page: {self.PAGE_PATH}")
         logger.info(f"Current URL before navigation: {self.page.url}")
-        # Wait for account list navigation to complete
-        self.page.wait_for_load_state('domcontentloaded', timeout=30000)
+        self.page.wait_for_load_state("domcontentloaded", timeout=30000)
         logger.info(f"Current URL after wait: {self.page.url}")
         logger.info("Account list page loaded")
 
-    def search_client(self, client_id: str) -> None:
+    def search_client(self, client_id: str, click_header: str = None) -> None:
         logger.info(f"Searching for client: {client_id}")
-        
-        # Take screenshot for debugging
-        screenshot_path = f"reports/account_list_debug_{client_id}.png"
-        self.page.screenshot(path=screenshot_path)
-        logger.info(f"Screenshot saved: {screenshot_path}")
-        
-        # Try multiple search strategies
+
+        before_path = f"reports/account_list_before_search_{client_id}.png"
+        self.page.screenshot(path=before_path)
+        logger.info(f"Screenshot saved: {before_path}")
+
         search_successful = False
-        
-        # Strategy 1: Look for any visible text input that might be the search
+
         try:
-            logger.info("Strategy 1: Trying visible text inputs")
-            inputs = self.page.locator('input[type="text"]:visible, input:not([type]):visible').all()
-            logger.info(f"Found {len(inputs)} visible input fields")
-            
-            for idx, input_field in enumerate(inputs):
-                try:
-                    placeholder = input_field.get_attribute('placeholder', timeout=1000)
-                    input_id = input_field.get_attribute('id', timeout=1000)
-                    logger.info(f"Input {idx}: id='{input_id}', placeholder='{placeholder}'")
-                    
-                    # Skip cookie search
-                    if placeholder and 'cookie' in placeholder.lower():
-                        continue
-                    
-                    # Try to use this input
-                    if input_field.is_visible():
-                        logger.info(f"Attempting to use input {idx}")
-                        input_field.fill(client_id)
-                        logger.info(f"Filled input with: {client_id}")
-                        
-                        # Try to find and click search button nearby
-                        try:
-                            search_btn = self.page.locator('button:has-text("Search"), button#searchbutton, button[type="submit"]').first
-                            search_btn.wait_for(state='visible', timeout=3000)
-                            search_btn.click()
-                            logger.info("Clicked search button")
-                        except Exception as e:
-                            logger.info(f"No search button found, pressing Enter: {e}")
-                            input_field.press('Enter')
-                        
-                        search_successful = True
-                        break
-                except Exception as e:
-                    logger.debug(f"Input {idx} check failed: {e}")
-                    continue
+            self.client_search_input.wait_for(state="visible", timeout=30000)
+            self.fill(self.client_search_input, client_id)
+            logger.info(f"Filled client ID: {client_id}")
+
+            self.client_search_button.wait_for(state="visible", timeout=30000)
+            self.click(self.client_search_button)
+            logger.info("Clicked search button")
+
+            search_successful = True
         except Exception as e:
-            logger.error(f"Strategy 1 failed: {e}")
-        
-        # Strategy 2: Try direct URL navigation with query parameter
+            logger.warning(f"Primary locator strategy failed: {str(e).splitlines()[0]}")
+
         if not search_successful:
-            try:
-                logger.info("Strategy 2: Using URL with search parameter")
-                search_url = f"{self.PAGE_URL}?search={client_id}"
-                self.page.goto(search_url, wait_until='networkidle', timeout=30000)
-                logger.info(f"Navigated to: {search_url}")
-                search_successful = True
-            except Exception as e:
-                logger.error(f"Strategy 2 failed: {e}")
-        
-        # Strategy 3: Use keyboard shortcut (Ctrl+F or /) to open search
+            search_successful = self._fallback_search(client_id)
+
         if not search_successful:
-            try:
-                logger.info("Strategy 3: Trying keyboard shortcuts")
-                self.page.keyboard.press('Control+F')
-                self.page.wait_for_timeout(1000)
-                self.page.keyboard.type(client_id)
-                self.page.keyboard.press('Enter')
-                logger.info("Used keyboard shortcut to search")
-                search_successful = True
-            except Exception as e:
-                logger.error(f"Strategy 3 failed: {e}")
-        
-        if search_successful:
-            # Wait for results
-            self.page.wait_for_load_state('networkidle', timeout=15000)
-            logger.info(f"Search completed for client: {client_id}")
-        else:
-            logger.error("All search strategies failed!")
-            # Take another screenshot after attempts
             self.page.screenshot(path=f"reports/account_list_failed_{client_id}.png")
             raise Exception(f"Unable to search for client {client_id} - all strategies failed")
 
+        after_path = f"reports/account_list_after_search_{client_id}.png"
+        self.page.screenshot(path=after_path)
+        logger.info(f"Screenshot saved: {after_path}")
+        logger.info(f"Search completed for client: {client_id}")
+
+    def _fallback_search(self, client_id: str) -> bool:
+        """Fallback EWM strategies for environments where canonical locators fail."""
+        try:
+            logger.info("Fallback strategy 1: trying visible text inputs")
+            inputs = self.page.locator(
+                "input[type='text']:visible, input:not([type]):visible"
+            ).all()
+            for input_field in inputs:
+                try:
+                    placeholder = input_field.get_attribute("placeholder", timeout=1000) or ""
+                    if "cookie" in placeholder.lower():
+                        continue
+                    if input_field.is_visible():
+                        input_field.fill(client_id)
+                        try:
+                            search_btn = self.page.locator(
+                                "button:has-text('Search'), button#searchbutton, button[type='submit']"
+                            ).first
+                            search_btn.wait_for(state="visible", timeout=3000)
+                            search_btn.click()
+                        except Exception:
+                            input_field.press("Enter")
+                        self.page.wait_for_load_state("networkidle", timeout=15000)
+                        return True
+                except Exception:
+                    continue
+        except Exception as e:
+            logger.warning(f"Fallback strategy 1 failed: {e}")
+
+        try:
+            logger.info("Fallback strategy 2: using URL query parameter")
+            search_url = f"{self.PAGE_URL}?search={client_id}"
+            self.page.goto(search_url, wait_until="networkidle", timeout=30000)
+            return True
+        except Exception as e:
+            logger.warning(f"Fallback strategy 2 failed: {e}")
+
+        try:
+            logger.info("Fallback strategy 3: keyboard search")
+            self.page.keyboard.press("Control+F")
+            self.page.wait_for_timeout(1000)
+            self.page.keyboard.type(client_id)
+            self.page.keyboard.press("Enter")
+            return True
+        except Exception as e:
+            logger.warning(f"Fallback strategy 3 failed: {e}")
+
+        return False
+
     def select_account(self, account_name: str, client_id: str = None) -> None:
         logger.info(f"Selecting account: {account_name} (Client ID: {client_id})")
-        
-        # Strategy 1: Try to find by both account name and client ID in the same row
+
         if client_id:
             try:
-                # Find the row that contains the client ID
-                row = self.page.locator(f"tr:has-text('{client_id}')")
+                row = self._get_client_row(client_id)
                 logger.info(f"Found row with client ID: {client_id}")
-                
-                # Within that row, click the cell with the account name
                 account_cell = row.locator(f"td:has-text('{account_name}')").first
-                account_cell.click()
+                self.click(account_cell)
                 logger.info(f"{account_name} account selected from client {client_id} row")
                 return
             except Exception as e:
-                logger.warning(f"Strategy 1 failed: {e}. Trying alternative approach.")
-        
-        # Strategy 2: Fallback - use role gridcell with account name
+                logger.warning(f"Strategy 1 failed: {str(e).splitlines()[0]}. Trying alternative approach.")
+
         try:
             logger.info("Strategy 2: Using role gridcell selector")
-            account_cell = self.page.get_by_role("gridcell", name=account_name).first
-            account_cell.click()
+            account_cell = self._get_gridcell_by_name(account_name)
+            self.click(account_cell)
             logger.info(f"{account_name} account selected using gridcell role")
             return
         except Exception as e:
-            logger.warning(f"Strategy 2 failed: {e}. Trying final approach.")
-        
-        # Strategy 3: Final fallback - get first occurrence
+            logger.warning(f"Strategy 2 failed: {str(e).splitlines()[0]}. Trying final approach.")
+
         logger.info("Strategy 3: Using first occurrence of account name")
-        account_cell = self.page.get_by_text(account_name).first
-        account_cell.click()
+        account_cell = self._get_element_by_text(account_name)
+        self.click(account_cell)
         logger.info(f"{account_name} account selected (first occurrence)")
 

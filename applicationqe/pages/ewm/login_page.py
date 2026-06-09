@@ -1,23 +1,71 @@
-"""
-Enhanced Login Page Object - Handles authentication workflow actions
-"""
-from playwright.sync_api import Page, Locator
+"""Merged EWM login page object with legacy login helpers."""
+
+from playwright.sync_api import Locator, Page, TimeoutError as PlaywrightTimeoutError, expect
+
 from pages.base_page import BasePage
 from pages.ewm.locators.login_locators import LoginLocators
-from typing import Optional
+from utils.logger import setup_logger
+
+logger = setup_logger(__name__)
 
 class LoginPage(BasePage):
-    """Page object for login functionality with comprehensive cookie handling"""
+    """Page object for login functionality with broad backward compatibility."""
 
-    def __init__(self, page: Page):
-        super().__init__(page)
+    PAGE_PATH = "ewmLogin/account/login"
+
+    def __init__(self, page: Page, base_url: str = ""):
+        super().__init__(page, base_url=base_url)
         self.locators = LoginLocators()
+        self.allow_all_button: Locator = page.get_by_role("button", name="Allow All")
+        self.accept_all_button: Locator = page.locator("#ketch-banner-button-primary")
+        self.username_input_field: Locator = page.locator("input#okta-signin-username")
+        self.password_input_field: Locator = page.locator("input#okta-signin-password")
+        self.sign_in_button: Locator = page.locator("input#okta-signin-submit")
+        self.login_form: Locator = page.locator(
+            "form#form32.primary-auth-form.o-form.o-form-edit-mode"
+        )
+        self.onetrust_accept_button: Locator = page.locator("#accept-recommended-btn-handler")
+        self.onetrust_overlay: Locator = page.locator("div.onetrust-pc-dark-filter")
+
+    def _resolve_login_url(self) -> str:
+        if self.base_url:
+            return f"{self.base_url.rstrip('/')}/{self.PAGE_PATH.lstrip('/')}"
+        return self.PAGE_PATH
+
+    def navigate(self) -> None:
+        url = self._resolve_login_url()
+        logger.info(f"Navigating to login page: {url}")
+        self.page.goto(url)
+        try:
+            if self.accept_all_button.is_visible(timeout=2000):
+                logger.info("Ketch Accept All button found")
+            elif self.allow_all_button.is_visible(timeout=1000):
+                logger.info("Allow All button found")
+            else:
+                logger.info("No cookie consent button present (session may already exist)")
+        except Exception:
+            logger.info("No cookie consent button present (session may already exist)")
+        logger.info("Login page loaded successfully")
 
     def navigate_to_login(self, url: str) -> None:
         """Navigate to the login page"""
-        self.logger.info(f"Navigating to login page: {url}")
+        logger.info(f"Navigating to login page: {url}")
         self.navigate_to(url)
         self.wait_for_load_state("domcontentloaded")
+
+    def accept_cookies(self) -> None:
+        logger.info("Accepting cookies")
+        try:
+            if self.accept_all_button.is_visible(timeout=2000):
+                self.accept_all_button.click(timeout=3000)
+                logger.info("Ketch Accept All button clicked")
+                return
+        except Exception:
+            pass
+        try:
+            self.allow_all_button.click(timeout=2000)
+        except Exception:
+            logger.info("No cookie consent button available (already accepted or session exists)")
 
     def dismiss_cookie_consent(self) -> bool:
         """Dismiss cookie consent banner using multiple strategies"""
@@ -114,24 +162,68 @@ class LoginPage(BasePage):
         """Enter username in the login form"""
         self.logger.info(f"Entering username: {username}")
         username_field = self.page.locator(self.locators.USERNAME_FIELD)
-        self.fill(username_field, username)
+        if username_field.count() > 0:
+            self.fill(username_field, username)
+        else:
+            self.fill(self.username_input_field, username)
 
     def enter_password(self, password: str) -> None:
         """Enter password in the login form"""
         self.logger.info("Entering password")
         password_field = self.page.locator(self.locators.PASSWORD_FIELD)
-        self.fill(password_field, password)
+        if password_field.count() > 0:
+            self.fill(password_field, password)
+        else:
+            self.fill(self.password_input_field, password)
 
     def click_sign_in(self) -> None:
         """Click sign in button and wait for navigation"""
         self.logger.info("Clicking sign in button")
         sign_in_button = self.page.locator(self.locators.SIGN_IN_BUTTON)
-        
-        # Click and wait for navigation
-        with self.page.expect_navigation(wait_until='networkidle', timeout=self.locators.LOGIN_TIMEOUT):
-            self.click(sign_in_button)
-        
+
+        try:
+            with self.page.expect_navigation(wait_until="domcontentloaded", timeout=30000):
+                if sign_in_button.count() > 0:
+                    self.click(sign_in_button)
+                else:
+                    self.click(self.sign_in_button)
+        except PlaywrightTimeoutError:
+            self.logger.warning(
+                "Sign-in did not trigger timed navigation; continuing with post-click waits"
+            )
+            if sign_in_button.count() > 0:
+                self.click(sign_in_button)
+            else:
+                self.click(self.sign_in_button)
+            try:
+                self.page.wait_for_load_state("domcontentloaded", timeout=10000)
+            except Exception:
+                pass
+
         self.logger.info(f"Navigation completed. Current URL: {self.page.url}")
+
+    def dismiss_onetrust(self) -> None:
+        """Dismiss OneTrust cookie consent overlay if present (appears after login)."""
+        try:
+            if self.onetrust_accept_button.is_visible(timeout=5000):
+                self.click(self.onetrust_accept_button)
+                logger.info("OneTrust 'Allow All' button clicked")
+                self.onetrust_overlay.wait_for(state="hidden", timeout=5000)
+                return
+        except Exception:
+            pass
+
+        try:
+            self.page.evaluate("document.querySelector('#onetrust-accept-btn-handler')?.click()")
+            self.onetrust_overlay.wait_for(state="hidden", timeout=3000)
+            logger.info("OneTrust consent dismissed via JS fallback")
+        except Exception:
+            logger.info("No OneTrust consent overlay present")
+
+    def submit_login_form(self) -> None:
+        logger.info("Form submission triggered by sign-in button")
+        self.page.wait_for_load_state("domcontentloaded", timeout=10000)
+        logger.info(f"Final login URL: {self.page.url}")
 
     def complete_login(self, username: str, password: str, login_url: str) -> None:
         """Complete full login workflow"""
@@ -158,6 +250,12 @@ class LoginPage(BasePage):
         """Check if user is currently logged in"""
         current_url = self.get_current_url()
         return "en.aspx" in current_url and "login" not in current_url.lower()
+
+    def verify_account_src(self, expected: str) -> None:
+        logger.info(f"Verifying account source: {expected}")
+        account_src_label = self.page.get_by_text(expected)
+        expect(account_src_label).to_have_text(expected)
+        logger.info(f"Account source {expected} verified")
 
     def get_login_errors(self) -> list:
         """Get any login error messages"""

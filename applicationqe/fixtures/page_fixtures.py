@@ -101,10 +101,10 @@ def outlook_page(authenticated_page: Page) -> OutlookPage:
     used for OTP retrieval and email-based signing workflows.
     """
     return OutlookPage.from_config(authenticated_page)
+
 from pages.ewm.account_setup_page import AccountSetupPage
 from pages.ewm.account_wizard_page import AccountWizardPage
 from pages.ewm.client_profile_page import ClientProfilePage
-from pages.clients_page import ClientsPage
 from pages.ewm.construct_portfolio_page import ConstructPortfolioPage
 from pages.ewm.create_documents_page import CreateDocumentsPage
 from pages.ewm.dashboard_page import DashboardPage
@@ -113,7 +113,6 @@ from pages.baw.naa_coach_page import NAACoachPage
 from pages.ewm.navbar_login_page import NavbarLoginPage
 from pages.ewm.portfolio_details_page import PortfolioDetailsPage
 from pages.ewm.review_all_accounts_page import ReviewAllAccountsPage
-from pages.tracking_center_page import TrackingCenterPage
 from pages.ewm.view_documents_page import ViewDocumentsPage
 from pages.baw.baw_dashboard_page import BawDashboardPage
 from pages.baw.baw_login_page import BawLoginPage
