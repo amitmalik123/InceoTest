@@ -66,6 +66,9 @@ reports/**
 allure-results/
 allure-report/
 
+#auth files
+tests/.auth/
+
 # Environment
 .env
 
