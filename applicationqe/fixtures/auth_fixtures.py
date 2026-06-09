@@ -22,7 +22,7 @@ import pytest
 from playwright.sync_api import Page
 
 from config.settings import Settings, get_settings
-from pages.oam.login_page import LoginPage
+from pages.ewm.login_page import LoginPage
 from fixtures.browser_fixtures import apply_context_listeners, apply_route_blocks
 
 # Authentication state directory

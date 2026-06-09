@@ -250,7 +250,7 @@ download_dir = "reports/downloads"
 # Subdomains are automatically included (e.g., app.assetmark.com matches assetmark.com).
 # Set enabled = false to disable and allow all traffic.
 enabled = false
-http_error_log = "reports/oam/network_errors.log"
+http_error_log = "reports/network_errors.log"
 allowed_domains = [
     # ===== Core AssetMark =====
     "assetmark.com",
