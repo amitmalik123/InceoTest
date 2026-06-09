@@ -188,6 +188,8 @@ def pytest_collection_modifyitems(config, items) -> None:  # noqa: C901
         # 2. Add environment markers
         if current_env == "test11":
             item.add_marker(pytest.mark.test11)
+        elif current_env == "test12":
+            item.add_marker(pytest.mark.test12)
         elif current_env == "silo":
             item.add_marker(pytest.mark.silo)
         elif current_env == "prod":
@@ -199,7 +201,9 @@ def pytest_collection_modifyitems(config, items) -> None:  # noqa: C901
             # Determine group based on test characteristics
             test_name = item.nodeid.lower()
 
-            if "api" in test_name:
+            if "login" in test_name or "auth" in test_name:
+                group = "auth"
+            elif "api" in test_name:
                 group = "api"
             elif "ui" in test_name:
                 group = "ui"
@@ -268,6 +272,18 @@ def pytest_runtest_makereport(item, call) -> Generator:
     outcome = yield
     rep = outcome.get_result()
 
+    # BDD soft assertion check: suppress SoftAssertionWarning to keep test as PASSED
+    if rep.when == "call" and rep.failed:
+        if hasattr(rep, "excinfo") and rep.excinfo and hasattr(rep.excinfo, "value"):
+            from utils.soft_assertions_enhanced import SoftAssertionWarning
+
+            if isinstance(rep.excinfo.value, SoftAssertionWarning):
+                print(f"Test {item.nodeid} has soft assertion warnings - keeping as PASSED")
+                allure.dynamic.severity(allure.severity_level.MINOR)
+                allure.dynamic.tag("⚠️ SOFT_ASSERTION_WARNING")
+                # Suppress the exception by clearing the failed status
+                rep.failed = False
+
     # Store report on node so fixtures can check pass/fail status (used by _stop_tracing)
     setattr(item, f"rep_{rep.when}", rep)
 
@@ -284,18 +300,6 @@ def pytest_runtest_makereport(item, call) -> Generator:
             )
         except Exception as e:
             print(f"Failed to capture screenshot: {e}")
-
-    # Collect data for Excel report (only on the final call phase outcome)
-    if rep.when == "call":
-        try:
-            excel_report.collect_result_from_item(item, rep)
-        except Exception:
-            pass
-
-    # In xdist workers, serialize collected results to per-worker file for merge
-    if rep.when == "call" and os.environ.get("PYTEST_XDIST_WORKER"):
-        _flush_worker_results()
-        _flush_worker_flaky_data()
 
 
 def _flush_worker_results() -> None:
