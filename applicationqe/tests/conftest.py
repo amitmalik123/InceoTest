@@ -36,7 +36,7 @@ from config.settings import get_settings
 # Import all fixtures to make them available to all tests
 from fixtures import *  # noqa: F401, F403
 # Import BDD-specific fixtures from hooks module
-from tests.fixtures.hooks_fixtures import *  # noqa: F401, F403
+from fixtures.hooks_fixtures import *  # noqa: F401, F403
 
 from utils.allure_logger import enable_step_screenshots
 from utils.flaky_test_tracker import get_tracker

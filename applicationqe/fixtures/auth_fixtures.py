@@ -15,20 +15,14 @@ These fixtures handle authentication state persistence and multi-app support.
 from collections.abc import Generator
 from pathlib import Path
 from typing import Optional
+import os
 
+from filelock import FileLock
 import pytest
 from playwright.sync_api import Page
 
 from config.settings import Settings, get_settings
 from pages.oam.login_page import LoginPage
-import os
-
-import pytest
-from filelock import FileLock
-from playwright.sync_api import Page
-
-from config.settings import Settings, get_settings
-from pages.login_page import LoginPage
 from fixtures.browser_fixtures import apply_context_listeners, apply_route_blocks
 
 # Authentication state directory
@@ -106,6 +100,7 @@ def _perform_login(page: Page, app_config: AppConfig, test_data: dict) -> bool:
         bool: True if login successful, False otherwise
     """
     try:
+        settings = get_settings()
         # Derive base_url from login_url (strip the path portion)
         from urllib.parse import urlparse
 

@@ -3,7 +3,7 @@ from pytest_bdd import parsers, then, when
 
 from config.settings import get_settings
 from fixtures.browser_fixtures import apply_route_blocks, apply_context_listeners
-from pages.login_page import LoginPage
+from pages.ewm.login_page import LoginPage
 from pages.ewm.lookup_page import LookupPage
 from utils.allure_logger import get_allure_logger
 

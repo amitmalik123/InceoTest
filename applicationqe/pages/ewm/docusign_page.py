@@ -255,7 +255,7 @@ class DocuSignPage(BasePage):
             view_documents_page = ViewDocumentsPage(self.page, page_verification=False)
             view_documents_page.clickTrackingCenterLink()
 
-            from pages.tracking_center_page import TrackingCenterPage
+            from pages.ewm.tracking_center_page import TrackingCenterPage
             tracking_center_page = TrackingCenterPage(self.page)
 
             # Track pages before clicking Sign — DocuSign may open in a new tab
@@ -288,7 +288,7 @@ class DocuSignPage(BasePage):
         if "Client" in role:
             logger.info("[esign-fl] Starting Client signing from Tracking Center")
 
-            from pages.tracking_center_page import TrackingCenterPage
+            from pages.ewm.tracking_center_page import TrackingCenterPage
             tracking_center_page = TrackingCenterPage(self.page)
             tracking_center_page.clickESignatureLink(role="Client")
             self.otp_verification()

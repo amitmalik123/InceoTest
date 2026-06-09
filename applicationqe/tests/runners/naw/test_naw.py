@@ -2,6 +2,7 @@
 Test module for NAW feature using BDD approach
 """
 
+from pathlib import Path
 from pytest_bdd import scenarios
 
 # Import step definitions
@@ -29,4 +30,6 @@ from tests.steps.naw.account_approval_step import *  # noqa
 # Add other step files as needed
 
 # Load all scenarios from the feature files
-scenarios("../../features/naw/NAW.feature")
+feature_dir = Path(__file__).parent.parent.parent / "features" / "naw"
+for feature_file in sorted(feature_dir.glob("*.feature")):
+    scenarios(str(feature_file))

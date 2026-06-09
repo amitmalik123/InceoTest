@@ -2,7 +2,7 @@ from playwright.sync_api import Page
 from pytest_bdd import parsers, when
 
 from pages.baw.naa_coach_page import NAACoachPage
-from pages.tracking_center_page import TrackingCenterPage
+from pages.ewm.tracking_center_page import TrackingCenterPage
 from utils.allure_logger import get_allure_logger
 
 logger = get_allure_logger(__name__)
