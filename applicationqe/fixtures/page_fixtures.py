@@ -17,17 +17,21 @@ import pytest
 from playwright.sync_api import Page
 
 from config.settings import get_settings
-from pages.oam.account_detail_page import AccountDetailPage
-from pages.oam.account_list_page import AccountListPage
+
+# OAM pages (not consolidated to EWM)
 from pages.oam.account_management_page import AccountManagementPage
-from pages.oam.account_wizard_page import AccountWizardPage
 from pages.oam.client_accounts_page import ClientAccountsPage
-from pages.oam.clients_page import ClientsPage
-from pages.oam.docusign_page import DocuSignPage
-from pages.oam.login_page import LoginPage
 from pages.oam.outlook_page import OutlookPage
-from pages.oam.tracking_center_page import TrackingCenterPage
 from pages.oam.item_detail_page import ItemDetailPage
+
+# EWM consolidated pages
+from pages.ewm.account_detail_page import AccountDetailPage
+from pages.ewm.account_list_page import AccountListPage
+from pages.ewm.account_wizard_page import AccountWizardPage
+from pages.ewm.clients_page import ClientsPage
+from pages.ewm.docusign_page import DocuSignPage
+from pages.ewm.login_page import LoginPage
+from pages.ewm.tracking_center_page import TrackingCenterPage
 
 # Resolve base_url once from the active environment config
 _base_url = get_settings().base_url
@@ -102,24 +106,26 @@ def outlook_page(authenticated_page: Page) -> OutlookPage:
     """
     return OutlookPage.from_config(authenticated_page)
 
+# EWM NAW/Account opening pages
 from pages.ewm.account_setup_page import AccountSetupPage
-from pages.ewm.account_wizard_page import AccountWizardPage
 from pages.ewm.client_profile_page import ClientProfilePage
 from pages.ewm.construct_portfolio_page import ConstructPortfolioPage
 from pages.ewm.create_documents_page import CreateDocumentsPage
 from pages.ewm.dashboard_page import DashboardPage
 from pages.ewm.fees_page import FeesPage
-from pages.baw.naa_coach_page import NAACoachPage
 from pages.ewm.navbar_login_page import NavbarLoginPage
 from pages.ewm.portfolio_details_page import PortfolioDetailsPage
 from pages.ewm.review_all_accounts_page import ReviewAllAccountsPage
 from pages.ewm.view_documents_page import ViewDocumentsPage
+from pages.ewm.lookup_page import LookupPage
+from pages.ewm.account_approval_page import AccountApprovalPage
+
+# BAW pages
+from pages.baw.naa_coach_page import NAACoachPage
 from pages.baw.baw_dashboard_page import BawDashboardPage
 from pages.baw.baw_login_page import BawLoginPage
 from pages.baw.search_work_item_page import SearchWorkItemPage
 from pages.baw.shell_process_page import ShellProcessPage
-from pages.ewm.lookup_page import LookupPage
-from pages.ewm.account_approval_page import AccountApprovalPage
 
 # PROPOSAL pages
 from pages.proposal.ewm_page import EwmPage

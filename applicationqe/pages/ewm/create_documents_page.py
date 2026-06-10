@@ -1,5 +1,6 @@
 from playwright.sync_api import Locator, Page
 from pages.base_page import BasePage
+from pages.ewm.view_documents_page import ViewDocumentsPage
 from utils.allure_logger import get_allure_logger
 from utils.assertions import Assertions
 
@@ -62,35 +63,25 @@ class CreateDocumentsPage(BasePage):
                     f"Create Documents page has validation errors: {'; '.join(filter(None, msgs))}"
                 )
 
-            # Wait for create documents button to be visible and click
-            self.click(self.create_documents_button)
+            with self.page.expect_navigation(wait_until="domcontentloaded", timeout=90000):
+                self.click(self.create_documents_button)
 
-            # Wait for navigation to View Documents page to complete before checking eSignature.
             try:
                 self.page.wait_for_url("**/Documents/View**", timeout=90000)
             except Exception:
                 pass
-            self.page.wait_for_load_state("domcontentloaded", timeout=30000)
+
+            try:
+                self.page.wait_for_load_state("domcontentloaded", timeout=30000)
+            except Exception:
+                logger.warning("Create Documents navigation did not report domcontentloaded in time; continuing")
     
             # Refresh root/locators after navigation in case context changed.
             self.form_root = self.active_root()
             self.page_label = self.form_root.locator(".PageHeading")
             self.form_root.locator("#view-documents-page").wait_for(state="visible", timeout=60000)
-            self.esignature_button = self.form_root.locator(
-                "xpath=//*[@id='eSignatureButton']"
-                " | //button[contains(@id, 'eSignature') or contains(@class, 'eSignatureButton')"
-                " or contains(translate(normalize-space(.), 'ESIGNATURE', 'esignature'), 'esignature')]"
-                " | //a[contains(translate(normalize-space(.), 'ESIGNATURE', 'esignature'), 'esignature')]"
-                " | //input[contains(translate(@value, 'ESIGNATURE', 'esignature'), 'esignature')"
-                " or contains(translate(@id, 'ESIGNATURE', 'esignature'), 'esignature')]"
-            )
-
-            try:
-                self.form_root.locator(".PageHeading", has_text="View Documents").wait_for(state="visible", timeout=30000)
-            except Exception:
-                pass
-
-            self.esignature_button.wait_for(state="visible", timeout=120000)
+           
+            return ViewDocumentsPage(self.page, page_verification=False)
             
         except Exception as e:
             logger.error(f"Error creating documents: {str(e).splitlines()[0]}")

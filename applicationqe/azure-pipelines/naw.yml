@@ -54,7 +54,7 @@ parameters:
       - NAW
       - prodSmoke
       - Regression
-      - retainAccount
+      - documentsVerification
       - TrackingCenterESign
       - GNW_Ind_401k
 

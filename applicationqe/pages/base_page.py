@@ -631,38 +631,7 @@ class BasePage:
         self.logger.info("Clearing field")
         locator.click()
         locator.fill("")
-    def select_option_from_list(
-        self,
-        dropdown_locator: Locator,
-        option_list_locator: Locator,
-        option_to_select: str,
-        step_name: str,
-    ) -> None:
-        """
-        Select an option from a dropdown list by visible text.
-
-        Args:
-            dropdown_locator: Locator for dropdown element
-            option_list_locator: Locator for dropdown options
-            option_to_select: Visible text to match
-            step_name: Step name for logging
-        """
-        dropdown_locator.wait_for(state="visible", timeout=10000)
-        dropdown_locator.click()
-
-        option_list_locator.first.wait_for(state="visible", timeout=10000)
-        options = option_list_locator.all()
-
-        for option in options:
-            option_text = (option.text_content() or "").strip()
-            if option_text.lower() == option_to_select.strip().lower():
-                option.click()
-                self.logger.info(f"{step_name} - Selected option: {option_to_select}")
-                return
-
-        message = f"'{option_to_select}' not found in dropdown for step: {step_name}"
-        self.logger.error(message)
-        raise ValueError(message)
+    
     def generate_random_data(self, size: int) -> str:
         """
         Generate random data for test purposes.
@@ -853,29 +822,7 @@ class BasePage:
         except Exception as e:
             self.logger.warning(f"AJAX wait failed: {e}, continuing anyway")
 
-    def wait_for_loading_data(self, timeout: int = 90000) -> None:
-        """
-        Wait for common loading indicators used in BAW to disappear.
-
-        Args:
-            timeout: Timeout in milliseconds
-        """
-        self.logger.info("Waiting for loading indicators to disappear")
-
-        indicators = [
-            self.page.locator("//iframe[@id='popupFrame']"),
-            self.page.locator("div#loadingIcon"),
-            self.page.locator("div.progress-bar.progress-bar-info"),
-            self.page.locator("div#theLoadingImage > img"),
-        ]
-
-        for locator in indicators:
-            try:
-                if locator.is_visible():
-                    locator.wait_for(state="hidden", timeout=timeout)
-            except Exception as e:
-                self.logger.warning(f"Loading indicator wait skipped: {e}")
-
+    
     def keyboard_click(self, locator: Locator, timeout: int = 10000) -> None:
         """
         Perform Ctrl+click on an element.

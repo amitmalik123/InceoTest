@@ -1020,7 +1020,7 @@ class AccountSetupPage(BasePage):
             except:
                 pass
         
-        elif custodian == "fidelity" and reg_type in ["trust", "individual"]:
+        elif custodian == "fidelity" and reg_type in ["trust", "individual", "traditional ira"]:
             self.page.wait_for_load_state("domcontentloaded")
             
             # Click trustee/grantor checkbox
@@ -1577,7 +1577,7 @@ class AccountSetupPage(BasePage):
 
     def review_all_accounts(self, step_name: str = "", log_message: str = ""):
         """Navigate to review all accounts page"""
-        self.page.wait_for_timeout(2000)
+        
         self._wait_for_page_ready(timeout=15000)
         
         review_btn = self.review_all_accounts_button
@@ -1585,16 +1585,14 @@ class AccountSetupPage(BasePage):
         review_btn.click()
         logger.info("Review All Accounts button clicked")
         
-        self.page.wait_for_timeout(2000)
-        self._wait_for_page_ready(timeout=15000)
         
+        self._wait_for_page_ready(timeout=15000)        
         # Click again if button still visible (sometimes needs double-click)
         try:
             if review_btn.is_visible(timeout=5000):
                 review_btn.wait_for(state="visible", timeout=10000)
                 review_btn.click()
-                logger.info("Review All Accounts button clicked again")
-                self.page.wait_for_timeout(2000)
+                logger.info("Review All Accounts button clicked again")                
                 self._wait_for_page_ready(timeout=15000)
         except Exception:
             logger.info("Button not visible - navigation successful")
@@ -2293,7 +2291,29 @@ class AccountSetupPage(BasePage):
 
                 if source_of_income:
                     source_selected = self._select_source_of_funds(source_of_income)
-            
+                    
+            # Schwab Traditional IRA
+            elif ("schwab" in custodian_lower and "traditional ira" in reg_type_lower):
+                logger.info(f"Processing Schwab {reg_type} - clicking required fields...")
+                self.wait_for_loading_data()
+
+                # Click all required tab elements directly (no scroll, no DOM settle waits)
+                tab_elements = [
+                    ("#Info_SWB_InformationSharing_Y", "Information Sharing - Yes"),
+                    ("#Info_Bene_DesElect_PS", "Beneficiary Elections - Per Stirpes"),
+                    ("#Info_Bene_Minor_None", "Minor Beneficiaries - None"),
+                    ("#Info_AccountNumber_Retain_N", "Grant AssetMark authority - No"),
+                ]
+
+                for selector, label in tab_elements:
+                    el = self.form_root.locator(selector)
+                    if el.count() > 0 and el.first.is_visible(timeout=3000):
+                        el.first.click(force=True)
+                        logger.info(f"Clicked {label}")
+
+                self.wait_for_loading_data()
+                logger.info(f"Schwab {reg_type} account additional info completed")
+
             # Schwab Individual
             elif ("schwab" in custodian_lower) and reg_type_lower == "individual":
                 # Click TDA share address (hidden-tab element ΓÇö use attached + JS click)
@@ -2463,7 +2483,7 @@ class AccountSetupPage(BasePage):
             self.click_online_document_delivery_button()
             border_color = account.evaluate("el => getComputedStyle(el).borderBottomColor")
             Assertions.assert_true("rgb(237, 28, 36)" in border_color, f"Account field border bottom color should be red rgb(237, 28, 36), but was '{border_color}'")
-            acct_number = str(random.randint(10**9, 10**10 - 1))
+            acct_number = str(random.randint(10**8, 10**9 - 1))
             self.fill(account, acct_number)
             self.tab_out(account)
             logger.info(f"Filled investment account number with: {acct_number}")

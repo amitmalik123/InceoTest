@@ -3,7 +3,7 @@
 from pathlib import Path
 import requests
 from pytest_bdd import parsers, then, when
-from playwright.sync_api import Locator, Page
+from playwright.sync_api import Locator, Page, TimeoutError as PlaywrightTimeoutError
 
 from pages.ewm.view_documents_page import ViewDocumentsPage
 from pages.ewm.docusign_page import DocuSignPage
@@ -484,32 +484,161 @@ def step_download_accounts_establishment_document(test_context, view_documents_p
             logger.error(f"G�� Failed to download document: {e}")
             raise
 
-@then("Validate retain account in downloaded document")
-def validate_retain_account_from_downloaded_pdf(test_context: dict):
-    """Validate that the custodian account number appears in the downloaded PDF when retainAccount is Yes."""
-    retainAccount = test_context.get("retain_existing_account_boolean", "")
-    if retainAccount.lower() != "yes":
-        logger.info("retainAccount is not 'Yes', skipping PDF validation")
-        return
+@when("User download the combined document")
+def step_download_combined_document(test_context, view_documents_page: ViewDocumentsPage):
 
+    with logger.step("Download combined document", page=view_documents_page.page):
+        logger.info("Starting document download process")
+
+        test_data = test_context.get("test_data", {})       
+        main_page = view_documents_page.page
+        context = main_page.context
+        
+        try:
+            logger.info("Proceeding with combined document download")
+            custom_filename = "DownloadCombinedDocuments.pdf"
+            download_dir = Path("reports/downloads")
+            download_dir.mkdir(parents=True, exist_ok=True)
+            saved_path = download_dir / custom_filename
+            combined_document_button = main_page.get_by_role("button", name="One Combined Document")
+
+            # Click One Combined Document button and handle a real browser download first.
+            logger.info("Clicking One Combined Document button")
+            existing_pages = set(context.pages)
+            try:
+                with main_page.expect_download(timeout=10000) as download_info:
+                    combined_document_button.click()
+
+                download = download_info.value
+                download.save_as(saved_path)
+            except PlaywrightTimeoutError:
+                logger.info("PDF opened in a browser tab instead of downloading; saving PDF from tab URL")
+                popup_page = None
+                new_pages = [page for page in context.pages if page not in existing_pages]
+
+                if new_pages:
+                    popup_page = new_pages[-1]
+                else:
+                    with context.expect_page(timeout=15000) as popup_info:
+                        combined_document_button.click()
+                    popup_page = popup_info.value
+
+                popup_page.wait_for_load_state("domcontentloaded", timeout=30000)
+                pdf_url = popup_page.url
+                logger.info(f"Combined document PDF URL: {pdf_url}")
+
+                response = context.request.get(pdf_url)
+                if response.status != 200:
+                    raise RuntimeError(f"PDF request failed with status {response.status}: {pdf_url}")
+
+                saved_path.write_bytes(response.body())
+                try:
+                    popup_page.close()
+                except Exception:
+                    logger.warning("Could not close combined document popup tab")
+
+            logger.info(f"Document downloaded successfully: {saved_path}")
+            logger.info(f"File size: {saved_path.stat().st_size} bytes")
+
+            # Store download path in context for later use
+            test_context["downloaded_document_path"] = str(saved_path)
+
+            logger.info("Document download process completed successfully")
+
+        except Exception as e:
+            logger.error(f"Failed to download document: {e}")
+            raise
+
+@then("Validate form bundle documents in downloaded document")
+def validate_downloaded_pdf(test_context: dict):
+    """Validate expected documents and account number in the downloaded PDF."""
+    from config.naw.document_constants import GNW_DOCUMENTS, PRS_DOCUMENTS, get_expected_documents
+
+    retain_account_value = test_context.get("retain_existing_account_boolean", "")
+    is_retain = retain_account_value.strip().lower() == "yes"
+    custodian = test_context.get("test_data", {}).get("Custodian", "")    
     account_number = test_context.get("custodian_account_number")
-    if not account_number:
-        raise ValueError("custodian_account_number not found in test_context")
 
-    # Find latest PDF in the configured download directory
-    copy_folder = Path(_DEFAULT_DOWNLOAD_DIR)
-    pdf_files = sorted(copy_folder.glob("*.pdf"), key=lambda f: f.stat().st_mtime, reverse=True)
+    try:
+        import tomllib
+    except ImportError:
+        import tomli as tomllib  # type: ignore[no-redef]
 
-    if not pdf_files:
-        raise FileNotFoundError(f"No PDF files found in {copy_folder.resolve()}")
+    downloaded_document_path = test_context.get("downloaded_document_path")
+    if downloaded_document_path:
+        pdf_path = Path(downloaded_document_path)
+        if not pdf_path.exists():
+            raise FileNotFoundError(f"Downloaded PDF not found: {pdf_path.resolve()}")
+    else:
+        pyproject = Path("pyproject.toml")
+        with open(pyproject, "rb") as f:
+            config = tomllib.load(f)
+        download_dir = config.get("tool", {}).get("downloads", {}).get("download_dir", "reports/downloads")
+        copy_folder = Path(download_dir)
+        pdf_files = sorted(copy_folder.glob("*.pdf"), key=lambda f: f.stat().st_mtime, reverse=True)
 
-    latest_pdf = pdf_files[0]
-    logger.info(f"Reading PDF: {latest_pdf.name}")
+        if not pdf_files:
+            raise FileNotFoundError(f"No PDF files found in {copy_folder.resolve()}")
 
-    validator = PDFValidator(latest_pdf)
-    logger.info(f"PDF has {validator.get_page_count()} page(s)")
+        pdf_path = pdf_files[0]
+        logger.warning("downloaded_document_path missing from context; using latest PDF from download folder")
 
-    # Use existing PDFValidator assertion (searches all pages)
-    validator.assert_text_contains(account_number, case_sensitive=False)
-    logger.info(f"Account number '{account_number}' found in PDF")
+    logger.info(f"Reading PDF: {pdf_path.name}")
+
+    validator = PDFValidator(pdf_path)
+    page_count = validator.get_page_count()
+    logger.info(f"PDF has {page_count} page(s)")
+
+    full_text = ""
+    for page_num in range(page_count):
+        full_text += validator.extract_text(page_num=page_num) + "\n"
+
+    # Save extracted PDF text to file for debugging
+    # pdf_text_file = Path("reports/downloads") / f"{pdf_path.stem}_extracted_text.txt"
+    # pdf_text_file.parent.mkdir(parents=True, exist_ok=True)
+    # pdf_text_file.write_text(full_text, encoding="utf-8")
+    # logger.info(f"PDF text saved to: {pdf_text_file}")
+
+    normalized_text = " ".join(full_text.split())
+
+    # Validate expected document names are present in PDF
+    expected_documents = list(get_expected_documents(custodian, is_retain))
+    custodian_key = custodian.strip().lower()
+    if custodian_key in ("gnw", "assetmark trust", "assetmark trust company"):
+        expected_documents = list(dict.fromkeys([*expected_documents, *GNW_DOCUMENTS]))
+    elif custodian_key in ("prs", "psr", "pershing"):
+        expected_documents = list(dict.fromkeys([*expected_documents, *PRS_DOCUMENTS]))
+
+    logger.info(f"Validating {len(expected_documents)} expected documents for custodian='{custodian}', retain={is_retain}")
+
+    missing_documents = []
+    for doc_name in expected_documents:
+        if doc_name not in normalized_text:
+            missing_documents.append(doc_name)
+            logger.error(f"MISSING: '{doc_name}'")
+        else:
+            logger.info(f"Found: '{doc_name}'")
+
+    if missing_documents:
+        error_msg = (
+            f"Missing {len(missing_documents)}/{len(expected_documents)} documents in PDF: {missing_documents}. "
+            f"PDF: {pdf_path.name} ({page_count} pages)"
+        )
+        logger.error(error_msg)
+        raise AssertionError(error_msg)
+
+    logger.info("All expected documents found in PDF")
+
+    # Validate account number if retain account
+    if is_retain:
+        if not account_number:
+            raise ValueError("custodian_account_number not found in test_context")
+
+        logger.info(f"Searching for account number '{account_number}' in PDF")
+        Assertions.assert_in(
+            account_number, normalized_text,
+            f"Account number '{account_number}' NOT found in downloaded PDF. "
+            f"PDF: {pdf_path.name} ({page_count} pages)"
+        )
+        logger.info(f"Account number '{account_number}' found in PDF") 
 

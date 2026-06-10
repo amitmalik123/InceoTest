@@ -189,7 +189,7 @@ markers = [
     "internal_admin: Internal Admin scenarios that skip auto-login",
     "GNW_Ind_401k: NAW GNW Individual 401(k) tests",
     "OnlineBD: NAW GNW LLC OnlineBD Approval tests",
-    "retainAccount: Retain account tests",
+    "documentsVerification: Retain account tests",
     "ewm: EWM tests",
     "newAccountWizard: New Account Wizard feature",
     "portfolioEngine: Portfolio Engine feature",

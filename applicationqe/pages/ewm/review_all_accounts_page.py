@@ -134,11 +134,7 @@ class ReviewAllAccountsPage(BasePage):
             try:
                 self.page.wait_for_load_state("domcontentloaded", timeout=30000)
             except Exception:
-                pass
-
-            self.wait_for_loading_data(timeout=90000)
-            self.wait_for_ajax(timeout=30000)
-            self._wait_for_dom_settled(timeout=7000)
+                pass            
 
             # Bring button into view and click.
             self.click(self.create_documents_button, timeout=30000)
