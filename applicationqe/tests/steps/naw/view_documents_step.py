@@ -502,50 +502,98 @@ def step_download_combined_document(test_context, view_documents_page: ViewDocum
             saved_path = download_dir / custom_filename
             combined_document_button = main_page.get_by_role("button", name="One Combined Document")
 
-            # Click One Combined Document button and handle a real browser download first.
+            # Click One Combined Document button and handle download
             logger.info("Clicking One Combined Document button")
-            existing_pages = set(context.pages)
+            download_saved = False
+
+            # Strategy 1: Intercept the PDF response via route handler
+            # This captures the actual response body before it reaches the popup page
+            captured_response = {}
+
+            def capture_pdf_response(route):
+                response = route.fetch()
+                content_type = response.headers.get("content-type", "")
+                logger.info(f"Intercepted response: {route.request.url[:100]} (type: {content_type})")
+                if "pdf" in content_type.lower() or route.request.url.lower().endswith(".pdf"):
+                    captured_response["body"] = response.body()
+                    captured_response["url"] = route.request.url
+                    logger.info(f"Captured PDF response: {len(captured_response['body'])} bytes")
+                route.fulfill(response=response)
+
             try:
-                with main_page.expect_download(timeout=10000) as download_info:
-                    combined_document_button.click()
+                context.route("**/*", capture_pdf_response)
+                combined_document_button.click()
+                main_page.wait_for_timeout(10000)  # Wait for response to be intercepted
+            except Exception as e:
+                logger.warning(f"Route interception error: {e}")
+            finally:
+                try:
+                    context.unroute("**/*", capture_pdf_response)
+                except Exception:
+                    pass
 
-                download = download_info.value
-                download.save_as(saved_path)
-            except PlaywrightTimeoutError:
-                logger.info("PDF opened in a browser tab instead of downloading; saving PDF from tab URL")
-                popup_page = None
-                new_pages = [page for page in context.pages if page not in existing_pages]
+            if captured_response.get("body"):
+                saved_path.write_bytes(captured_response["body"])
+                download_saved = True
+                logger.info(f"Document saved via route interception from: {captured_response.get('url', 'unknown')}")
+                # Close any popup pages that opened
+                for page in context.pages:
+                    if page != main_page:
+                        try:
+                            page.close()
+                        except Exception:
+                            pass
 
+            # Strategy 2: Try expect_download
+            if not download_saved:
+                logger.info("Route interception didn't capture PDF, trying expect_download...")
+                try:
+                    with main_page.expect_download(timeout=30000) as download_info:
+                        combined_document_button.click()
+                    download = download_info.value
+                    download.save_as(saved_path)
+                    download_saved = True
+                    logger.info("Document saved via browser download event")
+                except PlaywrightTimeoutError:
+                    logger.info("No download event detected")
+
+            # Strategy 3: Popup tab - fetch PDF using browser cookies via requests library
+            if not download_saved:
+                logger.info("Trying popup + requests with browser cookies...")
+                new_pages = [p for p in context.pages if p != main_page]
                 if new_pages:
                     popup_page = new_pages[-1]
-                else:
-                    with context.expect_page(timeout=15000) as popup_info:
-                        combined_document_button.click()
-                    popup_page = popup_info.value
-
-                popup_page.wait_for_load_state("domcontentloaded", timeout=30000)
-                pdf_url = popup_page.url
-                logger.info(f"Combined document PDF URL: {pdf_url}")
-
-                # Wait for the popup to navigate away from about:blank
-                if pdf_url.startswith("about:"):
-                    logger.info("Popup still at about:blank, waiting for navigation...")
-                    popup_page.wait_for_url("http*://**", timeout=30000)
                     pdf_url = popup_page.url
-                    logger.info(f"Popup navigated to: {pdf_url}")
+                    logger.info(f"Popup URL: {pdf_url}")
+                    if pdf_url.startswith("http"):
+                        cookies = context.cookies()
+                        cookie_dict = {c['name']: c['value'] for c in cookies}
+                        import requests as req_lib
+                        resp = req_lib.get(pdf_url, cookies=cookie_dict, verify=False, timeout=60)
+                        if resp.status_code == 200 and resp.content[:5] == b"%PDF-":
+                            saved_path.write_bytes(resp.content)
+                            download_saved = True
+                            logger.info("Document saved via popup URL + browser cookies")
+                        else:
+                            logger.warning(f"Requests returned status {resp.status_code}, content starts with: {resp.content[:20]}")
+                    try:
+                        popup_page.close()
+                    except Exception:
+                        pass
 
-                response = context.request.get(pdf_url)
-                if response.status != 200:
-                    raise RuntimeError(f"PDF request failed with status {response.status}: {pdf_url}")
-
-                saved_path.write_bytes(response.body())
-                try:
-                    popup_page.close()
-                except Exception:
-                    logger.warning("Could not close combined document popup tab")
+            if not download_saved:
+                raise RuntimeError("Failed to download combined document using all strategies")
 
             logger.info(f"Document downloaded successfully: {saved_path}")
             logger.info(f"File size: {saved_path.stat().st_size} bytes")
+
+            # Verify the file is actually a PDF
+            with open(saved_path, "rb") as f:
+                header = f.read(10)
+            if not header.startswith(b"%PDF"):
+                raw_text = saved_path.read_text(encoding="utf-8", errors="replace")[:500]
+                logger.error(f"Downloaded file is NOT a valid PDF! Content preview:\n{raw_text}")
+                raise RuntimeError(f"Download produced invalid PDF (header: {header!r}). Likely an auth redirect or error page.")
 
             # Store download path in context for later use
             test_context["downloaded_document_path"] = str(saved_path)
@@ -591,6 +639,16 @@ def validate_downloaded_pdf(test_context: dict):
         logger.warning("downloaded_document_path missing from context; using latest PDF from download folder")
 
     logger.info(f"Reading PDF: {pdf_path.name}")
+    logger.info(f"File size: {pdf_path.stat().st_size} bytes")
+
+    # Validate file is actually a PDF
+    with open(pdf_path, "rb") as f:
+        header = f.read(10)
+    if not header.startswith(b"%PDF"):
+        # Save first 500 chars for debugging
+        raw_text = pdf_path.read_text(encoding="utf-8", errors="replace")[:500]
+        logger.error(f"Downloaded file is NOT a valid PDF. First 500 chars:\n{raw_text}")
+        raise ValueError(f"Downloaded file is not a PDF (starts with: {header!r}). Likely an HTML error/login page.")
 
     validator = PDFValidator(pdf_path)
     page_count = validator.get_page_count()

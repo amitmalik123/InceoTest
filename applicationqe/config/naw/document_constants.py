@@ -6,7 +6,7 @@ TDA_RETAIN_ACCOUNT_DOCUMENTS = [
     "Client Billing Authorization",
     "Limited Power of Attorney (LPOA) for Investment Advisor",
     "Account Agreements and Disclosures",
-    "Based Pricing (ABP) Addendum",
+    "Asset-Based Pricing (ABP) Addendum",
     "Investment Management Services Agreement",
     "Client Relationship Summary",    
     "Platform Disclosure Packet",
