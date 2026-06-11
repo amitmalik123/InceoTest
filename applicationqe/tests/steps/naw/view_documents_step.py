@@ -527,6 +527,13 @@ def step_download_combined_document(test_context, view_documents_page: ViewDocum
                 pdf_url = popup_page.url
                 logger.info(f"Combined document PDF URL: {pdf_url}")
 
+                # Wait for the popup to navigate away from about:blank
+                if pdf_url.startswith("about:"):
+                    logger.info("Popup still at about:blank, waiting for navigation...")
+                    popup_page.wait_for_url("http*://**", timeout=30000)
+                    pdf_url = popup_page.url
+                    logger.info(f"Popup navigated to: {pdf_url}")
+
                 response = context.request.get(pdf_url)
                 if response.status != 200:
                     raise RuntimeError(f"PDF request failed with status {response.status}: {pdf_url}")
