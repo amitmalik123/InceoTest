@@ -25,7 +25,7 @@ Feature: retain account in NAW
       | documentsVerification       |        2  | Yes           |
       | documentsVerification       |        3  | No            |
 
-  
+  @documentsVerification
   Scenario Outline: PRODENG-28727_NAW_Agent_NewAccount_Fidelity_retain_account
     When User is on Account Wizard tab and click on go button for New Client creation
     And User navigates to client profile page and enter required information
@@ -49,7 +49,7 @@ Feature: retain account in NAW
       | documentsVerification       |       4  | Yes           |
       | documentsVerification       |       5  | No            |
 
-
+  @documentsVerification
   Scenario Outline: NAW_Agent_NewAccount_GNW
     When User is on Account Wizard tab and click on go button for New Client creation
     And User navigates to client profile page and enter required information

@@ -2291,7 +2291,7 @@ class AccountSetupPage(BasePage):
 
                 if source_of_income:
                     source_selected = self._select_source_of_funds(source_of_income)
-                    
+
             # Schwab Traditional IRA
             elif ("schwab" in custodian_lower and "traditional ira" in reg_type_lower):
                 logger.info(f"Processing Schwab {reg_type} - clicking required fields...")
