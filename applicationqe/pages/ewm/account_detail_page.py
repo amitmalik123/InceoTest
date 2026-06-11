@@ -8,7 +8,7 @@ from utils.logger import setup_logger
 logger = setup_logger(__name__)
 
 class AccountDetailPage(BasePage):
-    PAGE_URL = 'https://test11.ewealthmanager.com/AccountsAnalysis/Clients/AccountDetail/Holdings/Summary/AM4K56/W108DM'
+    PAGE_PATH = "AccountsAnalysis/Clients/AccountDetail"
 
     def __init__(self, page: Page):
         super().__init__(page)
@@ -20,9 +20,13 @@ class AccountDetailPage(BasePage):
         self.roth_ira_conversion_list_item: Locator = page.locator('#lstSubCategory5')
         self.next_button: Locator = page.get_by_role('button', name='Next')
 
-    def navigate(self) -> None:
-        logger.info(f"Navigating to account detail page: {self.PAGE_URL}")
-        self.page.goto(self.PAGE_URL)
+    def navigate(self, url: str = None) -> None:
+        if url:
+            logger.info(f"Navigating to account detail page: {url}")
+            self.page.goto(url)
+        else:
+            logger.info("Waiting for account detail page to load")
+            self.page.wait_for_load_state("domcontentloaded", timeout=30000)
         self.account_wizard_link.wait_for(state='visible', timeout=15000)
         logger.info("Account detail page loaded, Account Wizard link visible")
 

@@ -1,0 +1,3 @@
+scenario,role,username,password,client_id,account_name,destination_account,account_number,conversion_amount,routing_number,ach_option,advisor_id,expected_description
+Successfully,manage_bene,sampleadvisorlogin,amkF1n@nc23S,13879837,"Howard Hom, Rollover IRA",13879837,13879837,1000,121000358,Yes,AG8959,Bank/Payee Instructions - Add
+Successfully,manage_bene_dev,sampleadvisorlogin,amkF1n@nc23S,13879837,"Howard Hom, Rollover IRA",13879837,13879837,1000,121000358,Yes,AG8959,Bank/Payee Instructions - Add

@@ -1,5 +1,5 @@
 
-Feature: retain account in NAW
+Feature: document verification for NAW Agent New Account creation
 
   @documentsVerification
   Scenario Outline: PRODENG-28727_NAW_Agent_NewAccount_TDA_retain_account

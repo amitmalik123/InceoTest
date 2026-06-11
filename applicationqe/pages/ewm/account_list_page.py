@@ -6,7 +6,6 @@ from utils.logger import setup_logger
 logger = setup_logger(__name__)
 
 class AccountListPage(BasePage):
-    PAGE_URL = "https://test11.ewealthmanager.com/AccountsAnalysis/Clients/AccountList"
     PAGE_PATH = "AccountsAnalysis/Clients/AccountList"
 
     def __init__(self, page: Page):
@@ -98,7 +97,8 @@ class AccountListPage(BasePage):
 
         try:
             logger.info("Fallback strategy 2: using URL query parameter")
-            search_url = f"{self.PAGE_URL}?search={client_id}"
+            base = self.page.url.split(self.PAGE_PATH)[0] if self.PAGE_PATH in self.page.url else self.page.url.rsplit("/", 1)[0] + "/"
+            search_url = f"{base}{self.PAGE_PATH}?search={client_id}"
             self.page.goto(search_url, wait_until="networkidle", timeout=30000)
             return True
         except Exception as e:
