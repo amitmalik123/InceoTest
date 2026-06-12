@@ -48,7 +48,7 @@ Feature: document verification for NAW Agent New Account creation
       | SheetName | RowNumber | retainAccount |
       | documentsVerification       |       4  | Yes           |
       | documentsVerification       |       5  | No            |
-
+  
   @documentsVerification
   Scenario Outline: NAW_Agent_NewAccount_GNW
     When User is on Account Wizard tab and click on go button for New Client creation

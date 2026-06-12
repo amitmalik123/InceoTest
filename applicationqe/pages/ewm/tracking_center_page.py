@@ -286,3 +286,41 @@ class TrackingCenterPage(BasePage):
         logger.info("Clicking body content")
         self.bodycontent_div.click()
 
+    def search_and_open_d_number(self, d_number: str, timeout: int = 30000) -> None:
+        """Search for D-number and open the item details page."""
+        logger.info(f"Searching for D-number: {d_number}")
+        root = self.active_root()
+        search_input = root.locator("#client_search_input")
+        search_button = root.locator("#searchbutton")
+        d_number_row = root.locator(f"tr:has-text('{d_number}')")
+
+        # Enter D-number in search input
+        search_input.wait_for(state="visible", timeout=timeout)
+        search_input.fill(d_number)
+        logger.info(f"D-number entered in search input: {d_number}")
+
+        # Click search button
+        search_button.click(timeout=timeout)
+        logger.info("Search button clicked")
+
+        # Wait for table row with D-number
+        self.page.wait_for_load_state("networkidle", timeout=timeout)
+        try:
+            d_number_row.wait_for(state="visible", timeout=timeout)
+            logger.info(f"D-number table row visible: {d_number}")
+        except Exception:
+            logger.warning("D-number row not found, checking for single row fallback")
+            all_rows = root.locator("tr").all()
+            if len(all_rows) == 1:
+                d_number_row = root.locator("tr").first
+                logger.info("Using single table row as D-number row")
+            else:
+                raise AssertionError(f"Failed to find table row for D-number '{d_number}'")
+
+        # Click row to open item details
+        d_number_row.click(timeout=timeout)
+        logger.info(f"D-number table row clicked: {d_number}")
+
+        self.page.wait_for_load_state("networkidle", timeout=timeout)
+        logger.info(f"D-Number search and open completed: {d_number}")
+

@@ -535,7 +535,7 @@ def user_click_review_document_and_submit_opt(authenticated_page: Page, docusign
             
             # Use OutlookPage method to properly handle ATP blocking and click the link
             # This method handles: ATP unblock, link href population, Safe Links, etc.
-            from pages.oam.outlook_page import OutlookPage
+            from pages.outlook_page import OutlookPage
             
             # Create a lightweight OutlookPage wrapper (config not needed for click_review_document_link)
             # The method handles all ATP/Safe Links issues before clicking
@@ -603,7 +603,7 @@ def user_click_on_send_now_and_fetch_otp_from_mail(authenticated_page: Page, doc
         When User click on send now and fetch OTP from mail
     """
     import time
-    from pages.oam.outlook_page import OutlookPage
+    from pages.outlook_page import OutlookPage
     
     logger.info(">>> ENTERED STEP: user_click_on_send_now_and_fetch_otp_from_mail")
     

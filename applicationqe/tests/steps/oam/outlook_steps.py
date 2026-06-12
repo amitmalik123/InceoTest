@@ -4,7 +4,7 @@ import allure
 from playwright.sync_api import Page
 from pytest_bdd import when, then
 from pages.oam.docusign_page import DocuSignPage
-from pages.oam.outlook_page import OutlookPage
+from pages.outlook_page import OutlookPage
 from utils.allure_logger import get_allure_logger
 from utils.database import fetch_agent_name_by_aplid_from_db
 

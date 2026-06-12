@@ -66,6 +66,12 @@ class AccountListPage(BasePage):
         logger.info(f"Screenshot saved: {after_path}")
         logger.info(f"Search completed for client: {client_id}")
 
+    def search_account(self, account_number: str, click_header: str = None) -> None:
+        """Search for an account by account number (delegates to search_client)."""
+        logger.info(f"Searching for account: {account_number}")
+        self.search_client(account_number, click_header=click_header)
+        logger.info(f"Search completed for account: {account_number}")
+
     def _fallback_search(self, client_id: str) -> bool:
         """Fallback EWM strategies for environments where canonical locators fail."""
         try:

@@ -68,7 +68,6 @@ from fixtures.page_fixtures import (
     switch_id_page,
     tax_management_services_page,
     tracking_center_page,
-    tracking_center_item_detail_page,
     trackingCenter_ItemDetail_page,
     view_documents_page,
 )
@@ -129,7 +128,6 @@ __all__ = [
     "switch_id_page",
     "tax_management_services_page",
     "tracking_center_page",
-    "tracking_center_item_detail_page",
     "trackingCenter_ItemDetail_page",
     "view_documents_page",
 ]
