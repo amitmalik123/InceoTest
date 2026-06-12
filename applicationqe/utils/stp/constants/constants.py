@@ -2,15 +2,34 @@
 Constants for test automation framework
 Contains disclosure texts, validation messages, and other constant values
 """
+import os
 from typing import List
 
 
 class BeneAccountUrls:
-    """URL constants for Manage Beneficiaries special account scenarios."""
-    DECEASED     = "https://app.dev01.assetmark.com/bene?householdId=C99796"
-    ENTITY       = "https://app.dev01.assetmark.com/bene?householdid=RTTEST"
-    FRAUD_FROZEN = "https://app.dev01.assetmark.com/bene?householdId=CE64Y9"
-    POA          = "https://app.dev01.assetmark.com/bene?householdId=C19744"
+   
+
+    class DEV:
+        BASE         = "https://app.dev01.assetmark.com/bene?householdid=C19744"
+        DECEASED     = "https://app.dev01.assetmark.com/bene?householdId=C99796"
+        ENTITY       = "https://app.dev01.assetmark.com/bene?householdid=RTTEST"
+        FRAUD_FROZEN = "https://app.dev01.assetmark.com/bene?householdId=CE64Y9"
+        POA          = "https://app.dev01.assetmark.com/bene?householdId=C19744"
+
+    class TEST11:
+        BASE         = "https://app.test01.assetmark.com/clients/AG8959/CE6MD5/W1706A/manage-beneficiaries"
+        DECEASED     = ""  # TODO: set test11 URL for Deceased scenario
+        ENTITY       = ""  # TODO: set test11 URL for Entity scenario
+        FRAUD_FROZEN = ""  # TODO: set test11 URL for Fraud/Frozen scenario
+        POA          = ""  # TODO: set test11 URL for POA scenario
+
+    @classmethod
+    def for_env(cls, env: str = None):
+        """Return the URL group for the given environment (defaults to TEST_ENV)."""
+        env = env or os.getenv("TEST_ENV", "dev")
+        if env == "test11":
+            return cls.TEST11
+        return cls.DEV
 
 
 class Constants:
