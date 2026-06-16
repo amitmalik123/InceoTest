@@ -7,7 +7,7 @@ from pytest_bdd import when, then, parsers
 from pages.ewm.account_setup_page import AccountSetupPage
 from tests.steps.naw.construct_portfolio_step import ConstructPortfolioStep
 from utils.allure_logger import get_allure_logger
-from utils.excel_utils import ExcelUtils
+
 
 logger = get_allure_logger(__name__)
 
@@ -281,15 +281,11 @@ def step_clicks_on_trustors_button(account_setup_page: AccountSetupPage):
 
 @when("User fills additional account information")
 def step_user_fills_additional_account_information(
-    test_context: dict, account_setup_page: AccountSetupPage, excel_data_manager, _pytest_bdd_example
+    test_context: dict, account_setup_page: AccountSetupPage
 ):
     """Fill additional account information - matches Java accountSetupPage logic"""
     logger.info("Filling additional account information")
-        
-    # Load test data from Excel using utility method
-    excel_utils = ExcelUtils()
-    test_data = excel_utils.load_test_data_from_example(excel_data_manager, _pytest_bdd_example)
-    test_context["test_data"] = test_data
+    test_data = test_context["test_data"]
         
     # Initialize step helper
     step_helper = AccountSetupStep(test_context, account_setup_page)
@@ -592,15 +588,12 @@ def step_clicks_on_retirement_plan_information_button(account_setup_page: Accoun
 
 @when("User fills Retirement Plan Information")
 def step_user_fills_retirement_plan_information(
-    test_context: dict, account_setup_page: AccountSetupPage, test_data_manager, _pytest_bdd_example
+    test_context: dict, account_setup_page: AccountSetupPage, _pytest_bdd_example
 ):
     """Fill Retirement Plan Information for 401k accounts"""
     with logger.step("User fills Retirement Plan Information", page=account_setup_page.page):
         logger.info("Filling Retirement Plan Information for 401k")
-
-        excel_utils = ExcelUtils()
-        test_data = excel_utils.load_test_data_from_example(test_data_manager, _pytest_bdd_example)
-        test_context["test_data"] = test_data
+        test_data = test_context["test_data"]
 
         step_helper = AccountSetupStep(test_context, account_setup_page)
         step_helper.get_reg_type_and_custodian()
@@ -669,16 +662,12 @@ def step_user_fills_retirement_plan_information(
 
 @when("User fills Trust information")
 def step_user_fills_trust_information(
-    test_context: dict, account_setup_page: AccountSetupPage, excel_data_manager, _pytest_bdd_example
+    test_context: dict, account_setup_page: AccountSetupPage
 ):
     """Fill Trust information - Fidelity Trust specific: state, date of trust, type of trust"""
     with logger.step("User fills Trust information", page=account_setup_page.page):
         logger.info("Filling Trust information")
-
-        # Load test data from Excel using utility method
-        excel_utils = ExcelUtils()
-        test_data = excel_utils.load_test_data_from_example(excel_data_manager, _pytest_bdd_example)
-        test_context["test_data"] = test_data
+        test_data = test_context["test_data"]
 
         # Initialize step helper
         step_helper = AccountSetupStep(test_context, account_setup_page)

@@ -19,10 +19,11 @@ class TestDataManager:
     Query by ANY field, filter multiple rows, and easily access test data.
     """
 
-    def __init__(self, sheet_data: Dict[str, List[Dict[str, str]]]):
+    def __init__(self, sheet_data: Dict[str, List[Dict[str, str]]], excel_manager=None):
         """Initialize with all Excel sheet rows."""
         self._sheet_data = sheet_data
         self._data = [row for rows in sheet_data.values() for row in rows]
+        self._excel_manager = excel_manager
 
     def get_row_by_number(self, sheet_name: str, row_number: int) -> Dict[str, str]:
         """Get row by Excel row number (1-based, row 1 is header)."""
@@ -147,7 +148,7 @@ def test_data_manager() -> TestDataManager:
     sheet_data = {sheet: excel_manager.get_sheet(sheet) for sheet in excel_manager.sheet_names}
 
     # Show available scenarios and user types
-    manager = TestDataManager(sheet_data)
+    manager = TestDataManager(sheet_data, excel_manager=excel_manager)
     logger.info(f"[SESSION SCOPE] Loaded {len(manager.get_all())} test data row(s)")
     logger.info(f"[SESSION SCOPE] Available sheets: {list(sheet_data.keys())}")
     logger.info(f"[SESSION SCOPE] Available scenarios: {manager.get_scenarios()}")
@@ -229,34 +230,14 @@ class ExcelDataManager:
 
 
 @pytest.fixture(scope="session")
-def excel_data_manager() -> ExcelDataManager:
+def excel_data_manager(test_data_manager) -> ExcelDataManager:
     """
-    Session-scoped fixture that loads the Excel file once per test session.
-    File path is resolved from environment config (data.test_data_excel).
+    Session-scoped fixture that reuses the ExcelDataManager already loaded by test_data_manager.
+    No duplicate file loading — single source of truth.
 
     Usage:
         def step(excel_data_manager):
             shell_data = excel_data_manager.get_sheet("Shell")
             value = excel_data_manager.get_value("Shell", 0, "ColumnName")
     """
-    from utils.logger import setup_logger
-
-    logger = setup_logger(__name__)
-
-    settings = get_settings()
-    excel_path = settings.test_data_excel
-    if not excel_path or not excel_path.exists():
-        raise FileNotFoundError(
-            f"Excel test data file not found: {excel_path}. "
-            "Add 'test_data_excel' to data section in env config."
-        )
-
-    logger.info(f"[SESSION SCOPE] Loading Excel data from: {excel_path}")
-    manager = ExcelDataManager(str(excel_path))
-    logger.info(f"[SESSION SCOPE] Loaded sheets: {manager.sheet_names}")
-
-    for sheet in manager.sheet_names:
-        rows = manager.get_sheet(sheet)
-        logger.info(f"[SESSION SCOPE] Sheet '{sheet}': {len(rows)} rows")
-
-    return manager
+    return test_data_manager._excel_manager
