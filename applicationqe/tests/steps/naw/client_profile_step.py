@@ -2,19 +2,15 @@ from playwright.sync_api import Page
 from pytest_bdd import then, when
 
 from utils.allure_logger import get_allure_logger
-from utils.excel_utils import ExcelUtils
 
 logger = get_allure_logger(__name__)
 
 @when("User navigates to client profile page and enter required information")
 def user_navigates_to_client_profile_and_enters_information(
-    page: Page, client_profile_page, test_data_manager, _pytest_bdd_example, test_context
+    page: Page, client_profile_page, test_context
 ):
     """Navigate to client profile page and enter required information"""
-    # Load test data from Excel using utility method
-    excel_utils = ExcelUtils()
-    test_data = excel_utils.load_test_data_from_example(test_data_manager, _pytest_bdd_example)
-    test_context["test_data"] = test_data
+    test_data = test_context["test_data"]
 
     client_type = test_data.get("ClientType", "")
     fiduciary_role = test_data.get("FiduciaryRole", "")
