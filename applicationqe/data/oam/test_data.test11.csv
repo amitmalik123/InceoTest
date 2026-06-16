@@ -108,7 +108,7 @@ S10_OAM_Initiated by FA_Online Submit_Finish Later,,,,,,AGA1G1,T11_AGA1G1_Perf,Q
 Document has been saved and is pending review, completion and submission.
 |
 Document created by <FA Name>",Advisor,1
-S4_OAM_Initiated_by_OfficeAdmin_Complete_And_Print,OA,OA,,,,AGA1FS,AG7071_OA_T11,QAAdminUser_33a,,40305729,Kevin W Yeager,Account Information Change,No Spousal Consent Required,Complete and Print,,,,,,,,,Please review and sign the document electronically.,No,"Ready for Signatures
+S4_OAM_Initiated_by_OfficeAdmin_Complete_And_Print,OA,OA,,,,AGA1FS,AG7071_OA_T11,QAAdminUser_33a,,40254864,Kevin W & Laurel A Yeager,Account Information Change,No Spousal Consent Required,Complete and Print,,,,,,,,,Please review and sign the document electronically.,No,"Ready for Signatures
 |
 After printing and obtaining signatures, scan the signed document and upload to the Tracking Center by selecting
 |
@@ -170,3 +170,34 @@ Document created by <SAU Name>","Shared Access User
 Advisor","1
 |
 2"
+S12_OAM_Initiated by OfficeAdmin_Online Submit_Authorized Signer_Required_SAU,OA,OA,SAU,,,AGA1FS,AG7071_OA_T11,QAAdminUser_33a,,40254864,Kevin W & Laurel A Yeager,Additional Account Documentation,Historical Document Retrieval,Complete and Submit,Proceed and submit without a client signature,"Signer(s) Information
+|
+As an Administrator, you can set up the client request form for review and completion by the Financial Advisor. Immediately after set up is complete, an email is sent to the Financial Advisor notifying them of the pending documents and providing them access to the documents through the Tracking Center.","Financial Advisor Approval
+|
+You are authorized to set up the request form for electronic signature, but Financial Advisor approval is needed to begin the signature process. When setup is complete an email will be sent to the Financial Advisor for review and approval.
+|
+Financial Advisor or Shared Access User eSign Method",,SMS,,saransh.saxena@assetmark.com,925 532 9706,Please review and sign the document electronically.,No,"Request Ready for Shared Access User Review
+|
+Your request will be sent to the Shared Access User to review, approve and submit to AssetMark for processing.
+|
+To view your request, go to the Tracking Center and select
+|
+a copy for your records.
+|
+Click Close to return to eWealthManager.",Yes,[External] <Document_Creator_Role_Name> requested your Electronic Signature - <D Number>,"<Authorized_Signer_Role_Name>,
+
+Your Shared Access User has prepared one or more documents that are ready for you to sign electronically.","Document has been completed and routed to Operations for review and processing.
+|
+Document has been routed to <Authorized_Signer_Role_Name> for review and submission.
+|
+Document completed by <SAU Name> and is pending review and submission.
+|
+Document created by Office Admin",OfficeAdmin,"1
+|
+2"
+S13_OAM_Initiated by FA_Complete and Print_Finish Later with Save,FA,FA,,,,AG7071,AG7071_Test11,QAAdminUser_33a,,40254864,Kevin W & Laurel A Yeager,Additional Account Documentation,Historical Document Retrieval,Complete and Print,,,,,,,,,Please review and sign the document electronically.,No,,Yes,,,"Once completed and signed, submit document from Tracking Center upload or mail.
+|
+Document has been saved.  Complete and print document, obtain signature(s), and submit from Tracking Center upload or mail.
+|
+Document created by <FA Name>",Advisor,1
+S14_OAM_Initiated by FA_Complete and Print_Finish Later with Delete,FA,FA,,,,AG7071,AG7071_Test11,QAAdminUser_33a,,40254864,Kevin W & Laurel A Yeager,Additional Account Documentation,Historical Document Retrieval,Complete and Print,,,,,,,,,Please review and sign the document electronically.,No,,Yes,,,,,

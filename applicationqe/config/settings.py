@@ -200,8 +200,14 @@ class Settings:
         return list(self.config.get("applications", {}).keys())
 
     def _load_queries(self):
-        """Load SQL queries from queries/naw/sql_queries.yaml once at init time."""
-        queries_path = Path(__file__).parent.parent / "queries" / "naw" / "sql_queries.yaml"
+        """Load SQL queries from queries/{app}/sql_queries.yaml once at init time."""
+        # Determine queries filename based on app
+        if self.app == "oam":
+            queries_filename = "oam_sql_queries.yaml"
+        elif self.app == "naw":
+            queries_filename = "sql_queries.yaml"
+        
+        queries_path = Path(__file__).parent.parent / "queries" / self.app / queries_filename
         if not queries_path.exists():
             self.logger.warning(f"Queries file not found: {queries_path}")
             return {}

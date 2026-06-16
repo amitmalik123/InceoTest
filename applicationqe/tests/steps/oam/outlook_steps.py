@@ -3,7 +3,7 @@ from typing import Optional
 import allure
 from playwright.sync_api import Page
 from pytest_bdd import when, then
-from pages.oam.docusign_page import DocuSignPage
+from pages.oam.docusign_page import OAM_DocuSignPage
 from pages.outlook_page import OutlookPage
 from utils.allure_logger import get_allure_logger
 from utils.database import fetch_agent_name_by_aplid_from_db
@@ -234,7 +234,7 @@ def user_login_to_the_email_and_complete_the_workflow_approver_signature(page: P
 def user_login_to_the_email_and_fetch_the_latest_otp(page: Page, test_context):
     """Login to Outlook and fetch the latest OTP using the stored D number."""
     with allure.step("User login to the email and fetch the latest OTP"):
-        docu_sign_page = DocuSignPage(page)
+        docu_sign_page = OAM_DocuSignPage(page)
         docu_sign_page.complete_signing_with_outlook_otp(max_wait_time_in_seconds=60, session_timeout_check=False)
 
 @then("Verify that the carbon copy of the signed document has been received in the email")

@@ -1,8 +1,13 @@
 """
-Test module for E2E OAM flow using BDD approach
+Test module for E2E OAM flow using BDD approach.
+
+Dynamically discovers and loads all feature files from tests/features/oam directory,
+including subdirectories. This allows new feature files to be added without
+modifying this test runner.
 """
 
 import pytest
+from pathlib import Path
 from pytest_bdd import scenarios
 
 # Import fixtures FIRST (before step definitions)
@@ -13,37 +18,32 @@ from tests.conftest import *  # noqa: F401,F403  - Import all page fixtures
 # These must be imported BEFORE loading scenarios
 from tests.steps.oam.account_steps import *  # noqa: F401,F403
 from tests.steps.oam.account_wizard_steps import *  # noqa: F401,F403
-from tests.steps.oam.api_steps import *  # noqa: F401,F403
 from tests.steps.oam.client_accounts_steps import *  # noqa: F401,F403
 from tests.steps.oam.common_steps import *  # noqa: F401,F403
 from tests.steps.oam.database_steps import *  # noqa: F401,F403
 from tests.steps.oam.docusign_steps import *  # noqa: F401,F403
 from tests.steps.oam.login_steps import *  # noqa: F401,F403
-from tests.steps.oam.manage_instruction_steps import *  # noqa: F401,F403
 from tests.steps.oam.navigation_steps import *  # noqa: F401,F403
 from tests.steps.oam.outlook_steps import *  # noqa: F401,F403
-from tests.steps.oam.roth_conversion_steps import *  # noqa: F401,F403
 from tests.steps.oam.tracking_center_steps import *  # noqa: F401,F403
 from tests.steps.oam.item_detail_steps import *  # noqa: F401,F403
 
 
-# Load all scenarios from the feature files
-# Pytest tags from feature files (@smoke, @regression, @FA_Client_Signature, etc) are automatically available
-# Use -m flag to filter by tags: pytest tests/runners/oam/test_OAM.py -m FA_Client_Signature
+# Dynamically load all feature files from tests/features/oam
+# Pytest tags from feature files (@smoke, @regression, etc) are automatically available
+# Use -m flag to filter by tags: pytest tests/runners/oam/test_OAM.py -m smoke
 
-# Financial Advisor (FA) Feature Files
-scenarios("../../features/oam/OAM_FA_OnlineSubmit.feature")
-scenarios("../../features/oam/OAM_FA_CompletePrint.feature")
-scenarios("../../features/oam/OAM_FA_FinishLater.feature")
+# Get absolute path to features/oam directory
+# __file__ = tests/runners/oam/test_OAM.py
+# parent = tests/runners/oam
+# parent.parent.parent = tests
+features_oam_dir = Path(__file__).parent.parent.parent / "features" / "oam"
 
-# Operations & Admin (OA) Feature Files
-scenarios("../../features/oam/OAM_OA_CompleteAndPrint.feature")
+# Find all .feature files recursively
+feature_files = sorted(features_oam_dir.rglob("*.feature"))
 
-# Self-Service Users (SAU) Feature Files
-scenarios("../../features/oam/OAM_SAU_OnlineSubmit_SignerNotRequired.feature")
-scenarios("../../features/oam/OAM_SAU_OnlineSubmit_AuthSignRequriedFA.feature")
-scenarios("../../features/oam/OAM_SAU_OnlineSubmit_AuthSignRequriedSAU.feature")
-scenarios("../../features/oam/OAM_SAU_CompleteAndPrint.feature")
-scenarios("../../features/oam/OAM_SAU_OneInperson.feature")
-scenarios("../../features/oam/OAM_SAU_BlueBanner.feature")
-scenarios("../../features/oam/OAM_SAU_Prod_OnlineSubmit_AUthSignerFA.feature")
+# Load each feature file using absolute paths (works on both Windows and Linux)
+for feature_file in feature_files:
+    # Use absolute path for maximum pipeline compatibility
+    # pytest-bdd scenarios() works with both absolute and relative paths
+    scenarios(str(feature_file.absolute()))

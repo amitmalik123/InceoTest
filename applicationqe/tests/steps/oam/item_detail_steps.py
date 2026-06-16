@@ -2,7 +2,7 @@ import allure
 from playwright.sync_api import Page
 from pytest_bdd import parsers, then, when
 
-from locators import item_detail_locators
+from locators.oam import item_detail_locators
 from utils.allure_logger import get_allure_logger
 from utils.soft_assertions_enhanced import EnhancedSoftAssertions
 from utils.database import fetch_agent_name_by_aplid_from_db
@@ -54,7 +54,7 @@ def verify_item_detail_d_number_matches_request_submitted_pop_up_d_number(tracki
             
         except Exception as e:
             logger.error(f"✗ D-number verification failed: {e}")
-            raise AssertionError(f"D-number verification failed: {e}") from e
+            raise AssertionError(f"[FAIL] TrackingCenterPage: D-Number Verification — Expected: d_number='{expected_d_number}', Actual: d_number='{actual_d_number}'. Details: {e}") from e
 
 
 @then(parsers.parse('Verify Tracking Center Item Detail status should be "{expected_status}"'))
@@ -129,7 +129,7 @@ def verify_tracking_center_item_detail_status(trackingCenter_ItemDetail_page, ex
             
         except Exception as e:
             logger.error(f"✗ Status validation failed: {e}")
-            raise AssertionError(f"Status validation failed: {e}") from e
+            raise AssertionError(f"[FAIL] TrackingCenterPage: Status Validation — Expected: status matches expected, Actual: status validation failed. Details: {e}") from e
 
 
 @then(parsers.parse('Verify buttons displayed "{button_list}"'))
@@ -177,7 +177,7 @@ def verify_buttons_displayed(trackingCenter_ItemDetail_page, button_list):
             
         except Exception as e:
             logger.error(f"✗ Button verification failed: {e}")
-            raise AssertionError(f"Button verification failed: {e}") from e
+            raise AssertionError(f"[FAIL] TrackingCenterPage: Button Verification — Expected: all required buttons present, Actual: button verification failed. Details: {e}") from e
 
 
 
@@ -373,7 +373,7 @@ def verify_notes_description(trackingCenter_ItemDetail_page, test_context):
             
         except Exception as e:
             logger.error(f"✗ Notes description validation failed: {e}")
-            raise AssertionError(f"Notes description validation failed: {e}") from e
+            raise AssertionError(f"[FAIL] TrackingCenterPage: Notes Description Validation — Expected: all descriptions present, Actual: notes validation failed. Details: {e}") from e
 
 
 @then("Verify Advisor Alert Required value")
@@ -432,7 +432,7 @@ def verify_advisor_alert_required_value(trackingCenter_ItemDetail_page, test_con
             logger.info(f"[PASS] TrackingCenterPage: Advisor Alert Required Validation Completed.")
         except Exception as e:
             logger.error(f"✗ Advisor Alert Required validation failed: {e}")
-            raise AssertionError(f"Advisor Alert Required validation failed: {e}") from e
+            raise AssertionError(f"[FAIL] TrackingCenterPage: Advisor Alert Validation — Expected: advisor_alert_required value correct, Actual: validation failed. Details: {e}") from e
 
 
 @then("User should be redirected to Tracking Center Item Detail page")
@@ -573,7 +573,7 @@ def verify_agent_name(trackingCenter_ItemDetail_page, test_context):
             
         except Exception as e:
             logger.error(f"✗ Agent Name verification failed: {e}")
-            raise AssertionError(f"Agent Name verification failed: {e}") from e
+            raise AssertionError(f"[FAIL] TrackingCenterPage: Agent Name Verification — Expected: agent_name correct, Actual: verification failed. Details: {e}") from e
 
 
 @then("User click on Upload button and upload the document")

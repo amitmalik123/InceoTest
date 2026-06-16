@@ -39,8 +39,10 @@ class TrackingCenterPage(BasePage):
         self.bodycontent_div: Locator = page.locator('div#BodyContent')
 
     def navigate(self) -> None:
-        logger.info(f"Navigating to tracking center page: {self.PAGE_URL}")
-        self.page.goto(self.PAGE_URL)
+        base_url = get_settings().base_url.rstrip("/")
+        full_url = f"{base_url}/{TRACKING_CENTER_PATH}"
+        logger.info(f"Navigating to tracking center page: {full_url}")
+        self.page.goto(full_url, wait_until='domcontentloaded')
         self.page.wait_for_load_state('networkidle', timeout=30000)
         logger.info("Tracking center page loaded")
 
@@ -323,4 +325,28 @@ class TrackingCenterPage(BasePage):
 
         self.page.wait_for_load_state("networkidle", timeout=timeout)
         logger.info(f"D-Number search and open completed: {d_number}")
+
+    def search_d_number(self, d_number: str, timeout: int = 30000) -> None:
+        """Search for a D-number in Tracking Center and wait for search results."""
+        logger.info(f"Searching for D-number: {d_number}")
+        root = self.active_root()
+        search_box = root.locator("#client_search_input")
+        search_button = root.locator("#searchbutton")
+
+        search_box.wait_for(state="visible", timeout=timeout)
+        search_box.fill(d_number)
+        self.click(search_button)
+        self.page.wait_for_load_state("domcontentloaded", timeout=timeout)
+        logger.info(f"D-number search completed: {d_number}")
+
+    def get_no_search_results_message(self, timeout: int = 10000) -> str:
+        """Get the 'No search results' message text from the Tracking Center grid."""
+        logger.info("Retrieving no search results message...")
+        root = self.active_root()
+        no_results_locator = root.locator("#noresults_TrackingCenterGrid")
+        
+        no_results_locator.wait_for(state="visible", timeout=timeout)
+        message_text = (no_results_locator.text_content() or "").strip()
+        logger.info(f"No search results message: {message_text}")
+        return message_text
 

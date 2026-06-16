@@ -14,9 +14,8 @@ from config.settings import get_settings
 # ---------------------------------------------------------------------------
 # Imports: OAM pages (not yet consolidated to EWM)
 # ---------------------------------------------------------------------------
-from pages.oam.account_management_page import AccountManagementPage
 from pages.oam.client_accounts_page import ClientAccountsPage
-from pages.oam.docusign_page import DocuSignPage as OAMDocuSignPage
+from pages.oam.docusign_page import OAM_DocuSignPage
 from pages.oam.item_detail_page import ItemDetailPage
 from pages.outlook_page import OutlookPage
 
@@ -73,12 +72,6 @@ _base_url = get_settings().base_url
 # ---------------------------------------------------------------------------
 
 @pytest.fixture
-def account_management_page(authenticated_page: Page) -> AccountManagementPage:
-    """Account management page object fixture"""
-    return AccountManagementPage(authenticated_page, base_url=_base_url)
-
-
-@pytest.fixture
 def client_accounts_page(authenticated_page: Page) -> ClientAccountsPage:
     """Client accounts page object fixture"""
     return ClientAccountsPage(authenticated_page, base_url=_base_url)
@@ -97,9 +90,9 @@ def outlook_page(authenticated_page: Page) -> OutlookPage:
 
 
 @pytest.fixture
-def oam_docusign_page(authenticated_page: Page) -> OAMDocuSignPage:
+def oam_docusign_page(authenticated_page: Page) -> OAM_DocuSignPage:
     """OAM DocuSign page object fixture (inherits all EWM methods)"""
-    return OAMDocuSignPage(authenticated_page, base_url=_base_url)
+    return OAM_DocuSignPage(authenticated_page, base_url=_base_url)
 
 
 # ---------------------------------------------------------------------------
@@ -138,7 +131,7 @@ def account_wizard_page(page: Page):
 
 @pytest.fixture
 def tracking_center_page(authenticated_page: Page) -> TrackingCenterPage:
-    """Tracking center page object fixture"""
+    """Tracking center page object fixture (EWM version)"""
     return TrackingCenterPage(authenticated_page)
 
 

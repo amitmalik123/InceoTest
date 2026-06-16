@@ -136,3 +136,34 @@ def get_locator_attribute(locator, attribute_name: str, element_name: str = "ele
     """
     return locator.get_attribute(attribute_name, timeout=timeout)
 
+def find_element_position_in_parent(
+    parent_locator: Locator,
+    search_attribute: str,
+    search_value: str,
+) -> Optional[int]:
+    """
+    Find position of element in parent by attribute value.
+
+    Args:
+        parent_locator: Parent locator containing child elements
+        search_attribute: Attribute name to search ('value', 'id', 'class', etc)
+        search_value: Attribute value to match
+
+    Returns:
+        Position index (0-based) or None if not found
+
+    Example:
+        # Find position of input with value='radiobtnNo'
+        pos = find_element_position_in_parent(
+            second_td.locator("input"),
+            "value",
+            "radiobtnNo"
+        )
+    """
+    all_elements = parent_locator.all()
+    for i, elem in enumerate(all_elements):
+        attr_value = elem.get_attribute(search_attribute)
+        if attr_value == search_value:
+            return i
+    return None
+

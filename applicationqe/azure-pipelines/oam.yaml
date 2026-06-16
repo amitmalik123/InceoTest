@@ -53,7 +53,7 @@ parameters:
     values:
       - FNT_regression
       - Silo_Regression
-      - Smoke
+      - OAM_Smoke
       - HappyPath
       - T10_Regression
       - Prod_Regression
@@ -150,6 +150,7 @@ jobs:
 
   - script: |
       echo "##vso[task.setvariable variable=TEST_ENV]$(environment)"
+      echo "##vso[task.setvariable variable=TEST_APP]oam"
     displayName: "Set Test Environment and Browser Variables"
 
   - script: |
@@ -257,7 +258,7 @@ jobs:
       echo "========================================"
       echo "Test Marker: $(marker)"
       echo "Workers: $(workers)"
-      echo "Browser: $(browser)"
+      echo "Browser: ${{ parameters.browser }}"
       echo "Environment: $(environment)"
       echo "Build Path: $(buildPath)"
       echo "Allure Results Dir: $(allureResultsDir)"
@@ -273,23 +274,19 @@ jobs:
       echo ""
       echo "Setting up environment variables..."
       export TEST_ENV="$(environment)"
+      export TEST_APP="oam"
       export CI=true
       export PYTHONUNBUFFERED=1
       export ALLURE_RESULTS_DIR="$(allureResultsDir)"
       echo "✓ TEST_ENV=$TEST_ENV"
+      echo "✓ TEST_APP=$TEST_APP"
       echo "✓ CI=$CI"
       echo ""
       echo "Python version: $(python --version)"
       echo ""
-      # Build pytest command with parallel workers support
-      # Determine test target based on marker
-      if [ "$(marker)" = "all_tests" ]; then
-        TEST_TARGET="tests/"
-        echo "Running ALL test files from tests/"
-      else
-        TEST_TARGET="-m \"$(marker)\""
-        echo "Running tests with marker: $(marker)"
-      fi
+      # Build pytest command with proper environment variables
+      # OAM tests use pytest-bdd with feature files dynamically loaded
+      # Always target the OAM test runner explicitly to avoid collecting other test modules
 
       # Determine browser parameter
       BROWSER_VALUE="${{ parameters.browser }}"
@@ -304,30 +301,41 @@ jobs:
         echo "✓ Browser: Chromium (default)"
       fi
 
-      PYTEST_CMD="pytest $TEST_TARGET \
+      PYTEST_IGNORE_FLAGS="--ignore=tests/features/model-management --ignore=tests/features/pmt --ignore=tests/features/stp --ignore=tests/features/ewm --ignore=tests/runners/PortfolioReporting --ignore=tests/runners/STP --ignore=tests/runners/baw --ignore=tests/runners/proposal --ignore=tests/steps/stp --ignore=tests/api --ignore=tests/bdd"
+
+      # Determine parallel execution settings
+      WORKERS_VALUE="$(workers)"
+      if [ "$WORKERS_VALUE" = "auto" ] || [ "$WORKERS_VALUE" -gt "1" ] 2>/dev/null; then
+        PARALLEL_FLAGS="-n $WORKERS_VALUE --dist loadscope"
+        echo "Parallel execution enabled: $WORKERS_VALUE workers with loadscope distribution"
+      else
+        PARALLEL_FLAGS=""
+        echo "Sequential execution (single worker)"
+      fi
+
+      echo "Executing pytest with OAM test target..."
+      echo "Test Target: tests/runners/oam/test_OAM.py"
+      echo "Test Marker: $(marker)"
+      echo "========================================"
+      echo ""
+      TEST_ENV="$(environment)" \
+      TEST_APP="oam" \
+      CI=true \
+      PYTHONUNBUFFERED=1 \
+      ALLURE_RESULTS_DIR="$(allureResultsDir)" \
+      pytest tests/runners/oam/test_OAM.py \
+        -m "$(marker)" \
+        $PYTEST_IGNORE_FLAGS \
         $BROWSER_PARAM \
-        --junitxml=\"$(testResultsDir)/junit/junit-report.xml\" \
+        $PARALLEL_FLAGS \
+        --junitxml="$(testResultsDir)/junit/junit-report.xml" \
         -v \
         --video=retain-on-failure \
         --tracing=retain-on-failure \
         --screenshot=only-on-failure \
-        --alluredir=\"$(allureResultsDir)\" \
-        --html=\"$(testResultsDir)/pytest-report.html\" \
-        --self-contained-html"
-
-      # Add parallel execution if workers > 1
-      WORKERS_VALUE="$(workers)"
-      if [ "$WORKERS_VALUE" = "auto" ] || [ "$WORKERS_VALUE" -gt "1" ] 2>/dev/null; then
-        PYTEST_CMD="$PYTEST_CMD -n $WORKERS_VALUE --dist loadscope"
-        echo "Parallel execution enabled: $WORKERS_VALUE workers with loadscope distribution"
-      else
-        echo "Sequential execution (single worker)"
-      fi
-
-      echo "Executing: $PYTEST_CMD"
-      echo "========================================"
-      echo ""
-      eval $PYTEST_CMD 2>&1 || TEST_EXIT_CODE=$? || true
+        --alluredir="$(allureResultsDir)" \
+        --html="$(testResultsDir)/pytest-report.html" \
+        --self-contained-html 2>&1 || TEST_EXIT_CODE=$? || true
       echo ""
       echo "========================================"
       echo "Test Execution Exit Code: ${TEST_EXIT_CODE:-0}"

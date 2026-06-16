@@ -1236,8 +1236,8 @@ class ClientAccountsPage(BasePage):
             # Find the modal-title-transition div within the dialog
             modal_title_div = self.page.locator('div.modal-title-transition').first
             
-            # Wait for the title div to be visible
-            modal_title_div.wait_for(state='visible', timeout=5000)
+            # Wait for the title div to be visible (30s to allow DocuSign redirects and page rendering)
+            modal_title_div.wait_for(state='visible', timeout=30000)
             logger.debug("modal-title-transition div found and visible")
             
             # Extract the text from the title div
@@ -1321,6 +1321,9 @@ class ClientAccountsPage(BasePage):
             matching_label = client_accounts_page.fetch_selected_account('13222266')
             # Use matching_label with radio button lookup
         """
+        # Defensive conversion - handle int from Excel or str from other sources
+        account_number = str(account_number)
+        
         logger.info(f"Fetching account label for account number: {account_number}")
         
         # STEP 0: Wait for any loading spinner to disappear before searching for labels
@@ -1782,13 +1785,13 @@ class ClientAccountsPage(BasePage):
             # Get dialog title from modal-title-transition div
             logger.info("Extracting dialog title...")
             modal_title_div = self.page.locator('div.modal-title-transition').first
-            modal_title_div.wait_for(state='visible', timeout=5000)
+            modal_title_div.wait_for(state='visible', timeout=30000)  # 30s for DocuSign redirects
             dialog_title = (modal_title_div.text_content() or "").strip()
             logger.info(f"✓ Dialog title: '{dialog_title}'")
             
             # Get dialog body text using DialogHandler
             logger.info("Extracting dialog body text...")
-            dialog_body = dialog_handler.get_dialog_text(timeout=5000)
+            dialog_body = dialog_handler.get_dialog_text(timeout=30000)  # 30s for DocuSign redirects
             logger.info(f"✓ Dialog body: '{dialog_body}'")
             
             # Locate close button in the dialog (multiple strategies for robustness)
@@ -1878,14 +1881,14 @@ class ClientAccountsPage(BasePage):
             # Get dialog title
             logger.info("Extracting dialog title...")
             modal_title_div = self.page.locator('div.modal-title-transition').first
-            modal_title_div.wait_for(state='visible', timeout=5000)
+            modal_title_div.wait_for(state='visible', timeout=30000)  # 30s for DocuSign redirects
             dialog_title = (modal_title_div.text_content() or "").strip()
             logger.info(f"✓ Dialog title: '{dialog_title}'")
             
             # Get dialog body content
             logger.info("Extracting dialog body content...")
             confirmation_div = self.page.locator('#divConfirmation').first
-            confirmation_div.wait_for(state='visible', timeout=5000)
+            confirmation_div.wait_for(state='visible', timeout=30000)  # 30s for DocuSign redirects
             
             # Get all text from dialog body (paragraphs, list items, etc.)
             dialog_body = confirmation_div.text_content() or ""
@@ -1993,14 +1996,15 @@ class ClientAccountsPage(BasePage):
             # Get dialog title
             logger.info("Extracting dialog title...")
             modal_title_div = self.page.locator(client_accounts_locators.FINISH_LATER_DIALOG_TITLE).first
-            modal_title_div.wait_for(state='visible', timeout=5000)
+            # Allow extra time for DocuSign page to load and show the Finish Later dialog (can take 10+ seconds)
+            modal_title_div.wait_for(state='visible', timeout=30000)  # 30 seconds for Finish Later flow
             dialog_title = (modal_title_div.text_content() or "").strip()
             logger.info(f"✓ Dialog title: '{dialog_title}'")
             
             # Get dialog body content
             logger.info("Extracting dialog body content...")
             confirmation_div = self.page.locator(client_accounts_locators.FINISH_LATER_DIALOG_BODY).first
-            confirmation_div.wait_for(state='visible', timeout=5000)
+            confirmation_div.wait_for(state='visible', timeout=30000)
             
             # Get all text from dialog body
             dialog_body = confirmation_div.text_content() or ""
@@ -2104,4 +2108,51 @@ class ClientAccountsPage(BasePage):
             logger.error(f"✗ Failed to click Save button: {e}")
             raise AssertionError(f"Failed to click Save button in Finish Later dialog: {e}") from e
 
+    def click_finish_later_delete_button(self, timeout: int = 60000) -> None:
+        """
+        Click the Delete button in the Finish Later dialog.
+        
+        This method:
+        1. Locates the Delete button using CSS selector
+        2. Waits for button to be visible
+        3. Clicks the button to delete the saved document
+        4. Logs and returns on success
+        
+        Args:
+            timeout: Maximum time to wait for button in milliseconds (default: 60000ms = 60 seconds)
+            
+        Raises:
+            AssertionError: If Delete button not found or not clickable
+            
+        Example:
+            client_accounts_page.click_finish_later_delete_button()
+        """
+        logger.info("Clicking 'Delete' button in Finish Later dialog...")
+        
+        try:
+            # Locate the Delete button using CSS selector with has-text
+            delete_button = self.page.locator(client_accounts_locators.FINISH_LATER_BUTTON_DELETE)
+            
+            # Verify button is present
+            if delete_button.count() == 0:
+                logger.error(f"Delete button not found using selector: {client_accounts_locators.FINISH_LATER_BUTTON_DELETE}")
+                raise AssertionError(f"Delete button not found in Finish Later dialog. Locator: {client_accounts_locators.FINISH_LATER_BUTTON_DELETE}")
+            
+            # Wait for button to be visible
+            logger.info(f"Waiting for Delete button to be visible (timeout: {timeout}ms)...")
+            delete_button.wait_for(state="visible", timeout=timeout)
+            logger.info("✓ Delete button is visible")
+            
+            # Click the button
+            logger.info("Clicking Delete button...")
+            delete_button.click()
+            logger.info("✓ Delete button clicked successfully")
+            
+            # Wait for dialog to close or page state change
+            self.page.wait_for_timeout(1000)
+            logger.info("[PASS] Finish Later document deleted successfully")
+            
+        except Exception as e:
+            logger.error(f"✗ Failed to click Delete button in Finish Later dialog: {e}")
+            raise AssertionError(f"Failed to click Delete button in Finish Later dialog: {e}") from e
  

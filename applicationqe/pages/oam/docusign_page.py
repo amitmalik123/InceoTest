@@ -24,7 +24,7 @@ if TYPE_CHECKING:
 logger = get_allure_logger(__name__)
 
 
-class DocuSignPage(EWMDocuSignPage):
+class OAM_DocuSignPage(EWMDocuSignPage):
     """OAM DocuSign page — inherits common OTP/signing from EWM, adds OAM-specific methods."""
 
     def __init__(self, page: Page, base_url: str = ""):
@@ -1272,8 +1272,16 @@ class DocuSignPage(EWMDocuSignPage):
             
             logger.info("[PASS] 'Finish Later' option clicked successfully")
             
-            # Wait for page to process the action
-            self.page.wait_for_timeout(500)
+            # Wait for DocuSign to process the action and redirect back to OAM page
+            # DocuSign may take 10-30 seconds to process "Finish Later" action
+            logger.info("Waiting for DocuSign to process 'Finish Later' action and redirect back to OAM page...")
+            try:
+                self.page.wait_for_load_state("networkidle", timeout=30000)  # 30 seconds for page to load
+                logger.info("✓ Page returned to stable state after Finish Later action")
+            except Exception as e:
+                logger.warning(f"Page load state wait timed out: {e}, continuing anyway as DocuSign may have redirected")
+                # Continue anyway - the page might have loaded even if this times out
+                self.page.wait_for_timeout(2000)  # Give it at least 2 more seconds
             
         except Exception as e:
             logger.error(f"[FAIL] Failed to click 'Finish Later' option: {e}")
@@ -1398,5 +1406,3 @@ class DocuSignPage(EWMDocuSignPage):
                     outlook_page.close()
                 except Exception:
                     pass
-
-

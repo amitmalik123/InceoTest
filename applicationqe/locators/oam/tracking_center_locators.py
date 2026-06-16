@@ -24,6 +24,7 @@ def initialize_locators(page: Page) -> Dict[str, Locator]:
         "client_search_input": page.locator("#client_search_input"),
         "search_button": page.locator("#searchbutton"),
         "tracking_center_link": page.locator('a[href="/AccountsAnalysis/TrackingCenter"]'),
+        "no_results_message": page.locator("#noresults_TrackingCenterGrid"),
     }
 
 

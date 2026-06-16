@@ -6,8 +6,8 @@ from datetime import datetime
 from playwright.sync_api import Page
 from pytest_bdd import then, when, parsers
 
-from locators import docusign_locators
-from pages.oam.docusign_page import DocuSignPage
+from locators.oam import docusign_locators
+from pages.oam.docusign_page import OAM_DocuSignPage
 from utils.allure_logger import get_allure_logger
 from utils.assertions import Assertions
 from utils.soft_assertions_enhanced import EnhancedSoftAssertions
@@ -30,9 +30,9 @@ def user_confirm_and_continue(authenticated_page: Page, test_context):
     if docusign_page:
         logger.info("[DEBUG] Using new_docusign_page from test_context")
     else:
-        logger.info("[DEBUG] new_docusign_page not in test_context, creating default DocuSignPage")
-        from pages.oam.docusign_page import DocuSignPage
-        docusign_page = DocuSignPage(authenticated_page)
+        logger.info("[DEBUG] new_docusign_page not in test_context, creating default OAM_DocuSignPage")
+        from pages.oam.docusign_page import OAM_DocuSignPage
+        docusign_page = OAM_DocuSignPage(authenticated_page)
     
     # Check the ERSD consent checkbox
     logger.info("Checking Electronic Record and Signature Disclosure consent...")
@@ -73,9 +73,9 @@ def user_finish_the_docusign_process(authenticated_page: Page, test_context):
     if docusign_page:
         logger.info("[DEBUG] Using new_docusign_page from test_context")
     else:
-        logger.info("[DEBUG] new_docusign_page not in test_context, creating default DocuSignPage")
-        from pages.oam.docusign_page import DocuSignPage
-        docusign_page = DocuSignPage(authenticated_page)
+        logger.info("[DEBUG] new_docusign_page not in test_context, creating default OAM_DocuSignPage")
+        from pages.oam.docusign_page import OAM_DocuSignPage
+        docusign_page = OAM_DocuSignPage(authenticated_page)
     
     with allure.step("Fetch D-number and finish DocuSign process"):
         # Step 1: Fetch D-number before finishing (HARD REQUIREMENT - must succeed)
@@ -102,7 +102,7 @@ def user_finish_the_docusign_process(authenticated_page: Page, test_context):
         logger.info("[PASS] DocuSignPage: DocuSign Process Finished.")
 
 @then("User should be redirected to the DocuSign page")
-def user_should_be_redirected_to_docusign_page(authenticated_page: Page, docusign_page):
+def user_should_be_redirected_to_docusign_page(authenticated_page: Page, oam_docusign_page):
     """Verify that the user is redirected to the DocuSign page"""
     logger.info(">>> ENTERED STEP: user_should_be_redirected_to_docusign_page")
     
@@ -115,7 +115,7 @@ def user_should_be_redirected_to_docusign_page(authenticated_page: Page, docusig
     else:
         # Wait for DocuSign page to load (120 second timeout)
         logger.info("Waiting for DocuSign page to load...")
-        docusign_page.verify_docusign_page_loaded(timeout=120000)
+        oam_docusign_page.verify_docusign_page_loaded(timeout=120000)
         current_url = authenticated_page.url
     
     logger.info(f"Comparing current URL: {current_url} with keyword: '{docusign_keyword}'")
@@ -127,7 +127,7 @@ def user_should_be_redirected_to_docusign_page(authenticated_page: Page, docusig
 
 
 @then("Verify As_authorized_by stamp presence")
-def verify_as_authorized_by_stamp_presence(authenticated_page: Page, docusign_page, test_context):
+def verify_as_authorized_by_stamp_presence(authenticated_page: Page, oam_docusign_page, test_context):
     """Verify 'As authorized by' stamping presence based on test data.
     
     Reads 'As_authorized_by_stamp_present' from test_data CSV ('Yes' or 'No')
@@ -153,7 +153,7 @@ def verify_as_authorized_by_stamp_presence(authenticated_page: Page, docusign_pa
         logger.info(f"Expected state: '{STAMPING_TEXT}' should be {'PRESENT' if should_be_present else 'NOT PRESENT'}")
         
         # Get stamping element locator using page object method
-        stamping_locator = docusign_page.get_stamping_element(STAMPING_TEXT)
+        stamping_locator = oam_docusign_page.get_stamping_element(STAMPING_TEXT)
         
         # Use SoftAssertions utility to verify element count (non-blocking)
         logger.info("Step 1: Verifying As Authorized by stamping presence using soft assertions...")
@@ -187,7 +187,7 @@ def verify_as_authorized_by_stamp_presence(authenticated_page: Page, docusign_pa
 
 
 @then(parsers.parse('Verify docusign Review and continue dialog text "{expected_text}"'))
-def verify_docusign_review_and_continue_dialog_text(authenticated_page: Page, docusign_page, test_context, expected_text: str):
+def verify_docusign_review_and_continue_dialog_text(authenticated_page: Page, oam_docusign_page, test_context, expected_text: str):
     """Verify the Review and Continue dialog text matches expected value from feature file.
     
     Takes expected text as a parameter from the feature file step
@@ -219,8 +219,8 @@ def verify_docusign_review_and_continue_dialog_text(authenticated_page: Page, do
     if page_obj:
         logger.info("[DEBUG] Using new_docusign_page from test_context (from 'Review Document' link)")
     else:
-        logger.info("[DEBUG] Using docusign_page fixture (original page, no 'Review Document' link used)")
-        page_obj = docusign_page
+        logger.info("[DEBUG] Using oam_docusign_page fixture (original page, no 'Review Document' link used)")
+        page_obj = oam_docusign_page
     
     with allure.step("Verify Review and Continue dialog text"):
         logger.info(f"Expected text from test data: '{expected_text}'")
@@ -299,7 +299,7 @@ def verify_docusign_review_and_continue_dialog_text(authenticated_page: Page, do
 
 
 @when("User add Signature")
-def user_add_signature(authenticated_page: Page, docusign_page):
+def user_add_signature(authenticated_page: Page, oam_docusign_page):
     """Complete the DocuSign signature process: Finish -> Click Sign -> Finish
     
     Uses framework utilities:
@@ -312,11 +312,11 @@ def user_add_signature(authenticated_page: Page, docusign_page):
     
     # STEP 1: Click Finish button (first call)
     logger.info("Step 1: Clicking Finish button (initial)...")
-    docusign_page.click_finish_button(timeout=30000)
+    oam_docusign_page.click_finish_button(timeout=30000)
     
     # STEP 2: Click on Sign button/div
     logger.info("Step 2: Clicking Sign button...")
-    docusign_page.click_sign_button(timeout=30000)
+    oam_docusign_page.click_sign_button(timeout=30000)
     
     # Take screenshot for audit trail
     authenticated_page.wait_for_timeout(1000)
@@ -327,14 +327,14 @@ def user_add_signature(authenticated_page: Page, docusign_page):
 
 
 @when("User click on Sign and add signature")
-def user_click_on_sign_and_add_signature(authenticated_page: Page, docusign_page, test_context):
+def user_click_on_sign_and_add_signature(authenticated_page: Page, oam_docusign_page, test_context):
     """Click on the Sign button to add signature to the document.
     
     Supports both single page (authenticated_page) and multi-page scenarios (new_docusign_page).
     Calls the page object method to locate and click the Sign button/div in DocuSign.
     
     Uses framework utilities:
-    - docusign_page.click_sign_button(): Clicks Sign button in document
+    - oam_docusign_page.click_sign_button(): Clicks Sign button in document
     - Framework logging via get_allure_logger
     
     Example (in feature file):
@@ -343,22 +343,21 @@ def user_click_on_sign_and_add_signature(authenticated_page: Page, docusign_page
     logger.info(">>> ENTERED STEP: user_click_on_sign_and_add_signature")
     
     # Retrieve the DocuSignPage object from test_context (may be new page from Review Document link)
-    # If not found, fall back to using authenticated_page directly
-    docusign_page = test_context.get("new_docusign_page")
-    if docusign_page:
+    # If not found, fall back to using oam_docusign_page fixture
+    docusign_page_obj = test_context.get("new_docusign_page")
+    if docusign_page_obj:
         logger.info("[DEBUG] Using new_docusign_page from test_context")
     else:
-        logger.info("[DEBUG] new_docusign_page not in test_context, creating default DocuSignPage")
-        from pages.oam.docusign_page import DocuSignPage
-        docusign_page = DocuSignPage(authenticated_page)
+        logger.info("[DEBUG] new_docusign_page not in test_context, using oam_docusign_page fixture")
+        docusign_page_obj = oam_docusign_page
     
     with allure.step("User click on Sign button and add signature"):
         logger.info("Clicking Sign button to add signature...")
-        docusign_page.click_sign_button(timeout=30000)
+        docusign_page_obj.click_sign_button(timeout=30000)
         
         # Click the Adopt and Sign button to confirm signature
         logger.info("Clicking Adopt and Sign button to confirm signature...")
-        docusign_page.click_adopt_and_sign(timeout=30000)
+        docusign_page_obj.click_adopt_and_sign(timeout=30000)
         
         # Wait a moment for the signature to be registered
         authenticated_page.wait_for_timeout(1000)
@@ -376,7 +375,7 @@ def user_click_on_sign_and_add_signature(authenticated_page: Page, docusign_page
 
 
 @then("Signature and today's date should be added on the document")
-def verify_signature_and_date_added_on_document(authenticated_page: Page, docusign_page):
+def verify_signature_and_date_added_on_document(authenticated_page: Page, oam_docusign_page):
     """Verify that signature and today's date have been added on the document.
     
     Fetches signature tab attributes (aria-invalid and parent div class) using page object method.
@@ -395,7 +394,7 @@ def verify_signature_and_date_added_on_document(authenticated_page: Page, docusi
     with allure.step("Verify Signature and today's date added on document"):
         # STEP 1: Get signature tab attributes using page object method
         logger.info("Step 1: Retrieving signature tab attributes...")
-        sig_attributes = docusign_page.get_signature_tab_attributes(timeout=10000)
+        sig_attributes = oam_docusign_page.get_signature_tab_attributes(timeout=10000)
         
         aria_invalid = sig_attributes.get('aria_invalid', '')
         parent_class = sig_attributes.get('parent_class', '')
@@ -405,7 +404,7 @@ def verify_signature_and_date_added_on_document(authenticated_page: Page, docusi
         
         # STEP 1b: Get Date Signed value using page object method
         logger.info("Step 1b: Retrieving Date Signed value...")
-        date_signed_value = docusign_page.get_date_signed_value(timeout=10000)
+        date_signed_value = oam_docusign_page.get_date_signed_value(timeout=10000)
         logger.info(f"Date Signed value: '{date_signed_value}'")
         
         # STEP 1c: Get today's date in M/D/YYYY format for comparison
@@ -479,7 +478,7 @@ def verify_signature_and_date_added_on_document(authenticated_page: Page, docusi
 
 
 @when("User click on Review Document and submit the otp")
-def user_click_review_document_and_submit_opt(authenticated_page: Page, docusign_page, test_context):
+def user_click_review_document_and_submit_opt(authenticated_page: Page, oam_docusign_page, test_context):
     """Click on Review Document link and submit OTP for document signing.
     
     This step performs the complete end-to-end OTP verification and DocuSign signing workflow:
@@ -546,7 +545,7 @@ def user_click_review_document_and_submit_opt(authenticated_page: Page, docusign
             
             # STEP 2: Create DocuSignPage wrapper around the new page for OTP workflow
             logger.info("STEP 2: Initializing DocuSignPage object for new DocuSign tab...")
-            new_docusign_page_obj = DocuSignPage(new_docusign_page)
+            new_docusign_page_obj = OAM_DocuSignPage(new_docusign_page)
             logger.info("[PASS] DocuSignPage object initialized")
             
             # Store the new DocuSignPage object in test_context so subsequent steps can use it
@@ -573,7 +572,7 @@ def user_click_review_document_and_submit_opt(authenticated_page: Page, docusign
 
 
 @when("User click on send now and fetch OTP from mail")
-def user_click_on_send_now_and_fetch_otp_from_mail(authenticated_page: Page, docusign_page, test_context):
+def user_click_on_send_now_and_fetch_otp_from_mail(authenticated_page: Page, oam_docusign_page, test_context):
     """Click Send Now button and fetch OTP code from email for client signing verification.
     
     This step handles the OTP verification workflow where the client needs to verify
@@ -732,7 +731,7 @@ def user_click_on_send_now_and_fetch_otp_from_mail(authenticated_page: Page, doc
 
 
 @when("User Finish later the DocuSign process")
-def user_finish_later_docusign_process(authenticated_page: Page, docusign_page, test_context):
+def user_finish_later_docusign_process(authenticated_page: Page, oam_docusign_page, test_context):
     """Finish later the DocuSign process and fetch D-number.
     
     This step defers the completion of the signing process by:
@@ -763,13 +762,13 @@ def user_finish_later_docusign_process(authenticated_page: Page, docusign_page, 
     with allure.step("User Finish later the DocuSign process and fetch D-number"):
         try:
             # Retrieve the DocuSignPage object from test_context (may be new page from multistep flows)
-            # If not found, fall back to using docusign_page fixture
+            # If not found, fall back to using oam_docusign_page fixture
             page_obj = test_context.get("new_docusign_page")
             if page_obj:
                 logger.info("[DEBUG] Using new_docusign_page from test_context")
             else:
-                logger.info("[DEBUG] Using docusign_page fixture")
-                page_obj = docusign_page
+                logger.info("[DEBUG] Using oam_docusign_page fixture")
+                page_obj = oam_docusign_page
             
             # Step 1: Fetch D-number before finishing (HARD REQUIREMENT - must succeed)
             # Idempotent check: Only fetch D-number once per scenario
@@ -824,5 +823,5 @@ def user_finish_later_docusign_process(authenticated_page: Page, docusign_page, 
                 logger.warning(f"Could not capture screenshot: {screenshot_error}")
             
             # Raise assertion error for test failure
-            raise AssertionError(f"Failed to complete Finish Later process: {e}") from e
+            raise AssertionError(f"[FAIL] DocuSignPage: Finish Later Process — Expected: process completed successfully, Actual: process failed. Details: {e}") from e
 

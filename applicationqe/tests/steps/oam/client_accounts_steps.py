@@ -71,7 +71,7 @@ def select_authorized_signer_approval_option(authenticated_page: Page, client_ac
                 )
             except:
                 pass
-            raise AssertionError(f"Failed to select Authorized Signer Approval option: {e}") from e
+            raise AssertionError(f"[FAIL] ClientAccountsPage: Authorized Signer Selection — Expected: option selected successfully, Actual: selection failed. Details: Failed to select Authorized Signer Approval option: {e}") from e
 
 @then("Signer(s) Information dialog should be displayed")
 def verify_signer_information_dialog_exists_with_correct_information(
@@ -300,7 +300,7 @@ def verify_signer_information_dialog_exists_with_correct_information(
                 )
             except:
                 pass
-            raise AssertionError(f"Dialog verification failed: {e}") from e
+            raise AssertionError(f"[FAIL] ClientAccountsPage: Dialog Verification — Expected: dialog content valid, Actual: verification failed. Details: Dialog verification failed: {e}") from e
 
 
 @then("Verify Authorized Signer Approval section should be displayed on Signer(s) Information dialog")
@@ -407,7 +407,7 @@ def verify_authorized_signer_approval_section(authenticated_page: Page, test_con
             logger.info("  Step 6c: Validating action buttons - Cancel and Continue (SOFT ASSERT)...")
             
             # Import locators for button verification
-            from locators import client_accounts_locators
+            from locators.oam import client_accounts_locators
             
             # Validate Cancel button - search within iframe
             logger.info("    Validating Cancel button...")
@@ -487,7 +487,7 @@ def verify_authorized_signer_approval_section(authenticated_page: Page, test_con
                 )
             except:
                 pass
-            raise AssertionError(f"Authorized Signer Approval verification failed: {e}") from e
+            raise AssertionError(f"[FAIL] ClientAccountsPage: Authorized Signer Approval Verification — Expected: all checks pass, Actual: verification failed. Details: {e}") from e
 
 
 @then("Verify appropriate fields are displayed based on eSign Method selected")
@@ -543,7 +543,7 @@ def verify_fields_for_esign_method(authenticated_page: Page, client_accounts_pag
                 )
             except:
                 pass
-            raise AssertionError(f"Failed to verify fields for eSign method: {e}") from e
+            raise AssertionError(f"[FAIL] ClientAccountsPage: eSign Method Fields — Expected: all required fields visible, Actual: verification failed. Details: Failed to verify fields for eSign method: {e}") from e
 
 @then("Authorized Signer eSign Method section should be displayed")
 def verify_authorized_signer_esign_method_section(authenticated_page: Page):
@@ -693,7 +693,7 @@ def user_select_signer_esign_method(authenticated_page: Page, client_accounts_pa
                 )
             except:
                 pass
-            raise AssertionError(f"Failed to select Authorized Signer eSign Method: {e}") from e
+            raise AssertionError(f"[FAIL] ClientAccountsPage: eSign Method Selection — Expected: method selected successfully, Actual: selection failed. Details: {e}") from e
 
 @when("User provide Authorized Signers information")
 def provide_authorized_signers_information(authenticated_page: Page, client_accounts_page, test_context):
@@ -785,7 +785,7 @@ def provide_authorized_signers_information(authenticated_page: Page, client_acco
                 )
             except:
                 pass
-            raise AssertionError(f"Failed to provide Authorized Signers information: {e}") from e
+            raise AssertionError(f"[FAIL] ClientAccountsPage: Authorized Signers Information — Expected: all fields filled successfully, Actual: operation failed. Details: {e}") from e
 
 
 @then("Verify Authorized Signer dropdown")
@@ -999,7 +999,7 @@ def verify_authorized_signer_dropdown(authenticated_page: Page, client_accounts_
                 )
             except:
                 pass
-            raise AssertionError(f"Failed to verify Authorized Signer dropdown: {e}") from e
+            raise AssertionError(f"[FAIL] ClientAccountsPage: Authorized Signer Dropdown Verification — Expected: dropdown state correct, Actual: verification failed. Details: {e}") from e
 
 
 @when("Click on Continue")
@@ -1037,7 +1037,7 @@ def click_continue_button(authenticated_page: Page, client_accounts_page):
                 )
             except:
                 pass
-            raise AssertionError(f"Failed to click Continue button: {e}") from e
+            raise AssertionError(f"[FAIL] ClientAccountsPage: Continue Button Click — Expected: button clicked successfully, Actual: click failed. Details: {e}") from e
 
 
 @then("Account Number is displayed and radio button is selected")
@@ -1103,7 +1103,7 @@ def verify_account_number_displayed_and_radio_selected(authenticated_page: Page,
         # Step 3: Verify final state after selection attempt
         if not is_checked:
             logger.error(f"✗ Radio button for account '{account_number}' (id='{label_for_attr}') could not be selected. Final state: checked={is_checked}")
-            raise AssertionError(f"[FAIL] ClientAccountsPage: Radio button for account '{account_number}' could not be selected. Final state: checked={is_checked}")
+            raise AssertionError(f"[FAIL] ClientAccountsPage: Account Radio Button Selection — Expected: checked=True, Actual: checked={is_checked}. Details: Radio button for account '{account_number}' could not be selected after retry attempts.")
         else:
             logger.info(f"✓ Radio button for account '{account_number}' (id='{label_for_attr}') is now checked and ready.")
         
@@ -1787,7 +1787,7 @@ def user_click_on_form_button_dynamic(authenticated_page: Page, client_accounts_
                 )
             except:
                 pass
-            raise AssertionError(f"Failed to click '{button_text}' button: {e}") from e
+            raise AssertionError(f"[FAIL] ClientAccountsPage: Form Button Click — Expected: button '{button_text}' clicked successfully, Actual: click failed. Details: {e}") from e
 
 @when('User provide client signature details')
 def user_provide_client_signature_details(authenticated_page: Page, client_accounts_page, test_context):
@@ -2327,3 +2327,80 @@ def user_save_the_document_for_finish_later(authenticated_page: Page, client_acc
             except:
                 pass
             raise AssertionError(f"Failed to save document for finish later: {e}") from e
+
+
+@when("User delete the document")
+def user_delete_the_document(authenticated_page: Page, client_accounts_page, test_context):
+    """
+    Delete the document by clicking the Delete button in the Finish Later dialog.
+    
+    This step:
+    1. Locates the Delete button in the Finish Later dialog
+    2. Clicks the Delete button to delete the saved request
+    3. Captures screenshot for reporting
+    
+    Uses framework utilities:
+    - client_accounts_page.click_finish_later_delete_button(): Clicks the Delete button
+    - logger: Unified logging from allure_logger
+    - allure: Attach screenshots for reporting
+    
+    Pre-condition:
+    - Finish Later dialog must be displayed (from previous step)
+    
+    Post-condition:
+    - Document is deleted
+    - Dialog is closed
+    - Application returns to previous state
+    
+    Example feature file usage:
+        Then Finish Later pop up should be displayed
+        When User delete the document
+    
+    Raises:
+        AssertionError: If Delete button not found or click fails
+    """
+    logger.info("[STEP] User delete the document")
+    
+    with allure.step("User delete the document"):
+        try:
+            # Click the Delete button in the Finish Later dialog
+            logger.info("[STEP_DETAIL] Clicking Delete button to delete the document...")
+            client_accounts_page.click_finish_later_delete_button(timeout=120000)
+            
+            # Step 2: Capture screenshot for reporting
+            logger.info("[STEP_DETAIL] Capturing screenshot after deleting...")
+            screenshot = authenticated_page.screenshot()
+            allure.attach(
+                screenshot,
+                name="Document_Deleted",
+                attachment_type=allure.attachment_type.PNG
+            )
+            
+            logger.info("[PASS] Finish Later document deleted successfully")
+            
+        except AssertionError as ae:
+            # Re-raise assertion errors without additional wrapping
+            logger.error(f"[FAIL] Step failed with assertion error: {ae}")
+            try:
+                screenshot = authenticated_page.screenshot()
+                allure.attach(
+                    screenshot,
+                    name="Failed: Delete Finish Later Document",
+                    attachment_type=allure.attachment_type.PNG
+                )
+            except:
+                pass
+            raise
+        
+        except Exception as e:
+            logger.error(f"[FAIL] Unexpected error while deleting document: {e}")
+            try:
+                screenshot = authenticated_page.screenshot()
+                allure.attach(
+                    screenshot,
+                    name="Failed: Delete Finish Later Document (Exception)",
+                    attachment_type=allure.attachment_type.PNG
+                )
+            except:
+                pass
+            raise AssertionError(f"Failed to delete Finish Later document: {e}") from e
