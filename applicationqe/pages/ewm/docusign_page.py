@@ -6,9 +6,9 @@ from urllib.parse import urljoin
 from playwright.sync_api import Locator, Page
 
 from pages.base_page import BasePage
+from utils.outlook_utils import OutlookOTPPage
 from utils.allure_logger import get_allure_logger
 from utils.assertions import Assertions
-from utils.outlook_utils import OutlookOTPPage, outlook_perform_sign_in
 
 logger = get_allure_logger(__name__)
 
@@ -23,17 +23,22 @@ class DocuSignPage(BasePage):
 
         outlook_page = None
         try:
+            outlook_email = OutlookOTPPage.get_email()
+            outlook_password = OutlookOTPPage.get_password()
+
             outlook_page = self.page.context.new_page()
             outlook_otp = OutlookOTPPage(outlook_page)
 
             outlook_otp.navigate_to_outlook()
-            if not outlook_perform_sign_in(outlook_page):
+            if not outlook_otp.login(outlook_email, outlook_password):
                 raise RuntimeError("Outlook login failed before Send Now")
 
             self.click_send_now()
 
             otp_submitted = self.fetch_and_submit_otp(
                 outlook_otp,
+                email=outlook_email,
+                password=outlook_password,
                 timeout=180.0,
                 refresh_interval=5.0,
                 preferred_sender=getattr(self, "_preferred_otp_sender", None),
@@ -68,31 +73,19 @@ class DocuSignPage(BasePage):
             "span[data-qa*='ersd-agree-checkbox-label-text']:has-text('I confirm I have read and I consent to the Electronic Record and Signature Disclosure.')"
         )
         self.checkbox: Locator = self.disclosure_checkbox_exact
-        self.disclosure_checkbox_primary_text: Locator = (
-            page.locator("span").filter(has_text="I confirm I have read and I").first
-        )
-        self.disclosure_checkbox_data_qa: Locator = page.locator(
-            "span[data-qa*='ersd-agree-checkbox-label-text']"
-        ).first
-        self.disclosure_checkbox_contains_text: Locator = page.get_by_text(
-            "I confirm I have read and I"
-        ).first
-        self.disclosure_checkbox_error: Locator = page.locator(
-            "p[data-qa='ersd-agree-checkbox-error']"
-        )
+        self.disclosure_checkbox_primary_text: Locator = page.locator("span").filter(has_text="I confirm I have read and I").first
+        self.disclosure_checkbox_data_qa: Locator = page.locator("span[data-qa*='ersd-agree-checkbox-label-text']").first
+        self.disclosure_checkbox_contains_text: Locator = page.get_by_text("I confirm I have read and I").first
+        self.disclosure_checkbox_error: Locator = page.locator("p[data-qa='ersd-agree-checkbox-error']")
         self.continue_button_by_role: Locator = page.get_by_role("button", name="Continue")
 
         # Pre-OTP sign controls
         self.clientSignButton: Locator = page.locator("#signButton").first
         self.clientSignButtonBackup: Locator = page.get_by_role("button", name="Sign", exact=True)
-
+        
         # OTP verification locators
-        self.send_now_button: Locator = page.locator(
-            'button[data-qa="verify-choose-method-primary-button"]'
-        ).first
-        self.send_now_button_by_role: Locator = page.get_by_role(
-            "button", name=re.compile(r"^\s*send\s*now\s*$", re.IGNORECASE)
-        ).first
+        self.send_now_button: Locator = page.locator('button[data-qa="verify-choose-method-primary-button"]').first
+        self.send_now_button_by_role: Locator = page.get_by_role("button", name=re.compile(r"^\s*send\s*now\s*$", re.IGNORECASE)).first
         self.send_now_button_text: Locator = page.locator("button:has-text('Send Now')").first
         self.otp_code_input: Locator = page.locator(
             'input[data-qa="verify-confirm-code-verification-code-input"]'
@@ -104,12 +97,8 @@ class DocuSignPage(BasePage):
         self.otp_error_label: Locator = page.locator(
             "//*[contains(text(),'Code is incorrect') or contains(text(),'Code must be 6 numbers')]"
         )
-        self.resend_code_button: Locator = page.locator(
-            "button[data-qa='verify-resend-modal-link']"
-        )
-        self.resend_code_primary_button: Locator = page.locator(
-            "button[data-qa='verify-resend-modal-primary-button']"
-        )
+        self.resend_code_button: Locator = page.locator("button[data-qa='verify-resend-modal-link']")
+        self.resend_code_primary_button: Locator = page.locator("button[data-qa='verify-resend-modal-primary-button']")
         self.navigate_next_button: Locator = page.locator("#navigate-btn")
         self.in_person_signing_modal: Locator = page.locator(
             "#prompt_to_leave_modalLabel.modal-title.modal-title-transition"
@@ -132,18 +121,10 @@ class DocuSignPage(BasePage):
             "xpath=//div[contains(@class,'signature-tab-content') and .//div[contains(@class,'tab-text') and normalize-space()='Sign']]"
         )
         self.loading_spinner: Locator = page.locator(".loading-spinner")
-        self.diy_disclosure_iframe: Locator = page.locator(
-            'iframe[title="DIY Electronic Disclosure"]'
-        )
-        self.required_sign_here_button: Locator = page.get_by_role(
-            "button", name="Required - Sign Here - Sign"
-        )
-        self.required_initial_here_button: Locator = page.get_by_role(
-            "button", name="Required - Initial Here -"
-        ).first
-        self.adopt_and_sign_button: Locator = page.locator(
-            'button[data-qa="adopt-submit"], button:has-text("Adopt and Sign"), button:has-text("Adopt and Initial")'
-        )
+        self.diy_disclosure_iframe: Locator = page.locator('iframe[title="DIY Electronic Disclosure"]')
+        self.required_sign_here_button: Locator = page.get_by_role("button", name="Required - Sign Here - Sign")
+        self.required_initial_here_button: Locator = page.get_by_role("button", name="Required - Initial Here -").first
+        self.adopt_and_sign_button: Locator = page.locator('button[data-qa="adopt-submit"], button:has-text("Adopt and Sign"), button:has-text("Adopt and Initial")')
         self.required_signature_tab_buttons: Locator = page.locator(
             "xpath=//button[starts-with(@data-qa, 'signature-tab-required')]"
         )
@@ -151,24 +132,14 @@ class DocuSignPage(BasePage):
         self.go_back_close_button: Locator = page.get_by_role("button", name="GO BACK Close")
         self.required_accept_button: Locator = page.get_by_role("button", name="Required - Accept,")
         self.finish_button_by_label: Locator = page.get_by_label("Finish")
-        self.finish_button_action_bar: Locator = page.locator(
-            "#action-bar-btn-finish, #action-bar-btn-finish-mobile"
-        )
+        self.finish_button_action_bar: Locator = page.locator("#action-bar-btn-finish, #action-bar-btn-finish-mobile")
         self.finish_button_slide_up_id: Locator = page.locator("#slide-up-bar-finish-button")
-        self.finish_button_slide_up_data_qa: Locator = page.locator(
-            "button[data-qa='slide-up-bar-finish-button']"
-        )
+        self.finish_button_slide_up_data_qa: Locator = page.locator("button[data-qa='slide-up-bar-finish-button']")
         self.finish_button_mobile_id: Locator = page.locator("#end-of-document-btn-finish-mobile")
-        self.finish_button_envelope_data_qa: Locator = page.locator(
-            "button[data-qa='envelope-finish']"
-        )
+        self.finish_button_envelope_data_qa: Locator = page.locator("button[data-qa='envelope-finish']")
         self.finish_button_by_role: Locator = page.get_by_role("button", name="Finish")
-        self.send_now_fallback_buttons: Locator = page.locator(
-            "button", has_text=re.compile(r"send\s*now", re.IGNORECASE)
-        )
-        self.eSingature_btn_disabled: Locator = page.locator(
-            "button#eSignatureButton[disabled='disabled']"
-        ).first
+        self.send_now_fallback_buttons: Locator = page.locator("button", has_text=re.compile(r"send\s*now", re.IGNORECASE))
+        self.eSingature_btn_disabled: Locator = page.locator("button#eSignatureButton[disabled='disabled']").first
         self.other_actions_button: Locator = page.get_by_role("button", name="Other Actions")
         self.finish_later_menu_item: Locator = page.get_by_role("menuitem", name="Finish Later")
         self.tracking_center_link: Locator = page.get_by_role("link", name="Tracking Center.")
@@ -214,7 +185,7 @@ class DocuSignPage(BasePage):
         except Exception as e:
             logger.error(f"Failed to handle checkbox and continue: {str(e).splitlines()[0]}")
             raise RuntimeError(f"Failed to handle checkbox and continue: {e}")
-
+        
         self.wait_for_timeout(5000)
         # Wait for signing interface to be ready before attempting to sign
         try:
@@ -260,9 +231,7 @@ class DocuSignPage(BasePage):
         )
         self.page.wait_for_load_state("domcontentloaded", timeout=30000)
         self.wait_for_timeout(5000)
-        self.capture_additional_screenshot(
-            name=f"esign_tracking_center_start_{role.replace(' ', '_')}"
-        )
+        self.capture_additional_screenshot(name=f"esign_tracking_center_start_{role.replace(' ', '_')}")
 
         # Handle checkbox and continue flow
         try:
@@ -270,7 +239,7 @@ class DocuSignPage(BasePage):
         except Exception as e:
             logger.error(f"Failed to handle checkbox and continue: {str(e).splitlines()[0]}")
             raise RuntimeError(f"Failed to handle checkbox and continue: {e}")
-
+    
         self.wait_for_timeout(5000)
         # Wait for signing interface to be ready before attempting to sign
         try:
@@ -283,12 +252,10 @@ class DocuSignPage(BasePage):
             self.selectDocuSignActions(action)
 
             from pages.ewm.view_documents_page import ViewDocumentsPage
-
             view_documents_page = ViewDocumentsPage(self.page, page_verification=False)
             view_documents_page.clickTrackingCenterLink()
 
             from pages.ewm.tracking_center_page import TrackingCenterPage
-
             tracking_center_page = TrackingCenterPage(self.page)
 
             # Track pages before clicking Sign — DocuSign may open in a new tab
@@ -306,9 +273,7 @@ class DocuSignPage(BasePage):
             try:
                 self._handle_checkbox_and_continue(custodian, role)
             except Exception as e:
-                logger.error(
-                    f"[esign-fl] Agent checkbox/continue failed after tracking center: {str(e).splitlines()[0]}"
-                )
+                logger.error(f"[esign-fl] Agent checkbox/continue failed after tracking center: {str(e).splitlines()[0]}")
                 raise RuntimeError(f"Agent checkbox/continue failed: {e}")
 
             self.wait_for_timeout(5000)
@@ -324,7 +289,6 @@ class DocuSignPage(BasePage):
             logger.info("[esign-fl] Starting Client signing from Tracking Center")
 
             from pages.ewm.tracking_center_page import TrackingCenterPage
-
             tracking_center_page = TrackingCenterPage(self.page)
             tracking_center_page.clickESignatureLink(role="Client")
             self.otp_verification()
@@ -334,9 +298,7 @@ class DocuSignPage(BasePage):
             try:
                 self._handle_checkbox_and_continue(custodian, role)
             except Exception as e:
-                logger.error(
-                    f"[esign-fl] Client checkbox/continue failed: {str(e).splitlines()[0]}"
-                )
+                logger.error(f"[esign-fl] Client checkbox/continue failed: {str(e).splitlines()[0]}")
                 raise RuntimeError(f"Client checkbox/continue failed: {e}")
 
             self.wait_for_timeout(5000)
@@ -387,20 +349,14 @@ class DocuSignPage(BasePage):
         if custodian_value == "fidelity" and role_value in ["agent", "client"]:
             diy_handled = self.handle_diy_electronic_disclosure()
         else:
-            logger.info(
-                "[handle_checkbox_and_continue] Skipping DIY disclosure; applicable only for Fidelity Agent/Client"
-            )
+            logger.info("[handle_checkbox_and_continue] Skipping DIY disclosure; applicable only for Fidelity Agent/Client")
 
         if diy_handled:
-            logger.info(
-                "DIY Electronic Disclosure handled, proceeding to continue button logic as well."
-            )
+            logger.info("DIY Electronic Disclosure handled, proceeding to continue button logic as well.")
         try:
             self.continue_button()
         except Exception as e:
-            logger.error(
-                f"[handle_checkbox_and_continue] Continue button logic failed: {str(e).splitlines()[0]}"
-            )
+            logger.error(f"[handle_checkbox_and_continue] Continue button logic failed: {str(e).splitlines()[0]}")
             raise RuntimeError(f"Continue button logic failed: {e}")
 
     def continue_button(self) -> None:
@@ -410,7 +366,7 @@ class DocuSignPage(BasePage):
             ("data-qa", self.disclosure_checkbox_data_qa),
             ("contains text", self.disclosure_checkbox_contains_text),
         ]
-
+        
         checkbox_locator = None
         for strategy_name, locator in checkbox_strategies:
             try:
@@ -418,11 +374,9 @@ class DocuSignPage(BasePage):
                 checkbox_locator = locator
                 break
             except Exception as e:
-                logger.warning(
-                    f"[continue_button] Checkbox not found with {strategy_name} strategy: {str(e)[:80]}"
-                )
+                logger.warning(f"[continue_button] Checkbox not found with {strategy_name} strategy: {str(e)[:80]}")
                 continue
-
+        
         if checkbox_locator is None:
             continue_locator_fallback = self.continue_button_by_role
             try:
@@ -432,15 +386,11 @@ class DocuSignPage(BasePage):
                     self.wait_for_timeout(5000)
                     return
             except Exception as e:
-                logger.info(
-                    f"[continue_button] Continue direct-click fallback unavailable: {str(e)[:120]}"
-                )
+                logger.info(f"[continue_button] Continue direct-click fallback unavailable: {str(e)[:120]}")
 
-            logger.info(
-                "[continue_button] Disclosure checkbox not found; likely not required for this signer state. Skipping continue flow."
-            )
+            logger.info("[continue_button] Disclosure checkbox not found; likely not required for this signer state. Skipping continue flow.")
             return
-
+        
         self.capture_additional_screenshot(name="continue_button_before_checkbox")
         try:
             checkbox_locator.scroll_into_view_if_needed()
@@ -448,9 +398,7 @@ class DocuSignPage(BasePage):
             logger.info("[continue_button] Clicked disclosure checkbox")
             self.wait_for_timeout(5000)
         except Exception as e:
-            logger.error(
-                f"[continue_button] Failed to click disclosure checkbox: {str(e).splitlines()[0]}"
-            )
+            logger.error(f"[continue_button] Failed to click disclosure checkbox: {str(e).splitlines()[0]}")
             raise RuntimeError("Continue button flow failed - disclosure checkbox was not clicked")
 
         continue_locator = self.continue_button_by_role
@@ -464,9 +412,7 @@ class DocuSignPage(BasePage):
             except Exception:
                 self.wait_for_timeout(5000)
         except Exception as e:
-            logger.error(
-                f"[continue_button] Failed to click Continue button: {str(e).splitlines()[0]}"
-            )
+            logger.error(f"[continue_button] Failed to click Continue button: {str(e).splitlines()[0]}")
             raise RuntimeError("Continue button flow failed - Continue button was not clicked")
 
         # If checkbox reappears after Continue, click checkbox + Continue again
@@ -498,15 +444,11 @@ class DocuSignPage(BasePage):
 
                 disclosure_text = frame.get_by_text("By clicking the button below")
                 if disclosure_text.first.is_visible(timeout=3000):
-                    logger.info(
-                        "[handle_diy_electronic_disclosure] Found DIY disclosure, clicking text button"
-                    )
+                    logger.info("[handle_diy_electronic_disclosure] Found DIY disclosure, clicking text button")
                     try:
                         disclosure_text.first.click()
                     except Exception:
-                        logger.warning(
-                            "[handle_diy_electronic_disclosure] Normal click failed, trying JS click"
-                        )
+                        logger.warning("[handle_diy_electronic_disclosure] Normal click failed, trying JS click")
                         disclosure_text.first.evaluate("el => el.click()")
                     self.wait_for_timeout(5000)
 
@@ -516,14 +458,10 @@ class DocuSignPage(BasePage):
                         try:
                             agree_button.first.click()
                         except Exception:
-                            logger.warning(
-                                "[handle_diy_electronic_disclosure] Agree normal click failed, trying JS click"
-                            )
+                            logger.warning("[handle_diy_electronic_disclosure] Agree normal click failed, trying JS click")
                             agree_button.first.evaluate("el => el.click()")
                         self.wait_for_timeout(5000)
-                        logger.info(
-                            "[handle_diy_electronic_disclosure] DIY disclosure handled successfully"
-                        )
+                        logger.info("[handle_diy_electronic_disclosure] DIY disclosure handled successfully")
                         return True
                 self.wait_for_timeout(1000)
             except Exception as e:
@@ -534,14 +472,11 @@ class DocuSignPage(BasePage):
             logger.info(
                 f"[handle_diy_electronic_disclosure] DIY iframe not found or not visible (expected): {str(last_error)[:100]}"
             )
-        logger.info(
-            "[handle_diy_electronic_disclosure] DIY disclosure not visible, returning False"
-        )
+        logger.info("[handle_diy_electronic_disclosure] DIY disclosure not visible, returning False")
         return False
 
-    def _sign_indexed_elements(
-        self, signer_type: str, registration_type: str, client_type: str, custodian: str = ""
-    ) -> None:
+
+    def _sign_indexed_elements(self, signer_type: str, registration_type: str, client_type: str, custodian: str = "") -> None:
         """Playwright-only signing flow for Agent/Client + Trust + Fidelity."""
         from tests.steps.naw.construct_portfolio_step import ConstructPortfolioStep
 
@@ -555,10 +490,11 @@ class DocuSignPage(BasePage):
         except Exception:
             self.wait_for_timeout(5000)
 
-        if (signer == "agent" and registration == "trust" and custodian_name == "fidelity") or (
-            signer == "agent" and "roth ira trust" in registration and "pershing" in custodian_name
+        if (
+            (signer == "agent" and registration == "trust" and custodian_name == "fidelity")
+            or (signer == "agent" and "roth ira trust" in registration and "pershing" in custodian_name)
         ):
-
+        
             try:
                 self.required_sign_here_button.wait_for(state="visible", timeout=20000)
                 self.required_sign_here_button.click()
@@ -603,9 +539,7 @@ class DocuSignPage(BasePage):
                         try:
                             tab.scroll_into_view_if_needed()
                             self.wait_for_timeout(500)
-                            tab.evaluate(
-                                "el => { el.scrollIntoView({block:'center'}); el.click(); }"
-                            )
+                            tab.evaluate("el => { el.scrollIntoView({block:'center'}); el.click(); }")
                         except Exception:
                             tab.click(force=True)
                         logger.info(f"[esign] Clicked Sign/Initial tab index={i}")
@@ -631,9 +565,7 @@ class DocuSignPage(BasePage):
             adopted = False
             # Initial Here tabs — adopt-and-initial dialog appears only on the first click
             for _ in range(10):
-                initial_tab = self.page.locator(
-                    "[data-qa^='initials-tab-required'][aria-invalid='true']"
-                ).first
+                initial_tab = self.page.locator("[data-qa^='initials-tab-required'][aria-invalid='true']").first
                 try:
                     self.wait_for_element(initial_tab, state="visible", timeout=5000)
                     self.click(initial_tab)
@@ -646,9 +578,7 @@ class DocuSignPage(BasePage):
                     break
             # Sign Here tabs — no adopt dialog after first adoption
             for _ in range(10):
-                sign_tab = self.page.locator(
-                    "[data-qa^='signature-tab-required'][aria-invalid='true']"
-                ).first
+                sign_tab = self.page.locator("[data-qa^='signature-tab-required'][aria-invalid='true']").first
                 try:
                     self.wait_for_element(sign_tab, state="visible", timeout=8000)
                     self.click(sign_tab)
@@ -656,23 +586,15 @@ class DocuSignPage(BasePage):
                     self.click_finish_button_action_bar(post_click_wait_ms=3000)
                 except Exception:
                     break
-            logger.info(
-                f"[esign] Client 401k signing flow completed: signer={signer}, reg={registration}, custodian={custodian_name}"
-            )
+            logger.info(f"[esign] Client 401k signing flow completed: signer={signer}, reg={registration}, custodian={custodian_name}")
 
-        elif (
-            signer == "client" and "roth ira trust" in registration and "pershing" in custodian_name
-        ):
+        elif signer == "client" and "roth ira trust" in registration and "pershing" in custodian_name:
             self.click_sign_tab_element()
 
             self.click_adopt_and_sign_button()
 
-            sign_here_button = self.page.get_by_role(
-                "button", name="Required\u00a0-\u00a0Sign Here - Sign"
-            )
-            sign_here_first_button = self.page.get_by_role(
-                "button", name="Required\u00a0-\u00a0Sign Here - Sign"
-            ).first
+            sign_here_button = self.page.get_by_role("button", name="Required\u00a0-\u00a0Sign Here - Sign")
+            sign_here_first_button = self.page.get_by_role("button", name="Required\u00a0-\u00a0Sign Here - Sign").first
 
             self.click_finish_button_action_bar()
 
@@ -686,23 +608,14 @@ class DocuSignPage(BasePage):
 
             self.click_sign_here_button(sign_here_button)
 
-        elif (
-            signer == "agent"
-            and registration == "self-directed brokerage account - 403(b)"
-            and custodian_name == "schwab"
-        ):
+        elif signer == "agent" and registration == "self-directed brokerage account - 403(b)" and custodian_name == "schwab":
             self.click_required_sign_here_button(post_click_wait_ms=0)
             self.click_adopt_and_sign_button(post_click_wait_ms=0)
             self.required_initial_here_button.wait_for(state="visible", timeout=20000)
             self.required_initial_here_button.click()
             self.wait_for_timeout(3000)
 
-        elif (
-            signer == "client"
-            and registration == "self-directed brokerage account - 403(b)"
-            and custodian_name == "schwab"
-            and ConstructPortfolioStep.is_sub_advisory == "SubAdvisory"
-        ):
+        elif signer == "client" and registration == "self-directed brokerage account - 403(b)" and custodian_name == "schwab" and ConstructPortfolioStep.is_sub_advisory == "SubAdvisory":
             for required_index in range(1, 4):
                 required_sign_btn = self.required_signature_tab_buttons.nth(required_index - 1)
                 required_sign_btn.wait_for(state="visible", timeout=20000)
@@ -713,12 +626,7 @@ class DocuSignPage(BasePage):
 
                 self.wait_for_timeout(5000)
 
-        elif (
-            signer == "client"
-            and registration == "self-directed brokerage account - 403(b)"
-            and custodian_name == "schwab"
-            and ConstructPortfolioStep.is_sub_advisory == "Non SubAdvisory"
-        ):
+        elif signer == "client" and registration == "self-directed brokerage account - 403(b)" and custodian_name == "schwab" and ConstructPortfolioStep.is_sub_advisory == "Non SubAdvisory":
             self.click_sign_tab_element(post_click_wait_ms=3000)
 
             self.click_adopt_and_sign_button(post_click_wait_ms=3000)
@@ -728,9 +636,7 @@ class DocuSignPage(BasePage):
                 self.required_initial_here_button.click()
                 self.wait_for_timeout(3000)
 
-            sign_here_button = self.page.get_by_role(
-                "button", name="Required\u00a0-\u00a0Sign Here - Sign"
-            ).first
+            sign_here_button = self.page.get_by_role("button", name="Required\u00a0-\u00a0Sign Here - Sign").first
             for _ in range(2):
                 self.click_sign_here_button(sign_here_button, post_click_wait_ms=3000)
             logger.info("[esign] NonSubAdvisory Sign Here clicked")
@@ -739,17 +645,10 @@ class DocuSignPage(BasePage):
 
         elif (signer == "agent" or signer == "client") and (
             (registration == "limited liability company" and custodian_name == "assetmark trust")
-            or (
-                registration == "beneficiary roth ira individual"
-                and custodian_name == "schwab direct"
-            )
-            or (
-                signer == "agent"
-                and registration == "traditional ira"
-                and custodian_name == "fidelity direct"
-            )
+            or (registration == "beneficiary roth ira individual" and custodian_name == "schwab direct")
+            or (signer == "agent" and registration == "traditional ira" and custodian_name == "fidelity direct")
         ):
-
+            
             self.click_sign_tab_element(post_click_wait_ms=0)
             self.click_adopt_and_sign_button()
 
@@ -757,13 +656,12 @@ class DocuSignPage(BasePage):
             (registration == "individual" and custodian_name == "assetmark trust")
             or (signer == "agent" and "401" in registration and custodian_name == "assetmark trust")
         ):
-
+             
             self.click_finish_button_action_bar(post_click_wait_ms=3000)
             self.click_required_sign_here_button(post_click_wait_ms=0)
             self.click_adopt_and_sign_button()
-            logger.info(
-                f"[esign] 401k signing flow for signer={signer}, registration={registration}, custodian={custodian_name}"
-            )
+            logger.info(f"[esign] 401k signing flow for signer={signer}, registration={registration}, custodian={custodian_name}")
+
 
     def _finalize_signature(self) -> None:
         logger.info("Finalizing signature...")
@@ -781,9 +679,7 @@ class DocuSignPage(BasePage):
                     required_view.evaluate("el => el.click()")
                     logger.info("[finalize_signature] Clicked Required - View (JS fallback)")
                 except Exception as e:
-                    logger.error(
-                        f"[finalize_signature] Failed to click Required - View: {str(e).splitlines()[0]}"
-                    )
+                    logger.error(f"[finalize_signature] Failed to click Required - View: {str(e).splitlines()[0]}")
                     raise RuntimeError("Finalize signature failed at Required - View")
             self.wait_for_timeout(5000)
 
@@ -797,9 +693,7 @@ class DocuSignPage(BasePage):
                         self.go_back_close_button.evaluate("el => el.click()")
                         logger.info("[finalize_signature] Clicked GO BACK Close (JS fallback)")
                     except Exception as e:
-                        logger.error(
-                            f"[finalize_signature] Failed to click GO BACK Close: {str(e).splitlines()[0]}"
-                        )
+                        logger.error(f"[finalize_signature] Failed to click GO BACK Close: {str(e).splitlines()[0]}")
                         raise RuntimeError("Finalize signature failed at GO BACK Close")
                 self.wait_for_timeout(5000)
             else:
@@ -815,17 +709,13 @@ class DocuSignPage(BasePage):
                         self.required_accept_button.evaluate("el => el.click()")
                         logger.info("[finalize_signature] Clicked Required - Accept (JS fallback)")
                     except Exception as e:
-                        logger.error(
-                            f"[finalize_signature] Failed to click Required - Accept: {str(e).splitlines()[0]}"
-                        )
+                        logger.error(f"[finalize_signature] Failed to click Required - Accept: {str(e).splitlines()[0]}")
                         raise RuntimeError("Finalize signature failed at Required - Accept")
                 self.wait_for_timeout(5000)
             else:
                 logger.info("[finalize_signature] Required - Accept not visible, skipping")
         else:
-            logger.info(
-                "[finalize_signature] Required - View not visible, skipping disclosure steps"
-            )
+            logger.info("[finalize_signature] Required - View not visible, skipping disclosure steps")
 
         try:
             finish_locators = [
@@ -881,9 +771,7 @@ class DocuSignPage(BasePage):
                         break
 
             if not finish_clicked:
-                self.capture_additional_screenshot(
-                    name=f"finalize_finish_not_found_{int(time.time())}"
-                )
+                self.capture_additional_screenshot(name=f"finalize_finish_not_found_{int(time.time())}")
                 Assertions.fail(
                     f"[finalize_signature] HARD FAIL: Finish button not found or not clickable after trying all "
                     f"7 locator strategies. Last error: {last_error}"
@@ -894,9 +782,7 @@ class DocuSignPage(BasePage):
             raise
         except Exception as e:
             self.capture_additional_screenshot(name=f"finalize_finish_exception_{int(time.time())}")
-            Assertions.fail(
-                f"[finalize_signature] HARD FAIL: Finish button click failed unexpectedly: {str(e).splitlines()[0]}"
-            )
+            Assertions.fail(f"[finalize_signature] HARD FAIL: Finish button click failed unexpectedly: {str(e).splitlines()[0]}")
 
     def fetch_n_number(self) -> None:
         logger.info("[by-mail] Fetching N number from page URL")
@@ -918,7 +804,7 @@ class DocuSignPage(BasePage):
         self.capture_additional_screenshot(name=f"fetch_n_number_{DocuSignPage.nNumber}")
 
         self.click_close_button()
-
+        
     def click_review_document_link(self) -> Page | None:
         """Open Tracking Center item detail link captured from by-mail modal and click REVIEW DOCUMENTS."""
         href_value = (self._by_mail_tracking_center_href or "").strip()
@@ -928,17 +814,13 @@ class DocuSignPage(BasePage):
 
         try:
             tracking_center_url = urljoin(self.page.url, href_value)
-            logger.info(
-                f"[by-mail] Fallback: opening Tracking Center URL directly: {tracking_center_url}"
-            )
+            logger.info(f"[by-mail] Fallback: opening Tracking Center URL directly: {tracking_center_url}")
 
             tracking_page = self.page.context.new_page()
             tracking_page.goto(tracking_center_url, wait_until="domcontentloaded", timeout=30000)
             tracking_page.wait_for_load_state("domcontentloaded", timeout=30000)
 
-            review_documents_link = tracking_page.get_by_role(
-                "link", name="REVIEW DOCUMENTS", exact=True
-            ).first
+            review_documents_link = tracking_page.get_by_role("link", name="REVIEW DOCUMENTS", exact=True).first
             review_documents_link.wait_for(state="visible", timeout=20000)
 
             with tracking_page.context.expect_page(timeout=30000) as new_page_info:
@@ -946,9 +828,7 @@ class DocuSignPage(BasePage):
 
             review_page = new_page_info.value
             review_page.wait_for_load_state("domcontentloaded", timeout=30000)
-            logger.info(
-                f"[by-mail] Fallback succeeded: REVIEW DOCUMENTS opened at {review_page.url}"
-            )
+            logger.info(f"[by-mail] Fallback succeeded: REVIEW DOCUMENTS opened at {review_page.url}")
 
             try:
                 if not tracking_page.is_closed():
@@ -958,18 +838,14 @@ class DocuSignPage(BasePage):
 
             return review_page
         except Exception as e:
-            logger.warning(
-                f"[by-mail] Fallback via Tracking Center link failed: {str(e).splitlines()[0]}"
-            )
+            logger.warning(f"[by-mail] Fallback via Tracking Center link failed: {str(e).splitlines()[0]}")
             return None
 
     def client_by_mail_eSignature(self) -> None:
         """For by-mail client flow: use Outlook tracking search to open REVIEW DOCUMENTS, then Send Now + OTP using tab2/tab3."""
         self._by_mail_client_flow_active = True
         if not DocuSignPage.nNumber:
-            logger.warning(
-                "[by-mail] Tracking number not available; skipping Outlook tracking flow"
-            )
+            logger.warning("[by-mail] Tracking number not available; skipping Outlook tracking flow")
             return
 
         outlook_page = None
@@ -1014,14 +890,10 @@ class DocuSignPage(BasePage):
                 Assertions.fail("OTP not found/submitted from existing Outlook tab")
             logger.info("[by-mail] OTP submitted on REVIEW DOCUMENTS tab")
         except Exception as e:
-            logger.warning(
-                f"[by-mail] Failed during Outlook tracking/OTP workflow: {str(e).splitlines()[0]}"
-            )
+            logger.warning(f"[by-mail] Failed during Outlook tracking/OTP workflow: {str(e).splitlines()[0]}")
             raise
 
-    def agentSignature_internal_admin_flow(
-        self, reg_type: str, client_type: str, custodian: str
-    ) -> None:
+    def agentSignature_internal_admin_flow(self, reg_type: str, client_type: str, custodian: str) -> None:
         """Agent signs via Outlook using N number captured from Internal Admin eSign."""
         n_number = DocuSignPage.nNumber
         assert n_number, "[agent-outlook] N number not available from Internal Admin eSign"
@@ -1041,10 +913,7 @@ class DocuSignPage(BasePage):
             # OTP verification before signing
             docusign_page.click_send_now()
             otp_submitted = docusign_page.fetch_and_submit_otp(
-                outlook_otp,
-                timeout=180.0,
-                refresh_interval=5.0,
-                max_attempts=2,
+                outlook_otp, timeout=180.0, refresh_interval=5.0, max_attempts=2,
             )
             if not otp_submitted:
                 raise RuntimeError("[agent-outlook] OTP verification failed")
@@ -1092,6 +961,9 @@ class DocuSignPage(BasePage):
         outlook_page = None
         try:
             logger.info("Starting OTP flow")
+            # Get Outlook credentials
+            outlook_email = OutlookOTPPage.get_email()
+            outlook_password = OutlookOTPPage.get_password()
 
             # Open Outlook in a new tab within the same context
             outlook_page = self.page.context.new_page()
@@ -1101,6 +973,8 @@ class DocuSignPage(BasePage):
 
             otp_submitted = self.fetch_and_submit_otp(
                 outlook_otp,
+                email=outlook_email,
+                password=outlook_password,
                 timeout=180.0,
                 refresh_interval=5.0,
                 preferred_sender=getattr(self, "_preferred_otp_sender", None),
@@ -1124,6 +998,8 @@ class DocuSignPage(BasePage):
     def fetch_and_submit_otp(
         self,
         outlook_otp: OutlookOTPPage,
+        email: str = None,
+        password: str = None,
         timeout: float = 120.0,
         refresh_interval: float = 5.0,
         preferred_sender: str = None,
@@ -1132,9 +1008,7 @@ class DocuSignPage(BasePage):
         """Fetch and submit OTP with retry attempts."""
         max_missing_otp_resends = 2
         max_incorrect_otp_resends = 3
-        max_total_attempts = max(
-            max_attempts, 1 + max_missing_otp_resends + max_incorrect_otp_resends
-        )
+        max_total_attempts = max(max_attempts, 1 + max_missing_otp_resends + max_incorrect_otp_resends)
 
         missing_otp_resends = 0
         incorrect_otp_resends = 0
@@ -1143,6 +1017,8 @@ class DocuSignPage(BasePage):
         while attempt < max_total_attempts:
             attempt += 1
             otp_code = outlook_otp.get_otp_with_retry(
+                email=email,
+                password=password,
                 timeout=timeout,
                 refresh_interval=refresh_interval,
                 sent_after_epoch=getattr(self, "_last_send_now_epoch", None),
@@ -1178,9 +1054,7 @@ class DocuSignPage(BasePage):
                         )
                         self._click_resend_code_button()
                         continue
-                    Assertions.assert_true(
-                        False, "OTP verification failed after max incorrect-OTP retries"
-                    )
+                    Assertions.assert_true(False, "OTP verification failed after max incorrect-OTP retries")
                 raise
 
         logger.error(
@@ -1294,9 +1168,7 @@ class DocuSignPage(BasePage):
             )
             logger.info(f"[verify_esig] Navigated back to eWealthManager: {self.page.url}")
         except Exception as nav_error:
-            logger.warning(
-                f"[verify_esig] Navigation wait timed out, current URL: {self.page.url} | {nav_error}"
-            )
+            logger.warning(f"[verify_esig] Navigation wait timed out, current URL: {self.page.url} | {nav_error}")
 
         # Extract N number from URL externalId parameter
         current_url = self.page.url
@@ -1368,67 +1240,67 @@ class DocuSignPage(BasePage):
         outlook_email: str,
         outlook_password: str,
     ) -> None:
-
+      
         logger.info(f"Starting eSignature signing for 'by mail' option")
-
+        
         self.page.wait_for_load_state("domcontentloaded", timeout=30000)
-
+        
         self.wait_for_timeout(1000)
-
+        
         # Handle checkbox
         self._handle_checkbox_and_continue(custodian, role)
-
+        
         # Get OTP from email
         logger.info("Retrieving OTP for 'by mail' eSignature")
         otp_code = self._get_otp_from_outlook(outlook_email, outlook_password)
-
+        
         if not otp_code:
             logger.error("Failed to retrieve OTP from Outlook")
             raise RuntimeError("OTP retrieval failed")
-
+        
         # Handle OTP verification
         self.submit_otp(otp_code)
-
+        
         # Sign document
         if "Agent" in role:
             self._sign_indexed_elements("agent", reg_type, client_type, custodian)
-
+        
         if "Client" in role:
             self._sign_indexed_elements("client", reg_type, client_type, custodian)
-
+        
         # Finalize signature
         self._finalize_signature()
-
+        
         logger.info("eSignature 'by mail' signing completed")
 
-    def _get_otp_from_outlook(
-        self, outlook_email: str = None, outlook_password: str = None, max_retries: int = 3
-    ) -> str:
+    def _get_otp_from_outlook(self, outlook_email: str = None, outlook_password: str = None, max_retries: int = 3) -> str:
         """Retrieve OTP from Outlook using a new tab in the same browser context."""
         logger.info("Opening Outlook in a new tab for OTP retrieval")
-
+        
         try:
             # Open Outlook in a new tab within the same context
             outlook_page = self.page.context.new_page()
-
+            
             # Create OutlookOTPPage instance
             outlook_otp = OutlookOTPPage(outlook_page)
-
+            
             # Retrieve OTP with retries (will load from config if credentials are None)
             otp = outlook_otp.get_otp_with_retry(
+                email=outlook_email,
+                password=outlook_password,
                 timeout=120.0,
                 refresh_interval=5.0,
             )
-
+            
             # Close Outlook tab
             outlook_page.close()
-
+            
             if not otp:
                 logger.error("Failed to retrieve OTP from Outlook")
                 raise RuntimeError("OTP not found in email")
-
+            
             return otp
-
+            
         except Exception as e:
             logger.error(f"Error retrieving OTP from Outlook: {str(e).splitlines()[0]}")
             raise
@@ -1442,7 +1314,9 @@ class DocuSignPage(BasePage):
             # Fail fast if DocuSign locked out
             auth_limit_text = self.page.locator("text=You've reached the authentication limit")
             if auth_limit_text.is_visible(timeout=2000):
-                raise RuntimeError("DocuSign authentication limit reached — too many OTP attempts.")
+                raise RuntimeError(
+                    "DocuSign authentication limit reached — too many OTP attempts."
+                )
 
             otp_input = self.otp_code_input
 
@@ -1460,9 +1334,7 @@ class DocuSignPage(BasePage):
                 current_val = None
 
             if current_val != otp_code:
-                logger.warning(
-                    f"[otp_submit] OTP input value mismatch (got={current_val}), refilling once"
-                )
+                logger.warning(f"[otp_submit] OTP input value mismatch (got={current_val}), refilling once")
                 otp_input.fill(otp_code)
                 self.page.wait_for_timeout(300)
 
@@ -1472,9 +1344,7 @@ class DocuSignPage(BasePage):
             elif self.otp_verify_button.first.is_visible(timeout=3000):
                 self.otp_verify_button.first.click(timeout=8000)
             else:
-                self.capture_additional_screenshot(
-                    name=f"otp_submit_no_confirm_button_{int(time.time())}"
-                )
+                self.capture_additional_screenshot(name=f"otp_submit_no_confirm_button_{int(time.time())}")
                 raise RuntimeError("OTP submit button not found (Confirm Code/Verify not visible)")
 
             # Wait for either success (OTP input disappears) or failure (error label appears)
@@ -1485,9 +1355,7 @@ class DocuSignPage(BasePage):
                     if self.otp_error_label.is_visible(timeout=500):
                         error_text = self.otp_error_label.text_content() or "OTP error"
                         if "Code is incorrect" in error_text:
-                            self.capture_additional_screenshot(
-                                name=f"otp_incorrect_{int(time.time())}"
-                            )
+                            self.capture_additional_screenshot(name=f"otp_incorrect_{int(time.time())}")
                         raise RuntimeError(f"OTP verification failed: {error_text}")
                 except RuntimeError:
                     raise
@@ -1500,17 +1368,13 @@ class DocuSignPage(BasePage):
                         return True
                 except Exception:
                     # DOM changed; treat as likely success
-                    logger.info(
-                        "OTP verification likely completed (input visibility check failed due to DOM change)"
-                    )
+                    logger.info("OTP verification likely completed (input visibility check failed due to DOM change)")
                     return True
 
                 self.page.wait_for_timeout(500)
 
             self.capture_additional_screenshot(name=f"otp_submit_timeout_{int(time.time())}")
-            raise RuntimeError(
-                "OTP verification did not complete (timeout waiting for success/error)"
-            )
+            raise RuntimeError("OTP verification did not complete (timeout waiting for success/error)")
 
         except RuntimeError:
             raise
@@ -1522,18 +1386,8 @@ class DocuSignPage(BasePage):
         # Try multiple locator strategies — DocuSign may show "Adopt and Sign" or "Adopt and Initial"
         adopt_locators = [
             (self.adopt_and_sign_button.first, "data-qa/has-text"),
-            (
-                self.page.get_by_role(
-                    "button", name=re.compile(r"adopt\s*and\s*(sign|initial)", re.IGNORECASE)
-                ).first,
-                "role regex",
-            ),
-            (
-                self.page.locator("button")
-                .filter(has_text=re.compile(r"adopt\s*and\s*(sign|initial)", re.IGNORECASE))
-                .first,
-                "filter regex",
-            ),
+            (self.page.get_by_role("button", name=re.compile(r"adopt\s*and\s*(sign|initial)", re.IGNORECASE)).first, "role regex"),
+            (self.page.locator("button").filter(has_text=re.compile(r"adopt\s*and\s*(sign|initial)", re.IGNORECASE)).first, "filter regex"),
             (self.page.locator("button[data-qa*='adopt']").first, "data-qa contains adopt"),
         ]
         btn = None
@@ -1548,9 +1402,7 @@ class DocuSignPage(BasePage):
 
         if btn is None:
             self.capture_additional_screenshot(name=f"adopt_sign_not_found_{int(time.time())}")
-            logger.warning(
-                "[esign] Adopt and Sign button not visible with any locator, skipping click"
-            )
+            logger.warning("[esign] Adopt and Sign button not visible with any locator, skipping click")
             return
 
         self.capture_additional_screenshot(name="adopt_and_sign_before_click")
@@ -1562,9 +1414,7 @@ class DocuSignPage(BasePage):
         try:
             self.required_sign_here_button.wait_for(state="visible", timeout=20000)
         except Exception:
-            logger.warning(
-                "[esign] Required Sign Here button not visible after 20s wait, skipping click"
-            )
+            logger.warning("[esign] Required Sign Here button not visible after 20s wait, skipping click")
             return
         self._click_element_with_strategies(self.required_sign_here_button, "Required Sign Here")
         self.wait_for_timeout(post_click_wait_ms)
@@ -1577,9 +1427,7 @@ class DocuSignPage(BasePage):
         try:
             sign_el.wait_for(state="attached", timeout=15000)
         except Exception:
-            sign_el = self.page.locator(
-                "div.signature-tab-content:has(svg[data-qa='signature-icon'])"
-            ).first
+            sign_el = self.page.locator("div.signature-tab-content:has(svg[data-qa='signature-icon'])").first
             try:
                 sign_el.wait_for(state="attached", timeout=10000)
             except Exception:
@@ -1606,18 +1454,14 @@ class DocuSignPage(BasePage):
         try:
             self.finish_button_action_bar.wait_for(state="visible", timeout=20000)
         except Exception:
-            logger.warning(
-                "[esign] Finish button not visible after 20s, scrolling to bottom and retrying"
-            )
+            logger.warning("[esign] Finish button not visible after 20s, scrolling to bottom and retrying")
             self.page.evaluate("window.scrollTo(0, document.body.scrollHeight)")
             self.wait_for_timeout(2000)
             self.finish_button_action_bar.wait_for(state="visible", timeout=15000)
         self._click_element_with_strategies(self.finish_button_action_bar, "Finish button")
         self.wait_for_timeout(post_click_wait_ms)
 
-    def click_sign_here_button(
-        self, sign_here_locator: Locator, post_click_wait_ms: int = 5000
-    ) -> None:
+    def click_sign_here_button(self, sign_here_locator: Locator, post_click_wait_ms: int = 5000) -> None:
         sign_here_locator.wait_for(state="visible", timeout=20000)
         sign_here_locator.click()
         self.wait_for_timeout(post_click_wait_ms)
@@ -1635,11 +1479,7 @@ class DocuSignPage(BasePage):
         selectors = ["role", "#prompt_to_leave_modal button:has-text('Close')", "#close-button"]
         for ctx in contexts:
             for sel in selectors:
-                locator = (
-                    ctx.get_by_role("button", name="Close", exact=True).first
-                    if sel == "role"
-                    else ctx.locator(sel).first
-                )
+                locator = ctx.get_by_role("button", name="Close", exact=True).first if sel == "role" else ctx.locator(sel).first
                 try:
                     locator.wait_for(state="visible", timeout=1500)
                     try:
