@@ -1,18 +1,19 @@
 from __future__ import annotations
 
+import os
 import re
 from dataclasses import dataclass
-from datetime import datetime, timedelta, time
+from datetime import datetime, time, timedelta
 from typing import Optional
 
 import allure
-from playwright.sync_api import Page, TimeoutError as PlaywrightTimeoutError
+from playwright.sync_api import Page
+from playwright.sync_api import TimeoutError as PlaywrightTimeoutError
 
 from pages.stp.shared.base_page import BasePage
-from utils.settings import settings
-from utils.credential_encrypter import decrypt
 from utils.allure_logger import get_allure_logger
-from utils.wait_utils import wait_for_element_count, WaitTimeoutError
+from utils.settings import settings
+from utils.wait_utils import WaitTimeoutError, wait_for_element_count
 
 logger = get_allure_logger(__name__)
 
@@ -21,9 +22,8 @@ TIME_FORMAT = "%I:%M %p"  # corresponds to pattern "h:m a"
 
 @dataclass
 class OutlookOtpConfig:
-    mail_field1: str
-    mail_field2: str
-    secret_key: str
+    email: str
+    password: str
 
 
 class OutlookPage(BasePage):
@@ -67,34 +67,23 @@ class OutlookPage(BasePage):
 
     @classmethod
     def from_config(cls, page: Page) -> "OutlookPage":
-        
-        
-        # Get values from environment configuration (env.test11.yaml, etc.)
-        secret_key = str(settings.secret_key)
-        if not secret_key:
+
+        email = os.getenv("OUTLOOK_USERNAME", "")
+        password = os.getenv("OUTLOOK_PASSWORD", "")
+        if not email or not password:
             raise ValueError(
-                f"secret_key not found in env.{settings.env}.yaml. "
-                "Add 'secret_key: <16-or-32-byte-key>' to your environment config."
+                "Outlook credentials not found. "
+                "Set OUTLOOK_USERNAME and OUTLOOK_PASSWORD env vars "
+                "(via Key Vault in pipeline, or .env file locally)."
             )
-        
-        encrypted_email = str(settings.outlook_email or "")
-        encrypted_password = str(settings.outlook_password or "")
-        if not encrypted_email or not encrypted_password:
-            raise ValueError(
-                f"Outlook credentials not found in env.{settings.env}.yaml. "
-                "Add email.outlook.email_address and email.outlook.password to your environment config."
-            )
-        
-        # Decrypt credentials
-        field1 = decrypt(encrypted_email, secret_key)
-        field2 = decrypt(encrypted_password, secret_key)
-        
-        config = OutlookOtpConfig(mail_field1=field1, mail_field2=field2, secret_key=secret_key)
+        config = OutlookOtpConfig(email=email, password=password)
         return cls(page=page, config=config)
 
     # --- Public API -----------------------------------------------------
 
-    def get_otp(self, submitting_time: time, max_wait_time_in_seconds: int, parent_page=None) -> Optional[str]:
+    def get_otp(
+        self, submitting_time: time, max_wait_time_in_seconds: int, parent_page=None
+    ) -> Optional[str]:
         """Read OTP from Outlook mail.
 
         Args:
@@ -111,15 +100,23 @@ class OutlookPage(BasePage):
             normalized_submitting = datetime.strptime(
                 submitting_time.strftime(TIME_FORMAT), TIME_FORMAT
             ).time()
-            logger.info(f"[OTP_DEBUG] normalized_submitting (Send Now time): {normalized_submitting.strftime(TIME_FORMAT)}")
+            logger.info(
+                f"[OTP_DEBUG] normalized_submitting (Send Now time): {normalized_submitting.strftime(TIME_FORMAT)}"
+            )
 
             # Calculate minimum acceptable email time (allow 2 minutes before Send Now for delivery delays)
-            min_acceptable_datetime = datetime.combine(datetime.today(), normalized_submitting) - timedelta(minutes=2)
+            min_acceptable_datetime = datetime.combine(
+                datetime.today(), normalized_submitting
+            ) - timedelta(minutes=2)
             min_acceptable_time = min_acceptable_datetime.time()
-            logger.info(f"[OTP_DEBUG] Min acceptable email time (Send Now - 2 min): {min_acceptable_time.strftime(TIME_FORMAT)}")
+            logger.info(
+                f"[OTP_DEBUG] Min acceptable email time (Send Now - 2 min): {min_acceptable_time.strftime(TIME_FORMAT)}"
+            )
 
             received_time = (datetime.now() - timedelta(minutes=10)).time()
-            logger.info(f"[OTP_DEBUG] Initial received_time (current time - 10 min): {received_time.strftime(TIME_FORMAT)}")
+            logger.info(
+                f"[OTP_DEBUG] Initial received_time (current time - 10 min): {received_time.strftime(TIME_FORMAT)}"
+            )
 
             self.page.bring_to_front()
             self.page.reload(wait_until="domcontentloaded")
@@ -138,10 +135,14 @@ class OutlookPage(BasePage):
 
             if mail_time is not None:
                 logger.info(f"[OTP_DEBUG] First mail timestamp: {mail_time.strftime(TIME_FORMAT)}")
-                logger.info(f"[OTP_DEBUG] Comparing: {mail_time.strftime(TIME_FORMAT)} >= {min_acceptable_time.strftime(TIME_FORMAT)}? (tolerance: 2 min before Send Now)")
+                logger.info(
+                    f"[OTP_DEBUG] Comparing: {mail_time.strftime(TIME_FORMAT)} >= {min_acceptable_time.strftime(TIME_FORMAT)}? (tolerance: 2 min before Send Now)"
+                )
 
                 if mail_time >= min_acceptable_time:
-                    logger.info("[OTP_DEBUG] First mail timestamp is within acceptable window, extracting OTP...")
+                    logger.info(
+                        "[OTP_DEBUG] First mail timestamp is within acceptable window, extracting OTP..."
+                    )
                     otp = self._extract_otp_from_latest_mail()
                     if otp:
                         logger.info(f"[OTP_DEBUG] Successfully extracted OTP: {otp}")
@@ -149,9 +150,13 @@ class OutlookPage(BasePage):
                     else:
                         logger.warning("[OTP_DEBUG] Valid timestamp but no OTP found in body")
                 else:
-                    logger.info(f"[OTP_DEBUG] First mail timestamp too old ({mail_time.strftime(TIME_FORMAT)} < {min_acceptable_time.strftime(TIME_FORMAT)}), will poll and retry...")
+                    logger.info(
+                        f"[OTP_DEBUG] First mail timestamp too old ({mail_time.strftime(TIME_FORMAT)} < {min_acceptable_time.strftime(TIME_FORMAT)}), will poll and retry..."
+                    )
             else:
-                logger.warning("[OTP_DEBUG] Could not read timestamp from first mail, will poll and retry...")
+                logger.warning(
+                    "[OTP_DEBUG] Could not read timestamp from first mail, will poll and retry..."
+                )
 
             # Enter polling retry loop - refresh page and recheck first mail each time
             logger.info("[OTP_DEBUG] Entering polling retry loop...")
@@ -165,14 +170,18 @@ class OutlookPage(BasePage):
                 # Refresh page to get latest emails
                 self.page.reload(wait_until="domcontentloaded")
                 self.page.wait_for_timeout(step * 1000)
-                logger.info(f"[OTP_DEBUG] Poll #{poll_attempt}: Page refreshed, now navigating to OTP folder...")
+                logger.info(
+                    f"[OTP_DEBUG] Poll #{poll_attempt}: Page refreshed, now navigating to OTP folder..."
+                )
 
                 # Navigate back to OTP folder
                 try:
                     self._navigate_to_otp_folder()
                     logger.info(f"[OTP_DEBUG] Poll #{poll_attempt}: Navigated to OTP folder")
                 except Exception as ex:
-                    logger.warning(f"[OTP_DEBUG] Poll #{poll_attempt}: Error navigating to OTP folder: {ex}")
+                    logger.warning(
+                        f"[OTP_DEBUG] Poll #{poll_attempt}: Error navigating to OTP folder: {ex}"
+                    )
 
                 # Click first mail again
                 try:
@@ -180,28 +189,44 @@ class OutlookPage(BasePage):
                     self.page.wait_for_timeout(500)
                     logger.info(f"[OTP_DEBUG] Poll #{poll_attempt}: Clicked first mail")
                 except Exception as ex:
-                    logger.warning(f"[OTP_DEBUG] Poll #{poll_attempt}: Could not click first mail: {ex}")
+                    logger.warning(
+                        f"[OTP_DEBUG] Poll #{poll_attempt}: Could not click first mail: {ex}"
+                    )
                     continue
 
                 # Read timestamp
                 mail_time = self._read_latest_mail_time()
 
                 if mail_time is not None:
-                    logger.info(f"[OTP_DEBUG] Poll #{poll_attempt}: First mail timestamp: {mail_time.strftime(TIME_FORMAT)}")
-                    logger.info(f"[OTP_DEBUG] Poll #{poll_attempt}: Comparing: {mail_time.strftime(TIME_FORMAT)} >= {min_acceptable_time.strftime(TIME_FORMAT)}? (tolerance: 2 min before Send Now)")
+                    logger.info(
+                        f"[OTP_DEBUG] Poll #{poll_attempt}: First mail timestamp: {mail_time.strftime(TIME_FORMAT)}"
+                    )
+                    logger.info(
+                        f"[OTP_DEBUG] Poll #{poll_attempt}: Comparing: {mail_time.strftime(TIME_FORMAT)} >= {min_acceptable_time.strftime(TIME_FORMAT)}? (tolerance: 2 min before Send Now)"
+                    )
 
                     if mail_time >= min_acceptable_time:
-                        logger.info(f"[OTP_DEBUG] Poll #{poll_attempt}: Timestamp is within acceptable window, extracting OTP...")
+                        logger.info(
+                            f"[OTP_DEBUG] Poll #{poll_attempt}: Timestamp is within acceptable window, extracting OTP..."
+                        )
                         otp = self._extract_otp_from_latest_mail()
                         if otp:
-                            logger.info(f"[OTP_DEBUG] Poll #{poll_attempt}: Successfully extracted OTP: {otp}")
+                            logger.info(
+                                f"[OTP_DEBUG] Poll #{poll_attempt}: Successfully extracted OTP: {otp}"
+                            )
                             return otp
                         else:
-                            logger.warning(f"[OTP_DEBUG] Poll #{poll_attempt}: Valid timestamp but no OTP found in body")
+                            logger.warning(
+                                f"[OTP_DEBUG] Poll #{poll_attempt}: Valid timestamp but no OTP found in body"
+                            )
                     else:
-                        logger.info(f"[OTP_DEBUG] Poll #{poll_attempt}: Timestamp still outside acceptable window ({mail_time.strftime(TIME_FORMAT)} < {min_acceptable_time.strftime(TIME_FORMAT)}), will retry...")
+                        logger.info(
+                            f"[OTP_DEBUG] Poll #{poll_attempt}: Timestamp still outside acceptable window ({mail_time.strftime(TIME_FORMAT)} < {min_acceptable_time.strftime(TIME_FORMAT)}), will retry..."
+                        )
                 else:
-                    logger.warning(f"[OTP_DEBUG] Poll #{poll_attempt}: Could not read timestamp, will retry...")
+                    logger.warning(
+                        f"[OTP_DEBUG] Poll #{poll_attempt}: Could not read timestamp, will retry..."
+                    )
 
                 logger.info(f"[OTP_DEBUG] Poll #{poll_attempt}: Continuing to next attempt...")
 
@@ -255,24 +280,38 @@ class OutlookPage(BasePage):
             # Wait for the first mail to be present in OTP folder
             try:
                 initial_count = self.message_rows.count()
-                logger.info(f"[OTP_DEBUG] [get_otp_with_retry] Initial mail count in OTP folder: {initial_count}")
+                logger.info(
+                    f"[OTP_DEBUG] [get_otp_with_retry] Initial mail count in OTP folder: {initial_count}"
+                )
 
                 if initial_count == 0:
-                    logger.info("[OTP_DEBUG] [get_otp_with_retry] No mails found, waiting for mails to appear...")
+                    logger.info(
+                        "[OTP_DEBUG] [get_otp_with_retry] No mails found, waiting for mails to appear..."
+                    )
                     wait_for_element_count(self.message_rows, count=1, timeout=10.0)
-                    logger.info("[OTP_DEBUG] [get_otp_with_retry] First mail element appeared in OTP folder")
+                    logger.info(
+                        "[OTP_DEBUG] [get_otp_with_retry] First mail element appeared in OTP folder"
+                    )
                 else:
-                    logger.info(f"[OTP_DEBUG] [get_otp_with_retry] Mails already present ({initial_count}), proceeding...")
+                    logger.info(
+                        f"[OTP_DEBUG] [get_otp_with_retry] Mails already present ({initial_count}), proceeding..."
+                    )
 
                 self.message_rows.first.click()
                 logger.info("[OTP_DEBUG] [get_otp_with_retry] Clicked on first mail in OTP folder")
                 self.page.wait_for_timeout(1500)
-                logger.info("[OTP_DEBUG] [get_otp_with_retry] Mail loaded and ready for OTP extraction")
+                logger.info(
+                    "[OTP_DEBUG] [get_otp_with_retry] Mail loaded and ready for OTP extraction"
+                )
 
             except WaitTimeoutError as ex:
-                logger.warning(f"[OTP_DEBUG] [get_otp_with_retry] Timeout waiting for mail in OTP folder: {ex}")
+                logger.warning(
+                    f"[OTP_DEBUG] [get_otp_with_retry] Timeout waiting for mail in OTP folder: {ex}"
+                )
             except Exception as ex:
-                logger.warning(f"[OTP_DEBUG] [get_otp_with_retry] Could not click initial mail: {ex}")
+                logger.warning(
+                    f"[OTP_DEBUG] [get_otp_with_retry] Could not click initial mail: {ex}"
+                )
 
             otp = self.get_otp(
                 submitting_time=datetime.now().time(),
@@ -289,7 +328,6 @@ class OutlookPage(BasePage):
         except Exception as e:
             logger.error(f"Error in OTP retrieval workflow: {str(e).splitlines()[0]}")
             return None
-
 
     def _navigate_to_otp_folder(self) -> None:
         """Navigate to the OTP folder in Outlook using self.page."""
@@ -380,7 +418,9 @@ class OutlookPage(BasePage):
                 self.inbox_link,
             ]
             if _first_visible(inbox_locators, 3_000) is not None:
-                self.logger.info("Outlook sign-in: Inbox UI visible; assuming session already signed in.")
+                self.logger.info(
+                    "Outlook sign-in: Inbox UI visible; assuming session already signed in."
+                )
                 return True
 
             if (
@@ -396,18 +436,24 @@ class OutlookPage(BasePage):
             try:
                 user_id_locator = _first_visible(username_locators, 20_000)
                 if not user_id_locator:
-                    self.logger.error("Outlook sign-in: could not find a visible username/email input.")
+                    self.logger.error(
+                        "Outlook sign-in: could not find a visible username/email input."
+                    )
                     return False
                 else:
                     self.logger.info("Outlook sign-in: filling username/email field.")
-                    user_id_locator.fill(self.config.mail_field1)
+                    user_id_locator.fill(self.config.email)
 
                 next_button = _first_visible(next_button_locators, 20_000)
                 if next_button:
-                    self.logger.info("Outlook sign-in: clicking Next/Sign in button after username.")
+                    self.logger.info(
+                        "Outlook sign-in: clicking Next/Sign in button after username."
+                    )
                     next_button.click()
                 else:
-                    self.logger.error("Outlook sign-in: could not find Next/Sign in button after username entry.")
+                    self.logger.error(
+                        "Outlook sign-in: could not find Next/Sign in button after username entry."
+                    )
                     return False
             except Exception as ex:
                 self.logger.error(f"Error while entering Outlook username: {ex}")
@@ -419,7 +465,9 @@ class OutlookPage(BasePage):
                         "heading", name=re.compile("Enter password", re.I)
                     )
                     enter_pwd_heading.wait_for(state="visible", timeout=20_000)
-                    self.logger.info("Outlook sign-in: 'Enter password' heading is visible; locating password field.")
+                    self.logger.info(
+                        "Outlook sign-in: 'Enter password' heading is visible; locating password field."
+                    )
                 except PlaywrightTimeoutError:
                     self.logger.info(
                         "Outlook sign-in: 'Enter password' heading not visible within timeout; probing password field directly."
@@ -437,18 +485,22 @@ class OutlookPage(BasePage):
                 try:
                     password_locator.wait_for(state="visible", timeout=10_000)
                 except Exception as wait_ex:
-                    self.logger.error(f"Outlook sign-in: password input did not become visible in time: {wait_ex}")
+                    self.logger.error(
+                        f"Outlook sign-in: password input did not become visible in time: {wait_ex}"
+                    )
                     return False
 
                 self.logger.info("Outlook sign-in: filling password field.")
-                password_locator.fill(self.config.mail_field2)
+                password_locator.fill(self.config.password)
 
                 sign_in_button = _first_visible(next_button_locators, 20_000)
                 if sign_in_button:
                     self.logger.info("Outlook sign-in: clicking Sign in button after password.")
                     sign_in_button.click()
                 else:
-                    self.logger.error("Outlook sign-in: could not find Sign in button after password entry.")
+                    self.logger.error(
+                        "Outlook sign-in: could not find Sign in button after password entry."
+                    )
                     return False
 
                 try:
@@ -466,62 +518,92 @@ class OutlookPage(BasePage):
 
     def _read_latest_mail_time(self) -> Optional[time]:
         """Read the timestamp of the currently clicked email in Outlook.
-        
+
         Locates the timestamp element for the clicked mail and parses it to a time object.
         Waits for the timestamp element to be present before attempting to read.
-        
+
         Returns:
             time object if successfully parsed, None if not found or parsing fails
         """
         logger.info("[OTP_DEBUG] [_read_latest_mail_time] Starting to read clicked email timestamp")
-        logger.info(f"[OTP_DEBUG] [_read_latest_mail_time] Using locator: //div[@data-testid='SentReceivedSavedTime'] (first instance)")
+        logger.info(
+            f"[OTP_DEBUG] [_read_latest_mail_time] Using locator: //div[@data-testid='SentReceivedSavedTime'] (first instance)"
+        )
         logger.info(f"[OTP_DEBUG] [_read_latest_mail_time] Expected TIME_FORMAT: {TIME_FORMAT}")
 
         # Use the first SentReceivedSavedTime element which is the clicked mail's timestamp
         time_elements = self.page.locator("//div[@data-testid='SentReceivedSavedTime']")
-        
+
         try:
             # Wait for timestamp element to be present (at least 1)
-            logger.info("[OTP_DEBUG] [_read_latest_mail_time] Waiting for timestamp element to appear...")
+            logger.info(
+                "[OTP_DEBUG] [_read_latest_mail_time] Waiting for timestamp element to appear..."
+            )
             wait_for_element_count(time_elements, count=1, timeout=10.0)
             logger.info("[OTP_DEBUG] [_read_latest_mail_time] Timestamp element is now present")
-            
+
             element_count = time_elements.count()
-            logger.info(f"[OTP_DEBUG] [_read_latest_mail_time] Found {element_count} timestamp element(s)")
-            
+            logger.info(
+                f"[OTP_DEBUG] [_read_latest_mail_time] Found {element_count} timestamp element(s)"
+            )
+
             if element_count > 0:
-                logger.info("[OTP_DEBUG] [_read_latest_mail_time] Reading inner text from first element")
+                logger.info(
+                    "[OTP_DEBUG] [_read_latest_mail_time] Reading inner text from first element"
+                )
                 full_text = time_elements.first.inner_text().strip()
-                logger.info(f"[OTP_DEBUG] [_read_latest_mail_time] Raw timestamp text: '{full_text}'")
-                
+                logger.info(
+                    f"[OTP_DEBUG] [_read_latest_mail_time] Raw timestamp text: '{full_text}'"
+                )
+
                 # Extract just the time portion (e.g., "1:40 AM" from "Tue 3/31/2026 1:40 AM")
-                time_match = re.search(r'(\d{1,2}:\d{2}\s(?:AM|PM))', full_text)
+                time_match = re.search(r"(\d{1,2}:\d{2}\s(?:AM|PM))", full_text)
                 if time_match:
                     time_str = time_match.group(1)
-                    logger.info(f"[OTP_DEBUG] [_read_latest_mail_time] Extracted time portion: '{time_str}'")
-                    
+                    logger.info(
+                        f"[OTP_DEBUG] [_read_latest_mail_time] Extracted time portion: '{time_str}'"
+                    )
+
                     parsed_time = datetime.strptime(time_str, TIME_FORMAT).time()
-                    logger.info(f"[OTP_DEBUG] [_read_latest_mail_time] Successfully parsed to time object: {parsed_time.strftime(TIME_FORMAT)}")
+                    logger.info(
+                        f"[OTP_DEBUG] [_read_latest_mail_time] Successfully parsed to time object: {parsed_time.strftime(TIME_FORMAT)}"
+                    )
                     return parsed_time
                 else:
-                    logger.error(f"[OTP_DEBUG] [_read_latest_mail_time] Could not extract time pattern from text: '{full_text}'")
+                    logger.error(
+                        f"[OTP_DEBUG] [_read_latest_mail_time] Could not extract time pattern from text: '{full_text}'"
+                    )
             else:
-                logger.warning("[OTP_DEBUG] [_read_latest_mail_time] No timestamp elements found on page")
-                
+                logger.warning(
+                    "[OTP_DEBUG] [_read_latest_mail_time] No timestamp elements found on page"
+                )
+
         except WaitTimeoutError as ex:
-            logger.error(f"[OTP_DEBUG] [_read_latest_mail_time] Timeout waiting for timestamp element: {ex}")
-            logger.warning("[OTP_DEBUG] [_read_latest_mail_time] Timestamp element did not appear within timeout")
+            logger.error(
+                f"[OTP_DEBUG] [_read_latest_mail_time] Timeout waiting for timestamp element: {ex}"
+            )
+            logger.warning(
+                "[OTP_DEBUG] [_read_latest_mail_time] Timestamp element did not appear within timeout"
+            )
         except ValueError as ex:
-            self.logger.error(f"[OTP_DEBUG] [_read_latest_mail_time] ValueError parsing timestamp - invalid format: {ex}")
-            logger.info(f"[OTP_DEBUG] [_read_latest_mail_time] Raw text was: '{time_elements.first.inner_text().strip() if time_elements.count() > 0 else 'N/A'}'")
+            self.logger.error(
+                f"[OTP_DEBUG] [_read_latest_mail_time] ValueError parsing timestamp - invalid format: {ex}"
+            )
+            logger.info(
+                f"[OTP_DEBUG] [_read_latest_mail_time] Raw text was: '{time_elements.first.inner_text().strip() if time_elements.count() > 0 else 'N/A'}'"
+            )
             with allure.step("Failed to parse mail time - invalid format"):
                 pass
         except Exception as ex:
-            self.logger.error(f"[OTP_DEBUG] [_read_latest_mail_time] Unexpected error reading/parsing mail time: {type(ex).__name__}: {ex}")
+            self.logger.error(
+                f"[OTP_DEBUG] [_read_latest_mail_time] Unexpected error reading/parsing mail time: {type(ex).__name__}: {ex}"
+            )
             with allure.step("Unexpected error parsing mail time"):
                 pass
-        
-        logger.warning("[OTP_DEBUG] [_read_latest_mail_time] Could not retrieve/parse latest email time; returning None")
+
+        logger.warning(
+            "[OTP_DEBUG] [_read_latest_mail_time] Could not retrieve/parse latest email time; returning None"
+        )
         return None
 
     def _extract_otp_from_latest_mail(self) -> Optional[str]:
@@ -543,7 +625,9 @@ class OutlookPage(BasePage):
             return None
         except Exception as ex:
             # Catch any other unexpected Playwright or locator errors here
-            self.logger.error(f"Unexpected error while reading OTP body text from mail body container: {ex}")
+            self.logger.error(
+                f"Unexpected error while reading OTP body text from mail body container: {ex}"
+            )
             return None
 
         match = re.search(r"\b\d{6}\b", otp_text)
@@ -551,7 +635,9 @@ class OutlookPage(BasePage):
             return match.group(0)
 
         # Body text was found but did not contain a 6-digit OTP
-        self.logger.error(f"Email body did not contain a valid 6-digit OTP. Body text: {otp_text!r}")
+        self.logger.error(
+            f"Email body did not contain a valid 6-digit OTP. Body text: {otp_text!r}"
+        )
         return None
 
     def _click_inbox_search_and_select(
@@ -603,10 +689,14 @@ class OutlookPage(BasePage):
                     except PlaywrightTimeoutError:
                         continue
                     except Exception as ex:
-                        self.logger.warning(f"Error while trying to click Inbox locator; continuing: {ex}")
+                        self.logger.warning(
+                            f"Error while trying to click Inbox locator; continuing: {ex}"
+                        )
 
                 if not inbox_clicked:
-                    self.logger.warning("Could not explicitly click Inbox; proceeding to search across all mail.")
+                    self.logger.warning(
+                        "Could not explicitly click Inbox; proceeding to search across all mail."
+                    )
 
                 search_box = None
                 search_locators = [
@@ -621,12 +711,16 @@ class OutlookPage(BasePage):
                     try:
                         locator.wait_for(state="visible", timeout=2_000)
                         search_box = locator
-                        self.logger.info(f"Outlook search: using located search input for search text: {search_text!r}.")
+                        self.logger.info(
+                            f"Outlook search: using located search input for search text: {search_text!r}."
+                        )
                         break
                     except PlaywrightTimeoutError:
                         continue
                     except Exception as ex:
-                        self.logger.warning(f"Outlook search: error while probing search box locator; continuing: {ex}")
+                        self.logger.warning(
+                            f"Outlook search: error while probing search box locator; continuing: {ex}"
+                        )
 
                 if not search_box:
                     raise RuntimeError("Outlook search: could not locate a visible search box.")
@@ -638,25 +732,39 @@ class OutlookPage(BasePage):
                 self.page.wait_for_timeout(2_000)
                 count = results.count()
                 if count == 0:
-                    raise RuntimeError(f"Outlook search: no email rows found after searching for {search_text!r}.")
-                self.logger.info(f"Outlook search: found {count} email row(s) after searching for {search_text!r}.")
+                    raise RuntimeError(
+                        f"Outlook search: no email rows found after searching for {search_text!r}."
+                    )
+                self.logger.info(
+                    f"Outlook search: found {count} email row(s) after searching for {search_text!r}."
+                )
 
                 candidate_rows = results
                 if subject:
                     try:
                         subject_rows = results.filter(has_text=re.compile(re.escape(subject), re.I))
                         if subject_rows.count() > 0:
-                            self.logger.info(f"Outlook search: restricting candidates to email rows matching subject {subject!r}.")
+                            self.logger.info(
+                                f"Outlook search: restricting candidates to email rows matching subject {subject!r}."
+                            )
                             candidate_rows = subject_rows
                         else:
-                            self.logger.warning(f"Outlook search: no email row matched subject {subject!r}; using all search results.")
+                            self.logger.warning(
+                                f"Outlook search: no email row matched subject {subject!r}; using all search results."
+                            )
                     except Exception as subject_ex:
-                        self.logger.warning(f"Outlook search: error filtering by subject {subject!r}: {subject_ex}")
+                        self.logger.warning(
+                            f"Outlook search: error filtering by subject {subject!r}: {subject_ex}"
+                        )
 
                 if body:
                     body_pattern = re.compile(re.escape(body), re.I)
                     candidate_count = candidate_rows.count()
-                    self.logger.info("Outlook search: scanning up to %d candidate email(s) for body text %r.", candidate_count, body)
+                    self.logger.info(
+                        "Outlook search: scanning up to %d candidate email(s) for body text %r.",
+                        candidate_count,
+                        body,
+                    )
 
                     for idx in range(candidate_count):
                         row = candidate_rows.nth(idx)
@@ -666,17 +774,29 @@ class OutlookPage(BasePage):
                             email_body_text = self.mail_body_container.first.inner_text()
 
                             if body_pattern.search(email_body_text or ""):
-                                self.logger.info("Outlook search: found email whose body contains the requested text.")
+                                self.logger.info(
+                                    "Outlook search: found email whose body contains the requested text."
+                                )
                                 return
 
-                            self.logger.info("Outlook search: candidate email %d/%d did not contain requested body text; continuing.", idx + 1, candidate_count)
+                            self.logger.info(
+                                "Outlook search: candidate email %d/%d did not contain requested body text; continuing.",
+                                idx + 1,
+                                candidate_count,
+                            )
                         except Exception as body_ex:
-                            self.logger.warning(f"Outlook search: error while checking email body for candidate {idx + 1}/{candidate_count}: {body_ex}")
+                            self.logger.warning(
+                                f"Outlook search: error while checking email body for candidate {idx + 1}/{candidate_count}: {body_ex}"
+                            )
 
-                    raise RuntimeError(f"Outlook search: no email in search results contained the requested body text {body!r}.")
+                    raise RuntimeError(
+                        f"Outlook search: no email in search results contained the requested body text {body!r}."
+                    )
 
                 candidate_rows.first.click()
-                self.logger.info("Outlook search: clicking first email row from candidate search results.")
+                self.logger.info(
+                    "Outlook search: clicking first email row from candidate search results."
+                )
                 return
 
             except Exception as ex:
@@ -689,7 +809,12 @@ class OutlookPage(BasePage):
         if last_error is not None:
             raise last_error
 
-    def search_authorized_signer_email(self, search_text: str, subject: str = "Electronic Signature", body: str = "Please review and sign the document electronically") -> None:
+    def search_authorized_signer_email(
+        self,
+        search_text: str,
+        subject: str = "Electronic Signature",
+        body: str = "Please review and sign the document electronically",
+    ) -> None:
         """Search for authorized signer email using D-number with subject and body filters."""
         try:
             self._click_inbox_search_and_select(
@@ -698,7 +823,9 @@ class OutlookPage(BasePage):
                 subject=subject,
                 body=body,
             )
-            logger.info(f"Successfully searched and opened authorized signer email for D-number: {search_text}")
+            logger.info(
+                f"Successfully searched and opened authorized signer email for D-number: {search_text}"
+            )
         except Exception as ex:
             self.logger.error(f"Error while searching email: {ex}")
             raise
@@ -706,27 +833,39 @@ class OutlookPage(BasePage):
     def fetch_authorized_signer_email_subject_and_body(self, d_number: str) -> tuple[str, str]:
         """Fetch and return the authorized signer email subject and body content separately."""
         try:
-            subject_element = self.page.locator('//div[contains(@id,"SUBJECT")]/descendant::span[1]')
+            subject_element = self.page.locator(
+                '//div[contains(@id,"SUBJECT")]/descendant::span[1]'
+            )
             try:
                 subject_element.wait_for(state="visible", timeout=5_000)
                 subject_text = subject_element.inner_text()
             except PlaywrightTimeoutError:
-                raise RuntimeError(f"Email subject element not found or not visible for D-number: {d_number}")
+                raise RuntimeError(
+                    f"Email subject element not found or not visible for D-number: {d_number}"
+                )
 
             self.logger.info(f"Fetched Email Subject: {subject_text}")
 
             body_container = self.page.locator('//div[@data-test-id="mailMessageBodyContainer"]')
             try:
                 body_container.wait_for(state="visible", timeout=10_000)
-                body_text = self.page.locator('//div[@data-test-id="mailMessageBodyContainer"]/descendant::table[@role="presentation"][1]/descendant::table[1]/tbody/tr[3]/td/span').first.inner_text()
+                body_text = self.page.locator(
+                    '//div[@data-test-id="mailMessageBodyContainer"]/descendant::table[@role="presentation"][1]/descendant::table[1]/tbody/tr[3]/td/span'
+                ).first.inner_text()
             except PlaywrightTimeoutError:
                 raise RuntimeError("Email body container not found or not visible")
 
             self.logger.info("Fetched Email Body successfully")
 
             with allure.step(f"Email content fetched for D-number: {d_number}"):
-                allure.attach(subject_text, name="Email Subject", attachment_type=allure.attachment_type.TEXT)
-                allure.attach(body_text[:1000], name="Email Body Content", attachment_type=allure.attachment_type.TEXT)
+                allure.attach(
+                    subject_text, name="Email Subject", attachment_type=allure.attachment_type.TEXT
+                )
+                allure.attach(
+                    body_text[:1000],
+                    name="Email Body Content",
+                    attachment_type=allure.attachment_type.TEXT,
+                )
 
             return (subject_text, body_text)
 
@@ -767,13 +906,15 @@ class OutlookPage(BasePage):
 
     def _unblock_email_content_if_needed(self) -> None:
         """Click 'Show blocked content' in Outlook if ATP has blocked the email body.
-        
+
         When an external sender is not in the Safe Senders list, Outlook blocks
         embedded content and the REVIEW DOCUMENT link href becomes null.
         Clicking 'Show blocked content' loads the real link URLs.
         """
         try:
-            blocked_content_btn = self.page.get_by_role("button", name=re.compile("show blocked content", re.I))
+            blocked_content_btn = self.page.get_by_role(
+                "button", name=re.compile("show blocked content", re.I)
+            )
             blocked_content_btn.wait_for(state="visible", timeout=3_000)
             blocked_content_btn.click()
             self.logger.info("Clicked 'Show blocked content' to unblock email body")

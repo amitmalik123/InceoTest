@@ -1,16 +1,3 @@
-"""
-pytest-bdd Hooks for Allure Integration
-
-This module contains:
-- BDD step lifecycle hooks (before/after step)
-- BDD error handling hooks
-- Automatic screenshot capture with Allure
-- Step context management
-
-These hooks integrate pytest-bdd with Allure reporting and screenshot capture.
-"""
-
-import contextlib
 """pytest-bdd hooks aligned to base fixture layout.
 
 Provides BDD step lifecycle hooks with Allure step wrapping and screenshot
@@ -23,19 +10,6 @@ import os
 
 import allure
 
-from config.settings import get_settings
-from fixtures.browser_fixtures import id_tracker
-from utils.allure_logger import get_allure_logger
-
-# Global storage for active allure step contexts
-_active_allure_steps = {}
-
-
-def pytest_bdd_before_step(request, feature, scenario, step, step_func) -> None:
-    """
-    Hook that runs BEFORE each BDD step executes.
-    Starts an Allure step context that will wrap the entire step execution.
-    """
 from config.settings import get_settings
 from fixtures.browser_fixtures import id_tracker
 from utils.allure_logger import get_allure_logger, get_step_screenshot_config
@@ -155,7 +129,8 @@ def pytest_bdd_after_step(request, feature, scenario, step, step_func) -> None:
 
             # Shadow DOM — JS walks all shadow roots and collects textContent
             try:
-                shadow_text = page.evaluate("""() => {
+                shadow_text = page.evaluate(
+                    """() => {
                     const texts = [];
                     function walk(root) {
                         for (const el of root.querySelectorAll('*')) {
@@ -167,7 +142,8 @@ def pytest_bdd_after_step(request, feature, scenario, step, step_func) -> None:
                     }
                     walk(document);
                     return texts.join(' ');
-                }""")
+                }"""
+                )
                 if shadow_text:
                     id_tracker.scan(shadow_text)
             except Exception:

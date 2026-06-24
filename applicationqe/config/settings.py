@@ -18,7 +18,7 @@ from dotenv import load_dotenv
 # Load .env BEFORE any local imports (utils/__init__ reads TEST_ENV at import time).
 _config_dir = Path(__file__).resolve().parent
 _app_root = _config_dir.parent  # applicationqe/
-_repo_root = _app_root.parent   # qeautomation/
+_repo_root = _app_root.parent  # qeautomation/
 load_dotenv(_app_root / ".env")
 load_dotenv(_repo_root / ".env")
 
@@ -162,7 +162,11 @@ class Settings:
     @property
     def api_auth_token(self):
         """Get API authorization token (env var → YAML fallback)."""
-        return os.getenv(f"{self.env.upper()}_API_AUTH_TOKEN") or os.getenv("API_AUTH_TOKEN") or self.config.get("api", {}).get("auth_token", "")
+        return (
+            os.getenv(f"{self.env.upper()}_API_AUTH_TOKEN")
+            or os.getenv("API_AUTH_TOKEN")
+            or self.config.get("api", {}).get("auth_token", "")
+        )
 
     @property
     def database_config(self):
@@ -206,7 +210,7 @@ class Settings:
             queries_filename = "oam_sql_queries.yaml"
         elif self.app == "naw":
             queries_filename = "sql_queries.yaml"
-        
+
         queries_path = Path(__file__).parent.parent / "queries" / self.app / queries_filename
         if not queries_path.exists():
             self.logger.warning(f"Queries file not found: {queries_path}")
@@ -234,13 +238,13 @@ class Settings:
 
     @property
     def outlook_email(self):
-        """Get Outlook email address (YAML → env-var fallback)."""
-        return self.config.get("outlook", {}).get("email", "") or os.getenv("OUTLOOK_EMAIL", "")
+        """Get Outlook email from env var (Key Vault in pipeline, .env locally)."""
+        return os.getenv("OUTLOOK_USERNAME", "")
 
     @property
     def outlook_password(self):
-        """Get Outlook password / app-password (env var → YAML fallback)."""
-        return os.getenv("OUTLOOK_PASSWORD", "") or self.config.get("outlook", {}).get("password", "")
+        """Get Outlook password from env var (Key Vault in pipeline, .env locally)."""
+        return os.getenv("OUTLOOK_PASSWORD", "")
 
     @property
     def outlook_imap_server(self):

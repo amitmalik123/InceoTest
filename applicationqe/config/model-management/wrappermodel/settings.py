@@ -157,7 +157,11 @@ class Settings:
     @property
     def api_auth_token(self):
         """Get API authorization token (env var → YAML fallback)."""
-        return os.getenv(f"{self.env.upper()}_API_AUTH_TOKEN") or os.getenv("API_AUTH_TOKEN") or self.config.get("api", {}).get("auth_token", "")
+        return (
+            os.getenv(f"{self.env.upper()}_API_AUTH_TOKEN")
+            or os.getenv("API_AUTH_TOKEN")
+            or self.config.get("api", {}).get("auth_token", "")
+        )
 
     @property
     def database_config(self):
@@ -214,12 +218,14 @@ class Settings:
     @property
     def outlook_email(self):
         """Get Outlook email address (YAML → env-var fallback)."""
-        return self.config.get("outlook", {}).get("email", "") or os.getenv("OUTLOOK_EMAIL", "")
+        return os.getenv("OUTLOOK_USERNAME", "")
 
     @property
     def outlook_password(self):
         """Get Outlook password / app-password (env var → YAML fallback)."""
-        return os.getenv("OUTLOOK_PASSWORD", "") or self.config.get("outlook", {}).get("password", "")
+        return os.getenv("OUTLOOK_PASSWORD", "") or self.config.get("outlook", {}).get(
+            "password", ""
+        )
 
     @property
     def outlook_imap_server(self):
