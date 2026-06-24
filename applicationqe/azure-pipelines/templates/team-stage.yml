@@ -32,11 +32,11 @@ parameters:
 stages:
 - stage: ${{ parameters.stageName }}
   displayName: 'Test ${{ parameters.teamDisplay }}'
-
+  
   pool:
     name: 'ubuntu2204-qa'
     timeoutInMinutes: 10
-
+  
   jobs:
   - job: RunPytestBDDTests
     displayName: 'Run ${{ parameters.teamDisplay }} Tests'
@@ -64,7 +64,7 @@ stages:
       value: '$(Build.SourcesDirectory)/reports/${{ parameters.stageName }}'
     - name: keyVaultName
       value: 'amkkvqapipeline-testncus'  # Azure Key Vault name
-
+   
     steps:
     - checkout: self
       clean: true
@@ -216,7 +216,7 @@ stages:
         echo "New working directory: $(pwd)"
         echo "Python version: $(python --version)"
         echo ""
-
+        
         # Determine test target
         TEST_TARGET="${{ parameters.featurePath }}"
         echo "Running tests from: $TEST_TARGET with marker: $(marker)"
@@ -283,8 +283,6 @@ stages:
         CRM_DB_CONNECTION_STRING: $(crm-db-connection-string)
         AM_BILLING_CONNECTION_STRING: $(am-billing-connection-string)
         API_AUTH_TOKEN: $(test11-api-auth-token)
-        OUTLOOK_USERNAME: $(test11-outlook-account-username)
-        OUTLOOK_PASSWORD: $(test11-outlook-account-password)
 
     - script: |
         echo "Checking Allure Results Directory..."
@@ -339,7 +337,7 @@ stages:
         export BUILD_REASON="$(Build.Reason)"
         export AZURE_LOG_WORKSPACE_ID="$(logAnalyticsWorkspaceId)"
         export AZURE_LOG_SHARED_KEY="$(logAnalyticsSharedKey)"
-
+        
         python utils/azure_analytics_reporter.py
       displayName: "Push Metrics to Azure Log Analytics"
       condition: always()

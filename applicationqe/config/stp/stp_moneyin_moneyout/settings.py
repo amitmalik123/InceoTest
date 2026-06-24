@@ -1,4 +1,6 @@
-﻿import os
+﻿
+
+import os
 from pathlib import Path
 
 import yaml  # type: ignore
@@ -16,7 +18,7 @@ class Settings:
     """Load and provide access to configuration settings."""
 
     def __init__(self, env: str):
-
+       
         self.env = env
         self.logger = setup_logger(__name__)
         self.config_path = Path(__file__).parent / f"env.{env}.yaml"
@@ -32,7 +34,7 @@ class Settings:
         return yaml_value
 
     def get_vault_connection_string(self, secret_name: str) -> str | None:
-
+       
         env_var = secret_name.upper().replace("-", "_")
         value = os.getenv(env_var)
         if value:
@@ -43,14 +45,14 @@ class Settings:
         return self._vault.get_secret(secret_name)
 
     def get_connection_string_from_env(self, env_var: str) -> str | None:
-
+       
         value = os.getenv(env_var)
         if value:
             self.logger.info(f"Connection string resolved from env var: {env_var}")
         return value
 
     def get_vault_db_config(self, alias: str) -> dict:
-
+        
         vault_dbs = self.config.get("database", {}).get("vault_databases", {})
         if alias not in vault_dbs:
             available = list(vault_dbs.keys())
@@ -150,7 +152,7 @@ class Settings:
         return self.config.get("database", {}).get("vault_databases", {})
 
     def get_app_config(self, app_name: str) -> dict:
-
+       
         apps = self.config.get("applications", {})
         if app_name not in apps:
             available = list(apps.keys())
@@ -195,7 +197,7 @@ class Settings:
     @property
     def outlook_email(self):
         """Get Outlook email address (YAML ΓåÆ env-var fallback)."""
-        return os.getenv("OUTLOOK_USERNAME", "")
+        return self.config.get("outlook", {}).get("email", "") or os.getenv("OUTLOOK_EMAIL", "")
 
     @property
     def outlook_password(self):
@@ -231,7 +233,7 @@ _settings_instance = None
 
 
 def get_settings() -> Settings:
-
+    
     global _settings_instance
     if _settings_instance is None:
         env = os.getenv("TEST_ENV")

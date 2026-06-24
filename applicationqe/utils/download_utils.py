@@ -4,13 +4,16 @@ Download File Validation Utilities
 Provides utilities for handling and validating file downloads.
 """
 
+import hashlib
 import logging
 import os
-import re
-import sys
 import time
+import re
+import shutil
+import sys
+from datetime import datetime, timedelta
 from pathlib import Path
-from typing import Callable, Optional
+from typing import Callable, List, Optional
 
 if sys.version_info >= (3, 11):
     import tomllib
@@ -56,9 +59,28 @@ class DownloadManager:
         self.download_dir = Path(download_dir).resolve()
         self.download_dir.mkdir(parents=True, exist_ok=True)
 
-    def extract_hrc_number_from_pdf(
-        self, pdf_text: str, keyword: str, pdf_page_count: int = 0
-    ) -> str:
+    def trigger_download(self, action: Callable, timeout: float = 30.0) -> Download:
+        """
+        Trigger download and wait for it to start.
+
+        Args:
+            action: Action that triggers download (e.g., lambda: page.click("#btn"))
+            timeout: Timeout in seconds
+
+        Returns:
+            Download object
+
+        Example:
+            download = manager.trigger_download(lambda: page.click("#download"))
+        """
+        with self.page.expect_download(timeout=timeout * 1000) as download_info:
+            action()
+
+        download = download_info.value
+        logger.info(f"Download started: {download.suggested_filename}")
+        return download
+
+    def extract_hrc_number_from_pdf(self, pdf_text: str, keyword: str, pdf_page_count: int = 0) -> str:
         """
         Extract 7-digit HRC number from PDF text.
         The HRC number appears on every page, so if a PDF has 20 pages,
@@ -78,26 +100,22 @@ class DownloadManager:
             index = search_text.find(keyword)
             if index == -1:
                 break
-            after_keyword = search_text[index + len(keyword) :].strip()
-            match = re.search(r"\b\d{7}\b", after_keyword)
+            after_keyword = search_text[index + len(keyword):].strip()
+            match = re.search(r'\b\d{7}\b', after_keyword)
             if match:
                 keyword_candidates.append(match.group())
-            search_text = search_text[index + len(keyword) :]
+            search_text = search_text[index + len(keyword):]
 
         # Strategy 2: Also collect all 7-digit numbers from entire PDF
-        all_seven_digit = re.findall(r"\b\d{7}\b", pdf_text)
+        all_seven_digit = re.findall(r'\b\d{7}\b', pdf_text)
 
         # Decide which candidates to use
         if keyword_candidates:
-            logger.info(
-                f"HRC candidates after '{keyword}' ({len(keyword_candidates)} occurrences): {keyword_candidates}"
-            )
+            logger.info(f"HRC candidates after '{keyword}' ({len(keyword_candidates)} occurrences): {keyword_candidates}")
             most_common = Counter(keyword_candidates).most_common(1)[0][0]
         elif all_seven_digit:
             logger.info(f"Keyword '{keyword}' not found. Scanning entire PDF text.")
-            logger.info(
-                f"All 7-digit numbers in PDF ({len(all_seven_digit)} total): {all_seven_digit}"
-            )
+            logger.info(f"All 7-digit numbers in PDF ({len(all_seven_digit)} total): {all_seven_digit}")
             most_common = Counter(all_seven_digit).most_common(1)[0][0]
         else:
             raise RuntimeError(f"No valid 7-digit HRC number found in PDF (keyword='{keyword}').")
@@ -109,9 +127,7 @@ class DownloadManager:
         # Validate against page count if provided
         if pdf_page_count > 0:
             if hrc_count == pdf_page_count:
-                logger.info(
-                    f"HRC count matches page count ({pdf_page_count} pages, {hrc_count} occurrences)"
-                )
+                logger.info(f"HRC count matches page count ({pdf_page_count} pages, {hrc_count} occurrences)")
             else:
                 logger.warning(
                     f"HRC count mismatch: HRC '{most_common}' appears {hrc_count} times "
@@ -120,6 +136,56 @@ class DownloadManager:
 
         logger.info(f"HRC number extracted: {most_common}")
         return most_common
+
+    def snapshot_downloaded_pdfs(self) -> set[str]:
+        """Take a snapshot of current PDF filenames in download directory."""
+        return {pdf.name for pdf in self.download_dir.glob("*.pdf")}
+
+    def _is_file_stable(self, path: Path, stable_seconds: float = 1.0) -> bool:
+        """Check file size is stable and non-zero."""
+        if not path.exists() or path.suffix.lower() != ".pdf":
+            return False
+
+        first_size = path.stat().st_size
+        if first_size <= 0:
+            return False
+
+        time.sleep(stable_seconds)
+        second_size = path.stat().st_size
+        return first_size == second_size and second_size > 0
+
+    def wait_for_downloaded_pdf(
+        self,
+        preferred_filename: str,
+        existing_pdf_names: Optional[set[str]] = None,
+        timeout_seconds: int = 15,
+    ) -> Path:
+        """Wait for preferred PDF download, with fallback to any new PDF file."""
+        existing_pdf_names = existing_pdf_names or set()
+        preferred_path = self.download_dir / preferred_filename
+        end_time = time.time() + timeout_seconds
+
+        while time.time() < end_time:
+            if preferred_path.exists() and self._is_file_stable(preferred_path):
+                return preferred_path
+
+            current_pdfs = sorted(
+                self.download_dir.glob("*.pdf"),
+                key=lambda p: p.stat().st_mtime,
+                reverse=True,
+            )
+            new_pdfs = [pdf for pdf in current_pdfs if pdf.name not in existing_pdf_names]
+
+            for pdf in new_pdfs:
+                if self._is_file_stable(pdf):
+                    return pdf
+
+            time.sleep(1)
+
+        raise RuntimeError(
+            f"PDF file not found within {timeout_seconds}s in {self.download_dir}. "
+            f"Expected '{preferred_filename}' or any new PDF."
+        )
 
     def fetch_pdf_content(self, pdf_name: str, timeout_seconds: int = 15) -> tuple[str, int]:
         """
@@ -146,6 +212,39 @@ class DownloadManager:
         page_count = validator.get_page_count()
         logger.info(f"PDF content fetched from: {filepath.name} ({page_count} pages)")
         return pdf_text, page_count
+
+    def delete_pdf_file(self, pdf_name: str, test_case_id: str) -> None:
+        """
+        Copy archive + delete original PDF.
+        Mirrors Selenium deletePDFFile(pdfName, testCaseId).
+        """
+        source_file = self.download_dir / f"{pdf_name}.pdf"
+        self.copy_and_delete_pdf(source_file=source_file, pdf_name=pdf_name, test_case_id=test_case_id)
+
+    def copy_and_delete_pdf(self, source_file: Path, pdf_name: str, test_case_id: str) -> None:
+        """Copy selected PDFs to archive folder, delete original, and clean old archive files."""
+        copy_folder = Path.cwd() / "CopyDocumentFolder"
+        copy_folder.mkdir(parents=True, exist_ok=True)
+
+        name_lower = pdf_name.lower()
+        should_copy = pdf_name in {"DownloadSeparateDocument", "eSigPDFDownload"} or "toain" in name_lower
+
+        if source_file.exists() and should_copy:
+            timestamp = datetime.now().strftime("%Y-%m-%d_%H-%M-%S")
+            destination = copy_folder / f"{pdf_name}_{test_case_id}_{timestamp}.pdf"
+            shutil.copy2(source_file, destination)
+            logger.info(f"Copied PDF to archive: {destination}")
+
+        if source_file.exists():
+            source_file.unlink()
+            logger.info(f"Deleted original PDF: {source_file}")
+
+        cutoff_time = datetime.now() - timedelta(days=2)
+        for archived in copy_folder.glob("*.pdf"):
+            modified_at = datetime.fromtimestamp(archived.stat().st_mtime)
+            if modified_at < cutoff_time:
+                archived.unlink(missing_ok=True)
+                logger.info(f"Deleted old archived PDF: {archived.name}")
 
     def save_download(
         self, download: Download, filename: Optional[str] = None, overwrite: bool = True
@@ -247,6 +346,145 @@ class DownloadManager:
 
         return True
 
+    def wait_for_file(
+        self, filename: str, timeout: float = 30.0, poll_interval: float = 0.5
+    ) -> Path:
+        """
+        Wait for file to appear in download directory.
+
+        Args:
+            filename: Filename to wait for
+            timeout: Timeout in seconds
+            poll_interval: Polling interval
+
+        Returns:
+            Path to file
+        """
+        filepath = self.download_dir / filename
+        start_time = time.time()
+
+        while (time.time() - start_time) < timeout:
+            if filepath.exists():
+                logger.info(f"File found: {filepath}")
+                return filepath
+            time.sleep(poll_interval)
+
+        raise TimeoutError(f"File not found within {timeout}s: {filename}")
+
+    def get_file_hash(self, filepath: Path, algorithm: str = "md5") -> str:
+        """
+        Calculate file hash.
+
+        Args:
+            filepath: Path to file
+            algorithm: Hash algorithm (md5, sha1, sha256)
+
+        Returns:
+            File hash as hex string
+        """
+        hash_obj = hashlib.new(algorithm)
+
+        with open(filepath, "rb") as f:
+            while chunk := f.read(8192):
+                hash_obj.update(chunk)
+
+        file_hash = hash_obj.hexdigest()
+        logger.debug(f"{algorithm.upper()} hash: {file_hash}")
+        return file_hash
+
+    def validate_file_hash(
+        self, filepath: Path, expected_hash: str, algorithm: str = "md5"
+    ) -> bool:
+        """
+        Validate file hash.
+
+        Args:
+            filepath: Path to file
+            expected_hash: Expected hash value
+            algorithm: Hash algorithm
+
+        Returns:
+            True if hash matches
+        """
+        actual_hash = self.get_file_hash(filepath, algorithm)
+        assert (
+            actual_hash == expected_hash
+        ), f"Hash mismatch: expected {expected_hash}, got {actual_hash}"
+        logger.info(f"✓ File hash validated ({algorithm})")
+        return True
+
+    def read_file_content(self, filepath: Path, encoding: str = "utf-8") -> str:
+        """
+        Read text file content.
+
+        Args:
+            filepath: Path to file
+            encoding: Text encoding
+
+        Returns:
+            File content as string
+        """
+        with open(filepath, "r", encoding=encoding) as f:
+            content = f.read()
+        logger.debug(f"Read {len(content)} characters from {filepath.name}")
+        return content
+
+    def read_file_lines(self, filepath: Path, encoding: str = "utf-8") -> List[str]:
+        """Read file lines as list"""
+        with open(filepath, "r", encoding=encoding) as f:
+            lines = f.readlines()
+        logger.debug(f"Read {len(lines)} lines from {filepath.name}")
+        return lines
+
+    def validate_csv_content(
+        self,
+        filepath: Path,
+        expected_columns: Optional[List[str]] = None,
+        min_rows: Optional[int] = None,
+        max_rows: Optional[int] = None,
+    ) -> bool:
+        """
+        Validate CSV file content.
+
+        Args:
+            filepath: Path to CSV file
+            expected_columns: Expected column headers
+            min_rows: Minimum number of rows
+            max_rows: Maximum number of rows
+
+        Returns:
+            True if validation passes
+        """
+        import csv
+
+        with open(filepath, "r", encoding="utf-8") as f:
+            reader = csv.DictReader(f)
+
+            # Validate columns
+            if expected_columns:
+                actual_columns = reader.fieldnames
+                assert set(actual_columns) == set(
+                    expected_columns
+                ), f"Column mismatch: expected {expected_columns}, got {actual_columns}"
+                logger.debug(f"✓ CSV columns match")
+
+            # Count rows
+            rows = list(reader)
+            row_count = len(rows)
+
+            # Validate row count
+            if min_rows:
+                assert row_count >= min_rows, f"Too few rows: {row_count} < {min_rows}"
+                logger.debug(f"✓ Row count >= {min_rows}")
+
+            if max_rows:
+                assert row_count <= max_rows, f"Too many rows: {row_count} > {max_rows}"
+                logger.debug(f"✓ Row count <= {max_rows}")
+
+            logger.info(f"✓ CSV validated: {row_count} rows")
+
+        return True
+
     def cleanup_downloads(self, older_than_seconds: Optional[float] = None) -> int:
         """
         Clean up download directory.
@@ -300,3 +538,33 @@ class DownloadManager:
         """Get file size in MB"""
         size_bytes = filepath.stat().st_size
         return size_bytes / (1024 * 1024)
+
+    def validate_json_content(self, filepath: Path, schema: Optional[dict] = None) -> dict:
+        """
+        Validate JSON file content.
+
+        Args:
+            filepath: Path to JSON file
+            schema: Optional JSON schema for validation
+
+        Returns:
+            Parsed JSON content
+        """
+        import json
+
+        with open(filepath, "r", encoding="utf-8") as f:
+            content = json.load(f)
+
+        if schema:
+            # Optional: JSON schema validation
+            # Requires jsonschema library
+            try:
+                import jsonschema
+
+                jsonschema.validate(instance=content, schema=schema)
+                logger.debug("✓ JSON schema validated")
+            except ImportError:
+                logger.warning("jsonschema library not installed, skipping schema validation")
+
+        logger.info(f"✓ JSON file validated: {filepath.name}")
+        return content
