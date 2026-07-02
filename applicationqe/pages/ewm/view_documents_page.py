@@ -29,8 +29,8 @@ class ViewDocumentsPage(BasePage):
 
         if page_verification:
             self._verify_page_label()
-        #    self.esignature_button.wait_for(state="visible")
-        #    Assertions.assert_true(self.esignature_button.is_visible(), "eSignature button should be present on View Documents page")
+            self.esignature_button.wait_for(state="visible")
+            Assertions.assert_true(self.esignature_button.is_visible(), "eSignature button should be present on View Documents page")
             logger.info("eSign button visibility verification: PASSED ")
 
     def _init_locators(self):
