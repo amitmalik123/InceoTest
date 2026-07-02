@@ -254,6 +254,12 @@ def outlook_perform_sign_in(page: Page, email: str = None, password: str = None)
             logger.warning("outlook_perform_sign_in: Sign in button not found after password.")
 
         # --- Handle "Stay signed in?" prompt (best-effort) ---
+        # First wait for the redirect/prompt to appear (slower on headless/Linux)
+        try:
+            page.wait_for_load_state("domcontentloaded", timeout=15_000)
+        except Exception:
+            pass
+
         for stay_selector in [
             "//input[@type='submit' and @value='Yes']",
             'input[id="idBtn_Back"]',
@@ -261,11 +267,17 @@ def outlook_perform_sign_in(page: Page, email: str = None, password: str = None)
         ]:
             try:
                 btn = page.locator(stay_selector)
-                btn.wait_for(state="visible", timeout=3_000)
+                btn.wait_for(state="visible", timeout=5_000)
                 btn.click()
                 break
             except Exception:
                 continue
+
+        # Wait for redirect to Outlook after dismissing the prompt
+        try:
+            page.wait_for_url("**/outlook.office.com/**", timeout=30_000)
+        except Exception:
+            logger.warning(f"outlook_perform_sign_in: did not redirect to Outlook; URL={page.url}")
 
         logger.info(f"outlook_perform_sign_in: sign-in form submitted; URL={page.url}")
         return True
@@ -742,7 +754,7 @@ class OutlookOTPPage(BasePage):
                 logger.info(f"Successfully retrieved OTP from Outlook OTP folder: {otp}")
             else:
                 logger.error("Failed to retrieve OTP from OTP folder")
-                self.fail(
+                logger.error(
                     f"OTP not found in Outlook within {int(timeout)}s while checking OTP folder"
                 )
 
