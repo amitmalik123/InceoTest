@@ -207,13 +207,52 @@ def outlook_perform_sign_in(page: Page, email: str = None, password: str = None)
             logger.info("outlook_perform_sign_in: Inbox visible; already signed in.")
             return True
 
-        # If neither form field is visible, assume already signed in
+        # Handle "Pick an account" / account selector page
+        account_picker_locators = [
+            page.locator("#tilesHolder .table"),  # account tile
+            page.locator('[data-test-id="otherTile"]'),  # "Use another account"
+            page.get_by_text("Use another account"),
+            page.get_by_text("Pick an account"),
+        ]
+        if _first_visible(account_picker_locators, 3_000) is not None:
+            logger.info("outlook_perform_sign_in: Account picker detected")
+            # Try clicking "Use another account" to get to the email form
+            use_another = page.locator(
+                '[data-test-id="otherTile"],'
+                ' #otherTile,'
+                ' div:has-text("Use another account")'
+            ).first
+            try:
+                use_another.click(timeout=5_000)
+                logger.info("outlook_perform_sign_in: clicked 'Use another account'")
+                page.wait_for_timeout(2000)
+            except Exception:
+                # If no "Use another account", click the first account tile
+                try:
+                    first_tile = page.locator("#tilesHolder .table").first
+                    first_tile.click(timeout=5_000)
+                    logger.info("outlook_perform_sign_in: clicked first account tile")
+                    page.wait_for_timeout(2000)
+                except Exception as tile_err:
+                    logger.warning(f"outlook_perform_sign_in: could not interact with account picker: {str(tile_err).splitlines()[0]}")
+
+        # If neither form field is visible, check URL before assuming signed in
         if (
             _first_visible(username_locators, 5_000) is None
             and _first_visible(password_locators, 5_000) is None
         ):
-            logger.info("outlook_perform_sign_in: no login fields visible; assuming signed in.")
-            return True
+            if "outlook.office.com" in page.url:
+                logger.info("outlook_perform_sign_in: no login fields visible; assuming signed in.")
+                return True
+            else:
+                logger.warning(f"outlook_perform_sign_in: no login fields but not on Outlook; URL={page.url}")
+                # Save debug screenshot
+                try:
+                    os.makedirs("reports/screenshots", exist_ok=True)
+                    page.screenshot(path=f"reports/screenshots/outlook_login_stuck_{int(time.time())}.png")
+                except Exception:
+                    pass
+                return False
 
         # --- Enter email ---
         user_input = _first_visible(username_locators, 20_000)
