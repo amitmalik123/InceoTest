@@ -338,34 +338,22 @@ def step_click_separate_documents_and_select_establishment(
 
         pdf_save_path = download_manager.download_dir / "DownloadSeparateDocument.pdf"
 
-        # Click link - may open popup OR trigger a download depending on environment
-        popup_page = None
-        try:
-            with main_page.context.expect_page(timeout=15000) as popup_info:
-                account_establishment_link.click()
-            popup_page = popup_info.value
-            popup_page.wait_for_load_state("domcontentloaded", timeout=15000)
-            pdf_url = popup_page.url
-            logger.info(f"PDF popup URL: {pdf_url}")
+        # Click link, capture popup window with PDF URL, fetch PDF bytes via context API
+        with main_page.context.expect_page(timeout=30000) as popup_info:
+            account_establishment_link.click()
+        popup_page = popup_info.value
+        popup_page.wait_for_load_state("domcontentloaded", timeout=15000)
+        pdf_url = popup_page.url
+        logger.info(f"PDF popup URL: {pdf_url}")
 
-            # Fetch PDF bytes using authenticated browser context and save to Downloads
-            response = main_page.context.request.get(pdf_url)
-            pdf_save_path.parent.mkdir(parents=True, exist_ok=True)
-            pdf_save_path.write_bytes(response.body())
-            logger.info(f"PDF saved via popup: {pdf_save_path} ({pdf_save_path.stat().st_size} bytes)")
-        except Exception as popup_err:
-            logger.warning(f"Popup not detected ({str(popup_err).splitlines()[0]}), trying download approach")
-            # Fallback: expect a download event
-            with main_page.expect_download(timeout=30000) as download_info:
-                account_establishment_link.click()
-            download = download_info.value
-            pdf_save_path.parent.mkdir(parents=True, exist_ok=True)
-            download.save_as(str(pdf_save_path))
-            logger.info(f"PDF saved via download: {pdf_save_path} ({pdf_save_path.stat().st_size} bytes)")
+        # Fetch PDF bytes using authenticated browser context and save to Downloads
+        response = main_page.context.request.get(pdf_url)
+        pdf_save_path.parent.mkdir(parents=True, exist_ok=True)
+        pdf_save_path.write_bytes(response.body())
+        logger.info(f"PDF saved: {pdf_save_path} ({pdf_save_path.stat().st_size} bytes)")
 
         try:
-            if popup_page:
-                popup_page.close()
+            popup_page.close()
         except Exception:
             pass
 
@@ -727,57 +715,7 @@ def validate_downloaded_pdf(test_context: dict):
         )
 
     logger.info(f"Reading PDF: {pdf_path.name}")
-    file_size_bytes = pdf_path.stat().st_size
-    file_size_kb = file_size_bytes / 1024
-    file_size_mb = file_size_kb / 1024
-    logger.info(f"PDF size: {file_size_bytes} bytes ({file_size_kb:.1f} KB / {file_size_mb:.2f} MB)")
-
-    # Track and compare PDF size per custodian (skip for retain=yes cases)
-    if not is_retain:
-        import json
-        size_tracker_path = Path("reports/pdf_size_tracker.json")
-        size_tracker_path.parent.mkdir(parents=True, exist_ok=True)
-        custodian_key_track = custodian.strip().lower()
-
-        # Load existing tracker
-        size_history = {}
-        if size_tracker_path.exists():
-            try:
-                size_history = json.loads(size_tracker_path.read_text())
-            except (json.JSONDecodeError, OSError):
-                size_history = {}
-
-        previous_size = size_history.get(custodian_key_track, {}).get("size_bytes")
-        if previous_size is not None:
-            diff = file_size_bytes - previous_size
-            diff_pct = (diff / previous_size) * 100 if previous_size > 0 else 0
-            logger.info(
-                f"PDF size comparison for '{custodian}': previous={previous_size} bytes, "
-                f"current={file_size_bytes} bytes, diff={diff:+d} bytes ({diff_pct:+.1f}%)"
-            )
-            if abs(diff_pct) > 20:
-                logger.warning(
-                    f"PDF size for '{custodian}' changed by {diff_pct:+.1f}% "
-                    f"(previous={previous_size}, current={file_size_bytes})"
-                )
-            diff_mb = diff / (1024 * 1024)
-            if abs(diff_mb) >= 2:
-                prev_mb = previous_size / (1024 * 1024)
-                curr_mb = file_size_bytes / (1024 * 1024)
-                logger.error(
-                    f"ALERT: PDF size for '{custodian}' differs by {diff_mb:+.2f} MB! "
-                    f"Previous: {prev_mb:.2f} MB, Current: {curr_mb:.2f} MB"
-                )
-        else:
-            logger.info(f"No previous PDF size recorded for '{custodian}' — storing baseline")
-
-        # Update tracker with current size
-        size_history[custodian_key_track] = {
-            "size_bytes": file_size_bytes,
-            "size_kb": round(file_size_kb, 1),
-            "pdf_name": pdf_path.name,
-        }
-        size_tracker_path.write_text(json.dumps(size_history, indent=2))
+    logger.info(f"File size: {pdf_path.stat().st_size} bytes")
 
     # Validate file is actually a PDF
     with open(pdf_path, "rb") as f:
@@ -796,7 +734,13 @@ def validate_downloaded_pdf(test_context: dict):
 
     full_text = ""
     for page_num in range(page_count):
-        full_text += validator.extract_text(page_num=page_num) + "\n"    
+        full_text += validator.extract_text(page_num=page_num) + "\n"
+
+    # Save extracted PDF text to file for debugging
+    # pdf_text_file = Path("reports/downloads") / f"{pdf_path.stem}_extracted_text.txt"
+    # pdf_text_file.parent.mkdir(parents=True, exist_ok=True)
+    # pdf_text_file.write_text(full_text, encoding="utf-8")
+    # logger.info(f"PDF text saved to: {pdf_text_file}")
 
     normalized_text = " ".join(full_text.split())
 
@@ -843,5 +787,3 @@ def validate_downloaded_pdf(test_context: dict):
             f"PDF: {pdf_path.name} ({page_count} pages)",
         )
         logger.info(f"Account number '{account_number}' found in PDF")
-
-    

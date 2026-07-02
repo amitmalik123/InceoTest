@@ -55,6 +55,7 @@ parameters:
       - documentsVerification
       - TrackingCenterESign
       - GNW_Ind_401k
+      - try
 
   - name: workers
     displayName: "Number of Parallel Workers"
