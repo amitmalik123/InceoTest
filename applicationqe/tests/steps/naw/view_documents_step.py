@@ -338,22 +338,32 @@ def step_click_separate_documents_and_select_establishment(
 
         pdf_save_path = download_manager.download_dir / "DownloadSeparateDocument.pdf"
 
-        # Click link, capture popup window with PDF URL, fetch PDF bytes via context API
-        with main_page.context.expect_page(timeout=30000) as popup_info:
-            account_establishment_link.click()
-        popup_page = popup_info.value
-        popup_page.wait_for_load_state("domcontentloaded", timeout=15000)
-        pdf_url = popup_page.url
-        logger.info(f"PDF popup URL: {pdf_url}")
+        # Click link - may open popup OR trigger a download depending on environment
+        popup_page = None
+        try:
+            with main_page.context.expect_page(timeout=15000) as popup_info:
+                account_establishment_link.click()
+            popup_page = popup_info.value
+            popup_page.wait_for_load_state("domcontentloaded", timeout=15000)
+            pdf_url = popup_page.url
+            logger.info(f"PDF popup URL: {pdf_url}")
 
-        # Fetch PDF bytes using authenticated browser context and save to Downloads
-        response = main_page.context.request.get(pdf_url)
-        pdf_save_path.parent.mkdir(parents=True, exist_ok=True)
-        pdf_save_path.write_bytes(response.body())
-        logger.info(f"PDF saved: {pdf_save_path} ({pdf_save_path.stat().st_size} bytes)")
+            response = main_page.context.request.get(pdf_url)
+            pdf_save_path.parent.mkdir(parents=True, exist_ok=True)
+            pdf_save_path.write_bytes(response.body())
+            logger.info(f"PDF saved via popup: {pdf_save_path} ({pdf_save_path.stat().st_size} bytes)")
+        except Exception as popup_err:
+            logger.warning(f"Popup not detected ({str(popup_err).splitlines()[0]}), trying download approach")
+            with main_page.expect_download(timeout=30000) as download_info:
+                account_establishment_link.click()
+            download = download_info.value
+            pdf_save_path.parent.mkdir(parents=True, exist_ok=True)
+            download.save_as(str(pdf_save_path))
+            logger.info(f"PDF saved via download: {pdf_save_path} ({pdf_save_path.stat().st_size} bytes)")
 
         try:
-            popup_page.close()
+            if popup_page:
+                popup_page.close()
         except Exception:
             pass
 
