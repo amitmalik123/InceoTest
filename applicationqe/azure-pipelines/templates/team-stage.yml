@@ -122,6 +122,7 @@ stages:
         echo "Marker: $(marker)"
         echo "Workers: $(workers)"
         echo "Browser: $(browser)"
+        echo "OUTLOOK_USERNAME is set: $(if [ -n \"$OUTLOOK_USERNAME\" ]; then echo 'YES (length='${#OUTLOOK_USERNAME}')'; else echo 'NO (empty)'; fi)"
         echo "========================================"
       displayName: "Print Configuration"
 
@@ -257,6 +258,9 @@ stages:
 
         echo "Executing: $PYTEST_CMD"
         echo "========================================"
+        echo "OUTLOOK_USERNAME set: $(if [ -n \"$OUTLOOK_USERNAME\" ]; then echo \"YES (length=${#OUTLOOK_USERNAME})\"; else echo 'NO (empty or unset)'; fi)"
+        echo "OUTLOOK_PASSWORD set: $(if [ -n \"$OUTLOOK_PASSWORD\" ]; then echo \"YES (length=${#OUTLOOK_PASSWORD})\"; else echo 'NO (empty or unset)'; fi)"
+        echo "========================================"
         echo ""
         eval $PYTEST_CMD 2>&1 || TEST_EXIT_CODE=$? || true
         echo ""
@@ -283,8 +287,8 @@ stages:
         CRM_DB_CONNECTION_STRING: $(crm-db-connection-string)
         AM_BILLING_CONNECTION_STRING: $(am-billing-connection-string)
         API_AUTH_TOKEN: $(test11-api-auth-token)
-        OUTLOOK_USERNAME: $(test11-outlook-account-username)
-        OUTLOOK_PASSWORD: $(test11-outlook-account-password)
+        OUTLOOK_USERNAME: $(outlook-account-username)
+        OUTLOOK_PASSWORD: $(outlook-account-password)
 
     - script: |
         echo "Checking Allure Results Directory..."
