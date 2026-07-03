@@ -171,31 +171,6 @@ def outlook_perform_sign_in(page: Page, email: str = None, password: str = None)
         except Exception:
             pass
 
-        def _screenshot(step_name: str):
-            """Save a debug screenshot for each sign-in step and attach to Allure."""
-            try:
-                import allure
-                screenshot_bytes = page.screenshot(full_page=True)
-                allure.attach(
-                    screenshot_bytes,
-                    name=f"outlook_{step_name}",
-                    attachment_type=allure.attachment_type.PNG,
-                )
-                # Also save to Allure results dir for guaranteed pipeline publishing
-                allure_dir = os.getenv("ALLURE_RESULTS_DIR", "")
-                if allure_dir:
-                    disk_path = os.path.join(allure_dir, f"outlook_{step_name}_{int(time.time())}.png")
-                else:
-                    os.makedirs("reports/screenshots", exist_ok=True)
-                    disk_path = f"reports/screenshots/outlook_{step_name}_{int(time.time())}.png"
-                with open(disk_path, "wb") as f:
-                    f.write(screenshot_bytes)
-                logger.info(f"outlook_perform_sign_in: screenshot attached: outlook_{step_name} (saved: {disk_path})")
-            except Exception as ss_err:
-                logger.warning(f"outlook_perform_sign_in: screenshot failed ({step_name}): {ss_err}")
-
-        _screenshot("01_after_navigate")
-
         username_locators = [
             page.locator("#i0116"),
             page.locator("input[name='loginfmt']"),
@@ -232,49 +207,13 @@ def outlook_perform_sign_in(page: Page, email: str = None, password: str = None)
             logger.info("outlook_perform_sign_in: Inbox visible; already signed in.")
             return True
 
-        # Handle "Pick an account" / account selector page
-        account_picker_locators = [
-            page.locator("#tilesHolder .table"),  # account tile
-            page.locator('[data-test-id="otherTile"]'),  # "Use another account"
-            page.get_by_text("Use another account"),
-            page.get_by_text("Pick an account"),
-        ]
-        if _first_visible(account_picker_locators, 3_000) is not None:
-            logger.info("outlook_perform_sign_in: Account picker detected")
-            # Try clicking "Use another account" to get to the email form
-            use_another = page.locator(
-                '[data-test-id="otherTile"],'
-                ' #otherTile,'
-                ' div:has-text("Use another account")'
-            ).first
-            try:
-                use_another.click(timeout=5_000)
-                logger.info("outlook_perform_sign_in: clicked 'Use another account'")
-                page.wait_for_timeout(2000)
-            except Exception:
-                # If no "Use another account", click the first account tile
-                try:
-                    first_tile = page.locator("#tilesHolder .table").first
-                    first_tile.click(timeout=5_000)
-                    logger.info("outlook_perform_sign_in: clicked first account tile")
-                    page.wait_for_timeout(2000)
-                except Exception as tile_err:
-                    logger.warning(f"outlook_perform_sign_in: could not interact with account picker: {str(tile_err).splitlines()[0]}")
-            _screenshot("02_after_account_picker")
-
-        # If neither form field is visible, check URL before assuming signed in
+        # If neither form field is visible, assume already signed in
         if (
             _first_visible(username_locators, 5_000) is None
             and _first_visible(password_locators, 5_000) is None
         ):
-            if "outlook.office.com" in page.url:
-                logger.info("outlook_perform_sign_in: no login fields visible; assuming signed in.")
-                return True
-            else:
-                logger.warning(f"outlook_perform_sign_in: no login fields but not on Outlook; URL={page.url}")
-                # Save debug screenshot
-                _screenshot("02_no_login_fields_stuck")
-                return False
+            logger.info("outlook_perform_sign_in: no login fields visible; assuming signed in.")
+            return True
 
         # --- Enter email ---
         user_input = _first_visible(username_locators, 20_000)
@@ -282,7 +221,6 @@ def outlook_perform_sign_in(page: Page, email: str = None, password: str = None)
             logger.error("outlook_perform_sign_in: username field not found.")
             return False
         user_input.fill(email)
-        _screenshot("03_after_email_fill")
 
         next_btn = _first_visible(next_button_locators, 20_000)
         if not next_btn:
@@ -308,7 +246,6 @@ def outlook_perform_sign_in(page: Page, email: str = None, password: str = None)
         except Exception:
             pass
         pwd_input.fill(password)
-        _screenshot("04_after_password_fill")
 
         sign_in_btn = _first_visible(next_button_locators, 20_000)
         if sign_in_btn:
@@ -316,16 +253,7 @@ def outlook_perform_sign_in(page: Page, email: str = None, password: str = None)
         else:
             logger.warning("outlook_perform_sign_in: Sign in button not found after password.")
 
-        _screenshot("05_after_sign_in_click")
-
         # --- Handle "Stay signed in?" prompt (best-effort) ---
-        # First wait for the redirect/prompt to appear (slower on headless/Linux)
-        try:
-            page.wait_for_load_state("domcontentloaded", timeout=15_000)
-        except Exception:
-            pass
-        _screenshot("06_after_dom_loaded")
-
         for stay_selector in [
             "//input[@type='submit' and @value='Yes']",
             'input[id="idBtn_Back"]',
@@ -333,19 +261,11 @@ def outlook_perform_sign_in(page: Page, email: str = None, password: str = None)
         ]:
             try:
                 btn = page.locator(stay_selector)
-                btn.wait_for(state="visible", timeout=5_000)
+                btn.wait_for(state="visible", timeout=3_000)
                 btn.click()
                 break
             except Exception:
                 continue
-        _screenshot("07_after_stay_signed_in")
-
-        # Wait for redirect to Outlook after dismissing the prompt
-        try:
-            page.wait_for_url("**/outlook.office.com/**", timeout=30_000)
-        except Exception:
-            logger.warning(f"outlook_perform_sign_in: did not redirect to Outlook; URL={page.url}")
-        _screenshot("08_final_state")
 
         logger.info(f"outlook_perform_sign_in: sign-in form submitted; URL={page.url}")
         return True

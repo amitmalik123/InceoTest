@@ -1,7 +1,7 @@
 @NAW
 Feature: NAW Core Account Opening
 
-  @smokeTest11 @Regression @try
+  @smokeTest11 @Regression
   Scenario Outline: NAW_Agent_NewAccount_GNW_LLC_BAW_Activation
     When User is on Account Wizard tab and click on go button for New Client creation
     When User navigates to client profile page and enter required information
