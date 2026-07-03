@@ -172,12 +172,16 @@ def outlook_perform_sign_in(page: Page, email: str = None, password: str = None)
             pass
 
         def _screenshot(step_name: str):
-            """Save a debug screenshot for each sign-in step."""
+            """Save a debug screenshot for each sign-in step and attach to Allure."""
             try:
-                os.makedirs("reports/screenshots", exist_ok=True)
-                path = f"reports/screenshots/outlook_{step_name}_{int(time.time())}.png"
-                page.screenshot(path=path)
-                logger.info(f"outlook_perform_sign_in: screenshot saved: {path}")
+                screenshot_bytes = page.screenshot()
+                import allure
+                allure.attach(
+                    screenshot_bytes,
+                    name=f"outlook_{step_name}",
+                    attachment_type=allure.attachment_type.PNG,
+                )
+                logger.info(f"outlook_perform_sign_in: screenshot attached to Allure: outlook_{step_name}")
             except Exception as ss_err:
                 logger.warning(f"outlook_perform_sign_in: screenshot failed ({step_name}): {ss_err}")
 
