@@ -10,6 +10,7 @@ Usage:
 """
 
 import os
+import logging
 from pathlib import Path
 
 import yaml  # type: ignore
@@ -21,8 +22,6 @@ _app_root = _config_dir.parent  # applicationqe/
 _repo_root = _app_root.parent   # qeautomation/
 load_dotenv(_app_root / ".env")
 load_dotenv(_repo_root / ".env")
-
-from utils.logger import setup_logger
 
 
 class Settings:
@@ -39,7 +38,7 @@ class Settings:
         """
         self.env = env
         self.app = app
-        self.logger = setup_logger(__name__)
+        self.logger = logging.getLogger(__name__)
         self.config_path = Path(__file__).parent / app / f"env.{env}.yaml"
         self.config = self._load_config()
         self._queries = self._load_queries()
@@ -134,6 +133,16 @@ class Settings:
         """Get login URL for the application."""
         return self.config["application"].get("login_url", self.base_url)
 
+    def get_role_url(self, role: str) -> str:
+        """Get role-specific URL, falling back to app new_nav_url or base_url."""
+        role_urls = self.config.get("role_urls", {})
+        role_cfg = role_urls.get(role, {})
+        return (
+            role_cfg.get("base_url")
+            or self.config.get("application", {}).get("new_nav_url")
+            or self.base_url
+        )
+
     @property
     def timeout(self):
         """Get default timeout in milliseconds."""
@@ -205,6 +214,8 @@ class Settings:
         if self.app == "oam":
             queries_filename = "oam_sql_queries.yaml"
         elif self.app == "naw":
+            queries_filename = "sql_queries.yaml"
+        elif self.app == "stp/stp_moneyin_moneyout":
             queries_filename = "sql_queries.yaml"
         else:
             # App doesn't have predefined queries

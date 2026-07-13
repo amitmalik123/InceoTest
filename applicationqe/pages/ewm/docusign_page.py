@@ -1,11 +1,14 @@
 import os
 import re
 import time
+from typing import Optional
 from urllib.parse import urljoin
 
+import allure
 from playwright.sync_api import Locator, Page
 
 from pages.base_page import BasePage
+from pages.ewm.locators.docusign_locators import DocuSignLocators
 from utils.allure_logger import get_allure_logger
 from utils.assertions import Assertions
 from utils.outlook_utils import OutlookOTPPage, outlook_perform_sign_in
@@ -16,6 +19,21 @@ logger = get_allure_logger(__name__)
 class DocuSignPage(BasePage):
 
     nNumber = ""
+
+    # Text constants used for get_by_role / get_by_text calls and logic checks
+    ERSD_CONSENT_TEXT = "I confirm I have read and I consent to the Electronic Record and Signature Disclosure."
+    ERSD_CONTINUE_BUTTON_TEXT = "Continue"
+    FINISH_BUTTON_TEXT = "Finish"
+    SEND_NOW_BUTTON_PATTERN = "Send Now"
+    CONFIRM_CODE_BUTTON_PATTERN = "Confirm Code"
+    RESEND_CODE_BUTTON_PATTERN = "Resend Code"
+    SIGN_HERE_BUTTON_PATTERN = r"Required\s*-\s*Sign Here"
+    SIGNATURE_APPLIED_BUTTON_PATTERN = r"Required\s*-\s*Signature Applied"
+    STAMPING_ELEMENT_TEXT_KEY = "As authorized by"
+    OTP_FIELD_NAME_PATTERN = "verification code"
+    ADOPT_AND_SIGN_BUTTON_TEXT = "Adopt and Sign"
+    ADOPT_AND_SIGN_BUTTON_DATA_QA = "adopt-submit"
+    FINISH_LATER_BUTTON_TEXT = "Finish Later"
 
     def otp_verification(self) -> None:
         """Run common Outlook pre-login + Send Now + OTP submission flow."""
@@ -62,8 +80,9 @@ class DocuSignPage(BasePage):
         self._init_locators(page)
 
     def _init_locators(self, page: Page):
-        # DocuSign is in a new page, not an iframe, so we use page directly
-        # Primary selectors - more specific to avoid strict mode
+        loc = DocuSignLocators
+
+        # Disclosure checkbox strategies
         self.disclosure_checkbox_exact: Locator = page.locator(
             "span[data-qa*='ersd-agree-checkbox-label-text']:has-text('I confirm I have read and I consent to the Electronic Record and Signature Disclosure.')"
         )
@@ -72,19 +91,17 @@ class DocuSignPage(BasePage):
         self.disclosure_checkbox_data_qa: Locator = page.locator("span[data-qa*='ersd-agree-checkbox-label-text']").first
         self.disclosure_checkbox_contains_text: Locator = page.get_by_text("I confirm I have read and I").first
         self.disclosure_checkbox_error: Locator = page.locator("p[data-qa='ersd-agree-checkbox-error']")
-        self.continue_button_by_role: Locator = page.get_by_role("button", name="Continue")
+        self.continue_button_by_role: Locator = page.get_by_role("button", name=loc.CONTINUE_BUTTON)
 
         # Pre-OTP sign controls
         self.clientSignButton: Locator = page.locator("#signButton").first
         self.clientSignButtonBackup: Locator = page.get_by_role("button", name="Sign", exact=True)
-        
+
         # OTP verification locators
-        self.send_now_button: Locator = page.locator('button[data-qa="verify-choose-method-primary-button"]').first
+        self.send_now_button: Locator = page.locator(loc.VERIFY_SEND_NOW_BUTTON).first
         self.send_now_button_by_role: Locator = page.get_by_role("button", name=re.compile(r"^\s*send\s*now\s*$", re.IGNORECASE)).first
         self.send_now_button_text: Locator = page.locator("button:has-text('Send Now')").first
-        self.otp_code_input: Locator = page.locator(
-            'input[data-qa="verify-confirm-code-verification-code-input"]'
-        )
+        self.otp_code_input: Locator = page.locator(loc.VERIFY_OTP_INPUT)
         self.otp_verify_button: Locator = page.locator(
             "button[data-qa*='verify'], button:has-text('Verify'), button:has-text('Confirm')"
         )
@@ -120,18 +137,16 @@ class DocuSignPage(BasePage):
         self.required_sign_here_button: Locator = page.get_by_role("button", name="Required - Sign Here - Sign")
         self.required_initial_here_button: Locator = page.get_by_role("button", name="Required - Initial Here -").first
         self.adopt_and_sign_button: Locator = page.locator('button[data-qa="adopt-submit"], button:has-text("Adopt and Sign"), button:has-text("Adopt and Initial")')
-        self.required_signature_tab_buttons: Locator = page.locator(
-            "xpath=//button[starts-with(@data-qa, 'signature-tab-required')]"
-        )
+        self.required_signature_tab_buttons: Locator = page.locator(loc.SIGNATURE_TAB_BUTTON)
         self.required_view_button: Locator = page.get_by_role("button", name="Required - View,")
         self.go_back_close_button: Locator = page.get_by_role("button", name="GO BACK Close")
         self.required_accept_button: Locator = page.get_by_role("button", name="Required - Accept,")
         self.finish_button_by_label: Locator = page.get_by_label("Finish")
-        self.finish_button_action_bar: Locator = page.locator("#action-bar-btn-finish, #action-bar-btn-finish-mobile")
+        self.finish_button_action_bar: Locator = page.locator(loc.ACTION_BAR_FINISH_BUTTON)
         self.finish_button_slide_up_id: Locator = page.locator("#slide-up-bar-finish-button")
         self.finish_button_slide_up_data_qa: Locator = page.locator("button[data-qa='slide-up-bar-finish-button']")
-        self.finish_button_mobile_id: Locator = page.locator("#end-of-document-btn-finish-mobile")
-        self.finish_button_envelope_data_qa: Locator = page.locator("button[data-qa='envelope-finish']")
+        self.finish_button_mobile_id: Locator = page.locator(loc.END_OF_DOCUMENT_FINISH_BUTTON + "-mobile")
+        self.finish_button_envelope_data_qa: Locator = page.locator(loc.FINISH_BUTTON)
         self.finish_button_by_role: Locator = page.get_by_role("button", name="Finish")
         self.send_now_fallback_buttons: Locator = page.locator("button", has_text=re.compile(r"send\s*now", re.IGNORECASE))
         self.eSingature_btn_disabled: Locator = page.locator("button#eSignatureButton[disabled='disabled']").first
@@ -140,6 +155,28 @@ class DocuSignPage(BasePage):
         self.tracking_center_link: Locator = page.get_by_role("link", name="Tracking Center.")
         self.finish_later_dialog: Locator = page.get_by_role("dialog", name="Finish Later")
         self.finish_later_close_button: Locator = page.get_by_role("button", name="Close")
+
+        # ERSD modal locators
+        self.ersd_modal: Locator = page.locator(loc.ERSD_MODAL)
+        self.ersd_modal_aria: Locator = page.locator(loc.ERSD_MODAL_ARIA)
+        self.ersd_consent_checkbox: Locator = page.locator(loc.ERSD_CONSENT_CHECKBOX)
+        self.ersd_consent_checkbox_label: Locator = page.locator(loc.ERSD_CONSENT_CHECKBOX_LABEL)
+        self.ersd_continue_button: Locator = page.locator(loc.ERSD_CONTINUE_BUTTON)
+        self.dialog_content: Locator = page.locator(loc.DIALOG_CONTENT)
+
+        # Signature / adopt-modal / sign-button locators
+        self.signature_tab_button: Locator = page.locator(loc.SIGNATURE_TAB_BUTTON)
+        self.signature_applied_tab: Locator = page.get_by_role("button", name=re.compile(r"Required\s*-\s*Signature Applied"))
+        self.adopt_signature_modal: Locator = page.locator(loc.ADOPT_SIGNATURE_MODAL)
+        self.sign_button: Locator = page.locator(loc.SIGN_BUTTON)
+        self.date_signed_input: Locator = page.locator(loc.DATE_SIGNED_INPUT)
+
+        # D-number and eSignature process complete modal
+        self.d_number_span: Locator = page.locator(loc.D_NUMBER_SPAN)
+        self.esign_complete_modal: Locator = page.locator(loc.ESIGN_COMPLETE_MODAL)
+        self.esign_complete_title: Locator = page.locator(loc.ESIGN_COMPLETE_TITLE)
+        self.esign_d_number_link: Locator = page.locator(loc.ESIGN_D_NUMBER_LINK)
+        self.request_submitted_link: Locator = page.locator('.printConfirmationLink')
 
     def e_signature_sign(
         self,
@@ -1475,3 +1512,337 @@ class DocuSignPage(BasePage):
                     continue
 
         logger.error("[by-mail] Unable to click Close button in page or iframe context")
+
+    def get_d_number(self, timeout: int = 60000) -> str:
+        logger.info(f"[get_d_number] Waiting for D-number span (timeout={timeout}ms)")
+        try:
+            locator = self.d_number_span.first
+            locator.wait_for(state="visible", timeout=timeout)
+            text = (locator.text_content() or "").strip()
+            if not text:
+                raise AssertionError("D-number span found but text is empty")
+            logger.info(f"[get_d_number] D-number: {text}")
+            return text
+        except Exception as e:
+            raise AssertionError(f"Failed to fetch D-number from DocuSign page: {e}") from e
+
+    def check_ersd_consent_checkbox(self, timeout: int = 120000) -> None:
+        logger.info("[ersd] Clicking ERSD consent checkbox")
+        for strategy in (
+            self.disclosure_checkbox_primary_text,
+            self.disclosure_checkbox_data_qa,
+            self.disclosure_checkbox_contains_text,
+        ):
+            try:
+                strategy.wait_for(state="visible", timeout=5000)
+                strategy.scroll_into_view_if_needed()
+                strategy.click()
+                logger.info("[ersd] ERSD consent checkbox clicked")
+                return
+            except Exception:
+                continue
+        try:
+            self.ersd_consent_checkbox_label.wait_for(state="visible", timeout=timeout)
+            self.ersd_consent_checkbox_label.click()
+            logger.info("[ersd] ERSD consent checkbox clicked via label fallback")
+        except Exception as e:
+            logger.warning(f"[ersd] Could not click ERSD checkbox: {str(e)[:120]}")
+
+    def click_ersd_continue_button(self, timeout: int = 120000) -> None:
+        logger.info("[ersd] Clicking ERSD Continue button")
+        try:
+            self.continue_button_by_role.wait_for(state="visible", timeout=timeout)
+            self.continue_button_by_role.click()
+            try:
+                self.continue_button_by_role.wait_for(state="hidden", timeout=30000)
+            except Exception:
+                self.wait_for_timeout(3000)
+            logger.info("[ersd] ERSD Continue button clicked")
+        except Exception as e:
+            logger.error(f"[ersd] Failed to click ERSD Continue button: {str(e)[:120]}")
+            raise RuntimeError(f"ERSD Continue button not clickable: {e}")
+
+    def verify_docusign_url(self, timeout: int = 60000) -> str:
+        logger.info("[verify_docusign_url] Waiting for DocuSign URL...")
+        try:
+            self.page.wait_for_url(
+                lambda url: "docusign.com/sign" in url,
+                timeout=timeout,
+            )
+        except Exception as e:
+            raise AssertionError(
+                f"[FAIL] DocuSign URL not detected within {timeout / 1000}s. "
+                f"Current URL: {self.page.url}. Error: {str(e).splitlines()[0]}"
+            ) from e
+
+        current_url = self.page.url
+        assert "docusign.com" in current_url, (
+            f"[FAIL] Expected URL to contain 'docusign.com', got: {current_url}"
+        )
+        logger.info(f"[PASS] DocuSign URL verified: {current_url}")
+        try:
+            allure.attach(
+                self.page.screenshot(),
+                name="DocuSign - URL Verified",
+                attachment_type=allure.attachment_type.PNG,
+            )
+        except Exception:
+            pass
+        return current_url
+
+    def scroll_to_last_page_and_sign(self, timeout: int = 60000) -> None:
+        logger.info("[scroll_and_sign] Scrolling to Sign button...")
+        try:
+            self.signature_tab_button.first.wait_for(state="visible", timeout=timeout)
+            self.signature_tab_button.first.scroll_into_view_if_needed()
+        except Exception as e:
+            raise AssertionError(
+                f"[FAIL] Sign button not visible within {timeout / 1000}s: {str(e).splitlines()[0]}"
+            ) from e
+
+        try:
+            allure.attach(
+                self.page.screenshot(),
+                name="DocuSign - Before Sign Click",
+                attachment_type=allure.attachment_type.PNG,
+            )
+        except Exception:
+            pass
+
+        try:
+            self.signature_tab_button.first.click()
+            logger.info("[scroll_and_sign] Sign button clicked")
+        except Exception as e:
+            raise AssertionError(
+                f"[FAIL] Could not click Sign button: {str(e).splitlines()[0]}"
+            ) from e
+
+        try:
+            self.adopt_signature_modal.wait_for(state="visible", timeout=5000)
+            logger.info("[scroll_and_sign] Adopt-and-Sign modal appeared, clicking adopt button")
+            self.click_adopt_and_sign_button()
+        except Exception:
+            logger.info("[scroll_and_sign] Adopt-and-Sign modal not shown (pre-adopted signature)")
+
+        try:
+            self.signature_applied_tab.wait_for(state="visible", timeout=timeout)
+            logger.info("[PASS] Signature applied - 'Signature Applied' button visible")
+        except Exception:
+            try:
+                is_invalid = self.signature_tab_button.first.get_attribute("aria-invalid")
+                assert is_invalid != "true", "Sign tab still aria-invalid=true after signing"
+                logger.info("[PASS] Signature applied - aria-invalid cleared")
+            except Exception as fallback_err:
+                raise AssertionError(
+                    "[FAIL] Signature not confirmed after Adopt and Sign"
+                ) from fallback_err
+
+        try:
+            allure.attach(
+                self.page.screenshot(),
+                name="DocuSign - Signature Applied",
+                attachment_type=allure.attachment_type.PNG,
+            )
+        except Exception:
+            pass
+        logger.info("[PASS] scroll_to_last_page_and_sign completed")
+
+    def verify_esign_complete_modal(self, timeout: int = 60000) -> None:
+        logger.info("[verify_esign_modal] Waiting for eSignature Process Complete modal...")
+        try:
+            self.esign_complete_modal.wait_for(state="visible", timeout=timeout)
+            title_text = self.esign_complete_title.text_content() or ""
+            assert "eSignature Process Complete" in title_text, (
+                f"[FAIL] Modal title mismatch. Got: '{title_text.strip()}'"
+            )
+            logger.info(f"[PASS] eSignature Process Complete modal verified: '{title_text.strip()}'")
+        except AssertionError:
+            raise
+        except Exception as e:
+            raise AssertionError(
+                f"[FAIL] eSignature Process Complete modal not visible within "
+                f"{timeout / 1000}s: {str(e).splitlines()[0]}"
+            ) from e
+        try:
+            allure.attach(
+                self.page.screenshot(),
+                name="eSignature Process Complete Modal",
+                attachment_type=allure.attachment_type.PNG,
+            )
+        except Exception:
+            pass
+
+    def click_d_number_in_esign_modal(self, timeout: int = 30000) -> str:
+        logger.info("[click_d_number] Clicking D-number link in eSignature modal...")
+        try:
+            self.esign_d_number_link.wait_for(state="visible", timeout=timeout)
+            d_number = (self.esign_d_number_link.text_content() or "").strip()
+            logger.info(f"[click_d_number] D-number: {d_number}")
+        except Exception as e:
+            raise AssertionError(
+                f"[FAIL] D-number link (a.eSignConfirmationLink) not visible within "
+                f"{timeout / 1000}s: {str(e).splitlines()[0]}"
+            ) from e
+        try:
+            allure.attach(
+                self.page.screenshot(),
+                name=f"eSignature Modal - D Number: {d_number}",
+                attachment_type=allure.attachment_type.PNG,
+            )
+        except Exception:
+            pass
+        with self.page.expect_navigation(
+            url=lambda u: "TrackingCenter" in u or "trackingcenter" in u.lower(),
+            timeout=timeout,
+        ):
+            self.esign_d_number_link.click()
+        logger.info(f"[PASS] Navigated to Tracking Center via D-number: {d_number}")
+        try:
+            allure.attach(
+                self.page.screenshot(),
+                name=f"Tracking Center - After D Number ({d_number})",
+                attachment_type=allure.attachment_type.PNG,
+            )
+        except Exception:
+            pass
+        return d_number
+
+    def verify_docusign_page_loaded(self, timeout: int = 120000) -> None:
+        logger.info(f"[verify_docusign_page_loaded] Waiting for DocuSign page (timeout={timeout}ms)")
+        current_url = self.page.url
+        if "docusign" in current_url.lower():
+            logger.info(f"[verify_docusign_page_loaded] Already on DocuSign page: {current_url}")
+        else:
+            logger.info(f"[verify_docusign_page_loaded] Current URL: {current_url} — waiting for DocuSign navigation")
+            self.page.wait_for_url(lambda url: "docusign" in url.lower(), timeout=timeout)
+            logger.info("[verify_docusign_page_loaded] DocuSign URL detected")
+        try:
+            self.page.wait_for_load_state("networkidle", timeout=timeout)
+            logger.info("[verify_docusign_page_loaded] Page reached networkidle")
+        except Exception as e:
+            logger.warning(f"[verify_docusign_page_loaded] networkidle not reached: {str(e)[:100]}")
+        time.sleep(1.0)
+        try:
+            allure.attach(
+                self.page.screenshot(),
+                name="DocuSign Page Loaded",
+                attachment_type=allure.attachment_type.PNG,
+            )
+        except Exception as e:
+            logger.warning(f"[verify_docusign_page_loaded] Screenshot failed: {str(e)[:100]}")
+
+    def click_finish_button(self, timeout: int = 30000) -> None:
+        logger.info("[click_finish_button] Attempting to click Finish button")
+        try:
+            self.page.wait_for_load_state("networkidle", timeout=min(timeout, 10000))
+        except Exception:
+            pass
+
+        candidates = [
+            ("end-of-document-btn-finish", self.page.locator("#end-of-document-btn-finish")),
+            ("action-bar-btn-finish", self.finish_button_action_bar),
+            ("finish-button-by-role", self.finish_button_by_role.first),
+        ]
+        for name, locator in candidates:
+            try:
+                locator.wait_for(state="visible", timeout=5000)
+                locator.scroll_into_view_if_needed()
+                locator.click(timeout=5000)
+                logger.info(f"[click_finish_button] Clicked via strategy: {name}")
+                try:
+                    allure.attach(
+                        self.page.screenshot(),
+                        name="DocuSign - After Finish Button Click",
+                        attachment_type=allure.attachment_type.PNG,
+                    )
+                except Exception:
+                    pass
+                return
+            except Exception as e:
+                logger.debug(f"[click_finish_button] Strategy '{name}' failed: {str(e)[:80]}")
+
+        raise AssertionError(
+            f"[FAIL] click_finish_button: No Finish button found within {timeout}ms. "
+            "Tried: end-of-document-btn-finish, action-bar-btn-finish, button[role] Finish."
+        )
+
+    def get_stamping_element(self, stamping_text: str) -> "Locator":
+        logger.info(f"[get_stamping_element] Locating element with text: '{stamping_text}'")
+        return self.page.get_by_text(stamping_text, exact=False)
+
+    def fetch_docusign_review_and_continue_dialog_text(self, timeout: int = 120000) -> str:
+        logger.info(f"[fetch_docusign_review_and_continue_dialog_text] Waiting for ERSD dialog (timeout={timeout}ms)")
+        dialog_locator = None
+        for name, locator in [
+            ("ersd-modal[data-qa]", self.ersd_modal),
+            ("ersd-modal[aria-label]", self.ersd_modal_aria),
+            ("dialog[role]", self.page.get_by_role("dialog").first),
+        ]:
+            try:
+                locator.wait_for(state="visible", timeout=timeout)
+                dialog_locator = locator
+                logger.info(f"[fetch_docusign_review_and_continue_dialog_text] Dialog found via: {name}")
+                break
+            except Exception:
+                logger.debug(f"[fetch_docusign_review_and_continue_dialog_text] Strategy '{name}' failed")
+
+        if dialog_locator is None:
+            try:
+                allure.attach(
+                    self.page.screenshot(),
+                    name="ERSD Dialog Not Found",
+                    attachment_type=allure.attachment_type.PNG,
+                )
+            except Exception:
+                pass
+            raise AssertionError(
+                f"[FAIL] fetch_docusign_review_and_continue_dialog_text: "
+                f"ERSD dialog not visible after {timeout / 1000}s"
+            )
+
+        try:
+            self.dialog_content.wait_for(state="visible", timeout=5000)
+            text = (self.dialog_content.text_content() or "").strip()
+        except Exception:
+            text = (dialog_locator.text_content() or "").strip()
+
+        logger.info(f"[fetch_docusign_review_and_continue_dialog_text] Dialog text length: {len(text)}")
+        return text
+
+    def verify_request_submitted_popup(self, timeout: int = 15000) -> None:
+        logger.info(f"[verify_request_submitted_popup] Waiting for Request Submitted link (timeout={timeout}ms)")
+        logger.info(f"[verify_request_submitted_popup] Current URL: {self.page.url}")
+        try:
+            link = self.request_submitted_link.first
+            link.wait_for(state="visible", timeout=timeout)
+            logger.info("[PASS] Request Submitted popup confirmed — D# link is visible")
+            try:
+                allure.attach(
+                    self.page.screenshot(),
+                    name="Request Submitted Popup",
+                    attachment_type=allure.attachment_type.PNG,
+                )
+            except Exception:
+                pass
+        except Exception as e:
+            raise AssertionError(
+                f"[FAIL] verify_request_submitted_popup: .printConfirmationLink not visible "
+                f"within {timeout / 1000}s. URL: {self.page.url}. Error: {str(e).splitlines()[0]}"
+            ) from e
+
+    def get_d_number_and_click(self, test_context: dict) -> str:
+        logger.info("[get_d_number_and_click] Locating D-number link (.printConfirmationLink)")
+        try:
+            link = self.request_submitted_link.first
+            link.wait_for(state="visible", timeout=15000)
+            d_number = (link.inner_text() or "").strip()
+            logger.info(f"[get_d_number_and_click] D-number: {d_number}")
+            test_context['d_number'] = d_number
+            link.click()
+            logger.info(f"[get_d_number_and_click] D# link clicked — navigating to Tracking Center")
+            return d_number
+        except Exception as e:
+            raise AssertionError(
+                f"[FAIL] get_d_number_and_click: .printConfirmationLink not visible within 15s. "
+                f"Error: {str(e).splitlines()[0]}"
+            ) from e
