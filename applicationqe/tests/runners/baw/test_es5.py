@@ -1,25 +1,12 @@
 """
-Test module for NAW feature using BDD approach
+Test module for BAW features using the shared BDD runner.
 """
 
 from pytest_bdd import scenarios
 
 # Import step definitions
-from tests.steps.common_steps import *  # noqa
-from tests.steps.naw.navbar_common_steps import *  # noqa
-from tests.steps.naw.dashboard_steps import *  # noqa
-from tests.steps.naw.clients_steps import *  # noqa
-from tests.steps.naw.account_wizard_steps import *  # noqa
-from tests.steps.naw.client_profile_step import *  # noqa
-from tests.steps.naw.construct_portfolio_step import *  # noqa
-from tests.steps.naw.fees_step import *  # noqa
-from tests.steps.naw.portfolio_details_step import *  # noqa
-from tests.steps.naw.account_setup_step import *  # noqa
-from tests.steps.naw.review_all_accounts_step import *  # noqa
-from tests.steps.naw.create_documents_step import *  # noqa
-from tests.steps.naw.view_documents_step import *  # noqa
-from tests.steps.naw.docusign_step import *  # noqa
-from tests.steps.naw.tracking_center_steps import *  # noqa
+from tests.steps.baw.construct_portfolio_step import *  # noqa
+from tests.steps.baw.view_documents_step import *  # noqa
 from tests.steps.baw.baw_login_steps import *  # noqa
 from tests.steps.baw.baw_dashboard_steps import *  # noqa
 from tests.steps.baw.shell_process_steps import *  # noqa
@@ -28,9 +15,14 @@ from tests.steps.baw.naa_coach_steps import *  # noqa
 from tests.steps.baw.transfer_attributes_step import *  # noqa
 from tests.steps.baw.create_oa_step import *  # noqa
 from tests.steps.baw.journal_utility_step import *  # noqa
-# Add other step files as needed
+from tests.steps.baw.withdrawal_step import *  # noqa
+from tests.steps.baw.check_contributions_steps import *  # noqa
 
-# Load all scenarios from the feature files
-scenarios("../../features/baw/baw_transfer_records.feature")
-scenarios("../../features/baw/baw_shell_journal.feature")
+# Load remaining BAW feature files.
 scenarios("../../features/baw/baw_account_activation.feature")
+scenarios("../../features/baw/baw_shell_journal.feature")
+scenarios("../../features/baw/baw_transfer_records.feature")
+scenarios("../../features/baw/baw_Check_Association_To_Transfer.feature")
+scenarios("../../features/baw/baw_withdrawal.feature")
+scenarios("../../features/baw/baw_Agent_notification.feature")
+scenarios("../../features/baw/baw_check_extraction.feature")

@@ -1,6 +1,7 @@
 from playwright.sync_api import Locator, Page
 
 from config.settings import get_settings
+from locators.baw.dashboard_locators import DashboardLocators
 from pages.base_page import BasePage
 from utils.allure_logger import get_allure_logger
 
@@ -14,8 +15,8 @@ class DashboardPage(BasePage):
 
     def __init__(self, page: Page, home_url: str = ""):
         super().__init__(page, home_url=home_url)
-        self.clients_tab_btn: Locator = page.get_by_role("link", name="Clients")
-        self.action_items_link: Locator = page.get_by_role("link", name="Action Items")
+        self.clients_tab_btn: Locator = page.get_by_role("link", name=DashboardLocators.CLIENTS_TAB_ROLE)
+        self.action_items_link: Locator = page.get_by_role("link", name=DashboardLocators.ACTION_ITEMS_ROLE)
 
     def click_clients_tab(self) -> None:
         """Click on the Clients navigation link."""
@@ -39,3 +40,5 @@ class DashboardPage(BasePage):
             self.action_items_link.wait_for(state="visible", timeout=15000)
             self.click(self.action_items_link)
             logger.info("Action Items tab clicked after dashboard navigation")
+
+

@@ -4,5 +4,13 @@
   "influxdb_bucket": "AutomationData",
   "influxdb_token": "ENC:gAAAAABpun_yVkAQ2Ejo8y8uwFc08P3tLmgCSV7T0f7NGcZNrFgoaviF4XCmmxGjpPmDowULCbIdd2jLHN_2PkFEZJgX8YJyA5k6QZHceYkaGB_LQmiIGM0CkpZGQyqjPgnsWyzQrIzeuvpLvBN7aAqr43n7F7DBiTvTco9IMaVSntnYIAbRSgRtBC0Q5DnLbKbILL2G6MxX",
   "project_name": "MM_Wrapper_Model",
+  "test_app": "wrapper",
+  "measurement": "test_execution_wrappermodel",
+  "secondary_measurement": "test_execution",
+  "team": "QA",
+  "module": "ModelManagement",
+  "submodule": "WrapperModel",
+  "grafana_dashboard": "WrapperModel Test Execution",
+  "grafana_folder": "QE/WrapperModel",
   "auto_push": true
 }

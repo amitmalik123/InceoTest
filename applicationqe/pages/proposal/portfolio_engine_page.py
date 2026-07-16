@@ -16,106 +16,106 @@ class PortfolioEnginePage(BasePage):
 
     def __init__(self, page: Page):
         super().__init__(page)
+        self.form_root = self.active_root()
 
         # NAVIGATION
-        self.investments_link: Locator = page.get_by_role("link", name="Investments")
-        self.portfolio_engine_link: Locator = page.get_by_role("link", name="PortfolioEngine", exact=True)
-        self.launch_portfolio_engine_img: Locator = page.get_by_role("img", name="Launch Portfolio Engine").first
-        self.clients_link: Locator = page.locator('a[href="/AccountsAnalysis/Clients/ClientList"]')
+        self.investments_link: Locator = self.form_root.get_by_role("link", name="Investments")
+        self.portfolio_engine_link: Locator = self.form_root.get_by_role("link", name="PortfolioEngine", exact=True)
+        self.launch_portfolio_engine_img: Locator = self.form_root.get_by_role("img", name="Launch Portfolio Engine").first
 
         # WIDGET HEADERS
-        self.upside_downside_capture_header: Locator = page.get_by_role("heading", name="Upside/Downside Capture")
-        self.investment_approach_header: Locator = page.get_by_role("heading", name="Investment Approach")
-        self.return_by_strategy_header: Locator = page.get_by_role("heading", name="Return by Strategy")
-        self.stress_test_header: Locator = page.get_by_role("heading", name="Stress Test")
-        self.asset_allocation_holdings_header: Locator = page.get_by_role("heading", name="Asset Allocation & Holdings")
-        self.risk_vs_return_header: Locator = page.get_by_role("heading", name="Risk vs Return")
-        self.summary_statistics_header: Locator = page.get_by_role("heading", name="Summary Statistics")
-        self.drawdown_header: Locator = page.get_by_role("heading", name="Drawdown")
-        self.performance_header: Locator = page.get_by_role("heading", name="Performance")
+        self.upside_downside_capture_header: Locator = self.form_root.get_by_role("heading", name="Upside/Downside Capture")
+        self.investment_approach_header: Locator = self.form_root.get_by_role("heading", name="Investment Approach")
+        self.return_by_strategy_header: Locator = self.form_root.get_by_role("heading", name="Return by Strategy")
+        self.stress_test_header: Locator = self.form_root.get_by_role("heading", name="Stress Test")
+        self.asset_allocation_holdings_header: Locator = self.form_root.get_by_role("heading", name="Asset Allocation & Holdings")
+        self.risk_vs_return_header: Locator = self.form_root.get_by_role("heading", name="Risk vs Return")
+        self.summary_statistics_header: Locator = self.form_root.get_by_role("heading", name="Summary Statistics")
+        self.drawdown_header: Locator = self.form_root.get_by_role("heading", name="Drawdown")
+        self.performance_header: Locator = self.form_root.get_by_role("heading", name="Performance")
 
         # PORTFOLIO MANAGEMENT BUTTONS
-        self.get_started_button: Locator = page.get_by_role("button", name="Get Started...")
-        self.manage_portfolios_button: Locator = page.get_by_role("button", name="Manage Portfolios")
-        self.create_new_model_portfolio_button: Locator = page.get_by_role("button", name="Create New Model Portfolio")
-        self.create_proposal_button: Locator = page.get_by_role("button", name="Create Proposal")
-        self.next_button: Locator = page.get_by_role("button", name="NEXT")
-        self.strategy_save_button: Locator = page.locator('[class*="popup-component__footer"]').get_by_role("button", name="Save")
-        self.portfolio_close_button: Locator = page.locator('[class*="popup-component__footer"]').get_by_role("button", name="Close")
-        self.preview_proposal_button: Locator = page.get_by_role("button", name="Preview Proposal")
-        self.save_proposal_button: Locator = page.get_by_role("button", name="save proposal")
-        self.view_documents_button: Locator = page.get_by_role("button", name="View Documents")
-        self.one_combined_document_text: Locator = page.get_by_text("One Combined Document")
-        self.quit_proposal_button: Locator = page.locator('img[src*="x-icon"]')
+        self.get_started_button: Locator = self.form_root.get_by_role("button", name="Get Started...")
+        self.manage_portfolios_button: Locator = self.form_root.get_by_role("button", name="Manage Portfolios")
+        self.create_new_model_portfolio_button: Locator = self.form_root.get_by_role("button", name="Create New Model Portfolio")
+        self.create_proposal_button: Locator = self.form_root.get_by_role("button", name="Create Proposal")
+        self.next_button: Locator = self.form_root.get_by_role("button", name="NEXT")
+        self.strategy_save_button: Locator = self.form_root.locator('[class*="popup-component__footer"]').get_by_role("button", name="Save")
+        self.portfolio_close_button: Locator = self.form_root.locator('[class*="popup-component__footer"]').get_by_role("button", name="Close")
+        self.preview_proposal_button: Locator = self.form_root.get_by_role("button", name="Preview Proposal")
+        self.save_proposal_button: Locator = self.form_root.get_by_role("button", name="save proposal")
+        self.view_documents_button: Locator = self.form_root.get_by_role("button", name="View Documents")
+        self.one_combined_document_text: Locator = self.form_root.get_by_text("One Combined Document")
+        self.quit_proposal_button: Locator = self.form_root.locator('img[src*="x-icon"]')
 
         # PORTFOLIO CREATION
-        self.asset_mark_platform_strategies_text: Locator = page.get_by_text("AssetMark Platform Strategies", exact=True)
-        self.strategy_search_box: Locator = page.get_by_role("textbox", name="Search")
-        self.add_to_portfolio_text: Locator = page.get_by_text("Add to Portfolio")
-        self.model_portfolio_name_textbox: Locator = page.get_by_role("textbox", name="Model Portfolio Name")
-        self.investment_allocation_text: Locator = page.locator('[class*="sidebar-portfolio-component"]').locator('[class*="sectionTwo"]')
+        self.asset_mark_platform_strategies_text: Locator = self.form_root.get_by_text("AssetMark Platform Strategies", exact=True)
+        self.strategy_search_box: Locator = self.form_root.get_by_role("textbox", name="Search")
+        self.add_to_portfolio_text: Locator = self.form_root.get_by_text("Add to Portfolio")
+        self.model_portfolio_name_textbox: Locator = self.form_root.get_by_role("textbox", name="Model Portfolio Name")
+        self.investment_allocation_text: Locator = self.form_root.locator('[class*="sidebar-portfolio-component"]').locator('[class*="sectionTwo"]')
 
         # STRATEGY CHECKBOXES
-        self.asset_mark_income_builder_checkbox: Locator = page.get_by_role("checkbox", name="AssetMark Income Builder")
-        self.black_rock_equity_dividend_checkbox: Locator = page.get_by_role("checkbox", name="BlackRock Equity Dividend")
-        self.savos_us_risk_checkbox: Locator = page.get_by_role("checkbox", name="Savos US Risk Controlled Strategy")
-        self.alpha_simplex_checkbox: Locator = page.get_by_role("checkbox", name="AlphaSimplex")
-        self.jp_morgan_absolute_return_checkbox: Locator = page.get_by_role("checkbox", name="JPMorgan Absolute Return")
+        self.asset_mark_income_builder_checkbox: Locator = self.form_root.get_by_role("checkbox", name="AssetMark Income Builder")
+        self.black_rock_equity_dividend_checkbox: Locator = self.form_root.get_by_role("checkbox", name="BlackRock Equity Dividend")
+        self.savos_us_risk_checkbox: Locator = self.form_root.get_by_role("checkbox", name="Savos US Risk Controlled Strategy")
+        self.aim_checkbox: Locator = self.form_root.get_by_role("checkbox", name="AIM Decathlon Growth")
+        self.jp_morgan_absolute_return_checkbox: Locator = self.form_root.get_by_role("checkbox", name="JPMorgan Absolute Return")
 
         # PROPOSAL CREATION - CLIENT
-        self.new_client_radio: Locator = page.get_by_role("radio", name="New Client")
-        self.new_client_text: Locator = page.get_by_text("New Client")
-        self.existing_client_radio: Locator = page.get_by_role("radio", name="Existing Client")
-        self.existing_client_text: Locator = page.get_by_text("Existing Client")
-        self.discretionary_radio: Locator = page.get_by_role("radio", name="Discretionary", exact=True)
-        self.discretionary_text: Locator = page.get_by_text("Discretionary", exact=True)
-        self.non_discretionary_radio: Locator = page.get_by_role("radio", name="Non-Discretionary")
-        self.non_discretionary_text: Locator = page.get_by_text("Non-Discretionary")
-        self.first_name_textbox: Locator = page.get_by_role("textbox", name="First")
-        self.last_name_textbox: Locator = page.get_by_role("textbox", name="Last")
+        self.new_client_radio: Locator = self.form_root.get_by_role("radio", name="New Client")
+        self.new_client_text: Locator = self.form_root.get_by_text("New Client")
+        self.existing_client_radio: Locator = self.form_root.get_by_role("radio", name="Existing Client")
+        self.existing_client_text: Locator = self.form_root.get_by_text("Existing Client")
+        self.discretionary_radio: Locator = self.form_root.get_by_role("radio", name="Discretionary", exact=True)
+        self.discretionary_text: Locator = self.form_root.get_by_text("Discretionary", exact=True)
+        self.non_discretionary_radio: Locator = self.form_root.get_by_role("radio", name="Non-Discretionary")
+        self.non_discretionary_text: Locator = self.form_root.get_by_text("Non-Discretionary")
+        self.first_name_textbox: Locator = self.form_root.get_by_role("textbox", name="First")
+        self.last_name_textbox: Locator = self.form_root.get_by_role("textbox", name="Last")
 
 
         # PROPOSAL CREATION - RISK PROFILE
-        self.moderate_risk_radio: Locator = page.get_by_role("radio", name="Moderate", exact=True)
-        self.time_horizon_nine_years_radio: Locator = page.get_by_role("radio", name="6 - 9 years")
-        self.decline_fifty_percent_radio: Locator = page.get_by_role("radio", name="25 - 50%")
-        self.risk_tolerance_moderate_radio: Locator = page.get_by_role("radio", name="3 - Moderate")
+        self.moderate_risk_radio: Locator = self.form_root.get_by_role("radio", name="Moderate", exact=True)
+        self.time_horizon_nine_years_radio: Locator = self.form_root.get_by_role("radio", name="6 - 9 years")
+        self.decline_fifty_percent_radio: Locator = self.form_root.get_by_role("radio", name="25 - 50%")
+        self.risk_tolerance_moderate_radio: Locator = self.form_root.get_by_role("radio", name="3 - Moderate")
 
         # PROPOSAL CREATION - ACCOUNT SETUP
-        self.select_custodian_dropdown: Locator = page.locator('[class*="custodian"], [class*="dropdown"]').get_by_role("img", name="ArrowDown").first
-        self.fidelity_text: Locator = page.get_by_role("listitem").filter(has_text="Fidelity")
-        self.assetmark_text: Locator = page.get_by_role("listitem").filter(has_text="AssetMark Trust")
-        self.asset_mark_text: Locator = page.get_by_role("listitem").filter(has_text="AssetMark Trust")
-        self.schwab_text: Locator = page.get_by_role("listitem").filter(has_text="Schwab")
-        self.pershing_advisor_solutions_text: Locator = page.get_by_role("listitem").filter(has_text="Pershing Advisor Solutions")
-        self.add_registration_button: Locator = page.locator('img[class*="accounts_icon"]').first
-        self.registration_name_textbox: Locator = page.get_by_role("textbox")
-        self.registration_type_dropdown: Locator = page.locator('[class*="accounts-select-dropdown_secondSelectCss"]').filter(has_text="Select")
-        self.individual_category: Locator = page.locator('[class*="accounts-select-dropdown_group"]').filter(has_text="Individual").locator("p").first
-        self.trust_category: Locator = page.locator('[class*="accounts-select-dropdown_parentList"]').filter(has_text="Trust").locator("p")
-        self.joint_category: Locator = page.locator('[class*="accounts-select-dropdown_group"]').filter(has_text="Joint").locator("p").first
-        self.iras_category: Locator = page.locator('[class*="accounts-select-dropdown_group"]').filter(has_text="IRA's").locator("p").first
-        self.retirement_plans_category: Locator = page.locator('[class*="accounts-select-dropdown_group"]').filter(has_text="Retirement Plans").locator("p").first
-        self.business_accounts_category: Locator = page.locator('[class*="accounts-select-dropdown_group"]').filter(has_text="Business Accounts").locator("p").first
-        self.organizations_category: Locator = page.locator('[class*="accounts-select-dropdown_group"]').filter(has_text="Organizations").locator("p").first
-        self.other_category: Locator = page.locator('[class*="accounts-select-dropdown_group"]').filter(has_text="Other").locator("p").first
-        self.add_account_button: Locator = page.locator('img[class*="addAccIcon"]')
-        self.model_list_confirm: Locator = page.locator('[class*="accounts-popUp"]').get_by_role("button", name="CONFIRM", exact=True)
-        self.investment_amount_input: Locator = page.locator('input[name="investmentAmount"]')
-        self.enroll_in_tax_radio: Locator = page.get_by_role("radio", name="Enroll in Tax Management Services", exact=True)
-        self.do_not_enroll_in_tax_radio: Locator = page.get_by_role("radio", name="Do not enroll in Tax")
-        self.confirm_text: Locator = page.get_by_text("CONFIRM", exact=True)
+        self.select_custodian_dropdown: Locator = self.form_root.locator('[class*="custodian"], [class*="dropdown"]').get_by_role("img", name="ArrowDown").first
+        self.fidelity_text: Locator = self.form_root.get_by_role("listitem").filter(has_text="Fidelity")
+        self.assetmark_text: Locator = self.form_root.get_by_role("listitem").filter(has_text="AssetMark Trust")
+        self.asset_mark_text: Locator = self.form_root.get_by_role("listitem").filter(has_text="AssetMark Trust")
+        self.schwab_text: Locator = self.form_root.get_by_role("listitem").filter(has_text="Schwab")
+        self.pershing_advisor_solutions_text: Locator = self.form_root.get_by_role("listitem").filter(has_text="Pershing Advisor Solutions")
+        self.add_registration_button: Locator = self.form_root.locator('img[class*="accounts_icon"]').first
+        self.registration_name_textbox: Locator = self.form_root.get_by_role("textbox")
+        self.registration_type_dropdown: Locator = self.form_root.locator('[class*="accounts-select-dropdown_secondSelectCss"]').filter(has_text="Select")
+        self.individual_category: Locator = self.form_root.locator('[class*="accounts-select-dropdown_group"]').filter(has_text="Individual").locator("p").first
+        self.trust_category: Locator = self.form_root.locator('[class*="accounts-select-dropdown_parentList"]').filter(has_text="Trust").locator("p")
+        self.joint_category: Locator = self.form_root.locator('[class*="accounts-select-dropdown_group"]').filter(has_text="Joint").locator("p").first
+        self.iras_category: Locator = self.form_root.locator('[class*="accounts-select-dropdown_group"]').filter(has_text="IRA's").locator("p").first
+        self.retirement_plans_category: Locator = self.form_root.locator('[class*="accounts-select-dropdown_group"]').filter(has_text="Retirement Plans").locator("p").first
+        self.business_accounts_category: Locator = self.form_root.locator('[class*="accounts-select-dropdown_group"]').filter(has_text="Business Accounts").locator("p").first
+        self.organizations_category: Locator = self.form_root.locator('[class*="accounts-select-dropdown_group"]').filter(has_text="Organizations").locator("p").first
+        self.other_category: Locator = self.form_root.locator('[class*="accounts-select-dropdown_group"]').filter(has_text="Other").locator("p").first
+        self.add_account_button: Locator = self.form_root.locator('img[class*="addAccIcon"]')
+        self.model_list_confirm: Locator = self.form_root.locator('[class*="accounts-popUp"]').get_by_role("button", name="CONFIRM", exact=True)
+        self.investment_amount_input: Locator = self.form_root.locator('input[name="investmentAmount"]')
+        self.enroll_in_tax_radio: Locator = self.form_root.get_by_role("radio", name="Enroll in Tax Management Services", exact=True)
+        self.do_not_enroll_in_tax_radio: Locator = self.form_root.get_by_role("radio", name="Do not enroll in Tax")
+        self.confirm_text: Locator = self.form_root.get_by_text("CONFIRM", exact=True)
 
         # PROPOSED ACCOUNTS DISPLAY
-        self.proposed_accounts_container: Locator = page.locator('[class*="proposedAccounts-sidebar-toggle_toggleCta"]')
-        self.proposed_accounts_header: Locator = page.locator('[class*="proposedAccounts-sidebar-toggle_toggleHeader"]')
-        self.proposed_accounts_amount: Locator = page.locator('[class*="proposedAccounts-sidebar-toggle_toggleAmount"]')
-        self.account_holder_name: Locator = page.locator('[class*="proposedAccounts-sidebar-toggle_regName"]')
-        self.multiple_strategy_account_name: Locator = page.locator('[class*="proposedAccounts-sidebar-toggle_toggleDataName"]')
-        self.multiple_strategy_account_amount: Locator = page.locator('[class*="proposedAccounts-sidebar-toggle_toggleDataValue"]')
+        self.proposed_accounts_container: Locator = self.form_root.locator('[class*="proposedAccounts-sidebar-toggle_toggleCta"]')
+        self.proposed_accounts_header: Locator = self.form_root.locator('[class*="proposedAccounts-sidebar-toggle_toggleHeader"]')
+        self.proposed_accounts_amount: Locator = self.form_root.locator('[class*="proposedAccounts-sidebar-toggle_toggleAmount"]')
+        self.account_holder_name: Locator = self.form_root.locator('[class*="proposedAccounts-sidebar-toggle_regName"]')
+        self.multiple_strategy_account_name: Locator = self.form_root.locator('[class*="proposedAccounts-sidebar-toggle_toggleDataName"]')
+        self.multiple_strategy_account_amount: Locator = self.form_root.locator('[class*="proposedAccounts-sidebar-toggle_toggleDataValue"]')
 
         # FEE DETAILS
-        self.fee_details_container: Locator = page.locator('[class*="fees_feeDetails"]')
+        self.fee_details_container: Locator = self.form_root.locator('[class*="fees_feeDetails"]')
         self.portfolio_value_label: Locator = self.fee_details_container.locator('[class*="fees_feeValue"]').filter(has_text="Portfolio Value").locator("div").first
         self.portfolio_value_amount: Locator = self.fee_details_container.locator('[class*="fees_feeValue"]').filter(has_text="Portfolio Value").locator("div").last
         self.financial_advisor_fee_label: Locator = self.fee_details_container.locator('[class*="fees_feeValue"]').filter(has_text="Financial Advisor").locator("div").first
@@ -124,134 +124,137 @@ class PortfolioEnginePage(BasePage):
         self.platform_fee: Locator = self.fee_details_container.locator('[class*="fees_feeValue"]').filter(has_text="Platform").locator("div").last
         self.total_fee_label: Locator = self.fee_details_container.locator('[class*="fees_totalFee"]').locator("div").first
         self.total_fee: Locator = self.fee_details_container.locator('[class*="fees_totalFee"]').locator("div").last
-        self.enter_fee_percentage_textbox: Locator = page.get_by_role("textbox", name="Enter %")
-        self.continue_button: Locator = page.get_by_role("button", name="Continue")
-        self.funded_accounts_div: Locator = page.locator("div").filter(has_text="Funded Accounts(0) $0").first
+        self.enter_fee_percentage_textbox: Locator = self.form_root.get_by_role("textbox", name="Enter %")
+        self.continue_button: Locator = self.form_root.get_by_role("button", name="Continue")
+        self.funded_accounts_div: Locator = self.form_root.locator("div").filter(has_text="Funded Accounts(0) $0").first
 
         # PROPOSAL DOCUMENT CHECKBOXES (24 sections)
-        self.introduction_checkbox: Locator = page.locator(".th-Introduction-wrap .checkbox-container .clsA")
-        self.pursuing_your_goals_checkbox: Locator = page.locator(".th-wrap.th-Investing .checkbox-container .clsA").first
-        self.investing_is_personal_checkbox: Locator = page.locator(".th-wrap.th-Investing .checkbox-container .clsA").nth(1)
-        self.equities_vs_bonds_checkbox: Locator = page.locator(".th-wrap.th-Growth .checkbox-container .clsA").first
-        self.cycle_of_emotions_checkbox: Locator = page.locator(".th-wrap.th-The.Cycle .checkbox-container .clsA")
-        self.staying_invested_checkbox: Locator = page.locator(".th-wrap.th-Growth .checkbox-container .clsA").nth(1)
-        self.your_investment_team_checkbox_top: Locator = page.locator(".th-wrap.th-Your .checkbox-container .clsA").first
-        self.your_investment_team_checkbox_inside: Locator = page.locator(".th-wrap.th-Your .checkbox-container .clsA").nth(1)
-        self.portfolio_strategists_checkbox: Locator = page.locator(".th-wrap.th-Portfolio .checkbox-container .clsA")
-        self.custodian_selection_checkbox: Locator = page.locator(".th-wrap.th-Custodian .checkbox-container .clsA")
-        self.ongoing_review_checkbox: Locator = page.locator(".th-wrap.th-Ongoing .checkbox-container .clsA")
-        self.recommended_investment_portfolio_checkbox: Locator = page.locator(".th-wrap.th-Recommended .checkbox-container .clsA").first
-        self.allocation_by_asset_class_checkbox: Locator = page.locator(".th-wrap.th-Allocation .checkbox-container .clsA")
-        self.top_holdings_checkbox: Locator = page.locator(".th-wrap.th-Top .checkbox-container .clsA")
-        self.proposed_accounts_estimated_yield_checkbox: Locator = page.locator(".th-wrap.th-Proposed .checkbox-container .clsA")
-        self.hypothetical_historical_performance_checkbox: Locator = page.locator(".th-wrap.th-Hypothetical .checkbox-container .clsA").first
-        self.hypothetical_growth_checkbox: Locator = page.locator(".th-wrap.th-Hypothetical .checkbox-container .clsA").nth(1)
-        self.hypothetical_growth_of_proposed_accounts_checkbox: Locator = page.locator(".th-wrap.th-Hypothetical .checkbox-container .clsA").nth(1)
-        self.rates_checkbox: Locator = page.locator(".th-wrap.th-Rates .checkbox-container .clsA")
-        self.calendar_year_returns_checkbox: Locator = page.locator(".th-wrap.th-Calendar .checkbox-container .clsA")
-        self.historical_cumulative_performance_checkbox: Locator = page.locator(".th-wrap.th-Historical .checkbox-container .clsA")
-        self.risk_versus_return_checkbox: Locator = page.locator(".th-wrap.th-Risk .checkbox-container .clsA")
-        self.annual_portfolio_fees_checkbox: Locator = page.locator(".th-wrap.th-Fee .checkbox-container .clsA").first
-        self.tiered_fee_schedule_checkbox: Locator = page.locator(".th-wrap.th-Tiered .checkbox-container .clsA")
-        self.estimate_expense_checkbox: Locator = page.locator(".th-wrap.th-Estimated .checkbox-container .clsA")
-        self.client_signature_checkbox: Locator = page.locator(".th-wrap.th-Client .checkbox-container .clsA")
-        self.investment_policy_statement_checkbox: Locator = page.locator(".th-wrap.th-Investment .checkbox-container .clsA")
+        self.introduction_checkbox: Locator = self.form_root.locator(".th-Introduction-wrap .checkbox-container .clsA")
+        self.pursuing_your_goals_checkbox: Locator = self.form_root.locator(".th-wrap.th-Investing .checkbox-container .clsA").first
+        self.investing_is_personal_checkbox: Locator = self.form_root.locator(".th-wrap.th-Investing .checkbox-container .clsA").nth(1)
+        self.equities_vs_bonds_checkbox: Locator = self.form_root.locator(".th-wrap.th-Growth .checkbox-container .clsA").first
+        self.cycle_of_emotions_checkbox: Locator = self.form_root.locator(".th-wrap.th-The.Cycle .checkbox-container .clsA")
+        self.staying_invested_checkbox: Locator = self.form_root.locator(".th-wrap.th-Growth .checkbox-container .clsA").nth(1)
+        self.your_investment_team_checkbox_top: Locator = self.form_root.locator(".th-wrap.th-Your .checkbox-container .clsA").first
+        self.your_investment_team_checkbox_inside: Locator = self.form_root.locator(".th-wrap.th-Your .checkbox-container .clsA").nth(1)
+        self.portfolio_strategists_checkbox: Locator = self.form_root.locator(".th-wrap.th-Portfolio .checkbox-container .clsA")
+        self.custodian_selection_checkbox: Locator = self.form_root.locator(".th-wrap.th-Custodian .checkbox-container .clsA")
+        self.ongoing_review_checkbox: Locator = self.form_root.locator(".th-wrap.th-Ongoing .checkbox-container .clsA")
+        self.recommended_investment_portfolio_checkbox: Locator = self.form_root.locator(".th-wrap.th-Recommended .checkbox-container .clsA").first
+        self.allocation_by_asset_class_checkbox: Locator = self.form_root.locator(".th-wrap.th-Allocation .checkbox-container .clsA")
+        self.top_holdings_checkbox: Locator = self.form_root.locator(".th-wrap.th-Top .checkbox-container .clsA")
+        self.proposed_accounts_estimated_yield_checkbox: Locator = self.form_root.locator(".th-wrap.th-Proposed .checkbox-container .clsA")
+        self.hypothetical_historical_performance_checkbox: Locator = self.form_root.locator(".th-wrap.th-Hypothetical .checkbox-container .clsA").first
+        self.hypothetical_growth_checkbox: Locator = self.form_root.locator(".th-wrap.th-Hypothetical .checkbox-container .clsA").nth(1)
+        self.hypothetical_growth_of_proposed_accounts_checkbox: Locator = self.form_root.locator(".th-wrap.th-Hypothetical .checkbox-container .clsA").nth(1)
+        self.rates_checkbox: Locator = self.form_root.locator(".th-wrap.th-Rates .checkbox-container .clsA")
+        self.calendar_year_returns_checkbox: Locator = self.form_root.locator(".th-wrap.th-Calendar .checkbox-container .clsA")
+        self.historical_cumulative_performance_checkbox: Locator = self.form_root.locator(".th-wrap.th-Historical .checkbox-container .clsA")
+        self.risk_versus_return_checkbox: Locator = self.form_root.locator(".th-wrap.th-Risk .checkbox-container .clsA")
+        self.annual_portfolio_fees_checkbox: Locator = self.form_root.locator(".th-wrap.th-Fee .checkbox-container .clsA").first
+        self.tiered_fee_schedule_checkbox: Locator = self.form_root.locator(".th-wrap.th-Tiered .checkbox-container .clsA")
+        self.estimate_expense_checkbox: Locator = self.form_root.locator(".th-wrap.th-Estimated .checkbox-container .clsA")
+        self.client_signature_checkbox: Locator = self.form_root.locator(".th-wrap.th-Client .checkbox-container .clsA")
+        self.investment_policy_statement_checkbox: Locator = self.form_root.locator(".th-wrap.th-Investment .checkbox-container .clsA")
 
         # DROPDOWN ICONS
-        self.pursuing_your_goals_dropdown_icon: Locator = page.locator(".th-wrap.th-Investing .icon-holder i")
-        self.recommended_portfolio_dropdown_icon: Locator = page.locator(".th-wrap.th-Recommended .icon-holder i").first
-        self.recommended_investment_portfolio_dropdown_icon: Locator = page.locator(".th-wrap.th-Recommended .icon-holder i").first
-        self.hypothetical_dropdown_icon: Locator = page.locator(".th-wrap.th-Hypothetical .icon-holder i").first
-        self.hypothetical_historical_performance_dropdown_icon: Locator = page.locator(".th-wrap.th-Hypothetical .icon-holder i").first
-        self.annual_fees_dropdown_icon: Locator = page.locator(".th-wrap.th-Fee .icon-holder i").first
-        self.annual_portfolio_fees_dropdown_icon: Locator = page.locator(".th-wrap.th-Fee .icon-holder i").first
+        self.pursuing_your_goals_dropdown_icon: Locator = self.form_root.locator(".th-wrap.th-Investing .icon-holder i")
+        self.recommended_portfolio_dropdown_icon: Locator = self.form_root.locator(".th-wrap.th-Recommended .icon-holder i").first
+        self.recommended_investment_portfolio_dropdown_icon: Locator = self.form_root.locator(".th-wrap.th-Recommended .icon-holder i").first
+        self.hypothetical_dropdown_icon: Locator = self.form_root.locator(".th-wrap.th-Hypothetical .icon-holder i").first
+        self.hypothetical_historical_performance_dropdown_icon: Locator = self.form_root.locator(".th-wrap.th-Hypothetical .icon-holder i").first
+        self.annual_fees_dropdown_icon: Locator = self.form_root.locator(".th-wrap.th-Fee .icon-holder i").first
+        self.annual_portfolio_fees_dropdown_icon: Locator = self.form_root.locator(".th-wrap.th-Fee .icon-holder i").first
 
         # CANVAS ELEMENTS - Content Locators for Proposal Document Sections
-        self.preview_layout_content_first: Locator = page.locator(".page-component:not(.fainted) canvas").first
-        self.table_of_contents_content: Locator = page.locator(".page-wrap.Table:not(.fainted) canvas")
-        self.introduction_content: Locator = page.locator(".page-wrap.Introduction-page-component-wrap:not(.fainted) canvas")
-        self.investing_content: Locator = page.locator(".page-wrap.Investing:not(.fainted) canvas")
-        self.growth_content_first: Locator = page.locator(".page-wrap.Growth:not(.fainted) canvas").first
-        self.the_content: Locator = page.locator(".page-wrap.The:not(.fainted) canvas")
-        self.growth_content_second: Locator = page.locator(".page-wrap.Growth:not(.fainted) canvas").nth(1)
-        self.your_content_canvas: Locator = page.locator(".page-wrap.Your:not(.fainted) canvas").first
-        self.portfolio_content: Locator = page.locator(".page-wrap.Portfolio:not(.fainted) canvas")
-        self.custodian_content: Locator = page.locator(".page-wrap.Custodian:not(.fainted) canvas")
-        self.ongoing_content: Locator = page.locator(".page-wrap.Ongoing:not(.fainted) canvas")
-        self.your_financial_content: Locator = page.locator(".page-wrap.Your.Financial:not(.fainted) canvas")
-        self.recommended_content: Locator = page.locator(".page-wrap.Recommended:not(.fainted) canvas")
-        self.allocation_content: Locator = page.locator(".page-wrap.Allocation:not(.fainted) canvas")
-        self.top_holdings_content: Locator = page.locator(".page-wrap.Top:not(.fainted) canvas")
-        self.proposed_content_first: Locator = page.locator(".page-wrap.Proposed:not(.fainted) canvas").first
-        self.hypothetical_content: Locator = page.locator(".page-wrap.Hypothetical:not(.fainted) canvas")
-        self.rates_content: Locator = page.locator(".page-wrap.Rates:not(.fainted) canvas")
-        self.calendar_content: Locator = page.locator(".page-wrap.Calendar:not(.fainted) canvas")
-        self.historical_content: Locator = page.locator(".page-wrap.Historical:not(.fainted) canvas")
-        self.risk_content: Locator = page.locator(".page-wrap.Risk:not(.fainted) canvas")
-        self.fee_content_first: Locator = page.locator(".page-wrap.Fee:not(.fainted) canvas").first
-        self.tiered_content: Locator = page.locator(".page-wrap.Tiered:not(.fainted) canvas")
-        self.estimated_expense_canvas: Locator = page.locator(".page-wrap.Estimated.Expense:not(.fainted) canvas")
-        self.important_information_canvas: Locator = page.locator(".page-wrap.Important.Information:not(.fainted) canvas")
-        self.disclosures_canvas: Locator = page.locator(".page-wrap.Disclosures:not(.fainted) canvas")
-        self.tax_management_services_canvas: Locator = page.locator(".page-wrap.Tax.Management.Services-page-component-wrap:not(.fainted) canvas")
-        self.client_signature_canvas: Locator = page.locator(".page-wrap.Client:not(.fainted) canvas")
-        self.investment_policy_canvas: Locator = page.locator(".page-wrap.Investment.Policy:not(.fainted) canvas")
+        self.preview_layout_content_first: Locator = self.form_root.locator(".page-component:not(.fainted) canvas").first
+        self.table_of_contents_content: Locator = self.form_root.locator(".page-wrap.Table:not(.fainted) canvas")
+        self.introduction_content: Locator = self.form_root.locator(".page-wrap.Introduction-page-component-wrap:not(.fainted) canvas")
+        self.investing_content: Locator = self.form_root.locator(".page-wrap.Investing:not(.fainted) canvas")
+        self.growth_content_first: Locator = self.form_root.locator(".page-wrap.Growth:not(.fainted) canvas").first
+        self.the_content: Locator = self.form_root.locator(".page-wrap.The:not(.fainted) canvas")
+        self.growth_content_second: Locator = self.form_root.locator(".page-wrap.Growth:not(.fainted) canvas").nth(1)
+        self.your_content_canvas: Locator = self.form_root.locator(".page-wrap.Your:not(.fainted) canvas").first
+        self.portfolio_content: Locator = self.form_root.locator(".page-wrap.Portfolio:not(.fainted) canvas")
+        self.custodian_content: Locator = self.form_root.locator(".page-wrap.Custodian:not(.fainted) canvas")
+        self.ongoing_content: Locator = self.form_root.locator(".page-wrap.Ongoing:not(.fainted) canvas")
+        self.your_financial_content: Locator = self.form_root.locator(".page-wrap.Your.Financial:not(.fainted) canvas")
+        self.recommended_content: Locator = self.form_root.locator(".page-wrap.Recommended:not(.fainted) canvas")
+        self.allocation_content: Locator = self.form_root.locator(".page-wrap.Allocation:not(.fainted) canvas")
+        self.top_holdings_content: Locator = self.form_root.locator(".page-wrap.Top:not(.fainted) canvas")
+        self.proposed_content_first: Locator = self.form_root.locator(".page-wrap.Proposed:not(.fainted) canvas").first
+        self.hypothetical_content: Locator = self.form_root.locator(".page-wrap.Hypothetical:not(.fainted) canvas")
+        self.rates_content: Locator = self.form_root.locator(".page-wrap.Rates:not(.fainted) canvas")
+        self.calendar_content: Locator = self.form_root.locator(".page-wrap.Calendar:not(.fainted) canvas")
+        self.historical_content: Locator = self.form_root.locator(".page-wrap.Historical:not(.fainted) canvas")
+        self.risk_content: Locator = self.form_root.locator(".page-wrap.Risk:not(.fainted) canvas")
+        self.fee_content_first: Locator = self.form_root.locator(".page-wrap.Fee:not(.fainted) canvas").first
+        self.tiered_content: Locator = self.form_root.locator(".page-wrap.Tiered:not(.fainted) canvas")
+        self.estimated_expense_canvas: Locator = self.form_root.locator(".page-wrap.Estimated.Expense:not(.fainted) canvas")
+        self.important_information_canvas: Locator = self.form_root.locator(".page-wrap.Important.Information:not(.fainted) canvas")
+        self.disclosures_canvas: Locator = self.form_root.locator(".page-wrap.Disclosures:not(.fainted) canvas")
+        self.tax_management_services_canvas: Locator = self.form_root.locator(".page-wrap.Tax.Management.Services-page-component-wrap:not(.fainted) canvas")
+        self.client_signature_canvas: Locator = self.form_root.locator(".page-wrap.Client:not(.fainted) canvas")
+        self.investment_policy_canvas: Locator = self.form_root.locator(".page-wrap.Investment.Policy:not(.fainted) canvas")
         
         # PROPOSAL DOCUMENT VERIFICATION ELEMENTS
-        self.cover_page_header: Locator = page.locator(".th-header").first
-        self.pursue_your_goals_text: Locator = page.get_by_text("Pursue Your Goals", exact=True)
-        self.table_of_contents_text: Locator = page.get_by_text("Table Of Contents", exact=True)
-        self.introduction_header: Locator = page.get_by_role("heading", name="Introduction").or_(page.locator(".th-wrap.th-Introduction-wrap .th-header"))
-        self.investing_is_personal_text: Locator = page.get_by_text("Investing is Personal", exact=True)
-        self.equities_vs_bonds_title: Locator = page.locator(".th-wrap.th-Growth .th-title").filter(has_text="Equities vs. Bonds")
-        self.cycle_of_emotions_header: Locator = page.get_by_text("Cycle of Emotions", exact=True).or_(page.locator(".th-wrap.th-The.Cycle .th-header"))
-        self.staying_invested_title: Locator = page.locator(".th-wrap.th-Growth .th-title").filter(has_text="Staying Invested")
-        self.your_investment_team_div: Locator = page.get_by_text("Your Investment Team (3)")
-        self.portfolio_strategists_section: Locator = page.locator(".th-wrap.th-Portfolio")
-        self.custodian_selection_header: Locator = page.get_by_role("heading", name="Custodian Selection").or_(page.locator(".th-wrap.th-Custodian .th-header"))
-        self.ongoing_review_text: Locator = page.get_by_text("Ongoing Review of Your Portfolio", exact=True)
-        self.your_financial_analysis_header: Locator = page.locator(".th-wrap.th-Your.Financial")
-        self.recommended_portfolio_div: Locator = page.locator(".th-title.th-listview-title.listview-child").filter(has_text="Recommended Portfolio")
-        self.allocation_by_asset_class_header: Locator = page.get_by_role("heading", name="Allocation by Asset Class").or_(page.locator(".th-wrap.th-Allocation .th-header"))
-        self.top_holdings_text: Locator = page.get_by_text("Top Holdings").first
-        self.proposed_accounts_title: Locator = page.locator(".th-wrap.th-Proposed .th-title")
-        self.hypothetical_historical_performance_div: Locator = page.locator(".th-wrap.th-Hypothetical .th-title").filter(has_text="Hypothetical Historical Performance").first
-        self.hypothetical_section_title: Locator = page.locator(".th-wrap.th-Hypothetical .th-title").filter(has_text="Hypothetical Historical Performance").last
-        self.rates_header: Locator = page.get_by_role("heading", name="Rates").or_(page.locator(".th-wrap.th-Rates .th-header"))
-        self.calendar_year_returns_text: Locator = page.locator(".th-wrap.th-Calendar .th-header")
-        self.historical_cumulative_text: Locator = page.locator(".th-wrap.th-Historical > .th-header > .th-title").filter(has_text="Historical Cumulative")
-        self.risk_versus_return_section: Locator = page.locator(".th-wrap.th-Risk")
-        self.fee_schedule_div: Locator = page.locator("div").filter(has_text="Annual Portfolio Fees (3)").first
-        self.tiered_fee_schedule_header: Locator = page.get_by_role("heading", name="Tiered Fee Schedule").or_(page.locator(".th-wrap.th-Tiered .th-header"))
-        self.estimate_expense_title: Locator = page.locator(".th-wrap.th-Estimated .th-title")
-        self.important_information_text: Locator = page.get_by_text("Important Information and Standardized Performance Returns", exact=True)
-        self.disclosures_title: Locator = page.locator(".th-wrap.th-Disclosures .th-title")
-        self.tax_management_services_text: Locator = page.locator(".th-wrap.th-Tax.Management.Services-wrap .th-title")
-        self.client_signature_text: Locator = page.get_by_text("Client Signature", exact=True)
-        self.investment_policy_statement_text: Locator = page.get_by_text("Investment Policy Statement", exact=True)
+        self.cover_page_header: Locator = self.form_root.locator(".th-header").first
+        self.pursue_your_goals_text: Locator = self.form_root.get_by_text("Pursue Your Goals", exact=True)
+        self.table_of_contents_text: Locator = self.form_root.get_by_text("Table Of Contents", exact=True)
+        self.introduction_header: Locator = self.form_root.get_by_role("heading", name="Introduction").or_(self.form_root.locator(".th-wrap.th-Introduction-wrap .th-header"))
+        self.investing_is_personal_text: Locator = self.form_root.get_by_text("Investing is Personal", exact=True)
+        self.equities_vs_bonds_title: Locator = self.form_root.locator(".th-wrap.th-Growth .th-title").filter(has_text="Equities vs. Bonds")
+        self.cycle_of_emotions_header: Locator = self.form_root.get_by_text("Cycle of Emotions", exact=True).or_(self.form_root.locator(".th-wrap.th-The.Cycle .th-header"))
+        self.staying_invested_title: Locator = self.form_root.locator(".th-wrap.th-Growth .th-title").filter(has_text="Staying Invested")
+        self.your_investment_team_div: Locator = self.form_root.get_by_text("Your Investment Team (3)")
+        self.portfolio_strategists_section: Locator = self.form_root.locator(".th-wrap.th-Portfolio")
+        self.custodian_selection_header: Locator = self.form_root.get_by_role("heading", name="Custodian Selection").or_(self.form_root.locator(".th-wrap.th-Custodian .th-header"))
+        self.ongoing_review_text: Locator = self.form_root.get_by_text("Ongoing Review of Your Portfolio", exact=True)
+        self.your_financial_analysis_header: Locator = self.form_root.locator(".th-wrap.th-Your.Financial")
+        self.recommended_portfolio_div: Locator = self.form_root.locator(".th-title.th-listview-title.listview-child").filter(has_text="Recommended Portfolio")
+        self.allocation_by_asset_class_header: Locator = self.form_root.get_by_role("heading", name="Allocation by Asset Class").or_(self.form_root.locator(".th-wrap.th-Allocation .th-header"))
+        self.top_holdings_text: Locator = self.form_root.get_by_text("Top Holdings").first
+        self.proposed_accounts_title: Locator = self.form_root.locator(".th-wrap.th-Proposed .th-title")
+        self.hypothetical_historical_performance_div: Locator = self.form_root.locator(".th-wrap.th-Hypothetical .th-title").filter(has_text="Hypothetical Historical Performance").first
+        self.hypothetical_section_title: Locator = self.form_root.locator(".th-wrap.th-Hypothetical .th-title").filter(has_text="Hypothetical Historical Performance").last
+        self.rates_header: Locator = self.form_root.get_by_role("heading", name="Rates").or_(self.form_root.locator(".th-wrap.th-Rates .th-header"))
+        self.calendar_year_returns_text: Locator = self.form_root.locator(".th-wrap.th-Calendar .th-header")
+        self.historical_cumulative_text: Locator = self.form_root.locator(".th-wrap.th-Historical > .th-header > .th-title").filter(has_text="Historical Cumulative")
+        self.risk_versus_return_section: Locator = self.form_root.locator(".th-wrap.th-Risk")
+        self.fee_schedule_div: Locator = self.form_root.locator("div").filter(has_text="Annual Portfolio Fees (3)").first
+        self.tiered_fee_schedule_header: Locator = self.form_root.get_by_role("heading", name="Tiered Fee Schedule").or_(self.form_root.locator(".th-wrap.th-Tiered .th-header"))
+        self.estimate_expense_title: Locator = self.form_root.locator(".th-wrap.th-Estimated .th-title")
+        self.important_information_text: Locator = self.form_root.get_by_text("Important Information and Standardized Performance Returns", exact=True)
+        self.disclosures_title: Locator = self.form_root.locator(".th-wrap.th-Disclosures .th-title")
+        self.tax_management_services_text: Locator = self.form_root.locator(".th-wrap.th-Tax.Management.Services-wrap .th-title")
+        self.client_signature_text: Locator = self.form_root.get_by_text("Client Signature", exact=True)
+        self.investment_policy_statement_text: Locator = self.form_root.get_by_text("Investment Policy Statement", exact=True)
 
         # WIDGETS
-        self.widget_selection_dropdown_button: Locator = page.locator("header").get_by_role("button").filter(has=page.locator('svg path[d*="M10 13.5a3.5"]'))
-        self.performance_widget_checkbox: Locator = page.locator('[class*="menu-component__item"]').filter(has_text="Performance").locator("span").first
-        self.drawdown_widget_checkbox: Locator = page.locator('[class*="menu-component__item"]').filter(has_text="Drawdown").locator("span").first
-        self.summary_statistics_widget_checkbox: Locator = page.locator('[class*="menu-component__item"]').filter(has_text="Summary Statistics").locator("span").first
-        self.risk_vs_return_widget_checkbox: Locator = page.locator('[class*="menu-component__item"]').filter(has_text="Risk vs Return").locator("span").first
-        self.asset_allocation_widget_checkbox: Locator = page.locator('[class*="menu-component__item"]').filter(has_text="Asset Allocation & Holdings").locator("span").first
-        self.stress_test_widget_checkbox: Locator = page.locator('[class*="menu-component__item"]').filter(has_text="Stress Test").locator("span").first
-        self.return_by_strategy_widget_checkbox: Locator = page.locator('[class*="menu-component__item"]').filter(has_text="Return by Strategy").locator("span").first
-        self.investment_approach_widget_checkbox: Locator = page.locator('[class*="menu-component__item"]').filter(has_text="Investment Approach").locator("span").first
-        self.upside_downside_widget_checkbox: Locator = page.locator('[class*="menu-component__item"]').filter(has_text="Upside/Downside Capture").locator("span").first
+        # Settings button in header - try aria-label or title first, then fallback to SVG path selector
+        self.widget_selection_dropdown_button: Locator = self.form_root.locator("header").get_by_role("button", name="Settings").first.or_(
+            self.form_root.locator("header").get_by_role("button").filter(has=self.form_root.locator('svg path[d*="M10 13.5a3.5"]')).first
+        )
+        self.performance_widget_checkbox: Locator = self.form_root.locator('[class*="menu-component__item"]').filter(has_text="Performance").locator("span").first
+        self.drawdown_widget_checkbox: Locator = self.form_root.locator('[class*="menu-component__item"]').filter(has_text="Drawdown").locator("span").first
+        self.summary_statistics_widget_checkbox: Locator = self.form_root.locator('[class*="menu-component__item"]').filter(has_text="Summary Statistics").locator("span").first
+        self.risk_vs_return_widget_checkbox: Locator = self.form_root.locator('[class*="menu-component__item"]').filter(has_text="Risk vs Return").locator("span").first
+        self.asset_allocation_widget_checkbox: Locator = self.form_root.locator('[class*="menu-component__item"]').filter(has_text="Asset Allocation & Holdings").locator("span").first
+        self.stress_test_widget_checkbox: Locator = self.form_root.locator('[class*="menu-component__item"]').filter(has_text="Stress Test").locator("span").first
+        self.return_by_strategy_widget_checkbox: Locator = self.form_root.locator('[class*="menu-component__item"]').filter(has_text="Return by Strategy").locator("span").first
+        self.investment_approach_widget_checkbox: Locator = self.form_root.locator('[class*="menu-component__item"]').filter(has_text="Investment Approach").locator("span").first
+        self.upside_downside_widget_checkbox: Locator = self.form_root.locator('[class*="menu-component__item"]').filter(has_text="Upside/Downside Capture").locator("span").first
 
         # WIDGET GRAPH CONTAINERS
-        self.performance_graph_container: Locator = page.locator("article").filter(has_text="Performance").first.locator('div[class*="widget-component__content"]')
-        self.drawdown_graph_container: Locator = page.locator("article").filter(has_text="Drawdown").first.locator('div[class*="widget-component__content"]')
-        self.summary_statistics_graph_container: Locator = page.locator("article").filter(has_text="Summary Statistics").first.locator('div[class*="widget-component__content"]')
-        self.risk_vs_return_graph_container: Locator = page.locator("article").filter(has_text="Risk vs Return").first.locator('div[class*="widget-component__content"]')
-        self.asset_allocation_graph_container: Locator = page.locator("article").filter(has_text="Asset Allocation & Holdings").first.locator('div[class*="widget-component__content"]')
-        self.stress_test_graph_container: Locator = page.locator("article").filter(has_text="Stress Test").first.locator('div[class*="widget-component__content"]')
-        self.return_by_strategy_graph_container: Locator = page.locator("article").filter(has_text="Return by Strategy").first.locator('div[class*="widget-component__content"]')
-        self.investment_approach_graph_container: Locator = page.locator("article").filter(has_text="Investment Approach").first.locator('div[class*="widget-component__content"]')
-        self.upside_downside_graph_container: Locator = page.locator("article").filter(has_text="Upside/Downside Capture").first.locator('div[class*="widget-component__content"]')
+        self.performance_graph_container: Locator = self.form_root.locator("article").filter(has_text="Performance").first.locator('div[class*="widget-component__content"]')
+        self.drawdown_graph_container: Locator = self.form_root.locator("article").filter(has_text="Drawdown").first.locator('div[class*="widget-component__content"]')
+        self.summary_statistics_graph_container: Locator = self.form_root.locator("article").filter(has_text="Summary Statistics").first.locator('div[class*="widget-component__content"]')
+        self.risk_vs_return_graph_container: Locator = self.form_root.locator("article").filter(has_text="Risk vs Return").first.locator('div[class*="widget-component__content"]')
+        self.asset_allocation_graph_container: Locator = self.form_root.locator("article").filter(has_text="Asset Allocation & Holdings").first.locator('div[class*="widget-component__content"]')
+        self.stress_test_graph_container: Locator = self.form_root.locator("article").filter(has_text="Stress Test").first.locator('div[class*="widget-component__content"]')
+        self.return_by_strategy_graph_container: Locator = self.form_root.locator("article").filter(has_text="Return by Strategy").first.locator('div[class*="widget-component__content"]')
+        self.investment_approach_graph_container: Locator = self.form_root.locator("article").filter(has_text="Investment Approach").first.locator('div[class*="widget-component__content"]')
+        self.upside_downside_graph_container: Locator = self.form_root.locator("article").filter(has_text="Upside/Downside Capture").first.locator('div[class*="widget-component__content"]')
 
         # WIDGET GRAPH CONTENT
         self.performance_graph_content: Locator = self.performance_graph_container.locator("svg text")
@@ -261,58 +264,60 @@ class PortfolioEnginePage(BasePage):
         self.asset_allocation_graph_content: Locator = self.asset_allocation_graph_container.locator('svg path[class*="recharts-sector"]')
         self.stress_test_graph_content: Locator = self.stress_test_graph_container.locator('div[class*="tick"]')
         self.return_by_strategy_graph_content: Locator = self.return_by_strategy_graph_container.locator("svg rect")
-        self.investment_approach_graph_content: Locator = self.investment_approach_graph_container.locator('svg path[class*="recharts-sector"]')
+        self.investment_approach_graph_content: Locator = self.investment_approach_graph_container.locator('img, svg path[class*="recharts-sector"]')
         self.upside_downside_graph_content: Locator = self.upside_downside_graph_container.locator("svg rect")
 
         # CLIENT SEARCH
-        self.loading_image_modal: Locator = page.locator("#loadingImageModal")
-        self.client_search_input: Locator = page.get_by_role("textbox", name="client_search_input").or_(page.locator("#client_search_input"))
-        self.search_button: Locator = page.get_by_role("button", name="search").or_(page.locator("#searchbutton"))
-        self.no_clients_found_message: Locator = page.get_by_text("No search results were found.")
-        self.no_results_message: Locator = page.get_by_text("No search results were found")
-        self.client_collapsed_link: Locator = page.locator('td[role="gridcell"][aria-describedby="ClientListGrid_clientName"]')
-        self.view_document_history_link: Locator = page.get_by_role("link", name="View Document History")
-        self.portfolio_details_link: Locator = page.get_by_role("link", name="Portfolio Details")
-        self.delete_client_link: Locator = page.get_by_role("link", name="Delete Client")
-        self.new_client_experience_decline: Locator = page.get_by_role("button", name="No, Thank You")
-        self.ok_button: Locator = page.get_by_role("button", name="OK")
-        self.privacy_policy_button: Locator = page.get_by_role("button", name="I Agree")
+        self.loading_image_modal: Locator = self.form_root.locator("#loadingImageModal")
+        self.client_search_input: Locator = self.form_root.get_by_role("textbox", name="client_search_input").or_(self.form_root.locator("#client_search_input"))
+        self.search_button: Locator = self.form_root.get_by_role("button", name="search").or_(self.form_root.locator("#searchbutton"))
+        self.no_clients_found_message: Locator = self.form_root.get_by_text("No search results were found.")
+        self.no_results_message: Locator = self.form_root.get_by_text("No search results were found")
+        self.view_document_history_link: Locator = self.form_root.get_by_role("link", name="View Document History")
+        self.portfolio_details_link: Locator = self.form_root.get_by_role("link", name="Portfolio Details")
+        self.delete_client_link: Locator = self.form_root.get_by_role("link", name="Delete Client")
+        self.new_client_experience_decline: Locator = self.form_root.get_by_role("button", name="No, Thank You")
+        self.ok_button: Locator = self.form_root.get_by_role("button", name="OK")
+        self.privacy_policy_button: Locator = self.form_root.get_by_role("button", name="I Agree")
 
         # PORTFOLIO DELETION
-        self.portfolio_delete_control_button: Locator = page.locator('[class*="popup-component"]').locator('button[class*="button-icon"]').filter(has=page.locator('svg[viewBox="0 0 17 17"]')).first
-        self.portfolio_delete_text: Locator = page.locator('[class*="popover-controls-component__action"]').get_by_text("Delete", exact=True)
-        self.portfolio_delete_confirm_button: Locator = page.get_by_role("button", name="Delete")
+        self.portfolio_delete_control_button: Locator = self.form_root.locator('[class*="popup-component"]').locator('button[class*="button-icon"]').filter(has=self.form_root.locator('svg[viewBox="0 0 17 17"]')).first
+        self.portfolio_delete_text: Locator = self.form_root.locator('[class*="popover-controls-component__action"]').get_by_text("Delete", exact=True)
+        self.portfolio_delete_confirm_button: Locator = self.form_root.get_by_role("button", name="Delete")
 
         # STRATEGY DISPLAY TEXT
-        self.asset_mark_income_builder_text: Locator = page.locator('[class*="portfolio-sidebar-toggle_toggleDataWrapper"]').filter(has_text="AssetMark Income Builder, Profile 2, Conservative")
-        self.black_rock_equity_dividend_text: Locator = page.locator('[class*="portfolio-sidebar-toggle_toggleDataWrapper"]').filter(has_text="BlackRock Equity Dividend")
-        self.savos_us_risk_text: Locator = page.locator('[class*="portfolio-sidebar-toggle_toggleDataWrapper"]').filter(has_text="Savos US Risk Controlled Strategy, Profile 6")
-        self.alpha_simplex_text: Locator = page.locator('[class*="portfolio-sidebar-toggle_toggleDataWrapper"]').filter(has_text="AlphaSimplex, Alternative Model Portfolio, Profile 5, Growth")
-        self.jp_morgan_absolute_return_text: Locator = page.locator('[class*="portfolio-sidebar-toggle_toggleDataWrapper"]').filter(has_text="JPMorgan Absolute Return - Profile 1")
-        self.savos_personal_strategy_text: Locator = page.get_by_text("Savos Personal Portfolio Custom", exact=True)
+        self.asset_mark_income_builder_text: Locator = self.form_root.locator('[class*="portfolio-sidebar-toggle_toggleDataWrapper"]').filter(has_text="AssetMark Income Builder, Profile 2, Conservative")
+        self.black_rock_equity_dividend_text: Locator = self.form_root.locator('[class*="portfolio-sidebar-toggle_toggleDataWrapper"]').filter(has_text="BlackRock Equity Dividend")
+        self.savos_us_risk_text: Locator = self.form_root.locator('[class*="portfolio-sidebar-toggle_toggleDataWrapper"]').filter(has_text="Savos US Risk Controlled Strategy, Profile 6")
+        self.aim_text: Locator = self.form_root.locator('[class*="portfolio-sidebar-toggle_toggleDataWrapper"]').filter(has_text="AIM Decathlon Growth, Profile 5")
+        self.jp_morgan_absolute_return_text: Locator = self.form_root.locator('[class*="portfolio-sidebar-toggle_toggleDataWrapper"]').filter(has_text="JPMorgan Absolute Return - Profile 1")
+        self.savos_personal_strategy_text: Locator = self.form_root.get_by_text("Savos Personal Portfolio Custom", exact=True)
 
         # ASSET ALLOCATION SUMMARY
-        self.core_markets_row: Locator = page.locator("#asset-allocation-summary-widget .asset-class").nth(0)
-        self.tactical_enhanced_return_row: Locator = page.locator("#asset-allocation-summary-widget .asset-class").nth(1)
-        self.tactical_limit_loss_row: Locator = page.locator("#asset-allocation-summary-widget .asset-class").nth(2)
-        self.diversifying_equity_alternatives_row: Locator = page.locator("#asset-allocation-summary-widget .asset-class").nth(3)
-        self.diversifying_bonds_row: Locator = page.locator("#asset-allocation-summary-widget .asset-class").nth(4)
-        self.additional_investments_row: Locator = page.locator("#asset-allocation-summary-widget .asset-class").nth(5)
+        self.core_markets_row: Locator = self.form_root.locator("#asset-allocation-summary-widget .asset-class").nth(0)
+        self.tactical_enhanced_return_row: Locator = self.form_root.locator("#asset-allocation-summary-widget .asset-class").nth(1)
+        self.tactical_limit_loss_row: Locator = self.form_root.locator("#asset-allocation-summary-widget .asset-class").nth(2)
+        self.diversifying_equity_alternatives_row: Locator = self.form_root.locator("#asset-allocation-summary-widget .asset-class").nth(3)
+        self.diversifying_bonds_row: Locator = self.form_root.locator("#asset-allocation-summary-widget .asset-class").nth(4)
+        self.additional_investments_row: Locator = self.form_root.locator("#asset-allocation-summary-widget .asset-class").nth(5)
 
         # PRIVACY
-        self.privacy_dialog_reject_button: Locator = page.locator('button:has-text("Reject All")')
+        self.privacy_dialog_reject_button: Locator = self.form_root.locator('button:has-text("Reject All")')
+
+        # PORTFOLIO WARNING MODAL (appears during portfolio operations)
+        self.portfolio_warning_modal: Locator = self.form_root.locator(
+            "[class*='portfolio-removed-warning-message-component__container']"
+        )
+        self.portfolio_warning_ok_button: Locator = self.portfolio_warning_modal.get_by_role(
+            "button", name="OK"
+        )
 
     # EXISTING METHODS
     def search_for_client(self, client_name: str) -> None:
         self.client_search_input.fill(client_name)
         self.search_button.click()
-        self.page.wait_for_load_state("networkidle")
-
-    def delete_client(self) -> None:
-        self.delete_client_link.click()
-        confirm_button = self.page.get_by_role("button", name="Delete")
-        confirm_button.click()
-        self.page.wait_for_load_state("networkidle")
+        # Wait for iframe content to update (page.wait_for_load_state won't detect iframe reloads)
+        self.form_root.locator("body").wait_for(state="visible", timeout=15000)
 
     def dismiss_privacy_dialog(self) -> None:
         try:
@@ -321,6 +326,32 @@ class PortfolioEnginePage(BasePage):
             self.page.wait_for_timeout(500)
         except Exception:
             pass
+
+    def dismiss_portfolio_warning(self) -> None:
+        """
+        Dismisses the portfolio removed warning modal by clicking the OK button.
+        This modal appears when a portfolio is no longer available and needs to be removed from scenarios.
+        """
+        try:
+            self.portfolio_warning_modal.wait_for(state="visible", timeout=10000)
+            self.portfolio_warning_ok_button.click()
+            self.portfolio_warning_modal.wait_for(state="hidden", timeout=5000)
+            logger.info("Portfolio warning modal dismissed successfully")
+        except Exception as e:
+            logger.debug(f"Portfolio warning modal not found or already dismissed: {e}")
+
+    def dismiss_soft_closed_warning(self) -> None:
+        """
+        Dismisses the soft-closed warning modal by clicking the OK button.
+        This modal appears during portfolio engine flows when a soft-closed warning needs acknowledgment.
+        """
+        try:
+            soft_closed_button = self.form_root.locator(".soft-closed-warning-message-component__button__1ou30")
+            soft_closed_button.wait_for(state="visible", timeout=10000)
+            soft_closed_button.click()
+            logger.info("Soft-closed warning modal dismissed successfully")
+        except Exception as e:
+            logger.debug(f"Soft-closed warning modal not found or already dismissed: {e}")
 
     def navigate_to_portfolio_engine(self) -> Page:
         """
@@ -334,16 +365,16 @@ class PortfolioEnginePage(BasePage):
             The Portfolio Engine page object (new tab/popup)
         """
         # Step 1: Click Investments link
-        self.investments_link.click(timeout=5000)
+        self.investments_link.click(timeout=15000)
         self.page.wait_for_load_state("domcontentloaded", timeout=10000)
         
         # Step 2: Click PortfolioEngine link
-        self.portfolio_engine_link.click(timeout=5000)
+        self.portfolio_engine_link.click(timeout=15000)
         self.page.wait_for_load_state("domcontentloaded", timeout=10000)
         
         # Step 3: Set up popup listener, click Launch Portfolio Engine, get new page
         with self.page.context.expect_page() as popup_info:
-            self.launch_portfolio_engine_img.click(timeout=5000)
+            self.launch_portfolio_engine_img.click(timeout=15000)
         
         # Get the new popup page
         portfolio_engine_page = popup_info.value
@@ -488,10 +519,13 @@ class PortfolioEnginePage(BasePage):
         dropdown_element.click()
         self.page.wait_for_timeout(100)
 
-    # NEW METHODS (11 ADDED)
+
     def add_strategy_to_portfolio(self, strategy_name: str) -> None:
         """Add a strategy to the portfolio by name."""
+        # Fill the search box
         self.strategy_search_box.fill(strategy_name)
+        
+        # Click the "Add to Portfolio" button
         self.add_to_portfolio_text.click()
 
     def fill_new_client_info(self, first_name: str, last_name: str) -> None:
@@ -511,7 +545,7 @@ class PortfolioEnginePage(BasePage):
         self.asset_mark_income_builder_checkbox.click()
         self.black_rock_equity_dividend_checkbox.click()
         self.savos_us_risk_checkbox.click()
-        self.alpha_simplex_checkbox.click()
+        self.aim_checkbox.click()
         self.jp_morgan_absolute_return_checkbox.click()
 
     def set_all_proposal_sections(self) -> None:
@@ -549,7 +583,8 @@ class PortfolioEnginePage(BasePage):
                 logger.warning(f"Error checking checkbox: {e}")
                 checkbox.click()
 
-        self.page.wait_for_load_state()
+        # Wait for iframe content to update after checkbox changes
+        self.form_root.locator("body").wait_for(state="visible", timeout=15000)
 
     def select_registration_type(self, registration_type: str) -> None:
         """Select registration type from dropdown with support for simple and nested options."""
@@ -560,7 +595,7 @@ class PortfolioEnginePage(BasePage):
         self.page.wait_for_timeout(500)  # Wait for dropdown to open
         
         # Check if it's a simple top-level option (like "Select", "Trust")
-        simple_options = self.page.locator('[class*="accounts-select-dropdown_parentList"]').locator("p")
+        simple_options = self.form_root.locator('[class*="accounts-select-dropdown_parentList"]').locator("p")
         for i in range(simple_options.count()):
             if simple_options.nth(i).text_content() == registration_type:
                 logger.debug(f"Found simple option for {registration_type}, clicking it")
@@ -593,7 +628,7 @@ class PortfolioEnginePage(BasePage):
         
         # Find the category group and click its header to expand nested options
         logger.debug(f"Looking for nested option {registration_type} in category {category}")
-        category_groups = self.page.locator('[class*="accounts-select-dropdown_group"]')
+        category_groups = self.form_root.locator('[class*="accounts-select-dropdown_group"]')
         
         for i in range(category_groups.count()):
             category_p = category_groups.nth(i).locator("p").first
@@ -619,7 +654,8 @@ class PortfolioEnginePage(BasePage):
 
     def select_all_widgets_if_needed(self) -> None:
         """Select all available widgets from the widget menu if not already selected."""
-        self.widget_selection_dropdown_button.click()
+        self.widget_selection_dropdown_button.wait_for(state="visible", timeout=15000)
+        self.widget_selection_dropdown_button.click(timeout=15000)
         widgets = [
             self.performance_widget_checkbox, self.drawdown_widget_checkbox,
             self.summary_statistics_widget_checkbox, self.risk_vs_return_widget_checkbox,
@@ -698,5 +734,5 @@ class PortfolioEnginePage(BasePage):
 
     def get_allocation_textbox(self, index: int) -> Locator:
         """Get allocation textbox by index (0-based)."""
-        return self.page.locator('[class*="portfolio-valid-item"]').locator('input[type="text"]').nth(index)
+        return self.form_root.locator('[class*="portfolio-valid-item"]').locator('input[type="text"]').nth(index)
 

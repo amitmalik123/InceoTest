@@ -507,7 +507,7 @@ def download_and_validate_pdf_from_click(
 
     download_dir = pathlib.Path(__file__).parent.parent / "downloads"
     system_downloads_dir = pathlib.Path.home() / "Downloads"
-    download_timeout_ms = 60000
+    download_timeout_ms = 300000  # Changed from 60000 to 300000 (5 minutes)
     stability_delay_ms = 500
     stability_checks_required = 3
     complete_checks_required = 2
@@ -682,7 +682,11 @@ def download_and_validate_pdf_from_click(
             if not matched_abs_path.exists():
                 raise FileNotFoundError(f"Matched path does not exist: {matched_abs_path}")
             
-            if str(pathlib.Path(matched_path).parent) == str(download_dir):
+            # Use resolve() to normalize both paths before comparison
+            matched_parent = matched_abs_path.parent.resolve()
+            download_dir_resolved = download_dir.resolve()
+            
+            if matched_parent == download_dir_resolved:
                 os.rename(matched_abs_path, download_path)
             else:
                 shutil.copy2(matched_abs_path, download_path)

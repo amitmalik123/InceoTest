@@ -2,6 +2,7 @@ from playwright.sync_api import Locator, Page
 from typing import TYPE_CHECKING
 
 from config.settings import get_settings
+from locators.baw.create_oa_locators import CreateOALocators
 from pages.base_page import BasePage
 from pages.baw.journal_utility_page import JournalUtilityPage
 from utils.allure_logger import get_allure_logger
@@ -18,9 +19,9 @@ class CreateOAPage(BasePage):
     def __init__(self, page: Page, home_url: str = ""):
         super().__init__(page, home_url=home_url)
         # Create OA page content is in the main frame (fauxRedirect.lsw)
-        self.cancel_button: Locator = page.get_by_role("link", name="Cancel", exact=True)
-        self.action_type_combobox: Locator = page.locator("#OAType").last
-        self.save_and_close_button: Locator = page.get_by_role("button", name="Save & Close")
+        self.cancel_button: Locator = page.get_by_role("link", name=CreateOALocators.CANCEL_BUTTON_ROLE, exact=True)
+        self.action_type_combobox: Locator = page.locator(CreateOALocators.ACTION_TYPE_COMBOBOX).last
+        self.save_and_close_button: Locator = page.get_by_role("button", name=CreateOALocators.SAVE_AND_CLOSE_BUTTON_ROLE)
 
     def clickCancelLink(self) -> None:
         try:
@@ -31,7 +32,7 @@ class CreateOAPage(BasePage):
         try:
             self.cancel_button.first.wait_for(state="visible", timeout=30000)
         except Exception:
-            logger.info("No Cancel links found on the page — nothing to cancel")
+            logger.info("No Cancel links found on the page â€” nothing to cancel")
             return
         cancel_buttons = self.cancel_button.all()
         if cancel_buttons:
@@ -58,3 +59,4 @@ class CreateOAPage(BasePage):
     def clickSaveCloseButton(self) -> None:
         self.click(self.save_and_close_button)
         logger.info("clicked on save and close button on create OA page")  
+

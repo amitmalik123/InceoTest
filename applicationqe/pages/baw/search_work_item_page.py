@@ -2,8 +2,10 @@
 
 from playwright.sync_api import Locator, Page
 
+from locators.baw.search_work_item_locators import SearchWorkItemLocators
 from pages.base_page import BasePage
 from utils.allure_logger import get_allure_logger
+from utils.wait_utils import WaitContext
 
 logger = get_allure_logger(__name__)
 
@@ -13,19 +15,32 @@ class SearchWorkItemPage(BasePage):
 
     PAGE_NAME = "Search Work Item Page"
 
+    # Last-fetched parent B#. Used by the Excel reporter as a fallback when the
+    # test fails before the step writes parent_b_number to context.
+    last_parent_b_number: str = ""
+
     def __init__(self, page: Page, home_url: str = ""):
         super().__init__(page, home_url=home_url)
         # Locators for Search Work Item page
         # External ID textbox is inside an iframe with title "Coach"
-        self.external_id_textbox: Locator = page.locator("iframe[title=\"Coach\"]").content_frame.get_by_role("textbox", name="External ID")
-        self.search_button: Locator = page.locator("iframe[title=\"Coach\"]").content_frame.get_by_role("button", name="Search")
-        self.details_link: Locator = page.locator("iframe[title=\"Coach\"]").content_frame.locator("xpath=//a[text()='Details' and not(@title)][1]")
-        self.parent_b_number: Locator = page.locator("iframe[title=\"Coach\"]").content_frame.locator("xpath=//div[@data-viewid='ParentBNumberCell' and starts-with(text(),'B')]")
+        self.external_id_textbox: Locator = page.locator(SearchWorkItemLocators.COACH_FRAME).content_frame.get_by_role("textbox", name=SearchWorkItemLocators.EXTERNAL_ID_TEXTBOX_ROLE)
+        self.search_button: Locator = page.locator(SearchWorkItemLocators.COACH_FRAME).content_frame.get_by_role("button", name=SearchWorkItemLocators.SEARCH_BUTTON_ROLE)
+        self.details_link: Locator = page.locator(SearchWorkItemLocators.COACH_FRAME).content_frame.locator(SearchWorkItemLocators.DETAILS_LINK)
+        self.parent_b_number: Locator = page.locator(SearchWorkItemLocators.COACH_FRAME).content_frame.locator(SearchWorkItemLocators.PARENT_B_NUMBER)
         # Diagnostic locator: ANY ParentBNumberCell regardless of content (for empty-cell debugging)
-        self.parent_b_number_cell_any: Locator = page.locator("iframe[title=\"Coach\"]").content_frame.locator("xpath=//div[@data-viewid='ParentBNumberCell']")
+        self.parent_b_number_cell_any: Locator = page.locator(SearchWorkItemLocators.COACH_FRAME).content_frame.locator(SearchWorkItemLocators.PARENT_B_NUMBER_CELL_ANY)
 
     def enter_external_id_and_click_search(self, external_id: str) -> None:
-        logger.info(f"Entering external ID: {external_id}")
+        with logger.step("Enter external id and click on search button", page=self.page):
+            logger.info(f"Entering external ID: {external_id}")
+            # Render-safe readiness: ensure element is in DOM, visible, and enabled.
+            self.external_id_textbox.wait_for(state="attached", timeout=30000)
+            self.external_id_textbox.wait_for(state="visible", timeout=30000)
+            with WaitContext(timeout=30.0) as wait:
+                wait.until_visible(self.external_id_textbox)
+                wait.until_enabled(self.external_id_textbox)
+            logger.info("External ID textbox is visible")
+            
         self.fill(self.external_id_textbox, external_id, timeout=30000)
         logger.info(f"Entered external ID: {external_id}")
         self.click_search_button()
@@ -63,10 +78,20 @@ class SearchWorkItemPage(BasePage):
             logger.info("Fetching parent B number from search results")
 
             # Wait for page loading to complete
-            self.wait_for_load_state("domcontentloaded", timeout=30000)
+            self.wait_for_load_state("networkidle", timeout=30000)
             self.wait_for_loading_data()
 
-            max_retries = 4
+            # Check if details link is visible, if not click search again
+            if not self.details_link.is_visible():
+                logger.warning("Details link not visible, clicking search again")
+                self.click_search_button()
+                self.wait_for_timeout(2000)
+           
+            # Wait for details link to be visible
+            self.details_link.wait_for(state="visible", timeout=30000)
+            logger.info("Details link is visible")
+            max_retries = 10
+            retry_wait_ms = 15000
             last_error: Exception | None = None
             for attempt in range(1, max_retries + 1):
                 try:
@@ -77,19 +102,27 @@ class SearchWorkItemPage(BasePage):
                     # Wait for parent B cell to appear in the same results row
                     self.parent_b_number.wait_for(state="visible", timeout=15000)
                     logger.info("Parent B number element is visible in DOM")
+
+                    # Defensive: confirm the cell text actually starts with 'B' (not just whitespace)
+                    cell_text = (self.parent_b_number.inner_text(timeout=5000) or "").strip()
+                    if not cell_text.startswith("B"):
+                        raise ValueError(
+                            f"ParentBNumberCell visible but text not populated yet: '{cell_text}'"
+                        )
+                    logger.info(f"Parent B# cell populated: {cell_text}")
                     break
                 except Exception as e:
                     last_error = e
                     if attempt < max_retries:
                         logger.warning(
                             f"Parent B number not yet populated (attempt {attempt}/{max_retries}), "
-                            f"re-running search after short wait..."
+                            f"waiting {retry_wait_ms}ms then re-running search..."
                         )
                         # Wait for BAW to process, then re-run search to refresh the row
-                        self.wait_for_timeout(5000)
+                        self.wait_for_timeout(retry_wait_ms)
                         try:
                             self.click_search_button()
-                            self.wait_for_load_state("domcontentloaded", timeout=30000)
+                            self.wait_for_load_state("networkidle", timeout=30000)
                             self.wait_for_loading_data()
                         except Exception as search_err:
                             logger.warning(f"Re-running search failed: {search_err}")
@@ -132,5 +165,7 @@ class SearchWorkItemPage(BasePage):
                 raise ValueError("Parent B# not found")
 
             logger.info(f"Fetched parent B number: {b_num}")
+            SearchWorkItemPage.last_parent_b_number = b_num.strip()
 
             return b_num.strip()
+

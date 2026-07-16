@@ -1,7 +1,7 @@
 from typing import Dict
 from playwright.sync_api import Locator, Page
 
-from pages.stp.shared.base_page import BasePage
+from pages.ewm.base_page import BasePage
 from pages.stp.stp_mimotransactionpage.locators.mimo_transaction_summary_locators import MIMOTransactionSummaryLocators
 from utils.logger import setup_logger
 
@@ -13,53 +13,54 @@ class MIMOTransactionSummaryPage(BasePage):
     
     def __init__(self, page: Page):
         super().__init__(page)
+        ctx = self.active_root()
         loc = MIMOTransactionSummaryLocators
         
-        self.transaction_summary_title: Locator = page.locator(loc.TRANSACTION_SUMMARY_TITLE)
+        self.transaction_summary_title: Locator = ctx.locator(loc.TRANSACTION_SUMMARY_TITLE)
         
-        self.back_button: Locator = page.locator(loc.BACK_BUTTON)
-        self.submit_button: Locator = page.locator(loc.SUBMIT_BUTTON)
-        self.submit_to_review_button: Locator = page.locator(loc.SUBMIT_TO_REVIEW_BUTTON)
-        self.submit_or_submit_for_review: Locator = page.locator(loc.SUBMIT_OR_SUBMIT_FOR_REVIEW)
-        self.esign_and_submit: Locator = page.locator(loc.ESIGN_AND_SUBMIT)
+        self.back_button: Locator = ctx.locator(loc.BACK_BUTTON)
+        self.submit_button: Locator = ctx.locator(loc.SUBMIT_BUTTON)
+        self.submit_to_review_button: Locator = ctx.locator(loc.SUBMIT_TO_REVIEW_BUTTON)
+        self.submit_or_submit_for_review: Locator = ctx.locator(loc.SUBMIT_OR_SUBMIT_FOR_REVIEW)
+        self.esign_and_submit: Locator = ctx.locator(loc.ESIGN_AND_SUBMIT)
         
-        self.account_info: Locator = page.locator(loc.ACCOUNT_INFO)
+        self.account_info: Locator = ctx.locator(loc.ACCOUNT_INFO)
         
-        self.disclosures_title: Locator = page.locator(loc.DISCLOSURES_TITLE)
+        self.disclosures_title: Locator = ctx.locator(loc.DISCLOSURES_TITLE)
 
-        self.disclosures_title_contribution: Locator = page.locator(loc.DISCLOSURES_TITLE_CONTRIBUTION)
-        self.disclosures_list_contribution: Locator = page.locator(loc.DISCLOSURES_LIST_CONTRIBUTION)
+        self.disclosures_title_contribution: Locator = ctx.locator(loc.DISCLOSURES_TITLE_CONTRIBUTION)
+        self.disclosures_list_contribution: Locator = ctx.locator(loc.DISCLOSURES_LIST_CONTRIBUTION)
 
-        self.disclaimer_text: Locator = page.locator(loc.DISCLAIMER_TEXT)
-        self.disclosures_list: Locator = page.locator(loc.DISCLOSURES_LIST)
+        self.disclaimer_text: Locator = ctx.locator(loc.DISCLAIMER_TEXT)
+        self.disclosures_list: Locator = ctx.locator(loc.DISCLOSURES_LIST)
         
-        self.disclosures_title_cancel: Locator = page.locator(loc.DISCLOSURES_TITLE_CANCEL)
-        self.disclaimer_text_cancel: Locator = page.locator(loc.DISCLAIMER_TEXT_CANCEL)
-        self.disclosures_list_cancel: Locator = page.locator(loc.DISCLOSURES_LIST_CANCEL)
+        self.disclosures_title_cancel: Locator = ctx.locator(loc.DISCLOSURES_TITLE_CANCEL)
+        self.disclaimer_text_cancel: Locator = ctx.locator(loc.DISCLAIMER_TEXT_CANCEL)
+        self.disclosures_list_cancel: Locator = ctx.locator(loc.DISCLOSURES_LIST_CANCEL)
         
-        self.request_details_label: Locator = page.locator(loc.REQUEST_DETAILS_LABEL)
-        self.destination_label: Locator = page.locator(loc.DESTINATION_LABEL)
-        self.bank_name_header: Locator = page.locator(loc.BANK_NAME_HEADER)
-        self.account_number_header: Locator = page.locator(loc.ACCOUNT_NUMBER_HEADER)
+        self.request_details_label: Locator = ctx.locator(loc.REQUEST_DETAILS_LABEL)
+        self.destination_label: Locator = ctx.locator(loc.DESTINATION_LABEL)
+        self.bank_name_header: Locator = ctx.locator(loc.BANK_NAME_HEADER)
+        self.account_number_header: Locator = ctx.locator(loc.ACCOUNT_NUMBER_HEADER)
         
-        self.bottom_error: Locator = page.locator(loc.BOTTOM_ERROR)
+        self.bottom_error: Locator = ctx.locator(loc.BOTTOM_ERROR)
         
-        self.loading_spinner: Locator = page.locator(loc.LOADING_SPINNER)
+        self.loading_spinner: Locator = ctx.locator(loc.LOADING_SPINNER)
     
     def get_request_header(self) -> str:
         """Get the REQUEST DETAILS heading text"""
-        header_locator = self.page.locator("//h3[@aria-label = 'category-group-name' and text()='Request Details']")
+        header_locator = self.active_root().locator("//h3[@aria-label = 'category-group-name' and text()='Request Details']")
         return header_locator.inner_text()
     
     def get_headers(self) -> list:
         """Get all category group item name headers"""
-        headers_locator = self.page.locator("//h4[@aria-label='category-group-item-name']")
+        headers_locator = self.active_root().locator("//h4[@aria-label='category-group-item-name']")
         headers_locator.first.wait_for(state="visible", timeout=10000)
         return headers_locator.all_inner_texts()
     
     def verify_destination_values(self) -> list:
         """Get all category group item values"""
-        values_locator = self.page.locator("//p[@aria-label='category-group-item-value']")
+        values_locator = self.active_root().locator("//p[@aria-label='category-group-item-value']")
         values_locator.first.wait_for(state="visible", timeout=10000)
         return values_locator.all_inner_texts()
     
@@ -67,7 +68,7 @@ class MIMOTransactionSummaryPage(BasePage):
         """Wait for MIMO Transaction Summary Page to load"""
         logger.info("Waiting for MIMO Transaction Summary Page to load")
         
-        spinner = self.page.locator("//div[@data-testid='loading-spinner']")
+        spinner = self.active_root().locator("//div[@data-testid='loading-spinner']")
         try:
             spinner.wait_for(state='hidden', timeout=60000)
         except Exception:
@@ -148,7 +149,7 @@ class MIMOTransactionSummaryPage(BasePage):
     
     def get_request_type(self) -> str:
         """Get request type"""
-        return self.page.locator("//h4[normalize-space()='Request Type']").inner_text()
+        return self.active_root().locator("//h4[normalize-space()='Request Type']").inner_text()
     
     def click_back(self):
         """Click back button"""
@@ -168,7 +169,7 @@ class MIMOTransactionSummaryPage(BasePage):
         except Exception:
             logger.warning("Loading spinner wait timed out after submit — continuing")
         
-        submission_error = self.page.locator("//div[@data-testid='submission-error-message']")
+        submission_error = self.active_root().locator("//div[@data-testid='submission-error-message']")
         for i in range(2):
             if submission_error.is_visible(timeout=5000):
                 self.page.wait_for_timeout(3000)
@@ -256,7 +257,7 @@ class MIMOTransactionSummaryPage(BasePage):
 
     def get_field_value(self, label: str) -> str:
         self.request_details_label.scroll_into_view_if_needed()
-        locator = self.page.locator(
+        locator = self.active_root().locator(
             f"//h4[@aria-label='category-group-item-name' and normalize-space(text())='{label}']"
             f"/following-sibling::h4[@aria-label='category-group-item-value']"
         )
@@ -268,7 +269,7 @@ class MIMOTransactionSummaryPage(BasePage):
 
     def get_summary_page_details(self, category_name: str) -> Dict[str, str]:
         xpath = f"//h3[text()='{category_name}']//following-sibling::div//h4"
-        locator = self.page.locator(xpath)
+        locator = self.active_root().locator(xpath)
 
         locator.first.scroll_into_view_if_needed()
 
@@ -282,7 +283,7 @@ class MIMOTransactionSummaryPage(BasePage):
     
     def get_summarypage_details(self, category_name: str) -> Dict[str, str]:
         xpath = f"//h3[text()='{category_name}']//following-sibling::div//h4"
-        locator = self.page.locator(xpath)
+        locator = self.active_root().locator(xpath)
 
         locator.first.scroll_into_view_if_needed()
 
@@ -325,7 +326,7 @@ class MIMOTransactionSummaryPage(BasePage):
         
         logger.info("Getting qualified information value elements")
         
-        qualified_info_values = self.page.locator(
+        qualified_info_values = self.active_root().locator(
             "//h3[text()='QUALIFIED INFORMATION']//parent::div//div[@aria-label='category-group-item']//h4[@aria-label='category-group-item-value']"
         )
         
@@ -347,7 +348,7 @@ class MIMOTransactionSummaryPage(BasePage):
         """
         logger.info("Getting qualified information values as string list")
         
-        qualified_info_values = self.page.locator(
+        qualified_info_values = self.active_root().locator(
             "//h3[text()='QUALIFIED INFORMATION']//parent::div//div[@aria-label='category-group-item']//h4[@aria-label='category-group-item-value']"
         )
         

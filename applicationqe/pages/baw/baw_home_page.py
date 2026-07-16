@@ -18,7 +18,7 @@ class BawHomePage(BasePage):
         super().__init__(page)
         # Locators for BAW home page (from Java: By.xpath patterns)
         self.show_more_link: Locator = page.locator(BawDashboardLocators.SHOW_MORE_LINK)
-        self.dashboard_link: Locator = page.locator("//a[contains(text(),'Dashboard')]")
+        self.dashboard_link: Locator = page.locator(BawDashboardLocators.DASHBOARD_LINK_XPATH)
         self.dashboard_frame: Locator = page.locator(BawDashboardLocators.COACH_IFRAME).first
 
     def click_show_more(self) -> None:

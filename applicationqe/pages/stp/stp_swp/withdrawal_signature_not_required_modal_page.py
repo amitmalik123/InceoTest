@@ -1,6 +1,6 @@
 from playwright.sync_api import Locator, Page
 
-from pages.stp.shared.base_page import BasePage
+from pages.ewm.base_page import BasePage
 from pages.stp.stp_swp.locators.withdrawal_signature_not_required_modal_locators import WithdrawalSignatureNotRequiredModalLocators
 from utils.logger import setup_logger
 
@@ -11,11 +11,12 @@ class WithdrawalSignatureNotRequiredModalPage(BasePage):
     
     def __init__(self, page: Page):
         super().__init__(page)
+        ctx = self.active_root()
         loc = WithdrawalSignatureNotRequiredModalLocators
-        self.signature_not_required_radio: Locator = page.locator(loc.SIGNATURE_NOT_REQUIRED_RADIO)
-        self.print_signature_radio: Locator = page.locator(loc.PRINT_SIGNATURE_RADIO)
-        self.request_signature_radio: Locator = page.locator(loc.REQUEST_SIGNATURE_RADIO)
-        self.continue_button: Locator = page.locator(loc.CONTINUE_BUTTON)
+        self.signature_not_required_radio: Locator = ctx.locator(loc.SIGNATURE_NOT_REQUIRED_RADIO)
+        self.print_signature_radio: Locator = ctx.locator(loc.PRINT_SIGNATURE_RADIO)
+        self.request_signature_radio: Locator = ctx.locator(loc.REQUEST_SIGNATURE_RADIO)
+        self.continue_button: Locator = ctx.locator(loc.CONTINUE_BUTTON)
     
     def click_submit_without_signature(self, request_type: str):
         """Click signature not required radio and continue button"""

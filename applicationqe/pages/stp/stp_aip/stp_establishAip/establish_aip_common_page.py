@@ -4,8 +4,11 @@ Establish AIP Common Page Object - Shared functionality across Establish AIP pag
 
 from typing import List
 from playwright.sync_api import Locator, Page
-from pages.stp.shared.base_page import BasePage
+from pages.ewm.base_page import BasePage
 from pages.stp.stp_aip.stp_establishAip.locators.establish_aip_common_locators import EstablishAIPCommonLocators
+from pages.ewm.privacy_and_security_policy_page import PrivacyAndSecurityPolicyPage
+from pages.ewm.terms_of_use_page import TermsOfUsePage
+from pages.ewm.supported_browsers_page import SupportedBrowsersPage
 from utils.allure_logger import get_allure_logger
 
 logger = get_allure_logger(__name__)
@@ -18,13 +21,14 @@ class EstablishAIPCommonPage(BasePage):
     
     def __init__(self, page: Page):
         super().__init__(page)
+        ctx = self.active_root()
         loc = EstablishAIPCommonLocators
         
         # Bottom hyperlinks
-        self.privacy_security_link = page.locator(loc.PRIVACY_SECURITY_LINK)
-        self.terms_of_use_link = page.locator(loc.TERMS_OF_USE_LINK)
-        self.supported_browsers_link = page.locator(loc.SUPPORTED_BROWSERS_LINK)
-        self.bottom_hyperlinks_container = page.locator(loc.BOTTOM_HYPERLINKS_CONTAINER)
+        self.privacy_security_link = ctx.locator(loc.PRIVACY_SECURITY_LINK)
+        self.terms_of_use_link = ctx.locator(loc.TERMS_OF_USE_LINK)
+        self.supported_browsers_link = ctx.locator(loc.SUPPORTED_BROWSERS_LINK)
+        self.bottom_hyperlinks_container = ctx.locator(loc.BOTTOM_HYPERLINKS_CONTAINER)
     
     def get_bottom_hyperlinks(self) -> List:
         """Get all bottom hyperlinks"""
@@ -39,8 +43,6 @@ class EstablishAIPCommonPage(BasePage):
         Returns:
             PrivacyAndSecurityPolicyPage instance
         """
-        from pages.stp.shared.privacy_and_security_policy_page import PrivacyAndSecurityPolicyPage
-        
         logger.info("Clicking Privacy And Security Policy Link")
         self.get_bottom_hyperlinks()[0].click()
         logger.info("Privacy And Security Policy Link --> Clicked")
@@ -53,8 +55,6 @@ class EstablishAIPCommonPage(BasePage):
         Returns:
             TermsOfUsePage instance
         """
-        from pages.stp.shared.terms_of_use_page import TermsOfUsePage
-        
         logger.info("Clicking Terms Of Use Link")
         self.get_bottom_hyperlinks()[1].click()
         logger.info("Terms Of Use Link --> Clicked")
@@ -67,8 +67,6 @@ class EstablishAIPCommonPage(BasePage):
         Returns:
             SupportedBrowsersPage instance
         """
-        from pages.stp.shared.supported_browsers_page import SupportedBrowsersPage
-        
         logger.info("Clicking Supported Browsers Link")
         self.get_bottom_hyperlinks()[2].click()
         logger.info("Supported Browsers Link --> Clicked")

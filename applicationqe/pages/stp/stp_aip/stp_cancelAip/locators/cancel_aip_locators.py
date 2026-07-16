@@ -6,7 +6,7 @@ class CancelAIPLocators:
 
     # Landing Page
     LANDING_PAGE_TITLE = "//span[text()='Automatic Investment Plans (AIP)']"
-    SELECT_AIP = "//div[@class='sc-dAbbOL dLmiyp']/descendant::li[1]"
+    SELECT_AIP = "//div/li[1]"
     DELETE_BUTTON = "//button[text()='Delete']"
     NEXT_BUTTON = "//button[text()='NEXT']"
     CANCEL_BUTTON = "//button[text()='Cancel']"

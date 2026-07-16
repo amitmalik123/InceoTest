@@ -1,5 +1,5 @@
 from playwright.sync_api import Locator, Page
-from pages.stp.shared.base_page import BasePage
+from pages.ewm.base_page import BasePage
 from pages.stp.stp_aip.stp_establishAip.establish_aip_add_aip_page import EstablishAIPAddAIPPage
 from pages.stp.stp_aip.stp_establishAip.locators.establish_aip_origination_selection_locators import EstablishAIPOriginationSelectionLocators
 from utils.settings import settings
@@ -15,38 +15,39 @@ class EstablishAIPOriginationSelectionPage(BasePage):
     
     def __init__(self, page: Page, page_verification: bool = True):
         super().__init__(page)
+        ctx = self.active_root()
         loc = EstablishAIPOriginationSelectionLocators
 
-        self.header = page.locator(loc.HEADER)
-        self.title_section = page.locator(loc.TITLE_SECTION)
+        self.header = ctx.locator(loc.HEADER)
+        self.title_section = ctx.locator(loc.TITLE_SECTION)
 
-        self.next_button = page.locator(loc.NEXT_BUTTON)
+        self.next_button = ctx.locator(loc.NEXT_BUTTON)
 
-        self.sub_header = page.locator(loc.SUB_HEADER)
-        self.origination_label = page.locator(loc.ORIGINATION_LABEL)
-        self.origination_help_text = page.locator(loc.ORIGINATION_HELP_TEXT)
-        self.info_note_text = page.locator(loc.INFO_NOTE_TEXT)
+        self.sub_header = ctx.locator(loc.SUB_HEADER)
+        self.origination_label = ctx.locator(loc.ORIGINATION_LABEL)
+        self.origination_help_text = ctx.locator(loc.ORIGINATION_HELP_TEXT)
+        self.info_note_text = ctx.locator(loc.INFO_NOTE_TEXT)
 
-        self.account_info_label = page.locator(loc.ACCOUNT_INFO_LABEL)
-        self.account_info_text = page.locator(loc.ACCOUNT_INFO_TEXT)
+        self.account_info_label = ctx.locator(loc.ACCOUNT_INFO_LABEL)
+        self.account_info_text = ctx.locator(loc.ACCOUNT_INFO_TEXT)
 
-        self.selected_origination_text = page.locator(loc.SELECTED_ORIGINATION_TEXT)
-        self.selected_origination_text_checked = page.locator(
+        self.selected_origination_text = ctx.locator(loc.SELECTED_ORIGINATION_TEXT)
+        self.selected_origination_text_checked = ctx.locator(
             loc.SELECTED_ORIGINATION_TEXT_CHECKED
         )
 
-        self.view_details_link = page.locator(loc.VIEW_DETAILS_LINK)
-        self.instruction_details_modal_header = page.locator(loc.INSTRUCTION_DETAILS_MODAL_HEADER)
-        self.modal_close_icon_button = page.locator(loc.MODAL_CLOSE_ICON_BUTTON)
-        self.modal_close_button = page.locator(loc.MODAL_CLOSE_BUTTON)
-        self.mui_dialog_overlay = page.locator(loc.MUI_DIALOG_OVERLAY)
+        self.view_details_link = ctx.locator(loc.VIEW_DETAILS_LINK)
+        self.instruction_details_modal_header = ctx.locator(loc.INSTRUCTION_DETAILS_MODAL_HEADER)
+        self.modal_close_icon_button = ctx.locator(loc.MODAL_CLOSE_ICON_BUTTON)
+        self.modal_close_button = ctx.locator(loc.MODAL_CLOSE_BUTTON)
+        self.mui_dialog_overlay = ctx.locator(loc.MUI_DIALOG_OVERLAY)
 
-        self.spinner_loading = page.locator(loc.SPINNER_LOADING)
-        self.loading_overlay = page.locator(loc.LOADING_OVERLAY)
+        self.spinner_loading = ctx.locator(loc.SPINNER_LOADING)
+        self.loading_overlay = ctx.locator(loc.LOADING_OVERLAY)
 
-        self.first_radio_button = page.locator(loc.FIRST_RADIO_BUTTON)
-        self.first_radio_button_fallback = page.locator(loc.FIRST_RADIO_BUTTON_FALLBACK)
-        self.checked_radio_selected = page.locator(loc.CHECKED_RADIO_SELECTED)
+        self.first_radio_button = ctx.locator(loc.FIRST_RADIO_BUTTON)
+        self.first_radio_button_fallback = ctx.locator(loc.FIRST_RADIO_BUTTON_FALLBACK)
+        self.checked_radio_selected = ctx.locator(loc.CHECKED_RADIO_SELECTED)
 
         self.wait_for_page_load(page_verification)
     

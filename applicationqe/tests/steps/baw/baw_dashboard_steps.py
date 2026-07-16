@@ -1,25 +1,43 @@
 """BAW Dashboard Step Definitions for BDD tests"""
 
-from pytest_bdd import parsers, when
+from pytest_bdd import given, parsers, when
 
 from pages.baw.baw_dashboard_page import BawDashboardPage
-from pages.baw.naa_coach_page import NAACoachPage
+from pages.baw.shell_process_page import ShellProcessPage
 from utils.allure_logger import get_allure_logger
 
 logger = get_allure_logger(__name__)
 
 
+@given("User should login to BAW application and click on the dashboard")
+def step_login_to_baw_dashboard(baw_dashboard_page: BawDashboardPage):
+    """User is logged into BAW and on the dashboard.
+    
+    Note: Actual authentication is handled by the authenticated_page fixture.
+    This step serves as a BDD precondition statement."""
+    logger.info("User is authenticated and on BAW dashboard")
+    # The baw_dashboard_page fixture ensures we're already logged in and on the dashboard
+    # No additional action needed here
+
+
 @when("User click on Open New Work Item button")
-def step_click_open_new_workitem(baw_dashboard_page: BawDashboardPage):
-    """Click Open New Work Item button on BAW dashboard."""
+def step_click_open_new_workitem(baw_dashboard_page: BawDashboardPage, test_context):
+    """Click Open New Work Item and store Shell Process page in test_context."""
     logger.info("Starting Open New WorkItem process")
-    
-    # Capture parent dashboard page reference before opening Shell Process window
-    # baw_dashboard_window = baw_dashboard_page.page
-    # logger.info(f"Captured parent dashboard page: {baw_dashboard_window.url if baw_dashboard_window else 'None'}")
-    
+
+    page = baw_dashboard_page.page
+    pages_before = len(page.context.pages)
+
     baw_dashboard_page.click_open_new_workitem_button()
     logger.info("Open New Work Item button clicked successfully")
+
+    # Wait for the new tab to open and load
+    page.wait_for_timeout(3000)
+    shell_page = page.context.pages[-1] if len(page.context.pages) > pages_before else page
+    shell_page.wait_for_load_state("domcontentloaded", timeout=60000)
+
+    test_context["shell_process_page"] = ShellProcessPage(shell_page)
+    logger.info("Shell Process page stored in test context")
 
 
 @when(parsers.parse('Click on "{tab_name}" tab'))
@@ -74,20 +92,61 @@ def step_user_click_run_icon(
     logger.info("Clicked run icon")
 
 
-@when(parsers.parse('User click on run icon and switch to "{page_title}" page'))
-def step_user_click_run_icon_and_switch_page(
-    baw_dashboard_page: BawDashboardPage,
-    naa_coach_page: NAACoachPage,
-    test_context,
-    page_title: str,
-):
-    """Click the BAW run icon and switch to the requested follow-up page."""
-    selected_tracking_id = test_context.get("parent_b_number") or test_context.get("b_tracking_id")
-    baw_dashboard_page.click_run_icon(selected_tracking_id)
+# ============================================================================
+# IWR Extraction - dashboard navigation steps
+# ============================================================================
 
-    if page_title.strip().lower() == "naa coach":
-        naa_coach_page.switch_to_naa_coach_page()
+@when("Click search button and fetch the B number from results")
+def step_click_search_and_fetch_iwr_b_number(baw_dashboard_page: BawDashboardPage, test_context):
+    b_number = baw_dashboard_page.fetch_b_number_from_search_results()
+    test_context["iwr_b_number"] = b_number
+    logger.info(f"Stored IWR B number: {b_number}", attach_to_allure=True)
+
+
+@when("Click dashboard and enter the fetched B number in search bar")
+def step_navigate_dashboard_and_search_iwr_b_number(baw_dashboard_page: BawDashboardPage, test_context):
+    b_number = test_context.get("iwr_b_number", "")
+    if not b_number:
+        raise ValueError(
+            "IWR B number not found in test context. "
+            "Ensure 'Click search button and fetch the B number from results' ran first."
+        )
+    baw_dashboard_page.navigate_to_dashboard_and_search_b_number(b_number)
+
+
+@when("Click the run icon")
+def step_click_run_icon_for_iwr(baw_dashboard_page: BawDashboardPage, test_context):
+    b_number = test_context.get("iwr_b_number", "")
+    page = baw_dashboard_page.page
+
+    # Snapshot existing pages BEFORE click so we can detect the new popup.
+    pages_before = set(id(p) for p in page.context.pages)
+
+    # Click the run icon (internally waits for BAW loading).
+    baw_dashboard_page.click_run_icon(b_number)
+
+    # Poll up to 30s for a new non-dashboard popup page to appear.
+    shell_page = None
+    for _ in range(30):
+        for p in page.context.pages:
+            if id(p) not in pages_before and p.url and "dashboards" not in p.url:
+                shell_page = p
+                break
+        if shell_page:
+            break
+        page.wait_for_timeout(1000)
+
+    if shell_page:
+        try:
+            shell_page.wait_for_load_state("domcontentloaded", timeout=60000)
+        except Exception:
+            pass
+        logger.info(f"Shell popup detected: {shell_page.url}")
     else:
-        naa_coach_page.switch_to_page_by_title(page_title, timeout=30)
+        # No popup opened — task loaded inline inside dashboard iframe.
+        shell_page = page
+        logger.info(f"No new tab opened, task is inline: {shell_page.url}")
 
-    logger.info(f"Clicked run icon and switched to {page_title}")
+    test_context["shell_process_page"] = ShellProcessPage(shell_page)
+    logger.info(f"Clicked run icon for B# {b_number}, shell process page stored")
+

@@ -1,5 +1,5 @@
 from playwright.sync_api import Page
-from pages.stp.shared.base_page import BasePage
+from pages.ewm.base_page import BasePage
 from pages.stp.stp_addACHIntrcutions.locators.add_ach_confirmation_locators import AddACHConfirmationLocators
 from utils.logger import setup_logger
 from utils.wait_utils import wait_for_element_stable

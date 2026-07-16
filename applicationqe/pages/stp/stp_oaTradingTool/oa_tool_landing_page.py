@@ -1,6 +1,7 @@
 from playwright.sync_api import Page
-from pages.stp.shared.base_page import BasePage
+from pages.ewm.base_page import BasePage
 from pages.stp.stp_oaTradingTool.locators.oa_tool_landing_locators import OAToolLandingLocators
+from pages.stp.stp_oaTradingTool.oa_tool_transaction_page import OAToolTransactionPage
 from utils.logger import setup_logger
 
 logger = setup_logger(__name__)
@@ -89,7 +90,6 @@ class OAToolLandingPage(BasePage):
     
     def click_next(self):
         self.next_button.click()
-        from oa_tool_transaction_page import OAToolTransactionPage
         return OAToolTransactionPage(self.page)
     
     def get_advisor_id(self) -> str:

@@ -2,7 +2,7 @@ from datetime import datetime
 
 from playwright.sync_api import Locator, Page
 
-from pages.stp.shared.base_page import BasePage
+from pages.ewm.base_page import BasePage
 from pages.stp.stp_swp.locators.swp_establish_confirmation_locators import SWPEstablishConfirmationLocators
 from utils.logger import setup_logger
 
@@ -16,31 +16,32 @@ class SWPEstablishConfirmationPage(BasePage):
 
     def __init__(self, page: Page):
         super().__init__(page)
+        ctx = self.active_root()
         loc = SWPEstablishConfirmationLocators
         
         # Header/Navigation
-        self.confirmation_heading: Locator = page.locator(loc.CONFIRMATION_HEADING)
-        self.confirmation_header_details: Locator = page.locator(loc.CONFIRMATION_HEADER_DETAILS)
-        self.confirmation_screen_status: Locator = page.locator(loc.CONFIRMATION_SCREEN_STATUS)
+        self.confirmation_heading: Locator = ctx.locator(loc.CONFIRMATION_HEADING)
+        self.confirmation_header_details: Locator = ctx.locator(loc.CONFIRMATION_HEADER_DETAILS)
+        self.confirmation_screen_status: Locator = ctx.locator(loc.CONFIRMATION_SCREEN_STATUS)
         
         # Transaction Summary section elements
-        self.status: Locator = page.locator(loc.STATUS)
-        self.date: Locator = page.locator(loc.DATE)
-        self.submitted_by: Locator = page.locator(loc.SUBMITTED_BY)
-        self.item_number: Locator = page.locator(loc.ITEM_NUMBER)
+        self.status: Locator = ctx.locator(loc.STATUS)
+        self.date: Locator = ctx.locator(loc.DATE)
+        self.submitted_by: Locator = ctx.locator(loc.SUBMITTED_BY)
+        self.item_number: Locator = ctx.locator(loc.ITEM_NUMBER)
         
         # Section titles (h3 elements)
-        self.status_title: Locator = page.locator(loc.STATUS_TITLE)
-        self.date_title: Locator = page.locator(loc.DATE_TITLE)
-        self.submitted_by_title: Locator = page.locator(loc.SUBMITTED_BY_TITLE)
-        self.item_number_title: Locator = page.locator(loc.ITEM_NUMBER_TITLE)
+        self.status_title: Locator = ctx.locator(loc.STATUS_TITLE)
+        self.date_title: Locator = ctx.locator(loc.DATE_TITLE)
+        self.submitted_by_title: Locator = ctx.locator(loc.SUBMITTED_BY_TITLE)
+        self.item_number_title: Locator = ctx.locator(loc.ITEM_NUMBER_TITLE)
         
         # Request Details
-        self.confirmation_request_details: Locator = page.locator(loc.CONFIRMATION_REQUEST_DETAILS)
-        self.item_number_link: Locator = page.locator(loc.ITEM_NUMBER_LINK)
+        self.confirmation_request_details: Locator = ctx.locator(loc.CONFIRMATION_REQUEST_DETAILS)
+        self.item_number_link: Locator = ctx.locator(loc.ITEM_NUMBER_LINK)
         
         # Spinner
-        self.loading_spinner: Locator = page.locator(loc.LOADING_SPINNER)
+        self.loading_spinner: Locator = ctx.locator(loc.LOADING_SPINNER)
 
     def get_header_section_text(self) -> str:
         """Get header section text from confirmation page"""

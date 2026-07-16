@@ -1,4 +1,4 @@
-"""
+﻿"""
 Browser and Context Configuration Fixtures
 
 This module contains:
@@ -36,10 +36,10 @@ _WORKER_ID = os.environ.get("PYTEST_XDIST_WORKER", "master")
 _PYPROJECT_PATH = Path(__file__).resolve().parent.parent.parent / "pyproject.toml"
 
 # ---------------------------------------------------------------------------
-# ID Tracker – captures IDs from responses and page content
+# ID Tracker ΓÇô captures IDs from responses and page content
 # ---------------------------------------------------------------------------
 
-# Log file for captured IDs — worker-isolated for parallel execution
+# Log file for captured IDs ΓÇö worker-isolated for parallel execution
 _ID_LOG_PATH = Path(f"reports/network_errors_{_WORKER_ID}.log")
 
 
@@ -66,7 +66,7 @@ class IdTracker:
     """Collects unique IDs per scenario and writes a summary line."""
 
     def __init__(self):
-        self._ids: dict[str, set[str]] = {}   # prefix → set of IDs
+        self._ids: dict[str, set[str]] = {}   # prefix ΓåÆ set of IDs
         self._scenario: str = ""
 
     def set_scenario(self, name: str) -> None:
@@ -107,7 +107,7 @@ def _write_to_id_log(line: str) -> None:
         f.write(f"{timestamp}  [ID CAPTURE] {line}\n")
 
 
-# Singleton tracker – shared with hooks_fixtures
+# Singleton tracker ΓÇô shared with hooks_fixtures
 id_tracker = IdTracker()
 
 
@@ -131,7 +131,7 @@ def _is_allowed(url: str, allowed_domains: set[str]) -> bool:
     """Check if a URL's hostname contains any allowed domain."""
     hostname = urlparse(url).hostname
     if not hostname:
-        return True  # data: / blob: / about: URLs — always allow
+        return True  # data: / blob: / about: URLs ΓÇö always allow
     hostname = hostname.lower()
     return any(domain in hostname for domain in allowed_domains)
 
@@ -155,7 +155,7 @@ def apply_route_blocks(context) -> None:
     # context.route("**/*", _handle_route)
 
 
-# HTTP error log file path — loaded from pyproject.toml
+# HTTP error log file path ΓÇö loaded from pyproject.toml
 _, _, _HTTP_LOG_PATH = _load_route_blocking_config()
 
 
@@ -164,10 +164,10 @@ def apply_context_listeners(context) -> None:
 
     Captures:
     - Non-2xx HTTP responses (via context.on('response'))
-    - JS console errors/warnings (via context.on('page') → page.on('console'))
-    - Uncaught JS exceptions (via context.on('page') → page.on('pageerror'))
+    - JS console errors/warnings (via context.on('page') ΓåÆ page.on('console'))
+    - Uncaught JS exceptions (via context.on('page') ΓåÆ page.on('pageerror'))
 
-    Does not fail tests — only logs warnings and writes to the error log file.
+    Does not fail tests ΓÇö only logs warnings and writes to the error log file.
     """
     # Ensure reports directory exists
     _HTTP_LOG_PATH.parent.mkdir(parents=True, exist_ok=True)
@@ -280,7 +280,6 @@ def browser_context_args(browser_context_args, request) -> dict:
 
 @pytest.fixture
 def new_context(browser) -> Generator[Callable, None, None]:
-    """Create additional browser contexts for multi-session scenarios."""
     contexts = []
 
     def _create_context(**kwargs):
@@ -323,3 +322,26 @@ def multi_user_contexts(browser) -> Generator[dict, None, None]:
 
     for ctx in contexts.values():
         ctx.close()
+
+
+_ACH_DOWNLOAD_PATH = Path(__file__).resolve().parent.parent / "downloads" / "ACH PDF"
+
+
+@pytest.fixture
+def download_handler(page):
+    """Handle file downloads and save to the ACH PDF download directory."""
+    _ACH_DOWNLOAD_PATH.mkdir(parents=True, exist_ok=True)
+    downloads = []
+
+    def handle_download(download):
+        file_path = _ACH_DOWNLOAD_PATH / download.suggested_filename
+        download.save_as(str(file_path))
+        downloads.append(str(file_path))
+
+    page.on("download", handle_download)
+
+    yield {
+        "download_path": str(_ACH_DOWNLOAD_PATH),
+        "downloads": downloads,
+    }
+

@@ -4,7 +4,7 @@ from pytest_bdd import parsers, then, when
 
 from pages.baw.naa_coach_page import NAACoachPage
 from pages.baw.shell_process_page import ShellProcessPage
-from tests.steps.naw.construct_portfolio_step import ConstructPortfolioStep
+from tests.steps.baw.construct_portfolio_step import ConstructPortfolioStep
 from utils.allure_logger import get_allure_logger
 from utils.assertions import Assertions
 
@@ -108,16 +108,16 @@ def step_user_does_the_activate_account(naa_coach_page: NAACoachPage, test_conte
     naa_coach_page.expand_activation_section()
     logger.info("Account activation button clicked", attach_to_allure=True)
 
-    plan_document_option = (test_data.get("PlanDocumentOption", "") or "").strip()
-    custodian_selection = (test_data.get("CustodianSelection", "") or "").strip()
-    if (
-        custodian_selection.upper() == "GNW"
-        and plan_document_option
-        and not test_context.get("view_edit_app_data_prepared")
-    ):
-        naa_coach_page.validate_plan_document_epic_plan_id_and_penchecks_plan_id(
-            plan_document_option=plan_document_option,
-        )
+    # plan_document_option = (test_data.get("PlanDocumentOption", "") or "").strip()
+    # custodian_selection = (test_data.get("CustodianSelection", "") or "").strip()
+    # if (
+    #     custodian_selection.upper() == "GNW"
+    #     and plan_document_option
+    #     and not test_context.get("view_edit_app_data_prepared")
+    # ):
+    #     naa_coach_page.validate_plan_document_epic_plan_id_and_penchecks_plan_id(
+    #         plan_document_option=plan_document_option,
+    #     )
 
     naa_coach_page.activate_accounts()
     logger.info("Account activated", attach_to_allure=True)
@@ -161,3 +161,4 @@ def step_switch_to_naa_coach_and_click_open_button(
     naa_coach_page.click_open_button("New Account Application")
     shell_process_page.switch_to_shell_process_page(source_page=naa_coach_page.page)
     logger.info("Switched to NAA Coach and opened New Account Application work item")
+

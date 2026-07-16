@@ -6,7 +6,7 @@ from playwright.sync_api import Page
 from pytest_bdd import parsers, then, when
 from datetime import datetime
 
-from pages.stp.shared.item_details_page import ItemDetailsPage
+from pages.ewm.item_details_page import ItemDetailsPage
 from .common_steps import extract_account_core_identifier
 from utils.logger import setup_logger
 
@@ -418,24 +418,19 @@ def validate_info_panel_contents_in_item_details_page(
     item_description: str,
     stp_or_str: str
 ):
-    """Validate info panel contents in Item Details page - matches Java validationOfInfoPanelContentsInItemDetailsPage"""
     with allure.step(f"Validate info panel contents for {stp_or_str}"):
         logger.info("\n")
         logger.info(f"Validating info panel contents: status={status}, description={item_description}, type={stp_or_str}")
 
-        # Use the page that was navigated to by click_item_number (may be new tab or same tab)
         active_page = test_context.get('item_details_page_tab') or page
         if active_page is not page:
-            from pages.stp.shared.item_details_page import ItemDetailsPage as _IDP
-            item_details_page = _IDP(active_page, page_verification=False)
+            item_details_page = ItemDetailsPage(active_page, page_verification=False)
 
-        # Get agent_id and account_number from test_context
         agent_id = test_context.get('agent_id', '')
         account_number = test_context.get('account_number', '')
         account_name = test_context.get('account_name', '')
         item_number = test_context.get('item_number', '')
 
-        # Determine which item details lists to use
         current_url = active_page.url
         if 'test11' in current_url:
             logger.info("Using test11 item details")
@@ -451,100 +446,81 @@ def validate_info_panel_contents_in_item_details_page(
             item_details_list1 = item_details_page.get_item_details_1(agent_id)
             item_details_list2 = item_details_page.get_item_details_2(agent_id)
         
-        # Log all item details
         logger.info("Item Details List 2:")
         for i, value in enumerate(item_details_list2):
             logger.info(f" [{i}] Value is {value}")
         
-        # Store Account Name for DocuSign PDF (matches Java: AccountNameDocuSignPDF = itemDetailsList1.get(1).getText())
         account_name_docusign_pdf = item_details_list1[1] if len(item_details_list1) > 1 else ""
         test_context['account_name_docusign_pdf'] = account_name_docusign_pdf
         logger.info(f"Stored Account Name for DocuSign PDF: {account_name_docusign_pdf}")
         
-        # Get current date in M/d/yyyy format (matches Java: getCurrentDate("M/d/yyyy"))
         current_date = datetime.now().strftime("%-m/%-d/%Y") if os.name != 'nt' else datetime.now().strftime("%#m/%#d/%Y")
         logger.info(f"Current date: {current_date}")
         
-        # Handle different scenarios
         if stp_or_str == "STP":
-            # Validate Item Number
             assert item_details_list1[0] == item_number, \
                 f"Validation of Item Number: Expected '{item_number}', got '{item_details_list1[0]}'"
-            logger.info(f"├ó┼ôΓÇ£ Validation of Item Number: {item_details_list1[0]}")
+            logger.info(f"âœ“ Validation of Item Number: {item_details_list1[0]}")
             
-            # Validate Account Name (contains check)
             assert item_details_list1[1] in account_name or account_name in item_details_list1[1], \
                 f"Validation of Account Name: Expected to contain '{account_name}', got '{item_details_list1[1]}'"
-            logger.info(f"├ó┼ôΓÇ£ Validation of Account Name: {item_details_list1[1]}")
+            logger.info(f"âœ“ Validation of Account Name: {item_details_list1[1]}")
             
-            # Validate Account Number
             assert item_details_list2[2] == account_number, \
                 f"Validation of Account Number: Expected '{account_number}', got '{item_details_list2[2]}'"
             logger.info(f"Validation of Account Number: {item_details_list2[2]}")
         
         elif stp_or_str == "SWP Establish Online":
-            # Validate Item Number
             assert item_details_list1[0] == item_number, \
                 f"Validation of Item Number: Expected '{item_number}', got '{item_details_list1[0]}'"
             logger.info(f"Validation of Item Number: {item_details_list1[0]}")
             
-            # Validate Item Description contains expected text
             assert item_description in item_details_list2[3], \
                 f"Validation of Description: Expected to contain '{item_description}', got '{item_details_list2[3]}'"
             logger.info(f"Validation of Description: {item_details_list2[3]}")
             
-            # Validate Status equals "Complete"
             assert item_details_list1[2] == "Complete", \
                 f"Validation of Status: Expected 'Complete', got '{item_details_list1[2]}'"
             logger.info(f"Validation of Status: Done")
         
         elif stp_or_str == "STR":
-            # Fetch B item number
             b_item_number = item_details_page.fetch_b_item_number()
             test_context['b_item_number'] = b_item_number
             logger.info(f"Value of B item number: {b_item_number}")
 
-            # Validate Account Name
             assert item_details_list1[1] in account_name or account_name in item_details_list1[1], \
                 f"Validation of Account Name: Expected to contain '{account_name}', got '{item_details_list1[1]}'"
             logger.info(f" Validation of Account Name: {item_details_list1[1]}")
 
-            # Validate Account Number
             assert item_details_list2[2] == account_number, \
                 f"Validation of Account Number: Expected '{account_number}', got '{item_details_list2[2]}'"
             logger.info(f" Validation of Account Number: {item_details_list2[2]}")
 
         elif stp_or_str == "Cancel AIP Online STR":
-            # Fetch B item number
             b_item_number = item_details_page.fetch_b_item_number()
             test_context['b_item_number'] = b_item_number
             logger.info(f"Value of B item number: {b_item_number}")
 
-            # Validate Account Name
             assert item_details_list1[1] in account_name or account_name in item_details_list1[1], \
                 f"Validation of Account Name: Expected to contain '{account_name}', got '{item_details_list1[1]}'"
             logger.info(f" Validation of Account Name: {item_details_list1[1]}")
 
-            # Validate Account Number
             assert item_details_list2[2] == account_number, \
                 f"Validation of Account Number: Expected '{account_number}', got '{item_details_list2[2]}'"
             logger.info(f" Validation of Account Number: {item_details_list2[2]}")
         
-        # Validate Status (for all scenarios except "Roth Conversions Online")
         if stp_or_str != "Roth Conversions Online":
             assert item_details_list1[2] == status, \
                 f"Validation of Status: Expected '{status}', got '{item_details_list1[2]}'"
-            logger.info(f"├ó┼ôΓÇ£ Validation of Status: {item_details_list1[2]}")
+            logger.info(f"âœ“ Validation of Status: {item_details_list1[2]}")
         
-        # Validate Created Date
         assert current_date in item_details_list2[0], \
             f"Validation of Created Date: Expected to contain '{current_date}', got '{item_details_list2[0]}'"
-        logger.info(f"├ó┼ôΓÇ£ Validation of Created Date: {item_details_list2[0]}")
+        logger.info(f"âœ“ Validation of Created Date: {item_details_list2[0]}")
         
-        # Validate Item Description
         assert item_description in item_details_list2[3], \
             f"Validation of Item Description: Expected to contain '{item_description}', got '{item_details_list2[3]}'"
-        logger.info(f"├ó┼ôΓÇ£ Validation of Item Description: {item_details_list2[3]}")
+        logger.info(f"âœ“ Validation of Item Description: {item_details_list2[3]}")
         
         logger.info("\n")
         

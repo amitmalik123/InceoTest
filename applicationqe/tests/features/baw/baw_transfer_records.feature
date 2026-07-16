@@ -16,7 +16,7 @@ Feature: BAW Transfer Records
       | SheetName | RowNumber |
       | TOAR      | 2         |
 
-  @toad @baw @prodSmoke
+  @toad @baw 
   Scenario Outline: TOAD_Record
     When User click on Open New Work Item button
     When Select work item type "<WorkItemType>"
@@ -25,7 +25,7 @@ Feature: BAW Transfer Records
     And Fetch b number from shell process page
     Then Click on update transfer button
     Then enter transfer details for work item "<WorkItemType>" with "Percent" allocation in destination
-    # And Validate notes history section "TOAD Record created successfully"
+    And Validate notes history section "TOAD Record created successfully"
 
     Examples:
       | SheetName | RowNumber | WorkItemType                 |

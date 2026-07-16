@@ -258,7 +258,7 @@ def get_item_number_from_confirmation_page(page: Page, cancel_aip_page: CancelAI
 
 @when("User should click on item number for Cancel AIP")
 @then("User should click on item number for Cancel AIP")
-def click_item_number_for_cancel_aip(page: Page, cancel_aip_page: CancelAIPPage):
+def click_item_number_for_cancel_aip(page: Page, cancel_aip_page: CancelAIPPage, test_context: dict):
     """Click on item number to open Item Details"""
     with allure.step("Click on item number"):
         logger.info("Clicking on item number")
@@ -269,6 +269,7 @@ def click_item_number_for_cancel_aip(page: Page, cancel_aip_page: CancelAIPPage)
         pages = page.context.pages
         if len(pages) > 1:
             new_page = pages[-1]
+            test_context['item_details_page_tab'] = new_page
             screenshot = new_page.screenshot()
             allure.attach(
                 screenshot,

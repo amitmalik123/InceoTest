@@ -1,6 +1,7 @@
 from playwright.sync_api import Page
-from pages.stp.shared.base_page import BasePage
+from pages.ewm.base_page import BasePage
 from pages.stp.stp_addACHIntrcutions.locators.add_ach_summary_locators import AddACHSummaryLocators
+from pages.stp.stp_addACHIntrcutions.add_ach_confirmation_page import AddACHConfirmationPage
 from utils.logger import setup_logger
 
 logger = setup_logger(__name__)
@@ -239,6 +240,4 @@ class AddACHSummaryPage(BasePage):
         # Wait for page transition
         self.page.wait_for_timeout(3000)
         
-        # Import here to avoid circular dependency
-        from add_ach_confirmation_page import AddACHConfirmationPage
         return AddACHConfirmationPage(self.page)

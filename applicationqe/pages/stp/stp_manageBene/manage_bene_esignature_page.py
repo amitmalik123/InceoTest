@@ -2,7 +2,7 @@ from typing import Union
 
 from playwright.sync_api import FrameLocator, Locator, Page
 
-from pages.stp.shared.base_page import BasePage
+from pages.ewm.base_page import BasePage
 from pages.stp.stp_manageBene.locators.manage_bene_esignature_locators import ManageBeneESignatureLocators
 from utils.allure_logger import get_allure_logger
 

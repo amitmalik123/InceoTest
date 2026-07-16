@@ -31,19 +31,9 @@ def step_enter_external_id_and_click_search(search_work_item_page: SearchWorkIte
 def step_fetch_parent_b_number(search_work_item_page: SearchWorkItemPage, test_context):
     """Fetch parent B number from search results and store as data in test_context."""
     logger.info("Attempting to fetch parent B number from search results")
-
-    parent_b_number = None
-    try:
-        parent_b_number = search_work_item_page.fetch_parent_b_number()
-    except Exception as e:
-        logger.error(f"Failed to fetch parent B number: {e}")
-
-    # Assert with explicit message so failure is reported as 'Parent B# not found'
-    Assertions.assert_true(
-        bool(parent_b_number and parent_b_number.strip()),
-        "Parent B# not found",
-    )
-
+ 
+    parent_b_number = search_work_item_page.fetch_parent_b_number()
+ 
     test_context["parent_b_number"] = parent_b_number
     test_context["b_tracking_id"] = parent_b_number
     Assertions.assert_is_not_none(parent_b_number, "Parent B number fetched from search results")
@@ -56,4 +46,5 @@ def step_fetch_parent_b_number(search_work_item_page: SearchWorkItemPage, test_c
         "Parent B Number": parent_b_number,
     }, name="B Number Summary")
  
+
 

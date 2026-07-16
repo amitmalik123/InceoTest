@@ -2,15 +2,13 @@
 DM Tool Address Edit Modal Page Object
 """
 
-from typing import Dict, List, Optional, TYPE_CHECKING
+from typing import Dict, List, Optional
 from playwright.sync_api import Page
 
-from pages.stp.shared.base_page import BasePage
+from pages.ewm.base_page import BasePage
 from pages.stp.stp_updateAddress.locators.dm_tool_address_edit_modal_locators import DMToolAddressEditModalLocators
+from pages.stp.stp_updateAddress.dm_tool_usps_modal import DMToolUSPSModal
 from utils.logger import setup_logger
-
-if TYPE_CHECKING:
-    from dm_tool_usps_modal import DMToolUSPSModal
 
 logger = setup_logger(__name__)
 
@@ -513,8 +511,6 @@ class DMToolAddressEditModal(BasePage):
         Returns:
             DMToolUSPSModal instance
         """
-        from dm_tool_usps_modal import DMToolUSPSModal
-        
         logger.info("Navigating to USPS modal")
         try:
             self.page.evaluate("window.scrollTo(0, document.body.scrollHeight)")

@@ -1,11 +1,11 @@
-﻿"""
+"""
 DM Tool Address Change Confirmation Page Object
 """
 
 from typing import Dict, List, Optional
 from playwright.sync_api import Page
 
-from pages.stp.shared.base_page import BasePage
+from pages.ewm.base_page import BasePage
 from utils.logger import setup_logger
 from utils.address_comparison import compare_address_arrays, get_current_date
 

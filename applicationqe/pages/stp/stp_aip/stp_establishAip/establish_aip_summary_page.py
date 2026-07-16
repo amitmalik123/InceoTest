@@ -4,8 +4,9 @@ Establish AIP Summary Page Object
 
 from typing import List
 from playwright.sync_api import Locator, Page
-from pages.stp.shared.base_page import BasePage
+from pages.ewm.base_page import BasePage
 from pages.stp.stp_aip.stp_establishAip.locators.establish_aip_summary_locators import EstablishAIPSummaryLocators
+from pages.stp.stp_aip.stp_establishAip.establish_aip_confirmation_page import EstablishAIPConfirmationPage
 from utils.allure_logger import get_allure_logger
 
 logger = get_allure_logger(__name__)
@@ -20,34 +21,35 @@ class EstablishAIPSummaryPage(BasePage):
     
     def __init__(self, page: Page, page_verification: bool = True):
         super().__init__(page)
+        ctx = self.active_root()
         loc = EstablishAIPSummaryLocators
         
         # Acknowledgements section
-        self.acknowledgements = page.locator(loc.ACKNOWLEDGEMENTS)
+        self.acknowledgements = ctx.locator(loc.ACKNOWLEDGEMENTS)
         
         # Summary section
-        self.summary_section = page.locator(loc.SUMMARY_SECTION)
-        self.request_type_value = page.locator(loc.REQUEST_TYPE_VALUE)
-        self.delivery_method_value = page.locator(loc.DELIVERY_METHOD_VALUE)
-        self.origination_value = page.locator(loc.ORIGINATION_VALUE)
-        self.frequency_value = page.locator(loc.FREQUENCY_VALUE)
-        self.amount_value = page.locator(loc.AMOUNT_VALUE)
-        self.start_date_value = page.locator(loc.START_DATE_VALUE)
-        self.end_date_value = page.locator(loc.END_DATE_VALUE)
+        self.summary_section = ctx.locator(loc.SUMMARY_SECTION)
+        self.request_type_value = ctx.locator(loc.REQUEST_TYPE_VALUE)
+        self.delivery_method_value = ctx.locator(loc.DELIVERY_METHOD_VALUE)
+        self.origination_value = ctx.locator(loc.ORIGINATION_VALUE)
+        self.frequency_value = ctx.locator(loc.FREQUENCY_VALUE)
+        self.amount_value = ctx.locator(loc.AMOUNT_VALUE)
+        self.start_date_value = ctx.locator(loc.START_DATE_VALUE)
+        self.end_date_value = ctx.locator(loc.END_DATE_VALUE)
         
         # Acknowledgements section
-        self.acknowledgements_header = page.locator(loc.ACKNOWLEDGEMENTS_HEADER)
-        self.acknowledgements_body = page.locator(loc.ACKNOWLEDGEMENTS_BODY)
-        self.acknowledgements_list = page.locator(loc.ACKNOWLEDGEMENTS_LIST)
+        self.acknowledgements_header = ctx.locator(loc.ACKNOWLEDGEMENTS_HEADER)
+        self.acknowledgements_body = ctx.locator(loc.ACKNOWLEDGEMENTS_BODY)
+        self.acknowledgements_list = ctx.locator(loc.ACKNOWLEDGEMENTS_LIST)
         
         # Buttons
-        self.cancel_button = page.locator(loc.CANCEL_BUTTON)
-        self.back_button = page.locator(loc.BACK_BUTTON)
-        self.submit_button = page.locator(loc.SUBMIT_BUTTON)
+        self.cancel_button = ctx.locator(loc.CANCEL_BUTTON)
+        self.back_button = ctx.locator(loc.BACK_BUTTON)
+        self.submit_button = ctx.locator(loc.SUBMIT_BUTTON)
         
         # Loading indicators
-        self.spinner_loading = page.locator(loc.SPINNER_LOADING)
-        self.loading_overlay = page.locator(loc.LOADING_OVERLAY)
+        self.spinner_loading = ctx.locator(loc.SPINNER_LOADING)
+        self.loading_overlay = ctx.locator(loc.LOADING_OVERLAY)
         
         # Wait for page load
         self.wait_for_page_load(page_verification)
@@ -251,8 +253,6 @@ class EstablishAIPSummaryPage(BasePage):
         Returns:
             EstablishAIPConfirmationPage instance
         """
-        from establish_aip_confirmation_page import EstablishAIPConfirmationPage
-        
         logger.info("Clicking Submit button")
         self.submit_button.wait_for(state='visible', timeout=10000)
         self.submit_button.scroll_into_view_if_needed()

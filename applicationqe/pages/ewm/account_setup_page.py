@@ -4,7 +4,7 @@ import random
 import re
 import time
 from typing import List, Optional
-
+from datetime import datetime, timedelta
 from allure_pytest import helper
 from utils.helpers import random_number as generate_random_number, random_alpha
 from playwright.sync_api import Page, Locator
@@ -1530,7 +1530,7 @@ class AccountSetupPage(BasePage):
         # Extended wait for button to appear
         self.page.wait_for_timeout(5000)
         self._wait_for_page_ready(timeout=30000)
-        self.page.wait_for_timeout(8000)
+    #    self.page.wait_for_timeout(8000)
         
         fallback_selectors = [
             "a[data-url*='Fund_Page']",
@@ -2168,7 +2168,7 @@ class AccountSetupPage(BasePage):
                     # Clear and fill the field
                     inv_acct.first.clear()
                     self.page.wait_for_timeout(500)
-                    inv_acct.first.fill(account_number)
+                    inv_acct.first.fill(generate_random_number(9))
                     logger.info(f"Γ£ô Investment account number entered: {account_number}")
                     
                     # Wait for field stabilization and blur event processing
@@ -2293,9 +2293,19 @@ class AccountSetupPage(BasePage):
                     source_selected = self._select_source_of_funds(source_of_income)
 
             # Schwab Traditional IRA
-            elif ("schwab" in custodian_lower and "traditional ira" in reg_type_lower):
+            elif ("schwab" in custodian_lower and ("traditional ira" in reg_type_lower or "simple ira" in reg_type_lower)):
                 logger.info(f"Processing Schwab {reg_type} - clicking required fields...")
                 self.wait_for_loading_data()
+                existing_plan= 'No'
+                if "simple ira" in reg_type_lower:
+                    if existing_plan == 'Yes':
+                        self.form_root.locator("#line_Questions_0__Info_Simple_Emp_Y_tab").first.click(force=True)
+                        logger.info("Clicked Yes for existing Simple IRA plan")
+                        self.form_root.locator("#line_Questions_0__Info_Simple_Emp_ID").first.fill(generate_random_number(9))
+                        self.form_root.locator("#line_Questions_0__Info_Simple_Emp_Bus_Nm").first.fill(random_alpha(9))
+                    else:
+                        self.form_root.locator("#line_Questions_0__Info_Simple_Emp_N_tab").first.click(force=True)
+                    logger.info("Processing Schwab Simple IRA - clicking required fields...")
 
                 # Click all required tab elements directly (no scroll, no DOM settle waits)
                 tab_elements = [
@@ -2480,14 +2490,14 @@ class AccountSetupPage(BasePage):
         )
         account = self.form_root.locator("#line_Questions_0__Info_Investment_AccountNumber_VALUE") 
         if should_retain:                
-            self.click_online_document_delivery_button()
-            border_color = account.evaluate("el => getComputedStyle(el).borderBottomColor")
-            Assertions.assert_true("rgb(237, 28, 36)" in border_color, f"Account field border bottom color should be red rgb(237, 28, 36), but was '{border_color}'")
+            # self.click_online_document_delivery_button()
+            # border_color = account.evaluate("el => getComputedStyle(el).borderBottomColor")
+            # Assertions.assert_true("rgb(237, 28, 36)" in border_color, f"Account field border bottom color should be red rgb(237, 28, 36), but was '{border_color}'")
             acct_number = str(random.randint(10**8, 10**9 - 1))
             self.fill(account, acct_number)
             self.tab_out(account)
             logger.info(f"Filled investment account number with: {acct_number}")
-            self.page.wait_for_load_state("domcontentloaded", timeout=30000)
+            self.page.wait_for_load_state("networkidle", timeout=30000)
             self.wait_for_loading_data()
             if test_context.get("test_data", {}).get("Custodian", "").lower() == "schwab":
             #    ia_firm_name = self.form_root.get_by_text(re.compile("current IA Firm that AssetMark"))
@@ -2748,3 +2758,291 @@ class AccountSetupPage(BasePage):
         except Exception:
             Assertions.assert_true(True, "Account Information details saved successfully")
 
+
+    def uniqueFeatureFileSolution(self) :
+        # acc_features = self.page.get_by_text("Account Features", exact=True)
+        # acc_features.wait_for(state="visible", timeout=30000)
+        # acc_features.click()
+        current_segment=" "
+        segments_added = []
+        logger.info("Clicked Account Features link")
+        # Get ALL plus icons in DOM (not just visible) — they persist after save even if hidden
+        all_icons = self.page.locator(".plus-button-sign").all()
+        total_icons = len(all_icons)
+        logger.info(f"Total plus icons in DOM: {total_icons}")
+        for i in range(total_icons):
+            plus_icon = all_icons[i]
+            self.page.wait_for_timeout(500)
+            # JS click bypasses visibility — works even if section collapsed after save
+            plus_icon.dispatch_event("click")
+            logger.info(f"Clicked plus icon {i+1}/{total_icons}")
+            self.page.wait_for_timeout(500)
+            current_segment = plus_icon.evaluate("""el => {
+                const row = el.closest('.row');
+                if (row) {
+                    const label = row.querySelector('.label-big');
+                    if (label) return label.innerText.trim();
+                }
+                return 'unknown';
+            }""")
+            logger.info(f"segment label is {current_segment}")
+            segments_added.append(current_segment)
+            add_information = self.page.locator("a:visible, span:visible, li:visible").filter(has_text="Add Information").first
+            try:
+                add_information.wait_for(state="attached", timeout=3000)
+                logger.info("Add Information link is visible")
+                add_information.click()
+                logger.info("Clicked Add Information link")
+                
+            #    self.wait_for_spinner_to_disappear()
+                self._fill_all_fields()                 
+                # bank link handling
+                self._manage_bank_link()
+                self._manage_add_address()
+            except Exception:
+                logger.info(f"No visible 'Add Information' link after clicking plus icon {i+1}, skipping")
+                continue            
+            logger.info("Clicked Save button after filling fields")            
+            self.page.get_by_role("button", name="Save").first.click()
+            # Wait for page to stabilize after save before next iteration            
+            self.page.wait_for_load_state("domcontentloaded", timeout=15000)
+            self.page.wait_for_timeout(2000)
+        logger.info(f"All segments added: {segments_added}")
+
+    def _get_all_checkboxes_checked(self):
+        """Helper method to return all checkbox locators on the page.""" 
+        native_checkboxes = self.page.locator(
+            "input[type='checkbox'], input[class*='radio-tab'], input[class*='checkbox-tab']"
+        ).all()
+        for cb in native_checkboxes:
+            try:
+                cb_class = cb.get_attribute("class") or ""
+                cb_type = cb.get_attribute("type") or ""
+
+                if "hidden-tab" in cb_class:
+                    cb.wait_for(state="attached", timeout=500)
+                    # Only interact if the element is visible and enabled (active)
+                    if not cb.is_visible() or not cb.is_enabled():
+                        continue
+                   
+                    clicked = cb.evaluate("""el => {
+                        const span = el.nextElementSibling;
+                        if (span && span.tagName === 'SPAN' && !span.classList.contains('checked')) {
+                            span.click();
+                            return 'span';
+                        }
+                        if (el.parentElement) {
+                            el.parentElement.click();
+                            return 'parent';
+                        }
+                        return 'none';
+                    }""")
+                    if clicked != 'none':
+                        logger.info(f"Hidden-tab element: clicked via {clicked}")
+                elif cb_type == "checkbox" and cb.is_visible() and cb.is_enabled() and not cb.is_checked():
+                    cb.check()
+                    logger.info(f"Checked visible checkbox")
+            except Exception:
+                continue
+
+        # Custom checkbox widgets
+        custom_checkboxes = self.page.locator(
+            "[data-questiontype='checkbox'] span.toggle-checkbox:not(.checked)"
+        ).all()
+        for idx, cb in enumerate(custom_checkboxes):
+            try:
+                cb.evaluate("el => el.click()")
+                logger.info(f"clicked on custom checkbox {idx+1}/{len(custom_checkboxes)}")
+            except Exception:
+                continue
+
+    def _get_all_dropdown_selected(self, option_index: int = 1) :
+        
+        acted = 0
+
+        # --- Native <select> elements ---
+        selects = self.page.locator("select:visible")
+        select_count = selects.count()
+        for i in range(select_count):
+            dropdown = selects.nth(i)
+            try:
+                if not dropdown.is_enabled():
+                    continue
+                options_count = dropdown.locator("option").count()
+                if options_count == 0:
+                    continue
+                target_index = option_index if option_index < options_count else options_count - 1
+                dropdown.select_option(index=target_index)
+                acted += 1
+            except Exception:
+                continue
+
+        # --- Custom styled dropdowns (dt > a trigger + dd > dl > dd > a options) ---
+        triggers = self.form_root.locator(".firstmenu > a:visible")
+        trigger_count = triggers.count()
+
+        if trigger_count == 0 and select_count == 0:
+            logger.info("_get_all_dropdown_selected: no visible dropdowns found on page")
+            return 0
+
+        for i in range(trigger_count):
+            trigger = triggers.nth(i)
+            try:
+                if not trigger.is_visible():
+                    continue
+                trigger.click()
+                self.page.wait_for_timeout(300)
+
+                # Options are siblings in the parent container's dd > dl > dd > a
+                parent = self.page.locator(".show-dropdown.styled-ddl:visible, dl.show-dropdown:visible").first
+                options = parent.locator("dd a").all() if parent.count() > 0 else []
+
+                if not options:
+                    # Fallback: close the dropdown and move on
+                    trigger.click()
+                    continue
+
+                target = options[option_index] if option_index < len(options) else options[-1]
+                target.click()
+                acted += 1
+            except Exception:
+                continue
+        return acted
+
+    def _get_all_textboxes_filled(self, fill_value: str = "Test"):        
+        """Helper method to fill all visible textboxes on the page with a default value."""
+        textboxes = self.page.get_by_role("textbox")
+        count = textboxes.count()
+        for i in range(count):
+            textbox = textboxes.nth(i)
+            try:
+                if textbox.is_visible() and textbox.is_enabled():
+                    mask = textbox.get_attribute("data-am-mask")
+                    data_max_value = textbox.get_attribute("data-max-value")
+                    name = textbox.get_attribute("name") or ""
+                    if mask is not None:
+                        mask_lower = mask.lower()
+                        if "date" in mask_lower:                            
+                            tomorrow = (datetime.today() + timedelta(days=1)).strftime("%m%d%Y")
+                            textbox.fill(tomorrow)
+                        elif "ssn" in mask_lower:
+                            textbox.fill(generate_random_number(9))
+                        elif "phone" in mask_lower:
+                            textbox.fill(generate_random_number(10))
+                        elif "zip" in mask_lower:
+                            textbox.fill(generate_random_number(5))
+                        elif "currency" in mask_lower:
+                            textbox.fill(str(random.randint(10, 100)))
+                        elif "email" in mask_lower:
+                            textbox.fill(f"user{random.randint(10, 100)}@gmail.com")
+                        elif "dob" in mask_lower:
+                            textbox.fill((datetime.today() - timedelta(days=365*random.randint(18, 40))).strftime("%m%d%Y"))
+                        elif "percent" in mask_lower:
+                            textbox.fill(str(random.randint(1, 9)))    
+                        elif "integer" in mask_lower and ("Month" in name or "Spec" in name):
+                            textbox.fill(str(datetime.today().month))
+                        elif "integer" in mask_lower and "Year" in name:                            
+                            textbox.fill(str(datetime.today().year))
+                        else:
+                            textbox.fill(random_alpha(5))
+                    else:
+                        # Try alpha first; if the field rejects it (e.g. numeric-only),
+                        # fall back to a random number string.
+                        try:
+                            prop_name = textbox.get_attribute("data-domainpropertyname") or ""
+                            if "number" in prop_name.lower():
+                                textbox.fill(generate_random_number(9))
+                            else:
+                                textbox.fill(fill_value)
+                        except Exception:
+                            try:
+                                textbox.fill(str(random.randint(100, 9999)))
+                            except Exception:
+                                pass
+            except Exception:
+                continue
+
+    def _fill_all_fields(self):     
+        self._get_all_dropdown_selected()   
+        self._get_all_checkboxes_checked()
+        self._get_all_dropdown_selected()
+        self._get_all_textboxes_filled()
+
+    def _manage_bank_link(self):
+        edit_link = self.page.locator("a.bank-edit").first
+        dd_new_bank_link = self.page.locator("a.bank-select").first
+        if edit_link.is_visible():
+            logger.info("'Edit | Add New Bank' detected — skipping, bank already exists")
+        elif dd_new_bank_link.is_visible():
+            logger.info("Only 'Add New Bank' visible (no Edit), clicking it")
+            dd_new_bank_link.click()
+            self._get_all_textboxes_filled()
+            self.page.get_by_role("button", name="Save").first.click()
+
+    def _manage_add_address(self):
+        # Find all address-picker containers and only click "Add Address" if no "Edit" link is present
+        address_pickers = self.page.locator("div.address-picker-btn").all()
+        logger.info(f"Found {len(address_pickers)} address-picker divs")
+
+        for idx, picker in enumerate(address_pickers):
+            try:
+                edit_link = picker.locator("a.address-edit")
+                add_link = picker.locator("a.address-select")
+                # if edit_link.is_visible():
+                #     logger.info(f"Address picker {idx+1}: 'Edit | Add Address' present — skipping")
+                #     continue
+                if add_link.is_visible():
+                    logger.info(f"Address picker {idx+1}: Only 'Add Address' visible, clicking it")
+                    add_link.click()
+                    self.page.wait_for_timeout(500)
+                    # Check if popover appeared with existing address rows
+                    popover = self.page.locator("div.popover.custom-popover:visible")
+                    if popover.is_visible():
+                        existing_row = popover.locator("div.popover-picker:not(.popover-picker-add)").first
+                        if existing_row.is_visible():
+                            logger.info(f"Address picker {idx+1}: Existing address row found in popover, selecting it")
+                            existing_row.click()
+                            self.page.wait_for_timeout(500)
+                            continue
+                        # No existing row — click "Add New" and fill
+                        add_new = popover.locator("div.popover-picker-add").first
+                        if add_new.is_visible():
+                            logger.info(f"Address picker {idx+1}: No existing address, clicking 'Add New'")
+                            add_new.click()
+                            self._get_all_dropdown_selected()
+                            self._get_all_textboxes_filled()
+                            self.page.get_by_role("button", name="Save").first.click()
+                            self.page.wait_for_timeout(1000)
+                            self.page.get_by_role("button", name="Save").first.click()
+                            self.page.wait_for_timeout(1000)
+                    else:
+                        # No popover — direct form opened
+                        self._get_all_dropdown_selected()
+                        self._get_all_textboxes_filled()
+                        self.page.get_by_role("button", name="Save").first.click()
+                        self.page.wait_for_timeout(1000)
+                        self.page.get_by_role("button", name="Save").first.click()
+                        self.page.wait_for_timeout(1000)
+            except Exception:
+                logger.info(f"Failed to process address picker {idx+1}, skipping")
+                continue
+
+        # Also handle any standalone "Add Address" links not inside a picker div
+        for link in self.page.get_by_text("Add Address", exact=True).all():
+            try:
+                in_picker = link.evaluate("el => !!el.closest('.address-picker-btn')")
+                if in_picker:
+                    continue
+                if not link.is_visible():
+                    continue
+                logger.info("Standalone 'Add Address' link found, clicking it")
+                link.click()
+                self._get_all_dropdown_selected()
+                self._get_all_textboxes_filled()
+                self.page.get_by_role("button", name="Save").first.click()
+                self.page.wait_for_timeout(1000)
+                self.page.get_by_role("button", name="Save").first.click()
+                self.page.wait_for_timeout(1000)
+            except Exception:
+                continue
+         

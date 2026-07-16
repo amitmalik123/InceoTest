@@ -5,39 +5,94 @@ trigger:
     include:
       - main
       - develop
+      - ES
   paths:
     include:
-      - data/BAW/**
-      - config/BAW/**
-      - tests/features/BAW/**
-      - tests/steps/BAW/**
-      - pages/BAW/**
-      - queries/BAW/**
-      - azure-pipelines/templates/**
-      - requirements.txt
-
+      - applicationqe/data/baw/**
+      - applicationqe/config/baw/**
+      - applicationqe/tests/features/baw/**
+      - applicationqe/tests/steps/baw/**
+      - applicationqe/pages/baw/**
+      - applicationqe/queries/baw/**
+      - applicationqe/azure-pipelines/templates/**
+      - applicationqe/requirements.txt
+variables:
+- group: qa-pipelines-shared-config
 pr:
   branches:
     include:
       - main
       - develop
+      - ES
   paths:
     include:
-      - data/BAW/**
-      - config/BAW/**
-      - tests/features/BAW/**
-      - tests/steps/BAW/**
-      - pages/BAW/**
-      - queries/BAW/**
-      - azure-pipelines/templates/**
-      - requirements.txt
+      - applicationqe/data/baw/**
+      - applicationqe/config/baw/**
+      - applicationqe/tests/features/baw/**
+      - applicationqe/tests/steps/baw/**
+      - applicationqe/pages/baw/**
+      - applicationqe/queries/baw/**
+      - applicationqe/azure-pipelines/templates/**
+      - applicationqe/requirements.txt
 
-pool:
-  vmImage: ubuntu-latest
+parameters:
+  - name: environment
+    displayName: "Target Environment"
+    type: string
+    default: "test11"
+    values:
+      - test10
+      - test11
+      - test12
+      - silo
+      - prod
+
+  - name: marker
+    displayName: "Pytest Marker to Run"
+    type: string
+    default: "prodSmoke"
+    values:
+      - baw
+      - prodSmoke
+      - Regression
+      - toar
+      - toad
+      - Journal
+      - withdrawal
+      - CheckAssociationToTransfer
+      - CloseWorkItem
+      - iwr
+      - AgentNotification
+      - DE_Withdrawal
+      - BAW_Checkcoach_IWRExtractions
+
+  - name: workers
+    displayName: "Number of Parallel Workers"
+    type: string
+    default: "1"
+    values:
+      - "1"
+      - "2"
+      - "4"
+      - "auto"
+
+  - name: browser
+    displayName: "Browser to Test"
+    type: string
+    default: "chromium"
+    values:
+      - chromium
+      - msedge
+      - both
 
 stages:
   - template: templates/team-stage.yml
     parameters:
-      stageName: BAW
+      stageName: baw
       teamDisplay: BAW
-      featurePath: tests/features/BAW
+      featurePath: tests/runners/baw
+      configDir: baw
+      environment: ${{ parameters.environment }}
+      marker: ${{ parameters.marker }}
+      workers: ${{ parameters.workers }}
+      browser: ${{ parameters.browser }}

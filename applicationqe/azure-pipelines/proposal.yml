@@ -7,14 +7,14 @@ trigger:
       - develop
   paths:
     include:
-      - data/proposal/**
-      - config/proposal/**
-      - tests/features/proposal/**
-      - tests/steps/proposal/**
-      - pages/proposal/**
-      - queries/proposal/**
-      - azure-pipelines/templates/**
-      - requirements.txt
+      - applicationqe/data/proposal/**
+      - applicationqe/config/proposal/**
+      - applicationqe/tests/features/proposal/**
+      - applicationqe/tests/steps/proposal/**
+      - applicationqe/pages/proposal/**
+      - applicationqe/queries/proposal/**
+      - applicationqe/azure-pipelines/templates/**
+      - applicationqe/requirements.txt
 
 pr:
   branches:
@@ -23,17 +23,59 @@ pr:
       - develop
   paths:
     include:
-      - data/proposal/**
-      - config/proposal/**
-      - tests/features/proposal/**
-      - tests/steps/proposal/**
-      - pages/proposal/**
-      - queries/proposal/**
-      - azure-pipelines/templates/**
-      - requirements.txt
+      - applicationqe/data/proposal/**
+      - applicationqe/config/proposal/**
+      - applicationqe/tests/features/proposal/**
+      - applicationqe/tests/steps/proposal/**
+      - applicationqe/pages/proposal/**
+      - applicationqe/queries/proposal/**
+      - applicationqe/azure-pipelines/templates/**
+      - applicationqe/requirements.txt
 
-pool:
-  vmImage: ubuntu-latest
+variables:
+  - group: qa-pipelines-shared-config
+
+# -----------------------------
+# Parameters for Manual Runs
+# -----------------------------
+parameters:
+  - name: environment
+    displayName: "Target Environment"
+    type: string
+    default: "test11"
+    values:
+      - test11
+      - test12
+      - test01
+      - silo
+      - prod
+      - qa
+  - name: marker
+    displayName: "Pytest Marker to Run"
+    type: string
+    default: "smoke"
+    values:
+      - smoke
+      - regression
+      - e2e
+  - name: workers
+    displayName: "Number of Parallel Workers"
+    type: string
+    default: "1"
+    values:
+      - "1"
+      - "2"
+      - "3"
+      - "4"
+      - "auto"
+  - name: browser
+    displayName: "Browser to Test"
+    type: string
+    default: "chromium"
+    values:
+      - chromium
+      - msedge
+      - both
 
 stages:
   - template: templates/team-stage.yml
@@ -41,3 +83,8 @@ stages:
       stageName: PROPOSAL
       teamDisplay: PROPOSAL
       featurePath: tests/runners/proposal
+      configDir: proposal
+      environment: ${{ parameters.environment }}
+      marker: ${{ parameters.marker }}
+      workers: ${{ parameters.workers }}
+      browser: ${{ parameters.browser }}

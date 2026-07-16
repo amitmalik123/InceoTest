@@ -11,7 +11,7 @@ from pages.stp.stp_updateAddress.dmtool_page import DMToolPage
 from pages.stp.stp_updateAddress.dm_tool_address_edit_modal import DMToolAddressEditModal
 from pages.stp.stp_updateAddress.dm_tool_usps_modal import DMToolUSPSModal
 from pages.stp.stp_updateAddress.dmt_address_change_confirmation_page import DMTAddressChangeConfirmationPage
-from pages.stp.shared.account_wizard_page import AccountWizardPage
+from pages.ewm.account_wizard_page import AccountWizardPage
 from utils.address_comparison import if_two_arrays_same
 from utils.logger import setup_logger
 

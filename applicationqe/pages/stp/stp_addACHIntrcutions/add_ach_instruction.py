@@ -2,7 +2,7 @@ from typing import List
 
 from playwright.sync_api import Page
 
-from pages.stp.shared.base_page import BasePage
+from pages.ewm.base_page import BasePage
 from pages.stp.stp_addACHIntrcutions.locators.add_ach_instruction_locators import AddACHInstructionLocators
 from utils.allure_logger import get_allure_logger
 
@@ -12,64 +12,60 @@ logger = get_allure_logger(__name__)
 class AddACHInstructionPage(BasePage):
     def __init__(self, page: Page):
         super().__init__(page)
+        ctx = self.active_root()  # page on test11; frame_locator on test01 (app.test01.assetmark.com)
         loc = AddACHInstructionLocators
+
         # Input fields
-        self.routing_number = page.locator(loc.ROUTING_NUMBER)
-        self.bank_account_number = page.locator(loc.BANK_ACCOUNT_NUMBER)
-        self.confirm_bank_account_number = page.locator(
-            loc.CONFIRM_BANK_ACCOUNT_NUMBER
-        )
-        self.verify_button = page.locator(loc.VERIFY_BUTTON)
-        self.bank_name_display = page.locator(loc.BANK_NAME_DISPLAY)
-        self.name_on_bank_account = page.locator(
-            loc.NAME_ON_BANK_ACCOUNT
-        )
-        self.additional_bank_account_owner_name = page.get_by_placeholder(
+        self.routing_number = ctx.locator(loc.ROUTING_NUMBER)
+        self.bank_account_number = ctx.locator(loc.BANK_ACCOUNT_NUMBER)
+        self.confirm_bank_account_number = ctx.locator(loc.CONFIRM_BANK_ACCOUNT_NUMBER)
+        self.name_on_bank_account = ctx.locator(loc.NAME_ON_BANK_ACCOUNT)
+        self.additional_bank_account_owner_name = ctx.get_by_placeholder(
             loc.ADDITIONAL_BANK_ACCOUNT_OWNER_NAME_PLACEHOLDER
         )
-        
+
         # Buttons
-        self.verify_button = page.locator(loc.VERIFY_BUTTON)
-        self.next_button = page.get_by_role("button", name=loc.NEXT_BUTTON)
-        
+        self.verify_button = ctx.locator(loc.VERIFY_BUTTON)
+        self.next_button = ctx.get_by_role("button", name=loc.NEXT_BUTTON)
+
         # Display elements
-        self.bank_name_display = page.locator(loc.BANK_NAME_DISPLAY)
-        self.account_name_list = page.get_by_test_id(loc.ACCOUNT_NAME_LIST_TESTID).locator(loc.ACCOUNT_NAME_SPAN).first
-        
+        self.bank_name_display = ctx.locator(loc.BANK_NAME_DISPLAY)
+        self.account_name_list = ctx.get_by_test_id(loc.ACCOUNT_NAME_LIST_TESTID).locator(loc.ACCOUNT_NAME_SPAN).first
+
         # Radio buttons - Account Type
-        self.checking_radio = page.get_by_role("radio", name=loc.CHECKING_RADIO)
-        self.savings_radio = page.get_by_role("radio", name=loc.SAVINGS_RADIO)
-        
+        self.checking_radio = ctx.get_by_role("radio", name=loc.CHECKING_RADIO)
+        self.savings_radio = ctx.get_by_role("radio", name=loc.SAVINGS_RADIO)
+
         # Radio buttons - Party Type
-        self.first_party_radio = page.get_by_role("radio", name=loc.FIRST_PARTY_RADIO)
-        self.third_party_radio = page.get_by_role("radio", name=loc.THIRD_PARTY_RADIO)
-        
+        self.first_party_radio = ctx.get_by_role("radio", name=loc.FIRST_PARTY_RADIO)
+        self.third_party_radio = ctx.get_by_role("radio", name=loc.THIRD_PARTY_RADIO)
+
         # Checkboxes
-        self.certify_checkbox = page.locator(loc.CERTIFY_CHECKBOX)
-        self.investment_account_checkbox = page.get_by_test_id(loc.INVESTMENT_ACCOUNT_CHECKBOX_TESTID).locator(
+        self.certify_checkbox = ctx.locator(loc.CERTIFY_CHECKBOX)
+        self.investment_account_checkbox = ctx.get_by_test_id(loc.INVESTMENT_ACCOUNT_CHECKBOX_TESTID).locator(
             loc.INVESTMENT_ACCOUNT_CHECKBOX_INPUT
         )
 
     def client_household(self, household_header: str):
         """Helper method to get client household locator by header text"""
-        return self.page.locator(f"span:text('{household_header}')")
+        return self.active_root().locator(f"span:text('{household_header}')")
 
     def account_heading(self, household_header: str):
         """Helper method to get account heading locator by household header"""
-        return self.page.locator(
+        return self.active_root().locator(
             f"xpath=//span[text()='{household_header}']/following-sibling::span"
         )
     
     def get_sloa_option_locator(self, sloa_option: str):
         """Helper method to get SLOA option locator"""
-        sloa_label = self.page.locator(
+        sloa_label = self.active_root().locator(
             f"span[data-testid^='test-option-label']:has-text('{sloa_option}')"
         )
         return sloa_label.locator("xpath=ancestor::label//input[@type='radio']")
     
     def get_sloa_sub_option_locator(self, display_text: str):
         """Helper method to get SLOA sub-option locator"""
-        sub_label = self.page.locator(f"label:has-text('{display_text}')")
+        sub_label = self.active_root().locator(f"label:has-text('{display_text}')")
         return sub_label.locator("input[type='radio']")
 
     def get_household_heading_and_account(self, household_header: str) -> List[str]:
@@ -177,7 +173,7 @@ class AddACHInstructionPage(BasePage):
         account_locator = self.investment_account_checkbox.nth(account_index)
         self.click(account_locator)
 
-        all_accounts = self.page.get_by_test_id("account-details")
+        all_accounts = self.active_root().get_by_test_id("account-details")
         selected_account = all_accounts.nth(account_index).locator("span").first.inner_text()
         logger.info(f"Selected account: {selected_account}")
         return selected_account

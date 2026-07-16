@@ -68,3 +68,20 @@ class MIMOTransactionRequest2Locators:
     # Notes
     IMPORTANT_NOTES_BLOCK = ".MuiCollapse-entered"
     IMPORTANT_NOTES_MESSAGE = "//div[@class='MuiAccordion-region']"
+
+    # Error messages
+    CONTRIBUTION_AMOUNT_ERROR = "/div/div/span"  # appended to CONTRIBUTION_AMOUNT_SECTION
+    AMOUNT_ERROR_MESSAGE = "//span[contains(text(),'The contribution amount exceeds the allowable limi')]"
+    ERROR_MESSAGE = "//p[@aria-label='error-message']"
+    MIMO_ERROR_MESSAGE = "//div[@data-testid='transaction-page-submit-error-message']"
+
+    # Date-related
+    CONTRIBUTION_DATE_MESSAGE_TEXT = "//p"  # appended to CONTRIBUTION_DATE_SECTION
+    CONTRIBUTION_BUSINESS_DATES = "//div[@class='MuiPickersCalendar-week']/div/div/div[not(contains(@style,'color: lightgrey;'))]"
+    CONTRIBUTION_DATE_HOLIDAYS = "//div[@style='color: lightgrey; cursor: none;']"
+
+    # Loading
+    LOADING_SPINNER = "//div[@data-testid='loading-spinner']"
+
+    # Page ready indicator
+    PAGE_READY_INDICATOR = "//div[@id='root']/div/div/div/div/div/div[1]/section[1]/ul/li[1]"

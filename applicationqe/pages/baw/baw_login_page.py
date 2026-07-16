@@ -2,8 +2,8 @@
 
 from playwright.sync_api import Locator, Page
 
-from config.settings import get_settings
 from pages.base_page import BasePage
+from locators.baw.baw_login_locators import BawLoginLocators
 from utils.allure_logger import get_allure_logger
 
 logger = get_allure_logger(__name__)
@@ -15,16 +15,30 @@ class BawLoginPage(BasePage):
     
     PAGE_NAME = "BAW Login Page"
 
-    def __init__(self, page: Page):
+    def __init__(self, page: Page, base_url: str = None):
         super().__init__(page)
         self.baw_url = self._get_baw_login_url()
-        # Locators for BAW login form (from Java: By.id("username"), By.id("password"), etc.)
-        self.username_field: Locator = page.locator("#username")
-        self.password_field: Locator = page.locator("#password")
-        self.signin_button: Locator = page.locator("//form[@id='signInForm']/a[@href='javascript:submitForm();']")
+        # Locators for BAW login form
+        self.username_field: Locator = page.locator(BawLoginLocators.USERNAME_FIELD)
+        self.password_field: Locator = page.locator(BawLoginLocators.PASSWORD_FIELD)
+        self.signin_button: Locator = page.locator(BawLoginLocators.SIGNIN_BUTTON)
+
+    # --- Compatibility methods for auth_fixtures.py ---
+    def navigate(self) -> None:
+        self.navigate_to_baw()
+
+    def accept_cookies(self) -> None:
+        pass  # BAW has no cookie banner
+
+    def click_sign_in(self) -> None:
+        self.click_signin()
+
+    def dismiss_onetrust(self) -> None:
+        pass  # BAW has no OneTrust overlay
 
     def _get_baw_login_url(self) -> str:
         """Resolve BAW login URL from environment YAML."""
+        from config.settings import get_settings  # lazy import to avoid circular dependency
         baw_config = get_settings().get_app_config("baw")
         baw_url = (baw_config.get("login_url") or "").strip()
         if not baw_url:

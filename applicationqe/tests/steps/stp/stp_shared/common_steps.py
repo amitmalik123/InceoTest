@@ -2,8 +2,8 @@ import allure
 from playwright.sync_api import Page
 from pytest_bdd import given, then, when, parsers
 
-from pages.stp.shared.account_list_page import AccountListPage
-from pages.stp.shared.clients_page import ClientsPage
+from pages.ewm.account_list_page import AccountListPage
+from pages.ewm.clients_page import ClientsPage
 from utils.settings import settings
 from utils.allure_logger import get_allure_logger
 
