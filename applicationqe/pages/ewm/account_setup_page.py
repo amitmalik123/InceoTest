@@ -2928,7 +2928,7 @@ class AccountSetupPage(BasePage):
                         elif "ssn" in mask_lower:
                             textbox.fill(generate_random_number(9))
                         elif "phone" in mask_lower:
-                            textbox.fill(generate_random_number(10))
+                            textbox.fill("7" + generate_random_number(9))
                         elif "zip" in mask_lower:
                             textbox.fill(generate_random_number(5))
                         elif "currency" in mask_lower:
