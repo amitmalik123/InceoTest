@@ -28,6 +28,13 @@ TDA_NO_RETAIN_ACCOUNT_DOCUMENTS = [
     "Schedule of Charges",
     "Charles Schwab Pricing Guide",
     "Privacy Policy",
+    "Planning and Consulting Fee Account Billing Authorization",
+    "Planning and Consulting Fee ACH Billing Authorization",
+    "Short -Term Cash Restriction Request",
+    "Account Suspension Request",
+    "IRA Distribution",
+    "Beneficiary Designation Form",
+    "State Income Tax Withholding Information",
 ]
 
 # Fidelity Tradition indi - With Retain Account
@@ -44,6 +51,7 @@ FIDELITY_RETAIN_ACCOUNT_DOCUMENTS = [
     "Schedule of charges",
 ]
 
+
 # Fidelity Tradition indi - Without Retain Account
 FIDELITY_NO_RETAIN_ACCOUNT_DOCUMENTS = [
     "Account Set Up and Application",
@@ -56,6 +64,17 @@ FIDELITY_NO_RETAIN_ACCOUNT_DOCUMENTS = [
     "Platform Disclosure Packet",
     "Privacy Policy",
     "Schedule of charges",
+    "Planning and Consulting Fee Account Billing Authorization",
+    "Planning and Consulting Fee ACH Billing Authorization",
+    "Short -Term Cash Restriction Request",
+    "Account Suspension Request",
+    "Periodic Investments",
+    "Standing Periodic Journal Instructions for Separately Managed Accounts",
+    "Power of Attorney New York",
+    "Power of Attorney All states except New York",
+    "Standing Payment Instructions",
+    "IRA Periodic Distribution Request",
+    "Premier Select IRA Periodic Distribution Request Form- IRA SWP",
 ]
 
 # Individual
@@ -74,7 +93,18 @@ GNW_DOCUMENTS = [
     "Custody Agreement",
     "AssetMark Trust Company Disclosures",
     "Privacy Policy",
+    "Power of Attorney",
+    "Planning and Consulting Fee ACH Billing Authorization",
+    "Planning and Consulting Fee - Account Billing Authorization",
+    "Cash Advantage Bancorp Checking Account",
+    "Short -Term Cash Restriction Request",
+    "Account Suspension Request",
+    "Standing Letter of Authorization for ACH/Wire",
+    "One-Time Contribution via ACH",
+    "Dollar Cost Average",
+    "Automatic Investment Plan",
 ]
+
 # Individual
 PRS_DOCUMENTS = [
     "Client Billing Authorization",
@@ -87,6 +117,24 @@ PRS_DOCUMENTS = [
     "Platform Disclosure Packet",
     "Schedule of charges",
     "Privacy Policy",
+    "Planning and Consulting Fee Account Billing Authorization",
+    "Planning and Consulting Fee ACH Billing Authorization",
+    "Short-Term Cash Restriction Request",
+    "Account Suspension Request",
+    "IRA Distribution",
+    "ACH Standing Instructions",
+    "IRA Systematic Withdrawal",
+    "Standing Payment Instructions",
+]
+
+SWB_DIRECT_DOCUMENTS = [
+    "Short-Term Cash Restriction Request",
+    "Account Suspension Request",
+]
+
+FIDELITY_DIRECT_DOCUMENTS = [
+    "Short-Term Cash Restriction Request",
+    "Account Suspension Request",
 ]
 
 
@@ -111,5 +159,9 @@ def get_expected_documents(custodian: str, retain_account: bool) -> list[str]:
         return GNW_DOCUMENTS
     elif custodian_lower in ("prs", "psr", "pershing", "pershing advisor solutions"):
         return PRS_DOCUMENTS
+    elif custodian_lower in ("schwab direct", "swb direct", "swb"):
+        return SWB_DIRECT_DOCUMENTS
+    elif custodian_lower in ("fidelity direct", "fdd"):
+        return FIDELITY_DIRECT_DOCUMENTS
     else:
         raise ValueError(f"Unknown custodian: {custodian}")
