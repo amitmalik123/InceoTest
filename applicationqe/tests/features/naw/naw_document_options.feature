@@ -1,6 +1,7 @@
+@documentsVerification 
 Feature: document verification for NAW Agent New Account creation
 
-  @documentsVerification @try
+  @documentsVerification 
   Scenario Outline: form_bundle_document_verification_TDA_retain_account_<retainAccount>
     When User is on Account Wizard tab and click on go button for New Client creation
     And User navigates to client profile page and enter required information
@@ -21,7 +22,7 @@ Feature: document verification for NAW Agent New Account creation
 
     Examples: 
       | SheetName | RowNumber | retainAccount |
-    #  | documentsVerification       |        2  | Yes           |
+      | documentsVerification       |        2  | Yes           |
       | documentsVerification       |        3  | No            | 
       
 
@@ -49,7 +50,7 @@ Feature: document verification for NAW Agent New Account creation
       | documentsVerification       |       4  | Yes           |
       | documentsVerification       |       5  | No            |
   
-  @documentsVerification 
+  @documentsVerification @try
   Scenario Outline: form_bundle_document_verification_GNW
     When User is on Account Wizard tab and click on go button for New Client creation
     And User navigates to client profile page and enter required information
