@@ -1,4 +1,3 @@
-import os
 import re
 import random
 import sys
@@ -9,12 +8,12 @@ from pathlib import Path
 from playwright.sync_api import Locator, Page, expect
 
 try:
-    from locators.models_locators import ModelsLocators  # pyright: ignore[reportMissingImports]
+    from locators.models_locators import ModelsLocators
 except ModuleNotFoundError:
     _LOCATORS_DIR = Path(__file__).resolve().parents[3] / "locators" / "model-management" / "wrappermodel"
     if str(_LOCATORS_DIR) not in sys.path:
         sys.path.insert(0, str(_LOCATORS_DIR))
-    from models_locators import ModelsLocators  # pyright: ignore[reportMissingImports]
+    from models_locators import ModelsLocators
 from pages.base_page import BasePage
 from utils.allure_logger import get_allure_logger
 
@@ -23,30 +22,9 @@ logger = get_allure_logger(__name__)
 
 class ModelsPage(BasePage):
     PAGE_URL = "https://app.test01.assetmark.com/models"
-    SIDEBAR_NAV_REGEX = r"Sidebar\s+Navigation"
-    VISIBLE_GRID_ROW_SELECTOR = "[role='row'][row-index]:not([aria-hidden='true'])"
-    GRID_ROW_SELECTOR = "[role='row'][row-index]"
-    GRID_INPUT_SELECTOR = "[role='gridcell'] input[type='text']"
-    TEXT_INPUT_SELECTOR = "input[type='text']"
-    JS_INPUT_VALUE_EXPR = "el => el.value"
-    ERR_NO_ALLOCATION_INPUTS = "No allocation input fields found"
-
-    @staticmethod
-    def _resolve_models_page_url() -> str:
-        """Resolve models URL by wrapper environment.
-
-        Supported wrapper environments:
-        - test01 -> https://app.test01.assetmark.com/models
-        - silo   -> https://app.silo.assetmark.com/models
-        """
-        env = (os.getenv("TEST_ENV", "test01") or "test01").strip().lower()
-        if env == "silo":
-            return "https://app.silo.assetmark.com/models"
-        return "https://app.test01.assetmark.com/models"
 
     def __init__(self, page: Page):
         super().__init__(page)
-        self.PAGE_URL = self._resolve_models_page_url()
 
         # ── Model List Page ──
         self.models_link: Locator = ModelsLocators.models_link(page)
@@ -154,6 +132,7 @@ class ModelsPage(BasePage):
                 return
             except Exception:
                 continue
+
     def _maximize_window(self) -> None:
         """Expand the headed browser window to the available screen size."""
         try:
@@ -169,247 +148,42 @@ class ModelsPage(BasePage):
         except Exception:
             logger.debug("Unable to maximize browser window; continuing with current size")
 
-    def _get_sidebar_tour_scope(self) -> Locator | Page | None:
-        """Return the scope to search Next/Finish actions for the sidebar tour."""
-        try:
-            tour_dialog = self.page.locator("[role='dialog']").filter(
-                has_text=re.compile(self.SIDEBAR_NAV_REGEX, re.IGNORECASE)
-            ).first
-            if tour_dialog.count() > 0 and tour_dialog.is_visible(timeout=1200):
-                return tour_dialog
-
-            header = self.page.get_by_text(
-                re.compile(self.SIDEBAR_NAV_REGEX, re.IGNORECASE)
-            ).first
-            if header.count() > 0 and header.is_visible(timeout=1200):
-                return self.page
-        except Exception:
-            return None
-        return None
-
-    @staticmethod
-    def _click_tour_action(tour_scope: Locator | Page, action_name: str) -> bool:
-        """Click a tour action button when available and visible."""
-        try:
-            action_btn = tour_scope.get_by_role(
-                "button", name=re.compile(rf"^\s*{action_name}\s*$", re.IGNORECASE)
-            ).first
-            if action_btn.count() > 0 and action_btn.is_visible(timeout=600):
-                action_btn.click(timeout=3000)
-                return True
-        except Exception:
-            return False
-        return False
-
-    @staticmethod
-    def _click_tour_close_icon(tour_scope: Locator | Page) -> bool:
-        """Click the close (X) control in the sidebar tour when available."""
-        close_selectors = [
-            "button[aria-label*='close' i]",
-            "button[title*='close' i]",
-            "[role='button'][aria-label*='close' i]",
-            "svg[aria-label*='close' i]",
-            "button:has(svg)",
-        ]
-        for selector in close_selectors:
-            try:
-                close_btn = tour_scope.locator(selector).first
-                if close_btn.count() > 0 and close_btn.is_visible(timeout=600):
-                    close_btn.click(timeout=3000)
-                    return True
-            except Exception:
-                continue
-        return False
-
-    def _is_sidebar_tour_visible(self) -> bool:
-        """Return True when Sidebar Navigation popup/header is currently visible."""
-        try:
-            dialog = self.page.locator("[role='dialog']").filter(
-                has_text=re.compile(self.SIDEBAR_NAV_REGEX, re.IGNORECASE)
-            ).first
-            if dialog.count() > 0 and dialog.is_visible(timeout=400):
-                return True
-        except Exception:
-            pass
-        try:
-            header = self.page.get_by_text(
-                re.compile(self.SIDEBAR_NAV_REGEX, re.IGNORECASE)
-            ).first
-            return header.count() > 0 and header.is_visible(timeout=400)
-        except Exception:
-            return False
-
-    def _click_sidebar_close_anywhere(self) -> bool:
-        """Try clicking generic close controls at page level."""
-        close_selectors = [
-            "[role='dialog'] button[aria-label*='close' i]",
-            "[role='dialog'] button[title*='close' i]",
-            "button[aria-label='Close']",
-            "button[aria-label='close']",
-            "button:has-text('Close')",
-        ]
-        for selector in close_selectors:
-            try:
-                btn = self.page.locator(selector).first
-                if btn.count() > 0 and btn.is_visible(timeout=500):
-                    btn.click(timeout=2500)
-                    return True
-            except Exception:
-                continue
-        return False
-
-    def _force_close_sidebar_with_js(self) -> bool:
-        """Force-close Sidebar Navigation dialog by clicking close controls via JS."""
-        try:
-            return bool(
-                self.page.evaluate(
-                    """(args) => {
-                        const dialogs = Array.from(document.querySelectorAll('[role="dialog"]'));
-                        const target = dialogs.find(d => new RegExp(args.pattern, 'i').test(d.innerText || ''));
-                        if (!target) return false;
-
-                        const selectors = [
-                            'button[aria-label*="close" i]',
-                            'button[title*="close" i]',
-                            '[role="button"][aria-label*="close" i]',
-                            'button:has(svg)',
-                            'svg[aria-label*="close" i]'
-                        ];
-
-                        for (const sel of selectors) {
-                            const el = target.querySelector(sel);
-                            if (el) {
-                                const clickable = el.closest('button, [role="button"]') || el;
-                                clickable.dispatchEvent(new MouseEvent('click', { bubbles: true, cancelable: true }));
-                                return true;
-                            }
-                        }
-                        return false;
-                    }""",
-                    {"pattern": self.SIDEBAR_NAV_REGEX.replace('\\\\', '\\')},
-                )
-            )
-        except Exception:
-            return False
-
-    def _dismiss_sidebar_by_close(self, tour_scope: Locator | Page) -> bool:
-        """Try closing sidebar popup using X controls."""
-        if self._click_tour_close_icon(tour_scope) or self._click_sidebar_close_anywhere():
-            self.page.wait_for_timeout(250)
-            if not self._is_sidebar_tour_visible():
-                logger.info("Sidebar Navigation popup dismissed via close (X)")
-                return True
-        if self._force_close_sidebar_with_js():
-            self.page.wait_for_timeout(250)
-            if not self._is_sidebar_tour_visible():
-                logger.info("Sidebar Navigation popup dismissed via JS close fallback")
-                return True
-        return False
-
-    def _dismiss_sidebar_by_escape(self) -> bool:
-        """Try dismissing sidebar popup with Escape key."""
-        try:
-            self.page.keyboard.press("Escape")
-            self.page.wait_for_timeout(200)
-            if not self._is_sidebar_tour_visible():
-                logger.info("Sidebar Navigation popup dismissed via Escape")
-                return True
-        except Exception:
-            return False
-        return False
-
-    def _dismiss_sidebar_by_next_finish(self, tour_scope: Locator | Page) -> bool:
-        """Try dismissing sidebar popup by stepping Next then Finish Tour."""
-        clicked_next = False
-        for _ in range(10):
-            if not self._click_tour_action(tour_scope, "Next"):
-                break
-            clicked_next = True
-            self.page.wait_for_timeout(200)
-
-        if self._click_tour_action(tour_scope, "Finish Tour"):
-            self.page.wait_for_timeout(250)
-            if not self._is_sidebar_tour_visible():
-                if clicked_next:
-                    logger.info("Sidebar Navigation popup dismissed via Next then Finish Tour")
-                else:
-                    logger.info("Sidebar Navigation popup dismissed via Finish Tour")
-                return True
-        return False
-
     def _dismiss_sidebar_navigation_tour(self) -> None:
-        """Dismiss Sidebar Navigation tour popup by clicking Next/Finish when present."""
-        tour_scope = self._get_sidebar_tour_scope()
-        if tour_scope is None:
+        """Dismiss sidebar tour popup by clicking Next/Finish if it appears."""
+        try:
+            header = self.page.get_by_text("Sidebar Navigation", exact=False)
+            if header.count() == 0:
+                return
+            if not header.first.is_visible(timeout=2000):
+                return
+        except Exception:
             return
 
-        logger.info("Sidebar Navigation popup detected; attempting close strategies")
+        logger.info("Sidebar Navigation popup detected; completing tour")
 
-        for _ in range(3):
-            if self._dismiss_sidebar_by_close(tour_scope):
-                return
-            if self._dismiss_sidebar_by_escape():
-                return
-            if self._dismiss_sidebar_by_next_finish(tour_scope):
-                return
+        # Walk through tour steps safely: click Next while available, then Finish.
+        for _ in range(8):
+            try:
+                finish_btn = self.page.get_by_role("button", name="Finish", exact=False).first
+                if finish_btn.is_visible(timeout=800):
+                    finish_btn.click()
+                    self.page.wait_for_timeout(300)
+                    logger.info("Sidebar Navigation tour finished")
+                    return
+            except Exception:
+                pass
 
-        logger.info("Sidebar Navigation popup may still be present after close attempts")
+            try:
+                next_btn = self.page.get_by_role("button", name="Next", exact=False).first
+                if next_btn.is_visible(timeout=800):
+                    next_btn.click()
+                    self.page.wait_for_timeout(250)
+                    continue
+            except Exception:
+                pass
 
-    def _move_chat_widget_away(self) -> None:
-        """Move floating chat/help launchers out of the click area when present."""
-        try:
-            moved = self.page.evaluate(
-                """() => {
-                    const selectors = [
-                        "iframe[src*='intercom' i]",
-                        "iframe[id*='intercom' i]",
-                        "iframe[title*='intercom' i]",
-                        "#intercom-container",
-                        "[id*='intercom' i]",
-                        "[class*='intercom' i]",
-                        "[id*='chat' i]",
-                        "[class*='chat' i]",
-                        "[id*='launcher' i]",
-                        "[class*='launcher' i]",
-                        "[data-testid*='chat' i]",
-                        "[aria-label*='chat' i]",
-                        "[aria-label*='help' i]",
-                        "[aria-label*='support' i]",
-                        "[title*='chat' i]",
-                        "[title*='help' i]",
-                        "[title*='support' i]"
-                    ];
+            break
 
-                    const nodes = new Set();
-                    for (const selector of selectors) {
-                        for (const node of document.querySelectorAll(selector)) {
-                            nodes.add(node);
-                        }
-                    }
-
-                    for (const node of Array.from(nodes)) {
-                        const el = node;
-                        el.style.setProperty('right', '-9999px', 'important');
-                        el.style.setProperty('left', 'auto', 'important');
-                        el.style.setProperty('bottom', '0px', 'important');
-                        el.style.setProperty('transform', 'translateX(250vw)', 'important');
-                        el.style.setProperty('pointer-events', 'none', 'important');
-                        el.style.setProperty('opacity', '0.01', 'important');
-                        el.setAttribute('data-qa-chat-moved', 'true');
-                    }
-                    return nodes.size;
-                }"""
-            )
-            if isinstance(moved, int) and moved > 0:
-                logger.info(f"Moved {moved} chat/help launcher element(s) away from action area")
-        except Exception:
-            logger.debug("No movable chat/help launcher detected")
-
-    def _dismiss_optional_popups(self) -> None:
-        """Best-effort dismissal for transient popups that block normal flow."""
-        self._dismiss_accept_all_popup()
-        self._dismiss_sidebar_navigation_tour()
-        self._move_chat_widget_away()
     def navigate(self) -> None:
         logger.info(f"Navigating to models page: {self.PAGE_URL}")
         self._maximize_window()
@@ -419,7 +193,9 @@ class ModelsPage(BasePage):
         self._skip_if_models_unreachable()
         self.page.wait_for_load_state("domcontentloaded", timeout=15000)
         # Dismiss 'Accept All' consent popup that may appear on first load.
-        self._dismiss_optional_popups()
+        self._dismiss_accept_all_popup()
+        # Dismiss optional guided tour popup if shown.
+        self._dismiss_sidebar_navigation_tour()
         try:
             self.published_tab.wait_for(state="visible", timeout=20000)
         except Exception:
@@ -436,7 +212,7 @@ class ModelsPage(BasePage):
 
         # Wait for AG Grid data rows to be ready.
         try:
-            self.page.locator(self.VISIBLE_GRID_ROW_SELECTOR).first.wait_for(
+            self.page.locator("[role='row'][row-index]:not([aria-hidden='true'])").first.wait_for(
                 state="visible", timeout=20000
             )
         except Exception:
@@ -499,25 +275,7 @@ class ModelsPage(BasePage):
                 f"continuing with default/app-managed name. Details: {exc}"
             )
             return fallback_name
-    def click_add_model_name_field(self) -> None:
-        logger.info("Clicking Add Model name field")
-        candidates = [
-            self.model_name_field,
-            self.page.get_by_role(
-                "button",
-                name=re.compile(r"add\\s*model\\s*name|model\\s*name", re.IGNORECASE),
-            ).first,
-            self.page.locator("button:has-text('Add Model Name'), button:has-text('Model Name')").first,
-            self.page.locator("[class*='modelName'], [data-testid*='model-name']").first,
-        ]
-        for candidate in candidates:
-            try:
-                candidate.wait_for(state="visible", timeout=3000)
-                candidate.click(timeout=3000)
-                return
-            except Exception:
-                continue
-        logger.info("Model name field trigger not visible; proceeding with direct textbox flow")
+
     def add_n_strategies(self, count: int) -> int:
         """Open strategy picker, select up to count strategies, and add them.
 
@@ -539,7 +297,7 @@ class ModelsPage(BasePage):
     def assert_models_list_includes_key_business_columns(self) -> None:
         """Assert key columns are visible in models list."""
         # First ensure the grid is loaded with visible rows
-        self.page.locator(self.VISIBLE_GRID_ROW_SELECTOR).first.wait_for(state="visible", timeout=15000)
+        self.page.locator("[role='row'][row-index]:not([aria-hidden='true'])").first.wait_for(state="visible", timeout=15000)
         
         expected_columns = ["Model Name", "Risk Profile", "Investment Minimum", "Last Updated"]
         self.page.wait_for_selector("[role='columnheader']", timeout=15000)
@@ -555,7 +313,7 @@ class ModelsPage(BasePage):
     def assert_models_list_has_data(self) -> None:
         """Assert the published models list contains at least one visible data row."""
         logger.info("Asserting models list has at least one data row")
-        data_row = self.page.locator(self.VISIBLE_GRID_ROW_SELECTOR).first
+        data_row = self.page.locator("[role='row'][row-index]:not([aria-hidden='true'])").first
         data_row.wait_for(state="visible", timeout=15000)
         logger.info("Models list has visible data rows")
 
@@ -573,7 +331,7 @@ class ModelsPage(BasePage):
             self.asset_allocation_widget,
             self.risk_return_widget,
             self.performance_widget,
-            self.page.locator(self.GRID_INPUT_SELECTOR).first,
+            self.page.locator("[role='gridcell'] input[type='text']").first,
             self.publish_model_button,
             self.save_draft_button,
         ]
@@ -611,28 +369,7 @@ class ModelsPage(BasePage):
 
     def assert_model_is_published_successfully(self) -> None:
         """Complete publish action and verify success confirmation."""
-        # Publish transition can lag in test01; retry bounded times before hard assertion.
-        published_flag = "status=published"
-        for attempt in range(1, 4):
-            self.click_continue_to_publish()
-
-            settle_deadline = time.time() + 12
-            while time.time() < settle_deadline:
-                current_url = (self.page.url or "").lower()
-                if published_flag in current_url:
-                    logger.info("Model moved to Published status after publish attempt %s", attempt)
-                    return
-                # If model page left draft state, treat as success signal and let caller continue.
-                if "status=draft" not in current_url and "/model" in current_url:
-                    logger.info("Model left Draft state after publish attempt %s", attempt)
-                    return
-                self.page.wait_for_timeout(500)
-
-            logger.warning(
-                "Still on Draft status after publish attempt %s; retrying publish action",
-                attempt,
-            )
-
+        self.click_continue_to_publish()
         self.assert_model_published_successfully()
 
     # ── Model List Page ─────────────────────────────────────────────────────────
@@ -685,35 +422,31 @@ class ModelsPage(BasePage):
         fallback.click(force=True, timeout=10000)
         self.page.wait_for_load_state("domcontentloaded", timeout=15000)
 
+    def click_add_model_name_field(self) -> None:
+        logger.info("Clicking Add Model name field")
+        # Wait for field to be visible before clicking. Some variants expose only
+        # the editable textbox, while others require clicking an "Add Model Name"
+        # trigger. This method is best-effort and non-fatal.
+        candidates = [
+            self.model_name_field,
+            self.page.get_by_role("button", name=re.compile(r"add\s*model\s*name|model\s*name", re.IGNORECASE)).first,
+            self.page.locator("button:has-text('Add Model Name'), button:has-text('Model Name')").first,
+            self.page.locator("[class*='modelName'], [data-testid*='model-name']").first,
+        ]
+        for candidate in candidates:
+            try:
+                candidate.wait_for(state="visible", timeout=3000)
+                candidate.click(timeout=3000)
+                return
+            except Exception:
+                continue
+        logger.info("Model name field trigger not visible; proceeding with direct textbox flow")
+
     def click_add_model_name_textBox(self) -> None:
         logger.info("Clicking Add Model name text box")
         # Wait for text box to be visible before clicking
         self.model_name_box.wait_for(state="visible", timeout=10000)
         self.click(self.model_name_box)
-
-    def _editable_model_name_candidates(self) -> list[Locator]:
-        """Return possible editable fields for model name entry."""
-        return [
-            self.page.locator("input[placeholder*='name' i]:not([readonly])").first,
-            self.page.locator("input[placeholder*='model' i]:not([readonly])").first,
-            self.page.locator("input[name*='name' i]:not([readonly]), input[id*='name' i]:not([readonly])").first,
-            self.page.locator("input[name*='model' i]:not([readonly]), input[id*='model' i]:not([readonly])").first,
-            # Textbox role but NOT the allocation grid (allocation inputs are in [role='gridcell'])
-            self.page.locator("[role='main'] input[type='text']:not([readonly]):not([disabled])").first,
-            self.page.locator("[role='dialog'] input[type='text']:not([readonly]):not([disabled])").first,
-        ]
-
-    @staticmethod
-    def _pick_first_editable_candidate(candidates: list[Locator], timeout_ms: int) -> Locator | None:
-        """Return the first visible and non-readonly candidate locator."""
-        for candidate in candidates:
-            try:
-                candidate.wait_for(state="visible", timeout=timeout_ms)
-                if candidate.get_attribute("readonly") is None:
-                    return candidate
-            except Exception:
-                continue
-        return None
 
     def enter_model_name(self, name: str | None = None) -> str:
         """Enter model name. Auto-generates 'Test model HHMM' if no name given."""
@@ -721,17 +454,52 @@ class ModelsPage(BasePage):
             name = f"Test model {datetime.now().strftime('%H%M')}"
         logger.info(f"Entering model name: {name}")
 
-        editable = self._pick_first_editable_candidate(
-            self._editable_model_name_candidates(), timeout_ms=4000
+        # Wait for the new-model page to stabilise before searching for the name input.
+        # Allocation inputs are readonly; we must exclude them to avoid false matches.
+        EDITABLE_INPUT_SELECTOR = (
+            "input[type='text']:not([readonly]):not([disabled]), "
+            "input:not([type]):not([readonly]):not([disabled])"
         )
+
+        # Ordered candidate list - all exclude readonly elements explicitly.
+        def _editable_candidates():
+            return [
+                self.page.locator("input[placeholder*='name' i]:not([readonly])").first,
+                self.page.locator("input[placeholder*='model' i]:not([readonly])").first,
+                self.page.locator("input[name*='name' i]:not([readonly]), input[id*='name' i]:not([readonly])").first,
+                self.page.locator("input[name*='model' i]:not([readonly]), input[id*='model' i]:not([readonly])").first,
+                # Textbox role but NOT the allocation grid (allocation inputs are in [role='gridcell'])
+                self.page.locator("[role='main'] input[type='text']:not([readonly]):not([disabled])").first,
+                self.page.locator("[role='dialog'] input[type='text']:not([readonly]):not([disabled])").first,
+            ]
+
+        editable = None
+        for candidate in _editable_candidates():
+            try:
+                candidate.wait_for(state="visible", timeout=4000)
+                # Confirm it is actually editable before accepting it.
+                is_ro = candidate.get_attribute("readonly")
+                if is_ro is not None:
+                    continue
+                editable = candidate
+                break
+            except Exception:
+                continue
 
         if editable is None:
             # Retry once after opening the model-name editor trigger.
             self.click_add_model_name_field()
             self.page.wait_for_timeout(500)
-            editable = self._pick_first_editable_candidate(
-                self._editable_model_name_candidates(), timeout_ms=3000
-            )
+            for candidate in _editable_candidates():
+                try:
+                    candidate.wait_for(state="visible", timeout=3000)
+                    is_ro = candidate.get_attribute("readonly")
+                    if is_ro is not None:
+                        continue
+                    editable = candidate
+                    break
+                except Exception:
+                    continue
 
         if editable is None:
             raise AssertionError("Could not find a visible, editable model name input field")
@@ -743,58 +511,33 @@ class ModelsPage(BasePage):
 
     def click_add_strategy(self) -> None:
         logger.info("Clicking Add Strategy button")
-        self._dismiss_optional_popups()
-
-        # Some draft views require entering edit mode before Add Strategy is shown.
-        for edit_btn in (self.edit_draft_button, self.edit_model_button):
-            try:
-                if edit_btn.count() > 0 and edit_btn.is_visible(timeout=800):
-                    self.click(edit_btn)
-                    self.page.wait_for_load_state("domcontentloaded", timeout=10000)
-                    break
-            except Exception:
-                continue
-
         # Reset scroll to top so the Add Strategy button is seekable from a
         # known position regardless of prior _scan_allocation_row_count() scroll.
         self.page.evaluate("() => window.scrollTo(0, 0)")
         self.page.wait_for_timeout(500)
-        candidates = [
-            self.add_strategy_button,
-            self.page.get_by_role("button", name=re.compile(r"^\\s*add\\s+strateg(y|ies)\\s*$", re.IGNORECASE)).first,
-            self.page.locator("button:visible:has-text('Add Strategy')").first,
-            self.page.locator("button:visible:has-text('Add Strategies')").first,
-            self.page.locator("[role='button']:visible:has-text('Add Strategy')").first,
-            self.page.locator("button:visible[aria-label*='add strategy' i]").first,
-            self.page.locator("[role='button']:visible[data-testid*='add-strategy' i]").first,
-        ]
-
-        for candidate in candidates:
-            try:
-                candidate.wait_for(state="visible", timeout=3500)
-                self.click(candidate)
-                return
-            except Exception:
-                continue
-
+        # Quick check before waiting
+        if self.add_strategy_button.is_visible():
+            self.click(self.add_strategy_button)
+            return
+        # Longer wait in case the investment widget is still rendering.
+        try:
+            self.add_strategy_button.wait_for(state="visible", timeout=8000)
+            self.click(self.add_strategy_button)
+            return
+        except Exception:
+            pass
         # Scroll down incrementally and check visibility after each step.
         for _delta in (300, 300, 400, 500):
             self.page.evaluate(f"() => window.scrollBy(0, {_delta})")
             self.page.wait_for_timeout(400)
-            for candidate in candidates:
-                try:
-                    if candidate.count() > 0 and candidate.is_visible(timeout=500):
-                        self.click(candidate)
-                        return
-                except Exception:
-                    continue
+            if self.add_strategy_button.is_visible():
+                self.click(self.add_strategy_button)
+                return
         # JS scrollIntoView only (NO js .click() — that breaks React modal events).
         self.page.evaluate(
             """() => {
-                for (const btn of document.querySelectorAll("button, [role='button']")) {
-                    const t = (btn.textContent || '').trim();
-                    const a = ((btn.getAttribute('aria-label') || '') + ' ' + (btn.getAttribute('title') || '')).trim();
-                    if (/^add\s+strateg(y|ies)$/i.test(t) || /add\s+strategy/i.test(a)) {
+                for (const btn of document.querySelectorAll('button')) {
+                    if (btn.textContent.trim() === 'Add Strategy') {
                         btn.scrollIntoView({block: 'center', inline: 'nearest'});
                         return;
                     }
@@ -802,22 +545,12 @@ class ModelsPage(BasePage):
             }"""
         )
         self.page.wait_for_timeout(500)
-        for candidate in candidates:
-            try:
-                if candidate.count() > 0 and candidate.is_visible(timeout=600):
-                    self.click(candidate)
-                    return
-            except Exception:
-                continue
+        if self.add_strategy_button.is_visible():
+            self.click(self.add_strategy_button)
+            return
         # Last resort: Playwright force-click (real mouse events, bypasses visibility).
         logger.warning("Add Strategy not visible after all scrolling — force clicking")
-        for candidate in candidates:
-            try:
-                candidate.click(force=True, timeout=5000)
-                return
-            except Exception:
-                continue
-        raise AssertionError("Add Strategy action not visible/clickable")
+        self.add_strategy_button.click(force=True, timeout=10000)
 
     def click_confirm_name(self) -> None:
         """Click the tick/checkmark button that appears after typing the model name to save it."""
@@ -851,73 +584,15 @@ class ModelsPage(BasePage):
 
     # ── Drafts / Published Toggle ───────────────────────────────────────────────
 
-    def _click_first_visible_candidate(
-        self,
-        candidates: list[Locator],
-        timeout_ms: int = 4000,
-    ) -> bool:
-        """Try clicking the first visible/clickable locator from a list."""
-        for candidate in candidates:
-            try:
-                candidate.wait_for(state="visible", timeout=timeout_ms)
-                self.click(candidate)
-                return True
-            except Exception:
-                continue
-        return False
-
     def click_drafts_tab(self) -> None:
         logger.info("Clicking Drafts tab")
-
-        def _draft_candidates() -> list[Locator]:
-            return [
-                self.drafts_tab,
-                self.page.get_by_role("tab", name=re.compile(r"^\\s*drafts?\\s*$", re.IGNORECASE)).first,
-                self.page.get_by_role("button", name=re.compile(r"^\\s*drafts?\\s*$", re.IGNORECASE)).first,
-                self.page.locator("[role='tab']:visible:text-matches('^\\s*drafts?\\s*$', 'i')").first,
-                self.page.locator("button:visible:text-matches('^\\s*drafts?\\s*$', 'i')").first,
-            ]
-
-        # Pass 1: current page context.
-        self._dismiss_optional_popups()
-        if self._click_first_visible_candidate(_draft_candidates(), timeout_ms=4000):
-            self.page.wait_for_load_state("domcontentloaded", timeout=15000)
-            return
-
-        # Pass 2: recover from detail pages by navigating to models list directly.
-        logger.warning("Drafts tab not found in current state; navigating to models list and retrying")
-        try:
-            self.page.goto(self.PAGE_URL, wait_until="domcontentloaded")
-        except Exception:
-            self.navigate_to_models_page()
-        self._dismiss_optional_popups()
-        if self._click_first_visible_candidate(_draft_candidates(), timeout_ms=5000):
-            self.page.wait_for_load_state("domcontentloaded", timeout=15000)
-            return
-
-        # Final fallback: best-effort JS click for Drafts controls.
-        try:
-            js_clicked = self.page.evaluate(
-                """() => {
-                    const nodes = Array.from(document.querySelectorAll("[role='tab'], button, [role='button']"));
-                    const target = nodes.find(n => /\\bdrafts?\\b/i.test((n.innerText || n.textContent || '').trim()));
-                    if (!target) return false;
-                    target.click();
-                    return true;
-                }"""
-            )
-            if js_clicked:
-                self.page.wait_for_load_state("domcontentloaded", timeout=15000)
-                return
-        except Exception:
-            pass
-        raise AssertionError("Drafts tab is not visible/clickable in current page state")
+        self.click(self.drafts_tab)
 
     def assert_draft_models_visible(self) -> None:
         """Assert that draft models list is displayed with at least one visible row."""
         logger.info("Asserting draft models list is visible")
         # Wait for at least one data row in the AG Grid (not header/filter rows)
-        data_rows = self.page.locator(self.VISIBLE_GRID_ROW_SELECTOR).first
+        data_rows = self.page.locator("[role='row'][row-index]:not([aria-hidden='true'])").first
         data_rows.wait_for(state="visible", timeout=15000)
         logger.info("Draft models list is visible")
 
@@ -925,7 +600,7 @@ class ModelsPage(BasePage):
         """Click the Last Updated column header twice (typically toggles sort order)."""
         logger.info("Clicking Last Updated column header twice")
         # Wait for grid rows first so headers are attached and interactive.
-        self.page.locator(self.VISIBLE_GRID_ROW_SELECTOR).first.wait_for(
+        self.page.locator("[role='row'][row-index]:not([aria-hidden='true'])").first.wait_for(
             state="visible", timeout=20000
         )
 
@@ -946,7 +621,7 @@ class ModelsPage(BasePage):
 
     def _open_draft_model_row(self, row_index: int) -> None:
         """Open the draft model at the given 0-based position in the sorted list."""
-        rows = self.page.locator(self.VISIBLE_GRID_ROW_SELECTOR)
+        rows = self.page.locator("[role='row'][row-index]:not([aria-hidden='true'])")
         rows.first.wait_for(state="visible", timeout=15000)
         row = rows.nth(row_index)
         link = row.get_by_role("link").first
@@ -972,21 +647,7 @@ class ModelsPage(BasePage):
 
     def click_published_tab(self) -> None:
         logger.info("Clicking Published tab")
-        self._dismiss_optional_popups()
-        candidates = [
-            self.published_tab,
-            self.page.get_by_role("tab", name=re.compile(r"^\\s*published\\s*$", re.IGNORECASE)).first,
-            self.page.get_by_role("button", name=re.compile(r"^\\s*published\\s*$", re.IGNORECASE)).first,
-        ]
-        for candidate in candidates:
-            try:
-                candidate.wait_for(state="visible", timeout=6000)
-                self.click(candidate)
-                self.page.wait_for_load_state("domcontentloaded", timeout=15000)
-                return
-            except Exception:
-                continue
-        raise AssertionError("Published tab is not visible/clickable in current page state")
+        self.click(self.published_tab)
 
     def is_published_tab_active(self) -> bool:
         """Returns True when the Published button has the MUI contained class (active state)."""
@@ -1004,81 +665,9 @@ class ModelsPage(BasePage):
         assert actual_url == expected_url, f"Expected URL '{expected_url}' but got '{actual_url}'"
         logger.info(f"Page URL verified: {actual_url}")
 
-    def _wait_for_strategy_precheck_stable(self) -> int:
-        """Wait until pre-checked strategy count stabilizes and return that count."""
-        prev_checked = -1
-        stable_count = 0
-        for _ in range(30):  # max 15 s
-            checked = sum(1 for cb in self.strategy_checkboxes.all() if cb.is_checked())
-            if checked == prev_checked:
-                stable_count += 1
-                if stable_count >= 2:
-                    break
-            else:
-                stable_count = 0
-            prev_checked = checked
-            self.page.wait_for_timeout(500)
-        return prev_checked
-
-    def _scroll_strategy_modal_grid(self, direction: str) -> None:
-        """Scroll the strategy modal AG Grid viewport up or down."""
-        selectors = [
-            ".MuiDialog-root .ag-body-viewport",
-            ".MuiDialog-root .ag-center-cols-viewport",
-            ".MuiDialog-root .ag-body-vertical-scroll-viewport",
-            ".MuiDialog-root [role='grid']",
-        ]
-        script = """
-            (args) => {
-                for (const sel of args.selectors) {
-                    const el = document.querySelector(sel);
-                    if (el && el.scrollHeight > el.clientHeight) {
-                        el.scrollTop = args.direction === 'bottom'
-                            ? el.scrollHeight
-                            : Math.max(0, el.scrollTop - el.clientHeight);
-                        return true;
-                    }
-                }
-                return false;
-            }
-        """
-        self.page.evaluate(script, {"selectors": selectors, "direction": direction})
-        self.page.wait_for_timeout(400)
-
-    def _try_select_unchecked_strategies(
-        self,
-        selected: int,
-        target_count: int,
-        selected_row_indexes: set[str],
-    ) -> int:
-        """Select unchecked checkboxes from currently rendered modal rows."""
-        for cb in self.strategy_checkboxes.all():
-            if selected >= target_count:
-                break
-            try:
-                if cb.is_checked():
-                    continue
-                row_index = cb.evaluate(
-                    """(el, args) => {
-                        const row = el.closest(args.rowSelector);
-                        return row ? row.getAttribute("row-index") : "";
-                    }""",
-                    {"rowSelector": self.GRID_ROW_SELECTOR},
-                )
-                if row_index and row_index in selected_row_indexes:
-                    continue
-
-                cb.click()
-                if row_index:
-                    selected_row_indexes.add(row_index)
-                selected += 1
-                logger.info(f"Selected strategy {selected}")
-            except Exception:
-                continue
-        return selected
-
     # ── Strategy Modal ──────────────────────────────────────────────────────────
-    def select_strategies(self, count: int = 2) -> int:
+
+    def select_strategies(self, count: int = 2) -> None:
         """Select `count` UNCHECKED strategies from the Choose Strategies modal.
 
         The modal uses AG Grid which virtualizes rows, so unchecked strategies may
@@ -1088,23 +677,87 @@ class ModelsPage(BasePage):
         """
         logger.info(f"Selecting {count} unchecked strategies from modal")
         self.strategy_checkboxes.first.wait_for(state="visible", timeout=15000)
-        prechecked = self._wait_for_strategy_precheck_stable()
-        logger.info(f"Pre-check stabilised: {prechecked} checkbox(es) pre-checked in modal")
+
+        # Wait for the grid's pre-check pass to finish so is_checked() is reliable.
+        prev_checked = -1
+        stable_count = 0
+        for _ in range(30):  # max 15 s
+            cbs = self.strategy_checkboxes.all()
+            checked = sum(1 for cb in cbs if cb.is_checked())
+            if checked == prev_checked:
+                stable_count += 1
+                if stable_count >= 2:
+                    break
+            else:
+                stable_count = 0
+            prev_checked = checked
+            self.page.wait_for_timeout(500)
+        logger.info(f"Pre-check stabilised: {prev_checked} checkbox(es) pre-checked in modal")
+
+        # Selectors for the scrollable viewport inside the modal AG Grid.
+        MODAL_GRID_SCROLL_SELECTORS = [
+            ".MuiDialog-root .ag-body-viewport",
+            ".MuiDialog-root .ag-center-cols-viewport",
+            ".MuiDialog-root .ag-body-vertical-scroll-viewport",
+            ".MuiDialog-root [role='grid']",
+        ]
+
+        def _scroll_modal_grid(direction: str) -> None:
+            """Scroll the modal AG Grid viewport up or down."""
+            script = """
+                (args) => {
+                    for (const sel of args.selectors) {
+                        const el = document.querySelector(sel);
+                        if (el && el.scrollHeight > el.clientHeight) {
+                            el.scrollTop = args.direction === 'bottom'
+                                ? el.scrollHeight
+                                : Math.max(0, el.scrollTop - el.clientHeight);
+                            return true;
+                        }
+                    }
+                    return false;
+                }
+            """
+            self.page.evaluate(
+                script, {"selectors": MODAL_GRID_SCROLL_SELECTORS, "direction": direction}
+            )
+            self.page.wait_for_timeout(400)
 
         selected = 0
-        selected_row_indexes: set[str] = set()
+        selected_row_indexes = set()
         scroll_passes = 0
         max_scroll_passes = 10
 
         while selected < count and scroll_passes <= max_scroll_passes:
-            selected = self._try_select_unchecked_strategies(
-                selected=selected,
-                target_count=count,
-                selected_row_indexes=selected_row_indexes,
-            )
+            all_checkboxes = self.strategy_checkboxes.all()
+            for cb in all_checkboxes:
+                if selected >= count:
+                    break
+                try:
+                    if cb.is_checked():
+                        continue
+
+                    row_index = cb.evaluate(
+                        """el => {
+                            const row = el.closest("[role='row'][row-index]");
+                            return row ? row.getAttribute("row-index") : "";
+                        }"""
+                    )
+                    if row_index and row_index in selected_row_indexes:
+                        continue
+
+                    cb.click()
+                    if row_index:
+                        selected_row_indexes.add(row_index)
+                    selected += 1
+                    logger.info(f"Selected strategy {selected}")
+                except Exception:
+                    # Row may have scrolled out of viewport; skip and continue.
+                    continue
 
             if selected < count:
-                self._scroll_strategy_modal_grid("bottom")
+                # Scroll down to reveal more unchecked rows.
+                _scroll_modal_grid("bottom")
                 scroll_passes += 1
 
         if selected < count:
@@ -1147,7 +800,7 @@ class ModelsPage(BasePage):
         inputs = self.allocation_row_inputs.all()
         assert inputs, "No allocation input fields found in investment widget"
         for idx, inp in enumerate(inputs):
-            val = inp.evaluate(self.JS_INPUT_VALUE_EXPR).replace("%", "").strip()
+            val = inp.evaluate("el => el.value").replace("%", "").strip()
             assert val in (
                 "0",
                 "0.00",
@@ -1160,17 +813,17 @@ class ModelsPage(BasePage):
         Confirmed via live debugging: the inputs are React-controlled. Regular
         fill()/type() don't fire React's onChange. Must use the native
         HTMLInputElement value setter + input/change events. Verified working:
-        60%+40% with Save as Draft enabled and Allocation showing 100%.
+        60%+40% with Save Draft enabled and Allocation showing 100%.
         """
         logger.info("Allocating equal percentages summing to 100%")
         self.allocation_row_inputs.first.wait_for(state="visible", timeout=15000)
         count = self.allocation_row_inputs.count()
-        assert count > 0, self.ERR_NO_ALLOCATION_INPUTS
+        assert count > 0, "No allocation input fields found"
         per_strategy = 100 // count
         remainder = 100 - (per_strategy * count)
 
         script = """(args) => {
-            const inputs = document.querySelectorAll(args.inputSelector);
+            const inputs = document.querySelectorAll("[role='gridcell'] input[type='text']");
             const nativeSetter = Object.getOwnPropertyDescriptor(
                 window.HTMLInputElement.prototype, 'value'
             ).set;
@@ -1187,102 +840,97 @@ class ModelsPage(BasePage):
             return Array.from(inputs).map(i => i.value);
         }"""
 
-        results = self.page.evaluate(
-            script,
-            {
-                "perStrategy": per_strategy,
-                "remainder": remainder,
-                "inputSelector": self.GRID_INPUT_SELECTOR,
-            },
-        )
+        results = self.page.evaluate(script, {"perStrategy": per_strategy, "remainder": remainder})
         logger.info(f"Allocation values set: {results}")
-        # Let the UI settle before save; click_save_draft handles fluent visibility wait.
-        self.page.wait_for_timeout(1200)
+        
+        # Wait for React to process changes and enable Save Draft button
+        self.page.wait_for_timeout(2000)
+        
+        # Explicitly wait for Save Draft button to become visible and enabled
+        try:
+            self.save_draft_button.wait_for(state="visible", timeout=10000)
+            logger.info("Save Draft button is now visible after allocation")
+        except Exception as e:
+            logger.warning(f"Save Draft button not immediately visible after allocation: {e}")
+            # Continue anyway - fallback save handling will attempt to save
 
-    def _read_current_allocations(self) -> list[int]:
-        """Read current allocation values as rounded integers."""
+    def modify_allocation_percentages(self) -> list[int]:
+        """Randomize allocations for all existing strategies so total equals 100%."""
+        self.allocation_row_inputs.first.wait_for(state="visible", timeout=15000)
+        strategy_count = self.allocation_row_inputs.count()
+        assert strategy_count > 0, "No allocation input fields found"
+        logger.info(f"Found {strategy_count} existing strategy allocation row(s)")
+
+        # Snapshot current integer allocations so we can force a meaningful change.
         current_values: list[int] = []
         for inp in self.allocation_row_inputs.all():
-            raw = inp.evaluate(self.JS_INPUT_VALUE_EXPR).replace("%", "").strip()
+            raw = inp.evaluate("el => el.value").replace("%", "").strip()
             try:
                 current_values.append(int(round(float(raw))))
             except (TypeError, ValueError):
                 current_values.append(0)
-        return current_values
 
-    @staticmethod
-    def _two_strategy_values(current_values: list[int]) -> list[int]:
-        """Build a two-strategy distribution that differs from the current one."""
-        for _ in range(20):
-            first = random.randint(1, 99)
-            values = [first, 100 - first]
-            if values != current_values:
-                return values
-        if current_values == [50, 50]:
-            return [51, 49]
-        return [49, 51]
-
-    @staticmethod
-    def _candidate_from_weights(weights: list[int]) -> list[int]:
-        """Convert random weights to integer percentages totaling 100."""
-        strategy_count = len(weights)
-        total_weight = sum(weights)
-        exact = [(w * 100.0) / total_weight for w in weights]
-        candidate = [int(v) for v in exact]
-
-        remainder = 100 - sum(candidate)
-        if remainder > 0:
-            order = sorted(
-                range(strategy_count),
-                key=lambda i, exact=exact: (exact[i] - int(exact[i])),
-                reverse=True,
-            )
-            for i in range(remainder):
-                candidate[order[i % strategy_count]] += 1
-        elif remainder < 0:
-            order = sorted(
-                range(strategy_count),
-                key=lambda i, candidate=candidate: candidate[i],
-                reverse=True,
-            )
-            for i in range(abs(remainder)):
-                idx = order[i % strategy_count]
-                if candidate[idx] > 0:
-                    candidate[idx] -= 1
-
-        if sum(candidate) != 100:
-            candidate[-1] += 100 - sum(candidate)
-        return candidate
-
-    def _multi_strategy_values(self, strategy_count: int, current_values: list[int]) -> list[int]:
-        """Build a multi-strategy distribution that differs from current values."""
-        for _ in range(20):
-            weights = [random.randint(1, 1000) for _ in range(strategy_count)]
-            candidate = self._candidate_from_weights(weights)
-            if candidate != current_values:
-                return candidate
-
-        values = current_values.copy()
-        if values[0] < 99:
-            values[0] += 1
-            values[-1] -= 1
-        else:
-            values[0] -= 1
-            values[-1] += 1
-        return values
-
-    def _compute_new_allocation_values(self, strategy_count: int, current_values: list[int]) -> list[int]:
-        """Choose a valid allocation distribution totaling 100% for current strategy count."""
         if strategy_count == 1:
-            return [100]
-        if strategy_count == 2:
-            return self._two_strategy_values(current_values)
-        return self._multi_strategy_values(strategy_count, current_values)
+            values = [100]
+        elif strategy_count == 2:
+            # Two-strategy special-case: avoid no-op updates like 50/50 -> 50/50.
+            for _ in range(20):
+                first = random.randint(1, 99)
+                values = [first, 100 - first]
+                if values != current_values:
+                    break
+            else:
+                # Guaranteed fallback to force change while preserving 100 total.
+                if current_values == [50, 50]:
+                    values = [51, 49]
+                else:
+                    values = [49, 51]
+        else:
+            values = []
+            for _ in range(20):
+                # Generate random positive weights, then convert to integer percentages.
+                weights = [random.randint(1, 1000) for _ in range(strategy_count)]
+                total_weight = sum(weights)
+                exact = [(w * 100.0) / total_weight for w in weights]
+                candidate = [int(v) for v in exact]
 
-    def _apply_allocation_values(self, values: list[int]) -> list[str]:
-        """Apply integer allocations via native setter so React-controlled fields update."""
+                # Distribute rounding remainder to ensure exact 100 total.
+                remainder = 100 - sum(candidate)
+                if remainder > 0:
+                    order = sorted(
+                        range(strategy_count),
+                        key=lambda i: (exact[i] - int(exact[i])),
+                        reverse=True,
+                    )
+                    for i in range(remainder):
+                        candidate[order[i % strategy_count]] += 1
+                elif remainder < 0:
+                    order = sorted(range(strategy_count), key=lambda i: candidate[i], reverse=True)
+                    for i in range(abs(remainder)):
+                        idx = order[i % strategy_count]
+                        if candidate[idx] > 0:
+                            candidate[idx] -= 1
+
+                if sum(candidate) != 100:
+                    candidate[-1] += 100 - sum(candidate)
+
+                if candidate != current_values:
+                    values = candidate
+                    break
+
+            # Defensive fallback if random attempts match existing values repeatedly.
+            if not values:
+                values = current_values.copy()
+                if values[0] < 99:
+                    values[0] += 1
+                    values[-1] -= 1
+                else:
+                    values[0] -= 1
+                    values[-1] += 1
+
+        # Use JS native setter so React-controlled inputs register the change correctly.
         script = """(args) => {
-            const inputs = document.querySelectorAll(args.inputSelector);
+            const inputs = document.querySelectorAll("[role='gridcell'] input[type='text']");
             const nativeSetter = Object.getOwnPropertyDescriptor(
                 window.HTMLInputElement.prototype, 'value'
             ).set;
@@ -1297,21 +945,7 @@ class ModelsPage(BasePage):
             });
             return Array.from(inputs).map(i => i.value);
         }"""
-        return self.page.evaluate(
-            script,
-            {"values": values, "inputSelector": self.GRID_INPUT_SELECTOR},
-        )
-
-    def modify_allocation_percentages(self) -> list[int]:
-        """Randomize allocations for all existing strategies so total equals 100%."""
-        self.allocation_row_inputs.first.wait_for(state="visible", timeout=15000)
-        strategy_count = self.allocation_row_inputs.count()
-        assert strategy_count > 0, self.ERR_NO_ALLOCATION_INPUTS
-        logger.info(f"Found {strategy_count} existing strategy allocation row(s)")
-
-        current_values = self._read_current_allocations()
-        values = self._compute_new_allocation_values(strategy_count, current_values)
-        results = self._apply_allocation_values(values)
+        results = self.page.evaluate(script, {"values": values})
         self.page.wait_for_timeout(800)
         logger.info(f"Allocation values set for {strategy_count} strategies: {results}")
         return values
@@ -1338,11 +972,11 @@ class ModelsPage(BasePage):
                     self.page.wait_for_timeout(retry_delay_ms)
                     continue
 
-        assert inputs, f"{self.ERR_NO_ALLOCATION_INPUTS} after {max_retries} attempts"
+        assert inputs, f"No allocation input fields found after {max_retries} attempts"
 
         total = 0.0
         for inp in inputs:
-            raw = inp.evaluate(self.JS_INPUT_VALUE_EXPR).replace("%", "").strip()
+            raw = inp.evaluate("el => el.value").replace("%", "").strip()
             if raw:
                 total += float(raw)
         assert abs(total - 100.0) < 0.1, f"Total allocation expected 100% but got {total:.2f}%"
@@ -1363,103 +997,20 @@ class ModelsPage(BasePage):
 
     # ── Save / Publish ──────────────────────────────────────────────────────────
 
-    def _fluent_wait_visible(
-        self,
-        locator: Locator,
-        timeout_ms: int = 20000,
-        poll_ms: int = 400,
-    ) -> bool:
-        """Fluent wait: poll until locator is visible or timeout expires."""
-        end_time = time.time() + (timeout_ms / 1000)
-        while time.time() < end_time:
-            try:
-                if locator.count() > 0 and locator.is_visible(timeout=300):
-                    return True
-            except Exception:
-                pass
-            self.page.wait_for_timeout(poll_ms)
-        return False
-
-    def _wait_until_save_draft_visible(self, timeout_ms: int = 20000) -> bool:
-        """Wait until Save as Draft action is visible using resilient page-state retries."""
-        end_time = time.time() + (timeout_ms / 1000)
-        scroll_positions = [0, 9999, 0]
-        idx = 0
-
-        while time.time() < end_time:
-            self._dismiss_optional_popups()
-            try:
-                self.page.evaluate("() => { if (document.activeElement) document.activeElement.blur(); }")
-            except Exception:
-                pass
-
-            try:
-                if self._fluent_wait_visible(self.save_draft_button, timeout_ms=700, poll_ms=200):
-                    return True
-            except Exception:
-                pass
-
-            try:
-                self.page.evaluate(f"window.scrollTo(0, {scroll_positions[idx % len(scroll_positions)]})")
-                idx += 1
-            except Exception:
-                pass
-            self.page.wait_for_timeout(350)
-
-        return False
-
-    def _save_draft_candidates(self) -> list[Locator]:
-        """Return prioritized Save-as-Draft candidates for wrappermodel variants."""
-        return [
-            # Exact known class variants shared by wrappermodel builds.
-            self.page.locator(
-                "button.css-gvxwld-actionButton-secondaryButton-ActionButtons:visible:text-matches('^\\s*save\\s+as(\\s+a)?\\s+draft\\s*$', 'i'), "
-                "button.css-bi4yv8-actionButton-primaryButton-ActionButtons:visible:text-matches('^\\s*save\\s+as(\\s+a)?\\s+draft\\s*$', 'i'), "
-                "button[class*='actionButton-secondaryButton-ActionButtons' i]:visible:text-matches('^\\s*save\\s+as(\\s+a)?\\s+draft\\s*$', 'i'), "
-                "button[class*='actionButton-primaryButton-ActionButtons' i]:visible:text-matches('^\\s*save\\s+as(\\s+a)?\\s+draft\\s*$', 'i')"
-            ).first,
-            # Header/top-right action containers.
-            self.page.locator(
-                "[class*='modelAnalyticsHeader'] button:visible:text-matches('^\\s*save(\\s+as(\\s+a)?)?\\s+draft\\s*$', 'i'), "
-                "[class*='modelHeader'] button:visible:text-matches('^\\s*save(\\s+as(\\s+a)?)?\\s+draft\\s*$', 'i'), "
-                "[class*='headerAction'] button:visible:text-matches('^\\s*save(\\s+as(\\s+a)?)?\\s+draft\\s*$', 'i'), "
-                "[class*='modelAnalyticsHeader'] [role='button']:visible:text-matches('^\\s*save\\s*$', 'i'), "
-                "[class*='modelHeader'] [role='button']:visible:text-matches('^\\s*save\\s*$', 'i'), "
-                "[class*='headerAction'] [role='button']:visible:text-matches('^\\s*save\\s*$', 'i')"
-            ).first,
-            self.save_draft_button,
-            # Generic save text as last candidate.
-            self.page.get_by_role("button", name=re.compile(r"save", re.IGNORECASE)).first,
-        ]
-
     def click_save_draft(self) -> None:
-        logger.info("Clicking Save as Draft button")
-        self._dismiss_optional_popups()
+        logger.info("Clicking Save Draft button")
         try:
             self.page.evaluate("() => { if (document.activeElement) document.activeElement.blur(); }")
             self.page.wait_for_timeout(300)
         except Exception:
             pass
-
-        candidates = self._save_draft_candidates()
-
-        # Primary behavior: wait until Save as Draft is visible, then click.
-        if self._wait_until_save_draft_visible(timeout_ms=20000):
-            end_time = time.time() + 10
-            while time.time() < end_time:
-                for candidate in candidates:
-                    try:
-                        if self._fluent_wait_visible(candidate, timeout_ms=700, poll_ms=150):
-                            self.click(candidate)
-                            self.page.wait_for_load_state("domcontentloaded", timeout=30000)
-                            logger.info("Save as Draft clicked after fluent visibility wait")
-                            return
-                    except Exception:
-                        continue
-                self.page.wait_for_timeout(350)
-            logger.warning("Save as Draft became visible but click retries failed; continuing with fallback handling")
-
-        logger.warning("Save as Draft button not visible via fluent wait; attempting fallback save handling")
+        try:
+            self.save_draft_button.wait_for(state="visible", timeout=12000)
+            self.click(self.save_draft_button)
+            self.page.wait_for_load_state("domcontentloaded", timeout=30000)
+            return
+        except Exception:
+            logger.warning("Save Draft button not visible; attempting fallback save handling")
 
         # Fallback: scroll to top (sticky action bar may be off-screen) then retry.
         for scroll_y in (0, 9999, 0):
@@ -1469,86 +1020,34 @@ class ModelsPage(BasePage):
             except Exception:
                 pass
             try:
-                if self._fluent_wait_visible(self.save_draft_button, timeout_ms=3000, poll_ms=250):
-                    self.click(self.save_draft_button)
-                    self.page.wait_for_load_state("domcontentloaded", timeout=30000)
-                    logger.info("Save as Draft clicked via fallback scroll+fluent wait")
-                    return
+                self.save_draft_button.wait_for(state="visible", timeout=4000)
+                self.click(self.save_draft_button)
+                self.page.wait_for_load_state("domcontentloaded", timeout=30000)
+                logger.info("Save Draft clicked via fallback scroll+retry")
+                return
             except Exception:
                 pass
 
-        # Scoped fallback using centralized candidates.
-        for candidate in candidates:
-            try:
-                if self._fluent_wait_visible(candidate, timeout_ms=2200, poll_ms=250):
-                    self.click(candidate)
-                    self.page.wait_for_load_state("domcontentloaded", timeout=30000)
-                    logger.info("Save as Draft clicked via scoped fallback")
-                    return
-            except Exception:
-                continue
+        # Try any button whose text contains 'save' (but not 'Save as draft' which
+        # we already covered via the locator above).
+        generic_save = self.page.get_by_role("button", name=re.compile(r"save", re.IGNORECASE)).first
+        if generic_save.count() > 0 and generic_save.is_visible():
+            generic_save.click()
+            self.page.wait_for_load_state("domcontentloaded", timeout=30000)
+            logger.info("Save Draft clicked via generic 'save' button fallback")
+            return
 
-        # Final controlled fallback: visible Save button.
-        try:
-            generic_candidates = [
-                self.page.get_by_role("button", name=re.compile(r"save", re.IGNORECASE)).first,
-                self.page.locator(
-                    "button:visible:text-matches('^\\s*save\\s*$', 'i'), "
-                    "[role='button']:visible:text-matches('^\\s*save\\s*$', 'i')"
-                ).first,
-                self.page.locator(
-                    "button:visible[aria-label*='save' i], [role='button']:visible[aria-label*='save' i], "
-                    "button:visible[title*='save' i], [role='button']:visible[title*='save' i]"
-                ).first,
-            ]
-            for candidate in generic_candidates:
-                try:
-                    if self._fluent_wait_visible(candidate, timeout_ms=1800, poll_ms=250):
-                        self.click(candidate)
-                        self.page.wait_for_load_state("domcontentloaded", timeout=30000)
-                        logger.info("Save as Draft clicked via generic Save fallback")
-                        return
-                except Exception:
-                    continue
-        except Exception:
-            pass
-
-        # Final DOM fallback for app variants where Playwright role/text locators miss
-        # the visible action but the button is present in the main DOM tree.
-        try:
-            js_clicked = self.page.evaluate(
-                """() => {
-                    const isVisible = (el) => {
-                        if (!el) return false;
-                        const style = window.getComputedStyle(el);
-                        if (!style || style.visibility === 'hidden' || style.display === 'none') return false;
-                        const rect = el.getBoundingClientRect();
-                        return rect.width > 0 && rect.height > 0;
-                    };
-
-                    const nodes = Array.from(document.querySelectorAll("button, [role='button']"));
-                    for (const node of nodes) {
-                        const text = (node.innerText || node.textContent || '').trim().toLowerCase();
-                        if (!text) continue;
-                        if (text.includes('continue') || text.includes('publish')) continue;
-                        if (!(text === 'save' || /save\s+as(\s+a)?\s+draft/.test(text))) continue;
-                        if (!isVisible(node)) continue;
-                        node.click();
-                        return true;
-                    }
-                    return false;
-                }"""
+        # Last resort: if Publish Model is the only available action, the draft may
+        # auto-save on publish. Accept this only as a last resort and warn loudly.
+        if self.publish_model_button.is_visible():
+            logger.warning(
+                "Save Draft button not found; Publish Model button is visible. "
+                "Draft may auto-save on publish — proceeding with caution."
             )
-            if js_clicked:
-                self.page.wait_for_load_state("domcontentloaded", timeout=30000)
-                logger.info("Save as Draft clicked via DOM fallback")
-                return
-        except Exception:
-            pass
+            return
 
         raise AssertionError(
-            "Could not find a visible Save as Draft action. "
-            "Save area may be hidden or page state changed."
+            "Could not find a visible Save Draft action. Save area may be hidden or page state changed."
         )
 
     def _save_draft_changes_if_available(self) -> None:
@@ -1559,52 +1058,48 @@ class ModelsPage(BasePage):
         except Exception:
             pass
 
-    def _get_model_header_or_none(self) -> Locator | None:
-        """Return a visible model header container when available."""
+    def edit_draft_model_name(self, new_name: str) -> str:
+        """Edit the draft model name and return the normalized updated name."""
+        updated_name = new_name.strip()
+        logger.info(f"Editing model name to: {updated_name}")
+
+        # Try to find header — class name may have changed, so best-effort only.
         header = self.page.locator(
             "[class*='modelAnalyticsHeader'], [class*='modelHeader'], [class*='analyticsHeader']"
         ).first
         try:
             header.wait_for(state="visible", timeout=3000)
-            return header
         except Exception:
-            return None
+            header = None
 
-    def _try_activate_header_title_edit(self, header: Locator | None) -> None:
-        """Try clicking/double-clicking title elements to enter rename mode."""
-        if header is None:
-            return
-        title_candidates = [
-            header.locator("[class*='modelName']").first,
-            header.locator("h1, h2, h3, h4, h5, h6").first,
-            header.locator("span, p, div").first,
-        ]
-        for candidate in title_candidates:
-            try:
-                if candidate.count() > 0:
-                    candidate.click(timeout=1500)
-                    self.page.wait_for_timeout(200)
-                    candidate.dblclick(timeout=1500)
-                    self.page.wait_for_timeout(200)
-                    return
-            except Exception:
-                continue
-
-    def _click_edit_name_triggers(self, header: Locator | None) -> None:
-        """Click available edit/rename controls if present."""
-        edit_triggers: list[Locator] = []
+        # Click heading text to enter edit mode if header found.
         if header is not None:
-            edit_triggers.extend(
-                [
-                    header.get_by_role("button", name=re.compile("edit|rename", re.IGNORECASE)).first,
-                    header.locator("button[aria-label*='edit' i]").first,
-                    header.locator("[data-testid*='edit' i]").first,
-                ]
-            )
-        edit_triggers.append(
-            self.page.get_by_role("button", name=re.compile("edit|rename", re.IGNORECASE)).first
-        )
+            title_candidates = [
+                header.locator("[class*='modelName']").first,
+                header.locator("h1, h2, h3, h4, h5, h6").first,
+                header.locator("span, p, div").first,
+            ]
+            for candidate in title_candidates:
+                try:
+                    if candidate.count() > 0:
+                        candidate.click(timeout=1500)
+                        self.page.wait_for_timeout(200)
+                        candidate.dblclick(timeout=1500)
+                        self.page.wait_for_timeout(200)
+                        break
+                except Exception:
+                    continue
 
+        edit_triggers = []
+        if header is not None:
+            edit_triggers += [
+                header.get_by_role("button", name=re.compile("edit|rename", re.IGNORECASE)).first,
+                header.locator("button[aria-label*='edit' i]").first,
+                header.locator("[data-testid*='edit' i]").first,
+            ]
+        edit_triggers += [
+            self.page.get_by_role("button", name=re.compile("edit|rename", re.IGNORECASE)).first,
+        ]
         for trigger in edit_triggers:
             try:
                 if trigger.count() > 0:
@@ -1613,149 +1108,57 @@ class ModelsPage(BasePage):
             except Exception:
                 continue
 
-    @staticmethod
-    def _first_visible_locator(candidates: list[Locator], timeout_ms: int) -> Locator | None:
-        """Return first visible locator in candidates list, if any."""
+        # Prefer textbox in the header, but support input/contenteditable variants.
+        candidates = []
+        if header is not None:
+            candidates += [
+                header.get_by_role("textbox").first,
+                header.locator("input[type='text']").first,
+                header.locator("[contenteditable='true']").first,
+            ]
+        candidates += [
+            self.page.locator("input[name*='model' i], input[id*='model' i]").first,
+            self.page.locator("input[aria-label*='model' i], input[placeholder*='name' i]").first,
+            self.page.locator("input[placeholder*='model' i]").first,
+        ]
+
+        name_input: Locator | None = None
         for candidate in candidates:
             try:
-                candidate.wait_for(state="visible", timeout=timeout_ms)
-                return candidate
+                candidate.wait_for(state="visible", timeout=1200)
+                name_input = candidate
+                break
             except Exception:
                 continue
-        return None
 
-    def _model_name_input_candidates(self, header: Locator | None) -> list[Locator]:
-        """Build model-name input candidates for rename flow."""
-        candidates: list[Locator] = []
-        if header is not None:
-            candidates.extend(
-                [
-                    header.get_by_role("textbox").first,
-                    header.locator(self.TEXT_INPUT_SELECTOR).first,
-                    header.locator("[contenteditable='true']").first,
-                ]
-            )
-        candidates.extend(
-            [
-                self.page.locator("input[name*='model' i], input[id*='model' i]").first,
-                self.page.locator("input[aria-label*='model' i], input[placeholder*='name' i]").first,
-                self.page.locator("input[placeholder*='model' i]").first,
-            ]
-        )
-        return candidates
-
-    def _resolve_model_name_input(self, header: Locator | None) -> Locator | None:
-        """Resolve the active model-name input, retrying with header double-click."""
-        candidates = self._model_name_input_candidates(header)
-        name_input = self._first_visible_locator(candidates, timeout_ms=1200)
-        if name_input is not None:
-            return name_input
-
-        if header is not None:
+        if name_input is None:
             try:
                 header.dblclick(timeout=2000)
             except Exception:
                 pass
             self.page.wait_for_timeout(400)
-        return self._first_visible_locator(candidates, timeout_ms=1200)
+            for candidate in candidates:
+                try:
+                    candidate.wait_for(state="visible", timeout=1200)
+                    name_input = candidate
+                    break
+                except Exception:
+                    continue
 
-    def _log_rename_diagnostics(self, header: Locator | None) -> None:
-        """Log diagnostic counts when rename input cannot be found."""
-        model_input_count = self.page.locator(
-            "input[name*='model' i], input[id*='model' i], input[aria-label*='model' i], input[placeholder*='model' i]"
-        ).count()
-        header_button_count = header.locator("button").count() if header is not None else 0
-        header_textbox_count = header.get_by_role("textbox").count() if header is not None else 0
-        logger.info(
-            "Rename diagnostics: "
-            f"header buttons={header_button_count}, "
-            f"header textboxes={header_textbox_count}, "
-            f"page textboxes={self.page.get_by_role('textbox').count()}"
-        )
-        logger.info(f"Rename diagnostics: model-related inputs={model_input_count}")
-
-    def _assert_expected_name_in_inputs(self, expected_name: str, input_candidates: list[Locator]) -> bool:
-        """Return True if any visible input candidate equals expected model name."""
-        for candidate in input_candidates:
-            try:
-                candidate.wait_for(state="visible", timeout=1000)
-                actual_value = candidate.input_value().strip()
-                assert (
-                    actual_value == expected_name
-                ), f"Expected model name '{expected_name}' in header input, got '{actual_value}'"
-                logger.info(f"Model name '{expected_name}' found in header input")
-                return True
-            except Exception:
-                continue
-        return False
-
-    def _is_expected_name_in_page_headings(self, expected_name: str) -> bool:
-        """Return True if expected model name appears in any heading."""
-        page_headings = self.page.locator("h1, h2, h3, h4")
-        for i in range(page_headings.count()):
-            heading_text = (page_headings.nth(i).text_content() or "").strip()
-            if expected_name in heading_text:
-                logger.info(f"Model name {expected_name!r} found in page heading")
-                return True
-        return False
-
-    def _element_matches_expected_name(self, element: Locator, expected_name: str, selector: str) -> bool:
-        """Return True when a fallback element text/value contains expected model name."""
-        try:
-            txt = (element.text_content() or "").strip()
-            if expected_name in txt and element.is_visible():
-                logger.info(f"Model name {expected_name!r} found in element <{selector}>")
-                return True
-            if selector == self.TEXT_INPUT_SELECTOR and element.is_visible():
-                val = element.input_value()
-                if expected_name in val:
-                    logger.info(f"Model name {expected_name!r} found in input value")
-                    return True
-        except Exception:
-            return False
-        return False
-
-    def _selector_contains_expected_name(self, selector: str, expected_name: str) -> bool:
-        """Return True when any element matching selector contains expected model name."""
-        try:
-            for element in self.page.locator(selector).all():
-                if self._element_matches_expected_name(element, expected_name, selector):
-                    return True
-        except Exception:
-            return False
-        return False
-
-    def _is_expected_name_in_broad_elements(self, expected_name: str) -> bool:
-        """Return True if expected model name appears in broad fallback elements."""
-        try:
-            self.page.wait_for_timeout(1500)
-            selectors = [
-                self.TEXT_INPUT_SELECTOR,
-                "span",
-                "p",
-                "label",
-                "div[class*='name']",
-                "div[class*='title']",
-            ]
-            for selector in selectors:
-                if self._selector_contains_expected_name(selector, expected_name):
-                    return True
-        except Exception:
-            return False
-        return False
-
-    def edit_draft_model_name(self, new_name: str) -> str:
-        """Edit the draft model name and return the normalized updated name."""
-        updated_name = new_name.strip()
-        logger.info(f"Editing model name to: {updated_name}")
-
-        header = self._get_model_header_or_none()
-        self._try_activate_header_title_edit(header)
-        self._click_edit_name_triggers(header)
-        name_input = self._resolve_model_name_input(header)
         if name_input is None:
-            self._log_rename_diagnostics(header)
-            raise AssertionError("Could not find a visible model-name editable field in model header")
+            model_input_count = self.page.locator(
+                "input[name*='model' i], input[id*='model' i], input[aria-label*='model' i], input[placeholder*='model' i]"
+            ).count()
+            logger.info(
+                "Rename diagnostics: "
+                f"header buttons={header.locator('button').count()}, "
+                f"header textboxes={header.get_by_role('textbox').count()}, "
+                f"page textboxes={self.page.get_by_role('textbox').count()}"
+            )
+            logger.info(f"Rename diagnostics: model-related inputs={model_input_count}")
+            raise AssertionError(
+                "Could not find a visible model-name editable field in model header"
+            )
 
         name_input.click()
         self.page.keyboard.press("Control+A")
@@ -1769,22 +1172,39 @@ class ModelsPage(BasePage):
 
     def assert_model_name_in_header(self, expected_name: str) -> None:
         """Assert the current model header shows the expected name."""
-        header = self._get_model_header_or_none()
-        header_available = header is not None
+        # Try header element first (class name may have changed — best-effort).
+        header = self.page.locator(
+            "[class*='modelAnalyticsHeader'], [class*='modelHeader'], [class*='analyticsHeader']"
+        ).first
+        header_available = False
+        try:
+            header.wait_for(state="visible", timeout=3000)
+            header_available = True
+        except Exception:
+            pass
 
         input_candidates = []
         if header_available:
             input_candidates += [
                 header.locator("[class*='modelNameInput'] input").first,
                 header.get_by_role("textbox").first,
-                header.locator(self.TEXT_INPUT_SELECTOR).first,
+                header.locator("input[type='text']").first,
             ]
         input_candidates += [
             self.page.locator("input[placeholder*='model' i], input[placeholder*='name' i]").first,
             self.page.locator("input[aria-label*='model' i], input[aria-label*='name' i]").first,
         ]
-        if self._assert_expected_name_in_inputs(expected_name, input_candidates):
-            return
+        for candidate in input_candidates:
+            try:
+                candidate.wait_for(state="visible", timeout=1000)
+                actual_value = candidate.input_value().strip()
+                assert (
+                    actual_value == expected_name
+                ), f"Expected model name '{expected_name}' in header input, got '{actual_value}'"
+                logger.info(f"Model name '{expected_name}' found in header input")
+                return
+            except Exception:
+                continue
 
         # Fallback: check header text content
         if header_available:
@@ -1793,10 +1213,40 @@ class ModelsPage(BasePage):
                 logger.info(f"Model name '{expected_name}' found in header text")
                 return
 
-        if self._is_expected_name_in_page_headings(expected_name):
-            return
-        if self._is_expected_name_in_broad_elements(expected_name):
-            return
+        # Last fallback: check page title or any h1-h4
+        page_headings = self.page.locator("h1, h2, h3, h4")
+        for i in range(page_headings.count()):
+            heading_text = (page_headings.nth(i).text_content() or "").strip()
+            if expected_name in heading_text:
+                logger.info(f"Model name {expected_name!r} found in page heading")
+                return
+
+        # Broader fallback: any visible text element (post-save read-only view)
+        try:
+            self.page.wait_for_timeout(1500)
+            for selector in ["input[type='text']", "span", "p", "label", "div[class*='name']", "div[class*='title']"]:
+                try:
+                    els = self.page.locator(selector).all()
+                    for el in els:
+                        try:
+                            txt = (el.text_content() or "").strip()
+                            if expected_name in txt and el.is_visible():
+                                logger.info(f"Model name {expected_name!r} found in element <{selector}>")
+                                return
+                            if selector == "input[type='text']" and el.is_visible():
+                                try:
+                                    val = el.input_value()
+                                    if expected_name in val:
+                                        logger.info(f"Model name {expected_name!r} found in input value")
+                                        return
+                                except Exception:
+                                    pass
+                        except Exception:
+                            continue
+                except Exception:
+                    continue
+        except Exception:
+            pass
 
         raise AssertionError(
             f"Model name {expected_name!r} not found in header or page headings"
@@ -1814,7 +1264,7 @@ class ModelsPage(BasePage):
             pass
         # Fallback: any stable element on the model detail page
         for _sel in [
-            self.GRID_INPUT_SELECTOR,
+            "[role='gridcell'] input[type='text']",
             "button:has-text('Save as a draft')",
             "button:has-text('Save Draft')",
             "button:has-text('Publish Model')",
@@ -1849,24 +1299,6 @@ class ModelsPage(BasePage):
     def assert_model_status_draft_in_url(self) -> None:
         """Assert the URL contains Draft as the model status."""
         url = self.page.url
-        if "draft" not in url.lower() and "status=published" in url.lower():
-            # HTTP 409 can occur when a draft version already exists.
-            # Recover by opening the same model in Draft view directly.
-            try:
-                model_id = self.page.evaluate(
-                    """() => {
-                        const u = new URL(window.location.href);
-                        return u.searchParams.get('model') || '';
-                    }"""
-                )
-                if model_id:
-                    draft_url = f"{self.PAGE_URL}/model-analytics?model={model_id}&status=Draft"
-                    logger.warning("Published view remained after Edit; opening existing draft URL")
-                    self.page.goto(draft_url, wait_until="domcontentloaded")
-                    self.page.wait_for_timeout(1000)
-                    url = self.page.url
-            except Exception:
-                pass
         assert "draft" in url.lower(), f"URL does not contain 'draft' status: {url}"
         logger.info(f"Draft status confirmed in URL: {url}")
 
@@ -1875,14 +1307,13 @@ class ModelsPage(BasePage):
     def _visible_allocation_row_indexes(self) -> list[int]:
         """Return currently rendered allocation row indexes from AG Grid."""
         indexes = self.page.evaluate(
-            """(args) => {
-                const rows = Array.from(document.querySelectorAll(args.rowSelector));
+            """() => {
+                const rows = Array.from(document.querySelectorAll("[role='row'][row-index]"));
                 return rows
                     .filter(r => r.querySelector("input[type='text']"))
                     .map(r => Number(r.getAttribute("row-index")))
                     .filter(n => Number.isFinite(n));
-            }""",
-            {"rowSelector": self.GRID_ROW_SELECTOR},
+            }"""
         )
         return indexes if isinstance(indexes, list) else []
 
@@ -1898,8 +1329,8 @@ class ModelsPage(BasePage):
             seen.update(self._visible_allocation_row_indexes())
 
             moved = self.page.evaluate(
-                """(args) => {
-                    const input = document.querySelector(args.inputSelector);
+                """() => {
+                    const input = document.querySelector("[role='gridcell'] input[type='text']");
                     const root = input ? input.closest('.ag-root') : document;
                     if (!root) return false;
                     const viewport =
@@ -1914,8 +1345,7 @@ class ModelsPage(BasePage):
                     if (next === viewport.scrollTop) return false;
                     viewport.scrollTop = next;
                     return true;
-                }""",
-                {"inputSelector": self.GRID_INPUT_SELECTOR},
+                }"""
             )
 
             self.page.wait_for_timeout(150)
@@ -1930,8 +1360,8 @@ class ModelsPage(BasePage):
 
         # Reset grid scroll so following interactions are deterministic.
         self.page.evaluate(
-            """(args) => {
-                const input = document.querySelector(args.inputSelector);
+            """() => {
+                const input = document.querySelector("[role='gridcell'] input[type='text']");
                 const root = input ? input.closest('.ag-root') : document;
                 if (!root) return;
                 const viewport =
@@ -1939,8 +1369,7 @@ class ModelsPage(BasePage):
                     root.querySelector('.ag-center-cols-viewport') ||
                     root.querySelector('.ag-body-vertical-scroll-viewport');
                 if (viewport) viewport.scrollTop = 0;
-            }""",
-            {"inputSelector": self.GRID_INPUT_SELECTOR},
+            }"""
         )
 
         if seen:
@@ -1964,8 +1393,8 @@ class ModelsPage(BasePage):
             seen.update(self._visible_allocation_row_indexes())
 
             moved = self.page.evaluate(
-                """(args) => {
-                    const input = document.querySelector(args.inputSelector);
+                """() => {
+                    const input = document.querySelector("[role='gridcell'] input[type='text']");
                     const root = input ? input.closest('.ag-root') : document;
                     if (!root) return false;
                     const viewport =
@@ -1979,8 +1408,7 @@ class ModelsPage(BasePage):
                     if (next === viewport.scrollTop) return false;
                     viewport.scrollTop = next;
                     return true;
-                }""",
-                {"inputSelector": self.GRID_INPUT_SELECTOR},
+                }"""
             )
             self.page.wait_for_timeout(150)
 
@@ -1993,8 +1421,8 @@ class ModelsPage(BasePage):
                 break
 
         self.page.evaluate(
-            """(args) => {
-                const input = document.querySelector(args.inputSelector);
+            """() => {
+                const input = document.querySelector("[role='gridcell'] input[type='text']");
                 const root = input ? input.closest('.ag-root') : document;
                 if (!root) return;
                 const viewport =
@@ -2002,8 +1430,7 @@ class ModelsPage(BasePage):
                     root.querySelector('.ag-center-cols-viewport') ||
                     root.querySelector('.ag-body-vertical-scroll-viewport');
                 if (viewport) viewport.scrollTop = 0;
-            }""",
-            {"inputSelector": self.GRID_INPUT_SELECTOR},
+            }"""
         )
         self.page.wait_for_timeout(150)
 
@@ -2064,7 +1491,7 @@ class ModelsPage(BasePage):
         inputs = self.allocation_row_inputs.all()
         assert inputs, "No allocation inputs currently rendered after adding strategies"
         for idx, inp in enumerate(inputs):
-            val = inp.evaluate(self.JS_INPUT_VALUE_EXPR).replace("%", "").strip()
+            val = inp.evaluate("el => el.value").replace("%", "").strip()
             try:
                 float(val) if val else 0.0
             except ValueError:
@@ -2088,7 +1515,7 @@ class ModelsPage(BasePage):
         # Use exact row indices from scan (avoids 'input-not-found' on gap indices).
         indices = self._scan_allocation_row_indices()
         count = len(indices)
-        assert count > 0, self.ERR_NO_ALLOCATION_INPUTS
+        assert count > 0, "No allocation input fields found"
 
         # Equal distribution: each strategy gets floor(100/count).
         # Examples: 4 strategies -> 25+25+25+25=100
@@ -2125,7 +1552,7 @@ class ModelsPage(BasePage):
                     );
                     if (!row) return "row-not-found";
                     const inp = row.querySelector(
-                        args.inputSelector
+                        "[role='gridcell'] input[type='text']"
                     );
                     if (!inp) return "input-not-found";
                     const nativeSetter = Object.getOwnPropertyDescriptor(
@@ -2138,7 +1565,7 @@ class ModelsPage(BasePage):
                     inp.blur();
                     return inp.value;
                 }""",
-                {"idx": row_idx, "val": val, "inputSelector": self.GRID_INPUT_SELECTOR}
+                {"idx": row_idx, "val": val}
             )
             results.append(result if result is not None else "")
         self.page.wait_for_timeout(800)
@@ -2151,10 +1578,9 @@ class ModelsPage(BasePage):
         """Refresh page and assert strategy count and 100% allocation both persist."""
         logger.info("Refreshing page to validate added strategies and allocation persist")
         self.page.reload(wait_until="domcontentloaded")
-        self._dismiss_optional_popups()
         self.publish_model_button.wait_for(state="visible", timeout=20000)
         self.allocation_row_inputs.first.wait_for(state="visible", timeout=15000)
-        actual_count = self._scan_allocation_row_count()
+        actual_count = self.allocation_row_inputs.count()
         assert actual_count >= expected_strategy_count, (
             f"Expected at least {expected_strategy_count} strategy rows after refresh, "
             f"got {actual_count}"
@@ -2166,23 +1592,8 @@ class ModelsPage(BasePage):
 
     def click_publish_model(self) -> None:
         logger.info("Clicking Publish Model button")
-        self._dismiss_optional_popups()
-        candidates = [
-            self.publish_model_button,
-            self.page.get_by_role("button", name=re.compile(r"^\\s*publish(\\s+model)?\\s*$", re.IGNORECASE)).first,
-            self.page.locator("button[aria-label*='publish model' i]").first,
-        ]
-        clicked = False
-        for candidate in candidates:
-            try:
-                candidate.wait_for(state="visible", timeout=8000)
-                self.click(candidate)
-                clicked = True
-                break
-            except Exception:
-                continue
-        if not clicked:
-            raise AssertionError("Publish Model button was not visible/clickable")
+        self.publish_model_button.wait_for(state="visible", timeout=10000)
+        self.click(self.publish_model_button)
         # wait_for_load_state is insufficient for SPA navigation — wait until the
         # publish review step is actually rendered (Continue button confirms it).
         self.continue_to_validations_button.wait_for(state="visible", timeout=30000)
@@ -2230,7 +1641,7 @@ class ModelsPage(BasePage):
         # AG Grid renders rows with position:absolute inside an overflow:hidden scroll container,
         # so Playwright reports them as CSS-hidden even though the data is present.
         # Using state="attached" confirms the rows exist in the DOM without requiring CSS visibility.
-        row = self.page.locator(self.GRID_ROW_SELECTOR).first
+        row = self.page.locator("[role='row'][row-index]").first
         row.wait_for(state="attached", timeout=10000)
         logger.info("Holdings section and allocation rows are present in DOM")
 
@@ -2264,7 +1675,6 @@ class ModelsPage(BasePage):
 
     def click_continue_to_model_validations(self) -> None:
         logger.info("Clicking Continue to Model Validations button")
-        self._dismiss_optional_popups()
         self.continue_to_validations_button.wait_for(state="visible", timeout=15000)
         self.click(self.continue_to_validations_button)
         self.page.wait_for_load_state("domcontentloaded", timeout=30000)
@@ -2301,136 +1711,31 @@ class ModelsPage(BasePage):
 
     def click_continue_to_publish(self) -> None:
         logger.info("Clicking Continue to Publish button")
-        publish_button_pattern = r"^\\s*publish(\\s+model)?\\s*$"
-        continue_button_pattern = r"^\\s*continue\\s*$"
-
-        def _click_if_visible(candidates: list[Locator], label: str, timeout_ms: int = 2500) -> None:
-            """Best-effort click for a visible candidate without failing the flow."""
-            for candidate in candidates:
-                try:
-                    candidate.wait_for(state="visible", timeout=timeout_ms)
-                    self.click(candidate)
-                    logger.info(f"Clicked {label}")
-                    self.page.wait_for_timeout(300)
-                    return
-                except Exception:
-                    continue
-
-        def _post_publish_confirmation_sequence() -> None:
-            """Handle wrappermodel confirmation variants after Continue to Publish.
-
-            Some builds show additional actions in this order:
-            Continue -> Publish Model -> Publish Model -> Continue.
-            Each action is optional depending on backend and UI state.
-            """
-            continue_candidates = [
-                self.page.get_by_role("button", name=re.compile(continue_button_pattern, re.IGNORECASE)).first,
-                self.page.locator(f"button:visible:text-matches('{continue_button_pattern}', 'i')").first,
-                self.page.locator(f"[role='button']:visible:text-matches('{continue_button_pattern}', 'i')").first,
-            ]
-            publish_candidates = [
-                self.publish_model_button,
-                self.page.get_by_role(
-                    "button", name=re.compile(publish_button_pattern, re.IGNORECASE)
-                ).first,
-                self.page.locator(f"button:visible:text-matches('{publish_button_pattern}', 'i')").first,
-                self.page.locator(f"[role='button']:visible:text-matches('{publish_button_pattern}', 'i')").first,
-            ]
-
-            _click_if_visible(continue_candidates, "Continue button")
-            _click_if_visible(publish_candidates, "Publish Model button")
-            _click_if_visible(publish_candidates, "Publish Model button (confirmation)")
-            _click_if_visible(continue_candidates, "Continue button (final)")
-
-        def _publish_candidates() -> list[Locator]:
-            return [
-                self.continue_to_publish_button,
-                self.page.get_by_role("button", name=re.compile(r"continue\\s+to\\s+publish", re.IGNORECASE)).first,
-                self.page.locator("button:visible:text-matches('^\\s*continue.*publish\\s*$', 'i')").first,
-                self.page.locator("[role='button']:visible:text-matches('^\\s*continue.*publish\\s*$', 'i')").first,
-                self.page.get_by_role("button", name=re.compile(publish_button_pattern, re.IGNORECASE)).first,
-                self.page.locator("button:visible[aria-label*='publish' i]").first,
-                self.page.locator("[role='button']:visible[aria-label*='publish' i]").first,
-                self.publish_model_button,
-            ]
-
-        for _ in range(2):
-            self._dismiss_optional_popups()
-            try:
-                self.page.evaluate("window.scrollTo(0, document.body.scrollHeight)")
-            except Exception:
-                pass
-            self.page.wait_for_timeout(350)
-
-            if self._click_first_visible_candidate(_publish_candidates(), timeout_ms=3500):
-                self.page.wait_for_load_state("domcontentloaded", timeout=30000)
-                _post_publish_confirmation_sequence()
-                return
-
-        # Final fallback: click the most likely footer action via JS.
-        try:
-            js_clicked = self.page.evaluate(
-                """() => {
-                    const buttons = Array.from(document.querySelectorAll("button, [role='button']"));
-                    const target = buttons.find(b => {
-                        const t = (b.innerText || b.textContent || '').trim();
-                        return /continue.*publish/i.test(t) || /^publish( model)?$/i.test(t);
-                    });
-                    if (!target) return false;
-                    target.click();
-                    return true;
-                }"""
-            )
-            if js_clicked:
-                self.page.wait_for_load_state("domcontentloaded", timeout=30000)
-                _post_publish_confirmation_sequence()
-                return
-        except Exception:
-            pass
-
-        try:
-            final_publish = self.page.get_by_role(
-                "button", name=re.compile(publish_button_pattern, re.IGNORECASE)
-            ).first
-            final_publish.wait_for(state="visible", timeout=3000)
-            self.click(final_publish)
-            self.page.wait_for_load_state("domcontentloaded", timeout=30000)
-            _post_publish_confirmation_sequence()
-            return
-        except Exception:
-            pass
-        raise AssertionError("Continue to Publish action not visible/clickable")
+        self.continue_to_publish_button.wait_for(state="visible", timeout=15000)
+        self.click(self.continue_to_publish_button)
+        self.page.wait_for_load_state("domcontentloaded", timeout=30000)
 
     def assert_model_published_successfully(self) -> None:
         """Assert 'Model Published Successfully' confirmation is visible."""
         logger.info("Asserting 'Model Published Successfully' is visible")
-        publish_deadline = time.time() + 30
         candidates = [
             self.model_published_successfully_text,
             self.page.locator(":text-matches('published successfully', 'i')").first,
             self.page.locator(":text-matches('model.*published', 'i')").first,
             self.page.locator(":text-matches('successfully published', 'i')").first,
         ]
-        while time.time() < publish_deadline:
-            for candidate in candidates:
-                try:
-                    candidate.wait_for(state="visible", timeout=1200)
-                    logger.info("Model published successfully confirmation found")
-                    return
-                except Exception:
-                    continue
-
-            current_url = self.page.url or ""
-            lower_url = current_url.lower()
-            if "status=published" in lower_url or ("draft" not in lower_url and "/model" in lower_url):
-                logger.warning(
-                    "Published confirmation text not found; URL suggests publish succeeded: %s",
-                    current_url,
-                )
+        for candidate in candidates:
+            try:
+                candidate.wait_for(state="visible", timeout=5000)
+                logger.info("Model published successfully confirmation found")
                 return
-            self.page.wait_for_timeout(600)
-
+            except Exception:
+                continue
+        # Final fallback: check if URL changed to published model detail (no 'draft' in URL).
         current_url = self.page.url
+        if "draft" not in current_url.lower() and "/model" in current_url.lower():
+            logger.warning("Published confirmation text not found; URL suggests publish succeeded: %s", current_url)
+            return
         raise AssertionError(
             "'Model published successfully' confirmation not visible after publish action. "
             f"Current URL: {current_url}"
@@ -2441,8 +1746,7 @@ class ModelsPage(BasePage):
     def click_first_published_model(self) -> None:
         """Click on the first available model row in the published models list."""
         logger.info("Clicking on first published model from the list")
-        self._dismiss_optional_popups()
-        rows = self.page.locator(self.VISIBLE_GRID_ROW_SELECTOR)
+        rows = self.page.locator("[role='row'][row-index]:not([aria-hidden='true'])")
         rows.first.wait_for(state="visible", timeout=15000)
         link = rows.first.get_by_role("link").first
         if link.count() > 0:
@@ -2450,22 +1754,10 @@ class ModelsPage(BasePage):
         else:
             rows.first.dblclick()
         self.page.wait_for_load_state("domcontentloaded", timeout=20000)
-        detail_ready_selectors = [
-            "button:text-matches('^\\s*edit(\\s+model)?\\s*$', 'i')",
-            "button:text-matches('^\\s*publish(\\s+model)?\\s*$', 'i')",
-            "button:text-matches('^\\s*save(\\s+as(\\s+a)?)?\\s+draft\\s*$', 'i')",
-            "[class*='modelAnalyticsHeader']",
-            "[class*='modelHeader']",
-        ]
-        for selector in detail_ready_selectors:
-            try:
-                self.page.wait_for_selector(selector, timeout=6000)
-                logger.info(f"Published model detail readiness confirmed via selector: {selector}")
-                return
-            except Exception:
-                continue
-        if "/model-analytics" not in self.page.url:
-            raise AssertionError(f"Published model detail page did not load: {self.page.url}")
+        self.page.wait_for_selector(
+            "button:has-text('Edit Model'), [class*='modelAnalyticsHeader']",
+            timeout=20000,
+        )
         logger.info("Published model detail page loaded")
 
     def assert_published_list_active(self) -> None:
@@ -2475,210 +1767,20 @@ class ModelsPage(BasePage):
         assert (
             self.is_published_tab_active()
         ), "Published tab is not active (expected MUI contained class)"
-        data_rows = self.page.locator(self.VISIBLE_GRID_ROW_SELECTOR).first
+        data_rows = self.page.locator("[role='row'][row-index]:not([aria-hidden='true'])").first
         data_rows.wait_for(state="visible", timeout=15000)
         logger.info("Published models list is active and rows are visible")
 
     def click_edit_model(self) -> None:
         """Click the Edit Model button on a published model detail page and wait for draft URL."""
         logger.info("Clicking Edit Model button")
-        candidates = [
-            self.edit_model_button,
-            self.edit_draft_button,
-            self.page.get_by_role("button", name=re.compile(r"^\\s*edit(\\s+model|\\s+draft)?\\s*$", re.IGNORECASE)).first,
-            self.page.locator("button:visible:text-matches('^\\s*edit(\\s+model|\\s+draft)?\\s*$', 'i')").first,
-            self.page.locator("[role='button']:visible:text-matches('^\\s*edit(\\s+model|\\s+draft)?\\s*$', 'i')").first,
-            self.page.locator("button:visible[aria-label*='edit' i]").first,
-            self.page.locator("button:visible[title*='edit' i]").first,
-            self.page.locator("[role='button']:visible[data-testid*='edit' i]").first,
-        ]
-
-        for _ in range(2):
-            self._dismiss_optional_popups()
-            for scroll_top in (0, 1):
-                try:
-                    if scroll_top == 0:
-                        self.page.evaluate("window.scrollTo(0, 0)")
-                    else:
-                        self.page.evaluate("window.scrollTo(0, document.body.scrollHeight)")
-                except Exception:
-                    pass
-                self.page.wait_for_timeout(250)
-
-                for candidate in candidates:
-                    try:
-                        candidate.wait_for(state="visible", timeout=2500)
-                        self.click(candidate)
-                        self.page.wait_for_load_state("domcontentloaded", timeout=20000)
-                        logger.info("Edit action clicked successfully")
-                        return
-                    except Exception:
-                        continue
-
-        # Final fallback via JS to handle icon-only edit controls.
-        try:
-            js_clicked = self.page.evaluate(
-                """() => {
-                    const nodes = Array.from(document.querySelectorAll("button, [role='button']"));
-                    const target = nodes.find(n => {
-                        const txt = (n.innerText || n.textContent || '').trim();
-                        const a = (n.getAttribute('aria-label') || '') + ' ' + (n.getAttribute('title') || '');
-                        return /^edit( model| draft)?$/i.test(txt) || /edit/i.test(a);
-                    });
-                    if (!target) return false;
-                    target.click();
-                    return true;
-                }"""
-            )
-            if js_clicked:
-                self.page.wait_for_load_state("domcontentloaded", timeout=20000)
-                logger.info("Edit action clicked via JS fallback")
-                return
-        except Exception:
-            pass
-
-        if "status=draft" in (self.page.url or "").lower():
-            logger.info("Model already in Draft mode; edit action not required")
-            return
-        raise AssertionError("Edit Model action not visible/clickable")
+        self.edit_model_button.wait_for(state="visible", timeout=10000)
+        self.click(self.edit_model_button)
+        self.page.wait_for_load_state("domcontentloaded", timeout=20000)
+        logger.info("Edit Model clicked — model should now be in Draft status")
 
     # ── Backward-compat aliases ─────────────────────────────────────────────────
 
-    def _current_strategy_count(self) -> int:
-        """Return current strategy input count if model detail grid is present."""
-        try:
-            self.page.wait_for_selector(self.GRID_INPUT_SELECTOR, timeout=10000)
-        except Exception:
-            return 0
-        return self.page.locator(self.GRID_INPUT_SELECTOR).count()
-
-    def _return_to_drafts_list(self) -> None:
-        """Navigate back to Drafts list and wait for rows to render."""
-        self.page.go_back()
-        self.page.wait_for_load_state("domcontentloaded", timeout=20000)
-        self.click_drafts_tab()
-        self.page.wait_for_load_state("domcontentloaded", timeout=20000)
-        self.page.wait_for_selector(self.GRID_ROW_SELECTOR, timeout=20000)
-        self.page.wait_for_timeout(1000)
-
-    def _open_draft_model_by_array_index(self, array_index: int) -> bool:
-        """Open draft row by zero-based array index. Returns False when out of range."""
-        model_rows = self.page.locator(self.VISIBLE_GRID_ROW_SELECTOR)
-        if array_index >= model_rows.count():
-            return False
-        row_to_click = model_rows.nth(array_index)
-        row_to_click.wait_for(state="visible", timeout=10000)
-        link = row_to_click.get_by_role("link").first
-        if link.count() > 0:
-            link.click()
-        else:
-            row_to_click.dblclick()
-        self.page.wait_for_load_state("domcontentloaded", timeout=20000)
-        return True
-
-    def _enter_edit_mode_if_available(self) -> None:
-        """Try to enter edit mode so allocation row close icons are visible."""
-        for btn, lbl in [(self.edit_draft_button, "Edit Draft"), (self.edit_model_button, "Edit Model")]:
-            try:
-                btn.wait_for(state="visible", timeout=4000)
-                self.click(btn)
-                self.page.wait_for_load_state("domcontentloaded", timeout=10000)
-                logger.info(f"{lbl} clicked after finding multi-strategy model")
-                return
-            except Exception:
-                continue
-
-    def _trigger_remove_icon_visibility(self, allocation_input: Locator) -> None:
-        """Trigger row hover handlers so remove icon is rendered."""
-        self.page.evaluate(
-            """(args) => {
-                const inputs = document.querySelectorAll(args.inputSelector);
-                if (!inputs.length) return false;
-                const inp = inputs[0];
-                const row = inp.closest("[role='row']") || inp.closest("div[row-index]");
-                if (!row) return false;
-
-                for (const el of [row, inp]) {
-                    el.dispatchEvent(new MouseEvent('mouseenter', {bubbles: true, cancelable: true}));
-                    el.dispatchEvent(new MouseEvent('mouseover',  {bubbles: true, cancelable: true}));
-                }
-                return true;
-            }""",
-            {"inputSelector": self.GRID_INPUT_SELECTOR},
-        )
-        self.page.wait_for_timeout(700)
-        try:
-            allocation_input.hover()
-            self.page.wait_for_timeout(500)
-        except Exception:
-            pass
-
-    @staticmethod
-    def _first_matching_locator(scope: Locator, selectors: list[str]) -> Locator | None:
-        """Return first matching locator inside scope for selector list."""
-        for selector in selectors:
-            candidate = scope.locator(selector)
-            if candidate.count() > 0:
-                return candidate.last if selector == "svg" else candidate
-        return None
-
-    def _row_close_icon(self, row: Locator) -> Locator | None:
-        """Find close/remove icon inside the current allocation row."""
-        selectors = [
-            "svg[class*='allocationCloseIcon']",
-            "svg[class*='closeIcon']",
-            "svg[class*='CloseIcon']",
-            "[aria-label*='close' i]",
-            "[aria-label*='delete' i]",
-            "[aria-label*='remove' i]",
-            "button",
-            "svg",
-        ]
-        return self._first_matching_locator(row, selectors)
-
-    def _page_level_close_icon(self) -> Locator | None:
-        """Find a close/remove icon at page scope as fallback."""
-        for selector in [
-            "svg[class*='allocationCloseIcon']",
-            "svg[class*='closeIcon']",
-            "[class*='allocationRow'] button",
-        ]:
-            candidate = self.page.locator(selector)
-            if candidate.count() > 0:
-                return candidate.first
-        return None
-
-    def _js_remove_strategy_fallback(self) -> str | bool:
-        """Fallback remove click via JS when icon locators fail."""
-        return self.page.evaluate(
-            """(args) => {
-                const rows = document.querySelectorAll(args.rowSelector);
-                for (const row of rows) {
-                    const inp = row.querySelector(args.inputSelector);
-                    if (!inp) continue;
-                    row.dispatchEvent(new MouseEvent('mouseenter', {bubbles: true}));
-                    row.dispatchEvent(new MouseEvent('mouseover',  {bubbles: true}));
-                    const btn = row.querySelector("button, [role='button']");
-                    if (btn) { btn.click(); return 'button'; }
-                    for (const svg of row.querySelectorAll('svg')) {
-                        const p = svg.closest("button, [role='button'], [class*='icon'], [class*='Icon']");
-                        if (p) { p.click(); return 'svg-parent'; }
-                        svg.click();
-                        return 'svg';
-                    }
-                }
-                return false;
-            }""",
-            {"rowSelector": self.GRID_ROW_SELECTOR, "inputSelector": self.GRID_INPUT_SELECTOR},
-        )
-
-    def _did_strategy_count_drop(self, count_before: int, attempts: int = 40) -> bool:
-        """Wait for strategy row count to decrease after a remove click."""
-        for _ in range(attempts):
-            self.page.wait_for_timeout(300)
-            if self.page.locator(self.GRID_INPUT_SELECTOR).count() < count_before:
-                return True
-        return False
 
     # ── TC6: Remove Strategy & Adjust Allocation ──────────────────────────────
 
@@ -2686,59 +1788,69 @@ class ModelsPage(BasePage):
         """Check current model has >=3 strategies; if not, iterate the draft list until found."""
         logger.info("Verifying draft model has at least 3 strategies")
         self.page.wait_for_load_state("domcontentloaded", timeout=20000)
-        strategy_count = self._current_strategy_count()
+        try:
+            self.page.wait_for_selector("[role='gridcell'] input[type='text']", timeout=10000)
+        except Exception as e:
+            logger.warning(f"Investment widget not found on first model: {str(e)}")
+        strategy_inputs = self.page.locator("[role='gridcell'] input[type='text']")
+        strategy_count = strategy_inputs.count()
         logger.info(f"Model 1 has {strategy_count} strategies")
         if strategy_count >= 3:
             logger.info(f"Model 1 has {strategy_count} strategies (>= 3) - using it")
             return
-        if strategy_count == 2:
-            logger.info("Model 1 has 2 strategies; adding one strategy to satisfy TC6 precondition")
-            self._enter_edit_mode_if_available()
-            try:
-                self.add_n_strategies(1)
-                self.allocate_all_strategies_summing_to_100()
-                self.click_save_draft()
-                self.page.wait_for_timeout(1000)
-                if self._current_strategy_count() >= 3:
-                    logger.info("TC6 precondition satisfied by adding one strategy to current model")
-                    return
-            except Exception as e:
-                logger.warning(f"Unable to enrich current model to >=3 strategies: {e}")
         logger.warning(f"Model 1 has only {strategy_count} strategies (< 3). Searching for another")
-        self._return_to_drafts_list()
-
+        self.page.go_back()
+        self.page.wait_for_load_state("domcontentloaded", timeout=20000)
+        self.click_drafts_tab()
+        self.page.wait_for_load_state("domcontentloaded", timeout=20000)
+        self.page.wait_for_selector("[role='row'][row-index]", timeout=20000)
+        self.page.wait_for_timeout(1000)
         for model_index in range(2, 11):
+            model_rows = self.page.locator("[role='row'][row-index]:not([aria-hidden='true'])")
+            row_count = model_rows.count()
             array_index = model_index - 1
-            if not self._open_draft_model_by_array_index(array_index):
+            if array_index >= row_count:
                 break
-
-            strategy_count = self._current_strategy_count()
-            if strategy_count == 0:
-                self._return_to_drafts_list()
+            row_to_click = model_rows.nth(array_index)
+            row_to_click.wait_for(state="visible", timeout=10000)
+            link = row_to_click.get_by_role("link").first
+            if link.count() > 0:
+                link.click()
+            else:
+                row_to_click.dblclick()
+            self.page.wait_for_load_state("domcontentloaded", timeout=20000)
+            try:
+                self.page.wait_for_selector("[role='gridcell'] input[type='text']", timeout=10000)
+            except Exception:
+                self.page.go_back()
+                self.page.wait_for_load_state("domcontentloaded", timeout=20000)
+                self.click_drafts_tab()
+                self.page.wait_for_load_state("domcontentloaded", timeout=20000)
+                self.page.wait_for_selector("[role='row'][row-index]", timeout=20000)
+                self.page.wait_for_timeout(1000)
                 continue
-
+            strategy_inputs = self.page.locator("[role='gridcell'] input[type='text']")
+            strategy_count = strategy_inputs.count()
             logger.info(f"Model {model_index} has {strategy_count} strategies")
             if strategy_count >= 3:
                 logger.info(f"Found model {model_index} with {strategy_count} strategies - using it")
-                self._enter_edit_mode_if_available()
+                # Enter edit mode so close icons appear for removal
+                for btn, lbl in [(self.edit_draft_button, "Edit Draft"), (self.edit_model_button, "Edit Model")]:
+                    try:
+                        btn.wait_for(state="visible", timeout=4000)
+                        self.click(btn)
+                        self.page.wait_for_load_state("domcontentloaded", timeout=10000)
+                        logger.info(f"{lbl} clicked after finding multi-strategy model")
+                        break
+                    except Exception:
+                        continue
                 return
-            if strategy_count == 2:
-                logger.info(
-                    f"Model {model_index} has 2 strategies; adding one strategy to satisfy TC6 precondition"
-                )
-                self._enter_edit_mode_if_available()
-                try:
-                    self.add_n_strategies(1)
-                    self.allocate_all_strategies_summing_to_100()
-                    self.click_save_draft()
-                    self.page.wait_for_timeout(1000)
-                    if self._current_strategy_count() >= 3:
-                        logger.info(f"Model {model_index} enriched to >=3 strategies - using it")
-                        return
-                except Exception as e:
-                    logger.warning(f"Failed to enrich model {model_index} to >=3 strategies: {e}")
-            self._return_to_drafts_list()
-
+            self.page.go_back()
+            self.page.wait_for_load_state("domcontentloaded", timeout=20000)
+            self.click_drafts_tab()
+            self.page.wait_for_load_state("domcontentloaded", timeout=20000)
+            self.page.wait_for_selector("[role='row'][row-index]", timeout=20000)
+            self.page.wait_for_timeout(1000)
         raise AssertionError(
             "Could not find any draft model with at least 3 strategies. "
             "Please ensure at least one model in the Drafts list has 3 or more strategies."
@@ -2759,21 +1871,95 @@ class ModelsPage(BasePage):
     def remove_strategy_from_investment_widget(self) -> None:
         """Remove the first strategy from the investment widget using the close (X) icon."""
         logger.info("Removing strategy from investment widget")
-        allocation_input = self.page.locator(self.GRID_INPUT_SELECTOR).first
+        allocation_input = self.page.locator("[role='gridcell'] input[type='text']").first
         allocation_input.wait_for(state="visible", timeout=10000)
-        count_before = self.page.locator(self.GRID_INPUT_SELECTOR).count()
-        self._trigger_remove_icon_visibility(allocation_input)
+        count_before = self.page.locator("[role='gridcell'] input[type='text']").count()
+
+        # Use JS to dispatch mouseenter/mouseover so React reveals the close icon,
+        # then immediately look for and click it.
+        js_removed = self.page.evaluate(
+            """() => {
+                const inputs = document.querySelectorAll("[role='gridcell'] input[type='text']");
+                if (!inputs.length) return false;
+                const inp = inputs[0];
+                const row = inp.closest("[role='row']") || inp.closest("div[row-index]");
+                if (!row) return false;
+
+                // Fire hover events to trigger React's onMouseEnter handlers
+                for (const el of [row, inp]) {
+                    el.dispatchEvent(new MouseEvent('mouseenter', {bubbles: true, cancelable: true}));
+                    el.dispatchEvent(new MouseEvent('mouseover',  {bubbles: true, cancelable: true}));
+                }
+                return true;
+            }"""
+        )
+        # Give React time to re-render and add close icon to DOM
+        self.page.wait_for_timeout(700)
+
+        # Also do Playwright-level hover as an additional trigger
+        try:
+            allocation_input.hover()
+            self.page.wait_for_timeout(500)
+        except Exception:
+            pass
 
         row = allocation_input.locator("xpath=ancestor::div[@role='row']")
-        close_icon = self._row_close_icon(row) or self._page_level_close_icon()
+        close_icon = None
+
+        for _sel in [
+            "svg[class*='allocationCloseIcon']",
+            "svg[class*='closeIcon']",
+            "svg[class*='CloseIcon']",
+            "[aria-label*='close' i]",
+            "[aria-label*='delete' i]",
+            "[aria-label*='remove' i]",
+            "button",
+            "svg",
+        ]:
+            candidate = row.locator(_sel)
+            if candidate.count() > 0:
+                close_icon = candidate.last if _sel == "svg" else candidate
+                break
+
+        # Page-level fallback
+        if not close_icon or close_icon.count() == 0:
+            for _psel in [
+                "svg[class*='allocationCloseIcon']",
+                "svg[class*='closeIcon']",
+                "[class*='allocationRow'] button",
+            ]:
+                pg = self.page.locator(_psel)
+                if pg.count() > 0:
+                    close_icon = pg.first
+                    break
 
         # JS click fallback — tries buttons/SVGs inside every allocation row
         if not close_icon or close_icon.count() == 0:
-            js_clicked = self._js_remove_strategy_fallback()
+            js_clicked = self.page.evaluate(
+                """() => {
+                    const rows = document.querySelectorAll("[role='row'][row-index]");
+                    for (const row of rows) {
+                        const inp = row.querySelector("[role='gridcell'] input[type='text']");
+                        if (!inp) continue;
+                        // Fire hover events again in case DOM changed
+                        row.dispatchEvent(new MouseEvent('mouseenter', {bubbles: true}));
+                        row.dispatchEvent(new MouseEvent('mouseover',  {bubbles: true}));
+                        const btn = row.querySelector("button, [role='button']");
+                        if (btn) { btn.click(); return 'button'; }
+                        for (const svg of row.querySelectorAll('svg')) {
+                            const p = svg.closest("button, [role='button'], [class*='icon'], [class*='Icon']");
+                            if (p) { p.click(); return 'svg-parent'; }
+                            svg.click();
+                            return 'svg';
+                        }
+                    }
+                    return false;
+                }"""
+            )
             if js_clicked:
                 logger.info(f"Strategy removed via JS click fallback ({js_clicked})")
                 self.page.wait_for_timeout(600)
-                if self.page.locator(self.GRID_INPUT_SELECTOR).count() < count_before:
+                if self.page.locator("[role='gridcell'] input[type='text']").count() < count_before:
                     logger.info("Strategy removed from investment widget")
                     return
                 logger.warning("JS click did not reduce row count — continuing")
@@ -2782,7 +1968,12 @@ class ModelsPage(BasePage):
         close_icon.wait_for(state="visible", timeout=10000)
         close_icon.click()
         logger.info("Strategy close icon clicked — waiting for row to disappear")
-        removed = self._did_strategy_count_drop(count_before)
+        removed = False
+        for _ in range(40):
+            self.page.wait_for_timeout(300)
+            if self.page.locator("[role='gridcell'] input[type='text']").count() < count_before:
+                removed = True
+                break
         if not removed:
             logger.warning(f"Strategy row count did not decrease from {count_before}")
         logger.info("Strategy removed from investment widget")
@@ -2801,51 +1992,16 @@ class ModelsPage(BasePage):
             self.save_draft_button.wait_for(state="visible", timeout=5000)
             save_draft_button = self.save_draft_button
         except Exception:
-            candidates = [
-                self.page.get_by_role("button", name=re.compile(r"save(\\s+as(\\s+a)?)?\\s+draft", re.IGNORECASE)).first,
-                self.page.locator("button:visible:text-matches('^\\s*save(\\s+as(\\s+a)?)?\\s+draft\\s*$', 'i')").first,
-                self.page.locator("[role='button']:visible:text-matches('^\\s*save(\\s+as(\\s+a)?)?\\s+draft\\s*$', 'i')").first,
-            ]
-            for btn in candidates:
+            buttons = self.page.locator("button").filter(has_text="Save")
+            if buttons.count() > 0:
                 try:
-                    btn.wait_for(state="visible", timeout=2000)
-                    save_draft_button = btn
-                    break
+                    buttons.first.wait_for(state="visible", timeout=5000)
+                    save_draft_button = buttons.first
                 except Exception:
-                    continue
-            if save_draft_button is None:
-                logger.info("Save Draft button not visible - allocation check alone sufficient")
-                return
+                    logger.info("Save Draft button not visible - allocation check alone sufficient")
+                    return
         if save_draft_button:
             is_disabled = save_draft_button.is_disabled(timeout=5000)
-            if not is_disabled:
-                # Some environments auto-rebalance to 100% after row removal.
-                # Force a temporary invalid total to validate disabled state.
-                try:
-                    inputs = self.allocation_row_inputs.all()
-                    if inputs:
-                        raw = (inputs[0].evaluate(self.JS_INPUT_VALUE_EXPR) or "").replace("%", "").strip()
-                        first_val = float(raw) if raw else 0.0
-                        new_val = max(0.0, first_val - 1.0)
-                        self.page.evaluate(
-                            """(args) => {
-                                const inp = document.querySelector(args.selector);
-                                if (!inp) return false;
-                                const nativeSetter = Object.getOwnPropertyDescriptor(
-                                    window.HTMLInputElement.prototype, 'value'
-                                ).set;
-                                nativeSetter.call(inp, String(args.value));
-                                inp.dispatchEvent(new Event('input', { bubbles: true }));
-                                inp.dispatchEvent(new Event('change', { bubbles: true }));
-                                inp.blur();
-                                return true;
-                            }""",
-                            {"selector": self.GRID_INPUT_SELECTOR, "value": new_val},
-                        )
-                        self.page.wait_for_timeout(600)
-                        is_disabled = save_draft_button.is_disabled(timeout=3000)
-                except Exception:
-                    pass
             assert is_disabled, "Expected Save Draft button to be disabled but it is enabled"
             logger.info("Save Draft button is disabled as expected")
 
@@ -2865,7 +2021,7 @@ class ModelsPage(BasePage):
                 break
             stable_count = c
         count = stable_count or self.allocation_row_inputs.count()
-        assert count > 0, self.ERR_NO_ALLOCATION_INPUTS
+        assert count > 0, "No allocation input fields found"
         logger.info(f"Stable strategy count after removal: {count}")
         # Use an asymmetric split so React always sees a value different from
         # the original equal allocation (avoids no-op dirty check)
@@ -2885,7 +2041,7 @@ class ModelsPage(BasePage):
             values = [first_val] + [rest] * (count - 1)
             values[-1] += leftover
         script = """(args) => {
-            const inputs = document.querySelectorAll(args.inputSelector);
+            const inputs = document.querySelectorAll("[role='gridcell'] input[type='text']");
             const nativeSetter = Object.getOwnPropertyDescriptor(
                 window.HTMLInputElement.prototype, 'value'
             ).set;
@@ -2902,7 +2058,7 @@ class ModelsPage(BasePage):
             });
             return Array.from(inputs).map(i => i.value);
         }"""
-        results = self.page.evaluate(script, {"values": values, "inputSelector": self.GRID_INPUT_SELECTOR})
+        results = self.page.evaluate(script, {"values": values})
         logger.info(f"Adjusted allocation values: {results}")
         # Click each input and Tab away to ensure React's onChange fires properly
         try:

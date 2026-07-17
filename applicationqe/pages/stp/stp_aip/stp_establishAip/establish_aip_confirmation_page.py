@@ -3,7 +3,7 @@ Establish AIP Confirmation Page Object
 """
 
 from playwright.sync_api import Locator, Page
-from pages.ewm.base_page import BasePage
+from pages.stp.shared.base_page import BasePage
 from pages.stp.stp_aip.stp_establishAip.locators.establish_aip_confirmation_locators import EstablishAIPConfirmationLocators
 from utils.allure_logger import get_allure_logger
 
@@ -17,46 +17,45 @@ class EstablishAIPConfirmationPage(BasePage):
     
     def __init__(self, page: Page, page_verification: bool = True):
         super().__init__(page)
-        ctx = self.active_root()
         loc = EstablishAIPConfirmationLocators
         
         # Submission modal
-        self.submission_modal = ctx.locator(loc.SUBMISSION_MODAL)
+        self.submission_modal = page.locator(loc.SUBMISSION_MODAL)
         
         # Success banner
-        self.success_banner = ctx.locator(loc.SUCCESS_BANNER)
+        self.success_banner = page.locator(loc.SUCCESS_BANNER)
         
         # Request Summary section
-        self.request_summary_header = ctx.locator(loc.REQUEST_SUMMARY_HEADER)
-        self.status_label = ctx.locator(loc.STATUS_LABEL)
-        self.status_value = ctx.locator(loc.STATUS_VALUE)
-        self.submission_datetime_label = ctx.locator(loc.SUBMISSION_DATETIME_LABEL)
-        self.submission_datetime_value = ctx.locator(loc.SUBMISSION_DATETIME_VALUE)
-        self.submitted_by_label = ctx.locator(loc.SUBMITTED_BY_LABEL)
-        self.submitted_by_value = ctx.locator(loc.SUBMITTED_BY_VALUE)
-        self.item_number_label = ctx.locator(loc.ITEM_NUMBER_LABEL)
-        self.item_number_value = ctx.locator(loc.ITEM_NUMBER_VALUE)
+        self.request_summary_header = page.locator(loc.REQUEST_SUMMARY_HEADER)
+        self.status_label = page.locator(loc.STATUS_LABEL)
+        self.status_value = page.locator(loc.STATUS_VALUE)
+        self.submission_datetime_label = page.locator(loc.SUBMISSION_DATETIME_LABEL)
+        self.submission_datetime_value = page.locator(loc.SUBMISSION_DATETIME_VALUE)
+        self.submitted_by_label = page.locator(loc.SUBMITTED_BY_LABEL)
+        self.submitted_by_value = page.locator(loc.SUBMITTED_BY_VALUE)
+        self.item_number_label = page.locator(loc.ITEM_NUMBER_LABEL)
+        self.item_number_value = page.locator(loc.ITEM_NUMBER_VALUE)
         
         # Request Details section
-        self.request_details_header = ctx.locator(loc.REQUEST_DETAILS_HEADER)
-        self.request_type_value = ctx.locator(loc.REQUEST_TYPE_VALUE)
-        self.delivery_method_value = ctx.locator(loc.DELIVERY_METHOD_VALUE)
-        self.origination_value = ctx.locator(loc.ORIGINATION_VALUE)
-        self.frequency_value = ctx.locator(loc.FREQUENCY_VALUE)
-        self.amount_value = ctx.locator(loc.AMOUNT_VALUE)
-        self.start_date_value = ctx.locator(loc.START_DATE_VALUE)
-        self.end_date_value = ctx.locator(loc.END_DATE_VALUE)
+        self.request_details_header = page.locator(loc.REQUEST_DETAILS_HEADER)
+        self.request_type_value = page.locator(loc.REQUEST_TYPE_VALUE)
+        self.delivery_method_value = page.locator(loc.DELIVERY_METHOD_VALUE)
+        self.origination_value = page.locator(loc.ORIGINATION_VALUE)
+        self.frequency_value = page.locator(loc.FREQUENCY_VALUE)
+        self.amount_value = page.locator(loc.AMOUNT_VALUE)
+        self.start_date_value = page.locator(loc.START_DATE_VALUE)
+        self.end_date_value = page.locator(loc.END_DATE_VALUE)
         
         # Account Information
-        self.account_info_label = ctx.locator(loc.ACCOUNT_INFO_LABEL)
-        self.account_info_text = ctx.locator(loc.ACCOUNT_INFO_TEXT)
+        self.account_info_label = page.locator(loc.ACCOUNT_INFO_LABEL)
+        self.account_info_text = page.locator(loc.ACCOUNT_INFO_TEXT)
         
         # Close button
-        self.close_button = ctx.locator(loc.CLOSE_BUTTON)
+        self.close_button = page.locator(loc.CLOSE_BUTTON)
         
         # Loading indicators
-        self.spinner_loading = ctx.locator(loc.SPINNER_LOADING)
-        self.loading_overlay = ctx.locator(loc.LOADING_OVERLAY)
+        self.spinner_loading = page.locator(loc.SPINNER_LOADING)
+        self.loading_overlay = page.locator(loc.LOADING_OVERLAY)
         
         # Wait for submission modal to disappear first
         self.wait_for_submission_modal_to_disappear()

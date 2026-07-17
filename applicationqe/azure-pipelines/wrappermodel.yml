@@ -8,11 +8,9 @@ trigger:
       - WM_MM_UI
   paths:
     include:
-      - applicationqe/data/model-management/wrappermodel/**
+      - applicationqe/data/model_management/wrappermodel/**
       - applicationqe/config/model-management/wrappermodel/**
-      - applicationqe/config/wrapper/**
-      - applicationqe/tests/features/model-management/WrapperModel/**
-      - applicationqe/tests/runners/model-management/wrappermodel/**
+      - applicationqe/tests/features/model-management/wrappermodel/**
       - applicationqe/tests/steps/model-management/wrappermodel/**
       - applicationqe/pages/model_management/wrappermodel/**
       - applicationqe/queries/model-management/**
@@ -30,11 +28,9 @@ pr:
       - WM_MM_UI
   paths:
     include:
-      - applicationqe/data/model-management/wrappermodel/**
+      - applicationqe/data/model_management/wrappermodel/**
       - applicationqe/config/model-management/wrappermodel/**
-      - applicationqe/config/wrapper/**
-      - applicationqe/tests/features/model-management/WrapperModel/**
-      - applicationqe/tests/runners/model-management/wrappermodel/**
+      - applicationqe/tests/features/model-management/wrappermodel/**
       - applicationqe/tests/steps/model-management/wrappermodel/**
       - applicationqe/pages/model_management/wrappermodel/**
       - applicationqe/queries/model-management/**
@@ -88,8 +84,7 @@ stages:
     parameters:
       stageName: WrapperModel
       teamDisplay: WrapperModel
-      featurePath: tests/runners/model-management/wrappermodel/test_add_model.py
-      configDir: wrapper
+      featurePath: tests/features/model-management/wrappermodel/
       environment: ${{ parameters.environment }}
       marker: ${{ parameters.marker }}
       workers: ${{ parameters.workers }}

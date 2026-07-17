@@ -52,7 +52,7 @@ Feature: Withdrawal via ACH - Regression
 
   @smoke
   Scenario Outline: Check Withdrawal - STP Scenario IRA
-    Given User with role "withdrawl-check-ira" is loaded
+    Given User with role "withdrawl-ira" is loaded
     When I navigate to Clients menu
     And I click on Account List
     And User is on the accountlist tab and search with the accountNo
@@ -99,7 +99,7 @@ Feature: Withdrawal via ACH - Regression
 
     Examples:
       | delivery_method | check_memo | mail_delivery | state | federal_tax | state_tax |
-      | Check           | checkSTP   | Regular Mail  | MI    | Waived      | Waived    |
+      | Check           | checkSTP   | Regular Mail  | IA    | Waived      | Waived    |
 
 @ach
   Scenario Outline: ACH Withdrawal - STP Scenario nonIRA With Do Not Withhold
@@ -162,7 +162,7 @@ Feature: Withdrawal via ACH - Regression
     Then User should validate "REQUEST DETAILS" confirmation for non-IRA withdrawal with "<delivery_method>", "<request_type>" and "<frequency>"
     When User should click on item number
     Then User should validate info panel contents with status "<status>" and item description as "Withdrawal Request" for "STP"
-    # Then User should validate description contains contents where "<delivery_method>", "<mail_delivery>", "<state>"
+    Then User should validate description contains contents where "<delivery_method>", "<mail_delivery>", "<state>"
     When User should click View button in item details page
     Then Validate view documents popup
     Then Validate PDF is generated
@@ -173,7 +173,7 @@ Feature: Withdrawal via ACH - Regression
 
     Examples:
       | delivery_method | request_type | frequency | status                          | mail_delivery | state |
-      | Check           | Withdrawal   | One-Time  | In Process- Pending Settlement  | Regular Mail  | MI    |
+      | Check           | Withdrawal   | One-Time  | In Process- Pending Settlement  | Regular Mail  | WY    |
 
 
   # @smoke @regression @ach

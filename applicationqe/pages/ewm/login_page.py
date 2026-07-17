@@ -274,13 +274,3 @@ class LoginPage(BasePage):
                     errors.append(element.text_content())
         
         return errors
-
-    # --- Method migrated from pages.stp.shared.login_page ---
-
-    def navigate_to_new_nav(self) -> None:
-        from config.settings import get_settings
-        new_nav_url = getattr(get_settings(), 'new_nav_url', None) or self._resolve_login_url()
-        logger.info(f"Navigating to new nav page: {new_nav_url}")
-        self.page.goto(new_nav_url)
-        self.dismiss_cookie_banner()
-        logger.info("New nav page loaded successfully")

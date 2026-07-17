@@ -1,14 +1,17 @@
 """BAW Dashboard Page - Business Automation Workflow"""
 
-import re
 import time
+from typing import TYPE_CHECKING, Union
 
-from playwright.sync_api import Frame, Locator, Page
+from playwright.sync_api import Frame, FrameLocator, Locator, Page
 
-from locators.baw.baw_dashboard_locators import BawDashboardLocators
 from pages.base_page import BasePage
 from utils.allure_logger import get_allure_logger
 from utils.wait_utils import WaitContext
+
+if TYPE_CHECKING:
+    from pages.baw.naa_coach_page import NAACoachPage
+    from pages.baw.shell_process_page import ShellProcessPage
 
 logger = get_allure_logger(__name__)
 
@@ -23,12 +26,15 @@ class BawDashboardPage(BasePage):
         self.frame = frame or page  # Use frame if provided, else use page
         # Locator for Open New WorkItem button (from Java: By.cssSelector("#ButtonGroup5_Button0"))
         # This button is INSIDE the iframe, so we use frame.locator
-        self.open_new_workitem_button: Locator = self.frame.locator(BawDashboardLocators.OPEN_NEW_WORKITEM_BUTTON)
+        self.open_new_workitem_button: Locator = self.frame.locator("#ButtonGroup5_Button0")
         # Locators for B tracking number search
-        self.search_b_number: Locator = self.frame.get_by_role("textbox", name=BawDashboardLocators.SEARCH_B_NUMBER_ROLE)
-        self.search_button: Locator = self.frame.get_by_role("button", name=BawDashboardLocators.SEARCH_BUTTON_ROLE)
-        self.task_table: Locator = self.frame.locator(BawDashboardLocators.TASK_TABLE)
-        self.show_more_link: Locator = self.page.locator(BawDashboardLocators.SHOW_MORE_LINK)
+        self.search_b_number: Locator = self.frame.get_by_role("textbox", name="B#:")
+        self.search_button: Locator = self.frame.get_by_role("button", name="Search")
+        self.task_table: Locator = self.frame.locator("#CustomHTML5 > table")
+        self.show_more_link: Locator = self.page.locator("xpath=//a[contains(normalize-space(), 'Show more')]")
+        self.dashboard_link: Locator = self.page.get_by_role("link", name="Dashboard")
+        # FrameLocator for auto-scoped iframe access
+        self._iframe: FrameLocator = self.page.frame_locator("//*[@data-viewid='CoachViewer']//iframe[@title]")
 
     def click_open_new_workitem_button(self):
         """
@@ -36,13 +42,13 @@ class BawDashboardPage(BasePage):
         """
         with logger.step("Click Open New Work Item button", page=self.page):
             # Resolve iframe at click time to avoid stale frame/locator references.
-            frame_selector = BawDashboardLocators.COACH_IFRAME
+            frame_selector = "//*[@data-viewid='CoachViewer']//iframe[@title]"
             frame_locator = self.page.frame_locator(frame_selector)
 
             # Playwright auto-waits, but explicit wait keeps behavior deterministic for slow BAW loads.
             self.page.wait_for_selector(frame_selector, timeout=40000)
 
-            open_new_workitem_button = frame_locator.locator(BawDashboardLocators.OPEN_NEW_WORKITEM_BUTTON)
+            open_new_workitem_button = frame_locator.locator("#ButtonGroup5_Button0")
             logger.info("Waiting for Open New WorkItem button to be visible in iframe")
             open_new_workitem_button.wait_for(state="visible", timeout=40000)
 
@@ -79,10 +85,6 @@ class BawDashboardPage(BasePage):
             
             # Wait for page to load
             self.wait_for_load_state("domcontentloaded", timeout=30000)
-            try:
-                self.wait_for_load_state("networkidle", timeout=10000)
-            except Exception:
-                logger.warning("networkidle timeout (continuing with domcontentloaded)")
             
             # Switch to default content if in frame
             try:
@@ -91,7 +93,7 @@ class BawDashboardPage(BasePage):
                 pass
             
             # Check if dashboard menu is visible
-            dashboard_menu = self.page.locator(BawDashboardLocators.COLLAPSE_DASHBOARD_MENU)
+            dashboard_menu = self.page.locator("#collapseDashboardsMenu")
             if not dashboard_menu.is_visible():
                 logger.warning("Dashboard menu not immediately visible, waiting...")
                 try:
@@ -104,7 +106,7 @@ class BawDashboardPage(BasePage):
             
             # Find the menu link with matching title
             # XPath: //div[contains(@class,'menu_link')]/div/div/div[@class='menu-link-body']/a[@title='Search Work Item']
-            menu_link_xpath = BawDashboardLocators.MENU_LINK_BY_TITLE_XPATH.replace('{tab_name}', tab_name)
+            menu_link_xpath = f"//div[contains(@class,'menu_link')]//a[@title='{tab_name}']"
             menu_link = self.page.locator(menu_link_xpath)
             
             # Scroll into view if needed
@@ -146,13 +148,13 @@ class BawDashboardPage(BasePage):
 
             # Java equivalent:
             # seleniumCore.switchToFrame(By.xpath("//iframe[@title='Dashboard']"), 60, 1)
-            frame_selector = BawDashboardLocators.DASHBOARD_IFRAME
+            frame_selector = "xpath=//iframe[@title='Dashboard']"
             frame_locator = self.page.frame_locator(frame_selector)
             self.page.wait_for_selector(frame_selector, state="attached", timeout=60000)
 
-            search_b_number = frame_locator.locator(BawDashboardLocators.SEARCH_B_NUMBER_INPUT)
-            search_button = frame_locator.locator(BawDashboardLocators.SEARCH_BUTTON)
-            task_table = frame_locator.locator(BawDashboardLocators.TASK_TABLE)
+            search_b_number = frame_locator.locator("#txtBNum")
+            search_button = frame_locator.locator("#ButtonGroup4_Search")
+            task_table = frame_locator.locator("#CustomHTML5 > table")
             
             # Initial waits - use domcontentloaded instead of networkidle to avoid timeout in iframe
             try:
@@ -175,7 +177,7 @@ class BawDashboardPage(BasePage):
                 except Exception as e:
                     logger.warning(f"Primary B# locator failed: {e}. Trying fallback locator")
                     # Fallback xpath in same frame context
-                    search_b_number = frame_locator.locator(BawDashboardLocators.SEARCH_B_NUMBER_FALLBACK_XPATH)
+                    search_b_number = frame_locator.locator("xpath=//input[@id='txtBNum']")
                     search_b_number.wait_for(state="attached", timeout=30000)
                     search_b_number.wait_for(state="visible", timeout=30000)
                     with WaitContext(timeout=10.0) as wait:
@@ -215,11 +217,11 @@ class BawDashboardPage(BasePage):
             ValueError: If task table is not visible or run icon cannot be found
         """
         with logger.step("Click run icon", page=self.page):
-            frame_selector = BawDashboardLocators.DASHBOARD_IFRAME
+            frame_selector = "xpath=//iframe[@title='Dashboard']"
             frame_locator = self.page.frame_locator(frame_selector)
             self.page.wait_for_selector(frame_selector, state="attached", timeout=40000)
 
-            task_table = frame_locator.locator(BawDashboardLocators.TASK_TABLE)
+            task_table = frame_locator.locator("#CustomHTML5 > table")
 
             try:
                 self.wait_for_load_state("domcontentloaded", timeout=15000)
@@ -235,21 +237,21 @@ class BawDashboardPage(BasePage):
 
             run_button = None
             if b_tracking_id:
-                primary_run_button = frame_locator.locator(BawDashboardLocators.RUN_ICON_BY_ONCLICK_TPL.format(b_tracking_id=b_tracking_id)).first
+                primary_run_button = frame_locator.locator(f"img[onclick*='{b_tracking_id}']").first
                 fallback_run_button = frame_locator.locator(
-                    BawDashboardLocators.RUN_ICON_FALLBACK_XPATH_TPL.format(b_tracking_id=b_tracking_id)
+                    f"xpath=//a[text()='{b_tracking_id}']//parent::td//preceding-sibling::td[3]"
                 ).first
                 row_run_button = frame_locator.locator(
-                    BawDashboardLocators.RUN_ICON_ROW_XPATH_TPL.format(b_tracking_id=b_tracking_id)
+                    f"xpath=//tr[.//*[normalize-space(text())='{b_tracking_id}']]//td[1]//img"
                 ).first
                 broad_row_run_button = frame_locator.locator(
-                    BawDashboardLocators.RUN_ICON_BROAD_ROW_XPATH_TPL.format(b_tracking_id=b_tracking_id)
+                    f"xpath=//tr[.//*[normalize-space(text())='{b_tracking_id}']]//td[1]//*[self::img or self::button or @role='button' or contains(@class,'icon')]"
                 ).first
-                any_first_row_img = frame_locator.locator(BawDashboardLocators.RUN_ICON_FIRST_ROW_IMG).first
+                any_first_row_img = frame_locator.locator("#TaskTable > tbody > tr:first-child > td:first-child img").first
             else:
-                primary_run_button = frame_locator.locator(BawDashboardLocators.RUN_ICON_DEFAULT).first
+                primary_run_button = frame_locator.locator("#TaskTable > tbody > tr > td > img").first
                 fallback_run_button = frame_locator.locator(
-                    BawDashboardLocators.RUN_ICON_LAST_ROW_XPATH
+                    "xpath=//table[@id='TaskTable']//tbody//tr[position() = (last() - 1)]/td/img"
                 ).first
                 row_run_button = None
                 broad_row_run_button = None
@@ -282,6 +284,225 @@ class BawDashboardPage(BasePage):
             except Exception:
                 pass
 
+            # Use expect_popup to capture the NAA Coach window opened by the run icon click.
+            # Fallback: if no popup opens (e.g. coach loads inline), continue without error.
+            try:
+                with self.page.expect_popup(timeout=30000) as popup_info:
+                    try:
+                        run_button.click(timeout=10000)
+                    except Exception as click_error:
+                        logger.warning(f"Standard click failed on run icon: {click_error}, trying force click")
+                        try:
+                            run_button.click(timeout=10000, force=True)
+                        except Exception as force_error:
+                            logger.warning(f"Force click failed: {force_error}, trying JavaScript click")
+                            with WaitContext(timeout=10.0) as wait:
+                                wait.until_visible(run_button)
+                            self.page.evaluate("el => el.click()", run_button.element_handle())
+                popup_page = popup_info.value
+                popup_page.wait_for_load_state("domcontentloaded", timeout=30000)
+                logger.info(f"Popup captured after run icon click: {popup_page.title()}")
+            except Exception as popup_err:
+                logger.warning(f"No popup detected after run icon click (may load inline): {popup_err}")
+
+            logger.info("Clicked on run button")
+            self.wait_for_loading_data(timeout=30000)
+
+    def _refresh_frame(self) -> None:
+        """
+        Refresh the iframe reference to prevent stale object errors.
+        Re-resolves iframe from current page state and re-initializes all frame-based locators.
+        """
+        logger.debug("Refreshing dashboard iframe reference to prevent stale objects")
+        iframe_selector = "//*[@data-viewid='CoachViewer']//iframe[@title]"
+        try:
+            dashboard_frame_locator = self.page.locator(iframe_selector).first
+            dashboard_frame_locator.wait_for(state="attached", timeout=10000)
+
+            iframe_element = dashboard_frame_locator.element_handle()
+            if iframe_element is None:
+                raise ValueError("Dashboard iframe element not found during refresh")
+
+            fresh_frame = iframe_element.content_frame()
+            if fresh_frame is None:
+                raise ValueError("Dashboard iframe content frame not accessible during refresh")
+
+            self.frame = fresh_frame
+            logger.debug("Successfully obtained fresh iframe reference")
+
+            # Re-initialize all frame-based locators with fresh frame reference
+            self.open_new_workitem_button = self.frame.locator("#ButtonGroup5_Button0")
+            self.search_b_number = self.frame.get_by_role("textbox", name="B#:")
+            self.search_button = self.frame.get_by_role("button", name="Search")
+            self.task_table = self.frame.locator("#CustomHTML5 > table")
+            logger.debug("Successfully re-initialized all frame-based locators")
+
+        except Exception as e:
+            logger.warning(f"Frame refresh encountered issue (may not be critical): {e}")
+
+    @classmethod
+    def from_context(cls, test_context) -> "BawDashboardPage":
+        """
+        Build BAW Dashboard page from current baw_page in context.
+        Rebuilds fresh instance each call to prevent stale frame references.
+        """
+        baw_page = test_context.get("baw_page")
+        if not baw_page:
+            raise ValueError("BAW page not initialized in context. Complete login first.")
+
+        iframe_selector = "//*[@data-viewid='CoachViewer']//iframe[@title]"
+        logger.debug("Building fresh BawDashboardPage instance from current baw_page")
+        dashboard_frame_locator = baw_page.locator(iframe_selector).first
+
+        try:
+            dashboard_frame_locator.wait_for(state="attached", timeout=5000)
+            iframe_element = dashboard_frame_locator.element_handle()
+
+            if iframe_element is None:
+                raise ValueError("Dashboard iframe not found in current page state")
+
+            frame = None
+            for _ in range(5):
+                frame = iframe_element.content_frame()
+                if frame is not None:
+                    break
+                baw_page.wait_for_timeout(200)
+
+            if frame is None:
+                cached = test_context.get("baw_dashboard_page")
+                if cached:
+                    logger.warning("Fresh build failed; falling back to cached dashboard object")
+                    return cached
+                raise ValueError("Dashboard iframe not ready; cannot build fresh instance")
+
+            logger.debug("Successfully built fresh BawDashboardPage instance")
+            fresh_dashboard = cls(baw_page, frame)
+            return fresh_dashboard
+
+        except Exception as e:
+            logger.warning(f"Fresh dashboard build failed: {e}; attempting fallback to cached object")
+            cached = test_context.get("baw_dashboard_page")
+            if cached:
+                return cached
+            raise ValueError(f"Failed to build dashboard from context: {e}")
+
+    def click_show_more(self) -> None:
+        """Click 'Show more' link if visible"""
+        try:
+            self.show_more_link.wait_for(state="visible", timeout=5000)
+            logger.info("Show more link found")
+            self.scroll_into_view(self.show_more_link)
+            self.click(self.show_more_link)
+            logger.info("Clicked on Show more link")
+        except Exception as e:
+            logger.info(f"Show more link not visible (optional step): {e}")
+
+    def click_dashboard(self) -> None:
+        """Click Dashboard link"""
+        self.click(self.dashboard_link, timeout=20000)
+        logger.info("Clicked on Dashboard link")
+
+    def move_to_dashboard(self) -> None:
+        """Navigate to dashboard and wait for iframe content to be ready."""
+        self.click_show_more()
+        self.click_dashboard()
+
+        logger.info("Waiting for dashboard iframe content to load")
+        self.page.wait_for_load_state("domcontentloaded", timeout=30000)
+
+        # Wait for any dashboard element inside the iframe to confirm it's loaded
+        dashboard_ready = self._iframe.locator(
+            "#ButtonGroup5_Button0, #CustomHTML5, #txtBNum, #TaskTable"
+        ).first
+
+        try:
+            dashboard_ready.wait_for(state="visible", timeout=20000)
+        except Exception:
+            logger.warning("Dashboard iframe content not visible. Retrying Dashboard click once.")
+            self.click_dashboard()
+            self.page.wait_for_load_state("domcontentloaded", timeout=30000)
+            dashboard_ready = self._iframe.locator(
+                "#ButtonGroup5_Button0, #CustomHTML5, #txtBNum, #TaskTable"
+            ).first
+            dashboard_ready.wait_for(state="visible", timeout=30000)
+
+        logger.info("Successfully navigated to Dashboard")
+
+    def click_run_icon_and_switch_to_page(self, b_tracking_id: str, page_title: str) -> Union["ShellProcessPage", "NAACoachPage", Page]:
+        """
+        Click run icon for a tracking row and switch to a page matching the given title.
+
+        Args:
+            b_tracking_id: B tracking id/parent B number to identify row.
+            page_title: Expected target page title fragment
+
+        Returns:
+            Typed page object (ShellProcessPage or NAACoachPage) based on page_title
+
+        Raises:
+            ValueError: If task table is not visible or target page cannot be found
+        """
+        with logger.step(f'Click run icon and switch to "{page_title}" page', page=self.page):
+            self._refresh_frame()
+            self.page.wait_for_timeout(2000)
+
+            run_button = None
+            if b_tracking_id:
+                primary_run_button = self.frame.locator(f"img[onclick*='{b_tracking_id}']").first
+                fallback_run_button = self.frame.locator(
+                    f"xpath=//a[text()='{b_tracking_id}']//parent::td//preceding-sibling::td[3]"
+                ).first
+                row_run_button = self.frame.locator(
+                    f"xpath=//tr[.//*[normalize-space(text())='{b_tracking_id}']]//td[1]//img"
+                ).first
+                broad_row_run_button = self.frame.locator(
+                    f"xpath=//tr[.//*[normalize-space(text())='{b_tracking_id}']]//td[1]//*[self::img or self::button or @role='button' or contains(@class,'icon')]"
+                ).first
+                any_first_row_img = self.frame.locator(
+                    "#TaskTable > tbody > tr:first-child > td:first-child img"
+                ).first
+            else:
+                primary_run_button = self.frame.locator("#TaskTable > tbody > tr > td > img").first
+                fallback_run_button = self.frame.locator(
+                    "xpath=//table[@id='TaskTable']//tbody//tr[position() = (last() - 1)]/td/img"
+                ).first
+                row_run_button = None
+                broad_row_run_button = None
+                any_first_row_img = None
+
+            if primary_run_button.count() > 0:
+                run_button = primary_run_button
+            elif fallback_run_button.count() > 0:
+                run_button = fallback_run_button
+            elif row_run_button and row_run_button.count() > 0:
+                run_button = row_run_button
+            elif broad_row_run_button and broad_row_run_button.count() > 0:
+                run_button = broad_row_run_button
+            elif any_first_row_img and any_first_row_img.count() > 0:
+                logger.warning("Using first-row img fallback for run icon")
+                run_button = any_first_row_img
+            else:
+                try:
+                    all_imgs = self.frame.locator("#TaskTable img").count()
+                    all_rows = self.frame.locator("#TaskTable tbody tr").count()
+                    first_row_html = (
+                        self.frame.locator("#TaskTable tbody tr").first.inner_html()
+                        if all_rows > 0
+                        else "no rows"
+                    )
+                    logger.error(
+                        f"DIAG run icon: b_tracking_id='{b_tracking_id}', table imgs={all_imgs}, rows={all_rows}"
+                    )
+                    logger.error(f"DIAG first row HTML: {first_row_html[:500]}")
+                except Exception as diag_err:
+                    logger.error(f"DIAG failed: {diag_err}")
+                raise ValueError("Run icon is not found for the searched tracking number")
+
+            try:
+                run_button.scroll_into_view_if_needed()
+            except Exception:
+                pass
+
             try:
                 run_button.click(timeout=10000)
             except Exception as click_error:
@@ -290,85 +511,19 @@ class BawDashboardPage(BasePage):
                     run_button.click(timeout=10000, force=True)
                 except Exception as force_error:
                     logger.warning(f"Force click failed: {force_error}, trying JavaScript click")
-                    with WaitContext(timeout=10.0) as wait:
-                        wait.until_visible(run_button)
+                    self.wait_for_element(run_button, state="visible", timeout=10000)
                     self.page.evaluate("el => el.click()", run_button.element_handle())
 
             logger.info("Clicked on run button")
-            self.wait_for_loading_data(timeout=30000)
 
-    def fetch_b_number_from_search_results(self) -> str:
-        """Click Search on the Search Work Item BAW page and return the B# from
-        the first result row.
+            target_page = self.switch_to_page_by_title(page_title)
+            target_title = (target_page.title() or "").lower()
 
-        The BAW search sometimes returns a 'no record' yellow alert before the
-        results load, so this method retries clicking Search up to 10 times
-        (every 5 s) until a B# cell matching ``^B\\d{6,}$`` becomes visible.
+            from pages.baw.naa_coach_page import NAACoachPage
+            from pages.baw.shell_process_page import ShellProcessPage
 
-        Returns:
-            B number string, e.g. ``"B100175944"``.
-        """
-        with logger.step("Click search and fetch B number from Search Work Item BAW results", page=self.page):
-            coach_frame = self.page.locator(BawDashboardLocators.COACH_IFRAME_TITLE).content_frame
-            search_btn = coach_frame.get_by_role("button", name="Search")
-            search_btn.wait_for(state="visible", timeout=30000)
-
-            # Give BAW a few seconds to process the work item before the first search
-            self.page.wait_for_timeout(5000)
-
-            b_number_cell = coach_frame.get_by_role(
-                "cell", name=re.compile(r"^B\d{6,}$")
-            ).first
-
-            max_retries = 20
-            for attempt in range(1, max_retries + 1):
-                search_btn.click()
-                logger.info(f"Clicked Search button (attempt {attempt})")
-                self.wait_for_loading_data()
-
-                try:
-                    b_number_cell.wait_for(state="visible", timeout=8000)
-                    logger.info("B number cell is visible")
-                    break
-                except Exception:
-                    logger.info(
-                        f"B number not visible yet (attempt {attempt}/{max_retries}), retrying..."
-                    )
-                    if attempt == max_retries:
-                        raise AssertionError(
-                            f"B number did not appear in Search Work Item BAW results "
-                            f"after {max_retries} attempts."
-                        )
-
-            b_number = (b_number_cell.inner_text() or "").strip()
-            match = re.search(r"B\d{6,}", b_number)
-            if match:
-                b_number = match.group(0)
-            if not b_number:
-                raise AssertionError(
-                    "Could not fetch B number from Search Work Item BAW results"
-                )
-            logger.info(f"Fetched B number from results: {b_number}", attach_to_allure=True)
-            return b_number
-
-    def navigate_to_dashboard_and_search_b_number(self, b_number: str) -> None:
-        """Click Dashboard in the left nav, then enter b_number in the dashboard
-        search bar and click Search — reuses existing enter_b_number_to_search logic.
-
-        Args:
-            b_number: B number to search (e.g. ``"B100175944"``).
-        """
-        with logger.step(
-            f"Navigate to Dashboard and search B number: {b_number}", page=self.page
-        ):
-            dashboard_link = self.page.get_by_role("link", name="Dashboard")
-            dashboard_link.wait_for(state="visible", timeout=30000)
-            dashboard_link.click()
-            logger.info("Clicked Dashboard link")
-            try:
-                self.page.wait_for_load_state("domcontentloaded", timeout=30000)
-            except Exception:
-                pass
-            self.wait_for_loading_data()
-            self.enter_b_number_to_search(b_number)
-            logger.info(f"Dashboard search completed for B#: {b_number}")
+            if "shell process" in target_title:
+                return ShellProcessPage(target_page)
+            if "naa coach" in target_title:
+                return NAACoachPage(target_page)
+            return target_page

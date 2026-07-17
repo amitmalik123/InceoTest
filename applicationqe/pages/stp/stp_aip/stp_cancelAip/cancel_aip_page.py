@@ -3,7 +3,7 @@ Cancel Automatic Investment Plan (AIP) Page Object
 """
 
 from playwright.sync_api import Locator, Page
-from pages.ewm.base_page import BasePage
+from pages.stp.shared.base_page import BasePage
 from pages.stp.stp_aip.stp_cancelAip.locators.cancel_aip_locators import CancelAIPLocators
 from utils.logger import setup_logger
 
@@ -17,41 +17,40 @@ class CancelAIPPage(BasePage):
     
     def __init__(self, page: Page):
         super().__init__(page)
-        ctx = self.active_root()
         loc = CancelAIPLocators
         
         # Landing Page elements
-        self.landing_page_title = ctx.locator(loc.LANDING_PAGE_TITLE)
-        self.select_aip = ctx.locator(loc.SELECT_AIP)
-        self.delete_button = ctx.locator(loc.DELETE_BUTTON)
-        self.next_button = ctx.locator(loc.NEXT_BUTTON)
-        self.cancel_button = ctx.locator(loc.CANCEL_BUTTON)
+        self.landing_page_title = page.locator(loc.LANDING_PAGE_TITLE)
+        self.select_aip = page.locator(loc.SELECT_AIP)
+        self.delete_button = page.locator(loc.DELETE_BUTTON)
+        self.next_button = page.locator(loc.NEXT_BUTTON)
+        self.cancel_button = page.locator(loc.CANCEL_BUTTON)
         
         # Selection Page elements
-        self.selection_page_title = ctx.locator(loc.SELECTION_PAGE_TITLE)
-        self.end_date_selection = ctx.locator(loc.END_DATE_SELECTION)
-        self.future_end_selection = ctx.locator(loc.FUTURE_END_SELECTION)
-        self.calendar_field = ctx.locator(loc.CALENDAR_FIELD)
+        self.selection_page_title = page.locator(loc.SELECTION_PAGE_TITLE)
+        self.end_date_selection = page.locator(loc.END_DATE_SELECTION)
+        self.future_end_selection = page.locator(loc.FUTURE_END_SELECTION)
+        self.calendar_field = page.locator(loc.CALENDAR_FIELD)
         
         # Signature Options
-        self.not_obtain_signature_radio = ctx.locator(loc.NOT_OBTAIN_SIGNATURE_RADIO)
-        self.select_esign = ctx.locator(loc.SELECT_ESIGN)
-        self.select_print = ctx.locator(loc.SELECT_PRINT)
+        self.not_obtain_signature_radio = page.locator(loc.NOT_OBTAIN_SIGNATURE_RADIO)
+        self.select_esign = page.locator(loc.SELECT_ESIGN)
+        self.select_print = page.locator(loc.SELECT_PRINT)
         
         # Summary Page elements
-        self.submit_button = ctx.locator(loc.SUBMIT_BUTTON)
-        self.summary_submit_button = ctx.locator(loc.SUMMARY_SUBMIT_BUTTON)
-        self.print_button = ctx.locator(loc.PRINT_BUTTON)
-        self.esign_button = ctx.locator(loc.ESIGN_BUTTON)
-        self.submit_review_button = ctx.locator(loc.SUBMIT_REVIEW_BUTTON)
-        self.submit_to_advisor = ctx.locator(loc.SUBMIT_TO_ADVISOR)
+        self.submit_button = page.locator(loc.SUBMIT_BUTTON)
+        self.summary_submit_button = page.locator(loc.SUMMARY_SUBMIT_BUTTON)
+        self.print_button = page.locator(loc.PRINT_BUTTON)
+        self.esign_button = page.locator(loc.ESIGN_BUTTON)
+        self.submit_review_button = page.locator(loc.SUBMIT_REVIEW_BUTTON)
+        self.submit_to_advisor = page.locator(loc.SUBMIT_TO_ADVISOR)
         
         # Confirmation Page elements
-        self.item_number_link = ctx.locator(loc.ITEM_NUMBER_LINK)
-        self.item_number_text = ctx.locator(loc.ITEM_NUMBER_TEXT)
+        self.item_number_link = page.locator(loc.ITEM_NUMBER_LINK)
+        self.item_number_text = page.locator(loc.ITEM_NUMBER_TEXT)
         
         # Loading indicators
-        self.spinner_loading = ctx.locator(loc.SPINNER_LOADING)
+        self.spinner_loading = page.locator(loc.SPINNER_LOADING)
     
     def wait_for_page_load(self) -> None:
         """Wait for Cancel AIP page to load"""
@@ -77,24 +76,14 @@ class CancelAIPPage(BasePage):
     def refresh_landing_page(self) -> None:
         """Refresh the landing page to view API created AIP"""
         logger.info("Refreshing landing page")
-        self.page.reload(wait_until='load', timeout=30000)
-        # Dismiss cookie consent popup if it appears after reload
-        try:
-            accept_btn = self.page.locator("button:has-text('Accept All')")
-            if accept_btn.is_visible(timeout=3000):
-                accept_btn.click()
-                self.page.wait_for_timeout(500)
-                logger.info("Cookie consent dismissed after reload")
-        except Exception:
-            pass
+        self.page.reload(wait_until='networkidle', timeout=30000)
         self.wait_for_page_load()
         logger.info("Landing page refreshed")
     
     def validate_aip_displayed(self) -> bool:
         """Validate that AIP is displayed on landing page"""
         logger.info("Validating AIP is displayed")
-        self.wait_for_page_load()
-        self.select_aip.wait_for(state='visible', timeout=30000)
+        self.select_aip.wait_for(state='visible', timeout=10000)
         is_visible = self.select_aip.is_visible()
         logger.info(f"AIP is visible: {is_visible}")
         return is_visible

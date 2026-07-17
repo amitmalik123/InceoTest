@@ -114,7 +114,7 @@ def verify_ui_summary_generated(page: Page):
     
     # Wait for download button to be visible and enabled
     tms_page.page.wait_for_timeout(1000)  # Small wait for UI to stabilize
-    tms_page.download_button.wait_for(state="visible", timeout=30000)
+    tms_page.download_button.wait_for(state="visible", timeout=10000)
     
     download_and_validate_pdf_from_click(
         tms_page.page,
@@ -141,7 +141,7 @@ def verify_ui_summary_generated(page: Page):
     
     # Wait for download button to be visible and enabled
     tms_page.page.wait_for_timeout(1000)  # Small wait for UI to stabilize
-    tms_page.download_button.wait_for(state="visible", timeout=30000)
+    tms_page.download_button.wait_for(state="visible", timeout=10000)
     
     download_and_validate_pdf_from_click(
         tms_page.page,
@@ -168,7 +168,7 @@ def verify_ui_summary_generated(page: Page):
     
     # Wait for download button to be visible and enabled
     tms_page.page.wait_for_timeout(1000)  # Small wait for UI to stabilize
-    tms_page.download_button.wait_for(state="visible", timeout=30000)
+    tms_page.download_button.wait_for(state="visible", timeout=10000)
     
     download_and_validate_pdf_from_click(
         tms_page.page,
@@ -195,7 +195,7 @@ def verify_ui_summary_generated(page: Page):
     
     # Wait for download button to be visible and enabled
     tms_page.page.wait_for_timeout(1000)  # Small wait for UI to stabilize
-    tms_page.download_button.wait_for(state="visible", timeout=30000)
+    tms_page.download_button.wait_for(state="visible", timeout=10000)
     
     download_and_validate_pdf_from_click(
         tms_page.page,

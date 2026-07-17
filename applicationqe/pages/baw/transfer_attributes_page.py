@@ -1,7 +1,6 @@
-from playwright.sync_api import FrameLocator, Locator, Page
+﻿from playwright.sync_api import FrameLocator, Locator, Page
 from typing import Callable
 
-from locators.baw.transfer_attributes_locators import TransferAttributesLocators
 from pages.base_page import BasePage
 from utils.allure_logger import get_allure_logger
 from utils.assertions import Assertions
@@ -17,78 +16,62 @@ class TransferAttributesPage(BasePage):
 
     def __init__(self, page: Page, home_url: str = ""):
         super().__init__(page, home_url=home_url)
-        self._frame: FrameLocator = page.frame_locator(TransferAttributesLocators.COACH_IFRAME)
+        self._frame: FrameLocator = page.frame_locator("iframe[title='Coach']")
         f = self._frame  # short alias for locator definitions
     
         # Transfer request locators
-        self.full_checkbox: Locator = f.get_by_role("radio", name=TransferAttributesLocators.FULL_RADIO_ROLE)
-        self.partial_checkbox: Locator = f.get_by_role("radio", name=TransferAttributesLocators.PARTIAL_RADIO_ROLE)
-        self.non_acat_checkbox: Locator = f.get_by_role("checkbox", name=TransferAttributesLocators.NON_ACAT_CHECKBOX_ROLE)
-        # Contribution Code is a native <select> with BAW singleselect id (uses dash/colon).
-        self.contribution_code: Locator = f.locator(TransferAttributesLocators.CONTRIBUTION_CODE).first
-        self.contra_firm_account: Locator = f.get_by_role("textbox", name=TransferAttributesLocators.CONTRA_FIRM_ACCOUNT_ROLE)
-        self.contra_firm_name_line1: Locator = f.get_by_role("textbox", name=TransferAttributesLocators.CONTRA_FIRM_NAME_LINE1_ROLE)
-        self.contra_firm_name_line2: Locator = f.get_by_role("textbox", name=TransferAttributesLocators.CONTRA_FIRM_NAME_LINE2_ROLE)
-        self.amount: Locator = f.get_by_role("textbox", name=TransferAttributesLocators.AMOUNT_ROLE, exact=True)
-        self.estimated_checkbox: Locator = f.get_by_role("radio", name=TransferAttributesLocators.ESTIMATED_RADIO_ROLE)
-        self.special_instructions: Locator = f.get_by_role("textbox", name=TransferAttributesLocators.SPECIAL_INSTRUCTIONS_ROLE)
+        self.full_checkbox: Locator = f.get_by_role("radio", name="Full")
+        self.partial_checkbox: Locator = f.get_by_role("radio", name="Partial")
+        self.non_acat_checkbox: Locator = f.get_by_role("checkbox", name="non-ACAT")
+        self.contribution_code: Locator = f.get_by_role("combobox", name="Contribution Code")
+        self.contra_firm_account: Locator = f.get_by_role("textbox", name="Contra Firm Account")
+        self.contra_firm_name_line1: Locator = f.get_by_role("textbox", name="Contra Firm Name Line 1")
+        self.contra_firm_name_line2: Locator = f.get_by_role("textbox", name="Contra Firm Name Line 2")
+        self.amount: Locator = f.get_by_role("textbox", name="Amount", exact=True)
+        self.estimated_checkbox: Locator = f.get_by_role("radio", name="Estimated")
+        self.special_instructions: Locator = f.get_by_role("textbox", name="Special Instructions")
         # No semantic role available for chosen.js widget
-        self.clearing_firm_chosen: Locator = f.locator(TransferAttributesLocators.CLEARING_FIRM_CHOSEN)
-        self.clearing_firm_chosen_link: Locator = f.locator(TransferAttributesLocators.CLEARING_FIRM_CHOSEN_LINK)
-        self.contra_firm_chosen: Locator = f.locator(TransferAttributesLocators.CONTRA_FIRM_CHOSEN)
-        self.contra_firm_registration_chosen: Locator = f.locator(TransferAttributesLocators.CONTRA_FIRM_REGISTRATION_CHOSEN)
-        self.contra_firm_results: Locator = f.locator(TransferAttributesLocators.CONTRA_FIRM_RESULTS)
-        self.clearing_firm_results: Locator = f.locator(TransferAttributesLocators.CLEARING_FIRM_RESULTS)
-        self.contra_firm_registration_results: Locator = f.locator(TransferAttributesLocators.CONTRA_FIRM_REGISTRATION_RESULTS)
+        self.clearing_firm_chosen: Locator = f.locator("#singleselect_TransferAttributesCV_ClearingFirm_chosen")
+        self.clearing_firm_chosen_link: Locator = f.locator("//div[@id='singleselect_TransferAttributesCV_ClearingFirm_chosen']/a")
+        self.contra_firm_chosen: Locator = f.locator("//div[@id='singleselect_TransferAttributesCV_ContraFirm_chosen']/a/div")
+        self.contra_firm_registration_chosen: Locator = f.locator("//div[@id='singleselect_TransferAttributesCV_ContraFirmRegistration_chosen']/a/div")
+        self.contra_firm_results: Locator = f.locator("#singleselect_TransferAttributesCV_ContraFirm_chosen .chosen-results li")
+        self.clearing_firm_results: Locator = f.locator("#singleselect_TransferAttributesCV_ClearingFirm_chosen .chosen-results li")
+        self.contra_firm_registration_results: Locator = f.locator("#singleselect_TransferAttributesCV_ContraFirmRegistration_chosen .chosen-results li")
 
         # Destination account locators
-        self.header_account: Locator = f.locator("div", has_text=TransferAttributesLocators.HEADER_ACCOUNT_TEXT).locator("p").first
-        self.destination_account: Locator = f.locator(TransferAttributesLocators.DESTINATION_ACCOUNT).first
-        self.destination_amount: Locator = f.get_by_role("textbox", name=TransferAttributesLocators.DESTINATION_AMOUNT_ROLE)
-        self.add_button: Locator = f.get_by_role("button", name=TransferAttributesLocators.ADD_BUTTON_ROLE)
-        self.create_funding_account: Locator = f.get_by_role("button", name=TransferAttributesLocators.CREATE_FUNDING_ACCOUNT_ROLE)
-        self.create_funding_account_input: Locator = f.get_by_role("textbox", name=TransferAttributesLocators.CREATE_FUNDING_ACCOUNT_INPUT_ROLE)
-        self.create_toar_button: Locator = f.get_by_role("button", name=TransferAttributesLocators.CREATE_TOAR_BUTTON_ROLE)
-        self.eds_confirmation_number: Locator = f.get_by_role("textbox", name=TransferAttributesLocators.EDS_CONFIRMATION_NUMBER_ROLE)
-        self.submitted_to_fidelity: Locator = f.get_by_role("radio", name=TransferAttributesLocators.SUBMITTED_TO_FIDELITY_ROLE)
-        self.save_close_button: Locator = f.get_by_role("button", name=TransferAttributesLocators.SAVE_CLOSE_BUTTON_ROLE)
-        self.warning_checkboxes: Locator = f.locator(TransferAttributesLocators.WARNING_CHECKBOXES)
-        self.warning_proceed_button: Locator = f.locator(TransferAttributesLocators.WARNING_PROCEED_BUTTON)
-        self.destination_accounts_table: Locator = f.locator(TransferAttributesLocators.DESTINATION_ACCOUNTS_TABLE)
-        self.error_msg: Locator = f.locator(TransferAttributesLocators.ERROR_MSG)  # TODO: verify selector
-        self.alert_indicator: Locator = f.locator(TransferAttributesLocators.ALERT_INDICATOR)
-        self.iwr_complete: Locator = f.get_by_role("button", name=TransferAttributesLocators.IWR_COMPLETE_ROLE)
-        self.create_toad_button: Locator = f.get_by_role("button", name=TransferAttributesLocators.CREATE_TOAD_BUTTON_ROLE)
-        self.create_checklist_button: Locator = f.get_by_role("button", name=TransferAttributesLocators.CREATE_CHECKLIST_BUTTON_ROLE)
-        self.checklist_table: Locator = f.locator(TransferAttributesLocators.CHECKLIST_TABLE)
-        self.toad_success_alert: Locator = f.locator(TransferAttributesLocators.TOAD_SUCCESS_ALERT)
-        self.transfer_records_panels: Locator = f.locator(TransferAttributesLocators.TRANSFER_RECORDS_PANELS)
+        self.header_account: Locator = f.locator("div", has_text="Account #").locator("p").first
+        self.destination_account: Locator = f.locator("[id=\"singleselect-TransferAttributesCV\\:AccountNumberSelect\"]").first
+        self.destination_amount: Locator = f.get_by_role("textbox", name="Destination Amount")
+        self.add_button: Locator = f.get_by_role("button", name="Add")
+        self.create_funding_account: Locator = f.get_by_role("button", name="Create Funding Account")
+        self.create_funding_account_input: Locator = f.get_by_role("textbox", name="Funding Account #")
+        self.create_toar_button: Locator = f.get_by_role("button", name="Create TOAR Record")
+        self.eds_confirmation_number: Locator = f.get_by_role("textbox", name="EDS Confirmation Number")
+        self.submitted_to_fidelity: Locator = f.get_by_role("radio", name="Submitted to Fidelity")
+        self.save_close_button: Locator = f.get_by_role("button", name="Save & Close")
+        self.warning_checkboxes: Locator = f.locator("input[id*='WarningCheckboxes']")
+        self.warning_proceed_button: Locator = f.locator("[id*='WarningPopupProceedButton']")
+        self.destination_accounts_table: Locator = f.locator('[data-viewid="DestinationAccountsTable"]')
+        self.error_msg: Locator = f.locator(".error-message")  # TODO: verify selector
+        self.alert_indicator: Locator = f.locator("[role='alert']")
+        self.iwr_complete: Locator = f.get_by_role("button", name="IWR Complete")
+        self.create_toad_button: Locator = f.get_by_role("button", name="Create TOAD Record")
+        self.create_checklist_button: Locator = f.get_by_role("button", name="Create Checklist")
+        self.checklist_table: Locator = f.locator("[data-viewid='CreateChecklistTable']")
+        self.toad_success_alert: Locator = f.locator(".alert-success")
+        self.transfer_records_panels: Locator = f.locator("[data-viewid='TransferRecordsPanel']")
 
-        self.question_check: Locator = f.locator(TransferAttributesLocators.QUESTION_CHECK)
-        self.cost_basis: Locator = f.locator(TransferAttributesLocators.COST_BASIS)
-        self.cost_basis_disabled: Locator = f.locator(TransferAttributesLocators.COST_BASIS_DISABLED)
+        self.question_check: Locator = f.locator("//table[@class='table table-striped']//tr//div[contains(@class,'_style CPP CoachView_show')]//textarea[not(@disabled)]")
+        self.cost_basis: Locator = f.locator("select[id*='CostBasis']")
+        self.cost_basis_disabled: Locator = f.locator("select[id*='CostBasis'][disabled]")
 
-    def enter_transfer_request(
-        self,
-        transfer_request: str,
-        work_item_type: str,
-        transfer_amount: str = "123",
-        transfer_type_override: str = "",
-        contribution_code_label: str = "",
-        delivery_method: str = "",
-    ) -> None:
+    def enter_transfer_request(self, transfer_request: str, work_item_type: str) -> None:
         """Enter transfer request section info based on work item type.
 
         Args:
             transfer_request: Comma-separated transfer data string from Excel
             work_item_type: e.g. "Transfer In Request", "Custodian Change Request"
-            transfer_amount: Amount to enter in the Amount field (default "123").
-            transfer_type_override: When non-empty, overrides the transfer type
-                from Excel (e.g. "Cash", "InKind").
-            contribution_code_label: When non-empty (and transfer is Cash),
-                selects this label in the Contribution Code dropdown.
-            delivery_method: When non-empty (and transfer is Cash),
-                selects this delivery method radio (e.g. "Mail").
         """
         Assertions.assert_true("TransferAttributes" in self.page.url, "Transfer page should be loaded before entering transfer request details")
         logger.info(f"Validated Transfer Attributes page is loaded. Current URL: {self.page.url}")
@@ -96,27 +79,12 @@ class TransferAttributesPage(BasePage):
         transfer_data = [item.strip() for item in transfer_request.split(",")]
 
         if work_item_type in ("Transfer In Request", "Custodian Change Request", "Full Transfer Out In Kind", "Partial Transfer Out In Kind"):
-            self._common_transfer_request_steps(
-                transfer_data,
-                work_item_type,
-                transfer_amount,
-                transfer_type_override=transfer_type_override,
-                contribution_code_label=contribution_code_label,
-                delivery_method=delivery_method,
-            )
+            self._common_transfer_request_steps(transfer_data, work_item_type)
         else:
             logger.info(f"No transfer request steps for work item type: {work_item_type}")
 
         logger.info("Entered transfer request section")
-    def _common_transfer_request_steps(
-        self,
-        transfer_data: list[str],
-        work_item_type: str,
-        transfer_amount: str = "123",
-        transfer_type_override: str = "",
-        contribution_code_label: str = "",
-        delivery_method: str = "",
-    ) -> None:
+    def _common_transfer_request_steps(self, transfer_data: list[str], work_item_type: str) -> None:
         """Fill common transfer request fields from parsed data.
 
         Args:
@@ -140,7 +108,7 @@ class TransferAttributesPage(BasePage):
         # wait for a known stable element inside the frame before proceeding.
         amount_type_checkbox.wait_for(state="visible", timeout=30000)
 
-        transfer_type = (transfer_type_override or transfer_data[9]).strip()
+        transfer_type = transfer_data[9].strip()
         # Normalise test-data values to the actual radio-button labels on the BAW page
         _TRANSFER_TYPE_LABELS: dict[str, str] = {
             "inkind": "In Kind",
@@ -159,9 +127,7 @@ class TransferAttributesPage(BasePage):
         logger.info(f"Checked transfer type: {transfer_type}")
 
         if transfer_type.lower() == "cash":
-            target_label = contribution_code_label or transfer_data[0]
-            self.select_option(self.contribution_code, label=target_label)
-            logger.info(f"Selected Contribution Code: {target_label}")
+            self.select_option(self.contribution_code, value=transfer_data[0])
         else:
             self.check(self.non_acat_checkbox)
             logger.info("Checked non-ACAT checkbox")
@@ -195,23 +161,18 @@ class TransferAttributesPage(BasePage):
             self._select_contra_firm_registration()
 
         if transfer_type.lower() == "cash":
-            delivery_method_value = (delivery_method or transfer_data[10]).strip()
-            try:
-                delivery_radio = self._frame.get_by_role("radio", name=delivery_method_value)
-                delivery_radio.wait_for(state="visible", timeout=10000)
-                self.check(delivery_radio)
-            except Exception:
-                fallback = self._frame.locator(f"input[value='{delivery_method_value}']")
-                self.click(fallback)
-            logger.info(f"Selected delivery method: {delivery_method_value}")
+            delivery_method = transfer_data[10].strip()
+            mail_checkbox = self._frame.locator(f"input[value='{delivery_method}']")
+            self.click(mail_checkbox)
 
-        # Enter amount (sourced from Excel via TransferAmount; default 123)
-        self.fill(self.amount.first, str(transfer_amount))
-        logger.info(f"Entered transfer amount: {transfer_amount}")
+        # Enter amount
+        self.fill(self.amount.first, random_number(2))
         self.check(self.estimated_checkbox)
         logger.info("Checked amount expectation: Estimated")
 
-        # Special Instructions intentionally left blank (per requirements)
+        # Enter special instructions
+        self.fill(self.special_instructions, random_alpha(20)) 
+        self.tab_out()       
         logger.info("Common transfer request steps completed")
 
     def _select_contra_firm(self) -> None:
@@ -232,30 +193,16 @@ class TransferAttributesPage(BasePage):
         self.contra_firm_registration_results.nth(3).click()
         logger.info("Selected contra firm registration")
 
-    def enter_destination_accounts(
-        self,
-        work_item_type: str,
-        allocation_unit: str,
-        account_number: str = "",
-        create_toar: bool = True,
-        skip_funding_account: bool = False,
-    ) -> None:
+    def enter_destination_accounts(self, work_item_type: str, allocation_unit: str, account_number: str = "") -> None:
         """Enter destination account details.
 
         Args:
             work_item_type: e.g. "Transfer In Request", "Custodian Change Request"
             allocation_unit: Allocation type (e.g. "percentage", "dollar", "multiple", "multipleAR")
             account_number: Fallback account number if header account is empty
-            create_toar: When True (default) and work_item_type == "Custodian
-                Change Request", click the "Create TOAR Record" button before
-                Save & Close. When False, skip TOAR creation and go straight
-                to Save & Close after the funding account is created.
-            skip_funding_account: When True, skip the 'Create Funding Account'
-                click and validation (e.g. for Cash transfers where the button
-                is not rendered).
         """
         account = self.get_text(self.header_account).strip()
-        self.select_option(self.destination_account, label=account)
+        self.select_option(self.destination_account, value=account)
 
         self.check(self._frame.locator(f"input[value='{allocation_unit}']"))
 
@@ -264,44 +211,19 @@ class TransferAttributesPage(BasePage):
         
         self.click(self.add_button)
         logger.info("Clicked on add button")
-        self.wait_for_timeout(3000)
+      
         Assertions.assert_true(self.destination_accounts_table.locator('td').count()>2, "Destination accounts table should be visible after adding an account")
         logger.info(f"Validated destination accounts table has data. TD count: {self.destination_accounts_table.locator('td').count()}")
-        if skip_funding_account:
-            logger.info("Skipping Create Funding Account (skip_funding_account=True)")
-        else:
-            self.click(self.create_funding_account)
-            logger.info("Clicked on create funding account button")
-            self.wait_for_loading_data()
-            Assertions.assert_true(self.create_funding_account_input.is_disabled() and self.create_funding_account_input.is_visible(), "Funding account textbox should be visible and disabled after clicking create funding account")
-            logger.info(f"Validated funding account textbox is visible and disabled. Disabled: {self.create_funding_account_input.is_disabled()}, Visible: {self.create_funding_account_input.is_visible()}")    
+        self.click(self.create_funding_account)
+        logger.info("Clicked on create funding account button")
+        self.wait_for_loading_data()
+        Assertions.assert_true(self.create_funding_account_input.is_disabled() and self.create_funding_account_input.is_visible(), "Funding account textbox should be visible and disabled after clicking create funding account")
+        logger.info(f"Validated funding account textbox is visible and disabled. Disabled: {self.create_funding_account_input.is_disabled()}, Visible: {self.create_funding_account_input.is_visible()}")    
 
         if work_item_type == "Custodian Change Request":
-            self.wait_for_loading_data()
             self.alert_indicator.wait_for(state="hidden", timeout=30000)
-            if create_toar:
-                # Wait for button to be visible and enabled before clicking.
-                self.create_toar_button.wait_for(state="visible", timeout=30000)
-                for _ in range(30):
-                    if self.create_toar_button.is_enabled():
-                        break
-                    self.wait_for_timeout(500)
-                pre_visible = self.create_toar_button.is_visible()
-                pre_enabled = self.create_toar_button.is_enabled()
-                logger.info(f"Create TOAR Record button pre-click - visible={pre_visible}, enabled={pre_enabled}")
-                # Scroll the button into view before clicking.
-                self.scroll_into_view(self.create_toar_button)
-                post_scroll_visible = self.create_toar_button.is_visible()
-                post_scroll_enabled = self.create_toar_button.is_enabled() if post_scroll_visible else False
-                logger.info(f"Create TOAR Record button post-scroll - visible={post_scroll_visible}, enabled={post_scroll_enabled}")
-                Assertions.assert_true(post_scroll_visible, "Create TOAR Record button should be visible before clicking")
-                self.create_toar_button.click()
-                logger.info("Create TOAR Record button clicked")
-                # Wait for the dialog to be accepted and BAW to finish processing.
-                self.wait_for_timeout(3000)
-                self.wait_for_loading_data()
-            else:
-                logger.info("Skipping Create TOAR Record (create_toar=False)")
+            self.click(self.create_toar_button)
+            logger.info("Clicked on create TOAR Record button")
 
             # if self.eds_confirmation_number.is_visible(timeout=1000):
             #     self.check(self.submitted_to_fidelity)
@@ -310,16 +232,6 @@ class TransferAttributesPage(BasePage):
 
             self._click_save_close_button()
             self._handle_warning_checkboxes()
-            # Wait for the TransferAttributes tab to close and BAW to push
-            # the update back to the parent shell process page.
-            try:
-                self.wait_for_timeout(3000)
-            except Exception:
-                pass
-            try:
-                self.page.wait_for_load_state("domcontentloaded", timeout=15000)
-            except Exception:
-                pass
         else:
             self._iwr_complete()
 
@@ -537,7 +449,7 @@ class TransferAttributesPage(BasePage):
         expected_text = "TOAD Record created successfully"
 
         # Strict validation: after loader completes, the visible success alert must contain exact expected text.
-        success_banner = self._frame.locator(TransferAttributesLocators.TOAD_SUCCESS_ALERT).filter(has_text=expected_text).first
+        success_banner = self._frame.locator(".alert-success").filter(has_text=expected_text).first
         success_banner.wait_for(state="visible", timeout=30000)
         # self.scroll_into_view(success_banner)
         success_text = (success_banner.inner_text() or "").strip()
@@ -570,8 +482,8 @@ class TransferAttributesPage(BasePage):
 
         for idx in visible_indexes:
             panel = self.transfer_records_panels.nth(idx)
-            heading = panel.locator(TransferAttributesLocators.PANEL_TITLE).first.inner_text().strip()
-            body_text = panel.locator(TransferAttributesLocators.PANEL_BODY).first.inner_text().strip()
+            heading = panel.locator(".panel-title").first.inner_text().strip()
+            body_text = panel.locator(".panel-body").first.inner_text().strip()
             condensed = " | ".join([line.strip() for line in body_text.splitlines() if line.strip()])
             logger.info(f"{heading}: {condensed}")
         if panel_count > len(visible_indexes):

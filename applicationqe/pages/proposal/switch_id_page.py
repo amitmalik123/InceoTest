@@ -17,12 +17,11 @@ class SwitchIDPage(BasePage):
 
     def __init__(self, page: Page):
         super().__init__(page)
-        self.form_root = self.active_root()
 
-        self.id_input: Locator = self.form_root.locator("#ctl00_cphContentArea_txtLookUp")
-        self.role_radio_button: Locator = self.form_root.locator("#radAgents")
-        self.continue_button: Locator = self.form_root.get_by_role("button", name="Continue")
-        self.switch_id_link: Locator = self.form_root.get_by_role("link", name="Switch ID")
+        self.id_input: Locator = page.locator("#ctl00_cphContentArea_txtLookUp")
+        self.role_radio_button: Locator = page.locator("#radAgents")
+        self.continue_button: Locator = page.get_by_role("button", name="Continue")
+        self.switch_id_link: Locator = page.get_by_role("link", name="Switch ID")
 
     def goto_switch_id_page(self) -> None:
         """Navigate to the Switch ID page."""
@@ -43,7 +42,7 @@ class SwitchIDPage(BasePage):
         self.id_input.press("Enter")
         
         # Create user_id_link dynamically with the actual advisor_id passed in
-        user_id_link: Locator = self.form_root.get_by_role("link", name=advisor_id)
+        user_id_link: Locator = self.page.get_by_role("link", name=advisor_id)
         user_id_link.wait_for(state="visible", timeout=60000)
         user_id_link.click(timeout=60000)
         

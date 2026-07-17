@@ -13,9 +13,9 @@ Steps cover:
 from playwright.sync_api import Page
 from pytest_bdd import given, parsers, then, when
 
-from pages.ewm.account_list_page import AccountListPage
-from pages.ewm.change_investments_page import ChangeInvestmentsPage
-from pages.ewm.clients_page import ClientsPage
+from pages.stp.shared.account_list_page import AccountListPage
+from pages.stp.shared.change_investments_page import ChangeInvestmentsPage
+from pages.stp.shared.clients_page import ClientsPage
 from utils.allure_logger import get_allure_logger
 
 logger = get_allure_logger(__name__)

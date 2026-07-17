@@ -3,9 +3,8 @@ Establish Automatic Investment Plan (AIP) Landing Page Object
 """
 
 from playwright.sync_api import Locator, Page
-from pages.ewm.base_page import BasePage
+from pages.stp.shared.base_page import BasePage
 from pages.stp.stp_aip.stp_establishAip.locators.establish_aip_landing_locators import EstablishAIPLandingLocators
-from pages.stp.stp_aip.stp_establishAip.establish_aip_origination_selection_page import EstablishAIPOriginationSelectionPage
 from utils.allure_logger import get_allure_logger
 
 logger = get_allure_logger(__name__)
@@ -18,32 +17,31 @@ class EstablishAIPLandingPage(BasePage):
     
     def __init__(self, page: Page):
         super().__init__(page)
-        ctx = self.active_root()
         loc = EstablishAIPLandingLocators
         
         # Header elements
-        self.header = ctx.locator(loc.HEADER)
-        self.title_section = ctx.locator(loc.TITLE_SECTION)
+        self.header = page.locator(loc.HEADER)
+        self.title_section = page.locator(loc.TITLE_SECTION)
         
         # Landing Page Action Buttons
-        self.add_button = ctx.locator(loc.ADD_BUTTON)
-        self.cancel_button = ctx.locator(loc.CANCEL_BUTTON)
-        self.next_button = ctx.locator(loc.NEXT_BUTTON)
+        self.add_button = page.locator(loc.ADD_BUTTON)
+        self.cancel_button = page.locator(loc.CANCEL_BUTTON)
+        self.next_button = page.locator(loc.NEXT_BUTTON)
         
         # Account Information section
-        self.account_info_label = ctx.locator(loc.ACCOUNT_INFO_LABEL)
-        self.account_info_text = ctx.locator(loc.ACCOUNT_INFO_TEXT)
-        self.market_value = ctx.locator(loc.MARKET_VALUE)
-        self.cash_available = ctx.locator(loc.CASH_AVAILABLE)
+        self.account_info_label = page.locator(loc.ACCOUNT_INFO_LABEL)
+        self.account_info_text = page.locator(loc.ACCOUNT_INFO_TEXT)
+        self.market_value = page.locator(loc.MARKET_VALUE)
+        self.cash_available = page.locator(loc.CASH_AVAILABLE)
         
         # AIP Plans section
-        self.select_aip = ctx.locator(loc.SELECT_AIP)
-        self.hard_stop_message = ctx.locator(loc.HARD_STOP_MESSAGE)
-        self.active_aip_list = ctx.locator(loc.ACTIVE_AIP_LIST)
+        self.select_aip = page.locator(loc.SELECT_AIP)
+        self.hard_stop_message = page.locator(loc.HARD_STOP_MESSAGE)
+        self.active_aip_list = page.locator(loc.ACTIVE_AIP_LIST)
         
         # Loading indicators
-        self.spinner_loading = ctx.locator(loc.SPINNER_LOADING)
-        self.loading_overlay = ctx.locator(loc.LOADING_OVERLAY)
+        self.spinner_loading = page.locator(loc.SPINNER_LOADING)
+        self.loading_overlay = page.locator(loc.LOADING_OVERLAY)
     
     def wait_for_page_load(self, page_verification: bool = True) -> None:
         """Wait for Establish AIP Landing Page to load
@@ -153,6 +151,8 @@ class EstablishAIPLandingPage(BasePage):
         Returns:
             EstablishAIPOriginationSelectionPage instance
         """
+        from establish_aip_origination_selection_page import EstablishAIPOriginationSelectionPage
+        
         logger.info("Clicking on ADD button")
         
         # Wait for button to be clickable

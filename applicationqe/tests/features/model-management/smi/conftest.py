@@ -22,7 +22,7 @@ from pages.model_management.smi.smi_home_page import SMIHomePage
 
 def _load_config() -> dict:
     """Load the model-management env config YAML for the current ENV."""
-    env = os.getenv("TEST_ENV", os.getenv("ENV", "test11"))
+    env = os.getenv("ENV", "test11")
     repo_root = Path(__file__).parent.parent.parent.parent.parent  # applicationqe/
     config_path = repo_root / "config" / "model-management" / "smi" / f"env.{env}.yaml"
     if not config_path.exists():
@@ -36,7 +36,7 @@ def _load_config() -> dict:
 
 def _load_csv_data(csv_filename: str) -> list:
     """Load all rows from a CSV in data/model-management/smi/."""
-    env = os.getenv("TEST_ENV", os.getenv("ENV", "test11"))
+    env = os.getenv("ENV", "test11")
     repo_root = Path(__file__).parent.parent.parent.parent.parent  # applicationqe/
     csv_path = repo_root / "data" / "model-management" / "smi" / csv_filename
     if not csv_path.exists():
@@ -75,7 +75,7 @@ def credentials(request, smi_config):
       SMI_InternalAgent  → test_data.{env}.csv           / INTERNAL_USERNAME + INTERNAL_PASSWORD
       (default)          → test_data.{env}.csv           / INTERNAL_USERNAME + INTERNAL_PASSWORD
     """
-    env = os.getenv("TEST_ENV", os.getenv("ENV", "test11"))
+    env = os.getenv("ENV", "test11")
     marker_names = {m.name for m in request.node.iter_markers()}
 
     if "SMI_AdminAgent" in marker_names:
@@ -122,7 +122,7 @@ def executive_credentials(smi_config):
     Executive agent credentials (kept for backward compatibility).
     Prefer using the unified `credentials` fixture in new tests.
     """
-    env = os.getenv("TEST_ENV", os.getenv("ENV", "test11"))
+    env = os.getenv("ENV", "test11")
     try:
         rows = _load_csv_data(f"test_Executive_data.{env}.csv")
         if rows:
@@ -139,15 +139,3 @@ def executive_credentials(smi_config):
         f"No executive agent credentials found for env '{env}'. "
         "Provide a test_Executive_data CSV or set EXECUTIVE_USERNAME / EXECUTIVE_PASSWORD."
     )
-
-
-@pytest.fixture
-def authenticated_page(page):
-    """
-    SMI-specific override of authenticated_page.
-
-    SMI tests manage their own login flow via smi_login_page. This fixture
-    exists so that the global hooks (hooks_fixtures.py) can resolve a page
-    object for screenshot capture without triggering EWM/Okta authentication.
-    """
-    return page

@@ -1,6 +1,6 @@
 from playwright.sync_api import Locator, Page
 
-from pages.ewm.base_page import BasePage
+from pages.stp.shared.base_page import BasePage
 from pages.stp.stp_mimotransactionpage.locators.mimo_confirmation_locators import MIMOConfirmationLocators
 from utils.logger import setup_logger
 
@@ -12,78 +12,77 @@ class MIMOConfirmationPage(BasePage):
     
     def __init__(self, page: Page):
         super().__init__(page)
-        ctx = self.active_root()
         loc = MIMOConfirmationLocators
         
         # Page elements
-        self.page_title: Locator = ctx.locator(loc.PAGE_TITLE)
-        self.status_completed: Locator = ctx.locator(loc.STATUS_COMPLETED)
-        self.confirmation_screen_status: Locator = ctx.locator(loc.CONFIRMATION_SCREEN_STATUS)
+        self.page_title: Locator = page.locator(loc.PAGE_TITLE)
+        self.status_completed: Locator = page.locator(loc.STATUS_COMPLETED)
+        self.confirmation_screen_status: Locator = page.locator(loc.CONFIRMATION_SCREEN_STATUS)
         
         # Account Information
-        self.account_info_section: Locator = ctx.locator(loc.ACCOUNT_INFO_SECTION)
-        self.account_name: Locator = ctx.locator(loc.ACCOUNT_NAME)
-        self.account_number: Locator = ctx.locator(loc.ACCOUNT_NUMBER)
-        self.account_strategy: Locator = ctx.locator(loc.ACCOUNT_STRATEGY)
-        self.advisor_id: Locator = ctx.locator(loc.ADVISOR_ID)
+        self.account_info_section: Locator = page.locator(loc.ACCOUNT_INFO_SECTION)
+        self.account_name: Locator = page.locator(loc.ACCOUNT_NAME)
+        self.account_number: Locator = page.locator(loc.ACCOUNT_NUMBER)
+        self.account_strategy: Locator = page.locator(loc.ACCOUNT_STRATEGY)
+        self.advisor_id: Locator = page.locator(loc.ADVISOR_ID)
         
         # Transaction Summary section
-        self.status_section: Locator = ctx.locator(loc.STATUS_SECTION)
+        self.status_section: Locator = page.locator(loc.STATUS_SECTION)
         self.status_section_label: Locator = self.status_section.locator(loc.STATUS_SECTION_LABEL)
         self.status_section_text: Locator = self.status_section.locator(loc.STATUS_SECTION_TEXT)
 
-        self.date_section: Locator = ctx.locator(loc.DATE_SECTION)
+        self.date_section: Locator = page.locator(loc.DATE_SECTION)
         self.date_section_label: Locator = self.date_section.locator(loc.DATE_SECTION_LABEL)
         self.date_section_text: Locator = self.date_section.locator(loc.DATE_SECTION_TEXT)
 
-        self.submitted_by_section: Locator = ctx.locator(loc.SUBMITTED_BY_SECTION)
+        self.submitted_by_section: Locator = page.locator(loc.SUBMITTED_BY_SECTION)
         self.submitted_by_section_label: Locator = self.submitted_by_section.locator(loc.SUBMITTED_BY_SECTION_LABEL)
         self.submitted_by_section_text: Locator = self.submitted_by_section.locator(loc.SUBMITTED_BY_SECTION_TEXT)
 
-        self.item_number_section: Locator = ctx.locator(loc.ITEM_NUMBER_SECTION)
+        self.item_number_section: Locator = page.locator(loc.ITEM_NUMBER_SECTION)
 
         # Request Details
-        self.request_details_section: Locator = ctx.locator(loc.REQUEST_DETAILS_SECTION)
-        self.request_type_container: Locator = ctx.locator(loc.REQUEST_TYPE_CONTAINER)
+        self.request_details_section: Locator = page.locator(loc.REQUEST_DETAILS_SECTION)
+        self.request_type_container: Locator = page.locator(loc.REQUEST_TYPE_CONTAINER)
         self.request_type_title: Locator = self.request_type_container.locator(loc.REQUEST_TYPE_TITLE)
         self.request_type_value: Locator = self.request_type_container.locator(loc.REQUEST_TYPE_VALUE)
 
-        self.delivery_method: Locator = ctx.locator(loc.DELIVERY_METHOD)
-        self.frequency: Locator = ctx.locator(loc.FREQUENCY)
-        self.amount: Locator = ctx.locator(loc.AMOUNT)
+        self.delivery_method: Locator = page.locator(loc.DELIVERY_METHOD)
+        self.frequency: Locator = page.locator(loc.FREQUENCY)
+        self.amount: Locator = page.locator(loc.AMOUNT)
         
         # Contribution specific
-        self.contribution_amount: Locator = ctx.locator(loc.CONTRIBUTION_AMOUNT)
-        self.contribution_date: Locator = ctx.locator(loc.CONTRIBUTION_DATE)
-        self.contribution_reason: Locator = ctx.locator(loc.CONTRIBUTION_REASON)
+        self.contribution_amount: Locator = page.locator(loc.CONTRIBUTION_AMOUNT)
+        self.contribution_date: Locator = page.locator(loc.CONTRIBUTION_DATE)
+        self.contribution_reason: Locator = page.locator(loc.CONTRIBUTION_REASON)
 
         # Withdrawal / Qualified Information specific
-        self.distribution_reason: Locator = ctx.locator(loc.DISTRIBUTION_REASON)
-        self.federal_tax_withholding: Locator = ctx.locator(loc.FEDERAL_TAX_WITHHOLDING)
-        self.state_tax_withholding: Locator = ctx.locator(loc.STATE_TAX_WITHHOLDING)
-        self.state_of_residence: Locator = ctx.locator(loc.STATE_OF_RESIDENCE)
-        self.net_distribution_amount: Locator = ctx.locator(loc.NET_DISTRIBUTION_AMOUNT)
+        self.distribution_reason: Locator = page.locator(loc.DISTRIBUTION_REASON)
+        self.federal_tax_withholding: Locator = page.locator(loc.FEDERAL_TAX_WITHHOLDING)
+        self.state_tax_withholding: Locator = page.locator(loc.STATE_TAX_WITHHOLDING)
+        self.state_of_residence: Locator = page.locator(loc.STATE_OF_RESIDENCE)
+        self.net_distribution_amount: Locator = page.locator(loc.NET_DISTRIBUTION_AMOUNT)
 
         # Bank / Destination
-        self.bank_name: Locator = ctx.locator(loc.BANK_NAME)
-        self.bank_account_number: Locator = ctx.locator(loc.BANK_ACCOUNT_NUMBER)
+        self.bank_name: Locator = page.locator(loc.BANK_NAME)
+        self.bank_account_number: Locator = page.locator(loc.BANK_ACCOUNT_NUMBER)
 
         # Destination section
-        self.destination_section: Locator = ctx.locator(loc.DESTINATION_SECTION)
+        self.destination_section: Locator = page.locator(loc.DESTINATION_SECTION)
         
         # Buttons
-        self.print_button: Locator = ctx.locator("//button[@aria-label='print-link-button']")
-        self.close_button: Locator = ctx.locator("//div[@aria-label='confirmation-screen-buttons']//button")
+        self.print_button: Locator = page.locator("//button[@aria-label='print-link-button']")
+        self.close_button: Locator = page.locator("//div[@aria-label='confirmation-screen-buttons']//button")
         
         # Spinner
-        self.loading_spinner: Locator = ctx.locator("//div[@data-testid='loading-spinner']")
+        self.loading_spinner: Locator = page.locator("//div[@data-testid='loading-spinner']")
     
     def wait_for_page_load(self):
         """Wait for MIMO Confirmation Page to load"""
         logger.info("Waiting for MIMO Confirmation Page to load")
         
         # Wait for spinner to disappear
-        spinner = self.active_root().locator("//div[@data-testid='loading-spinner']")
+        spinner = self.page.locator("//div[@data-testid='loading-spinner']")
         if spinner.count() > 0:
             spinner.wait_for(state='hidden', timeout=30000)
         
@@ -138,14 +137,14 @@ class MIMOConfirmationPage(BasePage):
         return self.submitted_by_section_text.inner_text()
     
     def _get_confirmation_field_value(self, label: str) -> str:
-        locator = self.active_root().locator(
+        locator = self.page.locator(
             f"//div[@aria-label='confirmation-screen-summary']"
             f"//div[h3[normalize-space(text())='{label}']]/*[self::p or self::a]"
         )
         return locator.inner_text()
 
     def _get_confirmation_field_label(self, label: str) -> str:
-        locator = self.active_root().locator(
+        locator = self.page.locator(
             f"//div[@aria-label='confirmation-screen-summary']"
             f"//div[h3[normalize-space(text())='{label}']]/h3"
         )
@@ -307,18 +306,18 @@ class MIMOConfirmationPage(BasePage):
     
     def get_request_details_header(self) -> str:
         """Get REQUEST DETAILS section header text for Cancel SWP"""
-        header = self.active_root().locator("//div[@aria-label='request-details-section']//h3[text()='Request Details']")
+        header = self.page.locator("//div[@aria-label='request-details-section']//h3[text()='Request Details']")
         return header.inner_text()
     
     def get_request_details_values(self) -> str:
         """Get all REQUEST DETAILS section values as text for Cancel SWP"""
-        request_details_section = self.active_root().locator("//div[@aria-label='request-details-section']")
+        request_details_section = self.page.locator("//div[@aria-label='request-details-section']")
         return request_details_section.inner_text()
     
     def get_cancelled_date(self) -> str:
         """Get cancellation date from REQUEST DETAILS section"""
         # Assuming cancellation date is in a specific locator, adjust as needed
-        cancellation_date = self.active_root().locator("//div[@aria-label='confirmation-screen-cancellation-date']")
+        cancellation_date = self.page.locator("//div[@aria-label='confirmation-screen-cancellation-date']")
         if cancellation_date.count() > 0:
             text = cancellation_date.inner_text()
             return text.split('\n')[-1] if '\n' in text else text

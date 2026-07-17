@@ -3,6 +3,10 @@
   "influxdb_org": "MF",
   "influxdb_bucket": "AutomationData",
   "influxdb_token": "ENC:gAAAAABpun_yVkAQ2Ejo8y8uwFc08P3tLmgCSV7T0f7NGcZNrFgoaviF4XCmmxGjpPmDowULCbIdd2jLHN_2PkFEZJgX8YJyA5k6QZHceYkaGB_LQmiIGM0CkpZGQyqjPgnsWyzQrIzeuvpLvBN7aAqr43n7F7DBiTvTco9IMaVSntnYIAbRSgRtBC0Q5DnLbKbILL2G6MxX",
+<<<<<<<< HEAD:applicationqe/config/oam/influxdb_config.json
+  "project_name": "FormsAndTracking",
+========
   "project_name": "PortfolioReporting",
+>>>>>>>> develop:applicationqe/config/PortfolioReporting/influxdb_config.json
   "auto_push": true
 }

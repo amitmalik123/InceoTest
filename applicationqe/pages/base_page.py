@@ -100,7 +100,7 @@ class BasePage:
             return action_fn(locator)
         except (PlaywrightError, PlaywrightTimeoutError, Exception):
             self.logger.warning("Action failed with original locator")
-            self.logger.info("≡ƒöº Auto-healing: Trying alternative strategies...")
+            self.logger.info("🔧 Auto-healing: Trying alternative strategies...")
 
             selector_str = str(locator)
 
@@ -299,7 +299,7 @@ class BasePage:
             # JS click fallback for elements blocked by overlays or iframes
             try:
                 locator.evaluate("el => el.click()")
-                self.logger.info("Γ£ô JS click fallback succeeded")
+                self.logger.info("✓ JS click fallback succeeded")
                 return
             except Exception:
                 pass
@@ -308,12 +308,12 @@ class BasePage:
             try:
                 locator.scroll_into_view_if_needed(timeout=min(timeout, 3000))
                 locator.evaluate("el => el.click()")
-                self.logger.info("Γ£ô Scroll + JS click fallback succeeded")
+                self.logger.info("✓ Scroll + JS click fallback succeeded")
                 return
             except Exception:
                 pass
 
-            self.logger.info("≡ƒöº Auto-healing: Trying alternative strategies...")
+            self.logger.info("🔧 Auto-healing: Trying alternative strategies...")
 
             # Extract the name/text from original get_by_role locator
             selector_str = str(locator)
@@ -326,7 +326,7 @@ class BasePage:
                     self.logger.info(f"Trying text-based healing with: '{text}'")
                     healed = self.page.get_by_text(text, exact=True)
                     if healed.count() > 0:
-                        self.logger.info(f"Γ£ô Auto-healing SUCCESS - Found by text '{text}'")
+                        self.logger.info(f"✓ Auto-healing SUCCESS - Found by text '{text}'")
                         healed.click(timeout=min(timeout, 5000))
                         return
 
@@ -336,12 +336,12 @@ class BasePage:
                     self.page, selector_str
                 )
                 if healed_locator:
-                    self.logger.info("Γ£ô Auto-healing SUCCESS using healing engine!")
+                    self.logger.info("✓ Auto-healing SUCCESS using healing engine!")
                     healed_locator.wait_for(state="visible", timeout=timeout)
                     healed_locator.click(timeout=min(timeout, 5000))
                     return
 
-            self.logger.error("Γ£ù Auto-healing FAILED - element not found")
+            self.logger.error("✗ Auto-healing FAILED - element not found")
             raise
 
     def fill(self, locator: Locator, text: str, timeout: int = 10000) -> None:
@@ -361,12 +361,12 @@ class BasePage:
                 )
 
                 if healed_locator:
-                    self.logger.info("Γ£ô Auto-healing successful! Filling healed element...")
+                    self.logger.info("✓ Auto-healing successful! Filling healed element...")
                     healed_locator.wait_for(state="visible", timeout=timeout)
                     healed_locator.fill(text)
                     return
 
-            self.logger.error("Γ£ù Auto-healing failed - element not found")
+            self.logger.error("✗ Auto-healing failed - element not found")
             raise
 
     def tab_out(self, locator: Optional[Locator] = None, timeout: int = 10000) -> None:
@@ -389,7 +389,7 @@ class BasePage:
             return locator.text_content() or ""
         except (PlaywrightError, PlaywrightTimeoutError, Exception) as e:
             self.logger.warning(f"get_text failed with original locator: {str(e).splitlines()[0]}")
-            self.logger.info("≡ƒöº Auto-healing: Trying alternative strategies...")
+            self.logger.info("🔧 Auto-healing: Trying alternative strategies...")
 
             selector_str = str(locator)
 
@@ -402,7 +402,7 @@ class BasePage:
                     text = match.group(1)
                     healed = self.page.get_by_text(text, exact=True)
                     if healed.count() > 0:
-                        self.logger.info(f"Γ£ô Auto-healing SUCCESS - Found by text '{text}'")
+                        self.logger.info(f"✓ Auto-healing SUCCESS - Found by text '{text}'")
                         return healed.text_content() or ""
 
             # Use AutoHealingEngine
@@ -411,10 +411,10 @@ class BasePage:
                     self.page, selector_str
                 )
                 if healed_locator:
-                    self.logger.info("Γ£ô Auto-healing SUCCESS using healing engine!")
+                    self.logger.info("✓ Auto-healing SUCCESS using healing engine!")
                     return healed_locator.text_content() or ""
 
-            self.logger.error("Γ£ù Auto-healing FAILED - element not found")
+            self.logger.error("✗ Auto-healing FAILED - element not found")
             raise
 
     def is_visible(self, locator: Locator, timeout: int = 5000) -> bool:
@@ -437,7 +437,7 @@ class BasePage:
             locator.wait_for(state=state, timeout=timeout)
         except (PlaywrightError, PlaywrightTimeoutError, Exception) as e:
             self.logger.warning(f"wait_for_element failed with original locator: {str(e).splitlines()[0]}")
-            self.logger.info("≡ƒöº Auto-healing: Trying alternative strategies...")
+            self.logger.info("🔧 Auto-healing: Trying alternative strategies...")
 
             selector_str = str(locator)
 
@@ -450,7 +450,7 @@ class BasePage:
                     text = match.group(1)
                     healed = self.page.get_by_text(text, exact=True)
                     if healed.count() > 0:
-                        self.logger.info(f"Γ£ô Auto-healing SUCCESS - Found by text '{text}'")
+                        self.logger.info(f"✓ Auto-healing SUCCESS - Found by text '{text}'")
                         healed.wait_for(state=state, timeout=timeout)
                         return
 
@@ -460,11 +460,11 @@ class BasePage:
                     self.page, selector_str
                 )
                 if healed_locator:
-                    self.logger.info("Γ£ô Auto-healing SUCCESS using healing engine!")
+                    self.logger.info("✓ Auto-healing SUCCESS using healing engine!")
                     healed_locator.wait_for(state=state, timeout=timeout)
                     return
 
-            self.logger.error("Γ£ù Auto-healing FAILED - element not found")
+            self.logger.error("✗ Auto-healing FAILED - element not found")
             raise
 
 
@@ -1302,10 +1302,10 @@ class BasePage:
     ) -> None:
         """Upload file(s) via a file input or a file chooser dialog.
 
-        Option A ΓÇô direct input: pass *locator* pointing to an ``<input type="file">``
+        Option A – direct input: pass *locator* pointing to an ``<input type="file">``
         element. Uses ``set_input_files`` directly (works even when the input is hidden).
 
-        Option B ΓÇô file chooser dialog: pass *trigger_locator* (the button/link that
+        Option B – file chooser dialog: pass *trigger_locator* (the button/link that
         opens the OS file picker). The method listens for the ``filechooser`` event
         and calls ``set_files`` on the dialog.
 

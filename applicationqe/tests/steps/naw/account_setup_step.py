@@ -419,7 +419,6 @@ def condition_to_retain_existing_account(
     if retainAccount.lower() == "no":
         logger.info("User chose not to retain existing account, proceeding without setting custodian account number")
         step_clicks_on_account_features_button(test_context, account_setup_page)
-        step_user_fills_all_details_on_account_feature_page(account_setup_page)
         step_clicks_on_funding_method_button(account_setup_page)
         # Enter funding method
         test_data = test_context.get("test_data", {})
@@ -723,9 +722,3 @@ def step_user_fills_trust_information(
         account_setup_page.notSavedError()
 
         logger.info("Trust information filled successfully")
-
-@when("User fills all details on account feature page")
-def step_user_fills_all_details_on_account_feature_page(account_setup_page: AccountSetupPage):
-    """Fill all details by checking all checkboxes, selecting all dropdowns, and filling all textboxes"""
-    account_setup_page.uniqueFeatureFileSolution()
-    logger.info("Filled all details on the page")

@@ -25,7 +25,7 @@ def click_create_proposal_button(page: Page):
     logger.debug("\nStarting create proposal with new portfolio and new client test")
     portfolio_engine_page_instance = get_portfolio_engine_instance()
     portfolio_engine_page_instance.create_proposal_button.click()
-    portfolio_engine_page_instance.form_root.locator("body").wait_for(state="visible", timeout=15000)
+    portfolio_engine_page_instance.page.wait_for_load_state()
 
 
 @then("the portfolio strategies should be displayed correctly")
@@ -35,7 +35,7 @@ def verify_portfolio_strategies_displayed(page: Page):
     expect(portfolio_engine_page_instance.asset_mark_income_builder_text).to_be_visible()
     expect(portfolio_engine_page_instance.black_rock_equity_dividend_text).to_be_visible()
     expect(portfolio_engine_page_instance.savos_us_risk_text).to_be_visible()
-    expect(portfolio_engine_page_instance.aim_text).to_be_visible()
+    expect(portfolio_engine_page_instance.alpha_simplex_text).to_be_visible()
     expect(portfolio_engine_page_instance.jp_morgan_absolute_return_text).to_be_visible()
 
 
@@ -57,7 +57,7 @@ def fill_new_client_information(page: Page, first_name: str, last_name: str):
     portfolio_engine_page_instance = get_portfolio_engine_instance()
     portfolio_engine_page_instance.fill_new_client_info(first_name, last_name)
     portfolio_engine_page_instance.next_button.click()
-    portfolio_engine_page_instance.form_root.locator("body").wait_for(state="visible", timeout=15000)
+    portfolio_engine_page_instance.page.wait_for_load_state()
 
 
 @when("I select a risk profile")
@@ -66,7 +66,7 @@ def select_risk_profile(page: Page):
     portfolio_engine_page_instance = get_portfolio_engine_instance()
     portfolio_engine_page_instance.select_risk_profile()
     portfolio_engine_page_instance.next_button.click()
-    portfolio_engine_page_instance.form_root.locator("body").wait_for(state="visible", timeout=15000)
+    portfolio_engine_page_instance.page.wait_for_load_state()
 
 
 @when("I select a custodian and set up account registration")
@@ -81,20 +81,20 @@ def select_custodian_and_registration(page: Page):
     
     # Select custodian
     select_custodian(portfolio_engine_page_instance)
-    portfolio_engine_page_instance.form_root.locator("body").wait_for(state="visible", timeout=15000)
+    portfolio_engine_page_instance.page.wait_for_load_state()
     portfolio_engine_page_instance.page.wait_for_timeout(1000)  # Wait after selection
     
     # Add registration
     portfolio_engine_page_instance.add_registration_button.wait_for(state="visible", timeout=10000)
     portfolio_engine_page_instance.add_registration_button.click()
     portfolio_engine_page_instance.page.wait_for_timeout(1000)
-    portfolio_engine_page_instance.form_root.locator("body").wait_for(state="visible", timeout=15000)
+    portfolio_engine_page_instance.page.wait_for_load_state("domcontentloaded")
     
     # Select registration type
     portfolio_engine_page_instance.registration_type_dropdown.wait_for(state="visible", timeout=10000)
     portfolio_engine_page_instance.page.wait_for_timeout(500)
     portfolio_engine_page_instance.select_registration_type("Individual")
-    portfolio_engine_page_instance.form_root.locator("body").wait_for(state="visible", timeout=15000)
+    portfolio_engine_page_instance.page.wait_for_load_state()
     portfolio_engine_page_instance.page.wait_for_timeout(1000)
 
 
@@ -112,7 +112,7 @@ def add_account_with_all_strategies(page: Page, investment_amount: str):
     portfolio_engine_page_instance.do_not_enroll_in_tax_radio.check()
     portfolio_engine_page_instance.confirm_text.click()
     portfolio_engine_page_instance.next_button.click()
-    portfolio_engine_page_instance.form_root.locator("body").wait_for(state="visible", timeout=15000)
+    portfolio_engine_page_instance.page.wait_for_load_state()
 
 
 @then(parsers.parse('the proposed accounts should display correctly with amount "{expected_amount}", first name "{first_name}", and last name "{last_name}"'))
@@ -143,9 +143,7 @@ def enter_fee_percentage(page: Page, fee_percentage: str):
     logger.debug("\nEntering fee values")
     portfolio_engine_page_instance = get_portfolio_engine_instance()
     portfolio_engine_page_instance.enter_fee_percentage_textbox.fill(fee_percentage)
-    portfolio_engine_page_instance.enter_fee_percentage_textbox.press("Tab")  # Trigger blur/change to commit value before recalculation
-    portfolio_engine_page_instance.page.wait_for_timeout(2000)  # Wait for fee recalculation spinner to complete
-    portfolio_engine_page_instance.form_root.locator("body").wait_for(state="visible", timeout=15000)
+    portfolio_engine_page_instance.page.wait_for_load_state()
     portfolio_engine_page_instance.next_button.click()
 
 
@@ -186,19 +184,17 @@ def verify_total_fee_calculation(page: Page):
             f"Total fee {total_value}% does not match sum of Financial Advisor {financial_advisor_value}% and Platform {platform_value}% fees (expected {expected_total}%)"
         )
     
-    portfolio_engine_page_instance.form_root.locator("body").wait_for(state="visible", timeout=15000)
+    portfolio_engine_page_instance.page.wait_for_load_state()
 
 
 @when("I generate the proposal document with all sections")
 def generate_proposal_document_all_sections(page: Page):
     logger.debug("\nGenerating proposal document with all sections")
     portfolio_engine_page_instance = get_portfolio_engine_instance()
-    # The PE→NAW transition modal was triggered by the fee step's NEXT click.
-    # Dismiss it with Continue before proceeding to proposal preview.
+    portfolio_engine_page_instance.next_button.click()
     portfolio_engine_page_instance.continue_button.click()
-    portfolio_engine_page_instance.form_root.locator("body").wait_for(state="visible", timeout=15000)
     portfolio_engine_page_instance.preview_proposal_button.click()
-    portfolio_engine_page_instance.form_root.locator("body").wait_for(state="visible", timeout=15000)
+    portfolio_engine_page_instance.page.wait_for_load_state()
 
     # Dismiss privacy dialog if present when preview proposal opens
     portfolio_engine_page_instance.dismiss_privacy_dialog()
@@ -211,14 +207,14 @@ def save_proposal(page: Page):
     portfolio_engine_page_instance.save_proposal_button.click()
     # Wait for proposal generation (can take several minutes)
     portfolio_engine_page_instance.view_documents_button.click(timeout=180000)
-    portfolio_engine_page_instance.form_root.locator("body").wait_for(state="visible", timeout=15000)
+    portfolio_engine_page_instance.page.wait_for_load_state()
 
 
 @then(parsers.parse('the proposal should be saved successfully with {expected_proposal_page_count:d} pages including Tax Management Services'))
 def verify_proposal_saved_with_tms(page: Page, expected_proposal_page_count: int):
     logger.debug("\nVerifying proposal was saved with Tax Management Services")
     portfolio_engine_page_instance = get_portfolio_engine_instance()
-    expect(portfolio_engine_page_instance.one_combined_document_text).to_be_visible(timeout=15000)
+    expect(portfolio_engine_page_instance.one_combined_document_text).to_be_visible()
 
     # Adjust for prod environment
     environment = (os.getenv("ENVIRONMENT") or os.getenv("Environment") or "").lower()
@@ -245,7 +241,7 @@ def verify_proposal_saved_with_tms(page: Page, expected_proposal_page_count: int
 def verify_proposal_saved(page: Page, expected_proposal_page_count: int):
     logger.debug("\nVerifying proposal was saved")
     portfolio_engine_page_instance = get_portfolio_engine_instance()
-    expect(portfolio_engine_page_instance.one_combined_document_text).to_be_visible(timeout=15000)
+    expect(portfolio_engine_page_instance.one_combined_document_text).to_be_visible()
 
     # Adjust for prod environment
     environment = (os.getenv("ENVIRONMENT") or os.getenv("Environment") or "").lower()

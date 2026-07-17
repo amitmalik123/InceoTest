@@ -1,4 +1,4 @@
-﻿"""
+"""
 Test Data Fixtures
 
 Provides fixtures for loading and managing test data with scalable query capabilities.
@@ -25,40 +25,21 @@ class TestDataManager:
         self._data = [row for rows in sheet_data.values() for row in rows]
         self._excel_manager = excel_manager
 
-    @staticmethod
-    def _get_value(row: Dict[str, str], key: str):
-        """Read values with alias support used by STP data files."""
-        aliases = {
-            "test_scenario": ["test_scenario", "scenario"],
-            "scenario": ["scenario", "test_scenario"],
-            "user_type": ["user_type", "role"],
-            "role": ["role", "user_type"],
-        }
-        for candidate in aliases.get(key, [key]):
-            if candidate in row and row.get(candidate) not in (None, ""):
-                return row.get(candidate)
-        return row.get(key)
-
     def get_row_by_number(self, sheet_name: str, row_number: int) -> Dict[str, str]:
         """Get row by Excel row number (1-based, row 1 is header)."""
-        target_sheet = sheet_name
-        if target_sheet not in self._sheet_data:
-            # STP examples may use logical names while workbook has a single default sheet.
-            if len(self._sheet_data) == 1:
-                target_sheet = next(iter(self._sheet_data.keys()))
-            else:
-                raise ValueError(
-                    f"Sheet '{sheet_name}' not found. Available: {list(self._sheet_data.keys())}"
-                )
+        if sheet_name not in self._sheet_data:
+            raise ValueError(
+                f"Sheet '{sheet_name}' not found. Available: {list(self._sheet_data.keys())}"
+            )
 
         if row_number <= 1:
             raise ValueError("RowNumber must be > 1 because row 1 is the header row")
 
         row_index = row_number - 2  # Convert Excel row number to 0-based data index
-        rows = self._sheet_data[target_sheet]
+        rows = self._sheet_data[sheet_name]
         if row_index >= len(rows):
             raise IndexError(
-                f"RowNumber {row_number} out of range for sheet '{target_sheet}'. "
+                f"RowNumber {row_number} out of range for sheet '{sheet_name}'. "
                 f"Sheet has {len(rows)} data row(s)."
             )
 
@@ -80,7 +61,7 @@ class TestDataManager:
             data.get_by(username="T11_User2_Test")
         """
         for row in self._data:
-            if all(self._get_value(row, key) == value for key, value in criteria.items()):
+            if all(row.get(key) == value for key, value in criteria.items()):
                 return row
         return None
 
@@ -100,7 +81,7 @@ class TestDataManager:
         """
         matches = []
         for row in self._data:
-            if all(self._get_value(row, key) == value for key, value in criteria.items()):
+            if all(row.get(key) == value for key, value in criteria.items()):
                 matches.append(row)
         return matches
 
@@ -111,22 +92,12 @@ class TestDataManager:
     def get_scenarios(self) -> List[str]:
         """Get list of unique test scenarios"""
         return list(
-            {
-                self._get_value(row, "test_scenario")
-                for row in self._data
-                if self._get_value(row, "test_scenario")
-            }
+            {row.get("test_scenario", "") for row in self._data if row.get("test_scenario")}
         )
 
     def get_user_types(self) -> List[str]:
         """Get list of unique user types"""
-        return list(
-            {
-                self._get_value(row, "user_type")
-                for row in self._data
-                if self._get_value(row, "user_type")
-            }
-        )
+        return list({row.get("user_type", "") for row in self._data if row.get("user_type")})
 
     def __len__(self):
         """Return number of data rows"""
@@ -270,24 +241,3 @@ def excel_data_manager(test_data_manager) -> ExcelDataManager:
             value = excel_data_manager.get_value("Shell", 0, "ColumnName")
     """
     return test_data_manager._excel_manager
-
-
-@pytest.fixture(scope="session")
-def all_test_data(test_data_manager) -> List[Dict[str, str]]:
-    """Backward-compatible fixture used by existing STP step modules."""
-    return test_data_manager.get_all()
-
-
-@pytest.fixture(scope="function")
-def test_data(all_test_data, request):
-    """Backward-compatible per-test fixture used by STP auth_fixtures.
-    Returns the row matching the role param if provided, else the first row.
-    """
-    role = getattr(request, "param", None)
-    if role:
-        for row in all_test_data:
-            candidate_role = row.get("role") or row.get("user_type", "")
-            if candidate_role == role:
-                return row
-        raise ValueError(f"Role '{role}' not found in test data. Available: {[r.get('role') or r.get('user_type') for r in all_test_data]}")
-    return all_test_data[0] if all_test_data else {}

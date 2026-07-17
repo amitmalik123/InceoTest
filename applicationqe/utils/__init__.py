@@ -10,7 +10,7 @@ Examples:
 """
 
 # API utilities
-from config.stp.stp_moneyin_moneyout.api_endpoints import APIEndpoints
+from utils.api_constants import APIEndpoints
 from utils.api_request_utils import APIClient
 from utils.api_response_utils import (
     get_values_from_household_api_open_accounts,
@@ -27,6 +27,7 @@ from utils.auto_healing import AutoHealingEngine
 # Database utilities
 from utils.database import (
     AzureSQLDatabase,
+    SQLDatabase,
     get_configured_azure_db,
     get_configured_db,
     get_db_from_vault,

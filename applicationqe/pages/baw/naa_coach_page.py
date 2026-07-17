@@ -2,7 +2,6 @@
 
 from playwright.sync_api import Locator, Page
 
-from locators.baw.naa_coach_locators import NAACoachLocators
 from pages.base_page import BasePage
 from utils.allure_logger import get_allure_logger
 from utils.assertions import Assertions
@@ -20,61 +19,77 @@ class NAACoachPage(BasePage):
     def __init__(self, page: Page):
         super().__init__(page)
         # Locators for CIP section
-        self.cip_heading: Locator = page.locator(NAACoachLocators.CIP_HEADING)
-        self.save_client_data_button: Locator = page.locator(NAACoachLocators.SAVE_CLIENT_DATA_BUTTON)
-        self.cip_table_rows: Locator = page.locator(NAACoachLocators.CIP_TABLE_ROWS)
-        self.cip_system_result: Locator = page.locator(NAACoachLocators.CIP_SYSTEM_RESULT)
+        self.cip_heading: Locator = page.locator("xpath=//h3[contains(text(),'CIP')]")
+        self.save_client_data_button: Locator = page.locator("xpath=//button[@value='Save Client Data']")
+        self.cip_table_rows: Locator = page.locator("xpath=//table[@id='cipTable']//tbody/tr")
+        self.cip_system_result: Locator = page.locator("xpath=//table[@id='cipTable']//font[text()='VERIFIED']")
         
         # Locators for Work Items section
-        self.work_items_heading: Locator = page.locator(NAACoachLocators.WORK_ITEMS_HEADING)
-        self.save_shell_process_button: Locator = page.locator(NAACoachLocators.SAVE_SHELL_PROCESS_BUTTON)
-        self.save_refresh_button: Locator = page.locator(NAACoachLocators.SAVE_REFRESH_BUTTON)
-        self.add_work_item_modal: Locator = page.locator(NAACoachLocators.ADD_WORK_ITEM_MODAL)
-        self.add_work_item_button: Locator = page.locator(NAACoachLocators.ADD_WORK_ITEM_BUTTON)
-        self.add_new_work_item: Locator = page.locator(NAACoachLocators.ADD_NEW_WORK_ITEM)
-        self.add_work_item_type: Locator = page.locator(NAACoachLocators.ADD_WORK_ITEM_TYPE)
-        self.add_work_item_save_button: Locator = page.locator(NAACoachLocators.ADD_WORK_ITEM_SAVE_BUTTON)
+        self.work_items_heading: Locator = page.locator("xpath=//h3[contains(., 'Work Items for')]")
+        self.save_shell_process_button: Locator = page.locator("xpath=//button[@id='ButtonGroup0_Save']")
+        self.save_refresh_button: Locator = page.locator("button[value='Save and Refresh']")
+        self.add_work_item_modal: Locator = page.locator("#AddWIModalLabel")
+        self.add_work_item_button: Locator = page.locator("xpath=//button[@value='Add WorkItem']")
+        self.add_new_work_item: Locator = page.locator("xpath=//*[text()='Add New Work Item']/input")
+        self.add_work_item_type: Locator = page.locator("#addWorkItemType")
+        self.add_work_item_save_button: Locator = page.locator("button[value='Add WorkItem Save']")
 
         # Locators for Activation section
-        self.client_has_private_assets: Locator = page.locator(NAACoachLocators.CLIENT_HAS_PRIVATE_ASSETS)
-        self.activation_section: Locator = page.locator(NAACoachLocators.ACTIVATION_SECTION)
-        self.save_client_data: Locator = page.locator(NAACoachLocators.SAVE_CLIENT_DATA)
-        self.client_name: Locator = page.locator(NAACoachLocators.CLIENT_NAME)
-        self.client_address1: Locator = page.locator(NAACoachLocators.CLIENT_ADDRESS1)
-        self.client_city: Locator = page.locator(NAACoachLocators.CLIENT_CITY)
-        self.client_state: Locator = page.locator(NAACoachLocators.CLIENT_STATE)
-        self.client_zip: Locator = page.locator(NAACoachLocators.CLIENT_ZIP)
-        self.statement_name: Locator = page.locator(NAACoachLocators.STATEMENT_NAME)
-        self.statement_address1: Locator = page.locator(NAACoachLocators.STATEMENT_ADDRESS1)
-        self.statement_city: Locator = page.locator(NAACoachLocators.STATEMENT_CITY)
-        self.statement_state: Locator = page.locator(NAACoachLocators.STATEMENT_STATE)
-        self.statement_zip: Locator = page.locator(NAACoachLocators.STATEMENT_ZIP)
-        self.edit_app_modal: Locator = page.locator(NAACoachLocators.EDIT_APP_MODAL)
-        self.power_attorney_save_close_button: Locator = page.locator(NAACoachLocators.POWER_ATTORNEY_SAVE_CLOSE_BUTTON)
-        self.duplicate_statement_address_not_found: Locator = page.locator(NAACoachLocators.DUPLICATE_STATEMENT_ADDRESS_NOT_FOUND)
-        self.amp_sop_completed: Locator = page.locator(NAACoachLocators.AMP_SOP_COMPLETED)
-        self.max_30_char_error: Locator = page.locator(NAACoachLocators.MAX_30_CHAR_ERROR)
-        self.account_name: Locator = page.locator(NAACoachLocators.ACCOUNT_NAME)
-        self.activate_accounts_button: Locator = page.locator(NAACoachLocators.ACTIVATE_ACCOUNTS_BUTTON)
-        self.activated_account: Locator = page.locator(NAACoachLocators.ACTIVATED_ACCOUNT)
-        self.has_client_tax_management: Locator = page.locator(NAACoachLocators.HAS_CLIENT_TAX_MANAGEMENT)
-        self.open_work_item_button: Locator = page.locator(NAACoachLocators.OPEN_WORK_ITEM_BUTTON)
-        self.activation_success_alerts: Locator = page.locator(NAACoachLocators.ACTIVATION_SUCCESS_ALERTS)
+        self.client_has_private_assets: Locator = page.locator("xpath=//b[text()='Client has Private Assets']")
+        self.activation_section: Locator = page.locator(
+            "xpath=(//div[@class='container-fluid']//h3[@class='panel-title']/parent::div)[last()]"
+        )
+        self.save_client_data: Locator = page.locator("xpath=//button[@value='Save Client Data']")
+        self.client_name: Locator = page.locator("xpath=//div[@id='Client-body']//input[@name='CLIENTNAME']")
+        self.client_address1: Locator = page.locator("xpath=//div[@id='Client-body']//input[@name='USPSADDRESS1']")
+        self.client_city: Locator = page.locator("xpath=//div[@id='Client-body']//input[@name='USPSCITY']")
+        self.client_state: Locator = page.locator("xpath=//div[@id='Client-body']//input[@name='USPSSTATE']")
+        self.client_zip: Locator = page.locator("xpath=//div[@id='Client-body']//input[@name='USPSZIP']")
+        self.statement_name: Locator = page.locator("xpath=//div[@id='DuplicateStatement1']//input[@name='StatementName']")
+        self.statement_address1: Locator = page.locator("xpath=//div[@id='DuplicateStatement1']//input[@name='StatementAddress1']")
+        self.statement_city: Locator = page.locator("xpath=//div[@id='DuplicateStatement1']//input[@name='StatementCity']")
+        self.statement_state: Locator = page.locator("xpath=//div[@id='DuplicateStatement1']//input[@name='StatementState']")
+        self.statement_zip: Locator = page.locator("xpath=//div[@id='DuplicateStatement1']//input[@name='StatementZip']")
+        self.edit_app_modal: Locator = page.locator("#EditAppModalLabel")
+        self.power_attorney_save_close_button: Locator = page.locator(
+            "xpath=//button[contains(normalize-space(.), 'Save') and contains(normalize-space(.), 'Close')]"
+        )
+        self.duplicate_statement_address_not_found: Locator = page.locator(
+            "xpath=//div[@data-dbobjecttype='AccountEntities']//div[contains(text(),'Address Not Found')]"
+        )
+        self.amp_sop_completed: Locator = page.locator(
+            "xpath=//b[text()=' AMP SOP Completed ']/preceding-sibling::input"
+        )
+        self.max_30_char_error: Locator = page.locator(
+            "xpath=//div[@class='help-inline' and contains(., 'Max length(30) exceeded.')]"
+        )
+        self.account_name: Locator = page.locator("xpath=//input[@name='NAMEANDADDRESSLINE1']")
+        self.activate_accounts_button: Locator = page.locator(
+            "xpath=//button[contains(text(),'Activate Accounts')]"
+        )
+        self.activated_account: Locator = page.locator(
+            "xpath=//table[@id='workItemTable']//tr[td[3]//span[text()='New Account Application']]/td[5]"
+        )
+        self.has_client_tax_management: Locator = page.locator(
+            "xpath=//span[contains(., 'Client has Tax Management')]"
+        )
+        self.open_work_item_button: Locator = page.locator("xpath=//button[@value='Open Work Item']")
+        self.activation_success_alerts: Locator = page.locator("xpath=//div[@class='alert alert-success']")
 
         # Locators for Plan Document / retirement-service validation
-        self.view_edit_app_data_button: Locator = page.get_by_role("button", name=NAACoachLocators.VIEW_EDIT_APP_DATA_BUTTON_ROLE)
-        self.plan_document_text: Locator = page.locator(NAACoachLocators.PLAN_DOCUMENT_TEXT)
-        self.plan_document_section: Locator = page.locator(NAACoachLocators.PLAN_DOCUMENT_SECTION)
-        self.plan_document_radio_inputs: Locator = page.locator(NAACoachLocators.PLAN_DOCUMENT_RADIO_INPUTS)
-        self.epic_plan_id_label: Locator = page.get_by_text(NAACoachLocators.EPIC_PLAN_ID_LABEL_TEXT, exact=False)
-        self.epic_plan_id_input: Locator = page.locator(NAACoachLocators.EPIC_PLAN_ID_INPUT)
-        self.epic_plan_id_max_length_error: Locator = page.get_by_text(NAACoachLocators.EPIC_PLAN_ID_MAX_LENGTH_ERROR_TEXT, exact=False)
-        self.penchecks_plan_id_label: Locator = page.get_by_text(NAACoachLocators.PENCHECKS_PLAN_ID_LABEL_TEXT, exact=False)
-        self.penchecks_plan_id_input: Locator = page.locator(NAACoachLocators.PENCHECKS_PLAN_ID_INPUT)
-        self.penchecks_plan_id_max_length_error: Locator = page.get_by_text(NAACoachLocators.PENCHECKS_PLAN_ID_MAX_LENGTH_ERROR_TEXT, exact=False)
-        self.save_close_button: Locator = page.get_by_role("button", name=NAACoachLocators.SAVE_CLOSE_BUTTON_ROLE)
-        self.access_account_name_2_text: Locator = page.get_by_text(NAACoachLocators.ACCESS_ACCOUNT_NAME_2_TEXT, exact=False)
-        self.access_account_name_2_input: Locator = page.locator(NAACoachLocators.ACCESS_ACCOUNT_NAME_2_INPUT)
+        self.view_edit_app_data_button: Locator = page.get_by_role("button", name="View/Edit App Data")
+        self.plan_document_text: Locator = page.locator("[data-label='PLANDOCUMENTLABEL']")
+        self.plan_document_section: Locator = page.locator("#planDocument")
+        self.plan_document_radio_inputs: Locator = page.locator("input[name='PLANDOCUMENT']")
+        self.epic_plan_id_label: Locator = page.get_by_text("EPIC Plan ID", exact=False)
+        self.epic_plan_id_input: Locator = page.locator("input[name='EPICPLANID']")
+        self.epic_plan_id_max_length_error: Locator = page.get_by_text("Max length(3) exceeded.", exact=False)
+        self.penchecks_plan_id_label: Locator = page.get_by_text("PenChecks Plan ID", exact=False)
+        self.penchecks_plan_id_input: Locator = page.locator("input[name='PENCHECKSPLANID']")
+        self.penchecks_plan_id_max_length_error: Locator = page.get_by_text("Max length(25) exceeded.", exact=False)
+        self.save_close_button: Locator = page.get_by_role("button", name="Save & Close")
+        self.access_account_name_2_text: Locator = page.get_by_text("Access Account Name 2", exact=False)
+        self.access_account_name_2_input: Locator = page.locator("input[name='REGNAME2']")
 
     @classmethod
     def from_context(cls, test_context) -> "NAACoachPage":
@@ -280,7 +295,7 @@ class NAACoachPage(BasePage):
 
         # Wait for network to settle
         try:
-            self.page.wait_for_load_state("networkidle", timeout=30000)
+            self.page.wait_for_load_state("domcontentloaded", timeout=30000)
         except Exception:
             pass
 
@@ -346,7 +361,7 @@ class NAACoachPage(BasePage):
                 "Access message text not found in Activation/App Data section"
             )
 
-        details_block = self.page.locator(NAACoachLocators.DETAILS_BLOCK).first
+        details_block = self.page.locator(".col-md-6").first
         details_block.wait_for(state="visible", timeout=15000)
         details_block_text = (details_block.text_content() or "").strip()
         logger.info(f"Activation/App Data details text: {details_block_text}")
@@ -384,7 +399,7 @@ class NAACoachPage(BasePage):
                 else:
                     logger.warning("'Client has Tax Management' message found but missing expected style/text")
             except Exception:
-                logger.warning("'Client has Tax Management' message not visible â€” may appear after full page reload")
+                logger.warning("'Client has Tax Management' message not visible — may appear after full page reload")
 
         self.activation_section.wait_for(state="visible", timeout=25000)
         self.activation_section.click()
@@ -396,14 +411,14 @@ class NAACoachPage(BasePage):
                 self.open_work_item_button.wait_for(state="attached", timeout=5000)
                 self.open_work_item_button.wait_for(state="visible", timeout=5000)
                 self.open_work_item_button.scroll_into_view_if_needed()
-                logger.info("âœ“ Open work item button scrolled into view")
+                logger.info("✓ Open work item button scrolled into view")
             else:
                 logger.warning("Open work item button not found on page - skipping scroll")
         except Exception as e:
             logger.warning(f"Could not scroll open work item button into view: {e}")
 
         # Wait for at least one activation alert to appear before reading them
-        # (headless/pipeline mode processes page transitions faster â€” without this wait,
+        # (headless/pipeline mode processes page transitions faster — without this wait,
         #  alerts may not yet be in the DOM when the loop runs)
         alert_xpath = "xpath=//div[@class='alert alert-success']"
         # Search across page + every iframe in the page so we don't miss alerts
@@ -434,7 +449,7 @@ class NAACoachPage(BasePage):
                     continue
             return texts
 
-        # Initial attached wait â€” be generous for slow pipelines
+        # Initial attached wait — be generous for slow pipelines
         try:
             self.activation_success_alerts.first.wait_for(state="attached", timeout=120000)
         except Exception as e:
@@ -591,7 +606,7 @@ class NAACoachPage(BasePage):
 
                 # Select CIP status for each row
                 for i in range(1, row_count + 1):
-                    cip_dropdown = self.page.locator(NAACoachLocators.CIP_TABLE_ROW_SELECT_TPL.format(i=i))
+                    cip_dropdown = self.page.locator(f"xpath=//table[@id='cipTable']//tbody/tr[{i}]/td//select")
                     self.select_by_visible_text(cip_dropdown, option)
                     self.wait_for_timeout(500)
                     logger.info(f"Selected '{option}' for CIP row {i}")
@@ -909,5 +924,4 @@ class NAACoachPage(BasePage):
             self.validate_penchecks_plan_id_field(penchecks_plan_id=penchecks_plan_id)
             self._click_save_and_close_button()
             self.validate_assetmark_retirement_service_input()
-
 

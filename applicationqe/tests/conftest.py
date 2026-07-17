@@ -33,10 +33,14 @@ import pytest
 
 from config.settings import get_settings
 
+# Import all fixtures to make them available to all tests
 from fixtures import *  # noqa: F401, F403
+# Import BDD-specific fixtures from hooks module
+from fixtures.hooks_fixtures import *  # noqa: F401, F403
+
 from utils.allure_logger import enable_step_screenshots
-from utils.excel_utils import excel_report
 from utils.flaky_test_tracker import get_tracker
+
 
 
 # Pytest configuration hooks
@@ -122,7 +126,6 @@ def pytest_sessionstart(session) -> None:
         f"{report_dir}/debug_screenshots",
         f"{report_dir}/downloads",
         f"{report_dir}/junit",
-        f"{report_dir}/test-results",
     ]
 
     files_to_clean = [
@@ -489,7 +492,7 @@ def pytest_sessionfinish(session, exitstatus) -> None:  # noqa: C901
     except Exception as e:
         print(f"\nWARNING: Failed to generate auto-healing report: {e}\n")
 
-    # Push flaky test metrics to InfluxDB
+    # Flaky test summary
     try:
         tracker = get_tracker()
         summary = tracker.get_flaky_summary()
@@ -605,6 +608,7 @@ def pytest_sessionfinish(session, exitstatus) -> None:  # noqa: C901
         print("\nWarning: Allure report generation timed out (>60s)")
     except Exception as e:
         print(f"\nWarning: Error generating Allure report: {e}")
+
 
 
 

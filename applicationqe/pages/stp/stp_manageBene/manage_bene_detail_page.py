@@ -1,7 +1,7 @@
 from typing import Union, List, Optional
 from playwright.sync_api import Locator, Page, FrameLocator, expect
 
-from pages.ewm.base_page import BasePage
+from pages.stp.shared.base_page import BasePage
 from pages.stp.stp_manageBene.locators.manage_bene_detail_locators import ManageBeneDetailLocators
 from utils.allure_logger import get_allure_logger
 

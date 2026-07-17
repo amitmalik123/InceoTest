@@ -60,15 +60,6 @@ screenshots/
 # All files in .auth/ are dynamically created during test execution
 tests/.auth/
 
-# Reports
-# reports/ folder is now tracked for storing test outputs and results
-# Ignore only the auto-generated subdirectories within reports/
-reports/junit/
-reports/oam/junit/
-reports/allure-results/
-reports/allure-report/
-reports/*.html
-reports/*.png
 # Reports — all generated, never commit
 reports/**
 !reports/**/
@@ -78,8 +69,6 @@ allure-report/
 
 # Environment
 .env
-.secretCred.yaml
-**/.secretCred.yaml
 
 # IDE
 # .vscode/ is NOT ignored — we commit .vscode/mcp.json for MCP server config

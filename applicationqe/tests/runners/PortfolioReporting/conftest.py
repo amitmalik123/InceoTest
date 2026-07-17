@@ -67,7 +67,7 @@ def test_data(excel_data_manager, test_data_manager, request) -> dict:
 
     data = test_data_manager.get_by(scenario=scenario_name) or test_data_manager.get_by(
         test_scenario=scenario_name
-        )
+    )
 
     if data:
         return data

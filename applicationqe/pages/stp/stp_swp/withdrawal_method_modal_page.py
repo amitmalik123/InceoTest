@@ -7,7 +7,7 @@ during withdrawal request flow when SLOA options are available.
 
 from playwright.sync_api import FrameLocator, Locator, Page
 
-from pages.ewm.base_page import BasePage
+from pages.stp.shared.base_page import BasePage
 from pages.stp.stp_swp.locators.withdrawal_method_modal_locators import WithdrawalMethodModalLocators
 from utils.logger import setup_logger
 

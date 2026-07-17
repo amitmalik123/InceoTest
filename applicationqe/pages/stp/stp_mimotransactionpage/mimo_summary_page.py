@@ -5,7 +5,7 @@ Contains summary sections like Request Details, QUALIFIED INFORMATION, etc.
 """
 from typing import Dict, List
 from playwright.sync_api import Page
-from pages.ewm.base_page import BasePage
+from pages.stp.shared.base_page import BasePage
 from pages.stp.stp_mimotransactionpage.locators.mimo_summary_locators import MIMOSummaryLocators
 from utils.logger import setup_logger
 
@@ -18,19 +18,18 @@ class MIMOSummaryPage(BasePage):
     def __init__(self, page: Page):
         super().__init__(page)
         self.page = page
-        ctx = self.active_root()
         loc = MIMOSummaryLocators
         
         # Main page identifier
-        self.transaction_summary_title = ctx.locator(loc.TRANSACTION_SUMMARY_TITLE)
+        self.transaction_summary_title = page.locator(loc.TRANSACTION_SUMMARY_TITLE)
         
         # Submit buttons
-        self.submit_button = ctx.locator(loc.SUBMIT_BUTTON)
-        self.submit_review_button = ctx.locator(loc.SUBMIT_REVIEW_BUTTON)
-        self.back_button = ctx.locator(loc.BACK_BUTTON)
+        self.submit_button = page.locator(loc.SUBMIT_BUTTON)
+        self.submit_review_button = page.locator(loc.SUBMIT_REVIEW_BUTTON)
+        self.back_button = page.locator(loc.BACK_BUTTON)
         
         # Qualified Information section locators
-        self.qualified_info_values = ctx.locator(loc.QUALIFIED_INFO_VALUES)
+        self.qualified_info_values = page.locator(loc.QUALIFIED_INFO_VALUES)
         
         logger.info("MIMO Summary Page initialized")
 
@@ -54,7 +53,7 @@ class MIMOSummaryPage(BasePage):
         logger.info(f"Getting summary page details for category: {category_name}")
         
         xpath = f"//h3[text()='{category_name}']//following-sibling::div//h4"
-        category_elements = self.active_root().locator(xpath)
+        category_elements = self.page.locator(xpath)
         
         # Scroll to make visible
         if category_elements.count() > 0:

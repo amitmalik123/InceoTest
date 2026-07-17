@@ -7,7 +7,6 @@ from pages.stp.stp_mimotransactionpage.mimo_transaction_request_page import MIMO
 from pages.stp.stp_mimotransactionpage.mimo_transaction_request_page2 import MIMOTransactionRequestPage2
 from pages.stp.stp_mimotransactionpage.mimo_transaction_summary_page import MIMOTransactionSummaryPage
 from utils.logger import setup_logger
-from utils.wait_utils import wait_for_element_stable
 import re
 
 logger = setup_logger(__name__)
@@ -31,16 +30,13 @@ def select_bank_for_contributions_request(page: Page, mimo_transaction_page: MIM
 
 @when('User should click next in MIMO Landing Page')
 def click_next_in_mimo_landing_page(page: Page, mimo_transaction_page: MIMOTransactionRequestPage, mimo_transaction_page2: MIMOTransactionRequestPage2):
+    """Click next button in MIMO landing page to navigate to page 2"""
     with allure.step("Click Next in MIMO Landing Page"):
-        logger.info(f"[MIMO-LANDING-NEXT] URL at step start: {page.url}")
-        logger.info(f"[MIMO-LANDING-NEXT] Page title at step start: {page.title()}")
         logger.info("Clicking Next button in MIMO Landing Page")
-
+        
         mimo_transaction_page.click_next()
         page.wait_for_timeout(20000)
-
-        logger.info(f"[MIMO-LANDING-NEXT] URL after click_next + 20s wait: {page.url}")
-        logger.info(f"[MIMO-LANDING-NEXT] Page title after wait: {page.title()}")
+        # mimo_transaction_page2.wait_for_page_load()
         
         screenshot = page.screenshot()
         allure.attach(

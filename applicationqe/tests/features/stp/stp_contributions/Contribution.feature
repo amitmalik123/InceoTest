@@ -45,7 +45,7 @@ Feature: Contribution via ACH - Regression
 
     Examples: 
       | SheetName     | RowNumber | Message                                    |
-      | Contributions |        17 | The year-to-date contribution amount only applies to contributions to this specific account. The contribution limit indicates the total max contributions you can make annually to all your Traditional and Roth IRA accounts. Ensure to consider all IRA contributions and consult a tax professional for additional guidance. |
+      | Contributions |        26 | The year-to-date contribution amount only applies to contributions to this specific account. The contribution limit indicates the total max contributions you can make annually to all your Traditional and Roth IRA accounts. Ensure to consider all IRA contributions and consult a tax professional for additional guidance. |
 
 
 

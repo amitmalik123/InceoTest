@@ -1,9 +1,6 @@
-from typing import Union
-
-from playwright.sync_api import FrameLocator, Locator, Page, TimeoutError as PlaywrightTimeoutError
+from playwright.sync_api import Locator, Page, TimeoutError as PlaywrightTimeoutError
 
 from pages.base_page import BasePage
-from pages.ewm.locators.account_list_locators import AccountListLocators
 from utils.logger import setup_logger
 
 logger = setup_logger(__name__)
@@ -11,50 +8,36 @@ logger = setup_logger(__name__)
 class AccountListPage(BasePage):
     PAGE_PATH = "AccountsAnalysis/Clients/AccountList"
 
-    def __init__(self, context: Union[Page, FrameLocator]):
-        if isinstance(context, Page):
-            super().__init__(context)
-            self.context = context
-            self.page = context
-        else:
-            # Minimal init for FrameLocator compatibility (STP manage-bene flow).
-            self.context = context
-            self.page = None
-            self.base_url = ""
-            self.home_url = ""
-            self.logger = logger
-
-        loc = AccountListLocators
-        self.client_search_input: Locator = context.locator(loc.SEARCH_INPUT)
-        self.client_search_button: Locator = context.locator(loc.SEARCH_BUTTON)
+    def __init__(self, page: Page):
+        super().__init__(page)
+        self.client_search_input: Locator = page.locator("#client_search_input")
+        self.client_search_button: Locator = page.locator("form.client_search button#searchbutton")
         # Backward-compatible aliases used in some step definitions.
         self.search_input: Locator = self.client_search_input
         self.search_button: Locator = self.client_search_button
 
     def _get_client_row(self, client_id: str) -> Locator:
-        return self.context.locator(f"tr:has-text('{client_id}')")
+        return self.page.locator(f"tr:has-text('{client_id}')")
 
     def _get_gridcell_by_name(self, name: str) -> Locator:
-        return self.context.get_by_role("gridcell", name=name).first
+        return self.page.get_by_role("gridcell", name=name).first
 
     def _get_element_by_text(self, text: str) -> Locator:
-        return self.context.get_by_text(text).first
+        return self.page.get_by_text(text).first
 
     def navigate(self) -> None:
         logger.info(f"Navigating to account list page: {self.PAGE_PATH}")
-        if self.page:
-            logger.info(f"Current URL before navigation: {self.page.url}")
-            self.page.wait_for_load_state("domcontentloaded", timeout=30000)
-            logger.info(f"Current URL after wait: {self.page.url}")
+        logger.info(f"Current URL before navigation: {self.page.url}")
+        self.page.wait_for_load_state("domcontentloaded", timeout=30000)
+        logger.info(f"Current URL after wait: {self.page.url}")
         logger.info("Account list page loaded")
 
     def search_client(self, client_id: str, click_header: str = None) -> None:
         logger.info(f"Searching for client: {client_id}")
 
-        if self.page:
-            before_path = f"reports/account_list_before_search_{client_id}.png"
-            self.page.screenshot(path=before_path)
-            logger.info(f"Screenshot saved: {before_path}")
+        before_path = f"reports/account_list_before_search_{client_id}.png"
+        self.page.screenshot(path=before_path)
+        logger.info(f"Screenshot saved: {before_path}")
 
         search_successful = False
 
@@ -75,14 +58,12 @@ class AccountListPage(BasePage):
             search_successful = self._fallback_search(client_id)
 
         if not search_successful:
-            if self.page:
-                self.page.screenshot(path=f"reports/account_list_failed_{client_id}.png")
+            self.page.screenshot(path=f"reports/account_list_failed_{client_id}.png")
             raise Exception(f"Unable to search for client {client_id} - all strategies failed")
 
-        if self.page:
-            after_path = f"reports/account_list_after_search_{client_id}.png"
-            self.page.screenshot(path=after_path)
-            logger.info(f"Screenshot saved: {after_path}")
+        after_path = f"reports/account_list_after_search_{client_id}.png"
+        self.page.screenshot(path=after_path)
+        logger.info(f"Screenshot saved: {after_path}")
         logger.info(f"Search completed for client: {client_id}")
 
     def search_account(self, account_number: str, click_header: str = None) -> None:

@@ -20,55 +20,57 @@ class TaxManagementServicesPage(BasePage):
 
     def __init__(self, page: Page):
         super().__init__(page)
-        self.form_root = self.active_root()
 
         # File Upload - target the hidden file input directly by ID
-        self.upload_input: Locator = self.form_root.locator('#fileInput')
+        self.upload_input: Locator = page.locator('#fileInput')
         # Try multiple selectors for view results button (environment variations)
-        self.view_results_button: Locator = self._get_view_results_button()
-        self.loading_spinner: Locator = self.form_root.locator('[class*="LoadingImageLargeIcon"]').last
+        self.view_results_button: Locator = self._get_view_results_button(page)
+        self.loading_spinner: Locator = page.locator('[class*="LoadingImageLargeIcon"]').last
 
         # Tax Rate Inputs
-        self.short_term_rate_input: Locator = self.form_root.locator("input#ShortTerm")
-        self.long_term_rate_input: Locator = self.form_root.locator("input#LongTerm")
-        self.state_rate_input: Locator = self.form_root.locator("input#State")
+        self.short_term_rate_input: Locator = page.locator("input#ShortTerm")
+        self.long_term_rate_input: Locator = page.locator("input#LongTerm")
+        self.state_rate_input: Locator = page.locator("input#State")
 
         # File Information Section
-        self.file_name_heading: Locator = self.form_root.get_by_role("heading", name="File", level=1)
+        self.file_name_heading: Locator = page.get_by_role("heading", name="File", level=1)
         self.file_name_value: Locator = self.file_name_heading.locator("xpath=following-sibling::p[1]")
 
         # Tax Sensitivity Buttons
-        self.low_sensitivity_button: Locator = self.form_root.get_by_label("Low")
-        self.medium_sensitivity_button: Locator = self.form_root.get_by_label("Medium")
-        self.high_sensitivity_button: Locator = self.form_root.get_by_label("High", exact=True)
-        self.very_high_sensitivity_button: Locator = self.form_root.get_by_label("Very High")
+        self.low_sensitivity_button: Locator = page.get_by_label("Low")
+        self.medium_sensitivity_button: Locator = page.get_by_label("Medium")
+        self.high_sensitivity_button: Locator = page.get_by_label("High", exact=True)
+        self.very_high_sensitivity_button: Locator = page.get_by_label("Very High")
 
         # Download and Continue Buttons
-        self.download_button: Locator = self.form_root.get_by_label("Download")
-        self.continue_button: Locator = self.form_root.get_by_label("Continue")
+        self.download_button: Locator = page.get_by_label("Download")
+        self.continue_button: Locator = page.get_by_label("Continue")
 
         # Proposal Date
-        self.proposal_date: Locator = self.form_root.locator('p:has-text("Proposal Date")')
+        self.proposal_date: Locator = page.locator('p:has-text("Proposal Date")')
 
-    def _get_view_results_button(self) -> Locator:
+    def _get_view_results_button(self, page: Page) -> Locator:
         """
         Get the view results button by trying multiple selectors.
         Handles environment variations in button IDs and attributes.
         
+        Args:
+            page: The Playwright page object
+            
         Returns:
             A Locator for the view results button
         """
         # Try selectors in order of preference, return the first that works
         selectors = [
-            lambda: self.form_root.locator("#VIEWRESULTS"),
-            lambda: self.form_root.locator("#VIEW RESULTS"),
-            lambda: self.form_root.locator('[aria-label="VIEW RESULTS"]'),
-            lambda: self.form_root.locator('[label="VIEW RESULTS"]'),
+            lambda p: p.locator("#VIEWRESULTS"),
+            lambda p: p.locator("#VIEW RESULTS"),
+            lambda p: p.locator('[aria-label="VIEW RESULTS"]'),
+            lambda p: p.locator('[label="VIEW RESULTS"]'),
         ]
         
         # For now, return the first selector - Playwright will handle selector resolution dynamically
         # We could also wrap this in a method that tries each on click, but locators are lazy
-        return selectors[0]()
+        return selectors[0](page)
 
     def upload_holdings_template(self, file_name: str = "NEW-REVISED Sample TMS ticker file.csv") -> List[Request]:
         """
@@ -86,9 +88,10 @@ class TaxManagementServicesPage(BasePage):
         if not os.path.exists(file_path):
             raise FileNotFoundError(f"Template file not found: {file_path}")
 
-        self.upload_input.wait_for(state="attached", timeout=10000)
+        self.page.wait_for_load_state()
         # File input is hidden, so just set the file directly (no visibility wait needed)
         self.upload_input.set_input_files(file_path)
+        self.page.wait_for_load_state()
 
         return self._click_view_results_with_retry()
 
@@ -131,8 +134,8 @@ class TaxManagementServicesPage(BasePage):
                 logger.debug("Clicking VIEW RESULTS button...")
                 self.view_results_button.click(timeout=5000)
 
-                # Wait for results to load inside iframe (page.wait_for_load_state won't detect iframe reloads)
-                self.form_root.locator("body").wait_for(state="visible", timeout=15000)
+                # Wait for results page to load
+                self.page.wait_for_load_state("load", timeout=15000)
 
                 # ===== NEW: Wait for secondary spinner (may appear after VIEW RESULTS click) =====
                 logger.debug("Checking for secondary spinner after VIEW RESULTS click...")
@@ -167,7 +170,6 @@ class TaxManagementServicesPage(BasePage):
     def select_tax_sensitivity(self, sensitivity: str) -> None:
         """
         Select a tax sensitivity level.
-        Waits for spinner to disappear and ensures button is not blocked by overlay.
 
         Args:
             sensitivity: The sensitivity level ("Low", "Medium", "High", "Very High").
@@ -183,36 +185,6 @@ class TaxManagementServicesPage(BasePage):
         if not button:
             raise ValueError(f"Unknown tax sensitivity level: {sensitivity}")
 
-        # Wait for spinner to appear and disappear if it does
-        try:
-            self.loading_spinner.wait_for(state="visible", timeout=30000)
-            self.loading_spinner.wait_for(state="hidden", timeout=30000)
-        except Exception:
-            # Spinner may not appear, continue anyway
-            pass
-
-        # Wait for button to be visible and not blocked by overlay
-        button.wait_for(state="visible", timeout=30000)
-        
-        # Poll until the button is actually clickable (overlay cleared)
-        # If page loaded quickly, overlay may never appear - that's ok
-        try:
-            self.page.wait_for_function(
-                """(el) => {
-                    const rect = el.getBoundingClientRect();
-                    const topEl = document.elementFromPoint(
-                        rect.x + rect.width / 2, 
-                        rect.y + rect.height / 2
-                    );
-                    return el === topEl || el.contains(topEl);
-                }""",
-                arg=button.element_handle(),
-                timeout=3000
-            )
-        except Exception:
-            # Overlay check may timeout if page loaded quickly - that's ok
-            pass
-        
         button.click()
         self.page.wait_for_timeout(500)
 
@@ -220,7 +192,7 @@ class TaxManagementServicesPage(BasePage):
         """Extract estimated tax benefits table data."""
         try:
             # Find the estimated tax benefits section
-            section = self.form_root.locator('div:has-text("Estimated Tax Benefits")')
+            section = self.page.locator('div:has-text("Estimated Tax Benefits")')
             rows = section.locator('table tr')
             row_count = rows.count()
             results = []
@@ -251,7 +223,7 @@ class TaxManagementServicesPage(BasePage):
         """Extract client account summary data."""
         try:
             # Find the client account tax summary section
-            section = self.form_root.locator('div:has-text("Client Account Tax Summary")')
+            section = self.page.locator('div:has-text("Client Account Tax Summary")')
             items = section.locator('div:has(>h2)')
             item_count = items.count()
             results = []
@@ -332,8 +304,8 @@ class TaxManagementServicesPage(BasePage):
         """
         # Find the Estimated Tax Benefits section, then get all divs/spans/ps/tds
         # that contain numeric values (dollar amounts, percentages)
-        section = self.form_root.locator('div').filter(
-            has=self.form_root.get_by_text("Estimated Tax Benefits", exact=True)
+        section = self.page.locator('div').filter(
+            has=self.page.get_by_text("Estimated Tax Benefits", exact=True)
         ).first
         
         # Return all value containers (divs, spans, paragraphs, table cells) in the section
@@ -348,8 +320,8 @@ class TaxManagementServicesPage(BasePage):
             Locator matching all financial values in the Client Account Tax Management Summary section.
         """
         # Find the Client Account Tax Management Summary section
-        section = self.form_root.locator('div').filter(
-            has=self.form_root.get_by_text("Client Account Tax Management Summary|Account Summary")
+        section = self.page.locator('div').filter(
+            has=self.page.get_by_text("Client Account Tax Management Summary|Account Summary")
         ).first
         
         # Get all p tags that are direct children of divs with h2

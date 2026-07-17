@@ -1,10 +1,9 @@
-"""JournalUtilityPage Step Definitions for BDD tests"""
+﻿"""JournalUtilityPage Step Definitions for BDD tests"""
 
 from playwright.sync_api import Page
 from pytest_bdd import parsers, then, when
 
-from pages.baw.journal_utility_page import JournalUtilityPage
-from tests.conftest import test_context  # noqa: F401
+from pages.baw.create_oa_page import JournalUtilityPage
 from utils.allure_logger import get_allure_logger
 
 logger = get_allure_logger(__name__)

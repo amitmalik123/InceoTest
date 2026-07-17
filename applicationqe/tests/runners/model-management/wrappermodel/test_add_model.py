@@ -78,13 +78,11 @@ from wrappermodel_credentials import resolve_wrappermodel_credentials
 @pytest.fixture
 def test_context() -> dict:
     runtime_env = os.getenv("TEST_ENV", "")
-    # Keep wrappermodel auth isolated from other suites.
-    # Do not consume DEFAULT_USERNAME, which may point to non-wrapper users.
-    requested_username = os.getenv("WRAPPERMODEL_TEST_USERNAME")
+    requested_username = os.getenv("WRAPPERMODEL_TEST_USERNAME") or os.getenv("DEFAULT_USERNAME")
     selected = resolve_wrappermodel_credentials(runtime_env, requested_username=requested_username)
 
     # Allow explicit password override for temporary/local runs.
-    password_override = os.getenv("WRAPPERMODEL_TEST_PASSWORD")
+    password_override = os.getenv("WRAPPERMODEL_TEST_PASSWORD") or os.getenv("DEFAULT_PASSWORD")
     if password_override:
         selected["password"] = password_override
 
@@ -110,16 +108,14 @@ def models_page(page: Page) -> ModelsPage:
 from common_steps import *  # noqa: F401, F403
 from login_steps import *  # noqa: F401, F403
 from add_model_steps import *  # noqa: F401, F403
-pytestmark = [pytest.mark.wrappermodel, pytest.mark.app("wrapper")]
 
 
-# Load scenarios from current WrapperModel BDD feature files.
-# Keep explicit per-file registration so TC-to-feature mapping stays readable in code.
-scenarios("../../../features/model-management/WrapperModel/Navigate to Model List.feature")
-scenarios("../../../features/model-management/WrapperModel/Create Model And Allocate.feature")
-scenarios("../../../features/model-management/WrapperModel/Edit Model.feature")
-scenarios("../../../features/model-management/WrapperModel/Edit Allocations on Draft Model.feature")
-scenarios("../../../features/model-management/WrapperModel/Add aditional Strategies on Draft Model.feature")
-scenarios("../../../features/model-management/WrapperModel/Remove and adjust Allocations.feature")
-scenarios("../../../features/model-management/WrapperModel/Publish Model.feature")
-scenarios("../../../features/model-management/WrapperModel/Edit and add Allocations on Published Model.feature")
+# Load scenarios from all individual TC feature files
+scenarios("../../../features/model-management/WrapperModel/add_model_tc1.feature")
+scenarios("../../../features/model-management/WrapperModel/add_model_tc2.feature")
+scenarios("../../../features/model-management/WrapperModel/add_model_tc3.feature")
+scenarios("../../../features/model-management/WrapperModel/add_model_tc4.feature")
+scenarios("../../../features/model-management/WrapperModel/add_model_tc5.feature")
+scenarios("../../../features/model-management/WrapperModel/add_model_tc6.feature")
+scenarios("../../../features/model-management/WrapperModel/add_model_tc7.feature")
+scenarios("../../../features/model-management/WrapperModel/add_model_tc9.feature")

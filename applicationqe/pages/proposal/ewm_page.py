@@ -16,40 +16,35 @@ class EwmPage(BasePage):
 
     def __init__(self, page: Page):
         super().__init__(page)
-        self.ewm_root = self.active_root()
 
         # Navigation Links
-        self.logout_link: Locator = self.ewm_root.get_by_role("link", name="Logout")
-        self.account_wizard_link: Locator = self.ewm_root.get_by_role("link", name="Account Wizard")
-        # Filter clients link to avoid strict mode violation (multiple elements match "Clients" text)
-        self.clients_link: Locator = self.ewm_root.locator(
-            'a[role="link"]:has-text("Clients")[href*="/Clients/ClientList"]'
-        )
-        self.investments_link: Locator = self.ewm_root.get_by_role("link", name="Investments")
-        # Legacy (test11/silo/prod): sidebar link with no space, followed by a Launch img
-        self.portfolio_engine_link: Locator = self.ewm_root.get_by_role("link", name="PortfolioEngine", exact=True)
-        self.launch_portfolio_engine_img: Locator = self.ewm_root.locator('img[alt="Launch Portfolio Engine"]').first
-        # Navbar (test01): button-styled link on the Investments page, navigates in same tab
-        self.portfolio_engine_nav_button: Locator = self.ewm_root.get_by_role("link", name="Portfolio Engine", exact=True)
-        self.create_new_client: Locator = self.ewm_root.locator("#ctl00_cphContentArea_Button1")
+        self.logout_link: Locator = page.get_by_role("link", name="Logout")
+        self.account_wizard_link: Locator = page.get_by_role("link", name="Account Wizard")
+        self.clients_link: Locator = page.get_by_role("link", name="Clients")
+        self.create_new_client: Locator = page.get_by_role("button", name="Go").first
+        
+        # Portfolio Engine Navigation
+        self.investments_link: Locator = page.get_by_role("link", name="Investments")
+        self.portfolio_engine_link: Locator = page.get_by_role("link", name="PortfolioEngine", exact=True)
+        self.launch_portfolio_engine_img: Locator = page.get_by_role("img", name="Launch Portfolio Engine").first
 
         # Login Page Elements
-        # EXCEPTION: stays on bare page — used to detect post-logout redirect to login page,
-        # which is outside the iframe
         self.username_textbox: Locator = page.get_by_role("textbox", name="Username")
 
         # Client Management Elements
-        self.client_search_input: Locator = self.ewm_root.get_by_role("textbox", name="client_search_input").or_(
-            self.ewm_root.locator("#client_search_input")
+        self.client_search_input: Locator = page.get_by_role("textbox", name="client_search_input").or_(
+            page.locator("#client_search_input")
         )
-        self.search_button: Locator = self.ewm_root.get_by_role("button", name="search").or_(
-            self.ewm_root.locator("#searchbutton")
+        self.search_button: Locator = page.get_by_role("button", name="search").or_(
+            page.locator("#searchbutton")
         )
-        self.no_results_message: Locator = self.ewm_root.get_by_text("No search results were found")
-        self.client_grid_cells: Locator = self.ewm_root.locator(
+        self.no_results_message: Locator = page.get_by_text("No search results were found")
+        self.client_grid_cells: Locator = page.locator(
             'td[role="gridcell"][aria-describedby="ClientListGrid_clientName"]'
         )
-        self.new_client_experience_decline: Locator = self.ewm_root.get_by_role("button", name="No, Thank You")
+        self.delete_client_link: Locator = page.locator("#ctl00_cphContentArea_lnkDeleteClient")
+        self.new_client_experience_decline: Locator = page.get_by_role("button", name="No, Thank You")
+        self.delete_confirmation_text: Locator = page.get_by_text("There are two ways to get started")
 
     def logout(self) -> None:
         """
@@ -69,11 +64,10 @@ class EwmPage(BasePage):
         Search for a client by name.
         
         Args:
-            client_name: The name of the client to search for
+            client_name: The name of the client to search for (format: "FirstName LastName")
         """
         self.clients_link.click()
-        # Wait for content to load (form_root-scoped for iframe compatibility)
-        self.ewm_root.locator("body").wait_for(state="visible", timeout=15000)
+        self.page.wait_for_load_state()
         
         # Decline new client experience if it appears
         try:
@@ -84,3 +78,14 @@ class EwmPage(BasePage):
         # Fill search input and search
         self.client_search_input.fill(client_name)
         self.search_button.click()
+
+    def delete_client(self) -> None:
+        """
+        Click the delete client link, accept the JS confirm dialog,
+        and wait for the redirect to the empty-client confirmation page.
+        Must be called after selecting a client.
+        """
+        logger.debug("Clicking delete client link")
+        self.page.once("dialog", lambda dialog: dialog.accept())
+        self.delete_client_link.click()
+        self.delete_confirmation_text.wait_for(state="visible")

@@ -47,104 +47,53 @@ def navigate_to_home_page(page: Page) -> None:
     Args:
         page: Playwright Page object
     """
-    from config.proposal.settings import get_settings
-    
-    settings = get_settings()
-    home_url = settings.get_app_config("ewm")["home_url"]
+    base_url = os.getenv('APP_BASE_URL', 'https://test11.ewealthmanager.com')
+    home_url = f"{base_url}/en.aspx"
     page.goto(home_url)
     page.wait_for_load_state("domcontentloaded")
     logger.debug(f"Navigated to home page: {home_url}")
 
 
-def navigate_to_portfolio_engine(page: Page, is_navbar: bool = False) -> Page:
+def navigate_to_portfolio_engine(page: Page) -> Page:
     """
     Navigate to Portfolio Engine from eWM.
-    Supports both:
-    - Legacy path: Investments → Portfolio Engine link → Launch img (test11, silo, prod)
-    - Navbar path: [navbar-specific navigation] (test01)
-
-    Portfolio Engine opens in a new tab; the new page object is returned.
-
-    Args:
-        page: The main page object (Dashboard)
-        is_navbar: Whether this is a navbar environment
-
-    Returns:
-        page: The new Portfolio Engine page object (new tab)
-    """
-    from pages.proposal.ewm_page import EwmPage
-
-    logger.debug(f"Navigating to Portfolio Engine (navbar={is_navbar})...")
-
-    ewm_page = EwmPage(page)
-
-    if is_navbar:
-        # Navbar path (test01): Investments → Portfolio Engine button → same tab
-        logger.debug("Attempting navbar path: Investments → Portfolio Engine button...")
-        ewm_page.investments_link.click()
-        logger.debug("Clicked Investments link")
-        page.wait_for_load_state("domcontentloaded")
-
-        ewm_page.portfolio_engine_nav_button.click()
-        logger.debug("Clicked Portfolio Engine nav button")
-        page.wait_for_load_state("domcontentloaded")
-
-        logger.debug("Portfolio Engine loaded in same tab (navbar path)")
-        return page
-    else:
-        # Legacy path (test11, silo, prod): Investments → Portfolio Engine link → Launch img → new tab
-        logger.debug("Attempting legacy path: Investments → Portfolio Engine → Launch img...")
-        ewm_page.investments_link.click()
-        logger.debug("Clicked Investments link")
-        page.wait_for_load_state("domcontentloaded")
-
-        ewm_page.portfolio_engine_link.click()
-        logger.debug("Clicked Portfolio Engine link")
-        page.wait_for_load_state("domcontentloaded")
-
-        # Portfolio Engine launches in a new tab via the Launch img
-        with page.context.expect_page() as new_page_info:
-            ewm_page.launch_portfolio_engine_img.click()
-            logger.debug("Clicked Launch Portfolio Engine img")
-
-        pe_page = new_page_info.value
-        pe_page.wait_for_load_state("domcontentloaded")
-        logger.debug("Portfolio Engine loaded in new tab (legacy path)")
-        return pe_page
-
-
-def navigate_to_account_wizard(page: Page, home_url: str, is_navbar: bool) -> Page:
-    """
-    Navigate to Account Wizard for managing client accounts.
-    Supports both:
-    - Navbar path: Direct URL to /clients/manage-accounts which loads NAW in #iframeWrapper (test01)
-    - Legacy path: Direct NAW URL (test11, silo, prod)
+    Opens Portfolio Engine in a new popup window.
+    
+    Ported from TypeScript: navigateToPortfolioEngine()
+    Selectors from EwmPage and PortfolioEnginePage POMs
     
     Args:
         page: The main page object
-        home_url: The home URL from config
-        is_navbar: Whether this is a navbar environment
-    
+        
     Returns:
-        page: The page object after navigating to Account Wizard
+        The Portfolio Engine page object (new popup window)
     """
-    logger.debug(f"Navigating to Account Wizard (navbar={is_navbar})...")
+    from pages.proposal.ewm_page import EwmPage
     
-    if is_navbar:
-        # Navbar: Navigate directly to /clients/manage-accounts which loads NAW in #iframeWrapper
-        # The iframe src is ewm.{domain}/DNeWM/NBT/list/AccountWizard.aspx
-        manage_accounts_url = home_url.replace("/dashboard", "/clients/manage-accounts")
-        logger.debug(f"Navigating to navbar manage-accounts: {manage_accounts_url}")
-        page.goto(manage_accounts_url, wait_until="domcontentloaded")
-        page.frame_locator("#iframeWrapper").locator("body").wait_for(state="visible", timeout=30000)
-        logger.debug("Account Wizard loaded in iframe (navbar path)")
-    else:
-        # Legacy: Navigate directly to NAW URL
-        account_wizard_url = home_url.replace("/en.aspx", "/DNeWM/NBT/list/AccountWizard.aspx")
-        logger.debug(f"Navigating to legacy NAW URL: {account_wizard_url}")
-        page.goto(account_wizard_url, wait_until="domcontentloaded")
-        page.wait_for_load_state("networkidle", timeout=15000)
-        logger.debug("Account Wizard loaded (legacy path)")
+    logger.debug("Navigating to Portfolio Engine...")
     
-    return page
+    # Create EwmPage instance to access selectors from POM
+    ewm_page = EwmPage(page)
+    
+    # Click Investments link
+    ewm_page.investments_link.click()
+    logger.debug("Clicked Investments link")
+    
+    # Click PortfolioEngine link
+    ewm_page.portfolio_engine_link.click()
+    logger.debug("Clicked PortfolioEngine link")
+    
+    # Set up popup listener before clicking Launch
+    with page.context.expect_page() as popup_info:
+        # Click Launch Portfolio Engine button
+        ewm_page.launch_portfolio_engine_img.click()
+        logger.debug("Clicked Launch Portfolio Engine button")
+    
+    # Get the new popup page
+    portfolio_engine_page = popup_info.value
+    page.wait_for_load_state()
+    
+    logger.debug("Portfolio Engine page opened in popup")
+    return portfolio_engine_page
+
 

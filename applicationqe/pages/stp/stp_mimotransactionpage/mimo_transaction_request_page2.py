@@ -1,6 +1,6 @@
 from playwright.sync_api import Locator, Page
 
-from pages.ewm.base_page import BasePage
+from pages.stp.shared.base_page import BasePage
 from pages.stp.stp_mimotransactionpage.locators.mimo_transaction_request_2_locators import MIMOTransactionRequest2Locators
 from utils.logger import setup_logger
 
@@ -12,7 +12,6 @@ class MIMOTransactionRequestPage2(BasePage):
 
     def __init__(self, page: Page):
         super().__init__(page)
-        ctx = self.active_root()
         loc = MIMOTransactionRequest2Locators
 
         # Raw string section base paths (used in f-strings in methods)
@@ -20,39 +19,39 @@ class MIMOTransactionRequestPage2(BasePage):
         self.contribution_amount_section = loc.CONTRIBUTION_AMOUNT_SECTION
         self.contribution_date_section = loc.CONTRIBUTION_DATE_SECTION
 
-        self.current_year_title: Locator = ctx.locator(loc.CURRENT_YEAR_TITLE)
-        self.contribution_limit_current: Locator = ctx.locator(loc.CONTRIBUTION_LIMIT_CURRENT)
-        self.contributed_current: Locator = ctx.locator(loc.CONTRIBUTED_CURRENT)
-        self.remaining_current: Locator = ctx.locator(loc.REMAINING_CURRENT)
-        self.current_remaining_value: Locator = ctx.locator(loc.CURRENT_REMAINING_VALUE)
+        self.current_year_title: Locator = page.locator(loc.CURRENT_YEAR_TITLE)
+        self.contribution_limit_current: Locator = page.locator(loc.CONTRIBUTION_LIMIT_CURRENT)
+        self.contributed_current: Locator = page.locator(loc.CONTRIBUTED_CURRENT)
+        self.remaining_current: Locator = page.locator(loc.REMAINING_CURRENT)
+        self.current_remaining_value: Locator = page.locator(loc.CURRENT_REMAINING_VALUE)
 
-        self.prior_year_title: Locator = ctx.locator(loc.PRIOR_YEAR_TITLE)
-        self.contribution_limit_prior: Locator = ctx.locator(loc.CONTRIBUTION_LIMIT_PRIOR)
-        self.contributed_prior: Locator = ctx.locator(loc.CONTRIBUTED_PRIOR)
-        self.remaining_prior: Locator = ctx.locator(loc.REMAINING_PRIOR)
-        self.prior_remaining_value: Locator = ctx.locator(loc.PRIOR_REMAINING_VALUE)
+        self.prior_year_title: Locator = page.locator(loc.PRIOR_YEAR_TITLE)
+        self.contribution_limit_prior: Locator = page.locator(loc.CONTRIBUTION_LIMIT_PRIOR)
+        self.contributed_prior: Locator = page.locator(loc.CONTRIBUTED_PRIOR)
+        self.remaining_prior: Locator = page.locator(loc.REMAINING_PRIOR)
+        self.prior_remaining_value: Locator = page.locator(loc.PRIOR_REMAINING_VALUE)
 
-        self.market_value_label: Locator = ctx.locator(loc.MARKET_VALUE_LABEL)
-        self.market_value: Locator = ctx.locator(loc.MARKET_VALUE)
-        self.cash_value_label: Locator = ctx.locator(loc.CASH_VALUE_LABEL)
-        self.cash_value: Locator = ctx.locator(loc.CASH_VALUE)
+        self.market_value_label: Locator = page.locator(loc.MARKET_VALUE_LABEL)
+        self.market_value: Locator = page.locator(loc.MARKET_VALUE)
+        self.cash_value_label: Locator = page.locator(loc.CASH_VALUE_LABEL)
+        self.cash_value: Locator = page.locator(loc.CASH_VALUE)
 
-        self.cash_input: Locator = ctx.locator(loc.CASH_INPUT)
-        self.contribution_date_input: Locator = ctx.locator(loc.CONTRIBUTION_DATE_INPUT)
-        self.check_memo_input: Locator = ctx.locator(loc.CHECK_MEMO_INPUT)
+        self.cash_input: Locator = page.locator(loc.CASH_INPUT)
+        self.contribution_date_input: Locator = page.locator(loc.CONTRIBUTION_DATE_INPUT)
+        self.check_memo_input: Locator = page.locator(loc.CHECK_MEMO_INPUT)
 
-        self.federal_section: Locator = ctx.locator(loc.FEDERAL_SECTION)
+        self.federal_section: Locator = page.locator(loc.FEDERAL_SECTION)
         self.do_not_withhold_input: Locator = self.federal_section.locator(loc.DO_NOT_WITHHOLD_RELATIVE)
 
         # Locator for "Do Not Withhold" radio (Federal Tax)
-        self.do_not_withhold_radio_input: Locator = ctx.locator(loc.DO_NOT_WITHHOLD_RADIO_INPUT)
+        self.do_not_withhold_radio_input: Locator = page.locator(loc.DO_NOT_WITHHOLD_RADIO_INPUT)
 
-        self.acknowledgement_checkbox: Locator = ctx.locator(loc.ACKNOWLEDGEMENT_CHECKBOX)
+        self.acknowledgement_checkbox: Locator = page.locator(loc.ACKNOWLEDGEMENT_CHECKBOX)
 
         self.withhold_rate_radio: Locator = self.federal_section.locator(loc.WITHHOLD_RATE_RELATIVE)
         self.federal_withholding_input: Locator = self.federal_section.locator(loc.FEDERAL_WITHHOLDING_RELATIVE)
 
-        self.state_section: Locator = ctx.locator(loc.STATE_SECTION)
+        self.state_section: Locator = page.locator(loc.STATE_SECTION)
 
         # Do Not Withhold radio (first radio)
         self.state_do_not_withhold_radio: Locator = (
@@ -74,42 +73,42 @@ class MIMOTransactionRequestPage2(BasePage):
         )
 
         # Locator for distribution reason dropdown
-        self.distribution_reason_dropdown: Locator = ctx.locator(loc.DISTRIBUTION_REASON_DROPDOWN)
+        self.distribution_reason_dropdown: Locator = page.locator(loc.DISTRIBUTION_REASON_DROPDOWN)
 
         # Locator for all dropdown options
-        self.distribution_reason_options: Locator = ctx.locator(loc.DISTRIBUTION_REASON_OPTIONS)
-        self.distribution_reason_options_first: Locator = ctx.locator(loc.DISTRIBUTION_REASON_OPTIONS_FIRST)
+        self.distribution_reason_options: Locator = page.locator(loc.DISTRIBUTION_REASON_OPTIONS)
+        self.distribution_reason_options_first: Locator = page.locator(loc.DISTRIBUTION_REASON_OPTIONS_FIRST)
 
-        self.distribution_reason_label: Locator = ctx.locator(loc.DISTRIBUTION_REASON_LABEL)
-        self.selected_distribution_reason: Locator = ctx.locator(loc.SELECTED_DISTRIBUTION_REASON)
+        self.distribution_reason_label: Locator = page.locator(loc.DISTRIBUTION_REASON_LABEL)
+        self.selected_distribution_reason: Locator = page.locator(loc.SELECTED_DISTRIBUTION_REASON)
 
-        self.next_button: Locator = ctx.locator(loc.NEXT_BUTTON)
-        self.proceed_button: Locator = ctx.locator(loc.PROCEED_BUTTON)
-        self.cancel_button: Locator = ctx.locator(loc.CANCEL_BUTTON)
-        self.calendar_button: Locator = ctx.locator(loc.CALENDAR_BUTTON)
-        self.change_contribution_date_button: Locator = ctx.locator(loc.CHANGE_CONTRIBUTION_DATE_BUTTON)
+        self.next_button: Locator = page.locator(loc.NEXT_BUTTON)
+        self.proceed_button: Locator = page.locator(loc.PROCEED_BUTTON)
+        self.cancel_button: Locator = page.locator(loc.CANCEL_BUTTON)
+        self.calendar_button: Locator = page.locator(loc.CALENDAR_BUTTON)
+        self.change_contribution_date_button: Locator = page.locator(loc.CHANGE_CONTRIBUTION_DATE_BUTTON)
 
-        self.important_notes_block: Locator = ctx.locator(loc.IMPORTANT_NOTES_BLOCK)
-        self.important_notes_message: Locator = ctx.locator(loc.IMPORTANT_NOTES_MESSAGE)
+        self.important_notes_block: Locator = page.locator(loc.IMPORTANT_NOTES_BLOCK)
+        self.important_notes_message: Locator = page.locator(loc.IMPORTANT_NOTES_MESSAGE)
 
-        self.contribution_amount_error: Locator = ctx.locator(f"{self.contribution_amount_section}{loc.CONTRIBUTION_AMOUNT_ERROR}")
-        self.amount_error_message: Locator = ctx.locator(loc.AMOUNT_ERROR_MESSAGE)
-        self.error_message: Locator = ctx.locator(loc.ERROR_MESSAGE)
-        self.mimo_error_message: Locator = ctx.locator(loc.MIMO_ERROR_MESSAGE)
+        self.contribution_amount_error: Locator = page.locator(f"{self.contribution_amount_section}/div/div/span")
+        self.amount_error_message: Locator = page.locator("//span[contains(text(),'The contribution amount exceeds the allowable limi')]")
+        self.error_message: Locator = page.locator("//p[@aria-label='error-message']")
+        self.mimo_error_message: Locator = page.locator("//div[@data-testid='transaction-page-submit-error-message']")
 
-        self.contribution_date_message_text: Locator = ctx.locator(f"{self.contribution_date_section}{loc.CONTRIBUTION_DATE_MESSAGE_TEXT}")
-        self.contribution_business_dates: Locator = ctx.locator(loc.CONTRIBUTION_BUSINESS_DATES)
-        self.contribution_date_holidays: Locator = ctx.locator(loc.CONTRIBUTION_DATE_HOLIDAYS)
+        self.contribution_date_message_text: Locator = page.locator(f"{self.contribution_date_section}//p")
+        self.contribution_business_dates: Locator = page.locator("//div[@class='MuiPickersCalendar-week']/div/div/div[not(contains(@style,'color: lightgrey;'))]")
+        self.contribution_date_holidays: Locator = page.locator("//div[@style='color: lightgrey; cursor: none;']")
 
     def wait_for_page_load(self):
         """Wait for MIMO Transaction Request Page 2 to load"""
         logger.info("Waiting for MIMO Transaction Request Page 2 to load")
 
-        spinner = self.active_root().locator(MIMOTransactionRequest2Locators.LOADING_SPINNER)
+        spinner = self.page.locator("//div[@data-testid='loading-spinner']")
         if spinner.count() > 0:
             spinner.wait_for(state='hidden', timeout=30000)
 
-        cash_section_element = self.active_root().locator(self.cash_section)
+        cash_section_element = self.page.locator(self.cash_section)
         cash_section_element.wait_for(state='visible', timeout=35000)
         logger.info("MIMO Transaction Request Page 2 loaded")
 
@@ -220,12 +219,12 @@ class MIMOTransactionRequestPage2(BasePage):
         logger.info("Clicking Next button")
 
         self.page.wait_for_load_state('domcontentloaded')
-        self.active_root().locator(MIMOTransactionRequest2Locators.PAGE_READY_INDICATOR).wait_for(state='visible', timeout=50000)
+        self.page.locator("//div[@id='root']/div/div/div/div/div/div[1]/section[1]/ul/li[1]").wait_for(state='visible', timeout=50000)
 
         self.next_button.wait_for(state='visible', timeout=10000)
         self.next_button.click()
 
-        spinner = self.active_root().locator(MIMOTransactionRequest2Locators.LOADING_SPINNER)
+        spinner = self.page.locator("//div[@data-testid='loading-spinner']")
         if spinner.count() > 0:
             spinner.wait_for(state='hidden', timeout=30000)
 
@@ -295,7 +294,7 @@ class MIMOTransactionRequestPage2(BasePage):
         logger.info("Selecting first available distribution reason")
         self.distribution_reason_dropdown.wait_for(state="visible", timeout=5000)
         self.distribution_reason_dropdown.click()
-        first_option = self.active_root().locator(MIMOTransactionRequest2Locators.DISTRIBUTION_REASON_OPTIONS_FIRST)
+        first_option = self.page.locator("//li[@aria-label='dropdown-menu-item'][1]")
         first_option.wait_for(state="visible", timeout=5000)
         first_option.click()
         logger.info("First available distribution reason selected")

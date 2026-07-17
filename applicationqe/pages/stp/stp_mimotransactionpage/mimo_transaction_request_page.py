@@ -1,6 +1,6 @@
 from playwright.sync_api import Locator, Page
 
-from pages.ewm.base_page import BasePage
+from pages.stp.shared.base_page import BasePage
 from pages.stp.stp_mimotransactionpage.locators.mimo_transaction_request_locators import MIMOTransactionRequestLocators
 from utils.logger import setup_logger
 
@@ -12,20 +12,19 @@ class MIMOTransactionRequestPage(BasePage):
     
     def __init__(self, page: Page):
         super().__init__(page)
-        ctx = self.active_root()
         loc = MIMOTransactionRequestLocators
-        self.header_item: Locator = ctx.locator(loc.HEADER_ITEM)
-        self.next_button: Locator = ctx.locator(loc.NEXT_BUTTON)
-        self.cancel_button: Locator = ctx.locator(loc.CANCEL_BUTTON)
-        self.instructions_on_file_heading: Locator = ctx.locator(loc.INSTRUCTIONS_ON_FILE_HEADING)
-        self.instructions_message: Locator = ctx.locator(loc.INSTRUCTIONS_MESSAGE)
+        self.header_item: Locator = page.locator(loc.HEADER_ITEM)
+        self.next_button: Locator = page.locator(loc.NEXT_BUTTON)
+        self.cancel_button: Locator = page.locator(loc.CANCEL_BUTTON)
+        self.instructions_on_file_heading: Locator = page.locator(loc.INSTRUCTIONS_ON_FILE_HEADING)
+        self.instructions_message: Locator = page.locator(loc.INSTRUCTIONS_MESSAGE)
     
     def wait_for_page_load(self):
         """Wait for MIMO Transaction Request Page to load"""
         logger.info("Waiting for MIMO Transaction Request Page to load")
         
         # Wait for spinner to disappear (primary indicator of page readiness)
-        spinner = self.active_root().locator("//div[@data-testid='loading-spinner']")
+        spinner = self.page.locator("//div[@data-testid='loading-spinner']")
         if spinner.count() > 0:
             try:
                 spinner.wait_for(state='hidden', timeout=30000)
@@ -64,7 +63,7 @@ class MIMOTransactionRequestPage(BasePage):
     def is_hardstop_visible(self) -> bool:
         """Return True if a hard-stop error message is visible on the page."""
         try:
-            error_locator = self.active_root().locator("//p[@aria-label='error-message']")
+            error_locator = self.page.locator("//p[@aria-label='error-message']")
             if error_locator.count() > 0:
                 return error_locator.first.is_visible()
             return False
@@ -78,7 +77,7 @@ class MIMOTransactionRequestPage(BasePage):
         # Wait for spinner to disappear and page to fully load before asserting
         self.wait_for_page_load()
 
-        account_items = self.active_root().locator("//section[@aria-label='account-info-section']//ul//li")
+        account_items = self.page.locator("//section[@aria-label='account-info-section']//ul//li")
         try:
             account_items.first.wait_for(state='visible', timeout=30000)
         except Exception:
@@ -120,7 +119,7 @@ class MIMOTransactionRequestPage(BasePage):
         else:
             locator = "//p[@aria-label='authorization-status table-cell-text']//parent::div//preceding-sibling::div/div/div/input"
         
-        bank_radio = self.active_root().locator(locator).first
+        bank_radio = self.page.locator(locator).first
         bank_radio.wait_for(state='visible', timeout=60000)
         bank_radio.click()
         logger.info("Bank selected for contribution request")
@@ -150,11 +149,11 @@ class MIMOTransactionRequestPage(BasePage):
             if iterations > 50:
                 raise AssertionError("Pagination loop exceeded safe iteration limit")
 
-            radio_locator = self.active_root().locator("//div[@aria-label='swp-cancel-table-row-item-radio']")
+            radio_locator = self.page.locator("//div[@aria-label='swp-cancel-table-row-item-radio']")
             size = radio_locator.count()
 
             if size == 10:
-                next_btn = self.active_root().locator("//button[@aria-label='Go to next page']")
+                next_btn = self.page.locator("//button[@aria-label='Go to next page']")
                 try:
                     if next_btn.count() > 0 and next_btn.first.is_enabled() and next_btn.first.is_visible():
                         logger.info("Number of records present are 10 - clicking next page")
@@ -182,7 +181,7 @@ class MIMOTransactionRequestPage(BasePage):
         method_text = method.strip()
         # XPath similar to Java returnInstructionByMethod
         xpath = f"//p[text()='{method_text}']//parent::div/preceding-sibling::div[@aria-label='Radio-table-cell']//input"
-        locator = self.active_root().locator(xpath)
+        locator = self.page.locator(xpath)
         if locator.count() > 0:
             locator.first.scroll_into_view_if_needed()
             locator.first.click()
@@ -190,7 +189,7 @@ class MIMOTransactionRequestPage(BasePage):
             return
 
         # fallback: click the first instruction radio
-        first_radio = self.active_root().locator("//div[@aria-label='swp-cancel-table-row-item-radio']//input").first
+        first_radio = self.page.locator("//div[@aria-label='swp-cancel-table-row-item-radio']//input").first
         if first_radio.count() > 0:
             first_radio.scroll_into_view_if_needed()
             first_radio.click()
@@ -204,7 +203,7 @@ class MIMOTransactionRequestPage(BasePage):
         Returns up to 6 values (matches Java behavior).
         """
         values = []
-        locator = self.active_root().locator("//div[contains(@class,'selected')]//div[@aria-label='Radio-table-cell']/following-sibling::div//p")
+        locator = self.page.locator("//div[contains(@class,'selected')]//div[@aria-label='Radio-table-cell']/following-sibling::div//p")
         count = locator.count()
         for i in range(min(count, 6)):
             try:
@@ -215,7 +214,7 @@ class MIMOTransactionRequestPage(BasePage):
 
     def click_expand_icon_for_selected_instruction(self):
         """Click the expand icon for the currently selected instruction."""
-        expand_locator = self.active_root().locator("//div[contains(@class,'selected')]//div[@aria-label='Radio-table-cell']/following-sibling::*[contains(@class,'MuiSvgIcon-root') or contains(@data-testid,'ArrowForwardIosIcon')]")
+        expand_locator = self.page.locator("//div[contains(@class,'selected')]//div[@aria-label='Radio-table-cell']/following-sibling::*[contains(@class,'MuiSvgIcon-root') or contains(@data-testid,'ArrowForwardIosIcon')]")
         if expand_locator.count() > 0:
             expand_locator.first.scroll_into_view_if_needed()
             expand_locator.first.click()
@@ -226,7 +225,7 @@ class MIMOTransactionRequestPage(BasePage):
 
     def get_address_value_from_expanded_view(self) -> str:
         """Return the address/destination value visible in the expanded view for the selected instruction."""
-        locator = self.active_root().locator("//div[contains(@class,'selected')]//following-sibling::div[@aria-label='table-cell']//p[@aria-label='destination table-cell-text'][2]")
+        locator = self.page.locator("//div[contains(@class,'selected')]//following-sibling::div[@aria-label='table-cell']//p[@aria-label='destination table-cell-text'][2]")
         if locator.count() > 0:
             try:
                 return locator.first.inner_text().strip()

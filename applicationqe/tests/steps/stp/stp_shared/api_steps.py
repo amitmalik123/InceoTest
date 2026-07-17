@@ -8,7 +8,7 @@ import requests
 from datetime import datetime, timedelta
 from pytest_bdd import parsers, then, when
 
-from tests.api.stp.services.stp_api_service import STPApiService
+from pages.stp.shared.api_utility_page import APIUtilityPage
 from tests.api.stp.services.beneficiaryHouseholdService import BeneficiaryHouseholdService
 from utils.allure_logger import get_allure_logger
 from utils.api_request_utils import APIClient
@@ -481,7 +481,7 @@ def extract_details_from_trade_info_search(test_context: dict):
 
 
 @when(parsers.parse('User sends GET request to Beneficiary Household API with household ID "{household_id}"'))
-def send_get_request_beneficiary_household(household_id: str, api_utility_page: STPApiService, test_context: dict):
+def send_get_request_beneficiary_household(household_id: str, api_utility_page: APIUtilityPage, test_context: dict):
     """Send GET request to Beneficiary Household API and store response in test_context"""
     logger.info(f"Sending GET request to Beneficiary Household API with household ID: {household_id}")
     
@@ -503,7 +503,7 @@ def send_get_request_beneficiary_household(household_id: str, api_utility_page: 
 
 
 @then(parsers.parse('User should receive status code "{status_code}" from Beneficiary Household API'))
-def validate_beneficiary_household_status_code(status_code: str, api_utility_page: STPApiService, test_context: dict):
+def validate_beneficiary_household_status_code(status_code: str, api_utility_page: APIUtilityPage, test_context: dict):
     """Validate response status code from Beneficiary Household API"""
     logger.info(f"Validating Beneficiary Household API response status code: {status_code}")
     

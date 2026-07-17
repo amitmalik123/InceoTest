@@ -5,9 +5,8 @@ Establish AIP Add AIP Page Object
 import allure
 from typing import List
 from playwright.sync_api import Locator, Page
-from pages.ewm.base_page import BasePage
+from pages.stp.shared.base_page import BasePage
 from pages.stp.stp_aip.stp_establishAip.locators.establish_aip_add_aip_locators import EstablishAIPAddAIPLocators
-from pages.stp.stp_aip.stp_establishAip.establish_aip_summary_page import EstablishAIPSummaryPage
 from utils.allure_logger import get_allure_logger
 
 logger = get_allure_logger(__name__)
@@ -26,40 +25,39 @@ class EstablishAIPAddAIPPage(BasePage):
     
     def __init__(self, page: Page, page_verification: bool = True):
         super().__init__(page)
-        ctx = self.active_root()
         loc = EstablishAIPAddAIPLocators
         
         # Header elements
-        self.header = ctx.locator(loc.HEADER)
-        self.add_aip_title = ctx.locator(loc.ADD_AIP_TITLE)
+        self.header = page.locator(loc.HEADER)
+        self.add_aip_title = page.locator(loc.ADD_AIP_TITLE)
         
         # Contribution
-        self.contribution_amount_input = ctx.locator(loc.CONTRIBUTION_AMOUNT_INPUT)
+        self.contribution_amount_input = page.locator(loc.CONTRIBUTION_AMOUNT_INPUT)
         
         # Calendar icon buttons
-        self.start_date_calendar_btn = ctx.locator(loc.START_DATE_CALENDAR_BTN)
-        self.end_date_calendar_btn = ctx.locator(loc.END_DATE_CALENDAR_BTN)
+        self.start_date_calendar_btn = page.locator(loc.START_DATE_CALENDAR_BTN)
+        self.end_date_calendar_btn = page.locator(loc.END_DATE_CALENDAR_BTN)
         
         # Date picker days
-        self.enabled_days = ctx.locator(loc.ENABLED_DAYS)
-        self.disabled_days = ctx.locator(loc.DISABLED_DAYS)
+        self.enabled_days = page.locator(loc.ENABLED_DAYS)
+        self.disabled_days = page.locator(loc.DISABLED_DAYS)
         
         # Date picker controls
-        self.next_month_arrow = ctx.locator(loc.NEXT_MONTH_ARROW)
-        self.date_picker_popup = ctx.locator(loc.DATE_PICKER_POPUP)
+        self.next_month_arrow = page.locator(loc.NEXT_MONTH_ARROW)
+        self.date_picker_popup = page.locator(loc.DATE_PICKER_POPUP)
         
         # Signature options
-        self.signature_header = ctx.locator(loc.SIGNATURE_HEADER)
-        self.signature_option_labels = ctx.locator(loc.SIGNATURE_OPTION_LABELS)
-        self.next_button = ctx.locator(loc.NEXT_BUTTON)
+        self.signature_header = page.locator(loc.SIGNATURE_HEADER)
+        self.signature_option_labels = page.locator(loc.SIGNATURE_OPTION_LABELS)
+        self.next_button = page.locator(loc.NEXT_BUTTON)
         
         # Account Information section
-        self.account_info_label = ctx.locator(loc.ACCOUNT_INFO_LABEL)
-        self.account_info_text = ctx.locator(loc.ACCOUNT_INFO_TEXT)
+        self.account_info_label = page.locator(loc.ACCOUNT_INFO_LABEL)
+        self.account_info_text = page.locator(loc.ACCOUNT_INFO_TEXT)
         
         # Loading indicators
-        self.spinner_loading = ctx.locator(loc.SPINNER_LOADING)
-        self.loading_overlay = ctx.locator(loc.LOADING_OVERLAY)
+        self.spinner_loading = page.locator(loc.SPINNER_LOADING)
+        self.loading_overlay = page.locator(loc.LOADING_OVERLAY)
         
         # Wait for page load
         self.wait_for_page_load(page_verification)
@@ -297,6 +295,8 @@ class EstablishAIPAddAIPPage(BasePage):
         Returns:
             EstablishAIPSummaryPage instance
         """
+        from establish_aip_summary_page import EstablishAIPSummaryPage
+        
         # Header verification
         self.signature_header.wait_for(state='visible', timeout=10000)
         

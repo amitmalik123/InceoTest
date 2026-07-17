@@ -2,7 +2,7 @@ import allure
 from playwright.sync_api import Page
 from pytest_bdd import then, when
 
-from pages.ewm.account_detail_page import AccountDetailPage
+from pages.stp.shared.account_detail_page import AccountDetailPage
 from utils.allure_logger import get_allure_logger
 
 logger = get_allure_logger(__name__)

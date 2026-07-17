@@ -1,6 +1,6 @@
 from playwright.sync_api import Locator, Page
 
-from pages.ewm.base_page import BasePage
+from pages.stp.shared.base_page import BasePage
 from pages.stp.stp_swp.locators.swp_establish_landing_locators import SWPEstablishLandingLocators
 from utils.logger import setup_logger
 
@@ -12,58 +12,57 @@ class SWPEstablishLandingPage(BasePage):
 
     def __init__(self, page: Page):
         super().__init__(page)
-        ctx = self.active_root()
         loc = SWPEstablishLandingLocators
         
         # Header elements
-        self.swp_establish_header: Locator = ctx.locator(loc.SWP_ESTABLISH_HEADER)
-        self.swp_establish_subheader: Locator = ctx.locator(loc.SWP_ESTABLISH_SUBHEADER)
-        self.advisor_id_text: Locator = ctx.locator(loc.ADVISOR_ID_TEXT)
-        self.advisor_id_value: Locator = ctx.locator(loc.ADVISOR_ID_VALUE)
+        self.swp_establish_header: Locator = page.locator(loc.SWP_ESTABLISH_HEADER)
+        self.swp_establish_subheader: Locator = page.locator(loc.SWP_ESTABLISH_SUBHEADER)
+        self.advisor_id_text: Locator = page.locator(loc.ADVISOR_ID_TEXT)
+        self.advisor_id_value: Locator = page.locator(loc.ADVISOR_ID_VALUE)
         
         # Footer elements
-        self.privacy_security_link: Locator = ctx.locator(loc.PRIVACY_SECURITY_LINK)
-        self.terms_of_use_link: Locator = ctx.locator(loc.TERMS_OF_USE_LINK)
-        self.supported_browsers_link: Locator = ctx.locator(loc.SUPPORTED_BROWSERS_LINK)
-        self.as_copyrights: Locator = ctx.locator(loc.AS_COPYRIGHTS)
+        self.privacy_security_link: Locator = page.locator(loc.PRIVACY_SECURITY_LINK)
+        self.terms_of_use_link: Locator = page.locator(loc.TERMS_OF_USE_LINK)
+        self.supported_browsers_link: Locator = page.locator(loc.SUPPORTED_BROWSERS_LINK)
+        self.as_copyrights: Locator = page.locator(loc.AS_COPYRIGHTS)
         
         # Action buttons
-        self.add_button: Locator = ctx.locator(loc.ADD_BUTTON)
-        self.cancel_button: Locator = ctx.locator(loc.CANCEL_BUTTON)
+        self.add_button: Locator = page.locator(loc.ADD_BUTTON)
+        self.cancel_button: Locator = page.locator(loc.CANCEL_BUTTON)
         
         # Account Information section
-        self.account_information_header: Locator = ctx.locator(loc.ACCOUNT_INFORMATION_HEADER)
-        self.account_info: Locator = ctx.locator(loc.ACCOUNT_INFO)
-        self.market_value: Locator = ctx.locator(loc.MARKET_VALUE)
-        self.cash_available: Locator = ctx.locator(loc.CASH_AVAILABLE)
-        self.tooltip_btn: Locator = ctx.locator(loc.TOOLTIP_BTN)
-        self.tooltip: Locator = ctx.locator(loc.TOOLTIP)
+        self.account_information_header: Locator = page.locator(loc.ACCOUNT_INFORMATION_HEADER)
+        self.account_info: Locator = page.locator(loc.ACCOUNT_INFO)
+        self.market_value: Locator = page.locator(loc.MARKET_VALUE)
+        self.cash_available: Locator = page.locator(loc.CASH_AVAILABLE)
+        self.tooltip_btn: Locator = page.locator(loc.TOOLTIP_BTN)
+        self.tooltip: Locator = page.locator(loc.TOOLTIP)
         
         # SWP Plans section
-        self.swp_plan_header: Locator = ctx.locator(loc.SWP_PLAN_HEADER)
-        self.swp_subheader: Locator = ctx.locator(loc.SWP_SUBHEADER)
-        self.no_active_swp: Locator = ctx.locator(loc.NO_ACTIVE_SWP)
-        self.active_swp: Locator = ctx.locator(loc.ACTIVE_SWP)
+        self.swp_plan_header: Locator = page.locator(loc.SWP_PLAN_HEADER)
+        self.swp_subheader: Locator = page.locator(loc.SWP_SUBHEADER)
+        self.no_active_swp: Locator = page.locator(loc.NO_ACTIVE_SWP)
+        self.active_swp: Locator = page.locator(loc.ACTIVE_SWP)
         
         # Error messages
-        self.error_close_button: Locator = ctx.locator(loc.ERROR_CLOSE_BUTTON)
-        self.deceased_error_heading: Locator = ctx.locator(loc.DECEASED_ERROR_HEADING)
-        self.deceased_error_subheading: Locator = ctx.locator(loc.DECEASED_ERROR_SUBHEADING)
+        self.error_close_button: Locator = page.locator(loc.ERROR_CLOSE_BUTTON)
+        self.deceased_error_heading: Locator = page.locator(loc.DECEASED_ERROR_HEADING)
+        self.deceased_error_subheading: Locator = page.locator(loc.DECEASED_ERROR_SUBHEADING)
         
         # Oops message
-        self.oops_message: Locator = ctx.locator(loc.OOPS_MESSAGE)
-        self.reload_btn: Locator = ctx.locator(loc.RELOAD_BTN)
+        self.oops_message: Locator = page.locator(loc.OOPS_MESSAGE)
+        self.reload_btn: Locator = page.locator(loc.RELOAD_BTN)
         
         # Discard dialog
-        self.yes_exit_btn: Locator = ctx.locator(loc.YES_EXIT_BTN)
-        self.no_stay_btn: Locator = ctx.locator(loc.NO_STAY_BTN)
-        self.discard_message: Locator = ctx.locator(loc.DISCARD_MESSAGE)
-        self.discard_message_subheader: Locator = ctx.locator(loc.DISCARD_MESSAGE_SUBHEADER)
+        self.yes_exit_btn: Locator = page.locator(loc.YES_EXIT_BTN)
+        self.no_stay_btn: Locator = page.locator(loc.NO_STAY_BTN)
+        self.discard_message: Locator = page.locator(loc.DISCARD_MESSAGE)
+        self.discard_message_subheader: Locator = page.locator(loc.DISCARD_MESSAGE_SUBHEADER)
         
         # Simple view elements - Check
-        self.check_label: Locator = ctx.locator(loc.CHECK_LABEL)
-        self.click_on_check: Locator = ctx.locator(loc.CLICK_ON_CHECK)
-        self.detail_view_check: Locator = ctx.locator(loc.DETAIL_VIEW_CHECK)
+        self.check_label: Locator = page.locator(loc.CHECK_LABEL)
+        self.click_on_check: Locator = page.locator(loc.CLICK_ON_CHECK)
+        self.detail_view_check: Locator = page.locator(loc.DETAIL_VIEW_CHECK)
 
     def verify_page_loaded(self) -> bool:
         """Verify SWP Establish Landing Page is loaded"""
