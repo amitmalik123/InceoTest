@@ -119,7 +119,7 @@ PRS_DOCUMENTS = [
     "Privacy Policy",
     "Planning and Consulting Fee Account Billing Authorization",
     "Planning and Consulting Fee ACH Billing Authorization",
-    "Short-Term Cash Restriction Request",
+    "Short -Term Cash Restriction Request",
     "Account Suspension Request",
     "IRA Distribution",
     "ACH Standing Instructions",
@@ -128,12 +128,12 @@ PRS_DOCUMENTS = [
 ]
 
 SWB_DIRECT_DOCUMENTS = [
-    "Short-Term Cash Restriction Request",
+    "Short -Term Cash Restriction Request",
     "Account Suspension Request",
 ]
 
 FIDELITY_DIRECT_DOCUMENTS = [
-    "Short-Term Cash Restriction Request",
+    "Short -Term Cash Restriction Request",
     "Account Suspension Request",
 ]
 
