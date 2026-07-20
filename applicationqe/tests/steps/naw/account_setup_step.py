@@ -426,10 +426,11 @@ def condition_to_retain_existing_account(
         funding_method = test_data.get("FundingMethod", "")
         account_setup_page.enter_funding_method(funding_method)
         # Click online access document delivery button
-        account_setup_page.click_online_document_delivery_button(
+    account_setup_page.click_online_document_delivery_button(
             "Online Access & Document Delivery button: ",
             "click on Online Access & Document Delivery button on Funding tab"
-        )
+    )   
+
              
 
 @when("Navigate to Account information page and select existing client")

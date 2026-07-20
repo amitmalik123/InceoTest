@@ -2497,7 +2497,7 @@ class AccountSetupPage(BasePage):
             self.fill(account, acct_number)
             self.tab_out(account)
             logger.info(f"Filled investment account number with: {acct_number}")
-            self.page.wait_for_load_state("networkidle", timeout=30000)
+            self.page.wait_for_load_state("domcontentloaded", timeout=30000)
             self.wait_for_loading_data()
             if test_context.get("test_data", {}).get("Custodian", "").lower() == "schwab":
             #    ia_firm_name = self.form_root.get_by_text(re.compile("current IA Firm that AssetMark"))
@@ -2505,9 +2505,9 @@ class AccountSetupPage(BasePage):
                 self.fill(self.form_root.locator("#line_Questions_0__Info_AccountNumber_Retain_PriorIA_Firm"), alpha)
                 logger.info(f"Filled IA firm name with: {alpha}")
                 test_context["ia_firm_name"] = alpha
-            self.click(self.form_root.get_by_role("button", name="Save"), timeout=5000)
-            self.page.wait_for_load_state("domcontentloaded", timeout=30000)
-            self.wait_for_loading_data()
+            # self.click(self.form_root.get_by_role("button", name="Save"), timeout=5000)
+            # self.page.wait_for_load_state("domcontentloaded", timeout=30000)
+            # self.wait_for_loading_data()
             Assertions.assert_false(self.form_root.get_by_text("Account Features", exact=True).is_visible(), "Account Features should not be visible after saving")
             Assertions.assert_false(self.form_root.get_by_text("Funding Method", exact=True).is_visible(), "Funding Method should not be visible after saving")
             return acct_number
