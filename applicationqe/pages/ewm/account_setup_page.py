@@ -515,7 +515,8 @@ class AccountSetupPage(BasePage):
     
     def _handle_income_source(self, employment_status: str, source_of_income: str = "") -> None:
         """Helper method to handle income source for unemployed status"""
-        if employment_status and ("not employed" in employment_status.lower() or "unemployed" in employment_status.lower()):
+        if employment_status and ("not employed" in employment_status.lower() or "unemployed" in employment_status.lower()
+                            ) and self.income_source_input.count() > 0:
             try:
                 income = self.income_source_input
                 income.wait_for(state="visible", timeout=10000)
@@ -528,16 +529,16 @@ class AccountSetupPage(BasePage):
     def _fill_pershing_employment_details(self, address_line1: str = "") -> None:
         """Fill Pershing employment details when fields are present."""
         try:
-            if self.employer_name_input.is_visible(timeout=2000):
+            if self.employer_name_input.is_visible(timeout=100):
                 self.employer_name_input.fill("sddsvds")
-            if self.employer_business_type_input.is_visible(timeout=2000):
+            if self.employer_business_type_input.is_visible(timeout=100):
                 self.employer_business_type_input.fill("sddsfds")
-            if self.employer_years_input.is_visible(timeout=2000):
+            if self.employer_years_input.is_visible(timeout=100):
                 self.employer_years_input.fill("6")
-            if self.employer_occupation_input.is_visible(timeout=2000):
+            if self.employer_occupation_input.is_visible(timeout=100):
                 self.employer_occupation_input.fill("testy")
 
-            if self.employer_iir_dropdown.is_visible(timeout=2000):
+            if self.employer_iir_dropdown.is_visible(timeout=100):
                 self.select_option_from_list(
                     self.employer_iir_dropdown,
                     self.employer_iir_options,
@@ -545,7 +546,7 @@ class AccountSetupPage(BasePage):
                     "Selected IIR option"
                 )
 
-            if self.employer_address_add_link.is_visible(timeout=2000):
+            if self.employer_address_add_link.is_visible(timeout=100):
                 self.employer_address_add_link.click()
                 self.page.wait_for_timeout(500)
                 hint = (address_line1.split()[-1] if address_line1 else "SHEPHERD").upper()
