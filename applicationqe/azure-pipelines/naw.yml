@@ -55,6 +55,7 @@ parameters:
       - documentsVerification
       - TrackingCenterESign
       - GNW_Ind_401k
+      - Journal
       - try
 
   - name: workers
