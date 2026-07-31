@@ -125,20 +125,27 @@ stages:
         echo "========================================"
       displayName: "Print Configuration"
 
+    # ── NOT REQUIRED (Docker agent) ───────────────────────────────────────────────────
+    # UsePythonVersion@0 is only needed on Microsoft-hosted or self-hosted agents that
+    # manage multiple Python versions. The Docker agent has Python baked into the image.
     # - task: UsePythonVersion@0
     #   inputs:
     #     versionSpec: "3.10"
     #     addToPath: true
     #   displayName: "Setup Python 3.10"
 
+    # ── NOT REQUIRED (Docker agent) ───────────────────────────────────────────────────
+    # Full editable install (pip install -e .) not needed — Docker image has the
+    # project installed. Only the runtime requirements below are needed per pipeline run.
     # - script: |
-    #     python --version
-    #     pip --version
-    #     echo "Installing Python dependencies..."
     #     python -m pip install --upgrade pip setuptools wheel
-    #     cd applicationqe
-    #     pip install -e .
-    #   displayName: "Install Python Dependencies"
+    #     cd applicationqe && pip install -e .
+    #   displayName: "Install Python Dependencies (editable)"
+
+    - script: |
+        echo "Installing missing pytest plugins not pre-installed in Docker image..."
+        pip install --root-user-action=ignore pytest-playwright pytest-rerunfailures
+      displayName: "Install Python Dependencies"
 
     - script: |
         cd applicationqe
@@ -242,17 +249,15 @@ stages:
           echo "Browser: Chromium (default)"
         fi
 
+        # Note: -v, --video, --screenshot, --tracing, --reruns, --reruns-delay,
+        # --self-contained-html are already set in pytest.ini addopts — not repeated here.
+        # --junitxml, --alluredir, --html override pytest.ini paths with CI-specific paths.
         PYTEST_CMD="pytest $TEST_TARGET \
           -m \"$(marker)\" \
           $BROWSER_PARAM \
           --junitxml=\"$(testResultsDir)/junit/junit-report.xml\" \
-          -v \
-          --video=retain-on-failure \
-          --tracing=retain-on-failure \
-          --screenshot=only-on-failure \
           --alluredir=\"$(allureResultsDir)\" \
-          --html=\"$(testResultsDir)/pytest-report.html\" \
-          --self-contained-html"
+          --html=\"$(testResultsDir)/pytest-report.html\""
 
         # Add parallel execution if workers > 1
         WORKERS_VALUE="$(workers)"
