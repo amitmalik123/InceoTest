@@ -158,23 +158,31 @@ stages:
       continueOnError: false
 
     - script: |
-        cd applicationqe
-        echo "Installing Allure CLI via pip..."
-        pip install allure-pytest
+        echo "Installing allure-pytest plugin..."
+        pip install --root-user-action=ignore allure-pytest
 
-        echo "Installing Allure CLI binary (standalone)..."
-        mkdir -p $(allureToolsDir)
+        # ── Java: skip if already in Docker image, otherwise install ──────────────────
+        if command -v java &>/dev/null; then
+          echo "Java already available in Docker image: $(java -version 2>&1 | head -1)"
+        else
+          echo "Java not found — installing default-jre-headless..."
+          sudo apt-get update -qq
+          sudo apt-get install -y --no-install-recommends default-jre-headless
+          java -version
+        fi
 
-        # Download and install Allure commandline
-        wget -q https://github.com/allure-framework/allure2/releases/download/2.25.0/allure-2.25.0.tgz
-        tar -xzf allure-2.25.0.tgz -C $(allureToolsDir)
-
-        echo "Adding Allure CLI to PATH..."
-        export PATH="$(allureToolsDir)/allure-2.25.0/bin:$PATH"
-        echo "##vso[task.prependpath]$(allureToolsDir)/allure-2.25.0/bin"
-
-        echo "Verifying Allure CLI installation..."
-        allure --version
+        # ── Allure CLI: skip if already in Docker image, otherwise download ───────────
+        if command -v allure &>/dev/null; then
+          echo "Allure CLI already available in Docker image: $(allure --version)"
+        else
+          echo "Allure CLI not found — downloading standalone binary..."
+          mkdir -p $(allureToolsDir)
+          wget -q https://github.com/allure-framework/allure2/releases/download/2.25.0/allure-2.25.0.tgz
+          tar -xzf allure-2.25.0.tgz -C $(allureToolsDir)
+          export PATH="$(allureToolsDir)/allure-2.25.0/bin:$PATH"
+          echo "##vso[task.prependpath]$(allureToolsDir)/allure-2.25.0/bin"
+          echo "Allure CLI installed: $(allure --version)"
+        fi
       displayName: "Install and Verify Allure CLI"
 
     - script: |
