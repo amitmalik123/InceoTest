@@ -34,7 +34,7 @@ stages:
   displayName: 'Test ${{ parameters.teamDisplay }}'
 
   pool:
-    name: 'ubuntu2204-qa'
+    name: 'ewm20-docker-build-agent-qa-dev'
     timeoutInMinutes: 10
 
   jobs:
