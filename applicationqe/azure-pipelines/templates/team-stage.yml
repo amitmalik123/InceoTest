@@ -144,7 +144,7 @@ stages:
 
     - script: |
         echo "Installing missing pytest plugins not pre-installed in Docker image..."
-        pip install --root-user-action=ignore pytest-playwright pytest-rerunfailures pytest-bdd
+        pip install --root-user-action=ignore pytest-playwright pytest-rerunfailures pytest-bdd openpyxl
       displayName: "Install Python Dependencies"
 
     - script: |
