@@ -125,20 +125,20 @@ stages:
         echo "========================================"
       displayName: "Print Configuration"
 
-    - task: UsePythonVersion@0
-      inputs:
-        versionSpec: "3.10"
-        addToPath: true
-      displayName: "Setup Python 3.10"
+    # - task: UsePythonVersion@0
+    #   inputs:
+    #     versionSpec: "3.10"
+    #     addToPath: true
+    #   displayName: "Setup Python 3.10"
 
-    - script: |
-        python --version
-        pip --version
-        echo "Installing Python dependencies..."
-        python -m pip install --upgrade pip setuptools wheel
-        cd applicationqe
-        pip install -e .
-      displayName: "Install Python Dependencies"
+    # - script: |
+    #     python --version
+    #     pip --version
+    #     echo "Installing Python dependencies..."
+    #     python -m pip install --upgrade pip setuptools wheel
+    #     cd applicationqe
+    #     pip install -e .
+    #   displayName: "Install Python Dependencies"
 
     - script: |
         cd applicationqe
