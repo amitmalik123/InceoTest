@@ -172,11 +172,15 @@ stages:
         if command -v java &>/dev/null; then
           echo "Java already available in Docker image: $(java -version 2>&1 | head -1)"
         else
-          echo "Java not found — installing default-jre-headless..."
-          sudo apt-get update -qq
-          sudo apt-get install -y --no-install-recommends default-jre-headless
+          echo "Java not found — installing default-jre-headless (running as root, no sudo)..."
+          apt-get update -qq
+          apt-get install -y --no-install-recommends default-jre-headless
           java -version
         fi
+        # Set JAVA_HOME explicitly so Allure CLI can find it without falling back to PATH scan
+        export JAVA_HOME=$(dirname $(dirname $(readlink -f $(which java))))
+        echo "JAVA_HOME set to: $JAVA_HOME"
+        echo "##vso[task.setvariable variable=JAVA_HOME]$JAVA_HOME"
 
         # ── Allure CLI: skip if already in Docker image, otherwise download ───────────
         if command -v allure &>/dev/null; then
