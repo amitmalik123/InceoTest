@@ -1,7 +1,7 @@
 @squad5SmokeTest
 Feature: BAW Shell Journal
 
-  @Journal @baw @prodSmoke
+  @Journal @baw @prodSmoke @try
   Scenario Outline: BAW_Shell_Add journal from BPM_WFI
     When User click on Open New Work Item button
     When Select work item type "Investment Solution Change Journal"

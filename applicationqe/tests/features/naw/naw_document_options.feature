@@ -128,7 +128,7 @@ Feature: document verification for NAW Agent New Account creation
       | SheetName | RowNumber |
       | documentsVerification       |        9  |  
 
-  @try
+
   Scenario Outline: form_bundle_document_verification_FDD
     When User is on Account Wizard tab and click on go button for New Client creation
     And User navigates to client profile page and enter required information
